@@ -435,14 +435,17 @@ def persist(cardiac_snapshot: dict | None = None,
         return snap
     try:
         LATEST.parent.mkdir(parents=True, exist_ok=True)
+        # written پیش از نوشتن ست می‌شود تا نسخهٔ روی دیسک هم صادق باشد —
+        # همان الگویِ heartstate.py::persist (قبلاً فایل همیشه written:false حمل می‌کرد).
+        snap["written"] = True
         with opslib.LockedJson(LATEST) as lj:
             lj.write(snap)
         opslib.append_jsonl(SINK, {"ts": snap["ts"], "beat": beat,
                                    "effective_period_s": snap["effective_period_s"],
                                    "driver": snap["driver"], "color": snap["color"],
                                    "wire_open": snap["wire_open"]})
-        snap["written"] = True
     except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
+        snap["written"] = False                       # fail-soft
         # WinError 5 (os.replace cross-process lock) گذراست و self-healing — تکرارِ
         # همان پیام هر epoch آلارمِ واقعی (halt/STOP) را زیر نویز می‌برد. throttle:
         # ۱ alert/saat با همان key؛ پیامِ نو همیشه فوراً عبور می‌کند (alert_throttled

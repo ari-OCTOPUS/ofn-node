@@ -200,8 +200,14 @@ def _flags_read_by(path: Path) -> tuple[dict[str, bool], set[str]]:
                         v = _lit(e)
                         if v:
                             _add(v, False)
+    # is_secret_name فقط رویِ found اعمال می‌شود (جایی که مقدار/حالتِ گیت گزارش
+    # می‌شود) — نه رویِ mentioned، که فقط برایِ پرسشِ orphan_armed («این فلگ اصلاً
+    # جایی ذکر شده؟») استفاده می‌شود. فیلترکردنِ mentioned باعث می‌شد فلگ‌هایی مثلِ
+    # OCTOPUS_HTTP_AUTH/OCTOPUS_WIRE_CB_TOKEN (که نامشان زیررشتهٔ AUTH/TOKEN دارد،
+    # نه خودِ رازی) به‌غلط «مسلح ولی بی‌خواننده» گزارش شوند — رده‌بندیِ فازِ ۴ اسکنِ
+    # ۲۰۲۶-۰۸-۰۷.
     return ({f: d for f, d in found.items() if not flag_drift.is_secret_name(f)},
-            {f for f in mentioned if not flag_drift.is_secret_name(f)})
+            set(mentioned))
 
 
 def _armed_in_file(flags_path: Path) -> set[str]:

@@ -208,6 +208,22 @@ def t_persist_flag_on_writes_only_own_sink():
         os.environ.pop(pa.FLAG_ENV, None)
 
 
+def t_on_disk_written_flag_is_true_not_just_in_memory():
+    """باگِ ۲۰۲۶-۰۸-۰۷: `snap["written"]` قبلاً *بعد از* نوشتنِ روی دیسک True
+    می‌شد، پس نسخهٔ ذخیره‌شده در arbiter-latest.json همیشه written:false حمل
+    می‌کرد — حتی وقتی نوشتن واقعاً موفق بود (همان کلاسِ باگی که در heartstate.py
+    قبلاً فیکس شده بود). تستِ بالا فقط dictِ برگشتی را می‌سنجد؛ این تست مستقیماً
+    نسخهٔ روی دیسک را می‌خواند."""
+    import os
+    os.environ[pa.FLAG_ENV] = "1"
+    try:
+        pa.persist(beat=8)
+        on_disk = pa.read_latest()
+        assert on_disk.get("written") is True, on_disk
+    finally:
+        os.environ.pop(pa.FLAG_ENV, None)
+
+
 def t_sink_write_alert_is_throttled():
     """WinError 5 گذراست و self-healing — آلارمِ تکراری هر epoch آلارمِ واقعی را
     زیر نویز می‌برد. این تست از طریقِ کدِ واقعی persist() یک شکستِ نوشتن تزریق
@@ -380,6 +396,7 @@ if __name__ == "__main__":
         ("[ح] no forbidden import", t_no_forbidden_production_import),
         ("[ط] persist flag off = no write", t_persist_flag_off_no_write),
         ("[ط] persist flag on = only own sink", t_persist_flag_on_writes_only_own_sink),
+        ("[ط] written روی دیسک True است، نه فقط در حافظه", t_on_disk_written_flag_is_true_not_just_in_memory),
         ("[ی] wire_open بسته", t_wire_open_closed_by_default),
         ("[ی] if_open → default وقتی بسته", t_effective_period_if_open_returns_default_when_closed),
         ("[ی] snapshot advisory+gated", t_snapshot_is_advisory_and_gated),

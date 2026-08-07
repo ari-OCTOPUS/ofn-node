@@ -256,6 +256,23 @@ def t_l_armed_but_unread_is_reported():
     assert "OCTOPUS_GHOSTFLAG" in dc.scan(root)["orphan_armed"]
 
 
+def t_m_a_secret_shaped_flag_name_is_not_a_false_orphan():
+    """باگِ اسکنِ ۲۰۲۶-۰۸-۰۷: `is_secret_name` (که برایِ پنهان‌کردنِ *مقدارِ* رازها
+    ساخته شده) قبلاً رویِ `mentioned` هم اعمال می‌شد، پس هر فلگی که نامش زیررشتهٔ
+    AUTH/TOKEN/KEY/... داشت — حتی وقتی واقعاً و درست خوانده می‌شد — از مجموعهٔ
+    «ذکرشده» حذف و در `orphan_armed` گزارش می‌شد. دو نمونهٔ واقعی که این‌طور
+    به‌غلط «تایپو/بی‌خواننده» گزارش شدند: `OCTOPUS_HTTP_AUTH` (گیتِ CSRF/Origin
+    چهار سرورِ HTTP) و `OCTOPUS_WIRE_CB_TOKEN` (HMACِ callbackِ تلگرام).
+    """
+    root = _sandbox(
+        flags_cmd="set OCTOPUS_HTTP_AUTH=1\n",
+        modules={"m_m.py": 'import os\n'
+                            'if os.environ.get("OCTOPUS_HTTP_AUTH") == "1":\n'
+                            '    pass\n'})
+    res = dc.scan(root)
+    assert "OCTOPUS_HTTP_AUTH" not in res["orphan_armed"], res["orphan_armed"]
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

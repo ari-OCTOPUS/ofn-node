@@ -16,9 +16,14 @@ fake-green). The OutboundWriteAheadLedger is the G-03 protection; it is NOT
 auto-wired into live SMTP here — wiring is a NEEDS_OWNER_HOOK documented in the
 report, so a "tests pass" verdict is honest about that.
 
-Nothing in this package is read by production paths today (verified: 0 readers of
-the OCTOPUS_WIRE_TG_CONTROL / OCTOPUS_WIRE_VALUE_LEDGER / agi2027_control symbols
-in _ops). The flags are STAGED, not wired. That is reported, not hidden.
+UPDATED 2026-08-07 (redesign scan, phase 6/money): the "0 readers" claim above is
+stale. This package is now imported by four production files — telegram_center/
+center.py, telegram_center/miniapp_gateway.py, telegram_center/miniapp_state.py,
+and legs/lead_outbound_transport.py (re-verified independently via grep on the
+live tree this session) — following the miniapp gateway work landed 2026-08-06/07.
+The original claim ("Nothing in this package is read by production paths today
+... The flags are STAGED, not wired") described the state as of 2026-08-02 and no
+longer reflects the live tree.
 """
 from __future__ import annotations
 

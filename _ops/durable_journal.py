@@ -2,8 +2,11 @@
 """durable_journal.py — 2027 Standards backlog #2 (P-08 diff-ب):
 run-journal سبک برای resume-not-restart.
 
-ORPHAN 2026-07-16: zero live callers (audit R-13) — kept, not deleted; candidate for _Archive on owner verdict.
-(docstring زیر یک «اتصالِ نمونه» به doctor.py پیشنهاد می‌دهد ولی هرگز سیم‌کشی نشد — grep: doctor هیچ‌جا import نمی‌کند.)
+دیگر یتیم نیست — از 2026-07-23 (C4) دو producer/consumer زندهٔ تولیدی دارد:
+doctor.doctor._journal (propose/sandbox/submit) و journal_recovery.boot_recovery
+(هر دو در organism.py/doctor.py سیم‌کشی شده‌اند). برچسبِ «ORPHAN 2026-07-16»
+که قبلاً اینجا بود کهنه/نقیضِ کامنتِ C4 پایینِ همین فایل بود — حذف شد در
+راستی‌آزماییِ اسکنِ ۲۰۲۶-۰۸-۰۷ (فازِ ۲: memory).
 منبع: 00 - Inbox/build-proposals/08-agent-orchestration-durability-2026-07-05.md
       (۱۳ منبعِ واقعیِ ۲۰۲۶: Inngest/MS Durable Task/Diagrid/LangChain/Temporal/…)
 

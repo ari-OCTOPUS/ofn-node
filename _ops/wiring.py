@@ -181,7 +181,6 @@ def apply_profile() -> str:
                 os.environ[f] = "1"
     # live: effectorهای پول به‌طور جداگانه capability-gated می‌شوند (این تابع بازشان نمی‌کند)
     return profile
-    return profile
 
 
 # ─── W-1 · germline_lag → ORGANISM-STATE (همیشه روشن، read-only) ───────────────
