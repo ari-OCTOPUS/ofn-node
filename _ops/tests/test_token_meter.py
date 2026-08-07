@@ -186,7 +186,10 @@ def t_only_fugu_roles_count_against_the_fugu_budget():
         ]
         body = "\n".join(_j.dumps(r) for r in rows) + "\n"
         p.write_text(body, encoding="utf-8")
-        d = tm.read_window(window_h=48, state_dir=td)
+        # now=NOW الزامی است (مانندِ هر read_window در این فایل): بدونِ آن، read_window
+        # به datetime.now(timezone.utc)یِ دیوارِ واقعی افتاد و چون NOW ثابتِ ۲۰۲۶-۰۸-۰۴
+        # است ولی امروز جلوتر است، پنجرهٔ ۴۸h همهٔ ردیف‌ها را کنار می‌گذاشت → calls=0.
+        d = tm.read_window(window_h=48, now=NOW, state_dir=td)
 
     assert d["calls"] == 1, ("فقط ردیفِ orchestr باید Fugu شمرده شود", d["calls"])
     assert d["visible_in"] + d["visible_out"] == 1500, d
