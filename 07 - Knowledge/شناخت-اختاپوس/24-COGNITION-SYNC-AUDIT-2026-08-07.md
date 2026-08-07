@@ -109,11 +109,27 @@ sources:
 
 ## ۸. فیکس‌ها (Task 7)
 
-**هیچ فیکسِ کدی لازم نبود.** دو مصنوعِ corruption پیدا شد، هر دو **گذرا و خودحل‌شونده**:
-۱. `_ops/neural/hebbian.json`: ساعتِ 14:50 به 533 بایتِ null خالص تبدیل شد (همان حالالتِ قطعیِ mid-writeِ budget-state.json دیروز). ولی ساعتِ 17:02:45 **خودش heal شد** — `observe()` → `_save()` اتمیک (tmp+replace، `hebbian.py:60-69`) فایل را بازنویسی کرد. کد درست است؛ مصرف‌کننده‌ها (`_jload`، `_read_json`) خطای decode را می‌بلعند.
-۲. `effect-shadow.jsonl`: یک ردیفِ null (خطِ 15867، 1179 بایت) در میانِ 15931 ردیفِ معتبر. مصرف‌کننده‌ها line-by-line با try/except می‌خوانند. طبیعتِ append-log.
+**دیپ‌اسکنِ کامل اجرا شد (مأموریتِ دومِ مالک: «همرو فیکس کن»).** یک باگِ واقعی پیدا و فیکس شد؛ بقیه یا باگ نبودند یا در دامنهٔ فقط‌خواندنی بودند.
 
-`hebbian.py` CRLF ندارد (LF-only) ولی این درست است — فقط فایل‌های `_ops/*.py`/`.cmd` CRLF می‌خواهند، نه `neural/*.py`. ۵ سوییتِ hebbian (۵۰ چک) + neural_loop_close + pain_calibration + vault_bridge + consent همگی سبز.
+### ✅ فیکس‌شده (commit `d507ed1`)
+
+**باگِ dumpِ خامِ dict در rich-think heart signal** (`_ops/cortex/cortex.py::think()`).
+تا امروز `shadow.get("signal")` یک **dict** (HeartSignal.v1: beat_seq/period_s/sigma_now/baro_factor) برمی‌گرداند و کد `q += f" قلب: {_sig}."` کلِ dict را stringify می‌کرد → prompt می‌گرفت: `قلب: {'schema':'HeartSignal.v1','beat_seq':28231,...}` — نویز برای مدل. فیکس: فیلدهایِ مفهومیِ انسان‌خواندن را پارس کن → `قلب: ریتم=325s, σ=0.00, baro=5.4.`.
+- **تست:** `test_cortex_rich_think_heart.py` (۵ چک)، همه سبز.
+- **mutation-test تأییدشده:** برگرداندنِ فیکس به dumpِ خام → t_b/t_c قرمز.
+- **regression:** test_cortex 15/15، neural_loop_close، vault_bridge 9/9 همگی سبز.
+- **CRLF:** cortex.py LF-only بود، LF-only ماند.
+- **WORKLOCK:** cortex.py فایلِ مشترک است؛ ایجنتِ موازیِ دیگری هم‌زمان INV-12/_redact روی همان فایل نوشت. این کامیت تنها hunkِ خودِ من را می‌برد (git apply --cached با patchِ تک‌hunk)؛ کارِ _redact دست‌نخورده ماند.
+
+### ❌ فیکس‌نشده (با شاهد، هرکدام دلیلِ روشن)
+
+۱. **فیلدِ `applied` در effect-shadow** (`wiring.py:1730`) — شکافِ observability، ولی `wiring.py` فایلِ مشترکِ داغ است (دو ایجنتِ دیگر هم‌زمان کار می‌کنند) → فقط‌خواندنی برای این ایجنت. سؤال در `AGENT_QUESTIONS.md`.
+۲. **consolidation salience توقف بعدِ 14:20** — **باگ نیست:** سیستم واقعاً آرام است (فقط task.completed/system.heartbeat با salience پایین). درست است که در حالتِ آرام نوتِ تازه تولید نشود. تأیید با بازسازیِ `_salience` روی رویدادهای واقعی.
+۳. **`hebbian.json` corruption (14:50)** — خودش heal شد (17:02:45، از طریق observe→`_save` اتمیک). کد درست است.
+۴. **`effect-shadow.jsonl`: یک ردیفِ null (خطِ 15867)** — append-log طبیعتش؛ مصرف‌کننده‌ها line-by-line با try/except.
+۵. **`CORTEX_CONSOLIDATE` در `TRACKED_PREFIXES` نیست** — طراحیِ عمدیِ `flag_drift.py:61` (فقط `OCTOPUS_*`).
+
+۵ سوییتِ hebbian (۵۰ چک) + neural_loop_close + pain_calibration + vault_bridge + consent همگی سبز.
 
 ## ۹. پاسخِ نهایی به سؤالِ محوری
 
