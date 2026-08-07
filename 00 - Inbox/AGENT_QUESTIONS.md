@@ -982,3 +982,37 @@ env نشت می‌دهد (اگر از قبل ۱ بوده، خاموش‌کردن
 ثبت می‌کنم. یک‌کاراکتری است و امن برای فیکس: `THINK_RICH` → `RICH_THINK` در
 خط ۶۷. همچنین این نامِ اشتباه در `UNDECLARED_FLAGS` در `test_phantom_guards.py`
 ثبت شد (با کامنتِ توضیحی) تا شمارشِ صادقانه باقی بماند.
+
+## 2026-08-07 (عصر) — ops-scan: ۳ شکستِ خارج از دامنه (تست‌های telegram/vault)
+
+جاروی run_all.py امروز ۱۲ شکست داشت؛ ۳ تا را من فیکس کردم (test_paid_router_
+dark_config → doctor_setpoint UnboundLocalError؛ test_token_meter → now=NOW؛
+test_phantom_guards → رچتِ فلگ). این سه تا خارج از دامنهٔ بنده‌اند (budget/heart/
+tests)، فقط ثبت می‌کنم:
+
+۱. **test_render_legs.py:94** (FAIL): `telegram_center/render.py::_collect_legs`
+   skeleton-note را به‌جای noteِ واقعی برمی‌گرداند — `legs["mining"]["detail"]`
+   = «۱۶۲ نود · همه خاموش · اندازه‌گیری‌نشده» در حالی که note انتظار می‌رفت. فایلِ
+   render مربوط به telegram_center است (دامنهٔ ایجنتِ دیگر). مسیر دقیق:
+   `_ops/tests/test_render_legs.py` خط ۹۴.
+
+۲. **test_tg_send_audit.py::test_absent_sites_never_increase** (FAIL): یک رچتِ
+   absent-site است که یکی از سایت‌ها پایین نیامده. در `telegram_center` /
+   ارسال. مسیر: `_ops/tests/test_tg_send_audit.py` خط ۲۲۱/۲۰۶.
+
+۳. **test_c6_trigger_propose_only.py** (FAIL): گاردِ ساختاری در
+   `_ops/doctor/doctor.py:924` حذف شده — idِ c6-* می‌تواند به apply_merge برسد.
+   doctor.py بخشِ self-knowledge است (دامنهٔ ایجنتِ اول).
+
+۴. **test_vault_hygiene_ratchet.py::t_e** (FAIL): خطای فرانت‌متر ۳۱ > دفترِ ۲۷.
+   ۴ نوت با status غیراستاندارد اضافه شده. رچتِ مالک‌سطح (MAX_FRONTMATTER).
+   اگر مالخواه پایین آورد، `_ops/tests/test_vault_hygiene_ratchet.py:43` را از
+   ۲۷ به ۳۱ برسانید؛ اگر نه، ۴ نوتِ متخف باید status درست بگیرند.
+
+۵. **test_obsidian_index_budget::t_c** (FAIL): فیلترِ `\.(sqlite3?|jsonl|...)$`
+   فایلِ `.jsonl` را می‌گیرد که محتواست نه نویز. در `_ops/tests/test_obsidian
+   _index_budget.py`.
+
+۶. **test_command_discoverability** + **test_miniapp_cockpit_ui**: مواردِ
+   telegram/miniapp (دامنهٔ ایجنتِ دیگر). `restart` در منو نیست؛ approval_store
+   از بیرونِ telegram_center import می‌شود.

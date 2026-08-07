@@ -29,6 +29,22 @@ updated: 2026-08-07
 
 ## وضعِ لحظه‌ای
 
+- 💰🔍 **2026-08-07 (عصر — گزارشِ ایجنتِ (۳) جارویِ عملیات/پول: ۳ فیکس، صفر آرم‌کردن، صفر ری‌استارت).**
+  بکاپِ خام: `C:\Users\Armin\Desktop\OCTOPUS-SCAN-OPERATIONS-2026-08-07\` (run_all + AUDIT-REPORT).
+  جوابِ صادقانه به «همه‌چیز واقعاً کار می‌کند یا فقط شبیهِ فعالیت؟»: lead امروز **صفر** است
+  ولی این درست است (propose_only:true، credential ِ SMTP نیست)؛ arbiter اکنون 🟢 سبز است
+  (نه قرمز). **سه فیکس در دامنهٔ بنده (budget/heart/tests):**
+  `de2af9c` — تلهٔ `UnboundLocalError: PriceNotLocked` در `heart/doctor_setpoint.py:175-242`
+  (مسیرِ پولی): import درونِ tryِ اصلی بود و `except PriceNotLocked` نامِ bind‌نشده را می‌زد؛
+  خودِ مسیرِ fail-softِ یک درِ پولی خراب بود. الگویِ `governor_epoch` (import جدا/تحمل‌پذیر).
+  `828b607` — `test_token_meter` شکننده: `read_window` بدونِ `now=NOW` به دیوارِ واقعی
+  می‌افتاد (کد سالم بود). `585f137` — `phantom_guards` رچت: ۲ فلگِ مسلح‌شده از دفتر پایین،
+  ۵ فلگِ production-reader اعلان (comment-only). **باگِ کلاسِ نوشتنِ غیراتمیک:** فایلِ متخف
+  (`budget_gate.py`) از قبل حذف شده؛ همهٔ stateهای پولی/ارگانی الگویِ امنِ `opslib.LockedJson`
+  دارند — صفر فیکسِ نو لازم. **۶ شکستِ خارج از دامنه** (render_legs/tg_send_audit/
+  c6_trigger/vault_hygiene/obsidian_index/miniapp) در `AGENT_QUESTIONS` ثبت شد. یک typo
+  (`CORTEX_THINK_RICH` در test_cortex_rich_think_heart.py:67) هم ثبت شد (دامنهٔ مغز).
+
 - 🚪🔍 **2026-08-07 (عصر — گزارشِ ایجنتِ (۲) سطحِ تعامل: دو ریشهٔ «نمی‌شه حرف زد» فیکس شد).**
   ممیزیِ کاملِ شواهدمحور در [[../07 - Knowledge/شناخت-اختاپوس/25-INTERACTION-SURFACE-AND-QUOTA-DEAD-END-2026-08-07|نوتِ ۲۵]].
   بکاپِ خام: `C:\Users\Armin\Desktop\OCTOPUS-SCAN-INTERACTION-2026-08-07\`. **دو فیکس:**

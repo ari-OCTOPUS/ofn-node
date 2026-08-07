@@ -28,6 +28,17 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-07 عصر (agent، operations/money-scan — گزارشِ ایجنتِ (۳)
+  از سه مگاپرامپتِ اسکن).** جوابِ صادقانه به «همه‌چیز واقعاً کار می‌کند یا فقط
+  شبیهِ فعالیت؟»: lead امروز **صفر** ولی درست است (propose_only:true، credential ِ SMTP
+  نیست)؛ arbiter اکنون 🟢 سبز (نه قرمز). سه فیکس در دامنهٔ بنده: `de2af9c` تلهٔ
+  `UnboundLocalError: PriceNotLocked` در `heart/doctor_setpoint.py` (مسیرِ پولی —
+  خودِ fail-soft خراب بود)؛ `828b607` `test_token_meter` now=NOW (تستِ شکننه، کد سالم)؛
+  `585f137` `phantom_guards` رچتِ فلگ. باگِ کلاسِ نوشتنِ غیراتمیک: فایلِ متخف از قبل
+  حذف شده، همهٔ stateهای پولی `opslib.LockedJson` دارند — صفر فیکسِ نو لازم. ۶ شکستِ
+  خارج از دامنه در `AGENT_QUESTIONS`. بکاپِ خام:
+  `C:\Users\Armin\Desktop\OCTOPUS-SCAN-OPERATIONS-2026-08-07\`.
+
 - تغییرات اخیر: **2026-08-07 عصر (agent، interaction-surface audit — گزارشِ ایجنتِ (۲)
   از سه مگاپرامپتِ اسکن: دو ریشهٔ «نمی‌شه حرف زد» فیکس شد).** مسیرِ RAG ِ vault
   (`ask_vault`) به‌طور سیستماتیک با `rg-error` می‌مرد — `.claude/worktrees/*`
