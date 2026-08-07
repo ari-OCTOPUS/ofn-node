@@ -137,6 +137,45 @@ def t_f_wave4_controlplane_cards():
         assert marker in live.OPS_PAGE, marker
 
 
+def t_g_post_error_path_is_redacted():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷: مسیرِ موفقیتِ do_POST (/api/ask) از قبل
+    _redact می‌کرد؛ مسیرِ except (خطِ ~۱۰۳۴) `str(e)` را خام می‌فرستاد.
+    اینجا واقعاً یک استثنا با یک رشتهٔ hex64-شکل (الگویِ fallbackِ
+    تضمینیِ _redact) trigger می‌شود و پاسخِ HTTP ِ واقعی بررسی می‌شود."""
+    import os as _os
+    from http.client import HTTPConnection
+    from http.server import ThreadingHTTPServer
+    import threading, time, json as _json
+
+    secret_hex64 = "a" * 64
+    orig_do_action = live.do_action
+
+    def _boom(kind):
+        raise RuntimeError("boom with secret " + secret_hex64)
+
+    port = 18773
+    _os.environ.setdefault("OCTOPUS_HTTP_AUTH", "0")   # گاردِ CSRF را برای تستِ محلی خاموش کن
+    srv = ThreadingHTTPServer(("127.0.0.1", port), live._Handler)
+    th = threading.Thread(target=srv.serve_forever, daemon=True)
+    th.start()
+    time.sleep(0.2)
+    try:
+        live.do_action = _boom
+        conn = HTTPConnection("127.0.0.1", port, timeout=5)
+        body = _json.dumps({"kind": "anything"}).encode("utf-8")
+        conn.request("POST", "/api/action", body=body,
+                     headers={"Content-Length": str(len(body))})
+        r = conn.getresponse()
+        raw = r.read().decode("utf-8")
+        conn.close()
+        assert r.status == 500, raw
+        assert secret_hex64 not in raw, "hex64 باید redact شود، نه خام برگردد: " + raw
+    finally:
+        live.do_action = orig_do_action
+        srv.shutdown()
+        th.join(timeout=5)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

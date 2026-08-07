@@ -612,6 +612,18 @@ def run_cycle(cycle: int) -> dict:
     return state
 
 
+def _redact(text: str) -> str:
+    """INV-12: پاسخِ خطای HTTP خام نباید باشد — `/ask` به providerهای پولی
+    می‌رسد (FUGU/GLM/DEEPSEEK_API_KEY) و یک استثنایِ شبکه‌ای می‌تواند کلید
+    را در متنِ خطا حمل کند. اگر لایهٔ اصلی در دسترس نبود، fail-closed:
+    جایگزینِ امن، نه متنِ خام (هم‌الگویِ live/server.py)."""
+    try:
+        import cockpit_readmodel as crm
+        return crm.redact(text)
+    except Exception:  # noqa: BLE001
+        return "⚠️ محتوا حذف شد — لایهٔ redaction در دسترس نبود"
+
+
 class _Srv(ThreadingHTTPServer):
     allow_reuse_address = False
 
@@ -685,8 +697,8 @@ class _Handler(BaseHTTPRequestHandler):
                                    max_tokens=int(body.get("max_tokens", 300)))
             self._send(200, json.dumps(out, ensure_ascii=False).encode("utf-8"))
         except Exception as e:  # noqa: BLE001
-            self._send(500, json.dumps({"ok": False, "reason": str(e)},
-                                       ensure_ascii=False).encode("utf-8"))
+            self._send(500, _redact(json.dumps({"ok": False, "reason": str(e)},
+                                                ensure_ascii=False)).encode("utf-8"))
 
     def log_message(self, *a):
         pass

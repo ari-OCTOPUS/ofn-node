@@ -225,6 +225,88 @@ def t_every_read_endpoint_has_a_ui_consumer():
     assert not orphan, f"مسیرِ خواندنی بدونِ مصرف‌کننده در UI: {orphan}"
 
 
+def t_toast_trusts_preescaped_html_not_conditional_escape():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷ (XSS، فیکس‌شده): `toast()` قبلاً بسته به
+    فارسی‌بودنِ msg یا esc می‌کرد یا خام می‌گذاشت — یعنی هر پیامِ فارسی
+    (تقریباً همه‌شان) بدونِ escape مستقیم به innerHTML می‌رفت. حالا باید
+    msg را بی‌شرط trust کند (چون msg از پیش یا رشتهٔ لفظیِ ثابت است یا با
+    esc()/ltr() ساخته شده — همان قراردادی که هر صداکنندهٔ toast در این فایل
+    از قبل رعایت می‌کند)."""
+    idx = JS.find("function toast(")
+    assert idx >= 0, "‏toast تعریف نشده"
+    body = JS[idx:idx + 500]
+    assert "w.innerHTML = msg;" in body, f"‏toast دیگر msg را بی‌شرط trust نمی‌کند: {body[:200]}"
+    assert "؀" not in body and "ۿ" not in body, \
+        "‏toast هنوز شرطِ فارسی‌بودن دارد — escapeِ نامتقارن برگشته"
+
+
+def t_home_quiet_list_always_escapes():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷ (XSS، فیکس‌شده): برعکسِ toast — اینجا رشتهٔ
+    فارسی escape می‌شد و غیرِفارسی خام می‌رفت. فهرستِ «چیزِ دیگر سالم است»
+    امروز فقط از رشته‌هایِ لفظیِ ثابت پر می‌شود، ولی escape باید بی‌شرط
+    بماند تا اگر فردا محتوایِ پویا اضافه شد، از قبل امن باشد."""
+    idx = JS.find("چیزِ دیگر سالم است")
+    assert idx >= 0, "‏فهرستِ «چیزِ دیگر سالم است» در viewHome پیدا نشد"
+    body = JS[idx:idx + 300]
+    assert "esc(c)" in body, f"‏فهرستِ آرام دیگر c را با esc() نمی‌پوشاند: {body[:200]}"
+    assert "؀" not in body and "ۿ" not in body, \
+        "‏فهرستِ آرام هنوز شرطِ فارسی‌بودن دارد — escapeِ نامتقارن برگشته"
+
+
+def t_tabs_have_aria_roles_and_roving_tabindex():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷ (دسترس‌پذیری): تبِ فارسی برای screen reader
+    قبلاً فقط یک <div> بی‌نقش بود. حالا باید role="tablist"/"tab"/"tabpanel"
+    و roving tabindex (فعال=0، بقیه=-1) داشته باشد."""
+    assert 'role="tablist"' in HTML, "‏#tabs نقشِ tablist ندارد"
+    assert 'role="tabpanel"' in HTML, "‏#content نقشِ tabpanel ندارد"
+    n_tabs = len(re.findall(r'data-tab="', HTML))
+    n_role_tab = len(re.findall(r'role="tab"', HTML))
+    assert n_role_tab == n_tabs, f"هر تب باید role=\"tab\" داشته باشد: {n_role_tab} از {n_tabs}"
+    n_selected = len(re.findall(r'aria-selected="(?:true|false)"', HTML))
+    assert n_selected == n_tabs, f"هر تب باید aria-selected داشته باشد: {n_selected} از {n_tabs}"
+    # فقط یکی tabindex=0 (تبِ فعال)، بقیه -1 — roving tabindex استاندارد
+    assert HTML.count('tabindex="0"') == 1, "دقیقاً یک تب باید tabindex=\"0\" باشد"
+    assert HTML.count('tabindex="-1"') == n_tabs - 1, "بقیهٔ تب‌ها باید tabindex=\"-1\" باشند"
+
+
+def t_tabs_keydown_handles_arrows_home_end():
+    """کیبورد: فقط کلیک کار می‌کرد. حالا Left/Right/Home/End باید تبِ بعدی/
+    قبلی/اول/آخر را focus و فعال کنند — الگوی استانداردِ ARIA tabs."""
+    idx = JS.find('tabs.addEventListener("keydown"')
+    assert idx >= 0, "‏هندلرِ keydown روی #tabs پیدا نشد"
+    body = JS[idx:idx + 700]
+    for key in ("ArrowRight", "ArrowLeft", "Home", "End"):
+        assert f'"{key}"' in body, f"کلیدِ {key} در هندلرِ کیبورد نیست: {body[:200]}"
+    assert "next.focus()" in body, "هندلرِ کیبورد focus را جابه‌جا نمی‌کند"
+
+
+def t_csp_meta_present_and_scoped():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷: بدونِ CSP، هر XSS ِ آینده مستقیم اسکریپت اجرا
+    می‌کند. باید بسته باشد (نه 'unsafe-inline' برای script)، ولی style باید
+    unsafe-inline داشته باشد (‏~۱۵ جا style="…" مستقیم در innerHTML ساخته
+    می‌شود — بدونش پیش‌نمایش ظاهراً می‌شکند)."""
+    m = re.search(r'<meta http-equiv="Content-Security-Policy" content="([^"]*)"', HTML)
+    assert m, "‏متاتگِ CSP در index.html نیست"
+    csp = m.group(1)
+    assert "default-src 'self'" in csp
+    assert "script-src" in csp and "'unsafe-inline'" not in csp.split("script-src")[1].split(";")[0], \
+        "‏script-src نباید unsafe-inline داشته باشد"
+    assert "style-src 'self' 'unsafe-inline'" in csp, \
+        "‏style-src باید unsafe-inline داشته باشد وگرنه style=\"…\" ها بی‌اثر می‌شوند"
+    assert "https://telegram.org" in csp, "‏اسکریپتِ تلگرام باید در script-src allowlist باشد"
+
+
+def t_visibility_change_rerenders_active_tab():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷: onActive فقط پشتِ bridge ِ تلگرام سیم‌کشی
+    شده — در devMode/پیش‌نمایشِ مرورگر اصلاً صدا زده نمی‌شود. رویدادِ
+    استانداردِ visibilitychange باید همان تبِ فعال را دوباره رندر کند."""
+    idx = JS.find('addEventListener("visibilitychange"')
+    assert idx >= 0, "‏هندلرِ visibilitychange پیدا نشد"
+    body = JS[idx:idx + 300]
+    assert "tab.active" in body, "‏هندلرِ visibilitychange تبِ فعال را پیدا نمی‌کند"
+    assert "render(" in body, "‏هندلرِ visibilitychange دوباره render نمی‌کند"
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]

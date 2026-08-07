@@ -1027,7 +1027,13 @@ class _Handler(BaseHTTPRequestHandler):
                 return
             self._send(404, b"{}")
         except Exception as e:  # noqa: BLE001
-            self._send(500, json.dumps({"ok": False, "reason": str(e)},
+            # FIX (deep-scan 2026-08-07): قبلاً `str(e)` به کلاینت می‌رفت — نشتِ
+            # مسیرِ فایل/پورت/ماژول. حالا پیامِ عمومی به کلاینت، جزئیات به stderr.
+            import traceback as _tb
+            import sys as _sys
+            _sys.stderr.write(f"live/server.py POST error: {type(e).__name__}: {e}\n"
+                              f"{_tb.format_exc()}\n")
+            self._send(500, json.dumps({"ok": False, "reason": "internal_error"},
                                        ensure_ascii=False).encode("utf-8"))
 
     def log_message(self, *a):

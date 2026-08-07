@@ -292,6 +292,22 @@ def _read_env_overrides() -> dict[str, str]:
     return out
 
 
+def _managed_flag_names() -> set[str]:
+    """کلیدهایی که خودِ این پنل می‌شناسد و مقدارشان قطعاً یک فلگِ ساده است
+    (0/1، پروفایل، یا cadenceِ کوتاه) — نه هر رشتهٔ دلخواهی که ممکن است
+    کسی به‌اشتباه داخلِ OCTOPUS-flags.cmd نوشته باشد."""
+    return {"OCTOPUS_PROFILE"} | {n for n, _, _ in WIRE_FLAGS} | {n for n, _, _ in CADENCE_FLAGS}
+
+
+def _safe_env_overrides() -> dict[str, str]:
+    """نسخهٔ قابلِ‌انتشارِ `_read_env_overrides()` — فقط کلیدهایِ مدیریت‌شده.
+    `_read_env_overrides()` هر خطِ `set KEY=VALUE` را خام برمی‌گرداند، شاملِ
+    کلیدهایِ «unmanaged» (F-3 در `_settings_save`) که هر مقداری می‌توانند
+    داشته باشند — این تابع همان‌ها را از پاسخِ عمومی/JSON بیرون نگه می‌دارد."""
+    managed = _managed_flag_names()
+    return {k: v for k, v in _read_env_overrides().items() if k in managed}
+
+
 def _effective_flags() -> dict[str, bool]:
     """حالتِ مؤثرِ هر flag: env override > profile-default > actual-os.environ."""
     profile = _read_env_overrides().get("OCTOPUS_PROFILE") or os.environ.get("OCTOPUS_PROFILE", "paper-full")
@@ -852,7 +868,7 @@ def _write_env(form: dict[str, str]) -> str:
         lines.append(f"set {name}={val}")
     # F-3: کلیدهای unmanaged (گاردهای ضدجعلِ human-append، مسیریابیِ مغز، اولاما، ...) را
     # از فایلِ موجود seed کن تا این بازسازیِ atomic آن‌ها را بی‌صدا پاک نکند (OWASP-A05).
-    _managed = {"OCTOPUS_PROFILE"} | {n for n, _, _ in WIRE_FLAGS} | {n for n, _, _ in CADENCE_FLAGS}
+    _managed = _managed_flag_names()
     for _k, _v in _read_env_overrides().items():
         if _k not in _managed and _v is not None:
             lines.append(f"set {_k}={_v}")
@@ -898,7 +914,7 @@ class _Handler(BaseHTTPRequestHandler):
             self._json(_read_json("ORGANISM-STATE.json"))
         elif path == "/api/flags":
             self._json({"profile": _effective_profile(), "flags": _effective_flags(),
-                        "cadences": _effective_cadences(), "env_overrides": _read_env_overrides()})
+                        "cadences": _effective_cadences(), "env_overrides": _safe_env_overrides()})
         else:
             self.send_response(404)
             self.end_headers()

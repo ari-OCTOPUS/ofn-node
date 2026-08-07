@@ -6,6 +6,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷: بسته‌ترین CSP ای که واقعاً کار می‌کند —
+     نه یک الگوی عمومی. با ممیزیِ دستیِ خودِ فایل‌ها تنظیم شده:
+     style-src نیاز به unsafe-inline دارد چون ~۱۵ جا style="…" مستقیم در
+     innerHTML ساخته می‌شود (نه <style> تزریقی — همان چیزی که این خط اجازه
+     می‌دهد)؛ script-src فقط تلگرام (خطِ زیر) و خودِ همین مبدأ؛ connect-src
+     فقط 'self' چون api()/apiPost() هرگز cross-origin فچ نمی‌کنند.
+     frame-ancestors عمداً این‌جا نیست: طبق مشخصات، <meta> آن را نادیده
+     می‌گیرد — نوشتنش فقط توهمِ محافظت می‌داد؛ باید (اگر لازم شد) از
+     هدرِ HTTP خودِ gateway بیاید، نه از این تگ. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; object-src 'none'">
 <title>Octopus Cockpit</title>
 <link rel="stylesheet" href="/miniapp/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -33,18 +43,18 @@
   <div class="hdrbtns" id="hdrBtns"></div>
 </div>
 
-<div class="tabs" id="tabs">
-  <div class="tab active" data-tab="home">خانه</div>
-  <div class="tab" data-tab="approvals">تأییدها</div>
-  <div class="tab" data-tab="money">پول</div>
-  <div class="tab" data-tab="leads">لیدها</div>
-  <div class="tab" data-tab="tasks">کارها</div>
-  <div class="tab" data-tab="system">سیستم</div>
-  <div class="tab" data-tab="notifications">اعلان‌ها</div>
+<div class="tabs" id="tabs" role="tablist" aria-label="بخش‌های کوکپیت">
+  <div class="tab active" data-tab="home" role="tab" id="tab-home" aria-selected="true" aria-controls="content" tabindex="0">خانه</div>
+  <div class="tab" data-tab="approvals" role="tab" id="tab-approvals" aria-selected="false" aria-controls="content" tabindex="-1">تأییدها</div>
+  <div class="tab" data-tab="money" role="tab" id="tab-money" aria-selected="false" aria-controls="content" tabindex="-1">پول</div>
+  <div class="tab" data-tab="leads" role="tab" id="tab-leads" aria-selected="false" aria-controls="content" tabindex="-1">لیدها</div>
+  <div class="tab" data-tab="tasks" role="tab" id="tab-tasks" aria-selected="false" aria-controls="content" tabindex="-1">کارها</div>
+  <div class="tab" data-tab="system" role="tab" id="tab-system" aria-selected="false" aria-controls="content" tabindex="-1">سیستم</div>
+  <div class="tab" data-tab="notifications" role="tab" id="tab-notifications" aria-selected="false" aria-controls="content" tabindex="-1">اعلان‌ها</div>
 </div>
 
 <div id="warn"></div>
-<div id="content"><div class="loading">در حال بارگذاری…</div></div>
+<div id="content" role="tabpanel" aria-labelledby="tab-home"><div class="loading">در حال بارگذاری…</div></div>
 
 <script src="/miniapp/tg_shell.js"></script>
 <script src="/miniapp/app.js"></script>

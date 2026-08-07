@@ -231,6 +231,54 @@ def test_effective_flags_bare():
             os.environ.pop("OCTOPUS_PROFILE", None)
 
 
+# ── ۸. /api/flags نباید کلیدِ unmanaged را نشان دهد (ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷) ─────
+def test_safe_env_overrides_drops_unmanaged_keys():
+    """`_read_env_overrides()` هر خطِ `set KEY=VALUE` را خام برمی‌گرداند — شاملِ
+    کلیدهایِ ناشناخته که ممکن است هر مقداری (حتی چیزی شبیهِ secret) داشته باشند.
+    `_safe_env_overrides()` باید فقط کلیدهایِ مدیریت‌شده را نگه دارد."""
+    orig = dash._read_env_overrides
+    try:
+        fake_managed_name = dash.WIRE_FLAGS[0][0]
+        dash._read_env_overrides = lambda: {
+            fake_managed_name: "1",
+            "OCTOPUS_PROFILE": "paper-full",
+            "SOME_RANDOM_TOKEN": "<REDACTED-OPENAI-KEY>",
+        }
+        out = dash._safe_env_overrides()
+        assert out == {fake_managed_name: "1", "OCTOPUS_PROFILE": "paper-full"}, out
+        assert "SOME_RANDOM_TOKEN" not in out, "کلیدِ unmanaged باید بیرون بماند"
+    finally:
+        dash._read_env_overrides = orig
+
+
+def test_api_flags_endpoint_never_leaks_unmanaged_key():
+    """تستِ end-to-end واقعی: یک درخواستِ HTTP ِ واقعی به /api/flags، با یک
+    ENV_FILE ِ ساختگی که یک خطِ unmanaged دارد — پاسخ نباید آن خط را داشته باشد."""
+    orig_env_file = dash.ENV_FILE
+    with tempfile.TemporaryDirectory() as d:
+        fake_env = Path(d) / "OCTOPUS-flags.cmd"
+        fake_env.write_text(
+            "set OCTOPUS_PROFILE=paper-full\r\n"
+            "set NOT_A_REAL_FLAG_JUST_A_TOKEN=sk-shaped-value-1234\r\n",
+            "utf-8")
+        dash.ENV_FILE = fake_env
+        port = 18770
+        conn, srv = _start_server(port)
+        try:
+            conn.request("GET", "/api/flags")
+            r = conn.getresponse()
+            body = r.read().decode("utf-8")
+            assert r.status == 200
+            assert "sk-shaped-value-1234" not in body, "مقدارِ unmanaged نباید در پاسخ باشد"
+            assert "NOT_A_REAL_FLAG_JUST_A_TOKEN" not in body, "کلیدِ unmanaged نباید در پاسخ باشد"
+            d2 = json.loads(body)
+            assert d2["env_overrides"].get("OCTOPUS_PROFILE") == "paper-full"
+        finally:
+            conn.close()
+            srv.shutdown()
+            dash.ENV_FILE = orig_env_file
+
+
 # ── ۷. self-test runner ──────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import harness
@@ -246,5 +294,7 @@ if __name__ == "__main__":
         ("write targets فقط control-files", test_write_targets_only_control_files),
         ("effective flags default", test_effective_flags_profile_default),
         ("effective flags bare", test_effective_flags_bare),
+        ("safe_env_overrides کلیدِ unmanaged را حذف می‌کند", test_safe_env_overrides_drops_unmanaged_keys),
+        ("/api/flags کلیدِ unmanaged نشت نمی‌دهد", test_api_flags_endpoint_never_leaks_unmanaged_key),
     ])
     sys.exit(1 if failed else 0)

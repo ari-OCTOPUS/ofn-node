@@ -8,6 +8,10 @@
   var tg = window.Telegram && window.Telegram.WebApp;
   var devMode = !tg || !tg.initData;
   var content = document.getElementById("content");
+  // FIX (deep-scan 2026-08-07): stale-fetch guard — هر render() این را increment
+  // می‌کند؛ callback‌های async قبل از نوشتنِ innerHTML چک می‌کنند که آیا هنوز
+  // رندرِ فعلی‌اند یا کاربر تب را عوض کرده. اگر stale بودند، silent return.
+  var _renderSeq = 0;
   var warn = document.getElementById("warn");
   var coreLead = document.getElementById("coreLead");
   var coreSub = document.getElementById("coreSub");
@@ -53,6 +57,18 @@
     }
   }) : {caps:{}, wired:[], mode:"none"};
 
+  // ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷: بازگشت به تب — رویدادِ استاندارد، بیرونِ
+  // Telegram هم (devMode/پیش‌نمایشِ مرورگر). مکملِ onActive بالاست، نه
+  // جایگزینش: آن‌جا فقط پشتِ bridge ِ تلگرام سیم‌کشی شده و در devMode
+  // اصلاً صدا زده نمی‌شود.
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState !== "visible") return;
+    try {
+      var act = document.querySelector("#tabs .tab.active");
+      if (act) { render(act.getAttribute("data-tab")); }
+    } catch(e){}
+  });
+
   // دکمه‌ها فقط وقتی ساخته می‌شوند که کلاینت واقعاً پشتیبانی کند — دکمه‌ای
   // که کار نکند بدتر از نبودنش است.
   (function(){
@@ -92,13 +108,38 @@
      */
   })();
 
-  // tabs
+  // tabs — ARIA tablist: role="tab" روی هر برگه، roving tabindex، و کیبورد
+  // (چپ/راست/Home/End/Enter) — قبلاً فقط کلیک کار می‌کرد.
   var tabs = document.getElementById("tabs");
+  function activateTab(t){
+    if(!t) return;
+    [].forEach.call(tabs.children, function(x){
+      x.classList.remove("active");
+      x.setAttribute("aria-selected", "false");
+      x.setAttribute("tabindex", "-1");
+    });
+    t.classList.add("active");
+    t.setAttribute("aria-selected", "true");
+    t.setAttribute("tabindex", "0");
+    content.setAttribute("aria-labelledby", t.id);
+    render(t.getAttribute("data-tab"));
+  }
   tabs.addEventListener("click", function(e){
     var t = e.target.closest(".tab"); if(!t) return;
-    [].forEach.call(tabs.children, function(x){x.classList.remove("active");});
-    t.classList.add("active");
-    render(t.getAttribute("data-tab"));
+    activateTab(t);
+  });
+  tabs.addEventListener("keydown", function(e){
+    var cur = e.target.closest(".tab"); if(!cur) return;
+    var list = [].slice.call(tabs.children);
+    var i = list.indexOf(cur);
+    if(i < 0) return;
+    var next = null;
+    if(e.key === "ArrowRight") next = list[(i + 1) % list.length];
+    else if(e.key === "ArrowLeft") next = list[(i - 1 + list.length) % list.length];
+    else if(e.key === "Home") next = list[0];
+    else if(e.key === "End") next = list[list.length - 1];
+    else if(e.key === "Enter" || e.key === " "){ activateTab(cur); e.preventDefault(); return; }
+    if(next){ e.preventDefault(); next.focus(); activateTab(next); }
   });
 
   function tgHeaders(extra){ var h=extra||{}; if(tg && tg.initData){ h["X-Tg-Init-Data"] = tg.initData; } return h; }
@@ -135,10 +176,14 @@
   }
   function act(action, payload, btn){
     if(btn){ btn.disabled = true; btn.setAttribute("data-busy","1"); }
+    // FIX (deep-scan 2026-08-07): اگر fetch هنگ کند (سرور قبول می‌کند ولی پاسخ
+    // نمی‌دهد)، دکمه برای همیشه disabled می‌ماند. ۳۰s watchdog آن را آزاد می‌کند.
+    if(btn){ var _btnT = setTimeout(function(){ btn.disabled=false; btn.removeAttribute("data-busy"); }, 30000); }
     if(tg && tg.HapticFeedback){ try{ tg.HapticFeedback.impactOccurred("light"); }catch(e){} }
     return apiPost("/api/actions", {action:action, payload:payload||{},
                                     action_id: actionIdOf(action, payload)})
       .then(function(r){
+        if(btn && _btnT) clearTimeout(_btnT);   // watchdog لغو شد — پاسخ آمد
         var st = String((r&&r.status)||"ERROR").toUpperCase();
         var tone = ACT_TONE[st] || "warn";
         var msg = ACT_FA[st] || st;
@@ -155,11 +200,21 @@
       .then(function(r){ if(btn){ btn.disabled=false; btn.removeAttribute("data-busy"); } return r; });
   }
   var _toastT = null;
+  // ⚠️ XSS (فیکس‌شده، اصلاح‌شدهٔ دوم — دو ایجنتِ موازی امروز اینجا برخورد
+  // کردند): نسخهٔ اول innerHTML=msg بدونِ شرط بود؛ یک تلاشِ بعدی (هم‌زمان،
+  // ایجنتِ دیگر) آن را به textContent=msg عوض کرد چون «هرگز HTML تزریق
+  // نمی‌کند». هر دو درست می‌گفتند برای رشتهٔ لفظی، ولی act() (بالاتر) وقتی
+  // BLOCKED با reason برمی‌گردد، msg را با ltr(reason) می‌سازد — یعنی msg
+  // واقعاً حاویِ `<span dir="ltr">...</span>` است. textContent آن span را
+  // به‌صورتِ متنِ خام (خودِ تگ‌ها) نشان می‌داد، نه رندر می‌کرد — رگرسیونِ
+  // بصریِ واقعی. راه‌حل: msg را trust کن (قراردادِ innerHTML=html ِ همهٔ
+  // این فایل: مقدارِ ورودی از پیش امن است — رشتهٔ لفظیِ ثابت یا از
+  // esc()/ltr() ساخته‌شده)، نه escape ی جدید و نه textContent.
   function toast(msg, tone){
     var w = document.getElementById("toast");
     if(!w){ w = document.createElement("div"); w.id = "toast"; document.body.appendChild(w); }
     w.className = "toast " + (tone||"warn") + " show";
-    w.innerHTML = /[؀-ۿ]/.test(msg) ? msg : esc(msg);
+    w.innerHTML = msg;
     if(_toastT) clearTimeout(_toastT);
     _toastT = setTimeout(function(){ w.className = "toast " + (tone||"warn"); }, 4200);
   }
@@ -342,6 +397,7 @@
       btn.addEventListener("click", function(){
         var pid = btn.getAttribute("data-pid");
         var card = btn.closest(".titem");
+        if(!card) return;   // FIX: null guard — DOM ممکن است re-render شده باشد
         var slot = card.querySelector(".pend");
         // تپِ دوم روی همان دکمه = لغو. ساده‌ترین حرکتی که انگشت می‌شناسد.
         if(_timers[pid]){ cancel(pid, slot, card); return; }
@@ -577,9 +633,11 @@
   function renderPF(el){
     el = el || content;
     el.innerHTML = '<div class="loading">در حال بارگذاری Project-F…</div>';
+    var myseq = _renderSeq;
     Promise.all([api("/api/pf/status"), api("/api/pf/gates"), api("/api/pf/queue"),
                  api("/api/pf/kpi"), api("/api/pf/guards"), api("/api/pf/capabilities")])
     .then(function(all){
+      if(_renderSeq !== myseq) return;
       var st=all[0]||{}, gt=all[1]||{}, q=all[2]||{}, kpi=all[3]||{}, gd=all[4]||{}, cap=all[5]||{};
 
       // یک پیامِ صریح به‌جای کارت‌های نیمه‌خالی — کاربر باید بداند «چرا خالی است».
@@ -1100,9 +1158,11 @@
   function viewHome(el){
     el = el || content;
     el.innerHTML = '<div class="loading">در حال بارگذاری…</div>';
+    var myseq = _renderSeq;   // stale-fetch guard
     Promise.all([api("/api/state"), api("/api/approvals"), api("/api/ops/tasks"),
                  api("/api/governor"), api("/api/obsidian"), api("/api/legs")])
       .then(function(a){
+        if(_renderSeq !== myseq) return;   // کاربر تب را عوض کرده — stale، ننویس
         var st=a[0]||{}, ap=a[1]||{}, tk=a[2]||{}, gv=a[3]||{}, ob=a[4]||{}, lg=a[5]||{};
         if(st.status==="error"){ el.innerHTML='<div class="err">خطا: '+esc(st.reason)+'</div>'; return; }
         // ⚠️ `unknown` جدا از `error` است و تا امروز اصلاً گرفته نمی‌شد.
@@ -1205,10 +1265,15 @@
           if(rest>0) calm.unshift(fa(rest)+" موردِ کم‌فوریت‌ترِ دیگر");
         }
         if(calm.length){
+          // ⚠️ XSS (فیکس‌شده): اینجا برعکسِ toast() بود — رشتهٔ فارسی escape
+          // می‌شد، رشتهٔ غیرِفارسی خام می‌رفت. calm همیشه از رشته‌هایِ لفظیِ
+          // ثابت پر می‌شود (بالاتر در همین تابع، calm.push("...")) پس امروز
+          // خطرِ زنده‌ای نبود، ولی همیشه escape کردن هزینه‌ای ندارد و اگر
+          // یک روز محتوایِ پویا اینجا اضافه شود، از قبل امن است.
           html += '<details class="quiet"><summary>'+fa(calm.length)+' چیزِ دیگر سالم است</summary>'+
                   '<div class="inner">'+calm.map(function(c){
                     return '<div class="row"><span class="k">✓</span><span class="v">'+
-                      (/[؀-ۿ]/.test(c)?esc(c):c)+'</span></div>'; }).join("")+
+                      esc(c)+'</span></div>'; }).join("")+
                   '</div></details>';
         }
         html += '<details class="quiet"><summary>وضعِ فنی</summary><div class="inner">'+
@@ -1726,7 +1791,9 @@
                ["/api/selfmap","نقشهٔ خودآگاهی"], ["/api/ops/brain","مغز"],
                ["/api/governor","ناظر"], ["/api/obsidian","ابسیدین"],
                ["/api/current-truth","حقیقتِ جاری"], ["/api/ui-registry","رجیستری"]];
+    var myseq = _renderSeq;
     Promise.all(EPS.map(function(e){ return api(e[0]); })).then(function(rs){
+      if(_renderSeq !== myseq) return;
       var bad = [], unk = [], fine = 0;
       rs.forEach(function(d, i){
         var s = String(((d||{}).status)||"ok"), name = EPS[i][1];
@@ -1776,9 +1843,12 @@
   // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز
   // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.
   function render(name){
+    _renderSeq++;   // stale-fetch guard: هر رندرِ نو توکنِ قبلی را باطل می‌کند
     var fn = renderers[name];
     if(!fn){
-      el.innerHTML = '<div class="card"><h2>این تب هنوز رندرکننده ندارد</h2>'+
+      // FIX (deep-scan 2026-08-07): قبلاً `el` تعریف‌نشده بود → ReferenceError.
+      // محتوای خطا باید رویِ content (همان DOM که بقیه استفاده می‌کنند) بنویسد.
+      content.innerHTML = '<div class="card"><h2>این تب هنوز رندرکننده ندارد</h2>'+
         '<div class="muted">تبِ «'+esc(name)+'» در HTML هست ولی هیچ تابعی آن را نمی‌سازد. '+
         'این پیام عمدی است: قبلاً بی‌صدا صفحهٔ خانه نشان داده می‌شد.</div></div>';
       return;

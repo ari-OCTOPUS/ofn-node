@@ -318,6 +318,45 @@ def t_h_cockpit_cortex_tab():
     assert "123:abc" not in txt
 
 
+def t_m_ask_endpoint_error_path_is_redacted():
+    """ممیزیِ وب‌اپ ۲۰۲۶-۰۸-۰۷: `/ask` به providerهای پولی می‌رسد (FUGU/GLM/
+    DEEPSEEK_API_KEY)؛ مسیرِ except قبلاً `str(e)` را خام می‌فرستاد — دقیقاً
+    همان کلاسِ باگِ live/server.py. اینجا واقعاً یک استثنا با رشتهٔ hex64-شکل
+    trigger می‌شود و پاسخِ HTTP ِ واقعی بررسی می‌شود."""
+    import os as _os
+    from http.client import HTTPConnection
+    from http.server import ThreadingHTTPServer
+    import threading as _th
+
+    secret_hex64 = "b" * 64
+    orig_ask = model_router.ask
+
+    def _boom(*a, **kw):
+        raise RuntimeError("boom with secret " + secret_hex64)
+
+    port = 18772
+    _os.environ.setdefault("OCTOPUS_HTTP_AUTH", "0")
+    srv = ThreadingHTTPServer(("127.0.0.1", port), cx._Handler)
+    th = _th.Thread(target=srv.serve_forever, daemon=True)
+    th.start()
+    time.sleep(0.2)
+    try:
+        cx.model_router.ask = _boom
+        conn = HTTPConnection("127.0.0.1", port, timeout=5)
+        body = json.dumps({"task": "daily", "prompt": "x"}).encode("utf-8")
+        conn.request("POST", "/ask", body=body,
+                     headers={"Content-Length": str(len(body))})
+        r = conn.getresponse()
+        raw = r.read().decode("utf-8")
+        conn.close()
+        assert r.status == 500, raw
+        assert secret_hex64 not in raw, "hex64 باید redact شود، نه خام برگردد: " + raw
+    finally:
+        cx.model_router.ask = orig_ask
+        srv.shutdown()
+        th.join(timeout=5)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
