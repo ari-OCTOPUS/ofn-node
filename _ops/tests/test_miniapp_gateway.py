@@ -192,6 +192,26 @@ def t_actions_post_requires_owner_auth_and_blocks_without_it():
     st, payload, _ = mg.handle("POST", "/api/actions", {"_body": body}, fetch_fn=_fetch(), now=NOW)
     assert st == 403, (st, payload)
     assert b"owner_auth_required" in payload
+def t_actions_post_is_rate_limited_after_window_capacity():
+    old_n = mg._ACTION_MAX_PER_WINDOW
+    old_w = mg._ACTION_WINDOW_S
+    mg._ACTION_HITS[:] = []
+    try:
+        mg._ACTION_MAX_PER_WINDOW = 2
+        mg._ACTION_WINDOW_S = 10.0
+        assert mg._action_rate_limited(NOW) is False
+        assert mg._action_rate_limited(NOW + 1) is False
+        assert mg._action_rate_limited(NOW + 2) is True
+        assert mg._action_rate_limited(NOW + 12) is False
+        src = Path(mg.__file__).read_text("utf-8")
+        block = src[src.index('if p == "/api/actions":'):src.index('if p == "/api/miniapp":')]
+        assert 'if _action_rate_limited(now):' in block and '429' in block
+    finally:
+        mg._ACTION_HITS[:] = []
+        mg._ACTION_MAX_PER_WINDOW = old_n
+        mg._ACTION_WINDOW_S = old_w
+
+
 def t_owner_can_create_local_lead_but_onlyfans_automation_is_blocked():
     with tempfile.TemporaryDirectory() as d:
         old = {k: os.environ.get(k) for k in ("OCTOPUS_OPS_RUNTIME_DIR", "OCTOPUS_OPS_DB_PATH", "OCTOPUS_OPS_AUDIT_PATH", "OCTOPUS_OPS_IDEMPOTENCY_PATH")}

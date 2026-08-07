@@ -29,6 +29,7 @@ import json
 import os
 import socket
 import sys
+import threading
 import time
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -82,6 +83,26 @@ READ_API_PATHS = {
 # برای بازگشتِ صریح به رفتارِ قدیم (نبایدِ owner-decision، نه پیش‌فرض): این env
 # را به "0" ست کن.
 READ_GATE_FLAG = "OCTOPUS_MINIAPP_READ_OWNER_GATE"
+
+# 2026-08-07 deep-scan follow-up: owner-auth is not a spam/replay limit.
+# Keep POST /api/actions fail-closed under a short in-memory window.
+_ACTION_WINDOW_S = 10.0
+_ACTION_MAX_PER_WINDOW = 12
+_ACTION_HITS = []
+_ACTION_LOCK = threading.RLock()
+
+
+def _action_rate_limited(now: "float | None" = None) -> bool:
+    """Short in-memory rate-limit for POST /api/actions."""
+    t = float(now if now is not None else time.monotonic())
+    with _ACTION_LOCK:
+        cutoff = t - _ACTION_WINDOW_S
+        while _ACTION_HITS and _ACTION_HITS[0] < cutoff:
+            _ACTION_HITS.pop(0)
+        if len(_ACTION_HITS) >= _ACTION_MAX_PER_WINDOW:
+            return True
+        _ACTION_HITS.append(t)
+        return False
 
 
 def enabled() -> bool:
@@ -368,6 +389,8 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
         init_data = _get_header(headers, "X-Tg-Init-Data") or ""
         if not token or not owner or validate_init_data(init_data, bot_token=token, owner_id=owner, now=now) is None:
             return 403, b'{"ok":false,"status":"DENIED","reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _action_rate_limited(now):
+            return 429, b'{"ok":false,"status":"DENIED","reason":"rate_limited"}', "application/json; charset=utf-8"
         try:
             raw_body = b""
             try:
