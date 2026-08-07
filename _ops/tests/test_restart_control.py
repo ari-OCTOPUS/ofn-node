@@ -124,6 +124,123 @@ def t_in_flight_clears_after_report():
     assert rc.is_restart_in_flight() is False
 
 
+def t_cancel_request_clears_in_flight_guard():
+    """ap:no روی jobِ process_restart باید cancel_request صدا بزند تا مالک
+    بتواند فوراً /restart دیگری بزند — بدونِ این، گاردِ هم‌زمانی برای همیشه
+    رد می‌کرد (rejected-forever bug)."""
+    _reset()
+    with _Flag(rc.FLAG, "1"):
+        rc.request_restart("organism", job_id="j1")
+    assert rc.is_restart_in_flight() is True
+    rc.cancel_request()
+    assert rc.is_restart_in_flight() is False
+    assert rc._load_request() is None
+    with _Flag(rc.FLAG, "1"):
+        r2 = rc.request_restart("center", job_id="j2")
+    assert r2["ok"] is True, r2
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# (۷) beat — گزارشِ نتیجه به مالک از center.py
+# ════════════════════════════════════════════════════════════════════════════
+class _FakeClient:
+    def __init__(self):
+        self.sent = []
+        self.owner_chat_id = 999
+
+    def send(self, text, *, chat_id=None, **kw):
+        self.sent.append({"text": text, "chat_id": chat_id})
+        return 1
+
+
+class _FakeCenterNoRoute:
+    def __init__(self):
+        self._client = _FakeClient()
+
+
+class _FakeCenterWithRoute:
+    def __init__(self):
+        self._client = _FakeClient()
+        self.routed = []
+
+    def _route_send(self, stream, text, **kw):
+        self.routed.append({"stream": stream, "text": text})
+        return 1
+
+
+def t_beat_flag_off_does_nothing():
+    _reset()
+    with _Flag(rc.FLAG, None):
+        out = rc.beat(_FakeCenterNoRoute())
+    assert out == {"reported": False, "reason": "flag-off"}, out
+
+
+def t_beat_no_result_yet_does_nothing():
+    _reset()
+    with _Flag(rc.FLAG, "1"):
+        rc.request_restart("organism", job_id="j1")
+        out = rc.beat(_FakeCenterNoRoute())
+    assert out == {"reported": False}, out
+
+
+def t_beat_reports_via_client_send_without_route():
+    _reset()
+    with _Flag(rc.FLAG, "1"):
+        rc.request_restart("organism", job_id="j1")
+    rec = rc._load_request()
+    rec["status"] = "executing"
+    rc._LOG_DIR.mkdir(parents=True, exist_ok=True)
+    log = rc._LOG_DIR / "fake.log"
+    log.write_text("OK: organism running with fresh code.\n", "utf-8")
+    rec["log_path"] = str(log)
+    rc._save_request(rec)
+    center = _FakeCenterNoRoute()
+    with _Flag(rc.FLAG, "1"):
+        out = rc.beat(center)
+    assert out == {"reported": True}, out
+    assert len(center._client.sent) == 1, center._client.sent
+    assert "organism" in center._client.sent[0]["text"]
+    assert center._client.sent[0]["chat_id"] == 999
+
+
+def t_beat_prefers_route_send_when_available():
+    _reset()
+    with _Flag(rc.FLAG, "1"):
+        rc.request_restart("all", job_id="j1")
+    rec = rc._load_request()
+    rec["status"] = "executing"
+    rc._LOG_DIR.mkdir(parents=True, exist_ok=True)
+    log = rc._LOG_DIR / "fake.log"
+    log.write_text("RESULT: OK - every limb restarted.\n", "utf-8")
+    rec["log_path"] = str(log)
+    rc._save_request(rec)
+    center = _FakeCenterWithRoute()
+    with _Flag(rc.FLAG, "1"):
+        out = rc.beat(center)
+    assert out == {"reported": True}, out
+    assert len(center.routed) == 1, center.routed
+    assert not center._client.sent, "وقتی _route_send هست نباید client.send مستقیم صدا زده شود"
+
+
+def t_beat_only_reports_once():
+    _reset()
+    with _Flag(rc.FLAG, "1"):
+        rc.request_restart("organism", job_id="j1")
+    rec = rc._load_request()
+    rec["status"] = "executing"
+    rc._LOG_DIR.mkdir(parents=True, exist_ok=True)
+    log = rc._LOG_DIR / "fake.log"
+    log.write_text("OK: organism running with fresh code.\n", "utf-8")
+    rec["log_path"] = str(log)
+    rc._save_request(rec)
+    center = _FakeCenterNoRoute()
+    with _Flag(rc.FLAG, "1"):
+        rc.beat(center)
+        out2 = rc.beat(center)
+    assert out2 == {"reported": False}, out2
+    assert len(center._client.sent) == 1
+
+
 # ════════════════════════════════════════════════════════════════════════════
 # (۴) execute_restart بدونِ درخواستِ pending
 # ════════════════════════════════════════════════════════════════════════════

@@ -35,6 +35,7 @@ import os
 import re
 import sys
 import time
+import uuid
 from pathlib import Path
 
 # ── bootstrap مسیر (idiomِ codebase: opslib از _ops/budget) ────────────────────
@@ -759,6 +760,74 @@ class Center:
         lines.append("تصمیم از تبِ «تأیید»ِ مینی‌اپ.")
         return "\n".join(lines)
 
+    def _restart_card(self, job_id: str, scope: str) -> tuple:
+        """کارتِ تأییدِ یک jobِ `process_restart` — همان الگوی mintِ
+        `_approvals_queue_page` ولی برای یک job، نه کلِ صف (پاسخِ فوریِ
+        `/restart` بدونِ نیاز به باز کردنِ تبِ تأییدها)."""
+        txt = (f"🔁 <b>درخواستِ ری‌استارت</b>\n"
+               f"scope: <code>{_scrub(scope)}</code>\n"
+               f"با تأیید، عملیات همین الان شروع می‌شود و نتیجه گزارش می‌شود.")
+        job = {}
+        try:
+            job = aps_mod.get(job_id) or {}
+        except Exception:  # noqa: BLE001
+            job = {}
+        kb = [[{"text": "✅ تأیید و اجرا", "callback_data": f"ap:ok:{job_id}"},
+               {"text": "❌ لغو", "callback_data": f"ap:no:{job_id}"}]]
+        try:
+            if cbtok.flag_on():
+                owner = getattr(self._client, "owner_chat_id", None)
+                exp = str(job.get("expires_epoch", ""))
+                tok_ok = cbtok.mint(job_id, "ok", owner,
+                                    self._ap_action_hash("ok", job_id, job), exp)
+                tok_no = cbtok.mint(job_id, "no", owner,
+                                    self._ap_action_hash("no", job_id, job), exp)
+                if tok_ok and tok_no:
+                    kb = [[{"text": "✅ تأیید و اجرا", "callback_data": f"ap:ok:{job_id}:{tok_ok}"},
+                           {"text": "❌ لغو", "callback_data": f"ap:no:{job_id}:{tok_no}"}]]
+        except Exception:  # noqa: BLE001 — mint اختیاری؛ خطا = کارتِ tokenless
+            pass
+        return txt, kb
+
+    def _restart_cmd(self, text: str):
+        """`/restart` یا `/restart <scope>` — درخواستِ ری‌استارتِ کنترل‌شده
+        (۲۰۲۶-۰۸-۰۷، خواستِ صریحِ مالک: trigger فقط دستی، تأیید داخلِ همین چت).
+
+        فقط ثبت می‌کند و کارتِ ap:ok/ap:no برمی‌گرداند — اجرای واقعی
+        (`restart_control.execute_restart`) در `_handle_approval_callback`
+        بعد از ap:ok صدا زده می‌شود، نه این‌جا."""
+        try:
+            import restart_control as _rc
+        except Exception as e:  # noqa: BLE001
+            return f"🔁 ماژولِ ری‌استارت در دسترس نیست ({type(e).__name__})."
+        if not _rc.flag_on():
+            return "🔁 ری‌استارتِ کنترل‌شده هنوز فعال نیست (OCTOPUS_WIRE_RESTART_CONTROL خاموش)."
+        parts = text.split(None, 1)
+        scope = parts[1].strip().lower() if len(parts) > 1 and parts[1].strip() else "all"
+        if scope not in _rc.VALID_SCOPES:
+            return (f"⚠️ scope نامعتبر: <code>{_scrub(scope)}</code>\n"
+                    f"یکی از این‌ها: {', '.join(_rc.VALID_SCOPES)}")
+        if _rc.is_restart_in_flight():
+            return "⏳ یک درخواستِ ری‌استارت از قبل در جریان است — صبر کن تا تمام شود."
+        job_id = f"restart_{scope}_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+        owner = getattr(self._client, "owner_chat_id", None)
+        r1 = _rc.request_restart(scope, job_id=job_id, requested_by=str(owner or ""))
+        if not r1.get("ok"):
+            return f"⚠️ ثبتِ درخواست شکست خورد: {r1.get('reason', '?')}"
+        try:
+            aps_mod.add_pending({"id": job_id, "type": "process_restart",
+                                 "title": f"ری‌استارتِ {scope}", "risk": "high",
+                                 "requires_confirmation": True,
+                                 "dry_run_report": f"scope={scope}",
+                                 "source": "restart_control"})
+        except Exception:  # noqa: BLE001
+            try:
+                _rc.cancel_request()
+            except Exception:  # noqa: BLE001
+                pass
+            return "⚠️ ثبتِ کارتِ تأیید شکست خورد — درخواست لغو شد، دوباره امتحان کن."
+        return self._restart_card(job_id, scope)
+
     def _live_cmd(self, text: str) -> str:
         """مسیرِ زنده‌سازی 2026-07-25: /id /box /code /live — fail-soft، read/propose-only."""
         try:
@@ -1260,6 +1329,15 @@ class Center:
             import doctor_link as _dl
             _dl.beat(self)
         except Exception:  # noqa: BLE001 — link هرگز beat را نمی‌کشد
+            pass
+        # ۲۰۲۶-۰۸-۰۷ — restart_control: اگر /restart تأییدشده به خطِ پایانیِ
+        # RESTART-ALL.ps1/RESTART-PROCESS.ps1 رسیده، نتیجه به مالک خبر داده
+        # می‌شود. از center.py نه organism (organism خودش می‌تواند وسطِ
+        # scope=all بمیرد). پشتِ OCTOPUS_WIRE_RESTART_CONTROL؛ fail-soft.
+        try:
+            import restart_control as _rcb
+            _rcb.beat(self)
+        except Exception:  # noqa: BLE001 — beat هرگز beat ِ اصلی را نمی‌کشد
             pass
         # ── VQ-MISSION-APPROVAL-001: کارتِ A3 ِ پلِ اقدام → صفِ تأیید → حکم ────
         # فقط در همین پروسه (invariant ِ approval_store: مصرفِ تک‌پروسه‌ای —
@@ -3089,6 +3167,11 @@ class Center:
             "/heart": lambda: self._heart_cmd(),
             "/brain": lambda: self._brain_cmd(),
             "/doctor": lambda: self._doctor_cmd(),
+            # ۲۰۲۶-۰۸-۰۷ — خواستِ صریحِ مالک: ری‌استارتِ کاملِ ارگانیسم فقط با
+            # دستورِ دستیِ /restart از همین چت، با تأییدِ صریح (ap:ok/ap:no).
+            # مستقیم در handlers نه پلِ دو-باتی: کارتِ همین دستور callbackِ
+            # ap:ok خودش را در همین کلاس/بات می‌بیند (الگوی heart/brain/doctor).
+            "/restart": lambda: self._restart_cmd(text),
         }
         # Menu v2 (پشتِ OCTOPUS_WIRE_MENU_V2): فقط با فلگِ روشن /panel اضافه می‌شود.
         # flag خاموش → /panel در handlers نیست → مسیرِ «command ناشناس» امروز (return None). parity.
@@ -4483,6 +4566,24 @@ class Center:
         except Exception:  # noqa: BLE001
             return ""
 
+    def _trigger_restart_execution(self, jid: str) -> None:
+        """بعد از ap:ok روی jobِ type=process_restart صدا زده می‌شود.
+        fail-soft: شکستِ launch نباید approve را نامعتبر کند — همین‌جا
+        مستقیم به مالک خبر می‌دهد چون check_restart_result چیزی برای
+        گزارش نخواهد داشت (execute_restart خودش هرگز اجرا نشد)."""
+        try:
+            import restart_control as _rc
+            out = _rc.execute_restart()
+        except Exception as e:  # noqa: BLE001
+            out = {"ok": False, "reason": type(e).__name__}
+        if not out.get("ok"):
+            try:
+                self._client.send(
+                    f"⚠️ اجرای ری‌استارت شروع نشد: {_scrub(str(out.get('reason', '?')))}",
+                    chat_id=getattr(self._client, "owner_chat_id", None))
+            except Exception:  # noqa: BLE001
+                pass
+
     # ── P3 (D4): توکنِ HMACِ callback برای verbهای legacy (ok/no/later) و mission (ms:) ──
     # همان طرحِ ap: (jid|action|owner|action_hash|expires) از callback_token — «طرحِ دوم»
     # اختراع نمی‌شود. این verbها jobِ محتوایی مثلِ ap: ندارند → action_hash="". فقط mission
@@ -4646,6 +4747,11 @@ class Center:
                     self._durable_verdict_outcome("ok", jid, job_before)
                     if (isinstance(job_before, dict) and job_before.get("type") == "mission") or mission_mod.get(jid):
                         mission_mod.set_owner_verdict(jid, True)
+                    # ۲۰۲۶-۰۸-۰۷ — /restart: approve فقط statusِ صف را عوض می‌کند؛
+                    # اجرای واقعیِ subprocess این‌جا صدا زده می‌شود (fail-soft —
+                    # شکستِ launch نباید approve را نامعتبر کند، خودش پیام می‌دهد).
+                    if isinstance(job_before, dict) and job_before.get("type") == "process_restart":
+                        self._trigger_restart_execution(jid)
             elif action == "no":
                 job_before = aps_mod.get(jid)
                 ok = aps_mod.reject(jid)
@@ -4656,6 +4762,12 @@ class Center:
                     self._durable_verdict_outcome("no", jid, job_before)   # Wave1-A: ردِ پایدار
                     if (isinstance(job_before, dict) and job_before.get("type") == "mission") or mission_mod.get(jid):
                         mission_mod.set_owner_verdict(jid, False)
+                    if isinstance(job_before, dict) and job_before.get("type") == "process_restart":
+                        try:
+                            import restart_control as _rc
+                            _rc.cancel_request()
+                        except Exception:  # noqa: BLE001
+                            pass
             elif action == "detail":
                 job = aps_mod.get(jid)
                 if job:

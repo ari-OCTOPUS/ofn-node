@@ -90,6 +90,13 @@ def _clear_request() -> None:
         pass
 
 
+def cancel_request() -> None:
+    """لغوِ صریحِ درخواستِ حل‌نشده — از callback handler روی ap:no صدا زده
+    می‌شود تا مالک بتواند فوراً /restart دیگری بزند (وگرنه گاردِ هم‌زمانی تا
+    ابد رد شده می‌ماند). fail-soft — هرگز raise."""
+    _clear_request()
+
+
 def is_restart_in_flight() -> bool:
     """یک درخواستِ حل‌نشده (submitted یا executing، هنوز reported نشده) هست؟"""
     rec = _load_request()
@@ -204,6 +211,41 @@ def check_restart_result() -> "dict | None":
                 "job_id": rec.get("job_id")}
     except Exception:  # noqa: BLE001 — beat هرگز نباید بترکد
         return None
+
+
+def beat(center=None) -> dict:
+    """یک تیک: اگر ری‌استارتی تازه به خطِ پایانی رسیده، به مالک خبر بده.
+    از center.py صدا زده می‌شود (نه organism — آن هم می‌تواند وسطِ scope=all
+    بمیرد)، هم‌الگوی event_bridge.beat/doctor_link.beat: fail-soft کامل،
+    وابسته به client ِ همان center، بدونِ pollerِ نو."""
+    out = {"reported": False}
+    if not flag_on():
+        out["reason"] = "flag-off"
+        return out
+    try:
+        result = check_restart_result()
+    except Exception:  # noqa: BLE001
+        result = None
+    if result is None:
+        return out
+    client = getattr(center, "_client", None)
+    if client is None:
+        out["reason"] = "no-client"
+        return out
+    icon = "✅" if result.get("ok") else "⚠️"
+    scope = str(result.get("scope") or "؟")
+    line = str(result.get("result_line") or "")[:200]
+    text = f"{icon} ری‌استارتِ <code>{scope}</code> تمام شد.\n<code>{line}</code>"
+    try:
+        route_send = getattr(center, "_route_send", None)
+        if callable(route_send):
+            route_send("center-alert", text)
+        else:
+            client.send(text, chat_id=getattr(client, "owner_chat_id", None))
+        out["reported"] = True
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
 
 if __name__ == "__main__":   # pragma: no cover — نمای دستیِ اپراتور
