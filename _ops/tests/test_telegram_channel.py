@@ -631,6 +631,66 @@ def t_rfc_card_not_wired_noop():
     assert ch.rfc_card("RFC-001", "x") is False
 
 
+class _Flag:
+    """ctx manager: ست/پاک‌کردنِ یک env-flag با restore."""
+    def __init__(self, name, val):
+        self.name, self.val = name, val
+
+    def __enter__(self):
+        self.old = os.environ.get(self.name)
+        if self.val is None:
+            os.environ.pop(self.name, None)
+        else:
+            os.environ[self.name] = self.val
+        return self
+
+    def __exit__(self, *exc):
+        if self.old is None:
+            os.environ.pop(self.name, None)
+        else:
+            os.environ[self.name] = self.old
+
+
+def t_rfc_card_notif_flag_off_posts_to_telegram_as_before():
+    """۲۰۲۶-۰۸-۰۷: پشتِ notif_inbox.FLAG خاموش → دقیقاً همان رفتارِ قبل (POST واقعی)."""
+    _tgc = str(Path(__file__).resolve().parent.parent / "telegram_center")
+    sys.path.insert(0, _tgc) if _tgc not in sys.path else None
+    import notif_inbox as _ni
+    sent = []
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory(sent))
+    with _Flag(_ni.FLAG, None):
+        ok = ch.rfc_card("RFC-FLAGOFF", "تستِ فلگِ خاموش")
+    assert ok is True and len(sent) == 1, sent
+    assert "RFC-FLAGOFF" in sent[0]["body"]["text"]
+
+
+def t_rfc_card_notif_flag_on_routes_to_inbox_never_posts():
+    """۲۰۲۶-۰۸-۰۷: پشتِ notif_inbox.FLAG روشن → کارت به صندوق می‌رود، هیچ POSTی
+    به تلگرام نمی‌رود — ولی mint/token/pending_rfc دست‌نخورده می‌مانند (رأیِ
+    مینی‌اپ باید هنوز کار کند)."""
+    _tgc = str(Path(__file__).resolve().parent.parent / "telegram_center")
+    sys.path.insert(0, _tgc) if _tgc not in sys.path else None
+    import notif_inbox as _ni
+    try:
+        _ni._STORE_PATH.unlink()
+    except OSError:
+        pass
+    sent = []
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory(sent))
+    with _Flag(_ni.FLAG, "1"):
+        ok = ch.rfc_card("RFC-FLAGON", "تستِ فلگِ روشن")
+    assert ok is True, ok
+    assert sent == [], f"نباید هیچ POSTی به تلگرام برود: {sent}"
+    # mint/token/pending_rfc دست‌نخورده: هنوز با توکنِ واقعی ثبت شده
+    rec = ch._pending_rfc.get("RFC-FLAGON")
+    assert rec is not None and rec.get("token") and rec.get("status") == "pending", rec
+    # اشاره‌گر در صندوق نشسته
+    items = _ni.list_items()
+    assert items and items[0]["category"] == "rfc_card", items
+    assert items[0]["kind"] == "pointer", items[0]
+    assert items[0]["meta"].get("rfc_id") == "RFC-FLAGON", items[0]
+
+
 # ════════════════════════════════════════════════════════════════════════════════
 # T-7 · kill-switch + Re-entry Packet
 # ════════════════════════════════════════════════════════════════════════════════
@@ -797,6 +857,10 @@ if __name__ == "__main__":
         # T-6
         ("[T-6] rfc_card با دکمه‌های merge/deny", t_rfc_card_sent_with_buttons),
         ("[T-6] rfc_card در not wired → no-op", t_rfc_card_not_wired_noop),
+        ("[T-6] rfc_card: notif_inbox خاموش → POST مثلِ قبل",
+         t_rfc_card_notif_flag_off_posts_to_telegram_as_before),
+        ("[T-6] rfc_card: notif_inbox روشن → صندوق، صفر POST، token/pending دست‌نخورده",
+         t_rfc_card_notif_flag_on_routes_to_inbox_never_posts),
         # T-7
         ("[T-7] /stop → STOP-ORGANISM نوشته می‌شود", t_stop_writes_authoritative_file),
         ("[T-7] /stop → حلقهٔ poll می‌ایستد", t_stop_stops_poll_loop),

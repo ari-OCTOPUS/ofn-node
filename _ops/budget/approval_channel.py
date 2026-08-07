@@ -234,6 +234,22 @@ def load_surface_policy():
         return None
 
 
+def _notif_inbox_mod():
+    """ماژولِ notif_inbox، از **هر** پروسه‌ای — همان الگوی load_surface_policy
+    بالا (۲۰۲۶-۰۷-۲۸: importِ لختِ بدونِ sys.path فقط در پروسهٔ مرکز کار می‌کرد).
+    fail-soft: نبود/خطا → None (صداکننده باید دستِ خالی را تحمل کند)."""
+    import sys as _s
+    from pathlib import Path as _P
+    _tgc = str(_P(__file__).resolve().parent.parent / "telegram_center")
+    if _tgc not in _s.path:
+        _s.path.insert(0, _tgc)
+    try:
+        import notif_inbox as _ni
+        return _ni
+    except Exception:  # noqa: BLE001 — صندوق هرگز مسیرِ ارسال را نمی‌کشد
+        return None
+
+
 def _topic_by_key(key) -> tuple:
     """(chat_id, topic_id) از کلیدِ اتاق — یا (None, None).
 
@@ -3022,7 +3038,20 @@ class TelegramApprovalChannel(ApprovalChannel):
         try:
             _pcr.mark_delivery(state_dir=self._state_dir, kind="rfc", cid=rfc_id,
                                delivery="LEASED")
-            ok = self.send_text(text, reply_markup=kb)
+            # ۲۰۲۶-۰۸-۰۷ — پشتِ notif_inbox.FLAG (پیش‌فرض خاموش): روشن یعنی به‌جای
+            # ارسالِ تلگرام، یک اشاره‌گر (kind="pointer") در صندوقِ مینی‌اپ می‌نشیند
+            # که مالک را به تبِ System می‌فرستد — رأی‌دادن به RFC از قبل از آن‌جا
+            # کار می‌کند (ops_actions.rfc.approve/deny، مستقلاً از این کارت). mint/
+            # token/pending_rfc/leaseِ بالا دست‌نخورده می‌مانند؛ فقط خودِ send_text
+            # عوض شده. نبودِ ماژول (fail-soft) = دقیقاً همان send_text ِ قبلی.
+            _ni = _notif_inbox_mod()
+            if _ni is not None:
+                ok = bool(_ni.route(
+                    "rfc_card", "", "",
+                    send_fn=lambda: self.send_text(text, reply_markup=kb),
+                    kind="pointer", meta={"goto_tab": "system", "rfc_id": str(rfc_id)}))
+            else:
+                ok = self.send_text(text, reply_markup=kb)
             if not _pcr.mark_delivery(state_dir=self._state_dir, kind="rfc", cid=rfc_id,
                                       delivery="SENT" if ok else "PENDING"):
                 return False
