@@ -257,12 +257,35 @@ def t_read_api_paths_require_owner_auth_by_default():
     assert st == 403, (st, body)
 
 
-def t_read_api_paths_can_be_explicitly_reopened():
+def t_read_api_paths_can_be_explicitly_reopened_only_in_dev():
     os.environ[mg.READ_GATE_FLAG] = "0"
+    os.environ.pop("OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV", None)
     try:
-        assert mg.read_gate_enabled() is False
+        assert mg.read_gate_enabled() is True, "env=0 تنها نباید تونل خواندنی را باز کند"
+        os.environ["OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV"] = "1"
+        assert mg.read_gate_enabled() is False, "بازکردن بی‌احراز باید opt-in توسعه داشته باشد"
     finally:
         os.environ.pop(mg.READ_GATE_FLAG, None)
+        os.environ.pop("OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV", None)
+
+
+def t_fallback_redaction_covers_bearer_and_email():
+    import builtins
+    real_import = builtins.__import__
+
+    def blocked(name, *a, **kw):
+        if name == "cockpit_readmodel":
+            raise ImportError("simulated")
+        return real_import(name, *a, **kw)
+
+    builtins.__import__ = blocked
+    try:
+        bearer = "Bearer " + "A" * 24
+        out = mg._redact('x {"auth":"' + bearer + '","email":"owner@example.invalid"}')
+        assert bearer not in out, out
+        assert "owner@example.invalid" not in out, out
+    finally:
+        builtins.__import__ = real_import
 
 
 def t_lifecycle_requires_owner_auth_like_every_other_read_path():

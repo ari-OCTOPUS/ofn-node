@@ -89,7 +89,11 @@ def enabled() -> bool:
 
 
 def read_gate_enabled() -> bool:
-    return os.environ.get(READ_GATE_FLAG, "1") == "1"
+    # ۲۰۲۶-۰۸-۰۷ deep-scan: env=0 برای این گارد روی تونل عمومی خطرناک بود؛
+    # برای تست/اشکال‌زدایی فقط با opt-in توسعه پذیرفته می‌شود. پیش‌فرض و prod fail-closed.
+    if os.environ.get(READ_GATE_FLAG, "1") != "0":
+        return True
+    return os.environ.get("OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV", "0") != "1"
 
 
 # ⚠️ کپیِ import-امنِ الگوی redaction ِ 8773 (نه import ِ متقابل از live/server —
@@ -100,6 +104,11 @@ _FALLBACK_SECRET = (
     r"\d{8,12}:AA[A-Za-z0-9_-]{30,}",      # توکن بات تلگرام
     r"sk-[A-Za-z0-9_-]{20,}",               # کلیدهای sk-*
     r"-----BEGIN [A-Z ]*KEY",               # PEM
+    r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{16,}",  # OAuth/API bearer
+)
+_FALLBACK_SOFT = (
+    # PII نیست که کلِ بدنه را نابود کند؛ per-match کافی است و debuggability می‌ماند.
+    (r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", "‹email:حذف‌شده›"),
 )
 _FALLBACK_BODY = "⚠️ محتوا حذف شد — لایهٔ redaction در دسترس نبود"
 
@@ -117,6 +126,8 @@ def _redact(text: str) -> str:
         for pat in _FALLBACK_SECRET:
             if _re.search(pat, t):
                 return _FALLBACK_BODY
+        for pat, repl in _FALLBACK_SOFT:
+            t = _re.sub(pat, repl, t)
         return _re.sub(r"\b[0-9a-fA-F]{64}\b", "‹hex64:حذف‌شده›", t)
 
 

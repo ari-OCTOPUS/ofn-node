@@ -947,6 +947,10 @@ class _Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return
         length = int(self.headers.get("Content-Length", 0) or 0)
+        if length > 65536:
+            self.send_response(413)
+            self.end_headers()
+            return
         raw = self.rfile.read(length).decode("utf-8") if length else ""
         from urllib.parse import parse_qs
         form_flat = parse_qs(raw, keep_blank_values=True)

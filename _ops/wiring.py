@@ -1700,6 +1700,10 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
             try:
                 _bi = (result or {}).get("brain_inputs") or {}
                 _pain = (result or {}).get("pain") or {}
+                _learned_applied = bool(
+                    flag("OCTOPUS_NEURAL_LEARNED_APPLY") and
+                    float(_bi.get(LEARNED_PRESSURE_CAPPED_KEY,
+                                  _bi.get("learned_pressure", 0.0)) or 0.0) > 0.0)
                 opslib.append_jsonl(
                     opslib.STATE_DIR / "neural" / "effect-shadow.jsonl",
                     {"ts": opslib.now_iso(), "beat": beat,
@@ -1727,7 +1731,12 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
                      # زمینه، تا بعداً بشود سنجید درست می‌گفت یا نه:
                      "signals": sorted(set(signals or [])),
                      "budget_pct": _bi.get("budget_pct"),
-                     "applied": False})
+                     # ۲۰۲۶-۰۸-۰۷: این قبلاً همیشه False بود و بعد از روشن‌شدنِ
+                     # LEARNED_APPLY هم از روی همین فایل نتیجهٔ غلط می‌شد گرفت که
+                     # «یادگیری هیچ‌وقت وارد تصمیم نشده». این field فقط observability
+                     # است: true یعنی فشارِ آموخته‌شده در این beat پشتِ APPLY-flag
+                     # به ورودیِ تصمیم fold شده؛ نه اینکه الزاماً protective_halt شلیک کرد.
+                     "applied": _learned_applied})
             except Exception:  # noqa: BLE001 — سایه هرگز تیک را نمی‌کشد
                 pass
         return result

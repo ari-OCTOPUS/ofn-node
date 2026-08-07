@@ -15,6 +15,7 @@ import os
 import re
 import sqlite3
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -418,7 +419,7 @@ def get_value_state(root: "Path | None" = None) -> dict:
         if _fsize > 5_000_000:
             # فقط دمِ فایل را بخوان — فایلِ بزرگ را رویِ مموری لود نکن
             lines = []
-            with open(ledger, "r", encoding="utf-8", errors="replace") as _fh:
+            with ledger.open("r", encoding="utf-8", errors="replace") as _fh:
                 from collections import deque
                 lines = list(deque(_fh, maxlen=5000))
         else:
@@ -865,6 +866,7 @@ def get_lifecycle_state(root: "Path | None" = None,
 # می‌شود (`miniapp_gateway`)، و آن allowlist **تک‌نفره** است (فقط owner id).
 # پس محتوای کش‌شده هرگز از مرزِ کاربر عبور نمی‌کند — این کش برای یک نفر است.
 _CACHE: dict = {}
+_CACHE_LOCK = threading.RLock()
 
 #: ساعتِ یکنواخت، **ماژول‌سطح** تا تست بتواند تزریقش کند. هرگز ساعتِ دیوار:
 #: پرشِ ساعت نباید کش را ابدی یا فوراً منقضی کند.
@@ -889,7 +891,8 @@ def _cache_ttl() -> float:
 def cache_clear() -> None:
     """کش را خالی کن. تست‌ها بینِ کیس‌ها صدایش می‌زنند؛ تولید بعد از هر
     اقدامی که حالت را عوض می‌کند می‌تواند صدایش بزند."""
-    _CACHE.clear()
+    with _CACHE_LOCK:
+        _CACHE.clear()
 
 
 def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, str]":
@@ -934,7 +937,8 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
     ttl = _cache_ttl()
     use_cache = root is None and ttl > 0.0
     if use_cache:
-        hit = _CACHE.get(p)
+        with _CACHE_LOCK:
+            hit = _CACHE.get(p)
         if hit is not None and (_mono() - hit[0]) < ttl:
             return 200, hit[1], "application/json; charset=utf-8"
     try:
@@ -944,7 +948,8 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         # TTL به‌عنوان حقیقت سرو شود؛ (۲) وقتی منبع برگشت، همان تیک باید حقیقت
         # را بگوید نه خطای کهنه را.
         if use_cache and str((data or {}).get("status", "ok")) != "error":
-            _CACHE[p] = (_mono(), body)
+            with _CACHE_LOCK:
+                _CACHE[p] = (_mono(), body)
         return 200, body, "application/json; charset=utf-8"
     except Exception as exc:  # noqa: BLE001 — fail-closed، هرگز crash
         # استثنا هم وارد کش نمی‌شود — یک ثانیهٔ بد نباید چند ثانیه دروغ بسازد.
@@ -1588,14 +1593,16 @@ def get_ops_tasks(root: "Path | None" = None) -> dict:
 def _cached(key: str, fn, root) -> dict:
     ttl = _cache_ttl()
     now = _mono()
-    hit = _CACHE.get(key)
+    with _CACHE_LOCK:
+        hit = _CACHE.get(key)
     if hit is not None and ttl > 0 and (now - hit[0]) < ttl:
         return hit[1]
     data = fn(root)                    # استثنا اصلاً به این‌جا نمی‌رسد ⇒ کش نمی‌شود
-    if isinstance(data, dict) and data.get("status") == "ok":
-        _CACHE[key] = (now, data)
-    else:
-        _CACHE.pop(key, None)
+    with _CACHE_LOCK:
+        if isinstance(data, dict) and data.get("status") == "ok":
+            _CACHE[key] = (now, data)
+        else:
+            _CACHE.pop(key, None)
     return data
 
 if __name__ == "__main__":

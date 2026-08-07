@@ -163,9 +163,17 @@ _FALLBACK_SECRET = (
     r"\d{8,12}:AA[A-Za-z0-9_-]{30,}",      # توکن بات تلگرام
     r"sk-[A-Za-z0-9_-]{20,}",               # کلیدهای sk-*
     r"-----BEGIN [A-Z ]*KEY",               # PEM
+    r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{16,}",  # OAuth/API bearer
+)
+_FALLBACK_SOFT = (
+    (r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", "‹email:حذف‌شده›"),
 )
 _FALLBACK_BODY = "⚠️ محتوا حذف شد — لایهٔ redaction در دسترس نبود"
 _REDACT_WARNED = [False]
+_ACTION_WINDOW_S = 10.0
+_ACTION_MAX_PER_WINDOW = 6
+_ACTION_HITS = []
+_ACTION_LOCK = threading.RLock()
 
 
 def _redact(text: str) -> str:
@@ -191,7 +199,22 @@ def _redact(text: str) -> str:
         for pat in _FALLBACK_SECRET:
             if _re.search(pat, t):
                 return _FALLBACK_BODY
+        for pat, repl in _FALLBACK_SOFT:
+            t = _re.sub(pat, repl, t)
         return _re.sub(r"\b[0-9a-fA-F]{64}\b", "‹hex64:حذف‌شده›", t)
+
+
+def _action_rate_limited(now: "float | None" = None) -> bool:
+    """Loopback-only هم بی‌نهایت نیست: malware/اسکریپت محلی نباید action spam کند."""
+    t = float(now if now is not None else time.monotonic())
+    with _ACTION_LOCK:
+        cutoff = t - _ACTION_WINDOW_S
+        while _ACTION_HITS and _ACTION_HITS[0] < cutoff:
+            _ACTION_HITS.pop(0)
+        if len(_ACTION_HITS) >= _ACTION_MAX_PER_WINDOW:
+            return True
+        _ACTION_HITS.append(t)
+        return False
 
 
 def aggregate(probe=None) -> dict:
@@ -1016,6 +1039,10 @@ class _Handler(BaseHTTPRequestHandler):
             n = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
             if self.path == "/api/action":
+                if _action_rate_limited():
+                    self._send(429, json.dumps({"ok": False, "reason": "rate_limited"},
+                                               ensure_ascii=False).encode("utf-8"))
+                    return
                 self._send(200, json.dumps(do_action(str(body.get("kind", ""))),
                                            ensure_ascii=False).encode("utf-8"))
                 return

@@ -173,6 +173,11 @@ details.quiet .inner{padding:2px 12px 12px}
 .list{display:flex;flex-direction:column;gap:6px;margin:4px 0 9px}
 .li{background:var(--surface-2);border-radius:9px;padding:9px 11px;font-size:13px;min-width:0}
 
+/* جدولِ رجیستری/Project-F روی موبایل سرریز می‌کرد و کلِ صفحه را افقی می‌کشید.
+   سرریز باید **داخلِ** خودش اسکرول شود، نه بدنهٔ صفحه — min-width واقعی لازم
+   است وگرنه overflow-x:auto هیچ‌وقت اسکرول‌بار واقعی نمی‌سازد. */
+.tblwrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tblwrap table{min-width:520px}
 table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
 th{text-align:start;color:var(--muted);font-weight:400;font-size:12px;
   padding:7px 0;border-bottom:1px solid var(--line)}
@@ -583,11 +588,6 @@ code{direction:ltr}
   .titem{flex-wrap:wrap}
   .titem .tbtns{width:100%;justify-content:flex-end}
 }
-
-/* جدولِ رجیستری روی موبایل سرریز می‌کرد و کلِ صفحه را افقی می‌کشید.
-   سرریز باید **داخلِ** خودش اسکرول شود، نه بدنهٔ صفحه. */
-.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tblwrap table{min-width:100%}
 
 /* آینه: نامِ فایل‌ها لاتین‌اند و باید ایزوله بمانند */
 .iso{unicode-bidi:isolate}

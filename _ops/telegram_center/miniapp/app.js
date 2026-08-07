@@ -380,6 +380,9 @@
   // کشفش کند.
   var DECIDE_DELAY_S = 10;
   var _timers = {};
+  function clearDecisionTimers(){
+    Object.keys(_timers).forEach(function(k){ clearInterval(_timers[k]); delete _timers[k]; });
+  }
 
   // دو خانوادهٔ تصمیم، یک مکانیزم. کارتِ RFC ِ راکد دقیقاً همان پنجرهٔ لغوِ
   // ۱۰ثانیه‌ای را می‌خواهد؛ کپی‌کردنِ arm() یعنی روزی یکی‌شان اصلاح می‌شود و
@@ -695,7 +698,7 @@
           '<span class="k">رأی‌های منتظر</span><span>'+fa(gt.pending_human_verdicts)+'</span>'+
           '<span class="k">مهرِ GATE-STAMP-GO</span><span>'+(gt.gate_stamp_go_file?"هست":"نیست ⇒ قفل")+'</span>'+
           '</div>'+
-          (grows?'<table><tr><th>gate</th><th>status</th><th>eval</th></tr>'+grows+'</table>':'')
+          (grows?'<div class="tblwrap"><table><tr><th>gate</th><th>status</th><th>eval</th></tr>'+grows+'</table></div>':'')
           : '<div class="muted">'+esc(gt.status)+(gt.reason?": "+esc(gt.reason):"")+'</div>')+
         '</div>';
 
@@ -707,11 +710,11 @@
         return '<tr><td>'+esc(title)+'</td><td>'+counts+'</td><td>'+fa(b.total)+'</td></tr>';
       }
       html += '<div class="card"><h2>صف‌ها</h2>'+
-        '<table><tr><th>صف</th><th>وضعیت‌ها</th><th>کل</th></tr>'+
+        '<div class="tblwrap"><table><tr><th>صف</th><th>وضعیت‌ها</th><th>کل</th></tr>'+
         qRow("پست (acquisition)", q.acquisition)+
         qRow("DM", q.dm)+
         qRow("درفت پارتنر", q.studio_drafts)+
-        '</table>'+
+        '</table></div>'+
         '<div class="muted" style="margin-top:8px">متنِ درفت عمداً از مرزِ پوشهٔ پروژه عبور نمی‌کند (قاعدهٔ #۷). تأیید/رد از تلگرام: <code>/pf_ok</code> · <code>/dm_ok</code></div></div>';
 
       // کارت ۴ — KPI با چراغ
@@ -721,7 +724,7 @@
           return "<tr><td>"+esc(k)+"</td><td>"+fa(m[k])+"</td><td>"+pfLight(L[k])+"</td><td>"+esc((L[k]&&L[k].action)||"—")+"</td></tr>";
         }).join("");
         html += '<div class="card"><h2>KPI هفتگی'+pfStale(kpi.freshness)+' <span class="badge">هفتهٔ '+esc(kpi.week_start)+'</span></h2>'+
-          '<table><tr><th>سنجه</th><th>مقدار</th><th>چراغ</th><th>اقدامِ قرمز</th></tr>'+krows+'</table>'+
+          '<div class="tblwrap"><table><tr><th>سنجه</th><th>مقدار</th><th>چراغ</th><th>اقدامِ قرمز</th></tr>'+krows+'</table></div>'+
           '<div class="muted" style="margin-top:8px">آستانه‌ها hard-coded از kpi-dashboard-spec — ‏UI بازتعریفشان نمی‌کند.</div></div>';
       } else {
         html += '<div class="card"><h2>KPI هفتگی</h2><div class="muted">'+esc(kpi.status)+(kpi.note?" — "+esc(kpi.note):"")+'</div></div>';
@@ -738,7 +741,7 @@
         '<span class="k">full stop</span><span>'+tri(cl.full_stop===undefined?null:cl.full_stop,"بله","خیر")+'</span>'+
         '<span class="k">کارمای Reddit</span><span>'+fa(wu.karma)+' / '+fa(wu.threshold)+'</span>'+
         '</div>'+
-        (crows?'<table><tr><th>کانال</th><th>اخطار</th><th>وضعیت</th></tr>'+crows+'</table>':'<div class="muted">'+esc(cl.reason||cl.status||"—")+'</div>')+
+        (crows?'<div class="tblwrap"><table><tr><th>کانال</th><th>اخطار</th><th>وضعیت</th></tr>'+crows+'</table></div>':'<div class="muted">'+esc(cl.reason||cl.status||"—")+'</div>')+
         '</div>';
 
       // کارت ۶ — قابلیت‌ها (هرگز دکمهٔ مرده)
@@ -746,7 +749,7 @@
         return "<tr><td>"+esc(c.name)+'</td><td><span class="badge '+(c.level==="green"?"live":(c.level==="red"?"blocked":"staged"))+'">'+esc(c.level)+"</span></td><td>"+(c.executable?"فعال":"🔒 قفل")+"</td><td>"+esc(c.reason)+"</td></tr>";
       }).join("");
       html += '<div class="card"><h2>قابلیت‌ها <span class="badge '+(cap.outward_allowed?"live":"blocked")+'">'+(cap.outward_allowed?"outward باز":"outward قفل")+'</span></h2>'+
-        (caps?'<table><tr><th>قابلیت</th><th>سطح</th><th>اجرا</th><th>چرا</th></tr>'+caps+'</table>':'<div class="muted">—</div>')+
+        (caps?'<div class="tblwrap"><table><tr><th>قابلیت</th><th>سطح</th><th>اجرا</th><th>چرا</th></tr>'+caps+'</table></div>':'<div class="muted">—</div>')+
         '<div class="muted" style="margin-top:8px">منبع: '+esc(cap.source||"?")+' — هیچ دکمهٔ مرده‌ای رندر نمی‌شود.</div></div>';
 
       el.innerHTML = html;
@@ -1844,6 +1847,7 @@
   // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.
   function render(name){
     _renderSeq++;   // stale-fetch guard: هر رندرِ نو توکنِ قبلی را باطل می‌کند
+    clearDecisionTimers();
     var fn = renderers[name];
     if(!fn){
       // FIX (deep-scan 2026-08-07): قبلاً `el` تعریف‌نشده بود → ReferenceError.
