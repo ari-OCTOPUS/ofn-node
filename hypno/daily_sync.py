@@ -74,6 +74,58 @@ def feed_brain(cfg, store: Store, notes: list[dict]) -> str | None:
         return None
 
 
+def sync_lab_results_to_rag(store: Store, results: list[dict]) -> int:
+    """Turn each lab result into a RAG chunk, like daily notes.
+
+    A lab result is a daily verdict, a decision decomposition, or a quiz
+    outcome. Each becomes a short factual note the brain can recall later:
+    "نتیجهٔ آزمایش ۲۰۲۶-۰۸-۰۷: حکم زرد، سهم بدن ۶۱٪".
+    """
+    import json
+    added = 0
+    for r in results:
+        rid = r.get("id")
+        source_url = f"local://lab-result/{rid}"
+        if store.has_research_source(source_url):
+            continue
+        kind = r.get("kind", "")
+        payload = r.get("payload") or {}
+        day = ""
+        # lab results have a created_at epoch; format it
+        import time as _t
+        ca = r.get("created_at") or 0
+        if ca:
+            day = _t.strftime("%Y-%m-%d", _t.gmtime(ca))
+        # human-readable summary of the payload
+        if kind == "daily":
+            body = (f"آزمایش روزانه {day}: بدن {payload.get('b')}, "
+                    f"خود {payload.get('c')}, ابرموجود {payload.get('x')} → "
+                    f"حکم {payload.get('verdict', 'نامشخص')}.")
+        elif kind == "decision":
+            body = (f"تجزیهٔ تصمیم {day}: سهم بدن {payload.get('body_share')}, "
+                    f"سهم خود {payload.get('self_share')}, "
+                    f"سهم ابرموجود {payload.get('super_share')} → "
+                    f"{payload.get('dominant', 'نامشخص')}.")
+        elif kind == "quiz":
+            body = (f"کوییز {day}: سناریو را {payload.get('verdict')} حدس زدم "
+                    f"({'درست' if payload.get('correct') else 'غلط'}).")
+        else:
+            body = f"نتیجهٔ آزمایشگاه {day}."
+        if len(body) < 40:
+            body = body + f" — نتیجهٔ آزمایشگاه شخصی {day}."
+        store.add_research(
+            title=f"آزمایش {day}",
+            text=body,
+            source_url=source_url,
+            source_type="lab_result",
+            tags="math_models self_love_training خواب بدن تصمیم",
+        )
+        added += 1
+    if added:
+        store.rebuild_fts()
+    return added
+
+
 def main() -> None:
     cfg = load()
     db_path = os.path.join(cfg.state_dir, "hypno.sqlite")
@@ -83,9 +135,14 @@ def main() -> None:
     # timer has RandomizedDelaySec) still catches yesterday's notes.
     notes = store.recent_daily_notes(days=1.5)
     print(f"found {len(notes)} recent note(s)")
-
     added = sync_notes_to_rag(store, notes)
-    print(f"synced {added} new chunk(s) to RAG")
+    print(f"synced {added} new note chunk(s) to RAG")
+
+    # Lab results from the last 36h too.
+    lab = store.recent_lab_results(days=1.5)
+    print(f"found {len(lab)} recent lab result(s)")
+    lab_added = sync_lab_results_to_rag(store, lab)
+    print(f"synced {lab_added} new lab chunk(s) to RAG")
 
     reply = feed_brain(cfg, store, notes)
     if reply:

@@ -140,8 +140,12 @@ class App:
             passages = (ech + rest)[:limit]
         mem = self.store.memories(uid)
         # نمره‌های ۰-۱۰ لبه را از پیام کاربر بکش؛ مغز می‌تواند به تجزیهٔ مدل ارجاع دهد.
+        # در جلسهٔ هیپنوتیزم هم امتحان کن: اگر کاربر نمره‌ای همراه جلسه داده
+        # (مثلاً «شروع جلسه، خواب ۳ هوس ۷»)، مدل لبه هم اجرا می‌شود تا جلسه
+        # شخصی‌سازی‌شده بدهد، نه فقط یک script ثابت.
         from hypno.adapters.brain import _extract_scores
-        scores = _extract_scores(text) if self.is_edge_topic(text) else None
+        is_sess = self.is_session(text)
+        scores = _extract_scores(text) if (self.is_edge_topic(text) or is_sess) else None
         r = self.brain.answer(text, mode, mem, passages, d.message, edge_scores=scores)
         self.store.log(uid, 'assistant', r['reply'], r)
         r.update({'ok': 1, 'safety': d.level, 'primed_chunks': len(passages), 'brain_connected': True})
@@ -224,6 +228,76 @@ class App:
         self.store.log(uid, 'system', f'research_imported:{n}', {'path': p, 'skipped': skipped})
         note = self.panel_note(uid, 'import/rebuild پژوهش انجام شد')
         return {'ok': 1, 'imported_chunks': n, 'skipped_chunks': skipped, 'research_docs': self.store.count(), 'brain_note': note}
+
+    def research_delete(self, b):
+        """حذف یک سند پژوهشی با id."""
+        uid = self.user(b)
+        try:
+            doc_id = int(b.get('id'))
+        except (TypeError, ValueError):
+            return {'ok': 0, 'error': 'id لازم است'}
+        ok = self.store.delete_research(doc_id)
+        return {'ok': 1 if ok else 0, 'message': 'حذف شد' if ok else 'پیدا نشد'}
+
+    def research_cleanup(self, b):
+        """پاک‌سازی خودکار نویز/تکراری/تگ."""
+        uid = self.user(b)
+        result = self.store.cleanup_research()
+        return {'ok': 1, 'cleanup': result, 'research_docs': self.store.count()}
+
+    def research_summary(self, b):
+        """خلاصهٔ یک سند با مغز ریموت (۲ جمله)."""
+        uid = self.user(b)
+        try:
+            doc_id = int(b.get('id'))
+        except (TypeError, ValueError):
+            return {'ok': 0, 'error': 'id لازم است'}
+        with self.store.conn() as db:
+            r = db.execute("SELECT title,text FROM research_docs WHERE id=?", (doc_id,)).fetchone()
+        if not r:
+            return {'ok': 0, 'error': 'سند پیدا نشد'}
+        text = (r['text'] or '')[:2000]
+        try:
+            reply = self.brain.answer(
+                f"این متن را در دو جملهٔ سادهٔ فارسی خلاصه کن:\n\n{text}",
+                'learn', [], [], 'safe')
+            return {'ok': 1, 'title': r['title'], 'summary': reply.get('reply', '')}
+        except Exception as e:
+            return {'ok': 0, 'error': str(e)}
+
+    def edge_quiz_new(self, b):
+        """یک سناریوی کوییز جدید بساز (بدون مغز، فقط محلی)."""
+        uid = self.user(b)
+        import random
+        from hypno.kernel import edge
+        # سناریوی رندوم اما واقع‌گرا
+        b_val = random.choice([2, 3, 3, 4, 5, 7, 8])
+        c_val = random.choice([3, 4, 5, 6, 7, 8])
+        x_val = random.choice([2, 3, 4, 5, 6, 7, 8])
+        v = edge.daily_verdict(b_val / 10.0, c_val / 10.0, x_val / 10.0)
+        # توضیح فارسی
+        explanations = {
+            'سبز': 'خواب کافی + خود قوی + ابرموجود متعادل = روز پایدار.',
+            'زرد': 'یکی از قطب‌ها ضعیف است؛ احتیاط کن.',
+            'قرمز': 'بدن غالب یا همه ضعیف؛ امروز استراحت کن، تصمیم بزرگ نگیر.',
+            'خنثی': 'داده‌ها حد واسط؛ حکم قطعی نیست.',
+        }
+        scenario = {
+            'b': b_val, 'c': c_val, 'x': x_val,
+            'verdict': v.verdict,
+            'explanation': explanations.get(v.verdict, v.advice),
+        }
+        return {'ok': 1, 'scenario': {'b': b_val, 'c': c_val, 'x': x_val}, 'answer': v.verdict, 'explanation': explanations.get(v.verdict, v.advice)}
+
+    def lab_record(self, b):
+        """ثبت نتیجهٔ آزمایشگاه (برای nightly sync)."""
+        uid = self.user(b)
+        kind = str(b.get('kind') or '').strip()
+        if kind not in ('daily', 'decision', 'quiz'):
+            return {'ok': 0, 'error': 'نوع آزمایش درست نیست'}
+        payload = b.get('payload') or {}
+        self.store.add_lab_result(uid, kind, payload)
+        return {'ok': 1, 'message': 'ثبت شد'}
 
     def brain_status(self, b):
         uid = self.user(b)
@@ -469,6 +543,11 @@ def handler(app):
                     '/api/research/ingest': app.research,
                     '/api/research/import': app.import_research,
                     '/api/research/rebuild': lambda x: app.rebuild_fts(),
+                    '/api/research/delete': app.research_delete,
+                    '/api/research/cleanup': app.research_cleanup,
+                    '/api/research/summary': app.research_summary,
+                    '/api/edge/quiz': app.edge_quiz_new,
+                    '/api/lab/record': app.lab_record,
                     '/api/brain/status': app.brain_status,
                     '/api/obsidian/export': app.obsidian_export,
                     '/api/edge/decision': app.edge_decision,

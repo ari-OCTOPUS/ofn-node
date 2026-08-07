@@ -2,8 +2,8 @@
 
 - Project: `/home/ari/hypno-fugu-mini`
 - DB: `/home/ari/.local/share/hypno-fugu-mini/hypno.sqlite`
-- Research docs: 124
-- Brain: rules+rAG fallback
+- Research docs: 132
+- Brain: remote:fugu
 
 ## Maps
 - [[Research/MOC-Research]]

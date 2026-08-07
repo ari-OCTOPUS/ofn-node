@@ -289,7 +289,14 @@ def decision_source(V, P, K, D, H, E, F, M, U, C, sleep_debt, stress) -> Decisio
     si = super_index(E, F, M, U, D)
     bi = body_index(H, C, sleep_debt, stress)
     dec = decomposition(ai, si, bi)
-    healthy = healthy_decision(dec.a_self, dec.a_super, dec.a_body, dec.a_body)
+    # healthy_decision(p_self, p_super_aligned, p_super_chaos, p_body).
+    # The decomposition only gives a_self/a_super/a_body; the closest honest
+    # approximation is p_super_aligned = a_super (the super-organism share,
+    # treated as aligned unless proven otherwise) and p_super_chaos = a_super
+    # too (a high super share can be chaotic), with p_body = a_body. This
+    # replaces the prior call which passed a_body twice and silently dropped
+    # the chaos-vs-aligned distinction entirely.
+    healthy = healthy_decision(dec.a_self, dec.a_super, dec.a_super, dec.a_body)
     return DecisionResult(ai=ai, si=si, bi=bi, dec=dec,
                           verdict=dec.label, healthy=healthy)
 

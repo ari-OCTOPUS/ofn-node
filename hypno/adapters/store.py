@@ -22,7 +22,15 @@ CREATE TABLE IF NOT EXISTS daily_notes(
   content TEXT NOT NULL,
   created_at INT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS notes_user_day ON daily_notes(user_id, day);'''
+CREATE INDEX IF NOT EXISTS notes_user_day ON daily_notes(user_id, day);
+CREATE TABLE IF NOT EXISTS lab_results(
+  id INTEGER PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  created_at INT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS lab_user_time ON lab_results(user_id, created_at);'''
 
 def _migrate_consent_rename(db):
     """B-3: rename the legacy `consent` column to `safety_acknowledged`.
@@ -170,3 +178,86 @@ class Store:
         """Rebuild the FTS index from research_docs."""
         with self.conn() as db:
             db.execute("INSERT INTO research_fts(research_fts) VALUES('rebuild')")
+
+    # ── research management: delete, cleanup, dedup ──────────────────────
+    def delete_research(self, doc_id):
+        """Delete a single research doc by id."""
+        with self.conn() as db:
+            cur = db.execute("DELETE FROM research_docs WHERE id=?", (int(doc_id),))
+            return cur.rowcount == 1
+
+    def cleanup_research(self):
+        """Remove noise/duplicate rows and dedup tags. Returns a summary.
+
+        Idempotent: running twice removes nothing the second time.
+        """
+        noise = [
+            "Let me search for more information",
+            "Completed 3 steps",
+            "I need to",
+            "Here is",
+            "Based on",
+        ]
+        removed_noise = 0
+        for pat in noise:
+            with self.conn() as db:
+                cur = db.execute(
+                    "DELETE FROM research_docs WHERE text LIKE ? OR title LIKE ?",
+                    (f"%{pat}%", f"%{pat}%"))
+                removed_noise += cur.rowcount
+        # exact title+text duplicates: keep the oldest
+        with self.conn() as db:
+            cur = db.execute(
+                "DELETE FROM research_docs WHERE id NOT IN ("
+                " SELECT MIN(id) FROM research_docs GROUP BY title, text)")
+            removed_dup = cur.rowcount
+        self.dedup_tags()
+        self.rebuild_fts()
+        return {'removed_noise': removed_noise, 'removed_duplicates': removed_dup}
+
+    def dedup_tags(self):
+        """Make each tag in `tags` unique while keeping first-seen order."""
+        fixed = 0
+        with self.conn() as db:
+            for r in db.execute("SELECT id, tags FROM research_docs").fetchall():
+                tags = r['tags'] or ''
+                if not tags.strip():
+                    continue
+                parts = tags.split()
+                seen = set(); unique = []
+                for p in parts:
+                    if p not in seen:
+                        seen.add(p); unique.append(p)
+                new_tags = ' '.join(unique)
+                if new_tags != tags:
+                    db.execute("UPDATE research_docs SET tags=? WHERE id=?", (new_tags, r['id']))
+                    fixed += 1
+        return fixed
+
+    # ── lab results (آزمایشگاه شخصی) ────────────────────────────────────
+    def add_lab_result(self, user, kind, payload):
+        """Record a lab experiment result (daily verdict, quiz, decision)."""
+        n = self.now()
+        import json as _j
+        with self.conn() as db:
+            cur = db.execute(
+                "INSERT INTO lab_results(user_id,kind,payload,created_at) VALUES(?,?,?,?)",
+                (user, kind, _j.dumps(payload, ensure_ascii=False), n))
+            return cur.lastrowid
+
+    def recent_lab_results(self, days=1):
+        """Lab results from the last N days (for nightly sync)."""
+        cutoff = self.now() - int(days) * 86400
+        with self.conn() as db:
+            rows = db.execute(
+                "SELECT id,user_id,kind,payload,created_at FROM lab_results "
+                "WHERE created_at >= ? ORDER BY created_at",
+                (cutoff,)).fetchall()
+        import json as _j
+        out = []
+        for r in rows:
+            d = dict(r)
+            try: d['payload'] = _j.loads(d['payload'])
+            except Exception: pass
+            out.append(d)
+        return out
