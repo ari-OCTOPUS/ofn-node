@@ -28,6 +28,17 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-07 عصر (agent، interaction-surface audit — گزارشِ ایجنتِ (۲)
+  از سه مگاپرامپتِ اسکن: دو ریشهٔ «نمی‌شه حرف زد» فیکس شد).** مسیرِ RAG ِ vault
+  (`ask_vault`) به‌طور سیستماتیک با `rg-error` می‌مرد — `.claude/worktrees/*`
+  (۱۲٬۷۴۶ md، ۵ کپیِ `Lead-نقاشی.md`ِ ۹۴۰KB) + `_build`/`_archive-binaries`/`_portable-build`
+  به `_BUILD_EXCLUDE` اضافه شد (`972a1e7`)؛ حالا 0.3s (was >20s timeout)، جوابِ مستند.
+  مسیرِ چتِ آزاد (`mirror_room`) وقتی سهمیهٔ فوگو پر می‌شود (هر روزِ اخیر ۶۰/۶۰)
+  بن‌بست می‌شود و پیامِ گمراه‌کننده می‌داد؛ صادقانه شد (`9e06a1f`). مینی‌اپ سالم
+  (هر ۷ تب دادهٔ زنده). توصیه: `notif_inbox`/`restart_control` امن برای آرم. سؤالِ باز:
+  `FUGU_DAILY_CALL_CAP=60` هر روز پر می‌شود — بالا برود؟ جزئیاتِ کامل:
+  [[../../07 - Knowledge/شناخت-اختاپوس/25-INTERACTION-SURFACE-AND-QUOTA-DEAD-END-2026-08-07|25-INTERACTION-SURFACE-AND-QUOTA-DEAD-END]].
+
 - تغییرات اخیر: **2026-08-07 عصر (agent، cognition-sync audit — گزارشِ ایجنتِ (۱)
   از سه مگاپرامپتِ اسکن).** جوابِ شواهدمحور به «آیا لایه‌های آگاهی سینک‌اند؟»:
   ناقص ولی صادقانه — متخصص‌های مکمل، نه جزایرِ متناقض. ۵ منبعِ زنده، ۳
