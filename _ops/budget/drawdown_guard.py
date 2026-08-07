@@ -14,6 +14,15 @@ fail-closed (Saltzer-Schroeder): drawdownِ نامعلوم/غیرمتناهی �
 HALT صرفاً ثبت می‌شود.
 
 $0 · stdlib · fail-soft. الگوی fail-closedِ مورد #۱ (human_append_guard) بازاستفاده شد.
+
+⚠️ نام‌گذاریِ هم‌نام (۲۰۲۶-۰۸-۰۷، پیگیریِ اسکنِ بازطراحی): یک ماژولِ هم‌نامِ کاملاً
+مستقل در `04 - Architect System/scripts/drawdown_guard.py` وجود دارد که نسخهٔ زندهٔ
+enforcer است (توابعِ `evaluate`/`build_alert`/`observe`/`enforce_action`)، در حالی که
+این نسخهٔ `_ops/budget/` فقط `verdict`/`shadow_count` دارد و صفر صداکنندهٔ تولیدی
+است (تأییدِ مستقلِ فازِ ۶ اسکنِ ۰۸-۰۷). این دو APIهای متفاوت و صفر overlap دارند —
+«کدام canonical» و سرنوشتِ این نسخه (ادغام / آرشیو / ماندن به‌عنوانِ نمونهٔ سایه)
+سؤالِ بازِ مالک است (در AGENT_QUESTIONS.md ثبت شد). این کامنت فقط برایِ جلوگیری از
+سردرگمیِ بعدی است: اگر دنبالِ enforcerِ زنده می‌گردی، در مسیرِ scripts/ است.
 """
 from __future__ import annotations
 
