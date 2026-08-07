@@ -411,9 +411,20 @@ def get_value_state(root: "Path | None" = None) -> dict:
     ledger = _RUNTIME / "value-ledger.jsonl"
     if not ledger.exists():
         return {"status": "no_value_ledger", "note": "value ledger not yet populated"}
+    # FIX (deep-scan 2026-08-07): محدودیتِ اندازه — اگر فایل >۵MB شد (رشدِ زنده
+    # یا خرابی)، فقط آخرین ۵۰۰۰ خط را بخوان، نه کلِ فایل (جلوگیری از OOM).
     try:
+        _fsize = ledger.stat().st_size
+        if _fsize > 5_000_000:
+            # فقط دمِ فایل را بخوان — فایلِ بزرگ را رویِ مموری لود نکن
+            lines = []
+            with open(ledger, "r", encoding="utf-8", errors="replace") as _fh:
+                from collections import deque
+                lines = list(deque(_fh, maxlen=5000))
+        else:
+            lines = ledger.read_text("utf-8", errors="replace").splitlines()
         counts = {}
-        for raw in ledger.read_text("utf-8", errors="replace").splitlines():
+        for raw in lines:
             raw = raw.strip()
             if not raw:
                 continue
