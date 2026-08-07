@@ -63,6 +63,16 @@ def flag_on() -> bool:
     return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
 
 
+def _notif_inbox_mod():
+    """ماژولِ notif_inbox — همین‌جا (_ops/telegram_center) است، importِ لخت کافیه.
+    fail-soft: خطا → None (صداکننده به push_alert ِ واقعی برمی‌گردد)."""
+    try:
+        import notif_inbox as _ni
+        return _ni
+    except Exception:  # noqa: BLE001 — صندوق هرگز beat را نمی‌کشد
+        return None
+
+
 def _scrub(s: object) -> str:
     v = str(s if s is not None else "")
     low = v.lower()
@@ -219,7 +229,7 @@ def beat(center=None) -> dict:
     cur = _load_cursor()
     now = time.time()
 
-    def _push(text: str) -> bool:
+    def _push(text: str, *, low_urgency: bool = False) -> bool:
         if not text:
             return False
         if not _rate_ok(cur, now):
@@ -229,10 +239,23 @@ def beat(center=None) -> dict:
         if not _dedup_ok(cur, now, text):
             out["skipped"] += 1
             return False
+        scrubbed = _scrub(text)
         ok = False
         try:
-            if center is not None and hasattr(center, "push_alert"):
-                ok = bool(center.push_alert(_scrub(text)))
+            def _real_push():
+                if center is not None and hasattr(center, "push_alert"):
+                    return bool(center.push_alert(scrubbed))
+                return False
+            # ۲۰۲۶-۰۸-۰۷ — پشتِ notif_inbox.FLAG (پیش‌فرض خاموش) و فقط برای منابعِ
+            # کم‌فوریت (low_urgency=True: خطِ critical ِ ساده، task.failed). سه
+            # منبعِ دیگر (incident.opened/contained، protective-halt، تولدِ نسلیِ
+            # c6) عمداً همیشه مستقیم به تلگرام می‌روند — پنلِ مینی‌اپ هیچ poll
+            # ندارد و پینگ cooldown دارد؛ یک halt واقعی نباید تا ۱۵ دقیقه دیده نشه.
+            _ni = _notif_inbox_mod() if low_urgency else None
+            if _ni is not None and _ni.flag_on():
+                ok = bool(_ni.route("tech_alert", "", scrubbed, send_fn=_real_push))
+            else:
+                ok = _real_push()
         except Exception:  # noqa: BLE001 — fail-soft: push هرگز beat را نمی‌کشد
             ok = False
         if ok:
@@ -243,14 +266,15 @@ def beat(center=None) -> dict:
             out["skipped"] += 1
         return ok
 
-    # ۱) governor-alerts.md — خطوطِ جدیدِ بحرانی
+    # ۱) governor-alerts.md — خطوطِ جدیدِ بحرانی (کم‌فوریت: واجدِ شرطِ notif_inbox)
     lines, new_pos = _read_past(ALERTS_MD, cur.get("alerts_pos", 0))
     cur["alerts_pos"] = new_pos
     for ln in lines:
         if _is_critical(ln):
-            _push(_human_alert(ln))
+            _push(_human_alert(ln), low_urgency=True)
 
-    # ۲) events.jsonl — incident.* / task.failed جدید
+    # ۲) events.jsonl — incident.* / task.failed جدید. فقط task.failed کم‌فوریت
+    # است (واجدِ notif_inbox)؛ incident.opened/contained همیشه مستقیم می‌روند.
     elines, epos = _read_past(EVENTS, cur.get("events_pos", 0))
     cur["events_pos"] = epos
     for ln in elines:
@@ -261,8 +285,9 @@ def beat(center=None) -> dict:
             evt = json.loads(ln)
         except ValueError:
             continue
-        if evt.get("event_name") in ("incident.opened", "incident.contained", "task.failed"):
-            _push(_human_event(evt))
+        ename = evt.get("event_name")
+        if ename in ("incident.opened", "incident.contained", "task.failed"):
+            _push(_human_event(evt), low_urgency=(ename == "task.failed"))
 
     # ۳) protective-halt — edge-triggered (فقط تغییرِ وضعیت)
     prot = _protective_state()

@@ -159,6 +159,135 @@ def t5_constants_match_build_spec():
         f"سقفِ ساعتی حفظ شد: ۱۰ (got {eb.MAX_PUSH_PER_HOUR})"
 
 
+# ═══ ۶+ (۲۰۲۶-۰۸-۰۷) notif_inbox — فقط دو منبعِ کم‌فوریت reroute می‌شوند ═══════
+import notif_inbox as _ni  # noqa: E402
+
+
+def _reset_ni_store():
+    try:
+        _ni._STORE_PATH.unlink()
+    except OSError:
+        pass
+
+
+def _reset_sources():
+    """۴ منبع + cursor را کاملاً پاک کن — هر تستِ notif_inbox باید hermetic
+    باشد. _fresh() فقط cursor را پاک می‌کند؛ بدونِ این، محتوایِ باقی‌ماندهٔ
+    تستِ قبلی وقتی cursor صفر می‌شود دوباره خوانده می‌شود (دیده‌شده: تستِ ۷ با
+    ۲ push به‌جای ۱)."""
+    _fresh()
+    for p in (eb.ALERTS_MD, eb.EVENTS, eb.C6_JOURNAL):
+        try:
+            p.unlink()
+        except OSError:
+            pass
+    try:
+        eb.STATE.parent.mkdir(parents=True, exist_ok=True)
+        eb.STATE.write_text("{}", encoding="utf-8")
+    except OSError:
+        pass
+
+
+def t6_notif_inbox_flag_on_routes_critical_alert_line():
+    """خطِ critical ِ governor-alerts.md (منبعِ ۱) → صندوق، صفر push مستقیم."""
+    _reset_sources()
+    _reset_ni_store()
+    eb.flag_on = lambda: True
+    os.environ[_ni.FLAG] = "1"
+    try:
+        eb.ALERTS_MD.parent.mkdir(parents=True, exist_ok=True)
+        eb.ALERTS_MD.write_text(
+            "## 2026-08-07T00:00:00 (metabolism)\n"
+            "- ⚠️ circuit OPEN for orchestr (fail_count=3)\n", encoding="utf-8")
+        fc = _FakeCenter()
+        out = eb.beat(center=fc)
+    finally:
+        os.environ.pop(_ni.FLAG, None)
+    assert fc.pushed == [], f"نباید مستقیم push شود: {fc.pushed}"
+    assert out["pushed"] == 1, out
+    items = _ni.list_items()
+    assert len(items) == 1 and items[0]["category"] == "tech_alert", items
+
+
+def t7_notif_inbox_flag_on_routes_task_failed():
+    """رویدادِ task.failed (منبعِ ۲، کم‌فوریت) → صندوق، صفر push مستقیم."""
+    _reset_sources()
+    _reset_ni_store()
+    eb.flag_on = lambda: True
+    os.environ[_ni.FLAG] = "1"
+    try:
+        eb.EVENTS.parent.mkdir(parents=True, exist_ok=True)
+        eb.EVENTS.write_text(
+            '{"event_name": "task.failed", "summary": "تستِ شکستِ کار"}\n',
+            encoding="utf-8")
+        fc = _FakeCenter()
+        out = eb.beat(center=fc)
+    finally:
+        os.environ.pop(_ni.FLAG, None)
+    assert fc.pushed == [], f"نباید مستقیم push شود: {fc.pushed}"
+    assert out["pushed"] == 1, out
+    assert len(_ni.list_items()) == 1
+
+
+def t8_notif_inbox_flag_on_never_routes_incident_opened():
+    """رویدادِ incident.opened (منبعِ ۲، فوری) → همیشه مستقیم push، حتی با فلگِ
+    notif_inbox روشن — عمداً هرگز به صندوق نمی‌رود."""
+    _reset_sources()
+    _reset_ni_store()
+    eb.flag_on = lambda: True
+    os.environ[_ni.FLAG] = "1"
+    try:
+        eb.EVENTS.parent.mkdir(parents=True, exist_ok=True)
+        eb.EVENTS.write_text(
+            '{"event_name": "incident.opened", "summary": "تستِ رخدادِ باز"}\n',
+            encoding="utf-8")
+        fc = _FakeCenter()
+        out = eb.beat(center=fc)
+    finally:
+        os.environ.pop(_ni.FLAG, None)
+    assert len(fc.pushed) == 1, f"incident.opened باید مستقیم push شود: {fc.pushed}"
+    assert "incident.opened" in fc.pushed[0], fc.pushed
+    assert _ni.list_items() == [], "incident.opened هرگز نباید به صندوق برود"
+
+
+def t9_notif_inbox_flag_on_never_routes_protective_halt():
+    """گذارِ protective-halt (منبعِ ۳) → همیشه مستقیم push، حتی با فلگِ
+    notif_inbox روشن — پنل poll ندارد؛ یک halt واقعی نباید دیرک بیفتد."""
+    _reset_sources()
+    _reset_ni_store()
+    eb.flag_on = lambda: True
+    os.environ[_ni.FLAG] = "1"
+    try:
+        eb.STATE.parent.mkdir(parents=True, exist_ok=True)
+        eb.STATE.write_text(
+            '{"protective_mode": true, "protective_reason": "تستِ محافظتی"}',
+            encoding="utf-8")
+        fc = _FakeCenter()
+        out = eb.beat(center=fc)
+    finally:
+        os.environ.pop(_ni.FLAG, None)
+    assert len(fc.pushed) == 1, f"protective-halt باید مستقیم push شود: {fc.pushed}"
+    assert "protective-halt" in fc.pushed[0], fc.pushed
+    assert _ni.list_items() == [], "protective-halt هرگز نباید به صندوق برود"
+
+
+def t10_notif_inbox_flag_off_critical_alert_still_direct():
+    """فلگِ notif_inbox خاموش (پیش‌فرض) → حتی خطِ critical هم مستقیم push
+    می‌شود، دقیقاً رفتارِ امروز."""
+    _reset_sources()
+    _reset_ni_store()
+    eb.flag_on = lambda: True
+    os.environ.pop(_ni.FLAG, None)
+    eb.ALERTS_MD.parent.mkdir(parents=True, exist_ok=True)
+    eb.ALERTS_MD.write_text(
+        "## 2026-08-07T00:00:00 (metabolism)\n"
+        "- ⚠️ circuit OPEN for orchestr (fail_count=3)\n", encoding="utf-8")
+    fc = _FakeCenter()
+    out = eb.beat(center=fc)
+    assert len(fc.pushed) == 1, fc.pushed
+    assert _ni.list_items() == []
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("۱ ۵۰ هم‌امضا → ۱ push", t1_50_same_signature_one_push),
@@ -166,5 +295,10 @@ if __name__ == "__main__":
         ("۳ امضاهای متفاوت مجاز", t3_different_signatures_allowed_within_window),
         ("۴ فلگِ خاموش = صفر push", t4_flag_off_no_push),
         ("۵ constants با build-spec", t5_constants_match_build_spec),
+        ("۶ notif_inbox: خطِ critical → صندوق", t6_notif_inbox_flag_on_routes_critical_alert_line),
+        ("۷ notif_inbox: task.failed → صندوق", t7_notif_inbox_flag_on_routes_task_failed),
+        ("۸ notif_inbox: incident.opened همیشه مستقیم", t8_notif_inbox_flag_on_never_routes_incident_opened),
+        ("۹ notif_inbox: protective-halt همیشه مستقیم", t9_notif_inbox_flag_on_never_routes_protective_halt),
+        ("۱۰ notif_inbox خاموش → مستقیم مثلِ همیشه", t10_notif_inbox_flag_off_critical_alert_still_direct),
     ])
     sys.exit(1 if failed else 0)
