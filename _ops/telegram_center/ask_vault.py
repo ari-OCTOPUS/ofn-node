@@ -55,6 +55,16 @@ NO_ANSWER = "نمی‌دانم — در vault نیست"
 # فهرستِ سختِ همیشگی — مستقل از .agentignore، هرگز نرم نمی‌شود.
 _ALWAYS_EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code",
                    "__pycache__", ".obsidian")
+# ۲۰۲۶-۰۸-۰۷ — دایرکتوری‌های کهنه/کپی/بیلد که نه منبعِ نوت‌اند و نه باید
+# خوانده شوند. کشِ کارِ ایجنت‌های موازی (`.claude/worktrees/*`) یک Vault-Knockoffِ
+# کامل است — `Lead-نقاشی.md`ِ ۹۴۰کیلوبایتی در پنج worktreeِ مختلف کپی شده بود و
+# هر جست‌وجو پنج‌باره‌اش را برمی‌گرداند؛ `_build` خروجیِ portable-build است،
+# `_archive-binaries` دادهٔ باینری است، `_portable-build` هم همین. تستِ زندهٔ
+# ۰۸-۰۷: بدون اینها `rg -i -c` روی ۲۰۶۷۶ فایلِ md بعد از ۲۰ثانیه TIMEOUT می‌زد
+# (خطای `rg-error`، کلِ مسیرِ ask_vault مرده بود)؛ با اینها ۲۶۷ فایلِ واقعی در
+# ۲.۰ ثانیه. کمربندِ دوم (`_is_excluded`) همان‌ها را دوباره enforce می‌کند.
+_BUILD_EXCLUDE = (".claude", "_build", "_archive-binaries",
+                  "_portable-build")
 
 _STOPWORDS = {
     "از", "به", "در", "که", "را", "و", "با", "برای", "این", "آن", "یک", "دو",
@@ -235,7 +245,7 @@ def _agentignore_patterns(root: Path) -> list:
 def _exclude_globs(patterns: list) -> list:
     """الگوهای .agentignore + فهرستِ سخت → آرگومان‌های `-g !...` ِ rg."""
     globs = []
-    for d in _ALWAYS_EXCLUDE:
+    for d in _ALWAYS_EXCLUDE + _BUILD_EXCLUDE:
         globs += ["-g", f"!{d}/**", "-g", f"!**/{d}/**", "-g", f"!{d}", "-g", f"!**/{d}"]
     for s in patterns:
         if s.endswith("/"):
@@ -253,7 +263,7 @@ def _is_excluded(rel: str, patterns: list) -> bool:
     """پس‌غربال (کمربند دوم): حتی اگر glob ِ rg سوراخ داشت، مسیرِ ممنوع رد شود."""
     norm = str(rel).replace("\\", "/").strip("/")
     parts = [p for p in norm.split("/") if p]
-    if any(p in _ALWAYS_EXCLUDE for p in parts):
+    if any(p in _ALWAYS_EXCLUDE or p in _BUILD_EXCLUDE for p in parts):
         return True
     for pat in patterns:
         p = pat.rstrip("/")
