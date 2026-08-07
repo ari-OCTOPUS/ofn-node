@@ -325,8 +325,15 @@ def build_shadow_scheduler(*, state_dir=None, spine=None, clock=None, halted_fn=
     sch.register_organ("doctor-advisory", "HEAL", make_heal_adapter(sd), every_n_beats=5,
                        budget_ms=500, read_set=("doctor/rfcs.json",), write_set=())
     # ناوردی: هیچ organ در فازِ ACT ثبت نشده (صفر double-actuation)
-    assert not any(o.phase in ("ACT", "LEARN") for o in sch._organs), \
-        "shadow: no ACT/LEARN organ without transactional outbox"  # noqa: S101
+    # VQ-ASSERT-STRIP-001 (۲۰۲۶-۰۸-۰۷): assert زیر `python -O` stripped می‌شود و
+    # این ناوردیِ ایمنی (جلوگیری از double-actuation پولی) خاموش می‌گذرد. به یک
+    # بررسیِ زمانِ اجرا تبدیل شد که هم در حالتِ عادی و هم `-O` فعال می‌ماند و
+    # نقض را fail-stop می‌کند (همان الگویِ opslib:207 برای ناوردیِ بودجه).
+    _bad = [o.name for o in sch._organs if o.phase in ("ACT", "LEARN")]
+    if _bad:
+        raise RuntimeError(
+            "shadow invariant violated: ACT/LEARN organ registered without transactional "
+            f"outbox — double-actuation risk: {_bad}")
     return sch
 
 
