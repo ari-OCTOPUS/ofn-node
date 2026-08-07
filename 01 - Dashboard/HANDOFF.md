@@ -29,6 +29,19 @@ updated: 2026-08-07
 
 ## وضعِ لحظه‌ای
 
+- 🏁✅ **2026-08-08 (شب/سحر — نوتِ ۲۸ کامل شد: ایجنتِ موازیِ سوم بخشِ ب را تمام کرد).**
+  چهار کامیتِ دیگر: `fbc650b` (persistence-gate ِ route_scorer، همان تلهٔ coercion که
+  در `_maybe_persist` باز مانده بود) · `41d13f6` (فیکسِ `t_every_flag_read_has_a_
+  declaration_site` — ثبتِ `OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV` در دفترِ بی‌اعلان)
+  · `701a5bc` (cross-reference در `drawdown_guard.py` به نسخهٔ زندهٔ scripts/) ·
+  `b8c59dd` (**۱۵ رأیِ باز** append شد به `AGENT_QUESTIONS.md` — ۱۱ موردِ بخشِ الف
+  + ۳ موردِ بازطبقه‌بندی‌شده از بخشِ ب که ثابت شد سطحِ تعاملیِ نو می‌سازند + ری‌استارتِ
+  center.py که به مالک سپرده شد). هر چهار مستقلاً راستی‌آزمایی شد: ۱۱/۱۱
+  `test_route_scorer` + ۹/۹ `test_phantom_guards` سبز، CRLF بایت‌به‌بایت (append ِ
+  AGENT_QUESTIONS.md دقیقاً byte-exact — bare-LFِ موجود ۴۸ دست‌نخورده ماند)، صفر
+  لمسِ wiring.py/center.py/legs/. **نوتِ ۲۸ اکنون کامل است**؛ سؤال‌هایِ باز از این
+  پس در [[../00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] است.
+
 - 🔁✅ **2026-08-07 (شب — راستی‌آزماییِ ادامهٔ کارِ ایجنتِ موازی، دو کامیتِ بیشتر).**
   `fbc650b` (ایجنتِ دیگر برداشتِ آیتمِ ب-۷ از نوتِ ۲۸: گیتِ persistence ِ
   route_scorer همان تلهٔ coercion را داشت، فیکس+۲ تستِ نو mutation-tested) +
