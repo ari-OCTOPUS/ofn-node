@@ -29,6 +29,21 @@ updated: 2026-08-07
 
 ## وضعِ لحظه‌ای
 
+- 🔒✅ **2026-08-07 (شب — راستی‌آزماییِ کارِ ایجنتِ سومِ همکار + کامیت).** commit `da9ab3b`.
+  یک ترنسکریپتِ سوم (تأییدِ ابزارهایِ متفاوت — احتمالاً کارگرِ دیگری، نه GLM) مستقیماً
+  ۷ فایلِ production را روی `F:\backup` ویرایش کرده بود: `miniapp_gateway.py`،
+  `miniapp_state.py`، `live/server.py`، `dashboard/server.py`، `app.js`،
+  `style.css`، و **`wiring.py`** (فایلِ داغِ مشترک). قبل از پذیرفتن، Workflow ِ
+  ۶-ایجنته diff-به-diff هرکدام را بررسی کرد: `read_gate_enabled()` واقعاً
+  سخت‌گیرانه‌تر شد (fail-closed)، `_CACHE` با RLock ِ درست محافظت شد (صفر
+  deadlock)، rate-limit ِ `/api/action` و سقفِ body ِ `/save` هر دو درست
+  پیاده شدند، و فیلدِ `applied` در `wiring.py` (که در گزارشِ عصرِ امروز
+  «همیشه False» گزارش شده بود) دقیقاً شرطِ گیتِ واقعی را می‌خواند بدونِ
+  لمسِ خودِ گیت. **یک ایرادِ واقعی پیدا شد و خودم فیکس کردم:** دو تعریفِ
+  متناقضِ `.tblwrap table` در `style.css` (یکی `min-width:520px` نو، یکی
+  `min-width:100%` قبلاً کامیت‌شده) — دومی در cascade برنده بود و اسکرولِ
+  افقیِ جدولِ Project-F را مرده می‌کرد؛ یکی شدند. ۷۴/۷۴ تست سبز.
+
 - 🔍✅ **2026-08-07 (شب — راستی‌آزماییِ ترنسکریپتِ ایجنتِ (۳) + یک فیکسِ واقعیِ TOCTOU).** commit `0c9fecc`.
   ترنسکریپتِ پیمایشیِ ایجنتِ دیگر (دامنهٔ budget/heart) با Workflow ِ ۵-ایجنته راستی‌آزمایی
   شد: فیکسِ ادعاییِ ۱ (assert→RuntimeError در `brain_core.py`) در لحظهٔ چک **کاذب** بود
@@ -93,118 +108,4 @@ updated: 2026-08-07
   هنوز در `OCTOPUS-flags.cmd` نیستند — تصمیمِ مالک. سؤالِ باز: آیا `FUGU_DAILY_CALL_CAP=60`
   باید بالاتر برود (هر روز پر می‌شود و چتِ عمیق را می‌بندد)؟
 
-- 🐙🔍 **2026-08-07 (عصر — گزارشِ ایجنتِ (۱) سینکِ آگاهی-حافظه: ناقص ولی صادقانه).**
-  ممیزیِ کاملِ شواهدمحور در [[../07 - Knowledge/شناخت-اختاپوس/24-COGNITION-SYNC-AUDIT-2026-08-07|نوتِ ۲۴]].
-  بکاپِ خام: `C:\Users\Armin\Desktop\OCTOPUS-SCAN-COGNITION-2026-08-07\`. خلاصه:
-  ۵ منبعِ زنده (BCM×۲، self-model، C6، vault_bridge)، ۳ «sensor-rich/actuator-poor»
-  (Hebbian، latent vectors، consolidation ضعیف). **یک یافتهٔ تشخیصیِ نو:**
-  فیلدِ `applied` در `effect-shadow.jsonl` همیشه `False` هاردکد است (`wiring.py:1730`) —
-  شکافِ observability (نه باگ)، سؤال در `AGENT_QUESTIONS.md`. vault_whole = ۱۰۹٬۲۲۰
-  chunk وصل شد و کار می‌کند (9/9 سبز). نرخِ واقعیِ trip بعدِ ری‌استارت = ۰٪
-  (pain=0.207، زیرِ آستانه — رفتارِ درستِ ترمز). هیچ فلگی دست نخورد؛ هیچ
-  فیکسی کامیت نشد (hebbian.json از null خودش heal شد).
-
-- 🚀🔍 **2026-08-07 (شب — سه مگاپرامپتِ اسکنِ موازیِ کاملِ اختاپوس dispatch شد؛ منتظرِ گزارش).**
-  مالک: «لایه‌های آگاهی و معادلاتِ ریاضیِ حافظه‌ها سینک‌اند؟ چرا نمی‌شه
-  باهاش حرف زد با اینکه کنترل‌پنلم هست؟» سه مگاپرامپتِ متنیِ کاملاً
-  ایزوله (بدونِ تصادمِ فایل، طبقِ الگویِ WORKLOCK) مستقیم در چت داده شد
-  برای سه ایجنتِ موازیِ بیرونی که مالک خودش paste می‌کند:
-  **(۱) همگرایی/سینکِ آگاهی-حافظه** (`_ops/cortex`, `_ops/memory`,
-  BCM/Hebbian/consolidation/effect-shadow/self-model، آیا `CORTEX_RICH_THINK`
-  واقعاً اثر کرد، اتصالِ `vault_bridge`→`vault_whole`). **(۲) سطحِ تعامل**
-  (`_ops/telegram_center/*`، تستِ end-to-end ِ واقعیِ چت، هر ۷ تبِ مینی‌اپ،
-  توصیهٔ آرم‌کردنِ `notif_inbox`/`restart_control`). **(۳) سلامتِ عملیاتی/پول**
-  (جاروی کاملِ `run_all.py`، شکارِ باگِ کلاسِ نوشتنِ غیراتمیک — یافتهٔ
-  امروزِ `budget_gate.py:171-173` — در کلِ `_ops/`، ممیزیِ فلگِ تاریک/مرده،
-  آیا لید واقعاً از consent رد می‌شود). هر سه: فقط‌خواندنی روی `legs/**`
-  و `wiring.py`، احتیاطِ بالا روی `center.py`، فیکس+تست+mutation-test
-  در دامنهٔ خودشان، صفر آرم‌کردنِ فلگ/ری‌استارتِ خودسر، بکاپِ نهایی در
-  `Desktop/OCTOPUS-SCAN-{COGNITION,INTERACTION,OPERATIONS}-2026-08-07/`،
-  گزارشِ کاملِ بازگشتی برای من. **هنوز نتیجه‌ای نرسیده — جلسهٔ بعد این
-  سه گزارش را می‌خواند و vault را طبقشان به‌روز می‌کند.**
-
-- 🧩✅ **2026-08-06 (ورودی‌های این روز — mirror_room/4D-Vault/RAG-bridge/تلگرام-race/۷ فیکسِ دیگر) به آرشیو منتقل شد:** `_Archive/Logs/HANDOFF-archive-2026-08-07.md`.
-
-- 🧩✅ **2026-08-07 (روز — ممیزیِ شناختی + فیکس‌های P1-P5 + مسیرِ ارسال باز شد).**
-  مالک: «مغزها و حافظه‌ها واقعاً پیشرفت کردن؟ دیباگشون کن.» **ممیزیِ کاملِ ۱۶.۵ ساعتِ
-  روشن‌ماندن:** مغزِ محلی (Ollama) یک فکر را ۱۶ ساعت تکرار کرد (۱۰۶ سیکل، ۱ فکرِ یکتا)؛
-  مغزِ پولی (Fugu) ۶ ساعتِ واقعی کار کرد بعد سراش瑟 (۶۰/۶۰ daily-cap). حافظه‌ها: BCM
-  واقعاً یاد گرفت (۷۸ کلید potentiated)، self-model ۱۹× رشد کرد (۴۷۷→۹۱۷۵ خط)، consolidation
-  کار می‌کرد (ن_in=2) ولی effect-shadow ۱۵۷۷۵ بار محاسبه کرد و ۰ بار اعمال (sensor-rich،
-  actuator-poor). **سه ریشهٔ مستقل پیدا شد.**
-  **فیکس شد (commit `f9940e2`، با رأیِ مالک):**
-  - **P1 — مسیرِ ارسال باز شد:** `lead_candidate_inbox.py` — بعد از پذیرشِ consent،
-    `consent_current` مادیالایز می‌شود (تا امروز هرگز ساخته نمی‌شد → `no-record` → بسته).
-    legs با رأیِ مالک باز شد. firewall حفظ (CHECK + derive + market_signal رد). ۴ تست +
-    mutation-test سبز.
-  - **P2 — مغزِ محلی از چرخش خارج شد:** `cortex.py:think()` پشتِ `OCTOPUS_WIRE_CORTEX_RICH_THINK`
-    context را با آخرینِ reflection + سیگنالِ قلب غنی می‌کند. فلگ خاموش = byte-identical.
-  - **P5 — کلِ vault ایندکس شد:** `vault_whole` collection (10922 chunks، جدا از 4d_vault).
-  - **P3 — از قبل کار می‌کرد** (تصورِ اشتباهِ جلسهٔ قبل اصلاح شد: cursor n_in=2).
-  - **P4 — فقط طرح** (effect-shadow اکچوئیتور، shadow 24-48h طبق یادداشتِ قبلی).
-  **اصلاحیهٔ صادقانه:** دو تصورِ جلسهٔ قبل اشتباه بود — memory.db خالی نبود (مسیرِ اشتباه
-  چک شده بود؛ واقعی در `_ops/state/memory/memory.db`، ۳۶ ردیف)، و consolidation no-op نبود.
-  کدِ لمس‌شده: `_ops/legs/lead_candidate_inbox.py`، `_ops/cortex/cortex.py`،
-  `_ops/tests/test_consent_materialize.py`.
-
-  **⚠️ تأییدِ مستقل + تصحیح (بعدازظهرِ همان روز، ۵-ایجنته روی کدِ زنده):**
-  P1/P2/P3 تأیید شدند (P1: ۴/۴ تست زنده سبز، `verdict` از خودِ firewall محاسبه
-  می‌شود نه از تولیدکننده). P5 عددش غلط بود — شمارشِ زنده ۷۰٬۹۹۳ بود نه ۱۰۹۲۲ و
-  هنوز ایندکس می‌شد. **مهم: «P4 فقط طرح» غلط بود** — اکچوئیتور از قبل در
-  `wiring.protective_override()` ساخته/تست شده (فلگ `OCTOPUS_NEURAL_EFFECT_SHADOW`
-  از ۰۷-۲۷ آرم است)؛ کارِ باقی‌مانده کدنویسی نیست، فقط تحلیلِ shadow-log + تصمیمِ
-  آرم‌کردنِ فلگ. آرم‌کردنِ `CONSENT_FW`+`LEAD_OUTBOUND` هم تحلیل شد: **امن** —
-  گیتِ فقط-رد + چک‌پوینتِ تأییدِ انسانیِ ازقبل‌موجود + هنوز credentialِ SMTP نیست.
-  جزئیاتِ کامل + مگاپرامپتِ آمادهٔ کپی‌پیستِ جلسهٔ بعد:
-  [[../07 - Knowledge/شناخت-اختاپوس/23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT-2026-08-07|23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT]].
-
-- ✅ **2026-08-07 (شب — هر دو حل شد + ری‌استارتِ کامل با موفقیت: مالک «do both i agree»).**
-  `budget-state.json` بازسازی شد (ریشه: `budget_gate.py:171-173` نوشتنِ
-  غیراتمیک دارد؛ داده از `telemetry-latest.json` ِ مستقل که صفر هزینهٔ واقعی
-  نشان می‌داد، نه حدس). `FREEZE.flag` پاک شد. ری‌استارت: ۴ از ۵ limb تمیز،
-  **cortex zombie بود** (۲ ثانیه CPU روی ۸۰+ دقیقه) — `RESTART-PROCESS.ps1`
-  عمداً fallbackِ اجباری برای cortex ندارد؛ بعدِ تأییدِ zombie‌بودن دستی
-  `Stop-Process -Force` + ری‌استارتِ دوباره، موفق. **همهٔ ۵ پروسه الان با
-  هر ۶ فلگ (۵ + `PAIN_THRESHOLD_CALIBRATED`) زنده‌اند**، تأیید شده از
-  `flags-loaded-*.json` هر پنج‌تا. جزئیاتِ کامل: بخشِ «حل شد» در
-  [[../07 - Knowledge/شناخت-اختاپوس/23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT-2026-08-07|23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT]].
-  کارگر هر ۵ فلگِ توصیه‌شده را در `OCTOPUS-flags.cmd` آرم کرد (تأیید شد: مقدارها
-  درست، CRLF سالم) و درخواستِ ری‌استارت کرد. تأییدِ مستقلِ ۴-ایجنتهٔ دیگر **دو
-  مشکلِ واقعی** پیدا کرد که ری‌استارتِ فوری را نادرست می‌کرد:
-  **(۱) توجیهِ ایمنیِ P4 غلط بود** — «pain ۰.۲۷۵ < ۰.۳۵» یک مثالِ حسابیِ تک‌نمونه
-  با ورودیِ کهنه بود، نه تحلیلِ لاگِ کامل؛ محاسبهٔ واقعی روی ۱۵٬۸۹۷ ردیف: بیشینهٔ
-  pain ِ ترکیبی ۰.۴۳۵، و **۵.۵٪ ردیف‌ها واقعاً از ۰.۳۵ رد می‌شدند**. و یک فلگِ
-  ششمِ اعلام‌نشده هم آرم شده بود (`OCTOPUS_PAIN_THRESHOLD_CALIBRATED`) که خودِ
-  آستانهٔ ۰.۳۵ را زنده می‌کند — بدونش آستانهٔ واقعی ۰.۷۰ است (صفر رد). **(۲)
-  `_ops/budget/FREEZE.flag` همین الان زنده است** (از ۱۵:۰۷، چون `budget-state.json`
-  خراب شده — ۲۵۶ بایتِ whitespace، JSON نامعتبر) — تا باز است، `organ_gate.reserve()`
-  هر اقدامِ organ-gated (شاملِ فراخوانِ cortex و هر پایِ outbound) را رد می‌کند؛
-  یعنی حتی بعدِ ری‌استارت اکثرِ این ۵ فلگ بی‌اثر می‌ماندند. طبقِ `OPS_RUNBOOK.md`
-  این فقط‌مالک است. تست‌ها واقعاً سبز بودند (۶۵ نه ۶۱ — شمارش غلط بود نه شکست).
-  **فلگ‌ها دست‌نخورده ماندند؛ ری‌استارت انجام نشد** — دو تصمیمِ مالک باز است:
-  علتِ خرابیِ `budget-state.json` + آیا با نرخِ واقعیِ ۵.۵٪ هنوز می‌خواهد
-  `LEARNED_APPLY`+`PAIN_THRESHOLD_CALIBRATED` با هم روشن بمانند.
-
-- 🔁✅ **2026-08-07 (عصر — کنترلِ ری‌استارت از تلگرام + جعبهٔ اعلانِ مینی‌اپ).**
-  مالک: پیام‌های تلگرام به‌جای شلوغ‌کردنِ چت، جای درست در کنترل‌پنلِ مینی‌اپ +
-  «کل پروسهٔ ری‌استارت با تأییدِ من از تلگرام». **صندوقِ اعلان:** `notif_inbox.py`
-  نو (صف‌محورِ JSON، همان الگویِ `approval_store`) با ۵ نقطهٔ قلاب پشتِ
-  `OCTOPUS_WIRE_NOTIF_INBOX` (فلگ خاموش = رفتارِ امروز بایت‌به‌بایت): دایجست‌های
-  مغز/قلب/دکتر، کارتِ RFC، پیشنهادِ پا، دو منبعِ کم‌فوریتِ event_bridge. تبِ
-  هفتمِ مینی‌اپ («اعلان‌ها») + `notif.mark_read` اضافه شد. **طرحِ محدودِ خروجیِ
-  HTTPS** (`outbound_https.py`) هم ساخته شد — فقط اسکلت، هیچ‌جا وصل نشده، پشتِ
-  فلگِ جداگانه‌اش، allow-list-محورِ fail-closed.
-  **کنترلِ ری‌استارت:** `/restart [scope]` مستقیم در `handlers` ِ `center.py` (نه
-  پلِ دو-باتی) — کارتِ تأییدِ `ap:ok`/`ap:no` (از همان مکانیزمِ صفِ approval_store،
-  صفر verbِ نو)؛ `restart_control.py` نو با `execute_restart` (پروسهٔ
-  `CREATE_NEW_PROCESS_GROUP`ِ جداشده، تست‌شده در برابرِ مرگِ پروسهٔ مادر) و
-  `check_restart_result` (گزارشِ نتیجه از `beat` ِ مرکز). یک باگِ واقعی پیدا/فیکس
-  شد: `/restart` عضوِ `_CENTER_SLASH` نبود — همان دستهٔ اشکالِ outer-bot-4 که
-  `/heart`/`/brain`/`/doctor` برایش قبلاً فیکس شدند. ۲۶ تستِ نو (هر شاخهٔ ایمنی
-  mutation-tested)، یک اسکریپتِ دیباگِ بی‌احتیاط چند jobِ تستی در
-  `approvals.json` ِ زنده نوشت که دستی پاک شد (درسِ ثبت‌شده در حافظه). **هنوز
-  پشتِ `OCTOPUS_WIRE_RESTART_CONTROL` (خاموش)** — آرم‌کردن رأیِ جداگانه.
-  کدِ لمس‌شده: `_ops/telegram_center/{notif_inbox,restart_control,center,
-  miniapp_state,miniapp_gateway,miniapp/*}.py`، `_ops/integrations/outbound_https.py`،
-  `_ops/{wiring,live_loop}.py`، `_ops/budget/approval_channel.py`،
-  `_ops/agi2027_control/ops_actions.py`، ۱۰+ تستِ نو.
+- 🧩✅ **2026-08-06/۰۷ (روز — چند ورودیِ قدیمی‌تر) به آرشیو منتقل شد:** `_Archive/Logs/HANDOFF-archive-2026-08-07.md` (P1-P5، سه‌مگاپرامپت-دیسپچ، cognition-sync، budget-fix+restart، restart-control+notif-inbox).
