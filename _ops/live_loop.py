@@ -30,6 +30,20 @@ _PROPOSAL_VERBS = {"ok": "approved", "no": "rejected"}   # verbِ دکمه → v
 _PROPOSAL_DEFER = "later"                    # «بعداً» تعویق است، نه تصمیم — کارت زنده می‌ماند
 
 
+def _notif_inbox_mod():
+    """ماژولِ notif_inbox، از هر پروسه‌ای (organism هم این‌جا اجرا می‌شود، نه فقط
+    center.py). fail-soft: نبود/خطا → None — صداکننده باید به send_text ِ واقعی
+    برگردد."""
+    _tgc = str(_HERE / "telegram_center")
+    if _tgc not in sys.path:
+        sys.path.insert(0, _tgc)
+    try:
+        import notif_inbox as _ni
+        return _ni
+    except Exception:  # noqa: BLE001 — صندوق هرگز router را نمی‌کشد
+        return None
+
+
 @dataclass
 class VerdictResult:
     """نتیجهٔ verdict از آری."""
@@ -468,16 +482,32 @@ class LiveLoop:
                 kb = self._proposal_keyboard(tok)
             sent = False
             if deliver and self.channel is not None and hasattr(self.channel, "send_text"):
-                try:
+                def _real_send():
+                    nonlocal kb
                     if kb is not None:
                         try:
-                            sent = bool(self.channel.send_text(card, reply_markup=kb))
+                            return bool(self.channel.send_text(card, reply_markup=kb))
                         except TypeError:
                             # کانالی که reply_markup نمی‌شناسد → کارتِ بی‌دکمه، router زنده می‌ماند.
-                            sent = bool(self.channel.send_text(card))
                             kb = None
+                            return bool(self.channel.send_text(card))
+                    return bool(self.channel.send_text(card))
+
+                try:
+                    # ۲۰۲۶-۰۸-۰۷ — پشتِ notif_inbox.FLAG (پیش‌فرض خاموش): روشن یعنی
+                    # به‌جای تلگرام، اشاره‌گر در صندوقِ مینی‌اپ می‌نشیند — رأی‌دادن
+                    # از قبل از تبِ Approvals کار می‌کند (proposal.approve/reject،
+                    # پشتِ _record_durable_delivery ِ بالا که دست‌نخورده مانده).
+                    _ni = _notif_inbox_mod()
+                    if _ni is not None and _ni.flag_on():
+                        sent = bool(_ni.route(
+                            "leg_proposal", "", "", send_fn=_real_send,
+                            kind="pointer",
+                            meta={"goto_tab": "approvals",
+                                  "proposal_id": str(d.get("proposal_id") or ""),
+                                  "leg_id": str(d.get("leg_id") or "")}))
                     else:
-                        sent = bool(self.channel.send_text(card))
+                        sent = _real_send()
                 except Exception:  # noqa: BLE001 — کارتِ بد نباید router را بکشد
                     sent = False
             event = {"event": "delivered", "proposal_id": d.get("proposal_id"),

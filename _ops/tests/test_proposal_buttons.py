@@ -115,6 +115,54 @@ def t_flag_on_attaches_keyboard():
     assert r["proposals"][0]["buttons"] is True
 
 
+# ════════════════════════════════════════════════════════════════════════════════
+# notif_inbox (۲۰۲۶-۰۸-۰۷) — کارتِ پیشنهاد به صندوقِ مینی‌اپ
+# ════════════════════════════════════════════════════════════════════════════════
+
+def t_notif_inbox_flag_on_routes_to_inbox_never_calls_channel():
+    """پشتِ notif_inbox.FLAG روشن → کارت هرگز به channel.send_text نمی‌رود؛
+    اشاره‌گر در صندوق می‌نشیند. _record_durable_delivery (بالای send) دست‌نخورده
+    است، پس رأی‌دادن از تبِ Approvals هنوز کار می‌کند."""
+    import live_loop as _ll
+    _ni = _ll._notif_inbox_mod()
+    assert _ni is not None, "notif_inbox باید از live_loop قابلِ import باشد"
+    try:
+        _ni._STORE_PATH.unlink()
+    except OSError:
+        pass
+    os.environ[_FLAG] = "1"
+    os.environ[_ni.FLAG] = "1"
+    try:
+        chan = _FakeChannel()
+        loop, _ = _loop_with_proposal(chan)
+        r = loop.route_leg_proposals(deliver=True)
+    finally:
+        os.environ.pop(_ni.FLAG, None)
+    assert chan.sent == [], f"نباید به channel.send_text برسد: {chan.sent}"
+    assert r["delivered"] == 1 and r["sent"] == 1, r
+    items = _ni.list_items()
+    assert len(items) == 1, items
+    assert items[0]["category"] == "leg_proposal", items[0]
+    assert items[0]["kind"] == "pointer", items[0]
+    assert items[0]["meta"].get("goto_tab") == "approvals", items[0]
+    assert items[0]["meta"].get("proposal_id"), items[0]
+
+
+def t_notif_inbox_flag_off_still_calls_channel_as_before():
+    """پشتِ notif_inbox.FLAG خاموش (پیش‌فرض) → دقیقاً همان رفتارِ [ب]، حتی وقتی
+    OCTOPUS_WIRE_PROPOSAL_BUTTONS هم روشن است."""
+    import live_loop as _ll
+    _ni = _ll._notif_inbox_mod()
+    os.environ[_FLAG] = "1"
+    os.environ.pop(_ni.FLAG, None)
+    chan = _FakeChannel()
+    loop, _ = _loop_with_proposal(chan)
+    r = loop.route_leg_proposals(deliver=True)
+    assert len(chan.sent) == 1, chan.sent
+    assert chan.sent[0]["reply_markup"] is not None
+    assert r["proposals"][0]["sent"] is True
+
+
 def t_token_tap_records_outcome_and_value():
     """تپِ «آره» → outcome + مبلغِ انتظاری. همان دو محورِ مرده، حالا زنده."""
     os.environ[_FLAG] = "1"
@@ -404,6 +452,10 @@ if __name__ == "__main__":
         ("[الف] فلگ خاموش → بدونِ کیبورد", t_flag_off_no_keyboard),
         ("[الف] فلگ خاموش → قلاب بسته نمی‌شود", t_flag_off_hook_not_wired),
         ("[ب] فلگ روشن → کیبورد + قرارداد ۶۴ بایت", t_flag_on_attaches_keyboard),
+        ("[notif_inbox] فلگ روشن → صندوق، صفر channel.send_text",
+         t_notif_inbox_flag_on_routes_to_inbox_never_calls_channel),
+        ("[notif_inbox] فلگ خاموش → همان رفتارِ [ب]",
+         t_notif_inbox_flag_off_still_calls_channel_as_before),
         ("[ب] تپِ آره → outcome + ارزش", t_token_tap_records_outcome_and_value),
         ("[ب] تپِ نه → outcome بدونِ ارزش", t_no_verdict_records_outcome_without_value),
         ("[ب] dispatch واقعیِ کانال e2e", t_dispatch_scheme_end_to_end),
