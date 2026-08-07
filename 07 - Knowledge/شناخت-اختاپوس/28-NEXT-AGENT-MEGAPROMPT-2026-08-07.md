@@ -87,13 +87,19 @@ sources:
    ۲۰ثانیه‌ای ثبت کرده، همان روزی که کدِ فایل ادعا می‌کند فیکسِ exclude-list این را
    به ۲ ثانیه رساند. بررسی کن آیا پروسهٔ زندهٔ center.py بعد از آن پچ ری‌استارت شده؛
    اگر نه، یک ری‌استارتِ کنترل‌شدهٔ هدفمند (فقط center، نه کلِ ارگانیسم) کافی است.
-۷. cortex/route_scorer.py — من دو باگ فیکس کردم (coercion رویِ reversible، docstring
-   کهنه) از یافتهٔ یک ایجنتِ موازی. آن گزارش چند ادعایِ دیگر هم داشت که راستی‌آزمایی
-   نشد: coercion مشابه برایِ sensitive/private/critical، اولین‌کلیدِ non-None برنده
-   در ترکیب‌هایِ متناقض (مثلِ {"architecture": False, "is_architecture": True})،
-   tokenizer فقط ASCII (ورودیِ فارسی → unknown)، persistence-gate با
-   os.environ.get(FLAG) truthy-check خام (رشته‌های "0"/"false" روشن حساب می‌شوند).
-   هرکدام را راستی‌آزمایی کن؛ اگر REAL-BUG با شاهدِ کد بود، فیکس+تست+mutation-test.
+۷. ✅ **انجام شد (بعد از نوشتنِ این نوت، ایجنتِ موازیِ دیگری برداشت):**
+   `commit fbc650b` — گیتِ persistence هم همان تلهٔ coercion را داشت
+   (`os.environ.get(FLAG)` truthy-check خام، `"0"`/`"false"` را روشن می‌خواند)،
+   فیکس شد + تستِ `t_j` (پوششِ sensitive/private/critical/architecture) و `t_k`
+   (persistence-gate) اضافه و mutation-tested. **باقیِ راستی‌آزماییِ آن گزارش که
+   هنوز نشده:** اولین‌کلیدِ non-None برنده در ترکیب‌هایِ متناقض (مثلِ
+   `{"architecture": False, "is_architecture": True}`)، tokenizer فقط ASCII
+   (ورودیِ فارسی → unknown).
+۸. ✅ **انجام شد (خارج از دامنهٔ اسکنِ اصلی، کشفِ ایجنتِ دیگر):**
+   `commit 8522562` — `live_loop.py::effect_id` برای کارت‌هایِ تأییدِ Project-F
+   از سقفِ ۶۴بایتیِ callback_data ِ تلگرام رد می‌شد (عنوانِ فارسی تا ۹۴ بایت) →
+   کارت هرگز فرستاده نمی‌شد، `except` در approval_channel خاموش می‌بلعید. فیکس شد
+   با `_pf_eid()` (فشرده‌سازیِ بایت-محور)، تست‌شده روی ورودی‌هایِ مخرب.
 
 ## بخشِ ج — اسکنِ ادامه (فایل‌هایی که این جلسه فقط caller-count سنجید، نه محتوای کامل)
 
