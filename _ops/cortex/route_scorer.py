@@ -264,9 +264,14 @@ def _task_id(task: str, ctx: dict) -> str:
 
 
 def _maybe_persist(record: dict) -> None:
-    """نوشتنِ append-only فقط پشتِ پرچم. خاموش = no-op. fail-soft."""
+    """نوشتنِ append-only فقط پشتِ پرچم. خاموش = no-op. fail-soft.
+
+    باگِ ۲۰۲۶-۰۸-۰۷ (دوم): گیتِ قبلی `if not os.environ.get(FLAG)` همان تلهٔ coercion
+    بود که در `_flag_hint` بسته شد — هر رشتهٔ ناخالی truthy است، پس `CORTEX_ROUTE_SCORER=0`
+    یا `=false` یا `=no` همگی به‌عنوان «روشن» تفسیر می‌شدند و persistence را روشن نگه
+    می‌داشتند. هم‌امکندِ `_flag_hint`: مقادیرِ صریحِ falsy به‌عنوان خاموش."""
     import os
-    if not os.environ.get(FLAG):
+    if str(os.environ.get(FLAG) or "").strip().lower() in ("", "0", "false", "no", "off", "none"):
         return
     try:
         opslib.append_jsonl(DECISIONS_LOG, record)

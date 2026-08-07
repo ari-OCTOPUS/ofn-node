@@ -124,7 +124,7 @@ def t_h_fail_soft_never_crashes():
 
 def t_i_string_false_is_not_coerced_to_true():
     """باگِ ۲۰۲۶-۰۸-۰۷: `_flag_hint` قبلاً `bool(ctx[k])` خام می‌زد — `bool("false")`
-    در پایتون True است، پس `{"reversible": "false"}` را به‌جایِ False به True
+    در پایتون True است، پس `{"reversible": "false"}` را به‌جای False به True
     می‌خواند و risk را به‌غلط پایین می‌آورد (دقیقاً برعکسِ intent)."""
     r_str = route_scorer.score_route("architect a change", {"reversible": "false"})
     r_bool = route_scorer.score_route("architect a change", {"reversible": False})
@@ -134,6 +134,80 @@ def t_i_string_false_is_not_coerced_to_true():
     r_true_str = route_scorer.score_route("architect a change", {"reversible": "true"})
     r_true_bool = route_scorer.score_route("architect a change", {"reversible": True})
     assert r_true_str["scores"]["risk"] == r_true_bool["scores"]["risk"]
+
+
+def t_j_coercion_fix_is_generic_across_all_keys():
+    """پوششِ بقایای فیکسِ ۹۸b807۵: coercion-bug فقط رویِ reversible تست شده بود،
+    ولی فیکس عمومی است (سطر ۱۰۳–۱۰۵، بدونِ استثنا). این تست همان تله را برایِ
+    هر کلیدِ دیگری که `_flag_hint` می‌خواند سنجیده و قفل می‌کند که رشتهٔ "false"
+    دیگر به‌عنوان True خوانده نمی‌شود. مرز: کلیدهای حساس (sensitive/private) مهم‌تر‌اند
+    چون coerce‌شدنشان privacy-override را ساکت می‌کند (تلهٔ امنیتی، نه فقط عددی)."""
+    # sensitive: "false" باید privacy را پایین بیاورد (نه override به local)
+    s_str = route_scorer.score_route("summarize", {"sensitive": "false"})
+    s_off = route_scorer.score_route("summarize", {})
+    assert s_str["scores"]["privacy"] == s_off["scores"]["privacy"], (
+        "sensitive='false' نباید privacy را بالا ببرد", s_str["scores"]["privacy"],
+        s_off["scores"]["privacy"])
+    assert s_str["tier"] != "local" or s_str["scores"]["privacy"] < 0.60, (
+        "نباید privacy-override شلیک کند وقتی صریحاً false داده شده", s_str)
+    # private: همان تله
+    p_str = route_scorer.score_route("summarize", {"private": "false"})
+    assert p_str["scores"]["privacy"] == s_off["scores"]["privacy"], (
+        "private='false' نباید privacy را بالا ببرد", p_str["scores"]["privacy"])
+    # high_correctness/critical: "false" نباید risk را بالا ببرد
+    c_str = route_scorer.score_route("classify", {"critical": "false"})
+    c_off = route_scorer.score_route("classify", {})
+    assert c_str["scores"]["risk"] == c_off["scores"]["risk"], (
+        "critical='false' نباید risk را بالا ببرد", c_str["scores"]["risk"],
+        c_off["scores"]["risk"])
+    # architecture: "false" نباید complexity را بالا ببرد
+    a_str = route_scorer.score_route("classify", {"architecture": "false"})
+    a_off = route_scorer.score_route("classify", {})
+    assert a_str["scores"]["complexity"] == a_off["scores"]["complexity"], (
+        "architecture='false' نباید complexity را بالا ببرد",
+        a_str["scores"]["complexity"], a_off["scores"]["complexity"])
+    # low_impact: "false" نباید impact را پایین بیاورد (یعنی نباید min 0.15 کند)
+    l_str = route_scorer.score_route("classify", {"low_impact": "false"})
+    l_off = route_scorer.score_route("classify", {})
+    assert l_str["scores"]["impact"] == l_off["scores"]["impact"], (
+        "low_impact='false' نباید impact را تغییر دهد",
+        l_str["scores"]["impact"], l_off["scores"]["impact"])
+
+
+def t_k_persistence_gate_parses_falsy_strings_as_off(monkeypatch=None):
+    """باگِ ۲۰۲۶-۰۸-۰۷ (دوم): گیتِ persistence `if not os.environ.get(FLAG)` هر
+    رشتهٔ ناخالی را truthy می‌خواند — پس `CORTEX_ROUTE_SCORER=0`/`=false`/`=no`
+    همگی به‌عنوان «روشن» persistence را روشن نگه می‌داشتند. فیکس: همان parsingِ
+    `_flag_hint`. این تست ثابت می‌کند مقادیرِ falsy-explicit persistence را خاموش
+    نگه می‌دارند (صفر نوشتن روی دیسک) و فقط مقادیرِ truthy روشن می‌کنند."""
+    import os as _os
+    log_path = route_scorer.DECISIONS_LOG
+    # نصبِ دکوریشنِ monkeypatch اگر pytest اجرا کند؛ در غیرِ اینصورت env دستی
+    _saved = _os.environ.pop(route_scorer.FLAG, None)
+    try:
+        for falsy in ("0", "false", "FALSE", "no", "off", "none", ""):
+            _os.environ[route_scorer.FLAG] = falsy
+            before = log_path.exists() and sum(1 for _ in open(log_path, encoding="utf-8")) or 0
+            route_scorer.score_route("orchestrate a deep architecture refactor",
+                                     {"n_files": 3, "reversible": False})
+            after = log_path.exists() and sum(1 for _ in open(log_path, encoding="utf-8")) or 0
+            assert after == before, (
+                f"FLAG='{falsy}' باید persistence را خاموش کند ولی {after-before} "
+                f"ردیف نوشته شد (قبل={before}, بعد={after})")
+        # فقط مقادیرِ truthy باید بنویسند
+        for truthy in ("1", "true", "yes", "on"):
+            _os.environ[route_scorer.FLAG] = truthy
+            before = log_path.exists() and sum(1 for _ in open(log_path, encoding="utf-8")) or 0
+            route_scorer.score_route("orchestrate a deep architecture refactor",
+                                     {"n_files": 3, "reversible": False})
+            after = log_path.exists() and sum(1 for _ in open(log_path, encoding="utf-8")) or 0
+            assert after == before + 1, (
+                f"FLAG='{truthy}' باید یک ردیف بنویسد ولی {after-before} نوشته شد "
+                f"(قبل={before}, بعد={after})")
+    finally:
+        _os.environ.pop(route_scorer.FLAG, None)
+        if _saved is not None:
+            _os.environ[route_scorer.FLAG] = _saved
 
 
 if __name__ == "__main__":
