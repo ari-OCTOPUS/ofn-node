@@ -320,6 +320,35 @@ def append_jsonl(path: pathlib.Path, record: dict) -> None:
         fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
+def _atomic_write_text(path: pathlib.Path, text: str) -> None:
+    """نوشتنِ اتمیکِ سبک (tmp + os.replace) — الگویِ هم‌خانوادهٔ LockedJson.write
+    اما بدونِ قفل (برای فایل‌های dedup/throttle که چند-نویسنده‌بودنشان fail-open و
+    غیرِپولی است). VQ-ALERT-ATOMIC-001 (۲۰۲۶-۰۸-۰۷): سه write_text مستقیم روی
+    alert-signatures.json/alert-throttle.json در یک قطعیِ وسطِ نوشتن فایل را نیمه/
+    ۰-بایتی می‌گذاشتند (همان کلاسِ باگِ budget-state.json). شکست → رسیدِ
+    _write_failure_receipt (هرگز بی‌صدا)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write(text)
+        fh.flush()
+        os.fsync(fh.fileno())
+    last_err: "OSError | None" = None
+    for attempt in range(5):                    # bounded retry (همان LockedJson)
+        try:
+            os.replace(tmp, path)
+            return
+        except OSError as e:
+            last_err = e
+            time.sleep(0.05 * (2 ** attempt))
+    try:
+        os.unlink(tmp)
+    except OSError:
+        pass
+    _write_failure_receipt(path, last_err)
+    raise last_err
+
+
 # ─── پرچم‌ها ─────────────────────────────────────────────────────────────────
 def master_halted() -> str | None:
     """🔴 مرزِ سختِ سراسری: دو سوییچی که هر حلقه/کانکتور/باتِ بیرونی **بی‌استثنا** honor
@@ -460,7 +489,7 @@ def alert(items: list[str]) -> None:
         if len(st) > 400:   # کرانِ ایندکس (نه دفتر): کهنه‌ترین امضاها از شمارش می‌افتند
             st = dict(sorted(st.items(), key=lambda kv: (kv[1] or {}).get("ts", 0))[-200:])
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+        _atomic_write_text(p, json.dumps(st, ensure_ascii=False))
         if count > 3 and count not in _ALERT_ESCALATION_MARKS:
             return   # شمرده شد؛ دفتر و تلگرام دوباره پر نمی‌شوند
         if count > 3:
@@ -508,7 +537,7 @@ def alert_throttled(items: list[str], key: str, window_s: float = 3600.0) -> boo
         st[key] = rec
         try:
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+            _atomic_write_text(p, json.dumps(st, ensure_ascii=False))
         except Exception:  # noqa: BLE001 — نتوانستیم بشماریم؛ آلارم را از دست نمی‌دهیم
             alert(items)
             return True
@@ -520,7 +549,7 @@ def alert_throttled(items: list[str], key: str, window_s: float = 3600.0) -> boo
     st[key] = {"sig": sig, "ts": now, "suppressed": 0}
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+        _atomic_write_text(p, json.dumps(st, ensure_ascii=False))
     except Exception:  # noqa: BLE001 — آلارم نوشته شد؛ شمارنده مهم‌تر نیست
         pass
     return True
