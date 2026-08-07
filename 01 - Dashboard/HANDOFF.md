@@ -175,3 +175,25 @@ updated: 2026-08-06
   نشد** — روشن‌کردنِ فلگ رأیِ جداگانهٔ مالک است. کدِ لمس‌شده:
   `_ops/memory/{vault_bridge,retrieval_router}.py`، ۲ تستِ نو، `00-README-START-HERE.md`.
   **همه‌ی کارهای این نشست کامیت شد** (`9b221a4`, `0496509`, `999431a`, + این).
+
+- 🧩✅ **2026-08-07 (روز — ممیزیِ شناختی + فیکس‌های P1-P5 + مسیرِ ارسال باز شد).**
+  مالک: «مغزها و حافظه‌ها واقعاً پیشرفت کردن؟ دیباگشون کن.» **ممیزیِ کاملِ ۱۶.۵ ساعتِ
+  روشن‌ماندن:** مغزِ محلی (Ollama) یک فکر را ۱۶ ساعت تکرار کرد (۱۰۶ سیکل، ۱ فکرِ یکتا)؛
+  مغزِ پولی (Fugu) ۶ ساعتِ واقعی کار کرد بعد سراش瑟 (۶۰/۶۰ daily-cap). حافظه‌ها: BCM
+  واقعاً یاد گرفت (۷۸ کلید potentiated)، self-model ۱۹× رشد کرد (۴۷۷→۹۱۷۵ خط)، consolidation
+  کار می‌کرد (ن_in=2) ولی effect-shadow ۱۵۷۷۵ بار محاسبه کرد و ۰ بار اعمال (sensor-rich،
+  actuator-poor). **سه ریشهٔ مستقل پیدا شد.**
+  **فیکس شد (commit `f9940e2`، با رأیِ مالک):**
+  - **P1 — مسیرِ ارسال باز شد:** `lead_candidate_inbox.py` — بعد از پذیرشِ consent،
+    `consent_current` مادیالایز می‌شود (تا امروز هرگز ساخته نمی‌شد → `no-record` → بسته).
+    legs با رأیِ مالک باز شد. firewall حفظ (CHECK + derive + market_signal رد). ۴ تست +
+    mutation-test سبز.
+  - **P2 — مغزِ محلی از چرخش خارج شد:** `cortex.py:think()` پشتِ `OCTOPUS_WIRE_CORTEX_RICH_THINK`
+    context را با آخرینِ reflection + سیگنالِ قلب غنی می‌کند. فلگ خاموش = byte-identical.
+  - **P5 — کلِ vault ایندکس شد:** `vault_whole` collection (10922 chunks، جدا از 4d_vault).
+  - **P3 — از قبل کار می‌کرد** (تصورِ اشتباهِ جلسهٔ قبل اصلاح شد: cursor n_in=2).
+  - **P4 — فقط طرح** (effect-shadow اکچوئیتور، shadow 24-48h طبق یادداشتِ قبلی).
+  **اصلاحیهٔ صادقانه:** دو تصورِ جلسهٔ قبل اشتباه بود — memory.db خالی نبود (مسیرِ اشتباه
+  چک شده بود؛ واقعی در `_ops/state/memory/memory.db`، ۳۶ ردیف)، و consolidation no-op نبود.
+  کدِ لمس‌شده: `_ops/legs/lead_candidate_inbox.py`، `_ops/cortex/cortex.py`،
+  `_ops/tests/test_consent_materialize.py`.

@@ -100,6 +100,33 @@
 `.agentignore`-آگاه لازم است، وگرنه `_Archive`/`_Duplicates` هم ingest می‌شود).
 جزئیاتِ کامل + پلنِ اجرا در `_ops/MEGAPROMPT-GLM-WORKER-2026-08-06.md` §۶.
 
+### جلسهٔ ۲۰۲۶-۰۸-۰۷ (روز) — کارگرِ GLM: ممیزیِ شناختی + P1-P5 (commit `f9940e2`)
+
+ممیزیِ کاملِ ۱۶.۵ ساعتِ روشن‌ماندن + فیکس‌های با رأیِ مالک:
+
+| کامیت | کار | فایل‌های کلیدی |
+|---|---|---|
+| `f9940e2` | **P1 consent glue (مسیرِ ارسال باز شد)** + P2 rich-think prompt + P5 reindex | `lead_candidate_inbox.py`, `cortex.py`, `test_consent_materialize.py` |
+
+**سه ریشهٔ ممیزی:** (۱) مغزِ محلی یک فکر را ۱۶ ساعت تکرار کرد (prompt ثابت)،
+(۲) effect-shadow ۱۵۷۷۵ بار محاسبه کرد و ۰ بار اعمال (sensor-rich/actuator-poor)，
+(۳) مسیرِ ارسال بسته بود (consent_current هرگز ساخته نمی‌شد).
+
+**چه فیکس شد:**
+- **P1** — `lead_candidate_inbox.py`: consent glue. بعد از پذیرش، consent_current
+  مادیالایز می‌شود. legs با رأیِ مالک باز شد. firewall حفظ. ۴ تست + mutation-test.
+- **P2** — `cortex.py:think()`: پشتِ `OCTOPUS_WIRE_CORTEX_RICH_THINK`، context را
+  با reflection + heart signal غنی می‌کند. فلگ خاموش = byte-identical.
+- **P5** — `vault_whole` collection (10922 chunks) ساخته شد، جدا از 4d_vault.
+- **P3** — از قبل کار می‌کرد (n_in=2).
+- **P4** — فقط طرح (shadow 24-48h طبق یادداشتِ قبلی).
+
+**توصیه‌های برای آرم‌کردن (رأیِ مالک):**
+- `OCTOPUS_WIRE_CORTEX_RICH_THINK=1` (مغزِ محلی از چرخش خارج)
+- `OCTOPUS_WIRE_CONSENT_FW=1` + `OCTOPUS_WIRE_LEAD_OUTBOUND=1` (مسیرِ ارسال واقعی)
+- P4 را طراحی کن، بعد shadow، بعد آرم.
+- vault_bridge را به vault_whole وصل کن.
+
 ---
 
 ## مرزهای نقض‌ناپذیر (خلاصه — تفصیل در `01`)
