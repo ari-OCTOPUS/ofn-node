@@ -2070,12 +2070,39 @@ def _supports_stream(fn) -> bool:
         return False
 
 
+# ۲۰۲۶-۰۸-۰۷ — نگاشتِ streamِ دایجست به دستهٔ notif_inbox. عمداً فقط همین پنج
+# جریان: کارت‌های per-leg گروه (leg_rooms_beat، stream=نامِ پا مثلِ mining/crypto)
+# این‌جا نیستند و دست‌نخورده می‌مانند — دستهٔ ناشناخته یعنی notif_inbox کاری
+# نمی‌کند (کلیدِ dict.get پیدا نمی‌شود، مستقیم به _real_send می‌رود).
+_NOTIF_STREAM_CATEGORY = {
+    "needs": "needs", "discovery": "discovery",
+    "doctor": "doctor_digest", "brain": "brain_digest", "heart": "heart_digest",
+}
+
+
+def _notif_inbox_mod():
+    _syspath(str(_HERE / "telegram_center"))
+    import notif_inbox as _ni
+    return _ni
+
+
 def _send_stream(channel, text, kb=None, stream=None):
     """ارسال به تاپیکِ جریان اگر ممکن باشد، وگرنه دقیقاً مثلِ قبل به DM.
-    استثنا را نمی‌بلعد — try/exceptِ خودِ beat مسئولِ آن است."""
-    if stream and _supports_stream(getattr(channel, "send_text", None)):
-        return channel.send_text(text, kb, stream=stream)
-    return channel.send_text(text, kb)
+    استثنا را نمی‌بلعد — try/exceptِ خودِ beat مسئولِ آن است.
+
+    ۲۰۲۶-۰۸-۰۷ — پشتِ notif_inbox.FLAG (پیش‌فرض خاموش): برای پنج جریانِ دایجست/
+    گزارش در _NOTIF_STREAM_CATEGORY، فلگ روشن یعنی به‌جای ارسالِ تلگرام، اعلان
+    در صندوقِ مینی‌اپ می‌نشیند و channel.send_text هرگز صدا زده نمی‌شود. فلگ
+    خاموش یا streamِ ناشناخته = دقیقاً رفتارِ امروز، بایت‌به‌بایت."""
+    def _real_send():
+        if stream and _supports_stream(getattr(channel, "send_text", None)):
+            return channel.send_text(text, kb, stream=stream)
+        return channel.send_text(text, kb)
+
+    category = _NOTIF_STREAM_CATEGORY.get(stream)
+    if category:
+        return _notif_inbox_mod().route(category, "", text, send_fn=_real_send)
+    return _real_send()
 
 
 def _tg_ack(channel, text):
