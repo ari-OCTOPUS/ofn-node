@@ -9,8 +9,13 @@
   حساس      → ترجیحِ محلی (redact-first: پیش از هر مسیرِ بیرونی، حذفِ دادهٔ حساس).
 
 مرزها (سختگیرانه، مثلِ کلِ لایهٔ کورتکس):
-  * این ماژول **model_router را تغییر نمی‌دهد و توسطِ آن صدا زده نمی‌شود.** سیم‌کشیِ
-    زنده یک گامِ بعدیِ دروازه‌دارِ-مالک است. این‌جا فقط MEASURE/propose (هم‌ترازِ I2).
+  * این ماژول **model_router را تغییر نمی‌دهد** (پیشنهاد است، نه اجرا). ادعای قبلیِ
+    این خط («توسطِ model_router صدا زده نمی‌شود») کهنه بود — به‌روز شد در راستی‌آزماییِ
+    ۲۰۲۶-۰۸-۰۷ (فازِ ۱): model_router.py:283-284 پشتِ پرچمِ CORTEX_ROUTE_SCORER واقعاً
+    `score_route(task, None)` را صدا می‌زند (فقط اگر tier صریح نداده شده و مسیرِ
+    نگاشتِ ایستا هم tier ندهد). **مهم: ctx همیشه None است در این مسیرِ زنده** —
+    یعنی سیگنال‌هایِ context-rich (n_files/architecture/reversible/privacy/...) در
+    عمل هرگز از caller نمی‌رسند؛ فقط طبقه‌بندیِ واژگانیِ خودِ task اثر دارد.
   * decision_record در حافظه ساخته می‌شود؛ نوشتن روی دیسک **فقط** پشتِ پرچمِ
     CORTEX_ROUTE_SCORER (env). پرچم خاموش = صفر اثرِ جانبی، صفر نوشتن.
   * fail-soft: هر خطا → پیش‌فرضِ امنِ local؛ هرگز کرشِ صداکننده.
@@ -85,10 +90,19 @@ def _num(ctx: dict, *keys, default=None):
 
 
 def _flag_hint(ctx: dict, *keys):
-    """سه‌حالته: True/False اگر صریح بود، وگرنه None (نامشخص)."""
+    """سه‌حالته: True/False اگر صریح بود، وگرنه None (نامشخص).
+
+    باگِ ۲۰۲۶-۰۸-۰۷: `bool(ctx[k])` رویِ رشته کار نمی‌کند طبقِ انتظار — `bool("false")`
+    در پایتون `True` است (هر رشتهٔ غیرِخالی truthy است)، پس `{"reversible": "false"}`
+    را به‌جایِ False به True تبدیل می‌کرد و risk را به‌غلط پایین می‌آورد. امروز در
+    مسیرِ زنده اثری ندارد (model_router همیشه ctx=None می‌فرستد) ولی برایِ هر caller
+    آیندهٔ context-rich یک تلهٔ خاموش بود."""
     for k in keys:
         if k in ctx and ctx[k] is not None:
-            return bool(ctx[k])
+            v = ctx[k]
+            if isinstance(v, str):
+                return v.strip().lower() not in ("", "false", "0", "no", "off", "none")
+            return bool(v)
     return None
 
 

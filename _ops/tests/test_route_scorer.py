@@ -122,6 +122,20 @@ def t_h_fail_soft_never_crashes():
     assert r["tier"] == "local"
 
 
+def t_i_string_false_is_not_coerced_to_true():
+    """باگِ ۲۰۲۶-۰۸-۰۷: `_flag_hint` قبلاً `bool(ctx[k])` خام می‌زد — `bool("false")`
+    در پایتون True است، پس `{"reversible": "false"}` را به‌جایِ False به True
+    می‌خواند و risk را به‌غلط پایین می‌آورد (دقیقاً برعکسِ intent)."""
+    r_str = route_scorer.score_route("architect a change", {"reversible": "false"})
+    r_bool = route_scorer.score_route("architect a change", {"reversible": False})
+    assert r_str["scores"]["risk"] == r_bool["scores"]["risk"], (
+        r_str["scores"]["risk"], r_bool["scores"]["risk"])
+    # رشته‌های صادقانه هنوز درست کار کنند
+    r_true_str = route_scorer.score_route("architect a change", {"reversible": "true"})
+    r_true_bool = route_scorer.score_route("architect a change", {"reversible": True})
+    assert r_true_str["scores"]["risk"] == r_true_bool["scores"]["risk"]
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
