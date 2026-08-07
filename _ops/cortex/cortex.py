@@ -154,10 +154,25 @@ def think(sweep: dict, cycle: int, focus: str | None = None) -> str:
                             break
                     except (ValueError, KeyError):
                         continue
-            # سیگنالِ زندهٔ قلب (هر تیک تغییر می‌کند)
+            # سیگنالِ زندهٔ قلب (هر تیک تغییر می‌کند). `signal` یک HeartSignal.v1
+            # است (dict با beat_seq/period_s/sigma_now/baro_factor)، نه رشته —
+            # پارسِ فیلدهایِ مفهومیِ انسان‌خواندن، نه dumpِ خامِ dict.
             _shadow = _read_json(opslib.STATE_DIR / "pulse" / "heart-shadow-latest.json")
             _sig = _shadow.get("signal") if isinstance(_shadow, dict) else None
-            if _sig:
+            if isinstance(_sig, dict):
+                _period = _sig.get("period_s")
+                _sigma = _sig.get("sigma_now")
+                _baro = _sig.get("baro_factor")
+                _parts = []
+                if isinstance(_period, (int, float)):
+                    _parts.append(f"ریتم={_period:.0f}s")
+                if isinstance(_sigma, (int, float)):
+                    _parts.append(f"σ={_sigma:.2f}")
+                if isinstance(_baro, (int, float)):
+                    _parts.append(f"baro={_baro:.1f}")
+                if _parts:
+                    q += f" قلب: {', '.join(_parts)}."
+            elif _sig:   # backward-compat: اگر روزی رشته شد، همان خام
                 q += f" قلب: {_sig}."
         except Exception:  # noqa: BLE001 — غنی‌سازی هرگز فکر را نمی‌کشد
             pass
