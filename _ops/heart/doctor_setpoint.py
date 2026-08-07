@@ -169,11 +169,20 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
     if not ok:
         return None
     # (پشتِ گیت — فقط وقتی مالک باز کند اجرا می‌شود؛ $0 تا آن روز)
+    if str(opslib.DEBATE_DIR) not in sys.path:   # WS-2: idempotent — نشتِ sys.path per-epoch
+        sys.path.insert(0, str(opslib.DEBATE_DIR))
+    # VQ-PAY-TRAP-001 (۲۰۲۶-۰۸-۰۷): PriceNotLocked را جدا و تحمل‌پذیر import کن.
+    # نسخهٔ پیشین، `from client import DeepSeekClient, PriceNotLocked` را درونِ tryِ
+    # اصلی می‌زد و پایینِ همانِ try `except PriceNotLocked` داشت؛ اگر client فاقدِ
+    # PriceNotLocked بود (fake_client در test_paid_router_dark_config، یا هر clientِ
+    # ناقص) یک ImportError بالا می‌آمد که مستقیماً به آن except می‌رسید، جایی که نام
+    # هنوز bind نشده بود → UnboundLocalError مبهم. حالا نام را صریح bind می‌کنیم
+    # (getattr با fallback به RuntimeError) تا همیشه تعریف‌شده باشد؛ خودِ client را
+    # همچنان به‌صورتِ lazy در مسیرِ bespoke (پایین) import می‌کنیم، تا مسیرِ router
+    # (که فقط extract_json می‌خواهد) تحت تأثیر قرار نگیرد. organ_gate هم lazy می‌ماند.
+    import client as _client_mod  # noqa: E402 — فقط برای گرفتنِ کلاسِ PriceNotLocked
+    PriceNotLocked = getattr(_client_mod, "PriceNotLocked", RuntimeError)
     try:
-        if str(opslib.DEBATE_DIR) not in sys.path:   # WS-2: idempotent — نشتِ sys.path per-epoch
-            sys.path.insert(0, str(opslib.DEBATE_DIR))
-        from client import DeepSeekClient, PriceNotLocked  # noqa: E402
-        import organ_gate                  # noqa: E402
         system = ("You are the w-slow modulator of a hybrid heart. Given signals, "
                   "propose ONLY a JSON viable_band {lo,hi} for target velocity. "
                   "Never propose a rate/period.")
@@ -215,6 +224,11 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
                     opslib.alert([f"heart doctor router path failed (fallback به policy): "
                                   f"{type(e).__name__}: {e}"])
                 return None
+        # مسیرِ bespokeِ قدیم: clientِ مستقیم (نقطهٔ صدورِ PriceNotLocked در سازنده)
+        # + organ_gate. این‌ها را اینجا lazy می‌آوریم (نه بالا) تا مسیرِ router، که
+        # فقط extract_json می‌خواهد، از importِ یک clientِ ناقص بی‌تأثیر بماند.
+        from client import DeepSeekClient  # noqa: E402
+        import organ_gate                  # noqa: E402
         cli = DeepSeekClient(role="econ")
         est = cli.est_worst_case(len(system) + len(user), max_tokens=400)
         r = organ_gate.reserve("ARCHITECT_SYS", est, task="heart-doctor")
