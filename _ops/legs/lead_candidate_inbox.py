@@ -268,6 +268,66 @@ def submit_candidate(candidate: dict, source_id: str = "unknown") -> dict:
             rid2 = _receipt("lead.candidate.rejected", lead_id, {"outcome": "write_failed"})
             return {"ok": False, "status": "quarantined", "reason": "write_failed",
                     "receipt_event_id": rid2}
+        # ── consent glue (P1 fix، ۲۰۲۶-۰۸-۰۷): ردیفِ consent_current را مادیالایز کن ──
+        # تا امروز فایلِ lead_sense نوشته می‌شد ولی consent_current هرگز ساخته نمی‌شد
+        # → may_draft/may_release بعداً no-record می‌گرفتند → کلِ مسیرِ ارسال بسته.
+        # اینجا، بعد از پذیرشِ consented_inbound/public_b2b، ردیف را مادیالایز می‌کنیم.
+        # firewall حفظ می‌شود: upsert_current خودش CHECK constraints دارد (لایهٔ ۱)؛
+        # outreach_allowed از derive ِ consent_gate می‌آید (نه از producer)، چون
+        # consent_firewall.evaluate آن را از همون قاعده محاسبه کرده.
+        try:
+            import consent_store as _cs   # noqa: WPS433 — lazy، هم‌پوشه
+            import consent_gate as _cg    # noqa: WPS433 — برای normalize
+            _store = _cs.ConsentStore(_cs._default_path())
+            try:
+                # contact_value_norm را نرمال کن (inbox ذخیره نکرده بود)
+                _ct = candidate.get("contact") or {}
+                _cvn = _cg.normalize_email(_ct.get("email") or "") \
+                    or _cg.normalize_phone(_ct.get("phone") or "")
+                # consent_state را از candidate_type مشتق کن (05_CONSENT_STATE_MACHINE §۲)
+                _cstate = ("CONSENTED_INBOUND" if ctype == "consented_inbound"
+                           else "B2B_PROSPECT" if ctype == "public_b2b" else "RECEIVED")
+                _store.upsert_current({
+                    "lead_id": lead_id,
+                    "candidate_type": ctype,
+                    "consent_basis": verdict["consent_basis"],
+                    "consent_evidence": (candidate.get("consent") or {}).get("evidence")
+                                       or (candidate.get("source") or {}).get("channel"),
+                    "compliance_reason": verdict["compliance_reason"],
+                    "consent_state": _cstate,
+                    "compliance_state": "UNREVIEWED",
+                    "risk_flags": [],
+                    "flags_hash": None,
+                    "outreach_allowed": verdict["outreach_allowed"],  # firewall-checked
+                    "retention_class": verdict["retention_class"],
+                    "retention_anchor_at": opslib.now_iso(),
+                    "source_channel": str((candidate.get("source") or {}).get("channel")
+                                          or "unknown"),
+                    "contact_value_norm": _cvn,
+                    "purged": 0,
+                })
+                # ردِ append-only برایِ replay/audit (همان الگوی lead_suppression)
+                try:
+                    _store.record_event({
+                        "lead_id": lead_id, "event_type": "consent.materialized",
+                        "actor": "inbox", "to_state": _cstate,
+                        "idempotency_key": f"mat:{lead_id}",
+                        "payload": {"candidate_type": ctype, "source": "inbox_glue"}})
+                except Exception:  # noqa: BLE001 — ردِ ممیزی هرگز خودِ upsert را لغو نمی‌کند
+                    pass
+            finally:
+                try:
+                    _store.close()   # نشتِ کانکشن روی ویندوز = قفلِ فایل برایِ تستِ بعدی
+                except Exception:  # noqa: BLE001
+                    pass
+        except Exception as _e:  # noqa: BLE001 — شکستِ materialize نباید lead را که نوشته شد بکشد
+            import traceback as _tb
+            try:
+                opslib.alert([f"lead-inbox consent materialize failed: "
+                              f"{type(_e).__name__}: {_e} | "
+                              f"{_tb.format_exc().splitlines()[-1] if _tb.format_exc() else ''}"])
+            except Exception:  # noqa: BLE001
+                pass
         status = "accepted"
 
     # ثبتِ idempotency پس از موفقیت.

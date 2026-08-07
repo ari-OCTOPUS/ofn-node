@@ -136,6 +136,31 @@ def think(sweep: dict, cycle: int, focus: str | None = None) -> str:
                f"stale={','.join(sweep['stale_members']) or 'هیچ'} · "
                f"اعضا={sweep['n']}")
     q = f"وضعیتِ مجموعه: {summary}."
+    # P2 (۲۰۲۶-۰۸-۰۷): مغزِ محلی یک فکر را ۱۶ ساعت تکرار کرد چون ورودی ثابت بود.
+    # پشتِ OCTOPUS_WIRE_CORTEX_RICH_THINK: context را با شواهدِ متغیر غنی کن تا هر
+    # بار prompt متفاوت باشد (آخرینِ reflection + سیگنالِ قلب). خاموش = byte-identical.
+    if os.environ.get("OCTOPUS_WIRE_CORTEX_RICH_THINK", "0") == "1":
+        try:
+            # آخرین reflection از semantic memory (هر چند دقیقه تغییر می‌کند)
+            _sem = opslib.STATE_DIR / "semantic_memory.jsonl"
+            if _sem.exists():
+                _lines = _sem.read_text("utf-8").splitlines()
+                for _ln in reversed(_lines[-5:]):
+                    try:
+                        _d = json.loads(_ln)
+                        _gist = str(_d.get("gist", "")).strip()
+                        if _gist:
+                            q += f" آخرینِ بازتاب: {_gist[:120]}."
+                            break
+                    except (ValueError, KeyError):
+                        continue
+            # سیگنالِ زندهٔ قلب (هر تیک تغییر می‌کند)
+            _shadow = _read_json(opslib.STATE_DIR / "pulse" / "heart-shadow-latest.json")
+            _sig = _shadow.get("signal") if isinstance(_shadow, dict) else None
+            if _sig:
+                q += f" قلب: {_sig}."
+        except Exception:  # noqa: BLE001 — غنی‌سازی هرگز فکر را نمی‌کشد
+            pass
     if focus:
         q += f" تمرکزِ خواسته‌شدهٔ مالک: {str(focus)[:200]}."
     q += " یک جملهٔ کوتاه: الان مهم‌ترین کارِ مجموعه چیست؟"
