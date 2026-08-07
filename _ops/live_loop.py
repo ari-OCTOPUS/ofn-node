@@ -29,6 +29,31 @@ _PROPOSAL_CB_MAX = 500                       # سقفِ نگاشتِ token→پ�
 _PROPOSAL_VERBS = {"ok": "approved", "no": "rejected"}   # verbِ دکمه → verdict (later عمداً نیست)
 _PROPOSAL_DEFER = "later"                    # «بعداً» تعویق است، نه تصمیم — کارت زنده می‌ماند
 
+# ۲۰۲۶-۰۸-۰۷ deep-scan: callback_data ِ تلگرام سقفِ ۶۴بایتِ UTF-8 دارد. ساختارِ
+# `app:<verb>:<eid>:<24hex>` یعنی ۳۷بایتِ ثابت + eid. پس eid باید ≤ ۲۷بایتِ ASCII
+# باشد تا هر سه دکمهٔ تأیید/رد/بعداً همیشه جا شوند. `_pf_eid` این را تضمین می‌کند:
+# `pf-` + kindِ کوتاه‌شده (بخشِ [1] که archive() می‌خواند) + `-` + ۶هشِ عنوان.
+# عنوانِ کامل در `action` هست؛ eid فقط کلیدِ یکتاست.
+_PF_EID_BUDGET = 27  # 64 - len('app:approve:') - 1 - 24 = 27
+
+
+def _pf_eid(kind: str, title: str) -> str:
+    """effect_id ِ Project-F که همیشه زیرِ سقفِ callback_data ِ تلگرام می‌ماند.
+
+    با kind‌های طولانی (مثل `onlyfans-message`، ۱۷ کاراکتر) و عنوانِ فارسی،
+    eidِ قدیمی به ۹۴بایت می‌رسید و کارت هرگز فرستاده نمی‌شد. این تابع eid را
+    به ASCIIِ کوتاه فشرده می‌کند؛ بخشِ [1] (kind) برای `apply_ari_verdict`→
+    `archive` باقی می‌ماند. تست: `_pf_eid` همیشه ≤ _PF_EID_BUDGET بایتِ ASCII."""
+    import hashlib as _hl
+    _k = str(kind or "x")[:16]
+    _h = _hl.sha1(str(title or "").encode("utf-8")).hexdigest()[:6]
+    eid = f"pf-{_k}-{_h}"
+    if len(eid.encode("utf-8")) <= _PF_EID_BUDGET:
+        return eid
+    # فقط در حالتِ kindِ بسیار طولانی: kind را بیشتر بتراش تا جا شود.
+    over = len(eid.encode("utf-8")) - _PF_EID_BUDGET
+    return f"pf-{_k[:max(1, 16 - over)]}-{_h}"
+
 
 def _notif_inbox_mod():
     """ماژولِ notif_inbox، از هر پروسه‌ای (organism هم این‌جا اجرا می‌شود، نه فقط
@@ -130,12 +155,21 @@ class LiveLoop:
         submitted = []
         for route in result.get("routed_to", []):
             if route["route"] == "ari" and self.cockpit is not None:
+                # ۲۰۲۶-۰۸-۰۷ deep-scan: callback_data ِ تلگرام سقفِ ۶۴بایتِ UTF-8 دارد
+                # (app:approve:<eid>:<24hex> = ۳۷بایت ثابت + eid). eidِ قدیمی
+                # `pf-{kind}-{title[:20]}` با عنوانِ فارسی (۲بایت/کاراکتر) تا ۹۴بایت
+                # می‌رسید → sendMessage با ۴۰۰ رد می‌شد → کارت هرگز نمی‌رفت و
+                # exceptِ approval_channel آن را به‌صورتِ False می‌بلعید (بن‌بستِ خاموش).
+                # عنوانِ کامل از قبل در `action` بالاست؛ eid فقط کلیدِ یکتاست. بخشِ [1]
+                # باید kind بماند (apply_ari_verdict→archive با split("-")[1] می‌خواند).
+                # `_pf_eid` کلِ eid را زیرِ ۲۷بایتِ ASCII نگه می‌دارد تا callback_data
+                # همیشه زیرِ ۶۴بایت بماند — مستقل از طولِ kind یا زبانِ عنوان.
                 self.cockpit.add_approval(
                     project="Project-F",
                     action=f"تأییدِ {route['kind']}: {draft_title}",
                     amount_aud=0.0,  # پول قفل
                     guard="pending",
-                    effect_id=f"pf-{route['kind']}-{draft_title[:20]}")
+                    effect_id=_pf_eid(route["kind"], draft_title))
                 submitted.append(route["kind"])
                 # publish روی bus (advisory)
                 self.bus.publish("OBSERVE", {
