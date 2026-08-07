@@ -3622,11 +3622,18 @@ class Center:
                         if _r.get("ok"):
                             return _mr.card(_r["text"], _r.get("model") or "",
                                             bool(_r.get("recorded_correction")))
+                        # ۲۰۲۶-۰۸-۰۷: not-a-paid-brain اغلب یعنی سهمیهٔ روزانهٔ فوگو
+                        # تمام شده (نه «مغز خراب») — تستِ زندهٔ امروز: 60/60 سهمیه
+                        # استفاده شده، هر ask نه، فکرِ عمیق بسته می‌ماند تا نیمه‌شب.
+                        # پیامِ قدیمی «چند دقیقه دیگر» غلط بود — فردا خودکار باز
+                        # می‌شود. آینه با مغزِ محلی حرف نمی‌زند (طراحی، نه شکست).
+                        _rk = str(_r.get("reason") or "").split(":")[0]
                         _w = {"daily-cap": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد",
-                              "not-a-paid-brain": "مغزِ گرانم الان در دسترس نیست",
+                              "not-a-paid-brain": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد"
+                              " (مغزِ گرانم را تا نیمه‌شب صبر دارد)",
                               "no-answer": "مغزم جواب نداد",
-                              }.get(str(_r.get("reason") or "").split(":")[0], "")
-                        return (f"🪞 {_w} — چند دقیقهٔ دیگر دوباره بپرس." if _w
+                              }.get(_rk, "")
+                        return (f"🪞 {_w} — فردا (ریستِ خودکارِ سهمیه) دوباره بپرس." if _w
                                 else "🪞 نشد — دوباره بپرس.")
 
                     if self._defer_with_ack(
@@ -3643,13 +3650,16 @@ class Center:
                                                  topic_id=self._reply_thread(msg))
                         return {"kind": "mirror", "sent": _mid is not None}
                     # شکست را **صادقانه** بگو — در این اتاق «متوجه نشدم» بی‌معنی است
+                    # (۲۰۲۶-۰۸-۰۷: not-a-paid-brain معمولاً سهمیهٔ روزانه‌ست، نه خرابی —
+                    # پیام صادقانه تا مالک بداند فردا خودکار باز می‌شود، نه «چند دقیقه».)
                     _why = {"daily-cap": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد",
-                            "not-a-paid-brain": "مغزِ گرانم الان در دسترس نیست",
+                            "not-a-paid-brain": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد"
+                            " (مغزِ گرانم تا نیمه‌شب صبر دارد)",
                             "no-answer": "مغزم جواب نداد",
                             }.get(str(_m.get("reason") or "").split(":")[0], "")
                     if _why:
                         _mid = self._client.send(
-                            _scrub(f"🪞 {_why} — چند دقیقهٔ دیگر دوباره بپرس."),
+                            _scrub(f"🪞 {_why} — فردا (ریستِ خودکارِ سهمیه) دوباره بپرس."),
                             chat_id=chat_id, topic_id=self._reply_thread(msg))
                         return {"kind": "mirror_busy", "sent": _mid is not None}
             except Exception:  # noqa: BLE001 — آینه هرگز مسیرِ بات را نمی‌کشد
