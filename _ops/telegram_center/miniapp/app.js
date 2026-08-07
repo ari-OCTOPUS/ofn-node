@@ -1633,6 +1633,71 @@
     });
   }
 
+  // ── تبِ هفتم: اعلان‌ها (notif_inbox، ۲۰۲۶-۰۸-۰۷) ──────────────────────────
+  // ⚠️ مارک‌خواندن **خودکار روی بازشدنِ تب نیست** — دکمهٔ صریح «خواندم».
+  // چون آیتم‌های kind=pointer (کارتِ RFC/پیشنهادِ پا) قبل از رفتن به تبِ
+  // مقصد نباید از این فهرست گم شوند — مالک باید اول ببیندشان، بعد تصمیم بگیرد.
+  var GOTO_TAB_FA = {system:"سیستم", approvals:"تأییدها"};
+  function renderNotifications(el){
+    el.innerHTML = '<div class="loading">در حال بارگذاری…</div>';
+    api("/api/notifications").then(function(d){
+      d = d || {};
+      if(d.status==="error" || d.status==="unknown"){
+        el.innerHTML = '<div class="err">خطا: '+esc(d.reason||d.status)+'</div>';
+        return;
+      }
+      var items = d.items || [];
+      var unread = Number(d.unread_count||0);
+      var html = secHead("اعلان‌ها", pill(unread>0?fa(unread)+" نخوانده":"همه خوانده شد",
+                                          unread>0?"warn":"ok"));
+      if(unread>0){
+        html += '<button class="go" id="notifMarkAll">همه رو خواندم</button>';
+      }
+      if(!items.length){
+        html += '<div class="calm"><div class="big">صندوق خالی است</div>'+
+                '<div class="sm">هیچ اعلانی اینجا ننشسته.</div></div>';
+      } else {
+        html += '<div class="tasklist">'+items.map(function(it){
+          var read = !!it.read;
+          var body = it.kind==="pointer" ? "" :
+            '<div class="tm">'+esc(String(it.body||"").slice(0,280))+'</div>';
+          var goto = (it.meta && it.meta.goto_tab) || "";
+          var gotoBtn = goto ? '<button class="chip notifGoto" data-goto="'+esc(goto)+
+            '" data-id="'+esc(it.id)+'">برو به تبِ '+esc(GOTO_TAB_FA[goto]||goto)+'</button>' : "";
+          var readBtn = read ? "" :
+            '<button class="tdone notifRead" data-id="'+esc(it.id)+'" aria-label="خواندم">✓</button>';
+          return '<div class="titem'+(read?"":" p1")+'">'+readBtn+
+            '<div class="tbody"><div class="tt">'+esc(it.title||"—")+'</div>'+
+            body+'<div class="tm">'+ltr(String(it.created_at||"").slice(0,16))+'</div>'+
+            (gotoBtn?'<div class="chips">'+gotoBtn+'</div>':'')+
+            '</div></div>';
+        }).join("")+'</div>';
+      }
+      el.innerHTML = html;
+
+      [].forEach.call(el.querySelectorAll(".notifRead"), function(b){
+        b.addEventListener("click", function(){
+          act("notif.mark_read", {ids:[b.getAttribute("data-id")]}, b).then(function(r){
+            if(r && r.ok) renderNotifications(el);
+          });
+        });
+      });
+      var markAll = el.querySelector("#notifMarkAll");
+      if(markAll) markAll.addEventListener("click", function(){
+        act("notif.mark_read", {all:true}, markAll).then(function(r){
+          if(r && r.ok) renderNotifications(el);
+        });
+      });
+      [].forEach.call(el.querySelectorAll(".notifGoto"), function(b){
+        b.addEventListener("click", function(){
+          // برو به تبِ مقصد — آیتم را از صندوق پاک نمی‌کند، مالک خودش با
+          // «خواندم» تصمیم می‌گیرد (رأیِ طراحی: پینگ را قبل از دیدنِ نتیجه گم نکن).
+          goTab(b.getAttribute("data-goto"));
+        });
+      });
+    });
+  }
+
   function goTab(name){
     var t = document.querySelector('#tabs .tab[data-tab="'+name+'"]');
     if(!t) return;
@@ -1702,9 +1767,11 @@
                                                renderObsidian, renderTruth, renderRegistry]); }
 
   function viewTasks(el){ stack(el||content, [renderTasks]); }
+  function viewNotifications(el){ stack(el||content, [renderNotifications]); }
 
   var renderers = {home:viewHome,approvals:viewApprovals,money:viewMoney,
-                   leads:viewLeads,tasks:viewTasks,system:viewSystem};
+                   leads:viewLeads,tasks:viewTasks,system:viewSystem,
+                   notifications:viewNotifications};
   // ⚠️ سکوت را بلند کن. نسخهٔ قبلی `renderers[name]||renderHome` بود، پس یک تبِ
   // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز
   // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.
