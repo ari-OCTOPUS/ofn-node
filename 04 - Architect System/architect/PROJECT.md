@@ -28,6 +28,20 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-07 شب (agent، web-app security audit — ۶ فیکس + ARIA/CSP + برخوردِ دو ایجنت).**
+  commit `5c161d2`. ۴ یافتهٔ گزارشِ بیرونی تأیید+فیکس+test+mutation-test: toast()
+  XSS (اسکیپِ شرطیِ فارسی)، فهرستِ آرامِ viewHome (برعکسِ همان)، `str(e)` خامِ
+  `live/server.py`، leak ِ کلیدهای unmanaged در `/api/flags` ِ dashboard. سیبلینگِ
+  همان کلاسِ نشت در `cortex.py`'s `/ask` هم فیکس شد. سخت‌سازی: role=tablist/tab/
+  tabpanel+roving tabindex+کیبورد، CSP بسته، بازگشت‌به‌تب با `visibilitychange` —
+  با پیش‌نمایشِ واقعیِ مرورگر تأیید شد. **⚠️ حینِ کار، ایجنتِ دیگری هم‌زمان
+  روی همان `app.js`/`live/server.py` می‌نوشت** (برچسبِ `FIX (deep-scan
+  2026-08-07)` — احتمالاً GLM worker یا یکی از سه ایجنتِ اسکنِ زیر). ۵ فیکسِ
+  آن‌ها (stale-fetch guard، null-guard، ارورِ `render()`) verify و نگه داشته
+  شد؛ فقط تصادمِ toast() (innerHTML vs textContent، span ِ `ltr()`) دستی حل شد.
+  **درسِ عملیاتی:** هر دو ایجنت مستقیم روی `F:\backup` می‌نوشتند نه worktree —
+  دقیقاً همان الگویِ WORKLOCK که این پروژه از قبل مستند کرده.
+
 - تغییرات اخیر: **2026-08-07 عصر (agent، operations/money-scan — گزارشِ ایجنتِ (۳)
   از سه مگاپرامپتِ اسکن).** جوابِ صادقانه به «همه‌چیز واقعاً کار می‌کند یا فقط
   شبیهِ فعالیت؟»: lead امروز **صفر** ولی درست است (propose_only:true، credential ِ SMTP

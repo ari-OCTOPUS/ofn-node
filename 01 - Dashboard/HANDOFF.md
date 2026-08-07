@@ -29,6 +29,27 @@ updated: 2026-08-07
 
 ## وضعِ لحظه‌ای
 
+- 🛡️✅ **2026-08-07 (شب — ممیزیِ امنیتیِ وب‌اپ: ۶ فیکس + سخت‌سازیِ ARIA/CSP + برخوردِ دو ایجنت روی یک فایل).** commit `5c161d2`.
+  گزارشِ بیرونی (audit) روی miniapp gateway/app.js/live/dashboard verify شد (۴ یافته
+  تأییدشده، همه فیکس+test+mutation-test): toast() XSS (اسکیپِ شرطیِ فارسی)، فهرستِ
+  «چیزِ سالم» در viewHome (برعکسِ همان باگ)، `str(e)` خامِ live/server.py، leak ِ
+  کلیدهایِ unmanaged در `/api/flags` ِ dashboard. **سیبلینگِ کشف‌شده:** همان کلاسِ
+  نشتِ `str(e)` در `cortex.py`'s `/ask` (به providerهای پولی می‌رسد — FUGU/GLM/DEEPSEEK
+  key) — فیکس شد. **سخت‌سازیِ اضافه** (طبقِ درخواستِ دیپ‌اسکن): نوارِ تب
+  role=tablist/tab/tabpanel+roving tabindex+کیبورد، CSP بسته (بدونِ script
+  unsafe-inline)، بازگشت‌به‌تب با `visibilitychange` هم بیرونِ Telegram — با
+  پیش‌نمایشِ واقعیِ مرورگر تأیید شد (کلیک+کیبورد+CSP بدونِ violation).
+  **⚠️ یافتهٔ عملیاتی:** حینِ این کار، یک ایجنتِ دیگر (احتمالاً GLM worker یا یکی از
+  سه ایجنتِ (۲)/(۳) بالا) هم‌زمان روی همان `app.js`/`live/server.py` می‌نوشت — ۵ فیکسِ
+  مستقل با برچسبِ `FIX (deep-scan 2026-08-07)` (stale-fetch guard، null-guard، ارورِ
+  `el` تعریف‌نشده در `render()`، و نسخهٔ دیگری از همین دو فیکس). فقط toast() واقعاً
+  تصادم داشت (innerHTML vs textContent — دومی span ِ `ltr()` را متن خام نشان می‌داد)؛
+  دستی حل و هر دو نگرانی حفظ شد. کارِ آن‌ها verify شد و در همین commit نگه داشته شد.
+  **یادآوریِ خودم:** این جلسه هم مثلِ آن ایجنت مستقیم روی `F:\backup` (درختِ زنده)
+  می‌نوشت، نه worktree — طبقِ WORKLOCK بالا («ثابت: فقط داخلِ worktree»).
+  ۳ یافتهٔ کم‌اولویتِ باقی‌ماندهٔ گزارش (deferred قبلاً) همین جلسه implement شدند،
+  چیزی معلق نماند.
+
 - 💰🔍 **2026-08-07 (عصر — گزارشِ ایجنتِ (۳) جارویِ عملیات/پول: ۳ فیکس، صفر آرم‌کردن، صفر ری‌استارت).**
   بکاپِ خام: `C:\Users\Armin\Desktop\OCTOPUS-SCAN-OPERATIONS-2026-08-07\` (run_all + AUDIT-REPORT).
   جوابِ صادقانه به «همه‌چیز واقعاً کار می‌کند یا فقط شبیهِ فعالیت؟»: lead امروز **صفر** است
@@ -174,16 +195,3 @@ updated: 2026-08-07
   miniapp_state,miniapp_gateway,miniapp/*}.py`، `_ops/integrations/outbound_https.py`،
   `_ops/{wiring,live_loop}.py`، `_ops/budget/approval_channel.py`،
   `_ops/agi2027_control/ops_actions.py`، ۱۰+ تستِ نو.
-
-- 🧩✅ **2026-08-07 (بعدازظهر — ۵ فلگِ شناختی آرم شدند با رأیِ مالک).**
-  مالک: «موافقم همرو کامل کن.» هر پنج فلگ در `OCTOPUS-flags.cmd` (محلی، gitignored)
-  آرم شدند، بعد از تحلیلِ آماریِ ایجنتِ ارشد (نوت ۲۳) و تستِ ۶ سوییت سبز:
-  - `OCTOPUS_NEURAL_LEARNED_APPLY=1` — effect-shadow اکچوئیتور. ریسک = صفر (pain ۰.۲۷۵ < آستانه ۰.۳۵).
-  - `OCTOPUS_WIRE_CONSENT_FW=1` — consent_gate فقط-رد.
-  - `OCTOPUS_WIRE_LEAD_OUTBOUND=1` — مسیرِ ارسال (ولی credential SMTP لازم برای ایمیلِ واقعی).
-  - `OCTOPUS_WIRE_VAULT_RAG=1` — پلِ RAG (هر دو کالکشن، ۱۰۹٬۲۲۰ chunks).
-  - `OCTOPUS_WIRE_CORTEX_RICH_THINK=1` — مغزِ محلی از چرخش خارج.
-  **نیازِ ری‌استارت:** پروسهٔ زنده این فلگ‌ها را بعد از restart می‌بیند. ۶ سوییت
-  سبز با فلگ‌های روشن: neural_loop_close(۸)، consent_gate(۱۰)، consent_materialize(۴)،
-  vault_bridge(۹)، retrieval_router(۸)، pulse_arbiter(۲۲).
-  **کاوست:** ایمیلِ واقعی هنوز نمی‌رود (SMTP credential جداگانه لازم).
