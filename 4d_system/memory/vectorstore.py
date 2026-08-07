@@ -26,6 +26,20 @@ import sys
 from pathlib import Path
 from typing import Callable, Optional
 
+# 2026-08-07 — self-path bootstrap: this file loads both as a bare top-level
+# module (`import vectorstore`, vault_bridge.py's pattern) and as a qualified
+# submodule (`from memory import vectorstore`, brain/tools.py's and run.py's
+# pattern). The internal imports below are deliberately absolute, not
+# relative — a relative import depends on `__package__`, which is `""` under
+# bare loading (the real ImportError logged in governor-alerts.md,
+# 2026-08-06T23:02:39: "attempted relative import with no known parent
+# package"). Adding this file's own directory to sys.path makes both loading
+# styles resolve `embeddings`/`chunk_ids` the same way, independent of
+# `__package__`.
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+
 from config.settings import DESKTOP
 
 VAULT_DIR = DESKTOP / "4D-Vault"
@@ -132,7 +146,7 @@ def get_vectorstore():
         return _vectorstore
 
     from langchain_chroma import Chroma
-    from .embeddings import get_embeddings
+    from embeddings import get_embeddings
 
     CHROMA_DIR.parent.mkdir(exist_ok=True)
     _vectorstore = Chroma(
@@ -151,7 +165,7 @@ def get_vectorstore_for(collection_name: str, persist_directory: Optional[Path] 
     by tests to point at a throwaway persist_directory so nothing ever
     touches the real outputs/chroma_db/ store."""
     from langchain_chroma import Chroma
-    from .embeddings import get_embeddings
+    from embeddings import get_embeddings
 
     pdir = Path(persist_directory) if persist_directory is not None else CHROMA_DIR
     key = (collection_name, str(pdir))
@@ -267,7 +281,7 @@ def index_vault(force: bool = False, root: Optional[Path] = None,
     # B3: ID پایدارِ per-source (memory/chunk_ids.py) — مستقل از ترتیبِ سراسری.
     # ID قبلی اندیسِ سراسریِ i را در خود داشت: ویرایشِ هر یادداشت، ID همه‌ی
     # chunkهای بعدی را عوض می‌کرد و نسخه‌های کهنه برای همیشه می‌ماندند.
-    from .chunk_ids import ids_for_chunks
+    from chunk_ids import ids_for_chunks
     ids = ids_for_chunks([(ch.metadata.get("source", ""), ch.page_content)
                           for ch in chunks])
 

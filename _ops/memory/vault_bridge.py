@@ -58,6 +58,17 @@ def search_vault_evidence(goal_key: str, k: int = 3) -> list[dict]:
         return []
     try:
         # lazy-import: نبودِ chromadb/langchain ماژول را نمی‌کشد (fail-soft)
+        #
+        # ۲۰۲۶-۰۸-۰۷ — دستِ‌نخورده ماند (نه `from memory.vectorstore import`):
+        # `_ops/memory/__init__.py` خودش یک پکیجِ واقعیِ دیگر به‌نامِ `memory`
+        # است (gate.py، memory_store.py، retrieval_router.py، همین فایل). این
+        # پروسه (organism) هر دو را روی sys.path دارد — `import memory` این‌جا
+        # می‌توانست به‌جای `4d_system/memory`، بسته به ترتیبِ importِ
+        # process-wide، به `_ops/memory` resolve شود (که `vectorstore.py`
+        # ندارد) → شکستِ نامعلوم‌تر. importِ لختِ زیر امن است چون «vectorstore»
+        # در کلِ vault فقط همین یک فایل است؛ فیکسِ واقعی داخلِ خودِ
+        # vectorstore.py است (bootstrap ِ self-path + importِ مطلق به‌جایِ
+        # relative، به‌جای وابستگی به __package__).
         for _p in (str(_4D_MEMORY), str(_4D_MEMORY.parent)):
             if _p not in sys.path:
                 sys.path.insert(0, _p)

@@ -8,6 +8,7 @@ size of 5461` شکست خورد -- `index_vault()` همه‌ی چانک‌ها �
 """
 from tests import _bootstrap  # noqa: F401
 
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -93,6 +94,55 @@ class TestIndexVaultBatching(unittest.TestCase):
 
             total = sum(len(docs) for docs, _ids in fake_vs.calls)
             self.assertEqual(total, n)
+
+
+class TestBareImportDoesNotBreakRelativeImports(unittest.TestCase):
+    """رگرسیون: importِ لختِ vectorstore (الگویِ vault_bridge.py --
+    `from vectorstore import search_vault` بعدِ افزودنِ فقط 4d_system/memory
+    به sys.path، بدونِ 4d_system خودش) نباید relative importهای درونی
+    (.embeddings/.chunk_ids) را بشکند.
+
+    زمینه: ImportError واقعی در governor-alerts.md (۲۰۲۶-۰۸-۰۶T23:02:39) --
+    «attempted relative import with no known parent package» -- دقیقاً از
+    همین مسیر آمد. فیکس: 2026-08-07، self-path bootstrap + importِ مطلق در
+    خودِ vectorstore.py (نه اصلاحِ vault_bridge.py -- چون memory یک نامِ پکیجِ
+    collision-prone است: _ops/memory/__init__.py هم پکیجِ واقعیِ دیگری با
+    همین نام است)."""
+
+    def setUp(self):
+        self._orig_path = list(sys.path)
+        for k in ("vectorstore", "embeddings", "chunk_ids", "memory.vectorstore"):
+            sys.modules.pop(k, None)
+
+    def tearDown(self):
+        sys.path[:] = self._orig_path
+        for k in ("vectorstore", "embeddings", "chunk_ids", "memory.vectorstore"):
+            sys.modules.pop(k, None)
+
+    def test_bare_load_has_empty_package(self):
+        """مبنا: importِ لخت باید __package__='' بدهد -- دقیقاً شرطی که
+        relative importها را می‌شکند اگر self-path bootstrap نباشد."""
+        _4d_memory = Path(__file__).resolve().parents[1] / "memory"
+        sys.path.insert(0, str(_4d_memory))
+        import vectorstore as bare_vs  # noqa: E402
+        self.assertEqual(bare_vs.__package__, "")
+
+    def test_bare_load_get_vectorstore_does_not_raise_relative_import_error(self):
+        """اثباتِ فیکس: با importِ لخت، get_vectorstore() (که .embeddings را
+        صدا می‌زند) نباید ImportError('attempted relative import...') بدهد --
+        حتی بدونِ اجرای واقعیِ Chroma/embedding (هر دو stub می‌شوند تا تست
+        سریع و بدونِ شبکه بماند)."""
+        _4d_memory = Path(__file__).resolve().parents[1] / "memory"
+        sys.path.insert(0, str(_4d_memory))
+        import vectorstore as bare_vs  # noqa: E402
+
+        with mock.patch("langchain_chroma.Chroma", return_value=object()), \
+             mock.patch("embeddings.get_embeddings", return_value=None, create=True), \
+             mock.patch.object(bare_vs, "_vectorstore", None):
+            try:
+                bare_vs.get_vectorstore()
+            except ImportError as e:
+                self.fail(f"importِ لخت هنوز relative importِ درونی را می‌شکند: {e}")
 
 
 if __name__ == "__main__":
