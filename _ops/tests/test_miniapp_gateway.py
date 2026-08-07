@@ -280,6 +280,16 @@ def t_lifecycle_requires_owner_auth_like_every_other_read_path():
         os.environ.pop("OCTOPUS_PF_MINIAPP", None)
 
 
+def t_notifications_requires_owner_auth_like_every_other_read_path():
+    # تبِ هفتم (اعلان‌ها/notif_inbox، ۲۰۲۶-۰۸-۰۷): با فلگِ روشن + بدونِ auth
+    # باید 403 (gate) بدهد، نه 404 — یعنی مسیر واقعاً در READ_API_PATHS ثبت
+    # شده. اگر «/api/notifications» حذف شود، این تست قرمز می‌شود (404).
+    os.environ.pop(mg.READ_GATE_FLAG, None)
+    st, body, _ = mg.handle("GET", "/api/notifications", {}, fetch_fn=_fetch(), now=NOW)
+    assert st == 403, (st, body)
+    assert b"owner_auth_required" in body, body
+
+
 def t_get_header_is_case_insensitive_both_directions():
     assert mg._get_header({"X-Tg-Init-Data": "v1"}, "X-Tg-Init-Data") == "v1"
     assert mg._get_header({"x-tg-init-data": "v2"}, "X-Tg-Init-Data") == "v2"

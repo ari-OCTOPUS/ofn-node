@@ -57,6 +57,9 @@ ALLOWED_ACTIONS = {
     # کارتِ APPLIED از آن آمدند.
     "rfc.approve",
     "rfc.deny",
+    # ۲۰۲۶-۰۸-۰۷ — تبِ هفتم (اعلان‌ها). صندوق JSON است نه ops.db، پس شاخهٔ
+    # execute() برایش مستقیم notif_inbox را صدا می‌زند، نه self.db.
+    "notif.mark_read",
 }
 BLOCKED_PREFIXES = (
     "onlyfans.",
@@ -67,6 +70,21 @@ BLOCKED_PREFIXES = (
     "cookie_import",
     "reverse_api",
 )
+
+
+def _notif_inbox_mod():
+    """ماژولِ notif_inbox، از هر پروسه‌ای — این فایل در _ops/agi2027_control
+    است، پس مسیرِ _ops/telegram_center باید صریح اضافه شود. fail-soft: خطا →
+    None (شاخهٔ notif.mark_read باید دستِ خالی را تحمل کند)."""
+    import sys as _s
+    _tgc = str(ROOT / "_ops" / "telegram_center")
+    if _tgc not in _s.path:
+        _s.path.insert(0, _tgc)
+    try:
+        import notif_inbox as _ni
+        return _ni
+    except Exception:  # noqa: BLE001
+        return None
 STAGES = {"new", "warm", "hot", "subscribed", "vip", "churn_risk", "lost", "blocked"}
 TASK_KINDS = {"followup", "manual_send", "content_prepare", "content_post", "check_payment", "review_campaign", "general"}
 _SAFE = re.compile(r"[^a-zA-Z0-9_.:@-]+")
@@ -450,6 +468,19 @@ class OpsActionEngine:
                 res = self.db.decide_rfc(payload, "merge-approved")
             elif action == "rfc.deny":
                 res = self.db.decide_rfc(payload, "denied")
+            elif action == "notif.mark_read":
+                _ni = _notif_inbox_mod()
+                if _ni is None:
+                    res = {"ok": False, "status": "ERROR", "reason": "notif_inbox_unavailable"}
+                else:
+                    ids = payload.get("ids")
+                    all_flag = bool(payload.get("all"))
+                    if not all_flag and not (isinstance(ids, list) and ids):
+                        res = {"ok": False, "status": "BLOCKED", "reason": "missing_ids_or_all"}
+                    else:
+                        n = _ni.mark_read(
+                            ids=None if all_flag else [str(i)[:80] for i in ids])
+                        res = {"ok": True, "status": "APPLIED", "marked": n}
             else:
                 res = {"ok": False, "status": "BLOCKED", "reason": "unreachable_action"}
         except Exception as exc:  # noqa: BLE001 — عمداً وسیع

@@ -387,6 +387,25 @@ def get_legs_state(root: "Path | None" = None) -> dict:
     return {"status": "ok", "legs": _scrub_dict(biz)}
 
 
+def get_notifications_state(root: "Path | None" = None) -> dict:
+    """`/api/notifications` — صندوقِ اعلانِ notif_inbox (۲۰۲۶-۰۸-۰۷، کاهشِ
+    فشارِ تلگرام). fail-soft: نبود/خطا در importِ notif_inbox → status=unknown،
+    نه استثنا — تبِ هفتم نباید کلِ داشبورد را بترکاند."""
+    try:
+        import notif_inbox as _ni
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "unknown", "reason": f"{type(exc).__name__}", "items": [],
+                "unread_count": 0}
+    try:
+        items = _ni.list_items(limit=50)
+        return _scrub_dict({"status": "ok", "items": items,
+                            "unread_count": _ni.unread_count(),
+                            "cap_hit": len(items) >= 50})
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "reason": f"{type(exc).__name__}", "items": [],
+                "unread_count": 0}
+
+
 def get_value_state(root: "Path | None" = None) -> dict:
     """Value Ledger: خلاصه از value-ledger.jsonl (اگر هست)."""
     ledger = _RUNTIME / "value-ledger.jsonl"
@@ -870,6 +889,7 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         "/api/outbound": get_outbound_state,
         "/api/approvals": get_approvals_state,
         "/api/legs": get_legs_state,
+        "/api/notifications": get_notifications_state,
         "/api/value": get_value_state,
         "/api/ui-registry": get_ui_registry,
         "/api/current-truth": get_current_truth,

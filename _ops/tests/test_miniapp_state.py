@@ -53,11 +53,44 @@ def t_dispatch_unknown_path_is_404():
 
 def t_dispatch_known_paths_return_200():
     for p in ["/api/state", "/api/outbound", "/api/legs", "/api/value",
-              "/api/ui-registry", "/api/current-truth", "/api/ops"]:
+              "/api/ui-registry", "/api/current-truth", "/api/ops",
+              "/api/notifications"]:
         st, body, ct = miniapp_state.dispatch_api(p)
         assert st == 200, f"{p} -> {st}"
         # must be valid JSON
         json.loads(body)
+
+
+def t_notifications_empty_state():
+    with tempfile.TemporaryDirectory() as d:
+        import notif_inbox as _ni
+        old_path = _ni._STORE_PATH
+        _ni._STORE_PATH = Path(d) / "notif-inbox.json"
+        try:
+            s = miniapp_state.get_notifications_state()
+        finally:
+            _ni._STORE_PATH = old_path
+    assert s["status"] == "ok", s
+    assert s["items"] == [] and s["unread_count"] == 0, s
+
+
+def t_notifications_scrubbed():
+    """_scrub_dict نامِ کلید را اسکن می‌کند (نه محتوای رشته) — پس یک meta با
+    کلیدِ token دقیقاً همان سنجه‌ای است که این پوششِ دفاعِ دوباره را واقعاً
+    محک می‌زند."""
+    with tempfile.TemporaryDirectory() as d:
+        import notif_inbox as _ni
+        old_path = _ni._STORE_PATH
+        _ni._STORE_PATH = Path(d) / "notif-inbox.json"
+        try:
+            _ni.push("rfc_card", "x", "", kind="pointer",
+                    meta={"rfc_id": "RFC-1", "token": "123456789:AAGxxxxxxxxxxxxxxxxxxxxxxxx"})
+            s = miniapp_state.get_notifications_state()
+        finally:
+            _ni._STORE_PATH = old_path
+    assert s["status"] == "ok" and s["unread_count"] == 1, s
+    assert s["items"][0]["meta"]["token"] == "<REDACTED>", s["items"][0]
+    assert s["items"][0]["meta"]["rfc_id"] == "RFC-1", s["items"][0]
 
 
 def t_outbound_missing_db_is_honest():
@@ -81,6 +114,8 @@ CHECKS = [
     ("state scrubs secrets", t_state_scrubs_secrets),
     ("dispatch unknown â†’ 404", t_dispatch_unknown_path_is_404),
     ("dispatch known â†’ 200 + valid JSON", t_dispatch_known_paths_return_200),
+    ("notifications empty state", t_notifications_empty_state),
+    ("notifications meta scrubbed", t_notifications_scrubbed),
     ("outbound missing db â†’ honest", t_outbound_missing_db_is_honest),
     ("scrub redacts email", t_scrub_redacts_email),
     ("scrub redacts token", t_scrub_redacts_token),

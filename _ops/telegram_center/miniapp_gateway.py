@@ -56,6 +56,8 @@ STOP_NAME = "STOP-MINIAPP"
 # با قاعده بسته می‌شود نه با یادآوری.
 READ_API_PATHS = {
     "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
+    # ۲۰۲۶-۰۸-۰۷: تبِ هفتم (اعلان‌ها/notif_inbox). همان درِ owner-auth، بدونِ استثنا.
+    "/api/notifications",
     "/api/value", "/api/ui-registry", "/api/current-truth",
     "/api/ops", "/api/ops/brain", "/api/ops/leads", "/api/ops/tasks",
     # ۲۰۲۶-۰۸-۰۴: دو تابعِ یتیمِ `miniapp_state` که مسیر نداشتند و تبِ
