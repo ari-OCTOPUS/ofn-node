@@ -158,6 +158,45 @@ append کن و رد شو — دور نزن.
 
 فلگ‌های خودشان دست‌نخورده ماندند (تصمیمِ برگرداندن هم با مالک است).
 
+## ✅ حل شد (همان روز، عصرِ دیرتر — مالک هر دو را تأیید کرد: «do both i agree»)
+
+**۱) `budget-state.json` بازسازی شد.** ریشه پیدا شد: `budget_gate.py:171-173`
+تابعِ `_save()` نوشتنِ **غیراتمیک** دارد (`STATE.write_text(...)` مستقیم،
+بدونِ tmp+`os.replace`) — برخلافِ `organ-state.json` که در همان لحظه (۱۴:۵۲)
+با یک نوشتنِ اتمیکِ سالم موفق شد. یک قطعیِ پروسه دقیقاً وسطِ همان `write_text`
+فایل را با null byte خالی گذاشته. بازسازی با دادهٔ **واقعی و مستقل** انجام شد
+(نه حدس): `telemetry-latest.json` (تازه‌تر از لحظهٔ کرش) مستقلاً نشان می‌داد
+هر سه منبعِ هزینه (genome ledger، core.db، organ_gate) امروز/این‌ماه دقیقاً
+صفر بودند — پس `{"date":..., "month":..., "spent_today_usd":0.0,
+"spent_month_aud":0.0, "halted":false}` هم دقیقاً همان چیزی است که
+`_roll()` خودش برای یک روزِ نو می‌ساخت. `telemetry.reconcile()` بعدِ فیکس
+صفر مشکل داد؛ `FREEZE.flag` پاک شد (طبقِ `OPS_RUNBOOK.md`: فقط بعد از
+رفعِ ریشه). سه سوییتِ مرتبط سبز: `test_telemetry` (۹)، `test_octopus_parity_modules`
+(۱۳)، `test_budget_gate_v2` (۸).
+
+**۲) ری‌استارت انجام شد — با یک یافتهٔ زیرساختیِ واقعیِ دیگر.**
+`RESTART-ALL.ps1` چهار از پنج limb را تمیز عوض کرد (center/gateway/live/organism)
+ولی **cortex شکست خورد** — «TIMEOUT: old process still alive» با همان pid.
+بررسی نشان داد pid ِ قدیمی عملاً **zombie** بود (۲ ثانیه CPU روی ۸۰+ دقیقه،
+۲.۴MB حافظه، وضعیتِ `Unknown` در `tasklist`) — نه یک cortexِ مشغول. طبقِ
+کامنتِ خودِ `RESTART-PROCESS.ps1`، مسیرِ cortex عمداً **fallbackِ اجباری
+ندارد** (برخلافِ gateway که مستقیم `Stop-Process -Force` می‌زند) — دلیلش
+جلوگیری از قطعِ یک چرخهٔ واقعاً مشغول است، ولی برای یک zombie همین انتخاب
+باعث می‌شود ری‌استارت برای همیشه timeout بزند. بعدِ تأییدِ مستقلِ zombie‌بودن
+(نه صرفِ حدس)، دستی `Stop-Process -Force` زده شد و `RESTART-PROCESS.ps1 cortex`
+دوباره اجرا شد — این‌بار موفق (pid نو ۱۶:۳۳:۵۵).
+
+**نتیجهٔ نهایی، تأییدشدهٔ زنده:** هر ۵ پروسه (center/cortex/live/organism/
+gateway) با pid ِ تازه بالا آمدند و `flags-loaded-*.json` هر ۵تا نشان
+می‌دهد هر ۶ فلگ (۵ + `PAIN_THRESHOLD_CALIBRATED`) واقعاً `=1` بارگذاری
+شده‌اند. `opslib.frozen()` → `False`. صفر marker ِ STOP باقی‌مانده.
+`ORGANISM-STATE.json` تیک‌های زنده می‌زند.
+
+**سؤالِ بازِ زیرساختی برای بعد (نه امروز):** آیا `RESTART-PROCESS.ps1`
+باید بعد از timeoutِ cortex یک چکِ سبکِ zombie (CPU-time نزدیکِ صفر روی
+uptime بلند) اضافه کند تا این تشخیصِ دستی خودکار شود؟ گزینه‌ی جلسهٔ بعد،
+نه اورژانسی.
+
 ---
 
 ## تصحیح و اجرا (۲۰۲۶-۰۸-۰۷، کارگرِ بعدی)
