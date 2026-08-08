@@ -29,6 +29,27 @@ updated: 2026-08-08
 
 ## وضعِ لحظه‌ای
 
+- 🏗️🔐 **2026-08-08 (شب — Seed Agent v1 + Owner-Cockpit stack + StateGuard).**
+  سه فازِ بزرگ در یک session: (الف) **StateGuard** — repair + harden،
+  (ب) **Seed Agent v1** — context assembler + bridge، (ج) **Owner-Cockpit** — ۸ WP.
+  **فازِ الف — StateGuard** (۵ commit، `c566c9a`→`35ba960`):
+  ۶ فایلِ corrupt JSONL repair شد (null stripped، ۵۴۴۶۲ رکوردِ معتبر حفظ شد،
+  صفر داده از دست‌رفته). ریشه: `opslib.append_jsonl` بدون fsync → با fsync harden شد.
+  ۲ نویسندهٔ raw (tick_timing, reach_probe) migrate شدند. arm gate + maintenance lock.
+  **فازِ ب — Seed Agent v1** (`9415b9e` + session موازی `066e3be`→`7999e6a`):
+  `_ops/seed/context_assembler.py` — ۷-slot prompt assembler (RULES/MISSION/STATE/
+  FACTS/EPISODES/TRACE/USER). `_ops/seed/octopus_reader.py` — bridge read-only به
+  live_snapshot/retrieval_router/semantic_memory. Seed Pack v1+v1.1+v1.2 ingested.
+  EvolutionGate (safe self-improvement با evaluator مستقل) + red-team harness.
+  همه پشت `OCTOPUS_WIRE_SEED_ASSEMBLER` (default OFF).
+  **فازِ ج — Owner-Cockpit** (`92b0bfa`→`b314a9f`، ۸ WP):
+  `_ops/owner_cockpit/` — fugu_proxy (:8787) + otel_setup + db.py (hash-chained
+  audit) + owner_api (:8788، HMAC initData، ۷ لایه امنیت) + miniapp (۵ تب RTL).
+  قیمت‌های Fugu verify‌شده از console.sakana.ai: $5/$30/$0.50 per 1M.
+  ۶۴ تست سبز. ۶/۷ چک‌لیست verify سبز (۱ pending: live call با کلید واقعی).
+  ADR: fugu_quota (circuit breaker) vs provider_usage (financial ledger) reconciled.
+  جزئیات: [[../07 - Knowledge/شناخت-اختاپوس/34-SEED-AGENT-OWNER-COCKPIT-2026-08-08|نوتِ ۳۴]].
+
 - 🐙🔧 **2026-08-08 (عصر — مینی‌اپِ تلگرام دیپ‌اسکن + لایهٔ ۱ SDK بومی).**
   دو فازِ کار روی وب‌اپ: (الف) **دیپ‌اسکن + فیکسِ ۴ باگ**، (ب) **لایهٔ ۱ SDK بومیِ تلگرام**.
   **فازِ الف — ۴ باگِ بحرانی** (همه در `miniapp_state.py`):

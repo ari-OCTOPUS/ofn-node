@@ -36,6 +36,13 @@ updated: 2026-08-07
   از قبل خود-خوان بود (راستی‌آزمایی، نیازی نبود). تکمیلِ نوتِ ۲۷. جزئیاتِ کامل:
   [[../../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|31-READER-MAP]].
 
+- تغییرات اخیر: **2026-08-08深夜 (agent، Seed Agent v1 + Owner-Cockpit stack + StateGuard).**
+  سه فاز: StateGuard (۶ فایل corrupt repair + fsync harden)، Seed Agent v1
+  (context_assembler + octopus_reader + EvolutionGate + red-team harness)،
+  Owner-Cockpit (fugu_proxy + otel + SQLite audit + owner_api HMAC + miniapp).
+  ۶۴ تست سبز. Seed Pack v1/v1.1/v1.2 ingested. قیمت‌های Fugu verify‌شده.
+  کامیت‌ها: `c566c9a`→`b314a9f`. جزئیات: نوتِ ۳۴ شناخت-اختاپوس.
+
 - تغییرات اخیر: **2026-08-08 شب (agent، مینی‌اپِ تلگرام — دیپ‌اسکن + لایهٔ ۱ SDK بومی).**
   وب‌اپِ اختاپوس: ۴ باگِ بحرانی فیکس شد (NameError ×۳ در handlers جدید + NaN در self_accuracy).
   لایهٔ ۱ SDK بومیِ تلگرام: BottomButton، selectionChanged haptic، enableClosingConfirmation —
