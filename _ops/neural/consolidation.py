@@ -48,6 +48,81 @@ def _floor_seconds() -> float:
         return 21600.0
 
 
+# ── dedup فازی (افزودنی، پشتِ فلگِ جدا، fail-soft) — ۲۰۲۶-۰۸-۰۷ ───────────────
+# چرا جدا از `_compress_on`: آن مسیر فقط **امضای دقیق** (sha256 محتوایی) را می‌بندد
+# و باز هم خاموش است روی درختِ زنده. اندازه‌گیریِ زنده: ۵۸۳ ردیف، **۲۸ امضای
+# یکتا (۴.۸٪)** — یعنی ۹۵.۲٪ تکرار. علت اصلی: مقدارِ «آگاهیِ میانگین» بین چند
+# سطح نوسان می‌کند (0.73 → 0.72 → 0.73) و هیچ‌کدام امضای عینِ هم ندارند، پس
+# گاردِ دقیق روی همه‌شان صفر اثر دارد. این مسیر **شباهتِ زیررشته‌ای** ساده (نه
+# LLM) را روی آخرین N ردیف می‌سنجد: بالایِ آستانه → فولد، نه append نو.
+# افزودنی: فلگ خاموش = بایت‌به‌بایت با امروز (مسیرِ exact-dedup دست‌نخورده).
+def _dedup_fuzzy_on() -> bool:
+    return _flag("OCTOPUS_CONSOLIDATION_DEDUP_FUZZY")
+
+
+def _dedup_window() -> int:
+    """تعدادِ ردیفِ اخیری که شباهت باشان سنجیده می‌شود. پیش‌فرضِ ۸ = ~یک روزِ کاری."""
+    try:
+        return max(1, int(os.environ.get("OCTOPUS_CONSOLIDATION_DEDUP_N", "8")))
+    except ValueError:
+        return 8
+
+
+def _dedup_threshold() -> float:
+    """کفِ شباهتِ جاکاردیِ توکنی برای «همان یافته». پیش‌فرض ۰.۷ (محافظه‌کارانه)."""
+    try:
+        v = float(os.environ.get("OCTOPUS_CONSOLIDATION_DEDUP_SIM", "0.7"))
+        return v if 0.0 <= v <= 1.0 else 0.7
+    except ValueError:
+        return 0.7
+
+
+def _tokenize(s: str) -> set[str]:
+    """توکن‌سازیِ سبک برای شباهتِ زیررشته‌ای: کلماتِ ≥۲ حرف، normalised.
+    اعداد (مثل 0.73) را نگه می‌دارد چون تکرارِ آن‌ها خودش سیگنالِ نویز است."""
+    out: set[str] = set()
+    for tok in str(s or "").replace(",", " ").split():
+        t = tok.strip(".,؛:()«»\"'")
+        if len(t) >= 2:
+            out.add(t)
+    return out
+
+
+def _jaccard(a: set[str], b: set[str]) -> float:
+    """شباهتِ جاکاردی روی دو مجموعهٔ توکن. خالی/خالی = ۰ (نه ۱)."""
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+
+def _fuzzy_duplicate(rec: dict, history: list[dict], window: int,
+                     threshold: float) -> tuple[int | None, dict | None]:
+    """آیا `rec` شبیهِ ردیفِ اخیری است؟ خروجی: (موقعیتِ مقصد | None, ردیفِ مقصد | None).
+
+    شباهت = جاکاردِ توکنیِ رشتهٔ insights (به‌هم‌چسبیده با ' | '). بالایِ آستانه روی
+    آخرین `window` ردیف → اولین تطبیق برنده. ردیفِ مقصد نباید بردارِ latent داشته
+    باشد (همان قراردادِ `_foldable` — تا کردن داخلِ ردیفِ غنی، دادهٔ کمیاب را له می‌کند).
+    fail-soft: هر خطا → (None, None) یعنی «اجازهٔ append بده».
+    """
+    try:
+        rec_tokens = _tokenize(" | ".join(str(x) for x in (rec.get("insights") or [])))
+        if not rec_tokens:
+            return None, None
+        recent = [r for r in history[-max(1, window):] if isinstance(r, dict)]
+        for i in range(len(recent) - 1, -1, -1):       # از تازه‌ترین به قدیمی
+            cand = recent[i]
+            if cand.get("latent_vector") is not None:
+                continue
+            cand_tokens = _tokenize(" | ".join(str(x) for x in (cand.get("insights") or [])))
+            if _jaccard(rec_tokens, cand_tokens) >= threshold:
+                # موقعیتِ مطلق در history (نه در recent) برای fold
+                abs_pos = len(history) - len(recent) + i
+                return abs_pos, cand
+    except Exception:  # noqa: BLE001 — dedup هرگز consolidation را نمی‌کشد
+        pass
+    return None, None
+
+
 def _default_data_path() -> Path:
     """env-اول (OPS_DIR) تا تستِ harness-ایزوله state واقعی/repo را آلوده نکند
     (همان درسِ bcm 2026-07-10)؛ بدونِ env = کنارِ ماژول (production)."""
@@ -85,6 +160,9 @@ class ConsolidatedInsight:
     # Phase 4 (Blueprint): گزارش فیلتر sparse (backward compatible — None وقتی خاموش)
     sparse_ratio: float | None = None
     sparse_filtered: list[str] | None = None
+    # Phase 5 (۲۰۲۶-۰۸-۰۷): گزارشِ dedup فازی — چند ردیفِ شبیه دفع شد (None = فلگ خاموش).
+    # اضافه‌شدنی: فلگ خاموش → None، بایت‌به‌بایتِ امروز.
+    dedup_skipped: int | None = None
 
 
 def _verify_source(name: str, data: dict) -> bool:
@@ -267,6 +345,20 @@ class ConsolidationCycle:
                     # کم‌یاب‌ترین دادهٔ فایل را لِه می‌کرد (سیکلِ ۵۴۰ داخلِ ۵۳۹).
                     and prev.get("latent_vector") is None)
             target = prev if same else None
+        # Phase 5 (۲۰۲۶-۰۸-۰۷) — dedup فازیِ افزودنی: اگر مسیرِ exact برنگرداند،
+        # شباهتِ زیررشته‌ای روی آخرین N ردیف را امتحان کن. چرا جدا از exact:
+        # اندازه‌گیریِ زنده نشان داد exact روی ۹۵.۲٪ تکرار صفر اثر دارد (نوسانِ
+        # عددِ آگاهی امضای عینِ هم نمی‌سازد). فازی این شکاف را می‌بندد. فلگِ جدا،
+        # fail-soft، و ردیفِ دارای بردار را هرگز مقصد نمی‌کند (همان قرارداد).
+        # فلگ خاموش → dedup_skipped می‌ماند None (بایت‌به‌بایتِ امروز).
+        if _dedup_fuzzy_on():
+            result.dedup_skipped = 0
+            if target is None and self._history:
+                _fpos, _ftarget = _fuzzy_duplicate(rec, self._history,
+                                                    _dedup_window(), _dedup_threshold())
+                if _ftarget is not None and _fpos is not None:
+                    target = _ftarget
+                    result.dedup_skipped = 1
         if target is not None:
             target["repeats"] = int(target.get("repeats", 1)) + 1
             target["last_cycle"] = self._cycle_count
