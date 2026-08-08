@@ -51,6 +51,14 @@ UPSTREAM_PORT = int(os.environ.get("LIVE_PORT", "8773"))
 AUTH_MAX_AGE_S = 300.0
 STOP_NAME = "STOP-MINIAPP"
 
+# ۲۰۲۶-۰۸-۰۸: مهلتِ زمانیِ سقف برای مسیرهای غیر-خواندنی. ThreadingHTTPServer هر
+# درخواست را در thread جدا می‌کند، ولی یک LLM hang همچنان یک thread را برای همیشه
+# نگه می‌دارد و به‌مرور منابع را نشت می‌دهد. این سقف ضامنِ آن است که هیچ درخواستی
+# بیش از این ثانیه معلق نماند — پس از آن، یک 504 (Gateway Timeout) تمیز برمی‌گردد.
+ASK_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_ASK_TIMEOUT", "60.0"))
+ACTIONS_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_ACTIONS_TIMEOUT", "15.0"))
+MIRROR_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_MIRROR_TIMEOUT", "45.0"))
+
 # سطحِ فقط‌خواندنی (secret-scrubbed در miniapp_state، دوباره redact در همین فایل).
 # **تک‌فهرست** است نه دو کپی: زیرمسیرهای /api/ops دقیقاً از همان درِ والدشان رد
 # می‌شوند، پس ساختاراً نمی‌توانند بازتر باشند — سوراخِ «اندپوینتِ تازهٔ بی‌گارد»
@@ -400,16 +408,54 @@ def _log_hit(path: str, status: int, authed: bool) -> None:
         pass
 
 
+def _run_with_timeout(fn, timeout_s: float, *args, **kwargs):
+    """یک تابع را در thread جدا اجرا می‌کند و سقفِ زمانی اعمال می‌کند.
+
+    ۲۰۲۶-۰۸-۰۸: مسیرهای ask_brain/mirror/OpsActionEngine بدونِ timeout بودند —
+    اگر LLM یا DB هنگ کند، thread تا ابر باز می‌ماند و به‌مرور نشت می‌کرد. این
+    wrapper ضامنِ آن است که هیچ درخواستی بیش از `timeout_s` معلق نماند.
+
+    خروجی: (result, None) در موفقیت، یا (None, "timeout") در انقضای مهلت.
+
+    نکتهٔ threading: thread همچنان پس از timeout زنده می‌ماند (Python به‌سختی
+    threadها را kill می‌کند) ولی حداقل پاسخِ HTTP فوراً برمی‌گردد و thread معلق
+    دیگر مسیرِ سرویس را قفل نمی‌کند. برای عملیاتِ LLM این عملاً یعنی connection
+    مدل هم بسته می‌شود چون urllib response را می‌خواند و خارج می‌شود."""
+    result_box = [None]
+    error_box = [None]
+    done = threading.Event()
+
+    def _worker():
+        try:
+            result_box[0] = fn(*args, **kwargs)
+        except Exception as e:  # noqa: BLE001
+            error_box[0] = e
+        finally:
+            done.set()
+
+    t = threading.Thread(target=_worker, daemon=True)
+    t.start()
+    done.wait(timeout=timeout_s)
+    if done.is_set():
+        return result_box[0], error_box[0]
+    return None, TimeoutError(f"exceeded {timeout_s:.0f}s")
+
+
 def handle(method: str, path: str, headers, *, fetch_fn=None,
            now: "float | None" = None) -> tuple:
     """پوششِ نازکِ `_handle_core` که رسیدِ per-request می‌نویسد.
 
-    `authed` مشتق است نه حدس: تنها مسیری که پشتِ دیوارِ HMAC است
-    `/api/miniapp` است، و تنها وقتی وضعیتِ ۲xx/3xx می‌دهد که
-    `validate_init_data` پاس شده باشد (هر شکست = 403 با بدنهٔ خالی)."""
+    `authed` مشتق است نه حدس: هر مسیر `/api/*` که ۲xx/3xx می‌دهد از دیوارِ HMAC
+    رد شده است (هر شکست = 403). مسیرهای static (shell/app.js/css) همیشه authed=False
+    هستند چون owner-auth لازم ندارند — سرو‌شدنشان معنایِ authed بودن نیست."""
     st, body, ctype = _handle_core(method, path, headers, fetch_fn=fetch_fn, now=now)
     p = str(path or "").split("?", 1)[0]
-    _log_hit(path, st, p == "/api/miniapp" and 200 <= int(st) < 400)
+    # ۲۰۲۶-۰۸-۰۸: قبلاً فقط /api/miniapp را authed می‌شمرد — ولی همه‌ی مسیرهای
+    # READ_API_PATHS و POST ها هم owner-auth لازم دارند. یک 200 روی هر /api/* =
+    # رد شدن از دیوار. فقط static assets (200 بدون auth) authed نیستند.
+    _is_api = p.startswith("/api/")
+    _authed = _is_api and 200 <= int(st) < 400
+    _log_hit(path, st, _authed)
     return st, body, ctype
 
 
@@ -460,11 +506,24 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
             eng = OpsActionEngine(_OPS.parent)
             try:
-                res = eng.execute(action, action_payload, {"is_owner": True}, action_id=action_id)
+                # ۲۰۲۶-۰۸-۰۸: OpsActionEngine می‌تواند به DB بنویسد که اگر قفل
+                # شده باشد ممکن است هنگ کند. سقفِ زمانیِ کوتاه (۱۵s) ضامنِ آن
+                # است که هیچ اقدامی thread را برای همیشه قفل نکند.
+                res, a_err = _run_with_timeout(
+                    eng.execute, ACTIONS_TIMEOUT_S, action, action_payload,
+                    {"is_owner": True}, action_id=action_id)
+                if a_err and isinstance(a_err, TimeoutError):
+                    body = json.dumps({"ok": False, "status": "ERROR",
+                                       "reason": "action_timeout"},
+                                      ensure_ascii=False).encode("utf-8")
+                    return 504, body, "application/json; charset=utf-8"
+                if a_err:
+                    raise a_err
+                res = res or {}
                 # ⚠️ باگِ «زدم و هیچ نشد» (۲۰۲۶-۰۸-۰۵): کشِ خواندن ۳ ثانیه TTL
                 # دارد و UI بلافاصله بعد از اقدامِ موفق همان بخش را دوباره
                 # می‌خواند ⇒ حالتِ **قبل از نوشتن** سرو می‌شد. مالک تُستِ سبز
-                # می‌دید و ردیف سرِ جایش می‌ماند. `cache_clear()` از قبل وجود
+                # می‌دید و ردیف سر‌جایش می‌ماند. `cache_clear()` از قبل وجود
                 # داشت و صفر صداکننده داشت.
                 # فقط APPLIED و ERROR می‌توانند حالت را عوض کرده باشند:
                 # BLOCKED/DENIED هر دو قبل از هر نوشتنی return می‌کنند و
@@ -514,7 +573,18 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                 _sys.path.insert(0, ops_path)
             import ask_vault  # noqa: WPS433 — هم‌پوشه
             import ask_brain  # noqa: WPS433 — هم‌پوشه
-            rv = ask_vault.query(question)
+            # ۲۰۲۶-۰۸-۰۸: ask_vault معمولاً سریع است (پایگاه داده محلی) ولی
+            # ask_brain می‌تواند به یک LLM محلی/پولی برسد که ممکن است هنگ کند.
+            # هر دو داخلِ سقفِ زمانی اجرا می‌شوند تا هیچ مکالمه‌ای thread را
+            # برای همیشه قفل نکند.
+            rv, v_err = _run_with_timeout(ask_vault.query, ASK_TIMEOUT_S, question)
+            if v_err and isinstance(v_err, TimeoutError):
+                body = json.dumps({"ok": False, "reason": "vault_timeout"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 504, body, "application/json; charset=utf-8"
+            if v_err:
+                raise v_err
+            rv = rv or {}
             # sources خالی یعنی NO_ANSWER (صفر شاهد) — ok=True است ولی جوابِ
             # واقعی نیست؛ باید escalate کند، نه اینکه به‌جایِ جواب برگردد.
             if rv.get("ok") and rv.get("answer") and rv.get("sources"):
@@ -522,7 +592,14 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                                    "sources": rv.get("sources") or []},
                                   ensure_ascii=False).encode("utf-8")
                 return 200, body, "application/json; charset=utf-8"
-            rb = ask_brain.ask(question)
+            rb, b_err = _run_with_timeout(ask_brain.ask, ASK_TIMEOUT_S, question)
+            if b_err and isinstance(b_err, TimeoutError):
+                body = json.dumps({"ok": False, "reason": "brain_timeout"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 504, body, "application/json; charset=utf-8"
+            if b_err:
+                raise b_err
+            rb = rb or {}
             if rb.get("ok"):
                 body = json.dumps({"ok": True, "answer": rb.get("text") or "", "source": "brain",
                                    "tier": rb.get("tier"), "model": rb.get("model")},
@@ -566,7 +643,16 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             if ops_path not in _sys.path:
                 _sys.path.insert(0, ops_path)
             import mirror_room  # noqa: WPS433 — هم‌پوشه
-            rm = mirror_room.ask(question)
+            # ۲۰۲۶-۰۸-۰۸: mirror_room می‌تواند به LLM محلی/پولی برسد — سقفِ زمانی
+            # همان تضمینِ ask: هیچ مکالمه‌ای thread را برای همیشه قفل نمی‌کند.
+            rm, m_err = _run_with_timeout(mirror_room.ask, MIRROR_TIMEOUT_S, question)
+            if m_err and isinstance(m_err, TimeoutError):
+                body = json.dumps({"ok": False, "reason": "mirror_timeout"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 504, body, "application/json; charset=utf-8"
+            if m_err:
+                raise m_err
+            rm = rm or {}
             if rm.get("ok"):
                 body = json.dumps({"ok": True, "answer": rm.get("text") or "",
                                    "source": "mirror", "tier": rm.get("tier"),

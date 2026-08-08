@@ -122,15 +122,28 @@ class RFCArchive:
 LIFT_DROP_THRESHOLD = 0.05    # RFC با lift<این → drop خودکار (به انسان نمی‌رسد)
 
 
-def measured_lift(rfc: dict, eval_fn=None, baseline: dict | None = None) -> dict:
+def measured_lift(rfc: dict, eval_fn=None, baseline: dict | None = None,
+                  suite_fn=None) -> dict:
     """lift واقعی را در sandbox می‌سنجد. eval_fn قابل‌تزریق.
     خروجی: {lift, passed, dropped, detail}.
     زیرِ LIFT_DROP_THRESHOLD → drop خودکار (propose-only، به submit نمی‌رسد).
-    stub پیش‌فرض: lift از evidence تخمین (در B2 با eval واقعی جایگزین)."""
+
+    `suite_fn` (up-1363aae4df): یک harness قابل‌تزریق که rfc را می‌گیرد و
+    {pass, total, baseline_pass} برمی‌گرداند. doctor می‌تواند suite-runner واقعیِ
+    sandbox را این‌جا تزریق کند تا lift از suite-delta واقعی محاسبه شود (نه از
+    severity). اگر suite_fn نباشد، _default_eval به fallbackِ severity تخمینی
+    برمی‌گردد (صادقانه stub-label‌شده). eval_fn (اگر داده شود) همیشه ارجح است."""
     if eval_fn is None:
         eval_fn = _default_eval
     try:
-        result = eval_fn(rfc, baseline or {})
+        result = eval_fn(rfc, baseline or {}, suite_fn=suite_fn)
+    except TypeError:
+        # eval_fn امضایِ قدیمی (rfc, baseline) دارد — backward-compatible
+        try:
+            result = eval_fn(rfc, baseline or {})
+        except Exception as e:  # noqa: BLE001 — eval fail = drop (fail-closed)
+            return {"lift": 0.0, "passed": False, "dropped": True,
+                    "detail": f"eval error: {e}"}
     except Exception as e:  # noqa: BLE001 — eval fail = drop (fail-closed)
         return {"lift": 0.0, "passed": False, "dropped": True,
                 "detail": f"eval error: {e}"}
@@ -140,9 +153,34 @@ def measured_lift(rfc: dict, eval_fn=None, baseline: dict | None = None) -> dict
             "dropped": not passed, "detail": result.get("detail", "")}
 
 
-def _default_eval(rfc: dict, baseline: dict) -> dict:
-    """stub: lift از evidence/severity تخمین. در B2: eval واقعی روی held-out.
-    این stub ساده است ولی ساختارِ درست دارد."""
+def _default_eval(rfc: dict, baseline: dict, suite_fn=None) -> dict:
+    """lift را می‌سنجد. اگر suite_fn تزریق شده باشد، suite-delta واقعی؛ وگرنه
+    fallbackِ severity تخمینی (صادقانه stub-label‌شده).
+
+    up-1363aae4df (۲۰۲۶-۰۸-۰۸): تا اینجا فقط severity را به عدد تبدیل می‌کرد —
+    هیچ پس‌رفتی را نمی‌دید و یک RFCِ critical همیشه lift=0.5 می‌گرفت حتی اگر
+    suite را می‌شکست. حالا suite_fn قابل‌تزریق است و doctor آن را از run_sandbox
+    تغذیه می‌کند. fallback فقط وقتی suite_fn نباشد فعال می‌شود (مثلاً تست‌های
+    قدیمی که فقط severity می‌دهند)."""
+    # ── مسیرِ واقعی: suite-delta از یک suite_fn قابل‌تزریق ─────────────────────
+    if suite_fn is not None:
+        try:
+            suite = suite_fn(rfc)
+        except Exception as e:  # noqa: BLE001 — suite fail = fail-closed (lift 0)
+            return {"lift": 0.0, "detail": f"suite_fn error: {e}"}
+        passed = int(suite.get("pass", 0))
+        total = max(int(suite.get("total", 0)), 1)
+        base = int(suite.get("baseline_pass", passed))
+        # lift = دلتای نسبتِ pass (candidate − baseline). منفی = regression.
+        lift = (passed - base) / total
+        # λ_persist جریمه اگر fix به uptime اشاره کند (حتی در مسیرِ واقعی)
+        fix_lower = str(rfc.get("fix", "")).lower()
+        if any(w in fix_lower for w in ("uptime", "keep-beating")):
+            lift = lift + LAMBDA_PERSIST * 0.3
+        tag = "suite-delta" if "error" not in suite else "suite-error"
+        return {"lift": round(lift, 4),
+                "detail": f"{tag}: {passed}/{total} (base {base})"}
+    # ── fallback: severity تخمینی (stub، صادقانه برچسب‌شده) ────────────────────
     severity = (rfc.get("evidence") or {}).get("severity", "high")
     # severity بالا = پتانسیلِ lift بیشتر (ولی stub، نه اندازه‌گیریِ واقعی)
     sev_score = {"critical": 0.5, "high": 0.3, "medium": 0.15, "low": 0.04}.get(severity, 0.1)
@@ -150,7 +188,7 @@ def _default_eval(rfc: dict, baseline: dict) -> dict:
     fix_lower = str(rfc.get("fix", "")).lower()
     if any(w in fix_lower for w in ("uptime", "keep-beating")):
         sev_score = max(0.0, sev_score + LAMBDA_PERSIST * 0.3)
-    return {"lift": sev_score, "detail": f"stub: severity={severity}"}
+    return {"lift": sev_score, "detail": f"stub estimate: severity={severity} (no suite_fn)"}
 
 
 # ════════════════════════════════════════════════════════════════════════════════

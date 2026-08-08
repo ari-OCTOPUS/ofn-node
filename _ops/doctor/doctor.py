@@ -212,7 +212,7 @@ class Doctor:
 
     def __init__(self, state_dir=None, knowledge_dir=None, ledger=None,
                  approval_channel=None, sandbox_runner=None, db=None,
-                 archive=None, box=None):
+                 archive=None, box=None, suite_fn=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
         # ⚑ ضدِ آلودگیِ تست: بدونِ تزریق، مسیر از envِ harness (GENOME_DIR) می‌آید؛
         # فقط وقتی env نیست به ریشهٔ checkout برمی‌گردد (production دست‌نخورده).
@@ -225,6 +225,10 @@ class Doctor:
         self._channel = approval_channel                 # P3 TelegramApprovalChannel (D-5)
         self._sandbox_runner = sandbox_runner            # قابل‌تزریق (تست)
         self._db = db                                    # chrono ChronoDB (effects_pending)
+        # up-1363aae4df: suite_fn برای measured_lift واقعی. doctor آن را از
+        # run_sandbox یا یک harness سبک تغذیه می‌کند؛ _evolve_rfc به measured_lift
+        # تزریقش می‌کند. اگر None → fallback severity (backward-compat).
+        self._suite_fn = suite_fn
         self._rfcs: dict[str, RFC] = {}                  # registry در حافظه
         # جلسه ۴۶ (رفعِ گافِ «RFC persist نمی‌شود»): registry روی دیسک نگه داشته می‌شود
         # تا با restart گم نشود. state/doctor/rfcs.json. fail-soft، load در بوت.
@@ -1354,17 +1358,21 @@ class Doctor:
         base_score = 0.3 if crit_ok else 0.0   # پایه: lift تخمینی از critic
         archive.insert(bkey, organ, rfc.rfc_id, base_score, fix=rfc.fix,
                        parent_id=None)
-        # ۲) mutation از آرشیو sample کن (اگر سلولی هست)
+        # ۲) mutation از آرکیو sample کن (اگر سلولی هست)
         candidates = []
         cell = archive.sample()
         if cell is not None:
             mutation = archive.mutate(cell)
             # verifier-independence: measured_lift از eval_fn مستقل — دکتر معیار را
             # نمی‌نویسد؛ eval_fn خارجی (default یا تزریق‌شده).
+            # up-1363aae4df (۲۰۲۶-۰۸-۰۸): suite_fn واقعی از _suite_fnِ تزریق‌شده
+            # تغذیه می‌شود تا lift از suite-delta محاسبه شود (نه از severity).
+            # اگر _suite_fn نباشد، _default_eval به fallbackِ severity برمی‌گردد
+            # (صادقانه stub-label‌شده) — backward-compat با رفتارِ قبلی.
             ml = measured_lift({
                 "fix": mutation.get("fix", ""),
                 "evidence": bottleneck.get("evidence"),
-            })
+            }, suite_fn=getattr(self, "_suite_fn", None))
             if not ml["dropped"]:
                 candidates.append({"fix": mutation["fix"], "lift": ml["lift"],
                                    "rfc_id": rfc.rfc_id, "parent": cell.rfc_id})

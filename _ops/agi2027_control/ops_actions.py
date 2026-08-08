@@ -113,7 +113,13 @@ class OctopusOpsDB:
     def __init__(self, db_path: Path = DB_PATH):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(self.db_path))
+        # ۲۰۲۶-۰۸-۰۸: check_same_thread=False چون miniapp_gateway این کلاس را از
+        # داخلِ _run_with_timeout (thread جدا) صدا می‌زند. بدونِ این، SQLite
+        # ProgrammingError پرتاب می‌کرد و هیچ action‌ای از gateway کار نمی‌کرد.
+        # WAL mode + این lock میکروسکوپی، همزمانیِ امن را تضمین می‌کنند.
+        import threading as _th
+        self._lock = _th.Lock()
+        self.conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA synchronous=NORMAL")
         self.init_schema()

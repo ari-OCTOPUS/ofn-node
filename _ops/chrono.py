@@ -137,6 +137,19 @@ class PhiAccrual:
     def heard(self, t_ms: int) -> None:
         self.arrivals.append(float(t_ms))
 
+    def reset(self, t_ms: int | None = None) -> None:
+        """تاریخچهٔ ack را پاک می‌کند و (اختیاری) یک ackِ تولد ثبت می‌کند.
+
+        ۲۰۲۶-۰۸-۰۸: `restart_from_known_good` تا حالا فقط `leg.state` و `leg.hlc`
+        را ریست می‌کرد ولی `arrivals` را دست نمی‌زد — پس beatِ بعد phi را از همان
+        تاریخچهٔ مسموم محاسبه می‌کرد و leg بلافاصله دوباره failed می‌شد (لوپِ
+        ری‌استارتِ بی‌فایده؛ گواه: ۳ شکستِ پشتِ سرِ همِ lead-naghshi با phi
+        صعودی ۱۹.۸ → ۲۵.۶ → ۳۱.۹). این متد راهِ مشخص برای پاک‌کردنِ آن تاریخچه
+        است. وقتی `t_ms` داده شود، پنجرهٔ bootstrapِ تمیز شروع می‌شود."""
+        self.arrivals.clear()
+        if t_ms is not None:
+            self.heard(t_ms)
+
     def phi(self, now_ms: int) -> float:
         if len(self.arrivals) < 2:
             return 0.0
@@ -1293,6 +1306,13 @@ class Pacemaker:
                         self._restart_log = recent
                         try:  # Phase 2 قلاب: OTP-style restart از حالتِ known-good لجر
                             self.doctor.restart_from_known_good(leg, self.db)
+                            # ۲۰۲۶-۰۸-۰۸: restartِ واقعی باید تاریخچهٔ phi را هم پاک
+                            # کند — وگرنه arrivalsِ مسمومِ قبل از restart در beatِ
+                            # بعد دوباره همان phiِ بالا را می‌سازد و leg بی‌درنگ failed
+                            # برمی‌گردد (لوپِ بی‌فایده). bootstrapِ تمیز: یک ackِ تولد.
+                            acc = self.bus.phi.get(leg.id)
+                            if acc is not None:
+                                acc.reset(self._clock())
                             # جلسه ۴۶: لاگِ بی‌محتوا برای خانهٔ ساده («خودم درستش کردم»)
                             try:
                                 import time as _t2
