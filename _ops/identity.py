@@ -140,6 +140,49 @@ def snapshot() -> dict:
     }
 
 
+# ── identity drift monitoring (up-ef5929f21b، ۲۰۲۶-۰۸-۰۸) ──────────────────
+# خودآگاهیِ بدونِ drift-detection نمی‌داند آیا مقادیرِ هویتیِ آن (name، given_by،
+# given_at) از بیرون تغییر کرده‌اند. این تابع یک baseline کانونی را با snapshot
+# مقایسه می‌کند و اگر اختلافی بود، هشدار می‌دهد.
+
+# baseline کانونی — مقادیرِ درستِ هویتی. تغییرِ این فقط با رأیِ مالک.
+_IDENTITY_BASELINE = {
+    "name": GIVEN_NAME,
+    "given_by": GIVEN_BY,
+    "given_at": GIVEN_AT,
+}
+
+
+def check_drift() -> dict:
+    """هویتِ فعلی را با baseline مقایسه می‌کند.
+
+    خروجی: {drifted: bool, fields: [...], detail: str, snapshot: dict}
+    drifted=True اگر هرکدام از name/given_by/given_at با baseline فرق داشته باشد.
+    این فقط تشخیص است — هیچ‌چیز را fix نمی‌کند (قرار نیست خودش را بازنویسی کند)."""
+    snap = snapshot()
+    drifted_fields = []
+    for field, expected in _IDENTITY_BASELINE.items():
+        actual = snap.get(field, "")
+        if str(actual).strip() != str(expected).strip():
+            drifted_fields.append(field)
+    drifted = bool(drifted_fields)
+    if drifted:
+        try:
+            opslib.alert([f"⚠️ identity-drift: فیلدهایِ هویتی تغییر کرده‌اند: "
+                          f"{', '.join(drifted_fields)}. baseline={GIVEN_NAME}/{GIVEN_BY}. "
+                          f"اگر مالک تغییر داده، این طبیعی است؛ وگرنه بررسی شود."])
+        except Exception:  # noqa: BLE001
+            pass
+    return {
+        "drifted": drifted,
+        "fields": drifted_fields,
+        "detail": (f"identity stable ({GIVEN_NAME})" if not drifted
+                   else f"drifted: {', '.join(drifted_fields)}"),
+        "snapshot": snap,
+        "baseline": dict(_IDENTITY_BASELINE),
+    }
+
+
 def card() -> str:
     """کارتِ «من کی‌ام» — و صادق دربارهٔ اینکه اسم را کسی به او داده."""
     import html

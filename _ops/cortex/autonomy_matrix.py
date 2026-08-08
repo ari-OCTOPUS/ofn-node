@@ -40,8 +40,39 @@ _IMPORTANT_RE = re.compile(
 
 
 def free_enabled() -> bool:
-    """آیا OCTOPUS_AUTONOMY_FREE روشن است؟ (پیش‌فرض خاموش = رفتارِ محافظه‌کارِ قبلی)."""
-    return str(os.environ.get(FLAG, "")).strip().lower() in {"1", "true", "yes", "on"}
+    """آیا OCTOPUS_AUTONOMY_FREE روشن است؟ (پیش‌فرض خاموش = رفتارِ محافظه‌کارِ قبلی).
+
+    ۲۰۲۶-۰۸-۰۸ (up-863c603099): حالا OWNER-PROFILE.json را هم می‌خواند. اگر
+    answers.autonomy حاویِ «خودش» یا «انجام بده» یا «آزاد» باشد، یعنی مالک
+    صریحاً خواسته که کارهای کوچک خودکار شوند. flag اولویت دارد (صریح‌تر)،
+    OWNER-PROFILE fallback است."""
+    if str(os.environ.get(FLAG, "")).strip().lower() in {"1", "true", "yes", "on"}:
+        return True
+    # fallback: OWNER-PROFILE answers.autonomy
+    try:
+        import json as _json
+        from pathlib import Path as _P
+        prof = _P(str(__import__("opslib").STATE_DIR)) / "OWNER-PROFILE.json"
+        if prof.exists():
+            d = _json.loads(prof.read_text("utf-8"))
+            auto = str(d.get("answers", {}).get("autonomy", "") or "").lower()
+            # مالک گفت «خودش انجام بده» / «آزاد» / «سوال نپرس» → free
+            if any(w in auto for w in ("خودش", "انجام بده", "آزاد", "سوال نپرس")):
+                return True
+    except Exception:  # noqa: BLE001
+        pass
+    return False
+
+
+def owner_autonomy_level() -> str:
+    """سطحِ خودمختاریِ مالک از OWNER-PROFILE → 'free' | 'gated' | 'unknown'.
+
+    ۲۰۲۶-۰۸-۰۸: پلِ بینِ OWNER-PROFILE.answers.autonomy و رفتارِ runtime.
+    این تابع توسط self_audit probe خوانده می‌شود تا تأیید کند autonomy preference
+    واقعاً مصرف می‌شود (نه فقط ثبت می‌شود)."""
+    if free_enabled():
+        return "free"
+    return "gated"
 
 
 def is_important(p: dict) -> tuple[bool, str]:

@@ -125,8 +125,36 @@ def _deep_synth(top: list, rate, maturity) -> "dict | None":
         return None
     if not _deep_slot_take():
         return None
+    # ۲۰۲۶-۰۸-۰۸: topic diversity — اگر RFCی در ۳ session اخیرِ موفق انتخاب شده،
+    # از top list موقتاً حذف کن تا LLM مجبور شود RFC دیگری را بررسی کند. این
+    # از تکرارِ همان انتخاب (که ۴ بار با up-1363aae4df رخ داد) جلوگیری می‌کند.
+    # اگر همه‌ی top همین RFC‌های تکراری باشند، list دست‌نخورده می‌ماند.
+    _recent_ids = set()
+    try:
+        if DEEP_LEDGER_PATH.exists():
+            for line in DEEP_LEDGER_PATH.read_text("utf-8").splitlines()[-12:]:
+                if not line.strip():
+                    continue
+                try:
+                    r = json.loads(line)
+                    if isinstance(r, dict) and r.get("ok") and r.get("text"):
+                        # extract RFC ID from text (pattern: up-XXXXXXXX or RFC-XXXXXXXX)
+                        import re as _re
+                        ids = _re.findall(r'(?:up-|RFC-)[a-f0-9]{8,}', r.get("text", ""))
+                        _recent_ids.update(ids)
+                except ValueError:
+                    continue
+    except OSError:
+        pass
+    # filter: items که ID‌شان در recent نیست اولویت دارند، ولی اگر همه تکراری‌اند،
+    # list کامل بماند (سیستم نباید قفل شود)
+    if _recent_ids:
+        fresh = [t for t in top if str(t.get("id", "")) not in _recent_ids]
+        diverse_top = fresh if len(fresh) >= 2 else top  # حداقل ۲ آیتم تازه
+    else:
+        diverse_top = top
     items = [{k: t.get(k) for k in ("id", "priority", "title", "suggested_action",
-                                    "change_level", "source")} for t in top[:8]]
+                                    "change_level", "source")} for t in diverse_top[:8]]
     # ۲۰۲۶-۰۷-۲۷ — بدونِ این، هر جلسهٔ گران از صفر شروع می‌کرد: `deep-synth` سه بار
     # در یک روز دوید و هر سه بار همان آیتم را با همان استدلال انتخاب کرد. جلسه‌ای
     # که جلسهٔ قبل را نخوانَد، خرج است نه سرمایه.

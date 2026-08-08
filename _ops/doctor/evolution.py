@@ -98,16 +98,57 @@ class RFCArchive:
         return self.cells[chosen_key]
 
     def mutate(self, cell: ArchiveCell, rng: random.Random | None = None) -> dict:
-        """mutate یک سلول → پیشنهادِ نو. stub: tweak fix.
-        خروجی: {bottleneck_key, organ, fix, parent_id, generation}."""
+        """mutate یک سلول → پیشنهادِ نو.
+
+        ۲۰۲۶-۰۸-۰۸: قبلاً فقط ۳ قالبِ ثابت داشت (guard/retry/lighter). حالا بر اساس
+        bottleneck_key، mutation‌های متنوع‌تر و مرتبط می‌سازد. این تنوعِ معنادار
+        به evolution اجازه می‌دهد واقعاً فضایِ راه‌حل را کاوش کند، نه فقط تغییراتِ
+        متنیِ یکسان را. stub است (LLM نیست) ولی ساختارافزار است."""
         r = rng or random.Random()
-        mutations = [
+        bkey = str(cell.bottleneck_key or "")
+        # mutation‌های عمومی (همیشه موجود)
+        general = [
             f"{cell.fix} + guard اضافه",
             f"{cell.fix} + retry منطق",
             f"{cell.fix} (نسخهٔ سبک‌تر)",
         ]
+        # mutation‌های خاصِ بر اساس نوعِ bottleneck
+        specific: list[str] = []
+        if "error" in bkey.lower() or "fail" in bkey.lower():
+            specific += [
+                f"{cell.fix} + circuit-breaker قبل از عمل",
+                f"{cell.fix} + fallback به known-good state",
+                f"{cell.fix} + structured error classification",
+            ]
+        if "rate" in bkey.lower() or "speed" in bkey.lower() or "latency" in bkey.lower():
+            specific += [
+                f"{cell.fix} + batching برای کاهش overhead",
+                f"{cell.fix} + cache layer برای hit-rate",
+                f"{cell.fix} + async path برای non-blocking",
+            ]
+        if "starv" in bkey.lower() or "hungry" in bkey.lower() or "skeleton" in bkey.lower():
+            specific += [
+                f"{cell.fix} + منبعِ دادهٔ afferent وصل شود",
+                f"{cell.fix} + polling interval کاهش یابد",
+                f"{cell.fix} + heartbeat signal برای liveness",
+            ]
+        if "memory" in bkey.lower() or "leak" in bkey.lower():
+            specific += [
+                f"{cell.fix} + explicit cleanup در finally block",
+                f"{cell.fix} + bounded cache با LRU eviction",
+                f"{cell.fix} + resource pool با cap",
+            ]
+        if "dark" in bkey.lower() or "orphan" in bkey.lower():
+            specific += [
+                f"{cell.fix} + remove dead flag از flags.cmd",
+                f"{cell.fix} + wire flag به reader ماژول",
+                f"{cell.fix} + log warning اگر flag بدون reader",
+            ]
+        # اگر mutation خاصی نیست، فقط general
+        pool = specific if specific and r.random() < 0.7 else general
+        chosen = r.choice(pool if pool else general)
         return {"bottleneck_key": cell.bottleneck_key, "organ": cell.organ,
-                "fix": r.choice(mutations), "parent_id": cell.rfc_id,
+                "fix": chosen, "parent_id": cell.rfc_id,
                 "generation": cell.generation + 1}
 
     def best_in_cell(self, bottleneck_key: str, organ: str) -> ArchiveCell | None:

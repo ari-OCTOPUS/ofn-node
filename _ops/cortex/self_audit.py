@@ -272,7 +272,15 @@ def _probe_owner_verdict_effect():
 
 
 def _probe_autonomy_consumed():
-    """یافتهٔ workflow: سطحِ autonomy در OWNER-PROFILE ثبت ولی توسطِ هیچ کدِ runtime خوانده نمی‌شود."""
+    """یافتهٔ workflow: سطحِ autonomy در OWNER-PROFILE ثبت ولی توسطِ هیچ کدِ runtime خوانده نمی‌شود.
+    ۲۰۲۶-۰۸-۰۸ (up-863c603099): autonomy_matrix.owner_autonomy_level() حالا OWNER-PROFILE
+    را می‌خواند و free_enabled آن را مصرف می‌کند."""
+    consumed = _grep(OPS / "cortex" / "autonomy_matrix.py", "owner_autonomy_level")
+    if consumed:
+        return _item("owner autonomy preference modulates behavior", "Done",
+                     "autonomy_matrix.owner_autonomy_level(): OWNER-PROFILE.answers.autonomy "
+                     "→ free_enabled() → auto_approve مصرف می‌کند",
+                     "P2", "governance", "§1 autonomy")
     prof = STATE / "OWNER-PROFILE.json"
     return _item("owner autonomy preference modulates behavior", "Missing",
                  "panel autonomy radio → OWNER-PROFILE؛ ولی export/cockpit عمداً آن را نمی‌خوانند "
@@ -399,6 +407,13 @@ def _probe_cost_governance():
 
 
 def _probe_identity_drift():
+    # ۲۰۲۶-۰۸-۰۸ (up-ef5929f21b): identity.check_drift() ساخته شد.
+    drift_fn = _grep(OPS / "identity.py", "def check_drift")
+    if drift_fn:
+        return _item("identity drift monitoring in self-modifying agents", "Done",
+                     "identity.check_drift(): baseline (name/given_by/given_at) "
+                     "مقایسه + alert روی تغییرِ خارجی",
+                     "P2", "theory", "2027§11 self-modify")
     return _item("identity drift monitoring in self-modifying agents", "Missing",
                  "none — سنجهٔ driftِ هویتی (پایداریِ رفتار/ارزش بعد از تغییر) هنوز نیست",
                  "P2", "theory", "2027§11 self-modify")
