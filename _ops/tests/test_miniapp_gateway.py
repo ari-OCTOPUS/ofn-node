@@ -29,6 +29,8 @@ if _TC not in sys.path:
     sys.path.insert(0, _TC)
 
 import miniapp_gateway as mg
+import ask_vault  # noqa: E402 — برایِ تستِ /api/ask (همان درِ موجود، نه mock ساختگی)
+import ask_brain  # noqa: E402
 
 _MINI = harness.REAL_VAULT / "_ops" / "telegram_center" / "miniapp"  # noqa: E402
 
@@ -516,6 +518,144 @@ def t_the_module_never_writes_the_token_to_disk_or_logs():
 def t_state_stays_inside_the_isolated_tree():
     live = str(harness.SELF_OPS).lower()
     assert not str(_stop_file()).lower().startswith(live), _stop_file()
+
+
+# ─── /api/ask — چت‌باکسِ ask_vault/ask_brain (۲۰۲۶-۰۸-۰۸) ───────────────────
+def _ask_body(q="سلام"):
+    return json.dumps({"question": q}).encode("utf-8")
+
+
+def t_ask_requires_owner_auth_and_blocks_without_it():
+    st, payload, _ = mg.handle("POST", "/api/ask", {"_body": _ask_body()},
+                               fetch_fn=_fetch(), now=NOW)
+    assert st == 403, (st, payload)
+    assert b"owner_auth_required" in payload
+
+
+def t_ask_non_post_is_405():
+    st, _, _ = mg.handle("GET", "/api/ask", {"X-Tg-Init-Data": _init_data()},
+                         fetch_fn=_fetch(), now=NOW)
+    assert st == 405, st
+
+
+def t_ask_empty_question_is_400():
+    st, payload, _ = mg.handle("POST", "/api/ask",
+                               {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("   ")},
+                               fetch_fn=_fetch(), now=NOW)
+    assert st == 400, (st, payload)
+    assert b"empty_question" in payload
+
+
+def t_ask_is_rate_limited_after_window_capacity():
+    """پنجرهٔ جداگانه از /api/actions — قفلِ رفتار طبقِ همان الگویِ
+    t_actions_post_is_rate_limited_after_window_capacity."""
+    old_n, old_w = mg._ASK_MAX_PER_WINDOW, mg._ASK_WINDOW_S
+    mg._ASK_HITS[:] = []
+    try:
+        mg._ASK_MAX_PER_WINDOW = 2
+        mg._ASK_WINDOW_S = 10.0
+        assert mg._ask_rate_limited(NOW) is False
+        assert mg._ask_rate_limited(NOW + 1) is False
+        assert mg._ask_rate_limited(NOW + 2) is True
+        assert mg._ask_rate_limited(NOW + 12) is False
+        src = Path(mg.__file__).read_text("utf-8")
+        block = src[src.index('if p == "/api/ask":'):src.index('if p == "/api/miniapp":')]
+        assert 'if _ask_rate_limited(now):' in block and '429' in block
+        # مستقل از _action_rate_limited — یک شمارنده نباید دیگری را قفل کند.
+        # هر دو رویِ همان _rate_limited ِ مشترک ساخته شده‌اند ولی با
+        # hits-list/پنجرهٔ جدا؛ رفتاراً مستقل بودنشان بالاتر با دستکاریِ
+        # مستقیمِ mg._ASK_* (بدونِ لمسِ mg._ACTION_*) اثبات شد.
+        assert '_ask_rate_limited' in block and 'if _action_rate_limited(now):' not in block
+    finally:
+        mg._ASK_HITS[:] = []
+        mg._ASK_MAX_PER_WINDOW, mg._ASK_WINDOW_S = old_n, old_w
+
+
+def t_ask_prefers_vault_when_it_has_real_sources():
+    """نردبانِ محلی-اول: اگر vault جوابِ مستند (با منبع) داد، ask_brain
+    (پولی/گران) اصلاً نباید صدا زده شود."""
+    real_vault_query, real_brain_ask = ask_vault.query, ask_brain.ask
+
+    def fake_vault(q, **kw):
+        return {"ok": True, "answer": "جوابِ vault", "sources": ["07 - X.md"], "tier": ""}
+
+    def poison_brain(q, **kw):
+        raise AssertionError("ask_brain نباید صدا زده شود وقتی vault منبع دارد")
+
+    ask_vault.query, ask_brain.ask = fake_vault, poison_brain
+    try:
+        st, payload, ctype = mg.handle(
+            "POST", "/api/ask", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("سؤالِ واقعی")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 200, (st, payload)
+        d = json.loads(payload)
+        assert d["ok"] is True and d["source"] == "vault" and d["answer"] == "جوابِ vault"
+        assert d["sources"] == ["07 - X.md"]
+    finally:
+        ask_vault.query, ask_brain.ask = real_vault_query, real_brain_ask
+
+
+def t_ask_falls_back_to_brain_when_vault_has_no_sources():
+    """vault با ok=True ولی sources خالی یعنی NO_ANSWER — باید escalate کند،
+    نه اینکه جوابِ بی‌منبع را برگرداند."""
+    real_vault_query, real_brain_ask = ask_vault.query, ask_brain.ask
+
+    def empty_vault(q, **kw):
+        return {"ok": True, "answer": "چیزی در vault پیدا نکردم.", "sources": [], "tier": ""}
+
+    def fake_brain(q, **kw):
+        return {"ok": True, "text": "جوابِ مغزِ گران", "tier": "primary", "model": "fugu"}
+
+    ask_vault.query, ask_brain.ask = empty_vault, fake_brain
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/ask", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("سؤالِ نامرتبط")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 200, (st, payload)
+        d = json.loads(payload)
+        assert d["ok"] is True and d["source"] == "brain" and d["answer"] == "جوابِ مغزِ گران"
+        assert d["tier"] == "primary" and d["model"] == "fugu"
+    finally:
+        ask_vault.query, ask_brain.ask = real_vault_query, real_brain_ask
+
+
+def t_ask_reports_ok_false_when_neither_brain_answers():
+    real_vault_query, real_brain_ask = ask_vault.query, ask_brain.ask
+
+    def off_vault(q, **kw):
+        return {"ok": False, "reason": "flag-off", "answer": "", "sources": [], "tier": ""}
+
+    def off_brain(q, **kw):
+        return {"ok": False, "reason": "flag-off"}
+
+    ask_vault.query, ask_brain.ask = off_vault, off_brain
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/ask", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("هرچیزی")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 200, (st, payload)   # ok:false هنوز یک جوابِ سالمِ HTTP است، نه خطا
+        d = json.loads(payload)
+        assert d["ok"] is False and d["reason"] == "flag-off"
+    finally:
+        ask_vault.query, ask_brain.ask = real_vault_query, real_brain_ask
+
+
+def t_ask_survives_an_unexpected_exception_with_500_not_a_crash():
+    real_vault_query = ask_vault.query
+
+    def boom(q, **kw):
+        raise RuntimeError("boom")
+
+    ask_vault.query = boom
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/ask", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("هرچیزی")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 500, (st, payload)
+        d = json.loads(payload)
+        assert d["ok"] is False and d["reason"] == "RuntimeError"
+    finally:
+        ask_vault.query = real_vault_query
 
 
 if __name__ == "__main__":

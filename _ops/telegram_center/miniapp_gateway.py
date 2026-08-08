@@ -88,6 +88,22 @@ READ_GATE_FLAG = "OCTOPUS_MINIAPP_READ_OWNER_GATE"
 
 # 2026-08-07 deep-scan follow-up: owner-auth is not a spam/replay limit.
 # Keep POST /api/actions fail-closed under a short in-memory window.
+def _rate_limited(hits: list, lock: threading.RLock, window_s: float,
+                  max_per_window: int, now: "float | None" = None) -> bool:
+    """گیتِ عمومیِ rate-limit ِ درون‌حافظه‌ای — پایهٔ مشترکِ /api/actions و
+    /api/ask (۲۰۲۶-۰۸-۰۸). هر مسیرِ POST شمارندهٔ خودش را دارد چون فروکشیدنِ
+    مکالمه نباید یک تأییدِ real را قفل کند و برعکس."""
+    t = float(now if now is not None else time.monotonic())
+    with lock:
+        cutoff = t - window_s
+        while hits and hits[0] < cutoff:
+            hits.pop(0)
+        if len(hits) >= max_per_window:
+            return True
+        hits.append(t)
+        return False
+
+
 _ACTION_WINDOW_S = 10.0
 _ACTION_MAX_PER_WINDOW = 12
 _ACTION_HITS = []
@@ -96,15 +112,22 @@ _ACTION_LOCK = threading.RLock()
 
 def _action_rate_limited(now: "float | None" = None) -> bool:
     """Short in-memory rate-limit for POST /api/actions."""
-    t = float(now if now is not None else time.monotonic())
-    with _ACTION_LOCK:
-        cutoff = t - _ACTION_WINDOW_S
-        while _ACTION_HITS and _ACTION_HITS[0] < cutoff:
-            _ACTION_HITS.pop(0)
-        if len(_ACTION_HITS) >= _ACTION_MAX_PER_WINDOW:
-            return True
-        _ACTION_HITS.append(t)
-        return False
+    return _rate_limited(_ACTION_HITS, _ACTION_LOCK, _ACTION_WINDOW_S,
+                         _ACTION_MAX_PER_WINDOW, now)
+
+
+# ۲۰۲۶-۰۸-۰۸: چت‌باکسِ /api/ask — پنجرهٔ جداگانه از /api/actions (سؤالِ
+# پیاپی نباید تأییدِ واقعی را قفل کند). خودِ ask_vault/ask_brain هم سقفِ
+# روزانه/quota ِ داخلیِ خودشان را دارند؛ این‌جا فقط ضدِ سوءاستفادهٔ خامِ
+# سطحِ HTTP است (thread pool ِ gateway را حفظ می‌کند).
+_ASK_WINDOW_S = 30.0
+_ASK_MAX_PER_WINDOW = 6
+_ASK_HITS = []
+_ASK_LOCK = threading.RLock()
+
+
+def _ask_rate_limited(now: "float | None" = None) -> bool:
+    return _rate_limited(_ASK_HITS, _ASK_LOCK, _ASK_WINDOW_S, _ASK_MAX_PER_WINDOW, now)
 
 
 def enabled() -> bool:
@@ -403,7 +426,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p != "/api/actions":
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
@@ -459,6 +482,57 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                 eng.close()
         except Exception as exc:
             body = json.dumps({"ok": False, "status": "ERROR", "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
+    if p == "/api/ask":
+        # ۲۰۲۶-۰۸-۰۸: چت‌باکسِ مینی‌اپ — رأیِ مالک روی نوتِ ۲۸ («سیم‌کشیِ
+        # ask_vault/ask_brain به مینی‌اپ»، بخشِ الف-۲ سابق). نردبانِ محلی-اول
+        # هم‌سبکِ کلِ ارگانیسم: اول vault ِ رایگان/مستند (ask_vault)، فقط اگر
+        # منبعی پیدا نشد مغزِ گران/محلیِ ask_brain (که خودش نردبانِ
+        # محلی/پولیِ داخلیِ خودش را دارد). هیچ‌کدام این‌جا reimplement
+        # نمی‌شوند — فقط از درِ موجودشان صدا زده می‌شوند.
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            question = str(payload.get("question") or "").strip()
+            if not question:
+                return 400, b'{"ok":false,"reason":"empty_question"}', "application/json; charset=utf-8"
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            import ask_vault  # noqa: WPS433 — هم‌پوشه
+            import ask_brain  # noqa: WPS433 — هم‌پوشه
+            rv = ask_vault.query(question)
+            # sources خالی یعنی NO_ANSWER (صفر شاهد) — ok=True است ولی جوابِ
+            # واقعی نیست؛ باید escalate کند، نه اینکه به‌جایِ جواب برگردد.
+            if rv.get("ok") and rv.get("answer") and rv.get("sources"):
+                body = json.dumps({"ok": True, "answer": rv["answer"], "source": "vault",
+                                   "sources": rv.get("sources") or []},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            rb = ask_brain.ask(question)
+            if rb.get("ok"):
+                body = json.dumps({"ok": True, "answer": rb.get("text") or "", "source": "brain",
+                                   "tier": rb.get("tier"), "model": rb.get("model")},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            reason = rb.get("reason") or rv.get("reason") or "no-answer"
+            body = json.dumps({"ok": False, "reason": reason}, ensure_ascii=False).encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
             return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
