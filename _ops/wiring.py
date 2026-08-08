@@ -219,7 +219,17 @@ def make_doctor(state_dir=None, db=None, channel=None):
     try:
         _syspath(str(_HERE / "doctor"))
         from doctor import Doctor
-        return Doctor(state_dir=state_dir, db=db, approval_channel=channel)
+        # ۲۰۲۶-۰۸-۰۸ (up-1363aae4df): suite_fn برای measured_lift واقعی.
+        # بدونِ این، _default_eval به fallbackِ severity برمی‌گردد. suite_runner
+        # یک subset سبک از تست‌ها را اجرا می‌کند تا suite-delta واقعی ساخته شود.
+        suite_fn = None
+        try:
+            from suite_runner import make_suite_fn
+            suite_fn = make_suite_fn()
+        except Exception:  # noqa: BLE001 — نبودِ suite_runner نباید Doctor را بکشد
+            pass
+        return Doctor(state_dir=state_dir, db=db, approval_channel=channel,
+                      suite_fn=suite_fn)
     except Exception as e:  # noqa: BLE001 — Doctor اختیاریِ additive
         opslib.alert([f"wiring: Doctor ساخت نشد: {e}"])
         return None

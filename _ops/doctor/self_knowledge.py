@@ -139,7 +139,7 @@ def _owner_signal() -> dict:
 
 
 # ── snapshot: عکسِ غنی، چنددامنه‌ای، PII-safe ($0، read-only) ─────────────────────
-def _revenue_confirmed() -> float:
+def _revenue_confirmed() -> "float | None":
     """درآمدِ **محقق‌شده به دلار**. صفر یعنی صفر، نه «نامعلوم».
 
     ⚠️ ۲۰۲۶-۰۷-۲۷، تصحیحِ دوم در یک روز. نسخهٔ اولِ امروز فهمید که
@@ -150,11 +150,19 @@ def _revenue_confirmed() -> float:
     دلارِ واقعی در `revenue_by_cell` است.
 
     درسِ این دو تصحیح: «عددِ درست‌تر» با «عددِ درست» یکی نیست. اولی هم شمارش را
-    به‌جای دلار برداشت چون هر دو `float` بودند و هیچ‌چیز واحد را نمی‌سنجید."""
+    به‌جای دلار برداشت چون هر دو `float` بودند و هیچ‌چیز واحد را نمی‌سنجید.
+
+    ⚠️ ۲۰۲۶-۰۸-۰۸: وقتی `revenue_by_cell` خالی است ({}) یعنی هنوز هیچ سلولِ
+    درآمدی ثبت نشده — این **نامعلوم** است نه صفر. قبلاً 0.0 برمی‌گرداند و دکتر
+    آن را «صفر دلار درآمد» تفسیر می‌کرد (که غلط است — صفر یعنی «فروش بود ولی
+    پولی واریز نشد»، نه «هیچ فروشی ثبت نشده»). حالا None برمی‌گرداند تا صادقانه
+    «اندازه‌گیری‌نشده» گزارش شود."""
     try:
         att = (_read_json("fitness-latest.json", {}) or {}).get("attribution") or {}
         cells = att.get("revenue_by_cell") or att.get("by_cell") or {}
         if isinstance(cells, dict):
+            if not cells:  # خالی = نامعلوم، نه صفر
+                return None
             total = 0.0
             for v in cells.values():
                 try:
@@ -162,9 +170,9 @@ def _revenue_confirmed() -> float:
                 except (TypeError, ValueError):
                     continue
             return round(total, 2)
-        return 0.0
+        return None  # cells اصلاً نیست = نامعلوم
     except (TypeError, ValueError, AttributeError):
-        return 0.0
+        return None
 
 
 def snapshot() -> dict:
