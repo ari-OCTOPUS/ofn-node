@@ -190,7 +190,7 @@ class TestRepairKnownTargets:
     """تست ۷: repair_known_targets فقط روی allowlist."""
 
     def test_repair_targets_is_allowlist(self):
-        assert len(REPAIR_TARGETS) == 6
+        assert len(REPAIR_TARGETS) == 7  # 6 original + miniapp-hits (2026-08-08)
         for t in REPAIR_TARGETS:
             assert t.endswith(".jsonl")
 
@@ -199,6 +199,6 @@ class TestRepairKnownTargets:
         monkeypatch.setattr("state_guard.RECEIPTS", isolated_state / "receipts.jsonl")
         # هیچ فایلی نساخته‌ایم — همه missing
         results = repair_known_targets(isolated_state)
-        assert len(results) == 6
+        assert len(results) == 7
         assert all(r.ok for r in results)
         assert all(r.error == "missing-target" for r in results)

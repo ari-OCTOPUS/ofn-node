@@ -54,7 +54,8 @@ QUAR_SUFFIX = ".quarantined"
 QUAR_META_SUFFIX = ".meta.json"
 ARM_ENV = "OCTOPUS_STATE_GUARD_ARM"
 
-# allowlist صریح — فقط این ۶ فایل (تأییدشده با scan_all زنده) repair می‌شوند.
+# allowlist صریح — فقط این فایل‌ها (تأییدشده با scan_all زنده) repair می‌شوند.
+# saba-bridge.jsonl عمداً اینجا نیست: خطوطِ invalid آن کامنت (#) هستند، نه corrupt.
 REPAIR_TARGETS = {
     "cortex/calibration-log.jsonl",
     "cortex/route-decisions.jsonl",
@@ -62,6 +63,8 @@ REPAIR_TARGETS = {
     "pulse/fuel-stream.jsonl",
     "pulse/tick-timing.jsonl",
     "reach/ledger.jsonl",
+    # 2026-08-08: miniapp-hits — ۳ خطِ شکسته (crash mid-write)
+    "telegram/miniapp-hits.jsonl",
 }
 
 
@@ -155,6 +158,16 @@ def scan_jsonl(path: Path) -> ScanResult:
         return r
     r.sha256 = _sha256(path)
     for raw in _iter_raw_lines(path):
+        stripped = raw.strip()
+        # خطِ کامنت (# در ابتدا) یا خطِ خالی = نه valid نه invalid.
+        # saba-bridge.jsonl و چند فایلِ دیگر header comment دارند — این‌ها
+        # corruption نیستند، قراردادِ عمدی‌اند. بی‌صدا نادیده گرفته می‌شوند.
+        if stripped and stripped[:1] in (b"#", b"//"):
+            r.total += 1   # شمار می‌شود ولی نه corrupt
+            continue
+        if not stripped:
+            r.total += 1
+            continue
         r.total += 1
         if b"\x00" in raw:
             r.null_lines += 1
@@ -253,6 +266,11 @@ def repair_jsonl(path: Path) -> RepairResult:
         keep: list[bytes] = []
         quar: list[bytes] = []
         for raw in _iter_raw_lines(path):
+            stripped = raw.strip()
+            # خطِ کامنت یا خالی = نگه‌دار (نه valid، نه corrupt — قراردادِ عمدی)
+            if not stripped or stripped[:1] in (b"#", b"//"):
+                keep.append(raw)
+                continue
             if b"\x00" in raw:
                 res.removed_null += 1
                 quar.append(raw)
