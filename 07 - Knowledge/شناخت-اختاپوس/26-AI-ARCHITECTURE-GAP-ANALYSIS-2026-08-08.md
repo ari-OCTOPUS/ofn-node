@@ -96,9 +96,15 @@ propose-only) نگاشت شود. حس بدونِ مسیرِ اکشن، نویز 
 حالتِ سیستم را در یک JSON برگرداند. این پایهٔ وب‌اپ است (بخشِ چهارم).
 **اولویت:** 🔴 CRITICAL — پیش‌نیازِ هر وب‌اپِ کنترلی.
 
-### 🟠 ۵. ۱۲۸ درِ تاریک (dark gate) از ۳۲۶ فلگ
-**توضیح:** ۱۲۸ فلگ partial، ۱۳۵ live-on، ۶۰ ماژولِ یتیم از ۴۹۴. ۲۱۷ نمادِ مرده.
-۱۵۸ فایلِ state یتیم.
+### 🟡 ۵. ~۶۴ درِ تاریک (dark gate) از ۳۴۷ فلگ *(عددِ اصلی ۱۲۸/۳۲۶ بود — بازبینیِ ۲۰۲۶-۰۸-۰۸ بعدظهر)*
+> ⚠️ **تصحیحِ ۲۰۲۶-۰۸-۰۸ (بعدظهر):** عددِ اصلی این بخش (۱۲۸/۳۲۶) از یک اسکنِ همان‌روز بود و
+> **هم‌اکنون کهنه‌ست.** راستی‌آزماییِ مستقل با `dark_capabilities.scan()` زنده: **۶۴ dark از ۳۴۷ فلگ**،
+> `n_partial=0`، `n_tuning=76`، `n_live_on=215`. نوت در زمانِ نگارش درست بود ولی سیستم از آن زمان
+> بهتر شده. شدت از 🟠 HIGH به 🟡 MEDIUM-LOW تقلیل می‌یابد. شکافِ flag-health هنوز واقعیه ولی
+> کم‌فوری‌ت‌تر. جزئیات در بخشِ «راستی‌آزماییِ ۲۰۲۶-۰۸-۰۸» پایین.
+
+**توضیح (عددِ اصلی، کهنه):** ۱۲۸ فلگ partial، ۱۳۵ live-on، ۶۰ ماژولِ یتیم از ۴۹۴. ۲۱۷ نمادِ مرده.
+۱۵۸ فایلِ state یتیم. *(اعدادِ ۲۰۲۶-۰۸-۰۸ صبح — بازبینیِ بعدظهر: ۶۴/۳۴۷ dark، ۰ partial، ۲۱۵ live-on.)*
 **دلیل:** ماه‌ها افزودنی‌بودن بدونِ هرس.
 **راهِ فیکس:** یک گزارشِ «flag health» بساز: هر فلگ را با «آیا کد می‌خواندش؟ آیا
 armed است؟ آخرین بار کِی استفاده شد؟» نشان بده. سپس هرسِ دسته‌جمعی با رأیِ مالک.
@@ -193,7 +199,7 @@ pain>0.7) برای توقفِ خودکار. اختاپوس فقط STOP-ORGANISM�
 | ۴ | **حافظه و یادگیری** (Memory) | «چه آموخته؟» | BCM وزن‌ها، Hebbian، consolidation بینش‌ها، latent vector، self-model نسخه، smallest_fix | retract یک بینشِ غلط |
 | ۵ | **تصمیم و تأیید** (Approvals) | «چه انتظارِ رأی است؟» | صفِ approval با confidence، verdicts کهنه، نرخِ rubber-stamp | approve/reject/defer (batch) |
 | ۶ | **خطای کشتار** (Kill Switch) | «توقفِ اضطراری» | شرایطِ kill (sigma/budget/pain)، STOP-ORGANISM وضعیت، FREEZE.flag | set kill conditions؛ HALT؛ RESUME |
-| ۷ | **سلامتِ سیستم** (Health) | «چه چیزی خراب است؟» | flag health (۱۲۸ dark)، orphan modules، dead symbols، validatorها، Git status | trigger cleanup؛ run validator |
+| ۷ | **سلامتِ سیستم** (Health) | «چه چیزی خراب است؟» | flag health (~۶۴ dark از ۳۴۷؛ *عددِ اصلی ۱۲۸/۳۲۶ بود، کهنه شد — بازبینیِ ۲۰۲۶-۰۸-۰۸*)، orphan modules، dead symbols، validatorها، Git status | trigger cleanup؛ run validator |
 | ۸ | **گفتگو و آگاهی** (Cognition) | «چه می‌داند؟ چه فکری می‌کند؟» | فکرِ فعلیِ cortex، self-knowledge نسخه، mirror-history اخیر، owner corrections، consolidation graph (نمایشِ گرافیکی) | inject correction؛ set effort level |
 | ۹ | **پاها و کسب‌وکار** (Legs) | «کدام پا چه می‌کند؟» | per-leg: lead pipeline، consent_gate، outbound queue، SMTP status، revenue per leg | approve outbound؛ toggle consent |
 
@@ -205,7 +211,7 @@ pain>0.7) برای توقفِ خودکار. اختاپوس فقط STOP-ORGANISM�
 | #۲ sensor-rich/actuator-poor | تب ۴ — effector registry |
 | #۳ smallest_fix خوانده نمی‌شود | تب ۴ — این فیلد را prominent نشان بده |
 | #۴ بدونِ collector | **همهٔ تب‌ها** — `snapshot()` پایهٔ همه است |
-| #۵ ۱۲۸ dark gate | تب ۲ (Flags) + تب ۷ (Health) |
+| #۵ ۱۲۸ dark gate *(واقعیتِ زنده: ۶۴ از ۳۴۷)* | تب ۲ (Flags) + تب ۷ (Health) |
 | #۶ خستگیِ تأیید | تب ۵ (Approvals) — batch + confidence |
 | #۷ سندباکس | تب ۶ (Kill) + تب ۷ (Health) — نشانگر sandbox status |
 | #۸ kill conditions | **تب ۶ (Kill)** — تنظیمِ آستانه‌ها |
@@ -262,10 +268,10 @@ pain>0.7) برای توقفِ خودکار. اختاپوس فقط STOP-ORGANISM�
 | **#۳ «smallest_fix خوانده نمی‌شود»** | بسته شد: `rules_store` → `effective_mine` (کامیت `3e7a9c3`) + `vault-proposals` → کارت (`e432a3c`). |
 | بخشِ `vault-proposals` (در #۳/#۷) | بسته شد: اولین خوانندهٔ انسانیِ صفِ ۶ رکوردِ GATE. |
 
-### هنوز باز (این نوت درست می‌گوید)
+### هنوز باز (این نوت درست می‌گوید) — بازبینیِ دوم، ۲۰۲۶-۰۸-۰۸ (بعدظهر)
 
-- **#۴ «بدونِ collector واحد (snapshot)»** — هنوز باز. این پیش‌نیازِ وب‌اپ است.
-- **#۵ «۱۲۸ dark gate»** — هنوز باز (همون شکافِ flag health).
+- **#۴ «بدونِ collector واحد (snapshot)»** — ✅ **بسته شد.** کامیتِ `97307fe` تابعِ `control_plane.live_snapshot.snapshot()` را ساخت (۸ بخش، read-only، fail-soft، cache TTL ۵s). فیکس‌های دیپ‌چک: env-mutation (`1a2aebd`) + path-consistency (`d00109b`). راستی‌آزماییِ مستقلِ همین جلسه: اجرای زنده ۸ بخش + `schema.v1` برمی‌گرداند، اعداد با فایل‌های raw هم‌خوان (beat 28726، flags 244، fugu 15، bcm 96). **این پیش‌نیازِ وب‌اپ اکنون برآورده است.**
+- **#۵ «۱۲۸ dark gate»** — ⚠️ **عدد کهنه‌ست، شکاف هنوز باز.** راستی‌آزماییِ مستقل (`dark_capabilities.scan()` زنده): **۶۴ dark از ۳۴۷ فلگ** (نه ۱۲۸ از ۳۲۶) — یعنی `n_partial=0`، `n_tuning=76`، `n_live_on=215`، `n_dark=64`. نوتِ اصلی در زمانِ خودش (۰۸-۰۸ صبح) درست بود ولی سیستم از آن زمان بهتر شده (partial‌ها صفر شدند، فلگ‌ها مستند شدند). **شدت واقعی: ~۱۸٪ dark به‌جای ~۳۹٪.** اولویت از 🟠 HIGH به 🟡 MEDIUM-LOW تقلیل می‌یابد. شکافِ flag-health هنوز واقعیه (گزارشِ یکپارچه ساخته نشده) ولی کم‌فوری‌ت‌تر از آنچه نوت اصلی گفت.
 - **#۶ «خستگیِ تأیید»** — حلقهٔ `approval_fatigue` هنوز discard می‌شود (`doctor.py:620`)، ولی بستنش نقضِ قراردادِ fail-open است — رأیِ مالک لازم.
 - **#۷/#۸ sandbox OS-level + kill switch** — هنوز باز.
 
