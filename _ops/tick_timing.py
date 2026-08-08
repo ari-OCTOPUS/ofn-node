@@ -57,9 +57,15 @@ def timing(name: str, beat: int = 0):
             if not _written:
                 _OUT.parent.mkdir(parents=True, exist_ok=True)
                 _written = True
-            with _OUT.open("a", encoding="utf-8") as f:
-                f.write(json.dumps({"name": name, "beat": beat, "ms": ms,
-                                    "ok": ok, "err": err}, ensure_ascii=False) + "\n")
+            # HARDENED (commit 3): migrate raw open("a") to opslib.append_jsonl
+            # for fsync protection — same schema, same newline, just safer write.
+            import sys as _sys
+            _budget = str(_HERE / "budget")
+            if _budget not in _sys.path:
+                _sys.path.insert(0, _budget)
+            import opslib  # noqa: WPS433
+            opslib.append_jsonl(_OUT, {"name": name, "beat": beat, "ms": ms,
+                                       "ok": ok, "err": err})
         except Exception:  # noqa: BLE001
             pass
 

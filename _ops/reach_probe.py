@@ -170,9 +170,13 @@ def _start_flusher() -> None:
 
 def _append(path: Path, rec: dict) -> None:
     try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        # HARDENED (commit 3): migrate raw open("a") to opslib.append_jsonl
+        # for fsync protection — same schema, same newline, just safer write.
+        _budget = str(_HERE / "budget")
+        if _budget not in sys.path:
+            sys.path.insert(0, _budget)
+        import opslib  # noqa: WPS433
+        opslib.append_jsonl(path, rec)
     except Exception:  # noqa: BLE001 — دفتر هرگز پروسه را نمی‌کشد
         pass
 
