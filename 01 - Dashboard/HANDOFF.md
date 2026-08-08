@@ -29,6 +29,16 @@ updated: 2026-08-07
 
 ## وضعِ لحظه‌ای
 
+- 🗺️🔧 **2026-08-08 (عصر — Effector Registry: نقشهٔ بیماریِ actuator-poor ساخته شد).**
+  `_ops/effector_registry.py` (commit این جلسه) — رجیستریِ اعلانیِ ۱۰ حسِ اختاپوس
+  به اکچوئیتورهایشان. نتیجه: **۳ وصل** (bcm.learned_pressure، c6، vault_bridge)،
+  **۳ display-only** (smallest_fix، self_model، latent)، **۳ dead-output** (bcm.weights،
+  hebbian، consolidation)، ۱ shadow. بیماریِ «sensor-rich/actuator-poor» حالا
+  قابل‌دیدن است. **کشفِ مهم:** `applied` field قبلاً توسط ایجنتِ موازی فیکس شده بود
+  (۵ ردیفِ applied=true، wiring.py:1702) — مگاپرامپت از وضعیتِ قدیمی می‌آمد. مهم‌ترین
+  DEAD-OUTPUT باقی‌مانده: `smallest_fix` (دقیق‌ترین خروجیِ تصمیم، فقط نمایش، نه action).
+  جزئیات: [[../07 - Knowledge/شناخت-اختاپوس/27-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|27-EFFECTOR-REGISTRY]].
+
 - 🏁✅ **2026-08-08 (شب/سحر — نوتِ ۲۸ کامل شد: ایجنتِ موازیِ سوم بخشِ ب را تمام کرد).**
   چهار کامیتِ دیگر: `fbc650b` (persistence-gate ِ route_scorer، همان تلهٔ coercion که
   در `_maybe_persist` باز مانده بود) · `41d13f6` (فیکسِ `t_every_flag_read_has_a_

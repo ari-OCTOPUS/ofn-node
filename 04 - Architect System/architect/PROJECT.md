@@ -28,6 +28,14 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-08 عصر (agent، Effector Registry — نقشهٔ بیماریِ actuator-poor).**
+  `_ops/effector_registry.py` اعلانی ساخته شد: ۱۰ حس → اکچوئیتور. وضعیتِ زنده: ۳ وصل
+  (bcm.learned_pressure، c6، vault_bridge)، ۳ display-only (smallest_fix، self_model،
+  latent)، ۳ dead-output (bcm.weights، hebbian، consolidation)، ۱ shadow. مهم‌ترین
+  DEAD-OUTPUT باقی‌مانده: smallest_fix (دقیق‌ترین خروجیِ تصمیم، فقط نمایش). applied
+  field قبلاً فیکس شده بود (ایجنتِ موازی، ۵ ردیفِ applied=true). ۸/۸ تست سبز. جزئیات:
+  [[../../07 - Knowledge/شناخت-اختاپوس/27-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|27-EFFECTOR-REGISTRY]].
+
 - تغییرات اخیر: **2026-08-07 شب (agent، Opus 4.8 — مگاپرامپتِ v2: اسکنِ بازطراحیِ حافظه‌محور، ۸-ایجنتیِ Workflow، ۷ فاز + سنتز).**
   کامیت `a7daa7b`. تزِ مالک («اهرمِ واقعی حافظه، Fugu خودش ارکستراتور») **جزئاً
   تأیید شد**: هستهٔ پولی (model_router→organ_gate→money_gate) درِ واحدِ منضبط
