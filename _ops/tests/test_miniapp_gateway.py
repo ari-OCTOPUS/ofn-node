@@ -182,8 +182,22 @@ def t_every_non_get_method_is_405():
         assert st == 405, (m, st)
 
 
+def t_root_path_also_serves_the_shell():
+    """قفلِ رفتارِ commit 1d0a6fd: تلگرام گاهی مستقیم `/` را باز می‌کند (نه
+    `/miniapp`)، و قبل از آن فیکس، `/` چهارصدوچهار می‌داد و مینی‌اپ اصلاً بالا
+    نمی‌آمد. اگر این تست قرمز شود یعنی آن رگرسیون برگشته."""
+    fn = _fetch(body=b"<html><body>legacy-shell</body></html>", ctype="text/html")
+    st, body, ctype = mg.handle("GET", "/", {}, fetch_fn=fn, now=NOW)
+    assert st == 200, (st, body[:80])
+    assert b"Octopus Cockpit" in body, body[:160]
+    assert "text/html" in ctype, ctype
+
+
 def t_unknown_paths_are_404():
-    for p in ("/", "/ops", "/api/live", "/api/action", "/x"):
+    # `/` عمداً از این فهرست بیرون است از commit 1d0a6fd (۲۰۲۶-۰۸-۰۸): تلگرام
+    # مستقیم به `/` می‌زد و مینی‌اپ اصلاً باز نمی‌شد — حالا `/` هم مثلِ `/miniapp`
+    # همان شِلِ index.html را سرو می‌کند (200، صفر داده تا initData تأیید شود).
+    for p in ("/ops", "/api/live", "/api/action", "/x"):
         st, _, _ = mg.handle("GET", p, {"X-Tg-Init-Data": _init_data()},
                              fetch_fn=_fetch(), now=NOW)
         assert st == 404, (p, st)
