@@ -1979,16 +1979,27 @@
   // چت‌باکسِ /api/ask: اول ask_vault (رایگان/مستندِ vault)، فقط اگر منبعی
   // نبود ask_brain (مغزِ گران/محلی). نردبان سمتِ سرور است — این‌جا فقط
   // نمایشِ گفتگو و برچسبِ منبعِ جواب.
+  // چیپِ «🪞 با حافظه»: نقطهٔ ورودِ mirror_room (دکمهٔ mirror_room ِ رأیِ
+  // مالک ۰۸-۰۸) — همان اتاقِ واقعی با تاریخچهٔ نوبت‌به‌نوبت و تشخیصِ
+  // تصحیح، نه یک کپیِ استیت‌لسِ دیگر؛ فقط سوئیچِ endpoint عوض می‌شود.
   function renderAsk(el){
     el.innerHTML = secHead("پرسش از اختاپوس") +
       '<div class="card">'+
       '<div id="askLog" class="asklog"></div>'+
+      '<div class="chips"><button class="chip" id="askMirror" type="button">🪞 با حافظه (آینه)</button></div>'+
       '<input class="fin" id="askQ" type="text" placeholder="از خودِ اختاپوس بپرس…" maxlength="500">'+
       '<button class="go" id="askGo">بپرس</button>'+
       '</div>';
     var log = el.querySelector("#askLog");
     var input = el.querySelector("#askQ");
     var go = el.querySelector("#askGo");
+    var mirrorChip = el.querySelector("#askMirror");
+    var useMirror = false;
+    mirrorChip.addEventListener("click", function(){
+      useMirror = !useMirror;
+      mirrorChip.classList.toggle("on", useMirror);
+      hapticSelect();
+    });
     function addTurn(q, a, meta, bad){
       var row = document.createElement("div");
       row.className = "askturn";
@@ -2005,12 +2016,14 @@
       go.disabled = true; input.disabled = true; go.setAttribute("data-busy","1");
       var pending = addTurn(q, "در حال فکر کردن…", "");
       pending.querySelector(".aska").classList.add("muted");
-      apiPost("/api/ask", {question: q}).then(function(r){
+      apiPost(useMirror ? "/api/mirror" : "/api/ask", {question: q}).then(function(r){
         pending.remove();
         if(r && r.ok){
           var meta = r.source === "vault"
             ? "منبع: vault ("+((r.sources||[]).length)+" نوت)"
-            : "منبع: مغزِ "+(r.model||r.tier||"گران");
+            : r.source === "mirror"
+              ? "منبع: آینه"+(r.recorded_correction?" · تصحیحت ثبت شد":"")
+              : "منبع: مغزِ "+(r.model||r.tier||"گران");
           addTurn(q, r.answer||"", meta);
         } else {
           addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
