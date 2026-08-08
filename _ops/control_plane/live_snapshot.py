@@ -172,15 +172,31 @@ def _brain() -> dict:
     else:
         out["local_llm"] = {"reachable": False,
                             "reason": "4d_system/outputs/daemon_state.json absent/unreadable"}
-    # keys_present + paid_gate از model_router (truthful — همان مسیرِ زنده)
+    # keys_present + paid_gate از model_router. ⚠️ VQ-SNAPSHOT-SIDEFX-001 (۲۰۲۶-۰۸-۰۸):
+    # keys_present() درونِ خود env_loader.load_env() را صدا می‌زند که os.environ را با
+    # مقادیرِ واقعیِ .env (FUGU_API_KEY، GLM_API_KEY، SAKANA_API_KEY، …) MUTATE می‌کند.
+    # این نقضِ قراردادِ «snapshot فقط‌خواندنی، هیچ side-effectای» بود. نسخهٔ نخستِ فیکس
+    # یک فهرستِ hardcoded از نامِ secretها داشت — ولی دیپ‌اسکن نشان داد که load_env
+    # **۹ کلیدِ دیگر** هم اضافه می‌کند (POCKETSMITH/SAKANA/ZAI/TG_CENTER/GMAIL/…) که
+    # در آن فهرست نبودند. فیکسِ صحیح: عکسِ کاملِ os.environ قبل، و بعد از snapshot
+    # هر کلیدی که اضافه شده را پس بگیر (بدونِ حدسِ نام — full diff، نه allowlist).
     try:
         import sys as _sys
         if str(_OPS / "cortex") not in _sys.path:
             _sys.path.insert(0, str(_OPS / "cortex"))
         if str(_OPS / "budget") not in _sys.path:
             _sys.path.insert(0, str(_OPS / "budget"))
-        from model_router import keys_present, paid_gate  # noqa: WPS433 — lazy، read-only
+        _env_before = dict(os.environ)          # عکسِ کامل (نه allowlist)
+        from model_router import keys_present, paid_gate  # noqa: WPS433 — lazy
         out["keys_present"] = keys_present()
+        # بازگردانِ هر کلیدی که snapshot اضافه کرد (full diff، نه guess)
+        for _k in list(os.environ):
+            if _k not in _env_before:
+                os.environ.pop(_k, None)
+        # هر مقداری که عوض شده بود را هم بازگردان (load_env idempotent‌ است ولی احتیاط)
+        for _k, _v in _env_before.items():
+            if os.environ.get(_k) != _v:
+                os.environ[_k] = _v
         ok, why = paid_gate()
         out["paid_gate"] = {"open": bool(ok), "reason": why}
     except Exception as exc:  # noqa: BLE001

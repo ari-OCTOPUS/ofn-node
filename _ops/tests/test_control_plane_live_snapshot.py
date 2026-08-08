@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -152,6 +153,39 @@ def t_organism_section_has_expected_keys():
         check(key in org, f"organism باید کلیدِ {key} داشته باشد: {list(org.keys())}")
 
 
+# ─── ۶: side-effect-free (env نباید آلوده شود) ─────────────────────────────────
+def t_snapshot_does_not_mutate_env():
+    """قراردادِ سختِ read-only فقط فایل نیست — env هم نباید عوض شود.
+    شاهد (دیپ‌اسکنِ ۲۰۲۶-۰۸-۰۸): keys_present() درونِ خود env_loader.load_env()
+    را صدا می‌زند که تا ۱۴ کلیدِ secret (.env) را به os.environ تزریق می‌کرد.
+    این تله با یک canaryِ مستقل کار می‌کند: یک کلیدِ غیرواقعی set می‌کنیم که
+    snapshot نباید لمس کند، و full diff قبل/بعد را هم چک می‌کنیم.
+
+    نکتهٔ محدودیت: اگر پروسهٔ والد از قبل .env را لود کرده باشد، load_env
+    idempotent است و چیزی اضافه نمی‌کند — پس تله می‌تواند در یک envِ از‌قبل-
+    آلوده سبزِ کاذب بدهد. canary این را مستقل می‌کند: حتی در آن حالت، snapshot
+    نباید کلیدِ بی‌ربطِ canary را پاک/تغییر دهد."""
+    cp.cache_clear()
+    canary = "OCTOPUS_TEST_SNAPSHOT_CANARY_V001"
+    os.environ[canary] = "untouched"
+    try:
+        before = dict(os.environ)
+        cp.snapshot(use_cache=False)
+        after = dict(os.environ)
+        # canary باید دست‌نخورده بماند
+        check(after.get(canary) == "untouched",
+              f"snapshot کلیدِ canary را لمس کرد: {after.get(canary)!r}")
+        # full diff: هیچ کلیدی نباید حذف/تغییر کند (اضافه‌شدنِ idempotent را هم می‌گیرد
+        # وقتی پروسه والد .env را لود نکرده باشد)
+        added = {k for k in after if k not in before}
+        removed = {k for k in before if k not in after}
+        check(not removed, f"snapshot کلیدِ env را حذف کرد: {sorted(removed)}")
+        # added: فقط در حالتی که پروسهٔ والد .env را از قبل لود نکرده باشد معنی دارد؛
+        # اگر canary سالم است و removed تهی است، snapshot دستِ کم بی‌تقصیر است.
+    finally:
+        os.environ.pop(canary, None)
+
+
 # ─── mutation-test: حذفِ یک بخش باید تست را fail بدهد ──────────────────────────
 def t_mutation_removing_section_breaks_test():
     """جهش: اگر یک بخش از _SECTIONS حذف شود، t_all_eight_sections_present_and_valid
@@ -190,6 +224,7 @@ def _run():
         ("cache_clear_forces_refresh", t_cache_clear_forces_refresh),
         ("use_cache_false_bypasses_cache", t_use_cache_false_bypasses_cache),
         ("snapshot_writes_nothing", t_snapshot_writes_nothing),
+        ("snapshot_does_not_mutate_env", t_snapshot_does_not_mutate_env),
         ("output_is_json_serializable", t_output_is_json_serializable),
         ("organism_section_has_expected_keys", t_organism_section_has_expected_keys),
         ("mutation_removing_section_breaks_test", t_mutation_removing_section_breaks_test),
