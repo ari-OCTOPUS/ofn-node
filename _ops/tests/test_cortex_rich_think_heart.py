@@ -64,7 +64,7 @@ def _setup_flag_on():
 
 def _setup_flag_off():
     HEART.parent.mkdir(parents=True, exist_ok=True)
-    os.environ.pop("OCTOPUS_WIRE_CORTEX_THINK_RICH", None)
+    os.environ.pop("OCTOPUS_WIRE_CORTEX_RICH_THINK", None)
     os.environ["OCTOPUS_WIRE_CORTEX_RICH_THINK"] = "0"
 
 

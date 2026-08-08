@@ -186,6 +186,30 @@ def t_snapshot_does_not_mutate_env():
         os.environ.pop(canary, None)
 
 
+# ─── نکتهٔ ۲۰۲۶-۰۸-۰۸: health باید عددِ واقعی بدهد (نه unknown) ─────────────────
+def t_health_has_live_dark_gate_count_not_unknown():
+    """تا ۲۰۲۶-۰۸-۰۸ بخشِ health همیشه `reachable: false` / unknown برمی‌گرداند چون
+    هیچ `orphan-scan-latest.json` رویِ دیسک نبود. فیکس: `_health()` حالا
+    `dark_capabilities.scan()` را فراخوانی می‌کند و عددِ زندهٔ dark/partial/tuning
+    flags را می‌آورد. این تست آن را pin می‌کند — اگر کسی scan را حذف کرد، قرمز می‌شود.
+
+    توجه: این یک اسکنِ ~۳.۵s است؛ cache-clear اطمینان می‌دهد که عددِ تازه می‌آید."""
+    cp.cache_clear()
+    s = cp.snapshot(use_cache=False)
+    h = s["health"]
+    check(h.get("reachable") is True,
+          f"health باید reachable=True باشد (نه unknown): {h}")
+    n_dark = h.get("n_dark_gates")
+    check(isinstance(n_dark, int) and n_dark >= 0,
+          f"n_dark_gates باید یک عددِ نامنفی باشد، نه {n_dark!r}: {h}")
+    check(h.get("n_total_flags") is not None and h.get("n_total_flags", 0) > 0,
+          f"n_total_flags باید > 0 باشد: {h}")
+    # همهٔ شاخص‌های مکمل هم باید عدد باشند (partial/tuning/live_on).
+    for k in ("n_partial_gates", "n_tuning_gates", "n_live_on_gates"):
+        check(isinstance(h.get(k), int),
+              f"{k} باید int باشد: {h}")
+
+
 # ─── mutation-test: حذفِ یک بخش باید تست را fail بدهد ──────────────────────────
 def t_mutation_removing_section_breaks_test():
     """جهش: اگر یک بخش از _SECTIONS حذف شود، t_all_eight_sections_present_and_valid
@@ -227,6 +251,7 @@ def _run():
         ("snapshot_does_not_mutate_env", t_snapshot_does_not_mutate_env),
         ("output_is_json_serializable", t_output_is_json_serializable),
         ("organism_section_has_expected_keys", t_organism_section_has_expected_keys),
+        ("health_has_live_dark_gate_count_not_unknown", t_health_has_live_dark_gate_count_not_unknown),
         ("mutation_removing_section_breaks_test", t_mutation_removing_section_breaks_test),
     ]
     for name, fn in tests:

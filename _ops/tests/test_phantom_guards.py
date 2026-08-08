@@ -107,6 +107,9 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_TEST_ALLOW_LIVE_STATE", "OCTOPUS_TEST_ISOLATION_ECHO",
     "OCTOPUS_TEST_ISOLATION_LOG", "OCTOPUS_TEST_LIVE_STATE_GUARD",
     "OCTOPUS_TEST_NET_GUARD",
+    # 2026-08-08: OCTOPUS_TEST_SNAPSHOT_CANARY_V001 added — used by
+    # test_control_plane_live_snapshot.py (env-mutation canary); not declared in flags.cmd.
+    "OCTOPUS_TEST_SNAPSHOT_CANARY_V001",
     # 2026-08-06 -- ceiling lowered on both sides of the drift:
     #   * 65 names formerly here are now declared via the bulk `set FLAG=1`
     #     block near the end of OCTOPUS-flags.cmd (dated 2026-08-04/05/06),
@@ -134,6 +137,11 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_CHAMBER_T_WINDOW", "OCTOPUS_CODE_AUTOAPPLY_LOWRISK",
     "OCTOPUS_CODE_BRAIN_LOCAL_MODEL", "OCTOPUS_CODE_BRAIN_LOCAL_TIMEOUT_S",
     "OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S", "OCTOPUS_CONSOLIDATION_COMPRESS",
+    # 2026-08-08: OCTOPUS_CONSOLIDATION_DEDUP_* added — three flags introduced by
+    # the fuzzy-dedup fix (commit f234d52) for consolidation.py. DEDUP_SIM has a
+    # default in code (consolidation.py:74) but none are declared in flags.cmd.
+    "OCTOPUS_CONSOLIDATION_DEDUP_FUZZY", "OCTOPUS_CONSOLIDATION_DEDUP_N",
+    "OCTOPUS_CONSOLIDATION_DEDUP_SIM",
     "OCTOPUS_CONSOLIDATION_FLOOR_SEC", "OCTOPUS_CONTROL_PLANE_INTERVAL",
     "OCTOPUS_CONTROL_PLANE_LOCK_PORT", "OCTOPUS_CPU_MAX_PCT",
     "OCTOPUS_DEBATE_LOCAL_BUDGET_S", "OCTOPUS_DEBATE_QUEUE_COOLDOWN_H",
@@ -183,12 +191,10 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_WIRE_CHAMBER_T", "OCTOPUS_WIRE_COMPANY_BOOKS",
     # 2026-08-07: OCTOPUS_WIRE_CONSENT_FW removed — now `set =1` (armed, note 23).
     "OCTOPUS_WIRE_CORTEX_REVIVE",
-    # 2026-08-07: OCTOPUS_WIRE_CORTEX_THINK_RICH is a TYPO (word-order swap of
-    # OCTOPUS_WIRE_CORTEX_RICH_THINK) in test_cortex_rich_think_heart.py:67 — it
-    # os.environ.pop's the misspelled name instead of the real flag, so flag-off
-    # leaks. Logged in AGENT_QUESTIONS for the cortex/brain agent (their test file);
-    # not fixed here to stay in-domain. Registered as undeclared so the count is honest.
-    "OCTOPUS_WIRE_CORTEX_THINK_RICH",
+    # 2026-08-08: OCTOPUS_WIRE_CORTEX_THINK_RICH removed from this ledger — the typo
+    # (word-order swap of OCTOPUS_WIRE_CORTEX_RICH_THINK) was fixed in
+    # test_cortex_rich_think_heart.py:67, so the misspelled flag is no longer emitted
+    # and no longer needs to be tracked here. -1 from the count.
     "OCTOPUS_WIRE_EMAIL", "OCTOPUS_WIRE_FITNESS",
     "OCTOPUS_WIRE_INGEST_EXAMPLE", "OCTOPUS_WIRE_INITIATIVE",
     "OCTOPUS_WIRE_LEAD_BOUNDARY", "OCTOPUS_WIRE_LEAD_CARD_CONTACT",

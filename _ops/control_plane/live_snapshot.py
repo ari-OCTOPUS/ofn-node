@@ -332,18 +332,52 @@ def _memory() -> dict:
 
 def _health() -> dict:
     """بخش ۷: سلامتی — orphan_modules / dead_symbols / dark_gates.
-    منبع: reach_probe خروجی می‌دهد ولی آخرین اجرا را از state می‌خوانیم (نه اجرای زنده)."""
+
+    دو منبعِ مکمل (هر دو fail-soft):
+      ۱. `orphan-scan-latest.json` اگه هست (کشفِ یتیم‌ها / نمادهای مرده) — سریع.
+      ۲. `dark_capabilities.scan()` برای شمارشِ زندهٔ dark/partial/tuning/live_on flags.
+         این اسکن ~۳.۵s طول می‌کشد، ولی cacheٔ ۵ثانیه‌ایِ snapshot() آن را به‌حداقل
+         می‌رساند (نهایتاً یک اسکن در هر پنجرهٔ TTL، نه در هر poll).
+
+    نکتهٔ ۲۰۲۶-۰۸-۰۸: تا پیش از این فیکس، `_health` همیشه `unknown` برمی‌گرداند چون
+    هیچ فایلِ `orphan-scan-latest.json` رویِ دیسک نبود (orphan_scan فقط print می‌کند،
+    به state نمی‌نویسد) و `dark_capabilities` فراخوانی نمی‌شد. حالا عددِ واقعی از کدِ
+    زنده می‌آید — شکافِ «نمی‌شه دید» در بخشِ health بسته شد."""
     out: dict = {"n_orphan_modules": None, "n_dead_symbols": None,
-                 "n_dark_gates": None, "reachable": False}
-    # reach_probe آخرین خروجی‌اش را در state نمی‌نویسد؛ یک نگاهِ سبک به orphan_scan
-    # آخرین گزارش اگر هست. اگر نبود، unknown صادقانه‌تر از یک عددِ ساختگی است.
+                 "n_dark_gates": None, "n_partial_gates": None,
+                 "n_tuning_gates": None, "n_live_on_gates": None,
+                 "n_total_flags": None, "reachable": False}
+    # منبع ۱: orphan-scan-latest.json اگه هست (سریع، ولی معمولاً غایب).
     cand = _read_json(_STATE / "orphan-scan-latest.json")
     if isinstance(cand, dict):
         out.update({"n_orphan_modules": cand.get("n_orphans") or cand.get("n_orphan_modules"),
                     "n_dead_symbols": cand.get("n_dead_symbols"),
                     "reachable": True, "source": "orphan-scan-latest.json"})
+    # منبع ۲: dark_capabilities.scan() — عددِ زندهٔ dark/partial/tuning/live_on flags.
+    # fail-soft: هر خطایی → همان unknown باقی می‌ماند، snapshot هرگز crash نمی‌کند.
+    if out["n_dark_gates"] is None:
+        try:
+            import sys as _sys
+            if str(_OPS) not in _sys.path:
+                _sys.path.insert(0, str(_OPS))
+            import dark_capabilities as _dc  # type: ignore
+            r = _dc.scan()
+            out["n_dark_gates"] = int(r.get("n_dark") or 0)
+            out["n_partial_gates"] = int(r.get("n_partial") or 0)
+            out["n_tuning_gates"] = int(r.get("n_tuning") or 0)
+            out["n_live_on_gates"] = int(r.get("n_live_on") or 0)
+            out["n_total_flags"] = int(r.get("n_flags") or 0)
+            # orphan_armed از dark_caps اگه orphan-scan غایب بود.
+            if out["n_orphan_modules"] is None:
+                oa = r.get("orphan_armed") or []
+                out["n_orphan_modules"] = len(oa) if isinstance(oa, list) else None
+            out["reachable"] = True
+            out["source"] = out.get("source", "dark_capabilities.scan()")
+        except Exception as e:  # noqa: BLE001 — fail-soft قراردادِ سختِ snapshot
+            out["scan_error"] = str(e)[:120]
     if not out["reachable"]:
-        out["reason"] = "no orphan/reach-probe state file; run reach_probe for live data"
+        out["reason"] = ("no orphan-scan-latest.json و dark_capabilities.scan() هم "
+                         "خطا داد؛ اجرای reach_probe/orphan_scan برای دادهٔ زنده")
     return out
 
 
