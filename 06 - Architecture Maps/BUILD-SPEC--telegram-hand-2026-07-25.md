@@ -1,9 +1,10 @@
 ---
-type: build-spec
-scope: F:\backup\_ops\telegram_center + _ops\cortex
+type: design
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [telegram, automation]
 created: 2026-07-25
-owner_verdict_recorded: true
-goal: "مدیریتِ اختاپوس از تلگرام — یک جمله، دو دکمه، صفر خطِ کدنویسیِ دستی"
+updated: 2026-08-08
 ---
 
 # BUILD SPEC — «دستِ تلگرامی» اختاپوس

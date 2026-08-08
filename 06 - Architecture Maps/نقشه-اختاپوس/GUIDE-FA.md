@@ -1,3 +1,12 @@
+---
+type: instructions
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [vault-scanner, tooling]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # راهنمای فارسی — اسکنرِ گاوصندوقِ (Vault) تو
 
 > این راهنما برای `vault_scanner.py` است که روی دسکتاپِ تو ساخته شده.

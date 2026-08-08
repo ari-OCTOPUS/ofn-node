@@ -1,3 +1,12 @@
+---
+type: design
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [heart, mycocardium]
+created: 2026-07-09
+updated: 2026-08-08
+---
+
 # HEART DESIGN v1
 
 > Heart Architect artifact. Comparative / isomorphism-driven. Runtime target: Claude Agent SDK + LangGraph.

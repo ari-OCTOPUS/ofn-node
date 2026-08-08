@@ -1,3 +1,12 @@
+---
+type: prompt
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [octopus, agent-handoff]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 # 🧠 مگاپرامپتِ ایجنتِ بعدی — نسخهٔ متمرکز ۲۰۲۶-۰۸-۰۴
 
 > تو ایجنتِ بعدی هستی رویِ vault ِ `F:\backup`.

@@ -1,3 +1,12 @@
+---
+type: reference
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [governance, multi-agent]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # 📐 DATA PROMPT — BLACK-BOX CONTROL & STRUCTURE PATTERNS
 # How Anthropic, DeepMind, and OpenAI control complex multi-agent black boxes
 # ===================================================================

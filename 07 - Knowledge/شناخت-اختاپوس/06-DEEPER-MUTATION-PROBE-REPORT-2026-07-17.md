@@ -1,3 +1,12 @@
+---
+type: report
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [octopus, mutations, probe]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 > **⚠️ سندِ تاریخی (۲۰۲۶-۰۷-۱۷/۱۸).** این گزارشِ پروبِ آن تاریخ است و
 > بازتابِ وضعیتِ **پیش از** برش‌های ۰-۳ ِ طرحِ هیدرید کنترل‌پلین. سؤالاتِ بازِ این
 > سند (مثل «Source of Truth کدام است؟») در `02-OCTOPUS-KNOWLEDGE-SNAPSHOT.md` پاسخ

@@ -1,3 +1,11 @@
+---
+type: proposal
+status: archived
+tags: [octopus, swarm-planning]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # OCTOPUS Swarm Plan — Phase 0 → Phase 1
 
 ## System Map (Quick Discovery)

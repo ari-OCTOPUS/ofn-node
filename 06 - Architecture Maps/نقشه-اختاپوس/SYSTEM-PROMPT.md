@@ -1,3 +1,12 @@
+---
+type: prompt
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [cartographer, vault-scanner]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # SYSTEM PROMPT — Vault Cartographer Agent
 
 > **Role:** Read-only inventory & hygiene agent for `F:\backup`.

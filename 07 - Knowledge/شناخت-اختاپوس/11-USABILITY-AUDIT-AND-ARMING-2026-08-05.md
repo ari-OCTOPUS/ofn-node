@@ -1,3 +1,12 @@
+---
+type: report
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, usability, audit]
+created: 2026-08-05
+updated: 2026-08-08
+---
+
 > **سندِ پروب (۲۰۲۶-۰۸-۰۵ شب).** پاسخ به سؤالِ مستقیمِ مالک: «چرا اختاپوس هنوز
 > بی‌مصرفه؟» — نه استعاره، بلکه اعمالِ واقعی. برای شناختِ به‌روزتر
 > `00-README-START-HERE.md` و `02-OCTOPUS-KNOWLEDGE-SNAPSHOT.md` را هم بخوان؛

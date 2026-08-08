@@ -1,3 +1,12 @@
+---
+type: knowledge
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, source-of-truth]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 # 🐙 شناخت اختاپوس — Snapshot (۲۰۲۶-۰۸-۰۴)
 
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۴.** نسخهٔ ۲۰۲۶-۰۷-۱۷ سؤالاتِ بازِ زیادی داشت

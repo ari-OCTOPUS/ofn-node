@@ -31,7 +31,7 @@ updated: 2026-08-07
 - سلامت شخصی: [[03 - Projects/WLOS - Weight Loss OS/PROJECT|WLOS — Weight Loss OS]] (کوچ تلگرامی کاهش وزن، v0.1.1 هنوز live نشده)
 - تحقیق خودترمیم/شناختی (shadow، propose-only): [[03 - Projects/Chord/PROJECT|Chord]] (فیلتر وترِ ریاضی برای دکتر تکاملی) · [[03 - Projects/research-spec-compiler/PROJECT|research-spec-compiler]] (اندام شناختیِ Ring-2)
 - زیرساخت زنده (`_ops` + ژنوم): [[_ops/ORGANISM-SPEC|ORGANISM-SPEC]] (ارگانیسم متابولیسم-مناظره-تکثیر، سایه $0) · پنل مالک `_ops/panel/` (`http://127.0.0.1:8790` — پروفایل/پروژه‌ها/ارگانیسم) · [[07 - Knowledge/genome-system/INDEX|genome-system]] (v0.4.3)
-- لایهٔ تئوری/معماری (agent-ready): [[CHRONOS-FABLE-OS/PROJECT|CHRONOS-FABLE OS]] — سنتزِ ۱۶‌پوشه‌ایِ کورپوسِ OCTOPUS/CHRONOS، تئوریِ همین ارگانیسم زنده · ورود: [[CHRONOS-FABLE-OS/HANDOFF|HANDOFF]] · [[CHRONOS-FABLE-OS/13_MasterPrompts/MasterSystemPrompt.v2|Master Prompt v2]]
+- لایهٔ تئوری/معماری CHRONOS-FABLE OS (سنتزِ ۱۶‌پوشه‌ایِ کورپوسِ OCTOPUS/CHRONOS، تئوریِ همین ارگانیسم زنده) — **بایگانی شد**، اینجا زنده نیست: `_Archive/CHRONOS-FABLE-OS/` (PROJECT، HANDOFF، `13_MasterPrompts/MasterSystemPrompt.v2`)
 
 ## بخش‌ها
 

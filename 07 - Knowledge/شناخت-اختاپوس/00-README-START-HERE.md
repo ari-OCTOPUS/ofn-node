@@ -1,3 +1,12 @@
+---
+type: moc
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, index]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 # 🐙 شناخت اختاپوس — نقطهٔ ورود
 
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۸.** این vault در ۲۰۲۶-۰۷-۱۷ ساخته شد، در ۲۰۲۶-۰۸-۰۴

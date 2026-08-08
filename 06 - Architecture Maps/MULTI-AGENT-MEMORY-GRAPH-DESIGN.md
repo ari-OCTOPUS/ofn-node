@@ -1,3 +1,12 @@
+---
+type: design
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [memory, multi-agent]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # 🧠🕸️ Multi-Agent Memory + Graph Search Design
 
 > Workspace: `پازل هشت پا`  

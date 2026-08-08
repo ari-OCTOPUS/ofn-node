@@ -1,3 +1,12 @@
+---
+type: architecture
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [brain, heart, control-panel]
+created: 2026-08-05
+updated: 2026-08-08
+---
+
 > **سندِ نقشه (۲۰۲۶-۰۸-۰۵ عصر).** پاسخ به سؤالِ مستقیمِ مالک: «مغزهای اختاپوس و
 > ارتباطشون به قلب‌ها و تمومِ لِین ساختار اصلاً به کنترل‌پنلِ ما وصل هستن؟» —
 > ورک‌فلوی ۴-ایجنته (یک `vault-cartographer` + سه پژوهش‌گر)، ۵۴۷K توکن، ۱۹۱
@@ -50,7 +59,7 @@
 - **G3 رد شد.** `held-stream.jsonl` ِ ۷۳۶ ردیفی واقعی است، ولی ۱۶۲ ردیفِ
   heart/doctor ِ آن **همه ۵ تا ۸ روز کهنه‌اند** (آخرین: ۰۷-۳۱ ‏۱۰:۰۲) —
   عددِ تجمعی تازگی را پنهان کرده بود (دقیقاً الگوی
-  [[feedback-aggregate-hides-recency]]). `hold-policy-state.json` نشان
+  feedback-aggregate-hides-recency). `hold-policy-state.json` نشان
   می‌دهد جریانِ `doctor`/`heart` از ۱۲۷ ساعت پیش اصلاً `classify()` نشده —
   این آرشیو دیگر رشد نمی‌کند؛ چیزی «بی‌تخلیه» نیست، فقط قدیمی است.
 - **علتِ واقعیِ G4** یک برخوردِ استعاره است، نه بن‌بستِ دایره‌ای:

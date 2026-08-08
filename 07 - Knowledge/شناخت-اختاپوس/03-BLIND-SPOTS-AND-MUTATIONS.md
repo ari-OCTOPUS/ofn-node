@@ -1,3 +1,12 @@
+---
+type: knowledge
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, mutations]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 # 🧬 نقاط کور و جهش‌های اختاپوس (۲۰۲۶-۰۸-۰۴)
 
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۴.** جهش‌هایِ ۲۰۲۶-۰۷-۱۷ را با وضعیتِ تأییدشده‌ی امروز

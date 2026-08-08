@@ -1,3 +1,12 @@
+---
+type: report
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [octopus, agent-handoff]
+created: 2026-08-05
+updated: 2026-08-08
+---
+
 # 📋 گزارش یکپارچهٔ دو روز + مگاپرامپتِ قطعیِ ایجنتِ بعدی — ۲۰۲۶-۰۸-۰۵ (نسخهٔ نهایی)
 
 > این سند جایگزینِ سندِ ۱۳ نیست — آن را **باطل** می‌کند. تفاوتِ این نسخه با ۱۳:

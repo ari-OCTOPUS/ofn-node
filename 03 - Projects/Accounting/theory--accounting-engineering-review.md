@@ -1,3 +1,12 @@
+---
+type: research
+project: "[[03 - Projects/Accounting/PROJECT]]"
+status: ready
+tags: [accounting, double-entry]
+created: 2026-07-17
+updated: 2026-08-08
+---
+
 # تحلیل تئوری: اشتباهات مهندسی حسابداری خودکار + مقایسه با مدل‌های جهانی
 ## تاریخ: ۲۰۲۶-۰۷-۱۶
 ## وضعیت: فقط تحلیل تئوری — فایل‌های واقعی تغییر نمی‌کنند

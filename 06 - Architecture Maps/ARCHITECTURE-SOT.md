@@ -1,3 +1,12 @@
+---
+type: architecture
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, source-of-truth]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 # ARCHITECTURE-SOT — نقشه‌ی منبعِ حقیقتِ اجرایی (Source of Truth)
 
 > Verdict 2026-07-18 integration-debug: این فایل کانونی‌ترین مرجع برای اینکه

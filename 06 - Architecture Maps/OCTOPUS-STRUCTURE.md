@@ -1,3 +1,12 @@
+---
+type: architecture
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [octopus, ecosystem]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # 🐙 ساختار کامل ربات اختاپوس — رییس + پاها (نقشهٔ یکپارچه)
 
 > تاریخ سنتز: 2026-07-11

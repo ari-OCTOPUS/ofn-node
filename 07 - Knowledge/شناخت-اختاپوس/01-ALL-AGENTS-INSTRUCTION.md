@@ -1,3 +1,12 @@
+---
+type: instructions
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, agent-instructions]
+created: 2026-07-18
+updated: 2026-08-08
+---
+
 # 📣 دستور برای همهٔ ایجنت‌ها — شناخت اختاپوس (۲۰۲۶-۰۸-۰۴)
 
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۴.** نسخهٔ پیشین (۲۰۲۶-۰۷-۱۷) در تاریخچهٔ git موجود است.

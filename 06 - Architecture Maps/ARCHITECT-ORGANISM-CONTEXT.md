@@ -1,3 +1,12 @@
+---
+type: architecture
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: archived
+tags: [octopus, workspace-context]
+created: 2026-07-15
+updated: 2026-08-08
+---
+
 # 🐙 Architect / Octopus Organism Context — boss layer overlay
 
 > Created from owner-provided OCR + attachments on 2026-07-11.  
