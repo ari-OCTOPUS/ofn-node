@@ -41,6 +41,17 @@ updated: 2026-08-07
   `test_control_plane_live_snapshot` 10/10 سبز. جزئیاتِ کامل: [[../07 - Knowledge/شناخت-
   اختاپوس/30-CONTROL-PLANE-SNAPSHOT-2026-08-08|نوتِ ۳۰]].
 
+- 🔌✅ **2026-08-07 (عصر — Reader Map + وصلهٔ مصرف‌کنندگان: دو DEAD-OUTPUT وصل شد).**
+  نوتِ [[../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|۳۱]].
+  مأموریت: «هر لایه باید لایهٔ زیرِ خودش را بخواند» (ARCHITECTURE-LAYERS §۰). Reader Mapِ
+  ۷ producer ساخته شد — ۳ DEAD-OUTPUT (hebbian، latent-vectors، smallest_fix)، ۱ نیمه‌زندهٔ
+  تکراری (consolidation **۹۵.۲٪ تکرار**). **دو وصلهٔ افزودنی:** (الف) `f234d52` consolidation
+  dedup فازی (جاکاردی، آستانهٔ ۰.۷، محافظه‌کارانه — تک‌عددی تکرار شمرده نمی‌شود)؛
+  (ج) `0ead7d0` smallest_fixِ دکتر → proposalِ propose-only (مهم‌ترین DEAD-OUTPUT). وصلهٔ ۲(ب)
+  deep_synth **نیازی نداشت** — از قبل خود-خوان است (راستی‌آزمایی شد). **تکمیلِ نوتِ ۲۷:**
+  همان‌جا smallest_fix به‌عنوان مهم‌ترین DEAD-OUTPUTِ باز معرفی شده بود؛ اینجا وصل شد.
+  هر وصله: تست + mutation-test قرمز + regression سبز. فلگ‌ها دست‌نخورده؛ $0 (فقط خواندنِ محلی).
+
 - 🗺️🔧 **2026-08-08 (عصر — Effector Registry: نقشهٔ بیماریِ actuator-poor ساخته شد).**
   `_ops/effector_registry.py` (commit این جلسه) — رجیستریِ اعلانیِ ۱۰ حسِ اختاپوس
   به اکچوئیتورهایشان. نتیجه: **۳ وصل** (bcm.learned_pressure، c6، vault_bridge)،

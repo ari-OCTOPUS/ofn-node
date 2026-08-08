@@ -28,6 +28,14 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-07 عصر (agent، Reader Map + وصلهٔ مصرف‌کنندگان — وصلِ دو
+  DEAD-OUTPUT).** مأموریت «هر لایه باید لایهٔ زیرِ خودش را بخواند». Reader Mapِ ۷ producer:
+  ۳ DEAD-OUTPUT، ۱ نیمه‌زندهٔ تکراری (consolidation **۹۵.۲٪ تکرار**). دو وصلهٔ افزودنی:
+  `f234d52` (consolidation dedup فازی، جاکاردی، پشتِ `OCTOPUS_CONSOLIDATION_DEDUP_FUZZY`)؛
+  `0ead7d0` (smallest_fixِ دکتر → proposalِ propose-only — مهم‌ترین DEAD-OUTPUT). deep_synth
+  از قبل خود-خوان بود (راستی‌آزمایی، نیازی نبود). تکمیلِ نوتِ ۲۷. جزئیاتِ کامل:
+  [[../../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|31-READER-MAP]].
+
 - تغییرات اخیر: **2026-08-08 عصر (agent، snapshot() — جمع‌کنندهٔ واحدِ حالت، پایهٔ وب‌اپ).**
   مگاپرامپتِ سوم. `_ops/control_plane/live_snapshot.py` — `snapshot()` با ۸ بخش، read-only،
   $0، fail-soft، cache TTL 5s. یافتهٔ تشخیصی + فیکس: `os.kill(pid,0)` روی ویندوز WinError 87
