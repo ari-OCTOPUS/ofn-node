@@ -36,6 +36,13 @@ updated: 2026-08-07
   از قبل خود-خوان بود (راستی‌آزمایی، نیازی نبود). تکمیلِ نوتِ ۲۷. جزئیاتِ کامل:
   [[../../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|31-READER-MAP]].
 
+- تغییرات اخیر: **2026-08-08 شب (agent، مینی‌اپِ تلگرام — دیپ‌اسکن + لایهٔ ۱ SDK بومی).**
+  وب‌اپِ اختاپوس: ۴ باگِ بحرانی فیکس شد (NameError ×۳ در handlers جدید + NaN در self_accuracy).
+  لایهٔ ۱ SDK بومیِ تلگرام: BottomButton، selectionChanged haptic، enableClosingConfirmation —
+  همه با feature-detection. DNS misroute فیکس شد (app.master-painting.com به octopus-miniapp).
+  کامیت: `e798722`. ۱۹ تست سبز. مگاپرامپتِ هماهنگ برای ایجنتِ موازی (تبِ کنترل‌پنل):
+  `_ops/MEGAPROMPT-PARALLEL-AGENT-CONTROL-PANEL-2026-08-08.md`.
+
 - تغییرات اخیر: **2026-08-08 عصر (agent، snapshot() — جمع‌کنندهٔ واحدِ حالت، پایهٔ وب‌اپ).**
   مگاپرامپتِ سوم. `_ops/control_plane/live_snapshot.py` — `snapshot()` با ۸ بخش، read-only،
   $0، fail-soft، cache TTL 5s. یافتهٔ تشخیصی + فیکس: `os.kill(pid,0)` روی ویندوز WinError 87

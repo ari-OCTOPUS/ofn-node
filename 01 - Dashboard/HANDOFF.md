@@ -29,6 +29,24 @@ updated: 2026-08-08
 
 ## وضعِ لحظه‌ای
 
+- 🐙🔧 **2026-08-08 (عصر — مینی‌اپِ تلگرام دیپ‌اسکن + لایهٔ ۱ SDK بومی).**
+  دو فازِ کار روی وب‌اپ: (الف) **دیپ‌اسکن + فیکسِ ۴ باگ**، (ب) **لایهٔ ۱ SDK بومیِ تلگرام**.
+  **فازِ الف — ۴ باگِ بحرانی** (همه در `miniapp_state.py`):
+  `get_cognitive_scan_state`/`get_agent_log_state` سه تابعِ تعریف‌نشده صدا می‌زدند
+  (`_runtime()`،`_read_json()`،`_now_iso()`) → NameError → تبِ اسکن‌ها ۵۰۰ می‌داد.
+  فیکس: `STATE_DIR`/`_read_json_safe()`/`time.strftime` (همان helper‌های موجود).
+  باگِ چهارم: `self_accuracy` در فایلِ doctor یک **object** بود نه عدد →
+  `Math.round(dict*100)` = NaN → «NaN٪» نمایش داده می‌شد. فیکس: backend `.accuracy` استخراج
+  می‌کند، frontend با `typeof === "number"` محافظ می‌کند.
+  **فازِ ب — لایهٔ ۱ SDK بومی** (تلگرام Bot API 7.10+، تحقیقِ اینترنت + مستنداتِ رسمی):
+  `BottomButton` (MainButton) روی تب‌های tasks و notifications، `selectionChanged()` haptic
+  روی هر ۳ چیپ‌گروپ، `enableClosingConfirmation` روی focusِ input. همه با feature-detection.
+  **هم‌چنین:** DNS misroute پیدا و فیکس شد — `app.master-painting.com` به تونلِ Content
+  Studio وصله بود (مرده)، به `octopus-miniapp` repoint شد. CNAME از طریقِ Cloudflare API
+  (cert.pem decode → zoneID + apiToken). URL نهایی: `app.master-painting.com/miniapp`.
+  کامیت: `e798722`. ۱۹ تست سبز. مگاپرامپتِ هماهنگ‌شده برای ایجنتِ موازی در
+  `_ops/MEGAPROMPT-PARALLEL-AGENT-CONTROL-PANEL-2026-08-08.md`.
+
 - 🔍✅ **2026-08-08 (بعدظهر — راستی‌آزماییِ مستقل: فیکس‌ها تأیید شدند، عددِ dark gates کهنه بود).**
   قاعدهٔ §۰ اعمال شد: گزارش‌های ۱۴+ کامیتِ ایجنت‌های موازی مستقل رویِ دیسک بررسی شدند،
   نه باور شده. **نتیجه:** همهٔ فیکس‌ها واقعی‌اند (snapshot کار می‌کند، اعداد با raw
