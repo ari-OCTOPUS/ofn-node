@@ -367,6 +367,40 @@ def t_calibration_trend_is_insufficient_when_log_absent():
         cb.CALIBRATION_LOG = orig
 
 
+def t_vault_proposals_card_shows_pending_count_and_is_discovered():
+    """۲۰۲۶-۰۸-۰۸: vault-proposals.jsonl (۶ رکوردِ GATE) تا حالا صفر خواننده داشت.
+    این تست قفل می‌کند که کارتِ نو صف را می‌خواند، شمارش را نشان می‌دهد، و توسطِ
+    capability_registry کشف می‌شود (بدونِ لمسِ center.py)."""
+    import cockpit_brain  # noqa: F401 — only to ensure _OPS on path
+    sys.path.insert(0, str(_OPS)) if str(_OPS) not in sys.path else None
+    sys.path.insert(0, str(_OPS / "doctor"))
+    import vault_proposals_card as vpc
+    body = vpc.card()
+    assert isinstance(body, str) and body, "کارت خالی برگشت"
+    # یا «صفِ خالی» می‌گوید یا شمارش نشان می‌دهد — ولی باید شکلِ صحیح داشته باشد
+    assert "نکنی:" in body, "خطِ پایانیِ استاندارد گم شد"
+    # کشف توسطِ registry
+    import capability_registry as cr
+    keys = [r["key"] for r in cr.discover(refresh=True)]
+    assert "vault_proposals_card" in keys, "کارت کشف نشد"
+
+
+def t_vault_proposals_card_is_fail_soft_when_log_absent():
+    """نبودِ فایل ⇒ کارتِ «صفِ خالی»، نه کرش."""
+    import tempfile
+    sys.path.insert(0, str(_OPS / "doctor"))
+    import vault_proposals_card as vpc
+    orig = vpc.PROPOSALS_LOG
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            vpc.PROPOSALS_LOG = Path(td) / "nonexist.jsonl"
+            body = vpc.card()
+            assert "خالی" in body, body
+            assert "نکنی:" in body, body
+    finally:
+        vpc.PROPOSALS_LOG = orig
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]
