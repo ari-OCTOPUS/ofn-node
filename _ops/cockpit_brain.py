@@ -207,6 +207,12 @@ _TIERS = {
 }
 #: مسیرِ خروجیِ از-قبل-محاسبه‌شدهٔ calibration_probe.py.
 CALIBRATION_LATEST = STATE / "cortex" / "calibration-latest.json"
+#: مسیرِ تاریخچهٔappend-only ِ calibration_probe (۲۰۲۶-۰۸-۰۸): تا حالا صفر
+#: خوانندهٔ تولیدی داشت — فقط calibration_probe خودش دمش می‌خواند. این تایر
+#: اولین خوانندهٔ خارجیِ آن است: trendِ چندنمونه‌ایِ Brier را از آخرین N ردیف
+#: می‌سازد (نه فقط مقایسهٔ دو-نقطه‌ای با آخرین کش).
+CALIBRATION_LOG = STATE / "cortex" / "calibration-log.jsonl"
+CALIBRATION_TREND_N = 8   # چند نمونهٔ اخیر برای روند
 #: نسبتِ ungraded که فوراً هشدار می‌دهد. ⚠️ خودِ فایل چنین آستانه‌ای اعلام
 #: نمی‌کند — verify شد روی calibration_probe.py:probe: فیلدهای واقعیِ خروجی
 #: n/brier/aurc/abstain_below/ungraded/target_acc/window_h/n_claims/
@@ -292,6 +298,55 @@ def _summarise(name: str, d: dict) -> dict:
             "checks_failed": _num(h.get("checks_failed"))}
 
 
+def _calibration_trend_brier(n: int = CALIBRATION_TREND_N) -> dict:
+    """روندِ چندنمونه‌ایِ Brier از تاریخچهٔ append-only (۲۰۲۶-۰۸-۰۸).
+
+    calibration-log.jsonl تا حالا صفر خوانندهٔ تولیدی داشت (فقط calibration_probe
+    خودش دمش را می‌خواند). این اولین خوانندهٔ خارجی است: آخرین N نمونهٔ با
+    Brierِ معتبر را می‌خواند و جهتِ روند را می‌سازد.
+
+    خروجی: {samples, first_brier, last_brier, slope, verdict}
+    - verdict ∈ "improving" (Brierِ آخر < اول با ε) / "worsening" / "stable" / "insufficient"
+    - fail-soft کامل: نبودِ فایل/ردیف/JSON خراب ⇒ verdict="insufficient"، صفر کرش.
+    - Brier پایین‌تر یعنی بهتر (همان قراردادِ probe و _read_calibration).
+    """
+    try:
+        if not CALIBRATION_LOG.exists():
+            return {"samples": 0, "verdict": "insufficient",
+                    "reason": "no-log"}
+        import json as _json
+        briers: list[float] = []
+        for ln in CALIBRATION_LOG.read_text("utf-8", errors="replace").splitlines()[-n * 3:]:
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                d = _json.loads(ln)
+            except ValueError:
+                continue
+            b = d.get("brier")
+            if isinstance(b, (int, float)) and not isinstance(b, bool):
+                briers.append(float(b))
+            if len(briers) >= n:
+                break
+        if len(briers) < 2:
+            return {"samples": len(briers), "verdict": "insufficient",
+                    "reason": "need-2-samples"}
+        first, last = briers[0], briers[-1]
+        slope = (last - first) / max(1, len(briers) - 1)
+        if last <= first - CALIBRATION_BRIER_EPS:
+            verdict = "improving"
+        elif last >= first + CALIBRATION_BRIER_EPS:
+            verdict = "worsening"
+        else:
+            verdict = "stable"
+        return {"samples": len(briers), "first_brier": round(first, 4),
+                "last_brier": round(last, 4), "slope": round(slope, 4),
+                "verdict": verdict}
+    except Exception:  # noqa: BLE001 — روند هرگز کاکپیتی را نمی‌کشد
+        return {"samples": 0, "verdict": "insufficient", "reason": "error"}
+
+
 def _read_calibration(prev: dict) -> dict:
     """calibration-latest.json را می‌خواند — فقط خواندنِ فایل، بدونِ subprocess/LLM.
 
@@ -301,6 +356,10 @@ def _read_calibration(prev: dict) -> dict:
     ساخته می‌شود — Brier پایین‌تر یعنی بهتر (خودِ docstringِ probe). اولین
     خواندنِ معتبر یا نبودِ Brierِ قبلی ⇒ `"unknown"`، نه حدسِ جهت‌دار.
 
+    ۲۰۲۶-۰۸-۰۸: علاوه بر مقایسهٔ دو-نقطه‌ای، روندِ چندنمونه‌ایِ
+    `_calibration_trend_brier` را هم برمی‌گرداند (اولین خوانندهٔ تاریخچهٔ
+    append-only). alert اکنون «روندِ worsening» را هم در نظر می‌گیرد.
+
     fail-soft کامل: فایل نبود/JSON خراب/شکلِ غیرِ dict ⇒ همه چیز None،
     بدونِ کرش — دقیقاً همان قراردادِ `observe()` («None یعنی نخواندم»).
     """
@@ -308,7 +367,8 @@ def _read_calibration(prev: dict) -> dict:
     if not isinstance(d, dict):
         return {"calibration_brier": None, "calibration_aurc": None,
                 "calibration_ungraded_ratio": None,
-                "calibration_alert": None, "calibration_verdict": None}
+                "calibration_alert": None, "calibration_verdict": None,
+                "calibration_trend": None}
 
     def _num(v):
         return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
@@ -337,17 +397,23 @@ def _read_calibration(prev: dict) -> dict:
         else:
             verdict = "unknown"          # اولین خواندنِ معتبر — چیزی برای مقایسه نیست
 
+    # روندِ چندنمونه‌ای از تاریخچه (۲۰۲۶-۰۸-۰۸) — اولین خوانندهٔ calibration-log
+    trend = _calibration_trend_brier()
+
     ratio_alert = ratio is not None and ratio >= CALIBRATION_UNGRADED_ALERT
     # ⚠️ alert باید None بماند (نه False) وقتی هیچ سیگنالی نداریم — صفرِ جعلی
     # همان دروغِ کاکپیتی است که این فایل کلاً برای رفعش نوشته شده.
-    if verdict is None and ratio is None:
+    # ۲۰۲۶-۰۸-۰۸: روندِ worsening هم alert می‌سازد (نه فقط پرشِ دو-نقطه‌ای).
+    if verdict is None and ratio is None and trend.get("verdict") not in ("worsening",):
         alert = None
     else:
-        alert = bool(verdict == "worse" or ratio_alert)
+        alert = bool(verdict == "worse" or ratio_alert
+                     or trend.get("verdict") == "worsening")
 
     return {"calibration_brier": brier, "calibration_aurc": _num(d.get("aurc")),
             "calibration_ungraded_ratio": ratio,
-            "calibration_alert": alert, "calibration_verdict": verdict}
+            "calibration_alert": alert, "calibration_verdict": verdict,
+            "calibration_trend": trend}
 
 
 def self_awareness(mem: dict, now: "float | None" = None,

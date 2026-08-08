@@ -308,6 +308,65 @@ def t_calibration_not_worse_follows_normal_threshold_cadence():
     assert "calibration_alert" not in keys2, "بهبود نباید بایپسِ فوری بسازد"
 
 
+def t_calibration_trend_reads_history_log():
+    """۲۰۲۶-۰۸-۰۸: calibration-log.jsonl تا حالا صفر خوانندهٔ تولیدی داشت.
+    این تست قفل می‌کند که _calibration_trend_brier تاریخچه را می‌خواند و
+    verdictِ روند می‌سازد. fail-soft: نبودِ فایل/داده ⇒ 'insufficient'."""
+    import cockpit_brain as cb
+    import tempfile, json as _json
+    orig = cb.CALIBRATION_LOG
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            logp = Path(td) / "calibration-log.jsonl"
+            with logp.open("w", encoding="utf-8") as fh:
+                for b in (0.28, 0.27, 0.26, 0.25):
+                    fh.write(_json.dumps({"brier": b}) + "\n")
+            cb.CALIBRATION_LOG = logp
+            t = cb._calibration_trend_brier(n=4)
+            assert t["samples"] == 4, t
+            assert t["verdict"] == "improving", t   # 0.28→0.25 Brier کاهش = بهتر
+            assert t["first_brier"] == 0.28 and t["last_brier"] == 0.25, t
+    finally:
+        cb.CALIBRATION_LOG = orig
+
+
+def t_calibration_trend_detects_worsening_and_alerts():
+    """روندِ worsening باید در _read_calibration هم alert بسازد، نه فقط
+    مقایسهٔ دو-نقطه‌ای. این قفل می‌کند که trend واقعاً در alert فولد می‌شود."""
+    import cockpit_brain as cb
+    import tempfile, json as _json
+    orig_log = cb.CALIBRATION_LOG
+    orig_latest = cb.CALIBRATION_LATEST
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            logp = Path(td) / "calibration-log.jsonl"
+            with logp.open("w", encoding="utf-8") as fh:
+                for b in (0.20, 0.25, 0.30, 0.35):
+                    fh.write(_json.dumps({"brier": b}) + "\n")
+            cb.CALIBRATION_LOG = logp
+            latestp = Path(td) / "calibration-latest.json"
+            latestp.write_text(_json.dumps({"brier": 0.35}), encoding="utf-8")
+            cb.CALIBRATION_LATEST = latestp
+            r = cb._read_calibration({})
+            assert r["calibration_trend"]["verdict"] == "worsening", r
+            assert r["calibration_alert"] is True, "روندِ worsening باید alert بسازد"
+    finally:
+        cb.CALIBRATION_LOG = orig_log
+        cb.CALIBRATION_LATEST = orig_latest
+
+
+def t_calibration_trend_is_insufficient_when_log_absent():
+    """fail-soft: نبودِ فایل ⇒ verdict='insufficient'، صفر کرش."""
+    import cockpit_brain as cb
+    orig = cb.CALIBRATION_LOG
+    try:
+        cb.CALIBRATION_LOG = Path("/nonexistent-trend-test/calibration-log.jsonl")
+        t = cb._calibration_trend_brier()
+        assert t["verdict"] == "insufficient", t
+    finally:
+        cb.CALIBRATION_LOG = orig
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]
