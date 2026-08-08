@@ -257,6 +257,56 @@ def t_self_knowledge_knows_how_visible_it_is():
     assert "surface_live" in d and "surface_total" in d, d
 
 
+# ─── ۷: دفترِ اثرها (ب-۴، ۲۰۲۶-۰۸-۰۷) ───────────────────────────────────────
+def t_card_shows_a_summary_line_when_effects_ledger_has_rows():
+    """`capabilities.effects()` تا حالا صفر خوانندهٔ تولیدی داشت — دفترِ
+    `capability-effects.jsonl` از طریقِ `record_effect` نوشته می‌شد ولی هرگز
+    نمایش داده نمی‌شد. این تست قفل می‌کند که `card()` اکنون یک خطِ خلاصه
+    («N اثرِ اخیر») می‌سازد وقتی دفتر ردیف دارد.
+
+    با monkeypatch روی `_ledger_path` کار می‌کند تا به دفترِ زنده وابسته نباشد."""
+    import tempfile, json
+    import capabilities as cap
+    orig = cap._ledger_path
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            ledger = Path(td) / "cap-effects.jsonl"
+            with open(ledger, "w", encoding="utf-8") as fh:
+                for rec in (
+                    {"schema": "capability.v1.effect", "ts": "2026-08-07T10:00:00",
+                     "capability": "shell.raw", "action": "git status", "ok": True,
+                     "detail": ""},
+                    {"schema": "capability.v1.effect", "ts": "2026-08-07T10:01:00",
+                     "capability": "shell.raw", "action": "rm -rf", "ok": False,
+                     "detail": "denied"},
+                ):
+                    fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            cap._ledger_path = lambda: ledger
+            body = cr.card()
+            assert "اثرِ اخیر" in body, "خطِ خلاصهٔ اثرها ظاهر نشد"
+            assert "2" in body, "شمارِ اثرها در خط نیست"
+            # شکست باید دیده شود: ۱ ok + ۱ fail
+            assert "✗" in body or "‹" in body, "شکستِ effect در خلاصه دیده نشد"
+    finally:
+        cap._ledger_path = orig
+
+
+def t_card_hides_the_effects_line_when_ledger_is_empty():
+    """وقتی دفتر خالی است (یا نیست)، خط نباید ظاهر شود — نباید «۰ اثر» بنویسد
+    که نویز است. fail-soft هم: نبودِ دفتر = سکوت."""
+    import tempfile
+    import capabilities as cap
+    orig = cap._ledger_path
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            cap._ledger_path = lambda: Path(td) / "nonexist.jsonl"
+            body = cr.card()
+            assert "اثرِ اخیر" not in body, "دفترِ خالی خطِ اثرها چاپ کرد — نویز"
+            assert "نکنی:" in body, "خطِ اصلیِ کارت گم شد"
+    finally:
+        cap._ledger_path = orig
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

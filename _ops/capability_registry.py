@@ -378,6 +378,23 @@ def card() -> str:
         mark = "" if r["flag_on"] else " <i>(خاموش)</i>"
         lines.append(f"▸ {_esc(r['title'])}{mark}")
     lines += ["", "▸ نکنی: هیچ — همه‌شان فقط‌خواندنی‌اند."]
+    # ۲۰۲۶-۰۸-۰۷ (ب-۴): دفترِ effectها (`capability-effects.jsonl` از طریقِ
+    # `capabilities.record_effect` در shell_capability/tool_request نوشته می‌شود)
+    # تا حالا صفر خوانندهٔ تولیدی داشت — `effects()` فقط در تست صدا زده می‌شد.
+    # این یک خطِ خلاصه، اولین خوانندهٔ تولیدیِ آن دفتر است: «چه‌کارِ واقعی انجام شد»
+    # اکنون در کارتِ خودِ فهرست دیده می‌شود. fail-soft: نبودِ دفتر = صفر خط.
+    try:
+        import capabilities as _cap  # noqa: PLC0415
+        _recent = _cap.effects(limit=50)
+        if _recent:
+            _ok = sum(1 for e in _recent if isinstance(e, dict) and e.get("ok"))
+            _fail = len(_recent) - _ok
+            _last = _recent[-1] if isinstance(_recent[-1], dict) else {}
+            _action = _esc(str(_last.get("action") or _last.get("capability") or "?"))[:48]
+            _tail = "✓" if _ok and not _fail else (f"✓{_ok}‹✗{_fail}›" if _fail else "✓")
+            lines.append(f"▸ 🧾 {len(_recent)} اثرِ اخیر ({_tail}) — آخر: {_action}")
+    except Exception:  # noqa: BLE001 — خلاصهٔ اثرها هرگز کارت را نمی‌کشد
+        pass
     return "\n".join(lines)
 
 
