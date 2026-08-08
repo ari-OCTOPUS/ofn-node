@@ -767,6 +767,21 @@ def main() -> int:
                         epoch_info["recall_reach"] = {
                             k: _rtr.get(k) for k in ("events", "reach_median",
                                                      "self_ratio")}
+                        # ── روند → هشدار (۲۰۲۶-۰۸-۰۸): recall_trend.trend() تا
+                        # حالا صفر صداکنندهٔ تولیدی داشت — فقط در card/تست. این
+                        # اولین خوانندهٔ تولیدیِ trend است: اگر reach «worse» شده،
+                        # مالک را آگاه می‌کند. فقط‌خواندن روی دفترِ موجود؛ $0.
+                        try:
+                            _tnd = _rt.trend()
+                            if isinstance(_tnd, dict) and _tnd.get("overall") == "worse":
+                                _w = _tnd.get("verdict") or {}
+                                opslib.alert([
+                                    f"recall_trend روندِ بدتر: overall=worse "
+                                    f"(verdicts={_w}). حافظه‌ی رو به‌بالا داده "
+                                    f"می‌نویسد ولی بازیابیِ آن ضعیف‌تر می‌شود — "
+                                    f"کالیبراسیونِ consolidation/retrieval را بررسی کن."])
+                        except Exception as _tnde:  # noqa: BLE001 — trend هرگز sample را نمی‌کشد
+                            pass
                 except Exception as _rte:  # noqa: BLE001 — §۴
                     opslib.alert([f"recall_trend error (non-fatal): "
                                   f"{type(_rte).__name__}: {_rte}"])
