@@ -13,7 +13,12 @@ sources:
 
 # مگاپرامپتِ ایجنتِ بعدی — وضعیتِ نهاییِ ۲۰۲۶-۰۸-۰۸ — تکمیلِ بازطراحیِ حافظه
 
-> این نوت نقطهٔ ورودِ عملیاتیِ ایجنتِ بعدی است. مرجعِ کامل: [[00-README-START-HERE]] + [[27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07]] + [[26-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08]].
+> این نوت نقطهٔ ورودِ عملیاتیِ ایجنتِ بعدی است. مرجعِ کامل: [[00-README-START-HERE]] + [[27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07]] + [[36-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08]].
+>
+> ⚠️ **۲۰۲۶-۰۸-۰۸ (بعدتر):** نوتِ «۲۶-AI-ARCHITECTURE-GAP-ANALYSIS» که این فایل به آن
+> اشاره می‌کرد، به `36-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08.md` رنیم شد (تصادمِ
+> شماره‌گذاری با `26-OPERATIONS-MONEY-SCAN-2026-08-07.md`). نوتِ ۳۵ جانشینِ کاملِ
+> این نوت است — آن‌جا هر پنج موجِ همان روز را یک‌جا می‌بینی.
 >
 > **وضعِ ۲۰۲۶-۰۸-۰۸ — همه‌چیزِ کم‌ریسک بسته شد.** ۹ کامیت امروز + ۵ کامیتِ نوتِ ۲۷/۲۸.
 > سؤال‌های بازِ رأیِ مالک در `00 - Inbox/AGENT_QUESTIONS.md` (۱۵ مورد). آنچه اینجا
@@ -125,4 +130,4 @@ sources:
 | سؤال‌های بازِ رأیِ مالک | AGENT_QUESTIONS.md |
 | جزئیاتِ فیکس‌های امروز | کامیت‌های `fbc650b` تا `f6c4200` در `git log` |
 
-مرتبط: [[27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07]] · [[26-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08]] · [[28-NEXT-AGENT-MEGAPROMPT-2026-08-07]] · [[00-README-START-HERE]]
+مرتبط: [[27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07]] · [[36-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08]] · [[28-NEXT-AGENT-MEGAPROMPT-2026-08-07]] · [[00-README-START-HERE]] · [[35-NEXT-AGENT-MEGAPROMPT-2026-08-08-FINAL]]

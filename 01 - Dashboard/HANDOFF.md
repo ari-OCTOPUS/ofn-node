@@ -134,7 +134,7 @@ updated: 2026-08-08
   قابل‌دیدن است. **کشفِ مهم:** `applied` field قبلاً توسط ایجنتِ موازی فیکس شده بود
   (۵ ردیفِ applied=true، wiring.py:1702) — مگاپرامپت از وضعیتِ قدیمی می‌آمد. مهم‌ترین
   DEAD-OUTPUT باقی‌مانده: `smallest_fix` (دقیق‌ترین خروجیِ تصمیم، فقط نمایش، نه action).
-  جزئیات: [[../07 - Knowledge/شناخت-اختاپوس/27-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|27-EFFECTOR-REGISTRY]].
+  جزئیات: [[../07 - Knowledge/شناخت-اختاپوس/37-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|37-EFFECTOR-REGISTRY]].
 
 - 🏁✅ **2026-08-08 (شب/سحر — نوتِ ۲۸ کامل شد: ایجنتِ موازیِ سوم بخشِ ب را تمام کرد).**
   چهار کامیتِ دیگر: `fbc650b` (persistence-gate ِ route_scorer، همان تلهٔ coercion که

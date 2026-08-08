@@ -28,6 +28,36 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-08 شب (agent، Opus 4.8 — به‌روزرسانیِ vault: رفعِ تصادمِ
+  شماره‌گذاریِ نوت‌ها + مجموعه‌سازیِ پنجُ‌موجِ همان روز).** رأیِ مالک: «ابسیدینم بروز
+  کن». دو نوتِ هم‌شماره پیدا شد (چهار ایجنتِ موازیِ ۰۸-۰۸ بدونِ دیدنِ کارِ هم):
+  `26-AI-ARCHITECTURE-GAP-ANALYSIS` در برابرِ `26-OPERATIONS-MONEY-SCAN` (۰۸-۰۷)،
+  `27-EFFECTOR-REGISTRY` در برابرِ `27-REDESIGN-SCAN-MEMORY-ARCHITECTURE` (۰۸-۰۷، مالِ
+  من). نوت‌هایِ ۰۸-۰۸ با `git mv` به ۳۶/۳۷ رنیم شد (نوت‌های ۰۸-۰۷ قدیمی‌ترند، جایشان
+  ماند)؛ هر ۱۰ ارجاعِ یافته‌شده در ۸ فایل به‌روز شد (grep-and-fix، نه حدس). یک
+  mojibakeِ واقعی هم فیکس شد (کاراکترهایِ چینی به‌جایِ «شبِ دیر» در همین فایل، خطِ
+  زیر). نوتِ [[../../07 - Knowledge/شناخت-اختاپوس/35-NEXT-AGENT-MEGAPROMPT-2026-08-08-FINAL|۳۵]]
+  اول پنج موجِ کاریِ همان روز را یک‌جا دید (کنترل‌پنل، StateGuard/Seed/Cockpit،
+  دیپ‌اسکن+SDK، تأییدِ مستقل+snapshot+effector+reader-map) — نوتِ ۲۹ فقط ۳ موجِ اول
+  را می‌دید. سه یافتهٔ تازه که فقط با مقایسهٔ موج‌ها کنارِ هم پیدا شد: (۱) `center.py`
+  هنوز فیکس‌های امروز را لود نکرده (شاهدِ PID/timestamp)، (۲) همین تصادمِ شماره‌گذاری،
+  (۳) سؤالِ AGENT_QUESTIONS دربارهٔ دکمهٔ mirror_room نیمه‌جواب گرفت (کنترل‌پنلِ
+  زیر). validator ها اجرا شد، صفر لینکِ شکستهٔ نو.
+
+- تغییرات اخیر: **2026-08-08 شب (agent، Opus 4.8 — کنترل‌پنلِ مینی‌اپ: کارایی + دو
+  سیم‌کشیِ نو + soak-test ۱۶۰دقیقه‌ای).** رأیِ صریحِ مالک («سیم‌کشیاشو کامل کن...
+  برو جلو»). ۶ کامیت (`c08c9eb`→`dcb6d2a`): کشِ `assets_version` (mtime-محور) +
+  `Cache-Control` درست برایِ دارایی‌هایِ نسخه‌دار؛ `POST /api/ask` (چت‌باکس، نردبانِ
+  ask_vault→ask_brain)؛ `POST /api/mirror` + چیپِ «🪞 با حافظه» (نقطهٔ ورودِ
+  mirror_room از پنل، بدونِ reimplementation). هر دو سیم‌کشیِ نو نیازِ
+  `RESTART-PROCESS.ps1 gateway` داشت (اثباتِ PID). soak-test سه‌فازه (Browser pane
+  زنده رویِ app.master-painting.com/miniapp): همان PID در کلِ ۱۶۰ دقیقه، صفر کدِ
+  HTTP غیرمنتظره در ۷۵۰+ چک. رصدِ سه‌بعدیِ یادگیری (درخواستِ جداگانهٔ مالک):
+  mirror_room کار می‌کند (تست ۱۷/۱۷)، self_patch فقط رویت‌پذیر نه خودآموز
+  (`defect_queue_card.py` تازه، کارِ ایجنتِ دیگر)، semantic_memory واقعاً رشد کرد
+  (+۸/۱۴۳دقیقه؛ bcm_step/recall_trend به چرخهٔ ۱۲ساعتهٔ consolidation گره خورده‌اند
+  نه تیک — صافیِ کوتاه‌مدت طبیعی است).
+
 - تغییرات اخیر: **2026-08-07 عصر (agent، Reader Map + وصلهٔ مصرف‌کنندگان — وصلِ دو
   DEAD-OUTPUT).** مأموریت «هر لایه باید لایهٔ زیرِ خودش را بخواند». Reader Mapِ ۷ producer:
   ۳ DEAD-OUTPUT، ۱ نیمه‌زندهٔ تکراری (consolidation **۹۵.۲٪ تکرار**). دو وصلهٔ افزودنی:
@@ -36,7 +66,7 @@ updated: 2026-08-07
   از قبل خود-خوان بود (راستی‌آزمایی، نیازی نبود). تکمیلِ نوتِ ۲۷. جزئیاتِ کامل:
   [[../../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|31-READER-MAP]].
 
-- تغییرات اخیر: **2026-08-08深夜 (agent، Seed Agent v1 + Owner-Cockpit stack + StateGuard).**
+- تغییرات اخیر: **2026-08-08 شبِ دیر (agent، Seed Agent v1 + Owner-Cockpit stack + StateGuard).**
   سه فاز: StateGuard (۶ فایل corrupt repair + fsync harden)، Seed Agent v1
   (context_assembler + octopus_reader + EvolutionGate + red-team harness)،
   Owner-Cockpit (fugu_proxy + otel + SQLite audit + owner_api HMAC + miniapp).
@@ -63,7 +93,7 @@ updated: 2026-08-07
   latent)، ۳ dead-output (bcm.weights، hebbian، consolidation)، ۱ shadow. مهم‌ترین
   DEAD-OUTPUT باقی‌مانده: smallest_fix (دقیق‌ترین خروجیِ تصمیم، فقط نمایش). applied
   field قبلاً فیکس شده بود (ایجنتِ موازی، ۵ ردیفِ applied=true). ۸/۸ تست سبز. جزئیات:
-  [[../../07 - Knowledge/شناخت-اختاپوس/27-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|27-EFFECTOR-REGISTRY]].
+  [[../../07 - Knowledge/شناخت-اختاپوس/37-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|37-EFFECTOR-REGISTRY]].
 
 - تغییرات اخیر: **2026-08-07 شب (agent، Opus 4.8 — مگاپرامپتِ v2: اسکنِ بازطراحیِ حافظه‌محور، ۸-ایجنتیِ Workflow، ۷ فاز + سنتز).**
   کامیت `a7daa7b`. تزِ مالک («اهرمِ واقعی حافظه، Fugu خودش ارکستراتور») **جزئاً
@@ -80,99 +110,6 @@ updated: 2026-08-07
   ask_brain continuity (ناقضِ مرزِ صریحِ PII خودِ فایل). ۷ فایلِ فازِ اسکن +
   REDESIGN-PROPOSAL.md روی دسکتاپ (`Desktop\OCTOPUS-REDESIGN-SCAN-2026-08-07\`).
   جزئیاتِ کامل: [[../../07 - Knowledge/شناخت-اختاپوس/27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07|27-REDESIGN-SCAN-MEMORY-ARCHITECTURE]].
-
-- تغییرات اخیر: **2026-08-07 شب (agent، Sonnet 5 — راستی‌آزماییِ کارِ ایجنتِ سومِ همکار + کامیت `da9ab3b`).**
-  یک ترنسکریپتِ سوم (ابزارهای متفاوت) مستقیماً ۷ فایلِ production را ویرایش کرده بود
-  (`miniapp_gateway.py`/`miniapp_state.py`/`live/server.py`/`dashboard/server.py`/
-  `app.js`/`style.css`/**`wiring.py`**). Workflow ِ ۶-ایجنته diff-به-diff بررسی کرد:
-  `read_gate_enabled()` واقعاً سخت‌گیرانه‌تر شد (fail-closed)، قفلِ `_CACHE` درست،
-  rate-limit + سقفِ body درست پیاده شدند، فیلدِ `applied` در `wiring.py` دقیقاً
-  شرطِ گیتِ واقعی را می‌خواند بدونِ لمسِ گیت. **یک ایرادِ واقعی خودم فیکس کردم:**
-  دو تعریفِ متناقضِ `.tblwrap table` در style.css (یکی مرده بود). ۷۴/۷۴ تست سبز.
-  **این چرخهٔ کاری (سه ایجنتِ همکار روی همین درختِ زنده، هر بار راستی‌آزماییِ
-  مستقل قبل از پذیرش):** `5c161d2` → `792a94a` → `0c9fecc` → `fc0df72` → `da9ab3b`.
-
-- تغییرات اخیر: **2026-08-07 شب (agent، web-app security audit — ۶ فیکس + ARIA/CSP + برخوردِ دو ایجنت).**
-  commit `5c161d2`. ۴ یافتهٔ گزارشِ بیرونی تأیید+فیکس+test+mutation-test: toast()
-  XSS (اسکیپِ شرطیِ فارسی)، فهرستِ آرامِ viewHome (برعکسِ همان)، `str(e)` خامِ
-  `live/server.py`، leak ِ کلیدهای unmanaged در `/api/flags` ِ dashboard. سیبلینگِ
-  همان کلاسِ نشت در `cortex.py`'s `/ask` هم فیکس شد. سخت‌سازی: role=tablist/tab/
-  tabpanel+roving tabindex+کیبورد، CSP بسته، بازگشت‌به‌تب با `visibilitychange` —
-  با پیش‌نمایشِ واقعیِ مرورگر تأیید شد. **⚠️ حینِ کار، ایجنتِ دیگری هم‌زمان
-  روی همان `app.js`/`live/server.py` می‌نوشت** (برچسبِ `FIX (deep-scan
-  2026-08-07)` — احتمالاً GLM worker یا یکی از سه ایجنتِ اسکنِ زیر). ۵ فیکسِ
-  آن‌ها (stale-fetch guard، null-guard، ارورِ `render()`) verify و نگه داشته
-  شد؛ فقط تصادمِ toast() (innerHTML vs textContent، span ِ `ltr()`) دستی حل شد.
-  **درسِ عملیاتی:** هر دو ایجنت مستقیم روی `F:\backup` می‌نوشتند نه worktree —
-  دقیقاً همان الگویِ WORKLOCK که این پروژه از قبل مستند کرده.
-
-- تغییرات اخیر: **2026-08-07 عصر (agent، operations/money-scan — گزارشِ ایجنتِ (۳)
-  از سه مگاپرامپتِ اسکن).** جوابِ صادقانه به «همه‌چیز واقعاً کار می‌کند یا فقط
-  شبیهِ فعالیت؟»: lead امروز **صفر** ولی درست است (propose_only:true، credential ِ SMTP
-  نیست)؛ arbiter اکنون 🟢 سبز (نه قرمز). سه فیکس در دامنهٔ بنده: `de2af9c` تلهٔ
-  `UnboundLocalError: PriceNotLocked` در `heart/doctor_setpoint.py` (مسیرِ پولی —
-  خودِ fail-soft خراب بود)؛ `828b607` `test_token_meter` now=NOW (تستِ شکننه، کد سالم)؛
-  `585f137` `phantom_guards` رچتِ فلگ. باگِ کلاسِ نوشتنِ غیراتمیک: فایلِ متخف از قبل
-  حذف شده، همهٔ stateهای پولی `opslib.LockedJson` دارند — صفر فیکسِ نو لازم. ۶ شکستِ
-  خارج از دامنه در `AGENT_QUESTIONS`. بکاپِ خام:
-  `C:\Users\Armin\Desktop\OCTOPUS-SCAN-OPERATIONS-2026-08-07\`.
-
-- تغییرات اخیر: **2026-08-07 عصر (agent، interaction-surface audit — گزارشِ ایجنتِ (۲)
-  از سه مگاپرامپتِ اسکن: دو ریشهٔ «نمی‌شه حرف زد» فیکس شد).** مسیرِ RAG ِ vault
-  (`ask_vault`) به‌طور سیستماتیک با `rg-error` می‌مرد — `.claude/worktrees/*`
-  (۱۲٬۷۴۶ md، ۵ کپیِ `Lead-نقاشی.md`ِ ۹۴۰KB) + `_build`/`_archive-binaries`/`_portable-build`
-  به `_BUILD_EXCLUDE` اضافه شد (`972a1e7`)؛ حالا 0.3s (was >20s timeout)، جوابِ مستند.
-  مسیرِ چتِ آزاد (`mirror_room`) وقتی سهمیهٔ فوگو پر می‌شود (هر روزِ اخیر ۶۰/۶۰)
-  بن‌بست می‌شود و پیامِ گمراه‌کننده می‌داد؛ صادقانه شد (`9e06a1f`). مینی‌اپ سالم
-  (هر ۷ تب دادهٔ زنده). توصیه: `notif_inbox`/`restart_control` امن برای آرم. سؤالِ باز:
-  `FUGU_DAILY_CALL_CAP=60` هر روز پر می‌شود — بالا برود؟ جزئیاتِ کامل:
-  [[../../07 - Knowledge/شناخت-اختاپوس/25-INTERACTION-SURFACE-AND-QUOTA-DEAD-END-2026-08-07|25-INTERACTION-SURFACE-AND-QUOTA-DEAD-END]].
-
-- تغییرات اخیر: **2026-08-07 عصر (agent، cognition-sync audit — گزارشِ ایجنتِ (۱)
-  از سه مگاپرامپتِ اسکن).** جوابِ شواهدمحور به «آیا لایه‌های آگاهی سینک‌اند؟»:
-  ناقص ولی صادقانه — متخصص‌های مکمل، نه جزایرِ متناقض. ۵ منبعِ زنده، ۳
-  sensor-rich/actuator-poor. یک یافتهٔ تشخیصیِ نو (فیلدِ `applied` در
-  effect-shadow همیشه `False` هاردکد — شکافِ observability، نه باگ) در
-  `AGENT_QUESTIONS.md` ثبت شد. vault_whole = ۱۰۹٬۲۲۰ chunk وصل/کارآمد (9/9 سبز).
-  نرخِ واقعیِ protective-halt بعدِ ری‌استارت = ۰٪ (pain 0.207 < 0.35). هیچ فلگی
-  دست نخورد، هیچ فیکسی کامیت نشد (hebbian.json از null خودش heal شد). جزئیاتِ
-  کامل: [[../../07 - Knowledge/شناخت-اختاپوس/24-COGNITION-SYNC-AUDIT-2026-08-07|24-COGNITION-SYNC-AUDIT]].
-
-- تغییرات اخیر: **2026-08-07 شب (agent، Sonnet 5 — هر دو مسدودکننده رفع شد،
-  ری‌استارتِ کامل (۵/۵) موفق، سه مگاپرامپتِ اسکنِ موازیِ کاملِ اختاپوس dispatch شد).**
-  `budget_gate.py:171-173` نوشتنِ غیراتمیک بود (ریشهٔ خرابیِ `budget-state.json`)؛
-  بازسازی با دادهٔ مستقلِ تلمتری، `FREEZE.flag` پاک شد. cortex یک‌بار zombie
-  بود (`RESTART-PROCESS.ps1` fallbackِ اجباری ندارد) — دستی حل شد. هر ۵ پروسه
-  الان با هر ۶ فلگ زنده‌اند. سپس سه مگاپرامپتِ ایزوله (سینکِ آگاهی/حافظه ·
-  سطحِ تعامل «چرا نمی‌شه حرف زد» · سلامتِ عملیاتی/پول) برای سه ایجنتِ موازیِ
-  بیرونی نوشته و مستقیم در چت داده شد — منتظرِ گزارش. جزئیاتِ کامل:
-  [[../../07 - Knowledge/شناخت-اختاپوس/23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT-2026-08-07|23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT]].
-- تغییرات اخیر: **2026-08-07 (agent، Sonnet 5 — کنترلِ ری‌استارت از تلگرام + صندوقِ اعلانِ مینی‌اپ + تأییدِ مستقلِ ممیزیِ شناختیِ کارگرِ GLM).**
-  جزئیاتِ کامل: [[../../07 - Knowledge/شناخت-اختاپوس/23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT-2026-08-07|23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT]]. دو نخِ کارِ موازی امروز:
-
-  **(الف) خودم — کنترلِ ری‌استارت + صندوقِ اعلان (۱۳ کامیت):** `/restart [scope]`
-  مستقیم در `handlers` ِ `center.py` (نه پلِ دو-باتی) با کارتِ تأییدِ
-  `ap:ok`/`ap:no` (از همان مکانیزمِ صفِ `approval_store`، صفر verbِ نو)؛
-  `restart_control.py` نو با `execute_restart` (`CREATE_NEW_PROCESS_GROUP`ِ
-  جداشده، تست‌شده در برابرِ مرگِ پروسهٔ مادر — `DETACHED_PROCESS` تجربتاً
-  ضبطِ `Write-Host` را می‌شکست) + `check_restart_result` (از `beat` ِ مرکز).
-  باگِ واقعی: `/restart` عضوِ `_CENTER_SLASH` نبود (همان دستهٔ outer-bot-4).
-  جدا از این: صندوقِ اعلانِ `notif_inbox.py` با ۵ نقطهٔ قلاب پشتِ
-  `OCTOPUS_WIRE_NOTIF_INBOX` (پیام‌های تلگرام به‌جای شلوغ‌کردنِ چت، تبِ هفتمِ
-  مینی‌اپ) + طرحِ محدودِ `outbound_https.py` (فقط اسکلت، هیچ‌جا وصل نشده).
-  ۲۶+ تستِ نو، هر شاخهٔ ایمنی mutation-tested. هر دو فلگ هنوز خاموش.
-
-  **(ب) کارگرِ GLM — ممیزیِ شناختیِ ۱۶.۵ساعته + P1-P5 (`f9940e2`):** consent
-  glue واقعی (مسیرِ ارسالِ لید باز شد، legs با رأیِ مالک)، `cortex.think()`
-  پشتِ `OCTOPUS_WIRE_CORTEX_RICH_THINK`، reindex ِ کلِ vault. **تأییدِ مستقلِ
-  ۵-ایجنتهٔ من روی کدِ زنده:** P1/P2/P3 تأیید شد (۴/۴ تستِ P1 زنده سبز)؛
-  عددِ P5 غلط بود (۷۰٬۹۹۳ نه ۱۰۹۲۲، هنوز ایندکس می‌شد)؛ **مهم‌تر — ادعای
-  «P4 فقط طرح» غلط بود**، اکچوئیتور از قبل در `wiring.protective_override()`
-  ساخته/تست شده (فلگِ shadow از ۰۷-۲۷ آرم)، کارِ باقی‌مانده فقط تصمیمِ
-  آرم‌کردنِ فلگ است نه کدنویسی؛ آرم‌کردنِ `CONSENT_FW`+`LEAD_OUTBOUND` هم
-  تحلیل و **امن** تشخیص داده شد (گیتِ فقط-رد + چک‌پوینتِ تأییدِ انسانیِ
-  ازقبل‌موجود + هنوز credentialِ SMTP نیست). مگاپرامپتِ آمادهٔ جلسهٔ بعد در
-  نوتِ ۲۳.
 
 - **سرریزِ دومِ ۲۰۲۶-۰۸-۰۷:** دو ورودیِ ۲۰۲۶-۰۸-۰۶ (mirror_room/4D-Vault/رأیِ‌رأی + جاروی خودگزارش‌شده) منتقل شدند به
   `_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-07.md` — انتقال، نه حذف (§۰.۱).
