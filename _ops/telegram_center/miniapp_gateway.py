@@ -681,7 +681,8 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             body = _redact(body.decode("utf-8", "replace")).encode("utf-8")
         return st, body, ctype
     # PHASE 4 (2026-08-02): read-only /api/* cockpit helpers (secret-scrubbed, fail-closed).
-    # No POST/PUT/DELETE here — read-only. Actions are Phase 7 (owner-gated, not wired yet).
+    # No POST/PUT/DELETE here — read-only. Actions (/api/actions) are wired separately
+    # above via OpsActionEngine (owner-gated) — stale "not wired yet" note removed 2026-08-09.
     # PHASE 5 (2026-08-03): زیرمسیرهای /api/ops/* از همین درِ واحد رد می‌شوند.
     if p.startswith("/api/") and p in READ_API_PATHS:
         if not _read_api_authorized(headers, now=now):
