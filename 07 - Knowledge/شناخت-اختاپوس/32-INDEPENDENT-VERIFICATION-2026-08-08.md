@@ -52,19 +52,25 @@ sources:
 | **راستی‌آزماییِ مستقل (`dark_capabilities.scan()` زنده)** | **۶۴ dark از ۳۴۷ (~۱۸٪)** | **۰۸-۰۸ بعدظهر** |
 
 **تفسیر:** نوتِ ۲۶ در زمانِ نگارش درست بود، ولی سیستم از آن زمان بهتر شده —
-`n_partial` از ۱۲۶ به **۰** رسیده، و `n_dark` از ۱۲۸ به **۶۴**. این یک **بهبودِ واقعی**
-در همان روز است (احتمالاً به‌خاطرِ فیکس‌های phantom_guards `41d13f6` و مستندسازیِ فلگ‌ها).
+`n_dark` از ۱۲۸ به **۶۴** تقلیل یافته. بهبودِ واقعی در همان روز (احتمالاً به‌خاطرِ
+فیکسِ typo `41d13f6` و مستندسازیِ فلگ‌ها).
+
+> ⚠️ **تصحیحِ دوم (۲۰۲۶-۰۸-۰۸، حین فیکسِ کد):** گزارشِ اولِ این نوت گفت `n_partial=0`.
+> این **غلط بود** — یک خطای خواندنِ من. واقعیتِ پایدار در ۳ اجرا: `n_partial=206`،
+> `n_tuning=76`، `n_live_on=215`. (dark+partial+tuning+live_on > n_flags چون هم‌پوشانی
+> عمدی هست — یک فلگ می‌تواند هم‌زمان tuning و live_on بشمره.) درسِ روشی: حتی
+> راستی‌آزماییِ مستقل هم می‌تواند خطا کند؛ قبل از کدنویسی دوباره بررسی کن.
 
 **اثر بر اولویت‌بندی:** شکافِ «dark gates» از 🟠 HIGH به 🟡 MEDIUM-LOW تقلیل می‌یابد.
 این دیگر بحرانی نیست.
 
-## 🟡 مواردِ «هنوز باز» — تأییدِ مستقل
+## 🟡 مواردِ «هنوز باز» — تأییدِ مستقل (وضعیتِ پس از فیکس‌های این جلسه)
 
 | مورد | وضعیتِ واقعی روی دیسک |
 |------|---------------------|
-| `health = unknown` در snapshot | ✓ باز — `reachable: false`، reach_probe به state نمی‌نویسد |
-| Hebbian actuator | ✓ باز — display-only در registry، 0 dead-output واقعی |
-| typo `CORTEX_THINK_RICH` | ✓ باز — در `test_cortex_rich_think_heart.py:67` (و مستند در `test_phantom_guards.py:186-191`) |
+| `health = unknown` در snapshot | ✅ **بسته شد (این جلسه).** کامیت `b7061f6` — `_health()` حالا `dark_capabilities.scan()` را فراخوانی می‌کند: `n_dark_gates=64`، `n_partial_gates=206`، `reachable: true`. تستِ نو pin شد. |
+| typo `CORTEX_THINK_RICH` | ✅ **بسته شد (این جلسه).** کامیت `b7061f6` — ترتیبِ کلمات تصحیح شد. فلگِ phantom از رچتِ UNDECLARED_FLAGS هم حذف شد. |
+| Hebbian actuator | 🟡 باز — display-only در registry، 0 dead-output واقعی. نیاز به بازطراحی (رأیِ مالک). |
 | approval_fatigue | رد شده (نقضِ قراردادِ fail-open) — درست |
 
 ## 🔵 نکتهٔ روش‌شناختی — اعدادِ نوسانی
@@ -92,3 +98,22 @@ sources:
 **توصیهٔ صریح به ایجنتِ بعدی:** قبل از تصمیم‌گیری بر اساسِ هر عددی در نوت‌ها،
 آن را با `dark_capabilities.scan()` یا `control_plane.live_snapshot.snapshot()` زنده
 بازبینی کن. اعداد در یک سیستمِ زنده به‌سرعت کهنه می‌شوند.
+
+---
+
+## فازِ فیکس (پس از راستی‌آزمایی) — کامیت `b7061f6`
+
+راستی‌آزمایی دو موردِ «هنوز باز» را پیدا کرد که کم‌ریسک بودند و همین جلسه فیکس شدند:
+
+۱. **health از unknown به عددِ واقعی.** `_health()` حالا `dark_capabilities.scan()`
+   را فراخوانی می‌کند: `n_dark_gates=64`، `n_partial_gates=206`، `n_tuning_gates=76`،
+   `n_live_on_gates=215` از `n_total_flags=347`. fail-soft ماند؛ cacheٔ ۵ثانیه‌ایِ
+   snapshot هزینهٔ اسکن (~۳.۵s) را محدود می‌کند. تستِ نو pin شد + mutation-test.
+
+۲. **typoی `CORTEX_THINK_RICH`.** `test_cortex_rich_think_heart.py:67` فلگِ
+   غیرواقعی را pop می‌کرد → نشتِ env. تصحیح شد. فلگِ phantom از رچتِ UNDECLARED_FLAGS
+   هم حذف شد (و ۴ فلگِ بی‌اعلانِ نو از کامیت‌های قبلی اضافه شد: ۱۳۰→۱۳۳).
+
+**regression:** cortex_rich_think 5/5 · phantom_guards 9/9 · control_plane snapshot
+(تستِ نو + mutation) · effector_registry 8/8 — همگی سبز.
+
