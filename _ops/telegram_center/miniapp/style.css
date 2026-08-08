@@ -450,6 +450,16 @@ details.det[open]>summary::after{content:"▴"}
   box-shadow:0 4px 18px rgba(157,176,200,.22)}
 .go[data-busy]{opacity:.5;cursor:progress}
 
+/* پرسش — تبِ چت‌باکسِ ask_vault/ask_brain (۲۰۲۶-۰۸-۰۸) */
+.asklog{display:flex;flex-direction:column;gap:10px;max-height:52vh;
+  overflow-y:auto;margin-bottom:12px;padding-inline-end:2px}
+.askturn{background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.askq{color:var(--muted);font-size:13px;margin-bottom:5px}
+.askq::before{content:"سؤال: "}
+.aska{white-space:pre-wrap;font-size:15px;line-height:1.7}
+.aska.bad{color:var(--magenta-ink)}
+.askmeta{margin-top:6px;font-size:11.5px}
+
 /* رسیدِ اقدام — روی صفحه شناور، بالای safe-area.
    عمداً محو نمی‌شود تا خوانده نشود: ۴.۲ ثانیه برای یک جملهٔ فارسی کافی است. */
 .toast{position:fixed;inset-inline:14px;bottom:calc(16px + var(--tg-safe-bottom,0px));

@@ -1975,10 +1975,63 @@
   }
   function viewScans(el){ stack(el||content, [renderCognitiveScan, renderAgentLog]); }
 
+  // ── پرسش (۲۰۲۶-۰۸-۰۸) ────────────────────────────────────────────────────
+  // چت‌باکسِ /api/ask: اول ask_vault (رایگان/مستندِ vault)، فقط اگر منبعی
+  // نبود ask_brain (مغزِ گران/محلی). نردبان سمتِ سرور است — این‌جا فقط
+  // نمایشِ گفتگو و برچسبِ منبعِ جواب.
+  function renderAsk(el){
+    el.innerHTML = secHead("پرسش از اختاپوس") +
+      '<div class="card">'+
+      '<div id="askLog" class="asklog"></div>'+
+      '<input class="fin" id="askQ" type="text" placeholder="از خودِ اختاپوس بپرس…" maxlength="500">'+
+      '<button class="go" id="askGo">بپرس</button>'+
+      '</div>';
+    var log = el.querySelector("#askLog");
+    var input = el.querySelector("#askQ");
+    var go = el.querySelector("#askGo");
+    function addTurn(q, a, meta, bad){
+      var row = document.createElement("div");
+      row.className = "askturn";
+      row.innerHTML = '<div class="askq">'+esc(q)+'</div>'+
+        '<div class="aska'+(bad?" bad":"")+'">'+esc(a)+'</div>'+
+        (meta ? '<div class="muted askmeta">'+esc(meta)+'</div>' : '');
+      log.appendChild(row);
+      log.scrollTop = log.scrollHeight;
+      return row;
+    }
+    function ask(){
+      var q = (input.value||"").trim();
+      if(!q){ toast("سؤال خالی است","warn"); return; }
+      go.disabled = true; input.disabled = true; go.setAttribute("data-busy","1");
+      var pending = addTurn(q, "در حال فکر کردن…", "");
+      pending.querySelector(".aska").classList.add("muted");
+      apiPost("/api/ask", {question: q}).then(function(r){
+        pending.remove();
+        if(r && r.ok){
+          var meta = r.source === "vault"
+            ? "منبع: vault ("+((r.sources||[]).length)+" نوت)"
+            : "منبع: مغزِ "+(r.model||r.tier||"گران");
+          addTurn(q, r.answer||"", meta);
+        } else {
+          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
+        }
+        input.value = "";
+        go.disabled = false; input.disabled = false; go.removeAttribute("data-busy");
+        input.focus();
+      });
+    }
+    go.addEventListener("click", ask);
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){ e.preventDefault(); ask(); }
+    });
+  }
+  function viewAsk(el){ stack(el||content, [renderAsk]); }
+
   var renderers = {home:viewHome,approvals:viewApprovals,money:viewMoney,
                    leads:viewLeads,tasks:viewTasks,system:viewSystem,
                    scans:viewScans,
-                   notifications:viewNotifications};
+                   notifications:viewNotifications,
+                   ask:viewAsk};
   // ⚠️ سکوت را بلند کن. نسخهٔ قبلی `renderers[name]||renderHome` بود، پس یک تبِ
   // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز
   // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.
