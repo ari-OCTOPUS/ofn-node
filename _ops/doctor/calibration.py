@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -110,12 +111,30 @@ def effective_mine(doctor, trace: dict | None = None,
     bn = doctor.mine(trace=trace)
     if bn is None:
         return None
-    # calibration ۱: skip bottleneck‌های رد‌شده
+    # calibration ۱: skip bottleneck‌های رد‌شده (chrono.db — شمارشی)
     key = (bn.get("evidence") or {}).get("key", "")
     if key and db is not None:
         skip, reason = should_skip_bottleneck(db, key)
         if skip:
             return None   # سکوت — نویز نده
+    # calibration ۱b (۲۰۲۶-۰۸-۰۸): skip bottleneck‌هایی که RULE ِ فعالِ انسانی
+    # دارند (rules_store — declare-only، مکملِ نه رقیبِ should_skip_bottleneck).
+    # should_skip_bottleneck می‌گوید «۳بار رد شد»؛ rules_store می‌گوید «مالک صریح
+    # گفت هرگز دوباره». دو سازوکارِ متفاوت، هر دو می‌بندند. پشتِ OCTOPUS_WIRE_RULES
+    # (همان فلگِ record_occurrence در doctor.py) — خاموش = no-op، صفر تغییرِ رفتار.
+    if key and os.environ.get("OCTOPUS_WIRE_RULES") == "1":
+        try:
+            import sys as _rs_sys
+            _here = str(Path(__file__).resolve().parent)
+            if _here not in _rs_sys.path:
+                _rs_sys.path.insert(0, _here)
+            import rules_store as _rs
+            _cls = _rs._norm_class(key)
+            if any(_rs._norm_class(r.get("error_class", "")) == _cls
+                   for r in _rs.list_active()):
+                return None   # سکوت — مالک صریح هرگزگفته
+        except Exception:  # noqa: BLE001 — rules_store نباید mine را بکشد
+            pass
     # calibration ۲: attention-budget
     pending = count_pending_rfc(doctor)
     allow, reason = attention_gate(db, pending, bn.get("severity", "high"))

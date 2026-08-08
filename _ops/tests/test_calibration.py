@@ -84,6 +84,73 @@ def t_effective_mine_uses_mine_when_no_calibration():
     assert result is not None   # پیدا کرد
 
 
+def t_effective_mine_skips_when_rules_store_has_active_rule():
+    """۲۰۲۶-۰۸-۰۸ (rules_store → effective_mine): اگر OCTOPUS_WIRE_RULES=1 و یک
+    RULE ِ فعال برایِ error_classِ bottleneck وجود داشته باشد، effective_mine باید
+    None برگرداند (skip). مکملِ should_skip_bottleneck (که شمارشی است)، نه رقیب.
+    rules_store تا حالا صفر خوانندهٔ تولیدی داشت — این اولین خواننده‌ست.
+
+    با RULES_STORE_DIR ایزوله تست می‌شود تا به دفترِ زنده وابسته نباشد."""
+    import tempfile
+    import rules_store as _rs
+    # ایزوله‌سازیِ دفتر
+    _rs_dir = tempfile.mkdtemp(prefix="rules_test_")
+    _saved_env = os.environ.get("RULES_STORE_DIR")
+    os.environ["RULES_STORE_DIR"] = _rs_dir
+    os.environ["OCTOPUS_WIRE_RULES"] = "1"
+    try:
+        # یک RULE فعال اضافه کن برای یک کلاسِ خاص
+        _rs.add_rule(_rs.Rule(
+            error_class="budget/KeyError price_out",
+            never_again="هرگز organ_gate را بدونِ قفلِ price_out صدا نزن",
+            check="test_budget_locks::test_price_out_locked باید سبز باشد",
+            source_trace="RUN-test-001", severity="high"))
+        assert len(_rs.list_active()) == 1
+        # doctor با mine() که همان کلاس را برمی‌گرداند
+        class _DocWithFixedMine:
+            _rfcs = {}
+            def mine(self, trace=None):
+                return {"bottleneck": "test bn", "severity": "high",
+                        "evidence": {"key": "budget/KeyError price_out"}}
+        # باید skip شود چون RULE فعال هست
+        result = effective_mine(_DocWithFixedMine(), db=None)
+        assert result is None, f"RULE فعال هست ولی effective_mine skip نکرد: {result}"
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_RULES", None)
+        if _saved_env is not None:
+            os.environ["RULES_STORE_DIR"] = _saved_env
+        else:
+            os.environ.pop("RULES_STORE_DIR", None)
+
+
+def t_effective_mine_does_not_skip_when_flag_off():
+    """قرارداد: OCTOPUS_WIRE_RULES خاموش = صفر تغییرِ رفتار. حتی اگر RULE فعال
+    باشد، effective_mine باید bottleneck را برگرداند (no-op کامل)."""
+    import tempfile
+    import rules_store as _rs
+    _rs_dir = tempfile.mkdtemp(prefix="rules_test_off_")
+    _saved_env = os.environ.get("RULES_STORE_DIR")
+    os.environ["RULES_STORE_DIR"] = _rs_dir
+    os.environ.pop("OCTOPUS_WIRE_RULES", None)   # صریح خاموش
+    try:
+        _rs.add_rule(_rs.Rule(
+            error_class="budget/KeyError price_out",
+            never_again="هرگز", check="test_x", source_trace="RUN-test-002"))
+        assert len(_rs.list_active()) == 1
+        class _DocWithFixedMine:
+            _rfcs = {}
+            def mine(self, trace=None):
+                return {"bottleneck": "test bn", "severity": "high",
+                        "evidence": {"key": "budget/KeyError price_out"}}
+        result = effective_mine(_DocWithFixedMine(), db=None)
+        assert result is not None, "flag خاموش ولی effective_mine skip کرد — regression"
+    finally:
+        if _saved_env is not None:
+            os.environ["RULES_STORE_DIR"] = _saved_env
+        else:
+            os.environ.pop("RULES_STORE_DIR", None)
+
+
 # ════════════════════════════════════════════════════════════════════════════════
 # WIRING
 # ════════════════════════════════════════════════════════════════════════════════
@@ -230,6 +297,8 @@ if __name__ == "__main__":
         ("[FB] skip_bottleneck بدونِ db → no-skip", t_skip_bottleneck_no_db_never_skips),
         ("[FB] count_pending_rfc", t_count_pending_rfc),
         ("[FB] effective_mine بدونِ db = mine", t_effective_mine_uses_mine_when_no_calibration),
+        ("[RS] effective_mine skip با RULE فعال + flag", t_effective_mine_skips_when_rules_store_has_active_rule),
+        ("[RS] effective_mine no-skip با flag خاموش", t_effective_mine_does_not_skip_when_flag_off),
         ("[CH] گزارش chamber از sandbox زنده می‌ماند", t_chamber_report_survives_sandbox),
         # Wiring
         ("[W] flags پیش‌فرض خاموز", t_flag_default_off),
