@@ -254,6 +254,24 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
   border-color:rgba(95,217,154,.4);color:#9df0c2}
 @keyframes pulsekill{0%,100%{box-shadow:0 0 0 0 rgba(255,122,122,.5)}50%{box-shadow:0 0 0 8px rgba(255,122,122,0)}}
 .killbtn.urgent{animation:pulsekill 2s ease-out infinite}
+/* On small screens the header wraps; the kill button stays full-width and
+   last so it never gets lost in the wrap order. */
+@media(max-width:640px){
+  .killbtn{order:99;width:100%;justify-content:center;margin-top:4px}
+  header{gap:10px}
+}
+
+/* Subtle entrance for panels — only on first paint, not on every redraw. */
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel,.paintdesk{animation:fadein .4s cubic-bezier(.2,.7,.3,1) backwards}
+.paintdesk{animation-delay:.05s}
+.legs .leg:nth-child(1){animation:fadein .4s cubic-bezier(.2,.7,.3,1) .1s backwards}
+.legs .leg:nth-child(2){animation:fadein .4s cubic-bezier(.2,.7,.3,1) .18s backwards}
+.legs .leg:nth-child(3){animation:fadein .4s cubic-bezier(.2,.7,.3,1) .26s backwards}
+@media(prefers-reduced-motion:reduce){.panel,.paintdesk,.legs .leg{animation:none}}
+
+/* Scrollbar styling for the nerve panel (WebKit). */
+.nerve{scrollbar-width:thin;scrollbar-color:var(--shell2) transparent}
 
 /* ═══ METRICS DASHBOARD ═══
    Live board vitals. Compact, always-on, read-only. */
@@ -261,7 +279,7 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
 @media(max-width:760px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
 .mcell{border-radius:14px;padding:14px;border:1px solid var(--edge);
   background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(0,0,0,.18));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);display:flex;flex-direction:column}
 .mcell .mlab{font-size:11px;color:var(--tx3);margin-bottom:4px}
 .mcell .mval{font-size:22px;font-weight:600;line-height:1.2}
 .mcell .msub{font-size:10.5px;color:var(--tx3);margin-top:3px}
@@ -877,9 +895,17 @@ function drawMetrics(m) {
   diskCell.append(mk('div', 'mlab', '💿 دیسک'));
   const disk = m.disk || {};
   const diskPct = disk.total_b ? Math.round(100 * disk.used_b / disk.total_b) : 0;
-  diskCell.append(mk('div', 'mval num', fa(diskPct) + '٪'));
+  let diskVal = fa(diskPct) + '٪';
+  if (diskPct >= 95) diskVal = '⚠ ' + diskVal;
+  diskCell.append(mk('div', 'mval num', diskVal));
   diskCell.append(mk('div', 'msub',
     humanBytes(disk.free_b || 0) + ' آزاد · روشن: ' + humanUptime(m.uptime_s)));
+  const diskBar = mk('div', 'mbar');
+  const diskFill = mk('i');
+  diskFill.style.inlineSize = diskPct + '%';
+  diskFill.style.background = diskPct >= 95 ? 'var(--bad)' : diskPct >= 80 ? 'var(--warn)' : 'var(--ok)';
+  diskBar.append(diskFill);
+  diskCell.append(diskBar);
   grid.append(diskCell);
 
   box.append(grid);
@@ -903,6 +929,41 @@ function drawValves(status) {
   });
 }
 
+/* Build a one-line Persian gist for a ledger event. The payload shape varies
+   by kind — this is a typed renderer, not a generic key-grab, so every line
+   says something a human can act on rather than a raw JSON key name. */
+function ledgerGist(kind, p) {
+  switch (kind) {
+    case 'PRODUCT_CREATED':
+      return (p.name || p.sku || '') + (p.price_primary_aud ? ' · ' + fa(p.price_primary_aud) + ' دلار' : '');
+    case 'PRODUCT_DELETED':
+      return 'حذف ' + (p.sku || '') + (p.reason ? ' · ' + String(p.reason).slice(0, 40) : '');
+    case 'FACT':
+      return (p.key || '') + (p.value ? ' = ' + String(p.value).slice(0, 30) : '');
+    case 'MEDIA_ADDED':
+      return 'عکس ' + (p.media_id || '');
+    case 'ALBUM_CREATED':
+      return 'آلبوم ' + (p.album || '');
+    case 'PAINTING_INTERACTION_CAPTURED':
+      return (p.channel || '') + ' · ' + (p.interaction || '').slice(-8);
+    case 'MARKETING_FOCUS_SANITIZED':
+      return fa(p.sanitized_row_count || 0) + ' ردیف پاک شد';
+    case 'KILL_SWITCH':
+      return p.event === 'kill_switch_on' ? '🛑 توقف اضطراری' : '▶ رفع توقف';
+    case 'VERDICT':
+      return 'تصمیم ' + (p.item || '') + (p.approved ? ' ✓' : ' ✕');
+    case 'PROPOSE':
+      return p.action || '';
+    default:
+      /* Fall back to the first string-valued field, so a new event kind is
+         never silently empty — it shows whatever the node sent. */
+      for (const k of ['summary', 'action', 'key', 'item', 'name', 'reason']) {
+        if (p[k]) return String(p[k]).slice(0, 40);
+      }
+      return '';
+  }
+}
+
 function drawNerve(events) {
   const box = document.getElementById('nerve');
   box.textContent = '';
@@ -915,8 +976,7 @@ function drawNerve(events) {
     row.append(mk('span', 'nt num', (e.ts || '').slice(11, 16)),
                mk('span', 'nk', e.kind));
     const body = mk('span', 'nx');
-    const p = e.payload || {};
-    const gist = p.summary || p.action || p.key || p.item || '';
+    const gist = ledgerGist(e.kind, e.payload || {});
     body.append(mk('span', null, `${NAME[e.tenant] || e.tenant}${gist ? ' · ' + gist : ''}`));
     const hx = mk('span', 'hx', ' ' + e.hash);
     body.append(hx);
@@ -1249,8 +1309,22 @@ async function refresh() {
     const wasKilled = killedState;
     killedState = !!status.killed;
     if (wasKilled !== killedState) renderKill();
-    document.getElementById('vitaltx').textContent =
-      status.killed ? '🔴 متوقف شده' : 'وصل · دادهٔ زنده';
+    /* The vital indicator: green heartbeat only when the core reads
+       succeeded. If painting/metrics degraded but core is fine, say
+       "وصل" without overselling — but still green, because the owner can
+       still decide and act. The sub-panels themselves show their own
+       degraded state honestly. */
+    document.getElementById('vital').classList.remove('off');
+    const paintingOk = painting && painting.ok;
+    const metricsOk = metrics && metrics.ok;
+    const vitaltx = document.getElementById('vitaltx');
+    if (!paintingOk && !metricsOk) {
+      vitaltx.textContent = status.killed ? '🔴 متوقف شده' : 'وصل · نقاشی/متریک قطع';
+    } else if (!paintingOk || !metricsOk) {
+      vitaltx.textContent = status.killed ? '🔴 متوقف شده' : 'وصل · بخشی قطع';
+    } else {
+      vitaltx.textContent = status.killed ? '🔴 متوقف شده' : 'وصل · دادهٔ زنده';
+    }
     const badge = document.getElementById('fbadge');
     badge.textContent = 'دادهٔ زنده';
     badge.className = 'badge live';
@@ -1268,6 +1342,8 @@ async function refresh() {
       const b = document.getElementById('fbadge');
       b.textContent = 'نشست تمام شد';
       b.className = 'badge dead';
+      document.getElementById('vital').classList.add('off');
+      document.getElementById('vitaltx').textContent = 'نشست تمام شد';
       return false;
     }
     /* Keep whatever is on screen — but stamp it, so nothing here is mistaken
@@ -1280,6 +1356,10 @@ async function refresh() {
     const badge = document.getElementById('fbadge');
     badge.textContent = 'قطع';
     badge.className = 'badge dead';
+    /* Red heartbeat: a green pulse next to "قطع" is the one contradiction
+       a control surface must not show. */
+    document.getElementById('vital').classList.add('off');
+    document.getElementById('vitaltx').textContent = 'قطع';
     document.querySelectorAll('#q .k').forEach(b => { b.disabled = true; });
     return false;
   }
@@ -1330,9 +1410,14 @@ function showDead(kind) {
 }
 
 document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  /* Do not refetch here — a separate fetch bypasses the armedCount guard
+     in refresh() and can redraw the queue out from under a half-armed RED
+     confirmation. Re-filter the data already on screen instead. */
+  if (armedCount > 0) return;
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
   b.classList.add('on');
   filter = b.dataset.f;
+  /* Re-render from the last fetched queue without a new network call. */
   OFN.get('/api/v1/queue').then(r => drawQueue(r.queue || [])).catch(() => {});
 });
 
