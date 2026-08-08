@@ -61,6 +61,11 @@ class Principal:
     tenant: TenantId
     user_id: str
     is_owner: bool = False
+    # Stable fingerprint of the session token, for audit trails. Empty when
+    # the request did not present a token (which only happens before auth).
+    # Deliberately not the token itself: a log row that contains it should
+    # identify the session, not replay it.
+    session_id: str = ""
 
     @property
     def role(self) -> str:
@@ -182,6 +187,7 @@ class ApiApp:
         owner_decide: Callable[[str, bool, bool], dict] | None = None,
         owner_status: Callable[[], dict] | None = None,
         owner_events: Callable[[int], list] | None = None,
+        owner_metrics: Callable[[], dict] | None = None,
         owner_snapshot: Callable[[], dict] | None = None,
         owner_businesses: Callable[[], dict] | None = None,
         owner_business_snapshot: Callable[[str], dict | None] | None = None,
@@ -208,6 +214,9 @@ class ApiApp:
         brain_status: Callable[[], dict] | None = None,
         brain_probe: Callable[[TenantScope], dict] | None = None,
         owner_ask: Callable[[TenantScope, str], dict] | None = None,
+        engage_kill: Callable[[str, str, str], dict] | None = None,
+        release_kill: (Callable[[str, str, str, bool], dict]
+                       | None) = None,
     ) -> None:
         self._registry = registry
         self._hosts = hosts
@@ -215,6 +224,8 @@ class ApiApp:
         self._brain_status = brain_status
         self._brain_probe = brain_probe
         self._owner_ask = owner_ask
+        self._engage_kill = engage_kill
+        self._release_kill = release_kill
         self._studio_board = studio_board
         self._studio_marketing = studio_marketing
         self._run_marketing_cycle = run_marketing_cycle
@@ -270,6 +281,7 @@ class ApiApp:
         self._owner_queue = owner_queue or (lambda: [])
         self._owner_decide = owner_decide or (lambda i, a, c: {"ok": True})
         self._owner_status = owner_status or (lambda: {})
+        self._owner_metrics = owner_metrics
         self._owner_events = owner_events or (lambda n: [])
         self._owner_snapshot = owner_snapshot
         self._owner_businesses = owner_businesses
@@ -448,8 +460,16 @@ class ApiApp:
         raw = headers.get("authorization", "")
         if not raw.lower().startswith("bearer "):
             raise AuthError("missing session")
-        sess: Session = verify_session(raw[7:].strip(), self._secret,
+        token = raw[7:].strip()
+        sess: Session = verify_session(token, self._secret,
                                        now_epoch_s=self._now())
+        # A short stable fingerprint of the session token for audit rows.
+        # sha256 (not the faster hash()) because this string can end up in a
+        # log file that outlives the session, and a hash that an attacker can
+        # collide does not identify anything. First 12 hex chars: enough to
+        # tell two sessions apart, not enough to do anything with.
+        import hashlib
+        session_id = hashlib.sha256(token.encode()).hexdigest()[:12]
         # Re-checked on every request, not just at the launch exchange.
         # Otherwise removing somebody from the allowlist would leave them
         # working until their session happened to expire, and revocation that
@@ -463,12 +483,14 @@ class ApiApp:
             # need one take it from the request, and every such handler is
             # owner-gated.
             return Principal(TenantId(next(iter(self._registry)).value),
-                             sess.user_id, is_owner=True)
+                             sess.user_id, is_owner=True,
+                             session_id=session_id)
         if sess.tenant != tenant_name:
             # A session minted for one leg presented against another. This is
             # the cross-tenant case the token binding exists to stop.
             raise AuthError("session does not match host")
-        return Principal(TenantId(sess.tenant), sess.user_id)
+        return Principal(TenantId(sess.tenant), sess.user_id,
+                         session_id=session_id)
 
     # ── partner surface ───────────────────────────────────────────────────
     def _partner_route(self, method: str, path: str, p: Principal,
@@ -815,6 +837,10 @@ class ApiApp:
             return self._owner_read({"queue": self._owner_queue()})
         if method == "GET" and path == "/api/v1/owner/status":
             return self._owner_read(self._owner_status())
+        if method == "GET" and path == "/api/v1/owner/metrics":
+            if self._owner_metrics is None:
+                return self._owner_read({"ok": False, "error": "metrics not wired"})
+            return self._owner_read(self._owner_metrics())
         if method == "GET" and path == "/api/v1/owner/events":
             return self._owner_read({"events": self._owner_events(EVENT_TAIL)})
 
@@ -1006,6 +1032,34 @@ class ApiApp:
                     or not isinstance(confirmed, bool)):
                 return Response(400, {"error": "bad request"})
             return Response(200, self._owner_decide(item, approve, confirmed))
+
+        # ── kill switch, owner-only ─────────────────────────────────────
+        # The panic button. Engage is one tap (fail-safe: toward safety);
+        # release is two-step (re-entering risk). Both are owner-only and
+        # both are logged to the release_switch_events audit table.
+        if method == "POST" and path == "/api/v1/owner/kill":
+            if self._engage_kill is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body) or {}
+            reason = str(data.get("reason") or "")
+            out = self._engage_kill(
+                reason=reason, owner_id=p.user_id,
+                session_id=p.session_id)
+            return Response(200, out)
+        if method == "POST" and path == "/api/v1/owner/kill/release":
+            if self._release_kill is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            reason = str(data.get("reason") or "")
+            confirmed = data.get("confirmed_twice", False)
+            if not isinstance(confirmed, bool):
+                return Response(400, {"error": "bad request"})
+            out = self._release_kill(
+                reason=reason, owner_id=p.user_id,
+                session_id=p.session_id, confirmed_twice=confirmed)
+            return Response(200, out)
         return Response(404, {"error": "not found"})
 
 
@@ -1188,6 +1242,20 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             body = self.rfile.read(length) if length else b""
             path = urllib.parse.urlparse(self.path).path
             self._dispatch("POST", path, body)
+
+        def do_DELETE(self):  # noqa: N802
+            # http.server answers DELETE with 501 unless this
+            # method exists, so DELETE routes in `handle` (a
+            # photo, an album) were never reached and the shell
+            # reported deletion failed on a request that never
+            # arrived. DELETE may carry a body, so read+bound it.
+            length = int(self.headers.get("Content-Length") or 0)
+            if length > MAX_BODY_BYTES:
+                self._send(Response(413, {"error": "payload too large"}))
+                return
+            body = self.rfile.read(length) if length else b""
+            path = urllib.parse.urlparse(self.path).path
+            self._dispatch("DELETE", path, body)
 
     return Handler
 

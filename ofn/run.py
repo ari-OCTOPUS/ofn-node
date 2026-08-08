@@ -110,7 +110,7 @@ def build_node(cfg: config.Config) -> Node:
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
-                now_iso=config.now_iso,
+                now_iso=config.now_iso, state_dir=cfg.state_dir,
                 base_closed_gates=cfg.base_closed_gates, boot=report)
 
 
@@ -216,6 +216,9 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_decide=node.owner_decide,
         owner_status=node.owner_status,
         owner_events=node.recent_events,
+        owner_metrics=node.owner_metrics,
+        engage_kill=node.engage_kill,
+        release_kill=node.release_kill,
         owner_snapshot=node.owner_snapshot,
         owner_businesses=node.owner_businesses,
         owner_business_snapshot=node.owner_business_snapshot,

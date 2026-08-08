@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-08-08 — OPERATOR SAFETY + FULL AUDIT
+
+### کلید خاموشی (Kill Switch) — وصل شد
+- **دکمهٔ «🛑 توقف اضطراری»** در هدر پنل. engage سریع (panic button)،
+  release با تأیید دو مرحله‌ای.
+- endpointها: `POST /api/v1/owner/kill` و `/release`. owner-only.
+- state در حافظه (fail-safe: restart = disengage)، audit در
+  `release_switch_events` + ledger همه tenantها.
+- فیلد `session_id` به `Principal` اضافه شد (هش sha256 توکن).
+- **۲۳ تست** در `tests/test_kill_switch.py`.
+- فایل‌ها: `node.py`, `http_api.py`, `marketing_store.py`, `run.py`,
+  `web/panel.html`, `tests/test_kill_switch.py`.
+
+### داشبورد سلامت برد (Metrics) — زنده
+- ماژول `ofn/adapters/sysmetrics.py`: دما (۵ زون)، RAM، load، uptime، دیسک.
+- endpoint `GET /api/v1/owner/metrics` (owner-only).
+- داشبورد در `web/panel.html`، هر ۳۰s به‌روز. بدون cache.
+- ⚠️ هیچ تستی نداره (AUDIT MED-1).
+
+### هشدار خرابی سرویس (Alert)
+- `ofn-alert.service`: `OnFailure=` روی `ofn.service`.
+- لایه ۱: لاگ محلی `service-alerts.log` (همیشه).
+- لایه ۲: تلگرام فقط وقتی `OFN_ALERT_TELEGRAM=1` (default خاموش).
+- `ofn/adapters/alert.py` — urllib، بدون وابستگی، never-raises.
+- **۹ تست** در `tests/test_alert.py`.
+- تست شلیک واقعی systemd انجام شد و سبز شد.
+
+### Bluetooth روی برد
+- `hciattach` روی UART9 با firmware BCM4345C5.
+- `ap6256-bt.service` (systemd، در بوت خودکار). hci0 UP، BT 5.0.
+
+### NPU Runtime
+- `librknnrt.so v2.3.2` نصب شد (از GitHub رسمی Rockchip).
+- `NPU-GUIDE.md` ساخته شد.
+
+### ممیزی کامل پروژه
+- سه agent موازی همه کد رو در برابر سندهای ابسیدین بررسی کردن.
+- [[AUDIT-2026-08-08]] ساخته شد: ۲ CRITICAL + ۲ HIGH.
+- همه ۶ audit doc در `docs/audit/` به‌روز شدند.
+- هیچ فایلی حذف نشد — فقط کشف و مستندسازی.
+
+- pytest: OFN **۱۵۵۳ تست سبز** + ۵ skip.
+
 ## 2026-08-۰۷ (سوم) — UNIFY FINALIZE: چهار نقطهٔ کور بسته شد
 - **B-۲ `panel_note`:** brain call پنهان از write path‌های hypno حذف شد.
   `panel_note` حالا فقط یک ردیف log می‌نویسد (source=`panel_note`)، نه

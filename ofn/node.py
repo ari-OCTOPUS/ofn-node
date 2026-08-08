@@ -147,6 +147,10 @@ class Node:
     painting: object | None = None    # LeadStore
     assistant: object | None = None   # StudioAssistantStore
     backup_root: str | None = None
+    # Path to the state directory, so sysmetrics can read the filesystem
+    # holding the SQLite databases. Optional: metrics just omit disk figures
+    # if it is empty.
+    state_dir: str = ""
     # Phase A of the brain wiring: the owner's own surface only. No partner
     # data reaches this, and the studio path is deliberately NOT connected
     # until the extraction layer exists — "we will add the guard later" is
@@ -2070,6 +2074,21 @@ class Node:
             },
         }
 
+    def owner_metrics(self) -> dict:
+        """Live system metrics: temperature, RAM, load, uptime, disk.
+
+        Read fresh on every call — the panel polls every 30s, and a cached
+        reading shown next to a just-pressed kill switch is exactly the
+        decision-made-against-the-wrong-screen failure this panel is built
+        to prevent. Returns ok=False if the metrics module is absent, rather
+        than crashing the panel poll.
+        """
+        try:
+            from .adapters import sysmetrics
+            return {"ok": True, **sysmetrics.snapshot(self.state_dir or "")}
+        except Exception as exc:
+            return {"ok": False, "error": f"metrics unavailable: {exc}"}
+
     def owner_status(self) -> dict:
         """Everything the owner's panel shows, measured rather than assumed.
 
@@ -2178,6 +2197,80 @@ class Node:
             "claimed": claimed,
         }, now)
         return {"ok": True, "status": "approved", "claimed": claimed}
+
+
+    # ── kill switch ───────────────────────────────────────────────────────
+    # The panic button. `killed=True` makes `admit()` refuse every action at
+    # gate:kill-switch (gates.py:55), before quota or risk are even computed.
+    # This is the one control the owner must always be able to reach.
+    #
+    # Engage is one tap and fail-safe: the system moves *toward* safety, so
+    # speed matters more than ceremony. Release is two-step because it is
+    # re-entering risk — the same rule that governs every RED action.
+    #
+    # State lives in process memory; a restart disengages (killed=False by
+    # default). That is the correct failure mode: a rebooted organism comes
+    # back running, and if the owner wanted it halted they press the button
+    # again. Persisting `killed=True` across reboots would be the bug — an
+    # owner who reboots to "fix" a stuck state would find nothing fixed.
+    # The *audit trail* persists, in the pre-provisioned release_switch_events
+    # table, so "when did this happen and why" survives the restart.
+    def engage_kill(self, *, reason: str, owner_id: str,
+                    session_id: str) -> dict:
+        """Panic button. Halts all outbound activity immediately."""
+        if self.killed:
+            return {"ok": True, "status": "already-engaged"}
+        self.killed = True
+        self._record_release_event(
+            "kill_switch_on", reason, owner_id, session_id)
+        return {"ok": True, "status": "engaged", "killed": True}
+
+    def release_kill(self, *, reason: str, owner_id: str, session_id: str,
+                     confirmed_twice: bool) -> dict:
+        """Re-arm. Two-step because release is re-entering risk."""
+        if not self.killed:
+            return {"ok": True, "status": "already-released", "killed": False}
+        if not confirmed_twice:
+            return {"ok": False,
+                    "error": "release needs two-step confirmation",
+                    "rule": "release:awaiting-second-confirm"}
+        self.killed = False
+        self._record_release_event(
+            "kill_switch_off", reason, owner_id, session_id)
+        return {"ok": True, "status": "released", "killed": False}
+
+    def _record_release_event(self, event_type: str, reason: str,
+                              owner_id: str, session_id: str) -> None:
+        """Write the audit row and log to the ledger of every leg.
+
+        Kill switch is a node-wide decision with a node-wide effect, so it is
+        recorded under the first tenant (the same convention
+        `painting_dashboard` uses for cross-tenant surfaces) AND logged to
+        every leg's ledger — so a partner reviewing their own history sees
+        that something halted their work, even though they did not trigger it.
+        """
+        now = self.now_iso()
+        now_epoch = self.now_epoch_s()
+        if self.marketing is not None:
+            first_tenant = next(iter(self.registry))
+            try:
+                self.marketing.record_release_event(
+                    first_tenant.value,
+                    event_type=event_type, owner_id=owner_id,
+                    session_id=session_id,
+                    reason=reason or "(no reason given)",
+                    now_epoch_s=now_epoch,
+                )
+            except Exception:
+                # The audit table is best-effort: a schema mismatch or a
+                # locked DB must not prevent the kill itself from taking
+                # effect. The ledger write below is the durable record.
+                pass
+        payload = {"event": event_type, "reason": reason or "(no reason given)",
+                   "owner": owner_id}
+        for tenant in self.registry:
+            scope = self.registry.scope(tenant)
+            self.ledger.append(scope, "KILL_SWITCH", payload, now)
 
 
     # ── painting lead CRM ─────────────────────────────────────────────────

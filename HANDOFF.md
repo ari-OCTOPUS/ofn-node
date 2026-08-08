@@ -1,7 +1,7 @@
 ---
 tags: [ofn, handoff, status]
 aliases: [وضعیت زنده, Handoff]
-updated: 2026-08-06
+updated: 2026-08-08
 ---
 
 # HANDOFF — برای جلسهٔ بعدی
@@ -9,21 +9,80 @@ updated: 2026-08-06
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      OFN ۱۵۱۶ + ۵ skip · hypno ۶۳ · fugu_core ۲۶ = ۱۶۰۵ سبز
+pytest      OFN ۱۵۴۸ + ۵ skip (kill switch + alert + metrics اضافه شد)
 preflight   ۲۱/۲۱
-boot        OK — ۲۷/۲۷ (NORMAL؛ پرچم schema:painting رفع شد)
+boot        OK — ۲۸/۲۸ (NORMAL)
 گیت‌ها       secret_rotation 🔒 · partner_precondition 🔒 · miner_isolation 🔒
 WIRE        outbound خاموش · email/publish در env روشن ولی کد Python نمی‌خواندشان
             (امنیت از outbox + store-layer status تأمین می‌شود، نه از این پرچم‌ها)
 بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
-            (هر بات مستقل؛ تضاد توکن hypno/lead رفع شد — hypno بات خودش را گرفت)
+            Bluetooth هم اکنون کار می‌کند (ap6256-bt.service, hci0 UP, BT 5.0)
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear  →  هر چهار active
+            ofn-alert.service نصب شد (OnFailure=ofn-alert روی ofn.service)
 دامنه‌ها     panel/ziman/lead/studio/app/hypno → همه ۲۰۰
 UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
             مغز مشترک Sakana (fugu) برای OFN + hypno · pack hypno (tenant ۴)
             quota ۳۵/۳۵/۲۰/۱۰ = ۱.۰۰ · ۱۳۲ chunk shared knowledge
+جدید        kill switch ✅ · metrics زنده ✅ · alert (log+Telegram opt-in) ✅
 ```
+
+---
+
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۸ (OPERATOR SAFETY) — دکمه اضطراری، مانیتورینگ، هشدار
+
+سه قابلیت ایمنی مالک اضافه شد. همه زیر قواعد CLAUDE.md، بدون لمس راز،
+بدون خروجی واقعی، با تست.
+
+### ۱) کلید خاموشی (Kill Switch) — وصل شد
+
+کلید خاموشی در معماری موجود بود ولی هیچ دکمه/endpoint/کدی برای روشن کردنش
+وجود نداشت. حالا کامل شد:
+
+- **engage سریع** (panic button، یک ضربه): `POST /api/v1/owner/kill`
+- **release محتاطانه** (تأیید دو مرحله‌ای): `POST /api/v1/owner/kill/release`
+- state در حافظه (fail-safe: restart = disengage)، audit در `release_switch_events`
+- به ledger همه tenantها نوشته می‌شه (`KILL_SWITCH`)
+- دکمه در هدر panel.html با بنر قرمز
+- **۲۳ تست** در `tests/test_kill_switch.py` (kernel + node + HTTP + audit + idempotency)
+
+فایل‌های تغییر: `ofn/node.py` (engage_kill, release_kill, _record_release_event),
+`ofn/adapters/http_api.py` (۲ endpoint + session_id در Principal),
+`ofn/adapters/marketing_store.py` (record_release_event),
+`ofn/run.py` (wiring), `web/panel.html` (دکمه + بنر), `tests/test_kill_switch.py`.
+
+### ۲) داشبورد سلامت برد (Metrics) — زنده
+
+- ماژول `ofn/adapters/sysmetrics.py`: دما (۵ زون)، RAM، load، uptime، دیسک
+- endpoint `GET /api/v1/owner/metrics` (owner-only)
+- داشبورد در panel.html، هر ۳۰s با poll موجود به‌روز می‌شه
+- رنگ دما: سبز < ۷۰°، زرد ۷۰-۸۰°، قرمز ≥ ۸۰° (throttle)
+- هیچ cache‌ای نیست — metrics همیشه fresh خونده می‌شه
+
+فایل‌های تغییر: `ofn/adapters/sysmetrics.py` (جدید), `ofn/node.py` (owner_metrics),
+`ofn/adapters/http_api.py` (endpoint), `ofn/run.py` (wiring + state_dir),
+`web/panel.html` (داشبورد).
+
+### ۳) هشدار خرابی سرویس (Alert) — لایه‌ای
+
+- `ofn-alert.service`: `OnFailure=` روی `ofn.service` (وقتی start limit پر شد)
+- لایه ۱: لاگ محلی همیشه (`service-alerts.log`)
+- لایه ۲: Telegram فقط وقتی `OFN_ALERT_TELEGRAM=1` (default خاموش)
+- **۹ تست** در `tests/test_alert.py` (flag gate، misconfiguration، no-crash)
+- تست شلیک واقعی systemd انجام شد و سبز شد
+- توکن/چت‌آیدی از secrets.env خونده می‌شه، هرگز در کد نیست
+
+فایل‌های تغییر: `ofn/adapters/alert.py` (جدید), `tests/test_alert.py` (جدید),
+`deploy/systemd/ofn-alert.service` (جدید), `deploy/systemd/ofn.service` (OnFailure),
+`deploy/install.sh` (نصب unit جدید).
+
+### نکات
+
+- **Bluetooth هم راه افتاد** در همین جلسه: `hciattach` روی UART9، سرویس
+  `ap6256-bt.service`، hci0 UP با BT 5.0. مستقل از سه قابلیت بالا.
+- **NPU librknnrt.so v2.3.2** نصب شد + راهنمای کامل `NPU-GUIDE.md`.
+- کل suite: **۱۵۴۸ تست سبز، ۵ skip، صفر fail** — هیچ regression.
+- هیچ رازی خوانده/چاپ/نوشته نشد. هیچ WIRE_* روشن نشد. هیچ چیزی به بیرون نرفت.
 
 ---
 

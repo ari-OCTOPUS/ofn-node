@@ -230,6 +230,49 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
 .badge.live{background:rgba(95,217,154,.12);border-color:rgba(95,217,154,.3);color:var(--ok)}
 .badge.dead{background:rgba(255,122,122,.12);border-color:rgba(255,122,122,.3);color:var(--bad)}
 
+/* ═══ KILL SWITCH ═══
+   The panic button. Always visible in the header, because the one time it
+   is needed is the one time the owner cannot go looking for it. Engage is
+   one tap (fail-safe: toward safety); release is two-step (re-entering risk)
+   and only appears when the switch is engaged — a release button that is
+   always visible invites an accidental re-arm. */
+.killbtn{font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 16px;
+  border-radius:11px;cursor:pointer;border:1px solid rgba(255,122,122,.34);
+  color:#ffb3b3;background:linear-gradient(165deg,rgba(255,122,122,.16),rgba(255,122,122,.05));
+  box-shadow:0 5px 14px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.1);
+  transition:transform .2s, box-shadow .2s; display:flex; align-items:center; gap:7px}
+.killbtn:hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(255,122,122,.18)}
+.killbtn:active{transform:translateY(0)}
+.killbtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.killbanner{border-radius:var(--r);padding:18px 22px;margin-bottom:20px;
+  border:1px solid rgba(255,122,122,.45);font-size:14px;line-height:1.9;
+  background:linear-gradient(160deg,rgba(255,122,122,.2),rgba(0,0,0,.28));color:#ffd9d9}
+.killbanner h3{font-size:17px;font-weight:600;color:#fff;margin-bottom:8px}
+.killbanner .reason{font-size:12.5px;color:rgba(255,217,217,.8);margin-top:6px}
+.killbanner .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.killbanner .k.arm{background:linear-gradient(165deg,rgba(95,217,154,.22),rgba(95,217,154,.07));
+  border-color:rgba(95,217,154,.4);color:#9df0c2}
+@keyframes pulsekill{0%,100%{box-shadow:0 0 0 0 rgba(255,122,122,.5)}50%{box-shadow:0 0 0 8px rgba(255,122,122,0)}}
+.killbtn.urgent{animation:pulsekill 2s ease-out infinite}
+
+/* ═══ METRICS DASHBOARD ═══
+   Live board vitals. Compact, always-on, read-only. */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+.mcell{border-radius:14px;padding:14px;border:1px solid var(--edge);
+  background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(0,0,0,.18));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.mcell .mlab{font-size:11px;color:var(--tx3);margin-bottom:4px}
+.mcell .mval{font-size:22px;font-weight:600;line-height:1.2}
+.mcell .msub{font-size:10.5px;color:var(--tx3);margin-top:3px}
+.mbar{block-size:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:8px}
+.mbar i{display:block;block-size:100%;border-radius:99px;transition:inline-size .6s ease}
+.temp-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.temp-chip{font-size:10.5px;padding:2.5px 8px;border-radius:7px;background:rgba(0,0,0,.3);
+  border:1px solid var(--edge);color:var(--tx2)}
+.temp-chip.hot{color:var(--warn);border-color:rgba(245,196,81,.3)}
+.temp-chip.crit{color:var(--bad);border-color:rgba(255,122,122,.3)}
+
 /* ═══ CONNECTION STATE ═══
    The panel is a control surface. When it cannot reach the node it says so
    at full size, because the failure mode being designed against is an owner
@@ -300,9 +343,21 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
   <div class="hsp"></div>
   <div class="vital" id="vital"><span class="hb"></span><span id="vitaltx">در حال اتصال…</span></div>
   <div class="vital">🌙 هیچ‌چیز بدون تو بیرون نمی‌رود</div>
+  <button class="killbtn urgent" id="killBtn" type="button"
+          title="توقف فوری همهٔ خروجی‌ها">🛑 توقف اضطراری</button>
 </header>
 
 <div class="conn" id="conn" hidden role="status" aria-live="polite"></div>
+
+<!-- The kill banner. Only shown when the organism is halted. The release
+     button is two-step and lives only here — a release control that is
+     always visible is an invitation to an accidental re-arm. -->
+<div class="killbanner" id="killBanner" hidden role="alert" aria-live="assertive">
+  <h3>🔴 سیستم متوقف شده</h3>
+  <div>هیچ خروجی‌ای از این دستگاه نمی‌رود تا وقتی تو دوباره روشنش کنی.</div>
+  <div class="reason" id="killReason"></div>
+  <div class="row" id="killReleaseRow"></div>
+</div>
 
 
 <!-- نقاشی ساختمان: لید، مارکتینگ، اتصال‌ها -->
@@ -380,6 +435,13 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
       <div id="organs"></div>
     </div>
   </div>
+</div>
+
+<!-- Live board vitals. Polled alongside the rest; no separate timer, so it
+     never drifts from the kill-switch state shown above it. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">🌡️</span><h2>سلامت برد — زنده</h2><span class="chipx" id="metricsSync">…</span></div>
+  <div id="metricsBody"><div class="empty">در حال خواندن…</div></div>
 </div>
 
 <!-- عصب + دریچه -->
@@ -733,6 +795,96 @@ function drawBoot(boot) {
   }
 }
 
+/* ── live board metrics ─────────────────────────────────────────────── */
+function humanBytes(b) {
+  if (!b || b < 0) return '—';
+  if (b >= 1e9) return fa((b / 1e9).toFixed(1)) + ' GB';
+  if (b >= 1e6) return fa(Math.round(b / 1e6)) + ' MB';
+  return fa(Math.round(b / 1e3)) + ' KB';
+}
+function humanUptime(s) {
+  if (!s || s < 0) return '—';
+  const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600),
+        m = Math.floor((s % 3600) / 60);
+  if (d > 0) return fa(d) + ' روز ' + fa(h) + ' ساعت';
+  if (h > 0) return fa(h) + ' ساعت ' + fa(m) + ' دقیقه';
+  return fa(m) + ' دقیقه';
+}
+function drawMetrics(m) {
+  const chip = document.getElementById('metricsSync');
+  const box = document.getElementById('metricsBody');
+  box.textContent = '';
+  if (!m || !m.ok) {
+    if (chip) chip.textContent = 'ناموجود';
+    box.append(mk('div', 'empty', (m && m.error) || 'متریک خوانده نشد.'));
+    return;
+  }
+  if (chip) chip.textContent = 'زنده';
+
+  const grid = mk('div', 'metric-grid');
+
+  /* Temperature */
+  const tempCell = mk('div', 'mcell');
+  tempCell.append(mk('div', 'mlab', '🌡️ دما (داغ‌ترین)'));
+  const hottest = m.thermal_hottest_c;
+  const tv = mk('div', 'mval num', hottest != null ? fa(hottest.toFixed(1)) + '°' : '—');
+  if (hottest != null && hottest >= 80) tv.style.color = 'var(--bad)';
+  else if (hottest != null && hottest >= 70) tv.style.color = 'var(--warn)';
+  tempCell.append(tv);
+  const tempRow = mk('div', 'temp-row');
+  Object.entries(m.thermal || {}).forEach(([zone, t]) => {
+    if (t == null) return;
+    const cls = t >= 80 ? 'crit' : t >= 70 ? 'hot' : '';
+    const label = zone.replace('-thermal', '');
+    tempRow.append(mk('span', 'temp-chip ' + cls, label + ' ' + fa(t.toFixed(0)) + '°'));
+  });
+  tempCell.append(tempRow);
+  if (m.throttling) {
+    tempCell.append(mk('div', 'msub', '⚠ احتمال throttle — دما بالای ۸۰°'));
+  }
+  grid.append(tempCell);
+
+  /* RAM */
+  const ramCell = mk('div', 'mcell');
+  ramCell.append(mk('div', 'mlab', '💾 حافظه'));
+  const mem = m.mem || {};
+  const usedB = (mem.total_b || 0) - (mem.available_b || 0);
+  const ramPct = mem.total_b ? Math.round(100 * usedB / mem.total_b) : 0;
+  let ramVal = fa(ramPct) + '٪';
+  if (ramPct >= 90) ramVal = '⚠ ' + ramVal;
+  ramCell.append(mk('div', 'mval num', ramVal));
+  ramCell.append(mk('div', 'msub',
+    `${humanBytes(usedB)} از ${humanBytes(mem.total_b || 0)}`));
+  const ramBar = mk('div', 'mbar');
+  const ramFill = mk('i');
+  ramFill.style.inlineSize = ramPct + '%';
+  ramFill.style.background = ramPct >= 90 ? 'var(--bad)' : ramPct >= 75 ? 'var(--warn)' : 'var(--ok)';
+  ramBar.append(ramFill);
+  ramCell.append(ramBar);
+  grid.append(ramCell);
+
+  /* Load */
+  const loadCell = mk('div', 'mcell');
+  loadCell.append(mk('div', 'mlab', '⚙️ بار CPU'));
+  const load = (m.loadavg || [])[0];
+  loadCell.append(mk('div', 'mval num', load != null ? fa(load.toFixed(2)) : '—'));
+  const loadAll = (m.loadavg || []).map(x => fa(x.toFixed(2))).join(' · ');
+  loadCell.append(mk('div', 'msub', loadAll + ' (۱/۵/۱۵ دقیقه)'));
+  grid.append(loadCell);
+
+  /* Disk + uptime */
+  const diskCell = mk('div', 'mcell');
+  diskCell.append(mk('div', 'mlab', '💿 دیسک'));
+  const disk = m.disk || {};
+  const diskPct = disk.total_b ? Math.round(100 * disk.used_b / disk.total_b) : 0;
+  diskCell.append(mk('div', 'mval num', fa(diskPct) + '٪'));
+  diskCell.append(mk('div', 'msub',
+    humanBytes(disk.free_b || 0) + ' آزاد · روشن: ' + humanUptime(m.uptime_s)));
+  grid.append(diskCell);
+
+  box.append(grid);
+}
+
 function drawValves(status) {
   const box = document.getElementById('valves');
   box.textContent = '';
@@ -974,6 +1126,95 @@ function drawPaintLinks(box, data) {
   cols.append(web,tg); box.append(cols);
 }
 
+/* ── kill switch ──────────────────────────────────────────────────────────
+   The panic button. Engage is one tap and immediate — in a real emergency
+   every second is a thing leaving the node that should not. Release is
+   two-step because release is re-entering risk: the same logic that governs
+   every RED decision in the queue. */
+let killedState = false;
+
+async function engageKill() {
+  const btn = document.getElementById('killBtn');
+  btn.disabled = true;
+  try {
+    const res = await OFN.post('/api/v1/owner/kill', { reason: 'panel panic button' });
+    if (!res.ok) {
+      alert(res.error || 'توقف ناموفق بود');
+      return;
+    }
+    OFN.done('warning');
+    killedState = true;
+    renderKill();
+    await refresh();
+  } catch (e) {
+    alert(e && e.status === 401
+      ? 'نشست تمام شد. پنل را دوباره از تلگرام باز کن.'
+      : 'به نود نرسید. دوباره بزن.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function makeReleaseButton() {
+  /* Two-step, mirroring the RED-decision arming in the queue. The first tap
+     arms; the second tap within 5s fires. After 5s it disarms itself. */
+  const arm = mk('button', 'k arm', '▶ رفع توقف');
+  arm.type = 'button';
+  let armed = false;
+  let timer = null;
+  arm.onclick = async () => {
+    if (armed) {
+      clearTimeout(timer);
+      armed = false;
+      arm.textContent = '▶ رفع توقف';
+      arm.disabled = true;
+      try {
+        const res = await OFN.post('/api/v1/owner/kill/release',
+          { reason: 'panel release', confirmed_twice: true });
+        if (!res.ok) { alert(res.error || 'رفع توقف ناموفق بود'); return; }
+        OFN.done('success');
+        killedState = false;
+        renderKill();
+        await refresh();
+      } catch (e) {
+        alert(e && e.status === 401
+          ? 'نشست تمام شد.'
+          : 'به نود نرسید. دوباره بزن.');
+      } finally {
+        arm.disabled = false;
+      }
+      return;
+    }
+    armed = true;
+    arm.textContent = '⚠️ مطمئنی؟ دوباره بزن';
+    timer = setTimeout(() => {
+      if (!armed) return;
+      armed = false;
+      if (arm.isConnected) arm.textContent = '▶ رفع توقف';
+    }, 5000);
+  };
+  return arm;
+}
+
+function renderKill() {
+  const btn = document.getElementById('killBtn');
+  const banner = document.getElementById('killBanner');
+  const row = document.getElementById('killReleaseRow');
+  if (killedState) {
+    btn.hidden = true;
+    banner.hidden = false;
+    row.textContent = '';
+    row.append(makeReleaseButton());
+    /* Disarm every queue button: nothing leaves a halted organism. */
+    document.querySelectorAll('#q .k').forEach(b => { b.disabled = true; });
+  } else {
+    btn.hidden = false;
+    banner.hidden = true;
+  }
+}
+
+document.getElementById('killBtn').onclick = engageKill;
+
 /* ── refresh ──────────────────────────────────────────────────────────── */
 let lastOk = null;
 let armedCount = 0;
@@ -984,11 +1225,13 @@ async function refresh() {
   if (armedCount > 0) return true;
   try {
     const paintingP = OFN.get('/api/v1/owner/painting/dashboard').catch(e => ({ok:false, error:'داشبورد نقاشی در دسترس نیست'}));
-    const [status, queue, events, painting] = await Promise.all([
+    const metricsP = OFN.get('/api/v1/owner/metrics').catch(() => null);
+    const [status, queue, events, painting, metrics] = await Promise.all([
       OFN.get('/api/v1/owner/status'),
       OFN.get('/api/v1/queue'),
       OFN.get('/api/v1/owner/events'),
       paintingP,
+      metricsP,
     ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
@@ -997,10 +1240,17 @@ async function refresh() {
     drawValves(status);
     drawNerve(events.events || []);
     drawPainting(painting);
+    if (metrics) drawMetrics(metrics);
     lastOk = Date.now();
     document.getElementById('stale').hidden = true;
+    /* Sync the kill state from the node's source of truth. The banner and
+       button reflect this, so a kill from any path (this panel, a future
+       CLI, a test) shows up here on the next poll. */
+    const wasKilled = killedState;
+    killedState = !!status.killed;
+    if (wasKilled !== killedState) renderKill();
     document.getElementById('vitaltx').textContent =
-      status.killed ? 'کلید خاموشی زده شده' : 'وصل · دادهٔ زنده';
+      status.killed ? '🔴 متوقف شده' : 'وصل · دادهٔ زنده';
     const badge = document.getElementById('fbadge');
     badge.textContent = 'دادهٔ زنده';
     badge.className = 'badge live';

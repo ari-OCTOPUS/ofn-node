@@ -1,0 +1,33 @@
+# OFN service-failure alert unit.
+#
+# Wired via OnFailure=ofn-alert.service on ofn.service. When ofn crashes
+# (or is killed by OOM / watchdog), systemd runs this unit.
+#
+# Two layers, mirroring ofn/adapters/alert.py:
+#   1. A local log line, always. Same posture as ofn-backup-alert.service:
+#      a durable local mark that survives power cuts and needs no network.
+#   2. A Telegram message, only when OFN_ALERT_TELEGRAM=1 in secrets.env.
+#      Default off: every other outbound path on this node is gated behind
+#      the owner's finger, and an unsolicited message is the one path that
+#      must not become ambient.
+#
+# The Python script never raises: a notifier that crashes masks the alert
+# it was supposed to deliver.
+
+[Unit]
+Description=OFN service-failure alert (log + optional Telegram)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/usr/bin/python3 -m ofn.adapters.alert ofn crashed
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

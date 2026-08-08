@@ -9,6 +9,10 @@ Requires=ofn-boot.service
 # records. Making this Requires= would turn a network blip into a dead node.
 Wants=cloudflared.service
 After=cloudflared.service
+# If this service fails for good (start limit exhausted after repeated
+# crashes), fire the alert unit. The alert logs locally always and sends a
+# Telegram message only when OFN_ALERT_TELEGRAM=1.
+OnFailure=ofn-alert.service
 
 # NOTE: these two belong in [Unit], not [Service]. They moved in systemd 229
 # and are silently ignored if placed in [Service] — a common and invisible

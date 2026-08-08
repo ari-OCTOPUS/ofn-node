@@ -81,6 +81,11 @@ install -m 0644 systemd/ofn-backup.timer   /etc/systemd/system/
 # Named by ofn-backup.service's OnFailure=. Installing the two separately is
 # how the alert went missing in the first place.
 install -m 0644 systemd/ofn-backup-alert.service /etc/systemd/system/
+# Named by ofn.service's OnFailure=. Fires when ofn crashes for good
+# (start limit exhausted). Logs locally always; sends Telegram only when
+# OFN_ALERT_TELEGRAM=1 in secrets.env. Installed but NOT enabled as a unit
+# in its own right — it is triggered, not started.
+install -m 0644 systemd/ofn-alert.service /etc/systemd/system/
 # Weekly marketing cycle. Installed but NOT enabled — the owner enables it
 # once the brain key is filled in. The service is here so that day is a
 # single `systemctl enable --now ofn-marketing.timer`, not a deploy step.

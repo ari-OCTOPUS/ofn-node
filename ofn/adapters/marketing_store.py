@@ -287,6 +287,47 @@ class MarketingStore:
         ).fetchone()
         return dict(row) if row else None
 
+    # ── release switch events (kill switch audit) ──────────────────────
+
+    def record_release_event(self, tenant: str, *, event_type: str,
+                             owner_id: str, session_id: str, reason: str,
+                             now_epoch_s: int,
+                             expires_at: int | None = None) -> str:
+        """Append one row to the pre-provisioned release_switch_events table.
+
+        The table's CHECK allows exactly: armed, disarmed, kill_switch_on,
+        kill_switch_off. `event_type` is the caller's responsibility — this
+        method does not second-guess it, because a typo here is a loud
+        IntegrityError, not a silent miss, and that is the correct failure
+        mode for an audit trail.
+        """
+        import uuid
+        event_id = f"rse-{uuid.uuid4().hex[:16]}"
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "INSERT INTO release_switch_events "
+                "(event_id, tenant_id, event_type, owner_id, session_id, "
+                " reason, expires_at, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (event_id, tenant, event_type, owner_id, session_id,
+                 reason, expires_at, now_epoch_s),
+            )
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return event_id
+
+    def release_events(self, tenant: str, limit: int = 20) -> list[Mapping]:
+        rows = self._conn.execute(
+            "SELECT event_id, event_type, owner_id, reason, created_at "
+            "FROM release_switch_events WHERE tenant_id = ? "
+            "ORDER BY created_at DESC LIMIT ?",
+            (tenant, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
     def record_observations(self, tenant: str, week_id: str,
                             observations: Iterable[TrendObservation],
                             *, now_epoch_s: int) -> None:
