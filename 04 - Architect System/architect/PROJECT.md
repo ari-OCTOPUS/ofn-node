@@ -28,6 +28,13 @@ updated: 2026-08-07
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-08 عصر (agent، snapshot() — جمع‌کنندهٔ واحدِ حالت، پایهٔ وب‌اپ).**
+  مگاپرامپتِ سوم. `_ops/control_plane/live_snapshot.py` — `snapshot()` با ۸ بخش، read-only،
+  $0، fail-soft، cache TTL 5s. یافتهٔ تشخیصی + فیکس: `os.kill(pid,0)` روی ویندوز WinError 87
+  می‌داد (همهٔ ۵ پروسه alive=False به‌اشتباه) → ctypes OpenProcess. کشفِ معماری: پکیجِ
+  control_plane/ از ۰۸-۰۳ وجود داشت؛ فایلِ من به‌عنوانِ live_snapshot.py مکملِ collector
+  نشست. test_control_plane_live_snapshot 10/10. جزئیات: نوتِ ۳۰.
+
 - تغییرات اخیر: **2026-08-08 عصر (agent، Effector Registry — نقشهٔ بیماریِ actuator-poor).**
   `_ops/effector_registry.py` اعلانی ساخته شد: ۱۰ حس → اکچوئیتور. وضعیتِ زنده: ۳ وصل
   (bcm.learned_pressure، c6، vault_bridge)، ۳ display-only (smallest_fix، self_model،

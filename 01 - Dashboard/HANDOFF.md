@@ -29,6 +29,18 @@ updated: 2026-08-07
 
 ## وضعِ لحظه‌ای
 
+- 📊🔍 **2026-08-08 (عصر — snapshot(): جمع‌کنندهٔ واحدِ حالت ساخته شد؛ پایهٔ وب‌اپ).**
+  مگاپرامپتِ سومِ سه‌گانه. اختاپوس ۷ لایه داشت ولی هیچ تابعی که کلِ حالت را در یک JSON
+  برگرداند نبود — مالک نمی‌توانست وضعیت را ببیند، وب‌اپ داده نداشت.
+  `_ops/control_plane/live_snapshot.py` — `snapshot()` با ۸ بخش (organism/budget/brain/
+  flags/approvals/memory/health/processes)، کاملاً read-only، $0، fail-soft، cache TTL 5s.
+  **یافتهٔ تشخیصی + فیکس:** تشخیصِ aliveبودنِ pid روی ویندوز با `os.kill(pid,0)` غلط بود
+  (WinError 87 → همهٔ ۵ پروسه alive=False در حالی که زنده بودند) → فیکس با ctypes
+  `OpenProcess`. **کشفِ معماری:** یک پکیجِ `control_plane/` از ۰۸-۰۳ وجود داشت؛ فایلِ من
+  به‌عنوانِ `live_snapshot.py` درونِ همان پکیج نشست (مکملِ collector، نه جایگزین).
+  `test_control_plane_live_snapshot` 10/10 سبز. جزئیاتِ کامل: [[../07 - Knowledge/شناخت-
+  اختاپوس/30-CONTROL-PLANE-SNAPSHOT-2026-08-08|نوتِ ۳۰]].
+
 - 🗺️🔧 **2026-08-08 (عصر — Effector Registry: نقشهٔ بیماریِ actuator-poor ساخته شد).**
   `_ops/effector_registry.py` (commit این جلسه) — رجیستریِ اعلانیِ ۱۰ حسِ اختاپوس
   به اکچوئیتورهایشان. نتیجه: **۳ وصل** (bcm.learned_pressure، c6، vault_bridge)،
