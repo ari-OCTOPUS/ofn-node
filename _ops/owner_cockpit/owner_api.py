@@ -83,7 +83,10 @@ def validate_init_data(init_data: str, bot_token: str,
         return False, "no_hash"
 
     # check freshness
-    auth_date = int(params.get("auth_date", "0"))
+    try:
+        auth_date = int(float(params.get("auth_date", "0")))
+    except (ValueError, TypeError):
+        return False, "bad_auth_date"
     if time.time() - auth_date > 600:
         return False, "stale_auth"
 
