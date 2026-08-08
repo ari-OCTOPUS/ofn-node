@@ -193,6 +193,62 @@ def t_root_path_also_serves_the_shell():
     assert "text/html" in ctype, ctype
 
 
+def t_assets_version_is_cached_until_mtime_changes():
+    """کارایی ۲۰۲۶-۰۸-۰۸: قبلاً هر GET/`/miniapp` چهار فایل را دوباره از دیسک
+    می‌خواند و SHA-256 می‌زد. حالا فراخوانیِ دوم با mtime ِ یکسان نباید اصلاً
+    read_bytes صدا بزند — این تست مستقیماً همان را با monkeypatch می‌سنجد."""
+    calls = {"n": 0}
+    real_read = Path.read_bytes
+
+    def _counting_read(self):
+        calls["n"] += 1
+        return real_read(self)
+
+    mg._ASSET_VERSION_CACHE["key"] = None
+    mg._ASSET_VERSION_CACHE["value"] = None
+    Path.read_bytes = _counting_read
+    try:
+        v1 = mg.assets_version()
+        first_calls = calls["n"]
+        assert first_calls > 0, "فراخوانیِ اول باید واقعاً فایل بخواند"
+        v2 = mg.assets_version()
+        assert v2 == v1, (v1, v2)
+        assert calls["n"] == first_calls, (
+            "فراخوانیِ دوم با mtime ِ یکسان نباید دوباره فایل بخواند", calls["n"], first_calls)
+    finally:
+        Path.read_bytes = real_read
+        mg._ASSET_VERSION_CACHE["key"] = None
+        mg._ASSET_VERSION_CACHE["value"] = None
+
+
+def t_assets_version_recomputes_when_mtime_differs():
+    """اگر کلیدِ کش با mtime ِ واقعی نخواند (مثلِ deploy ِ تازه)، باید دوباره
+    محاسبه شود — نه مقدارِ کهنه را برای همیشه نگه دارد."""
+    mg._ASSET_VERSION_CACHE["key"] = ("bogus-stale-key",)
+    mg._ASSET_VERSION_CACHE["value"] = "0000000000"
+    try:
+        v = mg.assets_version()
+        assert v != "0000000000", "باید کشِ نامعتبر را دور بزند، نه باور کند"
+        assert len(v) == 10
+    finally:
+        mg._ASSET_VERSION_CACHE["key"] = None
+        mg._ASSET_VERSION_CACHE["value"] = None
+
+
+def t_versioned_static_assets_get_immutable_cache_but_api_never_does():
+    """کارایی ۲۰۲۶-۰۸-۰۸: قبلاً `Cache-Control: no-store` روی **همه‌چیز** بود —
+    حتی دارایی‌هایِ `?v=<hash>` که خودِ URL محتوا را قفل می‌کند (تغییرِ محتوا
+    = تغییرِ URL)، پس کشِ درازمدت برایشان کاملاً امن است. مسیرهایِ پویا
+    (شِلِ HTML، هر `/api/*`) باید همیشه no-store بمانند."""
+    immutable = "public, max-age=31536000, immutable"
+    for p in ("/miniapp/app.js?v=abc123", "/miniapp/tg_shell.js?v=abc123",
+              "/miniapp/style.css?v=abc123", "/app.js?v=abc123"):
+        assert mg._cache_control_for(p) == immutable, p
+    for p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/app.js",
+              "/api/state", "/api/state?v=abc123", "/api/miniapp"):
+        assert mg._cache_control_for(p) == "no-store", p
+
+
 def t_unknown_paths_are_404():
     # `/` عمداً از این فهرست بیرون است از commit 1d0a6fd (۲۰۲۶-۰۸-۰۸): تلگرام
     # مستقیم به `/` می‌زد و مینی‌اپ اصلاً باز نمی‌شد — حالا `/` هم مثلِ `/miniapp`

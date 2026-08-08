@@ -245,15 +245,40 @@ def _miniapp_static_response(path: str) -> tuple:
     return 200, body, ctype
 
 
+_ASSET_NAMES = ("index.html", "app.js", "tg_shell.js", "style.css")
+_ASSET_VERSION_CACHE: dict = {"key": None, "value": None}
+_ASSET_VERSION_LOCK = threading.RLock()
+
+
 def assets_version() -> str:
-    """اثرِ انگشتِ محتوای دارایی‌ها. هر بایتِ عوض‌شده = نسخهٔ نو."""
+    """اثرِ انگشتِ محتوای دارایی‌ها. هر بایتِ عوض‌شده = نسخهٔ نو.
+
+    کارایی (۲۰۲۶-۰۸-۰۸): قبلاً هر GET به `/`/`/miniapp` (یعنی هر بار که مالک
+    مینی‌اپ را از تلگرام باز می‌کرد) ۴ فایل را کامل از دیسک می‌خواند و SHA-256
+    می‌زد — درحالی‌که این فایل‌ها فقط وقتی deploy تازه می‌شود عوض می‌شوند.
+    حالا فقط mtime (متادیتای فایل‌سیستم، نه محتوا) چک می‌شود؛ فقط وقتی عوض
+    شده باشد هش دوباره محاسبه می‌شود. خروجی برای همان محتوا بایت‌به‌بایت یکی
+    است — فقط مسیرِ رسیدن به آن سریع‌تر شد."""
+    try:
+        mtimes = tuple((_MINIAPP_DIR / n).stat().st_mtime_ns for n in _ASSET_NAMES)
+    except OSError:
+        mtimes = None
+    if mtimes is not None:
+        with _ASSET_VERSION_LOCK:
+            if _ASSET_VERSION_CACHE["key"] == mtimes:
+                return _ASSET_VERSION_CACHE["value"]
     h = hashlib.sha256()
-    for name in ("index.html", "app.js", "tg_shell.js", "style.css"):
+    for name in _ASSET_NAMES:
         try:
             h.update((_MINIAPP_DIR / name).read_bytes())
         except OSError:
             h.update(b"?")
-    return h.hexdigest()[:10]
+    v = h.hexdigest()[:10]
+    if mtimes is not None:
+        with _ASSET_VERSION_LOCK:
+            _ASSET_VERSION_CACHE["key"] = mtimes
+            _ASSET_VERSION_CACHE["value"] = v
+    return v
 
 
 def _version_assets(body: bytes) -> bytes:
@@ -499,6 +524,22 @@ class _Srv(ThreadingHTTPServer):
         super().server_bind()
 
 
+def _cache_control_for(path: str) -> str:
+    """کارایی (۲۰۲۶-۰۸-۰۸): دارایی‌هایِ static با `?v=<hash>` (تولیدشده در
+    `_version_assets`) قبلاً هم `no-store` می‌گرفتند — یعنی خودِ مکانیزمِ
+    نسخه‌گذاری (که دقیقاً برایِ این ساخته شده که بشود درازمدت کش کرد، چون
+    تغییرِ محتوا = تغییرِ URL) بی‌اثر بود؛ گوشیِ مالک هر بار که مینی‌اپ را
+    باز می‌کرد ۲+ فایل را دوباره از تونلِ عمومی می‌کشید.
+
+    شرطِ سخت‌گیرانه (fail-closed به no-store): فقط وقتی هم `?v=` در URL هست
+    هم نامِ یکی از فایل‌هایِ static ِ شناخته‌شده — نه HTML ِ پویا، نه هیچ
+    `/api/*`ای هرگز اینجا نمی‌رسد چون هیچ‌کدام `?v=` نمی‌گیرند."""
+    if "?v=" in (path or "") and any(
+            name in path for name in ("app.js", "tg_shell.js", "style.css")):
+        return "public, max-age=31536000, immutable"
+    return "no-store"
+
+
 class _Handler(BaseHTTPRequestHandler):
     def _run(self, method: str):
         headers = self.headers
@@ -517,7 +558,7 @@ class _Handler(BaseHTTPRequestHandler):
         st, body, ctype = handle(method, self.path, headers)
         self.send_response(st)
         self.send_header("Content-Type", ctype)
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", _cache_control_for(self.path))
         self.end_headers()
         if body:
             self.wfile.write(body)
