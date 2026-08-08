@@ -31,6 +31,7 @@ if _TC not in sys.path:
 import miniapp_gateway as mg
 import ask_vault  # noqa: E402 — برایِ تستِ /api/ask (همان درِ موجود، نه mock ساختگی)
 import ask_brain  # noqa: E402
+import mirror_room  # noqa: E402 — برایِ تستِ /api/mirror
 
 _MINI = harness.REAL_VAULT / "_ops" / "telegram_center" / "miniapp"  # noqa: E402
 
@@ -656,6 +657,92 @@ def t_ask_survives_an_unexpected_exception_with_500_not_a_crash():
         assert d["ok"] is False and d["reason"] == "RuntimeError"
     finally:
         ask_vault.query = real_vault_query
+
+
+# ─── /api/mirror — نقطهٔ ورودِ mirror_room از مینی‌اپ (۲۰۲۶-۰۸-۰۸) ──────────
+def t_mirror_requires_owner_auth_and_blocks_without_it():
+    st, payload, _ = mg.handle("POST", "/api/mirror", {"_body": _ask_body()},
+                               fetch_fn=_fetch(), now=NOW)
+    assert st == 403, (st, payload)
+    assert b"owner_auth_required" in payload
+
+
+def t_mirror_non_post_is_405():
+    st, _, _ = mg.handle("GET", "/api/mirror", {"X-Tg-Init-Data": _init_data()},
+                         fetch_fn=_fetch(), now=NOW)
+    assert st == 405, st
+
+
+def t_mirror_empty_question_is_400():
+    st, payload, _ = mg.handle("POST", "/api/mirror",
+                               {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("  ")},
+                               fetch_fn=_fetch(), now=NOW)
+    assert st == 400, (st, payload)
+    assert b"empty_question" in payload
+
+
+def t_mirror_shares_the_ask_rate_limit_window_not_a_third_counter():
+    """طراحیِ عمدی: /api/mirror هم «مکالمهٔ زنده» است، پس پنجرهٔ همان
+    _ask_rate_limited را به اشتراک می‌گذارد — نه شمارندهٔ سوم."""
+    src = Path(mg.__file__).read_text("utf-8")
+    block = src[src.index('if p == "/api/mirror":'):src.index('if p == "/api/miniapp":')]
+    assert 'if _ask_rate_limited(now):' in block and '429' in block
+
+
+def t_mirror_returns_the_real_answer_and_flags_recorded_corrections():
+    real_ask = mirror_room.ask
+
+    def fake_ask(q, **kw):
+        return {"ok": True, "text": "جوابِ آینه", "tier": "primary",
+                "model": "fugu", "recorded_correction": True, "room": "mirror"}
+
+    mirror_room.ask = fake_ask
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/mirror", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("درستش کن")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 200, (st, payload)
+        d = json.loads(payload)
+        assert d["ok"] is True and d["source"] == "mirror" and d["answer"] == "جوابِ آینه"
+        assert d["recorded_correction"] is True
+    finally:
+        mirror_room.ask = real_ask
+
+
+def t_mirror_reports_ok_false_when_the_module_declines():
+    real_ask = mirror_room.ask
+
+    def off(q, **kw):
+        return {"ok": False, "reason": "flag-off"}
+
+    mirror_room.ask = off
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/mirror", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("هرچیزی")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 200, (st, payload)
+        d = json.loads(payload)
+        assert d["ok"] is False and d["reason"] == "flag-off"
+    finally:
+        mirror_room.ask = real_ask
+
+
+def t_mirror_survives_an_unexpected_exception_with_500_not_a_crash():
+    real_ask = mirror_room.ask
+
+    def boom(q, **kw):
+        raise RuntimeError("boom")
+
+    mirror_room.ask = boom
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/mirror", {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("هرچیزی")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 500, (st, payload)
+        d = json.loads(payload)
+        assert d["ok"] is False and d["reason"] == "RuntimeError"
+    finally:
+        mirror_room.ask = real_ask
 
 
 if __name__ == "__main__":

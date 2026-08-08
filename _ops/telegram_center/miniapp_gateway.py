@@ -426,7 +426,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p not in ("/api/actions", "/api/ask"):
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
@@ -530,6 +530,52 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                 return 200, body, "application/json; charset=utf-8"
             reason = rb.get("reason") or rv.get("reason") or "no-answer"
             body = json.dumps({"ok": False, "reason": reason}, ensure_ascii=False).encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
+    if p == "/api/mirror":
+        # ۲۰۲۶-۰۸-۰۸: نقطهٔ ورودِ mirror_room از مینی‌اپ (رأیِ مالک، بخشِ
+        # الف-۷/mirror_room سابق). به‌جایِ deep-link به یک تاپیکِ تلگرام
+        # (که به chat_id/topic_id خام نیاز داشت و mirror_room را خارج از
+        # میدانپ نگه می‌داشت)، خودِ mirror_room.ask() مستقیم از این‌جا صدا
+        # زده می‌شود — room="" یعنی همان تاپیکِ mirror ِ پیش‌فرض
+        # (room_slug). چیزی reimplement نشده: حافظهٔ نوبت‌به‌نوبت،
+        # تشخیصِ تصحیح، و نوشتنِ history همه از خودِ ماژول می‌آید.
+        # پنجرهٔ rate-limit مشترک با /api/ask (هر دو یعنی «مکالمهٔ زنده»).
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            question = str(payload.get("question") or "").strip()
+            if not question:
+                return 400, b'{"ok":false,"reason":"empty_question"}', "application/json; charset=utf-8"
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            import mirror_room  # noqa: WPS433 — هم‌پوشه
+            rm = mirror_room.ask(question)
+            if rm.get("ok"):
+                body = json.dumps({"ok": True, "answer": rm.get("text") or "",
+                                   "source": "mirror", "tier": rm.get("tier"),
+                                   "model": rm.get("model"),
+                                   "recorded_correction": bool(rm.get("recorded_correction"))},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            body = json.dumps({"ok": False, "reason": rm.get("reason") or "no-answer"},
+                              ensure_ascii=False).encode("utf-8")
             return 200, body, "application/json; charset=utf-8"
         except Exception as exc:
             body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
