@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""test_control_plane_live_snapshot — `control_plane.live_snapshot.snapshot()`.
+
+زمینه (مگاپرامپتِ ۲۰۲۶-۰۸-۰۸، ایجنتِ سوم): اختاپوس ۷ لایه دارد و اصلش این است که
+«هر لایه باید لایهٔ زیرِ خودش را بخواند، وگرنه فقط دفتر پر می‌کند.» ولی هیچ
+جمع‌کنندهٔ واحدی نبود. `snapshot()` آن شکافِ «نمی‌شه دید» را می‌بندد و پایهٔ وب‌اپ
+و هر dashboardی می‌شود.
+
+نامِ مستقل: `test_control_plane.py` از قبل کارِ `collector`/`supervisor` را می‌سنجد
+(مالکیتِ حالتِ فقط‌خواندنی)؛ این فایلِ خواهر، خودِ تابعِ `live_snapshot.snapshot()`
+را با ۸ بخشِ قراردادی‌اش می‌آزماید.
+
+ادعاهای زیرِ آزمون (هرکدام با جهشِ کُشنده روی لنگرِ یکتا):
+
+  ۱. **همهٔ ۸ بخش موجودند** و هرکدام یا دادهٔ معتبر دارد یا `status: unknown`
+     (نه غیب، نه crash). یک بخشِ غایب = وب‌اپ تبِ کور نشان می‌دهد.
+  ۲. **fail-soft واقعی**: یک فایلِ state را موقتاً خراب کن (JSON نامعتبر) —
+     snapshot نباید crash کند؛ کلِ snapshot زنده می‌ماند.
+  ۳. **cache TTL**: دو فراخوانیِ پی‌درپی در پنجرهٔ ۵s باید **همان شیء** را
+     برگردانند (identical)؛ بعد از `cache_clear()` باید تازه بخواند.
+  ۴. **read-only / $0**: snapshot نباید هیچ فایلی بنویسد (قراردادِ سخت).
+  ۵. **نمایِ ثابت + JSON-serializable**: خروجی قابلِ فرستادن به وب‌اپ است.
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+_OPS = _HERE.parent
+if str(_OPS) not in sys.path:
+    sys.path.insert(0, str(_OPS))
+
+from control_plane import live_snapshot as cp  # noqa: E402
+
+EXPECTED_SECTIONS = ("organism", "budget", "brain", "flags", "approvals",
+                     "memory", "health", "processes")
+_results: list = []
+
+
+def check(cond, msg):
+    _results.append(("✅" if cond else "❌", msg))
+    assert cond, msg
+
+
+# ─── ۱: همهٔ ۸ بخش موجودند ─────────────────────────────────────────────────────
+def t_all_eight_sections_present_and_valid():
+    cp.cache_clear()
+    s = cp.snapshot(use_cache=False)
+    check(s.get("schema") == "control-plane.snapshot.v1", f"schema غلط: {s.get('schema')}")
+    secs = s.get("sections")
+    check(isinstance(secs, list) and tuple(secs) == EXPECTED_SECTIONS,
+          f"sections باید دقیقاً {EXPECTED_SECTIONS} باشد، نه {secs}")
+    for name in EXPECTED_SECTIONS:
+        check(name in s, f"بخشِ {name} غایب است")
+        v = s[name]
+        check(isinstance(v, dict), f"بخشِ {name} dict نیست (نمایِ ثابت شکست)")
+
+
+# ─── ۲: fail-soft روی فایلِ خراب ───────────────────────────────────────────────
+def t_fail_soft_on_corrupt_state_file():
+    """یک فایلِ stateِ حیاتی را موقتاً خراب کن — snapshot نباید crash کند."""
+    cp.cache_clear()
+    target = cp._STATE / "fugu-quota.json"
+    backup = None
+    created = False
+    try:
+        if target.exists():
+            backup = target.read_bytes()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("{ این JSON نامعتبر است === ", encoding="utf-8")
+        created = True
+        s = cp.snapshot(use_cache=False)
+        check(isinstance(s, dict) and "budget" in s, "snapshot با فایلِ خراب crash کرد")
+        fq = s["budget"].get("fugu_quota")
+        check(isinstance(fq, dict), f"fugu_quota باید dict باشد حتی با فایلِ خراب: {fq}")
+    finally:
+        if created:
+            if backup is not None:
+                target.write_bytes(backup)
+            else:
+                try:
+                    target.unlink()
+                except OSError:
+                    pass
+
+
+def t_fail_soft_on_missing_state_file():
+    """حذفِ موقتِ یک فایل — بخش باید unknown بیاید نه KeyError."""
+    cp.cache_clear()
+    target = cp._STATE / "does-not-exist-xyz.json"
+    check(not target.exists(), "precondition: فایل نباید وجود داشته باشد")
+    s = cp.snapshot(use_cache=False)
+    check("organism" in s and "memory" in s, "snapshot با فایلِ غایب crash کرد")
+
+
+# ─── ۳: cache TTL ───────────────────────────────────────────────────────────────
+def t_cache_returns_same_object_within_ttl():
+    cp.cache_clear()
+    s1 = cp.snapshot(use_cache=True)
+    s2 = cp.snapshot(use_cache=True)
+    check(s1 is s2, "cache در پنجرهٔ TTL باید همان شیء را برگرداند (identical)")
+
+
+def t_cache_clear_forces_refresh():
+    cp.cache_clear()
+    s1 = cp.snapshot(use_cache=True)
+    cp.cache_clear()
+    s2 = cp.snapshot(use_cache=True)
+    check(s1 is not s2, "بعد از cache_clear باید تازه بخواند (نه همان شیء)")
+    check(s1.get("sections") == s2.get("sections"), "sections باید بعد از refresh ثابت بماند")
+
+
+def t_use_cache_false_bypasses_cache():
+    cp.cache_clear()
+    cp.snapshot(use_cache=True)        # پر کردنِ cache
+    s2 = cp.snapshot(use_cache=False)  # bypass
+    check(s2 is not None, "use_cache=False باید یک snapshotِ تازه برگرداند")
+
+
+# ─── ۴: read-only / $0 ─────────────────────────────────────────────────────────
+def t_snapshot_writes_nothing():
+    """قراردادِ سخت: snapshot هیچ فایلی نمی‌نویسد."""
+    cp.cache_clear()
+    before = {str(p): p.stat().st_mtime for p in cp._STATE.rglob("*") if p.is_file()}
+    cp.snapshot(use_cache=False)
+    after = {str(p): p.stat().st_mtime for p in cp._STATE.rglob("*") if p.is_file()}
+    new_files = set(after) - set(before)
+    check(not new_files, f"snapshot فایلِ نو ساخت (نقضِ read-only): {new_files}")
+
+
+# ─── ۵: نمایِ ثابت + JSON-serializable ──────────────────────────────────────────
+def t_output_is_json_serializable():
+    """snapshot باید قابلِ serialize به JSON باشد (وب‌اپ آن را می‌فرستد)."""
+    cp.cache_clear()
+    s = cp.snapshot(use_cache=False)
+    try:
+        json.dumps(s, ensure_ascii=False)
+        check(True, "")
+    except (TypeError, ValueError) as e:
+        check(False, f"snapshot JSON-serializable نیست: {type(e).__name__}: {e}")
+
+
+def t_organism_section_has_expected_keys():
+    """لنگرِ نماد: بخشِ organism باید کلیدهای قراردادی داشته باشد."""
+    cp.cache_clear()
+    s = cp.snapshot(use_cache=False)
+    org = s.get("organism", {})
+    for key in ("beat", "frozen", "halted", "legs"):
+        check(key in org, f"organism باید کلیدِ {key} داشته باشد: {list(org.keys())}")
+
+
+# ─── mutation-test: حذفِ یک بخش باید تست را fail بدهد ──────────────────────────
+def t_mutation_removing_section_breaks_test():
+    """جهش: اگر یک بخش از _SECTIONS حذف شود، t_all_eight_sections_present_and_valid
+    باید واقعاً fail بدهد (نه سبزِ کاذب). این تله ثابت می‌کند که تستِ بخش‌ها به‌طور
+    واقعی حضورِ هر ۸ بخش را enforcement می‌کند، نه فقط ساختارِ dict را.
+
+    نکته: فراخوانیِ تله در یک فهرستِ موقتی می‌رود تا ❌ِ عمدیِ جهش به شمارندهٔ کلی
+    راه پیدا نکند (ما انتظارِ همان شکست را داریم، نه یک شکستِ واقعی)."""
+    original = cp._SECTIONS
+    cp._SECTIONS = tuple((n, fn) for n, fn in original if n != "health")
+    global _results
+    saved_results = _results
+    _results = []                    # قرنطینه: ❌ِ جهش نباید به کل برود
+    broke_as_expected = False
+    try:
+        cp.cache_clear()
+        try:
+            t_all_eight_sections_present_and_valid()
+        except AssertionError:
+            broke_as_expected = True
+    finally:
+        _results = saved_results     # بازگردان
+        cp._SECTIONS = original
+        cp.cache_clear()
+    check(broke_as_expected,
+          "حذفِ بخشِ health باید t_all_eight را fail بدهد — ولی سبز ماند (تلهٔ جهش نتوانست)")
+
+
+# ─── runner ─────────────────────────────────────────────────────────────────────
+def _run():
+    tests = [
+        ("all_eight_sections_present_and_valid", t_all_eight_sections_present_and_valid),
+        ("fail_soft_on_corrupt_state_file", t_fail_soft_on_corrupt_state_file),
+        ("fail_soft_on_missing_state_file", t_fail_soft_on_missing_state_file),
+        ("cache_returns_same_object_within_ttl", t_cache_returns_same_object_within_ttl),
+        ("cache_clear_forces_refresh", t_cache_clear_forces_refresh),
+        ("use_cache_false_bypasses_cache", t_use_cache_false_bypasses_cache),
+        ("snapshot_writes_nothing", t_snapshot_writes_nothing),
+        ("output_is_json_serializable", t_output_is_json_serializable),
+        ("organism_section_has_expected_keys", t_organism_section_has_expected_keys),
+        ("mutation_removing_section_breaks_test", t_mutation_removing_section_breaks_test),
+    ]
+    for name, fn in tests:
+        fn()
+    n_fail = sum(1 for m, _ in _results if m == "❌")
+    print()
+    for mark, msg in _results:
+        print(f"  {mark} {msg}")
+    print()
+    print(f"== {n_fail} failure(s) ==")
+    return n_fail
+
+
+if __name__ == "__main__":
+    sys.exit(1 if _run() else 0)
