@@ -282,10 +282,23 @@ def gather_signals() -> dict:
                 rfcs.append(f.stem)
     except OSError:
         pass
+    # ۲۰۲۶-۰۸-۰۷ — smallest_fix: دقیق‌ترین خروجیِ تشخیصیِ دکتر، تا امروز DEAD-OUTPUT
+    # بود (فقط در کارتِ تلگرام نمایش داده می‌شد، هرگز به یک proposal تبدیل نمی‌شد).
+    # حالا به‌صورتِ additive + propose-only خوانده می‌شود. fail-soft: نبود/خراب = "".
+    smallest_fix = ""
+    try:
+        sk = _read(STATE / "doctor" / "self-knowledge-latest.json") or {}
+        dd = sk.get("deep_dive") or {}
+        fix = str(dd.get("smallest_fix") or "").strip()
+        if fix:
+            smallest_fix = fix[:200]
+    except Exception:  # noqa: BLE001 — نبودِ تشخیص هرگز signals را نمی‌کشد
+        pass
     return {"matrix": matrix, "idea": idea, "cortex": cortex,
             "research": research, "synthesis": synthesis,
             "self_model": self_model, "part_loops": part_loops,
-            "business": business, "doctor_rfcs": rfcs}
+            "business": business, "doctor_rfcs": rfcs,
+            "smallest_fix": smallest_fix}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -329,6 +342,22 @@ def generate_proposals(signals: dict) -> list[dict]:
             "evidence": f"knowledge/internal/{rid}.md",
             "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
             "change_level": "reconfig", "auto_applicable": False, "status": "proposed",
+        })
+    # ۲.۶) از smallest_fixِ دکتر (دقیق‌ترین تشخیص) — ۲۰۲۶-۰۸-۰۷
+    # تا امروز DEAD-OUTPUT بود: فقط در کارت نمایش داده می‌شد، هرگز proposal نمی‌شد.
+    # حالا additive + propose-only (auto_applicable=False، یعنی فقط کارتِ تأیید).
+    # پشتِ همان فلگِ IMPROVE (CORTEX_IMPROVE_DEEP) نمی‌رود چون $0 است و فاقدِ LLM؛
+    # ولی محتوا از self-knowledge می‌آید که خودش پشتِ OCTOPUS_WIRE_DOCTOR_SELFKNOW است.
+    sf = str(signals.get("smallest_fix") or "").strip()
+    if sf:
+        out.append({
+            "id": _pid("smallestfix:" + sf), "source": "smallest_fix",
+            "category": "implementation", "priority": "P1", "_rank": 1.0,
+            "title": f"کوچک‌ترین فیکسِ دکتر: {sf[:80]}",
+            "rationale": "دقیق‌ترین خروجیِ deep_dive — تا امروز فقط نمایش می‌شد، اکنون propose.",
+            "evidence": "doctor/self-knowledge-latest.json::deep_dive.smallest_fix",
+            "suggested_action": sf[:180], "change_level": "reconfig",
+            "auto_applicable": False, "status": "proposed",
         })
     # ۲.۵) از سنتزِ مغز (فراشناختی جلسه ۴۶): پروپوزال‌های fugu/glm/local — همیشه propose-only
     for sp in (signals.get("synthesis") or {}).get("proposals", [])[:3]:
