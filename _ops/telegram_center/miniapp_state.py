@@ -895,6 +895,112 @@ def cache_clear() -> None:
         _CACHE.clear()
 
 
+def get_cognitive_scan_state(root: "Path | None" = None) -> dict:
+    """اسکنای شناختیِ زنده: self-model، doctor، pulse، governor، semantic — یک‌جا.
+
+    تبِ «اسکن‌ها» این داده را می‌خواند. فقط‌خواندنی، fail-soft، content-free."""
+    rt = _runtime(root)
+    out = {"status": "ok", "schema": "cognitive-scan.v1", "ts": _now_iso()}
+    # ۱) self-model — خودآگاهیِ کد
+    try:
+        sm = _read_json(rt / "cortex" / "self-model.json")
+        out["self_model"] = {
+            "modules": sm.get("n_modules"),
+            "self_awareness_pct": sm.get("self_awareness_pct"),
+            "total_lines": sm.get("total_lines"),
+            "n_tests": sm.get("n_tests"),
+            "undocumented": len(sm.get("undocumented_modules", []) or []),
+            "updated_at": sm.get("updated_at", sm.get("ts", "")),
+        } if isinstance(sm, dict) else {"error": True}
+    except Exception:  # noqa: BLE001
+        out["self_model"] = {"error": True}
+    # ۲) doctor self-knowledge
+    try:
+        sk = _read_json(rt / "doctor" / "self-knowledge-latest.json")
+        out["doctor"] = {
+            "version": sk.get("version"),
+            "stable_cycles": sk.get("stable_cycles"),
+            "self_accuracy": sk.get("self_accuracy"),
+            "deep_dive_ran": sk.get("deep_dive_ran"),
+            "owner_corrections": len(sk.get("owner_corrections", []) or []),
+        } if isinstance(sk, dict) else {"error": True}
+    except Exception:  # noqa: BLE001
+        out["doctor"] = {"error": True}
+    # ۳) pulse-arbiter — قلب
+    try:
+        pa = _read_json(rt / "pulse" / "arbiter-latest.json")
+        out["pulse"] = {
+            "effective_period_s": pa.get("effective_period_s"),
+            "driver": pa.get("driver"),
+            "color": pa.get("color"),
+            "n_present": pa.get("n_present"),
+            "n_moving": pa.get("n_moving"),
+        } if isinstance(pa, dict) else {"error": True}
+    except Exception:  # noqa: BLE001
+        out["pulse"] = {"error": True}
+    # ۴) BCM — یادگیری
+    try:
+        bcm = _read_json(rt / "bcm-weights.json")
+        steps = bcm.get("step", 0) if isinstance(bcm, dict) else 0
+        keys = [k for k in (bcm or {}) if k.startswith("cycle-")]
+        out["bcm"] = {"step": steps, "cycles": len(keys)} if keys else {"step": steps}
+    except Exception:  # noqa: BLE001
+        out["bcm"] = {"error": True}
+    # ۵) semantic memory — آخرین reflections
+    try:
+        sem = rt / "semantic_memory.jsonl"
+        n = 0
+        latest_gist = ""
+        if sem.exists():
+            lines = sem.read_text("utf-8").splitlines()
+            n = len(lines)
+            if lines:
+                latest_gist = str(json.loads(lines[-1]).get("gist", ""))[:80]
+        out["semantic"] = {"total": n, "latest_gist": latest_gist}
+    except Exception:  # noqa: BLE001
+        out["semantic"] = {"error": True}
+    # ۶) consolidation
+    try:
+        cur = _read_json(rt / "cortex" / "consolidate-cursor.json")
+        out["consolidation"] = {
+            "last_run": cur.get("ts", ""),
+            "n_in": cur.get("n_in", 0),
+            "n_semantic": cur.get("n_semantic", 0),
+        } if isinstance(cur, dict) else {"error": True}
+    except Exception:  # noqa: BLE001
+        out["consolidation"] = {"error": True}
+    return out
+
+
+def get_agent_log_state(root: "Path | None" = None) -> dict:
+    """لاگِ تغییراتِ ایجنت — آخرین commitهای git (نوشته‌ی ایجنت‌ها).
+
+    تبِ «اسکن‌ها» این داده را می‌خواند. فقط‌خواندنی، content-free (نه diff)."""
+    import subprocess
+    out = {"status": "ok", "schema": "agent-log.v1", "ts": _now_iso(), "commits": []}
+    try:
+        rt = _runtime(root)  # _ops/state
+        repo = rt.parent.parent  # vault root
+        result = subprocess.run(
+            ["git", "log", "--oneline", "--no-decorate", "-20",
+             "--format=%h|%an|%s|%ci"],
+            cwd=str(repo), capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            for line in result.stdout.strip().splitlines():
+                parts = line.split("|", 3)
+                if len(parts) >= 4:
+                    out["commits"].append({
+                        "hash": parts[0][:7],
+                        "author": str(parts[1])[:30],
+                        "message": str(parts[2])[:100],
+                        "date": str(parts[3])[:16],
+                    })
+    except Exception:  # noqa: BLE001
+        out["commits"] = []
+        out["status"] = "error"
+    return out
+
+
 def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, str]":
     """GET /api/* dispatcher. خروجی: (status, body_bytes, content_type)."""
     p = str(path or "").split("?", 1)[0]
@@ -924,6 +1030,9 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         # نقشهٔ خودآگاهی — مالک گفت تعاملِ اصلی‌اش وب‌اپ است، پس آنچه
         # تا امروز فقط در خطِ فرمان دیده می‌شد باید این‌جا باشد.
         "/api/selfmap": get_selfmap_state,
+        # ۲۰۲۶-۰۸-۰۸ — تبِ «اسکن‌ها»: شناختیِ زنده + لاگِ ایجنت
+        "/api/cognitive-scan": get_cognitive_scan_state,
+        "/api/agent-log": get_agent_log_state,
         LIFECYCLE_PATH: get_lifecycle_state,
     }
     fn = handlers.get(p)

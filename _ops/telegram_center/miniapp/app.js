@@ -1839,8 +1839,68 @@
   function viewTasks(el){ stack(el||content, [renderTasks]); }
   function viewNotifications(el){ stack(el||content, [renderNotifications]); }
 
+  // ══ تبِ «اسکن‌ها» (۲۰۲۶-۰۸-۰۸) ════════════════════════════════════════════════
+  // دو پنل: اسکنای شناختیِ زنده (self-model/doctor/pulse/BCM/semantic) + لاگِ تغییراتِ ایجنت (git log)
+  function renderCognitiveScan(el){
+    el = el || content;
+    el.innerHTML = '<div class="loading">در حال بارگذاریِ اسکنای شناختی…</div>';
+    var myseq = _renderSeq;
+    api("/api/cognitive-scan").then(function(d){
+      if(_renderSeq !== myseq) return;
+      if(!d || d.status === "error"){ el.innerHTML='<div class="err">خطا: '+esc(d&&d.reason||"")+'</div>'; return; }
+      var sm = d.self_model||{}, doc = d.doctor||{}, pu = d.pulse||{}, bc = d.bcm||{}, sem = d.semantic||{}, con = d.consolidation||{};
+      var h = '<div class="card"><h2>🧠 خودآگاهیِ کد'+pill(sm.error?'نامعلوم':(sm.self_awareness_pct||'?')+'٪', sm.error?'unk':'ok')+'</h2>'+
+        '<div class="kv"><div class="k">ماژول‌ها</div><div>'+fa(sm.modules||0)+'</div>'+
+        '<div class="k">خطوطِ کد</div><div>'+fa(sm.total_lines||0)+'</div>'+
+        '<div class="k">تست‌ها</div><div>'+fa(sm.n_tests||0)+'</div>'+
+        '<div class="k">مستند‌نشده</div><div>'+fa(sm.undocumented||0)+'</div></div></div>';
+      h += '<div class="card"><h2>🩺 دکتر — خودشناسی'+pill(doc.error?'نامعلوم':'نسخه '+fa(doc.version||0), doc.error?'unk':(doc.stable_cycles>5?'ok':doc.stable_cycles>0?'unk':'hot'))+'</h2>'+
+        '<div class="kv"><div class="k">دقتِ خودسنجی</div><div>'+fa(Math.round((doc.self_accuracy||0)*100))+'٪</div>'+
+        '<div class="k">سیکل‌های پایدار</div><div>'+fa(doc.stable_cycles||0)+'</div>'+
+        '<div class="k">اصلاحاتِ مالک</div><div>'+fa(doc.owner_corrections||0)+'</div></div></div>';
+      var pulseColor = pu.error?'unk':(pu.color==='RED'?'hot':pu.color==='AMBER'?'unk':'ok');
+      h += '<div class="card"><h2>🫀 قلب'+pill(pu.error?'نامعلوم':pu.color||'?', pulseColor)+'</h2>'+
+        '<div class="kv"><div class="k">دورهٔ نبض</div><div>'+fa(pu.effective_period_s||0)+'s</div>'+
+        '<div class="k">راننده</div><div>'+ltr(esc(pu.driver||'—'))+'</div>'+
+        '<div class="k">قلب‌های حاضر</div><div>'+fa(pu.n_present||0)+'</div>'+
+        '<div class="k">متحرک</div><div>'+fa(pu.n_moving||0)+'</div></div></div>';
+      h += '<div class="card"><h2>🧬 یادگیری (BCM)'+pill(bc.error?'نامعلوم':'step '+fa(bc.step||0), bc.error?'unk':'ok')+'</h2>'+
+        '<div class="kv"><div class="k">step</div><div>'+fa(bc.step||0)+'</div>'+
+        '<div class="k">سیکل‌ها</div><div>'+fa(bc.cycles||0)+'</div></div></div>';
+      h += '<div class="card"><h2>💭 حافظهٔ سِمانتیک'+pill(fa(sem.total||0)+' ورودی', 'ok')+'</h2>'+
+        '<div class="muted">'+esc(sem.latest_gist||'—')+'</div></div>';
+      h += '<div class="card"><h2>🔄 تثبیت'+pill(con.error?'نامعلوم':'n_in='+fa(con.n_in||0), con.error?'unk':(con.n_in>0?'ok':'unk'))+'</h2>'+
+        '<div class="muted">آخرین: '+esc(con.last_run||'—')+' · نوت: '+fa(con.n_semantic||0)+'</div></div>';
+      el.innerHTML = h;
+    });
+  }
+  function renderAgentLog(el){
+    el = el || content;
+    el.innerHTML = '<div class="loading">در حال بارگذاریِ لاگِ ایجنت…</div>';
+    var myseq = _renderSeq;
+    api("/api/agent-log").then(function(d){
+      if(_renderSeq !== myseq) return;
+      if(!d || d.status === "error"){ el.innerHTML='<div class="err">گیت در دسترس نیست.</div>'; return; }
+      var commits = d.commits || [];
+      if(!commits.length){ el.innerHTML='<div class="card"><div class="muted">هنوز کامیت‌ای ثبت نشده.</div></div>'; return; }
+      var h = '<div class="card"><h2>📜 آخرین تغییراتِ ایجنت'+pill(fa(commits.length)+' کامیت','ok')+'</h2>';
+      commits.forEach(function(c){
+        var isAgent = c.author && c.author.indexOf('ari-vault') < 0 && c.author.indexOf('Armin') < 0;
+        h += '<div class="row" style="margin:6px 0;padding:6px;border-radius:8px;'+
+             (isAgent?'background:rgba(99,102,241,0.08)':'')+'">'+
+          '<div class="k">'+ltr(esc(c.hash||''))+' · '+esc(c.author||'')+(isAgent?' <span class="badge live">ایجنت</span>':'')+'</div>'+
+          '<div class="v">'+esc(c.message||'')+'</div>'+
+          '<div class="muted">'+esc(c.date||'')+'</div></div>';
+      });
+      h += '</div>';
+      el.innerHTML = h;
+    });
+  }
+  function viewScans(el){ stack(el||content, [renderCognitiveScan, renderAgentLog]); }
+
   var renderers = {home:viewHome,approvals:viewApprovals,money:viewMoney,
                    leads:viewLeads,tasks:viewTasks,system:viewSystem,
+                   scans:viewScans,
                    notifications:viewNotifications};
   // ⚠️ سکوت را بلند کن. نسخهٔ قبلی `renderers[name]||renderHome` بود، پس یک تبِ
   // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز

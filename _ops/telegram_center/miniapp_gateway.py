@@ -72,6 +72,8 @@ READ_API_PATHS = {
     # miniapp_state.py هست ولی هرگز dispatch نمی‌شد → 404 حتی با فلگِ روشن.
     # تاشویِ یکسانِ gate ِ owner-auth (t_no_read_route_bypasses_the_shared_gate_function).
     "/api/lifecycle",
+    # ۲۰۲۶-۰۸-۰۸ — تبِ «اسکن‌ها»: شناختیِ زنده + لاگِ ایجنت
+    "/api/cognitive-scan", "/api/agent-log",
 }
 
 # دیوارِ HMAC ِ سطحِ خواندنی: **هر** مسیرِ READ_API_PATHS همان چیزی را می‌خواهد
