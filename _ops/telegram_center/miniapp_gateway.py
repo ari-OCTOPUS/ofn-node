@@ -202,7 +202,7 @@ def _miniapp_static_response(path: str) -> tuple:
     disabled in the frontend/backend until owner auth is explicitly wired.
     """
     p = str(path or "").split("?", 1)[0]
-    if p in ("/miniapp", "/miniapp/"):
+    if p in ("/", "/miniapp", "/miniapp/"):
         rel = "index.html"
         ctype = "text/html; charset=utf-8"
     elif p in ("/miniapp/app.js", "/app.js"):
@@ -378,7 +378,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
         return 405, b"", "text/plain; charset=utf-8"
     if method_u == "POST" and p != "/api/actions":
         return 405, b"", "text/plain; charset=utf-8"
-    if p in ("/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
+    if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
         return _miniapp_static_response(p)
     if p == "/api/actions":
