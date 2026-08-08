@@ -898,12 +898,17 @@ def cache_clear() -> None:
 def get_cognitive_scan_state(root: "Path | None" = None) -> dict:
     """اسکنای شناختیِ زنده: self-model، doctor، pulse، governor، semantic — یک‌جا.
 
-    تبِ «اسکن‌ها» این داده را می‌خواند. فقط‌خواندنی، fail-soft، content-free."""
-    rt = _runtime(root)
-    out = {"status": "ok", "schema": "cognitive-scan.v1", "ts": _now_iso()}
+    تبِ «اسکن‌ها» این داده را می‌خواند. فقط‌خواندنی، fail-soft، content-free.
+
+    ⚠️ DEEP-SCAN ۲۰۲۶-۰۸-۰۸: نسخهٔ نخست `_runtime(root)` و `_read_json()` صد
+    می‌زد — هر دو ناموجود. توابعِ درست `_RUNTIME` (ثابت) و `_read_json_safe()`
+    هستند که بقیهٔ همین فایل استفاده می‌کنند. یعنی تبِ اسکن‌ها تا امروز ۵۰۰
+    می‌داد و کاربر «خطا: name '_runtime' is not defined» می‌دید."""
+    rt = STATE_DIR
+    out = {"status": "ok", "schema": "cognitive-scan.v1", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     # ۱) self-model — خودآگاهیِ کد
-    try:
-        sm = _read_json(rt / "cortex" / "self-model.json")
+    sm = _read_json_safe(rt / "cortex" / "self-model.json")
+    if isinstance(sm, dict):
         out["self_model"] = {
             "modules": sm.get("n_modules"),
             "self_awareness_pct": sm.get("self_awareness_pct"),
@@ -911,44 +916,57 @@ def get_cognitive_scan_state(root: "Path | None" = None) -> dict:
             "n_tests": sm.get("n_tests"),
             "undocumented": len(sm.get("undocumented_modules", []) or []),
             "updated_at": sm.get("updated_at", sm.get("ts", "")),
-        } if isinstance(sm, dict) else {"error": True}
-    except Exception:  # noqa: BLE001
+        }
+    else:
         out["self_model"] = {"error": True}
     # ۲) doctor self-knowledge
-    try:
-        sk = _read_json(rt / "doctor" / "self-knowledge-latest.json")
+    sk = _read_json_safe(rt / "doctor" / "self-knowledge-latest.json")
+    if isinstance(sk, dict):
+        # self_accuracy در فایل یک **object** است ({accuracy, confidence, drifts, ...})
+        # نه یک عدد. استخراجِ عددِ ساده برای UI:
+        sa_raw = sk.get("self_accuracy")
+        if isinstance(sa_raw, dict):
+            sa_pct = sa_raw.get("accuracy")
+        elif isinstance(sa_raw, (int, float)):
+            sa_pct = sa_raw
+        else:
+            sa_pct = None
         out["doctor"] = {
             "version": sk.get("version"),
             "stable_cycles": sk.get("stable_cycles"),
-            "self_accuracy": sk.get("self_accuracy"),
+            "self_accuracy": sa_pct,
             "deep_dive_ran": sk.get("deep_dive_ran"),
             "owner_corrections": len(sk.get("owner_corrections", []) or []),
-        } if isinstance(sk, dict) else {"error": True}
-    except Exception:  # noqa: BLE001
+        }
+    else:
         out["doctor"] = {"error": True}
     # ۳) pulse-arbiter — قلب
-    try:
-        pa = _read_json(rt / "pulse" / "arbiter-latest.json")
+    pa = _read_json_safe(rt / "pulse" / "arbiter-latest.json")
+    if isinstance(pa, dict):
         out["pulse"] = {
             "effective_period_s": pa.get("effective_period_s"),
             "driver": pa.get("driver"),
             "color": pa.get("color"),
             "n_present": pa.get("n_present"),
             "n_moving": pa.get("n_moving"),
-        } if isinstance(pa, dict) else {"error": True}
-    except Exception:  # noqa: BLE001
+        }
+    else:
         out["pulse"] = {"error": True}
-    # ۴) BCM — یادگیری
-    try:
-        bcm = _read_json(rt / "bcm-weights.json")
-        steps = bcm.get("step", 0) if isinstance(bcm, dict) else 0
-        keys = [k for k in (bcm or {}) if k.startswith("cycle-")]
+    # ۴) BCM — یادگیری. مسیرِ واقعی bcm-weights.json نیست؛ state زیرِ
+    # memory/ است. هر دو را می‌آزما تا داده‌ای را که پروسهٔ زنده نوشته پیدا کن.
+    bcm = _read_json_safe(rt / "memory" / "bcm-weights.json") \
+          or _read_json_safe(rt / "bcm-weights.json")
+    if isinstance(bcm, dict):
+        steps = bcm.get("step", 0)
+        keys = [k for k in bcm if k.startswith("cycle-")]
         out["bcm"] = {"step": steps, "cycles": len(keys)} if keys else {"step": steps}
-    except Exception:  # noqa: BLE001
+    else:
         out["bcm"] = {"error": True}
     # ۵) semantic memory — آخرین reflections
     try:
-        sem = rt / "semantic_memory.jsonl"
+        sem = rt / "memory" / "semantic_memory.jsonl"
+        if not sem.exists():
+            sem = rt / "semantic_memory.jsonl"
         n = 0
         latest_gist = ""
         if sem.exists():
@@ -960,14 +978,14 @@ def get_cognitive_scan_state(root: "Path | None" = None) -> dict:
     except Exception:  # noqa: BLE001
         out["semantic"] = {"error": True}
     # ۶) consolidation
-    try:
-        cur = _read_json(rt / "cortex" / "consolidate-cursor.json")
+    cur = _read_json_safe(rt / "cortex" / "consolidate-cursor.json")
+    if isinstance(cur, dict):
         out["consolidation"] = {
             "last_run": cur.get("ts", ""),
             "n_in": cur.get("n_in", 0),
             "n_semantic": cur.get("n_semantic", 0),
-        } if isinstance(cur, dict) else {"error": True}
-    except Exception:  # noqa: BLE001
+        }
+    else:
         out["consolidation"] = {"error": True}
     return out
 
@@ -977,10 +995,9 @@ def get_agent_log_state(root: "Path | None" = None) -> dict:
 
     تبِ «اسکن‌ها» این داده را می‌خواند. فقط‌خواندنی، content-free (نه diff)."""
     import subprocess
-    out = {"status": "ok", "schema": "agent-log.v1", "ts": _now_iso(), "commits": []}
+    out = {"status": "ok", "schema": "agent-log.v1", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "commits": []}
     try:
-        rt = _runtime(root)  # _ops/state
-        repo = rt.parent.parent  # vault root
+        repo = _OPS.parent  # vault root
         result = subprocess.run(
             ["git", "log", "--oneline", "--no-decorate", "-20",
              "--format=%h|%an|%s|%ci"],

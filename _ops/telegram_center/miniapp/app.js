@@ -111,6 +111,18 @@
   // tabs — ARIA tablist: role="tab" روی هر برگه، roving tabindex، و کیبورد
   // (چپ/راست/Home/End/Enter) — قبلاً فقط کلیک کار می‌کرد.
   var tabs = document.getElementById("tabs");
+  // لایهٔ ۱ — closing guard: هر input با focus = ویرایشِ در حالِ انجام.
+  // یک swipe روی iOS اپ را می‌بندد و داده از دست می‌رود. تلگرام هشدار می‌دهد.
+  // delegate سراسری: ورودی‌ها بعد از render ساخته می‌شوند، پس focus/blur را
+  // روی document گوش می‌دهیم نه روی هر input جداگانه.
+  document.addEventListener("focusin", function(e){
+    var t = e.target;
+    if(t && t.tagName === "INPUT" && t.type === "text"){ enableClosingGuard(true); }
+  });
+  document.addEventListener("focusout", function(e){
+    var t = e.target;
+    if(t && t.tagName === "INPUT" && t.type === "text"){ enableClosingGuard(false); }
+  });
   function activateTab(t){
     if(!t) return;
     [].forEach.call(tabs.children, function(x){
@@ -157,6 +169,45 @@
     }).catch(function(e){ return {ok:false,status:"ERROR",reason:e.message}; });
   }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+  // ── پلِ SDK ِ بومیِ تلگرام ۲۰۲۶ (لایهٔ ۱، ۲۰۲۶-۰۸-۰۸) ──────────────────
+  // اپ تا امروز فقط expand() و HapticFeedback.impactOccurred داشت — ولی
+  // تلگرام MainButton، selectionChanged، و enableClosingConfirmation دارد.
+  // هر سه با feature-detection (نه فرض) گیت می‌شوند: کلاینتِ قدیمی و
+  // حالتِ dev هر دو سالم می‌مانند. یک شکست نباید بقیه را بکشد.
+  // منبع: core.telegram.org/bots/webapps (Bot API 7.10+/8.0+/9.x).
+  function _tgBtn(){
+    // BottomButton در 7.10+ معرفی شد (MainButton نسخهٔ قدیمی‌تر است).
+    // هر دو را می‌آزما — کلاینتِ قدیمی به MainButton می‌رسد.
+    return (tg && (tg.BottomButton || tg.MainButton)) || null;
+  }
+  // هشدارِ لمسی هنگام انتخاب (چیپ/radio/checkbox) — متمایز از impactOccurred.
+  function hapticSelect(){ try{ if(tg && tg.HapticFeedback){ tg.HapticFeedback.selectionChanged(); } }catch(e){} }
+  // تنظیم/پاک‌کردنِ دکمهٔ بومیِ پایین — CTA ِ هر تب.
+  // بدونِ متن = مخفی. هر تب در render خودش این را صدا می‌زند.
+  var _bottomClick = null;
+  function setBottomButton(text, onClick){
+    var btn = _tgBtn();
+    if(!btn){ return; }                       // کلاینتِ قدیمی یا devMode
+    try{
+      if(!text){ btn.hide(); if(_bottomClick){ btn.offClick(_bottomClick); _bottomClick=null; } return; }
+      if(btn.setText){ btn.setText(text); }
+      else if("text" in btn){ btn.text = text; }
+      btn.enable();
+      btn.show();
+      if(_bottomClick){ try{ btn.offClick(_bottomClick); }catch(e){} }
+      _bottomClick = onClick;
+      try{ btn.onClick(_bottomClick); }catch(e){}
+    }catch(e){}
+  }
+  function hideBottomButton(){ setBottomButton("", null); }
+  // بستنِ اپ را هنگام ویرایشِ فرم تأیید می‌گیرد — swipe-to-close هشدار می‌دهد.
+  function enableClosingGuard(on){
+    try{
+      if(on && tg && tg.enableClosingConfirmation){ tg.enableClosingConfirmation(); }
+      else if(tg && tg.disableClosingConfirmation){ tg.disableClosingConfirmation(); }
+    }catch(e){}
+  }
 
   // ── لایهٔ اقدام ───────────────────────────────────────────────────────────
   // ⚠️ هرگز خوش‌بینانه نیست. موتور شش وضع برمی‌گرداند (APPLIED / DUPLICATE /
@@ -1495,6 +1546,7 @@
           var c = e.target.closest(".chip"); if(!c) return;
           [].forEach.call(g.children, function(x){ x.classList.remove("on"); });
           c.classList.add("on");
+          hapticSelect();
         });
       });
       var go = el.querySelector("#veGo");
@@ -1576,6 +1628,7 @@
           var c = e.target.closest(".chip"); if(!c) return;
           [].forEach.call(g.children, function(x){ x.classList.remove("on"); });
           c.classList.add("on");
+          hapticSelect();
         });
       });
       // یادداشتِ لید — ششمین اقدام که تا امروز هیچ صداکننده‌ای نداشت.
@@ -1686,6 +1739,7 @@
           var c = e.target.closest(".chip"); if(!c) return;
           [].forEach.call(g.children, function(x){ x.classList.remove("on"); });
           c.classList.add("on");
+          hapticSelect();
         });
       });
       var go = el.querySelector("#ntGo");
@@ -1697,6 +1751,13 @@
                             kind:(k?k.getAttribute("data-v"):"general"),
                             priority:Number(p?p.getAttribute("data-v"):3)}, go)
           .then(function(r){ if(r && r.ok) renderTasks(el); });
+      });
+      // لایهٔ ۱ — CTA ِ بومی: «+ کارِ تازه»، فرم را باز می‌کند و روی فیلد فوکوس.
+      setBottomButton("＋ کارِ تازه", function(){
+        var det = el.querySelector("details.det");
+        if(det){ det.setAttribute("open",""); }
+        var inp = el.querySelector("#ntTitle");
+        if(inp){ inp.focus(); enableClosingGuard(true); }   // ویرایش = هشدارِ بستن
       });
     });
   }
@@ -1742,6 +1803,18 @@
         }).join("")+'</div>';
       }
       el.innerHTML = html;
+
+      // لایهٔ ۱ — CTA ِ بومیِ تلگرام: وقتی اعلانِ نخوانده هست، دکمهٔ پایین
+      // صفحه «همه رو خواندم» می‌شود. روی کلاینتِ بدونِ SDK بی‌صدا غیب می‌شود.
+      if(unread > 0){
+        setBottomButton("✓ "+fa(unread)+" اعلان رو خواندم", function(){
+          act("notif.mark_read", {all:true}, null).then(function(r){
+            if(r && r.ok) renderNotifications(el);
+          });
+        });
+      } else {
+        hideBottomButton();
+      }
 
       [].forEach.call(el.querySelectorAll(".notifRead"), function(b){
         b.addEventListener("click", function(){
@@ -1855,7 +1928,11 @@
         '<div class="k">تست‌ها</div><div>'+fa(sm.n_tests||0)+'</div>'+
         '<div class="k">مستند‌نشده</div><div>'+fa(sm.undocumented||0)+'</div></div></div>';
       h += '<div class="card"><h2>🩺 دکتر — خودشناسی'+pill(doc.error?'نامعلوم':'نسخه '+fa(doc.version||0), doc.error?'unk':(doc.stable_cycles>5?'ok':doc.stable_cycles>0?'unk':'hot'))+'</h2>'+
-        '<div class="kv"><div class="k">دقتِ خودسنجی</div><div>'+fa(Math.round((doc.self_accuracy||0)*100))+'٪</div>'+
+        '<div class="kv"><div class="k">دقتِ خودسنجی</div><div>'+
+        (typeof doc.self_accuracy === "number"
+          ? fa(Math.round(doc.self_accuracy*100))+'٪'
+          : 'نامعلوم')+
+        '</div>'+
         '<div class="k">سیکل‌های پایدار</div><div>'+fa(doc.stable_cycles||0)+'</div>'+
         '<div class="k">اصلاحاتِ مالک</div><div>'+fa(doc.owner_corrections||0)+'</div></div></div>';
       var pulseColor = pu.error?'unk':(pu.color==='RED'?'hot':pu.color==='AMBER'?'unk':'ok');
@@ -1908,6 +1985,8 @@
   function render(name){
     _renderSeq++;   // stale-fetch guard: هر رندرِ نو توکنِ قبلی را باطل می‌کند
     clearDecisionTimers();
+    hideBottomButton();   // هر تب CTA ِ خودش را ست می‌کند؛ تبِ قبلی پاک شود
+    enableClosingGuard(false);   // تب‌های فقط‌خواندنی هشدارِ بستن لازم ندارند
     var fn = renderers[name];
     if(!fn){
       // FIX (deep-scan 2026-08-07): قبلاً `el` تعریف‌نشده بود → ReferenceError.
