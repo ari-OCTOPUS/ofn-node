@@ -401,6 +401,81 @@ def t_vault_proposals_card_is_fail_soft_when_log_absent():
         vpc.PROPOSALS_LOG = orig
 
 
+# ════════════════════════════════════════════════════════════════════════════════
+# سه کارتِ نو (۲۰۲۶-۰۸-۰۸، موجِ سوم) — defect_queue / code_autonomy / money_fsm
+# ════════════════════════════════════════════════════════════════════════════════
+
+def _assert_card_runs_and_discovered(modname: str):
+    """کمکی: کارت را اجرا می‌کند + تأییدِ کشف توسطِ registry. fail-soft رویِ دفترِ خالی."""
+    sys.path.insert(0, str(_OPS)) if str(_OPS) not in sys.path else None
+    mod = __import__(modname)
+    body = mod.card()
+    assert isinstance(body, str) and body, f"{modname}.card() خالی برگشت"
+    assert "نکنی:" in body, f"{modname}: خطِ پایانیِ استاندارد گم شد"
+    import capability_registry as cr
+    keys = [r["key"] for r in cr.discover(refresh=True)]
+    assert modname in keys, f"{modname} کشف نشد"
+
+
+def t_defect_queue_card_runs_and_is_discovered():
+    """۲۰۲۶-۰۸-۰۸: defect-queue.jsonl حلقهٔ داخلی داشت ولی قابلیتِ رویتیِ مالک نداشت.
+    این کارت اولین سطحِ انسانیِ آن است. قفل: اجرا + کشف."""
+    _assert_card_runs_and_discovered("defect_queue_card")
+
+
+def t_defect_queue_card_is_fail_soft_when_log_absent():
+    """نبودِ فایل ⇒ کارتِ «صفِ خالی»، نه کرش."""
+    import tempfile
+    import defect_queue_card as dq
+    orig = dq.PROPERTIES_LOG
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            dq.PROPERTIES_LOG = Path(td) / "nonexist.jsonl"
+            body = dq.card()
+            assert "خالی" in body, body
+            assert "نکنی:" in body, body
+    finally:
+        dq.PROPERTIES_LOG = orig
+
+
+def t_code_autonomy_card_runs_and_is_discovered():
+    """۲۰۲۶-۰۸-۰۸: code-autonomy-applied.jsonl حلقهٔ داخلی داشت ولی رویتِ مالک نداشت."""
+    _assert_card_runs_and_discovered("code_autonomy_card")
+
+
+def t_code_autonomy_card_is_fail_soft_when_log_absent():
+    """نبودِ فایل ⇒ کارتِ «اقدامی نیست»، نه کرش."""
+    import tempfile
+    import code_autonomy_card as ca
+    orig = ca.APPLIED_LOG
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            ca.APPLIED_LOG = Path(td) / "nonexist.jsonl"
+            body = ca.card()
+            assert "خالی" in body, body
+    finally:
+        ca.APPLIED_LOG = orig
+
+
+def t_money_fsm_card_runs_and_is_discovered():
+    """۲۰۲۶-۰۸-۰۸: money-fsm-violations.jsonl تا حالا صفر خوانندهٔ تولیدی داشت."""
+    _assert_card_runs_and_discovered("money_fsm_card")
+
+
+def t_money_fsm_card_is_fail_soft_when_log_absent():
+    """نبودِ فایل ⇒ کارتِ «تخلفی نیست»، نه کرش."""
+    import tempfile
+    import money_fsm_card as mf
+    orig = mf.FSM_LOG
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            mf.FSM_LOG = Path(td) / "nonexist.jsonl"
+            body = mf.card()
+            assert "ثبت نشده" in body, body
+    finally:
+        mf.FSM_LOG = orig
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]
