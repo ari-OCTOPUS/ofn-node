@@ -49,7 +49,11 @@ SCHEMA = "tg-ask-vault.v1"
 
 MAX_QUESTION = 400
 MAX_SNIPPET_CHARS = 700
-RG_TIMEOUT_S = 20
+# ۲۰۲۶-۰۸-۰۷ (deep-scan): ۲۰ثانیه روی ~۵۴۶۵ نوتِ واقعی، وقتی ایجنت‌های موازی روی
+# دیسک می‌نویسند یا AV در حالِ اسکن است، شکننده بود (تستِ زنده: گاهی ۰.۲s، گاهی
+# timeout). ۴۵s حاشیهٔ امن می‌دهد بدونِ اینکه کاربرِ تلگرام را بیش از حد معطل کند
+# (مسیرِ آینه از قبل تا ۱۲۰s صبر می‌کند). env برای تنظیمِ دستی باقی می‌ماند.
+RG_TIMEOUT_S = float(os.environ.get("OCTOPUS_RG_TIMEOUT_S", "45"))
 NO_ANSWER = "نمی‌دانم — در vault نیست"
 
 # فهرستِ سختِ همیشگی — مستقل از .agentignore، هرگز نرم نمی‌شود.
@@ -64,7 +68,7 @@ _ALWAYS_EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code",
 # (خطای `rg-error`، کلِ مسیرِ ask_vault مرده بود)؛ با اینها ۲۶۷ فایلِ واقعی در
 # ۲.۰ ثانیه. کمربندِ دوم (`_is_excluded`) همان‌ها را دوباره enforce می‌کند.
 _BUILD_EXCLUDE = (".claude", "_build", "_archive-binaries",
-                  "_portable-build")
+                  "_portable-build", "node_modules")
 
 _STOPWORDS = {
     "از", "به", "در", "که", "را", "و", "با", "برای", "این", "آن", "یک", "دو",
