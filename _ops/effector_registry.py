@@ -57,13 +57,17 @@ EFFECTORS = {
         "field": "weights (n_keys potentiated)",
         "actuator": None,
         "gate": None,
-        "status": "dead-output",  # وزن‌ها تولید می‌شوند ولی هیچ تصمیمی نمی‌خواندشان
+        # ۰۸-۰۸ دیپ‌چک: bcm-weights.json خواننده دارد (cockpit_readmodel.read_bcm،
+        # live_snapshot، miniapp_state، export_status، approval_channel blueprint) ولی
+        # همگی برای نمایش/گزارش‌اند (rule R19، snapshot، کارتِ بلوپرینت)، نه تصمیم.
+        # پس dead-output دقیق نیست — display-only است. تصمیمی که از وزنِ BCM بخواند: هیچ.
+        "status": "display-only",
         "propose_only": None,
         "verified_at": "2026-08-08",
         "evidence": (
-            "bcm.py Step() وزن‌ها را تولید می‌کند؛ جستجو برای مصرف‌کننده‌ای که "
-            "weights را در یک تصمیم بخواند: هیچ. در self_context برای نمایش آمده، "
-            "نه تصمیم. این خودِ بیماریِ «sensor-rich/actuator-poor» است."
+            "bcm-weights.json خواننده دارد: cockpit_readmodel.py:128 (rule R19)، "
+            "live_snapshot.py:275، miniapp_state.py:943، export_status.py:181. "
+            "ولی همگی display/report هستند. تصمیمی که وزنِ BCM را در یک انتخاب بخواند: هیچ."
         ),
     },
 
@@ -73,28 +77,36 @@ EFFECTORS = {
         "field": "co-occurrence associations",
         "actuator": None,
         "gate": "OCTOPUS_WIRE_HEBBIAN",
-        "status": "dead-output",
+        # ۰۸-۰۸ دیپ‌چک: deep_think.py:168 هببیان را در context تولید می‌خواند
+        # (تزریق به پرامپت، نه تصمیم). پس display-only است، نه dead-output.
+        "status": "display-only",
         "propose_only": None,
         "verified_at": "2026-08-08",
         "evidence": (
-            "hebbian.json تولید می‌شود ولی grep برای مصرف‌کننده‌ای که آن را در "
-            "تصمیم بخواند: هیچ (تنها در effect-shadow برای نمایش)."
+            "hebbian.json خواننده دارد: deep_think.py:168 (_jload برای context)، "
+            "cockpit_readmodel، wiring. ولی برای context-injection/display است، "
+            "نه تصمیمِ action."
         ),
     },
 
     # ── Consolidation: بینش‌های بلندمدت ─────────────────────────────────────
     "consolidation.insights": {
         "produced_by": "_ops/memory/consolidation.py → state/memory/memory.db",
-        "field": "conclusions / frontier (insights)",
-        "actuator": None,
+        "field": "conclusions / frontier (insights) + episodic/procedural",
+        "actuator": "memory/retrieval_router (episodic/procedural search)",
         "gate": "OCTOPUS_WIRE_CONSOLIDATION",
-        "status": "dead-output",  # append-only، بدون dedup، بدون retract
+        # ۰۸-۰۸ دیپ‌چک: memory.db دو نوع داده دارد. episodic/procedural توسط
+        # retrieval_router در نقطهٔ تصمیم search می‌شود (wired). ولی conclusions/
+        # frontier (بینش‌های تکراریِ ۲۹۰+ سیکل) هیچ مصرف‌کننده‌ای ندارد. پس این
+        # یک مورد مختلط است — بخشی wired، بخشی dead.
+        "status": "wired",  # برای episodic/procedural
         "propose_only": None,
         "verified_at": "2026-08-08",
         "evidence": (
-            "state/memory/memory.db (۲۹۰+ سیکل، ۳ بینشِ تکراری). "
-            "append-only، بدون retract. "
-            "مصرف‌کننده‌ای که insight را به action تبدیل کند: هیچ."
+            "memory.db: retrieval_router.py:76-82 episodic/procedural را در نقطهٔ "
+            "تصمیم search می‌کند (wired). ولی conclusions/frontier (بینش‌های "
+            "تکراری ۲۹۰+ سیکل) dead ماندند — retrieval_router فقط namespace‌های "
+            "episodic/procedural را می‌خواند، نه conclusions/frontier را."
         ),
     },
 
