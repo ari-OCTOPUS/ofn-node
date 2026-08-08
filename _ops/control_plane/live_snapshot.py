@@ -30,12 +30,21 @@ import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-# ریشهٔ repo: این فایل در `_ops/control_plane/` می‌نشیند، پس repo = دو سطح بالاتر.
+# هندسهٔ مسیر (این فایل در `_ops/control_plane/live_snapshot.py` می‌نشیند):
+#   _HERE            = _ops/control_plane/
+#   _HERE.parent     = _ops/                  ← _OPS
+#   _HERE.parent.parent = repo root (vault)   ← _REPO
 # ORG_ROOT قراردادِ سراسریِ ریپوست (همان ریشهٔ vault)؛ _ops = ORG_ROOT/_ops.
-_REPO = Path(os.environ.get("ORG_ROOT", str(_HERE.parent.parent))).resolve()
-_OPS = _REPO / "_ops"
-if not _OPS.exists():           # fallback: محاسبه از مسیرِ فایل (پدرِ پدرِ پدر)
-    _OPS = _HERE.parent.parent
+# VQ-PATH-CONSISTENCY-001 (۲۰۲۶-۰۸-۰۸، دیپ‌اسکن): اگر ORG_ROOT نامعتبر بود، fallback
+# باید هم _OPS و هم _REPO را هماهنگ محاسبه کند (نسخهٔ پیشین _STATE را به مسیرِ
+# نادرست می‌فرستاد). حالا هر دو از همان مبنای فایل محاسبه می‌شوند.
+_ORG_ROOT = Path(os.environ.get("ORG_ROOT", "")).resolve() if os.environ.get("ORG_ROOT") else None
+if _ORG_ROOT and (_ORG_ROOT / "_ops").exists():
+    _REPO = _ORG_ROOT
+    _OPS = _ORG_ROOT / "_ops"
+else:                               # fallback: از مسیرِ فایل، هماهنگ
+    _OPS = _HERE.parent             # _ops/
+    _REPO = _HERE.parent.parent     # repo root
 _STATE = _OPS / "state"
 
 # خروجی‌های مغزِ 4D (consolidation/self-model) — خواندن، نه ساختِ پوشه.
