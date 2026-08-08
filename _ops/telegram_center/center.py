@@ -3431,12 +3431,16 @@ class Center:
             if r.get("ok"):
                 return _ng.card(r["offer"])
             why = {"too-many-open": "دو پیشنهادِ باز داری — اول به آن‌ها جواب بده",
-                   "not-a-paid-brain": "مغزِ گران الان در دسترس نیست",
+                   # ۲۰۲۶-۰۸-۰۷ (deep-scan): همان فیکسِ آینه — not-a-paid-brain
+                   # معمولاً سهمیهٔ روزانهٔ فوگوست (نه خرابی). مذاکره هم tier=primary
+                   # می‌خواهد (negotiate.py:199) و آینه هم؛ هر دو یک سقفِ ۶۰ می‌خورند.
+                   "not-a-paid-brain": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد"
+                                      " (مغزِ گرانم تا نیمه‌شب صبر دارد)",
                    "bad-format": "مغز جوابِ خارج از قرارداد داد — چیزی ثبت نشد",
                    "no-answer": "مغز جواب نداد"}.get(
                        str(r.get("reason") or "").split(":")[0])
             if str(r.get("reason") or "").startswith(("too-soon", "daily-cap")):
-                why = "سهمیهٔ گفتگوی امروز پر است — چند دقیقهٔ دیگر"
+                why = "سهمیهٔ گفتگوی امروز پر است — فردا (ریستِ خودکار) دوباره"
             return f"🤝 الان پیشنهادی ندارم — {why or r.get('reason')}"
         except Exception:  # noqa: BLE001
             return "🤝 مذاکره در دسترس نیست."
