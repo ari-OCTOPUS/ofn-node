@@ -705,9 +705,23 @@ class Doctor:
                 except Exception:  # noqa: BLE001
                     pass
         rfc.status = "merged"
+        # ۲۰۲۶-۰۸-۰۸ (up-6013ab05d7): rollback checkpoint قبل از merge.
+        # یک git tag سبک می‌زند تا اگر merge خراب کرد، owner بتواند برگردد.
+        # پشتِ OCTOPUS_WIRE_MERGE_CHECKPOINT (پیش‌فرض خاموش — fail-soft).
+        checkpoint_tag = ""
+        if os.environ.get("OCTOPUS_WIRE_MERGE_CHECKPOINT") == "1":
+            try:
+                import subprocess as _sp
+                _tag = f"pre-merge/{rfc.rfc_id}"
+                _sp.run(["git", "tag", _tag],
+                        cwd=str(_OPS.parent), capture_output=True, timeout=10)
+                checkpoint_tag = _tag
+            except Exception:  # noqa: BLE001 — checkpoint هرگز merge را نمی‌کشد
+                pass
         rfc.ledger_ref = self._note("DOCTOR_MERGE", {"rfc_id": rfc.rfc_id,
                                                        "behind_flag": True,
-                                                       "knob_applied": knob_applied})
+                                                       "knob_applied": knob_applied,
+                                                       "checkpoint_tag": checkpoint_tag})
         # درسِ آموخته
         try:
             self._knowledge_dir.mkdir(parents=True, exist_ok=True)

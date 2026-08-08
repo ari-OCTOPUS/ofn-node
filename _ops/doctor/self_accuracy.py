@@ -101,12 +101,26 @@ def _actual_legs() -> set:
     elif isinstance(inner, dict):
         names |= set(inner.keys())
     # بازوهای با کلیدِ جدا (ziman/leg/cartographer) — نیمهٔ گمشدهٔ ۰۷-۲۷
-    for k in ("ziman", "leg", "cartographer"):
+    # ⚠️ self_knowledge خط ۲۰۶ این‌ها را به‌نامِ متفاوت گزارش می‌دهد:
+    #   org key "leg" → reported as "lead"
+    # پس این‌جا هم باید به همان نام بشماریم تا drift نگیرد.
+    for k, reported_as in (("ziman", "ziman"), ("leg", "lead"),
+                           ("cartographer", "cartographer")):
         blk = org.get(k)
         if isinstance(blk, dict) and blk:
-            names.add(k)
-    # لایهٔ درونیِ سلامت و ونچر فقط در snapshotِ کامل اضافه می‌شوند؛ این‌جا صرفاً
-    # لِگ‌های واقعیِ state سنجیده می‌شوند تا مقایسه با منابعِ مستقل بماند.
+            names.add(reported_as)
+    # ۲۰۲۶-۰۸-۰۸: self_knowledge خط ۲۲۴ یک leg مصنوعی به نام "system" اضافه می‌کند
+    # برای بخش‌های درونی (heart, cortex, doctor, money و غیره از part-loops-latest).
+    # اگر part-loops-latest وجود دارد، "system" هم بخشی از آناتومیِ گزارش‌شده است.
+    # بدونِ این، self_accuracy همیشه یک drift می‌داد چون "system" را در reported
+    # می‌دید ولی در actual نه.
+    pl_file = opslib.STATE_DIR / "cortex" / "part-loops-latest.json"
+    if pl_file.exists():
+        names.add("system")
+    # ونچر هم اگر پروژهٔ استودیو وجود دارد
+    vp = opslib.ORG_ROOT / "03 - Projects"
+    if vp.exists():
+        names.add("studio_pf")
     return names
 
 

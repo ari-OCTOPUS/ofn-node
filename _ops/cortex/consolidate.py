@@ -165,20 +165,53 @@ def _write_cursor(last_ts: float, stats: dict) -> None:
 
 
 def _make_note(ev: dict, sal: float, now: float) -> dict:
-    """یک نوتِ سِمانتیک (reflection) از یک رویدادِ برجسته — content-free و scrub-شده."""
-    return {
+    """یک نوتِ سِمانتیک (reflection) از یک رویدادِ برجسته — content-free و scrub-شده.
+
+    ۲۰۲۶-۰۸-۰۸ (up-1f41a4499b): memory poisoning guard. قانونِ اساسی §۷ می‌گوید
+    نوتِ created_by:agent باید sources≥2 داشته باشد. این تابع حالا فیلد `sources`
+    (شمارشِ منابعِ مستقل) و `poisoning_risk` را اضافه می‌کند. یک منبعِ مستقل =
+    رویداد با trace_id معتبر، یا approval_state=approved، یا owner Correlation.
+    بدونِ منبعِ مستقل = poisoning_risk بالاتر."""
+    trace_id = str(ev.get("trace_id", "") or "")
+    approval = str(ev.get("approval_state", "") or "")
+    corr = str(ev.get("correlation_id", "") or "")
+    # شمارشِ منابعِ مستقل (هرکدام یک شاهدِ جداگانه)
+    sources_count = 0
+    if trace_id and trace_id != "0" * len(trace_id):
+        sources_count += 1
+    if approval in ("approved", "denied", "rejected"):
+        sources_count += 1
+    if corr and corr.startswith("oct-"):
+        sources_count += 1
+    # poisoning_risk: نوتِ agent-made بدونِ منبعِ مستقل
+    agent_id = str(ev.get("agent_id", "") or "")
+    is_agent = agent_id and agent_id != SELF_AGENT and "self-heal" not in agent_id
+    poisoning_risk = "high" if (is_agent and sources_count == 0) else (
+                     "medium" if (is_agent and sources_count == 1) else "low")
+    note = {
         "ts": opslib.now_iso(), "schema": "semantic-memory.v1", "kind": "reflection",
         "source_ts": ev.get("timestamp", ""),
         "source_agent": _scrub(ev.get("agent_id", ""), 40),
         "source_event": str(ev.get("event_name", ""))[:40],
-        "trace_id": str(ev.get("trace_id", ""))[:40],
+        "trace_id": trace_id[:40],
         "salience": round(sal, 4),
         "recency": round(_recency(ev, now), 4),
         "importance": round(_importance(ev), 4),
         "relevance": round(_relevance(ev), 4),
         "gist": _scrub(ev.get("summary", ""), 180),
         "next_action": _scrub(ev.get("next_action", ""), 120),
+        # ۲۰۲۶-۰۸-۰۸: memory poisoning guard (up-1f41a4499b)
+        "sources_count": sources_count,
+        "poisoning_risk": poisoning_risk,
     }
+    # اگر poisoning_risk بالاست، هشدار بده (ولی نوت را حذف نکن — §۱: هرگز حذف)
+    if poisoning_risk == "high":
+        try:
+            opslib.alert([f"memory-poisoning-risk: نوتِ agent-made بدونِ منبعِ مستقل "
+                          f"(agent={_scrub(agent_id, 30)}, event={ev.get('event_name','')})"])
+        except Exception:  # noqa: BLE001
+            pass
+    return note
 
 
 def consolidate_once(now: float | None = None) -> dict:

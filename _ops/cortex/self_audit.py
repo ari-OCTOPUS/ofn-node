@@ -122,8 +122,15 @@ def _probe_memory_librarian():
 
 def _probe_memory_poisoning():
     # آیا self-generated false canon مانیتور می‌شود؟ created_by:agent + sources≥2 قانون هست
-    ok = _grep(OPS.parent / "_PROJECT_INSTRUCTIONS.md", "created_by: agent")
-    return _item("memory poisoning / false-canon guard", "Partial" if ok else "Missing",
+    # ۲۰۲۶-۰۸-۰۸ (up-1f41a4499b): consolidate.py حالا poisoning_risk + sources_count
+    # می‌سازد و هشدار می‌دهد. گیتِ فعال در کد، نه فقط در قانون.
+    guard = _grep(OPS / "cortex" / "consolidate.py", "poisoning_risk")
+    if guard:
+        return _item("memory poisoning / false-canon guard", "Done",
+                     "consolidate._make_note: sources_count + poisoning_risk + alert "
+                     "on high-risk agent notes without independent sources (§7)",
+                     "P1", "governance", "§6 memory")
+    return _item("memory poisoning / false-canon guard", "Missing",
                  "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
                  "P1", "governance", "§6 memory")
 
@@ -196,6 +203,13 @@ def _probe_change_leveling():
 
 def _probe_rollback():
     ok = _grep(OPS / "doctor" / "doctor.py", "rollback") or _grep(OPS / "doctor" / "evolution.py", "measured_lift")
+    # ۲۰۲۶-۰۸-۰۸ (up-6013ab05d7): git checkpoint tag قبل از merge پیاده شد.
+    checkpoint = _grep(OPS / "doctor" / "doctor.py", "OCTOPUS_WIRE_MERGE_CHECKPOINT")
+    if ok and checkpoint:
+        return _item("rollback path before apply", "Done",
+                     "RFC.rollback field + measured_lift drop<0.05 + git tag "
+                     "pre-merge (OCTOPUS_WIRE_MERGE_CHECKPOINT)",
+                     "P1", "governance", "§10 self-modify")
     return _item("rollback path before apply", "Partial" if ok else "Missing",
                  "RFC.rollback field + measured_lift drop<0.05 + git tags (pre-merge)",
                  "P1", "governance", "§10 self-modify")
@@ -319,6 +333,14 @@ def _probe_agent_graph():
 
 
 def _probe_drift():
+    # ۲۰۲۶-۰۸-۰۸ (up-ae4a7476a9): drift_metric.py ساخته شد — coherence/velocity
+    # trend با windowed average و drift detection.
+    mod = _grep(OPS / "cortex" / "drift_metric.py", "drifting")
+    if mod:
+        return _item("drift over time measured", "Done",
+                     "drift_metric.compute(): windowed coherence trend + slope + "
+                     "drifting flag + alert on persistent decline",
+                     "P2", "observability", "§16 time-loops")
     return _item("drift over time measured", "Missing",
                  "none — drift-metric صریح (coherence/velocity trend) هنوز نیست (کاندید improve.py)",
                  "P2", "observability", "§16 time-loops")
