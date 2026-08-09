@@ -28,6 +28,14 @@ updated: 2026-08-09
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-09 ظهر (agent — اجرایِ مگاپرامپتِ تناقضات، رأیِ صریحِ
+  مالک، ۹ آیتم).** کامیت `25931b9`: capabilities.card() وایر شد، سه ماژول
+  DEPRECATED شدند (governor.py/event-taxonomy-v1/approval_queue_unified)،
+  دکمهٔ «🪞 حرف بزن» به منویِ اصلی اضافه شد (mutation-tested). دو مورد عمداً
+  رد شد چون رأیِ جدا لازم دارند (approval_channel_merge.py، noop-probe).
+  دکمهٔ آینه هنوز نیازِ `RESTART-PROCESS.ps1 center` دارد (دستِ مالک).
+  جزئیاتِ کامل: [[../../01 - Dashboard/HANDOFF|HANDOFF]].
+
 - تغییرات اخیر: **2026-08-09 صبح (agent — تشخیصِ باگِ کنترل‌پنل + soak-test واقعیِ
   ۱۶۰دقیقه‌ای).** ریشهٔ «کنترل‌پنل بالا نمی‌آید»: ~۶h خوابِ لپ‌تاپ کشتِ هر ۵ پروسه
   + تونل؛ `OCTOPUS-MiniApp-Watchdog` (هر ۱۰ دقیقه) خودش قبل از رسیدنِ من احیا کرده
