@@ -19,10 +19,10 @@ happens to the row.
 from __future__ import annotations
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.products import ProductError, ProductStore
+from tests.tmpdir import temp_dir
 
 FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
                labour_hours_field="", labour_rate_field="")
@@ -31,7 +31,7 @@ JAN = "2026-01-10T09:00:00Z"
 
 class Base(unittest.TestCase):
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = temp_dir(self)
         self.path = os.path.join(self.dir, "p.sqlite")
         self.s = self.open()
 

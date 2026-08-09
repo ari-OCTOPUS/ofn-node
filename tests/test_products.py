@@ -12,7 +12,6 @@ of lie somebody re-prices a piece because of.
 """
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.packloader import load_pack
@@ -21,6 +20,7 @@ from ofn.adapters.products import (CHANNELS, LOSES_MONEY,
                                    STATES, ProductError, ProductStore,
                                    channel_fee, cogs_for, net_margin_aud,
                                    verdicts)
+from tests.tmpdir import temp_dir
 
 JAN = "2026-01-10T09:00:00Z"
 FEB = "2026-02-10T09:00:00Z"
@@ -42,7 +42,7 @@ FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
 
 class Base(unittest.TestCase):
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = temp_dir(self)
         self.path = os.path.join(self.dir, "products.db")
         self.s = ProductStore(self.path, **FORMULA)
         self.addCleanup(self.s.close)

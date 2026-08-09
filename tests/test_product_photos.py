@@ -18,7 +18,6 @@ from __future__ import annotations
 import base64
 import json
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.facts import FactStore
@@ -35,6 +34,7 @@ from ofn.kernel.errors import FailClosedError
 from ofn.kernel.photos import relative_path
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
+from tests.tmpdir import temp_dir
 
 NOW_S = 1_785_000_000
 NOW_ISO = "2026-08-05T09:00:00Z"
@@ -68,7 +68,7 @@ class TestTheSkuBecomesAPath(unittest.TestCase):
 
 class Base(unittest.TestCase):
     def setUp(self):
-        d = tempfile.mkdtemp()
+        d = temp_dir(self)
         pack = load_pack("packs/ziman.yaml")
         registry = TenantRegistry({"ziman": pack})
         self.ledger = Ledger(os.path.join(d, "l.sqlite"))

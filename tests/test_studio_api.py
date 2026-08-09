@@ -12,7 +12,6 @@ from __future__ import annotations
 import base64
 import json
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.consent_store import ConsentStore
@@ -28,6 +27,7 @@ from ofn.kernel.auth import issue_session
 from ofn.kernel.domain import RiskTier
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
+from tests.tmpdir import temp_dir
 
 NOW_S = 1_785_000_000
 NOW_ISO = "2026-08-05T09:00:00Z"
@@ -44,7 +44,7 @@ RENDITIONS = {"1600": "data:image/jpeg;base64," + IMG,
 
 class Base(unittest.TestCase):
     def setUp(self):
-        d = tempfile.mkdtemp()
+        d = temp_dir(self)
         pack = load_pack("packs/studio.yaml") if os.path.exists(
             "packs/studio.yaml") else load_pack("packs/ziman.yaml")
         self.tenant = pack.tenant.value

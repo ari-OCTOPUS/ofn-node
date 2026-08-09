@@ -7,10 +7,10 @@ preferred over shared.
 """
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.studio_assistant import StudioAssistantStore
+from tests.tmpdir import temp_dir
 
 
 class _FakeShared:
@@ -26,7 +26,7 @@ class _FakeShared:
 
 class TestSharedFallback(unittest.TestCase):
     def setUp(self):
-        self._d = tempfile.mkdtemp()
+        self._d = temp_dir(self)
 
     def _store(self, shared=None):
         return StudioAssistantStore(os.path.join(self._d, "a.sqlite"),

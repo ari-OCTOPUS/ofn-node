@@ -13,6 +13,7 @@ import os
 import tempfile
 import unittest
 import urllib.request
+from unittest import mock
 
 from ofn.adapters import alert
 
@@ -91,7 +92,37 @@ class TestNoCrash(unittest.TestCase):
         self.assertTrue(out["ok"])
 
     def test_main_returns_zero(self):
-        self.assertEqual(alert.main(["ofn", "crashed"]), 0)
+        """`main` composes the alert and exits clean — without alerting.
+
+        This test used to call `alert.main(["ofn", "crashed"])` for real.
+        `main` calls `notify(text)` with no `log_path`, so the default applied:
+        `~/.local/share/ofn/service-alerts.log`, the operator's live alert log
+        on this board. Every suite run appended a fabricated "service 'ofn'
+        crashed" line to it — twelve of them on 2026-08-09 alone, while the
+        service had in fact been up for 21 hours. The one file whose whole
+        job is to say something broke was being filled in by the tests.
+
+        Nothing was ever sent: `notify` only reaches Telegram when
+        `OFN_ALERT_TELEGRAM` is exactly "1", and it is set nowhere on this
+        node. Had it been set, this test would have sent a real message
+        announcing a crash that had not happened.
+
+        `notify` is patched rather than pointed at a temp file because its
+        `log_path` default is bound at import; the other tests in this file
+        cover the real logging path with a path they own.
+        """
+        seen = {}
+
+        def fake_notify(text, **kwargs):
+            seen["text"] = text
+            seen["kwargs"] = kwargs
+            return {"ok": True, "logged": True, "telegram": "disabled"}
+
+        with mock.patch.object(alert, "notify", fake_notify):
+            self.assertEqual(alert.main(["ofn", "crashed"]), 0)
+
+        self.assertIn("ofn", seen["text"])
+        self.assertIn("crashed", seen["text"])
 
 
 if __name__ == "__main__":

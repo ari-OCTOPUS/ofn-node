@@ -14,7 +14,6 @@ end-to-end outbox path is exercised the same way the live service runs it.
 
 import json
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.facts import FactStore
@@ -27,6 +26,7 @@ from ofn.kernel.auth import issue_session
 from ofn.kernel.domain import RiskTier
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
+from tests.tmpdir import temp_dir
 
 NOW_S = 1_800_000_000
 NOW_ISO = "2026-08-07T00:00:00Z"
@@ -43,7 +43,7 @@ def registry():
 
 class _Base(unittest.TestCase):
     def setUp(self):
-        self._d = tempfile.mkdtemp()
+        self._d = temp_dir(self)
         d = self._d
         self.outbox = Outbox(os.path.join(d, "o.sqlite"))
         self.ledger = Ledger(os.path.join(d, "l.sqlite"))

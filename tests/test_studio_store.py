@@ -20,7 +20,6 @@ reason this file exists before anything uses it.
 from __future__ import annotations
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.studio_store import StudioError, StudioStore
@@ -29,6 +28,7 @@ from ofn.kernel.advisor_gate import (
     assert_no_pixels, may_send_image,
 )
 from ofn.kernel.errors import FailClosedError
+from tests.tmpdir import temp_dir
 
 NOW = 1_785_000_000
 HOUR = 3600
@@ -37,7 +37,7 @@ SHA = "b" * 64
 
 class Store(unittest.TestCase):
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = temp_dir(self)
         self.path = os.path.join(self.dir, "studio.sqlite")
         self.s = StudioStore(self.path)
         self.addCleanup(self.s.close)

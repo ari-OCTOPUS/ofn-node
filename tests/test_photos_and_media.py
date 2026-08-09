@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import base64
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.media import MediaStore
@@ -26,6 +25,7 @@ from ofn.kernel.errors import FailClosedError
 from ofn.kernel.photos import (
     ALLOWED_EDGES, MAX_DECODED_BYTES, inspect, piece_prefix, relative_path,
 )
+from tests.tmpdir import temp_dir
 
 PNG = base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"x" * 64).decode()
 PAY = inspect(PNG)
@@ -33,7 +33,7 @@ PAY = inspect(PNG)
 
 class Disk(unittest.TestCase):
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = temp_dir(self)
         self.m = MediaStore(os.path.join(self.dir, "media"))
 
     def put(self, tenant="studio", piece="d1", position=0, edge=1600,

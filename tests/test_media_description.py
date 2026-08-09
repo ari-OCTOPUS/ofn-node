@@ -23,6 +23,7 @@ from ofn.adapters.studio_store import (
     EARLIEST_PLAUSIBLE_EPOCH_S, MAX_NOTE, MAX_RATING, MIGRATIONS, SCHEMA,
     StudioError, StudioStore,
 )
+from tests.tmpdir import temp_dir
 
 NOW = 1_785_000_000
 
@@ -229,7 +230,7 @@ class TestTheNodeClampsAClockItDoesNotOwn(unittest.TestCase):
         from ofn.kernel.tenancy import TenantRegistry
         from ofn.node import Node
 
-        d = tempfile.mkdtemp()
+        d = temp_dir(self)
         pack = load_pack("packs/studio.yaml")
         registry = TenantRegistry({pack.tenant.value: pack})
         stores = [Ledger(os.path.join(d, "l.sqlite")),

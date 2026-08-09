@@ -13,7 +13,6 @@ it every day.
 
 import json
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.facts import FactStore
@@ -25,6 +24,7 @@ from ofn.adapters.products import ProductStore
 from ofn.kernel.auth import issue_session
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
+from tests.tmpdir import temp_dir
 
 NOW_S = 1_785_000_000
 NOW_ISO = "2026-08-04T09:00:00Z"
@@ -40,7 +40,7 @@ PIECE = {"name": "گوشوارهٔ نقره", "materials_cost_aud": 77.5,
 
 class Base(unittest.TestCase):
     def setUp(self):
-        d = tempfile.mkdtemp()
+        d = temp_dir(self)
         pack = load_pack("packs/ziman.yaml")
         self.pack = pack
         registry = TenantRegistry({"ziman": pack})

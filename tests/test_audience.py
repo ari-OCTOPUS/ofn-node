@@ -13,7 +13,6 @@ failed to convert in seven days; they have not had seven days.
 from __future__ import annotations
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.audience_store import AudienceError, AudienceStore
@@ -22,6 +21,7 @@ from ofn.kernel.audience import (
     first_window_conversion, gone_quiet, ownership_ratio, ownership_trend,
     revenue_mix, value_by_channel,
 )
+from tests.tmpdir import temp_dir
 
 NOW = 1_785_000_000
 
@@ -188,7 +188,7 @@ class TestRevenueMix(unittest.TestCase):
 
 class Store(unittest.TestCase):
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = temp_dir(self)
         self.path = os.path.join(self.dir, "aud.sqlite")
         self.s = AudienceStore(self.path)
         self.addCleanup(self.s.close)

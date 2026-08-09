@@ -19,7 +19,6 @@ That question either has an answer or it never will.
 from __future__ import annotations
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.consent_store import ConsentError, ConsentStore
@@ -28,6 +27,7 @@ from ofn.kernel.consent import (
     subjects_needing_attention,
 )
 from ofn.kernel.errors import FailClosedError
+from tests.tmpdir import temp_dir
 
 NOW = 1_785_000_000
 DAY = 86_400
@@ -229,7 +229,7 @@ class TestScope(unittest.TestCase):
 
 class Store(unittest.TestCase):
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = temp_dir(self)
         self.s = ConsentStore(os.path.join(self.dir, "consent.sqlite"))
         self.addCleanup(self.s.close)
 

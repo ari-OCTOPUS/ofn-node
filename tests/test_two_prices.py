@@ -10,11 +10,11 @@ ignore warnings.
 """
 
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.products import (LOSES_MONEY, STALE, ProductStore,
                                    money_view, net_margin_aud, verdicts)
+from tests.tmpdir import temp_dir
 
 JAN = "2026-01-10T09:00:00Z"
 # No labour term: the two time questions were removed, so a piece costs what
@@ -32,7 +32,7 @@ COST80 = {"name": "گوشواره", "materials_cost_aud": 77.5,
 class Base(unittest.TestCase):
     def setUp(self):
         self.s = ProductStore(
-            os.path.join(tempfile.mkdtemp(), "p.db"), **FORMULA)
+            os.path.join(temp_dir(self), "p.db"), **FORMULA)
         self.addCleanup(self.s.close)
 
     def make(self, **over):
@@ -149,7 +149,7 @@ class TestGstMovesTheVerdict(unittest.TestCase):
     between "healthy" and "losing money"."""
 
     def setUp(self):
-        self.s = ProductStore(os.path.join(tempfile.mkdtemp(), "p.db"),
+        self.s = ProductStore(os.path.join(temp_dir(self), "p.db"),
                               **FORMULA)
         self.addCleanup(self.s.close)
         # cost $80, listed $86

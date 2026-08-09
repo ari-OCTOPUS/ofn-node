@@ -34,9 +34,26 @@ def jpeg(width: int, height: int, *, marker: int = 0xC0) -> bytes:
     return bytes.fromhex("ffd8") + app0 + sof + bytes.fromhex("ffd9")
 
 
+# `write` is a module-level helper with no test case to hand ownership to, and
+# it is called once per assertion — so a `mkdtemp` per call leaked a directory
+# per assertion. One directory for the module, torn down with it, and a unique
+# name per file inside it.
+_TMP: tempfile.TemporaryDirectory | None = None
+
+
+def setUpModule() -> None:
+    global _TMP
+    _TMP = tempfile.TemporaryDirectory()
+
+
+def tearDownModule() -> None:
+    if _TMP is not None:
+        _TMP.cleanup()
+
+
 def write(data: bytes) -> str:
-    path = os.path.join(tempfile.mkdtemp(), "t.jpg")
-    with open(path, "wb") as fh:
+    fd, path = tempfile.mkstemp(suffix=".jpg", dir=_TMP.name)
+    with os.fdopen(fd, "wb") as fh:
         fh.write(data)
     return path
 

@@ -15,7 +15,6 @@ Three contracts:
 
 import json
 import os
-import tempfile
 import unittest
 
 from ofn.adapters.consent_store import ConsentStore
@@ -30,6 +29,7 @@ from ofn.kernel.auth import issue_session
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
 from ofn.adapters.packloader import load_pack
+from tests.tmpdir import temp_dir
 
 
 HOST = {"host": "st.test"}
@@ -40,7 +40,7 @@ SABA = "4242"
 
 class _Base(unittest.TestCase):
     def setUp(self):
-        d = tempfile.mkdtemp()
+        d = temp_dir(self)
         pack = load_pack("packs/studio.yaml") if os.path.exists(
             "packs/studio.yaml") else load_pack("packs/ziman.yaml")
         self.tenant = pack.tenant.value
