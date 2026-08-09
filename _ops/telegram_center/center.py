@@ -3614,7 +3614,13 @@ class Center:
         # نمی‌شود. هر جمله مستقیم به لایهٔ خودشناسی می‌رود، با تاریخچهٔ گفتگو و
         # تصحیح‌های ثبت‌شدهٔ مالک. جای دیگری از بات عوض نمی‌شود؛ flag خاموش یا
         # هر شکست → مسیرِ عادیِ پایین، بایت‌به‌بایت.
-        if self._topic_key(msg) == "mirror":
+        # ۲۰۲۶-۰۸-۰۹ (ب-۹): دکمهٔ منو (`mn:mr`) هم همین مسیر را باز می‌کند —
+        # پرچمِ awaiting فقط یک پیام مصرف می‌شود (مثلِ _awaiting_counter بالا)،
+        # وگرنه هر پیامِ بعدیِ مالک در همان چت برای همیشه به آینه می‌رفت.
+        _via_button = bool(getattr(self, "_awaiting_mirror", False))
+        if _via_button:
+            self._awaiting_mirror = False
+        if _via_button or self._topic_key(msg) == "mirror":
             try:
                 import mirror_room as _mr
                 # ۲۰۲۶-۰۸-۰۳ (لِینِ مغز): `mirror_room.ask` هم `tier="primary"`
@@ -4028,6 +4034,20 @@ class Center:
                 return r.render_power(p_on, s)
             if name == "fl" and pw:
                 return r.render_flags({n: pw.flag_state(n) for n in pw.FLAG_MENU})
+            if name == "mr":
+                # ۲۰۲۶-۰۸-۰۹ (مگاپرامپتِ تناقضات، ب-۹): ورودیِ دکمه‌ایِ mirror_room.
+                # فقط پرامپت می‌دهد و پرچمِ awaiting را می‌گذارد؛ خودِ پاسخ از
+                # همان مسیرِ زندهٔ تاپیک-محور در _handle_ask می‌آید (صفر
+                # reimplementation، دقیقاً مثلِ POST /api/mirror ِ کنترل‌پنل).
+                try:
+                    import mirror_room as _mr
+                    if not _mr.enabled():
+                        return ("🪞 اتاقِ آینه الان خاموش است (پشتِ فلگ).", back)
+                except Exception:  # noqa: BLE001
+                    return ("🪞 اتاقِ آینه در دسترس نیست.", back)
+                self._awaiting_mirror = True
+                return ("🪞 بگو — گوش می‌دهم. پیامِ بعدی‌ات مستقیم به آینه می‌رود.",
+                        back)
         except Exception:  # noqa: BLE001
             pass
         try:

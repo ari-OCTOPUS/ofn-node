@@ -40,6 +40,38 @@ import telemetry   # noqa: E402
 EPOCH_DIR = opslib.BUDGET_DIR / "epochs"
 BASE_MIN_DEFAULT = 60.0     # پایهٔ آرام؛ آلوستاتیک بین base/4 و base*2 حرکت می‌کند
 PRESSURE_GAIN = 0.75
+EPOCH_RETENTION_DAYS = 30   # ۲۰۲۶-۰۸-۰۹ (مگاپرامپتِ تناقضات، ب-۱۲): ۷۰۱ فایلِ
+                            # shadow تا امروز — حجم بی‌سقف، نه enforcement‌ای دارد
+                            # نه مصرف‌کنندهٔ فایلِ تک‌تک؛ فقط رشدِ دیسک است.
+                            # فرکانسِ epoch دست‌نخورده می‌ماند (تغییرِ granularity
+                            # ارزشِ رصدی را کم می‌کرد)؛ فقط فایل‌های قدیمی‌تر از
+                            # این‌قدر روز به‌جای پاک‌شدن **منتقل** می‌شوند —
+                            # قاعدهٔ ۱ منشور («هرگز حذف نکن؛ فقط منتقل کن») حتی
+                            # برایِ فایلِ عملیاتی هم رعایت شد؛ این فایل‌ها اصلاً
+                            # git-tracked نیستند (۶۰۶ ??  در status)، پس حذف
+                            # واقعاً برگشت‌ناپذیر بود.
+EPOCH_ARCHIVE_DIRNAME = "_archive"
+
+
+def _prune_old_epochs(days: int = EPOCH_RETENTION_DAYS) -> int:
+    """فایل‌هایِ epoch-*.json قدیمی‌تر از `days` روز را به `EPOCH_DIR/_archive/`
+    منتقل می‌کند (نه حذف — این فایل‌ها git-tracked نیستند). fail-soft: هر خطا
+    بی‌صدا نادیده گرفته می‌شود — آرشیو هرگز نباید نوشتنِ epoch را بشکند."""
+    moved = 0
+    try:
+        cutoff = dt.datetime.now().timestamp() - days * 86400
+        archive_dir = EPOCH_DIR / EPOCH_ARCHIVE_DIRNAME
+        for p in EPOCH_DIR.glob("epoch-*.json"):
+            try:
+                if p.stat().st_mtime < cutoff:
+                    archive_dir.mkdir(parents=True, exist_ok=True)
+                    p.rename(archive_dir / p.name)
+                    moved += 1
+            except OSError:
+                continue
+    except OSError:
+        pass
+    return moved
 
 # P4 (truth-map 2026-07-17): گاورنر-LLM هر epoch اجرا می‌شود؛ یک شرطِ ثابتِ پیکربندی
 # (مثلِ قیمتِ قفل‌نشدهٔ DeepSeek → PriceNotLocked) نباید ساعتی همان ⚠️ را اسپم کند
@@ -629,6 +661,7 @@ def run_epoch(base_min: float = BASE_MIN_DEFAULT) -> dict:
     EPOCH_DIR.mkdir(parents=True, exist_ok=True)
     fname = EPOCH_DIR / ("epoch-" + dt.datetime.now().strftime("%Y%m%dT%H%M%S%f") + ".json")
     fname.write_text(json.dumps(record, ensure_ascii=False, indent=2), "utf-8")
+    _prune_old_epochs()
     opslib.ledger_note("ALLOCATION_SHADOW", {
         "pressure": pres["pressure"], "next_epoch_minutes": record["next_epoch_minutes"],
         "spent_month_aud": snap["month"]["aud"], "conflicts": len(conflicts),

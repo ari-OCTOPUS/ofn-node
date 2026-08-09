@@ -208,5 +208,25 @@ def effects(limit: int = 20) -> list:
     return out
 
 
+def card() -> str:
+    """کارتِ effects — «از وقتی مالک تأیید کرد، چه کاری واقعاً انجام شد؟»
+
+    وایرینگِ ب-۴ (مگاپرامپتِ ۲۰۲۶-۰۸-۰۹): تا امروز `effects()` وجود داشت ولی
+    هیچ card() ای برای کشفِ خودکارِ `capability_registry.discover()` نداشت —
+    یعنی این پاسخ از تلگرام دیده نمی‌شد. صفر ردیف هم خودش جواب است، نه سکوت."""
+    rows = effects(limit=5)
+    if not rows:
+        return ("🧾 <b>صفر اثرِ ثبت‌شده</b>\n"
+                 "▸ هیچ قابلیتی هنوز از این ماژول استفاده نکرده — "
+                 "خودش هم یک یافته است، نه سکوت.")
+    lines = [f"🧾 <b>{len(rows)} اثرِ اخیر</b>"]
+    for r in reversed(rows):
+        mark = "✅" if r.get("ok") else "❌"
+        cap = str(r.get("capability") or "؟")[:40]
+        act = str(r.get("action") or "")[:60]
+        lines.append(f"{mark} {cap} — {act}")
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     print(json.dumps(status(), ensure_ascii=False, indent=2))

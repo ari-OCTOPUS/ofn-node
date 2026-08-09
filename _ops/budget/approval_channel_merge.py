@@ -4,6 +4,13 @@ ORPHAN 2026-07-16 → REVIVED 2026-08-02: path mismatch fixed (paused.flag → d
 4D brain APIs all verified present (self_code, budget, frontier, research_agenda, self_growth, events).
 Zero live callers remains — wiring into _ops telegram launch chain is the next step (see Track B plan).
 
+⚠️ تناقضِ باز (۲۰۲۶-۰۸-۰۹، مگاپرامپتِ تناقضات، آیتمِ ب-۱۱): سوالِ اصلی این دو
+فایل را با هم توصیه کرد retire شوند چون approval_channel.py کافی است. ولی
+این فایل خودش دو خطِ بالا را دارد — «REVIVED» + «next step» — یعنی یک Track B
+plan فعال ممکن است پشتش باشد که من دسترسی بهش ندارم. **به‌عمد deprecated
+اعلام نشد** برخلافِ approval_queue_unified.py؛ قبل از هر تصمیمی، وجود/وضعیتِ
+Track B plan را از مالک بپرس.
+
 approval_channel_merge.py — پلِ ادغامِ کانالِ تأییدِ _ops با مغزِ 4d_system.
 
 هدف: یک Unified Approval Channel بسازد که هر دو دنیا (_ops governance + 4d_system brain)

@@ -600,7 +600,12 @@ def render_menu(power: bool = False, feeds: dict | None = None,
                [{"text": "🗺 نقشه‌برداری", "callback_data": "mn:map"},
                 {"text": "📮 صف تأیید", "callback_data": "mn:ap"}],
                [{"text": "🧬 مأموریت‌ها", "callback_data": "mn:ms"},
-                {"text": "⚙️ سیستم", "callback_data": "mn:sy"}]])
+                {"text": "⚙️ سیستم", "callback_data": "mn:sy"}],
+               # ۲۰۲۶-۰۸-۰۹ (مگاپرامپتِ تناقضات، ب-۹): mirror_room کاملاً سیم‌کشی
+               # بود ولی فقط از طریقِ تاپیکِ "mirror" قابلِ‌دسترس بود — مالک دکمه‌محور
+               # است نه متن/تاپیک-محور (تأییدِ فازِ ۵). این دکمه همان مسیرِ زندهٔ
+               # مکالمه را از منوی اصلی هم باز می‌کند.
+               [{"text": "🪞 حرف بزن", "callback_data": "mn:mr"}]])
     return scrub(text), kb
 
 

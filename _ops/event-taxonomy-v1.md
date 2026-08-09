@@ -8,6 +8,12 @@ convention: organ.domain.action (3-segment dot notation)
 
 # Octopus Event Taxonomy v1
 
+> ⚠️ **DEPRECATED (2026-08-09, contradiction megaprompt item ب-۱۰).** Two
+> incompatible event-logging systems existed side by side; only `events.py`
+> (`_ops/events.py`) is live today. This file is kept for historical
+> reference only — do not add new events here, do not build a new logger
+> against this taxonomy. Use `events.py` directly.
+
 > Locked namespace. Every `event` field in log events MUST match one of these.
 > New events require schema minor bump (1.x.0). Renames require major bump (2.0.0).
 
