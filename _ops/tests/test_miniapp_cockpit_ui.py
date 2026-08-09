@@ -69,6 +69,7 @@ ENV = harness.setup("miniapp-cockpit-ui")   # قبل از هر importی که sta
 MINIAPP = _HERE.parent / "telegram_center" / "miniapp"
 APP_JS = MINIAPP / "app.js"
 INDEX_HTML = MINIAPP / "index.html"
+GATEWAY_PY = _HERE.parent / "telegram_center" / "miniapp_gateway.py"
 STYLE_CSS = MINIAPP / "style.css"
 
 # ── لنگرهای یکتا ────────────────────────────────────────────────────────────
@@ -162,7 +163,13 @@ function harvest(html){
 const indexHtml = fs.readFileSync(INDEX, "utf8");
 harvest(indexHtml);
 const tabsEl = ensure("tabs");
-const tabRe = /<div class="tab([^"]*)" data-tab="([^"]+)">([^<]*)<\/div>/g;
+// ⚠️ ۲۰۲۶-۰۸-۰۹: قبلاً `data-tab="X">` را می‌خواست — یعنی بلافاصله بعد از
+// data-tab باید `>` می‌آمد. فازِ ARIA-tablist (role/id/aria-selected/
+// aria-controls/tabindex بینِ data-tab و `>`) این را برای **هر نُه** تب
+// شکسته بود؛ tabsEl.children خالی می‌ماند و هر clickTab بعدی روی
+// `undefined.closest` کرش می‌کرد — باگِ زیرساختِ تست، نه app.js/index.html
+// واقعی (که ARIA عمداً و تست‌شده آن‌جاست).
+const tabRe = /<div class="tab([^"]*)" data-tab="([^"]+)"[^>]*>([^<]*)<\/div>/g;
 let tm;
 while((tm = tabRe.exec(indexHtml)) !== null){
   const el = new El("", "tab" + tm[1]);
@@ -422,8 +429,12 @@ def t_c_panel_guard_never_lets_bad_or_missing_data_render_as_healthy():
     نمی‌شود») امروز در یک گاردِ **مشترک** برای همهٔ پنل‌های تازه متمرکز شده:
     `panelGuard()`. این تست همان قاعده را روی خودِ گارد می‌سنجد — ارزان‌تر
     از اجرای Node با فیکسچرهای per-endpoint، و چون یک گاردِ واحد است (نه ده
-    وصلهٔ موردی)، یک تست کلِ چهار مسیرِ مصرف‌کننده‌اش (brain/governor/
-    obsidian/registry) را می‌پوشاند."""
+    وصلهٔ موردی)، یک تست کلِ پنج مسیرِ مصرف‌کننده‌اش (brain/governor/
+    obsidian/registry/legs) را می‌پوشاند.
+
+    ⚠️ ۲۰۲۶-۰۸-۰۹: `renderLegs` تا امروز از این گارد رد نمی‌شد — با
+    `/api/legs` ِ status:"unknown" (business_legs گم) قرصِ «۰ از ۰» با تُنِ
+    live (سبز) می‌ساخت. اضافه شد تا این فایل دوباره پنج‌تایی را بپوشاند."""
     s = src(APP_JS)
     m = re.search(r"function panelGuard\(title, d\)\{(.*?)\n  \}", s, re.S)
     assert m, "panelGuard() پیدا نشد"
@@ -436,7 +447,8 @@ def t_c_panel_guard_never_lets_bad_or_missing_data_render_as_healthy():
         assert m2.group(1) != "live", "شاخهٔ دادهٔ بد/نامعلوم رنگِ live گرفته"
     assert body.rstrip().endswith("return null;"), \
         "شاخهٔ پیش‌فرضِ panelGuard دیگر null نیست — یعنی داده ممکن است بی‌بررسی رد شود"
-    consumers = ["renderBrain(", "renderGovernor(", "renderObsidian(", "renderRegistry("]
+    consumers = ["renderBrain(", "renderGovernor(", "renderObsidian(", "renderRegistry(",
+                "renderLegs("]
     for c in consumers:
         assert c in s, f"{c} حذف شده"
     for c in consumers:
@@ -458,13 +470,23 @@ def t_d_every_mutation_targets_the_one_gated_endpoint():
         برداشته شد»)، پس هیچ تبی صدایش نمی‌زند. این تست آن دو را جدا
         می‌کند: تأکید روی «همه به /api/actions می‌روند»، نه «فقط یک‌بار
         تعریف شده‌اند» — چون دومی الان به‌خاطرِ کدِ مرده رد می‌شود، نه چون
-        قرارداد شکسته."""
+        قرارداد شکسته.
+
+    ⚠️ ۲۰۲۶-۰۸-۰۹: دکمهٔ «ری‌استارتِ کامل» یک صداکنندهٔ لیترالِ سوم اضافه
+    کرد — `apiPost("/api/restart", ...)`. «فقط /api/actions» دیگر درست
+    نیست. به‌جای هاردکدکردنِ یک فهرستِ دومِ موازی (که خودش دقیقاً به همین
+    شکل کهنه شد)، حالا از خودِ allowlistِ POST در miniapp_gateway.py
+    می‌خواند — یک منبعِ حقیقت، نه دو کپی که می‌توانند از هم جدا بیفتند."""
     s = src(APP_JS)
     assert SINGLE_POST_SITE in s, "تکْ‌نقطهٔ act()->apiPost عوض شده"
+    gw = src(GATEWAY_PY)
+    gm = re.search(r"p not in \(([^)]*)\):\s*\n\s*return 405", gw)
+    assert gm, "allowlistِ POST در miniapp_gateway.py پیدا نشد — این تست کور شده"
+    allowed = set(x.strip() for x in gm.group(1).split(","))
     calls = re.findall(r"apiPost\(\s*(\"[^\"]*\")", s)
     assert calls, "هیچ فراخوانِ apiPost یافت نشد"
-    assert all(c == '"/api/actions"' for c in calls), \
-        f"یک apiPost به مسیرِ دیگری می‌رود: {sorted(set(calls))}"
+    bad = sorted(set(c for c in calls if c not in allowed))
+    assert not bad, f"apiPost به مسیرِ خارج از allowlistِ سرور می‌رود: {bad} (مجاز: {sorted(allowed)})"
     assert "function renderStudio(" in s, \
         "renderStudio حذف شده — اگر عمدی است این تست را به‌روز کن (دیگر کدِ مرده نیست)"
     assert '"renderers = {' not in s.replace(" ", "")  # sanity: فقط برای اطمینان از فرمت
@@ -556,8 +578,13 @@ def t_g_the_header_is_on_every_single_request():
 
 
 def t_h_rendering_never_mutates_anything():
+    # ⚠️ ۲۰۲۶-۰۸-۰۹: قبلاً `== 6` هاردکد بود (نوشته‌شده وقتی ۶ تب بود).
+    # تبِ هفتم/هشتم/نهم (notifications/scans/ask، ۰۸-۰۷..۰۸-۰۸) اضافه شدند
+    # و این عدد هرگز به‌روز نشد — همان الگویی که این فایل خودش بارها
+    # هشدار داده: عددِ ثابت جای سنجهٔ زنده. حالا از خودِ index.html می‌خواند.
+    expected = len(re.findall(r'data-tab="[^"]+"', src(INDEX_HTML)))
     d = run_scenario("no_post_on_render")
-    assert d["rendered_tabs"] == 6, d["rendered_tabs"]
+    assert d["rendered_tabs"] == expected, (d["rendered_tabs"], expected)
     assert d["post_count"] == 0, "رندرِ صرف یک POST تولید کرد — سطحِ خواندن نباید بنویسد"
 
 

@@ -173,7 +173,13 @@ def t_every_allowlisted_action_has_a_ui_caller():
     assert m, "‏ALLOWED_ACTIONS پیدا نشد"
     actions = re.findall(r'"([a-z_]+\.[a-z_]+)"', m.group(1))
     assert len(actions) >= 5, f"فهرستِ اقدام‌ها مشکوکانه کوتاه است: {actions}"
-    missing = [a for a in actions if ('"%s"' % a) not in JS]
+    # ۲۰۲۶-۰۸-۰۹: `diagnostics.noop` از جنسِ لید/کار/ارزش نیست — اقدامِ
+    # مالک‌محور نیست، فقط پروبِ سلامتِ مسیرِ نوشتنِ soak_gateway.py است
+    # (بدونِ اثر روی جدول‌های واقعی). ساختنِ دکمه برایش دقیقاً همان
+    # چیزی می‌شد که این تست جلویش را می‌گیرد در جهتِ عکس: قابلیتی که هیچ
+    # مالکی نباید ببیندش، توی UI ظاهر شود.
+    NO_UI_ACTIONS = {"diagnostics.noop"}
+    missing = [a for a in actions if a not in NO_UI_ACTIONS and ('"%s"' % a) not in JS]
     assert not missing, f"اقدامِ بی‌صداکننده در UI: {missing}"
 
 

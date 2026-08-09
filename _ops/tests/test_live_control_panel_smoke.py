@@ -169,15 +169,22 @@ def main():
 
     # ── فاز ۵: کشِ خواندن ← نوشتن — رفعِ امروز ───────────────────────────
     phase_header("فاز ۵ — نوشتن ← خواندنِ درجا (رفعِ باگِ کشِ ۳ث)")
-    n_before = len((_call("GET", "/api/ops/tasks")[1] or {}).get("items") or [])
+    # ⚠️ ۲۰۲۶-۰۸-۰۹: قبلاً با شمارشِ خامِ len(items) قبل/بعد سنجیده می‌شد —
+    # روی گیت‌ویِ **زندهٔ** واقعی (نه sandboxِ ایزوله؛ همان چیزی که این فایل
+    # خودش در docstring اعلام می‌کند)، هر کارِ دیگری که هم‌زمان از سازواره یا
+    # مالک ساخته/بسته شود شمارش را جابه‌جا می‌کند و نتیجه را دروغین قرمز
+    # می‌کند — بدونِ اینکه واقعاً چیزی خراب باشد (زندهٔ همین امروز: تسکِ
+    # نامرتبطِ «تپِ دوگانه» بینِ خواندنِ before/after ظاهر شد). سنجهٔ درست
+    # این نیست که شمار عوض شود؛ این است که **همان تسک** دیگر open نباشد.
     if smoke_task_id:
         st, body, _ = _call("POST", "/api/actions",
                             {"action": "task.done", "payload": {"task_id": smoke_task_id},
                              "action_id": f"smoke-close-{int(time.time())}"})
         check("cache-invalidation", "بستنِ کار → APPLIED", (body or {}).get("status") == "APPLIED", body)
-        n_after = len((_call("GET", "/api/ops/tasks")[1] or {}).get("items") or [])
-        check("cache-invalidation", "خواندنِ درجا کاهش را نشان می‌دهد", n_after < n_before,
-             f"before={n_before} after={n_after}")
+        items_after = (_call("GET", "/api/ops/tasks")[1] or {}).get("items") or []
+        still_open = any(it.get("id") == smoke_task_id for it in items_after)
+        check("cache-invalidation", "خواندنِ درجا دیگر همان تسک را open نشان نمی‌دهد",
+             not still_open, f"task_id={smoke_task_id} still_open={still_open}")
     else:
         check("cache-invalidation", "smoke_task_id در دسترس نبود", False, b1)
 

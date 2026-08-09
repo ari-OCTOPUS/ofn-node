@@ -299,33 +299,11 @@
                                        : (h ? " halted" : "")));
   }
 
-  function renderHome(el){
-    el = el || content;
-    api("/api/state").then(function(d){
-      if(d.status==="error"){ el.innerHTML = '<div class="err">خطا: '+esc(d.reason)+'</div>'; return; }
-      setHalted(d.halted);
-      setAuth(devMode ? "dev-mode" : (d.auth_status||"unknown"));
-      var flags = Object.keys(d.active_flags||{}).map(function(k){
-        return '<span class="flag '+(d.active_flags[k]?"on":"")+'">'+esc(k)+"="+(d.active_flags[k]?"1":"0")+'</span>';
-      }).join("");
-      var w = (d.miniapp_url_configured===false) ? '<div class="warn">MiniApp URL تنظیم نشده — OCTOPUS_MINIAPP_URL</div>' : '';
-      if(d.auth_status==="CONFIG_NEEDED") w += '<div class="warn">Auth config ناقص — TG_CENTER_BOT_TOKEN / TELEGRAM_OWNER_CHAT_ID</div>';
-      if(d.projectf_status && d.projectf_status.indexOf("BLOCKED")>=0) w += '<div class="warn">Project-F: بدون credential — BLOCKED</div>';
-      warn.innerHTML = w;
-      el.innerHTML =
-        '<div class="card"><h2>Cockpit <span class="badge live">commit '+esc(d.commit||"?")+'</span></h2>'+
-        '<div class="kv">'+
-        '<span class="k">halted</span><span>'+(d.halted?"بله":"خیر")+'</span>'+
-        '<span class="k">frozen</span><span>'+(d.frozen?"بله":"خیر")+'</span>'+
-        '<span class="k">beat</span><span>'+esc(d.beat)+'</span>'+
-        '<span class="k">epoch</span><span>'+esc(d.epoch_mode)+'</span>'+
-        '<span class="k">ts</span><span>'+esc(d.ts)+'</span>'+
-        '<span class="k">month</span><span>'+esc((d.month&&d.month.key)||"?")+'</span>'+
-        '<span class="k">conflicts</span><span>'+esc(JSON.stringify(d.conflicts))+'</span>'+
-        '</div></div>'+
-        '<div class="card"><h2>Active Flags</h2><div>'+flags+'</div></div>';
-    });
-  }
+  // ⚠️ ۲۰۲۶-۰۸-۰۹ — `renderHome` این‌جا بود و **صداکنندهٔ صفر** داشت: تبِ
+  // home از `viewHome` (پایین‌تر، نمایِ تریاژِ فعلی) رد می‌شود، نه از این‌جا.
+  // برخلافِ `renderStudio` (که یک تستِ صریح نگهش می‌دارد چون سه اقدامش
+  // هنوز مستندسازیِ تاریخی دارند)، این تابع نه تستی داشت نه توضیحی —
+  // فقط باقیماندهٔ نسخهٔ پیش از بازطراحیِ تریاژِ ۰۸-۰۴ بود. حذف شد.
 
   function renderOutbound(el){
     el = el || content;
@@ -610,6 +588,15 @@
   function renderLegs(el){
     el = el || content;
     api("/api/legs").then(function(d){
+      d = d || {};
+      // ⚠️ ۲۰۲۶-۰۸-۰۹ — همان کلاسِ باگی که panelGuard برایش ساخته شد، این‌جا
+      // جا افتاده بود: وقتی business_legs از ORGANISM-STATE گم است، سرور
+      // `{status:"unknown", legs:{}}` می‌دهد. بدونِ این گارد، `ks.length===0`
+      // و `up===ks.length` (۰===۰) هر دو true می‌شدند و قرص «۰ از ۰» را
+      // با تُنِ **live** (سبز) رنگ می‌زد — یعنی «نخواندم» شبیهِ «صفر پا،
+      // همه سالم» دیده می‌شد. زندهٔ همین لحظه: ORGANISM-STATE.json واقعاً
+      // فاقدِ business_legs است.
+      var g = panelGuard("پاها", d); if(g){ el.innerHTML = g; return; }
       var legs = d.legs||{}, ks = Object.keys(legs);
       var up = ks.filter(function(k){ return legs[k].live===true; }).length;
       var down = ks.filter(function(k){ return legs[k].live===false; });
@@ -971,14 +958,10 @@
         row("checked", d.checked));
     });
   }
-  function renderNext(el){
-    el = el || content;
-    api("/api/ops/tasks").then(function(d){
-      var st = d.task_status||{}, ks = Object.keys(st);
-      el.innerHTML = card2("قدمِ بعدی", pill(d.tasks_total||0, ks.length?"staged":"live"),
-        ks.length ? rows(st) : '<div class="muted">هیچ کارِ بازی نیست</div>');
-    });
-  }
+  // ⚠️ ۲۰۲۶-۰۸-۰۹ — `renderNext` («قدمِ بعدی») این‌جا بود و صداکنندهٔ صفر
+  // داشت: همان دادهٔ task_status امروز در تبِ کارها (`renderTasks`) با
+  // جزئیاتِ بیشتر نشان داده می‌شود. بازماندهٔ همان ادغامِ ۰۸-۰۴ که Truth/
+  // Registry/Legs را هم به پنلِ زیرِ تبِ سیستم برد. حذف شد.
 
   // ── پنج نمای مرکب (۲۰۲۶-۰۸-۰۴) ───────────────────────────────────────
   // سیزده تب روی گوشی یعنی هشت‌تایش بیرونِ صفحه. و بدتر: تب‌ها بر اساسِ
@@ -1905,9 +1888,42 @@
     });
   }
 
+  // ۲۰۲۶-۰۸-۰۹ — دکمهٔ ری‌استارتِ کامل: خواستِ مالک بعد از اینکه دستی دید
+  // فلگِ تازه‌آرم‌شده تا ری‌استارت اثر ندارد. صفر reimplementation: همان
+  // مسیرِ امنِ /restart تلگرام (POST /api/restart → request_restart →
+  // کارتِ approval) — این دکمه فقط یک درِ ورودیِ دومِ کوتاه‌تر به همان
+  // کارت است، گیتِ تأییدِ مالک را دور نمی‌زند. عمداً آخرِ تب سیستم —
+  // پرریسک‌ترین دکمهٔ صفحه، نباید اولین چیزِ دیده‌شده باشد.
+  function renderRestartControl(el){
+    el.innerHTML = card("🔁 ری‌استارتِ کامل", pill("پرریسک","hot"),
+      '<div class="muted">هر ۵ پروسه را تازه می‌کند تا فلگ/کدِ کامیت‌شده لود شود. '+
+      'این دکمه فقط کارتِ تأیید می‌سازد — اجرای واقعی فقط بعد از تأییدِ دستیِ '+
+      'تو در تلگرام است.</div>'+
+      '<button id="restartAllBtn" style="margin-top:10px">درخواستِ ری‌استارتِ کامل</button>'+
+      '<div class="result" id="restartResult"></div>');
+    var rb = document.getElementById("restartAllBtn");
+    if(rb){ rb.addEventListener("click", function(){
+      rb.disabled = true;
+      var out = document.getElementById("restartResult");
+      out.textContent = "در حالِ ثبتِ درخواست…";
+      apiPost("/api/restart", {scope:"all"}).then(function(r){
+        rb.disabled = false;
+        if(r && r.ok){
+          out.textContent = "✅ ثبت شد — برای اجرا کارتِ تأیید را توی تلگرام بزن.";
+        } else {
+          var RS = {already_in_flight:"یه درخواستِ دیگه در جریانه.",
+                    "flag-off":"این قابلیت هنوز روشن نیست.",
+                    owner_auth_required:"احرازِ هویت شکست خورد."};
+          out.textContent = "⚠️ "+(RS[r&&r.reason] || (r&&r.reason) || "خطا");
+        }
+      });
+    });}
+  }
+
   function viewSystem(el){ stack(el||content, [renderSystemHead, renderLegs, renderVitals,
                                                renderSelfmap, renderBrain, renderGovernor,
-                                               renderObsidian, renderTruth, renderRegistry]); }
+                                               renderObsidian, renderTruth, renderRegistry,
+                                               renderRestartControl]); }
 
   function viewTasks(el){ stack(el||content, [renderTasks]); }
   function viewNotifications(el){ stack(el||content, [renderNotifications]); }
