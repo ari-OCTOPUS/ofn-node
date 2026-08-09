@@ -1,7 +1,7 @@
 ---
 tags: [ofn, moc, home]
 aliases: [خانه, نقشه, Home]
-updated: 2026-08-08
+updated: 2026-08-09
 ---
 
 # 🐙 OFN — نقشهٔ پروژه
@@ -21,10 +21,28 @@ updated: 2026-08-08
 
 | پروژه | مسیر | پورت | سرویس | تست | وضعیت |
 |---|---|---|---|---|---|
-| **OFN** (مولتی‌تنانت) | `/home/ari/ofn` | ۸۷۹۱-۸۷۹۴ | `ofn.service` | ۱۵۵۳ | 🟢 زنده |
+| **OFN** (مولتی‌تنانت) | `/home/ari/ofn` | ۸۷۹۱-۸۷۹۴ | `ofn.service` | ← از ابزار | 🟢 زنده |
 | **hypno-fugu-mini** (تک‌کاربر) | `/home/ari/hypno-fugu-mini` | ۸۸۹۵ | `hypno-fugu-mini.service` | ۶۲ | 🟢 زنده |
 
-سه لِگ OFN: `studio` (سبا، `/sabaapp`، ۸۷۹۳) · `lead` (لید نقاشی، ۸۷۹۲) · `ziman` (۸۷۹۱).
+عدد تست را ننویس، بگیر: `python3 tools/repo_baseline.py --tests` ([[CLAUDE|§۸-الف]]).
+
+**چهار تنانت OFN**، نه سه: `studio` (سبا، `/sabaapp`، ۸۷۹۳) · `lead` (لید
+نقاشی، ۸۷۹۲) · `ziman` (۸۷۹۱) · `hypno` (تنانت واقعی در `packs/`، خارج از
+scope پرتفوی تا charter مالک). برند تجاری `ziman` هم **GiftMesh Sydney** است
+— نه تنانت پنجم. مرجع: [[DECISIONS|D-25]] · [[PORTFOLIO-TENANT-MAP]].
+
+**چه کارها تمام شده‌اند (جلسهٔ ۲۰۲۶-۰۸-۰۹):**
+- ✅ [[DECISIONS|D-25]] — GiftMesh برند `ziman` است، نه تنانت. سه نام دیگر هم
+  تصحیح شد. مرجع: [[PORTFOLIO-TENANT-MAP]].
+- ✅ پنل مالک کامل شد: ۱۱ endpoint خواندنی که هیچ‌جا دیده نمی‌شدند حالا
+  رسم می‌شوند — outbox، زنجیرهٔ لجر، سطوح، خط مغز. **فقط خواندنی.**
+- ✅ نشتی پوشهٔ موقت تست بسته شد (هر اجرا ~۱۷۰۰ پوشه جا می‌گذاشت و tmpfs را
+  پر می‌کرد تا بوت به SAFE MODE برود).
+- ✅ تست هشدار دیگر crash ساختگی در لاگ زندهٔ اپراتور نمی‌نویسد.
+- ✅ خط پایهٔ تست از سند برداشته شد و به `tools/repo_baseline.py` رفت.
+- ✅ یک دایرکتوری پشتیبان از `0755` به `0700` رفت · §۷-الف در [[CLAUDE]].
+- ⛔ corpus زیمان/GiftMesh **وجود ندارد** → pilot تحقیق مسدود. «۱۵۰۰+ منبع»
+  unverified. رجیستری `lead` هم metadata کانال است، نه corpus.
 
 **چه کارها تمام شده‌اند (جلسهٔ ۲۰۲۶-۰۸-۰۸ — OPERATOR SAFETY + AUDIT):**
 - ✅ کلید خاموشی (Kill Switch): دکمه اضطراری در پنل، engage سریع + release دو مرحله‌ای.
@@ -41,6 +59,8 @@ updated: 2026-08-08
 
 **🔴 فوری از ممیزی (انتخاب با آری):**
 - پورت ۸۰۹۰ سرور بک‌آپ بی‌احراز هویت فعال است — [[AUDIT-2026-08-08]] CRIT-1
+  **هنوز باز است** (بررسی ۲۰۲۶-۰۸-۰۹: روی `0.0.0.0` گوش می‌دهد، نه loopback).
+  این تنها CRITICALی است که از ممیزی باقی مانده.
 - flagهای مرده `OFN_WIRE_EMAIL/PUBLISH=1` — CRIT-2
 
 **قوانین سخت:** متن فنی در UI ممنوع ([[DECISIONS|D-22]]). هیچ دیتایی حذف نمی‌شود. هر سرویس restart + health دارد. زبان UI فارسی ساده/گرم.
@@ -97,10 +117,10 @@ updated: 2026-08-08
 
 ---
 
-## وضعیت — اندازه‌گیری ۲۰۲۶-۰۸-۰۸ (پایان جلسه)
+## وضعیت — اندازه‌گیری ۲۰۲۶-۰۸-۰۹ (پایان جلسه)
 
 ```
-pytest OFN          ۱۵۵۳ تست جمع‌آوری‌شده (۱۵۴۸ سبز + ۹ alert + ۲۳ kill switch + ۵ skip)
+pytest OFN          عدد را از tools/repo_baseline.py --tests بگیر — اینجا نوشته نمی‌شود
 pytest hypno        ۶۲ تست سبز
 سرویس‌ها             ofn · cloudflared · dropbear · hypno-fugu-mini  →  هر چهار active
                     ofn-alert.service نصب شد (OnFailure روی ofn.service)
@@ -175,6 +195,7 @@ preflight           ۲۸/۲۸ OK
 - [[docs/handoffs/2026-08-06-painting-lead-pricing-handoff|تحویل به عامل بعدی (نسخهٔ ۱)]]
 - [[docs/audit/IMPLEMENTATION-GAP-MATRIX|ماتریس شکاف پیاده‌سازی]]
 - [[docs/architecture/DECISION-MODEL|مدل امتیازدهی]]
+- [[PORTFOLIO-TENANT-MAP|نقشهٔ پرتفوی ↔ تنانت — مرجع نام‌گذاری]]
 
 ## مینی‌اپ سبا — جراحی‌های اخیر
 

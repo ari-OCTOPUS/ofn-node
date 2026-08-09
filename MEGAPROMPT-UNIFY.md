@@ -1,7 +1,7 @@
 ---
 tags: [ofn, megaprompt, unify, merge, agent]
 aliases: [مگاپرامپت ادغام, Unify Megaprompt, Fugu Core]
-updated: 2026-08-06
+updated: 2026-08-07
 ---
 
 # مگاپرامپت نهایی — ادغام دو ایجنت و ساخت یک مولتی‌ایجنت واحد با حافظهٔ سه‌لایه

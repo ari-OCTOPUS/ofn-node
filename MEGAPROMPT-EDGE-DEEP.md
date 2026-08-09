@@ -1,7 +1,7 @@
 ---
 tags: [ofn, megaprompt, edge, agent, glm, supplement, done]
 aliases: [مگاپرامپت لبه عمیق, Edge Deep Megaprompt, GLM Edge]
-updated: 2026-08-06
+updated: 2026-08-07
 status: انجام‌شده ✅
 ---
 

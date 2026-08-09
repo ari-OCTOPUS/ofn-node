@@ -1,7 +1,7 @@
 ---
 tags: [ofn, architecture]
 aliases: [معماری, README]
-updated: 2026-08-06
+updated: 2026-08-07
 ---
 
 # OFN — Octopus Field Node · v0.8.0
