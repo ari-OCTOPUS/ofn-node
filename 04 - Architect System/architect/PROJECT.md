@@ -28,6 +28,17 @@ updated: 2026-08-09
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-09 شب (agent — اسکن+دیباگِ کاملِ فرانت‌اندِ مینی‌اپ).**
+  یک باگِ زندهٔ واقعی فیکس شد (`renderLegs()` بدونِ panelGuard، status:"unknown"
+  را سبز نشان می‌داد — دقیقاً همین الان در حالِ رخ‌دادن بود). سوییتِ
+  اکثریت-قرمزِ `test_miniapp_cockpit_ui.py` (عضوِ run_all.py، ۶/۱۱) تعمیر شد
+  به ۱۱/۱۱ — رگرسِ درایورِ تست از افزودنِ ARIA به تب‌ها + دو فرضِ کهنه
+  (۶تب/تک-POST-endpoint). `test_miniapp_look_locked.py` و
+  `test_live_control_panel_smoke.py` هم فیکس شدند. کدِ مردهٔ renderHome/
+  renderNext حذف شد؛ renderStudio عمداً دست‌نخورده ماند (pin-test دارد).
+  همه با curl زنده + مرورگر verify شد، gateway ری‌استارت شد. جزئیاتِ کامل:
+  [[../../01 - Dashboard/HANDOFF|HANDOFF]].
+
 - تغییرات اخیر: **2026-08-09 عصر (agent — VQ-FUGU-002 پاسخ گرفت: چرا Fugu
   ۲۲+ ساعت سکوت کرد).** ریشه: سقفِ هفتگیِ Sakana (نه ماهانه)، ۱۰۰٪ مصرف‌شده،
   احتمالاً از مصرفِ مستقیمِ مالک در ۵ اوت. رأیِ مالک روی auto-trip پیاده شد:
