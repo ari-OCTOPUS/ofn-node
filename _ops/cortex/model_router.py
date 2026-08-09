@@ -45,6 +45,55 @@ ACT_RESEARCH_EARLY = opslib.OPS / "ACTIVATION-RESEARCH-EARLY.flag"
 # subscription=max ⇒ cost_usd ساختاراً 0.0 است — شاهدِ مصرف این‌جا tokens/attempt است، نه دلار.
 PAID_LOG = opslib.STATE_DIR / "paid-calls.jsonl"
 
+_SECRET_RE = re.compile(r'(?i)\b(bearer|api[_-]?key|authorization)\b\s*[:=]?\s*[A-Za-z0-9_\-\.]{10,}')
+
+
+def _error_detail(exc: Exception, limit: int = 300) -> str:
+    """۲۰۲۶-۰۸-۰۹ (پیشرفتِ واقعی، فازِ ۱): جزئیاتِ خطا برایِ paid-calls.jsonl —
+    نه فقط اسمِ کلاس. امروز دقیقاً همینِ نبودنش باعث شد نتوانم بفهمم HTTPError
+    یعنی چه — کلیدِ خراب، ۴۲۹، یا ۵۰۰؟ فقط از داشبوردِ Sakana فهمیدیم (سقفِ
+    هفتگی، نه کلید). برای دفعهٔ بعد، status/reason/بدنهٔ پاسخ همین‌جا می‌ماند.
+
+    فقط پیام/بدنهٔ خطا را می‌بیند، هرگز کلید را — secretها هم یک لایهٔ دومِ
+    دفاعی این‌جا حذف می‌شوند (لایهٔ اولِ واقعی این است که کلید هرگز در exception
+    args ننشیند، چون client.py آن را در body/header می‌گذارد نه پیام‌خطا)."""
+    import urllib.error as _ue
+    parts = [f"{type(exc).__name__}: {exc}"]
+    if isinstance(exc, _ue.HTTPError):
+        try:
+            body = exc.read().decode("utf-8", "replace").strip()
+            if body:
+                parts.append(body)
+        except Exception:  # noqa: BLE001
+            pass
+    text = " | ".join(parts)
+    text = _SECRET_RE.sub(r'\1 <REDACTED>', text)
+    return text[:limit]
+
+
+def _log_provider_usage_safe(*, model: str, task: str, tier: str,
+                             usage: dict | None = None, latency_ms: int = 0,
+                             status: str = "ok", error: str = "") -> None:
+    """۲۰۲۶-۰۸-۰۹ (پیشرفتِ واقعی، فازِ ۲): پلِ گم‌شده به ledger ِ owner_cockpit.
+
+    یافتهٔ امروز: model_router._ask_paid هرگز از fugu_proxy.py رد نمی‌شود —
+    مستقیم به sakana.ai می‌زند. یعنی تبِ Fugu در owner_cockpit صفر ترافیکِ
+    واقعی می‌بیند، هرچند خودِ پراکسی ساخته و تست شده. به‌جایِ اجبارِ ترافیک از
+    یک پروسهٔ پراکسیِ همیشه-روشنِ تازه (هزینهٔ زیرساخت)، همان تابعِ نوشتنِ
+    آمادهٔ db.py مستقیم از این‌جا صدا زده می‌شود — دو نویسنده نیست، یک
+    نویسنده از دو نقطهٔ صدا (fail-soft، پشتِ فلگِ خودِ OCTOPUS_WIRE_OWNER_DB،
+    پیش‌فرض خاموش — این تابع تا فلگ روشن نشود کاملاً no-op است)."""
+    try:
+        _oc = str(_HERE.parent / "owner_cockpit")
+        if _oc not in sys.path:
+            sys.path.insert(0, _oc)
+        import db as _ocdb  # noqa: WPS433 — owner_cockpit/db.py
+        _ocdb.log_provider_usage(
+            model=model, task=task, tier=tier, usage=usage or {},
+            latency_ms=int(latency_ms), status=status, error=error[:300])
+    except Exception:  # noqa: BLE001 — ledger هرگز نباید مسیرِ اصلیِ مغز را بشکند
+        pass
+
 
 def _paid_log(**rec) -> None:
     try:
@@ -210,20 +259,26 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
         except Exception as _ce:
             fugu_quota.fail(tier, error=_ce)
             _cb.record_failure(role, f"{type(_ce).__name__}: {_ce}")   # provider ناسالم
+            _detail = _error_detail(_ce)
+            _elapsed_ms = int((_pt.time() - _t0) * 1000)
             _paid_log(task=task, tier=tier, role=role,
                       provider=getattr(cli, "provider", ""),
                       model=getattr(cli, "model", ""),
                       via_gateway=bool(getattr(cli, "use_gateway", False)),
                       subscription=getattr(cli, "subscription", None) or "metered",
-                      ok=False, error=type(_ce).__name__,
-                      ms=int((_pt.time() - _t0) * 1000),
+                      ok=False, error=type(_ce).__name__, error_detail=_detail,
+                      ms=_elapsed_ms,
                       quota_used=_q.get("used"))
+            _log_provider_usage_safe(model=getattr(cli, "model", "") or role,
+                                     task=task, tier=tier, latency_ms=_elapsed_ms,
+                                     status="error", error=_detail)
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
             raise
         # subscription: هزینهٔ نقدی ~۰ ولی استفاده متر می‌شود (سهمیهٔ نصفِ اشتراک)
         organ_gate.settle("ARCHITECT_SYS", est,
                           float(out.get("cost_usd", 0.0) or 0.0),
                           task=f"cortex-{tier}")
+        _elapsed_ms = int((_pt.time() - _t0) * 1000)
         _paid_log(task=task, tier=tier, role=role,
                   provider=getattr(cli, "provider", ""),
                   model=out.get("model"),
@@ -233,8 +288,17 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
                   tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
                   cost_usd=float(out.get("cost_usd", 0.0) or 0.0),
                   chars_out=len(out.get("text") or ""),
-                  ms=int((_pt.time() - _t0) * 1000),
+                  ms=_elapsed_ms,
                   quota_used=_q.get("used"))
+        # ۲۰۲۶-۰۸-۰۹ (پیشرفتِ واقعی، فازِ ۲): همان رکورد به ledger ِ owner_cockpit
+        # هم می‌رود — تبِ Fugu در کاکپیت اولین‌بار ترافیکِ واقعی می‌بیند.
+        _log_provider_usage_safe(
+            model=out.get("model") or role, task=task, tier=tier,
+            usage={"input_tokens": out.get("tokens_in") or 0,
+                   "output_tokens": out.get("tokens_out") or 0,
+                   "total_tokens": (out.get("tokens_in") or 0) + (out.get("tokens_out") or 0),
+                   "total_cost_usd": float(out.get("cost_usd", 0.0) or 0.0)},
+            latency_ms=_elapsed_ms, status="ok")
         # ── پاسخِ بریدهٔ بی‌متن = شکست، نه موفقیت (۲۰۲۶-۰۷-۳۰) ──────────────────
         # ۰۷-۲۷ `finish_reason` را عبور دادند تا صاحبِ فراخوان بریدگی را ببیند، ولی
         # **هیچ‌کس نمی‌خواندش** و sakana هم هرگز پرش نمی‌کرد (۲۰۶/۲۰۶ تماسِ موفق
