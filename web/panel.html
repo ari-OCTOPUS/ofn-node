@@ -441,6 +441,11 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
 
       <div style="margin-top:18px" id="flows"></div>
 
+      <!-- Whether the thinking layer is attached at all. The ring above is the
+           weekly share; a full ring next to a detached brain is the kind of
+           agreement-by-omission this panel exists to prevent. -->
+      <div id="brainline"></div>
+
       <div class="memo" id="qmemo"></div>
     </div>
 
@@ -477,6 +482,38 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
     <div class="memo" style="margin-top:14px">
       <b>دریچهٔ بسته یعنی محافظت.</b> تا وقتی گیتی بسته است، پایی که به آن وصل است فقط پیشنهاد می‌دهد. این تصمیم خودِ سیستم است — این صفحه فقط گزارشش می‌کند.
     </div>
+  </div>
+</div>
+
+<!-- درِ خروج + زنجیرهٔ لجر.
+     هر دو سرویس از قبل روی نود جواب می‌دادند و هیچ‌جا دیده نمی‌شدند: صفِ
+     قابل‌اقدام و سلامت زنجیرهٔ هش. پنلی که تنها درِ خروج دستگاه را نشان
+     نمی‌دهد، پنل کنترل نیست. -->
+<div class="split">
+  <div class="panel">
+    <div class="ph"><span class="ic">📤</span><h2>درِ خروج — outbox</h2><span class="chipx" id="outboxChip">…</span></div>
+    <div id="outbox"><div class="empty">در حال خواندن…</div></div>
+    <div class="memo" style="margin-top:14px">
+      <b>تنها راه خروج از این دستگاه همین صف است.</b> هیچ‌چیز خودکار نمی‌رود؛ قرمزها تأیید دو مرحله‌ای می‌خواهند. این نما عمداً جزئی است: کار سبز اصلاً وارد outbox نمی‌شود و پیشنهادهای ردشده در لجر می‌مانند، نه اینجا.
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="ic">⛓️</span><h2>زنجیرهٔ لجر</h2><span class="chipx" id="chainChip">…</span></div>
+    <div id="chain"><div class="empty">در حال خواندن…</div></div>
+    <div class="memo" style="margin-top:14px">
+      هر پا زنجیرهٔ هش خودش را دارد. «تأیید نشد» یعنی رکوردی بین راه عوض یا گم شده — <b>قبل از هر تصمیمی</b> گزارشش کن. این تنها جای پنل است که می‌تواند با بقیهٔ صفحه مخالفت کند.
+    </div>
+  </div>
+</div>
+
+<!-- سطوح: پیکربندی، نه سلامت. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">🛰️</span><h2>سطوح — چه چیزی سرو می‌شود</h2><span class="chipx" id="surfChip">…</span></div>
+  <div class="pcols" id="surfaces"></div>
+  <div id="unmeasured"></div>
+  <div class="memo" style="margin-top:14px">
+    <b>این فهرست پیکربندی است، نه سلامت.</b> می‌گوید چه چیزی تعریف شده — نه اینکه زنده است. هیچ توکن، شناسهٔ تلگرام یا حساب شریکی اینجا نمی‌آید؛ نود هم آن‌ها را نمی‌فرستد.
   </div>
 </div>
 
@@ -557,14 +594,18 @@ const mk = (tag, cls, txt) => {
 const TIER = { red: 'r', yellow: 'y', green: 'g' };
 const TIER_FA = { red: 'قرمز', yellow: 'زرد', green: 'سبز' };
 const ACCENT = ['gold', 'teal', 'coral'];
-const ORB = { ziman: '🌸', lead: '🎨', studio: '🎬' };
+/* `hypno` is a real tenant in packs/ and therefore a real leg in every count
+   the node returns. Leaving it out of these maps drew a nameless card with a
+   fallback bullet — the quiet way a leg disappears from an inventory (D-25). */
+const ORB = { ziman: '🌸', lead: '🎨', studio: '🎬', hypno: '🌀' };
 /* What each leg does, not who runs it. This line used to carry the three
    partners' names, which meant the panel's HTML — served before anyone has
    authenticated — listed them to whoever loaded the URL. The owner knows
    whose leg is whose; the page does not need to say it. */
 const WHAT = { ziman: 'گالری هدیه', lead: 'خدمات در محل',
-               studio: 'تولید محتوا' };
-const NAME = { ziman: 'زیمان', lead: 'لید نقاشی', studio: 'استودیو' };
+               studio: 'تولید محتوا', hypno: 'خارج از scope پرتفوی' };
+const NAME = { ziman: 'زیمان', lead: 'لید نقاشی', studio: 'استودیو',
+               hypno: 'هیپنو' };
 
 function millions(n) {
   if (n >= 1e6) return fa((n / 1e6).toFixed(1)) + 'M';
@@ -987,6 +1028,245 @@ function drawNerve(events) {
 
 
 
+/* ── brain attachment ─────────────────────────────────────────────────── */
+function drawBrain(b) {
+  const box = document.getElementById('brainline');
+  box.textContent = '';
+  if (!b) { box.append(mk('div', 'muted', 'وضعیت مغز خوانده نشد.')); return; }
+  const row = mk('div', 'valve ' + (b.wired ? 'open' : 'shut'));
+  row.append(mk('span', null, b.wired ? '🟢' : '🔴'),
+             mk('span', 'vn', b.wired ? 'مغز وصل است' : 'مغز وصل نیست'));
+  const s = mk('span', 'vs', b.wired
+    ? `${fa(b.queued || 0)} در صف · ${fa(b.parked || 0)} پارک`
+    : (b.why || '—'));
+  s.style.color = b.wired ? 'var(--ok)' : 'var(--tx3)';
+  row.append(s);
+  box.append(row);
+  /* The budget is the money-shaped number on this panel. It is printed only
+     when the node sends one; an absent budget is not a zero budget. */
+  const bud = b.budget;
+  if (bud && typeof bud === 'object') {
+    const used = bud.used ?? bud.spent ?? null;
+    const cap = bud.limit ?? bud.cap ?? bud.max ?? null;
+    if (used != null || cap != null) {
+      box.append(mk('div', 'muted', 'بودجهٔ تماس: '
+        + (used != null ? fa(used) : '—') + ' از ' + (cap != null ? fa(cap) : '—')));
+    }
+  }
+}
+
+/* ── outbox: the actionable queue ─────────────────────────────────────── */
+const STATE_FA = { pending: 'منتظر تو', held: 'نگه‌داشته' };
+
+function drawOutbox(risks) {
+  const box = document.getElementById('outbox');
+  const chip = document.getElementById('outboxChip');
+  box.textContent = '';
+  if (!risks) {
+    chip.textContent = 'قطع';
+    box.append(mk('div', 'empty', 'صف قابل‌اقدام خوانده نشد.'));
+    return;
+  }
+  const c = risks.counts || {};
+  const tiers = c.by_tier || {};
+  const total = (c.pending || 0) + (c.held || 0);
+  /* The node labels this read partial on purpose. Repeating its own word back
+     is cheaper than a footnote nobody reads next to a number they trust. */
+  chip.textContent = risks.completeness === 'partial' ? 'نمای جزئی' : 'کامل';
+
+  const stats = mk('div', 'paintgrid');
+  stats.append(pstat('منتظر تو', c.pending || 0), pstat('نگه‌داشته', c.held || 0));
+  if (tiers.red) stats.append(pstat('قرمز', tiers.red));
+  if (tiers.yellow) stats.append(pstat('زرد', tiers.yellow));
+  box.append(stats);
+
+  const items = risks.items || [];
+  if (!items.length) {
+    box.append(mk('div', 'empty', total
+      ? 'شمارش می‌گوید چیزی هست ولی قلمی برنگشت — گزارشش کن.'
+      : 'صف خالی است. هیچ چیزی منتظر تو نیست.'));
+    return;
+  }
+  items.forEach(it => {
+    const row = mk('div', 'valve ' + (it.needs_second_confirmation ? 'shut' : 'open'));
+    row.append(mk('span', null, it.tier === 'red' ? '🔴'
+                              : it.tier === 'yellow' ? '🟡' : '🟢'));
+    const mid = mk('span', 'vn', `${NAME[it.business_id] || it.business_id} · ${it.kind}`);
+    row.append(mid);
+    const st = mk('span', 'vs', STATE_FA[it.state] || it.state);
+    st.style.color = it.needs_second_confirmation ? 'var(--bad)' : 'var(--tx3)';
+    row.append(st);
+    box.append(row);
+    if (it.needs_second_confirmation) {
+      box.append(mk('div', 'muted', 'قرمز — تأیید دو مرحله‌ای لازم دارد · ' + ago(it.created_at)));
+    }
+  });
+  if (risks.items_truncated) {
+    box.append(mk('div', 'miss',
+      `فهرست بریده شده — ${fa(total)} قلم قابل‌اقدام هست و بالا کمترش نشان داده می‌شود.`));
+  }
+}
+
+/* ── ledger hash-chain health ─────────────────────────────────────────── */
+const CHAIN_FA = {
+  verified: 'تأیید شد',
+  sequence_gap: 'جای خالی در ترتیب',
+  broken_link: 'حلقهٔ شکسته',
+  content_mismatch: 'محتوا عوض شده',
+  verification_failed: 'تأیید نشد',
+};
+
+function drawChain(sum) {
+  const box = document.getElementById('chain');
+  const chip = document.getElementById('chainChip');
+  box.textContent = '';
+  if (!sum) {
+    chip.textContent = 'قطع';
+    box.append(mk('div', 'empty', 'خلاصهٔ لجر خوانده نشد.'));
+    return;
+  }
+  const ok = sum.verification && sum.verification.ok;
+  chip.textContent = ok ? `${fa(sum.event_count || 0)} رویداد · سالم` : '⚠ تأیید نشد';
+  chip.style.color = ok ? '' : 'var(--bad)';
+
+  (sum.businesses || []).forEach(b => {
+    const bok = b.verification && b.verification.ok;
+    const row = mk('div', 'valve ' + (bok ? 'open' : 'shut'));
+    row.append(mk('span', null, bok ? '🟢' : '🔴'),
+               mk('span', 'vn', NAME[b.business_id] || b.business_id));
+    const s = mk('span', 'vs', fa(b.event_count || 0) + ' رویداد');
+    s.style.color = bok ? 'var(--ok)' : 'var(--bad)';
+    row.append(s);
+    box.append(row);
+    const code = (b.verification && b.verification.reason_code) || '';
+    /* The head hash is the only field on this panel worth reading character by
+       character, so it gets the monospace treatment the nerve rows use. */
+    const detail = mk('div', 'muted');
+    if (b.head) {
+      detail.append(mk('span', null, `#${fa(b.head.seq)} · `),
+                    mk('span', 'hx', b.head.hash_prefix));
+      if (!bok) detail.append(mk('span', null, ' · ' + (CHAIN_FA[code] || code)));
+    } else {
+      detail.append(mk('span', null, 'هنوز رویدادی ثبت نشده'));
+    }
+    box.append(detail);
+  });
+}
+
+/* ── surfaces: what this node serves, as configured ───────────────────── */
+const CONF_FA = {
+  configured: 'پیکربندی شده',
+  locked_empty: 'عمداً خالی — قفل',
+  missing: 'پیکربندی نشده',
+  partial: 'ناقص',
+};
+
+function surfaceCol(title, note) {
+  const col = mk('div');
+  col.append(mk('div', 'lname', title));
+  if (note) col.append(mk('div', 'sub', note));
+  return col;
+}
+
+/* Surfaces are configuration: partner allowlists, mini-app inventory, tunnel
+   hosts and bot registrations do not change while the process runs, and the
+   node reads them once at startup itself. Polling them every 30s would add
+   four requests per tick to a board whose listen backlog is five, for data
+   that cannot have changed. Fetched once, retried on the next tick only if
+   the fetch failed. */
+let surfacesLoaded = false;
+
+async function loadSurfaces() {
+  if (surfacesLoaded) return;
+  const [partners, apps, webs, tg] = await Promise.all([
+    OFN.get('/api/v1/owner/partners').catch(() => null),
+    OFN.get('/api/v1/owner/mini-apps').catch(() => null),
+    OFN.get('/api/v1/owner/mini-webs').catch(() => null),
+    OFN.get('/api/v1/owner/telegram').catch(() => null),
+  ]);
+  drawSurfaces(partners, apps, webs, tg);
+  /* Only stop retrying once every list arrived. A half-drawn inventory that
+     never fills in is the same failure as a stale number nobody stamped. */
+  surfacesLoaded = !!(partners && apps && webs && tg);
+}
+
+function drawSurfaces(partners, apps, webs, tg) {
+  const box = document.getElementById('surfaces');
+  const chip = document.getElementById('surfChip');
+  box.textContent = '';
+  const parts = [partners, apps, webs, tg].filter(Boolean).length;
+  chip.textContent = parts === 4 ? 'پیکربندی' : `${fa(parts)}/۴ خوانده شد`;
+
+  if (partners) {
+    const col = surfaceCol('شریک‌ها', 'فقط شمارش — هیچ شناسه‌ای');
+    (partners.businesses || []).forEach(b => {
+      const row = mk('div', 'linkrow');
+      row.append(mk('b', null, NAME[b.business_id] || b.business_id));
+      const st = CONF_FA[b.configuration_status] || b.configuration_status;
+      row.append(mk('span', 'sub',
+        `${st} · ${fa(b.configured_account_count || 0)} حساب`));
+      col.append(row);
+    });
+    box.append(col);
+  }
+
+  if (apps) {
+    const col = surfaceCol('مینی‌اپ‌ها', 'سلامت اندازه‌گیری نشده');
+    (apps.mini_apps || []).forEach(a => {
+      const row = mk('div', 'linkrow');
+      row.append(mk('b', null, a.id || '—'));
+      row.append(mk('span', 'sub',
+        `${CONF_FA[a.configuration_status] || a.configuration_status}`
+        + (a.listen_port ? ` · ${fa(a.listen_port)}` : '')
+        + ` · ${fa(a.path_count || 0)} مسیر`));
+      col.append(row);
+    });
+    box.append(col);
+  }
+
+  if (webs) {
+    const col = surfaceCol('مینی‌وب‌ها', 'از کانفیگ تونل');
+    (webs.hosts || []).forEach(h => {
+      const row = mk('div', 'linkrow');
+      row.append(mk('b', null, h.id || '—'));
+      row.append(mk('span', 'sub', `${h.host || ''} · ${fa(h.port || 0)}`));
+      col.append(row);
+    });
+    box.append(col);
+  }
+
+  if (tg) {
+    const col = surfaceCol('بات‌های تلگرام', 'توکن و شناسه ارسال نمی‌شود');
+    (tg.bots || []).forEach(b => {
+      const row = mk('div', 'linkrow');
+      row.append(mk('b', null, b.id || '—'));
+      row.append(mk('span', 'sub',
+        (b.configured ? 'پیکربندی شده' : 'پیکربندی نشده')
+        + (b.surface ? ' · ' + b.surface : '')));
+      col.append(row);
+    });
+    box.append(col);
+  }
+  if (!parts) box.append(mk('div', 'empty', 'هیچ‌کدام از فهرست‌های سطوح خوانده نشد.'));
+}
+
+/* What the node says it does NOT measure. Printing this next to the numbers
+   is the difference between a partial reading and a wrong one. */
+const UNMEASURED_FA = {
+  partner_activity_not_measured: 'فعالیت شریک‌ها اندازه‌گیری نمی‌شود',
+  mini_app_health_not_measured: 'سلامت مینی‌اپ‌ها اندازه‌گیری نمی‌شود',
+  calibration_not_persisted: 'کالیبراسیون ذخیره نمی‌شود',
+};
+
+function drawUnmeasured(snapshot) {
+  const box = document.getElementById('unmeasured');
+  box.textContent = '';
+  const av = snapshot && snapshot.availability;
+  if (!av || av.status !== 'partial' || !(av.reasons || []).length) return;
+  box.append(mk('div', 'miss', 'این نود این‌ها را اندازه نمی‌گیرد: '
+    + av.reasons.map(r => UNMEASURED_FA[r] || r).join(' · ')));
+}
+
 /* ── painting lead + marketing desk ───────────────────────────────────── */
 const STATUS_FA = {new:'تازه', review:'بررسی', contacted:'تماس شد', quoted:'قیمت دادیم', won:'برد', lost:'باخت', spam:'اسپم', archived:'آرشیو'};
 const TEMP_FA = {hot:'داغ', warm:'گرم', cold:'سرد', new:'تازه'};
@@ -1286,13 +1566,25 @@ async function refresh() {
   try {
     const paintingP = OFN.get('/api/v1/owner/painting/dashboard').catch(e => ({ok:false, error:'داشبورد نقاشی در دسترس نیست'}));
     const metricsP = OFN.get('/api/v1/owner/metrics').catch(() => null);
-    const [status, queue, events, painting, metrics] = await Promise.all([
-      OFN.get('/api/v1/owner/status'),
-      OFN.get('/api/v1/queue'),
-      OFN.get('/api/v1/owner/events'),
-      paintingP,
-      metricsP,
-    ]);
+    /* Secondary reads. Each one swallows its own failure and draws its own
+       "قطع" state: a surfaces list that 404s must not take the decision queue
+       down with it. Only the four core reads above may fail the whole poll —
+       and a 401 from any of these still surfaces there, because the session
+       expiring is not a per-panel problem. */
+    const riskP = OFN.get('/api/v1/owner/risks').catch(() => null);
+    const chainP = OFN.get('/api/v1/owner/ledger/summary').catch(() => null);
+    const snapP = OFN.get('/api/v1/owner/snapshot').catch(() => null);
+    const brainP = OFN.get('/api/v1/owner/brain').catch(() => null);
+    const [status, queue, events, painting, metrics,
+           risks, chain, snapshot, brain] =
+      await Promise.all([
+        OFN.get('/api/v1/owner/status'),
+        OFN.get('/api/v1/queue'),
+        OFN.get('/api/v1/owner/events'),
+        paintingP,
+        metricsP,
+        riskP, chainP, snapP, brainP,
+      ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
     drawQuota(status.quota);
@@ -1301,6 +1593,11 @@ async function refresh() {
     drawNerve(events.events || []);
     drawPainting(painting);
     if (metrics) drawMetrics(metrics);
+    drawBrain(brain);
+    drawOutbox(risks);
+    drawChain(chain);
+    drawUnmeasured(snapshot);
+    loadSurfaces();
     lastOk = Date.now();
     document.getElementById('stale').hidden = true;
     /* Sync the kill state from the node's source of truth. The banner and
