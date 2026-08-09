@@ -60,6 +60,12 @@ ALLOWED_ACTIONS = {
     # ۲۰۲۶-۰۸-۰۷ — تبِ هفتم (اعلان‌ها). صندوق JSON است نه ops.db، پس شاخهٔ
     # execute() برایش مستقیم notif_inbox را صدا می‌زند، نه self.db.
     "notif.mark_read",
+    # ۲۰۲۶-۰۸-۰۹ (رأیِ مالک، مگاپرامپتِ تناقضات، آیتمِ الف-۳): تنها اکشنِ این
+    # لیست که هیچ جدولِ بیزینسی را لمس نمی‌کند — فقط `soak_test_noop` (جدولِ
+    # اختصاصیِ تشخیصی، هیچ صداکنندهٔ دیگری ندارد). هدف: مسیرِ نوشتنِ واقعی
+    # (همان اتصال/قفل/idempotency که proposal.approve و بقیه استفاده می‌کنند)
+    # زیرِ soak-testِ طولانی هم تمرین شود، بدونِ ریسکِ آلودگیِ دادهٔ بیزینسی.
+    "diagnostics.noop",
 }
 BLOCKED_PREFIXES = (
     "onlyfans.",
@@ -147,6 +153,13 @@ class OctopusOpsDB:
             "output_score REAL DEFAULT 0,cost_score REAL DEFAULT 0,risk_score REAL DEFAULT 0,"
             "metadata_json TEXT NOT NULL,created_at REAL NOT NULL)"
         )
+        # ۲۰۲۶-۰۸-۰۹: جدولِ اختصاصیِ diagnostics.noop — عمداً جدا از هر جدولِ
+        # بیزینسی (leads/tasks/value_events) تا هیچ probe ای دادهٔ واقعی را
+        # لمس نکند. هیچ کدِ دیگری این جدول را نمی‌خواند؛ فقط اثباتِ نوشتن است.
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS soak_test_noop("
+            "id TEXT PRIMARY KEY,note TEXT,created_at REAL NOT NULL)"
+        )
         self.conn.commit()
 
     def close(self) -> None:
@@ -191,6 +204,18 @@ class OctopusOpsDB:
         )
         self.conn.commit()
         return {"ok": True, "status": "APPLIED", "lead_id": lead_id, "handle": handle, "stage": stage}
+
+    def record_noop(self, p: Dict[str, Any]) -> Dict[str, Any]:
+        """۲۰۲۶-۰۸-۰۹: تنها اکشنِ صرفاً تشخیصی — فقط `soak_test_noop` را لمس می‌کند،
+        هیچ جدولِ بیزینسی را نه می‌خواند نه می‌نویسد. هدف: مسیرِ نوشتنِ واقعیِ
+        SQLite (همان conn/lock/idempotency) زیرِ soak-testِ طولانی امتحان شود."""
+        note = clean(p.get("note") or "soak-test", 200)
+        noop_id = make_id("noop", {"note": note, "ts": now_ts()})
+        self.conn.execute(
+            "INSERT INTO soak_test_noop(id,note,created_at) VALUES(?,?,?)",
+            (noop_id, note, now_ts()))
+        self.conn.commit()
+        return {"ok": True, "status": "APPLIED", "noop_id": noop_id}
 
     def add_note(self, p: Dict[str, Any]) -> Dict[str, Any]:
         lead_id, note = clean(p.get("lead_id"), 120), clean(p.get("note"), 2000)
@@ -474,6 +499,8 @@ class OpsActionEngine:
                 res = self.db.decide_rfc(payload, "merge-approved")
             elif action == "rfc.deny":
                 res = self.db.decide_rfc(payload, "denied")
+            elif action == "diagnostics.noop":
+                res = self.db.record_noop(payload)
             elif action == "notif.mark_read":
                 _ni = _notif_inbox_mod()
                 if _ni is None:

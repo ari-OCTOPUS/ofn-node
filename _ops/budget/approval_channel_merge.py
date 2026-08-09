@@ -4,12 +4,14 @@ ORPHAN 2026-07-16 → REVIVED 2026-08-02: path mismatch fixed (paused.flag → d
 4D brain APIs all verified present (self_code, budget, frontier, research_agenda, self_growth, events).
 Zero live callers remains — wiring into _ops telegram launch chain is the next step (see Track B plan).
 
-⚠️ تناقضِ باز (۲۰۲۶-۰۸-۰۹، مگاپرامپتِ تناقضات، آیتمِ ب-۱۱): سوالِ اصلی این دو
-فایل را با هم توصیه کرد retire شوند چون approval_channel.py کافی است. ولی
-این فایل خودش دو خطِ بالا را دارد — «REVIVED» + «next step» — یعنی یک Track B
-plan فعال ممکن است پشتش باشد که من دسترسی بهش ندارم. **به‌عمد deprecated
-اعلام نشد** برخلافِ approval_queue_unified.py؛ قبل از هر تصمیمی، وجود/وضعیتِ
-Track B plan را از مالک بپرس.
+⚠️ **DEPRECATED (۲۰۲۶-۰۸-۰۹، رأیِ مالک، مگاپرامپتِ تناقضات، آیتمِ ب-۱۱).**
+تردیدِ قبلی («REVIVED + Track B plan فعال ممکن است پشتش باشد») با حافظهٔ خودِ
+اختاپوس رفع شد: [[../../07 - Knowledge/_audit/OPEN_LOOPS|OPEN_LOOPS.md]] صریح
+می‌گوید «Track B هرگز روی ledger زنده نرفته — ۰ رویدادِ MONEY_ATTRIBUTION،
+reconcile/ فقط README». یعنی «REVIVED» بالا آرزو بود نه واقعیت. retire رسمی:
+`approval_channel.py` (۴۹۱۷ خط) صفِ تأییدِ واقعیِ زندهٔ باتِ تلگرام است و
+کافی است. این فایل کدِ زنده‌ای نمی‌شکند؛ اگر قابلیتِ نویی لازم شد، به
+approval_channel.py اضافه شود، نه این‌جا.
 
 approval_channel_merge.py — پلِ ادغامِ کانالِ تأییدِ _ops با مغزِ 4d_system.
 

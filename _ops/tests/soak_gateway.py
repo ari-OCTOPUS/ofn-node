@@ -67,8 +67,10 @@ def _refresh_initdata() -> str:
 
 
 def _probe(path: str, method: str = "GET", initdata: str = "",
-           timeout: float = 12.0) -> tuple[int, float]:
-    """یک probe → (status_code, elapsed_s). 0 = خطا/اتصال."""
+           timeout: float = 12.0, body: dict | None = None) -> tuple[int, float]:
+    """یک probe → (status_code, elapsed_s). 0 = خطا/اتصال.
+
+    `body`: بدنهٔ POST ِ سفارشی (پیش‌فرض None = رفتارِ قدیمی، بایت‌به‌بایت)."""
     url = GATEWAY + path
     headers = {}
     if initdata:
@@ -76,8 +78,9 @@ def _probe(path: str, method: str = "GET", initdata: str = "",
     data = None
     if method == "POST":
         headers["Content-Type"] = "application/json"
-        data = json.dumps({"question": "تست پایداری", "action": "invalid.x",
-                           "payload": {}}).encode("utf-8")
+        _b = body if body is not None else {"question": "تست پایداری", "action": "invalid.x",
+                                            "payload": {}}
+        data = json.dumps(_b).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     t0 = time.monotonic()
     try:
@@ -152,6 +155,19 @@ def run_soak(minutes: int, interval_s: float = 5.0) -> dict:
             stats["/api/ask"]["ok"] += 1
         else:
             stats["/api/ask"]["fail"] += 1
+        # ۲۰۲۶-۰۸-۰۹ (مگاپرامپتِ تناقضات، الف-۳): مسیرِ نوشتنِ واقعی هم زیرِ
+        # soak قرار می‌گیرد — با diagnostics.noop که فقط جدولِ اختصاصیِ
+        # تشخیصی را لمس می‌کند، صفر ریسکِ آلودگیِ دادهٔ بیزینسی.
+        _ensure("/api/actions")
+        code, elapsed = _probe("/api/actions", "POST", initdata, timeout=20.0,
+                               body={"action": "diagnostics.noop",
+                                     "payload": {"note": "soak-test"}})
+        stats["/api/actions"]["times"].append(elapsed)
+        stats["/api/actions"]["codes"][code] = stats["/api/actions"]["codes"].get(code, 0) + 1
+        if 200 <= code < 400:
+            stats["/api/actions"]["ok"] += 1
+        else:
+            stats["/api/actions"]["fail"] += 1
 
         if cycle % 12 == 0:  # هر ~۱ دقیقه progress
             elapsed_min = (time.time() - start_ts) / 60
