@@ -46,6 +46,13 @@ TASKS_DIR = opslib.STATE_DIR / "cortex" / "pending-tasks"
 BRAIN_LOG = opslib.STATE_DIR / "cortex" / "code-brain.jsonl"
 _MAX_PATCH_BYTES = 200_000          # سقفِ اندازهٔ محتوای تولیدی (دژ در برابرِ انفجار)
 
+# ── ردِ append-only در دفترچهٔ مشترکِ همهٔ تماس‌های پولی (۲۰۲۶-۰۸-۰۹) ─────────
+# قبل از این، مسیرِ L1-API این ماژول مستقیم به api.anthropic.com می‌زد و
+# در هیچ‌جا لاگ نمی‌شد — یعنی «آیا مغزِ پولی واقعاً کار کرد؟» را فقط
+# model_router.py جواب می‌داد، نه این مغزِ دوم. هم‌فایل با model_router
+# (`state/paid-calls.jsonl`) تا هر تحلیلِ مصرف یک دفترچه بخواند، نه دوتا.
+PAID_LOG = opslib.STATE_DIR / "paid-calls.jsonl"
+
 
 def enabled() -> bool:
     """مغز روشن است؟ فلگِ صریحِ مالک لازم است (default OFF = هیچ patchای تولید نمی‌شود)."""
@@ -57,6 +64,13 @@ def _log(rec: dict) -> None:
         rec = {"ts": opslib.now_iso(), **rec}
         opslib.append_jsonl(BRAIN_LOG, rec)
     except Exception:  # noqa: BLE001
+        pass
+
+
+def _paid_log(**rec) -> None:
+    try:
+        opslib.append_jsonl(PAID_LOG, {"ts": opslib.now_iso(), **rec})
+    except Exception:  # noqa: BLE001 — لاگ هرگز مسیرِ مغز را نمی‌کشد
         pass
 
 
@@ -451,18 +465,27 @@ def _defs_kept(before: str, after: str):
 
 def _draft_via_api(task: str, max_turns: int) -> Optional[dict]:
     """raw urllib + tool-use loop (همان الگوی langar، صفر وابستگیِ بیرونی)."""
+    model = os.environ.get("CODE_BRAIN_MODEL", "claude-haiku-4-5")
     msgs = [{"role": "user", "content": task[:2000]}]
     for _ in range(max(1, max_turns)):
         resp = _api_messages_create({
-            "model": os.environ.get("CODE_BRAIN_MODEL", "claude-haiku-4-5"),
+            "model": model,
             "max_tokens": 2000,
             "system": _system_prompt(),
             "messages": msgs,
             "tools": _TOOLS,
         })
         usage = resp.get("usage", {})
-        aud = (usage.get("input_tokens", 0) * 1 + usage.get("output_tokens", 0) * 5) / 1e6 * 1.55
+        tokens_in = usage.get("input_tokens", 0)
+        tokens_out = usage.get("output_tokens", 0)
+        cost_usd = (tokens_in * 1 + tokens_out * 5) / 1e6
+        aud = cost_usd * 1.55
         _add_cost(aud)
+        # subscription="api_key" (نه "max"): این تماس مستقیم روی ANTHROPIC_API_KEY
+        # است، نه اشتراکِ Fugu/Sakana — هیچ ابهامی بینِ دو نوعِ صورت‌حساب نماند.
+        _paid_log(tier="api", role="code_brain", provider="anthropic", model=model,
+                  via_gateway=False, subscription="api_key", ok=True,
+                  tokens_in=tokens_in, tokens_out=tokens_out, cost_usd=round(cost_usd, 6))
         # پایانِ مکالمه: پاسخِ نهایی را به‌عنوان JSON parse کن
         if resp.get("stop_reason") != "tool_use":
             text = "".join(b.get("text", "") for b in resp.get("content", [])

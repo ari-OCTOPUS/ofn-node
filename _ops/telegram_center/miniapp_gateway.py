@@ -472,7 +472,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror"):
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
@@ -661,6 +661,76 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                                   ensure_ascii=False).encode("utf-8")
                 return 200, body, "application/json; charset=utf-8"
             body = json.dumps({"ok": False, "reason": rm.get("reason") or "no-answer"},
+                              ensure_ascii=False).encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
+    if p == "/api/restart":
+        # ۲۰۲۶-۰۸-۰۹: دکمهٔ «ری‌استارتِ کامل» در مینی‌اپ — درِ ورودیِ دومی به
+        # همان مسیرِ امنِ فرمانِ تلگرامِ `/restart` (رأیِ مالک ۰۸-۰۷: trigger
+        # فقط دستی، تأیید داخلِ همان چت). این‌جا فقط request_restart را صدا
+        # می‌زند و همان کارتِ approval را می‌سازد؛ **هیچ subprocessی مستقیم
+        # از این‌جا launch نمی‌شود** — اجرای واقعی هنوز فقط از ap:ok در
+        # center.py می‌آید (`_trigger_restart_execution`). یعنی این دکمه
+        # گیتِ تأییدِ مالک را دور نمی‌زند، فقط یک راهِ کوتاه‌تر برای رسیدن به
+        # همان کارت است. صفر reimplementation: منطق عیناً از
+        # center.py::_restart_cmd کپی شده، نه بازنویسی.
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}") if raw_body else {}
+            scope = str(payload.get("scope") or "all").strip().lower()
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            import restart_control as _rc  # noqa: WPS433 — هم‌پوشه
+            import approval_store as _aps  # noqa: WPS433 — هم‌پوشه
+            if not _rc.flag_on():
+                body = json.dumps({"ok": False, "reason": "flag-off"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            if scope not in _rc.VALID_SCOPES:
+                body = json.dumps({"ok": False, "reason": "invalid_scope"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 400, body, "application/json; charset=utf-8"
+            if _rc.is_restart_in_flight():
+                body = json.dumps({"ok": False, "reason": "already_in_flight"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            import uuid as _uuid
+            owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
+            job_id = f"restart_{scope}_{int(time.time())}_{_uuid.uuid4().hex[:6]}"
+            r1 = _rc.request_restart(scope, job_id=job_id, requested_by=str(owner))
+            if not r1.get("ok"):
+                body = json.dumps({"ok": False, "reason": r1.get("reason") or "store_failed"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            try:
+                _aps.add_pending({"id": job_id, "type": "process_restart",
+                                  "title": f"ری‌استارتِ {scope}", "risk": "high",
+                                  "requires_confirmation": True,
+                                  "dry_run_report": f"scope={scope}",
+                                  "source": "restart_control"})
+            except Exception:  # noqa: BLE001
+                _rc.cancel_request()
+                body = json.dumps({"ok": False, "reason": "approval_card_failed"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            body = json.dumps({"ok": True, "job_id": job_id, "scope": scope,
+                               "reason": "confirm_in_telegram"},
                               ensure_ascii=False).encode("utf-8")
             return 200, body, "application/json; charset=utf-8"
         except Exception as exc:
