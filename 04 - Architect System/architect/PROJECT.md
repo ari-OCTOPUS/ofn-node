@@ -42,7 +42,7 @@ updated: 2026-08-09
   مینی‌اپ اضافه و زنده تست شد (`POST /api/restart`، صفر bypass از approval
   تلگرام). همزمان با ورودیِ زیر (renderLegs) روی همان `app.js` — کامیتِ
   `f324098` هر دو را با کردیت گرفت. جزئیاتِ کامل:
-  [[../../07 - Knowledge/شناخت-اختاپوس/38-QUOTA-ROOTCAUSE-DARKFLAGS-BATCH-ARM-RESTART-CONTROL-2026-08-09|نوتِ ۳۸]].
+  [[../../07 - Knowledge/شناخت-اختاپوس/39-QUOTA-ROOTCAUSE-DARKFLAGS-BATCH-ARM-RESTART-CONTROL-2026-08-09|نوتِ ۳۹]].
 
 - تغییرات اخیر: **2026-08-09 شب (agent — اسکن+دیباگِ کاملِ فرانت‌اندِ مینی‌اپ).**
   یک باگِ زندهٔ واقعی فیکس شد (`renderLegs()` بدونِ panelGuard، status:"unknown"
