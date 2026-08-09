@@ -227,10 +227,43 @@ class TestGatesWorkOnTheOldestDevice(unittest.TestCase):
 
     def test_the_consent_lock_has_a_script_fallback(self):
         """Without `:has()` the publish button would be live with no consent
-        recorded — a gate that fails OPEN, the only kind that matters."""
-        self.assertIn("selector(:has(*))", JS)
+        recorded — a gate that fails OPEN, the only kind that matters.
+
+        This asserted `selector(:has(*))` — the text of a `CSS.supports` probe.
+        The probe's result was read by nothing, so the assertion passed on the
+        presence of a string while the actual fallback was the unconditional
+        `.locked` toggle beside it. Pinning the probe also permitted the worse
+        design: a fallback that only engages where a capability test says it is
+        needed, which is one wrong probe away from an open gate.
+
+        So the property, not the mechanism (CLAUDE.md §8-a): the class is
+        toggled from the checkbox, the CSS neutralises the button the same way
+        the `:has()` rule does, the toggle runs on load as well as on change,
+        and none of it sits behind a capability branch.
+        """
         self.assertIn("gate.classList.toggle('locked'", JS)
         self.assertIn(".gate.locked .cta-main", CSS)
+
+        # Both floors must disable the same way, or the fallback only dims it.
+        for selector in (r"\.gate:has\(input:not\(:checked\)\) \.cta-main\{([^}]*)\}",
+                         r"\.gate\.locked \.cta-main\{([^}]*)\}"):
+            rule = re.search(selector, CSS)
+            self.assertIsNotNone(rule, f"missing rule: {selector}")
+            self.assertIn("pointer-events:none", rule.group(1))
+
+        # Wired to the checkbox, and run once at load — a page that opens with
+        # the box unchecked must start locked, not merely become locked.
+        self.assertRegex(JS, r"addEventListener\(\s*['\"]change['\"]\s*,\s*syncConsentGate")
+        self.assertGreaterEqual(
+            len(re.findall(r"\bsyncConsentGate\(\)", JS)), 1,
+            "syncConsentGate is never called outside its own definition")
+
+        # Unconditional: the toggle must not be guarded by a capability probe.
+        body = re.search(r"function syncConsentGate\(\)\s*\{(.*?)\n\}", JS, re.S)
+        self.assertIsNotNone(body)
+        self.assertNotRegex(
+            body.group(1), r"CSS\.supports|\bHAS\b",
+            "the consent fallback is behind a capability probe; it must always run")
 
     def test_the_confirm_sheet_has_a_script_fallback(self):
         self.assertIn("HTMLElement.prototype.hasOwnProperty('popover')", JS)

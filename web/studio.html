@@ -1060,12 +1060,14 @@ const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
    The directive is explicit: beauty may improve on a newer browser, a gate
    must work on the oldest. Both of these are gates. */
 
-/* `:has()` styles the consent lock. Where it is missing the button would be
-   live without consent — a gate that fails OPEN, which is the only kind
-   that matters. This mirrors it in script. */
-const HAS = (() => {
-  try { return CSS.supports('selector(:has(*))'); } catch (_) { return false; }
-})();
+/* `:has()` styles the consent lock, and where it is missing the button would
+   be live without consent — a gate that fails OPEN, which is the only kind
+   that matters. The mirror is syncConsentGate() below: it toggles `.locked`,
+   and `.gate.locked .cta-main` carries the same rule as the `:has()` one.
+   A `CSS.supports('selector(:has(*))')` probe used to sit here and was read
+   by nothing, so the comment claiming the mirror pointed at a value no branch
+   ever tested. The mirror is unconditional now, which is simpler and correct
+   on both floors. */
 
 function syncConsentGate() {
   const box = $('c1'), gate = document.querySelector('.gate');
