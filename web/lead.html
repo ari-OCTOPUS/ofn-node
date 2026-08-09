@@ -189,14 +189,18 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
       <!-- Filled from the verified session. This carried a full name —
            surname included — to every unauthenticated visitor. -->
       <div class="hnm" id="hnm">&nbsp;</div>
-      <div class="hsub">دوشنبه ۱۲ مرداد</div>
+      <div class="hsub" id="today"></div>
     </div>
     <div class="live"><span class="ld"></span>فعال</div>
   </div>
+  <!-- No starting figures. These shipped as ۱۲ / ۵ / ۳ under real labels, and
+       refreshKpis() only overwrites them when its read succeeds — so a failed
+       fetch left three invented numbers on screen looking like today's. A dash
+       is readable as "not yet"; a number is not. -->
   <div class="kpi">
-    <div class="k"><div class="kv num">۱۲</div><div class="kl">لید امروز</div></div>
-    <div class="k"><div class="kv num">۵</div><div class="kl">منتظر تو</div></div>
-    <div class="k"><div class="kv num">۳</div><div class="kl">کار این هفته</div></div>
+    <div class="k"><div class="kv num">—</div><div class="kl">در حال خواندن…</div></div>
+    <div class="k"><div class="kv num">—</div><div class="kl">در حال خواندن…</div></div>
+    <div class="k"><div class="kv num">—</div><div class="kl">در حال خواندن…</div></div>
   </div>
 </header>
 
@@ -206,99 +210,13 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
   <div id="live" hidden></div>
   <div class="crm" id="leadcrm" hidden></div>
 
-  <div class="sec" id="sample">
-    <div class="sh"><h2>منتظر تأیید تو</h2><span class="cnt a">۲</span></div>
-
-    <div class="job">
-      <div class="jtop">
-        <div class="jt">بازسازی آپارتمان — Marrickville</div>
-        <span class="badge hot">داغ</span>
-      </div>
-      <div class="meta">
-        <span>📍 <bdi>Marrickville</bdi> · <bdi class="num">۸ km</bdi></span>
-        <span>🏠 ۳ خوابه</span>
-        <span>🕐 ۳۴ دقیقه پیش</span>
-      </div>
-      <div class="price">
-        <div class="pv num">$۴٬۲۰۰</div>
-        <div class="pl">تخمین<br>قیمت نهایی با خودت</div>
-      </div>
-      <div class="warn">ایمیل قیمت ندارد — فقط قرار بازدید.</div>
-      <div class="acts">
-        <button class="b go" onclick="ok(this,'✓ ایمیل رفت — منتظر جواب')">ایمیل بفرست</button>
-        <button class="b call">📞 زنگ می‌زنم</button>
-        <button class="b no" onclick="ok(this,'رد شد',1)">رد</button>
-      </div>
-    </div>
-
-    <div class="job">
-      <div class="jtop">
-        <div class="jt">رنگ نمای بیرونی — Ashfield</div>
-        <span class="badge wait">منتظر</span>
-      </div>
-      <div class="meta">
-        <span>📍 <bdi>Ashfield</bdi> · <bdi class="num">۵ km</bdi></span>
-        <span>🏢 دو طبقه</span>
-        <span>🕐 ۲ ساعت پیش</span>
-      </div>
-      <div class="price">
-        <div class="pv num">$۶٬۸۰۰</div>
-        <div class="pl">تخمین<br>داربست لازم دارد</div>
-      </div>
-      <div class="acts">
-        <button class="b go" onclick="ok(this,'✓ ایمیل رفت — منتظر جواب')">ایمیل بفرست</button>
-        <button class="b call">📞 زنگ می‌زنم</button>
-        <button class="b no" onclick="ok(this,'رد شد',1)">رد</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sh"><h2>برنامهٔ هفته</h2></div>
-    <div class="week">
-      <div class="day busy"><div class="dn">دوشنبه</div><div class="dd num">۱۲</div><div class="dj">۱ کار</div></div>
-      <div class="day busy"><div class="dn">سه‌شنبه</div><div class="dd num">۱۳</div><div class="dj">۱ کار</div></div>
-      <div class="day full"><div class="dn">چهارشنبه</div><div class="dd num">۱۴</div><div class="dj">پر</div></div>
-      <div class="day"><div class="dn">پنجشنبه</div><div class="dd num">۱۵</div><div class="dj">آزاد</div></div>
-      <div class="day"><div class="dn">جمعه</div><div class="dd num">۱۶</div><div class="dj">آزاد</div></div>
-      <div class="day"><div class="dn">شنبه</div><div class="dd num">۱۷</div><div class="dj">آزاد</div></div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sh"><h2>لیدهای تازه</h2><span class="cnt">۳</span></div>
-
-    <div class="job">
-      <div class="jtop">
-        <div class="jt">اتاق خواب — Newtown</div>
-        <span class="badge new">جدید</span>
-      </div>
-      <div class="meta">
-        <span>📍 <bdi>Newtown</bdi> · <bdi class="num">۶ km</bdi></span>
-        <span>🕐 ۱۱ دقیقه پیش</span>
-      </div>
-      <div class="acts">
-        <button class="b go" onclick="ok(this,'✓ به صف پاسخ رفت')">جواب بده</button>
-        <button class="b no" onclick="ok(this,'رد شد',1)">دور است</button>
-      </div>
-    </div>
-
-    <div class="job">
-      <div class="jtop">
-        <div class="jt">کل واحد تجاری — Chatswood</div>
-        <span class="badge new">جدید</span>
-      </div>
-      <div class="meta">
-        <span>📍 <bdi>Chatswood</bdi> · <bdi class="num">۱۹ km</bdi></span>
-        <span>🕐 ۴۰ دقیقه پیش</span>
-      </div>
-      <div class="warn">📏 دورتر از حد معمول، ولی کار بزرگی است.</div>
-      <div class="acts">
-        <button class="b go" onclick="ok(this,'✓ به صف پاسخ رفت')">می‌ارزد</button>
-        <button class="b no" onclick="ok(this,'رد شد',1)">دور است</button>
-      </div>
-    </div>
-  </div>
+  <!-- The sample job cards, week strip and fresh-lead list lived here.
+       They shipped invented suburbs, prices and distances, and their
+       buttons called ok(), which printed "✓ ایمیل رفت" without sending
+       anything — the same fake-effect button the panel was cleared of.
+       boot() removed them, but only after two early returns, so anyone
+       who could not authenticate saw the whole fabricated dashboard.
+       Real leads render into #leadcrm from the node. -->
 
 </div>
 
@@ -393,13 +311,7 @@ const el = (tag, cls, txt) => {
 /* Sample-card handler. Preview only — it posts nothing, and when the page is
    not live these buttons are disabled outright rather than left to report a
    send that never happened. */
-function ok(btn,msg,neg){
-  const j=btn.closest('.job');
-  const res=el('div','res '+(neg?'no':'ok'),msg);
-  j.querySelector('.acts').replaceWith(res);
-  if(neg)j.classList.add('gone');
-  OFN.done(neg?'warning':'success');
-}
+
 
 /* ── live questions ──────────────────────────────────────────────────────
    Same contract as the other shells: the node ranks them, the pack words
@@ -541,7 +453,14 @@ async function refreshKpis() {
     if (kv[1]) { kv[1].textContent = fa(st.pending_decisions || 0); kl[1].textContent = 'منتظر آری'; }
     if (kv[2]) { kv[2].textContent = fa(st.capacity_per_week || 0); kl[2].textContent = 'ظرفیت هفته'; }
     return st;
-  } catch (_) { return null; }
+  } catch (_) {
+    /* Say the reading is unavailable rather than leaving the previous one
+       standing. A stale number under a live label is the failure this shell
+       already had once. */
+    document.querySelectorAll('.kv').forEach(n => { n.textContent = '—'; });
+    document.querySelectorAll('.kl').forEach(n => { n.textContent = 'در دسترس نیست'; });
+    return null;
+  }
 }
 
 
@@ -729,6 +648,14 @@ function greet(name) {
 
 async function boot() {
   OFN.shell();
+  /* The header carried a fixed date, so it read "دوشنبه ۱۲ مرداد" on every
+     day of the year. The platform can format a Jalali date without a library;
+     if it cannot, the line stays empty rather than wrong. */
+  try {
+    const t = document.getElementById('today');
+    if (t) t.textContent = new Intl.DateTimeFormat('fa-IR',
+      { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+  } catch (_) { /* leave it blank */ }
   const connected = await OFN.connect();
   if (!connected) { showState(OFN.why); return; }
   greet(OFN.who);
@@ -742,14 +669,17 @@ async function boot() {
   } catch (_) { showState('unreachable'); return; }
   const st = await refreshKpis();
 
-  /* The sample job cards are not real leads and there is no lead feed on the
-     node yet. Showing them beside live data would be the same lie in a nicer
-     font, so they come off the screen entirely. */
-  document.querySelectorAll('.body > .sec').forEach(s => s.remove());
   LIVE.hidden = false;
   queue = qs.questions || [];
   at = 0;
   draw();
+
+  /* The CRM was built, styled and endpoint-backed, and nothing on the boot
+     path ever called it — so `#leadcrm` stayed hidden and the partner opened
+     the app to no CRM at all. Not awaited: it handles its own failures, and
+     the question flow above must not wait on a dashboard read.
+     Pinned by tests/test_shell_reachability.py. */
+  refreshLeadCrm();
 
   if (st && st.safe_mode) {
     const box = document.getElementById('state');

@@ -53,6 +53,17 @@ def read(name: str) -> str:
         return fh.read()
 
 
+def static_markup(html: str) -> str:
+    """The markup a browser paints before any script runs.
+
+    `html.split("<script")[0]` was the idiom here, and it stops at the SDK tag
+    in `<head>` — so every assertion built on it was inspecting nine lines of
+    head and reporting success about a body it never read. Removing the script
+    blocks and keeping the rest is what was meant.
+    """
+    return re.sub(r"<script\b.*?</script>", "", html, flags=re.S | re.I)
+
+
 def inline_scripts(html: str) -> list[str]:
     return re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", html, re.S)
 
@@ -71,10 +82,36 @@ class TestShellsDoNotLie(unittest.TestCase):
         """Five fabricated decision cards used to sit in the markup, above a
         button that claimed to write to the ledger."""
         src = read("panel.html")
-        body = src.split("<script")[0]
+        body = static_markup(src)
         self.assertNotIn('class="dec r"', body)
         self.assertNotIn('class="dec y"', body)
         self.assertNotIn('class="dec g"', body)
+
+    def test_no_shell_ships_a_reading(self):
+        """A figure in the markup is a figure the node never sent.
+
+        `lead.html` shipped ۱۲ / ۵ / ۳ in its KPI strip under the labels
+        "لید امروز", "منتظر تو", "کار این هفته". `refreshKpis()` overwrote them,
+        but only when its read succeeded — so a partner on a bad connection saw
+        three invented numbers wearing today's labels, and nothing on screen
+        said otherwise. The panel had the same class of bug and was cleared of
+        it; this pins all four.
+
+        The unit under test is the markup before the first `<script>`: whatever
+        the browser paints before any fetch resolves. A dash or an ellipsis is
+        fine — those read as "not yet". A numeral does not.
+        """
+        for shell in ALL_SHELLS:
+            body = static_markup(read(shell))
+            # Value nodes: the classes each shell uses for a rendered figure.
+            for cls in ("kv", "pnum", "hnum", "mval", "vv", "num"):
+                for m in re.finditer(
+                        rf'class="[^"]*\b{cls}\b[^"]*"[^>]*>([^<]+)<', body):
+                    text = m.group(1).strip()
+                    self.assertFalse(
+                        re.search(r"[۰-۹0-9]", text),
+                        f"{shell}: a `{cls}` node ships the figure {text!r}; "
+                        f"it must start empty or as a placeholder")
 
     def test_a_ledger_claim_only_follows_a_real_request(self):
         """Any shell that tells a human something was recorded must have
