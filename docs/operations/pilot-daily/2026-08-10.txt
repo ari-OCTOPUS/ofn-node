@@ -5,3 +5,7 @@ pilot daily — 2026-08-10
     studio: 1 drafts
     (thresholds are set by Ari on day zero — none invented here)
   pilot: ok — 3 items read (me, webhook, channel)
+  (day-zero session) first full manual cycle completed:
+    lead-reply  → approved (12:28) → manual_completed (12:32)
+    lead-quote  → approved (12:28) → manual_completed (12:32)
+    both recorded in ledger as MANUAL_COMPLETED
