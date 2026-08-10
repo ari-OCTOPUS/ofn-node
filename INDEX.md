@@ -72,10 +72,12 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
   empty-state گرم در ziman. حذف ممنوع رعایت شد.
 
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
+- ✅ [[MEGAPROMPT-COMPLETE-FINISH]] — فاز H–M اجرا شد (۱۷۶۷ pass · boot ۳۱/۳۱).
+  بقیه فقط حکم آری: UNIFY قدم دوم، vendor، kill durable، retention.
 - ✅ [[AGENT-NEXT-DEEPSEEK-V4-FAST]] + [[MEGAPROMPT-P1-TO-P4-COMPLETE]] —
-  فازهای A–G اجرا شد (۱۷۳۳ pass · boot ۳۱/۳۱ · ۸ commit). فاز H (معماری) باقی.
+  فازهای A–G اجرا شد · فاز H هم در COMPLETE-FINISH بسته شد.
 - 🔲 [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — ادامهٔ connector بدون sender.
-- 🔲 [[MEGAPROMPT-UNIFY]] — ادغام دو ایجنت (بخش‌هایی انجام شده؛ سند را بسنج).
+- 🔲 [[MEGAPROMPT-UNIFY]] — قدم دوم: غیرفعال‌کردن hypno-fugu-mini (حکم آری).
 - ✅ لید نقاشی: `lead_priority()` وصل · CRM شریک روی boot · HIGH-1 بسته.
 - ✅ P0 ممیزی صد یافته: webhook harden · gates · ziman boot · state_dir checks.
 
@@ -113,9 +115,9 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
-- [[MEGAPROMPT-COMPLETE-FINISH]] — **⬆️ کار بعدی:** تکمیل کامل — H معماری + ۲۵ یافتهٔ باز + UNIFY + vendor
+- [[MEGAPROMPT-COMPLETE-FINISH]] — ✅ انجام شد — فاز H–M (۲۰۲۶-۰۸-۱۰) · بقیه حکم آری
 - [[AGENT-NEXT-DEEPSEEK-V4-FAST]] — ✅ انجام شد — فازهای A–G (۲۰۲۶-۰۸-۱۰)
-- [[MEGAPROMPT-P1-TO-P4-COMPLETE]] — ✅ فاز A–G بسته · فاز H (معماری تدریجی) باز
+- [[MEGAPROMPT-P1-TO-P4-COMPLETE]] — ✅ فاز A–G بسته · فاز H هم در COMPLETE-FINISH بسته شد
 - [[AGENT-NEXT-PANEL-UPGRADE]] — ✅ انجام شد — اسکن + ارتقای چهار کنترل‌پنل (۲۰۲۶-۰۸-۱۰)
 - [[docs/handoffs/panel-scans-2026-08-10/INVENTORY|اسکن پنل‌ها — قبل و بعد — ۲۰۲۶-۰۸-۱۰]]
 - [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — اتصال پلتفرم مارکتینگ با مغز OFN

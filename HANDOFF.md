@@ -31,6 +31,69 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — اجرای کامل COMPLETE-FINISH (فاز H تا M)
+
+شش commit (`1a7010a` → `ac4af7b`) که مگاپرامت کامل‌کننده را بست — همهٔ
+کارهای باز پروژه.
+
+### فاز H — معماری تدریجی (1a7010a)
+- http_api: `_OWNER_GET_TABLE` fast path (fallback کامل به if-chain)
+- `Node.owner` facade (`owner_reads.py`) — seam برای extract آینده
+- `tests/fixtures/renditions.py` — fixture مشترک (cross-test import حذف)
+- studio.yaml: gate `capacity` اضافه شد (parity با ziman/lead)
+
+### فاز I — یافته‌های باز P2 (0120735)
+- ۱۷: shell/boot throttle (۱۰/۶۰ ثانیه + coalesce) ✅
+- ۱۹: LIKE ESCAPE سمت سرور ✅ · ۳۶: `.part` sweeper ✅
+- ۶۵: ARIA tabs ✅ · ۶۶: lead poll ۶۰s + visibility stop ✅
+- ۶۸: dedup recent leads ✅ · ۸۶: service_area comment صادق ✅
+- ۸۷: پیام کارمزد کانال کامل‌تر ✅
+
+### فاز J — یافته‌های P3 (5ff297c)
+- ۲۰: kill switch RAM — DecisionRecord + یادداشت panel
+- ۳۳: journal_size_limit اندازه‌گیری شد (پایدار ~۱.۲MB)
+- ۳۴: power-cut simulation سبز — boot checkpoint امن
+- ۳۵: RETENTION.md runbook · ۳۸: brain queue RAM — DecisionRecord
+
+### فاز K — یافته‌های P4 (e8ab725)
+- ۱۳: تست معماری mutation↔ledger — **۷ شکاف واقعی پیدا و بسته شد**
+  (send_to_outbox، attach_media، file_media، set_draft_labels،
+  set_media_labels، record_felt، update_studio_assistant)
+- ۱۸: session sig ۱۲۸-bit — DecisionRecord + تست pin
+- ۶۷: LEAD.offset حذف · ۷۵: تست Persian dynamic labels
+- ۹۰: product_photos DecisionRecord · ۹۴: megaprompt test inventory align
+- ۹۸: API namespace glossary
+
+### فاز L — UNIFY: hypno edge داخل OFN (818b426)
+- `ofn/kernel/edge.py` + `safety.py` (کپی از hypno، provenance مستند)
+- متدهای Node: hypno_edge_decision/daily/history
+- مسیرها: POST/GET `/api/v1/hypno/edge/*` (auth دار)
+- **hypno همچنان روی ۸۸۹۵ فعال است** (۹۰ تست سبز) — غیرفعال‌کردن
+  سرویس قدم دوم با حکم آری (systemd change)
+
+### فاز M — vendor مارکتینگ (ac4af7b)
+- `VENDOR-EVALUATION.md`: ۴ کاندید سنجیده شد — پیشنهاد: Telegram اول،
+  Bluesky pilot، Instagram با نیاز واقعی، Mailchimp رد
+- `platforms/telegram_readonly.py`: skeleton read-only (publish غایب)
+- **منتظر حکم آری** — هیچ vendor واقعی وصل نشده
+
+### صحت نهایی
+```
+pytest      1767 passed · 5 skipped (تأیید: tools/repo_baseline.py --tests)
+boot        OK — 31 checks · state_dir 0700
+سرویس‌ها     ofn + hypno + cloudflared active · هر ۵ پورت 200
+WIRE/gates  خاموش/بسته · sender ساخته نشد · UI حذف نشد
+CRIT-1      8090 بدون listener
+```
+
+### مانده برای حکم آری
+- **غیرفعال‌کردن hypno-fugu-mini.service** (قدم دوم UNIFY)
+- **vendor رسمی** (از VENDOR-EVALUATION)
+- kill switch بادوام · retention با پاک‌کردن · حذف product_photos
+- Telegram alert · systemd unit changes
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — اجرای کامل P1→P4 (فاز A تا G)
 
 هفت commit (`fd4aa03` → `8707f8f`) که فازهای A–G مگاپرامپت P1-TO-P4 را بست.

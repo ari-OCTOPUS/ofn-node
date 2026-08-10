@@ -2,7 +2,7 @@
 tags: [ofn, megaprompt, finish, architecture, unify, vendor]
 aliases: [مگاپرامپت کامل‌کننده, Complete Finish Megaprompt]
 updated: 2026-08-10
-status: باز — منتظر اجرای عامل
+status: ✅ فاز H–M اجرا شد — ۲۰۲۶-۰۸-۱۰ · بقیه فقط حکم آری
 ---
 # MEGAPROMPT — تکمیل کامل پروژه OFN
 
