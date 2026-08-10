@@ -34,6 +34,15 @@ NOT_CALLED = {
         "boot, gates and quota already come from owner/status",
     "/api/v1/owner/painting/sources":
         "the painting dashboard payload carries sources; drawPaintSources",
+    # O7 consent administration is owner API surface; the panel's consent
+    # section is a planned owner-tools card, not yet drawn (partner sees
+    # gaps through studio.html). Excused until the owner UI lands.
+    "/api/v1/owner/consent/subjects":
+        "consent admin is API-first (O7); owner UI card planned",
+    "/api/v1/owner/consent/gaps":
+        "consent admin is API-first (O7); owner UI card planned",
+    "/api/v1/owner/consent/releases/":
+        "consent admin is API-first (O7); owner UI card planned",
 }
 
 

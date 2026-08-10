@@ -2776,6 +2776,87 @@ class Node:
                 })
         return out
 
+    # ── consent administration (O7) ────────────────────────────────────────
+    # Owner-only: partners may see gaps and request review, but only the
+    # owner records releases or revokes them. Only digest/location/scope/
+    # time — never document bytes.
+
+    def owner_consent_subjects(self, tenant: str = "studio") -> dict:
+        if self.consent is None:
+            return {"ok": False, "error": "consent not wired"}
+        scope = self.registry.scope(tenant)
+        subjects = self.consent.subjects(scope.tenant.value)
+        return {"ok": True, "subjects": [
+            {"subject_id": s.subject_id, "label": s.display_label}
+            for s in subjects]}
+
+    def owner_consent_gaps(self, tenant: str = "studio") -> dict:
+        """Drafts whose subjects lack a live release for their platform."""
+        if self.consent is None or self.studio is None:
+            return {"ok": False, "error": "consent not wired"}
+        scope = self.registry.scope(tenant)
+        drafts = self.studio.drafts(scope.tenant.value) or []
+        gaps = []
+        for d in drafts:
+            did = d.draft_id if hasattr(d, "draft_id") else d.get("draft_id")
+            subjects = self.consent.subjects_in_draft(did)
+            releases = self.consent.releases_for(
+                [s.subject_id for s in subjects])
+            missing = [s.subject_id for s in subjects
+                       if not any(r.subject_id == s.subject_id
+                                  for r in releases)]
+            if missing:
+                gaps.append({"draft_id": did, "missing_subjects": missing})
+        return {"ok": True, "gaps": gaps}
+
+    def owner_consent_add_subject(self, body: Mapping[str, object],
+                                  tenant: str = "studio") -> dict:
+        if self.consent is None:
+            return {"ok": False, "error": "consent not wired"}
+        scope = self.registry.scope(tenant)
+        sid = str(body.get("subject_id") or "").strip()
+        label = str(body.get("label") or "").strip()
+        if not sid or not label:
+            return {"ok": False, "error": "subject_id and label required"}
+        try:
+            self.consent.add_subject(scope.tenant.value, sid, label,
+                                     now_epoch_s=self.now_epoch_s())
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "subject_id": sid}
+
+    def owner_consent_add_release(self, body: Mapping[str, object],
+                                  tenant: str = "studio") -> dict:
+        if self.consent is None:
+            return {"ok": False, "error": "consent not wired"}
+        scope = self.registry.scope(tenant)
+        rid = str(body.get("release_id") or "").strip()
+        sid = str(body.get("subject_id") or "").strip()
+        plat = str(body.get("scope") or "").strip()
+        if not rid or not sid or not plat:
+            return {"ok": False, "error": "release_id, subject_id, scope required"}
+        try:
+            self.consent.record_release(
+                rid, sid, scope=plat, signed_at=int(body.get("signed_at")
+                                                    or self.now_epoch_s()),
+                document_ref=str(body.get("document_ref") or "owner-recorded"),
+                document_sha256=str(body.get("document_sha256") or "")
+                or ("0" * 64),
+                recorded_by="owner")
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "release_id": rid}
+
+    def owner_consent_revoke(self, release_id: str,
+                             tenant: str = "studio") -> dict:
+        if self.consent is None:
+            return {"ok": False, "error": "consent not wired"}
+        scope = self.registry.scope(tenant)
+        try:
+            self.consent.revoke(release_id, now_epoch_s=self.now_epoch_s())
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "release_id": release_id, "revoked": True}
 
     # ── kill switch ───────────────────────────────────────────────────────
     # The panic button. `killed=True` makes `admit()` refuse every action at

@@ -189,6 +189,11 @@ class ApiApp:
         owner_outbox_packet: Callable[[str], dict] | None = None,
         owner_outbox_complete: Callable[[str, Mapping, bool], dict] | None = None,
         owner_approved_manual: Callable[[], list] | None = None,
+        owner_consent_subjects: Callable[..., dict] | None = None,
+        owner_consent_gaps: Callable[..., dict] | None = None,
+        owner_consent_add_subject: Callable[..., dict] | None = None,
+        owner_consent_add_release: Callable[..., dict] | None = None,
+        owner_consent_revoke: Callable[..., dict] | None = None,
         owner_status: Callable[[], dict] | None = None,
         owner_events: Callable[[int], list] | None = None,
         owner_metrics: Callable[[], dict] | None = None,
@@ -296,6 +301,11 @@ class ApiApp:
         self._owner_outbox_packet = owner_outbox_packet
         self._owner_outbox_complete = owner_outbox_complete
         self._owner_approved_manual = owner_approved_manual
+        self._owner_consent_subjects = owner_consent_subjects
+        self._owner_consent_gaps = owner_consent_gaps
+        self._owner_consent_add_subject = owner_consent_add_subject
+        self._owner_consent_add_release = owner_consent_add_release
+        self._owner_consent_revoke = owner_consent_revoke
         self._owner_status = owner_status or (lambda: {})
         self._owner_metrics = owner_metrics
         self._owner_observability = owner_observability
@@ -1230,6 +1240,40 @@ class ApiApp:
                 return Response(404, {"error": "not found"})
             return self._owner_read(
                 {"items": self._owner_approved_manual()})
+
+        # ── consent administration (O7) ───────────────────────────────────
+        if method == "GET" and path == "/api/v1/owner/consent/subjects":
+            if self._owner_consent_subjects is None:
+                return Response(404, {"error": "not found"})
+            return self._owner_read(self._owner_consent_subjects())
+        if method == "GET" and path == "/api/v1/owner/consent/gaps":
+            if self._owner_consent_gaps is None:
+                return Response(404, {"error": "not found"})
+            return self._owner_read(self._owner_consent_gaps())
+        if method == "POST" and path == "/api/v1/owner/consent/subjects":
+            if self._owner_consent_add_subject is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._owner_consent_add_subject(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/consent/releases":
+            if self._owner_consent_add_release is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._owner_consent_add_release(data)
+            return Response(200 if out.get("ok") else 400, out)
+        consent_prefix = "/api/v1/owner/consent/releases/"
+        if method == "POST" and path.startswith(consent_prefix) \
+                and path.endswith("/revoke"):
+            rid = path[len(consent_prefix):-len("/revoke")]
+            if not rid or "/" in rid or self._owner_consent_revoke is None:
+                return Response(404, {"error": "not found"})
+            out = self._owner_consent_revoke(rid)
+            return Response(200 if out.get("ok") else 400, out)
 
         # ── kill switch, owner-only ─────────────────────────────────────
         # The panic button. Engage is one tap (fail-safe: toward safety);
