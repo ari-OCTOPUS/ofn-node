@@ -1242,6 +1242,58 @@ function drawManual(data) {
       box.append(mk('div', 'muted',
         'قرمز — هنگام ثبت انجام، تأیید دوم لازم است.'));
     }
+    /* ثبت انجام: تأیید یعنی «انجام بده»، نه «ارسال شد». این دکمه همان
+       کاری را می‌کند که قبلاً فقط از API می‌شد — و چون آیتم‌های قرمز
+       برگشت‌ناپذیرند، همان الگوی دو مرحله‌ای تأیید را دارد. `it.id` از
+       سرور از قبل scoped است (tenant:key در خود DB)، پس فقط URL-encoded
+       می‌شود — پیشوند دوبارهٔ tenant همان باگ P0-1 را برمی‌گرداند. */
+    const done = mk('button', 'k', it.needs_double_confirm
+      ? '🔓 ثبت انجام' : '✓ ثبت انجام');
+    done.type = 'button';
+    const doneRow = mk('div', 'row');
+    doneRow.append(done);
+    let armed = false;
+    const say = (ok, text) => {
+      const o = mk('div', 'out ' + (ok ? 'ok' : 'no'), text);
+      doneRow.replaceWith(o);
+    };
+    done.onclick = async () => {
+      if (armed) {
+        armed = false;
+        armedCount -= 1;
+        done.disabled = true;
+        const scoped = encodeURIComponent(it.id);
+        try {
+          const res = await OFN.post(
+            `/api/v1/owner/outbox/${scoped}/complete`,
+            { channel: 'manual', confirmed_twice: true,
+              completed_by: 'owner' });
+          if (!res.ok) {
+            say(false, '✕ ' + (res.error || 'ثبت نشد'));
+            return;
+          }
+          OFN.done('success');
+          say(true, '✓ انجام ثبت شد — در لجر ماند');
+          setTimeout(refresh, 2500);
+        } catch (e) {
+          done.disabled = false;
+          say(false, e && e.status === 401
+            ? 'نشست تمام شد. چیزی ثبت نشد — پنل را دوباره از تلگرام باز کن.'
+            : 'به نود نرسید. چیزی ثبت نشد — دوباره بزن.');
+        }
+        return;
+      }
+      armed = true;
+      armedCount += 1;         // holds the poll off; see refresh()
+      done.textContent = '⚠️ مطمئنی؟ دوباره بزن';
+      setTimeout(() => {
+        if (!armed) return;
+        armed = false;
+        armedCount -= 1;
+        if (done.isConnected) done.textContent = '🔓 ثبت انجام';
+      }, 5000);
+    };
+    box.append(doneRow);
   });
 }
 

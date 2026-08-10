@@ -404,3 +404,87 @@ class TestMultiTenantCompletion(unittest.TestCase):
         """No silent default: a key without its tenant cannot be resolved."""
         resp = self._owner("GET", "/api/v1/owner/outbox/barekey/packet")
         self.assertEqual(resp.status, 404)
+
+
+class TestApprovedManualIdIsScoped(unittest.TestCase):
+    """P0-1 contract: the id the panel receives is already scoped.
+
+    The panel builds the complete URL from this id directly
+    (encodeURIComponent). If the server returned a bare key, the owner's
+    principal tenant would be prefixed and cross-tenant items would hit the
+    wrong scope — the exact P0-1 bug. The id must round-trip through the
+    URL without any server-side re-prefixing.
+    """
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.http_api import ApiApp, HostMap
+        from ofn.adapters.ledger import Ledger
+        from ofn.kernel.auth import issue_session
+        from ofn.kernel.domain import PackSpec, TenantId
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+        self.registry = TenantRegistry({
+            "alpha": PackSpec(tenant=TenantId("alpha"),
+                              capacity_units_per_week=6, quota_share=0.5),
+            "beta": PackSpec(tenant=TenantId("beta"),
+                             capacity_units_per_week=6, quota_share=0.5),
+        })
+        self.node = Node(
+            registry=self.registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0,
+                            shares={"alpha": 0.5, "beta": 0.5}),
+            ledger=Ledger(os.path.join(self.dir, "l.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "f.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "o.sqlite")),
+            now_epoch_s=lambda: 1_785_000_000,
+            now_iso=lambda: "2026-08-10T12:00:00Z",
+        )
+        self.addCleanup(self.node.close)
+        self.app = ApiApp(
+            self.registry,
+            HostMap(tenants={"a.test": "alpha", "b.test": "beta"},
+                    owner_host="panel.test"),
+            bot_tokens={"__owner__": "t", "alpha": "a", "beta": "b"},
+            session_secret="sec", owner_user_ids=("1",),
+            partner_user_ids={"alpha": ("2",), "beta": ("3",)},
+            now=lambda: 1_785_000_000,
+            owner_decide=self.node.owner_decide,
+            owner_outbox_complete=self.node.owner_outbox_complete,
+            owner_approved_manual=self.node.owner_approved_manual,
+        )
+        self.session = issue_session("owner", "1", "sec",
+                                     now_epoch_s=1_785_000_000)
+
+    def _owner(self, method, path, body=None):
+        import json as _j
+        return self.app.handle(
+            method, path,
+            {"host": "panel.test", "authorization": "Bearer " + self.session},
+            _j.dumps(body or {}).encode() if body is not None else b"")
+
+    def test_approved_manual_id_round_trips_through_the_url(self):
+        import urllib.parse as _up
+        self.node.outbox.enqueue(
+            self.registry.scope("beta"), "reply:7", "lead:reply",
+            {"text": "x"}, RiskTier.YELLOW, T0)
+        item = self.node.outbox.get(self.registry.scope("beta"), "reply:7")
+        self.assertEqual(item.idem_key, "beta:reply:7")   # DB is scoped
+        resp = self._owner("POST", "/api/v1/decide",
+                           {"id": item.idem_key, "approve": True,
+                            "confirmed_twice": False})
+        self.assertEqual(resp.body.get("status"), "approved_manual")
+        # The panel receives this id and encodes it straight into the URL.
+        am = self._owner("GET", "/api/v1/owner/approved-manual")
+        panel_id = am.body["items"][0]["id"]
+        self.assertEqual(panel_id, "beta:reply:7")
+        scoped = _up.quote(panel_id, safe="")
+        resp = self._owner(
+            "POST", f"/api/v1/owner/outbox/{scoped}/complete",
+            {"channel": "manual", "confirmed_twice": True,
+             "completed_by": "owner"})
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.body.get("status"), "manual_completed")
