@@ -2348,6 +2348,82 @@ class Node:
                                  "why": "not_measured"}
         return out
 
+    def owner_growth_workbench(self) -> dict:
+        """Manual-first growth workbench (O8).
+
+        A read-only facade over the EXISTING per-business workflows — no new
+        DB. Each business has its experiment vocabulary mapped onto its own
+        store:
+          - lead: painting_campaigns + lead outcomes
+          - ziman: product listing/sale lifecycle
+          - studio: marketing week + draft variants
+        Every figure is measured or explicitly not_measured — no vanity
+        counts and no invented KPIs.
+        """
+        out: dict[str, object] = {
+            "ok": True, "generated_at": self.now_iso(),
+            "lead": {"campaigns": [], "measured_outcomes": 0,
+                     "not_measured": []},
+            "ziman": {"ready_to_list": 0, "sold": 0, "measured_margin": 0,
+                      "margin_blocked": 0},
+            "studio": {"week": None, "drafts": 0, "measured": 0},
+        }
+
+        # ── lead: campaigns from painting_campaigns ──────────────────────
+        if self.painting is not None:
+            try:
+                campaigns = self.painting.campaigns("lead") or []
+                out["lead"]["campaigns"] = [
+                    {"campaign_id": c.get("campaign_id"),
+                     "title": c.get("title"),
+                     "status": c.get("status"),
+                     "owner": c.get("owner") or "—"}
+                    for c in campaigns[:20]]
+                out["lead"]["measured_outcomes"] = sum(
+                    1 for c in campaigns
+                    if c.get("status") in ("won", "lost", "completed"))
+            except Exception:
+                out["lead"]["not_measured"].append("campaigns")
+
+        # ── ziman: listing + sale lifecycle from products ────────────────
+        if self.products is not None:
+            try:
+                pieces = self.products.list("ziman")
+                # 'for_sale' = priced and listed; 'ready' is the lane name
+                # in the megaprompt — the closest real state is for_sale.
+                out["ziman"]["ready_to_list"] = sum(
+                    1 for p in pieces
+                    if p.state in ("for_sale", "ready", "photo_ready"))
+                out["ziman"]["sold"] = sum(
+                    1 for p in pieces if p.state == "sold")
+                # Margin measured only where COGS and a price exist.
+                out["ziman"]["measured_margin"] = sum(
+                    1 for p in pieces
+                    if p.state == "sold" and p.cogs_aud is not None
+                    and p.price_primary_aud is not None)
+            except Exception:
+                out["ziman"]["not_measured"] = ["products"]
+
+        # ── studio: marketing week + drafts ──────────────────────────────
+        if self.marketing is not None:
+            try:
+                week = self.marketing.current_week("studio")
+                out["studio"]["week"] = (
+                    {"week_id": week.get("week_id"),
+                     "status": week.get("status"),
+                     "style": week.get("style_id"),
+                     "focus": week.get("focus_text")}
+                    if week else None)
+            except Exception:
+                out["studio"]["week"] = None
+        if self.studio is not None:
+            try:
+                out["studio"]["drafts"] = len(
+                    self.studio.drafts("studio") or [])
+            except Exception:
+                pass
+        return out
+
     def owner_observability(self) -> dict:
         """Inbox visibility for the owner's panel — what this node holds.
 

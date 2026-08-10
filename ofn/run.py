@@ -246,6 +246,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_metrics=node.owner_metrics,
         owner_observability=node.owner_observability,
         owner_workboard=node.owner_workboard,
+        owner_growth_workbench=node.owner_growth_workbench,
         engage_kill=node.engage_kill,
         release_kill=node.release_kill,
         owner_snapshot=node.owner_snapshot,

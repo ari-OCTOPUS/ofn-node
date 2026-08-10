@@ -43,6 +43,9 @@ NOT_CALLED = {
         "consent admin is API-first (O7); owner UI card planned",
     "/api/v1/owner/consent/releases/":
         "consent admin is API-first (O7); owner UI card planned",
+    "/api/v1/owner/growth-workbench":
+        "manual-first growth workbench is API-first (O8); the owner card "
+        "is planned next to 'امروز'",
 }
 
 
