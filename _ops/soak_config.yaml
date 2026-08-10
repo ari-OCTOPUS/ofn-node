@@ -1,0 +1,75 @@
+# Soak Scorecard Configuration — versioned thresholds for the 72-hour soak.
+# Loaded by soak_pipeline.py. If this file is missing or invalid, the pipeline
+# FAILS CLOSED (verdict: STOP) — never falls back to a silent green.
+#
+# All thresholds are conservative. The owner may tighten/loosen them here; the
+# code reads them, never hardcodes decision numbers.
+schema: SoakConfig.v1
+
+# How long each checkpoint window covers (hours). Six checkpoints × 12h = 72h.
+checkpoint_interval_h: 12
+
+# Total soak duration (hours).
+duration_h: 72
+
+metrics:
+  # 1. deny stop-* growth
+  deny_growth:
+    warn: 1            # any growth from baseline is a heads-up
+    stop: 5            # >5 new denies since baseline => STOP
+    missing: STOP      # can't read fugu-quota => STOP (not green)
+
+  # 2. circuit breaker state
+  breaker:
+    warn_states: [half_open]
+    stop_states: [open]
+    missing: STOP
+
+  # 3. paid success rate
+  paid_success:
+    warn: 0.90         # <90% => ALERT
+    stop: 0.70         # <70% => STOP
+    min_sample: 5      # below this, rate is unreliable => UNKNOWN
+    missing: UNKNOWN   # no paid calls at all => not green, not stop
+
+  # 4. halt duty cycle (time-based, not boolean)
+  halt_duty:
+    warn: 0.05         # >5% of window halted => ALERT
+    stop: 0.15         # >15% => STOP
+    missing: STOP      # can't read organism state => STOP
+
+  # 5. unplanned restarts
+  restarts:
+    warn: 1            # 1 unplanned restart in window => ALERT
+    stop: 2            # >=2 => STOP
+    missing: UNKNOWN
+
+  # 6. BCM/consolidation stagnation
+  bcm_stagnation:
+    warn_age_h: 48     # no bcm progress for 48h => ALERT
+    stop_age_h: null   # no stop threshold (stagnation alone shouldn't kill soak)
+    missing: UNKNOWN
+
+  # 7. effect reconciliation
+  lost_effect:
+    warn: 1            # any lost/unresolved effect => ALERT
+    stop: 3            # >=3 => STOP
+    missing: UNKNOWN
+
+  # 8. duplicate effects
+  duplicate_effect:
+    warn: 1
+    stop: 5
+    missing: UNKNOWN
+
+  # 9. effect without receipt
+  effect_without_receipt:
+    warn: 1
+    stop: 3
+    missing: UNKNOWN
+
+  # 10. ledger/state parse integrity
+  parse_integrity:
+    warn: 1            # any corrupt/unparseable JSONL line => ALERT
+    stop: 5            # >=5 => STOP
+    missing: STOP      # can't read a critical source => STOP
