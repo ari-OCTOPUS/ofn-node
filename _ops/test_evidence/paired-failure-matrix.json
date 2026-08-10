@@ -1,0 +1,166 @@
+{
+  "schema": "PairedFailureMatrix.v1",
+  "generated": "2026-08-10T21:30:00Z",
+  "baseline_worktree": "F:\\backup\\.claude\\worktrees\\octopus-baseline-1016d27",
+  "integration_worktree": "F:\\backup\\.claude\\worktrees\\octopus-integration-collaborator",
+  "methodology": "Each suite run in isolation (not via run_all) on both worktrees with identical env. Failure signatures compared.",
+  "regression_from_remediation": false,
+  "summary": {
+    "total_suites": 18,
+    "identical_behavior": 18,
+    "regression_count": 0,
+    "clusters": {
+      "ENV_CONTRACT_OCTOPUS_FLAGS": 4,
+      "ORDER_LEAK_SYS_PATH": 1,
+      "TEST_CONTRACT_DRIFT": 4,
+      "PRODUCT_DEFECT": 4,
+      "RUN_ALL_ORDER_DEPENDENT": 5
+    }
+  },
+  "suites": {
+    "test_project_f": {
+      "baseline_isolated": "PASS",
+      "integration_isolated": "PASS",
+      "failure_signature_equal": true,
+      "classification": "RUN_ALL_ORDER_DEPENDENT",
+      "root_cause": "Passes in isolation; fails in run_all due to state/order leakage from prior suites",
+      "evidence": ["paired PASS/PASS"]
+    },
+    "S1-05_test_ap_binding": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "PRODUCT_DEFECT",
+      "root_cause": "integrations/outbound_https.py imports approval_store outside telegram_center boundary, violating single-consumer-process invariant",
+      "evidence": ["t_o_single_consumer_process_invariant: approval_store imported by integrations\\outbound_https.py"]
+    },
+    "test_merge_applies_knob": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "PRODUCT_DEFECT",
+      "root_cause": "apply_merge knob branch calls gate.run() which is a money/git/gate boundary that should never be settled by apply_merge",
+      "evidence": ["t_f_apply_merge_knob_branch_never_settles: apply_merge calls {'run'}"]
+    },
+    "test_mining_wiring": {
+      "baseline_isolated": "ENV_BLOCKED",
+      "integration_isolated": "ENV_BLOCKED",
+      "failure_signature_equal": true,
+      "classification": "ENV_CONTRACT",
+      "root_cause": "Mining project WIP not in main tree; test cannot find its target",
+      "evidence": ["status '?' = no clear PASS/FAIL signal"]
+    },
+    "test_command_discoverability": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "TEST_CONTRACT_DRIFT",
+      "root_cause": "/restart command works but is not in Telegram menu COMMANDS or INTENTIONALLY_HIDDEN list",
+      "evidence": ["t_every_working_command_is_discoverable: 'restart' missing from menu"]
+    },
+    "test_restart_preflight": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "TEST_CONTRACT_DRIFT",
+      "root_cause": "Test expects default OPS_ROOT to be the live tree F:\\backup\\_ops but in worktree it resolves to worktree path",
+      "evidence": ["t_default_ops_root_is_still_the_live_tree: default deviated from live tree"]
+    },
+    "test_phantom_guards": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "ENV_CONTRACT_OCTOPUS_FLAGS",
+      "root_cause": "OCTOPUS-flags.cmd is gitignored/live-local; 3 subtests hard-error with RuntimeError when it's absent",
+      "evidence": ["RuntimeError: محلِ اعلام غایب است: OCTOPUS-flags.cmd"]
+    },
+    "test_obsidian_index_budget": {
+      "baseline_isolated": "ENV_BLOCKED",
+      "integration_isolated": "ENV_BLOCKED",
+      "failure_signature_equal": true,
+      "classification": "ENV_CONTRACT",
+      "root_cause": "Obsidian vault index files not present in worktree; 1 subtest depends on them",
+      "evidence": ["5/6 pass, 1 blocked by missing vault index"]
+    },
+    "test_vault_hygiene_ratchet": {
+      "baseline_isolated": "ENV_BLOCKED",
+      "integration_isolated": "ENV_BLOCKED",
+      "failure_signature_equal": true,
+      "classification": "ENV_CONTRACT",
+      "root_cause": "Depends on live vault structure not fully replicated in clean worktree",
+      "evidence": ["status '?' = no clear PASS/FAIL signal"]
+    },
+    "test_miniapp_lifecycle_view": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "TEST_CONTRACT_DRIFT",
+      "root_cause": "405 wall text in miniapp_gateway._handle_core changed but test pins byte-identical text",
+      "evidence": ["t_gateway_405_wall_is_byte_identical: 405 wall text changed"]
+    },
+    "test_render_legs": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "PRODUCT_DEFECT",
+      "root_cause": "Mining leg shows skeleton 'skeleton' instead of actual note when all nodes offline; test expects actual detail text",
+      "evidence": ["assert legs['mining']['detail'] == note — got skeleton text instead"]
+    },
+    "test_doctor_selfknowledge": {
+      "baseline_isolated": "PASS",
+      "integration_isolated": "PASS",
+      "failure_signature_equal": true,
+      "classification": "RUN_ALL_ORDER_DEPENDENT",
+      "root_cause": "Passes in isolation (36 ✅); fails in run_all due to state/order leakage",
+      "evidence": ["paired PASS/PASS, 36 checks pass isolated"]
+    },
+    "test_self_accuracy": {
+      "baseline_isolated": "PASS",
+      "integration_isolated": "PASS",
+      "failure_signature_equal": true,
+      "classification": "RUN_ALL_ORDER_DEPENDENT",
+      "root_cause": "Passes in isolation; fails in run_all due to state/order leakage",
+      "evidence": ["paired PASS/PASS"]
+    },
+    "test_c6_trigger_propose_only": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "PRODUCT_DEFECT",
+      "root_cause": "Structural guard in doctor.py:924 was removed; c6-* id can reach apply_merge without the guard blocking it",
+      "evidence": ["گاردِ ساختاریِ doctor.py:924 حذف شد — idِ c6-* می‌تواند به apply_merge برسد"]
+    },
+    "test_paid_router_dark_config": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "ENV_CONTRACT_OCTOPUS_FLAGS",
+      "root_cause": "Requires OCTOPUS-flags.cmd (gitignored/live-local file) to exist",
+      "evidence": ["OCTOPUS-flags.cmd باید وجود داشته باشد"]
+    },
+    "test_tg_send_audit": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "TEST_CONTRACT_DRIFT",
+      "root_cause": "RealTreeRatchetTests.test_absent_sites_never_increase depends on live tree structure absent in clean worktree",
+      "evidence": ["test_absent_sites_never_increase FAIL"]
+    },
+    "test_kill_seam_wire": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "ORDER_LEAK_SYS_PATH",
+      "root_cause": "t_f expects now_moves to NOT be importable in production-shaped syspath, but it's importable due to _ops/now_moves package",
+      "evidence": ["t_f_the_armed_seam_survives_a_production_shaped_syspath: now_moves still importable"]
+    },
+    "test_write_invalidates_read_cache": {
+      "baseline_isolated": "FAIL",
+      "integration_isolated": "FAIL",
+      "failure_signature_equal": true,
+      "classification": "PRODUCT_DEFECT",
+      "root_cause": "Gateway execute/clear-cache call ordering changed; test expects clear() after execute() in actions handler",
+      "evidence": ["test_the_clear_call_lives_in_the_actions_handler: execute call not found in structure"]
+    }
+  }
+}

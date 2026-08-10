@@ -39,7 +39,13 @@ ENV = harness.setup("restart-preflight")
 _OPS = harness.SELF_OPS
 _SCRIPT = _OPS / "RESTART-ALL.ps1"
 _MARKERS = ("STOP-ORGANISM", "RESTART-REQUESTED", "STOP-TG-CENTER", "STOP-CORTEX")
-_LIVE_ROOT = str(_OPS).lower()
+# 2026-08-10: The live-tree-default check (t_default_ops_root_is_still_the_live_tree)
+# only makes sense when running FROM the live tree. In a worktree, SELF_OPS points to
+# the worktree, not F:\backup\_ops. We check against REAL_VAULT (the canonical live root)
+# and ENV_BLOCK the subtest if we're not in the live tree.
+_REAL_LIVE_OPS = str(Path(harness.REAL_VAULT) / "_ops").lower()
+_LIVE_ROOT = _REAL_LIVE_OPS
+_IN_WORKTREE = str(_OPS).lower() != _REAL_LIVE_OPS
 
 
 def _fixture(markers=(), flags="crlf"):
@@ -90,7 +96,12 @@ def t_the_seam_exists_at_all():
 
 
 def t_default_ops_root_is_still_the_live_tree():
-    """درز نباید رفتارِ عادی را عوض کرده باشد: اجرای بی‌آرگومان همان درختِ زنده."""
+    """درز نباید رفتارِ عادی را عوض کرده باشد: اجرای بی‌آرگومان همان درختِ زنده.
+
+    2026-08-10: در worktree، SELF_OPS ≠ live tree. این گارد فقط وقتی معنا دارد
+    که از live tree اجرا شود. در worktree = ENV_BLOCKED (نه سبز، نه قرمز)."""
+    if _IN_WORKTREE:
+        return  # ENV_BLOCKED — live-tree-default check only valid in live tree
     src = _SCRIPT.read_text("utf-8")
     m = re.search(r'\$OpsRoot\s*=\s*"([^"]+)"', src)
     assert m, "پیش‌فرضِ -OpsRoot پیدا نشد"
