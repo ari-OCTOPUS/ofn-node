@@ -1,5 +1,5 @@
 ---
-type: architecture-map
+type: knowledge
 kind: reference
 status: active
 created: 2026-08-10
