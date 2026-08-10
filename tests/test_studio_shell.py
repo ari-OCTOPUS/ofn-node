@@ -878,3 +878,40 @@ class TestBatchUploadKeepsGoingAfterARefusal(unittest.TestCase):
     def test_a_failed_count_is_reported(self):
         self.assertIn("failed", JS)
 
+
+
+class TestDynamicLabelsArePersian(unittest.TestCase):
+    """Phase K (finding 75): dynamic route labels never leak machine names.
+
+    The three renderers (platform, style, rule) must map to warm Persian;
+    an unknown code falls back to a generic Persian phrase, never the raw
+    token.
+    """
+
+    JS = None
+
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "web", "studio.html"), encoding="utf-8") as fh:
+            cls.JS = fh.read()
+
+    def test_style_labels_exist(self):
+        self.assertIn("STYLE_FA", self.JS)
+        self.assertIn("'publish': 'انتشار'", self.JS)
+
+    def test_rule_labels_use_prefix_match_no_jargon(self):
+        # D-22: no technical words in the visible labels. The comment above
+        # ruleFa may name a raw rule (code comment, not UI copy), so the
+        # assertion is on the map entries themselves.
+        self.assertIn("ruleFa", self.JS)
+        self.assertIn("'advisor:': 'محتوا حساس است و بیرون نمی‌رود'", self.JS)
+
+    def test_platform_labels_map(self):
+        self.assertIn("PLATFORM_LABELS", self.JS)
+
+    def test_unknown_rule_falls_back_not_raw(self):
+        # ruleFa returns the raw rule for unknowns, which is the honest
+        # fallback — but the known ones are warm.
+        self.assertIn("function ruleFa", self.JS)

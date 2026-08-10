@@ -491,8 +491,8 @@ async function refreshLeadCrm(){
     bar.append(si,ss);
     box.append(bar);
     let to;
-    si.oninput=()=>{clearTimeout(to);to=setTimeout(()=>{LEAD.q=escLike(si.value.trim());LEAD.offset=0;drawList();},350);};
-    ss.onchange=()=>{LEAD.status=ss.value;LEAD.offset=0;drawList();};
+    si.oninput=()=>{clearTimeout(to);to=setTimeout(()=>{LEAD.q=escLike(si.value.trim());drawList();},350);};
+    ss.onchange=()=>{LEAD.status=ss.value;drawList();};
     /* list container */
     const list=el('div'); list.id='leadlist'; box.append(list);
     /* footer note: who approves outbound */
@@ -509,7 +509,9 @@ async function refreshLeadCrm(){
 }
 
 /* ── lead list: search, filter, status change, reply/quote ────────────── */
-const LEAD={q:'',status:'',offset:0,busy:false};
+/* offset was dead state: reset but never read (finding 67). The list is
+   server-limited (50); pagination can be added properly when it matters. */
+const LEAD={q:'',status:'',busy:false};
 const STATUS_LABEL={new:'تازه',review:'بازبینی',contacted:'در تماس',quoted:'قیمت داده',won:'برد',lost:'باخت',spam:'هرز',archived:'بایگانی'};
 async function drawList(){
   const list=document.getElementById('leadlist'); if(!list)return;

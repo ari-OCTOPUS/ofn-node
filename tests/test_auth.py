@@ -276,3 +276,28 @@ class TestRealLaunchShape(unittest.TestCase):
         got = hmac_variants(self.blob(signature="x-y-z"), self.TOKEN)
         self.assertTrue(got["pairs/hash_only"])
         self.assertFalse(got["pairs/hash_and_sig"])
+
+
+class TestSessionSigLength(unittest.TestCase):
+    """The 128-bit session signature is a recorded decision, pinned here.
+
+    See docs/architecture/DECISION-session-sig-128.md. If the decision
+    changes, this test changes with it — deliberately, not silently.
+    """
+
+    def test_token_carries_32_hex_signature(self):
+        from ofn.kernel.auth import issue_session
+        token = issue_session("studio", "u1", "secret",
+                              now_epoch_s=1_785_000_000)
+        sig = token.rsplit(".", 1)[1]
+        self.assertEqual(len(sig), 32)          # 128 bits
+        int(sig, 16)                            # hex, parses
+
+    def test_full_digest_is_longer_than_used(self):
+        import hashlib
+        import hmac
+        body = "studio.u1.1785000000.1785003600"
+        full = hmac.new(b"secret", body.encode(),
+                        hashlib.sha256).hexdigest()
+        self.assertEqual(len(full), 64)         # 256 bits available
+        self.assertGreater(len(full), 32)

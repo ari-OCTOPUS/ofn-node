@@ -991,3 +991,22 @@ rollback:
 > معماری درست برای این برد «همهٔ ابزارهای دنیا در یک کانتینر» نیست.
 > معماری درست این است: یک connector قابل‌تعویض، یک inbox بادوام، یک outbox
 > یگانه، و انسانی که آخرین حکم را می‌دهد.
+
+---
+
+## هم‌ترازی تست‌ها با واقعیت (یافته ۹۴ — ۲۰۲۶-۰۸-۱۰)
+
+تست‌های پیشنهادی این سند در فایل‌های واقعی زیر ادغام شده‌اند — هنگام
+اضافه‌کردن تست جدید، به این‌ها مراجعه کن نه به فهرست فرضی:
+
+| حوزه | فایل واقعی |
+|---|---|
+| inbox schema / hash / duplicate | `tests/test_connector_infra.py` |
+| claim machine / processor / held | `tests/test_phase_b_inbox.py` |
+| rate limiter + bucket cap | `tests/test_connector_infra.py` |
+| webhook tenant cross-check / replay | `tests/test_phase_a_security.py` |
+| observability / metrics | `tests/test_connector_infra.py` |
+| backup verify / restore | `tests/test_phase_d_backup.py` |
+| gate enforcement / kill | `tests/test_gate_enforcement.py` |
+| runbooks | `tests/test_runbook_coverage.py` |
+| mutation↔ledger | `tests/test_mutation_ledger_pair.py` |

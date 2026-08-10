@@ -509,6 +509,11 @@ class Node:
                 except Exception:
                     pass
             return {"ok": False, "error": str(exc)}
+        # Mutation paired with its record (finding 13): renditions are on
+        # disk and the draft references them — say so in the ledger.
+        self.ledger.append(scope, "DRAFT_MEDIA_ATTACHED", {
+            "draft_id": draft_id, "position": position,
+        }, self.now_iso())
         return {"ok": True, "position": position,
                 "refs": {str(k): v for k, v in written.items()}}
 
@@ -578,6 +583,11 @@ class Node:
                 now_epoch_s=self.now_epoch_s())
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
+        # Mutation paired with its record (finding 13): her reading is a
+        # fact about the post; the ledger says when it was recorded.
+        self.ledger.append(scope, "FELT_RECORDED", {
+            "draft_id": draft_id, "rating": rating,
+        }, self.now_iso())
         return {"ok": True, "trustworthy": draft.rating_is_trustworthy}
 
 
@@ -647,6 +657,10 @@ class Node:
                                             allowed=pack.content_labels)
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
+        # Mutation paired with its record (finding 13).
+        self.ledger.append(scope, "DRAFT_LABELS_SET", {
+            "draft_id": draft_id, "labels": chosen,
+        }, self.now_iso())
         return {"ok": True, "labels": chosen}
 
     def add_to_library(self, scope: TenantScope, user_id: str,
@@ -729,6 +743,10 @@ class Node:
                 allowed=pack.content_labels)
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
+        # Mutation paired with its record (finding 13).
+        self.ledger.append(scope, "MEDIA_LABELS_SET", {
+            "media_id": media_id, "labels": chosen,
+        }, self.now_iso())
         return {"ok": True, "labels": chosen}
 
     def describe_media(self, scope: TenantScope, media_id: str,
@@ -847,6 +865,10 @@ class Node:
                 scope.tenant.value, media_id, album)
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
+        # Mutation paired with its record (finding 13).
+        self.ledger.append(scope, "MEDIA_FILED", {
+            "media_id": media_id, "album": album,
+        }, self.now_iso())
         return {"ok": True, "album": filed}
 
     def studio_marketing(self, scope: TenantScope) -> dict:
@@ -1198,6 +1220,13 @@ class Node:
                          "idempotency_key": v.idempotency_key[:12] + "…"})
 
         queued_count = sum(1 for s in sent if s["queued"])
+        # Mutation paired with its record (finding 13): the enqueues above
+        # write to the outbox; this ledger event is the trace of WHY.
+        self.ledger.append(scope, "STUDIO_PUBLISH_VARIANTS", {
+            "draft_id": draft_id,
+            "queued": queued_count,
+            "total": len(sent),
+        }, self.now_iso())
         return {"ok": True, "draft_id": draft_id,
                 "queued": queued_count, "results": sent}
 
@@ -1816,6 +1845,10 @@ class Node:
         out = self.assistant.answer_local(scope.tenant.value, "نور ایده محتوا امنیت قیمت")
         n = self.assistant.ingest_text(scope.tenant.value, "daily", "آپدیت روزانه", out.get("answer", ""), now_epoch_s=self.now_epoch_s())
         self.assistant.record_run(scope.tenant.value, "daily", "ok", f"{n} chunks", now_epoch_s=self.now_epoch_s())
+        # Mutation paired with its record (finding 13).
+        self.ledger.append(scope, "ASSISTANT_DAILY_UPDATED", {
+            "chunks": n,
+        }, self.now_iso())
         return {"ok": True, "chunks": n}
 
     def owner_queue(self) -> list[dict]:
