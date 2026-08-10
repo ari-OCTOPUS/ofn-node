@@ -28,6 +28,7 @@ adversarially reviewed; confirmed findings were applied before closing.
 | [ADR-020](ADR-020-comparison-metacog-v2.md) | H-OWN-02 v2 — mechanism-isolated skill-gap gate (ADR-010 follow-up) | `comparison_metacog_v2` | **OPTIMIZE** (delta_gain 0.005 — mechanism real but tiny) |
 | [ADR-021](ADR-021-adaptive-forgetting-v2.md) | EXP-004 v2 — adaptive vs FIFO, the honest hard gate (ADR-015 follow-up) | `adaptive_forgetting_v2` | **REJECTED** (0.023 < SESOI 0.03 — any forgetting captures most value) |
 | [ADR-022](ADR-022-d10-abc-architecture-comparison.md) | D10-ABC — single-model vs orchestrator vs multi-agent (architecture comparison, DISTINCT from Mining D-10) | `d10_abc_architecture_comparison` | **PENDING** — preregistration frozen; fake harness validates plumbing; confirmatory run needs owner verdict |
+| [ADR-023](ADR-023-octopus-collaborator.md) | Octopus Collaborator — trust boundary, memory policy, no-effect invariant (shadow/propose-only harness) | — | **OPEN** — shadow build complete (17 tests); activation requires owner verdict |
 
 ## Cross-cutting discipline (holds across every ADR)
 
