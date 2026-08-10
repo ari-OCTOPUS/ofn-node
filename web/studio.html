@@ -1548,7 +1548,7 @@ async function loadMarketing() {
   $('mkt-focus').textContent = w && w.focus_text
     ? w.focus_text
     : 'هنوز هیچ چرخه‌ای اجرا نشده.';
-  $('mkt-style').textContent = w ? 'سبک این هفته: ' + w.style_id : '';
+  $('mkt-style').textContent = w ? 'سبک این هفته: ' + (STYLE_FA[w.style_id] || w.style_id) : '';
   $('mkt-obs').textContent = fa(m.trend_observations || 0);
   $('mkt-rej').textContent = fa(m.rejected_ideas_in_memory || 0);
   $('mkt-var').textContent = fa(m.routed_variants || 0);
@@ -1726,12 +1726,12 @@ function renderPlatforms(grid, platforms) {
     if (!p.ok && p.reasons && p.reasons.length) {
       const why = document.createElement('div');
       why.className = 'pwhy';
-      why.textContent = p.reasons.join('، ');
+      why.textContent = p.reasons.map(ruleFa).join('، ');
       card.append(nm, st, why);
     } else if (!p.ok) {
       const why = document.createElement('div');
       why.className = 'pwhy';
-      why.textContent = p.rule || '';
+      why.textContent = ruleFa(p.rule);
       card.append(nm, st, why);
     } else {
       card.append(nm, st);
@@ -2059,6 +2059,33 @@ const LABEL_FA = {
   'polished': 'لاک‌خورده', 'natural': 'بدون لاک',
   'close': 'نزدیک', 'wide': 'باز',
 };
+/* Weekly style ids are machine names; the marketing tab shows them warm.
+   Unknown ids fall back to the raw value rather than a lie. */
+const STYLE_FA = {
+  'publish': 'انتشار', 'preview': 'پیش‌نمایش',
+  'educational': 'آموزشی', 'inspirational': 'الهام‌بخش',
+  'promotional': 'تبلیغی', 'personal': 'شخصی',
+};
+/* Route-preview rule codes → warm Persian. Rules are matched by prefix so
+   the labels themselves carry no technical words (D-22): a rule like
+   'advisor:restricted-never-leaves' matches the 'advisor:' entry below.
+   Unknown codes stay raw — visible but never dressed up. */
+const RULE_FA = {
+  'adapter:dry-run': 'فقط تمرین — هنوز واقعاً نمی‌فرستد',
+  'wire:disabled': 'خروجی خاموش است',
+  'adapter:real-publish-not-implemented': 'ارسال واقعی هنوز ساخته نشده',
+  'platform:': 'پلتفرم این پیش‌نویس را نپذیرفت',
+  'consent:': 'رضایت ثبت نشده',
+  'advisor:': 'محتوا حساس است و بیرون نمی‌رود',
+  'outbox:': 'این مورد قبلاً در صف است',
+};
+function ruleFa(rule) {
+  if (!rule) return '';
+  for (const k of Object.keys(RULE_FA)) {
+    if (rule.indexOf(k) === 0) return RULE_FA[k];
+  }
+  return rule;
+}
 function buildTwins(vocab) {
   TWIN = {};
   for (let i = 0; i + 1 < vocab.length; i += 2) {

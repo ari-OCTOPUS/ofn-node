@@ -6,7 +6,7 @@
 <title>ارگانیسم — کنترل پنل آری</title>
 <!-- The owner's panel is the one screen that must load on a bad connection at
      2am. Font is non-blocking; the page paints in the local stack. -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script defer src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 /* Self-hosted. `fonts.gstatic.com` does not open reliably from Iran, and a
    font request that never completes is a wasted connection on exactly the
@@ -78,7 +78,7 @@ h1{font-size:21px;font-weight:600;letter-spacing:-.015em}
 @media(max-width:1000px){.legs{grid-template-columns:1fr}}
 
 .leg{
-  position:relative;border-radius:var(--r);padding:22px;cursor:pointer;
+  position:relative;border-radius:var(--r);padding:22px;cursor:default;
   transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.7,.3,1), box-shadow .45s;
   border:1px solid var(--edge);
   background:linear-gradient(158deg, var(--glass2) 0%, rgba(255,255,255,.02) 42%, rgba(0,0,0,.16) 100%);
@@ -547,7 +547,10 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
    look broken, not calm — so there is no sample mode here at all.          */
 const OFN = (() => {
   let session = null, why = '', who = '';
-  const tg = window.Telegram && window.Telegram.WebApp;
+  /* Read lazily, never bound early: the SDK script is `defer`, so binding
+     `const tg = window.Telegram...` at parse time would freeze undefined
+     forever. A function re-reads it whenever it is needed. */
+  const tg = () => window.Telegram && window.Telegram.WebApp;
 
 
   async function req(path, opts = {}) {
@@ -566,10 +569,11 @@ const OFN = (() => {
     /* The given name, from the verified session. Empty until then. */
     get who() { return who; },
     async connect() {
-      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      const t = tg();
+      if (!t || !t.initData) { why = 'no-shell'; return false; }
       try {
         const out = await req('/api/v1/auth/session', {
-          method: 'POST', body: JSON.stringify({ init_data: tg.initData }),
+          method: 'POST', body: JSON.stringify({ init_data: t.initData }),
         });
         session = out.session; who = out.first_name || '';
         why = '';
@@ -584,12 +588,14 @@ const OFN = (() => {
     get(p) { return req(p); },
     post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
     shell() {
-      if (!tg) return;
-      tg.ready();
-      tg.expand && tg.expand();
+      const t = tg();
+      if (!t) return;
+      t.ready();
+      t.expand && t.expand();
     },
     done(kind = 'success') {
-      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(kind);
+      const t = tg();
+      if (t && t.HapticFeedback) t.HapticFeedback.notificationOccurred(kind);
       else if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
     },
   };
@@ -619,6 +625,32 @@ const WHAT = { ziman: 'گالری هدیه', lead: 'خدمات در محل',
                studio: 'تولید محتوا', hypno: 'خارج از scope پرتفوی' };
 const NAME = { ziman: 'زیمان', lead: 'لید نقاشی', studio: 'استودیو',
                hypno: 'هیپنو' };
+/* Event kinds in the ledger are machine names. The nerve feed shows them
+   warm, because a raw PRODUCT_CREATED reads as a bug to the only human who
+   reads this screen. Unknown kinds fall back to the raw name — visible but
+   not dressed up. */
+const KIND_FA = {
+  'ALBUM_CREATED': 'آلبوم ساخته شد', 'ALBUM_DELETED': 'آلبوم حذف شد',
+  'DRAFT_CREATED': 'پیش‌نویس ساخته شد', 'FACT': 'پاسخ ثبت شد',
+  'KILL_SWITCH': 'توقف اضطراری', 'LEAD_CAPTURED': 'لید جدید رسید',
+  'LEAD_NOTE_CAPTURED': 'یادداشت ثبت شد', 'LEAD_QUOTE_QUEUED': 'قیمت در صف',
+  'LEAD_REPLY_QUEUED': 'جواب در صف', 'LEAD_UPDATED': 'لید به‌روز شد',
+  'MEDIA_ADDED': 'عکس اضافه شد', 'MEDIA_DELETED': 'عکس حذف شد',
+  'PAINTING_CAMPAIGN_UPSERT': 'کمپین ثبت شد',
+  'PAINTING_CHANNEL_UPSERT': 'کانال ثبت شد',
+  'PAINTING_INTERACTION_CAPTURED': 'تماس ثبت شد',
+  'PAINTING_INTERACTION_UPDATED': 'تماس به‌روز شد',
+  'PAINTING_MODULE_UPSERT': 'ماژول ثبت شد',
+  'PAINTING_TENDER_UPSERT': 'مناقصه ثبت شد',
+  'PAINTING_VENDOR_APP_UPSERT': 'فروشنده ثبت شد',
+  'PRODUCT_CREATED': 'قطعه ثبت شد', 'PRODUCT_DELETED': 'قطعه حذف شد',
+  'PRODUCT_PHOTO': 'عکس قطعه', 'PRODUCT_UPDATED': 'قطعه به‌روز شد',
+  'PROPOSE': 'پیشنهاد شد', 'PUBLISH_POST': 'انتشار در صف',
+  'PUBLISH_QUEUED': 'انتشار در صف', 'WEBHOOK_RECEIVED': 'پیام از بیرون رسید',
+  'STUDIO_READING': 'خوانش ثبت شد', 'STUDIO_GUIDANCE': 'راهنما ثبت شد',
+  'ANSWER': 'جواب ثبت شد', 'BRAIN_RUN': 'مغز کار کرد',
+  'KILL_SWITCH_RELEASE': 'توقف رفع شد',
+};
 
 function millions(n) {
   if (n >= 1e6) return fa((n / 1e6).toFixed(1)) + 'M';
@@ -721,11 +753,13 @@ function decision(it) {
   card.append(top);
 
   /* The payload is whatever the leg queued. Rendered as text, never markup —
-     some of it originates in a customer's message. */
+     some of it originates in a customer's message. When there is no
+     human-readable summary, say so honestly instead of dumping raw JSON —
+     a pile of keys with underscores reads as a bug, not as information. */
   const summary = it.payload && (it.payload.summary || it.payload.text);
   card.append(mk('div', 'dtxt', summary || it.kind));
   if (!summary && it.payload && Object.keys(it.payload).length) {
-    card.append(mk('div', 'dwhy', JSON.stringify(it.payload)));
+    card.append(mk('div', 'dwhy', 'جزئیات این مورد بدون توضیح آمده — قبل از تأیید بازش کن.'));
   }
 
   const why = mk('div', 'dwhy');
@@ -1028,7 +1062,7 @@ function drawNerve(events) {
   events.forEach(e => {
     const row = mk('div', 'nr');
     row.append(mk('span', 'nt num', (e.ts || '').slice(11, 16)),
-               mk('span', 'nk', e.kind));
+               mk('span', 'nk', KIND_FA[e.kind] || e.kind));
     const body = mk('span', 'nx');
     const gist = ledgerGist(e.kind, e.payload || {});
     body.append(mk('span', null, `${NAME[e.tenant] || e.tenant}${gist ? ' · ' + gist : ''}`));

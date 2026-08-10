@@ -580,9 +580,17 @@ function leadRow(l){
   return c;
 }
 function closeSheet(){const s=document.querySelector('.sheet');if(s)s.remove();}
+/* Escape closes the open sheet; the page listens once and the handler
+   forwards to the sheet's own keydown so a nested field can stop it. */
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') closeSheet();
+});
 function openReplySheet(l){
   closeSheet();
   const sheet=el('div','sheet');
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','جواب به لید');
   const p=el('div','spanel');
   p.append(el('div','shdr','جواب برای '+(l.customer_name||'این لید')));
   const ta=el('textarea'); ta.placeholder='متن جواب…'; p.append(ta);
@@ -593,17 +601,21 @@ function openReplySheet(l){
   p.append(chans);
   const note=el('div','state','یادداشت فقط اینجا ثبت می‌شود. پیامک و ایمیل بعد از تأیید آری خارج می‌شوند.');
   p.append(note);
+  /* One live region per sheet: errors and outcomes land here inline, never
+     in a blocking alert() that the browser owns and the page cannot style. */
+  const live=el('div','state warn'); live.hidden=true; live.setAttribute('aria-live','polite'); p.append(live);
+  const say=(text,ok)=>{live.textContent=text; live.hidden=false; live.className='state '+(ok?'ok':'warn');};
   const send=el('button','b go','آماده برای آری'); send.type='button';
   send.onclick=async()=>{
-    const msg=ta.value.trim(); if(!msg){alert('متن خالی است');return;}
+    const msg=ta.value.trim(); if(!msg){say('متن خالی است');return;}
     send.disabled=true;
     try{
       const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/reply',{channel:chan,message:msg});
       if(!out.ok)throw new Error(out.error||'نشست');
       OFN.done();closeSheet();
-      alert(out.queued?'به آری فرستاده شد — منتظر تأیید اوست.':'ثبت شد.');
       drawList();
-    }catch(e){alert(e.message||'نشست');}finally{send.disabled=false;}
+      say(out.queued?'به آری فرستاده شد — منتظر تأیید اوست.':'ثبت شد.', true);
+    }catch(e){say(e.message||'نشست');}finally{send.disabled=false;}
   };
   p.append(send);
   sheet.append(p);
@@ -613,23 +625,29 @@ function openReplySheet(l){
 function openQuoteSheet(l){
   closeSheet();
   const sheet=el('div','sheet');
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','قیمت برای لید');
   const p=el('div','spanel');
   p.append(el('div','shdr','قیمت برای '+(l.customer_name||'این لید')));
   const amt=el('input','amt'); amt.type='number'; amt.inputMode='decimal'; amt.placeholder='قیمت (دلار)'; amt.min='0'; p.append(amt);
   const ta=el('textarea'); ta.placeholder='توضیح قیمت (اختیاری)…'; p.append(ta);
   const note=el('div','state','قیمت بعد از تأیید آری به مشتری می‌رسد.');
   p.append(note);
+  /* Live region, same pattern as the reply sheet. */
+  const live=el('div','state warn'); live.hidden=true; live.setAttribute('aria-live','polite'); p.append(live);
+  const say=(text,ok)=>{live.textContent=text; live.hidden=false; live.className='state '+(ok?'ok':'warn');};
   const send=el('button','b go','آماده برای آری'); send.type='button';
   send.onclick=async()=>{
-    const a=parseFloat(amt.value||'0'); if(!(a>0)){alert('قیمت درست نیست');return;}
+    const a=parseFloat(amt.value||'0'); if(!(a>0)){say('قیمت درست نیست');return;}
     send.disabled=true;
     try{
       const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/quote',{amount:a,note:ta.value.trim()});
       if(!out.ok)throw new Error(out.error||'نشست');
       OFN.done();closeSheet();
-      alert('قیمت به آری فرستاده شد — منتظر تأیید اوست.');
       drawList();
-    }catch(e){alert(e.message||'نشست');}finally{send.disabled=false;}
+      say('قیمت به آری فرستاده شد — منتظر تأیید اوست.', true);
+    }catch(e){say(e.message||'نشست');}finally{send.disabled=false;}
   };
   p.append(send);
   sheet.append(p);

@@ -19,7 +19,7 @@ required_facts:
 questions:
   ops.service_radius_km:
     label: تا چند کیلومتری کار قبول می‌کنید؟
-    hint: دورتر از این، لید خودکار رد می‌شود.
+    hint: این عدد برای اولویت‌بندی لیدها استفاده می‌شود.
     unit: کیلومتر
     min: 1
     max: 100
