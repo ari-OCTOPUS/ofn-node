@@ -9,10 +9,10 @@ updated: 2026-08-10
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      OFN ۱۶۰۰ جمع‌آوری / ۱۵۹۵ سبز / ۵ skip   ← خط پایهٔ زنده. با
-            python3 tools/repo_baseline.py --tests تأییدش کن، عدد ثابت ننویس
-preflight   ۲۱/۲۱
-boot        OK — ۲۸/۲۸ (NORMAL)
+pytest      عدد زنده را با python3 tools/repo_baseline.py --tests بگیر
+            (آخرین اندازه‌گیری ۲۰۲۶-۰۸-۱۰: ~۱۷۲۷ pass / ۵ skip)
+preflight   عدد را از python3 -m ofn.preflight بگیر
+boot        OK — ۳۰/۳۰ (NORMAL) · memory.sqlite هم در quick_check
 گیت‌ها       secret_rotation 🔒 · partner_precondition 🔒 · miner_isolation 🔒
 WIRE        outbound خاموش · email/publish در env روشن ولی کد Python نمی‌خواندشان
             (امنیت از outbox + store-layer status تأمین می‌شود، نه از این پرچم‌ها)
@@ -26,6 +26,7 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
             مغز مشترک Sakana (fugu) برای OFN + hypno · pack hypno (tenant ۴)
             quota ۳۵/۳۵/۲۰/۱۰ = ۱.۰۰ · ۱۳۲ chunk shared knowledge
 جدید        kill switch ✅ · metrics زنده ✅ · alert (log+Telegram opt-in) ✅
+            P0+P1 بسته (webhook harden · gates · inbox machine · backup verify)
 ```
 
 ---

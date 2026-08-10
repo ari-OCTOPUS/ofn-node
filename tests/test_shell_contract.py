@@ -649,3 +649,37 @@ class TestTheFontIsSelfHosted(unittest.TestCase):
         self.assertTrue(os.path.isfile(licence))
         with open(licence, encoding="utf-8") as fh:
             self.assertIn("SIL Open Font License", fh.read())
+
+
+class TestP1SurfacePins(unittest.TestCase):
+    """The P1 upgrade surface is pinned: what the panels now draw.
+
+    These are property assertions, not content tests: the point is that
+    panel.html calls drawInbox with the observability route, lead.html
+    renders score_detail, and neither regresses to raw numbers.
+    """
+
+    def test_panel_draws_observability(self):
+        src = read("panel.html")
+        self.assertIn("/api/v1/owner/observability", src)
+        self.assertIn("drawInbox", src)
+        self.assertIn("inboxChip", src)
+
+    def test_panel_inbox_shows_counts_without_vendor(self):
+        """Finding 45: counts are always drawn; vendor chip is separate."""
+        src = read("panel.html")
+        self.assertIn("vendors_connected", src)
+        # The empty branch must still render the tenant grid.
+        self.assertIn("Object.entries(tenants)", src)
+
+    def test_lead_renders_score_detail(self):
+        src = read("lead.html")
+        self.assertIn("score_detail", src)
+        self.assertIn("اولویت بالا", src)
+
+    def test_observability_route_is_owner_read(self):
+        """The route must be inside the owner surface (auth required)."""
+        api = open(os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "ofn", "adapters", "http_api.py"), encoding="utf-8").read()
+        self.assertIn('path == "/api/v1/owner/observability"', api)

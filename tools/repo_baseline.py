@@ -93,6 +93,22 @@ def main(argv: list[str]) -> int:
     print(f"painting registry sources: {data['painting_registry_sources']}")
     if "collected_tests" in data:
         print(f"collected tests: {data['collected_tests']}")
+
+    # --verify: run the real suite. Collect-only tells you how many tests
+    # exist; it cannot tell you whether they pass. This flag runs pytest -q
+    # and returns its exit code, so a red suite makes the baseline command
+    # fail loudly instead of printing a green-looking number.
+    if "--verify" in argv:
+        import subprocess
+        import sys as _sys
+        here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        proc = subprocess.run(
+            [_sys.executable, "-m", "pytest", "-q", "--tb=line"],
+            cwd=here)
+        if proc.returncode != 0:
+            print("baseline --verify: SUITE RED", file=_sys.stderr)
+            return proc.returncode
+        print("baseline --verify: suite green")
     return 0
 
 
