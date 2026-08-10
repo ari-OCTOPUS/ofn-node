@@ -38,7 +38,8 @@ from . import outbox as _outbox
 from . import products as _products
 from . import studio_store as _studio
 from .sqlite_base import (
-    apply_schema, checkpoint, connect, integrity_ok, missing_columns,
+    apply_schema, checkpoint, connect, connect_readonly, integrity_ok,
+    missing_columns,
 )
 
 # Keyed by the names `config.db_paths` uses: schema, then the migrations that
@@ -204,18 +205,33 @@ class BootSupervisor:
                 rep.add(f"db:{name}", Severity.OK, "not yet created")
                 continue
             try:
-                conn = connect(path)
+                # A database owned by another service (memory.sqlite belongs
+                # to fugu_core/root) cannot be opened with the write pragmas
+                # — those need write permission we do not have. Quick-check
+                # is a read, so a read-only connection answers the question.
+                if name == "memory":
+                    conn = connect_readonly(path)
+                else:
+                    conn = connect(path)
             except Exception as exc:
                 rep.add(f"db:{name}", Severity.CRITICAL, f"cannot open: {exc}")
                 continue
             try:
                 if integrity_ok(conn, quick=True):
-                    checkpoint(conn)          # fold the WAL back in cleanly
-                    rep.add(f"db:{name}", Severity.OK, "integrity ok, WAL folded")
+                    if name == "memory":
+                        rep.add(f"db:{name}", Severity.OK,
+                                "integrity ok (read-only check)")
+                    else:
+                        checkpoint(conn)   # fold the WAL back in cleanly
+                        rep.add(f"db:{name}", Severity.OK,
+                                "integrity ok, WAL folded")
                 else:
                     rep.add(f"db:{name}", Severity.CRITICAL,
                             "quick_check failed — restore from backup before use")
-                self._check_shape(rep, name, conn)
+                if name != "memory":
+                    # Schema shaping needs write access; a foreign DB is only
+                    # checked, never migrated.
+                    self._check_shape(rep, name, conn)
             finally:
                 conn.close()
 

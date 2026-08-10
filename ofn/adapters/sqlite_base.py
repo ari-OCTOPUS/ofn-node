@@ -68,6 +68,21 @@ def connect(path: str) -> sqlite3.Connection:
     return conn
 
 
+def connect_readonly(path: str) -> sqlite3.Connection:
+    """Open a connection for integrity checking only.
+
+    Applies none of the write pragmas (WAL, synchronous) because they need
+    write permission on the file — which a database owned by another service
+    (e.g. the shared fugu_core memory.sqlite, owned by root) does not grant.
+    quick_check itself is a read; that is all the boot check needs.
+    """
+    conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True,
+                           isolation_level=None, timeout=5.0,
+                           check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
 def integrity_ok(conn: sqlite3.Connection, *, quick: bool = True) -> bool:
     """Structural check. `quick_check` on boot, full `integrity_check` nightly.
 
