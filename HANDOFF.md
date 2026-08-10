@@ -21,9 +21,94 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 دامنه‌ها     panel/ziman/lead/studio/app/hypno → همه ۲۰۰
 UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا روی ۸۸۹۵
             قدم دوم (خاموش‌کردن سرویس) منتظر حکم
-جدید        COMPLETE-FINISH H–M بسته · vendor Telegram skeleton (read-only)
-            P0+P1+P2+P3+P4 بسته · mutation↔ledger بسته
+جدید        طرح اجرایی بعدی: MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH
+            O1–O8 پنل عملیاتی + manual-first · هنوز اجرا نشده
 ```
+
+---
+
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — طراحی Operations Launch
+
+- `MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md` ساخته شد: O0 تا O12، API،
+  schema افزایشی، state machine، UX چهار پنل، تست و دروازهٔ پذیرش.
+- Canvas دیداری: `ofn-business-operations-launch.canvas.tsx`.
+- شکاف حیاتی تأیید شد: `Node.owner_decide()` approval را مستقیم
+  `Outbox.claim()` می‌کند و آیتم بدون sender در `in_flight` می‌ماند؛ O2 باید
+  approval را از manual completion جدا کند.
+- webhook فعلی هنوز connector=`default`، vendor=`unknown` و event ID تصادفی
+  دارد و verifier واقعی را اجرا نمی‌کند؛ O3 قبل از vendor pilot لازم است.
+- ممیزی پنل‌ها یک blocker دیگر را روشن کرد: استودیو API ساخت draft و attach
+  media دارد، ولی `studio.html` هیچ مسیر عادی برای ساخت draft ندارد؛ O7 حالا
+  صریحاً UI ساخت draft/انتخاب عکس/felt/reading را قبل از consent می‌بندد.
+- مسیر production پیشنهادی **دستی‌اول** است: packet → تأیید مالک → انجام
+  انسانی → receipt → metric. هیچ outbound، WIRE، gate یا systemd تغییر نکرد.
+- baseline طراحی: suite کامل `1767 pass · 5 skip`.
+
+**قدم بعدی ایجنت:** مگاپرامپت جدید را کامل بخواند و O0→O8 را با commitهای
+جدا اجرا کند. O9–O11 بدون حکم صریح آری اجرا/فعال نشوند.
+
+---
+
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — اجرای کامل Operations Launch (O1 تا O9)
+
+هفت commit (`b6a2e52` → `b993113`) که فازهای اجرایی O1–O9 مگاپرامت
+BUSINESS-OPERATIONS-LAUNCH را بست. **O10–O12 بدون حکم آری اجرا نشدند.**
+
+### O1+O2 — جداکردن approval از send (b6a2e52)
+- **باگ مدل بسته شد:** approval دیگر `claim()` نمی‌کند → `in_flight`
+- state های جدید: `approved_manual → manual_completed` · `rejected`
+- migration ۸ ستون (delivery_mode, approved_at/by, completed_at/by,
+  completion_channel, packet_sha256, external_ref_digest)
+- `ManualPacket`/`CompletionReceipt` DTO + hash شاهد
+- endpoint ها: `GET /owner/outbox/{key}/packet` · `POST .../complete` ·
+  `GET /owner/approved-manual`
+- panel: کارت «تأیید شده — انجام دستی»
+
+### O3 — webhook واقعی (07433d7)
+- `Connector.verify()` اجباری و fail-closed — بدون verifier = reject
+- connector از path (`/webhooks/<tenant>/<connector>`)
+- `vendor_event_id` از connector (body hash) نه urandom — same body =
+  duplicate درست
+- `NormalisedEvent` بدون `vendor_payload` — raw body فقط hash
+
+### O4 — owner workboard (4047d1d)
+- `GET /owner/workboard`: projection خواندنی از store های canonical
+- panel: کارت «امروز» (۶ عدد عملیاتی) + «ابزارهای مالک» (probe/ask/cycle)
+
+### O5 — لید (1c47183)
+- ستون‌های follow-up: next_action_at, last_contacted_at, outcome_reason
+- hashes تماس برای duplicate warning (normalize AU formats)
+- set_follow_up / follow_ups_due / touch_contact / duplicate_candidates
+
+### O6 — زیمان (fd1660e)
+- `product_sale_events` + record_sale (idempotent, amount/fee known-or-
+  unknown, sale+state در یک transaction)
+- listing_packet با sha256
+
+### O7 — استودیو (61fae4e)
+- دکمهٔ «پست تازه» در studio.html → `POST /studio/drafts` + read-back
+- consent admin API (owner-only): subjects/gaps/add/release/revoke
+
+### O8 — marketing workbench (7be2d24)
+- `GET /owner/growth-workbench`: facade خواندنی روی workflow های موجود
+- بدون DB جدید؛ هر عدد measured یا not_measured
+
+### O9 — public surface (b993113)
+- طراحی local-only (بدون فعال‌سازی) + تست که هیچ route عمومی نیست
+
+### صحت نهایی
+```
+pytest      1826 passed · 5 skipped · 1831 collected
+boot        OK — 31 checks · state_dir 0700 · 8090 تمیز
+سرویس‌ها     ofn + hypno + cloudflared active · هر 5 پورت 200
+WIRE/gates  خاموش/بسته · sender ساخته نشد · UI حذف نشد
+```
+
+### مانده برای حکم آری (O10–O12)
+- **O10**: vendor read-only pilot (vendor + tenant + scope + معیار توقف)
+- **O11**: فعال‌سازی خروجی محدود (secret چرخیده + gates باز + WIRE)
+- **O12**: پایلوت ۱۴روزه (walkthrough واقعی + thresholdها)
+- O9 فعال‌سازی عمومی (پنج پیش‌شرط)
 
 ---
 

@@ -72,6 +72,10 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
   empty-state گرم در ziman. حذف ممنوع رعایت شد.
 
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
+- ✅ **[[MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH]] — O1–O9 اجرا شد (۱۸۲۶ pass):**
+  approval جدا از send · webhook واقعی · workboard · لید/زیمان/استودیو ·
+  marketing workbench · public surface local-only.
+  **مانده فقط حکم آری:** O10 vendor pilot · O11 خروجی محدود · O12 پایلوت ۱۴روزه.
 - ✅ [[MEGAPROMPT-COMPLETE-FINISH]] — فاز H–M اجرا شد (۱۷۶۷ pass · boot ۳۱/۳۱).
   بقیه فقط حکم آری: UNIFY قدم دوم، vendor، kill durable، retention.
 - ✅ [[AGENT-NEXT-DEEPSEEK-V4-FAST]] + [[MEGAPROMPT-P1-TO-P4-COMPLETE]] —
@@ -115,6 +119,8 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
+- [[MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH]] — **اجرای بعدی:** میز کار مالک،
+  عملیات کامل lead/ziman/studio و چرخهٔ بازاریابی دستی‌اول
 - [[MEGAPROMPT-COMPLETE-FINISH]] — ✅ انجام شد — فاز H–M (۲۰۲۶-۰۸-۱۰) · بقیه حکم آری
 - [[AGENT-NEXT-DEEPSEEK-V4-FAST]] — ✅ انجام شد — فازهای A–G (۲۰۲۶-۰۸-۱۰)
 - [[MEGAPROMPT-P1-TO-P4-COMPLETE]] — ✅ فاز A–G بسته · فاز H هم در COMPLETE-FINISH بسته شد
