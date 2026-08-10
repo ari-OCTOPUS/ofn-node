@@ -163,7 +163,10 @@ class TestMarketingInbox(unittest.TestCase):
                 body=f"{{i={i}}}".encode(), inbox_id=f"id{i}",
                 now_iso=NOW_ISO,
             )
-        self.inbox.mark_processed("id0", "ziman", NOW_ISO)
+        # Claim id0 (pending → processing), then finalise it.
+        claimed = self.inbox.claim_next(tenant="ziman", now_iso=NOW_ISO)
+        self.assertIsNotNone(claimed)
+        self.assertTrue(self.inbox.mark_processed("id0", "ziman", NOW_ISO))
         pending = self.inbox.pending("ziman")
         self.assertEqual(len(pending), 2)
         self.assertEqual(pending[0].inbox_id, "id1")
@@ -174,7 +177,9 @@ class TestMarketingInbox(unittest.TestCase):
             vendor_event_id="v1", correlation_id="c1",
             body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
-        self.inbox.mark_failed("id1", "ziman", NOW_ISO, "parse error")
+        claimed = self.inbox.claim_next(tenant="ziman", now_iso=NOW_ISO)
+        self.assertIsNotNone(claimed)
+        self.assertTrue(self.inbox.mark_failed("id1", "ziman", NOW_ISO, "parse error"))
         pending = self.inbox.pending("ziman")
         self.assertEqual(len(pending), 0)
         recent = self.inbox.recent("ziman")
@@ -188,7 +193,8 @@ class TestMarketingInbox(unittest.TestCase):
                 vendor_event_id=f"v{i}", correlation_id=f"c{i}",
                 body=b"{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
             )
-        self.inbox.mark_processed("id0", "ziman", NOW_ISO)
+        self.inbox.claim_next(tenant="ziman", now_iso=NOW_ISO)
+        self.assertTrue(self.inbox.mark_processed("id0", "ziman", NOW_ISO))
         counts = self.inbox.counts("ziman")
         self.assertEqual(counts[PENDING], 1)
         self.assertEqual(counts[PROCESSED], 1)
@@ -215,8 +221,10 @@ class TestMarketingInbox(unittest.TestCase):
                 vendor_event_id=f"v{i}", correlation_id=f"c{i}",
                 body=b"{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
             )
-        self.inbox.mark_processed("id0", "ziman", NOW_ISO)
-        self.inbox.mark_failed("id1", "ziman", NOW_ISO, "err")
+        # Claim id0 (processing), id1 stays pending and is failed directly.
+        self.inbox.claim_next(tenant="ziman", now_iso=NOW_ISO)
+        self.assertTrue(self.inbox.mark_processed("id0", "ziman", NOW_ISO))
+        self.assertTrue(self.inbox.mark_failed("id1", "ziman", NOW_ISO, "err"))
         self.assertEqual(self.inbox.depth("ziman"), 3)
 
     def test_tenant_isolation(self):
@@ -805,7 +813,8 @@ class TestOwnerObservability(unittest.TestCase):
             vendor_event_id="v2", correlation_id="c2",
             body=b"{}", inbox_id="id2", now_iso=NOW_ISO,
         )
-        self.inbox_ref.mark_processed("id1", "ziman", NOW_ISO)
+        self.inbox_ref.claim_next(tenant="ziman", now_iso=NOW_ISO)
+        self.assertTrue(self.inbox_ref.mark_processed("id1", "ziman", NOW_ISO))
         obs = self.node.owner_observability()
         t = obs["tenants"]["ziman"]
         self.assertEqual(t["inbox_pending"], 1)

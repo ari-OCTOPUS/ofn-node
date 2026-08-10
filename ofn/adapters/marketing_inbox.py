@@ -39,7 +39,8 @@ SCHEMA = (
         attempts        INTEGER NOT NULL DEFAULT 0,
         error_note      TEXT    NOT NULL DEFAULT '',
         received_at     TEXT    NOT NULL,
-        processed_at     TEXT    NOT NULL DEFAULT '',
+        processed_at    TEXT    NOT NULL DEFAULT '',
+        claimed_at      TEXT    NOT NULL DEFAULT '',
         UNIQUE(tenant, vendor_event_id, connector_id)
     )
     """,
@@ -60,9 +61,18 @@ def _migrate_raw_body_to_hash(conn) -> None:
         conn.execute("ALTER TABLE marketing_inbox ADD COLUMN body_sha256 TEXT NOT NULL DEFAULT ''")
         conn.execute("ALTER TABLE marketing_inbox ADD COLUMN body_size INTEGER NOT NULL DEFAULT 0")
 
+
+def _migrate_claimed_at(conn) -> None:
+    """Add claimed_at for the claim/recover state machine."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(marketing_inbox)")}
+    if "claimed_at" not in cols:
+        conn.execute("ALTER TABLE marketing_inbox ADD COLUMN claimed_at TEXT NOT NULL DEFAULT ''")
+
 PENDING = "pending"
+PROCESSING = "processing"
 PROCESSED = "processed"
 FAILED = "failed"
+HELD = "held"
 
 
 @dataclass(frozen=True)
@@ -81,6 +91,7 @@ class InboxItem:
     error_note: str
     received_at: str
     processed_at: str
+    claimed_at: str = ""
 
 
 class MarketingInbox:
@@ -95,7 +106,8 @@ class MarketingInbox:
 
     def __init__(self, path: str) -> None:
         self._pool = Pool(path)
-        apply_schema(self._conn, SCHEMA, (_migrate_raw_body_to_hash,))
+        apply_schema(self._conn, SCHEMA,
+                     (_migrate_raw_body_to_hash, _migrate_claimed_at))
 
     def close(self) -> None:
         self._pool.close()
@@ -140,20 +152,102 @@ class MarketingInbox:
         return [InboxItem(**dict(r)) for r in rows]
 
     def mark_processed(self, inbox_id: str, tenant: str,
-                       now_iso: str) -> None:
-        self._conn.execute(
+                       now_iso: str) -> bool:
+        """Finalise a processed item. Only valid from PROCESSING.
+
+        Returns True if a row was actually updated, False if the item was
+        not in PROCESSING state (e.g. already processed or never claimed).
+        """
+        cur = self._conn.execute(
             "UPDATE marketing_inbox SET status = ?, processed_at = ?, "
             "attempts = attempts + 1 "
-            "WHERE inbox_id = ? AND tenant = ?",
-            (PROCESSED, now_iso, inbox_id, tenant))
+            "WHERE inbox_id = ? AND tenant = ? AND status = ?",
+            (PROCESSED, now_iso, inbox_id, tenant, PROCESSING))
+        return cur.rowcount == 1
 
     def mark_failed(self, inbox_id: str, tenant: str,
-                    now_iso: str, note: str = "") -> None:
-        self._conn.execute(
+                    now_iso: str, note: str = "") -> bool:
+        """Mark an item as failed. Valid from PROCESSING (or PENDING for
+        direct rejection paths that never claimed).
+
+        Returns True if a row was actually updated, False otherwise.
+        """
+        cur = self._conn.execute(
             "UPDATE marketing_inbox SET status = ?, error_note = ?, "
             "attempts = attempts + 1, processed_at = ? "
-            "WHERE inbox_id = ? AND tenant = ?",
-            (FAILED, note, now_iso, inbox_id, tenant))
+            "WHERE inbox_id = ? AND tenant = ? AND status IN (?, ?)",
+            (FAILED, note, now_iso, inbox_id, tenant, PROCESSING, PENDING))
+        return cur.rowcount == 1
+
+    def claim_next(self, tenant: str | None = None,
+                   now_iso: str | None = None) -> InboxItem | None:
+        """Atomically claim one pending item: pending → processing.
+
+        BEGIN IMMEDIATE + SELECT + UPDATE in one transaction makes the claim
+        race-free: two concurrent processors can never both claim the same
+        row, because the second sees status='processing' and claims nothing.
+
+        Returns the claimed item, or None when nothing is pending.
+        """
+        import time as _t
+        if now_iso is None:
+            now_iso = _t.strftime("%Y-%m-%dT%H:%M:%S", _t.gmtime())
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            if tenant is None:
+                row = self._conn.execute(
+                    "SELECT * FROM marketing_inbox WHERE status = ? "
+                    "ORDER BY received_at ASC LIMIT 1", (PENDING,)).fetchone()
+            else:
+                row = self._conn.execute(
+                    "SELECT * FROM marketing_inbox WHERE tenant = ? "
+                    "AND status = ? ORDER BY received_at ASC LIMIT 1",
+                    (tenant, PENDING)).fetchone()
+            if row is None:
+                self._conn.execute("COMMIT")
+                return None
+            item = InboxItem(**dict(row))
+            self._conn.execute(
+                "UPDATE marketing_inbox SET status = ?, claimed_at = ?, "
+                "attempts = attempts + 1 "
+                "WHERE inbox_id = ? AND status = ?",
+                (PROCESSING, now_iso, item.inbox_id, PENDING))
+            self._conn.execute("COMMIT")
+            return item
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def recover_stale(self, timeout_s: int = 300,
+                      now_iso: str | None = None) -> int:
+        """Items stuck in PROCESSING longer than timeout_s become HELD.
+
+        A crash between claim and mark leaves a row in PROCESSING forever.
+        This turns such rows into HELD — visible, human-decidable — rather
+        than pretending they are being processed. Age is measured from
+        claimed_at, so a freshly claimed item is never touched.
+        """
+        import time as _t
+        if now_iso is None:
+            now_iso = _t.strftime("%Y-%m-%dT%H:%M:%S", _t.gmtime())
+        # Cutoff computed from the same clock as claimed_at (the injected
+        # now_iso), so tests and production agree on what "stale" means.
+        # `calendar.timegm` treats the parsed time as UTC — the format this
+        # node writes everywhere — regardless of the host's timezone.
+        try:
+            import calendar
+            now_epoch = calendar.timegm(
+                _t.strptime(now_iso, "%Y-%m-%dT%H:%M:%S"))
+        except ValueError:
+            now_epoch = _t.time()
+        cutoff = _t.strftime(
+            "%Y-%m-%dT%H:%M:%S", _t.gmtime(now_epoch - timeout_s))
+        cur = self._conn.execute(
+            "UPDATE marketing_inbox SET status = ?, error_note = 'stale claim', "
+            "processed_at = ? "
+            "WHERE status = ? AND claimed_at != '' AND claimed_at < ?",
+            (HELD, now_iso, PROCESSING, cutoff))
+        return cur.rowcount
 
     def counts(self, tenant: str) -> Mapping[str, int]:
         rows = self._conn.execute(

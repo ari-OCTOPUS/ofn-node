@@ -2134,6 +2134,7 @@ class Node:
             "ok": True,
             "webhook_route": True,          # POST /api/v1/webhooks/ is wired
             "vendors_connected": [],        # no real vendor yet — honest []
+            "inbox_ledger_gaps": getattr(self, "_inbox_ledger_gaps", 0),
             "tenants": {},
         }
         if self.inbox is not None:
@@ -2243,11 +2244,22 @@ class Node:
             return {"ok": False, "error": "duplicate webhook",
                     "correlation_id": cid, "status": "rejected"}
 
-        self.ledger.append(scope, "WEBHOOK_RECEIVED", {
-            "inbox_id": inbox_id,
-            "correlation_id": cid,
-            "vendor": "unknown",
-        }, now)
+        try:
+            self.ledger.append(scope, "WEBHOOK_RECEIVED", {
+                "inbox_id": inbox_id,
+                "correlation_id": cid,
+                "vendor": "unknown",
+            }, now)
+        except Exception as exc:
+            # Visible reconciliation: the payload IS safely in the inbox,
+            # but its audit trace is missing. The item must not be lost and
+            # the gap must be countable — the owner's observability exposes
+            # this counter so an operator can reconcile inbox rows against
+            # ledger events instead of both being silently half-written.
+            self._inbox_ledger_gaps = getattr(self, "_inbox_ledger_gaps", 0) + 1
+            import sys
+            print(f"  ⚠ webhook stored but ledger append failed: {exc}",
+                  file=sys.stderr)
 
         return {"ok": True, "status": "accepted",
                 "inbox_id": inbox_id, "correlation_id": cid}
