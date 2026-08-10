@@ -42,12 +42,19 @@ class TelegramChannelAdapter:
         if not token:
             return PublishResult(False, self.platform, req.idempotency_key,
                                  rule="telegram:no-token")
+        # sendMessage needs a chat id: a numeric id (-100...) or a public
+        # @username. An invite link (t.me/+...) is NOT usable by the Bot
+        # API — refuse loudly instead of sending it as chat_id.
+        cid = str(self.channel_id or "").strip()
+        if not cid or cid.startswith("t.me/") or "/" in cid:
+            return PublishResult(False, self.platform, req.idempotency_key,
+                                 rule="telegram:invite-link-not-usable")
         # sendMessage for text; media_refs are local paths and are NOT sent
         # over the wire here (photo upload needs the bytes; the caller sends
         # them explicitly). Text-only broadcast is the minimal real send.
         url = (f"https://api.telegram.org/bot{token}/sendMessage")
         payload = json.dumps({
-            "chat_id": self.channel_id,
+            "chat_id": cid,
             "text": req.caption,
             "disable_web_page_preview": True,
         }).encode("utf-8")

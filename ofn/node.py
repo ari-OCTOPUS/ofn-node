@@ -2917,10 +2917,22 @@ class Node:
     #   - the channel id and token come from config at call time
     def set_telegram_channel(self, channel_id: str) -> dict:
         """Record the broadcast channel (owner-only; not a secret — it is
-        visible in the channel's public URL). After this, publish works."""
+        visible in the channel's public URL). After this, publish works.
+
+        Accepts a numeric chat id (-100...) or a public @username. An invite
+        link (t.me/+...) cannot be used by the Bot API — refuse with the
+        way to get the real id.
+        """
         cid = str(channel_id or "").strip()
         if not cid:
             return {"ok": False, "error": "channel id required"}
+        if cid.startswith("t.me/") or "/" in cid:
+            return {"ok": False,
+                    "error": "لینک دعوت برای انتشار قابل‌استفاده نیست. "
+                             "شناسهٔ کانال را بده: عدد -100... یا @username "
+                             "(از @RawDataBot در تلگرام می‌گیری — یک پیام "
+                             "از کانال به آن فوروارد کن).",
+                    "rule": "telegram:invite-link-not-usable"}
         self._telegram_channel_id = cid
         # Mutation paired with its record (finding 13): who set the channel
         # and when matters as much as the id itself.

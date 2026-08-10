@@ -241,3 +241,14 @@ class TestSetTelegramChannel(unittest.TestCase):
             _j.dumps({"channel_id": "@x"}).encode())
         self.assertEqual(resp.status, 200)
         self.assertTrue(resp.body.get("ok"))
+
+    def test_invite_link_refused(self):
+        node, _ = self._node()
+        out = node.set_telegram_channel("t.me/+1XvvqhnRSe81ZjZl")
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["rule"], "telegram:invite-link-not-usable")
+        # A public @username or numeric id is accepted.
+        out = node.set_telegram_channel("@giftmesh")
+        self.assertTrue(out["ok"])
+        out = node.set_telegram_channel("-1001234567890")
+        self.assertTrue(out["ok"])
