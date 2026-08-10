@@ -1,4 +1,5 @@
 import os, json, mimetypes, zipfile, shutil, secrets
+from datetime import datetime, timezone
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from hypno import __version__
@@ -16,7 +17,24 @@ CATEGORIES = (
 )
 
 def brain_name(cfg):
-    return 'remote:' + cfg.model if cfg.api_key else 'rules+rAG fallback'
+    return 'remote:' + cfg.model if cfg.api_key else 'قوانین + منبع'
+
+def _fmt_ts(epoch):
+    """تبدیل Unix epoch به رشتهٔ تاریخ/ساعت محلی (YYYY-MM-DD HH:MM)."""
+    if not epoch:
+        return ''
+    try:
+        return datetime.fromtimestamp(int(epoch), tz=timezone.utc).strftime('%Y-%m-%d %H:%M')
+    except (OSError, ValueError):
+        return ''
+
+def _fmt_day(epoch):
+    """تبدیل Unix epoch به رشتهٔ روز (YYYY-MM-DD)."""
+    return _fmt_ts(epoch)[:10] if epoch else ''
+
+def _slug(text, maxlen=80):
+    """تبدیل متن به نام فایل امن."""
+    return ''.join(ch if ch.isalnum() or ch in ' -_.' else '-' for ch in (text or 'doc'))[:maxlen]
 
 class App:
     def __init__(self, cfg):
@@ -320,37 +338,188 @@ class App:
         os.makedirs(exp, exist_ok=True)
         if os.path.exists(vault):
             shutil.rmtree(vault)
-        for rel in ('Research/Cleaned', 'Research/Raw', 'RAG-Chunks', 'Memory', 'Sessions', '.obsidian'):
+        for rel in ('Research/Cleaned', 'Research/Raw', 'Sources', 'Memory',
+                     'Sessions', 'Daily', 'Edge', '.obsidian'):
             os.makedirs(os.path.join(vault, rel), exist_ok=True)
         def w(rel, txt):
             p = os.path.join(vault, rel)
             os.makedirs(os.path.dirname(p), exist_ok=True)
             open(p, 'w', encoding='utf-8').write(txt)
-        w('00-Dashboard.md', f'# Hypno Fugu Vault\n\n- Project: `{self.cfg.root}`\n- DB: `{self.cfg.db_path}`\n- Research docs: {self.store.count()}\n- Brain: {brain_name(self.cfg)}\n\n## Maps\n- [[Research/MOC-Research]]\n- [[Memory/MOC-Memory]]\n- [[Sessions/MOC-Sessions]]\n')
+
+        # ── Dashboard ──────────────────────────────────────────────────
+        now_iso = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d %H:%M')
+        with self.store.conn() as db:
+            mem_count = db.execute('SELECT COUNT(*) FROM memories WHERE user_id=? AND active=1', (uid,)).fetchone()[0]
+            msg_count = db.execute('SELECT COUNT(*) FROM messages WHERE user_id=?', (uid,)).fetchone()[0]
+            note_count = db.execute('SELECT COUNT(*) FROM daily_notes WHERE user_id=?', (uid,)).fetchone()[0]
+        w('00-Dashboard.md', (
+            '# آرام‌جا — خروجی ابسیدین\n\n'
+            f'- تاریخ تولید: {now_iso}\n'
+            f'- منابع: {self.store.count()}\n'
+            f'- حافظه: {mem_count}\n'
+            f'- پیام: {msg_count}\n'
+            f'- یادداشت روزانه: {note_count}\n'
+            f'- مغز: {brain_name(self.cfg)}\n'
+            '\n## نقشهٔ محتوا\n'
+            '- [[Research/MOC-Research|پژوهش]]\n'
+            '- [[Sources/MOC-Sources|منابع]]\n'
+            '- [[Memory/MOC-Memory|حافظه]]\n'
+            '- [[Sessions/MOC-Sessions|جلسات]]\n'
+            '- [[Edge/MOC-Edge|امتیازات روزانه]]\n'
+        ))
+
+        # ── Research / Cleaned ─────────────────────────────────────────
         src = os.path.join(self.cfg.root, 'research_import', 'cleaned')
         links = []
         if os.path.isdir(src):
             for name in sorted(os.listdir(src)):
                 if name.endswith('.md'):
-                    shutil.copy2(os.path.join(src, name), os.path.join(vault, 'Research', 'Cleaned', name))
-                    links.append(f'- [[Cleaned/{name[:-3]}]]')
-        w('Research/MOC-Research.md', '# Research Map\n\n' + ('\n'.join(links) or 'No cleaned docs') + '\n')
+                    shutil.copy2(os.path.join(src, name),
+                                 os.path.join(vault, 'Research', 'Cleaned', name))
+                    links.append(f'- [[Cleaned/{name[:-3]}|{name[:-3]}]]')
+        w('Research/MOC-Research.md',
+          '# نقشهٔ پژوهش\n\n' + ('\n'.join(links) or '_هنوز سندی نیست._') + '\n')
+
+        # ── Research / Raw ────────────────────────────────────────────
         raw = os.path.join(self.cfg.root, 'research_import', 'raw')
         if os.path.isdir(raw):
             for name in sorted(os.listdir(raw)):
                 if name.endswith('.txt'):
-                    txt = open(os.path.join(raw, name), encoding='utf-8', errors='ignore').read()
-                    w('Research/Raw/' + name[:-4] + '.md', f'---\ntype: raw\nsource: {name}\n---\n\n```text\n{txt}\n```\n')
+                    txt = open(os.path.join(raw, name),
+                               encoding='utf-8', errors='ignore').read()
+                    w('Research/Raw/' + name[:-4] + '.md',
+                      f'---\ntype: raw\nsource: {name}\n---\n\n'
+                      f'```text\n{txt}\n```\n')
+
+        # ── کوئری داده‌ها ────────────────────────────────────────────
         with self.store.conn() as db:
-            rows = [dict(r) for r in db.execute('SELECT id,title,source_url,source_type,tags,substr(text,1,5000) text FROM research_docs ORDER BY id')]
-            mem = [dict(r) for r in db.execute('SELECT kind,content,created_at FROM memories WHERE user_id=? AND active=1 ORDER BY created_at DESC', (uid,))]
-            msgs = [dict(r) for r in db.execute('SELECT role,content,created_at FROM messages WHERE user_id=? ORDER BY id DESC LIMIT 200', (uid,))]
+            rows = [dict(r) for r in db.execute(
+                'SELECT id,title,source_url,source_type,tags,'
+                'substr(text,1,5000) text FROM research_docs ORDER BY id')]
+            mem = [dict(r) for r in db.execute(
+                'SELECT kind,content,created_at FROM memories '
+                'WHERE user_id=? AND active=1 ORDER BY created_at DESC', (uid,))]
+            msgs = [dict(r) for r in db.execute(
+                'SELECT role,content,created_at FROM messages '
+                'WHERE user_id=? ORDER BY id DESC LIMIT 200', (uid,))]
+            notes = [dict(r) for r in db.execute(
+                'SELECT day,content,created_at FROM daily_notes '
+                'WHERE user_id=? ORDER BY day DESC', (uid,))]
+            lab_rows = [dict(r) for r in db.execute(
+                "SELECT kind,payload,created_at FROM lab_results "
+                "WHERE user_id=? ORDER BY created_at DESC LIMIT 100", (uid,))]
+        edge_rows = self.store.edge_history(uid, limit=30)
+
+        # ── Sources (قبلاً RAG-Chunks) ─────────────────────────────────
+        src_links = []
         for r in rows:
-            title = ''.join(ch if ch.isalnum() or ch in ' -_.' else '-' for ch in (r['title'] or 'doc'))[:80]
-            w(f"RAG-Chunks/{r['id']:04d}-{title}.md", f"---\ntype: rag_chunk\nid: {r['id']}\nsource_type: {r['source_type']}\ntags: {json.dumps((r['tags'] or '').split(), ensure_ascii=False)}\nsource_url: {r['source_url']}\n---\n\n# {r['title']}\n\n{r['text']}\n")
-        w('Memory/MOC-Memory.md', '# Memory\n\n' + '\n'.join(f"- **{m['kind']}**: {m['content']}" for m in mem) + '\n')
-        w('Sessions/MOC-Sessions.md', '# Recent conversation logs\n\n' + '\n\n'.join(f"## {m['role']} · {m['created_at']}\n\n{m['content']}" for m in msgs) + '\n')
-        w('.obsidian/app.json', '{"legacyEditor":false,"livePreview":true}\n')
+            title = _slug(r['title'])
+            w(f"Sources/{r['id']:04d}-{title}.md",
+              f"---\ntype: source\nid: {r['id']}\n"
+              f"source_type: {r['source_type']}\n"
+              f"tags: {json.dumps((r['tags'] or '').split(), ensure_ascii=False)}\n"
+              f"source_url: {r['source_url']}\n---\n\n"
+              f"# {r['title']}\n\n{r['text']}\n")
+            src_links.append(f'- [[{r["id"]:04d}-{title}|{r["title"] or "بدون عنوان"}]]')
+        w('Sources/MOC-Sources.md',
+          '# نقشهٔ منابع\n\n' + ('\n'.join(src_links) or '_منبعی نیست._') + '\n')
+
+        # ── Memory ───────────────────────────────────────────────────
+        mem_lines = []
+        for m in mem:
+            ts = _fmt_ts(m['created_at'])
+            mem_lines.append(f"- **{m['kind']}**{f' ({ts})' if ts else ''}: {m['content']}")
+        w('Memory/MOC-Memory.md',
+          '# حافظه\n\n' + ('\n'.join(mem_lines) if mem_lines else '_حافظه‌ای ثبت نشده._') + '\n')
+
+        # ── Sessions (اسپلیت به تفکیک روز) ────────────────────────────
+        from collections import defaultdict
+        by_day = defaultdict(list)
+        for m in msgs:
+            day = _fmt_day(m['created_at']) or 'unknown'
+            by_day[day].append(m)
+        sess_links = []
+        for day in sorted(by_day.keys()):
+            day_msgs = by_day[day]
+            sections = '\n\n'.join(
+                f"## {m['role']}\n\n{m['content']}" for m in day_msgs)
+            w(f'Sessions/{day}.md',
+              f'---\ntype: session_log\ndate: {day}\n'
+              f'messages: {len(day_msgs)}\n---\n\n'
+              f'# جلسات {day}\n\n{sections}\n')
+            sess_links.append(f'- [[Sessions/{day}|{day}]] — {len(day_msgs)} پیام')
+        w('Sessions/MOC-Sessions.md',
+          '# نقشهٔ جلسات\n\n'
+          + ('\n'.join(sess_links) if sess_links else '_جلساتی نیست._') + '\n')
+
+        # ── Daily Notes ──────────────────────────────────────────────
+        by_note_day = defaultdict(list)
+        for n in notes:
+            by_note_day[n['day']].append(n)
+        for day in sorted(by_note_day.keys()):
+            entries = by_note_day[day]
+            parts = []
+            for i, e in enumerate(entries):
+                header = f'## یادداشت {i + 1}' if len(entries) > 1 else '## یادداشت'
+                parts.append(f'{header}\n\n{e["content"]}')
+            w(f'Daily/{day}.md',
+              f'---\ntype: daily_note\ndate: {day}\nentries: {len(entries)}\n---\n\n'
+              + '\n\n---\n\n'.join(parts) + '\n')
+
+        # ── Edge (امتیازات روزانه + نتایج آزمایشگاه) ───────────────
+        edge_lines = []
+        if edge_rows:
+            edge_lines.append('| روز | بدن | خود | ابرموجود | حکم |')
+            edge_lines.append('|---|---|---|---|---|')
+            for e in edge_rows:
+                edge_lines.append(
+                    f"| {e['day']} | {e['b']:.0f} | {e['c']:.0f} "
+                    f"| {e['x']:.0f} | {e.get('verdict', '-')} |")
+        else:
+            edge_lines.append('_امتیازی ثبت نشده._')
+
+        # نتایج آزمایشگاه
+        quiz_lines = []
+        decision_lines = []
+        for lr in lab_rows:
+            try:
+                payload = json.loads(lr['payload']) if isinstance(lr['payload'], str) else lr['payload']
+            except Exception:
+                payload = {}
+            ts = _fmt_ts(lr['created_at'])
+            if lr['kind'] == 'quiz':
+                correct = '✅' if payload.get('correct') else '❌'
+                quiz_lines.append(
+                    f"- {ts}: حدس={payload.get('guess', '?')} "
+                    f"جواب={payload.get('answer', '?')} {correct}")
+            elif lr['kind'] == 'decision':
+                decision_lines.append(
+                    f"- {ts}: غالب={payload.get('dominant', '?')} "
+                    f"بدن={payload.get('body_share', 0):.0%} "
+                    f"خود={payload.get('self_share', 0):.0%} "
+                    f"ابرموجود={payload.get('super_share', 0):.0%}")
+
+        edge_content = '# نقشهٔ امتیازات روزانه\n\n'
+        edge_content += '## نمرات لبه\n\n' + '\n'.join(edge_lines) + '\n'
+        if quiz_lines:
+            edge_content += '\n## نتایج کوییز\n\n' + '\n'.join(quiz_lines) + '\n'
+        if decision_lines:
+            edge_content += '\n## نتایج تصمیم\n\n' + '\n'.join(decision_lines) + '\n'
+        w('Edge/MOC-Edge.md', edge_content)
+
+        # ── .obsidian configs ─────────────────────────────────────────
+        w('.obsidian/app.json',
+          '{"legacyEditor":false,"livePreview":true}\n')
+        w('.obsidian/core-plugins.json', json.dumps([
+            'graph', 'search', 'daily-notes', 'tag-pane', 'outline',
+        ], ensure_ascii=False) + '\n')
+        w('.obsidian/daily-notes.json', json.dumps({
+            'folder': 'Daily',
+            'template': '',
+            'format': 'YYYY-MM-DD',
+        }, ensure_ascii=False) + '\n')
+
+        # ── ZIP ───────────────────────────────────────────────────────
         zip_path = os.path.join(exp, 'hypno-fugu-obsidian-vault.zip')
         if os.path.exists(zip_path):
             os.remove(zip_path)
@@ -359,11 +528,16 @@ class App:
                 for f in files:
                     p = os.path.join(root, f)
                     z.write(p, os.path.relpath(p, os.path.dirname(vault)))
-        note = self.panel_note(uid, 'خروجی قابل‌حمل Obsidian ساخته شد')
+        note = self.panel_note(uid, 'خروجی قابل‌حمل ابسیدین ساخته شد')
         token = secrets.token_urlsafe(24)
         self.download_tokens[token] = zip_path
         self.download_tokens = dict(list(self.download_tokens.items())[-20:])
-        return {'ok': 1, 'vault_path': vault, 'zip_path': zip_path, 'download_url': '/exports/hypno-fugu-obsidian-vault.zip?token=' + token, 'files': sum(len(files) for _, _, files in os.walk(vault)), 'brain_note': note}
+        return {
+            'ok': 1, 'vault_path': vault, 'zip_path': zip_path,
+            'download_url': '/exports/hypno-fugu-obsidian-vault.zip?token=' + token,
+            'files': sum(len(files) for _, _, files in os.walk(vault)),
+            'brain_note': note,
+        }
 
     # ── مدل لبهٔ سیستم: endpointهای تعاملی ─────────────────────────────────
     # این سه endpoint به کاربر اجازه می‌دهند نمرهٔ ۰-۱۰ بدهد و نتیجهٔ مدل را
