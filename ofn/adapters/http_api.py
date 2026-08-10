@@ -188,6 +188,7 @@ class ApiApp:
         owner_status: Callable[[], dict] | None = None,
         owner_events: Callable[[int], list] | None = None,
         owner_metrics: Callable[[], dict] | None = None,
+        owner_observability: Callable[[], dict] | None = None,
         owner_snapshot: Callable[[], dict] | None = None,
         owner_businesses: Callable[[], dict] | None = None,
         owner_business_snapshot: Callable[[str], dict | None] | None = None,
@@ -285,6 +286,7 @@ class ApiApp:
         self._owner_decide = owner_decide or (lambda i, a, c: {"ok": True})
         self._owner_status = owner_status or (lambda: {})
         self._owner_metrics = owner_metrics
+        self._owner_observability = owner_observability
         self._owner_events = owner_events or (lambda n: [])
         self._owner_snapshot = owner_snapshot
         self._owner_businesses = owner_businesses
@@ -862,6 +864,10 @@ class ApiApp:
             if self._owner_metrics is None:
                 return self._owner_read({"ok": False, "error": "metrics not wired"})
             return self._owner_read(self._owner_metrics())
+        if method == "GET" and path == "/api/v1/owner/observability":
+            if self._owner_observability is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._owner_observability())
         if method == "GET" and path == "/api/v1/owner/events":
             return self._owner_read({"events": self._owner_events(EVENT_TAIL)})
 

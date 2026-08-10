@@ -507,6 +507,19 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
   </div>
 </div>
 
+<!-- صندوق ورودی و سلامت اتصال‌ها.
+     درِ خروج برای مدت‌ها دیده می‌شد، ولی درِ ورودی نه. اکنون کانال‌هایی که
+     پیام می‌گیرند اینجا دیده می‌شوند — نه به‌عنوان داشبورد تزئینی، بلکه
+     به‌عنوان شاهد اندازه‌گیری‌شده. هنوز هیچ فروشنده‌ای وصل نیست؛ صداقت
+     همین است. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">📥</span><h2>صندوق ورودی — کانال‌ها</h2><span class="chipx" id="inboxChip">…</span></div>
+  <div id="inbox"><div class="empty">در حال خواندن…</div></div>
+  <div class="memo" style="margin-top:14px">
+    <b>پیام‌هایی که از بیرون می‌رسد، اینجا می‌نشیند.</b> هیچ فروشنده‌ای هنوز وصل نیست؛ وقتی وصل شود، تعداد و وضعیت پیام‌های رسیده اینجا دیده می‌شود — نه متن خام و نه راز.
+  </div>
+</div>
+
 <!-- سطوح: پیکربندی، نه سلامت. -->
 <div class="panel" style="margin-bottom:20px">
   <div class="ph"><span class="ic">🛰️</span><h2>سطوح — چه چیزی سرو می‌شود</h2><span class="chipx" id="surfChip">…</span></div>
@@ -1058,6 +1071,40 @@ function drawBrain(b) {
 /* ── outbox: the actionable queue ─────────────────────────────────────── */
 const STATE_FA = { pending: 'منتظر تو', held: 'نگه‌داشته' };
 
+function drawInbox(obs) {
+  const box = document.getElementById('inbox');
+  const chip = document.getElementById('inboxChip');
+  box.textContent = '';
+  if (!obs || !obs.ok) {
+    chip.textContent = 'قطع';
+    box.append(mk('div', 'empty', 'صندوق ورودی خوانده نشد.'));
+    return;
+  }
+  const vendors = obs.vendors_connected || [];
+  if (!vendors.length) {
+    chip.textContent = 'وصل نیست';
+    const grid = mk('div', 'paintgrid');
+    grid.append(pstat('فروشندهٔ وصل‌شده', 0));
+    box.append(grid);
+    box.append(mk('div', 'empty',
+      'هنوز هیچ فروشنده‌ای وصل نشده. وقتی وصل شود، پیام‌های رسیده اینجا شمرده می‌شوند.'));
+    return;
+  }
+  chip.textContent = `${fa(vendors.length)} فروشنده`;
+  const grid = mk('div', 'paintgrid');
+  let totalPending = 0;
+  const tenants = obs.tenants || {};
+  for (const [tenant, data] of Object.entries(tenants)) {
+    const pending = data.inbox_pending || 0;
+    totalPending += pending;
+    grid.append(pstat(`${NAME[tenant] || tenant} · منتظر`, pending));
+  }
+  box.append(grid);
+  if (totalPending === 0) {
+    box.append(mk('div', 'empty', 'پیام جدیدی در صف ورودی نیست.'));
+  }
+}
+
 function drawOutbox(risks) {
   const box = document.getElementById('outbox');
   const chip = document.getElementById('outboxChip');
@@ -1575,15 +1622,16 @@ async function refresh() {
     const chainP = OFN.get('/api/v1/owner/ledger/summary').catch(() => null);
     const snapP = OFN.get('/api/v1/owner/snapshot').catch(() => null);
     const brainP = OFN.get('/api/v1/owner/brain').catch(() => null);
+    const inboxP = OFN.get('/api/v1/owner/observability').catch(() => null);
     const [status, queue, events, painting, metrics,
-           risks, chain, snapshot, brain] =
+           risks, chain, snapshot, brain, inbox] =
       await Promise.all([
         OFN.get('/api/v1/owner/status'),
         OFN.get('/api/v1/queue'),
         OFN.get('/api/v1/owner/events'),
         paintingP,
         metricsP,
-        riskP, chainP, snapP, brainP,
+        riskP, chainP, snapP, brainP, inboxP,
       ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
@@ -1596,6 +1644,7 @@ async function refresh() {
     drawBrain(brain);
     drawOutbox(risks);
     drawChain(chain);
+    drawInbox(inbox);
     drawUnmeasured(snapshot);
     loadSurfaces().catch(e => console.error('loadSurfaces failed:', e));
     lastOk = Date.now();

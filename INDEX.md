@@ -64,13 +64,14 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 - ✅ [[MEGAPROMPT-OWNER-COMPLETE]] اجرا و commit شد (`4dcb0ce` + infra بعدی).
 - ✅ NTP + cloudflared زنده · HTTPS پنج دامنه ۲۰۰.
 - ✅ connector infra خواندنی: inbox · correlation · inbound rate · HMAC verify ·
-  metrics (`d140756`) — **هنوز کامل وارد UI چهار پنل نشده.**
-- ✅ اسکن پایهٔ چهار کنترل‌پنل: [[docs/handoffs/panel-scans-2026-08-10/INVENTORY]].
-- 🔲 کار بعدی: [[AGENT-NEXT-PANEL-UPGRADE]] — اسکن دوباره + ادغام/اضافه به UI
-  (حذف ممنوع).
+  metrics (`d140756`).
+- ✅ اسکن کامل چهار کنترل‌پنل + ارتقا: [[docs/handoffs/panel-scans-2026-08-10/INVENTORY]].
+- ✅ [[AGENT-NEXT-PANEL-UPGRADE]] اجرا شد:
+  `GET /api/v1/owner/observability` + کارت صندوق ورودی در panel ·
+  برچسب اولویت انسانی در lead · `setHeaderColor` در studio ·
+  empty-state گرم در ziman. حذف ممنوع رعایت شد.
 
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
-- 🔲 [[AGENT-NEXT-PANEL-UPGRADE]] — **اولویت UI:** چهار کنترل‌پنل را اسکن و ارتقا بده.
 - 🔲 [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — ادامهٔ connector بدون sender.
 - 🔲 [[MEGAPROMPT-UNIFY]] — ادغام دو ایجنت (بخش‌هایی انجام شده؛ سند را بسنج).
 - ✅ لید نقاشی: `lead_priority()` وصل · CRM شریک روی boot · HIGH-1 بسته.

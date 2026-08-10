@@ -30,6 +30,52 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — ارتقای چهار کنترل‌پنل (فاز ۲–۸)
+
+### آنچه عوض شد
+
+**بک‌اند جدید:**
+- `GET /api/v1/owner/observability` — صندوق ورودی و وضعیت کانال‌ها
+  (`node.owner_observability` + مسیر در `http_api` + wiring در `run.py`).
+  owner-only، no-store، بدون راز یا متن خام وب‌هوک. ۱۰ تست جدید.
+
+**panel.html (مالک):**
+- کارت تازهٔ «صندوق ورودی — کانال‌ها» بعد از درِ خروج. تعداد پیام‌های رسیده
+  per-tenant، حالت صادقانهٔ «هنوز فروشنده‌ای وصل نیست». از `refresh()` تغذیه
+  می‌شود با `.catch` مستقل.
+
+**lead.html (عباس):**
+- برچسب اولویت از `score_detail.recommendation` (اولویت بالا / پیگیری کن /
+  بعداً) به‌جای فقط عدد خام. توضیح مدل فارسی زیر هر کارت.
+- empty-state گرم: جداسازی «فیلتر چیزی پیدا نکرد» از «هنوز لیدی نرسیده».
+
+**studio.html (سبا):**
+- `tg().setHeaderColor('#131114')` + `setBackgroundColor` در `shell()` —
+  هدر تلگرام با پالت پوسته یکی شد.
+
+**ziman.html (ملیحه):**
+- empty-state قفسه خالی گرم‌تر شد با راهنمایی روی همان صفحه.
+
+### آنچه عمداً دست‌نخورده ماند
+- همهٔ بخش‌های panel.html (kill، صف تصمیم، میز نقاشی، metrics، outbox، لجر، سطوح)
+- CRM، جستجو/فیلتر، جواب/قیمت، ثبت لید در lead.html
+- آرشیو، گالری، چت، آپلود، مارکتینگ در studio.html
+- فرم قطعه، قفسه، سؤال‌ها، عکس، toLatinDigits در ziman.html
+- گیت‌ها، WIRE، outbox، رازها — هیچ‌کدام تغییر نکرد
+
+### صحت
+```
+pytest        1662 passed · 5 skipped (تأیید: tools/repo_baseline.py --tests)
+boot          OK — 29 checks (قبلاً ۲۸ بود، inbox اضافه شد)
+سرویس‌ها       ofn active · هر پنج مسیر ۲۰۰ · sabaapp ۲۰۰
+curl verify   صندوق ورودی در panel · score_detail در lead ·
+              setHeaderColor در studio · empty warm در ziman — همه سرو می‌شوند
+outbox        تغییر نکرد
+journal       بدون SAFE MODE · بدون traceback · بدون فعالیت خروجی
+```
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — مگاپرامپت مارکتینگ + اسکن پنل‌ها + دستور ارتقای UI
 
 ### بک‌اند connector (انجام‌شده در کد)

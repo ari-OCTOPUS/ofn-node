@@ -861,6 +861,14 @@ const OFN = (() => {
       const t = tg();
       if (!t) return;
       t.ready(); t.expand && t.expand();
+      /* Match the Telegram chrome to the shell's own palette, so the header
+         bar and the page are one surface rather than two different colours.
+         Both calls are guarded: older clients lack them, and the absence is
+         the correct fallback (the shell still works, just two-toned). */
+      try {
+        if (t.setHeaderColor) t.setHeaderColor('#131114');
+        if (t.setBackgroundColor) t.setBackgroundColor('#131114');
+      } catch (_) { /* older client — palette mismatch is cosmetic only */ }
     },
     tap(style = 'light') {
       const t = tg();

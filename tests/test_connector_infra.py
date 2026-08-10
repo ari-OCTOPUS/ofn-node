@@ -594,6 +594,207 @@ class TestHandleWebhook(unittest.TestCase):
         self.assertEqual(events[0].payload["inbox_id"], result["inbox_id"])
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+#  owner_observability endpoint
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestOwnerObservability(unittest.TestCase):
+    """The owner's observability read: counts only, no secrets, no PII."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.adapters.marketing_inbox import MarketingInbox
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        _write_pack(os.path.join(packs_dir, "ziman.yaml"))
+
+        ledger = Ledger(os.path.join(self.dir, "ledger.sqlite"))
+        facts = FactStore(os.path.join(self.dir, "facts.sqlite"))
+        outbox = Outbox(os.path.join(self.dir, "outbox.sqlite"))
+        inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+
+        registry = TenantRegistry(load_dir(packs_dir))
+        quota = NodeQuota(estimated_capacity_tokens=1_000_000,
+                          utilisation=1.0, shares={"ziman": 1.0})
+
+        self.node = Node(
+            registry=registry, quota=quota,
+            ledger=ledger, facts=facts, outbox=outbox,
+            now_epoch_s=lambda: NOW_EPOCH,
+            now_iso=lambda: NOW_ISO,
+            inbox=inbox,
+        )
+        self.addCleanup(self.node.close)
+        self.inbox_ref = inbox
+
+    def test_returns_ok(self):
+        obs = self.node.owner_observability()
+        self.assertTrue(obs["ok"])
+
+    def test_webhook_route_reported(self):
+        obs = self.node.owner_observability()
+        self.assertTrue(obs["webhook_route"])
+
+    def test_no_vendors_connected(self):
+        """No real vendor is wired yet."""
+        obs = self.node.owner_observability()
+        self.assertEqual(obs["vendors_connected"], [])
+
+    def test_tenant_counts_present(self):
+        obs = self.node.owner_observability()
+        self.assertIn("ziman", obs["tenants"])
+        t = obs["tenants"]["ziman"]
+        self.assertEqual(t["inbox_pending"], 0)
+        self.assertEqual(t["inbox_depth"], 0)
+
+    def test_counts_reflect_stored_items(self):
+        self.inbox_ref.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        self.inbox_ref.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v2", correlation_id="c2",
+            raw_body="{}", inbox_id="id2", now_iso=NOW_ISO,
+        )
+        self.inbox_ref.mark_processed("id1", "ziman", NOW_ISO)
+        obs = self.node.owner_observability()
+        t = obs["tenants"]["ziman"]
+        self.assertEqual(t["inbox_pending"], 1)
+        self.assertEqual(t["inbox_processed"], 1)
+        self.assertEqual(t["inbox_depth"], 1)
+
+    def test_no_raw_body_or_secret_leaked(self):
+        """The response must never contain raw webhook payloads or secrets."""
+        secret_like = "whsec_super_secret_12345"
+        self.inbox_ref.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body=f'{{"secret": "{secret_like}"}}',
+            inbox_id="id1", now_iso=NOW_ISO,
+        )
+        import json
+        obs = self.node.owner_observability()
+        serialised = json.dumps(obs)
+        self.assertNotIn(secret_like, serialised)
+        self.assertNotIn("raw_body", serialised)
+
+    def test_no_inbox_wired_reports_error(self):
+        """When inbox is None, the response says so rather than crashing."""
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs2")
+        os.makedirs(packs_dir)
+        _write_pack(os.path.join(packs_dir, "ziman.yaml"))
+        registry = TenantRegistry(load_dir(packs_dir))
+        node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 1.0}),
+            ledger=Ledger(os.path.join(self.dir, "l2.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "f2.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "o2.sqlite")),
+            now_epoch_s=lambda: NOW_EPOCH,
+            now_iso=lambda: NOW_ISO,
+            inbox=None,
+        )
+        self.addCleanup(node.close)
+        obs = node.owner_observability()
+        self.assertIn("inbox_error", obs)
+
+
+class TestObservabilityHttpRoute(unittest.TestCase):
+    """The HTTP route for observability: owner-only, no-store."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.adapters.marketing_inbox import MarketingInbox
+        from ofn.adapters.http_api import ApiApp, HostMap
+        from ofn.kernel.auth import issue_session
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        _write_pack(os.path.join(packs_dir, "ziman.yaml"))
+
+        ledger = Ledger(os.path.join(self.dir, "ledger.sqlite"))
+        facts = FactStore(os.path.join(self.dir, "facts.sqlite"))
+        outbox = Outbox(os.path.join(self.dir, "outbox.sqlite"))
+        inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+
+        self.registry = TenantRegistry(load_dir(packs_dir))
+        self.node = Node(
+            registry=self.registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 1.0}),
+            ledger=ledger, facts=facts, outbox=outbox,
+            now_epoch_s=lambda: NOW_EPOCH,
+            now_iso=lambda: NOW_ISO,
+            inbox=inbox,
+        )
+        self.addCleanup(self.node.close)
+        SECRET = "obs-test-secret"
+        OWNER_ID = "9001"
+        self.app = ApiApp(
+            self.registry,
+            HostMap(tenants={"panel.test": "ziman"}, owner_host="panel.test"),
+            bot_tokens={"__owner__": "t"},
+            session_secret=SECRET,
+            owner_user_ids=(OWNER_ID,),
+            partner_user_ids={},
+            now=lambda: NOW_EPOCH,
+            owner_observability=self.node.owner_observability,
+        )
+        self.owner_session = issue_session(
+            "owner", OWNER_ID, SECRET, now_epoch_s=NOW_EPOCH)
+
+    def _owner_get(self, path):
+        return self.app.handle(
+            "GET", path,
+            {"host": "panel.test",
+             "authorization": "Bearer " + self.owner_session},
+            b"")
+
+    def test_returns_200_with_inbox_counts(self):
+        resp = self._owner_get("/api/v1/owner/observability")
+        self.assertEqual(resp.status, 200)
+        self.assertTrue(resp.body["ok"])
+        self.assertIn("tenants", resp.body)
+        self.assertIn("ziman", resp.body["tenants"])
+
+    def test_no_store_header(self):
+        resp = self._owner_get("/api/v1/owner/observability")
+        self.assertEqual(
+            resp.headers.get("Cache-Control"), "private, no-store")
+
+    def test_requires_owner_session(self):
+        resp = self.app.handle(
+            "GET", "/api/v1/owner/observability",
+            {"host": "panel.test"}, b"")
+        self.assertEqual(resp.status, 401)
+
+
 def _write_pack(path: str) -> None:
     """Write a minimal pack YAML so the registry can load it."""
     with open(path, "w") as f:

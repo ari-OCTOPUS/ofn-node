@@ -79,6 +79,7 @@ header{background:linear-gradient(160deg,var(--blue-d),#1257d2 65%,#1c6ae8);
 .jt{font-size:16px;font-weight:700;line-height:1.5;flex:1}
 .badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:6px;flex:none}
 .badge.hot{background:var(--red-soft);color:var(--red)}
+.badge.cool{background:#eef2f7;color:#64748b;border:1px solid #e2e8f0}
 .badge.new{background:var(--green-soft);color:var(--green)}
 .badge.wait{background:var(--amber-soft);color:var(--amber)}
 .meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-bottom:11px}
@@ -123,6 +124,8 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
 .state{border-radius:13px;padding:13px 15px;font-size:13.5px;line-height:1.8;
   margin-bottom:16px;border:1px solid var(--line);background:var(--card);color:var(--ink2)}
 .state.warn{background:var(--amber-soft);border-color:#f0dcb8;color:#7a4a00}
+.state.empty-warm{text-align:center;padding:28px 18px}
+.state.empty-warm .sub{font-size:12.5px;color:var(--ink2);margin-top:8px;line-height:1.7}
 .state b{color:var(--ink);font-weight:700}
 .state button{font-family:inherit;font-size:13.5px;font-weight:700;margin-top:10px;
   padding:10px 16px;border-radius:10px;border:1.5px solid var(--line);
@@ -161,6 +164,7 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
 .leadRow .ltitle{font-size:15px;font-weight:700;color:var(--ink)}
 .leadRow .lmeta{font-size:12px;color:var(--ink3);margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px 12px}
 .leadRow .lmsg{font-size:13px;color:var(--ink2);line-height:1.7;background:var(--bg);border-radius:9px;padding:9px 11px;margin:8px 0}
+.leadRow .lexp{font-size:12px;color:var(--ink2);line-height:1.7;margin:6px 0;padding:7px 11px;border-radius:8px;background:rgba(99,102,241,.05);border-inline-start:3px solid rgba(99,102,241,.3)}
 .leadRow .lacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .leadRow select.stsel{font-family:inherit;font-size:13px;border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;color:var(--ink)}
 .badge.wait{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
@@ -512,20 +516,48 @@ async function drawList(){
     if(LEAD.status)params.set('status',LEAD.status);
     const d=await OFN.get('/api/v1/painting/leads'+(params.toString()?'?'+params:''));
     list.textContent='';
-    if(!d.ok||!(d.leads||[]).length){list.append(el('div','state','لیدی پیدا نشد.'));return;}
-    d.leads.forEach(l=>list.append(leadRow(l)));
+    if(!d.ok){list.append(el('div','state warn','الان نمی‌توانم لیدها را بیاورم. دوباره تلاش کن.'));return;}
+    const leads=d.leads||[];
+    if(!leads.length){
+      /* Distinguish "filter found nothing" from "genuinely no leads yet".
+         Both are honest, but the call to action differs. */
+      if(LEAD.q||LEAD.status){
+        list.append(el('div','state','هیچ لیدی با این فیلتر پیدا نشد. فیلتر را عوض کن یا پاک کن.'));
+      }else{
+        const empty=el('div','state empty-warm');
+        empty.append(el('div','', 'هنوز لیدی نرسیده.'));
+        empty.append(el('div','sub','وقتی اولین لید بیاید، اینجا می‌بینیش. می‌توانی از بالا خودت یک لید ثبت کنی.'));
+        list.append(empty);
+      }
+      return;
+    }
+    leads.forEach(l=>list.append(leadRow(l)));
   }catch(e){ list.textContent=''; list.append(el('div','state warn','نمی‌توان لیدها را آورد.')); }
 }
 function leadRow(l){
   const c=el('div','leadRow');
   const top=el('div','ltop');
   top.append(el('div','ltitle',l.job_type||l.customer_name||'لید'));
-  if(l.score!=null&&l.score>=70){top.append(el('span','badge hot','داغ'));}
-  else if(l.score!=null&&l.score>=40){top.append(el('span','badge','نرمال'));}
+  /* priority badge from score_detail recommendation, not just the raw number.
+     The model says owner_review / follow_up / nurture — these are warmer and
+     more honest than "داغ/نرمال". Falls back to the integer score gracefully. */
+  const sd=l.score_detail||{};
+  const rec=sd.recommendation||'';
+  if(rec==='owner_review'){top.append(el('span','badge hot','اولویت بالا'));}
+  else if(rec==='follow_up'){top.append(el('span','badge','پیگیری کن'));}
+  else if(rec==='nurture'){top.append(el('span','badge cool','بعداً'));}
+  else if(l.score!=null&&l.score>=70){top.append(el('span','badge hot','اولویت بالا'));}
+  else if(l.score!=null&&l.score>=40){top.append(el('span','badge','پیگیری کن'));}
   c.append(top);
   const meta=el('div','lmeta');
   [l.customer_name,l.phone,l.suburb,l.source,l.score!=null?'امتیاز '+fa(l.score):''].filter(Boolean).forEach(x=>meta.append(el('span',null,x)));
   c.append(meta);
+  /* if the model left a plain-language explanation, show it — it is already
+     in warm Persian and tells the partner *why* this priority. */
+  if(sd.explanation&&sd.explanation.length){
+    const ex=el('div','lexp',sd.explanation.join(' '));
+    c.append(ex);
+  }
   if(l.message)c.append(el('div','lmsg',l.message));
   /* status dropdown */
   const acts=el('div','lacts');

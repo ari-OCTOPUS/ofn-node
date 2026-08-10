@@ -2091,6 +2091,40 @@ class Node:
         except Exception as exc:
             return {"ok": False, "error": f"metrics unavailable: {exc}"}
 
+    def owner_observability(self) -> dict:
+        """Connector and inbox visibility for the owner's panel.
+
+        Every figure here comes from state this node actually holds — the
+        inbox, the connector metrics, the registry. No vendor is contacted
+        (and none is wired yet). When a value cannot be read it is reported
+        as not_measured rather than invented, because a control surface that
+        fabricates its own readings is worse than no control surface.
+
+        No secrets, no raw webhook bodies, no PII — only counts and statuses.
+        """
+        out: dict[str, object] = {
+            "ok": True,
+            "webhook_route": True,          # POST /api/v1/webhooks/ is wired
+            "vendors_connected": [],        # no real vendor yet
+            "tenants": {},
+        }
+        if self.inbox is not None:
+            try:
+                for tenant in self.registry:
+                    t = tenant.value
+                    counts = self.inbox.counts(t)
+                    out["tenants"][t] = {
+                        "inbox_pending": counts.get("pending", 0),
+                        "inbox_processed": counts.get("processed", 0),
+                        "inbox_failed": counts.get("failed", 0),
+                        "inbox_depth": self.inbox.depth(t),
+                    }
+            except Exception:
+                out["inbox_error"] = "inbox read failed"
+        else:
+            out["inbox_error"] = "inbox not wired"
+        return out
+
     # ── webhook / connector infrastructure ──────────────────────────────────
     def handle_webhook(self, tenant_name: str | None,
                         headers: Mapping[str, str],
