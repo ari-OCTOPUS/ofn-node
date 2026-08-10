@@ -49,6 +49,38 @@ UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا 
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — فعال‌سازی O10 (pilot تلگرام) + O9 گیت‌دار
+
+آری «همرو می‌خوام» گفت و پیشنهادها را پذیرفت (تلگرام، استودیو، فقط
+خواندن). commit `1c65225`:
+
+### O10 — فعال (فقط خواندن)
+- `TelegramReadOnlyAdapter` با توکن استودیو (از config، هرگز چاپ/لاگ نمی‌شود)
+  به Node وصل شد.
+- `PilotState` + `ReadOnlyPilot` نصب شد؛ `owner_observability` وضعیت pilot
+  را صادقانه نشان می‌دهد (enabled/cursor/receipts/last_run).
+- بدون توکن → `healthy=False`، نه crash.
+- فقط `getMe` / `getWebhookInfo` — صفر outbound.
+
+### O9 — گیت‌دار (پنج پیش‌شرط)
+- `/api/v1/public/catalog` route وجود دارد ولی تا `OFN_PUBLIC_CATALOG=1`
+  ۴۰۴ می‌دهد.
+- flag در config؛ تست‌ها هر دو حالت (خاموش ۴۰۴ / روشن سرو) را pin می‌کنند.
+
+### صحت
+```
+pytest      1840 passed · 5 skipped · 0 failed
+boot        OK — 31/31 · هر 5 پورت 200
+```
+
+### منتظر حکم آری
+1. **O11**: چرخش ۴ راز (دستور در `docs/runbooks/SECRET-ROTATION.md`) —
+   بعد gates + WIRE + sender
+2. **O9**: پنج پیش‌شرط → `OFN_PUBLIC_CATALOG=1`
+3. **O12**: روز صفر با شریک‌ها → `tools/seed_pilot.py` + `pilot_report.py`
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — آماده‌سازی O10–O12 (dormant، بدون فعال‌سازی)
 
 commit `ab890cc` + runbook `SECRET-ROTATION.md`. آری «موافقم» گفت ولی
