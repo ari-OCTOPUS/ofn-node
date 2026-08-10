@@ -27,9 +27,23 @@ def _add_score_json(conn) -> None:
     add_column_if_absent(conn, "painting_leads", "score_json", "TEXT NOT NULL DEFAULT '{}'")
 
 
+def _add_ops_columns(conn) -> None:
+    """O5 columns: follow-up due date, last contact, outcome reason, and the
+    contact hashes used only for duplicate warning (never for storage of the
+    contact itself — the canonical phone/email stay as typed)."""
+    for col, ddl in (
+        ("next_action_at", "TEXT NOT NULL DEFAULT ''"),
+        ("last_contacted_at", "TEXT NOT NULL DEFAULT ''"),
+        ("outcome_reason", "TEXT NOT NULL DEFAULT ''"),
+        ("contact_phone_hash", "TEXT NOT NULL DEFAULT ''"),
+        ("contact_email_hash", "TEXT NOT NULL DEFAULT ''"),
+    ):
+        add_column_if_absent(conn, "painting_leads", col, ddl)
+
+
 # Same contract as the other adapters' `MIGRATIONS`: idempotent callables that
 # each take a connection and bring an older file forward.
-MIGRATIONS = (_add_score_json,)
+MIGRATIONS = (_add_score_json, _add_ops_columns)
 
 SCHEMA = (
     """
@@ -58,7 +72,12 @@ SCHEMA = (
         score_json TEXT NOT NULL DEFAULT '{}',
         notes TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
+        updated_at TEXT NOT NULL,
+        next_action_at TEXT NOT NULL DEFAULT '',
+        last_contacted_at TEXT NOT NULL DEFAULT '',
+        outcome_reason TEXT NOT NULL DEFAULT '',
+        contact_phone_hash TEXT NOT NULL DEFAULT '',
+        contact_email_hash TEXT NOT NULL DEFAULT ''
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_painting_leads_status ON painting_leads (tenant_id, status, created_at)",
@@ -257,6 +276,24 @@ def _clean(value: object, limit: int = MAX_TEXT) -> str:
     return text[:limit]
 
 
+def _contact_hash(value: object) -> str:
+    """SHA-256 of a normalised contact for duplicate warning.
+
+    Normalisation maps AU formats to one form: leading 0 becomes +61, and
+    separators are stripped — so +61 412 345 678, 0412345678 and
+    +61412345678 hash alike. The hash is one-way — the contact itself is
+    never reconstructable from it.
+    """
+    import hashlib
+    raw = "" if value is None else str(value)
+    norm = re.sub(r"[\s\-().+]", "", raw).strip().lower()
+    if norm.startswith("0") and len(norm) >= 9:
+        norm = "61" + norm[1:]
+    if not norm:
+        return ""
+    return hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
+
+
 def _num(value: object) -> float | None:
     if value in (None, ""):
         return None
@@ -424,6 +461,13 @@ class LeadStore:
             "notes": _clean(data.get("notes") or "", MAX_TEXT),
             "created_at": now_iso,
             "updated_at": now_iso,
+            # Contact hashes (O5): only for duplicate warning; the canonical
+            # phone/email stay as typed above.
+            "contact_phone_hash": _contact_hash(data.get("phone") or ""),
+            "contact_email_hash": _contact_hash(data.get("email") or ""),
+            "next_action_at": _clean(data.get("next_action_at") or "", 40),
+            "last_contacted_at": _clean(data.get("last_contacted_at") or "", 40),
+            "outcome_reason": _clean(data.get("outcome_reason") or "", 240),
         }
         if row["temperature"] not in {"hot", "warm", "cold", "new"}:
             row["temperature"] = "new"
@@ -561,11 +605,18 @@ class LeadStore:
         return out
 
     def update_lead(self, tenant: str, lead_id: str, data: Mapping[str, object], *, now_iso: str) -> dict:
-        allowed = {"status", "temperature", "score", "next_action", "assigned_to", "notes", "tags", "customer_name", "phone", "email", "suburb", "distance_km", "job_type", "rooms", "budget_text", "message"}
+        allowed = {"status", "temperature", "score", "next_action", "assigned_to", "notes", "tags", "customer_name", "phone", "email", "suburb", "distance_km", "job_type", "rooms", "budget_text", "message", "next_action_at", "outcome_reason"}
         fields = []
         args: list[object] = []
         for key in allowed:
             if key not in data:
+                continue
+            if key == "phone" or key == "email":
+                # Contact change re-hashes the duplicate fingerprint.
+                fields.append(f"{key} = ?")
+                args.append(_clean(data.get(key), 220))
+                fields.append(f"contact_{key}_hash = ?")
+                args.append(_contact_hash(data.get(key)))
                 continue
             col = "tags_json" if key == "tags" else key
             if key == "tags":
@@ -753,6 +804,77 @@ class LeadStore:
             "ORDER BY CASE status WHEN 'new' THEN 0 WHEN 'needs_reply' THEN 1 ELSE 9 END, created_at DESC LIMIT ?",
             (tenant, limit),
         ).fetchall()
+        return [_row(r) for r in rows]
+
+    # ── follow-ups and duplicates (O5) ────────────────────────────────────
+    def set_follow_up(self, tenant: str, lead_id: str, *, due_at: str,
+                      action: str = "", now_iso: str = "") -> bool:
+        """Set the follow-up due time and (optionally) the next action."""
+        if not due_at:
+            return False
+        if now_iso:
+            stamp = now_iso
+        else:
+            import time as _t
+            stamp = _t.strftime("%Y-%m-%dT%H:%M:%S", _t.gmtime())
+        cur = self._conn.execute(
+            "UPDATE painting_leads SET next_action_at = ?,"
+            " updated_at = ? WHERE tenant_id = ? AND lead_id = ?",
+            (due_at, stamp, tenant, lead_id))
+        self._conn.commit()
+        if action and cur.rowcount == 1:
+            self._conn.execute(
+                "UPDATE painting_leads SET next_action = ?"
+                " WHERE tenant_id = ? AND lead_id = ?",
+                (action[:220], tenant, lead_id))
+            self._conn.commit()
+        return cur.rowcount == 1
+
+    def follow_ups_due(self, tenant: str, *, before_iso: str,
+                       limit: int = 50) -> list[dict]:
+        """Leads whose follow-up is due (next_action_at <= before)."""
+        rows = self._conn.execute(
+            "SELECT * FROM painting_leads WHERE tenant_id = ?"
+            " AND next_action_at != '' AND next_action_at <= ?"
+            " AND status NOT IN ('won','lost','spam','archived')"
+            " ORDER BY next_action_at ASC LIMIT ?",
+            (tenant, before_iso, limit)).fetchall()
+        return [_row(r) for r in rows]
+
+    def touch_contact(self, tenant: str, lead_id: str, *, at_iso: str) -> None:
+        """Record that the lead was contacted (last_contacted_at)."""
+        self._conn.execute(
+            "UPDATE painting_leads SET last_contacted_at = ?,"
+            " updated_at = ? WHERE tenant_id = ? AND lead_id = ?",
+            (at_iso, at_iso, tenant, lead_id))
+        self._conn.commit()
+
+    def duplicate_candidates(self, tenant: str, lead_id: str) -> list[dict]:
+        """Other leads sharing the same contact hash (phone/email).
+
+        Warning only — never merge. The hash is computed from the canonical
+        phone/email at write time; no raw contact leaves the store.
+        """
+        lead = self.get(tenant, lead_id)
+        if not lead:
+            return []
+        phone_h = lead.get("contact_phone_hash") or ""
+        email_h = lead.get("contact_email_hash") or ""
+        if not phone_h and not email_h:
+            return []
+        clauses, args = [], []
+        if phone_h:
+            clauses.append("contact_phone_hash = ? AND contact_phone_hash != ''")
+            args.append(phone_h)
+        if email_h:
+            clauses.append("contact_email_hash = ? AND contact_email_hash != ''")
+            args.append(email_h)
+        args.append(tenant)
+        args.append(lead_id)
+        rows = self._conn.execute(
+            "SELECT * FROM painting_leads WHERE ("
+            + " OR ".join(clauses) + ") AND tenant_id = ? AND lead_id != ?"
+            " LIMIT 10", args).fetchall()
         return [_row(r) for r in rows]
 
     def create_interaction(self, tenant: str, data: Mapping[str, object], *, now_iso: str) -> dict:
