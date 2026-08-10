@@ -172,6 +172,10 @@ class Node:
     # Connector registry: connector_id → Connector (O3). Empty in production
     # until a real vendor is approved; tests inject FakeConnector.
     connectors: Mapping[str, object] = field(default_factory=dict)
+    # O10 read-only pilot state: vendor + tenant + cursor + receipts.
+    # Dormant (empty) until Ari's decisions; populated by run.py wiring.
+    pilot_state: object | None = None    # PilotState
+    pilot: object | None = None          # ReadOnlyPilot
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -2451,6 +2455,17 @@ class Node:
         return {"ok": True, "items": pieces, "count": len(pieces),
                 "activated": False}
 
+    def pilot_run(self) -> dict:
+        """One bounded read-only pass of the O10 pilot, if wired.
+
+        Returns pilot:disabled when no pilot is wired (the default until
+        Ari's decisions) — never a fabricated success.
+        """
+        if self.pilot is None:
+            return {"ok": False, "rule": "pilot:disabled",
+                    "error": "pilot not wired"}
+        return self.pilot.run()
+
     def owner_observability(self) -> dict:
         """Inbox visibility for the owner's panel — what this node holds.
 
@@ -2474,6 +2489,17 @@ class Node:
             "inbox_ledger_gaps": getattr(self, "_inbox_ledger_gaps", 0),
             "tenants": {},
         }
+        # O10 pilot status: honest enabled/disabled + last run, never a
+        # fabricated success. No token, no raw data.
+        if self.pilot is not None and self.pilot_state is not None:
+            out["pilot"] = {
+                "enabled": self.pilot.enabled(),
+                "vendor": self.pilot_state.connector_id,
+                "tenant": self.pilot_state.tenant,
+                "cursor": self.pilot_state.cursor or None,
+                "last_run_at": self.pilot_state.last_run_at or None,
+                "receipts": len(self.pilot_state.receipts),
+            }
         # Connector metrics, when wired: counts since boot per connector.
         if self.connector_metrics is not None:
             out["connectors"] = dict(self.connector_metrics.snapshot())

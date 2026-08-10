@@ -122,6 +122,24 @@ def build_node(cfg: config.Config) -> Node:
     rate_limiter = InboundRateLimiter()
     connector_metrics = ConnectorMetrics()
 
+    # O10 — Telegram read-only pilot for studio (Ari approved: Telegram,
+    # studio, read-only). The token comes from config (never printed or
+    # logged); the adapter only reads getMe/getWebhookInfo. Dormant-safe:
+    # a missing token makes health() report unhealthy, never crash.
+    pilot = None
+    pilot_state = None
+    try:
+        from .adapters.platforms.telegram_readonly import TelegramReadOnlyAdapter
+        from .adapters.pilot import PilotState, ReadOnlyPilot
+        token = str(cfg.bot_tokens.get("studio") or "")
+        if token:
+            adapter = TelegramReadOnlyAdapter(token=token)
+            pilot_state = PilotState(connector_id="telegram",
+                                     tenant="studio")
+            pilot = ReadOnlyPilot(adapter, pilot_state, page_limit=20)
+    except Exception as exc:
+        print(f"  ⚠ pilot not wired: {exc}")
+
     return Node(products=products, studio=studio, consent=consent, media=media,
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
@@ -129,7 +147,8 @@ def build_node(cfg: config.Config) -> Node:
                 now_iso=config.now_iso, state_dir=cfg.state_dir,
                 base_closed_gates=cfg.base_closed_gates, boot=report,
                 inbox=inbox, rate_limiter=rate_limiter,
-                connector_metrics=connector_metrics)
+                connector_metrics=connector_metrics,
+                pilot=pilot, pilot_state=pilot_state)
 
 
 def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
@@ -247,6 +266,8 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_observability=node.owner_observability,
         owner_workboard=node.owner_workboard,
         owner_growth_workbench=node.owner_growth_workbench,
+        public_catalog=node.public_catalog,
+        public_catalog_enabled=cfg.public_catalog_enabled,
         engage_kill=node.engage_kill,
         release_kill=node.release_kill,
         owner_snapshot=node.owner_snapshot,

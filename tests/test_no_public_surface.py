@@ -27,11 +27,14 @@ class TestNoPublicSurface(unittest.TestCase):
             self.src = fh.read()
 
     def test_no_public_catalog_route(self):
-        """No /public, /store, /catalog, /shop route exists at all."""
-        for token in ("/public", "/store", "/catalog", "/shop",
-                      "/checkout", "/order"):
+        """No /store, /shop, /checkout, /order routes exist at all.
+        The /public/catalog route exists but is flag-gated (404 unless
+        enabled) — pinned by TestCatalogFlagGate."""
+        for token in ("/store", "/shop", "/checkout", "/order"):
             self.assertNotIn(f'path == "/api/v1{token}"', self.src)
             self.assertNotIn(f'path.startswith("/api/v1{token}")', self.src)
+        # The catalog route must be gated: 404 unless explicitly enabled.
+        self.assertIn("_public_catalog_enabled", self.src)
 
     def test_no_anonymous_lead_intake(self):
         """Lead intake requires auth (partner routes)."""
@@ -60,13 +63,14 @@ if __name__ == "__main__":
 
 
 class TestCatalogPreparedNotServed(unittest.TestCase):
-    """O9: the catalog payload builder exists but nothing serves it."""
+    """O9: the catalog payload builder exists; the route is flag-gated."""
 
-    def test_no_public_route_serves_catalog(self):
+    def test_route_is_flag_gated(self):
         with open(HTTP_API, encoding="utf-8") as fh:
             src = fh.read()
-        self.assertNotIn('"/api/v1/public/catalog"', src)
-        self.assertNotIn('public_catalog', src)
+        # The route exists but only serves when _public_catalog_enabled.
+        self.assertIn('path == "/api/v1/public/catalog"', src)
+        self.assertIn("_public_catalog_enabled", src)
 
     def test_catalog_payload_says_not_activated(self):
         from ofn.adapters.products import ProductStore
@@ -101,3 +105,40 @@ class TestCatalogPreparedNotServed(unittest.TestCase):
         out = node.public_catalog()
         self.assertTrue(out["ok"])
         self.assertFalse(out["activated"])
+
+
+class TestCatalogFlagGate(unittest.TestCase):
+    """O9: the route exists but 404s until Ari enables the flag."""
+
+    def _app(self, enabled: bool):
+        from ofn.adapters.http_api import ApiApp, HostMap
+        from ofn.kernel.domain import PackSpec, TenantId
+        from ofn.kernel.tenancy import TenantRegistry
+        registry = TenantRegistry({
+            "ziman": PackSpec(tenant=TenantId("ziman"),
+                              capacity_units_per_week=6, quota_share=1.0)})
+        return ApiApp(
+            registry,
+            HostMap(tenants={"z.test": "ziman"}, owner_host="panel.test"),
+            bot_tokens={},
+            session_secret="s",
+            owner_user_ids=(),
+            partner_user_ids={},
+            now=lambda: 1_785_000_000,
+            public_catalog=lambda: {"ok": True, "items": [], "count": 0,
+                                    "activated": True},
+            public_catalog_enabled=enabled,
+        )
+
+    def test_off_by_default_404(self):
+        resp = self._app(False).handle(
+            "GET", "/api/v1/public/catalog",
+            {"host": "z.test"}, b"")
+        self.assertEqual(resp.status, 404)
+
+    def test_on_serves(self):
+        resp = self._app(True).handle(
+            "GET", "/api/v1/public/catalog",
+            {"host": "z.test"}, b"")
+        self.assertEqual(resp.status, 200)
+        self.assertTrue(resp.body.get("ok"))

@@ -200,6 +200,8 @@ class ApiApp:
         owner_observability: Callable[[], dict] | None = None,
         owner_workboard: Callable[[], dict] | None = None,
         owner_growth_workbench: Callable[[], dict] | None = None,
+        public_catalog: Callable[[], dict] | None = None,
+        public_catalog_enabled: bool = False,
         owner_snapshot: Callable[[], dict] | None = None,
         owner_businesses: Callable[[], dict] | None = None,
         owner_business_snapshot: Callable[[str], dict | None] | None = None,
@@ -312,6 +314,8 @@ class ApiApp:
         self._owner_observability = owner_observability
         self._owner_workboard = owner_workboard
         self._owner_growth_workbench = owner_growth_workbench
+        self._public_catalog = public_catalog
+        self._public_catalog_enabled = public_catalog_enabled
         self._owner_events = owner_events or (lambda n: [])
         self._owner_snapshot = owner_snapshot
         self._owner_businesses = owner_businesses
@@ -363,6 +367,16 @@ class ApiApp:
 
         if method == "POST" and path == "/api/v1/shell/boot":
             return self._shell_boot(body)
+
+        # O9 public catalog: served ONLY when enabled (five Ari preconditions
+        # met). Off by default → 404, so the no-public-surface test stays
+        # meaningful until Ari explicitly turns it on.
+        if method == "GET" and path == "/api/v1/public/catalog":
+            if not getattr(self, "_public_catalog_enabled", False):
+                return Response(404, {"error": "not found"})
+            if self._public_catalog is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._public_catalog())
 
         # Webhook endpoint: unauthenticated, HMAC-signed, rate-limited.
         # Routed before the principal check because webhooks come from vendor

@@ -56,6 +56,10 @@ class Config:
     # flag to gate an enqueue or send. Outbound safety comes from the outbox
     # + store-layer status, not from this flag (see HANDOFF wire drift note).
     wire_outbound: bool = False
+    # O9: public catalog route. OFF by default — serving a public page
+    # requires Ari's five preconditions (path, privacy text, follow-up
+    # owner, service area, runbook review). When off, the route 404s.
+    public_catalog_enabled: bool = False
     base_closed_gates: tuple[str, ...] = field(default_factory=tuple)
 
     @property
@@ -245,6 +249,7 @@ def load() -> Config:
                f"app.{domain}": "studio"},
         owner_host=f"panel.{domain}",
         wire_outbound=_flag("OFN_WIRE_OUTBOUND"),
+        public_catalog_enabled=_flag("OFN_PUBLIC_CATALOG"),
         base_closed_gates=tuple(gates),
     )
 
