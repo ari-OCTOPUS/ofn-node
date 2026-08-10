@@ -244,6 +244,10 @@ def audit_paths(paths) -> tuple:
         for f in files:
             if "__pycache__" in f.parts:
                 continue
+            # 2026-08-10: test files نباید به‌عنوان production send sites شمرده شوند.
+            # audit_paths برای center.py/telegram_center production code است، نه tests.
+            if "tests" in f.parts or f.name.startswith("test_"):
+                continue
             try:
                 src = f.read_text(encoding="utf-8", errors="replace")
             except OSError:
