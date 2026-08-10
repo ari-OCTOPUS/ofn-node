@@ -154,7 +154,40 @@ SCHEMA = (
     "ON product_photos (product_id, position)",
     "CREATE INDEX IF NOT EXISTS product_photos_product "
     "ON product_photos (product_id)",
+    # O6: real sale events. Amount and fee may be unknown (explicit), never
+    # guessed; customer PII is forbidden in this table.
+    """
+    CREATE TABLE IF NOT EXISTS product_sale_events (
+        event_id       TEXT PRIMARY KEY,
+        tenant_id      TEXT NOT NULL,
+        sku            TEXT NOT NULL,
+        gross_cents    INTEGER,
+        amount_unknown INTEGER NOT NULL DEFAULT 0
+                       CHECK (amount_unknown IN (0, 1)),
+        channel        TEXT NOT NULL,
+        fee_cents      INTEGER,
+        fee_unknown    INTEGER NOT NULL DEFAULT 0
+                       CHECK (fee_unknown IN (0, 1)),
+        sold_at        TEXT NOT NULL,
+        created_at     TEXT NOT NULL,
+        UNIQUE (tenant_id, event_id)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS product_sale_sku "
+    "ON product_sale_events (tenant_id, sku, sold_at)",
 )
+
+def _add_sale_events(conn) -> None:
+    """O6: sale-events table for files created before it shipped."""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS product_sale_events ("
+        " event_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL,"
+        " sku TEXT NOT NULL, gross_cents INTEGER,"
+        " amount_unknown INTEGER NOT NULL DEFAULT 0,"
+        " channel TEXT NOT NULL, fee_cents INTEGER,"
+        " fee_unknown INTEGER NOT NULL DEFAULT 0,"
+        " sold_at TEXT NOT NULL, created_at TEXT NOT NULL,"
+        " UNIQUE (tenant_id, event_id))")
 
 def _split_price_into_two(conn) -> None:
     """One `price_aud` becomes `price_primary_aud` + `price_secondary_aud`.
@@ -221,7 +254,7 @@ def _add_archive_column(conn) -> None:
 
 
 MIGRATIONS = (_split_price_into_two, _seed_sku_high_water,
-              _add_archive_column)
+              _add_archive_column, _add_sale_events)
 
 MAX_PHOTOS_PER_PRODUCT = 5
 STATES = ("in_progress", "for_sale", "sold", "gifted")
@@ -508,6 +541,98 @@ class ProductStore:
             sql += "AND archived_at IS NULL "
         return [Product(*r) for r in self._conn.execute(
             sql + "ORDER BY id", (tenant,))]
+
+    # ── sale events (O6) ──────────────────────────────────────────────────
+    def record_sale(self, tenant: str, sku: str, *, event_id: str,
+                    sold_at: str, channel: str,
+                    gross_cents: int | None = None,
+                    amount_unknown: bool = False,
+                    fee_cents: int | None = None,
+                    fee_unknown: bool = False,
+                    now_iso: str = "") -> dict:
+        """Record a real sale. Idempotent by event_id.
+
+        Amount and fee may be explicitly unknown — never guessed. The sale
+        event and the product's state='sold' move in ONE transaction, so a
+        crash cannot leave the product sold with no event or vice versa.
+        """
+        import time as _t
+        if not now_iso:
+            now_iso = _t.strftime("%Y-%m-%dT%H:%M:%S", _t.gmtime())
+        if not event_id or not sku or not channel:
+            return {"ok": False, "error": "event_id, sku, channel required"}
+        # Amount known and unknown simultaneously is a constraint violation.
+        if amount_unknown and gross_cents is not None:
+            return {"ok": False, "error": "amount cannot be both known and unknown"}
+        if fee_unknown and fee_cents is not None:
+            return {"ok": False, "error": "fee cannot be both known and unknown"}
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                "INSERT OR IGNORE INTO product_sale_events "
+                "(event_id, tenant_id, sku, gross_cents, amount_unknown,"
+                " channel, fee_cents, fee_unknown, sold_at, created_at)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (event_id, tenant, sku,
+                 gross_cents, 1 if amount_unknown else 0,
+                 channel, fee_cents, 1 if fee_unknown else 0,
+                 sold_at, now_iso))
+            if cur.rowcount == 0:
+                self._conn.execute("COMMIT")
+                return {"ok": False, "error": "duplicate sale event"}
+            self._conn.execute(
+                "UPDATE products SET state = 'sold', updated_at = ?"
+                " WHERE tenant_id = ? AND sku = ?",
+                (now_iso, tenant, sku))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return {"ok": True, "event_id": event_id, "state": "sold"}
+
+    def sales(self, tenant: str, sku: str,
+              limit: int = 50) -> list[dict]:
+        """Sale events for one piece, newest first."""
+        rows = self._conn.execute(
+            "SELECT * FROM product_sale_events WHERE tenant_id = ? AND sku = ?"
+            " ORDER BY sold_at DESC LIMIT ?",
+            (tenant, sku, limit)).fetchall()
+        out = []
+        for r in rows:
+            d = dict(r)
+            out.append({
+                "event_id": d["event_id"], "sku": d["sku"],
+                "gross_cents": d["gross_cents"],
+                "amount_unknown": bool(d["amount_unknown"]),
+                "channel": d["channel"], "fee_cents": d["fee_cents"],
+                "fee_unknown": bool(d["fee_unknown"]),
+                "sold_at": d["sold_at"],
+            })
+        return out
+
+    def listing_packet(self, tenant: str, sku: str) -> dict | None:
+        """The exact manual listing packet for a piece (read-only).
+
+        Built from the product's canonical fields; nothing is mutated. Used
+        by the human before publishing to a channel.
+        """
+        product = self.get(tenant, sku)
+        if product is None:
+            return None
+        packet = {
+            "sku": sku,
+            "name": product.name,
+            "caption": product.description or "",
+            "price_primary_aud": product.price_primary_aud,
+            "price_secondary_aud": product.price_secondary_aud,
+            "cogs_aud": product.cogs_aud,
+            "state": product.state,
+        }
+        import hashlib, json as _json
+        packet["sha256"] = hashlib.sha256(
+            _json.dumps(packet, ensure_ascii=False, sort_keys=True,
+                        default=str).encode()).hexdigest()
+        return packet
 
     def archive(self, tenant: str, sku: str, *, now_iso: str) -> Product:
         """Put a piece away. It leaves her list and stays in the history.
