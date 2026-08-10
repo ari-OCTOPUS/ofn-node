@@ -2144,10 +2144,9 @@ class Node:
                 connected; this is the honest value, not a placeholder
             tenants: per-tenant inbox counts (pending/processed/failed/depth)
 
-        Not measured here: connector metrics (ConnectorMetrics is not wired
-        to a runtime instance yet) and vendor health (no vendor exists).
-        Those keys are deliberately absent rather than fabricated — the
-        panel must not read health where nothing was measured.
+        Not measured here: vendor health (no vendor exists). That key is
+        deliberately absent rather than fabricated — the panel must not read
+        health where nothing was measured.
 
         No secrets, no raw webhook bodies, no PII — only counts and statuses.
         """
@@ -2166,11 +2165,17 @@ class Node:
                 for tenant in self.registry:
                     t = tenant.value
                     counts = self.inbox.counts(t)
+                    depth = self.inbox.depth(t)
                     out["tenants"][t] = {
                         "inbox_pending": counts.get("pending", 0),
                         "inbox_processed": counts.get("processed", 0),
                         "inbox_failed": counts.get("failed", 0),
-                        "inbox_depth": self.inbox.depth(t),
+                        "inbox_depth": depth,
+                        # Backlog flag: depth crossing the threshold is the
+                        # local signal the panel and a future alert can key
+                        # on. Threshold is deliberately small — there is no
+                        # real vendor yet, so ANY sustained backlog is news.
+                        "inbox_backlog": depth >= 10,
                     }
             except Exception:
                 out["inbox_error"] = "inbox read failed"
