@@ -17,8 +17,10 @@ KERNEL_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 
 # Modules the kernel may import. Everything else is either I/O, non-determinism,
 # or a third-party dependency — all three are disqualifying.
+# `math` is here because ofn/kernel/edge.py (the hypno edge model, pure
+# deterministic math, no I/O) uses it for clamp/sigmoid.
 ALLOWED_IMPORTS = {"__future__", "enum", "dataclasses", "typing", "abc", "re",
-                   "hmac", "hashlib"}
+                   "hmac", "hashlib", "math"}
 
 # Exact module names, not package roots. `urllib` as a root would have let
 # `urllib.request` through — a package whose whole purpose is network I/O,

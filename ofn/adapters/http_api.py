@@ -197,6 +197,9 @@ class ApiApp:
         owner_risks: Callable[[], dict] | None = None,
         owner_ledger_summary: Callable[[], dict] | None = None,
         painting_dashboard: Callable[[], dict] | None = None,
+        hypno_edge_decision: Callable[[Mapping], dict] | None = None,
+        hypno_edge_daily: Callable[[object, Mapping], dict] | None = None,
+        hypno_edge_history: Callable[[object, int], dict] | None = None,
         painting_leads: Callable[..., dict] | None = None,
         create_painting_lead: Callable[..., dict] | None = None,
         update_painting_lead: Callable[..., dict] | None = None,
@@ -296,6 +299,9 @@ class ApiApp:
         self._owner_risks = owner_risks
         self._owner_ledger_summary = owner_ledger_summary
         self._painting_dashboard = painting_dashboard
+        self._hypno_edge_decision = hypno_edge_decision
+        self._hypno_edge_daily = hypno_edge_daily
+        self._hypno_edge_history = hypno_edge_history
         self._painting_leads = painting_leads
         self._create_painting_lead = create_painting_lead
         self._update_painting_lead = update_painting_lead
@@ -770,6 +776,31 @@ class ApiApp:
                 return Response(400, {"error": "bad request"})
             out = self._create_draft(scope, p.user_id, data)
             return Response(200 if out.get("ok") else 400, out)
+
+        # ── hypno edge model (UNIFY phase L) ──────────────────────────────
+        # The pure edge math now lives in ofn/kernel/edge.py; these routes
+        # serve the same endpoints hypno ran on port 8895, authenticated as
+        # any partner (the edge model is personal, not tenant business).
+        if method == "POST" and path == "/api/v1/hypno/edge/decision":
+            if self._hypno_edge_decision is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._hypno_edge_decision(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/hypno/edge/daily":
+            if self._hypno_edge_daily is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._hypno_edge_daily(scope, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "GET" and path == "/api/v1/hypno/edge/history":
+            if self._hypno_edge_history is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._hypno_edge_history(scope, 30))
 
         # ── painting lead CRM (lead partner only) ────────────────────────
         if p.tenant.value == "lead" and method == "GET" and path == "/api/v1/painting/dashboard":

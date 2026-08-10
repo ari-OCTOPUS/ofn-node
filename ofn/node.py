@@ -1851,6 +1851,82 @@ class Node:
         }, self.now_iso())
         return {"ok": True, "chunks": n}
 
+    # ── hypno edge model (UNIFY phase L) ──────────────────────────────────
+    # The pure edge math lives in ofn/kernel/edge.py (copied from hypno,
+    # stdlib only). These methods serve the same endpoints hypno ran on
+    # port 8895, inside OFN. The daily verdict is stored as a fact so the
+    # three-red-days rule and history read work without a second store.
+
+    def hypno_edge_decision(self, body: Mapping[str, object]) -> dict:
+        """Twelve scores → pole decomposition (body/self/superorganism)."""
+        from .kernel.edge import decision_source
+        def _f(key: str, default: float = 5.0) -> float:
+            try:
+                return float(body.get(key, default))
+            except (TypeError, ValueError):
+                return default
+        try:
+            result = decision_source(
+                _f("V"), _f("P"), _f("K"), _f("D"), _f("H"), _f("E"),
+                _f("F"), _f("M"), _f("U"), _f("C"), _f("sleep_debt"),
+                _f("stress"))
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True,
+                "dominant": result.verdict,
+                "healthy": result.healthy,
+                "ai": result.ai, "si": result.si, "bi": result.bi}
+
+    def hypno_edge_daily(self, scope: TenantScope,
+                         body: Mapping[str, object]) -> dict:
+        """B/C/X scores → daily verdict, stored for the three-red-days rule."""
+        from .kernel.edge import daily_verdict
+        try:
+            B = int(body.get("B", 0))
+            C = int(body.get("C", 0))
+            X = int(body.get("X", 0))
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "امتیازها باید عدد باشند"}
+        verdict = daily_verdict(B, C, X)
+        day = self.now_iso()[:10]
+        payload = {"B": B, "C": C, "X": X, "verdict": verdict.verdict,
+                   "day": day}
+        # Store as a fact keyed by day: predicate=edge_daily:<day> so each
+        # day keeps its own row (assert_fact supersedes same-key rows).
+        self.facts.assert_fact(
+            scope, "hypno", f"edge_daily:{day}", payload,
+            confidence=Confidence.MEASURED,
+            observed_at=self.now_iso(), source="hypno:edge_daily")
+        # Three red days in a row is the warning rule — use the edge model's
+        # own three_red_days, which counts زرد/قرمز (bad) days.
+        from .kernel.edge import three_red_days
+        daily = [f for f in self.facts.all_active(scope)
+                 if f.subject == "hypno"
+                 and f.predicate.startswith("edge_daily:")
+                 and (f.value or {}).get("day", "") <= day]
+        daily.sort(key=lambda f: (f.value or {}).get("day", ""))
+        verdicts = [(f.value or {}).get("verdict", "") for f in daily]
+        red_verdict = three_red_days(verdicts)
+        return {"ok": True,
+                "verdict": verdict.verdict, "advice": verdict.advice,
+                "three_red_days": red_verdict.verdict == "قرمز"}
+
+    def hypno_edge_history(self, scope: TenantScope,
+                           limit: int = 30) -> dict:
+        """Recent daily verdicts for the owner."""
+        daily = [f for f in self.facts.all_active(scope)
+                 if f.subject == "hypno"
+                 and f.predicate.startswith("edge_daily:")]
+        daily.sort(key=lambda f: (f.value or {}).get("day", ""))
+        rows = daily[-limit:]
+        out = []
+        for f in rows:
+            v = dict(f.value or {})
+            out.append({"day": v.get("day", ""),
+                        "value": v,
+                        "recorded_at": f.observed_at})
+        return {"ok": True, "entries": out}
+
     def owner_queue(self) -> list[dict]:
         """Every leg's pending decisions, newest business first.
 
