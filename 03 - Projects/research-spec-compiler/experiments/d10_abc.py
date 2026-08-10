@@ -285,7 +285,7 @@ def run_benchmark(
     # 6. Verdict (decision_rule from preregistration)
     sesoi = 0.05
     if primary_mean < sesoi:
-        verdict = "PREFER_B_OR_A"
+        verdict = "REJECT_C_PREFER_B_OR_A"
     elif sesoi <= primary_mean < 0.10:
         verdict = "RESTRICT_C"
     else:
@@ -297,7 +297,7 @@ def run_benchmark(
         if verdict == "KEEP_C":
             verdict = "RESTRICT_C"
         elif verdict == "RESTRICT_C":
-            verdict = "PREFER_B_OR_A"
+            verdict = "REJECT_C_PREFER_B_OR_A"
 
     # 7. A/A instrumentation check
     # Run A vs A to check for leakage/instrumentation issues

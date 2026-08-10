@@ -144,7 +144,7 @@ def t_aa_leakage_detection():
 def t_verdict_in_valid_set():
     """verdict باید یکی از سه حالت مجاز باشد."""
     r = d10_abc.run_benchmark()
-    assert r["verdict"] in ("PREFER_B_OR_A", "RESTRICT_C", "KEEP_C"), \
+    assert r["verdict"] in ("REJECT_C_PREFER_B_OR_A", "RESTRICT_C", "KEEP_C"), \
         f"verdict نامعتبر: {r['verdict']}"
 
 
@@ -180,7 +180,7 @@ def t_missing_trial_fail_closed():
     arm_fns["C_multi_agent_current"] = failing_arm
     r = d10_abc.run_benchmark(arm_fns=arm_fns)
     # C quality should be 0 for all tasks => C vs B is negative
-    assert r["primary"]["mean"] < 0 or r["verdict"] == "PREFER_B_OR_A"
+    assert r["primary"]["mean"] < 0 or r["verdict"] == "REJECT_C_PREFER_B_OR_A"
 
 
 def t_custom_arms_injectable():

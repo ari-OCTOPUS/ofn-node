@@ -117,7 +117,7 @@ api_contract:
     primary_estimand: "paired_quality_diff_C_minus_B"
     effect: 0.0           # filled after run
     ci_95: [0.0, 0.0]     # filled after run
-    verdict: "PENDING"    # KEEP_C | RESTRICT_C | PREFER_B_OR_A | INCONCLUSIVE
+    verdict: "PENDING"    # KEEP_C | RESTRICT_C | REJECT_C_PREFER_B_OR_A | INCONCLUSIVE
 
 mvp:
   stack: "Python (stdlib only for harness; real model injection via adapter)"
@@ -145,7 +145,9 @@ decision_rule:
   primary_metric: paired_quality_diff_C_minus_B
   rules:
     - max: 0.05
-      verdict: PREFER_B_OR_A      # C doesn't justify its coordination cost
+      verdict: REJECT_C_PREFER_B_OR_A   # C doesn't justify its coordination cost —
+                                        # the hypothesis "C > B" is REJECTED;
+                                        # prefer the simpler orchestrator or single model.
     - min: 0.05
       max: 0.10
       verdict: RESTRICT_C          # C helps, but only for some classes
@@ -154,7 +156,7 @@ decision_rule:
   cost_guardrail: >
     Regardless of quality verdict: if cost(C) > cost(B) * 1.5 OR
     error(C) > error(B) + 0.1, downgrade by one band (KEEP_C -> RESTRICT_C,
-    RESTRICT_C -> PREFER_B_OR_A). Quality alone is not enough.
+    RESTRICT_C -> REJECT_C_PREFER_B_OR_A). Quality alone is not enough.
 
 # ─── STATISTICAL PREREGISTRATION (frozen before Stage 1) ─────────────────────
 

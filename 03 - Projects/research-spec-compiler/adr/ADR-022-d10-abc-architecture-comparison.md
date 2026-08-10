@@ -3,7 +3,7 @@
 - **Status:** Open — preregistration frozen; confirmatory run NOT launched (requires owner verdict for real-model injection)
 - **Date:** 2026-08-10
 - **Spec:** `specs/d10_abc_architecture_comparison.yaml` · `experiments/d10_abc.py`
-- **Decision rule:** quality(C)−quality(B) < 0.05 → PREFER_B_OR_A · [0.05,0.10) → RESTRICT_C · ≥0.10 → KEEP_C (cost guardrail may downgrade)
+- **Decision rule:** quality(C)−quality(B) < 0.05 → REJECT_C_PREFER_B_OR_A · [0.05,0.10) → RESTRICT_C · ≥0.10 → KEEP_C (cost guardrail may downgrade)
 
 ## Namespacing
 
@@ -86,13 +86,13 @@ Rules:
 
 Regardless of quality verdict: if `cost(C) > cost(B) * 1.5` OR
 `error(C) > error(B) + 0.1`, downgrade by one band
-(KEEP_C → RESTRICT_C, RESTRICT_C → PREFER_B_OR_A). Quality alone is not enough.
+(KEEP_C → RESTRICT_C, RESTRICT_C → REJECT_C_PREFER_B_OR_A). Quality alone is not enough.
 
 ## Decision rule
 
 | Primary mean | Verdict |
 |---|---|
-| < 0.05 | PREFER_B_OR_A |
+| < 0.05 | REJECT_C_PREFER_B_OR_A |
 | [0.05, 0.10) | RESTRICT_C |
 | ≥ 0.10 | KEEP_C |
 
