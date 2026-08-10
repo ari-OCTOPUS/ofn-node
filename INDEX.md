@@ -72,8 +72,8 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
   empty-state گرم در ziman. حذف ممنوع رعایت شد.
 
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
-- ⬆️ [[AGENT-NEXT-DEEPSEEK-V4-FAST]] + [[MEGAPROMPT-P1-TO-P4-COMPLETE]] —
-  ادامهٔ ممیزی صد یافته از P1 (P0 در ۲۰۲۶-۰۸-۱۰ بسته شد).
+- ✅ [[AGENT-NEXT-DEEPSEEK-V4-FAST]] + [[MEGAPROMPT-P1-TO-P4-COMPLETE]] —
+  فازهای A–G اجرا شد (۱۷۳۳ pass · boot ۳۱/۳۱ · ۸ commit). فاز H (معماری) باقی.
 - 🔲 [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — ادامهٔ connector بدون sender.
 - 🔲 [[MEGAPROMPT-UNIFY]] — ادغام دو ایجنت (بخش‌هایی انجام شده؛ سند را بسنج).
 - ✅ لید نقاشی: `lead_priority()` وصل · CRM شریک روی boot · HIGH-1 بسته.
@@ -113,8 +113,8 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
-- [[AGENT-NEXT-DEEPSEEK-V4-FAST]] — **⬆️ کار بعدی:** اسکریپت بایت‌به‌بایت P1→P4 برای DeepSeek V4 Fast
-- [[MEGAPROMPT-P1-TO-P4-COMPLETE]] — نقشهٔ کامل ادامهٔ ممیزی صد یافته (بعد از P0)
+- [[AGENT-NEXT-DEEPSEEK-V4-FAST]] — ✅ انجام شد — فازهای A–G (۲۰۲۶-۰۸-۱۰)
+- [[MEGAPROMPT-P1-TO-P4-COMPLETE]] — ✅ فاز A–G بسته · فاز H (معماری تدریجی) باز
 - [[AGENT-NEXT-PANEL-UPGRADE]] — ✅ انجام شد — اسکن + ارتقای چهار کنترل‌پنل (۲۰۲۶-۰۸-۱۰)
 - [[docs/handoffs/panel-scans-2026-08-10/INVENTORY|اسکن پنل‌ها — قبل و بعد — ۲۰۲۶-۰۸-۱۰]]
 - [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — اتصال پلتفرم مارکتینگ با مغز OFN

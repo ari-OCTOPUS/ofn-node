@@ -31,6 +31,77 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — اجرای کامل P1→P4 (فاز A تا G)
+
+هفت commit (`fd4aa03` → `8707f8f`) که فازهای A–G مگاپرامپت P1-TO-P4 را بست.
+
+### فاز A — امنیت connector (fd4aa03)
+- ReplayGuard: digest کل initData، نه suffix ۶۴
+- platforms: `broken_platforms()` جدا از available
+- وب‌هوک: tenant از path + cross-check با Host (mismatch → 403)
+- owner_observability docstring صادقانه
+- OFN_WIRE_OUTBOUND: intent-only تا sender
+- `require_release_context()` — گارد ساختاری sender آینده
+- چت استودیو: scrub قبل از persist (PII)
+
+### فاز B — inbox state machine (7783589)
+- `claim_next()` اتمیک: pending → processing (BEGIN IMMEDIATE)
+- mark_processed/mark_failed با guard وضعیت (bool برمی‌گردانند)
+- `recover_stale()`: processing قدیمی → held (ستون claimed_at + migration)
+- `inbox_processor.py`: dry-run (فقط shape؛ هیچ outbound)
+- `inbox_ledger_gaps` شمارندهٔ reconciliation در observability
+
+### فاز C — ConnectorMetrics (3cc76ca)
+- instance در build_node · record در handle_webhook (inbound/processed/rejected/failed)
+- snapshot در observability
+- panel drawInbox: counts همیشه؛ vendor chip جدا
+
+### فاز D — backup/media (9eb699a)
+- verify_backup: media count + bytes در برابر manifest
+- backup(): required DB غایب → fail
+- memory.sqlite در backup (حکم آری) + quick_check در boot
+- attach_media rollback · delete_media tombstone
+- `restore_media()` sandbox-tested
+
+### فاز E — اسناد (efb45a1)
+- HANDOFF header: اعداد ثابت → ارجاع به command
+- IMPLEMENTATION-GAP-MATRIX: بخش connector/observability
+- test_shell_contract: ۴ pin جدید
+- `repo_baseline.py --verify`
+
+### فاز F — چهار پنل (c5cc82b)
+- panel: SDK defer + tg() تابعی · cursor خنثی · بدون raw JSON · KIND_FA
+- lead: sheet a11y (dialog/Escape) · inline error به‌جای alert
+- studio: STYLE_FA + ruleFa (بدون کلمه فنی، D-22)
+- lead.yaml: وعدهٔ service_radius صادق شد
+
+### فاز G — runbooks (7a1cf8a)
+- docs/runbooks/: ۸ فایل (NTP/TUNNEL/RESTORE/INBOX-HELD/OUTBOX-HELD/
+  WEBHOOK-SIGNATURE/RATE-SPIKE/SCHEMA-DRIFT) + test_runbook_coverage
+- `inbox_backlog` flag در observability (depth ≥ ۱۰)
+- ss 8090: بدون listener (CRIT-1 تمیز)
+
+### فاز Z — بستن
+- boot: memory.sqlite read-only check (8707f8f) — boot OK ۳۱/۳۱
+- pytest ۱۷۳۳ pass · ۵ skip · هر ۵ پورت ۲۰۰
+
+### صحت نهایی
+```
+pytest      1733 passed · 5 skipped (تأیید: tools/repo_baseline.py --tests)
+boot        OK — 31 checks · state_dir 0700 (chmod با حکم آری)
+سرویس‌ها     ofn active · هر ۵ پورت ۲۰۰
+WIRE/gates  خاموش/بسته · sender ساخته نشد · UI حذف نشد
+memory      در backup scope (حکم آری) + read-only boot check
+```
+
+### آنچه عمداً نشد / منتظر حکم
+- HMAC واقعی vendor (noop_until_vendor — runbook WEBHOOK-SIGNATURE)
+- restore زندهٔ رسانه (کد + sandbox آماده؛ اجرا فقط با حکم)
+- Telegram alert · systemd unit changes · kill switch بادوام
+- فاز H (معماری تدریجی) — برای جلسهٔ بعد اگر A–G سبز ماند
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — مگاپرامپت ایجنت بعدی (DeepSeek V4 Fast)
 
 دو سند ذخیره شد برای ادامهٔ کامل P1→P4 بعد از P0:
