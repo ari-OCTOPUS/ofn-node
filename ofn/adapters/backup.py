@@ -102,7 +102,8 @@ def mirror_media(root: str, dest_dir: str) -> tuple[int, int]:
 
 
 def backup(databases: Mapping[str, str], dest_dir: str, *,
-           stamp: str, media_root: str | None = None) -> BackupResult:
+           stamp: str, media_root: str | None = None,
+           required: Sequence[str] = ()) -> BackupResult:
     """Snapshot every database into `dest_dir`, then prove each copy is usable.
 
     `stamp` is passed in rather than read from a clock: this module does no
@@ -113,6 +114,11 @@ def backup(databases: Mapping[str, str], dest_dir: str, *,
     it is given, the media tree is copied too and counted in the manifest —
     databases without their files restore to rows describing pictures that
     are gone.
+
+    `required` names databases whose absence is a failure, not a skip. A
+    database that is configured but missing on disk means something is wrong
+    before the backup even ran; silently continuing would produce a backup
+    that looks complete and restores to a world with rows missing.
     """
     os.makedirs(dest_dir, exist_ok=True)
     entries: list[BackupEntry] = []
@@ -120,6 +126,8 @@ def backup(databases: Mapping[str, str], dest_dir: str, *,
 
     for name, src in sorted(databases.items()):
         if not os.path.exists(src):
+            if name in required:
+                problems.append(f"{name}: configured but missing on disk")
             continue
         out = os.path.join(dest_dir, f"{name}-{stamp}.sqlite")
         try:
@@ -208,8 +216,36 @@ def verify_backup(dest_dir: str) -> tuple[bool, str]:
             return False, f"checksum mismatch: {entry['file']}"
         if not entry.get("verified"):
             return False, f"was never verified at write time: {entry['file']}"
+
+    # Media: the manifest records count + bytes of the media tree at backup
+    # time. Verify them against what is actually on disk — a media tree that
+    # silently stopped being copied is exactly the failure the count exists
+    # to notice.
+    media = manifest.get("media") or {}
+    expected_files = media.get("files", 0)
+    expected_bytes = media.get("bytes", 0)
+    media_dir = os.path.join(dest_dir, "media")
+    if expected_files:
+        if not os.path.isdir(media_dir):
+            return False, "media tree missing (manifest expects files)"
+        actual_files = actual_bytes = 0
+        for here, _, names in os.walk(media_dir):
+            for name in names:
+                p = os.path.join(here, name)
+                actual_files += 1
+                actual_bytes += os.path.getsize(p)
+        if actual_files != expected_files:
+            return False, (f"media count changed: manifest {expected_files}, "
+                           f"on disk {actual_files}")
+        if actual_bytes != expected_bytes:
+            return False, (f"media bytes changed: manifest {expected_bytes}, "
+                           f"on disk {actual_bytes}")
+
     n = len(manifest.get("entries", []))
-    return True, f"{n} file(s) verified against manifest"
+    detail = f"{n} file(s) verified against manifest"
+    if expected_files:
+        detail += f", {expected_files} media file(s) verified"
+    return True, detail
 
 
 def restore(dest_dir: str, targets: Mapping[str, str], *,
@@ -252,6 +288,44 @@ def restore(dest_dir: str, targets: Mapping[str, str], *,
     if not restored:
         return False, "manifest matched no requested database"
     return True, f"restored: {', '.join(restored)}"
+
+
+def restore_media(dest_dir: str, target_root: str) -> tuple[bool, str]:
+    """Restore the media tree from a verified backup into target_root.
+
+    Copies (not moves) the media directory into the target root, preserving
+    the relative layout. The live media root is never replaced in place —
+    the caller decides whether to point the node at the restored tree or
+    merge it. Refuses to run unless the backup verifies first, same rule as
+    `restore`.
+
+    This is the code path; a live restore is a deliberate operator action
+    covered by docs/runbooks/RESTORE.md, not something this function does
+    implicitly.
+    """
+    ok, why = verify_backup(dest_dir)
+    if not ok:
+        return False, f"refusing to restore media: {why}"
+
+    src = os.path.join(dest_dir, "media")
+    if not os.path.isdir(src):
+        return False, "backup contains no media tree"
+
+    os.makedirs(target_root, exist_ok=True)
+    files = bytes_copied = 0
+    try:
+        for here, _, names in os.walk(src):
+            rel = os.path.relpath(here, src)
+            out_dir = target_root if rel == "." else os.path.join(target_root, rel)
+            os.makedirs(out_dir, exist_ok=True)
+            for name in names:
+                shutil.copy2(os.path.join(here, name),
+                             os.path.join(out_dir, name))
+                files += 1
+                bytes_copied += os.path.getsize(os.path.join(here, name))
+    except OSError as exc:
+        return False, f"media restore failed: {exc}"
+    return True, f"restored {files} media file(s), {bytes_copied} bytes"
 
 
 def prune(dest_root: str, keep: int) -> Sequence[str]:

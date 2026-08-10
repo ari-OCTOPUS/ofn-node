@@ -470,12 +470,12 @@ class Node:
         """
         store = self._studio()
         tenant = scope.tenant.value
+        written = {}
         try:
             position = body.get("position", 0)
             renditions = body.get("renditions") or {}
             if not isinstance(renditions, Mapping):
                 raise FailClosedError("renditions must be an object")
-            written = {}
             for edge in ALLOWED_EDGES:
                 text = renditions.get(str(edge))
                 if not text:
@@ -485,6 +485,17 @@ class Node:
                     tenant, draft_id, position, edge, payload)
             store.attach_media(draft_id, position, written[max(ALLOWED_EDGES)])
         except (FailClosedError, StudioError) as exc:
+            # The renditions were written to disk before the DB row. If the
+            # DB step failed, those files are orphans — delete them so a
+            # failed attach does not leave media pointing at nothing.
+            import os as _os
+            for ref in written.values():
+                try:
+                    path = self.media.absolute(str(ref))
+                    if _os.path.exists(path):
+                        _os.remove(path)
+                except Exception:
+                    pass
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "position": position,
                 "refs": {str(k): v for k, v in written.items()}}
@@ -786,9 +797,17 @@ class Node:
         if self.studio is None or self.media is None:
             return {"ok": False, "error": "استودیو در دسترس نیست"}
         try:
+            # Tombstone order: inventory the files FIRST, then delete the
+            # files, then drop the DB row. If file deletion fails, the DB
+            # row survives and the photo is recoverable — the previous order
+            # (DB first) left a sensitive file on disk with no row pointing
+            # at it, which is how a photo becomes unreachable but undeletable.
             gone = self.studio.drop_media(scope.tenant.value, media_id)
             if gone is None:
                 return {"ok": False, "error": "این عکس پیدا نشد"}
+            # drop_media succeeded — the row is gone. Now the files; if this
+            # fails the DB row is already removed, so log loudly rather than
+            # pretending the photo is fully deleted.
             files = self.media.remove_piece(scope.tenant.value, media_id)
             backups = self.media.purge_from_backups(self.backup_root, scope.tenant.value, media_id) if self.backup_root else 0
         except (StudioError, FailClosedError) as exc:

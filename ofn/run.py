@@ -87,8 +87,13 @@ def build_node(cfg: config.Config) -> Node:
     facts = FactStore(cfg.facts_path)
     outbox = Outbox(cfg.outbox_path)
 
+    # The shared fugu_core memory is checked at boot like every other DB
+    # (finding 23): it lives outside state_dir, so it is added explicitly.
+    # "not yet created" is fine — fugu_core creates it lazily.
+    db_paths = dict(cfg.db_paths)
+    db_paths["memory"] = cfg.memory_path
     report = BootSupervisor(
-        db_paths=cfg.db_paths, tenants=list(registry),
+        db_paths=db_paths, tenants=list(registry),
         now_epoch_s=config.epoch_seconds, state_dir=cfg.state_dir,
     ).run(ledger=ledger, outbox=outbox, now_iso=config.now_iso())
 

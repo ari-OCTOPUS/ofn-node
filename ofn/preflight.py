@@ -53,7 +53,11 @@ def main() -> int:
 
     ledger = Ledger(cfg.ledger_path) if os.path.exists(cfg.ledger_path) else None
     outbox = Outbox(cfg.outbox_path) if os.path.exists(cfg.outbox_path) else None
-    sup = BootSupervisor(db_paths=cfg.db_paths, tenants=list(registry),
+    # memory.sqlite checked at boot too (finding 23); lazily created by
+    # fugu_core, so absence is reported as "not yet created", not a failure.
+    db_paths = dict(cfg.db_paths)
+    db_paths["memory"] = cfg.memory_path
+    sup = BootSupervisor(db_paths=db_paths, tenants=list(registry),
                          now_epoch_s=config.epoch_seconds,
                          state_dir=cfg.state_dir)
     report = sup.run(ledger=ledger, outbox=outbox, now_iso=config.now_iso())
