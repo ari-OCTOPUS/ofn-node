@@ -320,6 +320,10 @@ class ApiApp:
     def handle(self, method: str, path: str, headers: Mapping[str, str],
                body: bytes, *, query: str = "") -> Response:
         if path == "/healthz":
+            # Liveness only — tells systemd the process is alive and can
+            # answer HTTP. This is NOT readiness: it says nothing about boot
+            # mode, DB health, or connector state. For real health, use
+            # GET /api/v1/owner/observability (owner-only).
             return Response(200, {"ok": True})
 
         tenant_name, is_owner_host = self._hosts.resolve(headers.get("host", ""))

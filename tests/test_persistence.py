@@ -355,5 +355,51 @@ class TestPowerCut(Tmp):
         led2.close()
 
 
+class TestOutboxStateGuard(Tmp):
+    """The outbox must enforce state transitions, not just trust callers.
+
+    mark_sent may only succeed from IN_FLIGHT (the two-phase move). A PENDING
+    item that is marked sent directly — skipping claim — is a contract
+    violation that must be silently rejected (zero rows updated), not an
+    unconditional overwrite.
+    """
+
+    def test_mark_sent_on_pending_is_silently_ignored(self):
+        ob = Outbox(self.path)
+        ob.enqueue(A, "k1", "email", {}, RiskTier.YELLOW, T0)
+        # No claim() — status is still PENDING.
+        ob.mark_sent(A, "k1", T0)
+        # The item must still be PENDING, not SENT.
+        self.assertEqual(ob.get(A, "k1").status, PENDING)
+        ob.close()
+
+    def test_mark_sent_after_claim_works(self):
+        ob = Outbox(self.path)
+        ob.enqueue(A, "k1", "email", {}, RiskTier.YELLOW, T0)
+        ob.claim(A, "k1", T0)
+        ob.mark_sent(A, "k1", T0)
+        self.assertEqual(ob.get(A, "k1").status, SENT)
+        ob.close()
+
+    def test_mark_failed_on_pending_works(self):
+        """owner_decide rejects by calling mark_failed on a pending item."""
+        ob = Outbox(self.path)
+        ob.enqueue(A, "k1", "email", {}, RiskTier.RED, T0)
+        ob.mark_failed(A, "k1", T0, note="rejected")
+        self.assertEqual(ob.get(A, "k1").status, "failed")
+        ob.close()
+
+    def test_mark_sent_on_sent_is_idempotent(self):
+        """A second mark_sent on an already-sent item should not error."""
+        ob = Outbox(self.path)
+        ob.enqueue(A, "k1", "email", {}, RiskTier.YELLOW, T0)
+        ob.claim(A, "k1", T0)
+        ob.mark_sent(A, "k1", T0)
+        # Second call: status is now SENT, not IN_FLIGHT — no update.
+        ob.mark_sent(A, "k1", T0)
+        self.assertEqual(ob.get(A, "k1").status, SENT)
+        ob.close()
+
+
 if __name__ == "__main__":
     unittest.main()

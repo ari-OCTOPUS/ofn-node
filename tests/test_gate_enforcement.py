@@ -212,3 +212,66 @@ class TestHttpStubsFailClosed(unittest.TestCase):
         )
         result = app._submit_answer("lead", "user", {})
         self.assertFalse(result["ok"])
+
+
+class TestCloseAllStores(unittest.TestCase):
+    """close() must shut every store that owns a SQLite Pool."""
+
+    def test_all_stores_closed(self):
+        self.dir = temp_dir(self)
+        registry = TenantRegistry(_packs())
+        ledger = Ledger(os.path.join(self.dir, "ledger.sqlite"))
+        facts = FactStore(os.path.join(self.dir, "facts.sqlite"))
+        outbox = Outbox(os.path.join(self.dir, "outbox.sqlite"))
+        products = ProductStore(
+            os.path.join(self.dir, "products.sqlite"),
+            cost_fields=["materials_cost_aud"],
+            labour_hours_field="labour_hours",
+            labour_rate_field="labour_rate",
+        )
+        studio = StudioStore(os.path.join(self.dir, "studio.sqlite"))
+        consent = ConsentStore(os.path.join(self.dir, "consent.sqlite"))
+        media = MediaStore(os.path.join(self.dir, "photos"))
+        audience = AudienceStore(os.path.join(self.dir, "audience.sqlite"))
+        marketing = MarketingStore(os.path.join(self.dir, "marketing.sqlite"))
+        painting = LeadStore(os.path.join(self.dir, "painting.sqlite"))
+        assistant = StudioAssistantStore(
+            os.path.join(self.dir, "assistant.sqlite"))
+
+        node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0,
+                            shares={"lead": 0.3, "studio": 0.3, "ziman": 0.4}),
+            ledger=ledger, facts=facts, outbox=outbox,
+            products=products, studio=studio, consent=consent, media=media,
+            audience=audience, marketing=marketing, painting=painting,
+            assistant=assistant,
+            now_epoch_s=lambda: NOW,
+            now_iso=lambda: NOW_ISO,
+        )
+
+        # Track which stores are closed by wrapping their close methods.
+        closed = []
+        for name in ("ledger", "facts", "outbox", "products", "studio",
+                      "consent", "audience", "marketing", "painting",
+                      "assistant"):
+            store = getattr(node, name)
+            if store is not None:
+                orig = store.close
+                # Use a wrapper function that records then calls original
+                def make_wrapper(orig_close, store_name):
+                    def wrapper():
+                        closed.append(store_name)
+                        orig_close()
+                    return wrapper
+                store.close = make_wrapper(orig, name)
+
+        node.close()
+
+        # Every store must appear in the closed list.
+        expected = {"ledger", "facts", "outbox", "products", "studio",
+                    "consent", "audience", "marketing", "painting",
+                    "assistant"}
+        self.assertEqual(set(closed), expected,
+                         f"Missing: {expected - set(closed)}")

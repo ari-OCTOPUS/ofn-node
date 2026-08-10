@@ -175,5 +175,47 @@ class TestStatesAndChannels(unittest.TestCase):
         self.assertIn("کجا فروختید؟", SRC)
 
 
+class TestBootReachability(unittest.TestCase):
+    """The boot() function must not have a stray return that kills its tail.
+
+    A past bug inserted a bare `return;` after `await load()`, making the
+    header question count, readiness dots, safe_mode banner, and draw() all
+    unreachable. The textual reachability test cannot see this (it follows
+    call edges, not control flow), so this test checks the boot function's
+    body directly: after `await load()` there must be no bare `return;`
+    before `draw()`.
+    """
+
+    def test_no_stray_return_in_boot(self):
+        # Extract the boot function body
+        m = re.search(r'async function boot\(\)\s*\{(.*?)\n\}',
+                      SRC, re.DOTALL)
+        self.assertIsNotNone(m, "boot() function not found in ziman.html")
+        boot_body = m.group(1)
+
+        # Find the position of `await load()`
+        load_pos = boot_body.find("await load()")
+        self.assertGreater(load_pos, -1, "await load() not found in boot()")
+
+        # Everything after load() should contain draw() and NOT contain
+        # a bare `return;` before it.
+        after_load = boot_body[load_pos:]
+        draw_pos = after_load.find("draw()")
+        self.assertGreater(draw_pos, -1,
+                           "draw() not found after await load() in boot()")
+
+        between = after_load[:draw_pos]
+        # A bare `return;` (not inside a catch or if) would kill the tail.
+        # We check for `return;` appearing outside of a catch block.
+        lines = between.split("\n")
+        for line in lines:
+            stripped = line.strip()
+            if stripped == "return;":
+                self.fail(
+                    "Stray `return;` found between await load() and draw() "
+                    "in boot() — this makes setDots, safe_mode, and draw "
+                    "unreachable.")
+
+
 if __name__ == "__main__":
     unittest.main()

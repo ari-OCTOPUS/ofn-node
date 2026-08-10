@@ -143,21 +143,47 @@ class Outbox:
             raise
 
     def mark_sent(self, scope: TenantScope, idem_key: str, now_iso: str) -> None:
-        self._set_status(scope, idem_key, SENT, now_iso)
+        """Finalise a send. Only valid from IN_FLIGHT — the two-phase move."""
+        self._set_status(scope, idem_key, SENT, now_iso,
+                         from_status=(IN_FLIGHT,))
 
     def mark_failed(self, scope: TenantScope, idem_key: str, now_iso: str,
                     note: str = "") -> None:
-        self._set_status(scope, idem_key, FAILED, now_iso, note)
+        """Mark an item as failed. Valid from pending, held, or in_flight.
+
+        Pending → failed is the owner-reject path (no claim needed).
+        Held → failed is a manual decision on a crash-recovered item.
+        In_flight → failed is a send that errored after claiming.
+        """
+        self._set_status(scope, idem_key, FAILED, now_iso, note,
+                         from_status=(PENDING, HELD, IN_FLIGHT))
 
     def _set_status(self, scope: TenantScope, idem_key: str, status: str,
-                    now_iso: str, note: str = "") -> None:
+                    now_iso: str, note: str = "",
+                    from_status: tuple[str, ...] | None = None) -> None:
+        """Update status with an optional precondition on current state.
+
+        `from_status` restricts which rows may be updated. If None, any row
+        matching idem_key+tenant is updated (legacy behaviour, kept for
+        recover_stale). When set, the UPDATE includes AND status IN (...)
+        so a state transition that violates the two-phase contract silently
+        affects zero rows rather than corrupting the queue.
+        """
         scoped = f"{scope.tenant.value}:{idem_key}"
         self._conn.execute("BEGIN IMMEDIATE")
         try:
-            self._conn.execute(
-                "UPDATE outbox SET status = ?, updated_at = ?, note = ?"
-                " WHERE idem_key = ? AND tenant = ?",
-                (status, now_iso, note, scoped, scope.tenant.value))
+            if from_status is not None:
+                placeholders = ",".join("?" for _ in from_status)
+                self._conn.execute(
+                    f"UPDATE outbox SET status = ?, updated_at = ?, note = ?"
+                    f" WHERE idem_key = ? AND tenant = ? AND status IN ({placeholders})",
+                    (status, now_iso, note, scoped, scope.tenant.value,
+                     *from_status))
+            else:
+                self._conn.execute(
+                    "UPDATE outbox SET status = ?, updated_at = ?, note = ?"
+                    " WHERE idem_key = ? AND tenant = ?",
+                    (status, now_iso, note, scoped, scope.tenant.value))
             self._conn.execute("COMMIT")
         except Exception:
             self._conn.execute("ROLLBACK")

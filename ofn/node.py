@@ -2743,11 +2743,23 @@ class Node:
             return False
 
     def close(self) -> None:
-        stores = [self.ledger, self.facts, self.outbox, self.painting]
+        # Every store that owns a SQLite Pool must be closed here. A store
+        # omitted from this list leaks its connection until the process exits
+        # — which on a long-running board means WAL files grow without bound.
+        stores = [self.ledger, self.facts, self.outbox, self.painting,
+                  self.products, self.studio, self.consent,
+                  self.audience, self.marketing, self.assistant]
         if self.inbox is not None:
             stores.append(self.inbox)
         for store in stores:
+            if store is None:
+                continue
             try:
                 store.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                # Log rather than swallow: a close failure on shutdown is
+                # rare enough to be worth seeing, and silent masking is what
+                # hid the missing stores in the first place.
+                import sys
+                print(f"  ⚠ close failed for {type(store).__name__}: {exc}",
+                      file=sys.stderr)

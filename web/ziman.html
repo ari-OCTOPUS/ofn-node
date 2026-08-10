@@ -1324,7 +1324,6 @@ async function boot() {
     reached = Math.max(saved.reached || 0, step);
   }
   try { await load(); } catch (_) { showState('unreachable'); return; }
-  return;
   const head = document.querySelector('.date');
   if (head) {
     head.textContent = queue.length
