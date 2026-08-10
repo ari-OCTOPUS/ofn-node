@@ -230,8 +230,10 @@ class App:
         return {'ok': 1, 'imported_chunks': n, 'skipped_chunks': skipped, 'research_docs': self.store.count(), 'brain_note': note}
 
     def research_delete(self, b):
-        """حذف یک سند پژوهشی با id."""
+        """حذف یک سند پژوهشی با id — فقط owner."""
         uid = self.user(b)
+        if self.cfg.owners and uid not in self.cfg.owners:
+            raise PermissionError('not owner')
         try:
             doc_id = int(b.get('id'))
         except (TypeError, ValueError):
