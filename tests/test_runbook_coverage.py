@@ -19,6 +19,7 @@ REQUIRED = {
     "WEBHOOK-SIGNATURE.md": "امضای وب‌هوک",
     "RATE-SPIKE.md": "موج درخواست",
     "SCHEMA-DRIFT.md": "انحراف اسکیما",
+    "RETENTION.md": "retention",
 }
 
 
