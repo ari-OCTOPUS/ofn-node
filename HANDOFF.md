@@ -30,6 +30,68 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — رفع P0 از ممیزی صد یافته
+
+چهار commit (`51a27ad` → `898fa6d` → `08711d0`) که ۱۵ یافتهٔ P0 را بست.
+
+### C۱ — ایمن‌سازی مسیر وب‌هوک (یافته‌های ۱، ۴، ۵، ۱۰، ۱۵، ۲۹، ۲۷)
+
+- **raw body ذخیره نمی‌شود.** ستون `raw_body` با `body_sha256` + `body_size`
+  جایگزین شد. فقط هش و اندازه نگه داشته می‌شود — نه متن خام، نه PII.
+- **bare except تخصصی شد.** فقط `sqlite3.IntegrityError` (duplicate) False
+  برمی‌گرداند؛ خطاهای واقعی DB (disk full، corrupt) propagate می‌شوند.
+- **rate limiter وصل شد.** یک instance process-scoped در handle_webhook.
+  ۴۲۹ + Retry-After بعد از limit. Bucket cap (۱۰۲۴) با FIFO eviction.
+- **ترتیب inbox → ledger.** اگر inbox.store شکست بخورد، ledger نوشته نمی‌شود.
+
+### C۲ — اعمال گیت و kill switch (یافته‌های ۲، ۳، ۶، ۱۴)
+
+- **_gate_enqueue helper.** هر چهار مسیر مستقیم enqueue (publish_draft،
+  send_to_outbox، send_lead_reply، send_lead_quote) حالا از یک helper مشترک
+  عبور می‌کنند که kill switch را اول چک می‌کند.
+- **kill switch در owner_decide.** اگر kill روشن باشد، approve رد می‌شود
+  (reject همچنان کار می‌کند — چیزی نمی‌فرستد).
+- **partner_precondition در default closed gates.** اضافه شد به config.load().
+- **stub fail-closed.** owner_decide و submit_answer وقتی وصل نیستند ok=False
+  برمی‌گردانند، نه ok=True.
+
+### C۳ — boot زیمان، store close، healthz، outbox guard (یافته‌های ۲۴، ۲۶، ۴۳، ۷۶–۸۰)
+
+- **return زودهنگام ziman حذف شد.** خط `return;` بعد از `await load()` که
+  setDots/safe_mode/draw را غیرقابل‌دسترس می‌کرد. تست رگرسیون اضافه شد.
+- **close() همهٔ storeها.** اکنون products/studio/consent/audience/marketing/
+  assistant هم بسته می‌شوند، نه فقط چهارتای اصلی. خطاها log می‌شوند.
+- **healthz صادقانه.** docstring می‌گوید liveness-only است. readiness واقعی
+  در /api/v1/owner/observability.
+- **outbox state guard.** mark_sent فقط از in_flight → sent. mark_failed از
+  pending/held/in_flight. mark_sent روی pending بی‌اثر است (صفر ردیف).
+
+### C۴ — state_dir mode (یافته‌های ۱۶، ۲۵، ۵۲)
+
+- **makedirs mode=0o700.** دایرکتوری state هنگام ساخت 0700 می‌شود.
+- **preflight check.** اگر mode ≠ 0700 باشد، هشدار می‌دهد. auto-chmod نمی‌کند.
+- **نکته:** دایرکتوری live فعلی 0755 است (از نصاب قدیمی). هشدار پیداست؛
+  اصلاح با حکم آری (`chmod 0700 /home/ari/.local/share/ofn`).
+
+### صحت
+```
+pytest      1688 passed · 5 skipped (تأیید: tools/repo_baseline.py --tests)
+boot        OK — 30 checks passed (مهاجرت inbox در اولین restart اجرا شد، دومی سبز)
+سرویس‌ها     ofn active · هر پنج مسیر ۲۰۰ · sabaapp ۲۰۰
+curl        ziman: return حذف شد · setDots/draw حالا سرو می‌شوند
+state_dir   0755 (هشدار پیداست؛ اصلاح با حکم آری)
+outbox      تغییر نکرد
+WIRE/gates  خاموش/بسته · partner_precondition اضافه شد
+```
+
+### آنچه عمداً نشد
+- HMAC واقعی فعال نشد (هنوز vendor نیست؛ noop ایمن‌سازی شده باقی است)
+- بازطراحی inbox/ledger atomicity (P1)
+- تغییر systemd/backup/alert (نیازمند حکم)
+- kill switch بادوام (P3، intentional)
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — ارتقای چهار کنترل‌پنل (فاز ۲–۸)
 
 ### آنچه عوض شد
