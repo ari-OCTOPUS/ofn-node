@@ -52,11 +52,14 @@ class TelegramChannelAdapter:
         # sendMessage for text; media_refs are local paths and are NOT sent
         # over the wire here (photo upload needs the bytes; the caller sends
         # them explicitly). Text-only broadcast is the minimal real send.
-        url = (f"https://api.telegram.org/bot{token}/sendMessage")
-        payload = json.dumps({
+        # Telegram Bot API accepts form-encoded data (more reliable than JSON
+        # for simple text sends).
+        import urllib.parse
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = urllib.parse.urlencode({
             "chat_id": cid,
             "text": req.caption,
-            "disable_web_page_preview": True,
+            "disable_web_page_preview": "true",
         }).encode("utf-8")
         try:
             with urllib.request.urlopen(url, data=payload, timeout=15) as resp:

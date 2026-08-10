@@ -150,7 +150,7 @@ def build_node(cfg: config.Config) -> Node:
                 connector_metrics=connector_metrics,
                 pilot=pilot, pilot_state=pilot_state,
                 _telegram_channel_id=cfg.telegram_channel_id,
-                _telegram_token=str(cfg.bot_tokens.get("studio") or ""))
+                _telegram_token=str(cfg.bot_tokens.get("__owner__") or ""))
 
 
 def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
