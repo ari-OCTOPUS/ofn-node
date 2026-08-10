@@ -23,7 +23,7 @@ from typing import Callable, Mapping, Sequence
 from .adapters.boot import BootReport, closed_gates_for
 from .adapters.facts import FactStore
 from .adapters.ledger import Ledger
-from .adapters.outbox import Outbox
+from .adapters.outbox import APPROVED_MANUAL, Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
                                 net_margin_aud, piece_slug, verdicts)
 from .adapters.studio_store import EARLIEST_PLAUSIBLE_EPOCH_S, StudioError
@@ -2525,6 +2525,14 @@ class Node:
 
         now = self.now_iso()
         if not approve:
+            # Explicit rejected state (O2), alias-compatible: old reports
+            # read failed/rejected the same way, but the state is now real.
+            if self.outbox.reject(scope, key, now, note="rejected by owner"):
+                self.ledger.append(scope, "VERDICT",
+                                   {"item": key, "approved": False}, now)
+                return {"ok": True, "status": "rejected"}
+            # Fallback for states reject() refuses (terminal): mark_failed
+            # keeps old behaviour for held/in_flight items.
             self.outbox.mark_failed(scope, key, now, note="rejected by owner")
             self.ledger.append(scope, "VERDICT",
                                {"item": key, "approved": False}, now)
@@ -2536,12 +2544,114 @@ class Node:
         if not gate.allowed:
             return {"ok": False, "error": gate.reason, "rule": gate.rule}
 
-        claimed = self.outbox.claim(scope, key, now)
+        # O2: approval is approval ONLY. It must NOT claim() — no sender
+        # exists, so in_flight would strand the item forever. The item waits
+        # in approved_manual until a human completes it manually.
+        approved = self.outbox.approve_manual(
+            scope, key, now, approved_by="owner")
+        if not approved:
+            # Item was not pending (e.g. already approved) — say so.
+            return {"ok": False, "error": "item is not pending approval",
+                    "rule": "outbox:not-pending"}
         self.ledger.append(scope, "VERDICT", {
             "item": key, "approved": True, "tier": item.tier.value,
-            "claimed": claimed,
+            "delivery_mode": "manual",
         }, now)
-        return {"ok": True, "status": "approved", "claimed": claimed}
+        return {"ok": True, "status": "approved_manual",
+                "delivery_mode": "manual"}
+
+    # ── manual dispatch (operations launch O2) ────────────────────────────
+    def owner_outbox_packet(self, item_id: str) -> dict:
+        """The exact manual packet a human is about to send (read-only).
+
+        Built from the approved item's payload; nothing is mutated. The
+        packet hash is the witness the completion receipt carries.
+        """
+        tenant_name, _, key = item_id.partition(":")
+        if not key or tenant_name not in self.registry:
+            return {"ok": False, "error": "unknown item"}
+        scope = self.registry.scope(tenant_name)
+        item = self.outbox.get(scope, key)
+        if item is None or item.status != APPROVED_MANUAL:
+            return {"ok": False, "error": "item is not approved for manual"}
+        from .adapters.manual_dispatch import ManualPacket
+        payload = dict(item.payload or {})
+        text = str(payload.get("text") or payload.get("caption")
+                   or payload.get("message") or "")
+        packet = ManualPacket(
+            idem_key=key, tenant=tenant_name, kind=item.kind,
+            text=text,
+            target=str(payload.get("to") or payload.get("target") or ""),
+            channels=(str(payload.get("channel") or ""),),
+            meta={k: v for k, v in payload.items()
+                  if k not in ("text", "caption", "message", "to", "target",
+                               "channel")},
+        )
+        return {"ok": True, "packet": {
+            "idem_key": key, "kind": item.kind, "text": text,
+            "target": packet.target, "channels": list(packet.channels),
+            "sha256": packet.sha256(),
+        }}
+
+    def owner_outbox_complete(self, item_id: str, body: Mapping[str, object],
+                              *, confirmed_twice: bool = False) -> dict:
+        """Record that a human manually delivered an approved item.
+
+        Idempotent: a second completion is a no-op, never a duplicate
+        effect. RED items still need the second confirmation. The packet
+        hash must match the packet endpoint's — the receipt is a witness,
+        not a claim.
+        """
+        tenant_name, _, key = item_id.partition(":")
+        if not key or tenant_name not in self.registry:
+            return {"ok": False, "error": "unknown item"}
+        scope = self.registry.scope(tenant_name)
+        item = self.outbox.get(scope, key)
+        if item is None:
+            return {"ok": False, "error": "unknown item"}
+        if item.status != APPROVED_MANUAL:
+            return {"ok": False, "error": "item is not approved for manual",
+                    "rule": "outbox:not-approved-manual"}
+        # Kill + gates re-checked at completion (rule 5).
+        if self.killed:
+            return {"ok": False, "error": "kill switch engaged",
+                    "rule": "gate:kill-switch"}
+        if item.tier is RiskTier.RED and not confirmed_twice:
+            return {"ok": False, "error": "completion needs second confirmation",
+                    "rule": "release:awaiting-second-confirm"}
+        channel = str(body.get("channel") or "manual")[:40]
+        packet_sha = str(body.get("packet_sha256") or "")[:64]
+        external_ref = str(body.get("external_ref_digest") or "")[:64]
+        completed = self.outbox.complete_manual(
+            scope, key, self.now_iso(),
+            completed_by=str(body.get("completed_by") or "owner")[:80],
+            channel=channel, packet_sha256=packet_sha,
+            external_ref_digest=external_ref)
+        if not completed:
+            return {"ok": False, "error": "item not in approved_manual state"}
+        self.ledger.append(scope, "MANUAL_COMPLETED", {
+            "item": key, "channel": channel,
+            "packet_sha256": packet_sha or None,
+        }, self.now_iso())
+        return {"ok": True, "status": "manual_completed",
+                "completed_at": self.now_iso()}
+
+    def owner_approved_manual(self) -> list[dict]:
+        """Approved items waiting for a human to complete them, per leg."""
+        out: list[dict] = []
+        for tenant in self.registry:
+            scope = self.registry.scope(tenant)
+            for item in self.outbox.approved_manual(scope):
+                out.append({
+                    "id": item.idem_key,
+                    "tenant": item.tenant,
+                    "kind": item.kind,
+                    "tier": item.tier.value,
+                    "payload": dict(item.payload),
+                    "approved_at": item.approved_at,
+                    "needs_double_confirm": item.tier is RiskTier.RED,
+                })
+        return out
 
 
     # ── kill switch ───────────────────────────────────────────────────────

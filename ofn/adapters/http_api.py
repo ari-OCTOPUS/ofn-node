@@ -186,6 +186,9 @@ class ApiApp:
         record_felt: Callable[[TenantScope, str, str, dict], dict] | None = None,
         owner_queue: Callable[[], list] | None = None,
         owner_decide: Callable[[str, bool, bool], dict] | None = None,
+        owner_outbox_packet: Callable[[str], dict] | None = None,
+        owner_outbox_complete: Callable[[str, Mapping, bool], dict] | None = None,
+        owner_approved_manual: Callable[[], list] | None = None,
         owner_status: Callable[[], dict] | None = None,
         owner_events: Callable[[int], list] | None = None,
         owner_metrics: Callable[[], dict] | None = None,
@@ -288,6 +291,9 @@ class ApiApp:
             lambda s, u, k, b: {"ok": False, "error": "products are not wired"})
         self._owner_queue = owner_queue or (lambda: [])
         self._owner_decide = owner_decide or (lambda i, a, c: {"ok": False, "error": "decision not wired"})
+        self._owner_outbox_packet = owner_outbox_packet
+        self._owner_outbox_complete = owner_outbox_complete
+        self._owner_approved_manual = owner_approved_manual
         self._owner_status = owner_status or (lambda: {})
         self._owner_metrics = owner_metrics
         self._owner_observability = owner_observability
@@ -1176,6 +1182,43 @@ class ApiApp:
                     or not isinstance(confirmed, bool)):
                 return Response(400, {"error": "bad request"})
             return Response(200, self._owner_decide(item, approve, confirmed))
+
+        # ── manual dispatch (operations launch O2) ────────────────────────
+        # Packet: the exact text a human will send. Complete: the receipt
+        # that the human did send it. Both owner-only. The URL carries the
+        # bare key; the tenant prefix is added here (queue ids elsewhere
+        # include it, but ':' in a URL path is asking for trouble).
+        if method == "GET" and path.startswith("/api/v1/owner/outbox/"):
+            rest = path[len("/api/v1/owner/outbox/"):]
+            if rest.endswith("/packet"):
+                key = rest[:-len("/packet")]
+                if not key or "/" in key:
+                    return Response(404, {"error": "not found"})
+                if self._owner_outbox_packet is None:
+                    return Response(404, {"error": "not found"})
+                return self._owner_read(
+                    self._owner_outbox_packet(f"{p.tenant.value}:{key}"))
+        if method == "POST" and path.startswith("/api/v1/owner/outbox/"):
+            rest = path[len("/api/v1/owner/outbox/"):]
+            if rest.endswith("/complete"):
+                key = rest[:-len("/complete")]
+                if not key or "/" in key:
+                    return Response(404, {"error": "not found"})
+                if self._owner_outbox_complete is None:
+                    return Response(404, {"error": "not found"})
+                data = _json_object(body)
+                if data is None:
+                    return Response(400, {"error": "bad request"})
+                confirmed = bool(data.get("confirmed_twice", False))
+                out = self._owner_outbox_complete(
+                    f"{p.tenant.value}:{key}", data,
+                    confirmed_twice=confirmed)
+                return Response(200 if out.get("ok") else 400, out)
+        if method == "GET" and path == "/api/v1/owner/approved-manual":
+            if self._owner_approved_manual is None:
+                return Response(404, {"error": "not found"})
+            return self._owner_read(
+                {"items": self._owner_approved_manual()})
 
         # ── kill switch, owner-only ─────────────────────────────────────
         # The panic button. Engage is one tap (fail-safe: toward safety);

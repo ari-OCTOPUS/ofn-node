@@ -37,6 +37,12 @@ IN_FLIGHT = "in_flight"
 SENT = "sent"
 HELD = "held"        # was in flight during a crash; needs a human to decide
 FAILED = "failed"
+# Operations-launch states (O1/O2): approval is decoupled from send. An
+# approved item waits for a HUMAN to complete it manually; nothing claims
+# it until a real sender exists (which it does not yet).
+APPROVED_MANUAL = "approved_manual"
+REJECTED = "rejected"
+COMPLETED = "manual_completed"
 
 SCHEMA = (
     """
@@ -50,11 +56,41 @@ SCHEMA = (
         attempts    INTEGER NOT NULL DEFAULT 0,
         created_at  TEXT    NOT NULL,
         updated_at  TEXT    NOT NULL,
-        note        TEXT    NOT NULL DEFAULT ''
+        note        TEXT    NOT NULL DEFAULT '',
+        delivery_mode     TEXT    NOT NULL DEFAULT 'manual',
+        approved_at       TEXT    NOT NULL DEFAULT '',
+        approved_by       TEXT    NOT NULL DEFAULT '',
+        completed_at      TEXT    NOT NULL DEFAULT '',
+        completed_by      TEXT    NOT NULL DEFAULT '',
+        completion_channel TEXT   NOT NULL DEFAULT '',
+        packet_sha256     TEXT    NOT NULL DEFAULT '',
+        external_ref_digest TEXT  NOT NULL DEFAULT ''
     )
     """,
     "CREATE INDEX IF NOT EXISTS outbox_queue ON outbox (tenant, status, created_at)",
 )
+
+# Migration: add the manual-completion columns to files created before the
+# operations-launch schema change. Idempotent: checks each column. The
+# approved index is created HERE, after the columns exist — putting it in
+# SCHEMA would make apply_schema run it before the migration on old files.
+def _migrate_manual_columns(conn) -> None:
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(outbox)")}
+    for col, ddl in (
+        ("delivery_mode", "TEXT NOT NULL DEFAULT 'manual'"),
+        ("approved_at", "TEXT NOT NULL DEFAULT ''"),
+        ("approved_by", "TEXT NOT NULL DEFAULT ''"),
+        ("completed_at", "TEXT NOT NULL DEFAULT ''"),
+        ("completed_by", "TEXT NOT NULL DEFAULT ''"),
+        ("completion_channel", "TEXT NOT NULL DEFAULT ''"),
+        ("packet_sha256", "TEXT NOT NULL DEFAULT ''"),
+        ("external_ref_digest", "TEXT NOT NULL DEFAULT ''"),
+    ):
+        if col not in cols:
+            conn.execute(f"ALTER TABLE outbox ADD COLUMN {col} {ddl}")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS outbox_approved "
+        "  ON outbox (tenant, status, approved_at)")
 
 
 @dataclass(frozen=True)
@@ -69,6 +105,14 @@ class OutboxItem:
     created_at: str
     updated_at: str
     note: str
+    delivery_mode: str = "manual"
+    approved_at: str = ""
+    approved_by: str = ""
+    completed_at: str = ""
+    completed_by: str = ""
+    completion_channel: str = ""
+    packet_sha256: str = ""
+    external_ref_digest: str = ""
 
 
 class Outbox:
@@ -76,7 +120,7 @@ class Outbox:
 
     def __init__(self, path: str) -> None:
         self._pool = Pool(path)
-        apply_schema(self._conn, SCHEMA)
+        apply_schema(self._conn, SCHEMA, (_migrate_manual_columns,))
 
     def close(self) -> None:
         self._pool.close()
@@ -146,6 +190,87 @@ class Outbox:
         """Finalise a send. Only valid from IN_FLIGHT — the two-phase move."""
         self._set_status(scope, idem_key, SENT, now_iso,
                          from_status=(IN_FLIGHT,))
+
+    # ── manual lifecycle (operations launch O1/O2) ────────────────────────
+    def approve_manual(self, scope: TenantScope, idem_key: str, now_iso: str,
+                       approved_by: str = "") -> bool:
+        """Approve for MANUAL delivery: pending → approved_manual.
+
+        Deliberately NOT claim(): no sender exists, so in_flight would be a
+        lie. The item waits in approved_manual until a human completes it.
+        """
+        scoped = f"{scope.tenant.value}:{idem_key}"
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                "UPDATE outbox SET status = ?, approved_at = ?,"
+                " approved_by = ?, delivery_mode = 'manual',"
+                " updated_at = ? WHERE idem_key = ? AND tenant = ?"
+                " AND status = ?",
+                (APPROVED_MANUAL, now_iso, approved_by[:80], now_iso,
+                 scoped, scope.tenant.value, PENDING))
+            self._conn.execute("COMMIT")
+            return cur.rowcount == 1
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def reject(self, scope: TenantScope, idem_key: str, now_iso: str,
+               note: str = "") -> bool:
+        """Reject: any non-terminal state → rejected (fail-closed).
+
+        Valid from pending or approved_manual (held/failed stay as they are;
+        sent/completed are terminal and immutable).
+        """
+        scoped = f"{scope.tenant.value}:{idem_key}"
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                "UPDATE outbox SET status = ?, note = ?, updated_at = ?"
+                " WHERE idem_key = ? AND tenant = ? AND status IN (?, ?)",
+                (REJECTED, note, now_iso, scoped, scope.tenant.value,
+                 PENDING, APPROVED_MANUAL))
+            self._conn.execute("COMMIT")
+            return cur.rowcount == 1
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def complete_manual(self, scope: TenantScope, idem_key: str, now_iso: str,
+                        *, completed_by: str = "", channel: str = "",
+                        packet_sha256: str = "",
+                        external_ref_digest: str = "") -> bool:
+        """Complete a manually delivered item: approved_manual → completed.
+
+        Idempotent: a second completion of the same item is a no-op (returns
+        False), never a duplicate effect.
+        """
+        scoped = f"{scope.tenant.value}:{idem_key}"
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                "UPDATE outbox SET status = ?, completed_at = ?,"
+                " completed_by = ?, completion_channel = ?,"
+                " packet_sha256 = ?, external_ref_digest = ?,"
+                " updated_at = ? WHERE idem_key = ? AND tenant = ?"
+                " AND status = ?",
+                (COMPLETED, now_iso, completed_by[:80], channel[:40],
+                 packet_sha256[:64], external_ref_digest[:64], now_iso,
+                 scoped, scope.tenant.value, APPROVED_MANUAL))
+            self._conn.execute("COMMIT")
+            return cur.rowcount == 1
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def approved_manual(self, scope: TenantScope,
+                        limit: int = 50) -> Sequence[OutboxItem]:
+        """Items approved and waiting for a human to complete them."""
+        rows = self._conn.execute(
+            "SELECT * FROM outbox WHERE tenant = ? AND status = ?"
+            " ORDER BY approved_at ASC LIMIT ?",
+            (scope.tenant.value, APPROVED_MANUAL, limit)).fetchall()
+        return [self._to_item(r) for r in rows]
 
     def mark_failed(self, scope: TenantScope, idem_key: str, now_iso: str,
                     note: str = "") -> None:
@@ -270,4 +395,12 @@ class Outbox:
             status=row["status"], attempts=row["attempts"],
             created_at=row["created_at"], updated_at=row["updated_at"],
             note=row["note"],
+            delivery_mode=row["delivery_mode"],
+            approved_at=row["approved_at"],
+            approved_by=row["approved_by"],
+            completed_at=row["completed_at"],
+            completed_by=row["completed_by"],
+            completion_channel=row["completion_channel"],
+            packet_sha256=row["packet_sha256"],
+            external_ref_digest=row["external_ref_digest"],
         )

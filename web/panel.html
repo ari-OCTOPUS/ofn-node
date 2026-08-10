@@ -525,6 +525,18 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
   </div>
 </div>
 
+<!-- تأیید شده، منتظر انجام دستی.
+     Approval is decoupled from send (operations launch O2): an approved
+     item waits HERE for a human to complete it. Nothing claims it — no
+     sender exists. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">🤝</span><h2>تأیید شده — انجام دستی</h2><span class="chipx" id="manualChip">…</span></div>
+  <div id="manual"><div class="empty">در حال خواندن…</div></div>
+  <div class="memo" style="margin-top:14px">
+    <b>تأیید یعنی «انجام بده»، نه «ارسال شد».</b> این کارها را خودت دستی انجام می‌دهی؛ بعد از انجام، اینجا ثبتشان کن تا شمارش درست بماند.
+  </div>
+</div>
+
 <!-- سطوح: پیکربندی، نه سلامت. -->
 <div class="panel" style="margin-bottom:20px">
   <div class="ph"><span class="ic">🛰️</span><h2>سطوح — چه چیزی سرو می‌شود</h2><span class="chipx" id="surfChip">…</span></div>
@@ -1147,6 +1159,39 @@ function drawInbox(obs) {
   }
 }
 
+function drawManual(data) {
+  const box = document.getElementById('manual');
+  const chip = document.getElementById('manualChip');
+  box.textContent = '';
+  if (!data) {
+    chip.textContent = 'قطع';
+    box.append(mk('div', 'empty', 'صف انجام دستی خوانده نشد.'));
+    return;
+  }
+  const items = data.items || [];
+  if (!items.length) {
+    chip.textContent = 'خالی';
+    box.append(mk('div', 'empty', 'چیزی منتظر انجام دستی نیست.'));
+    return;
+  }
+  chip.textContent = `${fa(items.length)} منتظر`;
+  items.forEach(it => {
+    const row = mk('div', 'valve open');
+    row.append(mk('span', null, it.tier === 'red' ? '🔴' : '🟡'));
+    const mid = mk('span', 'vn',
+      `${NAME[it.tenant] || it.tenant} · ${it.kind}`);
+    row.append(mid);
+    const st = mk('span', 'vs', 'تأیید شده');
+    st.style.color = it.needs_double_confirm ? 'var(--bad)' : 'var(--tx3)';
+    row.append(st);
+    box.append(row);
+    if (it.needs_double_confirm) {
+      box.append(mk('div', 'muted',
+        'قرمز — هنگام ثبت انجام، تأیید دوم لازم است.'));
+    }
+  });
+}
+
 function drawOutbox(risks) {
   const box = document.getElementById('outbox');
   const chip = document.getElementById('outboxChip');
@@ -1665,15 +1710,16 @@ async function refresh() {
     const snapP = OFN.get('/api/v1/owner/snapshot').catch(() => null);
     const brainP = OFN.get('/api/v1/owner/brain').catch(() => null);
     const inboxP = OFN.get('/api/v1/owner/observability').catch(() => null);
+    const manualP = OFN.get('/api/v1/owner/approved-manual').catch(() => null);
     const [status, queue, events, painting, metrics,
-           risks, chain, snapshot, brain, inbox] =
+           risks, chain, snapshot, brain, inbox, manual] =
       await Promise.all([
         OFN.get('/api/v1/owner/status'),
         OFN.get('/api/v1/queue'),
         OFN.get('/api/v1/owner/events'),
         paintingP,
         metricsP,
-        riskP, chainP, snapP, brainP, inboxP,
+        riskP, chainP, snapP, brainP, inboxP, manualP,
       ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
@@ -1687,6 +1733,7 @@ async function refresh() {
     drawOutbox(risks);
     drawChain(chain);
     drawInbox(inbox);
+    drawManual(manual);
     drawUnmeasured(snapshot);
     loadSurfaces().catch(e => console.error('loadSurfaces failed:', e));
     lastOk = Date.now();
