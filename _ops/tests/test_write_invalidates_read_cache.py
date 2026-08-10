@@ -131,7 +131,12 @@ class GatewayInvalidatesOnWrite(unittest.TestCase):
             self.assertNotIn(s, got, f"{s} حالت را عوض نمی‌کند؛ نباید کش را بریزد")
 
     def test_the_clear_call_lives_in_the_actions_handler(self):
-        """جای فراخوان مهم است: باید بعد از execute باشد، نه هرجایِ فایل."""
+        """جای فراخوان مهم است: باید بعد از execute باشد، نه هرجایِ فایل.
+
+        2026-08-10: gateway اکنون از _run_with_timeout(eng.execute, ...) استفاده
+        می‌کند (timeout wrapper از 08-08). execute به‌عنوان آرگومان پاس داده می‌شود،
+        نه فراخوانی مستقیم متد. تست اکنون هر دو الگو را می‌شناسد:
+        (۱) eng.execute(...) مستقیم، (۲) _run_with_timeout(eng.execute, ...) wrapper."""
         import ast
         src = (_OPS / "telegram_center" / "miniapp_gateway.py").read_text(encoding="utf-8")
         tree = ast.parse(src)
@@ -139,11 +144,16 @@ class GatewayInvalidatesOnWrite(unittest.TestCase):
                   if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
                   and n.func.attr == "cache_clear"]
         self.assertTrue(clears, "هیچ فراخوانِ cache_clear در گیت‌وی نیست")
-        executes = [n.lineno for n in ast.walk(tree)
-                    if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-                    and n.func.attr == "execute"]
-        self.assertTrue(executes, "فراخوانِ execute پیدا نشد — ساختار عوض شده")
-        self.assertTrue(any(c.lineno > min(executes) for c in clears),
+        # Pattern 1: direct call eng.execute(...)
+        direct_executes = [n.lineno for n in ast.walk(tree)
+                           if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                           and n.func.attr == "execute"]
+        # Pattern 2: timeout wrapper _run_with_timeout(eng.execute, ...)
+        wrapped_executes = [n.lineno for n in ast.walk(tree)
+                            if isinstance(n, ast.Attribute) and n.attr == "execute"]
+        all_executes = sorted(set(direct_executes + wrapped_executes))
+        self.assertTrue(all_executes, "فراخوانِ execute پیدا نشد — ساختار عوض شده")
+        self.assertTrue(any(c.lineno > min(all_executes) for c in clears),
                         "cache_clear قبل از execute است — نتیجه‌ای برای باطل‌کردن نیست")
 
 
