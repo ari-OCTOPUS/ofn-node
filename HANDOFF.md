@@ -49,6 +49,34 @@ UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا 
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — کانال تلگرام: endpoint آماده، شناسه منتظر آری
+
+آری گفت «همه تلگرام‌ها ست شده» ولی channel id در کد/env نبود. commit
+`ddd874a`:
+
+- `POST /api/v1/owner/telegram/channel`: مالک شناسهٔ کانال را ثبت می‌کند
+  (راز نیست، در URL کانال دیده می‌شود). بعد از ثبت، publish واقعی کار
+  می‌کند (dry-run تست‌شده).
+- `set_telegram_channel` به ledger می‌نویسد (mutation-ledger pairing).
+- پرسیده شد، پاسخ نیامد → endpoint آماده و منتظر شناسه.
+
+### وضعیت کل (پایان جلسه)
+```
+pytest      1848 passed · 5 skipped · 0 failed
+boot        OK — 31/31 · هر 5 پورت 200
+گیت‌ها       secret_rotation/partner_precondition باز (یک هفته — ⚠️ بازگشت)
+catalog     /api/v1/public/catalog زنده (۲۰۰) · شعاع ۵۰ کیلومتر
+pilot       تلگرام فقط-خواندنی برای استودیو فعال
+sender      dry-run کار می‌کند · انتشار واقعی منتظر شناسهٔ کانال
+```
+
+### منتظر آری
+1. **شناسهٔ کانال تلگرام** (در URL کانال) → `POST /owner/telegram/channel`
+2. چرخش رازها قبل از پایان هفته (گیت‌ها پس از آن باید برگردند)
+3. روز صفر O12 با شریک‌ها
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — O11 فعال شد (حکم صریح آری)
 
 آری: «همرو روشن کن، ریسک را می‌پذیرم» — commit `e9d1771`:
