@@ -8,6 +8,7 @@ degraded, not to be restarted in a loop.
 from __future__ import annotations
 
 import os
+import stat
 import sys
 
 from . import config
@@ -18,9 +19,31 @@ from .adapters.packloader import load_dir
 from .kernel.tenancy import TenantRegistry
 
 
+def _check_state_dir_mode(path: str) -> list[str]:
+    """Warn if the state directory is more permissive than 0700.
+
+    This does NOT chmod — correcting the mode is a deliberate operator action.
+    The check surfaces the problem so it can be fixed consciously.
+    """
+    warnings = []
+    if not os.path.exists(path):
+        return warnings
+    mode = stat.S_IMODE(os.stat(path).st_mode)
+    if mode != 0o700:
+        warnings.append(
+            f"state dir {path} has mode {oct(mode)} (expected 0700). "
+            f"Run: chmod 0700 {path}")
+    return warnings
+
+
 def main() -> int:
     cfg = config.load()
     os.makedirs(cfg.state_dir, exist_ok=True)
+
+    # Check permissions before anything else — a world-readable state dir
+    # is a data-leak risk that boot checks do not cover.
+    for warning in _check_state_dir_mode(cfg.state_dir):
+        print(f"[ warn ] {warning}", file=sys.stderr)
     try:
         packs = load_dir(cfg.packs_dir)
         registry = TenantRegistry(packs)

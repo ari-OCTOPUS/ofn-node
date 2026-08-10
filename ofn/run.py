@@ -70,7 +70,12 @@ def _shutdown(signum, frame):        # noqa: ARG001
 
 
 def build_node(cfg: config.Config) -> Node:
-    os.makedirs(cfg.state_dir, exist_ok=True)
+    # mode=0o700: the state directory holds SQLite databases with tenant
+    # data. Only the owner should read or write it. When the directory is
+    # created fresh, this mode is applied; when it already exists (e.g. from
+    # an older installer that used 0755), the mode is left unchanged here —
+    # correcting it is a deliberate operator action, not a side effect of boot.
+    os.makedirs(cfg.state_dir, exist_ok=True, mode=0o700)
     packs = load_dir(cfg.packs_dir)
     registry = TenantRegistry(packs)
     quota = NodeQuota(
