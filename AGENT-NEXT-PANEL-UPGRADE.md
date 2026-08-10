@@ -2,7 +2,7 @@
 tags: [ofn, megaprompt, panels, ui, agent]
 aliases: [دستورالعمل ارتقای کنترل‌پنل‌ها, Agent Next Panel Upgrade]
 updated: 2026-08-10
-status: باز — منتظر اجرای عامل
+status: ✅ انجام شد — ۲۰۲۶-۰۸-۱۰ (فاز ۲ تا ۸)
 ---
 
 # دستورالعمل ایجنت بعدی — اسکن، ادغام و ارتقای چهار کنترل‌پنل

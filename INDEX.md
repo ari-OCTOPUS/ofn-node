@@ -110,8 +110,8 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
-- [[AGENT-NEXT-PANEL-UPGRADE]] — **⬆️ کار بعدی:** اسکن + ارتقای چهار کنترل‌پنل (حذف ممنوع)
-- [[docs/handoffs/panel-scans-2026-08-10/INVENTORY|اسکن پایهٔ پنل‌ها — ۲۰۲۶-۰۸-۱۰]]
+- [[AGENT-NEXT-PANEL-UPGRADE]] — ✅ انجام شد — اسکن + ارتقای چهار کنترل‌پنل (۲۰۲۶-۰۸-۱۰)
+- [[docs/handoffs/panel-scans-2026-08-10/INVENTORY|اسکن پنل‌ها — قبل و بعد — ۲۰۲۶-۰۸-۱۰]]
 - [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — اتصال پلتفرم مارکتینگ با مغز OFN
 - [[MEGAPROMPT-OWNER-COMPLETE]] — مالک کامل: ناهنجاری‌ها + دیباگ وب‌اپ‌ها (۲۰۲۶-۰۸-۱۰)
 - [[AGENT-NEXT-OWNER-COMPLETE]] — دستورالعمل ادامهٔ owner-complete
