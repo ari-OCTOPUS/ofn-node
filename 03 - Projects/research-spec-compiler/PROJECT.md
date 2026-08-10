@@ -132,3 +132,37 @@ The kernel is now integrated with the octopus body via `body_bridge/` modules:
 Data flow: kernel → body_bridge/output/*.json → body reads → body_events
 All writes are kernel-internal; the body never modifies the kernel.
 
+## Active Context (2026-08-10 — Fugu Ultra Remediation)
+
+**وضعیت کلی:** شش Work Package (WP-A..F) کامل و تست شد روی branch ایزولهٔ
+`fugu-ultra-remediation-d10abc`. هیچ چیزی armed/live نیست — همه default OFF یا shadow.
+
+- **WP-A — مستندسازی صادقانه:** [[EVIDENCE-LADDER-TAXONOMY]] (taxonomy هفت‌پله‌ای) +
+  errata برای این فایل (Desktop path stale، «Integration فعال» گمراه‌کننده).
+- **WP-B — soak pipeline طولی:** `soak_pipeline.py` (additive، scorecard دست‌نخورده) +
+  `soak_config.yaml` (thresholdهای versioned). halt-duty واقعی، BCM stagnation،
+  effect reconciliation، fail-closed. ۱۹ تست.
+- **WP-C — semantic-memory efficacy:** `cortex/semantic_trace.py` (default OFF،
+  PII-safe) + `cortex/semantic_ablation.py` (deterministic stub، bootstrap CI).
+  ۱۴ تست.
+- **WP-D — body_bridge shadow reader:** `kernel_bridge_reader.py` در _ops (default
+  OFF، no 4d_system import، AST-verified). ۱۳ تست.
+- **WP-E — D10-ABC benchmark:** `specs/d10_abc_architecture_comparison.yaml` (۱۱
+  فیلد، rsc validate = ۶/۶ killer + ۳/۳ warn) + `ADR-022` + `experiments/d10_abc.py`
+  (deterministic fake harness). ۱۶ تست.
+- **WP-F — capability classifier:** `capability_classifier.py` (read-only، ۹ فیلد
+  evidence ladder). ۱۲ تست.
+
+## Progress (evidence-grounded)
+
+| چه چیز | وضعیت روی evidence ladder |
+|---|---|
+| ۶ ماژول نو + ۵ فایل تست نو (۷۴ تست) | `built/tested` ✅ |
+| rsc validate D10-ABC | ۶/۶ killer gate، ۳/۳ warn OK |
+| body_bridge tests + spec tests | ۴۲ passed |
+| run_all.py کامل (۵۶۴۸ ✅، ۲۰ ❌ در ۱۸ suite) | همهٔ failها pre-existing (تأیید روی master) |
+| activation (arm/live/consumed) | UNKNOWN — نیاز به verdict مالک |
+
+**هیچ‌چیز armed/live نیست.** همه default OFF. activation-ladder:
+`implemented → shadow consumed → advisory → decision input` — هر مرحله verdict جدا.
+
