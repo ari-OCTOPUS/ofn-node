@@ -773,12 +773,23 @@ class ControlPlane:
                                "local/dev: _ops/telegram_center/miniapp/",
                     "note": "read-only cockpit; actions disabled until owner auth"}
         if raw == "/truth":
+            # 2026-08-10: drift سندی — نامِ تاریخ‌دارِ کهنه (08-02) را hardcode
+            # می‌کرد در حالی که فایل واقعی OCTOPUS/CURRENT-TRUTH.md است. همان
+            # الگوی /legs: از resolver مشترک miniapp_state (که env → بی‌تاریخ →
+            # تاریخ‌دار را درست پیدا می‌کند) استفاده کن — نه کپیِ مسیر.
             try:
-                tp = self.root / "OCTOPUS-CURRENT-TRUTH-2026-08-02.md"
-                preview = tp.read_text("utf-8", "replace")[:600] if tp.exists() else ""
+                import sys as _sys
+                _tc = str(self.root / "_ops" / "telegram_center")
+                if _tc not in _sys.path:
+                    _sys.path.insert(0, _tc)
+                from miniapp_state import get_current_truth  # type: ignore
+                _t = get_current_truth(self.root)
+                preview = str(_t.get("preview", "")) if _t.get("status") == "ok" else ""
+                return {"ok": True, "status": "OK" if preview else "MISSING",
+                        "preview": preview[:600], "reason": _t.get("reason", "")}
             except Exception:  # noqa: BLE001
-                preview = ""
-            return {"ok": True, "status": "OK" if preview else "MISSING", "preview": preview[:600]}
+                return {"ok": True, "status": "MISSING", "preview": "",
+                        "reason": "truth_resolver_unavailable"}
         if raw == "/legs":
             try:
                 import sys as _sys

@@ -87,14 +87,16 @@ Ziman ───────────── income + COGS ──────�
 
 ## ⚠️ گیت‌های مشترک (همه را قفل می‌کنند)
 
-### Security Gate (بسته 🔴)
-۴ ردیف CRITICAL در `ROTATION_CHECKLIST` (غایب اینجا، در F:\backup):
-1. **Monero wallet seed** (مشترک Mining)
-2. **Bybit keys** (مشترک Crypto)
-3. **OKX keys** (مشترک Crypto)
-4. **Anthropic keys** (مشترک Lead + Mining + Crypto + Project-F)
+### Security Gate (باز 🟢 — 2026-07-06)
+۴ ردیف CRITICAL در `ROTATION_CHECKLIST` (نسخه canonical: `PRE-0/ROTATION_CHECKLIST.md`) — **همه ROTATED** (verdict صریح مالک 07-06):
+1. **Monero wallet seed** — ROTATED
+2. **Bybit keys** — ROTATED
+3. **OKX keys** — ROTATED
+4. **Anthropic keys** — ROTATED
 
-> تا این چرخش نشود، همهٔ ایجنت‌ها **read-only**‌اند. این feature است نه محدودیت.
+> ⚠️ اصلاحِ drift سندی 2026-08-10: این بخش قبلاً «بسته 🔴» نوشته بود در حالی که
+> گیت واقعاً LIFTED شده بود — تک‌منبع وضعیت: §۲ ARCHITECT_CHARTER + ROTATION_CHECKLIST.
+> ردیف‌های HIGH/MEDIUM (۱۴ عدد) بازند ولی گیت نیستند و autonomy را قفل نمی‌کنند.
 
 ### GATE 0 (Project-F)
 محل اقامت پارتنر ثبت نشده → هیچ‌چیز outward اجرا نمی‌شود.
