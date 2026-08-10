@@ -20,6 +20,7 @@ REQUIRED = {
     "RATE-SPIKE.md": "موج درخواست",
     "SCHEMA-DRIFT.md": "انحراف اسکیما",
     "RETENTION.md": "retention",
+    "SECRET-ROTATION.md": "چرخش",
 }
 
 

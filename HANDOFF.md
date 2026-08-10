@@ -49,6 +49,47 @@ UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا 
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — آماده‌سازی O10–O12 (dormant، بدون فعال‌سازی)
+
+commit `ab890cc` + runbook `SECRET-ROTATION.md`. آری «موافقم» گفت ولی
+مگاپرامت §۱۱ چند تصمیم را فقط برای آری نگه می‌دارد (vendor، tenant،
+scope، معیار توقف، چرخش راز) — پرسیده شد، پاسخ نیامد → همه چیز **آماده
+و dormant** ماند، هیچ‌چیز فعال نشد.
+
+### O10 — pilot harness (`ofn/adapters/pilot.py`)
+- read-only: bounded pages، cursor بعد از commit، receipts در rollback
+- صفر outbound · بدون vendor/tenant/token (تا تصمیم)
+- تست: ۴ (bounded pages بدون overlap، rollback، dormant)
+
+### O11 — dry-run sender (`ofn/adapters/sender_dryrun.py`)
+- فقط `dry_run_diff()` — **هیچ send واقعی، هیچ transport import** (تست‌شده)
+- بدون ReleaseContext سبز حتی propose نمی‌کند
+- runbook `SECRET-ROTATION.md`: دستور چرخش ۴ راز (فقط آری اجرا می‌کند)
+
+### O9 — public catalog
+- `Node.public_catalog()` payload builder — **route سرو نمی‌شود** (تست pin)
+- فعال‌سازی = پنج پیش‌شرط آری
+
+### O12 — ابزارهای روز صفر
+- `docs/operations/PILOT-14DAY.md` · `tools/seed_pilot.py` (۵ سناریوی بدون
+  PII) · `tools/pilot_report.py` (از store های canonical)
+
+### صحت
+```
+pytest      1838 passed · 5 skipped · 0 failed
+boot        OK — 31 checks · هر 5 پورت 200
+```
+
+### منتظر حکم آری (تصمیم‌های §۱۱)
+1. O10: کدام vendor؟ (Telegram پیشنهاد اول) · کدام tenant؟ · چه scope؟
+   · معیار توقف/موفقیت چیست؟
+2. O11: چرخش ۴ راز (دستور در runbook) → بعد gates + WIRE
+3. O12: روز صفر با شریک‌های واقعی — کی؟
+4. O9: پنج پیش‌شرط (path/domain، privacy text، follow-up owner،
+   service area + offer، runbook review)
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — اجرای کامل Operations Launch (O1 تا O9)
 
 هفت commit (`b6a2e52` → `b993113`) که فازهای اجرایی O1–O9 مگاپرامت
