@@ -71,6 +71,17 @@ def _error_detail(exc: Exception, limit: int = 300) -> str:
     return text[:limit]
 
 
+def _error_http_code(exc: Exception) -> "int | None":
+    """HTTP status code به‌صورت ساختاری — ۲۰۲۶-۰۸-۱۰ (soak): قبلاً فقط متنِ
+    'HTTP Error 400: Bad Request' در error_detail می‌نشست و استخراجِ status
+    از روی متن حدس‌زنی بود. حالا e.code جدا ذخیره می‌شود تا کارتِ امتیازِ
+    soak بتواند 401/429/5xx را بدون parse تشخیص دهد."""
+    import urllib.error as _ue
+    if isinstance(exc, _ue.HTTPError):
+        return int(getattr(exc, "code", 0) or 0) or None
+    return None
+
+
 def _log_provider_usage_safe(*, model: str, task: str, tier: str,
                              usage: dict | None = None, latency_ms: int = 0,
                              status: str = "ok", error: str = "") -> None:
@@ -262,6 +273,7 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
             fugu_quota.fail(tier, error=_ce)
             _cb.record_failure(role, f"{type(_ce).__name__}: {_ce}")   # provider ناسالم
             _detail = _error_detail(_ce)
+            _http = _error_http_code(_ce)
             _elapsed_ms = int((_pt.time() - _t0) * 1000)
             _paid_log(task=task, tier=tier, role=role,
                       provider=getattr(cli, "provider", ""),
@@ -269,6 +281,7 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
                       via_gateway=bool(getattr(cli, "use_gateway", False)),
                       subscription=getattr(cli, "subscription", None) or "metered",
                       ok=False, error=type(_ce).__name__, error_detail=_detail,
+                      http_code=_http,
                       ms=_elapsed_ms,
                       quota_used=_q.get("used"))
             _log_provider_usage_safe(model=getattr(cli, "model", "") or role,

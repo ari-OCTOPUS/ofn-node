@@ -1,7 +1,8 @@
 {
-  "schema": "SoakBaseline.v1",
-  "start_ts": "2026-08-10T06:55:46Z",
-  "end_ts": "2026-08-13T06:55:46Z",
+  "schema": "SoakBaseline.v2",
+  "start_local": "2026-08-10T16:24:16",
+  "start_utc": "2026-08-10T06:24:16Z",
+  "end_local": "2026-08-13T16:24:16",
   "duration_h": 72,
   "model_map": {
     "primary": "sakana/fugu",
@@ -9,8 +10,5 @@
     "local": "ollama/qwen2.5:1.5b"
   },
   "commit": "71b836d",
-  "org_state": 30338,
-  "bcm_step": 146,
-  "semantic_count": 517,
-  "note": "soak restarts HERE — any drift from now is confounded with model map change"
+  "note": "v2: شروع واقعی = اولین موفق بعد از حذف STOP-FUGU (16:24 محلی). v1 (06:55Z) اشتباه بود — UTC با local قاطی شده بود."
 }

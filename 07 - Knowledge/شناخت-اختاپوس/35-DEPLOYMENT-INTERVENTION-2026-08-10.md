@@ -64,6 +64,22 @@ depends_on:
 - baseline: `_ops/state/soak-baseline.json` (beat=30338, bcm=146, semantic=517)
 - هر drift رفتاری در این بازه با تعویض مدل confound دارد.
 
+## به‌روزرسانی‌های بعد از review (۲۰۲۶-۰۸-۱۰ بعدازظهر)
+
+1. **center ری‌استارت شد** (pid 14580→11284) — /truth واقعاً زنده شد
+   (proof: integration → runtime → status=OK, preview=335). درسِ hot-reload
+   برای center هم صادق بود.
+2. **http_code ساختاری** به paid-calls اضافه شد (`_error_http_code` در
+   model_router) — دیگر 400/429/5xx از متن حدس زده نمی‌شود.
+3. **soak_scorecard.py** ساخته شد — کارت امتیاز با آستانه‌های هشدار/توقف.
+   اولین چک: **GREEN** (success 1.0، restart 0، deny رشد 0).
+4. **soak-baseline v2** — شروع واقعی 16:24 محلی (اولین موفق بعد از حذف
+   STOP-FUGU). v1 (06:55Z) UTC/local قاطی شده بود.
+5. **intervention-ledger**: status=interim، مصرف‌کننده=soak_scorecard
+   (deny_baseline + planned_restarts). تا وصل به D-02.
+6. **BOM در runtime.py**: فایل با U+FEFF شروع می‌شود (از قبل بود، در پنجرهٔ
+   soak دست نمی‌زنیم). برای جلسهٔ بعد: strip در اولین ویرایشِ غیر-soak.
+
 ## DEFER (لیست)
 
 - گیت‌وی LiteLLM :4000 (فاز ۶ — با تأیید جداگانه)
