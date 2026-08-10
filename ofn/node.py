@@ -178,6 +178,18 @@ class Node:
             return self.base_closed_gates
         return closed_gates_for(self.boot, self.base_closed_gates)
 
+    # ── owner surface facade (phase H) ─────────────────────────────────────
+    @property
+    def owner(self):
+        """The owner surface as one unit: `node.owner.status()`, etc.
+
+        Delegates to this node — behaviour identical to calling the methods
+        directly. This is the seam the gradual extract will cut along
+        (finding 81); see ofn/adapters/owner_reads.py.
+        """
+        from .adapters.owner_reads import OwnerReads
+        return OwnerReads(self)
+
     def evidence_for(self, scope: TenantScope) -> Mapping[str, Confidence]:
         """What is known, with anything past its re-ask date treated as
         unknown.

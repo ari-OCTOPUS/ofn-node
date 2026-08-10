@@ -27,6 +27,7 @@ from ofn.kernel.auth import issue_session
 from ofn.kernel.domain import RiskTier
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
+from tests.fixtures.renditions import IMG, RENDITIONS
 from tests.tmpdir import temp_dir
 
 NOW_S = 1_785_000_000
@@ -35,11 +36,6 @@ SECRET = "s"
 SABA = "6150431610"
 HOST = {"host": "st.test"}
 SHA = "d" * 64
-
-# Two renditions, as a canvas would send them.
-IMG = base64.b64encode(b"\xff\xd8\xff" + b"x" * 200).decode()
-RENDITIONS = {"1600": "data:image/jpeg;base64," + IMG,
-              "320": "data:image/jpeg;base64," + IMG}
 
 
 class Base(unittest.TestCase):

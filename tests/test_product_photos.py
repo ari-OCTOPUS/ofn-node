@@ -34,6 +34,7 @@ from ofn.kernel.errors import FailClosedError
 from ofn.kernel.photos import relative_path
 from ofn.kernel.tenancy import TenantRegistry
 from ofn.node import Node
+from tests.fixtures.renditions import IMG, RENDITIONS
 from tests.tmpdir import temp_dir
 
 NOW_S = 1_785_000_000
@@ -41,10 +42,6 @@ NOW_ISO = "2026-08-05T09:00:00Z"
 SECRET = "s"
 WHO = "424242"
 HOST = {"host": "z.test"}
-
-IMG = base64.b64encode(b"\xff\xd8\xff" + b"x" * 200).decode()
-RENDITIONS = {"1600": "data:image/jpeg;base64," + IMG,
-              "320": "data:image/jpeg;base64," + IMG}
 
 
 class TestTheSkuBecomesAPath(unittest.TestCase):

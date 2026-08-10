@@ -247,7 +247,7 @@ class TestTheNodeClampsAClockItDoesNotOwn(unittest.TestCase):
         return node, studio, registry.scope(pack.tenant.value)
 
     def _put(self, node, **kw):
-        from tests.test_studio_api import RENDITIONS
+        from tests.fixtures.renditions import RENDITIONS
         return node.add_to_library(self._scope, "u1",
                                    {"renditions": RENDITIONS, **kw})
 

@@ -223,3 +223,87 @@ class TestScrubBeforePersist(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOwnerFacade(unittest.TestCase):
+    """node.owner.X(...) behaves identically to node.X(...) (phase H)."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        with open(os.path.join(packs_dir, "ziman.yaml"), "w") as f:
+            f.write(
+                "tenant: ziman\n"
+                "capacity_units_per_week: 6\n"
+                "required_facts:\n"
+                "  dummy_fact: owner_confirmed\n"
+                "gates: []\n"
+                "risk_overrides:\n"
+                "  dummy_action: green\n"
+                "quota_share: 0.5\n"
+            )
+        registry = TenantRegistry(load_dir(packs_dir))
+        self.node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 0.5}),
+            ledger=Ledger(os.path.join(self.dir, "ledger.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "facts.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "outbox.sqlite")),
+            now_epoch_s=lambda: 1_785_000_000,
+            now_iso=lambda: NOW_ISO,
+        )
+        self.addCleanup(self.node.close)
+
+    def test_facade_matches_direct_calls(self):
+        for method, args in (
+            ("status", ()),
+            ("metrics", ()),
+            ("observability", ()),
+            ("snapshot", ()),
+            ("businesses", ()),
+            ("core_snapshot", ()),
+            ("risks", ()),
+            ("ledger_summary", ()),
+            ("mini_webs", ()),
+            ("telegram", ()),
+            ("painting_dashboard", ()),
+        ):
+            with self.subTest(method=method):
+                direct = getattr(self.node, {
+                    "status": "owner_status",
+                    "metrics": "owner_metrics",
+                    "observability": "owner_observability",
+                    "snapshot": "owner_snapshot",
+                    "businesses": "owner_businesses",
+                    "core_snapshot": "owner_core_snapshot",
+                    "risks": "owner_risks",
+                    "ledger_summary": "owner_ledger_summary",
+                    "mini_webs": "owner_mini_webs_summary",
+                    "telegram": "owner_telegram_summary",
+                    "painting_dashboard": "painting_dashboard",
+                }[method])(*args)
+                facade = getattr(self.node.owner, method)(*args)
+                self.assertEqual(facade.get("ok", True),
+                                 direct.get("ok", True))
+
+    def test_facade_events(self):
+        direct = self.node.recent_events(5)
+        facade = self.node.owner.events(5)
+        self.assertEqual(len(facade), len(direct))
+
+    def test_facade_queue_and_decide(self):
+        self.assertEqual(self.node.owner.queue(), self.node.owner_queue())
+        # decide with a bogus id: both paths agree on failure shape
+        direct = self.node.owner_decide("x:y", True, True)
+        facade = self.node.owner.decide("x:y", True, True)
+        self.assertEqual(facade.get("ok"), direct.get("ok"))

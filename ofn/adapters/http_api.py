@@ -880,10 +880,47 @@ class ApiApp:
             "mini_apps": apps,
         }
 
+    # Owner GET routes with a single handler and no path parameters. The
+    # table is a fast path over the if-chain below: a hit returns directly,
+    # a miss falls through to the existing handlers unchanged. Adding a new
+    # simple owner read means one row here instead of one more if — the
+    # chain stays as the source of truth for everything complex.
+    _OWNER_GET_TABLE = (
+        ("/api/v1/owner/status", "_owner_status"),
+        ("/api/v1/owner/events", "_owner_events"),
+        ("/api/v1/owner/snapshot", "_owner_snapshot"),
+        ("/api/v1/owner/businesses", "_owner_businesses"),
+        ("/api/v1/owner/partners", "_owner_partners"),
+        ("/api/v1/owner/mini-apps", "_owner_mini_apps"),
+        ("/api/v1/owner/core/snapshot", "_owner_core_snapshot"),
+        ("/api/v1/owner/risks", "_owner_risks"),
+        ("/api/v1/owner/ledger/summary", "_owner_ledger_summary"),
+    )
+
     def _owner_route(self, method: str, path: str, p: Principal,
                      body: bytes) -> Response:
         if not p.is_owner:
             return Response(403, {"error": "forbidden"})
+
+        # Fast path: simple GET reads dispatch straight from the table. The
+        # handler attribute may be None (unwired in narrow tests) — treat
+        # that exactly like the if-chain does: 404 for projections, empty
+        # for queue/status/events.
+        if method == "GET":
+            for route, attr in self._OWNER_GET_TABLE:
+                if path == route:
+                    handler = getattr(self, attr, None)
+                    if handler is None:
+                        if attr in ("_owner_status", "_owner_events"):
+                            return self._owner_read({})
+                        if attr == "_owner_queue":
+                            return self._owner_read({"queue": []})
+                        return self._owner_read({"error": "not found"}, 404)
+                    if attr == "_owner_events":
+                        return self._owner_read(
+                            {"events": handler(EVENT_TAIL)})
+                    return self._owner_read(handler())
+
         if method == "GET" and path == "/api/v1/queue":
             return self._owner_read({"queue": self._owner_queue()})
         if method == "GET" and path == "/api/v1/owner/status":
