@@ -148,7 +148,9 @@ def build_node(cfg: config.Config) -> Node:
                 base_closed_gates=cfg.base_closed_gates, boot=report,
                 inbox=inbox, rate_limiter=rate_limiter,
                 connector_metrics=connector_metrics,
-                pilot=pilot, pilot_state=pilot_state)
+                pilot=pilot, pilot_state=pilot_state,
+                _telegram_channel_id=cfg.telegram_channel_id,
+                _telegram_token=str(cfg.bot_tokens.get("studio") or ""))
 
 
 def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:

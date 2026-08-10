@@ -41,7 +41,8 @@ class TestTelegramAdapter(unittest.TestCase):
         a = TelegramChannelAdapter(channel_id="@channel")
         r = a.publish(_req(platform="telegram_channel", dry_run=False))
         self.assertFalse(r.ok)
-        self.assertEqual(r.rule, RULE_WIRE_CLOSED)
+        # No token passed → refused without crashing (never a wire crash).
+        self.assertEqual(r.rule, "telegram:no-token")
 
 
 class TestBlueskyAdapter(unittest.TestCase):

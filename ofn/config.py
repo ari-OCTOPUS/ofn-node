@@ -60,6 +60,9 @@ class Config:
     # requires Ari's five preconditions (path, privacy text, follow-up
     # owner, service area, runbook review). When off, the route 404s.
     public_catalog_enabled: bool = False
+    # O11: Telegram channel to broadcast to (public identifier, not a
+    # secret). The bot token stays in secrets.env and is read at call time.
+    telegram_channel_id: str = ""
     base_closed_gates: tuple[str, ...] = field(default_factory=tuple)
 
     @property
@@ -201,8 +204,16 @@ def load() -> Config:
     # says so. It only bites once a pack declares it — no mining pack exists
     # yet, so arming it here costs nothing and means the wiring is already in
     # place the day one does.
-    gates: list[str] = ["secret_rotation", "miner_isolation",
-                        "partner_precondition"]
+    # miner_isolation stays shut until D-8's items 1-3 are done and the owner
+    # says so. It only bites once a pack declares it — no mining pack exists
+    # yet, so arming it here costs nothing and means the wiring is already in
+    # place the day one does.
+    #
+    # secret_rotation and partner_precondition were opened by Ari's explicit
+    # decision on 2026-08-10 ("همرو روشن کن" — risk accepted for one week).
+    # See docs/architecture/DECISION-open-gates.md. This is a temporary
+    # window; if a week passes without rotation the gates must go back.
+    gates: list[str] = ["miner_isolation"]
     extra = os.environ.get("OFN_EXTRA_CLOSED_GATES", "")
     gates += [g.strip() for g in extra.split(",") if g.strip()]
 
@@ -250,6 +261,7 @@ def load() -> Config:
         owner_host=f"panel.{domain}",
         wire_outbound=_flag("OFN_WIRE_OUTBOUND"),
         public_catalog_enabled=_flag("OFN_PUBLIC_CATALOG"),
+        telegram_channel_id=os.environ.get("OFN_TELEGRAM_CHANNEL_ID", ""),
         base_closed_gates=tuple(gates),
     )
 

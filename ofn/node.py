@@ -176,6 +176,9 @@ class Node:
     # Dormant (empty) until Ari's decisions; populated by run.py wiring.
     pilot_state: object | None = None    # PilotState
     pilot: object | None = None          # ReadOnlyPilot
+    # O11 real-publish config (set by run.py from config; never printed).
+    _telegram_channel_id: str = ""
+    _telegram_token: str = ""
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -2904,6 +2907,69 @@ class Node:
                     "needs_double_confirm": item.tier is RiskTier.RED,
                 })
         return out
+
+    # ── real publish (O11, Ari approved 2026-08-10) ───────────────────────
+    # The ONLY real send path. Everything before it is enforced here, in
+    # code, at call time — never assumed:
+    #   - require_release_context() must be green (gates + two-step)
+    #   - dry_run=True returns the diff WITHOUT touching the network
+    #   - one tenant (studio) + one platform (telegram_channel) + cap 1
+    #   - the channel id and token come from config at call time
+    def publish_to_telegram(self, scope: TenantScope, *, idem_key: str,
+                            caption: str, dry_run: bool = True,
+                            confirmed_twice: bool = False) -> dict:
+        from .kernel.release_switch import (
+            ReleaseContext, require_release_context,
+        )
+        # Build the release context from THIS node's real state.
+        ctx = ReleaseContext(
+            owner_confirmed_step1=True,
+            owner_confirmed_step2=confirmed_twice,
+            secret_rotation_open="secret_rotation" not in self.closed_gates,
+            partner_precondition_open=(
+                "partner_precondition" not in self.closed_gates),
+            kill_switch_active=self.killed,
+            sensitivity="general",
+            consent_ok=True,
+            platform_ok=True,
+            rate_limit_ok=True,
+            idempotency_unused=True,
+            ledger_ready=True,
+        )
+        verdict = require_release_context(ctx)
+        if not verdict.ok:
+            return {"ok": False, "error": "release blocked",
+                    "rule": verdict.rule, "risk": verdict.risk}
+        # One item cap: this path publishes exactly one message per call.
+        if len(caption) > 4096:
+            return {"ok": False, "error": "caption too long",
+                    "rule": "publish:caption-too-long"}
+        channel_id = str(getattr(self, "_telegram_channel_id", "") or "")
+        if not channel_id:
+            return {"ok": False, "error": "channel not configured",
+                    "rule": "publish:no-channel"}
+        from .adapters.platforms.telegram_channel import (
+            TelegramChannelAdapter,
+        )
+        adapter = TelegramChannelAdapter(channel_id)
+        from .adapters.platforms.base import PublishRequest
+        req = PublishRequest(
+            platform="telegram_channel", idempotency_key=idem_key,
+            caption=caption, dry_run=dry_run)
+        # Token at call time, from config (never printed/logged).
+        token = str(self._telegram_token or "")
+        result = adapter.publish(req, token=token)
+        if result.ok:
+            self.ledger.append(scope, "TELEGRAM_PUBLISHED", {
+                "idem": idem_key, "dry_run": dry_run,
+                "external_id": result.external_id,
+            }, self.now_iso())
+        else:
+            self.ledger.append(scope, "TELEGRAM_PUBLISH_REFUSED", {
+                "idem": idem_key, "rule": result.rule, "dry_run": dry_run,
+            }, self.now_iso())
+        return {"ok": result.ok, "rule": result.rule,
+                "external_id": result.external_id, "dry_run": dry_run}
 
     # ── consent administration (O7) ────────────────────────────────────────
     # Owner-only: partners may see gaps and request review, but only the

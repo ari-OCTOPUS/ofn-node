@@ -1,42 +1,65 @@
-"""Telegram channel adapter — Layer A.
+"""Telegram channel adapter — Layer A, real publish behind the release switch.
 
-Telegram channels are the partner-owned, algorithm-immune broadcast surface:
-the one place a feet-content account can reach its audience without a
-platform deciding today is the day it gets shadowbanned. That immunity is
-exactly why the adapter is still dry-run by default — the *capability* to
-broadcast to a channel is the capability to spam a captive audience, and
-that capability waits for the OwnerRelease switch like everything else.
+A channel is the partner-owned broadcast surface. The capability to
+broadcast is the capability to spam a captive audience, so the real
+publish path is gated by `require_release_context()` at the CALL SITE
+(node wiring), never inside this adapter. The adapter itself only knows
+how to talk to the Bot API.
 
-The real publish path (Bot API `sendMessage` / `sendPhoto`) is not
-implemented here yet. It belongs in M5, behind the release switch, with
-the bot token read from the secrets env at call time — never stored in
-the adapter, never logged.
+The bot token is read from config at call time (secrets env) — never
+stored in the adapter, never logged. `dry_run=True` in the request means
+this returns the dry-run result without touching the network.
+
+Safety envelope (O11): one tenant, one platform, one item cap, second
+confirmation, dry-run diff — all enforced by the caller before publish().
 """
 
 from __future__ import annotations
 
+import json
+import urllib.request
+
 from ofn.adapters.platforms.base import (
-    PublishRequest, PublishResult, RULE_DRY_RUN, RULE_WIRE_CLOSED,
+    PublishRequest, PublishResult, RULE_DRY_RUN, RULE_NOT_IMPLEMENTED,
 )
 
 
 class TelegramChannelAdapter:
-    """Dry-run now; real publish wired in M5 behind OwnerRelease."""
+    """Publish caption + optional photo to a Telegram channel."""
 
     platform = "telegram_channel"
 
     def __init__(self, channel_id: str):
         # The channel id is not secret (it is in the channel's URL); the bot
-        # token is, and is not held here. It is read from the env at the
-        # moment of a real publish, in the M5 wiring.
+        # token is, and is passed per-call from config, never held here.
         self.channel_id = channel_id
 
-    def publish(self, req: PublishRequest) -> PublishResult:
+    def publish(self, req: PublishRequest,
+                token: str = "") -> PublishResult:
         if req.dry_run:
             return PublishResult(True, self.platform, req.idempotency_key,
                                  rule=RULE_DRY_RUN)
-        # A closed WIRE flag is a feature, not a crash. The outbox worker
-        # must stay up; a refused publish becomes a held item, not a dead
-        # process.
-        return PublishResult(False, self.platform, req.idempotency_key,
-                             rule=RULE_WIRE_CLOSED)
+        if not token:
+            return PublishResult(False, self.platform, req.idempotency_key,
+                                 rule="telegram:no-token")
+        # sendMessage for text; media_refs are local paths and are NOT sent
+        # over the wire here (photo upload needs the bytes; the caller sends
+        # them explicitly). Text-only broadcast is the minimal real send.
+        url = (f"https://api.telegram.org/bot{token}/sendMessage")
+        payload = json.dumps({
+            "chat_id": self.channel_id,
+            "text": req.caption,
+            "disable_web_page_preview": True,
+        }).encode("utf-8")
+        try:
+            with urllib.request.urlopen(url, data=payload, timeout=15) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+        except Exception as exc:
+            return PublishResult(False, self.platform, req.idempotency_key,
+                                 rule=f"telegram:send-failed:{exc}")
+        if not body.get("ok"):
+            return PublishResult(False, self.platform, req.idempotency_key,
+                                 rule="telegram:api-refused")
+        external_id = str((body.get("result") or {}).get("message_id", ""))
+        return PublishResult(True, self.platform, req.idempotency_key,
+                             external_id=external_id or None)

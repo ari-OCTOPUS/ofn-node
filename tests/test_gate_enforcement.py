@@ -162,12 +162,17 @@ class TestKillBlocksOwnerApprove(GateEnforcementBase):
 
 
 class TestPartnerPreconditionDefault(unittest.TestCase):
-    """config.load() must default partner_precondition to closed."""
+    """Gate defaults: opened by Ari's explicit 2026-08-10 decision.
 
-    def test_partner_precondition_in_default_closed_gates(self):
+    secret_rotation and partner_precondition were opened for a one-week
+    window (risk accepted, see DECISION-open-gates.md). miner_isolation
+    stays closed per D-8. When the week passes, secret_rotation goes back.
+    """
+
+    def test_partner_precondition_and_secret_rotation_open(self):
         cfg = config_module.load()
-        self.assertIn("partner_precondition", cfg.base_closed_gates)
-        self.assertIn("secret_rotation", cfg.base_closed_gates)
+        self.assertNotIn("partner_precondition", cfg.base_closed_gates)
+        self.assertNotIn("secret_rotation", cfg.base_closed_gates)
         self.assertIn("miner_isolation", cfg.base_closed_gates)
 
 
