@@ -9,24 +9,20 @@ updated: 2026-08-10
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      عدد زنده را با python3 tools/repo_baseline.py --tests بگیر
-            (آخرین اندازه‌گیری ۲۰۲۶-۰۸-۱۰: ~۱۷۲۷ pass / ۵ skip)
-preflight   عدد را از python3 -m ofn.preflight بگیر
-boot        OK — ۳۰/۳۰ (NORMAL) · memory.sqlite هم در quick_check
+pytest      1767 pass · 5 skip · 1772 collected (۲۰۲۶-۰۸-۱۰ · COMPLETE-FINISH)
+preflight   boot OK — ۳۱/۳۱ · memory.sqlite read-only در quick_check
 گیت‌ها       secret_rotation 🔒 · partner_precondition 🔒 · miner_isolation 🔒
 WIRE        outbound خاموش · email/publish در env روشن ولی کد Python نمی‌خواندشان
             (امنیت از outbox + store-layer status تأمین می‌شود، نه از این پرچم‌ها)
 بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
-            Bluetooth هم اکنون کار می‌کند (ap6256-bt.service, hci0 UP, BT 5.0)
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear  →  هر چهار active
-            ofn-alert.service نصب شد (OnFailure=ofn-alert روی ofn.service)
+            پورت‌ها: ۸۷۹۱–۸۷۹۴ + hypno ۸۸۹۵ · ۸۰۹۰ تمیز
 دامنه‌ها     panel/ziman/lead/studio/app/hypno → همه ۲۰۰
-UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
-            مغز مشترک Sakana (fugu) برای OFN + hypno · pack hypno (tenant ۴)
-            quota ۳۵/۳۵/۲۰/۱۰ = ۱.۰۰ · ۱۳۲ chunk shared knowledge
-جدید        kill switch ✅ · metrics زنده ✅ · alert (log+Telegram opt-in) ✅
-            P0+P1 بسته (webhook harden · gates · inbox machine · backup verify)
+UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا روی ۸۸۹۵
+            قدم دوم (خاموش‌کردن سرویس) منتظر حکم
+جدید        COMPLETE-FINISH H–M بسته · vendor Telegram skeleton (read-only)
+            P0+P1+P2+P3+P4 بسته · mutation↔ledger بسته
 ```
 
 ---
