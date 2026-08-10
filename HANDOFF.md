@@ -30,6 +30,22 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
 
 ---
 
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — مگاپرامپت ایجنت بعدی (DeepSeek V4 Fast)
+
+دو سند ذخیره شد برای ادامهٔ کامل P1→P4 بعد از P0:
+
+| سند | نقش |
+|---|---|
+| [[MEGAPROMPT-P1-TO-P4-COMPLETE]] | نقشهٔ کامل فازها، یافته‌ها، حکم‌ها، معیار پذیرش |
+| [[AGENT-NEXT-DEEPSEEK-V4-FAST]] | اسکریپت بایت‌به‌بایت بلوک ۰…۱۶ برای DeepSeek V4 Fast |
+
+Canvas مرجع: `~/.cursor/projects/home-ari/canvases/ofn-100-findings.canvas.tsx`  
+INDEX به‌روز شد. **کار بعدی ایجنت:** اجرای `AGENT-NEXT-DEEPSEEK-V4-FAST` از بلوک ۱.
+
+قلم باز نیازمند حکم آری: `chmod 0700 /home/ari/.local/share/ofn` (فعلاً `0755` + preflight warn).
+
+---
+
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — رفع P0 از ممیزی صد یافته
 
 چهار commit (`51a27ad` → `898fa6d` → `08711d0`) که ۱۵ یافتهٔ P0 را بست.

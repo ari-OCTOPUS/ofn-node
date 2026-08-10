@@ -41,6 +41,9 @@ def available_platforms() -> tuple[str, ...]:
         try:
             mod = importlib.import_module(f"{__name__}.{name}")
         except Exception:
+            # A broken adapter is a health signal, not a silent skip. The
+            # module is reported separately so `broken_platforms()` can show
+            # it, and it never pollutes the available set.
             continue
         platform = getattr(mod, "__all_platform__", None)
         if platform is None:
@@ -53,4 +56,24 @@ def available_platforms() -> tuple[str, ...]:
         if isinstance(platform, str) and platform:
             names.append(platform)
     return tuple(sorted(set(names)))
+
+
+def broken_platforms() -> tuple[str, ...]:
+    """Modules in this package that fail to import, sorted.
+
+    Separate from `available_platforms()` on purpose: an adapter that fails
+    to load is not "available" — it is a problem someone should see. The
+    owner's observability can report this without conflating a broken module
+    with a healthy one.
+    """
+    broken: list[str] = []
+    for mod_info in pkgutil.iter_modules(__path__):
+        name = mod_info.name
+        if name in ("base", "__init__"):
+            continue
+        try:
+            importlib.import_module(f"{__name__}.{name}")
+        except Exception:
+            broken.append(name)
+    return tuple(sorted(broken))
 

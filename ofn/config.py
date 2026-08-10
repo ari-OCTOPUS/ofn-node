@@ -52,6 +52,9 @@ class Config:
     ports: Mapping[str, int]
     hosts: Mapping[str, str]
     owner_host: str
+    # Intent-only until a real sender exists: no production code reads this
+    # flag to gate an enqueue or send. Outbound safety comes from the outbox
+    # + store-layer status, not from this flag (see HANDOFF wire drift note).
     wire_outbound: bool = False
     base_closed_gates: tuple[str, ...] = field(default_factory=tuple)
 

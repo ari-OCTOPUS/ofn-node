@@ -1749,8 +1749,21 @@ class Node:
         if self.assistant is None:
             return {"ok": False, "error": "حافظهٔ دستیار وصل نیست"}
         q = str(body.get("message") or "").strip()[:800]
+        # Scrubbed BEFORE it is persisted: chat turns are stored locally and
+        # may later feed shared memory, so identifying data must not land in
+        # either. The scrub is visible to the caller so Saba knows her phone
+        # number was not stored as typed.
+        from .kernel.scrub import scrub as _scrub
+        scrubbed = _scrub(q)
+        if not scrubbed.clean:
+            q = scrubbed.text
+            self._assistant_scrub_hits = getattr(
+                self, "_assistant_scrub_hits", 0) + 1
         out = self.assistant.answer_local(scope.tenant.value, q)
-        turn = self.assistant.record_chat(scope.tenant.value, q, out.get("answer", ""), out.get("sources", []), now_epoch_s=self.now_epoch_s())
+        # The assistant may echo the user's own words back — scrub the
+        # answer too, so no identifying data survives into the turn store.
+        ans = _scrub(str(out.get("answer", ""))).text
+        turn = self.assistant.record_chat(scope.tenant.value, q, ans, out.get("sources", []), now_epoch_s=self.now_epoch_s())
         return {"ok": True, "turn_id": turn, **out}
 
     def studio_assistant_suggest(self, scope: TenantScope) -> dict:
@@ -2101,20 +2114,26 @@ class Node:
             return {"ok": False, "error": f"metrics unavailable: {exc}"}
 
     def owner_observability(self) -> dict:
-        """Connector and inbox visibility for the owner's panel.
+        """Inbox visibility for the owner's panel — what this node holds.
 
-        Every figure here comes from state this node actually holds — the
-        inbox, the connector metrics, the registry. No vendor is contacted
-        (and none is wired yet). When a value cannot be read it is reported
-        as not_measured rather than invented, because a control surface that
-        fabricates its own readings is worse than no control surface.
+        Returns:
+            ok: always True (the read itself succeeded)
+            webhook_route: True — POST /api/v1/webhooks/ is wired
+            vendors_connected: currently always [] — no real vendor is
+                connected; this is the honest value, not a placeholder
+            tenants: per-tenant inbox counts (pending/processed/failed/depth)
+
+        Not measured here: connector metrics (ConnectorMetrics is not wired
+        to a runtime instance yet) and vendor health (no vendor exists).
+        Those keys are deliberately absent rather than fabricated — the
+        panel must not read health where nothing was measured.
 
         No secrets, no raw webhook bodies, no PII — only counts and statuses.
         """
         out: dict[str, object] = {
             "ok": True,
             "webhook_route": True,          # POST /api/v1/webhooks/ is wired
-            "vendors_connected": [],        # no real vendor yet
+            "vendors_connected": [],        # no real vendor yet — honest []
             "tenants": {},
         }
         if self.inbox is not None:

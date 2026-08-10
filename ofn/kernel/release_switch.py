@@ -117,3 +117,17 @@ class OwnerRelease:
             return ReleaseVerdict(False, RULE_LEDGER)
 
         return ReleaseVerdict(True, RULE_OK)
+
+
+def require_release_context(ctx: ReleaseContext) -> ReleaseVerdict:
+    """Structural guard for any future sender.
+
+    No sender exists yet, and none may be built without Ari's approval. When
+    one is built, it MUST call this before touching any transport: it is the
+    single gate that decides whether publishing may happen at all. A sender
+    that bypasses this function is a bug by construction — the same shape as
+    the direct-enqueue bypass the P0 audit found, but on the outbound side.
+
+    Returns the verdict so the caller can surface the rule in its response.
+    """
+    return OwnerRelease().may_publish(ctx)

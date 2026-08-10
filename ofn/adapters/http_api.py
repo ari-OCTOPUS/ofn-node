@@ -26,6 +26,7 @@ removes a whole category of accident.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import traceback
@@ -338,11 +339,21 @@ class ApiApp:
 
         # Webhook endpoint: unauthenticated, HMAC-signed, rate-limited.
         # Routed before the principal check because webhooks come from vendor
-        # servers, not from logged-in users. Tenant is resolved from the path
-        # segment by the handler itself.
+        # servers, not from logged-in users. The tenant comes from the path
+        # segment (/api/v1/webhooks/<tenant>/...) and is CROSS-CHECKED against
+        # the host: a payload arriving on the wrong host for its path is a
+        # misrouting or a probe, and both get a 403 rather than a store.
         if method == "POST" and path.startswith("/api/v1/webhooks/"):
+            rest = path[len("/api/v1/webhooks/"):]
+            path_tenant = rest.split("/", 1)[0] if rest else ""
+            if not path_tenant or path_tenant not in self._registry:
+                return Response(404, {"error": "unknown webhook path"})
+            if tenant_name is not None and path_tenant != tenant_name:
+                return Response(403, {"ok": False,
+                                      "error": "webhook tenant mismatch",
+                                      "rule": "webhook:tenant-mismatch"})
             if self._webhook_handler is not None:
-                result = self._webhook_handler(tenant_name, headers, body)
+                result = self._webhook_handler(path_tenant, headers, body)
                 if isinstance(result, dict):
                     cid = result.get("correlation_id", "")
                     if result.get("ok"):
@@ -452,8 +463,13 @@ class ApiApp:
             # Raw, not pre-decoded: `_parse_qs` splits first and decodes each
             # value, which is the order the platform signed.
             user = parse_and_verify(raw, token, now_epoch_s=now)
+            # Replay key = SHA-256 of the WHOLE signed blob, not its last 64
+            # chars. A suffix is a collision factory: two different blobs can
+            # share a tail, and the first one then blocks the second. The
+            # digest hashes everything the signature covered, so identical
+            # replay keys now require byte-identical blobs.
             self._replay.check_and_remember(
-                payload.get("init_data", "")[-64:], now)
+                hashlib.sha256(raw.encode("utf-8")).hexdigest(), now)
         except AuthError as exc:
             reason = getattr(exc, "reason", "")
             if reason == "signature_mismatch":
