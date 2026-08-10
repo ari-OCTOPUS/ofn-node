@@ -2,7 +2,7 @@
 tags: [ofn, megaprompt, marketing, integration, observability, webhooks, owner]
 aliases: [مگاپرامپت پلتفرم مارکتینگ, Marketing Platform Integration]
 updated: 2026-08-10
-status: باز — طراحی مفهومی برای اجرای مرحله‌ای
+status: 🔄 فاز ۱ اجرا شد (connector infra `d140756` + P0/P1 harden) · vendor واقعی منتظر
 ---
 
 # مگاپرامپت عمیق — یک پلتفرم مارکتینگ برای سه بیزنس، با مغز OFN

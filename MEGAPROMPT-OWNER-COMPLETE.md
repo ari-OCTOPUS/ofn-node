@@ -2,7 +2,7 @@
 tags: [ofn, megaprompt, owner, harden, debug, webapps]
 aliases: [مگاپرامپت مالک کامل, Owner Complete Megaprompt]
 updated: 2026-08-10
-status: باز — منتظر اجرای عامل
+status: ✅ اجرا شد — ۲۰۲۶-۰۸-۱۰ (commit `4dcb0ce`)
 ---
 
 # مگاپرامپت مالک کامل — بستن ناهنجاری‌ها + دیباگ همهٔ وب‌اپ‌ها

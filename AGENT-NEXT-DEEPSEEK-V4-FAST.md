@@ -2,6 +2,7 @@
 tags: [ofn, agent-next, deepseek, byte-by-byte]
 aliases: [ایجنت بعدی DeepSeek, دستور بایت‌به‌بایت]
 updated: 2026-08-10
+status: 🔄 فاز A–G اجرا شد · فاز H (معماری) باز
 ---
 
 # AGENT-NEXT — DeepSeek V4 Fast · بایت‌به‌بایت

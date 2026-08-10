@@ -2,6 +2,7 @@
 tags: [ofn, megaprompt, audit, p1, deepseek]
 aliases: [مگاپرامپت P1 تا P4, ادامهٔ صد یافته]
 updated: 2026-08-10
+status: 🔄 فاز A–G اجرا شد · فاز H (معماری تدریجی) باز
 ---
 
 # MEGAPROMPT — تکمیل P1→P4 بعد از رفع P0
