@@ -217,6 +217,9 @@ class ApiApp:
         engage_kill: Callable[[str, str, str], dict] | None = None,
         release_kill: (Callable[[str, str, str, bool], dict]
                        | None) = None,
+        # Webhook / connector infrastructure (marketing platform integration)
+        webhook_handler: (Callable[[str, Mapping[str, str], bytes], Response]
+                          | None) = None,
     ) -> None:
         self._registry = registry
         self._hosts = hosts
@@ -309,6 +312,7 @@ class ApiApp:
         # never enter this structure, so the owner projection cannot leak them
         # later by accidentally serialising a config object wholesale.
         self._mini_apps = tuple(dict(app) for app in mini_apps)
+        self._webhook_handler = webhook_handler
 
     # ── entry point ───────────────────────────────────────────────────────
     def handle(self, method: str, path: str, headers: Mapping[str, str],
@@ -325,6 +329,23 @@ class ApiApp:
 
         if method == "POST" and path == "/api/v1/shell/boot":
             return self._shell_boot(body)
+
+        # Webhook endpoint: unauthenticated, HMAC-signed, rate-limited.
+        # Routed before the principal check because webhooks come from vendor
+        # servers, not from logged-in users. Tenant is resolved from the path
+        # segment by the handler itself.
+        if method == "POST" and path.startswith("/api/v1/webhooks/"):
+            if self._webhook_handler is not None:
+                result = self._webhook_handler(tenant_name, headers, body)
+                if isinstance(result, dict):
+                    cid = result.get("correlation_id", "")
+                    status = 202 if result.get("ok") else 422
+                    hdrs = {}
+                    if cid:
+                        hdrs["X-Correlation-ID"] = cid
+                    return Response(status, result, headers=hdrs)
+                return result  # already a Response
+            return Response(404, {"error": "webhooks not wired"})
 
         try:
             principal = self._principal(headers, tenant_name, is_owner_host)

@@ -114,6 +114,18 @@ class Config:
             "memory.sqlite")
 
     @property
+    def inbox_path(self) -> str:
+        """Durable marketing inbox for inbound webhook payloads.
+
+        Kept in its own file like marketing.sqlite: the inbox is write-heavy
+        (every inbound webhook is an insert) and short-lived (items move to
+        processed/failed quickly). Mixing it into another database would
+        inflate that database's backup and integrity-check time.
+        """
+        return os.environ.get("OFN_INBOX_DB") or os.path.join(
+            self.state_dir, "inbox.sqlite")
+
+    @property
     def audience_path(self) -> str:
         """Subscribers, money, and how much of the audience she owns.
 
@@ -166,7 +178,8 @@ class Config:
                 "marketing": self.marketing_path,
                 "painting": self.painting_path,
                 "assistant": self.assistant_path,
-                "audience": self.audience_path}
+                "audience": self.audience_path,
+                "inbox": self.inbox_path}
 
 
 def load() -> Config:

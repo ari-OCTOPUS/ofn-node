@@ -1,0 +1,623 @@
+"""Marketing connector infrastructure — one test file for all new adapter modules.
+
+Covers: connector_contract, marketing_inbox, correlation, inbound_rate,
+        webhook_verify, connector_metrics, and the node.handle_webhook wiring.
+
+All tests use real SQLite in temp dirs (no mocks for stores) and frozen clocks
+via lambda overrides, matching the existing OFN test conventions.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import os
+import unittest
+
+from ofn.adapters.connector_contract import (
+    Connector, ConnectorHealth, FakeConnector, NormalisedEvent,
+    connector_registry,
+)
+from ofn.adapters.connector_metrics import ConnectorMetrics
+from ofn.adapters.correlation import HEADER, generate, from_header
+from ofn.adapters.inbound_rate import (
+    RULE_LIMITED, RULE_OK, InboundRateLimiter, InboundVerdict,
+)
+from ofn.adapters.marketing_inbox import (
+    FAILED, InboxItem, MarketingInbox, PENDING, PROCESSED,
+)
+from ofn.adapters.webhook_verify import (
+    VerifyResult, noop_verify, verify_hmac, verify_with_header,
+)
+from ofn.kernel.tenancy import TenantScope, TenantId
+from tests.tmpdir import temp_dir
+
+NOW_ISO = "2026-08-10T12:00:00"
+NOW_EPOCH = 1_785_000_000
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  connector_contract
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestNormalisedEvent(unittest.TestCase):
+    def test_frozen(self):
+        ev = NormalisedEvent(
+            event_type="lead", vendor="fake", vendor_event_id="v1",
+            vendor_payload="{}", tenant="ziman",
+            occurred_at_epoch=NOW_EPOCH, correlation_id="abc123",
+        )
+        with self.assertRaises(AttributeError):
+            ev.event_type = "other"  # type: ignore[misc]
+
+    def test_default_payload_is_empty_tuple(self):
+        ev = NormalisedEvent(
+            event_type="lead", vendor="fake", vendor_event_id="v1",
+            vendor_payload="{}", tenant="ziman",
+            occurred_at_epoch=NOW_EPOCH, correlation_id="abc123",
+        )
+        self.assertEqual(ev.payload, ())
+
+
+class TestConnectorBase(unittest.TestCase):
+    def test_default_normalise_returns_none(self):
+        c = Connector("test", "test_vendor")
+        scope = TenantScope(TenantId("ziman"))
+        self.assertIsNone(c.normalise(scope, b"{}", {}, "cid"))
+
+    def test_identify_and_vendor(self):
+        c = Connector("my_id", "my_vendor")
+        self.assertEqual(c.identify(), "my_id")
+        self.assertEqual(c.vendor_name(), "my_vendor")
+
+    def test_health_default(self):
+        c = Connector("my_id", "my_vendor")
+        h = c.health()
+        self.assertIsInstance(h, ConnectorHealth)
+        self.assertTrue(h.healthy)
+        self.assertEqual(h.connector_id, "my_id")
+
+
+class TestFakeConnector(unittest.TestCase):
+    def setUp(self):
+        self.fc = FakeConnector()
+
+    def test_identify_is_fake(self):
+        self.assertEqual(self.fc.identify(), "fake")
+        self.assertEqual(self.fc.vendor_name(), "fake")
+
+    def test_normalise_produces_event(self):
+        scope = TenantScope(TenantId("ziman"))
+        body = b'{"test": true}'
+        ev = self.fc.normalise(scope, body, {}, "cid123")
+        self.assertIsNotNone(ev)
+        assert ev is not None  # for type checkers
+        self.assertEqual(ev.event_type, "fake")
+        self.assertEqual(ev.vendor, "fake")
+        self.assertEqual(ev.tenant, "ziman")
+        self.assertEqual(ev.correlation_id, "cid123")
+        self.assertEqual(ev.vendor_payload, '{"test": true}')
+
+    def test_vendor_event_id_is_sha256_prefix(self):
+        scope = TenantScope(TenantId("ziman"))
+        body = b"hello"
+        ev = self.fc.normalise(scope, body, {}, "c")
+        assert ev is not None
+        expected = hashlib.sha256(body).hexdigest()[:16]
+        self.assertEqual(ev.vendor_event_id, expected)
+
+    def test_same_body_same_id(self):
+        scope = TenantScope(TenantId("ziman"))
+        body = b"duplicate"
+        ev1 = self.fc.normalise(scope, body, {}, "a")
+        ev2 = self.fc.normalise(scope, body, {}, "b")
+        assert ev1 is not None and ev2 is not None
+        self.assertEqual(ev1.vendor_event_id, ev2.vendor_event_id)
+
+
+class TestConnectorRegistry(unittest.TestCase):
+    def test_builds_lookup_map(self):
+        a = FakeConnector()
+        b = Connector("other", "other_vendor")
+        reg = connector_registry(a, b)
+        self.assertIs(reg["fake"], a)
+        self.assertIs(reg["other"], b)
+        self.assertEqual(len(reg), 2)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  marketing_inbox
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestMarketingInbox(unittest.TestCase):
+    def setUp(self):
+        self.dir = temp_dir(self)
+        self.inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+        self.addCleanup(self.inbox.close)
+
+    def test_store_returns_true_on_first_insert(self):
+        ok = self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        self.assertTrue(ok)
+
+    def test_store_returns_false_on_duplicate(self):
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        ok = self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c2",
+            raw_body="{}", inbox_id="id2", now_iso=NOW_ISO,
+        )
+        self.assertFalse(ok)
+
+    def test_pending_fetches_only_pending(self):
+        for i in range(3):
+            self.inbox.store(
+                tenant="ziman", connector_id="fake", vendor="fake",
+                vendor_event_id=f"v{i}", correlation_id=f"c{i}",
+                raw_body=f"{{i={i}}}", inbox_id=f"id{i}",
+                now_iso=NOW_ISO,
+            )
+        self.inbox.mark_processed("id0", "ziman", NOW_ISO)
+        pending = self.inbox.pending("ziman")
+        self.assertEqual(len(pending), 2)
+        self.assertEqual(pending[0].inbox_id, "id1")
+
+    def test_mark_failed(self):
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        self.inbox.mark_failed("id1", "ziman", NOW_ISO, "parse error")
+        pending = self.inbox.pending("ziman")
+        self.assertEqual(len(pending), 0)
+        recent = self.inbox.recent("ziman")
+        self.assertEqual(recent[0].status, FAILED)
+        self.assertEqual(recent[0].error_note, "parse error")
+
+    def test_counts(self):
+        for i in range(2):
+            self.inbox.store(
+                tenant="ziman", connector_id="fake", vendor="fake",
+                vendor_event_id=f"v{i}", correlation_id=f"c{i}",
+                raw_body="{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
+            )
+        self.inbox.mark_processed("id0", "ziman", NOW_ISO)
+        counts = self.inbox.counts("ziman")
+        self.assertEqual(counts[PENDING], 1)
+        self.assertEqual(counts[PROCESSED], 1)
+
+    def test_counts_all_is_per_tenant(self):
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        self.inbox.store(
+            tenant="lead", connector_id="fake", vendor="fake",
+            vendor_event_id="v2", correlation_id="c2",
+            raw_body="{}", inbox_id="id2", now_iso=NOW_ISO,
+        )
+        all_counts = self.inbox.counts_all()
+        self.assertIn("ziman", all_counts)
+        self.assertIn("lead", all_counts)
+
+    def test_depth(self):
+        for i in range(5):
+            self.inbox.store(
+                tenant="ziman", connector_id="fake", vendor="fake",
+                vendor_event_id=f"v{i}", correlation_id=f"c{i}",
+                raw_body="{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
+            )
+        self.inbox.mark_processed("id0", "ziman", NOW_ISO)
+        self.inbox.mark_failed("id1", "ziman", NOW_ISO, "err")
+        self.assertEqual(self.inbox.depth("ziman"), 3)
+
+    def test_tenant_isolation(self):
+        """Items stored for one tenant must not appear in another's queries."""
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        self.assertEqual(self.inbox.depth("lead"), 0)
+        self.assertEqual(len(self.inbox.pending("lead")), 0)
+
+    def test_wal_mode(self):
+        mode = self.inbox._conn.execute(
+            "PRAGMA journal_mode").fetchone()[0]
+        self.assertEqual(str(mode).lower(), "wal")
+
+    def test_inbox_item_fields(self):
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            raw_body='{"data": 42}', inbox_id="id1",
+            now_iso=NOW_ISO, event_type="lead",
+        )
+        items = self.inbox.pending("ziman")
+        self.assertEqual(len(items), 1)
+        item = items[0]
+        self.assertIsInstance(item, InboxItem)
+        self.assertEqual(item.inbox_id, "id1")
+        self.assertEqual(item.tenant, "ziman")
+        self.assertEqual(item.event_type, "lead")
+        self.assertEqual(item.raw_body, '{"data": 42}')
+        self.assertEqual(item.status, PENDING)
+        self.assertEqual(item.attempts, 0)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  correlation
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestCorrelation(unittest.TestCase):
+    def test_generate_is_16_hex_chars(self):
+        cid = generate()
+        self.assertEqual(len(cid), 16)
+        int(cid, 16)  # must not raise
+
+    def test_generate_is_unique(self):
+        cids = {generate() for _ in range(200)}
+        self.assertEqual(len(cids), 200)
+
+    def test_from_header_case_insensitive(self):
+        cid = from_header({"x-correlation-id": "abc123"})
+        self.assertEqual(cid, "abc123")
+
+    def test_from_header_missing_returns_default(self):
+        cid = from_header({"content-type": "text/plain"}, default="fallback")
+        self.assertEqual(cid, "fallback")
+
+    def test_header_constant(self):
+        self.assertEqual(HEADER, "X-Correlation-ID")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  inbound_rate
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestInboundRateLimiter(unittest.TestCase):
+    def setUp(self):
+        self.limiter = InboundRateLimiter(max_requests=3, window_seconds=60)
+
+    def test_allows_within_limit(self):
+        v = self.limiter.check("tenant:ziman", now=0.0)
+        self.assertTrue(v.allowed)
+        self.assertEqual(v.remaining, 2)
+        self.assertEqual(v.rule, RULE_OK)
+
+    def test_rejects_over_limit(self):
+        for i in range(3):
+            self.limiter.check("tenant:ziman", now=0.0)
+        v = self.limiter.check("tenant:ziman", now=0.0)
+        self.assertFalse(v.allowed)
+        self.assertEqual(v.remaining, 0)
+        self.assertGreater(v.retry_after_s, 0)
+        self.assertEqual(v.rule, RULE_LIMITED)
+
+    def test_resets_after_window(self):
+        for i in range(3):
+            self.limiter.check("tenant:ziman", now=0.0)
+        v = self.limiter.check("tenant:ziman", now=61.0)
+        self.assertTrue(v.allowed)
+        self.assertEqual(v.remaining, 2)
+
+    def test_separate_keys(self):
+        """One tenant hitting the limit must not block another."""
+        for i in range(3):
+            self.limiter.check("tenant:ziman", now=0.0)
+        v = self.limiter.check("tenant:lead", now=0.0)
+        self.assertTrue(v.allowed)
+
+    def test_reset_clears_key(self):
+        self.limiter.check("tenant:ziman", now=0.0)
+        self.limiter.reset("tenant:ziman")
+        v = self.limiter.check("tenant:ziman", now=0.0)
+        self.assertEqual(v.remaining, 2)
+
+    def test_reset_all(self):
+        self.limiter.check("a", now=0.0)
+        self.limiter.check("b", now=0.0)
+        self.limiter.reset()
+        snap = self.limiter.snapshot()
+        self.assertEqual(len(snap), 0)
+
+    def test_snapshot_shows_state(self):
+        self.limiter.check("tenant:ziman", now=0.0)
+        self.limiter.check("tenant:ziman", now=0.0)
+        snap = self.limiter.snapshot()
+        self.assertIn("tenant:ziman", snap)
+        self.assertEqual(snap["tenant:ziman"]["count"], 2)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  webhook_verify
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestVerifyHmac(unittest.TestCase):
+    def test_valid_signature(self):
+        secret = "whsec2026"
+        payload = b'{"event": "test"}'
+        sig = _make_sig(payload, secret, "sha256")
+        r = verify_hmac(payload, secret, sig)
+        self.assertTrue(r.valid)
+
+    def test_wrong_secret(self):
+        secret = "whsec2026"
+        payload = b'{"event": "test"}'
+        sig = _make_sig(payload, "other_secret", "sha256")
+        r = verify_hmac(payload, secret, sig)
+        self.assertFalse(r.valid)
+        self.assertEqual(r.reason, "signature mismatch")
+
+    def test_empty_secret(self):
+        r = verify_hmac(b"{}", "", "sig")
+        self.assertFalse(r.valid)
+        self.assertEqual(r.reason, "no signing secret configured")
+
+    def test_empty_signature(self):
+        r = verify_hmac(b"{}", "secret", "")
+        self.assertFalse(r.valid)
+        self.assertEqual(r.reason, "no signature in header")
+
+    def test_tampered_payload(self):
+        secret = "whsec2026"
+        sig = _make_sig(b'{"good": true}', secret, "sha256")
+        r = verify_hmac(b'{"good": false}', secret, sig)
+        self.assertFalse(r.valid)
+
+
+class TestNoopVerify(unittest.TestCase):
+    def test_always_valid(self):
+        r = noop_verify(b"any", {})
+        self.assertTrue(r.valid)
+
+
+class TestVerifyWithHeader(unittest.TestCase):
+    def test_extracts_header_case_insensitive(self):
+        secret = "whsec2026"
+        payload = b'{"test": true}'
+        sig = _make_sig(payload, secret, "sha256")
+        r = verify_with_header(
+            payload, {"X-Webhook-Signature": sig},
+            header_name="x-webhook-signature", secret=secret)
+        self.assertTrue(r.valid)
+
+    def test_missing_header_fails(self):
+        r = verify_with_header(
+            b"{}", {"content-type": "text/plain"},
+            header_name="x-webhook-signature", secret="secret")
+        self.assertFalse(r.valid)
+
+
+class TestVerifyHmacSha1(unittest.TestCase):
+    def test_sha1_algorithm(self):
+        secret = "whsec2026"
+        payload = b"hello"
+        import hmac as _hmac
+        import hashlib as _hl
+        mac = _hmac.new(secret.encode(), payload, _hl.sha1)
+        sig = f"sha1={mac.hexdigest()}"
+        r = verify_hmac(payload, secret, sig, algorithm="sha1")
+        self.assertTrue(r.valid)
+
+
+def _make_sig(payload: bytes, secret: str, algorithm: str) -> str:
+    import hashlib
+    import hmac
+    mac = hmac.new(secret.encode(), payload, getattr(hashlib, algorithm))
+    return f"{algorithm}={mac.hexdigest()}"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  connector_metrics
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestConnectorMetrics(unittest.TestCase):
+    def setUp(self):
+        self.m = ConnectorMetrics()
+
+    def test_initial_snapshot_empty(self):
+        self.assertEqual(self.m.snapshot(), {})
+
+    def test_record_inbound(self):
+        self.m.record_inbound("fake")
+        snap = self.m.snapshot()
+        self.assertEqual(snap["fake"]["inbound"], 1)
+
+    def test_record_processed(self):
+        self.m.record_processed("fake")
+        snap = self.m.snapshot()
+        self.assertEqual(snap["fake"]["processed"], 1)
+
+    def test_record_failed(self):
+        self.m.record_failed("fake")
+        snap = self.m.snapshot()
+        self.assertEqual(snap["fake"]["failed"], 1)
+
+    def test_record_rejected(self):
+        self.m.record_rejected("fake")
+        snap = self.m.snapshot()
+        self.assertEqual(snap["fake"]["rejected"], 1)
+
+    def test_record_timing(self):
+        self.m.record_timing("fake", 100)
+        self.m.record_timing("fake", 200)
+        snap = self.m.snapshot()
+        self.assertEqual(snap["fake"]["avg_processing_ms"], 150.0)
+        self.assertEqual(snap["fake"]["processing_count"], 2)
+
+    def test_multiple_connectors(self):
+        self.m.record_inbound("fake")
+        self.m.record_inbound("mailchimp")
+        snap = self.m.snapshot()
+        self.assertIn("fake", snap)
+        self.assertIn("mailchimp", snap)
+
+    def test_reset(self):
+        self.m.record_inbound("fake")
+        self.m.reset()
+        self.assertEqual(self.m.snapshot(), {})
+
+    def test_avg_with_no_records(self):
+        self.m.record_inbound("fake")
+        snap = self.m.snapshot()
+        self.assertEqual(snap["fake"]["avg_processing_ms"], 0.0)
+        self.assertEqual(snap["fake"]["processing_count"], 0)
+
+    def test_thread_safety(self):
+        """Multiple threads incrementing should not lose counts."""
+        import threading
+        threads = []
+        for _ in range(10):
+            t = threading.Thread(
+                target=lambda: self.m.record_inbound("fake"))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(self.m.snapshot()["fake"]["inbound"], 10)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  integration: node.handle_webhook
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestHandleWebhook(unittest.TestCase):
+    """Test the Node.handle_webhook method end-to-end with real stores."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.adapters.marketing_inbox import MarketingInbox
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        # Create minimal ziman pack so the registry has a tenant
+        _write_pack(os.path.join(packs_dir, "ziman.yaml"))
+
+        ledger_path = os.path.join(self.dir, "ledger.sqlite")
+        facts_path = os.path.join(self.dir, "facts.sqlite")
+        outbox_path = os.path.join(self.dir, "outbox.sqlite")
+        inbox_path = os.path.join(self.dir, "inbox.sqlite")
+
+        ledger = Ledger(ledger_path)
+        facts = FactStore(facts_path)
+        outbox = Outbox(outbox_path)
+        inbox = MarketingInbox(inbox_path)
+
+        registry = TenantRegistry(load_dir(packs_dir))
+        quota = NodeQuota(estimated_capacity_tokens=1_000_000,
+                          utilisation=1.0,
+                          shares={"ziman": 1.0})
+
+        self.node = Node(
+            registry=registry, quota=quota,
+            ledger=ledger, facts=facts, outbox=outbox,
+            now_epoch_s=lambda: NOW_EPOCH,
+            now_iso=lambda: NOW_ISO,
+            inbox=inbox,
+        )
+        self.addCleanup(self.node.close)
+        self.inbox_ref = inbox
+
+    def test_accepted_stores_in_inbox(self):
+        result = self.node.handle_webhook("ziman", {}, b'{"hello": "world"}')
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["status"], "accepted")
+        self.assertIn("inbox_id", result)
+        self.assertIn("correlation_id", result)
+
+        # Verify it actually landed in the inbox
+        pending = self.inbox_ref.pending("ziman")
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending[0].raw_body, '{"hello": "world"}')
+
+    def test_unknown_tenant_rejected(self):
+        result = self.node.handle_webhook("nonexistent", {}, b"{}")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("unknown tenant", result["error"])
+
+    def test_none_tenant_rejected(self):
+        result = self.node.handle_webhook(None, {}, b"{}")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "rejected")
+
+    def test_correlation_id_propagated_from_header(self):
+        headers = {"X-Correlation-Id": "incoming-cid-12345"}
+        result = self.node.handle_webhook("ziman", headers, b"{}")
+        self.assertEqual(result["correlation_id"], "incoming-cid-12345")
+
+    def test_duplicate_rejected(self):
+        """Same vendor_event_id+connector_id+tenant must be rejected by inbox."""
+        r1 = self.node.handle_webhook("ziman", {}, b"first")
+        self.assertTrue(r1["ok"])
+
+        # Re-inserting with the same vendor_event_id is a duplicate
+        # because handle_webhook sets vendor_event_id = inbox_id.
+        dup = self.inbox_ref.store(
+            tenant="ziman", connector_id="default", vendor="unknown",
+            vendor_event_id=r1["inbox_id"], correlation_id="test",
+            raw_body="dup", inbox_id="dup_id", now_iso=NOW_ISO,
+        )
+        self.assertFalse(dup)  # duplicate vendor_event_id
+
+        # A genuinely new vendor_event_id succeeds.
+        ok = self.inbox_ref.store(
+            tenant="ziman", connector_id="default", vendor="unknown",
+            vendor_event_id="brand_new_vid", correlation_id="test",
+            raw_body="new", inbox_id="new_id", now_iso=NOW_ISO,
+        )
+        self.assertTrue(ok)
+
+    def test_ledger_entry_created(self):
+        result = self.node.handle_webhook("ziman", {}, b'{"event": "test"}')
+        self.assertTrue(result["ok"])
+        scope = self.node.registry.scope("ziman")
+        events = self.node.ledger.read(scope, limit=1)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].kind, "WEBHOOK_RECEIVED")
+        self.assertEqual(events[0].payload["inbox_id"], result["inbox_id"])
+
+
+def _write_pack(path: str) -> None:
+    """Write a minimal pack YAML so the registry can load it."""
+    with open(path, "w") as f:
+        f.write(
+            "tenant: ziman\n"
+            "sku_prefix: ZM\n"
+            "locale:\n"
+            "  id: en-AU\n"
+            "  timezone: Australia/Sydney\n"
+            "  tax:\n"
+            "    status: unresolved\n"
+            "    pricing: inclusive\n"
+            "  payment_rails: []\n"
+            "  platforms: []\n"
+            "capacity_units_per_week: 6\n"
+            "required_facts:\n"
+            "  dummy_fact: owner_confirmed\n"
+            "costing:\n"
+            "  cost_fields: [materials_cost_aud]\n"
+            "  quick_sale_days: 7\n"
+            "channels:\n"
+            "questions:\n"
+            "gates: []\n"
+            "risk_overrides:\n"
+            "  dummy_action: green\n"
+            "quota_share: 0.35\n"
+        )

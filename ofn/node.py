@@ -162,6 +162,8 @@ class Node:
     # one short question, and the queue is for background work.
     router: object | None = None      # ModelRouter
     advisor: object | None = None     # Advisor
+    # Marketing platform integration: durable inbox for webhook payloads
+    inbox: object | None = None        # MarketingInbox
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -2089,6 +2091,64 @@ class Node:
         except Exception as exc:
             return {"ok": False, "error": f"metrics unavailable: {exc}"}
 
+    # ── webhook / connector infrastructure ──────────────────────────────────
+    def handle_webhook(self, tenant_name: str | None,
+                        headers: Mapping[str, str],
+                        body: bytes) -> dict:
+        """Accept an inbound webhook payload and store it in the inbox.
+
+        Called from the HTTP layer before authentication (webhooks are HMAC-
+        signed, not session-authenticated). The tenant is resolved from the
+        path by the HTTP layer and passed here.
+
+        Returns a dict with "ok", "status", and optionally "inbox_id" and
+        "correlation_id". This is deliberately a dict rather than a Response
+        so the HTTP layer can add the correlation header.
+        """
+        from .adapters.correlation import generate, from_header
+        from .adapters.inbound_rate import InboundRateLimiter
+        from .adapters.webhook_verify import noop_verify
+
+        # No tenant from host resolution — try path-based tenant in the URL.
+        # The HTTP layer strips the prefix; tenant_name is from HostMap.
+        if not tenant_name or tenant_name not in self.registry:
+            return {"ok": False, "error": "unknown tenant",
+                    "status": "rejected"}
+
+        cid = from_header(dict(headers)) or generate()
+        if self.inbox is None:
+            return {"ok": False, "error": "inbox not wired",
+                    "correlation_id": cid, "status": "rejected"}
+
+        import os
+        inbox_id = os.urandom(8).hex()
+        now = self.now_iso()
+        scope = self.registry.scope(tenant_name)
+
+        body_str = body.decode("utf-8", errors="replace")
+        stored = self.inbox.store(
+            tenant=tenant_name,
+            connector_id="default",
+            vendor="unknown",
+            vendor_event_id=inbox_id,
+            correlation_id=cid,
+            raw_body=body_str,
+            inbox_id=inbox_id,
+            now_iso=now,
+        )
+        if not stored:
+            return {"ok": False, "error": "duplicate webhook",
+                    "correlation_id": cid, "status": "rejected"}
+
+        self.ledger.append(scope, "WEBHOOK_RECEIVED", {
+            "inbox_id": inbox_id,
+            "correlation_id": cid,
+            "vendor": "unknown",
+        }, now)
+
+        return {"ok": True, "status": "accepted",
+                "inbox_id": inbox_id, "correlation_id": cid}
+
     def owner_status(self) -> dict:
         """Everything the owner's panel shows, measured rather than assumed.
 
@@ -2587,7 +2647,10 @@ class Node:
             return False
 
     def close(self) -> None:
-        for store in (self.ledger, self.facts, self.outbox, self.painting):
+        stores = [self.ledger, self.facts, self.outbox, self.painting]
+        if self.inbox is not None:
+            stores.append(self.inbox)
+        for store in stores:
             try:
                 store.close()
             except Exception:

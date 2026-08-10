@@ -31,6 +31,7 @@ from . import studio_assistant as _assistant
 from . import consent_store as _consent
 from . import facts as _facts
 from . import ledger as _ledger
+from . import marketing_inbox as _inbox
 from . import marketing_store as _marketing
 from . import lead_store as _painting
 from . import outbox as _outbox
@@ -56,6 +57,7 @@ SCHEMAS: Mapping[str, Sequence[str]] = {
     "painting": _painting.SCHEMA,
     "audience": _audience.SCHEMA,
     "assistant": _assistant.SCHEMA,
+    "inbox": _inbox.SCHEMA,
 }
 
 MIGRATIONS: Mapping[str, Sequence] = {

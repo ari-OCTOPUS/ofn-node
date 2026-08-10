@@ -28,6 +28,7 @@ from .adapters.facts import FactStore
 from .adapters.http_api import ApiApp, HostMap, serve
 from .adapters.ledger import Ledger
 from .adapters.lead_store import LeadStore
+from .adapters.marketing_inbox import MarketingInbox
 from .adapters.marketing_store import MarketingStore
 from .adapters.media import MediaStore
 from .adapters.outbox import Outbox
@@ -105,13 +106,14 @@ def build_node(cfg: config.Config) -> Node:
     painting = LeadStore(cfg.painting_path)
     painting.ensure_seed_channels("lead", config.now_iso())
     assistant = StudioAssistantStore(cfg.assistant_path, shared_memory=_shared_memory(cfg))
+    inbox = MarketingInbox(cfg.inbox_path)
 
     return Node(products=products, studio=studio, consent=consent, media=media,
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso, state_dir=cfg.state_dir,
-                base_closed_gates=cfg.base_closed_gates, boot=report)
+                base_closed_gates=cfg.base_closed_gates, boot=report, inbox=inbox)
 
 
 def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
@@ -173,6 +175,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_user_ids=cfg.owner_user_ids,
         partner_user_ids=cfg.partner_user_ids,
         now=config.epoch_seconds,
+        webhook_handler=node.handle_webhook,
         questions_for=node.questions_for,
         submit_answer=node.submit_answer,
         status_for=node.status_for,
