@@ -285,27 +285,28 @@ GATEWAY_405_WALL = (
     '        return 405, b"", "text/plain; charset=utf-8"\n'
 )
 # 2026-08-10: gateway اکنون چند مسیرِ POST مجاز دارد (actions/ask/mirror/restart).
-# متنِ pin‌شده فقط خطِ GET/POST را pin می‌کند؛ مسیرهایِ POST مجاز در خطِ بعدی
-# بررسی می‌شوند (از خودِ gateway خوانده می‌شود، نه hardcode دوم).
+# فهرستِ مجاز از خودِ gateway استخراج می‌شود، ولی سپس **کاملاً pin می‌شود** —
+# هر مسیرِ مجازِ نو باید تست را هم به‌روز کند (نه باز یا خودکار).
+EXPECTED_POST_ROUTES = frozenset({"/api/actions", "/api/ask", "/api/mirror", "/api/restart"})
 
 
 def t_gateway_405_wall_is_byte_identical():
     """دیوارِ متد سیاست نمی‌شود — بایت می‌ماند.
 
     2026-08-10: مسیرهای POST مجاز از actions به actions+ask+mirror+restart
-    گسترش یافت (08-08). این فیلد را از خودِ gateway می‌خوانیم، نه hardcode
-    می‌کنیم — تا اضافه‌شدنِ مسیرِ مجازِ نو به‌طور خودکار sync بماند."""
+    گسترش یافت (08-08). فهرست از gateway استخراج می‌شود ولی سپس دقیقاً با
+    EXPECTED_POST_ROUTES مقایسه می‌شود — اضافه‌شدنِ مسیرِ ناخواسته قرمز می‌شود."""
+    import re
     src = (_OPS / "telegram_center" / "miniapp_gateway.py").read_text("utf-8")
     assert GATEWAY_405_WALL in src, \
         "متنِ دیوارِ 405 در miniapp_gateway._handle_core تغییر کرده است"
-    # استثنای POST باید حداقل /api/actions را شامل باشد
-    assert '"/api/actions"' in src, "حداقل /api/actions باید مجاز باشد"
-    # استثنای POST نباید بیش از یک بار بنویسد (anti-duplication)
-    import re
-    post_exceptions = re.findall(r'method_u == "POST" and p not in \(([^)]+)\)', src)
-    assert len(post_exceptions) >= 1, "ساختارِ استثنای POST پیدا نشد"
-    # هر مسیرِ مجاز باید در READ_API_PATHS یا owner-auth پشتِ آن باشد — فقط
-    # existence را اینجا چک می‌کنیم (security تست جداگانه)
+    # استخراجِ مسیرهای POST مجاز از gateway
+    m = re.search(r'method_u == "POST" and p not in \(([^)]+)\)', src)
+    assert m, "ساختارِ استثنای POST پیدا نشد — دیوار احتمالاً حذف شده"
+    # مسیرهای واقعی را از gateway parse کن
+    actual_routes = frozenset(re.findall(r'"(/api/[^"]+)"', m.group(1)))
+    assert actual_routes == EXPECTED_POST_ROUTES, \
+        f"مسیرهای POST مجاز تغییر کرده: gateway={actual_routes} ≠ expected={EXPECTED_POST_ROUTES}"
 
 
 def t_write_verbs_on_the_view_are_405_and_the_store_is_byte_identical():

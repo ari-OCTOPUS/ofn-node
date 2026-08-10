@@ -318,10 +318,13 @@ finally:
         sys.modules.pop("model_router", None)
 
 
+if flags_env_blocked and not fails:
+    # ENV_BLOCKED: structural/CRLF/declaration checks were SKIPPED, not passed.
+    # exit(2) = SKIP, so run_all does NOT count this as PASS.
+    print("⏭️ SKIP — test_paid_router_dark_config (ENV_BLOCKED: OCTOPUS-flags.cmd غایب; "
+          "behavioral checks passed, structural/CRLF/declaration checks skipped — NOT PASS)")
+    sys.exit(2)
 print("FAIL" if fails else "PASS", "— test_paid_router_dark_config")
 for f in fails:
     print("  -", f)
-if flags_env_blocked and not fails:
-    print("ENV_BLOCKED: OCTOPUS-flags.cmd غایب (worktree/CI) — structural/CRLF/declaration checks skipped; behavioral checks passed")
-    sys.exit(0)  # 0 = not a test failure; ENV_BLOCKED is honest, not green-over-missing
 sys.exit(1 if fails else 0)

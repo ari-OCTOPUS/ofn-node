@@ -652,8 +652,14 @@ if __name__ == "__main__":
         print(f"\nENV_BLOCKED: {_FLAGS_CMD.name} غایب (worktree/CI) — "
               f"flag-declaration checks degraded to empty-declared set; "
               f"NOT green over missing data.")
+    if FLAGS_CMD_ENV_BLOCKED:
+        # ENV_BLOCKED: flag-declaration subtests were SKIPPED, not passed.
+        # exit(2) = SKIP, so run_all does NOT count this as PASS.
+        # The non-declaration subtests still ran and are reported above.
+        print(f"\n⏭️ test_phantom_guards: SKIP (ENV_BLOCKED — {_FLAGS_CMD.name} غایب; "
+              f"{len(checks) - failed}/{len(checks)} non-declaration checks ran, "
+              f"flag-declaration checks skipped — NOT PASS)")
+        sys.exit(2)
     print(f"\n{'✅' if not failed else '❌'} test_phantom_guards: "
           f"{len(checks) - failed}/{len(checks)}")
-    if FLAGS_CMD_ENV_BLOCKED and not failed:
-        sys.exit(0)  # ENV_BLOCKED is honest, not a failure
     sys.exit(1 if failed else 0)

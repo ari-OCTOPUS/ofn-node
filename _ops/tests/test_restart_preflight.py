@@ -179,6 +179,13 @@ def t_fixture_never_touches_the_live_tree():
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
+    if _IN_WORKTREE:
+        # ENV_BLOCKED: live-tree-default subtest was SKIPPED, not passed.
+        # exit(2) = SKIP, so run_all does NOT count this as PASS.
+        print(f"\n⏭️ test_restart_preflight: SKIP (ENV_BLOCKED — در worktree؛ "
+              f"{len(checks) - failed}/{len(checks)} checks ran, "
+              f"live-tree-default check skipped — NOT PASS)")
+        sys.exit(2)
     print(f"\n{'✅' if not failed else '❌'} test_restart_preflight: "
           f"{len(checks) - failed}/{len(checks)}")
     sys.exit(1 if failed else 0)
