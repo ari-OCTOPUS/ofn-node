@@ -1,0 +1,7 @@
+pilot daily — 2026-08-10
+  pilot report (last 1d window view)
+    lead: 7 open · 0 follow-up due
+    ziman: 2 ready-to-list · 0 sold
+    studio: 1 drafts
+    (thresholds are set by Ari on day zero — none invented here)
+  pilot: ok — 3 items read (me, webhook, channel)

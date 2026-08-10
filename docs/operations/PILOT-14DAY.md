@@ -44,3 +44,26 @@ python3 tools/seed_pilot.py
 python3 tools/pilot_report.py --days 3
 ```
 گزارش از store های canonical — هیچ DB موازی.
+
+---
+
+## روز صفر — ثبت‌شده ۲۰۲۶-۰۸-۱۰ (بعد از بستن P0)
+
+| شاخص | مقدار اندازه‌گیری‌شده | منبع |
+|---|---|---|
+| لید باز (lead) | ۷ | `painting.list_leads("lead")` — ۲ تای seeded + ۵ قبلی |
+| پیگیری معوق | ۰ | `painting.follow_ups_due` |
+| قطعهٔ زیمان آمادهٔ لیست | ۲ | `products.list("ziman")` (۵ کل، ۲ ready-to-list) |
+| فروش ثبت‌شده | ۰ | `product_sale_events` |
+| draft استودیو | ۱ | `studio.drafts("studio")` — pilot-draft-1 |
+| pilot تلگرام (فقط-خواندنی) | ✅ کار می‌کند — ۳ آیتم خواند: me/webhook/channel | run زنده با Robo2725_bot |
+| پنل‌ها | ۴/۴ HTML واقعی سرو می‌شود (۲۰۰) | panel/ziman/lead/studio |
+| threshold موفقیت | ⏳ **منتظر حکم آری** — هیچ عددی اختراع نشد | قانون پایلوت |
+
+### گزارش روزانه (خودکار)
+```bash
+python3 tools/pilot_report.py --days 1
+```
+هر روز یک بار اجرا شود و خروجی در `docs/operations/pilot-daily/` ثبت شود
+(یک فایل در روز، نام `YYYY-MM-DD.txt`) تا روند ۱۴روزه از روی فایل‌ها خوانده
+شود، نه از حافظه.
