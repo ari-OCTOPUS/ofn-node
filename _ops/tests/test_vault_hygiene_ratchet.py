@@ -40,7 +40,7 @@ FRONT = SCRIPTS / "validate_frontmatter.py"
 # ── دفترِ منجمد (سنجیده ۲۰۲۶-۰۸-۰۴ روی همین درخت) ─────────────────────────────
 MAX_CURATED_BROKEN = 5     # لایهٔ دست‌چین — همانی که §۱۱ رویش گیت می‌گذارد
 MAX_TOTAL_BROKEN = 30      # دست‌چین + عملیاتی
-MAX_FRONTMATTER = 27
+MAX_FRONTMATTER = 9        # 2026-08-10: ratchet tightened 27→9 (actual=4; headroom=5)
 
 # کفِ **ضدِ سبزِ کاذب**. بدونِ این، یک validator که زود می‌ترکد یا به درختِ
 # اشتباه اشاره می‌کند «۰ لینکِ شکسته» گزارش می‌دهد و ratchet سبز می‌شود.
