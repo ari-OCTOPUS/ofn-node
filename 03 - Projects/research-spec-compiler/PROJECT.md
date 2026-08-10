@@ -38,7 +38,10 @@ updated: 2026-07-14
 
 ## مکانِ کد و شواهد (خارج از بدن)
 
-- کد و کلِ قرارداد: `C:\Users\Armin\Desktop\121212121212121212\research-spec-compiler\`
+> ⚠️ **ERRATA (2026-08-10):** مسیرِ Desktop زیر stale است. canonical path:
+> `F:\backup\03 - Projects\research-spec-compiler\` (همان پوشهٔ این فایل).
+
+- کد و کلِ قرارداد: `C:\Users\Armin\Desktop\121212121212121212\research-spec-compiler\` *(stale)*
 - قراردادِ جعبه‌سیاه: `…\research-spec-compiler\attach-proposal\` (MANIFEST/adapter/DecisionLog/OpenQuestions)
 - **verdictِ اتصال:** `…\adr\ADR-008-hybrid-cortex-organism-attach.md` — OPTIMIZE،
   bottleneck_advantage 0.036 روی event streamِ واقعیِ همین بدن [FACT].
@@ -52,8 +55,16 @@ updated: 2026-07-14
 - قدمِ بعدی (گیتِ نارنجیِ جداگانه، تصمیمِ مالک): بازفعال‌سازیِ daemon برای دادهٔ
   تازه، یا ارتقای اثر از propose به shadow-run. تا آن verdict، هیچ.
 
-## Integration with Octopus Body (فعال)
+## Integration with Octopus Body (فعال — **ERRATA 2026-08-10**)
 
+> ⚠️ **ERRATA (2026-08-10, Fugu Ultra Audit):** عنوان «فعال» گمراه‌کننده است.
+> ممیزی نشان داد که تنها consumer واقعیِ `body_bridge` یعنی `kernel_consumer.py`
+> در `4d_system/` قرار دارد که رسماً **deprecated/standalone** است. هیچ
+> consumer زنده‌ای در `_ops/` یافت نشد و output‌های bridge از ~2026-07-14 stale
+> بودند. بر اساس [[EVIDENCE-LADDER-TAXONOMY]]: `implemented` + stale، ولی
+> نه `consumed` (در runtime فعلی `_ops`). عنوان اصلی زیر حفظ شد و این errata
+> افزوده شد (اصل: «Improve, don't rewrite» — بازنویسیِ مخرب ممنوع).
+>
 > **Owner-commanded activation (HIGH sensitivity gate, 2026-07-14).**
 > The kernel now exposes structured read-only feeds that the body consumes via
 > `kernel_consumer.py`. The kernel NEVER writes to the body; the body ONLY reads.
