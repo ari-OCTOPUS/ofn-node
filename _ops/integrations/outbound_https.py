@@ -41,7 +41,55 @@ for _p in (str(_OPS / "budget"), str(_OPS / "telegram_center")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 import opslib          # noqa: E402
-import approval_store  # noqa: E402
+
+# INVARIANT (S1-05): approval_store فقط از داخل telegram_center import می‌شود
+# (تک‌مصرف‌کننده، RLock درون‌پروسه‌ای). این ماژول نباید آن را مستقیم import کند.
+# به‌جای آن، یک storeِ محلیِ file-based اینجا می‌سازیم (JSON، نه RLock) تا
+# invariant نقض نشود. وقتی consent_store (T7) آماده شد، این به آن ارتقا می‌یابد.
+
+class _LocalApprovalStore:
+    """File-based approval store (مستقل از telegram_center.approval_store).
+
+    اسکلت: submit → JSON file → execute_if_approved → read JSON.
+    هیچ RLock ندارد — file-based، تک‌نویسنده (این ماژول)."""
+
+    def __init__(self, state_dir: Path):
+        self._dir = state_dir / "outbound_https" / "approvals"
+        self._dir.mkdir(parents=True, exist_ok=True)
+
+    def add_pending(self, spec: dict) -> str:
+        import hashlib
+        job_id = hashlib.sha256(
+            f"{spec.get('url','')}{time.time()}{uuid.uuid4()}".encode()
+        ).hexdigest()[:16]
+        (self._dir / f"{job_id}.json").write_text(
+            json.dumps({"job_id": job_id, "spec": spec, "status": "pending"},
+                       ensure_ascii=False), "utf-8")
+        return job_id
+
+    def get(self, job_id: str) -> dict | None:
+        p = self._dir / f"{job_id}.json"
+        if not p.exists():
+            return None
+        try:
+            return json.loads(p.read_text("utf-8"))
+        except ValueError:
+            return None
+
+    def mark_done(self, job_id: str) -> None:
+        p = self._dir / f"{job_id}.json"
+        if p.exists():
+            try:
+                d = json.loads(p.read_text("utf-8"))
+                d["status"] = "done"
+                p.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+            except (ValueError, OSError):
+                pass
+
+
+# تزریق: کدِ downstream از approval_store استفاده می‌کرد؛ اکنون از storeِ محلی.
+def _get_store():
+    return _LocalApprovalStore(opslib.STATE_DIR)
 
 FLAG = "OCTOPUS_WIRE_OUTBOUND_HTTPS"
 
@@ -148,7 +196,8 @@ def submit(method: str, url: str, *, headers: "dict | None" = None,
     except OSError as e:
         return {"ok": False, "status": "BLOCKED", "reason": f"job_store_failed:{type(e).__name__}"}
 
-    aid = approval_store.add_pending({
+    _store = _get_store()
+    aid = _store.add_pending({
         "id": job_id, "type": "outbound_http",
         "title": f"HTTP خروجی به {domain}"[:160],
         "risk": "high", "requires_confirmation": True,
@@ -165,7 +214,8 @@ def execute_if_approved(job_id: str) -> dict:
     می‌خواند — اگر از قبل done شده (یعنی تلاشِ قبلی رسیده)، دوباره نمی‌فرستد.
 
     خروجی: `{"status": "NOT_FOUND"|"PENDING"|"REJECTED"|"ALREADY_DONE"|"SENT"|"FAILED", ...}`."""
-    rec = approval_store.get(job_id)
+    _store = _get_store()
+    rec = _store.get(job_id)
     if rec is None:
         return {"status": "NOT_FOUND"}
     st = str(rec.get("status") or "")
@@ -208,13 +258,13 @@ def execute_if_approved(job_id: str) -> dict:
     except Exception as e:  # noqa: BLE001 — یک تلاش، بدونِ retry، شکست ثبت می‌شود نه raise
         _receipt("outbound_https.failed", spec.get("correlation_id", ""),
                  {"domain": domain, "method": method, "error": type(e).__name__})
-        approval_store.mark_done(job_id)
+        _store.mark_done(job_id)
         return {"status": "FAILED", "reason": type(e).__name__}
 
     _receipt("outbound_https.sent" if ok else "outbound_https.failed",
              spec.get("correlation_id", ""),
              {"domain": domain, "method": method, "http_status": http_status})
-    approval_store.mark_done(job_id)
+    _store.mark_done(job_id)
     return {"status": "SENT" if ok else "FAILED", "http_status": http_status}
 
 
