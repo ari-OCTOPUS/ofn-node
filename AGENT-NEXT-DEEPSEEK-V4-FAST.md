@@ -590,3 +590,22 @@ P0 is already fixed — do not reopen those commits; extend with P1+.
 - [ ] HANDOFF + INDEX
 - [ ] گزارش جدول به آری
 - [ ] WIRE همچنان خاموش · گیت‌ها بسته · outbox خالی‌نشده بدون حکم
+
+---
+
+## وضعیت اجرا — ۲۰۲۶-۰۸-۱۰ (راستی‌آزمایی مستقل آری)
+
+**فازهای A–G اجرا شد. فاز H (معماری تدریجی) باز است.**
+
+| فاز | وضعیت | commit |
+|---|---|---|
+| A امنیت connector | ✅ | `fd4aa03` |
+| B inbox machine | ✅ | `7783589` |
+| C ConnectorMetrics | ✅ | `3cc76ca` |
+| D backup/media | ✅ | `9eb699a` |
+| E اسناد/baseline | ✅ | `efb45a1` |
+| F چهار پنل | ✅ | `c5cc82b` |
+| G runbooks/ops | ✅ | `7a1cf8a` |
+| H معماری تدریجی | 🔲 باز | — |
+
+pytest: ۱۷۳۳ pass · ۵ skip · boot ۳۱/۳۱ · هر ۵ پورت ۲۰۰ · state_dir ۰۷۰۰.
