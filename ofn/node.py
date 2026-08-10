@@ -2915,6 +2915,21 @@ class Node:
     #   - dry_run=True returns the diff WITHOUT touching the network
     #   - one tenant (studio) + one platform (telegram_channel) + cap 1
     #   - the channel id and token come from config at call time
+    def set_telegram_channel(self, channel_id: str) -> dict:
+        """Record the broadcast channel (owner-only; not a secret — it is
+        visible in the channel's public URL). After this, publish works."""
+        cid = str(channel_id or "").strip()
+        if not cid:
+            return {"ok": False, "error": "channel id required"}
+        self._telegram_channel_id = cid
+        # Mutation paired with its record (finding 13): who set the channel
+        # and when matters as much as the id itself.
+        self.ledger.append(self.registry.scope("studio"),
+                           "TELEGRAM_CHANNEL_SET", {
+                               "channel_id": cid,
+                           }, self.now_iso())
+        return {"ok": True, "channel_id": cid}
+
     def publish_to_telegram(self, scope: TenantScope, *, idem_key: str,
                             caption: str, dry_run: bool = True,
                             confirmed_twice: bool = False) -> dict:

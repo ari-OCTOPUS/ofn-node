@@ -257,6 +257,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_outbox_packet=node.owner_outbox_packet,
         owner_outbox_complete=node.owner_outbox_complete,
         owner_approved_manual=node.owner_approved_manual,
+        set_telegram_channel=node.set_telegram_channel,
         owner_consent_subjects=node.owner_consent_subjects,
         owner_consent_gaps=node.owner_consent_gaps,
         owner_consent_add_subject=node.owner_consent_add_subject,

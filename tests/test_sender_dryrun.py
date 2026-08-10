@@ -168,3 +168,76 @@ class TestPublishToTelegram(unittest.TestCase):
             dry_run=False, confirmed_twice=True)
         self.assertFalse(out["ok"])
         self.assertEqual(out["rule"], "publish:no-channel")
+
+
+class TestSetTelegramChannel(unittest.TestCase):
+    """O11: channel id is set by the owner; publish then works in dry-run."""
+
+    def _node(self):
+        import os
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.kernel.domain import PackSpec, TenantId
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+        from tests.tmpdir import temp_dir
+        d = temp_dir(self)
+        registry = TenantRegistry({
+            "studio": PackSpec(tenant=TenantId("studio"),
+                               capacity_units_per_week=5, quota_share=1.0)})
+        node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"studio": 1.0}),
+            ledger=Ledger(os.path.join(d, "l.sqlite")),
+            facts=FactStore(os.path.join(d, "f.sqlite")),
+            outbox=Outbox(os.path.join(d, "o.sqlite")),
+            now_epoch_s=lambda: 1_785_000_000,
+            now_iso=lambda: "2026-08-10T12:00:00Z",
+            _telegram_token="t:test",
+        )
+        return node, registry
+
+    def test_set_then_dry_run_works(self):
+        node, registry = self._node()
+        out = node.set_telegram_channel("@testchannel")
+        self.assertTrue(out["ok"])
+        scope = registry.scope("studio")
+        r = node.publish_to_telegram(
+            scope, idem_key="k1", caption="متن",
+            dry_run=True, confirmed_twice=True)
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["rule"], "adapter:dry-run")
+
+    def test_empty_channel_refused(self):
+        node, _ = self._node()
+        out = node.set_telegram_channel("   ")
+        self.assertFalse(out["ok"])
+
+    def test_http_route_owner_only(self):
+        import json as _j
+        from ofn.adapters.http_api import ApiApp, HostMap
+        from ofn.kernel.auth import issue_session
+        node, registry = self._node()
+        app = ApiApp(
+            registry,
+            HostMap(tenants={"s.test": "studio"}, owner_host="panel.test"),
+            bot_tokens={}, session_secret="sec",
+            owner_user_ids=("1",), partner_user_ids={},
+            now=lambda: 1_785_000_000,
+            set_telegram_channel=node.set_telegram_channel,
+        )
+        # Anonymous → 401
+        resp = app.handle("POST", "/api/v1/owner/telegram/channel",
+                          {"host": "panel.test"}, b"{}")
+        self.assertEqual(resp.status, 401)
+        # Owner → 200
+        s = issue_session("owner", "1", "sec", now_epoch_s=1_785_000_000)
+        resp = app.handle(
+            "POST", "/api/v1/owner/telegram/channel",
+            {"host": "panel.test", "authorization": "Bearer " + s},
+            _j.dumps({"channel_id": "@x"}).encode())
+        self.assertEqual(resp.status, 200)
+        self.assertTrue(resp.body.get("ok"))

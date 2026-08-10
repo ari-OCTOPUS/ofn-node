@@ -189,6 +189,7 @@ class ApiApp:
         owner_outbox_packet: Callable[[str], dict] | None = None,
         owner_outbox_complete: Callable[[str, Mapping, bool], dict] | None = None,
         owner_approved_manual: Callable[[], list] | None = None,
+        set_telegram_channel: Callable[[str], dict] | None = None,
         owner_consent_subjects: Callable[..., dict] | None = None,
         owner_consent_gaps: Callable[..., dict] | None = None,
         owner_consent_add_subject: Callable[..., dict] | None = None,
@@ -304,6 +305,7 @@ class ApiApp:
         self._owner_outbox_packet = owner_outbox_packet
         self._owner_outbox_complete = owner_outbox_complete
         self._owner_approved_manual = owner_approved_manual
+        self._set_telegram_channel = set_telegram_channel
         self._owner_consent_subjects = owner_consent_subjects
         self._owner_consent_gaps = owner_consent_gaps
         self._owner_consent_add_subject = owner_consent_add_subject
@@ -1260,6 +1262,18 @@ class ApiApp:
                 return Response(404, {"error": "not found"})
             return self._owner_read(
                 {"items": self._owner_approved_manual()})
+
+        # O11: record the Telegram broadcast channel (owner-only). The id is
+        # public (in the channel URL), not a secret.
+        if method == "POST" and path == "/api/v1/owner/telegram/channel":
+            if self._set_telegram_channel is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._set_telegram_channel(
+                str(data.get("channel_id") or ""))
+            return Response(200 if out.get("ok") else 400, out)
 
         # ── consent administration (O7) ───────────────────────────────────
         if method == "GET" and path == "/api/v1/owner/consent/subjects":
