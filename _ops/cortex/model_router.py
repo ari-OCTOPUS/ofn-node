@@ -114,7 +114,9 @@ TASK_TIERS = {
     "debate_muse": "secondary", "tg_intent": "local",
     "chord.extract": "local", "heart_setpoint": "local",
 }
-_TIER_ROLE = {"secondary": "glm", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
+_TIER_ROLE = {"secondary": "reason", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
+# 2026-08-10 (Deployment): secondary از glm به reason (deepseek-v4-flash) عوض شد —
+# طبق مگاپرامپتِ تعویضِ نقشهٔ مدل‌ها. rollback: کامنتِ یک خط به glm برمی‌گردد.
 
 # نرمال‌سازی برای سنجشِ echo: اعراب/ZWNJ/RLM/گیومه حذف، فاصله فشرده — تا «قدمِ اول»
 # با «قدم اول» یکی دیده شود (مدلِ محلی موقعِ بازتاب، اعراب را می‌اندازد).
