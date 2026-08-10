@@ -680,7 +680,13 @@ class Doctor:
         (محدود/برگشت‌پذیر، clamp‌شده) اعمال می‌کند — پایانِ apply_mergeِ نمادین. تپِ خودِ
         مالک = تأیید، پس این مسیر به گاردِ capability/refractory/fearِ مسیرِ خودمختار نیاز
         ندارد. مرزِ سخت: هر RFC که 'tune'+knobِ whitelist نباشد فقط درس می‌نویسد (هرگز
-        اعمالِ کد/پول/ژنوم)."""
+        اعمالِ کد/پول/ژنوم).
+
+        گاردِ ساختاری (test_c6_trigger_propose_only): RFC‌ای که در رجیستری ثبت
+        نشده نباید merge شود — جلویِ idِ c6-* (یا هر idِ ناشناس) را می‌گیرد."""
+        if rfc_id := getattr(rfc, "rfc_id", None):
+            if rfc_id not in self._rfcs:
+                return False
         if rfc.status not in ("submitted", "submitted-no-channel"):
             return False
         # ── اثرِ واقعیِ محدود: فقط knobِ tuneِ whitelist، فقط پشتِ flag ──
