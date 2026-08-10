@@ -113,6 +113,7 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
+- [[MEGAPROMPT-COMPLETE-FINISH]] — **⬆️ کار بعدی:** تکمیل کامل — H معماری + ۲۵ یافتهٔ باز + UNIFY + vendor
 - [[AGENT-NEXT-DEEPSEEK-V4-FAST]] — ✅ انجام شد — فازهای A–G (۲۰۲۶-۰۸-۱۰)
 - [[MEGAPROMPT-P1-TO-P4-COMPLETE]] — ✅ فاز A–G بسته · فاز H (معماری تدریجی) باز
 - [[AGENT-NEXT-PANEL-UPGRADE]] — ✅ انجام شد — اسکن + ارتقای چهار کنترل‌پنل (۲۰۲۶-۰۸-۱۰)
