@@ -113,7 +113,9 @@ def build_node(cfg: config.Config) -> Node:
     assistant = StudioAssistantStore(cfg.assistant_path, shared_memory=_shared_memory(cfg))
     inbox = MarketingInbox(cfg.inbox_path)
     from .adapters.inbound_rate import InboundRateLimiter
+    from .adapters.connector_metrics import ConnectorMetrics
     rate_limiter = InboundRateLimiter()
+    connector_metrics = ConnectorMetrics()
 
     return Node(products=products, studio=studio, consent=consent, media=media,
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
@@ -121,7 +123,8 @@ def build_node(cfg: config.Config) -> Node:
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso, state_dir=cfg.state_dir,
                 base_closed_gates=cfg.base_closed_gates, boot=report,
-                inbox=inbox, rate_limiter=rate_limiter)
+                inbox=inbox, rate_limiter=rate_limiter,
+                connector_metrics=connector_metrics)
 
 
 def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:

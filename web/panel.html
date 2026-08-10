@@ -1081,26 +1081,29 @@ function drawInbox(obs) {
     return;
   }
   const vendors = obs.vendors_connected || [];
-  if (!vendors.length) {
-    chip.textContent = 'وصل نیست';
-    const grid = mk('div', 'paintgrid');
-    grid.append(pstat('فروشندهٔ وصل‌شده', 0));
-    box.append(grid);
-    box.append(mk('div', 'empty',
-      'هنوز هیچ فروشنده‌ای وصل نشده. وقتی وصل شود، پیام‌های رسیده اینجا شمرده می‌شوند.'));
-    return;
-  }
-  chip.textContent = `${fa(vendors.length)} فروشنده`;
+  /* The counts are always shown — a tenant with zero pending is data, not
+     absence of data. Vendor connectivity is a separate chip, so "no vendor
+     connected" never hides "messages arrived". */
+  chip.textContent = vendors.length
+    ? `${fa(vendors.length)} فروشنده` : 'وصل نیست';
   const grid = mk('div', 'paintgrid');
   let totalPending = 0;
   const tenants = obs.tenants || {};
-  for (const [tenant, data] of Object.entries(tenants)) {
-    const pending = data.inbox_pending || 0;
-    totalPending += pending;
-    grid.append(pstat(`${NAME[tenant] || tenant} · منتظر`, pending));
+  const names = Object.keys(tenants);
+  if (!names.length) {
+    grid.append(pstat('فروشندهٔ وصل‌شده', vendors.length));
+  } else {
+    for (const [tenant, data] of Object.entries(tenants)) {
+      const pending = data.inbox_pending || 0;
+      totalPending += pending;
+      grid.append(pstat(`${NAME[tenant] || tenant} · منتظر`, pending));
+    }
   }
   box.append(grid);
-  if (totalPending === 0) {
+  if (!vendors.length) {
+    box.append(mk('div', 'empty',
+      'هنوز هیچ فروشنده‌ای وصل نشده. وقتی وصل شود، پیام‌های رسیده همین‌جا شمرده می‌شوند.'));
+  } else if (totalPending === 0) {
     box.append(mk('div', 'empty', 'پیام جدیدی در صف ورودی نیست.'));
   }
 }

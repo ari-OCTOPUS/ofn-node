@@ -215,3 +215,78 @@ class TestReconciliationCounter(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestConnectorMetricsWired(unittest.TestCase):
+    """ConnectorMetrics is wired: handle_webhook records, observability reads."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.adapters.connector_metrics import ConnectorMetrics
+        from ofn.adapters.inbound_rate import InboundRateLimiter
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        with open(os.path.join(packs_dir, "ziman.yaml"), "w") as f:
+            f.write(
+                "tenant: ziman\n"
+                "capacity_units_per_week: 6\n"
+                "required_facts:\n"
+                "  dummy_fact: owner_confirmed\n"
+                "gates: []\n"
+                "risk_overrides:\n"
+                "  dummy_action: green\n"
+                "quota_share: 0.5\n"
+            )
+
+        inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+        registry = TenantRegistry(load_dir(packs_dir))
+        self.node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 0.5}),
+            ledger=Ledger(os.path.join(self.dir, "ledger.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "facts.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "outbox.sqlite")),
+            now_epoch_s=lambda: 1_785_000_000,
+            now_iso=lambda: NOW_ISO,
+            inbox=inbox,
+            rate_limiter=InboundRateLimiter(max_requests=100,
+                                            window_seconds=60),
+            connector_metrics=ConnectorMetrics(),
+        )
+        self.addCleanup(self.node.close)
+
+    def test_webhook_records_inbound_and_processed(self):
+        result = self.node.handle_webhook("ziman", {}, b"{}")
+        self.assertTrue(result["ok"])
+        obs = self.node.owner_observability()
+        snap = obs.get("connectors", {}).get("default", {})
+        self.assertEqual(snap.get("inbound"), 1)
+        self.assertEqual(snap.get("processed"), 1)
+
+    def test_rejected_webhook_records_rejected(self):
+        self.node.handle_webhook("nonexistent", {}, b"{}")
+        obs = self.node.owner_observability()
+        snap = obs.get("connectors", {}).get("default", {})
+        self.assertEqual(snap.get("rejected"), 1)
+
+    def test_rate_limited_records_rejected(self):
+        node = self.node
+        # Override limiter with tiny cap
+        from ofn.adapters.inbound_rate import InboundRateLimiter
+        node.rate_limiter = InboundRateLimiter(max_requests=1,
+                                               window_seconds=60)
+        node.handle_webhook("ziman", {}, b"{}")
+        node.handle_webhook("ziman", {}, b"{}")  # second → 429
+        obs = node.owner_observability()
+        snap = obs.get("connectors", {}).get("default", {})
+        self.assertEqual(snap.get("inbound"), 1)
+        self.assertGreaterEqual(snap.get("rejected", 0), 1)

@@ -167,6 +167,8 @@ class Node:
     # Inbound HTTP rate limiter — process-scoped, in-memory, per-tenant.
     # Defaults to a sane window; can be overridden in construction for tests.
     rate_limiter: object | None = None # InboundRateLimiter
+    # Connector/inbox metrics — in-memory counters, read by observability.
+    connector_metrics: object | None = None  # ConnectorMetrics
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -2137,6 +2139,9 @@ class Node:
             "inbox_ledger_gaps": getattr(self, "_inbox_ledger_gaps", 0),
             "tenants": {},
         }
+        # Connector metrics, when wired: counts since boot per connector.
+        if self.connector_metrics is not None:
+            out["connectors"] = dict(self.connector_metrics.snapshot())
         if self.inbox is not None:
             try:
                 for tenant in self.registry:
@@ -2193,14 +2198,21 @@ class Node:
         from .adapters.inbound_rate import InboundRateLimiter
         from .adapters.webhook_verify import noop_verify
 
+        def _metric(name: str) -> None:
+            """Record a connector metric; no-op when metrics are not wired."""
+            if self.connector_metrics is not None:
+                getattr(self.connector_metrics, name)("default")
+
         # No tenant from host resolution — try path-based tenant in the URL.
         # The HTTP layer strips the prefix; tenant_name is from HostMap.
         if not tenant_name or tenant_name not in self.registry:
+            _metric("record_rejected")
             return {"ok": False, "error": "unknown tenant",
                     "status": "rejected"}
 
         cid = from_header(dict(headers)) or generate()
         if self.inbox is None:
+            _metric("record_rejected")
             return {"ok": False, "error": "inbox not wired",
                     "correlation_id": cid, "status": "rejected"}
 
@@ -2210,9 +2222,12 @@ class Node:
         if self.rate_limiter is not None:
             verdict = self.rate_limiter.check(tenant_name)
             if not verdict.allowed:
+                _metric("record_rejected")
                 return {"ok": False, "error": "rate limited",
                         "correlation_id": cid, "status": "rejected",
                         "retry_after_s": verdict.retry_after_s}
+
+        _metric("record_inbound")
 
         import os
         inbox_id = os.urandom(8).hex()
@@ -2238,11 +2253,15 @@ class Node:
         except Exception:
             # A real DB error (disk full, corrupt) — not a duplicate.
             # Surface it as rejected, not as "duplicate".
+            _metric("record_failed")
             return {"ok": False, "error": "inbox store failed",
                     "correlation_id": cid, "status": "rejected"}
         if not stored:
+            _metric("record_rejected")
             return {"ok": False, "error": "duplicate webhook",
                     "correlation_id": cid, "status": "rejected"}
+
+        _metric("record_processed")
 
         try:
             self.ledger.append(scope, "WEBHOOK_RECEIVED", {
