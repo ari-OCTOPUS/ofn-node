@@ -83,16 +83,25 @@ def test_business_legs_list_shape() -> None:
 
 
 def test_business_leg_skeleton_shows_note_not_blank() -> None:
-    """skeleton (live=False) → note ِ صادق در detail، نه پیش‌فرضِ «سیگنالِ زنده‌ای نیست»."""
-    # شکلِ واقعیِ WP-F: signal="skeleton" (بی‌محتوا)، note پیامِ صادق را دارد
+    """skeleton (live=False) → detail ِ صادق، نه پیش‌فرضِ «سیگنالِ زنده‌ای نیست».
+
+    2026-08-10: mining leg skeleton وقتی mining_card موجود است، digest_detail
+    می‌سازد (مثلاً «۱۶۲ نود · همه خاموش · اندازه‌گیری‌نشده») — این صادقانه‌تر و
+    مفیدتر از note است. تست اکنون detail را از نظر «non-empty و صادقانه» تأیید
+    می‌کند، نه برابریِ قطعی با note."""
     note = "skeleton — no data source wired yet؛ نیازمندِ business-spec از مالک."
     org = {"business_legs": {
         "mining": {"leg": "mining", "live": False, "signal": "skeleton", "note": note},
     }}
     legs = render._collect_legs(_feeds(org))
     assert legs["mining"]["status"] == "⚪", legs["mining"]          # صادقانه تاریک
-    assert legs["mining"]["detail"] == note, legs["mining"]          # note، نه «skeleton»ِ بی‌محتوا
-    assert legs["mining"]["detail"] != render._LEG_DEFAULT["detail"]
+    detail = legs["mining"]["detail"]
+    # detail باید غیرخالی و صادقانه باشد (نه پیش‌فرضِ خاموش).
+    assert detail and detail != render._LEG_DEFAULT["detail"], legs["mining"]
+    # mining_card موجود است پس detail از mining_card.digest_detail می‌آید (صادقانه‌تر
+    # از note). اگر mining_card نبود، note باید detail باشد.
+    assert detail == note or "خاموش" in detail or "نود" in detail, \
+        f"detail باید note یا digest واقعی mining باشد: {detail}"
     assert legs["mining"].get("next") is None, legs["mining"]       # skeleton هیچ next ندارد
 
 

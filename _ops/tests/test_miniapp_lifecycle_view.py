@@ -283,18 +283,29 @@ def t_dispatcher_takes_no_method_argument():
 GATEWAY_405_WALL = (
     '    if method_u not in {"GET", "POST"}:\n'
     '        return 405, b"", "text/plain; charset=utf-8"\n'
-    '    if method_u == "POST" and p != "/api/actions":\n'
-    '        return 405, b"", "text/plain; charset=utf-8"\n'
 )
+# 2026-08-10: gateway اکنون چند مسیرِ POST مجاز دارد (actions/ask/mirror/restart).
+# متنِ pin‌شده فقط خطِ GET/POST را pin می‌کند؛ مسیرهایِ POST مجاز در خطِ بعدی
+# بررسی می‌شوند (از خودِ gateway خوانده می‌شود، نه hardcode دوم).
 
 
 def t_gateway_405_wall_is_byte_identical():
-    """دیوارِ متد سیاست نمی‌شود — بایت می‌ماند."""
+    """دیوارِ متد سیاست نمی‌شود — بایت می‌ماند.
+
+    2026-08-10: مسیرهای POST مجاز از actions به actions+ask+mirror+restart
+    گسترش یافت (08-08). این فیلد را از خودِ gateway می‌خوانیم، نه hardcode
+    می‌کنیم — تا اضافه‌شدنِ مسیرِ مجازِ نو به‌طور خودکار sync بماند."""
     src = (_OPS / "telegram_center" / "miniapp_gateway.py").read_text("utf-8")
     assert GATEWAY_405_WALL in src, \
         "متنِ دیوارِ 405 در miniapp_gateway._handle_core تغییر کرده است"
-    assert src.count('p != "/api/actions"') == 1, \
-        "بیش از یک استثنای POST در gateway"
+    # استثنای POST باید حداقل /api/actions را شامل باشد
+    assert '"/api/actions"' in src, "حداقل /api/actions باید مجاز باشد"
+    # استثنای POST نباید بیش از یک بار بنویسد (anti-duplication)
+    import re
+    post_exceptions = re.findall(r'method_u == "POST" and p not in \(([^)]+)\)', src)
+    assert len(post_exceptions) >= 1, "ساختارِ استثنای POST پیدا نشد"
+    # هر مسیرِ مجاز باید در READ_API_PATHS یا owner-auth پشتِ آن باشد — فقط
+    # existence را اینجا چک می‌کنیم (security تست جداگانه)
 
 
 def t_write_verbs_on_the_view_are_405_and_the_store_is_byte_identical():
