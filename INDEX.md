@@ -60,21 +60,29 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 - ✅ NPU runtime نصب شد (`librknnrt.so v2.3.2` + `NPU-GUIDE.md`).
 - ✅ ممیزی کامل پروژه — [[AUDIT-2026-08-08]]: ۲ CRITICAL + ۲ HIGH پیدا شد.
 
+**چه کارها تمام شده‌اند (جلسهٔ ۲۰۲۶-۰۸-۱۰):**
+- ✅ [[MEGAPROMPT-OWNER-COMPLETE]] اجرا و commit شد (`4dcb0ce` + infra بعدی).
+- ✅ NTP + cloudflared زنده · HTTPS پنج دامنه ۲۰۰.
+- ✅ connector infra خواندنی: inbox · correlation · inbound rate · HMAC verify ·
+  metrics (`d140756`) — **هنوز کامل وارد UI چهار پنل نشده.**
+- ✅ اسکن پایهٔ چهار کنترل‌پنل: [[docs/handoffs/panel-scans-2026-08-10/INVENTORY]].
+- 🔲 کار بعدی: [[AGENT-NEXT-PANEL-UPGRADE]] — اسکن دوباره + ادغام/اضافه به UI
+  (حذف ممنوع).
+
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
-- 🔲 [[MEGAPROMPT-UNIFY]] — ادغام دو ایجنت (fugu_core، memory.sqlite سه‌لایه، auth مشترک).
-- ✅ لید نقاشی: `lead_priority()` واقعاً وصل است (`lead_store.py:500`).
-  ✅ CRM شریک هم وصل شد — HIGH-1 در [[AUDIT-2026-08-08]] بسته شد (۲۰۲۶-۰۸-۱۰).
+- 🔲 [[AGENT-NEXT-PANEL-UPGRADE]] — **اولویت UI:** چهار کنترل‌پنل را اسکن و ارتقا بده.
+- 🔲 [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — ادامهٔ connector بدون sender.
+- 🔲 [[MEGAPROMPT-UNIFY]] — ادغام دو ایجنت (بخش‌هایی انجام شده؛ سند را بسنج).
+- ✅ لید نقاشی: `lead_priority()` وصل · CRM شریک روی boot · HIGH-1 بسته.
 
 **🔴 فوری از ممیزی (انتخاب با آری):**
-- **CRIT-1 · یافتهٔ CRITICAL باز** — [[AUDIT-2026-08-08]].
-  **قبل از تغییر هر سرویس یا قاعدهٔ فایروال، اول CRIT-1 را راستی‌آزمایی کن.**
-  آنچه ۲۰۲۶-۰۸-۰۹ مستقیماً دیده شد: یک listener روی پورت ۸۰۹۰ فعال است و
-  به `0.0.0.0` بسته شده، نه loopback. توصیف «سرور بک‌آپ بی‌احراز هویت» از
-  همان ممیزی می‌آید و **دوباره راستی‌آزمایی نشده**. تا آن راستی‌آزمایی،
-  نه سرویس ری‌استارت شود، نه پورت بسته شود، نه کانفیگ عوض شود.
-- flagهای مرده `OFN_WIRE_EMAIL/PUBLISH=1` — CRIT-2
+- **CRIT-1** — در ۲۰۲۶-۰۸-۱۰ روی برد listener ۸۰۹۰ دیده نشد؛ قبل از هر کار
+  فایروال دوباره با `ss` بسنج. اگر برگشت: فقط گزارش، بدون kill تا تأیید آری.
+- drift نام `OFN_WIRE_EMAIL/PUBLISH` — با تست drift پوشش؛ خاموش‌سازی env با آری.
 
-**قوانین سخت:** متن فنی در UI ممنوع ([[DECISIONS|D-22]]). هیچ دیتایی حذف نمی‌شود. هر سرویس restart + health دارد. زبان UI فارسی ساده/گرم.
+**قوانین سخت:** متن فنی در UI ممنوع ([[DECISIONS|D-22]]). هیچ دیتایی حذف نمی‌شود.
+هر سرویس restart + health دارد. زبان UI فارسی ساده/گرم. **در ارتقای پنل:
+حذف ممنوع — فقط ادغام یا اضافه.**
 
 برای جزئیات بیشتر به ادامهٔ همین یادداشت و [[HANDOFF]] برو.
 
@@ -101,8 +109,11 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
-- [[MEGAPROMPT-OWNER-COMPLETE]] — **مالک کامل: ناهنجاری‌ها + دیباگ همهٔ وب‌اپ‌ها** (۲۰۲۶-۰۸-۱۰)
-- [[AGENT-NEXT-OWNER-COMPLETE]] — **دستورالعمل ایجنت بعدی** بعد از اجرای موازی A–J
+- [[AGENT-NEXT-PANEL-UPGRADE]] — **⬆️ کار بعدی:** اسکن + ارتقای چهار کنترل‌پنل (حذف ممنوع)
+- [[docs/handoffs/panel-scans-2026-08-10/INVENTORY|اسکن پایهٔ پنل‌ها — ۲۰۲۶-۰۸-۱۰]]
+- [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — اتصال پلتفرم مارکتینگ با مغز OFN
+- [[MEGAPROMPT-OWNER-COMPLETE]] — مالک کامل: ناهنجاری‌ها + دیباگ وب‌اپ‌ها (۲۰۲۶-۰۸-۱۰)
+- [[AGENT-NEXT-OWNER-COMPLETE]] — دستورالعمل ادامهٔ owner-complete
 - [[MEGAPROMPT]] — دستورکار اصلی پروژه
 - [[MEGAPROMPT-UNIFY]] — **ادغام دو ایجنت + حافظهٔ سه‌لایه + مغز مشترک** (مگاپرامپت نهایی)
 - [[MEGAPROMPT-EDGE-DEEP]] — **پرورش عمیق مدل لبهٔ سیستم** (مکمل؛ وصل edge.py به مغز + endpoint + حافظهٔ روزانه)

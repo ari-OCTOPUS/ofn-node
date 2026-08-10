@@ -1,7 +1,7 @@
 ---
 tags: [ofn, handoff, status]
 aliases: [وضعیت زنده, Handoff]
-updated: 2026-08-09
+updated: 2026-08-10
 ---
 
 # HANDOFF — برای جلسهٔ بعدی
@@ -27,6 +27,40 @@ UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
             quota ۳۵/۳۵/۲۰/۱۰ = ۱.۰۰ · ۱۳۲ chunk shared knowledge
 جدید        kill switch ✅ · metrics زنده ✅ · alert (log+Telegram opt-in) ✅
 ```
+
+---
+
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — مگاپرامپت مارکتینگ + اسکن پنل‌ها + دستور ارتقای UI
+
+### بک‌اند connector (انجام‌شده در کد)
+
+کامیت `d140756`: inbox · correlation · inbound rate · HMAC verify ·
+connector metrics · `POST /api/v1/webhooks/…` — بدون vendor واقعی و بدون
+sender. خط پایهٔ تست را با `tools/repo_baseline.py --tests` بگیر
+(snapshot حدود ۱۶۵۷ collected).
+
+### اسناد
+
+- [[MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION]] — نقشهٔ مفهومی + فازها
+- [[AGENT-NEXT-PANEL-UPGRADE]] — **دستورکار ایجنت بعدی برای چهار کنترل‌پنل**
+- [[docs/handoffs/panel-scans-2026-08-10/INVENTORY]] — اسکن پایه
+
+### چهار کنترل‌پنل — وضعیت UI
+
+| پنل | فایل | نکته |
+|---|---|---|
+| مالک | `web/panel.html` | قوی است؛ inbox/observability هنوز در UI نیست |
+| لید | `web/lead.html` | CRM روی boot؛ اولویت انسانی روی کارت ناقص/قابل‌بهبود |
+| استودیو | `web/studio.html` | آرشیو/چت زنده؛ هدر تلگرام/خلاصهٔ انتشار قابل‌ادغام |
+| زیمان | `web/ziman.html` | فرم قطعه سالم؛ اسم/empty-state را در ارتقا ادغام کن |
+
+**قاعده برای ایجنت بعدی:** حذف ممنوع — فقط ادغام یا اضافه. اول اسکن زنده،
+بعد panel → lead → studio → ziman.
+
+### زیرساخت
+
+NTP sync · cloudflared active · HTTPS ۲۰۰ در آخرین سنجش. دو `.bak-*`
+untracked بماند.
 
 ---
 
