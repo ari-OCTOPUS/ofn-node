@@ -1,0 +1,211 @@
+# D10-ABC — Architecture comparison: single-model vs orchestrator vs multi-agent.
+#
+# NAMESPACING: This is "D10-ABC", explicitly DISTINCT from "Mining D-10"
+# (a governance HARD_STOP rule in 03-Projects/Mining). No collision.
+# ADR: adr/ADR-022-d10-abc-architecture-comparison.md
+#
+# STATUS: PREREGISTRATION (frozen before Stage 1 confirmatory run).
+# The pilot (A/A + small A/B/C) only calibrates noise/variance estimates.
+# Treatment effects observed in pilot are NEVER used to set the SESOI.
+# After Stage 1 launch, this file is IMMUTABLE; changes = amendment / new ADR.
+
+idea: >
+  Does the current multi-agent state-file architecture (C) produce measurably
+  better task-level quality than alternatives, at equal cost and error budget?
+  Three arms: A = single model with the same tools; B = one orchestrator with
+  explicit role switching; C = current multi-agent state-file architecture.
+  The honest prior: multi-agent coordination has a cost (handoff overhead,
+  state synchronization, failure surface) that may exceed its benefit for the
+  task mix this system actually handles. If C does not beat B by a defensible
+  margin, the simpler orchestrator (B) is preferable — and if B does not beat
+  A, a single well-prompted model suffices.
+
+hypothesis: >
+  At EQUAL tool budget, time budget, model version, and task, the paired
+  quality difference quality(C) − quality(B) on identical tasks is at least
+  the SESOI (coordination cost is paid for by measurably better outputs).
+  The secondary contrast quality(C) − quality(A) is tested under a
+  closed-testing strategy (only if the primary is significant). The tertiary
+  quality(B) − quality(A) is exploratory. No max(A,B) selection after
+  observing results — that would inflate Type I error.
+
+prediction:
+  statement: >
+    primary_estimand = paired quality difference quality(C) − quality(B),
+    measured per task by blinded judges, with task as the unit of inference.
+  baseline: 0.0    # no-effect floor — C is no better than a simpler orchestrator
+  expected: 0.08   # [EST] illustrative — the REAL expected value comes from the
+                   # A/A-calibrated pilot variance, NOT assumed. If pilot noise is
+                   # too high to detect delta=0.08 at power 0.80, we say so
+                   # honestly and either raise n or declare the test inconclusive.
+
+metric:
+  name: paired_quality_diff_C_minus_B
+  dataset: frozen-task-suite-v1  # see experiment.dataset
+  direction: higher_is_better    # positive = C is better
+  primary: true
+
+experiment:
+  dataset: >
+    A frozen manifest of tasks stratified from the system's real 30-day workload
+    (read-only, sanitized of sensitive content). Task classes: priority-assessment,
+    summary, memory-query, status-check. Each task has a frozen seed, expected-output-
+    rubric, and inclusion/exclusion criteria. The FINAL number of tasks comes from
+    the power calculation (not assumed to be 28 — that was a planning placeholder).
+  n: 0          # FILLED AFTER pilot variance estimate — see SESOI section
+  conditions:
+    - name: A_single_model
+      description: >
+        One model receives the task, the same tools, and a single comprehensive
+        prompt. No role switching, no state-file handoff.
+    - name: B_orchestrator_roles
+      description: >
+        One orchestrator model switches between explicit roles (planner, executor,
+        reviewer) within a single trial. Role switching is in-prompt, not
+        cross-process.
+    - name: C_multi_agent_current
+      description: >
+        The current as-built architecture: organism + cortex + state-file handoff
+        + semantic memory context. Defined from runtime, not from documentation.
+  protocol: >
+    Per task (the unit of inference): (1) freeze task + seed + state before
+    Stage 1. (2) Counterbalanced/interleaved execution order across arms to
+    control for time drift and warm-up. (3) Each arm runs in ISOLATED trial
+    state (isolated working state, isolated episodic memory, cache namespace).
+    (4) No production state or external effect. (5) Blinded judges score
+    outputs (arm labels removed). (6) Task, NOT judge vote or episode, is the
+    unit of inference. (7) Missing trial = explicit policy (see evaluation).
+    (8) Deterministic fake adapters in the harness test; real models only in
+    the confirmatory run (separate owner verdict for paid calls).
+
+failure_condition:
+  metric: paired_quality_diff_C_minus_B
+  op: "<"
+  threshold: 0.05   # SESOI: if C doesn't beat B by at least 0.05 quality points,
+                    # the coordination cost is not justified. This is LINKED to
+                    # coordination cost (handoff count, latency, failure surface)
+                    # — see architecture.tradeoff.
+  note: >
+    If quality(C) − quality(B) < 0.05, RESTRICT C to proven task classes or
+    PREFER B. The SESOI is NOT derived from pilot treatment results — it is
+    set a priori from the coordination-cost rationale. A negative result is a
+    legitimate and valuable finding.
+
+architecture:
+  pattern: Paired architecture comparison with blinded judging and closed-testing multiplicity control
+  topology: >
+    frozen manifest -> counterbalanced randomization -> arm dispatcher ->
+    isolated trial execution -> trace collection -> blinded package ->
+    paired scoring -> bootstrap/permutation analysis -> verdict
+  tradeoff: >
+    C pays coordination cost (handoff overhead, state sync, failure surface,
+    latency) in exchange for potential quality improvement. The SESOI (0.05)
+    is the minimum quality improvement that justifies paying that cost. If C
+    also has higher error rate or cost, a cost-guardrail applies: even a
+    positive quality delta is downgraded if cost(C) > cost(B) * 1.5 or
+    error(C) > error(B) + 0.1.
+
+api_contract:
+  endpoint: /benchmark/d10-abc/run
+  method: POST
+  request:
+    manifest_id: "frozen-task-suite-v1"
+    arms: ["A_single_model", "B_orchestrator_roles", "C_multi_agent_current"]
+    seed_policy: "counterbalanced"
+    judge_config_hash: "sha256:..."
+  response:
+    primary_estimand: "paired_quality_diff_C_minus_B"
+    effect: 0.0           # filled after run
+    ci_95: [0.0, 0.0]     # filled after run
+    verdict: "PENDING"    # KEEP_C | RESTRICT_C | PREFER_B_OR_A | INCONCLUSIVE
+
+mvp:
+  stack: "Python (stdlib only for harness; real model injection via adapter)"
+  deps: []
+  effort: "> 2 days for full harness; deterministic fake version < 0.5 day"
+  notes: >
+    The MVP is a deterministic fake harness that runs end-to-end with fake
+    adapters (no model, no network). This validates the plumbing
+    (randomization, isolation, trace, blinding, scoring, analysis). Real model
+    injection is a separate owner-gated step.
+
+evaluation:
+  comparisons: [C_vs_B_primary, C_vs_A_secondary, B_vs_A_exploratory]
+  ablation:
+    - A/A instrumentation check (state/cache leakage, judge repeatability)
+    - order-effect check (counterbalanced vs sequential)
+    - cost-guardrail (cost(C) vs cost(B), error(C) vs error(B))
+  seeds: 1   # 1 seed per task; task is the unit, not seed
+  missing_trial_policy: >
+    A missing trial (arm failed to produce output) is recorded as a failure
+    for that arm on that task (quality=0). This is fail-closed: a silent
+    skip would bias results. The raw ledger preserves all attempts.
+
+decision_rule:
+  primary_metric: paired_quality_diff_C_minus_B
+  rules:
+    - max: 0.05
+      verdict: PREFER_B_OR_A      # C doesn't justify its coordination cost
+    - min: 0.05
+      max: 0.10
+      verdict: RESTRICT_C          # C helps, but only for some classes
+    - min: 0.10
+      verdict: KEEP_C              # C clearly justifies its cost
+  cost_guardrail: >
+    Regardless of quality verdict: if cost(C) > cost(B) * 1.5 OR
+    error(C) > error(B) + 0.1, downgrade by one band (KEEP_C -> RESTRICT_C,
+    RESTRICT_C -> PREFER_B_OR_A). Quality alone is not enough.
+
+# ─── STATISTICAL PREREGISTRATION (frozen before Stage 1) ─────────────────────
+
+se soi_rationale: >
+  SESOI = 0.05 quality points. This is the minimum improvement that justifies
+  the coordination cost of multi-agent architecture. It is set a priori from
+  the architecture rationale, NOT from pilot treatment results.
+
+power_calculation: >
+  n = ceil(((z_(1-alpha/2) + z_(1-beta)) * sigma_d / delta)^2)
+  alpha = 0.05 (two-sided), beta = 0.20 (power 0.80), delta = SESOI = 0.05.
+  sigma_d (paired standard deviation) is UNKNOWN until the A/A pilot.
+  Sensitivity table (paired, two-sided alpha 0.05, power 0.80):
+    sigma_d=10: n=32 | sigma_d=15: n=71 | sigma_d=20: n=126 | sigma_d=25: n=197
+
+a_a_objectives:
+  - state/cache leakage detection
+  - instrumentation correctness
+  - order/warm-up/time drift
+  - judge repeatability (inter-rater reliability)
+  - paired variance estimate (sigma_d calibration)
+
+a_a_rules:
+  - interleaved/counterbalanced
+  - equivalence margin preregistered (TOST)
+  - CI includes zero ≠ equivalence
+  - do not claim Type-I calibration with <20 tasks
+  - if budget insufficient for conclusive result, say INCONCLUSIVE
+
+judging:
+  - blinded arm labels (A/B/C replaced with random codes)
+  - two independent judges if budget allows
+  - rubric versioned and hash-locked
+  - inter-rater reliability reported
+  - disagreement adjudication preregistered
+
+multiplicity:
+  - primary: C vs B (the gated contrast)
+  - secondary: C vs A (tested only if primary significant — closed testing)
+  - exploratory: B vs A (per-class, not powered unless n is large)
+  - Holm correction for secondary metrics
+  - no interim peeking
+
+analysis:
+  - effect estimate + 95% CI (paired bootstrap, 10000 resamples)
+  - permutation test as robustness check
+  - per-class exploratory breakdown (not powered unless stated)
+  - missing-trial fail-closed (quality=0 for failed arm)
+  - exclusions with reason + raw ledger preserved
+
+# ---------------------------------------------------------------------------
+# STATUS: This preregistration is FROZEN. The A/A pilot may only calibrate
+# sigma_d and verify instrumentation — it may NOT change SESOI, arms, or
+# decision_rule. After Stage 1 launch, any change = amendment / new ADR.
