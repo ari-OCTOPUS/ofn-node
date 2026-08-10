@@ -683,3 +683,28 @@ class TestP1SurfacePins(unittest.TestCase):
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "ofn", "adapters", "http_api.py"), encoding="utf-8").read()
         self.assertIn('path == "/api/v1/owner/observability"', api)
+
+
+class TestP2SurfacePins(unittest.TestCase):
+    """Phase I surface pins: ARIA tabs, lead poll, dedup, ziman message."""
+
+    def test_panel_tabs_have_aria(self):
+        src = read("panel.html")
+        self.assertIn('role="tablist"', src)
+        self.assertIn('role="tab"', src)
+        self.assertIn("aria-selected", src)
+
+    def test_lead_has_poll_and_visibility_stop(self):
+        src = read("lead.html")
+        self.assertIn("setInterval(poll, 60000)", src)
+        self.assertIn("visibilitychange", src)
+
+    def test_lead_dedups_recent(self):
+        src = read("lead.html")
+        self.assertIn("__leadDrawnIds", src)
+        self.assertIn("mainIds.has", src)
+
+    def test_ziman_channel_block_message_explains(self):
+        src = read("ziman.html")
+        self.assertIn("کارمزد این کانال هنوز ثبت نشده", src)
+        self.assertIn("مالک حداقل یک کانال", src)

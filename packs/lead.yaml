@@ -44,7 +44,10 @@ gates:
   - budget
   - claim
   - consent          # anti-spam law applies to every outbound message
-  - service_area
+  - service_area     # ⚠️ نام‌گذاری صادقانه: هنوز هیچ منطق جغرافیایی وصل نیست
+                     #   (یافته ۸۶). تا وقتی `ops.service_radius_km` در ingest
+                     #   enforce نشود، این gate هیچ اثری ندارد — نه ادعای
+                     #   رد خودکار و نه چیزی دیگر.
   - secret_rotation
 
 risk_overrides:

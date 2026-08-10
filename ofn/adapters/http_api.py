@@ -418,6 +418,11 @@ class ApiApp:
         Deliberately not authenticated, deliberately not stored, and it
         answers 200 to anything well-formed: a diagnostic that can itself
         fail loudly would be one more thing to diagnose.
+
+        Throttled (finding 17): the route is public by design, so an
+        attacker can spam journal lines through it. A small in-memory window
+        caps how many boot lines get written per period; repeated identical
+        stages are coalesced into a single line.
         """
         try:
             sent = json.loads(body or b"{}")
@@ -429,6 +434,22 @@ class ApiApp:
         if stage not in self._BOOT_STAGES:
             return Response(400, {"error": "unknown stage"})
         detail = self._BOOT_DETAIL.sub("", str(sent.get("detail", ""))[:120])
+        # Throttle: at most 10 boot lines per 60s window, and a stage seen
+        # twice within the window logs once. A phone that retries a stuck
+        # shell should not write a journal line per attempt. Coalesced
+        # repeats do not consume the window budget — they produced no log.
+        now = self._now()
+        window = getattr(self, "_shell_boot_window", None)
+        if window is None or now - window[0] >= 60:
+            window = [now, {}, 0]
+            self._shell_boot_window = window
+        last = window[1].get(stage)
+        if last is not None and now - last < 10:
+            return Response(200, {"ok": True, "coalesced": True})
+        if window[2] >= 10:
+            return Response(200, {"ok": True, "throttled": True})
+        window[1][stage] = now
+        window[2] += 1
         # Through the reason header, which `_send` strips before the response
         # leaves and appends to the journal line — the same path auth
         # failures already take, so there is one format to read, not two.

@@ -538,8 +538,17 @@ class LeadStore:
             where.append("status = ?")
             args.append(status)
         if q:
-            like = f"%{q}%"
-            where.append("(customer_name LIKE ? OR suburb LIKE ? OR job_type LIKE ? OR message LIKE ?)")
+            # Server-side ESCAPE (finding 19): `%` and `_` in the user's
+            # query are literal characters, not wildcards. Without this the
+            # UI's escLike is the only guard, and a client that forgets it
+            # turns a search for "50%" into "everything".
+            escaped = (q.replace("\\", "\\\\")
+                        .replace("%", "\\%")
+                        .replace("_", "\\_"))
+            like = f"%{escaped}%"
+            where.append("(customer_name LIKE ? ESCAPE '\\' OR suburb LIKE ? "
+                         "ESCAPE '\\' OR job_type LIKE ? ESCAPE '\\' OR "
+                         "message LIKE ? ESCAPE '\\')")
             args += [like, like, like, like]
         rows = self._conn.execute(
             "SELECT * FROM painting_leads WHERE " + " AND ".join(where) +

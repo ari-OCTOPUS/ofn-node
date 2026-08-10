@@ -406,11 +406,11 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
 
     <div class="stale" id="stale" hidden></div>
 
-    <div class="tabs">
-      <button class="tab on" data-f="all">همه</button>
-      <button class="tab" data-f="r">🔴 قرمز <span data-c="r">۰</span></button>
-      <button class="tab" data-f="y">🟡 زرد <span data-c="y">۰</span></button>
-      <button class="tab" data-f="g">🟢 سبز <span data-c="g">۰</span></button>
+    <div class="tabs" role="tablist" aria-label="فیلتر صف تصمیم">
+      <button class="tab on" data-f="all" role="tab" aria-selected="true">همه</button>
+      <button class="tab" data-f="r" role="tab" aria-selected="false">🔴 قرمز <span data-c="r">۰</span></button>
+      <button class="tab" data-f="y" role="tab" aria-selected="false">🟡 زرد <span data-c="y">۰</span></button>
+      <button class="tab" data-f="g" role="tab" aria-selected="false">🟢 سبز <span data-c="g">۰</span></button>
     </div>
 
     <!-- Every card here is one row of the outbox. Nothing is drawn that the
@@ -1797,8 +1797,12 @@ document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
      in refresh() and can redraw the queue out from under a half-armed RED
      confirmation. Re-filter the data already on screen instead. */
   if (armedCount > 0) return;
-  document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(x => {
+    x.classList.remove('on');
+    x.setAttribute('aria-selected', 'false');
+  });
   b.classList.add('on');
+  b.setAttribute('aria-selected', 'true');
   filter = b.dataset.f;
   /* Re-render from the last fetched queue without a new network call. */
   OFN.get('/api/v1/queue').then(r => drawQueue(r.queue || [])).catch(() => {});

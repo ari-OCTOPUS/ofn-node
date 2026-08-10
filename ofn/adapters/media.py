@@ -21,6 +21,7 @@ import base64
 import binascii
 import os
 import shutil
+import time
 
 from ..kernel.errors import FailClosedError
 from ..kernel.photos import (
@@ -85,6 +86,30 @@ class MediaStore:
         os.chmod(tmp, 0o600)
         os.replace(tmp, full)
         return rel
+
+    def sweep_stale_parts(self, max_age_s: int = 3600) -> int:
+        """Remove .part files older than max_age_s (finding 36).
+
+        A crash between writing the temp file and renaming it leaves a
+        `.part` behind forever — the backup skips it, so it just sits there.
+        This removes stale ones, bounded to the photos root by construction
+        (the walk never leaves this.root). Returns how many were removed.
+        """
+        removed = 0
+        now = time.time()
+        for here, _, names in os.walk(self._root):
+            for name in names:
+                if not name.endswith(".part"):
+                    continue
+                path = os.path.join(here, name)
+                try:
+                    age = now - os.path.getmtime(path)
+                    if age > max_age_s:
+                        os.remove(path)
+                        removed += 1
+                except OSError:
+                    continue
+        return removed
 
     def write_rendition(self, tenant: str, piece_id: str, position: int,
                         edge: int, payload: Payload) -> str:

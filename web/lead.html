@@ -497,9 +497,14 @@ async function refreshLeadCrm(){
     const list=el('div'); list.id='leadlist'; box.append(list);
     /* footer note: who approves outbound */
     box.append(el('div','state','پیام و قیمت اول به آری می‌رسد؛ بعد از تأیید او خارج می‌شود.'));
-    drawList();
-    /* also keep the recent-mini cards below for at-a-glance */
-    (d.recent_leads||[]).slice(0,4).forEach(l=>{const c=el('div','miniLead'); const t=el('div','jt',l.job_type||l.customer_name||'لید'); c.append(t); const m=el('div','meta'); [l.customer_name,l.phone,l.suburb,l.source,l.score!=null?'امتیاز '+fa(l.score):''].filter(Boolean).forEach(x=>m.append(el('span',null,x))); c.append(m); if(l.message)c.append(el('div','leadmsg',l.message)); box.append(c);});
+    await drawList();
+    /* recent-mini cards: only for leads NOT already in the main list
+       (finding 68). Showing the same lead twice on one screen is noise,
+       and on a small phone it is the difference between scrolling past
+       the same name once and twice. */
+    const mainIds = new Set((window.__leadDrawnIds || []));
+    const recent = (d.recent_leads||[]).filter(l => !mainIds.has(l.lead_id)).slice(0,4);
+    recent.forEach(l=>{const c=el('div','miniLead'); const t=el('div','jt',l.job_type||l.customer_name||'لید'); c.append(t); const m=el('div','meta'); [l.customer_name,l.phone,l.suburb,l.source,l.score!=null?'امتیاز '+fa(l.score):''].filter(Boolean).forEach(x=>m.append(el('span',null,x))); c.append(m); if(l.message)c.append(el('div','leadmsg',l.message)); box.append(c);});
   }catch(e){ box.hidden=false; box.textContent=''; box.append(el('div','state warn','داشبورد لید هنوز آماده نیست.')); }
 }
 
@@ -532,6 +537,8 @@ async function drawList(){
       return;
     }
     leads.forEach(l=>list.append(leadRow(l)));
+    /* Remember which lead ids are on screen, for the recent-card dedup. */
+    window.__leadDrawnIds = leads.map(l => l.lead_id).filter(Boolean);
   }catch(e){ list.textContent=''; list.append(el('div','state warn','نمی‌توان لیدها را آورد.')); }
 }
 function leadRow(l){
@@ -738,6 +745,27 @@ async function boot() {
     box.className = 'state warn';
     box.textContent = 'دستگاه در حالت ایمن است. جواب‌ها ثبت می‌شوند ولی هیچ کاری بیرون نمی‌رود.';
   }
+
+  /* Light poll (finding 66): the CRM numbers go stale if the page just sits
+     open. Every 60s, refresh the dashboard KPIs — and drawList only when
+     the user is not mid-typing a search (LEAD.q is live during typing).
+     Paused while the tab is hidden, resumed when it becomes visible again:
+     a background tab is not a dashboard. */
+  let pollTimer = null;
+  const poll = () => {
+    refreshKpis().catch(() => { /* stale banner below covers the failure */ });
+  };
+  const startPoll = () => {
+    if (pollTimer) return;
+    pollTimer = setInterval(poll, 60000);
+  };
+  const stopPoll = () => {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopPoll(); else startPoll();
+  });
+  startPoll();
 }
 document.addEventListener('DOMContentLoaded', () => boot().catch(e => console.error('boot failed:', e)));
 </script>
