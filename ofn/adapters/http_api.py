@@ -226,8 +226,9 @@ class ApiApp:
         release_kill: (Callable[[str, str, str, bool], dict]
                        | None) = None,
         # Webhook / connector infrastructure (marketing platform integration)
-        webhook_handler: (Callable[[str, Mapping[str, str], bytes], Response]
-                          | None) = None,
+        webhook_handler: (Callable[[str, str, Mapping[str, str], bytes],
+                                   Response]
+                         | None) = None,
     ) -> None:
         self._registry = registry
         self._hosts = hosts
@@ -351,13 +352,16 @@ class ApiApp:
 
         # Webhook endpoint: unauthenticated, HMAC-signed, rate-limited.
         # Routed before the principal check because webhooks come from vendor
-        # servers, not from logged-in users. The tenant comes from the path
-        # segment (/api/v1/webhooks/<tenant>/...) and is CROSS-CHECKED against
-        # the host: a payload arriving on the wrong host for its path is a
-        # misrouting or a probe, and both get a 403 rather than a store.
+        # servers, not from logged-in users. The tenant AND connector come
+        # from the path (/api/v1/webhooks/<tenant>/<connector>) and are
+        # CROSS-CHECKED against the host: a payload arriving on the wrong
+        # host for its path is a misrouting or a probe, and both get a 403
+        # rather than a store.
         if method == "POST" and path.startswith("/api/v1/webhooks/"):
             rest = path[len("/api/v1/webhooks/"):]
-            path_tenant = rest.split("/", 1)[0] if rest else ""
+            parts = rest.split("/", 2)
+            path_tenant = parts[0] if parts else ""
+            path_connector = parts[1] if len(parts) > 1 else ""
             if not path_tenant or path_tenant not in self._registry:
                 return Response(404, {"error": "unknown webhook path"})
             if tenant_name is not None and path_tenant != tenant_name:
@@ -365,7 +369,8 @@ class ApiApp:
                                       "error": "webhook tenant mismatch",
                                       "rule": "webhook:tenant-mismatch"})
             if self._webhook_handler is not None:
-                result = self._webhook_handler(path_tenant, headers, body)
+                result = self._webhook_handler(
+                    path_tenant, path_connector, headers, body)
                 if isinstance(result, dict):
                     cid = result.get("correlation_id", "")
                     if result.get("ok"):

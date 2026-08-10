@@ -134,9 +134,10 @@ class TestWebhookTenantCrossCheck(unittest.TestCase):
             owner_user_ids=("1",),
             partner_user_ids={},
             now=lambda: NOW,
-            webhook_handler=lambda tenant, h, b: {
+            webhook_handler=lambda tenant, connector, h, b: {
                 "ok": True, "correlation_id": "c",
-                "tenant_seen": tenant},
+                "tenant_seen": tenant,
+                "connector_seen": connector},
         )
 
     def test_path_tenant_matching_host_is_accepted(self):

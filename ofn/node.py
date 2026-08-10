@@ -17,7 +17,7 @@ import calendar
 import hashlib
 import json
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Mapping, Sequence
 
 from .adapters.boot import BootReport, closed_gates_for
@@ -169,6 +169,9 @@ class Node:
     rate_limiter: object | None = None # InboundRateLimiter
     # Connector/inbox metrics — in-memory counters, read by observability.
     connector_metrics: object | None = None  # ConnectorMetrics
+    # Connector registry: connector_id → Connector (O3). Empty in production
+    # until a real vendor is approved; tests inject FakeConnector.
+    connectors: Mapping[str, object] = field(default_factory=dict)
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -2327,29 +2330,35 @@ class Node:
 
     # ── webhook / connector infrastructure ──────────────────────────────────
     def handle_webhook(self, tenant_name: str | None,
+                        connector_id: str,
                         headers: Mapping[str, str],
                         body: bytes) -> dict:
         """Accept an inbound webhook payload and store it in the inbox.
 
         Called from the HTTP layer before authentication (webhooks are HMAC-
-        signed, not session-authenticated). The tenant is resolved from the
-        path by the HTTP layer and passed here.
+        signed, not session-authenticated). Tenant and connector come from
+        the path.
+
+        O3 — real security, no vendor yet:
+          - unknown connector → reject (fail closed)
+          - connector.verify() must pass; a connector without a verifier
+            rejects everything
+          - normalise() reduces the payload to safe fields; the raw body is
+            stored only as a hash
+          - vendor_event_id comes from the connector, not urandom
 
         Returns a dict with "ok", "status", and optionally "inbox_id" and
-        "correlation_id". This is deliberately a dict rather than a Response
-        so the HTTP layer can add the correlation header.
+        "correlation_id".
         """
         from .adapters.correlation import generate, from_header
         from .adapters.inbound_rate import InboundRateLimiter
-        from .adapters.webhook_verify import noop_verify
 
-        def _metric(name: str) -> None:
+        def _metric(name: str, cid: str = "") -> None:
             """Record a connector metric; no-op when metrics are not wired."""
             if self.connector_metrics is not None:
-                getattr(self.connector_metrics, name)("default")
+                getattr(self.connector_metrics, name)(cid or "default")
 
         # No tenant from host resolution — try path-based tenant in the URL.
-        # The HTTP layer strips the prefix; tenant_name is from HostMap.
         if not tenant_name or tenant_name not in self.registry:
             _metric("record_rejected")
             return {"ok": False, "error": "unknown tenant",
@@ -2361,9 +2370,7 @@ class Node:
             return {"ok": False, "error": "inbox not wired",
                     "correlation_id": cid, "status": "rejected"}
 
-        # Rate limit: one process-scoped limiter, keyed by tenant. A burst
-        # of webhooks from a single tenant is the most plausible flood, and
-        # a 429 is cheaper than letting it write to SQLite.
+        # Rate limit: one process-scoped limiter, keyed by tenant.
         if self.rate_limiter is not None:
             verdict = self.rate_limiter.check(tenant_name)
             if not verdict.allowed:
@@ -2372,54 +2379,80 @@ class Node:
                         "correlation_id": cid, "status": "rejected",
                         "retry_after_s": verdict.retry_after_s}
 
-        _metric("record_inbound")
+        # O3: connector lookup. Unknown connector = reject — a webhook
+        # without a known connector is either misrouted or a probe.
+        connector = self.connectors.get(connector_id or "")
+        if connector is None:
+            _metric("record_rejected")
+            return {"ok": False, "error": "unknown connector",
+                    "correlation_id": cid, "status": "rejected",
+                    "rule": "webhook:unknown-connector"}
 
-        import os
-        inbox_id = os.urandom(8).hex()
-        now = self.now_iso()
+        _metric("record_inbound", connector_id)
+
+        # O3: signature verification — the connector's own verifier.
+        try:
+            verdict = connector.verify(body, dict(headers))
+        except Exception as exc:
+            _metric("record_rejected", connector_id)
+            return {"ok": False, "error": f"verifier failed: {exc}",
+                    "correlation_id": cid, "status": "rejected",
+                    "rule": "webhook:verify-error"}
+        if not verdict.valid:
+            _metric("record_rejected", connector_id)
+            return {"ok": False, "error": "signature invalid",
+                    "correlation_id": cid, "status": "rejected",
+                    "rule": "webhook:signature-invalid"}
+
+        # O3: normalise to safe fields; drop raw payload entirely.
         scope = self.registry.scope(tenant_name)
+        try:
+            event = connector.normalise(scope, body, dict(headers), cid)
+        except Exception as exc:
+            _metric("record_rejected", connector_id)
+            return {"ok": False, "error": f"normalise failed: {exc}",
+                    "correlation_id": cid, "status": "rejected",
+                    "rule": "webhook:normalise-error"}
+        if event is None:
+            _metric("record_rejected", connector_id)
+            return {"ok": False, "error": "payload not for this connector",
+                    "correlation_id": cid, "status": "rejected",
+                    "rule": "webhook:not-for-connector"}
 
-        # Store the payload first (hash + size only, never raw bytes).
-        # If this fails, we do NOT write to the ledger — a half-written
-        # trace (ledger says WEBHOOK_RECEIVED but inbox has nothing) is
-        # worse than a clean failure the caller can retry. The order is
-        # inbox → ledger, and the ledger only fires on success.
+        now = self.now_iso()
+        inbox_id = event.vendor_event_id or cid
+        # Store hash + safe fields only (never raw bytes).
         try:
             stored = self.inbox.store(
                 tenant=tenant_name,
-                connector_id="default",
-                vendor="unknown",
+                connector_id=connector_id,
+                vendor=event.vendor,
                 vendor_event_id=inbox_id,
                 correlation_id=cid,
-                body=body,
+                body=body,          # store() hashes it; raw never persisted
                 inbox_id=inbox_id,
                 now_iso=now,
+                event_type=event.event_type,
             )
         except Exception:
-            # A real DB error (disk full, corrupt) — not a duplicate.
-            # Surface it as rejected, not as "duplicate".
-            _metric("record_failed")
+            _metric("record_failed", connector_id)
             return {"ok": False, "error": "inbox store failed",
                     "correlation_id": cid, "status": "rejected"}
         if not stored:
-            _metric("record_rejected")
+            _metric("record_rejected", connector_id)
             return {"ok": False, "error": "duplicate webhook",
                     "correlation_id": cid, "status": "rejected"}
 
-        _metric("record_processed")
+        _metric("record_processed", connector_id)
 
         try:
             self.ledger.append(scope, "WEBHOOK_RECEIVED", {
                 "inbox_id": inbox_id,
                 "correlation_id": cid,
-                "vendor": "unknown",
+                "vendor": event.vendor,
+                "connector": connector_id,
             }, now)
         except Exception as exc:
-            # Visible reconciliation: the payload IS safely in the inbox,
-            # but its audit trace is missing. The item must not be lost and
-            # the gap must be countable — the owner's observability exposes
-            # this counter so an operator can reconcile inbox rows against
-            # ledger events instead of both being silently half-written.
             self._inbox_ledger_gaps = getattr(self, "_inbox_ledger_gaps", 0) + 1
             import sys
             print(f"  ⚠ webhook stored but ledger append failed: {exc}",

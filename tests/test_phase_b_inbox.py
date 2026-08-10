@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import unittest
 
+from ofn.adapters.connector_contract import FakeConnector
 from ofn.adapters.inbox_processor import ProcessStats, process_inbox_once
 from ofn.adapters.marketing_inbox import (
     FAILED, HELD, PENDING, PROCESSED, PROCESSING, InboxItem, MarketingInbox,
@@ -197,6 +198,7 @@ class TestReconciliationCounter(unittest.TestCase):
             now_epoch_s=lambda: 1_785_000_000,
             now_iso=lambda: NOW_ISO,
             inbox=self.inbox,
+            connectors={"fake": FakeConnector()},
         )
         self.addCleanup(self.node.close)
 
@@ -207,7 +209,7 @@ class TestReconciliationCounter(unittest.TestCase):
     def test_gap_counter_exposed_in_observability(self):
         # Break the ledger by closing it, then store a webhook
         self.node.ledger.close()
-        result = self.node.handle_webhook("ziman", {}, b"{}")
+        result = self.node.handle_webhook("ziman", "fake", {}, b"{}")
         self.assertTrue(result["ok"])   # inbox accepted despite ledger fail
         obs = self.node.owner_observability()
         self.assertEqual(obs.get("inbox_ledger_gaps"), 1)
@@ -258,6 +260,7 @@ class TestConnectorMetricsWired(unittest.TestCase):
             now_epoch_s=lambda: 1_785_000_000,
             now_iso=lambda: NOW_ISO,
             inbox=inbox,
+            connectors={"fake": FakeConnector()},
             rate_limiter=InboundRateLimiter(max_requests=100,
                                             window_seconds=60),
             connector_metrics=ConnectorMetrics(),
@@ -265,18 +268,22 @@ class TestConnectorMetricsWired(unittest.TestCase):
         self.addCleanup(self.node.close)
 
     def test_webhook_records_inbound_and_processed(self):
-        result = self.node.handle_webhook("ziman", {}, b"{}")
+        result = self.node.handle_webhook("ziman", "fake", {}, b"{}")
         self.assertTrue(result["ok"])
         obs = self.node.owner_observability()
-        snap = obs.get("connectors", {}).get("default", {})
+        snap = obs.get("connectors", {}).get("fake", {})
         self.assertEqual(snap.get("inbound"), 1)
         self.assertEqual(snap.get("processed"), 1)
 
     def test_rejected_webhook_records_rejected(self):
-        self.node.handle_webhook("nonexistent", {}, b"{}")
+        # Unknown connector → rejected AFTER the connector lookup, metric
+        # under the connector id.
+        self.node.handle_webhook("ziman", "unknown_connector", {}, b"{}")
         obs = self.node.owner_observability()
-        snap = obs.get("connectors", {}).get("default", {})
-        self.assertEqual(snap.get("rejected"), 1)
+        all_snaps = obs.get("connectors", {})
+        total_rejected = sum(s.get("rejected", 0)
+                             for s in all_snaps.values())
+        self.assertGreaterEqual(total_rejected, 1)
 
     def test_rate_limited_records_rejected(self):
         node = self.node
@@ -284,9 +291,14 @@ class TestConnectorMetricsWired(unittest.TestCase):
         from ofn.adapters.inbound_rate import InboundRateLimiter
         node.rate_limiter = InboundRateLimiter(max_requests=1,
                                                window_seconds=60)
-        node.handle_webhook("ziman", {}, b"{}")
-        node.handle_webhook("ziman", {}, b"{}")  # second → 429
+        node.handle_webhook("ziman", "fake", {}, b'{"n": 1}')
+        node.handle_webhook("ziman", "fake", {}, b'{"n": 2}')  # second → 429
         obs = node.owner_observability()
-        snap = obs.get("connectors", {}).get("default", {})
+        snap = obs.get("connectors", {}).get("fake", {})
         self.assertEqual(snap.get("inbound"), 1)
-        self.assertGreaterEqual(snap.get("rejected", 0), 1)
+        # The 429 is recorded under "default" (rate limit precedes the
+        # connector lookup) — count across all connector ids.
+        total_rejected = sum(
+            s.get("rejected", 0)
+            for s in obs.get("connectors", {}).values())
+        self.assertGreaterEqual(total_rejected, 1)

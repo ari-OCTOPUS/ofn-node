@@ -14,6 +14,7 @@ import os
 import unittest
 
 from ofn.adapters.connector_contract import (
+    FakeConnector,
     Connector, ConnectorHealth, FakeConnector, NormalisedEvent,
     connector_registry,
 )
@@ -43,7 +44,7 @@ class TestNormalisedEvent(unittest.TestCase):
     def test_frozen(self):
         ev = NormalisedEvent(
             event_type="lead", vendor="fake", vendor_event_id="v1",
-            vendor_payload="{}", tenant="ziman",
+            body_sha256="a" * 64, tenant="ziman",
             occurred_at_epoch=NOW_EPOCH, correlation_id="abc123",
         )
         with self.assertRaises(AttributeError):
@@ -52,7 +53,7 @@ class TestNormalisedEvent(unittest.TestCase):
     def test_default_payload_is_empty_tuple(self):
         ev = NormalisedEvent(
             event_type="lead", vendor="fake", vendor_event_id="v1",
-            vendor_payload="{}", tenant="ziman",
+            body_sha256="a" * 64, tenant="ziman",
             occurred_at_epoch=NOW_EPOCH, correlation_id="abc123",
         )
         self.assertEqual(ev.payload, ())
@@ -95,7 +96,11 @@ class TestFakeConnector(unittest.TestCase):
         self.assertEqual(ev.vendor, "fake")
         self.assertEqual(ev.tenant, "ziman")
         self.assertEqual(ev.correlation_id, "cid123")
-        self.assertEqual(ev.vendor_payload, '{"test": true}')
+        # Raw payload is gone (O3): only the hash survives.
+        self.assertEqual(len(ev.body_sha256), 64)
+        self.assertEqual(
+            ev.body_sha256,
+            hashlib.sha256(body).hexdigest())
 
     def test_vendor_event_id_is_sha256_prefix(self):
         scope = TenantScope(TenantId("ziman"))
@@ -466,19 +471,24 @@ class TestWebhookRateLimit(unittest.TestCase):
             now_epoch_s=lambda: NOW_EPOCH,
             now_iso=lambda: NOW_ISO,
             inbox=inbox,
+            connectors={"fake": FakeConnector()},
             rate_limiter=InboundRateLimiter(max_requests=3, window_seconds=60),
         )
         self.addCleanup(self.node.close)
 
     def test_allows_within_limit(self):
+        # Distinct bodies: same body = same vendor event = duplicate, which
+        # is a different rejection from rate limiting.
         for i in range(3):
-            r = self.node.handle_webhook("ziman", {}, b"{}")
+            r = self.node.handle_webhook(
+                "ziman", "fake", {}, b'{"n": ' + str(i).encode() + b'}')
             self.assertTrue(r["ok"])
 
     def test_rejects_over_limit(self):
         for i in range(3):
-            self.node.handle_webhook("ziman", {}, b"{}")
-        r = self.node.handle_webhook("ziman", {}, b"{}")
+            self.node.handle_webhook(
+                "ziman", "fake", {}, b'{"n": ' + str(i).encode() + b'}')
+        r = self.node.handle_webhook("ziman", "fake", {}, b'{"n": 99}')
         self.assertFalse(r["ok"])
         self.assertEqual(r["error"], "rate limited")
         self.assertIn("retry_after_s", r)
@@ -677,12 +687,13 @@ class TestHandleWebhook(unittest.TestCase):
             now_epoch_s=lambda: NOW_EPOCH,
             now_iso=lambda: NOW_ISO,
             inbox=inbox,
+            connectors={"fake": FakeConnector()},
         )
         self.addCleanup(self.node.close)
         self.inbox_ref = inbox
 
     def test_accepted_stores_in_inbox(self):
-        result = self.node.handle_webhook("ziman", {}, b'{"hello": "world"}')
+        result = self.node.handle_webhook("ziman", "fake", {}, b'{"hello": "world"}')
         self.assertTrue(result["ok"])
         self.assertEqual(result["status"], "accepted")
         self.assertIn("inbox_id", result)
@@ -694,30 +705,30 @@ class TestHandleWebhook(unittest.TestCase):
         self.assertEqual(len(pending[0].body_sha256), 64)
 
     def test_unknown_tenant_rejected(self):
-        result = self.node.handle_webhook("nonexistent", {}, b"{}")
+        result = self.node.handle_webhook("nonexistent", "fake", {}, b"{}")
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "rejected")
         self.assertIn("unknown tenant", result["error"])
 
     def test_none_tenant_rejected(self):
-        result = self.node.handle_webhook(None, {}, b"{}")
+        result = self.node.handle_webhook(None, "fake", {}, b"{}")
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "rejected")
 
     def test_correlation_id_propagated_from_header(self):
         headers = {"X-Correlation-Id": "incoming-cid-12345"}
-        result = self.node.handle_webhook("ziman", headers, b"{}")
+        result = self.node.handle_webhook("ziman", "fake", headers, b"{}")
         self.assertEqual(result["correlation_id"], "incoming-cid-12345")
 
     def test_duplicate_rejected(self):
         """Same vendor_event_id+connector_id+tenant must be rejected by inbox."""
-        r1 = self.node.handle_webhook("ziman", {}, b"first")
+        r1 = self.node.handle_webhook("ziman", "fake", {}, b"first")
         self.assertTrue(r1["ok"])
 
         # Re-inserting with the same vendor_event_id is a duplicate
         # because handle_webhook sets vendor_event_id = inbox_id.
         dup = self.inbox_ref.store(
-            tenant="ziman", connector_id="default", vendor="unknown",
+            tenant="ziman", connector_id="fake", vendor="unknown",
             vendor_event_id=r1["inbox_id"], correlation_id="test",
             body=b"dup", inbox_id="dup_id", now_iso=NOW_ISO,
         )
@@ -725,14 +736,14 @@ class TestHandleWebhook(unittest.TestCase):
 
         # A genuinely new vendor_event_id succeeds.
         ok = self.inbox_ref.store(
-            tenant="ziman", connector_id="default", vendor="unknown",
+            tenant="ziman", connector_id="fake", vendor="unknown",
             vendor_event_id="brand_new_vid", correlation_id="test",
             body=b"new", inbox_id="new_id", now_iso=NOW_ISO,
         )
         self.assertTrue(ok)
 
     def test_ledger_entry_created(self):
-        result = self.node.handle_webhook("ziman", {}, b'{"event": "test"}')
+        result = self.node.handle_webhook("ziman", "fake", {}, b'{"event": "test"}')
         self.assertTrue(result["ok"])
         scope = self.node.registry.scope("ziman")
         events = self.node.ledger.read(scope, limit=1)
@@ -778,6 +789,7 @@ class TestOwnerObservability(unittest.TestCase):
             now_epoch_s=lambda: NOW_EPOCH,
             now_iso=lambda: NOW_ISO,
             inbox=inbox,
+            connectors={"fake": FakeConnector()},
         )
         self.addCleanup(self.node.close)
         self.inbox_ref = inbox
@@ -900,6 +912,7 @@ class TestObservabilityHttpRoute(unittest.TestCase):
             now_epoch_s=lambda: NOW_EPOCH,
             now_iso=lambda: NOW_ISO,
             inbox=inbox,
+            connectors={"fake": FakeConnector()},
         )
         self.addCleanup(self.node.close)
         SECRET = "obs-test-secret"
@@ -970,3 +983,81 @@ def _write_pack(path: str) -> None:
             "  dummy_action: green\n"
             "quota_share: 0.35\n"
         )
+
+
+class TestO3WebhookSecurity(unittest.TestCase):
+    """O3: unknown connector rejected, fake signed once, no raw body."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.adapters.marketing_inbox import MarketingInbox
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        _write_pack(os.path.join(packs_dir, "ziman.yaml"))
+        inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+        registry = TenantRegistry(load_dir(packs_dir))
+        self.node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 1.0}),
+            ledger=Ledger(os.path.join(self.dir, "ledger.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "facts.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "outbox.sqlite")),
+            now_epoch_s=lambda: NOW_EPOCH,
+            now_iso=lambda: NOW_ISO,
+            inbox=inbox,
+            connectors={"fake": FakeConnector()},
+        )
+        self.addCleanup(self.node.close)
+        self.inbox_ref = inbox
+
+    def test_unknown_connector_rejected(self):
+        r = self.node.handle_webhook("ziman", "nope", {}, b"{}")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r.get("rule"), "webhook:unknown-connector")
+        # Nothing stored
+        self.assertEqual(self.inbox_ref.depth("ziman"), 0)
+
+    def test_connector_without_verifier_rejected(self):
+        # A plain Connector (no verify impl) must reject everything.
+        from ofn.adapters.connector_contract import Connector
+        self.node.connectors = {"plain": Connector("plain", "v")}
+        r = self.node.handle_webhook("ziman", "plain", {}, b"{}")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r.get("rule"), "webhook:signature-invalid")
+
+    def test_same_body_is_duplicate(self):
+        """Same vendor event id (body hash) + connector = one store."""
+        r1 = self.node.handle_webhook("ziman", "fake", {}, b'{"x": 1}')
+        self.assertTrue(r1["ok"])
+        r2 = self.node.handle_webhook("ziman", "fake", {}, b'{"x": 1}')
+        self.assertFalse(r2["ok"])
+        self.assertEqual(r2["error"], "duplicate webhook")
+        self.assertEqual(self.inbox_ref.depth("ziman"), 1)
+
+    def test_different_body_same_id_is_handled_by_hash(self):
+        """Different bodies → different vendor ids → both accepted."""
+        r1 = self.node.handle_webhook("ziman", "fake", {}, b'{"x": 1}')
+        r2 = self.node.handle_webhook("ziman", "fake", {}, b'{"x": 2}')
+        self.assertTrue(r1["ok"])
+        self.assertTrue(r2["ok"])
+        self.assertNotEqual(r1["inbox_id"], r2["inbox_id"])
+        self.assertEqual(self.inbox_ref.depth("ziman"), 2)
+
+    def test_no_raw_body_in_inbox(self):
+        secret_like = "secret-value-12345"
+        self.node.handle_webhook(
+            "ziman", "fake", {}, f'{{"s": "{secret_like}"}}'.encode())
+        items = self.inbox_ref.pending("ziman")
+        self.assertEqual(len(items), 1)
+        import json as _j
+        serialised = _j.dumps(self.inbox_ref.recent("ziman")[0].__dict__)
+        self.assertNotIn(secret_like, serialised)

@@ -27,15 +27,18 @@ class NormalisedEvent:
 
     The connector fills these fields; the inbox stores them. Anything the
     connector cannot map is left as empty string / zero.
+
+    NO raw vendor payload (O3): the inbox and ledger must never receive the
+    original bytes — only the hash and the safe normalised fields below.
     """
     event_type: str            # e.g. "lead", "conversion", "unsubscribe"
     vendor: str                # e.g. "mailchimp", "instagram"
     vendor_event_id: str       # the vendor's own id (for idempotency)
-    vendor_payload: str        # original JSON, stored for debugging
-    tenant: str               # resolved tenant name
-    occurred_at_epoch: int    # when the vendor says it happened
+    body_sha256: str           # hash of the raw body (the only trace kept)
+    tenant: str                # resolved tenant name
+    occurred_at_epoch: int     # when the vendor says it happened
     correlation_id: str        # propagated from X-Correlation-ID
-    payload: Mapping[str, str] = ()  # normalised key-value pairs
+    payload: Mapping[str, str] = ()  # safe normalised key-value pairs
 
 
 @dataclass(frozen=True)
@@ -68,6 +71,15 @@ class Connector:
     def vendor_name(self) -> str:
         return self.vendor
 
+    def verify(self, body: bytes, headers: Mapping[str, str]):
+        """Verify a webhook signature. Default: fail closed.
+
+        A connector that does not implement verification must NOT accept
+        payloads — an unsigned webhook is a rejected webhook (O3).
+        """
+        from .webhook_verify import VerifyResult
+        return VerifyResult(False, "connector has no verifier")
+
     def normalise(self, scope: TenantScope, raw_body: bytes,
                   headers: Mapping[str, str],
                   correlation_id: str) -> NormalisedEvent | None:
@@ -87,27 +99,32 @@ class Connector:
 
 
 class FakeConnector(Connector):
-    """A test connector that accepts any payload and normalises it verbatim.
+    """A test connector that accepts any payload and normalises it.
 
     Vendor is "fake". The vendor_event_id is a hash of the body so repeated
-    payloads are idempotent in the inbox.
+    payloads are idempotent in the inbox. Tests only — never wired in
+    production (O3).
     """
     import hashlib as _hl
 
     def __init__(self) -> None:
         super().__init__("fake", "fake")
 
+    def verify(self, body: bytes, headers: Mapping[str, str]):
+        """Fake connector signs nothing; verification is a no-op (tests)."""
+        from .webhook_verify import VerifyResult
+        return VerifyResult(True)
+
     def normalise(self, scope: TenantScope, raw_body: bytes,
                   headers: Mapping[str, str],
                   correlation_id: str) -> NormalisedEvent | None:
         import hashlib
-        body_str = raw_body.decode("utf-8", errors="replace")
         vid = hashlib.sha256(raw_body).hexdigest()[:16]
         return NormalisedEvent(
             event_type="fake",
             vendor="fake",
             vendor_event_id=vid,
-            vendor_payload=body_str,
+            body_sha256=hashlib.sha256(raw_body).hexdigest(),
             tenant=scope.tenant.value,
             occurred_at_epoch=0,
             correlation_id=correlation_id,
