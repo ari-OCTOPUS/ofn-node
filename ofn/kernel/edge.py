@@ -12,9 +12,9 @@
   ابرموجود     بازار، خانواده، پول، ترند، پلتفرم، فشار اجتماعی، مشتری
 """
 # ── provenance ────────────────────────────────────────────────────
-# Copied from hypno-fugu-mini/hypno/kernel/edge.py (UNIFY phase L, 2026-08-10).
-# Pure stdlib math, no I/O — belongs in the kernel. The hypno project keeps
-# its own copy while it still runs standalone; this is the OFN copy.
+# Copied from the standalone edge project (UNIFY phase L, 2026-08-10).
+# Pure stdlib math, no I/O — belongs in the kernel. The standalone app keeps
+# its own copy while it still runs separately; this is the OFN copy.
 
 from __future__ import annotations
 from dataclasses import dataclass, field
