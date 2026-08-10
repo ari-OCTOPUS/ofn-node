@@ -241,8 +241,12 @@ class TestOwnerApproveManualHttp(unittest.TestCase):
         self.assertEqual(item.status, APPROVED_MANUAL)
         self.assertNotEqual(item.status, IN_FLIGHT)
 
-        # Packet endpoint
-        resp = self._owner("GET", f"/api/v1/owner/outbox/{key}/packet")
+        # Packet endpoint — the URL carries the FULL scoped id (tenant:key,
+        # URL-encoded). The owner resolves no single tenant (P0-1), so the
+        # tenant must come from the URL, not from the owner's principal.
+        import urllib.parse as _up
+        scoped = _up.quote(f"lead:{key}", safe="")
+        resp = self._owner("GET", f"/api/v1/owner/outbox/{scoped}/packet")
         self.assertEqual(resp.status, 200)
         packet = resp.body.get("packet", {})
         self.assertEqual(packet.get("text"), "سلام")
@@ -254,7 +258,7 @@ class TestOwnerApproveManualHttp(unittest.TestCase):
 
         # Complete
         resp = self._owner(
-            "POST", f"/api/v1/owner/outbox/{key}/complete",
+            "POST", f"/api/v1/owner/outbox/{scoped}/complete",
             {"channel": "sms", "packet_sha256": packet["sha256"],
              "confirmed_twice": True, "completed_by": "ari"})
         self.assertEqual(resp.status, 200)
@@ -279,7 +283,124 @@ class TestOwnerApproveManualHttp(unittest.TestCase):
         self._owner("POST", "/api/v1/decide",
                     {"id": f"lead:{key}", "approve": True,
                      "confirmed_twice": True})
-        resp = self._owner("POST", f"/api/v1/owner/outbox/{key}/complete",
+        import urllib.parse as _up
+        scoped = _up.quote(f"lead:{key}", safe="")
+        resp = self._owner("POST", f"/api/v1/owner/outbox/{scoped}/complete",
                            {"channel": "sms", "confirmed_twice": False})
         self.assertEqual(resp.status, 400)
         self.assertIn("second confirmation", resp.body.get("error", ""))
+
+
+class TestMultiTenantCompletion(unittest.TestCase):
+    """P0-1: the owner completes an item by ITS tenant, not the owner's.
+
+    The owner's principal tenant is the first in the registry. Before the
+    fix, the packet/complete routes prefixed the bare key with that tenant,
+    so completing an item belonging to any other tenant looked in the wrong
+    scope — 'unknown item', or a cross-tenant collision on equal keys.
+    """
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.http_api import ApiApp, HostMap
+        from ofn.adapters.ledger import Ledger
+        from ofn.kernel.auth import issue_session
+        from ofn.kernel.domain import PackSpec, TenantId
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        # Two tenants; "alpha" sorts before "beta", so the owner's principal
+        # tenant is ALPHA. The item below lives in BETA — the exact case the
+        # old route got wrong.
+        self.registry = TenantRegistry({
+            "alpha": PackSpec(tenant=TenantId("alpha"),
+                              capacity_units_per_week=6, quota_share=0.5),
+            "beta": PackSpec(tenant=TenantId("beta"),
+                             capacity_units_per_week=6, quota_share=0.5),
+        })
+        self.node = Node(
+            registry=self.registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0,
+                            shares={"alpha": 0.5, "beta": 0.5}),
+            ledger=Ledger(os.path.join(self.dir, "ledger.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "facts.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "outbox.sqlite")),
+            now_epoch_s=lambda: 1_785_000_000,
+            now_iso=lambda: "2026-08-10T12:00:00Z",
+        )
+        self.addCleanup(self.node.close)
+        self.app = ApiApp(
+            self.registry,
+            HostMap(tenants={"a.test": "alpha", "b.test": "beta"},
+                    owner_host="panel.test"),
+            bot_tokens={"__owner__": "t", "alpha": "a", "beta": "b"},
+            session_secret="sec",
+            owner_user_ids=("1",),
+            partner_user_ids={"alpha": ("2",), "beta": ("3",)},
+            now=lambda: 1_785_000_000,
+            owner_decide=self.node.owner_decide,
+            owner_outbox_packet=self.node.owner_outbox_packet,
+            owner_outbox_complete=self.node.owner_outbox_complete,
+            owner_approved_manual=self.node.owner_approved_manual,
+        )
+        self.session = issue_session("owner", "1", "sec",
+                                     now_epoch_s=1_785_000_000)
+
+    def _owner(self, method, path, body=None):
+        import json as _j
+        return self.app.handle(
+            method, path,
+            {"host": "panel.test", "authorization": "Bearer " + self.session},
+            _j.dumps(body or {}).encode() if body is not None else b"")
+
+    def test_complete_item_of_the_non_first_tenant(self):
+        import urllib.parse as _up
+        # Enqueue in BETA with a bare key that ALPHA also has — a collision
+        # the old route would have resolved to the wrong tenant.
+        self.node.outbox.enqueue(
+            self.registry.scope("beta"), "shared:key", "email",
+            {"text": "سلام از بتا"}, RiskTier.YELLOW, T0)
+        self.node.outbox.enqueue(
+            self.registry.scope("alpha"), "shared:key", "email",
+            {"text": "سلام از آلفا"}, RiskTier.YELLOW, T0)
+
+        resp = self._owner("POST", "/api/v1/decide",
+                           {"id": "beta:shared:key", "approve": True,
+                            "confirmed_twice": False})
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.body.get("status"), "approved_manual")
+
+        # Packet for the BETA item, addressed by beta:key — not by the
+        # owner's principal tenant (alpha).
+        scoped = _up.quote("beta:shared:key", safe="")
+        resp = self._owner("GET", f"/api/v1/owner/outbox/{scoped}/packet")
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.body["packet"]["text"], "سلام از بتا")
+
+        # Complete the BETA item; the ALPHA item must be untouched.
+        resp = self._owner(
+            "POST", f"/api/v1/owner/outbox/{scoped}/complete",
+            {"channel": "sms",
+             "packet_sha256": resp.body["packet"]["sha256"],
+             "confirmed_twice": True, "completed_by": "ari"})
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.body.get("status"), "manual_completed")
+        beta_item = self.node.outbox.get(
+            self.registry.scope("beta"), "shared:key")
+        alpha_item = self.node.outbox.get(
+            self.registry.scope("alpha"), "shared:key")
+        self.assertEqual(beta_item.status, COMPLETED)
+        self.assertEqual(alpha_item.status, PENDING)  # untouched
+
+    def test_unknown_tenant_in_url_is_refused(self):
+        resp = self._owner("GET",
+                           "/api/v1/owner/outbox/nosuch%3Akey/packet")
+        self.assertEqual(resp.status, 404)
+
+    def test_bare_key_without_tenant_is_refused(self):
+        """No silent default: a key without its tenant cannot be resolved."""
+        resp = self._owner("GET", "/api/v1/owner/outbox/barekey/packet")
+        self.assertEqual(resp.status, 404)

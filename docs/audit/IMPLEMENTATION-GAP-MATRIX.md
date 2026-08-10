@@ -29,7 +29,7 @@
 | Replay digest | ✅ FIXED — SHA-256 of whole initData | `http_api.py:_auth` no longer uses `[-64:]` suffix (P1 finding 11) |
 | Connector metrics | ✅ WIRED — per-connector counters | `node.py:handle_webhook` records; `owner_observability` exposes snapshot (P1 findings 42, 83) |
 | Owner observability endpoint | ✅ NEW — inbox + metrics + gaps | `GET /api/v1/owner/observability`, owner-only, no-store (P1 finding 84) |
-| Partner precondition gate | ✅ CLOSED by default | `config.py` default closed gates include `partner_precondition` (P0 finding 3) |
+| Partner precondition gate | ✅ CLOSED by default (مجددا ۲۰۲۶-۰۸-۱۰ توسط آری برای یک هفته باز شد) | `config.py` default closed gates include `partner_precondition` (P0 finding 3); بازگشایی موقت در `DECISION-open-gates.md` |
 | Kill switch on all enqueues | ✅ FIXED — `_gate_enqueue` helper | All direct enqueue paths check kill first (P0 finding 2, 6) |
 | Studio chat scrub | ✅ FIXED — PII before persist | `node.py:studio_assistant_chat` scrubs user + assistant text (P1 finding 12) |
 | Backup media verification | ✅ FIXED — count + bytes | `backup.py:verify_backup` compares media tree against manifest (P1 finding 22) |

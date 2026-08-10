@@ -1229,23 +1229,31 @@ class ApiApp:
         # ── manual dispatch (operations launch O2) ────────────────────────
         # Packet: the exact text a human will send. Complete: the receipt
         # that the human did send it. Both owner-only. The URL carries the
-        # bare key; the tenant prefix is added here (queue ids elsewhere
-        # include it, but ':' in a URL path is asking for trouble).
+        # FULL scoped id (tenant:key, URL-encoded). The owner is bound to no
+        # single tenant, so the tenant must come from the URL — a bare key
+        # would resolve against the wrong scope whenever the item belongs to
+        # a tenant other than the first in the registry (multi-tenant
+        # completion bug, P0-1). The node methods already parse the tenant
+        # from the id; this route only validates it against the registry.
         if method == "GET" and path.startswith("/api/v1/owner/outbox/"):
             rest = path[len("/api/v1/owner/outbox/"):]
             if rest.endswith("/packet"):
-                key = rest[:-len("/packet")]
-                if not key or "/" in key:
+                item_id = urllib.parse.unquote(rest[:-len("/packet")])
+                tenant_name, _, key = item_id.partition(":")
+                if (not key or "/" in item_id
+                        or tenant_name not in self._registry):
                     return Response(404, {"error": "not found"})
                 if self._owner_outbox_packet is None:
                     return Response(404, {"error": "not found"})
                 return self._owner_read(
-                    self._owner_outbox_packet(f"{p.tenant.value}:{key}"))
+                    self._owner_outbox_packet(item_id))
         if method == "POST" and path.startswith("/api/v1/owner/outbox/"):
             rest = path[len("/api/v1/owner/outbox/"):]
             if rest.endswith("/complete"):
-                key = rest[:-len("/complete")]
-                if not key or "/" in key:
+                item_id = urllib.parse.unquote(rest[:-len("/complete")])
+                tenant_name, _, key = item_id.partition(":")
+                if (not key or "/" in item_id
+                        or tenant_name not in self._registry):
                     return Response(404, {"error": "not found"})
                 if self._owner_outbox_complete is None:
                     return Response(404, {"error": "not found"})
@@ -1254,8 +1262,7 @@ class ApiApp:
                     return Response(400, {"error": "bad request"})
                 confirmed = bool(data.get("confirmed_twice", False))
                 out = self._owner_outbox_complete(
-                    f"{p.tenant.value}:{key}", data,
-                    confirmed_twice=confirmed)
+                    item_id, data, confirmed_twice=confirmed)
                 return Response(200 if out.get("ok") else 400, out)
         if method == "GET" and path == "/api/v1/owner/approved-manual":
             if self._owner_approved_manual is None:

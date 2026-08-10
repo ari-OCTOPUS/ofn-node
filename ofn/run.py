@@ -124,16 +124,20 @@ def build_node(cfg: config.Config) -> Node:
 
     # O10 — Telegram read-only pilot for studio (Ari approved: Telegram,
     # studio, read-only). The token comes from config (never printed or
-    # logged); the adapter only reads getMe/getWebhookInfo. Dormant-safe:
-    # a missing token makes health() report unhealthy, never crash.
+    # logged); the adapter only reads getMe/getWebhookInfo/getChatMemberCount.
+    # It uses the OWNER bot — the one with channel access (P0-4); the studio
+    # bot cannot see the broadcast channel, so a pilot on it would read
+    # nothing real. Dormant-safe: a missing token makes health() report
+    # unhealthy, never crash.
     pilot = None
     pilot_state = None
     try:
         from .adapters.platforms.telegram_readonly import TelegramReadOnlyAdapter
         from .adapters.pilot import PilotState, ReadOnlyPilot
-        token = str(cfg.bot_tokens.get("studio") or "")
+        token = str(cfg.bot_tokens.get("__owner__") or "")
         if token:
-            adapter = TelegramReadOnlyAdapter(token=token)
+            adapter = TelegramReadOnlyAdapter(
+                token=token, channel_id=cfg.telegram_channel_id or "")
             pilot_state = PilotState(connector_id="telegram",
                                      tenant="studio")
             pilot = ReadOnlyPilot(adapter, pilot_state, page_limit=20)

@@ -2943,31 +2943,112 @@ class Node:
         return {"ok": True, "channel_id": cid}
 
     def publish_to_telegram(self, scope: TenantScope, *, idem_key: str,
-                            caption: str, dry_run: bool = True,
+                            dry_run: bool = True,
                             confirmed_twice: bool = False) -> dict:
+        """Publish ONE approved outbox item to the Telegram channel.
+
+        The outbox is the ONLY exit (P0-2): this path refuses to send
+        anything that is not an outbox item in `approved_manual` state.
+        The caption comes from the item's own payload — text that was never
+        screened cannot be injected here. A successful real send moves the
+        item to `completed` with the external id as its receipt; the item
+        lifecycle IS the send lifecycle.
+
+        Release checks are real, not assumed (P0-3): consent is asked of
+        the consent store, the platform matrix screens the caption, the
+        call budget is consulted, the idempotency key is checked against
+        the outbox, and the ledger chain is verified. If any of them
+        cannot be answered, the answer is no.
+        """
         from .kernel.release_switch import (
             ReleaseContext, require_release_context,
         )
-        # Build the release context from THIS node's real state.
+        # P0-2: the outbox is the only exit. An item must exist and be
+        # approved by the owner; approval is the owner's step 1.
+        item = self.outbox.get(scope, idem_key)
+        if item is None or item.status != APPROVED_MANUAL:
+            return {"ok": False,
+                    "error": "send requires an approved outbox item",
+                    "rule": "outbox:not-approved-manual"}
+        caption = str((item.payload or {}).get("caption") or "").strip()
+        if not caption:
+            return {"ok": False, "error": "item has no caption",
+                    "rule": "publish:no-caption"}
+        draft_id = str((item.payload or {}).get("draft_id") or "")
+
+        # ── P0-3: every release check from real state, fail-closed ────────
+        # Sensitivity: from the item's collection. Restricted never leaves,
+        # and nothing here can claim otherwise on the item's behalf.
+        sensitivity = "restricted"
+        if draft_id and self.studio is not None:
+            try:
+                draft = self.studio.draft(draft_id)
+                if (draft is not None and draft.collection_id
+                        and hasattr(self.studio, "collection")):
+                    coll = self.studio.collection(draft.collection_id)
+                    if coll is not None:
+                        sensitivity = coll.sensitivity.value
+            except Exception:
+                sensitivity = "restricted"   # fail-closed
+
+        # Consent: every person in the draft must be cleared for THIS
+        # platform. No draft → nobody declared → not the same as nobody in
+        # it (fleet.judge rule) → refuse.
+        consent_ok = False
+        if draft_id and self.consent is not None:
+            rule = self._consent_for_platform(
+                draft_id, "telegram_channel",
+                now_epoch_s=self.now_epoch_s())
+            consent_ok = rule is None
+
+        # Platform matrix: the real telegram_channel rule screens the
+        # caption (framing, solicitation, caption_max, adult policy).
+        from .adapters.platform_matrix_loader import (
+            default_matrix_path, load_matrix)
+        matrix = load_matrix(default_matrix_path())
+        screen = matrix.screen(
+            platform="telegram_channel", caption=caption,
+            framing=str((item.payload or {}).get("framing") or "community"),
+            sensitivity=sensitivity,
+            adult_label=bool((item.payload or {}).get("adult_label", False)))
+        platform_ok = screen.ok
+
+        # Call budget: an outbound REMOTE spend must be allowed. If no
+        # budget is wired, the rate limit cannot be answered → no.
+        rate_limit_ok = False
+        if self.call_budget is not None:
+            rate_limit_ok = self.call_budget.allows(
+                Rung.REMOTE, self.now_epoch_s())
+
+        # Idempotency: the key has not been sent — the item is waiting in
+        # approved_manual, not completed/sent. A completed item cannot be
+        # sent again because the state machine refuses it above.
+        idempotency_unused = item.status == APPROVED_MANUAL
+
+        # Ledger: the chain must verify before anything leaves.
+        ledger_ready = False
+        if self.ledger is not None:
+            ledger_ready, _ = self.ledger.verify(scope)
+
         ctx = ReleaseContext(
-            owner_confirmed_step1=True,
+            owner_confirmed_step1=True,     # the item IS owner-approved
             owner_confirmed_step2=confirmed_twice,
             secret_rotation_open="secret_rotation" not in self.closed_gates,
             partner_precondition_open=(
                 "partner_precondition" not in self.closed_gates),
             kill_switch_active=self.killed,
-            sensitivity="general",
-            consent_ok=True,
-            platform_ok=True,
-            rate_limit_ok=True,
-            idempotency_unused=True,
-            ledger_ready=True,
+            sensitivity=sensitivity,
+            consent_ok=consent_ok,
+            platform_ok=platform_ok,
+            rate_limit_ok=rate_limit_ok,
+            idempotency_unused=idempotency_unused,
+            ledger_ready=ledger_ready,
         )
         verdict = require_release_context(ctx)
         if not verdict.ok:
             return {"ok": False, "error": "release blocked",
                     "rule": verdict.rule, "risk": verdict.risk}
-        # One item cap: this path publishes exactly one message per call.
+        # Adapter-level hard cap (Bot API limit), independent of the matrix.
         if len(caption) > 4096:
             return {"ok": False, "error": "caption too long",
                     "rule": "publish:caption-too-long"}
@@ -2991,6 +3072,18 @@ class Node:
                 "idem": idem_key, "dry_run": dry_run,
                 "external_id": result.external_id,
             }, self.now_iso())
+            if not dry_run and self.call_budget is not None:
+                # The send happened: spend the budget slot it was checked
+                # against. A dry-run must never consume a slot.
+                self.call_budget.record(Rung.REMOTE, self.now_epoch_s())
+            if not dry_run:
+                # The item's lifecycle ends here: approved → completed,
+                # witnessed by the external id. Without this the item would
+                # sit in approved_manual forever and could be sent twice.
+                self.outbox.complete_manual(
+                    scope, idem_key, self.now_iso(),
+                    completed_by="owner", channel="telegram",
+                    external_ref_digest=str(result.external_id or ""))
         else:
             self.ledger.append(scope, "TELEGRAM_PUBLISH_REFUSED", {
                 "idem": idem_key, "rule": result.rule, "dry_run": dry_run,

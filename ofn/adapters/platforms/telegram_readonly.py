@@ -16,6 +16,7 @@ docs/architecture/VENDOR-EVALUATION.md).
 from __future__ import annotations
 
 import json
+import urllib.parse
 import urllib.request
 
 from .base import (
@@ -36,9 +37,12 @@ class TelegramReadOnlyAdapter:
 
     platform = "telegram"
 
-    def __init__(self, token: str = "") -> None:
+    def __init__(self, token: str = "", channel_id: str = "") -> None:
         # Caller-provided token (config), never read from env here.
+        # channel_id: the broadcast channel the node publishes to; the pilot
+        # may read its member count with the same bot that publishes.
         self._token = token
+        self._channel_id = channel_id
 
     def _call(self, method: str) -> dict:
         """GET-style Bot API call. Returns the JSON result."""
@@ -62,6 +66,53 @@ class TelegramReadOnlyAdapter:
     def get_webhook_info(self) -> dict:
         """What URL the bot currently receives updates on (read-only)."""
         return self._call("getWebhookInfo")
+
+    def get_chat_member_count(self, chat_id: str) -> dict:
+        """How many members the bot can see in a chat/channel (read-only).
+
+        Needs a chat context; the bot must be a member (or admin) of the
+        channel. Fail-closed: any error is reported, never guessed.
+        """
+        return self._call(
+            "getChatMemberCount?" + urllib.parse.urlencode(
+                {"chat_id": chat_id}))
+
+    def read_page(self, cursor: str = "", limit: int = 20) -> dict:
+        """One bounded read-only page, for the O10 pilot harness.
+
+        Reads the bot's identity, its webhook state, and — when a channel
+        id is configured on the adapter — the channel's member count. Each
+        is a separate Bot API call; the page is the collection of their
+        results. `cursor` is accepted for pilot compatibility; these reads
+        have no pagination, so the next cursor is always empty.
+
+        Pure read, no state mutation, no publish. A page that fails reads
+        what it can and says so per-item — the pilot records receipts from
+        the items that answered, exactly like a real vendor page.
+        """
+        items: list[dict] = []
+        me = self.get_me()
+        if me.get("ok"):
+            r = me.get("result") or {}
+            items.append({"id": "me", "type": "bot_identity",
+                          "username": r.get("username", ""),
+                          "can_join_groups": r.get("can_join_groups")})
+        hook = self.get_webhook_info()
+        if hook.get("ok"):
+            r = hook.get("result") or {}
+            items.append({"id": "webhook", "type": "webhook_info",
+                          "url": r.get("url", ""),
+                          "pending": r.get("pending_update_count", 0)})
+        if self._channel_id:
+            count = self.get_chat_member_count(self._channel_id)
+            if count.get("ok"):
+                # getChatMemberCount returns the count directly in
+                # `result` (an int), not nested in an object.
+                n = count.get("result")
+                items.append({"id": "channel", "type": "member_count",
+                              "chat": self._channel_id,
+                              "count": n if isinstance(n, int) else 0})
+        return {"items": items[:limit], "next_cursor": ""}
 
     def health(self) -> dict:
         """Adapter-level health for the owner's panel."""

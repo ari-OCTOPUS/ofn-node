@@ -181,9 +181,21 @@ class TestKernelImportsCleanly(unittest.TestCase):
     def test_import_does_not_touch_the_world(self):
         """Importing the kernel must not create files, read env, or open sockets."""
         before = dict(os.environ)
-        for mod in [m for m in list(sys.modules) if m.startswith("ofn.kernel")]:
+        # Deleting the modules is the point of the check, but leaving them
+        # deleted would poison every later test: a fresh import creates a
+        # second set of class objects (e.g. a second Rung enum), and a node
+        # holding the first would mismatch a CallBudget holding the second.
+        # Restore what we removed, whatever the outcome.
+        removed = [m for m in list(sys.modules) if m.startswith("ofn.kernel")]
+        saved = {m: sys.modules[m] for m in removed}
+        for mod in removed:
             del sys.modules[mod]
-        import ofn.kernel  # noqa: F401
+        try:
+            import ofn.kernel  # noqa: F401
+        finally:
+            # Put the original module objects back so the classes this
+            # process already holds stay the ones in use.
+            sys.modules.update(saved)
         self.assertEqual(before, dict(os.environ),
                          "importing the kernel mutated the environment")
 

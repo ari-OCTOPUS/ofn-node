@@ -9,21 +9,63 @@ updated: 2026-08-10
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      1767 pass · 5 skip · 1772 collected (۲۰۲۶-۰۸-۱۰ · COMPLETE-FINISH)
+pytest      1860 pass · 5 skip (۲۰۲۶-۰۸-۱۰ · P0 بسته شد — سه ممیزی)
 preflight   boot OK — ۳۱/۳۱ · memory.sqlite read-only در quick_check
-گیت‌ها       secret_rotation 🔒 · partner_precondition 🔒 · miner_isolation 🔒
-WIRE        outbound خاموش · email/publish در env روشن ولی کد Python نمی‌خواندشان
-            (امنیت از outbox + store-layer status تأمین می‌شود، نه از این پرچم‌ها)
-بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
+گیت‌ها       secret_rotation 🔓 (باز — تا ۲۰۲۶-۰۸-۱۷) · partner_precondition 🔓 (باز)
+            miner_isolation 🔒 · + ۱۵ گیت بستهٔ اضافی در OFN_EXTRA_CLOSED_GATES
+            (wire_outbound · live_email/publish/sms/dm · tender/vendor/portal
+            submit · terms/fee/auto_* — همه بسته)
+WIRE        outbound خاموش (OFN_WIRE_OUTBOUND=0) · email/publish در env روشن ولی
+            کد Python نمی‌خواندشان (امنیت از outbox + store-layer status تأمین
+            می‌شود، نه از این پرچم‌ها)
+بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅
+            (Robo2725_bot = پنل اصلی همهٔ بیزنس‌ها + انتشار کانال) · hypno ✅
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear  →  هر چهار active
             پورت‌ها: ۸۷۹۱–۸۷۹۴ + hypno ۸۸۹۵ · ۸۰۹۰ تمیز
 دامنه‌ها     panel/ziman/lead/studio/app/hypno → همه ۲۰۰
 UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا روی ۸۸۹۵
             قدم دوم (خاموش‌کردن سرویس) منتظر حکم
-جدید        طرح اجرایی بعدی: MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH
-            O1–O8 پنل عملیاتی + manual-first · هنوز اجرا نشده
+جدید        P0 از سه ممیزی (آمادگی کسب‌وکار · پنل‌ها · ریسک انتشار) بسته شد:
+            completion چندتنانتی · publish فقط از outbox · checkهای release
+            واقعی · pilot read_page · HANDOFF/گیت‌ها همگام
+            قدم بعد: پنل‌های عملیاتی + پایلوت واقعی ۱۴روزه
 ```
+
+---
+
+## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — P0 بسته شد (سه ممیزی: آمادگی کسب‌وکار · پنل‌ها · ریسک انتشار)
+
+جمع‌بندی مشترک سه ممیزی: قبل از توسعهٔ بازاریابی، P0 باید بسته شود.
+هر پنج مورد اجرا، تست و commit شد (پایان جلسه `1860 pass · 5 skip`):
+
+1. **completion چندتنانتی** — روترهای `owner/outbox/{key}/packet` و
+   `/complete` قبلاً پیشوند `p.tenant.value` (اولین tenant رجیستری) را به
+   کلید اضافه می‌کردند؛ آیتمِ tenant دیگر با اسکوپ اشتباه جست‌وجو می‌شد.
+   حالا URL شناسهٔ کامل `tenant:key` (URL-encoded) را می‌برد و tenant را
+   علیه رجیستری اعتبار می‌کند. تست چندمستأجری: کلید مشترک در دو tenant،
+   فقط آیتمِ درست کامل می‌شود.
+2. **مسیر ارسال تلگرام خارج از outbox حذف شد** — `publish_to_telegram`
+   قبلاً مستقیم آداپتر را با یک `idem_key` آزاد صدا می‌زد. حالا فقط از روی
+   یک آیتم outbox در وضعیت `approved_manual` می‌فرستد (کپشن از payload
+   خود آیتم، نه از caller) و بعد از ارسال موفق، آیتم را `completed` می‌کند
+   (شاهد = external id). بدون آیتم/تأیید/ارسالِ قبلی → رد.
+3. **checkهای release واقعی شدند** — `ReleaseContext` دیگر hardcode True
+   ندارد: consent از consent store (فردِ بدون release → رد)، platform از
+   matrix واقعی telegram_channel، rate limit از call budget، idempotency
+   از وضعیت خود outbox، ledger از `ledger.verify()`.
+4. **pilot اصلاح شد** — `TelegramReadOnlyAdapter` اصلاً `read_page` نداشت
+   (هر run با AttributeError می‌مرد). `read_page` واقعی اضافه شد
+   (identity + webhook + عضوهای کانال، فقط-خواندنی، محدود به limit) و توکن
+   pilot از studio به **owner** عوض شد — همان باتِ دارای دسترسی کانال.
+5. **HANDOFF/گیت‌ها همگام شدند** — هدر قبلاً «هر سه گیت 🔒» می‌گفت، ولی
+   `secret_rotation` و `partner_precondition` طبق حکم آری بازند (تا
+   ۲۰۲۶-۰۸-۱۷). هدر حالا واقعیت را می‌گوید + ۱۵ گیت بستهٔ اضافی
+   (`OFN_EXTRA_CLOSED_GATES`).
+
+**قدم بعدی:** پنل‌های عملیاتی + پایلوت واقعی ۱۴روزه (طبق
+`docs/operations/PILOT-14DAY.md`). یادآوری: گیت‌ها تا ۲۰۲۶-۰۸-۱۷ بازند —
+بعد از آن یا چرخش رازها (`docs/runbooks/SECRET-ROTATION.md`) یا برگشت گیت‌ها.
 
 ---
 
