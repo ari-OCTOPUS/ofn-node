@@ -403,6 +403,17 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
        unreadable leg shows nothing rather than a plausible number. -->
 </div>
 
+<!-- امروز — کار عملیاتی مالک (O4). Read-only projection over the stores. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">📋</span><h2>امروز</h2><span class="chipx" id="todayChip">…</span></div>
+  <div class="paintgrid" id="todayBoard">
+    <div class="empty">در حال خواندن…</div>
+  </div>
+  <div class="memo" style="margin-top:14px">
+    <b>کار امروز، نه وضعیت سیستم.</b> منتظر تأیید · منتظر انجام دستی · لیدهای باز · قطعات آماده · draftهای استودیو.
+  </div>
+</div>
+
 <!-- تصمیم + قلب -->
 <div class="split">
 
@@ -450,6 +461,21 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
            weekly share; a full ring next to a detached brain is the kind of
            agreement-by-omission this panel exists to prevent. -->
       <div id="brainline"></div>
+
+      <!-- Owner tools (O4): backend-only controls, wired here so they are
+           usable. Each runs a real backend endpoint; status is honest —
+           queued/error, never a pre-claimed success. -->
+      <div style="margin-top:18px">
+        <div class="ph"><span class="ic">🧰</span><h2>ابزارهای مالک</h2></div>
+        <div class="pcols" style="grid-template-columns:1fr">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="tab" id="probeBtn" type="button">آزمون مغز</button>
+            <button class="tab" id="askBtn" type="button">سؤال از مغز</button>
+            <button class="tab" id="cycleBtn" type="button">اجرای چرخهٔ هفته</button>
+          </div>
+          <div class="state" id="ownerToolOut" hidden role="status" aria-live="polite"></div>
+        </div>
+      </div>
 
       <div class="memo" id="qmemo"></div>
     </div>
@@ -1159,6 +1185,33 @@ function drawInbox(obs) {
   }
 }
 
+function drawToday(board) {
+  const host = document.getElementById('todayBoard');
+  const chip = document.getElementById('todayChip');
+  host.textContent = '';
+  if (!board || !board.ok) {
+    chip.textContent = 'قطع';
+    host.append(mk('div', 'empty', 'میز کار امروز خوانده نشد.'));
+    return;
+  }
+  const t = board.today || {};
+  const lead = board.lead || {};
+  const ziman = board.ziman || {};
+  const studio = board.studio || {};
+  chip.textContent = `${fa(t.approvals || 0)} تأیید · ${fa(t.manual_pending || 0)} دستی`;
+  const grid = mk('div', 'paintgrid');
+  grid.append(pstat('منتظر تأیید', t.approvals || 0));
+  grid.append(pstat('انجام دستی', t.manual_pending || 0));
+  grid.append(pstat('لید باز', lead.open != null ? lead.open : '—'));
+  grid.append(pstat('قطعات آماده', ziman.ready_to_list != null
+    ? ziman.ready_to_list : '—'));
+  grid.append(pstat('draft استودیو', studio.drafts != null
+    ? studio.drafts : '—'));
+  grid.append(pstat('گپ لجر', board.gaps && board.gaps.ledger_gaps
+    ? board.gaps.ledger_gaps : 0));
+  host.append(grid);
+}
+
 function drawManual(data) {
   const box = document.getElementById('manual');
   const chip = document.getElementById('manualChip');
@@ -1711,15 +1764,16 @@ async function refresh() {
     const brainP = OFN.get('/api/v1/owner/brain').catch(() => null);
     const inboxP = OFN.get('/api/v1/owner/observability').catch(() => null);
     const manualP = OFN.get('/api/v1/owner/approved-manual').catch(() => null);
+    const todayP = OFN.get('/api/v1/owner/workboard').catch(() => null);
     const [status, queue, events, painting, metrics,
-           risks, chain, snapshot, brain, inbox, manual] =
+           risks, chain, snapshot, brain, inbox, manual, today] =
       await Promise.all([
         OFN.get('/api/v1/owner/status'),
         OFN.get('/api/v1/queue'),
         OFN.get('/api/v1/owner/events'),
         paintingP,
         metricsP,
-        riskP, chainP, snapP, brainP, inboxP, manualP,
+        riskP, chainP, snapP, brainP, inboxP, manualP, todayP,
       ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
@@ -1734,6 +1788,7 @@ async function refresh() {
     drawChain(chain);
     drawInbox(inbox);
     drawManual(manual);
+    drawToday(today);
     drawUnmeasured(snapshot);
     loadSurfaces().catch(e => console.error('loadSurfaces failed:', e));
     lastOk = Date.now();
@@ -1868,6 +1923,52 @@ async function boot() {
   /* Poll rather than push: the node has no socket layer, and a 30s window on
      a queue a human works through by hand is well inside useful. */
   setInterval(refresh, 30000);
+
+  /* Owner tools (O4): real backend endpoints, honest status. */
+  const toolOut = document.getElementById('ownerToolOut');
+  const toolSay = (text, ok) => {
+    toolOut.textContent = text;
+    toolOut.hidden = false;
+    toolOut.className = 'state ' + (ok ? '' : 'warn');
+  };
+  const probeBtn = document.getElementById('probeBtn');
+  if (probeBtn) probeBtn.onclick = async () => {
+    probeBtn.disabled = true;
+    toolSay('آزمون مغز به صف رفت…', true);
+    try {
+      const out = await OFN.post('/api/v1/owner/brain/probe', {});
+      toolSay(out.ok
+        ? 'آزمون ثبت شد — نتیجه در صف مغز می‌آید.'
+        : (out.error || 'آزمون رد شد.'), !!out.ok);
+    } catch (_) { toolSay('آزمون به دستگاه نرسید.', false); }
+    finally { probeBtn.disabled = false; }
+  };
+  const askBtn = document.getElementById('askBtn');
+  if (askBtn) askBtn.onclick = async () => {
+    const q = prompt('سؤال کوتاه از مغز (محدود و با هزینه):');
+    if (!q || !q.trim()) return;
+    askBtn.disabled = true;
+    toolSay('سؤال به صف مغز رفت…', true);
+    try {
+      const out = await OFN.post('/api/v1/owner/ask', { prompt: q.trim() });
+      toolSay(out.ok
+        ? 'سؤال ثبت شد — جواب در صف می‌آید.'
+        : (out.error || 'سؤال رد شد.'), !!out.ok);
+    } catch (_) { toolSay('سؤال به دستگاه نرسید.', false); }
+    finally { askBtn.disabled = false; }
+  };
+  const cycleBtn = document.getElementById('cycleBtn');
+  if (cycleBtn) cycleBtn.onclick = async () => {
+    cycleBtn.disabled = true;
+    toolSay('چرخهٔ هفته به صف رفت…', true);
+    try {
+      const out = await OFN.post('/api/v1/owner/marketing/run', {});
+      toolSay(out.ok
+        ? 'چرخه اجرا شد — نتیجه در بازاریابی خوانده می‌شود.'
+        : (out.error || 'چرخه رد شد.'), !!out.ok);
+    } catch (_) { toolSay('چرخه به دستگاه نرسید.', false); }
+    finally { cycleBtn.disabled = false; }
+  };
 }
 document.addEventListener('DOMContentLoaded', boot);
 </script>

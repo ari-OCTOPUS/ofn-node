@@ -2258,6 +2258,96 @@ class Node:
         except Exception as exc:
             return {"ok": False, "error": f"metrics unavailable: {exc}"}
 
+    def owner_workboard(self) -> dict:
+        """The owner's daily workboard — a read-only projection over the
+        canonical stores (O4). No parallel DB: every count below is a query
+        against the store that owns that data.
+
+        Sections:
+          - today: what needs the owner's hand (approvals, manual completions)
+          - lead: follow-ups due, open leads
+          - ziman: ready-to-list pieces, stale pieces
+          - studio: drafts blocked/ready
+          - gaps: held/failed inbox + outbox, ledger gaps
+          - missing_facts: per-leg facts the owner has not answered
+        """
+        now = self.now_iso()
+        out: dict[str, object] = {
+            "ok": True, "generated_at": now,
+            "today": {"approvals": 0, "manual_pending": 0},
+            "lead": {}, "ziman": {}, "studio": {},
+            "gaps": {"inbox_held": 0, "outbox_held": 0,
+                     "ledger_gaps": getattr(self, "_inbox_ledger_gaps", 0)},
+            "missing_facts": {},
+        }
+
+        # ── outbox: approvals + manual pending ────────────────────────────
+        for tenant in self.registry:
+            scope = self.registry.scope(tenant)
+            out["today"]["approvals"] += len(self.outbox.pending(scope))
+            out["today"]["manual_pending"] += len(
+                self.outbox.approved_manual(scope))
+            out["gaps"]["outbox_held"] += len(self.outbox.held(scope))
+
+        # ── inbox: held/failed per tenant (no raw bodies) ─────────────────
+        if self.inbox is not None:
+            try:
+                for tenant in self.registry:
+                    counts = self.inbox.counts(tenant.value)
+                    out["gaps"]["inbox_held"] += counts.get("held", 0)
+            except Exception:
+                pass
+
+        # ── lead: open leads + missing required facts ─────────────────────
+        for tenant in self.registry:
+            scope = self.registry.scope(tenant)
+            pack = self.registry.pack(tenant)
+            evidence = self.evidence_for(scope)
+            missing = [k for k, need in sorted(pack.required_facts.items())
+                       if not ((h := evidence.get(k)) is not None
+                               and h.meets(need))]
+            if missing:
+                out["missing_facts"][tenant.value] = missing
+        if self.painting is not None:
+            try:
+                leads = self.painting.list_leads("lead", limit=100)
+                out["lead"] = {
+                    "open": sum(1 for l in leads
+                                if l.get("status") in
+                                ("new", "review", "contacted", "quoted")),
+                    "hot": sum(1 for l in leads
+                               if l.get("temperature") == "hot"),
+                }
+            except Exception:
+                out["lead"] = {"open": None, "hot": None,
+                               "why": "not_measured"}
+        if self.products is not None:
+            try:
+                pieces = self.products.list("ziman")
+                out["ziman"] = {
+                    "ready_to_list": sum(
+                        1 for p in pieces
+                        if p.get("state") in ("photo_ready", "ready")),
+                    "stale": sum(
+                        1 for p in pieces
+                        if p.get("verdicts") and "stale" in p.get("verdicts")),
+                }
+            except Exception:
+                out["ziman"] = {"ready_to_list": None, "stale": None,
+                                "why": "not_measured"}
+        if self.studio is not None:
+            try:
+                drafts = self.studio.drafts("studio")
+                out["studio"] = {
+                    "drafts": len(drafts or []),
+                    "ready": sum(1 for d in (drafts or [])
+                                 if d.get("status") == "ready"),
+                }
+            except Exception:
+                out["studio"] = {"drafts": None, "ready": None,
+                                 "why": "not_measured"}
+        return out
+
     def owner_observability(self) -> dict:
         """Inbox visibility for the owner's panel — what this node holds.
 

@@ -240,6 +240,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_events=node.recent_events,
         owner_metrics=node.owner_metrics,
         owner_observability=node.owner_observability,
+        owner_workboard=node.owner_workboard,
         engage_kill=node.engage_kill,
         release_kill=node.release_kill,
         owner_snapshot=node.owner_snapshot,
