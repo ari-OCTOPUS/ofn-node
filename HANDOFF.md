@@ -9,8 +9,8 @@ updated: 2026-08-09
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      OFN ۱۵۷۲ + ۵ skip   ← خط پایهٔ زنده. با
-            python3 tools/repo_baseline.py --tests تولیدش کن، در سند ننویس
+pytest      OFN ۱۶۰۰ جمع‌آوری / ۱۵۹۵ سبز / ۵ skip   ← خط پایهٔ زنده. با
+            python3 tools/repo_baseline.py --tests تأییدش کن، عدد ثابت ننویس
 preflight   ۲۱/۲۱
 boot        OK — ۲۸/۲۸ (NORMAL)
 گیت‌ها       secret_rotation 🔒 · partner_precondition 🔒 · miner_isolation 🔒
@@ -118,6 +118,7 @@ hypno             تنانت واقعی · خارج از scope پرتفوی تا
 و `hypno` که حالا برچسب دارد.
 
 - **هیچ کنترل نوشتن/ارسال/انتشار/تأیید اضافه نشد.**
+- **تبصره:** میز نقاشی (painting desk) فرم‌های POST دارد (leads, channels, modules, interactions, campaigns, accounts, tenders, vendors) — این عمدی و قدیمی است. «فقط‌خواندنی» در مگاپرامپت ناظر endpointهای جلسهٔ ۰۸-۰۹ (outbox/ledger/levels/brain) بود، نه کل POSTهای نقاشی.
 - endpointهای خواندنی مالک همچنان احراز هویت می‌خواهند؛ بدون آن ۴۰۱ می‌دهند.
 - HTML پنل موقع بوت خوانده می‌شود، پس ری‌استارت کنترل‌شدهٔ OFN لازم بود و
   با موفقیت انجام شد.
@@ -135,7 +136,7 @@ hypno             تنانت واقعی · خارج از scope پرتفوی تا
 
 ```
 HEAD              df927e7
-pytest            ۱۵۷۲ سبز · ۵ skip
+pytest            ۱۵۹۵ سبز · ۵ skip (总数: ۱۶۰۰; تأیید: tools/repo_baseline.py --tests)
 سرویس‌ها           ofn · ofn-boot · cloudflared  →  هر سه active
 سلامت             loopback و HTTPS برای ziman · lead · studio · panel  همه سبز
 SAFE MODE         نه · schema drift نه · traceback نه · فعالیت خروجی نه
@@ -219,7 +220,7 @@ outbox            پیش و پس از ری‌استارت خالی
 - **Bluetooth هم راه افتاد** در همین جلسه: `hciattach` روی UART9، سرویس
   `ap6256-bt.service`، hci0 UP با BT 5.0. مستقل از سه قابلیت بالا.
 - **NPU librknnrt.so v2.3.2** نصب شد + راهنمای کامل `NPU-GUIDE.md`.
-- کل suite: **۱۵۴۸ تست سبز، ۵ skip، صفر fail** — هیچ regression.
+- کل suite: **تعداد تست: عدد را از `tools/repo_baseline.py --tests` بگیرید، صفر fail** — هیچ regression.
 - هیچ رازی خوانده/چاپ/نوشته نشد. هیچ WIRE_* روشن نشد. هیچ چیزی به بیرون نرفت.
 
 ---
@@ -318,7 +319,7 @@ lead_priority()` ساخته و تست شده بود ولی هیچ‌وقت صد�
 امتیاز صرفاً پیشنهاد/اولویت‌بندی است؛ اجازهٔ اقدام نمی‌دهد.
 
 **تست:** ۴ تست جدید در `test_painting_store.py` (مدل lead_priority، ماندگاری
-score_json، بازمحاسبهٔ update، مهاجرت فایل قدیمی). کل: ۱۵۰۰ سبز + ۵ skip.
+score_json، بازمحاسبهٔ update، مهاجرت فایل قدیمی). کل: ۱۵۹۵ سبز + ۵ skip (تأیید: tools/repo_baseline.py --tests).
 `schema:painting` در `test_schema_drift.py` هم سبز.
 
 **هشدار — وزن‌ها هنوز کالیبره نیستند.** `_lead_components` الفبای اولیه است،
@@ -399,7 +400,7 @@ lead=`ssaabbaabot2725bot`، owner=`Robo2725_bot`). سرویس ری‌استار�
 تست‌های جدید: ۱۹ تست (نمره‌گیری، تجزیه، endpointها، upsert، chat wiring،
 بحران-قبل-از-مغز، idempotency اسکیما).
 
-**۶۲ تست سبز** (۴۳ + ۱۹). `hypno-fugu-mini.service` active. هیچ دیتای قدیمی
+**۶۲ تست سبز (تاریخی)** (۴۳ + ۱۹). `hypno-fugu-mini.service` active. هیچ دیتای قدیمی
 دست‌نخورد (۱۳۲ پژوهش، پیام‌ها دست‌نخورده). جدول `edge_daily` با
 `CREATE TABLE IF NOT EXISTS` اضافه شد.
 
@@ -416,13 +417,10 @@ lead=`ssaabbaabot2725bot`، owner=`Robo2725_bot`). سرویس ری‌استار�
 کاوش کامل کد لید نقاشی (تنانت `lead`، پورت ۸۷۹۲) نشان داد بیشتر از حد تصور
 ساخته شده، ولی چند جا وصل نیست. ترتیب اولویت:
 
-1. **امتیاز لید اشتباه وصل است.** `kernel/painting_math.py:lead_priority()`
-   (تست‌شده، وزنی، تفسیرپذیر) هرگز صدا زده نمی‌شود. به‌جایش
-   `lead_store.py:_score()` (یک heuristic کلمه‌کلیدی ساده) اجرا می‌شود. B2B/
-   مناقصه/منبع از مدل واقعی استفاده می‌کنند و `score_json` ذخیره می‌کنند،
-   ولی لیدها نه — یعنی یک ناهماهنگی درونی. **باید `lead_priority` در
-   `create_lead`/`update_lead` وصل شود (و `score_json` مثل بقیه ذخیره شود)،
-   یا تابع مرده حذف شود.**
+1. **✅ رفع شد (۲۰۲۶-۰۸-۱۰).** `kernel/painting_math.py:lead_priority()`
+   در `create_lead`/`update_lead` وصل شد (از طریق `_score_payload()`).
+   `_score()` قدیمی حذف شد. `score_json` در schema و ذخیره‌سازی فعال است.
+   ۱۲ تست سبز. (D-23 بسته)
 2. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** جریان خروجی ساخته شد: `send_lead_reply`
    (یادداشت/SMS/ایمیل) و `send_lead_quote` در `node.py`. یادداشت سبز (interaction
    + ledger، بدون outbox)؛ SMS/ایمیل/قیمت RED (وارد outbox → owner_queue →
@@ -431,9 +429,10 @@ lead=`ssaabbaabot2725bot`، owner=`Robo2725_bot`). سرویس ری‌استار�
    + dropdown تغییر وضعیت + sheet جواب/قیمت. سبک گرم/غیرفنی (D-22).
 4. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** `GET /api/v1/painting/leads` partner اضافه شد
    با q/status. `ApiApp.handle` حالا query می‌گیرد (backward-compatible).
-5. **سورس‌رجیستری ساکت شکست می‌خورد.** `node.py` بارگذاری
-   `data/painting_source_registry.json` را در `except Exception: pass` پیچیده؛
-   اگر فایل غایب/خراب باشد، جدول منابع خالی می‌ماند بدون هیچ لاگی.
+5. **✅ رفع شد (۲۰۲۶-۰۸-۱۰).** سورس‌رجیستری دیگر ساکت شکست نمی‌خورد.
+   `node.py` بارگذاری `data/painting_source_registry.json` را در `except Exception: pass`
+   پیچیده بود؛ اگر فایل غایب/خراب بود، جدول منابع خالی می‌ماند بدون هیچ لاگی.
+   except clause حالا یک هشدار به stderr می‌نویسد.
 6. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** `test_painting_outbox.py` ۱۲ تست با Node و
    Outbox و Ledger واقعی اضافه شد: note بدون outbox، SMS/quote در RED،
    idempotency، تغییر وضعیت خودکار، owner_queue.
@@ -613,6 +612,9 @@ sudo journalctl -u ofn --since "-10 min" | grep "shell/boot"
 ### ۱. شناسهٔ اپراتور در allowlist استودیو
 
 اگر برای تست اضافه شد، **باید برداشته شود**.
+
+> ⚠️ (۲۰۲۶-۰۸-۱۰) `OFN_PARTNER_USER_IDS_STUDIO` در هیچ‌جای مخزن یافت نشد —
+> یا قبلاً حذف شده یا هرگز با این نام وجود نداشت. صاحب تأیید کند.
 
 ```
 [ ] بعد از بردار طلایی: شناسهٔ اپراتور از OFN_PARTNER_USER_IDS_STUDIO حذف

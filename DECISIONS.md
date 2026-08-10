@@ -389,14 +389,12 @@ inference، dataset، database، backend) در متن قابل‌مشاهدهٔ 
 
 ### D-23 · امتیاز لید باید از مدل وزنی بیاید، نه heuristic
 
-*(۲۰۲۶-۰۸-۰۶ — **باز، اجرا نشده**)*
+*(۲۰۲۶-۰۸-۰۶ — **باز** · ۲۰۲۶-۰۸-۱۰ — **بسته، اجرا شده**)*
 
-`kernel/painting_math.py:lead_priority()` یک مدل امتیازدهی وزنی و تفسیرپذیر
-است که تست شده، ولی هرگز صدا زده نمی‌شود. به‌جایش `lead_store.py:_score()` یک
-heuristic کلمه‌کلیدی ساده است. B2B/مناقصه/منبع از مدل واقعی استفاده می‌کنند،
-پس لیدها ناهماهنگ‌اند. تصمیمِ لازم از مالک: آیا `lead_priority` در
-`create_lead`/`update_lead` وصل شود (و `score_json` مثل بقیه ذخیره شود)، یا
-تابع مرده حذف شود؟ تا آن زمان، تفاوت در [[HANDOFF]] بخش «لید نقاشی» ثبت است.
+`kernel/painting_math.py:lead_priority()` وصل شد در `create_lead` و `update_lead`
+از طریق `_score_payload()` در `lead_store.py`. `_score()` قدیمی حذف شد.
+`score_json` در schema و ذخیره‌سازی فعال است. ۴ تست اختصاصی + ۸ تست
+painting_math — همه سبز. ✅
 
 ### D-24 · خروجی لید قفل است تا رازها بچرخند
 

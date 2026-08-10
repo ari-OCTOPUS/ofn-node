@@ -42,7 +42,7 @@ inference، dataset، database، backend ([[DECISIONS|D-22]]).
 تأیید کن با کوئری زنده، نه با این سند:
 
 ```
-pytest hypno            python3 -m pytest -q   →  ۴۳ تست سبز
+pytest hypno            python3 -m pytest -q   →  ۴۳ تست سبز (تاریخی)
 DB hypno research_docs  ۱۳۲ (۱۲۴ قدیم + ۸ لبه)
 services                hypno-fugu-mini.service active
 edge.py                 ۳۲۴ خط · ۱۹ تابع · خالص stdlib · در kernel/edge.py

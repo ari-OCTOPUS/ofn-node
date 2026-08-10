@@ -670,11 +670,13 @@ const aud = n => (n == null || isNaN(n)) ? '—'
   : money.symbol + fa(Number(n).toFixed(2));
 const pct = n => (n == null || isNaN(n)) ? '—' : fa(Math.round(n * 100)) + '٪';
 
+function toLatinDigits(s) {
+  return String(s).replace(/[۰-۹٠-٩]/g, d => '۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10);
+}
+
 function num(v) {
   if (v == null) return null;
-  const t = String(v).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-                     .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-                     .replace(/[,٬]/g, '').trim();
+  const t = toLatinDigits(String(v)).replace(/[,٬]/g, '').trim();
   if (!t) return null;
   const n = Number(t);
   return isNaN(n) ? null : n;
@@ -935,7 +937,11 @@ function drawSummary() {
 
 async function submitPiece() {
   const body = {};
-  STEPS.forEach(q => { body[q.key] = draft[q.key] != null ? draft[q.key] : ''; });
+  STEPS.forEach(q => {
+    let v = draft[q.key] != null ? draft[q.key] : '';
+    if (typeof v === 'string') v = toLatinDigits(v);
+    body[q.key] = v;
+  });
   const sku = draft.__sku;
   try {
     const out = sku

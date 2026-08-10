@@ -156,10 +156,12 @@ class TestTierZeroCannotCarryPixels(unittest.TestCase):
 
 
 class TestTheTwoTimestamps(Store):
-    def test_a_rating_given_before_any_number_is_trustworthy(self):
+    def test_a_rating_without_a_confirmed_first_metric_is_not_trustworthy(self):
+        """fail-closed: if record_first_metric was never called (dead code in
+        production), we must NOT assume the rating was independent."""
         self.draft()
         d = self.s.record_felt_right("d1", 4, now_epoch_s=NOW)
-        self.assertTrue(d.rating_is_trustworthy)
+        self.assertFalse(d.rating_is_trustworthy)
 
     def test_a_rating_given_after_a_number_is_not(self):
         """The whole point. At that moment the answer is a reflection of the
@@ -211,14 +213,18 @@ class TestTheTwoTimestamps(Store):
                 self.s.record_felt_right("d1", bad, now_epoch_s=NOW)
 
     def test_only_trustworthy_rows_are_offered_to_an_analysis(self):
-        self.draft("clean")
-        self.s.record_felt_right("clean", 5, now_epoch_s=NOW)
-        self.draft("dirty")
-        self.s.record_first_metric("dirty", now_epoch_s=NOW)
-        self.s.record_felt_right("dirty", 5, now_epoch_s=NOW + HOUR)
+        # "verified": rating given BEFORE the metric → trustworthy
+        self.draft("verified")
+        self.s.record_felt_right("verified", 5, now_epoch_s=NOW - HOUR)
+        self.s.record_first_metric("verified", now_epoch_s=NOW)
+        # "contaminated": metric arrived BEFORE the rating → not trustworthy
+        self.draft("contaminated")
+        self.s.record_first_metric("contaminated", now_epoch_s=NOW)
+        self.s.record_felt_right("contaminated", 5, now_epoch_s=NOW + HOUR)
+        # "unrated": no rating at all
         self.draft("unrated")
         self.assertEqual([d.draft_id for d in self.s.trustworthy_ratings("studio")],
-                         ["clean"])
+                         ["verified"])
 
 
 class TestTheShape(Store):
@@ -311,7 +317,9 @@ class TestDurability(Store):
     def test_it_survives_reopening(self):
         self.coll()
         self.draft(cid="c1")
-        self.s.record_felt_right("d1", 4, now_epoch_s=NOW)
+        # rating before metric → trustworthy
+        self.s.record_felt_right("d1", 4, now_epoch_s=NOW - HOUR)
+        self.s.record_first_metric("d1", now_epoch_s=NOW)
         self.s.close()
         again = StudioStore(self.path)
         self.addCleanup(again.close)

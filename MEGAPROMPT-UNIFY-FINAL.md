@@ -17,7 +17,7 @@ tags: [ofn, hypno, unify, megaprompt, finalize] aliases: [مگاپرامپت ن�
 
 text
 fugu_core    ~/shared/fugu_core/         ۲۵ تست سبز
-OFN          /home/ari/ofn               ۱۵۱۲ تست سبز + ۵ skip
+OFN          /home/ari/ofn               ۱۵۱۲ تست سبز + ۵ skip (تاریخی)
 hypno        /home/ari/hypno-fugu-mini   ۶۲ تست سبز
 مجموع        ۱۵۹۹ تست سبز
 سرویس‌ها (همه active)
@@ -172,7 +172,7 @@ commit.
 فاز ۴ — اتصال inline (اختیاری، خطرناک‌ترین)
 فقط اگه فازهای ۱ تا ۳ سبز شدند.
 config.py + run.py + studio_assistant.py.
-pytest tests/ در OFN — باید ۱۵۱۲ سبز بماند.
+pytest tests/ در OFN — باید ۱۵۱۲ سبز بماند. (تاریخی)
 تست جدید: cross-store consistency.
 restart + smoke + تست دستی از پنل.
 commit.

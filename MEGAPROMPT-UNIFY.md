@@ -22,7 +22,7 @@ updated: 2026-08-07
 دستیار فارسی تلگرامی می‌سازند:
 
 ```
-/home/ari/ofn                ← Octopus Field Node · مولتی‌تنانت · ۱۵۰۱ تست
+/home/ari/ofn                ← Octopus Field Node · مولتی‌تنانت · ۱۵۰۱ تست (تاریخی)
 /home/ari/hypno-fugu-mini    ← مینی‌اپ خودهیپنوتیزمی · تک‌کاربر · ۵ تست
 ```
 
@@ -50,7 +50,7 @@ payload، inference، dataset، database، backend.
 این اعداد را با کوئری زنده تأیید کن، نه با این سند:
 
 ```
-pytest OFN          python3 -m pytest --co -q   →  ۱۵۰۱ تست جمع‌آوری‌شده
+pytest OFN          python3 -m pytest --co -q   →  ۱۵۰۱ تست جمع‌آوری‌شده (تاریخی)
 pytest hypno        ۵ تست در tests/test_core.py
 DB OFN assistant    assistant_chat_turns=۹ · assistant_chunks=۲۶ (نه ۲/۱۹)
 DB hypno            research_docs=۱۲۴ · messages=۲۹ · memories=۰

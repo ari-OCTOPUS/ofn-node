@@ -289,7 +289,7 @@ class Draft:
         if self.felt_right is None or self.felt_right_at is None:
             return False
         if self.first_metric_at is None:
-            return True
+            return False
         return self.felt_right_at < self.first_metric_at
 
 

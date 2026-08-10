@@ -297,10 +297,11 @@ class TestPublishStopsAtTheOutbox(Base):
 
 
 class TestHerReading(Base):
-    def test_a_rating_before_any_number_is_trustworthy(self):
+    def test_a_rating_without_a_confirmed_first_metric_is_not_trustworthy(self):
+        """fail-closed: no record_first_metric call → not trustworthy."""
         self.person(); self.draft()
         r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/felt", {"rating": 4})
-        self.assertTrue(r.body["trustworthy"])
+        self.assertFalse(r.body["trustworthy"])
 
     def test_a_rating_after_a_number_is_kept_but_marked(self):
         self.person(); self.draft()

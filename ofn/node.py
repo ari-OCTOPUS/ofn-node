@@ -2302,8 +2302,9 @@ class Node:
                 path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "painting_source_registry.json")
                 with open(path, "r", encoding="utf-8") as fh:
                     self.painting.ensure_source_registry(scope.tenant.value, json.load(fh).get("sources", []), self.now_iso())
-            except Exception:
-                pass
+            except Exception as exc:
+                import sys
+                print(f"WARN painting_source_registry load failed: {exc}", file=sys.stderr)
         return {"ok": True, **self.painting.dashboard(scope.tenant.value), "mini_webs": self.owner_mini_webs_summary(), "telegram": self.owner_telegram_summary()}
 
     def create_painting_lead(self, body: Mapping[str, object], *, actor: str = "owner") -> dict:

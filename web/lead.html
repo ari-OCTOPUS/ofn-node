@@ -307,6 +307,7 @@ const el = (tag, cls, txt) => {
   if (txt != null) n.textContent = txt;   // never innerHTML for node data
   return n;
 };
+function escLike(s) { return s.replace(/[%_\\]/g, '\\$&'); }
 
 /* Sample-card handler. Preview only — it posts nothing, and when the page is
    not live these buttons are disabled outright rather than left to report a
@@ -486,7 +487,7 @@ async function refreshLeadCrm(){
     bar.append(si,ss);
     box.append(bar);
     let to;
-    si.oninput=()=>{clearTimeout(to);to=setTimeout(()=>{LEAD.q=si.value.trim();LEAD.offset=0;drawList();},350);};
+    si.oninput=()=>{clearTimeout(to);to=setTimeout(()=>{LEAD.q=escLike(si.value.trim());LEAD.offset=0;drawList();},350);};
     ss.onchange=()=>{LEAD.status=ss.value;LEAD.offset=0;drawList();};
     /* list container */
     const list=el('div'); list.id='leadlist'; box.append(list);
@@ -507,7 +508,7 @@ async function drawList(){
   list.append(el('div','state','در حال آوردن لیدها…'));
   try{
     const params=new URLSearchParams();
-    if(LEAD.q)params.set('q',LEAD.q);
+    if(LEAD.q)params.set('q',escLike(LEAD.q));
     if(LEAD.status)params.set('status',LEAD.status);
     const d=await OFN.get('/api/v1/painting/leads'+(params.toString()?'?'+params:''));
     list.textContent='';
@@ -679,7 +680,7 @@ async function boot() {
      the app to no CRM at all. Not awaited: it handles its own failures, and
      the question flow above must not wait on a dashboard read.
      Pinned by tests/test_shell_reachability.py. */
-  refreshLeadCrm();
+  refreshLeadCrm().catch(e => console.error('refreshLeadCrm failed:', e));
 
   if (st && st.safe_mode) {
     const box = document.getElementById('state');
@@ -688,7 +689,7 @@ async function boot() {
     box.textContent = 'دستگاه در حالت ایمن است. جواب‌ها ثبت می‌شوند ولی هیچ کاری بیرون نمی‌رود.';
   }
 }
-document.addEventListener('DOMContentLoaded', boot);
+document.addEventListener('DOMContentLoaded', () => boot().catch(e => console.error('boot failed:', e)));
 </script>
 </body>
 </html>

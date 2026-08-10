@@ -1,7 +1,7 @@
 ---
 tags: [ofn, moc, home]
 aliases: [خانه, نقشه, Home]
-updated: 2026-08-09
+updated: 2026-08-10
 ---
 
 # 🐙 OFN — نقشهٔ پروژه
@@ -63,7 +63,7 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
 - 🔲 [[MEGAPROMPT-UNIFY]] — ادغام دو ایجنت (fugu_core، memory.sqlite سه‌لایه، auth مشترک).
 - ✅ لید نقاشی: `lead_priority()` واقعاً وصل است (`lead_store.py:500`).
-  ⚠️ ولی CRM شریک در `lead.html` در `boot()` صدا زده نمی‌شه — [[AUDIT-2026-08-08]] HIGH-1.
+  ✅ CRM شریک هم وصل شد — HIGH-1 در [[AUDIT-2026-08-08]] بسته شد (۲۰۲۶-۰۸-۱۰).
 
 **🔴 فوری از ممیزی (انتخاب با آری):**
 - **CRIT-1 · یافتهٔ CRITICAL باز** — [[AUDIT-2026-08-08]].
@@ -101,6 +101,8 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ## مگاپرامپت‌ها
 
+- [[MEGAPROMPT-OWNER-COMPLETE]] — **مالک کامل: ناهنجاری‌ها + دیباگ همهٔ وب‌اپ‌ها** (۲۰۲۶-۰۸-۱۰)
+- [[AGENT-NEXT-OWNER-COMPLETE]] — **دستورالعمل ایجنت بعدی** بعد از اجرای موازی A–J
 - [[MEGAPROMPT]] — دستورکار اصلی پروژه
 - [[MEGAPROMPT-UNIFY]] — **ادغام دو ایجنت + حافظهٔ سه‌لایه + مغز مشترک** (مگاپرامپت نهایی)
 - [[MEGAPROMPT-EDGE-DEEP]] — **پرورش عمیق مدل لبهٔ سیستم** (مکمل؛ وصل edge.py به مغز + endpoint + حافظهٔ روزانه)
@@ -131,11 +133,11 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 
 ---
 
-## وضعیت — اندازه‌گیری ۲۰۲۶-۰۸-۰۹ (پایان جلسه)
+## وضعیت — اندازه‌گیری ۲۰۲۶-۰۸-۱۰ (پایان جلسه)
 
 ```
 pytest OFN          عدد را از tools/repo_baseline.py --tests بگیر — اینجا نوشته نمی‌شود
-pytest hypno        ۶۲ تست سبز
+pytest hypno        ۶۲ تست سبز (تاریخی)
 سرویس‌ها             ofn · cloudflared · dropbear · hypno-fugu-mini  →  هر چهار active
                     ofn-alert.service نصب شد (OnFailure روی ofn.service)
 پورت‌ها              ۸۷۹۱(ziman) ۸۷۹۲(lead) ۸۷۹۳(studio/saba) ۸۷۹۴(owner) ۸۸۹۵(hypno)
@@ -185,15 +187,16 @@ preflight           ۲۸/۲۸ OK
 - هیچ راز، هیچ PII و هیچ خروجی خام مدل داخل والت نمی‌رود. والت روی گیت‌هاب
   می‌رود ([[CLAUDE|آیین پایان جلسه]]).
 
-## لید نقاشی — کجا وصل نیست
+## لید نقاشی — وضعیت اتصال
 
 لید نقاشی بیشتر از آن‌که تصور می‌شود ساخته شده، ولی چند جا وصل نیست:
 
 ```
 ✅ ورودی کامل   ثبت لید · امتیازدهی · ۸ جدول (lead_store.py) · داشبورد مالک غنی
 ✅ امتیاز لید   مدل واقعی lead_priority() وصل است (lead_store.py:500) — heuristic فقط پل است
-⚠️ UI پارتنر    lead.html جستجو/فیلتر/تغییر وضعیت + sheet جواب/قیمت ساخته شده،
-                ولی refreshLeadCrm() در boot() صدا زده نمی‌شه — عباس CRM رو نمی‌بینه (HIGH-1)
+✅ UI پارتنر    lead.html جستجو/فیلتر/تغییر وضعیت + sheet جواب/قیمت — و از
+                ۲۰۲۶-۰۸-۱۰ روی مسیر بوت هم هست. HIGH-1 بسته شد.
+                داشبورد نمونهٔ ساختگی و دکمه‌های بی‌اثرش هم حذف شدند.
 ✅ خروجی        outbox/consent برای leg لید ساخته شد؛ quote/پاسخ از درب fail-closed.
 ✅ تست‌ها       owner خوب؛ مسیر پارتنر با ۱۲ تست Node واقعی پوشش یافت.
 ```
@@ -237,7 +240,7 @@ preflight           ۲۸/۲۸ OK
 ✅ مغز وصل شد     brain.py: _extract_scores + EDGE_SYSTEM_PROMPT
 ✅ endpoint       POST /api/edge/decision · POST /api/edge/daily · GET /api/edge/history
 ✅ حافظه روزانه   store.py: جدول edge_daily (upsert) + قانون سه‌روزه
-✅ تست            ۶۲ تست سبز (۴۳ + ۱۹ جدید)
+✅ تست            ۶۲ تست سبز (۴۳ + ۱۹ جدید) — عدد تاریخی
 ```
 
 جزئیات در [[HANDOFF]] بخش «پرورش عمیق مدل لبهٔ سیستم». طراحی کامل در

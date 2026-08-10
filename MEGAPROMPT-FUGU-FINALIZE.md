@@ -36,7 +36,7 @@ owner: سبا/آری
 
 ```
 fugu_core    ~/shared/fugu_core/         ۲۵ تست سبز
-OFN          /home/ari/ofn               ۱۵۱۲ تست سبز + ۵ skip
+OFN          /home/ari/ofn               ۱۵۱۲ تست سبز + ۵ skip (تاریخی)
 hypno        /home/ari/hypno-fugu-mini   ۶۲ تست سبز
 مجموع        ۱۵۹۹ تست سبز
 ```
@@ -265,7 +265,7 @@ seed شده). ولی OFN هنوز از `fugu_core.memory` در runtime استف�
 ### فاز ۴ — اتصال inline (اختیاری، خطرناک‌ترین)
 1. فقط اگه فازهای ۱ تا ۳ سبز شدند.
 2. `config.py` + `run.py` + `studio_assistant.py`.
-3. `pytest tests/` در OFN — باید ۱۵۱۲ سبز بماند.
+3. `pytest tests/` در OFN — باید ۱۵۱۲ سبز بماند. (تاریخی)
 4. تست جدید: cross-store consistency.
 5. restart + smoke + تست دستی از پنل.
 6. commit.

@@ -1597,7 +1597,7 @@ async function refresh() {
     drawOutbox(risks);
     drawChain(chain);
     drawUnmeasured(snapshot);
-    loadSurfaces();
+    loadSurfaces().catch(e => console.error('loadSurfaces failed:', e));
     lastOk = Date.now();
     document.getElementById('stale').hidden = true;
     /* Sync the kill state from the node's source of truth. The banner and

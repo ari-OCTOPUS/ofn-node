@@ -5,7 +5,7 @@
 | Integration | Current status (2026-08-08) | Safe mode | Notes |
 |---|---:|---|---|
 | Telegram Owner Bot | ✅ Configured | approval/read | `OFN_BOT_TOKEN_OWNER` + `OFN_OWNER_USER_IDS` populated; owner allowlist active |
-| Telegram Lead Bot | ✅ FIXED — allowlist populated | partner CRM | Previously "locked" — `OFN_PARTNER_USER_IDS_LEAD` now set. ⚠️ However, partner CRM UI (`refreshLeadCrm` in lead.html) is NOT called in `boot()` — see AUDIT-2026-08-08 HIGH-1. |
+| Telegram Lead Bot | ✅ FIXED — allowlist populated | partner CRM | Previously "locked" — `OFN_PARTNER_USER_IDS_LEAD` now set. ✅ Partner CRM UI (`refreshLeadCrm`) is on the boot path as of 2026-08-10; AUDIT-2026-08-08 HIGH-1 closed. |
 | Instagram | ⚠️ ABSENT — no adapter | — | No read-only audit adapter exists. Only a "planned" row in `painting_source_registry.json`. Previous doc's "read-only first" was an intent, not wiring. |
 | Google Business Profile | ⚠️ ABSENT — no adapter | — | Same as Instagram: planned in registry, no code. |
 | Cloudflared tunnel | ✅ Configured | routes only | `config.yml` maps panel/ziman/lead/studio/app/hypno. Does NOT route port 8090 (backup server) — good. |
