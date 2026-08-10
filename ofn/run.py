@@ -107,13 +107,16 @@ def build_node(cfg: config.Config) -> Node:
     painting.ensure_seed_channels("lead", config.now_iso())
     assistant = StudioAssistantStore(cfg.assistant_path, shared_memory=_shared_memory(cfg))
     inbox = MarketingInbox(cfg.inbox_path)
+    from .adapters.inbound_rate import InboundRateLimiter
+    rate_limiter = InboundRateLimiter()
 
     return Node(products=products, studio=studio, consent=consent, media=media,
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso, state_dir=cfg.state_dir,
-                base_closed_gates=cfg.base_closed_gates, boot=report, inbox=inbox)
+                base_closed_gates=cfg.base_closed_gates, boot=report,
+                inbox=inbox, rate_limiter=rate_limiter)
 
 
 def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:

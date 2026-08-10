@@ -275,7 +275,7 @@ class ApiApp:
         self._now = now
         self._replay = ReplayGuard()
         self._questions_for = questions_for or (lambda s, u: [])
-        self._submit_answer = submit_answer or (lambda s, u, b: {"ok": True})
+        self._submit_answer = submit_answer or (lambda s, u, b: {"ok": False, "error": "answers not wired"})
         self._status_for = status_for or (lambda s: {})
         self._products_for = products_for or (lambda s: {"products": []})
         self._create_product = create_product or (
@@ -283,7 +283,7 @@ class ApiApp:
         self._update_product = update_product or (
             lambda s, u, k, b: {"ok": False, "error": "products are not wired"})
         self._owner_queue = owner_queue or (lambda: [])
-        self._owner_decide = owner_decide or (lambda i, a, c: {"ok": True})
+        self._owner_decide = owner_decide or (lambda i, a, c: {"ok": False, "error": "decision not wired"})
         self._owner_status = owner_status or (lambda: {})
         self._owner_metrics = owner_metrics
         self._owner_observability = owner_observability
@@ -341,10 +341,18 @@ class ApiApp:
                 result = self._webhook_handler(tenant_name, headers, body)
                 if isinstance(result, dict):
                     cid = result.get("correlation_id", "")
-                    status = 202 if result.get("ok") else 422
+                    if result.get("ok"):
+                        status = 202
+                    elif result.get("error") == "rate limited":
+                        status = 429
+                    else:
+                        status = 422
                     hdrs = {}
                     if cid:
                         hdrs["X-Correlation-ID"] = cid
+                    retry_after = result.get("retry_after_s")
+                    if retry_after:
+                        hdrs["Retry-After"] = str(retry_after)
                     return Response(status, result, headers=hdrs)
                 return result  # already a Response
             return Response(404, {"error": "webhooks not wired"})

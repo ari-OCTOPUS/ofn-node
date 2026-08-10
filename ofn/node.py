@@ -164,6 +164,9 @@ class Node:
     advisor: object | None = None     # Advisor
     # Marketing platform integration: durable inbox for webhook payloads
     inbox: object | None = None        # MarketingInbox
+    # Inbound HTTP rate limiter — process-scoped, in-memory, per-tenant.
+    # Defaults to a sane window; can be overridden in construction for tests.
+    rate_limiter: object | None = None # InboundRateLimiter
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -518,12 +521,15 @@ class Node:
 
         # Publishing a picture of a person is irreversible and leaves the
         # device. There is no configuration that makes this anything but red.
-        queued = self.outbox.enqueue(
+        gate = self._gate_enqueue(
             scope, f"draft:{draft_id}:{platform}", "PUBLISH_POST",
             {"draft_id": draft_id, "platform": platform,
              "caption": draft.caption,
              "media": [ref for _, ref in store.media_of(draft_id)]},
             RiskTier.RED, self.now_iso())
+        if not gate["ok"]:
+            return gate
+        queued = gate["queued"]
         store.set_status(draft_id, "queued")
         self.ledger.append(scope, "PUBLISH_QUEUED", {
             "draft_id": draft_id, "platform": platform,
@@ -1136,9 +1142,12 @@ class Node:
                        "adult_label": v.adult_label,
                        "idempotency_key": v.idempotency_key,
                        "requested_by": user_id}
-            queued = self.outbox.enqueue(
+            gate = self._gate_enqueue(
                 scope, v.idempotency_key, "studio:publish", payload,
                 RiskTier.RED, self.now_iso())
+            if not gate["ok"]:
+                return gate
+            queued = gate["queued"]
             # Record the variant in the marketing store for the audit trail.
             if self.marketing is not None:
                 import time as _t
@@ -2125,6 +2134,27 @@ class Node:
             out["inbox_error"] = "inbox not wired"
         return out
 
+    def _gate_enqueue(self, scope: TenantScope, idem_key: str, kind: str,
+                      payload: Mapping[str, object], tier, now_iso: str) -> dict:
+        """The single choke point for direct outbox writes.
+
+        Every enqueue that bypasses `propose()` (publish_draft, send_to_outbox,
+        send_lead_reply, send_lead_quote) must go through here. The kill switch
+        is checked first: if the node is killed, nothing reaches the outbox
+        from any path. This does NOT re-run admit/risk/quota — these paths are
+        all RED and already require human approval downstream. The gate here
+        is specifically the kill switch, which is the one thing a direct
+        enqueue was missing.
+
+        Returns {"ok": True, "queued": bool} on success, or
+        {"ok": False, "error": ..., "rule": ...} if killed.
+        """
+        if self.killed:
+            return {"ok": False, "error": "kill switch engaged",
+                    "rule": "gate:kill-switch"}
+        queued = self.outbox.enqueue(scope, idem_key, kind, payload, tier, now_iso)
+        return {"ok": True, "queued": queued}
+
     # ── webhook / connector infrastructure ──────────────────────────────────
     def handle_webhook(self, tenant_name: str | None,
                         headers: Mapping[str, str],
@@ -2154,22 +2184,42 @@ class Node:
             return {"ok": False, "error": "inbox not wired",
                     "correlation_id": cid, "status": "rejected"}
 
+        # Rate limit: one process-scoped limiter, keyed by tenant. A burst
+        # of webhooks from a single tenant is the most plausible flood, and
+        # a 429 is cheaper than letting it write to SQLite.
+        if self.rate_limiter is not None:
+            verdict = self.rate_limiter.check(tenant_name)
+            if not verdict.allowed:
+                return {"ok": False, "error": "rate limited",
+                        "correlation_id": cid, "status": "rejected",
+                        "retry_after_s": verdict.retry_after_s}
+
         import os
         inbox_id = os.urandom(8).hex()
         now = self.now_iso()
         scope = self.registry.scope(tenant_name)
 
-        body_str = body.decode("utf-8", errors="replace")
-        stored = self.inbox.store(
-            tenant=tenant_name,
-            connector_id="default",
-            vendor="unknown",
-            vendor_event_id=inbox_id,
-            correlation_id=cid,
-            raw_body=body_str,
-            inbox_id=inbox_id,
-            now_iso=now,
-        )
+        # Store the payload first (hash + size only, never raw bytes).
+        # If this fails, we do NOT write to the ledger — a half-written
+        # trace (ledger says WEBHOOK_RECEIVED but inbox has nothing) is
+        # worse than a clean failure the caller can retry. The order is
+        # inbox → ledger, and the ledger only fires on success.
+        try:
+            stored = self.inbox.store(
+                tenant=tenant_name,
+                connector_id="default",
+                vendor="unknown",
+                vendor_event_id=inbox_id,
+                correlation_id=cid,
+                body=body,
+                inbox_id=inbox_id,
+                now_iso=now,
+            )
+        except Exception:
+            # A real DB error (disk full, corrupt) — not a duplicate.
+            # Surface it as rejected, not as "duplicate".
+            return {"ok": False, "error": "inbox store failed",
+                    "correlation_id": cid, "status": "rejected"}
         if not stored:
             return {"ok": False, "error": "duplicate webhook",
                     "correlation_id": cid, "status": "rejected"}
@@ -2264,6 +2314,12 @@ class Node:
         The item id carries its tenant prefix, which is how this resolves the
         scope without trusting a separate field that could disagree with it.
         """
+        # The kill switch must block approval even on already-queued items.
+        # Without this, a killed node could still claim and (eventually) send
+        # anything already in the outbox, defeating the purpose of the switch.
+        if self.killed and approve:
+            return {"ok": False, "error": "kill switch engaged",
+                    "rule": "gate:kill-switch"}
         tenant_name, _, key = item_id.partition(":")
         if not key or tenant_name not in self.registry:
             return {"ok": False, "error": "unknown item"}
@@ -2493,8 +2549,11 @@ class Node:
             "customer_name": lead.get("customer_name") or "",
             "to": lead.get("phone") if channel == "sms" else lead.get("email"),
         }
-        queued = self.outbox.enqueue(
+        gate = self._gate_enqueue(
             scope, idem, "lead:reply", payload, RiskTier.RED, now)
+        if not gate["ok"]:
+            return gate
+        queued = gate["queued"]
         self.ledger.append(scope, "LEAD_REPLY_QUEUED", {
             "lead_id": lead_id, "channel": channel,
             "duplicate": not queued, "actor": actor_tag,
@@ -2540,8 +2599,11 @@ class Node:
             "items": items if isinstance(items, list) else [],
             "customer_name": lead.get("customer_name") or "",
         }
-        queued = self.outbox.enqueue(
+        gate = self._gate_enqueue(
             scope, idem, "lead:quote", payload, RiskTier.RED, now)
+        if not gate["ok"]:
+            return gate
+        queued = gate["queued"]
         self.ledger.append(scope, "LEAD_QUOTE_QUEUED", {
             "lead_id": lead_id, "amount": amount,
             "duplicate": not queued, "actor": actor_tag,

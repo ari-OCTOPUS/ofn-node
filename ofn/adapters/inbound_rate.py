@@ -46,10 +46,15 @@ class InboundRateLimiter:
     Args:
         max_requests: Maximum requests per window per key.
         window_seconds: Length of the window in seconds.
+        max_buckets: Cap on distinct keys tracked simultaneously. When
+            exceeded, the oldest bucket is evicted (FIFO by window_start).
+            This prevents an attacker from exhausting memory by sending
+            requests with unique keys.
     """
 
     max_requests: int = 60
     window_seconds: int = 60
+    max_buckets: int = 1024
     _buckets: dict = field(default_factory=dict)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
@@ -64,6 +69,7 @@ class InboundRateLimiter:
         with self._lock:
             bucket = self._buckets.get(key)
             if bucket is None or (now - bucket.window_start) >= self.window_seconds:
+                self._evict_if_needed()
                 self._buckets[key] = _Bucket(count=1, window_start=now)
                 return InboundVerdict(True, self.max_requests - 1, 0, RULE_OK)
             if bucket.count >= self.max_requests:
@@ -73,6 +79,13 @@ class InboundRateLimiter:
             bucket.count += 1
             return InboundVerdict(
                 True, self.max_requests - bucket.count, 0, RULE_OK)
+
+    def _evict_if_needed(self) -> None:
+        """Drop the oldest bucket when the cap is about to be exceeded."""
+        if len(self._buckets) >= self.max_buckets:
+            # Remove the bucket with the oldest window_start.
+            oldest_key = min(self._buckets, key=lambda k: self._buckets[k].window_start)
+            self._buckets.pop(oldest_key, None)
 
     def reset(self, key: str | None = None) -> None:
         """Clear bucket(s). For tests."""

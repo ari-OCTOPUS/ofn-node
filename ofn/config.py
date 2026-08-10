@@ -194,7 +194,8 @@ def load() -> Config:
     # says so. It only bites once a pack declares it — no mining pack exists
     # yet, so arming it here costs nothing and means the wiring is already in
     # place the day one does.
-    gates: list[str] = ["secret_rotation", "miner_isolation"]
+    gates: list[str] = ["secret_rotation", "miner_isolation",
+                        "partner_precondition"]
     extra = os.environ.get("OFN_EXTRA_CLOSED_GATES", "")
     gates += [g.strip() for g in extra.split(",") if g.strip()]
 

@@ -138,7 +138,7 @@ class TestMarketingInbox(unittest.TestCase):
         ok = self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
         self.assertTrue(ok)
 
@@ -146,12 +146,12 @@ class TestMarketingInbox(unittest.TestCase):
         self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
         ok = self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c2",
-            raw_body="{}", inbox_id="id2", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id2", now_iso=NOW_ISO,
         )
         self.assertFalse(ok)
 
@@ -160,7 +160,7 @@ class TestMarketingInbox(unittest.TestCase):
             self.inbox.store(
                 tenant="ziman", connector_id="fake", vendor="fake",
                 vendor_event_id=f"v{i}", correlation_id=f"c{i}",
-                raw_body=f"{{i={i}}}", inbox_id=f"id{i}",
+                body=f"{{i={i}}}".encode(), inbox_id=f"id{i}",
                 now_iso=NOW_ISO,
             )
         self.inbox.mark_processed("id0", "ziman", NOW_ISO)
@@ -172,7 +172,7 @@ class TestMarketingInbox(unittest.TestCase):
         self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
         self.inbox.mark_failed("id1", "ziman", NOW_ISO, "parse error")
         pending = self.inbox.pending("ziman")
@@ -186,7 +186,7 @@ class TestMarketingInbox(unittest.TestCase):
             self.inbox.store(
                 tenant="ziman", connector_id="fake", vendor="fake",
                 vendor_event_id=f"v{i}", correlation_id=f"c{i}",
-                raw_body="{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
+                body=b"{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
             )
         self.inbox.mark_processed("id0", "ziman", NOW_ISO)
         counts = self.inbox.counts("ziman")
@@ -197,12 +197,12 @@ class TestMarketingInbox(unittest.TestCase):
         self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
         self.inbox.store(
             tenant="lead", connector_id="fake", vendor="fake",
             vendor_event_id="v2", correlation_id="c2",
-            raw_body="{}", inbox_id="id2", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id2", now_iso=NOW_ISO,
         )
         all_counts = self.inbox.counts_all()
         self.assertIn("ziman", all_counts)
@@ -213,7 +213,7 @@ class TestMarketingInbox(unittest.TestCase):
             self.inbox.store(
                 tenant="ziman", connector_id="fake", vendor="fake",
                 vendor_event_id=f"v{i}", correlation_id=f"c{i}",
-                raw_body="{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
+                body=b"{}", inbox_id=f"id{i}", now_iso=NOW_ISO,
             )
         self.inbox.mark_processed("id0", "ziman", NOW_ISO)
         self.inbox.mark_failed("id1", "ziman", NOW_ISO, "err")
@@ -224,7 +224,7 @@ class TestMarketingInbox(unittest.TestCase):
         self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
         self.assertEqual(self.inbox.depth("lead"), 0)
         self.assertEqual(len(self.inbox.pending("lead")), 0)
@@ -238,7 +238,7 @@ class TestMarketingInbox(unittest.TestCase):
         self.inbox.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body='{"data": 42}', inbox_id="id1",
+            body=b'{"data": 42}', inbox_id="id1",
             now_iso=NOW_ISO, event_type="lead",
         )
         items = self.inbox.pending("ziman")
@@ -248,7 +248,7 @@ class TestMarketingInbox(unittest.TestCase):
         self.assertEqual(item.inbox_id, "id1")
         self.assertEqual(item.tenant, "ziman")
         self.assertEqual(item.event_type, "lead")
-        self.assertEqual(item.raw_body, '{"data": 42}')
+        self.assertEqual(len(item.body_sha256), 64)
         self.assertEqual(item.status, PENDING)
         self.assertEqual(item.attempts, 0)
 
@@ -335,6 +335,145 @@ class TestInboundRateLimiter(unittest.TestCase):
         snap = self.limiter.snapshot()
         self.assertIn("tenant:ziman", snap)
         self.assertEqual(snap["tenant:ziman"]["count"], 2)
+
+
+class TestRateLimiterBucketCap(unittest.TestCase):
+    """The limiter must cap bucket count to prevent memory exhaustion."""
+
+    def test_eviction_when_cap_exceeded(self):
+        limiter = InboundRateLimiter(max_requests=10, window_seconds=60,
+                                     max_buckets=5)
+        # Fill exactly to cap with distinct keys
+        for i in range(5):
+            limiter.check(f"key{i}", now=0.0)
+        # Adding a 6th distinct key should evict the oldest
+        limiter.check("key5", now=0.0)
+        snap = limiter.snapshot()
+        self.assertEqual(len(snap), 5)
+        # key0 (oldest) should be evicted
+        self.assertNotIn("key0", snap)
+        self.assertIn("key5", snap)
+
+    def test_cap_does_not_affect_rate_limiting(self):
+        """Even after eviction, the limiter still rate-limits correctly."""
+        limiter = InboundRateLimiter(max_requests=2, window_seconds=60,
+                                     max_buckets=3)
+        for i in range(3):
+            limiter.check(f"k{i}", now=0.0)
+        # Evict k0 by adding k3
+        limiter.check("k3", now=0.0)
+        # k1 should still be at count=1
+        v = limiter.check("k1", now=0.0)
+        self.assertTrue(v.allowed)
+        self.assertEqual(v.remaining, 0)  # was 1, now 2 (cap), remaining 0
+
+
+class TestInboxNoRawBody(unittest.TestCase):
+    """The inbox must never store raw webhook payloads — only hash + size."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        self.inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+        self.addCleanup(self.inbox.close)
+
+    def test_stores_hash_not_body(self):
+        body = b'{"customer": "private-person", "email": "secret@x.com"}'
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            body=body, inbox_id="id1", now_iso=NOW_ISO,
+        )
+        items = self.inbox.pending("ziman")
+        self.assertEqual(len(items), 1)
+        item = items[0]
+        # Hash is present and is 64 hex chars
+        self.assertEqual(len(item.body_sha256), 64)
+        # Size is correct
+        self.assertEqual(item.body_size, len(body))
+        # Raw body is NOT stored anywhere
+        import hashlib
+        self.assertEqual(item.body_sha256,
+                         hashlib.sha256(body).hexdigest())
+
+    def test_no_raw_body_column_in_table(self):
+        """The table schema must not have a raw_body column."""
+        cols = {r[1] for r in self.inbox._conn.execute(
+            "PRAGMA table_info(marketing_inbox)")}
+        self.assertNotIn("raw_body", cols)
+        self.assertIn("body_sha256", cols)
+        self.assertIn("body_size", cols)
+
+
+class TestInboxStoreErrorPropagation(unittest.TestCase):
+    """DB errors must propagate, not be silently returned as 'duplicate'."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        self.inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+        self.addCleanup(self.inbox.close)
+
+    def test_duplicate_returns_false(self):
+        """A genuine duplicate returns False, not an exception."""
+        self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c1",
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
+        )
+        result = self.inbox.store(
+            tenant="ziman", connector_id="fake", vendor="fake",
+            vendor_event_id="v1", correlation_id="c2",
+            body=b"{}", inbox_id="id2", now_iso=NOW_ISO,
+        )
+        self.assertFalse(result)
+
+
+class TestWebhookRateLimit(unittest.TestCase):
+    """handle_webhook must enforce rate limiting."""
+
+    def setUp(self):
+        self.dir = temp_dir(self)
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.adapters.packloader import load_dir
+        from ofn.adapters.marketing_inbox import MarketingInbox
+        from ofn.adapters.inbound_rate import InboundRateLimiter
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from ofn.node import Node
+
+        packs_dir = os.path.join(self.dir, "packs")
+        os.makedirs(packs_dir)
+        _write_pack(os.path.join(packs_dir, "ziman.yaml"))
+
+        inbox = MarketingInbox(os.path.join(self.dir, "inbox.sqlite"))
+        registry = TenantRegistry(load_dir(packs_dir))
+        self.node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 1.0}),
+            ledger=Ledger(os.path.join(self.dir, "ledger.sqlite")),
+            facts=FactStore(os.path.join(self.dir, "facts.sqlite")),
+            outbox=Outbox(os.path.join(self.dir, "outbox.sqlite")),
+            now_epoch_s=lambda: NOW_EPOCH,
+            now_iso=lambda: NOW_ISO,
+            inbox=inbox,
+            rate_limiter=InboundRateLimiter(max_requests=3, window_seconds=60),
+        )
+        self.addCleanup(self.node.close)
+
+    def test_allows_within_limit(self):
+        for i in range(3):
+            r = self.node.handle_webhook("ziman", {}, b"{}")
+            self.assertTrue(r["ok"])
+
+    def test_rejects_over_limit(self):
+        for i in range(3):
+            self.node.handle_webhook("ziman", {}, b"{}")
+        r = self.node.handle_webhook("ziman", {}, b"{}")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["error"], "rate limited")
+        self.assertIn("retry_after_s", r)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -544,7 +683,7 @@ class TestHandleWebhook(unittest.TestCase):
         # Verify it actually landed in the inbox
         pending = self.inbox_ref.pending("ziman")
         self.assertEqual(len(pending), 1)
-        self.assertEqual(pending[0].raw_body, '{"hello": "world"}')
+        self.assertEqual(len(pending[0].body_sha256), 64)
 
     def test_unknown_tenant_rejected(self):
         result = self.node.handle_webhook("nonexistent", {}, b"{}")
@@ -572,7 +711,7 @@ class TestHandleWebhook(unittest.TestCase):
         dup = self.inbox_ref.store(
             tenant="ziman", connector_id="default", vendor="unknown",
             vendor_event_id=r1["inbox_id"], correlation_id="test",
-            raw_body="dup", inbox_id="dup_id", now_iso=NOW_ISO,
+            body=b"dup", inbox_id="dup_id", now_iso=NOW_ISO,
         )
         self.assertFalse(dup)  # duplicate vendor_event_id
 
@@ -580,7 +719,7 @@ class TestHandleWebhook(unittest.TestCase):
         ok = self.inbox_ref.store(
             tenant="ziman", connector_id="default", vendor="unknown",
             vendor_event_id="brand_new_vid", correlation_id="test",
-            raw_body="new", inbox_id="new_id", now_iso=NOW_ISO,
+            body=b"new", inbox_id="new_id", now_iso=NOW_ISO,
         )
         self.assertTrue(ok)
 
@@ -659,12 +798,12 @@ class TestOwnerObservability(unittest.TestCase):
         self.inbox_ref.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body="{}", inbox_id="id1", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id1", now_iso=NOW_ISO,
         )
         self.inbox_ref.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v2", correlation_id="c2",
-            raw_body="{}", inbox_id="id2", now_iso=NOW_ISO,
+            body=b"{}", inbox_id="id2", now_iso=NOW_ISO,
         )
         self.inbox_ref.mark_processed("id1", "ziman", NOW_ISO)
         obs = self.node.owner_observability()
@@ -679,7 +818,7 @@ class TestOwnerObservability(unittest.TestCase):
         self.inbox_ref.store(
             tenant="ziman", connector_id="fake", vendor="fake",
             vendor_event_id="v1", correlation_id="c1",
-            raw_body=f'{{"secret": "{secret_like}"}}',
+            body=('{"secret": "' + secret_like + '"}').encode(),
             inbox_id="id1", now_iso=NOW_ISO,
         )
         import json
