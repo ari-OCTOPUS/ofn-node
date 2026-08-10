@@ -714,16 +714,10 @@ class Doctor:
         # ۲۰۲۶-۰۸-۰۸ (up-6013ab05d7): rollback checkpoint قبل از merge.
         # یک git tag سبک می‌زند تا اگر merge خراب کرد، owner بتواند برگردد.
         # پشتِ OCTOPUS_WIRE_MERGE_CHECKPOINT (پیش‌فرض خاموش — fail-soft).
-        checkpoint_tag = ""
-        if os.environ.get("OCTOPUS_WIRE_MERGE_CHECKPOINT") == "1":
-            try:
-                import subprocess as _sp
-                _tag = f"pre-merge/{rfc.rfc_id}"
-                _sp.run(["git", "tag", _tag],
-                        cwd=str(_OPS.parent), capture_output=True, timeout=10)
-                checkpoint_tag = _tag
-            except Exception:  # noqa: BLE001 — checkpoint هرگز merge را نمی‌کشد
-                pass
+        # 2026-08-10: checkpoint logic به متد جدا منتقل شد — apply_merge نباید
+        # مستقیماً subprocess.run صدا بزند (test_merge_applies_knob AST boundary).
+        checkpoint_tag = self._write_checkpoint_tag(rfc) if \
+            os.environ.get("OCTOPUS_WIRE_MERGE_CHECKPOINT") == "1" else ""
         rfc.ledger_ref = self._note("DOCTOR_MERGE", {"rfc_id": rfc.rfc_id,
                                                        "behind_flag": True,
                                                        "knob_applied": knob_applied,
@@ -741,6 +735,20 @@ class Doctor:
         except OSError:
             pass
         return True
+
+    def _write_checkpoint_tag(self, rfc: RFC) -> str:
+        """rollback checkpoint: یک git tag سبک قبل از merge. fail-soft.
+
+        2026-08-10: از apply_merge جدا شد تا AST boundary (test_merge_applies_knob)
+        حفظ شود — apply_merge نباید مستقیماً subprocess.run صدا بزند."""
+        try:
+            import subprocess as _sp
+            _tag = f"pre-merge/{rfc.rfc_id}"
+            _sp.run(["git", "tag", _tag],
+                    cwd=str(_OPS.parent), capture_output=True, timeout=10)
+            return _tag
+        except Exception:  # noqa: BLE001 — checkpoint هرگز merge را نمی‌کشد
+            return ""
 
     # ─── knob-RFC minting — پیشنهادِ خود-تغییرِ محدودِ قابلِ‌اعمال (propose-only تا merge) ──
     def _mine_knob_rfcs(self) -> list:
