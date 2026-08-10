@@ -2424,6 +2424,33 @@ class Node:
                 pass
         return out
 
+    def public_catalog(self) -> dict:
+        """Read-only public catalog (O9) — PREPARED, NOT SERVED.
+
+        The route for this is NOT wired: public activation requires Ari's
+        five preconditions (path/domain, privacy text, follow-up owner,
+        service area + offer, runbook review). This method is the payload
+        builder only — called by a route that does not exist yet.
+
+        No PII: only name, price, state and description of for_sale pieces.
+        """
+        if self.products is None:
+            return {"ok": False, "error": "catalog unavailable"}
+        pieces = []
+        try:
+            for p in self.products.list("ziman"):
+                if p.state != "for_sale":
+                    continue
+                pieces.append({
+                    "sku": p.sku, "name": p.name,
+                    "description": p.description,
+                    "price_primary_aud": p.price_primary_aud,
+                })
+        except Exception:
+            return {"ok": False, "error": "catalog read failed"}
+        return {"ok": True, "items": pieces, "count": len(pieces),
+                "activated": False}
+
     def owner_observability(self) -> dict:
         """Inbox visibility for the owner's panel — what this node holds.
 

@@ -57,3 +57,47 @@ class TestNoPublicSurface(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCatalogPreparedNotServed(unittest.TestCase):
+    """O9: the catalog payload builder exists but nothing serves it."""
+
+    def test_no_public_route_serves_catalog(self):
+        with open(HTTP_API, encoding="utf-8") as fh:
+            src = fh.read()
+        self.assertNotIn('"/api/v1/public/catalog"', src)
+        self.assertNotIn('public_catalog', src)
+
+    def test_catalog_payload_says_not_activated(self):
+        from ofn.adapters.products import ProductStore
+        from ofn.node import Node
+        from ofn.adapters.ledger import Ledger
+        from ofn.adapters.outbox import Outbox
+        from ofn.adapters.facts import FactStore
+        from ofn.kernel.domain import PackSpec, TenantId
+        from ofn.kernel.quota import NodeQuota
+        from ofn.kernel.tenancy import TenantRegistry
+        from tests.tmpdir import temp_dir
+        d = temp_dir(self)
+        registry = TenantRegistry({
+            "ziman": PackSpec(tenant=TenantId("ziman"),
+                              capacity_units_per_week=6, quota_share=1.0)})
+        node = Node(
+            registry=registry,
+            quota=NodeQuota(estimated_capacity_tokens=1_000_000,
+                            utilisation=1.0, shares={"ziman": 1.0}),
+            ledger=Ledger(os.path.join(d, "l.sqlite")),
+            facts=FactStore(os.path.join(d, "f.sqlite")),
+            outbox=Outbox(os.path.join(d, "o.sqlite")),
+            products=ProductStore(
+                os.path.join(d, "p.sqlite"),
+                cost_fields=["materials_cost_aud"],
+                labour_hours_field="labour_hours",
+                labour_rate_field="hourly_rate_aud"),
+            now_epoch_s=lambda: 1_785_000_000,
+            now_iso=lambda: "2026-08-10T12:00:00Z",
+        )
+        self.addCleanup(node.close)
+        out = node.public_catalog()
+        self.assertTrue(out["ok"])
+        self.assertFalse(out["activated"])
