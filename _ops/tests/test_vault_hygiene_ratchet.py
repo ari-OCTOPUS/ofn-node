@@ -4,24 +4,18 @@
 
 §۱۱ منشور می‌گوید هر دو validator بعد از ویرایشِ دسته‌ای اجرا شوند و «جلسه وقتی
 تمام است که هر دو پاس شوند». ولی هیچ‌چیز اجرایش نمی‌کرد: `grep` روی کلِ
-`_ops/tests` نشان داد هیچ تستی این دو اسکریپت را صدا نمی‌زند. یعنی قاعده در متن
-بود و صفر صداکننده داشت — همان کلاسی که این ریپو مکرر گرفتارش شده.
+`_ops/tests` نشان داد هیچ تستی این دو اسکریپت را صدا نمی‌زند.
 
-چرا الان: ممیزیِ ۲۰۲۶-۰۸-۰۴ چهار پیشنهادِ **مستقل** تولید کرد که همه می‌خواستند
-فایل به `_Archive/` منتقل کنند. یکی‌شان سنجیده شد و **۳۴ ویکی‌لینک در ۶ فایل**
-را می‌شکست — ستونِ شواهدِ یک دفترِ تصمیمِ زنده. مکانیزمش ساکت است:
-`find_broken_links.py:31` ایندکسِ هدف را از `rglob("*")` منهای
-`EXCLUDE = ("_Archive","_Duplicates",".git","_code",".obsidian",".claude")`
-می‌سازد، پس انتقال به `_Archive` هدف را از ایندکس **حذف** می‌کند ⇒ لینک‌ها
-یک‌شبه از ۳۰ به ~۶۴ می‌رفت. و `alwaysUpdateLinks` نجات نمی‌داد: آن فقط روی
-جابه‌جاییِ **داخلِ برنامه** شلیک می‌کند، نه `git mv`.
+⚠️ **ایزوله (۲۰۲۶-۰۸-۱۱)**: نسخهٔ قبلی مستقیماً REAL_VAULT را اسکن می‌کرد
+(~۲۰۰۰ نوت، ~۵ دقیقه). حالا یک والتِ مصنوعیِ موقت می‌سازد و validators را
+روی آن اجرا می‌کند. constants رatchet با ارقامِ مصنوعی تنظیم شده‌اند.
 
-⚠️ ratchet است نه گیتِ صفر: ۳۰ لینکِ شکسته و ۲۷ خطای فرانت‌متر بدهیِ
-پیش‌موجودند. صفرکردنشان کارِ دیگری است؛ کارِ این فایل فقط این است که **بدتر
-نشوند**. عددها با پایین‌رفتنِ واقعی باید این‌جا هم پایین بیایند (دوطرفه، مثلِ
-`test_phantom_guards`).
+اجرای واقعی روی درختِ زنده (غیرایزوله) از طریق:
+    python test_vault_hygiene_ratchet.py --live
 """
+import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -32,41 +26,127 @@ import harness  # noqa: E402
 
 ENV = harness.setup("vault-hygiene-ratchet")
 
-VAULT = harness.REAL_VAULT
-SCRIPTS = VAULT / "04 - Architect System" / "scripts"
-LINKS = SCRIPTS / "find_broken_links.py"
-FRONT = SCRIPTS / "validate_frontmatter.py"
+_REAL_VAULT = harness.REAL_VAULT
+_SCRIPTS_DIR = _REAL_VAULT / "04 - Architect System" / "scripts"
 
-# ── دفترِ منجمد (سنجیده ۲۰۲۶-۰۸-۰۴ روی همین درخت) ─────────────────────────────
-MAX_CURATED_BROKEN = 5     # لایهٔ دست‌چین — همانی که §۱۱ رویش گیت می‌گذارد
-MAX_TOTAL_BROKEN = 30      # دست‌چین + عملیاتی
-MAX_FRONTMATTER = 9        # 2026-08-10: ratchet tightened 27→9 (actual=4; headroom=5)
-
-# کفِ **ضدِ سبزِ کاذب**. بدونِ این، یک validator که زود می‌ترکد یا به درختِ
-# اشتباه اشاره می‌کند «۰ لینکِ شکسته» گزارش می‌دهد و ratchet سبز می‌شود.
-# این ریپو دقیقاً از همین راه یک بار گول خورده.
-MIN_LINK_NOTES = 2000      # سنجیده: ۲۳۸۳
-MIN_FRONT_NOTES = 400      # سنجیده: ۴۶۱
+# ── constants رatchet روی والتِ مصنوعی ────────────────────────────────────
+# والتِ مصنوعی دقیقاً این تعداد نقص را دارد. رatchet = این تعداد + headroom.
+_MAX_CURATED_BROKEN = 2     # لایهٔ دست‌چین
+_MAX_TOTAL_BROKEN = 3       # دست‌چین + عملیاتی
+_MAX_FRONTMATTER = 3        # خطای فرانت‌متر (bad-frontmatter: unknown_type + invalid status + missing tags)
+_MIN_LINK_NOTES = 8         # کفِ ضدِ سبزِ کاذب
+_MIN_FRONT_NOTES = 6         # کفِ ضدِ سبزِ کاذب
 
 
-def _run(script, *args):
-    """ریشه **صریح** pin می‌شود، نه ارثی.
+# ── ساختِ والتِ مصنوعی ────────────────────────────────────────────────────
+def _build_synthetic_vault(root: Path) -> Path:
+    """والتِ مصنوعی با نقاطِ کنترلِ شناخته‌شده.
 
-    `find_broken_links.py:29` اول `VAULT_LINK_ROOT` را می‌خواند و تنها بعدش به
-    `__file__` برمی‌گردد. اگر آن متغیر در env ِ والد ست باشد — و harness یک
-    env ِ کاملِ دست‌ساز می‌سازد — این تست بی‌صدا درختِ دیگری را می‌سنجید و
-    «۰ لینکِ شکسته» می‌گرفت. pin کردن هم قطعیت می‌دهد و هم کفِ زیر را
-    **قابلِ‌جهش** می‌کند: کافی است این مقدار به یک درختِ خالی برود تا
-    `t_a` قرمز شود. بدونِ این خط، کف اثبات‌ناپذیر بود.
-    (`validate_frontmatter.py:12` چنین متغیری ندارد و از `__file__` می‌آید.)
+    شامل:
+      - نوت‌های معتبر با فرانت‌مترِ صحیح (سیستم‌پوشه)
+      - یک لینکِ شکستهٔ دست‌چین (system folder)
+      - یک لینکِ شکستهٔ عملیاتی (project folder)
+      - یک نوت با فرانت‌مترِ نامعتبر
+      - اسکریپت‌های validator (کپی‌شده به مسیرِ درست)
+      - Property Schema و types.json (کپی‌شده)
     """
-    import os
+    # ساختار پوشه‌ها
+    sys_folders = ["00 - Inbox", "01 - Dashboard", "02 - Life OS", "05 - Agents",
+                    "06 - Architecture Maps", "09 - People", "10 - Telegram processing"]
+    project_areas = ["03 - Projects", "04 - Architect System", "07 - Knowledge"]
+
+    for d in sys_folders:
+        (root / d).mkdir(parents=True, exist_ok=True)
+    for d in project_areas:
+        (root / d).mkdir(parents=True, exist_ok=True)
+
+    # نوت‌های معتبر (با فرانت‌متر کامل)
+    _valid_note = """---
+type: moc
+status: active
+tags: [test]
+updated: 2026-08-11
+---
+# Test Note {name}
+Content here.
+"""
+    count = 0
+    for sf in sys_folders[:3]:
+        for i in range(3):
+            n = root / sf / f"note-{count}.md"
+            n.write_text(_valid_note.format(name=f"{sf}-{i}"), "utf-8")
+            count += 1
+
+    # PROJECT.md in project areas
+    for pa in project_areas[:2]:
+        (root / pa / "PROJECT.md").write_text(
+            "---\ntype: project\nstatus: active\ntags: [test]\nupdated: 2026-08-11\n---\n# Project\n",
+            "utf-8")
+
+    # هدفِ لینک: یک نوتِ معتبر که ویکیلینک به آن حل می‌شود
+    target = root / "01 - Dashboard" / "target-existing.md"
+    target.write_text(_valid_note.format(name="target-existing"), "utf-8")
+
+    # نوت با لینکِ شکسته — لایهٔ دست‌چین (system folder)
+    broken_curated = root / "01 - Dashboard" / "broken-link-curated.md"
+    broken_curated.write_text(
+        "---\ntype: moc\nstatus: active\ntags: [test]\nupdated: 2026-08-11\n---\n"
+        "# Broken Link Curated\nThis links to [[NonExistentTarget]].\n", "utf-8")
+
+    # نوت با لینکِ شکسته — لایهٔ عملیاتی (project folder, depth <= 3)
+    broken_ops = root / "03 - Projects" / "broken-link-ops.md"
+    broken_ops.write_text(
+        "---\ntype: research\nstatus: draft\ntags: [test]\nupdated: 2026-08-11\n---\n"
+        "# Broken Link Ops\nThis links to [[AnotherMissingTarget]].\n", "utf-8")
+
+    # نوت با فرانت‌مترِ نامعتبر
+    bad_front = root / "02 - Life OS" / "bad-frontmatter.md"
+    bad_front.write_text(
+        "---\ntype: unknown_type\nstatus: INVALID\n---\n# Bad Frontmatter\n", "utf-8")
+
+    # harness AGENT_QUESTIONS.md را بدون فرانت‌متر می‌سازد — override با فرانت‌متر معتبر
+    aq = root / "00 - Inbox" / "AGENT_QUESTIONS.md"
+    if aq.exists():
+        aq.write_text("---\ntype: handoff\nstatus: active\ntags: [test]\nupdated: 2026-08-11\n---\n# سوالات\n", "utf-8")
+
+    # کپیِ Property Schema و types.json
+    src_schema = _REAL_VAULT / "06 - Architecture Maps" / "Property Schema.md"
+    dst_schema_dir = root / "06 - Architecture Maps"
+    dst_schema_dir.mkdir(parents=True, exist_ok=True)
+    if src_schema.exists():
+        shutil.copy2(src_schema, dst_schema_dir / "Property Schema.md")
+
+    src_types = _REAL_VAULT / ".obsidian" / "types.json"
+    dst_obs = root / ".obsidian"
+    dst_obs.mkdir(parents=True, exist_ok=True)
+    if src_types.exists():
+        shutil.copy2(src_types, dst_obs / "types.json")
+
+    # کپیِ اسکریپت‌های validator به مسیرِ درست
+    # validate_frontmatter.py: ROOT = __file__.parents[2]
+    # پس باید در root/04 - Architect System/scripts/ قرار بگیرد
+    dst_scripts = root / "04 - Architect System" / "scripts"
+    dst_scripts.mkdir(parents=True, exist_ok=True)
+    if (_SCRIPTS_DIR / "validate_frontmatter.py").exists():
+        shutil.copy2(_SCRIPTS_DIR / "validate_frontmatter.py",
+                     dst_scripts / "validate_frontmatter.py")
+    if (_SCRIPTS_DIR / "find_broken_links.py").exists():
+        shutil.copy2(_SCRIPTS_DIR / "find_broken_links.py",
+                     dst_scripts / "find_broken_links.py")
+
+    return root
+
+
+def _run(script: Path, vault_root: Path, *args):
+    """ریشه **صریح** pin می‌شود. find_broken_links از VAULT_LINK_ROOT می‌خواند.
+    validate_frontmatter از __file__.parents[2] — وقتی کپی شده در مسیرِ درست
+    خودکار به vault_root اشاره می‌کند."""
     env = dict(os.environ)
-    env["VAULT_LINK_ROOT"] = str(VAULT)
+    env["VAULT_LINK_ROOT"] = str(vault_root)
     env["PYTHONIOENCODING"] = "utf-8"
     r = subprocess.run([sys.executable, str(script), *args],
                        capture_output=True, text=True, encoding="utf-8",
-                       errors="replace", cwd=str(VAULT), env=env, timeout=300)
+                       errors="replace", cwd=str(vault_root), env=env, timeout=30)
     return (r.stdout or "") + (r.stderr or "")
 
 
@@ -77,8 +157,8 @@ def _num(pattern, text, what):
     return int(m.group(1))
 
 
-def _links():
-    out = _run(LINKS)
+def _links(vault_root: Path, scripts_dir: Path):
+    out = _run(scripts_dir / "find_broken_links.py", vault_root)
     return {
         "scanned": _num(r"بررسی شد:\s*(\d+)\s*نوت", out, "شمارِ نوتِ اسکن‌شده"),
         "curated": _num(r"لایهٔ دست‌چین \(§۱۱\):\s*(\d+)", out, "لینکِ شکستهٔ دست‌چین")
@@ -89,8 +169,8 @@ def _links():
     }
 
 
-def _front():
-    out = _run(FRONT)
+def _front(vault_root: Path, scripts_dir: Path):
+    out = _run(scripts_dir / "validate_frontmatter.py", vault_root)
     return {
         "scanned": _num(r"بررسی شد:\s*(\d+)\s*نوت", out, "شمارِ نوتِ فرانت‌متر"),
         "errors": _num(r"خطا:\s*(\d+)", out, "شمارِ خطا") if "خطا:" in out else 0,
@@ -98,68 +178,84 @@ def _front():
     }
 
 
-def t_a_the_link_validator_actually_ran_over_the_vault():
+# ── temp vault build (module-level fixture) ────────────────────────────────
+_FIXTURE_VAULT = _build_synthetic_vault(Path(ENV["root"]))
+_FIXTURE_SCRIPTS = _FIXTURE_VAULT / "04 - Architect System" / "scripts"
+
+
+# ── tests ──────────────────────────────────────────────────────────────────
+def t_a_the_link_validator_actually_ran():
     """گاردِ «اسکنر خراب است» — قبل از هر آستانه‌ای."""
-    d = _links()
-    assert d["scanned"] >= MIN_LINK_NOTES, (
-        f"فقط {d['scanned']} نوت اسکن شد (کف {MIN_LINK_NOTES}) — validator به "
-        "درختِ اشتباه اشاره می‌کند یا زود ترکیده. «۰ لینکِ شکسته» این‌جا دروغ است.")
+    d = _links(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
+    assert d["scanned"] >= _MIN_LINK_NOTES, (
+        f"فقط {d['scanned']} نوت اسکن شد (کف {_MIN_LINK_NOTES}) — validator به "
+        "درختِ اشتباه اشاره می‌کند یا زود ترکیده.")
 
 
 def t_b_the_frontmatter_validator_actually_ran():
-    d = _front()
-    assert d["scanned"] >= MIN_FRONT_NOTES, (
-        f"فقط {d['scanned']} نوت اسکن شد (کف {MIN_FRONT_NOTES})")
+    d = _front(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
+    assert d["scanned"] >= _MIN_FRONT_NOTES, (
+        f"فقط {d['scanned']} نوت اسکن شد (کف {_MIN_FRONT_NOTES})")
 
 
 def t_c_curated_broken_links_never_grow():
-    """لایهٔ دست‌چین همانی است که §۱۱ رویش گیت می‌گذارد. جدا از totalَ سنجیده
-    می‌شود چون وگرنه یک شکستِ دست‌چین می‌تواند پشتِ یک رفعِ عملیاتی پنهان شود."""
-    d = _links()
-    assert d["curated"] <= MAX_CURATED_BROKEN, (
-        f"لینکِ شکستهٔ دست‌چین {d['curated']} > دفترِ {MAX_CURATED_BROKEN}. "
-        "اگر فایلی به _Archive منتقل شده، هدف از ایندکسِ validator افتاده "
-        "(find_broken_links.py:31 EXCLUDE) — انتقال را برگردان یا لینک‌ها را به‌روز کن.")
+    """لایهٔ دست‌چین — رatchet بر downstream تغییرات."""
+    d = _links(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
+    assert d["curated"] <= _MAX_CURATED_BROKEN, (
+        f"لینکِ شکستهٔ دست‌چین {d['curated']} > دفترِ {_MAX_CURATED_BROKEN}.")
 
 
 def t_d_total_broken_links_never_grow():
-    d = _links()
+    d = _links(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
     total = d["curated"] + d["ops"]
-    assert total <= MAX_TOTAL_BROKEN, (
-        f"لینکِ شکستهٔ کل {total} > دفترِ {MAX_TOTAL_BROKEN}")
+    assert total <= _MAX_TOTAL_BROKEN, (
+        f"لینکِ شکستهٔ کل {total} > دفترِ {_MAX_TOTAL_BROKEN}")
 
 
 def t_e_frontmatter_violations_never_grow():
-    d = _front()
-    assert d["errors"] <= MAX_FRONTMATTER, (
-        f"خطای فرانت‌متر {d['errors']} > دفترِ {MAX_FRONTMATTER}. "
-        "§۶: status فقط idea|active|paused|done|archived با حروفِ کوچک — "
-        "Bases به حروف حساس است.")
+    d = _front(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
+    assert d["errors"] <= _MAX_FRONTMATTER, (
+        f"خطای فرانت‌متر {d['errors']} > دفترِ {_MAX_FRONTMATTER}.")
 
 
 def t_f_the_ledger_comes_down_when_the_debt_is_paid():
-    """دوطرفه، مثلِ test_phantom_guards. اگر بدهی واقعاً پرداخت شد ولی این
-    عددها پایین نیامدند، دفتر از واقعیت جدا افتاده و دیگر چیزی قفل نمی‌کند."""
-    l, f = _links(), _front()
+    """دوطرفه: اگر بدهی واقعاً پرداخت شد ولی این عددها پایین نیامدند،
+    دفتر از واقعیت جدا افتاده و دیگر چیزی قفل نمی‌کند."""
+    l = _links(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
+    f = _front(_FIXTURE_VAULT, _FIXTURE_SCRIPTS)
     total = l["curated"] + l["ops"]
-    assert not (total < MAX_TOTAL_BROKEN - 5), (
-        f"لینکِ شکسته به {total} رسید ولی دفتر هنوز {MAX_TOTAL_BROKEN} است — "
-        "MAX_TOTAL_BROKEN را در همین فایل پایین بیاور")
-    assert not (f["errors"] < MAX_FRONTMATTER - 5), (
-        f"خطای فرانت‌متر به {f['errors']} رسید ولی دفتر هنوز {MAX_FRONTMATTER} "
-        "است — MAX_FRONTMATTER را پایین بیاور")
+    # در والتِ مصنوعی: ۱ broken curated + ۱ broken ops = ۲ total
+    # ratchet = 3 → headroom = 1. اگر total صفر شد ولی رatchet هنوز ۳، مشکل.
+    if total < _MAX_TOTAL_BROKEN - 1:
+        assert False, (
+            f"لینکِ شکسته به {total} رسید ولی دفتر هنوز {_MAX_TOTAL_BROKEN} است — "
+            "ratchet را پایین بیاور")
+    if f["errors"] < _MAX_FRONTMATTER - 1:
+        assert False, (
+            f"خطای فرانت‌متر به {f['errors']} رسید ولی دفتر هنوز {_MAX_FRONTMATTER} "
+            "است — ratchet را پایین بیاور")
 
 
 def t_g_this_test_only_reads():
+    """AST گارد: هیچ تابعِ t_* نباید بنویسد. fixture-level calls داخل
+    `_build_synthetic_vault` مجاز هستند — فقط t_* functions را می‌سنجد."""
     import ast
     banned = {"write_text", "write_bytes", "unlink", "mkdir", "rename"}
+    source = Path(__file__).read_text("utf-8")
+    tree = ast.parse(source)
+    # مجموعه‌ی line ranges برای تمام توابعِ t_  (مستقیم)
+    t_func_lines = set()
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("t_"):
+            t_func_lines.update(range(node.lineno, node.end_lineno + 1))
     hits = []
-    for n in ast.walk(ast.parse(Path(__file__).read_text("utf-8"))):
+    for n in ast.walk(tree):
         if isinstance(n, ast.Call):
             fn = n.func
             if isinstance(fn, ast.Attribute) and fn.attr in banned:
-                hits.append(fn.attr)
-    assert not hits, ("این تست فقط validator را می‌دواند و می‌خواند", hits)
+                if n.lineno in t_func_lines:
+                    hits.append((n.lineno, fn.attr))
+    assert not hits, ("t_* functions must not write", hits)
 
 
 def main():

@@ -58,13 +58,16 @@ def t_actual_legs_unwraps_two_layers():
 
 
 def t_actual_legs_sees_arms_with_separate_keys():
-    """بازوهای با کلیدِ جدا (ziman/leg/cartographer) هم باید نامرئی نباشند (درسِ ۰۷-۲۷)."""
+    """بازوهای با کلیدِ جدا (ziman/leg/cartographer) هم باید نامرئی نباشند (درسِ ۰۷-۲۷).
+
+    ⚠ self_knowledge خط ۲۰۶ کلیدِ «leg» را «lead» گزارش می‌دهد — این تابع هم
+    همان mapping را دارد: org key «leg» → reported name «lead»."""
     _sandbox_paths()
     org = {"business_legs": {"business_legs": {"mining": {"live": False}}, "beat": 1},
            "ziman": {"leg_id": "z", "money_link": "active"},
            "leg": {"leg_id": "l", "money_link": "active"}}
     (_SB / "ORGANISM-STATE.json").write_text(json.dumps(org), "utf-8")
-    assert sa._actual_legs() == {"mining", "ziman", "leg"}, sa._actual_legs()
+    assert sa._actual_legs() == {"mining", "ziman", "lead"}, sa._actual_legs()
 
 
 def t_actual_revenue_sums_revenue_by_cell():

@@ -39,13 +39,11 @@ ENV = harness.setup("restart-preflight")
 _OPS = harness.SELF_OPS
 _SCRIPT = _OPS / "RESTART-ALL.ps1"
 _MARKERS = ("STOP-ORGANISM", "RESTART-REQUESTED", "STOP-TG-CENTER", "STOP-CORTEX")
-# 2026-08-10: The live-tree-default check (t_default_ops_root_is_still_the_live_tree)
-# only makes sense when running FROM the live tree. In a worktree, SELF_OPS points to
-# the worktree, not F:\backup\_ops. We check against REAL_VAULT (the canonical live root)
-# and ENV_BLOCK the subtest if we're not in the live tree.
+# 2026-08-11: The live-tree-default check is purely structural — it reads the script
+# source and verifies the hardcoded $OpsRoot default matches the canonical live path.
+# This is valid from any location (worktree, CI, clone); the script TEXT is the contract.
 _REAL_LIVE_OPS = str(Path(harness.REAL_VAULT) / "_ops").lower()
 _LIVE_ROOT = _REAL_LIVE_OPS
-_IN_WORKTREE = str(_OPS).lower() != _REAL_LIVE_OPS
 
 
 def _fixture(markers=(), flags="crlf"):
@@ -98,10 +96,9 @@ def t_the_seam_exists_at_all():
 def t_default_ops_root_is_still_the_live_tree():
     """درز نباید رفتارِ عادی را عوض کرده باشد: اجرای بی‌آرگومان همان درختِ زنده.
 
-    2026-08-10: در worktree، SELF_OPS ≠ live tree. این گارد فقط وقتی معنا دارد
-    که از live tree اجرا شود. در worktree = ENV_BLOCKED (نه سبز، نه قرمز)."""
-    if _IN_WORKTREE:
-        return  # ENV_BLOCKED — live-tree-default check only valid in live tree
+    2026-08-11: This is a structural contract test — it reads the script SOURCE and
+    verifies the hardcoded $OpsRoot default matches the canonical live path. It does
+    NOT depend on where the test process is running (worktree, CI, clone are all fine)."""
     src = _SCRIPT.read_text("utf-8")
     m = re.search(r'\$OpsRoot\s*=\s*"([^"]+)"', src)
     assert m, "پیش‌فرضِ -OpsRoot پیدا نشد"
@@ -179,13 +176,6 @@ def t_fixture_never_touches_the_live_tree():
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
-    if _IN_WORKTREE:
-        # ENV_BLOCKED: live-tree-default subtest was SKIPPED, not passed.
-        # exit(2) = SKIP, so run_all does NOT count this as PASS.
-        print(f"\n⏭️ test_restart_preflight: SKIP (ENV_BLOCKED — در worktree؛ "
-              f"{len(checks) - failed}/{len(checks)} checks ran, "
-              f"live-tree-default check skipped — NOT PASS)")
-        sys.exit(2)
     print(f"\n{'✅' if not failed else '❌'} test_restart_preflight: "
           f"{len(checks) - failed}/{len(checks)}")
     sys.exit(1 if failed else 0)
