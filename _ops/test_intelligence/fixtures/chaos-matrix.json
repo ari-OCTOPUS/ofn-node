@@ -1,0 +1,123 @@
+{
+  "schema": "octopus.chaos-matrix.v1",
+  "generated": "2026-08-11",
+  "method": "chaos_proxy on mocked adapters (offline, no socket, no provider)",
+  "scenarios": [
+    {
+      "id": "CH01",
+      "fault": "timeout",
+      "target": "primary",
+      "expected_outcome": "fallback_to_secondary_then_local",
+      "actual_outcome": "fallback_to_secondary_then_local",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_a"
+    },
+    {
+      "id": "CH02",
+      "fault": "rate_limit",
+      "target": "primary",
+      "expected_outcome": "bounded_failure_no_retry_loop",
+      "actual_outcome": "bounded_failure_no_retry_loop",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_b"
+    },
+    {
+      "id": "CH03",
+      "fault": "breaker_half_open_recovery",
+      "target": "primary",
+      "expected_outcome": "two_successes_close_breaker",
+      "actual_outcome": "two_successes_close_breaker",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_c"
+    },
+    {
+      "id": "CH04",
+      "fault": "half_open_probe_fail",
+      "target": "primary",
+      "expected_outcome": "reopen_immediately",
+      "actual_outcome": "reopen_immediately",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_d"
+    },
+    {
+      "id": "CH05",
+      "fault": "quota_exhaustion",
+      "target": "fugu_quota",
+      "expected_outcome": "deny_before_provider_call",
+      "actual_outcome": "deny_before_provider_call",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_e"
+    },
+    {
+      "id": "CH06",
+      "fault": "stop_file",
+      "target": "fugu_quota",
+      "expected_outcome": "deny_without_attempt_count_mutation",
+      "actual_outcome": "deny_without_attempt_count_mutation",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_f"
+    },
+    {
+      "id": "CH07",
+      "fault": "kill_seam",
+      "target": "opslib.STOP_ORGANISM",
+      "expected_outcome": "deny_on_real_function",
+      "actual_outcome": "deny_on_real_function",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_g"
+    },
+    {
+      "id": "CH08",
+      "fault": "corrupt_json",
+      "target": "provider_response",
+      "expected_outcome": "one_bounded_failure",
+      "actual_outcome": "one_bounded_failure",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_h"
+    },
+    {
+      "id": "CH09",
+      "fault": "retry_bound",
+      "target": "router",
+      "expected_outcome": "zero_unbounded_retry_zero_duplicate_effect",
+      "actual_outcome": "zero_unbounded_retry_zero_duplicate_effect",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_i"
+    },
+    {
+      "id": "CH10",
+      "fault": "io_failure",
+      "target": "fugu_quota_state",
+      "expected_outcome": "fail_closed",
+      "actual_outcome": "fail_closed",
+      "pass": true,
+      "evidence": "test_ti_breaker_chaos.py:t_j"
+    },
+    {
+      "id": "CH11",
+      "fault": "closed_paid_gate",
+      "target": "paid_gate",
+      "expected_outcome": "zero_paid_provider_attempt",
+      "actual_outcome": "zero_paid_provider_attempt",
+      "pass": true,
+      "evidence": "test_ti_router_snapshot.py:t_f"
+    },
+    {
+      "id": "CH12",
+      "fault": "primary_failure",
+      "target": "router",
+      "expected_outcome": "stable_fallback_order_primary_to_secondary",
+      "actual_outcome": "stable_fallback_order_primary_to_secondary",
+      "pass": true,
+      "evidence": "test_ti_router_snapshot.py:t_d"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "consistency": "100%",
+    "robustness": "100%",
+    "fault_tolerance": "100%"
+  }
+}
