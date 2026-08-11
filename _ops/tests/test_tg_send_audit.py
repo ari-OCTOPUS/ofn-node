@@ -227,5 +227,51 @@ class RealTreeRatchetTests(unittest.TestCase):
                       "یک مسیرِ پاسخ بدونِ topic_id اضافه شده")
 
 
+class NonProductionDirTests(unittest.TestCase):
+    """`audit_paths` نباید نسخه‌های پشتیبان (`_bak`، `patch_backups`) را production بشمارد.
+
+    رگرسیونِ ۲۰۲۶-۰۸-۱۱: یک snapshot زیرِ `_ops/_bak/talk-discovery-arm-*/` همان
+    send-site ِ `center.py` را دوباره داشت و ratchet ِ `absent` را از ۲ به ۳ برد —
+    قرمزِ دروغین، چون کدِ اجراشوندهٔ production عوض نشده بود.
+    """
+
+    def _tree(self):
+        import tempfile
+        d = Path(tempfile.mkdtemp(prefix="tgaudit-"))
+        self.addCleanup(lambda: __import__("shutil").rmtree(d, ignore_errors=True))
+        return d
+
+    _ABSENT_SRC = ("def f(self, msg):\n"
+                   "    self._client.send('x', chat_id=1)\n")
+
+    def test_bak_snapshot_is_not_counted(self):
+        root = self._tree()
+        (root / "telegram_center").mkdir(parents=True)
+        (root / "telegram_center" / "center.py").write_text(self._ABSENT_SRC, "utf-8")
+        bak = root / "_bak" / "snap-20260811" / "telegram_center"
+        bak.mkdir(parents=True)
+        (bak / "center.py").write_text(self._ABSENT_SRC, "utf-8")
+        _sites, summ = sa.audit_paths([root])
+        # فقط نسخهٔ production شمرده می‌شود، نه کپیِ `_bak`.
+        self.assertEqual(summ["by_topic"]["absent"], 1)
+
+    def test_patch_backups_is_not_counted(self):
+        root = self._tree()
+        pb = root / "patch_backups" / "old" / "telegram_center"
+        pb.mkdir(parents=True)
+        (pb / "center.py").write_text(self._ABSENT_SRC, "utf-8")
+        _sites, summ = sa.audit_paths([root])
+        self.assertEqual(summ["by_topic"]["absent"], 0)
+
+    def test_unknown_dirs_are_still_audited(self):
+        """پوشهٔ ناشناخته باید همچنان audit شود — فقط لیستِ دقیق حذف می‌شود."""
+        root = self._tree()
+        sub = root / "telegram_center"
+        sub.mkdir(parents=True)
+        (sub / "center.py").write_text(self._ABSENT_SRC, "utf-8")
+        _sites, summ = sa.audit_paths([root])
+        self.assertEqual(summ["by_topic"]["absent"], 1)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

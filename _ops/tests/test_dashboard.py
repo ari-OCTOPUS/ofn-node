@@ -192,9 +192,13 @@ def test_effective_flags_profile_default():
     """paper-full باید flagهای امن را روشن کند."""
     # بدون env override، profile default از os.environ
     orig_prof = os.environ.pop("OCTOPUS_PROFILE", None)
+    orig_ov = dash._read_env_overrides
     try:
+        # این تست منطقِ profile default را می‌سنجد، نه OCTOPUS-flags.cmd زنده را.
+        # پاک‌کردن env کافی نبود: server دوباره فایل override را می‌خواند و مثلاً
+        # BARBELL=1 زنده را روی paper-full اعمال می‌کرد (قرمزِ وابسته به محیط).
+        dash._read_env_overrides = lambda: {}
         os.environ["OCTOPUS_PROFILE"] = "paper-full"
-        # پاک‌کردنِ overrideهای صریح تا default اعمال شود
         for n, _, _ in dash.WIRE_FLAGS:
             os.environ.pop(n, None)
         eff = dash._effective_flags()
@@ -203,6 +207,7 @@ def test_effective_flags_profile_default():
         # barbell risky → در paper-full نیست
         assert eff["OCTOPUS_WIRE_BARBELL"] is False
     finally:
+        dash._read_env_overrides = orig_ov
         if orig_prof is not None:
             os.environ["OCTOPUS_PROFILE"] = orig_prof
         else:

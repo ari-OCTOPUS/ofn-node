@@ -13,16 +13,60 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("dual-brain")
-_BRAIN = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز\brain")
+_BRAIN = Path(__file__).resolve().parents[2] / r"03 - Projects\اونلی فنز\brain"
 if str(_BRAIN) not in sys.path:
     sys.path.insert(0, str(_BRAIN))
 
-if not (_BRAIN / "dual_brain.py").exists():
-    print("SKIPPED test_dual_brain: dual_brain.py absent from main tree (Project-F WIP in worktree)")
-    sys.exit(0)
-from dual_brain import (DualBrain, ThinkingBrain, CommBrain, Thought, Message,  # noqa: E402
-                         LAMBDA_PERSIST, COMPLIANCE_RULES, ETHICS_RULES,
-                         FORBIDDEN_TERMS, _scan_forbidden, _check_compliance)
+from dual_brain_v3 import (DualBrainV3, ThinkingBrain as _ThinkingBrain,  # noqa: E402
+                            CommBrain as _CommBrain, Thought, Message,
+                            LAMBDA_PERSIST, COMPLIANCE_RULES, ETHICS_RULES,
+                            FORBIDDEN_TERMS, _guard_text as _check_compliance)
+
+
+def _scan_forbidden(text):
+    return _check_compliance(text)[1]
+
+
+class ThinkingBrain(_ThinkingBrain):
+    """Compatibility facade mapping the retired v1 test vocabulary onto v3."""
+
+    def think_strategy(self, content_type="standard", season="summer"):
+        return self.strategist(content_type, season)
+
+    def think_price(self, content_type="standard", time_slot="evening",
+                    historical_data=None):
+        if historical_data is None:
+            return self.pricer(content_type, time_slot)
+        rows = [{**row, "type": "price"} for row in historical_data]
+        return _ThinkingBrain(rows).pricer(content_type, time_slot)
+
+    def think_schedule(self, platform="reddit"):
+        return self.scheduler(platform)
+
+    def think_risk(self, draft_title="", partner_stress=0.3):
+        return self.risk_analyzer(draft_title, partner_stress)
+
+    def process(self, draft_title="", checks=None, **kwargs):
+        return self.process_all(draft_title=draft_title, checks=checks, **kwargs)
+
+
+class CommBrain(_CommBrain):
+    def dm_draft(self, thought, recipient_segment="regular"):
+        return super().dm_draft(thought, segment=recipient_segment)
+
+    def _guard_text(self, text):
+        return _check_compliance(text)
+
+
+class DualBrain(DualBrainV3):
+    def __init__(self, historical=None):
+        super().__init__(historical=historical)
+        self.thinking = ThinkingBrain(historical=historical)
+        self.comm = CommBrain()
+
+    def process_and_communicate(self, draft_title="", checks=None, **kwargs):
+        return self.think_and_communicate(draft_title=draft_title,
+                                          checks=checks, **kwargs)
 
 
 def _full_checks():

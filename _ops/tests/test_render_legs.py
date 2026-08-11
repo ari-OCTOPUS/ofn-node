@@ -83,17 +83,40 @@ def test_business_legs_list_shape() -> None:
 
 
 def test_business_leg_skeleton_shows_note_not_blank() -> None:
-    """skeleton (live=False) → note ِ صادق در detail، نه پیش‌فرضِ «سیگنالِ زنده‌ای نیست»."""
-    # شکلِ واقعیِ WP-F: signal="skeleton" (بی‌محتوا)، note پیامِ صادق را دارد
+    """skeleton (live=False) → detail ِ صادق، نه پیش‌فرضِ «سیگنالِ زنده‌ای نیست».
+
+    2026-08-10: mining leg skeleton وقتی mining_card موجود است، digest_detail
+    می‌سازد که از note صادقانه‌تر است. تست باید بررسی کند که detail دقیقاً یکی
+    از دو مقدارِ مجاز و مستند است: (۱) note (وقتی mining_card غایب)، یا
+    (۲) خروجیِ واقعیِ mining_card.digest_detail. نه هر متنی که «خاموش» دارد."""
     note = "skeleton — no data source wired yet؛ نیازمندِ business-spec از مالک."
     org = {"business_legs": {
         "mining": {"leg": "mining", "live": False, "signal": "skeleton", "note": note},
     }}
     legs = render._collect_legs(_feeds(org))
     assert legs["mining"]["status"] == "⚪", legs["mining"]          # صادقانه تاریک
-    assert legs["mining"]["detail"] == note, legs["mining"]          # note، نه «skeleton»ِ بی‌محتوا
-    assert legs["mining"]["detail"] != render._LEG_DEFAULT["detail"]
-    assert legs["mining"].get("next") is None, legs["mining"]       # skeleton هیچ next ندارد
+    detail = legs["mining"]["detail"]
+    assert detail and detail != render._LEG_DEFAULT["detail"], \
+        f"detail نباید خالی یا پیش‌فرض باشد: {detail}"
+    # detail باید دقیقاً note باشد، یا خروجیِ mining_card.digest_detail.
+    # هر دو مسیر را مستند کنیم و bå از یکدیگر متمایز:
+    import sys as _sys
+    _legs_p = str(render._OPS / "legs")
+    if _legs_p not in _sys.path:
+        _sys.path.insert(0, _legs_p)
+    try:
+        import importlib
+        _mc = importlib.import_module("mining_card")
+        expected_card = _mc.digest_detail(live=False, signal="skeleton")
+    except Exception:
+        expected_card = None  # mining_card غایب → detail باید note باشد
+    if expected_card:
+        assert detail == expected_card, \
+            f"detail باید mining_card.digest_detail باشد: got={detail!r} expected={expected_card!r}"
+    else:
+        assert detail == note, \
+            f"mining_card غایب، detail باید note باشد: got={detail!r}"
+    assert legs["mining"].get("next") is None, legs["mining"]
 
 
 def test_absent_state_safe_default_no_crash() -> None:

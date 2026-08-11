@@ -48,6 +48,27 @@ def runtime_truth() -> str:
     ])
 
 
+def protective_truth() -> str:
+    """Read the live ADR-034 neural status without granting control authority."""
+    try:
+        d = json.loads((STATE / "ORGANISM-STATE.json").read_text("utf-8"))
+    except (OSError, ValueError):
+        return ("🛡️ وضعیت حفاظت: UNKNOWN — state خوانده نشد.\n"
+                "این رابط هیچ halt یا action اجرایی صادر نمی‌کند.")
+    pa = d.get("pain_assessment") or {}
+    pain = pa.get("pain") if isinstance(pa, dict) else None
+    evidence = pa.get("evidence_level") if isinstance(pa, dict) else None
+    proposal = d.get("protective_proposal")
+    skip = bool(d.get("protective_skip"))
+    return "\n".join([
+        "🛡️ وضعیت درد/حفاظت (ADR-034)",
+        f"pain={pain if pain is not None else 'UNKNOWN'} · evidence={evidence or 'SHADOW'}",
+        f"proposal={proposal or 'none'} · protective_skip={str(skip).lower()}",
+        "مرز اختیار: این signal فقط diagnostic/proposal/SHADOW است؛ halt مستقیم نیست.",
+        "توقف اجرایی فقط از request_protective_halt پس از PolicyGate و تأیید معتبر می‌گذرد.",
+    ])
+
+
 def blockers() -> str:
     s, c = _unified()
     bs = list(dict.fromkeys([*(s.get("blockers") or []), *(c.get("reasons") or [])]))
@@ -57,23 +78,12 @@ def blockers() -> str:
 
 
 def discovery() -> str:
-    report = OPS / "world_discovery" / "reports" / "WORLD-DISCOVERY-EXECUTION-REPORT-2026-07-30.md"
-    status = "UNKNOWN"
+    """Unified discovery gateway (catalog + dark/journal + World Discovery)."""
     try:
-        text = report.read_text("utf-8")
-        if "NO_VALID_DISCOVERY" in text:
-            status = "NO_VALID_DISCOVERY"
-        elif "DISCOVERY_VALIDATED" in text:
-            status = "DISCOVERY_VALIDATED"
-    except OSError:
-        text = ""
-    return "\n".join([
-        "🌍 World Discovery",
-        f"وضعیت آخرین اجرای قابل‌مشاهده: {status}",
-        "اجرای ثبت‌شده: ۱۵ منبع، ۸ کاندیدا، صفر کشفِ دو-منبعی معتبر.",
-        "چهار فرضیه رقابتی ساخته شد ولی هنوز FACT نیستند.",
-        "قدم بعدی: دور relation-level یا آزمایش E0 فقط‌خواندنی؛ بدون خرج و ارسال.",
-    ])
+        from owner_console.discovery_facade import discover_reply_text
+        return discover_reply_text()
+    except Exception as e:  # noqa: BLE001 — never break owner chat
+        return f"🌍 Discovery facade خطا: {type(e).__name__} — بدون اثر خارجی."
 
 
 def readonly_mission(text: str) -> dict:

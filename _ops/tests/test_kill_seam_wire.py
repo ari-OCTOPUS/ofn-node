@@ -208,29 +208,59 @@ def t_f_the_armed_seam_survives_a_production_shaped_syspath():
 
     این‌جا دقیقاً همان شکل بازسازی می‌شود — `_ops` از مسیر برداشته و
     `now_moves` از `sys.modules` پاک می‌شود. گاردِ مسلح باید **deny** بدهد،
-    نه `ModuleNotFoundError`. (با سیم‌کشیِ قبلی همین‌جا می‌ترکید.)"""
-    _clean()
-    saved_path = list(sys.path)
-    saved_mods = {k: v for k, v in sys.modules.items()
-                  if k == "now_moves" or k.startswith("now_moves.")}
-    sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != _OPS_SELF]
-    for k in saved_mods:
-        del sys.modules[k]
-    try:
-        try:
-            import now_moves  # noqa: F401
-            raise AssertionError("بازسازیِ محیط شکست خورد: now_moves هنوز import می‌شود")
-        except ImportError:
-            pass
-        _arm()
-        _stop_on()
-        r = organ_gate.reserve("ZIMAN", 0.001, task="seam-noimport")
-        assert r.get("allow") is False, r
-        assert r.get("reason") == "halted:STOP(organism)", r
-    finally:
-        sys.path[:] = saved_path
-        sys.modules.update(saved_mods)
-        _clean()
+    نه `ModuleNotFoundError`. (با سیم‌کشیِ قبلی همین‌جا می‌ترکید.)
+
+    2026-08-10: subprocess isolation — اجرای کلِ سناریو در یک پروسهٔ تمیز.
+    در پروسهٔ اصلی، harness.setup() و importهای قبلی (opslib، organ_gate،
+    debate_loop) ماژول‌های زیادی را در sys.modules بارگذاری کرده‌اند که
+    now_moves را از راهِ ارجاعِ lazy قابل‌دسترس نگه می‌دارند. پاک‌کردنِ
+    sys.path به‌تنهایی کافی نیست چون ماژول‌های بارگذاری‌شده هنوز ارجاع دارند.
+    subprocess isolation این مشکل را کامل حل می‌کند: پروسهٔ فرزند هیچ
+    ماژولِ بارگذاری‌شده‌ای ندارد و sys.path کاملاً کنترل‌شده است."""
+    import subprocess
+    # یک اسکریپت کوچک که در پروسهٔ تمیز اجرا می‌شود — بدون هیچ importِ قبلی
+    script = '''
+import os, sys
+# فقط budget و debate را روی path بگذاریم (مثل صداکنندهٔ واقعی) — نه خودِ _ops
+_OPS = os.environ["OPS_SELF"]
+for _p in (os.path.join(_OPS, "budget"), os.path.join(_OPS, "debate")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+# حالا _ops روی sys.path نیست → now_moves نباید import شود
+try:
+    import now_moves
+    print("NOW_MOVES_IMPORTABLE")
+except ImportError:
+    print("NOW_MOVES_NOT_IMPORTABLE")
+# مسلح + STOP → organ_gate.reserve باید deny بدهد، نه ModuleNotFoundError
+os.environ["OCTOPUS_WIRE_KILL_SEAM"] = "1"
+import organ_gate
+# STOP-ORGANISM را بساز — opslib.STOP_ORGANISM = OPS_DIR / "STOP-ORGANISM"
+from pathlib import Path
+ops_dir = Path(os.environ["OPS_DIR"])
+stop_file = ops_dir / "STOP-ORGANISM"
+stop_file.write_text("test\\n", encoding="utf-8")
+r = organ_gate.reserve("ZIMAN", 0.001, task="seam-noimport")
+allow = r.get("allow")
+reason = r.get("reason", "")
+print(f"ALLOW={allow}")
+print(f"REASON={reason}")
+# پاکسازی
+stop_file.unlink(missing_ok=True)
+'''
+    env = dict(os.environ)
+    env["OPS_SELF"] = str(_OPS_SELF)
+    env["OPS_DIR"] = str(_OPS_SELF)  # so STOP_ORGANISM resolves correctly
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True, text=True, timeout=30, env=env)
+    output = result.stdout + result.stderr
+    assert "NOW_MOVES_NOT_IMPORTABLE" in output, \
+        f"now_moves نباید import شود (بدون _ops روی path): {output.strip()}"
+    assert "ALLOW=False" in output, \
+        f"گاردِ مسلح باید deny بدهد: {output.strip()}"
+    assert "halted:STOP(organism)" in output, \
+        f"reason باید halted:STOP(organism) باشد: {output.strip()}"
 
 
 def t_g_the_shared_halted_source_of_truth_is_untouched():

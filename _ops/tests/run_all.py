@@ -827,6 +827,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_brief.py",                     # Ø¨Ø±ÛŒÙÙ ØµØ¨Ø­/Ø´Ø¨ + Ù„ÛŒÙ†Ú©Ù ØªØ§Ù¾ÛŒÚ© (Ø±Ø£ÛŒ Û±Û±)
     "test_tg_ask_vault.py",                 # Ø³Ø¤Ø§Ù„-Ø§Ø²-vault Ø¨Ø§ Ù…Ù†Ø¨Ø¹ (Ø±Ø£ÛŒ Û¹)
     "test_miniapp_gateway.py",              # Ú¯ÛŒØªÙ initData Ù Mini App (Ø±Ø£ÛŒ Û²Û²)
+    "test_api_collab.py",                   # 14 checks: POST /api/collab route wiring + security
+    "test_collab_components.py",           # 23 checks: collab_memory hardening + existing collab tests
+    "test_telegram_adapter_collab.py",     # Talk Discovery B: DM seam → collaborator when armed
+    "test_talk_discovery.py",              # Talk Discovery C/D: journal + dark pulse + protocol
     # Û²Û°Û²Û¶-Û°Û¸-Û°Û³ (GO Ù Ù…Ø§Ù„Ú©ØŒ PROP-D5 ÙØ§Ø² Û±): Ú©Ø§Ø±Øªâ€ŒÙ‡Ø§ÛŒ read-only Ù Project-F.
     # Ú†Ù‡Ø§Ø± Ú¯Ø§Ø±Ø¯Ù Ø¬Ù‡Ø´â€ŒØ¢Ø²Ù…ÙˆØ¯Ù‡: flag-off=404 Â· Ø¯ÛŒÙˆØ§Ø±Ù auth Â· content-free (Ù‚Ø§Ø¹Ø¯Ù‡Ù” #Û·) Â·
     # Ø³Ù‡â€ŒØ­Ø§Ù„ØªÛŒÙ ØµØ§Ø¯Ù‚ (ÙØ§ÛŒÙ„Ù ØºØ§ÛŒØ¨ = unknownØŒ Ù†Ù‡ ØµÙØ±Ù Ø¬Ø¹Ù„ÛŒ).
@@ -1016,6 +1020,33 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_mission_card_seam.py",
     "test_run_all_scoring.py",
     "test_truth_by_cycle.py",
+    # 2026-08-11 — Test Intelligence pack (script-native, exit 0/1):
+    "test_ti_trace_contract.py",
+    "test_ti_context_bundle_contract.py",
+    "test_ti_router_snapshot.py",
+    "test_ti_breaker_chaos.py",
+    "test_ti_collab_security.py",
+    "test_ti_discovery_eval.py",
+    "test_ti_policy_oracle.py",
+    "test_ti_redteam_injection.py",
+    "test_ti_dark_inventory.py",
+
+    # ── 2026-08-11 WORKLOCK (owner-approved append-only) — Stage 2–3 + ADR-034 ──
+    # Proposal: _ops/state/adr-033/reports/WORKLOCK-PROPOSAL-STAGE-2-3.md
+    # Do not reorder/remove existing entries. APPLY remains 0.
+    "test_adr033_control_plane.py",
+    "test_approval_state.py",
+    "test_signals_registry_schema.py",
+    "test_registry_semantic_validator.py",
+    "test_kalman_shadow_pipeline.py",
+    "test_bcm_hebbian_shadow_e2e.py",
+    "test_nociceptor_chaos_shadow.py",
+    "test_adr034_neural_demote.py",
+    # ── 2026-08-11 WORKLOCK (owner-approved) — Memory ingest bridges ──
+    # research_ingest + self_loop_ingest: episodic MemoryGate + append-only trail.
+    # may_authorize=false · APPLY=0 · additive.
+    "test_research_ingest.py",
+    "test_self_loop_ingest.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -1124,8 +1155,43 @@ def _guarded_env():
 
 
 if __name__ == "__main__":
+    # WORKLOCK 2026-08-11: --only a,b,c — missing suite => hard fail (no quiet skip)
+    _only = None
+    if "--only" in sys.argv:
+        _i = sys.argv.index("--only")
+        if _i + 1 >= len(sys.argv) or sys.argv[_i + 1].startswith("-"):
+            print("FATAL: --only requires comma-separated suite names", file=sys.stderr)
+            sys.exit(2)
+        _only = [x.strip() for x in sys.argv[_i + 1].split(",") if x.strip()]
+        if not _only:
+            print("FATAL: --only list empty", file=sys.stderr)
+            sys.exit(2)
+    _run = list(TESTS) + list(EXTRA_TESTS)
+    if _only is not None:
+        _resolved, _missing = [], []
+        for name in _only:
+            base = name if name.endswith(".py") else f"{name}.py"
+            stem = base[:-3]
+            hit = None
+            for item in _run:
+                path_obj = item if isinstance(item, Path) else (HERE / item)
+                if path_obj.name == base or path_obj.stem == stem:
+                    hit = item if isinstance(item, Path) else base
+                    break
+            if hit is None:
+                _missing.append(name)
+            else:
+                path_obj = hit if isinstance(hit, Path) else (HERE / hit)
+                if not Path(path_obj).is_file():
+                    print(f"FATAL: suite path does not exist: {path_obj}", file=sys.stderr)
+                    sys.exit(2)
+                _resolved.append(hit)
+        if _missing:
+            print("FATAL: suite(s) missing / not registered:", ", ".join(_missing), file=sys.stderr)
+            sys.exit(2)
+        _run = _resolved
     failed = []
-    for t in TESTS + EXTRA_TESTS:
+    for t in _run:
         p = HERE / t          # Ù†Ø§Ù…â€ŒÙ‡Ø§ÛŒ Ù†Ø³Ø¨ÛŒÙ TESTS â†’ _ops/testsØ› EXTRA_TESTSÙ absolute Ø¯Ø³Øªâ€ŒÙ†Ø®ÙˆØ±Ø¯Ù‡ Ù…ÛŒâ€ŒÙ…Ø§Ù†Ø¯
         label = p.name
         print(f"\nâ”€â”€ {label} " + "â”€" * (60 - len(label)))
@@ -1203,6 +1269,9 @@ if __name__ == "__main__":
             _cg.revoke_capability()
         print(f"âŒ Ø´Ú©Ø³Øª: {', '.join(failed)}  (capability revoked)")
         sys.exit(1)
-    if _cg:
+    if _cg and _only is None:
         _cg.mark_capability("green: " + ",".join(TESTS))
-    print(f"âœ… Ù‡Ù…Ù‡Ù” {len(TESTS)} ÙØ§ÛŒÙ„ ØªØ³Øª Ø³Ø¨Ø²  (capability marker Ø¨Ø§ fingerprint Ù†ÙˆØ´ØªÙ‡ Ø´Ø¯)")
+    if _only is not None:
+        print(f"OK: all {len(_run)} suite(s) green (only-mode; capability marker untouched)")
+    else:
+        print(f"OK: all {len(TESTS)} suite(s) green (capability marker written)")

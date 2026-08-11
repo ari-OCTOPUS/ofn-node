@@ -35,6 +35,20 @@ import outbound_https as oh  # noqa: E402
 import approval_store  # noqa: E402
 
 
+def _wire_approval_port():
+    """Bridge outbound_https to the real approval_store via injectable port.
+
+    2026-08-11: _LocalApprovalStore deleted. outbound_https now requires
+    an injected approval port. This helper wires the telegram_center
+    approval_store as the port so existing behavioral tests continue
+    exercising the real store logic."""
+    oh._set_approval_port({
+        "add_pending": approval_store.add_pending,
+        "get": approval_store.get,
+        "mark_done": approval_store.mark_done,
+    })
+
+
 class _Flag:
     def __init__(self, name, val):
         self.name, self.val = name, val
@@ -64,6 +78,7 @@ def _reset():
         approval_store._APPROVALS_JSON.unlink()
     except OSError:
         pass
+    _wire_approval_port()
 
 
 def _write_allowlist(domains):
@@ -134,6 +149,8 @@ def t_submit_never_calls_the_network_itself():
     jobs = approval_store.load_pending()
     assert len(jobs) == 1 and jobs[0]["type"] == "outbound_http", jobs
     assert jobs[0]["risk"] == "high", jobs[0]
+    assert jobs[0]["action_sha256"] == oh._action_sha256(
+        json.loads(oh._job_path(r["job_id"]).read_text("utf-8")))
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -192,6 +209,40 @@ def t_approved_job_sends_exactly_once_then_idempotent():
         out2 = oh.execute_if_approved(jid)
         assert not m2.called, "بعد از mark_done دوباره نباید بفرستد"
     assert out2["status"] == "ALREADY_DONE", out2
+
+
+def t_expired_approval_is_denied_without_network():
+    _reset()
+    _write_allowlist({"api.example.com": {"methods": ["POST"]}})
+    with _Flag(oh.FLAG, "1"):
+        r = oh.submit("POST", "https://api.example.com/x", body="approved-body")
+    jid = r["job_id"]
+    approval_store.approve(jid)
+    state = approval_store._load_octopus_approvals()
+    state["approved"][0]["expires_epoch"] = 0
+    approval_store._save_octopus_approvals(state)
+    with mock.patch("urllib.request.urlopen") as m:
+        out = oh.execute_if_approved(jid)
+        assert not m.called
+    assert out == {"status": "FAILED", "reason": "approval_expired"}, out
+
+
+def t_approved_job_with_changed_spec_is_denied_without_network():
+    _reset()
+    _write_allowlist({"api.example.com": {"methods": ["POST"]}})
+    with _Flag(oh.FLAG, "1"):
+        r = oh.submit("POST", "https://api.example.com/x", body="approved-body")
+    jid = r["job_id"]
+    approval_store.approve(jid)
+    spec_path = oh._job_path(jid)
+    changed = json.loads(spec_path.read_text("utf-8"))
+    changed["body"] = "changed-after-approval"
+    spec_path.write_text(json.dumps(changed), "utf-8")
+    with mock.patch("urllib.request.urlopen") as m:
+        out = oh.execute_if_approved(jid)
+        assert not m.called
+    assert out == {"status": "FAILED", "reason": "approval_action_mismatch"}, out
+    assert approval_store.get(jid)["status"] == "approved"
 
 
 def t_network_failure_marks_done_not_retryable():

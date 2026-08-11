@@ -253,7 +253,7 @@ def t_cards_surface_throttling_and_incompleteness():
     body, _ = tr.card()
     assert "throttle" in body, "کارت throttle‌شده را پنهان کرد"
     inc = tr.request(need="یه چیزی", why="لازمه", now=_at(17))
-    assert "ناقص" in tr.card_for(inc)[0]
+    assert "رد شد" in tr.card_for(inc)[0]
     assert "tr:y:" in json.dumps(tr.card_for(thr)[1])
 
 

@@ -70,7 +70,8 @@ import flag_drift  # noqa: E402  — گاردِ محرمانه و پارسرِ �
 _FLAG_RE = re.compile(r"^(?:OCTOPUS|CORTEX)_[A-Z0-9_]{2,}$")
 
 _SKIP_DIRS = {"_Archive", "_Duplicates", ".git", "__pycache__", "node_modules",
-              ".venv", "venv", "site-packages", "tests",
+              ".venv", "venv", "site-packages", "tests", "test_intelligence",
+              "secrets-export", "09 - People",
               # ⚠️ ۲۰۲۶-۰۸-۰۱ — `.claude` را حتماً رد کن. اندازه‌گیری روی
               # درختِ زنده: ۵.۵۴ GB و ۶۷٬۸۴۴ فایل در ۱۸ worktree. از ۲۱٬۹۷۳
               # فایلِ `.py` زیرِ ریشه، فقط **۹۵۶** واقعی‌اند و بقیه رونوشت.
@@ -97,9 +98,17 @@ def _iter_py(root: Path):
     یک تست که فلگی را ست می‌کند دلیلِ زنده‌بودنِ آن فلگ نیست؛ اگر می‌شمردیم،
     هر فلگی که تستِ خوبی داشت «مصرف‌کننده دارد» به‌نظر می‌رسید — همان خطای
     «آرتیفکتِ خودساخته شاهد نیست».
+
+    گاردِ پوشه فقط روی مسیرِ *نسبی به root* اعمال می‌شود. خودِ worktree ممکن است
+    زیرِ `.claude/worktrees/` باشد؛ شمردنِ اجزای والد باعث می‌شد اسکنِ همان
+    worktree صفر فایل ببیند و یک گزارشِ 0/0 ظاهراً سبز بسازد.
     """
     for p in root.rglob("*.py"):
-        if any(part in _SKIP_DIRS for part in p.parts):
+        try:
+            parts = p.relative_to(root).parts
+        except ValueError:
+            parts = p.parts
+        if any(part in _SKIP_DIRS for part in parts):
             continue
         yield p
 

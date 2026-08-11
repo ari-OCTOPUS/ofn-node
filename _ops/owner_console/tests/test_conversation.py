@@ -18,6 +18,28 @@ def t_sensitive_send_is_blocked_not_executed():
     assert r["data"]["status"]=="BLOCKED_BY_OWNER"
     assert r["send_attempted"] is False and r["external_effect"] is False
 
+def t_goal_in_owner_language_reads_goal_state():
+    r=conversation.handle("هدف چیست؟")
+    assert r["kind"]=="goal"
+    assert r["external_effect"] is False and r["send_attempted"] is False
+
+
+def t_status_in_owner_language_reads_runtime():
+    r=conversation.handle("وضعیت چیست؟")
+    assert r["kind"]=="runtime"
+    assert "runtime" in r["text"]
+    assert r["external_effect"] is False and r["send_attempted"] is False
+
+
+def t_pain_question_is_shadow_proposal_not_control():
+    r=conversation.handle("درد و حفاظت چه می‌گوید؟")
+    assert r["kind"]=="protective-status"
+    assert r["data"]["status"]=="SHADOW_PROPOSAL_ONLY"
+    assert r["data"]["control_authority"] is False
+    assert "halt مستقیم نیست" in r["text"]
+    assert r["external_effect"] is False and r["send_attempted"] is False
+
+
 def t_unknown_clarifies():
     r=conversation.handle("یک چیز عجیب که معلوم نیست")
     assert r["kind"]=="clarify" and r["data"]["status"]=="CLARIFY"

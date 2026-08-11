@@ -50,41 +50,56 @@ for name, src in (("OCTOPUS_GOVERNOR_USE_ROUTER", src_gov),
     check(name in src, f"{name} باید در کد باشد")
 
 flags_path = _OPS / "OCTOPUS-flags.cmd"
-check(flags_path.exists(), "OCTOPUS-flags.cmd باید وجود داشته باشد")
+# OCTOPUS-flags.cmd is live-local. Clean worktrees use the tracked names-only
+# manifest for declaration coverage; only the live-local file has an EOL contract.
 if flags_path.exists():
     raw = flags_path.read_bytes()
     check(b"\r\n" in raw, "flags.cmd باید CRLF داشته باشد")
     check(b"\n" not in raw.replace(b"\r\n", b""), "flags.cmd نباید lone-LF داشته باشد")
     check(b"\r\r\n" not in raw, "flags.cmd نباید CRCRLF داشته باشد (تبدیل دوبارهٔ CRLF)")
     text = raw.decode("utf-8", errors="replace")
-    # ۲۰۲۶-۰۷-۲۷ — این بلوک قبلاً `== "0"` را هاردکد می‌کرد. وقتی مالک تصمیمش را
-    # عوض کرد («همه رو بزن»)، گارد **دائماً** قرمز شد. و تستِ همیشه‌قرمز خودش یک
-    # نقص است: آدم را عادت می‌دهد قرمز را نادیده بگیرد، و آن‌وقت رگرسیونِ واقعی
-    # پشتِ همان قرمزِ «انتظاری» پنهان می‌شود.
-    #
-    # پس مرجع عوض شد، نه سخت‌گیری: به‌جای عددِ ثابت، اعلامیهٔ ثبت‌شدهٔ مالک.
-    # این **سخت‌گیرتر** است — نسخهٔ قبلی فقط driftِ صفر←یک را می‌گرفت؛ این هر
-    # اختلافِ استقرار↔تصمیم را در **هر دو جهت** می‌گیرد، و هر ردیفِ اعلامیه
-    # بدونِ شاهدِ تصمیمِ مالک خودش قرمز است.
-    import json as _json
-    decl_path = _OPS / "PAID-FLAGS-DECLARATION.json"
-    check(decl_path.exists(), "PAID-FLAGS-DECLARATION.json باید وجود داشته باشد")
-    decl = {}
-    if decl_path.exists():
-        try:
-            decl = (_json.loads(decl_path.read_text("utf-8")) or {}).get("flags") or {}
-        except ValueError:
-            check(False, "اعلامیهٔ فلگ‌های پولی JSONِ معتبر نیست")
-    for name in ("OCTOPUS_WIRE_C6_PRODUCER", "OCTOPUS_GOVERNOR_USE_ROUTER",
-                 "OCTOPUS_HEART_DOCTOR_USE_ROUTER", "OCTOPUS_DOCTOR_SELFKNOW_PAID"):
-        row = decl.get(name) or {}
-        want = str(row.get("expected", "")).strip()
-        check(want in ("0", "1"), f"{name} در اعلامیه نیست یا مقدارش نامعتبر است")
-        # فلگی که «روشن» اعلام شده ولی شاهدِ تصمیمِ مالک ندارد، اعلامیه نیست —
-        # حدس است. بدونِ این شرط، این فایل تبدیل می‌شد به دری برای دورزدنِ گارد.
-        if want == "1":
-            ev = str(row.get("evidence", "")).strip()
-            check(len(ev) >= 20, f"{name} روشن اعلام شده ولی شاهدِ تصمیمِ مالک ندارد")
+else:
+    text = None
+    manifest = _OPS / "FLAG-NAMES-MANIFEST.txt"
+    check(manifest.exists(), "flags.cmd غایب است و manifest نام‌ها هم وجود ندارد")
+    manifest_names = set()
+    if manifest.exists():
+        manifest_names = {line.strip() for line in manifest.read_text("utf-8").splitlines()
+                          if line.strip() and not line.lstrip().startswith("#")}
+    for name in ("OCTOPUS_GOVERNOR_USE_ROUTER", "OCTOPUS_HEART_DOCTOR_USE_ROUTER",
+                 "OCTOPUS_DOCTOR_SELFKNOW_PAID"):
+        check(name in manifest_names, f"{name} باید در manifest نام‌ها باشد")
+# Declaration-file checks run regardless — they verify the owner's intent registry.
+# ۲۰۲۶-۰۷-۲۷ — این بلوک قبلاً `== "0"` را هاردکد می‌کرد. وقتی مالک تصمیمش را
+# عوض کرد («همه رو بزن»)، گارد **دائماً** قرمز شد. و تستِ همیشه‌قرمز خودش یک
+# نقص است: آدم را عادت می‌دهد قرمز را نادیده بگیرد، و آن‌وقت رگرسیونِ واقعی
+# پشتِ همان قرمزِ «انتظاری» پنهان می‌شود.
+#
+# پس مرجع عوض شد، نه سخت‌گیری: به‌جای عددِ ثابت، اعلامیهٔ ثبت‌شدهٔ مالک.
+# این **سخت‌گیرتر** است — نسخهٔ قبلی فقط driftِ صفر←یک را می‌گرفت؛ این هر
+# اختلافِ استقرار↔تصمیم را در **هر دو جهت** می‌گیرد، و هر ردیفِ اعلامیه
+# بدونِ شاهدِ تصمیمِ مالک خودش قرمز است.
+import json as _json
+decl_path = _OPS / "PAID-FLAGS-DECLARATION.json"
+check(decl_path.exists(), "PAID-FLAGS-DECLARATION.json باید وجود داشته باشد")
+decl = {}
+if decl_path.exists():
+    try:
+        decl = (_json.loads(decl_path.read_text("utf-8")) or {}).get("flags") or {}
+    except ValueError:
+        check(False, "اعلامیهٔ فلگ‌های پولی JSONِ معتبر نیست")
+for name in ("OCTOPUS_WIRE_C6_PRODUCER", "OCTOPUS_GOVERNOR_USE_ROUTER",
+             "OCTOPUS_HEART_DOCTOR_USE_ROUTER", "OCTOPUS_DOCTOR_SELFKNOW_PAID"):
+    row = decl.get(name) or {}
+    want = str(row.get("expected", "")).strip()
+    check(want in ("0", "1"), f"{name} در اعلامیه نیست یا مقدارش نامعتبر است")
+    # فلگی که «روشن» اعلام شده ولی شاهدِ تصمیمِ مالک ندارد، اعلامیه نیست —
+    # حدس است. بدونِ این شرط، این فایل تبدیل می‌شد به دری برای دورزدنِ گارد.
+    if want == "1":
+        ev = str(row.get("evidence", "")).strip()
+        check(len(ev) >= 20, f"{name} روشن اعلام شده ولی شاهدِ تصمیمِ مالک ندارد")
+    # Assignment-vs-declaration consistency check only when flags.cmd is present
+    if text is not None:
         # فقط assignment واقعی را بسنج؛ comment/substrings مثل «NAME=1 برای فعال‌سازی»
         # پیکربندی نیستند. آخرین assignment مؤثر باید با اعلامیه بخواند.
         vals = re.findall(rf"(?im)^\s*(?:set\s+)?{re.escape(name)}\s*=\s*([01])\s*$", text)

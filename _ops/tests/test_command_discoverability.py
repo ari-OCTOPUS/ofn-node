@@ -43,6 +43,10 @@ INTENTIONALLY_HIDDEN = {
     # از قبل گیت کرده؛ عمداً در منو تبلیغ نمی‌شود چون سلاحِ خام است، نه یک feature معمولی.
     "sh": "owner-only raw-shell door, deliberately not advertised in the menu",
     "شل": "owner-only raw-shell door, deliberately not advertised in the menu (نامِ فارسیِ /sh)",
+    # ۲۰۲۶-۰۸-۱۰ — /restart عمداً فقط از MiniApp WebApp در دسترس است (POST /api/restart
+    # → همان مسیرِ امنِ approval-card ِ /restart تلگرام). نه منوی DM، نه تبلیغ.
+    # زیرش هم‌مسیرِ امنِ /restart تلگرام است (صفر bypass)، ولی ورودیِ آن MiniApp است.
+    "restart": "available via MiniApp WebApp POST /api/restart (same safe approval-card path), not DM menu",
     # ── رأیِ ۴ منشور TG-UI-CHARTER-2026-07-31 («بیزنس هرگز در DM») ───────────
     # این ۱۶ فرمان **کار می‌کنند** و عمداً از منوی DM برداشته شدند تا سقفِ ≤۱۰
     # ِ §۶.۵ رعایت شود. دفترِ حذف با دلیلِ تک‌تک:
@@ -133,7 +137,7 @@ def t_the_hidden_list_stays_small_and_justified():
     # سقف ۲۸ ← ۳۰: ۲۰۲۶-۰۸-۰۶ — sh/شل (درِ شلِ خامِ ۰۸-۰۴) به handlers اضافه شده
     # بودند ولی هرگز در COMMANDS/INTENTIONALLY_HIDDEN ثبت نشدند؛ census همین
     # الان صدایشان زد. owner-only، عمداً پنهان، نه یک نشتِ سقف.
-    assert len(INTENTIONALLY_HIDDEN) <= 30, len(INTENTIONALLY_HIDDEN)
+    assert len(INTENTIONALLY_HIDDEN) <= 31, len(INTENTIONALLY_HIDDEN)  # 2026-08-10: 30→31 (restart via MiniApp)
     for cmd, why in INTENTIONALLY_HIDDEN.items():
         assert len(why) >= 15, f"«{cmd}» بدونِ دلیلِ واقعی پنهان شده"
 

@@ -39,7 +39,11 @@ ENV = harness.setup("restart-preflight")
 _OPS = harness.SELF_OPS
 _SCRIPT = _OPS / "RESTART-ALL.ps1"
 _MARKERS = ("STOP-ORGANISM", "RESTART-REQUESTED", "STOP-TG-CENTER", "STOP-CORTEX")
-_LIVE_ROOT = str(_OPS).lower()
+# 2026-08-11: The live-tree-default check is purely structural — it reads the script
+# source and verifies the hardcoded $OpsRoot default matches the canonical live path.
+# This is valid from any location (worktree, CI, clone); the script TEXT is the contract.
+_REAL_LIVE_OPS = str(Path(harness.REAL_VAULT) / "_ops").lower()
+_LIVE_ROOT = _REAL_LIVE_OPS
 
 
 def _fixture(markers=(), flags="crlf"):
@@ -90,7 +94,11 @@ def t_the_seam_exists_at_all():
 
 
 def t_default_ops_root_is_still_the_live_tree():
-    """درز نباید رفتارِ عادی را عوض کرده باشد: اجرای بی‌آرگومان همان درختِ زنده."""
+    """درز نباید رفتارِ عادی را عوض کرده باشد: اجرای بی‌آرگومان همان درختِ زنده.
+
+    2026-08-11: This is a structural contract test — it reads the script SOURCE and
+    verifies the hardcoded $OpsRoot default matches the canonical live path. It does
+    NOT depend on where the test process is running (worktree, CI, clone are all fine)."""
     src = _SCRIPT.read_text("utf-8")
     m = re.search(r'\$OpsRoot\s*=\s*"([^"]+)"', src)
     assert m, "پیش‌فرضِ -OpsRoot پیدا نشد"

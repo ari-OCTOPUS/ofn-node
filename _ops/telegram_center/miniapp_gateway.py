@@ -218,14 +218,34 @@ def validate_init_data(init_data: str, *, bot_token: str, owner_id,
         return None
 
 
-# اسنیپتِ تزریقی به شِل: initData را روی هر fetch در هدر می‌گذارد. شِل خودش
-# صفر داده دارد؛ داده فقط بعد از دیوارِ HMAC می‌آید.
-_INJECT = ("<script>(function(){var g=function(){try{return (window.Telegram&&"
-           "window.Telegram.WebApp&&window.Telegram.WebApp.initData)||''}catch(e)"
-           "{return ''}};var f=window.fetch.bind(window);window.fetch=function(u,o)"
-           "{o=o||{};var h=new Headers(o.headers||{});var d=g();"
-           "if(d){h.set('X-Tg-Init-Data',d)}o.headers=h;return f(u,o)};})();"
-           "</script>")
+# اسنیپتِ تزریقی به شِل: initData روی هر fetch + فلگ‌های UI غیرسری (برای پیش‌فرض همکار).
+# فقط booleanهای غیرسری؛ هرگز توکن/secret.
+def _build_inject_js() -> str:
+    """Executable JS without HTML tags; also prepended to external app.js.
+
+    بعضی webviewها inline script را اجرا نمی‌کنند. قرارگرفتنِ همین bootstrap در ابتدای
+    external app.js تضمین می‌کند config پیش از خودِ اپ آماده است؛ اجرای دوباره idempotent است.
+    """
+    import os as _os
+    collab_js = "true" if _os.environ.get("OCTOPUS_WIRE_COLLAB", "0") == "1" else "false"
+    model_js = "true" if _os.environ.get("OCTOPUS_COLLAB_USE_MODEL", "0") == "1" else "false"
+    return (
+        "(function(){window.__OCTOPUS__=window.__OCTOPUS__||{};"
+        f"window.__OCTOPUS__.wire_collab={collab_js};"
+        f"window.__OCTOPUS__.collab_use_model={model_js};"
+        "var g=function(){try{return (window.Telegram&&"
+        "window.Telegram.WebApp&&window.Telegram.WebApp.initData)||''}catch(e)"
+        "{return ''}};var f=window.fetch.bind(window);window.fetch=function(u,o)"
+        "{o=o||{};var h=new Headers(o.headers||{});var d=g();"
+        "if(d){h.set('X-Tg-Init-Data',d)}o.headers=h;return f(u,o)};})();"
+    )
+
+
+def _build_inject() -> str:
+    return "<script>" + _build_inject_js() + "</script>"
+
+
+_INJECT = _build_inject()  # evaluated at import/boot so restart picks flag changes
 
 
 def _miniapp_static_response(path: str) -> tuple:
@@ -268,11 +288,28 @@ def _miniapp_static_response(path: str) -> tuple:
         # فایل که عوض شد ⇒ آدرس عوض می‌شود ⇒ کش ساختاراً بی‌اثر است.
         # (اگر این را برندارم، هر بازطراحیِ آینده هم «دیده نمی‌شود».)
         body = _version_assets(body)
-        snippet = _INJECT.encode("utf-8")
-        if b"</body>" in body:
+        # Re-build inject at serve time so flag flips apply without code reload edge cases.
+        snippet = _build_inject().encode("utf-8")
+        # ۲۰۲۶-۰۸-۱۱ (Integration Wave): snippet باید **پیش از** اسکریپت‌های مینی‌اپ
+        # اجرا شود. پیش‌تر قبلِ `</body>` (بعد از app.js) تزریق می‌شد؛ پس وقتی
+        # `renderAsk` اجرا می‌شد `window.__OCTOPUS__.wire_collab` هنوز ست نشده بود و
+        # UI به‌غلط «همکار خاموش» را نشان می‌داد در حالی که COLLAB=1 روی runtime بود
+        # (اثباتِ مرورگر: window.__OCTOPUS__ === {}). حالا قبل از اولین اسکریپتِ
+        # مینی‌اپ می‌نشیند تا فلگ‌ها و fetch-wrapper مستقل از ترتیب/خطای اسکریپتِ
+        # خارجی telegram-web-app.js آماده باشند. fallback‌ها ترتیب قبلی را حفظ می‌کنند.
+        _anchor = b'<script src="/miniapp/'
+        if _anchor in body:
+            body = body.replace(_anchor, snippet + _anchor, 1)
+        elif b"</head>" in body:
+            body = body.replace(b"</head>", snippet + b"</head>", 1)
+        elif b"</body>" in body:
             body = body.replace(b"</body>", snippet + b"</body>", 1)
         else:
             body = body + snippet
+    elif rel == "app.js":
+        # External-script fallback for webviews that suppress inline scripts.
+        # This is the authoritative runtime-config bootstrap and runs before app.js body.
+        body = (_build_inject_js() + "\n").encode("utf-8") + body
     return 200, body, ctype
 
 
@@ -294,9 +331,17 @@ def assets_version() -> str:
         mtimes = tuple((_MINIAPP_DIR / n).stat().st_mtime_ns for n in _ASSET_NAMES)
     except OSError:
         mtimes = None
+    # app.js response contains a dynamic non-secret bootstrap. Bind its two booleans
+    # into the cache key/digest so a runtime flag flip changes the asset URL too;
+    # otherwise Telegram can keep an old bootstrap under the same ?v= URL.
+    config_sig = (
+        os.environ.get("OCTOPUS_WIRE_COLLAB", "0") == "1",
+        os.environ.get("OCTOPUS_COLLAB_USE_MODEL", "0") == "1",
+    )
+    cache_key = (mtimes, config_sig)
     if mtimes is not None:
         with _ASSET_VERSION_LOCK:
-            if _ASSET_VERSION_CACHE["key"] == mtimes:
+            if _ASSET_VERSION_CACHE["key"] == cache_key:
                 return _ASSET_VERSION_CACHE["value"]
     h = hashlib.sha256()
     for name in _ASSET_NAMES:
@@ -304,10 +349,11 @@ def assets_version() -> str:
             h.update((_MINIAPP_DIR / name).read_bytes())
         except OSError:
             h.update(b"?")
+    h.update(repr(config_sig).encode("ascii"))
     v = h.hexdigest()[:10]
     if mtimes is not None:
         with _ASSET_VERSION_LOCK:
-            _ASSET_VERSION_CACHE["key"] = mtimes
+            _ASSET_VERSION_CACHE["key"] = cache_key
             _ASSET_VERSION_CACHE["value"] = v
     return v
 
@@ -472,7 +518,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart"):
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
@@ -735,6 +781,52 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             return 200, body, "application/json; charset=utf-8"
         except Exception as exc:
             body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
+    if p == "/api/collab":
+        # ۲۰۲۶-۰۸-۱۱: نقطهٔ ورودِ collaborator از مینی‌اپ (WP-E3). owner-auth +
+        # rate-limit + delegate به collaborator.handle(). همان پنجرهٔ rate-limitِ
+        # /api/ask — مکالمه. صفر reimplement: منطق عیناً از collaborator.py
+        # می‌آید. پاسخ redact می‌شود (دفاعِ دولایه). contract: owner-console.reply.v1,
+        # external_effect=False, cost=0, send_attempted=False.
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            text = str(payload.get("text") or "").strip()
+            if not text:
+                return 400, b'{"ok":false,"reason":"empty_text"}', "application/json; charset=utf-8"
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            # 2026-08-11 closeout: NEVER auto-arm. Default OFF / fail-closed.
+            # If unset or not "1" → feature_disabled. Do not mutate env.
+            if os.environ.get("OCTOPUS_WIRE_COLLAB", "0") != "1":
+                return (404,
+                        b'{"ok":false,"reason":"feature_disabled","flag":"OCTOPUS_WIRE_COLLAB"}',
+                        "application/json; charset=utf-8")
+            from owner_console import collaborator as _collab  # noqa: WPS433
+            st_dir = Path(opslib.STATE_DIR)
+            reply = _collab.handle(text, state_dir=st_dir)
+            # دفاعِ دولایه: redact هر پاسخی که خارج می‌رود
+            reply_json = json.dumps(reply, ensure_ascii=False)
+            redacted = _redact(reply_json)
+            body = redacted.encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__},
+                              ensure_ascii=False).encode("utf-8")
             return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")

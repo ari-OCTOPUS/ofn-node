@@ -273,6 +273,23 @@ def t_m_a_secret_shaped_flag_name_is_not_a_false_orphan():
     assert "OCTOPUS_HTTP_AUTH" not in res["orphan_armed"], res["orphan_armed"]
 
 
+def t_n_worktree_parent_name_does_not_empty_the_scan():
+    """root زیرِ `.claude/worktrees` هم باید محتوای خودش را ببیند.
+
+    اسکنر قبلاً `_SKIP_DIRS` را روی کلِ مسیرِ مطلق اعمال می‌کرد؛ بنابراین هر
+    worktree به‌خاطر والدِ `.claude/worktrees` صفر فایل می‌داد و گزارشِ 0/0
+    ظاهراً سبز تولید می‌کرد. ممنوعیت باید فقط روی اجزای نسبیِ زیرِ root باشد.
+    """
+    parent = _ROOT / ".claude" / "worktrees" / "case-n" / "_ops"
+    (parent / "state").mkdir(parents=True, exist_ok=True)
+    (parent / "OCTOPUS-flags.cmd").write_text("", "utf-8")
+    (parent / "wiring.py").write_text("PAPER_FULL_FLAGS = ()\n", "utf-8")
+    (parent / "m_n.py").write_text(_GATE, "utf-8")
+    res = dc.scan(parent)
+    assert res["n_flags"] == 1, res
+    assert res["rows"][0]["flag"] == "OCTOPUS_TESTGATE", res["rows"]
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

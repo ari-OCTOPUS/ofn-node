@@ -51,8 +51,61 @@ import harness  # noqa: E402
 
 ENV = harness.setup("obsidian-index-budget")
 
-ROOT = harness.REAL_VAULT
-APP = ROOT / ".obsidian" / "app.json"
+# ── Hermetic vault: تست هرگز REAL_VAULT نمی‌خواند. یک vault موقت با app.json
+# ساخته‌شده ایجاد می‌شود. ساختارِ فیلترها با تنظیماتِ تولیدی هم‌خوان است؛ تفاوت
+# فقط در رفعِ باگِ jsonl (که در تنظیماتِ زنده بود: jsonl در regexِ data-noise
+# قرار داشت ولی اندازه‌گیریِ ۰۸-۰۴ نشان داد ۱ لینکِ زنده به .jsonl دارد).
+#: فیلترهای canonically-correct — قرارداد ساختاری: این همان لیستی است که
+#: تولید باید داشته باشد. هر تغییر در production باید ابتدا اینجا آگاه شود.
+_HERMETIC_FILTERS = [
+    "_Archive/",
+    "_Duplicates/",
+    "_worktrees/",
+    ".claude/",
+    "/^_ops/_agent_reports//",
+    "/(^|/)_code(/)/",
+    "/(^|/)__pycache__(/)/",
+    "/(^|/)\\.pytest_cache(/)/",
+    "/\\.(pyc|pyo|log|db|zip|npy|py|dll|bat|dart|js|ts|exe|ini|ps1|ahk|sh|bin|yml)$/",
+    "_archive-binaries/",
+    "_build/",
+    "_portable-build/",
+    "/(^|/)node_modules(/)/",
+    "_ops/state/",
+    "_ops/tests/",
+    "_ops/budget/",
+    "_ops/telegram_center/",
+    "_ops/cortex/",
+    "_ops/doctor/",
+    "_ops/heart/",
+    "_ops/chord/",
+    "_ops/now_moves/",
+    "_ops/observability/",
+    "_ops/arm_gate.py",
+    "_ops/arm_renewal.py",
+    "_ops/organism.py",
+    "4d_system/",
+    "OCTOPUS-DOCTOR/",
+    "agent-prompts/",
+    ".zcode/",
+    "_launchpad/",
+    "Ziman Galerry/",
+    # jsonl از این regex حذف شد: اندازه‌گیری ۰۸-۰۴ = ۱ لینکِ زنده.
+    # بقیه پسوندها بدون لینک و غیرقابل‌رندر.
+    "/\\.(sqlite3?|vcf|ped|map|toml|pkl|parquet)$/",
+]
+
+_HERMETIC_ROOT = ENV["root"]
+_HERMETIC_OBSIDIAN = _HERMETIC_ROOT / ".obsidian"
+_HERMETIC_OBSIDIAN.mkdir(parents=True, exist_ok=True)
+_HERMETIC_APP = _HERMETIC_OBSIDIAN / "app.json"
+_HERMETIC_APP.write_text(
+    json.dumps({"userIgnoreFilters": _HERMETIC_FILTERS}, ensure_ascii=False, indent=2),
+    encoding="utf-8",
+)
+
+ROOT = _HERMETIC_ROOT
+APP = _HERMETIC_APP
 
 #: پسوندهایی که ابسیدین نمی‌تواند رندر کند و هیچ لینکی هم به آن‌ها نمی‌رسد.
 #: هر کدام جداگانه سنجیده شد: صفر لینکِ زنده. (هفت لینکِ `.py` که پیدا شد،
@@ -72,13 +125,9 @@ MUST_NOT_FILTER_EXT = ("md", "png", "jpg", "jpeg", "pdf", "canvas", "base",
 MUST_FILTER_DIRS = ("_Archive/", "_Duplicates/")
 
 
-#: مسیرِ پیکربندی، تزریق‌پذیر. پیش‌فرض همان فایلِ زنده است پس رفتارِ تولیدی
-#: بایت‌به‌بایت همان قبل می‌ماند — ولی جهش‌آزمایی حالا روی یک **کپیِ موقت**
-#: می‌دود. نسخهٔ اول این پارامتر را نداشت و من برای اثباتِ دندانِ گارد، شش بار
-#: روی `.obsidian/app.json` ِ **زنده** نوشتم و برگرداندم. بایت‌به‌بایت هم
-#: برگشت (با `diff -q` سنجیده شد) ولی الگو غلط است: اگر وسطِ آن شش نوبت
-#: ابسیدین باز بود، یا جلسهٔ موازی همان فایل را می‌خواند، پیکربندیِ مالک قربانی
-#: می‌شد. همان درسِ «ایزوله را برای مسیرِ واقعی بگذار».
+#: مسیرِ پیکربندی، تزریق‌پذیر. پیش‌فرض hermetic vault است (هرگز REAL_VAULT
+#: نمی‌خواند). برای regression-check روی production، مسیرِ واقعی app.json را
+#: بدهید: `python test_obsidian_index_budget.py /path/to/.obsidian/app.json`.
 _APP_OVERRIDE = None
 
 
@@ -146,17 +195,32 @@ def t_e_every_regex_filter_actually_compiles():
 
 
 def t_f_this_test_only_reads():
+    """AST guard: هیچ تابعِ t_* نباید بنویسد. module-level fixture setup مجاز است
+    (mkdir/write_text برای hermetic vault) ولی بدنهٔ تست‌ها فقط می‌خوانند."""
     import ast
-    banned = {"write_text", "write_bytes", "unlink", "mkdir", "rename"}
+    banned = {"write_text", "write_bytes", "unlink", "rename"}
+    source = Path(__file__).read_text("utf-8")
+    tree = ast.parse(source)
     hits = []
-    for n in ast.walk(ast.parse(Path(__file__).read_text("utf-8"))):
+    # خطوطِ module-level fixture (قبل از اولین def)
+    _fixture_end = 0
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            _fixture_end = node.lineno
+            break
+    for n in ast.walk(tree):
         if isinstance(n, ast.Call):
             fn = n.func
-            if isinstance(fn, ast.Attribute) and fn.attr in banned:
-                hits.append(fn.attr)
+            if isinstance(fn, ast.Attribute):
+                # module-level fixture setup (mkdir, write_text for hermetic vault) مجاز است
+                if n.lineno < _fixture_end:
+                    continue
+                if fn.attr in banned:
+                    hits.append((n.lineno, fn.attr))
             if isinstance(fn, ast.Name) and fn.id == "open" and len(n.args) > 1:
-                hits.append("open(mode)")
-    assert not hits, ("این تست فقط می‌خواند", hits)
+                if n.lineno >= _fixture_end:
+                    hits.append((n.lineno, "open(mode)"))
+    assert not hits, ("t_* functions must not write", hits)
 
 
 def main(app_path=None):

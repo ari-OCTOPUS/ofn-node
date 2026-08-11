@@ -33,7 +33,8 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 OPS = _HERE.parent
 
-SKIP_DIRS = {"tests", "__pycache__", "_Archive", "_agent_reports", ".pytest_cache"}
+SKIP_DIRS = {"tests", "__pycache__", "_Archive", "_agent_reports", ".pytest_cache",
+             "_bak", "patch_backups"}
 
 # ── دو روتر ─────────────────────────────────────────────────────────────────
 CENTER = OPS / "telegram_center" / "center.py"          # @intergrade2725_Bot

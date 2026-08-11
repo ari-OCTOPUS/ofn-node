@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import string
 import sys
 import threading
 import time
@@ -165,6 +166,10 @@ def add_pending(job: dict) -> str:
     jtype = _sanitize_id(str(job.get("type") or "task"))
     raw_id = str(job.get("id") or "").strip()
     jid = _sanitize_id(raw_id) if raw_id else _gen_id(jtype)
+    action_sha256 = str(job.get("action_sha256") or "").strip().lower()
+    if action_sha256 and (len(action_sha256) != 64 or
+                          any(ch not in string.hexdigits for ch in action_sha256)):
+        return ""
     rec = {
         "id": jid,
         "type": jtype,
@@ -177,6 +182,7 @@ def add_pending(job: dict) -> str:
         "expires_epoch": int(time.time()) + _CB_TTL_SECONDS,
         "requires_confirmation": bool(job.get("requires_confirmation", True)),
         "dry_run_report": str(job.get("dry_run_report") or "")[:500] or None,
+        "action_sha256": action_sha256 or None,
         "source": str(job.get("source") or "telegram"),
     }
     saved = False
@@ -240,8 +246,7 @@ def reject(jid: str) -> bool:
 
 def mark_done(jid: str) -> bool:
     """approved → done (پس از اجرای واقعی). هر status → done مجاز نیست (fail-soft)."""
-    # اول از approved، اگر نبود از pending (اجرای مستقیم بدون approve)
-    return _move(jid, "approved", "done") or _move(jid, "pending", "done")
+    return _move(jid, "approved", "done")
 
 
 def load_pending() -> list:

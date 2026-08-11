@@ -29,16 +29,131 @@ updated: 2026-08-11
 
 ## وضعِ لحظه‌ای
 
-- 🧪✅ **2026-08-11 عصر (Test Intelligence Pack — تحویل ایجنت موازی روی worktree).**
-  بستهٔ grounded ساخته شد؛ چند سوراخ production بسته شد (ContextBundle، collab PII/path،
-  approval pending→done، outbound binding/expiry/NOT_WIRED، dark scanner، hermetic skips).
-  ادعای ایجنت: TI سبز + ۱۸/۱۸ + `run_all` ۵۸۸/۵۸۸؛ صفر arm/send/merge؛ Redis invent نشد.
-  جزئیات: [[../00 - Inbox/2026-08-11 SESSION — Test Intelligence Pack Delivered|SESSION TI]] ·
-  فاز بعد (کامل P0→P5): [[../00 - Inbox/2026-08-11 MEGAPROMPT — Peak Potential Autonomy Shadow|Peak Potential · Autonomy · Product]].
-  **هنوز:** commit محدود worktree / merge / arm — رأی مالک.
+- ❤️🧠 **2026-08-11 شب (Hearts · Dual Brains · 4D — وضعیت صادق).**
+  [[../07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS|Hearts·Brains·4D Status]] ·
+  [[../OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] —
+  سه‌قلب+arbiter LIVE (≈75s GREEN)؛ hybrid wire بسته؛ دو مغز زنده = cortex+business؛
+  `4d_system`/Super-Gov وصل نیست؛ ingest backfill + restart موج انجام شد؛ رشد خودکار trail را verify کن.
+  APPLY=0 · brain_core SHADOW matched=0 · هم‌راستا با Integration Wave PASS_WITH_ISSUES.
 
-- 🧪📋 **2026-08-11 (Test Intelligence Pack — grounded megaprompt؛ الان تحویل‌شده ↑).**
-  مگاپرامپت مبدأ: [[../00 - Inbox/2026-08-11 MEGAPROMPT — Octopus Test Intelligence Pack (Grounded)|مگاپرامپت Test Intelligence]].
+- 🧠📚 **2026-08-11 شب (Memory/Learning — Truth Map + research ingest + self-loop).**
+  [[../07 - Knowledge/Architecture/OCTOPUS-MEMORY-TRUTH-MAP|Memory Truth Map]] —
+  `research_ingest` + **`self_loop_ingest`** (improve/synthesis/self_knowledge/part_loops/
+  selfheal/self_model) تا خروجی خودآگاهی/خودترمیمی/اتوماسیون با overwrite pulse هدر نرود؛
+  recall → `gather_signals` / propose-only؛ `may_authorize=false`؛ APPLY=0.
+  تست: `test_research_ingest.py` · `test_self_loop_ingest.py` (WORKLOCK نشده).
+
+- ✅🧪 **2026-08-11 شب (Integration Wave A→H — PASS_WITH_ISSUES).**
+  Control Panel/MiniApp + Chat/Collaborator + پنج limb واقعاً تست شدند؛ gate اجباری
+  ۸/۸ سبز، registry دوباره PASS، APPLY=0 و PROPOSAL=1، cap همکار=20، اثر خارجی صفر.
+  فیکس‌های additive: حذف نویز `_bak` از auditها، hermetic dashboard test، intentهای
+  «وضعیت/هدف/درد»، cap=20 و bootstrap/cache مینی‌اپ؛ مرورگر اکنون همکار را مطابق
+  runtime به‌عنوان پیش‌فرض draft/no-effect نشان می‌دهد. سه بدهی باز: legacy pain-calibration مقابل
+  ADR-034؛ ۱۰ suite ثبت‌شده ولی git-untracked؛ attribution کاذب callback scanner.
+  Evidence: `_ops/state/adr-033/reports/INTEGRATION-WAVE-2026-08-11/07-FINAL-VERDICT.md` ·
+  `CONTROL-CHAT-EVIDENCE-MANIFEST.json`. WORKLOCK دست‌نخورده؛ commit نشده.
+
+- 🧾🧪 **2026-08-11 شب (مگاپرامپت Integration Wave برای ایجنت بعدی).**
+  [[../00 - Inbox/2026-08-11 MEGAPROMPT — Integration Test Panel Chat|MEGAPROMPT Integration Panel+Chat]] —
+  Stages A→H؛ فقط add/merge؛ APPLY=0؛ WORKLOCK دست‌نخورده؛ panel+chat واقعی.
+
+- 📖📐 **2026-08-11 شب (Metaphor Decode — CANONICAL explanatory).**
+  [[../07 - Knowledge/Architecture/OCTOPUS-METAPHOR-DECODE-ENGINEERING-REALITY|Octopus Metaphor Decode]] —
+  استعاره≠اختیار؛ درد=proposal؛ BCM=SHADOW trace-only؛ SPEC≠هوش.
+  SoT اجرایی = registry/ADR/evidence — نه این نوت.
+  **Precedence rule:** When runtime, registry, ADR, tests, or metaphor-decode
+  documentation disagree: runtime evidence and versioned registries win; the
+  discrepancy must be recorded as an ADR/inventory issue. (جلوی تبدیل‌شدنِ نوتِ
+  canonical به source-of-truthِ موازی را می‌گیرد.)
+
+- 🔒✅ **2026-08-11 شب (WORKLOCK APPROVED — ۸ suite append-only).**
+  `run_all.py` فقط همان ۸ suite را append کرد + `--only` fail-closed.
+  Evidence: `_ops/state/adr-033/evidence/EVIDENCE_MANIFEST.json` ·
+  diff: `run_all-worklock.diff` · log: `worklock-preflight-suites.log`.
+  APPLY همچنان `=0`.
+
+- 📋✅ **2026-08-11 شب (Stage 2–3 registry/schema/semantic — بدون WORKLOCK).**
+  `signals-registry.yaml` + schema + `validate_signals_registry.py` (digest/SHA report).
+  `neural-learned-apply` = TESTED/SHADOW/trace_only/`production_apply_enabled=false`.
+  `request_protective_halt` فقط در `architecture/capabilities-registry.yaml`.
+  تست: `test_signals_registry_schema.py` · `test_registry_semantic_validator.py`.
+  evidence: `_ops/state/adr-033/reports/STAGE-2-3-EVIDENCE.md`.
+  WORKLOCK proposal (ثبت نشده): `WORKLOCK-PROPOSAL-STAGE-2-3.md`.
+
+- 🔁🛡️ **2026-08-11 شب (ADR-034 controlled restart).**
+  BEFORE/AFTER: `_ops/state/adr-033/reports/ADR-034-RESTART-BEFORE.md` ·
+  `ADR-034-RESTART-AFTER.md`. Flags زنده: APPLY=0 · PROPOSAL=1.
+  organism PID 23724→15916؛ legacy `protective_skip` پاک شد؛ high-pain → proposal فقط.
+
+- 🛡️⛔ **2026-08-11 شب (ADR-034 A+B — neural APPLY containment + demotion).**
+  مالک: A فوری (`OCTOPUS_NEURAL_LEARNED_APPLY=0`) سپس B.
+  Neural → `PainAssessment` / `protective_proposal` / SHADOW_ALERT فقط؛
+  `organism`/`brain_worker` دیگر skip از neural نمی‌گذارند.
+  Halt اجرایی فقط `request_protective_halt` + PolicyGate.
+  فلگ پیشنهاد: `OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL=1` (APPLY=1 deprecated).
+  ADR: [[../03 - Projects/research-spec-compiler/adr/ADR-034-neural-learned-apply-containment|ADR-034]] ·
+  evidence: `_ops/state/adr-033/reports/ADR-034-A-B-EVIDENCE.md` ·
+  تست: `test_adr034_neural_demote.py` (ثبت `run_all` — WORKLOCK، بعد Stage 2–3).
+  **بعدی:** Stage 2–3 registry/schema — نه بازمسلح APPLY.
+
+- 📡🧪 **2026-08-11 شب (Signals Registry + shadow sensors — نه آگاهی/EFE).**
+  `architecture/signals-registry.yaml` + schema؛ shadow BCM/Hebbian/Pain؛
+  Kalman shadow pipeline؛ SOG/DARE OTLP callback؛
+  [[../_ops/AGENTS-TEST-INTELLIGENCE|AGENTS Test Intelligence]].
+  تست‌ها: `test_signals_registry_schema.py` · `test_kalman_shadow_pipeline.py` ·
+  `test_bcm_hebbian_shadow_e2e.py` · `test_nociceptor_chaos_shadow.py`
+  (ثبت `run_all.py` — WORKLOCK). معادلات = حسگر؛ `may_gate=false`.
+
+- 🛡️📐 **2026-08-11 شب (ADR-033 Evidence-Control Plane).**
+  پنج ستون: PolicyGate · event log · checkpoint/replay/rollback · CapabilityRegistry ·
+  پنجرهٔ ۷روزه. Talk Discovery فقط retrieve→reason→draft→display.
+  Registry: `_ops/capabilities/` · state: `_ops/state/adr-033/`.
+  تست: `test_adr033_control_plane.py` (+ `test_approval_state.py`) — ثبت در
+  `run_all.py` هنوز لازم (WORKLOCK). ADR:
+  [[../03 - Projects/research-spec-compiler/adr/ADR-033-evidence-control-plane|ADR-033]].
+
+- 🔬🗣️ **2026-08-11 شب (Discovery provenance v2 + spectral + approval_state + OTLP→Alloy).**
+  `discover_reply_text` = facade با Provenance/TTL؛ C_t فقط SHADOW (`spectral_metrics`);
+  approval بدون store/hash/expiry سالم → BLOCKED؛ OTLP فقط به Alloy محلی
+  (نه credentialهای Grafana در runtime). تست نو: `test_approval_state.py`
+  (ثبت در `run_all.py` هنوز لازم است — WORKLOCK). ADR-023 Capability Truth.
+
+- 🧩🗣️ **2026-08-11 شب (Cognitive unify — UI/discovery/policy).**
+  پیش‌فرض مینی‌اپ=همکار؛ Ask/آینه صریح؛ `discovery_facade` با provenance؛
+  TalkDiscoveryPolicy + approval SM؛ criticality_v2 و pulse shadow = SHADOW-only.
+  ADR-023 → Live ARMED. تست: `test_cognitive_unify.py`.
+
+- 🟢🗣️ **2026-08-11 شب (Talk Discovery ARMED روی live).**
+  جلسه: [[../00 - Inbox/2026-08-11 SESSION — Talk Discovery ARMED|SESSION ARMED]].
+  `COLLAB_USE_MODEL=1` · `COLLAB_MODEL_DAILY_CAP=20` · کد adapter روی live ·
+  RESTART-ALL زده شد. امتحان: مینی‌اپ chip همکار یا DM «معرفی کن».
+  Rollback: bak در `_ops/_bak/talk-discovery-arm-20260811-202354/` + rem فلگ.
+
+- ✅🗣️ **2026-08-11 شب (Talk Discovery — Obsidian هم‌تراز).**
+  جلسه: [[../00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented|SESSION Talk Discovery]].
+  قرارداد: [[../06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT|Interaction Contract]].
+  پروتکل/journal: [[../_ops/DISCOVERY-PROTOCOL|DISCOVERY-PROTOCOL]] ·
+  [[../_ops/CAPABILITY-JOURNAL|CAPABILITY-JOURNAL]].
+
+- ⚠️🧠 **2026-08-11 شب (AI-core arm روی live — تأیید جزئی + هشدار OUTBOUND).**
+  ۵ فلگ نو مسلح + restart؛ dark زنده ≈۹/۳۶۸؛ `COLLAB_USE_MODEL` هنوز تاریک (خوب).
+  **هشدار:** `OCTOPUS_WIRE_OUTBOUND_HTTPS=1` روی live روشن است — effector است؛ برای فاز
+  «فقط AI» بهتر خاموش شود مگر مالک عمداً بخواهد. جزئیات رأی تمرکز:
+  [[../00 - Inbox/2026-08-11 OWNER — Focus AI Core Hidden Capabilities|OWNER AI focus]].
+
+- 🧠🎯 **2026-08-11 شب (رأی مالک: فقط AI core + قابلیت‌های پنهان).**
+  پول/CSV/لید/P4 money از اولویت خارج. تمرکز: کشف dark capabilities، discovery،
+  router/evidence، هم‌ترازی با دنیای واقعی. پیام برای ایجنت:
+  [[../00 - Inbox/2026-08-11 OWNER — Focus AI Core Hidden Capabilities|OWNER focus AI+hidden]].
+
+- 🚀⏳ **2026-08-11 شب (Peak Potential P0–P2+P4 روی worktree — arm هنوز owner).**
+  Branch `octopus-integration-collaborator`: `9fb084d` P0 · `0cf497c` P1 docs · `ef00710` P2 · `50c09d0` P4+TI.
+  مسیر: [[../00 - Inbox/2026-08-11 MEGAPROMPT — Peak Potential Autonomy Shadow|Peak Potential P0→P5]].
+  **اولویت arm اگر لازم:** فقط `OCTOPUS_WIRE_COLLAB` برای تجربهٔ مغز — نه مسیر پول.
+  CSV/لید/timeout-flag = جدا و غیرمسدودکنندهٔ این فاز AI.
+
+- 🧪✅ **2026-08-11 عصر (Test Intelligence — الان در P0 commit `9fb084d` قفل شد ↑).**
+  جزئیات اولیه: [[../00 - Inbox/2026-08-11 SESSION — Test Intelligence Pack Delivered|SESSION TI]].
 
 - 🐙✅ **2026-08-11 (Integration + Collaborator closeout — shadow، merge نشده).**
   ادامهٔ [[../00 - Inbox/2026-08-10 2320 MEGAPROMPT — Close Integration Gaps (No Skips, Real Boundaries, MiniApp Route)|مگاپرامپت 2320]] +

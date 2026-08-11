@@ -26,6 +26,7 @@ $0 · stdlib-only (urllib) · fail-soft کامل.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -41,7 +42,30 @@ for _p in (str(_OPS / "budget"), str(_OPS / "telegram_center")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 import opslib          # noqa: E402
-import approval_store  # noqa: E402
+
+# INVARIANT (S1-05): approval_store فقط از داخل telegram_center import می‌شود
+# (تک‌مصرف‌کننده، RLock درون‌پروسه‌ای). این ماژول نباید آن را مستقیم import کند.
+#
+# 2026-08-11: _LocalApprovalStore حذف شد — دومین صفِ قطعی نقضِ SSOT بود
+# (telegram_center.approval_store منبعِ واقعی است). اکنون از پورتِ تزریقی
+# استفاده می‌شود: بدونِ تزریق = fail-closed (NOT_WIRED).
+
+_approval_port: "dict | None" = None  # type: ignore[assignment]
+"""Injectable approval port.
+
+Must be a dict with three callables:
+  - "add_pending": (spec: dict) -> str  (returns job_id)
+  - "get":         (job_id: str) -> dict | None
+  - "mark_done":   (job_id: str) -> None
+
+Set via _set_approval_port(). Default None = NOT_WIRED (fail-closed:
+every submit/execute returns NOT_WIRED without touching disk)."""
+
+
+def _set_approval_port(port: dict) -> None:
+    """Wire an external approval port. Called by miniapp_gateway or telegram_center."""
+    global _approval_port
+    _approval_port = port
 
 FLAG = "OCTOPUS_WIRE_OUTBOUND_HTTPS"
 
@@ -51,6 +75,20 @@ _EVENTS_PATH = opslib.STATE_DIR / "outbound_https" / "events.jsonl"
 _REQUEST_TIMEOUT_S = 20.0
 
 _ALLOWED_METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE")
+
+
+def _action_sha256(spec: dict) -> str:
+    bound = {
+        "job_id": str(spec.get("job_id") or ""),
+        "method": str(spec.get("method") or ""),
+        "url": str(spec.get("url") or ""),
+        "headers": spec.get("headers") if isinstance(spec.get("headers"), dict) else {},
+        "body": spec.get("body") or "",
+        "purpose": str(spec.get("purpose") or ""),
+    }
+    raw = json.dumps(bound, ensure_ascii=False, sort_keys=True,
+                     separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
 
 
 def flag_on() -> bool:
@@ -132,14 +170,21 @@ def submit(method: str, url: str, *, headers: "dict | None" = None,
                  {"domain": domain, "method": method, "reason": reason})
         return {"ok": False, "status": "BLOCKED", "reason": reason, "domain": domain}
 
+    # Validation remains observable without wiring, but a valid request cannot
+    # create a receipt or orphaned job until the canonical approval port exists.
+    if _approval_port is None:
+        return {"ok": False, "status": "NOT_WIRED", "reason": "no_approval_port"}
+
     job_id = _gen_job_id()
     spec = {"job_id": job_id, "method": method, "url": str(url),
             "headers": headers if isinstance(headers, dict) else {},
-            "body": body if isinstance(body, (str, bytes)) else (
-                json.dumps(body, ensure_ascii=False) if body is not None else ""),
+            "body": body.decode("utf-8", "replace") if isinstance(body, bytes) else (
+                body if isinstance(body, str) else (
+                    json.dumps(body, ensure_ascii=False) if body is not None else "")),
             "purpose": str(purpose or "")[:200],
             "correlation_id": str(correlation_id or ""),
             "created_at": opslib.now_iso()}
+    spec["action_sha256"] = _action_sha256(spec)
     try:
         _JOBS_DIR.mkdir(parents=True, exist_ok=True)
         tmp = _job_path(job_id).with_suffix(".json.tmp")
@@ -148,11 +193,12 @@ def submit(method: str, url: str, *, headers: "dict | None" = None,
     except OSError as e:
         return {"ok": False, "status": "BLOCKED", "reason": f"job_store_failed:{type(e).__name__}"}
 
-    aid = approval_store.add_pending({
+    aid = _approval_port["add_pending"]({
         "id": job_id, "type": "outbound_http",
         "title": f"HTTP خروجی به {domain}"[:160],
         "risk": "high", "requires_confirmation": True,
         "dry_run_report": f"{method} https://{domain}{parts.path[:80]}",
+        "action_sha256": spec["action_sha256"],
         "source": "outbound_https"})
     _receipt("outbound_https.submitted", correlation_id,
              {"domain": domain, "method": method, "job_id": job_id})
@@ -164,8 +210,10 @@ def execute_if_approved(job_id: str) -> dict:
     برابرِ چندبارصدازدن: قبل از تلاشِ شبکه، وضعیت را دوباره از approval_store
     می‌خواند — اگر از قبل done شده (یعنی تلاشِ قبلی رسیده)، دوباره نمی‌فرستد.
 
-    خروجی: `{"status": "NOT_FOUND"|"PENDING"|"REJECTED"|"ALREADY_DONE"|"SENT"|"FAILED", ...}`."""
-    rec = approval_store.get(job_id)
+    خروجی: `{"status": "NOT_FOUND"|"PENDING"|"REJECTED"|"ALREADY_DONE"|"SENT"|"FAILED"|"NOT_WIRED", ...}`."""
+    if _approval_port is None:
+        return {"status": "NOT_WIRED", "reason": "no_approval_port"}
+    rec = _approval_port["get"](job_id)
     if rec is None:
         return {"status": "NOT_FOUND"}
     st = str(rec.get("status") or "")
@@ -177,12 +225,23 @@ def execute_if_approved(job_id: str) -> dict:
         return {"status": "ALREADY_DONE"}
     if st != "approved":
         return {"status": "UNKNOWN", "raw_status": st}
+    try:
+        expires_epoch = float(rec.get("expires_epoch"))
+    except (TypeError, ValueError):
+        return {"status": "FAILED", "reason": "approval_expiry_missing"}
+    if expires_epoch <= time.time():
+        return {"status": "FAILED", "reason": "approval_expired"}
 
     spec_path = _job_path(job_id)
     try:
         spec = json.loads(spec_path.read_text("utf-8"))
     except (OSError, ValueError):
         return {"status": "FAILED", "reason": "job_spec_missing"}
+    approved_sha = str(rec.get("action_sha256") or "")
+    stored_sha = str(spec.get("action_sha256") or "")
+    actual_sha = _action_sha256(spec)
+    if not approved_sha or approved_sha != stored_sha or stored_sha != actual_sha:
+        return {"status": "FAILED", "reason": "approval_action_mismatch"}
 
     domain = urlsplit(spec.get("url", "")).hostname or ""
     method = spec.get("method", "GET")
@@ -208,13 +267,13 @@ def execute_if_approved(job_id: str) -> dict:
     except Exception as e:  # noqa: BLE001 — یک تلاش، بدونِ retry، شکست ثبت می‌شود نه raise
         _receipt("outbound_https.failed", spec.get("correlation_id", ""),
                  {"domain": domain, "method": method, "error": type(e).__name__})
-        approval_store.mark_done(job_id)
+        _approval_port["mark_done"](job_id)
         return {"status": "FAILED", "reason": type(e).__name__}
 
     _receipt("outbound_https.sent" if ok else "outbound_https.failed",
              spec.get("correlation_id", ""),
              {"domain": domain, "method": method, "http_status": http_status})
-    approval_store.mark_done(job_id)
+    _approval_port["mark_done"](job_id)
     return {"status": "SENT" if ok else "FAILED", "http_status": http_status}
 
 

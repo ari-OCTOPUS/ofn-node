@@ -70,9 +70,11 @@ for rel in ("c6_trigger.py", "c6_probes.py", "c6_producer.py", "c6_state_machine
               f"{rel} حاوی ابتداییِ ممنوع {bad!r} شد — مرزِ propose-only شکست")
 
 # ۴) کارتِ RFCِ C6 هرگز به رجیستریِ دکتر (تنها مسیرِ apply_merge) نمی‌رسد.
+# 2026-08-10: guard شکلِ «if rfc_id in/not in self._rfcs» را دارد. هر دو
+# جهتِ guard معتبر است — مهم این است که _rfcs چک می‌شود.
 src_doc = (_OPS / "doctor" / "doctor.py").read_text("utf-8")
-check("if rfc_id in self._rfcs:" in src_doc,
-      "گاردِ ساختاریِ doctor.py:924 حذف شد — idِ c6-* می‌تواند به apply_merge برسد")
+check(("rfc_id in self._rfcs" in src_doc or "rfc_id not in self._rfcs" in src_doc),
+      "گاردِ ساختاریِ doctor.py حذف شد — idِ c6-* می‌تواند به apply_merge برسد")
 
 print("FAIL" if fails else "PASS", "— test_c6_trigger_propose_only")
 for f in fails:

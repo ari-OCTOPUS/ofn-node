@@ -320,7 +320,8 @@ def t_real_revenue_is_reported_as_revenue():
 def t_the_snapshot_separates_spend_from_revenue():
     s = sk.snapshot()
     assert "revenue" in s, "کلیدِ درآمد در snapshot نیست"
-    assert isinstance(s["revenue"], float)
+    # revenue حالا float | None (None = اندازه‌گیری‌نشده، ۰۸-۰۸)
+    assert s["revenue"] is None or isinstance(s["revenue"], float), s["revenue"]
     assert "_note" in s["money"], "کلیدِ گمراه‌کنندهٔ money بدونِ هشدار ماند"
     # و تصحیح باید بتواند از پشتِ کشِ no-change بیرون بیاید
     assert "revenue" in sk._hash_digest(s),         "revenue در hash نیست — باورِ تصحیح‌شده تا تغییرِ بعدی یخ می‌ماند"
@@ -412,7 +413,10 @@ def t_revenue_is_dollars_not_a_count():
     و همان عدد در promptِ مغزِ گران و در تصمیمِ هدف‌محور می‌نشست.
 
     هر دو نسخه `float` برمی‌گرداندند و هیچ‌چیز **واحد** را نمی‌سنجید. این تست
-    همان را می‌سنجد."""
+    همان را می‌سنجد.
+
+    ⚠ ۲۰۲۶-۰۸-۰۸: `revenue_by_cell` خالی دیگر 0.0 برنمی‌گرداند — None
+    (اندازه‌گیری‌نشده)."""
     import json as _j
     fit = sk.opslib.STATE_DIR / "fitness-latest.json"  # _read_json از ریشهٔ state می‌خواند نه doctor/
     fit.parent.mkdir(parents=True, exist_ok=True)
@@ -425,16 +429,17 @@ def t_revenue_is_dollars_not_a_count():
         got = sk._revenue_confirmed()
         assert got == 1250.0, f"دلار انتظار می‌رفت، {got} آمد (شمارش بود؟)"
         assert got != 3.0, "هنوز شمارش برمی‌گرداند"
-        # و خالی یعنی صفرِ صادق، نه شمارش
+        # و خالی یعنی نامعلوم (None)، نه شمارش و نه صفر (۰۸-۰۸)
         fit.write_text(_j.dumps({"attribution": {"confirmed": 7,
                                                  "revenue_by_cell": {}}}), "utf-8")
-        assert sk._revenue_confirmed() == 0.0, "با دلارِ صفر، شمارش نشتی کرد"
+        assert sk._revenue_confirmed() is None, "خالی = نامعلوم (None)، نه صفر و نه شمارش"
     finally:
         if old is not None:
             fit.write_text(old, "utf-8")
 
 
 def t_revenue_survives_a_broken_attribution_block():
+    """ Attribution خراب یا نامعلوم → None یا مقدارِ غیرمنفی."""
     import json as _j
     fit = sk.opslib.STATE_DIR / "fitness-latest.json"  # _read_json از ریشهٔ state می‌خواند نه doctor/
     old = fit.read_text("utf-8") if fit.exists() else None
@@ -443,7 +448,7 @@ def t_revenue_survives_a_broken_attribution_block():
                     {"attribution": {"revenue_by_cell": {"a": "نه‌عدد"}}}, {}):
             fit.write_text(_j.dumps(bad), "utf-8")
             v = sk._revenue_confirmed()
-            assert isinstance(v, float) and v >= 0.0, (bad, v)
+            assert v is None or (isinstance(v, float) and v >= 0.0), (bad, v)
     finally:
         if old is not None:
             fit.write_text(old, "utf-8")

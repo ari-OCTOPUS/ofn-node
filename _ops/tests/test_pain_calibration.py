@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test_pain_calibration.py — WS-C: ترمزِ محافظ، از داده کالیبره می‌شود.
+"""test_pain_calibration.py — WS-C: کالیبراسیونِ درد + قراردادِ ADR-034 proposal-only.
 
 سه یافتهٔ اندازه‌گیری‌شده که این فایل آن‌ها را قفل می‌کند:
 
@@ -13,6 +13,14 @@
 
   ۳) متغیرِ تنظیم‌شوندهٔ قلب (velocity) روی سقفِ beat قفل است: در کلِ دامنهٔ
      عملگر [۳۰s..۹۰۰s] مقدارش دقیقاً ۰.۱۲۵ می‌ماند → بهرهٔ حلقه صفر.
+
+**۲۰۲۶-۰۸-۱۱ (Integration Wave, رأی مالک):** این تست به ADR-034 هم‌راستا شد.
+پیش از ADR-034، `protective_override` در pain بالا `override=True` /
+`action=protective_halt` برمی‌گرداند. ADR-034 این مسیر را به proposal-only
+تنزل داد: `override=False`، `executable=False`، `action=protective_proposal` /
+`throttle_proposal`. halt اجرایی فقط از `request_protective_halt` + PolicyGate.
+علومِ کالیبراسیون (هیستوگرام، پاکتِ سالم، قیود، سقف، partner_stress) دست‌نخورده‌اند؛
+فقط assertionهای halt به assertionهای proposal-only تغییر کردند.
 
 $0 آفلاین. هیچ لمسِ state واقعی: همهٔ اعداد frozen sample هستند.
 """
@@ -123,27 +131,35 @@ def t_calibration_constraints_hold():
     assert sigmas > 20, f"فاصلهٔ {sigmas:.1f}σ کافی نیست"
 
 
-def t_calibrated_never_less_protected():
-    """ناوردیِ ایمنی: هر ورودی‌ای که امروز ترمز می‌گیرد، با فلگ هم می‌گیرد.
+def t_calibrated_never_less_protective():
+    """ناوردیِ ایمنیِ ADR-034: نه legacy نه کالیبره halt اجرایی می‌سازند.
 
-    مجموعهٔ شلیکِ کالیبره باید **ابرمجموعهٔ** امروز باشد؛ هرگز زیرمجموعه."""
+    پیش از ADR-034 این تست می‌سنجید که «کالیبره کم‌محافظ‌تر از legacy نیست»
+    (ابرمجموعه). اکنون هر دو مسیر proposal-only‌اند (`override=False`,
+    `executable=False`)، پس ناوردیِ واقعی که باید قفل شود این است: **هیچ
+    سطحِ دردی halt اجرایی تولید نمی‌کند**، و کالیبره همچنان حداقل همین
+   Proposal سطحِ هشدار را در هر جایی legacy هشدار می‌دهد نگه می‌دارد."""
     for i in range(0, 1001):
         p = i / 1000.0
-        legacy = wiring.protective_override(_neural(p))["override"]
+        legacy = wiring.protective_override(_neural(p))
         with _Flag(CAL):
-            cal = wiring.protective_override(_neural(p))["override"]
-        assert not (legacy and not cal), f"pain={p} امروز ترمز می‌گیرد ولی کالیبره نه"
+            cal = wiring.protective_override(_neural(p))
+        # ADR-034: هر دو همیشه non-executable
+        assert legacy["override"] is False and cal["override"] is False
+        assert legacy["executable"] is False and cal["executable"] is False
+        # کالیبره کم‌محافظ‌تر نیست: اگر legacy proposal می‌دهد، cal هم می‌دهد
+        if legacy["action"] != "none":
+            assert cal["action"] != "none", f"pain={p} legacy هشدار داد ولی cal نه"
 
 
 # ═══ ۲ · شلیکِ واقعی با ورودیِ واقع‌گرایانه (معیارِ پذیرش) ═══════════════════════
 
 def t_calibrated_fires_on_realistic_emergency():
-    """ورودیِ واقع‌گرایانه از مسیرِ کاملِ تولید → override واقعی.
+    """ورودیِ واقع‌گرایانه از مسیرِ کاملِ تولید → protective_proposal (نه halt).
 
-    سناریو: قلب به RED می‌رود (freeze) در حالی که `organism_stress` روی
-    بیشینهٔ *مشاهده‌شدهٔ* ۰.۶ است (نه عددِ ساختگیِ ۱.۰). بقیه دقیقاً همان چیزی
-    که organism.py می‌فرستد: budget.pct بیشینهٔ مشاهده‌شده، sigma صفرِ ساختاری،
-    afferent سالم. → pain=۰.۵۵."""
+    ADR-034: pain=۰.۵۵ بالای آستانهٔ کالیبره (۰.۳۵) است، پس سیستم یک
+    protective_proposal / SHADOW_ALERT تولید می‌کند — ولی `override=False`،
+    `executable=False`. halt اجرایی فقط از request_protective_halt + PolicyGate."""
     r = NeuralDriver().evaluate(
         beat=1,
         rhythm={"mode_color": "RED"},
@@ -153,25 +169,31 @@ def t_calibrated_fires_on_realistic_emergency():
     assert abs(r["pain"]["level"] - 0.55) < 1e-9, r["pain"]
 
     off = wiring.protective_override(r)
-    assert off["override"] is False, "امروز: همین بحران هیچ ترمزی نمی‌گیرد"
+    assert off["action"] == "none", "بدون CAL: pain=0.55 زیرِ آستانهٔ legacy 0.7"
 
     with _Flag(CAL):
         on = wiring.protective_override(r)
-    assert on["override"] is True, f"با آستانهٔ کالیبره باید ترمز بگیرد: {on}"
-    assert on["action"] == "protective_halt", on
-    assert on["suppressible"] is False, "ترمز باید غیرقابل‌سرکوب بماند"
+    assert on["action"] == "protective_proposal", on
+    assert on["override"] is False, "ADR-034: override همیشه False"
+    assert on["executable"] is False, "ADR-034: halt اجرایی نیست"
+    assert on["shadow_alert"] is True, "باید SHADOW_ALERT باشد"
     assert "pain=0.55" in on["reason"], on["reason"]
 
 
 def t_legacy_silent_on_worst_two_fault_crisis():
-    """حتی بدترین ترکیبِ دو-نقصی (RED + خطای ۱۰۰٪) زیرِ آستانهٔ ۰.۷۰ می‌ماند."""
+    """بدترین ترکیبِ دو-نقصی (RED + خطای ۱۰۰٪) → pain=۰.۶۵.
+
+    ADR-034: legacy (آستانه ۰.۷) هنوز صفر proposal می‌دهد (۰.۶۵<۰.۷)؛
+    کالیبره (۰.۳۵) آن را به‌عنوان protective_proposal کشف می‌کند — نه halt."""
     r = NeuralDriver().evaluate(beat=1, rhythm={"mode_color": "RED"},
                                 sensory={"error_rate": 1.0, "afferent_ratio": 1.0},
                                 spectral={"sigma": 0.0}, budget={"pct": 0.00072})
     assert abs(r["pain"]["level"] - 0.65) < 1e-9, r["pain"]
-    assert wiring.protective_override(r)["override"] is False
+    assert wiring.protective_override(r)["action"] == "none", "legacy: 0.65<0.7"
     with _Flag(CAL):
-        assert wiring.protective_override(r)["override"] is True
+        cal = wiring.protective_override(r)
+    assert cal["action"] == "protective_proposal"
+    assert cal["executable"] is False and cal["override"] is False
 
 
 def t_attainable_ceiling_as_wired():
@@ -212,22 +234,34 @@ def t_partner_stress_is_never_passed_by_production():
 # ═══ ۳ · byte-identical بودنِ حالتِ خاموش ════════════════════════════════════════
 
 def t_flag_off_is_byte_identical():
-    """با فلگِ خاموش، خروجی دقیقاً همان رشته‌ها/کلیدهای امروز است."""
-    assert wiring.protective_override(None) == {
-        "override": False, "action": "none", "reason": "no neural data"}
-    assert wiring.protective_override(_neural(0.1)) == {
-        "override": False, "action": "none", "reason": "all clear"}
-    assert wiring.protective_override(_neural(0.85)) == {
-        "override": True, "action": "protective_halt",
-        "reason": "pain=0.85>0.7 — non-essential paused", "suppressible": False}
-    assert wiring.protective_override(_neural(0.5, [
-        {"name": "sigma-throttle", "triggered": True, "severity": "critical"}])) == {
-        "override": True, "action": "throttle",
-        "reason": "critical reflex: sigma-throttle", "suppressible": False}
-    assert wiring.protective_override(_neural(0.2, [
-        {"name": "budget-slow", "triggered": True, "severity": "high"}])) == {
-        "override": False, "action": "warn",
-        "reason": "high reflex: budget-slow", "suppressible": True}
+    """با فلگِ خاموش، خروجی ADR-034 proposal-only است: override/executable همیشه False.
+
+    trace_id پویا است، پس فقط کلیدهای پایدار را مقایسه می‌کنیم."""
+    def _stable(d):
+        return {k: d[k] for k in ("override", "action", "reason",
+                                  "suppressible", "executable", "shadow_alert")}
+    r_none = wiring.protective_override(None)
+    assert r_none["action"] == "none" and r_none["reason"] == "no neural data"
+    assert r_none["override"] is False and r_none["executable"] is False
+    assert _stable(wiring.protective_override(_neural(0.1))) == {
+        "override": False, "action": "none", "reason": "all clear",
+        "suppressible": True, "executable": False, "shadow_alert": False}
+    # pain بالا → protective_proposal (نه halt)
+    r85 = wiring.protective_override(_neural(0.85))
+    assert r85["action"] == "protective_proposal"
+    assert r85["override"] is False and r85["executable"] is False
+    assert r85["shadow_alert"] is True
+    # critical reflex → throttle_proposal (نه throttle-halt)
+    rc = wiring.protective_override(_neural(0.5, [
+        {"name": "sigma-throttle", "triggered": True, "severity": "critical"}]))
+    assert rc["action"] == "throttle_proposal"
+    assert rc["override"] is False and rc["executable"] is False
+    assert rc["shadow_alert"] is True
+    # high reflex → warn
+    rh = wiring.protective_override(_neural(0.2, [
+        {"name": "budget-slow", "triggered": True, "severity": "high"}]))
+    assert rh["action"] == "warn"
+    assert rh["override"] is False and rh["shadow_alert"] is False
 
 
 # ═══ ۴ · severityِ گم‌شده در تصویرِ تولید ═════════════════════════════════════════
@@ -244,23 +278,27 @@ def t_production_projection_drops_severity():
 
 
 def t_critical_branch_dead_without_recovery():
-    """شاخهٔ critical روی رکوردِ *تولیدی* (بدونِ severity) باز نمی‌شود."""
+    """شاخهٔ critical روی رکوردِ *تولیدی* (بدونِ severity) باز نمی‌شود.
+
+    با SEV (severity recover): critical → throttle_proposal (ADR-034: نه throttle-halt)."""
     prod_reflex = [{"name": "sigma-throttle", "triggered": True, "action": "throttle"}]
     off = wiring.protective_override(_neural(0.1, prod_reflex))
-    assert off == {"override": False, "action": "none", "reason": "all clear"}, off
+    assert off["action"] == "none", off
     with _Flag(SEV):
         on = wiring.protective_override(_neural(0.1, prod_reflex))
-    assert on["override"] is True and on["action"] == "throttle", on
-    assert on["suppressible"] is False, on
+    assert on["action"] == "throttle_proposal", on
+    assert on["override"] is False and on["executable"] is False
+    assert on["shadow_alert"] is True
 
 
 def t_high_branch_dead_without_recovery():
-    """همین برای شاخهٔ high (warn) — امروز هیچ warnای از مسیرِ زنده در نمی‌آید."""
+    """همین برای شاخهٔ high (warn) — با SEV: high → warn (نه halt)."""
     prod_reflex = [{"name": "red-pause", "triggered": True, "action": "pause"}]
     assert wiring.protective_override(_neural(0.1, prod_reflex))["action"] == "none"
     with _Flag(SEV):
         r = wiring.protective_override(_neural(0.1, prod_reflex))
-    assert r["action"] == "warn" and r["override"] is False and r["suppressible"] is True
+    assert r["action"] == "warn" and r["override"] is False
+    assert r["executable"] is False and r["shadow_alert"] is False
 
 
 def t_severity_map_matches_reflex_module():
@@ -348,7 +386,7 @@ if __name__ == "__main__":
         ("آستانهٔ کالیبره: صفر halt کاذب روی دادهٔ سالم",
          t_calibrated_threshold_zero_false_halt_on_recorded_data),
         ("قیدهای C1/C2/C3 کالیبراسیون برقرارند", t_calibration_constraints_hold),
-        ("ناوردی: کالیبره هرگز کم‌محافظ‌تر نیست", t_calibrated_never_less_protected),
+        ("ناوردی: کالیبره هرگز کم‌محافظ‌تر نیست", t_calibrated_never_less_protective),
         ("[پذیرش] بحرانِ واقع‌گرایانه ترمز را باز می‌کند",
          t_calibrated_fires_on_realistic_emergency),
         ("بدترین بحرانِ دو-نقصی امروز بی‌صداست", t_legacy_silent_on_worst_two_fault_crisis),

@@ -459,8 +459,8 @@ def t_send_text_not_wired_noop():
 # ════════════════════════════════════════════════════════════════════════════════
 import shutil as _shutil
 
-# کپیِ lab_seed_data.json به state_dir موقتِ harness
-_SEED_SRC = (harness.REAL_VAULT / r"CHRONOS-FABLE-OS\09_Research\lab_seed_data.json")
+# Test-owned, synthetic laboratory input: no live-tree dependency or raw identity.
+_SEED_SRC = Path(__file__).resolve().parent / "fixtures" / "lab_data.json"
 
 
 def _channel_with_lab():
@@ -834,21 +834,17 @@ if __name__ == "__main__":
         ("[T-3] دستورِ ناشناخته → None", t_unknown_command_returns_none),
         ("[T-3] send_text در not wired → no-op", t_send_text_not_wired_noop),
     ]
-    # T-4 به دادهٔ آزمایشگاه (فقط در درختِ زنده) نیاز دارد — بدونِ آن skip صادقانه
-    # (الگوی «آفلاین skip امن» مثل test_held_out)، نه قرمزِ env در worktree.
-    if _SEED_SRC.exists():
-        _checks += [
-            ("[T-4] /start_exp1 → تقویمِ ۱۴روزه تولید و قفل", t_start_exp_creates_calendar),
-            ("[T-4] exp2 → تقویمِ تناوبِ بازتولیدپذیر (seed ثابت)", t_start_exp2_deterministic_calendar),
-            ("[T-4] prediction در start decode نمی‌شود (فقط sha256)", t_sealed_prediction_not_decoded_at_start),
-            ("[T-4] /reveal قبل از end_date → قفل", t_reveal_locked_before_end_date),
-            ("[T-4] /reveal بعد از end_date → verify sha256", t_reveal_after_end_date_verifies_sha256),
-            ("[T-4] /reveal با seed دست‌خورده → رد", t_reveal_tampered_seed_rejected),
-            ("[T-4] /reveal آزمایشِ ناشناخته → خطا", t_reveal_unknown_experiment),
-            ("[T-4] ضدِ نشت: در طولِ آزمایش ترند نیست", t_no_trend_shown_during_experiment),
-        ]
-    else:
-        print("  (skip T-4: دادهٔ آزمایشگاه در این درخت نیست — پوششِ کامل روی درختِ زنده)")
+    assert _SEED_SRC.exists(), "synthetic laboratory fixture is required"
+    _checks += [
+        ("[T-4] /start_exp1 → تقویمِ ۱۴روزه تولید و قفل", t_start_exp_creates_calendar),
+        ("[T-4] exp2 → تقویمِ تناوبِ بازتولیدپذیر", t_start_exp2_deterministic_calendar),
+        ("[T-4] prediction در start decode نمی‌شود (فقط sha256)", t_sealed_prediction_not_decoded_at_start),
+        ("[T-4] /reveal قبل از end_date → قفل", t_reveal_locked_before_end_date),
+        ("[T-4] /reveal بعد از end_date → verify sha256", t_reveal_after_end_date_verifies_sha256),
+        ("[T-4] /reveal با fixture دست‌خورده → رد", t_reveal_tampered_seed_rejected),
+        ("[T-4] /reveal آزمایشِ ناشناخته → خطا", t_reveal_unknown_experiment),
+        ("[T-4] ضدِ نشت: در طولِ آزمایش ترند نیست", t_no_trend_shown_during_experiment),
+    ]
     _checks += [
         # T-5
         ("[T-5] /status → گزارشِ فقط‌خواندنی", t_status_read_only_report),

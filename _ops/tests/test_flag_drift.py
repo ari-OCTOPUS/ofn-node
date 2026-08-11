@@ -190,17 +190,25 @@ class DriftTests(unittest.TestCase):
 
 
 class RealVaultShapeTests(unittest.TestCase):
-    """اگر فایلِ واقعیِ فلگ کنارِ ماژول بود، شکلش را هم چک کن — ولی نبودش
-    نباید سوئیت را قرمز کند (تستِ محیط‌وابسته هرگز گیتِ اصلی نیست)."""
+    """Tracked declaration evidence remains testable when live-local flags are absent."""
 
-    def test_real_flags_file_parses_if_present(self):
-        real = Path(__file__).resolve().parents[1] / "OCTOPUS-flags.cmd"
-        if not real.exists():
-            self.skipTest("OCTOPUS-flags.cmd در این درخت نیست")
-        flags, stats = fd.parse_flags_file(real)
-        self.assertGreater(stats["defined"], 20)
-        self.assertEqual(stats["lone_lf"], 0,
-                         "فایلِ .cmd نباید LFِ تنها داشته باشد (گاتچای ابزارِ Edit)")
+    def test_real_flags_file_or_tracked_manifest_is_structurally_valid(self):
+        ops = Path(__file__).resolve().parents[1]
+        real = ops / "OCTOPUS-flags.cmd"
+        if real.exists():
+            flags, stats = fd.parse_flags_file(real)
+            self.assertGreater(stats["defined"], 20)
+            self.assertEqual(stats["lone_lf"], 0,
+                             "فایلِ .cmd نباید LFِ تنها داشته باشد (گاتچای ابزارِ Edit)")
+            return
+        manifest = ops / "FLAG-NAMES-MANIFEST.txt"
+        self.assertTrue(manifest.exists(), "نه flags.cmd هست نه manifest نام‌ها")
+        names = [line.strip() for line in manifest.read_text("utf-8").splitlines()
+                 if line.strip() and not line.lstrip().startswith("#")]
+        self.assertGreater(len(names), 20)
+        self.assertEqual(names, sorted(set(names)))
+        self.assertTrue(all(name.startswith(("OCTOPUS_", "CORTEX_", "CHRONO_"))
+                            for name in names))
 
 
 class PerProcessTests(unittest.TestCase):

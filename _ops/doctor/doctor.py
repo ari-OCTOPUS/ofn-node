@@ -212,7 +212,8 @@ class Doctor:
 
     def __init__(self, state_dir=None, knowledge_dir=None, ledger=None,
                  approval_channel=None, sandbox_runner=None, db=None,
-                 archive=None, box=None, suite_fn=None):
+                 archive=None, box=None, suite_fn=None,
+                 checkpoint_port=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
         # ⚑ ضدِ آلودگیِ تست: بدونِ تزریق، مسیر از envِ harness (GENOME_DIR) می‌آید؛
         # فقط وقتی env نیست به ریشهٔ checkout برمی‌گردد (production دست‌نخورده).
@@ -240,6 +241,9 @@ class Doctor:
         # N (P-N2): Box-of-Agents (میکرو‌جهانِ بسته). lazy: اگر None، با flag
         # روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
         self._box = box
+        # 2026-08-11: injectable checkpoint port — removes git subprocess from
+        # apply_merge path. Default None = OFF (no git tag effect).
+        self._checkpoint_port = checkpoint_port
 
     # RFCهای terminal (نتیجه ثبت‌شده) نباید بارگذاری شوند — نه به pending اضافه می‌کنند
     # (که attention-gate را باد می‌کند) و نه actionable‌اند. فقط RFCهای در جریان persist می‌شوند.
@@ -680,7 +684,13 @@ class Doctor:
         (محدود/برگشت‌پذیر، clamp‌شده) اعمال می‌کند — پایانِ apply_mergeِ نمادین. تپِ خودِ
         مالک = تأیید، پس این مسیر به گاردِ capability/refractory/fearِ مسیرِ خودمختار نیاز
         ندارد. مرزِ سخت: هر RFC که 'tune'+knobِ whitelist نباشد فقط درس می‌نویسد (هرگز
-        اعمالِ کد/پول/ژنوم)."""
+        اعمالِ کد/پول/ژنوم).
+
+        گاردِ ساختاری (test_c6_trigger_propose_only): RFC‌ای که در رجیستری ثبت
+        نشده نباید merge شود — جلویِ idِ c6-* (یا هر idِ ناشناس) را می‌گیرد."""
+        if rfc_id := getattr(rfc, "rfc_id", None):
+            if rfc_id not in self._rfcs:
+                return False
         if rfc.status not in ("submitted", "submitted-no-channel"):
             return False
         # ── اثرِ واقعیِ محدود: فقط knobِ tuneِ whitelist، فقط پشتِ flag ──
@@ -708,16 +718,10 @@ class Doctor:
         # ۲۰۲۶-۰۸-۰۸ (up-6013ab05d7): rollback checkpoint قبل از merge.
         # یک git tag سبک می‌زند تا اگر merge خراب کرد، owner بتواند برگردد.
         # پشتِ OCTOPUS_WIRE_MERGE_CHECKPOINT (پیش‌فرض خاموش — fail-soft).
-        checkpoint_tag = ""
-        if os.environ.get("OCTOPUS_WIRE_MERGE_CHECKPOINT") == "1":
-            try:
-                import subprocess as _sp
-                _tag = f"pre-merge/{rfc.rfc_id}"
-                _sp.run(["git", "tag", _tag],
-                        cwd=str(_OPS.parent), capture_output=True, timeout=10)
-                checkpoint_tag = _tag
-            except Exception:  # noqa: BLE001 — checkpoint هرگز merge را نمی‌کشد
-                pass
+        # 2026-08-10: checkpoint logic به متد جدا منتقل شد — apply_merge نباید
+        # مستقیماً subprocess.run صدا بزند (test_merge_applies_knob AST boundary).
+        checkpoint_tag = self._write_checkpoint_tag(rfc) if \
+            os.environ.get("OCTOPUS_WIRE_MERGE_CHECKPOINT") == "1" else ""
         rfc.ledger_ref = self._note("DOCTOR_MERGE", {"rfc_id": rfc.rfc_id,
                                                        "behind_flag": True,
                                                        "knob_applied": knob_applied,
@@ -735,6 +739,20 @@ class Doctor:
         except OSError:
             pass
         return True
+
+    def _write_checkpoint_tag(self, rfc: RFC) -> str:
+        """rollback checkpoint via injectable port. Default OFF = no git effect.
+
+        2026-08-11: git subprocess removed from apply_merge path entirely.
+        Uses self._checkpoint_port callback if injected; otherwise returns
+        empty string (fail-closed: no port = no tag)."""
+        if self._checkpoint_port is None:
+            return ""
+        try:
+            _tag = f"pre-merge/{rfc.rfc_id}"
+            return self._checkpoint_port(_tag) or ""
+        except Exception:  # noqa: BLE001 — checkpoint never kills merge
+            return ""
 
     # ─── knob-RFC minting — پیشنهادِ خود-تغییرِ محدودِ قابلِ‌اعمال (propose-only تا merge) ──
     def _mine_knob_rfcs(self) -> list:

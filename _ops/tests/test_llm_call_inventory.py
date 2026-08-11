@@ -126,10 +126,16 @@ def _rel(p: Path) -> str:
     return str(p.relative_to(_OPS)).replace("\\", "/")
 
 
+_NON_PRODUCTION_DIRS = frozenset({"tests", "__pycache__", "_bak", "patch_backups"})
+
+
 def _iter_prod_sources():
     for py in _OPS.rglob("*.py"):
         rp = _rel(py)
-        if rp.startswith("tests/") or "__pycache__" in rp:
+        # inventory باید executable production را بسنجد، نه snapshotهای inert. یک
+        # `_bak/**/model_router.py` در 2026-08-11 همان caller را دوباره «bypass نو»
+        # اعلام کرد، با اینکه هیچ import/call-site تولیدی به `_bak` وجود نداشت.
+        if any(part in _NON_PRODUCTION_DIRS for part in py.relative_to(_OPS).parts):
             continue
         try:
             yield rp, py.read_text("utf-8")

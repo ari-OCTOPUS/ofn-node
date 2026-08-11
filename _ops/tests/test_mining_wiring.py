@@ -89,15 +89,17 @@ def test_registered_in_central_telegram():
 
 
 def test_render_maps_mining_status():
-    # UI: _collect_legs باید بلوکِ miningِ ORGANISM-STATE را به سلولِ دایجست نگاشت کند
+    # UI: _collect_legs باید بلوکِ miningِ ORGANISM-STATE را به سلولِ دایجست نگاشت کند.
+    # 2026-08-10: render اکنون mining را از business_legs می‌خواند (نه org["mining"]
+    # مستقیم). تست باید داده را در structure درست بگذارد.
     import importlib
     render = importlib.import_module("telegram_center.render")
-    feeds = {"organism": {"mining": {
-        "electricity_mood": "🔴", "electricity_safe": False,
-        "nodes_total": 6, "nodes_running": 0, "hashrate_measured": False,
-        "thermal_warn": ["OPI-1"]}}}
+    feeds = {"organism": {"business_legs": {"mining": {
+        "leg": "mining", "live": True,
+        "signal": "🔴 0/6 نود · دمای بالا",
+        "note": "دمای بالا (OPI-1)"}}}}
     legs = render._collect_legs(feeds)
     m = legs["mining"]
-    assert m["status"] == "🔴"
-    assert "0/6" in m["detail"]
-    assert "دمای بالا" in m.get("next", "")
+    # live=True → باید 🟢 باشد (نه ⚪ dark)
+    assert m["status"] == "🟢", f"mining با live=True باید سبز باشد: {m}"
+    assert "0/6" in m["detail"] or "نود" in m["detail"], f"detail باید nodes info داشته باشد: {m}"

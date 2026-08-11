@@ -56,6 +56,12 @@ SCHEMA = "tg-send-audit.v1"
 # `topic_id` ندهد، از مسیرِ دوم همیشه بی‌تاپیک می‌رود — یعنی در General.
 SEND_METHODS = ("send", "send_text")
 STREAM_ROUTED = ("send_text",)
+# کلِ درختِ `_ops` برای production audit پیموده می‌شود، اما نسخه‌های پشتیبان و
+# آرتیفکت‌های تاریخی executable production نیستند. شمردنِ `_bak/**/center.py`
+# همان send-site را دوبار می‌شمارد و ratchet را بی‌دلیل قرمز می‌کند.
+# نام‌ها دقیق و محدودند؛ پوشه‌های ناشناخته همچنان audit می‌شوند (fail-visible).
+_NON_PRODUCTION_DIRS = frozenset({"tests", "__pycache__", "_bak", "patch_backups"})
+
 # جایگاهِ positional ِ `topic_id` در امضای send_text:
 #   send_text(self, text, reply_markup=None, chat_id=None, stream=None, topic_id=None)
 # (شمارش بدونِ self، چون گرهٔ Call هم `self` را ندارد.)
@@ -242,7 +248,15 @@ def audit_paths(paths) -> tuple:
         else:
             files = [p]
         for f in files:
-            if "__pycache__" in f.parts:
+            # audit_paths برای production code است، نه test/backup snapshots. مسیرِ نسبی
+            # مهم است: root ممکن است خودش زیرِ پوشه‌ای با نام مشابه باشد.
+            try:
+                rel_parts = f.relative_to(p).parts if p.is_dir() else f.parts
+            except ValueError:
+                rel_parts = f.parts
+            if any(part in _NON_PRODUCTION_DIRS for part in rel_parts):
+                continue
+            if f.name.startswith("test_"):
                 continue
             try:
                 src = f.read_text(encoding="utf-8", errors="replace")

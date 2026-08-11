@@ -57,9 +57,12 @@ def t_a_no_new_local_llm_bypass():
     """هیچ callerِ نوِ local_llm.ask خارج از inventory (وگرنه bypassِ خاموشِ فنس)."""
     rx = re.compile(r"\blocal_llm\.ask\s*\(")
     found = set()
+    non_production = {"tests", "__pycache__", "_bak", "patch_backups"}
     for py in _OPS.rglob("*.py"):
         rp = _rel(py)
-        if rp.startswith("tests/") or "__pycache__" in rp:
+        # snapshotهای inert هیچ مسیر import/execution تولیدی ندارند؛ شمردنِ
+        # `_bak/**/model_router.py` یک bypassِ کاذبِ تکراری می‌سازد.
+        if any(part in non_production for part in py.relative_to(_OPS).parts):
             continue
         try:
             src = py.read_text("utf-8")
