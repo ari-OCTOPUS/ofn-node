@@ -1,9 +1,9 @@
 {
   "schema": "PairedFailureMatrix.v2",
-  "generated": "2026-08-11T01:10:09Z",
+  "generated": "2026-08-11T01:13:57Z",
   "generated_by": "subprocess-isolated runs (python -X utf8 <suite>.py)",
   "worktree": "octopus-integration-collaborator",
-  "worktree_head": "c205857",
+  "worktree_head": "36aa52c",
   "methodology": "Each of 18 suites run as isolated subprocess. Exit 0 = PASS. No SKIP/ENV_BLOCKED/TIMEOUT.",
   "summary": {
     "total_suites": 18,
