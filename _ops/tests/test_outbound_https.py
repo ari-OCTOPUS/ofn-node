@@ -35,6 +35,20 @@ import outbound_https as oh  # noqa: E402
 import approval_store  # noqa: E402
 
 
+def _wire_approval_port():
+    """Bridge outbound_https to the real approval_store via injectable port.
+
+    2026-08-11: _LocalApprovalStore deleted. outbound_https now requires
+    an injected approval port. This helper wires the telegram_center
+    approval_store as the port so existing behavioral tests continue
+    exercising the real store logic."""
+    oh._set_approval_port({
+        "add_pending": approval_store.add_pending,
+        "get": approval_store.get,
+        "mark_done": approval_store.mark_done,
+    })
+
+
 class _Flag:
     def __init__(self, name, val):
         self.name, self.val = name, val
@@ -64,6 +78,7 @@ def _reset():
         approval_store._APPROVALS_JSON.unlink()
     except OSError:
         pass
+    _wire_approval_port()
 
 
 def _write_allowlist(domains):

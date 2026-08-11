@@ -212,7 +212,8 @@ class Doctor:
 
     def __init__(self, state_dir=None, knowledge_dir=None, ledger=None,
                  approval_channel=None, sandbox_runner=None, db=None,
-                 archive=None, box=None, suite_fn=None):
+                 archive=None, box=None, suite_fn=None,
+                 checkpoint_port=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
         # ⚑ ضدِ آلودگیِ تست: بدونِ تزریق، مسیر از envِ harness (GENOME_DIR) می‌آید؛
         # فقط وقتی env نیست به ریشهٔ checkout برمی‌گردد (production دست‌نخورده).
@@ -240,6 +241,9 @@ class Doctor:
         # N (P-N2): Box-of-Agents (میکرو‌جهانِ بسته). lazy: اگر None، با flag
         # روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
         self._box = box
+        # 2026-08-11: injectable checkpoint port — removes git subprocess from
+        # apply_merge path. Default None = OFF (no git tag effect).
+        self._checkpoint_port = checkpoint_port
 
     # RFCهای terminal (نتیجه ثبت‌شده) نباید بارگذاری شوند — نه به pending اضافه می‌کنند
     # (که attention-gate را باد می‌کند) و نه actionable‌اند. فقط RFCهای در جریان persist می‌شوند.
@@ -737,17 +741,17 @@ class Doctor:
         return True
 
     def _write_checkpoint_tag(self, rfc: RFC) -> str:
-        """rollback checkpoint: یک git tag سبک قبل از merge. fail-soft.
+        """rollback checkpoint via injectable port. Default OFF = no git effect.
 
-        2026-08-10: از apply_merge جدا شد تا AST boundary (test_merge_applies_knob)
-        حفظ شود — apply_merge نباید مستقیماً subprocess.run صدا بزند."""
+        2026-08-11: git subprocess removed from apply_merge path entirely.
+        Uses self._checkpoint_port callback if injected; otherwise returns
+        empty string (fail-closed: no port = no tag)."""
+        if self._checkpoint_port is None:
+            return ""
         try:
-            import subprocess as _sp
             _tag = f"pre-merge/{rfc.rfc_id}"
-            _sp.run(["git", "tag", _tag],
-                    cwd=str(_OPS.parent), capture_output=True, timeout=10)
-            return _tag
-        except Exception:  # noqa: BLE001 — checkpoint هرگز merge را نمی‌کشد
+            return self._checkpoint_port(_tag) or ""
+        except Exception:  # noqa: BLE001 — checkpoint never kills merge
             return ""
 
     # ─── knob-RFC minting — پیشنهادِ خود-تغییرِ محدودِ قابلِ‌اعمال (propose-only تا merge) ──
