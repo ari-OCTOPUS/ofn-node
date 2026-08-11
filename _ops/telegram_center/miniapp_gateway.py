@@ -472,7 +472,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart"):
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
@@ -735,6 +735,48 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             return 200, body, "application/json; charset=utf-8"
         except Exception as exc:
             body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
+    if p == "/api/collab":
+        # ۲۰۲۶-۰۸-۱۱: نقطهٔ ورودِ collaborator از مینی‌اپ (WP-E3). owner-auth +
+        # rate-limit + delegate به collaborator.handle(). همان پنجرهٔ rate-limitِ
+        # /api/ask — مکالمه. صفر reimplement: منطق عیناً از collaborator.py
+        # می‌آید. پاسخ redact می‌شود (دفاعِ دولایه). contract: owner-console.reply.v1,
+        # external_effect=False, cost=0, send_attempted=False.
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            text = str(payload.get("text") or "").strip()
+            if not text:
+                return 400, b'{"ok":false,"reason":"empty_text"}', "application/json; charset=utf-8"
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            from owner_console import collaborator as _collab  # noqa: WPS433
+            os.environ.setdefault("OCTOPUS_WIRE_COLLAB", "1")
+            os.environ.setdefault("OCTOPUS_WIRE_COLLAB_MEMORY", "1")
+            st_dir = Path(opslib.STATE_DIR)
+            reply = _collab.handle(text, state_dir=st_dir)
+            # دفاعِ دولایه: redact هر پاسخی که خارج می‌رود
+            reply_json = json.dumps(reply, ensure_ascii=False)
+            redacted = _redact(reply_json)
+            body = redacted.encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__},
+                              ensure_ascii=False).encode("utf-8")
             return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")

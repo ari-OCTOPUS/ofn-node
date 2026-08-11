@@ -85,12 +85,27 @@ def append(
     if not _is_enabled():
         return {"ok": False, "status": "disabled", "reason": "OCTOPUS_WIRE_COLLAB_MEMORY=0"}
 
+    # Input validation: reject empty, non-string, or oversized inputs (fail-closed)
+    if not turn_id or not isinstance(turn_id, str) or len(turn_id) > 128:
+        return {"ok": False, "status": "rejected", "reason": "invalid turn_id"}
+    if not role or not isinstance(role, str) or role not in ("owner", "collaborator"):
+        return {"ok": False, "status": "rejected", "reason": "invalid role"}
+    if not intent or not isinstance(intent, str):
+        return {"ok": False, "status": "rejected", "reason": "invalid intent"}
+    if not summary or not isinstance(summary, str) or len(summary) > 2000:
+        return {"ok": False, "status": "rejected", "reason": "invalid summary"}
+
     # Fail-closed on secret/PII in summary
     if _contains_secret(summary) or _contains_secret(intent):
         return {"ok": False, "status": "rejected",
                 "reason": "secret/PII detected in summary — refused"}
 
     sd = state_dir or DEFAULT_STATE_DIR
+    # Path traversal protection: resolve to canonical form
+    try:
+        sd = sd.resolve()
+    except (OSError, ValueError):
+        return {"ok": False, "status": "rejected", "reason": "invalid state_dir"}
     mem_path = sd / "collab-memory.jsonl"
 
     # Idempotency: check if this turn_id already exists

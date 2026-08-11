@@ -827,6 +827,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_brief.py",                     # Ø¨Ø±ÛŒÙÙ ØµØ¨Ø­/Ø´Ø¨ + Ù„ÛŒÙ†Ú©Ù ØªØ§Ù¾ÛŒÚ© (Ø±Ø£ÛŒ Û±Û±)
     "test_tg_ask_vault.py",                 # Ø³Ø¤Ø§Ù„-Ø§Ø²-vault Ø¨Ø§ Ù…Ù†Ø¨Ø¹ (Ø±Ø£ÛŒ Û¹)
     "test_miniapp_gateway.py",              # Ú¯ÛŒØªÙ initData Ù Mini App (Ø±Ø£ÛŒ Û²Û²)
+    "test_api_collab.py",                   # 14 checks: POST /api/collab route wiring + security
+    "test_collab_components.py",           # 23 checks: collab_memory hardening + existing collab tests
     # Û²Û°Û²Û¶-Û°Û¸-Û°Û³ (GO Ù Ù…Ø§Ù„Ú©ØŒ PROP-D5 ÙØ§Ø² Û±): Ú©Ø§Ø±Øªâ€ŒÙ‡Ø§ÛŒ read-only Ù Project-F.
     # Ú†Ù‡Ø§Ø± Ú¯Ø§Ø±Ø¯Ù Ø¬Ù‡Ø´â€ŒØ¢Ø²Ù…ÙˆØ¯Ù‡: flag-off=404 Â· Ø¯ÛŒÙˆØ§Ø±Ù auth Â· content-free (Ù‚Ø§Ø¹Ø¯Ù‡Ù” #Û·) Â·
     # Ø³Ù‡â€ŒØ­Ø§Ù„ØªÛŒÙ ØµØ§Ø¯Ù‚ (ÙØ§ÛŒÙ„Ù ØºØ§ÛŒØ¨ = unknownØŒ Ù†Ù‡ ØµÙØ±Ù Ø¬Ø¹Ù„ÛŒ).

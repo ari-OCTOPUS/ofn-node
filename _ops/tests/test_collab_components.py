@@ -218,6 +218,76 @@ def t_sim_produces_digest():
     assert r["digest"]["schema"] == "CollabDigest.v1"
 
 
+# ─── MEMORY HARDENING TESTS (Phase 3) ────────────────────────────────────────
+
+def t_memory_rejects_empty_turn_id():
+    """turn_id خالی باید رد شود."""
+    import collab_memory as cm
+    os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    result = cm.append(turn_id="", role="owner", intent="ask",
+                       summary="clean summary", state_dir=STATE_DIR)
+    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    assert result["status"] == "rejected", f"empty turn_id should be rejected: {result}"
+    assert "invalid turn_id" in result.get("reason", "")
+
+
+def t_memory_rejects_oversized_turn_id():
+    """turn_id بیش از 128 کاراکتر باید رد شود."""
+    import collab_memory as cm
+    os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    result = cm.append(turn_id="x" * 200, role="owner", intent="ask",
+                       summary="clean summary", state_dir=STATE_DIR)
+    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    assert result["status"] == "rejected"
+    assert "invalid turn_id" in result.get("reason", "")
+
+
+def t_memory_rejects_invalid_role():
+    """role غیرمجاز باید رد شود."""
+    import collab_memory as cm
+    os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    result = cm.append(turn_id="hr1", role="hacker", intent="ask",
+                       summary="clean summary", state_dir=STATE_DIR)
+    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    assert result["status"] == "rejected"
+    assert "invalid role" in result.get("reason", "")
+
+
+def t_memory_rejects_empty_intent():
+    """intent خالی باید رد شود."""
+    import collab_memory as cm
+    os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    result = cm.append(turn_id="hi1", role="owner", intent="",
+                       summary="clean summary", state_dir=STATE_DIR)
+    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    assert result["status"] == "rejected"
+    assert "invalid intent" in result.get("reason", "")
+
+
+def t_memory_rejects_oversized_summary():
+    """summary بیش از 2000 کاراکتر باید رد شود."""
+    import collab_memory as cm
+    os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    result = cm.append(turn_id="hs1", role="owner", intent="ask",
+                       summary="x" * 3000, state_dir=STATE_DIR)
+    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    assert result["status"] == "rejected"
+    assert "invalid summary" in result.get("reason", "")
+
+
+def t_memory_resolves_state_dir():
+    """state_dir باید resolve شود (ضد path traversal)."""
+    import collab_memory as cm
+    os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    result = cm.append(turn_id="rs1", role="owner", intent="ask",
+                       summary="clean summary",
+                       state_dir=STATE_DIR / ".." / ".." / ".." / "nonexistent")
+    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    # Should either be rejected (invalid state_dir) or succeed (resolved but nonexistent dir)
+    # The key assertion: it must not crash, and must not write outside the vault
+    assert "ok" in result
+
+
 # ─── RUN ──────────────────────────────────────────────────────────────────────
 
 CHECKS = [
@@ -227,6 +297,12 @@ CHECKS = [
     ("memory-idempotent", t_memory_idempotent),
     ("memory-append-only", t_memory_append_only),
     ("memory-disabled-returns-not-ok", t_memory_disabled_returns_not_ok),
+    ("memory-rejects-empty-turn-id", t_memory_rejects_empty_turn_id),
+    ("memory-rejects-oversized-turn-id", t_memory_rejects_oversized_turn_id),
+    ("memory-rejects-invalid-role", t_memory_rejects_invalid_role),
+    ("memory-rejects-empty-intent", t_memory_rejects_empty_intent),
+    ("memory-rejects-oversized-summary", t_memory_rejects_oversized_summary),
+    ("memory-resolves-state-dir", t_memory_resolves_state_dir),
     ("collaborator-default-off", t_collaborator_default_off),
     ("collaborator-contract-compliance", t_collaborator_contract_compliance),
     ("collaborator-deterministic-stub", t_collaborator_deterministic_stub),

@@ -284,10 +284,10 @@ GATEWAY_405_WALL = (
     '    if method_u not in {"GET", "POST"}:\n'
     '        return 405, b"", "text/plain; charset=utf-8"\n'
 )
-# 2026-08-10: gateway اکنون چند مسیرِ POST مجاز دارد (actions/ask/mirror/restart).
+# 2026-08-11: gateway اکنون پنج مسیرِ POST مجاز دارد (actions/ask/mirror/restart/collab).
 # فهرستِ مجاز از خودِ gateway استخراج می‌شود، ولی سپس **کاملاً pin می‌شود** —
 # هر مسیرِ مجازِ نو باید تست را هم به‌روز کند (نه باز یا خودکار).
-EXPECTED_POST_ROUTES = frozenset({"/api/actions", "/api/ask", "/api/mirror", "/api/restart"})
+EXPECTED_POST_ROUTES = frozenset({"/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab"})
 
 
 def t_gateway_405_wall_is_byte_identical():
