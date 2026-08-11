@@ -1018,6 +1018,16 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_mission_card_seam.py",
     "test_run_all_scoring.py",
     "test_truth_by_cycle.py",
+    # 2026-08-11 — Test Intelligence pack (script-native, exit 0/1):
+    "test_ti_trace_contract.py",
+    "test_ti_context_bundle_contract.py",
+    "test_ti_router_snapshot.py",
+    "test_ti_breaker_chaos.py",
+    "test_ti_collab_security.py",
+    "test_ti_discovery_eval.py",
+    "test_ti_policy_oracle.py",
+    "test_ti_redteam_injection.py",
+    "test_ti_dark_inventory.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
