@@ -132,6 +132,12 @@ The kernel is now integrated with the octopus body via `body_bridge/` modules:
 Data flow: kernel → body_bridge/output/*.json → body reads → body_events
 All writes are kernel-internal; the body never modifies the kernel.
 
+## Active Context (2026-08-11 — Integration + Collaborator closeout)
+
+**وضعیت کلی:** remediation به branch `octopus-integration-collaborator` merge شد
+(HEAD نزدیک `e5ec380`). Collaborator shadow روی MiniApp wired است. هیچ چیزی
+armed/live نیست — همه default OFF. merge به master هنوز owner-gated.
+
 ## Active Context (2026-08-10 — Fugu Ultra Remediation)
 
 **وضعیت کلی:** شش Work Package (WP-A..F) کامل و تست شد روی branch ایزولهٔ
@@ -160,7 +166,8 @@ All writes are kernel-internal; the body never modifies the kernel.
 | ۶ ماژول نو + ۵ فایل تست نو (۷۴ تست) | `built/tested` ✅ |
 | rsc validate D10-ABC | ۶/۶ killer gate، ۳/۳ warn OK |
 | body_bridge tests + spec tests | ۴۲ passed |
-| run_all.py کامل (۵۶۴۸ ✅، ۲۰ ❌ در ۱۸ suite) | همهٔ failها pre-existing (تأیید روی master) |
+| ۱۸ suite هدف (isolation) پس از closeout | ۱۸/۱۸ PASS — بدون SKIP/ENV/TIMEOUT |
+| Collaborator MiniApp route + ask-tab | `built/wired-shadow` (flag-off = feature_disabled) |
 | activation (arm/live/consumed) | UNKNOWN — نیاز به verdict مالک |
 
 **هیچ‌چیز armed/live نیست.** همه default OFF. activation-ladder:

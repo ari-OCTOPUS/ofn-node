@@ -1,9 +1,11 @@
 # ADR-023 — Octopus Collaborator: trust boundary, memory policy, no-effect invariant
 
-- **Status:** Open — shadow/propose-only build complete; activation requires owner verdict
+- **Status:** Open — shadow/propose-only wired to MiniApp; activation requires owner verdict
 - **Date:** 2026-08-10
+- **Updated:** 2026-08-11
 - **Spec:** `06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT.md`
 - **Code:** `_ops/owner_console/collaborator.py`, `collab_memory.py`, `collab_digest.py`, `collab_sim.py`
+- **Route:** `POST /api/collab` in `miniapp_gateway.py` + ask-tab chip in `miniapp/app.js`
 
 ## Context
 
@@ -24,13 +26,22 @@ The Collaborator is a **harness** — a deterministic stub that validates plumbi
 | Collaborator engine | `collaborator.py` | `OCTOPUS_WIRE_COLLAB` | OFF |
 | Monitoring digest | `collab_digest.py` | `OCTOPUS_WIRE_COLLAB_DIGEST` | OFF |
 | Echo simulation | `collab_sim.py` | — | manual |
-| MiniApp route | (WP-E4 — handler ready, route pending owner verdict) | `OCTOPUS_WIRE_COLLAB` | OFF |
+| MiniApp route | `POST /api/collab` (HMAC + flag gate + redact) | `OCTOPUS_WIRE_COLLAB` | OFF |
+| Ask-tab UI | chip «🤝 همکار» → `/api/collab` | same flag | OFF-aware |
+
+### Closeout fixes (2026-08-11)
+
+- Removed auto-arm (`setdefault(...=1)`) from gateway — flag-off → `feature_disabled`.
+- Ask tab wired additively (legacy `/api/ask` + `/api/mirror` preserved).
+- Hermetic `FLAG-NAMES-MANIFEST.txt` (names only) for phantom_guards.
+- Doctor checkpoint = injectable port (no git subprocess on apply_merge path).
+- Approval SSOT restored via injectable `_approval_port` (no second store).
 
 ### What is NOT built (owner-gated future)
 
 - Real model adapter injection (`OCTOPUS_COLLAB_USE_MODEL=1` + adapter)
-- MiniApp gateway route patch (WP-E4 — needs reserved-file touch)
 - Scheduler / automated digest delivery
+- Arming flags / live Telegram send / merge to master
 - Any external effect, send, payment, or deployment
 
 ## Trust boundary
