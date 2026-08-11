@@ -97,12 +97,12 @@ def unseen_since_nudge() -> int:
     return sum(1 for r in _all() if float(r.get("ts", 0)) > ts)
 
 
-def mark_nudged() -> None:
+def mark_nudged(high_water: float) -> None:
     """فقط بعد از ارسالِ **موفق** صدا زده شود — وگرنه یک نوتیفِ ازدست‌رفته
     برای همیشه دفن می‌شود (همان الگویی که کارتِ C6 را یک شبانه‌روز پنهان کرد)."""
     try:
         NUDGED.parent.mkdir(parents=True, exist_ok=True)
-        NUDGED.write_text(json.dumps({"ts": time.time()}), "utf-8")
+        NUDGED.write_text(json.dumps({"ts": high_water}), "utf-8")
     except OSError:
         pass
 
