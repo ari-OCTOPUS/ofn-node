@@ -764,9 +764,13 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             ops_path = str(_OPS)
             if ops_path not in _sys.path:
                 _sys.path.insert(0, ops_path)
+            # 2026-08-11 closeout: NEVER auto-arm. Default OFF / fail-closed.
+            # If unset or not "1" → feature_disabled. Do not mutate env.
+            if os.environ.get("OCTOPUS_WIRE_COLLAB", "0") != "1":
+                return (404,
+                        b'{"ok":false,"reason":"feature_disabled","flag":"OCTOPUS_WIRE_COLLAB"}',
+                        "application/json; charset=utf-8")
             from owner_console import collaborator as _collab  # noqa: WPS433
-            os.environ.setdefault("OCTOPUS_WIRE_COLLAB", "1")
-            os.environ.setdefault("OCTOPUS_WIRE_COLLAB_MEMORY", "1")
             st_dir = Path(opslib.STATE_DIR)
             reply = _collab.handle(text, state_dir=st_dir)
             # دفاعِ دولایه: redact هر پاسخی که خارج می‌رود

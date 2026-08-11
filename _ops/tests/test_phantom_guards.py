@@ -83,132 +83,113 @@ PHANTOM_TESTS = ()
 # ۱۸۸ نامِ فلگ که کدِ `_ops/**/*.py` می‌خواندشان و در OCTOPUS-flags.cmd صفر
 # بار ظاهر می‌شوند. فقط **نام** — هیچ مقداری از آن فایل خوانده/چاپ نمی‌شود.
 UNDECLARED_FLAGS = (
-    # ۲۰۲۶-۰۸-۰۳ — تنها ورودیِ افزوده‌شده پس از انجماد، با رأیِ متناظرش:
-    # گامِ ۱۷ (C7) این را برای پلهٔ سایه معرفی کرد. سه حالت دارد و پیش‌فرضش
-    # `shadow` است، یعنی عددهای منتشرشده دست‌نخورده می‌مانند و فقط حقیقتِ
-    # چرخهٔ عمر کنارشان می‌نشیند. تنها حالتِ `lifecycle` منبع را عوض می‌کند و
-    # آن **رأیِ مالک** است. اعلامش در `OCTOPUS-flags.cmd` گامِ ۲۱ ِ طرح است —
-    # همان‌جا که سه فلگِ دیگر هم منتظرند. تا آن رأی، این‌جا ثبت می‌شود نه پنهان.
-    "OCTOPUS_PROPOSAL_METRICS_SOURCE",
-    # ۲۰۲۶-۰۸-۰۴ — نُه knob ِ **فقط-هارنس**. هر کدام دقیقاً یک خواننده دارند و آن
-    # خواننده یک فایلِ `_ops/tests/**` است؛ صفر خوانندهٔ تولیدی (گرپِ بی‌سقف روی
-    # کلِ `_ops`). پس نبودشان از پروفایلِ بوت اشتباه نیست — **الزام** است: اگر
-    # نامشان به OCTOPUS-flags.cmd برود، `apply_profile` ممکن است روزی روشنشان کند
-    # و یک knob ِ تست به تولید نشت می‌کند. این‌جا ثبت می‌شوند تا «بی‌اعلان» بودنشان
-    # یک تصمیمِ نوشته‌شده باشد، نه یک فراموشی.
-    #
-    # ⚠️ سه‌تای اولِ زیر یک شکافِ **دیگر** را هم لو می‌دهند و همان‌جا ثبت شد:
-    # `test_outbound_owner_transport.py` این نام‌ها را ست می‌کند و انتظار دارد
-    # `outbound_worker` به آن‌ها گوش دهد — ولی آن transport هرگز نوشته نشد
-    # (`git log -S owner_chat_sent` خالی)، تولید `TELEGRAM_OWNER_CHAT_ID` می‌خواند
-    # نه `OCTOPUS_OWNER_CHAT_ID`، و فایل در run_all ثبت نیست پس ۵ قرمزش نامرئی بود.
-    # رفعش رأیِ مالک است (مسیرِ ارسال، رأیِ ایستادهٔ «فعلاً هیچ ارسالی») — نه کارِ گارد.
-    "OCTOPUS_LEAD_OUTBOUND_TARGET", "OCTOPUS_OWNER_CHAT_ID",
-    "OCTOPUS_WIRE_LEAD_MIGRATE_PRODUCERS", "OCTOPUS_MINIAPP_CACHE_TTL_S",
-    "OCTOPUS_TEST_ALLOW_LIVE_STATE", "OCTOPUS_TEST_ISOLATION_ECHO",
-    "OCTOPUS_TEST_ISOLATION_LOG", "OCTOPUS_TEST_LIVE_STATE_GUARD",
-    "OCTOPUS_TEST_NET_GUARD",
-    # 2026-08-08: OCTOPUS_TEST_SNAPSHOT_CANARY_V001 added — used by
-    # test_control_plane_live_snapshot.py (env-mutation canary); not declared in flags.cmd.
-    "OCTOPUS_TEST_SNAPSHOT_CANARY_V001",
-    # 2026-08-06 -- ceiling lowered on both sides of the drift:
-    #   * 65 names formerly here are now declared via the bulk `set FLAG=1`
-    #     block near the end of OCTOPUS-flags.cmd (dated 2026-08-04/05/06),
-    #     but this ratchet was never dropped to match -- fixed but not
-    #     lowered. Removed.
-    #   * 4 new undeclared reads the live AST scan found this session, none
-    #     of them boolean wires (two path overrides, one probe process
-    #     label, one numeric quota share) -- given declaration-site comments
-    #     in OCTOPUS-flags.cmd instead (no value armed, just the NAME), so
-    #     they don't land here either. Citation:
-    #       OCTOPUS_CURRENT_TRUTH -- telegram_center/miniapp_state.py::_find_truth
-    #       OCTOPUS_OUTCOMES_DB -- agi2027_control/ops_actions.py::_outcomes_conn
-    #       OCTOPUS_PROC_NAME -- reach_probe.py::_proc_name
-    #       OCTOPUS_SELF_PATCH_CALL_SHARE -- self_patch.py::SELF_PATCH_SHARE_ENV
-    # Remaining names below are re-verified against a fresh AST scan of
-    # _ops/**/*.py (this session, 2026-08-06).
-    "OCTOPUS_ACTION_BRIDGE_HMAC", "OCTOPUS_AGENT_GATEWAY_PORT",
-    "OCTOPUS_AGENT_MAX_BYTES", "OCTOPUS_AGENT_OWNER_SECRET",
-    "OCTOPUS_AGENT_PEERS", "OCTOPUS_AGENT_RATE_PER_MIN",
-    "OCTOPUS_AGENT_SECRET_PEERAGI1", "OCTOPUS_AGI2027_RUNTIME_DIR",
-    "OCTOPUS_ARM_SECRET", "OCTOPUS_BCM_BETA",
-    "OCTOPUS_BEAT_PARALLEL", "OCTOPUS_BOOT_RECONCILE_EXEC_H",
-    "OCTOPUS_C6_RUNNING_STALE_H", "OCTOPUS_CB_TTL_S",
-    "OCTOPUS_CHAMBER_T_MAX", "OCTOPUS_CHAMBER_T_MIN",
-    "OCTOPUS_CHAMBER_T_WINDOW", "OCTOPUS_CODE_AUTOAPPLY_LOWRISK",
-    "OCTOPUS_CODE_BRAIN_LOCAL_MODEL", "OCTOPUS_CODE_BRAIN_LOCAL_TIMEOUT_S",
-    "OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S", "OCTOPUS_CONSOLIDATION_COMPRESS",
-    # 2026-08-08: OCTOPUS_CONSOLIDATION_DEDUP_* added — three flags introduced by
-    # the fuzzy-dedup fix (commit f234d52) for consolidation.py. DEDUP_SIM has a
-    # default in code (consolidation.py:74) but none are declared in flags.cmd.
-    "OCTOPUS_CONSOLIDATION_DEDUP_FUZZY", "OCTOPUS_CONSOLIDATION_DEDUP_N",
+    # 2026-08-11 closeout: ledger retightened against FLAG-NAMES-MANIFEST
+    # (names-only tracked SSOT). Added collab/remediation reads; removed
+    # names that are now declared in live OCTOPUS-flags.cmd / manifest.
+    "OCTOPUS_ACTION_BRIDGE_HMAC",
+    "OCTOPUS_AGENT_GATEWAY_PORT",
+    "OCTOPUS_AGENT_MAX_BYTES",
+    "OCTOPUS_AGENT_OWNER_SECRET",
+    "OCTOPUS_AGENT_PEERS",
+    "OCTOPUS_AGENT_RATE_PER_MIN",
+    "OCTOPUS_AGENT_SECRET_PEERAGI1",
+    "OCTOPUS_AGI2027_RUNTIME_DIR",
+    "OCTOPUS_ARM_SECRET",
+    "OCTOPUS_BCM_BETA",
+    "OCTOPUS_BOOT_RECONCILE_EXEC_H",
+    "OCTOPUS_C6_RUNNING_STALE_H",
+    "OCTOPUS_CB_TTL_S",
+    "OCTOPUS_CHAMBER_T_MAX",
+    "OCTOPUS_CHAMBER_T_MIN",
+    "OCTOPUS_CHAMBER_T_WINDOW",
+    "OCTOPUS_CODE_BRAIN_LOCAL_MODEL",
+    "OCTOPUS_CODE_BRAIN_LOCAL_TIMEOUT_S",
+    "OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S",
+    "OCTOPUS_COLLAB_USE_MODEL",
+    "OCTOPUS_CONSOLIDATION_COMPRESS",
+    "OCTOPUS_CONSOLIDATION_DEDUP_FUZZY",
+    "OCTOPUS_CONSOLIDATION_DEDUP_N",
     "OCTOPUS_CONSOLIDATION_DEDUP_SIM",
-    "OCTOPUS_CONSOLIDATION_FLOOR_SEC", "OCTOPUS_CONTROL_PLANE_INTERVAL",
-    "OCTOPUS_CONTROL_PLANE_LOCK_PORT", "OCTOPUS_CPU_MAX_PCT",
-    "OCTOPUS_DEBATE_LOCAL_BUDGET_S", "OCTOPUS_DEBATE_QUEUE_COOLDOWN_H",
-    "OCTOPUS_DEFER_TTL_S", "OCTOPUS_FUGU_KILL",
-    "OCTOPUS_GOVERNOR_MAX_TOKENS", "OCTOPUS_HOLD_POLICY_DIR",
-    "OCTOPUS_IMAP_USE_GMAIL", "OCTOPUS_INGEST_MAX_BYTES",
-    "OCTOPUS_INGEST_RATE_PER_MIN", "OCTOPUS_INGEST_SECRET_N8N_DA",
-    "OCTOPUS_INGEST_SOURCES", "OCTOPUS_INITIATIVE_UNCAPPED",
-    "OCTOPUS_JOURNEY_TASK", "OCTOPUS_LANGAR_DIR",
-    "OCTOPUS_LANGAR_ROUTE_DERIVE", "OCTOPUS_LEAD_ASK_WHEN_UNSCOREABLE",
-    "OCTOPUS_LEAD_DRAFT_THRESHOLD", "OCTOPUS_LEAD_EMAIL_INBOUND_CONSENT",
-    "OCTOPUS_LEAD_FA_VOCAB", "OCTOPUS_LEAD_FORM_SENDERS",
-    "OCTOPUS_LEAD_INBOX_PORT", "OCTOPUS_LEAD_OWNER_ADDRESSES",
-    "OCTOPUS_LEAD_PROPERTY_EXTRACT", "OCTOPUS_LEAD_STALE_HOURS",
-    "OCTOPUS_LEAD_SUPPRESSION_SALT", "OCTOPUS_LEDGER_PATH",
-    "OCTOPUS_LEDGER_PY", "OCTOPUS_LEG_FRESH_SECS",
-    "OCTOPUS_LEG_MANIFEST_DIR", "OCTOPUS_LEG_TASKS_DIR",
-    "OCTOPUS_MINIAPP_PORT", "OCTOPUS_MINIAPP_URL",
-    # 2026-08-07: OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV — یک فلگِ dev-only opt-in
-    # است که در commit da9ab3b معرفی شد (miniapp_gateway.py:117::read_gate_enabled).
-    # کامنتِ inline می‌گوید «فقط تست/دیباگ با opt-in توسعه‌دهنده»، پیش‌فرض `"0"`،
-    # و fail-closed است (`!= "1"`). در OCTOPUS-flags.cmd اعلام نمی‌شود چون عمداً
-    # نباید در تولید مسلح شود — declare‌کردنش در پروفایلِ بوت ممکن است روزی
-    # روشنش کند و یک دورزدنیِ امنیتیِ dev-only را به تولید نشت دهد. این‌جا ثبت
-    # می‌شود (نه در flags.cmd) تا «بی‌اعلان» بودنش یک تصمیمِ نوشته‌شده باشد، نه
-    # فراموشی — هم‌سبکِ OCTOPUS_TEST_*های بالا.
+    "OCTOPUS_CONSOLIDATION_FLOOR_SEC",
+    "OCTOPUS_CONTROL_PLANE_INTERVAL",
+    "OCTOPUS_CONTROL_PLANE_LOCK_PORT",
+    "OCTOPUS_CPU_MAX_PCT",
+    "OCTOPUS_DEBATE_LOCAL_BUDGET_S",
+    "OCTOPUS_DEBATE_QUEUE_COOLDOWN_H",
+    "OCTOPUS_DEFER_TTL_S",
+    "OCTOPUS_FUGU_KILL",
+    "OCTOPUS_FUGU_PROXY_PORT",
+    "OCTOPUS_GOVERNOR_MAX_TOKENS",
+    "OCTOPUS_HOLD_POLICY_DIR",
+    "OCTOPUS_INGEST_MAX_BYTES",
+    "OCTOPUS_INGEST_RATE_PER_MIN",
+    "OCTOPUS_INGEST_SECRET_N8N_DA",
+    "OCTOPUS_INGEST_SOURCES",
+    "OCTOPUS_JOURNEY_TASK",
+    "OCTOPUS_LANGAR_DIR",
+    "OCTOPUS_LEAD_DRAFT_THRESHOLD",
+    "OCTOPUS_LEAD_FORM_SENDERS",
+    "OCTOPUS_LEAD_INBOX_PORT",
+    "OCTOPUS_LEAD_OUTBOUND_TARGET",
+    "OCTOPUS_LEAD_OWNER_ADDRESSES",
+    "OCTOPUS_LEAD_STALE_HOURS",
+    "OCTOPUS_LEAD_SUPPRESSION_SALT",
+    "OCTOPUS_LEDGER_PATH",
+    "OCTOPUS_LEDGER_PY",
+    "OCTOPUS_LEG_FRESH_SECS",
+    "OCTOPUS_LEG_MANIFEST_DIR",
+    "OCTOPUS_LEG_TASKS_DIR",
+    "OCTOPUS_MINIAPP_ACTIONS_TIMEOUT",
     "OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV",
-    "OCTOPUS_MINING_STOP_INTENT_FILE", "OCTOPUS_MINING_SWAP_DECISION_FILE",
-    "OCTOPUS_MINING_SWITCH_RECEIPT_FILE", "OCTOPUS_MODULE_MANIFEST_EVERY_N",
-    # 2026-08-07: OCTOPUS_NEURAL_LEARNED_APPLY removed — now `set =1` (armed, note 23).
+    "OCTOPUS_MINIAPP_ASK_TIMEOUT",
+    "OCTOPUS_MINIAPP_CACHE_TTL_S",
+    "OCTOPUS_MINIAPP_MIRROR_TIMEOUT",
+    "OCTOPUS_MINIAPP_PORT",
+    "OCTOPUS_MINIAPP_URL",
+    "OCTOPUS_MINING_STOP_INTENT_FILE",
+    "OCTOPUS_MINING_SWAP_DECISION_FILE",
+    "OCTOPUS_MINING_SWITCH_RECEIPT_FILE",
+    "OCTOPUS_MODULE_MANIFEST_EVERY_N",
     "OCTOPUS_OBS_ALERT_EVERY_S",
-    "OCTOPUS_OBS_COHERENCE_MIN", "OCTOPUS_OBS_STALE_MAX",
-    "OCTOPUS_ONE_HEARTBEAT", "OCTOPUS_ONE_HEARTBEAT_ACT_ARMED",
-    "OCTOPUS_OPS_AUDIT_PATH", "OCTOPUS_OPS_DB_PATH",
-    "OCTOPUS_OPS_IDEMPOTENCY_PATH", "OCTOPUS_OPS_RUNTIME_DIR",
-    "OCTOPUS_OWNER_VERDICTS", "OCTOPUS_PROFILE",
-    "OCTOPUS_RAM_MAX_PCT", "OCTOPUS_RG_EXE",
-    "OCTOPUS_SMTP_FROM", "OCTOPUS_SMTP_HOST",
-    "OCTOPUS_SMTP_PASS", "OCTOPUS_SMTP_PORT",
-    "OCTOPUS_SMTP_USER", "OCTOPUS_SPARSE_ERROR_THRESHOLD",
-    "OCTOPUS_STATE_DIR", "OCTOPUS_STATE_ROOT",
-    "OCTOPUS_TEACHER_DAILY", "OCTOPUS_THESIS_LEDGER",
-    "OCTOPUS_TOOL_REQUEST_CAP_PER_DAY", "OCTOPUS_TOOL_REQUEST_MIN_GAP_S",
-    "OCTOPUS_VAULT_ROOT", "OCTOPUS_WATCHDOG_STALL_REVIVE",
-    "OCTOPUS_WHISPER_MAX_S", "OCTOPUS_WIRE_ACCT_CLOUD",
-    "OCTOPUS_WIRE_AUTHZ_SHADOW", "OCTOPUS_WIRE_BUDGET_FRUSTRATION",
-    "OCTOPUS_WIRE_CHAMBER_T", "OCTOPUS_WIRE_COMPANY_BOOKS",
-    # 2026-08-07: OCTOPUS_WIRE_CONSENT_FW removed — now `set =1` (armed, note 23).
-    "OCTOPUS_WIRE_CORTEX_REVIVE",
-    # 2026-08-08: OCTOPUS_WIRE_CORTEX_THINK_RICH removed from this ledger — the typo
-    # (word-order swap of OCTOPUS_WIRE_CORTEX_RICH_THINK) was fixed in
-    # test_cortex_rich_think_heart.py:67, so the misspelled flag is no longer emitted
-    # and no longer needs to be tracked here. -1 from the count.
-    "OCTOPUS_WIRE_EMAIL", "OCTOPUS_WIRE_FITNESS",
-    "OCTOPUS_WIRE_INGEST_EXAMPLE", "OCTOPUS_WIRE_INITIATIVE",
-    "OCTOPUS_WIRE_LEAD_BOUNDARY", "OCTOPUS_WIRE_LEAD_CARD_CONTACT",
-    "OCTOPUS_WIRE_LEAD_EMAIL_INTAKE", "OCTOPUS_WIRE_LEAD_FIRST_REPLY",
-    "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE", "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM",
-    "OCTOPUS_WIRE_LEAD_INBOX", "OCTOPUS_WIRE_LEAD_LLM",
-    "OCTOPUS_WIRE_LEAD_OUTBOUND_WAL", "OCTOPUS_WIRE_LEAD_SUPPRESSION",
-    "OCTOPUS_WIRE_ORGANISM_SYNDROME", "OCTOPUS_WIRE_TEST_AUDIT",
-    "OCTOPUS_WIRE_TG_CONTROL", "OCTOPUS_WIRE_TICK_WORKERS",
-    "OCTOPUS_WIRE_TRADEQUOTE", "OCTOPUS_WIRE_VALUE_LEDGER",
-    "OCTOPUS_WIRE_VAULT_AUTO_WRITE", "OCTOPUS_WIRE_ZTEST",
+    "OCTOPUS_OBS_COHERENCE_MIN",
+    "OCTOPUS_OBS_STALE_MAX",
+    "OCTOPUS_OPS_AUDIT_PATH",
+    "OCTOPUS_OPS_DB_PATH",
+    "OCTOPUS_OPS_IDEMPOTENCY_PATH",
+    "OCTOPUS_OPS_RUNTIME_DIR",
+    "OCTOPUS_OWNER_API_PORT",
+    "OCTOPUS_OWNER_CHAT_ID",
+    "OCTOPUS_OWNER_VERDICTS",
+    "OCTOPUS_RAM_MAX_PCT",
+    "OCTOPUS_RG_EXE",
+    "OCTOPUS_SMTP_PASS",
+    "OCTOPUS_SPARSE_ERROR_THRESHOLD",
+    "OCTOPUS_STATE_GUARD_ARM",
+    "OCTOPUS_STATE_ROOT",
+    "OCTOPUS_TEACHER_DAILY",
+    "OCTOPUS_TEST_ALLOW_LIVE_STATE",
+    "OCTOPUS_TEST_ISOLATION_ECHO",
+    "OCTOPUS_TEST_ISOLATION_LOG",
+    "OCTOPUS_TEST_LIVE_STATE_GUARD",
+    "OCTOPUS_TEST_NET_GUARD",
+    "OCTOPUS_TEST_SNAPSHOT_CANARY_V001",
+    "OCTOPUS_THESIS_LEDGER",
+    "OCTOPUS_TOOL_REQUEST_CAP_PER_DAY",
+    "OCTOPUS_TOOL_REQUEST_MIN_GAP_S",
+    "OCTOPUS_VAULT_ROOT",
+    "OCTOPUS_WHISPER_MAX_S",
+    "OCTOPUS_WIRE_AUTHZ_SHADOW",
+    "OCTOPUS_WIRE_COLLAB",
+    "OCTOPUS_WIRE_COLLAB_DIGEST",
+    "OCTOPUS_WIRE_COLLAB_MEMORY",
+    "OCTOPUS_WIRE_INGEST_EXAMPLE",
+    "OCTOPUS_WIRE_KERNEL_BRIDGE_READER",
+    "OCTOPUS_WIRE_LEAD_MIGRATE_PRODUCERS",
+    "OCTOPUS_WIRE_SEMANTIC_ABLATION",
+    "OCTOPUS_WIRE_SEMANTIC_TRACE",
+    "OCTOPUS_WIRE_TEST_AUDIT",
+    "OCTOPUS_WIRE_ZTEST",
 )
-
 # فایل‌هایی که `ast.parse` نمی‌پذیردشان ⇒ برای این اسکن **نامرئی**اند.
 # منجمد، چون نقطهٔ کورِ نو دامنه را بی‌صدا کوچک می‌کند.
 AST_BLIND_SPOTS = (
@@ -406,20 +387,34 @@ def scan_source():
     return ({k: tuple(sorted(v)) for k, v in reads.items()}, tuple(sorted(blind)))
 
 
+_FLAG_MANIFEST = _OPS / "FLAG-NAMES-MANIFEST.txt"  # tracked names-only SSOT
+
+
 @lru_cache(maxsize=1)
 def declared_flag_names():
     """فقط **نام**‌ها از محلِ اعلام. هیچ مقداری خوانده، نگه‌داشته یا چاپ نمی‌شود.
 
-    2026-08-10: OCTOPUS-flags.cmd is gitignored/live-local. In a clean worktree
-    or CI it does not exist. Return empty frozenset and set FLAGS_CMD_ENV_BLOCKED
-    so callers can report ENV_BLOCKED honestly instead of crashing.
+    2026-08-11 closeout: OCTOPUS-flags.cmd is gitignored/live-local. When absent,
+    fall back to tracked FLAG-NAMES-MANIFEST.txt (names only, no values) so
+    structural declaration checks stay hermetic — NOT empty-set soft-skip.
+    FLAGS_CMD_ENV_BLOCKED remains True only to note that CRLF/live-file checks
+    are live-deployment probes, not unit-suite blockers.
     """
-    if not _FLAGS_CMD.exists():
-        global FLAGS_CMD_ENV_BLOCKED
-        FLAGS_CMD_ENV_BLOCKED = True
-        return frozenset()
-    text = _FLAGS_CMD.read_text("utf-8", errors="replace")
-    return frozenset(_FLAG_IN_TEXT.findall(text))
+    global FLAGS_CMD_ENV_BLOCKED
+    if _FLAGS_CMD.exists():
+        text = _FLAGS_CMD.read_text("utf-8", errors="replace")
+        return frozenset(_FLAG_IN_TEXT.findall(text))
+    FLAGS_CMD_ENV_BLOCKED = True  # live file absent — CRLF probe N/A
+    if _FLAG_MANIFEST.exists():
+        names = set()
+        for line in _FLAG_MANIFEST.read_text("utf-8", errors="replace").splitlines():
+            s = line.strip()
+            if not s or s.startswith("#"):
+                continue
+            if _FLAG_NAME.match(s):
+                names.add(s)
+        return frozenset(names)
+    return frozenset()
 
 
 def untracked_registered():
@@ -482,10 +477,9 @@ def t_scanner_is_not_broken():
         f"ورودیِ تکراری در TESTS: {sorted({n for n in reg if reg.count(n) > 1})}"
     reads, _ = scan_source()
     assert len(reads) > 200, f"فقط {len(reads)} نامِ فلگ خوانده شد — آشکارساز خراب است"
-    if not FLAGS_CMD_ENV_BLOCKED:
-        declared = declared_flag_names()
-        assert len(declared) > 100, \
-            f"فقط {len(declared)} اعلان در {_FLAGS_CMD.name} — خواندنِ محلِ اعلام خراب است"
+    declared = declared_flag_names()
+    assert len(declared) > 100, \
+        f"فقط {len(declared)} اعلان (flags.cmd یا FLAG-NAMES-MANIFEST) — خواندنِ محلِ اعلام خراب است"
 
 
 def t_no_registered_test_is_missing_from_disk():
@@ -537,13 +531,12 @@ def t_every_flag_read_has_a_declaration_site():
     assert not gone, (
         f"رففِشده ولی دفتر پایین نیامد ({len(gone)}): {gone} — "
         f"UNDECLARED_FLAGS را در همین فایل به‌روز کن")
-    # Full check only when we have the real declared set
-    if not FLAGS_CMD_ENV_BLOCKED:
-        current = undeclared_reads()
-        drift = _drift(current, UNDECLARED_FLAGS, "UNDECLARED_FLAGS")
-        assert not drift, f"دفترِ فلگ‌های بی‌اعلان تکان خورد — {drift}"
-        assert len(current) == len(UNDECLARED_FLAGS), \
-            f"شمارِ بی‌اعلان {len(current)} ≠ دفترِ {len(UNDECLARED_FLAGS)}"
+    # Full check against declared set (live flags.cmd OR tracked names manifest)
+    current = undeclared_reads()
+    drift = _drift(current, UNDECLARED_FLAGS, "UNDECLARED_FLAGS")
+    assert not drift, f"دفترِ فلگ‌های بی‌اعلان تکان خورد — {drift}"
+    assert len(current) == len(UNDECLARED_FLAGS), \
+        f"شمارِ بی‌اعلان {len(current)} ≠ دفترِ {len(UNDECLARED_FLAGS)}"
 
 
 def t_indirect_flag_reads_are_still_detected():
@@ -660,9 +653,8 @@ if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
     if FLAGS_CMD_ENV_BLOCKED:
-        print(f"\nENV_BLOCKED: {_FLAGS_CMD.name} غایب (worktree/CI) — "
-              f"flag-declaration checks degraded to empty-declared set; "
-              f"NOT green over missing data.")
+        print(f"\nNOTE: {_FLAGS_CMD.name} غایب — structural checks used "
+              f"tracked FLAG-NAMES-MANIFEST.txt (names only). CRLF live-probe N/A.")
     print(f"\n{'✅' if not failed else '❌'} test_phantom_guards: "
           f"{len(checks) - failed}/{len(checks)}")
     sys.exit(1 if failed else 0)

@@ -38,6 +38,9 @@ OWNER = "777"
 
 os.environ["TG_CENTER_BOT_TOKEN"] = TOKEN
 os.environ["TELEGRAM_OWNER_CHAT_ID"] = OWNER
+# Armed for happy-path tests; individual tests may override.
+os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
+os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
 
 
 def _init_data(user_id=777, auth_date=NOW - 10, token=TOKEN, tamper=False):
@@ -246,6 +249,49 @@ def t_collab_route_has_redact():
     src = Path(mg.__file__).read_text("utf-8")
     block = src[src.index('if p == "/api/collab":'):src.index('if p == "/api/miniapp":')]
     assert "_redact(" in block, "/api/collab must redact response"
+
+
+def t_collab_flag_off_is_feature_disabled():
+    """When OCTOPUS_WIRE_COLLAB!=1, route must return feature_disabled — never auto-arm."""
+    _reset_ask_hits()
+    prev = os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+    try:
+        st, payload, _ = mg.handle("POST", "/api/collab",
+                                   {"X-Tg-Init-Data": _init_data(),
+                                    "_body": _collab_body("هدف فعلی چیه؟")},
+                                   fetch_fn=_fetch(), now=NOW)
+        assert st == 404, (st, payload)
+        assert b"feature_disabled" in payload
+        # Must NOT have auto-armed the flag
+        assert os.environ.get("OCTOPUS_WIRE_COLLAB", "0") != "1", \
+            "route must not setdefault OCTOPUS_WIRE_COLLAB=1"
+    finally:
+        if prev is not None:
+            os.environ["OCTOPUS_WIRE_COLLAB"] = prev
+        else:
+            os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
+
+
+def t_collab_no_setdefault_auto_arm_in_source():
+    """Source must not auto-arm COLLAB flags — structural guard."""
+    src = Path(mg.__file__).read_text("utf-8")
+    block = src[src.index('if p == "/api/collab":'):src.index('if p == "/api/miniapp":')]
+    assert "setdefault(" not in block, \
+        "setdefault( in /api/collab block auto-arms flags — forbidden"
+    assert "OCTOPUS_WIRE_COLLAB" in block and '!= "1"' in block, \
+        "flag gate check missing from /api/collab handler"
+    assert "feature_disabled" in block, "feature_disabled response missing"
+
+
+def t_collab_ask_tab_ui_wires_endpoint():
+    """Existing ask tab must expose collaborator chip → POST /api/collab."""
+    app = (_OPS / "telegram_center" / "miniapp" / "app.js").read_text("utf-8")
+    assert 'id="askCollab"' in app or "id='askCollab'" in app, "askCollab chip missing"
+    assert '"/api/collab"' in app or "'/api/collab'" in app, "ask tab does not call /api/collab"
+    assert "feature_disabled" in app, "UI must surface feature_disabled honestly"
+    # Must keep legacy ask/mirror paths (additive, not rewrite)
+    assert '"/api/ask"' in app or "'/api/ask'" in app
+    assert '"/api/mirror"' in app or "'/api/mirror'" in app
 
 
 if __name__ == "__main__":

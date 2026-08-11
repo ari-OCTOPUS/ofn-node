@@ -1991,18 +1991,22 @@
   }
   function viewScans(el){ stack(el||content, [renderCognitiveScan, renderAgentLog]); }
 
-  // ── پرسش (۲۰۲۶-۰۸-۰۸) ────────────────────────────────────────────────────
+  // ── پرسش (۲۰۲۶-۰۸-۰۸) + همکار (۲۰۲۶-۰۸-۱۱) ─────────────────────────────
   // چت‌باکسِ /api/ask: اول ask_vault (رایگان/مستندِ vault)، فقط اگر منبعی
   // نبود ask_brain (مغزِ گران/محلی). نردبان سمتِ سرور است — این‌جا فقط
   // نمایشِ گفتگو و برچسبِ منبعِ جواب.
-  // چیپِ «🪞 با حافظه»: نقطهٔ ورودِ mirror_room (دکمهٔ mirror_room ِ رأیِ
-  // مالک ۰۸-۰۸) — همان اتاقِ واقعی با تاریخچهٔ نوبت‌به‌نوبت و تشخیصِ
-  // تصحیح، نه یک کپیِ استیت‌لسِ دیگر؛ فقط سوئیچِ endpoint عوض می‌شود.
+  // چیپِ «🪞 با حافظه»: نقطهٔ ورودِ mirror_room.
+  // چیپِ «🤝 همکار»: POST /api/collab → collaborator.handle (shadow،
+  // default OFF روی سرور؛ اگر feature_disabled → پیام صادقانه).
+  // UI موجود را بازنویسی نمی‌کند — فقط سوئیچِ endpoint/payload.
   function renderAsk(el){
     el.innerHTML = secHead("پرسش از اختاپوس") +
       '<div class="card">'+
       '<div id="askLog" class="asklog"></div>'+
-      '<div class="chips"><button class="chip" id="askMirror" type="button">🪞 با حافظه (آینه)</button></div>'+
+      '<div class="chips">'+
+        '<button class="chip" id="askMirror" type="button">🪞 با حافظه (آینه)</button>'+
+        '<button class="chip" id="askCollab" type="button">🤝 همکار</button>'+
+      '</div>'+
       '<input class="fin" id="askQ" type="text" placeholder="از خودِ اختاپوس بپرس…" maxlength="500">'+
       '<button class="go" id="askGo">بپرس</button>'+
       '</div>';
@@ -2010,10 +2014,19 @@
     var input = el.querySelector("#askQ");
     var go = el.querySelector("#askGo");
     var mirrorChip = el.querySelector("#askMirror");
+    var collabChip = el.querySelector("#askCollab");
     var useMirror = false;
+    var useCollab = false;
     mirrorChip.addEventListener("click", function(){
       useMirror = !useMirror;
+      if(useMirror){ useCollab = false; collabChip.classList.remove("on"); }
       mirrorChip.classList.toggle("on", useMirror);
+      hapticSelect();
+    });
+    collabChip.addEventListener("click", function(){
+      useCollab = !useCollab;
+      if(useCollab){ useMirror = false; mirrorChip.classList.remove("on"); }
+      collabChip.classList.toggle("on", useCollab);
       hapticSelect();
     });
     function addTurn(q, a, meta, bad){
@@ -2032,9 +2045,22 @@
       go.disabled = true; input.disabled = true; go.setAttribute("data-busy","1");
       var pending = addTurn(q, "در حال فکر کردن…", "");
       pending.querySelector(".aska").classList.add("muted");
-      apiPost(useMirror ? "/api/mirror" : "/api/ask", {question: q}).then(function(r){
+      var endpoint = useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask");
+      var payload = useCollab ? {text: q} : {question: q};
+      apiPost(endpoint, payload).then(function(r){
         pending.remove();
-        if(r && r.ok){
+        if(useCollab){
+          // owner-console.reply.v1 — or feature_disabled / auth errors
+          if(r && r.schema === "owner-console.reply.v1"){
+            var meta = "منبع: همکار"+(r.model_source?" · "+r.model_source:"")+
+              (r.kind ? " · "+r.kind : "");
+            addTurn(q, r.text||"", meta, r.kind === "disabled");
+          } else if(r && r.reason === "feature_disabled"){
+            addTurn(q, "همکار خاموش است (OCTOPUS_WIRE_COLLAB=0). روشن‌کردنش فقط با رأی مالک.", "", true);
+          } else {
+            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
+          }
+        } else if(r && r.ok){
           var meta = r.source === "vault"
             ? "منبع: vault ("+((r.sources||[]).length)+" نوت)"
             : r.source === "mirror"
