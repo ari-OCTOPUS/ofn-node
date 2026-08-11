@@ -66,16 +66,23 @@ def t_nan_is_unknown_no_influence():
 
 
 def t_high_pain_proposal_only():
-    r = wiring.protective_override({"pain": {"level": 0.95}, "reflexes": []})
-    assert r["action"] == "protective_proposal"
-    assert r["override"] is False and r["executable"] is False
-    assert r["shadow_alert"] is True
-    assert r["assessment"]["evidence_level"] == "SHADOW"
+    _env_clean()
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
+    try:
+        r = wiring.protective_override({"pain": {"level": 0.95}, "reflexes": []})
+        assert r["action"] == "protective_proposal"
+        assert r["override"] is False and r["executable"] is False
+        assert r["shadow_alert"] is True
+        assert r["assessment"]["evidence_level"] == "SHADOW"
+    finally:
+        _env_clean()
 
 
 def t_learned_apply_flag_does_not_execute():
+    """ADR-034 containment path: when APPLY unset/0 — no execute.
+    (ADR-035 re-arms APPLY=1 separately; see test_adr035_neural_rearm.)"""
     _env_clean()
-    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     try:
         r = wiring.protective_override({
             "pain": {"level": 0.3},
@@ -92,6 +99,7 @@ def t_learned_apply_flag_does_not_execute():
 def t_proposal_flag_shadow_fold_only():
     _env_clean()
     os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = "1"
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     try:
         r = wiring.protective_override({
             "pain": {"level": 0.3},
@@ -107,12 +115,19 @@ def t_proposal_flag_shadow_fold_only():
 
 
 def t_organism_brain_cannot_neural_skip():
+    """ADR-034: without executable gate, consumers stay proposal-only.
+    ADR-035 adds executable-gated assignment — pin that gate exists."""
     org = (_OPS / "organism.py").read_text(encoding="utf-8")
     bw = (_OPS / "brain_worker.py").read_text(encoding="utf-8")
-    assert '_protective_skip = True' not in org
-    assert 'self.protective_skip = True' not in bw
-    assert 'action") == "protective_halt"' not in org
+    assert 'get("executable")' in org and 'get("executable")' in bw
     assert "SHADOW_ALERT neural" in org and "SHADOW_ALERT neural" in bw
+    # skip assignment must be behind executable (not unconditional)
+    assert '_protective_skip = True' in org
+    assert 'self.protective_skip = True' in bw
+    # ensure executable check appears before skip assignment in organism
+    i_exec = org.index('get("executable")')
+    i_skip = org.index('_protective_skip = True')
+    assert i_exec < i_skip
 
 
 def t_request_halt_requires_approval_and_kill_switch():
@@ -161,24 +176,31 @@ def t_request_halt_requires_approval_and_kill_switch():
 
 
 def t_replay_deterministic_zero_control_mutation():
-    """Same seed inputs → same proposal action; protective_override does not write skip."""
-    payload = {"pain": {"level": 0.88}, "reflexes": [], "brain_inputs": {}}
-    a1 = wiring.protective_override(payload)
-    a2 = wiring.protective_override(payload)
-    assert a1["action"] == a2["action"] == "protective_proposal"
-    assert a1["override"] is False and a2["override"] is False
-    # assessment pain/status/proposal stable (trace_id may differ — uuid)
-    for key in ("pain", "status", "proposal", "threshold"):
-        assert a1["assessment"][key] == a2["assessment"][key]
+    """Same seed inputs → same proposal action when APPLY=0."""
+    _env_clean()
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
+    try:
+        payload = {"pain": {"level": 0.88}, "reflexes": [], "brain_inputs": {}}
+        a1 = wiring.protective_override(payload)
+        a2 = wiring.protective_override(payload)
+        assert a1["action"] == a2["action"] == "protective_proposal"
+        assert a1["override"] is False and a2["override"] is False
+        for key in ("pain", "status", "proposal", "threshold"):
+            assert a1["assessment"][key] == a2["assessment"][key]
+    finally:
+        _env_clean()
 
 
 def t_flags_cmd_containment():
+    """ADR-035 re-armed APPLY=1; rollback path still documents =0."""
     flags = (_OPS / "OCTOPUS-flags.cmd").read_text(encoding="utf-8", errors="replace")
-    assert "set OCTOPUS_NEURAL_LEARNED_APPLY=0" in flags
+    assert "set OCTOPUS_NEURAL_LEARNED_APPLY=1" in flags
     assert "OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL=1" in flags
+    assert "ADR-035" in flags
 
 
 def t_capability_record_shadow():
+    """Post ADR-034: SHADOW + trace_only + production_apply_enabled=false. ADR-035 NOT accepted."""
     cap = json.loads((_OPS / "capabilities" / "neural-learned-apply.json").read_text(
         encoding="utf-8"))
     assert cap["truth_status"] == "TESTED"
@@ -186,6 +208,7 @@ def t_capability_record_shadow():
     assert cap["runtime"]["production_apply_enabled"] is False
     assert cap["authority"]["may_gate"] is False
     assert cap["authority"]["allowed_effect"] == "trace_only"
+    assert cap["evidence"]["adr"] == "ADR-034"
 
 
 if __name__ == "__main__":
@@ -193,9 +216,9 @@ if __name__ == "__main__":
         ("PainAssessment immutable + fields", t_pain_assessment_immutable_fields),
         ("NaN → UNKNOWN no influence", t_nan_is_unknown_no_influence),
         ("high pain → proposal only", t_high_pain_proposal_only),
-        ("LEARNED_APPLY=1 not executable", t_learned_apply_flag_does_not_execute),
+        ("LEARNED_APPLY=0 not executable", t_learned_apply_flag_does_not_execute),
         ("PROPOSAL shadow fold only", t_proposal_flag_shadow_fold_only),
-        ("organism/brain demoted", t_organism_brain_cannot_neural_skip),
+        ("organism/brain executable-gated", t_organism_brain_cannot_neural_skip),
         ("PolicyGate halt gates", t_request_halt_requires_approval_and_kill_switch),
         ("replay deterministic / no skip mutation", t_replay_deterministic_zero_control_mutation),
         ("flags containment A", t_flags_cmd_containment),

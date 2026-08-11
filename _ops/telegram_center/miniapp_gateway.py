@@ -818,7 +818,17 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                         "application/json; charset=utf-8")
             from owner_console import collaborator as _collab  # noqa: WPS433
             st_dir = Path(opslib.STATE_DIR)
-            reply = _collab.handle(text, state_dir=st_dir)
+            # ۲۰۲۶-۰۸-۱۲: collab نیز باید زیر timeout باشد (مانند /api/ask).
+            # COLLAB_USE_MODEL=1 می‌تواند model_router.ask را صدا بزند که تا ۹۰s
+            # هنگ می‌کند. بدون wrapper، thread تا ابر معلق می‌ماند و پرسش هنگ می‌کند.
+            reply, c_err = _run_with_timeout(
+                _collab.handle, ASK_TIMEOUT_S, text, state_dir=st_dir)
+            if c_err and isinstance(c_err, TimeoutError):
+                body = json.dumps({"ok": False, "reason": "collab_timeout"},
+                                  ensure_ascii=False).encode("utf-8")
+                return 504, body, "application/json; charset=utf-8"
+            if c_err:
+                raise c_err
             # دفاعِ دولایه: redact هر پاسخی که خارج می‌رود
             reply_json = json.dumps(reply, ensure_ascii=False)
             redacted = _redact(reply_json)

@@ -1,0 +1,228 @@
+schema_version: 1
+registry_id: octopus-signals-v1
+owner: octopus-core
+updated_at: "2026-08-11T11:15:00Z"
+
+signals:
+  - id: spectral-criticality-v2
+    role: estimator
+    truth_status: SHADOW
+    evidence_level: SHADOW
+    equation:
+      notation: "C_t = clip01(w_r*rho_n + w_v*var_n + w_s*sigma_n); UNKNOWN != 0"
+      implementation_path: "_ops/doctor/criticality_v2.py"
+      version: "criticality_v2.v1"
+    authority:
+      allowed_effect: trace_only
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+      feature_flag: OCTOPUS_WIRE_CRITICALITY_OTLP
+      rollback_flag: OCTOPUS_WIRE_CRITICALITY_OTLP
+    evidence:
+      tests:
+        - test_cognitive_unify.py
+        - test_adr033_control_plane.py
+      traces:
+        - _ops/state/criticality/criticality-v2.jsonl
+      shadow_window_days: 0
+      last_verified_at: null
+
+  - id: spectral-metrics-sensor
+    role: estimator
+    truth_status: SHADOW
+    evidence_level: SHADOW
+    equation:
+      notation: "rho(A), lambda_2(L), lambda_max(L); sigma_legacy only if connected"
+      implementation_path: "_ops/doctor/spectral_metrics.py"
+      version: "spectral_metrics.v1"
+    authority:
+      allowed_effect: trace_only
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+      rollback_flag: NONE
+    evidence:
+      tests:
+        - test_adr033_control_plane.py
+      traces:
+        - _ops/state/criticality/criticality-v2.jsonl
+      shadow_window_days: 0
+      last_verified_at: "2026-08-11T10:50:00Z"
+
+  - id: bcm-stabilizer
+    role: regulator
+    truth_status: TESTED
+    evidence_level: TESTED
+    equation:
+      notation: "Δw = η·y·(y-θ) - β·w; θ ← EMA(y²)"
+      implementation_path: "_ops/neural/bcm.py"
+      version: "bcm.v1"
+    authority:
+      allowed_effect: none
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+      feature_flag: OCTOPUS_WIRE_BCM
+    evidence:
+      tests:
+        - test_bcm_forgetting.py
+        - test_bcm_hebbian_shadow_e2e.py
+      traces: []
+      shadow_window_days: 0
+      last_verified_at: null
+
+  - id: hebbian-associator
+    role: regulator
+    truth_status: TESTED
+    evidence_level: TESTED
+    equation:
+      notation: "s ← min(1, s+α); s ← s·δ; prune if s < ε"
+      implementation_path: "_ops/neural/hebbian.py"
+      version: "hebbian.v1"
+    authority:
+      allowed_effect: none
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+      feature_flag: OCTOPUS_WIRE_HEBBIAN
+    evidence:
+      tests:
+        - test_hebbian_signals.py
+        - test_bcm_hebbian_shadow_e2e.py
+      traces: []
+      shadow_window_days: 0
+      last_verified_at: null
+
+  - id: nociceptor-pain
+    role: detector
+    truth_status: TESTED
+    evidence_level: TESTED
+    equation:
+      notation: "pain = clip01(Σ w_i·f_i); protective_proposal if pain>θ"
+      implementation_path: "_ops/neural/nociceptor.py"
+      version: "nociceptor.v1"
+    authority:
+      allowed_effect: none
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+    evidence:
+      tests:
+        - test_pain_calibration.py
+        - test_nociceptor_chaos_shadow.py
+      traces:
+        - _ops/state/neural/effect-shadow.jsonl
+      shadow_window_days: 0
+      last_verified_at: null
+
+  - id: sog-dare-identity
+    role: diagnostic
+    truth_status: LOCKED
+    evidence_level: LOCKED
+    equation:
+      notation: "DARE P; K=Pλ/S; Δ_self=½log(S_b/S); E_shadow=½log(σ_z²/S_b)"
+      implementation_path: "_ops/heart/sog_math.py"
+      version: "sog_math.hh-p0"
+    authority:
+      allowed_effect: none
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+    evidence:
+      tests:
+        - test_heart_math.py
+        - test_sog_provenance.py
+      traces: []
+      shadow_window_days: 7
+      last_verified_at: "2026-08-11T10:50:00Z"
+
+  - id: kalman-shadow-period
+    role: estimator
+    truth_status: SHADOW
+    evidence_level: SHADOW
+    equation:
+      notation: "shadow_period vs production_period; never override production"
+      implementation_path: "_ops/heart/kalman_shadow_pipeline.py"
+      version: "kalman_shadow.v1"
+    authority:
+      allowed_effect: trace_only
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: INVALID_ESTIMATE
+      rollback_flag: NONE
+    evidence:
+      tests:
+        - test_kalman_shadow_pipeline.py
+      traces:
+        - _ops/state/adr-033/evidence/
+      shadow_window_days: 0
+      last_verified_at: null
+
+  - id: chrono-rhythm-cr-b0
+    role: diagnostic
+    truth_status: SPEC_NOT_BUILT
+    evidence_level: SPEC_NOT_BUILT
+    equation:
+      notation: "CR-B0 chronorhythm (design only)"
+      implementation_path: null
+      version: "spec"
+    authority:
+      allowed_effect: none
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: SPEC_NOT_BUILT
+    evidence:
+      tests: []
+      traces: []
+      shadow_window_days: 0
+      last_verified_at: null
+
+  # ADR-034 post-demotion: diagnostic/proposal signal only — not a control effector.
+  # Executable protective_halt lives in architecture/capabilities-registry.yaml.
+  # 2026-08-12: reverted ADR-035 rearm attempt (owner did not accept ADR-035;
+  # APPLY remains 0; may_gate=false; production_apply_enabled=false per ADR-034).
+  - id: neural-learned-apply
+    role: regulator
+    truth_status: TESTED
+    evidence_level: SHADOW
+    equation:
+      notation: "PainAssessment proposal-only (ADR-034): APPLY=0 → protective_proposal/SHADOW; halt only via PolicyGate-owned control path"
+      implementation_path: "_ops/neural/pain_assessment.py"
+      version: "pain_assessment.v1"
+    authority:
+      allowed_effect: trace_only
+      may_gate: false
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+      feature_flag: OCTOPUS_NEURAL_LEARNED_APPLY
+      rollback_flag: OCTOPUS_NEURAL_LEARNED_APPLY
+      production_apply_enabled: false
+    evidence:
+      tests:
+        - test_adr034_neural_demote.py
+        - test_nociceptor_chaos_shadow.py
+        - test_pain_calibration.py
+      traces:
+        - _ops/state/neural/pain-assessment.jsonl
+        - _ops/state/neural/effect-shadow.jsonl
+      shadow_window_days: 7
+      last_verified_at: "2026-08-11T10:50:00Z"

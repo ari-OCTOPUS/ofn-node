@@ -823,6 +823,14 @@ class Doctor:
         # dedup روی RFCهای باز
         open_b = {r.bottleneck for r in self._rfcs.values()
                   if r.status not in ("merged", "rejected", "human-merged", "human-rejected")}
+        # calibration: skeleton leg‌هایی که ۳+ بار رد شده‌اند را دیگر پیشنهاد نده
+        # (ضدِ نویزِ دائمی — باید از restart جان به در ببرد، پس از chrono DB می‌خواند).
+        _skipped_skeleton = []
+        if self._db is not None:
+            try:
+                from calibration import should_skip_bottleneck as _skip_bn
+            except Exception:  # noqa: BLE001
+                _skip_bn = None
         drafted = []
         for key, label, reason in dormant:
             if not key:
@@ -830,6 +838,11 @@ class Doctor:
             btag = f"organ:{key}"
             if any(btag in b for b in open_b):
                 continue
+            if _skip_bn is not None:
+                _skip, _sr = _skip_bn(self._db, btag)
+                if _skip:
+                    _skipped_skeleton.append(btag)
+                    continue
             rfc = self.propose_rfc(
                 {"bottleneck": f"{btag} — {reason}"},
                 fix=(f"اندامِ «{label}» {reason}. پیشنهادِ propose-only: یک منبعِ دادهٔ afferent "

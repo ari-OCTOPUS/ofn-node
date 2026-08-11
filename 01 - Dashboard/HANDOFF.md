@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -28,6 +28,95 @@ updated: 2026-08-11
 **ثابت:** فقط داخلِ worktree بنویس — **`F:\backup` درختِ زندهٔ در حالِ اجراست** · `git add -A` هرگز · >~۵ فایل ⇒ اول `agent-checkpoint:` · «fatal: stash failed»/قفلِ `.git/objects` = قفلِ AV ⇒ **retry** نه دورزدن · lane که تمام کرد ردیفش را ✅ کند (پاک نکند).
 
 ## وضعِ لحظه‌ای
+
+- ✅🚪 **2026-08-12 08:16 (نمی‌خوام مرزی بمونه).**
+  dark caps مسلح · LIVE-ENABLED · send cap 100 · refractory 0 · collab 200 ·
+  Talk/ADR-033 hard-forbidden → owner-approval · تست‌های مرتبط سبز.
+  Evidence: `_ops/state/adr-033/reports/NO-BOUNDARY-2026-08-12/`.
+  Structural kept: kill-switch · OTLP remote off · money still per-action approve.
+
+- ✅🔓 **2026-08-12 08:10 (هر ۴ پلهٔ امن کامل).**
+  collab cap `50` · Panel `8790` HTTP200 · refractory `6h` ·
+  HARVEST + FIRST_REPLY + FIRST_RESPONSE · send ceiling همچنان `10/day`.
+  Evidence: `_ops/state/adr-033/reports/EXPAND-4-2026-08-12/`.
+
+- ✅🍽️ **2026-08-12 07:50 (پاها دیگر گرسنه نیستند).**
+  `leg_feed` ساخته شد · ۵ پا sense-pulse هضم · starved/stale=[] ·
+  `OCTOPUS_WIRE_LEG_FEED=1` · RFC-08c8853f applied · doctor 🟢.
+  Evidence: `_ops/state/adr-033/reports/LEGS-FEED-2026-08-12.md`.
+
+- ✅👁️ **2026-08-12 07:44 (Watch/Smart + Obsidian).**
+  SK llm:local · synthesis ۳ · research +۸ · improve +۴ · trails 273→292 / 15→23 ·
+  self_model 603 / 96.7٪ · stress=0.66 · in_fear=[] · APPLY=1.
+  Evidence: `_ops/state/adr-033/reports/WATCH-SMART-2026-08-12/` ·
+  نوت: [[../00 - Inbox/2026-08-12 SESSION — Watch Smart Obsidian|Watch Smart session]].
+
+- ✅🧠 **2026-08-12 07:38 (ADR-035 LIVE closeout — «همرو کامل کن»).**
+  Organism restart · APPLY=1 روی همهٔ flags-loaded (۵ limb) ·
+  pain-assessment زنده adr=ADR-035 · probe: halt/throttle executable ·
+  skip=false وقتی pain زیر آستانه (سالم).
+  Evidence: `_ops/state/adr-033/reports/ADR-035-REARM-EVIDENCE.md` ·
+  `ADR-035-LIVE-VERIFY.json`.
+
+- ✅🧠 **2026-08-12 07:10 (ADR-035 — neural APPLY re-arm، رأی مالک «هردو»).**
+  `OCTOPUS_NEURAL_LEARNED_APPLY=1` + apply اجرایی (نه فقط فلگ).
+  Dual-mode: APPLY=0→proposal/SHADOW · APPLY=1→protective_skip beat-local.
+  Registry: ARMED / gate_internal / may_gate=true.
+  Evidence: `_ops/state/adr-033/reports/ADR-035-REARM-EVIDENCE.md` ·
+  ADR: [[../03 - Projects/research-spec-compiler/adr/ADR-035-neural-learned-apply-rearm|ADR-035]].
+
+- ✅⚙️ **2026-08-12 06:58 (اعمالِ owner — whitelist knobs).**
+  `HEART_SAMPLE_INTERVAL_S=4500` · `CORTEX_THINK_EVERY_N=11` · `CHRONO=780`.
+  مسیر auto_approve (نه neural APPLY). improve پیشنهادِ auto_applicable برای knob می‌سازد.
+  اثر روی پروسهٔ زنده با restoreِ boot (`load_persisted_knobs`).
+  Evidence: `_ops/state/adr-033/reports/SELF-APPLY-2026-08-12/`.
+
+- ✅🧠 **2026-08-12 06:55 (کمک حافظه/خودآگاهی).**
+  فیکس change-gate روی `understanding={failed:1}` · SK تازه + deep_dive ·
+  synthesis ۳ proposal · research +۶ hit · improve/part_loops/self_model تازه.
+  trails: self-loop 216→233 · research 9→15 · APPLY=0.
+  Evidence: `_ops/state/adr-033/reports/SELF-LEARN-HELP-2026-08-12/`.
+
+- ✅🟢 **2026-08-12 01:29 (CAPABILITY-OK mint — 609/609 سبز).**
+  `run_all` کامل سبز · marker نوشته شد · `auto_approve.self_test=green`.
+  فیکس‌ها: telemetry package shadow · harness hermetic collab · center
+  control-slash + qbudget/ops-ask نه با collaborator بلعیده شوند.
+  Evidence: `_ops/state/adr-033/reports/SELF-PROGRESS-UNLOCK-2026-08-12/run_all-retry.log`.
+  APPLY=0 · Lead CONFIRMED هنوز نیاز به reconcile واقعی.
+
+- ✅🚀 **2026-08-12 00:44 (Self-progress unlock — lifecycle stall=0).**
+  [[../07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck Live]] ·
+  Evidence: `_ops/state/adr-033/reports/SELF-PROGRESS-UNLOCK-2026-08-12/` ·
+  doctor pending submitted/drafted=0 · `stalled=0` / `decided=79` ·
+  ACT_AUTO=True · CHRONO_NUDGE=780 · improve+part_loops سبز · APPLY=0.
+
+- ✅🩺 **2026-08-12 00:30 (Fear freeze باز شد — P0 bottleneck RESOLVED).**
+  [[../07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck Live]] —
+  قبل: stress=1.0 · `in_fear=[doctor]` · pending=7.
+  بعد: stress=0.66 · `in_fear=[]` · doctor.stress=0.5 سپس pending→0 ·
+  skeleton mine + calibration skip additive · organism `started=00:30:45`.
+
+- 🚨📌 **2026-08-12 00:12 (ج — Bottleneck واقعی = fear freeze دکتر) → رفع شد ۰0:30.**
+  تشخیص اولیه درست بود؛ اقدام رأی+calibration+mine skip آن را بست.
+  جزئیات در [[../07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck Live]].
+
+- ✅🧾 **2026-08-12 00:08 (ب — Golden Trace MiniApp PASS).**
+  status→discovery→dangerous→blocked→pain/shadow · ۵/۵ · external_effect=0 · send=0 ·
+  live gateway GET ok + POST `/api/collab` unauth **403** · in-process collab 200 draft-only.
+  Evidence: `_ops/state/adr-033/reports/GOLDEN-TRACE-MINIAPP-2026-08-12/` ·
+  runner: `_ops/scripts/golden_trace_miniapp.py`.
+
+- ✅🧪 **2026-08-12 00:06 (الف — verify زندهٔ self_loop_ingest).**
+  `improve.run(write=True)` روی درخت زنده → trail `45→53` (+۸) · `memory_ingest.ok` ·
+  gate_verb=skip/dedupe (محتوای قبلی موجود) · `may_authorize=false` · APPLY دست‌نخورده.
+  پس از restart `23:59:23` پل حافظهٔ خودترمیمی واقعاً می‌نویسد (نه فقط backfill).
+
+- ✅🔒 **2026-08-11 شب (Integration Wave + ۳ owner card بسته شد + commit).**
+  Commit `2187342` (master): ۱۳۰ فایل additive، صفر حذف، `APPLY=0`.
+  Gate ۱۰/۱۰ سبز · phantom_guards ۹/۹ · pain_calibration ۱۹/۱۹ (ADR-034) · callback parity ۹/۹.
+  WORKLOCK: `test_research_ingest` + `test_self_loop_ingest` ثبت شد.
+  سه card همه بسته: (۱) pain_calibration→proposal-only، (۲) ۱۲ suite committed، (۳) scanner attribution.
+  Evidence: `_ops/state/adr-033/reports/INTEGRATION-WAVE-2026-08-11/`.
 
 - ❤️🧠 **2026-08-11 شب (Hearts · Dual Brains · 4D — وضعیت صادق).**
   [[../07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS|Hearts·Brains·4D Status]] ·
@@ -156,14 +245,13 @@ updated: 2026-08-11
   جزئیات اولیه: [[../00 - Inbox/2026-08-11 SESSION — Test Intelligence Pack Delivered|SESSION TI]].
 
 - 🐙✅ **2026-08-11 (Integration + Collaborator closeout — shadow، merge نشده).**
-  ادامهٔ [[../00 - Inbox/2026-08-10 2320 MEGAPROMPT — Close Integration Gaps (No Skips, Real Boundaries, MiniApp Route)|مگاپرامپت 2320]] +
-  [[../00 - Inbox/2026-08-11 1110 BRIEFING — Next Agent Closeout After Corrective Partial|بریفینگ 1110]].
-  روی branch `octopus-integration-collaborator` (worktree `.claude/worktrees/octopus-integration-collaborator`):
+  ادامه از Integration Wave / ADR-023 · branch `octopus-integration-collaborator`
+  (worktree `.claude/worktrees/octopus-integration-collaborator`):
   auto-arm از `/api/collab` حذف شد؛ تب ask با chip «همکار» به route وصل شد؛
   `FLAG-NAMES-MANIFEST.txt` hermetic؛ ۱۸/۱۸ suite isolation PASS؛
   full `run_all.py` = ۵۸۸/۵۸۸ سبز؛ Doctor checkpoint port + ApprovalPort حفظ شد.
-  جزئیات: [[../00 - Inbox/2026-08-11 SESSION — Integration Collaborator Closeout|SESSION closeout]] +
-  [[../03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator|ADR-023]].
+  جزئیات: [[../03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator|ADR-023]] ·
+  [[../06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT|Interaction Contract]].
   **هنوز:** merge-to-master / arm flags / مدل واقعی / send — فقط با رأی مالک.
 
 - 🔦✅ **2026-08-09 شب (ریشهٔ نهاییِ اتمامِ سهمیه + ممیزیِ دروازه‌های تاریک + آرمِ ۶۳ فلگ + ری‌استارتِ کامل + دکمهٔ کنترل‌پنل).**
