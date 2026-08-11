@@ -22,6 +22,7 @@ import os
 import re
 import time
 from pathlib import Path
+from urllib.parse import unquote
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_STATE_DIR = HERE.parent / "state"
@@ -46,13 +47,13 @@ def _utc_iso() -> str:
 
 
 def _contains_secret(text: str) -> bool:
-    """Check if text contains patterns that look like secrets/PII."""
+    """Check raw and bounded URL-decoded forms for secret/PII patterns."""
     if not text:
         return False
-    for pat in _SECRET_PATTERNS:
-        if pat.search(text):
-            return True
-    return False
+    raw = str(text)
+    candidates = (raw, unquote(raw[:4000]))
+    return any(pat.search(candidate) for candidate in candidates
+               for pat in _SECRET_PATTERNS)
 
 
 def _hash_ref(text: str) -> str:
@@ -60,6 +61,18 @@ def _hash_ref(text: str) -> str:
     if not text:
         return ""
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+
+def _state_path(state_dir: Path | None) -> Path | None:
+    base = Path(os.environ.get("OCTOPUS_STATE_DIR") or DEFAULT_STATE_DIR)
+    requested = Path(state_dir) if state_dir is not None else base
+    try:
+        base = base.resolve()
+        sd = requested.resolve()
+        sd.relative_to(base)
+        return sd
+    except (OSError, ValueError):
+        return None
 
 
 def append(
@@ -100,11 +113,10 @@ def append(
         return {"ok": False, "status": "rejected",
                 "reason": "secret/PII detected in summary — refused"}
 
-    sd = state_dir or DEFAULT_STATE_DIR
-    # Path traversal protection: resolve to canonical form
-    try:
-        sd = sd.resolve()
-    except (OSError, ValueError):
+    # The injectable directory may select a sandbox subdirectory, never escape
+    # the canonical state root.
+    sd = _state_path(state_dir)
+    if sd is None:
         return {"ok": False, "status": "rejected", "reason": "invalid state_dir"}
     mem_path = sd / "collab-memory.jsonl"
 
@@ -160,5 +172,7 @@ def recent(limit: int = 20, state_dir: Path | None = None) -> list[dict]:
     """Read recent memory entries (for context injection)."""
     if not _is_enabled():
         return []
-    sd = state_dir or DEFAULT_STATE_DIR
-    return _read_existing(sd / "collab-memory.jsonl")[-limit:]
+    sd = _state_path(state_dir)
+    if sd is None:
+        return []
+    return _read_existing(sd / "collab-memory.jsonl")[-max(0, int(limit)):]

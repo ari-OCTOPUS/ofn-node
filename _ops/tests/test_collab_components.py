@@ -275,17 +275,16 @@ def t_memory_rejects_oversized_summary():
     assert "invalid summary" in result.get("reason", "")
 
 
-def t_memory_resolves_state_dir():
-    """state_dir باید resolve شود (ضد path traversal)."""
+def t_memory_rejects_state_dir_escape():
+    """state_dir resolved بیرون از state root باید fail-closed رد شود."""
     import collab_memory as cm
     os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    escaped = Path(ENV["root"]) / "outside-memory"
     result = cm.append(turn_id="rs1", role="owner", intent="ask",
-                       summary="clean summary",
-                       state_dir=STATE_DIR / ".." / ".." / ".." / "nonexistent")
+                       summary="clean summary", state_dir=escaped)
     os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
-    # Should either be rejected (invalid state_dir) or succeed (resolved but nonexistent dir)
-    # The key assertion: it must not crash, and must not write outside the vault
-    assert "ok" in result
+    assert result == {"ok": False, "status": "rejected", "reason": "invalid state_dir"}
+    assert not (escaped / "collab-memory.jsonl").exists()
 
 
 # ─── RUN ──────────────────────────────────────────────────────────────────────
@@ -302,7 +301,7 @@ CHECKS = [
     ("memory-rejects-invalid-role", t_memory_rejects_invalid_role),
     ("memory-rejects-empty-intent", t_memory_rejects_empty_intent),
     ("memory-rejects-oversized-summary", t_memory_rejects_oversized_summary),
-    ("memory-resolves-state-dir", t_memory_resolves_state_dir),
+    ("memory-rejects-state-dir-escape", t_memory_rejects_state_dir_escape),
     ("collaborator-default-off", t_collaborator_default_off),
     ("collaborator-contract-compliance", t_collaborator_contract_compliance),
     ("collaborator-deterministic-stub", t_collaborator_deterministic_stub),

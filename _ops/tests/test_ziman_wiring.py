@@ -157,36 +157,20 @@ def test_ziman_beat_no_telegram_no_spend(monkeypatch, tmp_path):
         assert forbidden not in result
 
 
-@pytest.mark.skip(
-    reason="biology در ziman_beat سیم‌کشی نیست: wiring.py:2002 مقدارِ biology=None را "
-           "hardcode می‌کند و پارامترِ doctor مصرف نمی‌شود (پاکسازیِ LEG-08 · 2026-07-14 F2 "
-           "بلوکِ biology_beat را از beat حذف کرد). ماژولِ ziman_biology.biology_beat "
-           "به‌صورت مستقل وجود دارد و توسط test_ziman_biology پوشش دارد، ولی ziman_beat "
-           "عمداً صدایش نمی‌زند. این تست تا وقتی biology دوباره به beat سیم‌کشی نشود "
-           "(تغییرِ رفتارِ runtime — نیازمندِ verdict مالک) skip است، نه green-lie.")
-def test_ziman_beat_biology_accepts_doctor_injection(monkeypatch, tmp_path):
-    """ziman_beat باید دکتر تزریق‌شده را فقط در مسیر زیستی/propose-only مصرف کند."""
+def test_ziman_beat_keeps_biology_unwired_without_owner_verdict(monkeypatch, tmp_path):
+    """The runtime seam stays inert; independent biology tests cover the module itself."""
     monkeypatch.setenv("OCTOPUS_WIRE_ZIMAN", "1")
     monkeypatch.setenv("CHRONO_ZIMAN_EVERY_N_BEATS", "0")
     import wiring as _w
     _w._ZIMAN_STATE["state_path"] = tmp_path / "ORGANISM-STATE.ziman"
 
-    class FakeDoctor:
-        def __init__(self):
-            self.trace = None
+    class ExplodingDoctor:
         def run_cycle(self, beat=0, trace=None):
-            self.trace = trace
-            return {"rfc_id": "RFC-ziman-test", "status": "submitted-no-channel"}
+            raise AssertionError("unapproved biology wiring reached the doctor")
 
-    doctor = FakeDoctor()
     leg = ZimanLeg(organ_table={"ZIMAN": {}}, capacity_ceiling=30)
-    result = wiring.ziman_beat(leg, beat=1, doctor=doctor)
+    result = wiring.ziman_beat(leg, beat=1, doctor=ExplodingDoctor())
     assert result is not None
-    assert result["biology"]["schema"] == "ziman-biology.v1"
-    assert result["biology"]["doctor"]["connected"] is True
-    assert result["biology"]["doctor"]["auto_merge"] is False
-    assert result["biology"]["doctor"]["human_append_required"] is True
-    assert result["biology"]["nerves"]["connected"] is True
-    assert result["biology"]["heart"]["ziman_can_write_heart"] is False
-    assert doctor.trace["scope"] == "ZIMAN"
-    assert leg.status_snapshot()["biology"]["schema"] == "ziman-biology.v1"
+    assert result["biology"] is None
+    assert result["outward_execution"] is False
+    assert leg.status_snapshot()["biology"] is None

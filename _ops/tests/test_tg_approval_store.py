@@ -80,6 +80,21 @@ def t_e_mark_done_after_approve():
     assert aps.summary()["done"] == 1
 
 
+def t_e2_mark_done_before_approve_is_denied():
+    setup_paths()
+    jid = aps.add_pending({"type": "task", "title": "needs-owner", "risk": "high"})
+    assert aps.mark_done(jid) is False
+    assert aps.get(jid)["status"] == "pending"
+
+
+def t_e3_invalid_action_hash_is_rejected_before_queue_write():
+    setup_paths()
+    jid = aps.add_pending({"type": "task", "title": "bad hash",
+                           "action_sha256": "not-a-sha256"})
+    assert jid == ""
+    assert aps.load_pending() == []
+
+
 def t_f_approve_unknown_id_returns_false():
     setup_paths()
     aps.add_pending({"type": "x", "title": "y"})
@@ -172,7 +187,7 @@ def t_n_content_not_stored_in_job():
     # is brought up to the current contract.
     assert set(job.keys()) <= {"id", "type", "title", "status", "risk", "created_at",
                                "expires_epoch", "requires_confirmation",
-                               "dry_run_report", "source"}
+                               "dry_run_report", "action_sha256", "source"}
 
 
 def t_o_cross_process_lock_serializes_dual_writer_race():

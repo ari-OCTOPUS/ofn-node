@@ -76,6 +76,8 @@ class ContextBundle:
 
     def validate(self, now=None) -> List[str]:
         e: List[str] = []
+        if self.schema != SCHEMA:
+            e.append("invalid schema")
         for k in ("bundle_id", "mission_id", "task_id", "trace_id", "tenant_id",
                   "project_id", "agent_role", "objective"):
             if not str(getattr(self, k, "") or "").strip():

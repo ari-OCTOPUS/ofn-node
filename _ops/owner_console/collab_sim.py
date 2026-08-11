@@ -38,9 +38,14 @@ def run_simulation(*, state_dir: Path | None = None) -> dict:
 
     Returns a complete trace with all turns, memory records, digest, and replay info.
     """
-    # Arm collaborator flags for simulation
+    # Arm collaborator flags for simulation and bind the explicit sandbox root.
+    old_collab = os.environ.get("OCTOPUS_WIRE_COLLAB")
+    old_memory = os.environ.get("OCTOPUS_WIRE_COLLAB_MEMORY")
+    old_state = os.environ.get("OCTOPUS_STATE_DIR")
     os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
     os.environ["OCTOPUS_WIRE_COLLAB_MEMORY"] = "1"
+    if state_dir is not None:
+        os.environ["OCTOPUS_STATE_DIR"] = str(Path(state_dir).resolve())
 
     trace = []
     memory_records = []
@@ -78,9 +83,14 @@ def run_simulation(*, state_dir: Path | None = None) -> dict:
     }
     digest = collab_digest.build_digest(snapshot=fake_snapshot)
 
-    # Cleanup flags
-    os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
-    os.environ.pop("OCTOPUS_WIRE_COLLAB_MEMORY", None)
+    # Restore caller environment.
+    for key, old in (("OCTOPUS_WIRE_COLLAB", old_collab),
+                     ("OCTOPUS_WIRE_COLLAB_MEMORY", old_memory),
+                     ("OCTOPUS_STATE_DIR", old_state)):
+        if old is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = old
 
     result = {
         "schema": SCHEMA,

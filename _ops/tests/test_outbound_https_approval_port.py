@@ -122,6 +122,8 @@ try:
     add_calls = [c for c in _calls if c[0] == "add"]
     _assert(len(add_calls) == 1,
             "t_h_add_pending_called_once")
+    _assert(len(add_calls[0][1].get("action_sha256", "")) == 64,
+            "t_h_approval_binds_action_hash")
 
     # ─── t_i: execute delegates get to injected port ───
     r4 = OB.execute_if_approved("some-id")
@@ -133,7 +135,8 @@ try:
 
     # ─── t_j: port returns approved status correctly ───
     def _mock_get_approved(jid):
-        return {"job_id": jid, "status": "approved"}
+        import time
+        return {"job_id": jid, "status": "approved", "expires_epoch": time.time() + 60}
 
     OB._set_approval_port({
         "add_pending": _mock_add,

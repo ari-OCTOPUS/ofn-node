@@ -50,12 +50,9 @@ for name, src in (("OCTOPUS_GOVERNOR_USE_ROUTER", src_gov),
     check(name in src, f"{name} باید در کد باشد")
 
 flags_path = _OPS / "OCTOPUS-flags.cmd"
-# 2026-08-11: OCTOPUS-flags.cmd is gitignored/live-local. In a clean worktree
-# or CI it does not exist. The CRLF/line-ending checks require the file.
-# The declaration-file checks (PAID-FLAGS-DECLARATION.json) are structural
-# and independent of flags.cmd — they verify the owner's intent registry.
-flags_env_blocked = not flags_path.exists()
-if not flags_env_blocked:
+# OCTOPUS-flags.cmd is live-local. Clean worktrees use the tracked names-only
+# manifest for declaration coverage; only the live-local file has an EOL contract.
+if flags_path.exists():
     raw = flags_path.read_bytes()
     check(b"\r\n" in raw, "flags.cmd باید CRLF داشته باشد")
     check(b"\n" not in raw.replace(b"\r\n", b""), "flags.cmd نباید lone-LF داشته باشد")
@@ -63,6 +60,15 @@ if not flags_env_blocked:
     text = raw.decode("utf-8", errors="replace")
 else:
     text = None
+    manifest = _OPS / "FLAG-NAMES-MANIFEST.txt"
+    check(manifest.exists(), "flags.cmd غایب است و manifest نام‌ها هم وجود ندارد")
+    manifest_names = set()
+    if manifest.exists():
+        manifest_names = {line.strip() for line in manifest.read_text("utf-8").splitlines()
+                          if line.strip() and not line.lstrip().startswith("#")}
+    for name in ("OCTOPUS_GOVERNOR_USE_ROUTER", "OCTOPUS_HEART_DOCTOR_USE_ROUTER",
+                 "OCTOPUS_DOCTOR_SELFKNOW_PAID"):
+        check(name in manifest_names, f"{name} باید در manifest نام‌ها باشد")
 # Declaration-file checks run regardless — they verify the owner's intent registry.
 # ۲۰۲۶-۰۷-۲۷ — این بلوک قبلاً `== "0"` را هاردکد می‌کرد. وقتی مالک تصمیمش را
 # عوض کرد («همه رو بزن»)، گارد **دائماً** قرمز شد. و تستِ همیشه‌قرمز خودش یک
@@ -322,8 +328,6 @@ finally:
         sys.modules.pop("model_router", None)
 
 
-if flags_env_blocked:
-    print("(CRLF/line-ending checks skipped — OCTOPUS-flags.cmd absent in worktree/CI)")
 print("FAIL" if fails else "PASS", "— test_paid_router_dark_config")
 for f in fails:
     print("  -", f)

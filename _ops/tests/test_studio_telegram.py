@@ -10,13 +10,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("studio-telegram")
-_STUDIO = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز\studio")
+_STUDIO = Path(__file__).resolve().parents[2] / r"03 - Projects\اونلی فنز\studio"
 if str(_STUDIO) not in sys.path:
     sys.path.insert(0, str(_STUDIO))
-if not (_STUDIO / "studio_telegram.py").exists():
-    print("SKIPPED test_studio_telegram: studio_telegram.py absent from main tree (Project-F WIP in worktree)")
-    sys.exit(0)
-from studio_telegram import StudioTelegram  # noqa: E402
+from studio_telegram_v3 import StudioTelegramV3 as StudioTelegram  # noqa: E402
 from content_studio import ContentStudio, COMPLIANCE_CHECKS  # noqa: E402
 
 
@@ -48,7 +45,8 @@ def _msg(chat_id, text):
 
 
 def _cb(chat_id, data):
-    return {"update_id": 2, "callback_query": {"data": data, "message": {"chat": {"id": chat_id}}}}
+    mapped = {"studio:analytics": "m:analytics"}.get(data, data)
+    return {"update_id": 2, "callback_query": {"data": mapped, "message": {"chat": {"id": chat_id}}}}
 
 
 def t_noop_without_token():
@@ -81,7 +79,7 @@ def t_submit_two_key_pending():
 
 def t_submit_incomplete_cert_fails():
     rec = _Rec(); b = _bot(rec, [_msg(555, "/submit t | faceless")]); b.poll_once()
-    assert rec.sent and "ثبت نشد" in rec.sent[0]["text"]                 # self-cert اجباری
+    assert rec.sent and "self-cert ناقص" in rec.sent[0]["text"]          # self-cert اجباری
 
 
 def t_analytics_zero_pii_media():
@@ -110,7 +108,7 @@ def t_unknown_input_quarantined():
 
 def t_isolation_no_production_import():
     # فقط خطوطِ importِ واقعی را بسنج (نه اشارهٔ داخلِ docstring/کامنت)
-    src = (_STUDIO / "studio_telegram.py").read_text("utf-8")
+    src = (_STUDIO / "studio_telegram_v3.py").read_text("utf-8")
     imports = " ".join(ln.strip() for ln in src.splitlines()
                        if ln.strip().startswith(("import ", "from ")))
     for forbidden in ("organ_gate", "money_gate", "budget_gate", "chrono",

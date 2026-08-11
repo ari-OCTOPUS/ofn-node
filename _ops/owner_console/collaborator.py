@@ -42,8 +42,8 @@ def _use_model() -> bool:
 
 
 def _turn_id(owner_text: str) -> str:
-    """Deterministic turn ID from owner text."""
-    return hashlib.sha256(f"{owner_text}:{os.urandom(4).hex()}".encode()).hexdigest()[:16]
+    """Deterministic turn ID from owner text for replay-safe idempotency."""
+    return hashlib.sha256(str(owner_text).encode("utf-8")).hexdigest()[:16]
 
 
 def _stub_enhance(base_reply: dict, owner_text: str) -> dict:
@@ -106,13 +106,16 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
     else:
         enhanced = _stub_enhance(base_reply, text)
 
-    # Episodic memory (if armed)
+    # Episodic memory (if armed). The memory module enforces containment under
+    # its canonical state root; this handler never mutates process-wide env.
     turn_id = _turn_id(text)
     mem_result = collab_memory.append(
         turn_id=turn_id,
         role="owner",
         intent=enhanced.get("kind", "unknown"),
-        summary=f"owner asked: {str(text)[:200]}; collaborator replied: {enhanced.get('kind', '?')}",
+        # Content-free episodic marker: raw owner input is never persisted.
+        summary=(f"owner_input_sha256={hashlib.sha256(str(text).encode('utf-8')).hexdigest()};"
+                 f"reply_kind={enhanced.get('kind', '?')}"),
         state_dir=state_dir,
     )
     if mem_result.get("ok"):
