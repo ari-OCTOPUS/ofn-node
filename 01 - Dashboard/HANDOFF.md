@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-09
+updated: 2026-08-11
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -28,6 +28,28 @@ updated: 2026-08-09
 **ثابت:** فقط داخلِ worktree بنویس — **`F:\backup` درختِ زندهٔ در حالِ اجراست** · `git add -A` هرگز · >~۵ فایل ⇒ اول `agent-checkpoint:` · «fatal: stash failed»/قفلِ `.git/objects` = قفلِ AV ⇒ **retry** نه دورزدن · lane که تمام کرد ردیفش را ✅ کند (پاک نکند).
 
 ## وضعِ لحظه‌ای
+
+- 🧪✅ **2026-08-11 عصر (Test Intelligence Pack — تحویل ایجنت موازی روی worktree).**
+  بستهٔ grounded ساخته شد؛ چند سوراخ production بسته شد (ContextBundle، collab PII/path،
+  approval pending→done، outbound binding/expiry/NOT_WIRED، dark scanner، hermetic skips).
+  ادعای ایجنت: TI سبز + ۱۸/۱۸ + `run_all` ۵۸۸/۵۸۸؛ صفر arm/send/merge؛ Redis invent نشد.
+  جزئیات: [[../00 - Inbox/2026-08-11 SESSION — Test Intelligence Pack Delivered|SESSION TI]] ·
+  فاز بعد (کامل P0→P5): [[../00 - Inbox/2026-08-11 MEGAPROMPT — Peak Potential Autonomy Shadow|Peak Potential · Autonomy · Product]].
+  **هنوز:** commit محدود worktree / merge / arm — رأی مالک.
+
+- 🧪📋 **2026-08-11 (Test Intelligence Pack — grounded megaprompt؛ الان تحویل‌شده ↑).**
+  مگاپرامپت مبدأ: [[../00 - Inbox/2026-08-11 MEGAPROMPT — Octopus Test Intelligence Pack (Grounded)|مگاپرامپت Test Intelligence]].
+
+- 🐙✅ **2026-08-11 (Integration + Collaborator closeout — shadow، merge نشده).**
+  ادامهٔ [[../00 - Inbox/2026-08-10 2320 MEGAPROMPT — Close Integration Gaps (No Skips, Real Boundaries, MiniApp Route)|مگاپرامپت 2320]] +
+  [[../00 - Inbox/2026-08-11 1110 BRIEFING — Next Agent Closeout After Corrective Partial|بریفینگ 1110]].
+  روی branch `octopus-integration-collaborator` (worktree `.claude/worktrees/octopus-integration-collaborator`):
+  auto-arm از `/api/collab` حذف شد؛ تب ask با chip «همکار» به route وصل شد؛
+  `FLAG-NAMES-MANIFEST.txt` hermetic؛ ۱۸/۱۸ suite isolation PASS؛
+  full `run_all.py` = ۵۸۸/۵۸۸ سبز؛ Doctor checkpoint port + ApprovalPort حفظ شد.
+  جزئیات: [[../00 - Inbox/2026-08-11 SESSION — Integration Collaborator Closeout|SESSION closeout]] +
+  [[../03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator|ADR-023]].
+  **هنوز:** merge-to-master / arm flags / مدل واقعی / send — فقط با رأی مالک.
 
 - 🔦✅ **2026-08-09 شب (ریشهٔ نهاییِ اتمامِ سهمیه + ممیزیِ دروازه‌های تاریک + آرمِ ۶۳ فلگ + ری‌استارتِ کامل + دکمهٔ کنترل‌پنل).**
   ادامه/تکمیلِ VQ-FUGU-002 (ورودیِ زیر): مسیرِ داخلیِ ارگانیسم (`paid-calls.jsonl`)
