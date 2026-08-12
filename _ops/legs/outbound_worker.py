@@ -45,10 +45,20 @@ import opslib   # noqa: E402
 
 FLAG = "OCTOPUS_WIRE_LEAD_OUTBOUND"
 
-# سقفِ روزانهٔ عددیِ ارسالِ لید — رأی مالک ۲۰۲۶-۰۷-۳۱ (رأی ARM ِ رأی ۱۷ منشور
-# TG-UI-CHARTER-2026-07-31): حداکثر ۱۰ ارسالِ خروجی در روز. تغییرِ این عدد فقط
-# با رأیِ جدیدِ مالک — نه پروفایل، نه env، نه ایجنت.
-LEAD_DAILY_SEND_CAP = 10
+# سقفِ روزانهٔ عددیِ ارسالِ لید — رأی مالک ۲۰۲۶-۰۷-۳۱ = ۱۰ پیش‌فرض.
+# ۲۰۲۶-۰۸-۱۲: مالک «نمیخوام مرزی بمونه» → env override مجاز
+# (OCTOPUS_LEAD_DAILY_SEND_CAP). مقدار ≤۰ = عملاً بدون سقف عددی
+# (همچنان consent/effect_gate/STOP مقدم‌اند).
+def _lead_daily_send_cap() -> int:
+    raw = (os.environ.get("OCTOPUS_LEAD_DAILY_SEND_CAP") or "10").strip()
+    try:
+        n = int(raw)
+    except ValueError:
+        return 10
+    return n
+
+
+LEAD_DAILY_SEND_CAP = _lead_daily_send_cap()
 
 
 def enabled() -> bool:
@@ -90,6 +100,11 @@ def sends_today(*, now=None) -> int:
 
 
 def cap_reached(*, now=None) -> bool:
+    """سقفِ روزانه؛ ≤۰ = بدون سقف عددی (consent/STOP همچنان مقدم)."""
+    global LEAD_DAILY_SEND_CAP
+    LEAD_DAILY_SEND_CAP = _lead_daily_send_cap()
+    if LEAD_DAILY_SEND_CAP <= 0:
+        return False
     return sends_today(now=now) >= LEAD_DAILY_SEND_CAP
 
 

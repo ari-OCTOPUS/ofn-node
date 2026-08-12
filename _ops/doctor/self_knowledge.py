@@ -387,6 +387,23 @@ def snapshot() -> dict:
     return out
 
 
+def _understanding_usable(u) -> bool:
+    """True only for a layered diagnosis — not a failed/empty LLM stub.
+
+    Live defect 2026-08-12: change-gate treated `{\"failed\": 1}` as a valid
+    understanding (truthy dict) and cached it forever → deep_dive never ran,
+    focus stayed None. Required: at least one core diagnostic key.
+    """
+    if not isinstance(u, dict) or not u:
+        return False
+    if set(u.keys()) <= {"failed", "error", "ok"}:
+        return False
+    return any(k in u for k in (
+        "anatomy", "physiology", "pathology", "prescription",
+        "focus", "open_questions", "trajectory",
+    ))
+
+
 def _extract_json(text: str):
     try:
         i, j = text.find("{"), text.rfind("}")
@@ -710,7 +727,7 @@ def synthesize(snap: dict, prev: dict, history: list, conf_ema: "float | None" =
     text, tier = _ask_llm(prompt, system, max_tokens=800)
     if text:
         parsed = _extract_json(text)
-        if isinstance(parsed, dict) and parsed:
+        if isinstance(parsed, dict) and _understanding_usable(parsed):
             # ۲۰۲۶-۰۸-۰۶ — خودگزارشِ خامِ LLM تا امروز بدونِ هیچ سقفی رد می‌شد. اگر
             # کلید اصلاً نبود چیزی اضافه نمی‌شود (اختراع ممنوع)؛ اگر بود، سقفِ
             # EMAِ دقتِ تاریخی رویش می‌نشیند.
@@ -879,6 +896,16 @@ def _persist_latest(rec: dict, *, append_history: bool) -> None:
             opslib.alert([f"doctor self-knowledge persist failed: {type(e).__name__}"])
         except Exception:  # noqa: BLE001
             pass
+        return
+    # ۲۰۲۶-۰۸-۱۱ — ضدِ هدررفتنِ خودآگاهیِ دکتر (latest overwrite؛ history جداست)
+    try:
+        mem_dir = str(_HERE.parent / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import self_loop_ingest as _sli  # noqa: WPS433
+        _sli.ingest_self_knowledge(rec)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 _VAULT_PROPOSE_FLAG = "OCTOPUS_WIRE_DOCTOR_VAULT_PROPOSE"
@@ -1002,7 +1029,9 @@ def run(persist: bool = True) -> dict:
     accuracy = _self_accuracy_measure(snap)
 
     # ── CHANGE-GATE: تصویرِ معنادار عوض نشده → هیچ کالِ LLM (بزرگ‌ترین صرفه) ──
-    if prev and prev.get("snapshot_hash") == h and prev.get("understanding"):
+    # understandingِ غیرقابل‌استفاده (مثل {\"failed\":1}) هرگز cache نمی‌شود.
+    if (prev and prev.get("snapshot_hash") == h
+            and _understanding_usable(prev.get("understanding"))):
         rec = dict(prev)
         rec["ts"] = opslib.now_iso()
         rec["beat"] = snap.get("beat")

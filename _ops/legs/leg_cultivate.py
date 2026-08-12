@@ -173,9 +173,19 @@ def _summarize(item: dict) -> dict:
 
 
 # ─── پل‌های خاصِ پا (فقط ADD، read-only، fail-soft) ─────────────────────────────
+def _source_pulse_age(leg: str) -> float | None:
+    """سنِ سایدکارِ تازگی (leg_feed) — additive؛ نبود → None."""
+    try:
+        p = _legs_state() / f"{leg}-source-pulse.json"
+        return age_days(p)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _enrich_mining() -> dict:
     """پلِ منبعِ ماشینیِ واقعیِ Mining: coordinator/data/decisions.jsonl — read-only.
-    فقط stat (سن/اندازه) + شمارشِ خط برای فایلِ کوچک (<2MB). صفر echo از محتوا."""
+    فقط stat (سن/اندازه) + شمارشِ خط برای فایلِ کوچک (<2MB). صفر echo از محتوا.
+    اگر leg_feed pulse تازه نوشته باشد، سنِ مؤثر = min(منبع، pulse)."""
     out: dict = {"source": "coordinator/data/decisions.jsonl"}
     try:
         import mining_leg  # noqa: WPS433 — lazy؛ مسیرِ تأییدشده همان‌جا نگه‌داری می‌شود
@@ -183,12 +193,20 @@ def _enrich_mining() -> dict:
         out["source_exists"] = p.exists()
         if p.exists():
             a = age_days(p)
-            out["source_age_days"] = round(a, 1) if a is not None else None
+            out["source_age_days_raw"] = round(a, 1) if a is not None else None
+            out["source_age_days"] = out["source_age_days_raw"]
             size = p.stat().st_size
             out["source_bytes"] = size
             if size <= 2_000_000:   # شمارشِ خط فقط برای فایلِ کوچک (سقفِ هزینهٔ IO)
                 with p.open("rb") as f:
                     out["source_lines"] = sum(1 for _ in f)
+        pa = _source_pulse_age("mining")
+        if pa is not None:
+            out["source_pulse_age_days"] = round(pa, 1)
+            if out.get("source_age_days") is None:
+                out["source_age_days"] = round(pa, 1)
+            else:
+                out["source_age_days"] = round(min(float(out["source_age_days"]), pa), 1)
     except Exception as e:  # noqa: BLE001 — پل هرگز cultivate را نمی‌کشد
         out["source_error"] = type(e).__name__
     return out
@@ -196,7 +214,8 @@ def _enrich_mining() -> dict:
 
 def _enrich_ziman() -> dict:
     """پلِ کاتالوگِ زیمان (برنامهٔ ۸ — همان منبعِ حقیقتِ ziman_leg): شمارشِ محصول/
-    خانواده + سنِ فایل. read-only، utf-8-sig (فایلِ واقعی BOM دارد)، fail-soft."""
+    خانواده + سنِ فایل. read-only، utf-8-sig (فایلِ واقعی BOM دارد)، fail-soft.
+    pulse تازگی (leg_feed) سنِ مؤثر را پایین می‌آورد بدون mutate کاتالوگ."""
     out: dict = {}
     try:
         import ziman_leg  # noqa: WPS433 — lazy؛ مسیرِ کاتالوگ همان ثابتِ پلِ برنامهٔ ۸
@@ -207,7 +226,8 @@ def _enrich_ziman() -> dict:
             return out
         out["catalog_exists"] = True
         a = age_days(p)
-        out["catalog_age_days"] = round(a, 1) if a is not None else None
+        out["catalog_age_days_raw"] = round(a, 1) if a is not None else None
+        out["catalog_age_days"] = out["catalog_age_days_raw"]
         data = json.loads(p.read_text(encoding="utf-8-sig", errors="replace"))
         prods = data.get("products") if isinstance(data, dict) else None
         if isinstance(prods, list):
@@ -215,6 +235,13 @@ def _enrich_ziman() -> dict:
             fams = {str(pr.get("family") or "UNKNOWN")
                     for pr in prods if isinstance(pr, dict)}
             out["catalog_families"] = len(fams)
+        pa = _source_pulse_age("ziman")
+        if pa is not None:
+            out["catalog_pulse_age_days"] = round(pa, 1)
+            if out.get("catalog_age_days") is None:
+                out["catalog_age_days"] = round(pa, 1)
+            else:
+                out["catalog_age_days"] = round(min(float(out["catalog_age_days"]), pa), 1)
     except Exception as e:  # noqa: BLE001 — پل هرگز cultivate را نمی‌کشد
         out["catalog_error"] = type(e).__name__
     return out

@@ -78,6 +78,24 @@ def _save_state(st: dict) -> None:
         pass   # fail-soft: نبودِ state فقط idempotency را ضعیف می‌کند، نه beat را
 
 
+def _is_owner_set_aside(lead_id: str, st: dict | None = None) -> bool:
+    """رأی مالک ۲۰۲۶-۰۸-۱۲: لید کنار گذاشته → دیگر stuck/سؤال/claim نشود."""
+    lid = str(lead_id or "")
+    if not lid:
+        return False
+    try:
+        cur = st if isinstance(st, dict) else _load_state()
+        if lid in (cur.get("set_aside") or {}):
+            return True
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        p = opslib.STATE_DIR / "legs" / "lead-set-aside" / f"{lid}.json"
+        return p.is_file()
+    except Exception:  # noqa: BLE001
+        return False
+
+
 # ── importهای path-safe ِ لایه‌های دیگر ──────────────────────────────────────────
 def _leg_tasks():
     """leg_tasks (لایهٔ Task ِ گروه — کارتِ 🚧 + ریپلای=رفعِ مانع). None = در دسترس نیست."""
@@ -236,6 +254,9 @@ def _replied(lead_key: str) -> bool:
 def _make_stuck(lead_id: str, lead: dict, research: dict, st: dict, out: dict,
                 now: float) -> None:
     """گیر = کارِ BLOCKED با سؤالِ آزادِ فارسی — سوارِ مکانیکِ موجودِ 🚧 + ریپلای=رفعِ مانع."""
+    if _is_owner_set_aside(lead_id, st):
+        out["set_aside_skip"] = out.get("set_aside_skip", 0) + 1
+        return
     lt = _leg_tasks()
     question = lead_research.stuck_question(research)
     task_id = None
@@ -297,6 +318,9 @@ def _process_ready(lead_id: str, lead: dict, sc, research: dict, deps: dict,
 def _process_one(lead_id: str, lead: dict, deps: dict, st: dict, out: dict,
                  now: float) -> str:
     """یک کاندید از تحقیق تا آماده/گیر. خروجی: برچسبِ نتیجه (برای سایدکارِ mark_processed)."""
+    if _is_owner_set_aside(lead_id, st):
+        out["set_aside_skip"] = out.get("set_aside_skip", 0) + 1
+        return "set_aside"
     research = lead_research.enrich(lead, ask_fn=(deps or {}).get("ask_fn"))
     # دفاعِ رده‌ی رضایت: سیگنالِ بازار هرگز واردِ قوسِ draft/کارت نمی‌شود (R1) —
     # فایلِ top-level ِ market_signal فقط از producer ِ متخاصم ممکن است؛ رد و ثبت.

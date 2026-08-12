@@ -34,6 +34,22 @@ except ImportError:
 # λ_persist از doctor.py (دست‌نخورده منفی — §۵.۳) — تک‌منبع 2026-07-10
 from doctor import LAMBDA_PERSIST  # noqa: E402
 
+# Single-source spectral definitions -- legacy formula lives there now.
+try:  # noqa: SIM105
+    from spectral_definitions import (  # noqa: E402
+        LEGACY_EPS,
+        LEGACY_SIGMA_CAP,
+        FORMULA_LEGACY_SIGMA,
+        compute_legacy_sigma,
+    )
+except ImportError:  # هنگام بارگذاری به‌عنوان doctor.spectral
+    from doctor.spectral_definitions import (  # noqa: E402
+        LEGACY_EPS,
+        LEGACY_SIGMA_CAP,
+        FORMULA_LEGACY_SIGMA,
+        compute_legacy_sigma,
+    )
+
 
 def build_event_graph(trace: dict) -> "tuple[list, int]":
     """از trace یک گراف می‌سازد. نودها = ارگان‌ها/منابعِ خطا. یال‌ها = هم‌وقوعی.
@@ -93,14 +109,27 @@ def spectral_gap(eigvals: list) -> float:
     return eigvals[1] - eigvals[0]
 
 
-def estimate_sigma(eigvals: list) -> float:
-    """برآوردِ σ (شاخصِ بحرانیت/SOC). σ≈1 = گذارِ فاز.
-    تقریب: σ ∝ (λ_max / (λ₂ + ε)). ⚑ برای معمار: تعریفِ دقیق باز (§۷)."""
+def _legacy_sigma_from_eigvals(eigvals: list) -> float:
+    """Internal legacy helper: extracts lambda_2/lambda_max from eigvals, delegates
+    to compute_legacy_sigma from spectral_definitions. Falls back to 0.0 when
+    the delegation returns None (preserving historical behaviour for callers
+    that always received a float)."""
     if not eigvals:
         return 0.0
     l_max = max(eigvals) or 1e-6
     l2 = eigvals[1] if len(eigvals) > 1 else l_max
-    return min(l_max / (l2 + 1e-6), 10.0)   # کرانِ بالا برای پایداریِ عددی
+    result = compute_legacy_sigma(l2, l_max, eps=LEGACY_EPS, cap=LEGACY_SIGMA_CAP)
+    if result is not None:
+        return result
+    return 0.0
+
+
+def estimate_sigma(eigvals: list) -> float:
+    """برآوردِ σ (شاخصِ بحرانیت/SOC). σ≈1 = گذارِ فاز.
+    تقریب: σ ∝ (λ_max / (λ₂ + ε)). ⚑ برای معمار: تعریفِ دقیق باز (§۷).
+    Delegates to spectral_definitions.compute_legacy_sigma; identical public
+    contract: always returns a float in [0, 10]."""
+    return _legacy_sigma_from_eigvals(eigvals)
 
 
 def spectral_mine(trace: dict) -> "dict | None":

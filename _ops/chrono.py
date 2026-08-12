@@ -1316,13 +1316,23 @@ class Pacemaker:
                             # جلسه ۴۶: لاگِ بی‌محتوا برای خانهٔ ساده («خودم درستش کردم»)
                             try:
                                 import time as _t2
+                                _ev = {"leg": getattr(leg, "id", "?"),
+                                       "ts": _t2.time(),
+                                       "beat": self.beat,
+                                       "reason": "phi-timeout:no-ack",
+                                       "phi": round(float(phi), 3)}
                                 with open(opslib.STATE_DIR / "selfheal-events.jsonl",
                                           "a", encoding="utf-8") as _hf:
-                                    _hf.write(json.dumps({"leg": getattr(leg, "id", "?"),
-                                                          "ts": _t2.time(),
-                                                          "beat": self.beat,
-                                                          "reason": "phi-timeout:no-ack",
-                                                          "phi": round(float(phi), 3)}) + "\n")
+                                    _hf.write(json.dumps(_ev) + "\n")
+                                # ۲۰۲۶-۰۸-۱۱ — ingest episodic تا خودترمیمی فقط در jsonl نماند
+                                try:
+                                    _mem = str(_HERE / "memory")
+                                    if _mem not in sys.path:
+                                        sys.path.insert(0, _mem)
+                                    import self_loop_ingest as _sli  # noqa: WPS433
+                                    _sli.ingest_selfheal_event(_ev)
+                                except Exception:  # noqa: BLE001
+                                    pass
                             except OSError:
                                 pass
                             # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (blocked→completed)

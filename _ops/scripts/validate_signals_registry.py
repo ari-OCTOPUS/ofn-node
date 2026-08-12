@@ -205,39 +205,44 @@ def validate_registry(
             elif not tp.exists():
                 warnings.append(f"{sid}:trace_file_absent_parent_ok:{tr}")
 
-        # neural-learned-apply hard pin (ADR-034 containment — NOT ADR-035 rearm)
-        # 2026-08-12: ADR-035 was NOT accepted by owner. APPLY remains 0.
-        # may_gate=false, trace_only, SHADOW, production_apply_enabled=false.
+        # neural-learned-apply hard pin (ADR-035 ACCEPTED — owner «هردو» 2026-08-12).
+        # APPLY=1 زنده (runtime + flags.cmd + owner-verdicts.yaml fallback).
+        # may_gate=true, gate_internal, ARMED, production_apply_enabled=true.
+        # مرز سخت: payment/email/CRM/external = همیشه may_mutate_ledger/tool=false.
         if sid == "neural-learned-apply":
             if truth != "TESTED":
                 errors.append("neural-learned-apply:truth_status_must_be_TESTED")
-            if evid != "SHADOW":
-                errors.append("neural-learned-apply:evidence_level_must_be_SHADOW")
-            if effect != "trace_only":
-                errors.append("neural-learned-apply:allowed_effect_must_be_trace_only")
-            if auth.get("may_gate") is not False:
-                errors.append("neural-learned-apply:may_gate_must_be_false")
-            if sg.get("production_apply_enabled") is not False:
+            if evid != "ARMED":
+                errors.append("neural-learned-apply:evidence_level_must_be_ARMED")
+            if effect != "gate_internal":
+                errors.append("neural-learned-apply:allowed_effect_must_be_gate_internal")
+            if auth.get("may_gate") is not True:
+                errors.append("neural-learned-apply:may_gate_must_be_true")
+            if sg.get("production_apply_enabled") is not True:
                 errors.append(
-                    "neural-learned-apply:production_apply_enabled_must_be_false"
+                    "neural-learned-apply:production_apply_enabled_must_be_true"
                 )
+            if auth.get("may_mutate_ledger") is not False:
+                errors.append("neural-learned-apply:may_mutate_ledger_must_be_false")
+            if auth.get("may_trigger_tool") is not False:
+                errors.append("neural-learned-apply:may_trigger_tool_must_be_false")
             # capability record must agree
             if cap_path.exists():
                 try:
                     cap = json.loads(cap_path.read_text(encoding="utf-8"))
-                    if cap.get("evidence_level") != "SHADOW":
+                    if cap.get("evidence_level") != "ARMED":
                         errors.append(
                             "neural-learned-apply:capability_record_evidence_mismatch"
                         )
-                    if (cap.get("runtime") or {}).get("production_apply_enabled") is not False:
+                    if (cap.get("runtime") or {}).get("production_apply_enabled") is not True:
                         errors.append(
-                            "neural-learned-apply:capability_record_apply_enabled"
+                            "neural-learned-apply:capability_record_apply_disabled"
                         )
-                    if (cap.get("authority") or {}).get("may_gate") is not False:
+                    if (cap.get("authority") or {}).get("may_gate") is not True:
                         errors.append(
                             "neural-learned-apply:capability_record_may_gate"
                         )
-                    if (cap.get("authority") or {}).get("allowed_effect") != "trace_only":
+                    if (cap.get("authority") or {}).get("allowed_effect") != "gate_internal":
                         errors.append(
                             "neural-learned-apply:capability_record_effect"
                         )
