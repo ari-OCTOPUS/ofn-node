@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -28,6 +29,10 @@ MEMBERS: list[dict] = [
     {"id": "fitness", "file": "fitness-latest.json", "sla_s": 172800, "vital": 1},
     {"id": "school", "file": "school-awareness.json", "sla_s": 259200, "vital": 1},
     {"id": "reconcile", "file": "reconcile-latest.json", "sla_s": 259200, "vital": 1},
+    # عضوِ opt-in (ADR-038): مشاهدهٔ فقط‌خواندنِ 4d_system — فقط با OCTOPUS_OBSERVE_4D=1
+    # فعال می‌شود؛ وگرنه نامرئی (observe_flag → _member_enabled). DEPRECATED تا امروز قطع بود.
+    {"id": "fourd_system", "file": "pulse/fourd-health-latest.json",
+     "sla_s": 7200, "vital": 1, "observe_flag": "OCTOPUS_OBSERVE_4D"},
 ]
 
 
@@ -65,12 +70,20 @@ def ping() -> str:
     return "ok"
 
 
+def _member_enabled(m: dict) -> bool:
+    """اعضای opt-in (observe_flag) فقط با flag=1 فعال‌اند؛ وگرنه نامرئی (نه stale، نه نویز)."""
+    flag = m.get("observe_flag")
+    return os.environ.get(flag, "0") == "1" if flag else True
+
+
 def sweep(state_dir: Path | None = None) -> dict:
-    """جاروی کاملِ اعضا → آگاهیِ per-عضو + coherence مجموعه (وزنی با vital)."""
-    rows = [member_awareness(m, state_dir) for m in MEMBERS]
-    w_sum = sum(m.get("vital", 1) for m in MEMBERS)
+    """جاروی کاملِ اعضا → آگاهیِ per-عضو + coherence مجموعه (وزنی با vital).
+    اعضای opt-in (observe_flag) وقتی flag روشن نیست نامرئی‌اند (نه stale، نه نویز)."""
+    active = [m for m in MEMBERS if _member_enabled(m)]
+    rows = [member_awareness(m, state_dir) for m in active]
+    w_sum = sum(m.get("vital", 1) for m in active)
     coherence = sum(r["awareness"] * m.get("vital", 1)
-                    for r, m in zip(rows, MEMBERS)) / max(1, w_sum)
+                    for r, m in zip(rows, active)) / max(1, w_sum)
     stale = [r["id"] for r in rows if r["awareness"] < 0.5]
     return {"ts": opslib.now_iso(), "members": rows,
             "coherence": round(coherence, 3),

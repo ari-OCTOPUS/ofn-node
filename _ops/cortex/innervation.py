@@ -13,6 +13,7 @@ $0 · stdlib · read-only · fail-soft.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -37,6 +38,9 @@ ORGANS = [
     ("learning", "📚 یادگیری/تحقیق",           "pulse/research-latest.json",  1440),
     ("selfmodel","🪞 خودمدلی",                 "cortex/self-model.json",      120),
     ("telemetry","💰 تلمتریِ مالی",            "telemetry-latest.json",       360),
+    # عضوِ opt-in (ADR-038): مشاهدهٔ فقط‌خواندنِ 4d_system — فعال با OCTOPUS_OBSERVE_4D=1.
+    # عنصرِ پنجم = observe_flag؛ وقتی خاموش است، check() آن را رد می‌کند (نامرئی).
+    ("fourd",    "🧩 4d_system (مشاهده)",       "pulse/fourd-health-latest.json", 120, "OCTOPUS_OBSERVE_4D"),
 ]
 
 
@@ -66,7 +70,11 @@ def check() -> dict:
     # برای tickِ ۵دقیقه‌ای کالیبره شده بود؛ با قلبِ باز (period 900s) سنِ measured همیشه
     # ~۱۵min بود و spine هر tick با ~۶ ثانیه اختلاف «نقطهٔ مرده» می‌شد (آرتیفکتِ U1).
     _hp = heart_period_now()
-    for oid, name, rel, sla in ORGANS:
+    for organ in ORGANS:
+        oid, name, rel, sla = organ[:4]
+        flag = organ[4] if len(organ) > 4 else None
+        if flag and os.environ.get(flag, "0") != "1":
+            continue   # عضوِ opt-inِ خاموش → نامرئی (نه نقطهٔ مرده، نه نویز)
         if oid == "spine" and _hp:
             try:
                 # clamp (بازبینیِ خصمانه): مقدارِ فایل بی‌کران/آلوده می‌تواند باشد (inf →

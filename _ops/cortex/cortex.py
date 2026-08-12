@@ -393,6 +393,21 @@ def innervation_tick(cycle: int) -> dict | None:
         return None
 
 
+def fourd_health_tick(cycle: int) -> dict | None:
+    """probe فقط‌خواندنِ 4d_system (ADR-038) — فقط وقتی OCTOPUS_OBSERVE_4D=1.
+    صرفاً observability: تازگیِ daemon_state.json را در یک shadow-report می‌نویسد.
+    هیچ اتصالِ اجرایی، هیچ import از 4d_system، هیچ write به آن. fail-soft، پیش‌فرض خاموش."""
+    try:
+        import fourd_health  # noqa: E402
+        rec = fourd_health.persist()
+        if rec is None:
+            return None
+        return {"status": rec["status"], "age_s": rec.get("age_s")}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex fourd_health error: {type(e).__name__}: {e}"])
+        return None
+
+
 def ignition_tick(cycle: int) -> dict | None:
     """CORTEX-01 (شعله‌ورشدنِ فضای کاری): فقط با CORTEX_IGNITION=1 برندهٔ winner-take-all
     را COMPUTE + در state-fileِ خودش (ignition-latest.json) LOG کن — SHADOW/مشاهده‌ای.
@@ -583,6 +598,7 @@ def run_cycle(cycle: int) -> dict:
     stress_summary = stress_tick(cycle)
     cortisol_summary = cortisol_tick(cycle, stress_summary)
     innervation_summary = innervation_tick(cycle)
+    fourd_health_summary = fourd_health_tick(cycle)
     ignition_summary = ignition_tick(cycle)
     calibration_summary = calibration_tick(cycle)
     consolidate_summary = consolidate_tick(cycle)
@@ -623,6 +639,7 @@ def run_cycle(cycle: int) -> dict:
         **({"stress": stress_summary} if stress_summary else {}),
         **({"cortisol": cortisol_summary} if cortisol_summary else {}),
         **({"innervation": innervation_summary} if innervation_summary else {}),
+        **({"fourd_health": fourd_health_summary} if fourd_health_summary else {}),
         **({"ignition": ignition_summary} if ignition_summary else {}),
         **({"calibration": calibration_summary} if calibration_summary else {}),
         **({"consolidate": consolidate_summary} if consolidate_summary else {}),
