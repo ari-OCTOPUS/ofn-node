@@ -148,13 +148,21 @@ def t_collaborator_intro_without_model():
 
 
 def t_collaborator_model_adapter_mock():
-    """با فلگ مدل + mock ask: متن مدل و model_source واقعی."""
+    """intro عمداً از _LLM_KINDS خارج است (2026-08-12) — حتی با فلگِ مدل، stub می‌ماند.
+
+    دلیلِ تصمیمِ ثبت‌شده در collaborator.py:68: فرستادنِ «سلام» به DeepSeek باعثِ
+    client_timeout 60s می‌شد؛ _live_intro_witness شاهدِ زندهٔ فوری (beat/pain/brains)
+    دارد. این تست خودِ تصمیم را قفل می‌کند: مدل برای intro صدا زده نمی‌شود.
+    """
     import collaborator as col
     import tempfile
     from pathlib import Path
 
-    def _fake_ask(task, prompt, system, max_tokens):
-        return {"ok": True, "text": "من اختاپوس‌ام؛ همکار امن مالک.", "tier": "local",
+    called = []
+
+    def _fake_ask(*a, **k):
+        called.append(1)
+        return {"ok": True, "text": "SHOULD-NOT-APPEAR", "tier": "local",
                 "model": "mock-llm", "cost_usd": 0.0}
 
     with tempfile.TemporaryDirectory() as td:
@@ -170,14 +178,17 @@ def t_collaborator_model_adapter_mock():
             os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
             os.environ.pop("OCTOPUS_COLLAB_MODEL_COUNTER", None)
     assert r["kind"] == "intro", r
-    assert "اختاپوس" in r["text"]
-    assert "local" in str(r.get("model_source") or "")
-    assert "NOT_CONNECTED" not in str(r.get("model_source") or "")
-    assert "stub" not in str(r.get("model_source") or "")
+    assert r.get("model_source") == "deterministic-stub", r
+    assert called == [], "model must NOT be called for intro (intentional 2026-08-12 exclusion)"
+    assert "SHOULD-NOT-APPEAR" not in str(r.get("text") or "")
 
 
 def t_collaborator_model_fallback_on_failure():
-    """شکست مدل → stub با warning صادقانه."""
+    """شکستِ مدل برای kindِ مجاز (chat) → stub با warning صادقانه.
+
+    intro عمداً از _LLM_KINDS خارج است (2026-08-12) پس fallback برایش رخ نمی‌دهد.
+    مسیرِ fallback را با kindِ مجاز (chat) مستقیماً از _model_enhance می‌سنجیم.
+    """
     import collaborator as col
     import tempfile
     from pathlib import Path
@@ -191,15 +202,14 @@ def t_collaborator_model_fallback_on_failure():
         os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
         os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "1"
         try:
-            r = col.handle("سلام خودتو معرفی کن")
+            r = col._model_enhance({"kind": "chat", "text": "x", "data": {}}, "owner-text")
         finally:
             col._model.set_ask_impl(None)
             os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
             os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
             os.environ.pop("OCTOPUS_COLLAB_MODEL_COUNTER", None)
-    assert r.get("model_source") == "model-fallback-stub"
-    assert "timeout" in str((r.get("data") or {}).get("warning") or "")
-    assert r["kind"] == "intro"
+    assert r.get("model_source") == "model-fallback-stub", r
+    assert "timeout" in str((r.get("data") or {}).get("warning") or ""), r
 
 
 def t_collaborator_structured_stays_stub_even_with_model_flag():
@@ -384,8 +394,8 @@ CHECKS = [
     ("collaborator-contract-compliance", t_collaborator_contract_compliance),
     ("collaborator-deterministic-stub", t_collaborator_deterministic_stub),
     ("collaborator-intro-without-model", t_collaborator_intro_without_model),
-    ("collaborator-model-adapter-mock", t_collaborator_model_adapter_mock),
-    ("collaborator-model-fallback", t_collaborator_model_fallback_on_failure),
+    ("collaborator-intro-excluded-from-model", t_collaborator_model_adapter_mock),
+    ("collaborator-chat-model-fallback", t_collaborator_model_fallback_on_failure),
     ("collaborator-structured-stays-stub", t_collaborator_structured_stays_stub_even_with_model_flag),
     ("digest-builds-from-snapshot", t_digest_builds_from_snapshot),
     ("digest-critical-on-halted", t_digest_critical_on_halted),
