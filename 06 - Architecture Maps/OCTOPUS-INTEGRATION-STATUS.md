@@ -4,10 +4,11 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, integration, telegram, miniapp, obsidian, fugu, governor]
 created: 2026-08-02
-updated: 2026-08-02
+updated: 2026-08-11
 created_by: agent
 sources:
   - "[[06 - Architecture Maps/OCTOPUS-CURRENT-TRUTH]]"
+  - "[[07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS]]"
   - "[[_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02]]"
 ---
 
@@ -19,6 +20,19 @@ sources:
 > **WIRED** = مسیرِ صداکننده تا انتها دنبال شد · **PARTIAL** = بخشی وصل، بخشی نه ·
 > **ORPHAN** = کد هست، صداکننده نیست · **UNKNOWN** = نسنجیدم.
 > «فلگ روشن» به‌تنهایی WIRED نیست. «تست سبز» هم نیست.
+
+## Owner notes — 2026-08-11 (Hearts / Brains / Memory)
+
+جزئیات کامل: [[07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS]].
+
+| قطعه | وضعیت | شاهد |
+|---|---|---|
+| سه‌قلب + `pulse_arbiter` | **WIRED** | `arbiter-latest.json` wire_open · period≈75s · GREEN |
+| hybrid heart production wire | **PARTIAL** (عمداً بسته) | Gate-0 Δ_self=0 + SIM hash drift |
+| cortex + business_brain | **WIRED** | innervation 100% · upgrades-digest |
+| `research_ingest` / `self_loop_ingest` | **PARTIAL→WIRED پس از reload** | کد+تست+backfill؛ heartbeat قدیمی تا reload |
+| `4d_system` / Super-Governor | **ORPHAN / SPEC** | `4d_system/DEPRECATED.md` |
+| ADR-034 neural APPLY | **WIRED containment** | APPLY=0 · proposal only |
 
 ## Track A — ops runtime
 
@@ -46,8 +60,8 @@ sources:
 | نگاشتِ کار→رده | همان، `TASK_TIERS` | **WIRED** | ۱۷ کلید؛ ناشناخته → `local` |
 | ردهٔ واقعی | همان، `_TIER_ROLE` | **PARTIAL** | فقط `secondary→glm` و `primary→orchestr`. نقشِ `premium` (fugu-ultra) از `ask()` **دست‌نیافتنی** است. رده‌ای به نامِ `cyber` یا `ultra` وجود ندارد. |
 | آداپتورِ حاکمیت | `_ops/budget/governor.py` | **ORPHAN (ولی حالا تست‌دار)** | صفر صداکنندهٔ **تولیدی**؛ تنها importکننده خودِ تستش است. `test_governor_routing.py` ۱۷/۱۷ سبز. هر دو فایل **untracked**، و تست در `run_all.py` **ثبت‌نشده** |
-| ماژول‌های cortex | `_ops/cortex/*.py` | **UNKNOWN** | ۳۸ فایل؛ این جلسه فقط `model_router`, `wlos_bridge`, `fugu_quota` (نام) را باز کرد |
-| ماژول‌های heart | `_ops/heart/*.py` | **UNKNOWN** | ۱۷ فایل؛ فقط `fuel_meter` غیرمستقیم از `model_router` دیده شد |
+| ماژول‌های cortex | `_ops/cortex/*.py` | **WIRED (2026-08-11)** | improve/business_brain/self_model/synthesis/web_research زنده؛ innervation 100% — جزئیات: [[07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS]] |
+| ماژول‌های heart | `_ops/heart/*.py` | **WIRED (arbiter)** / hybrid **PARTIAL** | سه‌قلب→pulse_arbiter period را می‌راند؛ production_wire hybrid بسته |
 
 **خطرِ ردهٔ ۱:** `_ops/budget/governor.py` (۱۹KB، کامل، با contract و تصمیم و ثبت) در git
 نیست. یک `git clean` یا یک worktree switch آن را می‌بَرد. → `OCTOPUS-RISK-REGISTER` R-1.

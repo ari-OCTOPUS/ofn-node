@@ -1,7 +1,7 @@
 schema_version: 1
 registry_id: octopus-signals-v1
 owner: octopus-core
-updated_at: "2026-08-11T11:15:00Z"
+updated_at: "2026-08-12T08:00:00Z"
 
 signals:
   - id: spectral-criticality-v2
@@ -9,9 +9,10 @@ signals:
     truth_status: SHADOW
     evidence_level: SHADOW
     equation:
-      notation: "C_t = clip01(w_r*rho_n + w_v*var_n + w_s*sigma_n); UNKNOWN != 0"
+      notation: "C_t = clip01(w_r*rho_n + w_v*var_n + w_s*sigma_legacy_n); connectivity_ratio_v2 is shadow-only; UNKNOWN != 0"
       implementation_path: "_ops/doctor/criticality_v2.py"
-      version: "criticality_v2.v1"
+      version: "criticality_v2.v2"
+      definition_ref: "SPECTRAL-DEF-2026-08-12"
     authority:
       allowed_effect: trace_only
       may_gate: false
@@ -35,9 +36,10 @@ signals:
     truth_status: SHADOW
     evidence_level: SHADOW
     equation:
-      notation: "rho(A), lambda_2(L), lambda_max(L); sigma_legacy only if connected"
+      notation: "rho(A), lambda_2(L), lambda_max(L); sigma_legacy and connectivity_ratio_v2 only if connected"
       implementation_path: "_ops/doctor/spectral_metrics.py"
-      version: "spectral_metrics.v1"
+      version: "spectral_metrics.v2"
+      definition_ref: "SPECTRAL-DEF-2026-08-12"
     authority:
       allowed_effect: trace_only
       may_gate: false
@@ -175,37 +177,12 @@ signals:
 
   - id: chrono-rhythm-cr-b0
     role: diagnostic
-    truth_status: SPEC_NOT_BUILT
-    evidence_level: SPEC_NOT_BUILT
-    equation:
-      notation: "CR-B0 chronorhythm (design only)"
-      implementation_path: null
-      version: "spec"
-    authority:
-      allowed_effect: none
-      may_gate: false
-      may_mutate_ledger: false
-      may_trigger_tool: false
-    safeguards:
-      invalid_value: SPEC_NOT_BUILT
-    evidence:
-      tests: []
-      traces: []
-      shadow_window_days: 0
-      last_verified_at: null
-
-  # ADR-034 post-demotion: diagnostic/proposal signal only — not a control effector.
-  # Executable protective_halt lives in architecture/capabilities-registry.yaml.
-  # 2026-08-12: reverted ADR-035 rearm attempt (owner did not accept ADR-035;
-  # APPLY remains 0; may_gate=false; production_apply_enabled=false per ADR-034).
-  - id: neural-learned-apply
-    role: regulator
     truth_status: TESTED
     evidence_level: SHADOW
     equation:
-      notation: "PainAssessment proposal-only (ADR-034): APPLY=0 → protective_proposal/SHADOW; halt only via PolicyGate-owned control path"
-      implementation_path: "_ops/neural/pain_assessment.py"
-      version: "pain_assessment.v1"
+      notation: "T_beat = T0·exp(+κ·readiness − λ·stress)·(1+ε·ξ_1/f); HRV=std(ΔT); γ=1+a·novelty−b·stress; mode=Φ(HRV,σ,stress)"
+      implementation_path: "_ops/chrono_rhythm/rhythm.py"
+      version: "chrono_rhythm.cr-b0.v1"
     authority:
       allowed_effect: trace_only
       may_gate: false
@@ -213,16 +190,53 @@ signals:
       may_trigger_tool: false
     safeguards:
       invalid_value: UNKNOWN
-      feature_flag: OCTOPUS_NEURAL_LEARNED_APPLY
-      rollback_flag: OCTOPUS_NEURAL_LEARNED_APPLY
-      production_apply_enabled: false
+      feature_flag: OCTOPUS_WIRE_CHRONO_RHYTHM
+      rollback_flag: OCTOPUS_WIRE_CHRONO_RHYTHM
     evidence:
       tests:
+        - test_rhythm.py
+      traces:
+        - _ops/state/pulse/arbiter-shadow.jsonl
+      shadow_window_days: 7
+      last_verified_at: "2026-08-12T00:00:00Z"
+
+  # ADR-035 (ACCEPTED, owner «هردو»): production apply — beat-local protective_skip.
+  # money/email/CRM/external = همیشه رأی انسانی جدا؛ may_mutate_ledger/tool = false.
+  # 2026-08-12: APPLY=1 زنده (flags.cmd + owner-verdicts.yaml fallback + ADR-035-LIVE-VERIFY).
+  - id: neural-learned-apply
+    role: regulator
+    truth_status: TESTED
+    evidence_level: ARMED
+    equation:
+      notation: "PainAssessment dual-mode: APPLY=1 → protective_skip/throttle executable (beat-local); APPLY=0 → protective_proposal/SHADOW only"
+      implementation_path: "_ops/wiring.py"
+      version: "pain_assessment.adr035.v1"
+    authority:
+      allowed_effect: gate_internal
+      may_gate: true
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    safeguards:
+      invalid_value: UNKNOWN
+      feature_flag: OCTOPUS_NEURAL_LEARNED_APPLY
+      rollback_flag: OCTOPUS_NEURAL_LEARNED_APPLY
+      production_apply_enabled: true
+      forbidden_effects:
+        - payment
+        - external_send
+        - email
+        - crm
+        - lead_outbound
+    evidence:
+      tests:
+        - test_adr035_neural_rearm.py
         - test_adr034_neural_demote.py
         - test_nociceptor_chaos_shadow.py
         - test_pain_calibration.py
       traces:
         - _ops/state/neural/pain-assessment.jsonl
         - _ops/state/neural/effect-shadow.jsonl
+        - _ops/state/adr-033/reports/ADR-035-LIVE-VERIFY.json
       shadow_window_days: 7
-      last_verified_at: "2026-08-11T10:50:00Z"
+      last_verified_at: "2026-08-12T07:30:00Z"
+

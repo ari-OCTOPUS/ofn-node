@@ -7,8 +7,8 @@ created: 2026-08-11
 updated: 2026-08-11
 created_by: agent
 sources:
-  - "[[00 - Inbox/2026-08-11 SESSION — Integration Collaborator Closeout]]"
-  - "[[_ops/AGI-INTERACTION-MANIFESTO-2026-08-04]]"
+  - "[[00 - Inbox/2026-08-11 SESSION — Test Intelligence Pack Delivered]]"
+  - "[[_ops/INTERACTION-CONTRACT]]"
   - "[[03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator]]"
 ---
 

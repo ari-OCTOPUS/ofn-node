@@ -1,0 +1,56 @@
+=== PREFLIGHT ===
+  markers      : none (clean)
+  flags file   : 69726 bytes, 1385 CRLF lines - OK
+  cortex       : pid=22976   started 21:09:40
+  center       : pid=21968   started 21:10:05
+  gateway      : pid=14904   started 21:10:15
+  live         : pid=21528   started 21:10:17
+  organism     : pid=15916   started 21:10:38
+  beat         : 31748
+
+=== RESTART cortex ===
+BEFORE : pid=22976 started 21:09:40
+STOP marker created (STOP-CORTEX) - waiting up to 300s...
+Old process gone. Launching...
+AFTER  : pid=5680 started 22:54:58
+OK: restarted with fresh code.
+
+=== RESTART center ===
+BEFORE : pid=21968 started 21:10:05
+STOP marker created (STOP-TG-CENTER) - waiting up to 300s...
+Old process gone. Launching...
+AFTER  : pid=14272 started 22:55:35
+LOOPS  : 1 supervisor loop(s)
+OK: restarted with fresh code.
+
+=== RESTART gateway ===
+BEFORE : pid=14904 started 21:10:15
+Launching...
+AFTER  : pid=13292 started 22:55:44
+OK: gateway restarted with fresh code.
+
+=== RESTART live ===
+BEFORE : pid=21528 started 21:10:17
+No stop marker for this process - stopping it directly.
+Old process gone. Launching...
+AFTER  : pid=16448 started 22:55:49
+OK: restarted with fresh code.
+
+=== RESTART organism ===
+BEFORE : pid=15916 started 21:10:38
+STOP-ORGANISM + RESTART-REQUESTED written - waiting up to 300s...
+Launching...
+AFTER  : pid=9476 started 22:56:55
+OK: organism running with fresh code.
+
+=== ACCEPTANCE GATE ===
+  OK   cortex    pid 22976 -> 5680
+  OK   center    pid 21968 -> 14272
+  OK   gateway   pid 14904 -> 13292
+  OK   live      pid 21528 -> 16448
+  OK   organism  pid 15916 -> 9476
+  OK   no markers left behind
+  OK   flags loaded equally: center=316 cortex=316 live=316 organism=316
+  FAIL organism has not written a fresh state file (waited 120s)
+
+RESULT: FAILED - organism : no fresh state

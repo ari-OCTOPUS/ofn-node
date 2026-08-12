@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [architecture, diagrams]
-updated: 2026-07-31
+updated: 2026-08-12
 ---
 
 # ایندکس Architecture Maps
@@ -16,6 +16,7 @@ updated: 2026-07-31
 
 ## نوت‌های این بخش
 
+- [[06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT|OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT]] — قرارداد canonical تعامل مالک↔همکار (Talk Discovery؛ MiniApp+DM؛ default OFF)
 - [[06 - Architecture Maps/OCTOPUS-VS-FRONTIER-AGENT-ARCHITECTURES-2026-07-31|OCTOPUS-VS-FRONTIER 2026-07-31]] — مقایسهٔ فقط‌خواندنیِ اختاپوس با معماری‌های عامل‌محور پیشرو؛ حکم: قابلیت زیاد، اتصال کم؛ ۵ اهرم P0/P1
 - [[06 - Architecture Maps/ECOSYSTEM|ECOSYSTEM]] — نقشه کل اکوسیستم (از Inbox منتقل شد)
 - [[06 - Architecture Maps/Property Schema|Property Schema]] — زبان داده vault (تک‌منبع حقیقت فرانت‌متر)
@@ -52,5 +53,12 @@ updated: 2026-07-31
 ## نوت‌های مرتبط
 
 - [[06 - Architecture Maps/CELLULAR-MODEL-ROSETTA|Cellular Model Rosetta]] — نگاشتِ استعارهٔ سلولی به ارگانیسمِ موجود (توصیفی، نه دستورِ ساخت)
+- [[07 - Knowledge/Architecture/OCTOPUS-METAPHOR-DECODE-ENGINEERING-REALITY|Octopus Metaphor Decode]] — دکوپدِ استعاره→مهندسی؛ CANONICAL explanatory-only (ADR-033/034)؛ SoT = registry نه این نوت
+- [[07 - Knowledge/Architecture/OCTOPUS-MEMORY-TRUTH-MAP|Octopus Memory Truth Map]] — نقشهٔ LIVE/SHADOW حافظه+تحقیق+خودآگاهی/خودترمیمی؛ research_ingest + self_loop_ingest؛ حافظه≠اختیار
+- [[07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS|Hearts · Dual Brains · 4D Status]] — سه‌قلب/arbiter LIVE؛ cortex+business زنده؛ 4d unwired؛ پل حافظهٔ امروز
+- [[07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck Live]] — P0 fear freeze **RESOLVED**؛ ADR-035 APPLY=1 LIVE؛ Watch/Smart 07:44 trails↑
+- [[00 - Inbox/2026-08-12 SESSION — Watch Smart Obsidian|Watch Smart session 2026-08-12]] — مراقبت + حلقه‌های یادگیری + Obsidian refresh
 - [[06 - Architecture Maps/SPEC-OCTOPUS-2027-v0|SPEC-OCTOPUS-2027-v0]] — قراردادِ ۲۰۲۷ + نردبانِ خودمختاری
+- [[_ops/DISCOVERY-PROTOCOL|DISCOVERY-PROTOCOL]] — حلقهٔ کشف مشترک مالک↔اختاپوس (Talk Discovery)
+- [[_ops/CAPABILITY-JOURNAL|CAPABILITY-JOURNAL]] — دفترچهٔ candidateهای قابلیت (propose-only)
 - [[01 - Dashboard/Home|Home]]

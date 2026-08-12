@@ -1,0 +1,4 @@
+BEFORE : pid=764 started 23:20:00
+Launching...
+AFTER  : pid=19104 started 23:22:19
+OK: gateway restarted with fresh code.

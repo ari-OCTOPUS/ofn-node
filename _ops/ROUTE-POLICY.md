@@ -1,3 +1,12 @@
+---
+type: ops-policy
+status: active
+created: 2026-08-11
+updated: 2026-08-11
+tags: [octopus, routing, model, budget]
+aliases: [Route Policy, مسیریابی مدل]
+---
+
 # ROUTE-POLICY — مسیریابی مدل و سقف هزینه
 
 > تاریخ: ۲۰۲۶-۰۸-۱۱ · مرجع: `_ops/cortex/model_router.py:116-128`
@@ -6,7 +15,7 @@
 
 | لایه | مدل | نقش | هزینه | چه کارهایی |
 |---|---|---|---|---|
-| **local** | ollama qwen2.5:1.5b | `econ` | $0 | classify, daily, think, triage, summarize, tg_intent, chord.extract, heart_setpoint |
+| **local** | ollama qwen2.5:1.5b | `econ` | $0 | classify, daily, think, triage, summarize, tg_intent, chord.extract, heart_setpoint, **collab_chat** |
 | **secondary** | deepseek-v4-flash (reason) | `reason` | subscription/metered | research, synthesize, draft, debate_muse |
 | **primary** | Fugu (orchestr) | `orchestr` | subscription/metered | orchestrate, deep, plan, governor, debate_architect |
 
@@ -42,6 +51,7 @@ ask(task, prompt)
 | ask budget | 90s wall | `PAID_ASK_BUDGET_S` env |
 | HTTP timeout | derived from max_tokens | `client._http_timeout()` |
 | monthly spend | AU$30 (or US$200 window until 2026-08-13) | `budget_gate.spend_cap_now()` |
+| collab soft call cap | 30/day default (suggest 20 on first arm) | `OCTOPUS_COLLAB_MODEL_DAILY_CAP` + `collab_model_adapter` counter |
 
 ## فلگ‌های مسیریابی
 

@@ -1,0 +1,65 @@
+schema_version: 1
+registry_id: octopus-capabilities-v1
+owner: octopus-core
+updated_at: "2026-08-11T11:15:00Z"
+notes: |
+  Control / side-effect inventory. NOT signals.
+  request_protective_halt must never appear in signals-registry.yaml.
+
+capabilities:
+  - id: protective-halt-control
+    kind: control_action
+    not_a_signal: true
+    truth_status: TESTED
+    evidence_level: SHADOW
+    entrypoint: "_ops/wiring.py::request_protective_halt"
+    policy:
+      policy_gate: PROTECTIVE_CONTROL_POLICY
+      policy_version: ADR-033-v1
+      action_name: protective_halt
+    requires:
+      owner_approval: true
+      approval_id: true
+      idempotency_key: true
+      provenance_id: true
+      kill_switch_check: true
+      store_ok: true
+      redis_or_state_availability: true
+    effects:
+      may_set_protective_skip: true
+      may_pause_nonessential: true
+      may_mutate_ledger: false
+      may_trigger_external_send: false
+    rollback:
+      default: deny
+      containment_flags:
+        - OCTOPUS_NEURAL_LEARNED_APPLY=0
+      notes: "Halt is explicit PolicyGate action; neural path cannot invoke it."
+    evidence:
+      adr: ADR-034
+      tests:
+        - test_adr034_neural_demote.py
+      artifacts:
+        - _ops/state/adr-033/reports/ADR-034-A-B-EVIDENCE.md
+    authority:
+      may_gate: true
+      allowed_effect: control_plane_halt
+      production_enabled: false
+      owner_approval_required: true
+
+  - id: neural-learned-apply-capability
+    kind: regulator_capability
+    not_a_signal: false
+    mirrors_signal_id: neural-learned-apply
+    truth_status: TESTED
+    evidence_level: ARMED
+    record: "_ops/capabilities/neural-learned-apply.json"
+    production_apply_enabled: true
+    authority:
+      allowed_effect: gate_internal
+      may_gate: true
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    evidence:
+      adr: ADR-035
+      supersedes_partial: ADR-034

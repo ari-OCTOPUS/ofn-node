@@ -1,5 +1,5 @@
 {
-  "n": 90,
+  "n": 98,
   "arch": [
     {
       "sig": "خودشناسیِ منفی",
@@ -31,14 +31,15 @@
       "days": [],
       "born": 1785308418.9390233,
       "last_confirmed": 0.0,
-      "counter": 48,
+      "counter": 53,
       "valence": -1.0
     },
     {
       "sig": "wire",
-      "support": 12,
-      "exo_support": 12,
+      "support": 13,
+      "exo_support": 13,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -53,6 +54,7 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -73,9 +75,10 @@
     },
     {
       "sig": "ابزارِ فقط‌خواندنیِ خلاصهٔ وضع دکتر افزوده شود.",
-      "support": 10,
-      "exo_support": 10,
+      "support": 11,
+      "exo_support": 11,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -97,12 +100,24 @@
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
+        "2026-07-29",
         "2026-07-29"
       ],
       "born": 1785313248.597469,
       "last_confirmed": 1785313248.597469,
       "counter": 0,
       "valence": 1.0
+    },
+    {
+      "sig": "سبزی که هرگز قرمز نمی‌شود",
+      "support": 0,
+      "exo_support": 0,
+      "actors": [],
+      "days": [],
+      "born": 1786482004.3064017,
+      "last_confirmed": 0.0,
+      "counter": 1,
+      "valence": -1.0
     }
   ]
 }

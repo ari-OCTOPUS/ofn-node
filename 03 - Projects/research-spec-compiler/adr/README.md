@@ -28,7 +28,11 @@ adversarially reviewed; confirmed findings were applied before closing.
 | [ADR-020](ADR-020-comparison-metacog-v2.md) | H-OWN-02 v2 — mechanism-isolated skill-gap gate (ADR-010 follow-up) | `comparison_metacog_v2` | **OPTIMIZE** (delta_gain 0.005 — mechanism real but tiny) |
 | [ADR-021](ADR-021-adaptive-forgetting-v2.md) | EXP-004 v2 — adaptive vs FIFO, the honest hard gate (ADR-015 follow-up) | `adaptive_forgetting_v2` | **REJECTED** (0.023 < SESOI 0.03 — any forgetting captures most value) |
 | [ADR-022](ADR-022-d10-abc-architecture-comparison.md) | D10-ABC — single-model vs orchestrator vs multi-agent (architecture comparison, DISTINCT from Mining D-10) | `d10_abc_architecture_comparison` | **PENDING** — preregistration frozen; fake harness validates plumbing; confirmatory run needs owner verdict |
-| [ADR-023](ADR-023-octopus-collaborator.md) | Octopus Collaborator — trust boundary, memory policy, no-effect invariant (shadow/propose-only harness) | — | **OPEN** — shadow build complete (17 tests); activation requires owner verdict |
+| [ADR-023](ADR-023-octopus-collaborator.md) | Octopus Collaborator — trust boundary, memory policy, no-effect invariant (shadow/propose-only harness) | — | **Live ARMED** (draft-only) — see Capability Truth in ADR |
+| [ADR-033](ADR-033-evidence-control-plane.md) | Evidence-Control Plane — PolicyGate, event log, checkpoint/replay, capability registry, 7-day promotion | — | **TESTED** — `test_adr033_control_plane.py`; CR-B0 built/TESTED (see Math Atlas 2026-08-12) |
+| [ADR-034](ADR-034-neural-learned-apply-containment.md) | NEURAL_LEARNED_APPLY containment (historical) — superseded in part by ADR-035 | — | **ACCEPTED** (partially superseded) |
+| [ADR-035](ADR-035-neural-learned-apply-rearm.md) | Re-arm APPLY=1 + executable protective_skip (owner «هردو») | ADR-034 apply path | **ACCEPTED** |
+| [ADR-036](ADR-036-math-control-spine.md) | Math Control Spine — soft ceiling, shadow non-blocking, LIVE equation → rank/AUTO_KNOBS | atlas + improve | **ACCEPTED** (owner soft-ceiling 2026-08-12) |
 
 ## Cross-cutting discipline (holds across every ADR)
 

@@ -3460,3 +3460,1036 @@
 ## 2026-08-03T19:33:44 (metabolism)
 - ⚠️ INV-12 PII guard FAIL-CLOSED (blindspot #131): ImportError: cannot import name '_contains_pii' from '<unknown module name>' (unknown location) — متنِ خام نشت نشد
 
+## 2026-08-08T14:32:33 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-08T14:48:28 (metabolism)
+- ⚠️ self-heal circuit-breaker: 3 restarts in 300s — throttled (lead-naghshi)
+
+## 2026-08-08T15:12:36 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-08T15:53:13 (metabolism)
+- ⚠️ فروپاشیِ پیکربندی سرِ boot: از 237 فلگی که F:\backup\_ops\OCTOPUS-flags.cmd تعریف کرده، 236 تا به env نرسید (100%). نمونه: FUGU_DAILY_CALL_CAP, FUGU_FAIL_CEILING, OCTOPUS_ARM_SENSITIVE_DEFAULT, OCTOPUS_AUTONOMY_FREE, OCTOPUS_AUTONOMY_GRANT, OCTOPUS_BRAIN_CALL_SHARE, OCTOPUS_C6_REDELIVER, OCTOPUS_C6_UNKNOWN_ROOTCAUSE, OCTOPUS_CHAT_ROOM_BRAIN, OCTOPUS_CHRONO_PHI_HONEST, OCTOPUS_COCKPIT_BRAIN, OCTOPUS_CODE_BRAIN. محتمل‌ترین علت: پایان‌خطِ فایل به LF تبدیل شده و cmd.exe یک‌درمیان می‌خواند — با CRLF بازش گردان و پروسه را دوباره بالا بیاور.
+
+## 2026-08-08T15:57:32 (metabolism)
+- ⚠️ فروپاشیِ پیکربندی سرِ boot: از 237 فلگی که F:\backup\_ops\OCTOPUS-flags.cmd تعریف کرده، 236 تا به env نرسید (100%). نمونه: FUGU_DAILY_CALL_CAP, FUGU_FAIL_CEILING, OCTOPUS_ARM_SENSITIVE_DEFAULT, OCTOPUS_AUTONOMY_FREE, OCTOPUS_AUTONOMY_GRANT, OCTOPUS_BRAIN_CALL_SHARE, OCTOPUS_C6_REDELIVER, OCTOPUS_C6_UNKNOWN_ROOTCAUSE, OCTOPUS_CHAT_ROOM_BRAIN, OCTOPUS_CHRONO_PHI_HONEST, OCTOPUS_COCKPIT_BRAIN, OCTOPUS_CODE_BRAIN. محتمل‌ترین علت: پایان‌خطِ فایل به LF تبدیل شده و cmd.exe یک‌درمیان می‌خواند — با CRLF بازش گردان و پروسه را دوباره بالا بیاور.
+
+## 2026-08-08T16:56:47 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-08T18:10:11 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-08T18:10:16 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-08T18:10:17 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-08T18:12:04 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-08T18:12:09 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-08T18:14:24 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,reconcile
+
+## 2026-08-08T19:01:42 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-08T19:15:44 (metabolism)
+- ⚠️ cortex obs: 4 stale > 2: heart,producers,work_pump,reconcile
+
+## 2026-08-08T20:16:39 (metabolism)
+- ⚠️ cortex obs: 4 stale > 2: heart,producers,work_pump,reconcile
+
+## 2026-08-08T20:46:24 (metabolism)
+- ⚠️ pulse-arbiter sink write failed: [WinError 5] Access is denied: 'F:\\backup\\_ops\\state\\pulse\\arbiter-latest.json.tmp' -> 'F:\\backup\\_ops\\state\\pulse\\arbiter-latest.json'
+
+## 2026-08-08T21:17:46 (metabolism)
+- ⚠️ cortex obs: 4 stale > 2: heart,producers,work_pump,reconcile
+
+## 2026-08-08T22:03:01 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-08T23:24:55 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=3) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-08T23:24:56 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-08T23:38:13 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=4) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-08T23:41:31 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+
+## 2026-08-08T23:42:42 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-08T23:42:43 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-08T23:42:43 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+
+## 2026-08-08T23:42:45 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-08T23:43:56 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+
+## 2026-08-08T23:49:21 (metabolism)
+- ⚠️ memory-poisoning-risk: نوتِ agent-made بدونِ منبعِ مستقل (agent=pump/test, event=task.completed)
+
+## 2026-08-08T23:52:16 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T00:15:55 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=5) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T00:32:50 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:34:01 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:35:12 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:36:23 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:37:35 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:38:46 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:39:58 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:41:09 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:42:20 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:43:31 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:44:42 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+
+## 2026-08-09T00:46:00 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=6) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T00:47:25 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=7) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T00:47:34 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-09T00:52:49 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-09T00:53:01 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=8) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T01:47:34 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=9) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T02:48:05 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=10) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T02:48:06 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T08:42:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-09T08:43:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-09T08:43:17 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-09T08:44:08 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-09T08:44:32 (metabolism)
+- ⚠️ cortex obs: coherence=0.273 < 0.5
+- ⚠️ cortex obs: 6 stale > 2: organism,heart,producers,work_pump,governor,reconcile
+
+## 2026-08-09T08:52:33 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=11) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T08:52:34 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T08:54:21 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=12) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T08:54:22 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T08:54:35 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-09T09:01:19 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+
+## 2026-08-09T09:03:25 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-09T09:04:50 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=13) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:04:51 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:05:39 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T09:07:46 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T09:09:52 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T09:22:36 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-09T09:26:16 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T09:39:29 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=14) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:41:03 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=15) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:42:32 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=16) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:43:58 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=17) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:45:23 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=18) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:46:53 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=19) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:47:52 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): TimeoutError: The read operation timed out
+
+## 2026-08-09T09:47:52 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-09T09:47:59 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=20) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:47:59 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T09:49:19 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=21) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T09:51:18 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-09T09:53:23 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T09:55:29 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T09:57:34 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T10:05:53 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,reconcile
+
+## 2026-08-09T10:12:09 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T11:07:50 (metabolism)
+- ⚠️ cortex obs: 4 stale > 2: heart,producers,work_pump,reconcile
+
+## 2026-08-09T11:10:46 (metabolism)
+- ⚠️ tg_api editMessageText failed: HTTPError (Bad Gateway)
+
+## 2026-08-09T11:49:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T11:51:28 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+
+## 2026-08-09T11:53:33 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+
+## 2026-08-09T11:55:38 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-09T11:57:43 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-09T11:59:56 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-09T12:02:02 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+
+## 2026-08-09T12:04:07 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+
+## 2026-08-09T12:06:12 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-09T12:08:18 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-09T12:08:39 (metabolism)
+- ⚠️ cortex obs: 4 stale > 2: heart,producers,work_pump,reconcile
+
+## 2026-08-09T12:10:23 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:errors_high] — non-essential paused
+
+## 2026-08-09T12:12:35 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=22) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T12:14:07 (metabolism)
+- ⚠️ circuit OPEN for orchestr (fail_count=23) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-09T12:14:12 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-09T12:14:17 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-09T12:18:36 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-09T12:34:01 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T14:18:44 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-09T14:59:08 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+
+## 2026-08-09T15:01:14 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+
+## 2026-08-09T15:03:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+
+## 2026-08-09T15:05:28 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+
+## 2026-08-09T15:07:35 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:09:41 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:11:48 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:13:54 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:16:01 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:18:08 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:20:15 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+
+## 2026-08-09T15:22:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+
+## 2026-08-09T17:03:30 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-09T17:05:36 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T17:07:43 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T17:09:49 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T17:11:55 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T17:18:17 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-09T17:33:07 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T18:08:44 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:10:49 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:12:54 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:14:59 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:17:06 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:19:11 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:21:16 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:23:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:25:26 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:25:32 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,reconcile
+
+## 2026-08-09T18:27:31 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:50:10 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-09T18:52:19 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-09T18:54:25 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-09T19:26:00 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T19:28:09 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T19:30:18 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T19:45:01 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-09T20:48:45 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,work_pump
+
+## 2026-08-09T21:44:34 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-09T21:46:39 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+
+## 2026-08-09T21:48:44 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+
+## 2026-08-09T21:50:10 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,work_pump
+
+## 2026-08-09T21:50:52 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-09T21:52:57 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-09T21:55:02 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+
+## 2026-08-09T21:57:07 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+
+## 2026-08-09T21:59:13 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-09T22:01:19 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-09T22:03:25 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-09T22:05:31 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:errors_high] — non-essential paused
+
+## 2026-08-09T22:09:21 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-09T22:11:51 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-10T00:00:26 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 1, next retry in ~60s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-10T00:00:29 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-10T00:00:35 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-10T00:00:35 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T00:00:59 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-10T00:01:10 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-10T00:01:11 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T00:09:46 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T00:14:50 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T02:10:46 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+
+## 2026-08-10T02:12:54 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+
+## 2026-08-10T02:15:01 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+
+## 2026-08-10T02:17:11 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+
+## 2026-08-10T02:19:19 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+
+## 2026-08-10T02:20:14 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T02:21:27 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+
+## 2026-08-10T11:57:06 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-10T11:58:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-10T11:59:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-10T11:59:23 (metabolism)
+- ⚠️ cortex obs: coherence=0.299 < 0.5
+- ⚠️ cortex obs: 5 stale > 2: organism,heart,producers,work_pump,governor
+
+## 2026-08-10T12:07:34 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T12:10:02 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-10T12:10:16 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T12:10:32 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-10T12:10:49 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T12:15:05 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-10T12:37:22 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T13:00:16 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-10T13:04:23 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-10T13:05:44 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T14:06:29 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-10T14:10:55 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-10T15:08:53 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-10T16:24:28 (metabolism)
+- ⚠️ circuit RECOVERED for orchestr — closed after 2 consecutive successes
+
+## 2026-08-10T16:24:42 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=27 به سقفِ max_tokens=32 خورد و فقط 1 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-10T18:28:49 (metabolism)
+- ⚠️ pulse-arbiter sink write failed: [WinError 5] Access is denied: 'F:\\backup\\_ops\\state\\pulse\\arbiter-latest.json.tmp' -> 'F:\\backup\\_ops\\state\\pulse\\arbiter-latest.json'
+
+## 2026-08-10T20:17:26 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-10T21:44:11 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-10T23:21:56 (metabolism)
+- ⚠️ pulse-arbiter sink write failed: [WinError 5] Access is denied: 'F:\\backup\\_ops\\state\\pulse\\arbiter-latest.json.tmp' -> 'F:\\backup\\_ops\\state\\pulse\\arbiter-latest.json'
+- ⚠️ (+1 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید pulse-arbiter-sink-write)
+
+## 2026-08-11T00:02:41 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-11T02:21:51 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-11T03:24:25 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-11T03:36:49 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (TimeoutError)
+
+## 2026-08-11T08:47:13 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-11T08:48:02 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-11T08:49:02 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-11T08:50:14 (metabolism)
+- ⚠️ cortex obs: coherence=0.313 < 0.5
+- ⚠️ cortex obs: 5 stale > 2: organism,heart,producers,work_pump,governor
+
+## 2026-08-11T09:03:00 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:04:39 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:06:19 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:08:34 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:10:15 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:21:56 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T09:23:37 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:25:18 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:26:58 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:28:39 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:30:20 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:32:01 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:33:42 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:35:22 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:37:06 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:38:46 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:40:26 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+
+## 2026-08-11T09:42:48 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-11T09:56:46 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-11T10:17:56 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-11T10:57:52 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-11T11:17:46 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-11T11:19:44 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-11T11:21:41 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-11T11:23:39 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-11T11:25:36 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-11T11:39:38 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T13:11:35 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,work_pump
+
+## 2026-08-11T13:24:10 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-11T13:34:23 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+
+## 2026-08-11T13:36:23 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+
+## 2026-08-11T13:38:22 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+
+## 2026-08-11T13:40:22 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-11T13:42:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+
+## 2026-08-11T13:44:30 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+
+## 2026-08-11T13:46:31 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+
+## 2026-08-11T13:48:28 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-11T13:50:26 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-11T13:52:23 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+
+## 2026-08-11T13:54:22 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:errors_high] — non-essential paused
+
+## 2026-08-11T13:55:50 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-11T13:56:31 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-11T13:58:59 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (60/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-11T14:03:14 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (TimeoutError)
+
+## 2026-08-11T14:03:14 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-11T14:28:44 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T16:01:07 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-11T16:16:36 (metabolism)
+- ⚠️ tg_api answerCallbackQuery failed: HTTPError (Bad Request: query is too old and response timeout expired or query ID is invali)
+
+## 2026-08-11T18:03:22 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (60/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-11T18:24:43 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-11T18:25:29 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+
+## 2026-08-11T18:28:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-11T18:29:17 (metabolism)
+- ⚠️ heart_wires beat (non-fatal): OSError: [Errno 22] Invalid argument: 'F:\\backup\\_ops\\state\\heart-wires-last.json'
+
+## 2026-08-11T18:30:56 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+
+## 2026-08-11T18:31:50 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T18:32:42 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T18:33:35 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T18:34:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-11T18:46:39 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T19:09:26 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:10:20 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:11:14 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:12:08 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:13:02 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:13:55 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:14:48 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:15:41 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:16:35 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:17:28 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:18:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+
+## 2026-08-11T19:27:49 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-11T19:37:37 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-11T19:59:48 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T21:12:51 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T21:14:04 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.375>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T21:15:15 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.375>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T21:16:26 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.375>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T21:24:33 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.375>0.35 — proposal only (ADR-034) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T21:32:54 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-11T21:55:10 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.373>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T21:56:24 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3705>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T21:57:56 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.368>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T21:59:09 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3655>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:00:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3635>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:01:36 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.361>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:02:51 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.359>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:04:07 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3565>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:05:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3545>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:06:35 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3525>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T22:07:56 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.35050000000000003>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:04:19 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.352>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:05:39 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.365>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:08:18 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.374>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:09:39 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3715>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:10:59 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.369>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:12:18 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3665>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:13:37 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.364>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:14:58 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.362>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:16:58 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3595>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:18:16 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3575>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:19:34 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3555>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:20:54 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.353>0.35 — proposal only (ADR-034)
+
+## 2026-08-11T23:22:13 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.351>0.35 — proposal only (ADR-034)
+
+## 2026-08-12T00:09:41 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.362>0.35 — proposal only (ADR-034)
+
+## 2026-08-12T00:19:23 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.373>0.35 — proposal only (ADR-034)
+
+## 2026-08-12T00:21:15 (metabolism)
+- ⚠️ SHADOW_ALERT neural: pain=0.3705>0.35 — proposal only (ADR-034)
+
+## 2026-08-12T00:27:44 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=220 به سقفِ max_tokens=220 خورد و فقط 5 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-12T00:28:00 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ primary آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-12T04:18:34 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-12T06:54:14 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: KeyError: slice(None, 3, None)
+
+## 2026-08-12T06:54:16 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=1371 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-12T06:56:01 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: KeyError: slice(None, 3, None)
+
+## 2026-08-12T06:58:55 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: KeyError: slice(None, 3, None)
+
+## 2026-08-12T07:50:22 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-12T07:53:00 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 15 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-12T07:53:04 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-12T07:53:25 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-12T07:54:35 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T07:57:43 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T07:57:44 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-12T08:02:07 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T08:04:04 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-12T08:05:13 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-12T08:27:29 (metabolism)
+- ⚠️ code-autonomy: تأییدِ code-2191f6fc43 287 ساعت کهنه است — اعمال نشد؛ کارت را دوباره از مالک بگیر
+
+## 2026-08-12T08:27:44 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-12T09:53:22 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-12T11:40:58 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (62/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T11:41:32 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (62/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T11:46:26 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (63/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T11:58:16 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (64/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T12:01:08 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (64/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T12:01:35 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (64/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-12T12:11:41 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (64/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-12T14:14:04 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (64/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-12T14:14:36 (metabolism)
+- ⚠️ accountant: pullِ PocketSmith ناقص بود (ok=False) — شبکه از فایل‌ها ساخته شد تا تراکنشی ناپدید نشود
+
+## 2026-08-12T14:14:37 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-12T14:15:28 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-12T18:02:13 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (64/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+

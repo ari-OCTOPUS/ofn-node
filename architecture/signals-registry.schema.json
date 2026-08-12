@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.internal/schemas/signals-registry.schema.json",
+  "title": "Octopus Signals Registry",
+  "type": "object",
+  "required": ["schema_version", "registry_id", "signals"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "registry_id": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "signals": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/signal" }
+    }
+  },
+  "$defs": {
+    "evidence_level": {
+      "type": "string",
+      "enum": [
+        "SPEC_NOT_BUILT",
+        "STRUCTURAL",
+        "TESTED",
+        "SHADOW",
+        "ARMED",
+        "LOCKED",
+        "RETIRED"
+      ]
+    },
+    "signal": {
+      "type": "object",
+      "required": [
+        "id",
+        "role",
+        "truth_status",
+        "evidence_level",
+        "equation",
+        "authority",
+        "safeguards",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "role": {
+          "type": "string",
+          "enum": ["estimator", "regulator", "detector", "diagnostic"]
+        },
+        "truth_status": { "$ref": "#/$defs/evidence_level" },
+        "evidence_level": { "$ref": "#/$defs/evidence_level" },
+        "equation": {
+          "type": "object",
+          "required": ["notation", "version"],
+          "additionalProperties": false,
+          "properties": {
+            "notation": { "type": "string" },
+            "implementation_path": { "type": ["string", "null"] },
+            "version": { "type": "string" },
+            "definition_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        "authority": {
+          "type": "object",
+          "required": ["allowed_effect", "may_gate"],
+          "additionalProperties": false,
+          "properties": {
+            "allowed_effect": {
+              "type": "string",
+              "enum": ["none", "trace_only", "bounded_ranking_bias", "gate_internal"]
+            },
+            "may_gate": { "type": "boolean" },
+            "may_mutate_ledger": { "type": "boolean", "const": false },
+            "may_trigger_tool": { "type": "boolean", "const": false }
+          }
+        },
+        "safeguards": {
+          "type": "object",
+          "required": ["invalid_value"],
+          "additionalProperties": false,
+          "properties": {
+            "invalid_value": { "type": "string" },
+            "feature_flag": { "type": "string" },
+            "rollback_flag": { "type": "string" },
+            "production_apply_enabled": { "type": "boolean" },
+            "forbidden_effects": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tests": { "type": "array", "items": { "type": "string" } },
+            "traces": { "type": "array", "items": { "type": "string" } },
+            "shadow_window_days": { "type": "integer", "minimum": 0 },
+            "last_verified_at": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "role": { "enum": ["diagnostic", "detector"] } }
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "properties": { "may_gate": { "const": false } }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "truth_status": { "const": "SPEC_NOT_BUILT" } }
+          },
+          "then": {
+            "properties": {
+              "equation": {
+                "properties": { "implementation_path": { "type": "null" } }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence_level": {
+                "enum": ["TESTED", "SHADOW", "ARMED", "LOCKED"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "equation": {
+                "properties": {
+                  "implementation_path": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "authority": {
+                "properties": {
+                  "allowed_effect": {
+                    "enum": ["trace_only", "bounded_ranking_bias", "gate_internal"]
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence_level": {
+                "enum": ["SHADOW", "ARMED", "LOCKED"]
+              },
+              "safeguards": {
+                "required": ["invalid_value", "rollback_flag"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence_level": { "enum": ["ARMED", "LOCKED"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "required": ["tests", "shadow_window_days"],
+                "properties": {
+                  "tests": { "type": "array", "minItems": 1 },
+                  "shadow_window_days": { "type": "integer", "minimum": 7 }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

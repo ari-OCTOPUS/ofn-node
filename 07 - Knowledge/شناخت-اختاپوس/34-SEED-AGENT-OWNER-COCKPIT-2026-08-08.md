@@ -1,11 +1,11 @@
 ---
-type: cognition-note
+type: knowledge
 status: active
 tags: [seed-agent, owner-cockpit, state-guard, fugu-proxy, otel, audit, hmac]
 created: 2026-08-08
-updated: 2026-08-08
+updated: 2026-08-12
 created_by: agent
-depends_on:
+related:
   - "[[32-INDEPENDENT-VERIFICATION-2026-08-08]]"
   - "[[33-DEEP-SCAN-TRIPLE-FIX-2026-08-08]]"
 ---

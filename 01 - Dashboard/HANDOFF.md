@@ -29,16 +29,68 @@ updated: 2026-08-12
 
 ## وضعِ لحظه‌ای
 
-- ✅🧠 **2026-08-12 Awareness/Memory/Ask B→H پیاده.**
-  Evidence: `_ops/state/adr-033/reports/AWARENESS-MEMORY-ASK-2026-08-12/FINAL.md`
-  · `owner_recall` + `data.facts` + vault_empty + selfmap intent
-  · Suites: awareness 6/6 · memory_ask 6/6 · gateway vault_empty
-  · **مالک: مینی‌اپ ببند/باز → جدول 07-OWNER-VISIBLE-VERIFY**
+> 🎯 **کارِ ایجنت بعدی (پین):** اجرای باقی‌ماندهٔ [[../00 - Inbox/2026-08-12 CHECKLIST — 100 Steps Execution|۱۰۰ قدم]] —
+> بلاکر مالک: suburb لید 667951 · CSV · رأی سقف 08-13.  
+> Evidence: `_ops/state/adr-033/reports/DISCOVERY-WIRE-2026-08-12/06-100-STEPS-EXEC.md`  
+> SoT: `_ops/OCTOPUS-HONESTY.md` · `docs/MONEY-CLAIM-VS-CONFIRM.md`
 
-- 📋🧠 **2026-08-12 MEGAPROMPT خودآگاهی·حافظه·مغزها·پرسش وب.**
-  [[../00 - Inbox/2026-08-12 MEGAPROMPT — Self-Awareness Memory Brains Ask Web|MEGAPROMPT Awareness/Memory/Ask]]
-  · هدف: اثرات زنده در مینی‌اپ تب پرسش (همکار+Ask+Sources+selfmap)
-  · پیش‌نیاز: Math Atlas Reconciliation + Deep-Scan Collab سبز.
+> **2026-08-12 OWNER VOTE #2 — high-risk re-arm + leftover wires ✅**  
+> Evidence: `DISCOVERY-WIRE-2026-08-12/05-HIGH-RISK-REARM.md`  
+> Wired: DW-02/03/05 · MEM-01 · UI-02/05/07/09 · سپس موج ۱۰۰قدم شروع شد.
+
+> **پیش‌زمینه ChatBox (اگر لازم):** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] ·
+> مالک: مینی‌اپ ببند/باز.
+
+- ✅🧠 **2026-08-12 شب — Cognitive Runtime v1 کامل: Events + Run + SSE + Truth + Context + Memory Formation.**
+  · **E1-E3:** `event_stream.py` + `run_store.py` — هر مکالمه `run_id` + typed event chain
+  · **E4:** `GET /api/runs/{id}/events` (SSE) + `GET /api/runs/{id}` در gateway
+  · **E6:** `truth_layer.py` — claim → VERIFIED/REPORTED/UNVERIFIED (BCM + σ هر دو VERIFIED ✅)
+  · **T (Context Engine):** `context_engine.py` — tiktoken budget (۶ بخش) **ادغام واقعی در complete()** + context_tokens/budget در خروجی مدل
+  · **T (Memory Formation):** `memory_formation.py` — candidate pipeline (extract→score→conflict→provenance→propose) + «یادت بماند» → candidate
+  · **T (UI):** app.js SSE client (XHR sync fetch برای event timeline در Sources panel)
+  · **U (Acceptance):** ۱۰/۱۰ گفت‌وگوی end-to-end PASS — همگی درست route شدند + run_id + external_effect=False
+  · intent routing اصلاح: memory/selfmap قبل از intro · ZWNJ-tolerant · limitations intent · shadow/improve routing
+  · reuse `evidence_plane/event_log.py`؛ بدون NATS/Temporal/Qdrant/GraphRAG
+  · suites: cognitive_events 10/10 · gateway 49/49 · regression 8/8 · gateway PID 24636
+  · Evidence: `AWARENESS-MEMORY-ASK-2026-08-12/events/02-ACCEPTANCE.md`
+
+- ✅🪄 **2026-08-12 شب — Chat Box O→U + ADR-036 + M9 (موج ۴).**
+  [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] ·
+  Evidence: `AWARENESS-MEMORY-ASK-2026-08-12/00…04`
+  · نو: `unified_context` · `equation_explainer` · `architecture_explainer` · `session_memory` · `test_chatbox_unified` 13/13
+  · UI: «📎 Sources / شواهد · معادلات · وضعیت» + `octopus.asklog.v1`
+  · ADR-036 ACCEPTED · suites: chatbox · gateway · phase_jn · cognitive_unify · 163 pytest
+
+- ✅🔗 **2026-08-12 شب — Owner Chat Full Wiring (موج ۶: جوابِ «با همه مغزها حرف می‌زنم؟» = نه، الان وصل شد).**
+  حقیقتِ کد: چت فقط collaborator→DeepSeek بود؛ cortex (8772) و business_brain پیام مالک را نمی‌گرفتند و خروجی‌شان به چت نمی‌رسید. وصل شد (additive):
+  · نو: `owner_console/chat_log.py` — سیو سرور-ساید گفتگو (`state/chat/chat-log.jsonl`، redact، run_id، fail-soft) — دیگر localStorage-only نیست
+  · نو: `state/owner-goal.json` — هدفِ قفل‌شدهٔ GOALS-OCTOPUS.md (attribution.claimed از صفر + ۴ جهت)؛ آرزوی AGI مالک فقط به‌عنوان بافت (reconcile — بدون اجرا) — فایل زنده، وب‌اپ + چت می‌خوانند
+  · `collaborator.py` فاز V (chat log) + فاز X (پیشنهاد حافظه از حرف مالک → candidate؛ commit با رأی مالک)
+  · `collab_model_adapter._self_context`: شاهد زندهٔ مغزها (cortex cycle/coherence · business beat/proposals · identities L/E/G/K/O) + OWNER-GOAL
+  · gateway `GET /api/chat-log` (owner-auth، redact دولایه، 403/405 fail-closed) + app.js «🧠 حافظهٔ سرور» + «🎯 هدفِ مالک»
+  · شاهد زنده: پیام واقعی مالک «سلام خودتو معرفی کن» در chat-log.jsonl با run_id (از gateway زنده — lazy import)
+  · suites: chat_log 11/11 · gateway 49/49 · chatbox/phase_jn/cognitive سبز · gateway PID 24268
+  · Evidence: `_ops/state/adr-033/reports/OWNER-CHAT-FULL-WIRING-2026-08-12.md`
+  · 🔄 **reconcile (همان شب):** نسخهٔ اولِ owner-goal «AGI کامل» بود — با invariant صداقت تضاد داشت (۸/۸ ادعا از کد راستی‌آزمایی: GOALS-OCTOPUS.md · BIBLE:49-51 · registry.yaml:18 · discovery.py:6). بازنویسی شد + گزینه‌ها: `RECONCILE-AGI-ASPIRATION-2026-08-12.md` — بدون رأی مالک هیچ‌چیز اجرا نشد
+  · مالک: مینی‌اپ ببند/باز → تب پرسش: «🎯 هدفِ مالک» + «🧠 حافظهٔ سرور» + Sources با cycle/coherence مغزها
+  · ⚠️ شکست‌های از-پیش-موجود (نامرتبط، شاهد: صفر import از فایل‌های من): `test_drawdown_enforcer` (budget_gate.DRAWDOWN_LOG غایب) · `test_discoveries` (امضای mark_nudged) · `test_effector_registry` (state زندهٔ armed-apply vs انتظار legacy) · `test_hebbian_eventclock` 17/18 (باقی‌ماندهٔ مهاجرت ADR-034، uncommitted از قبل)
+
+
+- ✅🔒 **2026-08-12 عصر — فاز I + رأی M=۳ + فاز N (موج ۳).**
+  `08-PHASE-I-VERIFY` · `09/10 J-N` · `11-FINAL-OWNER-VOTE`
+  · `limited_effect_phase_n=3` (proposal-only) · shadow_influence/evaluation
+  · suites: phase_jn 13/13 · owner_verdicts 15/15
+
+- ✅🧠 **2026-08-12 — Awareness/Memory/Ask B→H (موج ۲).**
+  [[../00 - Inbox/2026-08-12 MEGAPROMPT — Self-Awareness Memory Brains Ask Web|MEGAPROMPT]] ·
+  `FINAL.md` + `08-PHASE-I-VERIFY`
+  · `owner_recall` · `data.facts` · vault_empty · selfmap · `_self_context` (دو مغز+4d)
+  · suites: awareness 6/6 · memory_ask 6/6 · gateway
+
+- ✅📐 **2026-08-12 — Math Atlas Reconciliation (موج ۱).**
+  [[../00 - Inbox/2026-08-12 RECONCILIATION-REPORT — Math Atlas Runtime Truth|RECONCILIATION]]
+  · APPLY=ADR-035/ARMED · CR-B0 زنده · σ legacy + v2 shadow · `verify_math_atlas` · evidence aggregator
+  · math_control spine soft (ADR-036) · 19 کلاسیک + 163 pytest
 
 - ✅🧠 **2026-08-12 Deep-Scan Collab/DeepSeek — A→F کامل.**
   [[../_ops/state/adr-033/reports/DEEP-SCAN-COLLAB-2026-08-12/FINDINGS|FINDINGS]] —

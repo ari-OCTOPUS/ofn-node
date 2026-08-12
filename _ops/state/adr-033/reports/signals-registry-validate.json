@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "registry_id": "octopus-signals-v1",
+  "registry_digest_sha256": "35a801026f0e2b84dbc6a80118edbe65c4e32711aec86b80b81e1734aaa5ad07",
+  "git_sha": "1d28067a6f1eebb8a719353118bafebd2af24937",
+  "signal_count": 9,
+  "errors": [],
+  "warnings": [],
+  "timestamp": "2026-08-12T06:17:06.256584+00:00",
+  "schema": "architecture/signals-registry.schema.json",
+  "data": "architecture/signals-registry.yaml",
+  "neural_learned_apply": {
+    "truth_status": "TESTED",
+    "evidence_level": "ARMED",
+    "allowed_effect": "gate_internal",
+    "may_gate": true,
+    "production_apply_enabled": true
+  }
+}

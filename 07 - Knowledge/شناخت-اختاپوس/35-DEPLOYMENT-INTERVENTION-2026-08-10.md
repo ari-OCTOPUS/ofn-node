@@ -1,11 +1,11 @@
 ---
-type: cognition-note
+type: knowledge
 status: active
 tags: [deployment, model-map, deepseek, fugu, intervention, soak, sre]
 created: 2026-08-10
-updated: 2026-08-10
+updated: 2026-08-12
 created_by: agent
-depends_on:
+related:
   - "[[34-SEED-AGENT-OWNER-COCKPIT-2026-08-08]]"
 ---
 

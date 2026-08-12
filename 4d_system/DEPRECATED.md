@@ -17,8 +17,10 @@ not wired to Octopus projects"*.
 ## Canonical جایگزین
 
 - مغزِ controller: `_ops/cortex/cortex.py` (port 8772)
+- مغزِ دوم کسب‌وکار: `_ops/cortex/business_brain.py`
 - LLM routing: `_ops/cortex/model_router.py`
 - تلگرام: `_ops/budget/approval_channel.py` و `_ops/telegram_center/center.py`
+- وضعیت Hearts/Brains/Memory (2026-08-11): `07 - Knowledge/Architecture/OCTOPUS-HEARTS-BRAINS-4D-STATUS.md`
 
 ## اگر خواستی revive کنی
 

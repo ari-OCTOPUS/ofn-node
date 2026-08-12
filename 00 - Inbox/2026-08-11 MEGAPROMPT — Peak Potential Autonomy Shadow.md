@@ -9,9 +9,9 @@ created_by: agent
 sources:
   - "[[00 - Inbox/2026-08-11 SESSION — Test Intelligence Pack Delivered]]"
   - "[[00 - Inbox/2026-08-11 MEGAPROMPT — Octopus Test Intelligence Pack (Grounded)]]"
-  - "[[00 - Inbox/2026-08-11 SESSION — Integration Collaborator Closeout]]"
+  - "[[06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT]]"
   - "[[03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator]]"
-  - "[[_ops/AGI-INTERACTION-MANIFESTO-2026-08-04]]"
+  - "[[_ops/INTERACTION-CONTRACT]]"
 ---
 
 # MEGAPROMPT — Peak Potential · Autonomy Shadow · Product Phases (P0→P5)

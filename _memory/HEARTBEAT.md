@@ -1,1 +1,1054 @@
 - 2026-08-03T19:40:12 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T15:05:12 · miniapp-gateway=START port=8774
+- 2026-08-08T15:27:49 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T15:53:13 · miniapp-gateway=START port=8774
+- 2026-08-08T15:57:32 · miniapp-gateway=START port=8774
+- 2026-08-08T16:27:59 · miniapp-gateway=START port=8774
+- 2026-08-08T16:31:28 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T16:56:32 · organism=START port=8771
+- 2026-08-08T16:56:32 · human-append guard configured (per-boot secret)
+- 2026-08-08T16:56:33 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-08T16:56:33 · boot recovery: journal incomplete=0 chrono reconciled=0 attention=0
+- 2026-08-08T16:56:36 · birth certificate: boot=66afda6e8443 prev=41068b3b46be slept=4271.503176s
+- 2026-08-08T16:56:36 · pending-card recovery: money=0 rfc=1 halted=False
+- 2026-08-08T16:56:36 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-08T16:56:36 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-08T16:56:36 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-08T16:56:36 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': False, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': False, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-08T16:56:36 · chrono=START period=60s beat=28791
+- 2026-08-08T16:56:55 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T17:59:57 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T18:21:15 · miniapp-gateway=START port=8774
+- 2026-08-08T18:28:17 · miniapp-gateway=START port=8774
+- 2026-08-08T19:00:21 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T20:01:38 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T21:01:32 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T21:31:37 · miniapp-gateway=START port=8774
+- 2026-08-08T22:03:11 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T23:02:50 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T23:08:21 · miniapp-gateway=START port=8774
+- 2026-08-08T23:09:30 · miniapp-gateway=START port=8774
+- 2026-08-08T23:38:02 · organism=START port=8771
+- 2026-08-08T23:38:03 · human-append guard configured (per-boot secret)
+- 2026-08-08T23:38:03 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-08T23:38:03 · boot recovery: journal incomplete=1 chrono reconciled=0 attention=0
+- 2026-08-08T23:38:06 · birth certificate: boot=c4226432dc43 prev=66afda6e8443 slept=11432.684447s
+- 2026-08-08T23:38:06 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-08T23:38:06 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-08T23:38:06 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-08T23:38:06 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': False, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': False, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-08T23:38:06 · chrono=START period=60s beat=28792
+- 2026-08-08T23:40:19 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-08T23:41:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:42:23 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-08T23:42:29 · cortex=START port=8772
+- 2026-08-08T23:42:40 · live-cockpit=START port=8773
+- 2026-08-08T23:42:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:43:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:45:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:46:18 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:47:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:48:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:49:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:51:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:52:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:53:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:54:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:55:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:57:03 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:58:14 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-08T23:59:26 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:00:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:01:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:03:01 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:04:13 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:05:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:06:36 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:07:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:09:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:10:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:11:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:12:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:13:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:14:59 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:16:11 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:17:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:18:34 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:19:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:20:57 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:22:09 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:23:20 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:24:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:25:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:26:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:28:06 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:29:17 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:30:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:31:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:32:50 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:afferent_starved] — non-essential paused
+- 2026-08-09T00:34:01 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:afferent_starved] — non-essential paused
+- 2026-08-09T00:35:12 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:afferent_starved] — non-essential paused
+- 2026-08-09T00:36:23 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+- 2026-08-09T00:37:35 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+- 2026-08-09T00:38:46 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+- 2026-08-09T00:38:46 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T00:39:58 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+- 2026-08-09T00:41:09 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+- 2026-08-09T00:42:20 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+- 2026-08-09T00:43:31 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+- 2026-08-09T00:44:42 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+- 2026-08-09T01:38:54 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T02:39:28 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T03:41:11 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T08:43:04 · live-cockpit=START port=8773
+- 2026-08-09T08:44:20 · cortex=START port=8772
+- 2026-08-09T08:48:14 · miniapp-gateway=START port=8774
+- 2026-08-09T08:52:05 · organism=START port=8771
+- 2026-08-09T08:52:05 · human-append guard configured (per-boot secret)
+- 2026-08-09T08:52:06 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-09T08:52:17 · boot recovery: journal incomplete=3 chrono reconciled=0 attention=0
+- 2026-08-09T08:52:20 · birth certificate: boot=c4da24f4fcb7 prev=c4226432dc43 slept=21515.580539s
+- 2026-08-09T08:52:20 · pending-card recovery: money=0 rfc=2 halted=False
+- 2026-08-09T08:52:20 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-09T08:52:20 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-09T08:52:20 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-09T08:52:20 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': False, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': False, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-09T08:52:20 · chrono=START period=60s beat=29038
+- 2026-08-09T08:56:48 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T09:01:19 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+- 2026-08-09T09:03:25 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-09T09:05:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:07:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:09:52 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:12:17 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:14:22 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:16:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:19:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:22:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:24:10 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:26:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:28:21 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:30:26 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:32:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:34:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:36:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:38:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:40:52 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:42:57 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:45:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:47:08 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:49:13 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T09:51:18 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-09T09:53:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T09:53:23 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T09:55:29 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T09:57:34 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T09:59:40 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:01:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:03:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:05:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:08:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:10:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:12:09 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:14:14 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:16:18 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:18:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:20:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:22:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:24:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:26:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:28:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:30:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:32:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:35:04 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:37:09 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:39:26 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:41:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:43:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:45:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:48:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:50:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:52:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:54:18 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:54:18 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T10:56:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T10:58:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:00:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:02:49 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:04:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:07:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:09:09 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:11:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:13:22 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:15:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:17:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:19:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:21:49 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:23:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:26:01 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:28:08 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:30:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:32:21 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:34:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:36:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:38:40 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:40:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:42:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:44:59 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:47:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:49:21 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T11:51:28 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+- 2026-08-09T11:53:33 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+- 2026-08-09T11:55:38 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-09T11:55:38 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T11:57:43 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-09T11:59:56 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-09T12:02:02 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+- 2026-08-09T12:04:07 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+- 2026-08-09T12:06:12 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-09T12:08:18 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-09T12:10:23 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:errors_high] — non-essential paused
+- 2026-08-09T12:57:08 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T13:58:14 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T14:59:08 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+- 2026-08-09T14:59:08 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T15:01:14 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+- 2026-08-09T15:03:21 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+- 2026-08-09T15:05:28 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+- 2026-08-09T15:07:35 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+- 2026-08-09T15:09:41 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+- 2026-08-09T15:11:48 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+- 2026-08-09T15:13:54 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:afferent_starved] — non-essential paused
+- 2026-08-09T15:16:01 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+- 2026-08-09T15:18:08 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+- 2026-08-09T15:20:15 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:afferent_starved] — non-essential paused
+- 2026-08-09T15:22:21 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:afferent_starved] — non-essential paused
+- 2026-08-09T16:01:28 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T16:52:59 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-09T16:53:04 · cortex=START port=8772
+- 2026-08-09T16:53:33 · miniapp-gateway=START port=8774
+- 2026-08-09T16:53:35 · live-cockpit=START port=8773
+- 2026-08-09T16:53:59 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-09T16:54:12 · organism=START port=8771
+- 2026-08-09T16:54:12 · human-append guard configured (per-boot secret)
+- 2026-08-09T16:54:12 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-09T16:54:19 · boot recovery: journal incomplete=4 chrono reconciled=0 attention=0
+- 2026-08-09T16:54:28 · birth certificate: boot=f7294daff0c9 prev=c4da24f4fcb7 slept=4824.475859s
+- 2026-08-09T16:54:29 · pending-card recovery: money=0 rfc=5 halted=False
+- 2026-08-09T16:54:29 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-09T16:54:29 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-09T16:54:29 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-09T16:54:29 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': False, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': False, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-09T16:54:29 · chrono=START period=60s beat=29509
+- 2026-08-09T16:57:10 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T17:03:30 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-09T17:05:36 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:07:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:09:49 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:11:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:13:51 · miniapp-gateway=START port=8774
+- 2026-08-09T17:14:06 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:16:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:18:17 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:19:02 · organism=START port=8771
+- 2026-08-09T17:19:02 · human-append guard configured (per-boot secret)
+- 2026-08-09T17:19:02 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-09T17:19:04 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-09T17:19:07 · birth certificate: boot=ce2407a69fe0 prev=f7294daff0c9 slept=664.349164s
+- 2026-08-09T17:19:07 · pending-card recovery: money=0 rfc=5 halted=False
+- 2026-08-09T17:19:07 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-09T17:19:07 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-09T17:19:07 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-09T17:19:07 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': False, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': False, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-09T17:19:07 · chrono=START period=60s beat=29533
+- 2026-08-09T17:22:40 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T17:24:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:26:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:28:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:31:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:33:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:35:14 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:37:19 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:39:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:41:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:43:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:45:40 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:47:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:49:52 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:51:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:54:03 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:56:11 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T17:58:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T18:00:21 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T18:02:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T18:04:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T18:04:39 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-09T18:04:45 · cortex=START port=8772
+- 2026-08-09T18:06:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T18:08:44 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-09T18:10:49 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-09T18:12:54 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-09T18:14:59 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-09T18:17:06 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-09T18:19:11 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-09T18:19:11 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T18:21:16 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-09T18:23:21 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-09T18:25:26 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-09T18:27:31 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+- 2026-08-09T18:40:31 · miniapp-gateway=START port=8774
+- 2026-08-09T18:45:05 · live-cockpit=START port=8773
+- 2026-08-09T18:45:37 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-09T18:45:43 · cortex=START port=8772
+- 2026-08-09T18:46:37 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-09T18:46:41 · organism=START port=8771
+- 2026-08-09T18:46:41 · human-append guard configured (per-boot secret)
+- 2026-08-09T18:46:41 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-09T18:46:41 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-09T18:46:42 · boot recovery: journal incomplete=6 chrono reconciled=0 attention=0
+- 2026-08-09T18:46:46 · birth certificate: boot=e7cfd096de18 prev=ce2407a69fe0 slept=480.476834s
+- 2026-08-09T18:46:46 · pending-card recovery: money=0 rfc=5 halted=False
+- 2026-08-09T18:46:46 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-09T18:46:46 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-09T18:46:46 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-09T18:46:46 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-09T18:46:46 · chrono=START period=60s beat=29618
+- 2026-08-09T18:50:12 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T18:51:32 · miniapp-gateway=START port=8774
+- 2026-08-09T18:52:19 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-09T18:54:25 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-09T18:56:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T18:58:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:00:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:02:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:04:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:07:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:09:10 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:11:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:13:22 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:15:29 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:16:45 · miniapp-gateway=START port=8774
+- 2026-08-09T19:17:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:19:41 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:21:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:23:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-09T19:26:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:28:09 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:30:18 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:32:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:34:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:36:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:38:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:40:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:42:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:45:01 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:47:09 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:47:09 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T19:49:14 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:51:20 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:53:25 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:55:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:57:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T19:59:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:01:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:03:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:05:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:08:06 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:10:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:12:17 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:14:22 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:16:26 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:18:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:20:36 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:22:41 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:24:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:26:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:29:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:31:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:33:10 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:35:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:37:20 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:39:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:41:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:43:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:45:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:47:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:47:48 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T20:49:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:52:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:54:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:56:13 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T20:58:19 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:00:25 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:02:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:04:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:06:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:08:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:10:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:13:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:15:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:17:11 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:19:17 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:21:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:23:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:25:36 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:27:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:29:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:31:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:34:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:36:10 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:38:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:40:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:42:29 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:44:34 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-09T21:46:39 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+- 2026-08-09T21:48:44 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+- 2026-08-09T21:48:44 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-09T21:50:52 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-09T21:52:57 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-09T21:55:02 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+- 2026-08-09T21:57:07 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+- 2026-08-09T21:59:13 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-09T22:01:19 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-09T22:03:25 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-09T22:05:31 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:errors_high] — non-essential paused
+- 2026-08-09T22:48:56 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-09T23:49:16 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T00:49:17 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T01:50:57 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T02:10:46 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+- 2026-08-10T02:12:54 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+- 2026-08-10T02:15:01 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+- 2026-08-10T02:17:11 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+- 2026-08-10T02:19:19 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+- 2026-08-10T02:21:27 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:afferent_starved] — non-essential paused
+- 2026-08-10T11:58:03 · miniapp-gateway=START port=8774
+- 2026-08-10T11:58:04 · live-cockpit=START port=8773
+- 2026-08-10T11:59:04 · cortex=START port=8772
+- 2026-08-10T12:07:07 · organism=START port=8771
+- 2026-08-10T12:07:08 · human-append guard configured (per-boot secret)
+- 2026-08-10T12:07:08 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-10T12:07:11 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-10T12:07:14 · boot recovery: journal incomplete=6 chrono reconciled=0 attention=0
+- 2026-08-10T12:07:19 · birth certificate: boot=c56aabf57948 prev=e7cfd096de18 slept=35149.521796s
+- 2026-08-10T12:07:19 · pending-card recovery: money=0 rfc=5 halted=False
+- 2026-08-10T12:07:19 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-10T12:07:19 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-10T12:07:19 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-10T12:07:19 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-10T12:07:19 · chrono=START period=60s beat=30064
+- 2026-08-10T12:15:11 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T13:10:12 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T14:11:07 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T15:12:31 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T16:14:37 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T16:54:44 · cortex=START port=8772
+- 2026-08-10T17:13:10 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T18:13:13 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T19:15:39 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T20:18:02 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T21:16:36 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T22:18:39 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-10T23:18:09 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T00:17:55 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T01:21:22 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T02:21:56 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T03:25:08 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T08:48:03 · miniapp-gateway=START port=8774
+- 2026-08-11T08:48:03 · live-cockpit=START port=8773
+- 2026-08-11T08:49:04 · cortex=START port=8772
+- 2026-08-11T08:52:06 · organism=START port=8771
+- 2026-08-11T08:52:07 · human-append guard configured (per-boot secret)
+- 2026-08-11T08:52:08 · auto-tuned knobs restored: ['CHRONO_NUDGE_EVERY_N_BEATS']
+- 2026-08-11T08:52:14 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T08:52:17 · boot recovery: journal incomplete=4 chrono reconciled=0 attention=0
+- 2026-08-11T08:52:19 · birth certificate: boot=1cfb5cbd10be prev=c56aabf57948 slept=18413.079272s
+- 2026-08-11T08:52:20 · pending-card recovery: money=0 rfc=1 halted=False
+- 2026-08-11T08:52:20 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T08:52:20 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T08:52:20 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T08:52:20 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T08:52:20 · chrono=START period=60s beat=30940
+- 2026-08-11T08:57:58 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T09:03:00 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-11T09:04:39 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:06:19 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:08:34 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:10:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:11:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:13:34 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:15:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:16:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:18:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:20:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:21:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:23:37 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T09:25:18 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-11T09:26:58 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-11T09:28:39 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-11T09:30:20 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-11T09:32:01 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-11T09:33:42 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-11T09:35:22 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-11T09:37:06 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-11T09:38:46 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+- 2026-08-11T09:40:26 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+- 2026-08-11T09:58:03 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T10:58:35 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T11:17:46 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-11T11:19:44 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:21:41 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:23:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:25:36 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:27:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:29:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:31:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:33:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:35:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:37:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:39:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:41:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:43:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:45:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:47:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:49:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:51:36 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:53:59 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:55:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:55:58 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-11T11:57:57 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T11:59:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:01:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:03:52 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:05:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:07:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:10:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:12:02 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:14:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:15:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:17:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:19:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:21:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:23:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:25:49 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:27:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:29:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:31:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:33:41 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:35:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:37:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:39:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:41:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:43:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:45:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:47:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:49:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:51:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:53:40 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:55:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:57:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T12:57:37 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم · PROTECTIVE
+- 2026-08-11T12:59:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:01:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:03:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:05:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:07:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:09:41 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:11:40 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:13:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:15:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:18:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:20:04 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:22:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:24:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:26:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:28:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:30:25 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:32:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:34:23 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T13:36:23 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+- 2026-08-11T13:38:22 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:errors_high] — non-essential paused
+- 2026-08-11T13:40:22 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-11T13:42:21 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:errors_high] — non-essential paused
+- 2026-08-11T13:44:30 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+- 2026-08-11T13:46:31 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:errors_high] — non-essential paused
+- 2026-08-11T13:48:28 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-11T13:50:26 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-11T13:52:23 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:errors_high] — non-essential paused
+- 2026-08-11T13:54:22 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:errors_high] — non-essential paused
+- 2026-08-11T14:05:25 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T15:06:42 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T16:09:35 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T17:10:21 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T18:11:19 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T18:25:29 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_yellow] — non-essential paused
+- 2026-08-11T18:26:10 · organism=START port=8771
+- 2026-08-11T18:26:10 · human-append guard configured (per-boot secret)
+- 2026-08-11T18:26:11 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T18:26:12 · boot recovery: journal incomplete=2 chrono reconciled=0 attention=0
+- 2026-08-11T18:26:17 · birth certificate: boot=cf9a8d708fd8 prev=1cfb5cbd10be slept=45.329168s
+- 2026-08-11T18:26:17 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T18:26:17 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T18:26:17 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T18:26:17 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T18:26:17 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T18:26:17 · chrono=START period=60s beat=31490
+- 2026-08-11T18:28:03 · miniapp-gateway=START port=8774
+- 2026-08-11T18:28:04 · live-cockpit=START port=8773
+- 2026-08-11T18:30:04 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T18:30:56 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_yellow] — non-essential paused
+- 2026-08-11T18:31:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:32:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:33:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:34:04 · cortex=START port=8772
+- 2026-08-11T18:34:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:35:21 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:35:58 · organism=START port=8771
+- 2026-08-11T18:35:58 · human-append guard configured (per-boot secret)
+- 2026-08-11T18:35:58 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T18:36:00 · boot recovery: journal incomplete=3 chrono reconciled=0 attention=0
+- 2026-08-11T18:36:03 · birth certificate: boot=31e13b9aed2d prev=cf9a8d708fd8 slept=40.317829s
+- 2026-08-11T18:36:03 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T18:36:03 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T18:36:04 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T18:36:04 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T18:36:04 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T18:36:04 · chrono=START period=60s beat=31500
+- 2026-08-11T18:37:12 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-11T18:37:15 · cortex=START port=8772
+- 2026-08-11T18:37:50 · miniapp-gateway=START port=8774
+- 2026-08-11T18:37:52 · live-cockpit=START port=8773
+- 2026-08-11T18:38:18 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T18:39:10 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T18:39:14 · organism=START port=8771
+- 2026-08-11T18:39:14 · human-append guard configured (per-boot secret)
+- 2026-08-11T18:39:14 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T18:39:14 · boot recovery: journal incomplete=4 chrono reconciled=0 attention=0
+- 2026-08-11T18:39:16 · birth certificate: boot=e202580c2dba prev=31e13b9aed2d slept=5.756044s
+- 2026-08-11T18:39:16 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T18:39:16 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T18:39:16 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T18:39:16 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T18:39:16 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T18:39:16 · chrono=START period=60s beat=31502
+- 2026-08-11T18:42:13 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T18:43:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:44:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:44:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:45:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:46:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:47:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:48:25 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:49:19 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:50:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:51:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:51:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:52:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:53:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:54:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:55:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:56:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:57:21 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:58:14 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T18:59:11 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:00:20 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:01:14 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:02:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:03:01 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:03:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:04:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:05:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:06:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:07:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:08:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:09:26 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:10:20 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-11T19:11:14 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.24:rhythm_amber] — non-essential paused
+- 2026-08-11T19:12:08 · PROTECTIVE HALT: pain=0.37>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-11T19:13:02 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.23:rhythm_amber] — non-essential paused
+- 2026-08-11T19:13:55 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-11T19:14:48 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.22:rhythm_amber] — non-essential paused
+- 2026-08-11T19:15:41 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-11T19:16:35 · PROTECTIVE HALT: pain=0.36>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-11T19:17:28 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.21:rhythm_amber] — non-essential paused
+- 2026-08-11T19:18:21 · PROTECTIVE HALT: pain=0.35>0.35 [+learned=0.20:rhythm_amber] — non-essential paused
+- 2026-08-11T19:22:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T19:23:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:24:29 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:25:26 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:26:24 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:27:23 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:28:20 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:29:17 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:30:13 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:31:10 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:32:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:33:04 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:33:49 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-11T19:33:51 · cortex=START port=8772
+- 2026-08-11T19:34:01 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:34:21 · miniapp-gateway=START port=8774
+- 2026-08-11T19:34:23 · live-cockpit=START port=8773
+- 2026-08-11T19:34:58 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T19:35:04 · organism=START port=8771
+- 2026-08-11T19:35:04 · human-append guard configured (per-boot secret)
+- 2026-08-11T19:35:04 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T19:35:05 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-11T19:35:10 · birth certificate: boot=c38911ce6b16 prev=e202580c2dba slept=9.061074s
+- 2026-08-11T19:35:10 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T19:35:10 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T19:35:10 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T19:35:10 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T19:35:10 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T19:35:10 · chrono=START period=60s beat=31557
+- 2026-08-11T19:38:02 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T19:39:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:40:00 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:40:59 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:41:59 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:42:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:43:57 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:44:56 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:45:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:46:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:47:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:48:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:49:55 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:50:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:51:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:52:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:53:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:54:52 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:55:51 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:56:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:57:50 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:58:49 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T19:59:48 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:00:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:01:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:02:46 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:03:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:04:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:05:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:06:44 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:07:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:08:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:09:42 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:10:40 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:11:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:12:38 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:13:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:14:36 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:15:35 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:16:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:17:34 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:18:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:19:32 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:20:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:21:30 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:22:29 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:23:28 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:24:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:errors_high] — non-essential paused
+- 2026-08-11T20:24:35 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-11T20:24:39 · cortex=START port=8772
+- 2026-08-11T20:25:20 · miniapp-gateway=START port=8774
+- 2026-08-11T20:25:21 · live-cockpit=START port=8773
+- 2026-08-11T20:25:26 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T20:25:32 · organism=START port=8771
+- 2026-08-11T20:25:32 · human-append guard configured (per-boot secret)
+- 2026-08-11T20:25:33 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T20:25:33 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-11T20:25:38 · birth certificate: boot=f9cd9a87cf80 prev=c38911ce6b16 slept=9.333388s
+- 2026-08-11T20:25:38 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T20:25:38 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T20:25:38 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T20:25:38 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T20:25:38 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T20:25:38 · chrono=START period=60s beat=31607
+- 2026-08-11T20:28:18 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T20:29:17 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T20:29:21 · organism=START port=8771
+- 2026-08-11T20:29:21 · human-append guard configured (per-boot secret)
+- 2026-08-11T20:29:21 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T20:29:21 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-11T20:29:22 · birth certificate: boot=51fb56513702 prev=f9cd9a87cf80 slept=4.602803s
+- 2026-08-11T20:29:22 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T20:29:22 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T20:29:22 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T20:29:22 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T20:29:22 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T20:29:22 · chrono=START period=60s beat=31610
+- 2026-08-11T20:30:48 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T20:31:53 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:32:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:34:03 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:35:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:36:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:37:17 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:38:22 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:39:27 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:39:29 · miniapp-gateway=START port=8774
+- 2026-08-11T20:40:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:41:39 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:42:43 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:43:47 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:44:52 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:45:57 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:47:01 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:48:05 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:49:12 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:50:16 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:51:21 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:52:25 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:53:29 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:54:33 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:55:37 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:56:41 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:57:45 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:58:49 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T20:59:54 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:00:58 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:02:03 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:03:07 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:04:11 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:05:15 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:06:18 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:07:22 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:08:26 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:09:31 · PROTECTIVE HALT: pain=0.38>0.35 [+learned=0.25:rhythm_amber] — non-essential paused
+- 2026-08-11T21:09:34 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-11T21:09:40 · cortex=START port=8772
+- 2026-08-11T21:10:15 · miniapp-gateway=START port=8774
+- 2026-08-11T21:10:17 · live-cockpit=START port=8773
+- 2026-08-11T21:10:34 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T21:10:38 · organism=START port=8771
+- 2026-08-11T21:10:38 · human-append guard configured (per-boot secret)
+- 2026-08-11T21:10:38 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T21:10:38 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-11T21:10:39 · birth certificate: boot=610829bdd0b3 prev=51fb56513702 slept=4.697076s
+- 2026-08-11T21:10:39 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T21:10:39 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T21:10:39 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T21:10:39 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T21:10:39 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T21:10:39 · chrono=START period=60s beat=31651
+- 2026-08-11T21:13:00 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T22:15:05 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T22:54:55 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-11T22:54:59 · cortex=START port=8772
+- 2026-08-11T22:55:47 · miniapp-gateway=START port=8774
+- 2026-08-11T22:55:49 · live-cockpit=START port=8773
+- 2026-08-11T22:56:52 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T22:56:57 · organism=START port=8771
+- 2026-08-11T22:56:58 · human-append guard configured (per-boot secret)
+- 2026-08-11T22:57:00 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T22:57:05 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-11T22:57:11 · birth certificate: boot=92b3050c3471 prev=610829bdd0b3 slept=14.815634s
+- 2026-08-11T22:57:11 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T22:57:11 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T22:57:11 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T22:57:11 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T22:57:11 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T22:57:11 · chrono=START period=60s beat=31753
+- 2026-08-11T22:59:53 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T23:16:44 · miniapp-gateway=START port=8774
+- 2026-08-11T23:20:01 · miniapp-gateway=START port=8774
+- 2026-08-11T23:22:20 · miniapp-gateway=START port=8774
+- 2026-08-11T23:56:57 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-11T23:57:05 · cortex=START port=8772
+- 2026-08-11T23:57:49 · miniapp-gateway=START port=8774
+- 2026-08-11T23:57:51 · live-cockpit=START port=8773
+- 2026-08-11T23:58:02 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-11T23:59:21 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-11T23:59:23 · organism=START port=8771
+- 2026-08-11T23:59:24 · human-append guard configured (per-boot secret)
+- 2026-08-11T23:59:24 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-11T23:59:25 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-11T23:59:31 · birth certificate: boot=4e776a8a9aca prev=92b3050c3471 slept=7.469408s
+- 2026-08-11T23:59:31 · pending-card recovery: money=0 rfc=6 halted=False
+- 2026-08-11T23:59:31 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-11T23:59:31 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-11T23:59:31 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-11T23:59:31 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-11T23:59:31 · chrono=START period=60s beat=31811
+- 2026-08-12T00:04:55 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T00:22:39 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T00:22:51 · organism=START port=8771
+- 2026-08-12T00:22:51 · human-append guard configured (per-boot secret)
+- 2026-08-12T00:22:52 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T00:22:54 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-12T00:23:04 · birth certificate: boot=997ee877f49e prev=4e776a8a9aca slept=18.157162s
+- 2026-08-12T00:23:04 · pending-card recovery: money=0 rfc=1 halted=False
+- 2026-08-12T00:23:04 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T00:23:04 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T00:23:04 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T00:23:04 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T00:23:04 · chrono=START period=60s beat=31834
+- 2026-08-12T00:25:06 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T00:30:43 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T00:30:45 · organism=START port=8771
+- 2026-08-12T00:30:45 · human-append guard configured (per-boot secret)
+- 2026-08-12T00:30:46 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T00:30:46 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-12T00:30:46 · birth certificate: boot=5560b1166d61 prev=997ee877f49e slept=3.20824s
+- 2026-08-12T00:30:46 · pending-card recovery: money=0 rfc=1 halted=False
+- 2026-08-12T00:30:46 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T00:30:46 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T00:30:46 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T00:30:46 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T00:30:46 · chrono=START period=60s beat=31841
+- 2026-08-12T00:32:59 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T01:33:33 · organism=ok · ماه AU$0.01 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T02:33:48 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T03:33:20 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T04:35:17 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T05:35:09 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T06:36:04 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T07:25:58 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T07:26:00 · organism=START port=8771
+- 2026-08-12T07:26:01 · human-append guard configured (per-boot secret)
+- 2026-08-12T07:26:01 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T07:26:01 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T07:26:01 · boot recovery: journal incomplete=5 chrono reconciled=0 attention=0
+- 2026-08-12T07:26:02 · birth certificate: boot=e644b97274d7 prev=5560b1166d61 slept=4.196627s
+- 2026-08-12T07:26:02 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T07:26:02 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T07:26:02 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T07:26:02 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T07:26:02 · chrono=START period=60s beat=32247
+- 2026-08-12T07:29:30 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T07:35:45 · miniapp-gateway=START port=8774
+- 2026-08-12T07:35:46 · live-cockpit=START port=8773
+- 2026-08-12T07:38:10 · cortex=START port=8772
+- 2026-08-12T07:52:15 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T07:52:20 · organism=START port=8771
+- 2026-08-12T07:52:21 · human-append guard configured (per-boot secret)
+- 2026-08-12T07:52:21 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T07:52:21 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T07:52:22 · boot recovery: journal incomplete=6 chrono reconciled=0 attention=0
+- 2026-08-12T07:52:25 · birth certificate: boot=6d9464156a5a prev=e644b97274d7 slept=6.951143s
+- 2026-08-12T07:52:25 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T07:52:25 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T07:52:25 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T07:52:25 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': False, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T07:52:25 · chrono=START period=60s beat=32271
+- 2026-08-12T07:56:01 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T08:01:48 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T08:01:52 · organism=START port=8771
+- 2026-08-12T08:01:52 · human-append guard configured (per-boot secret)
+- 2026-08-12T08:01:52 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T08:01:52 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T08:01:53 · boot recovery: journal incomplete=7 chrono reconciled=0 attention=0
+- 2026-08-12T08:01:55 · birth certificate: boot=491760e7131d prev=6d9464156a5a slept=7.361746s
+- 2026-08-12T08:01:55 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T08:01:55 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T08:01:55 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T08:01:55 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T08:01:55 · chrono=START period=60s beat=32279
+- 2026-08-12T08:05:49 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T08:07:48 · cortex=START port=8772
+- 2026-08-12T08:09:14 · cortex=START port=8772
+- 2026-08-12T08:15:38 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T08:15:42 · organism=START port=8771
+- 2026-08-12T08:15:43 · human-append guard configured (per-boot secret)
+- 2026-08-12T08:15:43 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T08:15:43 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T08:15:43 · boot recovery: journal incomplete=8 chrono reconciled=0 attention=0
+- 2026-08-12T08:15:45 · birth certificate: boot=1b271aff4874 prev=491760e7131d slept=7.65596s
+- 2026-08-12T08:15:45 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T08:15:45 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T08:15:45 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T08:15:45 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T08:15:45 · chrono=START period=60s beat=32293
+- 2026-08-12T08:16:29 · cortex=START port=8772
+- 2026-08-12T08:19:48 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T08:21:45 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T08:21:50 · organism=START port=8771
+- 2026-08-12T08:21:50 · human-append guard configured (per-boot secret)
+- 2026-08-12T08:21:50 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T08:21:50 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T08:21:51 · boot recovery: journal incomplete=9 chrono reconciled=0 attention=0
+- 2026-08-12T08:21:56 · birth certificate: boot=c51f34826023 prev=1b271aff4874 slept=8.113768s
+- 2026-08-12T08:21:56 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T08:21:56 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T08:21:56 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T08:21:56 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T08:21:56 · chrono=START period=60s beat=32297
+- 2026-08-12T08:26:36 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T08:50:22 · miniapp-gateway=START port=8774
+- 2026-08-12T09:13:28 · miniapp-gateway=START port=8774
+- 2026-08-12T09:15:31 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T09:15:34 · organism=START port=8771
+- 2026-08-12T09:15:35 · human-append guard configured (per-boot secret)
+- 2026-08-12T09:15:35 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T09:15:35 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T09:15:35 · boot recovery: journal incomplete=9 chrono reconciled=0 attention=0
+- 2026-08-12T09:15:42 · birth certificate: boot=83af47ca06aa prev=c51f34826023 slept=7.329537s
+- 2026-08-12T09:15:42 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T09:15:42 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T09:15:42 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T09:15:42 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T09:15:42 · chrono=START period=60s beat=32348
+- 2026-08-12T09:19:27 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T09:26:57 · miniapp-gateway=START port=8774
+- 2026-08-12T09:38:33 · miniapp-gateway=START port=8774
+- 2026-08-12T09:41:17 · cortex=HALT (STOP) — خروجِ تمیز
+- 2026-08-12T09:41:20 · cortex=START port=8772
+- 2026-08-12T09:42:42 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T09:42:46 · organism=START port=8771
+- 2026-08-12T09:42:46 · human-append guard configured (per-boot secret)
+- 2026-08-12T09:42:46 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T09:42:47 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T09:42:47 · boot recovery: journal incomplete=9 chrono reconciled=0 attention=0
+- 2026-08-12T09:42:53 · birth certificate: boot=afe8b7e29343 prev=83af47ca06aa slept=8.269227s
+- 2026-08-12T09:42:53 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T09:42:53 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T09:42:53 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T09:42:53 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': '1', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T09:42:53 · chrono=START period=60s beat=32375
+- 2026-08-12T09:47:26 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T10:05:53 · miniapp-gateway=START port=8774
+- 2026-08-12T10:47:41 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T11:24:25 · miniapp-gateway=START port=8774
+- 2026-08-12T11:29:12 · miniapp-gateway=START port=8774
+- 2026-08-12T11:29:50 · miniapp-gateway=START port=8774
+- 2026-08-12T11:33:42 · miniapp-gateway=START port=8774
+- 2026-08-12T11:43:34 · miniapp-gateway=START port=8774
+- 2026-08-12T11:49:16 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T11:54:40 · miniapp-gateway=START port=8774
+- 2026-08-12T12:05:04 · miniapp-gateway=START port=8774
+- 2026-08-12T12:48:56 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T13:48:37 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T14:51:36 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T15:31:11 · miniapp-gateway=START port=8774
+- 2026-08-12T15:52:42 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T16:00:55 · miniapp-gateway=START port=8774
+- 2026-08-12T16:06:24 · miniapp-gateway=START port=8774
+- 2026-08-12T16:14:53 · miniapp-gateway=START port=8774
+- 2026-08-12T16:28:31 · miniapp-gateway=START port=8774
+- 2026-08-12T16:49:51 · miniapp-gateway=START port=8774
+- 2026-08-12T16:53:27 · miniapp-gateway=START port=8774
+- 2026-08-12T16:55:05 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T16:56:47 · miniapp-gateway=START port=8774
+- 2026-08-12T17:00:17 · miniapp-gateway=START port=8774
+- 2026-08-12T17:17:30 · miniapp-gateway=START port=8774
+- 2026-08-12T17:34:16 · miniapp-gateway=START port=8774
+- 2026-08-12T17:36:35 · miniapp-gateway=START port=8774
+- 2026-08-12T17:48:46 · miniapp-gateway=START port=8774
+- 2026-08-12T17:53:29 · miniapp-gateway=START port=8774
+- 2026-08-12T17:55:45 · organism=HALT (STOP) — خروج تمیز
+- 2026-08-12T17:55:55 · organism=START port=8771
+- 2026-08-12T17:55:55 · human-append guard configured (per-boot secret)
+- 2026-08-12T17:55:56 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-12T17:55:57 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-12T17:55:57 · boot recovery: journal incomplete=9 chrono reconciled=0 attention=0
+- 2026-08-12T17:56:06 · birth certificate: boot=deb15c1fbca7 prev=afe8b7e29343 slept=16.165412s
+- 2026-08-12T17:56:06 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-12T17:56:06 · code-apply driver started (حلقهٔ ۷؛ kill = STOP-CODE-AUTONOMY)
+- 2026-08-12T17:56:06 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-12T17:56:06 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': 'live', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-12T17:56:06 · chrono=START period=60s beat=32858
+- 2026-08-12T17:59:14 · organism=ok · ماه AU$0.02 · مشکوک متر صفر=0 · سالم
+- 2026-08-12T18:01:24 · cortex=START port=8772
+- 2026-08-12T18:28:47 · miniapp-gateway=START port=8774
+- 2026-08-12T18:48:07 · miniapp-gateway=START port=8774

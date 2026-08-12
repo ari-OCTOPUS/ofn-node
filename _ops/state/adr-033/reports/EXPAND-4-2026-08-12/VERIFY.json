@@ -1,0 +1,67 @@
+{
+  "ts": "2026-08-12T08:09:51",
+  "flags": {
+    "flags-loaded-organism.json": {
+      "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "50",
+      "OCTOPUS_IMPROVE_REFRACTORY_H": null,
+      "OCTOPUS_WIRE_HARVEST": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_REPLY": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE": "1",
+      "OCTOPUS_WIRE_LEAD_OUTBOUND": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM": null,
+      "OCTOPUS_COLLAB_USE_MODEL": "1",
+      "_pid": 9452,
+      "_boot": 1786485712.8573718
+    },
+    "flags-loaded-cortex.json": {
+      "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "50",
+      "OCTOPUS_IMPROVE_REFRACTORY_H": "6",
+      "OCTOPUS_WIRE_HARVEST": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_REPLY": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE": "1",
+      "OCTOPUS_WIRE_LEAD_OUTBOUND": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM": null,
+      "OCTOPUS_COLLAB_USE_MODEL": "1",
+      "_pid": 384,
+      "_boot": 1786486154.2048855
+    },
+    "flags-loaded-center.json": {
+      "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "50",
+      "OCTOPUS_IMPROVE_REFRACTORY_H": null,
+      "OCTOPUS_WIRE_HARVEST": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_REPLY": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE": "1",
+      "OCTOPUS_WIRE_LEAD_OUTBOUND": "1",
+      "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM": null,
+      "OCTOPUS_COLLAB_USE_MODEL": "1",
+      "_pid": 14584,
+      "_boot": 1786486040.477004
+    }
+  },
+  "verify": {
+    "panel_8790_status": true,
+    "panel_http": 200,
+    "organism": {
+      "beat": 32287,
+      "stop_organism": false,
+      "started": "2026-08-12T08:01:52",
+      "ts": "2026-08-12T08:09:47"
+    },
+    "lead_daily_cap": 10,
+    "sends_today": 0,
+    "refractory_h_with_env": "6.0",
+    "refractory_subprocess_err": ""
+  },
+  "pass": {
+    "cap50": true,
+    "harvest": true,
+    "first_reply": true,
+    "first_response": true,
+    "refractory_flag": true,
+    "panel_http": true,
+    "panel_status": true,
+    "lead_cap_10": true,
+    "refractory_code": true
+  },
+  "all_ok": true
+}

@@ -8,7 +8,7 @@ risk_level: low
 autonomy_level: read-only
 tags: [cognitive-kernel, research, cortex, shadow, propose-only]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-08-12
 ---
 
 # پروژه: research-spec-compiler (اندام شناختیِ Ring-2 — shadow)
@@ -131,6 +131,39 @@ The kernel is now integrated with the octopus body via `body_bridge/` modules:
 
 Data flow: kernel → body_bridge/output/*.json → body reads → body_events
 All writes are kernel-internal; the body never modifies the kernel.
+
+## Active Context (2026-08-12 — ADR-035 re-arm + Watch)
+
+**وضعیت کلی:** مالک «هردو» → ADR-035 ACCEPTED: `OCTOPUS_NEURAL_LEARNED_APPLY=1`
++ apply اجرایی (protective_skip beat-local). Registry ARMED / gate_internal.
+Watch/Smart: SK+synthesis+research+improve تازه؛ trails↑.
+Evidence: `_ops/state/adr-033/reports/ADR-035-REARM-EVIDENCE.md` ·
+`_ops/state/adr-033/reports/WATCH-SMART-2026-08-12/`.
+[[adr/ADR-035-neural-learned-apply-rearm|ADR-035]] · ADR-034 containment جزئیاً superseded.
+**باز:** Lead CONFIRMED · EXTERNAL_SEND.
+پاهای گرسنه (RFC-08c8853f) با `leg_feed` رفع شد — Evidence `LEGS-FEED-2026-08-12`.
+
+## Active Context (2026-08-11 — Stage 2–3 registry)
+
+**وضعیت کلی:** Stage 2–3 بدون WORKLOCK کامل شد — semantic validator +
+`neural-learned-apply` pin + `capabilities-registry.yaml` برای halt.
+Evidence: `_ops/state/adr-033/reports/STAGE-2-3-EVIDENCE.md`.
+**بعدی:** owner approval روی `WORKLOCK-PROPOSAL-STAGE-2-3.md` (ثبت suiteها).
+
+## Active Context (2026-08-11 — ADR-034 neural containment)
+
+**وضعیت کلی:** رأی مالک اجرا شد — A (`OCTOPUS_NEURAL_LEARNED_APPLY=0`) + B demotion.
+Neural فقط `PainAssessment` / `protective_proposal`؛ halt فقط PolicyGate.
+[[adr/ADR-034-neural-learned-apply-containment|ADR-034]] ACCEPTED.
+**بعدی:** Stage 2–3 registry/schema (نه بازمسلح APPLY؛ WORKLOCK بعداً).
+
+## Active Context (2026-08-11 — Talk Discovery)
+
+**وضعیت کلی:** Talk Discovery A–D روی worktree پیاده و در Obsidian مستند شد
+([[00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented|SESSION Talk Discovery]]).
+قرارداد canonical: [[06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT]].
+کد مدل (`collab_model_adapter`) و journal/pulse روی worktree؛ **arm زنده هنوز رأی مالک**.
+جزئیات ADR: [[adr/ADR-023-octopus-collaborator|ADR-023]].
 
 ## Active Context (2026-08-11 — Integration + Collaborator closeout)
 
