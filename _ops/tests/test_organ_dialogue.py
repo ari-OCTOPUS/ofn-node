@@ -203,8 +203,11 @@ def t_guidance_parse_bounded():
     assert e is None and d["paused"] is True
     d, e = og.parse("resume: think")
     assert e is None and d["paused"] is False
+    # 2026-08-12 fix: متنِ بدونِ کلیدِ شناخته دیگر خودکار focus نمی‌شود — رد
+    # می‌شود. صداکنندهٔ زنده‌اش چتِ مینی‌اپ شد، جایی که کاربر معمولاً قصدِ
+    # ثبتِ directive ندارد؛ باید صریحاً «focus:» بنویسد.
     d, e = og.parse("متنِ آزاد بدونِ کلید")
-    assert e is None and d["focus"] == "متنِ آزاد بدونِ کلید"
+    assert d is None and e and "focus:" in e
 
 
 def t_guidance_append_effective_lastwins():

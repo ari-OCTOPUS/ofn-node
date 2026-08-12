@@ -2174,7 +2174,9 @@
       if(guideChip) guideChip.classList.toggle("on", mode === "guide");
       var hint = el.querySelector("#askModeHint");
       if(hint && mode === "guide"){
-        hint.textContent = "به کورتکس: متن → owner_guidance.jsonl (cortex در cycle می‌خواند · بدون IPC · بدون اثر بیرونی).";
+        // 2026-08-12 fix: owner_guidance دیگر متنِ بدونِ کلید را نمی‌پذیرد —
+        // باید صریح «focus:» بنویسی، وگرنه رد می‌شود.
+        hint.textContent = "به کورتکس: با «focus: متن» بنویس (مثلاً «focus: روی امنیت تمرکز کن») → owner_guidance.jsonl (cortex در cycle می‌خواند · بدون IPC · بدون اثر بیرونی).";
       }
     }
     function setMode(m){ mode = m; paint(); hapticSelect(); }

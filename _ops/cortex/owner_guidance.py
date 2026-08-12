@@ -12,7 +12,9 @@
       think_every_n: N          → کادنسِ فکر، فقط در بازهٔ [1,100]
       pause: think              → فکرِ LLM موقتاً خاموش (deterministic summary می‌ماند)
       resume: think             → لغوِ pause
-    متنِ بدونِ کلید = focus (رایج‌ترین حالت).
+    متنِ بدونِ کلیدِ شناخته رد می‌شود (2026-08-12 fix؛ قبلاً خودکار focus می‌شد —
+    وقتی صداکنندهٔ اصلی چتِ مینی‌اپ شد، این fallback ریسکِ ثبتِ ناخواستهٔ
+    directive را داشت. هر focus باید صریحاً با «focus:» شروع شود).
   · درونِ mandateِ $0: هیچ spend/effector — فقط فایلِ state. fail-soft همه‌جا.
 """
 from __future__ import annotations
@@ -85,8 +87,16 @@ def parse(text: str) -> tuple[dict | None, str | None]:
             # مرزِ سخت: steeringِ مغز هرگز نرخ/پول را فرمان نمی‌دهد (ADR-001 هم‌راستا)
             return None, f"کلیدِ «{low.split(':', 1)[0].strip()}» در steeringِ مغز مجاز نیست"
         else:
-            # متنِ بدونِ کلیدِ شناخته = focus (رایج‌ترین حالتِ مالک)
-            out["focus"] = (out.get("focus", "") + " " + line).strip()[:_MAX_FOCUS]
+            # 2026-08-12 fix (اشتباهِ معماری، نه چیزِ درستی که مستند شده بود):
+            # قبلاً متنِ بدونِ کلیدِ شناخته خودکار focus می‌شد. این fallback برای
+            # دستورِ عمدیِ تلگرامیِ /brain guide طراحی شده بود، ولی تنها
+            # صداکنندهٔ زندهٔ append() امروز چتِ مینی‌اپ است
+            # (miniapp_gateway.py «۲۰۲۶-۰۸-۱۲ فاز ۳: چت → cortex»)، جایی که
+            # کاربر قصدِ ثبتِ directive ندارد — فقط دارد چت می‌کند. حتی تستِ
+            # مسیرِ «رسمیِ» تلگرام (t_channel_routes_to_correct_organ) همیشه
+            # focus: صریح فرستاده؛ fallbackِ ضمنی هیچ‌وقت واقعاً لازم نبوده.
+            # رد کردنِ صریح از قبولِ ضمنیِ یک directiveِ state-changing امن‌تر است.
+            return None, "متنِ بدونِ کلید پذیرفته نمی‌شود — با «focus: <متن>» شروع کن"
     if not out:
         return None, "هیچ directive معتبری پیدا نشد"
     return out, None
