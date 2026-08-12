@@ -427,6 +427,13 @@ def _read_api_authorized(headers, now: "float | None" = None) -> bool:
 
 def _stopped() -> bool:
     try:
+        # 2026-08-12 fix: قبلاً فقط STOP_NAME (فلگِ محلیِ خودِ gateway) چک
+        # می‌شد — HALT-ALL/STOP(architect) را نادیده می‌گرفت، برخلافِ قولِ
+        # خودِ opslib.master_halted(): «مرزِ سختِ سراسری، هیچ‌کس حق
+        # نادیده‌گرفتنش را ندارد». نتیجه: مینی‌اپ حتی زیرِ HALT-ALL جواب
+        # می‌داد چون واتداگش مستقیم spawn می‌کند و از STOP-* عادی رد می‌شود.
+        if opslib.master_halted():
+            return True
         return (Path(opslib.OPS) / STOP_NAME).exists()
     except Exception:  # noqa: BLE001 — شک = توقف (fail-closed)
         return True

@@ -2329,6 +2329,10 @@
       var useCollab = mode === "collab";
       var useMirror = mode === "mirror";
       var useGuide = mode === "guide";
+      // 2026-08-12 fix: guide/mirror باید one-shot باشند — چیپ قبلاً بعد از
+      // ارسال روشن می‌ماند، پس پیام بعدیِ نامرتبط بی‌صدا به همان مسیر می‌رفت
+      // (مثلاً «از خودت بگو» بعد از «به کورتکس» به owner_guidance می‌خورد).
+      if(useGuide || useMirror){ mode = collabDefault ? "collab" : "ask"; paint(); }
       var endpoint = useGuide ? "/api/brain-guide"
         : (useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask"));
       var payload = (useCollab || useGuide) ? {text: q} : {question: q};
