@@ -1310,6 +1310,7 @@ def _cortex_state() -> dict:
         "coherence": d.get("coherence"),
         "thought": d.get("thought"),
         "stress": d.get("stress") if isinstance(d.get("stress"), dict) else None,
+        "hypothesis_brain": d.get("hypothesis_brain"),
         "schema": d.get("schema"),
     }
 

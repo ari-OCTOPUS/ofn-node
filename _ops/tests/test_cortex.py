@@ -357,6 +357,31 @@ def t_m_ask_endpoint_error_path_is_redacted():
         th.join(timeout=5)
 
 
+def t_n_hypothesis_brain_default_off_and_enriched_when_on():
+    """مغز فرضیه (ADR-037): پیش‌فرض خاموش (CORTEX_HYPOTHESIS)؛ وقتی =1، خروجی
+    propose-only و enriched است (ranked + n_active + top). فقط‌خواندن از registry."""
+    import os as _os
+    orig = _os.environ.get("CORTEX_HYPOTHESIS")
+    # ۱) پیش‌فرض خاموش
+    _os.environ.pop("CORTEX_HYPOTHESIS", None)
+    assert cx.hypothesis_brain_run(1) is None, "باید پیش‌فرض خاموش باشد"
+    # ۲) روشن → enriched، propose-only (فقط ranking)
+    _os.environ["CORTEX_HYPOTHESIS"] = "1"
+    try:
+        out = cx.hypothesis_brain_run(1)
+        assert out is not None, "وقتی روشن است باید خروجی بدهد"
+        for k in ("ranked", "n_active", "n_ranked", "top", "n_overflow"):
+            assert k in out, f"کلیدِ مفقود: {k}"
+        assert isinstance(out["ranked"], list), out
+        assert out["n_active"] >= 1, out          # registry ≥۱ فرضیهٔ فعال دارد
+        assert isinstance(out["top"], str), out    # idِ بالاترین
+    finally:
+        if orig is None:
+            _os.environ.pop("CORTEX_HYPOTHESIS", None)
+        else:
+            _os.environ["CORTEX_HYPOTHESIS"] = orig
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

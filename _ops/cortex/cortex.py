@@ -276,12 +276,15 @@ def hypothesis_brain_run(cycle: int) -> dict | None:
         if str(impl) not in sys.path:
             sys.path.insert(0, str(impl))
         from hypothesis_brain import HypothesisBrain  # noqa: E402
+        hyps = _load_active_hypotheses()
         out = asyncio.run(HypothesisBrain().execute(
-            {"op": "prioritize", "hypotheses": _load_active_hypotheses()}))
+            {"op": "prioritize", "hypotheses": hyps}))
         ranked = out.get("ranked", [])
         return {"n_ranked": len(ranked),
+                "n_active": len(hyps),
                 "n_overflow": out.get("overflow_count", 0),
-                "top": ranked[0]["id"] if ranked else None}
+                "top": ranked[0]["id"] if ranked else None,
+                "ranked": ranked}
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"cortex hypothesis_brain error: {type(e).__name__}: {e}"])
         return None

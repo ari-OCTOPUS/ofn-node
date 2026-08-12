@@ -298,6 +298,7 @@ def aggregate(probe=None) -> dict:
             "alignment": cortex_st.get("alignment"),
             "journal_tail": _tail_jsonl(STATE / "cortex" / "journal.jsonl", 6),
             "brains": cortex_st.get("brains"),
+            "hypothesis_brain": cortex_st.get("hypothesis_brain"),
         },
         "upgrades": {
             "maturity_pct": upgrades.get("maturity_pct"),   # ایستا — پوششِ چک‌لیست
