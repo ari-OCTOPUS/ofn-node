@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,24 @@ STATE_DIR = Path(os.environ.get("OCTOPUS_STATE_DIR", str(_OPS / "state")))
 
 SCHEMA = "brain-pulse.v1"
 
+# 2026-08-12 fix: قبلاً "live" فقط یعنی «فایل parse شد» — نه اینکه پروسه
+# واقعاً زنده/تازه است. با STOP-CORTEX روشن و فایل ۹۹ دقیقه کهنه، همچنان
+# live=True گزارش می‌شد و همین بی‌واسطه در Sources panel مینی‌اپ (app.js
+# buildSourcesPanel) و پرامپتِ مدل هم منعکس می‌شد.
+_STALE_S = 600.0
+_STOP_FLAGS = ("STOP-ORGANISM", "STOP-CORTEX", "HALT-ALL")
+
+
+def _flags_down() -> list[str]:
+    # 2026-08-12 fix: از STATE_DIR.parent می‌خواند نه از ثابتِ _OPS — تست‌ها
+    # STATE_DIR را به یک sandbox موقت override می‌کنند (مثل بقیهٔ این فایل)؛
+    # اگر اینجا _OPS واقعی چک می‌شد، فلگ‌های STOP روی درختِ زندهٔ اجرا حتی
+    # زیرِ یک تستِ ایزوله هم "دیده" می‌شدند و live را همیشه False می‌کردند.
+    try:
+        return [n for n in _STOP_FLAGS if (STATE_DIR.parent / n).exists()]
+    except OSError:
+        return []
+
 
 def _read(rel: str) -> dict | None:
     p = STATE_DIR / rel
@@ -29,6 +48,17 @@ def _read(rel: str) -> dict | None:
         return d if isinstance(d, dict) else None
     except (OSError, ValueError, TypeError):
         return None
+
+
+def _read_with_age(rel: str) -> tuple[dict | None, float | None]:
+    """مثلِ _read ولی سنِ فایل (ثانیه) را هم برمی‌گرداند — fail-soft."""
+    p = STATE_DIR / rel
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+        age = time.time() - p.stat().st_mtime
+        return (d if isinstance(d, dict) else None), age
+    except (OSError, ValueError, TypeError):
+        return None, None
 
 
 def snapshot() -> dict[str, Any]:
@@ -47,14 +77,19 @@ def snapshot() -> dict[str, Any]:
         "warnings": [],
     }
 
-    cx = _read("cortex/cortex-state.json")
+    stopped = _flags_down()
+    out["stopped_flags"] = stopped
+
+    cx, cx_age = _read_with_age("cortex/cortex-state.json")
     if cx:
+        cx_live = (not stopped) and cx_age is not None and cx_age < _STALE_S
         members = cx.get("members") or []
         present_n = sum(1 for m in members if isinstance(m, dict) and m.get("present"))
         thought = cx.get("thought") if isinstance(cx.get("thought"), dict) else {}
         align = cx.get("alignment") if isinstance(cx.get("alignment"), dict) else {}
         out["cortex"] = {
-            "live": True,
+            "live": cx_live,
+            "age_s": round(cx_age, 1) if cx_age is not None else None,
             "source": "state/cortex/cortex-state.json",
             "cycle": cx.get("cycle"),
             "coherence": cx.get("coherence"),
@@ -65,23 +100,30 @@ def snapshot() -> dict[str, Any]:
             "thought_summary": (str(thought.get("summary") or "")[:160] or None),
             "role": "planning/reasoning organ (process :8772)",
         }
+        if not cx_live:
+            out["warnings"].append(
+                f"cortex-state stale/halted (age={cx_age:.0f}s, flags={stopped})"
+                if cx_age is not None else "cortex-state stale/halted")
     else:
         out["cortex"] = {
             "live": False,
+            "age_s": None,
             "source": "state/cortex/cortex-state.json",
             "role": "planning/reasoning organ (process :8772)",
         }
         out["warnings"].append("cortex-state missing/unreadable")
 
-    bb = _read("cortex/business-brain-latest.json")
+    bb, bb_age = _read_with_age("cortex/business-brain-latest.json")
     if bb:
+        bb_live = (not stopped) and bb_age is not None and bb_age < _STALE_S
         props = bb.get("proposals") or []
         titles = []
         for p in props[:3]:
             if isinstance(p, dict) and p.get("title"):
                 titles.append(str(p["title"])[:100])
         out["business_brain"] = {
-            "live": True,
+            "live": bb_live,
+            "age_s": round(bb_age, 1) if bb_age is not None else None,
             "source": "state/cortex/business-brain-latest.json",
             "beat": bb.get("beat"),
             "ts": bb.get("ts"),
@@ -95,9 +137,14 @@ def snapshot() -> dict[str, Any]:
             ],
             "role": "business/opportunity brain",
         }
+        if not bb_live:
+            out["warnings"].append(
+                f"business-brain-latest stale/halted (age={bb_age:.0f}s, flags={stopped})"
+                if bb_age is not None else "business-brain-latest stale/halted")
     else:
         out["business_brain"] = {
             "live": False,
+            "age_s": None,
             "source": "state/cortex/business-brain-latest.json",
             "role": "business/opportunity brain",
         }
@@ -143,28 +190,45 @@ def as_context_block(*, limit: int = 900) -> str:
         f"  bridge={snap.get('bridge')} ipc_to_cortex={snap.get('ipc_to_cortex')} "
         f"chat_heard_by_brains={snap.get('chat_heard_by_brains')}",
     ]
+    stopped = snap.get("stopped_flags") or []
     cx = snap.get("cortex") or {}
     if cx.get("live"):
         lines.append(
-            "  cortex: cycle={c} coherence={ch} members={m}/{t} aligned={a}".format(
+            "  cortex: cycle={c} coherence={ch} members={m}/{t} aligned={a} age={age}s".format(
                 c=cx.get("cycle"), ch=cx.get("coherence"),
                 m=cx.get("members_present"), t=cx.get("members_total"),
-                a=cx.get("aligned"),
+                a=cx.get("aligned"), age=cx.get("age_s"),
             )
         )
         if cx.get("thought_summary"):
             lines.append("  cortex.thought: " + str(cx["thought_summary"])[:140])
+    elif cx.get("age_s") is not None:
+        # 2026-08-12 fix: قبلاً همین حالت هم "UNREADABLE" چاپ می‌شد — گیج‌کننده
+        # وقتی فایل واقعاً خوانده شده ولی کهنه/halted است، نه اینکه اصلاً نیست.
+        lines.append(
+            "  cortex: STALE/HALTED (age={age}s{flags})".format(
+                age=int(cx["age_s"]),
+                flags=", flags=" + ",".join(stopped) if stopped else "",
+            )
+        )
     else:
         lines.append("  cortex: UNREADABLE")
 
     bb = snap.get("business_brain") or {}
     if bb.get("live"):
         lines.append(
-            "  business_brain: beat={b} proposals={n}".format(
-                b=bb.get("beat"), n=bb.get("n_proposals"))
+            "  business_brain: beat={b} proposals={n} age={age}s".format(
+                b=bb.get("beat"), n=bb.get("n_proposals"), age=bb.get("age_s"))
         )
         for t in bb.get("proposal_titles") or []:
             lines.append("  - " + t)
+    elif bb.get("age_s") is not None:
+        lines.append(
+            "  business_brain: STALE/HALTED (age={age}s{flags})".format(
+                age=int(bb["age_s"]),
+                flags=", flags=" + ",".join(stopped) if stopped else "",
+            )
+        )
     else:
         lines.append("  business_brain: UNREADABLE")
 

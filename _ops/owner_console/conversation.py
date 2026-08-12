@@ -191,14 +191,32 @@ _GREET_NIGHT = [
 
 
 def _read_org_state() -> dict:
-    """ORGANISM-STATE زنده را بخوان — fail-soft."""
+    """ORGANISM-STATE زنده را بخوان — fail-soft.
+
+    2026-08-12 fix: قبلاً فقط JSON را برمی‌گرداند و صداکننده‌ها هیچ‌وقت چک
+    نمی‌کردند فایل خالی/کهنه است یا organism واقعاً halted است — نتیجه: با
+    STOP-ORGANISM/HALT-ALL روشن، جواب همچنان می‌گفت «دو مغز فعاله، زنده است».
+    خودِ کلیدِ org["halted"] هم قابل‌اعتماد نیست (organism.py با STOP_ORGANISM
+    روشن هم گاهی halted=null می‌نویسد چون opslib.halted() آن فلگ را چک
+    نمی‌کند) — پس اینجا مستقیم از دیسک، مستقل از محتوای خودِ فایل چک می‌شود."""
+    import time as _t
+    from pathlib import Path
+    import json
+    ops_dir = Path(__file__).resolve().parent.parent
+    org_p = ops_dir / "state" / "ORGANISM-STATE.json"
+    out: dict = {}
     try:
-        from pathlib import Path
-        import json
-        org_p = Path(__file__).resolve().parent.parent / "state" / "ORGANISM-STATE.json"
-        return json.loads(org_p.read_text(encoding="utf-8"))
+        out = json.loads(org_p.read_text(encoding="utf-8"))
+        out["_age_s"] = _t.time() - org_p.stat().st_mtime
     except Exception:  # noqa: BLE001
-        return {}
+        out = {}
+    try:
+        out["_stopped_flags"] = [name for name in
+                                  ("STOP-ORGANISM", "STOP-CORTEX", "HALT-ALL")
+                                  if (ops_dir / name).exists()]
+    except Exception:  # noqa: BLE001
+        out["_stopped_flags"] = []
+    return out
 
 
 def _live_greeting(q: str) -> tuple[str, dict]:
@@ -220,6 +238,8 @@ def _live_greeting(q: str) -> tuple[str, dict]:
     pa = org.get("pain_assessment") if isinstance(org.get("pain_assessment"), dict) else {}
     pain = pa.get("pain")
     protective = org.get("protective_skip", False)
+    stopped_flags = org.get("_stopped_flags") or []
+    age_s = org.get("_age_s")
 
     # ضربانِ لحظه‌ای
     pulse_line = f"🫀 ضربان: beat={beat}"
@@ -228,22 +248,30 @@ def _live_greeting(q: str) -> tuple[str, dict]:
     if protective:
         pulse_line += " · ⏸ protective_skip"
 
-    # یک نکتهٔ زنده از وضعیت
-    live_bits = []
-    if beat and int(beat or 0) > 32000:
-        live_bits.append("بیدارم و دارم کار می‌کنم")
-    if pain is not None and float(pain or 0) > 0.5:
-        live_bits.append("یه کم درد دارم ولی فعالم")
+    # 2026-08-12 fix: یک نکتهٔ زندهٔ *صادق* — قبلاً وقتی خواندنِ وضعیت
+    # شکست می‌خورد (org={}) یا سیستم واقعاً halted بود، همچنان پیشِ‌فرضِ
+    # مثبتِ «دو مغزم فعاله و آماده‌ام» را نشان می‌داد.
+    if stopped_flags:
+        live_note = "متوقف است (" + "، ".join(stopped_flags) + ")"
+    elif not org or beat in (None, "?"):
+        live_note = "وضعیتِ زنده در دسترس نیست"
+    elif age_s is not None and age_s > 600:
+        live_note = f"آخرین وضعیت {int(age_s / 60)} دقیقه پیش بوده — ممکن است کهنه باشد"
+    elif beat and int(beat or 0) > 32000:
+        live_note = "بیدارم و دارم کار می‌کنم"
+    elif pain is not None and float(pain or 0) > 0.5:
+        live_note = "یه کم درد دارم ولی فعالم"
     elif pain is not None and float(pain or 0) < 0.2:
-        live_bits.append("حالم خوبه")
-    if not live_bits:
-        live_bits.append("دو مغزم فعاله و آماده‌ام")
+        live_note = "حالم خوبه"
+    else:
+        live_note = "دو مغزم فعاله و آماده‌ام"
 
-    text = f"{opener}\n{pulse_line}\n{live_bits[0]} — بپرس!"
+    text = f"{opener}\n{pulse_line}\n{live_note} — بپرس!"
 
     data = {"status": "GREETING", "brains": ["cortex", "business_brain"],
             "four_d_wired": False,
-            "witness": {"beat": beat, "pain": pain, "protective_skip": protective}}
+            "witness": {"beat": beat, "pain": pain, "protective_skip": protective,
+                        "stopped_flags": stopped_flags}}
     return text, data
 
 
@@ -256,6 +284,8 @@ def _live_intro_witness() -> tuple[str, dict]:
     beat = org.get("beat")
     pain = pa.get("pain")
     protective = org.get("protective_skip")
+    stopped_flags = org.get("_stopped_flags") or []
+    age_s = org.get("_age_s")
 
     # ضربانِ زنده در متن
     pulse = f"\n\n🫀 شاهدِ زنده: beat={beat}"
@@ -263,12 +293,21 @@ def _live_intro_witness() -> tuple[str, dict]:
         pulse += f" · pain={pain}"
     if protective:
         pulse += " · protective_skip=ON"
-    pulse += " — دو مغز فعاله، سیستم زنده است."
+    # 2026-08-12 fix: قبلاً بدونِ قید «سیستم زنده است» می‌گفت، حتی وقتی
+    # beat=None (خواندنِ وضعیت شکست خورده) یا واقعاً halted بود.
+    if stopped_flags:
+        pulse += " — متوقف است (" + "، ".join(stopped_flags) + ")."
+    elif not org or beat is None:
+        pulse += " — وضعیتِ زنده در دسترس نیست."
+    elif age_s is not None and age_s > 600:
+        pulse += f" — آخرین وضعیت {int(age_s / 60)} دقیقه پیش بوده، ممکن است کهنه باشد."
+    else:
+        pulse += " — دو مغز فعاله، سیستم زنده است."
 
     data["witness"] = {"beat": beat, "pain": pain,
-                       "protective_skip": protective}
+                       "protective_skip": protective,
+                       "stopped_flags": stopped_flags}
     return _INTRO_TEXT + pulse, data
-    return _INTRO_TEXT + extra, data
 
 
 def _selfmap_summary() -> tuple[str, dict]:
@@ -557,22 +596,37 @@ def handle(text: str) -> dict:
                           "نقشهٔ معماری در دسترس نیست (%s). تب System را ببین." % type(exc).__name__,
                           data={"status": "ARCH_UNAVAILABLE", "may_authorize": False})
     if _BUSINESS.search(q):
+        # 2026-08-12 fix (اشتباهِ معماری): این بلوک کپی‌پیستِ ناقصِ هندلرِ
+        # _EQUATION بالای خودش بود — equation_explainer را import می‌کرد
+        # (نه business_brain)، res از hasattr روی خودِ تابعِ explain همیشه
+        # None بود و هیچ‌وقت استفاده نمی‌شد، و هم شاخهٔ موفق هم شاخهٔ except
+        # همیشه «زنده» می‌گفتند — یعنی این هندلر ساختاراً نمی‌توانست چیزی جز
+        # «زنده» گزارش کند، حتی اگر business_brain واقعاً خاموش/از کار افتاده
+        # بود. حالا فایلِ وضعیتِ واقعی‌اش خوانده و سن/فلگِ توقف چک می‌شود.
         try:
-            import sys
+            import time as _t
             from pathlib import Path
-            mem_p = Path(__file__).resolve().parent.parent / "memory"
-            if str(mem_p) not in sys.path:
-                sys.path.insert(0, str(mem_p))
-            from equation_explainer import explain as _eq2  # noqa: WPS433
-            res = _eq2.explain if hasattr(_eq2, "explain") else None
-            text = ("مغز تجاری (business_brain) زنده و part of cortex؛ "
+            import json
+            ops_dir = Path(__file__).resolve().parent.parent
+            bb_p = ops_dir / "state" / "cortex" / "business-brain-latest.json"
+            stopped = [n for n in ("STOP-ORGANISM", "STOP-CORTEX", "HALT-ALL")
+                       if (ops_dir / n).exists()]
+            bb = json.loads(bb_p.read_text(encoding="utf-8"))
+            age_s = _t.time() - bb_p.stat().st_mtime
+            if stopped:
+                status_line = "متوقف است (" + "، ".join(stopped) + ")"
+            elif age_s > 3600:
+                status_line = f"آخرین وضعیت {int(age_s / 60)} دقیقه پیش — کهنه"
+            else:
+                status_line = f"زنده (beat={bb.get('beat')}, {int(age_s)}s پیش)"
+            text = ("مغز تجاری (business_brain): " + status_line + "؛ "
                     "پیشنهادهایش از مسیر proposal می‌آید، نه این چت.\n"
-                    "شاهد: _ops/cortex/business_brain.py · self_context")
+                    "شاهد: state/cortex/business-brain-latest.json")
             data = {"status": "BUSINESS", "may_authorize": False}
-        except Exception:  # noqa: BLE001
-            text = ("مغز تجاری (business_brain) زنده است؛ جزئیات در self_context.\n"
-                    "شاهد: _ops/cortex/business_brain.py")
-            data = {"status": "BUSINESS", "may_authorize": False}
+        except Exception as exc:  # noqa: BLE001
+            text = ("وضعیتِ business_brain نامعلوم/در دسترس نیست (%s).\n"
+                    "شاهد: state/cortex/business-brain-latest.json" % type(exc).__name__)
+            data = {"status": "BUSINESS_UNKNOWN", "may_authorize": False}
         return _reply("business", text, data=data)
     if _EFFECT.search(q):
         # فاز T/N — اثر: فقط proposal؛ PolicyGate مرجع؛ هرگز اجرا.
@@ -648,7 +702,20 @@ def handle(text: str) -> dict:
     if _CAPS.search(q):
         rows = catalog.discover()
         return _reply("capabilities", views.capabilities(rows), keyboard=views.keyboard(rows))
-    # 2026-08-12: سؤال‌های عمومی/دانشی → chat (مدل می‌تواند جواب بدهد؛ clarify نه)
+    # 2026-08-12 fix (همان کلاسِ باگِ owner_guidance): کاتالوگ باید قبل از
+    # fallbackِ سستِ _GENERAL_CHAT چک شود. قبلاً _GENERAL_CHAT (کلیدواژه‌های
+    # عمومی مثل «خبر») حتی owner_phrase ثبت‌شدهٔ خودِ یک قابلیت را می‌قاپید —
+    # مثلاً world_discovery دقیقاً عبارتِ «بیرون چه خبر» را به‌عنوان راهِ
+    # رسیدن به خودش ثبت کرده (capability-manifest.json)، ولی چون _GENERAL_CHAT
+    # زودتر چک می‌شد، کاربر به‌جای کارتِ واقعیِ قابلیت، پاسخِ عمومیِ stub
+    # می‌گرفت. حالا catalog.find() اول اجرا می‌شود؛ فقط وقتی match نداشت به
+    # _GENERAL_CHAT می‌رسیم.
+    rows = catalog.discover()
+    row = catalog.find(q, rows)
+    if row:
+        return _reply("capability", views.capability(row),
+                      data={"capability_id": row["capability_id"], "status": row["status"]})
+    # سؤال‌های عمومی/دانشی → chat (مدل می‌تواند جواب بدهد؛ clarify نه)
     if _GENERAL_CHAT.search(q):
         return _reply(
             "chat",
@@ -659,11 +726,6 @@ def handle(text: str) -> dict:
             "اگر جوابِ دانشی می‌خواهی، با مدل (همکار) بپرس — این پاسخ stub است.",
             data={"status": "GENERAL_CHAT_STUB", "may_authorize": False},
         )
-    rows = catalog.discover()
-    row = catalog.find(q, rows)
-    if row:
-        return _reply("capability", views.capability(row),
-                      data={"capability_id": row["capability_id"], "status": row["status"]})
     # clarify سبک: یک بار snapshot (cache) — نه goal+runtime جدا و سنگین.
     try:
         _goal = status.current_goal()

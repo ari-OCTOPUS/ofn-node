@@ -81,7 +81,32 @@ def _model_enhance(base_reply: dict, owner_text: str) -> dict:
         enhanced = _stub_enhance(base_reply, owner_text)
         enhanced["model_source"] = "model-fallback-stub"
         data = dict(enhanced.get("data") or {})
-        data["warning"] = f"model_call_failed:{result.get('reason') or 'unknown'}"
+        reason = result.get("reason") or "unknown"
+        data["warning"] = f"model_call_failed:{reason}"
+        # 2026-08-12 fix: قبلاً دلیلِ واقعیِ شکست (مثلاً سهمیهٔ روزانه تمام
+        # شده) فقط در data.warning می‌رفت — فیلدی که app.js هیچ‌جا نمی‌خواند
+        # (بررسی شد: صفر ارجاع به .warning در buildSourcesPanel). کاربر متنِ
+        # عمومیِ stub را می‌دید انگار یک شکستِ گذرا بود، نه یک محدودیتِ
+        # ساعت‌ها-طولانی. اینجا مستقیم از fugu_quota.status() (فقط‌خواندنی،
+        # بدون تماسِ پولی) چک می‌شود — مستقل از اینکه reason چه رشته‌ای بود،
+        # چون model_router در برخی مسیرها (quota denial) به‌جای reason
+        # مشخص فقط None برمی‌گرداند و اینجا به "no-answer" عمومی می‌رسد.
+        try:
+            import sys as _qsys
+            _cortex_dir = str(HERE.parent / "cortex")
+            if _cortex_dir not in _qsys.path:
+                _qsys.path.insert(0, _cortex_dir)
+            import fugu_quota as _fq  # noqa: WPS433
+            qs = _fq.status()
+            if qs.get("remaining", 1) <= 0:
+                enhanced["text"] = (
+                    f"سهمیهٔ روزانهٔ مدل پولی تمام شده ({qs.get('used_total')}/"
+                    f"{qs.get('cap')}) — تا نیمه‌شب UTC ریست می‌شود. "
+                    "این یک شکستِ گذرا نیست؛ دوباره‌فرستادن الان کمکی نمی‌کند.\n\n"
+                    + str(enhanced.get("text") or "")
+                )
+        except Exception:  # noqa: BLE001 — چک اختیاری؛ شکستش نباید جوابِ stub را ببرد
+            pass
         enhanced["data"] = data
         return enhanced
 

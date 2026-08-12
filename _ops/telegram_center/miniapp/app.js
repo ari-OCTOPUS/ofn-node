@@ -724,9 +724,12 @@
   function renderTruth(el){
     el = el || content;
     api("/api/current-truth").then(function(d){
-      el.innerHTML = '<div class="card"><h2>Current Truth</h2>'+
+      // 2026-08-12 fix: قبلاً هیچ نشانهٔ کهنگی نبود — فایلی به نامِ «حقیقتِ
+      // جاری» می‌توانست روزها بدونِ تغییر بماند و همیشه یکسان نشان داده شود.
+      var ageNote = (d.age_s!=null) ? ' <span class="muted">(سن: '+Math.round(d.age_s/60)+'دقیقه)</span>' : '';
+      el.innerHTML = '<div class="card"><h2>Current Truth'+pfStale(d)+'</h2>'+
         (d.preview?'<pre>'+esc(d.preview)+'</pre>':'<div class="muted">'+esc(d.status)+(d.reason?": "+esc(d.reason):"")+'</div>')+
-        '<div class="muted" style="margin-top:8px">read-only — '+esc(d.path||"")+'</div></div>';
+        '<div class="muted" style="margin-top:8px">read-only — '+esc(d.path||"")+ageNote+'</div></div>';
     });
   }
 
@@ -2027,7 +2030,12 @@
       if(_renderSeq !== myseq) return;
       if(!d || d.status === "error"){ el.innerHTML='<div class="err">خطا: '+esc(d&&d.reason||"")+'</div>'; return; }
       var sm = d.self_model||{}, doc = d.doctor||{}, pu = d.pulse||{}, bc = d.bcm||{}, sem = d.semantic||{}, con = d.consolidation||{};
-      var h = '<div class="card"><h2>🧠 خودآگاهیِ کد'+pill(sm.error?'نامعلوم':(sm.self_awareness_pct||'?')+'٪', sm.error?'unk':'ok')+'</h2>'+
+      // 2026-08-12 fix: بک‌اند age_s را برمی‌گرداند ولی اینجا هیچ‌وقت خوانده
+      // نمی‌شد — self-model کهنه همیشه به‌رنگِ سبز/تازه نشان داده می‌شد.
+      var smStale = sm.age_s!=null && sm.age_s > 3*3600;
+      var smTone = sm.error ? 'unk' : (smStale ? 'blocked' : 'ok');
+      var smAgeNote = sm.age_s!=null ? ' <span class="muted">(سن: '+Math.round(sm.age_s/60)+'دقیقه)</span>' : '';
+      var h = '<div class="card"><h2>🧠 خودآگاهیِ کد'+pill(sm.error?'نامعلوم':(sm.self_awareness_pct||'?')+'٪', smTone)+smAgeNote+'</h2>'+
         '<div class="kv"><div class="k">ماژول‌ها</div><div>'+fa(sm.modules||0)+'</div>'+
         '<div class="k">خطوطِ کد</div><div>'+fa(sm.total_lines||0)+'</div>'+
         '<div class="k">تست‌ها</div><div>'+fa(sm.n_tests||0)+'</div>'+
@@ -2167,6 +2175,11 @@
     })();
     // mode: "collab" | "ask" | "mirror" | "guide"
     var mode = collabDefault ? "collab" : "ask";
+    // 2026-08-12 fix: آخرین حالتِ ایستا (collab/ask) که کاربر صریحاً انتخاب
+    // کرده بود — برای برگرداندنِ درست بعدِ guide/mirrorِ یک‌باره؛ قبلاً
+    // همیشه به collabDefault برمی‌گشت، حتی اگر کاربر عمداً حالتِ دیگری را
+    // روشن کرده بود (مثلاً collabDefault=true ولی کاربر Ask را زده بود).
+    var prevMode = mode;
     function paint(){
       collabChip.classList.toggle("on", mode === "collab");
       plainChip.classList.toggle("on", mode === "ask");
@@ -2179,7 +2192,10 @@
         hint.textContent = "به کورتکس: با «focus: متن» بنویس (مثلاً «focus: روی امنیت تمرکز کن») → owner_guidance.jsonl (cortex در cycle می‌خواند · بدون IPC · بدون اثر بیرونی).";
       }
     }
-    function setMode(m){ mode = m; paint(); hapticSelect(); }
+    function setMode(m){
+      if(m !== "guide" && m !== "mirror"){ prevMode = m; }
+      mode = m; paint(); hapticSelect();
+    }
     collabChip.addEventListener("click", function(){ setMode("collab"); });
     plainChip.addEventListener("click", function(){ setMode("ask"); });
     mirrorChip.addEventListener("click", function(){ setMode("mirror"); });
@@ -2251,12 +2267,17 @@
       if(sc && (sc.cortex || sc.business_brain)){
         var cx = sc.cortex || {};
         var bb = sc.business_brain || {};
+        // 2026-08-12 fix: live قبلاً فقط یعنی «فایل parse شد»، نه تازه بودن —
+        // حالا brain_pulse سنِ واقعی (age_s) هم می‌فرستد؛ نشانش می‌دهیم تا
+        // live=false کهنه‌بودن را توضیح بدهد نه فقط یک بولیِ خشک.
         body += (body?"\n\n":"")+"مغزها (file-bridge):\n"+
           "· cortex: live="+(cx.live===true?"true":"false")+
+          (cx.age_s!=null?" age="+Math.round(cx.age_s)+"s":"")+
           " cycle="+(cx.cycle!=null?cx.cycle:"?")+
           " coherence="+(cx.coherence!=null?cx.coherence:"?")+
           " aligned="+(cx.aligned===true?"true":(cx.aligned===false?"false":"?"))+
           "\n· business_brain: live="+(bb.live===true?"true":"false")+
+          (bb.age_s!=null?" age="+Math.round(bb.age_s)+"s":"")+
           " beat="+(bb.beat!=null?bb.beat:"?")+
           " proposals="+(bb.n_proposals!=null?bb.n_proposals:"?")+
           "\n· bridge="+(sc.bridge||"file-read-only")+
@@ -2322,6 +2343,17 @@
         '<pre class="muted" style="white-space:pre-wrap;font-size:12px;margin:6px 0 0">'+
         esc(body)+'</pre></details>';
     }
+    // 2026-08-12 fix: پیام شکست قبلاً همیشه یک پسوندِ ثابت داشت («دوباره
+    // بپرس؛ DeepSeek گاهی ۲۰-۴۰ثانیه») — حتی وقتی دلیل سهمیهٔ تمام‌شده یا
+    // halt بود که تا نیمه‌شب/رأی مالک حل نمی‌شود. دوباره‌فرستادن در آن حالت
+    // فقط زمانِ کاربر را تلف می‌کند، پس پیام باید فرق کند.
+    function _failureSuffix(reason){
+      var r = String(reason||"");
+      if(/daily-cap|quota|stop-fugu|kill-switch|halt/i.test(r)){
+        return " — شکستِ گذرا نیست (سهمیه/توقف)؛ دوباره‌فرستادن الان کمکی نمی‌کند.";
+      }
+      return " — دوباره بپرس؛ DeepSeek گاهی ۲۰–۴۰ثانیه طول می‌کشد.";
+    }
     function ask(){
       var q = (input.value||"").trim();
       if(!q){ toast("سؤال خالی است","warn"); return; }
@@ -2334,7 +2366,7 @@
       // 2026-08-12 fix: guide/mirror باید one-shot باشند — چیپ قبلاً بعد از
       // ارسال روشن می‌ماند، پس پیام بعدیِ نامرتبط بی‌صدا به همان مسیر می‌رفت
       // (مثلاً «از خودت بگو» بعد از «به کورتکس» به owner_guidance می‌خورد).
-      if(useGuide || useMirror){ mode = collabDefault ? "collab" : "ask"; paint(); }
+      if(useGuide || useMirror){ mode = prevMode; paint(); }
       var endpoint = useGuide ? "/api/brain-guide"
         : (useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask"));
       var payload = (useCollab || useGuide) ? {text: q} : {question: q};
@@ -2371,7 +2403,7 @@
           } else if(r && r.reason === "feature_disabled"){
             addTurn(q, "همکار خاموش است (OCTOPUS_WIRE_COLLAB=0). روشن‌کردنش فقط با رأی مالک.", "", true);
           } else {
-            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")", "", true);
+            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")"+_failureSuffix(r&&r.reason), "", true);
           }
         } else if(r && r.ok){
           var vaultSrc = "";
@@ -2399,7 +2431,7 @@
           }
           addTurn(q, r.answer||"", meta, false, extraSrc);
         } else {
-          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+") — دوباره بپرس؛ DeepSeek گاهی ۲۰–۴۰ثانیه طول می‌کشد.", "", true);
+          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")"+_failureSuffix(r&&r.reason), "", true);
         }
         input.value = "";
         go.disabled = false; input.disabled = false; go.removeAttribute("data-busy");

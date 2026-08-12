@@ -545,7 +545,15 @@ def get_current_truth(root: "Path | None" = None) -> dict:
         text = _TRUTH.read_text("utf-8", errors="replace")
         # اولین ~۲۰ خطِ غیر-frontmatter را بگیر
         lines = [ln for ln in text.splitlines() if ln.strip() and not ln.startswith("---")][:25]
-        return {"status": "ok", "preview": _scrub("\n".join(lines)), "path": str(_TRUTH.name)}
+        # 2026-08-12 fix: این تنها handlerِ این فایل بود که سنِ فایل را
+        # برنمی‌گرداند — _cardiac_vitals و get_selfmap_state همین‌جا هر دو
+        # عمداً age_s/stale می‌دهند («نبودِ رقمِ بهتر از رقمِ غلط است») ولی
+        # CURRENT-TRUTH، دقیقاً فایلی که قرار است «جاری» باشد، همیشه
+        # status:"ok" بدونِ هیچ نشانهٔ کهنگی برمی‌گرداند.
+        age_s = time.time() - _TRUTH.stat().st_mtime
+        return {"status": "ok", "preview": _scrub("\n".join(lines)),
+                "path": str(_TRUTH.name), "age_s": round(age_s, 1),
+                "stale": age_s > 86400}
     except Exception as exc:  # noqa: BLE001
         return {"status": "error", "reason": f"{type(exc).__name__}"}
 
@@ -925,6 +933,14 @@ def get_cognitive_scan_state(root: "Path | None" = None) -> dict:
     # ۱) self-model — خودآگاهیِ کد
     sm = _read_json_safe(rt / "cortex" / "self-model.json")
     if isinstance(sm, dict):
+        # 2026-08-12 fix: updated_at از قبل برمی‌گشت ولی renderCognitiveScan
+        # در app.js هیچ‌جا نمی‌خواندش — یک self-model کهنه همیشه با درصدِ
+        # سبز/به‌ظاهر-تازه نشان داده می‌شد. age_s از mtimeِ خودِ فایل
+        # مستقیم‌تر و مستقل از فرمتِ رشتهٔ ts است.
+        try:
+            sm_age_s = time.time() - (rt / "cortex" / "self-model.json").stat().st_mtime
+        except OSError:
+            sm_age_s = None
         out["self_model"] = {
             "modules": sm.get("n_modules"),
             "self_awareness_pct": sm.get("self_awareness_pct"),
@@ -932,6 +948,7 @@ def get_cognitive_scan_state(root: "Path | None" = None) -> dict:
             "n_tests": sm.get("n_tests"),
             "undocumented": len(sm.get("undocumented_modules", []) or []),
             "updated_at": sm.get("updated_at", sm.get("ts", "")),
+            "age_s": round(sm_age_s, 1) if sm_age_s is not None else None,
         }
     else:
         out["self_model"] = {"error": True}

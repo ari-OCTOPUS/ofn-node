@@ -120,14 +120,27 @@ def _self_context(limit: int = 2000, *, query: str = "") -> str:
     chunks: list[str] = []
     ops = Path(__file__).resolve().parent.parent
     try:
-        org = json.loads((ops / "state" / "ORGANISM-STATE.json").read_text(encoding="utf-8"))
+        org_p = ops / "state" / "ORGANISM-STATE.json"
+        org = json.loads(org_p.read_text(encoding="utf-8"))
         pa = org.get("pain_assessment") or {}
         mc = org.get("math_control") if isinstance(org.get("math_control"), dict) else {}
+        # 2026-08-12 fix: org["halted"] خودش قابل‌اعتماد نیست — organism.py
+        # حتی با STOP-ORGANISM روشن گاهی halted=null می‌نویسد چون
+        # opslib.halted() آن فلگِ خاص را چک نمی‌کند (شکافِ مستندشده در
+        # opslib.py، پشتِ فلگِ پیش‌فرض-خاموشِ OCTOPUS_WIRE_KILL_SEAM). اینجا
+        # مستقیم از دیسک، مستقل از محتوای خودِ فایل، چک می‌شود؛ سنِ فایل هم
+        # به مدل داده می‌شود تا beatِ کهنه به‌جای تازه دیده نشود.
+        stopped = [n for n in ("STOP-ORGANISM", "STOP-CORTEX", "HALT-ALL")
+                   if (ops / n).exists()]
+        age_s = time.time() - org_p.stat().st_mtime
+        flag_note = (" ⚠️STOPPED[" + ",".join(stopped) + "]") if stopped else ""
         chunks.append(
-            "organism: beat={b} halted={h} pain={p} protective_skip={ps}".format(
+            "organism: beat={b} halted={h} pain={p} protective_skip={ps} "
+            "age={age}s{flag}".format(
                 b=org.get("beat"), h=org.get("halted"),
                 p=pa.get("pain") if isinstance(pa, dict) else None,
                 ps=org.get("protective_skip"),
+                age=int(age_s), flag=flag_note,
             )
         )
         if mc:

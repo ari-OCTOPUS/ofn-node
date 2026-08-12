@@ -158,6 +158,12 @@ def build(*, now: float | None = None) -> dict:
         blockers.append(f"state-write-failures-{len(wf)}")
     if self_model["authority"] != "AUTHORITATIVE":
         blockers.append("self-model-not-fresh")
+    # 2026-08-12 fix: cortex["authority"] از قبل محاسبه می‌شد (همان الگوی
+    # self_model چند خط بالاتر، sla_s=1800) ولی هیچ‌جا در blockers() چک
+    # نمی‌شد — تنها stateِ این تابع که STALE می‌شد بدونِ اینکه در هیچ
+    # سیگنالِ تصمیمی (و از آنجا در collab_model_adapter._self_context) ظاهر شود.
+    if cortex["authority"] != "AUTHORITATIVE":
+        blockers.append("cortex-not-fresh")
     if not heart["production_open"]:
         blockers.append("heart-production-wire-closed")
     if isinstance(coverage, (int, float)) and coverage < 100:
