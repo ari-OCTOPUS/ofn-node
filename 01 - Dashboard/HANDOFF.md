@@ -46,7 +46,8 @@ updated: 2026-08-12
   · مرزهای §7 در سطحِ schema: `may_execute=False` · `sandbox=no_network` · `authority=propose` · testability>0
   · **ADR-037 amend:** `epistemics/schemas.py` دومین کابینِ Pydanticِ _ops (Pydantic فقط در همین یک فایل)
   · suites: `test_epistemic_schemas.py` ۴۵/۴۵ · ۵ سوییتِ experiments همگی سبز (بدونِ regression)
-  · قدم بعدی: C2 (receipt_store + provenance + replay verifier)
+  · **C2 committed:** `31d3d7c` — receipt_store + provenance + replay verifier + segment-sig؛ تست ۲۰/۲۰ سبز
+  · قدم بعدی: C3 (parametric world generator + sandbox runner + test_planner)
   · **committed:** `795a052` (C1) — رأیِ git حل‌شده (مالک: «هردو» 2026-08-13)
 
 - ✅🧠 **2026-08-12 شب — Cognitive Runtime v1 کامل: Events + Run + SSE + Truth + Context + Memory Formation.**
