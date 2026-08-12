@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Iterable, Mapping, Optional
 
 # ---------------------------------------------------------------------------
@@ -92,3 +94,92 @@ def material_hash_of(file_contents: Mapping[str, str]) -> str:
         for path, content in file_contents.items()
     }
     return canonical_hash(manifest)
+
+
+# ---------------------------------------------------------------------------
+# Hash-chain store helpers — append-only JSONL (ADR-039 C2)
+#
+# الگوی مشترک برای receipt_store و autonomy_provenance: هر رکورد
+# `prev_hash` (← hashِ رکوردِ قبلی، GENESIS برای اولین) و `hash`
+# (← chain_hash(prev_hash, body)) می‌گیرد. هم‌الگو با epistemics/emit.py.
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class ChainVerification:
+    """نتیجهٔ بازبینیِ زنجیرهٔ hash-chained."""
+    ok: bool
+    n_records: int
+    broken_at: Optional[int]    # ایندکسِ اولین رکوردِ شکسته (None اگر سالم)
+    reason: str
+
+
+def last_chain_hash(path) -> str:
+    """آخرین `hash` زنجیره (GENESIS اگر خالی/غایب/خراب)."""
+    p = Path(path)
+    if not p.exists():
+        return GENESIS
+    last = None
+    with p.open(encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                last = line.strip()
+    if not last:
+        return GENESIS
+    try:
+        return json.loads(last).get("hash", GENESIS)
+    except json.JSONDecodeError:
+        return GENESIS
+
+
+def append_chained(path, body: Mapping[str, Any]) -> dict:
+    """یک رکورد را به زنجیرهٔ append-only اضافه کن و رکوردِ کامل را برگردان.
+
+    `hash = chain_hash(prev_hash, body)`؛ `prev_hash` و `hash` به رکورد اضافه
+    می‌شوند. body نباید خودش `hash`/`prev_hash` داشته باشد (metadataِ زنجیره است).
+    """
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    if "hash" in body or "prev_hash" in body:
+        raise ValueError("body must not contain hash/prev_hash (chain metadata)")
+    parent = last_chain_hash(p)
+    h = chain_hash(parent, body)
+    record = dict(body)
+    record["prev_hash"] = parent
+    record["hash"] = h
+    with p.open("a", encoding="utf-8") as f:
+        f.write(canonical_json(record) + "\n")
+    return record
+
+
+def verify_hash_chain(path) -> ChainVerification:
+    """زنجیره را بازبینی کن: هر رکورد باید prev_hash و hashِ درست داشته باشد.
+
+    هر تغییری در محتوای یک رکورد (حتی یک بایت) ⇒ hash_mismatch؛ هر گسست در
+    پیوندِ prev_hash ⇒ chain_break. §11 #9 (chain) + #12 (replay).
+    """
+    p = Path(path)
+    if not p.exists():
+        return ChainVerification(ok=True, n_records=0, broken_at=None, reason="empty/missing store")
+    prev = GENESIS
+    idx = 0
+    with p.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                return ChainVerification(ok=False, n_records=idx, broken_at=idx,
+                                         reason=f"unparseable@{idx}")
+            ph = rec.get("prev_hash")
+            h = rec.get("hash")
+            if ph != prev:
+                return ChainVerification(ok=False, n_records=idx, broken_at=idx,
+                                         reason=f"chain_break@{idx}: prev_hash!=tip")
+            body = {k: v for k, v in rec.items() if k not in ("hash", "prev_hash")}
+            if chain_hash(prev, body) != h:
+                return ChainVerification(ok=False, n_records=idx, broken_at=idx,
+                                         reason=f"hash_mismatch@{idx}")
+            prev = h
+            idx += 1
+    return ChainVerification(ok=True, n_records=idx, broken_at=None, reason="ok")

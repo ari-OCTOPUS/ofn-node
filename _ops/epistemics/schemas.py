@@ -16,7 +16,7 @@ Pydantic در کلِ epistemics فقط در همین یک فایل مجاز اس
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -203,3 +203,39 @@ class GateDecision(BaseModel):
                 "INCONCLUSIVE must not change belief (belief_delta_log_odds must be 0.0)"
             )
         return self
+
+
+# ---------------------------------------------------------------------------
+# Provenance — یالِ DAG خودمختاری (ADR-039 §2، C2)
+# ---------------------------------------------------------------------------
+class Initiator(str, Enum):
+    """آغازگرِ یک یالِ provenance."""
+    SELF = "self"        # ارگانیسم خودش (telemetry → proposal)
+    HUMAN = "human"      # دخالتِ مالک/انسان
+    SYSTEM = "system"    # سیستم/زیرساخت
+
+
+class ProvenanceEdge(BaseModel):
+    """یک یالِ DAG خودمختاری (همان artifactِ توصیه‌شده در ممیزی #1).
+
+    نکتهٔ صادقانه (ADR-039 §2): اگر هر یالِ پس از start دارای `human_prompt_id`
+    یا `initiator==HUMAN` باشد، آن run دیگر شاهدِ self-initiation نیست —
+    می‌تواند شاهدِ capability باشد ولی باید صادقانه برچسب بخورد.
+    """
+    model_config = _STRICT_FROZEN
+
+    edge_id: str = Field(min_length=1)
+    claim_id: str = Field(min_length=1)
+    plan_id: Optional[str] = None
+    receipt_id: Optional[str] = None
+    decision_id: Optional[str] = None
+    trigger_source: str = Field(min_length=1)          # "telemetry" / "human_prompt" / ...
+    initiator: Initiator
+    human_prompt_id: Optional[str] = None              # پر بودن ⇒ human edge
+    goal_id: Optional[str] = None
+    evidence_ids: List[str] = Field(default_factory=list)
+    approval_id: Optional[str] = None
+    tool_calls: List[Dict[str, Any]] = Field(default_factory=list)
+    side_effects: List[str] = Field(default_factory=list)
+    rollback_id: Optional[str] = None
+    fencing_token: Optional[str] = None
