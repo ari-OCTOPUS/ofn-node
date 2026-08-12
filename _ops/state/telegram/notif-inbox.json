@@ -1,0 +1,1035 @@
+{
+ "schema_version": 1,
+ "items": [
+  {
+   "id": "notif_discovery_20260809T220927_18b5d78f",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>2 چیزِ جدید یاد گرفتم!</b>\n──────────\n💡 یه ایده برای بهترشدن: `attribution.claimed` را از صفر دربیاید\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n💡 یه ایده برای بهترشدن: سیم‌کشیِ اعمالِ ادغام",
+   "meta": {},
+   "created_at": "2026-08-09T22:09:27+1000",
+   "created_ts": 1786277367.756437,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260809T220928_9ddda802",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 4) ترس روی [&#x27;doctor&#x27;] — استرس=1 → خود-تغییری منجمد\n• (شدت 3) خطای پرتکرار HTTPError ×2 — نامعلوم (نیاز به کاوش)\n🔧 کوچک‌ترین فیکس: {&#x27;action&#x27;: &#x27;بررسی و آزمون روش\\u200cهای جدید برای انجام update بدون نیاز به ری\\u200cاستارت&#x27;, &#x27;estimated_cost&#x27;: None, &#x27;expected_timeframe&#x27;: &#x27;چ\n⛔ سدِ راه: محدودیت فناوری و عملیاتی\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (6):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-77acd575</code> [submitted] organ:sync_agent — leg اسکلت — بی‌سیگنال\n  · <code>RFC-f880aefd</code> [submitted] organ:mining — leg اسکلت — بی‌سیگنال\n  · <code>RFC-31562e11</code> [submitted] organ:crypto — leg اسکلت — بی‌سیگنال\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-09T22:09:28+1000",
+   "created_ts": 1786277368.3417614,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260809T220928_c59aab26",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 20 · coherence 0.647 · تنش: 🔴 ترس\n⚠️ اعضای کهنه: heart, producers, work_pump\n💭 آخرین فکر: [local] البته، مهم‌ترین کار حالا به بررسی و رفع نقص بخش‌های نیازمند توجه است.\n⚖️ <b>مناظره</b> — 36 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نیازهای داده‌ها در phase3_creativity_doctor.\n<b>2.</b> استفاده از API Key موقت با استفاده از رمزگذاری SHA-256\n<b>3.</b> استفاده از مصالح محیط‌شناسی محلی و محلي\n▸ 33 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-09T22:09:28+1000",
+   "created_ts": 1786277368.773676,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260809T220928_418d72b9",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🔴\n──────────\nbeat 29817 · period 489.97s · baro 8.1662\nvelocity 30.7917/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 474/2000 (مانده 1526)\nsetpoint: epoch 40 · target_σ 1.0 · cap 2000\n──────────\n🔴 تنشِ ارگانیسم بالا: 🔴 ترس (in_fear: doctor)\n🛡 protective redirect فعال (درد/nociceptor)\n⚫ نقطهٔ مرده: ❤️ قلب\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-09T22:09:28+1000",
+   "created_ts": 1786277368.8578799,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260810T121432_6ee9573e",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-27a17291"
+   },
+   "created_at": "2026-08-10T12:14:32+1000",
+   "created_ts": 1786328072.9896746,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260810T121510_9a4abec0",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 4) ترس روی [&#x27;doctor&#x27;] — استرس=1 → خود-تغییری منجمد\n• (شدت 3) خطای پرتکرار HTTPError ×2 — نامعلوم (نیاز به کاوش)\n🔧 کوچک‌ترین فیکس: به‌روزرسانی توافق‌نامه D12-disagree-once و D8-effect-not-flag برای اطمینان از پیاده‌سازی شرط مالک بدون ری‌استارت\n⛔ سدِ راه: توافق‌نامه‌ها D12-disagree-once و D8-effect-not-flag که نیاز به تغییر دارند\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (2):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-27a17291</code> [submitted] متابولیسمِ داده — گرسنه (بی‌خوراک): accounting، crypto، knowledge، min\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-10T12:15:10+1000",
+   "created_ts": 1786328110.5216978,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260810T121511_4dccd823",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 2 · coherence 0.447 · تنش: 🟡 استرس\n⚠️ اعضای کهنه: organism, heart, producers, work_pump\n💭 آخرین فکر: [local] اندیشیدن برای افزایش عملکرد قلب و تنظیم ریتم آن مهم است.\n⚖️ <b>مناظره</b> — 39 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نیازهای داده‌ها در phase3_creativity_doctor.\n<b>2.</b> استفاده از API Key موقت با استفاده از رمزگذاری SHA-256\n<b>3.</b> استفاده از مصالح محیط‌شناسی محلی و محلي\n▸ 36 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-10T12:15:11+1000",
+   "created_ts": 1786328111.0171213,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260810T121511_5ce9206b",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟡\n──────────\nbeat 30065 · period 489.97s · baro 2.4576\nvelocity 7.1667/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 62/2000 (مانده 1938)\nsetpoint: epoch 40 · target_σ 1.0 · cap 2000\n──────────\n🛡 protective redirect فعال (درد/nociceptor)\n⚫ نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker), ❤️ قلب, 🔁 لوپِ بخش‌ها, 💼 مغزِ دوم\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-10T12:15:11+1000",
+   "created_ts": 1786328111.1391037,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_leg_proposal_20260810T150715_fd413154",
+   "category": "leg_proposal",
+   "kind": "pointer",
+   "title": "📨 پیشنهادِ پا",
+   "body": "",
+   "meta": {
+    "goto_tab": "approvals",
+    "proposal_id": "P-5e642dd99399",
+    "leg_id": "ziman-gallery"
+   },
+   "created_at": "2026-08-10T15:07:15+1000",
+   "created_ts": 1786338435.765425,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_discovery_20260810T150856_6165a2a9",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>1 چیزِ جدید یاد گرفتم!</b>\n──────────\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n💡 یه ایده برای بهترشدن: `attribution.claimed` را از صفر دربیاید\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)",
+   "meta": {},
+   "created_at": "2026-08-10T15:08:56+1000",
+   "created_ts": 1786338536.8975546,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260810T151241_1ac2cd36",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)",
+   "meta": {},
+   "created_at": "2026-08-10T15:12:41+1000",
+   "created_ts": 1786338761.2465534,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260810T162658_320ad254",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ circuit RECOVERED for orchestr — closed after 2 consecutive successes",
+   "meta": {},
+   "created_at": "2026-08-10T16:26:58+1000",
+   "created_ts": 1786343218.283613,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260810T181612_7a0c5735",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: اجرای شرطِ مالک: واقعی‌کردن ارزیابی سایه پیش از promote (بدون ری‌استارت و تا پایان امروز).\n• (شدت 3) خطاهای پرتکرار (TimeoutError ×2 و failed ×1) — نامعلوم (نیاز به کاوش)\n• (شدت 4) کوریِ مالی در لِگ accounting — فقط تعداد/mtime دیده می‌شود، مقدار/نام/عدد خوانده نمی‌شود\n• (شدت 3) ایستِ پیشنهادها (stalled=33) — گلوگاه در تصمیم‌گیری یا سیم‌کشی ناقص\n🔧 کوچک‌ترین فیکس: {&#x27;description&#x27;: &#x27;اجرای شرط مالک با استفاده از یک کارت جدید برای واقعی\\u200cکردن ارزیابی سایه پیش از promote (بدون ری\\u200cاستارت و تا پایان \n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (2):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-27a17291</code> [submitted] متابولیسمِ داده — گرسنه (بی‌خوراک): accounting، crypto، knowledge، min\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-10T18:16:12+1000",
+   "created_ts": 1786349772.6638973,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260810T181612_eaaaa783",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 14 · coherence 0.977 · تنش: 🟡 استرس\n💭 آخرین فکر: [local] البته، مهم‌ترین کار حالا اصلاح بخش‌های نیاز به توجه است.\n⚖️ <b>مناظره</b> — 40 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نیازهای داده‌ها در phase3_creativity_doctor.\n<b>2.</b> استفاده از API Key موقت با استفاده از رمزگذاری SHA-256\n<b>3.</b> استفاده از مصالح محیط‌شناسی محلی و محلي\n▸ 37 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-10T18:16:12+1000",
+   "created_ts": 1786349772.7360668,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260810T181612_4cbffa73",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟡\n──────────\nbeat 30414 · period 184.98s · baro 3.083\nvelocity 8.4583/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 263/2000 (مانده 1737)\nsetpoint: epoch 41 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-10T18:16:12+1000",
+   "created_ts": 1786349772.8173528,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260810T183039_38327ffe",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ pulse-arbiter sink write failed: [WinError 5] Access is denied: 'F:\\\\backup\\\\_ops\\\\state\\\\pulse\\\\arbiter-latest.json.tmp' -> 'F:\\\\backup\\\\_ops\\\\state\\\\pulse\\\\arbiter-latest.json'",
+   "meta": {},
+   "created_at": "2026-08-10T18:30:39+1000",
+   "created_ts": 1786350639.1590886,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_health_digest_20260810T213714_663b56e5",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>notify:brief</b> ×۱ — 🌙 جمع‌بندی شب امروز کاری تمام نشد. مسدود ماند: 🚧 lead: آدرس یا حداقل محله/suburb",
+   "meta": {},
+   "created_at": "2026-08-10T21:37:14+1000",
+   "created_ts": 1786361834.403988,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_discovery_20260810T234933_01edbd9d",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>1 چیزِ جدید یاد گرفتم!</b>\n──────────\n💡 یه ایده برای بهترشدن: `attribution.claimed` را از صفر دربیاید\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n💡 یه ایده برای بهترشدن: `attribution.claimed` را از صفر دربیاید",
+   "meta": {},
+   "created_at": "2026-08-10T23:49:33+1000",
+   "created_ts": 1786369773.1459193,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T000145_94adbdc6",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "dt0811s0"
+   },
+   "created_at": "2026-08-11T00:01:45+1000",
+   "created_ts": 1786370505.1839507,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T000207_3bf84fe4",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-2f4b9b00d4e9"
+   },
+   "created_at": "2026-08-11T00:02:07+1000",
+   "created_ts": 1786370527.604035,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_health_digest_20260811T000605_e325b99b",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>c6</b> ×۱ — 🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطاهای پرتکرار (TimeoutError ×2 و failed ×1)»",
+   "meta": {},
+   "created_at": "2026-08-11T00:06:05+1000",
+   "created_ts": 1786370765.513021,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260811T001754_0d4b8b71",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: رفعِ کوریِ مالیِ accounting (خواندنِ اعداد) برای محاسبه‌ی درآمد نقاشی.\n• (شدت 4) کوریِ مالیِ مطلق در لِگ accounting (خواندنِ صفر مقدار/نام/عدد) — نقص فنی در پارسرِ workbook یا عدم دسترسیِ صحیح به فایل (خط‌قرمز در منبع مالی)\n• (شدت 3) توقفِ ۳۳ پیشنهاد (Stalled) — گلوگاهِ تصمیم‌گیری یا لنگر انداختنِ فرایند در فازِ سایه/پروموت\n• (شدت 2) افزایشِ خطاهای Time-out (۳ مورد) — تلاشِ سیم‌ها برای اتصال به منابع غیرفعال یا کند\n🔧 کوچک‌ترین فیکس: تعریف منبعِ دادهٔ واقعیِ بعدی (پروژه 02) و اعمال راهنمایی دقیق برای خواندنِ اعدادِ workbook.\n⛔ سدِ راه: نکاتِ پروازِ مالیِ انسانی (knowledge) نشان‌دهندهٔ عدم توجهِ مالک به نکاتِ پروازِ مالیِ انسانی\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (2):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-27a17291</code> [submitted] متابولیسمِ داده — گرسنه (بی‌خوراک): accounting، crypto، knowledge، min\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T00:17:54+1000",
+   "created_ts": 1786371474.5298176,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260811T001754_0da6c3e1",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 67 · coherence 0.975 · تنش: 🟢 آرام\n💭 آخرین فکر: [local] البته، مهم‌ترین کار فعلی اصلاح بخش‌های نیاز به توجه در لوپ 7 است.\n⚖️ <b>مناظره</b> — 41 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نیازهای داده‌ها در phase3_creativity_doctor.\n<b>2.</b> استفاده از API Key موقت با استفاده از رمزگذاری SHA-256\n<b>3.</b> استفاده از مصالح محیط‌شناسی محلی و محلي\n▸ 38 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-11T00:17:54+1000",
+   "created_ts": 1786371474.824622,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260811T001755_e9e7581d",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟢\n──────────\nbeat 30746 · period 214.12s · baro 3.5687\nvelocity 9.2917/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 8/2000 (مانده 1992)\nsetpoint: epoch 41 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T00:17:55+1000",
+   "created_ts": 1786371475.1341538,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260811T084810_73c9fa70",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat",
+   "meta": {},
+   "created_at": "2026-08-11T08:48:10+1000",
+   "created_ts": 1786402090.2721272,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260811T084810_e5eb064d",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat",
+   "meta": {},
+   "created_at": "2026-08-11T08:48:10+1000",
+   "created_ts": 1786402090.2918506,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260811T085346_9f0ac915",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat",
+   "meta": {},
+   "created_at": "2026-08-11T08:53:46+1000",
+   "created_ts": 1786402426.402634,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085542_cefc8273",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "dt0811s1"
+   },
+   "created_at": "2026-08-11T08:55:42+1000",
+   "created_ts": 1786402542.3050284,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085745_f846d141",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-6827949b6507"
+   },
+   "created_at": "2026-08-11T08:57:45+1000",
+   "created_ts": 1786402665.5528445,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085747_07604ef1",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-21332ce1"
+   },
+   "created_at": "2026-08-11T08:57:47+1000",
+   "created_ts": 1786402667.0571032,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085748_991da6b4",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-820a005a"
+   },
+   "created_at": "2026-08-11T08:57:48+1000",
+   "created_ts": 1786402668.1427758,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085749_0efd61d4",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-f6af6351"
+   },
+   "created_at": "2026-08-11T08:57:49+1000",
+   "created_ts": 1786402669.3972895,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085750_21643c9d",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-4d5eed12"
+   },
+   "created_at": "2026-08-11T08:57:50+1000",
+   "created_ts": 1786402670.344564,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T085751_02442e1f",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-bce62e4d"
+   },
+   "created_at": "2026-08-11T08:57:51+1000",
+   "created_ts": 1786402671.4658525,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260811T085757_e55747f7",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: رفعِ کوریِ مالیِ accounting (خواندنِ اعداد) برای محاسبه‌ی درآمد نقاشی.\n• (شدت 4) کوریِ مالیِ مطلق در لگ accounting (خواندنِ صفر مقدار/نام/عدد) — نقص فنی در خواندنِ workbook یا دسترسی ناقص (خط‌قرمز در منبع مالی)\n• (شدت 3) افزایشِ انباشتِ پیشنهادهای متوقف (۳۵ مورد) — گلوگاه در فازِ تصمیم‌گیری یا اجرای سایه\n• (شدت 4) تصحیحِ مالک منقضی (۱۴ روز پیش) — انجام نشدنِ دستورِ «تکمیلِ ارزیابی سایه تا امروز»\n🔧 کوچک‌ترین فیکس: به‌روزرسانی الگوریتم‌ها و کتاب‌داری برای اطمینان از صحت خواندنِ اعدادِ workbook.\n⛔ سدِ راه: عدم دسترسی به منابع واقعی مالی\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (7):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-27a17291</code> [submitted] متابولیسمِ داده — گرسنه (بی‌خوراک): accounting، crypto، knowledge، min\n  · <code>RFC-21332ce1</code> [submitted] organ:sync_agent — leg اسکلت — بی‌سیگنال\n  · <code>RFC-820a005a</code> [submitted] organ:mining — leg اسکلت — بی‌سیگنال\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T08:57:57+1000",
+   "created_ts": 1786402677.089856,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260811T085757_96196950",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 1 · coherence 0.313 · تنش: 🔴 ترس\n⚠️ اعضای کهنه: organism, heart, producers, work_pump, governor\n💭 آخرین فکر: [local] اندیشیدن به بازنشتاد قلب و اصلاح مشکلات آن حیاتی است.\n⚖️ <b>مناظره</b> — 42 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نیازهای داده‌ها در phase3_creativity_doctor.\n<b>2.</b> استفاده از API Key موقت با استفاده از رمزگذاری SHA-256\n<b>3.</b> استفاده از مصالح محیط‌شناسی محلی و محلي\n▸ 39 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-11T08:57:57+1000",
+   "created_ts": 1786402677.507616,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260811T085757_576f6f82",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🔴\n──────────\nbeat 30941 · period 246.04s · baro 4.1007\nvelocity 10.0833/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 111/2000 (مانده 1889)\nsetpoint: epoch 41 · target_σ 1.0 · cap 2000\n──────────\n🔴 تنشِ ارگانیسم بالا: 🔴 ترس (in_fear: doctor)\n⚫ نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker), ❤️ قلب, 🧠 مغزِ مرکزی\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T08:57:57+1000",
+   "created_ts": 1786402677.7367146,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_discovery_20260811T140320_8977dd45",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>2 چیزِ جدید یاد گرفتم!</b>\n──────────\n💡 یه ایده برای بهترشدن: مهارِ امنِ ترسِ «doctor»\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n💡 یه ایده برای بهترشدن: `attribution.claimed` را از صفر دربیاید",
+   "meta": {},
+   "created_at": "2026-08-11T14:03:20+1000",
+   "created_ts": 1786421000.894279,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260811T150049_6b553869",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 4) ترس روی [&#x27;doctor&#x27;] — لِگ‌های ناشناخته → استرس=1.0 → خود-تغییری منجمد\n• (شدت 3) خطاهای پرتکرار TimeoutError ×2 — نامعلوم (نیاز به کاوش)\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (7):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-27a17291</code> [submitted] متابولیسمِ داده — گرسنه (بی‌خوراک): accounting، crypto، knowledge، min\n  · <code>RFC-21332ce1</code> [submitted] organ:sync_agent — leg اسکلت — بی‌سیگنال\n  · <code>RFC-820a005a</code> [submitted] organ:mining — leg اسکلت — بی‌سیگنال\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T15:00:49+1000",
+   "created_ts": 1786424449.4142375,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260811T150049_e76359e4",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 37 · coherence 0.948 · تنش: 🔴 ترس\n💭 آخرین فکر: [local] البته، مهم‌ترین کار فعلی این است که تحقیقات وب رایگان را ادامه دهید.\n⚖️ <b>مناظره</b> — 43 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نیازهای داده‌ها در phase3_creativity_doctor.\n<b>2.</b> استفاده از API Key موقت با استفاده از رمزگذاری SHA-256\n<b>3.</b> استفاده از مصالح محیط‌شناسی محلی و محلي\n▸ 40 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-11T15:00:49+1000",
+   "created_ts": 1786424449.6859179,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260811T150049_d2aeb02c",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🔴\n──────────\nbeat 31293 · period 339.45s · baro 5.6575\nvelocity 11.9167/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 273/2000 (مانده 1727)\nsetpoint: epoch 41 · target_σ 1.0 · cap 2000\n──────────\n🔴 تنشِ ارگانیسم بالا: 🔴 ترس (in_fear: doctor)\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T15:00:49+1000",
+   "created_ts": 1786424449.947842,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_tech_alert_20260811T162043_9d7da43f",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ tg_api answerCallbackQuery failed: HTTPError (Bad Request: query is too old and response timeout expired or query ID is invali)",
+   "meta": {},
+   "created_at": "2026-08-11T16:20:43+1000",
+   "created_ts": 1786429243.137428,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T182915_62e00bb4",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-90169e7c5d9a"
+   },
+   "created_at": "2026-08-11T18:29:15+1000",
+   "created_ts": 1786436955.68575,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T182919_fffedb0b",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-e4ca130f"
+   },
+   "created_at": "2026-08-11T18:29:19+1000",
+   "created_ts": 1786436959.698038,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_needs_20260811T183004_5690f170",
+   "category": "needs",
+   "kind": "content",
+   "title": "🔔 نیازت دارم",
+   "body": "🔔 <b>نیازت دارم</b> (3)\n──────────\n• 💵 CSV واریزی‌ها نیست → قلب پول را نمی‌بیند (بذار در _ops/reconcile)\n• 🧮 750 تراکنش منتظرِ دسته‌بندیِ توست — /review\n• 🚨 45 هشدارِ امروز در governor-alerts",
+   "meta": {},
+   "created_at": "2026-08-11T18:30:04+1000",
+   "created_ts": 1786437004.185253,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T183816_fec8f308",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-7d3e43c0e1f8"
+   },
+   "created_at": "2026-08-11T18:38:16+1000",
+   "created_ts": 1786437496.9791784,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260811T184144_6493e296",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-bf764268bb0f"
+   },
+   "created_at": "2026-08-11T18:41:44+1000",
+   "created_ts": 1786437704.0044668,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260811T211259_7da7b220",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 4) ترس روی [&#x27;doctor&#x27;] — لگ‌های ناشناخته → استرس=1.0 → خود-تغییری منجمد\n• (شدت 3) خطاهای پرتکرار TimeoutError ×2 — نامعلوم (نیاز به کاوش)\n🔧 کوچک‌ترین فیکس: درخواست رسمی‌سازی یک مراحل آمادگی قبل از هر promote بدون نیاز به ری‌استارت\n⛔ سدِ راه: نیاز به تغییر در ساختار کار و جایگزینی ری‌استارت با چالش‌های محدود\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFCهای باز (7):\n  · <code>RFC-dbb5c2cd</code> [drafted] 3 خطا در ۲۴ ساعت گذشته\n  · <code>RFC-21332ce1</code> [submitted] organ:sync_agent — leg اسکلت — بی‌سیگنال\n  · <code>RFC-820a005a</code> [submitted] organ:mining — leg اسکلت — بی‌سیگنال\n  · <code>RFC-f6af6351</code> [submitted] organ:crypto — leg اسکلت — بی‌سیگنال\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T21:12:59+1000",
+   "created_ts": 1786446779.7582767,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260811T211259_24f7f66d",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 2 · coherence 0.879 · تنش: 🔴 ترس\n💭 آخرین فکر: [local] البته، مهم‌ترین کار امروز به بررسی بخش‌های نیازمند توجه و بهبود آنها است.\n⚖️ <b>مناظره</b> — 1 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از سیستم پیش‌بینی مبتنی بر شبکه عصبی رایانه‌ای\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-11T21:12:59+1000",
+   "created_ts": 1786446779.9786441,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260811T211300_1adb3412",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🔴\n──────────\nbeat 31652 · period 78.04s · baro 1.4946\nvelocity 4.3333/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 515/2000 (مانده 1485)\nsetpoint: epoch 42 · target_σ 1.0 · cap 2000\n──────────\n🔴 تنشِ ارگانیسم بالا: 🔴 ترس (in_fear: doctor)\n🛡 protective redirect فعال (درد/nociceptor)\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-11T21:13:00+1000",
+   "created_ts": 1786446780.0826473,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_leg_proposal_20260811T214042_ab920609",
+   "category": "leg_proposal",
+   "kind": "pointer",
+   "title": "📨 پیشنهادِ پا",
+   "body": "",
+   "meta": {
+    "goto_tab": "approvals",
+    "proposal_id": "P-83b5c58f1d16",
+    "leg_id": "ziman-gallery"
+   },
+   "created_at": "2026-08-11T21:40:42+1000",
+   "created_ts": 1786448442.4037428,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_discovery_20260811T214239_87cdced9",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>2 چیزِ جدید یاد گرفتم!</b>\n──────────\n💡 یه ایده برای بهترشدن: ارزش‌گذاری دقیق `attribution.claimed`\n🔍 دربارهٔ «motivation» تحقیق کردم — «Motivation» (3 نتیجه)\n💡 یه ایده برای بهترشدن: مهارِ امنِ ترسِ «doctor»",
+   "meta": {},
+   "created_at": "2026-08-11T21:42:39+1000",
+   "created_ts": 1786448559.0112529,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T000205_47d97564",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "dt0812s0"
+   },
+   "created_at": "2026-08-12T00:02:05+1000",
+   "created_ts": 1786456925.7015078,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T002445_ffd0f0b3",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-8879a7a5"
+   },
+   "created_at": "2026-08-12T00:24:45+1000",
+   "created_ts": 1786458285.5934556,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T002447_77d564e2",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-404442ec"
+   },
+   "created_at": "2026-08-12T00:24:47+1000",
+   "created_ts": 1786458287.339211,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T002449_2fc4660d",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-c27cba51"
+   },
+   "created_at": "2026-08-12T00:24:49+1000",
+   "created_ts": 1786458289.2166967,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T002451_448176b8",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-12ea10c2"
+   },
+   "created_at": "2026-08-12T00:24:51+1000",
+   "created_ts": 1786458291.2795854,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T002453_3eaf653a",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-4cd022a8"
+   },
+   "created_at": "2026-08-12T00:24:53+1000",
+   "created_ts": 1786458293.054224,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T003257_1854ae68",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-cf2a31b8"
+   },
+   "created_at": "2026-08-12T00:32:57+1000",
+   "created_ts": 1786458777.523139,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260812T031413_30233ea0",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت moderate) خطاهای پرتکرار — نیاز به تصحیح مالک\n• (شدت 4) درآمد صفر — لگ‌ها و سیم‌های propose-only\n🔧 کوچک‌ترین فیکس: {&#x27;note&#x27;: &#x27;درخواست مالک را پیاده\\u200cسازی کردن و تغییر قوانین به این شکل که بدون ری\\u200cاستارت ارگانیسم، آزمایش\\u200cها انجام شوند&#x27;}\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFC باز ندارد.\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-12T03:14:13+1000",
+   "created_ts": 1786468453.942685,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260812T031414_53715ab0",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 32 · coherence 0.976 · تنش: 🟡 استرس\n💭 آخرین فکر: [local] انجام پیشنهاداتی که در لوپ 7 ارائه شده است.\n⚖️ <b>مناظره</b> — 1 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از سیستم پیش‌بینی مبتنی بر شبکه عصبی رایانه‌ای\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-12T03:14:14+1000",
+   "created_ts": 1786468454.2049682,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260812T031414_11519446",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟡\n──────────\nbeat 32001 · period 218.87s · baro 3.6479\nvelocity 9.4167/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 117/2000 (مانده 1883)\nsetpoint: epoch 43 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-12T03:14:14+1000",
+   "created_ts": 1786468454.3566735,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_health_digest_20260812T042845_7af10749",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>c6</b> ×۱ — 🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطای پرتکرار failed ×1» رخ می‌دهد؟ خودشناسی ر",
+   "meta": {},
+   "created_at": "2026-08-12T04:28:45+1000",
+   "created_ts": 1786472925.8193545,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_discovery_20260812T055639_c2e8a49e",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>1 چیزِ جدید یاد گرفتم!</b>\n──────────\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n💡 یه ایده برای بهترشدن: ارزش‌گذاری دقیق `attribution.claimed`\n🔍 دربارهٔ «motivation» تحقیق کردم — «Motivation» (3 نتیجه)",
+   "meta": {},
+   "created_at": "2026-08-12T05:56:39+1000",
+   "created_ts": 1786478199.199612,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T060104_dc806459",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "dt0812s1"
+   },
+   "created_at": "2026-08-12T06:01:04+1000",
+   "created_ts": 1786478464.87664,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T072857_48001503",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-9c47098ba3a7"
+   },
+   "created_at": "2026-08-12T07:28:57+1000",
+   "created_ts": 1786483737.8931844,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T072920_a56988b6",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "RFC-08c8853f"
+   },
+   "created_at": "2026-08-12T07:29:20+1000",
+   "created_ts": 1786483760.2041585,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T075557_e5214f65",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-c8d35abbbe69"
+   },
+   "created_at": "2026-08-12T07:55:57+1000",
+   "created_ts": 1786485357.4045672,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T080523_d0152ec1",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-4c70b49b391d"
+   },
+   "created_at": "2026-08-12T08:05:23+1000",
+   "created_ts": 1786485923.508789,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_rfc_card_20260812T081947_740341ad",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-ab65c5487147"
+   },
+   "created_at": "2026-08-12T08:19:47+1000",
+   "created_ts": 1786486787.0671954,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_doctor_digest_20260812T091926_8298f137",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 3) خطای پرتکرار KeyError ×3 — نامعلوم (نیاز به کاوش)\n• (شدت 3) خطای پرتکرار failed ×1 — نامعلوم (نیاز به کاوش)\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFC باز ندارد.\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-12T09:19:26+1000",
+   "created_ts": 1786490366.6767704,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_brain_digest_20260812T091926_fbecc9ae",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 6 · coherence 0.969 · تنش: 🟡 استرس\n💭 آخرین فکر: [local] اندیشیدن برای پیشنهاد دادن پیش‌بینی‌ها و بهبود رویکرد لوپ‌ها مهم است.\n⚖️ <b>مناظره</b> — 2 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از سیستم پیش‌بینی مبتنی بر شبکه عصبی رایانه‌ای\n<b>2.</b> پروکسی ارزش per-organ از APPROVALهای sent ساخته شود\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-12T09:19:26+1000",
+   "created_ts": 1786490366.820808,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_heart_digest_20260812T091926_858eee8c",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟡\n──────────\nbeat 32349 · period 454.66s · baro 7.5777\nvelocity 13.5833/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 294/2000 (مانده 1706)\nsetpoint: epoch 43 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-12T09:19:26+1000",
+   "created_ts": 1786490366.9339476,
+   "read": true,
+   "read_at": "2026-08-12T11:20:13+1000"
+  },
+  {
+   "id": "notif_discovery_20260812T141528_a0179588",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>5 چیزِ جدید یاد گرفتم!</b>\n──────────\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n🔍 دربارهٔ «octopus neural protective apply dual-mode fail-closed» تحقیق کردم — «Self-wiring in neural nets of point-like cortical neurons fails to reproduce cyt» \n💡 یه ایده برای بهترشدن: اولینِ پول از صفر",
+   "meta": {},
+   "created_at": "2026-08-12T14:15:28+1000",
+   "created_ts": 1786508128.2017965,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_doctor_digest_20260812T152103_a631d93d",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 3) خطاهای پرتکرار KeyError ×3 — نامعلوم (نیاز به کاوش)\n• (شدت 3) خطاهای پرتکرار failed ×1 — نامعلوم (نیاز به کاوش)\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFC باز ندارد.\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-12T15:21:03+1000",
+   "created_ts": 1786512063.1112866,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_brain_digest_20260812T152103_f5052723",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 34 · coherence 0.971 · تنش: 🟡 استرس\n💭 آخرین فکر: [local] اندیشیدن برای پیشنهاد مناسبی برای لوپ بعدی و بهبود ریتم قلب.\n⚖️ <b>مناظره</b> — 3 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از سیستم پیش‌بینی مبتنی بر شبکه عصبی رایانه‌ای\n<b>2.</b> پروکسی ارزش per-organ از APPROVALهای sent ساخته شود\n<b>3.</b> استفاده از فناوری‌های پیش‌آماده داده (pre-trained data) برای بهبود مدل\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-12T15:21:03+1000",
+   "created_ts": 1786512063.2149627,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_heart_digest_20260812T152103_d4aa17fa",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟡\n──────────\nbeat 32708 · period 489.97s · baro 8.1662\nvelocity 17.0/hr در باند [0.05, 4.0379] · σ 0.0\nبودجهٔ ضربانِ امروز: 443/2000 (مانده 1557)\nsetpoint: epoch 43 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-12T15:21:03+1000",
+   "created_ts": 1786512063.3016453,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260812T175906_a1b0d15a",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-bf29916d3253"
+   },
+   "created_at": "2026-08-12T17:59:06+1000",
+   "created_ts": 1786521546.1359181,
+   "read": false,
+   "read_at": null
+  }
+ ],
+ "last_ping_ts": 0.0,
+ "last_ping_marker_ts": 0.0
+}

@@ -17,3 +17,7 @@
 {"ts": 1785604272.6234252, "stream": "knowledge", "sev": "normal", "head": "🧠 مغز · ⚪ اسکلت skeleton"}
 {"ts": 1785706489.611942, "stream": "notify:brief", "sev": "normal", "head": "☀️ بریف صبح کارهای مهم امروز: 🚧 [lead] آدرس یا حداقل محله/suburb پروژه کجاست؟ 🚧 [knowledge] چون این بخش فعلاً فقط «اسکلت» است؛ نوت‌های دانش هست، اما سیم‌کشی aff"}
 {"ts": 1785748086.9368663, "stream": "notify:card", "sev": "normal", "head": "⏸ تصمیم · high گیر کرده: عضو «lead-naghshi» از کار افتاد (phi=49.8 — پاسخ‌گو نبود) — بازش کنیم؟ ↳ علت: state/legs/lead-naghshi-last-failure.json"}
+{"ts": 1786208034.0453446, "stream": "c6", "sev": "normal", "head": "🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطای پرتکرار HTTPError ×5» رخ می‌دهد؟ خودشناسی ریشه را نامعلوم اعلام کرده. ▸ سنجه: doctor_unknown_root_cause · اندازه: -1 occ"}
+{"ts": 1786361534.2214172, "stream": "notify:brief", "sev": "normal", "head": "🌙 جمع‌بندی شب امروز کاری تمام نشد. مسدود ماند: 🚧 lead: آدرس یا حداقل محله/suburb پروژه کجاست؟ 🚧 knowledge: چون این بخش فعلاً فقط «اسکلت» است؛ نوت‌های دانش هست، "}
+{"ts": 1786370532.0574138, "stream": "c6", "sev": "normal", "head": "🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطاهای پرتکرار (TimeoutError ×2 و failed ×1)» رخ می‌دهد؟ خودشناسی ریشه را نامعلوم اعلام کرده. ▸ سنجه: doctor_unknown_root_cau"}
+{"ts": 1786472904.3199987, "stream": "c6", "sev": "normal", "head": "🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطای پرتکرار failed ×1» رخ می‌دهد؟ خودشناسی ریشه را نامعلوم اعلام کرده. ▸ سنجه: doctor_unknown_root_cause · اندازه: -1 occurr"}

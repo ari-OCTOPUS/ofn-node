@@ -1,0 +1,63 @@
+{
+  "effective_period_s": 124.26,
+  "base_period_s": 60.0,
+  "consensus_s": 124.26,
+  "brake_s": null,
+  "color": "GREEN",
+  "driver": "consensus",
+  "reasons": [
+    "اجماعِ 2 قلبِ متحرک (از 3 حاضر، وزن‌دار) → 124s؛ تندترین «cardiac» 42s"
+  ],
+  "votes": [
+    {
+      "heart": "cardiac",
+      "present": true,
+      "period_s": 42.42640687119285,
+      "braking": false,
+      "precision": 1.0,
+      "color": "GREEN",
+      "note": "pace=mice",
+      "mode": "CONSTANT",
+      "dof": 1,
+      "last_change_ts": null
+    },
+    {
+      "heart": "control_law",
+      "present": true,
+      "period_s": 489.97,
+      "braking": false,
+      "precision": 1.0,
+      "color": "GREEN",
+      "note": "velocity-tracking",
+      "mode": "LIVE",
+      "dof": 1,
+      "last_change_ts": null
+    },
+    {
+      "heart": "rhythm",
+      "present": true,
+      "period_s": 81.25,
+      "braking": false,
+      "precision": 0.7,
+      "color": "GREEN",
+      "note": "mode=STEADY/GREEN · hrv=0.25",
+      "mode": "LIVE",
+      "dof": 0,
+      "last_change_ts": null
+    }
+  ],
+  "n_present": 3,
+  "n_braking": 0,
+  "n_moving": 2,
+  "n_held": 0,
+  "n_constant": 1,
+  "n_unknown_mode": 0,
+  "ts": "2026-08-12T18:42:08",
+  "schema": "pulse-arbiter.v1",
+  "beat": 32904,
+  "advisory_only": true,
+  "precision_mode": "static",
+  "wire_open": true,
+  "wire_reasons_n": 0,
+  "written": true
+}

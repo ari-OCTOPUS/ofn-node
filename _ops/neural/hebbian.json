@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "signals": [
+      "afferent_starved",
+      "errors_high"
+    ],
+    "strength": 0.798065677681905,
+    "co_occurrences": 37,
+    "last_seen": 1786383170.5046182
+  },
+  {
+    "signals": [
+      "afferent_starved",
+      "rhythm_amber"
+    ],
+    "strength": 0.057904964711859706,
+    "co_occurrences": 1,
+    "last_seen": 1786175782.1295035
+  },
+  {
+    "signals": [
+      "errors_high",
+      "rhythm_amber"
+    ],
+    "strength": 0.9511101304657719,
+    "co_occurrences": 15,
+    "last_seen": 1786494809.8691292
+  }
+]

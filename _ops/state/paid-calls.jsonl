@@ -476,3 +476,881 @@
 {"ts": "2026-08-03T18:03:39", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 615, "tokens_out": 761, "cost_usd": 0.0, "chars_out": 705, "ms": 20461, "quota_used": 46}
 {"ts": "2026-08-03T18:39:02", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5621, "tokens_out": 528, "cost_usd": 0.0, "chars_out": 199, "ms": 8451, "quota_used": 47}
 {"ts": "2026-08-03T19:39:03", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5589, "tokens_out": 478, "cost_usd": 0.0, "chars_out": 176, "ms": 7804, "quota_used": 48}
+{"ts": "2026-08-08T14:34:01", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3508, "tokens_out": 696, "cost_usd": 0.0, "chars_out": 640, "ms": 15683, "quota_used": 2}
+{"ts": "2026-08-08T14:34:08", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 6468, "tokens_out": 2096, "cost_usd": 0.0, "chars_out": 103, "ms": 28773, "quota_used": 1}
+{"ts": "2026-08-08T14:35:17", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3508, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 626, "ms": 15176, "quota_used": 3}
+{"ts": "2026-08-08T14:36:33", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3508, "tokens_out": 696, "cost_usd": 0.0, "chars_out": 702, "ms": 16659, "quota_used": 4}
+{"ts": "2026-08-08T14:37:33", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 148, "tokens_out": 34, "cost_usd": 0.0, "chars_out": 88, "ms": 1674, "quota_used": 5}
+{"ts": "2026-08-08T14:52:05", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3508, "tokens_out": 631, "cost_usd": 0.0, "chars_out": 611, "ms": 15893, "quota_used": 6}
+{"ts": "2026-08-08T15:08:17", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3508, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 751, "ms": 14955, "quota_used": 7}
+{"ts": "2026-08-08T15:08:35", "task": "draft", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 347, "tokens_out": 147, "cost_usd": 0.0, "chars_out": 330, "ms": 3995, "quota_used": 8}
+{"ts": "2026-08-08T15:09:38", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2846, "tokens_out": 732, "cost_usd": 0.0, "chars_out": 1820, "ms": 17924, "quota_used": 9}
+{"ts": "2026-08-08T15:25:48", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5589, "tokens_out": 463, "cost_usd": 0.0, "chars_out": 198, "ms": 8071, "quota_used": 10}
+{"ts": "2026-08-08T15:27:44", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3568, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 691, "ms": 16470, "quota_used": 11}
+{"ts": "2026-08-08T15:32:39", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 120, "tokens_out": 50, "cost_usd": 0.0, "chars_out": 124, "ms": 3323, "quota_used": 12}
+{"ts": "2026-08-08T15:43:12", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3568, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 547, "ms": 17286, "quota_used": 13}
+{"ts": "2026-08-08T15:44:08", "task": "research", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 615, "tokens_out": 1391, "cost_usd": 0.0, "chars_out": 980, "ms": 45899, "quota_used": 14}
+{"ts": "2026-08-08T15:44:46", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3225, "tokens_out": 800, "cost_usd": 0.0, "chars_out": 2042, "ms": 15196, "quota_used": 15}
+{"ts": "2026-08-08T15:50:45", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 4251, "tokens_out": 2066, "cost_usd": 0.0, "chars_out": 1046, "ms": 47364, "quota_used": 16}
+{"ts": "2026-08-08T15:59:29", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 605, "ms": 14780, "quota_used": 17}
+{"ts": "2026-08-08T16:15:00", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 694, "cost_usd": 0.0, "chars_out": 703, "ms": 18980, "quota_used": 18}
+{"ts": "2026-08-08T16:18:09", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 120, "tokens_out": 39, "cost_usd": 0.0, "chars_out": 100, "ms": 1455, "quota_used": 19}
+{"ts": "2026-08-08T16:30:16", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5589, "tokens_out": 378, "cost_usd": 0.0, "chars_out": 183, "ms": 7193, "quota_used": 20}
+{"ts": "2026-08-08T16:31:17", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 675, "ms": 15047, "quota_used": 21}
+{"ts": "2026-08-08T16:46:52", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 792, "ms": 16975, "quota_used": 22}
+{"ts": "2026-08-08T17:12:15", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 453, "ms": 14040, "quota_used": 23}
+{"ts": "2026-08-08T17:13:56", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 733, "tokens_out": 36, "cost_usd": 0.0, "chars_out": 71, "ms": 1760, "quota_used": 24}
+{"ts": "2026-08-08T17:17:36", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 118, "tokens_out": 30, "cost_usd": 0.0, "chars_out": 73, "ms": 2037, "quota_used": 25}
+{"ts": "2026-08-08T17:22:53", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 147, "tokens_out": 40, "cost_usd": 0.0, "chars_out": 82, "ms": 1823, "quota_used": 26}
+{"ts": "2026-08-08T17:27:11", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2660, "tokens_out": 1200, "cost_usd": 0.0, "chars_out": 442, "ms": 23065, "quota_used": 27}
+{"ts": "2026-08-08T17:29:22", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 656, "ms": 14608, "quota_used": 28}
+{"ts": "2026-08-08T17:30:57", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 689, "cost_usd": 0.0, "chars_out": 739, "ms": 16858, "quota_used": 29}
+{"ts": "2026-08-08T17:32:31", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 700, "ms": 15543, "quota_used": 30}
+{"ts": "2026-08-08T17:34:04", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 531, "ms": 14806, "quota_used": 31}
+{"ts": "2026-08-08T17:35:39", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 676, "ms": 17458, "quota_used": 32}
+{"ts": "2026-08-08T17:37:15", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 780, "ms": 17121, "quota_used": 33}
+{"ts": "2026-08-08T17:38:47", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3538, "tokens_out": 671, "cost_usd": 0.0, "chars_out": 593, "ms": 14699, "quota_used": 34}
+{"ts": "2026-08-08T17:40:20", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 686, "ms": 16108, "quota_used": 35}
+{"ts": "2026-08-08T17:41:50", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 417, "ms": 13170, "quota_used": 36}
+{"ts": "2026-08-08T17:44:00", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5405, "tokens_out": 949, "cost_usd": 0.0, "chars_out": 414, "ms": 19375, "quota_used": 37}
+{"ts": "2026-08-08T17:45:35", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 741, "ms": 15934, "quota_used": 38}
+{"ts": "2026-08-08T17:47:12", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5405, "tokens_out": 966, "cost_usd": 0.0, "chars_out": 459, "ms": 19731, "quota_used": 39}
+{"ts": "2026-08-08T17:48:47", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 682, "cost_usd": 0.0, "chars_out": 713, "ms": 15105, "quota_used": 40}
+{"ts": "2026-08-08T17:50:20", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 682, "ms": 16293, "quota_used": 41}
+{"ts": "2026-08-08T17:51:51", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 670, "cost_usd": 0.0, "chars_out": 711, "ms": 14883, "quota_used": 42}
+{"ts": "2026-08-08T17:53:24", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 773, "ms": 16124, "quota_used": 43}
+{"ts": "2026-08-08T17:54:58", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 597, "ms": 14891, "quota_used": 44}
+{"ts": "2026-08-08T17:56:41", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 595, "cost_usd": 0.0, "chars_out": 595, "ms": 14816, "quota_used": 45}
+{"ts": "2026-08-08T17:58:08", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5589, "tokens_out": 493, "cost_usd": 0.0, "chars_out": 196, "ms": 7890, "quota_used": 46}
+{"ts": "2026-08-08T17:59:54", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5405, "tokens_out": 1020, "cost_usd": 0.0, "chars_out": 598, "ms": 22117, "quota_used": 47}
+{"ts": "2026-08-08T18:02:09", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3848, "tokens_out": 3596, "cost_usd": 0.0, "chars_out": 133, "ms": 55182, "quota_used": 48}
+{"ts": "2026-08-08T18:02:33", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5405, "tokens_out": 954, "cost_usd": 0.0, "chars_out": 451, "ms": 19400, "quota_used": 49}
+{"ts": "2026-08-08T18:04:07", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 591, "cost_usd": 0.0, "chars_out": 602, "ms": 14234, "quota_used": 50}
+{"ts": "2026-08-08T18:05:39", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 624, "cost_usd": 0.0, "chars_out": 668, "ms": 14622, "quota_used": 51}
+{"ts": "2026-08-08T18:07:16", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 776, "ms": 17330, "quota_used": 52}
+{"ts": "2026-08-08T18:08:52", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3451, "tokens_out": 683, "cost_usd": 0.0, "chars_out": 731, "ms": 16000, "quota_used": 53}
+{"ts": "2026-08-08T18:10:11", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 843, "quota_used": 54}
+{"ts": "2026-08-08T18:10:16", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 586, "quota_used": 55}
+{"ts": "2026-08-08T18:12:04", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 764, "quota_used": 56}
+{"ts": "2026-08-08T18:12:09", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:13:41", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:13:46", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:15:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:15:20", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:36:19", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:36:24", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:57:18", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:57:22", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:58:54", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T18:58:59", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:00:14", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:00:19", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:01:37", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:01:42", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:03:14", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:03:19", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:04:50", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:04:55", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:06:30", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:06:35", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:08:06", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:08:11", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:09:45", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:09:50", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:11:16", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:11:21", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:12:55", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:13:00", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:14:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:14:39", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:16:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:16:20", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:17:54", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:17:59", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:38:55", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:38:59", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:59:54", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T19:59:58", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:01:32", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:01:36", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:02:55", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:03:00", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:04:29", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:04:34", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:25:23", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:25:27", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:31:13", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T20:31:18", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T21:00:04", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T21:00:09", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:01:05", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:01:10", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:04:20", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:04:24", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:04:43", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:04:48", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:05:08", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:05:13", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:05:33", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:05:37", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:06:00", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:06:05", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:06:24", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:06:29", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:06:47", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:06:52", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:07:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:07:20", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:07:40", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:07:45", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:08:02", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:08:07", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:08:24", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:08:28", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:08:49", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:08:54", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:09:18", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:09:22", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:09:40", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:09:45", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:10:06", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:10:11", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:10:30", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:10:34", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:10:53", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:10:58", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:11:19", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:11:23", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:11:43", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T22:11:48", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T23:02:01", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T23:02:06", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-08T23:24:55", "task": "test", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1058, "quota_used": 57}
+{"ts": "2026-08-08T23:25:01", "task": "test", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 11, "tokens_out": 2, "cost_usd": 0.0, "chars_out": 2, "ms": 1266, "quota_used": 58}
+{"ts": "2026-08-08T23:38:13", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 856, "quota_used": 59}
+{"ts": "2026-08-08T23:38:21", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3458, "tokens_out": 67, "cost_usd": 0.0, "chars_out": 187, "ms": 2919, "quota_used": 60}
+{"ts": "2026-08-08T23:42:34", "task": "summarize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-08T23:42:36", "task": "research", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-08T23:42:40", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-08T23:42:42", "task": "research", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T00:02:36", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 136, "tokens_out": 26, "cost_usd": 0.0, "chars_out": 60, "ms": 1883, "quota_used": 1}
+{"ts": "2026-08-09T00:07:36", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 120, "tokens_out": 34, "cost_usd": 0.0, "chars_out": 90, "ms": 1786, "quota_used": 2}
+{"ts": "2026-08-09T00:15:55", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 900, "quota_used": 3}
+{"ts": "2026-08-09T00:16:10", "task": "plan", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1193, "tokens_out": 361, "cost_usd": 0.0, "chars_out": 803, "ms": 9182, "quota_used": 4}
+{"ts": "2026-08-09T00:42:44", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 135, "tokens_out": 27, "cost_usd": 0.0, "chars_out": 69, "ms": 2286, "quota_used": 5}
+{"ts": "2026-08-09T00:46:00", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1711, "quota_used": 6}
+{"ts": "2026-08-09T00:46:08", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3458, "tokens_out": 72, "cost_usd": 0.0, "chars_out": 211, "ms": 2682, "quota_used": 7}
+{"ts": "2026-08-09T00:47:25", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 943, "quota_used": 8}
+{"ts": "2026-08-09T00:47:34", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1199, "tokens_out": 139, "cost_usd": 0.0, "chars_out": 345, "ms": 4218, "quota_used": 9}
+{"ts": "2026-08-09T00:47:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T00:47:40", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1784, "tokens_out": 3, "cost_usd": 0.0, "chars_out": 5, "ms": 1321, "quota_used": 10}
+{"ts": "2026-08-09T00:53:01", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 893, "quota_used": 12}
+{"ts": "2026-08-09T00:53:02", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3017, "tokens_out": 672, "cost_usd": 0.0, "chars_out": 1710, "ms": 15050, "quota_used": 11}
+{"ts": "2026-08-09T00:53:15", "task": "plan", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1622, "tokens_out": 396, "cost_usd": 0.0, "chars_out": 944, "ms": 9632, "quota_used": 13}
+{"ts": "2026-08-09T01:47:34", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1099, "quota_used": 14}
+{"ts": "2026-08-09T01:47:41", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3458, "tokens_out": 49, "cost_usd": 0.0, "chars_out": 180, "ms": 2049, "quota_used": 15}
+{"ts": "2026-08-09T02:48:05", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 976, "quota_used": 16}
+{"ts": "2026-08-09T02:48:12", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3458, "tokens_out": 48, "cost_usd": 0.0, "chars_out": 159, "ms": 2005, "quota_used": 17}
+{"ts": "2026-08-09T02:53:05", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3245, "tokens_out": 800, "cost_usd": 0.0, "chars_out": 1988, "ms": 16577, "quota_used": 18}
+{"ts": "2026-08-09T08:52:33", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1230, "quota_used": 19}
+{"ts": "2026-08-09T08:52:41", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3458, "tokens_out": 54, "cost_usd": 0.0, "chars_out": 168, "ms": 2992, "quota_used": 20}
+{"ts": "2026-08-09T08:54:21", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1644, "quota_used": 21}
+{"ts": "2026-08-09T08:54:34", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1095, "tokens_out": 253, "cost_usd": 0.0, "chars_out": 575, "ms": 6344, "quota_used": 22}
+{"ts": "2026-08-09T08:55:06", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T08:55:23", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1937, "tokens_out": 299, "cost_usd": 0.0, "chars_out": 678, "ms": 11974, "quota_used": 23}
+{"ts": "2026-08-09T08:57:42", "task": "summarize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 133, "tokens_out": 48, "cost_usd": 0.0, "chars_out": 116, "ms": 3307, "quota_used": 24}
+{"ts": "2026-08-09T09:04:50", "task": "research", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1540, "quota_used": 25}
+{"ts": "2026-08-09T09:05:00", "task": "research", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 712, "tokens_out": 178, "cost_usd": 0.0, "chars_out": 403, "ms": 4247, "quota_used": 26}
+{"ts": "2026-08-09T09:27:32", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2563, "tokens_out": 800, "cost_usd": 0.0, "chars_out": 2007, "ms": 17133, "quota_used": 27}
+{"ts": "2026-08-09T09:39:29", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 827, "quota_used": 28}
+{"ts": "2026-08-09T09:39:36", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 55, "cost_usd": 0.0, "chars_out": 106, "ms": 2242, "quota_used": 29}
+{"ts": "2026-08-09T09:39:53", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:40:00", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 96, "cost_usd": 0.0, "chars_out": 196, "ms": 2432, "quota_used": 30}
+{"ts": "2026-08-09T09:40:27", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:40:33", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 74, "cost_usd": 0.0, "chars_out": 136, "ms": 2262, "quota_used": 31}
+{"ts": "2026-08-09T09:41:03", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 886, "quota_used": 32}
+{"ts": "2026-08-09T09:41:10", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 93, "cost_usd": 0.0, "chars_out": 191, "ms": 2471, "quota_used": 33}
+{"ts": "2026-08-09T09:41:31", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:41:38", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 53, "cost_usd": 0.0, "chars_out": 114, "ms": 2007, "quota_used": 34}
+{"ts": "2026-08-09T09:41:57", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:42:04", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 92, "cost_usd": 0.0, "chars_out": 192, "ms": 2455, "quota_used": 35}
+{"ts": "2026-08-09T09:42:32", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 877, "quota_used": 36}
+{"ts": "2026-08-09T09:42:40", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 86, "cost_usd": 0.0, "chars_out": 174, "ms": 3215, "quota_used": 37}
+{"ts": "2026-08-09T09:42:59", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:43:06", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 86, "cost_usd": 0.0, "chars_out": 149, "ms": 2515, "quota_used": 38}
+{"ts": "2026-08-09T09:43:22", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:43:29", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 77, "cost_usd": 0.0, "chars_out": 173, "ms": 2358, "quota_used": 39}
+{"ts": "2026-08-09T09:43:58", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 856, "quota_used": 40}
+{"ts": "2026-08-09T09:44:04", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 57, "cost_usd": 0.0, "chars_out": 125, "ms": 1896, "quota_used": 41}
+{"ts": "2026-08-09T09:44:23", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:44:29", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 41, "cost_usd": 0.0, "chars_out": 74, "ms": 1907, "quota_used": 42}
+{"ts": "2026-08-09T09:44:52", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:44:59", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 42, "cost_usd": 0.0, "chars_out": 96, "ms": 2074, "quota_used": 43}
+{"ts": "2026-08-09T09:45:23", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1120, "quota_used": 44}
+{"ts": "2026-08-09T09:45:30", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 64, "cost_usd": 0.0, "chars_out": 147, "ms": 2376, "quota_used": 45}
+{"ts": "2026-08-09T09:45:49", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:46:24", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 127, "cost_usd": 0.0, "chars_out": 254, "ms": 30046, "quota_used": 46}
+{"ts": "2026-08-09T09:46:53", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 845, "quota_used": 47}
+{"ts": "2026-08-09T09:47:52", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": false, "error": "TimeoutError", "ms": 54220, "quota_used": 48}
+{"ts": "2026-08-09T09:47:59", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1016, "quota_used": 49}
+{"ts": "2026-08-09T09:48:36", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 89, "cost_usd": 0.0, "chars_out": 256, "ms": 32306, "quota_used": 50}
+{"ts": "2026-08-09T09:48:50", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:48:57", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 73, "cost_usd": 0.0, "chars_out": 148, "ms": 2814, "quota_used": 51}
+{"ts": "2026-08-09T09:49:19", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1234, "quota_used": 52}
+{"ts": "2026-08-09T09:49:27", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 639, "tokens_out": 70, "cost_usd": 0.0, "chars_out": 140, "ms": 2109, "quota_used": 53}
+{"ts": "2026-08-09T09:49:44", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:49:50", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 55, "cost_usd": 0.0, "chars_out": 112, "ms": 1906, "quota_used": 54}
+{"ts": "2026-08-09T09:50:07", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T09:50:13", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 638, "tokens_out": 76, "cost_usd": 0.0, "chars_out": 157, "ms": 2171, "quota_used": 55}
+{"ts": "2026-08-09T10:28:02", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2651, "tokens_out": 771, "cost_usd": 0.0, "chars_out": 1958, "ms": 16911, "quota_used": 56}
+{"ts": "2026-08-09T10:57:51", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2862, "tokens_out": 799, "cost_usd": 0.0, "chars_out": 1985, "ms": 11388, "quota_used": 57}
+{"ts": "2026-08-09T12:12:35", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 1113, "quota_used": 58}
+{"ts": "2026-08-09T12:12:42", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3458, "tokens_out": 64, "cost_usd": 0.0, "chars_out": 185, "ms": 2349, "quota_used": 59}
+{"ts": "2026-08-09T12:14:07", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "ms": 872, "quota_used": 60}
+{"ts": "2026-08-09T12:14:12", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:14:12", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60.0s)"}
+{"ts": "2026-08-09T12:14:17", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:18:30", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:18:35", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:21:04", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:21:09", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:23:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:23:39", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:26:07", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:26:12", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:28:40", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:28:45", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:29:07", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:29:12", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:31:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:31:20", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:33:56", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:34:01", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:36:27", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:36:31", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:38:59", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:39:03", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:41:31", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:41:35", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:43:59", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T12:44:04", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:05:45", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:05:49", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:08:37", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:08:42", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:11:09", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:11:13", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:13:40", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:13:45", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:15:41", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:15:46", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:17:58", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:18:02", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:20:30", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:20:35", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:23:04", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:23:09", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:25:32", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:25:36", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:28:02", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:28:07", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:49:43", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:49:47", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:52:36", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:52:41", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:55:13", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:55:18", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:57:47", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T13:57:51", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:00:24", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:00:28", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:02:57", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:03:01", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:05:28", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:05:32", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:08:01", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:08:06", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:14:50", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:14:54", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:18:38", "task": "summarize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:18:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:29:28", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:29:32", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:32:18", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:32:22", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:34:49", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:34:54", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:37:18", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T14:37:23", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:02:03", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:02:08", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:24:33", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:24:37", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:26:42", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:26:47", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:29:01", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:29:06", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:31:47", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:31:51", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:32:13", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T15:32:18", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T16:08:52", "task": "research", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T16:08:57", "task": "research", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T16:25:45", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T16:25:49", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T16:54:42", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T16:54:47", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:06:49", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:06:54", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:19:15", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:19:19", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:22:30", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:22:36", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:38:36", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T17:38:41", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:29:41", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:29:46", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:31:44", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:31:49", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:37:05", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:37:10", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:46:57", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:47:02", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:47:53", "task": "summarize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:47:58", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:49:09", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:49:14", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:52:35", "task": "summarize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T18:52:40", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T19:10:18", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T19:10:23", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T19:12:51", "task": "summarize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T19:12:56", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T20:40:22", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T20:40:27", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T22:07:42", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T22:07:46", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T22:12:31", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T22:12:36", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T22:51:07", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T22:51:12", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T23:09:33", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-09T23:09:37", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-10T00:00:26", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "error_detail": "HTTPError: HTTP Error 429: Too Many Requests | {\"error\":{\"message\":\"Subscription weekly limit is exhausted. Switch to pay as you go at https://console.sakana.ai/billing?tab=payAsYouGo. Try again after 2026-08-10T00:00:00+00:00\",\"type\":\"usage_limit_reached\",\"param\":null,\"code\":null,\"resets_at\":178632", "ms": 2096, "quota_used": 1}
+{"ts": "2026-08-10T00:00:34", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "error_detail": "HTTPError: HTTP Error 429: Too Many Requests | {\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}", "ms": 741, "quota_used": 2}
+{"ts": "2026-08-10T00:01:03", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "circuit_open", "ms": 0, "note": "circuit open (cooldown 60s, backoff x2)"}
+{"ts": "2026-08-10T00:01:09", "task": "deep", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": false, "error": "HTTPError", "error_detail": "HTTPError: HTTP Error 429: Too Many Requests | {\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}", "ms": 1140, "quota_used": 3}
+{"ts": "2026-08-10T00:09:41", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T00:09:46", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T00:14:45", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T00:14:50", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T01:11:14", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T01:11:18", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T01:25:41", "task": "plan", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T01:25:46", "task": "plan", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T02:20:09", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T02:20:14", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:07:29", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:07:34", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:10:11", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:10:16", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:10:44", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:10:49", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:11:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:11:19", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:32:24", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:32:29", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:35:08", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:35:12", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:37:17", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:37:21", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:37:48", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:37:52", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:55:59", "task": "plan", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:56:04", "task": "plan", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:58:23", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T12:58:28", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:00:11", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:00:16", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:02:10", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:02:15", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:05:39", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:05:44", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:07:35", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:07:40", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:22:29", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:22:34", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:24:26", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:24:31", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:45:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:45:39", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:47:30", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:47:35", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:49:20", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:49:25", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:51:09", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T13:51:13", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:08:15", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:08:20", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:12:38", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:12:43", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:15:13", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:15:18", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:17:10", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:17:15", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:19:06", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:19:11", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:20:52", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:20:56", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:22:56", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:23:00", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:24:52", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:24:56", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:26:39", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:26:43", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:28:27", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:28:31", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:30:14", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:30:19", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:32:11", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:32:16", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:34:11", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:34:16", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:35:57", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:36:02", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:38:19", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:38:24", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:40:08", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T14:40:13", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T15:08:48", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T15:08:53", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T15:10:27", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T15:10:32", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T15:39:24", "task": "synthesize", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T15:39:29", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:09:53", "task": "research", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:09:58", "task": "research", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:12:01", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:12:05", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:13:54", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:13:58", "task": "deep", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:23:02", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:23:12", "task": "orchestrate", "tier": "secondary", "role": "glm", "ok": false, "error": "quota_stop-fugu", "ms": 0, "quota_used": -1}
+{"ts": "2026-08-10T16:24:16", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 63, "tokens_out": 5, "cost_usd": 0.0, "chars_out": 1, "ms": 5026, "quota_used": 4}
+{"ts": "2026-08-10T16:24:30", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 116, "tokens_out": 34, "cost_usd": 0.0, "chars_out": 1, "ms": 8332, "quota_used": 5}
+{"ts": "2026-08-10T16:24:42", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 53, "tokens_out": 27, "cost_usd": 0.0, "chars_out": 1, "ms": 4735, "quota_used": 6}
+{"ts": "2026-08-10T16:24:53", "task": "orchestrate", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 18, "tokens_out": 2, "cost_usd": 0.0, "chars_out": 1, "ms": 5041, "quota_used": 7}
+{"ts": "2026-08-10T16:28:38", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 110, "tokens_out": 38, "cost_usd": 0.0, "chars_out": 7, "ms": 5245, "quota_used": 8}
+{"ts": "2026-08-10T16:28:45", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 94, "tokens_out": 24, "cost_usd": 1.9880000000000003e-05, "chars_out": 11, "ms": 2209, "quota_used": 9}
+{"ts": "2026-08-10T16:48:47", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3173, "tokens_out": 771, "cost_usd": 0.0, "chars_out": 2062, "ms": 19122, "quota_used": 10}
+{"ts": "2026-08-10T16:55:03", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 94, "tokens_out": 25, "cost_usd": 2.0160000000000003e-05, "chars_out": 13, "ms": 1311, "quota_used": 11}
+{"ts": "2026-08-10T17:12:17", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5608, "tokens_out": 653, "cost_usd": 0.0, "chars_out": 194, "ms": 12796, "quota_used": 12}
+{"ts": "2026-08-10T17:18:35", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 191, "tokens_out": 220, "cost_usd": 8.834000000000001e-05, "chars_out": 728, "ms": 4883, "quota_used": 13}
+{"ts": "2026-08-10T17:21:02", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3485, "tokens_out": 800, "cost_usd": 0.0, "chars_out": 2119, "ms": 12694, "quota_used": 14}
+{"ts": "2026-08-10T17:52:28", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3190, "tokens_out": 667, "cost_usd": 0.0, "chars_out": 1758, "ms": 16454, "quota_used": 15}
+{"ts": "2026-08-10T18:01:47", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1789, "tokens_out": 1200, "cost_usd": 0.0, "chars_out": 70, "ms": 25083, "quota_used": 16}
+{"ts": "2026-08-10T18:12:22", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5608, "tokens_out": 1123, "cost_usd": 0.0, "chars_out": 184, "ms": 16290, "quota_used": 17}
+{"ts": "2026-08-10T19:14:08", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5608, "tokens_out": 788, "cost_usd": 0.0, "chars_out": 191, "ms": 21377, "quota_used": 18}
+{"ts": "2026-08-10T19:20:04", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 213, "tokens_out": 220, "cost_usd": 9.142000000000002e-05, "chars_out": 537, "ms": 3812, "quota_used": 19}
+{"ts": "2026-08-10T19:29:46", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3362, "tokens_out": 724, "cost_usd": 0.0, "chars_out": 1886, "ms": 27044, "quota_used": 20}
+{"ts": "2026-08-10T20:15:31", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5608, "tokens_out": 1053, "cost_usd": 0.0, "chars_out": 197, "ms": 24990, "quota_used": 21}
+{"ts": "2026-08-10T21:15:39", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5608, "tokens_out": 1105, "cost_usd": 0.0, "chars_out": 196, "ms": 15866, "quota_used": 22}
+{"ts": "2026-08-10T21:30:56", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 213, "tokens_out": 220, "cost_usd": 9.142000000000002e-05, "chars_out": 833, "ms": 10206, "quota_used": 23}
+{"ts": "2026-08-10T21:45:52", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3386, "tokens_out": 734, "cost_usd": 0.0, "chars_out": 1980, "ms": 11625, "quota_used": 24}
+{"ts": "2026-08-10T22:16:55", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3365, "tokens_out": 728, "cost_usd": 0.0, "chars_out": 1921, "ms": 9552, "quota_used": 25}
+{"ts": "2026-08-10T22:17:03", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5608, "tokens_out": 986, "cost_usd": 0.0, "chars_out": 205, "ms": 17301, "quota_used": 26}
+{"ts": "2026-08-10T23:17:07", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5643, "tokens_out": 907, "cost_usd": 0.0, "chars_out": 197, "ms": 14175, "quota_used": 27}
+{"ts": "2026-08-10T23:22:43", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3330, "tokens_out": 760, "cost_usd": 0.0, "chars_out": 1987, "ms": 52715, "quota_used": 28}
+{"ts": "2026-08-10T23:50:53", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3337, "tokens_out": 800, "cost_usd": 0.0, "chars_out": 2016, "ms": 15281, "quota_used": 29}
+{"ts": "2026-08-11T00:01:43", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1909, "tokens_out": 1058, "cost_usd": 0.0, "chars_out": 901, "ms": 26334, "quota_used": 1}
+{"ts": "2026-08-11T00:02:28", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 13288, "tokens_out": 2074, "cost_usd": 0.0, "chars_out": 5, "ms": 37057, "quota_used": 2}
+{"ts": "2026-08-11T00:17:08", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3487, "tokens_out": 431, "cost_usd": 0.0, "chars_out": 170, "ms": 14193, "quota_used": 3}
+{"ts": "2026-08-11T00:24:17", "task": "synthesize", "tier": "secondary", "role": "glm", "provider": "glm", "model": "glm-4.6", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3361, "tokens_out": 703, "cost_usd": 0.0, "chars_out": 1785, "ms": 11775, "quota_used": 4}
+{"ts": "2026-08-11T00:37:44", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1912, "tokens_out": 1200, "cost_usd": 0.0, "chars_out": 277, "ms": 21977, "quota_used": 5}
+{"ts": "2026-08-11T01:19:37", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3487, "tokens_out": 355, "cost_usd": 0.0, "chars_out": 170, "ms": 13169, "quota_used": 6}
+{"ts": "2026-08-11T01:54:28", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1603, "tokens_out": 1130, "cost_usd": 0.0, "chars_out": 1472, "ms": 27801, "quota_used": 7}
+{"ts": "2026-08-11T02:20:13", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5640, "tokens_out": 757, "cost_usd": 0.0, "chars_out": 232, "ms": 12419, "quota_used": 8}
+{"ts": "2026-08-11T03:22:28", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3487, "tokens_out": 391, "cost_usd": 0.0, "chars_out": 191, "ms": 14288, "quota_used": 9}
+{"ts": "2026-08-11T08:52:55", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3487, "tokens_out": 698, "cost_usd": 0.0, "chars_out": 184, "ms": 20291, "quota_used": 10}
+{"ts": "2026-08-11T08:55:30", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1789, "tokens_out": 1200, "cost_usd": 0.0, "chars_out": 671, "ms": 27481, "quota_used": 11}
+{"ts": "2026-08-11T08:56:59", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3079, "tokens_out": 698, "cost_usd": 0.0, "chars_out": 573, "ms": 16489, "quota_used": 12}
+{"ts": "2026-08-11T08:57:28", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3154, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 413, "ms": 19072, "quota_used": 13}
+{"ts": "2026-08-11T08:59:23", "task": "research", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 667, "tokens_out": 1132, "cost_usd": 0.0, "chars_out": 1051, "ms": 50444, "quota_used": 14}
+{"ts": "2026-08-11T09:00:56", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3154, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 622, "ms": 14939, "quota_used": 15}
+{"ts": "2026-08-11T09:02:39", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 190, "tokens_out": 220, "cost_usd": 8.82e-05, "chars_out": 135, "ms": 3843, "quota_used": 16}
+{"ts": "2026-08-11T09:15:38", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 2740, "tokens_out": 800, "cost_usd": 0.0006076, "chars_out": 2655, "ms": 8042, "quota_used": 17}
+{"ts": "2026-08-11T09:42:24", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3094, "tokens_out": 540, "cost_usd": 0.0, "chars_out": 648, "ms": 12678, "quota_used": 18}
+{"ts": "2026-08-11T09:45:30", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3094, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 710, "ms": 17681, "quota_used": 19}
+{"ts": "2026-08-11T09:47:13", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3282, "tokens_out": 800, "cost_usd": 0.0006834800000000001, "chars_out": 2820, "ms": 7911, "quota_used": 20}
+{"ts": "2026-08-11T09:47:55", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3094, "tokens_out": 584, "cost_usd": 0.0, "chars_out": 632, "ms": 14973, "quota_used": 21}
+{"ts": "2026-08-11T09:50:02", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3079, "tokens_out": 624, "cost_usd": 0.0, "chars_out": 642, "ms": 14645, "quota_used": 22}
+{"ts": "2026-08-11T09:52:20", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3079, "tokens_out": 343, "cost_usd": 0.0, "chars_out": 570, "ms": 11870, "quota_used": 23}
+{"ts": "2026-08-11T09:55:09", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3491, "tokens_out": 677, "cost_usd": 0.0, "chars_out": 175, "ms": 19469, "quota_used": 24}
+{"ts": "2026-08-11T09:57:24", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2950, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 418, "ms": 16139, "quota_used": 25}
+{"ts": "2026-08-11T10:00:10", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2950, "tokens_out": 604, "cost_usd": 0.0, "chars_out": 579, "ms": 14829, "quota_used": 26}
+{"ts": "2026-08-11T10:02:46", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2950, "tokens_out": 679, "cost_usd": 0.0, "chars_out": 659, "ms": 18492, "quota_used": 27}
+{"ts": "2026-08-11T10:05:57", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2950, "tokens_out": 685, "cost_usd": 0.0, "chars_out": 706, "ms": 15930, "quota_used": 28}
+{"ts": "2026-08-11T10:08:55", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2950, "tokens_out": 656, "cost_usd": 0.0, "chars_out": 725, "ms": 15642, "quota_used": 29}
+{"ts": "2026-08-11T10:11:15", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2818, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 750, "ms": 16622, "quota_used": 30}
+{"ts": "2026-08-11T10:13:38", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2818, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 631, "ms": 17247, "quota_used": 31}
+{"ts": "2026-08-11T10:16:59", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2818, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 694, "ms": 16352, "quota_used": 32}
+{"ts": "2026-08-11T10:19:18", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3286, "tokens_out": 800, "cost_usd": 0.0006840400000000001, "chars_out": 3244, "ms": 8418, "quota_used": 33}
+{"ts": "2026-08-11T10:21:15", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2840, "tokens_out": 665, "cost_usd": 0.0, "chars_out": 671, "ms": 14652, "quota_used": 34}
+{"ts": "2026-08-11T10:24:07", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2840, "tokens_out": 651, "cost_usd": 0.0, "chars_out": 588, "ms": 14983, "quota_used": 35}
+{"ts": "2026-08-11T10:27:56", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2840, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 788, "ms": 16458, "quota_used": 36}
+{"ts": "2026-08-11T10:30:25", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2840, "tokens_out": 596, "cost_usd": 0.0, "chars_out": 667, "ms": 14274, "quota_used": 37}
+{"ts": "2026-08-11T10:32:41", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2782, "tokens_out": 637, "cost_usd": 0.0, "chars_out": 677, "ms": 14843, "quota_used": 38}
+{"ts": "2026-08-11T10:35:43", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2782, "tokens_out": 435, "cost_usd": 0.0, "chars_out": 685, "ms": 13264, "quota_used": 39}
+{"ts": "2026-08-11T10:38:05", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2782, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 563, "ms": 14544, "quota_used": 40}
+{"ts": "2026-08-11T10:40:23", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2782, "tokens_out": 678, "cost_usd": 0.0, "chars_out": 670, "ms": 15881, "quota_used": 41}
+{"ts": "2026-08-11T10:42:35", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2651, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 295, "ms": 14712, "quota_used": 42}
+{"ts": "2026-08-11T10:45:04", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2651, "tokens_out": 681, "cost_usd": 0.0, "chars_out": 671, "ms": 14480, "quota_used": 43}
+{"ts": "2026-08-11T10:47:45", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2651, "tokens_out": 640, "cost_usd": 0.0, "chars_out": 688, "ms": 14034, "quota_used": 44}
+{"ts": "2026-08-11T10:49:32", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3328, "tokens_out": 800, "cost_usd": 0.0006899200000000001, "chars_out": 2689, "ms": 10441, "quota_used": 45}
+{"ts": "2026-08-11T10:50:43", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2651, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 580, "ms": 15132, "quota_used": 46}
+{"ts": "2026-08-11T10:53:21", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 4106, "tokens_out": 1079, "cost_usd": 0.0, "chars_out": 622, "ms": 32942, "quota_used": 47}
+{"ts": "2026-08-11T10:56:14", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 847, "cost_usd": 0.0, "chars_out": 202, "ms": 12177, "quota_used": 48}
+{"ts": "2026-08-11T10:58:29", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2626, "tokens_out": 689, "cost_usd": 0.0, "chars_out": 716, "ms": 14324, "quota_used": 49}
+{"ts": "2026-08-11T11:00:50", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2626, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 481, "ms": 16088, "quota_used": 50}
+{"ts": "2026-08-11T11:03:12", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2626, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 622, "ms": 15848, "quota_used": 51}
+{"ts": "2026-08-11T11:05:29", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2626, "tokens_out": 529, "cost_usd": 0.0, "chars_out": 569, "ms": 12869, "quota_used": 52}
+{"ts": "2026-08-11T11:08:18", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1401, "tokens_out": 592, "cost_usd": 0.0, "chars_out": 548, "ms": 20663, "quota_used": 53}
+{"ts": "2026-08-11T11:11:03", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1401, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 133, "ms": 15317, "quota_used": 54}
+{"ts": "2026-08-11T11:13:22", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1401, "tokens_out": 411, "cost_usd": 0.0, "chars_out": 410, "ms": 11493, "quota_used": 55}
+{"ts": "2026-08-11T11:15:41", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1401, "tokens_out": 455, "cost_usd": 0.0, "chars_out": 606, "ms": 11451, "quota_used": 56}
+{"ts": "2026-08-11T11:21:23", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 2710, "tokens_out": 800, "cost_usd": 0.0006034, "chars_out": 3151, "ms": 8631, "quota_used": 57}
+{"ts": "2026-08-11T11:53:07", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 2733, "tokens_out": 800, "cost_usd": 0.0006066200000000001, "chars_out": 3020, "ms": 7917, "quota_used": 58}
+{"ts": "2026-08-11T12:23:20", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 2756, "tokens_out": 800, "cost_usd": 0.0006098400000000002, "chars_out": 2332, "ms": 8122, "quota_used": 59}
+{"ts": "2026-08-11T12:53:09", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 2760, "tokens_out": 800, "cost_usd": 0.0006104000000000001, "chars_out": 2333, "ms": 8201, "quota_used": 60}
+{"ts": "2026-08-11T13:24:05", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:24:10", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:55:45", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:55:49", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:56:26", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:56:31", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:58:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:58:20", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:59:05", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:59:10", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:59:54", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T13:59:59", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:20:16", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:20:21", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:23:25", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:23:31", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:25:57", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:26:02", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:28:38", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:28:44", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:47:45", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:47:51", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:50:36", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:50:42", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:53:10", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:53:15", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:58:00", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T14:58:05", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:14:52", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:14:56", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:18:18", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:18:23", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:21:26", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:21:31", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:43:15", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:43:20", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:58:29", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T15:58:33", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:03:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:03:39", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:06:27", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:06:32", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:09:04", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:09:09", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:11:30", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:11:36", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:14:06", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:14:14", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:19:30", "task": "research", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:19:37", "task": "research", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:23:49", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:23:54", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:26:19", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:26:24", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:28:41", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:28:46", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:31:04", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:31:08", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:31:31", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:31:36", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:33:42", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T16:33:46", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T17:00:00", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T17:00:06", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:00:46", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:00:50", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:02:45", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:02:50", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:24:38", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:24:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:26:24", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:26:29", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:29:56", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:30:00", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:36:11", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:36:16", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:39:22", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:39:26", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:43:20", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T18:43:25", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:08:14", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:08:19", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:27:44", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:27:48", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:35:17", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:35:22", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:40:45", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:40:49", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:42:39", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:42:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:49:47", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:49:52", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:52:33", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T19:52:37", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T20:09:23", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T20:09:28", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T20:25:47", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T20:25:52", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T20:29:28", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T20:29:33", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:10:48", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:10:53", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:12:40", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:12:46", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:17:35", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:17:40", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:32:49", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:32:54", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:40:33", "task": "draft", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:40:39", "task": "draft", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:42:14", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:42:19", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:42:32", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T21:42:38", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:11:44", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:11:48", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:16:26", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:16:31", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:57:22", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:57:27", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:57:38", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T22:57:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T23:17:03", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T23:17:08", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T23:59:41", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-11T23:59:46", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T00:02:03", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1127, "tokens_out": 637, "cost_usd": 0.0, "chars_out": 308, "ms": 21579, "quota_used": 1}
+{"ts": "2026-08-12T00:02:38", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 220, "tokens_out": 220, "cost_usd": 9.240000000000001e-05, "chars_out": 542, "ms": 3319, "quota_used": 3}
+{"ts": "2026-08-12T00:02:55", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 9156, "tokens_out": 2096, "cost_usd": 0.0, "chars_out": 111, "ms": 43462, "quota_used": 2}
+{"ts": "2026-08-12T00:07:40", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 205, "tokens_out": 220, "cost_usd": 9.030000000000001e-05, "chars_out": 660, "ms": 2960, "quota_used": 4}
+{"ts": "2026-08-12T00:21:37", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3357, "tokens_out": 800, "cost_usd": 0.0006939800000000001, "chars_out": 2408, "ms": 9204, "quota_used": 5}
+{"ts": "2026-08-12T00:23:06", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 246, "tokens_out": 220, "cost_usd": 9.604000000000001e-05, "chars_out": 535, "ms": 6900, "quota_used": 6}
+{"ts": "2026-08-12T00:23:37", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3489, "tokens_out": 886, "cost_usd": 0.0, "chars_out": 187, "ms": 22504, "quota_used": 7}
+{"ts": "2026-08-12T00:27:43", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 190, "tokens_out": 220, "cost_usd": 8.82e-05, "chars_out": 5, "ms": 3800, "quota_used": 8}
+{"ts": "2026-08-12T00:27:58", "task": "summarize", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 148, "tokens_out": 191, "cost_usd": 0.0, "chars_out": 100, "ms": 9351, "quota_used": 9}
+{"ts": "2026-08-12T00:31:04", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3491, "tokens_out": 396, "cost_usd": 0.0, "chars_out": 172, "ms": 10444, "quota_used": 10}
+{"ts": "2026-08-12T00:33:02", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 203, "tokens_out": 220, "cost_usd": 9.002000000000001e-05, "chars_out": 791, "ms": 3366, "quota_used": 11}
+{"ts": "2026-08-12T00:37:39", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 189, "tokens_out": 220, "cost_usd": 8.806000000000001e-05, "chars_out": 893, "ms": 3485, "quota_used": 12}
+{"ts": "2026-08-12T00:42:38", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 190, "tokens_out": 211, "cost_usd": 8.568e-05, "chars_out": 22, "ms": 3745, "quota_used": 14}
+{"ts": "2026-08-12T00:43:07", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3025, "tokens_out": 2400, "cost_usd": 0.0, "chars_out": 450, "ms": 49186, "quota_used": 13}
+{"ts": "2026-08-12T00:47:58", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 190, "tokens_out": 220, "cost_usd": 8.82e-05, "chars_out": 740, "ms": 3084, "quota_used": 15}
+{"ts": "2026-08-12T00:52:46", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 189, "tokens_out": 220, "cost_usd": 8.806000000000001e-05, "chars_out": 726, "ms": 3776, "quota_used": 17}
+{"ts": "2026-08-12T00:52:46", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3356, "tokens_out": 800, "cost_usd": 0.00069384, "chars_out": 2850, "ms": 8907, "quota_used": 16}
+{"ts": "2026-08-12T01:23:03", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3273, "tokens_out": 800, "cost_usd": 0.0006822200000000001, "chars_out": 1800, "ms": 8467, "quota_used": 18}
+{"ts": "2026-08-12T01:31:53", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 830, "cost_usd": 0.0, "chars_out": 207, "ms": 13348, "quota_used": 19}
+{"ts": "2026-08-12T01:44:19", "task": "plan", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 1615, "tokens_out": 1200, "cost_usd": 0.0, "chars_out": 240, "ms": 21513, "quota_used": 20}
+{"ts": "2026-08-12T01:53:45", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3270, "tokens_out": 800, "cost_usd": 0.0006818, "chars_out": 2959, "ms": 7623, "quota_used": 21}
+{"ts": "2026-08-12T02:24:22", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3266, "tokens_out": 800, "cost_usd": 0.0006812400000000001, "chars_out": 2352, "ms": 8924, "quota_used": 22}
+{"ts": "2026-08-12T02:32:11", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 1328, "cost_usd": 0.0, "chars_out": 206, "ms": 17543, "quota_used": 23}
+{"ts": "2026-08-12T03:32:28", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 1004, "cost_usd": 0.0, "chars_out": 210, "ms": 15578, "quota_used": 24}
+{"ts": "2026-08-12T04:26:46", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3269, "tokens_out": 800, "cost_usd": 0.0006816600000000002, "chars_out": 3213, "ms": 9401, "quota_used": 25}
+{"ts": "2026-08-12T04:33:39", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 785, "cost_usd": 0.0, "chars_out": 215, "ms": 11528, "quota_used": 26}
+{"ts": "2026-08-12T05:34:11", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 760, "cost_usd": 0.0, "chars_out": 201, "ms": 11226, "quota_used": 27}
+{"ts": "2026-08-12T06:01:03", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2790, "tokens_out": 2305, "cost_usd": 0.0, "chars_out": 523, "ms": 55444, "quota_used": 28}
+{"ts": "2026-08-12T06:27:54", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3401, "tokens_out": 800, "cost_usd": 0.0007001400000000001, "chars_out": 2396, "ms": 8893, "quota_used": 29}
+{"ts": "2026-08-12T06:35:06", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 1496, "cost_usd": 0.0, "chars_out": 195, "ms": 20109, "quota_used": 30}
+{"ts": "2026-08-12T06:55:44", "task": "research", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 758, "tokens_out": 777, "cost_usd": 0.00032368, "chars_out": 603, "ms": 9779, "quota_used": 31}
+{"ts": "2026-08-12T07:00:02", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3425, "tokens_out": 800, "cost_usd": 0.0007035000000000001, "chars_out": 1927, "ms": 7617, "quota_used": 32}
+{"ts": "2026-08-12T07:01:00", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2677, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 384, "ms": 13564, "quota_used": 33}
+{"ts": "2026-08-12T07:01:21", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3039, "tokens_out": 650, "cost_usd": 0.0, "chars_out": 737, "ms": 15947, "quota_used": 34}
+{"ts": "2026-08-12T07:03:37", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 645, "cost_usd": 0.0, "chars_out": 643, "ms": 15167, "quota_used": 35}
+{"ts": "2026-08-12T07:05:47", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 578, "cost_usd": 0.0, "chars_out": 622, "ms": 15081, "quota_used": 36}
+{"ts": "2026-08-12T07:08:00", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 592, "ms": 14817, "quota_used": 37}
+{"ts": "2026-08-12T07:10:16", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 557, "cost_usd": 0.0, "chars_out": 555, "ms": 18011, "quota_used": 38}
+{"ts": "2026-08-12T07:12:27", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 697, "cost_usd": 0.0, "chars_out": 662, "ms": 15748, "quota_used": 39}
+{"ts": "2026-08-12T07:14:59", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 643, "cost_usd": 0.0, "chars_out": 675, "ms": 16110, "quota_used": 40}
+{"ts": "2026-08-12T07:17:12", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 675, "cost_usd": 0.0, "chars_out": 718, "ms": 16059, "quota_used": 41}
+{"ts": "2026-08-12T07:19:38", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 669, "ms": 16481, "quota_used": 42}
+{"ts": "2026-08-12T07:21:52", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 644, "ms": 16542, "quota_used": 43}
+{"ts": "2026-08-12T07:24:07", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 675, "cost_usd": 0.0, "chars_out": 660, "ms": 17378, "quota_used": 44}
+{"ts": "2026-08-12T07:26:23", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 956, "cost_usd": 0.0, "chars_out": 208, "ms": 13243, "quota_used": 45}
+{"ts": "2026-08-12T07:28:09", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 189, "tokens_out": 220, "cost_usd": 8.806000000000001e-05, "chars_out": 817, "ms": 3867, "quota_used": 46}
+{"ts": "2026-08-12T07:28:40", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 627, "cost_usd": 0.0, "chars_out": 669, "ms": 14663, "quota_used": 47}
+{"ts": "2026-08-12T07:31:40", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 3080, "tokens_out": 619, "cost_usd": 0.0, "chars_out": 680, "ms": 16159, "quota_used": 48}
+{"ts": "2026-08-12T07:33:43", "task": "synthesize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3228, "tokens_out": 800, "cost_usd": 0.00067592, "chars_out": 2298, "ms": 9782, "quota_used": 49}
+{"ts": "2026-08-12T07:33:47", "task": "summarize", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 189, "tokens_out": 220, "cost_usd": 8.806000000000001e-05, "chars_out": 621, "ms": 3672, "quota_used": 50}
+{"ts": "2026-08-12T07:34:40", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2949, "tokens_out": 639, "cost_usd": 0.0, "chars_out": 635, "ms": 15732, "quota_used": 51}
+{"ts": "2026-08-12T07:36:54", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2949, "tokens_out": 684, "cost_usd": 0.0, "chars_out": 749, "ms": 15775, "quota_used": 52}
+{"ts": "2026-08-12T07:39:06", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2949, "tokens_out": 377, "cost_usd": 0.0, "chars_out": 592, "ms": 12940, "quota_used": 53}
+{"ts": "2026-08-12T07:41:19", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2949, "tokens_out": 523, "cost_usd": 0.0, "chars_out": 566, "ms": 12819, "quota_used": 54}
+{"ts": "2026-08-12T07:43:32", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2887, "tokens_out": 643, "cost_usd": 0.0, "chars_out": 704, "ms": 15962, "quota_used": 55}
+{"ts": "2026-08-12T07:43:40", "task": "research", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 758, "tokens_out": 336, "cost_usd": 0.00020020000000000001, "chars_out": 798, "ms": 5386, "quota_used": 56}
+{"ts": "2026-08-12T07:45:45", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2887, "tokens_out": 558, "cost_usd": 0.0, "chars_out": 599, "ms": 13291, "quota_used": 57}
+{"ts": "2026-08-12T07:48:18", "task": "deep", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 2887, "tokens_out": 700, "cost_usd": 0.0, "chars_out": 707, "ms": 15155, "quota_used": 58}
+{"ts": "2026-08-12T07:52:59", "task": "orchestrate", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 5644, "tokens_out": 2000, "cost_usd": 0.0, "chars_out": 15, "ms": 26502, "quota_used": 59}
+{"ts": "2026-08-12T07:53:24", "task": "orchestrate", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 3755, "tokens_out": 2000, "cost_usd": 0.0010857000000000002, "chars_out": 6859, "ms": 20087, "quota_used": 60}
+{"ts": "2026-08-12T07:54:31", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T07:54:35", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T07:57:38", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T07:57:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:02:03", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:02:07", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:03:37", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:03:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:07:22", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:07:28", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:15:53", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:15:57", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:18:39", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:18:43", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:22:03", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:22:07", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:24:32", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:24:37", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:27:39", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:27:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:28:37", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:28:42", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:31:10", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:31:15", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:34:00", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:34:04", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:39:19", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:39:24", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:47:16", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:47:21", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:49:51", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:49:56", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:54:29", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T08:54:34", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:15:50", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:15:55", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:17:47", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:17:53", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:18:12", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:18:16", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:21:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:21:38", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:22:25", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:22:30", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:22:38", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:22:43", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:43:00", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:43:05", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:45:47", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:45:51", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:47:37", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:47:42", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:49:40", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:49:45", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:52:16", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:52:21", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:53:13", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T09:53:17", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:10:12", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:10:16", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:12:27", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:12:31", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:23:59", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:24:03", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:39:41", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:39:46", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:44:31", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:44:36", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:54:10", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T10:54:15", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T11:25:57", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T11:26:02", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 60}
+{"ts": "2026-08-12T11:29:45", "task": "collab_chat", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 361, "tokens_out": 186, "cost_usd": 0.00010262, "chars_out": 216, "ms": 3250, "quota_used": 61}
+{"ts": "2026-08-12T11:34:03", "task": "collab_chat", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 819, "tokens_out": 900, "cost_usd": 0.00036666, "chars_out": 987, "ms": 9890, "quota_used": 62}
+{"ts": "2026-08-12T11:40:53", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 62}
+{"ts": "2026-08-12T11:40:58", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 62}
+{"ts": "2026-08-12T11:41:27", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 62}
+{"ts": "2026-08-12T11:41:31", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 62}
+{"ts": "2026-08-12T11:43:51", "task": "collab_chat", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 866, "tokens_out": 900, "cost_usd": 0.00037324, "chars_out": 186, "ms": 10960, "quota_used": 63}
+{"ts": "2026-08-12T11:46:20", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 63}
+{"ts": "2026-08-12T11:46:25", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 63}
+{"ts": "2026-08-12T11:54:57", "task": "collab_chat", "tier": "secondary", "role": "reason", "provider": "deepseek", "model": "deepseek-v4-flash", "via_gateway": false, "subscription": "metered", "ok": true, "tokens_in": 871, "tokens_out": 900, "cost_usd": 0.00037394, "chars_out": 486, "ms": 8846, "quota_used": 64}
+{"ts": "2026-08-12T11:58:12", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T11:58:16", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:01:03", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:01:07", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:11:36", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:11:41", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:29:58", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:30:03", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:46:47", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T12:46:51", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T13:00:14", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T13:00:19", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T13:31:39", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T13:31:44", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T13:47:26", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T13:47:31", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:01:52", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:01:56", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:13:36", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:14:03", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:33:08", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:33:12", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:44:29", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:44:33", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:47:25", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T14:47:30", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:04:44", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:04:49", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:12:48", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:12:52", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:36:34", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:36:38", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:48:56", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T15:49:01", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:08:13", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:08:18", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:17:55", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:18:00", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:20:14", "task": "research", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:20:19", "task": "research", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:38:27", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:38:32", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:50:21", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T16:50:26", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:10:33", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:10:38", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:40:49", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:40:54", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:50:44", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:50:49", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:56:15", "task": "orchestrate", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:56:20", "task": "orchestrate", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:57:43", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T17:57:49", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:01:28", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:01:34", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:11:36", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:11:41", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:21:18", "task": "synthesize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:21:23", "task": "synthesize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:25:56", "task": "summarize", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:26:04", "task": "summarize", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:42:13", "task": "deep", "tier": "primary", "role": "orchestr", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}
+{"ts": "2026-08-12T18:42:18", "task": "deep", "tier": "secondary", "role": "reason", "ok": false, "error": "quota_daily-cap", "ms": 0, "quota_used": 64}

@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-03T20:20:28",
+  "ts": "2026-08-12T16:20:23",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
-  "checklist_pct": 74.4,
+  "checklist_pct": 82.6,
   "checklist_static": true,
-  "maturity_pct": 74.4,
+  "maturity_pct": 82.6,
   "improvement_rate": {
-    "closed": 4,
-    "moved": 0,
-    "rate_pct": 0.0
+    "closed": 5,
+    "moved": 1,
+    "rate_pct": 20.0
   },
-  "n_proposals": 36,
+  "n_proposals": 37,
   "by_category": {
     "business": [
       {
@@ -23,102 +23,26 @@
         "status": "proposed"
       },
       {
-        "id": "up-399bcd9635",
+        "id": "up-118f76b5e7",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (3/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (11/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
         "status": "proposed"
       }
     ],
-    "architecture": [
+    "implementation": [
       {
-        "id": "up-d6065f91ae",
+        "id": "up-86a2454554",
         "priority": "P0",
-        "title": "self-analysis loop observe→critique→propose→validate→promote",
-        "suggested_action": "دکتر را داده‌زنده کن: db را در make_doctor تزریق کن (organism.py) + apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag).",
+        "title": "owner merge verdict has real effect (apply_merge wired)",
+        "suggested_action": "apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag) تا تأییدِ تو اثرِ واقعی داشته باشد، نه فقط برچسب.",
         "change_level": "code",
         "source": "audit",
-        "status_now": "Partial",
+        "status_now": "Missing",
         "status": "proposed"
       },
-      {
-        "id": "up-d6ae0f6107",
-        "priority": "P2",
-        "title": "سنتزِ مغز: مسیر «صفر تا اولین مطالبه»",
-        "suggested_action": "تعریف قرارداد پذیرش رویداد شامل شناسهٔ لید، مبلغ، مدرک مطالبه و منبع انتساب",
-        "change_level": "reconfig",
-        "source": "synthesis",
-        "status": "proposed"
-      },
-      {
-        "id": "up-9e985220f4",
-        "priority": "P2",
-        "title": "سنتزِ مغز: سلول درآمدِ سه‌مغزی",
-        "suggested_action": "انتخاب یک لید واقعی و تعیین ورودی/خروجی و شرط توقف هر مغز",
-        "change_level": "reconfig",
-        "source": "synthesis",
-        "status": "proposed"
-      },
-      {
-        "id": "up-d53d512813",
-        "priority": "P2",
-        "title": "سنتزِ مغز: حلقهٔ ارتقای درآمد با حافظهٔ ماندگار",
-        "suggested_action": "طراحی یک shadow-eval روی متن پیشنهاد قیمت با معیار «احتمال مطالبه، صحت انتساب، هزینه و امکان بازگشت",
-        "change_level": "reconfig",
-        "source": "synthesis",
-        "status": "proposed"
-      },
-      {
-        "id": "up-0dd8fa5cdc",
-        "priority": "P2",
-        "title": "tool/model registry + trust levels",
-        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §18 tools).",
-        "change_level": "reconfig",
-        "source": "audit",
-        "status_now": "Partial",
-        "status": "proposed"
-      },
-      {
-        "id": "up-a1c23767af",
-        "priority": "P2",
-        "title": "formal agent graph + centrality/coupling",
-        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §17 geometry).",
-        "change_level": "reconfig",
-        "source": "audit",
-        "status_now": "Partial",
-        "status": "proposed"
-      },
-      {
-        "id": "up-5555566270",
-        "priority": "P3",
-        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
-        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
-        "change_level": "tune",
-        "source": "part-loop",
-        "status": "proposed"
-      },
-      {
-        "id": "up-c447f8da48",
-        "priority": "P3",
-        "title": "قلب: قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
-        "suggested_action": "بعد از Gate-0 خودش زنده می‌شود؛ کاری لازم نیست.",
-        "change_level": "tune",
-        "source": "part-loop",
-        "status": "proposed"
-      },
-      {
-        "id": "up-4c033e4bf9",
-        "priority": "P3",
-        "title": "خودآگاهی: 10 ماژول بدونِ توضیح",
-        "suggested_action": "یک docstringِ یک‌خطی به هرکدام (سندی، بی‌خطر).",
-        "change_level": "tune",
-        "source": "part-loop",
-        "status": "proposed"
-      }
-    ],
-    "implementation": [
       {
         "id": "up-1363aae4df",
         "priority": "P0",
@@ -230,17 +154,138 @@
         "status": "proposed"
       }
     ],
-    "governance": [
+    "architecture": [
       {
-        "id": "up-1f41a4499b",
-        "priority": "P1",
-        "title": "memory poisoning / false-canon guard",
-        "suggested_action": "مانیتورِ خودکارِ created_by:agent بدونِ sources≥2 → هشدار (validate_frontmatter در لوپ).",
+        "id": "up-d6065f91ae",
+        "priority": "P0",
+        "title": "self-analysis loop observe→critique→propose→validate→promote",
+        "suggested_action": "دکتر را داده‌زنده کن: db را در make_doctor تزریق کن (organism.py) + apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag).",
         "change_level": "code",
         "source": "audit",
-        "status_now": "Missing",
+        "status_now": "Partial",
         "status": "proposed"
       },
+      {
+        "id": "up-a5a50a63e2",
+        "priority": "P2",
+        "title": "سنتزِ مغز: اولینِ پول از صفر",
+        "suggested_action": "در فایل `state/fitness-latest.json` یک فیلد `monetization_distance` اضافه کن و در هر گزارش بنویس این ورودی چند قدم به نخستینِ پول نزدیک می‌کند.",
+        "change_level": "reconfig",
+        "source": "synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-900c36e17b",
+        "priority": "P2",
+        "title": "سنتزِ مغز: حافظهٔ ماندگارِ مقاوم",
+        "suggested_action": "قدم اول: یک اسکریپتِ `verify-memory-integrity` بنویس که بعد از هر بوت، هشِ `state/` و `memory/` را با لاگِ قبلی مقایسه کند و اختلاف را به تلگرام بفرستد.",
+        "change_level": "reconfig",
+        "source": "synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-2c7ed12aa8",
+        "priority": "P2",
+        "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با توقفِ واقعی",
+        "suggested_action": "در حلقه یک شمارنده و معیارِ «بهبودِ اثبات‌شدهٔ سنجه» اضافه کن که بعد از ۳ تکرارِ بدونِ ارتقا، حلقه متوقف و نتیجه به پنل گزارش شود.",
+        "change_level": "reconfig",
+        "source": "synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-ccda8773d0",
+        "priority": "P2",
+        "title": "یادمانِ حلقه (synthesis): تحلیل خودکار عملکرد",
+        "suggested_action": "channel=synthesis | source=synth:local | title=تحلیل خودکار عملکرد | body=بهبود عملکرد کل سیستم",
+        "change_level": "reconfig",
+        "source": "self_loop:synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-72deffe092",
+        "priority": "P2",
+        "title": "یادمانِ حلقه (synthesis): پیاده‌سازی حافظه ماندگار",
+        "suggested_action": "channel=synthesis | source=synth:local | title=پیاده‌سازی حافظه ماندگار | body=بهبود پایداری سیستم",
+        "change_level": "reconfig",
+        "source": "self_loop:synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-0dd8fa5cdc",
+        "priority": "P2",
+        "title": "tool/model registry + trust levels",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §18 tools).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-a1c23767af",
+        "priority": "P2",
+        "title": "formal agent graph + centrality/coupling",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §17 geometry).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-5233baec31",
+        "priority": "P2",
+        "title": "یادمانِ حلقه (self_knowledge): نیاز به تصحیح مالک",
+        "suggested_action": "channel=self_knowledge | source=pathology | title=نیاز به تصحیح مالک | body=خطاهای پرتکرار",
+        "change_level": "reconfig",
+        "source": "self_loop:self_knowledge",
+        "status": "proposed"
+      },
+      {
+        "id": "up-86a91e8132",
+        "priority": "P2",
+        "title": "یادمانِ حلقه (part_loops): part-health:🩺 دکتر",
+        "suggested_action": "channel=part_loops | source=part-health | title=part-health:🩺 دکتر | body=7 منتظر",
+        "change_level": "reconfig",
+        "source": "self_loop:part_loops",
+        "status": "proposed"
+      },
+      {
+        "id": "up-4cd1263600",
+        "priority": "P2",
+        "title": "یادمانِ حلقه (self_knowledge): نامعلوم (نیاز به کاوش)",
+        "suggested_action": "channel=self_knowledge | source=pathology | title=نامعلوم (نیاز به کاوش) | body=خطاهای پرتکرار TimeoutError ×2",
+        "change_level": "reconfig",
+        "source": "self_loop:self_knowledge",
+        "status": "proposed"
+      },
+      {
+        "id": "up-5555566270",
+        "priority": "P3",
+        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
+        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
+        "change_level": "tune",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
+        "id": "up-c447f8da48",
+        "priority": "P3",
+        "title": "قلب: قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
+        "suggested_action": "بعد از Gate-0 خودش زنده می‌شود؛ کاری لازم نیست.",
+        "change_level": "tune",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
+        "id": "up-4c033e4bf9",
+        "priority": "P3",
+        "title": "خودآگاهی: 10 ماژول بدونِ توضیح",
+        "suggested_action": "یک docstringِ یک‌خطی به هرکدام (سندی، بی‌خطر).",
+        "change_level": "tune",
+        "source": "part-loop",
+        "status": "proposed"
+      }
+    ],
+    "governance": [
       {
         "id": "up-b229e6ba53",
         "priority": "P1",
@@ -262,26 +307,6 @@
         "status": "proposed"
       },
       {
-        "id": "up-6013ab05d7",
-        "priority": "P1",
-        "title": "rollback path before apply",
-        "suggested_action": "قبل از هر apply_merge یک git tag/checkpoint خودکار بزن (twin of pre-merge tags).",
-        "change_level": "code",
-        "source": "audit",
-        "status_now": "Partial",
-        "status": "proposed"
-      },
-      {
-        "id": "up-863c603099",
-        "priority": "P2",
-        "title": "owner autonomy preference modulates behavior",
-        "suggested_action": "این بند را از «Missing» به Done ببر (بخشِ §1 autonomy).",
-        "change_level": "reconfig",
-        "source": "audit",
-        "status_now": "Missing",
-        "status": "proposed"
-      },
-      {
         "id": "up-1bf7588f78",
         "priority": "P2",
         "title": "named human owner per subsystem",
@@ -296,28 +321,6 @@
         "priority": "P2",
         "title": "decision ledger (verdicts aggregated)",
         "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ 2027§22 artifacts).",
-        "change_level": "reconfig",
-        "source": "audit",
-        "status_now": "Partial",
-        "status": "proposed"
-      }
-    ],
-    "theory": [
-      {
-        "id": "up-ef5929f21b",
-        "priority": "P2",
-        "title": "identity drift monitoring in self-modifying agents",
-        "suggested_action": "این بند را از «Missing» به Done ببر (بخشِ 2027§11 self-modify).",
-        "change_level": "reconfig",
-        "source": "audit",
-        "status_now": "Missing",
-        "status": "proposed"
-      },
-      {
-        "id": "up-40e5e44d0e",
-        "priority": "P2",
-        "title": "single-agent / null baseline",
-        "suggested_action": "مقایسهٔ خودکارِ neural-vs-null (box/null_dreamer) را per-epoch ثبت کن.",
         "change_level": "reconfig",
         "source": "audit",
         "status_now": "Partial",
@@ -346,22 +349,24 @@
         "status": "proposed"
       },
       {
-        "id": "up-ae4a7476a9",
-        "priority": "P2",
-        "title": "drift over time measured",
-        "suggested_action": "سریِ زمانیِ coherence/velocity را نگه‌دار و شیبِ منفی را به‌عنوان drift هشدار بده.",
-        "change_level": "code",
-        "source": "audit",
-        "status_now": "Missing",
-        "status": "proposed"
-      },
-      {
         "id": "up-c5a8220ab6",
         "priority": "P3",
         "title": "خودآگاهیِ سند: 10 ماژول بدونِ docstring",
         "suggested_action": "به هر ماژول یک docstringِ یک‌خطی بده (تغییرِ سندی، بی‌خطر).",
         "change_level": "tune",
         "source": "self_model",
+        "status": "proposed"
+      }
+    ],
+    "theory": [
+      {
+        "id": "up-40e5e44d0e",
+        "priority": "P2",
+        "title": "single-agent / null baseline",
+        "suggested_action": "مقایسهٔ خودکارِ neural-vs-null (box/null_dreamer) را per-epoch ثبت کن.",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
         "status": "proposed"
       }
     ]
@@ -384,12 +389,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-399bcd9635",
+      "id": "up-118f76b5e7",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (3/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (11/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -398,6 +403,23 @@
       "status": "proposed",
       "serves_goal": "Ziman و Lead-نقاشی: لیدِ واقعی و درآمدِ اثبات‌پذیر مقدم بر هر آزمایش.",
       "impact": 3.0
+    },
+    {
+      "id": "up-86a2454554",
+      "source": "audit",
+      "category": "implementation",
+      "priority": "P0",
+      "_rank": 0.0,
+      "title": "owner merge verdict has real effect (apply_merge wired)",
+      "status_now": "Missing",
+      "rationale": "چک‌لیست §§15 human-in-loop — الان Missing",
+      "evidence": "run_cycle: merged→apply_merge (lesson+NOTE، پشتِ OCTOPUS_WIRE_APPLY_MERGE) + رفعِ باگِ to_markdown float",
+      "suggested_action": "apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag) تا تأییدِ تو اثرِ واقعی داشته باشد، نه فقط برچسب.",
+      "change_level": "code",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 2.6
     },
     {
       "id": "up-d6065f91ae",
@@ -434,15 +456,15 @@
       "impact": 2.6
     },
     {
-      "id": "up-d6ae0f6107",
+      "id": "up-a5a50a63e2",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: مسیر «صفر تا اولین مطالبه»",
-      "rationale": "مستقیم ۳ قدم جلو می‌برد: لید واقعی ← پیشنهاد قیمت مستند ← ثبت `attribution.claimed`؛ اولویت با Ziman و Lead-نقاشی",
-      "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "تعریف قرارداد پذیرش رویداد شامل شناسهٔ لید، مبلغ، مدرک مطالبه و منبع انتساب",
+      "title": "سنتزِ مغز: اولینِ پول از صفر",
+      "rationale": "امروز `attribution.claimed=0` است و هیچ پیشنهادی اثر مستقیم روی درآمدِ اثبات‌پذیر ندارد؛ این گپِ حیاتی است",
+      "evidence": "synthesis-latest.json [secondary]",
+      "suggested_action": "در فایل `state/fitness-latest.json` یک فیلد `monetization_distance` اضافه کن و در هر گزارش بنویس این ورودی چند قدم به نخستینِ پول نزدیک می‌کند.",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -450,86 +472,70 @@
       "impact": 2.2
     },
     {
-      "id": "up-9e985220f4",
+      "id": "up-900c36e17b",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: سلول درآمدِ سه‌مغزی",
-      "rationale": "۲ قدم جلو می‌برد: fugu مذاکره، glm تحقیق و امتیازدهی لید، ollama استخراج شواهد محلی؛ بدون هزینهٔ پولی و با خروجی واحد",
-      "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "انتخاب یک لید واقعی و تعیین ورودی/خروجی و شرط توقف هر مغز",
+      "title": "سنتزِ مغز: حافظهٔ ماندگارِ مقاوم",
+      "rationale": "خاموش/روشن نباید چیزی را گم کند ولی هنوز بازبینیِ خودکارِ یکپارچگی بین مغزها نیست",
+      "evidence": "synthesis-latest.json [secondary]",
+      "suggested_action": "قدم اول: یک اسکریپتِ `verify-memory-integrity` بنویس که بعد از هر بوت، هشِ `state/` و `memory/` را با لاگِ قبلی مقایسه کند و اختلاف را به تلگرام بفرستد.",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
+      "serves_goal": "حافظهٔ ماندگار مثلِ شرکت‌های بزرگ: با خاموش/روشن هیچ‌چیز گم نشود.",
       "impact": 2.2
     },
     {
-      "id": "up-d53d512813",
+      "id": "up-2c7ed12aa8",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: حلقهٔ ارتقای درآمد با حافظهٔ ماندگار",
-      "rationale": "۱ قدم جلو می‌برد: بهبود تبدیل لید به مطالبه؛ پوشش observe→critique→propose→shadow-validate→promote، ضد‌مسمومیت، سطح تغییر، توقف و rollback",
-      "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "طراحی یک shadow-eval روی متن پیشنهاد قیمت با معیار «احتمال مطالبه، صحت انتساب، هزینه و امکان بازگشت",
+      "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با توقفِ واقعی",
+      "rationale": "پروپوزال‌ها shadow-eval دارند ولی حلقه شرطِ پایان و قبول/ردِ خودکار ندارد، پس بی‌نهایت می‌چرخد",
+      "evidence": "synthesis-latest.json [secondary]",
+      "suggested_action": "در حلقه یک شمارنده و معیارِ «بهبودِ اثبات‌شدهٔ سنجه» اضافه کن که بعد از ۳ تکرارِ بدونِ ارتقا، حلقه متوقف و نتیجه به پنل گزارش شود.",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
+      "serves_goal": "ارگانیسم خودش را تحلیل، تحقیق و ارتقا بدهد — تا جای امن خودکار، بقیه پیشنهاد به من.",
       "impact": 2.2
-    },
-    {
-      "id": "up-17a5528df2",
-      "source": "doctor",
-      "category": "implementation",
-      "priority": "P1",
-      "_rank": 1.2,
-      "title": "RFCِ دکتر: RFC-f1939b51",
-      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
-      "evidence": "knowledge/internal/RFC-f1939b51.md",
-      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-      "change_level": "reconfig",
-      "auto_applicable": false,
-      "status": "proposed",
-      "serves_goal": "—",
-      "impact": 1.6
     }
   ],
   "auto_eligible": [],
   "auto_enabled": true,
   "goal_directed": {
-    "n_goal_serving": 7,
+    "n_goal_serving": 10,
     "n_circular_dropped": 0,
     "goals_count": 7,
     "max_circular": 6,
     "max_circular_reason": "owner-window:2026-08-13",
     "outcome": {
-      "tracked": 18,
+      "tracked": 12,
       "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 106,
-        "proposals_delivered": 0,
-        "proposal_outcomes": 0,
-        "proposal_positive": 0,
-        "proposal_accept_rate": 0.0,
+        "total_discoveries": 126,
+        "proposals_delivered": 14,
+        "proposal_outcomes": 47,
+        "proposal_positive": 45,
+        "proposal_accept_rate": 0.9574468085106383,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 0
+        "proposals_sent": 8
       },
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 99,
-        "proposals_delivered": 0,
-        "proposal_outcomes": 0,
-        "proposal_positive": 0,
-        "proposal_accept_rate": 0.0,
+        "total_discoveries": 125,
+        "proposals_delivered": 14,
+        "proposal_outcomes": 47,
+        "proposal_positive": 45,
+        "proposal_accept_rate": 0.9574468085106383,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 0
+        "proposals_sent": 8
       }
     }
   },

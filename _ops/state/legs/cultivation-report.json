@@ -1,0 +1,77 @@
+{
+  "schema": "cultivation-report.v1",
+  "ts": "2026-08-12T18:19:38",
+  "legs": {
+    "mining": {
+      "leg": "mining",
+      "sensed": 0,
+      "digested": 0,
+      "duplicates": 0,
+      "pending": 0,
+      "starved": false,
+      "last_fed_at": "2026-08-12T07:49:35",
+      "notes": [],
+      "source": "coordinator/data/decisions.jsonl",
+      "source_exists": true,
+      "source_age_days_raw": 37.5,
+      "source_age_days": 0.0,
+      "source_bytes": 933,
+      "source_lines": 1,
+      "source_pulse_age_days": 0.0,
+      "stale_source": false
+    },
+    "crypto": {
+      "leg": "crypto",
+      "sensed": 0,
+      "digested": 0,
+      "duplicates": 0,
+      "pending": 0,
+      "starved": false,
+      "last_fed_at": "2026-08-12T07:49:35",
+      "notes": [],
+      "stale_source": false
+    },
+    "accounting": {
+      "leg": "accounting",
+      "sensed": 0,
+      "digested": 0,
+      "duplicates": 0,
+      "pending": 0,
+      "starved": false,
+      "last_fed_at": "2026-08-12T07:49:35",
+      "notes": [],
+      "stale_source": false
+    },
+    "knowledge": {
+      "leg": "knowledge",
+      "sensed": 0,
+      "digested": 0,
+      "duplicates": 0,
+      "pending": 0,
+      "starved": false,
+      "last_fed_at": "2026-08-12T07:49:35",
+      "notes": [],
+      "stale_source": false
+    },
+    "ziman": {
+      "leg": "ziman",
+      "sensed": 0,
+      "digested": 0,
+      "duplicates": 0,
+      "pending": 0,
+      "starved": false,
+      "last_fed_at": "2026-08-12T07:49:35",
+      "notes": [],
+      "catalog": "03 - Projects/Ziman Galerry/03-Offering/ziman-catalog.json",
+      "catalog_exists": true,
+      "catalog_age_days_raw": 31.6,
+      "catalog_age_days": 0.0,
+      "catalog_products": 36,
+      "catalog_families": 5,
+      "catalog_pulse_age_days": 0.0,
+      "stale_source": false
+    }
+  },
+  "starved_legs": [],
+  "stale_legs": []
+}

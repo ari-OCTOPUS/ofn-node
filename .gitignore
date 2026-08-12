@@ -223,3 +223,43 @@ docs/math/nul
 docs/nul
 _ops/state/telegram/poll-health.json
 _ops/state/bcm-signal-weights.json
+
+# ===== Octopus runtime (2026-08-12 integration) =====
+# فایل‌های runtime/موقتی که checkpoint ها هرگز شامل نمی‌شوند.
+# NOTE: .gitignore روی فایل‌های tracked بی‌اثر است — این‌ها فقط untracked های جدید را می‌گیرند.
+_ops/state/session/
+_ops/state/shadow-influence/
+_ops/state/cockpit_brain/
+_ops/state/seed/
+_ops/state/telemetry/
+_ops/state/telemetry-latest.json
+_ops/state/instant-*.json
+_ops/state/fisher-latest.json
+_ops/state/fitness-*.json
+_ops/state/replication-latest.json
+_ops/state/reconcile-latest.json
+_ops/state/kernel-bridge-reader-report.json
+_ops/state/epoch-guard.json
+_ops/state/ORGANISM-STATE.*
+_ops/state/watchdog-log.txt
+_ops/state/miniapp-watchdog-log.txt
+_ops/state/adr-033/events/
+_ops/state/adr-033/evidence/
+_ops/state/adr-033/proposals/
+_ops/state/adr-033/quarantine/
+_ops/state/adr-033/replay/
+_ops/state/adr-033/idempotency-ledger.jsonl
+_ops/telemetry/
+_ops/synapse/out/
+_ops/_bak/
+_ops/budget/epochs/
+# فلگ‌های کنترلِ موقت (توقف/هالت/ریاستارت) — نباید کامیت شوند
+_ops/STOP-*
+_ops/HALT-ALL
+_ops/RESTART-*
+# فایل‌های قفل/کشِ دیتابیس (موقتی)
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-wal
+*.db-shm
+*.lock

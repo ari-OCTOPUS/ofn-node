@@ -50,3 +50,4 @@
 {"actor_owner": true, "event": "control_input", "schema": "octopus.agi2027.audit.v1", "text": "/ui", "ts": 1785665956.1129398}
 {"actor_owner": true, "event": "control_input", "schema": "octopus.agi2027.audit.v1", "text": "/outbound status", "ts": 1785666222.7294133}
 {"actor_owner": true, "event": "control_input", "schema": "octopus.agi2027.audit.v1", "text": "/ui", "ts": 1785666617.748487}
+{"actor_owner": true, "event": "control_input", "schema": "octopus.agi2027.audit.v1", "text": "/truth", "ts": 1786345511.1597352}

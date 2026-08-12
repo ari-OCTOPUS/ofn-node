@@ -1,0 +1,7 @@
+{"ts": "2026-08-11T19:50:47", "bot": "center", "update_id": 223883267, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-11T19:50:49", "bot": "center", "update_id": 223883268, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T04:18:45", "bot": "center", "update_id": 223883269, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-12T04:18:45", "bot": "center", "update_id": 223883269, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-12T10:02:38", "bot": "center", "update_id": 223883270, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T10:02:40", "bot": "center", "update_id": 223883271, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T11:18:10", "bot": "inner", "update_id": 732409556, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}

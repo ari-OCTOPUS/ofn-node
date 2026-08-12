@@ -1,0 +1,10 @@
+{
+  "schema": "leg-source-pulse.v1",
+  "leg": "mining",
+  "ts": "2026-08-12T18:19:37",
+  "unix": 1786522777.9854562,
+  "meta": {
+    "day": "2026-08-12"
+  },
+  "note": "additive freshness for cultivate enrich — does not mutate coordinator/catalog"
+}

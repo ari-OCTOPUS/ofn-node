@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "capability_id": "chrono-rhythm-cr-b0",
+  "owner": "octopus-core",
+  "truth_status": "TESTED",
+  "evidence_level": "SHADOW",
+  "runtime": {
+    "repo": "F:/backup",
+    "code_path": "_ops/chrono_rhythm/rhythm.py",
+    "entrypoint": "chrono_rhythm.rhythm.Rhythm",
+    "feature_flag": "OCTOPUS_WIRE_CHRONO_RHYTHM",
+    "enabled": true,
+    "note": "advisory only; direct authority stays in pulse_arbiter; age_tick/hash-chain untouched"
+  },
+  "authority": {
+    "allowed_effects": ["trace_only"],
+    "allowed_effect": "trace_only",
+    "may_write_state": false,
+    "may_affect_routing": false,
+    "may_affect_policy": false,
+    "may_trigger_external_action": false,
+    "may_gate": false,
+    "may_mutate_ledger": false,
+    "may_trigger_tool": false
+  },
+  "evidence": {
+    "adr": "ADR-033",
+    "source_docs": ["04 - Architect System/CHRONO-RHYTHM-LAYER-SPEC.md"],
+    "tests": ["test_rhythm.py"],
+    "traces": ["_ops/state/pulse/arbiter-shadow.jsonl"],
+    "last_verified_at": "2026-08-12T00:00:00Z"
+  },
+  "promotion": {
+    "next_status": "ARMED",
+    "required_artifacts": [
+      "seven_day_shadow_log",
+      "auc_divergence_vs_incident",
+      "owner_vote"
+    ],
+    "rollback_flag": "OCTOPUS_WIRE_CHRONO_RHYTHM"
+  }
+}

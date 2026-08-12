@@ -23,11 +23,14 @@
       "email": "proof-noaddress@example.invalid"
     },
     "workflow": {
-      "status": "received",
-      "owner_action_required": true,
+      "status": "set_aside",
+      "owner_action_required": false,
       "external_send_allowed": false,
-      "next_action": "qualify"
+      "next_action": "none",
+      "set_aside_at": "2026-08-12T08:36:50Z",
+      "set_aside_by": "owner"
     },
     "synthetic": true
-  }
+  },
+  "set_aside": true
 }

@@ -109,11 +109,11 @@ CAPABILITIES = {
         "reader_evidence": "prompt-context injection (not autonomous decision)",
     },
     "bcm_learned_pressure": {
-        "description": "BCM learned pressure → protective_override scoring",
-        "flag": "OCTOPUS_NEURAL_LEARNED_APPLY",
+        "description": "BCM learned pressure → PainAssessment / protective apply (ADR-035 dual-mode)",
+        "flag": "OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL",
         "artifact": "neural/effect-shadow.jsonl",
         "artifact_dir": "state",
-        "reader_code": "wiring.py::protective_override",
+        "reader_code": "wiring.py::emit_pain_assessment",
         "reader_evidence": "applied into protective score (historical applied=true)",
     },
     "vault_rag": {

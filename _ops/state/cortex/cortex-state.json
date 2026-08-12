@@ -1,16 +1,14 @@
 {
-  "ts": "2026-08-03T20:32:11",
-  "cycle": 146,
-  "coherence": 0.928,
-  "stale_members": [
-    "reconcile"
-  ],
+  "ts": "2026-08-12T18:43:20",
+  "cycle": 5,
+  "coherence": 0.966,
+  "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.998,
-      "age_s": 8,
+      "awareness": 0.999,
+      "age_s": 2,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -19,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.954,
-      "age_s": 328,
+      "awareness": 0.956,
+      "age_s": 315,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -29,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.954,
-      "age_s": 328,
+      "awareness": 0.956,
+      "age_s": 315,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -39,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.977,
-      "age_s": 327,
+      "awareness": 0.978,
+      "age_s": 315,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -49,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.972,
-      "age_s": 9820,
+      "awareness": 0.781,
+      "age_s": 75636,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -59,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 10,
+      "awareness": 0.995,
+      "age_s": 66,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -69,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.972,
-      "age_s": 9820,
+      "awareness": 0.992,
+      "age_s": 2662,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -79,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.972,
-      "age_s": 9820,
+      "awareness": 0.992,
+      "age_s": 2663,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -89,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.981,
-      "age_s": 9820,
+      "awareness": 0.854,
+      "age_s": 75767,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -99,10 +97,10 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.0,
-      "age_s": 976149,
+      "awareness": 0.995,
+      "age_s": 2661,
       "sla_s": 259200,
-      "note": "کهنه (271h)",
+      "note": "تازه",
       "source": "file-freshness",
       "watches": "reconcile-latest.json"
     }
@@ -113,28 +111,49 @@
     "reason": "هم‌راستا بود"
   },
   "rhythm": {
-    "period_s": 90.9,
-    "source": "×۲ قلبِ سایه (45.45s)"
+    "period_s": 600.0,
+    "source": "×۲ قلبِ سایه (489.97s)"
   },
   "brains": {
     "keys": {
       "fugu": true,
       "glm": true,
-      "deepseek": false
+      "deepseek": true
     },
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] البته، مهم‌ترین کار مجموعه حالا ترکیب‌وپیوند داشتن با اعضا 10 نفر است.",
+  "thought": "[local] اندیشیدن و برنامه‌ریزی برای بهبود عملکرد اعضا در آینده ضروری است.",
   "stress": {
     "level": "🟡 استرس",
-    "organism_stress": 0.5,
+    "organism_stress": 0.58,
     "in_fear": []
   },
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 45.45
+    "heart_period_s": 489.97
+  },
+  "ignition": {
+    "ignited": true,
+    "winner": "alerts",
+    "broadcast_width": 2,
+    "n_candidates": 9
+  },
+  "calibration": {
+    "n": 147,
+    "brier": 0.168709,
+    "aurc": 0.325641,
+    "ungraded": 55
+  },
+  "consolidate": {
+    "n_in": 0,
+    "n_semantic": 0,
+    "archived": 0
+  },
+  "truth_sync": {
+    "skipped": "cooldown",
+    "next_in_s": 1184.3
   },
   "schema": "cortex-state.v1"
 }

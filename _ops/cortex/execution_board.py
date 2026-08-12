@@ -161,11 +161,19 @@ def board() -> dict:
                 open_tasks.pop(key, None)
         for ev in list(open_tasks.values())[::-1][:CAP]:   # جدید→قدیم
             lanes["running"].append(_item(ev))
-        # خطوطِ پایانی، جدید→قدیم، کران‌دار
+        # خطوطِ پایانی، جدید→قدیم، کران‌دار. dedup بر اساسِ agent_id تا چند
+        # شکستِ پشت‌سرِهمِ یک عضو (مثلاً lead-naghshi ۳ بار failed) کلِ خطِ
+        # blocked را پر نکند — فقط آخرین وضعیتِ هر agent دیده می‌شود.
+        _seen_agents: set[str] = set()
         for ev in reversed(evs):
             lane = _lane_for(ev)
             if lane in ("blocked", "awaiting_user", "done", "quarantined") \
                     and len(lanes[lane]) < CAP:
+                _ag = str(ev.get("agent_id", ""))
+                if _ag and _ag in _seen_agents:
+                    continue   # همین agent قبلاً در همین خط ثبت شد
+                if _ag:
+                    _seen_agents.add(_ag)
                 lanes[lane].append(_item(ev))
     except Exception as e:  # noqa: BLE001 — مشاهده هرگز صداکننده را نمی‌کشد
         try:

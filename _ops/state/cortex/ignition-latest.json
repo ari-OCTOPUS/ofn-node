@@ -1,0 +1,43 @@
+{
+  "ts": "2026-08-12T18:43:15",
+  "schema": "ignition.v1",
+  "epistemic": "access-only",
+  "ignited": true,
+  "winner": {
+    "source": "alerts",
+    "kind": "stress",
+    "key": "alerts:stress",
+    "effective": 0.955,
+    "summary": "🚨 هشدارها"
+  },
+  "broadcast_width": 2,
+  "margin": 0.105,
+  "n_candidates": 9,
+  "ignition_rate": 1.0,
+  "stability": 107,
+  "recent_ignitions": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "reentry_prior": {
+    "alerts:stress": 0.3749
+  }
+}

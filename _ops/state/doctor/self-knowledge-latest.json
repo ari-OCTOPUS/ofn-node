@@ -1,86 +1,127 @@
 {
-  "ts": "2026-08-03T20:10:08",
-  "beat": 23909,
-  "version": 112,
-  "source": "cached:no-change",
-  "snapshot_hash": "890de94af878b096",
-  "stable_cycles": 1,
-  "llm_calls": 0,
-  "deep_dive_ran": true,
-  "focus": "خطاهای پرتکرار failed ×4",
+  "ts": "2026-08-12T18:22:53",
+  "beat": 32879,
+  "version": 183,
+  "source": "llm:local",
+  "snapshot_hash": "273c0dfbb86fa8cc",
+  "stable_cycles": 0,
+  "llm_calls": 1,
+  "deep_dive_ran": false,
+  "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
-    "anatomy": "32 سیمِ روشن، 10 لِگ",
-    "physiology": "درآمد صفر با توجه به حالتِ پروژه‌ها، خرجِ خودم 0 micro-USD",
+    "anatomy": "34 کارت زنده، 7 بخش داخلی سیستم و 26 ویرایش",
+    "physiology": "درآمد صفر؛ خرج‌ها 15,750 micro-USD (musd)، پردازش داده‌ها انجام شده و در حال تحلیل است، با استرس نسبتاً متوسط",
     "pathology": [
       {
-        "symptom": "خطای پرتکرار failed ×4",
+        "symptom": "خطاهای پرتکرار KeyError ×3",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       },
       {
-        "symptom": "خطای پرتکرار ImportError ×1",
+        "symptom": "خطاهای پرتکرار failed ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
-        "severity": "low"
+        "severity": "medium"
       }
     ],
-    "trajectory": "بهتر شده است نسبت به نسخه‌های قبل، با توجه به افزایشِ روندِ اطمینان",
+    "trajectory": "ثابت · ناموثر، درآمد و خرج‌ها ثابت هستند",
     "prescription": [
       {
-        "action": "یک لِگ را به لیدِ واقعی وصل کن",
-        "why": "ترس را می‌شکند",
+        "action": "تحلیل دقیق‌تر خطاهای KeyError و failed",
+        "why": "بررسی جذابیت مجدد و اصلاح آنها",
         "priority": "high"
       },
       {
-        "action": "بررسی دقیق‌تر خطاهای پرتکرار failed و ImportError برای مشخصه‌سازی جذارت‌ها",
-        "why": "جذارت‌ها را شناسایی کرد و حل ممکن است به افزایشِ اعتماد برسد",
+        "action": "یک لِگ را به لیدِ واقعی وصل کن",
+        "why": "ترس را می‌شکند",
         "priority": "medium"
       }
     ],
     "open_questions": [
-      "چرا خطاهای پرتکرار failed و ImportError رخ می‌دهند؟"
+      "چرا خطاهای پرتکرار Raiser ×3 رخ می‌دهند؟",
+      "چه اثراتی دارد که نمی‌تواند در آنها تغییری صورت بگیرد؟",
+      "چرا لید واقعی هنوز به سیستم وصل نشده است؟"
     ],
-    "focus": "خطاهای پرتکرار failed ×4",
-    "confidence": 0.6
+    "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
+    "confidence": 0.75
   },
   "deep_dive": {
-    "topic": "خطاهای پرتکرار failed ×4",
+    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
     "cause_chain": [
-      "ModuleNotFoundError (نشانه)",
-      "ImportError (نشانه)",
-      "RuntimeError (نشانه)",
-      "chyron: cryptoquant_analysis_2026-06-15-16-38-35.json (خطی که ممکن است منبع ریشه باشد)"
+      {
+        "type": "heart",
+        "description": "شکل‌گیری و عملکرد اصلی ریشهٔ واقعی درونی"
+      },
+      {
+        "type": "cortex",
+        "description": "عملکرد کناره‌ای از زنجیرهٔ علت (هسته) به دیگران"
+      },
+      {
+        "type": "wire",
+        "description": "ریشهٔ واقعی درونی، چند فیکسِ برگشت‌پذیر را تشکیل می‌دهد"
+      },
+      {
+        "type": "smallest_fix",
+        "description": "کمترین فیکسِ برگشت‌پذیر درونی که از تغییرات سبک‌های یادآور شده است"
+      }
     ],
     "evidence": [
       {
-        "type": "recent_errors",
-        "details": "ModuleNotFoundError: 2, RuntimeError: 1, ImportError: 1"
+        "type": "data",
+        "description": "دستاوردهای مالک و دیگران را بررسی کرده، نشان‌دهنده اینکه تغییرات درونی به صورت چندپروژه‌ای انجام شده است"
       },
       {
-        "type": "money",
-        "details": "musd = خرجِ خودم (micro-USD)، نه درآمد"
+        "type": "system",
+        "description": "دستاوردهای سیستم‌ها و راه‌حل‌های مالک بررسی کرده، نشان‌دهنده تغییرات درونی به صورت چندپروژه‌ای انجام شده است"
       }
     ],
-    "smallest_fix": "تائید و تنظیم مسیر پوشه‌ها و فایل‌های مورد نیاز برای دسترسی صحیح به آن‌ها",
-    "blocked_by": "کمبود زمان و توجه برای انجام اصلاحات ضروری"
+    "blocked_by": [
+      {
+        "type": "system",
+        "description": "دستاوردهای سیستم‌ها و راه‌حل‌های مالک بررسی کرده، نشان‌دهنده تغییرات درونی به صورت چندپروژه‌ای انجام شده است"
+      }
+    ]
   },
   "trajectory": {
-    "focus_stable": false,
-    "prev_focus": "خطای پرتکرار failed ×4",
-    "confidence_delta": 0.2,
-    "converging": false
+    "focus_stable": true,
+    "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
+    "confidence_delta": null,
+    "converging": null,
+    "prev_backend": "cached:no-change",
+    "backend": "llm:local",
+    "comparable": false,
+    "incomparable_reason": "backend-changed"
   },
   "snapshot_digest": {
     "legs_alive": [
       "lead",
-      "ziman",
+      "accounting",
       "system"
     ],
     "in_fear": [],
-    "money_musd": 0,
+    "money_musd": 16497,
     "recent_errors": {
-      "ModuleNotFoundError": 2,
-      "RuntimeError": 1,
-      "ImportError": 1
+      "TimeoutError": 1,
+      "TypeError": 1
     }
+  },
+  "self_accuracy": {
+    "ts": "2026-08-12T18:19:36",
+    "fields_checked": 3,
+    "fields_correct": 3,
+    "accuracy": 1.0,
+    "confidence": 0.75,
+    "confidence_brier": 0.0625,
+    "drifts": [],
+    "claims_emitted": 3
+  },
+  "owner_corrections": [
+    "نه، تمرکزت اشتباه است — «خطای پرتکرار» مهم نیست، من میخوام روی درآمدِ نقاشی تمرکز کنی.",
+    "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
+  ],
+  "c6_unknown": {
+    "produced": false,
+    "reason": "all-already-queued",
+    "unknown": 2,
+    "duplicates": 2
   }
 }

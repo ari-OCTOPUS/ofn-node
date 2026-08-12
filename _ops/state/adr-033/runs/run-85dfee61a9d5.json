@@ -1,0 +1,12 @@
+{
+  "run_id": "run-85dfee61a9d5",
+  "restored_checkpoint_id": "cp-566d42062b2a",
+  "state_version": 1,
+  "policy_version": "ADR-033-v1",
+  "graph_version": "g1",
+  "input_digest": "sha256:x",
+  "node": "start",
+  "run_status": "PAUSED",
+  "rollback_id": "rb-7c9523cf0ab6",
+  "restored_at": "2026-08-11T10:53:16Z"
+}

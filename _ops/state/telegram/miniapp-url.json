@@ -1,1 +1,1 @@
-{"url": "https://app.master-painting.com/miniapp", "started": "2026-08-08T05:43:28Z", "pid": 24332, "tunnel": "octopus-miniapp (named, f62ab442)", "note": "CNAME app.master-painting.com repointed from ofn (dead Content Studio) to octopus-miniapp. /miniapp path serves Octopus Cockpit."}
+{"url":"https://app.master-painting.com","started":"2026-08-10T22:48:08Z","pid":11640,"kind":"named"}

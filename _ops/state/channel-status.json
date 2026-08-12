@@ -1,14 +1,5 @@
 {
-  "ts": "2026-08-03T20:27:53",
   "channels": {
-    "dashboard": {
-      "channel": "dashboard",
-      "live": true,
-      "mode": "read-only-local",
-      "organism_8771": true,
-      "panel_8790": false,
-      "notices_file": "channel-notices.jsonl"
-    },
     "telegram": {
       "channel": "telegram",
       "live": true,
@@ -17,29 +8,15 @@
       "allowlist": false,
       "owner_set": true
     },
-    "whatsapp": {
-      "channel": "whatsapp",
-      "live": false,
-      "mode": "NotWiredStub",
-      "activation": "human-gated (قدمِ جدا)",
-      "required_env": [
-        "WHATSAPP_ACCESS_TOKEN",
-        "WHATSAPP_PHONE_ID",
-        "WHATSAPP_OWNER_NUMBER"
-      ]
-    },
-    "email": {
-      "channel": "email",
-      "live": false,
-      "mode": "NotWiredStub",
-      "activation": "human-gated (قدمِ جدا)",
-      "required_env": [
-        "SMTP_HOST",
-        "SMTP_USER",
-        "SMTP_PASS",
-        "EMAIL_OWNER_ADDR"
-      ]
+    "dashboard": {
+      "channel": "dashboard",
+      "live": true,
+      "mode": "read-only-local",
+      "organism_8771": true,
+      "panel_8790": true,
+      "notices_file": "channel-notices.jsonl"
     }
   },
+  "ts": "2026-08-12T18:42:23",
   "writer_note": "entryِ telegram توسطِ کانالِ زنده refresh می‌شود (2026-07-24)؛ بقیهٔ کانال‌ها snapshot"
 }

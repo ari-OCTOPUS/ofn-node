@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-02T23:04:15",
+  "ts": "2026-08-11T21:42:38",
   "schema": "HeartParams.v1",
   "target_sigma": 1.0,
   "viable_band_lo": 0.05,
   "viable_band_hi": 4.0379,
-  "epoch_seq": 38,
+  "epoch_seq": 43,
   "target_mass_scale": 1.0,
   "daily_beat_cap": 2000,
   "baroreflex_gain": 0.0

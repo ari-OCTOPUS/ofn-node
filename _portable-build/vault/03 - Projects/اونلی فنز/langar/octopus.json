@@ -1,0 +1,17 @@
+{
+  "beat": 1,
+  "last_tick": 1785226801.5842974,
+  "protective": false,
+  "pain": 0.0,
+  "brain_loaded": true,
+  "neural_available": true,
+  "history": [
+    {
+      "beat": 1,
+      "ts": 1785226801.5843093,
+      "pain": 0.0,
+      "protective": false
+    }
+  ],
+  "updated_at": 1785226801.5843134
+}

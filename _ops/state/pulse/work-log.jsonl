@@ -219,3 +219,43 @@
 {"ts": "2026-08-03T19:49:51", "beat": 23890, "period_s": 60.84, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
 {"ts": "2026-08-03T20:05:29", "beat": 23905, "period_s": 44.3, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
 {"ts": "2026-08-03T20:20:51", "beat": 23920, "period_s": 63.24, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-08T14:35:19", "beat": 28660, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": false}}
+{"ts": "2026-08-08T14:52:46", "beat": 28677, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2471}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2588}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2818}]}
+{"ts": "2026-08-08T15:09:54", "beat": 28692, "period_s": 900.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-08T15:27:48", "beat": 28709, "period_s": 900.0, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-08-08T15:44:08", "beat": 28726, "period_s": 900.0, "kind": "llm_learn", "ok": true, "tier": "primary", "n_proposals": 3, "cost_usd": 0.0}
+{"ts": "2026-08-09T00:50:29", "beat": 28858, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
+{"ts": "2026-08-09T02:56:01", "beat": 28985, "period_s": 489.97, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2485}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2602}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2832}]}
+{"ts": "2026-08-09T03:17:39", "beat": 29006, "period_s": 489.97, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-09T08:59:13", "beat": 29045, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
+{"ts": "2026-08-09T15:26:50", "beat": 29422, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
+{"ts": "2026-08-09T15:38:41", "beat": 29436, "period_s": 489.97, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2485}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2602}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2832}]}
+{"ts": "2026-08-09T15:47:47", "beat": 29445, "period_s": 489.97, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-09T15:59:10", "beat": 29456, "period_s": 489.97, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-08-09T16:10:11", "beat": 29465, "period_s": 489.97, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 3, "cost_usd": 0.0}
+{"ts": "2026-08-09T22:09:27", "beat": 29817, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
+{"ts": "2026-08-10T12:15:09", "beat": 30065, "period_s": 147.46, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 147.46, "gate0": false}}
+{"ts": "2026-08-10T12:19:21", "beat": 30076, "period_s": 145.32, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2485}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2602}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2832}]}
+{"ts": "2026-08-10T12:23:58", "beat": 30080, "period_s": 145.32, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-10T15:59:17", "beat": 30285, "period_s": 164.56, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-08-10T16:10:31", "beat": 30295, "period_s": 164.56, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 3, "cost_usd": 0.0}
+{"ts": "2026-08-10T18:17:49", "beat": 30416, "period_s": 184.98, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 184.98, "gate0": false}}
+{"ts": "2026-08-11T00:22:27", "beat": 30752, "period_s": 214.12, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 214.12, "gate0": false}}
+{"ts": "2026-08-11T00:30:32", "beat": 30760, "period_s": 217.28, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2492}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2609}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2839}]}
+{"ts": "2026-08-11T00:38:00", "beat": 30766, "period_s": 218.87, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-11T09:01:20", "beat": 30948, "period_s": 260.87, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 260.87, "gate0": false}}
+{"ts": "2026-08-11T14:03:20", "beat": 31233, "period_s": 367.88, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2492}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2609}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2839}]}
+{"ts": "2026-08-11T14:10:19", "beat": 31246, "period_s": 365.2, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 3}
+{"ts": "2026-08-11T15:02:48", "beat": 31297, "period_s": 336.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 336.97, "gate0": false}}
+{"ts": "2026-08-11T16:01:38", "beat": 31350, "period_s": 324.87, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-08-11T16:20:31", "beat": 31365, "period_s": 329.66, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 3, "cost_usd": 0.0}
+{"ts": "2026-08-11T21:12:57", "beat": 31652, "period_s": 89.68, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 89.68, "gate0": false}}
+{"ts": "2026-08-12T02:06:23", "beat": 31935, "period_s": 196.13, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2499}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2616}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2846}]}
+{"ts": "2026-08-12T02:12:54", "beat": 31941, "period_s": 197.57, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6, "memory_ingest": {"ok": true, "schema": "research-ingest.v1", "n_hits": 6, "committed": 3, "proposed": 0, "skipped": 3, "rejected": 0, "trail": "F:\\backup\\_ops\\state\\memory\\research-ingest.jsonl", "may_authorize": false}}
+{"ts": "2026-08-12T03:17:26", "beat": 32005, "period_s": 220.48, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 220.48, "gate0": false}}
+{"ts": "2026-08-12T09:22:59", "beat": 32354, "period_s": 478.55, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 478.55, "gate0": true}}
+{"ts": "2026-08-12T14:06:37", "beat": 32635, "period_s": 489.97, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2499}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2616}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2846}]}
+{"ts": "2026-08-12T14:15:27", "beat": 32642, "period_s": 489.97, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6, "memory_ingest": {"ok": true, "schema": "research-ingest.v1", "n_hits": 6, "committed": 0, "proposed": 0, "skipped": 6, "rejected": 0, "trail": "F:\\backup\\_ops\\state\\memory\\research-ingest.jsonl", "may_authorize": false}}
+{"ts": "2026-08-12T15:27:56", "beat": 32715, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
+{"ts": "2026-08-12T16:08:49", "beat": 32755, "period_s": 489.97, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-08-12T16:20:44", "beat": 32766, "period_s": 489.97, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 3, "cost_usd": 0.0, "memory_ingest": {"ok": true, "schema": "self-loop-ingest.v1", "channel": "synthesis", "n_items": 3, "committed": 3, "proposed": 0, "skipped": 0, "rejected": 0, "trail": "F:\\backup\\_ops\\state\\memory\\self-loop-ingest.jsonl", "may_authorize": false}}

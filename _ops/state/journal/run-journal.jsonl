@@ -105,3 +105,87 @@
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1785689580.202229, "meta": {"incomplete": 0}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1785697641.8541074, "meta": {"incomplete": 0}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1785735430.4956853, "meta": {"incomplete": 0}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786172193.8111708, "meta": {"incomplete": 0}}
+{"run_id": "rfc-RFC-e94eab89", "step": "propose", "status": "ok", "ts": 1786173137.18095, "meta": {}}
+{"run_id": "rfc-RFC-e94eab89", "step": "sandbox", "status": "start", "ts": 1786173137.238789, "meta": {}}
+{"run_id": "rfc-RFC-e94eab89", "step": "sandbox", "status": "ok", "ts": 1786173137.4887438, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-e94eab89", "step": "submit", "status": "ok", "ts": 1786173139.6806417, "meta": {}}
+{"run_id": "rfc-RFC-dbb5c2cd", "step": "propose", "status": "ok", "ts": 1786194625.3928187, "meta": {}}
+{"run_id": "rfc-RFC-dbb5c2cd", "step": "sandbox", "status": "start", "ts": 1786194625.3979285, "meta": {}}
+{"run_id": "rfc-RFC-dbb5c2cd", "step": "sandbox", "status": "ok", "ts": 1786194625.7763813, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786196283.622512, "meta": {"incomplete": 1}}
+{"run_id": "rfc-RFC-77acd575", "step": "propose", "status": "ok", "ts": 1786196392.870248, "meta": {}}
+{"run_id": "rfc-RFC-77acd575", "step": "submit", "status": "ok", "ts": 1786196395.9616947, "meta": {}}
+{"run_id": "rfc-RFC-f880aefd", "step": "propose", "status": "ok", "ts": 1786196396.471345, "meta": {}}
+{"run_id": "rfc-RFC-f880aefd", "step": "submit", "status": "ok", "ts": 1786196399.5441604, "meta": {}}
+{"run_id": "rfc-RFC-2e5a6c1a", "step": "propose", "status": "ok", "ts": 1786196399.8059251, "meta": {}}
+{"run_id": "rfc-RFC-2e5a6c1a", "step": "submit", "status": "ok", "ts": 1786196402.0472069, "meta": {}}
+{"run_id": "rfc-RFC-32d4701c", "step": "propose", "status": "ok", "ts": 1786196402.5454605, "meta": {}}
+{"run_id": "rfc-RFC-32d4701c", "step": "submit", "status": "ok", "ts": 1786196404.7103262, "meta": {}}
+{"run_id": "rfc-RFC-33bbbbca", "step": "propose", "status": "ok", "ts": 1786196404.9771917, "meta": {}}
+{"run_id": "rfc-RFC-33bbbbca", "step": "submit", "status": "ok", "ts": 1786196407.6455617, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786229537.9209433, "meta": {"incomplete": 3}}
+{"run_id": "rfc-RFC-31562e11", "step": "propose", "status": "ok", "ts": 1786229769.5974681, "meta": {}}
+{"run_id": "rfc-RFC-31562e11", "step": "submit", "status": "ok", "ts": 1786229772.6233788, "meta": {}}
+{"run_id": "rfc-RFC-14a9136c", "step": "propose", "status": "ok", "ts": 1786229772.882747, "meta": {}}
+{"run_id": "rfc-RFC-14a9136c", "step": "submit", "status": "ok", "ts": 1786229775.794038, "meta": {}}
+{"run_id": "rfc-RFC-0f08a6b0", "step": "propose", "status": "ok", "ts": 1786229776.189601, "meta": {}}
+{"run_id": "rfc-RFC-0f08a6b0", "step": "submit", "status": "ok", "ts": 1786229778.3853202, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786258459.286457, "meta": {"incomplete": 4}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786259944.7595127, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786265202.3014228, "meta": {"incomplete": 6}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786327634.3995478, "meta": {"incomplete": 6}}
+{"run_id": "rfc-RFC-27a17291", "step": "propose", "status": "ok", "ts": 1786328070.387943, "meta": {}}
+{"run_id": "rfc-RFC-27a17291", "step": "sandbox", "status": "start", "ts": 1786328070.558945, "meta": {}}
+{"run_id": "rfc-RFC-27a17291", "step": "sandbox", "status": "ok", "ts": 1786328070.772701, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-27a17291", "step": "submit", "status": "ok", "ts": 1786328073.2935338, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786402337.124351, "meta": {"incomplete": 4}}
+{"run_id": "rfc-RFC-21332ce1", "step": "propose", "status": "ok", "ts": 1786402666.318874, "meta": {}}
+{"run_id": "rfc-RFC-21332ce1", "step": "submit", "status": "ok", "ts": 1786402667.3616767, "meta": {}}
+{"run_id": "rfc-RFC-820a005a", "step": "propose", "status": "ok", "ts": 1786402667.5318995, "meta": {}}
+{"run_id": "rfc-RFC-820a005a", "step": "submit", "status": "ok", "ts": 1786402668.5738049, "meta": {}}
+{"run_id": "rfc-RFC-f6af6351", "step": "propose", "status": "ok", "ts": 1786402668.7555528, "meta": {}}
+{"run_id": "rfc-RFC-f6af6351", "step": "submit", "status": "ok", "ts": 1786402669.7859547, "meta": {}}
+{"run_id": "rfc-RFC-4d5eed12", "step": "propose", "status": "ok", "ts": 1786402669.967718, "meta": {}}
+{"run_id": "rfc-RFC-4d5eed12", "step": "submit", "status": "ok", "ts": 1786402670.8310702, "meta": {}}
+{"run_id": "rfc-RFC-bce62e4d", "step": "propose", "status": "ok", "ts": 1786402671.1044369, "meta": {}}
+{"run_id": "rfc-RFC-bce62e4d", "step": "submit", "status": "ok", "ts": 1786402672.216186, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786436772.356928, "meta": {"incomplete": 2}}
+{"run_id": "rfc-RFC-e4ca130f", "step": "propose", "status": "ok", "ts": 1786436958.5370688, "meta": {}}
+{"run_id": "rfc-RFC-e4ca130f", "step": "submit", "status": "ok", "ts": 1786436960.2118697, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786437360.4685953, "meta": {"incomplete": 3}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786437554.478983, "meta": {"incomplete": 4}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786440905.2345095, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786443933.7685218, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786444161.5254655, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786446638.657551, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786453025.1288047, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786456765.4925747, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786458174.1278436, "meta": {"incomplete": 5}}
+{"run_id": "rfc-RFC-8879a7a5", "step": "propose", "status": "ok", "ts": 1786458284.3474264, "meta": {}}
+{"run_id": "rfc-RFC-8879a7a5", "step": "submit", "status": "ok", "ts": 1786458286.2486815, "meta": {}}
+{"run_id": "rfc-RFC-404442ec", "step": "propose", "status": "ok", "ts": 1786458286.7000802, "meta": {}}
+{"run_id": "rfc-RFC-404442ec", "step": "submit", "status": "ok", "ts": 1786458288.114877, "meta": {}}
+{"run_id": "rfc-RFC-c27cba51", "step": "propose", "status": "ok", "ts": 1786458288.5068626, "meta": {}}
+{"run_id": "rfc-RFC-c27cba51", "step": "submit", "status": "ok", "ts": 1786458289.8982515, "meta": {}}
+{"run_id": "rfc-RFC-12ea10c2", "step": "propose", "status": "ok", "ts": 1786458290.431812, "meta": {}}
+{"run_id": "rfc-RFC-12ea10c2", "step": "submit", "status": "ok", "ts": 1786458291.8635826, "meta": {}}
+{"run_id": "rfc-RFC-4cd022a8", "step": "propose", "status": "ok", "ts": 1786458292.3815806, "meta": {}}
+{"run_id": "rfc-RFC-4cd022a8", "step": "submit", "status": "ok", "ts": 1786458294.2320914, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786458646.3053417, "meta": {"incomplete": 5}}
+{"run_id": "rfc-RFC-cf2a31b8", "step": "propose", "status": "ok", "ts": 1786458776.14497, "meta": {}}
+{"run_id": "rfc-RFC-cf2a31b8", "step": "sandbox", "status": "start", "ts": 1786458776.1676629, "meta": {}}
+{"run_id": "rfc-RFC-cf2a31b8", "step": "sandbox", "status": "ok", "ts": 1786458776.2909508, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-cf2a31b8", "step": "submit", "status": "ok", "ts": 1786458777.8043826, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786483561.8654084, "meta": {"incomplete": 5}}
+{"run_id": "rfc-RFC-08c8853f", "step": "propose", "status": "ok", "ts": 1786483756.5556965, "meta": {}}
+{"run_id": "rfc-RFC-08c8853f", "step": "sandbox", "status": "start", "ts": 1786483756.6629055, "meta": {}}
+{"run_id": "rfc-RFC-08c8853f", "step": "sandbox", "status": "ok", "ts": 1786483756.9224179, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-08c8853f", "step": "submit", "status": "ok", "ts": 1786483760.7640862, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786485142.3088682, "meta": {"incomplete": 6}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786485713.192246, "meta": {"incomplete": 7}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786486543.4546888, "meta": {"incomplete": 8}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786486911.2069302, "meta": {"incomplete": 9}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786490135.8236134, "meta": {"incomplete": 9}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786491767.8787122, "meta": {"incomplete": 9}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786521357.9131165, "meta": {"incomplete": 9}}
