@@ -30,8 +30,8 @@ import opslib  # noqa: E402
 SCHEMA = "fourd-health.v1"
 FLAG = "OCTOPUS_OBSERVE_4D"
 # daemon_state.json لایول‌نس‌فایلِ 4d_system است (repo-relative، مثبت‌شده).
-# _HERE = _ops/cortex → parents[2] = repo-root.
-DAEMON_STATE = _HERE.parents[2] / "4d_system" / "outputs" / "daemon_state.json"
+# _HERE = _ops/cortex → _HERE.parents[1] = repo-root (نه parents[2] — آن F:\ می‌شود).
+DAEMON_STATE = _HERE.parents[1] / "4d_system" / "outputs" / "daemon_state.json"
 REPORT = opslib.STATE_DIR / "pulse" / "fourd-health-latest.json"
 DEFAULT_SLA_S = 7200.0   # ۲ ساعت — هم‌راستا با SLAی عضوِ registry
 

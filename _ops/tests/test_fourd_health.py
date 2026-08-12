@@ -21,6 +21,8 @@ import fourd_health  # noqa: E402
 import registry      # noqa: E402
 import innervation   # noqa: E402
 
+_ORIG_DAEMON_STATE = fourd_health.DAEMON_STATE   # برای restore بعد از تست‌های جهنده
+
 
 def t_a_probe_missing_is_never_healthy():
     """absence → 'missing'، هرگز 'fresh' (قاعدهٔ absence≠healthy)."""
@@ -73,6 +75,20 @@ def t_f_innervation_excludes_when_off_includes_when_on():
         assert "fourd" in oids, oids
     finally:
         os.environ.pop("OCTOPUS_OBSERVE_4D", None)
+
+
+def t_g_default_daemon_path_is_repo_rooted():
+    """گاردِ off-by-one: DAEMON_STATE باید به ریشهٔ ریپو (…/backup/4d_system/…) اشاره
+    کند، نه ریشهٔ درایو. (باگِ واقعی 2026-08-12: parents[2] → درایوِ ریشه.)"""
+    orig = fourd_health.DAEMON_STATE
+    fourd_health.DAEMON_STATE = _ORIG_DAEMON_STATE    # پاک‌کردن آلودگیِ t_a/t_b/t_c
+    try:
+        root = Path(fourd_health.__file__).resolve().parents[2]  # file → cortex → _ops → backup
+        expected = root / "4d_system" / "outputs" / "daemon_state.json"
+        assert fourd_health.DAEMON_STATE == expected, fourd_health.DAEMON_STATE
+        assert "4d_system" in fourd_health.DAEMON_STATE.parts
+    finally:
+        fourd_health.DAEMON_STATE = orig
 
 
 if __name__ == "__main__":
