@@ -161,38 +161,12 @@ def t_evaluate_bcm_crash_safe():
 
 # ═══ #310: protective_override apply path ════════════════════════════════════
 
-def t_apply_flag_default_off():
-    """#310: بدون flag OCTOPUS_NEURAL_LEARNED_APPLY، learned_pressure اثر نداره.
-
-    این تضمین می‌کنه که فیکس byte-identical با قبل است تا مالک flag را روشن نکنه.
-    """
-    import wiring
-    # flag خاموش (پیش‌فرض)
-    old = os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
-    try:
-        neural_result = {
-            "pain": {"level": 0.3},   # زیر 0.7
-            "reflexes": [],
-            "brain_inputs": {"learned_pressure": 0.9, "learned_top_signal": "k1"},
-        }
-        r = wiring.protective_override(neural_result)
-        assert r["override"] is False, "با flag خاموش، learned_pressure نباید override کنه"
-        assert "all clear" in r["reason"] or "+learned" not in r["reason"], \
-            "نباید یادگیری را note کنه"
-    finally:
-        if old is not None:
-            os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = old
-
-
-def t_apply_flag_on_combines_learned():
-    """#310: با flag روشن، learned_pressure به pain اضافه می‌شه.
-
-    pain=0.3 + learned=0.9*0.5=0.45 → 0.75 > 0.7 → protective_halt.
-    این اولین مسیری است که یک وزنِ آموخته‌شده یک تصمیم را عوض می‌کنه.
-    """
+def t_apply_flag_explicit_zero_is_proposal_only():
+    """env صریح 0 بر رأی tracked غلبه می‌کند و ADR-034 را برمی‌گرداند."""
     import wiring
     old = os.environ.get("OCTOPUS_NEURAL_LEARNED_APPLY")
-    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
+    old_p = os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     try:
         neural_result = {
             "pain": {"level": 0.3},
@@ -200,22 +174,71 @@ def t_apply_flag_on_combines_learned():
             "brain_inputs": {"learned_pressure": 0.9, "learned_top_signal": "k1"},
         }
         r = wiring.protective_override(neural_result)
-        assert r["override"] is True, "با flag+learned باید override بشه"
-        assert r["action"] == "protective_halt"
-        assert "+learned=0.90:k1" in r["reason"], \
-            f"باید یادگیری را note کنه: {r['reason']}"
+        assert r["override"] is False and r["executable"] is False
+        assert r["action"] == "none"
+        assert r.get("assessment", {}).get("proposal") == "none"
     finally:
         if old is None:
             os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
         else:
             os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = old
+        if old_p is not None:
+            os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = old_p
+
+
+def t_apply_unset_uses_tracked_owner_verdict():
+    import wiring
+    old = os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
+    try:
+        assert wiring.effective_flag("OCTOPUS_NEURAL_LEARNED_APPLY") is True
+    finally:
+        if old is not None:
+            os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = old
+
+
+def t_apply_flag_on_combines_learned():
+    """ADR-035: APPLY=1 folds learned → may halt; PROPOSAL alone stays proposal."""
+    import wiring
+    old = os.environ.get("OCTOPUS_NEURAL_LEARNED_APPLY")
+    old_p = os.environ.get("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL")
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
+    os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
+    try:
+        neural_result = {
+            "pain": {"level": 0.3},
+            "reflexes": [],
+            "brain_inputs": {"learned_pressure": 0.9, "learned_top_signal": "k1"},
+        }
+        r = wiring.protective_override(neural_result)
+        assert r["override"] is True and r["executable"] is True
+        assert r["action"] == "protective_halt"
+        # PROPOSAL alone (APPLY off) → protective_proposal only
+        os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
+        os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = "1"
+        r2 = wiring.protective_override(neural_result)
+        assert r2["override"] is False and r2["executable"] is False
+        assert r2["action"] == "protective_proposal", r2
+        assert "learned_pressure_shadow_fold" in (r2.get("assessment") or {}).get(
+            "reason_codes", ()
+        )
+    finally:
+        if old is None:
+            os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
+        else:
+            os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = old
+        if old_p is None:
+            os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
+        else:
+            os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = old_p
 
 
 def t_apply_flag_on_low_learned_no_override():
-    """#310: با flag روشن ولی learned پایین، نباید override بشه (pain زیر 0.7)."""
+    """APPLY=1 + low learned stays below threshold → no halt."""
     import wiring
     old = os.environ.get("OCTOPUS_NEURAL_LEARNED_APPLY")
+    old_p = os.environ.get("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL")
     os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
+    os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = "1"
     try:
         neural_result = {
             "pain": {"level": 0.3},
@@ -223,13 +246,17 @@ def t_apply_flag_on_low_learned_no_override():
             "brain_inputs": {"learned_pressure": 0.1, "learned_top_signal": "k1"},
         }
         r = wiring.protective_override(neural_result)
-        # pain=0.3 + 0.1*0.5=0.05 → 0.35 < 0.7 → no override
-        assert r["override"] is False
+        # pain=0.3 + 0.1*0.5=0.05 → 0.35 < 0.7 → none
+        assert r["override"] is False and r["action"] == "none"
     finally:
         if old is None:
             os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
         else:
             os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = old
+        if old_p is None:
+            os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
+        else:
+            os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = old_p
 
 
 if __name__ == "__main__":
@@ -246,8 +273,9 @@ if __name__ == "__main__":
         ("#310: learned_pressure در [0,1] کران‌دار", t_evaluate_learned_pressure_bounded),
         ("#310: bcm خراب → safe-fail به 0", t_evaluate_bcm_crash_safe),
         # #310 apply
-        ("#310 apply: flag default-off → بدون اثر", t_apply_flag_default_off),
+        ("#310 apply: env=0 → ADR-034 proposal-only", t_apply_flag_explicit_zero_is_proposal_only),
         ("#310 apply: flag on → learned به pain اضافه می‌شه", t_apply_flag_on_combines_learned),
         ("#310 apply: flag on ولی learned پایین → no override", t_apply_flag_on_low_learned_no_override),
+        ("#310 apply: unset → tracked fallback ARMED", t_apply_unset_uses_tracked_owner_verdict),
     ])
     sys.exit(1 if failed else 0)

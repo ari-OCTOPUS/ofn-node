@@ -189,18 +189,43 @@ class TickPipeline:
                                 "error_rate": _err_rate},
                 })
                 if _neural_r:
+                    # ADR-035 dual-mode: APPLY=1 + executable → beat-local skip;
+                    # APPLY=0 → ADR-034 proposal / SHADOW only.
                     _prot = w.protective_override(_neural_r)
-                    if _prot.get("override") and not _prot.get("suppressible", True):
-                        opslib.alert([f"NEURAL OVERRIDE: {_prot['reason']}"])
-                        if _prot.get("action") == "protective_halt":
+                    _act = _prot.get("action") or "none"
+                    if (
+                        _prot.get("executable")
+                        and _prot.get("override")
+                        and not _prot.get("suppressible", True)
+                    ):
+                        opslib.alert([f"NEURAL OVERRIDE: {_prot.get('reason')}"])
+                        if _act == "protective_halt":
                             self.protective_skip = True
-                            prot_state = {"protective_mode": True,
-                                          "protective_reason": _prot["reason"]}
-                            opslib.heartbeat(f"PROTECTIVE HALT: {_prot['reason']}")
-                        elif _prot.get("action") == "throttle":
-                            prot_state = {"protective_mode": "throttled",
-                                          "protective_reason": _prot["reason"]}
+                            prot_state = {
+                                "protective_mode": True,
+                                "protective_reason": _prot.get("reason"),
+                                "pain_assessment": _prot.get("assessment"),
+                                "protective_executable": True,
+                            }
+                            opslib.heartbeat(f"PROTECTIVE HALT: {_prot.get('reason')}")
+                        elif _act == "throttle":
+                            prot_state = {
+                                "protective_mode": "throttled",
+                                "protective_reason": _prot.get("reason"),
+                                "pain_assessment": _prot.get("assessment"),
+                                "protective_executable": True,
+                            }
                             self.next_epoch_at = now + 600
+                    elif _prot.get("shadow_alert") or _act in (
+                        "protective_proposal", "throttle_proposal", "warn",
+                    ):
+                        opslib.alert([f"SHADOW_ALERT neural: {_prot.get('reason')}"])
+                        prot_state = {
+                            "protective_mode": False,
+                            "protective_proposal": _act,
+                            "protective_reason": _prot.get("reason"),
+                            "pain_assessment": _prot.get("assessment"),
+                        }
             except Exception as _ne:  # noqa: BLE001
                 opslib.alert([f"neural wiring error (non-fatal): {type(_ne).__name__}: {_ne}"])
 

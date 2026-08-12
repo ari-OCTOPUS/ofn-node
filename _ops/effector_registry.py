@@ -41,15 +41,16 @@ EFFECTORS = {
     "bcm.learned_pressure": {
         "produced_by": "_ops/wiring.py (neural_beat) → state/neural/effect-shadow.jsonl",
         "field": "learned_pressure / learned_pressure_capped",
-        "actuator": "wiring.protective_override (throttle_or_halt)",
-        "gate": "OCTOPUS_NEURAL_LEARNED_APPLY",
-        "status": "wired",  # ۰۸-۰۸: applied=true ثبت می‌شود وقتی APPLY روشن است و فشار>0
-        "propose_only": False,   # مستقیم اعمال می‌شود (ترمز، fail-safe)
-        "verified_at": "2026-08-08",
+        # ADR-035: APPLY=1 may gate_internal via protective_skip; APPLY=0 proposal/SHADOW.
+        "actuator": "wiring.emit_pain_assessment → organism/brain_worker (executable-gated)",
+        "gate": "OCTOPUS_NEURAL_LEARNED_APPLY (+ PROPOSAL for shadow fold)",
+        "status": "armed-apply",
+        "propose_only": False,
+        "verified_at": "2026-08-12",
         "evidence": (
-            "effect-shadow.jsonl: ۵ ردیفِ آخر applied=true (beat 28659+). "
-            "wiring.py:1702-1738: _learned_applied = bool(APPLY && pressure>0). "
-            "protective_override صدا زده می‌شود در brain_worker.py:192 و organism.py:639."
+            "ADR-035: OCTOPUS_NEURAL_LEARNED_APPLY=1; organism/brain_worker set "
+            "protective_skip only when executable=True. Rollback: APPLY=0 + restart. "
+            "Explicit control-plane halt: wiring.request_protective_halt."
         ),
     },
     "bcm.weights_bidirectional": {
@@ -110,19 +111,20 @@ EFFECTORS = {
         ),
     },
 
-    # ─ـ deep_dive.smallest_fix: دقیق‌ترین خروجیِ تصمیم ──────────────────────
+    # ─ـ deep_dive.smallest_fix: دقیق‌ترین خروجیِ تشخیص ─────────────────────
     "deep_dive.smallest_fix": {
         "produced_by": "_ops/doctor/self_knowledge.py → state/doctor/self-knowledge-latest.json",
         "field": "smallest_fix (یک جملهٔ دقیق)",
-        "actuator": None,   # ← این مهم‌ترین DEAD-OUTPUT است
-        "gate": None,
-        "status": "display-only",  # به مالک در digest نمایش داده می‌شود ولی هیچ actionی
-        "propose_only": None,
-        "verified_at": "2026-08-08",
+        "actuator": "cortex/improve.py gather_signals → proposal (propose-only)",
+        "gate": "OCTOPUS_WIRE_DOCTOR_SELFKNOW (content source); improve path $0",
+        "status": "partial",  # 2026-08-07: به proposal وصل شد؛ auto_applicable=False
+        "propose_only": True,
+        "verified_at": "2026-08-12",
         "evidence": (
-            "organ_dialogue.py:142: «🔧 کوچک‌ترین فیکس: ...» به digest اضافه می‌شود "
-            "(نمایش). ولی کامنتِ همان خط می‌گوید «هیچ ماژولی نمی‌خواندش». "
-            "باید به action_bridge.propose وصل شود (propose-only). فعلاً بن‌بست."
+            "improve.py:318-433: smallest_fix از deep_dive خوانده می‌شود و "
+            "proposal با source=smallest_fix می‌سازد (auto_applicable=False). "
+            "organ_dialogue همچنان نمایش می‌دهد. brain_pulse هم focus/SF را به چت "
+            "می‌آورد. هنوز به action_bridge/apply خودکار وصل نیست — propose-only."
         ),
     },
 

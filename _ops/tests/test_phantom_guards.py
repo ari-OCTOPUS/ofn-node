@@ -187,6 +187,8 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_WIRE_LEAD_MIGRATE_PRODUCERS",
     "OCTOPUS_WIRE_TEST_AUDIT",
     "OCTOPUS_WIRE_ZTEST",
+    "OCTOPUS_MINIAPP_ASK_BRAIN_TIMEOUT",
+    "OCTOPUS_MINIAPP_COLLAB_TIMEOUT",
 )
 # فایل‌هایی که `ast.parse` نمی‌پذیردشان ⇒ برای این اسکن **نامرئی**اند.
 # منجمد، چون نقطهٔ کورِ نو دامنه را بی‌صدا کوچک می‌کند.

@@ -638,19 +638,30 @@ def tick_once(*, draft_fn=None, tick_fn=None, propose_fn=None) -> dict:
     if prop.get("ok"):
         out["proposed"] = 1
         out["proposal_id"] = prop.get("id")
-    # مسیرِ auto-apply (اختیاری، default OFF): فقط داخلِ allow-list.
+    # مسیرِ auto-apply (اختیاری، default OFF): فقط داخلِ allow-list + low_risk.
     pid = prop.get("id") if prop.get("ok") else None
     if _autoapply_lowrisk() and pid and code_autonomy.allowed_target(patch["target"]):
-        _stamp_auto_approval(pid, patch.get("intent", ""))
-        # ← همان apply_approved با ۷ گیت؛ active()/قلب/touched/deny/refractory همه چک می‌شوند
-        r = code_autonomy.apply_approved(
-            {**patch, "shadow_green": True, "id": pid}, pid)
-        out["autoapplied"] = 1 if (r.get("ok") and r.get("applied")) else 0
-        out["autoapply_green"] = r.get("green")
-        out["autoapply_rolled_back"] = r.get("rolled_back")
-        if r.get("ok") and r.get("applied"):
-            opslib.heartbeat(f"code-brain auto-applied {patch['target']} (low-risk, "
-                             f"shadow-green, canary={'green' if r.get('green') else 'RED→rolled-back'})")
+        risk = code_autonomy.low_risk_patch(
+            {"target": patch["target"], "content": patch.get("content", "")})
+        if not risk.get("low_risk"):
+            out["autoapply_skipped"] = "not-low-risk"
+            out["autoapply_risk"] = risk
+            _log({"event": "autoapply-skipped", "task": task.get("id"),
+                  "target": patch.get("target"), "risk": risk})
+        else:
+            _stamp_auto_approval(pid, patch.get("intent", ""))
+            # ← همان apply_approved با ۸ گیت؛ active()/قلب/touched/deny/refractory همه چک می‌شوند
+            r = code_autonomy.apply_approved(
+                {**patch, "shadow_green": True, "id": pid}, pid)
+            out["autoapplied"] = 1 if (r.get("ok") and r.get("applied")) else 0
+            out["autoapply_green"] = r.get("green")
+            out["autoapply_rolled_back"] = r.get("rolled_back")
+            out["autoapply_reason"] = r.get("reason")
+            if r.get("ok") and r.get("applied"):
+                opslib.heartbeat(
+                    f"code-brain auto-applied {patch['target']} (low-risk, "
+                    f"shadow-green, canary="
+                    f"{'green' if r.get('green') else 'RED→rolled-back'})")
     _consume_task(task.get("id", ""))
     return out
 

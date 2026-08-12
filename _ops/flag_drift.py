@@ -58,7 +58,12 @@ REDACTED = "<redacted>"
 
 # پیشوندهایی که این پروب پیگیری می‌کند. عمداً محدود: env کلِ ویندوز صدها کلید
 # دارد و ما فقط دربارهٔ فلگ‌های ارگانیسم ادعا می‌کنیم.
-TRACKED_PREFIXES = ("OCTOPUS_", "PAID_", "FUGU_", "TELEGRAM_")
+# ۲۰۲۶-۰۸-۱۱ — `CORTEX_` اضافه شد: ۸ فلگ CORTEX_* (IGNITION/CONSOLIDATE/
+# SELF_MONITOR/ROUTE_SCORER/LOCAL_FIRST/...) در OCTOPUS-flags.cmd مسلح بودند ولی
+# هیچ‌وقت در snapshot نمی‌نشستند و dark_capabilities آن‌ها را «تاریک» گزارش می‌کرد
+# — نقطهٔ کورِ اندازه‌گیری، نه تاریکیِ واقعی. مقادیرشان همگی boolean/آستانه‌اند و
+# `is_secret_name` هر نامِ رازدار را redact می‌کند (پیشوند به‌تنهایی دسترسی نمی‌دهد).
+TRACKED_PREFIXES = ("OCTOPUS_", "PAID_", "FUGU_", "TELEGRAM_", "CORTEX_")
 
 _SECRET_TOKENS = ("SECRET", "TOKEN", "KEY", "PASS", "PWD", "CRED", "AUTH")
 

@@ -19,6 +19,8 @@ ENV = harness.setup("adr033-control-plane")
 sys.path.insert(0, str(harness.SELF_OPS))
 sys.path.insert(0, str(harness.SELF_OPS / "budget"))
 
+from policy.policy_gate import TALK_DISCOVERY_POLICY  # noqa: E402
+
 
 def t_policy_gate_fail_closed_unknown_and_forbidden():
     from policy.policy_gate import (
@@ -40,9 +42,33 @@ def t_policy_gate_fail_closed_unknown_and_forbidden():
         idempotency_key=None,
         kill_switch_engaged=False,
     )
-    deny = gate.decide(RequestContext(action="external_send", **base), TALK_DISCOVERY_POLICY)
+    # untrusted content cannot authorize side-effects (even if formerly hard-forbidden)
+    q = gate.decide(RequestContext(action="external_send", **base), TALK_DISCOVERY_POLICY)
+    assert q.decision == Decision.QUARANTINE
+    assert q.reason == "untrusted_content_cannot_mutate"
+    deny = gate.decide(
+        RequestContext(
+            action="external_send",
+            trust_level="verified",
+            **{k: v for k, v in base.items() if k not in ("action", "trust_level")},
+        ),
+        TALK_DISCOVERY_POLICY,
+    )
     assert deny.decision == Decision.DENY
-    assert deny.reason == "action_hard_forbidden"
+    assert deny.reason == "approval_missing"
+    allow_send = gate.decide(
+        RequestContext(
+            action="external_send",
+            approval_id="owner-1",
+            idempotency_key="idem-1",
+            trust_level="verified",
+            **{k: v for k, v in base.items()
+               if k not in ("approval_id", "idempotency_key", "trust_level", "action")},
+        ),
+        TALK_DISCOVERY_POLICY,
+    )
+    assert allow_send.decision == Decision.ALLOW
+    assert allow_send.reason == "approval_action_allowed"
     unk = gate.decide(RequestContext(action="launch_missiles", **base), TALK_DISCOVERY_POLICY)
     assert unk.decision == Decision.DENY
     assert unk.reason == "unknown_action_fail_closed"
@@ -75,7 +101,7 @@ def t_event_log_digest_only():
         run_id="run-test-adr033",
         action="external_send",
         decision="deny",
-        reason_code="action_hard_forbidden",
+        reason_code="approval_missing",
         payload_digest="sha256:abcd",
         extra={"text": "SHOULD_NOT_PERSIST", "prompt": "nope"},
     )
@@ -93,7 +119,7 @@ def t_checkpoint_replay_dry_run_only():
     with tempfile.TemporaryDirectory() as td:
         store = CheckpointStore(Path(td))
         cp = store.create(
-            policy_version="ADR-033-v1",
+            policy_version=TALK_DISCOVERY_POLICY.version,
             graph_version="g1",
             input_digest="sha256:dead",
             payload={"prompt": "secret", "ok": 1},
@@ -105,7 +131,7 @@ def t_checkpoint_replay_dry_run_only():
             ReplayRequest(
                 run_id=cp.run_id,
                 checkpoint_id=cp.checkpoint_id,
-                policy_version="ADR-033-v1",
+                policy_version=TALK_DISCOVERY_POLICY.version,
                 graph_version="g1",
             ),
             store=store,
@@ -116,7 +142,7 @@ def t_checkpoint_replay_dry_run_only():
                 ReplayRequest(
                     run_id=cp.run_id,
                     checkpoint_id=cp.checkpoint_id,
-                    policy_version="ADR-033-v1",
+                    policy_version=TALK_DISCOVERY_POLICY.version,
                     graph_version="g1",
                     dry_run=False,
                 ),
@@ -133,7 +159,7 @@ def t_rollback_keeps_idempotency_ledger():
     with tempfile.TemporaryDirectory() as td:
         store = CheckpointStore(Path(td) / "cp")
         cp = store.create(
-            policy_version="ADR-033-v1",
+            policy_version=TALK_DISCOVERY_POLICY.version,
             graph_version="g1",
             input_digest="sha256:x",
         )
@@ -153,17 +179,18 @@ def t_rollback_keeps_idempotency_ledger():
         assert ledger.read_bytes() == before
 
 
-def t_capability_registry_spec_not_built_not_live():
+def t_capability_registry_chrono_rhythm_built():
     from evidence_plane.registry import CapabilityRegistry
     reg = CapabilityRegistry(_OPS / "capabilities")
     reg.reload()
     cr = reg.get("chrono-rhythm-cr-b0")
     assert cr is not None
-    assert cr.truth_status == "SPEC_NOT_BUILT"
-    assert cr.enabled is False
+    # 2026-08-12: CR-B0 ساخته/تست‌شده؛ diagnostic، بدون authority مستقیم.
+    assert cr.truth_status == "TESTED"
+    assert cr.evidence_level == "SHADOW"
     assert cr.may_affect_routing is False
     ok, reason = reg.assert_not_false_claim("chrono-rhythm-cr-b0")
-    assert ok
+    assert ok, reason
     td = reg.get("talk-discovery")
     assert td is not None and td.truth_status == "ARMED"
     ecp = reg.get("evidence-control-plane")
@@ -262,7 +289,7 @@ CHECKS = [
     ("event-log-digest-only", t_event_log_digest_only),
     ("replay-dry-run-only", t_checkpoint_replay_dry_run_only),
     ("rollback-keeps-ledger", t_rollback_keeps_idempotency_ledger),
-    ("registry-spec-not-built", t_capability_registry_spec_not_built_not_live),
+    ("registry-chrono-rhythm-built", t_capability_registry_chrono_rhythm_built),
     ("seven-day-no-promotion", t_seven_day_unknown_blocks_promotion),
     ("spectral-unknown-not-zero", t_spectral_unknown_not_zero),
     ("collaborator-adr033-gate", t_collaborator_uses_adr033_gate),

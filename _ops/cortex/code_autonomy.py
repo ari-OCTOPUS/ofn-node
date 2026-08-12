@@ -12,6 +12,7 @@ $0 · stdlib + opslib. تست: `_ops/tests/test_code_autonomy.py`.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -532,8 +533,67 @@ def tick(patch: dict | None = None, *, run_fn=None) -> dict:
 ACTIVATION = opslib.OPS / "ACTIVATION-CODE-AUTONOMY.flag"   # فقط مالک می‌سازد
 KILL = opslib.OPS / "STOP-CODE-AUTONOMY"                    # کیل‌سوئیچِ آنی
 APPLIED_LOG = opslib.STATE_DIR / "cortex" / "code-autonomy-applied.jsonl"
-REFRACTORY_S = 3600.0     # حداقل فاصلهٔ دو اعمال (کادنسِ قلب بعداً تیزترش می‌کند)
+APPLY_LOCK = opslib.STATE_DIR / "cortex" / "code-apply.lock"
+BASELINE_CACHE = opslib.STATE_DIR / "cortex" / "suite-baseline-fails.json"
+REFRACTORY_S = float(os.environ.get("OCTOPUS_CODE_APPLY_REFRACTORY_S", "3600") or "3600")
+# حداقل فاصلهٔ دو اعمال (env-overridable؛ رأی ۲۰۲۶-۰۸-۱۲ no-boundary)
 APPROVALS_DIR = opslib.STATE_DIR / "telegram" / "approvals"
+APPLY_LOCK_STALE_S = 3 * 3600.0
+BASELINE_CACHE_MAX_AGE_S = 48 * 3600.0
+
+
+def _acquire_apply_lock() -> tuple[bool, str]:
+    """قفلِ تک‌اعمالی — جلوی raceِ درایور+اسکریپت (Timeout+rollback روی commitِ موازی)."""
+    import time
+    try:
+        APPLY_LOCK.parent.mkdir(parents=True, exist_ok=True)
+        if APPLY_LOCK.exists():
+            age = time.time() - APPLY_LOCK.stat().st_mtime
+            if age < APPLY_LOCK_STALE_S:
+                return False, f"apply-lock-held ({age:.0f}s)"
+            APPLY_LOCK.unlink(missing_ok=True)
+        fd = os.open(str(APPLY_LOCK), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(json.dumps({"pid": os.getpid(), "ts": time.time()}))
+        return True, "ok"
+    except FileExistsError:
+        return False, "apply-lock-held"
+    except OSError as e:
+        return False, f"apply-lock-error:{type(e).__name__}"
+
+
+def _release_apply_lock() -> None:
+    try:
+        APPLY_LOCK.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
+def _load_baseline_cache() -> "set[str] | None":
+    import time
+    try:
+        d = json.loads(BASELINE_CACHE.read_text("utf-8"))
+        if time.time() - float(d.get("ts", 0)) > BASELINE_CACHE_MAX_AGE_S:
+            return None
+        fails = d.get("fails") or []
+        if not isinstance(fails, list):
+            return None
+        return set(str(x) for x in fails)
+    except (OSError, ValueError, TypeError):
+        return None
+
+
+def _save_baseline_cache(fails: set) -> None:
+    import time
+    try:
+        BASELINE_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        tmp = BASELINE_CACHE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps({
+            "ts": time.time(), "fails": sorted(fails),
+        }, ensure_ascii=False), "utf-8")
+        os.replace(tmp, BASELINE_CACHE)
+    except OSError:
+        pass
 
 
 def active() -> bool:
@@ -640,7 +700,14 @@ def apply_approved(patch: dict, approval_id: str, *, apply_fn=None, clock=None) 
             return {"ok": False, "reason": "not-low-risk (auto-approval)",
                     "risk": risk}
 
-    res = apply_fn(tgt, content) if apply_fn is not None else _git_apply_canary(tgt, content)
+    got_lock, lock_why = _acquire_apply_lock()
+    if not got_lock:
+        return {"ok": False, "reason": lock_why}
+    try:
+        res = apply_fn(tgt, content) if apply_fn is not None else _git_apply_canary(
+            tgt, content, low_risk_fast=_approval_is_auto(approval_id))
+    finally:
+        _release_apply_lock()
     import time
     rec = {"ts": opslib.now_iso(), "epoch": float((clock or time.time)()),
            "target": tgt, "approval_id": approval_id, "mood": m["mood"],
@@ -682,7 +749,8 @@ def _write_keeping_newlines(tgt, text: str, before_b: bytes) -> None:
     tgt.write_bytes(body.encode("utf-8"))
 
 
-def _git_apply_canary(target_rel: str, new_content: str) -> dict:
+def _git_apply_canary(target_rel: str, new_content: str,
+                      *, low_risk_fast: bool = False) -> dict:
     """مسیرِ واقعی: مبنا → نوشتنِ patch → commit → canary → مقایسه با مبنا.
     سبز = **هیچ شکستِ تازه** · قرمز: auto-rollback + freeze. masterِ زنده لمس
     نمی‌شود (merge = گامِ جداگانهٔ مالک). fail-soft.
@@ -701,7 +769,11 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
     معیار این‌جا هم می‌آید، با همان `_run_suite`، نه یک پیاده‌سازیِ دوم.
 
     هزینه: دو دورِ سوییت (~۳۶ دقیقه با عددِ سنجیده‌شدهٔ ۱۰۷۸ ثانیه). سقف از
-    `_suite_timeout_s()` می‌آید."""
+    `_suite_timeout_s()` می‌آید.
+
+    ۲۰۲۶-۰۸-۱۲: `low_risk_fast` + `OCTOPUS_CODE_LOWRISK_FAST_CANARY=1` → اگر
+    cacheِ baseline تازه باشد، دورِ مبنا حذف می‌شود (یک canary کافی است).
+    """
     import os as _os
     repo = _OPS.parent
     tgt = repo.joinpath(*target_rel.split("/"))
@@ -711,9 +783,16 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
     committed = False        # ⚠️ باید **بیرونِ** try باشد — مسیرِ استثنا لازمش دارد
     try:
         env = dict(_os.environ); env["REAL_VAULT"] = str(repo); env["PYTHONUTF8"] = "1"
-        # مبنا **قبل** از نوشتن — روی همان درخت، همان لحظه. مبنای کهنه یعنی
-        # انتسابِ شکستِ کسِ دیگر به این پچ.
-        base = _run_suite(repo, env)
+        fast = (low_risk_fast and str(_os.environ.get(
+            "OCTOPUS_CODE_LOWRISK_FAST_CANARY", "")).strip() in ("1", "true", "yes", "on"))
+        cached = _load_baseline_cache() if fast else None
+        if cached is not None:
+            base = {"fails": cached, "code": 1 if cached else 0, "seconds": 0,
+                    "from_cache": True}
+        else:
+            # مبنا **قبل** از نوشتن — روی همان درخت، همان لحظه.
+            base = _run_suite(repo, env)
+            _save_baseline_cache(base["fails"])
         _write_keeping_newlines(tgt, new_content, before_b)
         subprocess.run(["git", "-C", str(repo), "add", target_rel],
                        capture_output=True, text=True, timeout=60)
@@ -722,11 +801,9 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
                             capture_output=True, text=True, timeout=60)
         committed = cm.returncode == 0
         cand = _run_suite(repo, env)
+        _save_baseline_cache(cand["fails"])
         new_fails = sorted(cand["fails"] - base["fails"])
         fixed = sorted(base["fails"] - cand["fails"])
-        # عیناً معیارِ `_git_shadow_test`: هیچ شکستِ تازه. اگر مبنا خودش پاک
-        # بود، این دقیقاً همان `returncode == 0` ِ قبلی است — پس سخت‌گیری روی
-        # درختِ سالم ذره‌ای کم نشده.
         green = not new_fails and (cand["code"] == 0 or bool(base["fails"]))
         if not green:                                   # auto-rollback
             if committed:
@@ -740,19 +817,15 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
                 "rolled_back": (not green), "branch_only": True,
                 "baseline_fails": sorted(base["fails"]), "new_fails": new_fails,
                 "fixed_fails": fixed, "base_seconds": base.get("seconds"),
-                "cand_seconds": cand.get("seconds")}
+                "cand_seconds": cand.get("seconds"),
+                "baseline_from_cache": bool(base.get("from_cache"))}
     except Exception as e:  # noqa: BLE001
-        # ⚠️ ۲۰۲۶-۰۷-۳۰: نسخهٔ قبلی این‌جا فقط **محتوای فایل** را برمی‌گرداند.
-        # ولی پرتکرارترین استثنای این مسیر `TimeoutExpired` ِ خودِ سوییت است —
-        # که **بعد** از commit رخ می‌دهد. نتیجه: کامیت در تاریخچه می‌ماند، دیسک
-        # به نسخهٔ قبل برمی‌گردد، و گزارش می‌گوید «اعمال نشد، برگردانده شد».
-        # سه‌گانهٔ ناسازگار، روی درختی که جلسهٔ موازی هم رویش کار می‌کند.
-        # حالا مسیرِ استثنا **همان** rollback ِ مسیرِ قرمز را می‌زند.
         try:
             if committed:
                 subprocess.run(["git", "-C", str(repo), "revert", "--no-edit", "HEAD"],
                                capture_output=True, text=True, timeout=60)
             else:
+                # فقط اگر HEAD همان فایلِ قبل را دارد برگردان — وگرنه commitِ موازی را خراب نکن
                 tgt.write_bytes(before_b)
         except Exception:  # noqa: BLE001
             pass

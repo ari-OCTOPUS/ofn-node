@@ -36,11 +36,22 @@ def _env_clean():
 
 def t_apply_off_stays_proposal_only():
     _env_clean()
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     try:
         r = wiring.protective_override({"pain": {"level": 0.95}, "reflexes": []})
         assert r["action"] == "protective_proposal"
         assert r["override"] is False and r["executable"] is False
         assert r["shadow_alert"] is True
+    finally:
+        _env_clean()
+
+
+def t_apply_unset_uses_tracked_owner_verdict():
+    _env_clean()
+    try:
+        assert wiring.effective_flag("OCTOPUS_NEURAL_LEARNED_APPLY") is True
+        r = wiring.protective_override({"pain": {"level": 0.95}, "reflexes": []})
+        assert r["action"] == "protective_halt" and r["executable"] is True
     finally:
         _env_clean()
 

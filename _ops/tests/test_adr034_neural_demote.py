@@ -199,16 +199,19 @@ def t_flags_cmd_containment():
     assert "ADR-035" in flags
 
 
-def t_capability_record_shadow():
-    """Post ADR-034: SHADOW + trace_only + production_apply_enabled=false. ADR-035 NOT accepted."""
+def t_capability_record_armed():
+    """Post ADR-035 (owner «هردو»): capability record reflects ARMED apply."""
     cap = json.loads((_OPS / "capabilities" / "neural-learned-apply.json").read_text(
         encoding="utf-8"))
     assert cap["truth_status"] == "TESTED"
-    assert cap["evidence_level"] == "SHADOW"
-    assert cap["runtime"]["production_apply_enabled"] is False
-    assert cap["authority"]["may_gate"] is False
-    assert cap["authority"]["allowed_effect"] == "trace_only"
-    assert cap["evidence"]["adr"] == "ADR-034"
+    assert cap["evidence_level"] == "ARMED"
+    assert cap["runtime"]["production_apply_enabled"] is True
+    assert cap["authority"]["may_gate"] is True
+    assert cap["authority"]["allowed_effect"] == "gate_internal"
+    assert cap["evidence"]["adr"] == "ADR-035"
+    # مرز سخت: اثر بیرونی/پول همچنان ممنوع
+    assert cap["authority"]["may_trigger_external_action"] is False
+    assert cap["authority"]["may_mutate_ledger"] is False
 
 
 if __name__ == "__main__":
@@ -222,6 +225,6 @@ if __name__ == "__main__":
         ("PolicyGate halt gates", t_request_halt_requires_approval_and_kill_switch),
         ("replay deterministic / no skip mutation", t_replay_deterministic_zero_control_mutation),
         ("flags containment A", t_flags_cmd_containment),
-        ("capability SHADOW record", t_capability_record_shadow),
+        ("capability ARMED record", t_capability_record_armed),
     ])
     sys.exit(1 if failed else 0)

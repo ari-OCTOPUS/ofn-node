@@ -33,6 +33,7 @@ sys.path.insert(0, str(_HERE.parent))
 sys.path.insert(0, str(_HERE.parent / "budget"))
 import harness                                   # noqa: E402
 ENV = harness.setup("pain-calibration")          # ایزولاسیون — قبل از هر importِ دیگر
+os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"  # ADR-034 path under test; ADR-035 has its own suite
 
 import wiring                                    # noqa: E402
 from neural import nociceptor as noci            # noqa: E402

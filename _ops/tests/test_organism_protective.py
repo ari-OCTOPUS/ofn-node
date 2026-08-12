@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""تست S (S-fix-3) — protective-override واقعاً enforce می‌شود، نه فقط alert/flag. $0 آفلاین.
+"""تست S — ADR-034/035 dual-mode protective skip.
 
-درسِ ۳ دورِ قبل: تستِ ساختاریِ «flag set شد» کافی نیست — گپ این بود که flag **مصرف** نمی‌شد و
-تصمیم **بعد از** epoch/fitness گرفته می‌شد. این تست دقیقاً همان دو نقص را می‌گیرد:
-  (۱) رفتاری: protective_override برای pain>0.7 → override غیرقابل‌سرکوب + protective_halt.
-  (۲) ساختاری-هدف‌مند: در organism، epoch و fitness روی `not _protective_skip` گِیت‌اند (flag مصرف می‌شود)
-      و تصمیمِ neural **پیش از** epoch است؛ بدونِ continue (busy-loop ban)؛ sleep همیشه.
+(۱) APPLY=0: pain>0.7 → protective_proposal, override=False, executable=False.
+(۲) ساختاری: organism/brain_worker فقط با executable gate skip می‌گذارند.
+(۳) epoch/fitness هنوز روی not _protective_skip گیت‌اند.
 """
+import os
 import re
 import sys
 from pathlib import Path
@@ -17,30 +16,34 @@ import harness  # noqa: E402
 ENV = harness.setup("organism-protective")
 sys.path.insert(0, str((harness.SELF_OPS)))
 sys.path.insert(0, str((harness.SELF_OPS / "budget")))
+os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
 import wiring  # noqa: E402
 
 ORG = (harness.SELF_OPS / "organism.py").read_text("utf-8")
+BW = (harness.SELF_OPS / "brain_worker.py").read_text("utf-8")
 _BODY = ORG[ORG.index("while True:"):]
 
 
-def t_protective_halt_decision():
+def t_protective_proposal_not_halt():
     r = wiring.protective_override({"pain": {"level": 0.85}, "reflexes": []})
-    assert r["override"] and r["suppressible"] is False and r["action"] == "protective_halt", r
+    assert r["override"] is False and r["executable"] is False, r
+    assert r["action"] == "protective_proposal", r
+    assert r.get("shadow_alert") is True, r
 
 
 def t_low_pain_no_override():
     r = wiring.protective_override({"pain": {"level": 0.1}, "reflexes": []})
-    assert r["override"] is False, r
+    assert r["override"] is False and r["action"] == "none", r
 
 
-def t_critical_reflex_non_suppressible():
+def t_critical_reflex_proposal_only():
     r = wiring.protective_override({"pain": {"level": 0.0},
                                    "reflexes": [{"triggered": True, "severity": "critical", "name": "budget"}]})
-    assert r["override"] and r["suppressible"] is False, r
+    assert r["override"] is False and r["executable"] is False, r
+    assert r["action"] == "throttle_proposal", r
 
 
 def t_epoch_gated_on_protective_skip():
-    # گپِ اصلی: flag باید مصرف شود — epoch داخلِ گاردِ `not _protective_skip`
     assert re.search(r"if not _protective_skip[^\n]*:\s*\n\s+rec = governor_epoch\.run_epoch\(\)", _BODY), \
         "epoch باید روی `not _protective_skip` گیت باشد (flag واقعاً مصرف شود)"
 
@@ -50,34 +53,37 @@ def t_fitness_gated_on_protective_skip():
         "fitness/daily باید روی `not _protective_skip` گیت باشد"
 
 
-def t_decision_before_work():
-    # تصمیمِ protective باید پیش از epoch باشد (وگرنه نمی‌تواند جلوش را بگیرد)
-    i_prot = _BODY.find("_protective_skip = True")
-    i_epoch = _BODY.find("rec = governor_epoch.run_epoch()")
-    assert 0 < i_prot < i_epoch, ("تصمیمِ protective باید پیش از اجرای epoch باشد", i_prot, i_epoch)
+def t_neural_skip_requires_executable_gate():
+    assert 'get("executable")' in ORG and 'get("executable")' in BW
+    assert '_protective_skip = True' in ORG
+    assert 'self.protective_skip = True' in BW
+    assert ORG.index('get("executable")') < ORG.index('_protective_skip = True')
+
+
+def t_neural_emits_shadow_alert_only():
+    assert "SHADOW_ALERT neural" in ORG and "SHADOW_ALERT neural" in BW
+    assert "pain_assessment" in ORG and "pain_assessment" in BW
+    assert "NEURAL OVERRIDE" in ORG and "NEURAL OVERRIDE" in BW
 
 
 def t_no_busyloop_continue():
-    # هیچ continue در بدنهٔ while (از sleep می‌پرد → busy-loop)
     assert not re.search(r"\n\s+continue\b", _BODY), "continue در tick ممنوع (busy-loop)"
 
 
 def t_sleep_always_reached():
-    # time.sleep در سطحِ بدنهٔ while (نه داخلِ گاردِ protective) → همیشه اجرا.
-    # CARDIAC-ALLOMETRY: sleep ممکن است داینامیک باشد (OCTOPUS_WIRE_BIO) ولی باید همیشه
-    # در انتها اجرا شود. پذیرفتن هر دو: static (TICK_SECONDS) یا dynamic (متغیر).
     assert re.search(r"\n        time\.sleep\(", ORG), \
         "time.sleep باید همیشه انتهای while اجرا شود (busy-loop ban)"
 
 
 if __name__ == "__main__":
     failed = harness.run([
-        ("pain>0.7 → protective_halt غیرقابل‌سرکوب", t_protective_halt_decision),
+        ("pain>0.7 → protective_proposal (نه halt)", t_protective_proposal_not_halt),
         ("pain پایین → بدونِ override", t_low_pain_no_override),
-        ("reflex بحرانی → غیرقابل‌سرکوب", t_critical_reflex_non_suppressible),
+        ("reflex بحرانی → throttle_proposal", t_critical_reflex_proposal_only),
         ("epoch روی not _protective_skip گیت (flag مصرف)", t_epoch_gated_on_protective_skip),
         ("fitness روی not _protective_skip گیت", t_fitness_gated_on_protective_skip),
-        ("تصمیمِ protective پیش از epoch", t_decision_before_work),
+        ("neural skip فقط با executable", t_neural_skip_requires_executable_gate),
+        ("neural SHADOW + OVERRIDE paths", t_neural_emits_shadow_alert_only),
         ("بدونِ continue (busy-loop ban)", t_no_busyloop_continue),
         ("time.sleep همیشه اجرا می‌شود", t_sleep_always_reached),
     ])
