@@ -165,7 +165,24 @@
   }
   function apiPost(path, payload){
     return fetch(path, {method:"POST", headers:tgHeaders({"Content-Type":"application/json"}), body:JSON.stringify(payload||{})}).then(function(r){
-      return r.json().catch(function(){ return {ok:false,status:"ERROR",reason:"bad_json"}; });
+      return r.text().then(function(raw){
+        var data = null;
+        try { data = raw ? JSON.parse(raw) : null; }
+        catch (e) {
+          return {ok:false, status:"ERROR", reason:"bad_json",
+                  http_status:r.status, preview:String(raw||"").slice(0,120)};
+        }
+        if(!r.ok){
+          if(data && typeof data === "object"){
+            if(data.reason == null) data.reason = "http_"+r.status;
+            data.ok = false;
+            data.http_status = r.status;
+            return data;
+          }
+          return {ok:false, status:"ERROR", reason:"http_"+r.status, http_status:r.status};
+        }
+        return data || {ok:false, status:"ERROR", reason:"empty_body"};
+      });
     }).catch(function(e){ return {ok:false,status:"ERROR",reason:e.message}; });
   }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
@@ -1991,22 +2008,25 @@
   }
   function viewScans(el){ stack(el||content, [renderCognitiveScan, renderAgentLog]); }
 
-  // ── پرسش (۲۰۲۶-۰۸-۰۸) + همکار (۲۰۲۶-۰۸-۱۱) ─────────────────────────────
-  // چت‌باکسِ /api/ask: اول ask_vault (رایگان/مستندِ vault)، فقط اگر منبعی
-  // نبود ask_brain (مغزِ گران/محلی). نردبان سمتِ سرور است — این‌جا فقط
-  // نمایشِ گفتگو و برچسبِ منبعِ جواب.
-  // چیپِ «🪞 با حافظه»: نقطهٔ ورودِ mirror_room.
-  // چیپِ «🤝 همکار»: POST /api/collab → collaborator.handle (shadow،
-  // default OFF روی سرور؛ اگر feature_disabled → پیام صادقانه).
-  // UI موجود را بازنویسی نمی‌کند — فقط سوئیچِ endpoint/payload.
+  // ── پرسش (۲۰۲۶-۰۸-۰۸) + همکار پیش‌فرض (۲۰۲۶-۰۸-۱۱ Talk Discovery) ─────
+  // وقتی OCTOPUS_WIRE_COLLAB=1 (از window.__OCTOPUS__.wire_collab): پیش‌فرض
+  // مسیر پاسخ = 🤝 همکار (/api/collab). Ask و Mirror فقط با انتخاب صریح.
+  // همکار = draft پاسخ؛ اثر خارجی از این UI مجاز نیست.
   function renderAsk(el){
+    var collabDefault = !!(window.__OCTOPUS__ && window.__OCTOPUS__.wire_collab);
     el.innerHTML = secHead("پرسش از اختاپوس") +
       '<div class="card">'+
       '<div id="askLog" class="asklog"></div>'+
       '<div class="chips">'+
-        '<button class="chip" id="askMirror" type="button">🪞 با حافظه (آینه)</button>'+
-        '<button class="chip" id="askCollab" type="button">🤝 همکار</button>'+
+        '<button class="chip'+(collabDefault?" on":"")+'" id="askCollab" type="button">🤝 همکار</button>'+
+        '<button class="chip'+(collabDefault?"":" on")+'" id="askPlain" type="button">💬 Ask</button>'+
+        '<button class="chip" id="askMirror" type="button">🪞 آینه</button>'+
       '</div>'+
+      '<div class="muted askmeta" id="askModeHint">'+(
+        collabDefault
+          ? "پیش‌فرض: همکار (پاسخ draft · بدون اثر خارجی). Ask/آینه فقط با انتخاب صریح."
+          : "همکار خاموش است — پیش‌فرض Ask. روشن‌کردن فقط با رأی مالک."
+      )+'</div>'+
       '<input class="fin" id="askQ" type="text" placeholder="از خودِ اختاپوس بپرس…" maxlength="500">'+
       '<button class="go" id="askGo">بپرس</button>'+
       '</div>';
@@ -2015,29 +2035,50 @@
     var go = el.querySelector("#askGo");
     var mirrorChip = el.querySelector("#askMirror");
     var collabChip = el.querySelector("#askCollab");
-    var useMirror = false;
-    var useCollab = false;
-    mirrorChip.addEventListener("click", function(){
-      useMirror = !useMirror;
-      if(useMirror){ useCollab = false; collabChip.classList.remove("on"); }
-      mirrorChip.classList.toggle("on", useMirror);
-      hapticSelect();
-    });
-    collabChip.addEventListener("click", function(){
-      useCollab = !useCollab;
-      if(useCollab){ useMirror = false; mirrorChip.classList.remove("on"); }
-      collabChip.classList.toggle("on", useCollab);
-      hapticSelect();
-    });
-    function addTurn(q, a, meta, bad){
+    var plainChip = el.querySelector("#askPlain");
+    // mode: "collab" | "ask" | "mirror"
+    var mode = collabDefault ? "collab" : "ask";
+    function paint(){
+      collabChip.classList.toggle("on", mode === "collab");
+      plainChip.classList.toggle("on", mode === "ask");
+      mirrorChip.classList.toggle("on", mode === "mirror");
+    }
+    function setMode(m){ mode = m; paint(); hapticSelect(); }
+    collabChip.addEventListener("click", function(){ setMode("collab"); });
+    plainChip.addEventListener("click", function(){ setMode("ask"); });
+    mirrorChip.addEventListener("click", function(){ setMode("mirror"); });
+    paint();
+    function addTurn(q, a, meta, bad, sourcesHtml){
       var row = document.createElement("div");
       row.className = "askturn";
       row.innerHTML = '<div class="askq">'+esc(q)+'</div>'+
         '<div class="aska'+(bad?" bad":"")+'">'+esc(a)+'</div>'+
-        (meta ? '<div class="muted askmeta">'+esc(meta)+'</div>' : '');
+        (meta ? '<div class="muted askmeta">'+esc(meta)+'</div>' : '')+
+        (sourcesHtml || "");
       log.appendChild(row);
       log.scrollTop = log.scrollHeight;
       return row;
+    }
+    function buildSourcesPanel(data){
+      if(!data) return "";
+      var facts = data.facts || [];
+      var lims = data.limitations || [];
+      if(!facts.length && !lims.length) return "";
+      var body = "";
+      if(facts.length){
+        body += facts.map(function(f){
+          var p = f.provenance || {};
+          return "· "+(f.title||"?")+" ["+(p.source_kind||"?")+"; "+(p.trust||"?")+
+            "; conf="+((f.confidence!=null)?Number(f.confidence).toFixed(2):"?")+"]\n"+
+            "  path="+(p.path||"?")+" digest="+(p.content_digest||"?");
+        }).join("\n");
+      }
+      if(lims.length){
+        body += (body?"\n\n":"")+"محدودیت‌ها:\n"+lims.map(function(x){return "· "+x;}).join("\n");
+      }
+      return '<details class="ask-sources"><summary>📎 Sources / شواهد</summary>'+
+        '<pre class="muted" style="white-space:pre-wrap;font-size:12px;margin:6px 0 0">'+
+        esc(body)+'</pre></details>';
     }
     function ask(){
       var q = (input.value||"").trim();
@@ -2045,6 +2086,8 @@
       go.disabled = true; input.disabled = true; go.setAttribute("data-busy","1");
       var pending = addTurn(q, "در حال فکر کردن…", "");
       pending.querySelector(".aska").classList.add("muted");
+      var useCollab = mode === "collab";
+      var useMirror = mode === "mirror";
       var endpoint = useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask");
       var payload = useCollab ? {text: q} : {question: q};
       apiPost(endpoint, payload).then(function(r){
@@ -2053,12 +2096,13 @@
           // owner-console.reply.v1 — or feature_disabled / auth errors
           if(r && r.schema === "owner-console.reply.v1"){
             var meta = "منبع: همکار"+(r.model_source?" · "+r.model_source:"")+
-              (r.kind ? " · "+r.kind : "");
-            addTurn(q, r.text||"", meta, r.kind === "disabled");
+              (r.kind ? " · "+r.kind : "")+" · draft · بدون اثر خارجی";
+            var src = buildSourcesPanel(r.data);
+            addTurn(q, r.text||"", meta, r.kind === "disabled", src);
           } else if(r && r.reason === "feature_disabled"){
             addTurn(q, "همکار خاموش است (OCTOPUS_WIRE_COLLAB=0). روشن‌کردنش فقط با رأی مالک.", "", true);
           } else {
-            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
+            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")", "", true);
           }
         } else if(r && r.ok){
           var meta = r.source === "vault"
@@ -2068,7 +2112,7 @@
               : "منبع: مغزِ "+(r.model||r.tier||"گران");
           addTurn(q, r.answer||"", meta);
         } else {
-          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
+          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")", "", true);
         }
         input.value = "";
         go.disabled = false; input.disabled = false; go.removeAttribute("data-busy");

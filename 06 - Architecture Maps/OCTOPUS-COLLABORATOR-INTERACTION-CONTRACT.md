@@ -3,113 +3,139 @@ type: knowledge
 kind: architecture-map
 status: active
 created: 2026-08-10
-updated: 2026-08-10
-tags: [collaborator, interaction-contract, telegram, miniapp, shadow, propose-only]
+updated: 2026-08-11
+tags: [collaborator, interaction-contract, telegram, miniapp, shadow, propose-only, talk-discovery]
+canonical: true
 ---
 
-# Octopus Collaborator Interaction Contract (WP-E1)
+# Octopus Collaborator Interaction Contract
 
-> **وضعیت:** implemented / shadow-ready. All capabilities default OFF.
-> هیچ claims live/beneficial/AGI بدون evidence.
+> **Canonical** architecture map for owner talk surfaces.
+> Runtime pointer (thin): `_ops/INTERACTION-CONTRACT.md` → this file.
+> Status: implemented / shadow-ready. All capabilities **default OFF**.
+> No live/beneficial/AGI claims without evidence ladder.
 
-## Topology (موجود — حفظ می‌شود)
+## Topology
 
 ```text
-Owner → Telegram WebApp (tab `ask`) → miniapp_gateway (:8774)
-  → owner_console/collaborator.py (wraps conversation.py)
-  → collab_memory.py (PII-safe episodic)
-  → collab_digest.py (from live_snapshot)
-  → owner-console.reply.v1 response
+Owner
+  ├─ MiniApp Ask      POST /api/ask     → ask_vault → ask_brain
+  ├─ MiniApp Mirror   POST /api/mirror  → mirror_room
+  ├─ MiniApp Collab   POST /api/collab  → collaborator.handle
+  └─ Telegram Outer DM
+        center → telegram_adapter
+          ├─ OCTOPUS_WIRE_COLLAB=1 → collaborator.handle  (same brain as MiniApp)
+          └─ else → conversation.handle
+               clarify may fall through to ask_brain
 ```
 
-سیستم‌های موجود که حفظ می‌شوند:
-- `miniapp/app.js` (~۲۱۰۰ خط، ۹ tab)
-- `miniapp_gateway.py` روی 127.0.0.1:8774
-- `conversation.py` (base handler)
-- `live_snapshot.py` (read-only truth)
+Preserved systems: `miniapp/app.js`, `miniapp_gateway.py` (:8774),
+`conversation.py`, `live_snapshot.py`, `collab_memory.py`, `collab_digest.py`.
 
-## Message/Card/Memory Schemas
+Talk Discovery additions: `collab_model_adapter.py` → `model_router.ask(task="collab_chat")`,
+`discovery_pulse.py`, `capability_journal.py`.
 
-### owner-console.reply.v1 (همان schema موجود)
+## Surfaces & routing
+
+| Surface | Entry | Brain |
+|---|---|---|
+| MiniApp Ask | `POST /api/ask` | ask_vault then ask_brain |
+| MiniApp Mirror | `POST /api/mirror` | mirror_room |
+| MiniApp Collaborator | `POST /api/collab` | `collaborator.handle` |
+| Telegram Outer DM | center → telegram_adapter | collab if armed, else conversation |
+| Telegram photo DM | `_capture_hook` | no vision — bare photo asks for caption |
+
+### Routing rules
+
+1. Center slash commands (`/menu`, …) never enter collaborator.
+2. Structured intents (goal/runtime/blockers/capabilities) stay deterministic even when `OCTOPUS_COLLAB_USE_MODEL=1`.
+3. `intro` / `clarify` / `chat` may call `model_router` via `collab_model_adapter` when model flag is on.
+   `discover` stays deterministic (journal + dark pulse) even with model armed.
+4. Photos without caption are not archived as silent notes.
+5. Collaborator always `external_effect=false` / `send_attempted=false`.
+
+## Schemas
+
+### owner-console.reply.v1
 ```json
 {
   "schema": "owner-console.reply.v1",
-  "kind": "ask|clarify|capabilities|runtime|blockers|disabled",
+  "kind": "intro|clarify|discover|chat|capabilities|runtime|blockers|goal|disabled|…",
   "text": "...",
   "keyboard": [],
   "data": {"rationale": "...", "memory_turn_id": "..."},
   "external_effect": false,
   "estimated_cost": 0,
   "send_attempted": false,
-  "model_source": "deterministic-stub"
+  "model_source": "deterministic-stub|model-fallback-stub|local:…|secondary:…|primary:…"
 }
 ```
 
-### CollabMemory.v1 (episodic)
-```json
-{
-  "schema": "CollabMemory.v1",
-  "ts": "UTC ISO",
-  "turn_id": "hash16",
-  "role": "owner|collaborator",
-  "intent": "ask|clarify|propose",
-  "summary": "scrubbed (max 500 chars)",
-  "summary_hash": "hash16"
-}
-```
+### CollabMemory.v1 / CollabDigest.v1
+Unchanged episodic + monitoring schemas (content-free summaries; interrupt = proposal only).
 
-### CollabDigest.v1 (monitoring)
-```json
-{
-  "schema": "CollabDigest.v1",
-  "status": "OK|ALERT|CRITICAL",
-  "verified_changes": [],
-  "blockers": [],
-  "critical": [],
-  "interrupt_affordance": false
-}
-```
+### CapabilityJournal.entry.v1
+`candidate · level STRUCTURAL|TESTED|SHADOW|ARMED · evidence · owner_vote · next · auto_arm=false`
 
 ## Boundaries
 
 | لایه | مجاز | ممنوع |
 |---|---|---|
-| **Read** | snapshot، catalog، live_snapshot | نوشتن state زنده |
-| **Propose** | کارتِ propose-only با rationale | ارسال/execute/pay |
-| **Hard-gated** | (هیچ — این مرحله اجرا نمی‌کند) | restart، deploy، paid call |
+| **Read** | snapshot، catalog، dark pulse، journal | نوشتن state زندهٔ ارگانیسم |
+| **Propose** | کارت/متن propose-only، living card | ارسال/execute/pay/auto-arm |
+| **Hard-gated** | (نیاز به رأی مالک) | restart، deploy، money/lead arm، outbound send |
 
-## Autonomy layer mapping
+## Autonomy / flags
 
 | سطح | شرح | flag |
 |---|---|---|
-| Draft | فقط گفت‌وگو + memory | OCTOPUS_WIRE_COLLAB |
-| Supervised | + کارت پیشنهاد | (future) |
-| Monitored | + digest فعال | OCTOPUS_WIRE_COLLAB_DIGEST |
-| Guarded | + اقدام bound | (future — owner verdict) |
+| Draft | گفت‌وگو + memory | `OCTOPUS_WIRE_COLLAB` |
+| Model talk | + `collab_chat` via model_router | `OCTOPUS_COLLAB_USE_MODEL` |
+| Soft call cap | daily adapter counter | `OCTOPUS_COLLAB_MODEL_DAILY_CAP` (default 30) |
+| Monitored | digest build | `OCTOPUS_WIRE_COLLAB_DIGEST` |
+| Guarded | bound action | future — owner verdict |
 
-هیچ سطحی در این build مسلح نیست.
+Money still flows through `organ_gate` / `budgets.yaml` when a paid tier is used.
+`collab_chat` is mapped **local** in `TASK_TIERS` (local-first; paid only if router escalates).
 
 ## Owner auth / HMAC / Rule of Two
 
-- HMAC gate روی MiniApp (X-Tg-Init-Data مثل fetchهای موجود).
-- Rule of Two: session هرگز هم‌زمان هر سه را ندارد:
-  - A: untrusted input
-  - B: sensitive data
-  - C: external effect
-- Collaborator در این مرحله C ندارد. اگر B لازم شد، input به summaryِ scrubbed محدود می‌شود.
-- ایمنی به همکاریِ مدل وابسته نیست — flag/HMAC/schema/transport separation مستقل‌اند.
+- HMAC gate on MiniApp (`X-Tg-Init-Data`).
+- Rule of Two: session never holds A+B+C together (untrusted input / sensitive data / external effect).
+- Collaborator has no C. Safety is flag/HMAC/schema — not model goodwill.
 
 ## Failure semantics
 
-- flag off → no-op (kind="disabled")
-- missing snapshot → UNKNOWN digest
-- PII/secret detected → rejected (fail-closed)
-- malformed input → clarify (fail-soft)
-- model adapter not wired → fallback to stub (with warning)
+| Condition | Behavior |
+|---|---|
+| flag off | `kind=disabled` |
+| missing snapshot | UNKNOWN digest |
+| PII/secret in memory | rejected (fail-closed) |
+| malformed input | clarify (fail-soft) |
+| model miss/timeout/cap | stub + warning (`model-fallback-stub` / `daily-cap`) |
+| bare photo | ask for caption (no fake vision) |
 
-## Non-goals (صریح)
+## Discovery (Talk Discovery C–D)
 
-- این یک FAQ chatbot نیست.
-- این یک AGI نیست.
-- efficacy/agency/outcome-improvement باید بعداً تجربی اثبات شوند.
-- هیچ send/effect/pay بدون verdict جداگانهٔ مالک.
+- Journal: `_ops/CAPABILITY-JOURNAL.md` + optional JSONL
+- Pulse: `owner_console/discovery_pulse.py` (AI-core dark only; excludes lead/money/outbound)
+- Protocol: `_ops/DISCOVERY-PROTOCOL.md`
+- Law: Novel ∧ Repeatable ∧ Useful ∧ Policy-Compliant — **no auto-arm**
+
+## Related maps
+
+- Evidence ladder: `_ops/EVIDENCE-LADDER.md`
+- Route policy: `_ops/ROUTE-POLICY.md`
+- Heart invariants: `06 - Architecture Maps/Octopus_Heart_Design_v1.md` (pulse untouched by this contract)
+
+## Non-goals
+
+- Not a FAQ chatbot · Not AGI · No vision pipeline · No mass money/lead arm
+- No send/effect/pay without separate owner verdict
+
+## Truth line
+
+```text
+shared-collab-brain + honest-photo + discovery-journal + capped-collab-chat
+!= vision != money-live != unbounded-model != auto-arm
+```

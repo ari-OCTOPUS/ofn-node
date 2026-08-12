@@ -12,9 +12,27 @@ _RUNTIME = re.compile(r"(شاهد.*runtime|واقعاً.*زنده|حقیقت.*ز
 _BLOCK = re.compile(r"(چه.*مانع|بلاکر|گیر کرده|تکمیل.*نشد|چرا.*نمی)", re.I)
 _DISC = re.compile(r"(کشف تازه|world discovery|کشف دنیا|امروز.*کشف)", re.I)
 _HOME = re.compile(r"^(خانه|منو|شروع|help|راهنما|/start|/menu)\s*$", re.I)
+_INTRO = re.compile(
+    r"(معرفی|خودت را|خودتو|کی هستی|کیستی|who are you|introduce yourself|"
+    r"سلام.*معرف|خودت.*معرف)",
+    re.I,
+)
+_DISCOVER = re.compile(
+    r"(چه.*پنهان|قابلیت.*پنهان|چی.*ندیدم|کشف.*پتانسیل|hidden.?capabil|"
+    r"چه چیزی داری که)",
+    re.I,
+)
 _READ_MISSION = re.compile(r"(مأموریت|ماموریت).*(فقط.*خوان|read.?only)", re.I)
 _NO_SEND = re.compile(r"(بدون.*اجازه.*نفرست|هیچ.*چیز.*نفرست|خودکار.*نفرست|do not send|don't send)", re.I)
 _SEND = re.compile(r"(بفرست|ارسال|send|ایمیل|پیام بیرونی|پست کن)", re.I)
+
+_INTRO_TEXT = (
+    "من اختاپوس‌ام — مغز کنترل و همکار تو (مالک).\n"
+    "کارم: دیدن وضعیت، پیشنهاد امن، و کمک به کشف قابلیت‌ها با شواهد.\n"
+    "کاری که نمی‌کنم بدون رأی تو: ارسال بیرونی، پول، یا روشن‌کردن فلگ خطرناک.\n"
+    "الان می‌توانی بپرسی: هدف فعلی · حقیقت runtime · موانع · قابلیت‌ها · "
+    "یا «چه چیزی پنهان داری؟»"
+)
 
 
 def handle(text: str) -> dict:
@@ -27,7 +45,39 @@ def handle(text: str) -> dict:
              {"text": "🫀 حقیقت runtime", "callback_data": "oc:runtime"}],
             [{"text": "⛔ موانع", "callback_data": "oc:blockers"},
              {"text": "🌍 کشف دنیا", "callback_data": "oc:discovery"}],
+            [{"text": "🔦 پنهان؟", "callback_data": "oc:discover-hidden"},
+             {"text": "🧠 Living card", "callback_data": "oc:living"}],
         ])
+    if _INTRO.search(q):
+        return _reply("intro", _INTRO_TEXT, data={"status": "INTRO"})
+    if _DISCOVER.search(q):
+        try:
+            from owner_console.discovery_facade import discover_reply
+            reply = discover_reply(query=q)
+            text = reply.text
+            data = {
+                "status": "DISCOVER_PROMPT",
+                "gateway": "discovery_facade.v2",
+                "evidence_level": reply.evidence_level,
+                "limitations": list(reply.limitations),
+                "facts": reply.as_dict().get("facts"),
+            }
+        except Exception:  # noqa: BLE001
+            text = (
+                "برای کشف مشترک: از dark inventory و شواهد می‌گویم چه چیزی "
+                "ساخته شده ولی خاموش است — بدون arm خودکار."
+            )
+            data = {"status": "DISCOVER_PROMPT"}
+        return _reply(
+            "discover",
+            text,
+            data=data,
+            keyboard=[
+                [{"text": "📎 Sources / شواهد", "callback_data": "oc:discover-sources"},
+                 {"text": "🧠 Living card", "callback_data": "oc:living"}],
+                [{"text": "🏠 خانه", "callback_data": "oc:home"}],
+            ],
+        )
     if _CAPS.search(q):
         return _reply("capabilities", views.capabilities(rows), keyboard=views.keyboard(rows))
     if _GOAL.search(q):
@@ -73,6 +123,33 @@ def callback(data: str) -> dict:
     if d == "oc:runtime": return handle("شاهد runtime")
     if d == "oc:blockers": return handle("موانع")
     if d == "oc:discovery": return handle("World Discovery")
+    if d == "oc:discover-hidden": return handle("چه چیزی پنهان داری؟")
+    if d == "oc:discover-sources":
+        try:
+            from owner_console.discovery_facade import discover_sources_text
+            text = discover_sources_text(query="کشف")
+        except Exception as exc:  # noqa: BLE001
+            text = f"شواهد در دسترس نیست ({type(exc).__name__})."
+        return _reply(
+            "discover-sources",
+            text,
+            data={"status": "DISCOVER_SOURCES"},
+            keyboard=[[{"text": "🔦 پنهان؟", "callback_data": "oc:discover-hidden"},
+                       {"text": "🏠 خانه", "callback_data": "oc:home"}]],
+        )
+    if d == "oc:living":
+        try:
+            from owner_console.discovery_pulse import living_card
+            text = living_card()
+        except Exception as exc:  # noqa: BLE001
+            text = f"Living card در دسترس نیست ({type(exc).__name__})."
+        return _reply(
+            "living-card",
+            text,
+            data={"status": "LIVING_CARD"},
+            keyboard=[[{"text": "🔦 پنهان؟", "callback_data": "oc:discover-hidden"},
+                       {"text": "🏠 خانه", "callback_data": "oc:home"}]],
+        )
     if d.startswith("oc:c:"):
         cid = d[5:]
         row = next((r for r in catalog.discover() if r["capability_id"] == cid), None)

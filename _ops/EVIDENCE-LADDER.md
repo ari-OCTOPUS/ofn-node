@@ -1,3 +1,11 @@
+---
+type: ops-ladder
+status: active
+created: 2026-08-11
+updated: 2026-08-11
+tags: [octopus, evidence, talk-discovery]
+---
+
 # EVIDENCE-LADDER — سلسله‌مراتب ادعای قابلیت
 
 > هر ادعای «می‌توانم X» باید سطح شاهد داشته باشد. ارتقا بدون شاهد ممنوع.
@@ -6,10 +14,14 @@
 
 | سطح | معنی | نمونه |
 |---|---|---|
+| **SPEC_NOT_BUILT** | فقط طرح/ADR؛ runtime path و flag برابر null؛ UI باید همین را نشان دهد | `chrono-rhythm-cr-b0` |
 | **STRUCTURAL** | کد موجود است، خوانده می‌شود، ولی هیچ شاهدِ اجرا | `dark_capabilities.py: DARK` |
 | **TESTED** | تست offline/mock سبز؛ SUT واقعی به‌کار taken شده | `test_ti_router_snapshot: 8/8` |
 | **SHADOW** | در سایه روی داده/پروسهٔ واقعی اجرا شده، بدون اثر خارجی | `collab_sim.run_simulation` |
 | **ARMED** | فلگ روشن، در مسیر زنده فعال، شاهدِ restart خوانده | نیازمند arm + boot snapshot |
+| **LOCKED** / **RETIRED** | قفل پایدار یا بازنشسته با artifact ارتقا/بازنشستگی | ADR-033 promotion verdict |
+
+> `SPEC_NOT_BUILT ≠ STRUCTURAL`. Registry: `_ops/capabilities/` · صفحه: [[03 - Projects/research-spec-compiler/adr/ADR-033-evidence-control-plane|ADR-033]].
 
 ## وضعیت فعلی قابلیت‌های کلیدی
 
@@ -27,6 +39,8 @@
 | **approval_store** | TESTED | `test_tg_approval_store: 17/17` | `telegram_center/approval_store.py` |
 | **MiniApp gateway** | TESTED | `test_miniapp_cockpit_ui: 11/11` + `test_miniapp_lifecycle_view: 16/16` | `telegram_center/miniapp_gateway.py` |
 | **dark_capabilities** | STRUCTURAL | `test_dark_capabilities: 18/18` (scanner logic) | `dark_capabilities.py` |
+| **collab_model_adapter** | TESTED | `test_collab_components` model mock/fallback + `test_talk_discovery` daily-cap | `owner_console/collab_model_adapter.py` |
+| **talk_discovery journal/pulse** | TESTED | `test_talk_discovery: 9/9` | `capability_journal.py` + `discovery_pulse.py` |
 | **discovery** | TESTED | `test_ti_discovery_eval: 9/9` | `test_intelligence/discovery.py` |
 | **policy_oracle** | TESTED | `test_ti_policy_oracle: 9/9` | `test_intelligence/policy_oracle.py` |
 | **red-team injection** | TESTED | `test_ti_redteam_injection: 3/3 (25/25 cases)` | `test_intelligence/redteam_cases.yaml` |

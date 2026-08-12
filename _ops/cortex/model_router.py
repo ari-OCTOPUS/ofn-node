@@ -124,6 +124,9 @@ TASK_TIERS = {
     "governor": "primary", "debate_architect": "primary",
     "debate_muse": "secondary", "tg_intent": "local",
     "chord.extract": "local", "heart_setpoint": "local",
+    # Talk Discovery: collaborator model adapter (local-first; organ_gate still
+    # meters any paid escalation). Soft call-cap = OCTOPUS_COLLAB_MODEL_DAILY_CAP.
+    "collab_chat": "local",
 }
 _TIER_ROLE = {"secondary": "reason", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
 # 2026-08-10 (Deployment): secondary از glm به reason (deepseek-v4-flash) عوض شد —

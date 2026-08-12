@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "capability_id": "chrono-rhythm-cr-b0",
+  "owner": "octopus-core",
+  "truth_status": "SPEC_NOT_BUILT",
+  "evidence_level": "SPEC_NOT_BUILT",
+  "runtime": {
+    "repo": "F:/backup",
+    "code_path": null,
+    "entrypoint": null,
+    "feature_flag": null,
+    "enabled": false
+  },
+  "authority": {
+    "allowed_effects": [],
+    "may_write_state": false,
+    "may_affect_routing": false,
+    "may_affect_policy": false,
+    "may_trigger_external_action": false
+  },
+  "evidence": {
+    "adr": "ADR-033",
+    "source_docs": ["04 - Architect System/CHRONO-RHYTHM-LAYER-SPEC.md"],
+    "tests": [],
+    "traces": [],
+    "last_verified_at": null
+  },
+  "promotion": {
+    "next_status": "TESTED",
+    "required_artifacts": [
+      "implementation_commit",
+      "unit_contract_report",
+      "shadow_trace_7_days",
+      "owner_vote"
+    ],
+    "rollback_flag": "OCTOPUS_WIRE_CHRONO_RHYTHM"
+  }
+}
