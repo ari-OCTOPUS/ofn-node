@@ -135,16 +135,94 @@ def t_collaborator_deterministic_stub():
     assert (r1.get("data") or {}).get("rationale") == (r2.get("data") or {}).get("rationale")
 
 
-def t_collaborator_no_model_adapter():
-    """OCTOPUS_COLLAB_USE_MODEL=1 ولی adapter نباید وصل شود (fallback to stub)."""
+def t_collaborator_intro_without_model():
+    """بدون مدل: معرفی ساختاری (نه clarify)."""
     import collaborator as col
     os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
-    os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "1"
-    r = col.handle("test")
-    os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
     os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
-    assert "NOT_CONNECTED" in r.get("model_source", "") or "stub" in r.get("model_source", "")
+    r = col.handle("سلام خودتو به من که مالک هستم معرفی کن")
+    os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+    assert r["kind"] == "intro", r
+    assert "اختاپوس" in r["text"]
+    assert r.get("model_source") == "deterministic-stub"
 
+
+def t_collaborator_model_adapter_mock():
+    """با فلگ مدل + mock ask: متن مدل و model_source واقعی."""
+    import collaborator as col
+    import tempfile
+    from pathlib import Path
+
+    def _fake_ask(task, prompt, system, max_tokens):
+        return {"ok": True, "text": "من اختاپوس‌ام؛ همکار امن مالک.", "tier": "local",
+                "model": "mock-llm", "cost_usd": 0.0}
+
+    with tempfile.TemporaryDirectory() as td:
+        os.environ["OCTOPUS_COLLAB_MODEL_COUNTER"] = str(Path(td) / "c.json")
+        col._model.set_ask_impl(_fake_ask)
+        os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
+        os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "1"
+        try:
+            r = col.handle("سلام خودتو معرفی کن")
+        finally:
+            col._model.set_ask_impl(None)
+            os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+            os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
+            os.environ.pop("OCTOPUS_COLLAB_MODEL_COUNTER", None)
+    assert r["kind"] == "intro", r
+    assert "اختاپوس" in r["text"]
+    assert "local" in str(r.get("model_source") or "")
+    assert "NOT_CONNECTED" not in str(r.get("model_source") or "")
+    assert "stub" not in str(r.get("model_source") or "")
+
+
+def t_collaborator_model_fallback_on_failure():
+    """شکست مدل → stub با warning صادقانه."""
+    import collaborator as col
+    import tempfile
+    from pathlib import Path
+
+    def _boom(*a, **k):
+        return {"ok": False, "reason": "timeout"}
+
+    with tempfile.TemporaryDirectory() as td:
+        os.environ["OCTOPUS_COLLAB_MODEL_COUNTER"] = str(Path(td) / "c.json")
+        col._model.set_ask_impl(_boom)
+        os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
+        os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "1"
+        try:
+            r = col.handle("سلام خودتو معرفی کن")
+        finally:
+            col._model.set_ask_impl(None)
+            os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+            os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
+            os.environ.pop("OCTOPUS_COLLAB_MODEL_COUNTER", None)
+    assert r.get("model_source") == "model-fallback-stub"
+    assert "timeout" in str((r.get("data") or {}).get("warning") or "")
+    assert r["kind"] == "intro"
+
+
+def t_collaborator_structured_stays_stub_even_with_model_flag():
+    """هدف/runtime با فلگ مدل هم ارزان و stub می‌ماند."""
+    import collaborator as col
+    called = []
+
+    def _track(*a, **k):
+        called.append(1)
+        return {"ok": True, "text": "should-not-use", "tier": "primary", "model": "x"}
+
+    col._model.set_ask_impl(_track)
+    os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
+    os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "1"
+    try:
+        r = col.handle("هدف فعلی چیه؟")
+    finally:
+        col._model.set_ask_impl(None)
+        os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+        os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
+    assert not called
+    assert r.get("model_source") == "deterministic-stub"
+    assert r["kind"] == "goal"
 
 # ─── DIGEST TESTS ───────────────────────────────────────────────────────────
 
@@ -305,7 +383,10 @@ CHECKS = [
     ("collaborator-default-off", t_collaborator_default_off),
     ("collaborator-contract-compliance", t_collaborator_contract_compliance),
     ("collaborator-deterministic-stub", t_collaborator_deterministic_stub),
-    ("collaborator-no-model-adapter", t_collaborator_no_model_adapter),
+    ("collaborator-intro-without-model", t_collaborator_intro_without_model),
+    ("collaborator-model-adapter-mock", t_collaborator_model_adapter_mock),
+    ("collaborator-model-fallback", t_collaborator_model_fallback_on_failure),
+    ("collaborator-structured-stays-stub", t_collaborator_structured_stays_stub_even_with_model_flag),
     ("digest-builds-from-snapshot", t_digest_builds_from_snapshot),
     ("digest-critical-on-halted", t_digest_critical_on_halted),
     ("digest-ok-when-healthy", t_digest_ok_when_healthy),

@@ -174,12 +174,15 @@ def t_discover_hidden_callback():
     assert r["kind"] == "discover"
 
 
-def t_task_tiers_collab_chat_is_local():
+def t_task_tiers_collab_chat_is_secondary_deepseek():
+    """2026-08-12: collab talk uses DeepSeek (secondary), not local qwen."""
     ops = _OPS
     sys.path.insert(0, str(ops / "cortex"))
     sys.path.insert(0, str(ops))
-    from cortex import model_router as mr  # noqa: WPS433
-    assert mr.TASK_TIERS.get("collab_chat") == "local"
+    import importlib
+    import model_router as mr  # noqa: WPS433 — flat module on cortex path
+    importlib.reload(mr)
+    assert mr.TASK_TIERS.get("collab_chat") == "secondary"
 
 
 def t_interaction_contract_is_pointer_to_canonical():
@@ -229,7 +232,7 @@ CHECKS = [
     ("model-daily-cap-blocks", t_model_daily_cap_blocks),
     ("living-callback", t_living_callback),
     ("discover-hidden-callback", t_discover_hidden_callback),
-    ("task-tiers-collab-chat", t_task_tiers_collab_chat_is_local),
+    ("task-tiers-collab-chat", t_task_tiers_collab_chat_is_secondary_deepseek),
     ("interaction-contract-canonical", t_interaction_contract_is_pointer_to_canonical),
     ("discover-stays-stub-with-model", t_discover_stays_stub_even_with_model),
 ]

@@ -154,6 +154,10 @@ _CENTER_SLASH = frozenset({
     # دو-باتی)؛ بدونِ این عضویت همان اشکالِ outer-bot-4 تکرار می‌شد: مامور
     # پیام را می‌بلعید و هرگز به جدولِ خودِ مرکز نمی‌رسید.
     "/restart",
+    # 2026-08-12 — AGI2027 control + gated panel: Talk Discovery collaborator
+    # must never swallow these before _handle_message (outer-bot-4 class bug).
+    "/ops", "/repair", "/impact", "/fugu", "/outbound", "/projectf",
+    "/ui", "/open", "/truth", "/legs", "/approvals", "/panel",
 })
 
 # دستورهایی که مرکز خودش پشتِ فلگ ثبت می‌کند — پل از آن‌ها رد می‌شود تا
@@ -2227,6 +2231,38 @@ class Center:
         has_media = any(msg.get(k) for k in ("photo", "voice", "document",
                                              "video"))
         _explicit = text.startswith("ثبت:")
+        # Talk Discovery Phase B — no vision: bare photo must not silently
+        # archive as a note; ask owner for caption/text instead.
+        if (has_media and msg.get("photo") and not text and not _explicit
+                and (_is_private or _own_dm)):
+            # ۲۰۲۶-۰۸-۱۲: به‌جای بن‌بست، یک خط وضعیت زنده هم بده تا مالک
+            # برای MiniApp/اشکال‌زدایی معطل کپشن نماند.
+            _extra = ""
+            try:
+                from owner_console import status as _oc_st
+                _b = (_oc_st.blockers() or "").strip()
+                if _b:
+                    _extra = "\n\n" + _b.split("\n")[0]
+                    for _ln in _b.split("\n")[1:4]:
+                        if _ln.strip():
+                            _extra += "\n" + _ln
+            except Exception:  # noqa: BLE001
+                _extra = ""
+            try:
+                self._client.send(
+                    _scrub(
+                        "عکس را گرفتم ولی محتوایش را نمی‌خوانم (vision نداریم). "
+                        "کپشن یا متن سؤال را زیرش / بعدش بفرست."
+                        " اگر از مینی‌اپ است، همان‌جا بپرس یا اینجا بنویس "
+                        "مثلاً: موانع چیست؟"
+                        + _extra
+                    ),
+                    chat_id=_chat.get("id"),
+                    topic_id=self._dm_topic(),
+                )
+            except Exception:  # noqa: BLE001
+                pass
+            return {"kind": "photo-need-caption", "handled": True}
         if not (has_media or _explicit):
             if not text:
                 return None
@@ -2815,10 +2851,26 @@ class Center:
                 # فرمانِ #۱ ِ تبلیغ‌شده هیچ‌وقت به _page("menu") نمی‌رسید.
                 _cmd0 = (_mtx0.split()[0].split("@")[0].lower()
                          if _mtx0.startswith("/") else "")
-                if _mtx0 and _cmd0 not in _CENTER_SLASH:
+                # Reply-to specialized cards must reach _handle_message
+                # (qbudget / ops-ask) — collaborator must not eat them first.
+                _rt0 = ""
+                if isinstance(_mg, dict):
+                    _rt0 = str((_mg.get("reply_to_message") or {}).get("text") or "")
+                _skip_console = (
+                    "سؤالِ اختاپوس" in _rt0
+                    or OPS_ASK_LEAD in _rt0
+                    or OPS_ASK_MONEY in _rt0
+                )
+                if _mtx0 and _cmd0 not in _CENTER_SLASH and not _skip_console:
                     _r = _oc.handle_message(_mtx0, surface_decision=_d)
                     _rep = _r.get("reply") if _r.get("handled") else None
-                    if _rep and _rep.get("kind") != "clarify":
+                    # Phase B: collaborator brain accepts clarify/intro/chat too
+                    # (same as MiniApp). Legacy owner-console still skips clarify
+                    # so free chat can fall through to ask_brain.
+                    if _rep and (
+                        _r.get("reason") == "collaborator"
+                        or _rep.get("kind") != "clarify"
+                    ):
                         return self._send_console_reply(_rep, {"message": _mg})
             except Exception:  # noqa: BLE001 — مامورِ شکسته = مسیرِ قبلی، نه سکوت
                 pass

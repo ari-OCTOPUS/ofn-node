@@ -32,7 +32,8 @@ if str(OPS) not in sys.path:
 import owner_verdicts as ov  # noqa: E402
 
 KNOBS = ("OCTOPUS_SPEND_CAP_USD", "OCTOPUS_SPEND_CAP_UNTIL",
-         "OCTOPUS_GOAL_MAX_CIRCULAR", "OCTOPUS_GOAL_MAX_CIRCULAR_UNTIL")
+         "OCTOPUS_GOAL_MAX_CIRCULAR", "OCTOPUS_GOAL_MAX_CIRCULAR_UNTIL",
+         "OCTOPUS_NEURAL_LEARNED_APPLY", "OCTOPUS_WIRE_CHRONO_RHYTHM")
 
 
 def _clear():
@@ -68,7 +69,10 @@ def t_the_live_file_declares_both_dated_knobs():
     قرمز است — یعنی «فراموش کردم تاریخ بگذارم» از «عمداً ماندگار است» تفکیک
     می‌شود و گارد بی‌دندان نمی‌شود."""
     v = ov.load()
-    assert set(v) >= {"spend_cap", "goal_max_circular"}, sorted(v)
+    assert set(v) >= {
+        "spend_cap", "goal_max_circular", "neural_learned_apply",
+        "chrono_rhythm_cr_b0",
+    }, sorted(v)
     for name, spec in v.items():
         for key in ("env", "value", "decided", "reader"):
             assert spec.get(key), (name, key, spec)
@@ -111,6 +115,24 @@ def t_the_quota_survives_a_missing_flags_file():
     gd = _load_module("gd_a2", "_ops/cortex/goal_directed.py")
     assert gd.max_circular_now("2026-08-07")["value"] == 6
     assert gd.max_circular_now("2026-08-14")["value"] == 2
+
+
+def t_apply_and_rhythm_survive_a_missing_flags_file():
+    _clear()
+    assert ov.get("OCTOPUS_NEURAL_LEARNED_APPLY") == "1"
+    assert ov.get("OCTOPUS_WIRE_CHRONO_RHYTHM") == "1"
+
+
+def t_explicit_zero_overrides_tracked_arming():
+    _clear()
+    env = {
+        "OCTOPUS_NEURAL_LEARNED_APPLY": "0",
+        "OCTOPUS_WIRE_CHRONO_RHYTHM": "0",
+    }
+    assert ov.get("OCTOPUS_NEURAL_LEARNED_APPLY", environ=env) == "0"
+    assert ov.get("OCTOPUS_WIRE_CHRONO_RHYTHM", environ=env) == "0"
+    drift = ov.drift(env)
+    assert len(drift) == 2 and all("≠" in item for item in drift), drift
 
 
 # ── تقدم و رانش ────────────────────────────────────────────────────────────

@@ -528,6 +528,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_ziman_catalog_bridge.py",   # Ø¨Ø±Ù†Ø§Ù…Ù‡ Û¸: Ù¾Ù„Ù Ú©Ø§ØªØ§Ù„ÙˆÚ¯Ù Ø²ÛŒÙ…Ø§Ù†
          # 2026-07-16: Ù…ØªØ§Ø¨ÙˆÙ„ÛŒØ³Ù…Ù Ø¯Ø§Ø¯Ù‡Ù” $0 Ù‡Ù…Ù‡Ù” Ù¾Ø§Ù‡Ø§ (leg_cultivate + Ø¯Ú©ØªØ± + Ù…ØºØ²Ù B)
          "test_legs_cultivation.py",
+         "test_leg_feed.py",
          # 2026-07-16: Ú¯Ø§Ø±Ø¯Ù read Ø¯Ø§Ø¯Ù‡Ù” ÙˆÛŒÚ˜Ù‡Ù” PII/PHI (audit R-05 + R-15) â€” Ø´Ø±ÛŒÚ©/DNA/EEG/HRV/Ù¾Ø±ÙˆÙØ§ÛŒÙ„Ù Ø±ÙˆØ§Ù†â€ŒØ¯Ø±Ù…Ø§Ù†ÛŒ
          "test_pii_read_guard.py",
          # 2026-07-16: EVAL-GATE (audit R-03) â€” Ø¯ÛŒØªØ§Ø³ØªÙ Ù…Ø­Ú©Ù Ø®ØµÙ…Ø§Ù†Ù‡Ù” Ù†Ø³Ø®Ù‡â€ŒØ¯Ø§Ø± (adv-eval.v1)
@@ -1042,6 +1043,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_bcm_hebbian_shadow_e2e.py",
     "test_nociceptor_chaos_shadow.py",
     "test_adr034_neural_demote.py",
+    "test_adr035_neural_rearm.py",
+    "test_spectral_definitions.py",
+    "test_neural_apply_evidence.py",
+    "test_verify_math_atlas.py",
     # ── 2026-08-11 WORKLOCK (owner-approved) — Memory ingest bridges ──
     # research_ingest + self_loop_ingest: episodic MemoryGate + append-only trail.
     # may_authorize=false · APPLY=0 · additive.

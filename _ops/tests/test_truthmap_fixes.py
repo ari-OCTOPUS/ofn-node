@@ -37,7 +37,8 @@ _SANDBOX = Path(ENV["ops"]) / "state"
 
 # ── P3: عصبِ درد ─────────────────────────────────────────────────────────────
 def t_pain_crisis_reaches_protective():
-    """بحرانِ چندسیگنالی (خطا+RED+sigma بالا) → pain>0.7 → protective_halt."""
+    """APPLY=0: بحران → pain>0.7 → protective_proposal (نه halt اجرایی)."""
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     d = NeuralDriver()
     r = d.evaluate(beat=1,
                    rhythm={"mode_color": "RED"},
@@ -48,8 +49,9 @@ def t_pain_crisis_reaches_protective():
     assert r["pain"]["level"] > 0.7, r["pain"]
     assert r["pain"]["protective"] is True
     prot = wiring.protective_override(r)
-    assert prot["override"] is True and prot["action"] == "protective_halt"
-    assert prot["suppressible"] is False, "protective باید غیرقابل‌سرکوب باشد"
+    assert prot["override"] is False and prot["executable"] is False
+    assert prot["action"] == "protective_proposal"
+    assert prot.get("shadow_alert") is True
 
 
 def t_pain_healthy_stays_low():
@@ -343,7 +345,7 @@ def t_neural_nan_inf_neutralized():
 
 if __name__ == "__main__":
     failed = harness.run([
-        ("[P3] بحران → protective_halt", t_pain_crisis_reaches_protective),
+        ("[P3] بحران → protective_proposal (ADR-034)", t_pain_crisis_reaches_protective),
         ("[P3] سلامت → pain پایین", t_pain_healthy_stays_low),
         ("[P3] error_rate واقعاً forward می‌شود", t_error_rate_actually_forwarded),
         ("[P3] ورودیِ خراب fail-soft", t_bad_error_rate_failsoft),

@@ -131,10 +131,23 @@ def _one_send(gate, i):
     return ow.send_one(eid, cand, "draft body", gate=gate, now_ms=NOW_MS + i)
 
 
-def t_a_cap_constant_is_the_owner_vote():
-    assert ow.LEAD_DAILY_SEND_CAP == 10, "سقف = رأی مالک ۲۰۲۶-۰۷-۳۱ = ۱۰"
-    src = Path(ow.__file__).read_text("utf-8")
-    assert "رأی مالک ۲۰۲۶-۰۷-۳۱" in src, "سندِ رأیِ مالک کنارِ عدد نیست"
+def t_a_cap_default_ten_env_overridable():
+    """پیش‌فرض ۱۰؛ رأی ۲۰۲۶-۰۸-۱۲ اجازهٔ override با OCTOPUS_LEAD_DAILY_SEND_CAP."""
+    import importlib
+    old = os.environ.pop("OCTOPUS_LEAD_DAILY_SEND_CAP", None)
+    try:
+        importlib.reload(ow)
+        assert ow.LEAD_DAILY_SEND_CAP == 10
+        os.environ["OCTOPUS_LEAD_DAILY_SEND_CAP"] = "100"
+        importlib.reload(ow)
+        assert ow.LEAD_DAILY_SEND_CAP == 100
+        assert ow.cap_reached(now=NOW_S) is False or ow.sends_today(now=NOW_S) >= 100
+    finally:
+        if old is None:
+            os.environ.pop("OCTOPUS_LEAD_DAILY_SEND_CAP", None)
+        else:
+            os.environ["OCTOPUS_LEAD_DAILY_SEND_CAP"] = old
+        importlib.reload(ow)
 
 
 def t_b_ten_sends_fill_the_counter_and_the_11th_is_cap_reached():

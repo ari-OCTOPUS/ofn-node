@@ -60,8 +60,12 @@ def t_diagnostic_may_gate_fails():
 
 def t_spec_not_built_with_code_path_fails():
     data = _base()
+    # chrono-rhythm-cr-b0 دیگر SPEC_NOT_BUILT نیست؛ برای تستِ قانونِ schema،
+    # یک signal فرضیِ SPEC_NOT_BUILT با implementation_path می‌سازیم.
     for s in data["signals"]:
-        if s["id"] == "chrono-rhythm-cr-b0":
+        if s["id"] == "kalman-shadow-period":
+            s["truth_status"] = "SPEC_NOT_BUILT"
+            s["evidence_level"] = "SPEC_NOT_BUILT"
             s["equation"]["implementation_path"] = "_ops/wiring.py"
             break
     r = _report(data)
@@ -94,11 +98,12 @@ def t_armed_without_seven_days_fails():
     assert any("shadow_window_days" in e for e in r["errors"]), r["errors"]
 
 
-def t_neural_apply_enabled_true_fails():
+def t_neural_apply_disabled_now_fails():
+    """ADR-035: production_apply_enabled=false should now FAIL (must be true)."""
     data = _base()
     for s in data["signals"]:
         if s["id"] == "neural-learned-apply":
-            s["safeguards"]["production_apply_enabled"] = True
+            s["safeguards"]["production_apply_enabled"] = False
             break
     r = _report(data)
     assert r["ok"] is False
@@ -144,7 +149,7 @@ CHECKS = [
     ("spec-with-path-fail", t_spec_not_built_with_code_path_fails),
     ("shadow-no-rollback-fail", t_shadow_effect_without_rollback_fails),
     ("armed-no-7d-fail", t_armed_without_seven_days_fails),
-    ("neural-apply-true-fail", t_neural_apply_enabled_true_fails),
+    ("neural-apply-disabled-fail", t_neural_apply_disabled_now_fails),
     ("missing-impl-fail", t_missing_implementation_path_fails),
     ("missing-test-fail", t_missing_test_path_fails),
     ("report-fields", t_report_has_digest_and_sha_fields),

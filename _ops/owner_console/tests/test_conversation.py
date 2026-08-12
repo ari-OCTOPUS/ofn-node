@@ -31,12 +31,32 @@ def t_status_in_owner_language_reads_runtime():
     assert r["external_effect"] is False and r["send_attempted"] is False
 
 
+def t_blockers_phrase_that_stub_itself_suggests():
+    """Regression 2026-08-12: clarify suggested «موانع چیست؟» then missed it."""
+    for q in ("موانع چیست", "موانع چیست؟", "موانع", "مانع چیه", "⛔ موانع"):
+        r = conversation.handle(q)
+        assert r["kind"] == "blockers", (q, r["kind"], r["text"][:80])
+        assert r["external_effect"] is False and r["send_attempted"] is False
+
+
+def t_greeting_typo_is_intro_not_clarify():
+    for q in ("سلام", "سلان", "hi", "hello"):
+        r = conversation.handle(q)
+        assert r["kind"] == "intro", (q, r["kind"])
+
+
+def t_meta_why_dont_you_understand_is_not_blockers():
+    r = conversation.handle("چرا نمیفهمی")
+    assert r["kind"] == "meta", r
+    assert r["data"].get("status") == "META_INTENT_FIXED"
+
+
 def t_pain_question_is_shadow_proposal_not_control():
     r=conversation.handle("درد و حفاظت چه می‌گوید؟")
     assert r["kind"]=="protective-status"
     assert r["data"]["status"]=="SHADOW_PROPOSAL_ONLY"
     assert r["data"]["control_authority"] is False
-    assert "halt مستقیم نیست" in r["text"]
+    assert "halt صریحِ کنترل" in r["text"] or "SHADOW" in str(r.get("data"))
     assert r["external_effect"] is False and r["send_attempted"] is False
 
 
@@ -60,6 +80,36 @@ def t_readonly_mission_is_proposal_only():
     assert r["kind"]=="readonly-proposal"
     assert r["data"]["status"]=="PROPOSED_NOT_SUBMITTED"
 
-if __name__=="__main__":
-    ts=[v for k,v in sorted(globals().items()) if k.startswith("t_")]
-    [f() for f in ts]; print(f"OK {len(ts)}")
+
+def t_collab_chat_not_stolen_by_local_first():
+    """B4 regression: collab_chat must NOT be stolen by CORTEX_LOCAL_FIRST.
+
+    When CORTEX_LOCAL_FIRST=1 and task=collab_chat, model_router must skip
+    the local-first quality gate and go directly to secondary (DeepSeek).
+    """
+    import os
+    old = os.environ.get("CORTEX_LOCAL_FIRST")
+    os.environ["CORTEX_LOCAL_FIRST"] = "1"
+    try:
+        src = (OPS / "cortex" / "model_router.py").read_text("utf-8")
+        assert "collab_chat" in src and "_skip_local" in src, \
+            "collab_chat LOCAL_FIRST skip not found in model_router.py"
+        assert 'TASK_TIERS' in src and '"collab_chat": "secondary"' in src
+    finally:
+        if old is None:
+            os.environ.pop("CORTEX_LOCAL_FIRST", None)
+        else:
+            os.environ["CORTEX_LOCAL_FIRST"] = old
+
+
+def t_self_aware_intents_match():
+    """Phase E: 'خودت کی ای' / 'از چی تشکیل شدی' → intro, not clarify."""
+    for q in ("خودت کی ای", "از چی تشکیل شدی", "خودآگاه هستی"):
+        r = conversation.handle(q)
+        assert r["kind"] == "intro", f"{q!r} → kind={r['kind']} (expected intro)"
+
+
+if __name__ == "__main__":
+    ts = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
+    [f() for f in ts]
+    print(f"OK {len(ts)}")

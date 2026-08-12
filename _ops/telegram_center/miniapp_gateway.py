@@ -87,6 +87,8 @@ READ_API_PATHS = {
     "/api/lifecycle",
     # ۲۰۲۶-۰۸-۰۸ — تبِ «اسکن‌ها»: شناختیِ زنده + لاگِ ایجنت
     "/api/cognitive-scan", "/api/agent-log",
+    # 2026-08-12: ماتریس سقف پول (قدم ۵/۷) — read-only
+    "/api/money-caps",
 }
 
 # دیوارِ HMAC ِ سطحِ خواندنی: **هر** مسیرِ READ_API_PATHS همان چیزی را می‌خواهد
@@ -520,7 +522,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab"):
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab", "/api/brain-guide"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
@@ -889,6 +891,43 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             body = json.dumps({"ok": False, "reason": type(exc).__name__},
                               ensure_ascii=False).encode("utf-8")
             return 500, body, "application/json; charset=utf-8"
+    if p == "/api/brain-guide":
+        # 2026-08-12 فاز ۳: چت → cortex از مسیر موجود owner_guidance (نه IPC).
+        # فقط append به state/cortex/owner-guidance.jsonl؛ cortex در cycle می‌خواند.
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = headers.get("_body") or b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            text = str(payload.get("text") or "").strip()
+            if not text:
+                return 400, b'{"ok":false,"reason":"empty_text"}', "application/json; charset=utf-8"
+            import sys as _sys
+            cortex_path = str(_OPS / "cortex")
+            if cortex_path not in _sys.path:
+                _sys.path.insert(0, cortex_path)
+            import owner_guidance as _og  # noqa: WPS433
+            result = _og.append(text, by="miniapp-owner")
+            body = json.dumps({
+                "ok": bool(result.get("ok")),
+                "directive": result.get("directive"),
+                "error": result.get("error"),
+                "path": "state/cortex/owner-guidance.jsonl",
+                "note": "cortex در cycle بعد می‌خواند؛ IPC به :8772 نیست",
+                "external_effect": False,
+                "may_authorize": False,
+            }, ensure_ascii=False).encode("utf-8")
+            return (200 if result.get("ok") else 400), body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__},
+                              ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
@@ -903,6 +942,105 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             # دفاعِ دولایه: 8773 خودش redact کرده؛ این لایه دوباره رد می‌کند.
             body = _redact(body.decode("utf-8", "replace")).encode("utf-8")
         return st, body, ctype
+    # ── 2026-08-12: Chat Log — تاریخچهٔ سرور-ساید گفتگو + هدفِ مالک ──────────
+    # GET /api/chat-log?limit=N → {ok, goal, turns[]} (owner-auth, redact دولایه)
+    if p == "/api/chat-log":
+        if method_u != "GET":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        limit = 10
+        qs = str(path or "").split("?", 1)
+        if len(qs) > 1:
+            for kv in qs[1].split("&"):
+                if kv.startswith("limit="):
+                    try:
+                        limit = min(30, max(1, int(kv[6:])))
+                    except ValueError:
+                        pass
+        try:
+            import sys as _clsys
+            _own_dir = str(_OPS / "owner_console")
+            if _own_dir not in _clsys.path:
+                _clsys.path.insert(0, _own_dir)
+            import chat_log as _clog  # noqa: WPS433
+            turns = []
+            for r in _clog.recent(limit=limit):
+                turns.append({
+                    "ts": r.get("ts"),
+                    "role": r.get("role"),
+                    "kind": r.get("kind"),
+                    "text": _redact(str(r.get("text") or "")),
+                    "run_id": r.get("run_id"),
+                    "model_source": r.get("model_source"),
+                })
+            goal = {}
+            try:
+                goal = json.loads(
+                    (_OPS / "state" / "owner-goal.json").read_text(encoding="utf-8"))
+            except Exception:  # noqa: BLE001
+                goal = {}
+            body = json.dumps({"ok": True, "goal": goal, "turns": turns},
+                              ensure_ascii=False).encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
+        except Exception as exc:  # noqa: BLE001
+            return 500, json.dumps({"ok": False, "reason": type(exc).__name__}).encode("utf-8"), \
+                "application/json; charset=utf-8"
+    # ── E4: Cognitive Runtime — Run events (SSE) + Run summary ──────────────
+    # GET /api/runs/{run_id} → JSON summary
+    # GET /api/runs/{run_id}/events?after=N → SSE text/event-stream
+    if p.startswith("/api/runs/"):
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        parts = p.split("/")
+        # /api/runs/{run_id} or /api/runs/{run_id}/events
+        if len(parts) >= 4 and parts[3]:
+            run_id_raw = parts[3]
+            # sanitize: فقط alnum و -_
+            run_id = "".join(c for c in run_id_raw if c.isalnum() or c in "-_")[:64]
+            if not run_id:
+                return 404, b'{"ok":false,"reason":"invalid_run_id"}', "application/json; charset=utf-8"
+            import sys as _rsys
+            _cog_p = str(_OPS / "cognitive")
+            if _cog_p not in _rsys.path:
+                _rsys.path.insert(0, _cog_p)
+            try:
+                import event_stream as _es  # noqa: WPS433
+                if len(parts) >= 5 and parts[4] == "events":
+                    # SSE: events after sequence
+                    after = 0
+                    qs = str(path or "").split("?", 1)
+                    if len(qs) > 1:
+                        for kv in qs[1].split("&"):
+                            if kv.startswith("after="):
+                                try:
+                                    after = int(kv[6:])
+                                except ValueError:
+                                    pass
+                    events = _es.list_events(run_id, after_sequence=after - 1)
+                    lines = []
+                    for e in events:
+                        seq = e.get("sequence", 0)
+                        et = e.get("event_type", "UNKNOWN")
+                        payload = json.dumps({
+                            "sequence": seq,
+                            "event_type": et,
+                            "producer": e.get("producer"),
+                            "status": e.get("status"),
+                            "occurred_at": e.get("occurred_at"),
+                            "intent": e.get("intent"),
+                            "may_authorize": False,
+                        }, ensure_ascii=False)
+                        lines.append(f"id: {seq}\nevent: {et}\ndata: {payload}\n")
+                    sse_body = ("\n".join(lines) + "\n").encode("utf-8") if lines else b": no events\n\n"
+                    return 200, sse_body, "text/event-stream; charset=utf-8"
+                else:
+                    # JSON summary
+                    summary = _es.run_summary(run_id)
+                    return 200, json.dumps(summary, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8"
+            except Exception as exc:  # noqa: BLE001
+                return 500, json.dumps({"ok": False, "reason": type(exc).__name__}).encode("utf-8"), "application/json; charset=utf-8"
+        return 404, b'{"ok":false,"reason":"run_not_found"}', "application/json; charset=utf-8"
     # PHASE 4 (2026-08-02): read-only /api/* cockpit helpers (secret-scrubbed, fail-closed).
     # No POST/PUT/DELETE here — read-only. Actions (/api/actions) are wired separately
     # above via OpsActionEngine (owner-gated) — stale "not wired yet" note removed 2026-08-09.

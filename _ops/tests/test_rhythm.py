@@ -5,6 +5,7 @@ DoD: (الف) ledger invariance: age_tick/hash با rhythm-on == off ·
 (ب) 1/f کران‌دار و seeded · (ج) HRV↓ → آلارم · (د) τ با novelty کش ·
 (ه) mode-map درست · (و) صفر production-touch.
 """
+import math
 import sys
 from pathlib import Path
 
@@ -16,7 +17,14 @@ _RH = (harness.SELF_OPS / "chrono_rhythm")
 if str(_RH) not in sys.path:
     sys.path.insert(0, str(_RH))
 
-from rhythm import Rhythm, RhythmState, FractalNoise  # noqa: E402
+from rhythm import (  # noqa: E402
+    CR_B0_FORMULA_VERSION,
+    FractalNoise,
+    Rhythm,
+    RhythmState,
+    kuramoto_order_parameter,
+    kuramoto_step,
+)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -140,11 +148,48 @@ def t_mode_focused_on_moderate_stress():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_advisory_has_flag():
-    """advisory() حاوی advisory_only=True."""
+    """signal خودش advisory است؛ authority فقط در pulse-arbiter تعریف می‌شود."""
     rh = Rhythm(seed=42)
     rh.step(readiness=0.5, stress=0.3, novelty=0.2)
     adv = rh.advisory()
     assert adv["advisory_only"] is True
+    assert adv["formula_version"] == CR_B0_FORMULA_VERSION
+    assert adv["coherence_r"] is None, "CR-B0 نباید coherence جعلی 0.5 منتشر کند"
+
+
+def t_nonfinite_inputs_are_finite_and_bounded():
+    rh = Rhythm(T0=float("inf"), eps=99, min_period_s=-1, max_period_s=float("nan"))
+    state = rh.step(float("nan"), float("inf"), None, dt=float("nan"), sigma=float("nan"))
+    assert math.isfinite(state.T_beat)
+    assert rh.min_period_s <= state.T_beat <= rh.max_period_s
+    assert math.isfinite(state.tau) and math.isfinite(state.gamma)
+
+
+def t_readiness_lengthens_period_with_same_seed():
+    low = Rhythm(seed=77)
+    high = Rhythm(seed=77)
+    assert high.beat_interval(1.0, 0.2) > low.beat_interval(0.0, 0.2)
+
+
+def t_kuramoto_order_parameter_edges():
+    assert kuramoto_order_parameter([]) is None
+    assert kuramoto_order_parameter([0.25]) == 1.0
+    assert abs(kuramoto_order_parameter([0.0, 0.0]) - 1.0) < 1e-12
+    assert kuramoto_order_parameter([0.0, math.pi]) < 1e-12
+    assert kuramoto_order_parameter([0.0, float("nan")]) is None
+
+
+def t_kuramoto_step_is_pure_and_validated():
+    phases = (0.0, 0.25)
+    out1 = kuramoto_step(phases, (1.0, 1.0), 0.2, dt=0.1)
+    out2 = kuramoto_step(phases, (1.0, 1.0), 0.2, dt=0.1)
+    assert out1 == out2 and phases == (0.0, 0.25)
+    assert kuramoto_step((), (), 1.0) == ((), None)
+    try:
+        kuramoto_step((0.0,), (1.0, 2.0), 0.1)
+        raise AssertionError("mismatch باید رد شود")
+    except ValueError:
+        pass
 
 
 def t_no_production_import():
@@ -181,5 +226,9 @@ if __name__ == "__main__":
         ("[و] advisory_only=True", t_advisory_has_flag),
         ("[و] no production import", t_no_production_import),
         ("[و] stress → T_beat سریع‌تر", t_beat_interval_stressed_faster),
+        ("[و] ورودی non-finite → خروجی bounded", t_nonfinite_inputs_are_finite_and_bounded),
+        ("[و] readiness → T_beat بلندتر", t_readiness_lengthens_period_with_same_seed),
+        ("[CR-B1] پارامتر نظم edge cases", t_kuramoto_order_parameter_edges),
+        ("[CR-B1] step pure + validation", t_kuramoto_step_is_pure_and_validated),
     ])
     sys.exit(1 if failed else 0)

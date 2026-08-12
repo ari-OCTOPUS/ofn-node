@@ -54,9 +54,10 @@ def t_diagnostic_cannot_gate():
 
 def t_spec_not_built_path_null():
     jsonschema, schema, data = _load()
+    # 2026-08-12: chrono-rhythm-cr-b0 اکنون ساخته/تست‌شده است (نه SPEC_NOT_BUILT).
     cr = next(s for s in data["signals"] if s["id"] == "chrono-rhythm-cr-b0")
-    assert cr["truth_status"] == "SPEC_NOT_BUILT"
-    assert cr["equation"]["implementation_path"] is None
+    assert cr["truth_status"] == "TESTED"
+    assert cr["equation"]["implementation_path"] is not None
 
 
 def t_effect_requires_rollback():
@@ -80,10 +81,17 @@ def t_neural_learned_apply_pin():
     _, _, data = _load()
     n = next(s for s in data["signals"] if s["id"] == "neural-learned-apply")
     assert n["truth_status"] == "TESTED"
-    assert n["evidence_level"] == "SHADOW"
-    assert n["authority"]["allowed_effect"] == "trace_only"
-    assert n["authority"]["may_gate"] is False
-    assert n["safeguards"]["production_apply_enabled"] is False
+    assert n["evidence_level"] == "ARMED"
+    assert n["authority"]["allowed_effect"] == "gate_internal"
+    assert n["authority"]["may_gate"] is True
+    assert n["safeguards"]["production_apply_enabled"] is True
+
+
+def t_neural_learned_apply_hard_boundary():
+    _, _, data = _load()
+    n = next(s for s in data["signals"] if s["id"] == "neural-learned-apply")
+    assert n["authority"]["may_mutate_ledger"] is False
+    assert n["authority"]["may_trigger_tool"] is False
 
 
 def t_protective_halt_not_in_signals():
@@ -108,6 +116,7 @@ CHECKS = [
     ("spec-path-null", t_spec_not_built_path_null),
     ("effect-needs-rollback", t_effect_requires_rollback),
     ("neural-learned-apply-pin", t_neural_learned_apply_pin),
+    ("neural-learned-apply-hard-boundary", t_neural_learned_apply_hard_boundary),
     ("halt-not-in-signals", t_protective_halt_not_in_signals),
     ("sog-snapshot", t_sog_snapshot_from_math),
 ]

@@ -27,7 +27,7 @@ def _prop(**kw) -> TalkProposal:
         proposal_id="p1",
         action="respond_draft",
         payload_digest="deadbeef",
-        policy_version="talk-discovery-policy.v1",
+        policy_version="talk-discovery-policy.v2",
         state_version=1,
         expires_at=datetime.now(UTC) + timedelta(hours=1),
         idempotency_key="idem-unique-1",
@@ -71,15 +71,16 @@ def test_expired_owner_approval_is_blocked():
     assert reason == "proposal_expired"
 
 
-def test_external_send_is_forbidden_even_if_approved():
+def test_external_send_allowed_with_valid_owner_approval():
+    """2026-08-12: hard-forbidden emptied; fingerprint/expiry still gate."""
     clear_idempotency_registry()
-    p = _prop(action="external_send")
+    p = _prop(action="external_send", policy_version="talk-discovery-policy.v2")
     fp = proposal_fingerprint(p)
     ok, reason = can_approve(
-        p, signed_fingerprint=fp, current_policy_version=p.policy_version
+        p, signed_fingerprint=fp, current_policy_version="talk-discovery-policy.v2"
     )
-    assert ok is False
-    assert reason == "hard_forbidden_action"
+    assert ok is True
+    assert reason == "approved"
 
 
 def test_policy_version_change_invalidates_approval():
@@ -168,7 +169,7 @@ def test_discover_facade_v2_provenance():
 CHECKS = [
     ("mutated-proposal-blocks", test_mutated_proposal_cannot_reuse_approval),
     ("expired-approval-blocked", test_expired_owner_approval_is_blocked),
-    ("external-send-forbidden", test_external_send_is_forbidden_even_if_approved),
+    ("external-send-approvable", test_external_send_allowed_with_valid_owner_approval),
     ("policy-version-mismatch", test_policy_version_change_invalidates_approval),
     ("store-failure-blocked", test_store_failure_returns_blocked_not_allowed),
     ("duplicate-idempotency", test_duplicate_idempotency_key_is_rejected),

@@ -65,7 +65,9 @@ def _stub_enhance(base_reply: dict, owner_text: str) -> dict:
 
 
 # LLM may enrich talk turns; discover stays deterministic (journal/pulse evidence).
-_LLM_KINDS = frozenset({"intro", "clarify", "chat"})
+# 2026-08-12 fix: intro از _LLM_KINDS خارج شد — _live_intro_witness شاهد زندهٔ فوری دارد
+# (beat/pain/brains)؛ فرستادنِ «سلام» به DeepSeek باعث client_timeout 60s می‌شد.
+_LLM_KINDS = frozenset({"clarify", "chat"})
 
 
 def _model_enhance(base_reply: dict, owner_text: str) -> dict:
@@ -198,10 +200,41 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
 
     base_reply = conversation.handle(text)
 
+    # ── Cognitive Runtime: Typed Event instrumentation (additive, fail-soft) ──
+    _run_info = None
+    try:
+        import sys as _csys
+        _cog = str(Path(__file__).resolve().parent.parent / "cognitive")
+        if _cog not in _csys.path:
+            _csys.path.insert(0, _cog)
+        import event_stream as _es  # noqa: WPS433
+        _run_info = _es.start_run(text)
+        _es.emit(_run_info["run_id"], "INTENT_DETECTED",
+                 trace_id=_run_info["trace_id"], producer="conversation",
+                 intent=str(base_reply.get("kind", "unknown")),
+                 payload={"kind": base_reply.get("kind")})
+    except Exception:  # noqa: BLE001 — instrumentation هرگز collab را نمی‌کشد
+        _run_info = None
+
     if _use_model():
         enhanced = _model_enhance(base_reply, text)
+        if _run_info:
+            try:
+                _es.emit(_run_info["run_id"], "MODEL_FINISHED",
+                         trace_id=_run_info["trace_id"], producer="adapter",
+                         payload={"model_source": enhanced.get("model_source", "?")})
+            except Exception:  # noqa: BLE001
+                pass
     else:
         enhanced = _stub_enhance(base_reply, text)
+        if _run_info:
+            try:
+                _es.emit(_run_info["run_id"], "MODEL_FINISHED",
+                         trace_id=_run_info["trace_id"], producer="stub",
+                         status="SKIPPED",
+                         payload={"model_source": "deterministic-stub"})
+            except Exception:  # noqa: BLE001
+                pass
 
     turn_id = _turn_id(text)
     # Content-free digest only (sha256) — not semantic episodic write.
@@ -218,6 +251,65 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
         data["memory_turn_id"] = turn_id
         data["memory_kind"] = "content_free_digest"
         enhanced["data"] = data
+    # فاز S — session memory (موقت؛ فقط preview؛ may_authorize=false)
+    try:
+        import sys
+        from pathlib import Path as _Ps
+        mem_dir_s = str(_Ps(__file__).resolve().parent.parent / "memory")
+        if mem_dir_s not in sys.path:
+            sys.path.insert(0, mem_dir_s)
+        import session_memory as _sm  # noqa: WPS433
+        _sm.remember(turn_id, "owner", str(enhanced.get("kind") or "chat"), text)
+        _sm.remember(turn_id + ":r", "collaborator",
+                     str(enhanced.get("kind") or "chat"),
+                     str(enhanced.get("text") or "")[:200])
+        data = dict(enhanced.get("data") or {})
+        data["session_turn"] = turn_id
+        enhanced["data"] = data
+    except Exception:  # noqa: BLE001 — session هرگز collab را نمی‌کشد
+        pass
+    # فاز V (2026-08-12 owner request) — Chat Log سرور-ساید:
+    # گفتگو را در وب‌اپ سیو کن (قبلاً فقط localStorage مرورگر بود).
+    # fail-soft + redact + run_id → به Cognitive Runtime وصل است.
+    try:
+        import sys as _cv
+        from pathlib import Path as _Pv
+        _own_dir = str(_Pv(__file__).resolve().parent)
+        if _own_dir not in _cv.path:
+            _cv.path.insert(0, _own_dir)
+        import chat_log as _clog  # noqa: WPS433
+        _run_id_v = (_run_info or {}).get("run_id") or ""
+        _clog.append(role="owner", kind=str(enhanced.get("kind") or "chat"),
+                     text=text, run_id=_run_id_v, turn_id=turn_id)
+        _clog.append(role="collaborator", kind=str(enhanced.get("kind") or "chat"),
+                     text=str(enhanced.get("text") or ""), run_id=_run_id_v,
+                     model_source=str(enhanced.get("model_source") or ""),
+                     turn_id=turn_id + ":r")
+    except Exception:  # noqa: BLE001 — chat log هرگز collab را نمی‌کشد
+        pass
+    # فاز X (2026-08-12) — پیشنهاد حافظه از حرف مالک:
+    # فقط CANDIDATE (may_authorize=false)؛ commit با رأی مالک. حلقهٔ چت→حافظه.
+    try:
+        import sys as _cx
+        from pathlib import Path as _Px
+        _cog_x = str(_Px(__file__).resolve().parent.parent / "cognitive")
+        if _cog_x not in _cx.path:
+            _cx.path.insert(0, _cog_x)
+        import memory_formation as _mf  # noqa: WPS433
+        _kind_x = str(enhanced.get("kind") or "chat")
+        if _kind_x not in ("greeting", "intro", "timeout", "blocked", "disabled"):
+            _prop = _mf.propose_memory(text, intent=_kind_x,
+                                       run_id=(_run_info or {}).get("run_id"))
+            if (_prop.get("ok")
+                    and _prop.get("importance") in
+                    (_mf.IMPORTANCE_HIGH, _mf.IMPORTANCE_MEDIUM)):
+                data = dict(enhanced.get("data") or {})
+                data["memory_candidate_id"] = _prop.get("candidate_id")
+                data["memory_candidate_importance"] = _prop.get("importance")
+                data["memory_candidate_status"] = _prop.get("status")
+                enhanced["data"] = data
+    except Exception:  # noqa: BLE001 — پیشنهاد هرگز collab را نمی‌کشد
+        pass
 
     enhanced["external_effect"] = False
     if "estimated_cost" not in enhanced:
@@ -259,11 +351,72 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
     except Exception:  # noqa: BLE001 — recall هرگز collab را نمی‌کشد
         data.setdefault("facts", [])
         data["facts_rationale"] = "recall unavailable (fail-soft)"
+    # Phase J: equation advice — observe-only, advice_only, never decides.
+    try:
+        import sys
+        from pathlib import Path as _P2
+        mem_dir2 = str(_P2(__file__).resolve().parent.parent / "memory")
+        if mem_dir2 not in sys.path:
+            sys.path.insert(0, mem_dir2)
+        import equation_advice as _ea  # noqa: WPS433
+        adv = _ea.equation_advice_snapshot()
+        data["equation_advice"] = {
+            "schema": adv.get("schema"),
+            "equation_advice_only": adv.get("equation_advice_only"),
+            "decision_effect": adv.get("decision_effect"),
+            "apply_effect": adv.get("apply_effect"),
+            "equations_consulted": adv.get("equations_consulted"),
+            "aggregate_advice": adv.get("aggregate_advice"),
+        }
+        if adv.get("aggregate_advice") == "slow_down":
+            data["equation_advice"]["note"] = (
+                "معادلات فقط توصیه می‌کنند؛ هیچ تصمیمی تغییر نکرده."
+            )
+    except Exception:  # noqa: BLE001 — advice هرگز collab را نمی‌کشد
+        data.setdefault("equation_advice", {
+            "equation_advice_only": True,
+            "decision_effect": False,
+            "apply_effect": False,
+            "error": "advice unavailable (fail-soft)",
+        })
+    # Phase P/T: unified context (shadow/effects/architecture) — read-only visibility.
+    try:
+        import sys
+        from pathlib import Path as _P3
+        mem_dir3 = str(_P3(__file__).resolve().parent.parent / "memory")
+        if mem_dir3 not in sys.path:
+            sys.path.insert(0, mem_dir3)
+        import unified_context as _uc  # noqa: WPS433
+        uctx = _uc.assemble(text)
+        data["unified_context"] = {
+            "intent": uctx.get("intent"),
+            "self_context": uctx.get("self_context"),
+            "shadow": uctx.get("shadow"),
+            "effects": uctx.get("effects"),
+            "architecture": uctx.get("architecture"),
+            "trace_id": uctx.get("trace_id"),
+            "may_authorize": False,
+        }
+        if uctx.get("facts") and not data.get("facts"):
+            data["facts"] = uctx["facts"]
+    except Exception:  # noqa: BLE001 — unified هرگز collab را نمی‌کشد
+        data.setdefault("unified_context", {"may_authorize": False,
+                                            "error": "unified unavailable (fail-soft)"})
     enhanced["data"] = data
+    # ── Cognitive Runtime: complete run + run_id in response ──
+    if _run_info:
+        try:
+            import hashlib as _h2
+            _resp_digest = _h2.sha256(str(enhanced.get("text") or "").encode("utf-8")).hexdigest()[:16]
+            _es.complete_run(_run_info["run_id"], trace_id=_run_info["trace_id"],
+                             response_digest=_resp_digest)
+            data = dict(enhanced.get("data") or {})
+            data["run_id"] = _run_info["run_id"]
+            data["trace_id"] = _run_info["trace_id"]
+            enhanced["data"] = data
+        except Exception:  # noqa: BLE001
+            pass
     return enhanced
-
-
-def callback(data: str, *, state_dir: Path | None = None) -> dict:
     """Handle callback data (button presses) through collaborator."""
     if not _is_enabled():
         return {

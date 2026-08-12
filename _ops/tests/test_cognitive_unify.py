@@ -87,42 +87,48 @@ def t_world_discovery_uses_facade():
     assert "propose-only" in t or "کشف" in t or "Discovery" in t or "شواهد" in t
 
 
-def t_approval_state_blocks_forbidden():
+def t_approval_state_blocks_bad_fingerprint():
     from datetime import UTC, datetime, timedelta
     from collab.approval_state import (
         TalkProposal,
         can_approve,
         clear_idempotency_registry,
-        proposal_fingerprint,
     )
     clear_idempotency_registry()
     p = TalkProposal(
         proposal_id="x",
         action="external_send",
         payload_digest="aa",
-        policy_version="talk-discovery-policy.v1",
+        policy_version="talk-discovery-policy.v2",
         state_version=0,
         expires_at=datetime.now(UTC) + timedelta(hours=1),
         idempotency_key="k-forbid",
     )
     ok, reason = can_approve(
         p,
-        signed_fingerprint=proposal_fingerprint(p),
-        current_policy_version="talk-discovery-policy.v1",
+        signed_fingerprint="deadbeef",
+        current_policy_version="talk-discovery-policy.v2",
     )
-    assert ok is False and reason == "hard_forbidden_action"
+    assert ok is False and reason == "proposal_changed_after_approval"
 
 
-def t_talk_policy_forbids_external_send():
+def t_talk_policy_external_send_needs_owner_approval():
     from collab.talk_discovery_policy import TalkAction, TalkDiscoveryPolicy
     p = TalkDiscoveryPolicy()
     d = p.decide(
         TalkAction.EXTERNAL_SEND,
         collab_enabled=True,
         untrusted_instruction=False,
-        owner_approval_id="owner-1",
+        owner_approval_id=None,
     )
     assert d.allowed is False
+    d_ok = p.decide(
+        TalkAction.EXTERNAL_SEND,
+        collab_enabled=True,
+        untrusted_instruction=False,
+        owner_approval_id="owner-1",
+    )
+    assert d_ok.allowed is True
     d2 = p.decide(
         TalkAction.RESPOND_DRAFT,
         collab_enabled=True,
@@ -204,9 +210,9 @@ CHECKS = [
     ("app-js-default-collab-mode", t_app_js_default_collab_mode),
     ("discovery-facade-provenance", t_discovery_facade_has_provenance),
     ("world-discovery-uses-facade", t_world_discovery_uses_facade),
-    ("talk-policy-forbids-send", t_talk_policy_forbids_external_send),
+    ("talk-policy-send-needs-owner", t_talk_policy_external_send_needs_owner_approval),
     ("approval-sm-fail-closed", t_approval_sm_fail_closed_and_hash),
-    ("approval-state-forbidden", t_approval_state_blocks_forbidden),
+    ("approval-state-fingerprint", t_approval_state_blocks_bad_fingerprint),
     ("criticality-v2-shadow", t_criticality_v2_shadow_components),
     ("pulse-shadow-compare", t_pulse_shadow_compare_flag_off_noop),
     ("collaborator-draft-no-effect", t_collaborator_marks_draft_no_effect),

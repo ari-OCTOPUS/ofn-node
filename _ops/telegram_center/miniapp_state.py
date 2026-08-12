@@ -550,6 +550,22 @@ def get_current_truth(root: "Path | None" = None) -> dict:
         return {"status": "error", "reason": f"{type(exc).__name__}"}
 
 
+def get_money_caps_state(root: "Path | None" = None) -> dict:
+    """قدم ۵/۷ — ماتریس سقف + armed≠productive. fail-soft."""
+    try:
+        import sys
+        ops = Path(__file__).resolve().parent.parent
+        if str(ops) not in sys.path:
+            sys.path.insert(0, str(ops))
+        import money_caps_snapshot as _mcs  # noqa: WPS433
+        snap = _mcs.snapshot()
+        snap["status"] = "ok"
+        return snap
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "reason": f"{type(exc).__name__}: {exc}",
+                "may_authorize": False, "claimed_is_income": False}
+
+
 def _git_head_short(root: "Path | None" = None) -> str:
     """short commit hash، fail-soft."""
     import subprocess
@@ -1028,6 +1044,7 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         "/api/legs": get_legs_state,
         "/api/notifications": get_notifications_state,
         "/api/value": get_value_state,
+        "/api/money-caps": get_money_caps_state,
         "/api/ui-registry": get_ui_registry,
         "/api/current-truth": get_current_truth,
         "/api/ops": get_ops_state,
@@ -1179,11 +1196,10 @@ def _brain_daemon() -> dict:
             "missing_fields": missing, **fields}
 
 def _brain_consolidation() -> dict:
-    """تثبیتِ (consolidation) مغزِ 4D — هر عدد از یک فایلِ نام‌برده می‌آید.
+    """تثبیت مغز — primary = neural live؛ 4d secondary (DEPRECATED/ممکن خالی).
 
-    شمارش‌ها **مشتق**اند نه اعلامی: conclusions از طولِ `conclusions_fa`،
-    frontier از تعدادِ سلول‌های آرشیو، و آخرین تأیید از آخرین چرخهٔ
-    `self_evolved/consolidation.json`. هر منبعِ نخوانده = null + دلیل."""
+    DW-06 2026-08-12: قبلاً available فقط وقتی موتور 4d + فایل‌های self_evolved
+    زنده بودند → پنل سبز/قرمز دروغین. الان neural/_ops اول است."""
     sd = _4D_OUTPUTS / "self_evolved"
     src_c = "4d_system/outputs/self_evolved/conclusions.json"
     src_f = "4d_system/outputs/self_evolved/frontier.json"
@@ -1213,24 +1229,46 @@ def _brain_consolidation() -> dict:
         last_sources = vs if isinstance(vs, list) else None
     else:
         reasons.append(f"no cycle history in {src_y}")
-    neural_cycles = len(neural) if isinstance(neural, list) else None
-    if neural_cycles is None:
-        reasons.append(f"no cycle list in {src_n}")
-    if not engine_present:
-        reasons.append("4d_system/brain/consolidation.py absent")
 
-    available = bool(engine_present and (n_concl is not None or n_front is not None
+    neural_cycles = None
+    neural_insights = None
+    if isinstance(neural, list):
+        neural_cycles = len(neural)
+    elif isinstance(neural, dict):
+        insights = neural.get("insights")
+        if isinstance(insights, list):
+            neural_insights = len(insights)
+        # some writers store cycles under history/cycles
+        for key in ("cycles", "history", "records"):
+            if isinstance(neural.get(key), list):
+                neural_cycles = len(neural[key])
+                break
+        if neural_cycles is None and neural:
+            neural_cycles = 1  # non-empty dict counts as present
+    if neural_cycles is None and neural_insights is None:
+        reasons.append(f"no neural consolidation payload in {src_n}")
+    if not engine_present:
+        reasons.append("4d_system/brain/consolidation.py absent (expected; DEPRECATED)")
+
+    neural_ok = (neural_cycles is not None) or (neural_insights is not None)
+    four_d_ok = bool(engine_present and (n_concl is not None or n_front is not None
                                          or last_verified is not None))
+    available = bool(neural_ok or four_d_ok)
+    primary = "neural" if neural_ok else ("4d" if four_d_ok else "none")
     return {
         "available": available,
+        "primary": primary,
         "conclusions_count": n_concl,
         "frontier_count": n_front,
         "last_verified": last_verified,
         "last_verified_sources": last_sources,
         "neural_cycles": neural_cycles,
+        "neural_insights": neural_insights,
+        "four_d_available": four_d_ok,
         "reason": None if available and not reasons else ("; ".join(reasons) or None),
         "sources": {"conclusions": src_c, "frontier": src_f,
                     "cycles": src_y, "neural_cycles": src_n,
+                    "primary": src_n if primary == "neural" else src_y,
                     "engine": "4d_system/brain/consolidation.py"},
     }
 

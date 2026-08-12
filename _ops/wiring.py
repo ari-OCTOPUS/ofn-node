@@ -32,6 +32,36 @@ def flag(name: str) -> bool:
     return os.environ.get(name, "0") == "1"
 
 
+def effective_flag(name: str) -> bool:
+    """فلگِ مؤثر برای رأی‌های tracked: env صریح (حتی ``0``) برنده است.
+
+    فقط callerهایی که عمداً رأیِ ماندگار در ``owner-verdicts.yaml`` دارند از این
+    helper استفاده می‌کنند. نبود/خرابیِ فایل fail-soft به رفتارِ env-only قبلی
+    برمی‌گردد؛ بنابراین این تابع منبعِ رقیب یا راهِ دورزدنِ rollback نیست.
+    """
+    try:
+        import owner_verdicts as _verdicts
+        value = _verdicts.get(name)
+    except Exception:  # noqa: BLE001 — رأیِ fallback نباید wiring را بکشد
+        value = os.environ.get(name, "0")
+    return str(value or "0").strip().lower() in ("1", "true", "yes", "on")
+
+
+def rhythm_enabled() -> bool:
+    """حقیقتِ CR-B0: فلگ مستقل + fallback tracked، با حفظِ معنای ``bare``.
+
+    env صریح همیشه حرف آخر است؛ بنابراین کاربر می‌تواند حتی زیرِ profile bare
+    ریتم را عمداً روشن کند. ولی اگر env غایب باشد، bare باید «همه off» بماند و
+    رأیِ tracked فقط در paper-full/live اعمال می‌شود.
+    """
+    name = "OCTOPUS_WIRE_CHRONO_RHYTHM"
+    if name in os.environ:
+        return effective_flag(name)
+    if resolve_profile() == "bare":
+        return False
+    return effective_flag(name)
+
+
 def _syspath(p) -> None:
     """افزودنِ idempotent به sys.path. توابعِ این ماژول per-beat صدا زده می‌شوند و
     `sys.path.insert` بی‌گارد هر ضربان یک ورودیِ تکراری اضافه می‌کرد (اندازه‌گیری
@@ -140,6 +170,7 @@ PAPER_FULL_FLAGS = (
     "OCTOPUS_WIRE_CONSOLIDATION",
     "OCTOPUS_WIRE_EVOLUTION", "OCTOPUS_WIRE_BOX", "OCTOPUS_WIRE_LEAD_TICK",
     "OCTOPUS_WIRE_IDEAS",
+    "OCTOPUS_WIRE_CHRONO_RHYTHM",  # CR-B0: فلگ مستقل؛ circadian/sprint هنوز neural
     "OCTOPUS_WIRE_SPECTRAL",   # P-spectral: complementary spectral bottleneck
     "OCTOPUS_WIRE_BCM",        # P3 blueprint: BCM forgetting — default-applied
                                # 2026-07-10 (قابل‌وتو، AGENT_QUESTIONS)؛ فقط ایندکس retrieval
@@ -825,7 +856,7 @@ def wire_summary() -> dict:
         "wire_context_fence": flag("OCTOPUS_WIRE_CONTEXT_FENCE"),
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck
-        "wire_rhythm": flag("OCTOPUS_WIRE_NEURAL"),      # rhythm (shares neural flag)
+        "wire_rhythm": rhythm_enabled(),  # CR-B0 independent rollback؛ bare-safe
         "wire_circadian": flag("OCTOPUS_WIRE_NEURAL"),   # circadian (shares neural flag)
         "wire_sprint": flag("OCTOPUS_WIRE_NEURAL"),      # sprint (shares neural flag)
         "wire_barbell": flag("OCTOPUS_WIRE_BARBELL"),    # barbell allocation
@@ -868,8 +899,14 @@ def wire_summary() -> dict:
 # ════════════════════════════════════════════════════════════════════════════════
 
 def make_rhythm():
-    """ساختِ Rhythm (mode_color GREEN/AMBER/RED). پشتِ OCTOPUS_WIRE_NEURAL.
-    اگر خاموش → None. advisory فقط."""
+    """ساختِ Rhythm موجودِ CR-B0، پشتِ فلگِ مستقلِ tracked.
+
+    env صریح ``OCTOPUS_WIRE_CHRONO_RHYTHM=0`` kill-switch است؛ اگر env غایب
+    باشد رأیِ tracked فعال می‌ماند. هستهٔ ریتم هیچ IO/ledger ندارد و authorityِ
+    مستقیم نمی‌گیرد؛ فقط pulse-arbiter می‌تواند spacing دیواری را مصرف کند.
+    """
+    if not rhythm_enabled():
+        return None
     try:
         _syspath(str(_HERE / "chrono_rhythm"))
         from rhythm import Rhythm
@@ -1810,70 +1847,189 @@ def _pain_threshold() -> tuple[float, str]:
 
 
 def protective_override(neural_result: dict | None) -> dict:
-    """بررسیِ protective signals. اگر خطر → override غیرقابل‌سرکوب.
-    خروجی: {override: bool, action: str, reason: str}.
-    این تابع Structural است — orchestrator نمی‌تواند نادیده بگیرد.
+    """Protective signals from neural beat.
 
-    FIX #310 (2026-07-28): مسیرِ APPLY. یادگیریِ BCM (learned_pressure) فقط وقتی
-    در pain_combine وارد می‌شه که flag جداگانه OCTOPUS_NEURAL_LEARNED_APPLY روشن
-    باشه. این flag در OCTOPUS-flags.cmd نیست → default-off. رأیِ مالک بعد از دیدنِ
-    ۲۴-۴۸h shadow (OCTOPUS_NEURAL_EFFECT_SHADOW) آن را روشن می‌کند. تا آن زمان،
-    این تابع byte-identical با نسخهٔ قبلی است.
-
-    ۲۰۲۶-۰۷-۲۸ (WS-C، کالیبراسیونِ ترمز): دو فلگِ تازه، هر دو پیش‌فرض خاموش و هر
-    دو فقط «محافظت‌افزا» (مجموعهٔ شلیک ابرمجموعهٔ امروز است، هرگز زیرمجموعه):
-      · OCTOPUS_PAIN_THRESHOLD_CALIBRATED — آستانهٔ ۰.۷۰ → ۰.۳۵ی داده‌محور.
-        روی ۲۲۱۴ تیکِ ثبت‌شده، درد هرگز از ۰.۱۵۰ بالاتر نرفت (۲۶σ فاصله تا ۰.۳۵)
-        پس این فلگ روی رژیمِ سالمِ ضبط‌شده **صفر** halt تولید می‌کند.
-      · OCTOPUS_REFLEX_SEVERITY_RECOVER — بازگرداندنِ `severity`ی که تصویرِ
-        تولید می‌اندازد؛ بدونِ آن، شاخه‌های critical/high روی مسیرِ زنده مرده‌اند.
+    Dual-mode (ADR-035 owner re-arm 2026-08-12):
+      · APPLY=0 → ADR-034 proposal/SHADOW only (executable=False).
+      · APPLY=1 → production apply: pain fold + protective_halt may set
+        override/executable so organism/brain_worker can protective_skip.
+    Explicit control-plane halt API remains request_protective_halt (PolicyGate).
     """
+    return emit_pain_assessment(neural_result)
+
+
+def emit_pain_assessment(neural_result: dict | None) -> dict:
+    """Build PainAssessment; optionally executable halt when APPLY=1 (ADR-035)."""
     if neural_result is None:
-        return {"override": False, "action": "none", "reason": "no neural data"}
-    pain = neural_result.get("pain", {}).get("level", 0)
-    reflexes = neural_result.get("reflexes", [])
+        return {
+            "override": False,
+            "action": "none",
+            "reason": "no neural data",
+            "suppressible": True,
+            "executable": False,
+            "shadow_alert": False,
+            "assessment": None,
+        }
+
+    from neural.pain_assessment import build_pain_assessment
+
+    pain_raw = (neural_result.get("pain") or {}).get("level")
+    contributors = (neural_result.get("pain") or {}).get("contributors") or {}
+    reflexes = neural_result.get("reflexes") or []
     triggered = [r for r in reflexes if r.get("triggered")]
-
-    # FIX #310: اگر flag APPLY روشن است، learned_pressure را به pain اضافه کن.
-    # این تنها مسیری است که یک وزنِ آموخته‌شده روی یک تصمیمِ واقعی اثر می‌گذارد.
-    _learned_note = ""
-    if flag("OCTOPUS_NEURAL_LEARNED_APPLY"):
-        _bi = neural_result.get("brain_inputs") or {}
-        # ۲۰۲۶-۰۷-۳۰ — ترمز مقدارِ **سقف‌خورده** را می‌خواند، نه فیلدِ خامِ مالک.
-        # مسیرِ زنده همیشه کلیدِ سقف را دارد (`neural_beat` می‌گذاردش). نتیجهٔ
-        # دست‌ساز/کهنه که آن کلید را ندارد → همان خام، بایت‌به‌بایتِ رفتارِ قبلی
-        # (پینِ `test_neural_loop_close.py::t_apply_flag_on_combines_learned`).
-        _lp = float(_bi.get(LEARNED_PRESSURE_CAPPED_KEY,
-                            _bi.get("learned_pressure", 0.0)) or 0.0)
-        if _lp > 0:
-            # combine: pain خام + فشارِ یادگرفته‌شده (محدود به 1.0)
-            pain = min(1.0, pain + _lp * 0.5)   # ضریبِ 0.5 = محافظه‌کارانه
-            _learned_note = f" [+learned={_lp:.2f}:{_bi.get('learned_top_signal','')}]"
-
-    # pain > آستانه → protective redirect (غیرقابل‌سرکوب)
-    # آستانهٔ پیش‌فرض همان ۰.۷۰ است؛ کالیبرهٔ داده‌محور پشتِ فلگ (توزیع در
-    # neural/nociceptor.py مستند شده: ۲۲۱۴ تیک، بیشینه ۰.۱۵۰، صفر شلیک).
-    _thr, _thr_txt = _pain_threshold()
-    if pain > _thr:
-        return {"override": True, "action": "protective_halt",
-                "reason": f"pain={pain:.2f}>{_thr_txt}{_learned_note} — non-essential paused",
-                "suppressible": False}   # ← کلید: غیرقابل‌سرکوب
-
-    # reflex triggered → throttle
     critical = [r for r in triggered if _reflex_severity(r) == "critical"]
-    if critical:
-        return {"override": True, "action": "throttle",
-                "reason": f"critical reflex: {critical[0].get('name')}{_learned_note}",
-                "suppressible": False}
-
-    # high reflex → warning (قابل‌سرکوب ولی logged)
     high = [r for r in triggered if _reflex_severity(r) == "high"]
-    if high:
-        return {"override": False, "action": "warn",
-                "reason": f"high reflex: {high[0].get('name')}{_learned_note}",
-                "suppressible": True}
+    _thr, _thr_txt = _pain_threshold()
+    _bi = neural_result.get("brain_inputs") or {}
+    _lp = float(_bi.get(LEARNED_PRESSURE_CAPPED_KEY,
+                        _bi.get("learned_pressure", 0.0)) or 0.0)
 
-    return {"override": False, "action": "none", "reason": "all clear"}
+    apply_on = effective_flag("OCTOPUS_NEURAL_LEARNED_APPLY")
+    # Fold learned pressure into assessment when APPLY or PROPOSAL is on.
+    fold = bool(apply_on or flag("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL")) and _lp > 0
+
+    assessment = build_pain_assessment(
+        pain_level=pain_raw,
+        contributors={str(k): float(v) for k, v in contributors.items()}
+        if isinstance(contributors, dict) else {},
+        learned_pressure=_lp,
+        threshold=float(_thr),
+        critical_reflex=bool(critical),
+        high_reflex=bool(high),
+        apply_learned=fold,
+    )
+
+    action = assessment.proposal
+    if action == "none" and high:
+        action = "warn"
+
+    override = False
+    executable = False
+    suppressible = True
+
+    if assessment.status == "UNKNOWN":
+        reason = "UNKNOWN pain — no influence"
+        action = "none"
+    elif apply_on:
+        # ADR-035 production apply — beat-local protective_skip / throttle.
+        _ln = ""
+        if _lp > 0:
+            _ln = f" [+learned={_lp:.2f}:{_bi.get('learned_top_signal', '')}]"
+        if assessment.pain is not None and float(assessment.pain) > float(_thr):
+            action = "protective_halt"
+            reason = (f"pain={assessment.pain}>{_thr_txt}{_ln} "
+                      f"— non-essential paused (ADR-035 APPLY)")
+            override = True
+            executable = True
+            suppressible = False
+        elif critical:
+            action = "throttle"
+            reason = (f"critical reflex: {critical[0].get('name')}{_ln} "
+                      f"— throttle (ADR-035 APPLY)")
+            override = True
+            executable = True
+            suppressible = False
+        elif high:
+            action = "warn"
+            reason = f"high reflex: {high[0].get('name')}{_ln}"
+        else:
+            action = "none"
+            reason = "all clear"
+    else:
+        # ADR-034 proposal-only path.
+        if assessment.proposal == "protective_proposal":
+            reason = f"pain={assessment.pain}>{_thr_txt} — proposal only (ADR-034)"
+        elif critical:
+            reason = f"critical reflex: {critical[0].get('name')} — proposal only"
+        elif high:
+            reason = f"high reflex: {high[0].get('name')}"
+        else:
+            reason = "all clear"
+
+    if flag("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL") or flag("OCTOPUS_NEURAL_EFFECT_SHADOW") or apply_on:
+        try:
+            opslib.append_jsonl(
+                opslib.STATE_DIR / "neural" / "pain-assessment.jsonl",
+                {
+                    "ts": opslib.now_iso(),
+                    "schema": "pain-assessment.v1",
+                    "adr": "ADR-035" if apply_on else "ADR-034",
+                    **assessment.as_dict(),
+                    "learned_apply_flag": apply_on,
+                    "production_apply_enabled": apply_on,
+                    "returned_action": action,
+                    "executable": executable,
+                },
+            )
+        except Exception:
+            pass
+
+    return {
+        "override": override,
+        "action": action,
+        "reason": reason,
+        "suppressible": suppressible,
+        "executable": executable,
+        "shadow_alert": (not executable) and action in (
+            "protective_proposal", "throttle_proposal",
+        ),
+        "assessment": assessment.as_dict(),
+    }
+
+
+def request_protective_halt(
+    *,
+    run_id: str,
+    approval_id: str | None,
+    idempotency_key: str | None,
+    provenance_id: str | None,
+    kill_switch_engaged: bool = False,
+    store_ok: bool = True,
+    policy_version: str = "ADR-033-v1",
+    state_version: int = 0,
+) -> dict:
+    """Control-plane halt request — PolicyGate only. Neural path must not call this."""
+    if not store_ok:
+        return {"allowed": False, "decision": "deny", "reason": "store_unavailable"}
+    try:
+        from policy.policy_gate import (
+            PROTECTIVE_CONTROL_POLICY,
+            Decision,
+            Policy,
+            PolicyGate,
+            RequestContext,
+        )
+        pol = Policy(
+            version=policy_version,
+            read_only_actions=PROTECTIVE_CONTROL_POLICY.read_only_actions,
+            approval_actions=PROTECTIVE_CONTROL_POLICY.approval_actions,
+            forbidden_actions=PROTECTIVE_CONTROL_POLICY.forbidden_actions,
+        )
+        ctx = RequestContext(
+            run_id=run_id,
+            checkpoint_id="protective-halt",
+            state_version=state_version,
+            policy_version=policy_version,
+            actor="protective_control",
+            action="protective_halt",
+            trust_level="verified",
+            provenance_id=provenance_id,
+            approval_id=approval_id,
+            idempotency_key=idempotency_key,
+            kill_switch_engaged=kill_switch_engaged,
+        )
+        res = PolicyGate().decide(ctx, pol)
+        return {
+            "allowed": res.decision == Decision.ALLOW,
+            "decision": res.decision.value,
+            "reason": res.reason,
+        }
+    except Exception as exc:
+        return {
+            "allowed": False,
+            "decision": "deny",
+            "reason": f"policy_gate_exception:{type(exc).__name__}",
+        }
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -3502,6 +3658,14 @@ def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
         return None
     try:
         _syspath(str(_HERE / "legs"))
+        # ── قبل از هضم: خوراکِ حسّی (رأی مالک 2026-08-12) — پشتِ فلگ جدا
+        feed_report = None
+        if flag("OCTOPUS_WIRE_LEG_FEED"):
+            try:
+                import leg_feed  # noqa: WPS433 — lazy
+                feed_report = leg_feed.ensure_food(force=False)
+            except Exception as _fe:  # noqa: BLE001 — feed نباید cultivate را بکشد
+                opslib.alert([f"wiring: leg_feed خطا: {type(_fe).__name__}: {_fe}"])
         import leg_cultivate   # noqa: WPS433 — lazy
         max_n = int(os.environ.get("LEG_CULTIVATE_MAX_PER_BEAT", "10"))
         report = leg_cultivate.cultivate_all(limit_per_leg=max_n, write_report=True)
@@ -3510,7 +3674,11 @@ def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
                   "stale_legs": report.get("stale_legs") or [],
                   "digested_total": sum(int(d.get("digested") or 0)
                                         for d in legs.values() if isinstance(d, dict)),
-                  "beat": beat, "propose_only": True}
+                  "beat": beat, "propose_only": True,
+                  "feed": ({"fed": [x.get("leg") for x in (feed_report or {}).get("fed") or []],
+                            "skipped": (feed_report or {}).get("skipped") or [],
+                            "pulses": (feed_report or {}).get("pulses") or []}
+                           if isinstance(feed_report, dict) else None)}
         # ── پیوندِ مغزِ B (اختیاری): digestها → آورانِ School (صفر PII، فقط ساختار)
         school_report = None
         if sensory_bus is not None:

@@ -27,6 +27,7 @@ import wiring  # noqa: E402
 def _clear_all_flags():
     for f in wiring.PAPER_FULL_FLAGS:
         os.environ.pop(f, None)
+    os.environ.pop("OCTOPUS_WIRE_CHRONO_RHYTHM", None)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -89,13 +90,30 @@ def t_live_sets_same_flags_as_paper():
 
 
 def t_bare_sets_no_flags():
-    """bare → هیچ flagی ست نمی‌شود (debug/emergency)."""
+    """bare → هیچ flagی ست نمی‌شود و fallback tracked ریتم را دور نمی‌زند."""
     os.environ["OCTOPUS_PROFILE"] = "bare"
     _clear_all_flags()
     try:
         wiring.apply_profile()
         for f in wiring.PAPER_FULL_FLAGS:
             assert os.environ.get(f, "0") != "1", f"bare نباید {f} را ست کند"
+        assert wiring.rhythm_enabled() is False
+        assert wiring.make_rhythm() is None
+    finally:
+        os.environ.pop("OCTOPUS_PROFILE", None)
+        _clear_all_flags()
+
+
+def t_explicit_rhythm_override_wins_in_both_directions():
+    _clear_all_flags()
+    os.environ["OCTOPUS_PROFILE"] = "paper-full"
+    os.environ["OCTOPUS_WIRE_CHRONO_RHYTHM"] = "0"
+    try:
+        wiring.apply_profile()
+        assert wiring.rhythm_enabled() is False
+        os.environ["OCTOPUS_PROFILE"] = "bare"
+        os.environ["OCTOPUS_WIRE_CHRONO_RHYTHM"] = "1"
+        assert wiring.rhythm_enabled() is True
     finally:
         os.environ.pop("OCTOPUS_PROFILE", None)
         _clear_all_flags()

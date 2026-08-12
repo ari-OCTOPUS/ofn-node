@@ -3,19 +3,35 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 
 OPS = Path(__file__).resolve().parents[1]
 STATE = OPS / "state"
 
+# ۲۰۲۶-۰۸-۱۲: snapshot.build سنگین است؛ بدون cache هر clarify چند ثانیه طول
+# می‌کشید و مینی‌اپ حسِ «کار نمی‌کند» می‌داد.
+_UNIFIED_TTL_S = 8.0
+_unified_cache: dict = {"t": 0.0, "s": None, "c": None}
+
 
 def _unified() -> tuple[dict, dict]:
+    now = time.time()
+    if (
+        _unified_cache["s"] is not None
+        and (now - float(_unified_cache["t"] or 0.0)) < _UNIFIED_TTL_S
+    ):
+        return _unified_cache["s"], _unified_cache["c"]
     try:
         from unified_control import compass, snapshot
-        s = snapshot.build(); return s, compass.build(s)
+        s = snapshot.build()
+        c = compass.build(s)
     except Exception as e:
-        return {"blockers": [f"unified-snapshot-error:{type(e).__name__}"]}, {}
-
+        s, c = {"blockers": [f"unified-snapshot-error:{type(e).__name__}"]}, {}
+    _unified_cache["t"] = now
+    _unified_cache["s"] = s
+    _unified_cache["c"] = c
+    return s, c
 
 def current_goal() -> str:
     s, c = _unified()
@@ -49,7 +65,7 @@ def runtime_truth() -> str:
 
 
 def protective_truth() -> str:
-    """Read the live ADR-034 neural status without granting control authority."""
+    """Read live neural protective status (ADR-035 dual-mode) — no control authority."""
     try:
         d = json.loads((STATE / "ORGANISM-STATE.json").read_text("utf-8"))
     except (OSError, ValueError):
@@ -60,12 +76,13 @@ def protective_truth() -> str:
     evidence = pa.get("evidence_level") if isinstance(pa, dict) else None
     proposal = d.get("protective_proposal")
     skip = bool(d.get("protective_skip"))
+    mode = d.get("protective_mode")
     return "\n".join([
-        "🛡️ وضعیت درد/حفاظت (ADR-034)",
-        f"pain={pain if pain is not None else 'UNKNOWN'} · evidence={evidence or 'SHADOW'}",
-        f"proposal={proposal or 'none'} · protective_skip={str(skip).lower()}",
-        "مرز اختیار: این signal فقط diagnostic/proposal/SHADOW است؛ halt مستقیم نیست.",
-        "توقف اجرایی فقط از request_protective_halt پس از PolicyGate و تأیید معتبر می‌گذرد.",
+        "🛡️ وضعیت درد/حفاظت (ADR-035 dual-mode)",
+        f"pain={pain if pain is not None else 'UNKNOWN'} · evidence={evidence or 'n/a'}",
+        f"proposal={proposal or 'none'} · protective_skip={str(skip).lower()} · mode={mode}",
+        "APPLY=1: neural می‌تواند beat-local protective_skip بگذارد (غیرضروری).",
+        "halt صریحِ کنترل: request_protective_halt + PolicyGate + تأیید.",
     ])
 
 

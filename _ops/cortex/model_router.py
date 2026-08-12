@@ -124,6 +124,10 @@ TASK_TIERS = {
     "governor": "primary", "debate_architect": "primary",
     "debate_muse": "secondary", "tg_intent": "local",
     "chord.extract": "local", "heart_setpoint": "local",
+    # Talk Discovery: collaborator → DeepSeek (role=reason / secondary).
+    # 2026-08-12 owner: «با DeepSeek حرف بزن» — local/ollama عمداً نه (hang).
+    # Soft call-cap = OCTOPUS_COLLAB_MODEL_DAILY_CAP. Rollback: "local".
+    "collab_chat": "secondary",
 }
 _TIER_ROLE = {"secondary": "reason", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
 # 2026-08-10 (Deployment): secondary از glm به reason (deepseek-v4-flash) عوض شد —
@@ -436,7 +440,11 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         # مغزِ محلیِ $0 می‌پرسد؛ یک گیتِ کیفیتِ قطعی (متنِ ناخالی با طولِ حداقلی) خروجی را
         # می‌سنجد — پاس = همان جواب، رد/در دسترس نبودن = مسیرِ پولیِ امروز، بایت‌به‌بایت.
         # ردهٔ سنگین (primary: plan/deep/orchestrate) هرگز محلی-اول نمی‌شود — کارِ بزرگ = API.
-        if want == "secondary" and os.environ.get("CORTEX_LOCAL_FIRST") == "1":
+        # ۲۰۲۶-۰۸-۱۲: collab_chat = حرف با مالک روی DeepSeek. LOCAL_FIRST اینجا
+        # qwen را قبول می‌کرد و جوابِ بی‌ربط («لید نقاشی/پول») برمی‌گشت.
+        _skip_local = str(task or "") == "collab_chat"
+        if (want == "secondary" and os.environ.get("CORTEX_LOCAL_FIRST") == "1"
+                and not _skip_local):
             try:
                 _min_chars = int(os.environ.get("LOCAL_FIRST_MIN_CHARS", "80"))
                 _lo = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
@@ -453,7 +461,12 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         # دارند (وگرنه یک failِ الکی می‌سوزانیم و به محلیِ آشغال می‌افتیم). این کاری می‌کند که
         # اشتراکِ Fuguِ مالک واقعاً استفاده شود حتی وقتی tierِ خواسته GLMِ بی‌کلید بود (باگِ اصلی).
         kp = keys_present()
-        _has = {"secondary": bool(kp.get("glm")), "primary": bool(kp.get("fugu"))}
+        # secondary → budgets routing.reason (الان deepseek؛ قبلاً glm).
+        # کلیدِ همان provider را بسنج، نه فقط GLM.
+        _has = {
+            "secondary": bool(kp.get("deepseek") or kp.get("glm")),
+            "primary": bool(kp.get("fugu")),
+        }
         order = [want] + [t for t in ("primary", "secondary") if t != want]
         tried = []
         # بودجهٔ ساعتِ دیواریِ کلِ تلاشِ پولی در یک ask (env PAID_ASK_BUDGET_S، پیش‌فرض ۹۰s).
@@ -508,6 +521,13 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
                 pass
     else:
         fallback_reason = None
+    # collab_chat: هرگز qwen محلی — یا DeepSeek یا شکستِ صادق.
+    if str(task or "") == "collab_chat":
+        return {
+            "ok": False,
+            "reason": fallback_reason or "deepseek-unavailable",
+            "hint": "collab_chat forces DeepSeek; local qwen fallback disabled",
+        }
     out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
                         opener=opener)
     if not out and _lo_rejected:

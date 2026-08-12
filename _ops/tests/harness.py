@@ -130,6 +130,10 @@ def setup(name: str) -> dict:
         "OCTOPUS_AGI2027_RUNTIME_DIR": str(ops / "agi2027_runtime"),
     }
     os.environ.update(env)
+    # Hermetic Talk Discovery: live shell often exports OCTOPUS_WIRE_COLLAB=1 /
+    # OCTOPUS_COLLAB_USE_MODEL=1. Suites that need them re-arm explicitly.
+    os.environ["OCTOPUS_WIRE_COLLAB"] = "0"
+    os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "0"
     # کدِ زیرِ تست = همان tree که این harness داخلش است — نه REAL_VAULT. وگرنه تستِ
     # worktree ماژول‌های _ops را از tree زنده import می‌کند (کدِ کامیت‌نشده ≠ کدِ تحتِ تست).
     _ops_self = Path(__file__).resolve().parent.parent

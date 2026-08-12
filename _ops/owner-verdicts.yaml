@@ -106,3 +106,15 @@ verdicts:
     adr: ADR-036
     expires_to: "0 by explicit owner rollback"
     note: "فقط CORTEX_THINK_EVERY_N / CHRONO_NUDGE_EVERY_N_BEATS / HEART_SAMPLE_INTERVAL_S و نیازمند ACT_AUTO."
+
+  limited_effect_phase_n:
+    env: OCTOPUS_LIMITED_EFFECT_PHASE_N
+    value: "3"
+    unit: choice
+    decided: "2026-08-12"
+    reader: limited_effect.enabled
+    quote: "همه چیز با کمترین محدودیت — اثر محدود مجاز (انتخاب ۳ فاز M)"
+    standing: "yes"
+    adr: ADR-037
+    expires_to: "0 (advisory-only) only by explicit owner rollback"
+    note: "اثر محدود فقط: throttle · pause_proposal · reduce_concurrency · block_suspicious_proposal · request_human_approval. هر اقدام ۵ فیلد الزامی دارد (proposal_hash/policy_version/state_version/expiry_at/idempotency_key) + owner_verdict؛ غایب = DENY. ممنوع همیشگی: تغییر کد/policy، بازنویسی حافظهٔ معنایی، اجرای proposal بدون PolicyGate، پیام خارجی، secret/Project-F. اجرا فقط از PolicyGate؛ این رأی فقط دروازهٔ proposal را باز می‌کند."

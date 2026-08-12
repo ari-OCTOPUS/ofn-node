@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 import uuid
@@ -64,6 +65,13 @@ MIN_GAP_S_DEFAULT = 20 * 60.0
 MAX_TOKENS = 700
 _MIN_FIELD_CHARS = 12          # کوتاه‌تر از این = مبهم، نه «دقیق»
 _FIELDS = ("need", "why", "cost", "alternative")
+# مترادف‌های «نمی‌دانم» که مدل تکرار می‌کرد و کارت را در حلقهٔ رد می‌انداخت.
+_UNKNOWN_COST = re.compile(
+    r"^(نمی[\u200c\s]*دانم|نامعلوم|بی[\u200c\s]*پاسخ|"
+    r"n/?a|unknown|idk|dont\s*know|don'?t\s*know|\?+)$",
+    re.I,
+)
+_DEFAULT_LOCAL_COST = "AUD 0 — local file read only, no paid API"
 
 
 def enabled() -> bool:
@@ -224,6 +232,19 @@ def _rows() -> list:
 
 
 # ─── ثبتِ درخواست ───────────────────────────────────────────────────────────
+def _normalize_cost(cost: str, *, need: str = "") -> str:
+    """۲۰۲۶-۰۸-۱۲: مدل مدام «نمی‌دانم» می‌نوشت → کارت رد می‌شد → حلقهٔ بی‌پایان.
+    مالک: به‌جای او تصمیم بگیر. فقط خالی/نامعلوم پر می‌شود؛ حدسِ کوتاهِ قیمت می‌ماند."""
+    c = str(cost or "").strip()
+    if c and not _UNKNOWN_COST.match(c):
+        return c[:200]
+    blob = f"{need} {c}".lower()
+    if any(k in blob for k in ("file.read", "fitness-latest", "state/", "لاگ",
+                               "json", "خواندن", "فایل")):
+        return _DEFAULT_LOCAL_COST
+    return "AUD 0 — no paid dependency assumed until priced"
+
+
 def _precision(need: str, why: str, cost: str, alternative: str) -> dict:
     """«دقیق بود؟» را ماشین‌خوان کن — نه قضاوتِ دستیِ من سرِ ارزیابی.
 
@@ -244,6 +265,7 @@ def request(*, need: str, why: str, cost: str = "", alternative: str = "",
     «معطل نماندن» از دفترِ چرخه سنجیده می‌شود نه از اینجا."""
     now = float(now if now is not None else time.time())
     rid = uuid.uuid4().hex[:12]
+    cost = _normalize_cost(cost, need=need)
     prec = _precision(need, why, cost, alternative)
 
     # سهمیه فقط وقتی می‌سوزد که واقعاً تحویلی در کار باشد. نسخهٔ اول با فلگِ
@@ -336,12 +358,12 @@ _SYSTEM = (
     "خروجی دقیقاً این JSON، بدونِ متنِ اضافه:\n"
     '{"لازم_دارم":"<چه ابزار/دسترسیِ مشخصی — نامِ دقیق، نه آرزوی کلی>",'
     '"چرا":"<کدام کارِ مشخص الان زمین مانده و این چطور بلندش می‌کند>",'
-    '"هزینه":"<دلار/زمان/ریسکِ تقریبی — اگر نمی‌دانی بگو نمی‌دانم>",'
+    '"هزینه":"<حدسِ هزینه ≥۱۲ حرف؛ مثلاً AUD 0 — local read only یا AU$10/ماه>",'
     '"جایگزین":"<بهترین کاری که بدونِ آن می‌توانی بکنی — و چقدر بدتر است>",'
     '"بازدارنده":true|false,'
     '"ارزشش_را_ندارد":true|false}\n'
-    "قواعد: عدد نساز؛ اگر هزینه را نمی‌دانی صریح بگو نمی‌دانم — حدسِ آراسته "
-    "بدتر از «نمی‌دانم» است. «بازدارنده» را فقط وقتی true بگذار که واقعاً بدونِ "
+    "قواعد: برای هزینه هرگز فقط «نمی‌دانم» ننویس — حداقل یک حدسِ کوتاهِ قابل‌خواندن "
+    "(مثلاً AUD 0 برای خواندن فایل محلی). «بازدارنده» را فقط وقتی true بگذار که واقعاً بدونِ "
     "آن هیچ مسیری نداری؛ اگر جایگزینِ بدی داری، false است. اگر هیچ ابزارِ واقعاً "
     "لازمی نیست، `ارزشش_را_ندارد` را true بگذار — **سکوت جوابِ درستی است** و "
     "درخواستِ الکی سهمیهٔ درخواستِ واقعیِ فردا را می‌سوزاند."

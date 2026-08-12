@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """تست Frontier Improvements: W (neural wiring) + M (canonical consolidation) +
 S (protective-override) + E (eval-harness + test_neural coverage). $0 آفلاین."""
-import os, sys
+import os, re, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -48,23 +48,27 @@ def test_neural_summary_has_neural():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def test_protective_override_high_pain():
-    """pain>0.7 → override غیرقابل‌سرکوب."""
+    """ADR-034 path (APPLY off): pain>0.7 → protective_proposal."""
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     result = wiring.protective_override({
         "pain": {"level": 0.85},
         "reflexes": []
     })
-    assert result["override"] is True
-    assert result["suppressible"] is False
+    assert result["override"] is False
+    assert result["executable"] is False
+    assert result["action"] == "protective_proposal"
 
 def test_protective_override_critical_reflex():
-    """critical reflex → override غیرقابل‌سرکوب."""
+    """ADR-034 path (APPLY off): critical reflex → throttle_proposal only."""
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     result = wiring.protective_override({
         "pain": {"level": 0.3},
         "reflexes": [{"name": "sigma-throttle", "triggered": True,
                        "severity": "critical"}]
     })
-    assert result["override"] is True
-    assert result["suppressible"] is False
+    assert result["override"] is False
+    assert result["executable"] is False
+    assert result["action"] == "throttle_proposal"
 
 def test_protective_override_high_reflex_warn():
     """high reflex → warn (قابل‌سرکوب)."""
@@ -75,6 +79,7 @@ def test_protective_override_high_reflex_warn():
     })
     assert result["override"] is False
     assert result["suppressible"] is True
+    assert result["action"] == "warn"
 
 def test_protective_override_clear():
     """no danger → all clear."""
@@ -190,34 +195,26 @@ def t_protective_override_always_returns_dict():
 
 
 def t_protective_override_enforced_not_just_alert():
-    """S-fix: override غیرقابل‌سرکوب در عمل enforce شود، نه فقط alert.
-    S-fix-2: بدون continue (busy-loop) — باید flag + sleep باشد."""
+    """ADR-035: executable-gated skip + SHADOW path both present."""
     organism_src = open(str(_OPS / "organism.py"), encoding="utf-8").read()
-    assert "protective_halt" in organism_src, "organism باید protective_halt داشته باشد"
-    halt_idx = organism_src.index("protective_halt")
-    after_halt = organism_src[halt_idx:]
-    # S-fix-2: باید protective_skip flag باشد (نه continue که busy-loop می‌سازد)
-    assert "_protective_skip" in after_halt[:700], \
-        "organism باید _protective_skip flag بعد از protective_halt داشته باشد"
-    # نباید continue در بلوک protective_halt باشد (busy-loop fix)
-    assert "continue" not in after_halt[:200], \
-        "نباید continue باشد — busy-loop risk (S-fix-2)"
+    assert "SHADOW_ALERT neural" in organism_src
+    assert "NEURAL OVERRIDE" in organism_src
+    assert 'get("executable")' in organism_src
+    assert '_protective_skip = True' in organism_src
+    assert "protective_proposal" in organism_src or "pain_assessment" in organism_src
+    body = organism_src[organism_src.index("while True:"):]
+    assert "\n            continue\n" not in body and "\n        continue\n" not in body
 
 
 def test_organism_protective_skip_no_busy_loop():
-    """S-fix-2: time.sleep همیشه اجرا می‌شود حتی در protective mode.
-    structural: _protective_skip باید قبل از while True تعریف شود و sleep باید بیرون try باشد."""
+    """S-fix-2: time.sleep همیشه اجرا می‌شود حتی در protective mode."""
     organism_src = open(str(_OPS / "organism.py"), encoding="utf-8").read()
-    # _protective_skip تعریف می‌شود قبل از while
     assert "_protective_skip = False" in organism_src
-    # time.sleep بعد از try/except است (بیرون) — همیشه اجرا
     assert "time.sleep" in organism_src
-    # continue نباید در بلوک protective وجود داشته باشد
-    if "protective_halt" in organism_src:
-        halt_idx = organism_src.index("protective_halt")
-        block = organism_src[halt_idx:halt_idx+300]
-        assert "continue" not in block, \
-            "S-fix-2: continue در protective block = busy-loop — باید flag باشد"
+    assert 'get("executable")' in organism_src
+    body = organism_src[organism_src.index("while True:"):]
+    assert re.search(r"\n\s+continue\b", body) is None, \
+        "S-fix-2: continue در tick = busy-loop"
 
 
 def test_organism_no_silent_neural_error():

@@ -139,8 +139,26 @@ def t_an_incomplete_request_names_exactly_what_is_missing():
     _fresh()
     r = tr.request(need="یه چیزی برای ایمیل", why="لازمه", now=_at(14))
     assert r["precise"] is False
-    assert set(r["missing"]) == {"why", "cost", "alternative"}, r["missing"]
+    # ۲۰۲۶-۰۸-۱۲: cost خالی/«نمی‌دانم» دیگر خودکار AUD 0 می‌شود؛
+    # why کوتاه + alternative خالی هنوز missing می‌مانند.
+    assert "why" in r["missing"] and "alternative" in r["missing"], r["missing"]
+    assert "cost" not in r["missing"], r
     assert r["delivered"] is True, "قضاوتِ ناقص‌بودن کارِ مالک است، نه سانسورِ ما"
+
+
+def t_unknown_cost_is_normalized_not_looped():
+    """مالک: حلقهٔ «نمی‌دانم» را قطع کن — خواندنِ فایل محلی = AUD 0."""
+    _fresh()
+    r = tr.request(
+        need="file.read برای state/fitness-latest.json و لاگ‌های HTTPError",
+        why="بدون این attribution.claimed و خطاهای پرتکرار دیده نمی‌شود",
+        cost="نمی‌دانم",
+        alternative="shell.raw که کنترل کمتری دارد و خطرناک‌تر است",
+        now=_at(14),
+    )
+    assert r["precise"] is True, r["missing"]
+    assert "AUD 0" in r["cost"] or "local" in r["cost"].lower()
+    assert "رد شد" not in tr.card_for(r)[0]
 
 
 # ── ۳) رأیِ مالک ────────────────────────────────────────────────────────────
