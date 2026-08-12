@@ -243,6 +243,50 @@ def business_brain_run(cycle: int) -> dict | None:
         return None
 
 
+def _hypothesis_registry_path() -> Path:
+    """مسیرِ registry فرضیه (read-only)."""
+    return Path(__file__).resolve().parents[2] / "architecture" / "hypothesis-registry.yaml"
+
+
+def _load_active_hypotheses() -> list:
+    """فرضیه‌های فعال را فقط‌خواندن از registry بخوان (propose-only؛ هرگز نمی‌نویسد).
+    هر خطا → [] (fail-soft، بدون خراب کردنِ چرخه)."""
+    try:
+        import yaml  # noqa: E402
+        p = _hypothesis_registry_path()
+        if not p.is_file():
+            return []
+        reg = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        active = {"SPECULATIVE", "HYPOTHESIZING", "TESTING"}
+        return [h for h in reg.get("hypotheses", []) if h.get("status") in active]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def hypothesis_brain_run(cycle: int) -> dict | None:
+    """مغز فرضیه (ADR-037): رتبه‌بندیِ فرضیه‌های فعال — propose-only، fail-soft،
+    پیش‌فرض خاموش. فقط با CORTEX_HYPOTHESIS=1 روشن می‌شود. هرگز به ledger/Gate/
+    autonomy_grant دست نمی‌زند؛ خروجی فقط یک ranking برای کارتِ advisory است.
+    کابینِ Pydantic مستقل (hypothesis_engine/impl/) — الگوی ADR-034 (neural→proposal)."""
+    if os.environ.get("CORTEX_HYPOTHESIS", "0") != "1":
+        return None
+    try:
+        import asyncio  # noqa: E402
+        impl = Path(__file__).resolve().parents[1] / "hypothesis_engine" / "impl"
+        if str(impl) not in sys.path:
+            sys.path.insert(0, str(impl))
+        from hypothesis_brain import HypothesisBrain  # noqa: E402
+        out = asyncio.run(HypothesisBrain().execute(
+            {"op": "prioritize", "hypotheses": _load_active_hypotheses()}))
+        ranked = out.get("ranked", [])
+        return {"n_ranked": len(ranked),
+                "n_overflow": out.get("overflow_count", 0),
+                "top": ranked[0]["id"] if ranked else None}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex hypothesis_brain error: {type(e).__name__}: {e}"])
+        return None
+
+
 def _should_think(cycle: int) -> bool:
     """فکرِ LLM هر THINK_EVERY_N چرخه. پیش‌فرض (۵) = رفتارِ همیشگی، بایت‌به‌بایت؛
     deployِ مالک 2026-07-18 با CORTEX_THINK_EVERY_N=1 یعنی هر چرخه — و چون 1٪1==0،
@@ -552,6 +596,8 @@ def run_cycle(cycle: int) -> dict:
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     business_summary = (business_brain_run(cycle)
                         if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
+    hypothesis_summary = (hypothesis_brain_run(cycle)
+                          if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     improve_summary = (self_improve(cycle)
                        if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     period, rhythm_src = heart_rhythm_period()
@@ -570,6 +616,7 @@ def run_cycle(cycle: int) -> dict:
         **({"self_model": model_summary} if model_summary else {}),
         **({"part_loops": parts_summary} if parts_summary else {}),
         **({"business_brain": business_summary} if business_summary else {}),
+        **({"hypothesis_brain": hypothesis_summary} if hypothesis_summary else {}),
         **({"stress": stress_summary} if stress_summary else {}),
         **({"cortisol": cortisol_summary} if cortisol_summary else {}),
         **({"innervation": innervation_summary} if innervation_summary else {}),
