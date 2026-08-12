@@ -102,3 +102,37 @@ capabilities:
       may_mutate_ledger: false
       production_enabled: false    # OFF by default
       owner_approval_required: true
+
+  - id: fourd-system-observer
+    kind: observability_capability
+    not_a_signal: true
+    truth_status: TESTING
+    evidence_level: SHADOW
+    entrypoint: "_ops/cortex/fourd_health.py::probe"
+    wiring: "_ops/cortex/cortex.py::fourd_health_tick (OCTOPUS_OBSERVE_4D=1, default OFF)"
+    policy:
+      pattern: read-only observability (autonomy_grant read_only category)
+      propose_only: true
+    requires:
+      owner_activation: true       # OCTOPUS_OBSERVE_4D must be 1
+    effects:
+      may_mutate_ledger: false
+      may_trigger_external_send: false
+      may_trigger_tool: false
+      may_gate: false
+    rollback:
+      default: deny
+      containment_flags:
+        - OCTOPUS_OBSERVE_4D=0
+      notes: "Read-only mtime probe; writes one shadow report in _ops/state. No execution path to 4d_system."
+    evidence:
+      adr: ADR-038
+      tests:
+        - _ops/tests/test_fourd_health.py
+      honest_caveat: "4d_system is DEPRECATED/disconnected; this observes liveness only, never connects it for execution."
+    authority:
+      may_gate: false
+      may_trigger_tool: false
+      may_mutate_ledger: false
+      production_enabled: false    # OFF by default
+      owner_approval_required: true
