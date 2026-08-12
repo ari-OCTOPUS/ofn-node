@@ -95,6 +95,13 @@ def near_optimum(env: DeceptiveGrid, pos, radius: int = 4) -> bool:
                for o in env.local_optima)
 
 
+def falsified_assists_at(hyps) -> int:
+    """مجموعِ tested_steps فرضیه‌هایی که در همین لحظه falsified هستند (P3 at-discovery).
+    بازطراحیِ §۶ گزارش: شمارش در لحظهٔ کشف، نه پایانِ run — تا وضعیتِ نهاییِ فرضیه
+    (که ممکن است بعد از کشف عوض شود) معیار را آلوده نکند."""
+    return sum(int(h.get("tested_steps", 0)) for h in hyps if h.get("falsified"))
+
+
 # ---------------------------------------------------------------------------
 # Agent A — Prior-Only: greedy روی reward + تبرید تصادفی کوچک
 # ---------------------------------------------------------------------------
@@ -267,6 +274,8 @@ class AgentB:
         for t in range(BUDGET):
             if self.pos == self.env.goal:
                 self.res.ttd, self.res.discovered = t, True
+                # P3 at-discovery (§۶): شمارش در لحظهٔ کشف، نه پایانِ run
+                self.res.falsified_assists = falsified_assists_at(self.hyps)
                 break
             if near_optimum(self.env, self.pos):
                 self.res.wasted_steps += 1
@@ -378,10 +387,7 @@ class AgentB:
                             best, best_r = mv_c, r
                     mv = best
                 self.pos = self.env.step(self.pos, mv)
-        # حسابداری P3: کشفی که مسیرش از فرضیهٔ ابطال‌شده گذشته
-        if self.res.discovered:
-            self.res.falsified_assists = sum(
-                h["tested_steps"] for h in self.hyps if h["falsified"])
+        # (falsified_assists در لحظهٔ کشف محاسبه شد — بالا؛ P3 at-discovery، §۶)
         return self.res
 
 
