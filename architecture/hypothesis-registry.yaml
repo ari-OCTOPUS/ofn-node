@@ -1,0 +1,180 @@
+# =============================================================================
+# Hypothesis Registry — رجیستری فرضیه‌های Octopus
+# نسخه: 1.0.0 | تاریخ: 2026-08-12
+# قانون طلایی: هر فرضیه = یک record با شواهد، نه یک باور
+# =============================================================================
+schema_version: 1
+registry_id: octopus-hypothesis-v1
+owner: octopus-core
+updated_at: "2026-08-12T00:00:00Z"
+notes: |
+  Hypothesis registry. Each hypothesis is a record WITH evidence, never a belief.
+  Validated read-only by _ops/scripts/validate_hypothesis_registry.py.
+
+# -----------------------------------------------------------------------------
+# نردبان شواهد — هر فرضیه دقیقاً در یکی از این حالت‌هاست
+# -----------------------------------------------------------------------------
+evidence_ladder:
+  - level: SPECULATIVE        # حدس اولیه، بدون هیچ شاهدی
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+    max_lifetime_days: 30     # بعد از ۳۰ روز بدون پیشرفت → ARCHIVED
+
+  - level: HYPOTHESIZING      # فرضیهٔ صریح با طرح آزمون
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+    max_lifetime_days: 60
+
+  - level: TESTING            # آزمون در حال اجرا (shadow mode)
+    may_gate: false
+    may_trigger_tool: false   # فقط ابزارهای read-only
+    may_mutate_ledger: false
+    max_lifetime_days: 90
+
+  - level: EVIDENCED          # شواهد کافی جمع شده (p_e > 0.7)
+    may_gate: true            # می‌تواند در تصمیم‌گیری استفاده شود
+    may_trigger_tool: false
+    may_mutate_ledger: false
+    max_lifetime_days: null   # دائمی تا وقتی falsify نشود
+
+  - level: FALSIFIED          # ابطال‌شده (بایگانی، نه حذف)
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+    max_lifetime_days: null
+
+  - level: ARCHIVED           # منقضی‌شده یا کنارگذاشته‌شده
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+    max_lifetime_days: null
+
+# -----------------------------------------------------------------------------
+# قوانین سخت (Hard Constraints) — validator این‌ها را enforce می‌کند
+# -----------------------------------------------------------------------------
+hard_constraints:
+  # هیچ فرضیه‌ای هرگز نمی‌تواند مستقیماً به این‌ها دست بزند
+  forbidden_effects:
+    - payment
+    - external_send
+    - email
+    - crm_mutation
+    - lead_outbound
+    - policy_mutation
+    - ledger_write
+    - memory_delete
+
+  # حداکثر فرضیه‌های فعال هم‌زمان (جلوگیری از انفجار ترکیبیاتی)
+  max_active_hypotheses: 20
+
+  # حداقل EIG برای ورود به TESTING
+  min_eig_for_testing: 0.3
+
+  # حداکثر هزینهٔ آزمون (به ساعت CPU)
+  max_test_cost_hours: 4.0
+
+  # آستانهٔ ارتقا به EVIDENCED
+  evidenced_threshold: 0.7
+
+  # آستانهٔ ابطال
+  falsified_threshold: 0.15
+
+# -----------------------------------------------------------------------------
+# فرضیه‌های فعلی
+# -----------------------------------------------------------------------------
+hypotheses:
+
+  # --- مثال ۱: فرضیهٔ فعال در حال آزمون ---
+  - id: "HYP-2026-08-12-001"
+    statement: "الگوی پنهان در telemetry Octopus وجود دارد که با PCA قابل استخراج است"
+    status: TESTING
+    existence_probability: 0.31
+    usefulness_probability: 0.82
+    testability: 0.9
+    cost_of_testing_hours: 2.0
+    expected_information_gain: 0.7
+    contradictory_evidence_count: 1
+    supporting_evidence_count: 3
+    created_at: "2026-08-10T00:00:00Z"
+    last_updated: "2026-08-12T00:00:00Z"
+    test_plan: |
+      1. جمع‌آوری ۷ روز telemetry (CPU, memory, task_duration)
+      2. PCA با n_components=5
+      3. بررسی variance explained > 0.8
+      4. اگر نه → FALSIFIED
+    kill_condition: "variance_explained < 0.5 بعد از ۷ روز"
+    evidence_ids:
+      - "ledger:evt-2026-08-10-001"
+      - "ledger:evt-2026-08-11-003"
+      - "ledger:evt-2026-08-11-007"
+    forbidden_effects: []  # هیچ اثر ممنوعه‌ای ندارد
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+
+  # --- مثال ۲: فرضیهٔ ردشده (برای الگو) ---
+  - id: "HYP-2026-08-12-002"
+    statement: "Octopus is AGI"
+    status: FALSIFIED
+    existence_probability: 0.02
+    usefulness_probability: 0.95  # بالا ولی غیرقابل آزمون
+    testability: 0.0              # صفر — نمی‌توان آزمون کرد
+    cost_of_testing_hours: null   # بی‌نهایت
+    expected_information_gain: 0.0
+    contradictory_evidence_count: 0
+    supporting_evidence_count: 0
+    created_at: "2026-08-12T00:00:00Z"
+    last_updated: "2026-08-12T00:00:00Z"
+    test_plan: null
+    kill_condition: "testability == 0"
+    evidence_ids: []
+    forbidden_effects: []
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+    falsification_reason: "Not testable — no operational definition of AGI"
+
+  # --- مثال ۳: فرضیهٔ جدید (SPECULATIVE→HYPOTHESIZING) ---
+  - id: "HYP-2026-08-12-003"
+    statement: "ریتم چرونو می‌تواند بدون تغییر ledger، period را بهینه کند"
+    status: HYPOTHESIZING
+    existence_probability: 0.45
+    usefulness_probability: 0.88
+    testability: 0.95
+    cost_of_testing_hours: 3.0
+    expected_information_gain: 0.75
+    contradictory_evidence_count: 0
+    supporting_evidence_count: 1
+    created_at: "2026-08-12T00:00:00Z"
+    last_updated: "2026-08-12T00:00:00Z"
+    test_plan: |
+      1. ساخت rhythm_shadow.py (pure, no ledger write)
+      2. ۸ تست shadow (purity, ledger_untouched, deterministic, ...)
+      3. ۷ روز shadow log
+      4. مقایسه divergence با baseline
+    kill_condition: "ledger byte-identical fail OR divergence > 5x baseline"
+    evidence_ids:
+      - "ledger:evt-2026-08-12-001"
+    forbidden_effects: []
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+
+# -----------------------------------------------------------------------------
+# روابط بین فرضیه‌ها (اختیاری)
+# -----------------------------------------------------------------------------
+hypothesis_relations:
+  - parent: "HYP-2026-08-12-003"
+    child: "HYP-2026-08-12-001"
+    relation: "depends_on"  # ریتم چرونو به telemetry pattern وابسته است
+
+# -----------------------------------------------------------------------------
+# تاریخچهٔ تغییرات (append-only)
+# -----------------------------------------------------------------------------
+changelog:
+  - date: "2026-08-12"
+    action: "created"
+    author: "octopus-core"
+    note: "Initial registry with 3 hypotheses (1 TESTING, 1 FALSIFIED, 1 HYPOTHESIZING)"
