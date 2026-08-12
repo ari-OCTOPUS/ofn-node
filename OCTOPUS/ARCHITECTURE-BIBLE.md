@@ -461,3 +461,40 @@ budget-capped LLM; never echo secrets or Project-F identity. `[FACT: AGENT_REGIS
 agents themselves are propose-only. `[FACT: registry.yaml authority column]`
 
 **Sources:** `05 - Agents/AGENT_REGISTRY.md`, `4d_system/agents/` tree, `control_plane/registry.yaml`.
+
+---
+
+## APPENDIX A — HYPOTHESIS ENGINE (testable self-improvement; ADR-037)
+
+**What it is.** A self-contained Pydantic cabin (`_ops/hypothesis_engine/`) that produces
+*testable hypotheses* — statement + test plan + kill condition — instead of beliefs. The brain
+never writes the registry/ledger/Gate directly; output is a `proposal` (ADR-034 pattern). Belief
+(`existence_probability`) changes ONLY via Bayesian log-odds update on ledger-linked evidence.
+`[FACT: ADR-037, _ops/hypothesis_engine/impl/hypothesis_brain.py]`
+
+**Hard rule.** `testability == 0` ⇒ always reject, regardless of usefulness. This is why the
+proposition "Octopus is AGI" is FALSIFIED (no operational definition ⇒ untestable).
+`[FACT: architecture/hypothesis-registry.yaml HYP-2026-08-12-002]`
+
+**Invariant unchanged.** This appendix EXTENDS the architecture; it does not alter the honest
+non-claim of SECTION 0 (lines 49-51): the system models access-consciousness + a structural
+self-model only — **never** phenomenal consciousness / qualia / sentience. The Hypothesis Engine
+is an *engineering* tool for measurable, falsifiable self-improvement — not a consciousness claim.
+`[FACT: ARCHITECTURE-BIBLE.md:49-51, ADR-037 §Phase-0 vote Option A]`
+
+**Wiring.** `hypothesis_brain_run(cycle)` in cortex.py — propose-only, fail-soft, **default OFF**
+(`CORTEX_HYPOTHESIS=0`). When enabled, it reads active hypotheses read-only from
+`architecture/hypothesis-registry.yaml`, ranks them by pursue-score, and surfaces an advisory
+ranking — no execution, no gate, no ledger mutation.
+`[FACT: _ops/cortex/cortex.py, capabilities-registry.yaml id=hypothesis-engine]`
+
+**Honest evidence (reproduced 2026-08-12).** On a 3-agent deceptive-grid benchmark (600 runs),
+the hypothesis agent escapes deception where prior-only search fails completely (97% vs 0%
+discovery), but is NOT superior to simple novelty search (median-ttd p=0.32, Cliff δ=−0.11).
+Advantage is *conditional on environmental deception*, not a general capability gain.
+`[FACT: _ops/hypothesis_engine/experiments/{results.csv,analysis.py,RESULTS-DECEPTIVE-3AGENT-2026-08-12.md} §3,§6]`
+
+**Validation gate.** `validate_hypothesis_registry.py` (read-only, exit 0/1) enforces:
+kill_condition required in TESTING, `may_mutate_ledger`/`may_trigger_tool` always false,
+`may_gate` only at EVIDENCED, ≤20 active hypotheses.
+`[FACT: _ops/scripts/validate_hypothesis_registry.py]`

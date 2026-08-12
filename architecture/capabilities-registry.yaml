@@ -1,7 +1,7 @@
 schema_version: 1
 registry_id: octopus-capabilities-v1
 owner: octopus-core
-updated_at: "2026-08-11T11:15:00Z"
+updated_at: "2026-08-12T00:00:00Z"
 notes: |
   Control / side-effect inventory. NOT signals.
   request_protective_halt must never appear in signals-registry.yaml.
@@ -63,3 +63,42 @@ capabilities:
     evidence:
       adr: ADR-035
       supersedes_partial: ADR-034
+
+  - id: hypothesis-engine
+    kind: cognitive_capability
+    not_a_signal: true
+    truth_status: TESTING
+    evidence_level: SHADOW
+    entrypoint: "_ops/hypothesis_engine/impl/hypothesis_brain.py::HypothesisBrain.execute"
+    wiring: "_ops/cortex/cortex.py::hypothesis_brain_run (CORTEX_HYPOTHESIS=1, default OFF)"
+    policy:
+      pattern: ADR-034            # neural -> proposal, never action
+      propose_only: true
+    requires:
+      owner_activation: true       # CORTEX_HYPOTHESIS must be set to 1
+      registry_read_only: true
+    effects:
+      may_mutate_ledger: false
+      may_trigger_external_send: false
+      may_trigger_tool: false
+      may_gate: false              # only EVIDENCED hypotheses may_gate (registry-level)
+    rollback:
+      default: deny
+      containment_flags:
+        - CORTEX_HYPOTHESIS=0
+      notes: "Propose-only advisory ranking; no side effects. Disable by unsetting CORTEX_HYPOTHESIS."
+    evidence:
+      adr: ADR-037
+      tests:
+        - _ops/hypothesis_engine/tests/test_hypothesis_brain.py
+        - _ops/hypothesis_engine/tests/test_validate_registry.py
+      artifacts:
+        - _ops/hypothesis_engine/experiments/results.csv
+        - _ops/hypothesis_engine/experiments/RESULTS-DECEPTIVE-3AGENT-2026-08-12.md
+      honest_caveat: "Not superior to novelty search (deceptive-grid P1: B vs C p=0.32, delta=-0.11). Useful to escape deception (97% vs 0%), not a general advantage."
+    authority:
+      may_gate: false
+      may_trigger_tool: false
+      may_mutate_ledger: false
+      production_enabled: false    # OFF by default
+      owner_approval_required: true
