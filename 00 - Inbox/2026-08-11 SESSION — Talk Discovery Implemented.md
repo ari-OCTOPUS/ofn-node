@@ -1,5 +1,6 @@
 ---
 type: log
+type: session-notes
 status: active
 created: 2026-08-11
 updated: 2026-08-11

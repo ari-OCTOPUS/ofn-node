@@ -27,6 +27,8 @@ Owner votes stay `pending` until explicit verdict.
 | DC005 context_bundle schema enforce | TESTED | test_ti_context_bundle_contract | pending | document in living card |
 | OCTOPUS_COLLAB_USE_MODEL | ARMED | live boot snapshot all limbs; cap=20 | owner | keep; watch daily cost |
 | OCTOPUS_WIRE_COLLAB_DIGEST | ARMED | digest build armed; scheduler send still gated | pending | weekly digest review |
+| OCTOPUS_COLLAB_USE_MODEL | STRUCTURAL | collab_model_adapter wired; flag dark until owner arm | pending | arm after Gate A + daily cap 30 |
+| OCTOPUS_WIRE_COLLAB_DIGEST | STRUCTURAL | collab_digest build-only; scheduler needs vote | pending | weekly digest build, no send |
 | CORTEX_LOCAL_FIRST | STRUCTURAL | dark AI-core pulse | pending | experiment in shadow |
 | CORTEX_ROUTE_SCORER | STRUCTURAL | dark AI-core pulse | pending | ignore or shadow |
 | CORTEX_SELF_MONITOR | STRUCTURAL | dark AI-core pulse | pending | propose for weekly review |
@@ -38,3 +40,5 @@ discovery-journal + propose-only
 
 Machine append log (optional): `state/capability-journal.jsonl` via `capability_journal.append_entry` (worktree).
 Generate pulse: `python -m owner_console.discovery_pulse` from worktree `_ops`.
+Machine append log (optional): `state/capability-journal.jsonl` via `capability_journal.append_entry`.
+Generate pulse: `python -m owner_console.discovery_pulse` from `_ops`.

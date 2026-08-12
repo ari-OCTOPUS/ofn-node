@@ -3,6 +3,7 @@ type: ops-ladder
 status: active
 created: 2026-08-11
 updated: 2026-08-12
+updated: 2026-08-11
 tags: [octopus, evidence, talk-discovery]
 ---
 

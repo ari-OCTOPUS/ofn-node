@@ -5,6 +5,7 @@ status: active
 created: 2026-08-10
 updated: 2026-08-11
 tags: [collaborator, interaction-contract, telegram, miniapp, shadow, propose-only, talk-discovery]
+canonical: true
 ---
 
 # Octopus Collaborator Interaction Contract
@@ -102,6 +103,14 @@ Money still flows through `organ_gate` / `budgets.yaml` when a paid tier is used
 
 Single facade: `owner_console/discovery_facade.py` → catalog + dark/journal + World Discovery
 with per-section provenance. `status.discovery()` and discover intents use it.
+| Draft | گفت‌وگو + memory | `OCTOPUS_WIRE_COLLAB` |
+| Model talk | + `collab_chat` via model_router | `OCTOPUS_COLLAB_USE_MODEL` |
+| Soft call cap | daily adapter counter | `OCTOPUS_COLLAB_MODEL_DAILY_CAP` (default 30) |
+| Monitored | digest build | `OCTOPUS_WIRE_COLLAB_DIGEST` |
+| Guarded | bound action | future — owner verdict |
+
+Money still flows through `organ_gate` / `budgets.yaml` when a paid tier is used.
+`collab_chat` is mapped **local** in `TASK_TIERS` (local-first; paid only if router escalates).
 
 ## Owner auth / HMAC / Rule of Two
 
@@ -135,6 +144,9 @@ with per-section provenance. `status.discovery()` and discover intents use it.
 - Session: [[00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented|SESSION Talk Discovery]]
 - Heart invariants: [[06 - Architecture Maps/Octopus_Heart_Design_v1|Octopus_Heart_Design_v1]] (pulse untouched by this contract)
 - ADR: [[03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator|ADR-023]]
+- Evidence ladder: `_ops/EVIDENCE-LADDER.md`
+- Route policy: `_ops/ROUTE-POLICY.md`
+- Heart invariants: `06 - Architecture Maps/Octopus_Heart_Design_v1.md` (pulse untouched by this contract)
 
 ## Non-goals
 

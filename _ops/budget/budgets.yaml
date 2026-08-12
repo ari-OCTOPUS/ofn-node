@@ -3,6 +3,11 @@
 # مصرف‌کننده: METABOLIC-GOVERNOR (shadow) — سند: "04 - Architect System/2026-07-06 METABOLIC-GOVERNOR-proposal.md"
 # enforce: budget_gate v1.1 هاردکد هم‌خوان (همهٔ سقف‌ها AUD — verdict V1 آری 2026-07-07: روز 2 · ماه 30 · فاجعه 500)؛ v2 باید از این فایل بخواند.
 # config-only: خواندنِ این فایل هیچ اتوماسیونی روشن نمی‌کند.
+#
+# Talk Discovery (collab model soft call-cap — NOT AUD money):
+#   OCTOPUS_COLLAB_MODEL_DAILY_CAP default=30 (env; see DISCOVERY-PROTOCOL.md).
+#   Paid calls still flow through organ_gate / model_router under cap_monthly above.
+#   Arming OCTOPUS_COLLAB_USE_MODEL requires owner vote; this file does not auto-arm.
 
 global:
   cap_monthly: 30            # AUD — verdict آری 2026-07-10 «۳۰ بماند» هنگام go-live (بازگشت از ۲۰۰ که 07-09 balanced شده بود). سقفِ سختِ خرجِ ماهانه با گیتِ پولیِ باز.
