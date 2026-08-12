@@ -1072,6 +1072,24 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
         if st3 == 200:
             body3 = _redact(body3.decode("utf-8", "replace")).encode("utf-8")
         return st3, body3, ctype3
+    # ── 2026-08-13: Chat status banner — بنرِ پیشگیرانهٔ فقط‌خواندنی (TASK 4).
+    # GET /api/chat-status → {ok, banner:{level,text,halted,...}}؛ بدونِ تماسِ پولی.
+    if p == "/api/chat-status":
+        if method_u != "GET":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        try:
+            import sys as _sys
+            _oc = str(_OPS / "owner_console")
+            if _oc not in _sys.path:
+                _sys.path.insert(0, _oc)
+            import status_banner as _sb  # noqa: WPS433
+            banner = _sb.status_banner()
+        except Exception:  # noqa: BLE001 — بنر نباید جوابِ gateway را ببرد
+            banner = {"level": "ok", "text": "", "halted": False}
+        body = json.dumps({"ok": True, "banner": banner}, ensure_ascii=False).encode("utf-8")
+        return 200, body, "application/json; charset=utf-8"
     return 404, b"{}", "application/json; charset=utf-8"
 
 
