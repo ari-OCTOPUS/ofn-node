@@ -502,6 +502,7 @@ def main() -> int:
             _bc_block = {"mode": "HARNESS", "flag_on": False, "degraded": False}
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         _arb_status = None         # HH-P11: داورِ نبض — پیش از try (بلوکِ _sleep_s بیرونِ try می‌خواندش)
+        _mc_period_bias = 0.0      # ADR-036 / DW-05: soft clamp روی sleep بعد از arbiter
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
@@ -687,6 +688,11 @@ def main() -> int:
                 from math_control import spine as _math_spine  # noqa: WPS433
                 _mc_snap = _math_spine.beat(write=True)
                 if isinstance(_mc_snap, dict):
+                    try:
+                        _mc_period_bias = float(
+                            _mc_snap.get("schedule_period_bias") or 0.0)
+                    except (TypeError, ValueError):
+                        _mc_period_bias = 0.0
                     pulse["math_control"] = {
                         "enabled": _mc_snap.get("enabled"),
                         "rank_bias": _mc_snap.get("rank_bias"),
@@ -694,6 +700,7 @@ def main() -> int:
                         "spectral_sigma_true": _mc_snap.get("spectral_sigma_true"),
                         "assoc_strength": _mc_snap.get("assoc_strength"),
                         "identity_health": _mc_snap.get("identity_health"),
+                        "schedule_period_bias": _mc_period_bias,
                         "knob_deltas": _mc_snap.get("knob_deltas"),
                         "effects": _mc_snap.get("effects"),
                         "equations_touching": _mc_snap.get("equations_touching"),
@@ -1247,6 +1254,36 @@ def main() -> int:
                     except Exception as _iae:  # noqa: BLE001 — پل نباید tick را بکشد
                         opslib.alert([f"instant_alert_bridge (non-fatal): "
                                       f"{type(_iae).__name__}: {_iae}"])
+                    # DW-03: kernel_bridge_reader — file-bridge گزارش، هر ۱۱ beat
+                    try:
+                        _kb_beat = int((_cstat or {}).get("beat", 0) or 0)
+                        if (_kb_beat % 11 == 0
+                                and str(__import__("os").environ.get(
+                                    "OCTOPUS_WIRE_KERNEL_BRIDGE_READER", "0")
+                                    ).strip() == "1"):
+                            import kernel_bridge_reader as _kbr  # noqa: WPS433
+                            _kbr.persist_report()
+                    except Exception as _kbe:  # noqa: BLE001
+                        opslib.alert([f"kernel_bridge_reader (non-fatal): "
+                                      f"{type(_kbe).__name__}: {_kbe}"])
+                    # DW-02: seed_beat — assembler/evolution health، بدون اثر بیرونی
+                    try:
+                        _sb_beat = int((_cstat or {}).get("beat", 0) or 0)
+                        if _sb_beat % 17 == 0 or _sb_beat % 23 == 0:
+                            import seed_beat as _seed_beat  # noqa: WPS433
+                            _seed_beat.tick(_sb_beat)
+                    except Exception as _sbe:  # noqa: BLE001
+                        opslib.alert([f"seed_beat (non-fatal): "
+                                      f"{type(_sbe).__name__}: {_sbe}"])
+                    # قدم ۵۲: runner_apply_gate — armed_inert صادق
+                    try:
+                        _ra_beat = int((_cstat or {}).get("beat", 0) or 0)
+                        if _ra_beat % 29 == 0:
+                            import runner_apply_gate as _rag  # noqa: WPS433
+                            _rag.persist()
+                    except Exception as _rae:  # noqa: BLE001
+                        opslib.alert([f"runner_apply_gate (non-fatal): "
+                                      f"{type(_rae).__name__}: {_rae}"])
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:
@@ -1328,6 +1365,26 @@ def main() -> int:
                 _sleep_s = float(_arb_status.get("effective_period_s") or _sleep_s)
             except (TypeError, ValueError):
                 pass
+        # DW-05 / CHR-01: soft clamp schedule_period_bias (±20% of sleep, |bias|≤30s)
+        try:
+            _bias = float(_mc_period_bias or 0.0)
+            if _bias != 0.0 and _sleep_s > 0:
+                _cap = min(30.0, abs(_sleep_s) * 0.20)
+                if _bias > _cap:
+                    _bias = _cap
+                elif _bias < -_cap:
+                    _bias = -_cap
+                _sleep_s = max(60.0, min(900.0, float(_sleep_s) + _bias))
+                # قدم ۹۰: متریک bias اعمال‌شده در state
+                try:
+                    _write_state({
+                        "schedule_period_bias_applied": round(_bias, 3),
+                        "sleep_s_after_bias": round(float(_sleep_s), 3),
+                    }, merge_prev=True)
+                except Exception:  # noqa: BLE001
+                    pass
+        except (TypeError, ValueError):
+            pass
         time.sleep(_sleep_s)
 
 

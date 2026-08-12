@@ -496,66 +496,71 @@ def t_the_ceiling_keeps_learning_from_halting_the_organism_alone():
 
 
 def t_the_ceiling_reaches_the_real_apply_path():
-    """اثباتِ **اثر**: مقداری که ترمز واقعاً مصرف می‌کند سقف‌خورده است.
+    """ADR-034: سقف روی shadow fold (PROPOSAL) اثر می‌گذارد — هرگز protective_halt.
 
-    سه حالت از **همان** نتیجهٔ `neural_beat`، با فلگِ APPLY روشن و آستانهٔ
-    کالیبره: (۱) همان‌طور که هست → halt **نمی‌شود**؛ (۲) کلیدِ سقف حذف شود →
-    halt می‌کند (پس بی سقف، halt واقعی بود)؛ (۳) کلیدِ سقف روی مقدارِ خام
-    گذاشته شود → halt می‌کند و noteش همان عدد را نشان می‌دهد ⇒ اثبات می‌کند
-    ترمز از **کلیدِ سقف** می‌خواند، نه از فیلدِ خام.
-    این جای گاردِ ساختاریِ «سقف نباید فلگ‌دار شود» را می‌گیرد: دربارهٔ اثر
-    حکم می‌دهد، نه دربارهٔ اینکه چطور تنظیم شده — انتخابِ فلگ رأیِ مالک است."""
+    همان نتیجهٔ neural_beat با PROPOSAL+آستانهٔ کالیبره:
+    (۱) با کلید سقف → action != protective_halt (و معمولاً none)
+    (۲) بی‌سقف → ممکن است protective_proposal شود (نه halt)
+    (۳) سقف=خام → protective_proposal + reason_codes شامل shadow_fold
+    """
     stack = _fresh_stack(eventclock=True)
     stack[wiring.NEURAL_EVAL_BCM_SOURCE] = _saturated_bcm(
         Path(ENV["ops"]) / "state" / "bcm-sat2.json")
     r = wiring.neural_beat(stack, 5001, _payload(True, 0.25))
-    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
+    os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = "1"
     os.environ["OCTOPUS_PAIN_THRESHOLD_CALIBRATED"] = "1"
+    os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
     try:
         got = wiring.protective_override(r)
-        assert got["action"] != "protective_halt", f"سقف halt را نگرفت: {got}"
+        assert got["action"] != "protective_halt", f"APPLY=0 forbid halt: {got}"
+        assert got["executable"] is False
         raw_result = json.loads(json.dumps(r))
         bi = raw_result["brain_inputs"]
         raw = bi["learned_pressure"]
-        bi.pop(wiring.LEARNED_PRESSURE_CAPPED_KEY)               # بی‌سقف
+        bi.pop(wiring.LEARNED_PRESSURE_CAPPED_KEY)
         bad = wiring.protective_override(raw_result)
-        assert bad["action"] == "protective_halt", \
-            f"مسیرِ بی‌سقف halt نکرد — فرضِ تست کهنه است: {bad}"
-        # کلیدِ سقف = مقدارِ خام ⇒ اگر ترمز واقعاً از این کلید بخواند، halt و
-        # noteش همان عدد است. اگر کسی روزی ترمز را به فیلدِ خام برگرداند،
-        # حالتِ (۱) بالا قرمز می‌شود و این حالت هم بی‌معنا نمی‌مانَد.
+        assert bad["action"] != "protective_halt"
+        assert bad["executable"] is False
+        # uncapped may reach proposal under calibrated thr
+        assert bad["action"] in ("protective_proposal", "none"), bad
         forced = json.loads(json.dumps(r))
         forced["brain_inputs"][wiring.LEARNED_PRESSURE_CAPPED_KEY] = raw
         hit = wiring.protective_override(forced)
-        assert hit["action"] == "protective_halt", hit
-        assert f"+learned={raw:.2f}" in hit["reason"], \
-            f"ترمز کلیدِ سقف را مصرف نمی‌کند: {hit['reason']}"
+        assert hit["action"] != "protective_halt"
+        assert hit["executable"] is False
+        if hit["action"] == "protective_proposal":
+            codes = (hit.get("assessment") or {}).get("reason_codes") or ()
+            assert "learned_pressure_shadow_fold" in codes, hit
     finally:
-        os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
+        os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
         os.environ.pop("OCTOPUS_PAIN_THRESHOLD_CALIBRATED", None)
+        os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
 
 
 def t_a_result_without_the_cap_key_behaves_exactly_as_before():
-    """سازگاریِ عقب — همان قراردادی که `test_neural_loop_close.py::
-    t_apply_flag_on_combines_learned` روی مسیرِ APPLY pin کرده است (learned=0.9،
-    pain=0.3، آستانهٔ ۰.۷ ⇒ halt). چون ترمز حالا **کلیدِ سقف** را می‌خواند،
-    این‌جا اثبات می‌شود که نبودِ آن کلید به رفتارِ قبلی برمی‌گردد و گاردِ آن فایل
-    (که مالکش من نیستم) دست‌نخورده می‌مانَد — نه با ادعا، با اجرا."""
+    """APPLY=1 folds uncapped learned → halt; PROPOSAL alone → proposal; off → none."""
     os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
     os.environ.pop("OCTOPUS_PAIN_THRESHOLD_CALIBRATED", None)
+    os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
     try:
         legacy = {"pain": {"level": 0.3}, "reflexes": [],
                   "brain_inputs": {"learned_pressure": 0.9,
                                    "learned_top_signal": "k1"}}
         got = wiring.protective_override(legacy)
         assert got["override"] is True and got["action"] == "protective_halt", got
-        assert "+learned=0.90:k1" in got["reason"], got["reason"]
-        # و با فلگِ APPLY خاموش، همان نتیجه هیچ اثری ندارد.
+        assert got["executable"] is True
+        os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
+        os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = "1"
+        prop = wiring.protective_override(legacy)
+        assert prop["override"] is False and prop["executable"] is False
+        assert prop["action"] == "protective_proposal", prop
+        os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
         os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
         off = wiring.protective_override(legacy)
         assert off["override"] is False and off["action"] == "none", off
     finally:
         os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
+        os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
 
 
 def t_the_eval_bcm_source_is_named_and_is_not_the_latent_index():

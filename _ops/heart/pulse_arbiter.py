@@ -444,6 +444,25 @@ def persist(cardiac_snapshot: dict | None = None,
                                    "effective_period_s": snap["effective_period_s"],
                                    "driver": snap["driver"], "color": snap["color"],
                                    "wire_open": snap["wire_open"]})
+        # Talk Discovery / heart unification: optional shadow divergence vs production
+        # period hint (does NOT change effective period or age_tick).
+        try:
+            from heart.pulse_shadow_compare import record_divergence
+            prod = float(
+                (heart_shadow or {}).get("period_s")
+                or (cardiac_snapshot or {}).get("effective_period")
+                or snap.get("effective_period_s")
+                or BASE_PERIOD_S
+            )
+            record_divergence(
+                production_period=prod,
+                shadow_period=float(snap.get("effective_period_s") or prod),
+                run_id=str(snap.get("ts") or ""),
+                tick=int(beat),
+                inputs={"driver": snap.get("driver"), "color": snap.get("color")},
+            )
+        except Exception:  # noqa: BLE001 — shadow must never kill tick
+            pass
     except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
         snap["written"] = False                       # fail-soft
         # WinError 5 (os.replace cross-process lock) گذراست و self-healing — تکرارِ
