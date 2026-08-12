@@ -206,6 +206,15 @@ def run_and_persist(root: Path | None = None) -> dict:
     except OSError:
         pass
     claims_written = emit_self_claims(model)   # زیرِ فلگ؛ خاموش → صفر اثر، fail-soft
+    # ۲۰۲۶-۰۸-۱۱ — خلاصهٔ کوتاهِ خودمدل (نه dump کامل) تا overwrite هدر نرود
+    try:
+        mem_dir = str(Path(__file__).resolve().parent.parent / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import self_loop_ingest as _sli  # noqa: WPS433
+        _sli.ingest_self_model(model)
+    except Exception:  # noqa: BLE001
+        pass
     return {"ok": True, "n_modules": model["n_modules"],
             "total_lines": model["total_lines"],
             "self_awareness_pct": model["self_awareness_pct"],

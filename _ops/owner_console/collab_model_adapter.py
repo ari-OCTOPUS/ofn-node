@@ -110,12 +110,12 @@ def _default_ask(task: str, prompt: str, system: str, max_tokens: int) -> dict:
         task, prompt, system=system, max_tokens=max_tokens, tier=None)
 
 
-def _self_context(limit: int = 1200, *, query: str = "") -> str:
+def _self_context(limit: int = 2000, *, query: str = "") -> str:
     """شواهد زنده برای «از چی تشکیل شده‌ام» — سبک و سریع (بدون snapshot سنگین).
 
     ۲۰۲۶-۰۸-۱۲: status.unified قبلاً چند ثانیه می‌گرفت و با DeepSeek به 504 می‌رسید.
     فقط فایل‌های سبک + cacheِ status اگر آماده باشد.
-    Awareness megaprompt: دو مغز زنده + note 4d + cite حافظه (fail-soft).
+    لایهٔ ۵ (مغزهای داخلی) از طریق brain_pulse فایل‌خوان به چت می‌آید — نه IPC.
     """
     chunks: list[str] = []
     ops = Path(__file__).resolve().parent.parent
@@ -138,11 +138,37 @@ def _self_context(limit: int = 1200, *, query: str = "") -> str:
             )
     except Exception:  # noqa: BLE001
         pass
-    # دو مغز زندهٔ canonical (نه 4d/Super-Gov)
     chunks.append(
-        "brains_live: cortex + business_brain (innervated). "
+        "brains_live: cortex(:8772) + business_brain — innervated در ارگانیسم؛ "
+        "به چت با file-bridge وصل‌اند (نه سوکت). "
         "4d_system/Super-Governor وصل نیست (DEPRECATED/SPEC)."
     )
+    # لایهٔ ۵ → چت: cortex-state / business-brain / identities / doctor SK
+    try:
+        import sys
+        mem_dir = str(ops / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import brain_pulse as _bp  # noqa: WPS433
+        _bp.STATE_DIR = ops / "state"
+        block = _bp.as_context_block(limit=900)
+        if block:
+            chunks.append(block)
+    except Exception:  # noqa: BLE001
+        chunks.append("brain_pulse: unavailable (fail-soft)")
+    # OWNER-GOAL (2026-08-12 reconcile): هدفِ قفل‌شدهٔ GOALS-OCTOPUS.md —
+    # جهت، نه ادعای قابلیت. invariant صداقت: بدون ادعای AGI/consciousness
+    # (OCTOPUS/ARCHITECTURE-BIBLE.md:49-51 · registry.yaml:18 · discovery.py).
+    try:
+        og = json.loads((ops / "state" / "owner-goal.json").read_text(encoding="utf-8"))
+        chunks.append(
+            "OWNER-GOAL (GOALS-OCTOPUS.md): هدفِ سنجش‌پذیرِ ماه = "
+            + str(og.get("measurable_goal_month") or "")[:170]
+            + " — جهت‌های عمومی: خودتحلیل/ارتقا تا حد امن · حافظهٔ ماندگار · "
+            "مغزهای موازی · خرجِ گزارش‌پذیر. جهت است نه ادعای قابلیت؛ "
+            "بدون ادعای AGI/consciousness.")
+    except Exception:  # noqa: BLE001
+        pass
     try:
         truth = ops.parent / "OCTOPUS" / "CURRENT-TRUTH.md"
         if truth.is_file():
@@ -177,6 +203,31 @@ def _self_context(limit: int = 1200, *, query: str = "") -> str:
         chunks.append(_or.facts_block_for_context(facts))
     except Exception:  # noqa: BLE001
         chunks.append("حافظهٔ اخیر: recall در دسترس نیست (fail-soft).")
+    # فاز S — session memory (موقت): مکالمهٔ اخیر را به مدل بده
+    try:
+        import sys
+        mem_dir = str(ops / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import session_memory as _sm  # noqa: WPS433
+        block = _sm.as_context_block(limit=6)
+        if block:
+            chunks.append(block)
+    except Exception:  # noqa: BLE001
+        pass
+    # فاز W — Context Engine: tiktoken budget management
+    try:
+        import sys as _csys
+        _cog = str(ops / "cognitive")
+        if _cog not in _csys.path:
+            _csys.path.insert(0, _cog)
+        import context_engine as _ce  # noqa: WPS433
+        # فقط budget info را به chunks اضافه کن (context_text خودش بعد از complete ساخته می‌شود)
+        # اینجا فقط tiktoken availability را چک می‌کنیم
+        if _ce._TIKTOKEN is not None:
+            chunks.append("context_engine: tiktoken active — budget managed")
+    except Exception:  # noqa: BLE001
+        pass
     text = "\n\n".join(c for c in chunks if c and str(c).strip())
     return text[:limit]
 
@@ -201,17 +252,58 @@ def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
         }
 
     hint = f"\n(context_kind_hint={kind_hint})" if kind_hint else ""
-    ctx = _self_context(query=q)
+
+    # فاز T: Context Engine — context را با tiktoken budget مدیریت کن
+    context_info = None
+    try:
+        import sys as _csys
+        from pathlib import Path as _Pce
+        _cog = str(_Pce(__file__).resolve().parent.parent / "cognitive")
+        if _cog not in _csys.path:
+            _csys.path.insert(0, _cog)
+        import context_engine as _ce  # noqa: WPS433
+        # session turns برای recent_chat
+        _turns = []
+        try:
+            _mem_dir = str(_Pce(__file__).resolve().parent.parent / "memory")
+            if _mem_dir not in _csys.path:
+                _csys.path.insert(0, _mem_dir)
+            import session_memory as _sm  # noqa: WPS433
+            _turns = _sm.recent(limit=6)
+        except Exception:  # noqa: BLE001
+            pass
+        # recall facts برای retrieved_memory
+        _facts = []
+        try:
+            import owner_recall as _or  # noqa: WPS433
+            if _or.topic_wants_recall(q):
+                _facts = _or.recall_for_owner_ask(q, limit=3)
+        except Exception:  # noqa: BLE001
+            pass
+        context_info = _ce.assemble(
+            q, intent=kind_hint or "chat",
+            session_turns=_turns,
+            recall_facts=_facts,
+            self_context=_self_context(query=q),
+        )
+        ctx = context_info["context_text"]
+        _budget_used = context_info["token_count"]
+    except Exception:  # noqa: BLE001 — fail-soft به مسیر قدیمی
+        ctx = _self_context(query=q)
+
     ctx_block = f"\n\n— شواهد زندهٔ خودم (برای جواب دقیق) —\n{ctx}\n" if ctx else ""
     prompt = (
         f"پیام مالک:{hint}\n{q}\n"
         f"{ctx_block}\n"
         "با تکیه بر شواهد بالا جواب بده — حدسِ پوچ نزن. "
-        "اگر معرفی/ساختار خواست: دو مغز زنده (cortex+business_brain)، "
-        "قلب/قشر/پاها/گیت‌وی/سنتر، و صریح بگو 4d/Super-Gov وصل نیست. "
-        "اگر حافظه cite شد مسیر/mkey را بگو؛ اگر خالی بود صادق بگو. "
-        "فلگ‌ها، موانع فعلی، و اینکه چه چیزی draft است را روشن بگو. "
-        "بدون ادعاهای AGI. اثر بیرونی پیشنهاد نکن مگر مالک بخواهد."
+        "اگر معرفی/ساختار خواست: لایه‌ها را صادق بگو — "
+        "Reactor/intent → مدل → شواهد فایل → حافظه cite-only → "
+        "مغزهای داخلی (cortex+business_brain) که از فایل خوانده شده‌اند "
+        "(file-bridge؛ مغزها حرف این چت را مستقیم نمی‌شنوند مگر owner_guidance). "
+        "4d/Super-Gov وصل نیست. اعداد cycle/coherence/beat/proposals را از شواهد بگو. "
+        "OWNER-GOAL جهت است نه مدرکِ قابلیت فعلی؛ ادعای «الان AGI کامل هستم» نکن. "
+        "SoT صداقت: _ops/OCTOPUS-HONESTY.md — لایه‌ها سؤال مهندسی‌اند نه consciousness. "
+        "اگر حافظه cite شد مسیر/mkey را بگو. اثر بیرونی پیشنهاد نکن مگر مالک بخواهد."
     )
     ask_fn = _ask_impl or _default_ask
     try:
@@ -235,7 +327,7 @@ def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
     tier = str(res.get("tier") or "local")
     model = str(res.get("model") or "")
     source = f"{tier}:{model}" if model else tier
-    return {
+    result = {
         "ok": True,
         "text": text[:4000],
         "model_source": source,
@@ -243,3 +335,9 @@ def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
         "model": model,
         "cost_usd": float(res.get("cost_usd") or 0.0),
     }
+    # فاز T: context budget info در خروجی (برای observability)
+    if context_info:
+        result["context_tokens"] = context_info["token_count"]
+        result["context_budget"] = context_info["budget_used"]
+        result["context_truncated"] = context_info["truncated"]
+    return result

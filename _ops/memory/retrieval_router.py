@@ -84,6 +84,16 @@ def route(*, goal_key: str, method_index=None, store=None, k: int = 3,
             recs.extend(pr)
             modes.append("procedural")
 
+        # ۳b) semantic — خاطراتِ معناییِ پذیرش‌شده در store (MEM-01 / DW).
+        # جدا از vault_rag (ChromaDB). fail-soft: نبود namespace = [].
+        try:
+            sem = store.search(gk, namespace="semantic", k=max(1, int(k)))
+            if sem:
+                recs.extend(sem)
+                modes.append("semantic")
+        except Exception:  # noqa: BLE001
+            pass
+
         # ۴) vault_rag — شواهدِ semantic از ChromaDB (پلِ ۲۰۲۶-۰۸-۰۶، fail-closed).
         # **فقط شاهد** — هرگز veto، هرگز مجوز. ابسیدین canonical؛ ChromaDB فقط index.
         # فلگ خاموش → search_vault_evidence [] برمی‌گرداند (no-op، byte-identical).
@@ -102,6 +112,20 @@ def route(*, goal_key: str, method_index=None, store=None, k: int = 3,
         # ساختار همان memories_used است (memory_id/namespace/...)، پس safe-append.
         if rag_evidence:
             out["memories_used"].extend(rag_evidence)
+        # hebbian rank hint (advisory): assoc_strength از math_control — بدون reorder اجباری
+        try:
+            from math_control.spine import load_latest as _mc_load  # noqa: WPS433
+            _lat = _mc_load() or {}
+            _as = _lat.get("assoc_strength")
+            if _as is not None:
+                out["hebbian_hint"] = {
+                    "assoc_strength": _as,
+                    "effect": "advisory",
+                    "may_authorize": False,
+                }
+                out["reasons"].append("hebbian-hint-advisory")
+        except Exception:  # noqa: BLE001
+            pass
         if not recs and not rag_evidence:
             out["reasons"].append("no-admitted-memory")
         return out

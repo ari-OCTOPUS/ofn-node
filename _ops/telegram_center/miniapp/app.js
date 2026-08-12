@@ -163,10 +163,45 @@
       return {status:"error", reason:e.message};
     });
   }
-  function apiPost(path, payload){
-    return fetch(path, {method:"POST", headers:tgHeaders({"Content-Type":"application/json"}), body:JSON.stringify(payload||{})}).then(function(r){
-      return r.json().catch(function(){ return {ok:false,status:"ERROR",reason:"bad_json"}; });
-    }).catch(function(e){ return {ok:false,status:"ERROR",reason:e.message}; });
+  function apiPost(path, payload, timeoutMs){
+    // ۲۰۲۶-۰۸-۱۲: بدون abort، Ask روی ollama hang تا ابد «فکر کردن» می‌ماند.
+    var ms = (timeoutMs == null) ? 60000 : timeoutMs;
+    var ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    var timer = null;
+    if (ctrl && ms > 0) {
+      timer = setTimeout(function(){ try { ctrl.abort(); } catch(e){} }, ms);
+    }
+    var opts = {method:"POST", headers:tgHeaders({"Content-Type":"application/json"}),
+                body:JSON.stringify(payload||{})};
+    if (ctrl) opts.signal = ctrl.signal;
+    return fetch(path, opts).then(function(r){
+      return r.text().then(function(raw){
+        var data = null;
+        try { data = raw ? JSON.parse(raw) : null; }
+        catch (e) {
+          return {ok:false, status:"ERROR", reason:"bad_json",
+                  http_status:r.status, preview:String(raw||"").slice(0,120)};
+        }
+        if(!r.ok){
+          if(data && typeof data === "object"){
+            if(data.reason == null) data.reason = "http_"+r.status;
+            data.ok = false;
+            data.http_status = r.status;
+            return data;
+          }
+          return {ok:false, status:"ERROR", reason:"http_"+r.status, http_status:r.status};
+        }
+        return data || {ok:false, status:"ERROR", reason:"empty_body"};
+      });
+    }).catch(function(e){
+      var name = (e && e.name) || "";
+      var msg = (e && e.message) || "network";
+      if (name === "AbortError") return {ok:false,status:"ERROR",reason:"client_timeout"};
+      return {ok:false,status:"ERROR",reason:msg};
+    }).then(function(v){
+      if (timer) clearTimeout(timer);
+      return v;
+    });
   }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
 
@@ -631,6 +666,38 @@
                     tone: per[k]>=mx*0.6?"up":(per[k]>0?"warm":"unk")};
           })) : '<div class="muted" style="text-align:center">هنوز رویدادی ثبت نشده</div>')+
         '</div>';
+    });
+  }
+
+  function renderMoneyCaps(el){
+    el = el || content;
+    api("/api/money-caps").then(function(d){
+      if(!d || d.status==="error"){
+        el.innerHTML = '<div class="card"><h2>سقف خرج</h2><div class="warn">خوانده نشد: '+
+          esc((d&&d.reason)||"?")+'</div></div>';
+        return;
+      }
+      var w = d.window||{};
+      var fl = d.flags_armed||{};
+      var claimed = d.claimed;
+      var html = '<div class="card">'+secHead("سقف خرج + هدف ماه",
+          pill(w.active?"پنجرهٔ آزمون فعال":"سقف پایه", w.active?"warm":"ok"))+
+        '<div class="muted">claimed ≠ درآمد · SoT: MONEY-CLAIM-VS-CONFIRM</div>'+
+        '<div class="kv">'+
+        row("claimed", claimed==null?"۰ / نامعلوم":claimed)+
+        row("claimed_is_income", d.claimed_is_income===true?"بله":"خیر")+
+        row("ماهانهٔ پایه", "AU$"+fa(d.monthly_default_aud||30))+
+        row("روزانه", "AU$"+fa(d.daily_aud||2))+
+        row("پنجره USD", (w.usd||"—")+" تا "+(w.until||"—"))+
+        row("روز مانده", w.days_left==null?"—":fa(w.days_left))+
+        row("VALUE_LEDGER", fl.VALUE_LEDGER)+
+        row("MONEY_FSM", fl.MONEY_FSM)+
+        row("UNCAPPED", fl.UNCAPPED)+
+        row("LIVE-ENABLED", fl.LIVE_ENABLED?"بله":"نه")+
+        row("armed≠productive", d.armed_ne_productive?"بله — فلگ روشن ≠ claim":"—")+
+        row("بلاکر", d.blocker||"—")+
+        '</div></div>';
+      el.innerHTML = html;
     });
   }
 
@@ -1229,6 +1296,11 @@
         var need=[], calm=[];
         function push(sev,verb,why,act){ need.push({sev:sev,verb:verb,why:why,act:act}); }
 
+        // قدم ۴۱/۴۴: نقشهٔ مغز صادق روی Home
+        calm.push("مغزهای زنده: cortex + business_brain (file-bridge)");
+        calm.push("4d/Super-Gov: SPEC_NOT_BUILT — promote نکن");
+        calm.push("لایه‌ها = سؤال مهندسی · OCTOPUS-HONESTY");
+
         if(st.halted) push("hot","ارگانیسم متوقف است","تا برداشتنِ ترمز هیچ کاری جلو نمی‌رود.",null);
         // ⚠️ تیکِ «✓ صفِ تأیید خالی است» فقط وقتی مجاز است که خواننده
         // واقعاً `ok` گفته باشد. وگرنه از نخواندن، اطمینان می‌سازیم.
@@ -1243,7 +1315,12 @@
 
         var tstat = tk.task_status||{};
         var tks = Number(tk.tasks_total||0) - Number(tstat.done||0);
-        if(tks>0) push("warm", fa(tks)+" کارِ باز", "منتظرِ توست.", {tab:"tasks",label:"دیدنِ کارها"});
+        // UI-02: calm فقط وقتی status===ok — وگرنه از نخواندن، «سالم» جعل نکن
+        if(tk.status !== "ok"){
+          push("warm","کارها خوانده نشد",
+               "وضع: "+ltr(String(tk.status||"?"))+" — ممکن است کارِ باز دیده نشود.",
+               {tab:"tasks",label:"دیدنِ کارها"});
+        } else if(tks>0) push("warm", fa(tks)+" کارِ باز", "منتظرِ توست.", {tab:"tasks",label:"دیدنِ کارها"});
         else calm.push("هیچ کارِ بازی نیست");
 
         // علائمِ حیاتی فقط وقتی **بحرانی** باشند به خانه می‌آیند — وگرنه
@@ -1268,12 +1345,20 @@
             "تأخیر: "+fa(st.germline_lag_h)+" ساعت.", {tab:"system",label:"دیدنِ علائمِ حیاتی"});
 
         var dr=(gv.drift_status||{}).status;
-        if(dr && dr!=="ok") push("warm","ناظر انحراف می‌بیند",
+        // UI-01: drift_status = aligned|drift|unknown — هرگز "ok".
+        // aligned را warm نکن (جای دیگر در app.js همین منطق درست شده بود).
+        if(dr === "drift") push("warm","ناظر انحراف می‌بیند",
           "سندِ سیاست با کد نمی‌خواند: "+ltr(String(dr)), {tab:"system",label:"دیدنِ ناظر"});
-        else if(dr) calm.push("ناظر بی‌انحراف");
+        else if(dr === "aligned" || dr === "ok") calm.push("ناظر بی‌انحراف");
+        else if(dr) calm.push("ناظر: "+ltr(String(dr)));
 
         var miss=(ob.missing||[]).length;
-        if(miss>0) push("warm", fa(miss)+" سندِ مرجع گم است",
+        // UI-02: سند مرجع calm فقط اگر obsidian status===ok
+        if(ob.status !== "ok"){
+          push("warm","ابسیدین خوانده نشد",
+            "وضع: "+ltr(String(ob.status||"?"))+" — نبودِ داده را «کامل» نمی‌خوانیم.",
+            {tab:"system",label:"دیدنِ ابسیدین"});
+        } else if(miss>0) push("warm", fa(miss)+" سندِ مرجع گم است",
           "ابسیدین اینها را پیدا نکرد.", {tab:"system",label:"دیدنِ ابسیدین"});
         else calm.push("سندهای مرجع کامل");
 
@@ -1749,7 +1834,11 @@
   // ⚠️ مارک‌خواندن **خودکار روی بازشدنِ تب نیست** — دکمهٔ صریح «خواندم».
   // چون آیتم‌های kind=pointer (کارتِ RFC/پیشنهادِ پا) قبل از رفتن به تبِ
   // مقصد نباید از این فهرست گم شوند — مالک باید اول ببیندشان، بعد تصمیم بگیرد.
-  var GOTO_TAB_FA = {system:"سیستم", approvals:"تأییدها"};
+  var GOTO_TAB_FA = {
+    system:"سیستم", approvals:"تأییدها", money:"پول", leads:"لیدها",
+    tasks:"کارها", ask:"پرسش", home:"خانه", scans:"اسکن‌ها",
+    notifications:"اعلان‌ها"
+  };
   function renderNotifications(el){
     el.innerHTML = '<div class="loading">در حال بارگذاری…</div>';
     api("/api/notifications").then(function(d){
@@ -1830,7 +1919,7 @@
     render(name);
   }
   function viewApprovals(el){ stack(el||content, [renderApprovals, renderLifecycle]); }
-  function viewMoney(el){ stack(el||content, [renderValue, renderValueEntry, renderOutbound]); }
+  function viewMoney(el){ stack(el||content, [renderMoneyCaps, renderValue, renderValueEntry, renderOutbound]); }
   function viewLeads(el){ stack(el||content, [renderLeadOps, renderPF]); }
   // ⚠️ renderStudio از این‌جا برداشته شد: کارتی کاملاً انگلیسی وسطِ صفحهٔ
   // فارسی، با دو کلاسِ ناموجود در CSS، JSON ِ خام به‌جای رسید، و پای
@@ -1855,7 +1944,7 @@
       if(_renderSeq !== myseq) return;
       var bad = [], unk = [], fine = 0;
       rs.forEach(function(d, i){
-        var s = String(((d||{}).status)||"ok"), name = EPS[i][1];
+        var s = String(((d||{}).status)||"unknown"), name = EPS[i][1];
         if(s==="error" || s==="unknown_schema") bad.push([name, (d||{}).reason||s]);
         else if(s==="unknown") unk.push([name, (d||{}).reason||""]);
         else fine += 1;
@@ -1991,23 +2080,27 @@
   }
   function viewScans(el){ stack(el||content, [renderCognitiveScan, renderAgentLog]); }
 
-  // ── پرسش (۲۰۲۶-۰۸-۰۸) + همکار (۲۰۲۶-۰۸-۱۱) ─────────────────────────────
-  // چت‌باکسِ /api/ask: اول ask_vault (رایگان/مستندِ vault)، فقط اگر منبعی
-  // نبود ask_brain (مغزِ گران/محلی). نردبان سمتِ سرور است — این‌جا فقط
-  // نمایشِ گفتگو و برچسبِ منبعِ جواب.
-  // چیپِ «🪞 با حافظه»: نقطهٔ ورودِ mirror_room.
-  // چیپِ «🤝 همکار»: POST /api/collab → collaborator.handle (shadow،
-  // default OFF روی سرور؛ اگر feature_disabled → پیام صادقانه).
-  // UI موجود را بازنویسی نمی‌کند — فقط سوئیچِ endpoint/payload.
+  // ── پرسش (۲۰۲۶-۰۸-۰۸) + همکار پیش‌فرض (۲۰۲۶-۰۸-۱۱ Talk Discovery) ─────
+  // وقتی OCTOPUS_WIRE_COLLAB=1 (از window.__OCTOPUS__.wire_collab): پیش‌فرض
+  // مسیر پاسخ = 🤝 همکار (/api/collab). Ask و Mirror فقط با انتخاب صریح.
+  // همکار = draft پاسخ؛ اثر خارجی از این UI مجاز نیست.
   function renderAsk(el){
+    var collabDefault = !!(window.__OCTOPUS__ && window.__OCTOPUS__.wire_collab);
     el.innerHTML = secHead("پرسش از اختاپوس") +
       '<div class="card">'+
       '<div id="askLog" class="asklog"></div>'+
       '<div class="chips">'+
-        '<button class="chip" id="askMirror" type="button">🪞 با حافظه (آینه)</button>'+
-        '<button class="chip" id="askCollab" type="button">🤝 همکار</button>'+
+        '<button class="chip'+(collabDefault?" on":"")+'" id="askCollab" type="button">🤝 همکار</button>'+
+        '<button class="chip'+(collabDefault?"":" on")+'" id="askPlain" type="button">💬 Ask</button>'+
+        '<button class="chip" id="askMirror" type="button">🪞 آینه</button>'+
+        '<button class="chip" id="askGuide" type="button">🧭 به کورتکس</button>'+
       '</div>'+
-      '<input class="fin" id="askQ" type="text" placeholder="از خودِ اختاپوس بپرس…" maxlength="500">'+
+      '<div class="muted askmeta" id="askModeHint">'+(
+        collabDefault
+          ? "پیش‌فرض: همکار (پاسخ draft · بدون اثر خارجی). Ask/آینه/کورتکس فقط با انتخاب صریح."
+          : "همکار خاموش است — پیش‌فرض Ask. روشن‌کردن فقط با رأی مالک."
+      )+'</div>'+
+      '<input class="fin" id="askQ" type="text" placeholder="از خودِ اختاپوس بپرس… یا با «به کورتکس» یک focus بفرست" maxlength="500">'+
       '<button class="go" id="askGo">بپرس</button>'+
       '</div>';
     var log = el.querySelector("#askLog");
@@ -2015,29 +2108,217 @@
     var go = el.querySelector("#askGo");
     var mirrorChip = el.querySelector("#askMirror");
     var collabChip = el.querySelector("#askCollab");
-    var useMirror = false;
-    var useCollab = false;
-    mirrorChip.addEventListener("click", function(){
-      useMirror = !useMirror;
-      if(useMirror){ useCollab = false; collabChip.classList.remove("on"); }
-      mirrorChip.classList.toggle("on", useMirror);
-      hapticSelect();
-    });
-    collabChip.addEventListener("click", function(){
-      useCollab = !useCollab;
-      if(useCollab){ useMirror = false; mirrorChip.classList.remove("on"); }
-      collabChip.classList.toggle("on", useCollab);
-      hapticSelect();
-    });
-    function addTurn(q, a, meta, bad){
+    var plainChip = el.querySelector("#askPlain");
+    var guideChip = el.querySelector("#askGuide");
+    // فاز R/S — بازیابی چت قبلی (localStorage) قبل از اولین تعامل
+    (function restoreAskLog(){
+      try {
+        var rows = JSON.parse(localStorage.getItem("octopus.asklog.v1") || "[]");
+        rows.forEach(function(r){
+          if(!r || !r.q) return;
+          var row = document.createElement("div");
+          row.className = "askturn";
+          row.innerHTML = '<div class="askq">'+esc(r.q)+'</div>'+
+            '<div class="aska'+(r.bad?" bad":"")+'">'+esc(r.a||"")+'</div>'+
+            (r.m ? '<div class="muted askmeta">'+esc(r.m)+'</div>' : '');
+          log.appendChild(row);
+        });
+        log.scrollTop = log.scrollHeight;
+      } catch(e){ /* localStorage خراب → خالی */ }
+    })();
+    // 2026-08-12 — حافظهٔ سرور: گفتگو حالا سرور-ساید هم سیو می‌شود
+    // (chat-log.jsonl). این بخش تاریخچهٔ سرور + هدفِ اعلام‌شدهٔ مالک
+    // (owner-goal.json) را نشان می‌دهد — همه‌چیز به هم وصل، نه localStorage-only.
+    (function loadServerLog(){
+      try {
+        // UI-08 (DISCOVERY-WIRE 2026-08-12): __OCTOPUS__.init_data هرگز ست
+        // نمی‌شود — auth باید از tg.initData/tgHeaders بیاید وگرنه 403 ساکت.
+        var sh = tgHeaders({});
+        var sx = new XMLHttpRequest();
+        sx.open("GET", "/api/chat-log?limit=10", true);
+        for(var hk in sh) sx.setRequestHeader(hk, sh[hk]);
+        sx.onload = function(){
+          if(sx.status !== 200) return;
+          try {
+            var sd = JSON.parse(sx.responseText);
+            if(sd.goal && sd.goal.goal){
+              var g = document.createElement("div");
+              g.className = "muted askmeta";
+              g.innerHTML = '🎯 هدفِ مالک: '+esc(String(sd.goal.goal).slice(0,150));
+              log.appendChild(g);
+            }
+            (sd.turns||[]).forEach(function(t){
+              if(!t || !t.text) return;
+              var row = document.createElement("div");
+              row.className = "askturn";
+              var who = t.role === "owner" ? "🧑 مالک" : "🐙 اختاپوس";
+              row.innerHTML = '<div class="askq">'+who+' · '+esc(String(t.text).slice(0,220))+'</div>'+
+                '<div class="muted askmeta">🧠 حافظهٔ سرور'+
+                (t.model_source ? ' · '+esc(t.model_source) : '')+
+                (t.ts ? ' · '+esc(String(t.ts).slice(0,16)) : '')+'</div>';
+              log.appendChild(row);
+            });
+            log.scrollTop = log.scrollHeight;
+          } catch(e2){ /* JSON خراب → بی‌صدا */ }
+        };
+        sx.onerror = function(){};
+        sx.send();
+      } catch(e3){ /* fetch اختیاری — بی‌صدا */ }
+    })();
+    // mode: "collab" | "ask" | "mirror" | "guide"
+    var mode = collabDefault ? "collab" : "ask";
+    function paint(){
+      collabChip.classList.toggle("on", mode === "collab");
+      plainChip.classList.toggle("on", mode === "ask");
+      mirrorChip.classList.toggle("on", mode === "mirror");
+      if(guideChip) guideChip.classList.toggle("on", mode === "guide");
+      var hint = el.querySelector("#askModeHint");
+      if(hint && mode === "guide"){
+        hint.textContent = "به کورتکس: متن → owner_guidance.jsonl (cortex در cycle می‌خواند · بدون IPC · بدون اثر بیرونی).";
+      }
+    }
+    function setMode(m){ mode = m; paint(); hapticSelect(); }
+    collabChip.addEventListener("click", function(){ setMode("collab"); });
+    plainChip.addEventListener("click", function(){ setMode("ask"); });
+    mirrorChip.addEventListener("click", function(){ setMode("mirror"); });
+    if(guideChip) guideChip.addEventListener("click", function(){ setMode("guide"); });
+    paint();
+    // فاز R/S — session persist در tab switch (localStorage؛ فقط preview/متن، بدون secret)
+    var ASKLOG_KEY = "octopus.asklog.v1";
+    function saveLog(){
+      try {
+        var rows = [];
+        log.querySelectorAll(".askturn").forEach(function(r){
+          var q = (r.querySelector(".askq")||{}).textContent || "";
+          var a = (r.querySelector(".aska")||{}).textContent || "";
+          var m = (r.querySelector(".askmeta")||{}).textContent || "";
+          rows.push({q:q, a:a, m:m, bad: (r.querySelector(".aska")||{}).classList.contains("bad")});
+        });
+        localStorage.setItem(ASKLOG_KEY, JSON.stringify(rows.slice(-24)));
+      } catch(e){ /* storage نباشد → بی‌صدا */ }
+    }
+    function restoreLog(){
+      try {
+        var rows = JSON.parse(localStorage.getItem(ASKLOG_KEY) || "[]");
+        rows.forEach(function(r){
+          addTurn(r.q||"", r.a||"", r.m||"", !!r.bad);
+        });
+      } catch(e){ /* خراب → خالی */ }
+    }
+    function addTurn(q, a, meta, bad, sourcesHtml){
       var row = document.createElement("div");
       row.className = "askturn";
       row.innerHTML = '<div class="askq">'+esc(q)+'</div>'+
         '<div class="aska'+(bad?" bad":"")+'">'+esc(a)+'</div>'+
-        (meta ? '<div class="muted askmeta">'+esc(meta)+'</div>' : '');
+        (meta ? '<div class="muted askmeta">'+esc(meta)+'</div>' : '')+
+        (sourcesHtml || "");
       log.appendChild(row);
       log.scrollTop = log.scrollHeight;
+      saveLog();
       return row;
+    }
+    function buildSourcesPanel(data){
+      if(!data) return "";
+      var facts = data.facts || [];
+      var lims = data.limitations || [];
+      var eq = data.equation_advice || {};
+      var uctx = data.unified_context || {};
+      var body = "";
+      if(facts.length){
+        body += facts.map(function(f){
+          var p = f.provenance || {};
+          return "· "+(f.title||"?")+" ["+(p.source_kind||"?")+"; "+(p.trust||"?")+
+            "; conf="+((f.confidence!=null)?Number(f.confidence).toFixed(2):"?")+"]\n"+
+            "  path="+(p.path||"?")+" digest="+(p.content_digest||"?");
+        }).join("\n");
+      }
+      if(lims.length){
+        body += (body?"\n\n":"")+"محدودیت‌ها:\n"+lims.map(function(x){return "· "+x;}).join("\n");
+      }
+      // فاز R/Q — معادلات مرتبط (advice-only) — فقط وقتی backend فرستاده
+      if(eq && eq.equations_consulted && eq.equations_consulted.length){
+        body += (body?"\n\n":"")+"معادلات مرتبط:\n"+
+          "· "+(eq.equations_consulted||[]).join(" · ")+
+          "  [aggregate="+(eq.aggregate_advice||"?")+"]\n"+
+          "  advice_only="+(eq.equation_advice_only===true?"true":"false")+
+          " decision_effect="+(eq.decision_effect===true?"true":"false")+
+          " apply_effect="+(eq.apply_effect===true?"true":"false");
+      }
+      // لایهٔ ۵ — نبض مغزها از فایل (file-bridge؛ نه IPC)
+      var sc = uctx && uctx.self_context;
+      if(sc && (sc.cortex || sc.business_brain)){
+        var cx = sc.cortex || {};
+        var bb = sc.business_brain || {};
+        body += (body?"\n\n":"")+"مغزها (file-bridge):\n"+
+          "· cortex: live="+(cx.live===true?"true":"false")+
+          " cycle="+(cx.cycle!=null?cx.cycle:"?")+
+          " coherence="+(cx.coherence!=null?cx.coherence:"?")+
+          " aligned="+(cx.aligned===true?"true":(cx.aligned===false?"false":"?"))+
+          "\n· business_brain: live="+(bb.live===true?"true":"false")+
+          " beat="+(bb.beat!=null?bb.beat:"?")+
+          " proposals="+(bb.n_proposals!=null?bb.n_proposals:"?")+
+          "\n· bridge="+(sc.bridge||"file-read-only")+
+          " ipc="+(sc.ipc_to_cortex===true?"true":"false")+
+          " heard_chat="+(sc.chat_heard_by_brains===true?"true":"false");
+        var titles = bb.proposal_titles || [];
+        if(titles.length){
+          body += "\n· پیشنهادها:\n"+titles.map(function(t){return "  - "+t;}).join("\n");
+        }
+        var sk = sc.doctor_self_knowledge || {};
+        if(sk && (sk.focus || sk.smallest_fix)){
+          body += "\n· doctor.focus="+(sk.focus||"?")+
+            "\n· smallest_fix="+(sk.smallest_fix||"?");
+        }
+      }
+      // فاز T — وضعیت سایه (shadow) — همیشه applied=false
+      if(uctx && uctx.shadow){
+        body += (body?"\n\n":"")+"وضعیت سایه (Shadow):\n"+
+          "· records="+(uctx.shadow.shadow_records||0)+
+          " applied="+(uctx.shadow.applied===true?"true":"false")+
+          " may_authorize="+(uctx.shadow.may_authorize===true?"true":"false");
+      }
+      // فاز T — پیشنهاد اثر (limited-effect) — فقط proposal
+      if(uctx && uctx.effects){
+        body += (body?"\n\n":"")+"پیشنهاد اثر:\n"+
+          "· policy_gate="+(uctx.effects.policy_gate_status||"?")+
+          " proposal_created="+(uctx.effects.proposal_created===true?"true":"false")+
+          " applied="+(uctx.effects.applied===true?"true":"false");
+      }
+      // فاز Q — معماری مرتبط (اگر backend فرستاد)
+      if(uctx && uctx.architecture && uctx.architecture.components){
+        body += (body?"\n\n":"")+"اجزای معماری:\n"+
+          "· "+(uctx.architecture.components||[]).slice(0,6).join("\n· ");
+      }
+      // Cognitive Runtime — run_id + trace + event timeline
+      if(data.run_id){
+        body += (body?"\n\n":"")+"Run: "+data.run_id;
+        if(data.trace_id) body += " · trace: "+data.trace_id;
+        // event timeline: fetch SSE endpoint (events already complete for sync flow)
+        // استفاده از fetch نه EventSource — چون events قبلاً نوشته شده‌اند
+        try {
+          // UI-08 (DISCOVERY-WIRE 2026-08-12): auth از tgHeaders — وگرنه 403 ساکت
+          var evHeaders = tgHeaders({});
+          var evUrl = "/api/runs/"+data.run_id+"/events?after=0";
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", evUrl, false); // sync — در buildSourcesPanel
+          for(var hk in evHeaders) xhr.setRequestHeader(hk, evHeaders[hk]);
+          xhr.send(null);
+          if(xhr.status === 200 && xhr.responseText){
+            var evLines = xhr.responseText.split("\n").filter(function(l){
+              return l.indexOf("event:") === 0;
+            });
+            if(evLines.length){
+              body += "\n\nرویدادهای run:\n"+evLines.map(function(l){
+                return "· "+l.replace("event: ","").trim();
+              }).slice(0,8).join("\n");
+            }
+          }
+        } catch(ee){ /* SSE fetch اختیاری — بی‌صدا */ }
+      }
+      if(!body) return "";
+      return '<details class="ask-sources"><summary>📎 Sources / شواهد · معادلات · وضعیت</summary>'+
+        '<pre class="muted" style="white-space:pre-wrap;font-size:12px;margin:6px 0 0">'+
+        esc(body)+'</pre></details>';
     }
     function ask(){
       var q = (input.value||"").trim();
@@ -2045,30 +2326,74 @@
       go.disabled = true; input.disabled = true; go.setAttribute("data-busy","1");
       var pending = addTurn(q, "در حال فکر کردن…", "");
       pending.querySelector(".aska").classList.add("muted");
-      var endpoint = useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask");
-      var payload = useCollab ? {text: q} : {question: q};
-      apiPost(endpoint, payload).then(function(r){
-        pending.remove();
-        if(useCollab){
+      var useCollab = mode === "collab";
+      var useMirror = mode === "mirror";
+      var useGuide = mode === "guide";
+      var endpoint = useGuide ? "/api/brain-guide"
+        : (useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask"));
+      var payload = (useCollab || useGuide) ? {text: q} : {question: q};
+      // DeepSeek روی همکار اغلب ۱۰–۳۰ث؛ Ask زنجیره هم طولانی‌تر از ۴۵ث است (UI-05).
+      var tmo = useGuide ? 20000 : (useCollab ? 90000 : 90000);
+      apiPost(endpoint, payload, tmo).then(function(r){
+        try { pending.remove(); } catch(e){}
+        // UI-07: 403 → toast ببند/باز کن مینی‌اپ
+        if(r && (r.http_status === 403 || /owner_auth|403/.test(String(r.reason||"")))){
+          toast("احراز رد شد — مینی‌اپ را ببند و از تلگرام دوباره باز کن","warn");
+        }
+        if(useGuide){
+          if(r && r.ok){
+            var d = r.directive || {};
+            var bits = [];
+            if(d.focus) bits.push("focus="+String(d.focus).slice(0,120));
+            if(d.think_every_n!=null) bits.push("think_every_n="+d.think_every_n);
+            if(d.paused!=null) bits.push("paused="+d.paused);
+            addTurn(q,
+              "ثبت شد برای cortex (owner_guidance). "+(bits.join(" · ")||"directive ok")+
+              "\nمسیر: "+(r.path||"state/cortex/owner-guidance.jsonl")+
+              "\n"+ (r.note||"در cycle بعد خوانده می‌شود."),
+              "منبع: brain-guide · بدون IPC · بدون اثر بیرونی", false);
+          } else {
+            addTurn(q, "ثبت نشد ("+((r&&r.error)||(r&&r.reason)||"نامشخص")+")", "", true);
+          }
+        } else if(useCollab){
           // owner-console.reply.v1 — or feature_disabled / auth errors
           if(r && r.schema === "owner-console.reply.v1"){
             var meta = "منبع: همکار"+(r.model_source?" · "+r.model_source:"")+
-              (r.kind ? " · "+r.kind : "");
-            addTurn(q, r.text||"", meta, r.kind === "disabled");
+              (r.kind ? " · "+r.kind : "")+" · draft · بدون اثر خارجی";
+            var src = buildSourcesPanel(r.data);
+            addTurn(q, r.text||"", meta, r.kind === "disabled", src);
           } else if(r && r.reason === "feature_disabled"){
             addTurn(q, "همکار خاموش است (OCTOPUS_WIRE_COLLAB=0). روشن‌کردنش فقط با رأی مالک.", "", true);
           } else {
-            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
+            addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")", "", true);
           }
         } else if(r && r.ok){
+          var vaultSrc = "";
+          if(r.source === "vault" && (r.sources||[]).length){
+            vaultSrc = '<details class="ask-sources"><summary>📎 منابع vault ('+r.sources.length+' نوت)</summary>'+
+              '<pre class="muted" style="white-space:pre-wrap;font-size:12px;margin:6px 0 0">'+
+              esc((r.sources||[]).map(function(s){ return "· "+(typeof s === "string" ? s : (s.path||s.title||JSON.stringify(s))); }).join("\n"))+
+              '</pre></details>';
+          }
           var meta = r.source === "vault"
-            ? "منبع: vault ("+((r.sources||[]).length)+" نوت)"
+            ? "منبع: vault ("+((r.sources||[]).length)+" نوت)"+(r.vault_empty===true?" · vault_empty=true":"")
             : r.source === "mirror"
               ? "منبع: آینه"+(r.recorded_correction?" · تصحیحت ثبت شد":"")
-              : "منبع: مغزِ "+(r.model||r.tier||"گران");
-          addTurn(q, r.answer||"", meta);
+              : r.source === "collab-fallback"
+                ? "منبع: همکار (fallback · مغز جواب نداد)"+(r.kind?" · "+r.kind:"")+
+                  " · chip=Ask ولی مسیر fallback"
+                : "منبع: مغزِ "+(r.model||r.tier||"گران");
+          // UI-09: Sources برای collab-fallback هم مثل collab
+          var extraSrc = vaultSrc;
+          if(r.source === "collab-fallback" && r.data){
+            extraSrc = (extraSrc||"") + buildSourcesPanel(r.data);
+          }
+          if(r.source === "collab-fallback"){
+            toast("جواب از همکار آمد (fallback) — chip Ask بود","warn");
+          }
+          addTurn(q, r.answer||"", meta, false, extraSrc);
         } else {
-          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+")", "", true);
+          addTurn(q, "جواب نگرفتم ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+") — دوباره بپرس؛ DeepSeek گاهی ۲۰–۴۰ثانیه طول می‌کشد.", "", true);
         }
         input.value = "";
         go.disabled = false; input.disabled = false; go.removeAttribute("data-busy");

@@ -176,6 +176,16 @@ def run_all(beat: int = 0) -> dict:
             lj.write(digest)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"part_loops persist failed: {e}"])
+    # ۲۰۲۶-۰۸-۱۱ — ضدِ هدررفتنِ پیشنهادهای لوپِ بخش‌ها
+    try:
+        mem_dir = str(_OPS / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import self_loop_ingest as _sli  # noqa: WPS433
+        digest["memory_ingest"] = _sli.ingest_part_loops(digest)
+    except Exception:  # noqa: BLE001
+        digest["memory_ingest"] = {"ok": False, "skipped": "ingest-error",
+                                   "may_authorize": False}
     # رویدادِ ساختاریافته برای داشبورد
     try:
         sys.path.insert(0, str(_OPS))

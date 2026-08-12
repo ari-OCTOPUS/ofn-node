@@ -235,9 +235,20 @@ def run_and_persist(ask=None, extra: dict | None = None, tier: str | None = None
             pass
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "error": str(e)}
+    # ۲۰۲۶-۰۸-۱۱ — ضدِ هدررفتنِ پیشنهادهای سنتز (pulse overwrite)
+    ingest_summary = {"ok": False, "skipped": "no-digest", "may_authorize": False}
+    try:
+        mem_dir = str(Path(__file__).resolve().parent.parent / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import self_loop_ingest as _sli  # noqa: WPS433
+        ingest_summary = _sli.ingest_synthesis(digest)
+    except Exception:  # noqa: BLE001
+        ingest_summary = {"ok": False, "skipped": "ingest-error", "may_authorize": False}
     return {"ok": True, "tier": digest["tier"],
             "n_proposals": len(digest["proposals"]),
-            "cost_usd": digest["cost_usd"]}
+            "cost_usd": digest["cost_usd"],
+            "memory_ingest": ingest_summary}
 
 
 if __name__ == "__main__":

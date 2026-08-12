@@ -193,6 +193,34 @@ def _context_for(topic_key: str = "") -> dict:
             ctx["کار"] = dt._business_context()
     except Exception:  # noqa: BLE001 — نبودِ context جواب را کلی می‌کند، نه خراب
         pass
+    # DW-04 باقیمانده 2026-08-12: SK/brain_pulse به ask_brain (collab از قبل دارد)
+    try:
+        import sys
+        from pathlib import Path
+        mem = Path(__file__).resolve().parent.parent / "memory"
+        if str(mem) not in sys.path:
+            sys.path.insert(0, str(mem))
+        import brain_pulse as _bp  # noqa: WPS433
+        _bp.STATE_DIR = Path(__file__).resolve().parent.parent / "state"
+        snap = _bp.snapshot()
+        sk = snap.get("doctor_self_knowledge") or {}
+        cx = snap.get("cortex") or {}
+        bb = snap.get("business_brain") or {}
+        pulse = {
+            "bridge": snap.get("bridge"),
+            "cortex_cycle": cx.get("cycle"),
+            "cortex_coherence": cx.get("coherence"),
+            "business_beat": bb.get("beat"),
+            "business_proposals": bb.get("n_proposals"),
+        }
+        if isinstance(sk, dict):
+            if sk.get("focus"):
+                pulse["doctor_focus"] = str(sk["focus"])[:160]
+            if sk.get("smallest_fix"):
+                pulse["smallest_fix"] = str(sk["smallest_fix"])[:160]
+        ctx["brain_pulse"] = pulse
+    except Exception:  # noqa: BLE001
+        pass
     # دایجستِ زندهٔ همان تاپیک (همان چیزی که مالک روی صفحه می‌بیند)
     try:
         import render as _r

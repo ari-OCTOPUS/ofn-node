@@ -278,4 +278,18 @@ def run_and_persist(topics: list[str], *, opener: Optional[Opener] = None,
                                (f" — «{ttl}»" if ttl else "") + f" ({total} نتیجه)")
     except Exception:  # noqa: BLE001 — ثبتِ کشف نباید تحقیق را بکشد
         pass
-    return {"ok": True, "n_topics": digest["n_topics"], "n_hits": total}
+    # ۲۰۲۶-۰۸-۱۱ — ضدِ هدررفتن: digest هر tick overwrite می‌شود؛ ingest episodic + jsonl
+    # provenance می‌سازد. صفر اختیار (may_authorize=False). fail-soft.
+    ingest_summary = None
+    try:
+        mem_dir = str(_HERE.parent / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import research_ingest as _ri  # noqa: WPS433
+        ingest_summary = _ri.ingest_digest(digest)
+    except Exception:  # noqa: BLE001
+        ingest_summary = {"ok": False, "skipped": "ingest-error"}
+    out = {"ok": True, "n_topics": digest["n_topics"], "n_hits": total}
+    if ingest_summary is not None:
+        out["memory_ingest"] = ingest_summary
+    return out
