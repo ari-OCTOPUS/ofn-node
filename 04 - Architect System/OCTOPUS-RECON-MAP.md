@@ -52,4 +52,4 @@ created_by: agent
 
 ## Δ نقشه↔نقشه (برای ایجنت بعد)
 
-Phase 1 این جلسه ساخته شد → [[_ops/ORGANISM-SPEC|ORGANISM-SPEC]] §Chrono. مرجع طراحی verbatim: [[CHRONOS-FABLE-OS/10_Implementation/DataSchemas|DataSchemas]] + [[CHRONOS-FABLE-OS/01_SourceMap/_primaries/OCTOPUS_CHRONO_ARCHITECTURE|DOC-B]] §8/§9/§11 + [[CHRONOS-FABLE-OS/08_Safety/HeartDesign_PulseCore|HeartDesign]].
+Phase 1 این جلسه ساخته شد → [[_ops/ORGANISM-SPEC|ORGANISM-SPEC]] §Chrono. مرجع طراحی verbatim: DataSchemas (`_Archive/CHRONOS-FABLE-OS/10_Implementation/DataSchemas.md`) + DOC-B (`_Archive/CHRONOS-FABLE-OS/01_SourceMap/_primaries/OCTOPUS_CHRONO_ARCHITECTURE.md`) §8/§9/§11 + HeartDesign (`_Archive/CHRONOS-FABLE-OS/08_Safety/HeartDesign_PulseCore.md`). (پوشه بعداً به _Archive منتقل شد؛ ۲۰۲۶-۰۸-۱۲ به متن‌ساده تبدیل شد چون validator عمداً _Archive را ایندکس نمی‌کند — رجوع: find_broken_links.py:14/36.)

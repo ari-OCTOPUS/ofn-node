@@ -4,10 +4,10 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [prompt, security, architecture, governance]
 created: 2026-07-16
-updated: 2026-07-16
+updated: 2026-08-12
 created_by: agent
 sources:
-  - "[[_agent_audit_output/20_security_architecture_review_2026-07-16|ممیزی امنیتی ۶-محوره]] (کامیت 4a1c5a5 · ۳۰۵ ایجنت · ۳ High دستی-تأییدشده)"
+  - "ممیزی امنیتی ۶-محوره (کامیت 4a1c5a5 · ۳۰۵ ایجنت · ۳ High دستی-تأییدشده) — گزارشِ اصلی در _agent_audit_output/20_security_architecture_review_2026-07-16 یافت نشد (۲۰۲۶-۰۸-۱۲ چک شد، مسیر در vault وجود ندارد)"
   - "[[06 - Architecture Maps/AUTONOMY-MATRIX-2026-07-16]] (قرارداد خودمختاری — رأی مالک ۱۹:۳۰)"
   - "[[04 - Architect System/octopus-build-prompts/NEXT-AGENT-PROMPT-2026-07-16|پرامپت ادراک (c44f206)]] — این یکی رویش سوار است، جایگزینش نیست"
 ---
@@ -26,7 +26,7 @@ sources:
 
 1. `_PROJECT_INSTRUCTIONS.md` — قانون اساسی (فقط‌خواندنی).
 2. **[[06 - Architecture Maps/AUTONOMY-MATRIX-2026-07-16|AUTONOMY-MATRIX]]** — قراردادِ خودمختاریِ تو. رأی مالک: گیتِ انسانی فقط برای «مهم»؛ بقیه تصمیم بگیر و انجام بده و ثبت کن.
-3. **[[_agent_audit_output/20_security_architecture_review_2026-07-16|گزارش ممیزی امنیتی]]** — کارتِ ۹-فیلدیِ هر یافته، ۵ ریشه، رودمپ ۳۰-۶۰-۹۰. این پایگاهِ شواهدِ توست.
+3. **گزارش ممیزی امنیتی** (`_agent_audit_output/20_security_architecture_review_2026-07-16` — ⚠️ این مسیر در vault یافت نشد، ۲۰۲۶-۰۸-۱۲ چک شد) — کارتِ ۹-فیلدیِ هر یافته، ۵ ریشه، رودمپ ۳۰-۶۰-۹۰. این پایگاهِ شواهدِ توست.
 4. `01 - Dashboard/HANDOFF.md` — وضعِ لحظه‌ای (خودش هم مظنون است — دوباره probe کن).
 5. `00 - Inbox/AGENT_QUESTIONS.md` بخشِ ۲۰۲۶-۰۷-۱۶ — رأی‌های معلقِ مالک.
 
