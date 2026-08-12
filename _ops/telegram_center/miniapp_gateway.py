@@ -537,10 +537,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     if p == "/api/actions":
         if method_u != "POST":
             return 405, b"", "text/plain; charset=utf-8"
-        token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
-        owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
-        init_data = _get_header(headers, "X-Tg-Init-Data") or ""
-        if not token or not owner or validate_init_data(init_data, bot_token=token, owner_id=owner, now=now) is None:
+        if not _owner_initdata_ok(headers, now=now):
             return 403, b'{"ok":false,"status":"DENIED","reason":"owner_auth_required"}', "application/json; charset=utf-8"
         if _action_rate_limited(now):
             return 429, b'{"ok":false,"status":"DENIED","reason":"rate_limited"}', "application/json; charset=utf-8"
@@ -936,13 +933,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                               ensure_ascii=False).encode("utf-8")
             return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
-        token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
-        owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
-        init_data = _get_header(headers, "X-Tg-Init-Data") or ""
-        if not token or not owner:
-            return 403, b"", "text/plain; charset=utf-8"   # پیکربندیِ ناقص = بسته
-        if validate_init_data(init_data, bot_token=token, owner_id=owner,
-                              now=now) is None:
+        if not _owner_initdata_ok(headers, now=now):
             return 403, b"", "text/plain; charset=utf-8"
         st, body, ctype = fetch("/api/miniapp")
         if st == 200:
@@ -1070,13 +1061,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     # content-free مطلق: فقط aggregate/count؛ هیچ متنِ درفت از مرزِ پوشهٔ
     # پروژه عبور نمی‌کند (قاعدهٔ قفل‌شدهٔ #۷). فلگ خاموش = 404 (no-op).
     if p.startswith("/api/pf/"):
-        token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
-        owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
-        init_data = _get_header(headers, "X-Tg-Init-Data") or ""
-        if not token or not owner:
-            return 403, b"", "text/plain; charset=utf-8"   # پیکربندیِ ناقص = بسته
-        if validate_init_data(init_data, bot_token=token, owner_id=owner,
-                              now=now) is None:
+        if not _owner_initdata_ok(headers, now=now):
             return 403, b"", "text/plain; charset=utf-8"
         try:
             import pf_miniapp  # noqa: WPS433 — هم‌پوشه
