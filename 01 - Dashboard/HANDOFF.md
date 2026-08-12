@@ -31,12 +31,23 @@ updated: 2026-08-12
 
 > 🎯 **پین ایجنت بعدی:** [[../00 - Inbox/2026-08-12 HANDOFF — Session Evening for Next Agent|HANDOFF سشن عصر — مراحل بعدی]]  
 > خلاصه: لید 667951 SET_ASIDE · سقف «فعلا متغیر» · Obsidian frontmatter سبز + `/api/obsidian` درست · صداقت A  
-> **باز:** رأی git A/B/C (checkpoint؟) — بدون آن کامیت نکن  
+> **بسته 2026-08-13:** رأیِ git — مالک «هردو» (proceed + commit مجاز). تصادمِ ADR-039 حل شد: epistemic می‌ماند **039**، conversation-hub شد **ADR-040** (در `architecture/adr/` — نکتهٔ جداگانه: آن ایجنت ADR را در دایرکتوریِ غیرکانونی گذاشته، migration به `research-spec-compiler/adr/` باز است).
 > Checklist: [[../00 - Inbox/2026-08-12 CHECKLIST — 100 Steps Execution|۱۰۰ قدم]] · Evidence `DISCOVERY-WIRE-2026-08-12/05+06`
 
 > SoT: `_ops/OCTOPUS-HONESTY.md` · `docs/MONEY-CLAIM-VS-CONFIRM.md` · `GOALS-OCTOPUS.md`
 
 > **پیش‌زمینه:** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] · مالک: مینی‌اپ ببند/باز بعد از gateway.
+
+- ✅🧪 **2026-08-12 شب — ADR-039 Commit 1: موتورِ آزمونِ معرفتی (strict schemas + canonical + policy).**
+  [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]] ·
+  Evidence: `_ops/epistemics/{schemas,canonical,policy,validator}.py` + `policy.yaml`
+  · **C1 پیاده، نه wired** (default-OFF `EPISTEMIC_TESTS=0`؛ wiring = C5)
+  · schemas = Pydantic v2 strict/forbid/frozen (`EpistemicClaim`/`TestPlan`/`EvidenceReceipt`/`GateDecision`)
+  · مرزهای §7 در سطحِ schema: `may_execute=False` · `sandbox=no_network` · `authority=propose` · testability>0
+  · **ADR-037 amend:** `epistemics/schemas.py` دومین کابینِ Pydanticِ _ops (Pydantic فقط در همین یک فایل)
+  · suites: `test_epistemic_schemas.py` ۴۵/۴۵ · ۵ سوییتِ experiments همگی سبز (بدونِ regression)
+  · قدم بعدی: C2 (receipt_store + provenance + replay verifier)
+  · **committed:** `795a052` (C1) — رأیِ git حل‌شده (مالک: «هردو» 2026-08-13)
 
 - ✅🧠 **2026-08-12 شب — Cognitive Runtime v1 کامل: Events + Run + SSE + Truth + Context + Memory Formation.**
   · **E1-E3:** `event_stream.py` + `run_store.py` — هر مکالمه `run_id` + typed event chain

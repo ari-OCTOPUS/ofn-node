@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """test_conversation_hub.py — Conversation Hub Phase 1 tests (t_a through t_k).
 
-ADR-039: Hub core schemas + router + service with stub adapters.
+ADR-040: Hub core schemas + router + service with stub adapters.
 All tests use relative imports within the conversation_hub package.
 """
 from __future__ import annotations

@@ -1,5 +1,5 @@
 # _ops/conversation_hub/router.py — deterministic intent router
-# ADR-039 §route: No LLM for routing — purely keyword + pattern based.
+# ADR-040 §route: No LLM for routing — purely keyword + pattern based.
 #
 # Priority order:
 #   1. Explicit mode override (research/guide/propose) → direct, no matching

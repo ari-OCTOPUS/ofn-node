@@ -1,5 +1,5 @@
 # _ops/conversation_hub/service.py — Conversation Hub service entry point
-# ADR-039: Hub is a façade/orchestrator — NOT a replacement for collaborator.
+# ADR-040: Hub is a façade/orchestrator — NOT a replacement for collaborator.
 # It rides on top of existing modules (ask_vault, ask_brain, collaborator, etc.).
 #
 # Phase 1: stub adapters return placeholder text.

@@ -1,5 +1,5 @@
 # _ops/conversation_hub/schemas.py — unified chat schemas (v1)
-# ADR-039: Conversation Hub — single chat endpoint for Octopus.
+# ADR-040: Conversation Hub — single chat endpoint for Octopus.
 # All models are Pydantic v2, strict, frozen — no mutation after creation.
 #
 # Hard constraints baked into schema:

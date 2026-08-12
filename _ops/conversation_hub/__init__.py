@@ -1,5 +1,5 @@
 # _ops/conversation_hub — Conversation Hub package
-# ADR-039: Unified chat orchestrator for Octopus Mini App.
+# ADR-040: Unified chat orchestrator for Octopus Mini App.
 # This is a façade — it rides on top of existing modules, never replaces them.
 
 from .schemas import (

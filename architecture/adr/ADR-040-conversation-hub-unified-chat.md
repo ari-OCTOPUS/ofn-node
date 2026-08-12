@@ -1,4 +1,4 @@
-# ADR-039: Conversation Hub — Unified Chat Architecture
+# ADR-040: Conversation Hub — Unified Chat Architecture
 
 **Status:** Accepted (Phase 1 implemented)
 **Date:** 2026-08-12
