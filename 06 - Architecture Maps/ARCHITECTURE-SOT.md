@@ -381,3 +381,22 @@ ratchet ِ `tg_send_audit`: absent ‏۱۷ → **۷** (baseline ِ خودکار)
 | **W0.4 VQ-LEDGER-CHAIN-001** | `VERDICT_QUEUE.md` | fork هم‌زمان در record 9646 قبلاً با `ledger_repair_reanchor` حل شده بود؛ closure رسمی نوشته شد. |
 
 **یکپارچگیِ زنده (تأییدِ پس از ری‌استارتِ خطِ TG):** commit‌های Wave 0 (`260a0f9`, `5d3b844`) در HEAD `accc0d0` هستن؛ organism زنده (PID 8488) کد Wave 0 رو load کرده (fsync در کد فعلی `True`، beat 19966+ advancing، صفر `.tmp` سرگردان). **هر دو خط در یک organism ادغام شدند.** LEAD_DISCOVERY با دو `set` (L177=1 قدیمی / L817=0 نو) خاموش شد — آخرین `set` در .cmd برنده. `RESTART-VALIDATION-CHECKLIST` procedure کامل + rollback دارد.
+
+## 🧬 ثبتِ ۲۰۲۶-۰۸-۱۲ — hypothesis_engine + چارچوبِ benchmark + موتورِ آزمونِ معرفتی (ADR-037/039)، additive، پیش‌فرضِ خاموش
+
+سه لایهٔ نو رویِ کابینِ مغزِ فرضیه — همگی propose-only / shadow / default-OFF. هیچ‌کدام
+executor ندارند؛ `may_execute=False` سخت‌کدشده. سندِ کامل: [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]].
+
+| concern | canonical | وضعیت |
+|---|---|---|
+| کابینِ Pydantic مغزِ فرضیه (ADR-037) | `_ops/hypothesis_engine/impl/{schemas,hypothesis_brain}.py` | SHADOW — فلگ `CORTEX_HYPOTHESIS`؛ propose-only؛ wired در cortex زیرِ cadence `IMPROVE_EVERY_N` |
+| چارچوبِ benchmarkِ deceptive-grid | `_ops/hypothesis_engine/experiments/` (`env_factory`, `agents`, `scenarios`, `runner`, `verdict`, `analysis`) | LIBRARY — ۹ سناریوی S0–S8، ablationها، red-team، verdictهای V0–V4، provenanceِ JSONL؛ ۵ سوییتِ تست (۳۶۵+ چک) همگی سبز؛ صداکنندهٔ تولیدی ندارد (آزمایشی) |
+| موتورِ آزمونِ معرفتی (ADR-039، TCB-grade) | `_ops/epistemics/{schemas,canonical,policy,validator}.py` + `policy.yaml` | **C1 پیاده، نه wired** — schemas (Pydantic v2 strict/forbid/frozen) + canonical hashing + policy fail-closed + validatorِ pure؛ `test_epistemic_schemas.py` ۴۵/۴۵ سبز؛ default-OFF (`EPISTEMIC_TESTS=0`)؛ **بدونِ wiring تا C5** |
+
+**نکتهٔ ADR-037 amend:** `_ops/epistemics/schemas.py` دومین کابینِ Pydanticِ `_ops` است (پس از
+`hypothesis_engine/impl/schemas.py`). سطحِ Pydantic محدود به همان یک فایل است؛ بقیهٔ فایل‌های
+epistemics stdlib-only. این amend در headerِ `epistemics/__init__.py` و `schemas.py` مستند شد.
+
+**مرزهای سختِ ADR-039 §7 (در سطحِ schema):** `may_execute` همیشه False · `sandbox_profile`
+همیشه `no_network` · `requested_authority` همیشه `propose` · testability>0 · prior∈(0,1).
+مسیرِ راه: C1 ✓ → C2 (receipt chain+provenance) → C3 (generator+runner) → C4 (bayes+multi-agent) → C5 (cortex wiring) → C6/C7.

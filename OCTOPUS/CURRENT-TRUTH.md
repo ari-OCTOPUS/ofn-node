@@ -5,17 +5,17 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-12T08:32:59Z
+> auto-generated: 2026-08-12T20:49:47Z
 
 ## Current Truth
 
-- **coherence:** 0.967
-- **members_present:** 10
+- **coherence:** 0.971
+- **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 32894
+- **beat:** 33371
 - **halted:** False
 - **rfcs_pending:** 0
-- **HEAD:** 1d28067
+- **HEAD:** 691daae
 
 
 <!-- OCTOPUS-AUTO-END -->
@@ -63,3 +63,12 @@ updated: 2026-08-11T13:35:00Z
 - دو مغز زنده: cortex + business_brain · innervation 100%
 - `4d_system` / Super-Governor: **وصل نیست**
 - brain_core: SHADOW matched=0 → promote نکن
+
+### Human status — Epistemic test engine + benchmark (2026-08-12 night, additive)
+
+- **ADR-039 C1 پیاده (نه wired):** `_ops/epistemics/` — schemas (Pydantic strict/frozen) + canonical hashing + policy fail-closed + validatorِ pure؛ `test_epistemic_schemas.py` ۴۵/۴۵ سبز؛ default-OFF
+- **ADR-037 amend:** `epistemics/schemas.py` دومین کابینِ Pydanticِ _ops؛ سطح محدود به همان یک فایل
+- **چارچوبِ deceptive-grid** (`hypothesis_engine/experiments/`): ۹ سناریو + ablation + red-team + verdict V0–V4 + JSONL provenance؛ ۵ سوییت (۳۶۵+ چک) سبز؛ صداکنندهٔ تولیدی ندارد
+- **سخت‌مرزها:** `may_execute=False` · `sandbox=no_network` · `authority=propose` — همگی در سطحِ schema
+- مسیرِ راه: C1 ✓ → C2–C7. جزئیات: [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]]
+- ⚠️ uncommitted — منتظرِ رأیِ git
