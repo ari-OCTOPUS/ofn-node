@@ -22,8 +22,12 @@ COLLAB_DAILY_CAP_DEFAULT = 20
 
 _SYSTEM = (
     "تو اختاپوس هستی — مغزِ کنترل و همکارِ مالک (آرمین). "
-    "فارسی، مستقیم، صادق. اثر بیرونی/ارسال/پرداخت انجام نده؛ فقط توضیح و پیشنهاد. "
-    "اگر مطمئن نیستی بگو. هویتت را پنهان نکن: ارگانیسم چندلایه با گیت و شواهد."
+    "فارسی، مستقیم، صادق، مکالمه‌ای. "
+    "هدف این گفتگو: با هم اختاپوس را کشف و شفاف کنیم — قابلیت‌ها، موانع، "
+    "فلگ‌ها، قلب/قشر/پاها، شواهد زنده. "
+    "اثر بیرونی/ارسال/پرداخت انجام نده؛ فقط توضیح، پیشنهاد، و سؤالِ روشن‌کننده. "
+    "اگر مطمئن نیستی بگو. هویتت را پنهان نکن: ارگانیسم چندلایه با گیت و شواهد. "
+    "جواب را انسانی نگه دار؛ لیست خشک نده مگر مالک بخواهد."
 )
 
 # Injectable for unit tests: Callable[[str, str], dict]
@@ -96,13 +100,85 @@ def _default_ask(task: str, prompt: str, system: str, max_tokens: int) -> dict:
     import sys
     from pathlib import Path
     ops = Path(__file__).resolve().parent.parent
-    cortex = str(ops / "cortex")
-    if cortex not in sys.path:
-        sys.path.insert(0, cortex)
-    if str(ops) not in sys.path:
-        sys.path.insert(0, str(ops))
-    from cortex.model_router import ask  # noqa: WPS433
-    return ask(task, prompt, system=system, max_tokens=max_tokens, tier=None)
+    # model_router روی path به‌صورت ماژولِ تخت است (نه packageِ cortex.*).
+    for p in (ops / "cortex", ops / "debate", ops / "budget", ops):
+        s = str(p)
+        if s not in sys.path:
+            sys.path.insert(0, s)
+    import model_router  # noqa: WPS433
+    return model_router.ask(
+        task, prompt, system=system, max_tokens=max_tokens, tier=None)
+
+
+def _self_context(limit: int = 1200, *, query: str = "") -> str:
+    """شواهد زنده برای «از چی تشکیل شده‌ام» — سبک و سریع (بدون snapshot سنگین).
+
+    ۲۰۲۶-۰۸-۱۲: status.unified قبلاً چند ثانیه می‌گرفت و با DeepSeek به 504 می‌رسید.
+    فقط فایل‌های سبک + cacheِ status اگر آماده باشد.
+    Awareness megaprompt: دو مغز زنده + note 4d + cite حافظه (fail-soft).
+    """
+    chunks: list[str] = []
+    ops = Path(__file__).resolve().parent.parent
+    try:
+        org = json.loads((ops / "state" / "ORGANISM-STATE.json").read_text(encoding="utf-8"))
+        pa = org.get("pain_assessment") or {}
+        mc = org.get("math_control") if isinstance(org.get("math_control"), dict) else {}
+        chunks.append(
+            "organism: beat={b} halted={h} pain={p} protective_skip={ps}".format(
+                b=org.get("beat"), h=org.get("halted"),
+                p=pa.get("pain") if isinstance(pa, dict) else None,
+                ps=org.get("protective_skip"),
+            )
+        )
+        if mc:
+            chunks.append(
+                "math_control: effects={e} rank_bias={r}".format(
+                    e=mc.get("effects"), r=mc.get("rank_bias"),
+                )
+            )
+    except Exception:  # noqa: BLE001
+        pass
+    # دو مغز زندهٔ canonical (نه 4d/Super-Gov)
+    chunks.append(
+        "brains_live: cortex + business_brain (innervated). "
+        "4d_system/Super-Governor وصل نیست (DEPRECATED/SPEC)."
+    )
+    try:
+        truth = ops.parent / "OCTOPUS" / "CURRENT-TRUTH.md"
+        if truth.is_file():
+            body = []
+            for line in truth.read_text(encoding="utf-8", errors="replace").splitlines():
+                s = line.strip()
+                if s.startswith("- **") or s.startswith("### ") or s.startswith("## Current"):
+                    body.append(s)
+                if len(body) >= 18:
+                    break
+            if body:
+                chunks.append("CURRENT-TRUTH:\n" + "\n".join(body))
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        # cacheِ ۸ثانیه‌ای status — اگر قبلاً گرم باشد ارزان است
+        from owner_console import status as st
+        chunks.append(st.blockers())
+        rt = st.runtime_truth()
+        chunks.append("\n".join(rt.splitlines()[:5]))
+    except Exception:  # noqa: BLE001
+        pass
+    # cite-only memory — fail-soft؛ hallucinate مسیر نکن
+    try:
+        import sys
+        mem_dir = str(ops / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import owner_recall as _or  # noqa: WPS433
+        q = str(query or "خودآگاهی improve")
+        facts = _or.recall_for_owner_ask(q, limit=3) if _or.topic_wants_recall(q) else []
+        chunks.append(_or.facts_block_for_context(facts))
+    except Exception:  # noqa: BLE001
+        chunks.append("حافظهٔ اخیر: recall در دسترس نیست (fail-soft).")
+    text = "\n\n".join(c for c in chunks if c and str(c).strip())
+    return text[:limit]
 
 
 def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
@@ -125,14 +201,21 @@ def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
         }
 
     hint = f"\n(context_kind_hint={kind_hint})" if kind_hint else ""
+    ctx = _self_context(query=q)
+    ctx_block = f"\n\n— شواهد زندهٔ خودم (برای جواب دقیق) —\n{ctx}\n" if ctx else ""
     prompt = (
-        f"پیام مالک:{hint}\n{q}\n\n"
-        "جواب کوتاه و مفید بده. اگر معرفی خواست، خودت را به‌عنوان اختاپوس "
-        "و نقش همکار مالک توضیح بده (گیت‌ها، شواهد، بدون ادعاهای AGI)."
+        f"پیام مالک:{hint}\n{q}\n"
+        f"{ctx_block}\n"
+        "با تکیه بر شواهد بالا جواب بده — حدسِ پوچ نزن. "
+        "اگر معرفی/ساختار خواست: دو مغز زنده (cortex+business_brain)، "
+        "قلب/قشر/پاها/گیت‌وی/سنتر، و صریح بگو 4d/Super-Gov وصل نیست. "
+        "اگر حافظه cite شد مسیر/mkey را بگو؛ اگر خالی بود صادق بگو. "
+        "فلگ‌ها، موانع فعلی، و اینکه چه چیزی draft است را روشن بگو. "
+        "بدون ادعاهای AGI. اثر بیرونی پیشنهاد نکن مگر مالک بخواهد."
     )
     ask_fn = _ask_impl or _default_ask
     try:
-        res = ask_fn("collab_chat", prompt, _SYSTEM, 500)
+        res = ask_fn("collab_chat", prompt, _SYSTEM, 900)
     except Exception as exc:  # noqa: BLE001
         return {"ok": False, "reason": type(exc).__name__}
 

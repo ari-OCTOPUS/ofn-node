@@ -59,3 +59,50 @@ verdicts:
     standing: "yes"
     note: "درصد است نه عددِ مطلق. رأیِ مالک: اگر مصرفِ واقعی نشان داد تخمین غلط بوده، ۴۰٪ روی ظرفیتِ *واقعی* اعمال می‌شود نه روی ۱۸۰M ِ تخمینی — کرنل خودش اصلاح می‌کند. پس ۷۲M مشتق است، رأی همان ۴۰٪ است."
     blocked_on: "صفر صداکننده: هیچ متری در ریپو توکن نمی‌شمارد. fugu_quota درخواست می‌شمارد؛ subscription=max باعث می‌شود est_worst_case و complete صفر بدهند پس organ_gate/budget_gate صفر جمع می‌زنند (organ-state.json روی spent_month_musd=0 بعد از ۳۹۵ فراخوان). تنها منبعِ توکنِ واقعی paid-calls.jsonl است و خواننده ندارد."
+
+  neural_learned_apply:
+    env: OCTOPUS_NEURAL_LEARNED_APPLY
+    value: "1"
+    unit: boolean
+    decided: "2026-08-12"
+    reader: wiring.effective_flag
+    quote: "هردو — فلگ ۱ و apply اجرایی"
+    standing: "yes"
+    adr: ADR-035
+    expires_to: "0 (ADR-034 proposal-only) only by explicit owner rollback"
+    note: "فقط protective_skip محلی برای کارِ غیرضروری؛ هیچ پول، ارسال، ایمیل، CRM، ledger یا tool. env صریح حتی اگر 0 باشد بر این fallback مقدم است."
+
+  chrono_rhythm_cr_b0:
+    env: OCTOPUS_WIRE_CHRONO_RHYTHM
+    value: "1"
+    unit: boolean
+    decided: "2026-08-12"
+    reader: wiring.effective_flag
+    quote: "CR-B0 موجود را نگه دار؛ Improve don't rewrite"
+    standing: "yes"
+    expires_to: "0 by explicit owner rollback"
+    note: "فلگ مستقل برای هستهٔ موجودِ ریتم؛ اثر مستقیم ندارد و فقط از pulse-arbiter برای wall-clock spacing عبور می‌کند. age_tick/hash-chain دست‌نخورده."
+
+  math_control_spine:
+    env: OCTOPUS_MATH_CONTROL_SPINE
+    value: "1"
+    unit: boolean
+    decided: "2026-08-12"
+    reader: math_control.spine.enabled
+    quote: "سقف اختیار خیلی نرم؛ سایه جلوی اثر را نگیرد"
+    standing: "yes"
+    adr: ADR-036
+    expires_to: "0 by explicit owner rollback"
+    note: "معادلات LIVE → rank/schedule hint/AUTO_KNOBS. observe موازی است نه گیت. پول/ارسال/code-apply از این مسیر ممنوع."
+
+  math_autotune_knobs:
+    env: OCTOPUS_MATH_AUTOTUNE_KNOBS
+    value: "1"
+    unit: boolean
+    decided: "2026-08-12"
+    reader: math_control.spine
+    quote: "اتوماتیک با معادلات روی AUTO_KNOBS سفید"
+    standing: "yes"
+    adr: ADR-036
+    expires_to: "0 by explicit owner rollback"
+    note: "فقط CORTEX_THINK_EVERY_N / CHRONO_NUDGE_EVERY_N_BEATS / HEART_SAMPLE_INTERVAL_S و نیازمند ACT_AUTO."

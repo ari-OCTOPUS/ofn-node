@@ -316,9 +316,10 @@ def main() -> int:
         # W (P-W1): returnها را نگه دار، نه دور بریز — نخاع: bus + leg + LiveLoop
         _bus = _w.make_unified_bus()
         _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول
-        # W: rhythm + circadian + sprint (neural subsystems)
-        if _wire.get("wire_neural"):
+        # W: CR-B0 ریتم فلگ مستقل دارد؛ circadian/sprint همچنان neural subsystem اند.
+        if _wire.get("wire_rhythm"):
             _rhythm = _w.make_rhythm()
+        if _wire.get("wire_neural"):
             _circadian = _w.make_circadian()
             _sprint_runner = _w.make_sprint_runner()
         # M (P-M2): اگر consolidation وصل است، SchoolBridge بساز (منبعِ awareness)
@@ -636,18 +637,70 @@ def main() -> int:
                                     "error_rate": _err_rate},
                     })
                     if _neural_r:
+                        # ADR-035 dual-mode: APPLY=1 + executable → beat-local skip;
+                        # APPLY=0 → ADR-034 proposal / SHADOW only.
                         _prot = _w.protective_override(_neural_r)
-                        if _prot.get("override") and not _prot.get("suppressible", True):
-                            opslib.alert([f"NEURAL OVERRIDE: {_prot['reason']}"])
-                            if _prot.get("action") == "protective_halt":
-                                _protective_skip = True   # ← epoch/fitness/doctor این تیک skip می‌شوند
-                                prot_state = {"protective_mode": True, "protective_reason": _prot["reason"]}
-                                opslib.heartbeat(f"PROTECTIVE HALT: {_prot['reason']}")
-                            elif _prot.get("action") == "throttle":
-                                prot_state = {"protective_mode": "throttled", "protective_reason": _prot["reason"]}
-                                next_epoch_at = now + 600  # ۱۰ دقیقه تأخیرِ epoch
+                        _act = _prot.get("action") or "none"
+                        if (
+                            _prot.get("executable")
+                            and _prot.get("override")
+                            and not _prot.get("suppressible", True)
+                        ):
+                            opslib.alert([f"NEURAL OVERRIDE: {_prot.get('reason')}"])
+                            if _act == "protective_halt":
+                                opslib.heartbeat(f"PROTECTIVE HALT: {_prot.get('reason')}")
+                                _protective_skip = True
+                                prot_state = {
+                                    "protective_mode": True,
+                                    "protective_reason": _prot.get("reason"),
+                                    "pain_assessment": _prot.get("assessment"),
+                                    "protective_executable": True,
+                                }
+                            elif _act == "throttle":
+                                next_epoch_at = now + 600
+                                prot_state = {
+                                    "protective_mode": "throttled",
+                                    "protective_reason": _prot.get("reason"),
+                                    "pain_assessment": _prot.get("assessment"),
+                                    "protective_executable": True,
+                                }
+                        elif _prot.get("shadow_alert") or _act in (
+                            "protective_proposal", "throttle_proposal", "warn",
+                        ):
+                            opslib.alert([f"SHADOW_ALERT neural: {_prot.get('reason')}"])
+                            prot_state = {
+                                "protective_mode": False,
+                                "protective_proposal": _act,
+                                "protective_reason": _prot.get("reason"),
+                                "pain_assessment": _prot.get("assessment"),
+                            }
                 except Exception as _ne:  # noqa: BLE001 — §۴: خطای خاموش ممنوع
                     opslib.alert([f"neural wiring error (non-fatal): {type(_ne).__name__}: {_ne}"])
+
+            # ── ADR-036 Math Control Spine (soft ceiling, shadow non-blocking)
+            # معادلات LIVE → pulse؛ improve/AUTO_KNOBS مصرف می‌کنند. fail-soft.
+            try:
+                import sys as _sys_mc
+                _mc_dir = str(Path(__file__).resolve().parent / "math_control")
+                if _mc_dir not in _sys_mc.path:
+                    _sys_mc.path.insert(0, str(Path(__file__).resolve().parent))
+                from math_control import spine as _math_spine  # noqa: WPS433
+                _mc_snap = _math_spine.beat(write=True)
+                if isinstance(_mc_snap, dict):
+                    pulse["math_control"] = {
+                        "enabled": _mc_snap.get("enabled"),
+                        "rank_bias": _mc_snap.get("rank_bias"),
+                        "pain_pressure": _mc_snap.get("pain_pressure"),
+                        "spectral_sigma_true": _mc_snap.get("spectral_sigma_true"),
+                        "assoc_strength": _mc_snap.get("assoc_strength"),
+                        "identity_health": _mc_snap.get("identity_health"),
+                        "knob_deltas": _mc_snap.get("knob_deltas"),
+                        "effects": _mc_snap.get("effects"),
+                        "equations_touching": _mc_snap.get("equations_touching"),
+                    }
+            except Exception as _mce:  # noqa: BLE001 — spine هرگز tick را نمی‌کشد
+                opslib.alert([f"math_control spine (non-fatal): "
+                              f"{type(_mce).__name__}: {_mce}"])
 
             # ── کارِ غیرضروری فقط وقتی protective-halt فعال نیست (enforceِ واقعیِ گیت)
             epoch_info = {}

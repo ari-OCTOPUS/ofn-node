@@ -206,7 +206,12 @@ ACT_AUTO = opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag"
 
 # SPEC-OCTOPUS-2027 §۸/§۱۴ — دو گاردِ سختِ خود-تغییری:
 OBS_MAX_AGE_MIN = float(os.environ.get("IMPROVE_OBS_MAX_AGE_MIN", "60"))
-REFRACTORY_H = float(os.environ.get("IMPROVE_REFRACTORY_H", "24"))
+# Prefer OCTOPUS_ prefix (visible in flags-loaded dumps); keep legacy IMPROVE_* too.
+REFRACTORY_H = float(
+    os.environ.get("OCTOPUS_IMPROVE_REFRACTORY_H")
+    or os.environ.get("IMPROVE_REFRACTORY_H")
+    or "24"
+)
 # VQ-STATE-WRITE-001: پیشنهادها مستقیم از self-model ساخته می‌شوند (gather_signals)،
 # پس نقشهٔ خودِ کهنه = خود-تغییری روی واقعیتِ کهنه. آستانه هم‌راستا با قرمزِ
 # innervation (۳۶۰ دقیقه)؛ کادنسِ عادیِ refresh ~۱۰۰ دقیقه است پس false-block نمی‌دهد.
@@ -317,16 +322,56 @@ def gather_signals() -> dict:
     try:
         sk = _read(STATE / "doctor" / "self-knowledge-latest.json") or {}
         dd = sk.get("deep_dive") or {}
-        fix = str(dd.get("smallest_fix") or "").strip()
+        raw_sf = dd.get("smallest_fix")
+        if isinstance(raw_sf, dict):
+            fix = str(raw_sf.get("description") or raw_sf.get("action")
+                      or raw_sf.get("fix") or "").strip()
+        else:
+            fix = str(raw_sf or "").strip()
         if fix:
             smallest_fix = fix[:200]
     except Exception:  # noqa: BLE001 — نبودِ تشخیص هرگز signals را نمی‌کشد
         pass
+    # ۲۰۲۶-۰۸-۱۱ — recall episodic از ingest تحقیق (ضدِ amnesia)؛ فقط citation، نه مجوز
+    research_memory = []
+    self_loop_memory = []
+    try:
+        mem_dir = str(Path(__file__).resolve().parent.parent / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import research_ingest as _ri  # noqa: WPS433
+        research_memory = _ri.recall_recent("", k=5) or []
+    except Exception:  # noqa: BLE001
+        research_memory = []
+    try:
+        mem_dir = str(Path(__file__).resolve().parent.parent / "memory")
+        if mem_dir not in sys.path:
+            sys.path.insert(0, mem_dir)
+        import self_loop_ingest as _sli  # noqa: WPS433
+        self_loop_memory = _sli.recall_recent("", k=8) or []
+    except Exception:  # noqa: BLE001
+        self_loop_memory = []
+    # ADR-036 — Math Control Spine (soft ceiling; observe never blocks)
+    math_control = {}
+    try:
+        ops_root = str(Path(__file__).resolve().parent.parent)
+        if ops_root not in sys.path:
+            sys.path.insert(0, ops_root)
+        from math_control import spine as _mcs  # noqa: WPS433
+        math_control = _mcs.load_latest() or {}
+        if not math_control:
+            # Fresh collect without requiring organism tick first
+            math_control = _mcs.beat(write=True) or {}
+    except Exception:  # noqa: BLE001
+        math_control = {}
     return {"matrix": matrix, "idea": idea, "cortex": cortex,
             "research": research, "synthesis": synthesis,
             "self_model": self_model, "part_loops": part_loops,
             "business": business, "doctor_rfcs": rfcs,
-            "smallest_fix": smallest_fix}
+            "smallest_fix": smallest_fix,
+            "research_memory": research_memory,
+            "self_loop_memory": self_loop_memory,
+            "math_control": math_control}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -398,6 +443,116 @@ def generate_proposals(signals: dict) -> list[dict]:
             "suggested_action": (sp.get("first_step") or "بازبینِ مالک")[:180],
             "change_level": "reconfig", "auto_applicable": False, "status": "proposed",
         })
+    # ۲.۷) ۲۰۲۶-۰۸-۱۲ — knobهای whitelist بدون مقدار / دور از میانه
+    # تا مسیرِ ACT_AUTO+CAPABILITY-OK واقعاً چیزی برای اعمال داشته باشد
+    # (وگرنه همهٔ پیشنهادها code/reconfig‌اند و auto_eligible همیشه خالی می‌ماند).
+    try:
+        cur_map: dict = {}
+        kp = STATE / "cortex" / "auto-knobs.json"
+        if kp.exists():
+            cur_map = json.loads(kp.read_text("utf-8")) or {}
+        if not isinstance(cur_map, dict):
+            cur_map = {}
+        for knob, (lo, hi) in AUTO_KNOBS.items():
+            mid = (float(lo) + float(hi)) / 2.0
+            cur = cur_map.get(knob)
+            if cur is None and os.environ.get(knob):
+                try:
+                    cur = float(os.environ[knob])
+                except ValueError:
+                    cur = None
+            span = float(hi) - float(lo)
+            needs = cur is None or (span > 0 and abs(float(cur) - mid) > 0.25 * span)
+            if not needs:
+                continue
+            title = f"تنظیم خودکار knob: {knob}"
+            out.append({
+                "id": _pid("autoknob:" + knob),
+                "source": "auto_knobs",
+                "category": "ops",
+                "priority": "P2",
+                "_rank": 1.5,
+                "title": title,
+                "rationale": (f"knobِ whitelist {'unset' if cur is None else f'={cur}'} "
+                              f"— میانهٔ امن {mid:g} در [{lo},{hi}]"),
+                "evidence": "cortex/auto-knobs.json + AUTO_KNOBS",
+                "suggested_action": f"{knob} را به‌سمت میانهٔ کرانِ امن ببر (برگشت‌پذیر، $0).",
+                "change_level": "tune",
+                "auto_applicable": _auto_ok("tune", title),
+                "status": "proposed",
+            })
+    except Exception:  # noqa: BLE001 — پیشنهادِ knob هرگز حلقه را نمی‌کشد
+        pass
+    # ۲.۷b) ADR-036 — Math Control → AUTO_KNOBS (soft ceiling, arm-now)
+    # سایه/observe هرگز این شاخه را نمی‌بندد؛ فقط فلگ spine/autotune.
+    try:
+        mc = signals.get("math_control") or {}
+        spine_on = bool(mc.get("enabled", True))
+        autotune = bool(mc.get("autotune", True))
+        if os.environ.get("OCTOPUS_MATH_CONTROL_SPINE", "1").strip() in ("0", "false", "off"):
+            spine_on = False
+        if os.environ.get("OCTOPUS_MATH_AUTOTUNE_KNOBS", "1").strip() in ("0", "false", "off"):
+            autotune = False
+        deltas = mc.get("knob_deltas") if isinstance(mc.get("knob_deltas"), dict) else {}
+        bias = float(mc.get("rank_bias") or 0.0)
+        if spine_on and deltas:
+            cur_map2: dict = {}
+            kp2 = STATE / "cortex" / "auto-knobs.json"
+            if kp2.exists():
+                try:
+                    cur_map2 = json.loads(kp2.read_text("utf-8")) or {}
+                except Exception:  # noqa: BLE001
+                    cur_map2 = {}
+            for knob, delta in deltas.items():
+                if knob not in AUTO_KNOBS:
+                    continue
+                lo, hi = AUTO_KNOBS[knob]
+                try:
+                    dlt = int(delta)
+                except (TypeError, ValueError):
+                    continue
+                if dlt == 0:
+                    continue
+                cur = cur_map2.get(knob)
+                if cur is None:
+                    try:
+                        cur = float(os.environ.get(knob) or lo)
+                    except ValueError:
+                        cur = float(lo)
+                target = max(float(lo), min(float(hi), float(cur) + dlt))
+                if abs(target - float(cur)) < 1e-9:
+                    continue
+                title = f"math-autotune knob: {knob}"
+                out.append({
+                    "id": _pid(f"mathknob:{knob}:{int(target)}"),
+                    "source": "math_spine",
+                    "category": "ops",
+                    "priority": "P1" if bias >= 0.5 else "P2",
+                    "_rank": max(0.2, 1.2 - bias),
+                    "title": title,
+                    "rationale": (
+                        f"ADR-036 soft: pain={mc.get('pain_pressure')} "
+                        f"σ={mc.get('spectral_sigma_true')} "
+                        f"assoc={mc.get('assoc_strength')} → Δ={dlt}"
+                    ),
+                    "evidence": "pulse/math-control-latest.json",
+                    "suggested_action": (
+                        f"{knob}: {cur:g} → {target:g} (clamp [{lo},{hi}], $0, reversible)"
+                    ),
+                    "change_level": "tune",
+                    "auto_applicable": bool(autotune) and _auto_ok("tune", title),
+                    "status": "proposed",
+                    "math_effects": list(mc.get("effects") or []),
+                })
+        # Soft rank bias on existing tune/ops proposals when spine on
+        if spine_on and bias > 0:
+            for p in out:
+                if p.get("change_level") == "tune" or p.get("source") in (
+                    "auto_knobs", "math_spine", "smallest_fix",
+                ):
+                    p["_rank"] = max(0.1, float(p.get("_rank", 2.0)) - bias)
+    except Exception:  # noqa: BLE001 — math spine هرگز improve را نمی‌کشد
+        pass
     # ۲.۶) از نقشهٔ خود: ماژول‌های بدونِ خودتوصیفی = گپِ خودآگاهی ($0، سندی)
     sm = signals.get("self_model") or {}
     if sm.get("undocumented"):
@@ -450,6 +605,36 @@ def generate_proposals(signals: dict) -> list[dict]:
             "rationale": "idea_graph یک اتصالِ ممکن بینِ نوت‌ها یافت",
             "evidence": "idea-graph-latest.json", "suggested_action": "اگر مرتبط بود، wikilink اضافه کن.",
             "change_level": "tune", "auto_applicable": False, "status": "proposed",
+        })
+    # ۳.۵) ۲۰۲۶-۰۸-۱۱ — از حافظهٔ خودآگاهی/خودترمیمی (ضدِ overwrite orphan)
+    # فقط citation → propose-only؛ may_authorize هرگز از این مسیر نمی‌آید.
+    seen_titles = {str(p.get("title") or "")[:80] for p in out}
+    for mem in (signals.get("self_loop_memory") or [])[:6]:
+        if not isinstance(mem, dict):
+            continue
+        content = str(mem.get("content") or "")
+        title = ""
+        if "title=" in content:
+            title = content.split("title=", 1)[1].split(" |", 1)[0].strip()[:80]
+        if not title:
+            title = str(mem.get("mkey") or "self-loop")[:80]
+        if title in seen_titles:
+            continue
+        seen_titles.add(title)
+        ch = str(mem.get("channel") or "self_loop")
+        out.append({
+            "id": _pid(f"selfloop:{ch}:{title}"),
+            "source": f"self_loop:{ch}",
+            "category": "architecture",
+            "priority": "P2",
+            "_rank": 2.0,
+            "title": f"یادمانِ حلقه ({ch}): {title}"[:120],
+            "rationale": "خروجیِ قبلیِ خودآگاهی/خودترمیمی که در pulse overwrite شده بود — از ingest بازیابی شد",
+            "evidence": str(mem.get("mkey") or "self-loop-ingest.jsonl"),
+            "suggested_action": content[:180],
+            "change_level": "reconfig",
+            "auto_applicable": False,
+            "status": "proposed",
         })
     out.sort(key=lambda p: p["_rank"])
     return out
@@ -689,6 +874,14 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         **({"deep_thought": deep} if deep else {}),
         **({"goal_directed": goal_report} if goal_report else {}),
         "learning": {"rejected_categories": _load_verdict_penalty()},
+        "math_control": {
+            "enabled": (signals.get("math_control") or {}).get("enabled"),
+            "rank_bias": (signals.get("math_control") or {}).get("rank_bias"),
+            "effects": (signals.get("math_control") or {}).get("effects"),
+            "equations_touching": (signals.get("math_control") or {}).get("equations_touching"),
+            "knob_deltas": (signals.get("math_control") or {}).get("knob_deltas"),
+            "shadow_blocks_effects": False,
+        },
     }
     if write:
         try:
@@ -705,6 +898,16 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
                 "top": [t["title"] for t in top[:3]]}, actor="self-improve")
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"improve digest write failed: {e}"])
+        # ۲۰۲۶-۰۸-۱۱ — ضدِ هدررفتنِ خودترمیمی/پیشنهادها (overwrite digest)
+        try:
+            mem_dir = str(Path(__file__).resolve().parent.parent / "memory")
+            if mem_dir not in sys.path:
+                sys.path.insert(0, mem_dir)
+            import self_loop_ingest as _sli  # noqa: WPS433
+            digest["memory_ingest"] = _sli.ingest_improve(digest)
+        except Exception:  # noqa: BLE001
+            digest["memory_ingest"] = {"ok": False, "skipped": "ingest-error",
+                                       "may_authorize": False}
     return digest
 
 

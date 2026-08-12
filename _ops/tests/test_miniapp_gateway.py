@@ -107,8 +107,9 @@ def t_a_tampered_hash_is_403_with_an_empty_body():
 
 
 def t_a_stale_auth_date_is_replay_and_403():
+    stale = NOW - (mg.AUTH_MAX_AGE_S + 120)
     st, body, _ = mg.handle("GET", "/api/miniapp",
-                            {"X-Tg-Init-Data": _init_data(auth_date=NOW - 400)},
+                            {"X-Tg-Init-Data": _init_data(auth_date=stale)},
                             fetch_fn=_fetch(), now=NOW)
     assert st == 403 and body == b"", (st, body)
 
@@ -432,8 +433,10 @@ def t_the_page_serves_without_initdata_and_injects_the_header_snippet():
     for tab in _tabs:
         assert ('data-tab="%s"' % tab).encode("utf-8") in body, tab
     assert b"legacy-shell" not in body, "legacy placeholder was served instead of cockpit"
-    assert b"X-Tg-Init-Data" in body, "initData injection snippet missing"
-    assert body.index(b"X-Tg-Init-Data") < body.index(b"</body>")
+    # ۲۰۲۶-۰۸-۱۲: fetch-wrapper inject حذف شد (با POST collab تداخل داشت).
+    # حالا فقط فلگ‌های UI تزریق می‌شود؛ X-Tg-Init-Data را خودِ app.js/tgHeaders می‌زند.
+    assert b"__OCTOPUS__" in body and b"wire_collab" in body, body[:240]
+    assert b"window.fetch" not in body, "fetch wrapper must stay gone"
     assert fn._calls == [], "static cockpit shell must not proxy to legacy 8773"
 
 
@@ -636,7 +639,13 @@ def t_ask_reports_ok_false_when_neither_brain_answers():
             fetch_fn=_fetch(), now=NOW)
         assert st == 200, (st, payload)   # ok:false هنوز یک جوابِ سالمِ HTTP است، نه خطا
         d = json.loads(payload)
-        assert d["ok"] is False and d["reason"] == "flag-off"
+        # ۲۰۲۶-۰۸-۱۲: اگر همکار stub جواب بدهد → collab-fallback (ok:true).
+        # فقط وقتی fallback هم خالی است reason=flag-off می‌ماند.
+        if d.get("ok") is True:
+            assert d.get("source") == "collab-fallback", d
+            assert d.get("answer"), d
+        else:
+            assert d["ok"] is False and d["reason"] == "flag-off"
     finally:
         ask_vault.query, ask_brain.ask = real_vault_query, real_brain_ask
 
@@ -743,6 +752,41 @@ def t_mirror_survives_an_unexpected_exception_with_500_not_a_crash():
         assert d["ok"] is False and d["reason"] == "RuntimeError"
     finally:
         mirror_room.ask = real_ask
+
+
+def t_ask_vault_empty_is_honest_when_sources_missing():
+    """Awareness 2026-08-12: vault ON ولی hit خالی → vault_empty=true در پاسخ escalate."""
+    real_vq = ask_vault.query
+    real_ab = ask_brain.ask
+
+    def empty_vault(q, **kw):
+        return {"ok": True, "answer": "", "sources": [], "reason": "no-hit"}
+
+    def brain_ok(q, **kw):
+        return {"ok": True, "text": "جواب مغز", "tier": "local", "model": "test"}
+
+    ask_vault.query = empty_vault
+    ask_brain.ask = brain_ok
+    try:
+        st, payload, _ = mg.handle(
+            "POST", "/api/ask",
+            {"X-Tg-Init-Data": _init_data(), "_body": _ask_body("سؤال بی‌منبع")},
+            fetch_fn=_fetch(), now=NOW)
+        assert st == 200, (st, payload)
+        d = json.loads(payload)
+        assert d.get("ok") is True
+        assert d.get("vault_empty") is True, d
+        assert d.get("source") == "brain"
+    finally:
+        ask_vault.query = real_vq
+        ask_brain.ask = real_ab
+
+
+def t_ask_unauth_still_403():
+    st, payload, _ = mg.handle(
+        "POST", "/api/ask", {"_body": _ask_body("hi")},
+        fetch_fn=_fetch(), now=NOW)
+    assert st == 403, (st, payload)
 
 
 if __name__ == "__main__":

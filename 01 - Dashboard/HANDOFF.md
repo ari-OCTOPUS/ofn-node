@@ -29,6 +29,80 @@ updated: 2026-08-12
 
 ## وضعِ لحظه‌ای
 
+- ✅🧠 **2026-08-12 Awareness/Memory/Ask B→H پیاده.**
+  Evidence: `_ops/state/adr-033/reports/AWARENESS-MEMORY-ASK-2026-08-12/FINAL.md`
+  · `owner_recall` + `data.facts` + vault_empty + selfmap intent
+  · Suites: awareness 6/6 · memory_ask 6/6 · gateway vault_empty
+  · **مالک: مینی‌اپ ببند/باز → جدول 07-OWNER-VISIBLE-VERIFY**
+
+- 📋🧠 **2026-08-12 MEGAPROMPT خودآگاهی·حافظه·مغزها·پرسش وب.**
+  [[../00 - Inbox/2026-08-12 MEGAPROMPT — Self-Awareness Memory Brains Ask Web|MEGAPROMPT Awareness/Memory/Ask]]
+  · هدف: اثرات زنده در مینی‌اپ تب پرسش (همکار+Ask+Sources+selfmap)
+  · پیش‌نیاز: Math Atlas Reconciliation + Deep-Scan Collab سبز.
+
+- ✅🧠 **2026-08-12 Deep-Scan Collab/DeepSeek — A→F کامل.**
+  [[../_ops/state/adr-033/reports/DEEP-SCAN-COLLAB-2026-08-12/FINDINGS|FINDINGS]] —
+  B1-B9 بسته شد · پروب زنده: `model_source=secondary:deepseek-v4-flash` · 13.6s ·
+  متن طبیعی فارسی. collab_chat از LOCAL_FIRST مستثنی → DeepSeek نه qwen.
+  gateway pid=6416 · **مالک: مینی‌اپ را ببند و باز کن.**
+
+- 📐📦 **2026-08-12 12:15 بیست معادله — نسخهٔ بدون‌دسترسی (کپی‌پیست).**
+  [[../00 - Inbox/2026-08-12 SELF-CONTAINED — 20 Math Equations for Offline Agent|SELF-CONTAINED 20 Math]]
+  · روی دسکتاپ: `OCTOPUS-20-MATH-EQUATIONS-SELF-CONTAINED.md`
+  · نسخهٔ با لینک vault: [[../00 - Inbox/2026-08-12 HANDOFF — 20 Math Equations Atlas for Next Agent|20 Math HANDOFF]]
+
+- ✅🔬 **2026-08-12 12:05 همه فیکس — deep-scan + seed-journal.**
+  B1–B9+E · seed idempotent · blackbox warning · UI timeout متن صادق.
+  Suites: talk_discovery / conversation14 / tool20 / gateway47.
+  gateway pid **26584**. Evidence: `DEEP-SCAN-COLLAB-2026-08-12/FINDINGS.md`.
+  کار مالک: مینی‌اپ ببند/باز → همکار → تست.
+
+
+- 📦🔗 **2026-08-12 11:54 بکاپ دسکتاپ برای OpenClaw.**
+  `Desktop\OCTOPUS-FOR-OPENCLAW-2026-08-12_1154\` + `.zip`
+  · vault معماری + `ops-code` · بدون secret · `README-OPENCLAW.md`.
+
+- 📋🧠 **2026-08-12 11:45 MEGAPROMPT deep-scan برای ایجنت ارشد.**
+  [[../00 - Inbox/2026-08-12 MEGAPROMPT — Senior Deep-Scan MiniApp Collab DeepSeek|MEGAPROMPT Collab/DeepSeek]]
+  · کاتالوگ B1–B9 · فاز A→F · DoD صفر باگِ جلسهٔ chat.
+
+- ✅🔧 **2026-08-12 11:43 (qwen دزدیِ همکار + 504).**
+  علت جوابِ پرت: `CORTEX_LOCAL_FIRST` قبل از DeepSeek qwen را قبول می‌کرد.
+  collab_chat دیگر local-first/fallback qwen ندارد · timeout→reply.v1 نه 504.
+  پروب ۱۷ث `secondary:deepseek-v4-flash`. مینی‌اپ ببند/باز کن.
+  ممیزی ۲س: خودبهبودِ معنادار ≠؛ paid deep اغلب fail؛ فقط collab_chat سبز.
+
+- ✅🧠 **2026-08-12 11:34 (DeepSeek + خودشناسی؛ timeout مینی‌اپ).**
+  پکیج دانلودی لازم نیست. `client_timeout` = کلاینت ۱۵ث < DeepSeek.
+  کلاینت ۶۰ث · collab ۵۵ث · `_self_context` (runtime/goal/blockers/truth).
+  پروب ۲۱ث: جواب ساختاری با شواهد. مینی‌اپ ببند/باز کن → همکار.
+
+- ✅🧠 **2026-08-12 11:29 (DeepSeek برای حرف زدن با مالک).**
+  پکیج دانلودی لازم نیست — API از قبل سیم است + کلید موجود.
+  `COLLAB_USE_MODEL=1` · `collab_chat→secondary` (deepseek-v4-flash) ·
+  نه ollama. مینی‌اپ: همکار · ببند/باز کن.
+
+- ✅⚡ **2026-08-12 11:24 (MiniApp Ask hang + سلام/سلان).**
+  Ask روی مغز هنگ می‌کرد → timeout کوتاه + collab-fallback + abort کلاینت.
+  سلام/سلان → intro فوری · cache snapshot · catalog دیرتر.
+  روی Ask نمان؛ پیش‌فرض همکار. مینی‌اپ را ببند/باز کن.
+
+- ✅🗣️ **2026-08-12 10:06 (stub «موانع چیست» → blockers).**
+  `_BLOCK` قبلاً «موانع چیست» را نمی‌گرفت (حتی پیشنهادِ خودش).
+  meta برای «چرا نمیفهمی» · photo بدون کپشن + یک خط مانع.
+  gateway+center ریستارت.
+
+- ✅🔐 **2026-08-12 09:42 (MiniApp collab 403 + حلقهٔ tool-need).**
+  `AUTH_MAX_AGE_S` → ۱h · inject بدون fetch-wrapper ·
+  `_normalize_cost` برای «نمی‌دانم» · gateway+cortex+organism تازه.
+  `COLLAB_USE_MODEL=0` عمدی (stub فوری؛ ollama hang).
+  کار مالک: مینی‌اپ را ببند/باز کن → تب پرسش → بپرس.
+
+- ✅🧩 **2026-08-12 09:15 (Code apply low-risk مسیر کامل).**
+  verdict→`apply_approved`→`_git_apply_canary` · commit `75c1288` ·
+  lock+fast-canary+timeout3600 · WT با HEAD هم‌تراز.
+  Evidence: `_ops/state/adr-033/reports/CODE-APPLY-2026-08-12/`.
+
 - ✅🚪 **2026-08-12 08:16 (نمی‌خوام مرزی بمونه).**
   dark caps مسلح · LIVE-ENABLED · send cap 100 · refractory 0 · collab 200 ·
   Talk/ADR-033 hard-forbidden → owner-approval · تست‌های مرتبط سبز.

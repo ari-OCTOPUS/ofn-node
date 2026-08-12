@@ -48,14 +48,19 @@ import opslib  # noqa: E402
 FLAG = "OCTOPUS_TG_MINIAPP"
 PORT = int(os.environ.get("OCTOPUS_MINIAPP_PORT", "8774"))
 UPSTREAM_PORT = int(os.environ.get("LIVE_PORT", "8773"))
-AUTH_MAX_AGE_S = 300.0
+# ۲۰۲۶-۰۸-۱۲ owner: مینی‌اپ باز می‌ماند؛ ۵ دقیقه init-data را زود می‌کشت (403 روی POST).
+# پیش‌فرض ۱ ساعت؛ override با OCTOPUS_MINIAPP_AUTH_MAX_AGE_S.
+AUTH_MAX_AGE_S = float(os.environ.get("OCTOPUS_MINIAPP_AUTH_MAX_AGE_S", "3600") or "3600")
 STOP_NAME = "STOP-MINIAPP"
 
 # ۲۰۲۶-۰۸-۰۸: مهلتِ زمانیِ سقف برای مسیرهای غیر-خواندنی. ThreadingHTTPServer هر
 # درخواست را در thread جدا می‌کند، ولی یک LLM hang همچنان یک thread را برای همیشه
 # نگه می‌دارد و به‌مرور منابع را نشت می‌دهد. این سقف ضامنِ آن است که هیچ درخواستی
 # بیش از این ثانیه معلق نماند — پس از آن، یک 504 (Gateway Timeout) تمیز برمی‌گردد.
-ASK_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_ASK_TIMEOUT", "60.0"))
+# ۲۰۲۶-۰۸-۱۲: DeepSeek + self-context گاهی ۲۰–۴۰ث؛ کلاینت ۶۰ث است.
+ASK_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_ASK_TIMEOUT", "45.0"))
+ASK_BRAIN_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_ASK_BRAIN_TIMEOUT", "8.0"))
+COLLAB_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_COLLAB_TIMEOUT", "55.0"))
 ACTIONS_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_ACTIONS_TIMEOUT", "15.0"))
 MIRROR_TIMEOUT_S = float(os.environ.get("OCTOPUS_MINIAPP_MIRROR_TIMEOUT", "45.0"))
 
@@ -223,8 +228,9 @@ def validate_init_data(init_data: str, *, bot_token: str, owner_id,
 def _build_inject_js() -> str:
     """Executable JS without HTML tags; also prepended to external app.js.
 
-    بعضی webviewها inline script را اجرا نمی‌کنند. قرارگرفتنِ همین bootstrap در ابتدای
-    external app.js تضمین می‌کند config پیش از خودِ اپ آماده است؛ اجرای دوباره idempotent است.
+    فقط config flags (wire_collab/collab_use_model) — بدون fetch wrapper.
+    ۲۰۲۶-۰۸-۱۲: fetch wrapper حذف شد چون با POST /api/collab تداخل داشت و
+    باعث می‌شد X-Tg-Init-Data در POST گم شود. tgHeaders خودِ app.js کافی است.
     """
     import os as _os
     collab_js = "true" if _os.environ.get("OCTOPUS_WIRE_COLLAB", "0") == "1" else "false"
@@ -233,11 +239,7 @@ def _build_inject_js() -> str:
         "(function(){window.__OCTOPUS__=window.__OCTOPUS__||{};"
         f"window.__OCTOPUS__.wire_collab={collab_js};"
         f"window.__OCTOPUS__.collab_use_model={model_js};"
-        "var g=function(){try{return (window.Telegram&&"
-        "window.Telegram.WebApp&&window.Telegram.WebApp.initData)||''}catch(e)"
-        "{return ''}};var f=window.fetch.bind(window);window.fetch=function(u,o)"
-        "{o=o||{};var h=new Headers(o.headers||{});var d=g();"
-        "if(d){h.set('X-Tg-Init-Data',d)}o.headers=h;return f(u,o)};})();"
+        "})();"
     )
 
 
@@ -625,9 +627,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             # برای همیشه قفل نکند.
             rv, v_err = _run_with_timeout(ask_vault.query, ASK_TIMEOUT_S, question)
             if v_err and isinstance(v_err, TimeoutError):
-                body = json.dumps({"ok": False, "reason": "vault_timeout"},
-                                  ensure_ascii=False).encode("utf-8")
-                return 504, body, "application/json; charset=utf-8"
+                rv, v_err = {}, None  # vault کند → برو سراغ brain/fallback
             if v_err:
                 raise v_err
             rv = rv or {}
@@ -638,21 +638,59 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                                    "sources": rv.get("sources") or []},
                                   ensure_ascii=False).encode("utf-8")
                 return 200, body, "application/json; charset=utf-8"
-            rb, b_err = _run_with_timeout(ask_brain.ask, ASK_TIMEOUT_S, question)
-            if b_err and isinstance(b_err, TimeoutError):
-                body = json.dumps({"ok": False, "reason": "brain_timeout"},
-                                  ensure_ascii=False).encode("utf-8")
-                return 504, body, "application/json; charset=utf-8"
-            if b_err:
+            # Awareness 2026-08-12: vault flag-on ولی hit خالی → صادق، نه escalate بی‌صدا
+            vault_meta = {}
+            if rv.get("reason") == "flag-off":
+                vault_meta = {"vault_empty": False, "vault_flag": "off",
+                              "vault_note": "ask_vault خاموش است → brain/collab"}
+            elif not (rv.get("sources") or []):
+                vault_meta = {"vault_empty": True, "vault_flag": "on",
+                              "vault_note": "vault روشن است ولی منبعی برای این سؤال یافت نشد"}
+            rb, b_err = _run_with_timeout(
+                ask_brain.ask, ASK_BRAIN_TIMEOUT_S, question)
+            if b_err and not isinstance(b_err, TimeoutError):
                 raise b_err
             rb = rb or {}
-            if rb.get("ok"):
-                body = json.dumps({"ok": True, "answer": rb.get("text") or "", "source": "brain",
-                                   "tier": rb.get("tier"), "model": rb.get("model")},
-                                  ensure_ascii=False).encode("utf-8")
+            if not b_err and rb.get("ok"):
+                payload_ok = {
+                    "ok": True, "answer": rb.get("text") or "", "source": "brain",
+                    "tier": rb.get("tier"), "model": rb.get("model"),
+                }
+                payload_ok.update(vault_meta)
+                body = json.dumps(payload_ok, ensure_ascii=False).encode("utf-8")
                 return 200, body, "application/json; charset=utf-8"
-            reason = rb.get("reason") or rv.get("reason") or "no-answer"
-            body = json.dumps({"ok": False, "reason": reason}, ensure_ascii=False).encode("utf-8")
+            # ۲۰۲۶-۰۸-۱۲: مغز هنگ/خالی → همکارِ stub تا UI روی «فکر کردن» نماند.
+            try:
+                from owner_console import collaborator as _collab  # noqa: WPS433
+                st_dir = Path(opslib.STATE_DIR)
+                creply, _cerr = _run_with_timeout(
+                    _collab.handle, min(ASK_TIMEOUT_S, 10.0), question,
+                    state_dir=st_dir)
+                if creply and creply.get("text"):
+                    payload_fb = {
+                        "ok": True,
+                        "answer": creply.get("text") or "",
+                        "source": "collab-fallback",
+                        "kind": creply.get("kind"),
+                        "model_source": creply.get("model_source"),
+                        "data": creply.get("data") or {},
+                        "brain_reason": (
+                            "brain_timeout" if isinstance(b_err, TimeoutError)
+                            else (rb.get("reason") or rv.get("reason") or "no-answer")
+                        ),
+                    }
+                    payload_fb.update(vault_meta)
+                    body = json.dumps(payload_fb, ensure_ascii=False).encode("utf-8")
+                    return 200, body, "application/json; charset=utf-8"
+            except Exception:  # noqa: BLE001 — fallback هرگز مسیر را نمی‌کشد
+                pass
+            reason = (
+                "brain_timeout" if isinstance(b_err, TimeoutError)
+                else (rb.get("reason") or rv.get("reason") or "no-answer")
+            )
+            payload_fail = {"ok": False, "reason": reason}
+            payload_fail.update(vault_meta)
+            body = json.dumps(payload_fail, ensure_ascii=False).encode("utf-8")
             return 200, body, "application/json; charset=utf-8"
         except Exception as exc:
             body = json.dumps({"ok": False, "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
@@ -822,11 +860,24 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             # COLLAB_USE_MODEL=1 می‌تواند model_router.ask را صدا بزند که تا ۹۰s
             # هنگ می‌کند. بدون wrapper، thread تا ابر معلق می‌ماند و پرسش هنگ می‌کند.
             reply, c_err = _run_with_timeout(
-                _collab.handle, ASK_TIMEOUT_S, text, state_dir=st_dir)
+                _collab.handle, COLLAB_TIMEOUT_S, text, state_dir=st_dir)
             if c_err and isinstance(c_err, TimeoutError):
-                body = json.dumps({"ok": False, "reason": "collab_timeout"},
-                                  ensure_ascii=False).encode("utf-8")
-                return 504, body, "application/json; charset=utf-8"
+                # ۲۰۰ + schema رسمی تا UI به bad_json/504 نخورد؛ متنِ صادق.
+                body = json.dumps({
+                    "schema": "owner-console.reply.v1",
+                    "kind": "timeout",
+                    "text": ("جواب طول کشید (DeepSeek گاهی ۲۰–۴۰ثانیه). "
+                             "لطفاً دوباره بپرس؛ حالت همکار را نگه دار."),
+                    "keyboard": [],
+                    "data": {"status": "COLLAB_TIMEOUT",
+                             "timeout_s": COLLAB_TIMEOUT_S},
+                    "external_effect": False,
+                    "estimated_cost": 0,
+                    "send_attempted": False,
+                    "authorization": None,
+                    "model_source": "timeout",
+                }, ensure_ascii=False).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
             if c_err:
                 raise c_err
             # دفاعِ دولایه: redact هر پاسخی که خارج می‌رود
