@@ -29,17 +29,14 @@ updated: 2026-08-12
 
 ## وضعِ لحظه‌ای
 
-> 🎯 **کارِ ایجنت بعدی (پین):** اجرای باقی‌ماندهٔ [[../00 - Inbox/2026-08-12 CHECKLIST — 100 Steps Execution|۱۰۰ قدم]] —
-> بلاکر مالک: suburb لید 667951 · CSV · رأی سقف 08-13.  
-> Evidence: `_ops/state/adr-033/reports/DISCOVERY-WIRE-2026-08-12/06-100-STEPS-EXEC.md`  
-> SoT: `_ops/OCTOPUS-HONESTY.md` · `docs/MONEY-CLAIM-VS-CONFIRM.md`
+> 🎯 **پین ایجنت بعدی:** [[../00 - Inbox/2026-08-12 HANDOFF — Session Evening for Next Agent|HANDOFF سشن عصر — مراحل بعدی]]  
+> خلاصه: لید 667951 SET_ASIDE · سقف «فعلا متغیر» · Obsidian frontmatter سبز + `/api/obsidian` درست · صداقت A  
+> **باز:** رأی git A/B/C (checkpoint؟) — بدون آن کامیت نکن  
+> Checklist: [[../00 - Inbox/2026-08-12 CHECKLIST — 100 Steps Execution|۱۰۰ قدم]] · Evidence `DISCOVERY-WIRE-2026-08-12/05+06`
 
-> **2026-08-12 OWNER VOTE #2 — high-risk re-arm + leftover wires ✅**  
-> Evidence: `DISCOVERY-WIRE-2026-08-12/05-HIGH-RISK-REARM.md`  
-> Wired: DW-02/03/05 · MEM-01 · UI-02/05/07/09 · سپس موج ۱۰۰قدم شروع شد.
+> SoT: `_ops/OCTOPUS-HONESTY.md` · `docs/MONEY-CLAIM-VS-CONFIRM.md` · `GOALS-OCTOPUS.md`
 
-> **پیش‌زمینه ChatBox (اگر لازم):** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] ·
-> مالک: مینی‌اپ ببند/باز.
+> **پیش‌زمینه:** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] · مالک: مینی‌اپ ببند/باز بعد از gateway.
 
 - ✅🧠 **2026-08-12 شب — Cognitive Runtime v1 کامل: Events + Run + SSE + Truth + Context + Memory Formation.**
   · **E1-E3:** `event_stream.py` + `run_store.py` — هر مکالمه `run_id` + typed event chain

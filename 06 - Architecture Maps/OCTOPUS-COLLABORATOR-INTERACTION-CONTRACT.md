@@ -3,9 +3,8 @@ type: knowledge
 kind: architecture-map
 status: active
 created: 2026-08-10
-updated: 2026-08-11
-tags: [collaborator, interaction-contract, telegram, miniapp, shadow, propose-only, talk-discovery]
-canonical: true
+updated: 2026-08-12
+tags: [collaborator, interaction-contract, telegram, miniapp, shadow, propose-only, talk-discovery, canonical]
 ---
 
 # Octopus Collaborator Interaction Contract

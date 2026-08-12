@@ -1,9 +1,9 @@
 ---
-type: checklist
+type: knowledge
 status: active
 created: 2026-08-12
 updated: 2026-08-12
-tags: [octopus, 100-steps, execution]
+tags: [octopus, 100-steps, execution, checklist]
 ---
 
 # اجرای ۱۰۰ قدم — وضعیت زنده

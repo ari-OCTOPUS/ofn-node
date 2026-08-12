@@ -1131,7 +1131,8 @@ _CANONICAL_CHOKE_POINT = "ask()"
 _PATH_ROOTS = ("", "_ops", "4d_system")
 
 _OBSIDIAN_DOCS = (
-    "_PROJECT_INSTRUCTIONS.md",
+    # SoT دستورالعمل ریشه نیست — زیر agent-prompts است (فیکس ۲۰۲۶-۰۸-۱۲)
+    "agent-prompts/_PROJECT_INSTRUCTIONS.md",
     "CLAUDE.md",
     ".agentignore",
     "01 - Dashboard/HANDOFF.md",
@@ -1482,11 +1483,19 @@ def get_obsidian_state(root: "Path | None" = None) -> dict:
     # به «کامل — همهٔ سندهای مرجع سرِ جایشان‌اند» ترجمه می‌کرد، یعنی یک
     # ۵۰۰ ِ خاموش به **اطمینانِ سبز** تبدیل می‌شد.
     # حالا از همان یابنده استفاده می‌شود؛ نبودِ فایل هم یک ردیفِ صادق است نه crash.
-    _t = _find_truth()
-    truth_names = (_t.name,) if _t is not None else ()
-    for rel in _OBSIDIAN_DOCS + truth_names:
+    #
+    # ⚠️ ۲۰۲۶-۰۸-۱۲: قبلاً فقط `_t.name` (=CURRENT-TRUTH.md) چک می‌شد →
+    # مسیر ریشهٔ vault غایب دیده می‌شد در حالی که فایل در OCTOPUS/ بود.
+    for rel in _OBSIDIAN_DOCS:
         docs[rel] = {"exists": _exists(r / rel)}
-    if _t is None:
+    _t = _find_truth()
+    if _t is not None:
+        try:
+            rel_truth = _t.resolve().relative_to(r.resolve()).as_posix()
+        except ValueError:
+            rel_truth = "OCTOPUS/CURRENT-TRUTH.md"
+        docs[rel_truth] = {"exists": True}
+    else:
         docs["OCTOPUS/CURRENT-TRUTH.md"] = {"exists": False}
     missing = sorted(k for k, v in docs.items() if not v["exists"])
     return {
@@ -1499,6 +1508,7 @@ def get_obsidian_state(root: "Path | None" = None) -> dict:
         "missing": missing,
         "missing_count": len(missing),
         "checked": len(docs),
+        "status": "ok" if not missing else "incomplete",
     }
 
 def _ui_has(name: str, needles: tuple, need_all: bool = False) -> "bool | None":

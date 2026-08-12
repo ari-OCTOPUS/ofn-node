@@ -1,11 +1,10 @@
 ---
-type: megaprompt
+type: prompt
 kind: self-contained
 status: active
 created: 2026-08-12
 updated: 2026-08-12
-audience: offline-agent-no-filesystem
-tags: [octopus, math, equations, self-contained, next-agent]
+tags: [octopus, math, equations, self-contained, next-agent, offline-agent]
 ---
 
 # متن کامل برای ایجنت بدون دسترسی به اختاپوس

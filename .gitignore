@@ -249,7 +249,7 @@ _ops/state/adr-033/proposals/
 _ops/state/adr-033/quarantine/
 _ops/state/adr-033/replay/
 _ops/state/adr-033/idempotency-ledger.jsonl
-_ops/telemetry/
+# NOTE: _ops/telemetry/ کد OpenTelemetry واقعی است — ignore نمی‌شود (فقط state/telemetry بالا).
 _ops/synapse/out/
 _ops/_bak/
 _ops/budget/epochs/

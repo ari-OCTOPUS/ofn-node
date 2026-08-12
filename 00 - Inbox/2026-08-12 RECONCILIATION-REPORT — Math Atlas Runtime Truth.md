@@ -1,8 +1,9 @@
 ---
 type: report
 kind: reconciliation
-status: complete
+status: done
 created: 2026-08-12
+updated: 2026-08-12
 created_by: agent
 tags: [octopus, math, equations, reconciliation, apply, chrono-rhythm, spectral, adr-035]
 sources:

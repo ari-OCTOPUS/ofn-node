@@ -1,9 +1,9 @@
 ---
-type: session-note
+type: log
 status: active
 created: 2026-08-12
 updated: 2026-08-12
-tags: [octopus, adr-035, self-learn, watch]
+tags: [octopus, adr-035, self-learn, watch, session]
 related:
   - "[[01 - Dashboard/HANDOFF]]"
   - "[[OCTOPUS/CURRENT-TRUTH]]"
