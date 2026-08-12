@@ -162,6 +162,33 @@ hypotheses:
     may_trigger_tool: false
     may_mutate_ledger: false
 
+  # --- مثال ۴: فرضیهٔ کلانِ خودارجاء (§۷ آزمایش) — اولین فرضیهٔ واقعی ---
+  # این فرضیه دربارهٔ خودِ موتورِ فرضیه است. شاهدِ اولیه = آزمایشِ deceptive-grid.
+  - id: "HYP-2026-08-12-004"
+    statement: "فرضیه‌سازیِ آزمون‌پذیر (pursue روی باورِ کم‌احتمالِ پرارزش) در محیط‌های فریبنده کشف را ممکن می‌کند — ولی در محیط‌های benign هزینه‌اش بی‌بازده است"
+    status: TESTING
+    existence_probability: 0.55           # آزمایش: B>A در deceptive (97% vs 0%)، ولی B≯C
+    usefulness_probability: 0.8
+    testability: 0.9                      # خودِ آزمایش، آزمونِ صریح است
+    cost_of_testing_hours: 2.0
+    expected_information_gain: 0.7
+    contradictory_evidence_count: 1       # B بر novelty برتری ندارد (p=0.32)
+    supporting_evidence_count: 1          # آزمایشِ deceptive-grid
+    created_at: "2026-08-12T00:00:00Z"
+    last_updated: "2026-08-12T00:00:00Z"
+    test_plan: |
+      1. تعمیمِ deceptive-grid با الگوهای مخفیِ تصادفی‌سازی‌شده (نه هم‌راستا با sweep)
+      2. ۱۰۰ seed × چندین پیکربندیِ فریبِ متفاوت
+      3. مقایسهٔ B با A و C (permutation test + Cliff δ + تعامل agent×env)
+      4. اگر B در ≥۸۰٪ پیکربندی‌ها از A بهتر بود ولی از C بهتر نبود → «مفید در فریب» تأیید
+    kill_condition: "اگر در هیچ پیکربندیِ فریب‌دهنده‌ای B ≯ A نبود، یا همیشه B ≤ C بود → FALSIFIED"
+    evidence_ids:
+      - "exp:deceptive-grid-2026-08-12"
+    forbidden_effects: []
+    may_gate: false
+    may_trigger_tool: false
+    may_mutate_ledger: false
+
 # -----------------------------------------------------------------------------
 # روابط بین فرضیه‌ها (اختیاری)
 # -----------------------------------------------------------------------------
@@ -178,3 +205,7 @@ changelog:
     action: "created"
     author: "octopus-core"
     note: "Initial registry with 3 hypotheses (1 TESTING, 1 FALSIFIED, 1 HYPOTHESIZING)"
+  - date: "2026-08-12"
+    action: "added"
+    author: "octopus-core"
+    note: "HYP-2026-08-12-004: first real (self-referential) hypothesis — does testable hypothesis-making aid discovery in deceptive envs? Seed evidence = deceptive-grid experiment."
