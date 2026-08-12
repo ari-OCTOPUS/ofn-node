@@ -103,10 +103,14 @@ def t_collab_chat_not_stolen_by_local_first():
 
 
 def t_self_aware_intents_match():
-    """Phase E: 'خودت کی ای' / 'از چی تشکیل شدی' → intro, not clarify."""
-    for q in ("خودت کی ای", "از چی تشکیل شدی", "خودآگاه هستی"):
+    """Phase E + INT-04: هویت/ترکیب → intro؛ ادعای خودآگاهی → honest-self (مسیرِ صادق)."""
+    # هویت و ترکیب: intro (اسطوره‌ای نیستند، ادعای consciousness هم نیستند).
+    for q in ("خودت کی ای", "از چی تشکیل شدی"):
         r = conversation.handle(q)
         assert r["kind"] == "intro", f"{q!r} → kind={r['kind']} (expected intro)"
+    # ادعای خودآگاهی/قلب (INT-04، commit 6f4f3a1): مسیرِ صادق → honest-self، نه intro اسطوره‌ای.
+    r = conversation.handle("خودآگاه هستی")
+    assert r["kind"] == "honest-self", f"'خودآگاه هستی' → kind={r['kind']} (expected honest-self, INT-04)"
 
 
 if __name__ == "__main__":
