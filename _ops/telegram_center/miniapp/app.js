@@ -2470,7 +2470,36 @@
     fn();
   }
 
+  // ── 2026-08-13: بنرِ پیشگیرانهٔ وضعیتِ چت (TASK 4) — فقط‌خواندنی، بدونِ تماسِ پولی.
+  // GET /api/chat-status → {ok, banner:{level,text,...}}؛ بنرِ چسبان در بالای صفحه، فقط وقتی سطح ok نیست.
+  function startStatusBanner(){
+    var bar = document.createElement("div");
+    bar.id = "octopus-status-banner";
+    bar.style.cssText = "display:none;position:sticky;top:0;z-index:9999;padding:6px 10px;"
+      + "font-size:13px;text-align:center;background:#3a2a00;color:#ffd54f;"
+      + "border-bottom:1px solid #5a4000;";
+    document.body.insertBefore(bar, document.body.firstChild);
+    function refresh(){
+      api("/api/chat-status").then(function(d){
+        try {
+          var b = (d && d.banner) || {level:"ok", text:""};
+          if (b.level !== "ok" && b.text) {
+            bar.textContent = b.text;
+            bar.style.display = "block";
+            bar.style.background = (b.level === "halt") ? "#3a0000" : "#3a2a00";
+            bar.style.color = (b.level === "halt") ? "#ff8a80" : "#ffd54f";
+          } else {
+            bar.style.display = "none";
+          }
+        } catch(e){ /* بنر نباید برنامه را بشکند */ }
+      });
+    }
+    refresh();
+    setInterval(refresh, 60000);   // هر ۶۰ ثانیه تازه شود
+  }
+
   // boot
   setAuth(devMode ? "dev-mode" : "…");
   render("home");
+  startStatusBanner();   // TASK 4: بنرِ وضعیت (halt/quota) در بالای صفحه
 })();
