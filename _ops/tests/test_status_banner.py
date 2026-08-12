@@ -118,6 +118,22 @@ def t_no_quota_injected_reads_best_effort_none():
 
 
 # ============================================================================
+# TASK 3 path ب — runtime_truth حالا بنرِ halt/quota را در خطِ اول می‌آورد.
+def t_runtime_truth_surfaces_halt_banner():
+    import status as _st   # owner_console روی sys.path است
+    out = _st.runtime_truth(banner={"level": "halt", "text": "🔴 ارگانیسم متوقف است (HALT-ALL)"})
+    check("runtime_truth prepends halt banner",
+          "متوقف" in out and out.index("متوقف") < out.index("حقیقت runtime"), out)
+
+
+def t_runtime_truth_no_banner_when_healthy():
+    import status as _st
+    out = _st.runtime_truth(banner={"level": "ok", "text": ""})
+    check("runtime_truth omits banner when healthy",
+          "🫀 حقیقت runtime" in out and "متوقف" not in out, out)
+
+
+# ============================================================================
 def main():
     tests = sorted((n, f) for n, f in globals().items() if n.startswith("t_"))
     for name, fn in tests:

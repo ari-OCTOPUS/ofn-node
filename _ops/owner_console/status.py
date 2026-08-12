@@ -49,11 +49,19 @@ def current_goal() -> str:
     return "\n".join(lines)
 
 
-def runtime_truth() -> str:
+def runtime_truth(banner: "dict | None" = None) -> str:
     s, c = _unified()
+    # TASK 3 path ب: بنرِ halt/quota را در حقیقتِ runtime بیاور (دادهٔ زنده، بدونِ تماسِ پولی).
+    # وقتی ارگانیست متوقف/سهمیه‌تمام است، صادقانه در خطِ اول بگو — وگرنه بنری نیست.
+    if banner is None:
+        try:
+            from . import status_banner as _sb
+            banner = _sb.status_banner()
+        except Exception:  # noqa: BLE001 — بنر نباید حقیقتِ runtime را بشکند
+            banner = {"text": "", "level": "ok"}
     h = s.get("heart") or {}; sm = s.get("self_model") or {}; inn = s.get("innervation") or {}
     gc = s.get("goal_cycle") or {}; counts = gc.get("counts") or {}
-    return "\n".join([
+    lines = [
         "🫀 حقیقت runtime",
         f"قلب: {h.get('authority', 'UNKNOWN')} · production_open={h.get('production_open')}",
         f"خودمدل: {sm.get('authority', 'UNKNOWN')} · age_s={sm.get('age_s')}",
@@ -61,7 +69,10 @@ def runtime_truth() -> str:
         f"چرخه هدف: prereg={counts.get('prereg', 0)} · journal={counts.get('cycles', 0)} · verdict={counts.get('verdicts', 0)}",
         f"قطب‌نما: {c.get('readiness', 'UNKNOWN')} · cadence={c.get('cadence_authority', 'UNKNOWN')}",
         "وضعیت کلی: " + ("کاملاً یکپارچه" if s.get("fully_integrated") else "نیمه‌یکپارچه"),
-    ])
+    ]
+    if banner.get("text"):
+        lines.insert(0, banner["text"])   # بنرِ halt/quota در خطِ اول
+    return "\n".join(lines)
 
 
 def protective_truth() -> str:
