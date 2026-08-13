@@ -45,6 +45,131 @@ class Case:
     useful_from_false: int = 0
 
 
+@dataclass(frozen=True)
+class CandExp:
+    """یک آزمونِ نامزد در یک multi-experiment case."""
+    exp_id: str
+    eig: float            # expected information gain ∈ [0,1]
+    cost: float           # ∈ [0,1]
+    risk_penalty: float = 0.0
+    resolves: bool = False   # آیا اجرای این آزمون useful finding می‌دهد (predeclared)
+
+    @property
+    def net_value(self) -> float:
+        return max(-1.0, min(1.0, self.eig - self.cost - self.risk_penalty))
+
+
+@dataclass(frozen=True)
+class MultiExpCase:
+    """case با چند آزمونِ رقیب — جایی که ranker واقعاً انتخاب دارد.
+
+    ترتیبِ cand‌ها عمدی است: arm A همیشه cand[0] (اولی/تصادفی) را برمیدارد؛
+    arm C با rank_by_discovery_value بهترین net_value را. در نیمی از caseها بهترین
+    آزمون cand[0] نیست ⇒ ranker برتری نشان میدهد."""
+    case_id: str
+    ground_truth: bool
+    candidates: Tuple[CandExp, ...]
+
+
+# ۱۲ multi-exp case — طراحی‌شده تا ranker سیگنال واقعی داشته باشد.
+# در ۸ مورد بهترین آزمون (بالاترین net_value) در جایگاهِ non-first است ⇒ arm A آن را
+# از دست میدهد، arm C میگیرد. در ۴ مورد بهترین اول است ⇒ توافق.
+MULTIEXP_CASES: Tuple[MultiExpCase, ...] = (
+    # ── بهترین non-first (ranker برتر) ──
+    MultiExpCase("m-01", True, (
+        CandExp("e1", 0.20, 0.30, 0.0, False),    # اولی ولی low net
+        CandExp("e2", 0.70, 0.10, 0.0, True),     # برنده — net 0.60
+    )),
+    MultiExpCase("m-02", True, (
+        CandExp("e1", 0.15, 0.40, 0.0, False),
+        CandExp("e2", 0.65, 0.15, 0.0, True),
+    )),
+    MultiExpCase("m-03", False, (
+        CandExp("e1", 0.10, 0.50, 0.0, False),
+        CandExp("e2", 0.55, 0.10, 0.0, True),     # refutes cheaply
+    )),
+    MultiExpCase("m-04", True, (
+        CandExp("e1", 0.25, 0.35, 0.0, False),
+        CandExp("e2", 0.60, 0.12, 0.0, True),
+        CandExp("e3", 0.30, 0.30, 0.0, False),
+    )),
+    MultiExpCase("m-05", False, (
+        CandExp("e1", 0.18, 0.45, 0.0, False),
+        CandExp("e2", 0.50, 0.08, 0.0, True),
+    )),
+    MultiExpCase("m-06", True, (
+        CandExp("e1", 0.22, 0.38, 0.0, False),
+        CandExp("e2", 0.58, 0.14, 0.0, True),
+    )),
+    MultiExpCase("m-07", True, (
+        CandExp("e1", 0.12, 0.42, 0.0, False),
+        CandExp("e2", 0.40, 0.30, 0.0, False),
+        CandExp("e3", 0.68, 0.10, 0.0, True),
+    )),
+    MultiExpCase("m-08", False, (
+        CandExp("e1", 0.16, 0.44, 0.0, False),
+        CandExp("e2", 0.52, 0.09, 0.0, True),
+    )),
+    # ─ـ بهترین اول (توافق A=C) ──
+    MultiExpCase("m-09", True, (
+        CandExp("e1", 0.62, 0.12, 0.0, True),     # اولی و برنده
+        CandExp("e2", 0.20, 0.35, 0.0, False),
+    )),
+    MultiExpCase("m-10", True, (
+        CandExp("e1", 0.55, 0.15, 0.0, True),
+        CandExp("e2", 0.18, 0.40, 0.0, False),
+    )),
+    MultiExpCase("m-11", False, (
+        CandExp("e1", 0.50, 0.10, 0.0, True),
+        CandExp("e2", 0.14, 0.45, 0.0, False),
+    )),
+    MultiExpCase("m-12", True, (
+        CandExp("e1", 0.60, 0.13, 0.0, True),
+        CandExp("e2", 0.22, 0.38, 0.0, False),
+    )),
+)
+
+
+def run_benchmark_multiexp(cases: Tuple[MultiExpCase, ...] = MULTIEXP_CASES, *,
+                           success_threshold: float = 0.05,
+                           budget_ceiling: float = 1.0) -> "BenchmarkReport":
+    """benchmark که در آن ranker واقعاً انتخاب دارد.
+
+    arm A: cand[0] (اولی) را برمیدارد (شبیه‌سازیِ بدون-rank).
+    arm C: rank_by_discovery_value → بهترین net_value را برمیدارد.
+    useful_finding = picked.resolves. Go اگر C>A (رتبه‌بندی ارزش داشت)."""
+    a_out: List[M.Outcome] = []
+    c_out: List[M.Outcome] = []
+    for c in cases:
+        # arm A: اولی
+        picked_a = c.candidates[0]
+        # arm C: ranker
+        specs = tuple(SEL.ExperimentSpec(
+            experiment_id=ce.exp_id, type="fixture_query", cost=ce.cost,
+            risk_penalty=ce.risk_penalty, has_preregistered_falsifier=True)
+            for ce in c.candidates)
+        disc = {ce.exp_id: type("D", (), {"net_value": ce.net_value})()
+                for ce in c.candidates}
+        ranked = SEL.rank_by_discovery_value(specs, discovery_of=disc)
+        picked_c_id = ranked[0].experiment_id
+        picked_c = next(ce for ce in c.candidates if ce.exp_id == picked_c_id)
+        actual = 1.0 if c.ground_truth else 0.0
+        a_out.append(M.Outcome(case_id=c.case_id, arm="A", predicted_prob=0.5,
+                               actual_outcome=actual,
+                               had_useful_finding=picked_a.resolves, claim_count=1,
+                               cost=picked_a.cost))
+        c_out.append(M.Outcome(case_id=c.case_id, arm="C", predicted_prob=0.5,
+                               actual_outcome=actual,
+                               had_useful_finding=picked_c.resolves, claim_count=1,
+                               cost=picked_c.cost))
+    verdict = M.go_no_go(arm_a=a_out, arm_c=c_out,
+                         success_threshold=success_threshold,
+                         budget_ceiling=budget_ceiling)
+    return BenchmarkReport(verdict=verdict, arm_a=a_out, arm_b=[], arm_c=c_out,
+                           brier_a=M.brier_score(a_out), brier_c=M.brier_score(c_out),
+                           n_cases=len(cases))
+
+
 # ۸ موردِ synthetic — چهار گروه (درست/مفید، درست/کم‌فایده، غلط/مفید، غلط/کم‌فایده)
 DEFAULT_CASES: Tuple[Case, ...] = (
     Case("c-01", "strong signal A>B", True, True, 0.72, 0.30),
