@@ -38,6 +38,12 @@ updated: 2026-08-13
 
 > **پیش‌زمینه:** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] · مالک: مینی‌اپ ببند/باز بعد از gateway.
 
+- ✅🎛 **2026-08-13 — فاز ۱ Control Plane ویندوز (board-pull)، فلگ خاموش.**
+  [[../07 - Knowledge/شناخت-اختاپوس/46-BOARD-CP-PHASE1-AND-BOARD-BRIEF-2026-08-13|نوت ۴۶]] —
+  صف `_ops/board_cp` · چت `board-command` · pull Bearer جدا از initData.
+  Gate 0 باز (CONTROL_URL مالک). فاز ۲ برد / فاز ۳ مسلح‌سازی حکم جدا.
+  تستِ ثبت‌نشده: `_ops/tests/test_board_cp.py`
+
 - ✅👁 **2026-08-13 — رصدِ فقط‌خواندنیِ بیزنس‌های برد.**
   [[../07 - Knowledge/شناخت-اختاپوس/45-BOARD-LEGS-READONLY-READER-2026-08-13|نوت ۴۵]] —
   intent `legs` · پین `/healthz` = فقط listener/تونل (نه کسب‌وکار) · غیر۲۰۰ بدون fallback.
@@ -83,6 +89,14 @@ updated: 2026-08-13
     C بر A برتر نشد (delta=0.0) ولی safety criteria همگی pass + UFBR C=1.0 (discovery-value کار می‌کند) → **C6/C7 به‌درستی gated**
   · suites: **۱۵۰ سبز** · رگرسیون صفر
   · **تفسیر:** machinery کامل کار می‌کند ولی Go واقعی نیازِ datasetِ ۲۰-۴۰ موردیِ واقعی + thresholdِ predeclare‌شدهٔ مالک دارد. C6 (UI) / C7 (live shadow) منتظرِ Go.
+
+- 🔌✅ **2026-08-13 (شب) — «همه چی فعال بشه»: فلگ‌ها ON + restart زنده.**
+  مالک «همه چی فعال بشه». flags.cmd (gitignored، روی دیسک) flip شد + gateway/cortex restart.
+  · **`OCTOPUS_UNIFIED_CHAT=1`** ✅ live — gateway PID→12228؛ probe `POST /api/octopus/chat` → HTTP 403 (flag‌چک گذشته به auth) = endpoint فعال. chipِ 🐙 درگاه بعد از بستن/بازکردنِ مینی‌اپ.
+  · **`EPISTEMIC_TESTS=1`** ✅ live — cortex PID→1136 (retry شد؛ بارِ اول timeout چون پروسهٔ قدیم شاغل بود).
+  · **`DOCTOR_LITE_USE_CENTRAL_ROUTER=1` + `OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER=1`** ✅ (کم‌ریسک، deacbc4).
+  · ⚠ **`FUGU_VIA_CENTRAL_GATE` + `STUDIO_LLM_CLOUD_VIA_ROUTER`** = 0 باقی ماندند: 4d=DEPRECATED (نیازِ رأیِ جدا) و Studio=کسب‌وکارِ زندهٔ درآمدزا. تأییدِ جدا لازم — outward-facing/hard-to-reverse.
+  · کارِ مالک: مینی‌اپ را ببند/باز → chipِ 🐙 → «وضعیت چیست؟» (درگاهِ واحد) یا همکار (مغزِ واقعی).
 
 - 🔓🔬 **2026-08-13 (عصر) — باز شدنِ دروازه: C6 read-only panel + C7 shadow harness (owner override).**
   [[../07 - Knowledge/شناخت-اختاپوس/44-HYPOTHESIS-LEDGER-REVIEW-RECONCILIATION-2026-08-13|نوت ۴۴]] —
