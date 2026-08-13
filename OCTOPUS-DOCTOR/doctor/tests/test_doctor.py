@@ -86,6 +86,68 @@ with tempfile.TemporaryDirectory() as td:
           and "reasoning" not in f2._body("bare","m","s","u","max",10))
     if old: os.environ["SAKANA_API_KEY"] = old
 
+print("\n🌐 مغز — دروازهٔ مرکزی (۲۰۲۶-۰۸-۱۳، اختیاری/opt-in)")
+import fugu as _fugu_mod  # noqa: E402
+with tempfile.TemporaryDirectory() as td:
+    check("پیش‌فرض: فلگِ OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER در محیطِ تست ست نیست",
+          os.environ.get("OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER") != "1",
+          "اگر ست بود، بقیهٔ این بلوک نتیجهٔ نادرست می‌داد")
+
+    # _organism_halted — فقط فایل، بدونِ import از opslib. مسیرِ ساختگی باید
+    # همان دو سطحِ تودرتوی واقعی را داشته باشد (OCTOPUS-DOCTOR/doctor/fugu.py
+    # زیرِ ریشه) وگرنه سه‌بار parent به جای اشتباهی می‌رسد.
+    fake_ops_root = Path(td) / "fakeroot"
+    fake_fugu_path = fake_ops_root / "OCTOPUS-DOCTOR" / "doctor" / "fugu.py"
+    (fake_ops_root / "_ops").mkdir(parents=True)
+    orig_file = _fugu_mod.__file__
+    try:
+        _fugu_mod.__dict__["__file__"] = str(fake_fugu_path)
+        check("بدونِ STOP-ORGANISM/HALT-ALL روی دیسک ⇒ halted=False",
+              _fugu_mod._organism_halted() is False)
+        (fake_ops_root / "_ops" / "HALT-ALL").write_text("x")
+        check("با HALT-ALL روی دیسک ⇒ halted=True",
+              _fugu_mod._organism_halted() is True)
+    finally:
+        _fugu_mod.__dict__["__file__"] = orig_file
+
+    # _ask_via_router: import model_router شکست بخورد ⇒ None (fail-soft، نه raise)
+    old_key = os.environ.get("SAKANA_API_KEY")
+    os.environ["SAKANA_API_KEY"] = "test-key-not-real"
+    f3 = Fugu(td)
+    try:
+        _fugu_mod.__dict__["__file__"] = str(fake_fugu_path)
+        out = f3._ask_via_router("s", "u", "fast", 100, "fugu", "high")
+        check("import model_router شکست ⇒ None، نه exception", out is None)
+    finally:
+        _fugu_mod.__dict__["__file__"] = orig_file
+        if old_key is None:
+            os.environ.pop("SAKANA_API_KEY", None)
+        else:
+            os.environ["SAKANA_API_KEY"] = old_key
+
+    # مسیرِ مرکزی موفق ⇒ سهمیهٔ محلیِ Doctor دست‌نخورده می‌ماند
+    class _FakeRouterOk:
+        @staticmethod
+        def ask(task, prompt, system="", max_tokens=400, tier=None):
+            return {"ok": True, "text": "central answer", "model": "fugu",
+                    "cost_usd": 0.01, "tier": tier}
+    old_key2 = os.environ.get("SAKANA_API_KEY")
+    os.environ["SAKANA_API_KEY"] = "test-key-not-real"
+    f4 = Fugu(td)
+    used_before = f4.quota.used
+    sys.modules["model_router"] = _FakeRouterOk()
+    try:
+        rep = f4._ask_via_router("s", "u", "fast", 100, "fugu", "high")
+        check("مسیرِ مرکزیِ موفق: متن برمی‌گردد", rep is not None and rep.ok and rep.text == "central answer")
+        check("مسیرِ مرکزیِ موفق: سهمیهٔ محلیِ Doctor لمس نمی‌شود (fugu_quota مرکزی خودش شمرده)",
+              f4.quota.used == used_before)
+    finally:
+        sys.modules.pop("model_router", None)
+        if old_key2 is None:
+            os.environ.pop("SAKANA_API_KEY", None)
+        else:
+            os.environ["SAKANA_API_KEY"] = old_key2
+
 print("\n🩺 دکتر")
 doc = Doctor(ROOT)
 ctx, used = doc.bundle("چرا حافظه خالی است؟")

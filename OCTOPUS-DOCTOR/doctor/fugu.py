@@ -165,6 +165,17 @@ class Quota:
         self._save(d)
 
 
+def _organism_halted() -> bool:
+    """چکِ مستقیمِ فایل، بدونِ import از opslib — تا Doctor واقعاً مستقل
+    بماند حتی وقتی ارگانیسم نصب/سالم نیست (طبقِ طراحیِ خودِ این فایل).
+    مبهم/هر خطا → True (فرضِ halted، برو مسیرِ مستقیمِ همیشگی، امن‌ترین حالت)."""
+    try:
+        root = Path(__file__).resolve().parent.parent.parent
+        return any((root / "_ops" / n).exists() for n in ("STOP-ORGANISM", "HALT-ALL"))
+    except Exception:  # noqa: BLE001
+        return True
+
+
 class Fugu:
     def __init__(self, state_dir: Path | str, timeout: float | None = None):
         self.state = Path(state_dir)
@@ -222,6 +233,36 @@ class Fugu:
         except OSError:
             pass
 
+    # ---------------------------------------------------------- central gate
+    def _ask_via_router(self, system: str, user: str, tier: str, max_tokens: int,
+                         model: str, effort: str) -> "Reply | None":
+        """تلاشِ اختیاری از دروازهٔ مرکزیِ اختاپوس. None = برگرد به مسیرِ
+        مستقیمِ همیشگی (import نشد/ارگانیسم نبود/رد شد/شکلِ پاسخ غلط)."""
+        try:
+            import sys
+            root = Path(__file__).resolve().parent.parent.parent
+            cortex_dir = str(root / "_ops" / "cortex")
+            if cortex_dir not in sys.path:
+                sys.path.insert(0, cortex_dir)
+            import model_router  # noqa: WPS433
+        except Exception:  # noqa: BLE001
+            return None
+        t0 = time.time()
+        try:
+            res = model_router.ask(f"doctor_diagnose_{tier}", user, system=system,
+                                    max_tokens=max_tokens, tier="primary")
+        except Exception:  # noqa: BLE001
+            return None
+        if not isinstance(res, dict) or not res.get("ok") or not res.get("text"):
+            return None
+        rep = Reply(res["text"], res.get("model") or model, effort,
+                    ms=int((time.time() - t0) * 1000), ok=True,
+                    cost_usd=float(res.get("cost_usd") or 0.0), shape="central-router")
+        # هنوز رسیدِ محلی برای دیدِ خودِ Doctor — ولی سهمیهٔ محلی لمس نمی‌شود
+        # چون fugu_quota مرکزی همین الان شمرده (reserve درونِ model_router.ask).
+        self._receipt(rep)
+        return rep
+
     # ------------------------------------------------------------------ ask
     def ask(self, system: str, user: str, tier: str = "fast",
             max_tokens: int = 4000) -> Reply:
@@ -231,6 +272,24 @@ class Fugu:
             return Reply(None, model, effort, ok=False,
                          reason=f"{KEY_ENV}/{KEY_ENV_ALIAS} تنظیم نیست — "
                                 "fail-closed، هیچ حدسی زده نمی‌شود")
+
+        # 2026-08-13 (رأی مالک): اگر OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER=1 و
+        # ارگانیسم halted نیست، اول از دروازهٔ مرکزیِ اختاپوس امتحان کن —
+        # موفق شد بدونِ لمسِ سهمیهٔ محلیِ Doctor برمی‌گردد (فقط رسیدِ محلی
+        # برای دیدن ثبت می‌شود؛ شمارش واقعی را fugu_quota مرکزی انجام
+        # می‌دهد). چرا چکِ halted *قبل* از تلاش، نه fallback روی exception؟
+        # چون Doctor عمداً طراحی شده که حتی وقتی ارگانیسم مریض/خاموش است
+        # بتواند تشخیص بدهد — اگر بگذاریم دروازهٔ مرکزی (که خودش زیرِ
+        # STOP-ORGANISM/HALT-ALL می‌رود) این تصمیم را بگیرد، دکتر دقیقاً
+        # همان لحظه‌ای کور می‌شود که بیشترین نیاز به او هست. پس این چک
+        # مستقیم از دیسک است، بدونِ import از opslib.
+        if (str(os.environ.get("OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER", "")).strip() == "1"
+                and not _organism_halted()):
+            routed = self._ask_via_router(system, user, tier, max_tokens, model, effort)
+            if routed is not None:
+                return routed
+            # شکست/غیرقابل‌دسترس → دقیقاً همان مسیرِ مستقیمِ زیر، بدون تغییر
+
         if self.quota.remaining <= 0:
             return Reply(None, model, effort, ok=False,
                          reason=f"سهمیهٔ روزانه ({self.quota.cap} فراخوان) تمام شد")

@@ -145,7 +145,16 @@ class LLMRouter:
     def __init__(self, config: LLMConfig | None = None):
         self.config = config or LLMConfig()
         self.glm  = GLMClient(self.config)
-        self.fugu = FuguClient(self.config)
+        # 2026-08-13 (رأی مالک): با FUGU_VIA_CENTRAL_GATE=1، self.fugu به‌جای
+        # تماسِ مستقیمِ httpx به api.sakana.ai از دروازهٔ مرکزیِ اختاپوس رد
+        # می‌شود (paid-calls.jsonl مشترک، fugu_quota مشترک). پیش‌فرض خاموش —
+        # رفتارِ همیشگی دست‌نخورده می‌ماند مگر صریحاً روشن شود.
+        import os
+        if str(os.environ.get("FUGU_VIA_CENTRAL_GATE", "")).strip() == "1":
+            from .central_gate_client import CentralGateClient
+            self.fugu = CentralGateClient(tier="primary", task="fourd_llm")
+        else:
+            self.fugu = FuguClient(self.config)
         from .ollama_client import OllamaClient
         self.ollama = OllamaClient(self.config)
         self.mock = MockClient(self.config)

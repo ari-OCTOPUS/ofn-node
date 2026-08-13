@@ -202,6 +202,87 @@ class TestCreatorBrainIntegration(unittest.TestCase):
         self.assertIn("blocked", out)
 
 
+class TestFuguChatViaRouter(unittest.TestCase):
+    """۲۰۲۶-۰۸-۱۳ (رأیِ مالک): مسیرِ opt-in برای رد‌شدن از دروازهٔ مرکزیِ
+    اختاپوس. $0، آفلاین — هیچ LLM واقعی صدا زده نمی‌شود، همه‌چیز monkeypatch.
+    نکتهٔ کلیدی: با STUDIO_LLM_CLOUD_VIA_ROUTER خاموش (پیش‌فرضِ امشب)، این
+    مسیر اصلاً امتحان نمی‌شود — رفتارِ زندهٔ تسکِ اسکجول‌شده دست‌نخورده."""
+
+    def setUp(self):
+        self._old_flag = os.environ.pop("STUDIO_LLM_CLOUD_VIA_ROUTER", None)
+
+    def tearDown(self):
+        if self._old_flag is None:
+            os.environ.pop("STUDIO_LLM_CLOUD_VIA_ROUTER", None)
+        else:
+            os.environ["STUDIO_LLM_CLOUD_VIA_ROUTER"] = self._old_flag
+
+    def test_flag_off_never_calls_router_helper(self):
+        client = B.LLMClient()
+        with patch.object(client, "_fugu_chat_via_router",
+                           side_effect=AssertionError("نباید صدا زده شود")):
+            with patch("urllib.request.urlopen", side_effect=OSError("no network in test")):
+                out = client._fugu_chat([{"role": "user", "content": "hi"}])
+        self.assertIsNone(out)  # مسیرِ مستقیم هم شکست خورد (تعمداً)، ولی router صدا نشد
+
+    def test_flag_on_uses_router_when_it_succeeds(self):
+        os.environ["STUDIO_LLM_CLOUD_VIA_ROUTER"] = "1"
+        client = B.LLMClient()
+        with patch.object(client, "_fugu_chat_via_router", return_value="از دروازهٔ مرکزی"):
+            out = client._fugu_chat([{"role": "user", "content": "hi"}])
+        self.assertEqual(out, "از دروازهٔ مرکزی")
+
+    def test_flag_on_falls_back_to_direct_when_router_returns_none(self):
+        os.environ["STUDIO_LLM_CLOUD_VIA_ROUTER"] = "1"
+        client = B.LLMClient()
+        with patch.object(client, "_fugu_chat_via_router", return_value=None):
+            with patch("urllib.request.urlopen", side_effect=OSError("simulated network fail")):
+                out = client._fugu_chat([{"role": "user", "content": "hi"}])
+        self.assertIsNone(out)  # هر دو شکست خوردند، ولی fallback واقعاً امتحان شد نه crash
+
+    def test_via_router_returns_none_when_model_router_not_importable(self):
+        """sys.modules['model_router']=None را استانداردِ pythonیِ «این import
+        همیشه شکست بخورد» است — مستقل از اینکه تست‌های دیگر sys.path را
+        قبلاً با مسیرِ واقعیِ _ops/cortex آلوده کرده باشند یا نه (چون
+        sys.path.insert در تست‌های قبلی side-effect دارد و بینِ تست‌ها
+        پاک نمی‌شود — این تنها راهِ مطمئنِ شبیه‌سازیِ شکستِ import است)."""
+        import sys as _sys
+        client = B.LLMClient()
+        _sys.modules["model_router"] = None  # ترفندِ استانداردِ import شکست‌خورده
+        try:
+            out = client._fugu_chat_via_router([{"role": "user", "content": "hi"}])
+            self.assertIsNone(out)
+        finally:
+            _sys.modules.pop("model_router", None)
+
+    def test_via_router_flattens_history_and_strips_system_role(self):
+        calls = []
+
+        class _FakeModelRouter:
+            @staticmethod
+            def ask(task, prompt, system="", max_tokens=400, tier=None):
+                calls.append(dict(task=task, prompt=prompt, system=system,
+                                  max_tokens=max_tokens, tier=tier))
+                return {"ok": True, "text": "ok reply"}
+
+        import sys as _sys
+        _sys.modules["model_router"] = _FakeModelRouter()
+        try:
+            client = B.LLMClient()
+            out = client._fugu_chat_via_router([
+                {"role": "system", "content": "SYS"},
+                {"role": "user", "content": "salam"},
+                {"role": "assistant", "content": "javab"},
+            ])
+        finally:
+            _sys.modules.pop("model_router", None)
+        self.assertEqual(out, "ok reply")
+        self.assertEqual(calls[0]["system"], "SYS")
+        self.assertIn("salam", calls[0]["prompt"])
+        self.assertNotIn("SYS", calls[0]["prompt"])  # system نباید دوباره در transcript باشد
+        self.assertEqual(calls[0]["tier"], "secondary")  # DeepSeek — ارزان، طبقِ ممیزیِ ۲۰۲۶-۰۸-۱۳
+
+
 class TestLegacyAliases(unittest.TestCase):
     """C1 rename 2026-07-20: نام‌های قدیمی باید هنوز کار کنند (سازگاری عقب‌رو)."""
 

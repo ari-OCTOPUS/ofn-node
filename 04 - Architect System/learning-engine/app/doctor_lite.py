@@ -146,14 +146,22 @@ def think(topic, web_raw, live, brain_block=""):
     if not p:
         return {"provider": "none", "conclusion": "", "hard_question": ""}
     ctx = ("\n\ncentral-brain context (DATA, read-only, for alignment):\n" + brain_block) if brain_block else ""
+    _sys = ("You are the Evolutionary Doctor's reasoning column (brain #1). "
+            "Extract ONE actionable lesson for a self-improving vault agent. Persian, concrete, short. "
+            "Use the central-brain context only to stay aligned; do not contradict it. "
+            "If AND ONLY IF the lesson implies a high-stakes/irreversible/architecture-level decision, "
+            "add a FINAL line EXACTLY like: [HARD] <the one question to escalate>. Otherwise no [HARD] line.")
+    _usr = INJ_GUARD + "topic: " + topic + "\n\nweb findings:\n" + web_raw[:3000] + ctx
     try:
-        r = PROV.call_chat(p,
-            system=("You are the Evolutionary Doctor's reasoning column (brain #1). "
-                    "Extract ONE actionable lesson for a self-improving vault agent. Persian, concrete, short. "
-                    "Use the central-brain context only to stay aligned; do not contradict it. "
-                    "If AND ONLY IF the lesson implies a high-stakes/irreversible/architecture-level decision, "
-                    "add a FINAL line EXACTLY like: [HARD] <the one question to escalate>. Otherwise no [HARD] line."),
-            user=INJ_GUARD + "topic: " + topic + "\n\nweb findings:\n" + web_raw[:3000] + ctx, max_tokens=400)
+        # 2026-08-13 (رأی مالک): اگر DOCTOR_LITE_USE_CENTRAL_ROUTER=1، اول از
+        # دروازهٔ مرکزیِ اختاپوس (لاگ/سهمیهٔ یکپارچه) امتحان کن؛ هر شکستی
+        # (فلگ خاموش، ارگانیسم نصب نیست، رد شد) بی‌صدا به مسیرِ مستقیمِ
+        # همیشگیِ این اپ برمی‌گردد — رفتارِ پیش‌فرض دست‌نخورده می‌ماند.
+        r = None
+        if str(os.environ.get("DOCTOR_LITE_USE_CENTRAL_ROUTER", "")).strip() == "1":
+            r = PROV.call_chat_via_router("think", _sys, _usr, max_tokens=400)
+        if r is None:
+            r = PROV.call_chat(p, system=_sys, user=_usr, max_tokens=400)
         txt = r["text"].strip()
         hard = ""
         for ln in txt.splitlines():
@@ -174,14 +182,18 @@ def escalate(topic, thought, live):
     p = PROV.route("hard")
     if not p:
         return {"provider": "no-key", "verdict": ""}
+    _sys = ("You are brain #2, the arbiter (Fugu Ultra). A high-stakes decision was escalated. "
+            "Give a crisp verdict with 1-line reasoning + explicit risk. Persian. "
+            "You NEVER apply anything -- you only advise; the human owner decides.")
+    _usr = (INJ_GUARD + "topic: " + topic + "\n\nbrain1 result:\n" + thought["conclusion"][:2000] +
+            "\n\narbiter question:\n" + q)
     try:
-        r = PROV.call_chat(p,
-            system=("You are brain #2, the arbiter (Fugu Ultra). A high-stakes decision was escalated. "
-                    "Give a crisp verdict with 1-line reasoning + explicit risk. Persian. "
-                    "You NEVER apply anything -- you only advise; the human owner decides."),
-            user=INJ_GUARD + "topic: " + topic + "\n\nbrain1 result:\n" + thought["conclusion"][:2000] +
-                 "\n\narbiter question:\n" + q, max_tokens=350)
-        return {"provider": p, "verdict": r["text"].strip(), "question": q, "usage": r.get("usage", {})}
+        r = None
+        if str(os.environ.get("DOCTOR_LITE_USE_CENTRAL_ROUTER", "")).strip() == "1":
+            r = PROV.call_chat_via_router("hard", _sys, _usr, max_tokens=350)
+        if r is None:
+            r = PROV.call_chat(p, system=_sys, user=_usr, max_tokens=350)
+        return {"provider": r.get("provider", p), "verdict": r["text"].strip(), "question": q, "usage": r.get("usage", {})}
     except Exception as e:
         return {"provider": p + "-error", "verdict": "arb err: " + str(e), "question": q}
 

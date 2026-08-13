@@ -96,6 +96,46 @@ def call_chat(provider: str, system: str, user: str, max_tokens: int = 800) -> d
         "citations": data.get("citations", []),
     }
 
+def call_chat_via_router(task: str, system: str, user: str, max_tokens: int = 800) -> "dict | None":
+    """۲۰۲۶-۰۸-۱۳ (رأیِ مالک): مسیرِ اختیاریِ عبور از دروازهٔ مرکزیِ اختاپوس
+    (_ops/cortex/model_router.py) به‌جای تماسِ مستقیمِ این فایل با provider.
+
+    چرا: این اپ (doctor_lite pilot) کلاینتِ مستقلِ خودش را داشت — همان کلاسِ
+    شکافی که بازرسیِ ۲۰۲۶-۰۸-۱۳ (713M توکنِ ثبت‌نشده در provider) دنبالش
+    می‌گشت. این اپ هرگز واقعاً اجرا نشده (صفر state/log از روزِ ساخت)، پس
+    وصل‌کردنش هیچ رفتارِ زنده‌ای را عوض نمی‌کند — فقط از این به بعد اگر
+    فعال شود، از همان سهمیه/لاگِ مرکزی رد می‌شود.
+
+    task «think»→tier=secondary (DeepSeek)، «hard»→tier=primary (Fugu) —
+    نگاشتِ صریح چون model_router برای taskِ ناشناخته پیش‌فرض به local
+    (Ollama) می‌رود، نه به پولی. خروجی None یعنی فراخوان باید به
+    call_chat() مستقیم برگردد (fail-soft — این تابع هرگز raise نمی‌کند)."""
+    import sys
+    try:
+        _cortex_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))))), "_ops", "cortex")
+        if _cortex_dir not in sys.path:
+            sys.path.insert(0, _cortex_dir)
+        import model_router  # noqa: WPS433
+    except Exception:  # noqa: BLE001 — organism نصب نیست/سازگار نیست → fail-soft
+        return None
+    tier = "primary" if task == "hard" else "secondary"
+    try:
+        res = model_router.ask(f"doctor_lite_{task}", user, system=system,
+                                max_tokens=max_tokens, tier=tier)
+    except Exception:  # noqa: BLE001
+        return None
+    if not isinstance(res, dict) or not res.get("ok"):
+        return None
+    return {
+        "text": res.get("text") or "",
+        "provider": f"router:{res.get('tier') or tier}",
+        "model": res.get("model") or "",
+        "usage": {},
+        "citations": [],
+    }
+
+
 def available() -> dict:
     """کدام providerها کلید دارند (بدون فاش‌کردن مقدار)."""
     load_env_file(os.path.join(os.path.dirname(__file__), ".env"))

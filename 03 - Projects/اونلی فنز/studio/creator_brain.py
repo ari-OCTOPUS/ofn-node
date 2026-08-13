@@ -289,7 +289,22 @@ class LLMClient:
             return None
 
     def _fugu_chat(self, messages: list[dict]) -> str | None:
-        """Sakana Fugu (OpenAI-compatible). فقط با FUGU_API_KEY."""
+        """Sakana Fugu (OpenAI-compatible). فقط با FUGU_API_KEY.
+
+        ۲۰۲۶-۰۸-۱۳ (رأیِ مالک): با STUDIO_LLM_CLOUD_VIA_ROUTER=1 (فلگِ
+        opt-in تازه، **روی** STUDIO_LLM_CLOUD که خودش هنوز خاموش است —
+        یعنی این تغییر امشب هیچ اثری روی تسکِ زندهٔ Studio ندارد مگر هر دو
+        فلگ صریح روشن شوند)، به‌جای تماسِ مستقیمِ این متد، از دروازهٔ
+        مرکزیِ اختاپوس رد می‌شود — تا مصرفِ Studio هم در همان
+        paid-calls.jsonl/fugu_quota ثبت شود که بقیهٔ ارگانیسم پاسخ‌گویش
+        است (ریشهٔ ممیزیِ ۲۰۲۶-۰۸-۱۳: این فایل تنها زیرسیستمی بود که کاملاً
+        بی‌حساب بود). قبل از فعال‌کردنِ زنده روی تسکِ اسکجول‌شده، طبقِ
+        توصیهٔ خودِ ممیزی، اول با CLI محلیِ همین فایل تستش کن."""
+        if str(os.environ.get("STUDIO_LLM_CLOUD_VIA_ROUTER", "")).strip() == "1":
+            routed = self._fugu_chat_via_router(messages)
+            if routed is not None:
+                return routed
+            # شکست/غیرقابل‌دسترس → دقیقاً همان مسیرِ مستقیمِ زیر، بدون تغییر
         try:
             payload = json.dumps({
                 "model": FUGU_MODEL,
@@ -314,6 +329,34 @@ class LLMClient:
             return (choices[0].get("message", {}).get("content") or "").strip() or None
         except Exception:
             return None
+
+    def _fugu_chat_via_router(self, messages: list[dict]) -> str | None:
+        """تلاشِ اختیاری از دروازهٔ مرکزیِ اختاپوس. None = برگرد به تماسِ
+        مستقیمِ همیشگی (import نشد/ارگانیسم نبود/رد شد/پاسخ نامعتبر).
+        history را به یک transcriptِ خطی تخت می‌کند چون model_router.ask()
+        فقط system+prompتِ تک‌مرحله‌ای می‌گیرد، نه آرایهٔ messages."""
+        try:
+            import sys
+            cortex_dir = str(Path(__file__).resolve().parent.parent.parent.parent / "_ops" / "cortex")
+            if cortex_dir not in sys.path:
+                sys.path.insert(0, cortex_dir)
+            import model_router  # noqa: WPS433
+        except Exception:  # noqa: BLE001
+            return None
+        system = next((m["content"] for m in messages if m.get("role") == "system"), SYSTEM_PROMPT)
+        transcript = "\n".join(
+            f"{m.get('role', 'user')}: {m.get('content', '')}"
+            for m in messages if m.get("role") != "system"
+        )
+        try:
+            res = model_router.ask("studio_creator_chat", transcript, system=system,
+                                    max_tokens=200, tier="secondary")
+        except Exception:  # noqa: BLE001
+            return None
+        if not isinstance(res, dict) or not res.get("ok"):
+            return None
+        text = str(res.get("text") or "").strip()
+        return text or None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
