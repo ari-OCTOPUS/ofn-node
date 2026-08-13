@@ -2102,6 +2102,7 @@
         '<button class="chip'+(collabDefault?"":" on")+'" id="askPlain" type="button">💬 Ask</button>'+
         '<button class="chip" id="askMirror" type="button">🪞 آینه</button>'+
         '<button class="chip" id="askGuide" type="button">🧭 به کورتکس</button>'+
+        '<button class="chip" id="askHub" type="button">🐙 درگاه</button>'+
       '</div>'+
       '<div class="muted askmeta" id="askModeHint">'+(
         collabDefault
@@ -2118,6 +2119,7 @@
     var collabChip = el.querySelector("#askCollab");
     var plainChip = el.querySelector("#askPlain");
     var guideChip = el.querySelector("#askGuide");
+    var hubChip = el.querySelector("#askHub");
     // فاز R/S — بازیابی چت قبلی (localStorage) قبل از اولین تعامل
     (function restoreAskLog(){
       try {
@@ -2185,21 +2187,25 @@
       plainChip.classList.toggle("on", mode === "ask");
       mirrorChip.classList.toggle("on", mode === "mirror");
       if(guideChip) guideChip.classList.toggle("on", mode === "guide");
+      if(hubChip) hubChip.classList.toggle("on", mode === "hub");
       var hint = el.querySelector("#askModeHint");
       if(hint && mode === "guide"){
         // 2026-08-12 fix: owner_guidance دیگر متنِ بدونِ کلید را نمی‌پذیرد —
         // باید صریح «focus:» بنویسی، وگرنه رد می‌شود.
         hint.textContent = "به کورتکس: با «focus: متن» بنویس (مثلاً «focus: روی امنیت تمرکز کن») → owner_guidance.jsonl (cortex در cycle می‌خواند · بدون IPC · بدون اثر بیرونی).";
+      } else if(hint && mode === "hub"){
+        hint.textContent = "🐙 درگاهِ واحد (ADR-040): intent routing خودکار به runtime/memory/epistemic/mcp/propose. execute ممنوع — فقط observe+propose.";
       }
     }
     function setMode(m){
-      if(m !== "guide" && m !== "mirror"){ prevMode = m; }
+      if(m !== "guide" && m !== "mirror" && m !== "hub"){ prevMode = m; }
       mode = m; paint(); hapticSelect();
     }
     collabChip.addEventListener("click", function(){ setMode("collab"); });
     plainChip.addEventListener("click", function(){ setMode("ask"); });
     mirrorChip.addEventListener("click", function(){ setMode("mirror"); });
     if(guideChip) guideChip.addEventListener("click", function(){ setMode("guide"); });
+    if(hubChip) hubChip.addEventListener("click", function(){ setMode("hub"); });
     paint();
     // فاز R/S — session persist در tab switch (localStorage؛ فقط preview/متن، بدون secret)
     var ASKLOG_KEY = "octopus.asklog.v1";
@@ -2365,22 +2371,49 @@
       var useCollab = mode === "collab";
       var useMirror = mode === "mirror";
       var useGuide = mode === "guide";
+      var useHub = mode === "hub";
       // 2026-08-12 fix: guide/mirror باید one-shot باشند — چیپ قبلاً بعد از
       // ارسال روشن می‌ماند، پس پیام بعدیِ نامرتبط بی‌صدا به همان مسیر می‌رفت
       // (مثلاً «از خودت بگو» بعد از «به کورتکس» به owner_guidance می‌خورد).
       if(useGuide || useMirror){ mode = prevMode; paint(); }
       var endpoint = useGuide ? "/api/brain-guide"
-        : (useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask"));
-      var payload = (useCollab || useGuide) ? {text: q} : {question: q};
+        : (useHub ? "/api/octopus/chat"
+        : (useCollab ? "/api/collab" : (useMirror ? "/api/mirror" : "/api/ask")));
+      var payload = (useCollab || useGuide) ? {text: q}
+        : (useHub ? {text: q, mode: "auto"} : {question: q});
       // DeepSeek روی همکار اغلب ۱۰–۳۰ث؛ Ask زنجیره هم طولانی‌تر از ۴۵ث است (UI-05).
-      var tmo = useGuide ? 20000 : (useCollab ? 90000 : 90000);
+      var tmo = useGuide ? 20000 : (useHub ? 90000 : (useCollab ? 90000 : 90000));
       apiPost(endpoint, payload, tmo).then(function(r){
         try { pending.remove(); } catch(e){}
         // UI-07: 403 → toast ببند/باز کن مینی‌اپ
         if(r && (r.http_status === 403 || /owner_auth|403/.test(String(r.reason||"")))){
           toast("احراز رد شد — مینی‌اپ را ببند و از تلگرام دوباره باز کن","warn");
         }
-        if(useGuide){
+        if(useHub){
+          // octopus.chat.reply.v1 — ADR-040 Conversation Hub
+          if(r && r.schema_version === "octopus.chat.reply.v1"){
+            var hmeta = "🐙 درگاه · route="+esc(r.route||"?")+
+              " · confidence="+esc(r.confidence||"?")+
+              (r.epistemic_status && r.epistemic_status!=="not_applicable" ? " · epistemic="+esc(r.epistemic_status) : "")+
+              " · external_effect="+r.external_effect+" · بدون اجرا";
+            var hsrc = "";
+            if((r.sources||[]).length){
+              hsrc = '<details class="ask-sources"><summary>📎 منابع ('+r.sources.length+')</summary>'+
+                '<pre class="muted" style="white-space:pre-wrap;font-size:12px;margin:6px 0 0">'+
+                esc((r.sources||[]).map(function(s){ return "· "+(s.path||JSON.stringify(s)); }).join("\n"))+
+                '</pre></details>';
+            }
+            if(r.limitations && r.limitations.length){
+              hsrc += '<div class="muted" style="font-size:11px;margin-top:4px">محدودیت: '+
+                esc(r.limitations.join(" · "))+'</div>';
+            }
+            addTurn(q, r.answer||"(جواب خالی)", hmeta, !r.ok, hsrc);
+          } else if(r && r.reason === "feature_disabled"){
+            addTurn(q, "درگاهِ واحد خاموش است (OCTOPUS_UNIFIED_CHAT=0). روشن‌کردنش فقط با رأی مالک — فعلاً از چیپِ همکار/Ask استفاده کن.", "", true);
+          } else {
+            addTurn(q, "درگاه جواب نداد ("+((r&&r.reason)||"نامشخص")+(r&&r.http_status?" · HTTP "+r.http_status:"")+")", "", true);
+          }
+        } else if(useGuide){
           if(r && r.ok){
             var d = r.directive || {};
             var bits = [];
