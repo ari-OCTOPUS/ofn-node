@@ -3,7 +3,9 @@ type: design-review
 date: 2026-08-13
 source: external review (pasted-text-20260813-112756)
 verdict: ~70% already implemented in ADR-039 + hypothesis_engine; genuine gap is bounded
-status: MVE built (Phase 2.5, sandbox-only) — owner confirmed option الف
+status: COMPLETE — full TCB epistemic engine built (Phase 2.5/2.6/C3/C4); chat/UI wiring gated on owner vote (C5-C7)
+suites: 133 tests green (45 schemas + 20 receipt-chain + 19 invariants + 14 bayes + 24 selector/metrics + 11 runner)
+commits: cf769e9 · a7649d0 · e65457d · 5ee5753
 ---
 
 # 44 — بازبینیِ Hypothesis Ledger: آشتی با وضعیتِ موجود
@@ -108,3 +110,49 @@ C2 `test_epistemics_receipt_chain` ۲۰/۲۰. ADR-039 (PROPOSED) دست‌نخو
 - بازنویسیِ ADR-039 — این PROPOSED/رأیِ مالک‌منتظر است.
 - وصلِ epistemic به conversation_hub — بازبینی صریحاً می‌گوید MVE بدون chat-integration.
 - EVSI ranker، dual-channel composer، متریک‌های کامل → Phase 2.6/3، فقط اگر Go criteria پاس شد.
+
+---
+
+## ✅ تکمیلِ کامل — «همرو کامل کن» (مالک، ۲۰۲۶-۰۸-۱۳)
+
+مالک گفت «همرو کامل کن». تمامِ قطعه‌های buildableِ موتورِ epistemic TCB ساخته شد
+(sandbox-only، بدون وصل‌شدن به چت/tool/memory/action — طبقِ تجویزِ خودِ بازبینی).
+C5-C7 (cortex wiring / UI / shadow run) و وصل‌کردن به conversation_hub پشتِ رأیِ
+مالک روی ADR-039 باقی می‌مانند — خودِ بازبینی این‌ها را Go-gated کرده.
+
+### کامیت‌ها
+
+| کامیت | لایه | محتوا |
+|---|---|---|
+| `cf769e9` | Phase 2.5 MVE | WorldMode/ExecutionScope labels + ۱۰ invariant + ساختارِ ۸-بخشی + label preservation |
+| `a7649d0` | C4 (Plane-4) | `bayes.py` (Bayesian log-odds + score-band) + DiscoveryBlock + EvidenceScoreBand |
+| `e65457d` | Phase 2.6 | `experiment_selector.py` (SAFE/FORBIDDEN + eligible) + `benchmark_metrics.py` (Brier/calibration/leakage/UFBR + go_no_go) |
+| `5ee5753` | C3 (Plane-3) | `test_planner.py` (BoundedRunSpec) + `sandbox_runner.py` (bounded exec: HALT/budget/time/output-path) |
+
+### مسیرِ کاملِ epistemic که حالا موجود است
+
+```
+EpistemicClaim (world_mode/execution_scope/falsifier/predictions/evidence_*)
+  → validator (defense-in-depth + world_mode consistency)
+  → test_planner.plan_run → BoundedRunSpec (caps = min(plan, policy))
+  → experiment_selector.eligible (SAFE_EXPERIMENTS, fail-closed)
+  → sandbox_runner.run (HALT/budget/time/output-path; crash→INCONCLUSIVE)
+  → EvidenceReceipt (tamper-evident hash chain, world_mode label carried)
+  → bayes.update_* → belief_delta_log_odds
+  → GateDecision (may_execute=False, INCONCLUSIVE fail-closed)
+  → benchmark_metrics.go_no_go (preregistered Go criteria)
+```
+
+### شواهد تست — ۱۳۳ سبز
+
+`schemas 45/45` · `receipt_chain 20/20` · `invariants 19/19` · `bayes 14/14` ·
+`selector_metrics 24/24` · `runner 11/11`. رگرسیون صفر روی C1/C2.
+
+### باقیمانده (Go-gated، خارج از این ساخت)
+
+- **C5** cortex wiring (`EPISTEMIC_TESTS=0`) — رأیِ مالک روی ADR-039 لازم
+- **C6** owner-packet UI surface — فقط اگر Go criteria پاس شود
+- **C7** ۱۰h shadow run + signed report
+- وصل‌کردنِ conversation_hub/epistemic route — صریحاً «بعد از رأی مالک روی ADR-039»
+- subprocess + rlimits isolation برای sandbox_runner (C3-future)
+- dual-channel response composer (Observed facts vs Hypotheses) — وقتی epistemic به چت برسد

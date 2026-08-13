@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-12
+updated: 2026-08-13
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -38,6 +38,11 @@ updated: 2026-08-12
 
 > **پیش‌زمینه:** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] · مالک: مینی‌اپ ببند/باز بعد از gateway.
 
+- ✅👁 **2026-08-13 — رصدِ فقط‌خواندنیِ بیزنس‌های برد.**
+  [[../07 - Knowledge/شناخت-اختاپوس/45-BOARD-LEGS-READONLY-READER-2026-08-13|نوت ۴۵]] —
+  intent `legs` در چتِ «پرسش از اختاپوس»؛ HTTPS عمومی فقط؛ فرمان/loopback/Bridge ویندوز ساخته نشد.
+  تستِ ثبت‌نشده: `_ops/tests/test_legs_status_reader.py`
+
 - ✅🔗 **2026-08-13 — اتصالِ کارهای ایجنت‌های موازی: فیکس مغز چت + template→model + Hub Phase 2-lite.**
   [[../07 - Knowledge/شناخت-اختاپوس/43-PARALLEL-AGENT-INTEGRATION-CHAT-BRAIN-2026-08-13|نوت ۴۳]] —
   · **`e83d316` fix(cortex):** فیکسِ ایجنت موازی (`collab_chat`→DeepSeek پین شده **قبل** از
@@ -55,6 +60,18 @@ updated: 2026-08-12
     api_collab 17/17 · conversation_hub 11/11 · chatbox · intents_100steps · awareness 6/6
   · **Phase باقی‌مانده (ADR-040):** MCP broker + epistemic projection (Phase 2 کامل)،
     endpoint `/api/octopus/chat` (Phase 3)، UI واحد (Phase 5) — خارج از این جلسه
+
+- ✅🔬 **2026-08-13 — تکمیلِ کاملِ موتورِ epistemic TCB (بازبینیِ Hypothesis-Ledger، «همرو کامل کن»).**
+  [[../07 - Knowledge/شناخت-اختاپوس/44-HYPOTHESIS-LEDGER-REVIEW-RECONCILIATION-2026-08-13|نوت ۴۴]] —
+  بازبینیِ خارجی ~۷۰٪ را ازقبل‌موجود یافت (ADR-039 + hypothesis_engine). مالک «همرو کامل کن»:
+  تمامِ قطعه‌های buildable ساخته شد، sandbox-only (طبقِ تجویزِ خودِ بازبینی).
+  · `cf769e9` Phase 2.5: WorldMode/ExecutionScope labels + ۱۰ invariant + ساختارِ ۸-بخشی
+  · `a7649d0` C4: `bayes.py` (log-odds + score-band) + DiscoveryBlock + EvidenceScoreBand
+  · `e65457d` Phase 2.6: `experiment_selector.py` (SAFE/FORBIDDEN + eligible fail-closed) + `benchmark_metrics.py` (Brier/calibration/leakage/UFBR + go_no_go)
+  · `5ee5753` C3: `test_planner.py` + `sandbox_runner.py` (HALT/budget/time/output-path bounded exec → tamper-evident receipt)
+  · مسیرِ کامل: claim → validate → plan → eligible → run → receipt → bayes → GateDecision → go_no_go
+  · suites: **۱۳۳ سبز** (schemas 45 + receipt_chain 20 + invariants 19 + bayes 14 + selector_metrics 24 + runner 11) · رگرسیون صفر
+  · **Go-gated (خارج):** C5 cortex wiring + C6 UI + C7 shadow run + وصل‌کردن به conversation_hub — همگی پشتِ رأیِ مالک روی ADR-039
 
 - ✅💬 **2026-08-13 — لایهٔ صداقتِ چت + Conversation Hub (ADR-040) + یکدست‌سازیِ vault.**
   · **Chat-honesty (مگاپرامپت، ۶ commit):** TASK ۱ — تست‌های collab تصمیمِ intro-exclusion را assert می‌کنند (`bfcc353`)؛ TASK ۲ — authِ ۳ endpointِ gateway به `_owner_initdata_ok()` یکدست شد (`d81c7c1`، gateway 49/49)؛ TASK ۳ path ب — `runtime_truth` حالا halt/quota را صادقانه نشان می‌دهد (`c144297`)؛ TASK ۴ — بنرِ وضعیت (`status_banner.py` + GET `/api/chat-status` + `app.js::startStatusBanner`، `08c9f7f`+`66acec5`)؛ bonus — تستِ `honest-self` (ادعای خودآگاهی → مسیرِ صادق، invariantِ ضدِ AGI تقویت شد، `2b47b90`)
