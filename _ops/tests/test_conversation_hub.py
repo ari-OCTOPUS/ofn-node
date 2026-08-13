@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""test_conversation_hub.py — Conversation Hub Phase 1 tests (t_a through t_k).
+"""test_conversation_hub.py — Conversation Hub tests (t_a through t_k).
 
-ADR-040: Hub core schemas + router + service with stub adapters.
+ADR-040: Hub core schemas + router + service.
+Phase 1: stub adapters. Phase 2-lite (2026-08-13): ask/runtime/memory/guide
+wire to real modules (fail-soft), mcp/epistemic/propose stay honest stubs.
 All tests use relative imports within the conversation_hub package.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -14,6 +17,21 @@ from pathlib import Path
 _OPS = Path(__file__).resolve().parents[1]
 if str(_OPS) not in sys.path:
     sys.path.insert(0, str(_OPS))
+sys.path.insert(0, str(_OPS / "tests"))
+
+import harness  # noqa: E402
+ENV = harness.setup("conversation-hub")
+
+
+def _with_wire_collab():
+    """مسیرِ واقعیِ collaborator (draft) برای تستِ آداپتورِ ask."""
+    os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
+    os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
+
+
+def _clear_wire_collab():
+    os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+    os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
 
 
 # ---------------------------------------------------------------------------
@@ -180,7 +198,11 @@ def t_e_router_fallback():
 # t_f: Service — stub handle with mode=ask
 # ---------------------------------------------------------------------------
 def t_f_service_stub_handle():
-    """Service handle() returns ChatReply with provenance_event_id for ask."""
+    """Service handle() returns ChatReply with provenance_event_id for ask.
+
+    Phase 2-lite: ask → collaborator (real draft path when OCTOPUS_WIRE_COLLAB=1;
+    honest disabled message when off). No more "[stub:ask]" markers.
+    """
     from conversation_hub.service import handle
 
     reply = handle({
@@ -192,18 +214,35 @@ def t_f_service_stub_handle():
     assert reply.ok is True
     assert reply.route == "ask"
     assert reply.answer != ""
-    assert "[stub:ask]" in reply.answer
+    assert "[stub:ask]" not in reply.answer
     assert reply.provenance_event_id is not None
     assert reply.provenance_event_id.startswith("evt-")
     assert reply.external_effect is False
     assert reply.may_authorize is False
+
+    # با wire روشن، آداپتورِ واقعیِ collaborator جواب می‌دهد
+    _with_wire_collab()
+    try:
+        reply2 = handle({
+            "message_id": "msg-001b",
+            "text": "وضعیت چطوره؟",
+            "mode": "ask",
+        })
+        assert reply2.ok is True and reply2.answer != ""
+        assert "[stub:ask]" not in reply2.answer
+    finally:
+        _clear_wire_collab()
 
 
 # ---------------------------------------------------------------------------
 # t_g: Service — stub handle with mode=guide
 # ---------------------------------------------------------------------------
 def t_g_service_stub_guide():
-    """Service handle() with mode=guide → route=guide in reply."""
+    """Service handle() with mode=guide → route=guide in reply.
+
+    Phase 2-lite: guide → owner_guidance.effective() (real read-only fold;
+    live file may be empty → honest "ثبت نشده" — either way non-empty).
+    """
     from conversation_hub.service import handle
 
     reply = handle({
@@ -213,7 +252,8 @@ def t_g_service_stub_guide():
     })
 
     assert reply.route == "guide"
-    assert "[stub:guide]" in reply.answer
+    assert reply.answer != ""
+    assert "[stub:guide]" not in reply.answer
     assert reply.confidence == "evidenced"
 
 
@@ -243,7 +283,7 @@ def t_h_service_provenance_structure():
 # t_i: Service — limitations always present
 # ---------------------------------------------------------------------------
 def t_i_service_limitations():
-    """Reply always has at least one limitation (stub limitation)."""
+    """Reply always has at least one honest limitation (observe-only / not wired)."""
     from conversation_hub.service import handle
 
     reply = handle({
@@ -252,7 +292,13 @@ def t_i_service_limitations():
     })
 
     assert len(reply.limitations) >= 1
-    assert "Phase 1 stub" in reply.limitations[0]
+    joined = " | ".join(reply.limitations)
+    assert "observe-only" in joined or "not wired" in joined
+
+    # مسیرهای stub (mcp/epistemic/propose) صراحتاً «not wired» می‌گویند
+    reply_mcp = handle({"message_id": "msg-004b", "text": "فایل cortex.py رو ببین",
+                        "mode": "auto"})
+    assert "not wired" in " | ".join(reply_mcp.limitations)
 
 
 # ---------------------------------------------------------------------------

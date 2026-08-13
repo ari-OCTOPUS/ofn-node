@@ -7,8 +7,10 @@
 from __future__ import annotations
 
 import os
+import sys
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from .router import classify_intent
@@ -21,7 +23,6 @@ from .schemas import (
 )
 
 FLAG = "OCTOPUS_UNIFIED_CHAT"
-_STUB_LIMITATION = "Phase 1 stub — real adapter not yet wired"
 
 
 def _enabled() -> bool:
@@ -113,23 +114,121 @@ def _stub_propose(text: str) -> Dict[str, Any]:
     }
 
 
-# Route → stub adapter dispatch
+# ---------------------------------------------------------------------------
+# Phase 2-lite adapters (2026-08-13 — connected to the now-healthy central path)
+# All fail-soft: any exception → fall back to the stub + honest limitation.
+# None of these can execute anything: observe + propose only (ADR-040 §hard).
+# ---------------------------------------------------------------------------
+
+def _ensure_paths() -> None:
+    ops = _ops_path()
+    for p in (ops, str(Path(ops) / "owner_console"),
+              str(Path(ops) / "cortex"), str(Path(ops) / "memory")):
+        if p not in sys.path:
+            sys.path.insert(0, p)
+
+
+def _ops_path() -> str:
+    return str(Path(__file__).resolve().parent.parent)
+
+
+def _real_collab(text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """ask/collab → collaborator.handle — the central chat path (vault→brain→
+    collab escalation internally, DeepSeek-backed via the 2026-08-13
+    model_router fix). Draft-only, read-only, never executes."""
+    try:
+        _ensure_paths()
+        from owner_console import collaborator
+        reply = collaborator.handle(text)
+        return {
+            "answer": str(reply.get("text") or ""),
+            "sources": [],
+            "_kind": reply.get("kind"),
+            "_model_source": reply.get("model_source"),
+        }
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_ask(text, "ask")["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
+def _real_runtime(_text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """runtime → status.runtime_truth() — read-only snapshot of live state."""
+    try:
+        _ensure_paths()
+        from owner_console import status
+        return {"answer": status.runtime_truth(), "sources": []}
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_runtime()["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
+def _real_memory(text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """memory → owner_recall.recall_for_owner_ask — cite-only retrieval."""
+    try:
+        _ensure_paths()
+        import owner_recall
+        facts = owner_recall.recall_for_owner_ask(text, limit=4) or []
+        if not facts:
+            return {"answer": "چیزی برای این سؤال در حافظه نیافتم (خالی صادق).",
+                    "sources": []}
+        lines = []
+        for f in facts[:4]:
+            prev = str(f.get("content_preview") or f.get("mkey") or "")[:160]
+            src = str(f.get("source_path") or f.get("provenance") or "?")
+            lines.append(f"· {prev}  [{src}]")
+        return {
+            "answer": "حافظه cite-only است (may_authorize=false):\n" + "\n".join(lines),
+            "sources": [{"path": str(f.get("source_path") or f.get("provenance") or "?")}
+                        for f in facts[:4] if f.get("source_path") or f.get("provenance")],
+        }
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_memory(text)["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
+def _real_guide(text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """guide → owner_guidance.effective() — read-only last-wins fold of the
+    owner's standing guidance (focus/think_every_n/paused)."""
+    try:
+        _ensure_paths()
+        import owner_guidance
+        eff = owner_guidance.effective() or {}
+        if not eff:
+            return {
+                "answer": "دستورِ ایستاده‌ای در owner-guidance ثبت نشده — راهنماییِ فعلی خالی است.",
+                "sources": [],
+            }
+        parts = [f"· focus: {eff['focus']}" if eff.get("focus") else None,
+                 f"· think_every_n: {eff['think_every_n']}" if eff.get("think_every_n") else None,
+                 f"· paused: {eff['paused']}" if eff.get("paused") else None]
+        return {
+            "answer": "دستورِ ایستادهٔ مالک (owner-guidance):\n"
+                      + "\n".join(p for p in parts if p),
+            "sources": [{"path": "cortex/owner_guidance.py"}],
+        }
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_guide(text)["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
+# Route → adapter dispatch (Phase 2-lite: real where safe, honest stub elsewhere)
 _ADAPTERS = {
-    "ask": lambda text, _rd: _stub_ask(text, "ask"),
-    "vault": lambda text, _rd: _stub_ask(text, "vault"),
-    "brain": lambda text, _rd: _stub_ask(text, "brain"),
-    "collab": lambda text, _rd: _stub_ask(text, "collab"),
-    "runtime": lambda _text, _rd: _stub_runtime(),
+    "ask": _real_collab,
+    "vault": _real_collab,
+    "brain": _real_collab,
+    "collab": _real_collab,
+    "runtime": _real_runtime,
+    "memory": _real_memory,
+    "guide": _real_guide,
+    # Phase 2 (mcp broker) / Phase 4 (epistemic projection) / queue-only:
     "mcp": lambda text, _rd: _stub_mcp(text),
-    "memory": lambda text, _rd: _stub_memory(text),
     "epistemic": lambda text, _rd: _stub_epistemic(text),
-    "guide": lambda text, _rd: _stub_guide(text),
     "propose": lambda text, _rd: _stub_propose(text),
 }
 
 
 def _call_adapter(route: str, text: str, decision: RouteDecision) -> Dict[str, Any]:
-    """Dispatch to the appropriate adapter (stub or real in Phase 2+)."""
+    """Dispatch to the appropriate adapter (real Phase 2-lite / honest stub)."""
     adapter = _ADAPTERS.get(route)
     if adapter is None:
         return _stub_ask(text, route)
@@ -153,7 +252,8 @@ def handle(
       1. Validate request schema
       2. Create provenance event (before any processing)
       3. Route intent via deterministic router
-      4. Call adapter (Phase 1 = stub)
+      4. Call adapter (Phase 2-lite: real for ask/runtime/memory/guide,
+         honest stub for mcp/epistemic/propose)
       5. Compose unified reply
       6. Attach provenance + limitations
       7. Return ChatReply
@@ -189,6 +289,17 @@ def handle(
     else:
         epistemic = "not_applicable"
 
+    # Honest limitations: stubs say "not wired"; real adapters note the
+    # fail-soft boundary; every reply carries at least one limitation.
+    if result.get("_error"):
+        limitations = [
+            f"adapter failed ({result['_error']}) → deterministic fallback used",
+        ]
+    elif decision.route in ("mcp", "epistemic", "propose"):
+        limitations = ["not wired in Phase 2-lite — MCP broker / epistemic projection / queue adapter"]
+    else:
+        limitations = ["observe-only adapter — draft reply, no execution (ADR-040)"]
+
     reply = ChatReply(
         ok=True,
         answer=result.get("answer", ""),
@@ -199,7 +310,7 @@ def handle(
         provenance_event_id=prov.event_id,
         may_authorize=False,
         external_effect=False,
-        limitations=[_STUB_LIMITATION],
+        limitations=limitations,
     )
 
     return reply
