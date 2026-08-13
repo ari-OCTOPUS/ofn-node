@@ -3,9 +3,9 @@ type: design-review
 date: 2026-08-13
 source: external review (pasted-text-20260813-112756)
 verdict: ~70% already implemented in ADR-039 + hypothesis_engine; genuine gap is bounded
-status: ACCEPTED + COMPLETE — owner vote YES (2026-08-13 «موافقم»); C1-C5 built; offline benchmark run → 🛑 NO-GO (C6/C7 gated honestly)
-suites: 150 tests green
-commits: cf769e9 · a7649d0 · e65457d · 5ee5753 · 1c08eeb
+status: ACCEPTED + GATE OPENED (owner override) — C1-C7 built; C6 read-only panel + C7 shadow harness live; efficacy NO-GO on synthetic recorded honestly
+suites: 159 tests green
+commits: cf769e9 · a7649d0 · e65457d · 5ee5753 · 1c08eeb · c0fb34b
 ---
 
 # 44 — بازبینیِ Hypothesis Ledger: آشتی با وضعیتِ موجود
@@ -151,8 +151,8 @@ EpistemicClaim (world_mode/execution_scope/falsifier/predictions/evidence_*)
 ### باقیمانده (Go-gated، خارج از این ساخت)
 
 - **C5** cortex wiring (`EPISTEMIC_TESTS=0`) — ✅ انجام شد (`1c08eeb`، shadow health-check)
-- **C6** owner-packet UI surface — 🛑 gated: benchmark NO-GO
-- **C7** ۱۰h shadow run + signed report — 🛑 gated
+- **C6** owner-packet UI surface — ✅ انجام شد (`c0fb34b`، read-only `/api/epistemic` panel؛ owner override)
+- **C7** shadow run harness — ✅ انجام شد (`c0fb34b`، `shadow_run.py` + digest؛ runِ واقعیِ ۱۰h owner-timed)
 - وصل‌کردنِ conversation_hub/epistemic route — ✅ انجام شد (`1c08eeb`، read-only projection)
 - subprocess + rlimits isolation برای sandbox_runner (C3-future)
 - dual-channel response composer (Observed facts vs Hypotheses) — وقتی epistemic به چت برسد
@@ -182,3 +182,22 @@ EpistemicClaim (world_mode/execution_scope/falsifier/predictions/evidence_*)
 **C6/C7 (UI/live) بهدرستی gated میمانند.** این دقیقاً خروجیِ علمیِ مطلوبِ بازبینی
 است: نباید موفقیت جعل شود. برای Go واقعی، datasetِ ۲۰-۴۰ موردیِ واقعی با thresholdِ
 predeclare‌شدهٔ مالک لازم است.
+
+## 🔓 باز شدنِ دروازه — owner override (`c0fb34b`)
+
+مالک «بیا دروازه رو باز کنیم» (۲۰۲۶-۰۸-۱۳). دروازه دو نیمه داشت:
+- **ایمنی** (leakage/external-effect/budget) — ✅ همگی pass شده بودند
+- **کارایی** (C>A) — ❌ روی synthetic fail
+
+مالک با آگاهی از این override کرد. صادقانه ثبت شد (در خودِ پنل، نه باز‌نام‌گذاریِ
+جعلی به Go). C6/C7 = سطوحِ **observability** نه capability — `may_execute` همیشه False.
+
+- **C6** `get_epistemic_state` + `/api/epistemic` (owner-auth، فقط‌خواندنی) — پنل:
+  policy/invariants/receipt-chain/labels + وضعیتِ صادقانهٔ دروازه. پنل labelها را
+  **برجسته نشان میدهد** — این سطحِ ضدِ leakage است، نه منبعِ leakage.
+- **C7** `shadow_run.run_shadow()` — حلقهٔ health-checkِ bounded، digestِ SHA-256
+  برای tamper-evidence؛ runِ واقعیِ ۱۰h owner-timed (organism زنده لازم).
+
+**جهتِ بعدی صادقانه:** Go واقعی وقتی معنادار میشود که datasetِ واقعیِ ۲۰-۴۰ موردی
+با thresholdِ predeclare‌شده اجرا شود. تا آن وقت، C6/C7 به مالک دیداری میدهند بی‌آنکه
+خودِ موتور چیزی اجرا کند.

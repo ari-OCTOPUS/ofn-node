@@ -40,8 +40,9 @@ updated: 2026-08-13
 
 - ✅👁 **2026-08-13 — رصدِ فقط‌خواندنیِ بیزنس‌های برد.**
   [[../07 - Knowledge/شناخت-اختاپوس/45-BOARD-LEGS-READONLY-READER-2026-08-13|نوت ۴۵]] —
-  intent `legs` · HTTPS عمومی فقط · برد از روی نود چهار ساب‌دامنه را **۲۰۰ بدون redirect** دید.
-  نیمهٔ فرمان قفل است تا حکم صریح مالک. تستِ ثبت‌نشده: `_ops/tests/test_legs_status_reader.py`
+  intent `legs` · پین `/healthz` = فقط listener/تونل (نه کسب‌وکار) · غیر۲۰۰ بدون fallback.
+  نیمهٔ فرمان = قفل سبز (تست/سند روی برد؛ listener/outbound/تونلِ ۸۷۹۶ نه).
+  مالک طرح را تأیید کرد. تستِ ثبت‌نشده: `_ops/tests/test_legs_status_reader.py`
 
 - ✅🔗 **2026-08-13 — اتصالِ کارهای ایجنت‌های موازی: فیکس مغز چت + template→model + Hub Phase 2-lite.**
   [[../07 - Knowledge/شناخت-اختاپوس/43-PARALLEL-AGENT-INTEGRATION-CHAT-BRAIN-2026-08-13|نوت ۴۳]] —
@@ -82,6 +83,19 @@ updated: 2026-08-13
     C بر A برتر نشد (delta=0.0) ولی safety criteria همگی pass + UFBR C=1.0 (discovery-value کار می‌کند) → **C6/C7 به‌درستی gated**
   · suites: **۱۵۰ سبز** · رگرسیون صفر
   · **تفسیر:** machinery کامل کار می‌کند ولی Go واقعی نیازِ datasetِ ۲۰-۴۰ موردیِ واقعی + thresholdِ predeclare‌شدهٔ مالک دارد. C6 (UI) / C7 (live shadow) منتظرِ Go.
+
+- 🔓🔬 **2026-08-13 (عصر) — باز شدنِ دروازه: C6 read-only panel + C7 shadow harness (owner override).**
+  [[../07 - Knowledge/شناخت-اختاپوس/44-HYPOTHESIS-LEDGER-REVIEW-RECONCILIATION-2026-08-13|نوت ۴۴]] —
+  مالک «بیا دروازه رو باز کنیم». دروازهٔ ایمنی pass شده بود؛ فقط کارایی (C>A روی synthetic) fail بود.
+  مالک با آگاهی override کرد — صادقانه ثبت شد (در خودِ پنل، نه باز‌نام‌گذاریِ جعلی به Go).
+  · `c0fb34b` **C6** `get_epistemic_state` + `/api/epistemic` (owner-auth، فقط‌خواندنی) —
+    policy/invariants/receipt-chain/labels + وضعیتِ صادقانهٔ دروازه. پنل labelها را برجسته نشان میدهد (ضدِ leakage).
+    **نیازِ restart gateway** برای live شدن (owner-timed).
+  · `c0fb34b` **C7** `shadow_run.run_shadow()` — حلقهٔ health-checkِ bounded + digest SHA-256 (tamper-evidence)؛
+    runِ واقعیِ ۱۰h owner-timed. demo: ۴ tick/۱.۵ث، may_execute=False.
+  · C6/C7 = سطوحِ observability نه capability — `may_execute` همیشه False.
+  · suites: test_epistemic_c6c7 9/9 · miniapp_state 9/9 · gateway 49/49
+  · **جهتِ بعدی صادقانه:** Go واقعی با datasetِ واقعیِ ۲۰-۴۰ موردی + thresholdِ predeclare‌شده. تا آن وقت، پنل دیداری میدهد بی‌آنکه موتور چیزی اجرا کند.
 
 - ✅💬 **2026-08-13 — لایهٔ صداقتِ چت + Conversation Hub (ADR-040) + یکدست‌سازیِ vault.**
   · **Chat-honesty (مگاپرامپت، ۶ commit):** TASK ۱ — تست‌های collab تصمیمِ intro-exclusion را assert می‌کنند (`bfcc353`)؛ TASK ۲ — authِ ۳ endpointِ gateway به `_owner_initdata_ok()` یکدست شد (`d81c7c1`، gateway 49/49)؛ TASK ۳ path ب — `runtime_truth` حالا halt/quota را صادقانه نشان می‌دهد (`c144297`)؛ TASK ۴ — بنرِ وضعیت (`status_banner.py` + GET `/api/chat-status` + `app.js::startStatusBanner`، `08c9f7f`+`66acec5`)؛ bonus — تستِ `honest-self` (ادعای خودآگاهی → مسیرِ صادق، invariantِ ضدِ AGI تقویت شد، `2b47b90`)
