@@ -188,6 +188,40 @@ def test_explicit_tier_bypasses_scorer_even_when_flag_on() -> None:
         _restore(op, ol, orig_score)
 
 
+def test_collab_chat_pinned_to_secondary_ignores_scorer_local_vote() -> None:
+    """2026-08-13 fix: collab_chat مالک-پین به DeepSeek (secondary) است.
+
+    route_scorer's generic heuristic classifies collab_chat "low-depth → local",
+    but local qwen is explicitly disabled for collab_chat → previously the chat
+    returned "deepseek-unavailable" even though DeepSeek was healthy. The pin
+    must win BEFORE the scorer consult, and the scorer must not even be asked.
+    """
+    d = _tmp(); _isolate(d)
+    os.environ["CORTEX_ROUTE_SCORER"] = "1"
+    orig_score = route_scorer.score_route
+    consulted = {"n": 0}
+
+    def _local_vote(task, ctx=None):
+        consulted["n"] += 1
+        return {"tier": "local", "scores": {}, "reasons": ["low-depth stub"]}
+    route_scorer.score_route = _local_vote
+    spy, op, ol = _install()
+    try:
+        # collab_chat باید حتی با رأیِ localِ scorer روی secondary (DeepSeek) بماند
+        res = model_router.ask("collab_chat", "سلام")
+        assert res["ok"] is True and res["tier"] == "secondary", res
+        assert spy.calls == ["secondary"], spy.calls
+        assert consulted["n"] == 0, "scorer نباید برای collab_chat مشورت شود"
+        # sanity: یک taskِ عادی هنوز scorer را می‌بیند (pin فقط collab_chat است)
+        consulted["n"] = 0
+        spy.calls.clear()
+        res2 = model_router.ask("classify", "یک متن")
+        assert res2.get("tier") == "local", res2
+        assert consulted["n"] == 1, "taskِ عادی باید scorer را ببیند"
+    finally:
+        _restore(op, ol, orig_score)
+
+
 if __name__ == "__main__":
     _tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for _t in _tests:

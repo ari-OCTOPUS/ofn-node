@@ -429,7 +429,15 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
     except Exception:  # noqa: BLE001 — غربال هرگز مسیرِ LLM را نمی‌کشد
         pass
     want = tier
-    if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
+    # 2026-08-13 (fix): collab_chat is owner-pinned to DeepSeek (secondary) in
+    # TASK_TIERS and must never be overridden by route_scorer's generic heuristic,
+    # which classifies it "low-depth → local". Local qwen is explicitly disabled
+    # for collab_chat, so route_scorer's local vote made the chat return
+    # "deepseek-unavailable" even though DeepSeek was healthy. Pin before the
+    # route_scorer consult so the explicit owner mapping wins.
+    if str(task or "") == "collab_chat":
+        want = "secondary"
+    elif not want and os.environ.get("CORTEX_ROUTE_SCORER"):
         want = _scored_tier(task)
     want = want or TASK_TIERS.get(task, "local")
     if __import__("os").environ.get("OCTOPUS_WIRE_ROUTE_SHADOW") == "1": __import__("now_moves.route_scorer_shadow_log", fromlist=["log_decision"]).log_decision(task, want)  # M7 (now_moves): flag-gated shadow log — default OFF; rollback = delete this line
