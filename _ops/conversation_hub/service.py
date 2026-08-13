@@ -211,6 +211,40 @@ def _real_guide(text: str, _rd: RouteDecision) -> Dict[str, Any]:
                 "_error": type(exc).__name__}
 
 
+def _real_epistemic(text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """epistemic → projection فقط‌خواندنی از کابینِ epistemics (ADR-039).
+
+    parallel advisory (نه inline به چت): هیچ claimی ساخته/اجرا نمی‌کند؛ فقط یک
+    read-only view از receipt-chain + invariants + labelها می‌دهد. هرگز may_execute.
+    fail-soft → stub با limitation صادق."""
+    try:
+        _ensure_paths()
+        import epistemics.invariants as _inv
+        import epistemics.policy as _pol
+        from epistemics.receipt_store import ReceiptStore
+        cfg = _pol.load_policy()
+        chain = ReceiptStore().verify()
+        structural = _inv.structural_invariants()
+        lines = [
+            f"کابینِ epistemic (ADR-039، {cfg.max_authority}-only، sandbox={cfg.sandbox_profile}):",
+            f"· receipt-chain: {'ok' if chain.ok else 'BROKEN @'+str(chain.broken_at)} "
+            f"({chain.n_records} records)",
+            f"· invariants: {_inv.count()} ({len(structural)} structural-enforced)",
+            f"· world_mode labels در تمامِ claim/receipt حفظ می‌شود (invariant #4)",
+            f"· may_execute همیشه False — آزمون واقعی فقط در sandbox_runner، نه چت",
+            f"· status: {'ACCEPTED' if not cfg.default_off else 'default-OFF'} "
+            f"(EPISTEMIC_TESTS={os.environ.get('EPISTEMIC_TESTS', '0')})",
+        ]
+        return {
+            "answer": "\n".join(lines),
+            "sources": [{"path": "epistemics/schemas.py"},
+                        {"path": "epistemics/invariants.py"}],
+        }
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_epistemic(text)["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
 # Route → adapter dispatch (Phase 2-lite: real where safe, honest stub elsewhere)
 _ADAPTERS = {
     "ask": _real_collab,
@@ -220,9 +254,9 @@ _ADAPTERS = {
     "runtime": _real_runtime,
     "memory": _real_memory,
     "guide": _real_guide,
-    # Phase 2 (mcp broker) / Phase 4 (epistemic projection) / queue-only:
+    "epistemic": _real_epistemic,
+    # Phase 2 (mcp broker) / queue-only:
     "mcp": lambda text, _rd: _stub_mcp(text),
-    "epistemic": lambda text, _rd: _stub_epistemic(text),
     "propose": lambda text, _rd: _stub_propose(text),
 }
 
@@ -282,12 +316,10 @@ def handle(
         for s in result.get("sources", [])
     ]
 
-    # Epistemic status: only meaningful for epistemic route.
-    # All other routes → not_applicable (never fake "supported").
-    if decision.route == "epistemic":
-        epistemic = "inconclusive"  # stub cannot determine
-    else:
-        epistemic = "not_applicable"
+    # Epistemic status: only meaningful when a Claim+Plan+Receipt is evaluated.
+    # The Hub's epistemic route is a READ-ONLY projection (not a claim evaluation),
+    # so it is honestly "not_applicable" — never fake "supported/inconclusive".
+    epistemic = "not_applicable"
 
     # Honest limitations: stubs say "not wired"; real adapters note the
     # fail-soft boundary; every reply carries at least one limitation.
@@ -295,8 +327,8 @@ def handle(
         limitations = [
             f"adapter failed ({result['_error']}) → deterministic fallback used",
         ]
-    elif decision.route in ("mcp", "epistemic", "propose"):
-        limitations = ["not wired in Phase 2-lite — MCP broker / epistemic projection / queue adapter"]
+    elif decision.route in ("mcp", "propose"):
+        limitations = ["not wired in Phase 2-lite — MCP broker / queue adapter"]
     else:
         limitations = ["observe-only adapter — draft reply, no execution (ADR-040)"]
 

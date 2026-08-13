@@ -263,6 +263,45 @@ def _load_active_hypotheses() -> list:
         return []
 
 
+def epistemic_tick(cycle: int) -> dict | None:
+    """موتور آزمونِ معرفتی (ADR-039، C5): health-checkِ shadowِ کابینِ epistemics.
+
+    پیش‌فرض خاموش (`EPISTEMIC_TESTS=0`). وقتی روشن باشد، فقط آمادگیِ کابین را
+    report می‌کند (policy load، receipt-store verify، count invariants) — **هیچ
+    claimی از telemetry نمی‌سازد، هیچ آزمونی اجرا نمی‌کند، may_execute همیشه False**.
+    این C5 است: مسیرِ زنده‌شدنِ سیم‌کشی، نه خودِ آزمون. آزمونِ واقعی در benchmark
+    آفلاین (go_no_go) و فقط بعد از Go criteria.
+
+    fail-soft: هر خطا → alert + None؛ هرگز cycle را نمی‌کشد. الگوی hypothesis_brain_run."""
+    if os.environ.get("EPISTEMIC_TESTS", "0") != "1":
+        return None
+    try:
+        # کابینِ epistemics یک package با relative-imports interno است؛ از طریقِ
+        # package prefix ایمپورت کن (نه flat) تا receipt_store/pol مماشات نشود.
+        import epistemics.invariants as _inv  # noqa: WPS433
+        import epistemics.policy as _pol  # noqa: WPS433
+        from epistemics.receipt_store import ReceiptStore  # noqa: WPS433
+        cfg = _pol.load_policy()
+        store = ReceiptStore()
+        chain = store.verify()
+        return {
+            "cycle": cycle,
+            "wired": True,
+            "policy_schema_version": cfg.schema_version,
+            "default_off": cfg.default_off,
+            "max_authority": cfg.max_authority,
+            "sandbox_profile": cfg.sandbox_profile,
+            "invariants_count": _inv.count(),
+            "receipt_chain_ok": chain.ok,
+            "receipt_chain_n": chain.n_records,
+            "may_execute": False,   # hard invariant — هرگز True
+            "note": "shadow health-check only; no claim/test executed (C5)",
+        }
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex epistemic_tick error: {type(e).__name__}: {e}"])
+        return None
+
+
 def hypothesis_brain_run(cycle: int) -> dict | None:
     """مغز فرضیه (ADR-037): رتبه‌بندیِ فرضیه‌های فعال — propose-only، fail-soft،
     پیش‌فرض خاموش. فقط با CORTEX_HYPOTHESIS=1 روشن می‌شود. هرگز به ledger/Gate/
@@ -617,6 +656,8 @@ def run_cycle(cycle: int) -> dict:
                         if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     hypothesis_summary = (hypothesis_brain_run(cycle)
                           if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
+    epistemic_summary = (epistemic_tick(cycle)
+                         if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     improve_summary = (self_improve(cycle)
                        if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     period, rhythm_src = heart_rhythm_period()
@@ -636,6 +677,7 @@ def run_cycle(cycle: int) -> dict:
         **({"part_loops": parts_summary} if parts_summary else {}),
         **({"business_brain": business_summary} if business_summary else {}),
         **({"hypothesis_brain": hypothesis_summary} if hypothesis_summary else {}),
+        **({"epistemic_tick": epistemic_summary} if epistemic_summary else {}),
         **({"stress": stress_summary} if stress_summary else {}),
         **({"cortisol": cortisol_summary} if cortisol_summary else {}),
         **({"innervation": innervation_summary} if innervation_summary else {}),

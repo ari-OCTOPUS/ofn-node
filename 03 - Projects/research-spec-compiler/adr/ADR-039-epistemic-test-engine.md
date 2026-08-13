@@ -1,6 +1,6 @@
 # ADR-039: Epistemic Test Engine — موتور آزمونِ معرفتیِ fail-closed در `_ops/epistemics/`
 
-**وضعیت:** PROPOSED (نیازمند رأی مالک — گزینهٔ A: خودتقویتِ آزمون‌پذیر، invariant صداقت دست‌نخورده)
+**وضعیت:** ACCEPTED — رأیِ مالک ۲۰۲۶-۰۸-۱۳ («موافقم»). C1-C4 پیاده و تست‌شده (۱۳۳ تست سبز)؛ C5 shadow-wired (default OFF)؛ C6/C7 Go-gated بر benchmark.
 **تاریخ:** 2026-08-12 · **شماره:** 039 (بعد از ADR-037 hypothesis-engine، ADR-038 observe-4d)
 **معمار:** جلسهٔ طراحی — بر پایهٔ ممیزی ۱۰ ساعته و دو سند پژوهشی مفهومی
 
