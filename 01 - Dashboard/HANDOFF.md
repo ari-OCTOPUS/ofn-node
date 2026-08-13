@@ -38,6 +38,24 @@ updated: 2026-08-12
 
 > **پیش‌زمینه:** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] · مالک: مینی‌اپ ببند/باز بعد از gateway.
 
+- ✅🔗 **2026-08-13 — اتصالِ کارهای ایجنت‌های موازی: فیکس مغز چت + template→model + Hub Phase 2-lite.**
+  [[../07 - Knowledge/شناخت-اختاپوس/43-PARALLEL-AGENT-INTEGRATION-CHAT-BRAIN-2026-08-13|نوت ۴۳]] —
+  · **`e83d316` fix(cortex):** فیکسِ ایجنت موازی (`collab_chat`→DeepSeek پین شده **قبل** از
+    route_scorer) که فقط در working tree بود → کامیت شد + تستِ pin نو
+    (scorer رأی local بدهد هم secondary می‌ماند؛ scorer اصلاً مشورت نمی‌شود) — route_scorer_wire 6/6
+  · **`3ae20cc` feat(chat):** رأی مالک «همه‌اش یکجا» — ۱۴ kindِ داده‌دار به مدل وصل شدند
+    (template→model): جمع‌آوریِ داده در `conversation.py` می‌ماند، متنِ template به‌عنوان
+    شواهدِ واقعی به DeepSeek داده می‌شود؛ template تورِ ایمنیِ شکست. استثناهای pin‌شده:
+    discover/intro/honest-self/ردِ امنیتی. تست نو `test_collab_model_evidence.py` 9/9
+  · **`01d63b0` feat(hub):** آداپتورهای واقعی — ask→collaborator (مسیرِ DeepSeekِ فیکس‌شده)،
+    runtime→`status.runtime_truth()`، memory→`owner_recall`، guide→`owner_guidance.effective()`
+    — همه fail-soft + limitation صادق؛ mcp/epistemic/propose «not wired» صریح.
+    `external_effect=False` همیشه · فلگ پیش‌فرض خاموش. Hub tests 11/11
+  · suites: talk_discovery 14/14 · route_scorer_wire 6/6 · collab_model_evidence 9/9 ·
+    api_collab 17/17 · conversation_hub 11/11 · chatbox · intents_100steps · awareness 6/6
+  · **Phase باقی‌مانده (ADR-040):** MCP broker + epistemic projection (Phase 2 کامل)،
+    endpoint `/api/octopus/chat` (Phase 3)، UI واحد (Phase 5) — خارج از این جلسه
+
 - ✅💬 **2026-08-13 — لایهٔ صداقتِ چت + Conversation Hub (ADR-040) + یکدست‌سازیِ vault.**
   · **Chat-honesty (مگاپرامپت، ۶ commit):** TASK ۱ — تست‌های collab تصمیمِ intro-exclusion را assert می‌کنند (`bfcc353`)؛ TASK ۲ — authِ ۳ endpointِ gateway به `_owner_initdata_ok()` یکدست شد (`d81c7c1`، gateway 49/49)؛ TASK ۳ path ب — `runtime_truth` حالا halt/quota را صادقانه نشان می‌دهد (`c144297`)؛ TASK ۴ — بنرِ وضعیت (`status_banner.py` + GET `/api/chat-status` + `app.js::startStatusBanner`، `08c9f7f`+`66acec5`)؛ bonus — تستِ `honest-self` (ادعای خودآگاهی → مسیرِ صادق، invariantِ ضدِ AGI تقویت شد، `2b47b90`)
   · **ADR-040 Conversation Hub:** درگاهِ یکپارچه‌سازِ چت (`_ops/conversation_hub/`، façade رویِ ask_vault/ask_brain/collaborator/MCP)؛ Phase 1 (`8aef770`/`691daae`)؛ `OCTOPUS_UNIFIED_CHAT=0`؛ `execute` از چت ممنوع. سند: [[../03 - Projects/research-spec-compiler/adr/ADR-040-conversation-hub-unified-chat|ADR-040]]

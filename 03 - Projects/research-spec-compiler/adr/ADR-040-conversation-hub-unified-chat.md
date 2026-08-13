@@ -1,6 +1,6 @@
 # ADR-040: Conversation Hub — Unified Chat Architecture
 
-**Status:** Accepted (Phase 1 implemented)
+**Status:** Accepted (Phase 1 + Phase 2-lite implemented)
 **Date:** 2026-08-12
 **Context:** `pasted-text-20260812-233148-154d839d.txt` (original proposal) +
 `pasted-text-20260812-233106-7132695a.txt` (GPT-5.6 Terra review)
@@ -141,7 +141,8 @@ class ChatReply(BaseModel, frozen=True):
 | Phase | Scope | Dependency |
 |---|---|---|
 | **1** (done) | Core: schemas, router, service, stub adapters, tests | — |
-| **2** | Real adapters: vault, brain, collab, MCP broker (3 read tools), runtime, memory, epistemic | Phase 1 ✅ |
+| **2-lite** (done, 2026-08-13) | ask→collaborator (DeepSeek path), runtime→`status.runtime_truth()`, memory→`owner_recall`, guide→`owner_guidance.effective()` — all fail-soft, observe-only; mcp/epistemic/propose stay honest stubs (`01d63b0`) | Phase 1 ✅ |
+| **2** | Remaining adapters: MCP broker (3 read tools), epistemic read-model, propose queue | Phase 2-lite ✅ |
 | **3** | `POST /api/octopus/chat` in gateway + flag + GET runs/receipts | Phase 2 ✅ |
 | **4** | Epistemic projection — retrieve/display Claim + Receipt | Phase 3 ✅ |
 | **5** | UI unification — single mode toggle in app.js + sources panel + epistemic badge | Phase 3 ✅ |
