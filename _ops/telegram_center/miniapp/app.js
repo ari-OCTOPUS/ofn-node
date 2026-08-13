@@ -2349,7 +2349,9 @@
     // فقط زمانِ کاربر را تلف می‌کند، پس پیام باید فرق کند.
     function _failureSuffix(reason){
       var r = String(reason||"");
-      if(/daily-cap|quota|stop-fugu|kill-switch|halt/i.test(r)){
+      // 2026-08-13: سقفِ دلاریِ هفتگیِ DeepSeek هم به همین دسته اضافه شد
+      // (deepseek-weekly-cost-cap) — شکستِ ماندگار است، نه گذرا.
+      if(/daily-cap|quota|stop-fugu|kill-switch|halt|cost-cap/i.test(r)){
         return " — شکستِ گذرا نیست (سهمیه/توقف)؛ دوباره‌فرستادن الان کمکی نمی‌کند.";
       }
       return " — دوباره بپرس؛ DeepSeek گاهی ۲۰–۴۰ثانیه طول می‌کشد.";

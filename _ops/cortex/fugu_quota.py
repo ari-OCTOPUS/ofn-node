@@ -62,6 +62,86 @@ def _fail_ceiling() -> int:
     return _int_env("FUGU_FAIL_CEILING", _DEFAULT_FAIL_CEILING)
 
 
+# ── سقفِ دلاریِ هفتگیِ DeepSeek (۲۰۲۶-۰۸-۱۳، رأیِ مالک) ───────────────────────
+# چرا اینجا دلاری است ولی Fugu شمارنده‌ای (بالا)؟ همان استدلالِ داکیومنتِ خودِ
+# فایل (بالای فایل) برعکس صدق می‌کند: Fugu «subscription: max» است — هزینهٔ
+# نهایی هر تماس ~۰، پس سقفِ نقدی structurally inert است. DeepSeek
+# «subscription: metered» است (paid-calls.jsonl خودش این را ثبت می‌کند) —
+# هزینهٔ واقعی به‌ازای توکن، پس اینجا سقفِ نقدی دقیقاً همان چیزی‌ست که معنا
+# دارد، نه شمارندهٔ تماس. قبلاً DeepSeek زیرِ همان شمارندهٔ مشترکِ Fugu بود؛
+# نتیجه: با تمام‌شدنِ سهمیهٔ Fugu، DeepSeek هم بی‌دلیل مسدود می‌شد با اینکه
+# قیمتش (v4-flash: $0.14/1M ورودی، $0.28/1M خروجی — verified api-docs.deepseek.com
+# 2026-08-13) طوری ارزان است که سقفِ ۲۰دلاریِ هفتگی تقریباً هرگز بسته نمی‌شود.
+_DEEPSEEK_WEEKLY_CAP_DEFAULT_USD = 20.0
+_DEEPSEEK_WEEKLY_WINDOW_S = 7 * 86400
+
+
+def deepseek_weekly_cap_usd() -> float:
+    try:
+        v = float(str(os.environ.get("DEEPSEEK_WEEKLY_COST_CAP_USD", "")).strip())
+        return v if v > 0 else _DEEPSEEK_WEEKLY_CAP_DEFAULT_USD
+    except Exception:  # noqa: BLE001
+        return _DEEPSEEK_WEEKLY_CAP_DEFAULT_USD
+
+
+def _paid_calls_path() -> Path:
+    return _base() / "state" / "paid-calls.jsonl"
+
+
+def deepseek_weekly_spend_usd(now: float | None = None) -> float:
+    """مجموعِ cost_usd برایِ provider=deepseek در ۷ روزِ گذشته.
+
+    مستقیم از paid-calls.jsonl (منبعِ واحدِ حقیقت — خودِ آن فایل هم‌اکنون
+    cost_usd را با قیمتِ واقعی محاسبه می‌کند، _ops/debate/client.py:398-399).
+    فقط‌خواندنی، بدون قفل، fail-soft (هر خطا/فایلِ گم → 0.0، هرگز مانعِ
+    مسیرِ LLM نمی‌شود). settle-based نه attempt-counted — یعنی تماس‌های
+    هم‌زمانِ درست‌روی‌مرز می‌توانند کمی از سقف رد شوند؛ چون DeepSeek عمداً
+    ارزان است (سقف عملاً به‌ندرت لمس می‌شود)، این تبادلِ امن است، برخلافِ
+    Fugu که attempt-counted بودنش حیاتی بود."""
+    import time as _t
+    import datetime as _dt2
+    now = now if now is not None else _t.time()
+    cutoff = now - _DEEPSEEK_WEEKLY_WINDOW_S
+    total = 0.0
+    p = _paid_calls_path()
+    try:
+        with p.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except Exception:  # noqa: BLE001
+                    continue
+                if r.get("provider") != "deepseek":
+                    continue
+                ts = r.get("ts")
+                if not ts:
+                    continue
+                try:
+                    epoch = _dt2.datetime.fromisoformat(str(ts)).timestamp()
+                except Exception:  # noqa: BLE001
+                    continue
+                if epoch < cutoff:
+                    continue
+                total += float(r.get("cost_usd") or 0.0)
+    except Exception:  # noqa: BLE001
+        return 0.0
+    return total
+
+
+def _deepseek_weekly_reserve() -> dict:
+    """گیتِ مستقلِ DeepSeek — شمارندهٔ Fugu را اصلاً نمی‌بیند."""
+    cap = deepseek_weekly_cap_usd()
+    spend = deepseek_weekly_spend_usd()
+    if spend >= cap:
+        return {"allow": False, "reason": "deepseek-weekly-cost-cap", "used": -1,
+                "weekly_spend_usd": round(spend, 4), "weekly_cap_usd": cap}
+    return {"allow": True, "reason": "ok", "used": -1,
+            "weekly_spend_usd": round(spend, 4), "weekly_cap_usd": cap}
+
+
 # ── base dir resolution (opslib.OPS در پروداکشن؛ override برای تست) ───────────
 def _base() -> Path:
     ov = os.environ.get("FUGU_QUOTA_BASE")
@@ -209,10 +289,18 @@ def _mutate(fn):
 
 def reserve(tier: str, organ: str = "ARCHITECT_SYS") -> dict:
     """قبل از هر تماسِ فوگو صدا زده می‌شود. attempt-counted + kill + cap.
-    خروجی: {allow: bool, reason: str, used: int}."""
+    خروجی: {allow: bool, reason: str, used: int}.
+
+    ۲۰۲۶-۰۸-۱۳ (رأیِ مالک): tier=secondary (DeepSeek) دیگر زیرِ شمارندهٔ
+    مشترکِ روزانهٔ Fugu نیست — گیتِ مستقلِ دلاریِ هفتگیِ خودش را دارد
+    (_deepseek_weekly_reserve). primary (Fugu) دقیقاً همان رفتارِ قبلی را
+    دارد، دست‌نخورده. kill-switch (STOP-FUGU/HALT) هر دو را همچنان می‌بندد —
+    این یک ترمزِ اضطراری است، نه بحثِ هزینه."""
     if killed():
         _mutate(lambda st: Core.count_denied(st, "stop-fugu"))
         return {"allow": False, "reason": "stop-fugu", "used": -1}
+    if tier == "secondary":
+        return _deepseek_weekly_reserve()
     key = f"{tier}:{organ}"
     cap = _cap()
 
