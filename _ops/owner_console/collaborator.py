@@ -67,7 +67,23 @@ def _stub_enhance(base_reply: dict, owner_text: str) -> dict:
 # LLM may enrich talk turns; discover stays deterministic (journal/pulse evidence).
 # 2026-08-12 fix: intro از _LLM_KINDS خارج شد — _live_intro_witness شاهد زندهٔ فوری دارد
 # (beat/pain/brains)؛ فرستادنِ «سلام» به DeepSeek باعث client_timeout 60s می‌شد.
-_LLM_KINDS = frozenset({"clarify", "chat"})
+#
+# 2026-08-13 (رأی مالک «همه‌اش یکجا»): همهٔ intentهای داده‌دار هم به مدل می‌روند —
+# اما فقط برای «فرمول‌بندی». جمع‌آوریِ داده در conversation.py می‌ماند (همان کدِ
+# صادقِ فایل‌خوان) و متنِ template به‌عنوان شواهدِ واقعی به مدل داده می‌شود تا
+# خودش جمله بسازد. template تورِ ایمنیِ شکستِ مدل می‌ماند (نه پیش‌فرض).
+# استثناهای عمدی (قطعی می‌مانند؛ تست‌ها pin کرده‌اند):
+#   - discover: متنِ journal/pulse نباید با متنِ LLM جایگزین شود
+#   - intro: شاهدِ زندهٔ فوری + فیکسِ timeout ۶۰ث (2026-08-12)
+#   - honest-self: invariantِ صداقتِ AGI (INT-04) — دقیقاً همان متنِ قفل‌شده
+#   - home/meta/safety-boundary/readonly-proposal/owner-gate/evidence/
+#     memory-proposal/blocked/disabled: رشته‌های ثابت/ردِ امنیتی
+_EVIDENCE_KINDS = frozenset({
+    "goal", "runtime", "protective-status", "blockers", "discovery",
+    "equation", "architecture", "business", "effect",
+    "capabilities", "capability", "memory", "limitations", "selfmap",
+})
+_LLM_KINDS = frozenset({"clarify", "chat"}) | _EVIDENCE_KINDS
 
 
 def _model_enhance(base_reply: dict, owner_text: str) -> dict:
@@ -76,7 +92,12 @@ def _model_enhance(base_reply: dict, owner_text: str) -> dict:
     if kind not in _LLM_KINDS:
         return _stub_enhance(base_reply, owner_text)
 
-    result = _model.complete(owner_text, kind_hint=kind)
+    # 2026-08-13: intentهای داده‌دار — متنِ template (شاملِ دادهٔ واقعیِ
+    # جمع‌آوری‌شده) به‌عنوان شواهد به مدل داده می‌شود؛ مدل فقط فرمول‌بندی می‌کند.
+    evidence = ""
+    if kind in _EVIDENCE_KINDS:
+        evidence = str(base_reply.get("text") or "")[:1500]
+    result = _model.complete(owner_text, kind_hint=kind, evidence=evidence)
     if not result.get("ok"):
         enhanced = _stub_enhance(base_reply, owner_text)
         enhanced["model_source"] = "model-fallback-stub"
@@ -125,7 +146,13 @@ def _model_enhance(base_reply: dict, owner_text: str) -> dict:
 
     enhanced = dict(base_reply)
     data = dict(enhanced.get("data") or {})
-    data["rationale"] = "model: model_router via collab_model_adapter"
+    if kind in _EVIDENCE_KINDS:
+        data["rationale"] = (
+            "model: reformulated from collected evidence (template→model)"
+        )
+        data["evidence_kind"] = kind
+    else:
+        data["rationale"] = "model: model_router via collab_model_adapter"
     data["tier"] = result.get("tier")
     enhanced["data"] = data
     enhanced["text"] = result["text"]

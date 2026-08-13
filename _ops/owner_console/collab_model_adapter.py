@@ -245,11 +245,16 @@ def _self_context(limit: int = 2000, *, query: str = "") -> str:
     return text[:limit]
 
 
-def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
+def complete(owner_text: str, *, kind_hint: str = "", evidence: str = "") -> dict[str, Any]:
     """Call model for collaborator turn. Returns normalized dict.
 
     ok=True → text + model_source (tier/model)
     ok=False → reason (never raises)
+
+    evidence (2026-08-13, owner «همه‌اش یکجا»): دادهٔ واقعیِ جمع‌آوری‌شده توسط
+    conversation.py برای همین intent (مثلاً runtime_truth، blockers، وضعیت
+    business_brain با سنِ فایل). مدل فقط بر اساس همین شواهد فرمول‌بندی می‌کند؛
+    اگر خالی باشد مسیرِ قبلی (خودِ self_context) جاری است.
     """
     q = str(owner_text or "").strip()[:600]
     if not q:
@@ -305,11 +310,28 @@ def complete(owner_text: str, *, kind_hint: str = "") -> dict[str, Any]:
         ctx = _self_context(query=q)
 
     ctx_block = f"\n\n— شواهد زندهٔ خودم (برای جواب دقیق) —\n{ctx}\n" if ctx else ""
+    ev_block = ""
+    if evidence:
+        ev_block = (
+            "\n\n— دادهٔ واقعیِ جمع‌آوری‌شده برای همین پرسش (تنها مرجعِ فرمول‌بندی؛ "
+            "از روی خودِ فایل‌ها خوانده شده — نه حدس) —\n"
+            f"{str(evidence)[:1500]}\n"
+        )
     prompt = (
         f"پیام مالک:{hint}\n{q}\n"
+        f"{ev_block}"
         f"{ctx_block}\n"
         "با تکیه بر شواهد بالا جواب بده — حدسِ پوچ نزن. "
-        "اگر معرفی/ساختار خواست: لایه‌ها را صادق بگو — "
+    )
+    if evidence:
+        prompt += (
+            "دادهٔ «جمع‌آوری‌شده» حقایقِ واقعیِ سیستم است: آن را با جمله‌بندیِ "
+            "طبیعی و صادق بیان کن — عدد/وضعیت/مسیر/سن را تغییر نده، چیزی به آن "
+            "اضافه نکن که در شواهد نیست، و متنِ شواهد را عیناً کپی نکن. "
+            "اگر شواهد صراحتاً «نامعلوم/خطا» گفت، همان را صادقانه بگو."
+        )
+    prompt += (
+        " اگر معرفی/ساختار خواست: لایه‌ها را صادق بگو — "
         "Reactor/intent → مدل → شواهد فایل → حافظه cite-only → "
         "مغزهای داخلی (cortex+business_brain) که از فایل خوانده شده‌اند "
         "(file-bridge؛ مغزها حرف این چت را مستقیم نمی‌شنوند مگر owner_guidance). "
