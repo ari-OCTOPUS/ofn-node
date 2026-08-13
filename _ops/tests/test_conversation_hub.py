@@ -295,10 +295,12 @@ def t_i_service_limitations():
     joined = " | ".join(reply.limitations)
     assert "observe-only" in joined or "not wired" in joined
 
-    # مسیرهای stub (mcp/epistemic/propose) صراحتاً «not wired» می‌گویند
+    # مسیرهای واقعی (mcp/propose) حالا «read-only/queue-only» می‌گویند
     reply_mcp = handle({"message_id": "msg-004b", "text": "فایل cortex.py رو ببین",
                         "mode": "auto"})
-    assert "not wired" in " | ".join(reply_mcp.limitations)
+    assert ("observe-only" in " | ".join(reply_mcp.limitations)
+            or "read-only" in " | ".join(reply_mcp.limitations)
+            or "queue-only" in " | ".join(reply_mcp.limitations))
 
 
 # ---------------------------------------------------------------------------

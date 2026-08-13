@@ -531,11 +531,21 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     p = str(path or "").split("?", 1)[0]
     if method_u not in {"GET", "POST"}:
         return 405, b"", "text/plain; charset=utf-8"
-    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab", "/api/brain-guide"):
+    if method_u == "POST" and p not in ("/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab", "/api/brain-guide", "/api/octopus/chat", "/api/board/commands", "/api/board-cp/ack"):
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/", "/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
         return _miniapp_static_response(p)
+    if p in ("/api/board/commands", "/api/board-cp/pull", "/api/board-cp/ack"):
+        try:
+            from board_cp import http as _bcp_http  # noqa: WPS433
+        except Exception:  # noqa: BLE001
+            return 500, b'{"ok":false,"reason":"board_cp_unavailable"}', \
+                "application/json; charset=utf-8"
+        owner_ok = _owner_initdata_ok(headers, now=now) if p == "/api/board/commands" else False
+        hit = _bcp_http.dispatch(method_u, p, headers, owner_ok=owner_ok)
+        if hit is not None:
+            return hit
     if p == "/api/actions":
         if method_u != "POST":
             return 405, b"", "text/plain; charset=utf-8"
@@ -930,6 +940,44 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                 "may_authorize": False,
             }, ensure_ascii=False).encode("utf-8")
             return (200 if result.get("ok") else 400), body, "application/json; charset=utf-8"
+        except Exception as exc:
+            body = json.dumps({"ok": False, "reason": type(exc).__name__},
+                              ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
+    if p == "/api/octopus/chat":
+        # 2026-08-13 (ADR-040 Phase 3): درگاهِ واحدِ چت — Conversation Hub.
+        # flag-gated (OCTOPUS_UNIFIED_CHAT، پیش‌فرض خاموش)؛ owner-auth؛ rate-limit.
+        # فقط observe+propose — execute ممنوع (Hub هرگز external_effect True نمی‌دهد).
+        if os.environ.get("OCTOPUS_UNIFIED_CHAT", "0") != "1":
+            return 404, b'{"ok":false,"reason":"feature_disabled","flag":"OCTOPUS_UNIFIED_CHAT"}', "application/json; charset=utf-8"
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        if not _owner_initdata_ok(headers, now=now):
+            return 403, b'{"ok":false,"reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        if _ask_rate_limited(now):
+            return 429, b'{"ok":false,"reason":"rate_limited"}', "application/json; charset=utf-8"
+        try:
+            raw_body = headers.get("_body") or b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            text = str(payload.get("text") or "").strip()
+            if not text:
+                return 400, b'{"ok":false,"reason":"empty_text"}', "application/json; charset=utf-8"
+            import sys as _sys
+            if str(_OPS) not in _sys.path:
+                _sys.path.insert(0, str(_OPS))
+            from conversation_hub import handle as _hub_handle  # noqa: WPS433
+            req = {
+                "message_id": str(payload.get("message_id") or ("msg-" + str(int(now)))),
+                "text": text,
+                "mode": str(payload.get("mode") or "auto"),
+                "requested_depth": str(payload.get("requested_depth") or "normal"),
+                "idempotency_key": str(payload.get("idempotency_key") or ""),
+            }
+            reply = _hub_handle(req)
+            body = json.dumps(reply.model_dump(mode="json"), ensure_ascii=False).encode("utf-8")
+            return 200, body, "application/json; charset=utf-8"
         except Exception as exc:
             body = json.dumps({"ok": False, "reason": type(exc).__name__},
                               ensure_ascii=False).encode("utf-8")

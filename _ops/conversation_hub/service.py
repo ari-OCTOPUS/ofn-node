@@ -245,7 +245,87 @@ def _real_epistemic(text: str, _rd: RouteDecision) -> Dict[str, Any]:
                 "_error": type(exc).__name__}
 
 
-# Route → adapter dispatch (Phase 2-lite: real where safe, honest stub elsewhere)
+def _real_mcp(text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """mcp → MCP broker (۳ ابزارِ read-only: search_hybrid/read_file_slice/list_tree).
+
+    کد/فایلِ پرسیده‌شده را در repo جستجو می‌کند و نتایج را به‌عنوان SourceRef برمی‌گرداند.
+    read-only — هیچ فایلی نمی‌نویسد. مرورگر هرگز MCP/stdio را نمی‌بیند (پشت gateway)."""
+    try:
+        ops = _ops_path()
+        mcp_dir = str(Path(ops).parent / "_ops" / "octopus_mcp")
+        # server.py در _ops/octopus_mcp/ است
+        mcp_dir = str(Path(ops) / "octopus_mcp")
+        if mcp_dir not in sys.path:
+            sys.path.insert(0, mcp_dir)
+        import server as _mcp  # noqa: WPS433
+        # query را از متن استخراج کن (بعد از کلیدواژه‌های فایل/کد)
+        q = str(text or "").strip()
+        res = _mcp.t_search_hybrid(query=q[:80], path=".", max_results=6)
+        hits = res.get("results") or []
+        if not hits:
+            return {"answer": f"برای «{q[:60]}» چیزی در repo نیافتم (خالی صادق).",
+                    "sources": []}
+        lines = [f"در repo {len(hits)} مورد یافتم:"]
+        srcs = []
+        for h in hits[:6]:
+            p = str(h.get("path") or h.get("file") or "?")
+            snip = str(h.get("preview") or h.get("line") or "")[:120]
+            lines.append(f"· {p}" + (f"\n  {snip}" if snip else ""))
+            srcs.append({"path": p})
+        return {"answer": "\n".join(lines), "sources": srcs}
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_mcp(text)["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
+# انواعِ proposal مجاز از چت (محرمانه/پول/ارسال ممنوع — autonomy_grant هم‌راستا).
+_SAFE_PROPOSE_KINDS = frozenset({"report", "modify_file", "deduplicate", "archive"})
+_DENY_RE = None  # lazy
+
+
+def _real_propose(text: str, _rd: RouteDecision) -> Dict[str, Any]:
+    """propose → queue-only: پیشنهاد را در صفِ تأییدِ مالک می‌نویسد (هرگز اجرا نمی‌کند).
+
+    autonomy: فقط انواعِ امن (report/modify_file/deduplicate/archive)؛ متنِ حاوی
+    pay/send/commit/secret/PII رد می‌شود. external_effect=False (نوشتن در صفِ محلی،
+    نه اثرِ بیرونی). may_authorize=False (تأییدِ جداگانه لازم)."""
+    global _DENY_RE
+    try:
+        import re
+        if _DENY_RE is None:
+            _DENY_RE = re.compile(
+                r"pay|payment|invoice|money|send|publish|apply|merge|commit|"
+                r"secret|token|password|PII|flag|delete|remove", re.IGNORECASE)
+        q = str(text or "").strip()
+        if not q or _DENY_RE.search(q):
+            return {
+                "answer": ("این پیشنهاد شامل کلیدواژهٔ محرمانه/خطرناک است یا خالی است — "
+                           "در صف ننوشتم. فقط انواعِ امن (report/modify_file/deduplicate/"
+                           "archive) بدون pay/send/secret/PII."),
+                "sources": [], "proposals": [],
+            }
+        ops = _ops_path()
+        mcp_dir = str(Path(ops) / "octopus_mcp")
+        if mcp_dir not in sys.path:
+            sys.path.insert(0, mcp_dir)
+        import server as _mcp  # noqa: WPS433
+        # نوعِ پیش‌فرض report (امن‌ترین)؛ summary از متن
+        result = _mcp.t_propose_action(
+            kind="report", summary=q[:48], detail=q[:400])
+        return {
+            "answer": ("پیشنهاد در صفِ تأییدِ مالک نوشته شد (queue-only؛ اجرا نشد).\n"
+                       f"· صف: {result.get('queued')}\n"
+                       "· تأیید نهایی با مالک طبق _octopus/config/policy.yaml"),
+            "sources": [{"path": "_octopus/queue/pending"}],
+            "proposals": [{"queued": result.get("queued"), "kind": "report",
+                           "status": "pending"}],
+        }
+    except Exception as exc:  # noqa: BLE001 — fail-soft
+        return {"answer": _stub_propose(text)["answer"], "sources": [],
+                "_error": type(exc).__name__}
+
+
+# Route → adapter dispatch (Phase 2-lite + Phase 2 complete: all routes real)
 _ADAPTERS = {
     "ask": _real_collab,
     "vault": _real_collab,
@@ -255,9 +335,8 @@ _ADAPTERS = {
     "memory": _real_memory,
     "guide": _real_guide,
     "epistemic": _real_epistemic,
-    # Phase 2 (mcp broker) / queue-only:
-    "mcp": lambda text, _rd: _stub_mcp(text),
-    "propose": lambda text, _rd: _stub_propose(text),
+    "mcp": _real_mcp,
+    "propose": _real_propose,
 }
 
 
@@ -328,7 +407,7 @@ def handle(
             f"adapter failed ({result['_error']}) → deterministic fallback used",
         ]
     elif decision.route in ("mcp", "propose"):
-        limitations = ["not wired in Phase 2-lite — MCP broker / queue adapter"]
+        limitations = ["Phase 2 adapter — read-only (mcp) / queue-only (propose), no execution (ADR-040)"]
     else:
         limitations = ["observe-only adapter — draft reply, no execution (ADR-040)"]
 
