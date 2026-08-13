@@ -633,6 +633,74 @@ def get_epistemic_state(root: "Path | None" = None) -> dict:
                 "may_execute": False}
 
 
+def get_octopus_runs_state(root: "Path | None" = None) -> dict:
+    """ADR-040 Phase 3 — view فقط‌خواندنیِ runهای cognitive (trace). fail-soft."""
+    try:
+        import sys
+        ops = Path(__file__).resolve().parent.parent
+        if str(ops) not in sys.path:
+            sys.path.insert(0, str(ops))
+        cog = ops / "cognitive"
+        if str(cog) not in sys.path:
+            sys.path.insert(0, str(cog))
+        runs_dir = ops / "state" / "cognitive" / "runs"
+        runs = []
+        if runs_dir.is_dir():
+            files = sorted(runs_dir.glob("*.jsonl"), key=lambda p: p.stat().st_mtime,
+                           reverse=True)[:10]
+            for f in files:
+                try:
+                    first = f.read_text(encoding="utf-8").splitlines()[0]
+                    rec = json.loads(first)
+                    runs.append({"run_id": rec.get("run_id"),
+                                 "trace_id": rec.get("trace_id"),
+                                 "started_at": rec.get("started_at"),
+                                 "state": rec.get("state", "?"),
+                                 "path": str(f.relative_to(ops))})
+                except Exception:  # noqa: BLE001
+                    continue
+        return {"status": "ok", "schema_version": "octopus.runs.v1",
+                "n_recent": len(runs), "runs": runs, "may_execute": False}
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "reason": f"{type(exc).__name__}: {exc}",
+                "may_execute": False}
+
+
+def get_octopus_receipts_state(root: "Path | None" = None) -> dict:
+    """ADR-040 Phase 3 — view فقط‌خواندنیِ زنجیرهٔ receiptِ epistemic. fail-soft."""
+    try:
+        import sys
+        ops = Path(__file__).resolve().parent.parent
+        if str(ops) not in sys.path:
+            sys.path.insert(0, str(ops))
+        from epistemics.receipt_store import ReceiptStore  # noqa: WPS433
+        store = ReceiptStore()
+        chain = store.verify()
+        # آخرین چند receipt را بخوان (verdict + claim_id + world_mode)
+        recent = []
+        try:
+            lines = store.path.read_text(encoding="utf-8").splitlines()[-8:]
+            for ln in lines:
+                try:
+                    rec = json.loads(ln)
+                    body = rec.get("record", rec)
+                    recent.append({"receipt_id": body.get("receipt_id"),
+                                   "claim_id": body.get("claim_id"),
+                                   "verdict": body.get("verdict"),
+                                   "world_mode": body.get("world_mode"),
+                                   "produced_at": body.get("produced_at")})
+                except Exception:  # noqa: BLE001
+                    continue
+        except Exception:  # noqa: BLE001
+            pass
+        return {"status": "ok", "schema_version": "octopus.receipts.v1",
+                "chain_ok": chain.ok, "n_records": chain.n_records,
+                "recent": recent, "may_execute": False}
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "reason": f"{type(exc).__name__}: {exc}",
+                "may_execute": False}
+
+
 def _git_head_short(root: "Path | None" = None) -> str:
     """short commit hash، fail-soft."""
     import subprocess
@@ -1145,6 +1213,9 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         "/api/agent-log": get_agent_log_state,
         # ۲۰۲۶-۰۸-۱۳ (ADR-039 C6) — پنلِ فقط‌خواندنیِ epistemic (owner override)
         "/api/epistemic": get_epistemic_state,
+        # ۲۰۲۶-۰۸-۱۳ (ADR-040 Phase 3) — viewهای trace: runها + receiptها
+        "/api/octopus/runs": get_octopus_runs_state,
+        "/api/octopus/receipts": get_octopus_receipts_state,
         LIFECYCLE_PATH: get_lifecycle_state,
     }
     fn = handlers.get(p)

@@ -91,6 +91,8 @@ READ_API_PATHS = {
     "/api/money-caps",
     # 2026-08-13 (ADR-039 C6): پنلِ فقط‌خواندنیِ epistemic — owner override
     "/api/epistemic",
+    # 2026-08-13 (ADR-040 Phase 3): viewهای trace — runs + receipts
+    "/api/octopus/runs", "/api/octopus/receipts",
 }
 
 # دیوارِ HMAC ِ سطحِ خواندنی: **هر** مسیرِ READ_API_PATHS همان چیزی را می‌خواهد
