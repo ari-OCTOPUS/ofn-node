@@ -574,6 +574,65 @@ def get_money_caps_state(root: "Path | None" = None) -> dict:
                 "may_authorize": False, "claimed_is_income": False}
 
 
+def get_epistemic_state(root: "Path | None" = None) -> dict:
+    """ADR-039 (C6) — پنلِ فقط‌خواندنیِ کابینِ epistemic. fail-soft، $0، هیچ اجرا.
+
+    owner override 2026-08-13: دروازهٔ Go روی دادهٔ synthetic NO-GO بود (نیمهٔ
+    کارایی) ولی نیمهٔ ایمنی (leakage/external-effect/budget) pass شده بود. مالک
+    با آگاهی از این override کرد. این پنل صرفاً وضعیت را **نشان** می‌دهد —
+    `may_execute` همیشه False؛ هیچ claim/آزمونی از این مسیر اجرا نمی‌شود."""
+    try:
+        import sys
+        ops = Path(__file__).resolve().parent.parent
+        if str(ops) not in sys.path:
+            sys.path.insert(0, str(ops))
+        import epistemics.invariants as _inv  # noqa: WPS433
+        import epistemics.policy as _pol  # noqa: WPS433
+        from epistemics.receipt_store import ReceiptStore  # noqa: WPS433
+        cfg = _pol.load_policy()
+        chain = ReceiptStore().verify()
+        structural = _inv.structural_invariants()
+        return {
+            "status": "ok",
+            "schema_version": "epistemic.panel.v1",
+            "adr": "ADR-039",
+            "accepted": True,
+            "owner_override": "2026-08-13 (efficacy NO-GO on synthetic; safety passed)",
+            "wired_to_cortex": "EPISTEMIC_TESTS=" + os.environ.get("EPISTEMIC_TESTS", "0"),
+            "policy": {
+                "default_off": cfg.default_off,
+                "max_authority": cfg.max_authority,
+                "sandbox_profile": cfg.sandbox_profile,
+                "caps": {"max_runs": cfg.caps.max_runs,
+                         "max_wall_seconds": cfg.caps.max_wall_seconds,
+                         "max_cost_aud": cfg.caps.max_cost_aud},
+            },
+            "invariants": {
+                "count": _inv.count(),
+                "names": list(_inv.names()),
+                "structural_enforced": [i.name for i in structural],
+            },
+            "receipt_chain": {
+                "ok": chain.ok,
+                "n_records": chain.n_records,
+                "broken_at": chain.broken_at,
+            },
+            "world_mode_labels": ["reality", "hypothesis", "simulation",
+                                  "counterfactual", "fictional"],
+            "may_execute": False,   # hard invariant — هرگز True از این مسیر
+            "gate": {
+                "benchmark_verdict": "NO-GO (synthetic, 8 cases)",
+                "safety_criteria_passed": True,
+                "efficacy_threshold_met": False,
+                "c6_panel": "read-only (this endpoint)",
+                "c7_shadow_run": "harness ready; 10h run owner-timed",
+            },
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "reason": f"{type(exc).__name__}: {exc}",
+                "may_execute": False}
+
+
 def _git_head_short(root: "Path | None" = None) -> str:
     """short commit hash، fail-soft."""
     import subprocess
@@ -1084,6 +1143,8 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         # ۲۰۲۶-۰۸-۰۸ — تبِ «اسکن‌ها»: شناختیِ زنده + لاگِ ایجنت
         "/api/cognitive-scan": get_cognitive_scan_state,
         "/api/agent-log": get_agent_log_state,
+        # ۲۰۲۶-۰۸-۱۳ (ADR-039 C6) — پنلِ فقط‌خواندنیِ epistemic (owner override)
+        "/api/epistemic": get_epistemic_state,
         LIFECYCLE_PATH: get_lifecycle_state,
     }
     fn = handlers.get(p)

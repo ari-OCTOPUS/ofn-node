@@ -89,6 +89,8 @@ READ_API_PATHS = {
     "/api/cognitive-scan", "/api/agent-log",
     # 2026-08-12: ماتریس سقف پول (قدم ۵/۷) — read-only
     "/api/money-caps",
+    # 2026-08-13 (ADR-039 C6): پنلِ فقط‌خواندنیِ epistemic — owner override
+    "/api/epistemic",
 }
 
 # دیوارِ HMAC ِ سطحِ خواندنی: **هر** مسیرِ READ_API_PATHS همان چیزی را می‌خواهد
