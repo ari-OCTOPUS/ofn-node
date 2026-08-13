@@ -147,6 +147,46 @@ class EvidenceLink(BaseModel):
     relevance: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
+class EvidenceScoreBand(BaseModel):
+    """برای evidence غیر-Bayesian (زبانی/مبهم) — pseudo-probability نساز (C4).
+
+    بازبینیِ Hypothesis-Ledger: «عدد ۰.۰۸ اگر از تخمینِ زبانیِ مدل آمده باشد،
+    احتمالِ کالیبره‌شده نیست؛ فقط یک confidence-looking number است.» پس برای چنین
+    evidenceهایی فقط یک band نگه می‌داریم و posterior تا review تغییر نمی‌کند."""
+    model_config = _STRICT_FROZEN
+
+    evidence_id: str = Field(min_length=1)
+    support_direction: str          # supports | contradicts | ambiguous
+    strength: str                   # weak | moderate | strong
+    provenance: str = "untrusted"   # verified | derived | untrusted
+    note: str = ""
+
+
+class DiscoveryBlock(BaseModel):
+    """ارزشِ اکتشافِ آزمون: EVSI/EIG − cost − risk_penalty → net_value (C4).
+
+    invariant #2 (useful != true): discovery value جدا از epistemic confidence است و
+    justification برای اثرِ واقعی نیست — فقط اولویت‌بندیِ آزمون."""
+    model_config = _STRICT_FROZEN
+
+    expected_information_gain: float = Field(ge=0.0, le=1.0)
+    expected_sample_value: float = Field(default=0.0, ge=0.0, le=1.0)
+    estimated_cost: float = Field(default=0.0, ge=0.0, le=1.0)
+    risk_penalty: float = Field(default=0.0, ge=0.0, le=1.0)
+    budget_class: str = "sandbox_low"
+    net_value: float = Field(default=0.0, ge=-1.0, le=1.0)
+
+    @model_validator(mode="after")
+    def _compute_net_value(self) -> "DiscoveryBlock":
+        nv = (self.expected_information_gain + self.expected_sample_value
+              - self.estimated_cost - self.risk_penalty)
+        nv = max(-1.0, min(1.0, nv))
+        if abs(nv - self.net_value) > 1e-12:
+            # frozen model — بازنویسی فقط در validator مجاز است
+            object.__setattr__(self, "net_value", nv)
+        return self
+
+
 # ---------------------------------------------------------------------------
 # مدل‌های اصلیِ زنجیرهٔ epistemic
 # ---------------------------------------------------------------------------
@@ -219,6 +259,8 @@ class TestPlan(BaseModel):
     max_cost_aud: float = Field(ge=0.0)
     seed_set: List[int] = Field(min_length=1)
     holdout: bool = False
+    # ── Phase 2.5/C4: ارزشِ اکتشافِ آزمون (اختیاری؛ برای ranker) ──
+    discovery: Optional[DiscoveryBlock] = None
 
     @model_validator(mode="after")
     def _force_no_network(self) -> "TestPlan":
