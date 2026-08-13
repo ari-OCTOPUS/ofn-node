@@ -31,12 +31,19 @@ updated: 2026-08-12
 
 > 🎯 **پین ایجنت بعدی:** [[../00 - Inbox/2026-08-12 HANDOFF — Session Evening for Next Agent|HANDOFF سشن عصر — مراحل بعدی]]  
 > خلاصه: لید 667951 SET_ASIDE · سقف «فعلا متغیر» · Obsidian frontmatter سبز + `/api/obsidian` درست · صداقت A  
-> **بسته 2026-08-13:** رأیِ git — مالک «هردو» (proceed + commit مجاز). تصادمِ ADR-039 حل شد: epistemic می‌ماند **039**، conversation-hub شد **ADR-040** (در `architecture/adr/` — نکتهٔ جداگانه: آن ایجنت ADR را در دایرکتوریِ غیرکانونی گذاشته، migration به `research-spec-compiler/adr/` باز است).
+> **بسته 2026-08-13:** رأیِ git — مالک «هردو» (proceed + commit مجاز). تصادمِ ADR-039 حل شد: epistemic می‌ماند **039**، conversation-hub شد **ADR-040** (حالا در دایرکتوریِ کانونی `research-spec-compiler/adr/` — migration انجام شد، `architecture/adr/` حذف شد).
 > Checklist: [[../00 - Inbox/2026-08-12 CHECKLIST — 100 Steps Execution|۱۰۰ قدم]] · Evidence `DISCOVERY-WIRE-2026-08-12/05+06`
 
 > SoT: `_ops/OCTOPUS-HONESTY.md` · `docs/MONEY-CLAIM-VS-CONFIRM.md` · `GOALS-OCTOPUS.md`
 
 > **پیش‌زمینه:** [[../07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|نوت ۴۲]] · مالک: مینی‌اپ ببند/باز بعد از gateway.
+
+- ✅💬 **2026-08-13 — لایهٔ صداقتِ چت + Conversation Hub (ADR-040) + یکدست‌سازیِ vault.**
+  · **Chat-honesty (مگاپرامپت، ۶ commit):** TASK ۱ — تست‌های collab تصمیمِ intro-exclusion را assert می‌کنند (`bfcc353`)؛ TASK ۲ — authِ ۳ endpointِ gateway به `_owner_initdata_ok()` یکدست شد (`d81c7c1`، gateway 49/49)؛ TASK ۳ path ب — `runtime_truth` حالا halt/quota را صادقانه نشان می‌دهد (`c144297`)؛ TASK ۴ — بنرِ وضعیت (`status_banner.py` + GET `/api/chat-status` + `app.js::startStatusBanner`، `08c9f7f`+`66acec5`)؛ bonus — تستِ `honest-self` (ادعای خودآگاهی → مسیرِ صادق، invariantِ ضدِ AGI تقویت شد، `2b47b90`)
+  · **ADR-040 Conversation Hub:** درگاهِ یکپارچه‌سازِ چت (`_ops/conversation_hub/`، façade رویِ ask_vault/ask_brain/collaborator/MCP)؛ Phase 1 (`8aef770`/`691daae`)؛ `OCTOPUS_UNIFIED_CHAT=0`؛ `execute` از چت ممنوع. سند: [[../03 - Projects/research-spec-compiler/adr/ADR-040-conversation-hub-unified-chat|ADR-040]]
+  · **بهینه‌سازیِ vault:** ADR-040 به `research-spec-compiler/adr/` منتقل شد → حالا یک دایرکتوریِ کانونیِ ADR (037–040)
+  · suites: collab سبز · gateway 49/49 · status_banner 13/13 · conversation 14 · `node --check app.js` OK
+  · **نکته:** بنرِ app.js پس از ری‌استارتِ gateway فعال می‌شود (owner-timed — انجام نشد)
 
 - ✅🧪 **2026-08-12 شب — ADR-039 Commit 1: موتورِ آزمونِ معرفتی (strict schemas + canonical + policy).**
   [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]] ·

@@ -399,4 +399,16 @@ epistemics stdlib-only. این amend در headerِ `epistemics/__init__.py` و `
 
 **مرزهای سختِ ADR-039 §7 (در سطحِ schema):** `may_execute` همیشه False · `sandbox_profile`
 همیشه `no_network` · `requested_authority` همیشه `propose` · testability>0 · prior∈(0,1).
-مسیرِ راه: C1 ✓ → C2 (receipt chain+provenance) → C3 (generator+runner) → C4 (bayes+multi-agent) → C5 (cortex wiring) → C6/C7.
+مسیرِ راه: C1 ✓ → C2 ✓ (receipt chain+provenance، `31d3d7c`) → C3 (generator+runner) → C4 (bayes+multi-agent) → C5 (cortex wiring) → C6/C7.
+
+## 🧬 ثبتِ ۲۰۲۶-۰۸-۱۳ — Conversation Hub (ADR-040) + لایهٔ صداقتِ چت، additive، پیش‌فرضِ خاموش
+
+دو ریلگزدِ نو رویِ لایهٔ چت — هر دو propose-only / default-OFF / بدونِ `execute` از چت.
+
+| concern | canonical | وضعیت |
+|---|---|---|
+| Conversation Hub (ADR-040) | `_ops/conversation_hub/{schemas,router,service}.py` + `test_conversation_hub.py` | **Phase 1** — درگاهِ یکپارچه‌سازِ چت (façade رویِ ask_vault/ask_brain/collaborator/MCP)؛ مسیریابِ قطعیِ intent (بدونِ LLM)؛ `OCTOPUS_UNIFIED_CHAT=0`؛ `execute` از چت ممنوع. ۱۱/۱۱ سبز. سند: [[../03 - Projects/research-spec-compiler/adr/ADR-040-conversation-hub-unified-chat\|ADR-040]] |
+| بنرِ وضعیتِ چت (TASK 4) | `_ops/owner_console/status_banner.py` + GET `/api/chat-status` + `miniapp/app.js::startStatusBanner` | **LIVE پس از restart** — بنرِ فقط‌خواندنیِ halt/quota (بدونِ تماسِ پولی)؛ `status_banner()` + `runtime_truth` enrichment؛ 13/13 سبز |
+| یکدست‌سازیِ auth (TASK 2) | `_ops/telegram_center/miniapp_gateway.py` | ۳ endpoint (`/api/actions`، `/api/miniapp`، `/api/pf/*`) به `_owner_initdata_ok()` وصل شدند (ردِ تکرارِ دستی) |
+
+**لایهٔ صداقتِ چت (مگاپرامپت):** collab intro-exclusion را تست‌ها assert می‌کنند (TASK ۱) · `runtime_truth` حالا halt/quota را صادقانه می‌گوید (TASK ۳ path ب) · بنرِ پیشگیرانهٔ وضعیت (TASK ۴) · `honest-self` routing برای ادعای خودآگاهی (invariantِ ضدِ AGI تقویت شد).

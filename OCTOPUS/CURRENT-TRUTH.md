@@ -5,17 +5,17 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-12T20:49:47Z
+> auto-generated: 2026-08-12T23:54:49Z
 
 ## Current Truth
 
-- **coherence:** 0.971
+- **coherence:** 0.955
 - **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 33371
+- **beat:** 33553
 - **halted:** False
 - **rfcs_pending:** 0
-- **HEAD:** 691daae
+- **HEAD:** 66acec5
 
 
 <!-- OCTOPUS-AUTO-END -->
@@ -64,11 +64,11 @@ updated: 2026-08-11T13:35:00Z
 - `4d_system` / Super-Governor: **وصل نیست**
 - brain_core: SHADOW matched=0 → promote نکن
 
-### Human status — Epistemic test engine + benchmark (2026-08-12 night, additive)
+### Human status — Epistemics + Conversation Hub + chat-honesty (2026-08-13, additive)
 
-- **ADR-039 C1 پیاده (نه wired):** `_ops/epistemics/` — schemas (Pydantic strict/frozen) + canonical hashing + policy fail-closed + validatorِ pure؛ `test_epistemic_schemas.py` ۴۵/۴۵ سبز؛ default-OFF
-- **ADR-037 amend:** `epistemics/schemas.py` دومین کابینِ Pydanticِ _ops؛ سطح محدود به همان یک فایل
-- **چارچوبِ deceptive-grid** (`hypothesis_engine/experiments/`): ۹ سناریو + ablation + red-team + verdict V0–V4 + JSONL provenance؛ ۵ سوییت (۳۶۵+ چک) سبز؛ صداکنندهٔ تولیدی ندارد
-- **سخت‌مرزها:** `may_execute=False` · `sandbox=no_network` · `authority=propose` — همگی در سطحِ schema
-- مسیرِ راه: C1 ✓ → C2–C7. جزئیات: [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]]
-- ⚠️ uncommitted — منتظرِ رأیِ git
+- **ADR-039 (epistemic test engine):** C1 (`795a052`) + C2 (`31d3d7c`) committed، **نه wired**. `_ops/epistemics/` — schemas + canonical + policy + validator + receipt_store + provenance؛ تست‌ها ۴۵/۴۵ + ۲۰/۲۰ سبز. default-OFF. مسیر: C1✓ C2✓ → C3.
+- **ADR-037 amend:** `epistemics/schemas.py` دومین کابینِ Pydanticِ _ops.
+- **ADR-040 (Conversation Hub):** Phase 1 — `_ops/conversation_hub/` درگاهِ یکپارچه‌سازِ چت، `OCTOPUS_UNIFIED_CHAT=0`. تصادمِ شماره با epistemic حل شد (epistemic=039، conv-hub=040).
+- **لایهٔ صداقتِ چت (۶ commit):** auth یکدست (`d81c7c1`) · intro-exclusion تست‌شد (`bfcc353`) · `runtime_truth` halt/quota (`c144297`) · بنرِ وضعیت (`08c9f7f`+`66acec5`) · `honest-self` routing (`2b47b90`).
+- **چارچوبِ deceptive-grid** (`hypothesis_engine/experiments/`): ۹ سناریو + ablation + red-team + verdict V0–V4 + JSONL provenance؛ ۵ سوییت سبز.
+- **committed** (رأیِ git: «هردو»). جزئیات: [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]] · [[../03 - Projects/research-spec-compiler/adr/ADR-040-conversation-hub-unified-chat|ADR-040]]
