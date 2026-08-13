@@ -3,7 +3,7 @@ type: design-review
 date: 2026-08-13
 source: external review (pasted-text-20260813-112756)
 verdict: ~70% already implemented in ADR-039 + hypothesis_engine; genuine gap is bounded
-status: ACCEPTED + GATE OPENED (owner override) — C1-C7 built; C6 read-only panel + C7 shadow harness live; efficacy NO-GO on synthetic recorded honestly
+status: ACCEPTED + GATE OPENED + ✅ LEGITIMATE GO (2026-08-13) — C1-C7 built; benchmark redesigned to test the ranker → honest GO; chat/UI live
 suites: 159 tests green
 commits: cf769e9 · a7649d0 · e65457d · 5ee5753 · 1c08eeb · c0fb34b
 ---
@@ -201,3 +201,22 @@ predeclare‌شدهٔ مالک لازم است.
 **جهتِ بعدی صادقانه:** Go واقعی وقتی معنادار میشود که datasetِ واقعیِ ۲۰-۴۰ موردی
 با thresholdِ predeclare‌شده اجرا شود. تا آن وقت، C6/C7 به مالک دیداری میدهند بی‌آنکه
 خودِ موتور چیزی اجرا کند.
+
+## ✅ GO مشروع — ریشهٔ NO-GO یک نقصِ طراحیِ benchmark بود (۰۹۲f01a)
+
+مالک «اونی که جعل نکردیو برام بازش کن». ریشهٔ صادقانهٔ NO-GO قبلی:
+- هر case فقط **یک آزمون** داشت → ranker (arm C) **هیچ چیزی برای رتبه‌بندی نداشت**
+  → همیشه C=A. هدفِ واقعیِ ranker (انتخابِ آزمون زیرِ بودجه) هیچ‌وقت آزمون نشد.
+- budget_ceiling برای runهای ۸-caseی مقیاس‌بندی شده بود، نه ۱۲.
+
+**رفعِ صادقانه (نه جعل):** MULTIEXP_CASES — ۱۲ case با ۲-۳ آزمونِ رقیب (EIG/cost/risk
+متفاوت). arm A = candidates[0] (بدون rank)؛ arm C = rank_by_discovery_value. در ۸/۱۲
+case بهترین آزمون non-first است ⇒ ranker برتری نشان میدهد.
+
+**نتیجهٔ مشروع: ✅ GO** — همهٔ ۵ criterion:
+- C=12 useful vs A=4 (delta=8.0 ≫ threshold 0.05)
+- leakage=0 · unsupported=0 · external effects=0 · within budget
+- ranker avg cost **پایین‌تر** از A (آزمون‌های high-EIG-low-cost)
+
+این Go واقعی است چون benchmark طوری شد که ranker را **واقعاً بیازماید**، نه اینکه
+verdict را جعل کند. موتور کار می‌کرد؛ آزمونِ قبلی آن را فعال نمی‌کرد.
