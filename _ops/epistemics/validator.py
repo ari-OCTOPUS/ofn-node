@@ -21,6 +21,7 @@ from .schemas import (
     GateOutcome,
     SandboxProfile,
     TestPlan,
+    WorldMode,
 )
 
 
@@ -66,6 +67,10 @@ def validate_claim(claim: EpistemicClaim, policy: PolicyConfig) -> ValidationRes
         codes.append("dogmatic_prior")
     if policy.max_authority != "propose":
         codes.append("policy_authority_mismatch")
+    # 2026-08-13 (Phase 2.5, invariant #4): defense-in-depth — schema قبلاً REALITY
+    # را روی claim رد می‌کند؛ اگر کسی model_construct زد اینجا باز هم بگیر.
+    if claim.world_mode is WorldMode.REALITY:
+        codes.append("forbidden_reality_world_mode")
     return _block(*codes) if codes else _ok()
 
 
@@ -140,4 +145,22 @@ def validate_gate_decision(decision: GateDecision) -> ValidationResult:
         codes.append("may_execute_not_false")
     if decision.outcome is GateOutcome.INCONCLUSIVE and decision.belief_delta_log_odds != 0.0:
         codes.append("inconclusive_nonzero_delta")
+    return _block(*codes) if codes else _ok()
+
+
+def validate_world_mode_consistency(
+    claim: EpistemicClaim, receipt: EvidenceReceipt
+) -> ValidationResult:
+    """invariant #4 (simulation != reality): labelِ world_mode باید در طولِ زنجیره
+    حفظ شود. claim و receiptش باید همان label را داشته باشند — حذف/تغییر در handoff
+    همان جایی است که hypothesis به false assertion تبدیل می‌شود.
+
+    2026-08-13 (بازبینیِ Hypothesis-Ledger، Phase 2.5)."""
+    codes: List[str] = []
+    # claim.world_mode یک enum است؛ receipt.world_mode یک str tag. مقایسهٔ value.
+    if claim.world_mode.value != receipt.world_mode:
+        codes.append(
+            f"world_mode_drift:claim={claim.world_mode.value},"
+            f"receipt={receipt.world_mode}"
+        )
     return _block(*codes) if codes else _ok()

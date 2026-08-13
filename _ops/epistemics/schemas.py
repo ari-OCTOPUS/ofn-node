@@ -67,6 +67,31 @@ class PredictionDirection(str, Enum):
     CHANGE = "change"
 
 
+class WorldMode(str, Enum):
+    """labelِ ضدِ hallucination (2026-08-13, بازبینیِ Hypothesis-Ledger).
+
+    این label باید در تمامِ serialization/trace/handoff/UI حفظ شود. حذفِ آن در یک
+    handoff همان جایی است که hypothesis به false assertion تبدیل می‌شود. REALITY فقط
+    برای runtime_truth تایید‌شده؛ بقیهٔ مقادیر صریحاً غیرِواقعیت‌اند.
+    """
+    REALITY = "reality"
+    HYPOTHESIS = "hypothesis"
+    SIMULATION = "simulation"
+    COUNTERFACTUAL = "counterfactual"
+    FICTIONAL = "fictional"
+
+
+class ExecutionScope(str, Enum):
+    """محدودهٔ مجازِ اجرا برای یک claim/plan. جدا از authority و sandbox_profile.
+
+    sandbox_profile = قابلیتِ شبکه؛ execution_scope = لایهٔ سیاستِ کلی. تفکیک
+    sandbox-approval از production-authorization (invariant #10)."""
+    READ_ONLY = "read_only"
+    SANDBOX_ONLY = "sandbox_only"
+    APPROVAL_REQUIRED = "approval_required"
+    PROHIBITED = "prohibited"
+
+
 # ---------------------------------------------------------------------------
 # Config مشترک: strict + forbid + frozen
 # ---------------------------------------------------------------------------
@@ -96,11 +121,43 @@ class Falsifier(BaseModel):
     threshold: str = Field(min_length=1)   # متن، مثلاً "discovery_B - discovery_A <= 0"
 
 
+class Assumption(BaseModel):
+    """یک فرضِ پیش‌نیازِ claim (2026-08-13، ساختارِ ۸-بخشی).
+
+    status جدا از claim است: یک claim می‌تواند SUPPORTED باشد در حالی که یک assumptionِ
+    آن unverified می‌ماند (و باید صادقانه افشا شود)."""
+    model_config = _STRICT_FROZEN
+
+    assumption_id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    status: str = "unverified"   # unverified | verified | falsified
+
+
+class EvidenceLink(BaseModel):
+    """یالِ شاهد به یک claim — جدا از falsifierِ واحد (ساختارِ ۸-بخشی).
+
+    relevance ∈ [0,1]. trust_level سه‌حالتی: verified (از receipt تایید‌شده) /
+    derived (از دادهٔ مشتق‌شده) / untrusted (ورودیِ نامطمئن)."""
+    model_config = _STRICT_FROZEN
+
+    evidence_id: str = Field(min_length=1)
+    source_type: str = Field(min_length=1)   # test_artifact | runtime | derived | ...
+    source_ref: str = Field(min_length=1)    # مسیرِ منطقی، نه filesystem مطلق
+    trust_level: str = "unverified"          # verified | derived | untrusted
+    relevance: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
 # ---------------------------------------------------------------------------
 # مدل‌های اصلیِ زنجیرهٔ epistemic
 # ---------------------------------------------------------------------------
 class EpistemicClaim(BaseModel):
-    """واحدِ معرفتیِ frozen. کلیدهای غیرقابل‌حذف توسط forbid + validators تضمین می‌شوند."""
+    """واحدِ معرفتیِ frozen. کلیدهای غیرقابل‌حذف توسط forbid + validators تضمین می‌شوند.
+
+    2026-08-13 (بازبینیِ Hypothesis-Ledger، Phase 2.5 MVE): فیلدهای world_mode /
+    execution_scope / assumptions / evidence_for / evidence_against اضافه شدند. همگی
+    default دارند تا ساختارِ ۸-بخشیِ کامل بدونِ شکستنِ C1/C2 در دسترس باشد. world_mode
+    پیش‌فرض HYPOTHESIS است — هیچ claimی بدونِ این label ساخته نمی‌شود (ضدِ hallucination).
+    """
     model_config = _STRICT_FROZEN
 
     claim_id: str = Field(min_length=1)
@@ -115,6 +172,12 @@ class EpistemicClaim(BaseModel):
     source_config_hash: str = Field(min_length=1)
     requested_authority: Authority = Authority.PROPOSE           # فقط propose
     maturity_target: Optional[str] = None                        # E0..E6 (اختیاری)
+    # ── Phase 2.5 (بازبینیِ Hypothesis-Ledger): label ضدِ hallucination ──
+    world_mode: WorldMode = WorldMode.HYPOTHESIS                 # هیچ‌گاه REALITY به‌صورت پیش‌فرض
+    execution_scope: ExecutionScope = ExecutionScope.SANDBOX_ONLY
+    assumptions: List[Assumption] = Field(default_factory=list)
+    evidence_for: List[EvidenceLink] = Field(default_factory=list)
+    evidence_against: List[EvidenceLink] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _authority_invariant(self) -> "EpistemicClaim":
@@ -122,6 +185,20 @@ class EpistemicClaim(BaseModel):
         if self.requested_authority is not Authority.PROPOSE:
             raise ValueError(
                 "requested_authority must be 'propose'; 'execute' is forbidden (ADR-034)"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _reality_never_defaulted(self) -> "EpistemicClaim":
+        # invariant #4 (simulation != reality): یک claimِ epistemic هرگز REALITY نیست —
+        # REALITY فقط برای runtime_truth تایید‌شده‌ی خارج از این زنجیره است. ادعای
+        # epistemic که خودش را «واقعیت» labels می‌کند، دقیقاً همان hallucination است.
+        if self.world_mode is WorldMode.REALITY:
+            raise ValueError(
+                "world_mode=REALITY forbidden on an EpistemicClaim — claims are "
+                "hypothesis/simulation/counterfactual/fictional by construction; "
+                "REALITY belongs only to verified runtime_truth outside this chain "
+                "(invariant #4: simulation != reality)"
             )
         return self
 
@@ -164,7 +241,15 @@ class BindHashes(BaseModel):
 
 
 class EvidenceReceipt(BaseModel):
-    """رسیدِ tamper-evident با زنجیرهٔ parent_receipt_hash (C2 آن را append می‌کند)."""
+    """رسیدِ tamper-evident با زنجیرهٔ parent_receipt_hash (C2 آن را append می‌کند).
+
+    2026-08-13 (Phase 2.5): world_mode از claim به receipt منتقل می‌شود تا label در
+    تمامِ handoff/trace حفظ شود — حذفِ آن در یک handoff همان جایی است که hypothesis
+    به false assertion تبدیل می‌شود (بازبینیِ Hypothesis-Ledger).
+
+    نکتهٔ تایپ: روی receipt این فیلد str با membership-validator است (نه enum مستقیم)
+    چون receipt یک artifact سریال‌شدنی است و باید از فرمِ JSON-سریلایزشده (رشته) باز-
+    ساخته شود؛ strict-enum خطِ roundtripِ C1 را می‌شکند. claim همچنان enum سخت دارد."""
     model_config = _STRICT_FROZEN
 
     receipt_id: str = Field(min_length=1)
@@ -177,6 +262,17 @@ class EvidenceReceipt(BaseModel):
     produced_at: str = Field(min_length=1)           # ISO8601
     verdict: str = Field(min_length=1)               # پیش‌ثبت؛ نهایی در GateDecision
     signature_b64: Optional[str] = None              # امضای segment در C2
+    # ── Phase 2.5: label ضدِ hallucination در طولِ زنجیره (serializable tag) ──
+    world_mode: str = Field(default="hypothesis")
+
+    @model_validator(mode="after")
+    def _world_mode_membership(self) -> "EvidenceReceipt":
+        valid = {m.value for m in WorldMode}
+        if self.world_mode not in valid:
+            raise ValueError(
+                f"world_mode must be one of {sorted(valid)}; got {self.world_mode!r}"
+            )
+        return self
 
 
 class GateDecision(BaseModel):

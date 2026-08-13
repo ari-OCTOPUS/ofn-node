@@ -3,7 +3,7 @@ type: design-review
 date: 2026-08-13
 source: external review (pasted-text-20260813-112756)
 verdict: ~70% already implemented in ADR-039 + hypothesis_engine; genuine gap is bounded
-status: reconciliation — owner decision pending
+status: MVE built (Phase 2.5, sandbox-only) — owner confirmed option الف
 ---
 
 # 44 — بازبینیِ Hypothesis Ledger: آشتی با وضعیتِ موجود
@@ -85,8 +85,26 @@ ADR-039 (Epistemic Test Engine) و `hypothesis_engine/` از قبل هستهٔ �
 - تغییرِ نامِ «belief» — نام‌گذاریِ `belief_delta_log_odds` در C1/C2 committed و تست-pin شده؛
   تغییرِ نام = ریسکِ رگرسیون بدونِ ارزشِ افزوده (عدد، نه روایت، است).
 
-## تصمیمِ مالک
+## تصمیمِ مالک — ✅ MVE ساخته شد (گزینهٔ الف)
 
-- (الف) MVEٔ سه‌قطعه‌ایِ بالا را بسازم؟ (world_mode + ۱۰ invariant + evidence split — sandbox-only)
-- (ب) فقط این آشتی ثبت شود و ا actionable بعد از رأی روی ADR-039؟
-- (ج) چیز دیگری از شکاف‌ها اولویت دارد؟
+مالک گزینهٔ الف را تأیید کرد. Phase 2.5 MVE پیاده شد (sandbox-only، بدون وصل‌شدن
+به چت/tool/memory):
+
+- **`WorldMode` + `ExecutionScope`** enums در `schemas.py`؛ claimها پیش‌فرض
+  `HYPOTHESIS`/`SANDBOX_ONLY`؛ `world_mode=REALITY` روی claim **ممنوع** (invariant #4).
+- **۱۰ invariant** در `invariants.py` (رجیستریِ صریح: نام + صورت + enforcement_point)؛
+  structuralها واقعاً توسط schema enforce می‌شوند (#1 no-TRUE، #4، #9، #10).
+- **ساختارِ ۸-بخشی**: `Assumption` + `EvidenceLink` models؛ `assumptions` /
+  `evidence_for` / `evidence_against` به `EpistemicClaim` (همگی default → backward-compatible).
+- **label preservation**: `world_mode` روی `EvidenceReceipt` (str tag سریال‌شدنی) +
+  `validate_world_mode_consistency` اختلافِ label را در طولِ زنجیره می‌گیرد.
+
+تست: `test_epistemic_invariants.py` **۱۹/۱۹** · رگرسیونِ C1 `test_epistemic_schemas` ۴۵/۴۵ ·
+C2 `test_epistemics_receipt_chain` ۲۰/۲۰. ADR-039 (PROPOSED) دست‌نخورده؛ این extension
+همگی additive و default هستند.
+
+## آنچه عمداً انجام نشد
+
+- بازنویسیِ ADR-039 — این PROPOSED/رأیِ مالک‌منتظر است.
+- وصلِ epistemic به conversation_hub — بازبینی صریحاً می‌گوید MVE بدون chat-integration.
+- EVSI ranker، dual-channel composer، متریک‌های کامل → Phase 2.6/3، فقط اگر Go criteria پاس شد.
