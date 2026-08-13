@@ -122,6 +122,28 @@ _EVIDENCE = re.compile(
     r"اثبات.*کن|چطور.*مطمئن|locator)",
     re.I,
 )
+# بردِ Orange Pi — جدا از business_brain داخلی. باید *قبل از* _BUSINESS چک شود
+# چون «بیزنس‌های برد» شامل «بیزینس» است و وگرنه دزدیده می‌شود.
+_LEGS = re.compile(
+    r"(وضعیت.*(?:برد|لگ|orange|اورنج)|"
+    r"(?:برد|لگ‌?ها?|orange.?pi|اورنج).*(?:وضعیت|بالا|پایین|سلامت)|"
+    r"بیزنس.*برد|برد.*بیزنس|"
+    r"وضعیت\s*(?:زیمان|لید|استودیو|پنل)|"
+    r"legs?\s*status|"
+    r"\borange\s*pi\b|"
+    r"اورنج\s*پای|"
+    # G2 (2026-08-13): عبارتِ سرراستِ بدونِ «برد» هم باید به رصدِ برد برود —
+    # مدلِ ذهنیِ مالک این است که بیزنس‌ها = لگ‌های برد، نه business_brainِ
+    # داخلی (که «بیزینس»ِ تک‌کلمه‌ای بدونِ «ها»ی جمع می‌ماند، پایین‌تر).
+    r"بیزنس‌?ها|بیزینس‌?ها|کسب.?و.?کارها)",
+    re.I,
+)
+_BOARD_CMD = re.compile(
+    r"(به برد بگو|فرمان به (?:برد|ofn)|دستور به برد|"
+    r"از مغزِ? برد بپرس|ask (?:the )?board|board command|"
+    r"تاسک (?:به )?برد|پنل برد)",
+    re.I,
+)
 _BUSINESS = re.compile(
     r"(business.?brain|مغز تجاری|پیشنهاد تجاری|فرصت.*تجاری|بازار|"
     r"business.*پیشنهاد|بیزینس)",
@@ -524,6 +546,8 @@ def handle(text: str) -> dict:
             "📋 مأموریت فقط‌خواندنی آماده شد، ولی هنوز submit نشده.\n"
             f"نیت: {p['intent']}\nخرج: ۰ · اثر بیرونی: ۰\n"
             "برای اجرا باید به Mission/Action Bridge زنده متصل شود.", data=p)
+    if _BOARD_CMD.search(q):
+        return _board_command_from_text(q)
     if _SEND.search(q):
         return _reply("owner-gate",
             "🔐 این درخواست اثر بیرونی دارد. این رابط آن را اجرا نمی‌کند.\n"
@@ -595,6 +619,19 @@ def handle(text: str) -> dict:
             return _reply("architecture",
                           "نقشهٔ معماری در دسترس نیست (%s). تب System را ببین." % type(exc).__name__,
                           data={"status": "ARCH_UNAVAILABLE", "may_authorize": False})
+    if _LEGS.search(q):
+        try:
+            from . import legs_status as _ls
+            text = _ls.format_for_chat()
+            data = {"status": "LEGS", "may_authorize": False, "read_only": True,
+                    "pin": "healthz", "pin_means": "http-listener-only"}
+        except Exception as exc:  # noqa: BLE001
+            text = (
+                "وضعیتِ بیزنس‌های برد در دسترس نیست (%s). "
+                "برد مستقل است؛ این فقط رصد است." % type(exc).__name__
+            )
+            data = {"status": "LEGS_UNKNOWN", "may_authorize": False}
+        return _reply("legs", text, data=data)
     if _BUSINESS.search(q):
         # 2026-08-12 fix (اشتباهِ معماری): این بلوک کپی‌پیستِ ناقصِ هندلرِ
         # _EQUATION بالای خودش بود — equation_explainer را import می‌کرد
@@ -750,6 +787,110 @@ def handle(text: str) -> dict:
                   data={"status": "CLARIFY", "original": q[:300]})
 
 
+_BOARD_KB = [
+    [{"text": "پرسش مغز", "callback_data": "oc:board:ask"},
+     {"text": "وضعیت عمیق", "callback_data": "oc:board:status"}],
+    [{"text": "پنل", "callback_data": "oc:board:panel:panel"},
+     {"text": "زیمان", "callback_data": "oc:board:panel:ziman"}],
+    [{"text": "لید", "callback_data": "oc:board:panel:lead"},
+     {"text": "استودیو", "callback_data": "oc:board:panel:studio"}],
+    [{"text": "تاسک (رأی لازم)", "callback_data": "oc:board:task"}],
+]
+
+
+def _infer_board_kind(q: str) -> str:
+    if re.search(r"تاسک|\btask\b", q, re.I):
+        return "task"
+    if re.search(r"پنل|\bpanel\b", q, re.I):
+        return "panel"
+    if re.search(r"وضعیت عمیق|\bstatus\b", q, re.I):
+        return "status"
+    return "ask"
+
+
+def _infer_board_target(q: str) -> tuple:
+    if re.search(r"hypno|هیپنو", q, re.I):
+        return "hypno", "hypno"
+    mapping = (
+        ("ziman", "زیمان"), ("lead", "لید"),
+        ("studio", "استودیو"), ("panel", "پنل"),
+    )
+    for inst, fa in mapping:
+        if re.search(inst, q, re.I) or fa in q:
+            return "ofn", inst
+    return "ofn", "panel"
+
+
+def _board_command_reply(kind: str, text: str, *, agent: str = "ofn",
+                         instance: str = "panel") -> dict:
+    try:
+        import sys
+        from pathlib import Path
+        ops = Path(__file__).resolve().parent.parent
+        if str(ops) not in sys.path:
+            sys.path.insert(0, str(ops))
+        from board_cp import service as _bcp  # noqa: WPS433
+        stored = _bcp.enqueue(
+            kind=kind, text=text, target_agent=agent,
+            target_instance=instance, source="chat",
+        )
+    except Exception as exc:  # noqa: BLE001
+        return _reply(
+            "board-command",
+            "صفِ فرمان در دسترس نیست (%s). هیچ چیزی به برد نرفت."
+            % type(exc).__name__,
+            data={"status": "BOARD_CP_UNAVAILABLE", "may_authorize": False},
+        )
+    lines = [
+        "فرمان به صفِ Control Plane رفت — هنوز به برد ارسال نشده.",
+        f"kind={kind} · instance={instance} · state={stored.get('state')}",
+        f"message_id={stored.get('message_id')}",
+    ]
+    if not stored.get("gate0"):
+        lines.append(
+            "Gate 0 باز است: CONTROL_URL ویندوز-facing + Bearer را مالک می‌گذارد."
+        )
+    if not stored.get("flag"):
+        lines.append("فلگ OCTOPUS_BOARD_CP خاموش است — برد چیزی نمی‌کشد.")
+    if kind == "task":
+        lines.append("تاسک owner_required است؛ بدون رأی تازه pull نمی‌شود.")
+    lines.append("ویندوز به :8796 و /api/* برد دست نمی‌زند.")
+    return _reply(
+        "board-command", "\n".join(lines), keyboard=_BOARD_KB,
+        data={
+            "status": "BOARD_COMMAND_QUEUED",
+            "may_authorize": kind == "task",
+            "message_id": stored.get("message_id"),
+            "kind": kind,
+            "owner_required": stored.get("owner_required"),
+            "armed": stored.get("armed"),
+            "send_attempted": False,
+        },
+    )
+
+
+def _board_command_from_text(q: str) -> dict:
+    return _board_command_reply(
+        _infer_board_kind(q), q,
+        agent=_infer_board_target(q)[0],
+        instance=_infer_board_target(q)[1],
+    )
+
+
+def _board_command_from_callback(d: str) -> dict:
+    rest = d[len("oc:board:"):]
+    if rest.startswith("panel:"):
+        inst = rest.split(":", 1)[-1]
+        if inst not in ("ziman", "lead", "studio", "panel"):
+            inst = "panel"
+        return _board_command_reply("panel", "panel:" + inst, instance=inst)
+    if rest == "task":
+        return _board_command_reply("task", "task")
+    if rest == "status":
+        return _board_command_reply("status", "status")
+    return _board_command_reply("ask", "ask")
+
+
 def callback(data: str) -> dict:
     d = str(data or "")
     if d == "oc:home": return handle("خانه")
@@ -785,6 +926,8 @@ def callback(data: str) -> dict:
             keyboard=[[{"text": "🔦 پنهان؟", "callback_data": "oc:discover-hidden"},
                        {"text": "🏠 خانه", "callback_data": "oc:home"}]],
         )
+    if d.startswith("oc:board:"):
+        return _board_command_from_callback(d)
     if d.startswith("oc:c:"):
         cid = d[5:]
         row = next((r for r in catalog.discover() if r["capability_id"] == cid), None)
