@@ -40,8 +40,8 @@ updated: 2026-08-13
 
 - ✅👁 **2026-08-13 — رصدِ فقط‌خواندنیِ بیزنس‌های برد.**
   [[../07 - Knowledge/شناخت-اختاپوس/45-BOARD-LEGS-READONLY-READER-2026-08-13|نوت ۴۵]] —
-  intent `legs` در چتِ «پرسش از اختاپوس»؛ HTTPS عمومی فقط؛ فرمان/loopback/Bridge ویندوز ساخته نشد.
-  تستِ ثبت‌نشده: `_ops/tests/test_legs_status_reader.py`
+  intent `legs` · HTTPS عمومی فقط · برد از روی نود چهار ساب‌دامنه را **۲۰۰ بدون redirect** دید.
+  نیمهٔ فرمان قفل است تا حکم صریح مالک. تستِ ثبت‌نشده: `_ops/tests/test_legs_status_reader.py`
 
 - ✅🔗 **2026-08-13 — اتصالِ کارهای ایجنت‌های موازی: فیکس مغز چت + template→model + Hub Phase 2-lite.**
   [[../07 - Knowledge/شناخت-اختاپوس/43-PARALLEL-AGENT-INTEGRATION-CHAT-BRAIN-2026-08-13|نوت ۴۳]] —
@@ -72,6 +72,16 @@ updated: 2026-08-13
   · مسیرِ کامل: claim → validate → plan → eligible → run → receipt → bayes → GateDecision → go_no_go
   · suites: **۱۳۳ سبز** (schemas 45 + receipt_chain 20 + invariants 19 + bayes 14 + selector_metrics 24 + runner 11) · رگرسیون صفر
   · **Go-gated (خارج):** C5 cortex wiring + C6 UI + C7 shadow run + وصل‌کردن به conversation_hub — همگی پشتِ رأیِ مالک روی ADR-039
+
+- ✅🔬 **2026-08-13 (بعدازظهر) — رأیِ مالک روی ADR-039 (ACCEPTED) + C5 + Hub projection + benchmark آفلاین.**
+  [[../07 - Knowledge/شناخت-اختاپوس/44-HYPOTHESIS-LEDGER-REVIEW-RECONCILIATION-2026-08-13|نوت ۴۴]] —
+  مالک «موافقم» → ADR-039 **ACCEPTED**. کارهای safe که رأی باز کرد:
+  · `1c08eeb` **C5** `cortex.epistemic_tick` (shadow، `EPISTEMIC_TESTS=0` default OFF) — health-check، هرگز claim/test از telemetry
+  · `1c08eeb` **Hub epistemic route** → read-only projection (parallel advisory؛ receipt-chain/invariants/labels؛ `epistemic_status=not_applicable` صادق)
+  · `1c08eeb` **offline A/B/C benchmark** روی ۸ موردِ synthetic → **🛑 NO-GO** صادقانه:
+    C بر A برتر نشد (delta=0.0) ولی safety criteria همگی pass + UFBR C=1.0 (discovery-value کار می‌کند) → **C6/C7 به‌درستی gated**
+  · suites: **۱۵۰ سبز** · رگرسیون صفر
+  · **تفسیر:** machinery کامل کار می‌کند ولی Go واقعی نیازِ datasetِ ۲۰-۴۰ موردیِ واقعی + thresholdِ predeclare‌شدهٔ مالک دارد. C6 (UI) / C7 (live shadow) منتظرِ Go.
 
 - ✅💬 **2026-08-13 — لایهٔ صداقتِ چت + Conversation Hub (ADR-040) + یکدست‌سازیِ vault.**
   · **Chat-honesty (مگاپرامپت، ۶ commit):** TASK ۱ — تست‌های collab تصمیمِ intro-exclusion را assert می‌کنند (`bfcc353`)؛ TASK ۲ — authِ ۳ endpointِ gateway به `_owner_initdata_ok()` یکدست شد (`d81c7c1`، gateway 49/49)؛ TASK ۳ path ب — `runtime_truth` حالا halt/quota را صادقانه نشان می‌دهد (`c144297`)؛ TASK ۴ — بنرِ وضعیت (`status_banner.py` + GET `/api/chat-status` + `app.js::startStatusBanner`، `08c9f7f`+`66acec5`)؛ bonus — تستِ `honest-self` (ادعای خودآگاهی → مسیرِ صادق، invariantِ ضدِ AGI تقویت شد، `2b47b90`)

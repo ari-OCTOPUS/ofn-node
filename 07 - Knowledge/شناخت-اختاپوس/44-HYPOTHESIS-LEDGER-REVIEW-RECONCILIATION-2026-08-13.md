@@ -3,9 +3,9 @@ type: design-review
 date: 2026-08-13
 source: external review (pasted-text-20260813-112756)
 verdict: ~70% already implemented in ADR-039 + hypothesis_engine; genuine gap is bounded
-status: COMPLETE — full TCB epistemic engine built (Phase 2.5/2.6/C3/C4); chat/UI wiring gated on owner vote (C5-C7)
-suites: 133 tests green (45 schemas + 20 receipt-chain + 19 invariants + 14 bayes + 24 selector/metrics + 11 runner)
-commits: cf769e9 · a7649d0 · e65457d · 5ee5753
+status: ACCEPTED + COMPLETE — owner vote YES (2026-08-13 «موافقم»); C1-C5 built; offline benchmark run → 🛑 NO-GO (C6/C7 gated honestly)
+suites: 150 tests green
+commits: cf769e9 · a7649d0 · e65457d · 5ee5753 · 1c08eeb
 ---
 
 # 44 — بازبینیِ Hypothesis Ledger: آشتی با وضعیتِ موجود
@@ -150,9 +150,35 @@ EpistemicClaim (world_mode/execution_scope/falsifier/predictions/evidence_*)
 
 ### باقیمانده (Go-gated، خارج از این ساخت)
 
-- **C5** cortex wiring (`EPISTEMIC_TESTS=0`) — رأیِ مالک روی ADR-039 لازم
-- **C6** owner-packet UI surface — فقط اگر Go criteria پاس شود
-- **C7** ۱۰h shadow run + signed report
-- وصل‌کردنِ conversation_hub/epistemic route — صریحاً «بعد از رأی مالک روی ADR-039»
+- **C5** cortex wiring (`EPISTEMIC_TESTS=0`) — ✅ انجام شد (`1c08eeb`، shadow health-check)
+- **C6** owner-packet UI surface — 🛑 gated: benchmark NO-GO
+- **C7** ۱۰h shadow run + signed report — 🛑 gated
+- وصل‌کردنِ conversation_hub/epistemic route — ✅ انجام شد (`1c08eeb`، read-only projection)
 - subprocess + rlimits isolation برای sandbox_runner (C3-future)
 - dual-channel response composer (Observed facts vs Hypotheses) — وقتی epistemic به چت برسد
+
+## ✅ رأیِ مالک + اجرای benchmark (۱c08eeb)
+
+مالک «موافقم» گفت → ADR-039 **ACCEPTED**. کارهای safe که رأی باز کرد:
+- **C5** `cortex.epistemic_tick` (shadow، `EPISTEMIC_TESTS=0` default OFF) — health-check،
+  هرگز claim/test از telemetry نمیسازد.
+- **Hub epistemic route** → read-only projection (parallel advisory؛ نه inline).
+- **offline A/B/C benchmark** روی ۸ موردِ synthetic.
+
+### 🛑 نتیجهٔ benchmark: NO-GO (صادقانه)
+
+| معیار | نتیجه |
+|---|---|
+| C success > A by threshold | ❌ delta=0.0 (هر دو ۴ useful) |
+| C unsupported ≤ A | ✅ هر دو 0.0 |
+| C leakage = 0 | ✅ 0.0 |
+| C cost ≤ budget | ✅ 0.4 ≤ 1.0 |
+| C no external effects | ✅ 0 events |
+| UFBR C (discovery از false) | **1.0** — مسیرِ discovery-value کار میکند |
+| Brier A / C | 0.21 / 0.27 |
+
+**تفسیر صادقانه:** machinery کامل کار میکند (safety criteria همگی pass، UFBR نشان
+میدهد discovery-value مسیر دارد) ولی بازوی C روی دادهٔ synthetic برتر از A نیست →
+**C6/C7 (UI/live) بهدرستی gated میمانند.** این دقیقاً خروجیِ علمیِ مطلوبِ بازبینی
+است: نباید موفقیت جعل شود. برای Go واقعی، datasetِ ۲۰-۴۰ موردیِ واقعی با thresholdِ
+predeclare‌شدهٔ مالک لازم است.
