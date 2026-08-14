@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-08-09
+updated: 2026-08-13
 ---
 
 # پروژه: architect
@@ -27,6 +27,23 @@ updated: 2026-08-09
 **قاعده حریم Project-F:** پروژه اونلی فنز در هر خروجی cross-domain (تلگرام، داشبورد، گزارش) فقط با کد «Project-F» ارجاع می‌شود — نه نام پلتفرم، نه هویت پارتنر، نه جزئیات محتوا. جزئیات فقط داخل پوشه خود پروژه.
 
 ## Active Context
+
+- تغییرات اخیر: **2026-08-13 (agent — اتصالِ ارشد↔بردِ Orange Pi: رصد+فرمان،
+  تأییدشده و کامیت‌شده).** مالک صریح: «ما ارشد و رییسِ بردیم، ولی برد خودش
+  مستقل کار می‌کند» — معماریِ pull (نه push) این را تضمین می‌کند: مالک در
+  ارگانیسم enqueue می‌کند (`_ops/board_cp/`، SQLite queue)، برد با Bearer
+  می‌کشد و ack می‌کند؛ ارشد هرگز به `:8796`/`/api/*` برد وصل نمی‌شود. رصدِ
+  فقط‌خواندنیِ لگ‌ها (`_LEGS` در `conversation.py` → `legs_status.py`) هم زنده
+  شد — «بیزنس‌ها چطورن؟» فقط `/healthz` را می‌خواند، بدنه هرگز باز نمی‌شود.
+  **یافتهٔ کلیدی:** اکثرِ این معماری را یک ایجنتِ موازی همان چند ساعت ساخته
+  بود (بدونِ کامیت) — کارِ من: بستنِ یک SSRFِ blindِ واقعی (redirect در
+  خوانندهٔ لگ‌ها، فیکس `fc735f9`)، گشادکردنِ یک regexِ ناقص، تأییدِ mountِ
+  `board_cp.http` در gateway با تستِ مستقیم (نه فرض — کشف شد از قبل انجام
+  شده بود)، و نجاتِ کارِ کامیت‌نشدهٔ ایجنتِ موازی (کامیتِ `3640eac`، ۹ فایل).
+  فازِ فرمان پیش‌فرض **خاموش** می‌ماند تا مالک صریح سه env-var را ست کند
+  (G7). باقی‌ماندهٔ سمتِ برد (`/healthz` عمومی + کلاینتِ pull) در مگاپرامپت
+  به ایجنتِ برد تحویل شد. جزئیاتِ کامل:
+  [[../../00 - Inbox/2026-08-13 MEGAPROMPT — اتصال ارشد↔برد (Octopus Bridge، رصد-اول)|مگاپرامپتِ ۰۸-۱۳]].
 
 - تغییرات اخیر: **2026-08-09 شب (agent — ریشهٔ نهاییِ اتمامِ سهمیه + آرمِ ۶۳ فلگِ
   تاریک + ری‌استارتِ کامل + دکمهٔ کنترل‌پنل).** رأیِ مالک روی مرورِ دستهٔ
@@ -123,59 +140,10 @@ updated: 2026-08-09
   (+۸/۱۴۳دقیقه؛ bcm_step/recall_trend به چرخهٔ ۱۲ساعتهٔ consolidation گره خورده‌اند
   نه تیک — صافیِ کوتاه‌مدت طبیعی است).
 
-- تغییرات اخیر: **2026-08-07 عصر (agent، Reader Map + وصلهٔ مصرف‌کنندگان — وصلِ دو
-  DEAD-OUTPUT).** مأموریت «هر لایه باید لایهٔ زیرِ خودش را بخواند». Reader Mapِ ۷ producer:
-  ۳ DEAD-OUTPUT، ۱ نیمه‌زندهٔ تکراری (consolidation **۹۵.۲٪ تکرار**). دو وصلهٔ افزودنی:
-  `f234d52` (consolidation dedup فازی، جاکاردی، پشتِ `OCTOPUS_CONSOLIDATION_DEDUP_FUZZY`)؛
-  `0ead7d0` (smallest_fixِ دکتر → proposalِ propose-only — مهم‌ترین DEAD-OUTPUT). deep_synth
-  از قبل خود-خوان بود (راستی‌آزمایی، نیازی نبود). تکمیلِ نوتِ ۲۷. جزئیاتِ کامل:
-  [[../../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|31-READER-MAP]].
-
-- تغییرات اخیر: **2026-08-08 شبِ دیر (agent، Seed Agent v1 + Owner-Cockpit stack + StateGuard).**
-  سه فاز: StateGuard (۶ فایل corrupt repair + fsync harden)، Seed Agent v1
-  (context_assembler + octopus_reader + EvolutionGate + red-team harness)،
-  Owner-Cockpit (fugu_proxy + otel + SQLite audit + owner_api HMAC + miniapp).
-  ۶۴ تست سبز. Seed Pack v1/v1.1/v1.2 ingested. قیمت‌های Fugu verify‌شده.
-  کامیت‌ها: `c566c9a`→`b314a9f`. جزئیات: نوتِ ۳۴ شناخت-اختاپوس.
-
-- تغییرات اخیر: **2026-08-08 شب (agent، مینی‌اپِ تلگرام — دیپ‌اسکن + لایهٔ ۱ SDK بومی).**
-  وب‌اپِ اختاپوس: ۴ باگِ بحرانی فیکس شد (NameError ×۳ در handlers جدید + NaN در self_accuracy).
-  لایهٔ ۱ SDK بومیِ تلگرام: BottomButton، selectionChanged haptic، enableClosingConfirmation —
-  همه با feature-detection. DNS misroute فیکس شد (app.master-painting.com به octopus-miniapp).
-  کامیت: `e798722`. ۱۹ تست سبز. مگاپرامپتِ هماهنگ برای ایجنتِ موازی (تبِ کنترل‌پنل):
-  `_ops/MEGAPROMPT-PARALLEL-AGENT-CONTROL-PANEL-2026-08-08.md`.
-
-- تغییرات اخیر: **2026-08-08 عصر (agent، snapshot() — جمع‌کنندهٔ واحدِ حالت، پایهٔ وب‌اپ).**
-  مگاپرامپتِ سوم. `_ops/control_plane/live_snapshot.py` — `snapshot()` با ۸ بخش، read-only،
-  $0، fail-soft، cache TTL 5s. یافتهٔ تشخیصی + فیکس: `os.kill(pid,0)` روی ویندوز WinError 87
-  می‌داد (همهٔ ۵ پروسه alive=False به‌اشتباه) → ctypes OpenProcess. کشفِ معماری: پکیجِ
-  control_plane/ از ۰۸-۰۳ وجود داشت؛ فایلِ من به‌عنوانِ live_snapshot.py مکملِ collector
-  نشست. test_control_plane_live_snapshot 10/10. جزئیات: نوتِ ۳۰.
-
-- تغییرات اخیر: **2026-08-08 عصر (agent، Effector Registry — نقشهٔ بیماریِ actuator-poor).**
-  `_ops/effector_registry.py` اعلانی ساخته شد: ۱۰ حس → اکچوئیتور. وضعیتِ زنده: ۳ وصل
-  (bcm.learned_pressure، c6، vault_bridge)، ۳ display-only (smallest_fix، self_model،
-  latent)، ۳ dead-output (bcm.weights، hebbian، consolidation)، ۱ shadow. مهم‌ترین
-  DEAD-OUTPUT باقی‌مانده: smallest_fix (دقیق‌ترین خروجیِ تصمیم، فقط نمایش). applied
-  field قبلاً فیکس شده بود (ایجنتِ موازی، ۵ ردیفِ applied=true). ۸/۸ تست سبز. جزئیات:
-  [[../../07 - Knowledge/شناخت-اختاپوس/37-EFFECTOR-REGISTRY-ACTUATOR-POOR-2026-08-08|37-EFFECTOR-REGISTRY]].
-
-- تغییرات اخیر: **2026-08-07 شب (agent، Opus 4.8 — مگاپرامپتِ v2: اسکنِ بازطراحیِ حافظه‌محور، ۸-ایجنتیِ Workflow، ۷ فاز + سنتز).**
-  کامیت `a7daa7b`. تزِ مالک («اهرمِ واقعی حافظه، Fugu خودش ارکستراتور») **جزئاً
-  تأیید شد**: هستهٔ پولی (model_router→organ_gate→money_gate) درِ واحدِ منضبط
-  است؛ حافظه سالم‌تر از انتظار (BCM/Hebbian-decay/consolidation-fold زنده،
-  retrieval_router ۲۹ خاطره را narrow می‌کند). ولی الگویِ «ساختن دو بار» بارها
-  دیده شد: debate_loop.py (Thinker/Verifier محلی روی Fugu)، governor.py
-  (tier-router armed، صفر caller — کشفِ مستقلِ دو فاز)، دو drawdown_guard هم‌نام.
-  ۵ فیکسِ REAL-BUG/DEAD-MEMORYِ کم‌ریسک اعمال شد (پایینِ همین commit؛ هر کدام
-  تست+mutation-test+CRLF+رگرسیون) — از‌جمله `pulse_arbiter.py` همان باگِ
-  written-flagِ heartstate.py که سرایت نکرده بود. **دو موردِ مهم عمداً فیکس
-  نشد چون بررسیِ عمیق‌تر نشان داد تصمیمِ عمدیِ ثبت‌شده‌اند**، نه فراموشی:
-  FUGU_DAILY_CALL_CAP=60 (کامنتِ flags.cmd: «ترمزِ عملیاتی نه پولی») و
-  ask_brain continuity (ناقضِ مرزِ صریحِ PII خودِ فایل). ۷ فایلِ فازِ اسکن +
-  REDESIGN-PROPOSAL.md روی دسکتاپ (`Desktop\OCTOPUS-REDESIGN-SCAN-2026-08-07\`).
-  جزئیاتِ کامل: [[../../07 - Knowledge/شناخت-اختاپوس/27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07|27-REDESIGN-SCAN-MEMORY-ARCHITECTURE]].
-
+- **سرریزِ سومِ ۲۰۲۶-۰۸-۱۳:** شش ورودیِ ۲۰۲۶-۰۸-۰۷ عصر تا ۲۰۲۶-۰۸-۰۸ (Reader Map،
+  Seed Agent v1، دیپ‌اسکنِ مینی‌اپ، snapshot()، Effector Registry، مگاپرامپتِ v2)
+  منتقل شدند به
+  `_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-07.md` — انتقال، نه حذف (§۰.۱).
 - **سرریزِ دومِ ۲۰۲۶-۰۸-۰۷:** دو ورودیِ ۲۰۲۶-۰۸-۰۶ (mirror_room/4D-Vault/رأیِ‌رأی + جاروی خودگزارش‌شده) منتقل شدند به
   `_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-07.md` — انتقال، نه حذف (§۰.۱).
 - **سرریزِ ۲۰۲۶-۰۸-۰۷:** ورودی‌های ۲۰۲۶-۰۷-۳۱ تا ۲۰۲۶-۰۸-۰۵ (فایل دوباره به سقف رسیده بود) منتقل شدند به
