@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-16T02:30:20",
+  "ts": "2026-08-16T04:13:46",
   "schema": "self-model.v1",
-  "n_modules": 682,
-  "total_lines": 186891,
-  "n_tests": 698,
+  "n_modules": 683,
+  "total_lines": 187040,
+  "n_tests": 700,
   "n_wire_flags": 180,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
@@ -624,6 +624,18 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "audit/poisoning_watch_4d.py": {
+      "purpose": "پایش مسمومیت حافظهٔ 4d — شرط شورا برای R15-shadow (2026-08-16).",
+      "lines": 98,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_run",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "autonomy_grant.py": {
       "purpose": "autonomy_grant — چه کاری را اختاپوس **بدونِ پرسیدن** می‌تواند بکند.",
       "lines": 148,
@@ -1007,7 +1019,7 @@
     },
     "budget/circuit_breaker.py": {
       "purpose": "circuit_breaker.py — Circuit breaker per-target برای تماس‌های بیرونی (M1-M2).",
-      "lines": 258,
+      "lines": 271,
       "n_funcs": 11,
       "n_classes": 1,
       "top_defs": [
@@ -2303,8 +2315,8 @@
     },
     "cortex/consolidate.py": {
       "purpose": "consolidate.py — تثبیتِ حافظه: اپیزودیک → سِمانتیک (sleep-time compute).",
-      "lines": 336,
-      "n_funcs": 14,
+      "lines": 374,
+      "n_funcs": 16,
       "n_classes": 0,
       "top_defs": [
         "enabled",

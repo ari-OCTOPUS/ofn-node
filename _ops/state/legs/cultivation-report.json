@@ -1,6 +1,6 @@
 {
   "schema": "cultivation-report.v1",
-  "ts": "2026-08-16T03:25:55",
+  "ts": "2026-08-16T04:31:04",
   "legs": {
     "mining": {
       "leg": "mining",
@@ -64,7 +64,7 @@
       "notes": [],
       "catalog": "03 - Projects/Ziman Galerry/03-Offering/ziman-catalog.json",
       "catalog_exists": true,
-      "catalog_age_days_raw": 34.9,
+      "catalog_age_days_raw": 35.0,
       "catalog_age_days": 0.0,
       "catalog_products": 36,
       "catalog_families": 5,

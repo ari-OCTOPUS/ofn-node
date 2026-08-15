@@ -65,7 +65,7 @@
   "last_pulse": 1786816929.029638,
   "home_message_id": 149,
   "leg_card_hash": {
-    "lead": "86d3134b520e3509",
+    "lead": "2550093a9391d59a",
     "ziman": "f7c61efcd11dab5d",
     "mining": "8c62c55798988893",
     "crypto": "1ca209993f59a2eb",
@@ -88,8 +88,8 @@
     "cartographer": 372,
     "mirror": 374
   },
-  "leg_card_cursor": 8,
-  "last_leg_card": 1786816929.029638,
+  "leg_card_cursor": 4,
+  "last_leg_card": 1786818866.6592424,
   "guide_message_id": 358,
   "guide_hash": "54c2aa87a0fd6935",
   "watchdog_receipt_cursor": "2026-08-15T14:52:17 centre down (silent 514s) - launching RUN-TG-CENTER.bat",
@@ -97,12 +97,12 @@
   "dm_guide_hash": "fa57cb2f6d14e0a7",
   "commands_set_v2": "15d32b5dd1d7ed4f",
   "commands_group_cleared_v2": "15d32b5dd1d7ed4f",
-  "boot_receipt_pid": 21744,
+  "boot_receipt_pid": 11500,
   "last_morning_day": "2026-08-15",
   "commands_default_cleared_v2": "15d32b5dd1d7ed4f",
   "last_evening_day": "2026-08-15",
   "last_weekly_review": "2026-W33",
   "dg_cursor": 1786709560.0,
   "boot_count_date": "2026-08-16",
-  "boot_count": 3
+  "boot_count": 4
 }

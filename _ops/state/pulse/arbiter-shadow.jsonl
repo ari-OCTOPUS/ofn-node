@@ -2756,3 +2756,16 @@
 {"ts": "2026-08-16T03:56:58", "beat": 37350, "effective_period_s": 124.29, "driver": "consensus", "color": "GREEN", "wire_open": true}
 {"ts": "2026-08-16T04:01:52", "beat": 37355, "effective_period_s": 124.38, "driver": "consensus", "color": "GREEN", "wire_open": true}
 {"ts": "2026-08-16T04:04:00", "beat": 37357, "effective_period_s": 124.26, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:06:07", "beat": 37359, "effective_period_s": 124.21, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:08:13", "beat": 37361, "effective_period_s": 123.94, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:10:23", "beat": 37363, "effective_period_s": 123.78, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:12:28", "beat": 37365, "effective_period_s": 123.7, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:14:52", "beat": 37368, "effective_period_s": 123.77, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:17:02", "beat": 37370, "effective_period_s": 123.95, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:19:12", "beat": 37372, "effective_period_s": 123.95, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:21:17", "beat": 37374, "effective_period_s": 123.98, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:23:22", "beat": 37376, "effective_period_s": 124.01, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:25:50", "beat": 37378, "effective_period_s": 123.92, "driver": "consensus", "color": "AMBER", "wire_open": true}
+{"ts": "2026-08-16T04:30:39", "beat": 37382, "effective_period_s": 123.9, "driver": "consensus", "color": "AMBER", "wire_open": true}
+{"ts": "2026-08-16T04:33:23", "beat": 37385, "effective_period_s": 123.88, "driver": "consensus", "color": "AMBER", "wire_open": true}
+{"ts": "2026-08-16T04:35:42", "beat": 37387, "effective_period_s": 123.99, "driver": "consensus", "color": "AMBER", "wire_open": true}

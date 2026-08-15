@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-16T02:30:21",
+  "ts": "2026-08-16T04:13:48",
   "schema": "part-loops.v1",
-  "beat": 10,
+  "beat": 20,
   "parts": [
     {
       "id": "heart",
@@ -25,13 +25,13 @@
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.485586$/۳۰"
+      "detail": "0.492858$/۳۰"
     },
     {
       "id": "learning",
       "name": "📚 یادگیری",
       "status": "🟢",
-      "detail": "4 کشفِ ۴۸h"
+      "detail": "5 کشفِ ۴۸h"
     },
     {
       "id": "legs",

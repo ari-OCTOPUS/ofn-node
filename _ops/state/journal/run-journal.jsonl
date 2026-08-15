@@ -199,3 +199,4 @@
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786804059.0460293, "meta": {"incomplete": 8}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786804430.9448884, "meta": {"incomplete": 9}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786805668.753471, "meta": {"incomplete": 10}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786818337.1013975, "meta": {"incomplete": 11}}

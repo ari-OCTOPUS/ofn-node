@@ -2201,6 +2201,21 @@
    "created_ts": 1786806528.0404603,
    "read": false,
    "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T042819_b6f96b2b",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-7d7a1825da5e"
+   },
+   "created_at": "2026-08-16T04:28:19+1000",
+   "created_ts": 1786818499.3321571,
+   "read": false,
+   "read_at": null
   }
  ],
  "last_ping_ts": 0.0,

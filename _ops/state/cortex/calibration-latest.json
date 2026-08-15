@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-16T04:02:55",
+  "ts": "2026-08-16T04:34:16",
   "schema": "calibration.v1",
   "n": 292,
   "brier": 0.173829,
   "aurc": 0.317488,
   "abstain_below": 1.0,
-  "ungraded": 184,
+  "ungraded": 188,
   "target_acc": 0.75,
   "window_h": 720,
-  "n_claims": 466,
+  "n_claims": 470,
   "n_truth_keys": 19,
   "ungraded_keys": [
     "self_model.coherence"

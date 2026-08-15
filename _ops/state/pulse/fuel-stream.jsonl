@@ -1644,3 +1644,11 @@
 {"ts": "2026-08-16T04:00:32", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 701, "ms": 77711, "ok": true}
 {"ts": "2026-08-16T04:01:17", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 44681, "ok": true}
 {"ts": "2026-08-16T04:03:01", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 5904, "ok": true}
+{"ts": "2026-08-16T04:13:19", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 16231, "ok": true}
+{"ts": "2026-08-16T04:13:55", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 5600, "ok": true}
+{"ts": "2026-08-16T04:26:19", "tier": "primary", "model": "deepseek-v4-flash", "cost_musd": 1086, "ms": 27313, "ok": true}
+{"ts": "2026-08-16T04:27:36", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 7424, "ok": true}
+{"ts": "2026-08-16T04:32:16", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 697, "ms": 88724, "ok": true}
+{"ts": "2026-08-16T04:32:55", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 38297, "ok": true}
+{"ts": "2026-08-16T04:33:09", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 88, "ms": 41879, "ok": true}
+{"ts": "2026-08-16T04:34:23", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 5714, "ok": true}

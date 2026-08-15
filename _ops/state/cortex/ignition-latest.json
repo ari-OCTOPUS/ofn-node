@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T04:02:54",
+  "ts": "2026-08-16T04:34:15",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
@@ -11,10 +11,10 @@
     "summary": "🔴 نقطهٔ مرده: 💼 مغزِ دومِ کسب‌وکار، 🔁 لوپِ بخش‌ها، 🪞 خودمدلی beat نمی‌خورد"
   },
   "broadcast_width": 1,
-  "margin": 0.493,
+  "margin": 0.519,
   "n_candidates": 9,
   "ignition_rate": 1.0,
-  "stability": 68,
+  "stability": 71,
   "recent_ignitions": [
     1,
     1,

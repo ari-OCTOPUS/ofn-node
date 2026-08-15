@@ -464,3 +464,7 @@
 {"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T02:30:25", "source": "goal_directed", "schema": "self-claim.v1"}
 {"key": "up-72bd5dea52", "confidence": 1.0, "ts": "2026-08-16T02:30:25", "source": "goal_directed", "schema": "self-claim.v1"}
 {"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T02:30:25", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.943, "ts": "2026-08-16T04:13:46", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T04:13:49", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-72bd5dea52", "confidence": 1.0, "ts": "2026-08-16T04:13:49", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T04:13:49", "source": "goal_directed", "schema": "self-claim.v1"}
