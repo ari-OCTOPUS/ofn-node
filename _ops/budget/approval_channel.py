@@ -383,6 +383,13 @@ def _url_json_get(url: str, timeout_s: float) -> dict:
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
     """posterِ پیش‌فرضِ HTTP (stdlib-only، JSON body). body هرگز شاملِ token نیست (token در
     URL است). هرگز URL را لاگ نمی‌کند. برای send/answerCallback/editMessage."""
+    # DA-4-P1 (PHASE02 2026-08-16): ناظرِ سایهٔ PEP — فقط ثبت، صفر تغییر رفتار.
+    try:
+        import telegram_pep_shadow as _pep  # noqa: WPS433 — same-dir lazy
+        _pep.hook(sender="approval_channel._url_json_post",
+                  action=url.rsplit("/", 1)[-1], params=body)
+    except Exception:  # noqa: BLE001
+        pass
     data = json.dumps(body, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(url, data=data,
                                  headers={"User-Agent": "octopus-telegram/0.1",

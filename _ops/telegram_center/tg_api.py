@@ -402,6 +402,12 @@ class TgClient:
         ۴۲۹ Too Many Requests: تلگرام ``parameters.retry_after`` می‌گوید. ما تا سقفِ
         امن صبر می‌کنیم و **یک‌بار** دوباره تلاش می‌کنیم (آیتم ۵ِ TG-P2). هیچ‌گاه
         retry-storm درست نمی‌شود؛ شکستِ دوم = fail-soft مثلِ بقیه."""
+        # DA-4-P1 (PHASE02 2026-08-16): ناظرِ سایهٔ PEP — فقط ثبت، صفر تغییر رفتار.
+        try:
+            import budget.telegram_pep_shadow as _pep  # noqa: WPS433
+            _pep.hook(sender="tg_api._call_post", action=method, params=body)
+        except Exception:  # noqa: BLE001
+            pass
         for _attempt in range(_429_MAX_RETRIES + 1):   # ۱ تلاشِ اولیه + ۱ retry
             try:
                 data = self._post(self._build_url(method), body)
