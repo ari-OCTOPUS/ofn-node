@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-016** (C-015 در 2026-08-15 ~22:2x ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده؛ C-014: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-017** (C-016 در 2026-08-16 ~00:4x ثبت شد: دریچهٔ فرار معمار؛ C-015 در 2026-08-15 ~22:2x ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده؛ C-014: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -206,9 +206,10 @@ contradiction:
   source_b: "python -c guardrails.assert_code_target_allowed → (False, 'TCB') برای هر سه — 2026-08-15 شب"
   live_check: "run_all سوئیت 4d: ۲۶۵ تست، ۴ شکستِ pre-existing همه در همین فایل (اثبات stash: بدون تغییرات ایجنت هم همان ۴ شکست)"
   likely: "value_b علتِ محیطی دارد: REFERENCE_DIR به SYSTEM_ROOT خودِ پروژه resolve می‌شود (پوشهٔ 4D/ غایب) → _protected_roots کلِ ریشه را می‌پوشاند → همه‌چیز TCB"
-  resolution: "resolved (2026-08-16، تفویض مالک: «اجازه تصمیم‌گیری داری»): فیکسِ پیشنهادی + ارتقای شورای دوم اعمال شد — (۱) _resolve_reference_dir: REFERENCE_DIR==SYSTEM_ROOT یا جدِّ آن ⇒ fallback به SYSTEM_ROOT/'4D' با diagnostic (کامیت 6fc0f4b) (۲) manifest مرزِ اعتمادِ امضاشدنی: 4d_system/config/trust-boundary.json با sha256 چهارده فایل TCB + digest پاکت NO-GO (R0a) + وریفای Ed25519 با کلید عمومی مالک (۳) check_invariants/_job_guard: هالت روی دستکاریِ TCB زیرِ فلگ OCTOPUS_TCB_MANIFEST_ENFORCE (پیش‌فرض سایه‌ای؛ مالک پس از امضا روشن می‌کند) — همان عمقِ غایبی که نمایشِ زندهٔ V1 (ویرایش automation.py بدون halt) نشان داد"
-  evidence: "سطح A: py -m pytest 4d_system/tests/test_self_code_gate.py → 16/16 (قبلاً ۴ شکست) · test_trust_boundary_c013.py 12/12 · کل سوئیت 4d سبز · کامیت‌های 6fc0f4b + 576c7fb..HEAD"
-  status: resolved (delegated-owner; امضای manifest + enforce = قدمِ بعدِ مالک)
+  resolution: "فیکس روی دیسک کامل است (2026-08-16): (۱) _resolve_reference_dir: REFERENCE_DIR==SYSTEM_ROOT یا جدِّ آن ⇒ fallback به SYSTEM_ROOT/'4D' با diagnostic (کامیت 6fc0f4b) (۲) manifest مرزِ اعتماد: 4d_system/config/trust-boundary.json با sha256 چهارده فایل TCB + digest پاکت NO-GO (R0a) + وریفای Ed25519 با کلید عمومی مالک (۳) مسیرِ هالت روی دستکاری TCB کد شده اما **غیرفعال** — تا امضای مالک + روشن‌کردن OCTOPUS_TCB_MANIFEST_ENFORCE (فلگ در flags.cmd نیست، عمداً)، دستکاری TCB هنوز halt نمی‌دهد (سایه‌ای). همان عمقِ غایبی که نمایشِ زندهٔ V1 (ویرایش automation.py بدون halt) نشان داد"
+  evidence: "سطح A: py -m pytest 4d_system/tests/test_self_code_gate.py → 16/16 (قبلاً ۴ شکست) · test_trust_boundary_c013.py 12/12 · کل سوئیت 4d سبز · AEB-20260816-000508: digests_ok=True signature=unsigned"
+  governance_note: "2026-08-16 ~00:3x (پس از نقد حاکمیتی Deep-Research/Opus 5): بستنِ این ردیف با «تفویضِ» ایجنت خلاف قاعدهٔ سربرگ همین دفتر بود («هیچ تناقضی بدون رأی مالک حل نشده») — اصلاح شد: کد و شواهد ثبت‌اند، حکمِ نهایی فقط با رأی صریح مالک (امضا → enforce → تأیید همین سطر). دامنهٔ manifest فعلی = TCB مغزِ 4d؛ شناسنامهٔ پنج‌پروسهٔ زندهٔ _ops (organism manifest، DA-5) قدمِ بعد است — manifest از چیزی محافظت می‌کند که observe-only است، نه از آنچه اجرا می‌کند"
+  status: fixed-on-disk — awaiting owner ratification (امضا → enforce → رأی)
   registered_by: "test-sweep agent (grep دو-مخزن قبل از ثبت انجام شد — C-013 فقط در فهرستِ «آزاد بعدی» بود)"
 ```
 
@@ -241,4 +242,19 @@ contradiction:
   resolution: null — سند کهنه است نه کد؛ بنر کهنگی روی COUNCIL-MESH اضافه شد؛ بازنویسی محتوا بدون رأی مالک نه (improve-don't-rewrite روی تصمیم‌های معماری)
   status: open — documentation-stale (کد حل شده؛ سند گمراه می‌کند)
   registered_by: "council-import scan 2026-08-15 دیرشب (grep: C-015 فقط به‌عنوان آزاد بعدی بود)"
+```
+
+```yaml
+contradiction:
+  id: C-016
+  claim: "تفکیک مسیر حل تعارض: عملیاتی→NBB-CP، معماری→Architect — بدون گاردِ بازچارچوب‌بندی"
+  value_a: "NBB-V1 (قفل 2026-08-15): تعارض‌های عملیاتی به NBB-CP و معماری به Architect — قاعدهٔ رسمی حاکمیت"
+  source_a: "02-DECISIONS/OPEN-VERDICTS.md (NBB-V1=A) + PHASE-1-DECISIONS.md (working repo)"
+  value_b: "هر بازیگری که بخواهد از رأی/وتوی NBB-CP رد شود می‌تواند همان تعارض را «معماری» بازچارچوب‌بندی کند — مرزی بین دو دسته تعریف نشده و داورِ بازچارچوب‌بندی هم مشخص نیست"
+  source_b: "شورای اول (Claude Sonnet 5.0: دریچهٔ فرار معمار به‌عنوان مسیر دورزدن مشخص) + کشف مجدد Deep-Research 2026-08-16 (GPT-5.6 Sol Thinking + Claude Opus 5) در مقایسهٔ مکرر با بریفینگ شب — در بریفینگ فهرست نشده بود؛ ثبت به‌عنوان شکاف"
+  live_check: "2026-08-16: هیچ پروتکل/تست/PEPی وجود ندارد که ادعای «این تعارض معماری است» را بیازماید یا به داوری مقتضی بفرستد — گارد صفر (grep: تعریف مرز دو دسته در هیچ سند حاکمیتی نیست)"
+  likely: value_b — دریچهٔ بالقوه، هنوز بدون سوءاستفادهٔ مشاهده‌شده
+  resolution: null — نیاز به طراحی: (۱) تعریف عملیاتیِ دو دسته با معیار ماشینی (اثر روی پول/داده/پا = عملیاتی؛ تغییر مدل/لایه/قرارداد = معماری) (۲) مسیر شکایتِ بازچارچوب‌بندی با داورِ سوم (مالک) (۳) ثبت هر ارجاع معماری-ادعاشده در دفتر با receipt — جزء DA-4 (PEP/lease) می‌شود: برگه‌ی route در قرارداد ۱۵-فیلدی عمل
+  status: open — owner_action (طراحی در DA-4 ضمیمه شد)
+  registered_by: "debt-sweep agent 2026-08-16 ~00:4x (grep دو-مخزن: C-016 فقط به‌عنوان آزاد بود — منبع: Deep-Research council paste 00:26)"
 ```
