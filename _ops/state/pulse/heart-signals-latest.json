@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-16T03:52:32",
+  "ts": "2026-08-16T04:01:54",
   "velocity": {
-    "velocity_per_hr": 20.4583,
+    "velocity_per_hr": 20.5833,
     "components": {
       "confirmed": 0,
       "effects": 0,
@@ -22,13 +22,13 @@
     "authoritative": false,
     "self_referential": true,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-08-16T03:52:32",
-    "fuel_velocity_per_hr": 20.3333,
+    "ts": "2026-08-16T04:01:54",
+    "fuel_velocity_per_hr": 20.4583,
     "value_velocity_per_hr": null,
-    "real_velocity_per_hr": 20.3333,
+    "real_velocity_per_hr": 20.4583,
     "real_components": {
-      "fuel_calls": 488,
-      "fuel_musd": 145763
+      "fuel_calls": 491,
+      "fuel_musd": 147550
     },
     "leg_money_count": 0,
     "metronome_share": 0.9584,
@@ -39,7 +39,7 @@
     },
     "channels": {
       "leg_money": 0,
-      "fuel": 488,
+      "fuel": 491,
       "value_cognition": null,
       "effects": 0,
       "beats": 1384
@@ -54,24 +54,24 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-08-16T03:52:32"
+    "ts": "2026-08-16T04:01:54"
   },
   "delta_self": {
-    "stream_rows": 1742,
+    "stream_rows": 1743,
     "sample_size": 336,
     "window": 336,
     "min_samples": 48,
-    "ts": "2026-08-16T03:52:32",
-    "delta_self_live": -0.001226,
-    "delta_self_raw": -0.001226,
-    "S_blind": 0.04997822616733839,
-    "S_informed": 0.050100887746995684,
-    "resolution_mse": 0.023223724416031894,
+    "ts": "2026-08-16T04:01:54",
+    "delta_self_live": -0.005267,
+    "delta_self_raw": -0.005267,
+    "S_blind": 0.043687974344821384,
+    "S_informed": 0.04415061203935833,
+    "resolution_mse": 0.023359989180062508,
     "cov_dropped_zero_variance": [
       "confirmed",
       "effects"
     ],
-    "ceiling_live": 2.57221,
+    "ceiling_live": 2.644525,
     "holdout_n": 168,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",

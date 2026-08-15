@@ -1,9 +1,9 @@
 {
- "ts": "2026-08-16T03:54:52",
+ "ts": "2026-08-16T04:04:02",
  "schema": "heartstate.v1",
  "epistemic": "access-only telemetry — read-only، regulator نه commander",
  "shadow": {
-  "velocity": 20.4583,
+  "velocity": 20.5833,
   "sigma": 0.0,
   "period_s": 489.97,
   "mode": "shadow",

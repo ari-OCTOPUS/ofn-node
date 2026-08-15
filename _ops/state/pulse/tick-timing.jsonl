@@ -7834,3 +7834,12 @@
 {"name": "doctor_beat", "beat": 37348, "ms": 0, "ok": true, "err": ""}
 {"name": "leg_beat", "beat": 37348, "ms": 477, "ok": true, "err": ""}
 {"name": "ziman_beat", "beat": 37348, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 37350, "ms": 0, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 37350, "ms": 1773, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 37350, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 37355, "ms": 0, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 37355, "ms": 656, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 37355, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 37357, "ms": 0, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 37357, "ms": 421, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 37357, "ms": 0, "ok": true, "err": ""}

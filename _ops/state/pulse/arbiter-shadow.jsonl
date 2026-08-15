@@ -2754,3 +2754,5 @@
 {"ts": "2026-08-16T03:52:30", "beat": 37346, "effective_period_s": 124.4, "driver": "consensus", "color": "GREEN", "wire_open": true}
 {"ts": "2026-08-16T03:54:48", "beat": 37348, "effective_period_s": 124.31, "driver": "consensus", "color": "GREEN", "wire_open": true}
 {"ts": "2026-08-16T03:56:58", "beat": 37350, "effective_period_s": 124.29, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:01:52", "beat": 37355, "effective_period_s": 124.38, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:04:00", "beat": 37357, "effective_period_s": 124.26, "driver": "consensus", "color": "GREEN", "wire_open": true}

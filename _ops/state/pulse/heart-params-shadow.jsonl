@@ -4623,3 +4623,5 @@
 {"ts": "2026-08-16T03:41:17", "beat": 37335, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
 {"ts": "2026-08-16T03:46:12", "beat": 37340, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
 {"ts": "2026-08-16T03:52:33", "beat": 37346, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T03:59:43", "beat": 37350, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T04:01:54", "beat": 37355, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}

@@ -1641,3 +1641,6 @@
 {"ts": "2026-08-16T03:42:29", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 16860, "ok": true}
 {"ts": "2026-08-16T03:52:52", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 13871, "ok": true}
 {"ts": "2026-08-16T03:57:32", "tier": "primary", "model": "deepseek-v4-flash", "cost_musd": 1086, "ms": 32438, "ok": true}
+{"ts": "2026-08-16T04:00:32", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 701, "ms": 77711, "ok": true}
+{"ts": "2026-08-16T04:01:17", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 44681, "ok": true}
+{"ts": "2026-08-16T04:03:01", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 5904, "ok": true}

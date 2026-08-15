@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-16T03:52:52",
-  "cycle": 18,
-  "coherence": 0.978,
+  "ts": "2026-08-16T04:03:01",
+  "cycle": 19,
+  "coherence": 0.973,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 3,
+      "awareness": 0.984,
+      "age_s": 56,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 4,
+      "awareness": 0.992,
+      "age_s": 58,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 4,
+      "awareness": 0.992,
+      "age_s": 58,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 1.0,
-      "age_s": 3,
+      "awareness": 0.996,
+      "age_s": 57,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.758,
-      "age_s": 83791,
+      "awareness": 0.756,
+      "age_s": 84407,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 7,
+      "awareness": 0.996,
+      "age_s": 61,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.969,
-      "age_s": 10613,
+      "awareness": 0.968,
+      "age_s": 11228,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.969,
-      "age_s": 10613,
+      "awareness": 0.968,
+      "age_s": 11229,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.975,
-      "age_s": 12979,
+      "awareness": 0.974,
+      "age_s": 13595,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.98,
-      "age_s": 10611,
+      "awareness": 0.978,
+      "age_s": 11227,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -108,7 +108,7 @@
       "id": "fourd_system",
       "present": true,
       "awareness": 0.957,
-      "age_s": 625,
+      "age_s": 615,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -133,7 +133,7 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] موانع چندانی برای تحقیق وب رایگان وجود ندارد، اما مالک مجموعه مراقبت داشته باشد که موانعی مانند مشکلات فنی یا قانونی آینده نشود بوجود آید. الان مهم‌ترین کار مجموعه، شناسایی و پ",
+  "thought": "[local] موانع چندانی برای تحقیق وب رایگان وجود ندارد، اما مالک مجموعه مراقبتی در مورد شناسایی و حذف هر نوع موانعی که ممکن است به آن بپیوندند، نیاز دارد. الان مهم‌ترین کار مجموعه شناس",
   "stress": {
     "level": "🟡 استرس",
     "organism_stress": 0.44,
@@ -145,8 +145,8 @@
     "heart_period_s": 489.97
   },
   "fourd_health": {
-    "status": "stale",
-    "age_s": 51134
+    "status": "fresh",
+    "age_s": 18
   },
   "ignition": {
     "ignited": true,
@@ -166,8 +166,16 @@
     "archived": 0
   },
   "truth_sync": {
-    "skipped": "cooldown",
-    "next_in_s": 568.1
+    "wrote": true,
+    "keys": [
+      "coherence",
+      "members_present",
+      "stale_members",
+      "beat",
+      "halted",
+      "rfcs_pending",
+      "HEAD"
+    ]
   },
   "owner_guidance": {
     "focus": "موانع چیست",
