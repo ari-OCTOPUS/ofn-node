@@ -181,3 +181,11 @@ rule: هر عدد با فرمان/فایل منبع‌دار · سطح A/B/C
 
 ### اصلاحِ T11
 در سندباکسِ بدونِ فلگ، درزِ کیل‌سوییچ را «باز» دیدم؛ در تولید `OCTOPUS_WIRE_KILL_SEAM=1` است (flags.cmd:689) — **بسته**. گزارش نهایی هم اصلاح شد.
+
+### گزارش کامل gitleaks (C2) — سطح A
+- ۷۸۱ یافته / ۱۵۱۰ کامیت / ۸۳۴MB · گزارش redact‌شده: `_ops/tests/_baselines/gitleaks-full-20260815.json`
+- توزیع: `_ops` ۳۴۸ · `03 - Projects` ۳۲۲ · `Obsidian Vault` قدیمی ۱۰۳ · قواعد: generic-api-key ۴۸۶ · sourcegraph-access-token ۲۵۷ · gcp ۳۲ · anthropic ۲ · github-PAT ۲ · openai ۱ · telegram ۱
+- ۴۵۳ یافته در فایل‌های هنوز-موجود (عمدتاً توکن‌های شخص-ثالثِ داخل دامپ‌های داده) · جدیدترین: 2026-08-12
+- **چکِ حیاتی (توسط این نشست): هیچ‌کدام از ۹ کلیدِ زندهٔ فعلیِ `.env` (deepseek/fugu/glm/zai/sakana/دو توکن تلگرام/gmail/pocketsmith) در هیچ فایل tracked نیست — صفر**
+- ۳۷ از ۳۸ موردِ پرخطر فقط در تاریخ‌اند (فایل‌های حذف‌شده)؛ **تنها موردِ زندهٔ پرخطر: GitHub PAT در `03 - Projects/Mining/02 - Code/Robo-data/scout_all_in_one.py:38`** (کامیت 2026-07-14) → چرخشِ PAT در GitHub + پاک‌سازیِ فایل = دستِ مالک
+- `.env` در گیت track نشده ✓ (فقط .env.example)
