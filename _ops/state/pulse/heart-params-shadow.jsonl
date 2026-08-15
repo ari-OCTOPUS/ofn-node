@@ -4620,3 +4620,6 @@
 {"ts": "2026-08-16T03:25:59", "beat": 37320, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
 {"ts": "2026-08-16T03:32:26", "beat": 37326, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
 {"ts": "2026-08-16T03:36:44", "beat": 37331, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T03:41:17", "beat": 37335, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T03:46:12", "beat": 37340, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T03:52:33", "beat": 37346, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}

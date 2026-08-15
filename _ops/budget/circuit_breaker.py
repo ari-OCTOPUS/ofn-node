@@ -85,6 +85,19 @@ def _target_entry(state: dict, target: str) -> dict:
     # تریگرِ نرخ‌محور. لیستِ ساده کافی است — پنجره «آخرین N call» است نه
     # «آخرین N دقیقه».
     t.setdefault("recent_outcomes", [])
+    # ۲۰۲۶-۰۸-۱۶ (گزارش ۶ساعته، «ریست نه ریکاوری»): closeِ واقعیِ این ماژول
+    # (record_success با success_to_close) همیشه opened_at_ts را خالی و
+    # last_ok_ts را تازه می‌کند. اگر state=closed ولی opened_at_ts پر است،
+    # این شکل از هیچ مسیر مجازی نمی‌آید — نوشتهٔ بیرونی/ریستِ جزئی است.
+    # invariant: چنین حالتی به HALF_OPEN تنزل می‌یابد تا ریکاوری با تماسِ
+    # موفقِ واقعی «اثبات» شود، نه با ادعای فایل.
+    if (t.get("state") == State.CLOSED.value
+            and t.get("opened_at_ts") is not None):
+        t["state"] = State.HALF_OPEN.value
+        t["half_open_attempts"] = 0
+        t["success_count"] = 0
+        opslib.alert([f"circuit {target}: closed با opened_at_ts پر — شکلِ ریست/"
+                      "نوشتهٔ بیرونی؛ تا اثباتِ تماسِ موفق، half_open"])
     return t
 
 

@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-16T03:32:10",
-  "cycle": 16,
-  "coherence": 0.957,
+  "ts": "2026-08-16T03:52:52",
+  "cycle": 18,
+  "coherence": 0.978,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.97,
-      "age_s": 107,
+      "awareness": 0.999,
+      "age_s": 3,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.949,
-      "age_s": 365,
+      "awareness": 0.999,
+      "age_s": 4,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.949,
-      "age_s": 366,
+      "awareness": 0.999,
+      "age_s": 4,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.952,
-      "age_s": 698,
+      "awareness": 1.0,
+      "age_s": 3,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.761,
-      "age_s": 82559,
+      "awareness": 0.758,
+      "age_s": 83791,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.992,
-      "age_s": 112,
+      "awareness": 0.999,
+      "age_s": 7,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.973,
-      "age_s": 9380,
+      "awareness": 0.969,
+      "age_s": 10613,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.973,
-      "age_s": 9381,
+      "awareness": 0.969,
+      "age_s": 10613,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.977,
-      "age_s": 11747,
+      "awareness": 0.975,
+      "age_s": 12979,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.982,
-      "age_s": 9379,
+      "awareness": 0.98,
+      "age_s": 10611,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -108,7 +108,7 @@
       "id": "fourd_system",
       "present": true,
       "awareness": 0.957,
-      "age_s": 616,
+      "age_s": 625,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -133,7 +133,7 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] موانع تعیین کننده ادامه تحقیق وب رایگان است.",
+  "thought": "[local] موانع چندانی برای تحقیق وب رایگان وجود ندارد، اما مالک مجموعه مراقبت داشته باشد که موانعی مانند مشکلات فنی یا قانونی آینده نشود بوجود آید. الان مهم‌ترین کار مجموعه، شناسایی و پ",
   "stress": {
     "level": "🟡 استرس",
     "organism_stress": 0.44,
@@ -146,7 +146,7 @@
   },
   "fourd_health": {
     "status": "stale",
-    "age_s": 49902
+    "age_s": 51134
   },
   "ignition": {
     "ignited": true,
@@ -166,16 +166,8 @@
     "archived": 0
   },
   "truth_sync": {
-    "wrote": true,
-    "keys": [
-      "coherence",
-      "members_present",
-      "stale_members",
-      "beat",
-      "halted",
-      "rfcs_pending",
-      "HEAD"
-    ]
+    "skipped": "cooldown",
+    "next_in_s": 568.1
   },
   "owner_guidance": {
     "focus": "موانع چیست",

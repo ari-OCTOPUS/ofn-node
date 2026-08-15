@@ -1638,3 +1638,6 @@
 {"ts": "2026-08-16T03:27:11", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 701, "ms": 95218, "ok": true}
 {"ts": "2026-08-16T03:27:58", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 46800, "ok": true}
 {"ts": "2026-08-16T03:32:10", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 3434, "ok": true}
+{"ts": "2026-08-16T03:42:29", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 16860, "ok": true}
+{"ts": "2026-08-16T03:52:52", "tier": "local", "model": "qwen2.5:latest", "cost_musd": 0, "ms": 13871, "ok": true}
+{"ts": "2026-08-16T03:57:32", "tier": "primary", "model": "deepseek-v4-flash", "cost_musd": 1086, "ms": 32438, "ok": true}

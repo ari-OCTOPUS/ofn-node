@@ -164,6 +164,32 @@ def _write_cursor(last_ts: float, stats: dict) -> None:
         opslib.alert([f"consolidate cursor write failed: {e}"])
 
 
+def _norm_gist(gist: str) -> str:
+    """کلیدِ محتوایی gist: بدون فاصله/الحاق — برای تشخیصِ تکرارِ سطح."""
+    import re as _re
+    return _re.sub(r"\s+", " ", str(gist or "").strip()).lower()
+
+
+def _recent_gists(window: int = 200) -> set[str]:
+    """آخرین N gistِ نوت‌های سِمانتیک — پنجرهٔ ضدتکرار (بدون حذف؛ فقط گیتِ ورود)."""
+    out: set[str] = set()
+    try:
+        with open(SEMANTIC, "r", encoding="utf-8") as fh:
+            lines = fh.readlines()[-window:]
+        import json as _json
+        for ln in lines:
+            try:
+                g = _json.loads(ln).get("gist")
+            except (ValueError, AttributeError):
+                continue
+            k = _norm_gist(g)
+            if k:
+                out.add(k)
+    except OSError:
+        pass
+    return out
+
+
 def _make_note(ev: dict, sal: float, now: float) -> dict:
     """یک نوتِ سِمانتیک (reflection) از یک رویدادِ برجسته — content-free و scrub-شده.
 
@@ -268,10 +294,22 @@ def consolidate_once(now: float | None = None) -> dict:
         scored = [(s, ev) for (s, ev) in scored if s >= SALIENCE_MIN]
         scored.sort(key=lambda t: t[0], reverse=True)   # نزولی: برجسته‌ترین اول
         selected = scored[:max(0, MAX_SEMANTIC)]        # کرانِ خروجی
+        # ۲۰۲۶-۰۸-۱۶ (گزارش ۶ساعته): ۲۰۸/۲۳۸ ردیفِ سِمانتیک تکرارِ دقیق بود
+        # («مغزِ دوم…» ×۶۴). گیتِ محتوایی: gistِ نرمال‌شدهٔ تکراری در پنجرهٔ
+        # اخیر نوشته نمی‌شود — سطحِ بدونِ تغییر = دانشِ نو نیست (فلسفهٔ R18).
+        # حذف صفر؛ فقط ورودِ نوتِ تکراری بند می‌شود.
+        seen_gists = _recent_gists()
         n_semantic = 0
+        n_dedup = 0
         for sal, ev in selected:
             try:
-                opslib.append_jsonl(SEMANTIC, _make_note(ev, sal, now))
+                note = _make_note(ev, sal, now)
+                key = _norm_gist(note.get("gist"))
+                if key and key in seen_gists:
+                    n_dedup += 1
+                    continue
+                opslib.append_jsonl(SEMANTIC, note)
+                seen_gists.add(key)
                 n_semantic += 1
             except Exception as e:  # noqa: BLE001
                 opslib.alert([f"consolidate semantic write failed: {e}"])

@@ -200,40 +200,42 @@ def save_hypothesis(domain: str, hypothesis: str, rationale: str = "") -> int:
     ts = now.isoformat(timespec="seconds")
     today = now.strftime("%Y-%m-%d")
     status = "pending"
-    dedup_of = None
     tag = None
-    extras = False
+    dedup_of = None
+    # Bugbot-medium (TOCTOU): classify و INSERT در «همان» اتصال/تراکنش —
+    # دو اتصال جدا یعنی N فراخوانِ هم‌زمان همه شمارِ زیرِ سقف را می‌بینند.
     try:
         from memory.hypothesis_policy import (classify_for_insert, DAILY_CAP,
                                               POLICY_VERSION)
         with _conn() as conn:
+            conn.execute("BEGIN IMMEDIATE")   # قفلِ نوشتن پیش از شمارش — اتمی واقعی
             status, dedup_of = classify_for_insert(
                 conn, domain, hypothesis, today=today)
-        if status == "dedup":
-            tag = f"{POLICY_VERSION}:family:{dedup_of}"
-        elif status == "deferred":
-            tag = f"{POLICY_VERSION}:cap:{DAILY_CAP}"
-        extras = True
-    except Exception as e:  # noqa: BLE001 — سیاست fail-open است
-        import logging
-        logging.getLogger(__name__).warning("hypothesis_policy unavailable: %s", e)
-        status = "pending"
-        dedup_of = None
-        tag = None
-        extras = False
-    with _conn() as conn:
-        if extras:
+            if status == "dedup":
+                tag = f"{POLICY_VERSION}:family:{dedup_of}"
+            elif status == "deferred":
+                tag = f"{POLICY_VERSION}:cap:{DAILY_CAP}"
             cur = conn.execute(
                 "INSERT INTO hypotheses (timestamp, domain, hypothesis, rationale,"
                 " status, policy_tag, dedup_of) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (ts, domain, hypothesis, rationale, status, tag, dedup_of),
             )
-        else:
-            cur = conn.execute(
-                "INSERT INTO hypotheses (timestamp, domain, hypothesis, rationale,"
-                " status) VALUES (?, ?, ?, ?, ?)",
-                (ts, domain, hypothesis, rationale, status),
-            )
+            row_id = cur.lastrowid
+            conn.commit()          # classify+insert اتمی از نظر نویسندهٔ واحد
+            return row_id
+    except ImportError as e:
+        import logging
+        logging.getLogger(__name__).warning("hypothesis_policy unavailable: %s", e)
+    except Exception as e:  # noqa: BLE001 — سیاست fail-open است
+        import logging
+        logging.getLogger(__name__).warning("hypothesis_policy failed: %s", e)
+        status, dedup_of, tag = "pending", None, None
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO hypotheses (timestamp, domain, hypothesis, rationale,"
+            " status) VALUES (?, ?, ?, ?, ?)",
+            (ts, domain, hypothesis, rationale, status),
+        )
         row_id = cur.lastrowid
         conn.commit()
         return row_id

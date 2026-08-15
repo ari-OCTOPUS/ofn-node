@@ -8657,3 +8657,10 @@
 {"ts": "2026-08-16T02:59:29", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.0007435866666666667, "task": "cortex-secondary", "ok": true, "actual_usd": 0.0007008400000000001}
 {"ts": "2026-08-16T03:27:03", "op": "reserve", "organ": "ARCHITECT_SYS", "est_usd": 0.0007435866666666667, "task": "cortex-secondary", "allow": true, "reserved": 0.0007435866666666667}
 {"ts": "2026-08-16T03:27:10", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.0007435866666666667, "task": "cortex-secondary", "ok": true, "actual_usd": 0.0007008400000000001}
+{"ts": "2026-08-16T03:57:08", "op": "reserve", "organ": "ARCHITECT_SYS", "est_usd": 0.0013914133333333336, "task": "cortex-primary", "allow": true, "reserved": 0.0013914133333333336}
+{"ts": "2026-08-16T03:57:31", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.0013914133333333336, "task": "cortex-primary", "ok": true, "actual_usd": 0.0010857000000000002}
+{"ts": "2026-08-16T03:57:33", "op": "reserve", "organ": "DEBATE_LOOP", "est_usd": 0.0003805666666666667, "task": "debate-muse-r1", "allow": true, "reserved": 0.0003805666666666667}
+{"ts": "2026-08-16T03:57:51", "op": "settle", "organ": "DEBATE_LOOP", "est_usd": 0.0003805666666666667, "task": "debate-muse-r1", "ok": true, "actual_usd": 0.0}
+{"ts": "2026-08-16T03:57:51", "op": "reserve", "organ": "DEBATE_LOOP", "est_usd": 0.00032844000000000005, "task": "debate-architect-r1", "allow": true, "reserved": 0.00032844000000000005}
+{"ts": "2026-08-16T03:58:31", "op": "settle", "organ": "DEBATE_LOOP", "est_usd": 0.00032844000000000005, "task": "debate-architect-r1", "ok": true, "actual_usd": 0.0}
+{"ts": "2026-08-16T03:58:41", "op": "reserve", "organ": "DEBATE_LOOP", "est_usd": 0.00039816, "task": "debate-muse-r2", "allow": true, "reserved": 0.00039816}
