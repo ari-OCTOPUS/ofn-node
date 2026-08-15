@@ -76,6 +76,8 @@ def _stub_enhance(base_reply: dict, owner_text: str) -> dict:
 #   - discover: متنِ journal/pulse نباید با متنِ LLM جایگزین شود
 #   - intro: شاهدِ زندهٔ فوری + فیکسِ timeout ۶۰ث (2026-08-12)
 #   - honest-self: invariantِ صداقتِ AGI (INT-04) — دقیقاً همان متنِ قفل‌شده
+#   - legs: probe زندهٔ HTTPS؛ مدل ممکن است HTTP 401 را «سالم» بازنویسی کند
+#   - board-command: صفِ فرمان؛ مدل نباید «queued» را «ارسال شد» کند
 #   - home/meta/safety-boundary/readonly-proposal/owner-gate/evidence/
 #     memory-proposal/blocked/disabled: رشته‌های ثابت/ردِ امنیتی
 _EVIDENCE_KINDS = frozenset({
@@ -482,7 +484,17 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
         except Exception:  # noqa: BLE001
             pass
     return enhanced
-    """Handle callback data (button presses) through collaborator."""
+
+
+def callback(data: str) -> dict:
+    """Handle callback data (button presses) through collaborator.
+
+    2026-08-16 (R12 debt-sweep): خطِ def در کامیت 55720f7 تصادفی حذف شده بود و
+    بدنه به‌عنوان کدِ مرده بعد از return قبلی فرو می‌رفت — یعنی
+    telegram_adapter.handle_callback → collaborator.callback در تولید
+    AttributeError می‌داد و center آن را با «مامور جوابی نداشت» می‌بلعید.
+    امضای state_dirِ نسخهٔ b0b8b10 حذف شد چون conversation.callback امروز
+    آن را نمی‌گیرد."""
     if not _is_enabled():
         return {
             "schema": "owner-console.reply.v1",

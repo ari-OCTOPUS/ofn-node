@@ -228,7 +228,23 @@ def test_glm_live_smoke():
 
 def test_fugu_live_smoke():
     """LIVE: فراخوانِ واقعی به Fugu (فقط اگر gateway بالاست یا کلید هست).
-    تأیید: جوابِ غیرخالی + telemetry + cost ≤ cap. max_tokens≥۱۶ (min مدل)."""
+    تأیید: جوابِ غیرخالی + telemetry + cost ≤ cap. max_tokens≥۱۶ (min مدل).
+
+    2026-08-16 (R14 debt-sweep): فوگو به رأیِ مالک (2026-08-15 شب، «فوگو
+    گرونه») از primary بازنشسته شد — نقشِ orchestr دیگر در _TIER_ROLE نقشه
+    نمی‌شود و 429 واقعیِ سرویس فقط نویز است. smoke زنده فقط وقتی معنا دارد
+    که نقش دوباره سیم‌شود (rollback یک‌خطی: model_router.py:132-135)."""
+    try:
+        _cortex = str(_OPS / "cortex")
+        if _cortex not in sys.path:
+            sys.path.insert(0, _cortex)
+        import model_router as _mr  # noqa: WPS433
+        if "orchestr" not in _mr._TIER_ROLE.values():
+            print("  [LIVE fugu] SKIP — retired by owner vote 2026-08-15 "
+                  "(orchestr not in _TIER_ROLE; see model_router.py:132)")
+            return
+    except Exception:  # noqa: BLE001 — سنجشِ بازنشستگی نباید تست را بکشد
+        pass
     b = _real_budgets()
     try:
         c = MultiProviderClient(role="orchestr", budgets=b)

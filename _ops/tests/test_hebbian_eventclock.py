@@ -538,7 +538,13 @@ def t_the_ceiling_reaches_the_real_apply_path():
 
 
 def t_a_result_without_the_cap_key_behaves_exactly_as_before():
-    """APPLY=1 folds uncapped learned → halt; PROPOSAL alone → proposal; off → none."""
+    """APPLY=1 folds uncapped learned → halt; PROPOSAL alone → proposal; off → none.
+
+    2026-08-16 (R10 debt-sweep): قراردادِ امروز = effective_flag — رأیِ ماندگارِ
+    مالک در owner-verdicts.yaml (ADR-035 APPLY=1 از 2026-08-12) دیگر با pop
+    کردنِ env خاموش نمی‌شود؛ فقط env **صریح** (حتی «0») برنده است
+    (wiring.py:35-47). پس حالت‌های proposal/off باید env را صریح «0» بگذارند،
+    نه pop — و همین، خودِ قاعدهٔ rollback را هم می‌آزماید."""
     os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "1"
     os.environ.pop("OCTOPUS_PAIN_THRESHOLD_CALIBRATED", None)
     os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
@@ -549,13 +555,13 @@ def t_a_result_without_the_cap_key_behaves_exactly_as_before():
         got = wiring.protective_override(legacy)
         assert got["override"] is True and got["action"] == "protective_halt", got
         assert got["executable"] is True
-        os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"
+        os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"   # صریح — برندهٔ رأی
         os.environ["OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL"] = "1"
         prop = wiring.protective_override(legacy)
         assert prop["override"] is False and prop["executable"] is False
         assert prop["action"] == "protective_proposal", prop
         os.environ.pop("OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL", None)
-        os.environ.pop("OCTOPUS_NEURAL_LEARNED_APPLY", None)
+        os.environ["OCTOPUS_NEURAL_LEARNED_APPLY"] = "0"   # صریح — برندهٔ رأی
         off = wiring.protective_override(legacy)
         assert off["override"] is False and off["action"] == "none", off
     finally:

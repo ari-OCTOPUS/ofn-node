@@ -72,7 +72,7 @@ def t_d_unknown_callback_is_blocked_without_effect():
     old = os.environ.get("OCTOPUS_WIRE_COLLAB")
     os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
     try:
-        reply = collaborator.callback("../../execute", state_dir=ROOT / "callback")
+        reply = collaborator.callback("../../execute")
     finally:
         if old is None:
             os.environ.pop("OCTOPUS_WIRE_COLLAB", None)

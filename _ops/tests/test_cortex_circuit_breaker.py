@@ -190,8 +190,12 @@ def t4_model_router_skips_open_circuit():
         assert out is None, "OPEN هم None برمی‌گرداند"
         assert _FakeClient._call_count == calls_at_open, \
             f"breaker OPEN: هیچ network callی نشد (got {_FakeClient._call_count - calls_at_open})"
-        assert cb.status("orchestr").get("state") == "open", \
-            "state در واقع orchestr=open"
+        # کلیدِ breaker = نقشی که _TIER_ROLE برای این tier می‌گوید. 2026-08-15
+        # (رأی مالک) primary از orchestr به reason رفت؛ تست دیگر نقش را فریز
+        # نمی‌کند — از همان نگاشتِ زنده می‌آورد (rollback را هم دنبال می‌کند).
+        expected_role = mr._TIER_ROLE.get("primary", "orchestr")
+        assert cb.status(expected_role).get("state") == "open", \
+            f"state در واقع {expected_role}=open (got: {cb.status(expected_role)})"
     finally:
         for k, v in _saved.items():
             if v is None:

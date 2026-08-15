@@ -95,6 +95,11 @@ ROUTER_FENCED = {
     # می‌کند. `model_router.ask("summarize", …, tier=BRAIN_TIER)` مستقیم از همان
     # درِ فنس‌دار می‌رود؛ caller ِ واقعی بود که تا امروز در inventory ثبت نشده بود.
     "cockpit_brain.py",
+    # 2026-08-16 (R7 debt-sweep) — پلِ نازکِ collab: _default_ask ←
+    # model_router.ask با سهمیهٔ روزانهٔ نرم (۲۰ نوبت) و گیتِ فلگ در
+    # collaborator._use_model. از همان درِ فنس‌دار می‌گذرد؛ callerِ واقعی بود
+    # که جاروی 08-15 گرفتش و ثبت نشده بود.
+    "owner_console/collab_model_adapter.py",
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete

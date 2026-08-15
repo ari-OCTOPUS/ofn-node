@@ -222,12 +222,22 @@ def t_every_read_endpoint_has_a_ui_consumer():
     بماند. مسیرهای proxy (`/api/pf/*`) این‌جا نیستند چون در allowlist نیستند؛
     آن‌ها را صداکننده‌های renderPF پوشش می‌دهند.
     """
+    # 2026-08-16 (R9 debt-sweep): مسیرهای اعلام‌شده به‌عنوانِ API-only — پشتِ
+    # owner-auth فقط-خواندنی، برای audit/curl/تست؛ عمداً تبِ UI ندارند.
+    # هر افزودنی به این فهرست باید اینجا دلیلش ثبت شود (الگوی «مصرف‌کننده یا
+    # مستند»؛ مگاپرامپت R9). حذف‌شان از READ_API_PATHS ممنوع (حذف ممنوع).
+    API_ONLY_READ_PATHS = {
+        "/api/epistemic",           # پنلِ C6/C7؛ مصرف‌کنندهٔ test_epistemic_c6c7 + audit
+        "/api/octopus/receipts",    # زنجیرهٔ رسیدهای ارگانیسم — سطحِ audit (curl)
+        "/api/octopus/runs",        # تاریخچهٔ اجراها — سطحِ audit (curl)
+    }
     gw = (_OPS / "telegram_center" / "miniapp_gateway.py").read_text(encoding="utf-8")
     m = re.search(r"READ_API_PATHS\s*=\s*\{(.*?)\}", gw, re.S)
     assert m, "‏READ_API_PATHS پیدا نشد"
     paths = sorted(set(re.findall(r'"(/api/[a-z/\-]+)"', m.group(1))))
     assert len(paths) >= 8, f"فهرستِ مسیرها مشکوکانه کوتاه است: {paths}"
-    orphan = [p for p in paths if ('api("%s")' % p) not in JS]
+    orphan = [p for p in paths
+              if ('api("%s")' % p) not in JS and p not in API_ONLY_READ_PATHS]
     assert not orphan, f"مسیرِ خواندنی بدونِ مصرف‌کننده در UI: {orphan}"
 
 

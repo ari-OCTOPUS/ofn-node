@@ -316,8 +316,13 @@ def t_the_policy_doc_names_a_provider_this_repo_does_not_have():
 def t_governor_routes_report_real_reachability_from_ask():
     r = _ops()["governor"]["routes"]
     assert r["local"]["reachable_from_ask"] is True, r["local"]
-    assert r["fugu"]["reachable_from_ask"] is True, r["fugu"]
-    assert r["fugu"]["tier"] == "primary" and r["fugu"]["role"] == "orchestr", r["fugu"]
+    # 2026-08-15 (شب — رأی مالک «فوگو گرونه»): primary از orchestr به reason
+    # (deepseek) رفت — _ops/cortex/model_router.py:132-135 + مسیرِ rollback.
+    # قراردادِ امروز: نقشِ orchestr عمداً از ask() بیرون است. این چک همان
+    # چیزی را می‌خواهد که اسمش است: گزارشِ «واقعی» — نه نگاشتِ فریز‌شده.
+    assert r["fugu"]["reachable_from_ask"] is False, r["fugu"]
+    assert r["fugu"]["role"] == "orchestr", r["fugu"]
+    assert r["fugu"]["reason"], "orchestr غیرقابل‌دسترس بدونِ دلیل گزارش نشد"
     for name in ("fugu_ultra", "fugu_cyber"):
         assert r[name]["reachable_from_ask"] is False, r[name]
         assert r[name]["tier"] is None, r[name]

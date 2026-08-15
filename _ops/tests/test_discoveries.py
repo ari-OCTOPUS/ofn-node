@@ -189,7 +189,7 @@ def t_nudge_marker_is_separate_from_the_seen_marker():
         d.record("learn", "الف")
         d.record("learn", "ب")
         assert d.unseen_count() == 2 and d.unseen_since_nudge() == 2
-        d.mark_nudged()
+        d.mark_nudged(time.time())
         assert d.unseen_since_nudge() == 0, "بعد از خبر دادن باید صفر شود"
         assert d.unseen_count() == 2, "کلیکِ مالک نیامده — SEEN نباید تکان بخورد"
         d.record("learn", "ج")

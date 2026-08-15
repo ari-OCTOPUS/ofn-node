@@ -9,8 +9,15 @@ import harness  # noqa: E402
 ENV = harness.setup("telemetry")
 import json  # noqa: E402
 
+# 2026-08-16 (R12 debt-sweep): همان ترتیبِ organism.py:38-45 — budget زودتر از
+# _ops روی sys.path می‌نشیند وگرنه «import telemetry» به پکیجِ OTLPِ
+# _ops/telemetry/ (فقط Alloy/OTLP، بدونِ snapshot) می‌رسد. سایه‌اندازیِ نامِ
+# telemetry یک تلهٔ شناخته‌شده است؛ این تست آینه‌ی سیم‌کشیِ واقعیِ تولید است.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "budget"))
+import telemetry  # noqa: E402 — budget/telemetry.py
+assert hasattr(telemetry, "snapshot"),     "telemetry به پکیج OTLP resolve شد (ترتیبِ sys.path شکست)"
+
 import opslib     # noqa: E402
-import telemetry  # noqa: E402
 
 
 def _ledger():

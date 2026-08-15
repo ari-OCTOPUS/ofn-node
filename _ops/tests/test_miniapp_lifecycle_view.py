@@ -287,7 +287,13 @@ GATEWAY_405_WALL = (
 # 2026-08-11: gateway اکنون پنج مسیرِ POST مجاز دارد (actions/ask/mirror/restart/collab).
 # فهرستِ مجاز از خودِ gateway استخراج می‌شود، ولی سپس **کاملاً pin می‌شود** —
 # هر مسیرِ مجازِ نو باید تست را هم به‌روز کند (نه باز یا خودکار).
-EXPECTED_POST_ROUTES = frozenset({"/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab"})
+# 2026-08-16 (R5 debt-sweep): سنکرو با قراردادِ امروز — ۴ مسیرِ نو: octopus/chat
+# (چتِ یکپارچه T7) · brain-guide · board/commands · board-cp/ack.
+EXPECTED_POST_ROUTES = frozenset({
+    "/api/actions", "/api/ask", "/api/mirror", "/api/restart", "/api/collab",
+    "/api/brain-guide", "/api/octopus/chat", "/api/board/commands",
+    "/api/board-cp/ack",
+})
 
 
 def t_gateway_405_wall_is_byte_identical():

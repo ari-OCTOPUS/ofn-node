@@ -213,26 +213,44 @@ def t_collaborator_model_fallback_on_failure():
 
 
 def t_collaborator_structured_stays_stub_even_with_model_flag():
-    """هدف/runtime با فلگ مدل هم ارزان و stub می‌ماند."""
+    """ساختارِ پاسخ با فلگ مدل هم از stub می‌آید — خروجیِ خرابِ مدل هرگز
+    به مالک نمی‌رسد.
+
+    2026-08-16 (R11 debt-sweep): قراردادِ امروز (تغییرِ 2026-08-13): intentهای
+    داده‌دار (goal/runtime/…) متنِ template را به‌عنوان شواهد به مدل می‌دهند و
+    مدل فقط فرمول‌بندی می‌کند؛ اگر call شکست بخورد (سهمیه/شکل/شبکه) پاسخِ
+    deterministic-stub صادقانه برمی‌گردد («model-fallback-stub») + هشدار.
+    خاصیتِ ایمنیِ این چک همان است که بود: پاسخِ ساختاریافته هرگز از متنِ
+    خامِ مدل نمی‌آید. شمارندهٔ روزانه هم با قلابِ رسمیِ خود ماژول
+    (OCTOPUS_COLLAB_MODEL_COUNTER) به tempdir ایزوله شد — دیگر state زنده
+    لمس نمی‌شود (live_state_guard گرفتنش کرد، به‌درستی)."""
     import collaborator as col
     called = []
 
     def _track(*a, **k):
         called.append(1)
-        return {"ok": True, "text": "should-not-use", "tier": "primary", "model": "x"}
+        return {"ok": False, "reason": "test: explicit model failure",
+                "text": "should-not-use", "tier": "primary", "model": "x"}
 
     col._model.set_ask_impl(_track)
     os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
     os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "1"
-    try:
-        r = col.handle("هدف فعلی چیه؟")
-    finally:
-        col._model.set_ask_impl(None)
-        os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
-        os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
-    assert not called
-    assert r.get("model_source") == "deterministic-stub"
-    assert r["kind"] == "goal"
+    with tempfile.TemporaryDirectory() as _td:
+        os.environ["OCTOPUS_COLLAB_MODEL_COUNTER"] = str(Path(_td) / "counter.json")
+        try:
+            r = col.handle("هدف فعلی چیه؟")
+        finally:
+            col._model.set_ask_impl(None)
+            os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
+            os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
+            os.environ.pop("OCTOPUS_COLLAB_MODEL_COUNTER", None)
+    assert r["kind"] == "goal", r.get("kind")
+    # با شکستِ صریحِ مدل: پاسخِ deterministic-stub صادقانه برمی‌گردد — متنِ
+    # ساختاریافته هرگز از مدلِ خراب نمی‌آید و اثر بیرونی صفر است.
+    assert r.get("model_source") == "model-fallback-stub", r.get("model_source")
+    assert "should-not-use" not in str(r.get("text", "")), \
+        "خروجیِ خام/خرابِ مدل به مالک رسید"
+    assert r.get("send_attempted") is not True and r.get("external_effect") is False
 
 # ─── DIGEST TESTS ───────────────────────────────────────────────────────────
 

@@ -78,6 +78,20 @@ KNOWN_OPEN_GAPS = {
         "TODO مالک: یا approval_channel.py هندلرِ mr بگیرد یا دکمه مثلِ "
         "wiring.py:brain_digest_beat به url تبدیل شود."
     ),
+    ("views.py", "oc"): (
+        "2026-08-16 (R8 debt-sweep، جاروی 08-15 کشف کرد) — کارت‌های "
+        "owner_console/views.py با callback_data='oc:…' ساخته می‌شوند "
+        "(قابلیت‌ها/صفحه‌بندی/خانه). روترِ فعلِ oc فقط در "
+        "telegram_center/center.py:5062 هست (owner_console.telegram_"
+        "adapter.handle_callback). گرافِ import، approval_channel را هم "
+        "فرستندهٔ بالقوه نشان می‌دهد؛ dispatch_callback آن هیچ شاخه‌ای "
+        "برای oc ندارد — همان تلهٔ دو-باتیِ مستندِ همین فایل. "
+        "TODO مالک: یا approval_channel.dispatch_callback شاخهٔ oc بگیرد "
+        "(واگذاری به owner_console.telegram_adapter.handle_callback) یا "
+        "ارسالِ کارت‌های views فقط از center بماند. تغییرِ routerِ پولیِ "
+        "زنده نشستِ خودش را می‌خواهد (تستِ سطح/مالکیت/answer)؛ ثبت شد تا "
+        "اسکنر نه کور بماند و نه بی‌دلیل قرمز بزند."
+    ),
 }
 
 
