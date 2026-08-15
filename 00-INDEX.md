@@ -64,6 +64,8 @@ status_legend:
 | `07 - Knowledge/OCTOPUS-TRUTH-2026-08-15/` | 17 فایل | 2026-08-15 17:09 (موتور --apply) | پک حقیقت رصدخانه (16 یادداشت + PHANTOM-DOCUMENTS + گزارش نشست) | منبع 06-EVIDENCE/INTERNET-OBSERVATORY | **verified** (توسط موتور نوشته شد) |
 | `architecture/observatory-allowlist.yaml` | — | 2026-08-15 (v2) | allowlist امضاشدهٔ ۷ دامنه‌ای | 06-EVIDENCE | verified |
 
+| `04-SYSTEMS/HEARTS-TIME.md` + `GENOME-MEMORY.md` + `MINDS.md` + `OWNER-CONSOLE.md` + `LEGS-LIVE.md` + `UNCONSCIOUS.md` | ۶ یادداشت شناختِ عمیق | 2026-08-15 (شبِ طبیعت‌شناس، مرحله ۱-۶) | آناتومی درونی از state/ledger/ناخودآگاه — سطح A | 04-SYSTEMS | **verified** |
+
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 
 ## ۲. فایل‌های کلیدی (تک‌تک)
