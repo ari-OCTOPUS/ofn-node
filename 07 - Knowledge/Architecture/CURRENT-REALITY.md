@@ -16,8 +16,12 @@ canonical: true
 - ۴ پا مرده (mining/crypto/studio_pf/knowledge)
 ## حافظه
 - نوشتن: فعال
-- خواندن: **هنوز وصل نیست** — memory_read_patch.py نوشته و تعمیر شده، ولی
-  `automation.py` هیچ‌وقت import‌ش نمی‌کند (صفر ارجاع). حلقه باز است. (C-012)
+- خواندن: **وصل شد 2026-08-15 شب (کامیت 8a5e98b)** — `automation.py` در هر سه نقطهٔ تصمیم
+  (introspect/create/conclude) با trace مشترک می‌خواند؛ dedup + stale + read-back فعال.
+  telemetry زنده (اجرای ۴۸+۳۲ تیکِ واقعی، شاملِ نسخهٔ تعمیرشدهٔ 4665d0f):
+  **read-before-decision = 1.0 (30/30)** · readback 1/1 · dedup عملاً هر create تکراری را رد می‌کند.
+  C-012 → resolved (شاهد در CONTRADICTIONS + MEMORY-LOOP). باقیِ مانده: daemon 4d باید
+  رسمی بالا بیاید تا telemetry پیوسته بماند.
 - recall قبلی: 58 event، self_ratio 1.1%
 ## شناخت
 - SOG anchor: 0.135073 ✓
