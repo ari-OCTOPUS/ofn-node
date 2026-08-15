@@ -337,13 +337,17 @@ class ConsolidationCycle:
             same = (isinstance(prev, dict)
                     and prev.get("insights") == rec["insights"]
                     and prev.get("verified_sources") == rec["verified_sources"]
-                    and prev.get("discarded_sources") == rec["discarded_sources"]
-                    # ۲۰۲۶-۰۷-۳۰ — همان شرطِ سومِ `_foldable` (خط ۱۸۱)، که تا امروز
-                    # فقط در مسیرِ compress بود. مسیرِ زنده (compress خاموش) بدونش
-                    # ردیفِ دارای بردار را مقصدِ fold می‌کرد و `sync_latent` بردارش
-                    # را بازنویسی می‌کرد: از ۵۳۹ ردیف فقط ۳ بردار دارند، پس این
-                    # کم‌یاب‌ترین دادهٔ فایل را لِه می‌کرد (سیکلِ ۵۴۰ داخلِ ۵۳۹).
-                    and prev.get("latent_vector") is None)
+                    and prev.get("discarded_sources") == rec["discarded_sources"])
+            # ۲۰۲۶-۰۸-۱۵ — شرطِ «مقصدِ بدونِ بردار» از مسیرِ زنده برداشته شد.
+            # چرا: OCTOPUS_WIRE_LATENT_PERSIST از سیکلِ ۵۳۷ (۲۰۲۶-۰۷-۲۸) به هر
+            # ردیفی بردار می‌دهد — اندازه‌گیریِ زنده: ۸۹/۸۹ ردیفِ پس از آن غنی‌اند،
+            # پس این شرط یعنی «هیچ‌وقت تا نشو» و نتیجه‌اش ۲۰ ردیفِ عیناً یکسانِ
+            # پیاپی («فیکس‌های تأییدشده: 3 · آگاهیِ میانگین: 0.73») بود — همان
+            # «consolidation راکد» C-012. ترسِ اصلیِ ۲۰۲۶-۰۷-۳۰ (له‌کردنِ دادهٔ
+            # کمیاب) دیگر موضوعیت ندارد: fold هیچ فیلدی را حذف نمی‌کند، بردارِ
+            # مقصد دست‌نخورده می‌ماند، و sync_latent از طریقِ تطبیقِ last_cycle
+            # (پوششِ خودِ کد برای ردیفِ تا‌شده) بردارِ تازه را همان‌جا می‌نویسد.
+            # مسیرِ compress (فلگ‌دار) با قراردادِ `_foldable` دست‌نخورده است.
             target = prev if same else None
         # Phase 5 (۲۰۲۶-۰۸-۰۷) — dedup فازیِ افزودنی: اگر مسیرِ exact برنگرداند،
         # شباهتِ زیررشته‌ای روی آخرین N ردیف را امتحان کن. چرا جدا از exact:

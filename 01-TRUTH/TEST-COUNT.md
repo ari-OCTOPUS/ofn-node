@@ -19,7 +19,13 @@ status: mixed — هر ردیف برچسب خودش را دارد
 | کل مخزن (ریشه) | مگاپرامپت: ۴۱۴ یا ۴۰۸ | `--collect-only` از ریشه: `15 tests collected, 2 errors` | `py -m pytest -q --collect-only` | ⚠️ **unverified** → [[CONTRADICTIONS|C-006]] |
 | بازتولید hash زنجیره‌های شاهد | — | **۴/۴ ردیف منطبق** (۲ evidence + ۲ prediction) با فرمول عین سورس | اسکریپت python mode=ro (2026-08-15) | ✅ **verified** — فرمول‌ها در HANDOFF |
 | **راستی‌آزمای کامل انبار زنده** (`scripts/verify_live_store.py` اصلاح‌شده) | — | **VERDICT: PASS — 27/27، CRITICAL 3→0** («All guarantees reproduced on live data») | `python scripts/verify_live_store.py` (2026-08-15 17:1x) | ✅ **verified — سطح A** |
-| کل مخزن کاری Desktop | — | **320 passed in 3.90s** (پس از ۳ تست جدید این نشست) | `py -m pytest -o addopts= -q` | ✅ **verified** |
+| کل مخزن کاری Desktop | — | **320 passed in 10.47s** (بازمقایسهٔ جاروی تست 2026-08-15 شب) | `py -m pytest -o addopts= -q` | ✅ **verified** |
+| رصدخانه (working) — بازشماری جاروی تست | مگاپرامپت: 115 | **116 passed in 1.07s** (+۱ نسبت به ادعا؛ ۹۳→۱۱۶ رشد از نشست‌ها) | `py -m pytest _ops\observatory\tests\ -o addopts= -q` | ✅ **verified: ۱۱۶ زنده** |
+| bayes (working) | 21 | **21 passed in 0.26s** | `py -m pytest _ops\observatory\tests\test_bayesian.py -o addopts= -q` | ✅ **verified** |
+| سوئیت 4d_system (نخستین ثبت در این دفتر) | — | **265 tests: 261 pass + 4 pre-existing failures** (test_self_code_gate → C-013) | `cd 4d_system && python tests/run_all.py` | ⚠️ verified با ۴ شکستِ ریشه‌یابی‌شده |
+| تست نوِ حلقهٔ حافظه (C-012) | — | **12 passed** | `python -m pytest tests/test_memory_loop_c012.py -o addopts= -q` (در 4d_system) | ✅ verified |
+| تست نوِ fold غنی (T1b) | — | **4 passed** | `python -m pytest tests/test_consolidation_fold_rich.py -o addopts= -q` (در _ops) | ✅ verified |
+| `_ops/tests/test_epistemic_bayes.py` | — | **صفر تابع تست** (فایل docstring-only؛ grep -c "def test_" → 0) | grep | ⚠️ مرده — مرتبط C-007 |
 | OFN نود میدانی | مگاپرامپت: ۱۲۲۹ تست | دسترسی به اورنج‌پای نداریم | — | ⚠️ **unverified** |
 | nbb-cp-kre (`4d_system/nbb-cp-kre`) | — | اجرا نشد (only-readonly طبق DR) | — | unknown |
 

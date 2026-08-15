@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-013** (C-012 در 2026-08-15 ~22:0x ثبت شد: حافظهٔ write-only مغز 4d)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-014** (C-013 در 2026-08-15 ~20:2x ثبت شد: گاردِ self_code همهٔ پروژه را TCB می‌بیند)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -190,7 +190,24 @@ contradiction:
   source_a: "4d_system/brain/automation.py و اسنادش"
   value_b: "automation.py: ۳ ارجاع نوشتن (save_*)، صفر خواندن (query/get_pending/search_vault) — حافظه write-only بود"
   source_b: "grep سطح A — 2026-08-15 شب؛ یافتهٔ مستقلِ ایجنت-معمار موازی + تأیید معمار ارشد؛ هم‌خانوادهٔ یافتهٔ «consolidation راکد» (MINDS.md)"
-  resolution: "memory_read_patch.py نوشته شد (introspect/create/conclude) ولی هنوز به automation.py import نشده — فاز صفر Council Mesh؛ شرط بستن: telemetry زندهٔ read-before-decide ≥0.95 نه فقط تست"
-  status: open — fix_in_progress (فاز صفر)
+  resolution: "فاز صفر اجرا شد (2026-08-15 شب، جاروی تست T1): patch به مسیر اصلی automation وصل شد (introspect/create/conclude هر سه قبل از تصمیم می‌خوانند) + dedup + read-back از مسیر مصرف‌کننده + stale با transaction_time + تست ۱۲/۱۲. شاهد telemetry زنده: memory_read_before_decision_ratio=1.0 (18/18) · memory_readback_success_ratio=1.0 · از ۸ create فقط ۱ نوشت (dedup روی انبوهِ ۱۰۶۲ pending). جزئیات: [[../04-SYSTEMS/MEMORY-LOOP|MEMORY-LOOP]]"
+  status: resolved (فاز صفر — با شاهد telemetry زنده؛ شرط معمار ارشد برآورده شد)
   registered_by: "senior-architect (grep دو-مخزن: C-012 خالی بود)"
+  resolved_by: "test-sweep agent 2026-08-15 شب"
+```
+
+```yaml
+contradiction:
+  id: C-013
+  claim: "گاردِ خودتغییریِ مغز 4d فقط TCB را می‌بندد و فایل‌های برگ را مجاز می‌داند"
+  value_a: "تست‌های test_self_code_gate: data/real_api.py و ui/visuals.py و memory/store.py «باید مجاز باشند»"
+  source_a: "4d_system/tests/test_self_code_gate.py:28-30 (خواستهٔ طراحی)"
+  value_b: "اجرای زنده: هر سه (و هر فایل دیگری) رد می‌شوند — «فایلِ هسته‌ی موردِاعتماد (TCB)»"
+  source_b: "python -c guardrails.assert_code_target_allowed → (False, 'TCB') برای هر سه — 2026-08-15 شب"
+  live_check: "run_all سوئیت 4d: ۲۶۵ تست، ۴ شکستِ pre-existing همه در همین فایل (اثبات stash: بدون تغییرات ایجنت هم همان ۴ شکست)"
+  likely: "value_b علتِ محیطی دارد: REFERENCE_DIR به SYSTEM_ROOT خودِ پروژه resolve می‌شود (پوشهٔ 4D/ غایب) → _protected_roots کلِ ریشه را می‌پوشاند → همه‌چیز TCB"
+  resolution: null — owner_action
+  proposal: "فیکس پیشنهادی (هنوز اعمال نشده): fallback مسیرِ ناموجودِ SYSTEM_ROOT/'4D' به‌جای خودِ ریشه در config/settings.py::_resolve_reference_dir، یا تنظیم REFERENCE_DIR در .env؛ جهتِ فعلی fail-closed امن است (بیش‌محافظتی، نه کم‌محافظتی) — تغییر TCB نیازمند رأی مالک"
+  status: open — owner_action
+  registered_by: "test-sweep agent (grep دو-مخزن قبل از ثبت انجام شد — C-013 فقط در فهرستِ «آزاد بعدی» بود)"
 ```

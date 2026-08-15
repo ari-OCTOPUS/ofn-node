@@ -31,6 +31,9 @@ VALID_EVENTS = {
     "system.heartbeat",
     "approval.required",
     "kernel.notice",
+    # C-012 فاز صفر (Council Mesh v0.1) — telemetry حلقهٔ حافظه:
+    "memory.read",       # خواندنِ حافظه پیش از تصمیم (منبعِ ratio ≥ 0.95)
+    "memory.readback",   # read-back پس از نوشتن (منبعِ ratio ≥ 0.99)
 }
 
 # وضعیت‌های approval — همیشه صریح (نه null)

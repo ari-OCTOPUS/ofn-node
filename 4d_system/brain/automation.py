@@ -367,14 +367,26 @@ class AutomationController:
 
     # ── introspect: خودخوانی ─────────────────────────────────────────────
     def _job_introspect(self) -> dict:
+        trace = events.new_trace_id()
         events.emit("task.started", "خودخوانی: مطالعه‌ی ساختارِ خود",
-                    status="info", agent_id="introspect", approval_state="not_required")
+                    status="info", agent_id="introspect", trace_id=trace,
+                    approval_state="not_required")
+        # C-012 فاز صفر: پیش از تصمیم، حافظه خوانده می‌شود (تجربهٔ گذشته + آمار).
+        mem_note = ""
+        try:
+            from brain import memory_read_patch as mrp
+            mem = mrp.patch_introspect(self, trace_id=trace)
+            stats = mem.get("stats") or {}
+            mem_note = (f" · حافظه: {mem['past']} تجربهٔ گذشته · "
+                        f"{stats.get('hypotheses', '?')} فرضیه")
+        except Exception as e:
+            logger.warning("introspect memory read failed: %s", e)
         try:
             from brain.self_model import build_self_map
             sm = build_self_map()
         except Exception as e:
             events.emit("task.failed", f"خودخوانی ناموفق: {type(e).__name__}",
-                        status="error", agent_id="introspect")
+                        status="error", agent_id="introspect", trace_id=trace)
             return {"ok": False, "mode": "introspect"}
 
         lims = sm.limitations or []
@@ -385,8 +397,9 @@ class AutomationController:
         events.emit(
             "task.completed",
             f"خودخوانی: {sm.total_files} فایل · {sm.total_functions} تابع · "
-            f"{len(sm.capabilities)} توان · {len(lims)} محدودیت",
-            status="ok", agent_id="introspect", next_action="هدفِ خلاقیت",
+            f"{len(sm.capabilities)} توان · {len(lims)} محدودیت{mem_note}",
+            status="ok", agent_id="introspect", trace_id=trace,
+            next_action="هدفِ خلاقیت",
             approval_state="not_required",
         )
         if lim:
@@ -408,11 +421,36 @@ class AutomationController:
             return f"آیا «{c}» می‌تواند «{goal}» را بهبود دهد؟"
 
     def _job_create(self) -> dict:
+        trace = events.new_trace_id()
         events.emit("task.started", "خلاقیت: تولیدِ ایده‌ی پژوهشیِ جدید",
-                    status="info", agent_id="creative", approval_state="not_required")
+                    status="info", agent_id="creative", trace_id=trace,
+                    approval_state="not_required")
         idea = self._creative_idea()
 
+        # C-012 فاز صفر: پیش از ثبت، صفِ فرضیه‌های pending خوانده می‌شود —
+        # dedup (همان بیماریِ ۱۰۶۲ فرضیهٔ ثبت‌شدهٔ هرگز-مصرف‌نشده) + شمارشِ stale.
         hid = None
+        dedup_note = ""
+        stale_note = ""
+        try:
+            from brain import memory_read_patch as mrp
+            pending = mrp.read_pending_hypotheses(200, trace_id=trace)
+            stale, fresh = mrp.split_stale(pending)
+            if stale:
+                stale_note = f" · صفِ راکد: {len(stale)} فرضیهٔ بالای {mrp.STALE_DAYS_DEFAULT} روز"
+            if mrp.is_duplicate_hypothesis(idea, pending):
+                dedup_note = " · تکراری — ثبت نشد (dedup)"
+                events.emit(
+                    "task.completed",
+                    f"ایدهٔ تکراری رد شد: {idea[:60]}{stale_note}{dedup_note}",
+                    status="ok", agent_id="creative", trace_id=trace,
+                    next_action="ایدهٔ بعدی", approval_state="not_required",
+                )
+                return {"ok": True, "mode": "create", "summary": "dedup",
+                        "dedup_skipped": True}
+        except Exception as e:
+            logger.warning("create memory read failed: %s", e)
+
         try:
             from memory.store import save_hypothesis
             hid = save_hypothesis(
@@ -421,6 +459,17 @@ class AutomationController:
             )
         except Exception as e:
             logger.error("save_hypothesis failed: %s", e)
+
+        # read-back از مسیرِ مصرف‌کننده — نوشتهٔ خوانده‌نشده اعتماد ندارد.
+        readback_note = ""
+        if hid:
+            try:
+                from brain import memory_read_patch as mrp
+                if not mrp.readback_hypothesis(hid, trace_id=trace):
+                    logger.error("readback failed for hypothesis #%s", hid)
+                    readback_note = " · ⚠️ read-back ناموفق"
+            except Exception as e:
+                logger.warning("readback check failed: %s", e)
 
         # نوشتنِ ایده در لاگِ محافظت‌شده (guardrail مسیر را تایید می‌کند)
         try:
@@ -434,9 +483,11 @@ class AutomationController:
 
         if hid:
             events.emit("handoff.created", f"فرضیه #{hid} ثبت شد",
-                        status="ok", agent_id="creative", approval_state="not_required")
-        events.emit("task.completed", f"ایده‌ی جدید: {idea[:60]}",
-                    status="ok", agent_id="creative", next_action="آزمونِ آینده",
+                        status="ok", agent_id="creative", trace_id=trace,
+                        approval_state="not_required")
+        events.emit("task.completed", f"ایده‌ی جدید: {idea[:60]}{stale_note}{readback_note}",
+                    status="ok", agent_id="creative", trace_id=trace,
+                    next_action="آزمونِ آینده",
                     approval_state="not_required")
         return {"ok": True, "mode": "create", "summary": idea[:40]}
 
@@ -561,24 +612,36 @@ class AutomationController:
     # ── conclude: نتیجه‌گیریِ ریاضی (اعمالِ مدلِ SOG روی داده‌ها) ──────────
     def _job_conclude(self) -> dict:
         from brain import conclusions
+        trace = events.new_trace_id()
         events.emit("task.started",
                     "نتیجه‌گیریِ ریاضی: اعمالِ مدلِ SOG روی داده‌های جمع‌شده",
-                    status="info", agent_id="conclude", approval_state="not_required")
+                    status="info", agent_id="conclude", trace_id=trace,
+                    approval_state="not_required")
+        # C-012 فاز صفر: پیش از نتیجه‌گیری، بافتِ مشابه از والت خوانده می‌شود.
+        ctx_note = ""
+        try:
+            from brain import memory_read_patch as mrp
+            ctx = mrp.patch_conclude(self, topic=self._focus_limitation or "SOG",
+                                     trace_id=trace)
+            ctx_note = f" · بافتِ والت: {ctx.get('vault', 0)} قطعه"
+        except Exception as e:
+            logger.warning("conclude memory read failed: %s", e)
         try:
             c = conclusions.synthesize_conclusions()
             conclusions.save_conclusions(c)
         except Exception as e:
             logger.error("conclude failed: %s", e)
             events.emit("task.failed", f"خطا در نتیجه‌گیری: {type(e).__name__}",
-                        status="error", agent_id="conclude", approval_state="not_required")
+                        status="error", agent_id="conclude", trace_id=trace,
+                        approval_state="not_required")
             return {"ok": False, "mode": "conclude"}
 
         lines = c.get("conclusions_fa", [])
         # سرخطِ نتیجه = قضیه‌ی شناسایی اگر بود، وگرنه اولین نتیجه‌گیری
         head = next((l for l in lines if "قضیه‌ی شناسایی" in l), lines[0] if lines else "—")
-        events.emit("task.completed", f"نتیجه: {head[:130]}",
-                    status="ok", agent_id="conclude", next_action="ادامه",
-                    approval_state="not_required")
+        events.emit("task.completed", f"نتیجه: {head[:130]}{ctx_note}",
+                    status="ok", agent_id="conclude", trace_id=trace,
+                    next_action="ادامه", approval_state="not_required")
         return {"ok": True, "mode": "conclude"}
 
     # ── guard: محافظ ─────────────────────────────────────────────────────
@@ -709,7 +772,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     import os
     os.environ["MOCK_MODE"] = "true"
-    events.clear_events()
+    # C-012: پاک‌کردنِ رویدادها دیگر پیش‌فرضِ دمو نیست — telemetry تاریخ را
+    # نابود می‌کرد (۴۸ ردیفِ مانده از ۳۴۲۱۶ رویداد، اثرِ همین clear بود).
+    # فقط با ارادهٔ صریح:  DEMO_CLEAR_EVENTS=1
+    if os.getenv("DEMO_CLEAR_EVENTS", "") == "1":
+        events.clear_events()
     ctrl = AutomationController(use_llm=False)
     for _ in range(len(_MODE_CYCLE) + 2):
         r = ctrl.run_one()
