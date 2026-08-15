@@ -322,6 +322,15 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
                    "total_tokens": (out.get("tokens_in") or 0) + (out.get("tokens_out") or 0),
                    "total_cost_usd": float(out.get("cost_usd", 0.0) or 0.0)},
             latency_ms=_elapsed_ms, status="ok")
+        # ── سایهٔ output_critic (کارت ۲ کاشف، رأی مالک 2026-08-16): امتیازِ
+        # کیفیتِ چهاربعدی، صفر اثر — فقط log-only. fail-soft: خطا هرگز مغز را نمی‌کشد.
+        try:
+            _critic = __import__("output_critic").grade(
+                [{"ts": _pt.time(), "text": str(out.get("text") or ""), "stream": task}])
+            _paid_log(kind="critic_shadow", task=task, tier=tier, role=role,
+                      scores=_critic.get("scores", {}))
+        except Exception:
+            pass
         # ── پاسخِ بریدهٔ بی‌متن = شکست، نه موفقیت (۲۰۲۶-۰۷-۳۰) ──────────────────
         # ۰۷-۲۷ `finish_reason` را عبور دادند تا صاحبِ فراخوان بریدگی را ببیند، ولی
         # **هیچ‌کس نمی‌خواندش** و sakana هم هرگز پرش نمی‌کرد (۲۰۶/۲۰۶ تماسِ موفق

@@ -95,3 +95,15 @@ status: partial — سرویس‌های میدانی unverified
 - `OCTOPUS_TCB_MANIFEST_ENFORCE=1` در هر ۴ عضو (339 فلگ) — بوت 00:33:50، beat 37153، stop=False
 - رویداد بازیابی: ری‌استارت مالک در انتظارِ cortex (300s) از کنسول بریده شد؛ cortex قدیمی (4176) نشانگر را نادیده گرفت و پورت را نگه داشت → کشتنِ اجباری طبق طراحی + ری‌استارت کامل توسط معمار ارشد؛ نشانگر جامانده پاک شد (پس از تأیید پایین‌بودن واقعی)
 - درس ثبت: «پایین است» را از پورت تأیید کن نه فقط از grep cmdline
+
+## 🗳️ پنج کارت کاشف — اجرا و اثبات (2026-08-16 ~00:5x-01:0x)
+
+| کارت | اجرا | اثبات سطح A |
+|------|------|-------------|
+| ۱ Chrono Rhythm | `=1` در flags.cmd | chrono: 1 در organism+cortex |
+| ۲ Output Critic سایه | هوک log-only در model_router | **`kind:critic_shadow` در paid-calls با ۴ نمره** (repetition/actionability/novelty/self_answer) |
+| ۳ Criticality OTLP | `=1` (قبلاً توسط ایجنت موازی) + ALLOW_REMOTE فقط کامنت | criticality: 1 · ALLOW_REMOTE تنظیم نیست |
+| ۴ manifest هاب | `_ops/conversation_hub/capability-manifest.json` (اسکیمای v1) | فایل موجود + ایندکس‌شده |
+| ۵ پاک‌سازی یتیم | خط DOCTOR_USE_CENTRAL_ROUTER حذف (بکاپ .prev) | orphan False در هر دو limb → C-017 resolved |
+
+ری‌استارت: بوت 00:54:27 · beat 37175 · stop=False · فلگ‌ها برابر 339 (cortex با تلاش دوم — الگوی شناخته‌شده) · CRLF سالم 1500 (پس از یک اصلاح خودم که شکستش — درس: نوشتن flags.cmd همیشه با newline='' و تبدیل دستی CRLF).

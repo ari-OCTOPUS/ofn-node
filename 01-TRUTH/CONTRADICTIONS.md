@@ -267,7 +267,7 @@ contradiction:
   source_a: "grep flags.cmd — 2026-08-16 (کاتالوگ کاشف، کلاس orphan_armed)"
   value_b: "صفر reader در _ops (grep پایتون: 0) — باقیماندهٔ rename"
   source_b: "grep دو-مخزن + کاتالوگ کاشف"
-  resolution: "کارت رأی #۵ کاشف: پاک‌سازی از flags.cmd (با بکاپ) — رأی مالک"
-  status: open — owner_vote (خطر: پیکربندی مسلحِ بی‌اثر = سردرگمی ایجنت بعدی)
+  resolution: "رأی مالک (هر پنج) + اجرا 2026-08-16 ~00:5x: خط از flags.cmd حذف شد (بکاپ) — غیبت در هر دو limb تأیید شد (flags-loaded: orphan False)"
+  status: resolved (2026-08-16 — verified in organism+cortex)
   registered_by: "senior-architect (grep دو-مخزن: C-017 فقط به‌عنوان آزاد بعدی بود)"
 ```
