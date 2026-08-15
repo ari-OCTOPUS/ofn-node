@@ -4906,6 +4906,39 @@ class Center:
             self._edit_page(cbq, "ap")
         return {"kind": "approval", "action": action, "id": jid, "ok": ok, "verdict": verdict}
 
+    # ── پلِ رأی دکتر (C-008، ۲۰۲۶-۰۸-۱۵) ────────────────────────────────────
+    def _doctor_ingest(self, cbq: dict, state_dir: str | None = None) -> list:
+        """رأیِ خامِ کارتِ دکتر را به صندوق دکتر بریز — فقط همین.
+
+        سازندهٔ دکتر برای همین حالت `TelegramChannel.ingest_external` را
+        گذاشته (گیتِ مالک + ضدتکرار در کد، نه در اعتماد). state_dir قابلِ
+        تزریق برای تست است (الگوی OpsRoot در RESTART-ALL). lazy-import تا
+        غیبتِ بستهٔ دکتر ماژول را نکشد — پل fail-soft است.
+        """
+        import sys as _sys
+        if state_dir is None:
+            state_dir = os.environ.get(
+                "OCTOPUS_DOCTOR_STATE",
+                str(Path(__file__).resolve().parents[2]
+                    / "OCTOPUS-DOCTOR" / "90-_meta" / "state"))
+        _cached = getattr(self, "_doctor_ch", None)
+        if _cached is None or getattr(self, "_doctor_ch_dir", None) != state_dir:
+            # چرا import از مسیرِ فایل؟ چون `_ops/doctor` پکیجِ کامل است
+            # (__init__.py دارد) و پکیجِ هم‌نامِ `OCTOPUS-DOCTOR/doctor`
+            # را در sys.path سایه می‌زند — `from doctor.channel import`
+            # در پروسهٔ مرکز به _ops/doctor می‌خورد و می‌شکند (C-008).
+            # channel.py تخت و stdlib-only است؛ بارگذاری مستقیمِ فایل بی‌خطر است.
+            import importlib.util as _ilu
+            _mod_path = Path(state_dir).parents[1] / "doctor" / "channel.py"
+            _spec = _ilu.spec_from_file_location("_octopus_doctor_channel", _mod_path)
+            _mod = _ilu.module_from_spec(_spec)
+            import sys as _sys2
+            _sys2.modules["_octopus_doctor_channel"] = _mod   # دستورِ رسمی importlib
+            _spec.loader.exec_module(_mod)
+            _cached = _mod.TelegramChannel(state_dir)
+            self._doctor_ch, self._doctor_ch_dir = _cached, state_dir
+        return _cached.ingest_external([cbq])
+
     def _handle_callback(self, cbq: dict) -> dict:
         """callback data = '<verb>:<id>' با verb ∈ ok/no/later (قراردادِ render_decision)
         یا verbهای مرکزِ فرماندهی (mn/lg/pw/pwc → _handle_center_callback) یا
@@ -4914,6 +4947,27 @@ class Center:
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
         verb = data.split(":", 1)[0]
+        # ── پلِ رأی دکتر (C-008، ۲۰۲۶-۰۸-۱۵) ─────────────────────────────
+        # دکمه‌های کارت‌های دکتر سه‌بخشی‌اند: `ok|no:<gate>:<mission_id>`.
+        # جدولِ خودِ مرکز ok دوبخشی است (قراردادِ render_decision) و
+        # سه‌بخشی‌ها تا امروز در همان «نادیده» می‌افتادند — شکایتِ مالک.
+        # این‌جا **قبل از** جدولِ verb جدا می‌شوند تا تصادم نباشد و رأی
+        # از سازهٔ خودِ دکتر (ingest_external → accept: گیتِ مالک +
+        # ضدتکرار، در کد) به tg-inbox می‌رود. fail-soft: خطا در پل =
+        # همان رفتارِ قبلی، هرگز شکستنِ مرکز.
+        _doc = data.split(":")
+        if (len(_doc) == 3 and _doc[0] in ("ok", "no")
+                and _doc[1] in ("intent", "diff")):
+            try:
+                _kept = self._doctor_ingest(cbq)
+            except Exception:  # noqa: BLE001
+                _kept = []
+            self._answer(
+                cbq,
+                text=("✅ رأی دکتر ثبت شد" if _kept
+                      else "✅ دریافت شد (تکراری یا قبلاً رأی‌داده)"))
+            return {"kind": "doctor-vote", "gate": _doc[1],
+                    "mission_id": _doc[2], "approved": _doc[0] == "ok"}
         # ۲۰۲۶-۰۷-۳۰ — دکمه‌های خانهٔ لنگر (hm:*). عمداً **این‌جا** dispatch می‌شود،
         # جدا و بالاتر از جدولِ مرکز، تا با هانکِ کامیت‌نشدهٔ جلسهٔ موازی روی همان
         # جدول تصادم نکند (§ درختِ مشترک). read-only اند و مالکیت را لایهٔ
