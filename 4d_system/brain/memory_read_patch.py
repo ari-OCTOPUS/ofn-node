@@ -229,13 +229,29 @@ def readback_hypothesis(hid: int, scan_limit: int = 50, trace_id: str | None = N
     """
     t0 = time.perf_counter()
     ok = False
+    note = ""
     try:
         from memory.store import get_pending_hypotheses
         rows = get_pending_hypotheses(limit=scan_limit) or []
         ok = any(r.get("id") == hid for r in rows)
+        if not ok:
+            # R16 (2026-08-16): سطرِ نو ممکن است درج لحظه‌ای dedup/deferred خورده
+            # باشد و عمداً بیرونِ صفِ فعال باشد. نمای مصرف‌کنندهٔ درستِ آن
+            # وضعیت = خواندنِ مستقیمِ همان id از همان DB که مصرف‌کننده می‌خواند
+            # (connection تازه، همان مسیر store) — نوشتهٔ خواندنی = تأیید.
+            import sqlite3 as _sq
+            from config.settings import OUTPUT_DIR
+            con = _sq.connect(f"file:{OUTPUT_DIR / '4d_experiments.db'}?mode=ro",
+                              uri=True)
+            row = con.execute(
+                "SELECT status FROM hypotheses WHERE id = ?", (hid,)).fetchone()
+            con.close()
+            if row and row[0] in ("dedup", "deferred", "dormant"):
+                ok = True
+                note = f"(r16-view:{row[0]})"
     except Exception as e:
         logger.debug("readback failed: %s", e)
-    _emit_readback(ok, hid, t0, trace_id=trace_id)
+    _emit_readback(ok, hid, t0, trace_id=trace_id, note=note)
     return ok
 
 
@@ -268,12 +284,13 @@ def _emit_read(source: str, rows: int, t0: float, purpose: str = "",
         logger.debug("memory.read telemetry failed: %s", e)
 
 
-def _emit_readback(ok: bool, hid: int, t0: float, trace_id: str | None = None) -> None:
+def _emit_readback(ok: bool, hid: int, t0: float, trace_id: str | None = None,
+                   note: str = "") -> None:
     try:
         from brain import events
         events.emit(
             "memory.readback",
-            f"read-back فرضیه #{hid} — {'تأیید شد' if ok else 'یافت نشد!'}",
+            f"read-back فرضیه #{hid} — {'تأیید شد' if ok else 'یافت نشد!'}{note}",
             status="ok" if ok else "error",
             agent_id="memory:readback",
             trace_id=trace_id,
