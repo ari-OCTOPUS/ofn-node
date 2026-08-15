@@ -19,6 +19,10 @@
 # Output is ASCII-only on purpose: Persian strings pasted back into a console
 # get re-executed as commands and produce confusing errors.
 
+param(
+    [switch]$Force   # 2026-08-16 (PHASE01 4-1): escalation after timeout — force-kill a WEDGED cortex (cmdline-verified) and relaunch
+)
+
 $ErrorActionPreference = "Stop"
 $ops   = "F:\backup\_ops"
 $stop  = Join-Path $ops "STOP-CORTEX"
@@ -54,10 +58,31 @@ $deadline = (Get-Date).AddSeconds($waitS)
 while ((Get-Date) -lt $deadline -and (Test-CortexUp)) { Start-Sleep -Seconds 10 }
 
 if (Test-CortexUp) {
-    Remove-Item $stop -Force -ErrorAction SilentlyContinue
-    Write-Host "TIMEOUT: port $port still held. STOP marker removed (never leave one behind)."
-    Write-Host "         Nothing was restarted. Report this."
-    exit 2
+    # 2026-08-16 (PHASE01 4-1): ریشهٔ «تلاش دوم» — نشانگر فقط در بالای سیکلِ
+    # ~120s چک می‌شود؛ cortexِ گیرکرده در میانهٔ سیکل آن را هرگز نمی‌بیند و
+    # پورت را نگه می‌دارد (اتفاق 2026-08-16 00:2x: pid 4176). مسیر تشدید:
+    # -Force = کشتنِ اجباریِ مستند (فقط اگر cmdline واقعاً cortex باشد)، سپس
+    # ادامهٔ همان جریانِ تمیز. بدون -Force رفتارِ قبلی (خروج ۲) دست‌نخورده.
+    if ($Force) {
+        $holder = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+                  Select-Object -First 1
+        $pidToKill = $holder.OwningProcess
+        $victim = Get-CimInstance Win32_Process -Filter "ProcessId=$pidToKill" -ErrorAction SilentlyContinue
+        if ($victim -and $victim.CommandLine -like "*cortex*") {
+            Write-Host ("FORCE : killing wedged cortex pid={0} (cmdline matched; design-allowed)" -f $pidToKill)
+            Stop-Process -Id $pidToKill -Force
+            Start-Sleep -Seconds 3
+        } else {
+            Remove-Item $stop -Force -ErrorAction SilentlyContinue
+            Write-Host "TIMEOUT+FORCE-REFUSED: port $port held by a NON-cortex process (pid=$pidToKill). Marker removed; nothing killed."
+            exit 3
+        }
+    } else {
+        Remove-Item $stop -Force -ErrorAction SilentlyContinue
+        Write-Host "TIMEOUT: port $port still held. STOP marker removed (never leave one behind)."
+        Write-Host "         Nothing was restarted. Report this (or retry with -Force)."
+        exit 2
+    }
 }
 
 Remove-Item $stop -Force

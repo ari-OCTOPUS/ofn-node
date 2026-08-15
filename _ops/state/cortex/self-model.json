@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-15T22:29:38",
+  "ts": "2026-08-16T02:30:20",
   "schema": "self-model.v1",
-  "n_modules": 680,
-  "total_lines": 186345,
-  "n_tests": 696,
+  "n_modules": 682,
+  "total_lines": 186891,
+  "n_tests": 698,
   "n_wire_flags": 180,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
@@ -589,6 +589,40 @@
       "house_imports": [
         "opslib"
       ]
+    },
+    "audit/generate_aeb.py": {
+      "purpose": "R19 — تولید Audit Evidence Bundle (AEB) از درختِ زنده.",
+      "lines": 250,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_run",
+        "sha256_file",
+        "now_iso",
+        "main"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_KILL_SEAM"
+      ],
+      "house_imports": []
+    },
+    "audit/organism_manifest.py": {
+      "purpose": "DA-5 جزء ۱ — شناسنامهٔ پنج‌پروسه‌ای ارگانیسم (organism manifest، قدم صفر).",
+      "lines": 205,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "_run",
+        "_sha256",
+        "_processes",
+        "_ports",
+        "_role_of",
+        "_entry_file",
+        "_effective_flags_last_wins",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "autonomy_grant.py": {
       "purpose": "autonomy_grant — چه کاری را اختاپوس **بدونِ پرسیدن** می‌تواند بکند.",
@@ -2657,7 +2691,7 @@
     },
     "cortex/model_router.py": {
       "purpose": "model_router.py — «به همه جا API بده»: یک درِ واحد به سه مغز.",
-      "lines": 591,
+      "lines": 600,
       "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
@@ -3002,8 +3036,8 @@
     },
     "debate/client.py": {
       "purpose": "client.py — کلاینت LLM حداقلی (stdlib، بدون SDK) برای لوپ مناظره و Governor.",
-      "lines": 551,
-      "n_funcs": 9,
+      "lines": 601,
+      "n_funcs": 11,
       "n_classes": 5,
       "top_defs": [
         "RefuseToSend",
@@ -3011,9 +3045,9 @@
         "TelemetryError",
         "DeepSeekClient",
         "MultiProviderClient",
-        "extract_json",
-        "_infer_finish",
-        "_ask_budget"
+        "_fa_ratio",
+        "_strip_reasoning_preamble",
+        "extract_json"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -4187,7 +4221,7 @@
     },
     "flag_drift.py": {
       "purpose": "پروبِ رانشِ فلگ — «مسلح» در برابرِ «بارگذاری‌شده».",
-      "lines": 580,
+      "lines": 602,
       "n_funcs": 20,
       "n_classes": 0,
       "top_defs": [
@@ -8252,8 +8286,8 @@
     },
     "owner_console/collaborator.py": {
       "purpose": "collaborator.py — collaborator engine (WP-E3 + Talk Discovery Phase A).",
-      "lines": 503,
-      "n_funcs": 6,
+      "lines": 513,
+      "n_funcs": 7,
       "n_classes": 0,
       "top_defs": [
         "_is_enabled",
@@ -8261,7 +8295,8 @@
         "_turn_id",
         "_stub_enhance",
         "_model_enhance",
-        "handle"
+        "handle",
+        "callback"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_COLLAB"

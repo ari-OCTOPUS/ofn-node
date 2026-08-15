@@ -13,7 +13,7 @@ import json
 import sqlite3
 import tempfile
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -93,6 +93,18 @@ class TestDedupAndStale(MemoryLoopC012TestBase):
         self.assertEqual([r["id"] for r in stale], [1])
         # ردیفِ بی‌زمان محافظه‌کارانه «تازه» تلقی می‌شود (fail-open برای صف، نه حذف)
         self.assertEqual(sorted(r["id"] for r in fresh), [2, 3])
+
+    def test_split_stale_compares_naive_and_aware(self):
+        aware_now = datetime.now(timezone.utc)
+        old_ts = (aware_now - timedelta(days=30)).isoformat()
+        naive_new = datetime.now().isoformat()
+        pending = [
+            {"id": 1, "hypothesis": "کهنهٔ aware", "timestamp": old_ts},
+            {"id": 2, "hypothesis": "تازهٔ naive", "timestamp": naive_new},
+        ]
+        stale, fresh = mrp.split_stale(pending, stale_days=14, now=aware_now)
+        self.assertEqual([r["id"] for r in stale], [1])
+        self.assertEqual([r["id"] for r in fresh], [2])
 
 
 class TestRealDecisionMakerReads(MemoryLoopC012TestBase):

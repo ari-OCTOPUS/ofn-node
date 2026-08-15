@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-017** (C-016 در 2026-08-16 ~00:4x ثبت شد: دریچهٔ فرار معمار؛ C-015 در 2026-08-15 ~22:2x ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده؛ C-014: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-019** (C-018 در 2026-08-16 ~0x:xx ثبت شد: پیش‌فرض کهنهٔ مگاپرامپت PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016 در 2026-08-16 ~00:4x ثبت شد: دریچهٔ فرار معمار؛ C-015 در 2026-08-15 ~22:2x ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده؛ C-014: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -270,4 +270,18 @@ contradiction:
   resolution: "رأی مالک (هر پنج) + اجرا 2026-08-16 ~00:5x: خط از flags.cmd حذف شد (بکاپ) — غیبت در هر دو limb تأیید شد (flags-loaded: orphan False)"
   status: resolved (2026-08-16 — verified in organism+cortex)
   registered_by: "senior-architect (grep دو-مخزن: C-017 فقط به‌عنوان آزاد بعدی بود)"
+```
+
+```yaml
+contradiction:
+  id: C-018
+  claim: "پیش‌فرض STEP 1-1 مگاپرامپت PHASE01 v2.0: «automation.py هنوز memory_read_patch را import نمی‌کند (تأیید شد 08-15: ۳ نوشتن/۰ خواندن)»"
+  value_a: "مگاپرامپت PHASE01 v2.0 (معمار ارشد GLM، 2026-08-16 ~01:2x) — دستور اتصال دوبارهٔ پچ در سه نقطه"
+  value_b: "درخت زنده: automation.py پچ را در ۴ نقطه import می‌کند (خطوط 377/436/467/623، کامیت 8a5e98b)؛ telemetry پنجرهٔ پس از سیم‌کشی (بعد از event 34218): read-before-decision=1.0 (30/30) و readback=1.0"
+  source_b: "grep زنده + mrp.telemetry_metrics(after_id=34217) — همین نشست (PHASE01) 2026-08-16 ~0x:xx"
+  live_check: "نکتهٔ حیاتی: automation.py اکنون فایل TCB است (manifest امضاشده) — اجرای STEP 1-1 هم غلط بود (کارِ انجام‌شده) هم ممنوع (بدون امضای مجدد)"
+  likely: value_b — همان کلاسِ C-015 (حافظهٔ کهنهٔ ایجنت-معمار نسبت به کد زنده)
+  resolution: "null — مستندسازی صرف؛ اجرا نشد (درست). پذیرش C-012 با پنجرهٔ درست اثبات شد. نکتهٔ all-time=0.769 (30/39) مربوط به ۹ رویدادِ پیش از سیم‌کشی است — متریک باید همیشه windowed گزارش شود (after_id از اولین memory.read پس از 8a5e98b)"
+  status: open — documentation-stale (مگاپرامپت PHASE01 v2.0 §STEP1-1 باید در نسخهٔ بعد اصلاح شود)
+  registered_by: "PHASE01 agent 2026-08-16 (grep دو-مخزن: C-018 فقط به‌عنوان آزاد بعدی در خود مگاپرامپت بود)"
 ```

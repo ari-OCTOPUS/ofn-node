@@ -290,3 +290,5 @@
 {"ts": "2026-08-15T16:39:29", "beat": 36700, "period_s": 489.97, "kind": "llm_learn", "ok": true, "skipped": "no-new-signal", "tier": "skip", "input_sig": "b8f79149f6d1b78d"}
 {"ts": "2026-08-15T17:48:19", "beat": 36765, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
 {"ts": "2026-08-15T23:56:16", "beat": 37121, "period_s": 489.97, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 489.97, "gate0": false}}
+{"ts": "2026-08-16T02:58:37", "beat": 37291, "period_s": 489.97, "kind": "gap_report", "ok": true, "gaps": [{"topic": "perception-bias", "topic_id": "A08", "awareness": 0.2548}, {"topic": "motivation", "topic_id": "A07", "awareness": 0.2664}, {"topic": "self-narrative", "topic_id": "A06", "awareness": 0.2893}]}
+{"ts": "2026-08-16T03:10:54", "beat": 37305, "period_s": 489.97, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6, "memory_ingest": {"ok": true, "schema": "research-ingest.v1", "n_hits": 6, "committed": 0, "proposed": 0, "skipped": 6, "rejected": 0, "trail": "F:\\backup\\_ops\\state\\memory\\research-ingest.jsonl", "may_authorize": false}}

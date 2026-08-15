@@ -122,3 +122,4 @@
 {"ts": "2026-08-15T17:55:43", "schema": "recall_trend.v1", "cycle": 36771, "wall": 1786780543.8060808, "events": 58, "keys": 267, "reach_median": 2.0, "reach_max": 60, "self_ratio": 0.011235955056179775, "coverage": 0.09309791332263243, "rows": 623}
 {"ts": "2026-08-15T18:36:04", "schema": "recall_trend.v1", "cycle": 36809, "wall": 1786782964.8586779, "events": 58, "keys": 267, "reach_median": 2.0, "reach_max": 60, "self_ratio": 0.011235955056179775, "coverage": 0.09294871794871795, "rows": 624}
 {"ts": "2026-08-15T19:22:24", "schema": "recall_trend.v1", "cycle": 36854, "wall": 1786785744.7656705, "events": 58, "keys": 267, "reach_median": 2.0, "reach_max": 60, "self_ratio": 0.011235955056179775, "coverage": 0.0928, "rows": 625}
+{"ts": "2026-08-16T01:22:47", "schema": "recall_trend.v1", "cycle": 37199, "wall": 1786807367.1327004, "events": 58, "keys": 267, "reach_median": 2.0, "reach_max": 60, "self_ratio": 0.011235955056179775, "coverage": 0.0928, "rows": 625}

@@ -196,3 +196,6 @@
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786782660.1319497, "meta": {"incomplete": 5}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786785423.402387, "meta": {"incomplete": 6}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786791335.4782546, "meta": {"incomplete": 7}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786804059.0460293, "meta": {"incomplete": 8}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786804430.9448884, "meta": {"incomplete": 9}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786805668.753471, "meta": {"incomplete": 10}}

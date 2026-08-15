@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-15T23:52:04",
-  "cycle": 18,
-  "coherence": 0.953,
+  "ts": "2026-08-16T03:32:10",
+  "cycle": 16,
+  "coherence": 0.957,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.967,
-      "age_s": 120,
+      "awareness": 0.97,
+      "age_s": 107,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.946,
-      "age_s": 389,
+      "awareness": 0.949,
+      "age_s": 365,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.946,
-      "age_s": 389,
+      "awareness": 0.949,
+      "age_s": 366,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.973,
-      "age_s": 389,
+      "awareness": 0.952,
+      "age_s": 698,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.799,
-      "age_s": 69352,
+      "awareness": 0.761,
+      "age_s": 82559,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.982,
-      "age_s": 257,
+      "awareness": 0.992,
+      "age_s": 112,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.97,
-      "age_s": 10452,
+      "awareness": 0.973,
+      "age_s": 9380,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.97,
-      "age_s": 10452,
+      "awareness": 0.973,
+      "age_s": 9381,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.866,
-      "age_s": 69558,
+      "awareness": 0.977,
+      "age_s": 11747,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.98,
-      "age_s": 10451,
+      "awareness": 0.982,
+      "age_s": 9379,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -108,7 +108,7 @@
       "id": "fourd_system",
       "present": true,
       "awareness": 0.957,
-      "age_s": 617,
+      "age_s": 616,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -133,10 +133,10 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] موانع مالک را شناسایی و برطرف کردن باید اولویت اصلی باشد.",
+  "thought": "[local] موانع تعیین کننده ادامه تحقیق وب رایگان است.",
   "stress": {
     "level": "🟡 استرس",
-    "organism_stress": 0.48,
+    "organism_stress": 0.44,
     "in_fear": []
   },
   "innervation": {
@@ -146,7 +146,7 @@
   },
   "fourd_health": {
     "status": "stale",
-    "age_s": 36694
+    "age_s": 49902
   },
   "ignition": {
     "ignited": true,
@@ -155,10 +155,10 @@
     "n_candidates": 9
   },
   "calibration": {
-    "n": 291,
-    "brier": 0.17099,
-    "aurc": 0.312104,
-    "ungraded": 177
+    "n": 292,
+    "brier": 0.173829,
+    "aurc": 0.317488,
+    "ungraded": 184
   },
   "consolidate": {
     "n_in": 0,
@@ -166,8 +166,16 @@
     "archived": 0
   },
   "truth_sync": {
-    "skipped": "cooldown",
-    "next_in_s": 574.9
+    "wrote": true,
+    "keys": [
+      "coherence",
+      "members_present",
+      "stale_members",
+      "beat",
+      "halted",
+      "rfcs_pending",
+      "HEAD"
+    ]
   },
   "owner_guidance": {
     "focus": "موانع چیست",

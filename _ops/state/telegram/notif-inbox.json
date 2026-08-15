@@ -2090,6 +2090,117 @@
    "created_ts": 1786800064.5825949,
    "read": false,
    "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T000047_a8260de9",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "dt0816s0"
+   },
+   "created_at": "2026-08-16T00:00:47+1000",
+   "created_ts": 1786802447.706405,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T000547_f0ffc5cb",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-3e9a06df720e"
+   },
+   "created_at": "2026-08-16T00:05:47+1000",
+   "created_ts": 1786802747.5526474,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T000710_663dfe5b",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>c6</b> ×۱ — 🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطای پرتکرار failed ×10» رخ می‌دهد؟ خودشناسی ",
+   "meta": {},
+   "created_at": "2026-08-16T00:07:10+1000",
+   "created_ts": 1786802830.1027474,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T003140_7fbb86db",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-8a5dc9e30b27"
+   },
+   "created_at": "2026-08-16T00:31:40+1000",
+   "created_ts": 1786804300.4217262,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T003723_cba01932",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-b1e60001451d"
+   },
+   "created_at": "2026-08-16T00:37:23+1000",
+   "created_ts": 1786804643.011077,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T005603_ecd7eb3a",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-a0c3ff30d9e1"
+   },
+   "created_at": "2026-08-16T00:56:03+1000",
+   "created_ts": 1786805763.224527,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260816T005816_875e51c8",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)",
+   "meta": {},
+   "created_at": "2026-08-16T00:58:16+1000",
+   "created_ts": 1786805896.3470538,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T010848_05544ac8",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>c6</b> ×۳ — 🔬 یک چیزِ تازه در خودم دیدم ▸ چرا «خطای پرتکرار failed ×5» رخ می‌دهد؟ خودشناسی ر",
+   "meta": {},
+   "created_at": "2026-08-16T01:08:48+1000",
+   "created_ts": 1786806528.0404603,
+   "read": false,
+   "read_at": null
   }
  ],
  "last_ping_ts": 0.0,

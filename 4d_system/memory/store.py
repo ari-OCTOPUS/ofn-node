@@ -9,7 +9,7 @@ from __future__ import annotations
 import sqlite3
 import json
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 from dataclasses import dataclass, field, asdict
@@ -184,24 +184,68 @@ def query_experiments(source: str = "", verdict: str = "",
 
 
 def save_hypothesis(domain: str, hypothesis: str, rationale: str = "") -> int:
-    """Store a new hypothesis for future testing."""
+    """Store a new hypothesis for future testing.
+
+    R16 (مصوب مالک 2026-08-16): ورود از سیاستِ صف می‌گذرد — dedup خانواده‌ای
+    یا سقفِ ۱۰ ورودِ فعال در روز؛ ردیف همیشه نوشته می‌شود (حذف ممنوع)، فقط
+    status برچسب می‌خورد. غیبتِ ماژولِ سیاست = رفتارِ قبل (fail-open به
+    pending، ثبتِ خطا در لاگ) — سیاست نباید نوشتن را بکشد.
+
+    Fail-open هرگز ستون‌های policy_tag/dedup_of را INSERT نمی‌کند: آن ستون‌ها
+    را فقط classify_for_insert با ALTER می‌سازد؛ اگر سیاست بمیرد، INSERTِ
+    قدیمی (بدون آن ستون‌ها) باید همچنان pending بنویسد نه OperationalError.
+    timestamp و سقف روزانه هر دو از همان لحظهٔ UTC می‌آیند."""
     _ensure_db()
+    now = datetime.now(timezone.utc)
+    ts = now.isoformat(timespec="seconds")
+    today = now.strftime("%Y-%m-%d")
+    status = "pending"
+    dedup_of = None
+    tag = None
+    extras = False
+    try:
+        from memory.hypothesis_policy import (classify_for_insert, DAILY_CAP,
+                                              POLICY_VERSION)
+        with _conn() as conn:
+            status, dedup_of = classify_for_insert(
+                conn, domain, hypothesis, today=today)
+        if status == "dedup":
+            tag = f"{POLICY_VERSION}:family:{dedup_of}"
+        elif status == "deferred":
+            tag = f"{POLICY_VERSION}:cap:{DAILY_CAP}"
+        extras = True
+    except Exception as e:  # noqa: BLE001 — سیاست fail-open است
+        import logging
+        logging.getLogger(__name__).warning("hypothesis_policy unavailable: %s", e)
+        status = "pending"
+        dedup_of = None
+        tag = None
+        extras = False
     with _conn() as conn:
-        cur = conn.execute(
-            "INSERT INTO hypotheses (timestamp, domain, hypothesis, rationale) VALUES (?, ?, ?, ?)",
-            (datetime.now().isoformat(), domain, hypothesis, rationale)
-        )
+        if extras:
+            cur = conn.execute(
+                "INSERT INTO hypotheses (timestamp, domain, hypothesis, rationale,"
+                " status, policy_tag, dedup_of) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (ts, domain, hypothesis, rationale, status, tag, dedup_of),
+            )
+        else:
+            cur = conn.execute(
+                "INSERT INTO hypotheses (timestamp, domain, hypothesis, rationale,"
+                " status) VALUES (?, ?, ?, ?, ?)",
+                (ts, domain, hypothesis, rationale, status),
+            )
         row_id = cur.lastrowid
         conn.commit()
         return row_id
 
 
 def get_pending_hypotheses(limit: int = 10) -> list[dict]:
-    """Get hypotheses that haven't been tested yet."""
+    """صفِ فعال R16: فقط pendingِ تست‌نشده — dedup/deferred/dormant بیرون می‌مانند."""
     _ensure_db()
     with _conn(row_factory=sqlite3.Row) as conn:
         rows = conn.execute(
-            "SELECT * FROM hypotheses WHERE tested = 0 ORDER BY timestamp DESC LIMIT ?",
+            "SELECT * FROM hypotheses WHERE tested = 0 AND status = 'pending'"
+            " ORDER BY timestamp DESC LIMIT ?",
             (limit,)
         ).fetchall()
         return [dict(r) for r in rows]
@@ -249,7 +293,9 @@ def get_stats() -> dict:
         stats = {}
         stats["experiments"] = conn.execute("SELECT COUNT(*) FROM experiments").fetchone()[0]
         stats["hypotheses"] = conn.execute("SELECT COUNT(*) FROM hypotheses").fetchone()[0]
-        stats["pending_hyp"] = conn.execute("SELECT COUNT(*) FROM hypotheses WHERE tested=0").fetchone()[0]
+        stats["pending_hyp"] = conn.execute(
+            "SELECT COUNT(*) FROM hypotheses WHERE tested=0 AND status='pending'"
+        ).fetchone()[0]
         stats["conversations"] = conn.execute("SELECT COUNT(*) FROM conversations").fetchone()[0]
         stats["reflections"] = conn.execute("SELECT COUNT(*) FROM reflections").fetchone()[0]
 

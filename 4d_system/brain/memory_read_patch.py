@@ -28,7 +28,7 @@ import logging
 import re
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,14 @@ _WORD_RE = re.compile(r"[\w\u0600-\u06FF]+")
 
 
 def _now() -> datetime:
-    return datetime.now()
+    return datetime.now(timezone.utc)
+
+
+def _as_utc(dt: datetime) -> datetime:
+    """naive → UTC فرضی (سازگار با timestampهای قدیمی)؛ aware → UTC."""
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 # ── خواننده‌ها (هر کدام telemetry می‌فرستند) ─────────────────────────────
@@ -198,12 +205,13 @@ def split_stale(pending: list[dict], stale_days: int = STALE_DAYS_DEFAULT,
     ستونِ timestamp لحظهٔ ثبت در DB است (transaction_time)؛ فرضیهٔ pendingِ
     بدونِ tested برایش valid_time نامتناهی است — کهنگیِ ثبت، نشانهٔ صفِ راکد.
     """
-    now = now or _now()
+    now = _as_utc(now) if now is not None else _now()
     cutoff = now - timedelta(days=stale_days)
     stale, fresh = [], []
     for row in pending or []:
         try:
-            ts = datetime.fromisoformat(str(row.get("timestamp", "")))
+            ts = datetime.fromisoformat(str(row.get("timestamp", "")).replace("Z", "+00:00"))
+            ts = _as_utc(ts)
         except (ValueError, TypeError):
             fresh.append(row)  # ردیفِ بی‌زمان → محافظه‌کارانهً تازه
             continue

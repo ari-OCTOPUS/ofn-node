@@ -2,17 +2,17 @@
   "month": "2026-08",
   "organs": {
     "ARCHITECT_SYS": {
-      "date": "2026-08-15",
-      "spent_today_musd": 145883,
-      "spent_month_musd": 313968
+      "date": "2026-08-16",
+      "spent_today_musd": 11817,
+      "spent_month_musd": 325785
     },
     "DEBATE_LOOP": {
-      "date": "2026-08-15",
+      "date": "2026-08-16",
       "spent_today_musd": 0,
       "spent_month_musd": 0
     },
     "ZIMAN": {
-      "date": "2026-08-15",
+      "date": "2026-08-16",
       "spent_today_musd": 0,
       "spent_month_musd": 1000
     }

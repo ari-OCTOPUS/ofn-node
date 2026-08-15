@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-15T22:30:03",
+  "ts": "2026-08-16T02:30:47",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
   "checklist_static": true,
   "maturity_pct": 82.6,
   "improvement_rate": {
-    "closed": 6,
+    "closed": 7,
     "moved": 2,
-    "rate_pct": 33.3
+    "rate_pct": 28.6
   },
   "n_proposals": 38,
   "by_category": {
@@ -144,10 +144,10 @@
         "status": "proposed"
       },
       {
-        "id": "up-c72f42371a",
+        "id": "up-958824cb93",
         "priority": "P1",
-        "title": "کوچک‌ترین فیکسِ دکتر: درخواست ری‌استارت ارگانیسم",
-        "suggested_action": "درخواست ری‌استارت ارگانیسم",
+        "title": "کوچک‌ترین فیکسِ دکتر: جمع‌آوری و تحلیل دقیق سایه پیش از promote در 24 ساعت آینده",
+        "suggested_action": "جمع‌آوری و تحلیل دقیق سایه پیش از promote در 24 ساعت آینده",
         "change_level": "reconfig",
         "source": "smallest_fix",
         "status": "proposed"
@@ -515,7 +515,12 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] \"owner merge verdict has real effect (apply_merge wired)\" را اول حل کنید، زیرا این مشکل پیش‌بینی‌سازی عملیات‌های مerged است و تأثیر آن بر سایر گاف‌ها قابل توجه است.",
+  "brain_note": "[local] \"owner merge verdict has real effect (apply_merge wired)\" را برای اول حل کرد، زیرا این مشکل پایه‌ای است که تأثیرات آن روی سایر گاف‌ها قابل مشاهده است و بدون حل آن، امکان بهبود سایر بخش‌ها محدود خواهد بود.",
+  "deep_thought": {
+    "ts": "2026-08-16T02:30:32",
+    "model": "deepseek-v4-flash",
+    "text": "We need answer in Persian. Need select one gap first. Need use data, avoid repetition. Need consider previous \"قبلاً_گفتی\" fragments, not complete. Need choose among current gaps. Need reference data. Need perhaps note previous fragments are incomplete, so cannot rely. Need pick one gap. Need justify with data. Need provide first step and falsifying observation. If queue worthless, say.\n\nLet's analyze JSON. Gaps:\n1 up-173d84e33e P1 Lead-نقاشی: هنوز درآمد تأییدشده ای ثبت نشده. suggested: ثبت لید. change_level reconfig. source business-brain.\n2 up-72bd5dea52 P1 Lead-نقاشی: دادهٔ درآمد هنوز در حال ساخت است (15/۲۸ روز، سایه). suggested: چند لید واقعی بده تا اتریبیوشن معتبر شود. change_level tune.\n3 up-86a2454554 P0 owner merge verdict has real effect (apply_merge wired). suggested: apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشت flag) تا تأیید تو اثر واقعی داشته باشد، نه فقط برچسب. change_level code. source audit.\n4 up-d6065f91ae P0 self-analysis loop observe→critique→propose→validate→promote. suggested: دکتر را داده‌زنده کن: db را در make_doctor تزریق کن + apply_merge را در run_cycle بعد از verdict merged صدا بزن (پشت flag). change_level code. source audit.\n5 up-1363aae4df P0 improvement proposals shadow-eval before promote. suggested: measured_lift._default_eval را از stub به سنجش واقعی suite-delta در sandbox ارتقا بده. change_level code. source audit.\n6 up-637452c68d P2 سنتز مغز: اتصال نظارت خودکار attribution به خروجی هر مغز. suggested: افزودن hook در پایپلاین خروجی. change_level reconfig. source synthesis.\n7 up-d1574ba315 P2 سنتز مغز: حلقه خودتحلیلی با شرط توقف بهبودمحور. suggested: افزودن معیار توقف بعد از ۳ تکرار بدون افزایش. change_level reconfig.\n8 up-84c10b27bd P2 سنتز مغز: ردیابی انگیزش در خروجی های درآمدزا. suggested: برچسب گذاری خودکار پروپوزال های لید با ابعاد انگیزش. change_level reconfig.\n\nImprovement rate: closed 7, moved 2, rate_pct 28.6. maturity_pct 82.6.\n\nNeed select one first. Likely P0 gap up-86a2454554 or up-d6065f91ae or up-1363a"
+  },
   "goal_directed": {
     "n_goal_serving": 10,
     "n_circular_dropped": 0,
@@ -523,7 +528,7 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 17,
+      "tracked": 16,
       "moved": false,
       "now": {
         "confirmed_revenue": 0,

@@ -62,17 +62,17 @@
   "last_offset": 223883295,
   "status_message_id": 66,
   "commands_set_inner": 1,
-  "last_pulse": 1786801899.6128545,
+  "last_pulse": 1786813157.5376053,
   "home_message_id": 149,
   "leg_card_hash": {
-    "lead": "a20340f5d6d14674",
+    "lead": "86d3134b520e3509",
     "ziman": "f7c61efcd11dab5d",
     "mining": "8c62c55798988893",
     "crypto": "1ca209993f59a2eb",
     "accounting": "33d012532db7efe9",
-    "studio_pf": "35fe15af273f3ada",
+    "studio_pf": "e541d2136b2260e2",
     "system": "7841ef83dfaf43b0",
-    "knowledge": "49271ad8037a731a",
+    "knowledge": "4aa203c7d45d2fe4",
     "cartographer": "0c333de9f2422528",
     "mirror": "8e82bf62731550be"
   },
@@ -88,8 +88,8 @@
     "cartographer": 372,
     "mirror": 374
   },
-  "leg_card_cursor": 2,
-  "last_leg_card": 1786802209.5687108,
+  "leg_card_cursor": 3,
+  "last_leg_card": 1786815341.888145,
   "guide_message_id": 358,
   "guide_hash": "54c2aa87a0fd6935",
   "watchdog_receipt_cursor": "2026-08-15T14:52:17 centre down (silent 514s) - launching RUN-TG-CENTER.bat",
@@ -97,12 +97,12 @@
   "dm_guide_hash": "fa57cb2f6d14e0a7",
   "commands_set_v2": "15d32b5dd1d7ed4f",
   "commands_group_cleared_v2": "15d32b5dd1d7ed4f",
-  "boot_receipt_pid": 18060,
+  "boot_receipt_pid": 21744,
   "last_morning_day": "2026-08-15",
   "commands_default_cleared_v2": "15d32b5dd1d7ed4f",
   "last_evening_day": "2026-08-15",
   "last_weekly_review": "2026-W33",
   "dg_cursor": 1786709560.0,
-  "boot_count_date": "2026-08-15",
-  "boot_count": 7
+  "boot_count_date": "2026-08-16",
+  "boot_count": 3
 }

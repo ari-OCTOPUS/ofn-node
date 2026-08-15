@@ -1728,3 +1728,15 @@
 {"ts": "2026-08-15T23:25:18", "v": 20.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 23}}
 {"ts": "2026-08-15T23:40:31", "v": 20.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 23}}
 {"ts": "2026-08-15T23:56:15", "v": 20.625, "cov": {"confirmed": 0, "effects": 0, "hour": 23}}
+{"ts": "2026-08-16T00:16:21", "v": 20.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 0}}
+{"ts": "2026-08-16T00:37:37", "v": 20.625, "cov": {"confirmed": 0, "effects": 0, "hour": 0}}
+{"ts": "2026-08-16T00:58:19", "v": 20.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 0}}
+{"ts": "2026-08-16T01:14:04", "v": 20.5, "cov": {"confirmed": 0, "effects": 0, "hour": 1}}
+{"ts": "2026-08-16T01:30:02", "v": 20.5417, "cov": {"confirmed": 0, "effects": 0, "hour": 1}}
+{"ts": "2026-08-16T01:50:48", "v": 20.5, "cov": {"confirmed": 0, "effects": 0, "hour": 1}}
+{"ts": "2026-08-16T02:10:21", "v": 20.5, "cov": {"confirmed": 0, "effects": 0, "hour": 2}}
+{"ts": "2026-08-16T02:25:46", "v": 20.5, "cov": {"confirmed": 0, "effects": 0, "hour": 2}}
+{"ts": "2026-08-16T02:45:11", "v": 20.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 2}}
+{"ts": "2026-08-16T03:00:47", "v": 20.6667, "cov": {"confirmed": 0, "effects": 0, "hour": 3}}
+{"ts": "2026-08-16T03:16:08", "v": 20.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 3}}
+{"ts": "2026-08-16T03:32:26", "v": 20.5417, "cov": {"confirmed": 0, "effects": 0, "hour": 3}}

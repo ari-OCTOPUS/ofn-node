@@ -1,0 +1,20 @@
+{
+  "schema": "octopus.capability-manifest.v1",
+  "capability_id": "hypothesis_engine",
+  "title": "🔬 موتور فرضیه — ADR-037، adapter خاموش با رأی مالک",
+  "version": "0.1.0",
+  "owner_phrases": [
+    "hypothesis_engine"
+  ],
+  "action_contract": "octopus.decision.v1 → خروجی فقط-خواندنی/پیشنهادی",
+  "risk_class": "read",
+  "owner_gate": "بدون رأی تازه؛ اجرای بیرونی هرگز",
+  "surface": "بدون کارتِ تلگرام (کلاس ۷ کاتالوگ کشف 2026-08-15 — نامرئی برای SCAN_DIRS)",
+  "runtime_status_probe": "CORTEX_HYPOTHESIS=1 روشن (owner-override 08-15)؛ authority-bearing استفاده هرگز تا گیت.",
+  "tests": [
+    "_ops/tests/test_c6_hypothesis_producer.py"
+  ],
+  "registration_is_authorization": false,
+  "visibility_only_manifest": true,
+  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد"
+}

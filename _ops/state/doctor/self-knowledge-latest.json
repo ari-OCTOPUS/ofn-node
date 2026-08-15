@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-15T23:48:34",
-  "beat": 37108,
-  "version": 289,
+  "ts": "2026-08-16T03:27:59",
+  "beat": 37317,
+  "version": 296,
   "source": "heuristic",
-  "snapshot_hash": "70f12af0aa422304",
+  "snapshot_hash": "f9d6b671e0e573a0",
   "stable_cycles": 0,
   "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
     "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 313180 micro-USD",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 326084 micro-USD",
     "pathology": [
       {
         "symptom": "خطای پرتکرار failed ×4",
@@ -67,8 +67,8 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 21534,
-      "newest_input_age_s": 97
+      "oldest_input_age_s": 9234,
+      "newest_input_age_s": 71
     }
   },
   "deep_dive": {
@@ -76,48 +76,27 @@
     "cause_chain": [
       {
         "cause": "شرط مالک",
-        "evidence": [
-          "owner_corrections"
-        ]
+        "effect": "قبول شرط بدون ری‌استارت"
       },
       {
-        "cause": "پذیرش شرط با شرایط دیگر",
-        "evidence": [
-          "owner_corrections"
-        ]
-      },
-      {
-        "cause": "محدودیت‌های انجام عملیات بدون ری‌استارت",
-        "evidence": []
-      },
-      {
-        "cause": "زمان محدودیت",
-        "evidence": []
+        "cause": "امروز تمام شود",
+        "effect": "حد زمان"
       }
     ],
     "evidence": [
       {
-        "statement": "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدون ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
-        "source": "owner_corrections"
+        "type": "state",
+        "details": "owner_corrections: ['شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود']"
       }
     ],
     "smallest_fix": {
-      "description": "پیاده‌سازی کارایی‌ها و محدودیت‌های مورد نظر در سیستم به طوری که بدون ری‌استارت ارگانیسم قابل انجام باشد",
-      "evidence_needed": [
-        "کد پیاده‌سازی شده",
-        "آزمون‌ها و گزارش‌های موفقیت"
-      ]
+      "description": "انتشار کارایه‌ای برای عدم پیاده‌سازی شرط مالک",
+      "impact": "افزایش رعایت شرایط توسط اعضای سیستم"
     },
     "blocked_by": [
       {
-        "cause": "محدودیت‌های فنی",
-        "evidence": []
-      },
-      {
-        "cause": "زمان محدودیت",
-        "evidence": [
-          "owner_corrections"
-        ]
+        "reason": "پیاده‌سازی نامشخص",
+        "details": "دستورالعمل‌ها و مراحل دقیق پیاده‌سازی شرط را مشخص نشده است."
       }
     ]
   },
@@ -139,7 +118,7 @@
       "system"
     ],
     "in_fear": [],
-    "money_musd": 313180,
+    "money_musd": 326084,
     "recent_errors": {
       "failed": 4,
       "ValueError": 1,
@@ -148,7 +127,7 @@
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-15T23:45:08",
+    "ts": "2026-08-16T03:25:36",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,

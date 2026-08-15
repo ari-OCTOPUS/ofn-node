@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-15T22:29:42",
+  "ts": "2026-08-16T02:30:21",
   "schema": "part-loops.v1",
   "beat": 10,
   "parts": [
@@ -13,7 +13,7 @@
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 98٪"
+      "detail": "هم‌آهنگی 97٪"
     },
     {
       "id": "doctor",
@@ -25,13 +25,13 @@
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.457206$/۳۰"
+      "detail": "0.485586$/۳۰"
     },
     {
       "id": "learning",
       "name": "📚 یادگیری",
       "status": "🟢",
-      "detail": "5 کشفِ ۴۸h"
+      "detail": "4 کشفِ ۴۸h"
     },
     {
       "id": "legs",

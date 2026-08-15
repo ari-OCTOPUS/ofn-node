@@ -78,3 +78,4 @@
 2026-08-15T14:52:06 centre HUNG (alive, silent 514s) - killing pid 21300 then relaunching
 2026-08-15T14:52:13 centre down 514s but loop alive - stopping 1 stale loop(s)
 2026-08-15T14:52:17 centre down (silent 514s) - launching RUN-TG-CENTER.bat
+2026-08-16T00:27:03 STOP-TG-CENTER present - not reviving centre

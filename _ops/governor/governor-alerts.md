@@ -4890,3 +4890,9 @@
 ## 2026-08-15T22:13:59 (metabolism)
 - ⚠️ email_inbound: no valid token — configure OAuth first (×100 در پنجرهٔ ۶ساعته — escalation)
 
+## 2026-08-16T00:29:16 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-16T00:53:17 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
