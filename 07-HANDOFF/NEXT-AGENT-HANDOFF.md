@@ -153,3 +153,9 @@ cands.append((
 - ⏳ دستِ مالک: R1 چرخش PAT (پچ آماده در `03 - Projects/Mining/02 - Code/PAT-SCRUB-READY-2026-08-16.md`) · **امضای Ed25519**: `4d_system/config/trust-boundary.json` + `_ops/audit/bundles/AEB-*.txt` (فرمان‌ها در سربرگ مولدها) · بعدش روشن‌کردن `OCTOPUS_TCB_MANIFEST_ENFORCE` با ری‌استارت رسمی · R21 انتخاب ممیز بیرونی · رأی‌های سیاست صف (R16 v1) و DA-1/DA-2/DA-3.
 - ⏸ تعلیقِ مستند (نردبان شورا): R15 daemon (بعد از DA-2) · R17 فلگ (پنجرهٔ بعدی) · R28/R29 (فاز ۵، هرگز هم‌زمان).
 - شناسهٔ آزاد تناقض: **C-016**. سوئیت‌های نو در run_all: `test_flag_shortfall_smtp_exemption.py` · `test_ask_reasoning_preamble_strip.py`؛ تست‌های 4d: `test_trust_boundary_c013.py`.
+
+### تکمیل 2026-08-16 ~00:5x — دو مأموریت اسکن
+
+- **قاضی معماری ✅:** `00 - Inbox/2026-08-16 JUDGE — Architecture Judgment Report.md` — NO-GO تأیید + تشدید INV-4؛ DA-4 (شبکهٔ PEP) پاسخِ ساختاریِ کوچک‌ترین پچِ مؤثرش است. توجه: قاضی از snapshot 23:05 قضاوت کرد — هش‌چک TCB الان پیاده است (6fc0f4b).
+- **کشف پنهان‌ها ✅:** `00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md` — ۸ کلاس، اعداد زندهٔ امشب (نه 08-11)، ۵ کارت رأی برای مالک (کارت ۵ = حذف DOCTOR_USE_CENTRAL_ROUTER از flags.cmd — رأی مالک، ایجنت حذف نکرد). Scratch: `_scratch-dark.json`.
+- ماتریس v2.0 جاافتاده‌ها: R20a-e کامل شد (DA-4 اضافه شد) · ترتیب R2/R13 در OPEN-VERDICTS با یادداشت اجرا ثبت شد (پیش‌فرض آینده = ماتریس تا رأی مالک).
