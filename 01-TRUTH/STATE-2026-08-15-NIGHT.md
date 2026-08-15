@@ -24,7 +24,11 @@ entry_point: این فایل نقطهٔ شروع هر ایجنت خارجی اس
 - منبع زنده: `OCTOPUS/CURRENT-TRUTH.md` (runtime می‌نویسد — تو فقط بخوان) · `_ops/state/ORGANISM-STATE.json`
 - کلیدهای کشتن (همه سالم): فلگ `halted` در DB · فایل STOP · `_ops/observatory/data/kill.switch`
 
-## ۲. فلگ‌های روشن (مکانیزم: `_ops/OCTOPUS-flags.cmd` — ۱۴۸۲ خط CRLF؛ تغییر = بکاپ + ری‌استارت)
+## ۲. مغز و فلگ‌ها
+
+**مغز اصلی از ~19:24 روی DeepSeek است** (`_TIER_ROLE.primary → reason`؛ deepseek-v4-flash thinking؛ rollback یک‌خطی). فوگو کنار گذاشته شد به رأی مالک («گرونه»)؛ اثبات زنده: `ask('deep') → '4'` + لاگ paid با tier=primary. باگ مسیر: C-010 (BOM).
+
+## ۲-ب. فلگ‌های روشن (مکانیزم: `_ops/OCTOPUS-flags.cmd` — ۱۴۸۲ خط CRLF؛ تغییر = بکاپ + ری‌استارت)
 
 `OCTOPUS_UNIFIED_CHAT=1` · `CORTEX_HYPOTHESIS=1` · `OCTOPUS_WIRE_VAULT_RAG=1` (حافظهٔ RAG والت) · `OCTOPUS_WIRE_DOCTOR_TG=1` (relay دکتر) — همه با تأیید چتی مالک 2026-08-15. بقیهٔ WIREها عمداً خاموش. **`OBSERVATORY` فلگ ندارد چون آداپتور فاز ۳ هنوز ساخته نشده — روشن‌کردنش بی‌معناست.**
 
