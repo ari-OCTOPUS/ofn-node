@@ -29,9 +29,24 @@ def _resolve_reference_dir() -> Path:
     if not raw:
         return DESKTOP / "4D"
     p = Path(raw)
-    if p.is_absolute():
-        return p
-    return (SYSTEM_ROOT / raw).resolve()
+    p = p if p.is_absolute() else (SYSTEM_ROOT / raw).resolve()
+    # C-013 (2026-08-16): REFERENCE_DIR باید یک «مرزِ» واقعی باشد، نه خودِ ریشه.
+    # اگر به SYSTEM_ROOT یا جدِّ آن resolve شود، _protected_roots کلِ پروژه را
+    # TCB می‌پوشاند و هیچ فایلِ برگِ قابلِ-خودتغییری باقی نمی‌ماند.
+    # fail-closed با تشخیص: به مسیرِ ناموجودِ SYSTEM_ROOT/'4D' برمی‌گردیم —
+    # یعنی هیچ‌چیزِ اضافه‌تری محافظت نمی‌شود، ولی ریشه هم بلعیده نمی‌شود.
+    try:
+        root = SYSTEM_ROOT.resolve()
+        pr = p.resolve()
+        if pr == root or root.is_relative_to(pr):
+            import logging  # موضعی: این تابع پیش از import ماژول‌سطح اجرا می‌شود
+            logging.getLogger(__name__).warning(
+                "settings: REFERENCE_DIR=%r به ریشهٔ پروژه resolve شد — مرزِ "
+                "نامعتبر (C-013)؛ fallback به SYSTEM_ROOT/'4D' (ناموجود)", raw)
+            return SYSTEM_ROOT / "4D"
+    except (OSError, ValueError):
+        pass
+    return p
 
 
 REFERENCE_DIR = _resolve_reference_dir()

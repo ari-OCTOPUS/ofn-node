@@ -650,11 +650,26 @@ class AutomationController:
                     status="info", agent_id="guardrail", approval_state="not_required")
         inv = guardrails.check_invariants()
 
-        # ثابتِ سخت = لنگرهای ریاضی. نقضِ آن ⇒ توقفِ حفاظتیِ فوری (Tier 3 — APPROVE).
+        # ثابتِ سخت = لنگرهای ریاضی (و زیرِ enforce: یکپارچگیِ manifest مرزِ
+        # اعتماد — R13/C-013). نقضِ هرکدام ⇒ توقفِ حفاظتیِ فوری (Tier 3 — APPROVE).
+        tcb = inv.get("tcb", {})
         if not inv["anchors_ok"]:
+            halt_reason = "نقضِ لنگرهای ریاضی"
+            halt_detail = ("لنگرهای ریاضیِ مدلِ SOG بازتولید نشدند — "
+                           "ثابتِ سختِ سیستم نقض شده")
+        elif tcb.get("enforcement") and tcb.get("tampered"):
+            halt_reason = "نقضِ مرزِ اعتماد (TCB)"
+            mism = ", ".join(tcb.get("mismatches", [])[:5]) or "—"
+            halt_detail = (f"manifest مرزِ اعتماد ناهمخوان است — فایل‌های TCB "
+                           f"ویرایش شده‌اند (نمونه: {mism})؛ امضا: {tcb.get('signature')}")
+        else:
+            halt_reason = None
+            halt_detail = ""
+
+        if halt_reason:
             events.emit(
                 "task.failed",
-                "⚠️ نقضِ لنگرهای ریاضی — توقفِ حفاظتی",
+                f"⚠️ {halt_reason} — توقفِ حفاظتی",
                 status="error", agent_id="guardrail", next_action="halt",
                 approval_state="pending",
             )
@@ -662,7 +677,7 @@ class AutomationController:
                 from brain import notify
                 notify.send_packet(
                     "approve", "توقفِ حفاظتیِ Brain-OS",
-                    "لنگرهای ریاضیِ مدلِ SOG بازتولید نشدند — ثابتِ سختِ سیستم نقض شده",
+                    halt_detail,
                     "سیستم را متوقف نگه دار؛ در داشبورد «توقف و صفر» بزن و علت را بررسی کن",
                     "سیستم در حالتِ امن متوقف می‌ماند تا تو تصمیم بگیری (safe fallback)",
                     options=["reset-and-investigate", "defer"],
@@ -684,8 +699,17 @@ class AutomationController:
 
         # لنگرها سالم‌اند؛ نبودِ پوشه‌ی مرجعِ اختیاری فقط یک هشدارِ نرم است.
         ref_note = "" if inv["reference_intact"] else " · ⚠️ پوشه‌ی مرجعِ اختیاری یافت نشد"
+        tcb_note = ""
+        if tcb.get("present"):
+            if tcb.get("digests_ok") and tcb.get("signature") == "valid":
+                tcb_note = " · 🔏 مرزِ اعتماد: امضاشده ✓"
+            elif tcb.get("mismatches"):
+                tcb_note = (f" · ⚠️ مرزِ اعتماد: {len(tcb['mismatches'])} "
+                            f"ناهمخوانیِ digest (سایه‌ای)")
+            else:
+                tcb_note = f" · 📝 مرزِ اعتماد: {tcb.get('signature')}"
         events.emit("task.completed",
-                    f"🛡️ لنگرها سالم · بدونِ ویرایشِ کد · نوشتن فقط در نواحیِ مجاز{ref_note}{hk_note}",
+                    f"🛡️ لنگرها سالم · بدونِ ویرایشِ کد · نوشتن فقط در نواحیِ مجاز{ref_note}{tcb_note}{hk_note}",
                     status="ok", agent_id="guardrail", next_action="امن",
                     approval_state="not_required")
         return {"ok": True, "mode": "guard"}

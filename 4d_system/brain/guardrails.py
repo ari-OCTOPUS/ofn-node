@@ -91,6 +91,132 @@ CODE_TCB_DIR_NAMES: frozenset[str] = frozenset({
 })
 
 
+# ════════════════════════════════════════════════════════════════════════
+#  مرزِ اعتمادِ امضاشدنی — R13/C-013 (شورای دوم: TCB باید «حداقلی و
+#  واقعاً-تأییدشده» باشد، نه فقط پوشش‌دار). manifest در
+#  config/trust-boundary.json با digest هر فایل TCB؛ مالک با Ed25519
+#  امضا می‌کند (کلید عمومی: _ops/owner-signing/). تطبیق digest = تشخیصِ
+#  ویرایشِ فایلِ TCB حتی وقتی مسیرش «مجاز» تلقی شود — همان درزی که
+#  نمایشِ زندهٔ V1 در 2026-08-15 نشان داد (ویرایش automation.py بدون halt).
+#
+#  اجرا پلکانی است (fail-safe برای ارگانیسمِ زنده):
+#   - OCTOPUS_TCB_MANIFEST_ENFORCE=1 → ناهمخوانی/نبودِ manifest ⇒ ok=False ⇒ halt
+#   - پیش‌فرض (خاموش) → فقط گزارشِ سایه‌ای در check_invariants
+#  مالک پس از امضای manifest این فلگِ محیطی را روشن می‌کند.
+# ════════════════════════════════════════════════════════════════════════
+
+TRUST_BOUNDARY_REL = "config/trust-boundary.json"
+TRUST_BOUNDARY_SIG_SUFFIX = ".sig"
+_OWNER_PUBKEY_CANDIDATES = (
+    "../_ops/owner-signing/octopus-owner-ed25519-public.pem",  # نسبت به SYSTEM_ROOT
+    "owner-signing/octopus-owner-ed25519-public.pem",
+)
+
+
+def _trust_boundary_path():
+    root = _system_root()
+    if root is None:
+        return None
+    return root / TRUST_BOUNDARY_REL
+
+
+def _sha256_file(path) -> str | None:
+    import hashlib
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return None
+
+
+def _verify_owner_signature(manifest_path, sig_path) -> tuple[str, str]:
+    """نتیجه: (وضعیت, پیام) — 'valid' | 'invalid' | 'no-key' | 'error'."""
+    root = _system_root()
+    if root is None:
+        return "error", "SYSTEM_ROOT نامشخص"
+    pub = next((root / c for c in _OWNER_PUBKEY_CANDIDATES if (root / c).exists()), None)
+    if pub is None:
+        return "no-key", "کلید عمومی مالک یافت نشد"
+    try:
+        from cryptography.hazmat.primitives.serialization import load_pem_public_key
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+        from cryptography.exceptions import InvalidSignature
+        key = load_pem_public_key(pub.read_bytes())
+        if not isinstance(key, Ed25519PublicKey):
+            return "no-key", f"کلید {pub.name} از نوع Ed25519 نیست"
+        key.verify(sig_path.read_bytes(), manifest_path.read_bytes())
+        return "valid", "امضای مالک معتبر است"
+    except InvalidSignature:
+        return "invalid", "امضا با کلید عمومی مالک تطبیق نکرد — دستکاری؟"
+    except Exception as e:  # noqa: BLE001 — گزارش، نه crash
+        return "error", f"{type(e).__name__}: {e}"
+
+
+def check_trust_boundary() -> dict:
+    """وضعیتِ manifest مرزِ اعتماد — سایه‌ای یا مُجبِر (طبق فلگِ enforce).
+
+    برمی‌گرداند: present · files_listed · coverage_complete · digests_ok ·
+    mismatches[] · signature · enforcement · tampered
+    """
+    out = {
+        "present": False, "files_listed": 0, "coverage_complete": False,
+        "digests_ok": False, "mismatches": [], "missing": [],
+        "signature": "none", "signature_msg": "",
+        "enforcement": False, "tampered": False,
+    }
+    mp = _trust_boundary_path()
+    if mp is None or not mp.exists():
+        return out
+    out["present"] = True
+
+    import json
+    try:
+        manifest = json.loads(mp.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        out["signature_msg"] = f"manifest خواندنی نیست: {e}"
+        out["tampered"] = True
+        return out
+
+    root = _system_root()
+    tcb_files: dict = manifest.get("tcb", {}).get("files", {})
+    out["files_listed"] = len(tcb_files)
+    expected = set(CODE_TCB_FILES)
+    out["coverage_complete"] = expected.issubset(set(tcb_files))
+
+    mismatches, missing = [], []
+    for rel, digest in sorted(tcb_files.items()):
+        want = str(digest).replace("sha256:", "").lower()
+        got = _sha256_file(root / rel) if root else None
+        if got is None:
+            missing.append(rel)
+        elif got != want:
+            mismatches.append(rel)
+    out["mismatches"] = mismatches
+    out["missing"] = missing
+    out["digests_ok"] = not mismatches and not missing
+
+    sig = mp.with_name(mp.name + TRUST_BOUNDARY_SIG_SUFFIX)
+    if sig.exists():
+        status, msg = _verify_owner_signature(mp, sig)
+        out["signature"], out["signature_msg"] = status, msg
+    else:
+        out["signature"] = "unsigned"
+        out["signature_msg"] = "منتظر امضای مالک (سایه‌ای؛ digestها فعال‌اند)"
+
+    import os
+    out["enforcement"] = os.getenv("OCTOPUS_TCB_MANIFEST_ENFORCE", "0") == "1"
+    # دستکاری = ناهمخوانیِ digest یا امضای نامعتبرِ موجود. نبودِ امضا دستکاری
+    # نیست (فازِ گذار)؛ ولی زیرِ enforce، امضای غایب هم پذیرفته نیست.
+    tampered = bool(mismatches) or out["signature"] == "invalid"
+    if out["enforcement"] and (out["signature"] in ("none", "unsigned", "no-key", "error")):
+        tampered = True
+    out["tampered"] = tampered
+    return out
+
+
 def _system_root() -> Path | None:
     try:
         from config.settings import SYSTEM_ROOT
@@ -242,6 +368,8 @@ def check_invariants() -> dict:
     بررسیِ سلامتِ ثابت‌های سیستم:
       - لنگرهای ریاضیِ core هنوز بازتولید می‌شوند؟
       - دایرکتوریِ مرجعِ immutable سرِ جایش است؟
+      - (R13/C-013) فایل‌های TCB با manifest مرزِ اعتماد هم‌خوان‌اند؟
+    ok = لنگرها سالم ∧ (زیرِ enforce: TCB دستکاری‌نشده).
     """
     anchors_ok = False
     try:
@@ -258,12 +386,22 @@ def check_invariants() -> dict:
     except Exception as e:
         logger.error("invariant check (reference) failed: %s", e)
 
-    # ثابتِ سختِ سیستم = بازتولیدِ لنگرهای ریاضی. نبودِ پوشه‌ی مرجعِ اختیاری
-    # یک هشدارِ نرم است، نه دلیلِ توقفِ حفاظتی.
+    # R13: بررسیِ سایه‌ای/مُجبِرِ مرزِ اعتماد — هرگز crash نمی‌کند (گزارش برمی‌گرداند).
+    try:
+        tcb = check_trust_boundary()
+    except Exception as e:  # noqa: BLE001 — گارد نباید خودش عاملِ توقفِ نرم شود
+        logger.error("invariant check (trust boundary) failed: %s", e)
+        tcb = {"tampered": False, "enforcement": False,
+               "signature": "error", "signature_msg": str(e)}
+
+    ok = anchors_ok and not (tcb.get("enforcement") and tcb.get("tampered"))
+    # ثابتِ سختِ سیستم = بازتولیدِ لنگرهای ریاضی + (تحتِ enforce) دستکاری‌نشده‌بودنِ TCB.
+    # نبودِ پوشه‌ی مرجعِ اختیاری و manifestِ امضانشده همچنان هشدارِ نرم‌اند.
     return {
         "anchors_ok": anchors_ok,
         "reference_intact": ref_ok,
-        "ok": anchors_ok,
+        "tcb": tcb,
+        "ok": ok,
     }
 
 
