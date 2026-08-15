@@ -113,3 +113,13 @@ kernel therefore emits a proposal only:
 - register in URCP with owner + risk_tier via a `PROJECT.md`, ship the blackbox
   contract (MANIFEST/adapter/…), never touch the TCB or genome/pulse.
 The owner decides whether to wire it. Nothing here is executed autonomously.
+
+---
+
+## Addendum — 2026-08-15 (night): رأی ORANGE صادر شد
+
+- **Verdict: ORANGE granted by owner.** مسیر effect-upgradeهای 4d گشوده می‌شود.
+- **Provenance رأی:** کارت `owner-gate-orange-4d` از کانال دکتر → ۲ رأی `approved:True` در `OCTOPUS-DOCTOR/90-_meta/state/tg-inbox.jsonl` (رأی‌دهنده با `TELEGRAM_OWNER_CHAT_ID` تطبیق boolean شد) + تایید چتی نشست تفویضی؛ پل رأی دکتر (کامیت `feat(center): doctor vote bridge — C-008`) رساندنش ممکن کرد.
+- **ترتیب اجرا (مندرج در کارتِ تاییدشده):** اول shadow، بعد live — بدون پرش.
+- **مجری:** نشست بعدی (سیم‌کشی effect-upgrade کارِ ساخت است، نه فلگ)؛ این addendum فقط گیتِ رأی را می‌بندد.
+- ثبت موازی: `02-DECISIONS/OPEN-VERDICTS.md` · `01-TRUTH/CONTRADICTIONS.md` (C-008 resolved)

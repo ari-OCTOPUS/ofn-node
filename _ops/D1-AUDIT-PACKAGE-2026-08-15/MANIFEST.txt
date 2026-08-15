@@ -1,0 +1,23 @@
+D1 AUDIT PACKAGE MANIFEST — 2026-08-15
+=======================================
+
+SCOPE-FA.md          — دامنهٔ ممیزی و روش (فارسی)
+RUN-AUDIT.ps1        — اجرکنندهٔ فقط-خواندنی (A: زنجیره‌ها، B: تست‌ها، C: git)
+MANIFEST.txt         — همین فایل
+
+EXPECTED VALUES (سطح A — همه در 2026-08-15 اجرا و دیده شدند):
+  live-store verifier : VERDICT PASS, 27/27 (CRITICAL=0)
+  observatory tests   : 93 passed
+  working-repo suite  : 320 passed
+  NBB-CP vault suite  : 171 passed (F:\backup\03 - Projects\NBB-Control-Plane)
+  hypothesis engine   : 23 passed (F:\backup\_ops\hypothesis_engine — پس از بازگردانی NEW-4)
+  git HEAD working    : 43fd377 (branch claude/second-brain-governor-v02-2a6e36)
+  git HEAD vault      : 9b6ed0c + تغییرات نشست 2026-08-15 (uncommitted by design)
+
+OWNER SIGNING:
+  public key : _ops/owner-signing/octopus-owner-ed25519-public.pem
+  fingerprint: 2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2
+  private key: OUTSIDE ALL REPOS (C:\Users\Armin\.octopus-signing\) — هرگز به ممیز داده نمی‌شود
+
+NOTE — این بسته D1 را «انجام‌شده» نمی‌کند. فقط آمادهٔ اجرای شخص ثالث است
+(تا وقتی ممیز مستقل اجرا و امضا نکرده، OFFICIAL_D1_STATUS = NOT_STARTED می‌ماند).
