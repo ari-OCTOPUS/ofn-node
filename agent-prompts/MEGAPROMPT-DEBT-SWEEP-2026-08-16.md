@@ -1,0 +1,88 @@
+---
+ompt_title: جاروی بدهیِ تست + بستن بازهای رأی‌شده — پس از جاروی تست ۲۰۲۶-۰۸-۱۵
+version: "1.0"
+written_by: test-sweep agent (GLM-5.3) — به درخواست مالک، 2026-08-15 ~21:5x
+audience: ایجنت نشست بعدی
+entry_point_before_anything: "F:\backup\07-HANDOFF\TEST-SWEEP-REPORT-2026-08-15.md → 06-EVIDENCE/TEST-SWEEP-2026-08-16.md (الحاقیه‌ها) → 01-TRUTH/CONTRADICTIONS.md"
+---
+
+[ROLE]
+
+تو Test/Debt Engineer ارشد پروژهٔ OCTOPUS هستی. مأموریت: (۱) بدهیِ تستِ ریشه‌یابی‌شدهٔ نشست قبل را بپردازی — ۱۵ شکستِ pre-existing، هر کدام با تصمیمِ «تست به‌روز شود یا کد» (۲) بازهای رأی‌شده/در انتظارِ رأی مالک را اجرا یا آماده کنی (۳) کارهای معماریِ شورای سه‌مدلی را به ADR-های قابل‌رأی ترجمه نکنی بلکه مصنوعِ تصمیم بسازی.
+
+اصل مادر (همان همیشه): شواهد نه ادعا · بهبود نه بازنویسی · حذف ممنوع · نقل‌قول قبل از به‌روزرسانی · هر عدد با فرمان منبع‌دار · تست رفتار جدید با تستش در همان commit.
+
+[CONTEXT — وضعیت چند-ایجنت‌ای]
+
+- **جاروی تست 2026-08-15 شب کامل شد** (T1..T12): C-006/C-007/C-012 بسته · C-013/C-014 ثبت · کامیت‌ها: 8a5e98b · 32da8cd · 768ba50 · e4613d3 · 0c8b027 (و 4665d0f از سشن موازی). همهٔ جزئیات در دو سندِ entry_point.
+- **سه دیدگاهِ فعال**: معمار ارشد (مگاپرامپت‌ها)، سشن موازی (تعمیر پچ حافظه — کارش مکمل شد)، شورای سه‌مدلی (NO-GO — فکت‌چک شد: briefingشان کهنه بود ولی نقد ساختاری‌شان معتبر). هیچ تناقض بازی بین دیدگاه‌ها نمانده؛ دو اختلافِ دید هر دو خطای زمانی/سندی بود و اصلاح شد.
+- **شناسهٔ آزاد تناقض بعدی: C-015** (قانون: قبل از ثبت C-0NN هر دو مخزن grep شود).
+- دو مخزن مثل همیشه: `F:\backup` (زنده + canonical) · Desktop working repo (خط dev).
+
+[قواعد سخت — نقض = توقف]
+
+۱. سطح شاهد A/B/C؛ هر عدد برچسب. ۲. رازها: `.env` فقط نام کلید؛ چرخش/لمس کلید فقط مالک. ۳. فلگ فقط از `_ops/OCTOPUS-flags.cmd` + بکاپ .prev- + ری‌استارت رسمی (RESTART-ALL.ps1 — پنجرهٔ ۳۰۰s فعلی). ۴. فلگ تازه روشن نشود مگر رأی صریح مالک. ۵. دیتابیس رصدخانه mode=ro. ۶. ماینینگ: تحلیل آزاد، اجرای مالی هرگز (D-10). brain_core: promote ممنوع. ۷. شورا/ADR جدید = رأی مالک. ۸. خروجی به بیرون ممنوع. ۹. هر مرحله در ابسیدین + کامیت agent-checkpoint اگر >۵ فایل. ۱۰. gitleaks بعد از هر افزودنِ فایلِ داده اجرا کن (نصب است؛ گزارش‌ها redact).
+
+[STEP 0 — تصویر اولیه]
+
+beat/coherence از `OCTOPUS/CURRENT-TRUTH.md` · ۵ پروسه (organism 8771 · cortex 8772 · live 8773 · gateway 8774 · center 8776) · اگر daemon 4d بالا آمده باشد (رأی مالک)، telemetry حافظه را هم بگیر: `4d_system/brain/memory_read_patch.py::telemetry_metrics` — انتظار: read-before-decision ≥0.95 همچنان.
+
+[ماتریس R — به ترتیب اولویت]
+
+**A — امنیتی/فوری**
+
+- R1. **PAT گیتهاب**: مالک چرخاند؟ → فایل `03 - Projects/Mining/02 - Code/Robo-data/scout_all_in_one.py:38` را از راز پاک کن (بعد از چرخش؛ قبلش فقط یادآوری) · گزارش کامل: `_ops/tests/_baselines/gitleaks-full-20260815.json` (۷۸۱ یافته؛ ۴۵۳ در فایل‌های موجود — اکثراً توکن شخص‌ثالث در دامپ‌های lunarcrush؛ سه‌گانهٔ triage: چرخش/حذف/مستندسازی). پاک‌سازی تاریخ (BFG) = فقط رأی مالک.
+- R2. **Push به germline** (E:/germline/octopus.git) — ۱۹+ کامیت جلوتر است؛ با رأی مالک push کن و ثبت کن.
+- R3. **C-014**: یکی از دو تسکِ «OCTOPUS Observatory Hourly» (جدید 17:06) یا «OCTOPUS-Observatory» (قدیمی 15:36) غیرفعال شود — Disable-ScheduledTask (پیشنهاد: قدیمی) — رأی مالک، بعد اجرا و اثبات با ردیفِ :36 بعدی که دیگر نمی‌آید.
+
+**B — بدهیِ تست (۱۵ شکستِ ریشه‌یابی‌شده — قانون: برای هر مورد تصمیمِ صریح: تست به قراردادِ امروزِ کد به‌روز شود، یا کد اصلاح شود؛ هر تصمیم با تست در همان کامیت)**
+
+- R4. **orchestr breaker باز است** (cortex_circuit_breaker + miniapp_ops_readroom هر دو به آن اشاره دارند): چرا؟ (429های Fugu؟ چون Fugu بازنشسته شده، سیاست reset/بسته‌شدن را بررسی کن) · و نقش orchestr از `ask()` غیرقابل‌دسترس (`_TIER_ROLE` نقشه‌نگاشت ندارد) — یافتهٔ واقعی، تصمیم بگیر.
+- R5. miniapp_lifecycle_view: allowlist از ۵ به ۱۰ endpoint رشد کرده — تست را به مجموعهٔ واقعیِ `miniapp_gateway.py` سنکرون کن (بهتر: تست از سورس استخراج کند تا دیگر دریف نکند).
+- R6. phantom_guards: ۱۴ فلگِ بی‌اعلان (OCTOPUS_BOARD_*، DOCTOR_STATE، LEG_URL_*، …) — هر کدام را در declarations ثبت کن یا مستند؛ قانونِ خود تست.
+- R7. llm_call_inventory: caller نو `owner_console/collab_model_adapter.py` — به inventory/addity یا RESIDUAL.
+- R8. tg_callback_emitter_parity: verb مردهٔ «approval» در `owner_console/views.py` (روتر oc هندلر ندارد) — هندلر بنویس یا emit حذف.
+- R9. miniapp_look_locked: ۳ endpoint بدون مصرف‌کننده UI (`/api/epistemic` · `/api/octopus/receipts` · `/api/octopus/runs`) — مصرف‌کننده یا مستند.
+- R10. hebbian_eventclock: شکلِ خروجیِ دروازهٔ ADR-035 عوض شده — تست را هم‌شکلِ سورس کن.
+- R11. collab_components: گارد live-state درست کار می‌کند — تست باید state ایزوله بگیرد (harness) نه state زنده.
+- R12. API drift ×۴: telemetry (snapshot/read_genome غایب) · discoveries (mark_nudged/high_water) · ti_collab_security + ti_redteam_injection (collaborator.callback حذف‌شده) — در هر مورد: API برگردد یا تست مهاجرت کند؟
+- R13. **C-013** (TCB — رأی مالک): `_resolve_reference_dir` وقتی 4D/ نیست به SYSTEM_ROOT برمی‌گردد → کل پروژه TCB → ۴ شکست self_code_gate. فیکس پیشنهادی: fallback به `SYSTEM_ROOT/'4D'` (ناموجود) + تست. config/settings.py = TCB؛ فقط با رأی.
+- R14. llm_routing_smoke: 429 واقعی Fugu — یا skip-when-retired یا mock؛ Fugu دیگر primary نیست.
+
+**C — حافظه/یادگیری (ادامهٔ C-012)**
+
+- R15. **daemon 4d**: اگر مالک رأی داده بالا آوردن (`python -m brain.daemon` از 4d_system، بودجه‌دار): بالا بیاور، بعد از ~۲۴h telemetry بگیر (انتظار: readback n بزرگ‌تر شود چون dedup فقط تکرارها را می‌بندد؛ اگر باز هم صفر نوشتن بود، صفِ ۱۰۶۳تایی هنوز همهٔ ایده‌های ژنراتور را می‌پوشاند — طبیعی است).
+- R16. **سیاست صفِ ۱۰۶۲ فرضیهٔ pending** (رأی مالک): expiry با transaction_time · pre-registration · یا لیست اولویت — پاک‌سازی ممنوع (append-only).
+- R17. **رأی فلگ**: `OCTOPUS_CONSOLIDATION_DEDUP_FUZZY` (تکرار نزدیک در consolidation) — اگر رأی آمد: flags.cmd + بکاپ + ری‌استارت + گیت.
+- R18. semantic بهبود consolidation (طرح، نه اجرا): insightها «سطح» گزارش می‌کنند نه «دلتا» — پیشنهاد: «۳ فیکسِ تازه از آخرین سیکل» به‌جای شمارشِ مطلق؛ سندش را برای معمار بنویس.
+
+**D — شورای سه‌مدلی (معماری — همه با رأی مالک)**
+
+- R19. **بازتولید briefing از درخت زنده + حسابرسی مجدد**: شورا سند کهنه خواند (git init/gitleaks/سقف fugu/kill-seam را «باز» دید که همه بسته/موجود بودند). briefing تازه = ورودی درست برای دور بعد شورا.
+- R20. مصنوع تصمیم برای سه پیشنهاد کلیدی شورا (هر یک یک صفحه، بدون ADR تا رأی): (الف) خدمت ارزیاب مستقل (مسیر/داده/زیرساخت جدا — مسئلهٔ ارزیاب، Eurisko H59) (ب) جداسازی حافظه per-leg (ج) لایهٔ اجرای محلی Fugu (C17). نقاط کورِ به‌یادماندنی از شورا: «پیشگیرانه نه ترمیمی» · «شست‌وشوی سطح شواهد در خلاصه‌سازی» · «خودارجاعی موتور فرضیه».
+- R21. ممیزی مستقل D1 (بستهٔ `_ops/D1-AUDIT-PACKAGE-2026-08-15/` هنوز NOT_STARTED) — پیگیریِ ممیز بیرونی با مالک.
+
+**E — ریزکارها**
+
+- R22. README ریشه: اعداد پاها کهنه (زنده: Brushline 12 · کاریابی 33 · Ziman 76 · PF 68) + اصلاح تک‌خطی ارجاع stale طبق C-004 — رأی مالک.
+- R23. Ziman run_tests.py به `tests.test_secrets` حذف‌شده ارجاع می‌دهد — درست کن (pytest مستقیم ۷۶/۷۷۶ سبز است).
+- R24. کاریابی bot: `sqlmodel` در پایتون اصلی نیست — venv یا نصب با رأی؛ ۳۳ تست اجرا نشده.
+- R25. working repo: کامیت `backtest_hardtask.py` + نتایج (پیش‌ثبت شده، BEAT 0.0978<0.4535).
+- R26. گیتِ ری‌استارت: ۴ کلید SMTPِ poison را از شمارش shortfall معاف کن (پنجرهٔ ۳۰۰s خودش اثبات شد) — رأی + ویرایش RESTART-ALL.ps1 + تست preflight.
+- R27. مسیر ask چت گاهی پیش‌متنِ استدلال مدل را برمی‌گرداند («The user is asking me…») — باگ کیفیت استخراج پاسخ در collab؛ تست + فیکس.
+- R28. سرنوشت brain_core (3520/0) و سیم‌کشی 4d shadow→live (رأی ORANGE ثبت شده) — طبق STATE §۸.
+- R29. vitals دکتر فقط روزانه تازه می‌شود (cards_pending دیرهنگام) — اگر اذیت کرد، cadence را طرح کن.
+
+[STEP 2 — ذخیره در ابسیدین — الزامی در هر مرحله]
+
+- هر R یا انجام شد یا حالتش ثبت: `06-EVIDENCE/DEBT-SWEEP-2026-08-16.md` (جدول: R/تصمیم/شاهد/فرمان) · تناقض تازه → C-registry (آزاد: C-015) · تست نو = فایل نام‌یکتا در `_ops/tests/` و به run_all اضافه شود.
+
+[STEP 3 — گزارش به مالک]
+
+جدول R1..R29 (✅/❌/⏳-رأی) + چک‌لیست: هیچ راز چاپ نشده · فلگ تازه‌ای بدون رأی روشن نشده · حذفی صفر · C-registry بروز با اعلام شناسهٔ آزاد بعدی · گزارش نوشته شد.
+
+[BOUNDARY]
+
+نساختن: شوراها و ADR بدون رأی · تغییر تصمیم‌های owner-authored · چرخش/لمس کلیدها · پاک‌سازی تاریخ git بدون رأی · روشن‌کردن فلگ تازه · فرمان‌دهی برد · اجرای مالی.
+
+[END]
