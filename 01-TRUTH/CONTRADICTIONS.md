@@ -154,3 +154,17 @@ contradiction:
 ```
 
 > **یادداشت تاریخی:** کامیت‌های `3156316` و `0823ce5` (پیش از این حکم) با «C-008» منظورشان پل رأی دکتر بود — پس از حکم، همان موضوع **C-009** است. تاریخ git تغییرناک است؛ این یادداشت مترجم آن است.
+
+```yaml
+contradiction:
+  id: C-010
+  claim: "مسیر پولیِ مغز (هر provider) سالم است"
+  value_a: "deepseek secondary در 13:36 کار می‌کرد (paid-calls.jsonl)"
+  source_a: "_ops/state/paid-calls.jsonl — رکورد 2026-08-15T13:36:39"
+  value_b: "JSONDecodeError: Unexpected UTF-8 BOM در circuit_breaker._load_state → کل _ask_paid قبل از تماس می‌شکست"
+  source_b: "اجرای زندهٔ probe در 19:2x + فایل _ops/state/circuit-state.json دارای BOM"
+  resolution: "BOM از فایل strip شد (19:2x) → probe فوری ok:True؛ سخت‌سازی opslib.read با utf-8-sig = پیشنهاد (core مشترک، نیازمند تست در همان commit)"
+  status: resolved (data-fix) — hardening proposed
+  root_cause_fa: "BOM اثرِ نوشتن با PowerShell (Set-Content/Out-File پیش‌فرض BOM می‌نویسند) — درس: فایل‌های state هرگز با PowerShell نوشته نشوند یا خواننده BOM-تابلنت شود"
+  registered_by: "laptop-agent (grep دو-مخزن انجام شد — قانون شناسه C-009 رعایت شد)"
+```

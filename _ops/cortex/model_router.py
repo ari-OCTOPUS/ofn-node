@@ -129,7 +129,11 @@ TASK_TIERS = {
     # Soft call-cap = OCTOPUS_COLLAB_MODEL_DAILY_CAP. Rollback: "local".
     "collab_chat": "secondary",
 }
-_TIER_ROLE = {"secondary": "reason", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
+_TIER_ROLE = {"secondary": "reason", "primary": "reason"}   # roleهای واقعیِ budgets.yaml
+# 2026-08-15 (شب — رأی مالک: «فوگو گرونه، فعلا با دیپ‌سیک»): primary از orchestr
+# (sakana/fugu) به reason (deepseek-v4-flash, thinking) برگشت. rollback: همین
+# خط به "orchestr" برگردد + ری‌استارت. قیمت/بودجه خودکار از budgets.yaml
+# (role reason: in $0.14 / out $0.28 per 1M — قفل‌شده و VERIFIED).
 # 2026-08-10 (Deployment): secondary از glm به reason (deepseek-v4-flash) عوض شد —
 # طبق مگاپرامپتِ تعویضِ نقشهٔ مدل‌ها. rollback: کامنتِ یک خط به glm برمی‌گردد.
 
