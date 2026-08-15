@@ -78,6 +78,24 @@ def main() -> int:
               "GROUP BY status').fetchall()); con.close()"])
     parts.append(f"- queue: {q.strip()[:100]}")
 
+    # ۳-ب) readback پس از 05:00 (پیش‌ثبت‌نام READBACK-ACCEPTANCE-WINDOW-v1)
+    try:
+        import sqlite3 as _sq
+        con = _sq.connect(f"file:{FOURD / 'outputs' / '4d_experiments.db'}?mode=ro", uri=True)
+        rb = con.execute(
+            "SELECT COUNT(*), SUM(CASE WHEN status='ok' THEN 1 ELSE 0 END)"
+            " FROM dashboard_events WHERE event_name='memory.readback'"
+            " AND timestamp >= '2026-08-16T05:00'").fetchone()
+        con.close()
+        n, ok = int(rb[0] or 0), int(rb[1] or 0)
+        ratio = round(ok / n, 4) if n else None
+        parts.append(f"- readback(پنجرهٔ پس از 05:00): {ok}/{n}" +
+                     (f" = {ratio}" if n else " (هنوز نمونه‌ای نیست)"))
+        if n >= 50 and ratio is not None and ratio < 0.99:
+            alerts.append(f"readback پنجره‌ای {ok}/{n} < 0.99 (نمونه کافی — ناکامی واقعی)")
+    except Exception as e:  # noqa: BLE001
+        parts.append(f"- readback: خوانده نشد ({type(e).__name__})")
+
     # ۴) daemon
     st = FOURD / "outputs" / "daemon_state.json"
     parts.append(f"- daemon_state.json: {'موجود' if st.exists() else 'غایب!'}")

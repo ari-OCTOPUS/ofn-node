@@ -5,3 +5,11 @@
 - queue: [('dedup', 682), ('pending', 397)]
 - daemon_state.json: موجود
 - حکم: 🟢 سالم
+
+## 2026-08-15T19:14:25+00:00
+- telemetry(windowed): jobs/read/ratio/readback = 80 80 1.0 15 4
+- semantic: کل=240 نو-پس-گیت=2 تکرارِ نو=0
+- queue: [('dedup', 695), ('pending', 397)]
+- readback(پنجرهٔ پس از 05:00): 3/3 = 1.0
+- daemon_state.json: موجود
+- حکم: 🟢 سالم
