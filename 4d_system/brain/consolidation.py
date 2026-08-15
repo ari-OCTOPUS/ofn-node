@@ -142,6 +142,36 @@ class ConsolidationCycle:
         except OSError:
             pass
 
+    # ─── R18 (2026-08-16، رأی مالک): دلتا-نه-سطح — watermark منبع ──────────
+    # طرح: 02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/R18-DELTA-CONSOLIDATION-DESIGN.md
+    # منبعِ تغییریافته گزارش می‌شود؛ دلتای صفر = پیامِ صادقانهٔ واحد؛ گم‌شدنِ
+    # marks = یک‌بار degraded (بازسازی) — هرگز بازگشتِ خاموش به سطح‌گویی.
+
+    def _marks_path(self) -> Path:
+        return self._path.with_suffix(".r18-marks.json")
+
+    def _load_marks(self):
+        try:
+            return json.loads(self._marks_path().read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return None   # fail-closed: degraded
+
+    def _save_marks(self, marks: dict) -> None:
+        try:
+            self._marks_path().parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._marks_path().with_suffix(".r18-marks.tmp")
+            tmp.write_text(json.dumps(marks, ensure_ascii=False, sort_keys=True),
+                           encoding="utf-8")
+            tmp.replace(self._marks_path())
+        except OSError:
+            pass
+
+    @staticmethod
+    def _source_sig(name: str, data) -> str:
+        payload = json.dumps([name, data], ensure_ascii=False,
+                             sort_keys=True, default=str)
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
     # ─── content-signature dedup (ported verbatim from _ops) ────────────────
 
     @staticmethod
@@ -190,9 +220,19 @@ class ConsolidationCycle:
         verified_names = []
         discarded_names = []
 
+        marks = self._load_marks()
+        degraded = marks is None          # اولین اجرا/گم‌شدن — بازسازی
+        marks = marks or {}
+        delta_zero = 0
+
         for name, data in sources.items():
             if _verify_source(name, data):
                 verified_names.append(name)
+                sig = self._source_sig(name, data)
+                if marks.get(name) == sig:
+                    delta_zero += 1
+                    continue               # R18: سطحِ بدونِ تغییر = دانشِ نو نیست
+                marks[name] = sig
                 if name == "frontier":
                     cells = data.get("cells") or data.get("n_cells") or 0
                     insights.append(f"frontier: {cells} cells discovered")
@@ -213,6 +253,12 @@ class ConsolidationCycle:
             else:
                 discarded_names.append(name)
 
+        if not insights and verified_names:
+            # R18: دلتای صفر روی همهٔ منابعِ تأییدشده — پیامِ صادقانه، نه بازپخشِ سطح
+            insights.append(
+                f"delta-zero: هیچ منبعِ تأییدشده‌ای ({len(verified_names)}) محتوای نو نداشت")
+        if degraded and insights:
+            insights.insert(0, "r18-degraded: marks rebuilt — این دور سطح کامل گزارش شد؛ دور بعدی دلتایی است")
         result = ConsolidatedInsight(
             cycle=self._cycle_count, insights=insights,
             verified_sources=verified_names, discarded_sources=discarded_names)
@@ -244,6 +290,7 @@ class ConsolidationCycle:
                 self._sig_index[self._signature(rec)] = len(self._history)
             self._history.append(rec)
         self._save()
+        self._save_marks(marks)
         return result
 
     def sync_latent(self, result) -> bool:
