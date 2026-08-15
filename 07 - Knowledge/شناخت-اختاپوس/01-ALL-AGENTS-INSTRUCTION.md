@@ -4,11 +4,15 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, agent-instructions]
 created: 2026-07-18
-updated: 2026-08-08
+updated: 2026-08-15
 ---
 
 # 📣 دستور برای همهٔ ایجنت‌ها — شناخت اختاپوس (۲۰۲۶-۰۸-۰۴)
 
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۵ (additive):** سیزن آزمایشگاه دسکتاپ D1–D8 =
+> [[47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]]. آن خط را با `_ops` زنده
+> قاطی نکن. PASS شخص ثالث و D1 رسمی جعل نشود.
+>
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۴.** نسخهٔ پیشین (۲۰۲۶-۰۷-۱۷) در تاریخچهٔ git موجود است.
 
 ---

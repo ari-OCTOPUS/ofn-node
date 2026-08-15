@@ -5,20 +5,32 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-12T23:54:49Z
+> auto-generated: 2026-08-15T02:33:12Z
 
 ## Current Truth
 
-- **coherence:** 0.955
+- **coherence:** 0.953
 - **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 33553
+- **beat:** 36466
 - **halted:** False
 - **rfcs_pending:** 0
-- **HEAD:** 66acec5
+- **HEAD:** 38edf53
 
 
 <!-- OCTOPUS-AUTO-END -->
+
+### Human status — Desktop lab D1–D8 season (2026-08-15, additive; not `_ops`)
+
+> خارج از بلوک auto. این سیزن ارگانیسم زنده را مسلح/دیس‌آرم نکرد.
+> جزئیات: [[07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15]] · [[00 - Inbox/2026-08-15 SESSION — Desktop Lab D1-D8 Governance]]
+
+- `INDEPENDENT_THIRD_PARTY_PASS=FALSE` · `D1_RELEASE_VALID=FALSE` · `OFFICIAL_D1_STATUS=NOT_STARTED` · `OFFICIAL_D6_STATUS=NOT_STARTED` · `D7_EXECUTION_AUTHORIZED=FALSE`
+- waiver چت مالک: «بدون ممیزس بریم» — چت ≠ امضای Ed25519
+- ممیزی ZIP ۱۲۶۲۷بایتی = recomputation همان‌محیط، نه شخص ثالث
+- بستهٔ تمیز معتبر: `Desktop\octopus-owner-to-end-20260815T110641` (v3) — D6 lab constraint ۱۲۰/۱۲۰ روی candidate تغییر‌یافته؛ رسمی NOT_STARTED
+- v2 سیزن (`…T084249`) ledger آلوده ۲۴۰ ردیف — append-only بماند
+- کار باز مالک: OD-001 ممیز مستقل یا پذیرش waiver · OD-002 امضای مالک · OD-003 D7/production جدا
 
 ### Human status — 100-steps execution (2026-08-12 evening)
 

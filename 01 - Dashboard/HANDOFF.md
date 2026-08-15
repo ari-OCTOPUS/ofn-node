@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-13
+updated: 2026-08-15
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -29,7 +29,13 @@ updated: 2026-08-13
 
 ## وضعِ لحظه‌ای
 
-> 🎯 **پین ایجنت بعدی:** [[../00 - Inbox/2026-08-12 HANDOFF — Session Evening for Next Agent|HANDOFF سشن عصر — مراحل بعدی]]  
+> 🎯 **پین ۲۰۲۶-۰۸-۱۵ — سیزن آزمایشگاه دسکتاپ (جدا از `_ops` زنده):**
+> [[../07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]] ·
+> [[../00 - Inbox/2026-08-15 SESSION — Desktop Lab D1-D8 Governance|SESSION 08-15]]
+> `INDEPENDENT_THIRD_PARTY_PASS=FALSE` · `D1_RELEASE_VALID=FALSE` · D7/production باز نیست.
+> v3 تمیز: `Desktop\octopus-owner-to-end-20260815T110641`
+
+> 🎯 **پین ایجنت بعدی (ارگانیسم زنده، کهنه نسبت به نوت ۴۷):** [[../00 - Inbox/2026-08-12 HANDOFF — Session Evening for Next Agent|HANDOFF سشن عصر — مراحل بعدی]]  
 > خلاصه: لید 667951 SET_ASIDE · سقف «فعلا متغیر» · Obsidian frontmatter سبز + `/api/obsidian` درست · صداقت A  
 > **بسته 2026-08-13:** رأیِ git — مالک «هردو» (proceed + commit مجاز). تصادمِ ADR-039 حل شد: epistemic می‌ماند **039**، conversation-hub شد **ADR-040** (حالا در دایرکتوریِ کانونی `research-spec-compiler/adr/` — migration انجام شد، `architecture/adr/` حذف شد).
 > Checklist: [[../00 - Inbox/2026-08-12 CHECKLIST — 100 Steps Execution|۱۰۰ قدم]] · Evidence `DISCOVERY-WIRE-2026-08-12/05+06`

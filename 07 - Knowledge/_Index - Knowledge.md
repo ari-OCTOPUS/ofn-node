@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [moc]
-updated: 2026-08-08
+updated: 2026-08-15
 ---
 
 # ایندکس دانش
@@ -13,15 +13,21 @@ updated: 2026-08-08
 
 ## شناخت اختاپوس (OCTOPUS)
 
-- [[07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE|00-README-START-HERE]] — ⭐ نقطهٔ ورود (به‌روز ۲۰۲۶-۰۸-۰۸): وضعیتِ فعلی + نقشهٔ خواندن
+- [[07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE|00-README-START-HERE]] — ⭐ نقطهٔ ورودِ خط زنده
+- [[07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|۴۷ — سیزن آزمایشگاه دسکتاپ D1–D8]] — PASS شخص ثالث و D1 رسمی **نه**
+- [[07 - Knowledge/شناخت-اختاپوس/46-BOARD-CP-PHASE1-AND-BOARD-BRIEF-2026-08-13|۴۶ — board-cp فاز ۱]]
+- [[07 - Knowledge/شناخت-اختاپوس/45-BOARD-LEGS-READONLY-READER-2026-08-13|۴۵ — رصد لگ‌های برد]] · [[07 - Knowledge/شناخت-اختاپوس/45-DO-IT-ALL-COMPLETION-2026-08-13|۴۵ تکراری — انجام بده همرو]]
+- [[07 - Knowledge/شناخت-اختاپوس/44-HYPOTHESIS-LEDGER-REVIEW-RECONCILIATION-2026-08-13|۴۴ — Hypothesis Ledger]]
+- [[07 - Knowledge/شناخت-اختاپوس/43-PARALLEL-AGENT-INTEGRATION-CHAT-BRAIN-2026-08-13|۴۳ — مغز چت + Hub]]
+- [[07 - Knowledge/شناخت-اختاپوس/42-CHATBOX-FULL-INTEGRATION-2026-08-12|۴۲ — Chat Box]]
 - [[07 - Knowledge/شناخت-اختاپوس/32-INDEPENDENT-VERIFICATION-2026-08-08|۳۲ — راستی‌آزماییِ مستقلِ ۲۰۲۶-۰۸-۰۸ بعدظهر]] — فیکس‌ها تأیید شدند؛ **dark gates ۶۴ نه ۱۲۸** (کهنه بود)
 - [[07 - Knowledge/شناخت-اختاپوس/29-NEXT-AGENT-MEGAPROMPT-2026-08-08|۲۹ — مگاپرامپتِ وضعیتِ نهایی]] — سه موجِ کارِ ۲۰۲۶-۰۸-۰۸ + ۶ گپِ باز + راهنمایِ سریع
 - [[07 - Knowledge/شناخت-اختاپوس/27-REDESIGN-SCAN-MEMORY-ARCHITECTURE-2026-08-07|۲۷ — اسکنِ بازطراحیِ حافظه‌محور]] — تزِ مرکزی + ۸ ستونِ حافظه + فیکس‌ها
 - [[07 - Knowledge/شناخت-اختاپوس/36-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08|۳۶ — تحلیلِ شکافِ معماری + وب‌اپ]] — ۱۵ اشتباه + ۹ تب (با بخشِ راستی‌آزماییِ ۲۰۲۶-۰۸-۰۸)
 - [[07 - Knowledge/شناخت-اختاپوس/23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT-2026-08-07|۲۳ — تأییدِ P1-P5 + مگاپرامپت]]
 
-> vaultِ کاملِ اسکن‌ها/ممیزی‌های اختاپوس (۲۹ نوت، ۰۰–۲۸). برایِ توجیهِ سریع از
-> 00-README شروع کن. سؤال‌های باز در `00 - Inbox/AGENT_QUESTIONS.md`.
+> vault شناخت اختاپوس حالا تا نوت ۴۷ است. خط زنده از 00-README؛ سیزن آزمایشگاه
+> دسکتاپ از نوت ۴۷. سؤال‌های باز در `00 - Inbox/AGENT_QUESTIONS.md`.
 
 ## حاکمیت و کنترل (Governance)
 
