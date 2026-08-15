@@ -141,3 +141,15 @@ cands.append((
 > **الحاقیهٔ ششم — ادغام ربات‌ها (2026-08-15 ~18:4x):** دکتر به outbox برگشت، توکن مستقیم حذف شد (فلگ‌ها 339→338) — صدای واحد = ربات center از طریق doctor_link (فلگش از قبل روشن بود؛ باگ «نادیده» ترتیب هندلرها بود که پلِ 3156316 اصلاح کرد). تست تک‌صدا: کارت فقط از center آمد (cursor: pos 8728، day_count 5). دبل‌چک پایانی: coherence **0.977** (بالا از 0.942) · beat 36803 · رصدخانه 6/6 · همهٔ کامیت‌ها ثبت.
 
 > **الحاقیهٔ هفتم — شورای دوم (2026-08-15 دیرشب):** اسناد در [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README|OCTOPUS-COUNCIL-2]] (`576c7fb`). مالک NO-GO دقیق‌تر را پذیرفت. فکت‌چک: ویرایش TCB = ایجنت جاروی تست (`8a5e98b`) نه مالک؛ `check_invariants` هش ندارد. مگاپرامپت بعدی v1.1.
+
+---
+
+## الحاقیه 2026-08-16 (~00:1x) — جاروی بدهی EXECUTED (مگاپرامپت v1.1، تفویض کامل مالک)
+
+**ورودی نشست بعد:** `06-EVIDENCE/DEBT-SWEEP-2026-08-16.md` (جدول کامل R1..R29 + §R3 اثبات C-014) · `02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/` (DA-1/2/3 + سیاست R16 + طرح R18).
+
+خلاصهٔ وضعیت:
+- ✅ اجرا شد: R0a/R13 (manifest مرز اعتماد + هش‌چک TCB؛ C-013 resolved) · R3/C-014 (containment اثبات‌شده) · R2 (germline@bb2d859، unpushed=0) · R19 (AEB + باندل نهایی) · R4-R14 (۱۵ شکست بسته + باگ تولیدی def callback) · R20/R16(قدم صفر)/R18 مصنوع · R21(بسته)+R22/R23/R24/R25/R26/R27.
+- ⏳ دستِ مالک: R1 چرخش PAT (پچ آماده در `03 - Projects/Mining/02 - Code/PAT-SCRUB-READY-2026-08-16.md`) · **امضای Ed25519**: `4d_system/config/trust-boundary.json` + `_ops/audit/bundles/AEB-*.txt` (فرمان‌ها در سربرگ مولدها) · بعدش روشن‌کردن `OCTOPUS_TCB_MANIFEST_ENFORCE` با ری‌استارت رسمی · R21 انتخاب ممیز بیرونی · رأی‌های سیاست صف (R16 v1) و DA-1/DA-2/DA-3.
+- ⏸ تعلیقِ مستند (نردبان شورا): R15 daemon (بعد از DA-2) · R17 فلگ (پنجرهٔ بعدی) · R28/R29 (فاز ۵، هرگز هم‌زمان).
+- شناسهٔ آزاد تناقض: **C-016**. سوئیت‌های نو در run_all: `test_flag_shortfall_smtp_exemption.py` · `test_ask_reasoning_preamble_strip.py`؛ تست‌های 4d: `test_trust_boundary_c013.py`.
