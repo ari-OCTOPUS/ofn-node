@@ -4906,7 +4906,7 @@ class Center:
             self._edit_page(cbq, "ap")
         return {"kind": "approval", "action": action, "id": jid, "ok": ok, "verdict": verdict}
 
-    # ── پلِ رأی دکتر (C-008، ۲۰۲۶-۰۸-۱۵) ────────────────────────────────────
+    # ── پلِ رأی دکتر (C-009، ۲۰۲۶-۰۸-۱۵) ────────────────────────────────────
     def _doctor_ingest(self, cbq: dict, state_dir: str | None = None) -> list:
         """رأیِ خامِ کارتِ دکتر را به صندوق دکتر بریز — فقط همین.
 
@@ -4926,7 +4926,7 @@ class Center:
             # چرا import از مسیرِ فایل؟ چون `_ops/doctor` پکیجِ کامل است
             # (__init__.py دارد) و پکیجِ هم‌نامِ `OCTOPUS-DOCTOR/doctor`
             # را در sys.path سایه می‌زند — `from doctor.channel import`
-            # در پروسهٔ مرکز به _ops/doctor می‌خورد و می‌شکند (C-008).
+            # در پروسهٔ مرکز به _ops/doctor می‌خورد و می‌شکند (C-009).
             # channel.py تخت و stdlib-only است؛ بارگذاری مستقیمِ فایل بی‌خطر است.
             import importlib.util as _ilu
             _mod_path = Path(state_dir).parents[1] / "doctor" / "channel.py"
@@ -4947,7 +4947,7 @@ class Center:
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
         verb = data.split(":", 1)[0]
-        # ── پلِ رأی دکتر (C-008، ۲۰۲۶-۰۸-۱۵) ─────────────────────────────
+        # ── پلِ رأی دکتر (C-009، ۲۰۲۶-۰۸-۱۵) ─────────────────────────────
         # دکمه‌های کارت‌های دکتر سه‌بخشی‌اند: `ok|no:<gate>:<mission_id>`.
         # جدولِ خودِ مرکز ok دوبخشی است (قراردادِ render_decision) و
         # سه‌بخشی‌ها تا امروز در همان «نادیده» می‌افتادند — شکایتِ مالک.

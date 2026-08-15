@@ -1,4 +1,4 @@
-"""test_doctor_vote_bridge.py — پل رأی دکتر (C-008): دکمه باید رأی شود، نه «نادیده».
+"""test_doctor_vote_bridge.py — پل رأی دکتر (C-009): دکمه باید رأی شود، نه «نادیده».
 
 ۲۰۲۶-۰۸-۱۵: مالک دکمه‌های کارت دکتر را تپ می‌کرد و center «نادیده» جواب
 می‌داد — فرمتِ سه‌بخشیِ `ok|no:<gate>:<mission_id>` در واژگانِ جدولِ verb
@@ -29,7 +29,7 @@ harness.setup("doctor-vote-bridge")
 
 _VAULT = _HERE.parent.parent
 # چرا از مسیرِ فایل؟ `_ops/doctor` پکیجِ کامل است و `OCTOPUS-DOCTOR/doctor`
-# را سایه می‌زند — همان دامی که پل باید در پروسهٔ مرکز از آن بگذرد (C-008).
+# را سایه می‌زند — همان دامی که پل باید در پروسهٔ مرکز از آن بگذرد (C-009).
 import importlib.util as _ilu  # noqa: E402
 
 _spec = _ilu.spec_from_file_location(
@@ -82,7 +82,7 @@ def test_center_intercepts_doctor_pattern_before_verb_table():
     assert "_doctor_ingest(cbq)" in src, "پل صدا زده نمی‌شود"
     assert re.search(r"len\(_doc\) == 3 and _doc\[0\] in \(\"ok\", \"no\"\)", src), \
         "الگوی سه‌بخشیِ دکتر تشخیص داده نمی‌شود"
-    hook_pos = src.index("پلِ رأی دکتر (C-008")
+    hook_pos = src.index("پلِ رأی دکتر (C-009")
     table_pos = src.index('if verb in ("lcall", "ldraft")')
     assert hook_pos < table_pos, "intercept باید قبل از جدولِ verb باشد تا تصادم نشود"
 
