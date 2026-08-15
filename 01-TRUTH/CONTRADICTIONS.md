@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-011** (C-010 در 2026-08-15 ~19:30 ثبت شد: باگ BOM)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-012** (C-011 در 2026-08-15 ~21:5x ثبت شد: features-null)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -167,4 +167,17 @@ contradiction:
   status: resolved (data-fix) — hardening proposed
   root_cause_fa: "BOM اثرِ نوشتن با PowerShell (Set-Content/Out-File پیش‌فرض BOM می‌نویسند) — درس: فایل‌های state هرگز با PowerShell نوشته نشوند یا خواننده BOM-تابلنت شود"
   registered_by: "laptop-agent (grep دو-مخزن انجام شد — قانون شناسه C-009 رعایت شد)"
+```
+
+```yaml
+contradiction:
+  id: C-011
+  claim: "پیش‌بینی‌گر بیزی روی هر ورودی JSON معتبر graceful است"
+  value_a: "ورودی‌های خالی/غیر-JSON/mag-تهی → fallback امن 0.490 (پروب جعبه‌سیاه)"
+  source_a: "ماتریس استحکام 2026-08-15 شب — ۸ حالت"
+  value_b: "«features: null» → TypeError: len(None) — کرش"
+  source_b: "همان پروب؛ runner با fallback خودش زنده ماند ولی ماژول می‌شکست"
+  resolution: "fixed همان شب: null-safe + تست (21/21 سبز) — تست-در-همان-کامیت"
+  status: resolved (fix + test)
+  registered_by: "laptop-agent (grep دو-مخزن: فقط رزروِ خودم)"
 ```
