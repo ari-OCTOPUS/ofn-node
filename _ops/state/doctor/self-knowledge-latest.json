@@ -1,83 +1,123 @@
 {
-  "ts": "2026-08-12T18:22:53",
-  "beat": 32879,
-  "version": 183,
-  "source": "llm:local",
-  "snapshot_hash": "273c0dfbb86fa8cc",
+  "ts": "2026-08-15T23:48:34",
+  "beat": 37108,
+  "version": 289,
+  "source": "heuristic",
+  "snapshot_hash": "70f12af0aa422304",
   "stable_cycles": 0,
   "llm_calls": 1,
-  "deep_dive_ran": false,
+  "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
-    "anatomy": "34 کارت زنده، 7 بخش داخلی سیستم و 26 ویرایش",
-    "physiology": "درآمد صفر؛ خرج‌ها 15,750 micro-USD (musd)، پردازش داده‌ها انجام شده و در حال تحلیل است، با استرس نسبتاً متوسط",
+    "anatomy": "10 لِگ، 42 سیمِ روشن",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 313180 micro-USD",
     "pathology": [
       {
-        "symptom": "خطاهای پرتکرار KeyError ×3",
+        "symptom": "خطای پرتکرار failed ×4",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       },
       {
-        "symptom": "خطاهای پرتکرار failed ×1",
+        "symptom": "خطای پرتکرار ValueError ×1",
+        "root_cause": "نامعلوم (نیاز به کاوش)",
+        "severity": "medium"
+      },
+      {
+        "symptom": "خطای پرتکرار HTTPError ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
     ],
-    "trajectory": "ثابت · ناموثر، درآمد و خرج‌ها ثابت هستند",
+    "trajectory": "نامعلوم (بی‌LLM)",
     "prescription": [
-      {
-        "action": "تحلیل دقیق‌تر خطاهای KeyError و failed",
-        "why": "بررسی جذابیت مجدد و اصلاح آنها",
-        "priority": "high"
-      },
       {
         "action": "یک لِگ را به لیدِ واقعی وصل کن",
         "why": "ترس را می‌شکند",
-        "priority": "medium"
+        "priority": "high"
       }
     ],
     "open_questions": [
-      "چرا خطاهای پرتکرار Raiser ×3 رخ می‌دهند؟",
-      "چه اثراتی دارد که نمی‌تواند در آنها تغییری صورت بگیرد؟",
-      "چرا لید واقعی هنوز به سیستم وصل نشده است؟"
+      "چرا خطاهای پرتکرار رخ می‌دهند؟"
     ],
     "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
-    "confidence": 0.75
+    "confidence": null,
+    "focus_source": "owner_correction",
+    "owner_steer": {
+      "corrections": 2,
+      "wanted": [
+        "promote",
+        "ارزیابی",
+        "ارگانیسم",
+        "اشتباه",
+        "امروز",
+        "باشد",
+        "بدون",
+        "تمام",
+        "تمرکز",
+        "درآمد"
+      ],
+      "rejected": [
+        "خطای",
+        "پرتکرار"
+      ]
+    },
+    "confidence_basis": "none — rule engine, not calibrated",
+    "evidence": {
+      "readable": 6,
+      "total": 6,
+      "blind": [],
+      "coverage": 1.0,
+      "oldest_input_age_s": 21534,
+      "newest_input_age_s": 97
+    }
   },
   "deep_dive": {
-    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
+    "topic": "واقعی‌کردن ارزیابی سایه پیش از promote",
     "cause_chain": [
       {
-        "type": "heart",
-        "description": "شکل‌گیری و عملکرد اصلی ریشهٔ واقعی درونی"
+        "cause": "شرط مالک",
+        "evidence": [
+          "owner_corrections"
+        ]
       },
       {
-        "type": "cortex",
-        "description": "عملکرد کناره‌ای از زنجیرهٔ علت (هسته) به دیگران"
+        "cause": "پذیرش شرط با شرایط دیگر",
+        "evidence": [
+          "owner_corrections"
+        ]
       },
       {
-        "type": "wire",
-        "description": "ریشهٔ واقعی درونی، چند فیکسِ برگشت‌پذیر را تشکیل می‌دهد"
+        "cause": "محدودیت‌های انجام عملیات بدون ری‌استارت",
+        "evidence": []
       },
       {
-        "type": "smallest_fix",
-        "description": "کمترین فیکسِ برگشت‌پذیر درونی که از تغییرات سبک‌های یادآور شده است"
+        "cause": "زمان محدودیت",
+        "evidence": []
       }
     ],
     "evidence": [
       {
-        "type": "data",
-        "description": "دستاوردهای مالک و دیگران را بررسی کرده، نشان‌دهنده اینکه تغییرات درونی به صورت چندپروژه‌ای انجام شده است"
-      },
-      {
-        "type": "system",
-        "description": "دستاوردهای سیستم‌ها و راه‌حل‌های مالک بررسی کرده، نشان‌دهنده تغییرات درونی به صورت چندپروژه‌ای انجام شده است"
+        "statement": "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدون ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
+        "source": "owner_corrections"
       }
     ],
+    "smallest_fix": {
+      "description": "پیاده‌سازی کارایی‌ها و محدودیت‌های مورد نظر در سیستم به طوری که بدون ری‌استارت ارگانیسم قابل انجام باشد",
+      "evidence_needed": [
+        "کد پیاده‌سازی شده",
+        "آزمون‌ها و گزارش‌های موفقیت"
+      ]
+    },
     "blocked_by": [
       {
-        "type": "system",
-        "description": "دستاوردهای سیستم‌ها و راه‌حل‌های مالک بررسی کرده، نشان‌دهنده تغییرات درونی به صورت چندپروژه‌ای انجام شده است"
+        "cause": "محدودیت‌های فنی",
+        "evidence": []
+      },
+      {
+        "cause": "زمان محدودیت",
+        "evidence": [
+          "owner_corrections"
+        ]
       }
     ]
   },
@@ -86,33 +126,35 @@
     "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
     "confidence_delta": null,
     "converging": null,
-    "prev_backend": "cached:no-change",
-    "backend": "llm:local",
+    "prev_backend": "heuristic",
+    "backend": "heuristic",
     "comparable": false,
-    "incomparable_reason": "backend-changed"
+    "incomparable_reason": "unknown-confidence"
   },
   "snapshot_digest": {
     "legs_alive": [
       "lead",
       "accounting",
+      "ziman",
       "system"
     ],
     "in_fear": [],
-    "money_musd": 16497,
+    "money_musd": 313180,
     "recent_errors": {
-      "TimeoutError": 1,
+      "failed": 4,
+      "ValueError": 1,
+      "HTTPError": 1,
       "TypeError": 1
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-12T18:19:36",
+    "ts": "2026-08-15T23:45:08",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,
-    "confidence": 0.75,
-    "confidence_brier": 0.0625,
-    "drifts": [],
-    "claims_emitted": 3
+    "confidence": null,
+    "confidence_brier": null,
+    "drifts": []
   },
   "owner_corrections": [
     "نه، تمرکزت اشتباه است — «خطای پرتکرار» مهم نیست، من میخوام روی درآمدِ نقاشی تمرکز کنی.",
@@ -121,7 +163,7 @@
   "c6_unknown": {
     "produced": false,
     "reason": "all-already-queued",
-    "unknown": 2,
-    "duplicates": 2
+    "unknown": 3,
+    "duplicates": 3
   }
 }

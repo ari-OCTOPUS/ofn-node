@@ -1,3 +1,10 @@
+---
+type: report
+status: active
+tags: [octopus, council]
+created: 2026-08-15
+updated: 2026-08-15
+---
 # Gemini 3.1 Pro Council Review: OCTOPUS Architecture Reassessment
 
 ## Executive Summary

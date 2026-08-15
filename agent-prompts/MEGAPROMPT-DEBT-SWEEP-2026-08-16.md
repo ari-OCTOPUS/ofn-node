@@ -1,9 +1,9 @@
 ---
-ompt_title: جاروی بدهیِ تست + بستن بازهای رأی‌شده — پس از جاروی تست ۲۰۲۶-۰۸-۱۵
-version: "1.1"
-written_by: test-sweep agent (GLM-5.3) — v1.1 پس از شورای دوم (GPT-5.6 Sol + Gemini 3.1 Pro)، 2026-08-15 ~22:2x
+prompt_title: جاروی بدهیِ تست + بستن بازهای رأی‌شده — پس از جاروی تست ۲۰۲۶-۰۸-۱۵
+version: "1.2"
+written_by: "v1.1: test-sweep agent پس از شورای دوم · v1.2: اسکن شکاف — ماتریس R v2.0 + منابع شورای اول وارد شد"
 audience: ایجنت نشست بعدی
-entry_point_before_anything: "F:\backup\07-HANDOFF\TEST-SWEEP-REPORT-2026-08-15.md → 06-EVIDENCE/TEST-SWEEP-2026-08-16.md (الحاقیه‌ها) → 01-TRUTH/CONTRADICTIONS.md"
+entry_point_before_anything: "07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README.md → sources/matrix/R1-R29 Final Priority Matrix v2.0.md → 07-HANDOFF/TEST-SWEEP-REPORT-2026-08-15.md → 06-EVIDENCE/TEST-SWEEP-2026-08-16.md → 01-TRUTH/CONTRADICTIONS.md"
 ---
 
 [ROLE]
@@ -15,8 +15,10 @@ entry_point_before_anything: "F:\backup\07-HANDOFF\TEST-SWEEP-REPORT-2026-08-15.
 [CONTEXT — وضعیت چند-ایجنت‌ای]
 
 - **جاروی تست 2026-08-15 شب کامل شد** (T1..T12): C-006/C-007/C-012 بسته · C-013/C-014 ثبت · کامیت‌ها: 8a5e98b · 32da8cd · 768ba50 · e4613d3 · 0c8b027 (و 4665d0f از سشن موازی). همهٔ جزئیات در دو سندِ entry_point.
-- **سه دیدگاهِ فعال**: معمار ارشد (مگاپرامپت‌ها)، سشن موازی (تعمیر پچ حافظه — کارش مکمل شد)، شورای سه‌مدلی (NO-GO — فکت‌چک شد: briefingشان کهنه بود ولی نقد ساختاری‌شان معتبر). هیچ تناقض بازی بین دیدگاه‌ها نمانده؛ دو اختلافِ دید هر دو خطای زمانی/سندی بود و اصلاح شد.
-- **شناسهٔ آزاد تناقض بعدی: C-015** (قانون: قبل از ثبت C-0NN هر دو مخزن grep شود).
+- **سه دیدگاهِ فعال**: معمار ارشد (مگاپرامپت‌ها)، سشن موازی (تعمیر پچ حافظه — کارش مکمل شد)، شوراها. شورای **اول** سه‌مدلی بود (Sol + Gemini + Sonnet). شورای **دوم** دو مدل بود (Sol + Gemini) — NO-GO دقیق‌تر. فکت‌چک: briefing اول کهنه بود ولی نقد ساختاری معتبر ماند.
+- **مالک رأی «NO-GO دقیق‌تر» شورای دوم را پذیرفت** (2026-08-15 شب). اسناد: [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README|پوشهٔ شورای دوم]] + [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/01-FORGOTTEN-GAPS|شکاف‌های اسکن]]. اصلاح انتساب: ویرایش TCB کارِ ایجنت جاروی تست بود (`8a5e98b`)، نه مالک.
+- **هشدار جدول V:** Gemini V1=git-init Resolved؛ GPT-5.6 Sol V1=PEP mesh Open-Critical. دو شماره‌گذاری‌اند — قاطی نکن؛ سنتز شورا را بخوان.
+- **شناسهٔ آزاد تناقض بعدی: C-016** (C-015 ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده).
 - دو مخزن مثل همیشه: `F:\backup` (زنده + canonical) · Desktop working repo (خط dev).
 
 [قواعد سخت — نقض = توقف]
@@ -37,7 +39,7 @@ beat/coherence از `OCTOPUS/CURRENT-TRUTH.md` · ۵ پروسه (organism 8771 �
 
 **B — بدهیِ تست (۱۵ شکستِ ریشه‌یابی‌شده — قانون: برای هر مورد تصمیمِ صریح: تست به قراردادِ امروزِ کد به‌روز شود، یا کد اصلاح شود؛ هر تصمیم با تست در همان کامیت)**
 
-- R4. **orchestr breaker باز است** (cortex_circuit_breaker + miniapp_ops_readroom هر دو به آن اشاره دارند): چرا؟ (429های Fugu؟ چون Fugu بازنشسته شده، سیاست reset/بسته‌شدن را بررسی کن) · و نقش orchestr از `ask()` غیرقابل‌دسترس (`_TIER_ROLE` نقشه‌نگاشت ندارد) — یافتهٔ واقعی، تصمیم بگیر.
+- R4. **orchestr breaker باز است — نقص مسیر اجرا (ساختاری)، نه فقط بدهی تست** (ماتریس v2.0: R4-R14a). cortex_circuit_breaker + miniapp_ops_readroom هر دو به آن اشاره دارند: چرا؟ (429های Fugu؟ چون Fugu بازنشسته شده، سیاست reset/بسته‌شدن را بررسی کن) · نقش orchestr از `ask()` غیرقابل‌دسترس (`_TIER_ROLE` نقشه‌نگاشت ندارد). اگر inventory کهنه admission را کنترل می‌کند → structural. پیش‌نیاز پیشنهادی ماتریس: بعد از R13.
 - R5. miniapp_lifecycle_view: allowlist از ۵ به ۱۰ endpoint رشد کرده — تست را به مجموعهٔ واقعیِ `miniapp_gateway.py` سنکرون کن (بهتر: تست از سورس استخراج کند تا دیگر دریف نکند).
 - R6. phantom_guards: ۱۴ فلگِ بی‌اعلان (OCTOPUS_BOARD_*، DOCTOR_STATE، LEG_URL_*، …) — هر کدام را در declarations ثبت کن یا مستند؛ قانونِ خود تست.
 - R7. llm_call_inventory: caller نو `owner_console/collab_model_adapter.py` — به inventory/addity یا RESIDUAL.
@@ -46,12 +48,12 @@ beat/coherence از `OCTOPUS/CURRENT-TRUTH.md` · ۵ پروسه (organism 8771 �
 - R10. hebbian_eventclock: شکلِ خروجیِ دروازهٔ ADR-035 عوض شده — تست را هم‌شکلِ سورس کن.
 - R11. collab_components: گارد live-state درست کار می‌کند — تست باید state ایزوله بگیرد (harness) نه state زنده.
 - R12. API drift ×۴: telemetry (snapshot/read_genome غایب) · discoveries (mark_nudged/high_water) · ti_collab_security + ti_redteam_injection (collaborator.callback حذف‌شده) — در هر مورد: API برگردد یا تست مهاجرت کند؟
-- R13. **C-013** (TCB — رأی مالک): `_resolve_reference_dir` وقتی 4D/ نیست به SYSTEM_ROOT برمی‌گردد → کل پروژه TCB → ۴ شکست self_code_gate. فیکس پیشنهادی: fallback به `SYSTEM_ROOT/'4D'` (ناموجود) + تست. config/settings.py = TCB؛ فقط با رأی.
+- R13. **C-013** (TCB — رأی مالک): `_resolve_reference_dir` وقتی 4D/ نیست به SYSTEM_ROOT برمی‌گردد → کل پروژه TCB → ۴ شکست self_code_gate. فیکس پیشنهادی ماتریس v2.0: manifest امضاشده با digest + fail-closed diagnostic + **hash-check محتوا نه فقط عضویت مسیر**؛ fallback به `SYSTEM_ROOT/'4D'` (ناموجود) به‌تنهایی کافی نیست. config/settings.py = TCB؛ فقط با رأی.
 - R14. llm_routing_smoke: 429 واقعی Fugu — یا skip-when-retired یا mock؛ Fugu دیگر primary نیست.
 
 **C — حافظه/یادگیری (ادامهٔ C-012)**
 
-- R15. **daemon 4d**: اگر مالک رأی داده بالا آوردن (`python -m brain.daemon` از 4d_system، بودجه‌دار): بالا بیاور، بعد از ~۲۴h telemetry بگیر (انتظار: readback n بزرگ‌تر شود چون dedup فقط تکرارها را می‌بندد؛ اگر باز هم صفر نوشتن بود، صفِ ۱۰۶۳تایی هنوز همهٔ ایده‌های ژنراتور را می‌پوشاند — طبیعی است).
+- R15. **daemon 4d**: فقط پس از رأی مالک **و** پس از R20b (جداسازی حافظه) + R20d (ارزیاب مستقل)، و فقط سایه. بالا آوردن زودهنگام = نهادینه‌کردن gaming. بعد از ~۲۴h telemetry بگیر + **پایش مسمومیت حافظه**. انتظار: readback n بزرگ‌تر شود چون dedup فقط تکرارها را می‌بندد.
 - R16. **سیاست صفِ ۱۰۶۲ فرضیهٔ pending** (رأی مالک): expiry با transaction_time · pre-registration · یا لیست اولویت — پاک‌سازی ممنوع (append-only).
 - R17. **رأی فلگ**: `OCTOPUS_CONSOLIDATION_DEDUP_FUZZY` (تکرار نزدیک در consolidation) — اگر رأی آمد: flags.cmd + بکاپ + ری‌استارت + گیت.
 - R18. semantic بهبود consolidation (طرح، نه اجرا): insightها «سطح» گزارش می‌کنند نه «دلتا» — پیشنهاد: «۳ فیکسِ تازه از آخرین سیکل» به‌جای شمارشِ مطلق؛ سندش را برای معمار بنویس.
@@ -59,7 +61,14 @@ beat/coherence از `OCTOPUS/CURRENT-TRUTH.md` · ۵ پروسه (organism 8771 �
 **D — شورای سه‌مدلی (معماری — همه با رأی مالک)**
 
 - R19. **بازتولید briefing از درخت زنده + حسابرسی مجدد**: شورا سند کهنه خواند (git init/gitleaks/سقف fugu/kill-seam را «باز» دید که همه بسته/موجود بودند). briefing تازه = ورودی درست برای دور بعد شورا.
-- R20. مصنوع تصمیم برای سه پیشنهاد کلیدی شورا (هر یک یک صفحه، بدون ADR تا رأی): (الف) خدمت ارزیاب مستقل (مسیر/داده/زیرساخت جدا — مسئلهٔ ارزیاب، Eurisko H59) (ب) جداسازی حافظه per-leg (ج) لایهٔ اجرای محلی Fugu (C17). نقاط کورِ به‌یادماندنی از شورا: «پیشگیرانه نه ترمیمی» · «شست‌وشوی سطح شواهد در خلاصه‌سازی» · «خودارجاعی موتور فرضیه».
+- R20. مصنوع تصمیم — ماتریس v2.0 پنج تکه است نه سه (هر یک یک صفحه، بدون ADR تا رأی):
+  - **R20a** PEP mesh + قرارداد ۱۵-فیلدی عمل (۶ نقطه: egress، tool broker، حافظه پایدار، sandbox کد، budget debit، صف/تراکنش)
+  - **R20b** جداسازی حافظه per-leg (namespace/ACL/provenance/taint)
+  - **R20c** مسیر محلی/خصوصی Fugu (۸ مرحله classify→fallback)
+  - **R20d** ارزیاب مستقل (۵ محور: code / identity / data-holdout / compute / release) — بار-تحمل‌کننده
+  - **R20e** اجارهٔ متصل به عمل + kill توزیع‌شده (تک‌مصرف، امضا، انقضا؛ تمرین زیر partition/backlog)
+  + **حذف ایمنی / tombstone** (immune deletion): watchdog جدا که تلاشِ دستکاری TCB/envelope را SIGKILL+purge کند — در v1.1 جا افتاده بود.
+  نقاط کور شورای اول که هنوز معتبرند: «پیشگیرانه نه ترمیمی» · «شست‌وشوی سطح شواهد» · «خودارجاعی موتور فرضیه».
 - R21. ممیزی مستقل D1 (بستهٔ `_ops/D1-AUDIT-PACKAGE-2026-08-15/` هنوز NOT_STARTED) — پیگیریِ ممیز بیرونی با مالک.
 
 **E — ریزکارها**
@@ -73,12 +82,17 @@ beat/coherence از `OCTOPUS/CURRENT-TRUTH.md` · ۵ پروسه (organism 8771 �
 - R28. سرنوشت brain_core (3520/0) و سیم‌کشی 4d shadow→live (رأی ORANGE ثبت شده) — طبق STATE §۸.
 - R29. vitals دکتر فقط روزانه تازه می‌شود (cards_pending دیرهنگام) — اگر اذیت کرد، cadence را طرح کن.
 
-[اولویت‌بندی اصلاح‌شدهٔ شورای دوم — v1.1 — وابستگیِ ساختاری به‌جای راحتیِ عملیات]
+[اولویت‌بندی — v1.2 — ماتریس v2.0 + flag تضاد ترتیب]
 
-شورای دوم ([[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README|اسناد کامل]]) ترتیب را بازآرایی کرد؛ ماتریس R همان می‌ماند، اجرا با این توالی:
-۰) NO-GO برقرار بماند؛ تست ۹گانهٔ envelope زیر مالکیت محافظت‌شده (همان TCB-کانال‌محور: اگر ایجنت/سامانه بتواند تست را بازنویسد، پاکت توهم است)
-۱) **R1** چرخش PAT (فوری) ۲) **R13/C-013** با ارتقا: نه فقط فیکسِ fallback، بلکه «manifest مرز اعتمادِ امضاشده» (TCB حداقلی؛ ریشهٔ مشترک C-013/C-014 = نبود خودمدل ماشین‌خوان) ۳) **R2** push با provenance (ریشهٔ شواهد) ۴) **R19** با ارتقا: Audit Evidence Bundle از revision منجمد (commit + dirty-state + digests + خروجی خام تست‌ها + امضا) + نردبان وضعیت (declared→implemented→tested→deployed→drilled→reproduced) — دیگر هرگز حسابرسی روی سند نثری ۵) **R3/C-014** + idempotency سطحِ اثر و registry کارها ۶) PEP mesh + اجارهٔ کنونیکال عمل (V1/V4) ۷) جداسازی حافظه per-leg (V3) ۸) مسیر محلی Fugu (V5) ۹) ارزیاب مستقل (V11 — بار-تحمل‌کننده) ۱۰) R16/R18 (سیاست صف + دلتا) ۱۱) R21 ممیزی بیرونی روی بستهٔ امضاشده ۱۲) R28/R29 فعال‌سازی ترتیبی، هرگز هم‌زمان.
-هشدارهای خاص: R15 (daemon) باید پایشِ مسمومیت حافظه همراه داشته باشد (بینش شورا: حافظهٔ بهتر ممکن است gaming را ماندگار کند) · R26 معافیت SMTP = بررسی معماری نه ریزکار · تمرین کیل باید زیر partition/انباشت صف هم انجام شود نه فقط حالت سالم.
+دو منبع ترتیب را یکی نمی‌گویند — **حدس نزن؛ از مالک بپرس اگر به R2/R13 رسیدی:**
+- سنتز شورای دوم: R1 → **C-013** → R2 → R19 → …
+- ماتریس نهایی v2.0 (دیرتر، کامل‌تر): R1 + **R0a** → **R2 → R19** → سپس R13
+
+اجرای پیش‌فرض تا رأی مالک = ماتریس v2.0 (چون صریحاً «final» است) با این توالی:
+۰) **R0a** NO-GO تحت مالکیت محافظت‌شده (تست envelope بیرون از دسترس بازنویسی ایجنت)
+۱) **R1** چرخش PAT ۲) **R2** push با provenance ۳) **R19** AEB از revision منجمد + نردبان وضعیت ۴) **R13/C-013** manifest امضاشده + hash-check محتوا ۵) **R3/C-014** غیرفعال فوری + registry/idempotency/quorum (نه فقط disable) ۶) **R4-R14a** مسیر orchestr ۷) **R26** به‌عنوان بررسی معماری ۸) **R20a** PEP mesh ۹) R20b حافظه per-leg ۱۰) R20c Fugu محلی ۱۱) R20d ارزیاب مستقل ۱۲) R20e اجاره+kill + حذف ایمنی/tombstone ۱۳) R16/R18 ۱۴) R15 daemon سایه با پایش مسمومیت ۱۵) R21 ممیزی روی AEB ۱۶) R28 سپس R29، هرگز هم‌زمان.
+
+هشدارها: R15 بدون R20b/R20d = نهادینه‌کردن gaming · R26 سوراخ mediation است · کیل را زیر partition/backlog تمرین کن · جدول V را از سنتز بخوان نه از حافظه.
 
 [STEP 2 — ذخیره در ابسیدین — الزامی در هر مرحله]
 

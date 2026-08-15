@@ -169,6 +169,20 @@ def loaded_from_env(env=None) -> dict[str, str]:
 LOAD_SHORTFALL_RATIO = 0.10
 LOAD_SHORTFALL_MIN_FLAGS = 20
 
+# ── R26 (2026-08-16، تفویض مالک): کلیدهای عمداً-خالی ──────────────────────
+# چهار کلید SMTP در flags.cmd به‌صورت poison تعریف شده‌اند (آخرین تعریف
+# برنده: مقدار خالی — یعنی «تعریف‌شده ولی بدون کرِد»، T4 جاروی 08-15).
+# این‌ها گم‌شدگیِ واقعیِ پیکربندی نیستند؛ نبودشان گیتِ ری‌استارت را به‌نادرست
+# قرمز می‌کرد (shortfall=4). معافیت: باریک (فقط همین ۴ نام)، شفاف (در خروجی
+# گزارش می‌شوند، نه پنهان)، منقضی‌شونده (تاریخ بازبینی — تمدید آگاهانه).
+INTENTIONALLY_EMPTY_FLAGS = frozenset({
+    "OCTOPUS_SMTP_FROM",
+    "OCTOPUS_SMTP_HOST",
+    "OCTOPUS_SMTP_PORT",
+    "OCTOPUS_SMTP_USER",
+})
+INTENTIONALLY_EMPTY_REVIEW = "2026-09-15"   # انقضای معافیت — پس از این تاریخ تست قرمز می‌شود
+
 
 def load_shortfall(file_flags, env_flags) -> dict:
     """چقدر از آنچه فایل تعریف کرده به env نرسید؟
@@ -177,7 +191,12 @@ def load_shortfall(file_flags, env_flags) -> dict:
     بتواند بی‌قید صدایش بزند."""
     tracked = sorted(k for k in (file_flags or {}) if _tracked(k))
     env = {str(k).upper() for k in (env_flags or {})}
-    missing = [k for k in tracked if k.upper() not in env]
+    exempt_here = [k for k in tracked
+                   if k.upper() in INTENTIONALLY_EMPTY_FLAGS
+                   and k.upper() not in env]
+    missing = [k for k in tracked
+               if k.upper() not in env
+               and k.upper() not in INTENTIONALLY_EMPTY_FLAGS]
     n = len(tracked)
     ratio = (len(missing) / n) if n else 0.0
     return {
@@ -187,6 +206,9 @@ def load_shortfall(file_flags, env_flags) -> dict:
         "ratio": round(ratio, 4),
         "missing_sample": missing[:12],
         "alarm": bool(n >= LOAD_SHORTFALL_MIN_FLAGS and ratio > LOAD_SHORTFALL_RATIO),
+        # R26: شفافیت — معاف‌ها گزارش می‌شوند، نه پنهان
+        "intentionally_empty": sorted(exempt_here),
+        "intentionally_empty_review": INTENTIONALLY_EMPTY_REVIEW,
     }
 
 

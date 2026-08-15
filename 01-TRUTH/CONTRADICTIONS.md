@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-015** (C-014 در 2026-08-15 ~20:5x ثبت شد: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-016** (C-015 در 2026-08-15 ~22:2x ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده؛ C-014: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -206,9 +206,9 @@ contradiction:
   source_b: "python -c guardrails.assert_code_target_allowed → (False, 'TCB') برای هر سه — 2026-08-15 شب"
   live_check: "run_all سوئیت 4d: ۲۶۵ تست، ۴ شکستِ pre-existing همه در همین فایل (اثبات stash: بدون تغییرات ایجنت هم همان ۴ شکست)"
   likely: "value_b علتِ محیطی دارد: REFERENCE_DIR به SYSTEM_ROOT خودِ پروژه resolve می‌شود (پوشهٔ 4D/ غایب) → _protected_roots کلِ ریشه را می‌پوشاند → همه‌چیز TCB"
-  resolution: null — owner_action
-  proposal: "فیکس پیشنهادی (هنوز اعمال نشده): fallback مسیرِ ناموجودِ SYSTEM_ROOT/'4D' به‌جای خودِ ریشه در config/settings.py::_resolve_reference_dir، یا تنظیم REFERENCE_DIR در .env؛ جهتِ فعلی fail-closed امن است (بیش‌محافظتی، نه کم‌محافظتی) — تغییر TCB نیازمند رأی مالک"
-  status: open — owner_action
+  resolution: "resolved (2026-08-16، تفویض مالک: «اجازه تصمیم‌گیری داری»): فیکسِ پیشنهادی + ارتقای شورای دوم اعمال شد — (۱) _resolve_reference_dir: REFERENCE_DIR==SYSTEM_ROOT یا جدِّ آن ⇒ fallback به SYSTEM_ROOT/'4D' با diagnostic (کامیت 6fc0f4b) (۲) manifest مرزِ اعتمادِ امضاشدنی: 4d_system/config/trust-boundary.json با sha256 چهارده فایل TCB + digest پاکت NO-GO (R0a) + وریفای Ed25519 با کلید عمومی مالک (۳) check_invariants/_job_guard: هالت روی دستکاریِ TCB زیرِ فلگ OCTOPUS_TCB_MANIFEST_ENFORCE (پیش‌فرض سایه‌ای؛ مالک پس از امضا روشن می‌کند) — همان عمقِ غایبی که نمایشِ زندهٔ V1 (ویرایش automation.py بدون halt) نشان داد"
+  evidence: "سطح A: py -m pytest 4d_system/tests/test_self_code_gate.py → 16/16 (قبلاً ۴ شکست) · test_trust_boundary_c013.py 12/12 · کل سوئیت 4d سبز · کامیت‌های 6fc0f4b + 576c7fb..HEAD"
+  status: resolved (delegated-owner; امضای manifest + enforce = قدمِ بعدِ مالک)
   registered_by: "test-sweep agent (grep دو-مخزن قبل از ثبت انجام شد — C-013 فقط در فهرستِ «آزاد بعدی» بود)"
 ```
 
@@ -222,8 +222,23 @@ contradiction:
   source_b: "کوئری mode=ro روی evidence_chain: seq 0..9 — الگوی دقیقِ :06:02-04 و :36:28-31"
   live_check: "Get-ScheduledTask: دو تسکِ فعال — «OCTOPUS Observatory Hourly» (جدید، 17:06، مسیر مطلق) و «OCTOPUS-Observatory» (قدیمی، StartBoundary 15:36:27+10:00، PT1H، «python run_observatory.py» نسبی)"
   likely: "تسکِ قدیمی هنگامِ ساختِ تسکِ جدید امشب غیرفعال نشد — دوبارْثبت"
-  resolution: null — owner_action
-  proposal: "یکی از دو تسک غیرفعال/حذف شود (پیشنهاد: قدیمی‌تر «OCTOPUS-Observatory»)؛ اثرِ فعلی: مصرفِ ۲برابریِ بودجه (۴۸/۱۰۰ روزانه — زیرِ سقف ولی دوتایی) و رشدِ ۲برابریِ زنجیرهٔ hash. رکوردِ evidence#4 (17:36:31) که «مبدأ نامشخص» بود = شلیکِ سومِ تسکِ قدیمی — معما حل شد"
-  status: open — owner_action
+  resolution: "containment اجرا و اثبات شد (2026-08-16، تفویض مالک): Disable-ScheduledTask «OCTOPUS-Observatory» (قدیمی) ~22:46 local؛ اثباتِ سطح A: ردیفِ 13:36Z غایب — آخرین :36 = seq14 (12:36:32Z، قبل از Disable)، جدیدترین = seq15 (13:06:05Z سری Hourly)؛ بلوکِ کامل در 06-EVIDENCE/DEBT-SWEEP-2026-08-16.md §R3. ریشه‌سازیِ ساختاری (job registry یکتا + idempotency سطحِ اثر + content-addressed evidence — طراحی GPT-5.6 Sol) = مصنوع تصمیم برای صاحبِ خط dev؛ تا آن موقع این تناقضِ زیرین باز می‌ماند"
+  note: "سابقه: رکوردِ evidence#4 (17:36:31) که «مبدأ نامشخص» بود = شلیکِ سومِ تسکِ قدیمی — معما حل شد. اثرِ دورهٔ دوتایی: مصرفِ ۲برابریِ بودجه (۴۸/۱۰۰ روزانه) و رشدِ ۲برابریِ زنجیرهٔ hash"
+  status: contained (علتِ سطحی رفع؛ ریشهٔ ساختاری open — design ready)
   registered_by: "test-sweep agent (grep دو-مخزن قبل از ثبت — C-014 آزاد بود)"
+```
+
+```yaml
+contradiction:
+  id: C-015
+  claim: "وضعیت سیم‌کشی حلقهٔ حافظهٔ مغز 4d (patch → automation)"
+  value_a: "patch هنوز در درخت زنده import نشده — automation.py سه نوشتن / صفر خواندن"
+  source_a: "08-PLANS/COUNCIL-MESH-v0.1.md (فرانت‌متر artifacts_verified + بند هستهٔ کشف‌شده) — سند معماری پیشنهادی همان شب، پیش از جاروی تست"
+  value_b: "C-012 resolved: patch به مسیر اصلی وصل شد؛ telemetry زنده read-before-decision=1.0 (18/18) و readback=1.0"
+  source_b: "کامیت 8a5e98b + 01-TRUTH/CONTRADICTIONS.md C-012 + 04-SYSTEMS/MEMORY-LOOP.md + TEST-SWEEP-REPORT"
+  live_check: "2026-08-15 ~22:2x — سند COUNCIL-MESH هنوز متن کهنه دارد؛ کد زنده با value_b است"
+  likely: value_b
+  resolution: null — سند کهنه است نه کد؛ بنر کهنگی روی COUNCIL-MESH اضافه شد؛ بازنویسی محتوا بدون رأی مالک نه (improve-don't-rewrite روی تصمیم‌های معماری)
+  status: open — documentation-stale (کد حل شده؛ سند گمراه می‌کند)
+  registered_by: "council-import scan 2026-08-15 دیرشب (grep: C-015 فقط به‌عنوان آزاد بعدی بود)"
 ```

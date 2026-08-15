@@ -1,17 +1,17 @@
 {
-  "ts": "2026-08-12T18:37:58",
+  "ts": "2026-08-15T23:56:15",
   "velocity": {
-    "velocity_per_hr": 18.25,
+    "velocity_per_hr": 20.625,
     "components": {
       "confirmed": 0,
       "effects": 0,
-      "consolidation": 18,
-      "beats": 1398,
+      "consolidation": 6,
+      "beats": 1375,
       "cognition": null
     },
     "confirmed_ts": [],
     "window_hours": 24.0,
-    "sample_size": 18,
+    "sample_size": 6,
     "sources_available": [
       "beats",
       "confirmed",
@@ -19,19 +19,19 @@
       "effects",
       "fuel"
     ],
-    "authoritative": true,
-    "self_referential": false,
+    "authoritative": false,
+    "self_referential": true,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-08-12T18:37:58",
-    "fuel_velocity_per_hr": 18.125,
+    "ts": "2026-08-15T23:56:15",
+    "fuel_velocity_per_hr": 20.5,
     "value_velocity_per_hr": null,
-    "real_velocity_per_hr": 18.125,
+    "real_velocity_per_hr": 20.5,
     "real_components": {
-      "fuel_calls": 435,
-      "fuel_musd": 8175
+      "fuel_calls": 492,
+      "fuel_musd": 144560
     },
     "leg_money_count": 0,
-    "metronome_share": 0.8859,
+    "metronome_share": 0.9582,
     "honest_pulse": {
       "enabled": true,
       "beat_cap": 3.0,
@@ -39,10 +39,10 @@
     },
     "channels": {
       "leg_money": 0,
-      "fuel": 435,
+      "fuel": 492,
       "value_cognition": null,
       "effects": 0,
-      "beats": 1398
+      "beats": 1375
     }
   },
   "cpi": {
@@ -50,28 +50,28 @@
     "components": {
       "suspect_zero": 0.0
     },
-    "attribution_events": 1,
-    "sample_size": 3,
+    "attribution_events": 0,
+    "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-08-12T18:37:58"
+    "ts": "2026-08-15T23:56:15"
   },
   "delta_self": {
-    "stream_rows": 1482,
+    "stream_rows": 1729,
     "sample_size": 336,
     "window": 336,
     "min_samples": 48,
-    "ts": "2026-08-12T18:37:58",
-    "delta_self_live": -0.00036,
-    "delta_self_raw": -0.00036,
-    "S_blind": 2.7464921149990555,
-    "S_informed": 2.7484706891331325,
-    "resolution_mse": 0.014486447927257973,
+    "ts": "2026-08-15T23:56:15",
+    "delta_self_live": -0.130219,
+    "delta_self_raw": -0.130219,
+    "S_blind": 0.06514605567640705,
+    "S_informed": 0.0845268557737205,
+    "resolution_mse": 0.021484195726204653,
     "cov_dropped_zero_variance": [
       "confirmed",
       "effects"
     ],
-    "ceiling_live": 1.320497,
+    "ceiling_live": 2.127453,
     "holdout_n": 168,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",

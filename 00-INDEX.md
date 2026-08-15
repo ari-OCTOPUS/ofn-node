@@ -62,6 +62,7 @@ status_legend:
 | `PRE-0/` | 11 | 2026-07-06 … 2026-07-28 | نمونهٔ امن اسکن | در جا | likely |
 
 | `07 - Knowledge/OCTOPUS-TRUTH-2026-08-15/` | 17 فایل | 2026-08-15 17:09 (موتور --apply) | پک حقیقت رصدخانه (16 یادداشت + PHANTOM-DOCUMENTS + گزارش نشست) | منبع 06-EVIDENCE/INTERNET-OBSERVATORY | **verified** (توسط موتور نوشته شد) |
+| `07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/` | 6 فایل (۲ گزارش + سنتز + extract ۵۸۴خط + docx + README) | 2026-08-15 شب (`576c7fb`) | شورای دوم + سند جامع حسابرسی + فکت‌چک انتساب TCB | منبع 06-EVIDENCE / شناخت-اختاپوس نوت ۴۸ | **verified** |
 | `architecture/observatory-allowlist.yaml` | — | 2026-08-15 (v2) | allowlist امضاشدهٔ ۷ دامنه‌ای | 06-EVIDENCE | verified |
 
 | `04-SYSTEMS/HEARTS-TIME.md` + `GENOME-MEMORY.md` + `MINDS.md` + `OWNER-CONSOLE.md` + `LEGS-LIVE.md` + `UNCONSCIOUS.md` | ۶ یادداشت شناختِ عمیق | 2026-08-15 (شبِ طبیعت‌شناس، مرحله ۱-۶) | آناتومی درونی از state/ledger/ناخودآگاه — سطح A | 04-SYSTEMS | **verified** |

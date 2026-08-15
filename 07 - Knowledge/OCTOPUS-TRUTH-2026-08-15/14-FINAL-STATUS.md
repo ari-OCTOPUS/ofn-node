@@ -113,3 +113,42 @@ sha256( seq | event_type | prediction_id | canonical(payload) | prev_hash )
 - هیچ رازی خوانده/چاپ نشد
 - دیتابیس‌ها فقط با `mode=ro` باز شدند
 - kill-switch سر جایش: `echo KILL > _ops\observatory\data\kill.switch`
+
+
+---
+
+## اجرای نهایی `--apply` — ۱۸:۳۷
+
+> [!check] `VERDICT: coherent.` — صفر FAIL روی نسخهٔ آزمایشی با فرمول واقعی.
+
+| بازرسی | نتیجه |
+|---|---|
+| `repo root` | ✅ `.git` یک سطح بالاتر — تشخیص اصلاح شد |
+| `observatory tests` | ✅ **۱۱۵ passed** (۹۳ + ۲۰ بیزی + ۲) |
+| `live store verification` | ✅ **PASS=27 FAIL=0 CRITICAL=0** |
+| `threshold n == signed 60` | ✅ مطابق اصلاحیهٔ تاریخ‌دار |
+| `observation window` | ✅ ۳۰ روز |
+| `ADR sequence` | ✅ ۴۱ حاضر — پرش بسته شد |
+| `CURRENT-TRUTH live` | coherence **0.977** · beat **36803** |
+| جهش‌کاری راستی‌آزما | ✅ **۷/۷ کشته شد** |
+
+### اقدامات ثبت‌شده
+
+- پک حقیقت ۱۹ یادداشتی در `F:\backup\07 - Knowledge\OCTOPUS-TRUTH-2026-08-15`
+- نسخهٔ قبلی با پسوند `.prev-20260815-183729` بایگانی شد — **هیچ حذفی**
+- `ADR-041` و `INTEGRATION-GUIDE` نوشته شدند (قبلی‌ها بایگانی)
+- `PHANTOM-DOCUMENTS.md` نوشته شد
+- `bayesian_strategy.py` + `test_bayesian.py` نصب و اجرا شدند
+- `store_meta` قبلاً مهر خورده بود (`schema_version=1`)
+- `SYNC-PROPOSALS-20260815-183729.md` — propose-only
+- `deceptive_grid.py` دست‌نخورده
+
+### دو باگ خودِ من که اصلاح شد
+
+**۱. فرمول hash در راستی‌آزما نبود.** ایجنت دوم آن را از سورس کشف کرد ولی من به ۱۵ کاندیدم اضافه نکرده بودم. علت CRITICAL بود، نه نقص معماری. اضافه شد → `27/27 PASS`.
+
+**۲. چکر آستانه عدد غلط را انتظار داشت.** `n≥20` را می‌خواست ولی اصلاحیهٔ تاریخ‌دار `n≥60` را تصویب کرده بود. چکر اصلاح شد، نه کد.
+
+> [!important] هر دو باگ در **ابزار سنجش** بود نه در **سیستم سنجیده‌شده**.
+> این خودش شاهدی است که ابزار مستقل بود — اگر فرمول را از کد وام می‌گرفت،
+> همیشه پاس می‌شد و هیچ چیز ثابت نمی‌کرد.

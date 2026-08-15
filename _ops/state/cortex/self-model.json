@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-12T16:20:20",
+  "ts": "2026-08-15T22:29:38",
   "schema": "self-model.v1",
-  "n_modules": 624,
-  "total_lines": 175561,
-  "n_tests": 667,
-  "n_wire_flags": 179,
+  "n_modules": 680,
+  "total_lines": 186345,
+  "n_tests": 696,
+  "n_wire_flags": 180,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
     "ACTIVATION-CORTEX-PAID.flag",
@@ -51,15 +51,15 @@
     "agi2027_control/tests/__init__.py",
     "collab/__init__.py",
     "control_plane/__init__.py",
+    "conversation_hub/__init__.py",
+    "conversation_hub/router.py",
+    "conversation_hub/schemas.py",
+    "conversation_hub/service.py",
     "discovery/__init__.py",
     "evidence_plane/__init__.py",
-    "owner_cockpit/__init__.py",
-    "owner_console/tests/test_acceptance_questions.py",
-    "owner_console/tests/test_catalog.py",
-    "owner_console/tests/test_conversation.py",
-    "owner_console/tests/test_telegram_adapter.py"
+    "hypothesis_engine/experiments/__init__.py"
   ],
-  "self_awareness_pct": 96.8,
+  "self_awareness_pct": 94.3,
   "modules": {
     "_agent_reports/live-watch-2026-07-26/watcher.py": {
       "purpose": "watcher.py — دو ساعت مشاهدهٔ زندهٔ سطحِ تلگرام (۲۰۲۶-۰۷-۲۶).",
@@ -677,6 +677,93 @@
         "opslib"
       ]
     },
+    "board_cp/__init__.py": {
+      "purpose": "board_cp — Control Plane ویندوز برای فرمانِ board-pull به برد.",
+      "lines": 13,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "board_cp/config.py": {
+      "purpose": "Gate 0 + فلگ. راز Bearer هرگز لاگ نمی‌شود.",
+      "lines": 79,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "flag_on",
+        "bearer_configured",
+        "control_url",
+        "control_url_ok",
+        "gate0_ready",
+        "is_armed",
+        "bearer_ok"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "board_cp/http.py": {
+      "purpose": "HTTP برای gateway: enqueue مالک (initData) و pull/ack برد (Bearer).",
+      "lines": 104,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "_header",
+        "_body",
+        "_json",
+        "dispatch",
+        "_enqueue",
+        "_board_auth",
+        "_pull",
+        "_ack"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "board_cp/queue.py": {
+      "purpose": "صف SQLite فرمان — stdlib-only. مسیر با OCTOPUS_BOARD_CP_DB قابلِ override.",
+      "lines": 121,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_db_path",
+        "_connect",
+        "insert",
+        "get",
+        "list_by_state",
+        "set_state"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
+    "board_cp/schema.py": {
+      "purpose": "قرارداد نوع: همان Command برد (octopus_bridge.models) + kind صف.",
+      "lines": 75,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "build_command"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "board_cp/service.py": {
+      "purpose": "enqueue / pull / ack — بدون شبکه به برد.",
+      "lines": 87,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "enqueue",
+        "authorize",
+        "pull",
+        "ack"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "brain/__init__.py": {
       "purpose": "_ops/brain — Brain Cockpit: کاکپیتِ چندپروژه‌ایِ آری. propose-only، shadow.",
       "lines": 2,
@@ -744,7 +831,7 @@
     },
     "budget/approval_channel.py": {
       "purpose": "approval_channel — منبعِ مستقلِ تأییدِ انسانی برای گیت‌های پول (A2/A3).",
-      "lines": 4918,
+      "lines": 4924,
       "n_funcs": 31,
       "n_classes": 5,
       "top_defs": [
@@ -1601,6 +1688,17 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "claim_when_ready.py": {
+      "purpose": "claim_when_ready.py — قدم ۲: claim فقط وقتی lead+amount واقعی باشد. جعل ممنوع.",
+      "lines": 37,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "clock_guard.py": {
       "purpose": "clock_guard — وقتی ساعتِ دیوار عقب می‌رود، انقضا بی‌معنی می‌شود.",
       "lines": 143,
@@ -1950,6 +2048,77 @@
         "opslib"
       ]
     },
+    "conversation_hub/__init__.py": {
+      "purpose": "",
+      "lines": 25,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "conversation_hub/router.py": {
+      "purpose": "",
+      "lines": 145,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_match_keywords",
+        "classify_intent"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "conversation_hub/schemas.py": {
+      "purpose": "",
+      "lines": 119,
+      "n_funcs": 0,
+      "n_classes": 5,
+      "top_defs": [
+        "SourceRef",
+        "ChatRequest",
+        "RouteDecision",
+        "ProvenanceEvent",
+        "ChatReply"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "conversation_hub/service.py": {
+      "purpose": "",
+      "lines": 428,
+      "n_funcs": 21,
+      "n_classes": 0,
+      "top_defs": [
+        "_enabled",
+        "_now_iso",
+        "_make_provenance",
+        "_stub_ask",
+        "_stub_runtime",
+        "_stub_mcp",
+        "_stub_memory",
+        "_stub_epistemic"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "conversation_hub/shadow_rollout.py": {
+      "purpose": "shadow_rollout.py — ADR-040 Phase 6: dual-read shadow comparison.",
+      "lines": 149,
+      "n_funcs": 5,
+      "n_classes": 2,
+      "top_defs": [
+        "DualRead",
+        "ShadowReport",
+        "_overlap",
+        "run_shadow",
+        "summarize",
+        "format_report",
+        "write_jsonl"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "cortex/__init__.py": {
       "purpose": "_ops/cortex — مغزِ مرکزیِ کنترل‌گر (جدا از بدن، رأی مالک 2026-07-10).",
       "lines": 17,
@@ -2137,8 +2306,8 @@
     },
     "cortex/cortex.py": {
       "purpose": "cortex.py — مغزِ مرکزیِ کنترل‌گر: پروسهٔ جدا روی 127.0.0.1:8772 (رأی مالک).",
-      "lines": 753,
-      "n_funcs": 21,
+      "lines": 862,
+      "n_funcs": 26,
       "n_classes": 2,
       "top_defs": [
         "_Srv",
@@ -2273,20 +2442,37 @@
       ],
       "house_imports": []
     },
+    "cortex/fourd_health.py": {
+      "purpose": "fourd_health.py — probe فقط‌خواندنِ لایول‌نسِ 4d_system (observability، ADR-038).",
+      "lines": 100,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_enabled",
+        "_now_iso",
+        "probe",
+        "persist",
+        "summary"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
     "cortex/fugu_quota.py": {
       "purpose": "fugu_quota.py — گاردِ «روزِ اول» فوگو: شمارندهٔ روزانهٔ attempt-counted + STOP-FUGU.",
-      "lines": 346,
-      "n_funcs": 16,
+      "lines": 434,
+      "n_funcs": 20,
       "n_classes": 1,
       "top_defs": [
         "Core",
         "_int_env",
         "_cap",
         "_fail_ceiling",
-        "_base",
-        "_state_path",
-        "_stop_file",
-        "_today"
+        "deepseek_weekly_cap_usd",
+        "_paid_calls_path",
+        "deepseek_weekly_spend_usd",
+        "_deepseek_weekly_reserve"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -2439,7 +2625,7 @@
     },
     "cortex/innervation.py": {
       "purpose": "innervation.py — نقشهٔ عصب‌کشی: قلب → ستونِ فقرات → همهٔ اندام‌ها (جلسه ۴۶).",
-      "lines": 140,
+      "lines": 148,
       "n_funcs": 5,
       "n_classes": 0,
       "top_defs": [
@@ -2471,7 +2657,7 @@
     },
     "cortex/model_router.py": {
       "purpose": "model_router.py — «به همه جا API بده»: یک درِ واحد به سه مغز.",
-      "lines": 579,
+      "lines": 591,
       "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
@@ -2500,7 +2686,7 @@
     },
     "cortex/owner_guidance.py": {
       "purpose": "owner_guidance.py — Task 3b (2026-07-24): حلقهٔ owner→brain با directiveهای **bounded**.",
-      "lines": 151,
+      "lines": 161,
       "n_funcs": 4,
       "n_classes": 0,
       "top_defs": [
@@ -2538,13 +2724,14 @@
     },
     "cortex/registry.py": {
       "purpose": "registry.py — دفترِ اعضا: هر عضو آگاهیِ خودش را در state-fileِ خودش دارد؛",
-      "lines": 82,
-      "n_funcs": 4,
+      "lines": 95,
+      "n_funcs": 5,
       "n_classes": 0,
       "top_defs": [
         "_age_s",
         "member_awareness",
         "ping",
+        "_member_enabled",
         "sweep"
       ],
       "wire_flags": [],
@@ -3460,7 +3647,7 @@
     },
     "effector_registry.py": {
       "purpose": "effector_registry — رجیستریِ اعلانیِ sensor→actuator (۲۰۲۶-۰۸-۰۸).",
-      "lines": 246,
+      "lines": 247,
       "n_funcs": 4,
       "n_classes": 0,
       "top_defs": [
@@ -3472,6 +3659,7 @@
       "wire_flags": [
         "OCTOPUS_WIRE_C",
         "OCTOPUS_WIRE_CONSOLIDATION",
+        "OCTOPUS_WIRE_DOCTOR_SELFKNOW",
         "OCTOPUS_WIRE_HEBBIAN",
         "OCTOPUS_WIRE_LATENT_PERSIST",
         "OCTOPUS_WIRE_NEURAL_EFFECT_SHADOW",
@@ -3481,11 +3669,107 @@
       "house_imports": []
     },
     "epistemics/__init__.py": {
-      "purpose": "OCTOPUS off-loop epistemics layer (SCAFFOLD).",
-      "lines": 8,
+      "purpose": "OCTOPUS epistemics cabin — دو لایه:",
+      "lines": 22,
       "n_funcs": 0,
       "n_classes": 0,
       "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/bayes.py": {
+      "purpose": "bayes.py — belief update (ADR-039 C4، Plane-4).",
+      "lines": 128,
+      "n_funcs": 5,
+      "n_classes": 1,
+      "top_defs": [
+        "BeliefDelta",
+        "_prior_to_log_odds",
+        "update_bayesian",
+        "update_score_band",
+        "posterior_from_delta",
+        "aggregate_independent"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/benchmark.py": {
+      "purpose": "benchmark.py — harness آفلاینِ A/B/C (ADR-039 §10، Phase 2.6).",
+      "lines": 408,
+      "n_funcs": 9,
+      "n_classes": 4,
+      "top_defs": [
+        "Case",
+        "CandExp",
+        "MultiExpCase",
+        "BenchmarkReport",
+        "run_benchmark_multiexp",
+        "_claim_for",
+        "_plan_for",
+        "_experiment_fn"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/benchmark_metrics.py": {
+      "purpose": "benchmark_metrics.py — متریک‌های benchmarkِ A/B/C (ADR-039 §10، Phase 2.6).",
+      "lines": 190,
+      "n_funcs": 10,
+      "n_classes": 2,
+      "top_defs": [
+        "Outcome",
+        "GoVerdict",
+        "brier_score",
+        "calibration_error",
+        "unsupported_claim_rate",
+        "claim_precision",
+        "falsifier_coverage",
+        "discovery_yield"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/canonical.py": {
+      "purpose": "canonical.py — Canonical JSON serialization + SHA-256 for the epistemics cabin (ADR-039 C1).",
+      "lines": 186,
+      "n_funcs": 8,
+      "n_classes": 1,
+      "top_defs": [
+        "ChainVerification",
+        "canonical_json",
+        "canonical_hash",
+        "payload_hash",
+        "chain_hash",
+        "material_hash_of",
+        "last_chain_hash",
+        "append_chained"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/claim_builder.py": {
+      "purpose": "claim_builder.py — Cortex → draft EpistemicClaim از telemetry (ADR-039, post-C5).",
+      "lines": 61,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "draft_from_telemetry",
+        "is_runnable_draft"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/compose.py": {
+      "purpose": "compose.py — Response Composer / Disclosure Guard (بازبینیِ Hypothesis-Ledger).",
+      "lines": 103,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "ComposedResponse",
+        "compose",
+        "_disclosure",
+        "render_text"
+      ],
       "wire_flags": [],
       "house_imports": []
     },
@@ -3519,6 +3803,22 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "epistemics/experiment_selector.py": {
+      "purpose": "experiment_selector.py — انتخابگرِ آزمونِ sandbox-safe (ADR-039 §11, Phase 2.5).",
+      "lines": 132,
+      "n_funcs": 4,
+      "n_classes": 2,
+      "top_defs": [
+        "ExperimentSpec",
+        "SelectionDecision",
+        "is_safe_type",
+        "is_forbidden_type",
+        "eligible",
+        "rank_by_discovery_value"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "epistemics/guard_review.py": {
       "purpose": "guard_review.py — کلاسیفایرِ سه‌حالتهٔ سایهٔ access-only (S-batch Replay، رأی مالک ۲۰۲۶-۰۷-۱۱).",
       "lines": 91,
@@ -3526,6 +3826,20 @@
       "n_classes": 0,
       "top_defs": [
         "classify_access_only"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/invariants.py": {
+      "purpose": "invariants.py — ۱۰ invariantِ معرفتیِ صریح و قابل‌تست (ADR-039 §7, Phase 2.5).",
+      "lines": 117,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "Invariant",
+        "names",
+        "count",
+        "structural_invariants"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -3541,6 +3855,37 @@
         "levels",
         "self_reference",
         "method"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/policy.py": {
+      "purpose": "policy.py — بارگذارِ fail-closedِ policy.yaml (ADR-039 C1).",
+      "lines": 135,
+      "n_funcs": 2,
+      "n_classes": 4,
+      "top_defs": [
+        "Caps",
+        "BeliefUpdate",
+        "Independence",
+        "PolicyConfig",
+        "_require",
+        "load_policy"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/provenance.py": {
+      "purpose": "provenance.py — autonomy_provenance.jsonl + طبقه‌بندیِ self-initiation (ADR-039 C2).",
+      "lines": 107,
+      "n_funcs": 4,
+      "n_classes": 1,
+      "top_defs": [
+        "ProvenanceWriter",
+        "_check_confined",
+        "load_edges",
+        "classify_initiation",
+        "verify_provenance"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -3561,6 +3906,20 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "epistemics/receipt_store.py": {
+      "purpose": "receipt_store.py — ذخیرهٔ append-only و tamper-evident برای EvidenceReceipt (ADR-039 C2).",
+      "lines": 99,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "ReceiptStore",
+        "_check_confined",
+        "sign_segment",
+        "verify_segment"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "epistemics/run_offloop.py": {
       "purpose": "Off-loop entrypoint. Reads (read-only) -> computes 5 metrics -> optionally emits",
       "lines": 63,
@@ -3573,6 +3932,84 @@
       "wire_flags": [
         "OCTOPUS_WIRE_EPISTEMICS"
       ],
+      "house_imports": []
+    },
+    "epistemics/sandbox_runner.py": {
+      "purpose": "sandbox_runner.py — اجرای boundedِ یک BoundedRunSpec (ADR-039 C3، Plane-3).",
+      "lines": 165,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "RunResult",
+        "_is_halted",
+        "_binds_for",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/schemas.py": {
+      "purpose": "schemas.py — قراردادهای دادهٔ موتورِ آزمونِ معرفتی (ADR-039).",
+      "lines": 380,
+      "n_funcs": 0,
+      "n_classes": 21,
+      "top_defs": [
+        "ClaimType",
+        "Authority",
+        "SandboxProfile",
+        "TestDesign",
+        "GateOutcome",
+        "PredictionDirection",
+        "WorldMode",
+        "ExecutionScope"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/shadow_run.py": {
+      "purpose": "shadow_run.py — harnessِ shadow runِ ADR-039 (C7).",
+      "lines": 120,
+      "n_funcs": 3,
+      "n_classes": 2,
+      "top_defs": [
+        "ShadowTick",
+        "ShadowReport",
+        "_one_tick",
+        "run_shadow",
+        "format_report"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/test_planner.py": {
+      "purpose": "test_planner.py — تبدیلِ claim+plan به run-specِ bounded (ADR-039 C3، Plane-2→3).",
+      "lines": 108,
+      "n_funcs": 1,
+      "n_classes": 2,
+      "top_defs": [
+        "PlanError",
+        "BoundedRunSpec",
+        "plan_run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "epistemics/validator.py": {
+      "purpose": "validator.py — اعتبارسنجیِ pure برای claim/plan/receipt/decision (ADR-039 C1).",
+      "lines": 167,
+      "n_funcs": 7,
+      "n_classes": 1,
+      "top_defs": [
+        "ValidationResult",
+        "_ok",
+        "_block",
+        "validate_claim",
+        "validate_plan",
+        "validate_receipt",
+        "validate_gate_decision",
+        "validate_world_mode_consistency"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "epoch_guard.py": {
@@ -4215,6 +4652,264 @@
         "_host_ok",
         "origin_ok",
         "guard_post"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/__init__.py": {
+      "purpose": "Hypothesis Engine — زیرسیستمِ مستقلِ Pydantic برای مغزِ فرضیهٔ Octopus.",
+      "lines": 9,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/__init__.py": {
+      "purpose": "",
+      "lines": 11,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/agents.py": {
+      "purpose": "",
+      "lines": 517,
+      "n_funcs": 3,
+      "n_classes": 6,
+      "top_defs": [
+        "AgentConfig",
+        "AgentResult",
+        "BaseAgent",
+        "PriorAgent",
+        "NoveltyAgent",
+        "HypothesisAgent",
+        "_falsified_assists_at",
+        "make_agent"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/analysis.py": {
+      "purpose": "",
+      "lines": 423,
+      "n_funcs": 13,
+      "n_classes": 0,
+      "top_defs": [
+        "load",
+        "perm_p_median",
+        "cliffs_delta",
+        "wilson_ci",
+        "rank_two_way_anova",
+        "main",
+        "bootstrap_cliffs_delta",
+        "load_jsonl"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/deceptive_grid.py": {
+      "purpose": "",
+      "lines": 428,
+      "n_funcs": 5,
+      "n_classes": 3,
+      "top_defs": [
+        "DeceptiveGrid",
+        "RunResult",
+        "AgentB",
+        "near_optimum",
+        "falsified_assists_at",
+        "run_prior_only",
+        "run_novelty",
+        "run_all"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/env_factory.py": {
+      "purpose": "",
+      "lines": 537,
+      "n_funcs": 12,
+      "n_classes": 3,
+      "top_defs": [
+        "Observation",
+        "EnvConfig",
+        "DeceptiveGrid",
+        "near_optimum",
+        "_default_walls",
+        "_default_config",
+        "_default_benign_config",
+        "make_S0_reference"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/runner.py": {
+      "purpose": "",
+      "lines": 487,
+      "n_funcs": 3,
+      "n_classes": 4,
+      "top_defs": [
+        "RunProvenance",
+        "AutonomyProvenance",
+        "ScenarioResult",
+        "BenchmarkRunner",
+        "_git_sha",
+        "_config_hash",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/scenarios.py": {
+      "purpose": "",
+      "lines": 459,
+      "n_funcs": 26,
+      "n_classes": 1,
+      "top_defs": [
+        "ScenarioSpec",
+        "S0_reference",
+        "S0_benign",
+        "S1_unseen",
+        "S2_reversed",
+        "S2_swapped",
+        "S2_budget_trap",
+        "S3_grid_variation"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/experiments/verdict.py": {
+      "purpose": "",
+      "lines": 365,
+      "n_funcs": 4,
+      "n_classes": 2,
+      "top_defs": [
+        "RunRecord",
+        "Verdict",
+        "_wilson_ci",
+        "_cliffs_delta",
+        "classify_verdict",
+        "scenario_sub_verdict"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/impl/__init__.py": {
+      "purpose": "impl/ — پیاده‌سازیِ مغزِ فرضیه (کابینِ Pydantic مستقل).",
+      "lines": 8,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/impl/base_brain.py": {
+      "purpose": "",
+      "lines": 34,
+      "n_funcs": 0,
+      "n_classes": 2,
+      "top_defs": [
+        "BrainError",
+        "BaseBrain"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/impl/hypothesis_brain.py": {
+      "purpose": "",
+      "lines": 205,
+      "n_funcs": 2,
+      "n_classes": 1,
+      "top_defs": [
+        "HypothesisBrain",
+        "new_hypothesis_id",
+        "pursue_score"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/impl/schemas.py": {
+      "purpose": "",
+      "lines": 135,
+      "n_funcs": 2,
+      "n_classes": 5,
+      "top_defs": [
+        "HypothesisStatus",
+        "EvidenceGrade",
+        "HypothesisRecord",
+        "HypothesisProposal",
+        "BeliefUpdateResult",
+        "logit",
+        "sigmoid"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/tests/__init__.py": {
+      "purpose": "tests/ برای hypothesis_engine. مسیرِ impl/ توسط conftest.py روی sys.path گذاشته می‌شود.",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/tests/conftest.py": {
+      "purpose": "",
+      "lines": 9,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/tests/test_experiment_accounting.py": {
+      "purpose": "",
+      "lines": 34,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "test_falsified_assists_sums_only_falsified",
+        "test_falsified_assists_empty_and_missing_keys_safe",
+        "test_at_discovery_not_end_of_run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/tests/test_hypothesis_brain.py": {
+      "purpose": "",
+      "lines": 278,
+      "n_funcs": 18,
+      "n_classes": 0,
+      "top_defs": [
+        "run",
+        "_drive",
+        "_propose",
+        "test_1_untestable_high_usefulness_rejected",
+        "test_2_low_probability_high_value_pursued",
+        "test_3_update_without_evidence_id_raises_hard",
+        "test_4_belief_update_net_upward_after_2A_1D",
+        "test_6_pursue_score_formula_exact"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "hypothesis_engine/tests/test_validate_registry.py": {
+      "purpose": "",
+      "lines": 150,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "_write",
+        "_run",
+        "test_real_registry_is_valid",
+        "test_valid_testing_hypothesis_passes",
+        "test_testing_without_kill_condition_rejected",
+        "test_may_mutate_ledger_true_rejected",
+        "test_too_many_active_rejected"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -5246,18 +5941,18 @@
     },
     "legs/lead_pipeline.py": {
       "purpose": "lead_pipeline.py — Lane G (منشور TG-UI ۲۰۲۶-۰۷-۳۱، رأی ۱۳/۱۷/۱۸): ارکستراتورِ ماشینِ لید.",
-      "lines": 450,
-      "n_funcs": 19,
+      "lines": 474,
+      "n_funcs": 20,
       "n_classes": 0,
       "top_defs": [
         "enabled",
         "_state_path",
         "_load_state",
         "_save_state",
+        "_is_owner_set_aside",
         "_leg_tasks",
         "_outcomes_path",
-        "_rebuild_candidate",
-        "_card_text"
+        "_rebuild_candidate"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_LEAD_CARD_CONTACT",
@@ -6006,7 +6701,7 @@
     },
     "live/server.py": {
       "purpose": "live/server.py — اتاقِ کنترلِ زنده (127.0.0.1:8773) — «محیطِ تعاملیِ آنلاین با همهٔ قسمت‌ها».",
-      "lines": 1114,
+      "lines": 1115,
       "n_funcs": 16,
       "n_classes": 2,
       "top_defs": [
@@ -6107,6 +6802,22 @@
         "OCTOPUS_WIRE_NEURAL",
         "OCTOPUS_WIRE_PULSE_ARBITER"
       ],
+      "house_imports": []
+    },
+    "memory/brain_pulse.py": {
+      "purpose": "brain_pulse.py — file-bridge از مغزهای داخلی → چت (لایهٔ ۵ → لایهٔ ۳).",
+      "lines": 276,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_flags_down",
+        "_read",
+        "_read_with_age",
+        "snapshot",
+        "as_context_block",
+        "for_unified_self_context"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "memory/equation_advice.py": {
@@ -6218,7 +6929,7 @@
     },
     "memory/retrieval_router.py": {
       "purpose": "retrieval_router — حافظه در نقطهٔ تصمیم، با یک قاعدهٔ سخت: فقط narrowing.",
-      "lines": 121,
+      "lines": 145,
       "n_funcs": 2,
       "n_classes": 0,
       "top_defs": [
@@ -6296,7 +7007,7 @@
     },
     "memory/unified_context.py": {
       "purpose": "unified_context.py — فاز P: Unified Context Bus / Assembler (یک جریان، چند اندام).",
-      "lines": 209,
+      "lines": 219,
       "n_funcs": 10,
       "n_classes": 0,
       "top_defs": [
@@ -6382,6 +7093,19 @@
         "opslib"
       ]
     },
+    "money_caps_snapshot.py": {
+      "purpose": "money_caps_snapshot.py — ماتریس سقف خرج برای MiniApp (قدم ۵/۷).",
+      "lines": 91,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "snapshot"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_VALUE_LEDGER"
+      ],
+      "house_imports": []
+    },
     "money_fsm_card.py": {
       "purpose": "money_fsm_card — کارتِ «تخلف‌های ماشینِ حالتِ پول» (۲۰۲۶-۰۸-۰۸).",
       "lines": 96,
@@ -6432,7 +7156,7 @@
     },
     "neural/consolidation.py": {
       "purpose": "consolidation.py — NI-4: ConsolidationCycle (خوابِ عمیق / یادگیری).",
-      "lines": 516,
+      "lines": 520,
       "n_funcs": 14,
       "n_classes": 3,
       "top_defs": [
@@ -6445,7 +7169,9 @@
         "_floor_seconds",
         "_dedup_fuzzy_on"
       ],
-      "wire_flags": [],
+      "wire_flags": [
+        "OCTOPUS_WIRE_LATENT_PERSIST"
+      ],
       "house_imports": []
     },
     "neural/encoders.py": {
@@ -6908,7 +7634,7 @@
     },
     "organism.py": {
       "purpose": "organism.py — حلقهٔ واحد همیشه-روشن ارگانیسم (آناتومی ⊕ فیزیولوژی ⊕ متابولیسم).",
-      "lines": 1336,
+      "lines": 1393,
       "n_funcs": 5,
       "n_classes": 2,
       "top_defs": [
@@ -7437,6 +8163,22 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "owner_console/chat_log.py": {
+      "purpose": "chat_log.py — سیوِ سرور-ساید گفتگوی مالک (append-only JSONL).",
+      "lines": 110,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "redact",
+        "append",
+        "recent",
+        "as_context_block",
+        "count",
+        "clear"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "owner_console/collab_digest.py": {
       "purpose": "collab_digest.py — monitoring digest from live_snapshot (WP-E5).",
       "lines": 105,
@@ -7474,7 +8216,7 @@
     },
     "owner_console/collab_model_adapter.py": {
       "purpose": "collab_model_adapter.py — thin bridge: collaborator → model_router.ask.",
-      "lines": 309,
+      "lines": 379,
       "n_funcs": 10,
       "n_classes": 0,
       "top_defs": [
@@ -7487,7 +8229,9 @@
         "check_daily_cap",
         "_default_ask"
       ],
-      "wire_flags": [],
+      "wire_flags": [
+        "OCTOPUS_WIRE_KILL_SEAM"
+      ],
       "house_imports": [
         "model_router"
       ]
@@ -7508,7 +8252,7 @@
     },
     "owner_console/collaborator.py": {
       "purpose": "collaborator.py — collaborator engine (WP-E3 + Talk Discovery Phase A).",
-      "lines": 394,
+      "lines": 503,
       "n_funcs": 6,
       "n_classes": 0,
       "top_defs": [
@@ -7526,15 +8270,18 @@
     },
     "owner_console/conversation.py": {
       "purpose": "Natural-language facade for Outer DM. Read-only/propose-only; no transport or execution.",
-      "lines": 542,
-      "n_funcs": 5,
+      "lines": 950,
+      "n_funcs": 12,
       "n_classes": 0,
       "top_defs": [
+        "_read_org_state",
+        "_live_greeting",
         "_live_intro_witness",
         "_selfmap_summary",
         "handle",
-        "callback",
-        "_reply"
+        "_infer_board_kind",
+        "_infer_board_target",
+        "_board_command_reply"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -7570,9 +8317,27 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "owner_console/legs_status.py": {
+      "purpose": "legs_status.py — خوانندهٔ فقط‌خواندنیِ وضعیتِ بیزنس‌های برد (Orange Pi).",
+      "lines": 230,
+      "n_funcs": 9,
+      "n_classes": 2,
+      "top_defs": [
+        "BlockedUrl",
+        "_PublicHttpsRedirectHandler",
+        "public_https_url_ok",
+        "_assert_public_https",
+        "_base_domain",
+        "leg_urls",
+        "_default_fetch",
+        "_probe_one"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "owner_console/status.py": {
       "purpose": "Read-only current-state answers for the owner conversation.",
-      "lines": 119,
+      "lines": 130,
       "n_funcs": 7,
       "n_classes": 0,
       "top_defs": [
@@ -7583,6 +8348,20 @@
         "blockers",
         "discovery",
         "readonly_mission"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "owner_console/status_banner.py": {
+      "purpose": "status_banner.py — بنرِ پیشگیرانهٔ وضعیت برای چت (صداقتِ چت، TASK 4).",
+      "lines": 113,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_detect_stop",
+        "_fmt_since",
+        "_quota_status",
+        "status_banner"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -7648,7 +8427,7 @@
     },
     "owner_console/tests/test_conversation.py": {
       "purpose": "",
-      "lines": 116,
+      "lines": 120,
       "n_funcs": 14,
       "n_classes": 0,
       "top_defs": [
@@ -8038,6 +8817,21 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "runner_apply_gate.py": {
+      "purpose": "runner_apply_gate.py — DW-01 / قدم ۵۲: فلگ مسلح ولی ماژول apply نبود.",
+      "lines": 49,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "flag_on",
+        "status",
+        "persist"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_RUNNER_APPLY"
+      ],
+      "house_imports": []
+    },
     "runtime/__init__.py": {
       "purpose": "",
       "lines": 2,
@@ -8114,6 +8908,19 @@
       ],
       "house_imports": []
     },
+    "scripts/tg_site_fire_report.py": {
+      "purpose": "Read-only: which Phase-0 watchlist sites have fired (ADR-042).",
+      "lines": 56,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
     "scripts/unlock_self_progress.py": {
       "purpose": "unlock_self_progress.py — clear decision queues so Octopus can progress alone.",
       "lines": 367,
@@ -8135,6 +8942,21 @@
       "house_imports": [
         "improve"
       ]
+    },
+    "scripts/validate_hypothesis_registry.py": {
+      "purpose": "validate_hypothesis_registry.py — اعتبارسنج رجیستری فرضیه‌های Octopus",
+      "lines": 164,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "err",
+        "warn",
+        "prob01",
+        "check_registry",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "scripts/validate_signals_registry.py": {
       "purpose": "Validate architecture/signals-registry.yaml — JSON Schema + semantic rules (Stage 2–3).",
@@ -8708,7 +9530,7 @@
     },
     "telegram_center/ask_brain.py": {
       "purpose": "ask_brain — جوابِ واقعی به جملهٔ آزادِ مالک، از مغزِ گران.",
-      "lines": 481,
+      "lines": 509,
       "n_funcs": 15,
       "n_classes": 0,
       "top_defs": [
@@ -8829,7 +9651,7 @@
     },
     "telegram_center/center.py": {
       "purpose": "center.py — «مرکزِ فرماندهیِ تلگرام» (hub): حلقهٔ setup/beat/poll روی TgClient.",
-      "lines": 5994,
+      "lines": 6048,
       "n_funcs": 17,
       "n_classes": 1,
       "top_defs": [
@@ -9179,7 +10001,7 @@
     },
     "telegram_center/miniapp_gateway.py": {
       "purpose": "miniapp_gateway — دیوارِ 8774 برای Mini App (PLAN-T4 §۱–۳؛ GO ِ مالک ۲۰۲۶-۰۷-۳۱).",
-      "lines": 1142,
+      "lines": 1291,
       "n_funcs": 24,
       "n_classes": 2,
       "top_defs": [
@@ -9218,8 +10040,8 @@
     },
     "telegram_center/miniapp_state.py": {
       "purpose": "miniapp_state.py — read-only state helpers for the MiniApp cockpit.",
-      "lines": 1743,
-      "n_funcs": 62,
+      "lines": 1941,
+      "n_funcs": 66,
       "n_classes": 0,
       "top_defs": [
         "_scrub",
@@ -9693,7 +10515,7 @@
     },
     "telegram_center/tg_api.py": {
       "purpose": "tg_api.py — کلاینتِ نازکِ Bot API تلگرام برای «مرکزِ تلگرام» (telegram_center).",
-      "lines": 844,
+      "lines": 855,
       "n_funcs": 18,
       "n_classes": 1,
       "top_defs": [
@@ -9764,7 +10586,7 @@
     },
     "telemetry/__init__.py": {
       "purpose": "",
-      "lines": 39,
+      "lines": 2,
       "n_funcs": 0,
       "n_classes": 0,
       "top_defs": [],
@@ -9773,7 +10595,7 @@
     },
     "telemetry/criticality_metrics.py": {
       "purpose": "criticality_metrics.py — OTLP metrics → Grafana Alloy (local), never Grafana cloud creds.",
-      "lines": 121,
+      "lines": 117,
       "n_funcs": 4,
       "n_classes": 0,
       "top_defs": [
@@ -10101,6 +10923,25 @@
         "opslib"
       ]
     },
+    "tg_site_fire_log.py": {
+      "purpose": "tg_site_fire_log.py — ADR-042 Phase 0: which send *call sites* actually run.",
+      "lines": 128,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "enabled",
+        "_state_dir",
+        "_load_catalog",
+        "_catalog",
+        "_rel_ops",
+        "record_call",
+        "_record"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
     "tg_trace.py": {
       "purpose": "ردِ ارسال‌های تلگرام — «فرستادم» در برابرِ «کجا نشست».",
       "lines": 225,
@@ -10356,7 +11197,7 @@
     },
     "unified_control/snapshot.py": {
       "purpose": "Read-only truth snapshot: self, direction, heart, cortex, goal-cycle and guidance.",
-      "lines": 195,
+      "lines": 201,
       "n_funcs": 7,
       "n_classes": 0,
       "top_defs": [

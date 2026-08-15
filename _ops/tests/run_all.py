@@ -821,6 +821,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_redact_before_archive.py",        # redact Ù‚Ø¨Ù„ Ø§Ø² hold (boundary-3: Ù†Ø´Øª Ø¯Ø± Ø¢Ø±Ø´ÛŒÙˆ)
     "test_tg_409_rival_poller.py",           # ØªØ´Ø®ÛŒØµÙ pollerÙ Ø±Ù‚ÛŒØ¨ Ø±ÙˆÛŒ Ø¨Ø§ØªÙ Ù…Ø±Ú©Ø² (boundary-12)
     "test_flag_load_shortfall.py",             # Ù¾ÛŒÚ©Ø±Ø¨Ù†Ø¯ÛŒÙ Ù†ØµÙÙ‡ Ø³Ø±Ù boot Ø¯Ø§Ø¯ Ø¨Ø²Ù†Ø¯ (ÙØ±ÙˆÙ¾Ø§Ø´ÛŒÙ Û°Û¹:Û°Û·)
+    "test_flag_shortfall_smtp_exemption.py",   # R26 (2026-08-16): معافیتِ باریک/شفاف/منقضی‌شوندهٔ SMTP poison از shortfall
+    "test_ask_reasoning_preamble_strip.py",    # R27: پاکسازِ پیش‌متنِ استدلالِ مدل‌های thinking (شواهد: chat-log)
     "test_tg_poll_health.py",                # Ú¯ÙˆØ´Ù Ù…Ø±Ø¯Ù‡ Ø¯ÛŒØ¯Ù‡ Ø´ÙˆØ¯: Ù‡Ø± Ø¯ÙˆØ±Ù getUpdates Ø«Ø¨Øª + Ù‡Ø´Ø¯Ø§Ø±Ù Ú©ÙˆØ±ÛŒ
     "test_tg_voice_worker.py",               # ÙˆÛŒØ³Ù Ú©Ù†Ø¯ Ø±ÙˆÛŒ Ù†Ø®Ù Ú©Ø§Ø±Ú¯Ø±ØŒ Ù†Ù‡ Ø±ÙˆÛŒ Ø­Ù„Ù‚Ù‡Ù” poll
     "test_tg_model_cache.py",                 # Ù…Ø¯Ù„ ÛŒÚ©â€ŒØ¨Ø§Ø± Ø¨Ø§Ø± Ø´ÙˆØ¯ØŒ Ù†Ù‡ Ø¨Ù‡â€ŒØ§Ø²Ø§ÛŒ Ù‡Ø± ÙˆÛŒØ³

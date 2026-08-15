@@ -1,20 +1,20 @@
 {
-  "ts": "2026-08-12T18:43:15",
+  "ts": "2026-08-15T23:51:58",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
   "winner": {
-    "source": "alerts",
-    "kind": "stress",
-    "key": "alerts:stress",
-    "effective": 0.955,
-    "summary": "🚨 هشدارها"
+    "source": "attention",
+    "kind": "owner_wait",
+    "key": "attention:owner_wait",
+    "effective": 1.0,
+    "summary": "🔴 نقطهٔ مرده: 💼 مغزِ دومِ کسب‌وکار، 🔁 لوپِ بخش‌ها، 🪞 خودمدلی beat نمی‌خورد"
   },
-  "broadcast_width": 2,
-  "margin": 0.105,
+  "broadcast_width": 1,
+  "margin": 0.52,
   "n_candidates": 9,
   "ignition_rate": 1.0,
-  "stability": 107,
+  "stability": 43,
   "recent_ignitions": [
     1,
     1,
@@ -38,6 +38,6 @@
     1
   ],
   "reentry_prior": {
-    "alerts:stress": 0.3749
+    "attention:owner_wait": 0.3749
   }
 }

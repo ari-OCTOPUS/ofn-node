@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-12T16:20:21",
+  "ts": "2026-08-15T22:29:42",
   "schema": "part-loops.v1",
-  "beat": 40,
+  "beat": 10,
   "parts": [
     {
       "id": "heart",
@@ -13,7 +13,7 @@
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 96٪"
+      "detail": "هم‌آهنگی 98٪"
     },
     {
       "id": "doctor",
@@ -25,13 +25,13 @@
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.024746$/۳۰"
+      "detail": "0.457206$/۳۰"
     },
     {
       "id": "learning",
       "name": "📚 یادگیری",
       "status": "🟢",
-      "detail": "10 کشفِ ۴۸h"
+      "detail": "5 کشفِ ۴۸h"
     },
     {
       "id": "legs",
@@ -43,7 +43,7 @@
       "id": "self",
       "name": "🪞 خودمدلی",
       "status": "🟢",
-      "detail": "96.8٪ سند"
+      "detail": "94.3٪ سند"
     }
   ],
   "n_proposals": 3,

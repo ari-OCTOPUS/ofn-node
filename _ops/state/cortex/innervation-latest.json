@@ -1,17 +1,17 @@
 {
-  "ts": "2026-08-12T18:43:14",
+  "ts": "2026-08-15T23:58:21",
   "schema": "innervation.v1",
   "heart_period_s": 489.97,
   "coverage_pct": 100.0,
-  "n_organs": 10,
-  "n_born": 10,
+  "n_organs": 11,
+  "n_born": 11,
   "dead_spots": [],
   "organs": [
     {
       "id": "spine",
       "name": "🦴 ستونِ فقرات (pacemaker)",
       "status": "🟢 عصب‌دار",
-      "age_min": 0.1,
+      "age_min": 2.1,
       "sla_min": 10,
       "connected": true
     },
@@ -19,7 +19,7 @@
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢 عصب‌دار",
-      "age_min": 5.3,
+      "age_min": 2.1,
       "sla_min": 30,
       "connected": true
     },
@@ -27,7 +27,7 @@
       "id": "cortex",
       "name": "🧠 مغزِ مرکزی",
       "status": "🟢 عصب‌دار",
-      "age_min": 10.0,
+      "age_min": 6.3,
       "sla_min": 30,
       "connected": true
     },
@@ -35,7 +35,7 @@
       "id": "work",
       "name": "⚙️ پمپِ کار",
       "status": "🟢 عصب‌دار",
-      "age_min": 5.3,
+      "age_min": 2.1,
       "sla_min": 360,
       "connected": true
     },
@@ -50,16 +50,16 @@
     {
       "id": "parts",
       "name": "🔁 لوپِ بخش‌ها",
-      "status": "🟡 کند",
-      "age_min": 142.9,
+      "status": "🟢 عصب‌دار",
+      "age_min": 88.6,
       "sla_min": 120,
       "connected": true
     },
     {
       "id": "business",
       "name": "💼 مغزِ دومِ کسب‌وکار",
-      "status": "🟡 کند",
-      "age_min": 142.9,
+      "status": "🟢 عصب‌دار",
+      "age_min": 88.6,
       "sla_min": 120,
       "connected": true
     },
@@ -67,15 +67,15 @@
       "id": "learning",
       "name": "📚 یادگیری/تحقیق",
       "status": "🟢 عصب‌دار",
-      "age_min": 267.8,
+      "age_min": 531.4,
       "sla_min": 1440,
       "connected": true
     },
     {
       "id": "selfmodel",
       "name": "🪞 خودمدلی",
-      "status": "🟡 کند",
-      "age_min": 142.9,
+      "status": "🟢 عصب‌دار",
+      "age_min": 88.7,
       "sla_min": 120,
       "connected": true
     },
@@ -83,8 +83,16 @@
       "id": "telemetry",
       "name": "💰 تلمتریِ مالی",
       "status": "🟢 عصب‌دار",
-      "age_min": 1.1,
+      "age_min": 0.0,
       "sla_min": 360,
+      "connected": true
+    },
+    {
+      "id": "fourd",
+      "name": "🧩 4d_system (مشاهده)",
+      "status": "🟢 عصب‌دار",
+      "age_min": 6.4,
+      "sla_min": 120,
       "connected": true
     }
   ]

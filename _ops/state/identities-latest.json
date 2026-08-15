@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-12T07:59:06Z",
+  "ts": "2026-08-15T10:57:51Z",
   "signals": {
-    "delta": -0.001606,
+    "delta": -0.184462,
     "n_delta": 200,
-    "phi_max": 0.24,
+    "phi_max": 0.2,
     "phi_saturated": 0,
     "sigma": null,
     "money_confirmed": 0,
-    "c6_done": 22,
-    "c6_pending": 1,
+    "c6_done": 32,
+    "c6_pending": 9,
     "probe_count": 14,
     "romajan_verified": 44,
     "honest_flags": 6,
@@ -44,14 +44,14 @@
       "id": "earner",
       "label": "پول‌ساز",
       "emoji": "💰",
-      "value": 0.0675,
+      "value": 0.0,
       "equation": "E = clamp01( 0.60·M̂ + 0.25·lead_draft_rate + 0.15·B )",
       "plain": "پول‌ساز کسی است که ردیفِ MONEY_ATTRIBUTIONِ confirmed دارد، لید را تا draft می‌رساند، و هنوز سوخت دارد.",
       "kill": "اگر E=0 با ≥۳۰ روز lead_discovery روشن و M=0 → لولهٔ پول قفل است یا کار نمی‌کند.",
       "parts": {
         "money_hat": 0.0,
         "draft_rate": 0.0,
-        "budget_frac": 0.4501
+        "budget_frac": 0.0
       },
       "better_than": [
         "paper-only scout",
@@ -110,13 +110,13 @@
       "id": "organism",
       "label": "ارگانیسم",
       "emoji": "🐙",
-      "value": 0.6019,
+      "value": 0.585,
       "equation": "O = clamp01( 0.25·L + 0.25·E + 0.20·G + 0.15·K + 0.15·alive )",
       "plain": "ارگانیسمِ زنده = یادگیرنده × پول‌ساز × نگهبان × خالق × نبض. هیچ‌کدام به تنهایی کافی نیست؛ صفرِ هر کدام O را پایین می‌کشد.",
       "kill": "اگر O>0.8 ادعا شود ولی M=0 و Δ≤0 و C=0 → عددِ ترکیبی تئاتر است، نه حیات.",
       "parts": {
         "L": 0.6,
-        "E": 0.0675,
+        "E": 0.0,
         "G": 0.675,
         "K": 1.0,
         "alive": 1.0

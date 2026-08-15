@@ -1699,6 +1699,12 @@ class TelegramApprovalChannel(ApprovalChannel):
         tg-send-log می‌گذارد — attempted (واقعاً POST شد) · held (سکوت/HOLD
         نگهش داشت) · blocked (ساختاراً نمی‌توانست برود). قبلاً held/blocked
         قبل از رسید return می‌کردند و سه سکوتِ متفاوت یک شکل بودند: هیچ."""
+        # ADR-042 Phase 0: record call site (not outcome). Fail-soft; no return change.
+        try:
+            import tg_site_fire_log as _fire  # noqa: WPS433
+            _fire.record_call(sender="approval_channel.send_text")
+        except Exception:  # noqa: BLE001
+            pass
         if not self.wired:
             self._send_receipt(chat_id=(chat_id if chat_id is not None
                                         else self._owner),

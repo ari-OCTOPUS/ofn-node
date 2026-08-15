@@ -1,13 +1,8 @@
 {
   "n_nodes": 800,
-  "n_edges": 897,
-  "n_broken_targets": 248,
+  "n_edges": 890,
+  "n_broken_targets": 242,
   "hubs": [
-    {
-      "note_id": "07 - Knowledge/Time-Architecture/PROJECT",
-      "in_degree": 13,
-      "title": "پروژه: Time-Architecture (معماری زمان)"
-    },
     {
       "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/04 - Adversarial-Defense-and-Antifragility",
       "in_degree": 12,
@@ -27,6 +22,11 @@
       "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/01 - GOVERNANCE-and-SAFETY",
       "in_degree": 11,
       "title": "لایه ۱ — حاکمیت و ایمنی (Governance & Safety) — قانون اساسی شکارچی کوین"
+    },
+    {
+      "note_id": "07 - Knowledge/Time-Architecture/PROJECT",
+      "in_degree": 11,
+      "title": "پروژه: Time-Architecture (معماری زمان)"
     },
     {
       "note_id": "03 - Projects/Accounting/PROJECT",
@@ -49,13 +49,13 @@
       "title": "لایه ۶ — اجرا و ارکستراسیون ناوگان (ACT)"
     },
     {
-      "note_id": "07 - Knowledge/genome-system/HANDOFF",
-      "in_degree": 10,
-      "title": "HANDOFF — genome-system (برای ایجنت‌های دیگر)"
+      "note_id": "03 - Projects/Ziman Galerry/Strategy-DecisionLog",
+      "in_degree": 9,
+      "title": "لاگ تصمیم‌های استراتژیک — مارکتینگ زیمان"
     }
   ],
-  "n_clusters": 217,
-  "n_bridges": 401,
+  "n_clusters": 208,
+  "n_bridges": 394,
   "n_proposed_edges": 20,
   "proposed_edges_sample": [
     {

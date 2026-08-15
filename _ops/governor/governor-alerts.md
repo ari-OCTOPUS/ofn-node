@@ -4493,3 +4493,400 @@
 ## 2026-08-12T18:02:13 (metabolism)
 - ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (64/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
 
+## 2026-08-12T22:55:20 (metabolism)
+- ⚠️ cortex obs: coherence=0.301 < 0.5
+- ⚠️ cortex obs: 6 stale > 2: organism,heart,producers,work_pump,governor,fourd_system
+
+## 2026-08-12T22:58:06 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-13T00:01:03 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T00:01:19 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-13T00:01:28 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T00:38:03 (metabolism)
+- ⚠️ circuit OPEN for orchestr — consecutive>=3 (backoff level 1, next retry in ~60s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T00:38:04 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T00:56:34 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 2, next retry in ~120s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T00:57:01 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-13T01:57:16 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 3, next retry in ~240s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T02:21:12 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 4, next retry in ~480s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T02:34:32 (metabolism)
+- ⚠️ heart doctor router path failed (fallback به policy): ValueError: invalid JSON in model reply (offset 1): 'Expecting property name enclosed in double quotes'  snippet: '{lo,hi} for target velocity. Need underst'
+
+## 2026-08-13T02:34:33 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-13T02:58:35 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 5, next retry in ~960s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T03:59:18 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 6, next retry in ~1920s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T03:59:48 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-13T04:59:15 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 7, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T06:00:02 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 8, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T06:00:03 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-13T06:01:40 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-13T07:00:12 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 9, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-13T07:38:12 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-13T07:39:53 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-13T07:41:13 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-13T08:10:11 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-13T10:39:03 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-13T10:41:41 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-13T11:00:46 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-13T11:09:25 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-13T12:01:29 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (61/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-13T12:12:55 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-13T12:15:18 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-13T15:53:04 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: invalid JSON in model reply (offset 301): 'Invalid control character at'  snippet: 'ای تخفیف نام正品的输出如下：\n\n{\n  "idea": "使用在线优惠网站购买本周所需物品",\n  "why')
+
+## 2026-08-13T18:02:08 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (61/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-13T18:28:59 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-13T18:50:15 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-13T20:03:45 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-13T21:42:08 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-14T00:01:58 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 10, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T00:01:59 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T00:02:16 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-14T00:03:00 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-14T00:40:36 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-14T01:01:52 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-14T01:39:44 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 11, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T01:39:46 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T02:03:31 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): TimeoutError: The read operation timed out
+
+## 2026-08-14T02:03:32 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-14T02:43:17 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 12, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T02:43:20 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T02:45:27 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: invalid JSON in model reply (offset 252): 'Invalid control character at'  snippet: 'وثociность проверено\n"why_insane": "تقویت ساختار داده\u200cها ممک')
+
+## 2026-08-14T03:05:25 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-14T03:07:41 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-14T03:44:13 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 13, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T03:46:34 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-14T04:46:06 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-14T05:44:27 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 14, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T05:46:25 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-14T06:00:30 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-14T06:44:40 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 15, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T07:45:26 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 16, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-14T08:00:46 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-14T08:03:50 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-14T08:04:34 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-14T09:11:09 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-14T11:10:08 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-14T11:42:14 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-14T11:43:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-14T11:44:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-14T11:52:51 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-14T11:55:13 (metabolism)
+- ⚠️ heart_wires beat (non-fatal): OSError: [Errno 22] Invalid argument: 'F:\\backup\\_ops\\state\\heart-wires-last.json'
+
+## 2026-08-14T12:01:49 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (60/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-14T14:52:57 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-14T14:54:38 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-14T18:01:45 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (60/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-14T20:01:14 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-14T20:55:53 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-15T00:05:55 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 17, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T00:05:57 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T00:06:17 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-15T01:46:25 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 18, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T01:46:26 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T02:01:48 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): TimeoutError: The read operation timed out
+
+## 2026-08-15T02:01:49 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-15T03:01:33 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 19, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T03:01:34 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T03:02:02 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-15T04:02:32 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 20, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T04:36:05 (metabolism)
+- ⚠️ heart doctor router path failed (fallback به policy): ValueError: invalid JSON in model reply (offset 1): 'Expecting property name enclosed in double quotes'  snippet: '{lo,hi}. Need infer from setpoint and sig'
+
+## 2026-08-15T04:36:06 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-15T04:37:34 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-15T05:03:37 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 21, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T06:02:12 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-15T06:04:45 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 22, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T07:06:39 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 23, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T08:07:47 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 24, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T08:57:39 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=699 به سقفِ max_tokens=700 خورد و فقط 1 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-15T08:57:39 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-15T09:18:56 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 25, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T10:01:40 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): TimeoutError: The read operation timed out
+
+## 2026-08-15T10:01:40 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-15T10:07:22 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-15T10:22:32 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 26, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T10:22:33 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): HTTPError: HTTP Error 429: Too Many Requests (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-15T11:23:47 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 27, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T11:37:55 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 31 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-15T11:37:55 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-15T12:02:09 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (secondary) — کارتی ساخته نشد
+
+## 2026-08-15T12:25:16 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 28, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T12:48:15 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-15T13:25:40 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 29, next retry in ~3600s) HTTPError: HTTP Error 429: Too Many Requests
+
+## 2026-08-15T13:39:43 (metabolism)
+- ⚠️ wiring: real spectral sigma خطا: JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+
+## 2026-08-15T13:39:44 (metabolism)
+- ⚠️ wiring: real spectral sigma خطا: JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+
+## 2026-08-15T14:01:31 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+
+## 2026-08-15T14:52:22 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-15T14:55:12 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-15T15:03:24 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-15T15:30:58 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-15T17:01:32 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: invalid JSON in model reply (offset 530): 'Invalid control character at'  snippet: '技能的想法。请根据以下JSON格式返回：\n\n```json\n{\n  "idea": "通过建立一个由专业人士组成的顾问委')
+
+## 2026-08-15T17:31:31 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+
+## 2026-08-15T17:51:19 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+
+## 2026-08-15T17:52:47 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-15T17:59:43 (metabolism)
+- ⚠️ surface_router: جریانِ ناشناخته «doctor-test» held شد (به گروه نرفت). یک مدخل در surface-routing.json لازم است.
+
+## 2026-08-15T18:01:00 (metabolism)
+- ⚠️ deep_think ask failed: JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+
+## 2026-08-15T18:07:04 (metabolism)
+- ⚠️ telegram answerCallbackQuery error: HTTPError: HTTP Error 400: Bad Request
+
+## 2026-08-15T18:39:59 (metabolism)
+- ⚠️ surface_router: جریانِ ناشناخته «doctor-test» held شد (به گروه نرفت). یک مدخل در surface-routing.json لازم است.
+
+## 2026-08-15T20:15:40 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-15T20:56:07 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-15T21:13:01 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 20 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-15T21:13:02 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-15T21:15:16 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-15T22:13:59 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×100 در پنجرهٔ ۶ساعته — escalation)
+

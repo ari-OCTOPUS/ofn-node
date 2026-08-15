@@ -1,24 +1,14 @@
----
-type: knowledge
-status: active
-created: 2026-08-12
-updated: 2026-08-12
-tags: [octopus, identity, world-2026]
----
-
-# چه هستیم / چه نیستیم (هفتگی تازه شود)
-
-## هستیم
+﻿# WHAT WE ARE — 2026-08-15
+## ما هستیم
 - ارگانیسم محلی با ۲ مغز زنده (cortex + business_brain)
-- کنترل‌پلن fail-closed + پیشنهاد تا رأی مالک
-- هدف ماه سنجش‌پذیر: `attribution.claimed` از صفر
-- حافظه cite-only تا approve
-- DNA شواهد (Evidence Ladder)
-
-## نیستیم
-- AGI / consciousness / qualia
-- ۸ مغز vision همگی زنده (۴D وصل نیست)
-- درآمد فقط به‌خاطر `claimed` بدون reconcile
-- agent ابری بدون سقف که silent blast می‌زند
-
-SoT صداقت: `_ops/OCTOPUS-HONESTY.md`
+- قلب سبز، ۳ قلب هم‌ساز، beat 36000+
+- مدل ریاضی SOG که بُعد پنهان کشف می‌کند
+- 27 ناحیه frontier، 14 فرضیه، generation 9
+- 40+ سیم فعال، propose-only، fail-closed
+- memory: خواندن fix شد
+## ما نیستیم
+- AGI / آگاه / qualia
+- production-ready
+- 4D وصل نیست
+## هدف
+- attribution.claimed از صفر

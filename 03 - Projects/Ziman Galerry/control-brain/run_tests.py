@@ -9,12 +9,22 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 MODULES = [
+    # 2026-08-16 (R23 debt-sweep): هم‌سنکرو با مجموعهٔ واقعیِ امروز —
+    # tests.test_secrets حذف شده بود (خطای import) و پنج ماژولِ نو هم
+    # ثبت نشده بودند (command_registry/dashboard/governance/ledger/
+    # octopus_bridge/shadow/ziman_rbac).
     "tests.test_manager",
     "tests.test_safety",
     "tests.test_registry",
-    "tests.test_secrets",
     "tests.test_authz",
     "tests.test_smoke_real",
+    "tests.test_command_registry",
+    "tests.test_dashboard",
+    "tests.test_governance",
+    "tests.test_ledger",
+    "tests.test_octopus_bridge",
+    "tests.test_shadow",
+    "tests.test_ziman_rbac",
 ]
 
 passed = failed = 0

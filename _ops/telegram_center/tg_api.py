@@ -489,6 +489,17 @@ class TgClient:
         `stream` (۰۷-۳۰): برچسبِ رسید در tg-send-log. پیش‌فرض همان «center» ِ
         همیشگی — صداکنندهٔ قدیمی هیچ تغییری نمی‌بیند؛ ولی مسیرِ `_route_send`
         نامِ دقیق (center-digest/…) می‌دهد تا رسیدها قابلِ‌پروب باشند."""
+        # ADR-042 Phase 0: record call site (not outcome). Fail-soft; no return change.
+        try:
+            import sys as _sys_fire
+            from pathlib import Path as _P_fire
+            _ops_fire = str(_P_fire(__file__).resolve().parent.parent)
+            if _ops_fire not in _sys_fire.path:
+                _sys_fire.path.insert(0, _ops_fire)
+            import tg_site_fire_log as _fire  # noqa: WPS433
+            _fire.record_call(sender="tg_api.send")
+        except Exception:  # noqa: BLE001
+            pass
         if not self.wired():
             return None
         cid = self._resolve_chat(chat_id)

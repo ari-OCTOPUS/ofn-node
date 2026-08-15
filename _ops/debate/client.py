@@ -27,6 +27,44 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "budget"))
 import opslib  # noqa: E402
 
 
+
+# ── R27 (2026-08-16): پاکسازِ پیش‌متنِ استدلال ──────────────────────────────
+# شواهد: chat-log.jsonl 2026-08-13T00:57 و 2026-08-15T10:59 — پاسخ با
+# «The user is asking me…» / «The user message starts with…» شروع می‌شد و
+# جوابِ فارسیِ واقعی چند پاراگراف بعد می‌آمد. قانونِ شواهد‌محور:
+#   ۱) فقط وقتی دست می‌زنیم که خطِ اول با نشانگرِ استدلالِ انگلیسی بخورد.
+#   ۲) مرزِ پاسخ = اولین پاراگرافِ با محتوای فارسی (≥۳۰٪ حرفِ فارسی).
+#   ۳) پاراگرافِ فارسی پیدا نشد ⇒ متن عیناً برمی‌گردد (fail-soft).
+_REASONING_OPENERS = (
+    "the user", "let me", "the message", "we need to", "okay",
+    "first, ", "i need to", "it seems", "looking at", "the assistant",
+)
+_FA_RANGE = range(0x0600, 0x0700)
+
+
+def _fa_ratio(par: str) -> float:
+    s = par.strip()
+    if not s:
+        return 0.0
+    fa = sum(1 for ch in s if ord(ch) in _FA_RANGE)
+    return fa / len(s)
+
+
+def _strip_reasoning_preamble(text: str) -> str:
+    t = str(text or "")
+    if not t:
+        return t
+    head = t.lstrip()[:60].lower()
+    if not any(head.startswith(o) for o in _REASONING_OPENERS):
+        return t
+    sep = chr(10) + chr(10)
+    parts = t.split(sep)
+    for i, par in enumerate(parts):
+        if _fa_ratio(par) >= 0.30:
+            return sep.join(parts[i:]).lstrip()
+    return t  # fail-soft
+
+
 class RefuseToSend(RuntimeError):
     """گارد نشت/پیکربندی — عمداً قبل از هر بایت شبکه."""
 
@@ -177,6 +215,12 @@ class DeepSeekClient:
         _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
         text = _msg.get("content") or _msg.get("reasoning_content") or ""
+        # 2026-08-16 (R27): مدل‌های thinking (deepseek-v4-flash) گاهی کلِ زنجیرهٔ
+        # استدلالِ انگلیسی را داخلِ content می‌آورند و پاسخِ واقعیِ فارسی بعدش —
+        # دو نمونهٔ زندهٔ 2026-08-13/15 در state/chat/chat-log.jsonl. اگر متن با
+        # نشانگرِ استدلال شروع شود، از اولین پاراگرافِ فارسی به بعد برگردان؛
+        # نشد، متن دست‌نخورده (fail-soft — پاکساز هرگز پاسخ را حذف نمی‌کند).
+        text = _strip_reasoning_preamble(text)
         usage = raw.get("usage")
         if self.transport is None and not usage:
             raise TelemetryError("پاسخ بدون usage — متر کور؛ call را شکست‌خورده حساب کن")
@@ -529,6 +573,12 @@ class MultiProviderClient:
         _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
         text = _msg.get("content") or _msg.get("reasoning_content") or ""
+        # 2026-08-16 (R27): مدل‌های thinking (deepseek-v4-flash) گاهی کلِ زنجیرهٔ
+        # استدلالِ انگلیسی را داخلِ content می‌آورند و پاسخِ واقعیِ فارسی بعدش —
+        # دو نمونهٔ زندهٔ 2026-08-13/15 در state/chat/chat-log.jsonl. اگر متن با
+        # نشانگرِ استدلال شروع شود، از اولین پاراگرافِ فارسی به بعد برگردان؛
+        # نشد، متن دست‌نخورده (fail-soft — پاکساز هرگز پاسخ را حذف نمی‌کند).
+        text = _strip_reasoning_preamble(text)
         usage = raw.get("usage")
         if self.transport is None and not usage:
             raise TelemetryError("پاسخ بدون usage — متر کور؛ call را شکست‌خورده حساب کن")

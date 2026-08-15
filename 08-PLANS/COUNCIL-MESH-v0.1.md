@@ -4,10 +4,12 @@ title: Hierarchical Evidence-Governed Council Mesh — v0.1
 author: ایجنت-معمار موازی (نشست 2026-08-15)
 reviewed_by: معمار ارشد (GLM) — همین شب، سطح A
 status: proposed — فاز صفر تأیید، بقیه shadow-first
-artifacts_verified: "4d_system/brain/{automation.py (3 نوشتن/0 خواندن!), memory_read_patch.py (سه نقطه)} — patch هنوز import نشده"
+artifacts_verified: "کهنه نسبت به 8a5e98b — ببین C-015. زنده: automation.py حلقهٔ خواندن دارد (T1/C-012 resolved). این سند پیش از جاروی تست نوشته شد."
 ---
 
 # Council Mesh — معماری پیشنهادی v0.1 (نگاشت وفادار)
+
+> ⚠️ **کهنه — C-015.** بند «patch هنوز import نشده» و «۳ نوشتن/۰ خواندن» مربوط به **قبل** از جاروی تست است. فاز صفر اجرا شد: کامیت `8a5e98b`، telemetry زنده 1.0/1.0. بقیهٔ سند (معماری پیشنهادی شوراها) هنوز propose-only است و با شورای دوم یکی نیست.
 
 > سند کامل ۱۴بخشی توسط ایجنت-معمار موازی نوشته شد؛ این نگاشت فشردهٔ وفادار است + داوری معمار ارشد در انتها. متن اصلی در پیام مالک 2026-08-15 ~21:3x.
 

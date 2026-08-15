@@ -12,6 +12,9 @@ updated: 2026-08-15
 > 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (عکس لحظه‌ای — snapshot ۲۰۲۶-۰۷-۰۶، **زنده نیست**، برنامهٔ بازنویسیِ ۳ساعته هرگز دیپلوی نشد) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
 >
 > 🐙 **اختاپوس زنده:** [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck]] · ADR-035 APPLY=1
+> 🐙 **مگاپرامپت کشف پنهان (2026-08-15):** [[00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery|Hidden Capabilities Discovery]] — کاشف نه مسلح‌کننده
+> 🐙 **دیپ‌اسکن معماری برای قاضی (2026-08-15 ~22:45):** [[00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents|SELF-CONTAINED Architecture Deep-Scan]] — کپی کامل به ایجنت خارجی
+> 🐙 **شورای دوم (2026-08-15 دیرشب):** [[07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] — NO-GO دقیق‌تر پذیرفته؛ مگاپرامپت DEBT-SWEEP v1.2
 > 🐙 **سیزن آزمایشگاه دسکتاپ (2026-08-15، جدا از `_ops`):** [[07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]] — PASS شخص ثالث و D1 رسمی **نه**
 >
 > 🏗️ **رکنِ ساختِ سیستم (Build Spine):** [[04 - Architect System/MYCELIAL-MASTER-SPEC|MYCELIAL-MASTER-SPEC]] — spec واحدی که همهٔ ۸ پروژه به آن وصل‌اند؛ چرخهٔ امنِ build/test/delete؛ ۸۰٪ طراحی + handoff به Fable 5. هر ایجنت طبق §۷ آن را نقد و بهتر می‌کند.

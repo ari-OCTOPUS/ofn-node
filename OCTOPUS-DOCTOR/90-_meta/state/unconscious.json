@@ -1,5 +1,5 @@
 {
-  "n": 98,
+  "n": 125,
   "arch": [
     {
       "sig": "خودشناسیِ منفی",
@@ -9,7 +9,7 @@
       "days": [],
       "born": 1785308418.9390233,
       "last_confirmed": 0.0,
-      "counter": 11,
+      "counter": 14,
       "valence": -1.0
     },
     {
@@ -31,14 +31,17 @@
       "days": [],
       "born": 1785308418.9390233,
       "last_confirmed": 0.0,
-      "counter": 53,
+      "counter": 68,
       "valence": -1.0
     },
     {
       "sig": "wire",
-      "support": 13,
-      "exo_support": 13,
+      "support": 16,
+      "exo_support": 16,
       "actors": [
+        "owner",
+        "owner",
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -54,6 +57,9 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -75,9 +81,12 @@
     },
     {
       "sig": "ابزارِ فقط‌خواندنیِ خلاصهٔ وضع دکتر افزوده شود.",
-      "support": 11,
-      "exo_support": 11,
+      "support": 14,
+      "exo_support": 14,
       "actors": [
+        "owner",
+        "owner",
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -91,6 +100,9 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -116,7 +128,7 @@
       "days": [],
       "born": 1786482004.3064017,
       "last_confirmed": 0.0,
-      "counter": 1,
+      "counter": 4,
       "valence": -1.0
     }
   ]

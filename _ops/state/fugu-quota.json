@@ -1,17 +1,19 @@
 {
-  "day": "2026-08-12",
-  "used_total": 64,
+  "day": "2026-08-15",
+  "used_total": 60,
   "consecutive_failures": 0,
   "consecutive_failures_by_tier": {
-    "primary": 0,
-    "secondary": 0
+    "secondary": 0,
+    "primary": 0
   },
   "used": {
-    "primary:ARCHITECT_SYS": 37,
-    "secondary:ARCHITECT_SYS": 27
+    "primary:ARCHITECT_SYS": 60
   },
   "denied": {
-    "daily-cap": 142
+    "daily-cap": 46
   },
-  "consecutive_timeouts": 0
+  "consecutive_timeouts": 0,
+  "last_error_class": "HTTPError",
+  "last_error_was_local_timeout": false,
+  "timeouts_total": 2
 }

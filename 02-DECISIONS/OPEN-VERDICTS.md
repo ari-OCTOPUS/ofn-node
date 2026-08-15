@@ -91,3 +91,11 @@ ARCH-O01 (Hetzner vs Oracle ARM) · ARCH-O02 (GROUNDING_REQUIRED) · ARCH-O03 (u
 | امضای D1 | ✅ `MANIFEST.sig` (Ed25519، 64B، sha256 `68fea6a4…`) + `SIG-RECEIPT.md` با provenance کامل — «Signature Verified Successfully» |
 | ORANGE 4d | ✅ ثبت در addendum خودِ ADR-008؛ سیم‌کشی shadow→live در نشست بعد |
 | قضاوت n≥60 | ✅ از قبل مسلح (رصد روزانهٔ ۱۹:۰۰×۵) — اولین گزارش امشب |
+
+## شورای دوم — 2026-08-15 دیرشب (پذیرش مالک در چت)
+
+| موضوع | رأی مالک | وضعیت |
+|-------|----------|-------|
+| رأی NO-GO دقیق‌تر شورای دوم | **پذیرفته** — مسیرهای عملکردی T1–T12 آزموده/مستقر؛ موانع باقی معماری‌اند (PEP، ارزیاب مستقل، جداسازی حافظه، مسیر فنی Fugu) | ثبت در [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README\|COUNCIL-2]] · مگاپرامپت DEBT-SWEEP **v1.1** |
+| انتساب ویرایش TCB | اصلاح: ویرایش `automation.py` کار ایجنت جاروی تست بود (`8a5e98b`)، نه مالک؛ ادعای فنی V1 تأیید شد | فکت‌چک سطح A در همان README |
+| ترتیب R2 در برابر R13 | **باز** — سنتز شورا C-013 را قبل از push می‌گذارد؛ ماتریس v2.0 برعکس (R2→R19 سپس R13). مگاپرامپت v1.2 پیش‌فرض را ماتریس گذاشته تا رأی تو | [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/01-FORGOTTEN-GAPS\|FORGOTTEN-GAPS]] |

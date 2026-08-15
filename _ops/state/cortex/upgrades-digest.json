@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-12T16:20:23",
+  "ts": "2026-08-15T22:30:03",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
   "checklist_static": true,
   "maturity_pct": 82.6,
   "improvement_rate": {
-    "closed": 5,
-    "moved": 1,
-    "rate_pct": 20.0
+    "closed": 6,
+    "moved": 2,
+    "rate_pct": 33.3
   },
-  "n_proposals": 37,
+  "n_proposals": 38,
   "by_category": {
     "business": [
       {
@@ -23,9 +23,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-118f76b5e7",
+        "id": "up-72bd5dea52",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (11/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (15/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
@@ -144,6 +144,15 @@
         "status": "proposed"
       },
       {
+        "id": "up-c72f42371a",
+        "priority": "P1",
+        "title": "کوچک‌ترین فیکسِ دکتر: درخواست ری‌استارت ارگانیسم",
+        "suggested_action": "درخواست ری‌استارت ارگانیسم",
+        "change_level": "reconfig",
+        "source": "smallest_fix",
+        "status": "proposed"
+      },
+      {
         "id": "up-81fe6de7c7",
         "priority": "P1",
         "title": "prioritized implementation backlog",
@@ -166,28 +175,28 @@
         "status": "proposed"
       },
       {
-        "id": "up-a5a50a63e2",
+        "id": "up-637452c68d",
         "priority": "P2",
-        "title": "سنتزِ مغز: اولینِ پول از صفر",
-        "suggested_action": "در فایل `state/fitness-latest.json` یک فیلد `monetization_distance` اضافه کن و در هر گزارش بنویس این ورودی چند قدم به نخستینِ پول نزدیک می‌کند.",
+        "title": "سنتزِ مغز: اتصال نظارت خودکارِ attribution به خروجی هر مغز",
+        "suggested_action": "قدم اول: افزودن hook در پایپلاین خروجی که پیش از ارسال، `attribution.claimed` را بر اساس تطبیق داخلی با محتوای استفاده‌شده به‌روز کند.",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-900c36e17b",
+        "id": "up-d1574ba315",
         "priority": "P2",
-        "title": "سنتزِ مغز: حافظهٔ ماندگارِ مقاوم",
-        "suggested_action": "قدم اول: یک اسکریپتِ `verify-memory-integrity` بنویس که بعد از هر بوت، هشِ `state/` و `memory/` را با لاگِ قبلی مقایسه کند و اختلاف را به تلگرام بفرستد.",
+        "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با شرط توقفِ بهبودمحور",
+        "suggested_action": "قدم اول: افزودن معیار توقف به حلقه که بعد از ۳ تکرار بدون افزایشِ `attribution.claimed` یا بهبود سنجه، متوقف و گزارش دهد.",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-2c7ed12aa8",
+        "id": "up-84c10b27bd",
         "priority": "P2",
-        "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با توقفِ واقعی",
-        "suggested_action": "در حلقه یک شمارنده و معیارِ «بهبودِ اثبات‌شدهٔ سنجه» اضافه کن که بعد از ۳ تکرارِ بدونِ ارتقا، حلقه متوقف و نتیجه به پنل گزارش شود.",
+        "title": "سنتزِ مغز: ردیابی انگیزش در خروجی‌های درآمدزا",
+        "suggested_action": "قدم اول: برچسب‌گذاری خودکار پروپوزال‌های لید با ابعاد انگیزش (از مقالهٔ Crowdworker Motivation) و ثبت در حافظهٔ ماندگار برای تصمیم‌های عملی.",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
@@ -240,21 +249,21 @@
         "status": "proposed"
       },
       {
+        "id": "up-bec522e426",
+        "priority": "P2",
+        "title": "یادمانِ حلقه (self_knowledge): smallest_fix",
+        "suggested_action": "channel=self_knowledge | source=doctor-deep | title=smallest_fix | body=ری‌استارت ارگانیسم",
+        "change_level": "reconfig",
+        "source": "self_loop:self_knowledge",
+        "status": "proposed"
+      },
+      {
         "id": "up-86a91e8132",
         "priority": "P2",
         "title": "یادمانِ حلقه (part_loops): part-health:🩺 دکتر",
         "suggested_action": "channel=part_loops | source=part-health | title=part-health:🩺 دکتر | body=7 منتظر",
         "change_level": "reconfig",
         "source": "self_loop:part_loops",
-        "status": "proposed"
-      },
-      {
-        "id": "up-4cd1263600",
-        "priority": "P2",
-        "title": "یادمانِ حلقه (self_knowledge): نامعلوم (نیاز به کاوش)",
-        "suggested_action": "channel=self_knowledge | source=pathology | title=نامعلوم (نیاز به کاوش) | body=خطاهای پرتکرار TimeoutError ×2",
-        "change_level": "reconfig",
-        "source": "self_loop:self_knowledge",
         "status": "proposed"
       },
       {
@@ -389,12 +398,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-118f76b5e7",
+      "id": "up-72bd5dea52",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (11/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (15/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -456,15 +465,15 @@
       "impact": 2.6
     },
     {
-      "id": "up-a5a50a63e2",
+      "id": "up-637452c68d",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: اولینِ پول از صفر",
-      "rationale": "امروز `attribution.claimed=0` است و هیچ پیشنهادی اثر مستقیم روی درآمدِ اثبات‌پذیر ندارد؛ این گپِ حیاتی است",
+      "title": "سنتزِ مغز: اتصال نظارت خودکارِ attribution به خروجی هر مغز",
+      "rationale": "به «اولین پولِ مطالبه‌شده» وصل است چون هر خروجی باید `attribution.claimed` را جلو ببرد یا صریح صفر بماند",
       "evidence": "synthesis-latest.json [secondary]",
-      "suggested_action": "در فایل `state/fitness-latest.json` یک فیلد `monetization_distance` اضافه کن و در هر گزارش بنویس این ورودی چند قدم به نخستینِ پول نزدیک می‌کند.",
+      "suggested_action": "قدم اول: افزودن hook در پایپلاین خروجی که پیش از ارسال، `attribution.claimed` را بر اساس تطبیق داخلی با محتوای استفاده‌شده به‌روز کند.",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -472,31 +481,31 @@
       "impact": 2.2
     },
     {
-      "id": "up-900c36e17b",
+      "id": "up-d1574ba315",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: حافظهٔ ماندگارِ مقاوم",
-      "rationale": "خاموش/روشن نباید چیزی را گم کند ولی هنوز بازبینیِ خودکارِ یکپارچگی بین مغزها نیست",
+      "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با شرط توقفِ بهبودمحور",
+      "rationale": "به گپِ «self-analysis loop has stop-condition» وصل است",
       "evidence": "synthesis-latest.json [secondary]",
-      "suggested_action": "قدم اول: یک اسکریپتِ `verify-memory-integrity` بنویس که بعد از هر بوت، هشِ `state/` و `memory/` را با لاگِ قبلی مقایسه کند و اختلاف را به تلگرام بفرستد.",
+      "suggested_action": "قدم اول: افزودن معیار توقف به حلقه که بعد از ۳ تکرار بدون افزایشِ `attribution.claimed` یا بهبود سنجه، متوقف و گزارش دهد.",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "حافظهٔ ماندگار مثلِ شرکت‌های بزرگ: با خاموش/روشن هیچ‌چیز گم نشود.",
+      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
     },
     {
-      "id": "up-2c7ed12aa8",
+      "id": "up-84c10b27bd",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با توقفِ واقعی",
-      "rationale": "پروپوزال‌ها shadow-eval دارند ولی حلقه شرطِ پایان و قبول/ردِ خودکار ندارد، پس بی‌نهایت می‌چرخد",
+      "title": "سنتزِ مغز: ردیابی انگیزش در خروجی‌های درآمدزا",
+      "rationale": "به جهتِ «Ziman و Lead-نقاشی» و یافتهٔ motivation وصل است",
       "evidence": "synthesis-latest.json [secondary]",
-      "suggested_action": "در حلقه یک شمارنده و معیارِ «بهبودِ اثبات‌شدهٔ سنجه» اضافه کن که بعد از ۳ تکرارِ بدونِ ارتقا، حلقه متوقف و نتیجه به پنل گزارش شود.",
+      "suggested_action": "قدم اول: برچسب‌گذاری خودکار پروپوزال‌های لید با ابعاد انگیزش (از مقالهٔ Crowdworker Motivation) و ثبت در حافظهٔ ماندگار برای تصمیم‌های عملی.",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -506,20 +515,21 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
+  "brain_note": "[local] \"owner merge verdict has real effect (apply_merge wired)\" را اول حل کنید، زیرا این مشکل پیش‌بینی‌سازی عملیات‌های مerged است و تأثیر آن بر سایر گاف‌ها قابل توجه است.",
   "goal_directed": {
     "n_goal_serving": 10,
     "n_circular_dropped": 0,
     "goals_count": 7,
-    "max_circular": 6,
-    "max_circular_reason": "owner-window:2026-08-13",
+    "max_circular": 2,
+    "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 12,
+      "tracked": 17,
       "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 126,
-        "proposals_delivered": 14,
+        "total_discoveries": 135,
+        "proposals_delivered": 17,
         "proposal_outcomes": 47,
         "proposal_positive": 45,
         "proposal_accept_rate": 0.9574468085106383,
@@ -529,17 +539,36 @@
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 125,
-        "proposals_delivered": 14,
+        "total_discoveries": 134,
+        "proposals_delivered": 17,
         "proposal_outcomes": 47,
         "proposal_positive": 45,
         "proposal_accept_rate": 0.9574468085106383,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 8
+        "proposals_sent": 9
       }
     }
   },
   "learning": {
     "rejected_categories": {}
+  },
+  "math_control": {
+    "enabled": true,
+    "rank_bias": 0.2,
+    "effects": [
+      "improve_rank_bias",
+      "schedule_bias_hint"
+    ],
+    "equations_touching": [
+      "#2_hebbian",
+      "#1_bcm",
+      "#3_pain",
+      "#5-9_identity",
+      "#17_rhythm",
+      "#11_control_law",
+      "#10_sog"
+    ],
+    "knob_deltas": {},
+    "shadow_blocks_effects": false
   }
 }

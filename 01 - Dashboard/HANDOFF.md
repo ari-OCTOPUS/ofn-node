@@ -29,6 +29,23 @@ updated: 2026-08-15
 
 ## وضعِ لحظه‌ای
 
+> 🎯 **پین ۲۰۲۶-08-15 ~23:25 — شکاف‌های فراموش‌شده برای ایجنت بعدی:**
+> [[../00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent|REPORT Forgotten Gaps]] —
+> C-013 در HEAD (`6fc0f4b`) · تسک قدیمی رصدخانه **Disabled** · C-016 آزاد · DEBT-SWEEP فایل شواهد هنوز نیست.
+> `_octopus`/`OCTOPUS-PRIME` آرشیو نشوند. Hourly را خاموش نکن.
+>
+> 🎯 **پین ۲۰۲۶-08-15 ~23:05 — مگاپرامپت کشف قابلیت‌های پنهان:**
+> کپی کامل → ایجنت کاشف (نه مسلح‌کننده): [[../00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery|MEGAPROMPT Hidden Capabilities]]
+> ۸ کلاس پنهان · اسکنرهای موجود · اعداد ۰۸-۱۱ STALE · حداکثر ۵ کارت رأی · فلگ روشن نشود.
+>
+> 🎯 **پین ۲۰۲۶-08-15 ~22:45 — دیپ‌اسکن معماری برای ایجنت‌های قضاوت‌کننده:**
+> سند خودکفا (کپی کامل → بده به قاضی): [[../00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents|SELF-CONTAINED Architecture Deep-Scan]]
+> زنده: ۵ پروسه · Hub/Hypothesis/Epistemic ON · 4d فقط observe · شورای دوم NO-GO پذیرفته. تنش: `CORTEX_HYPOTHESIS=1` در برابر «adapter must stay 0».
+>
+> 🎯 **پین ۲۰۲۶-08-15 دیرشب — شورای دوم وارد vault شد + فکت‌چک TCB + مگاپرامپت v1.1:**
+> پوشه: [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README|OCTOPUS-COUNCIL-2]] · شکاف‌ها: [[../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/01-FORGOTTEN-GAPS|FORGOTTEN-GAPS]] · نوت: [[../07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]]
+> رأی شورا **NO-GO دقیق‌تر** — مالک پذیرفت. فکت‌چک TCB: ایجنت `8a5e98b` نه مالک. مأموریت بعدی: DEBT-SWEEP **v1.2**. دستِ مالک: R1 PAT · R2 push · R13/R3/فلگ/daemon · R21 ممیز · و اگر به R2/R13 رسیدی: ترتیب سنتز↔ماتریس v2.0.
+>
 > 🎯 **پین ۲۰۲۶-08-15 شب — بازیابی vault + فعال‌سازی + رأی مالک (ایجنت GLM تفویضی):**
 > **نقطهٔ شروع هر ایجنت: [[../01-TRUTH/STATE-2026-08-15-NIGHT|STATE — اسنپ‌شات جامع شب]]** — دو مخزن، فلگ‌های زنده، دکتر تک‌صدا، رصدخانهٔ ساعتی، امضا/رأی‌ها، قواعد، کارِ باز.
 > خلاصه: ساختار بازیابی `00-INDEX…09-DESIGN` + تناقض‌های C-001…C-008 بسته · فلگ‌های زنده: `OCTOPUS_UNIFIED_CHAT` · `CORTEX_HYPOTHESIS` · `VAULT_RAG` · `DOCTOR_TG` · تسک ساعتی «OCTOPUS Observatory Hourly» + رصد روزانهٔ n≥60 (۱۹:۰۰×۵) · امضای Ed25519 مالک روی MANIFEST بستهٔ D1 (`_ops/D1-AUDIT-PACKAGE-2026-08-15/` — Verified) · رأی ORANGE 4d ثبت (ADR-008 addendum) · دکتر تک‌صدا: outbox → relay مرکز (`doctor_link.py`)؛ پل رأی = کامیت `3156316` (تست `_ops/tests/test_doctor_vote_bridge.py` ۵/۵؛ ۷ رأی واقعی مالک ثبت شد).

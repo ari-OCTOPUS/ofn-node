@@ -4,7 +4,7 @@
       "afferent_starved",
       "errors_high"
     ],
-    "strength": 0.798065677681905,
+    "strength": 0.510849320360386,
     "co_occurrences": 37,
     "last_seen": 1786383170.5046182
   },
@@ -13,7 +13,7 @@
       "afferent_starved",
       "rhythm_amber"
     ],
-    "strength": 0.057904964711859706,
+    "strength": 0.03706551064126333,
     "co_occurrences": 1,
     "last_seen": 1786175782.1295035
   },
@@ -22,8 +22,8 @@
       "errors_high",
       "rhythm_amber"
     ],
-    "strength": 0.9511101304657719,
-    "co_occurrences": 15,
-    "last_seen": 1786494809.8691292
+    "strength": 0.9192883211176386,
+    "co_occurrences": 19,
+    "last_seen": 1786794495.6626444
   }
 ]

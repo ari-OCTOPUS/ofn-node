@@ -5,3 +5,39 @@
 {"ts": "2026-08-12T10:02:38", "bot": "center", "update_id": 223883270, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
 {"ts": "2026-08-12T10:02:40", "bot": "center", "update_id": 223883271, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
 {"ts": "2026-08-12T11:18:10", "bot": "inner", "update_id": 732409556, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T22:54:58", "bot": "center", "update_id": 223883272, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T22:55:04", "bot": "center", "update_id": 223883273, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T22:55:12", "bot": "center", "update_id": 223883274, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T22:55:23", "bot": "center", "update_id": 223883275, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T22:55:28", "bot": "center", "update_id": 223883276, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-12T22:55:30", "bot": "center", "update_id": 223883277, "kind": "photo", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-13T08:02:20", "bot": "center", "update_id": 223883278, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-13T08:02:20", "bot": "center", "update_id": 223883278, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-13T14:04:04", "bot": "center", "update_id": 223883279, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-13T14:04:04", "bot": "center", "update_id": 223883279, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-14T07:00:36", "bot": "center", "update_id": 223883280, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-14T07:00:36", "bot": "center", "update_id": 223883280, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-15T07:00:43", "bot": "center", "update_id": 223883281, "kind": "text", "chars": 52, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-15T07:00:44", "bot": "center", "update_id": 223883281, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-15T13:00:48", "bot": "center", "update_id": 223883282, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-15T13:00:49", "bot": "center", "update_id": 223883282, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-15T18:06:33", "bot": "inner", "update_id": 732409557, "kind": "callback_query", "chars": 34, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:06:36", "bot": "inner", "update_id": 732409558, "kind": "callback_query", "chars": 30, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:06:49", "bot": "inner", "update_id": 732409559, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:07:03", "bot": "inner", "update_id": 732409560, "kind": "callback_query", "chars": 34, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:07:38", "bot": "inner", "update_id": 732409561, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:10:29", "bot": "center", "update_id": 223883283, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:10:37", "bot": "center", "update_id": 223883284, "kind": "callback_query", "chars": 30, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:10:42", "bot": "center", "update_id": 223883285, "kind": "callback_query", "chars": 34, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:31", "bot": "inner", "update_id": 732409562, "kind": "callback_query", "chars": 30, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:33", "bot": "inner", "update_id": 732409563, "kind": "callback_query", "chars": 34, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:35", "bot": "inner", "update_id": 732409564, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:43", "bot": "center", "update_id": 223883286, "kind": "callback_query", "chars": 34, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:45", "bot": "center", "update_id": 223883287, "kind": "callback_query", "chars": 30, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:48", "bot": "center", "update_id": 223883288, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:19:51", "bot": "center", "update_id": 223883289, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:23:19", "bot": "center", "update_id": 223883290, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:39:21", "bot": "center", "update_id": 223883291, "kind": "callback_query", "chars": 34, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:39:24", "bot": "center", "update_id": 223883292, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:39:25", "bot": "center", "update_id": 223883293, "kind": "callback_query", "chars": 30, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-15T18:40:20", "bot": "center", "update_id": 223883294, "kind": "voice", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}

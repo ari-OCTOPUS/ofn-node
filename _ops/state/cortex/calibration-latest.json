@@ -1,23 +1,24 @@
 {
-  "ts": "2026-08-12T18:43:15",
+  "ts": "2026-08-15T23:51:58",
   "schema": "calibration.v1",
-  "n": 147,
-  "brier": 0.168709,
-  "aurc": 0.325641,
+  "n": 291,
+  "brier": 0.17099,
+  "aurc": 0.312104,
   "abstain_below": 1.0,
-  "ungraded": 55,
+  "ungraded": 177,
   "target_acc": 0.75,
   "window_h": 720,
-  "n_claims": 193,
+  "n_claims": 458,
   "n_truth_keys": 18,
   "ungraded_keys": [
-    "self_model.coherence"
+    "self_model.coherence",
+    "up-72bd5dea52"
   ],
-  "n_claim_keys": 7,
+  "n_claim_keys": 11,
   "pairing": "by_cycle",
-  "truth_rows": 518,
+  "truth_rows": 662,
   "truth_rows_ungraded": 371,
   "truth_contradictions_dropped": 46,
-  "truth_cycles": 333,
+  "truth_cycles": 386,
   "truth_proposals": 18
 }

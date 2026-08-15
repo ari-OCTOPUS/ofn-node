@@ -9,6 +9,11 @@ updated: 2026-08-15
 
 # 🐙 شناخت اختاپوس — نقطهٔ ورود
 
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۵ شب.** شورای دوم + فکت‌چک TCB در
+> [[48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] و پوشهٔ
+> [[../OCTOPUS-COUNCIL-2-2026-08-15/README|OCTOPUS-COUNCIL-2]]. رأی: NO-GO دقیق‌تر
+> (مالک پذیرفت). مگاپرامپت بعدی: `MEGAPROMPT-DEBT-SWEEP` v1.1.
+>
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۵.** سیزن آزمایشگاه دسکتاپ (Stage8R → D8) در
 > [[47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]] است — جدا از ارگانیسم
 > زندهٔ `_ops`. PASS شخص ثالث و D1 رسمی **نه**. نوت‌های ۱۴/۱۶/۲۰/۲۳/۲۹/۳۸
@@ -104,6 +109,10 @@ updated: 2026-08-15
 | **45-BOARD-LEGS** و **45-DO-IT-ALL** | ⚠️ دو نوت با شمارهٔ ۴۵ — رصد لگ‌های برد · تکمیل «انجام بده همرو». رنیمبِر بدون حکم مالک نه | ۲۰۲۶-۰۸-۱۳ |
 | **46-BOARD-CP-PHASE1** | Control Plane ویندوز (board-pull) + بریف فاز ۲ برد | ۲۰۲۶-۰۸-۱۳ |
 | **47-DESKTOP-LAB-D1-D8-GOVERNANCE** | ⭐ **نقطهٔ ورودِ سیزن آزمایشگاه دسکتاپ** — بستهٔ مهرشده، ممیزی همان‌محیط، waiver، v2 آلوده، v3 تمیز. رسمی: D1/D6 NOT_STARTED · PASS شخص ثالث FALSE | ۲۰۲۶-۰۸-۱۵ |
+| **48-SECOND-COUNCIL-TCB-ATTRIBUTION** | ⭐ **شورای دوم + فکت‌چک TCB** — NO-GO دقیق‌تر (مالک پذیرفت)؛ انتساب ویرایش `automation.py` = ایجنت جاروی تست نه مالک؛ پوشهٔ اسناد [[../OCTOPUS-COUNCIL-2-2026-08-15/README|COUNCIL-2]]؛ مگاپرامپت DEBT-SWEEP v1.1 | ۲۰۲۶-۰۸-۱۵ |
+| **Inbox SELF-CONTAINED Architecture** | ⭐ **دیپ‌اسکن معماری برای قاضی خارجی** — کپی کامل: [[../../00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents\|SELF-CONTAINED 2026-08-15]] · ۵ پروسه · dual-stackها · NO-GO + تنش Hypothesis=1 | ۲۰۲۶-۰۸-۱۵ |
+| **Inbox MEGAPROMPT Hidden Caps** | ⭐ **کشف قابلیت پنهان** — کاشف نه مسلح‌کننده: [[../../00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery\|MEGAPROMPT 2026-08-15]] · ۸ کلاس · اسکنر زنده · اعداد کهنه باطل | ۲۰۲۶-۰۸-۱۵ |
+| **Inbox REPORT Forgotten Gaps** | ⭐ **شکاف‌های فراموش‌شده برای ایجنت بعدی** — [[../../00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent\|REPORT 23:25]] · دوباره نکن C-013/C-014 · تلهٔ آرشیو _octopus/PRIME · SoT ≠ OPEN-VERDICTS صبح | ۲۰۲۶-۰۸-۱۵ |
 
 ### جلسهٔ ۲۰۲۶-۰۸-۰۶ (دیروقت/بامداد) — کارگرِ GLM (۳ کامیت)
 

@@ -7,3 +7,4 @@
 {"ts": 1786512364.085, "q_sha": "bda1fa4834533661", "sources_n": 0, "ok": false, "tier": "", "secs": 45.266, "reason": "rg-error"}
 {"ts": 1786517191.979, "q_sha": "d8444f33c7abde73", "sources_n": 0, "ok": false, "tier": "", "secs": 45.38, "reason": "rg-error"}
 {"ts": 1786517782.012, "q_sha": "bda1fa4834533661", "sources_n": 0, "ok": false, "tier": "", "secs": 45.33, "reason": "rg-error"}
+{"ts": 1786525899.207, "q_sha": "bda1fa4834533661", "sources_n": 0, "ok": false, "tier": "", "secs": 0.402, "reason": "no-answer"}

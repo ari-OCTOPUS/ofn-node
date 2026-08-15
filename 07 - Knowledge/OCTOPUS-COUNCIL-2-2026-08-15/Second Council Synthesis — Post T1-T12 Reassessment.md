@@ -1,3 +1,10 @@
+---
+type: report
+status: active
+tags: [octopus, council]
+created: 2026-08-15
+updated: 2026-08-15
+---
 # OCTOPUS Second Council Synthesis — Post T1-T12 Reassessment
 
 **Council members:** GPT-5.6 Sol · Gemini 3.1 Pro  
