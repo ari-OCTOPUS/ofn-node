@@ -258,3 +258,16 @@ contradiction:
   status: open — owner_action (طراحی در DA-4 ضمیمه شد)
   registered_by: "debt-sweep agent 2026-08-16 ~00:4x (grep دو-مخزن: C-016 فقط به‌عنوان آزاد بود — منبع: Deep-Research council paste 00:26)"
 ```
+
+```yaml
+contradiction:
+  id: C-017
+  claim: "DOCTOR_USE_CENTRAL_ROUTER=1 یک تصمیمِ فعال است"
+  value_a: "در OCTOPUS-flags.cmd تعریف و مسلح شده (=1)"
+  source_a: "grep flags.cmd — 2026-08-16 (کاتالوگ کاشف، کلاس orphan_armed)"
+  value_b: "صفر reader در _ops (grep پایتون: 0) — باقیماندهٔ rename"
+  source_b: "grep دو-مخزن + کاتالوگ کاشف"
+  resolution: "کارت رأی #۵ کاشف: پاک‌سازی از flags.cmd (با بکاپ) — رأی مالک"
+  status: open — owner_vote (خطر: پیکربندی مسلحِ بی‌اثر = سردرگمی ایجنت بعدی)
+  registered_by: "senior-architect (grep دو-مخزن: C-017 فقط به‌عنوان آزاد بعدی بود)"
+```

@@ -70,6 +70,9 @@ status_legend:
 | `4d_system/config/trust-boundary.json` + `_ops/audit/bundles/AEB-20260816-000508.{json,txt}` | مرز اعتماد TCB + باندل شواهد حسابرسی (C-013/R19) | 2026-08-15/16 | امنیت/حسابرسی | 06-EVIDENCE | verified |
 | `06-EVIDENCE/DEBT-SWEEP-2026-08-16.md` · `02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/` (۵ مصنوع) · `agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16.md` (v1.2) · `03 - Projects/Mining/02 - Code/PAT-SCRUB-READY-2026-08-16.md` | خروجی‌های جاروی بدهی R0a-R29 | 2026-08-16 ~00:0x | اجرا/تصمیم | 06-EVIDENCE + 02-DECISIONS | verified |
 
+| `00 - Inbox/2026-08-16 JUDGE — Architecture Judgment Report.md` · `00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md` (+ `_scratch-dark.json`، gitleaks پاک) | قضاوت معماری (INV-4) + کاتالوگ پنهان‌ها: ۴۰۳ فلگ / ۱۵ DARK / ۱ orphan_armed / ~۴۵ پکیج نامرئی | 2026-08-16 00:1x | کشف/قضاوت | 06-EVIDENCE منبع | verified (فایل‌ها موجودند) |
+| `02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/DA-4-PEP-MESH-AND-ACTION-LEASES.md` + `DA-5-INTRINSIC-CONTROL-AND-ORGANISM-MANIFEST.md` | شبکهٔ ۶-PEP + lease تک‌مصرف · کنترل درونی + manifest ارگانیسم — تکمیل‌کنندهٔ DA-1..3 | 2026-08-16 | تصمیم | 02-DECISIONS | verified |
+
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 
 ## ۲. فایل‌های کلیدی (تک‌تک)
