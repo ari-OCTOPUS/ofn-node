@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-012** (C-011 در 2026-08-15 ~21:5x ثبت شد: features-null)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-013** (C-012 در 2026-08-15 ~22:0x ثبت شد: حافظهٔ write-only مغز 4d)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -180,4 +180,17 @@ contradiction:
   resolution: "fixed همان شب: null-safe + تست (21/21 سبز) — تست-در-همان-کامیت"
   status: resolved (fix + test)
   registered_by: "laptop-agent (grep دو-مخزن: فقط رزروِ خودم)"
+```
+
+```yaml
+contradiction:
+  id: C-012
+  claim: "مغز 4d یک حلقهٔ یادگیری دارد (حافظه وارد تصمیم می‌شود)"
+  value_a: "مستندات/نام‌ها: hypothesis/experiment/memory — سیستمِ یادگیری"
+  source_a: "4d_system/brain/automation.py و اسنادش"
+  value_b: "automation.py: ۳ ارجاع نوشتن (save_*)، صفر خواندن (query/get_pending/search_vault) — حافظه write-only بود"
+  source_b: "grep سطح A — 2026-08-15 شب؛ یافتهٔ مستقلِ ایجنت-معمار موازی + تأیید معمار ارشد؛ هم‌خانوادهٔ یافتهٔ «consolidation راکد» (MINDS.md)"
+  resolution: "memory_read_patch.py نوشته شد (introspect/create/conclude) ولی هنوز به automation.py import نشده — فاز صفر Council Mesh؛ شرط بستن: telemetry زندهٔ read-before-decide ≥0.95 نه فقط تست"
+  status: open — fix_in_progress (فاز صفر)
+  registered_by: "senior-architect (grep دو-مخزن: C-012 خالی بود)"
 ```
