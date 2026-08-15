@@ -29,6 +29,11 @@ updated: 2026-08-15
 
 ## وضعِ لحظه‌ای
 
+> 🎯 **پین ۲۰۲۶-08-15 شب — بازیابی vault + فعال‌سازی + رأی مالک (ایجنت GLM تفویضی):**
+> **نقطهٔ شروع هر ایجنت: [[../01-TRUTH/STATE-2026-08-15-NIGHT|STATE — اسنپ‌شات جامع شب]]** — دو مخزن، فلگ‌های زنده، دکتر تک‌صدا، رصدخانهٔ ساعتی، امضا/رأی‌ها، قواعد، کارِ باز.
+> خلاصه: ساختار بازیابی `00-INDEX…09-DESIGN` + تناقض‌های C-001…C-008 بسته · فلگ‌های زنده: `OCTOPUS_UNIFIED_CHAT` · `CORTEX_HYPOTHESIS` · `VAULT_RAG` · `DOCTOR_TG` · تسک ساعتی «OCTOPUS Observatory Hourly» + رصد روزانهٔ n≥60 (۱۹:۰۰×۵) · امضای Ed25519 مالک روی MANIFEST بستهٔ D1 (`_ops/D1-AUDIT-PACKAGE-2026-08-15/` — Verified) · رأی ORANGE 4d ثبت (ADR-008 addendum) · دکتر تک‌صدا: outbox → relay مرکز (`doctor_link.py`)؛ پل رأی = کامیت `3156316` (تست `_ops/tests/test_doctor_vote_bridge.py` ۵/۵؛ ۷ رأی واقعی مالک ثبت شد).
+> جزئیات: [[../00 - Inbox/2026-08-15 NIGHT — Activation & Test Session (all gates)|SESSION NIGHT]] · [[../07-HANDOFF/NEXT-AGENT-HANDOFF|NEXT-AGENT-HANDOFF (۶ الحاقیه)]]
+
 > 🎯 **پین ۲۰۲۶-۰۸-۱۵ — سیزن آزمایشگاه دسکتاپ (جدا از `_ops` زنده):**
 > [[../07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]] ·
 > [[../00 - Inbox/2026-08-15 SESSION — Desktop Lab D1-D8 Governance|SESSION 08-15]]
