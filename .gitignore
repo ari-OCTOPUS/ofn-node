@@ -263,3 +263,6 @@ _ops/RESTART-*
 *.db-wal
 *.db-shm
 *.lock
+
+# owner signing material - public keys only; private key NEVER in repo
+_ops/owner-signing/*private*
