@@ -1,6 +1,6 @@
 {
   "schema": "octopus-organism-manifest/0",
-  "observed_at": "2026-08-15T14:39:13+00:00",
+  "observed_at": "2026-08-15T19:03:00+00:00",
   "declared_members": [
     "organism",
     "center",
@@ -24,25 +24,9 @@
       "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -m http.server 8765 --bind 127.0.0.1"
     },
     {
-      "role": "cortex",
-      "pid": 17896,
-      "started": "/Date(1786804016567",
-      "ports_listening": [
-        8772
-      ],
-      "entry_file": "F:\\backup\\_ops\\cortex\\cortex.py",
-      "entry_sha256": "ef1471feef3e4d272ba726064cdcfd6f692d85421a1ef823210356d599ce350f",
-      "effect_paths": [
-        "write:outputs",
-        "llm:paid(via router)",
-        "pay:budget-capped"
-      ],
-      "cmdline": "python  -X utf8 cortex\\cortex.py"
-    },
-    {
       "role": "center",
-      "pid": 10764,
-      "started": "/Date(1786804123975",
+      "pid": 11500,
+      "started": "/Date(1786818206912",
       "ports_listening": [
         8776
       ],
@@ -57,8 +41,8 @@
     },
     {
       "role": "gateway",
-      "pid": 27472,
-      "started": "/Date(1786804133305",
+      "pid": 20572,
+      "started": "/Date(1786818216001",
       "ports_listening": [
         8774
       ],
@@ -73,8 +57,8 @@
     },
     {
       "role": "live",
-      "pid": 12372,
-      "started": "/Date(1786804135905",
+      "pid": 9836,
+      "started": "/Date(1786818223775",
       "ports_listening": [
         8773
       ],
@@ -89,8 +73,8 @@
     },
     {
       "role": "organism",
-      "pid": 26052,
-      "started": "/Date(1786804430370",
+      "pid": 25912,
+      "started": "/Date(1786818335608",
       "ports_listening": [
         8771,
         8777
@@ -105,9 +89,37 @@
       "cmdline": "python  -X utf8 organism.py"
     },
     {
+      "role": "cortex",
+      "pid": 22796,
+      "started": "/Date(1786818852438",
+      "ports_listening": [
+        8772
+      ],
+      "entry_file": "F:\\backup\\_ops\\cortex\\cortex.py",
+      "entry_sha256": "ef1471feef3e4d272ba726064cdcfd6f692d85421a1ef823210356d599ce350f",
+      "effect_paths": [
+        "write:outputs",
+        "llm:paid(via router)",
+        "pay:budget-capped"
+      ],
+      "cmdline": "python  -X utf8 cortex\\cortex.py"
+    },
+    {
+      "role": "unknown",
+      "pid": 12276,
+      "started": "/Date(1786820408405",
+      "ports_listening": [],
+      "entry_file": null,
+      "entry_sha256": null,
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 -m brain.daemon "
+    },
+    {
       "role": "organism",
-      "pid": 16544,
-      "started": "/Date(1786804753064",
+      "pid": 16840,
+      "started": "/Date(1786820580018",
       "ports_listening": [],
       "entry_file": "F:\\backup\\_ops\\audit\\organism_manifest.py",
       "entry_sha256": "a62b2eb7e01512bb8df74dbca13ef345ba1bc65abbf3dee55bae4b9b715fde1a",
@@ -116,7 +128,7 @@
         "send:telegram(via center)",
         "pay:no"
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" _ops/audit/organism_manifest.py"
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 _ops/audit/organism_manifest.py"
     }
   ],
   "flags_effective_last_wins": {
@@ -467,14 +479,16 @@
     "OCTOPUS_UNIFIED_CHAT": "1",
     "EPISTEMIC_TESTS": "1",
     "DOCTOR_LITE_USE_CENTRAL_ROUTER": "1",
-    "OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER": "1",
     "FUGU_VIA_CENTRAL_GATE": "0",
     "STUDIO_LLM_CLOUD_VIA_ROUTER": "0",
     "CORTEX_HYPOTHESIS": "1",
-    "OCTOPUS_TCB_MANIFEST_ENFORCE": "1"
+    "OCTOPUS_TCB_MANIFEST_ENFORCE": "1",
+    "OCTOPUS_WIRE_CHRONO_RHYTHM": "1",
+    "OCTOPUS_CONSOLIDATION_DEDUP_FUZZY": "1"
   },
-  "flags_count": 352,
+  "flags_count": 353,
   "scheduled_tasks": [
+    "OCTOPUS 4d Poisoning Watch=Ready",
     "OCTOPUS Observatory Hourly=Ready",
     "OCTOPUS-Cockpit-Brain=Ready",
     "OCTOPUS-Cortex-Watchdog=Ready",
@@ -488,7 +502,7 @@
   "drift": {
     "declared_not_observed": [],
     "observed_not_declared": [],
-    "unknown_cmdline_members": 1,
+    "unknown_cmdline_members": 2,
     "note": "ادعا در برابر مشاهده — هر مقدار نونال = شکافِ شناسنامه"
   },
   "next_steps_with_owner_vote": [

@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T04:35:44",
+  "ts": "2026-08-16T05:03:05",
   "schema": "innervation.v1",
   "heart_period_s": 489.97,
   "coverage_pct": 100.0,
@@ -11,7 +11,7 @@
       "id": "spine",
       "name": "🦴 ستونِ فقرات (pacemaker)",
       "status": "🟢 عصب‌دار",
-      "age_min": 2.2,
+      "age_min": 2.4,
       "sla_min": 10,
       "connected": true
     },
@@ -19,7 +19,7 @@
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢 عصب‌دار",
-      "age_min": 2.2,
+      "age_min": 2.4,
       "sla_min": 30,
       "connected": true
     },
@@ -27,7 +27,7 @@
       "id": "cortex",
       "name": "🧠 مغزِ مرکزی",
       "status": "🟢 عصب‌دار",
-      "age_min": 1.4,
+      "age_min": 8.0,
       "sla_min": 30,
       "connected": true
     },
@@ -35,7 +35,7 @@
       "id": "work",
       "name": "⚙️ پمپِ کار",
       "status": "🟢 عصب‌دار",
-      "age_min": 2.2,
+      "age_min": 9.5,
       "sla_min": 360,
       "connected": true
     },
@@ -51,7 +51,7 @@
       "id": "parts",
       "name": "🔁 لوپِ بخش‌ها",
       "status": "🟢 عصب‌دار",
-      "age_min": 21.9,
+      "age_min": 49.3,
       "sla_min": 120,
       "connected": true
     },
@@ -59,7 +59,7 @@
       "id": "business",
       "name": "💼 مغزِ دومِ کسب‌وکار",
       "status": "🟢 عصب‌دار",
-      "age_min": 21.9,
+      "age_min": 49.3,
       "sla_min": 120,
       "connected": true
     },
@@ -67,7 +67,7 @@
       "id": "learning",
       "name": "📚 یادگیری/تحقیق",
       "status": "🟢 عصب‌دار",
-      "age_min": 84.9,
+      "age_min": 112.2,
       "sla_min": 1440,
       "connected": true
     },
@@ -75,7 +75,7 @@
       "id": "selfmodel",
       "name": "🪞 خودمدلی",
       "status": "🟢 عصب‌دار",
-      "age_min": 22.0,
+      "age_min": 49.3,
       "sla_min": 120,
       "connected": true
     },
@@ -83,7 +83,7 @@
       "id": "telemetry",
       "name": "💰 تلمتریِ مالی",
       "status": "🟢 عصب‌دار",
-      "age_min": 0.0,
+      "age_min": 0.1,
       "sla_min": 360,
       "connected": true
     },
@@ -91,7 +91,7 @@
       "id": "fourd",
       "name": "🧩 4d_system (مشاهده)",
       "status": "🟢 عصب‌دار",
-      "age_min": 1.5,
+      "age_min": 8.4,
       "sla_min": 120,
       "connected": true
     }

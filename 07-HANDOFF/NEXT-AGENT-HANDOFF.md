@@ -168,3 +168,7 @@ cands.append((
 - **کرنل شوراها سایه** در `4d_system/councils/` (+PEP سایه DA-4-P1) — ۱۸ تست پذیرش؛ فعال‌سازی فقط با گیت‌های COUNCIL-MESH.
 - RESTART-CORTEX `-Force` (ریشهٔ تلاش دوم: نشانگر فقط در بالای سیکل دیده می‌شود).
 - شناسهٔ آزاد تناقض: **C-019**.
+
+## الحاقیه PHASE02 — 2026-08-16 (~06:0x)
+- شواهد کامل: 06-EVIDENCE/PHASE02-2026-08-16.md. برجسته‌ها: هولداوت L1 (ACL مالک) → یافتهٔ gaming-beats-model؛ PEP سایه دو گلوگاه (tg_api._call_post · approval._url_json_post) — لاگ state/telegram-pep-shadow.jsonl از ری‌استارت بعدی پروسه‌ها پر می‌شود؛ readback الان نمای R16 را می‌فهمد.
+- بازِ رأی مالک: فعال‌سازی PEP-P1 (پس از ≥۷ روز سایه) · DA-6 گزینه‌ها · DA-1 L2/L3 · نام ممیز D1 · چرخش PAT.

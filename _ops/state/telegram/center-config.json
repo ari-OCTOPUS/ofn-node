@@ -72,7 +72,7 @@
     "accounting": "33d012532db7efe9",
     "studio_pf": "4daa573066273026",
     "system": "7841ef83dfaf43b0",
-    "knowledge": "78a60c4aa295708f",
+    "knowledge": "624f157cde948bce",
     "cartographer": "0c333de9f2422528",
     "mirror": "8e82bf62731550be"
   },
@@ -88,8 +88,8 @@
     "cartographer": 372,
     "mirror": 374
   },
-  "leg_card_cursor": 4,
-  "last_leg_card": 1786818866.6592424,
+  "leg_card_cursor": 9,
+  "last_leg_card": 1786820431.0408473,
   "guide_message_id": 358,
   "guide_hash": "54c2aa87a0fd6935",
   "watchdog_receipt_cursor": "2026-08-15T14:52:17 centre down (silent 514s) - launching RUN-TG-CENTER.bat",

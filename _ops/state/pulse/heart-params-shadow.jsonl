@@ -4631,3 +4631,8 @@
 {"ts": "2026-08-16T04:23:25", "beat": 37376, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
 {"ts": "2026-08-16T04:31:07", "beat": 37382, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
 {"ts": "2026-08-16T04:33:31", "beat": 37385, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T04:40:14", "beat": 37392, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T04:45:00", "beat": 37396, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T04:49:18", "beat": 37401, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T04:53:33", "beat": 37405, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}
+{"ts": "2026-08-16T05:00:40", "beat": 37411, "period_s": 489.97, "sigma_now": 0.0, "baro_factor": 8.1662, "wire_open": false}

@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-16T04:32:55",
-  "beat": 37378,
-  "version": 298,
+  "ts": "2026-08-16T05:02:25",
+  "beat": 37409,
+  "version": 299,
   "source": "heuristic",
-  "snapshot_hash": "fcf00ac5e0e93fad",
+  "snapshot_hash": "8bad0b8847c91b02",
   "stable_cycles": 0,
   "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
-    "anatomy": "9 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 328572 micro-USD",
+    "anatomy": "10 لِگ، 42 سیمِ روشن",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 330531 micro-USD",
     "pathology": [
       {
         "symptom": "خطای پرتکرار failed ×4",
@@ -67,38 +67,23 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 13139,
-      "newest_input_age_s": 66
+      "oldest_input_age_s": 14900,
+      "newest_input_age_s": 56
     }
   },
   "deep_dive": {
     "topic": "واقعی‌کردن ارزیابی سایه پیش از promote",
     "cause_chain": [
-      {
-        "cause": "شرط مالک",
-        "effect": "قبول شرط"
-      },
-      {
-        "cause": "شرایط قبول شرط",
-        "effect": "قابلیت بدون ری‌استارت ارگانیسم و تا 16-08-2026"
-      }
+      "شرطِ مالک: قبول ولی فقط اگر بدون ری‌استارت ارگانیسم باشد و امروز تمام شود",
+      "وضعیت فعلی: بدون ری‌استارت ارگانیسم و قبل از زمان مقرر (امروز)",
+      "محدودیت: نیاز به یک فیکس کوچک برای حل مسئله"
     ],
     "evidence": [
-      {
-        "type": "owner_correction",
-        "details": "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
-      }
+      "owner_corrections: ['شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدون ری‌استارت ارگانیسم باشد و امروز تمام شود']",
+      "recent_lanes: 10 لانه‌های فعال و 1 لانه غیرفعال"
     ],
-    "smallest_fix": {
-      "action": "تأیید شرط مالک",
-      "details": "تایید شرط مالک برای قبول شرط بدون ری‌استارت ارگانیسم و تا 16-08-2026"
-    },
-    "blocked_by": [
-      {
-        "type": "system_requirements",
-        "details": "نیاز به عدم ری‌استارت ارگانیسم و تا 16-08-2026"
-      }
-    ]
+    "smallest_fix": "اجرای کدی برای ثبت واقعی‌کردن ارزیابی سایه بدون ری‌استارت",
+    "blocked_by": "حداقل تا زمان مقرر (امروز)"
   },
   "trajectory": {
     "focus_stable": true,
@@ -114,10 +99,11 @@
     "legs_alive": [
       "lead",
       "accounting",
+      "ziman",
       "system"
     ],
     "in_fear": [],
-    "money_musd": 328572,
+    "money_musd": 330531,
     "recent_errors": {
       "failed": 4,
       "ValueError": 1,
@@ -126,7 +112,7 @@
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-16T04:30:47",
+    "ts": "2026-08-16T05:00:15",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,

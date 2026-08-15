@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-16T04:33:31",
-  "beat": 37385,
+  "ts": "2026-08-16T05:00:40",
+  "beat": 37411,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 37385,
+    "beat_seq": 37411,
     "period_s": 489.97,
     "sigma_now": 0.0,
     "baro_factor": 8.1662
@@ -11,9 +11,9 @@
   "period_s": 489.97,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
-    "velocity_per_hr": 20.6667,
+    "velocity_per_hr": 20.5,
     "cpi_0_1": 0.0,
-    "delta_self_live": -0.003568,
+    "delta_self_live": -0.001148,
     "band_lo": 0.4588,
     "band_hi": 4.4467,
     "gates": {
@@ -23,15 +23,15 @@
       "plant_saturation": {
         "saturated": false,
         "loop_gain": null,
-        "velocity_now": 20.6667,
+        "velocity_now": 20.5,
         "reason": "غیراشباع — عملگر می‌تواند velocity را حرکت دهد",
         "beat_cap": 3.0,
         "window_hours": 24.0,
         "beats_at_slowest_period": 96.0,
         "beats_at_fastest_period": 2880.0,
         "beat_units_at_slowest_period": 9.6,
-        "fuel_units": 493.0,
-        "velocity_locked_at": 20.666667
+        "fuel_units": 489.0,
+        "velocity_locked_at": 20.5
       },
       "cpi_guard": 1.0,
       "budget_pressure": 1.0,
@@ -53,11 +53,11 @@
     "baroreflex_gain": 0.0
   },
   "gate0_live_producer": false,
-  "sampled_this_step": false,
+  "sampled_this_step": true,
   "production_wire": {
     "open": false,
     "reasons": [
-      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.003568) — خودشناسیِ منفی این گیت را باز نمی‌کند",
+      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.001148) — خودشناسیِ منفی این گیت را باز نمی‌کند",
       "hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)"
     ]
   },

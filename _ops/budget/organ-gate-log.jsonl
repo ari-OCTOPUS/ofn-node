@@ -8687,3 +8687,7 @@
 {"ts": "2026-08-16T04:32:14", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.0007392933333333333, "task": "cortex-secondary", "ok": true, "actual_usd": 0.00069678}
 {"ts": "2026-08-16T04:33:03", "op": "reserve", "organ": "ARCHITECT_SYS", "est_usd": 0.000105, "task": "cortex-secondary", "allow": true, "reserved": 0.000105}
 {"ts": "2026-08-16T04:33:07", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.000105, "task": "cortex-secondary", "ok": true, "actual_usd": 8.806000000000001e-05}
+{"ts": "2026-08-16T04:38:49", "op": "reserve", "organ": "ARCHITECT_SYS", "est_usd": 0.00010462666666666668, "task": "cortex-secondary", "allow": true, "reserved": 0.00010462666666666668}
+{"ts": "2026-08-16T04:38:52", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.00010462666666666668, "task": "cortex-secondary", "ok": true, "actual_usd": 8.834000000000001e-05}
+{"ts": "2026-08-16T05:01:28", "op": "reserve", "organ": "ARCHITECT_SYS", "est_usd": 0.00074354, "task": "cortex-secondary", "allow": true, "reserved": 0.00074354}
+{"ts": "2026-08-16T05:01:36", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.00074354, "task": "cortex-secondary", "ok": true, "actual_usd": 0.0007008400000000001}

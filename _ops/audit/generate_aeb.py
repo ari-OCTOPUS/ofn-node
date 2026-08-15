@@ -154,6 +154,21 @@ def main() -> int:
                         ("date", "spent_today_usd", "month", "spent_month_aud",
                          "halted") if k in bud} | {"observed_at": now_iso()}
 
+    # ── ۵-ب. شناسنامهٔ ارگانیسم (DA-5): drift داخل باندل ──────────────────
+    om = VAULT / "_ops" / "audit" / "organism-manifest.json"
+    if om.exists():
+        try:
+            omd = json.loads(om.read_text(encoding="utf-8"))
+            bundle["organism_manifest"] = {
+                "observed_at": omd.get("observed_at"),
+                "members_observed": len(omd.get("members_observed", [])),
+                "declared": len(omd.get("declared_members", [])),
+                "drift": omd.get("drift", {}),
+                "note": "تازگی با TTL volatile؛ برای drift تازه اجرای organism_manifest.py",
+            }
+        except (OSError, ValueError) as e:
+            bundle["organism_manifest"] = {"error": str(e)[:100]}
+
     # ── ۶. زمان‌بند (C-014 containment) ─────────────────────────────────
     sched = _run(["powershell", "-NoProfile", "-Command",
                   "Get-ScheduledTask -TaskName '*Observator*' | ForEach-Object "

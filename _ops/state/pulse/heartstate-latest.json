@@ -1,9 +1,9 @@
 {
- "ts": "2026-08-16T04:35:44",
+ "ts": "2026-08-16T05:03:04",
  "schema": "heartstate.v1",
  "epistemic": "access-only telemetry — read-only، regulator نه commander",
  "shadow": {
-  "velocity": 20.6667,
+  "velocity": 20.5,
   "sigma": 0.0,
   "period_s": 489.97,
   "mode": "shadow",
@@ -14,7 +14,7 @@
   "wire_open": false
  },
  "stress": {
-  "organism": 0.44,
+  "organism": 0.42,
   "level": "🟡 استرس",
   "in_fear": []
  },

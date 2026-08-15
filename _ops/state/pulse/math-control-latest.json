@@ -1,16 +1,16 @@
 {
   "schema": "math-control.v1",
-  "ts": "2026-08-15T18:35:43Z",
+  "ts": "2026-08-15T19:02:59Z",
   "enabled": true,
   "autotune": true,
   "external_effect": false,
   "may_authorize": false,
   "shadow_blocks_effects": false,
   "pain_pressure": 0.0,
-  "rhythm_color": "AMBER",
-  "schedule_period_s": 123.88,
+  "rhythm_color": "GREEN",
+  "schedule_period_s": 123.97,
   "protective_skip": false,
-  "beat": 37385,
+  "beat": 37411,
   "halted": false,
   "assoc_strength": 0.9801495006250001,
   "top_pair": "errors_high+rhythm_amber",
@@ -40,14 +40,10 @@
     "gates",
     "status"
   ],
-  "schedule_period_bias": 5.0,
+  "schedule_period_bias": -2.0,
   "rank_bias": 0.2,
-  "knob_deltas": {
-    "CHRONO_NUDGE_EVERY_N_BEATS": 120,
-    "HEART_SAMPLE_INTERVAL_S": 600
-  },
+  "knob_deltas": {},
   "effects": [
-    "autotune_propose",
     "improve_rank_bias",
     "schedule_bias_hint"
   ],

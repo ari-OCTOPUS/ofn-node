@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-16T04:34:23",
-  "cycle": 1,
-  "coherence": 0.98,
+  "ts": "2026-08-16T04:55:04",
+  "cycle": 3,
+  "coherence": 0.977,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.988,
-      "age_s": 41,
+      "awareness": 0.982,
+      "age_s": 65,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 42,
+      "awareness": 0.991,
+      "age_s": 66,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 42,
+      "awareness": 0.991,
+      "age_s": 66,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 42,
+      "awareness": 0.995,
+      "age_s": 66,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.75,
-      "age_s": 86288,
+      "awareness": 0.747,
+      "age_s": 87514,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.996,
-      "age_s": 50,
+      "awareness": 0.995,
+      "age_s": 69,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 375,
+      "awareness": 0.995,
+      "age_s": 1602,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 375,
+      "awareness": 0.995,
+      "age_s": 1602,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.97,
-      "age_s": 15475,
+      "awareness": 0.968,
+      "age_s": 16702,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 374,
+      "awareness": 0.997,
+      "age_s": 1601,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,8 +107,8 @@
     {
       "id": "fourd_system",
       "present": true,
-      "awareness": 0.958,
-      "age_s": 606,
+      "awareness": 0.957,
+      "age_s": 617,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -133,10 +133,10 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] موانع چندانی نیست، اما مطمئن شدن در چیزهای ضروری مثلاً سلامتی قلب و تنظیم ریتم لوبه است. الان مهم‌ترین کار مجموعه، بررسی موانع و حفاظت از سلامتی قلب است.",
+  "thought": "[local] موانع چندانی نیست؛ اما بازتاب هنوز لوبه‌ای است و ریتم قلب خوشوضعیت است. الان باید پیشنهادات را بررسی کرد.",
   "stress": {
     "level": "🟡 استرس",
-    "organism_stress": 0.44,
+    "organism_stress": 0.42,
     "in_fear": []
   },
   "innervation": {
@@ -146,7 +146,7 @@
   },
   "fourd_health": {
     "status": "fresh",
-    "age_s": 0
+    "age_s": 1
   },
   "ignition": {
     "ignited": true,
@@ -166,16 +166,8 @@
     "archived": 0
   },
   "truth_sync": {
-    "wrote": true,
-    "keys": [
-      "coherence",
-      "members_present",
-      "stale_members",
-      "beat",
-      "halted",
-      "rfcs_pending",
-      "HEAD"
-    ]
+    "skipped": "cooldown",
+    "next_in_s": 573.7
   },
   "owner_guidance": {
     "focus": "موانع چیست",

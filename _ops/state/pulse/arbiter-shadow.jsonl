@@ -2769,3 +2769,15 @@
 {"ts": "2026-08-16T04:30:39", "beat": 37382, "effective_period_s": 123.9, "driver": "consensus", "color": "AMBER", "wire_open": true}
 {"ts": "2026-08-16T04:33:23", "beat": 37385, "effective_period_s": 123.88, "driver": "consensus", "color": "AMBER", "wire_open": true}
 {"ts": "2026-08-16T04:35:42", "beat": 37387, "effective_period_s": 123.99, "driver": "consensus", "color": "AMBER", "wire_open": true}
+{"ts": "2026-08-16T04:37:57", "beat": 37389, "effective_period_s": 123.97, "driver": "consensus", "color": "AMBER", "wire_open": true}
+{"ts": "2026-08-16T04:40:12", "beat": 37392, "effective_period_s": 123.75, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:42:24", "beat": 37394, "effective_period_s": 123.8, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:44:29", "beat": 37396, "effective_period_s": 123.77, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:47:08", "beat": 37399, "effective_period_s": 123.74, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:49:16", "beat": 37401, "effective_period_s": 123.76, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:51:23", "beat": 37403, "effective_period_s": 123.8, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:53:31", "beat": 37405, "effective_period_s": 123.98, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:55:47", "beat": 37407, "effective_period_s": 124.07, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T04:58:06", "beat": 37409, "effective_period_s": 124.08, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T05:00:13", "beat": 37411, "effective_period_s": 123.97, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-16T05:02:57", "beat": 37414, "effective_period_s": 123.82, "driver": "consensus", "color": "GREEN", "wire_open": true}
