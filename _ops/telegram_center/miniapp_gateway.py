@@ -971,7 +971,11 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
                 _sys.path.insert(0, str(_OPS))
             from conversation_hub import handle as _hub_handle  # noqa: WPS433
             req = {
-                "message_id": str(payload.get("message_id") or ("msg-" + str(int(now)))),
+                # 2026-08-15 (جاروی تست T7): now در ترافیکِ واقعی None است
+                # (پیش‌فرضِ handle) — int(None) هر POSTِ بدونِ message_id را
+                # با TypeError/500 می‌کشت. تستِ واحد now می‌داد و این را نمی‌دید.
+                "message_id": str(payload.get("message_id")
+                                  or ("msg-" + str(int(now if now is not None else time.time())))),
                 "text": text,
                 "mode": str(payload.get("mode") or "auto"),
                 "requested_depth": str(payload.get("requested_depth") or "normal"),

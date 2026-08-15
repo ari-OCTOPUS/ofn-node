@@ -106,6 +106,27 @@ def t_endpoint_returns_chatreply_when_on_and_authed():
         os.environ["OCTOPUS_UNIFIED_CHAT"] = "0"
 
 
+
+def t_endpoint_real_traffic_now_none_no_message_id():
+    """2026-08-15 (جاروی تست T7، رگرسیونِ باگِ int(None)):
+    ترافیکِ واقعی handle را بدونِ now صدا می‌زند و کلاینتِ بدونِ message_id —
+    قبلاً int(None) → TypeError → 500. حالا باید 200 + ChatReply بدهد."""
+    os.environ["OCTOPUS_UNIFIED_CHAT"] = "1"
+    try:
+        import time as _time
+        st, body, ct = mg.handle("POST", "/api/octopus/chat",
+                                 headers=_body_headers(
+                                     # auth_date تازه — ولیدیشن با now=None از ساعتِ واقعی می‌سنجد
+                                     _valid_initdata(now=_time.time()), {"text": "سلام"}),
+                                 now=None)   # ← عینِ ترافیکِ واقعی
+        assert st == 200, (st, body)
+        data = json.loads(body.decode("utf-8"))
+        assert data["schema_version"] == "octopus.chat.reply.v1"
+        assert data["ok"] is True
+        # ChatReply فیلدِ message_id را برنمی‌گرداند — شناسهٔ درون‌سازِ هاب کافی است
+    finally:
+        os.environ["OCTOPUS_UNIFIED_CHAT"] = "0"
+
 def t_endpoint_empty_text_400():
     os.environ["OCTOPUS_UNIFIED_CHAT"] = "1"
     try:
@@ -124,6 +145,7 @@ TESTS = [
     t_endpoint_403_without_owner_auth,
     t_endpoint_returns_chatreply_when_on_and_authed,
     t_endpoint_empty_text_400,
+    t_endpoint_real_traffic_now_none_no_message_id,
 ]
 
 if __name__ == "__main__":

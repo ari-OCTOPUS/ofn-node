@@ -132,3 +132,32 @@ rule: هر عدد با فرمان/فایل منبع‌دار · سطح A/B/C
 
 - ۱۱۷ تراکنشِ آخرِ deepseek در paid-calls.jsonl بازمحاسبه شد: `tokens_in/1M×0.14 + tokens_out/1M×0.28` — **۱۱۷/۱۱۷ منطبق، صفر مغایرت** (نمونهٔ زنده: 1760/699 → 0.00044212 عین رکورد)
 - قیمت‌ها عین budgets.yaml (econ/reason هر دو 0.14/0.28 — VERIFIED برچسب‌دار در خود فایل)
+
+## T7 — چت یکپارچه سرتاسری — ✅ e2e کامل + یک باگ واقعی فیکس شد
+
+- **owner-auth (مسیرش):** هدرِ `X-Tg-Init-Data` — HMAC-SHA256 عین پروتکل MiniApp تلگرام با کلیدِ مشتق از توکنِ ربات center؛ ولیدیشن: مالک‌بودنِ user.id + تازگی auth_date. گیت روی دیوارِ `/api/*` برقرار است.
+- **نتیجهٔ زنده (HTTP واقعی به 127.0.0.1:8774):** بدون auth → **403 owner_auth_required** ✓ · با auth → نوبت ۱: **200/route=mcp** (جواب صادقِ خالی: «چیزی در repo نیافتم») · نوبت ۲: **200/route=runtime** — وضعیت زندهٔ واقعی ارگانیسم (قلب ADVISORY_SHADOW · خودمدل STALE age≈17450s · عصب‌کشی 100% · prereg=24/journal=24/verdict=22 · قطب‌نما DEGRADED · «نیمه‌یکپار»). `external_effect=False` هر دو نوبت ✓ (چت هرگز اجرا نمی‌کند)
+- **باگ واقعی پیدا و فیکس شد:** POST بدونِ `message_id` در ترافیک واقعی (`now=None`) → `int(None)` → **500**. تست واحدِ قبلی `now` پاس می‌داد و این را نمی‌دید. فیکس: None-safe در `miniapp_gateway.py` + تست رگرسیون نو → **test_octopus_chat_endpoint: 6/6** (قانونِ تست-در-همان-کامیت). مستقر شدن فیکس: با همین ری‌استارت اثباتی T5.
+
+## T9 — تست‌های هرگز-اجراشده — ✅ اجرا/تهیه
+
+- **`4d_system/nbb-cp-kre`:** **21 passed in 30.68s** — نخستین اجرای ثبت‌شده (قبلاً «unknown/only-readonly») · فرمان: `cd 4d_system/nbb-cp-kre && python -m pytest tests -o addopts= -q`
+- **`4d_system/src/nbb_cp`:** خودش فایل تستی ندارد؛ پوشش از `4d_system/tests/{l0_kernel,l1_adapters,l2_replay}` می‌آید که در سوئیت رسمیِ ۴d سبز اجرا شدند (۲۶۱/۲۶۵ با ۴ شکستِ pre-existingِ C-013). نکتهٔ محیطی: pytest مستقیم روی زیرپوشه‌ها خطای import می‌دهد چون `nbb_cp` به نسخهٔ Desktop (working repo) shadow می‌شود — رانر رسمی (`tests/run_all.py` با bootstrap) درست resolve می‌کند؛ ریشهٔ دیگرِ «چرا pytest از ریشه کار نمی‌کند» (مکملِ C-006)
+
+## T11 — تمرین kill-switch/rollback — ✅ دریل سندباکسی + اثبات وجود در زنده
+
+- **اثباتِ وجود در زنده (فقط-خواندن):** فایل STOP (`_ops/STOP-ORGANISM`) غایب ✓ · `halted()=None` ✓ · kill.switch رصدخانه غایب ✓ — هر سه مکانیزم موجود و درگیرنشده
+- **دریل سندباکسی (ORG_ROOT/OPS_DIR ایزوله — هیچ لمسِ زنده):**
+  - K1 `HALT-ALL` (مرز پنیک): engage → `halted()="HALT-ALL"` · release → None ✓
+  - K2 `STOP-ORGANISM`: engage → گاردِ حلقه honor کرد (`consolidation_beat → None`) · release → ادامه ✓
+  - K3 `kill.switch` رصدخانه: engage → `engaged()=True` · release → False ✓ (+ تست‌های اختصاصی‌اش test_kill_switch_blocks_all_requests/release در baseline سبزِ ۱۱۶)
+- **یافته (تأییدِ سندِ خودِ کد):** «درزِ کیل‌سوییچ» — `halted()` فایل STOP-ORGANISM را **نمی‌بیند** (فقط STOP معمار/METABOLIC/DEBATE)؛ افکتورها مستقیم چک می‌کنند ولی مسیرِ رزرو پولی از `halt()` رد می‌شود. گارد افزودنی `kill_seam_denies()` پشت فلگِ خاموشِ `OCTOPUS_WIRE_KILL_SEAM` موجود است — مسلح‌سازی = رأی مالک (روشن نکردم)
+- **rollback:** فیکس‌های این نشست همه additive و git-revertable؛ بکاپِ فلگ با قرارداد .prev- فقط هنگامِ تغییرِ فلگ (امشب فلگی عوض نشد)
+
+## T5 — پنجرهٔ گیت پذیرش 120s→300s + ری‌استارت اثباتی — ✅
+
+- تغییر: `_ops/RESTART-ALL.ps1` حلقهٔ state تازه از ۲۴×۵s (120s) به ۶۰×۵s (300s) · سینتکس OK · تست خودِ اسکریپت: **test_restart_preflight 8/8**
+- **ری‌استارت اثباتی (فرمان رسمی، 20:52-20:58):** هر ۵ عضو PID تازه (organism 15036→16584 · cortex 3524→4176 · center 19288→18060 · gateway 15880→15080 · live 19680→1632) · پورت‌ها 8771-8777 بالا ✓ · فلگ‌ها برابر (۳۳۸ در هر ۴) ✓ · **state تازه در ۲دقیقه‌۴۱ثانیهٔ گیت رسید — پنجرهٔ قدیمیِ 120s همین‌جا fail می‌شد؛ پنجرهٔ نو در اولین اجرا خودش را اثبات کرد** · beat پیشرونده 36937→36945 ✓ · halted=None · stop_organism=False ✓
+- تنها FAIL باقی‌ماندهٔ گیت = «missing 4 flags» (SMTP poison — همان T4؛ pre-existing و مستند). پیشنهاد: گیت، ۴ کلیدِ عمدیِ poison را از شمارشِ shortfall معاف کند — رأی مالک
+- **استقرار فیکس‌ها با همین ری‌استارت اثبات شد:** POST چت بدون message_id حالا **200** می‌دهد (پیش از ری‌استارت: 500) — روی پروسهٔ زندهٔ تازه
+- مشاهدهٔ جانبی (کیفیت، نه شکست): جوابِ مسیر ask گاهی پیش‌متنِ استدلال مدل را برمی‌گرداند («The user is asking me…») — کاندید بررسیٔ آیندهٔ لایهٔ collab

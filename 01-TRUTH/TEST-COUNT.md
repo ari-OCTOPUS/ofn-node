@@ -26,6 +26,10 @@ status: mixed — هر ردیف برچسب خودش را دارد
 | تست نوِ حلقهٔ حافظه (C-012) | — | **12 passed** | `python -m pytest tests/test_memory_loop_c012.py -o addopts= -q` (در 4d_system) | ✅ verified |
 | تست نوِ fold غنی (T1b) | — | **4 passed** | `python -m pytest tests/test_consolidation_fold_rich.py -o addopts= -q` (در _ops) | ✅ verified |
 | `_ops/tests/test_epistemic_bayes.py` | — | **صفر تابع تست** (فایل docstring-only؛ grep -c "def test_" → 0) | grep | ⚠️ مرده — مرتبط C-007 |
+| epistemics — خانوادهٔ کامل (جاروی تست T3) | ۶۵ یا ۱۳۳ | **۱۷۷ چکِ سبز** در ۱۱ فایلِ خوداعتبارسنج (+۳۷ مجاور = ۲۱۴) — همه exit 0 | `python -X utf8 <file>.py` در `_ops/tests` | ✅ verified → C-007 بسته |
+| سوئیت رسمی `_ops` (T2 — نخستین اجرای کاملِ ثبت‌شده) | — | **۲۴۰ فایل سبز (۲۹۳۱/۲۹۳۱ چک) + ۱۶ فایل شکست** (۱۵ pre-existing + ۱ فیکس‌شده در حینِ اجرا) | `cd _ops/tests && python -X utf8 run_all.py` (~۲۳min؛ لاگ: `_baselines/run-all-output-20260815-sweep.log`) | ✅ verified → C-006 بسته |
+| endpoint چت یکپارچه + رگرسیونِ فیکس (T7) | — | **6/6** (تست نو: ترافیکِ واقعیِ now=None بدون message_id) | `python -X utf8 test_octopus_chat_endpoint.py` | ✅ verified |
+| nbb-cp-kre (T9 — نخستین اجرای ثبت‌شده) | unknown | **21 passed in 30.68s** | `cd 4d_system/nbb-cp-kre && python -m pytest tests -o addopts= -q` | ✅ verified |
 | OFN نود میدانی | مگاپرامپت: ۱۲۲۹ تست | دسترسی به اورنج‌پای نداریم | — | ⚠️ **unverified** |
 | nbb-cp-kre (`4d_system/nbb-cp-kre`) | — | اجرا نشد (only-readonly طبق DR) | — | unknown |
 
