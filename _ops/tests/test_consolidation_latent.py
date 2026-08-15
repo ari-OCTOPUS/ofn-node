@@ -167,9 +167,9 @@ def t_latent_fail_soft():
 
 def t_fold_never_clobbers_a_latent_row():
     """۲۰۲۶-۰۷-۳۰ — مسیرِ زندهٔ fold (compress خاموش) نباید ردیفِ دارای latent_vector
-    را مقصدِ تا-کردن کند. `_foldable` این شرط را داشت ولی شاخهٔ compress-off نداشت،
-    پس سیکلِ نو داخلِ ردیفِ غنی تا می‌شد و `sync_latent` بردارش را بازنویسی می‌کرد —
-    از ۵۳۹ ردیفِ فایلِ زنده فقط ۳ بردار داشتند، یعنی کم‌یاب‌ترین داده لِه می‌شد."""
+    را لِه کند. ۲۰۲۶-۰۸-۱۵ — شرطِ «هرگز مقصد نشو» به «fold کن ولی بردار را حفظ کن»
+    تعدیل شد (از سیکلِ ۵۳۷ همهٔ ردیف‌ها بردار دارند و شرطِ قدیمی dedup را فریز
+    کرده بود — C-012/T1b). هستهٔ حفاظت همان است: بردارِ دادهٔ کمیاب دست‌نخورده."""
     import json as _json
     import tempfile as _tf
     from neural.consolidation import ConsolidationCycle
@@ -193,12 +193,20 @@ def t_fold_never_clobbers_a_latent_row():
     rows[-1]["latent_vector"] = [0.1, 0.2, 0.3]
     hist.write_text(_json.dumps(rows, ensure_ascii=False), encoding="utf-8")
 
-    # همان محتوا دوباره → این بار **نباید** fold شود؛ ردیفِ نو و بردار سالم
+    # ۲۰۲۶-۰۸-۱۵ (جاروی تست T1b) — قرارداد وارونه شد: این بار هم **باید** fold شود.
+    # اندازه‌گیریِ زنده: از سیکلِ ۵۳۷ (2026-07-28، روشن‌شدنِ OCTOPUS_WIRE_LATENT_PERSIST)
+    # هر ردیفی بردار دارد (۸۹/۸۹) — قانونِ قدیمیِ «مقصدِ fold نباید بردار داشته باشد»
+    # یعنی «هیچ‌وقت تا نشو»، و نتیجه‌اش ۲۰ ردیفِ عیناً یکسانِ پیاپی در فایلِ زنده بود
+    # (C-012 / consolidation راکد). fold بردار را حذف نمی‌کند (فقط repeats/last_cycle
+    # می‌افزاید) و sync_latent از طریقِ تطبیقِ last_cycle بردارِ تازه را همان‌جا
+    # می‌نویسد — پوششِ خودِ کد برای ردیفِ تا-شده. تستِ کاملِ این قرارداد:
+    # test_consolidation_fold_rich.py
     ConsolidationCycle(data_path=str(hist)).run(src)
     rows2 = _json.loads(hist.read_text("utf-8"))
-    assert len(rows2) == 2, f"ردیفِ داری بردار نباید مقصدِ fold شود: {len(rows2)} ردیف"
+    assert len(rows2) == 1, f"fold باید داخلِ ردیفِ غنی ادامه یابد: {len(rows2)} ردیف"
     assert rows2[0].get("latent_vector") == [0.1, 0.2, 0.3], \
-        f"بردارِ ردیفِ قبلی باید دست‌نخورده بماند: {rows2[0].get('latent_vector')}"
+        f"بردارِ ردیفِ مقصد باید دست‌نخورده بماند: {rows2[0].get('latent_vector')}"
+    assert int(rows2[0].get("repeats", 1)) >= 3, rows2[0]
 
 
 def t_cycle_ordinal_survives_restart():

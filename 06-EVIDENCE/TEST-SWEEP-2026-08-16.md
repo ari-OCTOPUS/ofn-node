@@ -61,3 +61,74 @@ rule: هر عدد با فرمان/فایل منبع‌دار · سطح A/B/C
 ## C-registry این مرحله
 - **C-012 → resolved** (شرط telemetry زنده برآورده شد)
 - **C-013 ثبت شد** (گاردِ self_code: REFERENCE_DIR→ریشه، همه TCB؛ ۴ شکستِ pre-existing؛ فیکس پیشنهادی مستند، اعمال نشد — رأی مالک) — آزاد بعدی: **C-014**
+
+## T3 — سوئیت واقعی epistemics (C-007) — ✅ حل با اجرای زنده
+
+**کشف کلیدی:** تست‌های `_ops` ساختارِ «اسکریپتِ خوداعتبارسنج» دارند (تابع‌های چک + گزارشگرِ خودشان، بدون `def test_`) — برای همین pytest از آن‌ها صفر collect می‌کرد و «سوئیت پیدا نشد» به نظر می‌رسید. اجرای درست = هر فایل جدا به‌عنوان پروسه.
+
+**نتایج (سطح A — همه exit 0):**
+
+| فایل | نتیجه |
+|------|-------|
+| test_epistemic_schemas | **45/45** ← منبعِ ادعای «۴۵/۴۵» |
+| test_epistemics_receipt_chain | **20/20** ← منبعِ ادعای «۲۰/۲۰» |
+| test_epistemic_benchmark | 6/6 |
+| test_epistemic_c6c7 | 9/9 |
+| test_epistemic_compose_build | 8/8 |
+| test_epistemic_invariants | 19/19 |
+| test_epistemic_runner | 11/11 |
+| test_epistemic_selector_metrics | 24/24 |
+| test_epistemic_bayes | 14/14 |
+| test_phase4_epistemics | 13 ✅ |
+| test_phase5_epistemics_wiring | 8 ✅ |
+| **جمعِ هسته** | **۱۷۷ چکِ سبز · صفر شکست** |
+| + مجاور (baseline 9 · held_out 9 · phase_gate 14 · adversarial 5) | ۳۷ → **جمع ۲۱۴** |
+
+**داوری C-007:** هیچ‌کدام از ۶۵ و ۱۳۳ عددِ زنده نبود — ۶۵ فقط دو فایلِ نام‌برده بود؛ ۱۳۳ به هیچ فایلِ فعلی نگاشت نشد (تاریخی). **C-007 → resolved با فکتِ زنده = ۱۷۷.**
+
+فرمان بازتولید: `cd _ops/tests && python -X utf8 <file>.py` برای هر فایل؛ یا مجموع در لاگِ run_all همین نشست.
+
+## T2 — نخستین اجرای کاملِ رسمیِ run_all.py — ✅ انجام + C-006 بسته شد
+
+- فرمان: `cd _ops/tests && python -X utf8 run_all.py` (لاگ کامل: `_baselines/run-all-output-20260815-sweep.log`) · ~۲۳ دقیقه · exit=1 (به‌خاطر ۱۶ فایلِ شکست)
+- **۲۵۶ فایل در رانر → ۲۴۰ سبز (۲۹۳۱/۲۹۳۱ چکِ خودگزارشی) · ۱۶ شکست فایلی**
+- از ۱۶: ۱ مورد (test_consolidation_latent) قراردادِ قدیمیِ fold را قفل کرده بود که T1b عمداً وارونه‌اش کرد → تست به قرارداد جدید به‌روزرسانی شد (تاریخ‌گذاری 2026-08-15 در خود تست) → **در اجرای مجدد سبز**
+- ۱۵ شکستِ باقی‌مانده = **pre-existing** (هیچ‌کدام فایل‌های تغییرِ این نشست را import نمی‌کنند):
+  - دریفِ تست↔کدِ زنده ×۹: miniapp_lifecycle_view (allowlist از ۵ به ۱۰ endpoint رشد کرده) · phantom_guards (۱۴ فلگِ بی‌اعلانِ نو) · llm_call_inventory (caller نو: owner_console/collab_model_adapter) · tg_callback_emitter_parity (کارتِ مردهٔ verb «approval») · miniapp_look_locked (۳ endpoint بدون مصرف‌کنندهٔ UI) · miniapp_ops_readmodel (نقش orchestr از ask() غیرقابل‌دسترس — یافتهٔ واقعی) · cortex_circuit_breaker (orchestr=open زنده — هم‌خوان با 429) · hebbian_eventclock (شکلِ خروجیِ دروازهٔ ADR-035) · collab_components (گاردِ live-state به‌درستی نوشتنِ تست را روی state زنده بست)
+  - API drift تست↔ماژول ×۴: telemetry (snapshot/read_genome غایب) · discoveries (mark_nudged بدون high_water) · ti_collab_security + ti_redteam_injection (collaborator.callback حذف‌شده)
+  - محیط ×۲: llm_routing_smoke (**429 واقعی از Fugu LIVE**) + همانِ circuit_breaker
+- ریشهٔ «INTERNALERROR از ریشه»: تست‌های _ops اسکریپتِ خوداعتبارسنج‌اند — pytest-from-root ابزارِ درستِ جمع‌زدنِ این سوئیت نیست (مستند شد)
+- **C-006 → resolved**: نه ۴14 نه ۴08 — فکتِ زنده = ۲۴۰ فایل سبز/۲۹۳۱ چک + ۱۵ دریف pre-existing
+
+## T4 — shortfall=4 فلگ — ✅ سند (فیکس لازم ندارد)
+
+- ۴ فلگِ غایب در هر ۵ عضو (snapshotهای flags-loaded-*.json): `OCTOPUS_SMTP_{FROM,HOST,PORT,USER}`
+- ریشه (سطح A): در flags.cmd دو مرحلهٔ عمدی — خطوط ۱۲۹۰-۱۲۹۶ `set ...=1` (بخش arm) و سپس خطوط ۱۴۶۵-۱۴۶۸ مقدار را **خالی** می‌کنند («SMTP poison keys stay empty» — چون cred واقعی SMTP نیست) و cmd متغیرِ خالی را حذف می‌کند. پارسرِ فایل تعریف‌ها را می‌بیند، env نمی‌گیرد → shortfall=4 یکنواخت. **عمدی و بی‌خطر** — شمارنده کارش را درست کرده.
+
+## T6 — حلقهٔ کامل رأی دکتر — ✅ e2e با voter مالک
+
+- مسیر: کارتِ واقعیِ pending از outbox (mission=voice-test-single-20260815, gate=test) → شبیه‌سازی‌گر callback با **voter=TELEGRAM_OWNER_CHAT_ID** (بارگذاری .env در پروسه؛ مقدار هرگز چاپ نشد) از همان seam زنده (`doctor_link.handle_callback` → زیرپروسهٔ `doctor/cli.py votes`) → **ثبت در tg-inbox.jsonl** (callback_id=sim-t6-*؛ صادقانه قابلِ تفکیک) → **verdict(mission,test)=True** از inbox واقعی (pending عملکردیًت حل شد؛ شمارندهٔ vitals روزانه است و در سیکل بعد تازه می‌شود)
+- نکتهٔ یافته‌شده: شبیه‌سازی‌گر باید فلگِ `OCTOPUS_WIRE_DOCTOR_TG=1` را هم می‌گیرد — در شلِ عادی هست وگرنه handle_callback بی‌صدا False می‌دهد
+- رگرسیون تک‌صدا: نامِ `OCTOPUS_DOCTOR_BOT_TOKEN` در .env **وجود ندارد** (توکن مستقیم حذف‌شده ✓) · doctor_link فقط از `center._route_send` می‌فرستد ✓ · test_doctor_vote_bridge ۵/۵ (exit=0) ✓
+- ۷ رأی واقعی مالکِ امشب + این e2e = حلقهٔ کامل از هر دو سو
+
+## T8 — اعداد پاها در README ریشه — ✅ شمرده/اجرا شد
+
+| ادعای README | نتیجهٔ زنده | وضعیت |
+|---|---|---|
+| Brushline ۸/۹ | **12 passed** (`cd "...brushline/60_code" && python -m pytest tests -o addopts= -q`) | رشد از ۸/۹ — عدد کهنه |
+| کاریابی ۳۳ تست | **دقیقاً ۳۳ تابع تست** (شمارش ایستا 3+5+17+4+4)؛ اجرا بلاک: `sqlmodel` در پایتون اصلی نصب نیست |.inventory درست؛ اجرا نیازمند محیط |
+| Ziman ۲۱ تست | **76 passed** (`cd "03 - Projects/Ziman Galerry/control-brain" && python -m pytest tests -o addopts= -q`) — run_tests.py خودش خراب است (به test_secrets حذف‌شده ارجاع می‌دهد) | رشد از ۲۱ — عدد کهسته |
+| Project-F ۲۹ | **۶۸ چکِ ✅** (test_project_f 21 + test_deep_pf 26 + test_pf_full 21) | رشد از ۲۹ |
+
+پیشنهاد (propose-only): جدولِ README با اعداد زنده به‌روزرسانی شود + اصلاح تک‌خطیِ ارجاع stale طبق C-004.
+
+## T10 — معمای evidence#4 حل + مدل وظیفهٔ سخت پیش‌ثبت شد — ✅
+
+- **evidence#4 (17:36:31):** مبدأ = شلیکِ سومِ تسکِ قدیمیِ «OCTOPUS-Observatory» (ساخته 15:36:27 امروز) — تسکِ جدیدِ امشب هم‌زمان مانده → fetch دوتایی ساعتی. ثبت: **C-014**؛ پیشنهاد: غیرفعال‌کردن یکی (رأی مالک)
+- **مدل وظیفهٔ سخت (پیش‌ثبت → اجرا):** اسکریپتِ نو `_ops/observatory/scripts/backtest_hardtask.py` (working repo) — وظیفه: P(≥1 زلزلهٔ ≥6.0 در پنجرهٔ ۷روزه)؛ نامزد: base-rateِ چرخشی با lookback 90 روزِ strictly-گذشته. نتیجه روی ۳۵۱ روزِ واقعی (cache محلی، بدون شبکه): **Brier نامزد 0.0978** در برابر prior ثابت **0.4535** → معیارِ پیش‌ثبت برآورده (BEAT)؛ کالیبراسیون: p̄=0.8999 در برابر نرخ واقعی 0.9088. یادآوری صادقانه: 0.2097ِ سند قبلی روی وظیفهٔ متفاوت بود — مقایسهٔ مستقیم معنا ندارد (در خروجی اسکریپت هم نوشته شده).
+
+## T12 — متر بودجه دیپ‌سیک — ✅ عین فرمول
+
+- ۱۱۷ تراکنشِ آخرِ deepseek در paid-calls.jsonl بازمحاسبه شد: `tokens_in/1M×0.14 + tokens_out/1M×0.28` — **۱۱۷/۱۱۷ منطبق، صفر مغایرت** (نمونهٔ زنده: 1760/699 → 0.00044212 عین رکورد)
+- قیمت‌ها عین budgets.yaml (econ/reason هر دو 0.14/0.28 — VERIFIED برچسب‌دار در خود فایل)

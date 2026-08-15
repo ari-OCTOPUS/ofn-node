@@ -64,6 +64,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_rfc_sweep.py", "test_rfc_submit_blocked.py",
          "test_consolidation_distinguish.py", "test_gate_sweep.py",
          "test_latent_space.py", "test_encoders.py", "test_consolidation_latent.py",
+         # 2026-08-15 جاروی تست T1b: fold داخلِ ردیفِ غنی (LATENT_PERSIST داشت dedup را فریز کرده بود)
+         "test_consolidation_fold_rich.py",
          "test_bcm_forgetting.py", "test_sparse_filter.py", "test_chamber_temperature.py",
          "test_fisher.py", "test_telegram_rfc_router.py",
          "test_cockpit_v2.py",

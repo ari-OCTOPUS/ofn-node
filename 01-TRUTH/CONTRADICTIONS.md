@@ -89,11 +89,11 @@ contradiction:
   source_a: "CHECKPOINT (به ادعای مگاپرامپت؛ خود CHECKPOINT.md پیدا نشد)"
   value_b: 408
   source_b: "پیام کامیت (به ادعای مگاپرامپت؛ git log --all --grep ۴۰۸/۴۱۴ → خالی — تاریخچه در ea69126 اسکواش شده)"
-  live_check: "collection از ریشه: 15 collected, 2 errors — قابل جمع نیست"
-  likely: null
-  resolution: null
-  status: open
-  note: "هیچ‌کدام تأییدشدنی نیست؛ هر دو unverified."
+  live_check: "اجرای کاملِ رسمی 2026-08-15 شب (جاروی تست T2): python -X utf8 run_all.py — نخستین اجرای کاملِ ثبت‌شده در تاریخ (لاگ: _ops/tests/_baselines/run-all-output-20260815-sweep.log)"
+  likely: "هر دو عدد کهنه/رتوریکی بودند — سوئیت واقعی بسیار بزرگ‌تر است"
+  resolution: "فکت زنده: ۲۵۶ فایل تست در رانر رسمی → ۲۴۰ فایل سبز (خودگزارشیِ ۲۹۳۱/۲۹۳۱ چک) + ۱۶ فایلِ شکست‌خورده که ۱۵ تايش pre-existing (دریفِ تست↔کدِ زنده ×۹ · API drift ×4 · محیط/سرویس ×2 — از جمله 429 واقعیِ Fugu و بازبودن circuit breaker همان‌جا) و ۱ تای آن (consolidation_latent) فیکس همین نشست شد و در اجرای مجدد سبز است. علتِ «INTERNALERROR از ریشه»: تست‌های _ops اسکریپتِ خوداعتبارسنج‌اند (بدون def test_) — pytest از ریشه اساساً ابزارِ درستِ جمع‌زدنِ این سوئیت نیست؛ رانر رسمی همان run_all.py است"
+  status: resolved (با نخستین اجرای کاملِ رسمی — 2026-08-15 شب)
+  note: "هیچ‌کدام از ۱۵ شکستِ باقی‌مانده consolidation یا فایل‌های تغییرِ این نشست را import نمی‌کنند (بررسیِ import انجام شد)"
 ```
 
 ```yaml
@@ -104,10 +104,10 @@ contradiction:
   source_a: "سربرگ ADR-039 («C1-C4 پیاده و تست‌شده (۱۳۳ تست سبز)»)"
   value_b: "45/45 + 20/20 = 65"
   source_b: "OCTOPUS/CURRENT-TRUTH.md — بخش 2026-08-13"
-  live_check: "سوئیت مربوطه در تلاش هدفمند اجرا نشد (test_planner.py collected 0) → قابل داوری نبود"
-  likely: null
-  resolution: null
-  status: open
+  live_check: "سوئیت واقعی 2026-08-15 شب (جاروی تست T3): تست‌های _ops اسکریپتِ خوداعتبارسنج‌اند (بدون def test_) — برای همین pytest صفر collect می‌کرد. اجرای مستقیم ۱۵ فایل: همگی exit 0"
+  likely: "هر دو عدد جزئی/کهنه بودند — عددِ زنده بزرگ‌تر از هر دو است"
+  resolution: "خانوادهٔ epistemics (۱۱ فایلِ هسته): 45+20+6+9+8+19+11+24+14+13+8 = ۱۷۷ چکِ سبز، صفر شکست (+۴ فایلِ مجاور: ۳۷ چک → ۲۱۴). «۴۵/۴۵+۲۰/۲۰» دقیقاً دو فایلِ schemas و receipt_chain بود؛ ۱۳۳ به هیچ فایلِ فعلی نگاشت نشد (تاریخی)"
+  status: resolved (با اجرای زندهٔ کامل — 2026-08-15 شب)
 ```
 
 ## روش نهایی
@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-014** (C-013 در 2026-08-15 ~20:2x ثبت شد: گاردِ self_code همهٔ پروژه را TCB می‌بیند)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-015** (C-014 در 2026-08-15 ~20:5x ثبت شد: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -210,4 +210,20 @@ contradiction:
   proposal: "فیکس پیشنهادی (هنوز اعمال نشده): fallback مسیرِ ناموجودِ SYSTEM_ROOT/'4D' به‌جای خودِ ریشه در config/settings.py::_resolve_reference_dir، یا تنظیم REFERENCE_DIR در .env؛ جهتِ فعلی fail-closed امن است (بیش‌محافظتی، نه کم‌محافظتی) — تغییر TCB نیازمند رأی مالک"
   status: open — owner_action
   registered_by: "test-sweep agent (grep دو-مخزن قبل از ثبت انجام شد — C-013 فقط در فهرستِ «آزاد بعدی» بود)"
+```
+
+```yaml
+contradiction:
+  id: C-014
+  claim: "کادنسِ fetch رصدخانه (STATE §4: «هر ساعت یک fetch واقعی»)"
+  value_a: "۱ fetch در ساعت (تسکِ «OCTOPUS Observatory Hourly»، تریگر 17:06، PT1H)"
+  source_a: "STATE-2026-08-15-NIGHT.md §4 + Get-ScheduledTask «OCTOPUS Observatory Hourly»"
+  value_b: "۲ fetch در ساعت — دو سریِ موازیِ :06 و :36 در evidence.db (زنده)"
+  source_b: "کوئری mode=ro روی evidence_chain: seq 0..9 — الگوی دقیقِ :06:02-04 و :36:28-31"
+  live_check: "Get-ScheduledTask: دو تسکِ فعال — «OCTOPUS Observatory Hourly» (جدید، 17:06، مسیر مطلق) و «OCTOPUS-Observatory» (قدیمی، StartBoundary 15:36:27+10:00، PT1H، «python run_observatory.py» نسبی)"
+  likely: "تسکِ قدیمی هنگامِ ساختِ تسکِ جدید امشب غیرفعال نشد — دوبارْثبت"
+  resolution: null — owner_action
+  proposal: "یکی از دو تسک غیرفعال/حذف شود (پیشنهاد: قدیمی‌تر «OCTOPUS-Observatory»)؛ اثرِ فعلی: مصرفِ ۲برابریِ بودجه (۴۸/۱۰۰ روزانه — زیرِ سقف ولی دوتایی) و رشدِ ۲برابریِ زنجیرهٔ hash. رکوردِ evidence#4 (17:36:31) که «مبدأ نامشخص» بود = شلیکِ سومِ تسکِ قدیمی — معما حل شد"
+  status: open — owner_action
+  registered_by: "test-sweep agent (grep دو-مخزن قبل از ثبت — C-014 آزاد بود)"
 ```

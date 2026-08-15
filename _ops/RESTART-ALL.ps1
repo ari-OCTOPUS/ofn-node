@@ -205,8 +205,11 @@ if ($counts.Count -gt 0) {
 #      (b) `ts` > $startedAt — the state was written after this restart began.
 #    The 2026-08-03 false-negative checked only `ts`, read the transient shutdown
 #    snapshot (stop_organism=true, old `started`), and FAILED a healthy restart.
+# 2026-08-15 (test-sweep T5): پنجرهٔ 120s→300s — بوتِ ارگانیسم ~۳ دقیقه طول می‌کشد
+# و گیتِ خودکار گاهی پیش از نوشته‌شدنِ state تازه می‌بست (رضایتِ دستی می‌خواست).
+# ۶۰ تلاش × ۵ ثانیه = ۳۰۰s.
 $fresh = $false
-for ($i = 0; $i -lt 24; $i++) {
+for ($i = 0; $i -lt 60; $i++) {
     $ts = Read-StateTs
     $startedField = Read-StateStarted
     if ($ts -and $startedField) {
@@ -219,7 +222,7 @@ for ($i = 0; $i -lt 24; $i++) {
     Start-Sleep -Seconds 5
 }
 if (-not $fresh) {
-    Write-Host "  FAIL organism has not written a fresh state file (waited 120s)"
+    Write-Host "  FAIL organism has not written a fresh state file (waited 300s)"
     $fail += "organism : no fresh state"
 } else {
     $j = Get-Content $stateF -Raw | ConvertFrom-Json
