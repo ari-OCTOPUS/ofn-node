@@ -67,6 +67,9 @@ status_legend:
 
 | `04-SYSTEMS/HEARTS-TIME.md` + `GENOME-MEMORY.md` + `MINDS.md` + `OWNER-CONSOLE.md` + `LEGS-LIVE.md` + `UNCONSCIOUS.md` | ۶ یادداشت شناختِ عمیق | 2026-08-15 (شبِ طبیعت‌شناس، مرحله ۱-۶) | آناتومی درونی از state/ledger/ناخودآگاه — سطح A | 04-SYSTEMS | **verified** |
 
+| `4d_system/config/trust-boundary.json` + `_ops/audit/bundles/AEB-20260816-000508.{json,txt}` | مرز اعتماد TCB + باندل شواهد حسابرسی (C-013/R19) | 2026-08-15/16 | امنیت/حسابرسی | 06-EVIDENCE | verified |
+| `06-EVIDENCE/DEBT-SWEEP-2026-08-16.md` · `02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/` (۵ مصنوع) · `agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16.md` (v1.2) · `03 - Projects/Mining/02 - Code/PAT-SCRUB-READY-2026-08-16.md` | خروجی‌های جاروی بدهی R0a-R29 | 2026-08-16 ~00:0x | اجرا/تصمیم | 06-EVIDENCE + 02-DECISIONS | verified |
+
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 
 ## ۲. فایل‌های کلیدی (تک‌تک)

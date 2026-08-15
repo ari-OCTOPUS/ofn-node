@@ -61,9 +61,9 @@ contradiction:
   source_b: "git log --diff-filter=D + بررسی درخت فایل‌سیستم 2026-08-15"
   live_check: "ls /f/backup/app → وجود ندارد"
   likely: value_b
-  resolution: null
-  status: open
-  note: "رأی مالک 2026-08-15 دربارهٔ نسخه‌ها: «همش منم» — چهار نسخه یک پروژه‌اند. README ریشه همچنان ارجاع stale دارد."
+  resolution: "R22 جاروی بدهی (2026-08-16): README ریشه اصلاح شد — ارجاع stale به app/NBB-CP حذف شد (سطح A: grep منفی)"
+  status: resolved (README corrected — grep verify)
+  note: "رأی مالک 2026-08-15 دربارهٔ نسخه‌ها: «همش منم» — چهار نسخه یک پروژه‌اند."
 ```
 
 ```yaml

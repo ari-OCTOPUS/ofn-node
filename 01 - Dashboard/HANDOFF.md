@@ -29,6 +29,11 @@ updated: 2026-08-15
 
 ## وضعِ لحظه‌ای
 
+> 🎯 **پین 2026-08-16 — جاروی بدهی R0a–R29 کامل شد (ایجنت جارو، تفویض مالک):**
+> C-013 resolved (مرز اعتماد TCB + هش‌چک؛ enforce سایه تا امضا) · C-014 contained (تسک دوتایی Disabled، اثبات ۲۳:۴۲) · ۱۵ شکست تست بسته + **۱ باگ تولیدی فیکس** (callback کنسول مالک — کامیت `55720f7` گمشده بود) · صف فرضیه = سیل ۱۰۶۳/۰ · AEB + مصنوعات تصمیم · push کامل (`f144666`، unpushed=0) · ارگانیسم سالم (beat 37123).
+> **دستِ مالک (۴):** PAT rotation · امضای trust-boundary.json + AEB.txt · روشن‌کردن TCB enforce · رأی R16/DA-1..3/ممیز/FUZZY — جزئیات: [[../06-EVIDENCE/DEBT-SWEEP-2026-08-16|DEBT-SWEEP]] · [[../02-DECISIONS/OPEN-VERDICTS|OPEN-VERDICTS]]
+
+
 > 🎯 **پین ۲۰۲۶-08-15 ~23:25 — شکاف‌های فراموش‌شده برای ایجنت بعدی:**
 > [[../00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent|REPORT Forgotten Gaps]] —
 > C-013 در HEAD (`6fc0f4b`) · تسک قدیمی رصدخانه **Disabled** · C-016 آزاد · DEBT-SWEEP فایل شواهد هنوز نیست.

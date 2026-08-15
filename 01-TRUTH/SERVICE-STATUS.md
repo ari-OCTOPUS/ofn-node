@@ -81,3 +81,10 @@ status: partial — سرویس‌های میدانی unverified
 - زنجیرهٔ شاهد با ۴ ردیف: PASS 27/27 — ردیف چهارم 17:36:31 (مبدأ نامشخص، ثبت برای بررسی)
 - تسک ساعتی: همچنان در انتظار اولین اجرای خودکار (18:06)
 - لاگ کامل نشست: [[../00 - Inbox/2026-08-15 NIGHT — Activation & Test Session (all gates)]]
+
+
+## 🧹 جاروی بدهی — 2026-08-16 (~00:0x)
+
+- تسک‌های ویندوز: `OCTOPUS-Observatory` قدیمی (سری :36) **Disabled** — C-014 containment با اثبات ۲۳:۴۲ (ردیف :36 غایب) · `OCTOPUS Observatory Hourly` (سری :06، ساخته‌شده 08-15) **Ready** — تنها چشمِ ساعتی
+- پروسه‌ها: ۶ عضو سالم (beat 37123، coherence 0.951، halted=False) — راستی‌آزمایی ایجنت جارو + state
+- مرز اعتماد TCB فعال در حالت سایه (`OCTOPUS_TCB_MANIFEST_ENFORCE` خاموش تا امضای مالک)
