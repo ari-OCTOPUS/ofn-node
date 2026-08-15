@@ -104,7 +104,10 @@ YAML در `01-TRUTH/CONTRADICTIONS.md` هنوز `open — owner_action` است (
 
 ## §R2 — ثبتِ push
 
-(پس از اجرا تکمیل می‌شود: فرمان، شمار کامیت، هش سرِ germline.)
+- فرمان: `git push germline master` (remote: `E:/germline/octopus.git`)
+- نتیجه (سطح A، 2026-08-16 ~00:05): `9b6ed0c..ed1c658` · `git rev-list --count germline/master..HEAD` = **0** · سرِ germline = **ed1c658**
+- AEB نهایی از همین ریشه: `_ops/audit/bundles/AEB-20260816-000508.json` (unpushed=0 · commit ed1c65856975 · no_go quick-run exit=0 · trust_boundary digests_ok=True signature=unsigned — منتظر امضای مالک) + نسخهٔ `.txt` امضاشدنی
+- dirty هنگام AEB = ۶۱ فایل = churn زندهٔ ارگانیسم در ~۳ دقیقهٔ پس از کامیت (heartbeat/state زنده) — با TTL در باندل ثبت شد، پنهان نشد
 
 ## تصمیم‌های تفویض‌شده (شتاب‌زدگی رد شد)
 
