@@ -9,8 +9,13 @@
   * دفاعِ مسیر: اول resolve، بعد قضاوت (درسِ resolve-before-you-judge-a-path)
     + الگوهای `.agentignore` + سقفِ بایتِ خروجی.
 
-ترابرد: MCP stdio — JSON-RPC 2.0 ِ خط‌به‌خط (newline-delimited)، بدون وابستگیِ pip.
-اجرا:  python -X utf8 _ops/octopus_mcp/server.py
+ترابرد (هر دو، بدون وابستگیِ pip — فقط stdlib):
+  * stdio (پیش‌فرض): JSON-RPC 2.0 ِ خط‌به‌خط (newline-delimited) — همان که .mcp.json می‌خواند.
+  * HTTP stateless: `--http [HOST:]PORT` — ترابردِ Streamable HTTP ِ spec ِ
+    2025-06-18 در حالتِ stateless: هر POST مستقل، بدونِ session، بدونِ
+    Mcp-Session-Id (ممنوعِ کدِ نو طبقِ مگاپرامپتِ G5)، پاسخِ application/json
+    (نه SSE)، GET/DELETE رویِ endpoint = 405.
+اجرا:  python -X utf8 _ops/octopus_mcp/server.py [--http [HOST:]PORT]
 """
 from __future__ import annotations
 
@@ -25,6 +30,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]          # F:\backup
@@ -35,6 +41,12 @@ MAX_SLICE_BYTES = 64 * 1024      # سقفِ هر read_file_slice
 MAX_SEARCH_LINES = 200           # سقفِ خطوطِ خروجیِ جستجو
 MAX_TREE_ENTRIES = 500           # سقفِ ردیف‌های list_tree
 PROTOCOL_VERSION = "2025-06-18"
+# نسخه‌هایی که negotiation می‌پذیریم (شکلِ پیام‌ها در همهٔ این‌ها یکی است).
+SUPPORTED_PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
+
+# --- ترابردِ HTTP stateless (فقط stdlib) -----------------------------------
+HTTP_MAX_BODY = 1 * 1024 * 1024          # سقفِ بدنهٔ POST
+HTTP_STARTED = time.monotonic()
 
 # fallback ِ جستجوی پایتونی (وقتی rg نیست): سقفِ فایل‌های خوانده‌شده و بودجهٔ
 # زمانِ نرم. هر دو روی cap/timeout نتیجهٔ **جزئی** برمی‌گردانند نه خالی — درسِ
@@ -342,6 +354,170 @@ TOOLS = {
                         "detail": {"type": "string"}}),
 }
 
+# ---------------------------------------------------------------- readiness
+
+def _ready_state() -> dict:
+    """جداکردنِ health از readiness (الزامِ G5): alive بودن را /healthz می‌گوید؛
+    «می‌توانم درست خدمت بدهم؟» را همین تابع — با دو عاملِ مؤثر بر کیفیتِ خدمت."""
+    fail_closed = _IGNORE_PATS == ["**"]   # .agentignore غایب ⇒ همه‌چیز بسته
+    engine = "rg" if _find_rg() else "py-tracked-only"
+    reasons = []
+    if fail_closed:
+        reasons.append("agentignore-missing-fail-closed")
+    if not ROOT.is_dir():
+        reasons.append("root-missing")
+    return {"ready": ROOT.is_dir(), "engine": engine,
+            "agentignore_fail_closed": fail_closed,
+            "degraded": reasons, "uptime_s": round(time.monotonic() - HTTP_STARTED, 1)}
+
+
+# ---------------------------------------------------------------- HTTP stateless
+
+class _StatelessHTTPHandler(BaseHTTPRequestHandler):
+    """Streamable HTTP ِ stateless (spec 2025-06-18) — دستی، فقط stdlib.
+
+    قواعدِ این ترابرد:
+      * هیچ session ای وجود ندارد: header ِ Mcp-Session-Id نه صادر می‌شود نه
+        پذیرفته می‌شود (کدِ نو نباید session بازی کند — مگاپرامپتِ G5).
+      * POST /mcp → یک JSON-RPC در بدنه (batch در 2025-06-18 حذف شده ⇒ 400)؛
+        پاسخِ عدد‌دار = 200 + application/json، notification = 202 + بدنهٔ خالی.
+      * GET /mcp = 405 (سرورِ stateless استریمِ مستقلِ SSE نمی‌دهد)؛
+        DELETE /mcp = 405 (session ای برای بستن نیست).
+      * /healthz (liveness) و /readyz (readiness) جدا هستند.
+      * دفاعِ DNS-rebinding: Host باید در allowlistِ محلی باشد وگرنه 403.
+    """
+    protocol_version = "HTTP/1.1"
+    server_version = "octopus-mcp-stateless/1.1"
+    # bind host به‌صورتِ per-server تزریق می‌شود ( پیش‌فرضِ کلاس در make_http_server)
+    allow_hosts = {"localhost", "127.0.0.1", "[::1]"}
+
+    def log_message(self, fmt, *args):  # خروجیِ stdio را در حالتِ stdio خراب نکند
+        sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
+
+    # -- گاردهای مشترک
+    def _host_ok(self) -> bool:
+        host = (self.headers.get("Host") or "").strip()
+        # پورت را جدا کن (IPv6 با براکت): "127.0.0.1:8809" → "127.0.0.1"
+        if host.startswith("["):
+            host = host.split("]", 1)[0] + "]"
+        else:
+            host = host.rsplit(":", 1)[0] if ":" in host else host
+        return host.lower() in self.allow_hosts
+
+    def _send(self, code: int, body: bytes, ctype: str = "application/json") -> None:
+        if code >= 400:
+            # ردِ زودهنگام بدنه را نخوانده — بستنِ اتصال تا بایت‌های باقیماندهٔ
+            # بدنه، درخواستِ بعدیِ keep-alive نشود (وگرنه «Bad request version»).
+            self.close_connection = True
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(body)
+
+    def _send_json(self, code: int, obj) -> None:
+        self._send(code, json.dumps(obj, ensure_ascii=False).encode("utf-8"))
+
+    # -- endpoint های ساده
+    def do_GET(self) -> None:
+        if not self._host_ok():
+            return self._send_json(403, {"error": "host-not-allowed"})
+        if self.path == "/healthz":          # liveness: پروسه‌ی زنده است؟
+            return self._send_json(200, {"status": "alive",
+                                         "uptime_s": round(time.monotonic() - HTTP_STARTED, 1)})
+        if self.path == "/readyz":           # readiness: می‌توانم درست خدمت بدهم؟
+            st = _ready_state()
+            return self._send_json(200, st)
+        if self.path.rstrip("/") == "/mcp":
+            # stateless: استریمِ مستقلِ SSE نداریم — فقط POST
+            self.send_response(405)
+            self.send_header("Allow", "POST, OPTIONS")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        self._send_json(404, {"error": "not-found"})
+
+    def do_HEAD(self) -> None:
+        self.do_GET()
+
+    def do_DELETE(self) -> None:
+        if not self._host_ok():
+            return self._send_json(403, {"error": "host-not-allowed"})
+        if self.path.rstrip("/") == "/mcp":
+            self.send_response(405)         # session ای برای بستن نیست
+            self.send_header("Allow", "POST, OPTIONS")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        self._send_json(404, {"error": "not-found"})
+
+    def do_OPTIONS(self) -> None:
+        self.send_response(204)
+        self.send_header("Allow", "POST, OPTIONS")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    # -- مسیرِ اصلی
+    def do_POST(self) -> None:
+        if not self._host_ok():
+            return self._send_json(403, {"error": "host-not-allowed"})
+        if self.path.rstrip("/") != "/mcp":
+            return self._send_json(404, {"error": "not-found"})
+        if self.headers.get("Mcp-Session-Id"):
+            # ما session صادر نکرده‌ایم؛ پذیرفتنِ شناسهٔ ناشناس = ادعای state ای که نیست
+            return self._send_json(400, {"error": "stateless-server-no-sessions"})
+        accept = (self.headers.get("Accept") or "").lower()
+        if accept and "application/json" not in accept and "*/*" not in accept:
+            return self._send_json(406, {"error": "accept-must-include-application/json"})
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            n = -1
+        if n < 0 or n > HTTP_MAX_BODY:
+            return self._send_json(413, {"error": "body-size-1MB-max"})
+        raw = self.rfile.read(n) if n else b""
+        try:
+            msg = json.loads(raw.decode("utf-8", errors="strict"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return self._send_json(400, {"error": "invalid-json"})
+        if isinstance(msg, list):
+            return self._send_json(400, {"error": "batch-removed-in-2025-06-18"})
+        if not isinstance(msg, dict):
+            return self._send_json(400, {"error": "message-must-be-object"})
+        resp = _handle(msg)
+        if resp is None:                    # notification — چیزی برای گفتن نیست
+            return self._send(202, b"")
+        self._send_json(200, resp)
+
+
+def make_http_server(host: str, port: int) -> ThreadingHTTPServer:
+    """ساختِ سرور (port=0 ⇒ ephemeral) — جدا از run-loop تا تست بتواند port را بردارد."""
+    handler = type("BoundHandler", (_StatelessHTTPHandler,),
+                   {"allow_hosts": {h.lower() for h in
+                                    ({host} if host not in ("0.0.0.0", "::") else set()) |
+                                    {"localhost", "127.0.0.1", "[::1]"}}})
+    httpd = ThreadingHTTPServer((host, port), handler)
+    httpd.daemon_threads = True
+    return httpd
+
+
+def serve_http(host: str, port: int) -> None:
+    httpd = make_http_server(host, port)
+    bound = httpd.server_address[1]
+    sys.stderr.write(f"octopus-mcp stateless HTTP on http://{host}:{bound}/mcp "
+                     f"(no sessions, no SSE stream)\n")
+    sys.stderr.flush()
+    try:
+        httpd.serve_forever(poll_interval=0.5)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        httpd.server_close()
+
+
+
+
 # ---------------------------------------------------------------- JSON-RPC loop
 
 def _tool_defs() -> list[dict]:
@@ -360,10 +536,14 @@ def _handle(msg: dict) -> dict | None:
     mid = msg.get("id")
     method = msg.get("method", "")
     if method == "initialize":
+        # negotiation (spec §versioning): نسخهٔ خواسته‌شده اگر می‌دانیم همان
+        # برگردد؛ وگرنه نسخهٔ خودمان — کلاینت یا می‌پذیرد یا قطع می‌کند.
+        want = (msg.get("params") or {}).get("protocolVersion")
+        ver = want if want in SUPPORTED_PROTOCOL_VERSIONS else PROTOCOL_VERSION
         return {"jsonrpc": "2.0", "id": mid, "result": {
-            "protocolVersion": PROTOCOL_VERSION,
+            "protocolVersion": ver,
             "capabilities": {"tools": {}},
-            "serverInfo": {"name": "octopus-vault", "version": "1.0.0"}}}
+            "serverInfo": {"name": "octopus-vault", "version": "1.1.0"}}}
     if method in ("notifications/initialized", "notifications/cancelled"):
         return None
     if method == "tools/list":
@@ -390,7 +570,28 @@ def _handle(msg: dict) -> dict | None:
     return None
 
 
+def _parse_http_arg(argv: list[str]) -> tuple[str, int] | None:
+    """`--http` / `--http 127.0.0.1:8809` / `--http 8809` → (host, port)؛
+    بدونِ --http = None (همان stdio ِ همیشگی). bind پیش‌فرض 127.0.0.1."""
+    if "--http" not in argv:
+        return None
+    i = argv.index("--http")
+    val = argv[i + 1] if i + 1 < len(argv) and not argv[i + 1].startswith("--") else ""
+    if not val:
+        return "127.0.0.1", 8809
+    if val.isdigit():
+        return "127.0.0.1", int(val)
+    host, _, port = val.rpartition(":")
+    if not host or not port.isdigit():
+        raise SystemExit("usage: --http [HOST:]PORT   (e.g. --http 127.0.0.1:8809)")
+    return host, int(port)
+
+
 def main() -> None:
+    http = _parse_http_arg(sys.argv[1:])
+    if http is not None:
+        serve_http(*http)
+        return
     stdin = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8", errors="replace")
     stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", newline="\n")
     for line in stdin:
