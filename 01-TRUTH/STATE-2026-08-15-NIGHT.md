@@ -73,6 +73,8 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
+> **📌 2026-08-16 ~16:1x — مگاپرامپت راحتی مالک آماده:** `agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16.md` — شش دروازه (پوش · C-026 TCB · DARE TCB · ری‌استارت env · پروب Fugu · دامنه). «خودت» = کم‌ریسک (پوش/TCB/پول/ری‌استارت = نه). آزاد **C-033**. لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Owner Ease|لانچر]].
+
 > **📌 2026-08-16 ~15:4x — WEBPANEL-REALITY EXECUTED (گذر ۲):** [[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]] · [[../07 - Knowledge/شناخت-اختاپوس/51-WEBPANEL-REALITY-2026-08-16|نوت ۵۱]] — کاکپیت اسنپ‌شات برچسب · استخراجگر 🔴 دروغگو بسته · پرچم‌دار «زنده»→مفهومی · **C-032**. :8773/api/live=200 · 8765 مرده. آزاد **C-033**. صفر فلگ/TCB/پوش.
 
 > **📌 2026-08-16 ~15:1x — INTERVIEW-ORGANISM EXECUTED (۶ ایده، تفویض run+fix):** [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]] — هویت rationale صادق · :8765 مرده · digest `reached_owner` · git_watcher `armed()` · C-026 TCB نخورد · persistence سایه · **C-031** family-guard · observation.v1 پارس بدون تصمیم. آزاد بعدی پس از WEBPANEL: **C-033**. صفر فلگ/TCB-edit/پوش.

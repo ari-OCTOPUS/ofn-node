@@ -15,7 +15,8 @@ tags: [owner, pending, votes, checklist, follow-up]
 ## 🔴 فوری (عملیاتی)
 
 - [ ] **«پوش»** — چهار کامیت محلی منتظر کلمه‌اند: `0670297` (پایان ERRORHUNT + درس‌های ۱۰-۱۳ + تغییر زنجیرهٔ ورود) · `5922d39` (مگاپرامپت continuous-improvement) · `4c267be` (**مگاپرامپت متحد «Seam Loop v2» — هر دو قبلی را ادغام و عملاً منسوخ کرد**) · `d4e4806` (همین دفتر). یک پوش هر چهار را می‌برد.
-- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **نسل بعد (فرمان مالک ~14:5x، متن v2.0):** `agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16.md` — کشف/فیکس/تست/ابسیدین/ایده/مگاپرامپت بعد تا پرفکت. شواهد Seam Loop/Continuous/Deep-Seams/REST-NIGHT بخوان؛ خودشان را از نو اجرا نکن. آزاد C-031 (grep).
+- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **نسل راحتی (فرمان مالک ~16:1x):** `agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16.md` — بعد از شش دروازه اجرا می‌شود. PERPETUAL فقط شواهد. آزاد C-033.
+- [x] ~~MEGAPROMPT-INTERVIEW-OCTOPUS-ORGANISM~~ اجرا شد 2026-08-16 ~15:1x با تفویض «run it and fix it». شواهد: [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]].
 - [ ] **ری‌استارت رسمی سه عضو env-قدیمی** (live/server · center · miniapp-gateway — بعد از اصلاح اولاما؛ فقط برای پاکیزگی env، فوری نیست)
 
 ## 🟡 رأی‌های شکار خطا (کارت‌های ۱/۳/۴/۵ + بازمانده) — جزئیات: [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|ERRORHUNT-CARDS]]
@@ -30,10 +31,10 @@ tags: [owner, pending, votes, checklist, follow-up]
 
 - [ ] **VOTE 1 — منشای ردیف‌های حافظه:** ستون provenance + احراز، پیش از هر مسیر ورودِ بیرونی (سم ۱۰/۱۰ منحرف می‌کند)
 - [ ] **VOTE 2 — ماندگاری ابطال PEP + ضدتکرار امضایی:** پیش‌نیاز هر enforce تلگرام (ابطال با ری‌استارت فراموش می‌شود؛ seen-file جعل‌پذیر)
-- [ ] **VOTE 3 — گارد هویت/استقلال belief:** پیش از سیم‌کشی epistemics (۵ کپی یک مشاهده = قطعیت 0.9998؛ + بستن قطعِ انتهای زنجیره)
-- [ ] **VOTE 4 — پیش‌بینی‌گر پایداری (سایه):** با **معیار روزهای گذار** (پایداری روی ۱۸ روز گذار Brier=0.808 — بدون این قید، METAPHORِ بهتر جای قبلی می‌نشیند)
-- [ ] **VOTE 5 — عضو شورا:** گزینهٔ deepseek با عدد رد شد (تفکیک 0.1)؛ مسیر باز: مدل محلی بزرگ‌تر یا داوری روی محتوای نظر نه confidence
-- [ ] **C-026 — فیکس approve/reject:** enabled()-check در self_code (پیشنهاد additive؛ صلیب‌چک)
+- [x] ~~بازمانده — http.server :8765~~ **مرده.** 2026-08-16 ~15:1x: هیچ LISTEN روی 8765؛ هیچ پروسهٔ `http.server 8765`. REST-NIGHT کشت؛ این نشست تأیید کرد.
+- [ ] **VOTE 3 — گارد هویت/استقلال belief:** مسیر additive `apply_once_per_family` نصب شد (C-031 contained). هنوز رأی می‌خواهد: اجباری روی همهٔ آپدیت‌ها قبل از سیم تولیدی epistemics.
+- [ ] **VOTE 4 — پیش‌بینی‌گر پایداری (سایه):** ماژول `_ops/predictor/persistence.py` سایه است؛ **p_base عوض نشد**. ارتقا به مدل ثبت‌شده فقط با معیار روزهای گذار.
+- [ ] **C-026 — فیکس approve/reject:** هنوز TCB. پچ Inbox آماده است؛ سه قدم صبح (apply+regen+sign). تست xfail زنده.
 
 ## 🔵 تصمیم‌های بودجه
 
