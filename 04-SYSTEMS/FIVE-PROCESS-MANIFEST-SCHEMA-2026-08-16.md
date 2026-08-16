@@ -3,7 +3,7 @@ type: system-spec
 id: FIVE-PROCESS-MANIFEST-SCHEMA
 created: 2026-08-16 ~06:3x (مأموریت Manifest & TCB Sequence — پس از فکت‌چک)
 mode: PROPOSE-ONLY — بدون enforce، بدون تغییر manifest امضاشده
-scan_basis_note: "پایهٔ اسکنِ مأموریت (e5faff4/beat37123) کهنه بود؛ این سند با HEAD=39b756c [A] نوشته شد"
+scan_basis_note: "پایهٔ اسکنِ مأموریت (e5faff4/beat37123) کهنه بود؛ این سند با HEAD=39b756c [A] نوشته شد. STALE-SYNC 2026-08-16 ~11:2x: HEAD زنده bfc673f · پنج PID زیر هنوز LISTEN · daemon 27164 نسل ۳"
 ---
 
 # اسکیمای شناسنامهٔ پنج‌پروسه‌ای زنده (T1)
@@ -20,8 +20,8 @@ scan_basis_note: "پایهٔ اسکنِ مأموریت (e5faff4/beat37123) که�
 | live | 9836 | 8773 | 90ecc453da24 |
 | gateway | 20572 | 8774 | 0392d2bd2fad |
 | center | 11500 | 8776 | d67422f1d32d |
-| (aux) unknown | 5780 | 8765 | http.server لوکال [A] |
-| (aux) unknown | 12276 | — | دیمون 4d (بدون .py در cmdline) [A] |
+| (aux) unknown | 5780 | 8765 | http.server لوکال [A] — هنوز زنده 2026-08-16 11:2x؛ نکش |
+| (aux) unknown | 27164 | — | `python -X utf8 -m brain.daemon` [A] — نسل ۳، enforce=1 در env؛ جایگزین pid 12276 |
 
 ## اسکیما (octopus-organism-manifest، نسخهٔ صفر — پیاده‌شده)
 

@@ -4,7 +4,7 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [metabolic-governor, debate, replication, organism]
 created: 2026-07-06
-updated: 2026-07-07
+updated: 2026-08-16
 created_by: agent
 sources:
   - "[[00 - Inbox/2026-07-06 1930 PROMPT-PACK — سه پرامپت مرحله‌ای (متابولیسم-مناظره-تکثیر)]]"
@@ -14,7 +14,9 @@ sources:
 
 # ORGANISM-SPEC — سند «کل واحد» لایهٔ متابولیسم-مناظره-تکثیر
 
-> یک ارگانیسم، سه لایه، یک پروسهٔ همیشه-روشن. همه‌چیز additive و سایه ($0)؛
+> **STALE-SYNC 2026-08-16:** جملهٔ «یک پروسهٔ همیشه-روشن» کهنه است. حقیقت زنده = پنج عضو اعلام‌شده (organism · center · gateway · live · cortex) + دو ناشناس مستند (`http.server:8765`، `python -m brain.daemon`). نکش. نقشه: [[04-SYSTEMS/FIVE-PROCESS-MANIFEST-SCHEMA-2026-08-16]] · شواهد: [[06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-16]].
+
+> یک ارگانیسم، سه لایه، یک پروسهٔ همیشه-روشن *(تاریخی، ۲۰۲۶-۰۷-۰۷)*. همه‌چیز additive و سایه ($0)؛
 > ‏budget_gate تنها enforcer می‌ماند؛ هیچ مسیر زنده‌ای بدون گیت دوقفلهٔ مالک باز نمی‌شود.
 
 ## ۱) سه لایه
