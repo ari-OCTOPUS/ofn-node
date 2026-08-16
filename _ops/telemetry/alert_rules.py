@@ -55,23 +55,48 @@ def _append_alert(alert: dict) -> None:
         pass  # alerts must never crash the system
 
 
+def _count_events(db_path: Path | None, status: str,
+                  summary_like: str | None = None,
+                  window_minutes: int = 5) -> int:
+    """Count events in dashboard_events table. Injected DB path for testability."""
+    if db_path is None:
+        try:
+            from memory.store import DB_PATH as _DB
+            db_path = _DB
+        except Exception:
+            return 0
+    if not db_path.exists():
+        return 0
+    try:
+        conn = sqlite3.connect(str(db_path), timeout=5, uri=True)
+        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=window_minutes)).isoformat()
+        if summary_like:
+            count = conn.execute(
+                "SELECT COUNT(*) FROM dashboard_events WHERE status=? AND summary LIKE ? AND timestamp > ?",
+                (status, f"%{summary_like}%", cutoff),
+            ).fetchone()[0]
+        else:
+            count = conn.execute(
+                "SELECT COUNT(*) FROM dashboard_events WHERE status=? AND timestamp > ?",
+                (status, cutoff),
+            ).fetchone()[0]
+        conn.close()
+        return count
+    except Exception:
+        return 0
+
+
 def check_retry_storm(window_minutes: int = 5,
-                      threshold: int = 10) -> dict | None:
+                      threshold: int = 10,
+                      db_path: Path | None = None) -> dict | None:
     """Check for retry storm: too many retry events in a short window.
 
     Reads from brain/events.py dashboard_events table.
+    db_path is injectable for testing (MEDIUM-002 fix).
     """
     try:
-        from memory.store import DB_PATH
-        if not DB_PATH.exists():
-            return None
-        conn = sqlite3.connect(str(DB_PATH), timeout=5, uri=True)
-        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=window_minutes)).isoformat()
-        count = conn.execute(
-            "SELECT COUNT(*) FROM dashboard_events WHERE status='retry' AND timestamp > ?",
-            (cutoff,),
-        ).fetchone()[0]
-        conn.close()
+        count = _count_events(db_path, status="retry",
+                              window_minutes=window_minutes)
         if count >= threshold:
             alert = {
                 "schema": "alert.v1",
@@ -91,19 +116,14 @@ def check_retry_storm(window_minutes: int = 5,
 
 
 def check_denied_actions(window_minutes: int = 10,
-                        threshold: int = 5) -> dict | None:
-    """Check for high rate of denied actions (policy gate denials)."""
+                        threshold: int = 5,
+                        db_path: Path | None = None) -> dict | None:
+    """Check for high rate of denied actions (policy gate denials).
+    db_path is injectable for testing (MEDIUM-002 fix)."""
     try:
-        from memory.store import DB_PATH
-        if not DB_PATH.exists():
-            return None
-        conn = sqlite3.connect(str(DB_PATH), timeout=5, uri=True)
-        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=window_minutes)).isoformat()
-        count = conn.execute(
-            "SELECT COUNT(*) FROM dashboard_events WHERE status='error' AND summary LIKE '%denied%' AND timestamp > ?",
-            (cutoff,),
-        ).fetchone()[0]
-        conn.close()
+        count = _count_events(db_path, status="error",
+                              summary_like="denied",
+                              window_minutes=window_minutes)
         if count >= threshold:
             alert = {
                 "schema": "alert.v1",
