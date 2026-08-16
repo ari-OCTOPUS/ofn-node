@@ -63,7 +63,7 @@ button:disabled{color:var(--grey);cursor:not-allowed}
 </style>
 </head>
 <body>
-<div id="FROZEN-COCKPIT-BANNER" style="background:#7c2d12;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">⚠️ اسنپ‌شات ثابت ۲۰۲۶-۰۷-۰۵ — دادهٔ زندهٔ ارگانیسم نیست · زنده: <code>OCTOPUS/CURRENT-TRUTH.md</code> · <code>admin-telegram/index.html</code> · validator امروز ≠ اعداد این صفحه (برچسب WEBPANEL 2026-08-16)</div>
+<div id="FROZEN-COCKPIT-BANNER" style="background:#7c2d12;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">⚠️ اسنپ‌شات ثابت ۲۰۲۶-۰۸-۱۶ (بازتولید صادقانهٔ SELFRUN-2) — دادهٔ زندهٔ ارگانیسم نیست · زنده: <code>OCTOPUS/CURRENT-TRUTH.md</code> · <code>admin-telegram/index.html</code> · اعداد این صفحه از اسکنِ همان روزند، نه لحظه‌ای (C-032)</div>
 <div id="LIVE-STRIP" style="background:#1e3a5f;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">validator امروز را از این صفحه نخوان (C-032) · فرمان: <code>python &quot;04 - Architect System/scripts/validate_frontmatter.py&quot;</code> · نوت: <code>07 - Knowledge/شناخت-اختاپوس/51-WEBPANEL-REALITY-2026-08-16.md</code> · JSON ژوئیه دست‌نخورده (OWNER-EASE 2026-08-16)</div>
 <div class="hdr">
  <svg class="ring" viewBox="0 0 40 40" id="hring"></svg>
@@ -104,7 +104,10 @@ button:disabled{color:var(--grey);cursor:not-allowed}
 <h2>🚁 ناوگان + 📡 Scout Intelligence</h2>
 <div class="panel" id="fleet"></div>
 
-<h2>📊 متریک‌ها <small>(اسنپ‌شات ۲۰۲۶-۰۷-۰۵ — نه اجرای زنده)</small></h2>
+<h2>🌉 BOARDLINK — پل برد اورنج‌پای <small>(رأی مالک 2026-08-16: کامل روشن)</small></h2>
+<div class="panel" id="blink"></div>
+
+<h2>📊 متریک‌ها <small>(اسنپ‌شات ۲۰۲۶-۰۸-۱۶ — نه اجرای زنده)</small></h2>
 <div class="panel" id="mets"></div>
 
 <h2>🗺️ نقشهٔ راهِ زنده‌سازی</h2>
@@ -114,20 +117,29 @@ button:disabled{color:var(--grey);cursor:not-allowed}
 <div class="panel" id="circle"></div>
 
 <h2>تغییرات از نسخهٔ قبل</h2>
-<div class="panel"><b>CONTROL-PANEL v1</b> — ادغامِ <code>BRAIN-FOCUS-BOARD</code> + <code>SYSTEM-DASHBOARD</code> در یک کاکپیتِ واحد؛ + کنسولِ تعاملیِ Doctor (askClaude/sendPrompt)؛ + لنزِ 🏗️ Build Spine (§۳ + M0–M8 + verdictها)؛ + بخشِ Scout Intelligence (آمادهٔ ناوگانِ نو). <code>system-dashboard</code> بازنشسته (reversible).</div>
+<div class="panel"><b>CONTROL-PANEL v2 (2026-08-16)</b> — بازتولیدِ صادقانهٔ مدل از اسکنِ همان روز (کارتِ C-032 اجرا شد): فرانت‌متر ۶۳۱/۲۲۴ (خطاها با ذکرِ علت رشد) · git init ✓ (رأیِ باز → done) · circle با ساختارِ بازلنگرشده · گام‌های ۶-۷ roadmap؛ + بخشِ <b>🌉 BOARDLINK</b> (پل برد، کانال‌ها، کلید، در انتظار). اعدادِ تأییدناپذیر عمداً دست‌نخورده ماندند (قاعدهٔ جعلِ عدد = ممنوع). <br><b>v1</b> — ادغامِ <code>BRAIN-FOCUS-BOARD</code> + <code>SYSTEM-DASHBOARD</code> در یک کاکپیتِ واحد؛ کنسولِ Doctor؛ لنزِ Build Spine؛ Scout Intelligence.</div>
 
 <div class="foot">فقط‌خواندنی · مشتق از اسکنِ vault + زمان‌بندِ زنده · قاعدهٔ Project-F برقرار (state ژنریک) · دکمه‌های «ساخت/تحویل» فقط پیام به چت می‌فرستند (sendPrompt) — هیچ اقدامِ مخرب/مالیِ مستقیم.</div>
 
 <script type="application/json" id="model">
 {
- "generated":"2026-07-05",
- "gates":{"rotation_critical_open":4,"gitleaks_done":false,"git_init":false,"brain_overwrite_ratified":false},
+ "generated":"2026-08-16",
+ "gates":{"rotation_critical_open":4,"gitleaks_done":false,"git_init":true,"brain_overwrite_ratified":false},
+ "boardlink":{
+  "bridge":"live","control_url":"https://192.168.0.191:8801","port":8801,
+  "verified":["بدون Bearer→401","با Bearer→200 (loopback+LAN)","مسیر ناشناس→404","تست 7/7+12/12"],
+  "board_agent":"خودکار — ضربان ۳۰ث · وایر هر ~۱د · run هر ۲ ساعت · روتین ۲۱:۰۰ (GitHub: ari322/ofn-node)",
+  "windows_github":false,"board_mounted_smb":false,
+  "bearer_delivery":"E:\\germline\\ofn-bearer.key — منتظر تأیید تحویل برد، سپس حذف",
+  "pending":["mount برد (SMB germline)","برد کلید را بگیرد → حذف از share","push برد به germline → ادغام per-leg (NBB-V5)","G7: روشن‌کردن octopus-bridge توسط خودِ برد پس از CONTROL_URL"],
+  "first_command_policy":"فقط ask یا status — panel/task با رأی تازه (سند ۴۶ فاز ۳)",
+  "evidence":"06-EVIDENCE/BOARDLINK-2026-08-16.md"},
  "doctor":{"raw_score":63,"effective_score":90,"health_score":90,"counts":{"CRITICAL":0,"HIGH":0,"MEDIUM":3,"LOW":0},"raw_critical":1,
   "findings":[
    {"severity":"CRITICAL","check":"utf8-suspect","path":"07 - Knowledge/هیپنوتیزم/…/DecisionLog.md","msg":"بایتِ خرابِ UTF-8 @4697 — verify ویندوزی: واقعی پابرجا؛ خارج از گیتِ CRITICAL طبق طراحی","dim":true,"tag":"needs_source_verify"},
-   {"severity":"MEDIUM","check":"dup-basename","path":"…/فیوژن/_PROJECT_INSTRUCTIONS.md","msg":"wikilink بی‌مسیر مبهم (۲ فایل)"},
-   {"severity":"MEDIUM","check":"dup-basename","path":"…/Mining/…/sentinel/SETUP_GUIDE.md","msg":"wikilink بی‌مسیر مبهم (۲ فایل)"},
-   {"severity":"MEDIUM","check":"dup-basename","path":"_memory/پروژه‌اف-project-memory-2026-07-05.md","msg":"wikilink بی‌مسیر مبهم (۲ فایل) — مسیرِ Project-F ماسک شد"}
+   {"severity":"MEDIUM","check":"frontmatter-schema","path":"07 - Knowledge/شناخت-اختاپوس/49-ARCHITECTURE-STATE-2026-08-16.md","msg":"کلیدهای هسته غایب/خارج از schema — خودِ validator می‌گوید «اول Property Schema را آپدیت کن» (اسکن امروز)"},
+   {"severity":"MEDIUM","check":"frontmatter-schema","path":"07 - Knowledge/شناخت-اختاپوس/50-SEAM-LOOP-FIRST-SIX-2026-08-16.md","msg":"type نامعتبر + کلید خارج از schema (اسکن امروز)"},
+   {"severity":"MEDIUM","check":"frontmatter-growth","path":"کل ولت","msg":"خطاهای فرانت‌متر ۳۰ (جولای) → ۲۲۴ (امروز): نوت‌های ایجنت‌های موازی خارج از schema — کارت: به‌روزرسانی Property Schema"}
   ]},
  "brains":[
   {"name":"Accounting","status":"active","risk":"high","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":2,"focus":"tenant #1 — رجیستر انطباق + انتخاب حسابدار","next":["تکمیل رجیستر انطباق (مالک)","انتخاب حسابدار + جلسهٔ اول"],"path":"03 - Projects/Accounting/PROJECT"},
@@ -156,22 +168,24 @@ button:disabled{color:var(--grey);cursor:not-allowed}
    {"id":"M8","t":"L1.5 stress-gate","f":"self_update.py","w":"موج۳"}
   ],
   "verdicts":[
-   {"k":"git init روی vault","st":"open","why":"پیش‌شرطِ SDD/L2 + تنها rollback","act":"می‌خواهم vault را git init کنم — راهنمای امنِ گام‌به‌گام با .gitignore سخت (بدونِ کامیتِ تاریخچهٔ حاوی رمز) بده و اجرا کن."},
+   {"k":"git init روی vault","st":"done","why":"انجام شد — vault گیت است با ریموت germline (تأیید 2026-08-16)","act":""},
    {"k":"lift رسمیِ Security Gate","st":"open","why":"CHARTER §۲ + ROTATION_CHECKLIST (فقط انسان)","act":"راهنمای lift رسمیِ Security Gate را بده: کدام خطوطِ CHARTER §۲ و ROTATION_CHECKLIST را دستی عوض کنم."},
    {"k":"DNA/PII (~۶۰MB×۲)","st":"open","why":"خروج به cold-storage آفلاین","act":"نقشهٔ خروجِ امنِ DNA/PII از vault به cold-storage را بده."},
    {"k":"بک‌لینکِ ۸ پروژه به ستون","st":"done","why":"اتصالِ دوطرفهٔ §۳","act":""}
   ]
  },
- "fleet":{"tasks_live":6,"scouts":0,"note":"۶ تسکِ هسته زنده (brain-pulse · brain-focus-board · system-dashboard · consolidator · experience-review · fleet-selection). ۱۹ اسکاتِ تحقیق فعلاً خاموش‌اند — منتظرِ verdictِ حجم."},
- "metrics":{"frontmatter_checked":210,"frontmatter_errors":30,"links_checked":476,"broken_links":1,"note":"۳۰ خطا + ۱ لینک همه از قبل (پوشهٔ _audit + placeholder)."},
+ "fleet":{"tasks_live":6,"scouts":0,"note":"شش پروسهٔ زندهٔ ارگانیزم (organism·cortex·live·center·gateway·board-cp) + پروسهٔ هفتم: ایجنت برد اورنج‌پای (خودکار). اسکات‌های تحقیق خاموش — منتظرِ verdictِ حجم."},
+ "metrics":{"frontmatter_checked":631,"frontmatter_errors":224,"links_checked":476,"broken_links":1,"note":"اسکن امروز (2026-08-16): ۶۳۱ نوت · ۲۲۴ خطا — رشد از ۳۰ِ جولای، عمدتاً فرانت‌مترِ خارج از schema از نوت‌های ایجنت‌های موازی؛ کارت: به‌روزرسانی Property Schema. اعداد لینک از اسکنِ جولای (بازتولید نشد)."},
  "roadmap":[
   {"step":1,"state":"pending","label":"چرخشِ ۴ ردیفِ CRITICAL + gitleaks (مالک)"},
   {"step":2,"state":"done","label":"Tier A لینک‌ها اعمال شد"},
   {"step":3,"state":"done","label":"کیتِ ۴فایلی برای ۶ پروژه + بک‌لینکِ ستون"},
   {"step":4,"state":"gated","label":"memory-layer (پشتِ گیتِ rotation)"},
-  {"step":5,"state":"partial","label":"سنجش: هر پروژه ≥۳ لینک به hub"}
+  {"step":5,"state":"partial","label":"سنجش: هر پروژه ≥۳ لینک به hub"},
+  {"step":6,"state":"done","label":"BOARDLINK: پل برد کامل روشن (رأی مالک 2026-08-16)"},
+  {"step":7,"state":"pending","label":"ادغام per-leg پس از push برد (NBB-V5)"}
  ],
- "circle":{"lessons_total":26,"applied":24,"pending":1,"info":1,"ledger":"_memory/EXPERIENCE-LEDGER"}
+ "circle":{"lessons_total":2,"applied":2,"pending":0,"info":0,"ledger":"_memory/EXPERIENCE-LEDGER","note":"ساختارِ جدولیِ بازلنگرشده — ۲ درسِ ثبت‌شده، هر دو از 2026-08-16"}
 }
 </script>
 <script>
@@ -223,6 +237,15 @@ function renderFleet(live){
  $('fleet').innerHTML=h;}
 renderFleet(null);
 (async()=>{const cw=CW();if(!cw||!cw.callMcpTool)return;try{const r=await cw.callMcpTool('mcp__scheduled-tasks__list_scheduled_tasks',{});const d=r.structuredContent??JSON.parse(r.content[0].text);if(Array.isArray(d))renderFleet(d.filter(t=>t.enabled).length);}catch(e){}})();
+/* boardlink */
+(function(){const B=M.boardlink;let h='';
+ h+='<div class="chips"><span class="chip '+(B.bridge==='live'?'ok':'bad')+'">پل: '+(B.bridge==='live'?'🟢 زنده':'🔴')+'</span><span class="chip ok">'+esc(B.control_url)+'</span><span class="chip">اولین فرمان: '+esc(B.first_command_policy)+'</span></div>';
+ h+='<div style="margin:8px 0"><b>تأییدِ رفت‌وبرگشت:</b> '+B.verified.map(v=>'<span class="b st-active">'+esc(v)+'</span>').join(' ')+'</div>';
+ h+='<div style="margin:8px 0"><b>ایجنت برد:</b> <span style="font-size:12.5px">'+esc(B.board_agent)+'</span></div>';
+ h+='<div style="margin:8px 0"><b>کانال‌ها:</b> <span class="chip ok">SMB germline (ویندوز‌ساخته)</span> <span class="chip '+(B.board_mounted_smb?'ok':'bad')+'">mount برد: '+(B.board_mounted_smb?'✓':'هنوز نه')+'</span> <span class="chip '+(B.windows_github?'ok':'bad')+'">GitHub از ویندوز: '+(B.windows_github?'✓':'بدون credential')+'</span></div>';
+ h+='<div><b>در انتظار:</b><ul class="next">'+B.pending.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul></div>';
+ h+='<small class="mut">کلید Bearer: '+esc(B.bearer_delivery)+'</small> · <a href="obsidian://open?vault=backup&file='+encodeURIComponent(B.evidence)+'">دفتر شواهد BOARDLINK ↗</a>';
+ $('blink').innerHTML=h;})();
 /* metrics */
 $('mets').innerHTML='فرانت‌متر: <b>'+M.metrics.frontmatter_checked+'</b> بررسی · خطا: <b>'+M.metrics.frontmatter_errors+'</b> · لینک: <b>'+M.metrics.links_checked+'</b> بررسی · شکسته: <b>'+M.metrics.broken_links+'</b><br><small class="mut">'+esc(M.metrics.note)+'</small>';
 /* roadmap */
