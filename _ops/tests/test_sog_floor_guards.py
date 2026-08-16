@@ -56,16 +56,16 @@ def t_canonical_solve_still_ok():
     assert abs(sm.delta_self(fl) - 0.122520) < 5e-4
 
 
-def t_tcb_core_still_raises_rho_eq_one_lam_zero():
-    """characterization: 4d_system/core داخل TCB است — فیکس = امضای مجدد."""
+def t_tcb_core_guarded():
+    """کارت رأی اعمال شد (SELFRUN-F2b، اجازهٔ TCB مالک 2026-08-16 ~16:0x):
+    |ρ|=1 دیگر در core نمی‌ترکد — همان الگوی کفِ مسیرِ var_e."""
     root = _HERE.parent.parent
     sys.path.insert(0, str(root / "4d_system"))
     from core.model import P_closed  # noqa: WPS433
-    try:
-        P_closed(1.0, 0.0, 0.01, 0.0025)
-    except ZeroDivisionError:
-        return
-    raise AssertionError("TCB core الان گارد دارد — این characterization را به‌روز کن")
+    for rho in (1.0, -1.0):
+        v = P_closed(rho, 0.0, 0.01, 0.0025)   # قبلاً ZeroDivisionError
+        # مقدارِ کفِ 1e-12: sz2/1e-12 ~ 2.5e9 — متناهی و مثبت یعنی گارد کار می‌کند
+        assert v == v and v > 0 and v < 1e12, f"rho={rho} ناسازگار: {v}"
 
 
 if __name__ == "__main__":
@@ -74,6 +74,6 @@ if __name__ == "__main__":
         ("۵ منحط بدون استثنا", t_five_degenerates_do_not_raise),
         ("solve_floors ok=False روی ρ=1", t_solve_floors_marks_degenerate),
         ("canonical هنوز ok", t_canonical_solve_still_ok),
-        ("TCB core هنوز می‌ترکد (رأی)", t_tcb_core_still_raises_rho_eq_one_lam_zero),
+        ("TCB core گارد دارد (بسته با اجازهٔ TCB مالک)", t_tcb_core_guarded),
     ])
     sys.exit(1 if failed else 0)

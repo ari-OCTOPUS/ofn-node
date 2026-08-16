@@ -27,12 +27,10 @@ def _fn_calls_enabled(fn_name: str) -> bool:
     return False
 
 
-@pytest.mark.xfail(strict=True, reason="C-026: گیت enabled() در approve نیست — رأی مالک در انتظار")
 def test_approve_gated_by_enabled():
     assert _fn_calls_enabled("approve"), "approve باید enabled() را در ورودی چک کند"
 
 
-@pytest.mark.xfail(strict=True, reason="C-026: گیت enabled() در reject نیست — رأی مالک در انتظار")
 def test_reject_gated_by_enabled():
     assert _fn_calls_enabled("reject"), "reject باید enabled() را در ورودی چک کند"
 

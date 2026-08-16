@@ -1,7 +1,7 @@
 {
   "schema": "octopus-trust-boundary/1",
   "version": 1,
-  "generated_at": "2026-08-15T12:38:04+00:00",
+  "generated_at": "2026-08-16T05:42:33+00:00",
   "generated_by": "scripts/generate_trust_boundary.py (R13 debt-sweep 2026-08-16)",
   "owner_binding": {
     "authority": "owner (Armin)",
@@ -17,7 +17,7 @@
       "brain/daemon.py": "sha256:a2615c38eaa4f2ba74d62e8d3e52b80c5b37700c65f47ffa021256ca1836a7da",
       "brain/events.py": "sha256:e3b10f0b09692f30eeae4da571f877d47f17a530c0e61b5408c8196f31a7bfb0",
       "brain/guardrails.py": "sha256:66e9e9804afefe008d12b360f7d505fd1e793d8a234b1d0e69a393c023d07b18",
-      "brain/self_code.py": "sha256:efcbaa568ba8f2a6c148fd9678c67dc66ba51c0c26a848aaf0ad3885b14d96c3",
+      "brain/self_code.py": "sha256:9046e79196ae63afbf305b32cf81e7103eac0df755347e2682d2f3cc0512acd7",
       "brain/self_evolve.py": "sha256:5faacca930d1b7c85a720e2ad89887eee18e0192c77f7e491e054932de9cb76b",
       "brain/telegram_bot.py": "sha256:ff939c42ef27dec9ebf2de2cdce25d25be3a4bc30fe1db6c9edc42606fef2c42",
       "config/settings.py": "sha256:b29241c45a4d1d49020ed7b8157638274f7b3665486f440b1b8a9bfee37bde15",

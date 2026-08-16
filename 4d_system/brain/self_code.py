@@ -386,6 +386,9 @@ def list_all(limit: int = 30) -> list[dict]:
 
 
 def reject(pid: str, note: str = "") -> dict:
+    # SEAM-LOOP 1-1 (C-026, owner-approved 2026-08-16): gate on the OFF window
+    if not enabled():
+        return {"ok": False, "reason": "SELF_CODE خاموش است (C-026)"}
     meta = _load_meta(pid)
     if not meta:
         return {"ok": False, "reason": "یافت نشد"}
@@ -398,6 +401,9 @@ def reject(pid: str, note: str = "") -> dict:
 
 
 def approve(pid: str) -> dict:
+    # SEAM-LOOP 1-1 (C-026, owner-approved 2026-08-16): gate on the OFF window
+    if not enabled():
+        return {"ok": False, "reason": "SELF_CODE خاموش است (C-026)"}
     """اعمالِ پیشنهاد — فقط با تأییدِ مالک، با اجرای امنِ کاندیدا و تشخیصِ دستکاری.
 
     مراحل: TCB + stale + بازاسکنِ ایستا → snapshotِ کلِ .pyِ زنده → اجرا در temp

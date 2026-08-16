@@ -32,9 +32,13 @@ def P_closed(rho: float, lam: float, se2: float, sz2: float) -> float:
 
     Guard: λ→0 gives the 0/0 limit P → σ_ζ²/(1−ρ²).
     """
+    # گاردِ لبهٔ DARE (C-029, کارت رأی 2026-08-16 — اعمال با اجازهٔ TCB مالک):
+    # |ρ|→1 مخرج (1−ρ²) را صفر می‌کند؛ کفِ کوچک به‌جای ZeroDivision — همان
+    # الگوی گاردِ خطِ ۱۸۵ که از قبل در مسیرِ var_e نشسته بود.
+    _den = max(1.0 - rho * rho, 1e-12)
     if lam == 0.0:
-        return sz2 / (1.0 - rho * rho)
-    c = se2 * (1.0 - rho * rho)
+        return sz2 / _den
+    c = se2 * _den
     discriminant = (c - sz2 * lam * lam) ** 2 + 4.0 * lam * lam * sz2 * se2
     return ((sz2 * lam * lam - c) + np.sqrt(discriminant)) / (2.0 * lam * lam)
 
