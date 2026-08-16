@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-031** (C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-032** (C-031 در 2026-08-16 ~15:1x: پنج کپی یک مشاهده در epistemics 0.1→0.9998؛ C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -476,4 +476,20 @@ contradiction:
   status: resolved-in-code
   registered_by: "continuous-improve agent 2026-08-16 ~14:2x (grep: C-030 آزاد بود)"
   cross_ref: "[[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]]"
+```
+
+```yaml
+contradiction:
+  id: C-031
+  claim: "به‌روزرسانی باور epistemics نمی‌تواند از کپی‌های هم‌خانواده قطعیت بسازد"
+  value_a: "policy.yaml فیلد independence دارد؛ HARDTEST گفت تلهٔ استقلال metadata است نه گارد مسیر آپدیت"
+  source_a: "00 - Inbox/_scratch-hardtest/s4/run_s4.py · CAPABILITY-HARDTEST-2026-08-16 S4 E2"
+  value_b: "۵ بار update_bayesian متوالی روی prior=0.1 با BF=9 → posterior≈0.9998؛ هیچ family_key روی مسیر آپدیت نبود"
+  source_b: "HARDTEST 2026-08-16 · CROSSCHECK تأیید نسبت log-odds×2 برای دو کپی"
+  live_check: "apply_once_per_family additive: ۵ کپی یک family = تک‌شاهد (نه 0.9998). update_bayesian خام عمداً primitive ماند. epistemics may_execute=False. تست: test_epistemic_bayes 17/17"
+  likely: value_b برای مسیر خام؛ contained برای مسیر family
+  resolution: "contained-in-code 2026-08-16 — گارد family additive؛ سیم‌کشی تولیدی epistemics همچنان VOTE 3"
+  status: contained — owner_vote برای اجباری‌کردن family روی همهٔ آپدیت‌ها
+  registered_by: "interview-organism agent 2026-08-16 ~15:1x (grep دو-مخزن: C-031 آزاد بود)"
+  cross_ref: "[[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]]"
 ```

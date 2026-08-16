@@ -96,3 +96,19 @@ baseline_for: "ایجنت بعدی باید همین اعداد را با همی
 | M6 مدارشکن | orchestr **half_open** (در بهبود) · glm/reason closed | ⬆️ از open |
 | M8 daemon | ticks **1087** (پیوسته از 10:34) | ✅ |
 | M9 | beat 37991 · halted=None · germline **0.21h** | ✅ |
+
+---
+
+# سنجش چهارم — 2026-08-16 ~16:1x (SELFRUN F9)
+
+| بند | عدد | vs سنجش سوم |
+|---|---|---|
+| M1 since-meas3 | **23/23 = 1.000** | ✅ پیوسته |
+| M1 all-time | 446/455 = **0.980** | ⬆️ از 0.979 |
+| readback | 102/113 (=0.903؛ همان ۱۱ شکستِ پنجرهٔ کهنه — از 05:00 صفر) | ثابت صادقانه |
+| M2 | rows=625 (صفر ردیف نو از فیکس) · repeats=8 | ✅ fold پیوسته |
+| M3 | events=90 · median=21 | ثابت |
+| M5 | n=301 · brier 0.187 | ثابت |
+| M6 | orchestr half_open (بهبود) · glm/reason closed | ⬆️ |
+| M8 | daemon ticks=**1153** | ✅ |
+| M9 | beat 38038 · halted=None · germline **1.0h** | ⚠️ germline رو به رشد — بکاپ سنکرون شود |
