@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-019** (C-018 در 2026-08-16 ~0x:xx ثبت شد: پیش‌فرض کهنهٔ مگاپرامپت PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016 در 2026-08-16 ~00:4x ثبت شد: دریچهٔ فرار معمار؛ C-015 در 2026-08-15 ~22:2x ثبت شد: COUNCIL-MESH-v0.1 هنوز می‌گوید patch حافظه import نشده؛ C-014: fetch دوتایی رصدخانه؛ C-013: گاردِ self_code/Tcb-سراسری)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-023** (C-022 در 2026-08-16 ~11:5x: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -285,4 +285,64 @@ contradiction:
   resolution: "resolved (2026-08-16 ~05:5x): بنر ERRATA-C-018 روی خود مگاپرامپت PHASE01 نصب شد (سه پیش‌فرض کهنه: STEP1-1/4-2/4-4 — هیچ‌کدام اجرا نشدند) + قانون «فکت‌چک پیش‌فرض هر STEP» در مگاپرامپت PHASE02 v1.0 قفل شد. کد زنده هرگز لمس نشد"
   status: resolved (errata نصب شد؛ نسخهٔ بعدی مگاپرامپت‌ها از این قانون شروع می‌کنند)
   registered_by: "PHASE01 agent 2026-08-16 (grep دو-مخزن: C-018 فقط به‌عنوان آزاد بعدی در خود مگاپرامپت بود)"
+```
+
+```yaml
+contradiction:
+  id: C-021
+  claim: "بازیابیِ دور (recall_reach) در مسیر latent زنده است"
+  value_a: "similar() + LATENT_PERSIST + RECALL_TREND مسلح‌اند؛ events=58 یعنی بازیابی شلیک می‌کند"
+  source_a: "ORGANISM-STATE.recall_reach · wiring._enrich_with_latent · flags LATENT_PERSIST=1 / RECALL_TREND=1"
+  value_b: "از سیکل ۵۹۸ similar_keys تهی است؛ encode_rfc بایت SHA را float32 می‌کند → NaN؛ integrate نامتناهی → similar()=[] ؛ مصرف‌کنندهٔ تصمیم صفر"
+  source_b: "پروب زنده 2026-08-16: ۳۱ ردیف latent_no_sk همه doctor+school؛ cosine(archive-618,archive-630)=NaN؛ grep similar_keys فقط metric/تست"
+  live_check: "قبل: events=58 keys=267 median=2.0 coverage=0.0928 · بعد از فیکس+گرم: 90 / 987 / 21.0 / 0.144 — فرمان در 06-EVIDENCE/RECALL-LOOP-2026-08-16.md"
+  likely: value_b
+  resolution: "resolved (2026-08-16 ~11:5x): _hash_project→int16 متناهی · rfc_id بدون سیکل · select_recall_keys دور+نزدیک · similar NaN-safe · گرم UNION بدون حذف · تزریق cite به owner_recall/gather_signals · تسک ویندوزی 4d"
+  status: resolved (کد+عدد قبل/بعد)
+  registered_by: "recall-loop agent 2026-08-16 (grep دو-مخزن در لحظهٔ شروع C-019 آزاد بود؛ موازی unwired همان id را گرفت → این رکورد C-021 شد)"
+```
+
+```yaml
+contradiction:
+  id: C-019
+  claim: "4d ConsolidationCycle به‌صورت دوره‌ای توسط daemon صدا زده می‌شود"
+  value_a: "docstring brain/consolidation.py: «Wiring: called periodically by the daemon alongside housekeeping (DAEMON_CONSOLIDATION_EVERY)»"
+  source_a: "4d_system/brain/consolidation.py (تا قبل از ERRATA 2026-08-16) + دیپ‌تست «R18 زنده»"
+  value_b: "صفر فراخوان تولیدی: rg ConsolidationCycle در 4d_system → فقط خود فایل + tests/test_consolidation_delta_r18.py؛ daemon.py و automation.py هیچ importی ندارند"
+  source_b: "grep سطح A 2026-08-16 ~11:3x · outputs/self_evolved/consolidation.json = ۳ ردیف دستی (سیکل ۲–۳ دیپ‌تست 10:35) · در آن لحظه هیچ تسک ویندوزی نبود"
+  live_check: "2026-08-16 ~11:5x recall-loop: تسک «OCTOPUS 4d Consolidation Tick» ساخته شد + تیک دستی events 0→1 — daemon همچنان صدا نمی‌زند (TCB)"
+  likely: value_b — کلاس NEVER-WIRED در daemon؛ زمان‌بند ویندوزی حالا هست
+  resolution: "containment (2026-08-16 recall-loop): تسک ۶ساعته غیر-TCB + جاکارد insight. قلاب daemon = کارت ۲ (TCB + امضا)"
+  status: contained (تسک ویندوزی زنده؛ daemon همچنان بی‌قلاب — owner_action)
+  registered_by: "unwired-discovery agent 2026-08-16 (grep دو-مخزن: C-019 فقط به‌عنوان آزاد بعدی بود؛ working repo خالی)"
+```
+
+```yaml
+contradiction:
+  id: C-020
+  claim: "4d_system لانچ نمی‌شود و به ارگانیسم زنده وصل نیست"
+  value_a: "DEPRECATED.md 2026-07-18: «کد کامل است ولی لانچ نمی‌شود» · MANIFEST.yaml: «not currently running»"
+  source_a: "4d_system/DEPRECATED.md · 4d_system/MANIFEST.yaml:25"
+  value_b: "دیمون زنده: python -m brain.daemon · pid 27164 · resumed 10:34:38 · last_tick 11:30:27 · tick_this_run 86 · generation 9"
+  source_b: "Get-CimInstance Win32_Process + outputs/daemon_state.json 2026-08-16 ~11:3x"
+  live_check: "import از _ops به 4d_system همچنان صفر است (نیمهٔ DEPRECATED درست)؛ لانچ‌نشدن نادرست است"
+  likely: value_b برای لانچ · value_a برای «عضو اعلان‌نشدهٔ ارگانیسم _ops» (پروسه جداست)
+  resolution: "بنر ERRATA-C-020 روی DEPRECATED.md نصب شد (2026-08-16). بازنویسی کل سند بدون رأی نه"
+  status: open — documentation-stale (مثل C-015)
+  registered_by: "unwired-discovery agent 2026-08-16 (grep دو-مخزن: C-020 خالی بود)"
+```
+
+```yaml
+contradiction:
+  id: C-022
+  claim: "circuit orchestr در circuit-state.json سالم/closed است"
+  value_a: "targets.orchestr.state = closed · fail_count = 0"
+  source_a: "_ops/state/circuit-state.json (خوانده‌شده 2026-08-16 ~11:2x)"
+  value_b: "opened_at_ts پر است · last_ok_ts=2026-08-12T07:52:59 · recent_outcomes بیست false · ۴۹× circuit OPEN 429 در دفتر ۷روز"
+  source_b: "همان فایل + governor-alerts.md (اولین OPEN پنجره 2026-08-09T00:15:55، آخرین 2026-08-15T13:25:40) · record_success واقعی opened_at را None می‌کند (circuit_breaker.py:183)"
+  live_check: "مغز زنده روی reason/DeepSeek است (last_ok امروز 11:20:49، recent_outcomes همه true). orchestr مسیر اصلی نیست ولی اسنپ‌شات هنوز «سالم» دروغ می‌گفت. _target_entry از قبل به half_open تنزل می‌داد فقط در حافظه؛ status() خام فایل را برمی‌گرداند."
+  likely: value_b — شکل ریست/نوشتهٔ بیرونی، نه closeِ اثبات‌شده
+  resolution: "contained (ERRORHUNT 2026-08-16): persist تنزل روی دیسک + status() از _target_entry. تست test_circuit_demote_persist_errorhunt.py ۴/۴. فایل زنده این نشست نوشته نشد تا اولین check/status بعدی. خاموش‌کردن پروب = کارت ۱ (رأی)."
+  status: contained (کد صادق شد؛ دیسک تا تماس بعدی ممکن است کهنه بماند)
+  registered_by: "errorhunt agent 2026-08-16 (فکت‌چک: مگاپرامپت C-019 آزاد می‌گفت؛ دفتر زنده C-019..C-021 پر بود — آزاد C-022؛ working repo خالی از C-022)"
 ```

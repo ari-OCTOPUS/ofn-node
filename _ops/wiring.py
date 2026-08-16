@@ -2069,7 +2069,10 @@ def _enrich_with_latent(result, sources, school_bridge, latent_space) -> None:
         data = sources["doctor_archive"]
         n_approved = sum(1 for d in data
                         if isinstance(d, dict) and d.get("outcome") in ("approved", "published"))
-        vec = encode_rfc(f"archive-{result.cycle}", f"{n_approved} approved", "medium", dim=dim)
+        # ۲۰۲۶-۰۸-۱۶ — rfc_id دیگر شمارهٔ سیکل ندارد: همان n_approved باید
+        # همان بردار را بسازد تا بازیابیِ دور ممکن شود. قبلاً archive-{cycle}
+        # هر سیکل را به یک hash منحصربفرد (و اغلب NaN) تبدیل می‌کرد.
+        vec = encode_rfc("archive", f"{n_approved} approved", "medium", dim=dim)
         key = f"{cycle_key}:doctor_archive:{n_approved}"
         latent_space.embed(key, vec, layer="doctor", source="consolidation")
         encoded_keys.append(key)
@@ -2100,10 +2103,10 @@ def _enrich_with_latent(result, sources, school_bridge, latent_space) -> None:
         # کلیدهای خودِ همین سیکل فیلتر می‌شوند (با تک-منبع، `cycle-N:src` بایت‌به‌بایت
         # همان integrated است و بدونِ فیلتر خودارجاعی می‌شد)؛ top_k جبران می‌شود.
         _own = len(encoded_keys) + 1
-        nn = latent_space.similar(integrated, top_k=5 + _own)
-        result.similar_keys = [k for k, _ in nn
-                               if k != cycle_key
-                               and not k.startswith(cycle_key + ":")][:5]
+        # top_k بزرگ‌تر: تا کلیدهای دورِ بالای آستانه در رقابتِ nearest گم نشوند
+        nn = latent_space.similar(integrated, top_k=max(64, 5 + _own))
+        from neural.consolidation import select_recall_keys as _sel
+        result.similar_keys = _sel(nn, cycle_key, limit=5, far_slots=3)
         # خود cycle را هم embed کن
         latent_space.embed(cycle_key, integrated, layer="consolidation", source="cycle")
         latent_space.store()
@@ -4037,7 +4040,10 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
                     stream="discovery"))
         # علامت فقط روی ارسالِ موفق — نوتیفِ نرسیده نباید دفن شود.
         if sent and _delta:
-            discoveries.mark_nudged()
+            import time as _time
+            # ERRORHUNT 2026-08-16: mark_nudged(high_water) اجباری است؛
+            # فراخوانِ بی‌آرگومان TypeError می‌داد و در governor-alerts انبار می‌شد.
+            discoveries.mark_nudged(_time.time())
         return {"n": n, "sent": sent, "delta_mode": _delta}
     except Exception as e:  # noqa: BLE001 — نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: discovery_nudge خطا: {type(e).__name__}: {e}"])

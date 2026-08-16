@@ -517,3 +517,61 @@ def recall_reach(history: list[dict]) -> dict:
             "reach_max": (deltas[-1] if deltas else 0),
             "self_ratio": (selfhits / n) if n else 0.0,
             "coverage": (len(rows) / total_rows) if total_rows else 0.0}
+
+
+def select_recall_keys(hits, cycle_key: str, limit: int = 5,
+                       far_slots: int = 3) -> list[str]:
+    """ازhitsِ similar() یک ترکیبِ نزدیک+دور بساز — نه فقط nearest.
+
+    ریشهٔ reach_median=2.0: school-vector تقریباً ثابت است، پس cosineِ همه
+    کلیدها یکی است و argsort پایدار کلیدهای *تازه* را بالا می‌آورد.
+    این تابع far_slots تا دورترینِ زمانی را رزرو می‌کند، بقیه را نزدیک
+    می‌گذارد تا تستِ cycle-1 و یادآوریِ نزدیک نشکنند.
+    hits: [(key, score), ...]  — own-cycle هنوز فیلتر نشده.
+    """
+    if not hits or limit <= 0:
+        return []
+    own = _key_cycle(cycle_key)
+    filtered = [(k, s) for k, s in hits
+                if k != cycle_key and not str(k).startswith(str(cycle_key) + ":")]
+    if not filtered:
+        return []
+    if own is None:
+        return [k for k, _ in filtered[:limit]]
+    scored: list[tuple[str, float, int]] = []
+    for k, s in filtered:
+        kc = _key_cycle(k)
+        if kc is None:
+            continue
+        scored.append((str(k), float(s), abs(kc - own)))
+    if not scored:
+        return [k for k, _ in filtered[:limit]]
+    far_n = max(0, min(int(far_slots), limit))
+    by_far = sorted(scored, key=lambda x: (-x[2], -x[1]))
+    by_near = sorted(scored, key=lambda x: (x[2], -x[1]))
+    picked: list[str] = []
+    seen: set[str] = set()
+    for k, _, _ in by_far[:far_n]:
+        if k not in seen:
+            picked.append(k)
+            seen.add(k)
+    for k, _, _ in by_near:
+        if len(picked) >= limit:
+            break
+        if k not in seen:
+            picked.append(k)
+            seen.add(k)
+    return picked[:limit]
+
+
+def union_similar_keys(existing, incoming) -> list[str]:
+    """افزودن بدون حذف — گرم‌کردن. ترتیب: قبلی‌ها، بعد تازه‌ها."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for k in list(existing or []) + list(incoming or []):
+        s = str(k)
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+    return out

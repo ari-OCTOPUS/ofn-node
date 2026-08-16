@@ -38,10 +38,16 @@ def _hash_project(text: str, dim: int = 32) -> np.ndarray:
             b = h[j * 4:(j + 1) * 4]
             if len(b) < 4:
                 b = b + b'\x00' * (4 - len(b))
-            val = struct.unpack('<f', b)[0]
+            # ۲۰۲۶-۰۸-۱۶ — هرگز IEEE float32 از بایتِ خام: SHA-256 اغلب
+            # NaN/Inf می‌سازد (exponent=0xFF). آن NaN از doctor_archive
+            # وارد integrate می‌شد و similar() هیچ همسایه‌ای بالای آستانه
+            # نمی‌دید ⇒ similar_keys=[] روی ۳۱ ردیفِ اخیر. نگاشتِ int16
+            # همیشه متناهی است و بازیابی را زنده می‌کند.
+            val = int.from_bytes(b[:2], "little", signed=True) / 32768.0
             vec[i + j] = val
+    vec = np.nan_to_num(vec, nan=0.0, posinf=0.0, neginf=0.0)
     norm = np.linalg.norm(vec)
-    if norm < 1e-12:
+    if (not np.isfinite(norm)) or norm < 1e-12:
         # fallback: اگر vector صفر شد، seed از text
         seed_val = hash(text) % 10000 / 10000.0
         vec[0] = seed_val

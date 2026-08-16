@@ -116,6 +116,37 @@ def recall_for_owner_ask(query: str, limit: int = 3) -> list[dict[str, Any]]:
         except Exception:  # noqa: BLE001
             pass
 
+    # 2b) ۲۰۲۶-۰۸-۱۶ — consolidation similar_keys (distant recall) cite-only
+    # مسیرِ گمشدهٔ تزریق: similar_keys نوشته می‌شد ولی به تصمیم/پرسش نمی‌رسید.
+    if len(out) < lim:
+        try:
+            import json as _json
+            cons = _OPS / "neural" / "consolidation.json"
+            hist = _json.loads(cons.read_text(encoding="utf-8"))
+            if isinstance(hist, list):
+                for row in reversed(hist):
+                    if not isinstance(row, dict):
+                        continue
+                    keys = row.get("similar_keys") or []
+                    if not keys:
+                        continue
+                    insights = row.get("insights") or []
+                    preview = " · ".join(str(x) for x in insights[:2])[:200]
+                    own = row.get("cycle")
+                    out.append({
+                        "content_preview": preview or f"consolidation cycle-{own}",
+                        "mkey": f"consolidation:cycle-{own}",
+                        "trust": "GRADED",
+                        "namespace": "consolidation",
+                        "source_path": "neural/consolidation.json",
+                        "may_authorize": False,
+                        "provenance": "consolidation.similar_keys",
+                        "similar_keys": list(keys)[:8],
+                    })
+                    break
+        except Exception:  # noqa: BLE001
+            pass
+
     # 3) collab episodic digests (content-free markers — cite path only)
     if len(out) < lim:
         try:

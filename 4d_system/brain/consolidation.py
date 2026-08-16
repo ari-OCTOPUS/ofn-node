@@ -18,8 +18,13 @@ Key machinery reused from _ops/neural/consolidation.py:
   - Content-signature dedup with time-floor (prevents unbounded growth)
   - recall_reach() metric: the only metric that can prove "getting better at remembering"
 
-Wiring: called periodically by the daemon alongside housekeeping (e.g. every
-DAEMON_CONSOLIDATION_EVERY ticks, default = DAEMON_HK_EVERY).
+Wiring (ERRATA C-019, 2026-08-16): NOT called by the daemon (TCB).
+Grep of brain/daemon.py + brain/automation.py: zero ConsolidationCycle.
+A Windows task «OCTOPUS 4d Consolidation Tick» was added by a parallel
+recall-loop agent (~11:5x) — LastRun never / LastResult SCHED_S_TASK_HAS_NOT_RUN
+and it launches via `py` (same pattern as poisoning-watch FILE_NOT_FOUND).
+Tests: 4d_system/tests/test_consolidation_delta_r18.py.
+Daemon hook still needs owner vote + TCB re-sign.
 
 Design principles (matching _ops original):
   - fail-soft: never crash the daemon; missing sources → skip
@@ -262,6 +267,10 @@ class ConsolidationCycle:
         result = ConsolidatedInsight(
             cycle=self._cycle_count, insights=insights,
             verified_sources=verified_names, discarded_sources=discarded_names)
+        # ۲۰۲۶-۰۸-۱۶ — بازیابیِ دور بدون latent/TCB: جاکاردِ insight در برابر تاریخچه
+        sk = _insight_recall_keys(insights, self._history, self._cycle_count)
+        if sk:
+            result.similar_keys = sk
         rec = asdict(result)
         if _compress_on():
             target = self._foldable(rec)
@@ -276,6 +285,12 @@ class ConsolidationCycle:
         if target is not None:
             target["repeats"] = int(target.get("repeats", 1)) + 1
             target["last_cycle"] = self._cycle_count
+            if sk:
+                prev = list(target.get("similar_keys") or [])
+                for k in sk:
+                    if k not in prev:
+                        prev.append(k)
+                target["similar_keys"] = prev
             if _compress_on():
                 ts = rec.get("timestamp")
                 target["last_ts"] = float(ts) if isinstance(ts, (int, float)) else _now()
@@ -327,6 +342,53 @@ class ConsolidationCycle:
     @property
     def history(self) -> list[dict]:
         return list(self._history)
+
+
+def _insight_tokens(insights) -> set[str]:
+    out: set[str] = set()
+    for raw in insights or []:
+        for tok in str(raw).replace(",", " ").split():
+            t = tok.strip(".,؛:()«»\"'")
+            if len(t) >= 2:
+                out.add(t)
+    return out
+
+
+def _insight_recall_keys(insights, history, own_cycle: int,
+                         limit: int = 5, threshold: float = 0.3) -> list[str]:
+    """کلیدهای cycle-* از ردیف‌های تاریخی با جاکاردِ insight ≥ آستانه.
+
+    بدون latent، بدون حذف. دورترین‌ها اول (far-first) تا recall_reach حرکت کند.
+    """
+    rec = _insight_tokens(insights)
+    if not rec or not history:
+        return []
+    scored: list[tuple[int, float, int]] = []
+    for row in history:
+        if not isinstance(row, dict):
+            continue
+        oc = row.get("cycle")
+        if not isinstance(oc, int) or oc == own_cycle:
+            continue
+        other = _insight_tokens(row.get("insights"))
+        if not other:
+            continue
+        jac = len(rec & other) / len(rec | other)
+        if jac >= threshold:
+            scored.append((oc, jac, abs(oc - own_cycle)))
+    if not scored:
+        return []
+    scored.sort(key=lambda x: (-x[2], -x[1]))  # دور، بعد شباهت
+    picked: list[str] = []
+    seen: set[int] = set()
+    for oc, _, _ in scored:
+        if oc in seen:
+            continue
+        seen.add(oc)
+        picked.append(f"cycle-{oc}")
+        if len(picked) >= limit:
+            break
+    return picked
 
 
 # ─── recall_reach metric (ported verbatim from _ops) ─────────────────────────

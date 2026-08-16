@@ -351,6 +351,24 @@ def gather_signals() -> dict:
         self_loop_memory = _sli.recall_recent("", k=8) or []
     except Exception:  # noqa: BLE001
         self_loop_memory = []
+    # ۲۰۲۶-۰۸-۱۶ — یادآوریِ دور از consolidation (cite-only؛ مسیرِ قطع‌شده)
+    consolidation_recall = []
+    try:
+        cons_p = Path(__file__).resolve().parent.parent / "neural" / "consolidation.json"
+        raw = _read(cons_p) if cons_p.exists() else None
+        hist = raw if isinstance(raw, list) else []
+        for row in reversed(hist):
+            if not isinstance(row, dict) or not row.get("similar_keys"):
+                continue
+            consolidation_recall.append({
+                "cycle": row.get("cycle"),
+                "similar_keys": list(row.get("similar_keys") or [])[:8],
+                "insights": list(row.get("insights") or [])[:3],
+                "mkey": f"consolidation:cycle-{row.get('cycle')}",
+            })
+            break
+    except Exception:  # noqa: BLE001
+        consolidation_recall = []
     # ADR-036 — Math Control Spine (soft ceiling; observe never blocks)
     math_control = {}
     try:
@@ -371,6 +389,7 @@ def gather_signals() -> dict:
             "smallest_fix": smallest_fix,
             "research_memory": research_memory,
             "self_loop_memory": self_loop_memory,
+            "consolidation_recall": consolidation_recall,
             "math_control": math_control}
 
 
@@ -633,6 +652,31 @@ def generate_proposals(signals: dict) -> list[dict]:
             "evidence": str(mem.get("mkey") or "self-loop-ingest.jsonl"),
             "suggested_action": content[:180],
             "change_level": "reconfig",
+            "auto_applicable": False,
+            "status": "proposed",
+        })
+    # ۳.۶) ۲۰۲۶-۰۸-۱۶ — cite یادآوریِ دور (propose-only، صفر authorize)
+    for mem in (signals.get("consolidation_recall") or [])[:2]:
+        if not isinstance(mem, dict):
+            continue
+        keys = mem.get("similar_keys") or []
+        if not keys:
+            continue
+        title = f"یادمانِ دور: cycle-{mem.get('cycle')} → {keys[0]}"[:120]
+        if title in seen_titles:
+            continue
+        seen_titles.add(title)
+        out.append({
+            "id": _pid(f"recall:{mem.get('mkey')}"),
+            "source": "consolidation_recall",
+            "category": "architecture",
+            "priority": "P3",
+            "_rank": 3.0,
+            "title": title,
+            "rationale": "بازیابیِ دور از تاریخچهٔ تثبیت — cite-only",
+            "evidence": str(mem.get("mkey") or "consolidation.json"),
+            "suggested_action": " · ".join(str(x) for x in (mem.get("insights") or [])[:2])[:180],
+            "change_level": "tune",
             "auto_applicable": False,
             "status": "proposed",
         })

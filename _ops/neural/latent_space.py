@@ -76,18 +76,27 @@ class SharedLatentSpace:
             return []
         if query.shape != (self.dim,):
             return []
+        if not np.isfinite(query).all():
+            return []  # NaN/Inf query → no meaningful similarity (C-019)
         q_norm = np.linalg.norm(query)
-        if q_norm < 1e-12:
-            return []  # zero vector → no meaningful similarity
+        if (not np.isfinite(q_norm)) or q_norm < 1e-12:
+            return []  # zero/non-finite vector → no meaningful similarity
         q_unit = query / q_norm
 
         keys = list(self._vectors.keys())
+        # drop non-finite stored vectors (legacy hash-as-float32 NaNs)
+        finite_idx = [i for i, k in enumerate(keys)
+                      if np.isfinite(self._vectors[k]).all()]
+        if not finite_idx:
+            return []
+        keys = [keys[i] for i in finite_idx]
         # vectorized: build matrix and compute all dot products
         matrix = np.array([self._vectors[k] for k in keys])  # (N, dim)
         norms = np.linalg.norm(matrix, axis=1, keepdims=True)
         norms = np.where(norms < 1e-12, 1.0, norms)  # avoid div-by-zero
         unit_matrix = matrix / norms
         scores = unit_matrix @ q_unit  # (N,) = cosine similarities
+        scores = np.nan_to_num(scores, nan=-1.0, posinf=-1.0, neginf=-1.0)
 
         top_idx = np.argsort(scores)[::-1][:top_k]
         return [(keys[i], float(scores[i]))
@@ -102,7 +111,8 @@ class SharedLatentSpace:
     def integrate(self, keys: list[str]) -> np.ndarray:
         """mean-pool از چند embedding → یک vector نماینده.
         اگر هیچ key موجود نباشد → zero vector."""
-        vecs = [self._vectors[k] for k in keys if k in self._vectors]
+        vecs = [self._vectors[k] for k in keys
+                if k in self._vectors and np.isfinite(self._vectors[k]).all()]
         if not vecs:
             return np.zeros(self.dim)
         return np.mean(vecs, axis=0)

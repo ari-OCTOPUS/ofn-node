@@ -96,6 +96,22 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         parts.append(f"- readback: خوانده نشد ({type(e).__name__})")
 
+    # ۳-ج) recall_reach (_ops) — سری زمانی برای حلقهٔ دور
+    try:
+        sys.path.insert(0, str(VAULT / "_ops" / "neural"))
+        from consolidation import recall_reach as _rr  # noqa: WPS433
+        cons = VAULT / "_ops" / "neural" / "consolidation.json"
+        hist = json.loads(cons.read_text(encoding="utf-8"))
+        if not isinstance(hist, list):
+            hist = []
+        m = _rr(hist)
+        parts.append(
+            f"- recall_reach: events={m.get('events')} keys={m.get('keys')} "
+            f"median={m.get('reach_median')} max={m.get('reach_max')} "
+            f"coverage={round(float(m.get('coverage') or 0), 4)} rows={len(hist)}")
+    except Exception as e:  # noqa: BLE001
+        parts.append(f"- recall_reach: خوانده نشد ({type(e).__name__})")
+
     # ۴) daemon
     st = FOURD / "outputs" / "daemon_state.json"
     parts.append(f"- daemon_state.json: {'موجود' if st.exists() else 'غایب!'}")

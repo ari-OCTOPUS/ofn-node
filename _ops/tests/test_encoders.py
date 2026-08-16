@@ -68,6 +68,15 @@ def t_awareness_pad():
     assert v[0] > 0  # first element preserved
 
 
+def t_hash_never_nan():
+    """C-019: hash-project دیگر NaN/Inf از SHA-256 نمی‌سازد."""
+    from neural.encoders import _hash_project
+    for i in range(80):
+        v = _hash_project(f"archive-{i}:3 approved:medium")
+        assert np.isfinite(v).all(), i
+        assert abs(np.linalg.norm(v) - 1.0) < 1e-6
+
+
 def t_rfc_deterministic():
     """RFC encoder deterministic."""
     v1 = encode_rfc("RFC-abc123", "error rate high", "high")
@@ -130,6 +139,7 @@ if __name__ == "__main__":
         ("awareness vector", t_awareness_vector),
         ("awareness None", t_awareness_none),
         ("awareness pad", t_awareness_pad),
+        ("hash never NaN", t_hash_never_nan),
         ("RFC deterministic", t_rfc_deterministic),
         ("RFC severity effect", t_rfc_severity_effect),
         ("phi_t with vector", t_phi_t_with_vector),
