@@ -546,6 +546,15 @@ def main() -> int:
                 except Exception:  # noqa: BLE001
                     _cstat = None
             pulse = {"chrono": _cstat} if _cstat else {}
+            # ── R9 «هیچی خاموش نیست» (فاز ۳ دستورالعمل ۲۰۲۶-۰۸-۱۶): هر ۱۰ beat،
+            # ماژول‌های خفته (chord/synapse/…فلگِ خاموش) یک module.heartbeat با
+            # status=OFF و trace_id در events.jsonl می‌زنند. ماژولِ زنده خودش از
+            # فهرستِ خاموش‌ها حذف می‌شود (spine/intel_spine الان زنده‌اند). fail-soft.
+            try:
+                import off_heartbeat as _ohb   # noqa: WPS433 — lazy، _ops روی sys.path
+                _ohb.tick(int(((_cstat or {}).get("beat") or 0)))
+            except Exception:  # noqa: BLE001 — R9 هرگز تیک را نمی‌کشد
+                pass
             # vital ناوردی ۳: کهنگی germline — از طریقِ wiring.enrich_state_with_germline
             # (قراردادِ testable germline.py با CRIT-tier alert + fallback). پشتِ flag:
             # OCTOPUS_WIRE_GERMLINE=1 → ماژولِ غنی؛ خاموز → fallback (رفتارِ فعلی، safety-vital).

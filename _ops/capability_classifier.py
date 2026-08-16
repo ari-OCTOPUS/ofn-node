@@ -84,7 +84,13 @@ def _is_fresh(ts_str: str | None, threshold_h: float = FRESH_THRESHOLD_H) -> str
 
 
 def _flag_armed(flag_name: str) -> str:
-    """Check if a flag is armed in flags-loaded snapshots. Returns armed/disarmed/unknown."""
+    """Check if a flag is armed in flags-loaded snapshots. Returns armed/disarmed/unknown.
+
+    فاز ۳ (۲۰۲۶-۰۸-۱۶): fallback به `activation_flags` — فلگ‌های فایل‌مسلح
+    (مثل HEARTSTATE_SHADOW که با ACTIVATION-HEARTSTATE.flag مسلح می‌شود، نه env)
+    قبلاً «unknown/خاموش» گزارش می‌شدند در حالی که ماژول زنده بود (باگِ
+    ACTIVATION-FLAGS.md §هشدارِ اصلی). نگاشتِ نام: env-name بدونِ پسوندِ
+    معنایی (HEARTSTATE_SHADOW → HEARTSTATE) اگر مستقیم پیدا نشد."""
     for snapshot_name in ["organism", "cortex"]:
         snapshot = _read_json(STATE / f"flags-loaded-{snapshot_name}.json")
         if snapshot and isinstance(snapshot, dict):
@@ -92,6 +98,13 @@ def _flag_armed(flag_name: str) -> str:
             val = flags.get(flag_name)
             if val is not None:
                 return "armed" if str(val) == "1" else "disarmed"
+            act = snapshot.get("activation_flags")
+            if isinstance(act, dict):
+                if flag_name in act:
+                    return "armed" if str(act[flag_name]) == "ON" else "disarmed"
+                base = flag_name.rsplit("_", 1)[0] if "_" in flag_name else flag_name
+                if base in act:
+                    return "armed" if str(act[base]) == "ON" else "disarmed"
     return "unknown"
 
 

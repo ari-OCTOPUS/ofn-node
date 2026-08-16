@@ -233,6 +233,29 @@ def _alert_shortfall(sf: dict, source) -> None:
     except Exception:  # noqa: BLE001
         pass
 
+def activation_flags_on_disk(ops_dir=None) -> "dict[str, str] | None":
+    """وضعیتِ `ACTIVATION-*.flag` روی دیسک: نامِ برهنه (بدونِ پیشوند/پسوند) → "ON"/"OFF".
+
+    فاز ۳ دستورالعمل ۲۰۲۶-۰۸-۱۶ (اصلاحِ باگِ HEARTSTATE): ممیزی‌های مبتنی‌بر
+    `flags-loaded-*.json` فقط env را می‌دیدند، در حالی که `heart/heartstate.py`
+    با **فایلِ** `_ops/ACTIVATION-HEARTSTATE.flag` مسلح می‌شود (رجیستری:
+    `_ops/ACTIVATION-FLAGS.md` §هشدارِ اصلی) — یعنی قابلیتی که هر ضربان
+    می‌نویسد «خاموش» گزارش می‌شد. این نگاشتِ additive همان حقیقتِ دیسک را در
+    snapshot می‌نشاند تا ممیزی «ON» بگوید. فایل‌های `.flag.off` پسوندشان
+    `.flag` نیست → در glob نمی‌آیند → شمرده نمی‌شوند (یادگارِ عمداً-خاموش).
+    هر خطا → None (fail-soft؛ snapshot بدونِ این کلید می‌ماند، نه با دروغ)."""
+    try:
+        base = Path(ops_dir) if ops_dir else Path(__file__).resolve().parent
+        out: dict[str, str] = {}
+        for p in sorted(base.glob("ACTIVATION-*.flag")):
+            name = p.name[len("ACTIVATION-"):-len(".flag")]
+            if name:
+                out[name] = "ON"   # glob فقط فایلِ موجود برمی‌گرداند؛ غایب = در نگاشت نیست
+        return out
+    except Exception:  # noqa: BLE001 — ممیزی هرگز boot را نمی‌کشد
+        return None
+
+
 def snapshot(flags_path, out_path, env=None, extra=None) -> dict:
     """وضعیتِ بارگذاری‌شده را ثبت می‌کند. سرِ boot صدا زده شود، یک‌بار."""
     file_flags, stats = parse_flags_file(flags_path)
@@ -247,8 +270,11 @@ def snapshot(flags_path, out_path, env=None, extra=None) -> dict:
         # ۲۰۲۶-۰۷-۲۹: نامِ فلگ‌هایی که *فایل* در لحظهٔ boot تعریف کرده بود.
         # بدونِ این، probe نمی‌تواند «فلگی که فایل مدیریتش می‌کند» را از
         # «متغیرِ envای که هرگز در فایل نبوده» (مثلاً کلیدهای .env) جدا کند و
-        # هر بار چند «removed»ِ کاذب می‌دهد — یعنی پروبِ همیشه‌قرمز.
+        # هر بار چند «removed» کاذب می‌دهد — یعنی پروبِ همیشه‌قرمز.
         "file_flags": sorted(k for k in file_flags if _tracked(k)),
+        # فاز ۳ (۲۰۲۶-۰۸-۱۶): فلگ‌های فایل‌مسلحِ روی دیسک در لحظهٔ boot — رفعِ
+        # کوریِ ممیزی به HEARTSTATE (فعال با فایل، غایب در env). fail-soft.
+        "activation_flags": activation_flags_on_disk(Path(flags_path).parent),
     }
     # مقایسهٔ «فایل چه تعریف کرده» با «چه چیزی واقعاً به env رسید» — همان دو
     # عددی که از قبل کنارِ هم نوشته می‌شدند و کسی مقایسه‌شان نمی‌کرد.

@@ -35,6 +35,9 @@ EVENT_NAMES = frozenset({
     "handoff.created", "system.heartbeat", "approval.required",
     # پیشنهاد #۱۳ — رکوردِ Incident (additive؛ خواننده‌های فعلی نمی‌شکنند)
     "incident.opened", "incident.contained",
+    # فاز ۳ دستورالعمل ۲۰۲۶-۰۸-۱۶ (R9 — هیچی خاموش): heartbeat ماژول‌های خفته
+    # هر ۱۰ beat با status=OFF — additive؛ emit با agent_id=نامِ ماژول.
+    "module.heartbeat",
 })
 APPROVAL_STATES = frozenset({"unknown", "none", "required", "approved", "denied"})
 
