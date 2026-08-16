@@ -345,8 +345,8 @@
   ],
   "integrity": {
     "CLAIMS_LEDGER.csv": "162427ca6647daed4e72b81a837f7337dbdc31be35e347ea0ce26eb55cb2a47e",
-    "GEOMETRY.md": "fe56dda2d8078b61463eb48f3065294a62fb370a5e74dbb15aa219f1355b55f4",
-    "SENSITIVITY-LADDER.md": "20d2fc233e945793b01c2ef69a6c931c0fee653298d0f6188c4e0aa559dff1fb",
+    "GEOMETRY.md": "b68482559b4be56b74b624977d37ad583ccd8961b3283495c877584a815c3281",
+    "SENSITIVITY-LADDER.md": "f4b0f8a92febbd65b9fcbfefbb69f0461d2ffd6fbd365f59a8e89d36dea20789",
     "rsc.py": "96a1c8ba69c78bb131095e8a05285340776cff2e6d331153f882c0fa061ab2c9"
   },
   "interfaces": [
@@ -372,7 +372,7 @@
     }
   ],
   "kernel_name": "Cognitive Kernel 0.1",
-  "last_updated": "2026-07-14T08:03:47.056656+00:00",
+  "last_updated": "2026-08-16T07:13:33.784358+00:00",
   "ring": 2,
   "risk_tier": "green",
   "sensitivity_ladder": {

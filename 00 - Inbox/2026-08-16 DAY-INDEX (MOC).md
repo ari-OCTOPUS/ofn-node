@@ -33,6 +33,7 @@ tags: [moc, daily-index, 2026-08-16]
 | ۱۶ | **مصاحبهٔ ارگانیسم (۶ ایده)** | تفویض run+fix: هویت صادق · ۸۷۶۵ مرده · reached_owner · armed() · C-026 TCB · persistence سایه · C-031 family · observation.v1 پارس | [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]] · [[../02-DECISIONS/INTERVIEW-LOG-OCTOPUS-2026-08-16|LOG]] |
 | ۱۷ | **پنل وب · واقعیت** | گذر ۲: کاکپیت اسنپ‌شات برچسب · استخراجگر همیشه-قرمز بسته · پرچم‌دار «زنده»→مفهومی · C-032 · :8773 REAL | [[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]] · [[2026-08-16 DISCOVERY — WebPanel Cards|کارت‌ها]] |
 | ۱۸ | **راحتی مالک EXECUTED** | شش دروازه آری: پوش · C-026/DARE تصویب · ری‌استارت سه عضو به 1.5b · پروب Fugu=429 · LIVE-STRIP · **C-033** · آزاد C-034 | [[../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16|OWNER-EASE]] · [[../06-EVIDENCE/OWNER-EASE-2026-08-16|شواهد]] |
+| ۱۹ | **بستن صف باز EXECUTED** | هشت دروازه: پوش · C-033 digest+امضا · سقف reason=215 · هش کرنل تازه · HF قفل · experiments retired · بدون پروب پولی | [[../agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16|OWNER-CLOSE]] · [[../06-EVIDENCE/OWNER-CLOSE-2026-08-16|شواهد]] |
 
 ## عملیات‌های فرمانی مالک (عصر)
 

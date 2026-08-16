@@ -73,7 +73,9 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
-> **📌 2026-08-16 ~16:3x — OWNER-EASE EXECUTED:** [[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · [[../07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16|نوت ۵۲]] — دروازه‌ها همه آری. live/center/gateway → `qwen2.5:1.5b` (pid 7852/11724/4504). پروب Fugu **429**. C-026/C-029 owner-ratified · **C-033** dir-TCB بی‌digest. LIVE-STRIP. آزاد **C-034**. پوش با کلمه.
+> **📌 2026-08-16 ~16:5x — OWNER-CLOSE EXECUTED:** [[../06-EVIDENCE/OWNER-CLOSE-2026-08-16|OWNER-CLOSE]] · [[../07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16|نوت ۵۳]] — C-033 digest ۱۵ فایل + امضا valid · reason ask=215 · کرنل integrity ok · experiments retired · HF expected-absent · پوش با کلمه. آزاد **C-034**. HARDTEST 1–4 و PEP/PAT باز ماندند.
+
+> **📌 2026-08-16 ~16:3x — OWNER-EASE EXECUTED:** [[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · [[../07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16|نوت ۵۲]] — دروازه‌ها همه آری. live/center/gateway → `qwen2.5:1.5b` (pid 7852/11724/4504). پروب Fugu **429**. C-026/C-029 owner-ratified · **C-033** dir-TCB بی‌digest. LIVE-STRIP. آزاد آن لحظه **C-034**. پوش با کلمه.
 
 > **📌 2026-08-16 ~16:1x — مگاپرامپت راحتی مالک آماده:** `agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16.md` — شش دروازه (پوش · C-026 TCB · DARE TCB · ری‌استارت env · پروب Fugu · دامنه). «خودت» = کم‌ریسک (پوش/TCB/پول/ری‌استارت = نه). آزاد آن لحظه C-033 بود → حالا **C-034**. لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Owner Ease|لانچر]].
 

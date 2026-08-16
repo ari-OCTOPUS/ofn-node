@@ -518,10 +518,10 @@ contradiction:
   source_a: "4d_system/config/trust-boundary.json · generate_trust_boundary.py · MEGAPROMPT-OWNER-EASE دروازه ۳"
   value_b: "check_trust_boundary فقط tcb.files (۱۴ فایل CODE_TCB_FILES) را هش می‌کند. core/model.py در files-map نیست. پچ DARE روی دیسک است و signature=valid ماند بدون regen"
   source_b: "brain/guardrails.py::check_trust_boundary 2026-08-16 ~16:3x · P_closed گارد کف · openssl/python verify valid"
-  live_check: "۱۴/۱۴ digest_ok · signature valid · coverage_complete روی files-map نه روی هر برگ dir. is_tcb() همچنان core/model.py را write-block می‌کند"
-  likely: value_b برای تشخیص دستکاریِ امضایی؛ value_a برای write-protect
-  resolution: null — پیشنهاد additive: core/model.py را به CODE_TCB_FILES اضافه کن + regen + sign (رأی جدا؛ این نشست bytes TCB را عوض نکرد چون گارد از قبل بود)
-  status: open — owner_vote
+  live_check: "2026-08-16 ~16:5x OWNER-CLOSE دروازه ۲: core/model.py در CODE_TCB_FILES و tcb.files · files_listed=15 · digest_ok · signature=valid (openssl verify)"
+  likely: value_b قبل از فیکس برای تشخیص امضایی
+  resolution: "resolved-in-code + owner-ratified 2026-08-16 OWNER-CLOSE — core/model.py وارد digest-map شد + regen + امضا. is_tcb() از قبل write-block بود."
+  status: resolved-in-code — owner-ratified 2026-08-16 ~16:5x
   registered_by: "owner-ease agent 2026-08-16 ~16:3x (grep دو-مخزن: C-033 آزاد بود؛ NBB-CP خالی)"
   cross_ref: "[[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · C-029"
 ```

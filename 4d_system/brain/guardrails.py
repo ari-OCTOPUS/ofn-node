@@ -81,6 +81,7 @@ CODE_TCB_FILES: frozenset[str] = frozenset({
     "llm/fugu_client.py",        # ثبت/اعمالِ بودجه‌ی ابری
     "llm/langchain_models.py",   # مسیرِ ابریِ گراف + سقفِ بودجه
     "config/settings.py",        # مسیرها و تنظیماتِ ایمنی
+    "core/model.py",             # DARE/SOG — C-033: dir-TCB بود، digest نداشت
 })
 
 # ریشه‌های محافظت‌شده (کلِ درخت زیرِ این‌ها دست‌نخوردنی)
