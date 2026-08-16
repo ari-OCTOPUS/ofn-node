@@ -73,6 +73,8 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
+> **📌 2026-08-16 ~14:2x — CONTINUOUS A+C+F EXECUTED:** [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] — sog_math ۵ ترکیدگی→۰ · money_gate منفی deny (C-030) · selfheal فیلد ok · C-029 TCB DARE بی‌گارد (رأی امضا). آزاد بعدی: **C-031**. صفر فلگ/TCB-edit/پوش.
+
 > **📌 2026-08-16 ~13:2x — مگاپرامپت دوازدهم EXECUTED:** [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Deep-Seams Ledger|کارت درزها]] — C-027 deadline_cycles اجرا شد (`propose()` → recall-events baseline **۹۰**) · C-028 tip-commit دمِ لجر · پنج gauge (۰ PASS از ۱۵ حکمِ ۷روزه). آزاد بعدی: **C-029**. صفر فلگ/TCB/حذف.
 
 > **📌 2026-08-16 ~15:4x — مگاپرامپت دوازدهم آمادهٔ ارسال:** `agent-prompts/MEGAPROMPT-DEEP-SEAMS-SELFIMPROVE-2026-08-16.md` v1.0 — درزهای ماشینِ خودبهبودی (معماری/خودیادگیری/اهداف درونی): چرخهٔ «بکش→درست کن→تست کن→ذخیره کن→بعدی»، کف ۷ چرخه. نقشهٔ کورها: genome-system/ledger · حلقهٔ improve کامل (A1-A3) · memory/ · neural/ · R18 · پکیج‌های نامرئی طبقهٔ ۷ · gaugeهای خودیادگیری. پنج رأی باز HARDTEST + C-026 + بودجهٔ deepseek (پروب رد شد) در انتظار مالک. آزاد بعدی: **C-027**.

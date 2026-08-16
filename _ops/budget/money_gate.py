@@ -9,6 +9,7 @@
 """
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
@@ -33,8 +34,16 @@ def human_gate_aud() -> float:
 
 def check(amount_aud: float, action_id: str, channel: ApprovalChannel | None = None) -> dict:
     """خروجی: {allow: bool, reason: str, ...}. fail-closed: بالای آستانه بدون تأییدِ معتبر = deny."""
+    try:
+        amt = float(amount_aud)
+    except (TypeError, ValueError):
+        return {"allow": False, "reason": "amount-not-a-spend"}
+    # 2026-08-16 continuous-C: مبلغِ منفی قبلاً از «≤آستانه» رد می‌شد (allow).
+    # NaN/Inf هم با دلیلِ دروغینِ over-gate deny می‌شدند. خرجِ نامعتبر = deny.
+    if not math.isfinite(amt) or amt < 0.0:
+        return {"allow": False, "reason": "amount-not-a-spend"}
     cap = human_gate_aud()
-    if amount_aud <= cap:
+    if amt <= cap:
         return {"allow": True, "reason": f"under-human-gate(≤AU${cap:.0f})"}
     ch = channel or NotWiredStub()
     appr = ch.approval_for(action_id=action_id, amount_aud=amount_aud)
@@ -43,4 +52,4 @@ def check(amount_aud: float, action_id: str, channel: ApprovalChannel | None = N
                 "approval": {"action_id": appr.action_id, "amount_aud": appr.amount_aud,
                              "status": appr.status}}
     return {"allow": False,
-            "reason": f"over-gate(AU${amount_aud:.2f}>{cap:.0f}) no valid approval via {ch.name}"}
+            "reason": f"over-gate(AU${amt:.2f}>{cap:.0f}) no valid approval via {ch.name}"}

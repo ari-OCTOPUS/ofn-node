@@ -46,6 +46,22 @@ def t_threshold_from_sot():
     assert money_gate.human_gate_aud() == 20.0   # harness yaml بی‌کلید → کفِ 20
 
 
+def t_negative_amount_denies():
+    r = money_gate.check(-1.0, "LEAD-NEG-001")
+    assert r["allow"] is False and r["reason"] == "amount-not-a-spend", r
+
+
+def t_nan_and_inf_deny_with_honest_reason():
+    for a in (float("nan"), float("inf"), float("-inf")):
+        r = money_gate.check(a, "LEAD-NONFINITE")
+        assert r["allow"] is False and r["reason"] == "amount-not-a-spend", (a, r)
+
+
+def t_zero_still_under_gate():
+    r = money_gate.check(0.0, "LEAD-ZERO")
+    assert r["allow"] is True and "under-human-gate" in r["reason"], r
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("≤آستانه بدون token → allow", t_under_gate_allows_without_token),
@@ -54,5 +70,8 @@ if __name__ == "__main__":
         ("mismatch مبلغ → deny", t_amount_mismatch_denies),
         ("وضعیتِ خودگزارشی (نه approved/sent) → deny", t_self_report_status_denies),
         ("آستانهٔ human-gate از budgets.yaml (SoT)", t_threshold_from_sot),
+        ("مبلغ منفی → deny", t_negative_amount_denies),
+        ("NaN/Inf → deny با دلیل صادق", t_nan_and_inf_deny_with_honest_reason),
+        ("صفر هنوز under-gate", t_zero_still_under_gate),
     ])
     sys.exit(1 if failed else 0)

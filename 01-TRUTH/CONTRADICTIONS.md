@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-029** (C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-031** (C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -444,4 +444,36 @@ contradiction:
   status: contained — owner_vote برای ارتقای daily ledger_ok
   registered_by: "deep-seams agent 2026-08-16 ~13:2x (grep دو-مخزن: C-028 در CONTRADICTIONS نبود)"
   cross_ref: "[[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · HARDTEST-CROSSCHECK §S4 E3-tail"
+```
+
+```yaml
+contradiction:
+  id: C-029
+  claim: "لنگرهای ریاضی SOG بازتولید می‌شوند و DARE برای پارامترهای مدل تعریف شده است"
+  value_a: "guardrails.check_invariants → run_self_test؛ worst rel_err لنگرهای canonical = 8.8e-6؛ I_pred با settings 1.7e-6 می‌خواند"
+  source_a: "4d_system/core/model.py::run_self_test · 4d_system/config/settings.py::ANCHORS"
+  value_b: "P_closed(ρ=±1, λ=0) و solve() با |ρ|=1 → ZeroDivisionError؛ همان کلاس مخرج‌صفر C-021. نسخهٔ موازی _ops/heart/sog_math بعد از 2026-08-16 گارد دارد (nan)؛ TCB core ندارد"
+  source_b: "پروب 2026-08-16 · test_sog_floor_guards t_tcb_core_still_raises"
+  live_check: "core.model.P_closed(1.0, 0.0, 0.01, 0.0025) همچنان ZeroDivisionError. sog_math همان ورودی را nan می‌دهد. SETTINGS_ANCHORS در verifier import مرده است"
+  likely: هر دو — لنگرهای canonical سالم‌اند؛ لبهٔ |ρ|≥۱ تعریف‌نشده و بی‌گارد در TCB
+  resolution: "contained در مسیر ارگانیسم (sog_math). فیکس TCB نیازمند امضای مجدد — VOTE A Continuous Improve"
+  status: contained — owner_vote برای گارد core + re-sign
+  registered_by: "continuous-improve agent 2026-08-16 ~14:2x (grep: C-029 فقط به‌عنوان آزاد بعدی بود)"
+  cross_ref: "[[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]]"
+```
+
+```yaml
+contradiction:
+  id: C-030
+  claim: "money_gate fail-closed است — مبلغ نامعتبر هرگز allow نمی‌شود"
+  value_a: "docstring: fail-closed؛ بالای آستانه بدون تأیید = deny؛ capability_gate.require هر دو گیت را AND می‌کند"
+  source_a: "_ops/budget/money_gate.py · _ops/tests/test_money_gate.py (قبل از 2026-08-16 فقط ۱۵ و ۵۰ AUD)"
+  value_b: "check(-1.0) و check(-0.01) → allow under-human-gate. NaN/Inf deny تصادفی با دلیل دروغین over-gate(AU$nan>20)"
+  source_b: "پروب 2026-08-16 پیش از فیکس"
+  live_check: "پس از فیکس: منفی/NaN/Inf → deny amount-not-a-spend؛ ۱۵ و ۰ همچنان allow. تست test_money_gate 9/9"
+  likely: value_b قبل از فیکس
+  resolution: "resolved-in-code 2026-08-16 — گارد finite و amt<0 در ابتدای check()"
+  status: resolved-in-code
+  registered_by: "continuous-improve agent 2026-08-16 ~14:2x (grep: C-030 آزاد بود)"
+  cross_ref: "[[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]]"
 ```

@@ -1305,14 +1305,17 @@ class Pacemaker:
                         recent.append(now_s)
                         self._restart_log = recent
                         try:  # Phase 2 قلاب: OTP-style restart از حالتِ known-good لجر
-                            self.doctor.restart_from_known_good(leg, self.db)
+                            _ret = self.doctor.restart_from_known_good(leg, self.db)
+                            # None از mockهای قدیمی = موفقیت (قراردادِ قبلی)؛ فقط False صریح = شکست.
+                            _ok = False if _ret is False else True
                             # ۲۰۲۶-۰۸-۰۸: restartِ واقعی باید تاریخچهٔ phi را هم پاک
                             # کند — وگرنه arrivalsِ مسمومِ قبل از restart در beatِ
                             # بعد دوباره همان phiِ بالا را می‌سازد و leg بی‌درنگ failed
                             # برمی‌گردد (لوپِ بی‌فایده). bootstrapِ تمیز: یک ackِ تولد.
-                            acc = self.bus.phi.get(leg.id)
-                            if acc is not None:
-                                acc.reset(self._clock())
+                            if _ok:
+                                acc = self.bus.phi.get(leg.id)
+                                if acc is not None:
+                                    acc.reset(self._clock())
                             # جلسه ۴۶: لاگِ بی‌محتوا برای خانهٔ ساده («خودم درستش کردم»)
                             try:
                                 import time as _t2
@@ -1320,7 +1323,8 @@ class Pacemaker:
                                        "ts": _t2.time(),
                                        "beat": self.beat,
                                        "reason": "phi-timeout:no-ack",
-                                       "phi": round(float(phi), 3)}
+                                       "phi": round(float(phi), 3),
+                                       "ok": _ok}
                                 with open(opslib.STATE_DIR / "selfheal-events.jsonl",
                                           "a", encoding="utf-8") as _hf:
                                     _hf.write(json.dumps(_ev) + "\n")
@@ -1347,8 +1351,13 @@ class Pacemaker:
                                                   f"(phi={phi:.1f} — پاسخ‌گو نبود)"),
                                          status="failed",
                                          next_action=f"علت: state/legs/{_lg}-last-failure.json")
-                                _ev.emit("task.completed", "self-heal",
-                                         summary=f"عضو «{_lg}» را خودم دوباره راه انداختم")
+                                if _ok:
+                                    _ev.emit("task.completed", "self-heal",
+                                             summary=f"عضو «{_lg}» را خودم دوباره راه انداختم")
+                                else:
+                                    opslib.alert([
+                                        f"self-heal restart returned False ({_lg}) — "
+                                        "task.completed emit نشد"])
                             except Exception:  # noqa: BLE001
                                 pass
                         except Exception as e:  # noqa: BLE001

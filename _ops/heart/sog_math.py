@@ -43,8 +43,21 @@ PUBLISHED_ANCHORS = {
 
 
 # ─── هستهٔ تحلیلی (از primitiveها) ───────────────────────────────────────────────
+def _dare_params_ok(rho: float, lam: float, se2: float, sz2: float) -> bool:
+    """DAREِ این مدل برای |ρ|≥۱ تعریف نشده (مخرجِ ۱−ρ²). واریانس منفی هم نه.
+
+    2026-08-16 continuous-A: قبل از این گارد، p_closed(ρ=±1, λ=0) و
+    solve_floors(ρ=1) با ZeroDivisionError می‌ترکیدند — همان کلاس C-021
+    (هش→float/NaN) برای مخرجِ صفر. نقطهٔ canonical دست نمی‌خورد."""
+    return (math.isfinite(rho) and math.isfinite(lam)
+            and math.isfinite(se2) and math.isfinite(sz2)
+            and abs(rho) < 1.0 and se2 >= 0.0 and sz2 >= 0.0)
+
+
 def p_closed(rho: float, lam: float, se2: float, sz2: float) -> float:
     """حل بسته‌شکلِ DAREِ اسکالر (بازتولید مستقل از 4.py/core.model)."""
+    if not _dare_params_ok(rho, lam, se2, sz2):
+        return math.nan
     if lam == 0.0:
         return sz2 / (1.0 - rho * rho)
     c = se2 * (1.0 - rho * rho)
@@ -54,9 +67,13 @@ def p_closed(rho: float, lam: float, se2: float, sz2: float) -> float:
 
 def p_iter(rho: float, lam: float, se2: float, sz2: float, iters: int = 8000) -> float:
     """همان DARE با fixed-point iteration — چکِ متقاطعِ closed-form (بلاک ۱ 4.py)."""
+    if not _dare_params_ok(rho, lam, se2, sz2):
+        return math.nan
     P = sz2
     for _ in range(iters):
         S = lam * lam * P + se2
+        if S <= 0.0:
+            return math.nan
         P = rho * rho * P * se2 / S + sz2
     return P
 
@@ -65,6 +82,12 @@ def solve_floors(rho: float, lam: float, se: float, sz: float, sd: float) -> dic
     """سه کفِ اطلاعاتی + گین‌ها، همه از primitiveها (σ_z² literal ممنوع — Gate-A)."""
     se2, sz2, sd2 = se * se, sz * sz, sd * sd
     szp2 = sz2 + sd2
+    if not (_dare_params_ok(rho, lam, se2, sz2)
+            and math.isfinite(sd) and sd >= 0.0):
+        nan = math.nan
+        return {"P": nan, "S": nan, "K": nan, "P_b": nan, "S_b": nan, "K_b": nan,
+                "sigma_z2": nan, "se2": se2, "sz2": sz2, "sd2": sd2, "szp2": szp2,
+                "ok": False, "reason": "degenerate-params"}
     P = p_closed(rho, lam, se2, sz2)
     S = lam * lam * P + se2
     K = P * lam / S if S else 0.0
@@ -73,22 +96,32 @@ def solve_floors(rho: float, lam: float, se: float, sz: float, sd: float) -> dic
     Kb = Pb * lam / Sb if Sb else 0.0
     sigma_z2 = lam * lam * szp2 / (1.0 - rho * rho) + se2
     return {"P": P, "S": S, "K": K, "P_b": Pb, "S_b": Sb, "K_b": Kb,
-            "sigma_z2": sigma_z2, "se2": se2, "sz2": sz2, "sd2": sd2, "szp2": szp2}
+            "sigma_z2": sigma_z2, "se2": se2, "sz2": sz2, "sd2": sd2, "szp2": szp2,
+            "ok": True}
 
 
 def delta_self(fl: dict) -> float:
     """Δ_self = ½·log(S_b/S) — ارزشِ دسترسیِ اول‌شخص [nat/گام]."""
-    return 0.5 * math.log(fl["S_b"] / fl["S"])
+    s, sb = fl["S"], fl["S_b"]
+    if not (math.isfinite(s) and math.isfinite(sb) and s > 0.0 and sb > 0.0):
+        return math.nan
+    return 0.5 * math.log(sb / s)
 
 
 def e_shadow(fl: dict) -> float:
     """E_shadow = ½·log(σ_z²/S_b) — دیدپذیریِ سایه [nat/گام]."""
-    return 0.5 * math.log(fl["sigma_z2"] / fl["S_b"])
+    z, sb = fl["sigma_z2"], fl["S_b"]
+    if not (math.isfinite(z) and math.isfinite(sb) and z > 0.0 and sb > 0.0):
+        return math.nan
+    return 0.5 * math.log(z / sb)
 
 
 def identity_total(fl: dict) -> float:
     """اتحادِ زنجیره: ½·log(σ_z²/S) = E_shadow + Δ_self."""
-    return 0.5 * math.log(fl["sigma_z2"] / fl["S"])
+    z, s = fl["sigma_z2"], fl["S"]
+    if not (math.isfinite(z) and math.isfinite(s) and z > 0.0 and s > 0.0):
+        return math.nan
+    return 0.5 * math.log(z / s)
 
 
 def var_excess(fl: dict) -> float:
@@ -108,6 +141,9 @@ def i_pred_riccati(rho: float, lam: float, se: float, sz: float, sd: float,
     se2 = se * se
     szp2 = sz * sz + sd * sd
     fl = solve_floors(rho, lam, se, sz, sd)
+    if not fl.get("ok", True) or not math.isfinite(fl.get("S_b", float("nan"))):
+        return {"total": math.nan, "terms": [], "s_seq": [], "S_b": math.nan,
+                "ok": False}
     Sb = fl["S_b"]
     P = szp2 / (1.0 - rho * rho)      # واریانسِ stationary حالتِ blind
     total, terms, s_seq = 0.0, [], []

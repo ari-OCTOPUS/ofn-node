@@ -24,7 +24,7 @@ status_legend:
 > این فایل خروجی STEP 1 مگاپرامپت است: انventory کامل فقط-خواندنی.
 > تاریخ ثبت: 2026-08-15. هیچ فایلی برای ساخت این ایندکس تغییر/حذف نشده.
 
-> 🌙 **پایان شب 15↯16 اوت:** [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] — هر ۴ مگاپرامپت اجرا شد · M3 9.28→14.4% · ERRORHUNT: circuit half_open + Watch=0 · HARDTEST: S5 REAL/S6 METAPHOR · DEEP-SEAMS: C-027/C-028 · آزاد بعدی: C-029. پوش فقط با کلمه.
+> 🌙 **پایان شب 15↯16 اوت:** [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] — هر ۴ مگاپرامپت اجرا شد · M3 9.28→14.4% · ERRORHUNT: circuit half_open + Watch=0 · HARDTEST: S5 REAL/S6 METAPHOR · DEEP-SEAMS: C-027/C-028 · IMPROVE-ACF: C-029/C-030 · آزاد بعدی: C-031. پوش فقط با کلمه.
 
 ## ۰. رأی‌های مالک (2026-08-15، این جلسه)
 
@@ -79,7 +79,9 @@ status_legend:
 
 | `00 - Inbox/2026-08-16 DAY-INDEX (MOC).md` · `00 - Inbox/2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget.md` · `06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16.md` (+ CROSSCHECK) · `00 - Inbox/2026-08-16 DISCOVERY — Capability Hard-Test Scorecard.md` · `_scratch-hardtest/s1..s6` | تست سخت شش قابلیت (S5=REAL · S1-S4=PARTIAL · S6=METAPHOR) + صلیب‌چک + عملیات اولاما/بودجه — C-025/C-026 | 2026-08-16 عصر | کشف/تست/عملیات | 06-EVIDENCE + 00 - Inbox | verified |
 
-| `06-EVIDENCE/DEEP-SEAMS-2026-08-16.md` · `00 - Inbox/2026-08-16 DISCOVERY — Deep-Seams Ledger.md` | درزهای ماشینِ خودبهبودی: C-027 deadline_cycles → recall-events 90 · C-028 tip-commit · پنج gauge ۰/۱۵ PASS — آزاد بعدی C-029 | 2026-08-16 ~13:2x | کشف/فیکس | 06-EVIDENCE + 00 - Inbox | verified |
+| `06-EVIDENCE/DEEP-SEAMS-2026-08-16.md` · `00 - Inbox/2026-08-16 DISCOVERY — Deep-Seams Ledger.md` | درزهای ماشینِ خودبهبودی: C-027 deadline_cycles → recall-events 90 · C-028 tip-commit · پنج gauge ۰/۱۵ PASS | 2026-08-16 ~13:2x | کشف/فیکس | 06-EVIDENCE + 00 - Inbox | verified |
+
+| `06-EVIDENCE/IMPROVE-ACF-2026-08-16.md` · `00 - Inbox/2026-08-16 DISCOVERY — Continuous Improve A-C-F.md` | خودبهبودی دائمی A+C+F: DARE ۵→۰ ترکیدگی · money_gate منفی deny · selfheal ok — C-029/C-030 · آزاد بعدی C-031 | 2026-08-16 ~14:2x | کشف/فیکس | 06-EVIDENCE + 00 - Inbox | verified |
 
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 

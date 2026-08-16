@@ -46,7 +46,12 @@ tags: [owner, pending, votes, checklist, follow-up]
 - [ ] **VOTE 2 — مسیر رأی improve:** فلگ LEARN=1 است ولی `improve-verdicts.jsonl` غایب؛ کارت digest به live_loop نمی‌رسد
 - [ ] **VOTE 3 — money-claimed:** deadline اجرا شد و صدر رفت به recall-events=90؛ اگر پول باید تا ابد قفل بماند بگو (وگرنه همین بماند)
 - [ ] **VOTE 4 — ledger_ok روزانه = verify ∧ tip:** tip-commit additive است؛ ارتقای گیت روزانه جداست
-- [ ] **پوش این نشست هم** بعد از کامیت DEEP-SEAMS (C-027/C-028 مصرف شدند — آزاد بعدی C-029)
+- [ ] **پوش این نشست هم** بعد از کامیت DEEP-SEAMS (C-027/C-028 مصرف شدند — آزاد بعدی الان C-031 پس از IMPROVE-ACF)
+
+## 🟢 رأی‌های خودبهبودی A+C+F (2026-08-16 ~14:2x) — [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]]
+
+- [ ] **VOTE A — گارد DARE در TCB core + امضای مجدد:** `P_closed(ρ=1,λ=0)` هنوز ZeroDivision (C-029)
+- [ ] **VOTE B — I_pred داخل run_self_test:** SETTINGS_ANCHORS در verifier import مرده است
 
 ## ⚪ بازِ قدیمی‌تر (از STATE §8 — با ایجنت بعدی پیگیری شود)
 

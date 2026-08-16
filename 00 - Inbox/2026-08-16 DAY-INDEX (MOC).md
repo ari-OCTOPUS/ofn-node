@@ -4,12 +4,12 @@ kind: daily-index
 date: 2026-08-16
 created: 2026-08-16 ~14:4x
 tags: [moc, daily-index, 2026-08-16]
-next_free_contradiction: C-029
+next_free_contradiction: C-031
 ---
 
 # 🗺️ ایندکس روز — 2026-08-16 (پرکارترین روز ثبت‌شدهٔ Vault)
 
-> نقشهٔ کاملِ روز برای ناوبری. **۱۳ مأموریت ثبت‌شده + ۲ عملیات + ۱۰ تناقض نو (C-019..C-028)**. همهٔ لینک‌ها زنده.
+> نقشهٔ کاملِ روز برای ناوبری. **۱۴ مأموریت ثبت‌شده + ۲ عملیات + ۱۲ تناقض نو (C-019..C-030)**. همهٔ لینک‌ها زنده.
 
 ## مأموریت‌های کشف/تست (به ترتیب زمانی)
 
@@ -28,6 +28,7 @@ next_free_contradiction: C-029
 | ۱۱ | صلیب‌چک مستقل (Sonnet 5) | S1/S4/S6 بازسازی مستقل = تأیید؛ **C-026 approve/reject بی‌گیت**؛ قید روزهای گذار برای VOTE 4 | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |
 | ۱۲ | **درزهای ماشینِ خودبهبودی** | deadline_cycles اجرا شد → هدف زنده = recall-events **۹۰**؛ tip-commit دمِ لجر؛ پنج gauge (۰/۱۵ PASS) | [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · [[2026-08-16 DISCOVERY — Deep-Seams Ledger|کارت درزها]] |
 | ۱۳ | **حلقهٔ درز (مگاپرامپت بعدی)** | کشف→فیکس→تست→ابسیدین→بعدی؛ عدسی‌های ندیده؛ کف ۷ چرخه؛ v2 باطل‌کنندهٔ continuous/deep-seams | [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|SEAM-LOOP]] · [[2026-08-16 MEGAPROMPT — Seam Loop Self-Improve|لانچر Inbox]] |
+| ۱۴ | **خودبهبودی دائمی A+C+F** | DARE ارگانیسم ۵ ترکیدگی→۰؛ money_gate منفی deny؛ selfheal فیلد ok | [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] · [[2026-08-16 DISCOVERY — Continuous Improve A-C-F|کارت رأی]] |
 
 ## عملیات‌های فرمانی مالک (عصر)
 
@@ -36,7 +37,7 @@ next_free_contradiction: C-029
 
 ## دفتر تناقض‌ها — رشد ۸تایی در یک روز
 
-C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall — resolved) · C-022 (اسنپ‌شات circuit) · C-023 (پوش بدون one-word) · C-024 (SELF_CODE در env دیمون) · C-025 (دریفت family_key) · C-026 (approve/reject بی‌گیت) · **C-027** (deadline_cycles خودهدف — resolved-in-code) · **C-028** (verify() دمِ ledger — contained) — **آزاد بعدی: C-029** · دفتر: [[../01-TRUTH/CONTRADICTIONS|CONTRADICTIONS]]
+C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall — resolved) · C-022 (اسنپ‌شات circuit) · C-023 (پوش بدون one-word) · C-024 (SELF_CODE در env دیمون) · C-025 (دریفت family_key) · C-026 (approve/reject بی‌گیت) · **C-027** (deadline_cycles خودهدف — resolved-in-code) · **C-028** (verify() دمِ ledger — contained) · **C-029** (DARE |ρ|=1 در TCB — contained) · **C-030** (money_gate منفی — resolved-in-code) — **آزاد بعدی: C-031** · دفتر: [[../01-TRUTH/CONTRADICTIONS|CONTRADICTIONS]]
 
 ## رأی‌های باز (صف مالک)
 
