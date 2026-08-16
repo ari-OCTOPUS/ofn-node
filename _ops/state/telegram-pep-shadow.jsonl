@@ -1,0 +1,2 @@
+{"ts": "2026-08-16T05:32:55", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "04733cd66d9fc1ad777a2fcb", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
+{"ts": "2026-08-16T05:43:40", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "13f5e47ef2c38f11eb9dff4c", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
