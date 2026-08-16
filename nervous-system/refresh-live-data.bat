@@ -1,6 +1,9 @@
 @echo off
 chcp 65001 >nul
 set PYTHONUTF8=1
+rem 2026-08-16 (SEAM-LOOP C1): bare python = silent no-op in task context (Store stub/no PATH)
+rem -> absolute python.exe per Watch pattern; keeps interactive use identical.
+set "PY_EXE=C:\Program Files\Python313\python.exe"
 cd /d "%~dp0"
 echo Refreshing OCTOPUS live data...
 
@@ -35,7 +38,7 @@ REM            4d_system/outputs/4d_experiments.db
 REM   Output:  live-data.js  (~140KB typical)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Vitals panel, OCTOPUS worlds
-python extract_live_data.py
+"%PY_EXE%" extract_live_data.py
 
 REM CH-01: Organism state (money, time, wiring flags)
 REM   Source:  _ops/state/ORGANISM-STATE.json
@@ -44,14 +47,14 @@ REM            _ops/state/cardiac-budget.json
 REM   Output:  ops-data.js  (~1KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Vitals panel, OCTOPUS Cockpit
-python extract_ops_data.py
+"%PY_EXE%" extract_ops_data.py
 
 REM CH-03: Vault graph scanner (wiki-links between all markdown files)
 REM   Source:  Entire F:/backup vault (*.md only; skips _Archive, _Duplicates, .git, etc.)
 REM   Output:  graph-data.js  (~108KB)  → also mirrored to OCTOPUS/worlds/graph-data.js
 REM   Runtime: ~3-5s (scans thousands of files; capped at 300 nodes + edges)
 REM   UI consumers: OCTOPUS 02-ontology world, admin-telegram (future)
-python extract_graph.py
+"%PY_EXE%" extract_graph.py
 
 REM ----------------------------------------------------------------------------
 REM LAYER 1 — Organism Telemetry, Health & Governance
@@ -68,7 +71,7 @@ REM   Output:  audit-data.js  (~11KB)
 REM   Runtime: ~1-2s
 REM   UI consumers: OCTOPUS 04-twin world, admin-telegram (future)
 REM   Features: freshness check (>45min = stale), delta detection vs last run
-python extract_audit_data.py
+"%PY_EXE%" extract_audit_data.py
 
 REM CH-07: Composite health score (system + fitness + telemetry)
 REM   Source:  _ops/state/ORGANISM-STATE.json
@@ -79,7 +82,7 @@ REM   Output:  health-data.js  (~1-2KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Health panel, OCTOPUS 08-risk world
 REM   Weights: system 40% + fitness 35% + telemetry 25% (override via health-weights.json)
-python extract_health_score.py
+"%PY_EXE%" extract_health_score.py
 
 REM CH-17: Watchdog alerts & organism liveness
 REM   Source:  _ops/state/ORGANISM-STATE.json
@@ -89,7 +92,7 @@ REM   Output:  watchdog-data.js  (~15KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram (future), OCTOPUS 01-cockpit badge
 REM   Thresholds: state stale >60min, critical alerts score -15 each, STOP flags -30
-python extract_watchdog_data.py
+"%PY_EXE%" extract_watchdog_data.py
 
 REM CH-16: Neural telemetry (rhythm, circadian, hebbian, consolidation)
 REM   Source:  _ops/neural/hebbian.json
@@ -100,7 +103,7 @@ REM            _ops/state/ORGANISM-STATE.json
 REM   Output:  neural-data.js  (~1-2KB)  → also mirrored to OCTOPUS/worlds/neural-data.js
 REM   Runtime: ~1-2s (imports Python modules; fail-soft if modules missing)
 REM   UI consumers: admin-telegram Neural panel, OCTOPUS 06-time world
-python extract_neural_data.py
+"%PY_EXE%" extract_neural_data.py
 
 REM CH-04: Unified approval queue (HITL / owner-gate)
 REM   Source:  _ops/state/unified-approval-queue.json
@@ -108,7 +111,7 @@ REM   Output:  queue-data.js  (~300B-2KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Queue panel, OCTOPUS 01-cockpit badge
 REM   Schema: Q.queue.items[], Q.queue.counts{}, Q.queue.badge (pending count)
-python extract_queue_data.py
+"%PY_EXE%" extract_queue_data.py
 
 REM ----------------------------------------------------------------------------
 REM LAYER 2 — External Channels, Scouts & Vault Scans
@@ -123,7 +126,7 @@ REM   Output:  research-data.js  (~4KB)
 REM   Runtime: ~1-2s
 REM   UI consumers: admin-telegram Research panel, OCTOPUS 01-cockpit
 REM   Coverage: 23 canonical scouts; health score based on staleness + synthesis age
-python extract_research_data.py
+"%PY_EXE%" extract_research_data.py
 
 REM CH-05: Obsidian task queue (FULL VAULT SCAN — heaviest I/O)
 REM   Source:  All .md files under F:/backup (skips _Archive, _Duplicates, .git, node_modules, etc.)
@@ -133,14 +136,14 @@ REM   UI consumers: admin-telegram Task Queue panel
 REM   NOTE:    For dashboard use, task-summary-data.js (built in Wave 5) is loaded
 REM            by default. Full task-data.js is lazy-loaded on user request.
 REM            See PAYLOAD-SIZE-REPORT.md for metrics.
-python extract_obsidian_tasks.py
+"%PY_EXE%" extract_obsidian_tasks.py
 
 REM CH-05b: Task summary (lightweight dashboard payload — depends on CH-05 above)
 REM   Source:  task-data.js (output of extract_obsidian_tasks.py)
 REM   Output:  task-summary-data.js  (~1.5KB)
 REM   Runtime: ~0.5s
 REM   UI consumers: admin-telegram Task Queue panel (default load)
-python extract_task_summary.py
+"%PY_EXE%" extract_task_summary.py
 
 REM CH-02: Git status across all repos (SLOWEST — multiple subprocess calls)
 REM   Source:  .git/ directories under F:/backup (discovered via os.walk, max depth 6)
@@ -148,7 +151,7 @@ REM   Output:  git-data.js  (~5KB)
 REM   Runtime: ~5-15s (spawns git status --porcelain=2 --branch per repo)
 REM   UI consumers: admin-telegram Git Status panel
 REM   Limitations: caps file list at 50 per repo; skips nested submodules gracefully
-python extract_git_status_data.py
+"%PY_EXE%" extract_git_status_data.py
 
 REM CH-08: Wallet / eToro governance
 REM   Source:  _ops/budget/wallet-state.json  (and related wallet source files)
@@ -156,7 +159,7 @@ REM   Output:  wallet-data.js  (~1-2KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Wallet panel, OCTOPUS 03-money world
 REM   Schema: WL.gate{}, WL.portfolio{}, WL.budget{}
-python extract_wallet_data.py
+"%PY_EXE%" extract_wallet_data.py
 
 REM CH-06: Mining fleet monitor
 REM   Source:  _ops/state/mining-status.json
@@ -165,7 +168,7 @@ REM   Output:  mining-data.js  (~7KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Mining panel, OCTOPUS 03-money world
 REM   Schema: M.fleet{}, M.readiness{}, M.security.gates{}, M.coins.top_candidates[]
-python extract_mining_data.py
+"%PY_EXE%" extract_mining_data.py
 
 REM CH-09: Crypto market signals
 REM   Source:  _ops/state/crypto-state.json
@@ -176,7 +179,7 @@ REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Crypto panel, OCTOPUS 03-money world
 REM   NOTE:    LunarCrush data may be stale if API rate-limits hit.
 REM            Staleness is flagged in C.lunarcrush.stale{} with emoji + label.
-python extract_crypto_data.py
+"%PY_EXE%" extract_crypto_data.py
 
 REM CH-13: Project index (03 - Projects/)
 REM   Source:  03 - Projects/*/PROJECT.md, MANIFEST.yaml, OpenQuestions.md
@@ -184,7 +187,7 @@ REM   Output:  project-data.js  (~4KB)
 REM   Runtime: ~1-2s
 REM   UI consumers: admin-telegram Project Index panel, OCTOPUS 01-cockpit
 REM   Health: computed from doc presence, activity age, blockers, todos, status
-python extract_project_index.py
+"%PY_EXE%" extract_project_index.py
 
 REM CH-12: Ideas backlog (00 - Inbox/)
 REM   Source:  00 - Inbox/*.md (frontmatter + H1 + strategic scoring heuristic)
@@ -192,7 +195,7 @@ REM   Output:  ideas-data.js  (~80KB)
 REM   Runtime: ~1-2s
 REM   UI consumers: admin-telegram Ideas Backlog panel
 REM   Scoring: type base + status multiplier + tag/title/path bonuses + freshness
-python extract_ideas_backlog.py
+"%PY_EXE%" extract_ideas_backlog.py
 
 REM CH-15: Telegram control channel
 REM   Source:  _ops/state/channel-status.json
@@ -205,7 +208,7 @@ REM   Output:  telegram-data.js  (~2KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Telegram Control panel
 REM   Health: live(40%) + offset fresh(20%) + queue drained(20%) + budget open(20%)
-python extract_telegram_control.py
+"%PY_EXE%" extract_telegram_control.py
 
 REM CH-15b: Telegram command registry (Wave 6)
 REM   Source:  _ops/telegram_center/center.py
@@ -217,13 +220,13 @@ REM   Output:  telegram-commands-data.js  (~6KB)
 REM   Runtime: ~1s
 REM   UI consumers: admin-telegram Telegram Control panel (command list + mode badges)
 REM   Schema: commands[], modes, safety labels, wiring status, masked owner chat ID
-python extract_telegram_commands.py
+"%PY_EXE%" extract_telegram_commands.py
 
 REM CH-18: Audit trail (Wave 6)
 REM   Source:  _ops/state/action-audit.jsonl
 REM   Output:  audit-trail-data.js  (~2-5KB)
 REM   UI consumers: admin-telegram Audit panel
-python extract_audit_trail.py
+"%PY_EXE%" extract_audit_trail.py
 
 echo Done.
 

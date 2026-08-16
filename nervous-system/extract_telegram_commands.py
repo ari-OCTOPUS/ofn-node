@@ -212,9 +212,10 @@ def main() -> None:
     for cmd in _build_wave6_safe_surface(center_py_text):
         command_map[cmd["command"]] = cmd
 
-    for cmd in _build_wave6_safe_surface(center_py_text):
-        command_map[cmd["command"]] = cmd
-
+    # SEAM-LOOP C1 (2026-08-16): has_handler محلیِ _build_wave6_safe_surface بود و در
+    # main تعریف نبود → NameError → استخراجگر از 07-13 مرده. همین‌جا از همان منبع ساخته می‌شود.
+    has_handler = {c["command"]: (f"def _cmd_{c['command']}(" in center_py_text)
+                   for c in center_cmds}
     for c in center_cmds:
         key = c["command"]
         if key not in command_map and has_handler.get(key, False):
