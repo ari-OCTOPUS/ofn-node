@@ -118,3 +118,14 @@ verdicts:
     adr: ADR-037
     expires_to: "0 (advisory-only) only by explicit owner rollback"
     note: "اثر محدود فقط: throttle · pause_proposal · reduce_concurrency · block_suspicious_proposal · request_human_approval. هر اقدام ۵ فیلد الزامی دارد (proposal_hash/policy_version/state_version/expiry_at/idempotency_key) + owner_verdict؛ غایب = DENY. ممنوع همیشگی: تغییر کد/policy، بازنویسی حافظهٔ معنایی، اجرای proposal بدون PolicyGate، پیام خارجی، secret/Project-F. اجرا فقط از PolicyGate؛ این رأی فقط دروازهٔ proposal را باز می‌کند."
+
+  wire_life_currency:
+    env: OCTOPUS_WIRE_LIFE_CURRENCY
+    value: "1"
+    unit: boolean
+    decided: "2026-08-16"
+    reader: heart.life_currency.enabled
+    quote: "فاز ۴ دستورالعمل Worker Agent: تخصیص بودجه به ۱۱ عضو در هر beat GREEN (D4/D7)"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: "تخصیص سه‌بعدی (token/call/risk) از cardiac-budget.json به‌عنوان استخر؛ نوشتنِ life-currency-latest.json پشت همین فلگ. W5 سندِ DUAL-BRAIN-CONSTITUTION — رأیِ همین روزِ مالک با صدور دستورالعملِ فاز ۴. صفر مسیرِ پول؛ فقط حسابداریِ داخلیِ سهم‌ها."

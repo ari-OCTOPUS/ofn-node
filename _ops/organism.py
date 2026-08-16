@@ -555,6 +555,16 @@ def main() -> int:
                 _ohb.tick(int(((_cstat or {}).get("beat") or 0)))
             except Exception:  # noqa: BLE001 — R9 هرگز تیک را نمی‌کشد
                 pass
+            # ── Life Currency (فاز ۴ دستورالعمل ۲۰۲۶-۰۸-۱۶، D4/D7): تخصیصِ سه‌بعدیِ
+            # سهمِ beat به ۱۱ عضو — رنگ را خودش از ORGANISM-STATE می‌خواند (GREEN کامل ·
+            # AMBER نصف · RED survival). نوشتن پشتِ OCTOPUS_WIRE_LIFE_CURRENCY
+            # (env برنده؛ fallback رأیِ tracked). fail-soft و additive.
+            try:
+                sys.path.insert(0, str(_HERE / "heart"))   # noqa: WPS433
+                import life_currency as _lc   # noqa: WPS433 — lazy
+                _lc.tick(int(((_cstat or {}).get("beat") or 0)))
+            except Exception:  # noqa: BLE001 — ارز هرگز تیک را نمی‌کشد
+                pass
             # vital ناوردی ۳: کهنگی germline — از طریقِ wiring.enrich_state_with_germline
             # (قراردادِ testable germline.py با CRIT-tier alert + fallback). پشتِ flag:
             # OCTOPUS_WIRE_GERMLINE=1 → ماژولِ غنی؛ خاموز → fallback (رفتارِ فعلی، safety-vital).
