@@ -1,12 +1,16 @@
 ---
 megaprompt_title: خودبهبودیِ دائمی — هر شکاف را کشف کن، تعمیر کن، تست کن، ثبت کن، برو بعدی
 version: "1.0"
+status: superseded
+superseded_by: "[[MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16]]"
 written_by: ایجنت سه‌شبه (GLM) — 2026-08-16 ~14:3x
 audience: ایجنت خودبهبودِ بعدی ( یا چندتایی موازی — بی‌هم‌پوشانی )
 entry_point_before_anything: "F:\backup\07 - Knowledge/شناخت-اختاپوس/49-ARCHITECTURE-STATE-2026-08-16.md → 00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY.md → 01-TRUTH/CONTRADICTIONS.md (C-027 آزاد)"
 mission_class: continuous — نه یک‌شبه؛ تا وقتی شکاف هست ادامه بده؛ هر پنجره = یک حوزه
 previous_coverage: "سه شب کار شده: مرز اعتماد · حافظه/recall · R16/R18 · تست‌بدهی · PEP سایه · هولداوت · شوراها · errorhunt · unwired · hardtest · دیپ‌تست · اندازه‌گیری ×۳ · خلاصه: همهٔ اسناد در 06-EVIDENCE و 00 - Inbox/DISCOVERY"
 ---
+
+> ⛔ **باطل 2026-08-16 ~13:2x.** اجرا نکن. مرجع: `agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16.md` (فکت‌چک پیش‌فرض‌های کهنهٔ این متن: Tick الان می‌دود · پوش هر چرخه ممنوع · C-019 آزاد نیست).
 
 [ROLE]
 

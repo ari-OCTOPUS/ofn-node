@@ -9,7 +9,7 @@ next_free_contradiction: C-027
 
 # 🗺️ ایندکس روز — 2026-08-16 (پرکارترین روز ثبت‌شدهٔ Vault)
 
-> نقشهٔ کاملِ روز برای ناوبری. **۱۱ مأموریت ثبت‌شده + ۲ عملیات + ۸ تناقض نو (C-019..C-026)**. همهٔ لینک‌ها زنده.
+> نقشهٔ کاملِ روز برای ناوبری. **۱۲ مأموریت ثبت‌شده + ۲ عملیات + ۸ تناقض نو (C-019..C-026)**. همهٔ لینک‌ها زنده.
 
 ## مأموریت‌های کشف/تست (به ترتیب زمانی)
 
@@ -26,6 +26,7 @@ next_free_contradiction: C-027
 | ۹ | حلقهٔ recall | M3 از 58/2.0 به 90/21.0؛ ریشه NaN در hash-as-float32 (C-021) | [[../06-EVIDENCE/RECALL-LOOP-2026-08-16|RECALL-LOOP]] |
 | ۱۰ | **تست سخت قابلیت‌ها** (این نشست) | شش قابلیت با حمله: S5 خودترمیمی REAL · S1-S4 PARTIAL · **S6 پیش‌بینی METAPHOR + مسیر بهبود واقعی** | [[../06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16|HARDTEST]] · [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|کارت امتیاز]] |
 | ۱۱ | صلیب‌چک مستقل (Sonnet 5) | S1/S4/S6 بازسازی مستقل = تأیید؛ **C-026 approve/reject بی‌گیت**؛ قید روزهای گذار برای VOTE 4 | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |
+| ۱۲ | **حلقهٔ درز (مگاپرامپت بعدی)** | کشف→فیکس→تست→ابسیدین→بعدی؛ عدسی‌های ندیده؛ کف ۷ چرخه؛ v2 باطل‌کنندهٔ continuous/deep-seams | [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|SEAM-LOOP]] · [[2026-08-16 MEGAPROMPT — Seam Loop Self-Improve|لانچر Inbox]] |
 
 ## عملیات‌های فرمانی مالک (عصر)
 
