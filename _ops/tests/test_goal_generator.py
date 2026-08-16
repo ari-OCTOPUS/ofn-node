@@ -168,6 +168,57 @@ def t_goal_key_is_stable_under_whitespace_and_case():
     assert a == b
 
 
+def _write_recall(events=90):
+    p = opslib.STATE_DIR / "neural" / "recall-trend.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"events": events}) + "\n", "utf-8")
+
+
+def t_one_fail_does_not_exhaust_a_two_cycle_deadline():
+    """کنترل منفی: یک FAIL < deadline=2 → money همچنان صدر است."""
+    _fresh()
+    _write_fitness(claimed=0)
+    _write_recall(90)
+    _write_goals()
+    gkey = gg._goal_key(gg._CANDIDATES[0]["goal"])
+    vp = opslib.STATE_DIR / "test_cycle" / "verdicts.jsonl"
+    vp.parent.mkdir(parents=True, exist_ok=True)
+    vp.write_text(json.dumps({"schema": "cycle_verdict.v1", "goal_key": gkey,
+                              "verdict": "FAIL", "method_index": 0}) + "\n", "utf-8")
+    r = gg.propose(now=_at(9))
+    assert r["ok"] is True, r
+    assert r["candidate_key"] == "money-claimed", r
+    assert r.get("fail_streak") == 1, r
+    assert not any(s.get("reason") == "deadline-exhausted" for s in r.get("skipped") or [])
+
+
+def t_deadline_exhausted_yields_to_next_candidate_with_a_live_metric():
+    """۲۴ FAIL زنده روی money + recall=90 → باید نوبت به recall-events برسد.
+
+    deadline_cycles=2 در کاتالوگ بود ولی propose هرگز آن را نمی‌خواند
+    (درز A3، 2026-08-16). دو FAIL کافی است تا کاندیدای گیرکرده کنار برود."""
+    _fresh()
+    _write_fitness(claimed=0)
+    _write_recall(90)
+    _write_goals()
+    gkey = gg._goal_key(gg._CANDIDATES[0]["goal"])
+    vp = opslib.STATE_DIR / "test_cycle" / "verdicts.jsonl"
+    vp.parent.mkdir(parents=True, exist_ok=True)
+    lines = []
+    for i in range(2):
+        lines.append(json.dumps({"schema": "cycle_verdict.v1", "goal_key": gkey,
+                                 "verdict": "FAIL", "method_index": i,
+                                 "reason": "no-movement"}))
+    vp.write_text("\n".join(lines) + "\n", "utf-8")
+    r = gg.propose(now=_at(9))
+    assert r["ok"] is True, r
+    assert r["candidate_key"] == "recall-events", r
+    assert r["baseline"] == 90, r
+    reasons = {s["key"]: s["reason"] for s in r.get("skipped") or []}
+    assert reasons.get("money-claimed") == "deadline-exhausted", reasons
+    assert r.get("fail_streak") == 0, r  # recall هرگز آزموده نشده
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

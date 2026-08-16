@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-027** (C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-029** (C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -412,4 +412,36 @@ contradiction:
   status: open — owner_vote
   registered_by: "hardtest-crosscheck agent 2026-08-16 ~13:1x (grep دو-مخزن پیش از ثبت: C-026 آزاد بود)"
   cross_ref: "هم‌خانوادهٔ C-024 (فلگِ زنده در env دیمون) ولی مکانیزمِ متفاوت — C-024 دربارهٔ روشن‌بودنِ فلگ است، این دربارهٔ بی‌اثریِ خاموش‌کردنش روی صفِ pending. جزئیات: [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|HARDTEST-CROSSCHECK]]"
+```
+
+```yaml
+contradiction:
+  id: C-027
+  claim: "deadline_cycles در کاتالوگِ خودهدف، پس از N شکست کاندیدای گیرکرده را کنار می‌گذارد"
+  value_a: "goal_generator._CANDIDATES برای هر هدف deadline_cycles=2 می‌نویسد؛ validate آن را اجباری می‌کند؛ منشور می‌گوید KPI باید حرکت کند وگرنه تکمیل نیست"
+  source_a: "_ops/cortex/goal_generator.py (فیلد + validate) · SELF-GOAL-CHARTER-2026-07-30 §۰ سؤال ۴"
+  value_b: "تا 2026-08-16 propose() فیلد را هرگز برای skip نمی‌خواند — ۲۴/۲۴ cycle_verdict FAIL no-movement روی goal_key واحد f7ceb1b7dd0e (money-claimed)؛ attribution.claimed=0 در حالی که recall-events=90 روی دیسک بود و هرگز نوبت نگرفت"
+  source_b: "_ops/state/test_cycle/verdicts.jsonl (۲۴ ردیف) · fitness-latest.json claimed=0 · neural/recall-trend آخرین events=90"
+  live_check: "پس از فیکس additive: propose() روی درخت زنده → candidate_key=recall-events baseline=90 · skipped money-claimed deadline-exhausted fail_streak=24. تست: test_goal_generator 12/12 (کنترل منفی: یک FAIL هنوز money است)"
+  likely: value_b (قبل از فیکس) — بعد از فیکس رفتار با value_a یکی شد
+  resolution: "resolved-in-code 2026-08-16 — propose() حالا streak>=deadline را skip می‌کند؛ اگر همه exhausted باشند fallback با مهر deadline-fallback. رأی مالک اگر بخواهد money تا ابد قفل بماند (VOTE 3 Deep-Seams Ledger)"
+  status: resolved-in-code — owner may revert via VOTE 3
+  registered_by: "deep-seams agent 2026-08-16 ~13:2x (grep دو-مخزن: C-027 آزاد بود)"
+  cross_ref: "[[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]]"
+```
+
+```yaml
+contradiction:
+  id: C-028
+  claim: "ledger ژنوم tamper-evident است — هر ویرایشِ خاموشِ تاریخ زنجیره را می‌شکند"
+  value_a: "ledger.py docstring: هر رکورد hashِ قبلی را دارد پس silent edit تاریخ را می‌شکند؛ organism روزانه verify() می‌کند"
+  source_a: "07 - Knowledge/genome-system/ledger/ledger.py:1-7 · organism.py بلوک روزانه"
+  value_b: "حذفِ آخرین ردیف از کپیِ زنده (۱۱٬۳۹۸→۱۱٬۳۹۷) → verify() همچنان True ok — همان کلاس epistemics E3-tail (صلیب‌چک HARDTEST). APPLY/GENOME_CHANGE در ۱۱٬۳۹۸ ردیف صفر است؛ ۸۶٪ SCHEDULER_DISPATCH"
+  source_b: "بازتولید 2026-08-16 روی کپی tempfile از ledger.jsonl زنده"
+  live_check: "verify() عمداً LAW-دست‌نخورده ماند. verify_tip() + sidecar .tip.json روی append؛ seal_tip اگر unsealed. تست test_ledger_tip_commit 4/4 (کنترل منفی: verify بعد از دم‌حذف هنوز ok)"
+  likely: value_b برای verify()؛ tip-commit درز را می‌بندد بدون تغییر LAW
+  resolution: "contained 2026-08-16 — روش جدید additive؛ سوئیچِ ledger_ok روزانه = verify∧tip نیازمند VOTE 4"
+  status: contained — owner_vote برای ارتقای daily ledger_ok
+  registered_by: "deep-seams agent 2026-08-16 ~13:2x (grep دو-مخزن: C-028 در CONTRADICTIONS نبود)"
+  cross_ref: "[[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · HARDTEST-CROSSCHECK §S4 E3-tail"
 ```

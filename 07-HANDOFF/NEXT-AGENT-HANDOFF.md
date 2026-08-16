@@ -7,6 +7,8 @@ agent: "ZCode (GLM-5.2)"
 
 # NEXT-AGENT-HANDOFF — مأموریت بازیابی Vault (2026-08-15)
 
+> **📌 الحاقیهٔ 2026-08-16 ~13:2x — DEEP-SEAMS EXECUTED:** [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|شواهد]] · C-027 deadline_cycles → recall-events **۹۰** · C-028 tip-commit · gauge ۰/۱۵ PASS. آزاد **C-029**. پوش فقط با کلمه.
+
 > **📌 الحاقیهٔ 2026-08-16 ~13:1x — بستن ERRORHUNT + ماندگارسازی:** نوت [[../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹]] · circuit orchestr روی دیسک **half_open** · Poisoning Watch LastResult=0 · سه تست ERRORHUNT در `run_all.py` · `OctopusLiveDataRefresh` هنوز FILE_NOT_FOUND. آزاد **C-027**. پوش فقط با کلمه.
 
 > **📌 الحاقیهٔ 2026-08-16 عصر — HARD-TEST + OPS (نشست پنجم):** شش قابلیت با حمله آزموده شد — S5 خودترمیمی=REAL · S1-S4=PARTIAL · **S6 پیش‌بینیِ ثبت‌شده=METAPHOR** (۱/۱۶ زیرمجموعه؛ مدل بدتر از ثابت). صلیب‌چک مستقل (Sonnet 5) تأییدش کرد + **C-026** (approve/reject بی‌گیتِ enabled) + قید روزهای گذار برای VOTE 4. عملیات فرمانی: اولاما سبک شد (`flags` → 1.5b؛ VRAM 4216→163MiB؛ organism+cortex ری‌استارت با لانچر رسمی)؛ تحلیل بودجهٔ deepseek (کل تاریخ $0.35؛ سقف $20/w در ۱٫۲٪؛ پروب $0.008 معلق رأی). **صف رأی مالک:** پنج کارت HARD-TEST + C-026-fix + بودجه + ری‌استارت رسمی ۳ عضو env-قدیمی. **شناسهٔ آزاد بعدی: C-027.** نقشهٔ کامل روز: [[../00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX 2026-08-16]] · نشست: [[../00 - Inbox/2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION]]

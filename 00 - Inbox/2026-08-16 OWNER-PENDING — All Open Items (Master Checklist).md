@@ -40,6 +40,14 @@ tags: [owner, pending, votes, checklist, follow-up]
 - [ ] **deepseek v4 flash:** پروب رد شد ⇒ پیشنهاد نهایی: **بودجه همان بماند** (سقف $20/هفته = بیمه؛ مصرف ۱٫۲٪). فقط اگر مصرف‌کنندهٔ نو با عدد رأی شد، سقف بالاتر. ([[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3-پروب]])
 - [ ] (قدیمی) سقف‌های budgets.yaml / spike / disaster — بازبینی دوره‌ای
 
+## 🟢 رأی‌های درز خودبهبودی (اجرا شد 2026-08-16 ~13:2x) — [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]]
+
+- [ ] **VOTE 1 — experiments:** `_ops/hypothesis_engine/experiments/` صفر caller تولیدی — وصل سایه یا STATUS retired
+- [ ] **VOTE 2 — مسیر رأی improve:** فلگ LEARN=1 است ولی `improve-verdicts.jsonl` غایب؛ کارت digest به live_loop نمی‌رسد
+- [ ] **VOTE 3 — money-claimed:** deadline اجرا شد و صدر رفت به recall-events=90؛ اگر پول باید تا ابد قفل بماند بگو (وگرنه همین بماند)
+- [ ] **VOTE 4 — ledger_ok روزانه = verify ∧ tip:** tip-commit additive است؛ ارتقای گیت روزانه جداست
+- [ ] **پوش این نشست هم** بعد از کامیت DEEP-SEAMS (C-027/C-028 مصرف شدند — آزاد بعدی C-029)
+
 ## ⚪ بازِ قدیمی‌تر (از STATE §8 — با ایجنت بعدی پیگیری شود)
 
 - [ ] فعال‌سازی PEP تلگرام (پس از VOTE 2) · DA-6 (B/C) · DA-1 L2/L3 (داور مستقل) · ممیز D1

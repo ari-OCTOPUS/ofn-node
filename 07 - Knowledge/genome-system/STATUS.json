@@ -1,6 +1,8 @@
 {
   "system": "genome-system",
   "version": "0.4.3",
+  "ledger_code_version": "0.4.8",
+  "ledger_code_note": "Loop app remains retired at 0.4.3 (2026-07-17). ledger.py itself advanced: v0.4.6 heart-arrow, v0.4.7 scar-aware verify, v0.4.8 tip-commit against tail truncation (2026-08-16 deep-seams). This field is the honest version of the LIVE ledger, not a claim that the retired loop restarted.",
   "updated": "2026-07-17",
   "status": "retired",
   "epistemic_status": "retired",
@@ -45,7 +47,7 @@
     "Respect plan.yaml: if complete, the loop idles and spends nothing",
     "Never override budget caps in genome/gates.yaml"
   ],
-  "tests_status": "smoke + integration + llm + review + leak_guard (4 checks) ALL green as of 2026-07-07; v0.4.2 fixed the append-lock race (12/12 consecutive runs); v0.4.3 made the key-leak guard two-way (hostname-based)",
+  "tests_status": "smoke + integration + llm + review + leak_guard (4 checks) ALL green as of 2026-07-07; v0.4.2 fixed the append-lock race (12/12 consecutive runs); v0.4.3 made the key-leak guard two-way (hostname-based); v0.4.8 tip-commit (2026-08-16) — see ledger_code_version",
   "open_items": ["off-site backup copy #3 (restic/rclone)", "run once with a real ANTHROPIC_API_KEY", "owner_confirmed: true in gates.yaml"],
   "see_also": ["INDEX.md", "HANDOFF.md", "CHANGELOG.md", "README.md"]
 }

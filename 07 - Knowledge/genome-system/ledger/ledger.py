@@ -207,6 +207,14 @@ class Ledger:
                 fh.flush()
                 os.fsync(fh.fileno())
             self._last_hash = digest
+            # v0.4.8 (2026-08-16 deep-seams): length+tip sidecar. verify() does
+            # not detect deletion of the LAST record (same class as epistemics
+            # E3-tail). This commit is fail-soft — a tip write must never
+            # abort an append that already fsync'd.
+            try:
+                self._commit_tip_unlocked(digest)
+            except Exception:
+                pass
         return record
 
     def iter_events(self) -> Iterator[dict[str, Any]]:
@@ -235,6 +243,68 @@ class Ledger:
                 continue
             out.append(rec)
         return out
+
+    def tip_path(self) -> Path:
+        return self.path.parent / (self.path.name + ".tip.json")
+
+    def _commit_tip_unlocked(self, tip_hash: str) -> None:
+        """Write length+hash sidecar. Caller holds the append lock (or seal)."""
+        prev_n = None
+        p = self.tip_path()
+        try:
+            if p.exists():
+                prev_n = int(json.loads(p.read_text("utf-8")).get("n"))
+        except (OSError, ValueError, TypeError, KeyError):
+            prev_n = None
+        n = (prev_n + 1) if prev_n is not None else sum(
+            1 for _ in self.iter_events())
+        rec = {"schema": "genome-ledger-tip.v1", "n": int(n),
+               "tip_hash": str(tip_hash), "ts": _utcnow()}
+        tmp = p.with_suffix(p.suffix + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False, separators=(",", ":")))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, p)
+
+    def seal_tip(self) -> dict[str, Any]:
+        """One-shot: persist current n+tip without appending. Idempotent."""
+        n = 0
+        last = None
+        for rec in self.iter_events():
+            n += 1
+            last = rec.get("hash")
+        if n and last:
+            self._commit_tip_unlocked(str(last))
+        return {"n": n, "sealed": bool(n and last)}
+
+    def verify_tip(self) -> tuple[bool, str]:
+        """Detect tail truncation that verify() misses.
+
+        verify() only checks prev-links inside remaining records — deleting
+        the last line still returns ok. The sidecar stores (n, tip_hash)
+        written on each append. Additive; verify() is unchanged (LAW).
+        Unsealed (no sidecar yet) is not a failure — first append/seal
+        creates it."""
+        p = self.tip_path()
+        if not p.exists():
+            return True, "unsealed"
+        try:
+            tip = json.loads(p.read_text("utf-8"))
+        except (OSError, ValueError):
+            return False, "tip-unreadable"
+        want_n = tip.get("n")
+        want_h = tip.get("tip_hash")
+        n = 0
+        last_h = None
+        for rec in self.iter_events():
+            n += 1
+            last_h = rec.get("hash")
+        if want_n != n:
+            return False, f"length mismatch: file={n} tip={want_n}"
+        if want_h != last_h:
+            return False, "tip hash mismatch"
+        return True, "ok"
 
     def verify(self) -> tuple[bool, str]:
         prev = GENESIS

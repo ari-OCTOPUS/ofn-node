@@ -160,6 +160,18 @@ def t_h_structural_readonly_no_money_import():
     assert "LockedJson(DIGEST_PATH)" in isrc
 
 
+def t_j_learning_report_names_a_missing_file():
+    """نبودِ فایل ≠ rejected_categories={}. صداقت: verdicts_file=False."""
+    try:
+        improve.VERDICTS_PATH.unlink()
+    except OSError:
+        pass
+    r = improve._learning_report()
+    assert r["verdicts_file"] is False
+    assert r["verdicts_n"] == 0
+    assert r["rejected_categories"] == {}
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

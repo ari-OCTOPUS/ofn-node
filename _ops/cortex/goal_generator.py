@@ -202,6 +202,39 @@ def _direction_for(cand: dict, directions: list) -> str:
     return "هیچ‌کدام"
 
 
+def _fail_streak(goal_key: str) -> int:
+    """شمارِ FAILهای پیاپی از تازه‌ترین حکمِ همین goal_key به عقب.
+
+    deadline_cycles بدون این عدد یک فیلدِ تزئینی است: هدفِ گیرکرده تا ابد
+    صدرِ کاتالوگ می‌ماند و کاندیدای بعدی (که ممکن است واقعاً حرکت کرده
+    باشد) هرگز نوبت نمی‌گیرد. فقط‌خواندنی؛ دفتر را عوض نمی‌کند."""
+    streak = 0
+    vp = opslib.STATE_DIR / "test_cycle" / "verdicts.jsonl"
+    rows: list = []
+    try:
+        if vp.exists():
+            with open(vp, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        d = json.loads(line)
+                    except ValueError:
+                        continue
+                    if (isinstance(d, dict) and d.get("goal_key") == goal_key
+                            and d.get("schema") == "cycle_verdict.v1"):
+                        rows.append(d)
+    except OSError:
+        return 0
+    for d in reversed(rows):
+        if str(d.get("verdict") or "") == "FAIL":
+            streak += 1
+        else:
+            break
+    return streak
+
+
 def _method_index(cand: dict, goal_key: str) -> tuple:
     """چرخشِ مکانیکیِ روش: FAIL ِ آخرینِ حکمِ ارزیابِ مستقل → روشِ بعدی.
 
@@ -245,6 +278,7 @@ def propose(*, now: "float | None" = None) -> dict:  # noqa: ARG001 — امضا
     except Exception:  # noqa: BLE001 — نبودِ ماژول = بدونِ لینکِ جهت، نه کرش
         directions = []
     skipped = []
+    first_valid = None
     for cand in _CANDIDATES:
         baseline = read_metric(cand["metric_path"], cand["metric_key"])
         if baseline is None:
@@ -253,6 +287,8 @@ def propose(*, now: "float | None" = None) -> dict:  # noqa: ARG001 — امضا
         gkey = _goal_key(cand["goal"])
         idx, pivot_note = _method_index(cand, gkey)
         methods = cand["methods"]
+        deadline = int(cand.get("deadline_cycles", 2))
+        streak = _fail_streak(gkey)
         p = {
             "ok": True, "schema": SCHEMA, "ts": opslib.now_iso(),
             "candidate_key": cand["key"],
@@ -264,7 +300,8 @@ def propose(*, now: "float | None" = None) -> dict:  # noqa: ARG001 — امضا
             "metric_path": cand["metric_path"], "metric_key": cand["metric_key"],
             "baseline": baseline,
             "target": {"op": ">", "value": baseline},
-            "deadline_cycles": int(cand.get("deadline_cycles", 2)),
+            "deadline_cycles": deadline,
+            "fail_streak": streak,
             "direction": _direction_for(cand, directions),
             "goal_source": "self",
         }
@@ -272,8 +309,22 @@ def propose(*, now: "float | None" = None) -> dict:  # noqa: ARG001 — امضا
         if not v["ok"]:
             skipped.append({"key": cand["key"], "reason": ",".join(v["errors"])})
             continue
+        if first_valid is None:
+            first_valid = dict(p)
+        if streak >= deadline:
+            skipped.append({"key": cand["key"], "reason": "deadline-exhausted",
+                            "fail_streak": streak, "deadline_cycles": deadline})
+            continue
         p["skipped"] = skipped
         return p
+    if first_valid is not None:
+        # همهٔ کاندیداهای معتبر deadline-exhausted — چرخه را نکش؛ همان اولی
+        # با مهرِ صادق. وگرنه test_cycle اسلات می‌سوزاند بی‌شاهد.
+        first_valid["method_note"] = (
+            str(first_valid.get("method_note") or "") + "|deadline-fallback")
+        first_valid["deadline_fallback"] = True
+        first_valid["skipped"] = skipped
+        return first_valid
     return {"ok": False, "reason": "no-valid-goal", "skipped": skipped}
 
 

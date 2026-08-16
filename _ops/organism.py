@@ -898,6 +898,17 @@ def main() -> int:
                     daily["ledger_ok"] = bool(_lok)
                     if not _lok:
                         opslib.alert([f"GENOME LEDGER verify FAILED: {_lreason}"])
+                    # 2026-08-16 deep-seams A1: verify() misses tail truncation.
+                    _lg = opslib.genome_ledger()
+                    _tok, _treason = _lg.verify_tip()
+                    daily["ledger_tip"] = _treason
+                    if _treason == "unsealed":
+                        _lg.seal_tip()
+                        _tok, _treason = _lg.verify_tip()
+                        daily["ledger_tip"] = _treason
+                    daily["ledger_tip_ok"] = bool(_tok)
+                    if not _tok:
+                        opslib.alert([f"GENOME LEDGER tip FAILED: {_treason}"])
                 except Exception as _lve:  # noqa: BLE001 — verify نباید tick را بکشد
                     daily["ledger_ok"] = None
                     opslib.alert([f"ledger verify error (non-fatal): {type(_lve).__name__}"])

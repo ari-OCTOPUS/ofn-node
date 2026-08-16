@@ -272,6 +272,30 @@ def _pid(text: str) -> str:
     return "up-" + hashlib.sha256(text.encode("utf-8")).hexdigest()[:10]
 
 
+def _learning_report() -> dict:
+    """صداقتِ حلقهٔ یادگیریِ مالک: نبودِ فایل ≠ «هیچ ردّی نبود».
+
+    تا 2026-08-16 فلگ OCTOPUS_WIRE_IMPROVE_LEARN در flags.cmd روشن بود ولی
+    improve-verdicts.jsonl روی دیسک زنده وجود نداشت — digest فقط
+    rejected_categories={} می‌نوشت و شبیه «مالک هیچ‌چیز رد نکرد» بود."""
+    exists = VERDICTS_PATH.exists()
+    n = 0
+    if exists:
+        try:
+            n = sum(1 for line in VERDICTS_PATH.read_text("utf-8").splitlines()
+                    if line.strip())
+        except OSError:
+            n = 0
+    armed = str(os.environ.get("OCTOPUS_WIRE_IMPROVE_LEARN") or "").strip().lower() in (
+        "1", "true", "yes", "on")
+    return {
+        "rejected_categories": _load_verdict_penalty(),
+        "verdicts_n": n,
+        "verdicts_file": exists,
+        "penalty_armed": armed,
+    }
+
+
 def _load_verdict_penalty() -> dict:
     """دسته‌هایی که مالک قبلاً رد کرده → جریمهٔ اولویت (یادگیری)."""
     pen: dict = {}
@@ -900,6 +924,12 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         deep = _deep_synth(top, rate, signals["matrix"].get("maturity_pct"))
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"improve deep-synth error (non-fatal): {type(e).__name__}: {e}"])
+    gauges = None
+    try:
+        import self_improve_gauges as _sig  # noqa: WPS433
+        gauges = _sig.snapshot()
+    except Exception:  # noqa: BLE001 — gauge هرگز حلقه را نمی‌کشد
+        gauges = {"ok": False, "reason": "gauge-error"}
     digest = {
         "ts": opslib.now_iso(), "schema": "upgrades-digest.v1",
         "observability_ok": obs_ok,
@@ -917,7 +947,8 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         **({"brain_note": thought} if thought else {}),
         **({"deep_thought": deep} if deep else {}),
         **({"goal_directed": goal_report} if goal_report else {}),
-        "learning": {"rejected_categories": _load_verdict_penalty()},
+        "learning": _learning_report(),
+        "self_improve_gauges": gauges,
         "math_control": {
             "enabled": (signals.get("math_control") or {}).get("enabled"),
             "rank_bias": (signals.get("math_control") or {}).get("rank_bias"),

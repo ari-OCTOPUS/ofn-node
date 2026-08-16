@@ -31,14 +31,18 @@ updated: 2026-08-16
 
 > 🎯 **پین 2026-08-16 ~13:2x — مگاپرامپت بعدی (حلقهٔ درز):** کپی کامل → ایجنت بعد:
 > [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|SEAM-LOOP v2]] · لانچر Inbox: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Seam Loop Self-Improve|لانچر]]
-> کشف/فیکس/تست/ابسیدین/بعدی · جاهای ندیده · کف ۷ چرخه · پوش با کلمه · آزاد **C-027**. دو مگاپرامپت هم‌نامِ continuous/deep-seams باطل.
+> کشف/فیکس/تست/ابسیدین/بعدی · جاهای ندیده · کف ۷ چرخه · پوش با کلمه · آزاد **C-029** (C-027/C-028 را DEEP-SEAMS همین ساعت گرفت). دو مگاپرامپت هم‌نامِ continuous/deep-seams باطل.
+
+> 🎯 **پین 2026-08-16 ~13:2x — درزهای ماشینِ خودبهبودی (مگاپرامپت دوازدهم) اجرا شد:**
+> [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Deep-Seams Ledger|کارت درزها]] —
+> C-027: هدفِ زنده از money-claimed=0 به recall-events **۹۰** · C-028: tip-commit دمِ لجر · gauge بستن حلقهٔ ۷روزه **۰/۱۵**. آزاد **C-029**. صفر فلگ/TCB/حذف/push.
 
 > 🎯 **پین 2026-08-16 ~13:1x — تست سخت قابلیت‌ها (مگاپرامپت چهارم) + صلیب‌چکِ مستقل:**
 > اصلی (ایجنتِ چهارم، ZCode/GLM-5.3): [[../06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16|HARDTEST]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|SCORECARD]] — شش قابلیت با حمله؛ **S5=REAL** (تنها بازنده کامل) · S1/S2/S3/S4=PARTIAL · S6 مدلِ ثبت‌شده=METAPHOR ولی مسیرِ پایداری واقعی؛ C-025؛ ۵ کارت رأی.
 > صلیب‌چکِ مستقل (سشنِ دیگر، S1/S4/S6 از صفر بازسازی شد، S2/S3/S5 فقط نقدِ کد): [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|HARDTEST-CROSSCHECK]] — **تأییدِ کاملِ S1/S4** + یک شکافِ نو (E3: حذفِ انتهای زنجیرهٔ شواهد تشخیص داده نمی‌شود) + یک باگِ نو (**C-026**: self_code approve/reject هرگز SELF_CODE_ENABLED را چک نمی‌کند) + قیدِ مهم روی S6 (پایداریِ «بهتر» خودش فقط تشخیصِ رژیمِ جاری است، نه پیش‌بینیِ گذار — روی ۱۸/۳۵۰ روزِ باخبر Brier=0.808، بدتر از مدلِ ثبت‌شده).
-> آزاد بعدی: **C-027**. صفر فلگ/TCB/حذف/push در هر دو سند.
+> آزاد آن نشست C-027 بود؛ DEEP-SEAMS C-027/C-028 گرفت → **C-029**. صفر فلگ/TCB/حذف/push در هر دو سند.
 
-> 🎯 **پین 2026-08-16 ~13:1x — شکار خطا بسته شد:** [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07-HANDOFF/ERRORHUNT-REPORT-2026-08-16|گزارش]] · [[../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] · C-022 روی دیسک half_open · Watch LastResult=0 · ۳ تست در run_all · کارت ۲ انجام · ۴ رأی باز + LiveDataRefresh. آزاد **C-027**.
+> 🎯 **پین 2026-08-16 ~13:1x — شکار خطا بسته شد:** [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07-HANDOFF/ERRORHUNT-REPORT-2026-08-16|گزارش]] · [[../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] · C-022 روی دیسک half_open · Watch LastResult=0 · ۳ تست در run_all · کارت ۲ انجام · ۴ رأی باز + LiveDataRefresh. آزاد آن نشست C-027 بود → حالا **C-029**.
 
 > 🎯 **پین 2026-08-16 ~11:4x — کشف کدِ بی‌فراخوان (کلاس ۹):**
 > [[../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]] ·
