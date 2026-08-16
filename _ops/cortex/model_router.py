@@ -590,6 +590,20 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
                        ms=int((_t.time() - _t0) * 1000), ok=True)
     except Exception:  # noqa: BLE001 — observability هرگز مسیرِ LLM را نمی‌کشد
         pass
+    # فاز ۵ دستورالعمل ۲۰۲۶-۰۸-۱۶ (NO_SILENT_DOWNGRADE): اگر این ask واقعاً به
+    # fallback رسید (fallback_from)، به provider_adapter گزارش بده تا در
+    # events/spine ثبت شود و (پشتِ OCTOPUS_WIRE_PROVIDER_ROUTER) به مالک برسد.
+    # flag خاموش → فقط رکوردِ داخلیِ ارزان. هم‌الگویِ fuel_meter بالا: fail-soft،
+    # بی‌محتوا، مسیرِ داغ هرگز کشته نمی‌شود.
+    try:
+        if isinstance(res, dict) and res.get("fallback_from"):
+            import provider_adapter as _pa   # noqa: WPS433 — هم‌ماژول در cortex
+            _pa.record_fallback(str(res["fallback_from"])[:120],
+                                from_provider=str(res.get("tier") or task or "paid"),
+                                to_provider="local",
+                                trace_id=f"mrf-{int(_t0 * 1000)}")
+    except Exception:  # noqa: BLE001 — گزارشِ fallback هرگز مسیرِ LLM را نمی‌کشد
+        pass
     return res
 
 

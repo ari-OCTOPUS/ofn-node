@@ -129,3 +129,14 @@ verdicts:
     standing: "yes"
     expires_to: "0 only by explicit owner rollback"
     note: "تخصیص سه‌بعدی (token/call/risk) از cardiac-budget.json به‌عنوان استخر؛ نوشتنِ life-currency-latest.json پشت همین فلگ. W5 سندِ DUAL-BRAIN-CONSTITUTION — رأیِ همین روزِ مالک با صدور دستورالعملِ فاز ۴. صفر مسیرِ پول؛ فقط حسابداریِ داخلیِ سهم‌ها."
+
+  wire_provider_router:
+    env: OCTOPUS_WIRE_PROVIDER_ROUTER
+    value: "1"
+    unit: boolean
+    decided: "2026-08-16"
+    reader: cortex.provider_adapter.enabled
+    quote: "فاز ۵ دستورالعمل Worker Agent: NO_SILENT_DOWNGRADE — هر کاهش کیفیت → اطلاع مالک"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: "فقط گیتِ اعلانِ fallback (alert→event_bridge با dedup ۲۴ساعته). روترِ D5/D6 خودش passive است و مسیرِ paidِ model_router را بازنویسی نمی‌کند — ask() همان درِ واحد را صدا می‌زند. سقفِ خودمختاری از این‌جا کم نمی‌شود؛ فقط سیگنالِ propose می‌دهد."

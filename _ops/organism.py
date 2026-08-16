@@ -565,6 +565,15 @@ def main() -> int:
                 _lc.tick(int(((_cstat or {}).get("beat") or 0)))
             except Exception:  # noqa: BLE001 — ارز هرگز تیک را نمی‌کشد
                 pass
+            # ── Provider Router (فاز ۵، D5/D6): هر beat سلامتِ providerها تازه
+            # می‌شود و انتخاب در ترتیبِ Fugu→DeepSeek→GLM→Ollama می‌ماند؛ تغییرِ
+            # provider = ثبتِ fallback (NO_SILENT_DOWNGRADE). passive — صفر شبکه.
+            try:
+                sys.path.insert(0, str(_HERE / "cortex"))   # noqa: WPS433
+                import provider_adapter as _pa   # noqa: WPS433 — lazy
+                _pa.tick(int(((_cstat or {}).get("beat") or 0)))
+            except Exception:  # noqa: BLE001 — روتر هرگز تیک را نمی‌کشد
+                pass
             # vital ناوردی ۳: کهنگی germline — از طریقِ wiring.enrich_state_with_germline
             # (قراردادِ testable germline.py با CRIT-tier alert + fallback). پشتِ flag:
             # OCTOPUS_WIRE_GERMLINE=1 → ماژولِ غنی؛ خاموز → fallback (رفتارِ فعلی، safety-vital).
