@@ -1,15 +1,15 @@
 ---
 type: moc
 kind: daily-index
-date: 2026-08-16
-created: 2026-08-16 ~14:4x
+status: active
+updated: 2026-08-16
+created: 2026-08-16
 tags: [moc, daily-index, 2026-08-16]
-next_free_contradiction: C-031
 ---
 
 # 🗺️ ایندکس روز — 2026-08-16 (پرکارترین روز ثبت‌شدهٔ Vault)
 
-> نقشهٔ کاملِ روز برای ناوبری. **۱۴ مأموریت ثبت‌شده + ۲ عملیات + ۱۲ تناقض نو (C-019..C-030)**. همهٔ لینک‌ها زنده.
+> نقشهٔ کاملِ روز برای ناوبری. **۱۵ مأموریت ثبت‌شده + ۲ عملیات + ۱۲ تناقض نو (C-019..C-030)**. همهٔ لینک‌ها زنده.
 
 ## مأموریت‌های کشف/تست (به ترتیب زمانی)
 
@@ -29,6 +29,7 @@ next_free_contradiction: C-031
 | ۱۲ | **درزهای ماشینِ خودبهبودی** | deadline_cycles اجرا شد → هدف زنده = recall-events **۹۰**؛ tip-commit دمِ لجر؛ پنج gauge (۰/۱۵ PASS) | [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · [[2026-08-16 DISCOVERY — Deep-Seams Ledger|کارت درزها]] |
 | ۱۳ | **حلقهٔ درز (مگاپرامپت بعدی)** | کشف→فیکس→تست→ابسیدین→بعدی؛ عدسی‌های ندیده؛ کف ۷ چرخه؛ v2 باطل‌کنندهٔ continuous/deep-seams | [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|SEAM-LOOP]] · [[2026-08-16 MEGAPROMPT — Seam Loop Self-Improve|لانچر Inbox]] |
 | ۱۴ | **خودبهبودی دائمی A+C+F** | DARE ارگانیسم ۵ ترکیدگی→۰؛ money_gate منفی deny؛ selfheal فیلد ok | [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] · [[2026-08-16 DISCOVERY — Continuous Improve A-C-F|کارت رأی]] |
+| ۱۵ | **حلقهٔ کامل‌شدن (مگاپرامپت بعدی) v2.0** | کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد؛ تا پرفکت؛ درز طلایی هویت 0.672→knob (DA-5) · claim بی‌caller | [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16|PERPETUAL]] · [[2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر Inbox]] |
 
 ## عملیات‌های فرمانی مالک (عصر)
 
@@ -46,7 +47,7 @@ C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall —
 | رأی | موضوع | منبع |
 |---|---|---|
 | 🔴 | «پوش» — چهار کامیت محلی منتظر کلمه: `0670297` (پایان ERRORHUNT) · `5922d39` (continuous-improvement) · `4c267be` (**Seam Loop v2 — متحدکنندهٔ هر دو**) · `d4e4806` (چک‌لیست مالک) | git log |
-| ✅ | انتخاب مگاپرامپت ایجنت بعدی — حل شد با ادغام: [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|Seam Loop v2]] | agent-prompts/ |
+| ✅ | انتخاب مگاپرامپت ایجنت بعدی — نسل بعد: [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16|PERPETUAL-PERFECT]] (Seam Loop/Continuous/Deep-Seams فقط شواهد) | agent-prompts/ |
 | VOTE 1-5 | منشای حافظه · ماندگاری ابطال PEP · گارد استقلال belief · پیش‌بینی‌گر پایداری (با قید روزهای گذار) · پیکربندی عضو شورا | [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|HARD-TEST Scorecard]] |
 | + | فیکس C-026 (enabled() در approve/reject) | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |
 | + | بودجهٔ deepseek — پروب اجرا شد و رد شد (تفکیک 0.1)؛ پیشنهاد نهایی: همان بماند | [[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3]] |

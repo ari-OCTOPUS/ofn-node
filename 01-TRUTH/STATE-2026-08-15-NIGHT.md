@@ -73,7 +73,7 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
-> **📌 2026-08-16 ~14:5x — مگاپرامپت بعدی آماده (حلقهٔ کامل‌شدن):** `agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16.md` v1.0 — کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد تا پرفکت (مجانب). بکر: هویت · فرضیه-کیفیت · شناخت · رجیستری · فایل‌های بزرگ. آزاد **C-031** (grep). لانچر Inbox: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر]]. صفر پوش تا کلمه.
+> **📌 2026-08-16 ~14:5x — مگاپرامپت بعدی آماده (حلقهٔ کامل‌شدن) v2.0:** `agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16.md` — کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد تا پرفکت (مجانب). درز طلایی: `identity_health=0.672` هم‌اکنون knob می‌سازد (DA-5 را نقضِ بیشتر نکن). `claim_hypothesis` صفر caller تولیدی. آزاد **C-031** (grep). لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر]]. صفر پوش تا کلمه.
 
 > **📌 2026-08-16 ~14:2x — CONTINUOUS A+C+F EXECUTED:** [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] — sog_math ۵ ترکیدگی→۰ · money_gate منفی deny (C-030) · selfheal فیلد ok · C-029 TCB DARE بی‌گارد (رأی امضا). آزاد بعدی: **C-031**. صفر فلگ/TCB-edit/پوش.
 

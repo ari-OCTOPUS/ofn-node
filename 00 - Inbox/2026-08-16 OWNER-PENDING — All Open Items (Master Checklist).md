@@ -1,10 +1,10 @@
 ---
-type: owner-checklist
+type: knowledge
 kind: master-pending
-created: 2026-08-16 ~16:0x
-created_by: ZCode (GLM-5.3) — نشست HARDTEST+OPS
-purpose: "دفتر واحدِ همهٔ کارهایی که فقط با رأی/کلمهٔ مالک بسته می‌شوند — برای پیگیری با هر ایجنت بعدی"
-status: open — هر بسته‌شدن این‌جا تیک بخورد با تاریخ و رأی
+status: active
+updated: 2026-08-16
+created: 2026-08-16
+created_by: agent
 tags: [owner, pending, votes, checklist, follow-up]
 ---
 
@@ -15,7 +15,7 @@ tags: [owner, pending, votes, checklist, follow-up]
 ## 🔴 فوری (عملیاتی)
 
 - [ ] **«پوش»** — چهار کامیت محلی منتظر کلمه‌اند: `0670297` (پایان ERRORHUNT + درس‌های ۱۰-۱۳ + تغییر زنجیرهٔ ورود) · `5922d39` (مگاپرامپت continuous-improvement) · `4c267be` (**مگاپرامپت متحد «Seam Loop v2» — هر دو قبلی را ادغام و عملاً منسوخ کرد**) · `d4e4806` (همین دفتر). یک پوش هر چهار را می‌برد.
-- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **حل شد با ادغام:** `agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16.md` v2.0 (نویسنده: ERRORHUNT-close/Cursor) — هر دو مگاپرامپت GLM و Cursor را supersede کرده و ساختار چرخه‌های هر دو را حفظ کرده. فقط بازبینی کن و بفرست.
+- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **نسل بعد (فرمان مالک ~14:5x، متن v2.0):** `agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16.md` — کشف/فیکس/تست/ابسیدین/ایده/مگاپرامپت بعد تا پرفکت. شواهد Seam Loop/Continuous/Deep-Seams/REST-NIGHT بخوان؛ خودشان را از نو اجرا نکن. آزاد C-031 (grep).
 - [ ] **ری‌استارت رسمی سه عضو env-قدیمی** (live/server · center · miniapp-gateway — بعد از اصلاح اولاما؛ فقط برای پاکیزگی env، فوری نیست)
 
 ## 🟡 رأی‌های شکار خطا (کارت‌های ۱/۳/۴/۵ + بازمانده) — جزئیات: [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|ERRORHUNT-CARDS]]
@@ -24,7 +24,7 @@ tags: [owner, pending, votes, checklist, follow-up]
 - [ ] **۳ — سقف سوکت reason:** هم‌ترازی `PAID_ASK_BUDGET_S_*` با max_tokens فعلی (۳۶ هشدار؛ بدون رأی تماس‌ها ممکن است بریده شوند)
 - [ ] **۴ — HF_TOKEN:** توکن اختیاری هاب برای دیمون (فقط نام کلید) — آری = ساکت شدن هشدار هر بوت؛ نه = نویز INFO
 - [ ] **۵ — هش کرنل body_bridge:** تازه‌سازی manifest برای SENSITIVITY-LADDER/GEOMETRY یا پذیرش دائمی `integrity_ok=false` (دو فایل دیگر سالم‌اند)
-- [ ] **بازمانده — OctopusLiveDataRefresh:** تسک هنوز FILE_NOT_FOUND (مسیر Desktop درهم)؛ فایل سالم: `nervous-system/refresh-live-data.bat` — رأی: «تسک را به همین مسیر برگردان»
+- [ ] **بازمانده — OctopusLiveDataRefresh:** ~~FILE_NOT_FOUND~~ **کهنه.** SEAM-LOOP تسک vault را بست (JS تازه 13:55). قبل از رأی: `Get-ScheduledTask OctopusLiveDataRefresh` + LastWriteTimeِ `nervous-system/live-data.js`. اگر هنوز سبزِ اثر‌دار است، این ردیف را ببند.
 
 ## 🟠 رأی‌های تست-سخت (پنج کارت) — جزئیات: [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|HARD-TEST Scorecard]]
 
