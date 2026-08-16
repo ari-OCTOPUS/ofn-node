@@ -153,6 +153,22 @@ El.prototype.appendChild = function(child){
   if(child && child.id) registry.set(child.id, child);
   return child;
 };
+// 2026-08-16 (AUTOFLOW S6): app.js هدر را با insertBefore می‌سازد — استاب DOM
+// باید قرارداد امروزِ مرورگر را پیاده کند (رفعِ زیرساختِ تست، نه تغییر app.js)
+El.prototype.insertBefore = function(child, ref){
+  if(!ref){ this.children.push(child); }
+  else {
+    const i = this.children.indexOf(ref);
+    if(i === -1){ this.children.push(child); } else { this.children.splice(i, 0, child); }
+  }
+  if(child && child.id) registry.set(child.id, child);
+  return child;
+};
+El.prototype.removeChild = function(child){
+  const i = this.children.indexOf(child);
+  if(i !== -1){ this.children.splice(i, 1); }
+  return child;
+};
 
 function ensure(id, cls){ if(!registry.has(id)) registry.set(id, new El(id, cls)); return registry.get(id); }
 function harvest(html){
@@ -215,6 +231,10 @@ function fetchStub(url, opts){
 }
 
 const windowStub = {localStorage: localStorage, Telegram: undefined};
+// 2026-08-16 (AUTOFLOW S6): بنرِ وضعیتِ app.js هر ۶۰s یک setInterval واقعی می‌سازد
+// که حلقهٔ رویداد node را زنده نگه می‌دارد و driver هرگز خارج نمی‌شد (TimeoutExpired
+// ۹۰s). در محیطِ تست، تایمرِ تکرارشوندهٔ واقعی لازم نیست — no-op با برگرداندن id صفر.
+global.setInterval = function(){ return 0; };
 const flush = async (n) => { for(let i = 0; i < (n || 16); i++){ await new Promise(r => setImmediate(r)); } };
 
 function nowIso(){
