@@ -67,3 +67,25 @@ status: mixed — هر ردیف برچسب خودش را دارد
 | Ziman run_tests (R23) | — | **76/0** | f62de66 |
 | کاریابی sqlmodel (R24) | ۰ قابل‌اجرا | **33/33** | f62de66 |
 | run_all | +۳ تست نو ثبت | — | f62de66 |
+
+
+## الحاقیه 2026-08-16 — تست‌های نوِ شب ترمیم (همه با اجرای زنده)
+
+| فایل | حوزه | نتیجه | ثبت run_all |
+|---|---|---|---|
+| 4d: test_trust_boundary_c012 | manifest مرز اعتماد | 12/12 ✓ | 4d tests |
+| 4d: test_hypothesis_policy_r16 | سیاست صف | 7/7 ✓ | 4d tests |
+| 4d: test_councils_kernel | کرنل شورا | 18/18 ✓ | 4d tests |
+| 4d: test_councils_real_members | عضو اولاما | 6/6 ✓ | 4d tests |
+| 4d: test_council_no_authority_gate | اجماع≠اجرا | 5/5 ✓ | 4d tests |
+| 4d: test_readback_r16_views | نمای‌های صف | 4/4 ✓ | 4d tests |
+| 4d: test_consolidation_delta_r18 | watermark دلتا | 5/5 ✓ | 4d tests |
+| _ops: test_telegram_pep_shadow | PEP مرز | 8/8 ✓ | ✓ |
+| _ops: test_evaluator_holdout | هولداوت L1 | 4/4 ✓ | — |
+| _ops: test_semantic_gist_dedup | گیت gist | 4/4 ✓ | — |
+| _ops: test_circuit_reset_not_recovery | invariant بریکر | 4/4 ✓ | — |
+| _ops: test_flag_shortfall_smtp_exemption | R26 | 5/5 ✓ | ✓ |
+| _ops: test_ask_reasoning_preamble_strip | R27 | 5/5 ✓ | ✓ |
+| _ops: test_recall_loop_distant | فیکس NaN/recall | 8/8 ✓ | ✓ (ثبت نشست پایانی) |
+| کل سوئیت 4d (بدون l1_adapters/central_gate) | رگرسیون کامل | سبز ×۳ نوبت | — |
+| رگرسیون‌های ایجنت recall (encoders/latent/consolidation/compress/owner_recall) | — | 15·14·10·14·6 ✓ | گزارش RECALL |

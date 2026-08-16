@@ -107,3 +107,17 @@ status: partial — سرویس‌های میدانی unverified
 | ۵ پاک‌سازی یتیم | خط DOCTOR_USE_CENTRAL_ROUTER حذف (بکاپ .prev) | orphan False در هر دو limb → C-017 resolved |
 
 ری‌استارت: بوت 00:54:27 · beat 37175 · stop=False · فلگ‌ها برابر 339 (cortex با تلاش دوم — الگوی شناخته‌شده) · CRLF سالم 1500 (پس از یک اصلاح خودم که شکستش — درس: نوشتن flags.cmd همیشه با newline='' و تبدیل دستی CRLF).
+
+
+## تسک‌های زمان‌بندی‌شده — وضعیت 2026-08-16 ~14:0x [A]
+
+| تسک | کادنس | لانچر | وضعیت |
+|---|---|---|---|
+| OCTOPUS Observatory Hourly | ساعتی (:06) | python.exe مطلق | Ready — شلیک 10:06 ✓ |
+| OCTOPUS-Observatory (قدیمی) | — | — | Disabled (C-014 contained) |
+| OCTOPUS 4d Poisoning Watch | ۶ساعته | python.exe مطلق (تعمیر 13:04 — py per-user نامرئی بود) | Ready — Result=0 ✓ |
+| OCTOPUS 4d Consolidation Tick | ۶ساعته | python.exe مطلق (تعمیر 13:12 — همان باگ) | Ready — **اولین تیک موفق: سیکل ۵** ✓ |
+| Recall keep-warm (ایجنت recall) | ۶ساعته | بررسی کنید هنگام مرور | نوسان:؟ — اگر py است، همان تعمیر لازم است |
+| http.server :8765 | آویزان از 14-08 | pid 5780 | اعلان‌نشده — kill = رأی مالک (کارت ۲ UNWIRED) |
+
+**درس قفل‌شده:** تسک ویندوزی همیشه با `C:\Program Files\Python313\python.exe` مطلق — `py` per-user در زمینهٔ زمان‌بند نامرئی است (FILE_NOT_FOUND).
