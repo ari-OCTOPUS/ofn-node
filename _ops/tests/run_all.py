@@ -68,6 +68,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_consolidation_fold_rich.py",
          # 2026-08-15 رأی NO-GO شورا → قیدِ استقرارِ مکانیکی (P0-5)
          "test_no_go_envelope.py",
+         # 2026-08-16 (SELFRUN F3/F4 — WORKLOCK چک شد، بدون lane فعال): m v1 + گاردهای نو
+         "test_margin_m_v1.py",
+         "test_sog_floor_guards.py",
+         "test_selfheal_ok_field.py",
          "test_bcm_forgetting.py", "test_sparse_filter.py", "test_chamber_temperature.py",
          "test_fisher.py", "test_telegram_rfc_router.py",
          "test_cockpit_v2.py",
