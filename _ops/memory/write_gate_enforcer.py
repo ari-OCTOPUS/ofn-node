@@ -72,7 +72,9 @@ def _get_secret_rx():
         _SECRET_RX = re.compile(
             r"(sk-[A-Za-z0-9]{12,}|AKIA[0-9A-Z]{12,}|-----BEGIN|"
             r"xox[baprs]-|\bpassword\b\s*[:=]|\bseed\b\s*[:=]|"
-            r"\bapi[_-]?key\b\s*[:=]|0x[a-fA-F0-9]{40})", re.I)
+            r"\bapi[_-]?key\b\s*[:=]|0x[a-fA-F0-9]{40}|"
+            r"ghp_[a-zA-Z0-9]{36,}|gho_[a-zA-Z0-9]{36,}|"
+            r"ghu_[a-zA-Z0-9]{36,})", re.I)
     return _SECRET_RX
 
 

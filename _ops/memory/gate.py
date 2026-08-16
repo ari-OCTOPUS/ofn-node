@@ -34,7 +34,9 @@ _TTL_DAYS = {"self_knowledge": 30, "semantic": 90, "episodic": 30}   # procedura
 # secret/PII خام — رد (فقط hash/ref مجاز است، نه رازِ خام)
 _SECRET_RX = re.compile(
     r"(sk-[A-Za-z0-9]{12,}|AKIA[0-9A-Z]{12,}|-----BEGIN|xox[baprs]-|"
-    r"\bpassword\b\s*[:=]|\bseed\b\s*[:=]|\bapi[_-]?key\b\s*[:=]|0x[a-fA-F0-9]{40})", re.I)
+    r"\bpassword\b\s*[:=]|\bseed\b\s*[:=]|\bapi[_-]?key\b\s*[:=]|"
+    r"0x[a-fA-F0-9]{40}|ghp_[a-zA-Z0-9]{36,}|gho_[a-zA-Z0-9]{36,}|"
+    r"ghu_[a-zA-Z0-9]{36,})", re.I)
 
 _ALLOWED_SCOPES = frozenset({"scratchpad", "session", "project", "verified_shared", "personal_core"})
 _ALLOWED_CLASSIFICATIONS = frozenset({"public", "internal", "confidential", "restricted"})
