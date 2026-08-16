@@ -151,3 +151,14 @@ verdicts:
     standing: "yes"
     expires_to: "0 only by explicit owner rollback"
     note: "W4 سندِ DUAL-BRAIN-CONSTITUTION. فقط گیتِ side-effectهای اعلان (alert→event_bridge)؛ منطقِ وتو محض و همیشه در دسترس است. این ماژول به صفِ _octopus/queue نمی‌نویسد (تک‌نویسنده: propose_action) و فایلِ STOP-ORGANISM را لمس نمی‌کند — halt فقط از رأیِ مالک."
+
+  fourd_data_access_w1:
+    env: FOURD_DATA_ACCESS
+    value: "1"
+    unit: boolean
+    decided: "2026-08-16"
+    reader: fourd_access.enabled
+    quote: "فاز ۷ دستورالعمل Worker Agent: فقط W1 — اتصال data layer (read-only)"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: "W1 از پنج مرحلهٔ سندِ DUAL-BRAIN-CONSTITUTION §۵. اجازه‌نامهٔ بسته: فقط ۶ فایلِ state غیرمحرمانه؛ deny روی الگوی نامِ راز (flag_drift.is_secret_name). W2 (پروپوزال)/W3 (ارزیابی)/W4 (وتو)/W5 (ارز) هنوز بدونِ رأی‌اند و عمداً وصل نیستند."

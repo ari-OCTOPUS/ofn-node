@@ -62,6 +62,21 @@ def rhythm_enabled() -> bool:
     return effective_flag(name)
 
 
+# ── W1: 4d_system read-only data access (فاز ۷ دستورالعمل ۲۰۲۶-۰۸-۱۶) ────────
+# فقط همین مرحله وصل است (DUAL-BRAIN-CONSTITUTION §۵). W2 پروپوزال/W3 ارزیابی/
+# W4 وتو/W5 ارز — هر کدام رأیِ جداگانهٔ مالک می‌خواهند و عمداً این‌جا نیستند.
+# درِ واقعی داده در _ops/fourd_access.py است (allowlist + fail-closed + فقط‌خواندن)؛
+# این‌جا فقط stage-marker و delegate — تا خوانندهٔ wiring بداند W1 از کجا می‌گذرد.
+def fourd_w1_snapshot() -> dict:
+    """W1: نمایِ دادهٔ read-only برای مغزِ 4d — delegate به fourd_access (fail-soft)."""
+    try:
+        import fourd_access   # noqa: WPS433 — lazy، _ops روی sys.path
+        return fourd_access.snapshot()
+    except Exception:  # noqa: BLE001 — W1 هرگز wiring را نمی‌کشد
+        return {"schema": "fourd-access.v1", "enabled": False,
+                "reason": "wiring-delegate-failsoft"}
+
+
 def _syspath(p) -> None:
     """افزودنِ idempotent به sys.path. توابعِ این ماژول per-beat صدا زده می‌شوند و
     `sys.path.insert` بی‌گارد هر ضربان یک ورودیِ تکراری اضافه می‌کرد (اندازه‌گیری
