@@ -60,3 +60,13 @@ C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall —
 ## وضعیت زنده در پایان روز
 
 دیمون 4d نسل ۳ زنده (enforce مسلح) · readback پس از فیکس ۱۰۰٪ · صف ۳۹۷/۷۵۷ · M1=1.0 · اولاما live/center/gateway هم `qwen2.5:1.5b` (ری‌استارت 16:37) · پوش با کلمهٔ مالک در همین نشست.
+
+## SELFRUN-2 BOARDLINK (~24:00–25:00)
+
+| وضعیت | آیتم | لینک |
+|---|---|---|
+| ✅ | پل board_cp کامل روشن (TLS 8801، Bearer، رأی مالک) — 401/200/404 تأیید زنده | [[../06-EVIDENCE/BOARDLINK-2026-08-16|BOARDLINK]] · [[../03-GATES/GATES|GATES]] |
+| ✅ | SMB germline + فایروال — منتظر mount برد (FOR-BOARD-CONNECT-NOW در share) | BOARDLINK §L1 |
+| ✅ | گاوج #۱ ریشه‌یابی: گاوجِ بستن-حلقه اصلاً instrument نشده؛ چک‌لیست ۱۰۰ = 0% در ۱۵ روز | BOARDLINK §L5 |
+| ✅ | پنجره‌های B/D/E/G گذر کشف (۹ گپ ثبت، ۶ کارت صبحگاهی) | BOARDLINK §L6 |
+| ✅ | acceptance ری‌استارت: ریشه = ۴ فلگ placeholder ایمیل؛ الان missing=0 در هر ۵ پروسه | BOARDLINK §L8 |
