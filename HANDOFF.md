@@ -1,7 +1,7 @@
 ---
 tags: [ofn, handoff, status]
 aliases: [وضعیت زنده, Handoff]
-updated: 2026-08-14
+updated: 2026-08-16
 ---
 
 # HANDOFF — برای جلسهٔ بعدی
@@ -21,16 +21,38 @@ preflight   (این جلسه ری‌استارت نشد)
 WIRE        outbound خاموش (OFN_WIRE_OUTBOUND=0)
 بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
-سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear
+سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear · ofn-heartbeat
 دامنه‌ها     panel/ziman/lead/studio/app/hypno
 جدید        G5 زنده روی هر چهار هاست عمومی /healthz → ۲۰۰ · {"ok":true}
             G6 کلاینت pull در octopus-bridge، سه‌قفل خاموش.
             قفل سبز سر جایش: outbound=0 · BOARD_CP_PULL=0 · بدون listener :8796.
             رصد = GET `/healthz`. ۴۰۱ روی `/api/*` = تله.
-قدم بعد     آری: G7 Gate 0 (CONTROL_URL ویندوز-facing + راز + فلگ‌ها).
-            روش پرداخت هر بیزنس در پنل · چرخش راز قبل از ۱۷ اوت
+            OFN-BOOT ۱۶ اوت: سینک رسمی GitHub (حکم مالک) — SMB کنار رفت.
+            heartbeat زنده: ofn-heartbeat.service → شاخهٔ ofn/heartbeat هر ~۱۰د.
+            ofn/wire رسمی شد · منشور خودمختاری: MEGAPROMPT-BOARD-CHARTER.
+            روتین شبانهٔ ۲۱:۰۰: snapshot روزانه + DAILY-REPORT + جواب وایر.
+            NTP فعال شد (CHECKPOINT §۷-۲ بسته شد) · ۱۹۳۸ تست سبز.
+قدم بعد     آری: چرخش راز امروز خودش می‌زند (ران‌بوک) — بعدش auto-close درست است.
+            G7 Gate 0: ویندوز CONTROL_URL+کلید بدهد → برد خودش bridge را
+            روشن می‌کند (حکم صریح مالک، بخش ۳ منشور).
             عباس: follow-up → quote → booked · ملیحه: ۳ listing · سبا: ۱ پست
 ```
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۶ — OFN-BOOT: سینک زندهٔ ۲۴ساعته + منشور خودمختاری
+
+منبع: مگاپرامپت OFN-BOOT از ایجنت ویندوزی + حکم‌های صریح مالک در همین جلسه.
+
+- کانال سینک رسمی: GitHub `ari322/ofn-node` — SMB کنار گذاشته شد (anonymous رد شده بود)
+- شاخه‌ها: dev `7813469` پوش شد (۱۹۳۸ تست سبز) · snapshot `32a81d0` · `ofn/heartbeat` · `ofn/wire`
+- سرویس جدید: `ofn-heartbeat.service` — هر ۳۰ث vitals · ~۲.۵د healthz پاها · ~۱۰د push
+- روتین شبانهٔ ۲۱:۰۰: `~/.local/bin/ofn-daily-snapshot.sh` + run خودکار ایجنت (جواب پیام‌های وایر)
+- منشور: `MEGAPROMPT-BOARD-CHARTER-2026-08-16.md` — ۱۲ حکم مالک ثبت شد؛ قانون اساسی مقدم می‌ماند
+- NTP فعال شد · هدرهای امنیتی پنل‌ها زنده تأیید شد (CSP/XFO/Referrer — CHECKPOINT §۶ حل بود)
+- app/hypno روی `/healthz` 404 = طراحی؛ ریشه‌ها 200 با محتوای واقعی
+- ۱۰ فایل WIP کامرس/پایلوت + سوال‌های ویندوز با تست سبز کامیت و پوش شد (حکم مالک)
+- برای آری: `QUESTIONS-FOR-OCTOPUS.md` — منتظر CONTROL_URL و کلید از ویندوز
 
 ---
 
