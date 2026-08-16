@@ -77,6 +77,8 @@ status_legend:
 | `00 - Inbox/2026-08-16 JUDGE — Architecture Judgment Report.md` · `00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md` (+ `_scratch-dark.json`، gitleaks پاک) | قضاوت معماری (INV-4) + کاتالوگ پنهان‌ها: ۴۰۳ فلگ / ۱۵ DARK / ۱ orphan_armed / ~۴۵ پکیج نامرئی | 2026-08-16 00:1x | کشف/قضاوت | 06-EVIDENCE منبع | verified (فایل‌ها موجودند) |
 | `02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/DA-4-PEP-MESH-AND-ACTION-LEASES.md` + `DA-5-INTRINSIC-CONTROL-AND-ORGANISM-MANIFEST.md` | شبکهٔ ۶-PEP + lease تک‌مصرف · کنترل درونی + manifest ارگانیسم — تکمیل‌کنندهٔ DA-1..3 | 2026-08-16 | تصمیم | 02-DECISIONS | verified |
 
+| `00 - Inbox/2026-08-16 DAY-INDEX (MOC).md` · `00 - Inbox/2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget.md` · `06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16.md` (+ CROSSCHECK) · `00 - Inbox/2026-08-16 DISCOVERY — Capability Hard-Test Scorecard.md` · `_scratch-hardtest/s1..s6` | تست سخت شش قابلیت (S5=REAL · S1-S4=PARTIAL · S6=METAPHOR) + صلیب‌چک + عملیات اولاما/بودجه — C-025/C-026 · آزاد بعدی C-027 | 2026-08-16 عصر | کشف/تست/عملیات | 06-EVIDENCE + 00 - Inbox | verified |
+
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 
 ## ۲. فایل‌های کلیدی (تک‌تک)
