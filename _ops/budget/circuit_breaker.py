@@ -91,6 +91,11 @@ def _target_entry(state: dict, target: str) -> dict:
     # این شکل از هیچ مسیر مجازی نمی‌آید — نوشتهٔ بیرونی/ریستِ جزئی است.
     # invariant: چنین حالتی به HALF_OPEN تنزل می‌یابد تا ریکاوری با تماسِ
     # موفقِ واقعی «اثبات» شود، نه با ادعای فایل.
+    #
+    # ERRORHUNT 2026-08-16: تنزل فقط در حافظه بود؛ فایل روی دیسک `closed`
+    # می‌ماند و `status()`/خواننده‌های JSON دروغِ «سالم» را گزارش می‌کردند
+    # تا وقتی check() دوباره لود کند. persist می‌کنیم تا شکلِ مشتق‌شده
+    # همان چیزی باشد که انبار می‌گوید — allow/deny همان half_open قبلی.
     if (t.get("state") == State.CLOSED.value
             and t.get("opened_at_ts") is not None):
         t["state"] = State.HALF_OPEN.value
@@ -98,6 +103,10 @@ def _target_entry(state: dict, target: str) -> dict:
         t["success_count"] = 0
         opslib.alert([f"circuit {target}: closed با opened_at_ts پر — شکلِ ریست/"
                       "نوشتهٔ بیرونی؛ تا اثباتِ تماسِ موفق، half_open"])
+        try:
+            _save_state(state)
+        except Exception:  # noqa: BLE001 — persist fail-soft; caller still sees demotion
+            pass
     return t
 
 
@@ -252,14 +261,20 @@ def record_failure(target: str, reason: str = "") -> dict:
 
 
 def status(target: str | None = None) -> dict:
-    """snapshot وضعیت circuit breaker(ها)."""
+    """snapshot وضعیت circuit breaker(ها).
+
+    از `_target_entry` می‌گذرد تا شکلِ ریست (closed+opened_at) در خروجی
+    همان half_open مشتق‌شده باشد — نه ادعای خامِ فایل. persist همان‌جا
+    انجام می‌شود (ERRORHUNT 2026-08-16)."""
     state = _load_state()
     cfg = _cfg()
     targets = state.get("targets", {})
     if target:
-        t = targets.get(target, {})
+        t = _target_entry(state, target)
         return {"target": target, **t, "config": cfg}
-    return {"targets": targets, "config": cfg, "ts": opslib.now_iso()}
+    for name in list(targets):
+        _target_entry(state, name)
+    return {"targets": state.get("targets", {}), "config": cfg, "ts": opslib.now_iso()}
 
 
 if __name__ == "__main__":

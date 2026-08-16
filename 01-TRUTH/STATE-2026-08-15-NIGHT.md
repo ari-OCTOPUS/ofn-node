@@ -19,6 +19,8 @@ entry_point: این فایل نقطهٔ شروع هر ایجنت خارجی اس
 
 ## ۱. ارگانیسم — زنده و سالم (سطح A)
 
+> **STALE-SYNC 2026-08-16 ~11:2x [A]:** این اسنپ‌شات شب ۱۵ هنوز «۵ عضو» می‌گوید. زنده: همان پنج عضو با پورت (organism 25912 :8771 · center 11500 :8776 · gateway 20572 :8774 · live 9836 :8773 · cortex 22796 :8772) + دو ناشناس مستند (pid 5780 `http.server:8765`؛ pid 27164 `brain.daemon`). `CURRENT-TRUTH.members_present=11` شمارِ آگاهی است نه شمارِ پروسه. beat زنده **37785** · coherence **0.972** · HEAD git **bfc673f**. نکش ناشناس‌ها. جزئیات: [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-16|UPDATE-DEBUG-SWEEP]].
+
 - بوت 18:30:42 · **beat 36803+** · **coherence 0.977** (از 0.942 امشب بالا آمد) · halted=False · conflicts=[]
 - ۵ عضو: organism · center · gateway · live · cortex — همه با PID تازه (ری‌استارت کنترل‌شدهٔ سوم امشب)
 - منبع زنده: `OCTOPUS/CURRENT-TRUTH.md` (runtime می‌نویسد — تو فقط بخوان) · `_ops/state/ORGANISM-STATE.json`
@@ -71,14 +73,16 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
+> **📌 2026-08-16 ~12:0x — UPDATE-DEBUG-SWEEP (PROPOSE-ONLY):** T1–T8 بدون فلگ/پوش/TCB. دیمون مسلح enforce=True و همزمان `SELF_CODE_ENABLED=1` در env پروسه (در flags.cmd نیست). تسک R18 موازی Ready ولی هرگز اجرا نشده (267011 / `py`). آزاد بعدی پس از C-023/C-024 این نشست. [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-16|UPDATE-DEBUG-SWEEP]]
+
 > **📌 2026-08-16 ~11:5x — ERRORHUNT EXECUTED:** ۷روز خطا خوشه‌بندی شد. readback پس از 05:00 = **67/67 صفر fail**. cortex ۲۴ساعت: ۰ REVIVE / ۸ STOP عمدی. فیکس: persist تنزل circuit (C-022) + `mark_nudged(high_water)`. مانیتور Poisoning Watch در 10:08 = FILE_NOT_FOUND. کارت ۵تایی. آزاد بعدی: **C-023**. [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07-HANDOFF/ERRORHUNT-REPORT-2026-08-16|گزارش]]
 
-> **📌 2026-08-16 ~11:5x — حلقهٔ recall EXECUTED:** ریشه = NaN از hash-as-float32 در doctor encode + انتخاب nearest (نه آستانه). M3 **58/2.0/9.28٪ → 90/21.0/14.4٪** · 4d **0→1** با تسک `OCTOPUS 4d Consolidation Tick`. C-021 resolved · C-019 contained (تسک ویندوزی). کارت‌ها: ری‌استارت ارگانیسم · daemon در برابر تسک · عمق تزریق. شواهد: [[../06-EVIDENCE/RECALL-LOOP-2026-08-16|RECALL-LOOP]] · [[../07-HANDOFF/RECALL-REPORT-2026-08-16|RECALL-REPORT]]. آزاد بعدی: **C-022**.
+> **📌 2026-08-16 ~11:5x — حلقهٔ recall EXECUTED:** ریشه = NaN از hash-as-float32 در doctor encode + انتخاب nearest (نه آستانه). M3 **58/2.0/9.28٪ → 90/21.0/14.4٪** · 4d **0→1** با تسک `OCTOPUS 4d Consolidation Tick`. C-021 resolved · C-019 contained (تسک ویندوزی). کارت‌ها: ری‌استارت ارگانیسم · daemon در برابر تسک · عمق تزریق. شواهد: [[../06-EVIDENCE/RECALL-LOOP-2026-08-16|RECALL-LOOP]] · [[../07-HANDOFF/RECALL-REPORT-2026-08-16|RECALL-REPORT]]. آزاد بعدی: **C-023** (C-022 = errorhunt).
 
 > **📌 2026-08-16 (~00:1x): جاروی بدهی EXECUTED** (مگاپرامپت v1.1/v1.2، تفویض کامل مالک «اجازه تصمیم‌گیری داری»): R0a/R13 ✅ (manifest مرز اعتماد + هش‌چک TCB؛ **C-013 resolved** — امضای مالک + فلگ OCTOPUS_TCB_MANIFEST_ENFORCE قدمِ بعد) · R3/C-014 ✅ containment اثبات‌شده (بلوک §R3 در شواهد) · R4-R14 ✅ (۱۵ شکست بسته + **۱ باگ تولیدی واقعی**: def callback در collaborator از کامیت 55720f7) · R19 AEB ✅ · R20/R16/R18 مصنوع ✅ · R21-R27 طبق جدول · R2 push ✅. **بازِ دستِ مالک: R1 چرخش PAT (پچ آماده) · امضای trust-boundary.json + AEB.txt · روشن‌کردن enforce · R21 انتخاب ممیز · رأی سیاست صف R16 و DA-1/2/3.** جزئیات: [[../06-EVIDENCE/DEBT-SWEEP-2026-08-16|DEBT-SWEEP]] · [[../02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/|مصنوعات تصمیم]].
 
 > **📌 مأموریت فاز صفر-یک (2026-08-16 ~01:2x):** `agent-prompts/MEGAPROMPT-PHASE01-MEMORY-COUNCILS-2026-08-16.md` v2.0 — حلقهٔ حافظه (C-012، پذیرش telemetry زنده ≥0.95/≥0.99) · کرنل شوراها سایه (Architecture+Epistemic، صفر tool) · اجرای R16 (dry-run→تراکنشی) · ریزکارها (cortex-2nd-try، پنجرهٔ 300s، manifest پکیج‌های نامرئی، FUZZY طراحی‌شده-نه-روشن، بستهٔ ممیز). آزاد بعدی C-018.
-» **📌 2026-08-16 ~11:4x — DISCOVERY UNWIRED EXECUTED:** کلاس ۹ نظام‌مند شد. C-019 docstring/daemon · C-020 DEPRECATED کهنه. تسک Tick موازی **اعلام شد ولی هرگز اجرا نشده** (LastResult 267011) و `py` دارد — VOTE 1=تعویض لانچر. کاتالوگ: [[../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]] · [[../07-HANDOFF/UNWIRED-REPORT-2026-08-16]]. آزاد: **C-022**. صفر فلگ · صفر TCB · 8765 کشته نشد.
+» **📌 2026-08-16 ~11:4x — DISCOVERY UNWIRED EXECUTED:** کلاس ۹ نظام‌مند شد. C-019 docstring/daemon · C-020 DEPRECATED کهنه. تسک Tick موازی **اعلام شد ولی هرگز اجرا نشده** (LastResult 267011) و `py` دارد — VOTE 1=تعویض لانچر. کاتالوگ: [[../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]] · [[../07-HANDOFF/UNWIRED-REPORT-2026-08-16]]. آزاد: **C-023**. صفر فلگ · صفر TCB · 8765 کشته نشد.
 
 » **📌 2026-08-16 ~10:4x — سه مگاپرامپت بعدی آمادهٔ ارسال:** کشفِ کدِ بی‌فراخوان (`MEGAPROMPT-DISCOVERY-UNWIRED`) · شکار خطا/گیرکردن (`MEGAPROMPT-DEBUG-ERRORHUNT`) · حلقهٔ recall — ضعیف‌ترین حلقه (`MEGAPROMPT-DEBUG-RECALL-LOOP`). هر سه با قانون فکت‌چک پیش‌فرض + درس‌های دیپ‌تست (فلگ‌در-فرایندها · R18 بی‌زمان‌بند). مبنای مشترک: DEEP-TEST-1H. آزاد: **C-019**.
 

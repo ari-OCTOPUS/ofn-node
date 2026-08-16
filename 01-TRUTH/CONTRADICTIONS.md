@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-023** (C-022 در 2026-08-16 ~11:5x: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-025** (C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -346,3 +346,40 @@ contradiction:
   status: contained (کد صادق شد؛ دیسک تا تماس بعدی ممکن است کهنه بماند)
   registered_by: "errorhunt agent 2026-08-16 (فکت‌چک: مگاپرامپت C-019 آزاد می‌گفت؛ دفتر زنده C-019..C-021 پر بود — آزاد C-022؛ working repo خالی از C-022)"
 ```
+
+```yaml
+contradiction:
+  id: C-023
+  claim: "پوش به germline فقط پس از یک کلمهٔ مالک انجام می‌شود"
+  value_a: "قرارداد مگاپرامپت UPDATE-DEBUG-SWEEP و چند مگاپرامپت هم‌روز: Local commits only · End with N commits ahead · Owner speaks the word"
+  source_a: "agent-prompts MEGAPROMPT Full Update & Debug Sweep 2026-08-16 · همین قاعده در PHASE02/discovery"
+  value_b: "56899b7 (2026-08-16 10:36 +1000, deep-test 1h) و پس از آن c1c2caa و bfc673f روی germline هستند؛ git rev-list germline/master..HEAD = 0 در لحظهٔ پروب"
+  source_b: "git log -1 56899b7 / merge-base --is-ancestor 56899b7 germline/master [A]"
+  live_check: "ثبت برای صداقت دفتر است نه سرزنش. این نشست پوش نکرد."
+  likely: value_b
+  resolution: null
+  status: open — owner_vote (closer = owner-vote, not agent)
+  registered_by: "update-debug-sweep 2026-08-16 ~12:0x (grep: C-023 در 01-TRUTH خالی بود؛ C-019..C-022 را ایجنت‌های موازی گرفته بودند)"
+```
+
+```yaml
+contradiction:
+  id: C-024
+  claim: "SELF_CODE_ENABLED در درخت زنده خاموش است (NO-GO / test_no_go_envelope)"
+  value_a: "flags.cmd هیچ خط SELF_CODE_ENABLED ندارد؛ test_no_go_envelope می‌خواهد مقدار در (1,true,yes) نباشد"
+  source_a: "_ops/OCTOPUS-flags.cmd [A grep] · _ops/tests/test_no_go_envelope.py"
+  value_b: "دیمون زنده pid 27164: os.environ SELF_CODE_ENABLED=1؛ git_watcher.enabled در daemon_state=true (فلگ جدا، پیش‌فرض 1)؛ proposals_this_run=0"
+  source_b: "psutil.Process(27164).environ() + daemon_state.json 2026-08-16 ~11:25 [A]"
+  live_check: "STOP-CODE-AUTONOMY فایل _ops را می‌بندد نه brain.daemon. این نشست فلگ را خاموش نکرد."
+  likely: value_b for the 4d process; value_a for flags.cmd
+  resolution: null
+  status: open — owner_vote (do not flip in this session)
+  registered_by: "update-debug-sweep 2026-08-16 ~12:0x (کلاس لانچر gen-3: env شل ≠ flags.cmd)"
+```
+
+## Owner-review flags (this sweep — status not mutated)
+
+- **C-018** `status: resolved (errata)` by PHASE01 agent — closer was agent-errata, not owner vote. Flag for owner.
+- **C-021** `status: resolved` by recall-loop agent — closer was agent. Flag for owner.
+- **C-013** already marked owner-ratified.
+- `"delegated-owner"` was not used.
