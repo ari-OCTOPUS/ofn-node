@@ -42,3 +42,38 @@ gauges:
 - مولد `octo-data.js` (کهنه) — یا استخراجگرش را به refresh-live-data برگردانید یا صفحه را به graph-data وصل کنیم
 - سیم‌کردن دادهٔ زنده به ۷ پرچم‌دار (اگر بخواهید داشبورد شوند نه نقشه)
 - ممیزی دکمه-به‌دکمهٔ admin-telegram (۱۸ منبع؛ امشب در سطح فایل/ارجاع ممیزی شد — سطح تعامل = ادامهٔ طبیعی)
+
+---
+
+## گذر ۲ — 2026-08-16 ~15:4x (مگاپرامپت WEBPANEL اجرا شد؛ complement نه تکرار گذر ۱)
+
+STEP 0: `OctopusLiveDataRefresh` Ready · LastResult=0 · LastRun 15:28 · `*-data.js` همان روز. پورت‌ها: 8771/8772/8773/8774/8776 LISTEN. **8765 هیچ LISTEN** (کارت UNWIRED ۲ کهنه). `:8773/api/live` HTTP 200. `:8774/api/chat-status` 403 بدون HMAC = fail-closed REAL.
+
+### جدول حکم سطح‌های جامانده
+
+| سطح | آیتم | حکم قبل | حکم بعد | شاهد |
+|-----|------|---------|---------|------|
+| ابسیدین | CONTROL-PANEL.html | MOCK — «اجرای زندهٔ validatorها» + git-init باز · generated 07-05 · 210/30 | STALE برچسب‌خورده | بنر `FROZEN-COCKPIT-BANNER` · عنوان متریک عوض شد · JSON حذف نشد |
+| ابسیدین | SYSTEM-DASHBOARD.html | MOCK — h1 «مغز زنده» + git init ❌ | STALE برچسب‌خورده + بازنشسته | بنر + h1 «اسنپ‌شات، نه زنده» |
+| ابسیدین | BRAIN-FOCUS-BOARD.html | STALE 07-06 بی‌بنر | STALE برچسب‌خورده | بنر |
+| worlds | dataflow «اکسترکتور» | MOCK — `src:null` همیشه 🔴 | REAL (همان freshness زنده) | `src:F.live` |
+| worlds | octo-data.js mtime 07-13 | STALE-مولد (گذر ۱ کارت) | **NOT-A-SEAM** — کتابخانهٔ خواننده | کامنت header؛ داده = LIVE_DATA.generated 2026-08-16T05:28:02Z |
+| پرچم‌دار | index + 01 + 05 + 3d + gallery-3d/index | PHANTOM «زنده» | STATIC صادق | متن عوض شد؛ اسکلت 3D بازنویسی نشد |
+| 05-isometric | AGENTS scanner/compressor اعداد ثابت | MOCK+PHANTOM-NAME | MOCK برچسب‌خورده | «synthetic demo numbers» |
+| live | GET /api/live | (خارج از گذر ۱) | REAL | HTTP 200 keys=ts,body,heart,… |
+| MiniApp | /api/chat-status بی‌HMAC | (خارج از گذر ۱) | REAL fail-closed | HTTP 403 |
+| 8765 | http.server | UNWIRED کارت ۲ | DEAD (پروسه‌ای نیست) | Get-NetTCPConnection خالی |
+| admin-telegram | دکمه‌های تأیید/رد همه | از قبل «غیرفعال» + READ-ONLY | REAL-as-display | لمس نشد (اثر اجرایی تازه ممنوع) |
+
+### گاوج‌ها (این گذر)
+
+1. سطوح این گذر: ۳ کاکپیت + ۷ پرچم‌دارنام + worlds dataflow + live API + 8765 = **۱۳ سطح حکم**. قبل: ۰/۳ کاکپیت صادق · بعد: ۳/۳ برچسب اسنپ‌شات. درصد فایل‌های wired گذر ۱ **۳۷/۷۱=۵۲٪** دست‌نخورده ماند (هدف این گذر دروغ‌زدایی بود نه سیم تازه).
+2. رشته‌های MOCK/فروش‌زنده حذف‌شده از UI: **۷** («اجرای زندهٔ validatorها» · «مغز زنده» در h1 · extractor `src:null` · «۳۰ صحنهٔ زنده» ×۲ · «دادهٔ زنده را جابه‌جا» · «live data flow»).
+3. DEAD برچسب/تأیید: 8765 مرده · askDoctor همچنان فقط Cowork (fallback از قبل صادق).
+4. freshness: max mtime `nervous-system/*-data.js` = 2026-08-16 15:28:16 · `LIVE_DATA.generated=2026-08-16T05:28:02Z`.
+5. تخالف اسم باقی: JSON کاکپیت هنوز `git_init:false` و validator 210/30 می‌گوید — **عمداً نساختیم** (حذف/جعل عدد ممنوع). کارت: بازتولید مدل از اسکن امروز.
+
+**C-032** ثبت شد.
+
+تست: `_ops/tests/test_webpanel_reality_20260816.py` — در run_all ثبت نشد.
+

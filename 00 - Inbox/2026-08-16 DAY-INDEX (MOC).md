@@ -9,7 +9,7 @@ tags: [moc, daily-index, 2026-08-16]
 
 # 🗺️ ایندکس روز — 2026-08-16 (پرکارترین روز ثبت‌شدهٔ Vault)
 
-> نقشهٔ کاملِ روز برای ناوبری. **۱۵ مأموریت ثبت‌شده + ۲ عملیات + ۱۲ تناقض نو (C-019..C-030)**. همهٔ لینک‌ها زنده.
+> نقشهٔ کاملِ روز برای ناوبری. **۱۷ مأموریت ثبت‌شده + ۲ عملیات + ۱۴ تناقض نو (C-019..C-032)**. همهٔ لینک‌ها زنده.
 
 ## مأموریت‌های کشف/تست (به ترتیب زمانی)
 
@@ -30,6 +30,8 @@ tags: [moc, daily-index, 2026-08-16]
 | ۱۳ | **حلقهٔ درز (مگاپرامپت بعدی)** | کشف→فیکس→تست→ابسیدین→بعدی؛ عدسی‌های ندیده؛ کف ۷ چرخه؛ v2 باطل‌کنندهٔ continuous/deep-seams | [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|SEAM-LOOP]] · [[2026-08-16 MEGAPROMPT — Seam Loop Self-Improve|لانچر Inbox]] |
 | ۱۴ | **خودبهبودی دائمی A+C+F** | DARE ارگانیسم ۵ ترکیدگی→۰؛ money_gate منفی deny؛ selfheal فیلد ok | [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] · [[2026-08-16 DISCOVERY — Continuous Improve A-C-F|کارت رأی]] |
 | ۱۵ | **حلقهٔ کامل‌شدن (مگاپرامپت بعدی) v2.0** | کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد؛ تا پرفکت؛ درز طلایی هویت 0.672→knob (DA-5) · claim بی‌caller | [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16|PERPETUAL]] · [[2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر Inbox]] |
+| ۱۶ | **مصاحبهٔ ارگانیسم (۶ ایده)** | تفویض run+fix: هویت صادق · ۸۷۶۵ مرده · reached_owner · armed() · C-026 TCB · persistence سایه · C-031 family · observation.v1 پارس | [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]] · [[../02-DECISIONS/INTERVIEW-LOG-OCTOPUS-2026-08-16|LOG]] |
+| ۱۷ | **پنل وب · واقعیت** | گذر ۲: کاکپیت اسنپ‌شات برچسب · استخراجگر همیشه-قرمز بسته · پرچم‌دار «زنده»→مفهومی · C-032 · :8773 REAL | [[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]] · [[2026-08-16 DISCOVERY — WebPanel Cards|کارت‌ها]] |
 
 ## عملیات‌های فرمانی مالک (عصر)
 
@@ -38,7 +40,7 @@ tags: [moc, daily-index, 2026-08-16]
 
 ## دفتر تناقض‌ها — رشد ۸تایی در یک روز
 
-C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall — resolved) · C-022 (اسنپ‌شات circuit) · C-023 (پوش بدون one-word) · C-024 (SELF_CODE در env دیمون) · C-025 (دریفت family_key) · C-026 (approve/reject بی‌گیت) · **C-027** (deadline_cycles خودهدف — resolved-in-code) · **C-028** (verify() دمِ ledger — contained) · **C-029** (DARE |ρ|=1 در TCB — contained) · **C-030** (money_gate منفی — resolved-in-code) — **آزاد بعدی: C-031** · دفتر: [[../01-TRUTH/CONTRADICTIONS|CONTRADICTIONS]]
+C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall — resolved) · C-022 (اسنپ‌شات circuit) · C-023 (پوش بدون one-word) · C-024 (SELF_CODE در env دیمون) · C-025 (دریفت family_key) · C-026 (approve/reject بی‌گیت) · **C-027** (deadline_cycles خودهدف — resolved-in-code) · **C-028** (verify() دمِ ledger — contained) · **C-029** (DARE |ρ|=1 در TCB — contained) · **C-030** (money_gate منفی — resolved-in-code) · **C-031** (تلهٔ استقلال باور — contained) · **C-032** (کاکپیت validator زنده با اسنپ‌شات ۰۷-۰۵ — contained) — **آزاد بعدی: C-033** · دفتر: [[../01-TRUTH/CONTRADICTIONS|CONTRADICTIONS]]
 
 ## رأی‌های باز (صف مالک)
 

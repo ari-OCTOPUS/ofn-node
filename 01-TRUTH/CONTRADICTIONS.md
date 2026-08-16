@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-032** (C-031 در 2026-08-16 ~15:1x: پنج کپی یک مشاهده در epistemics 0.1→0.9998؛ C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-033** (C-032 در 2026-08-16 ~15:4x: کاکپیت ابسیدین «validator زنده» با اسنپ‌شات ۰۷-۰۵؛ C-031 در 2026-08-16 ~15:1x: پنج کپی یک مشاهده در epistemics 0.1→0.9998؛ C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -492,4 +492,20 @@ contradiction:
   status: contained — owner_vote برای اجباری‌کردن family روی همهٔ آپدیت‌ها
   registered_by: "interview-organism agent 2026-08-16 ~15:1x (grep دو-مخزن: C-031 آزاد بود)"
   cross_ref: "[[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]]"
+```
+
+```yaml
+contradiction:
+  id: C-032
+  claim: "کاکپیت ابسیدین متریک validator و git-init را زنده می‌فروشد"
+  value_a: "CONTROL-PANEL.html «اجرای زندهٔ validatorها» + git init: باز؛ SYSTEM-DASHBOARD «مغز زنده»؛ generated 2026-07-05؛ frontmatter 210/30"
+  source_a: "01 - Dashboard/CONTROL-PANEL.html model.metrics + SYSTEM-DASHBOARD.html h1"
+  value_b: "vault git repo است؛ validator 2026-08-16: 625 نوت / 224 خطا؛ ارگانیسم زنده در CURRENT-TRUTH / :8773 /api/live"
+  source_b: "validate_frontmatter.py 2026-08-16 · git status F:\\backup · live/server.py :8773"
+  live_check: "بنر FROZEN-COCKPIT-BANNER additive؛ عنوان متریک به اسنپ‌شات تغییر کرد؛ اعداد JSON دست‌نخورده ماندند (حذف ممنوع)"
+  likely: value_b
+  resolution: "contained-in-ui 2026-08-16 — برچسب صادق؛ بازتولید مدل زنده = کارت (مولد cockpit)"
+  status: contained — owner_vote برای بازتولید CONTROL-PANEL از اسکن امروز
+  registered_by: "webpanel-reality agent 2026-08-16 ~15:4x (grep: C-032 آزاد بود)"
+  cross_ref: "[[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]]"
 ```

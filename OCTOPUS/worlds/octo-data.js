@@ -1,6 +1,6 @@
-/* octo-data.js — shared data backbone for OCTOPUS worlds.
-   Reads LIVE_DATA, OPS_DATA, OCTOPUS_GRAPH, HEALTH_DATA with graceful fallbacks.
-   Zero side-effect; idempotent; read-only. */
+/* octo-data.js — shared READER backbone for OCTOPUS worlds (library, not a snapshot).
+   File mtime may be old (code). Data freshness = window.LIVE_DATA.generated from
+   nervous-system/live-data.js loaded first. Zero side-effect; idempotent; read-only. */
 (function () {
   'use strict';
 

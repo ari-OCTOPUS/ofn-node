@@ -73,7 +73,11 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
-> **📌 2026-08-16 ~14:5x — مگاپرامپت بعدی آماده (حلقهٔ کامل‌شدن) v2.0:** `agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16.md` — کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد تا پرفکت (مجانب). درز طلایی: `identity_health=0.672` هم‌اکنون knob می‌سازد (DA-5 را نقضِ بیشتر نکن). `claim_hypothesis` صفر caller تولیدی. آزاد **C-031** (grep). لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر]]. صفر پوش تا کلمه.
+> **📌 2026-08-16 ~15:4x — WEBPANEL-REALITY EXECUTED (گذر ۲):** [[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]] · [[../07 - Knowledge/شناخت-اختاپوس/51-WEBPANEL-REALITY-2026-08-16|نوت ۵۱]] — کاکپیت اسنپ‌شات برچسب · استخراجگر 🔴 دروغگو بسته · پرچم‌دار «زنده»→مفهومی · **C-032**. :8773/api/live=200 · 8765 مرده. آزاد **C-033**. صفر فلگ/TCB/پوش.
+
+> **📌 2026-08-16 ~15:1x — INTERVIEW-ORGANISM EXECUTED (۶ ایده، تفویض run+fix):** [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]] — هویت rationale صادق · :8765 مرده · digest `reached_owner` · git_watcher `armed()` · C-026 TCB نخورد · persistence سایه · **C-031** family-guard · observation.v1 پارس بدون تصمیم. آزاد بعدی پس از WEBPANEL: **C-033**. صفر فلگ/TCB-edit/پوش.
+
+> **📌 2026-08-16 ~14:5x — مگاپرامپت بعدی آماده (حلقهٔ کامل‌شدن) v2.0:** `agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16.md` — کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد تا پرفکت (مجانب). درز طلایی: `identity_health=0.672` هم‌اکنون knob می‌سازد (DA-5 را نقضِ بیشتر نکن). `claim_hypothesis` صفر caller تولیدی. آزاد بعدی پس از INTERVIEW: **C-032**. لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر]]. صفر پوش تا کلمه.
 
 > **📌 2026-08-16 ~14:2x — CONTINUOUS A+C+F EXECUTED:** [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] — sog_math ۵ ترکیدگی→۰ · money_gate منفی deny (C-030) · selfheal فیلد ok · C-029 TCB DARE بی‌گارد (رأی امضا). آزاد بعدی: **C-031**. صفر فلگ/TCB-edit/پوش.
 

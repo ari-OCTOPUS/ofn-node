@@ -63,6 +63,7 @@ button:disabled{color:var(--grey);cursor:not-allowed}
 </style>
 </head>
 <body>
+<div id="FROZEN-COCKPIT-BANNER" style="background:#7c2d12;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">⚠️ اسنپ‌شات ثابت ۲۰۲۶-۰۷-۰۵ — دادهٔ زندهٔ ارگانیسم نیست · زنده: <code>OCTOPUS/CURRENT-TRUTH.md</code> · <code>admin-telegram/index.html</code> · validator امروز ≠ اعداد این صفحه (برچسب WEBPANEL 2026-08-16)</div>
 <div class="hdr">
  <svg class="ring" viewBox="0 0 40 40" id="hring"></svg>
  <div>
@@ -102,7 +103,7 @@ button:disabled{color:var(--grey);cursor:not-allowed}
 <h2>🚁 ناوگان + 📡 Scout Intelligence</h2>
 <div class="panel" id="fleet"></div>
 
-<h2>📊 متریک‌ها <small>(اجرای زندهٔ validatorها)</small></h2>
+<h2>📊 متریک‌ها <small>(اسنپ‌شات ۲۰۲۶-۰۷-۰۵ — نه اجرای زنده)</small></h2>
 <div class="panel" id="mets"></div>
 
 <h2>🗺️ نقشهٔ راهِ زنده‌سازی</h2>
@@ -188,7 +189,7 @@ async function ask(prompt, ctx){
 /* header ring */
 (function(){const s=M.doctor.health_score,col=s>=80?'var(--low)':s>=60?'var(--med)':'var(--crit)',r=16,c=2*Math.PI*r,off=c*(1-s/100);
  $('hring').innerHTML='<circle cx="20" cy="20" r="'+r+'" fill="none" stroke="#e8e8e2" stroke-width="4"/><circle cx="20" cy="20" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="'+col+'">'+s+'</text>';})();
-$('gen').textContent='وضعیت: '+M.generated;
+$('gen').textContent='اسنپ‌شات ثابت: '+M.generated+' — نه وضعیت زنده';
 /* gates */
 (function(){const g=M.gates;let h='';if(g.rotation_critical_open>0)h+='<div class="banner">⛔ گیتِ rotation باز — '+g.rotation_critical_open+' ردیفِ CRITICAL. بالاترین‌اهرمِ کلِ سیستم.</div>';
  h+='<div class="chips"><span class="chip '+(g.git_init?'ok':'bad')+'">git init: '+(g.git_init?'✓':'باز')+'</span><span class="chip '+(g.gitleaks_done?'ok':'bad')+'">gitleaks: '+(g.gitleaks_done?'✓':'باز')+'</span><span class="chip '+(g.brain_overwrite_ratified?'ok':'bad')+'">ratify Brain.md: '+(g.brain_overwrite_ratified?'✓':'باز')+'</span></div>';
