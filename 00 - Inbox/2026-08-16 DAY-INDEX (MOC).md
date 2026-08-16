@@ -43,8 +43,8 @@ C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall —
 
 | رأی | موضوع | منبع |
 |---|---|---|
-| 🔴 | «پوش» — دو کامیت محلی منتظر کلمه: `0670297` (پایان ERRORHUNT) + `5922d39` (**مگاپرامپت دومِ بی‌گزارش** continuous-improvement) | git log |
-| 🔴 | انتخاب مگاپرامپت ایجنت بعدی: DEEP-SEAMS (GLM) یا continuous-improvement (Cursor) — هم‌پوشان؛ پیشنهاد: پشت‌سرهم | agent-prompts/ |
+| 🔴 | «پوش» — چهار کامیت محلی منتظر کلمه: `0670297` (پایان ERRORHUNT) · `5922d39` (continuous-improvement) · `4c267be` (**Seam Loop v2 — متحدکنندهٔ هر دو**) · `d4e4806` (چک‌لیست مالک) | git log |
+| ✅ | انتخاب مگاپرامپت ایجنت بعدی — حل شد با ادغام: [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|Seam Loop v2]] | agent-prompts/ |
 | VOTE 1-5 | منشای حافظه · ماندگاری ابطال PEP · گارد استقلال belief · پیش‌بینی‌گر پایداری (با قید روزهای گذار) · پیکربندی عضو شورا | [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|HARD-TEST Scorecard]] |
 | + | فیکس C-026 (enabled() در approve/reject) | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |
 | + | بودجهٔ deepseek — پروب اجرا شد و رد شد (تفکیک 0.1)؛ پیشنهاد نهایی: همان بماند | [[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3]] |

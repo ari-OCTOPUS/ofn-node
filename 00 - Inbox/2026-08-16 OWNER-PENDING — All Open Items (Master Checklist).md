@@ -14,8 +14,8 @@ tags: [owner, pending, votes, checklist, follow-up]
 
 ## 🔴 فوری (عملیاتی)
 
-- [ ] **«پوش»** — دو کامیت محلی منتظر کلمه‌اند: `0670297` (پایان ERRORHUNT + درس‌های ۱۰-۱۳ + تغییر زنجیرهٔ ورود ایجنت‌ها) و `5922d39` (مگاپرامپت continuous-improvement — ⚠️ **گزارش نشده بود**؛ کشفِ ایجنت HARDTEST). یک پوش هر دو را می‌برد.
-- [ ] **انتخاب مگاپرامپت ایجنت بعدی** — دو گزینهٔ هم‌پوشان روی میز: `agent-prompts/MEGAPROMPT-DEEP-SEAMS-SELFIMPROVE-2026-08-16.md` (درزهای ماشین خودبهبودی؛ نویسنده: GLM) یا `agent-prompts/…continuous-improvement…` (5922d39؛ نویسنده: Cursor). پیشنهاد: اول DEEP-SEAMS، بعد آن یکی.
+- [ ] **«پوش»** — چهار کامیت محلی منتظر کلمه‌اند: `0670297` (پایان ERRORHUNT + درس‌های ۱۰-۱۳ + تغییر زنجیرهٔ ورود) · `5922d39` (مگاپرامپت continuous-improvement) · `4c267be` (**مگاپرامپت متحد «Seam Loop v2» — هر دو قبلی را ادغام و عملاً منسوخ کرد**) · `d4e4806` (همین دفتر). یک پوش هر چهار را می‌برد.
+- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **حل شد با ادغام:** `agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16.md` v2.0 (نویسنده: ERRORHUNT-close/Cursor) — هر دو مگاپرامپت GLM و Cursor را supersede کرده و ساختار چرخه‌های هر دو را حفظ کرده. فقط بازبینی کن و بفرست.
 - [ ] **ری‌استارت رسمی سه عضو env-قدیمی** (live/server · center · miniapp-gateway — بعد از اصلاح اولاما؛ فقط برای پاکیزگی env، فوری نیست)
 
 ## 🟡 رأی‌های شکار خطا (کارت‌های ۱/۳/۴/۵ + بازمانده) — جزئیات: [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|ERRORHUNT-CARDS]]
