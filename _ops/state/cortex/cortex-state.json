@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-16T13:02:08",
-  "cycle": 1,
-  "coherence": 0.99,
+  "ts": "2026-08-16T16:54:59",
+  "cycle": 24,
+  "coherence": 0.972,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.992,
-      "age_s": 29,
+      "awareness": 0.983,
+      "age_s": 60,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.996,
-      "age_s": 31,
+      "awareness": 0.991,
+      "age_s": 61,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.996,
-      "age_s": 31,
+      "awareness": 0.991,
+      "age_s": 62,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.998,
-      "age_s": 30,
+      "awareness": 0.984,
+      "age_s": 230,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.922,
-      "age_s": 26940,
+      "awareness": 0.882,
+      "age_s": 40918,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -58,7 +58,7 @@
       "id": "governor",
       "present": true,
       "awareness": 0.993,
-      "age_s": 105,
+      "age_s": 101,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 443,
+      "awareness": 0.958,
+      "age_s": 14420,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 444,
+      "awareness": 0.958,
+      "age_s": 14422,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.948,
-      "age_s": 27091,
+      "awareness": 0.921,
+      "age_s": 41068,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 440,
+      "awareness": 0.972,
+      "age_s": 14418,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,8 +107,8 @@
     {
       "id": "fourd_system",
       "present": true,
-      "awareness": 0.984,
-      "age_s": 234,
+      "awareness": 0.958,
+      "age_s": 609,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -133,10 +133,10 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] می‌توانید اینجوری را در نظر بگیرید:\n\nاین مجموعه تمامی اعضا را به طور دقیق و توصیفی آمده است. هر عضو از 11 فرد دارد، که باعث شد که می‌توانند برای پاسخ به زوالات در",
+  "thought": "[local] مجموعه در حال پایان دادن است، بازتاب شما نسبت به آخرین بار را تغییر نکرده‌اید. قلب خودتان در حال ریتمی بیش از حد هستند (490 ثانیه و σ=0)، و علائم دوباره شدن گاهی ممک",
   "stress": {
     "level": "🟢 آرام",
-    "organism_stress": 0.38,
+    "organism_stress": 0.37,
     "in_fear": []
   },
   "innervation": {
@@ -146,7 +146,7 @@
   },
   "fourd_health": {
     "status": "fresh",
-    "age_s": 7
+    "age_s": 4509
   },
   "ignition": {
     "ignited": true,
@@ -155,27 +155,19 @@
     "n_candidates": 9
   },
   "calibration": {
-    "n": 298,
-    "brier": 0.179621,
-    "aurc": 0.329122,
-    "ungraded": 199
+    "n": 302,
+    "brier": 0.189662,
+    "aurc": 0.347995,
+    "ungraded": 203
   },
   "consolidate": {
-    "n_in": 0,
+    "n_in": 1,
     "n_semantic": 0,
-    "archived": 0
+    "archived": 1
   },
   "truth_sync": {
-    "wrote": true,
-    "keys": [
-      "coherence",
-      "members_present",
-      "stale_members",
-      "beat",
-      "halted",
-      "rfcs_pending",
-      "HEAD"
-    ]
+    "skipped": "cooldown",
+    "next_in_s": 583.1
   },
   "owner_guidance": {
     "focus": "موانع چیست",

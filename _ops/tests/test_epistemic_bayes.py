@@ -120,6 +120,51 @@ def t_aggregate_empty_is_zero():
     assert agg.log_odds_delta == 0.0
 
 
+def t_family_guard_stops_manufactured_certainty():
+    """۵ کپی یک family: posterior = تک‌شاهد، نه 0.9998 (HARDTEST S4 / C-031)."""
+    prior = 0.10
+    seen: frozenset[str] = frozenset()
+    p = prior
+    for i in range(5):
+        d, seen = B.apply_once_per_family(
+            p, p_e_given_h=0.9, p_e_given_not_h=0.1,
+            family_key="usgs-eq-same", seen_families=seen)
+        p = B.posterior_from_delta(p, d)
+        if i > 0:
+            assert d.note == "duplicate-family-suppressed"
+            assert d.log_odds_delta == 0.0
+    single = B.posterior_from_delta(
+        prior, B.update_bayesian(prior=prior, p_e_given_h=0.9, p_e_given_not_h=0.1))
+    assert abs(p - single) < 1e-9
+    assert p < 0.99
+
+
+def t_family_guard_allows_distinct_families():
+    """دو family متمایز هر دو اعمال می‌شوند."""
+    prior = 0.10
+    d1, seen = B.apply_once_per_family(
+        prior, p_e_given_h=0.9, p_e_given_not_h=0.1,
+        family_key="a", seen_families=frozenset())
+    p1 = B.posterior_from_delta(prior, d1)
+    d2, seen2 = B.apply_once_per_family(
+        p1, p_e_given_h=0.9, p_e_given_not_h=0.1,
+        family_key="b", seen_families=seen)
+    p2 = B.posterior_from_delta(p1, d2)
+    assert d1.log_odds_delta > 0 and d2.log_odds_delta > 0
+    assert p2 > p1 > prior
+    assert seen2 == frozenset({"a", "b"})
+
+
+def t_family_guard_rejects_empty_key():
+    try:
+        B.apply_once_per_family(
+            0.5, p_e_given_h=0.8, p_e_given_not_h=0.2,
+            family_key="  ", seen_families=frozenset())
+        raise AssertionError("empty family_key باید رد شود")
+    except ValueError:
+        pass
+
+
 # ---------------------------------------------------------------------------
 # DiscoveryBlock — invariant #2 (useful != true)
 # ---------------------------------------------------------------------------
@@ -173,6 +218,9 @@ TESTS = [
     t_score_band_invalid_direction_rejected,
     t_aggregate_disagreement_penalty,
     t_aggregate_empty_is_zero,
+    t_family_guard_stops_manufactured_certainty,
+    t_family_guard_allows_distinct_families,
+    t_family_guard_rejects_empty_key,
     t_discovery_net_value_computed,
     t_discovery_negative_when_cost_dominates,
     t_discovery_bounds_enforced,

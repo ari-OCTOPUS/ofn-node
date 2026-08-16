@@ -1,14 +1,14 @@
 {
   "targets": {
     "orchestr": {
-      "state": "closed",
-      "fail_count": 0,
+      "state": "open",
+      "fail_count": 1,
       "success_count": 0,
-      "last_fail_ts": "2026-08-15T13:25:40",
+      "last_fail_ts": "2026-08-16T16:37:10",
       "last_ok_ts": "2026-08-12T07:52:59",
-      "opened_at_ts": 1786764340.4332373,
+      "opened_at_ts": 1786862230.1964924,
       "half_open_attempts": 1,
-      "consecutive_opens": 0,
+      "consecutive_opens": 1,
       "recent_outcomes": [
         false,
         false,
@@ -61,7 +61,7 @@
       "fail_count": 0,
       "success_count": 0,
       "last_fail_ts": "2026-08-15T10:01:39",
-      "last_ok_ts": "2026-08-16T13:06:53",
+      "last_ok_ts": "2026-08-16T16:56:16",
       "opened_at_ts": null,
       "half_open_attempts": 0,
       "consecutive_opens": 0,

@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-16T11:19:50",
+  "ts": "2026-08-16T16:14:30",
   "schema": "part-loops.v1",
-  "beat": 40,
+  "beat": 20,
   "parts": [
     {
       "id": "heart",
@@ -13,7 +13,7 @@
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 97٪"
+      "detail": "هم‌آهنگی 96٪"
     },
     {
       "id": "doctor",
@@ -25,7 +25,7 @@
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.589128$/۳۰"
+      "detail": "0.667525$/۳۰"
     },
     {
       "id": "learning",
@@ -37,17 +37,24 @@
       "id": "legs",
       "name": "🦿 اعضا",
       "status": "🟢",
-      "detail": "0 خودترمیم/روز"
+      "detail": "1 خودترمیم/روز"
     },
     {
       "id": "self",
       "name": "🪞 خودمدلی",
       "status": "🟢",
-      "detail": "94.3٪ سند"
+      "detail": "94.4٪ سند"
     }
   ],
-  "n_proposals": 2,
+  "n_proposals": 3,
   "proposals": [
+    {
+      "part": "قلب",
+      "title": "قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
+      "action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
+      "change_level": "tune",
+      "auto_ok": false
+    },
     {
       "part": "قلب",
       "title": "قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",

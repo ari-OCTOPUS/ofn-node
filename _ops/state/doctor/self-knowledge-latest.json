@@ -1,34 +1,29 @@
 {
-  "ts": "2026-08-16T12:44:23",
-  "beat": 37826,
-  "version": 313,
+  "ts": "2026-08-16T16:54:25",
+  "beat": 38097,
+  "version": 321,
   "source": "heuristic",
-  "snapshot_hash": "feaa44e1553964f4",
+  "snapshot_hash": "1121dca197c675af",
   "stable_cycles": 0,
   "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
-    "anatomy": "9 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 397999 micro-USD",
+    "anatomy": "10 لِگ، 42 سیمِ روشن",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 453020 micro-USD",
     "pathology": [
-      {
-        "symptom": "نقطهٔ مردهٔ عصب‌کشی",
-        "root_cause": "کالیبراسیونِ SLA یا نوشندهٔ غایب",
-        "severity": "low"
-      },
-      {
-        "symptom": "خطای پرتکرار TypeError ×2",
-        "root_cause": "نامعلوم (نیاز به کاوش)",
-        "severity": "medium"
-      },
       {
         "symptom": "خطای پرتکرار TimeoutError ×2",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       },
       {
-        "symptom": "خطای پرتکرار failed ×1",
+        "symptom": "خطای پرتکرار ValueError ×2",
+        "root_cause": "نامعلوم (نیاز به کاوش)",
+        "severity": "medium"
+      },
+      {
+        "symptom": "خطای پرتکرار TypeError ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
@@ -72,33 +67,31 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 630,
-      "newest_input_age_s": 107
+      "oldest_input_age_s": 14377,
+      "newest_input_age_s": 15
     }
   },
   "deep_dive": {
-    "topic": "واقعی‌کردن ارزیابی سایه پیش از promote",
+    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
     "cause_chain": [
-      "شرطِ مالک: قبول ولی فقط اگر بدون ری‌استارت ارگانیسم باشد و امروز تمام شود",
-      "نیاز به داده دقیق برای تصمیم گیری در محیط فعلی",
-      "عدم وجود ری‌استارت می‌تواند منجر به عدم قابلیت آپدیت اطلاعات باشد",
-      "کاهش داده‌ها و اطلاعات می‌تواند منجر به نقص در تصمیمات شود"
+      {
+        "cause": "من می‌خواهم روی درآمدِ نقاشی تمرکز کنم.",
+        "evidence": [
+          "می‌خواستهٔ مالک را روی «واقعی‌کردن ارزیابی سایه پیش از promote» تمرکز کرد.",
+          "از داده‌ها به نظر می‌رسد که شرطِ من برای قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود."
+        ]
+      }
     ],
     "evidence": [
       {
-        "type": "stakeholder_concern",
-        "description": "مالک معتقد است که بدون ری‌استارت، داده‌ها و اطلاعات محدود هستند."
-      },
-      {
-        "type": "system_limitation",
-        "description": "ارگانیسم در حال حاضر نمی‌تواند بازگشت به حالت قبلی داشته باشد."
+        "source": "من می‌خواهم روی درآمدِ نقاشی تمرکز کنم.",
+        "content": [
+          "من می‌خواهم روی درآمدِ نقاشی تمرکز کنم."
+        ]
       }
     ],
-    "smallest_fix": "برای حل این مشکل، می‌توان یک روش آپدیت اطلاعات بدون ری‌استارت پیاده‌سازی کرد.",
-    "blocked_by": [
-      "عدم وجود راه‌حل قابل اجرا برای بازگشت به حالت قبلی",
-      "نیاز به زمان و منابع برای پیاده‌سازی روش آپدیت بدون ری‌استارت"
-    ]
+    "smallest_fix": null,
+    "blocked_by": null
   },
   "trajectory": {
     "focus_stable": true,
@@ -114,18 +107,20 @@
     "legs_alive": [
       "lead",
       "accounting",
+      "ziman",
       "system"
     ],
     "in_fear": [],
-    "money_musd": 397999,
+    "money_musd": 453020,
     "recent_errors": {
-      "TypeError": 2,
       "TimeoutError": 2,
+      "ValueError": 2,
+      "TypeError": 1,
       "failed": 1
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-16T12:40:59",
+    "ts": "2026-08-16T16:53:35",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,
@@ -138,9 +133,10 @@
     "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
   ],
   "c6_unknown": {
-    "produced": false,
-    "reason": "all-already-queued",
+    "produced": true,
+    "id": "c6-7e2de8fe98bc",
+    "probe": "doctor_unknown_root_cause",
     "unknown": 3,
-    "duplicates": 3
+    "duplicates": 1
   }
 }

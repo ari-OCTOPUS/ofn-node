@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-16T11:19:45",
+  "ts": "2026-08-16T16:14:29",
   "schema": "self-model.v1",
-  "n_modules": 686,
-  "total_lines": 187303,
-  "n_tests": 702,
+  "n_modules": 696,
+  "total_lines": 188359,
+  "n_tests": 716,
   "n_wire_flags": 180,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
@@ -59,7 +59,7 @@
     "evidence_plane/__init__.py",
     "hypothesis_engine/experiments/__init__.py"
   ],
-  "self_awareness_pct": 94.3,
+  "self_awareness_pct": 94.4,
   "modules": {
     "_agent_reports/live-watch-2026-07-26/watcher.py": {
       "purpose": "watcher.py — دو ساعت مشاهدهٔ زندهٔ سطحِ تلگرام (۲۰۲۶-۰۷-۲۶).",
@@ -590,6 +590,20 @@
         "opslib"
       ]
     },
+    "audit/consolidation_4d_tick.py": {
+      "purpose": "تیکِ زمان‌بند 4d consolidation — بی‌لمس TCB (جایگزین سیم‌کشی daemon).",
+      "lines": 117,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_load_flags",
+        "_read_json",
+        "gather_sources",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "audit/generate_aeb.py": {
       "purpose": "R19 — تولید Audit Evidence Bundle (AEB) از درختِ زنده.",
       "lines": 265,
@@ -626,7 +640,7 @@
     },
     "audit/poisoning_watch_4d.py": {
       "purpose": "پایش مسمومیت حافظهٔ 4d — شرط شورا برای R15-shadow (2026-08-16).",
-      "lines": 116,
+      "lines": 132,
       "n_funcs": 2,
       "n_classes": 0,
       "top_defs": [
@@ -1019,7 +1033,7 @@
     },
     "budget/circuit_breaker.py": {
       "purpose": "circuit_breaker.py — Circuit breaker per-target برای تماس‌های بیرونی (M1-M2).",
-      "lines": 271,
+      "lines": 286,
       "n_funcs": 11,
       "n_classes": 1,
       "top_defs": [
@@ -1224,7 +1238,7 @@
     },
     "budget/money_gate.py": {
       "purpose": "money_gate — دیوارِ per-actionِ تأییدِ انسانی برای پولِ واقعی (A2، fail-closed).",
-      "lines": 47,
+      "lines": 56,
       "n_funcs": 2,
       "n_classes": 0,
       "top_defs": [
@@ -1702,7 +1716,7 @@
     },
     "chrono.py": {
       "purpose": "chrono.py — بسترِ زمان و ضربانِ قلبِ Octopus (Phase 1: THE HEART).",
-      "lines": 1556,
+      "lines": 1565,
       "n_funcs": 13,
       "n_classes": 9,
       "top_defs": [
@@ -2562,8 +2576,8 @@
     },
     "cortex/goal_generator.py": {
       "purpose": "goal_generator — از «جهتِ مالک × وضعِ فعلی × سنجهٔ موجود» یک هدفِ ابطال‌پذیر می‌سازد.",
-      "lines": 282,
-      "n_funcs": 7,
+      "lines": 333,
+      "n_funcs": 8,
       "n_classes": 0,
       "top_defs": [
         "_resolve",
@@ -2571,6 +2585,7 @@
         "validate",
         "_goal_key",
         "_direction_for",
+        "_fail_streak",
         "_method_index",
         "propose"
       ],
@@ -2641,8 +2656,8 @@
     },
     "cortex/improve.py": {
       "purpose": "improve.py — مدیرِ خودارتقایی (لایهٔ تجمیعِ owner-facing که در سیستم غایب بود).",
-      "lines": 924,
-      "n_funcs": 19,
+      "lines": 1010,
+      "n_funcs": 20,
       "n_classes": 0,
       "top_defs": [
         "_deep_daily_cap",
@@ -2652,12 +2667,13 @@
         "_deep_ledger",
         "_read",
         "_pid",
-        "_load_verdict_penalty"
+        "_learning_report"
       ],
       "wire_flags": [
         "ACTIVATION-SELF-IMPROVE-AUTO.flag",
         "OCTOPUS_WIRE_DOCTOR_SELFKNOW",
-        "OCTOPUS_WIRE_EPISTEMICS"
+        "OCTOPUS_WIRE_EPISTEMICS",
+        "OCTOPUS_WIRE_IMPROVE_LEARN"
       ],
       "house_imports": [
         "model_router",
@@ -2842,6 +2858,24 @@
       "house_imports": [
         "opslib"
       ]
+    },
+    "cortex/self_improve_gauges.py": {
+      "purpose": "self_improve_gauges — پنج vital ماشینِ خودبهبودی (فقط gauge، نه رفتار).",
+      "lines": 219,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "_now",
+        "_parse_ts",
+        "_verdicts",
+        "goal_loop_close_7d",
+        "internal_goals_moved_7d",
+        "consolidation_24h",
+        "memory_in_decision",
+        "pending_queue"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "cortex/self_model.py": {
       "purpose": "self_model.py — خودمدلیِ عمیقِ لایهٔ فراشناختی (جلسه ۴۶، رأی مالک:",
@@ -3740,8 +3774,8 @@
     },
     "epistemics/bayes.py": {
       "purpose": "bayes.py — belief update (ADR-039 C4، Plane-4).",
-      "lines": 128,
-      "n_funcs": 5,
+      "lines": 160,
+      "n_funcs": 6,
       "n_classes": 1,
       "top_defs": [
         "BeliefDelta",
@@ -3749,7 +3783,8 @@
         "update_bayesian",
         "update_score_band",
         "posterior_from_delta",
-        "aggregate_independent"
+        "aggregate_independent",
+        "apply_once_per_family"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -4648,18 +4683,18 @@
     },
     "heart/sog_math.py": {
       "purpose": "sog_math.py — HH-P0: قفلِ ریاضیِ SOG با اعتبارسنجیِ مستقلِ Monte-Carlo.",
-      "lines": 499,
-      "n_funcs": 23,
+      "lines": 535,
+      "n_funcs": 24,
       "n_classes": 1,
       "top_defs": [
         "ProvenanceUnverifiable",
+        "_dare_params_ok",
         "p_closed",
         "p_iter",
         "solve_floors",
         "delta_self",
         "e_shadow",
-        "identity_total",
-        "var_excess"
+        "identity_total"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -6831,6 +6866,42 @@
         "improve"
       ]
     },
+    "margin/__init__.py": {
+      "purpose": "margin — حاشیهٔ عددی اوراکل (رأی مالک 2026-08-16: فهرست ۴گانه + m_min=0.1).",
+      "lines": 6,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "margin/margin.py": {
+      "purpose": "margin.py — توابع headroom برای چهار خانوادهٔ اوراکل (m v1).",
+      "lines": 48,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "budget_headroom",
+        "guard_headroom",
+        "breaker_headroom",
+        "suite_headroom",
+        "m_of",
+        "gate_ok"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "margin/shadow_log.py": {
+      "purpose": "shadow_log.py — لاگ‌گر سایه‌ای m (بدون هیچ گیتِ فعالی — فقط مشاهده).",
+      "lines": 23,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "log_m"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "math_control/__init__.py": {
       "purpose": "Math Control Spine — LIVE soft-ceiling autonomy for atlas equations.",
       "lines": 17,
@@ -6984,7 +7055,7 @@
     },
     "memory/owner_recall.py": {
       "purpose": "owner_recall.py — cite-only recall for owner Ask/Collaborator.",
-      "lines": 164,
+      "lines": 195,
       "n_funcs": 3,
       "n_classes": 0,
       "top_defs": [
@@ -7242,8 +7313,8 @@
     },
     "neural/consolidation.py": {
       "purpose": "consolidation.py — NI-4: ConsolidationCycle (خوابِ عمیق / یادگیری).",
-      "lines": 520,
-      "n_funcs": 14,
+      "lines": 578,
+      "n_funcs": 16,
       "n_classes": 3,
       "top_defs": [
         "VerifiedSource",
@@ -7262,7 +7333,7 @@
     },
     "neural/encoders.py": {
       "purpose": "encoders.py — Phase 2 (Blueprint): encoder per layer (native format → R^32).",
-      "lines": 178,
+      "lines": 184,
       "n_funcs": 7,
       "n_classes": 0,
       "top_defs": [
@@ -7303,7 +7374,7 @@
     },
     "neural/latent_space.py": {
       "purpose": "latent_space.py — Phase 2 (Blueprint): فضای latent مشترک R^32.",
-      "lines": 194,
+      "lines": 204,
       "n_funcs": 1,
       "n_classes": 1,
       "top_defs": [
@@ -7658,6 +7729,26 @@
         "opslib"
       ]
     },
+    "observatory/__init__.py": {
+      "purpose": "observatory — آداپتور observation.v1 فقط‌خواندنی (فاز ۳، بدون اثر تصمیم).",
+      "lines": 3,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "observatory/observation_v1.py": {
+      "purpose": "observation_v1 — آداپتور L3 رصدخانه (ADR-041).",
+      "lines": 84,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "parse_body"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "octopus_logger.py": {
       "purpose": "Octopus Structured Logger v1 — stdlib-only, JSON-lines output.",
       "lines": 380,
@@ -7720,7 +7811,7 @@
     },
     "organism.py": {
       "purpose": "organism.py — حلقهٔ واحد همیشه-روشن ارگانیسم (آناتومی ⊕ فیزیولوژی ⊕ متابولیسم).",
-      "lines": 1393,
+      "lines": 1404,
       "n_funcs": 5,
       "n_classes": 2,
       "top_defs": [
@@ -8739,6 +8830,28 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "predictor/__init__.py": {
+      "purpose": "predictor — سایه‌های پیش‌بینی که مدل ثبت‌شده را عوض نمی‌کنند.",
+      "lines": 3,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "predictor/persistence.py": {
+      "purpose": "persistence.py — سایه‌ی S6 (HARDTEST): روان‌ساز نمایی، نه جایگزینی p_base.",
+      "lines": 39,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "brier",
+        "exponential_smoother",
+        "transition_indices"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "prereg.py": {
       "purpose": "prereg — پیش‌ثبتِ نیتِ چرخه، **قبل** از اجرا، append-only و fail-closed.",
       "lines": 164,
@@ -9084,6 +9197,19 @@
         "OCTOPUS_WIRE_CHRONO_RHYTHM",
         "OCTOPUS_WIRE_IDENTITY_EQ"
       ],
+      "house_imports": []
+    },
+    "scripts/warm_recall.py": {
+      "purpose": "گرم‌کردنِ حلقهٔ recall — بدون حذف کلید/ردیف.",
+      "lines": 138,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_load_flags",
+        "measure",
+        "warm"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "self_insight.py": {
@@ -11513,7 +11639,7 @@
     },
     "wiring.py": {
       "purpose": "wiring.py — Phase 5+ · W-1..W-5: اتصالِ ۵ لایه به یک حلقهٔ زنده (پشتِ flag، paper-mode).",
-      "lines": 4280,
+      "lines": 4286,
       "n_funcs": 103,
       "n_classes": 0,
       "top_defs": [

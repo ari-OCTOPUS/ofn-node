@@ -24358,3 +24358,7 @@ se}
 {"ts": 1786790633.436, "path": "/api/octopus/chat", "ok": true, "authed": true}
 {"ts": 1786790633.475, "path": "/api/octopus/chat", "ok": true, "authed": true}
 {"ts": 1786791566.497, "path": "/api/octopus/chat", "ok": true, "authed": true}
+{"ts": 1786859516.337, "path": "/api/chat-status", "ok": false, "authed": false}
+{"ts": 1786860964.082, "path": "/healthz", "ok": false, "authed": false}
+{"ts": 1786861795.588, "path": "/", "ok": true, "authed": false}
+{"ts": 1786861796.046, "path": "/", "ok": true, "authed": false}

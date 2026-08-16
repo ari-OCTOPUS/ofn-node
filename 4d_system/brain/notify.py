@@ -108,6 +108,8 @@ def send_packet(alert_type: str, context: str, why_now: str,
 
     sent, detail = _send_telegram(text)
     packet["delivered"] = "telegram" if sent else f"queued ({detail})"
+    # UNWIRED VOTE 4 honesty: queued(not-configured) is not delivery to owner
+    packet["reached_owner"] = bool(sent)
 
     # ثبتِ پایدار — از میانِ guardrails (فقط outputs/)
     try:
@@ -218,10 +220,11 @@ def flush_digest(force: bool = False) -> dict:
         d["last_send"] = time.time()
         d["queue"] = []
         _save_digest(d)
-        return {"sent": True, "count": n, "sent_today": d["sent_today"]}
+        return {"sent": True, "count": n, "sent_today": d["sent_today"],
+                "reached_owner": True}
     # نفرستاد (تنظیم‌نشده/throttle) — صف را نگه دار
     _save_digest(d)
-    return {"sent": False, "reason": detail, "queued": n}
+    return {"sent": False, "reason": detail, "queued": n, "reached_owner": False}
 
 
 def digest_status() -> dict:

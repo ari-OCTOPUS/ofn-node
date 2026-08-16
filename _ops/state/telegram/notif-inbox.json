@@ -2445,6 +2445,42 @@
    "created_ts": 1786848889.702422,
    "read": false,
    "read_at": null
+  },
+  {
+   "id": "notif_discovery_20260816T135222_c09076e7",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>15 چیزِ جدید یاد گرفتم!</b>\n──────────\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)",
+   "meta": {},
+   "created_at": "2026-08-16T13:52:22+1000",
+   "created_ts": 1786852342.3594775,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T143644_dfd37ce1",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>notify:card</b> ×۲ — ⚖️ math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS ▸ 🙋 منتظرِ توام ▸ شواهد: 0.0 (",
+   "meta": {},
+   "created_at": "2026-08-16T14:36:44+1000",
+   "created_ts": 1786855004.8089921,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T154026_394aa278",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>notify:card</b> ×۲ — ⚖️ math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS ▸ 🙋 منتظرِ توام ▸ شواهد: 0.0 (",
+   "meta": {},
+   "created_at": "2026-08-16T15:40:26+1000",
+   "created_ts": 1786858826.9801452,
+   "read": false,
+   "read_at": null
   }
  ],
  "last_ping_ts": 0.0,

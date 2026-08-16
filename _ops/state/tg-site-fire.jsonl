@@ -512,3 +512,5 @@
 {"ts": 1786847733.6147072, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 2169, "caller_func": "_route_send", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send"}
 {"ts": 1786847797.924741, "sender": "approval_channel.send_text", "caller_file": "instant_alert_bridge.py", "caller_line": 187, "caller_func": "check", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send_text"}
 {"ts": 1786849617.1567163, "sender": "approval_channel.send_text", "caller_file": "instant_alert_bridge.py", "caller_line": 187, "caller_func": "check", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send_text"}
+{"ts": 1786856052.507692, "sender": "approval_channel.send_text", "caller_file": "organism.py", "caller_line": 810, "caller_func": "main", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send_text"}
+{"ts": 1786863378.4366853, "sender": "approval_channel.send_text", "caller_file": "instant_alert_bridge.py", "caller_line": 187, "caller_func": "check", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send_text"}

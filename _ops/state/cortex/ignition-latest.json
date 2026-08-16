@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T13:01:59",
+  "ts": "2026-08-16T16:54:56",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
@@ -8,13 +8,13 @@
     "kind": "owner_wait",
     "key": "attention:owner_wait",
     "effective": 1.0,
-    "summary": "🔴 نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker) beat نمی‌خورد"
+    "summary": "سرچِ عمیق: paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است"
   },
   "broadcast_width": 1,
-  "margin": 0.62,
+  "margin": 0.461,
   "n_candidates": 9,
   "ignition_rate": 1.0,
-  "stability": 119,
+  "stability": 142,
   "recent_ignitions": [
     1,
     1,

@@ -35,6 +35,24 @@ logger = logging.getLogger(__name__)
 # ── پیکربندی (از env) ────────────────────────────────────────────────────
 
 _GW_ENABLED = os.getenv("GIT_WATCHER_ENABLED", "1").lower() in ("1", "true", "yes")
+
+
+def armed() -> bool:
+    """صداقت UNWIRED VOTE 5: فلگ GIT_WATCHER_ENABLED≠اجرا.
+
+    daemon فقط وقتی self_code_on است check_and_trigger را صدا می‌زند؛ ولی
+    daemon_state.enabled همان فلگ خام است (TCB — این‌جا عوض نمی‌شود).
+    این تابع AND با self_code.enabled() است تا حسگر دروغ نگوید.
+    """
+    if not _GW_ENABLED:
+        return False
+    try:
+        from brain import self_code
+        return bool(self_code.enabled())
+    except Exception:  # noqa: BLE001
+        return False
+
+
 _GW_POLL_SECONDS = max(10.0, float(os.getenv("GIT_WATCHER_POLL_SECONDS", "60.0")))
 _GW_COOLDOWN_SECONDS = max(60.0, float(os.getenv("GIT_WATCHER_COOLDOWN_SECONDS", "600.0")))
 _GW_MAX_FILE_BYTES = int(os.getenv("GIT_WATCHER_MAX_FILE_BYTES", "12000"))  # هم‌سنج با self_code
@@ -321,6 +339,8 @@ def check_and_trigger(
         "proposals": {"proposed": [], "skipped": [], "errors": []},
         "cooldown": False,
         "new_state": state,
+        "flag_enabled": bool(_GW_ENABLED),
+        "armed": armed(),
     }
 
     if not _GW_ENABLED:

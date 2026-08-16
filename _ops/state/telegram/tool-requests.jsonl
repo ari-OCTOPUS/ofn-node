@@ -452,3 +452,9 @@
 {"ts": "2026-08-16T10:43:49", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37749"}
 {"ts": "2026-08-16T12:44:00", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37855"}
 {"ts": "2026-08-16T12:57:38", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37869"}
+{"ts": "2026-08-16T13:17:21", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37888"}
+{"ts": "2026-08-16T13:32:23", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37903"}
+{"ts": "2026-08-16T14:17:52", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37947"}
+{"ts": "2026-08-16T14:54:12", "schema": "tool_request.v1", "request_id": "8de01ddcd0e5", "need": "دسترسیِ خواندنی به state/fitness-latest.json", "why": "برای گزارشِ دقیقِ attribution.claimed نیاز به خواندنِ همان فایل دارم؛ الان فقط از طریقِ مسیرهای غیرمستقیم می‌توانم حدس بزنم که امروز صفر است و عددِ دقیق و تغییراتش را نمی‌بینم.", "cost": "AUD 0 — خواندنِ فایلِ محلی", "alternative": "می‌توانم از طریقِ shell.raw فایل را بخوانم ولی شل برای این کار مسیرِ ترجیحی نیست و ریسکِ امنیتی اضافه دارد؛ خواندنِ مستقیم امن‌تر و شفاف‌تر است.", "blocking": false, "source": "scan", "cycle": "37983", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1786856037.4190469}
+{"ts": "2026-08-16T14:56:19", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "37985", "wall": 1786856179.481819}
+{"ts": "2026-08-16T16:21:43", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "38069"}

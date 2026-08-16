@@ -125,3 +125,35 @@ def aggregate_independent(
         total = total * (1.0 - lambda_disagreement * disagreement)
     return BeliefDelta(total, "bayesian", f"aggregate n={len(deltas)}").clipped_to(
         -clip_log_odds, clip_log_odds)
+
+
+def apply_once_per_family(
+    prior: float,
+    *,
+    p_e_given_h: float,
+    p_e_given_not_h: float,
+    family_key: str,
+    seen_families: "set[str] | frozenset[str]",
+    clip_log_odds: float = 6.0,
+) -> tuple[BeliefDelta, frozenset[str]]:
+    """HARDTEST S4 / C-031: یک خانوادهٔ شاهد حداکثر یک بار باور را جابجا می‌کند.
+
+    پنج کپی با شناسهٔ مختلف ولی family_key یکسان دیگر 0.1→0.9998 نمی‌سازند.
+    `update_bayesian` خام (بدون family) عمداً دست‌نخورده ماند — primitive است.
+    """
+    key = str(family_key or "").strip()
+    if not key:
+        raise ValueError("family_key required (empty would re-open the independence trap)")
+    seen = frozenset(seen_families)
+    if key in seen:
+        return (
+            BeliefDelta(0.0, "bayesian", "duplicate-family-suppressed"),
+            seen,
+        )
+    delta = update_bayesian(
+        prior=prior,
+        p_e_given_h=p_e_given_h,
+        p_e_given_not_h=p_e_given_not_h,
+        clip_log_odds=clip_log_odds,
+    )
+    return delta, seen | {key}

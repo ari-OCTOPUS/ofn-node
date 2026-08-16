@@ -4932,3 +4932,24 @@
 ## 2026-08-16T12:53:48 (metabolism)
 - ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
 
+## 2026-08-16T13:15:38 (metabolism)
+- ⚠️ circuit orchestr: closed با opened_at_ts پر — شکلِ ریست/نوشتهٔ بیرونی؛ تا اثباتِ تماسِ موفق، half_open
+
+## 2026-08-16T13:52:32 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-16T14:48:40 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-16T14:48:48 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: قرارداد JSONِ محلی ناقص: ['cheapest_test', 'kill_condition', 'verdict'])
+
+## 2026-08-16T16:07:45 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-16T16:37:10 (metabolism)
+- ⚠️ circuit OPEN for orchestr — half-open probe failed (backoff level 1, next retry in ~60s) HTTPError
+
+## 2026-08-16T16:45:01 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: قرارداد JSONِ محلی ناقص: ['cheapest_test', 'kill_condition', 'verdict'])
+

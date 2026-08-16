@@ -566,6 +566,15 @@ def generate_proposals(signals: dict) -> list[dict]:
                 if abs(target - float(cur)) < 1e-9:
                     continue
                 title = f"math-autotune knob: {knob}"
+                health = mc.get("identity_health")
+                ident_note = ""
+                if isinstance(health, (int, float)):
+                    ident_note = f" identity_health={health}"
+                    if knob in (
+                        "CHRONO_NUDGE_EVERY_N_BEATS",
+                        "HEART_SAMPLE_INTERVAL_S",
+                    ):
+                        ident_note += " (contributes to this Δ; DA-5: not authorization)"
                 out.append({
                     "id": _pid(f"mathknob:{knob}:{int(target)}"),
                     "source": "math_spine",
@@ -576,8 +585,10 @@ def generate_proposals(signals: dict) -> list[dict]:
                     "rationale": (
                         f"ADR-036 soft: pain={mc.get('pain_pressure')} "
                         f"σ={mc.get('spectral_sigma_true')} "
-                        f"assoc={mc.get('assoc_strength')} → Δ={dlt}"
+                        f"assoc={mc.get('assoc_strength')}"
+                        f"{ident_note} → Δ={dlt}"
                     ),
+                    "identity_health": health,
                     "evidence": "pulse/math-control-latest.json",
                     "suggested_action": (
                         f"{knob}: {cur:g} → {target:g} (clamp [{lo},{hi}], $0, reversible)"

@@ -1,8 +1,8 @@
 {
-  "ts": "2026-08-16T12:47:40",
+  "ts": "2026-08-16T16:54:56",
   "schema": "consolidate-cursor.v1",
-  "last_ts": 1786847806.2749069,
-  "n_in": 0,
+  "last_ts": 1786863234.08385,
+  "n_in": 1,
   "n_semantic": 0,
-  "archived": 0
+  "archived": 1
 }

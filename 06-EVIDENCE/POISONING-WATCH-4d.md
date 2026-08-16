@@ -37,3 +37,12 @@
 
 ## 4d-consolidation-tick 2026-08-16T03:12:29+00:00
 - sources=['conclusions', 'experiments', 'frontier', 'reflections'] cycle=5 sk=['cycle-1'] after_events=2
+
+## 2026-08-16T06:08:10+00:00
+- telemetry(windowed): jobs/read/ratio/readback = 446 446 1.0 113 102
+- semantic: کل=242 نو-پس-گیت=4 تکرارِ نو=0
+- queue: [('dedup', 793), ('pending', 397)]
+- readback(پنجرهٔ پس از 05:00): 101/101 = 1.0
+- recall_reach: events=90 keys=984 median=21.0 max=60 coverage=0.144 rows=625
+- daemon_state.json: موجود
+- حکم: 🟢 سالم

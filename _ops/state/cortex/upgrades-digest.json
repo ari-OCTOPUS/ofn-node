@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-16T11:20:11",
+  "ts": "2026-08-16T16:14:33",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
   "checklist_static": true,
   "maturity_pct": 82.6,
   "improvement_rate": {
-    "closed": 7,
-    "moved": 5,
-    "rate_pct": 71.4
+    "closed": 8,
+    "moved": 2,
+    "rate_pct": 25.0
   },
-  "n_proposals": 38,
+  "n_proposals": 37,
   "by_category": {
     "business": [
       {
@@ -23,9 +23,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-72bd5dea52",
+        "id": "up-60b8b9a70f",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (15/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (16/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
@@ -144,15 +144,6 @@
         "status": "proposed"
       },
       {
-        "id": "up-33eae3c65e",
-        "priority": "P1",
-        "title": "کوچک‌ترین فیکسِ دکتر: یک روش برای اجرای شرط مالک بدون نیاز به ری‌استارت ارگانیسم",
-        "suggested_action": "یک روش برای اجرای شرط مالک بدون نیاز به ری‌استارت ارگانیسم",
-        "change_level": "reconfig",
-        "source": "smallest_fix",
-        "status": "proposed"
-      },
-      {
         "id": "up-81fe6de7c7",
         "priority": "P1",
         "title": "prioritized implementation backlog",
@@ -258,6 +249,24 @@
         "status": "proposed"
       },
       {
+        "id": "up-3c91a9cedb",
+        "priority": "P3",
+        "title": "یادمانِ دور: cycle-625 → cycle-606",
+        "suggested_action": "فیکس‌های تأییدشده: 3 · آگاهیِ میانگین: 0.73",
+        "change_level": "tune",
+        "source": "consolidation_recall",
+        "status": "proposed"
+      },
+      {
+        "id": "up-5555566270",
+        "priority": "P3",
+        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
+        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
+        "change_level": "tune",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
         "id": "up-c447f8da48",
         "priority": "P3",
         "title": "قلب: قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
@@ -273,26 +282,6 @@
         "suggested_action": "یک docstringِ یک‌خطی به هرکدام (سندی، بی‌خطر).",
         "change_level": "tune",
         "source": "part-loop",
-        "status": "proposed"
-      }
-    ],
-    "ops": [
-      {
-        "id": "up-5f383c81f9",
-        "priority": "P2",
-        "title": "math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS",
-        "suggested_action": "CHRONO_NUDGE_EVERY_N_BEATS: 780 → 720 (clamp [120,1440], $0, reversible)",
-        "change_level": "tune",
-        "source": "math_spine",
-        "status": "proposed"
-      },
-      {
-        "id": "up-86473a03a3",
-        "priority": "P2",
-        "title": "math-autotune knob: HEART_SAMPLE_INTERVAL_S",
-        "suggested_action": "HEART_SAMPLE_INTERVAL_S: 4500 → 4200 (clamp [1800,7200], $0, reversible)",
-        "change_level": "tune",
-        "source": "math_spine",
         "status": "proposed"
       }
     ],
@@ -400,12 +389,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-72bd5dea52",
+      "id": "up-60b8b9a70f",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (15/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (16/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -517,7 +506,6 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] \"owner merge verdict has real effect (apply_merge wired)\" را پیش‌بردن باید پیش بگیرد، زیرا بر سایر گاف‌ها تأثیر می‌گذارد و اطمینان حاصل کردن از صحت آن ضروری است قبل از بررسی وظایف دیگر.",
   "goal_directed": {
     "n_goal_serving": 10,
     "n_circular_dropped": 0,
@@ -525,9 +513,20 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 14,
-      "moved": true,
+      "tracked": 13,
+      "moved": false,
       "now": {
+        "confirmed_revenue": 0,
+        "revenue_cells": 0,
+        "total_discoveries": 137,
+        "proposals_delivered": 18,
+        "proposal_outcomes": 47,
+        "proposal_positive": 45,
+        "proposal_accept_rate": 0.9574468085106383,
+        "proposal_value_aud": 0.0,
+        "proposals_sent": 8
+      },
+      "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
         "total_discoveries": 136,
@@ -537,28 +536,49 @@
         "proposal_accept_rate": 0.9574468085106383,
         "proposal_value_aud": 0.0,
         "proposals_sent": 9
-      },
-      "since": {
-        "confirmed_revenue": 0,
-        "revenue_cells": 0,
-        "total_discoveries": 135,
-        "proposals_delivered": 17,
-        "proposal_outcomes": 47,
-        "proposal_positive": 45,
-        "proposal_accept_rate": 0.9574468085106383,
-        "proposal_value_aud": 0.0,
-        "proposals_sent": 8
       }
     }
   },
   "learning": {
-    "rejected_categories": {}
+    "rejected_categories": {},
+    "verdicts_n": 0,
+    "verdicts_file": false,
+    "penalty_armed": true
+  },
+  "self_improve_gauges": {
+    "schema": "self-improve-gauges.v1",
+    "ts": "2026-08-16T06:14:33.519426+00:00",
+    "goal_loop_close_7d": {
+      "n": 15,
+      "n_pass": 0,
+      "rate_pct": 0.0
+    },
+    "memory_in_decision": {
+      "value": null,
+      "source": null
+    },
+    "internal_goals_moved_7d": {
+      "n_keys_passed": 0,
+      "keys": []
+    },
+    "consolidation_24h": {
+      "n": 5,
+      "last_cycle": 625
+    },
+    "pending_queue": {
+      "n_pending": null,
+      "median_age_h": null,
+      "reason": "OperationalError"
+    },
+    "honest": {
+      "goal_loop_closed": false,
+      "any_internal_goal_moved": false
+    }
   },
   "math_control": {
     "enabled": true,
     "rank_bias": 0.2,
     "effects": [
-      "autotune_propose",
       "improve_rank_bias",
       "schedule_bias_hint"
     ],
@@ -571,10 +591,7 @@
       "#11_control_law",
       "#10_sog"
     ],
-    "knob_deltas": {
-      "CHRONO_NUDGE_EVERY_N_BEATS": -60,
-      "HEART_SAMPLE_INTERVAL_S": -300
-    },
+    "knob_deltas": {},
     "shadow_blocks_effects": false
   }
 }
