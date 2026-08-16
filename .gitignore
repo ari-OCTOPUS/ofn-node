@@ -266,3 +266,6 @@ _ops/RESTART-*
 
 # owner signing material - public keys only; private key NEVER in repo
 _ops/owner-signing/*private*
+
+# اطلاعات حساس مالک — هرگز کامیت نشود (GATE 0 / حسابدار / ممیز)
+_ops/state/owner-private/

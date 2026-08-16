@@ -33,3 +33,8 @@ likely_origin: "CHECKPOINT.md نود میدانی (غایب در vault) / اسن
 ## کار لازم
 
 - [ ] از مالک: منبع اصلی سه گیت نامبرده (CHECKPOINT برد؟ سند غایب؟) → NEW در OPEN-VERDICTS
+
+
+## به‌روزرسانی 2026-08-16 (مصاحبهٔ GOVERNANCE-GATES)
+- **GATE 0 (Project-F):** مسیر امن ساخته شد (`_ops/state/owner-private/` — gitignored)؛ اطلاعات محل اقامت پارتنر پس از گذاشتنِ مالک ثبت می‌شود؛ **گیت تا آن لحظه بسته**.
+- **سه گیت مبهم (secret_rotation/partner_precondition/miner_isolation):** منشأ همچنان خارج از F:ackup (سطح B) — جستجوی عمیق‌تر موکول شد؛ هم‌زمان کشف هماهنگیِ کامیت دوقلو ثبت شد (INTERVIEW-LOG-GOVERNANCE-2026-08-16 §کشف).
