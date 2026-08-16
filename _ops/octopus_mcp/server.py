@@ -213,10 +213,26 @@ def _find_rg() -> str | None:
 
 
 def _rg_search(query: str, base: Path, glob: str, cap: int, rg_path: str) -> tuple[list[dict], str]:
-    cmd = [rg_path, "-n", "--no-heading", "-S", "-m", "5", "--max-columns", "300"]
+    """کوئریِ چندواژه‌ای: rg فقط خطوطِ «کاندید» (شاملِ هر واژه) را می‌یابد؛ فیلترِ
+    AND رویِ واژه‌ها اینجا می‌نشیند — همانِ قراردادِ _match_terms، مستقل از ترتیب.
+    ریشهٔ باگ (2026-08-16، rg روی PATH آمد): الگوی خام به rg می‌رفت ⇒ عبارتِ
+    پیوسته ⇒ «search rg» خطِ `_rg_search` را نمی‌یافت و «   » خطوطِ تورفتگی را
+    hit می‌کرد. کوئریِ بدونِ واژه ⇒ empty-query، مثلِ fallback پایتونی."""
+    terms = [t for t in query.split() if t]
+    if not terms:
+        return [], "empty-query"
+    smart_ci = query == query.lower()
+    if len(terms) == 1:
+        pattern = terms[0]                              # تک‌واژه: regex-capableِ همیشگی
+        and_filter = False
+    else:
+        pattern = "|".join(re.escape(t) for t in terms)  # کاندید‌ساز: هر واژه
+        and_filter = True
+    cmd = [rg_path, "-n", "--no-heading", "-S",
+           "-m", "25" if and_filter else "5", "--max-columns", "300"]
     if glob:
         cmd += ["-g", glob]
-    cmd += ["--", query, str(base)]
+    cmd += ["--", pattern, str(base)]
     try:
         cp = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
                             errors="replace", timeout=30)
@@ -233,7 +249,14 @@ def _rg_search(query: str, base: Path, glob: str, cap: int, rg_path: str) -> tup
             continue
         if _denied(rel):
             continue
-        hits.append({"path": rel, "line": int(m.group(2)), "text": m.group(3)[:300]})
+        text = m.group(3)
+        if and_filter:
+            # خطِ کاندید باید هر دو/همهٔ واژه‌ها را داشته باشد (-m 25 چون فیلتر
+            # می‌کَند؛ ۵تای اولِ کاندید شاید همه‌شان one-term-only باشند)
+            hay = text.lower() if smart_ci else text
+            if not all(t in hay for t in terms):
+                continue
+        hits.append({"path": rel, "line": int(m.group(2)), "text": text[:300]})
         if len(hits) >= cap:
             break
     err = cp.stderr.strip()[:200] if cp.returncode not in (0, 1) else ""

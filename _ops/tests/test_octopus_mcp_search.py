@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-"""تستِ فیکسِ جستجوی MCP ِ octopus-vault (2026-08-06).
+"""تستِ فیکسِ جستجوی MCP ِ octopus-vault (2026-08-06 · فیکسِ rg: 2026-08-16).
 
 باگ: `search_hybrid` برای ایجنت‌های دیگر همیشه خالی برمی‌گرداند —
 (۱) rg در runtimeِ ویندوزیِ سرور پیدا نمی‌شد → fallback ِ پایتونی،
 (۲) fallback کلِ رشتهٔ کوئری را substring می‌کرد (نه term-based)،
 (۳) سقفِ ۳۰۰۰ فایل روی ریپوی ~۶.۴k، match های بعدی را با خروجیِ خالی می‌بلعید.
+
+فیکسِ 2026-08-16 (فاز ۵-الف): rg از طریقِ winget روی PATH آمد ⇒ موتور عملاً
+از fallback به rg سوئیچ کرد و دو رفتارِ ناسازگار پدید آمد:
+(۴) کوئریِ فقط‌فاصله به‌عنوانِ الگوی خام به rg می‌رفت ⇒ hit های جعلی از
+خطوطِ تورفتگی،
+(۵) کوئریِ چندواژه‌ای به‌عنوانِ عبارتِ پیوسته (یک regex) جستجو می‌شد ⇒ «search rg»
+خطِ `def _rg_search(` را نمی‌یافت — خلافِ قراردادِ AND-روی-واژه‌های `_match_terms`.
 
 اجرا: PYTHONIOENCODING=utf-8 python _ops/tests/test_octopus_mcp_search.py
 """
@@ -71,6 +78,34 @@ def t_multiword_query_finds_a_real_file_not_empty() -> None:
 def t_empty_query_is_handled() -> None:
     r = server.t_search_hybrid("   ", path=".", glob="*.md", max_results=5)
     _ok(r["content"] == [], "کوئریِ خالی → صفر hit، نه استثنا")
+
+
+def t_rg_engine_empty_query_is_empty_not_spurious() -> None:
+    """رگرسیونِ rg (2026-08-16): «   » دیگر الگوی خام به rg نیست — نه hit تورفتگی."""
+    if server._find_rg() is None:
+        print("  (skip: rg در دسترس نیست — این تست رفتارِ موتورِ rg را می‌سنجد)")
+        return
+    r = server.t_search_hybrid("   ", path=".", glob="*.md", max_results=5)
+    _ok(r["engine"] == "rg", f"با وجودِ rg باید engine=rg باشد؛ گرفت {r['engine']}")
+    _ok(r["content"] == [], "کوئریِ فقط‌فاصله با rg → صفر hit (نه خطوطِ تورفتگی)")
+    _ok(r["search_error"] == "empty-query", "علامتِ empty-query مثلِ fallback")
+
+
+def t_rg_engine_multiword_is_term_and_unordered() -> None:
+    """رگرسیونِ rg (2026-08-16): «search rg» با ترتیبِ معکوس باید `def _rg_search(`
+    را بیابد (AND روی واژه‌ها) — پیش از فیکس: صفر hit چون عبارتِ پیوسته می‌گشت."""
+    if server._find_rg() is None:
+        print("  (skip: rg در دسترس نیست — این تست رفتارِ موتورِ rg را می‌سنجد)")
+        return
+    r = server.t_search_hybrid("search rg", path="_ops/octopus_mcp", glob="*.py",
+                               max_results=10)
+    _ok(r["engine"] == "rg", f"با وجودِ rg باید engine=rg باشد؛ گرفت {r['engine']}")
+    _ok(len(r["content"]) >= 1,
+        f"ترتیبِ معکوس باید تعریفِ _rg_search را بیابد؛ گرفت {len(r['content'])}")
+    for h in r["content"]:
+        low = h["text"].lower()
+        _ok("rg" in low and "search" in low,
+            f"هر hit باید هر دو واژه را داشته باشد: {h['path']}:{h['line']}")
 
 
 def main() -> int:
