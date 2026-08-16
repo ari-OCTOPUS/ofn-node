@@ -1,2 +1,2 @@
-2026-08-17T07:00:56+10:00 · source=ofn/heartbeat f347cec4 · beat=1461 · 06:52+10 · bridge=active · wire_last_windows_msg=STALE
-agent-layer برد ساکت ~13h · FOR-BOARD-ACTION-NEEDED.md در share گذاشته شد (ack×3 + wire-fetch از germline + پاسخ w003)
+2026-08-17T09:05:50+10:00 · source=ofn/heartbeat 058a4912 · beat=1681 · 08:47+10 · bridge=active · wire_last_windows_msg=STALE
+agent-layer برد ساکت ~15h (نه run ۲ساعته، نه روتین ۲۱:۰۰ دیشب) · FOR-BOARD-ACTION-NEEDED.md در share · w003 معلق · ۳ ack معلق
