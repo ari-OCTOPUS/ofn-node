@@ -269,3 +269,6 @@ _ops/owner-signing/*private*
 
 # اطلاعات حساس مالک — هرگز کامیت نشود (GATE 0 / حسابدار / ممیز)
 _ops/state/owner-private/
+
+# board_cp: صف SQLite + گواهی TLS + راز — هرگز در git
+_ops/state/board_cp/
