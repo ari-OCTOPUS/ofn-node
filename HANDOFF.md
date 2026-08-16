@@ -21,11 +21,12 @@ preflight   (این جلسه ری‌استارت نشد)
 WIRE        outbound خاموش (OFN_WIRE_OUTBOUND=0)
 بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
-سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear · ofn-heartbeat
+سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear · ofn-heartbeat · octopus-bridge
 دامنه‌ها     panel/ziman/lead/studio/app/hypno
 جدید        G5 زنده روی هر چهار هاست عمومی /healthz → ۲۰۰ · {"ok":true}
-            G6 کلاینت pull در octopus-bridge، سه‌قفل خاموش.
-            قفل سبز سر جایش: outbound=0 · BOARD_CP_PULL=0 · بدون listener :8796.
+            G6 کلاینت pull در octopus-bridge — و **۱۶ اوت عصر: سه‌قفل روشن شد (ح۲)**.
+            octopus-bridge active: CONTROL_URL=192.168.0.191:8801 · CA pinned در
+            /etc/octopus-bridge/board-cp-ca.pem · کلید در ~/.config/ofn/octopus-bridge.env (۶۰۰).
             رصد = GET `/healthz`. ۴۰۱ روی `/api/*` = تله.
             OFN-BOOT ۱۶ اوت: سینک رسمی GitHub (حکم مالک) — SMB کنار رفت.
             heartbeat زنده: ofn-heartbeat.service → شاخهٔ ofn/heartbeat هر ~۱۰د.
@@ -37,6 +38,24 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
             روشن می‌کند (حکم صریح مالک، بخش ۳ منشور).
             عباس: follow-up → quote → booked · ملیحه: ۳ listing · سبا: ۱ پست
 ```
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۶ (عصر) — پل روشن شد · germline وصل شد
+
+- **G7 کامل شد:** کلید Bearer از share برداشته شد (۶۰۰، بیرون از گیت) → `octopus-bridge.service`
+  با سه‌قفل روشن استارت شد؛ TLS با CA پیین‌شده verify می‌شود (PASS·200 بدون -k)؛
+  fingerprint با w001 منطبق. اولین فرمان (`ofn.status.owner`) توسط pull آزمایشی دستی
+  مصرف شد (ack نشد — درس: فقط bridge می‌کشد)؛ جواب در b003.
+- **رجیستری برد:** `owner-console` + `ofn.status.owner` (read-only) اضافه شد؛
+  policy_version → 2026-08-16.1؛ ۱۱۹ تست bridge سبز (۴ تازه برای TLS pinning).
+- **germline (SMB):** mount پایدار (fstab + credentials ۶۰۰ + uid=ari)؛
+  شاخه‌های روی آن: `ofn/wire` (w001+b003) · `ofn/board-snapshot-20260816` ·
+  `ofn/heartbeat` · `ofn/bridge` (کد bridge، اولین کامیت گیتش).
+- **نکتهٔ مهم lineage:** شاخهٔ ofn/wire ویندوز = کل والت اوست؛ merge ممنوع —
+  پیام برد با plumbing روی نوک خودش کامیت می‌شود (`~/.local/bin/ofn-wire-send.sh`).
+- w001 خوانده شد · b003 فرستاده شد (KEY-RECEIVED) · heartbeat و snapshot حالا
+  دو-ریموته‌اند (GitHub + germline) · اتوماسیون ۲ساعته germline-آگاه شد.
 
 ---
 
