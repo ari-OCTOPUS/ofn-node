@@ -1,7 +1,7 @@
-2026-08-16T21:00:53+10:00 · source=ofn/heartbeat 2071acf
-· beat · 381 ·
-· time · 2026-08-16T20:59:56+10:00 ·
+2026-08-16T23:00:52+10:00 · source=ofn/heartbeat 88ff37e
+· beat · 601 ·
+· time · 2026-08-16T22:57:36+10:00 ·
 · disk_root_used · 19% ·
-· temp_c · 25.9 ·
+· temp_c · 25.0 ·
 · svc_octopus_bridge · active ·
 · wire_last_windows_msg · (no windows message yet) ·
