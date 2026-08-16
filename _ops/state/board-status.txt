@@ -1,1 +1,7 @@
-2026-08-16T18:54 +10 · beat=141 · DietPi aarch64 · temp=26.8C · disk=19% · mem_avail=2729MB · svc: ofn/hypno/cloudflared/octopus-bridge=all-active · legs healthz=4x200 · git=ae3ced7 clean · source=ofn/heartbeat afb4aeab
+2026-08-16T21:00:53+10:00 · source=ofn/heartbeat 2071acf
+· beat · 381 ·
+· time · 2026-08-16T20:59:56+10:00 ·
+· disk_root_used · 19% ·
+· temp_c · 25.9 ·
+· svc_octopus_bridge · active ·
+· wire_last_windows_msg · (no windows message yet) ·
