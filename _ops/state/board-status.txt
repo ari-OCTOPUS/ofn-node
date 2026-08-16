@@ -1,2 +1,2 @@
-2026-08-17T05:01:29+10:00 · source=ofn/heartbeat 8cf86cb8 · beat=1241 · 04:58+10 · bridge=active · wire_last_windows_msg=STALE
-DIAG-تفصیلی در BOARDLINK-2026-08-16.md: transport زنده، لایهٔ ایجنت برد از b003 ساکت (~11h) · w003 منتظر · ۳ فرمان dispatched معلق — بدون probe جدید طبق سیاست
+2026-08-17T07:00:56+10:00 · source=ofn/heartbeat f347cec4 · beat=1461 · 06:52+10 · bridge=active · wire_last_windows_msg=STALE
+agent-layer برد ساکت ~13h · FOR-BOARD-ACTION-NEEDED.md در share گذاشته شد (ack×3 + wire-fetch از germline + پاسخ w003)
