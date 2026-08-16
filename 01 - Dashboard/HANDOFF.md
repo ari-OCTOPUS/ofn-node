@@ -27,15 +27,27 @@ updated: 2026-08-16
 
 **ثابت:** فقط داخلِ worktree بنویس — **`F:\backup` درختِ زندهٔ در حالِ اجراست** · `git add -A` هرگز · >~۵ فایل ⇒ اول `agent-checkpoint:` · «fatal: stash failed»/قفلِ `.git/objects` = قفلِ AV ⇒ **retry** نه دورزدن · lane که تمام کرد ردیفش را ✅ کند (پاک نکند).
 
+| lane | شروع | وضعیت |
+|------|------|--------|
+| `autoflow-s1-s10` (ZCode/GLM-5.3 — MEGAPROMPT-AUTOFLOW) | 2026-08-16 ~14:5x | ✅ تمام 2026-08-16 ~15:2x — S1..S10 بسته (گزارش: 06-EVIDENCE/AUTOFLOW-REPORT در کامیت پایانی) |
+
 ## وضعِ لحظه‌ای
+
+> 🎯 **پین 2026-08-16 ~14:5x — مگاپرامپت بعدی (حلقهٔ کامل‌شدن):** کپی کامل → ایجنت بعد:
+> [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16|PERPETUAL-PERFECT]] · لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر]]
+> کشف/فیکس/تست/ابسیدین/ایده/مگاپرامپت‌بعد · تا پرفکت · بکر هویت·فرضیه·شناخت·قابلیت · آزاد **C-031** (grep). لانچرهای Seam Loop/Continuous/Deep-Seams باطل به‌عنوان شروع.
+
+> 🎯 **پین 2026-08-16 ~14:2x — خودبهبودی دائمی A+C+F اجرا شد:**
+> [[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Continuous Improve A-C-F|کارت رأی]] —
+> sog_math: ۵ ZeroDivision→۰ · money_gate منفی deny · selfheal `ok` · C-029 TCB باقی · C-030 بسته. آزاد **C-031**. صفر فلگ/TCB-edit/پوش. تست نو: `test_sog_floor_guards.py` · `test_selfheal_ok_field.py` (ثبت run_all نشده).
 
 > 🎯 **پین 2026-08-16 ~13:2x — مگاپرامپت بعدی (حلقهٔ درز):** کپی کامل → ایجنت بعد:
 > [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|SEAM-LOOP v2]] · لانچر Inbox: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Seam Loop Self-Improve|لانچر]]
-> کشف/فیکس/تست/ابسیدین/بعدی · جاهای ندیده · کف ۷ چرخه · پوش با کلمه · آزاد **C-029** (C-027/C-028 را DEEP-SEAMS همین ساعت گرفت). دو مگاپرامپت هم‌نامِ continuous/deep-seams باطل.
+> کشف/فیکس/تست/ابسیدین/بعدی · جاهای ندیده · کف ۷ چرخه · پوش با کلمه · آزاد **C-031** اگر از DEEP-SEAMS/IMPROVE-ACF می‌آیی (C-027..C-030 مصرف شدند). دو مگاپرامپت هم‌نامِ continuous/deep-seams باطل به‌عنوان لانچر — مالک می‌تواند پنجرهٔ بعدی را مستقیم بدهد.
 
 > 🎯 **پین 2026-08-16 ~13:2x — درزهای ماشینِ خودبهبودی (مگاپرامپت دوازدهم) اجرا شد:**
 > [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|DEEP-SEAMS]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Deep-Seams Ledger|کارت درزها]] —
-> C-027: هدفِ زنده از money-claimed=0 به recall-events **۹۰** · C-028: tip-commit دمِ لجر · gauge بستن حلقهٔ ۷روزه **۰/۱۵**. آزاد **C-029**. صفر فلگ/TCB/حذف/push.
+> C-027: هدفِ زنده از money-claimed=0 به recall-events **۹۰** · C-028: tip-commit دمِ لجر · gauge بستن حلقهٔ ۷روزه **۰/۱۵**. آزاد آن نشست C-029 بود → حالا **C-031**.
 
 > 🎯 **پین 2026-08-16 ~13:1x — تست سخت قابلیت‌ها (مگاپرامپت چهارم) + صلیب‌چکِ مستقل:**
 > اصلی (ایجنتِ چهارم، ZCode/GLM-5.3): [[../06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16|HARDTEST]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|SCORECARD]] — شش قابلیت با حمله؛ **S5=REAL** (تنها بازنده کامل) · S1/S2/S3/S4=PARTIAL · S6 مدلِ ثبت‌شده=METAPHOR ولی مسیرِ پایداری واقعی؛ C-025؛ ۵ کارت رأی.
