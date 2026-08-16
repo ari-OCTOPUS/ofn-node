@@ -257,3 +257,24 @@ def outcome_recorded(*, domain: str, correlation_id: str, subject=None, mission_
                           trust=trust, payload=payload,
                           idempotency_key=f"{corr}|{subj or '-'}|outcome-recorded",
                           spine=spine)
+
+
+# ── فاز ۶ دستورالعمل ۲۰۲۶-۰۸-۱۶: وتوی دوگانه (D1/D2/D3) ───────────────────────
+def dual_veto_recorded(*, proposal_id: str, fourd_verdict: str, nbb_verdict: str,
+                       final: str, correlation_id=None, domain: str = "governance",
+                       producer: str = "dual_brain", spine=None) -> dict:
+    """ثبتِ نتیجهٔ وتوی دوگانه در spine — نامِ canonicalِ decision-recorded با
+    دامنهٔ governance (taxonomy بسته است؛ canonical پنج‌گانه همین‌جا جا می‌شود).
+    payload فقط verdictهای کوتاه — هرگز محتوای proposal. idempotency شاملِ
+    final است تا تغییرِ رأی رویدادِ نو بسازد و تکرارِ همان رأی suppressed بماند."""
+    pid = str(proposal_id or "")
+    if not pid:
+        return {"published": False, "reason": "proposal_id required"}
+    corr = str(correlation_id or ("veto_" + pid))
+    return emit_canonical(
+        event="decision-recorded", domain=domain, correlation_id=corr, subject=pid,
+        producer=producer, trust="DETERMINISTIC",
+        payload={"fourd_verdict": str(fourd_verdict)[:16],
+                 "nbb_verdict": str(nbb_verdict)[:16],
+                 "final": str(final)[:16], "veto": True},
+        idempotency_key=f"{corr}|{pid}|dual-veto|{final}", spine=spine)

@@ -140,3 +140,14 @@ verdicts:
     standing: "yes"
     expires_to: "0 only by explicit owner rollback"
     note: "فقط گیتِ اعلانِ fallback (alert→event_bridge با dedup ۲۴ساعته). روترِ D5/D6 خودش passive است و مسیرِ paidِ model_router را بازنویسی نمی‌کند — ask() همان درِ واحد را صدا می‌زند. سقفِ خودمختاری از این‌جا کم نمی‌شود؛ فقط سیگنالِ propose می‌دهد."
+
+  wire_dual_veto:
+    env: OCTOPUS_WIRE_DUAL_VETO
+    value: "1"
+    unit: boolean
+    decided: "2026-08-16"
+    reader: control_plane.dual_brain.enabled
+    quote: "فاز ۶ دستورالعمل Worker Agent: D2 وتوی متقابل — نتیجهٔ وتو → رأی مالک"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: "W4 سندِ DUAL-BRAIN-CONSTITUTION. فقط گیتِ side-effectهای اعلان (alert→event_bridge)؛ منطقِ وتو محض و همیشه در دسترس است. این ماژول به صفِ _octopus/queue نمی‌نویسد (تک‌نویسنده: propose_action) و فایلِ STOP-ORGANISM را لمس نمی‌کند — halt فقط از رأیِ مالک."
