@@ -34,3 +34,6 @@
 - recall_reach: events=90 keys=984 median=21.0 max=60 coverage=0.144 rows=625
 - daemon_state.json: موجود
 - حکم: 🟢 سالم
+
+## 4d-consolidation-tick 2026-08-16T03:12:29+00:00
+- sources=['conclusions', 'experiments', 'frontier', 'reflections'] cycle=5 sk=['cycle-1'] after_events=2
