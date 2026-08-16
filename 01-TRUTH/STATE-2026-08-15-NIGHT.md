@@ -128,3 +128,5 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 ## ۹. جای همه‌چیز
 
 نقشهٔ کامل: [[../00-INDEX|00-INDEX]] · حقیقت زنده: [[CURRENT-TRUTH]] · تست‌ها: [[TEST-COUNT]] · سرویس‌ها: [[SERVICE-STATUS]] · تناقض‌ها: [[CONTRADICTIONS]] · تصمیم‌ها/بازها: [[../02-DECISIONS/OPEN-VERDICTS|OPEN-VERDICTS]] · سیستم‌ها: [[../04-SYSTEMS/OCTOPUS|04-SYSTEMS/*]] · لاگ شب: [[../00 - Inbox/2026-08-15 NIGHT — Activation & Test Session (all gates)|SESSION NIGHT]] · پک رصدخانه: `07 - Knowledge/OCTOPUS-TRUTH-2026-08-15/` (تا 17:09 دقیق است؛ پس از آن این فایل مقدم است)
+
+> **📌 مأموریت بعدی (2026-08-16 ~14:4x):** `agent-prompts/MEGAPROMPT-AUTOFLOW-2026-08-16.md` — S1..S10 با تفویض گسترده. شناسهٔ آزاد: C-029.
