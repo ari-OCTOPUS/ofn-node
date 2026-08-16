@@ -34,7 +34,7 @@ updated: 2026-08-16
 > 🎯 **پین 2026-08-16 ~11:4x — کشف کدِ بی‌فراخوان (کلاس ۹):**
 > [[../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]] ·
 > [[../07-HANDOFF/UNWIRED-REPORT-2026-08-16]] ·
-> C-019 contained-روی-کاغذ (تسک Tick هرگز اجرا نشده + `py`) · C-020 DEPRECATED کهنه · آزاد **C-023** (C-021=recall · C-022=errorhunt).
+> C-019 contained-روی-کاغذ (تسک Tick هرگز اجرا نشده + `py`) · C-020 DEPRECATED کهنه · آزاد **C-025** (C-021=recall · C-022=errorhunt · C-023/C-024=update-debug).
 > پنج کارت رأی در کاتالوگ. 8765 کشته نشد. TCB/فلگ دست‌نخورده.
 
 > 🎯 **پین 2026-08-16 ~11:5x — حلقهٔ recall باز شد:** M3 58/2.0/9.28٪ → **90/21.0/14.4٪** · 4d 0→1 · C-019 بسته · تسک ۶ساعتهٔ 4d. کارت ری‌استارت باز است. [[../06-EVIDENCE/RECALL-LOOP-2026-08-16|RECALL-LOOP]] · [[../07-HANDOFF/RECALL-REPORT-2026-08-16|RECALL-REPORT]]

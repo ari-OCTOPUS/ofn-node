@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-08-15
+updated: 2026-08-16
 ---
 
 # پروژه: architect
@@ -27,6 +27,10 @@ updated: 2026-08-15
 **قاعده حریم Project-F:** پروژه اونلی فنز در هر خروجی cross-domain (تلگرام، داشبورد، گزارش) فقط با کد «Project-F» ارجاع می‌شود — نه نام پلتفرم، نه هویت پارتنر، نه جزئیات محتوا. جزئیات فقط داخل پوشه خود پروژه.
 
 ## Active Context
+
+- تغییرات اخیر: **2026-08-16 (agent — کشف مسیرهای مرده / کلاس ۹).**
+  نقشه نه سیم‌کشی. کاتالوگ: [[../../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]].
+  C-019 contained-روی-کاغذ (تسک Tick موازی هنوز شلیک نشده). C-020 ثبت. آزاد C-025.
 
 - تغییرات اخیر: **2026-08-15 (agent — ثبت سیزن آزمایشگاه دسکتاپ در vault).**
   خط زندهٔ `_ops` دست نخورده. SoT سیزن: [[../../07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]].
@@ -155,6 +159,7 @@ updated: 2026-08-15
 
 ## Progress
 
+- **کشف مسیرهای مرده / کلاس ۹ (نو، ۲۰۲۶-۰۸-۱۶):** کاتالوگ Inbox + C-019/C-020 ERRATA. سیم‌کشی نشد. آزاد C-025. جزئیات: [[../../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]].
 - **سیزن آزمایشگاه دسکتاپ (نو، ۲۰۲۶-۰۸-۱۵):** نوت ۴۷ ثبت شد. v3 تمیز روی دسکتاپ
   (`octopus-owner-to-end-20260815T110641`)؛ D6 آزمایشگاه constraint ۱۲۰/۱۲۰ روی
   candidate غیرمهرشده؛ رسمی NOT_STARTED. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]].

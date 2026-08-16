@@ -1,5 +1,10 @@
 # ⚠️ DEPRECATED — این دایرکتوری به ارگانیسمِ زنده وصل نیست
 
+> **ERRATA C-020 (2026-08-16):** بند «لانچ نمی‌شود» کهنه است.
+> دیمون زنده است: `python -m brain.daemon` · pid 27164 · نسل ۳ (دیپ‌تست 10:34) ·
+> `outputs/daemon_state.json` last_tick امروز. import از `_ops` به `4d_system` همچنان صفر است.
+> تلگرام‌بات این پوشه همچنان DEPRECATED + opt-in (خطر ۴۰۹). جزئیات: C-020.
+
 > Verdict 2026-07-18 integration-debug
 
 ## وضعیت
