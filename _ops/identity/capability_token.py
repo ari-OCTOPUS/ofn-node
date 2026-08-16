@@ -265,6 +265,12 @@ def _resource_match(requested: str, granted_pattern: str) -> bool:
       - Exact string match as fallback
 
     This is a simple prefix/wildcard matcher, not a full glob engine.
+
+    NOTE (G4 fix): Previous implementation used str.lstrip("path:") which strips
+    CHARACTERS, not the literal prefix "path:". This caused patterns like
+    "path:app/**" to match everything starting with "/" because lstrip removed
+    all chars in {'p','a','t','h',':'} including valid path characters.
+    Fixed to use string slicing for literal prefix removal.
     """
     req = str(requested).strip()
     pat = str(granted_pattern).strip()
@@ -273,13 +279,13 @@ def _resource_match(requested: str, granted_pattern: str) -> bool:
     if req == pat:
         return True
 
-    # Wildcard
+    # Wildcard — use _strip_path_prefix for safe literal prefix removal
     if pat.endswith("/**"):
         prefix = pat[:-3]
-        return req.startswith(prefix) or req.startswith(prefix.lstrip("path:"))
+        return req.startswith(prefix) or req.startswith(_strip_path_prefix(prefix))
     if pat.endswith("/*"):
         prefix = pat[:-2]
-        return req.startswith(prefix) or req.startswith(prefix.lstrip("path:"))
+        return req.startswith(prefix) or req.startswith(_strip_path_prefix(prefix))
     if pat == "*":
         return True
 
@@ -293,3 +299,16 @@ def _resource_match(requested: str, granted_pattern: str) -> bool:
 
     # Fallback: prefix
     return req.startswith(pat)
+
+
+def _strip_path_prefix(prefix: str) -> str:
+    """Safely strip 'path:' prefix from a pattern prefix.
+
+    Uses string slicing instead of lstrip to avoid the character-stripping
+    bug where lstrip("path:") strips individual characters {'p','a','t','h',':'}
+    rather than the literal prefix "path:".
+    """
+    _PATH_PREFIX = "path:"
+    if prefix.startswith(_PATH_PREFIX):
+        return prefix[len(_PATH_PREFIX):]
+    return prefix

@@ -325,7 +325,6 @@ class TaskStore:
             record = ctx.to_dict()
             record["version_ts"] = time.time()
             record["version_seq"] = len(self._load_raw()) + 1
-            tmp = self._path.with_suffix(".jsonl.tmp")
             # Append to existing file
             with open(self._path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
