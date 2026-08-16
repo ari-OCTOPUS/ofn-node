@@ -444,6 +444,56 @@ def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
         return {**out, "ok": False, "status": "MEMORY_VETO",
                 "reason": f"memory-veto:{mem.get('veto_ref')}"}
 
+    # ۲.۶) فاز ۸e دستورالعمل ۲۰۲۶-۰۸-۱۶ — دو گیتِ additive فقط برای A2+:
+    #   (الف) PROPOSE_ON_FALLBACK (D6): providerِ فعال GLM/Ollama است؟ → اجرای
+    #         A2+ ممنوع؛ به‌جای اجرا، کارتِ پیشنهاد برای مالک stage می‌شود.
+    #   (ب) وتوی دوگانه (D2، پشتِ OCTOPUS_WIRE_DUAL_VETO): OWNER_DECISION →
+    #         توقفِ fail-closed + اعلان مالک (dual_brain.evaluate خودش اعلان می‌کند).
+    #   A0 (مشاهده) از هر دو گیت معاف است. A2 اجرای خودکار **همچنان BLOCK** است
+    #   طبقِ رأیِ ثبت‌شدهٔ VQ-SELFGOAL-002 (integration.py) — این گیت‌ها مسیر را
+    #   باز نمی‌کنند؛ فقط از providerِ ضعیف محافظت می‌کنند و اعلانِ وتو را وصل
+    #   می‌کنند. سؤالِ تبدیلِ A2→auto برای مالک در AGENT-REPORT ثبت شده.
+    try:
+        _cls = str(plan.get("classification") or "")
+        _cls_n = int(_cls[1:]) if len(_cls) == 2 and _cls[0] == "A" \
+            and _cls[1:].isdigit() else -1
+    except (TypeError, ValueError):
+        _cls_n = -1
+    if plan.get("decision") == "ALLOW" and _cls_n >= 2:
+        try:
+            if str(_OPS / "cortex") not in sys.path:
+                sys.path.insert(0, str(_OPS / "cortex"))
+            import provider_adapter as _pa
+            if _pa.downgrade_a2_now():
+                env_final = dict(env)
+                if env_final.get("status") == "queued":
+                    _transition(env_final, "blocked")
+                _append_mission(env_final)
+                card = _stage_owner_card(env_final, req, plan, now=now)
+                return {**out, "ok": False, "status": "PROPOSE_ON_FALLBACK",
+                        "reason": "active provider autonomy=propose (D6)",
+                        "card_staged": card}
+        except Exception:  # noqa: BLE001 — گیت نباید زنجیره را بکشد؛ ادامه به اجرای مجاز
+            pass
+        try:
+            if str(_OPS / "control_plane") not in sys.path:
+                sys.path.insert(0, str(_OPS / "control_plane"))
+            import dual_brain as _dbv
+            if _dbv.enabled():
+                rec = _dbv.evaluate(str(row.get("mission_id") or cycle_id),
+                                    _dbv.VetoResult.APPROVED,   # NBB-CP = خودِ planner
+                                    _dbv.VetoResult.PENDING,    # 4d هنوز وصل نیست (W2+)
+                                    domain=str(row.get("domain") or "operations"))
+                if rec.final != _dbv.VetoResult.APPROVED:
+                    env_final = dict(env)
+                    if env_final.get("status") == "queued":
+                        _transition(env_final, "blocked")
+                    _append_mission(env_final)
+                    return {**out, "ok": False, "status": "DUAL_VETO_HOLD",
+                            "reason": f"dual-brain {rec.final.value} ({rec.trace_id})"}
+        except Exception:  # noqa: BLE001 — وتو نباید زنجیره را بکشد؛ FAIL ممنوع
+            pass
+
     # ۳) فقط ALLOW اجرا می‌شود — هر تصمیمِ دیگرِ planner همان‌طور گزارش می‌شود.
     if plan.get("decision") != "ALLOW":
         # replay ِ idempotent (همان چرخه بعد از crash/restart): عمل قبلاً انجام

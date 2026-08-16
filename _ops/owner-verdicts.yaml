@@ -162,3 +162,25 @@ verdicts:
     standing: "yes"
     expires_to: "0 only by explicit owner rollback"
     note: "W1 از پنج مرحلهٔ سندِ DUAL-BRAIN-CONSTITUTION §۵. اجازه‌نامهٔ بسته: فقط ۶ فایلِ state غیرمحرمانه؛ deny روی الگوی نامِ راز (flag_drift.is_secret_name). W2 (پروپوزال)/W3 (ارزیابی)/W4 (وتو)/W5 (ارز) هنوز بدونِ رأی‌اند و عمداً وصل نیستند."
+
+  wire_synapse_sense:
+    env: OCTOPUS_SYNAPSE_ENABLED
+    value: "1"
+    unit: boolean
+    decided: "2026-08-16"
+    reader: wiring.synapse_beat
+    quote: "فاز ۸c دستورالعمل Worker Agent: سیم‌کشی synapse — حسِ خود-ارجاعی"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: "wiring.synapse_beat از ۲۰۲۶-۰۷-۲۸ صداکنندهٔ organism دارد ولی فلگ خاموش بود. $0 (فقط ریاضی)، propose-only، daily-cap دارد. نامِ SYNAPSE_ENABLED خامِ دستورالعمل → این‌جا فلگِ واقعیِ wiring (OCTOPUS_) ثبت شد."
+
+  wire_chord_shadow:
+    env: OCTOPUS_WIRE_CHORD
+    value: "1"
+    unit: boolean
+    decided: "2026-08-16"
+    reader: wiring.chord_beat
+    quote: "فاز ۸d دستورالعمل Worker Agent: chord wired — داوریِ advisory"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: "SHADOW می‌ماند (chord/__init__: SHADOW_ONLY): verdict فقط در ledgerِ hash-chainِ خودش؛ allowed_actions هرگز code.apply ندارد و مجوزِ اجرا نیست. هر ۳۶۰ beat یک ارزیابی از ORGANISM-STATE واقعی. پایشِ ۱ هفته‌ایِ مالک (roadmap §۳) جاری است."

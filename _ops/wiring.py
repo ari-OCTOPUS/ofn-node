@@ -17,6 +17,7 @@ additive؛ stdlib-only؛ kill-switch مطلق (هر حلقه اول STOP را چ
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -802,6 +803,52 @@ def synapse_beat(beat: int = 0) -> dict | None:
         return None   # daily-cap / no-events / degraded → بی‌صدا
     except Exception as e:  # noqa: BLE001 — Sense نباید ضربان را بکشد
         opslib.alert([f"synapse_beat error (non-fatal): {type(e).__name__}: {e}"])
+        return None
+
+
+def chord_beat(beat: int = 0) -> "dict | None":
+    """فاز ۸d دستورالعمل ۲۰۲۶-۰۸-۱۶ — داوریِ سایهٔ فیلترِ وتر روی وضعِ زنده.
+
+    پشتِ OCTOPUS_WIRE_CHORD (پیش‌فرض خاموش → no-op). SHADOW remains SHADOW:
+    verdict فقط در ledgerِ خودِ chord می‌نشیند (hash-chain) و **هرگز مجوزِ اجرا
+    نیست** (chord/__init__: allowed_actions ساختاراً بدونِ code.apply). هر
+    CHORD_CHORD_EVERY_N_BEATS (پیش‌فرض ۳۶۰). مشاهدات از ORGANISM-STATE واقعی —
+    PII-امن، فقط اعداد/وضعیت. $0 · fail-closed · fail-soft."""
+    if not flag("OCTOPUS_WIRE_CHORD"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHORD_CHORD_EVERY_N_BEATS", "360"))
+    if not _epoch_fire("chord_shadow", beat, every_n):
+        return None
+    try:
+        _cp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chord")
+        _syspath(_cp)
+        from chord.observation import Observation   # noqa: E402 — lazy
+        from chord.adapters.doctor_adapter import shadow_assess   # noqa: E402
+        # مشاهدهٔ صادق از وضعِ زنده — یک منبع، بدونِ تزئین؛ غیب = UNKNOWN در وتر
+        st = {}
+        try:
+            st = json.loads((opslib.STATE_DIR / "ORGANISM-STATE.json")
+                            .read_text("utf-8"))
+        except (OSError, ValueError):
+            st = {}
+        halted = bool(st.get("halted"))
+        arb = (st.get("arbiter") or {}).get("color") or "unknown"
+        frozen = bool(st.get("frozen"))
+        obs = Observation(
+            source_type="log", source_ref="_ops/state/ORGANISM-STATE.json",
+            payload_summary=f"arbiter={arb} halted={halted} frozen={frozen}",
+            evidence_strength=0.6,
+            provenance="wiring.chord_beat")
+        # ادعای بُعدها از همین اعداد — محافظه‌کارانه؛ بُعدِ بی‌شاهد ادعا نمی‌شود
+        claims = [{"operational_risk": (0.8 if halted else 0.2),
+                   "test_health": (0.4 if frozen else 0.6)}]
+        rec = shadow_assess(f"beat_{int(beat or 0)}", [obs], dim_claims=claims,
+                            context={"stop_organism": halted, "beat": beat})
+        return {"chord": rec.get("verdict"), "d": rec.get("weighted_distance")}
+    except Exception as e:  # noqa: BLE001 — chord نباید ضربان را بکشد
+        opslib.alert([f"chord_beat error (non-fatal): {type(e).__name__}: {e}"])
         return None
 
 

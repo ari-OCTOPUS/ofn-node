@@ -1035,6 +1035,13 @@ def main() -> int:
                 _w.synapse_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
             except Exception as _se:  # noqa: BLE001 — Sense نباید tick را بکشد
                 opslib.alert([f"synapse_beat error (non-fatal): {type(_se).__name__}"])
+            # ── Chord shadow (فاز ۸d دستورالعمل ۲۰۲۶-۰۸-۱۶): داوریِ سایهٔ فیلترِ
+            # وتر روی وضعِ زنده — فقط ledgerِ خودش، هرگز مجوزِ اجرا. flag خاموش
+            # (پیش‌فرض) → no-op. بیرونِ _protective_skip (مشاهده ≠ تغییر)، $0.
+            try:
+                _w.chord_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+            except Exception as _ce:  # noqa: BLE001 — chord نباید tick را بکشد
+                opslib.alert([f"chord_beat error (non-fatal): {type(_ce).__name__}"])
             # ── M (P-M2): canonical consolidation در حلقهٔ زنده (هر N beat، پشتِ flag)
             # یک مسیرِ حافظهٔ واحد — منبعِ School را می‌گنجاند. advisory فقط، صفر spend.
             if not _protective_skip and _neural_stack is not None and _cstat is not None:

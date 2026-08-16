@@ -83,8 +83,8 @@ def test_classifier_flag_armed_falls_back_to_activation_flags(monkeypatch):
 
 def _env(**over):
     base = {"OCTOPUS_WIRE_SPINE": "1", "OCTOPUS_INTERACTION_LOG": "1",
-            "SYNAPSE_ENABLED": "0", "OCTOPUS_WIRE_CHORD": "0",
-            "OCTOPUS_WIRE_ACTION_BRIDGE": "1"}   # فلگِ سیم روی است ولی caller نیست
+            "OCTOPUS_SYNAPSE_ENABLED": "0", "OCTOPUS_WIRE_CHORD": "0",
+            "OCTOPUS_WIRE_ACTION_BRIDGE": "1"}   # caller از ۰۷-۳۰ flag-gated
     base.update(over)
     return base
 
@@ -93,13 +93,12 @@ def test_dormant_modules_reflect_live_flags():
     env = _env()
     assert off_heartbeat.module_live("spine", env) is True          # wired → حذف از خاموش‌ها
     assert off_heartbeat.module_live("intel_spine", env) is True
+    assert off_heartbeat.module_live("action_bridge", env) is True  # فلگِ سیم = زنده
     assert off_heartbeat.module_live("synapse", env) is False
     assert off_heartbeat.module_live("chord", env) is False
-    # action_bridge: فلگِ سیمِ روشنِ تنها کافی نیست — caller ِ runtime لازم است
-    assert off_heartbeat.module_live("action_bridge", env) is False
-    assert off_heartbeat.module_live("action_bridge",
-                                     _env(OCTOPUS_ACTION_BRIDGE_RUNTIME="1")) is True
-    assert off_heartbeat.dormant_modules(env) == ["synapse", "chord", "action_bridge"]
+    assert off_heartbeat.module_live("synapse",
+                                     _env(OCTOPUS_SYNAPSE_ENABLED="1")) is True
+    assert off_heartbeat.dormant_modules(env) == ["synapse", "chord"]
 
 
 def test_off_heartbeat_emits_only_every_10th_beat():
@@ -109,16 +108,16 @@ def test_off_heartbeat_emits_only_every_10th_beat():
         out = off_heartbeat.emit_off_heartbeat(beat, env=env)
         emitted += len(out)
         if beat % 10 == 0:
-            assert len(out) == 3, (beat, out)      # synapse + chord + action_bridge
+            assert len(out) == 2, (beat, out)      # synapse + chord
         else:
             assert out == [], (beat, out)
-    assert emitted == 6                              # دو مضربِ ۱۰ × سه ماژول
+    assert emitted == 4                              # دو مضربِ ۱۰ × دو ماژول
 
 
 def test_off_heartbeat_event_shape_and_log():
     env = _env()
     out = off_heartbeat.emit_off_heartbeat(38410, env=env)
-    assert {e["agent_id"] for e in out} == {"synapse", "chord", "action_bridge"}
+    assert {e["agent_id"] for e in out} == {"synapse", "chord"}
     for e in out:
         assert e["event_name"] == "module.heartbeat"
         assert e["status"] == "OFF"

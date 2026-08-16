@@ -10,11 +10,9 @@ trace_id/correlation_id/idempotency_key (R8). ماژولی که وصل شد (ف�
 وضعیتِ هر ماژول از **فلگِ زندهٔ همان پروسه** خوانده می‌شود (env)، نه از حافظه:
   spine        ← OCTOPUS_WIRE_SPINE          (الان: ON در تولید — spine.db زنده)
   intel_spine  ← OCTOPUS_INTERACTION_LOG     (ON در env)
-  synapse      ← SYNAPSE_ENABLED             (خاموش)
-  chord        ← OCTOPUS_WIRE_CHORD          (خاموش — خوانندهٔ فلگ با فاز ۸d می‌آید)
-  action_bridge← OCTOPUS_WIRE_ACTION_BRIDGE **و** OCTOPUS_ACTION_BRIDGE_RUNTIME
-                (فلگِ اول در env روشن است ولی runtime caller وجود ندارد → تا فاز ۸e
-                 که caller وصل شود، OFF می‌زند — همان حقیقتِ AGENT-INVENTORY §۲)
+  synapse      ← OCTOPUS_SYNAPSE_ENABLED     (خاموش تا فاز ۸c)
+  chord        ← OCTOPUS_WIRE_CHORD          (خاموش تا فاز ۸d)
+  action_bridge← OCTOPUS_WIRE_ACTION_BRIDGE  (ON در env — caller از ۰۷-۳۰ flag-gated)
 
 addon-only · fail-soft (هر استثنا = no-op) · تک‌نویسنده: فقط organism loop صدایش می‌زند.
 """
@@ -25,12 +23,14 @@ import os
 EVERY_N = 10   # هر ۱۰ beat یک‌بار (D6/roadmap: «هر ۱۰ beat heartbeat OFF»)
 
 # نامِ ماژول → (فلگِ اصلی، فلگِ دومِ اختیاری) — هر دو باید روشن باشند تا «زنده» باشد.
+# action_bridge از ۰۷-۳۰ flag-gated integrated است (goal_action_bridge::run_for_cycle،
+# رأیِ VQ-ACTION-BRIDGE-ARM-001) — فلگِ سیمِ روشن یعنی زنده؛ نیازی به فلگِ دوم نبود.
 _MODULE_FLAGS = {
     "spine": ("OCTOPUS_WIRE_SPINE", None),
     "intel_spine": ("OCTOPUS_INTERACTION_LOG", None),
-    "synapse": ("SYNAPSE_ENABLED", None),
+    "synapse": ("OCTOPUS_SYNAPSE_ENABLED", None),
     "chord": ("OCTOPUS_WIRE_CHORD", None),
-    "action_bridge": ("OCTOPUS_WIRE_ACTION_BRIDGE", "OCTOPUS_ACTION_BRIDGE_RUNTIME"),
+    "action_bridge": ("OCTOPUS_WIRE_ACTION_BRIDGE", None),
 }
 
 _TRUTHY = ("1", "true", "yes", "on")
