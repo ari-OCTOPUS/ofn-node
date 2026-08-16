@@ -1,0 +1,17 @@
+{
+  "version": "0.3",
+  "content_labels": {
+    "body_area": ["feet", "hands", "face_absent", "other"],
+    "coverage": ["covered", "bare_non_nude", "ambiguous", "reject_nudity"],
+    "view": ["top", "sole", "side", "full_body_no_face", "detail"],
+    "tone": ["beauty", "wellness", "educational", "moody", "teaser", "adult_labeled"],
+    "sensitivity": ["restricted", "general"],
+    "consent_state": ["unknown", "valid", "expired", "revoked", "missing_scope"],
+    "age_safety": ["adult_subject_confirmed", "unknown_deny", "minor_deny"]
+  },
+  "defaults": {
+    "sensitivity": "restricted",
+    "consent_state": "unknown",
+    "age_safety": "unknown_deny"
+  }
+}

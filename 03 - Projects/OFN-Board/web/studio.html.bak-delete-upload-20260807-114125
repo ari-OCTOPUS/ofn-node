@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<!-- `defer`, and that is the whole point. Loaded synchronously in the head,
+     a third-party script paints NOTHING until it arrives — on a network that
+     cannot reach telegram.org quickly, that is a white screen for as long as
+     the request takes to time out. The same mistake the web font made in
+     ziman.html, with the same symptom.
+     Deferred scripts still run before DOMContentLoaded, so the SDK is present
+     by the time `boot` is called below. -->
+<!-- `defer` stays. Loaded synchronously this third-party script blocks first
+     paint, which on a network that cannot reach telegram.org is a white
+     screen for the length of a timeout — a failure this shell already fixed
+     once and must not reacquire.
+
+     But deferring it means it has NOT run while the document is parsing, so
+     nothing evaluated at parse time may read window.Telegram. The connector
+     below therefore reads it through a function, never into a variable, and
+     boot() waits for DOMContentLoaded — which fires after deferred scripts.
+     Both halves are required; the shell was broken by having only the
+     second. See tests/test_shell_boot_order.py. -->
+<script defer src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>چیدمان</title>
+<style>
+/* Self-hosted. `fonts.gstatic.com` does not open reliably from Iran, and a
+   font request that never completes is a wasted connection on exactly the
+   network that can least afford one — as a render-blocking stylesheet it was
+   a white screen for as long as the timeout took.
+   One file: Vazirmatn is a variable font, so the whole 100-900 range comes
+   from the same bytes. Downloading 400 and 600 separately gave two identical
+   45 KB files, which is what the first attempt shipped.
+   `swap` so text is readable immediately and simply improves when it lands. */
+@font-face{
+  font-family:'Vazirmatn';
+  src:url('/font/vazirmatn.woff2') format('woff2');
+  font-weight:100 900;
+  font-display:swap;
+}
+/* ══════════════════════════════════════════════════════════════
+   «چیدمان» · نسخهٔ سوم — و این یکی روی شواهد ساخته شده
+   ──────────────────────────────────────────────────────────────
+   دو قاعده از پژوهش، که نسخهٔ قبلی هر دو را می‌شکست:
+
+   ۱. «انیمیشن زیاد بدون هدف» جزو محرک‌های اضطراب فهرست شده است.
+      نسخهٔ تاریک‌خانه پنج انیمیشن محیطیِ هم‌زمان داشت. اینجا یکی
+      دارد، و بقیه فقط وقتی حرکت می‌کنند که *حالتی عوض شده باشد*.
+
+   ۲. «عمق باید به سلسله‌مراتب اطلاعات نگاشت شود، هرگز تزئینی».
+      پس عمق اینجا یک معنا دارد و فقط یکی: هرچه نزدیک‌تر،
+      تصمیمی‌تر. کارتی که باید درباره‌اش تصمیم بگیری جلوتر است،
+      روشن است، و کِرِم. بقیه عقب می‌روند و تیره می‌مانند.
+
+   نتیجهٔ جانبی، همان چیزی که آری خواست: صفحه دیگر خیلی تیره
+   نیست — ولی روشنایی از *بلند کردن سطحِ زیر متن* نیامده (که
+   بی‌صدا ممیزی کنتراست را می‌شکست)، از جرمِ کِرِمِ کارتِ فعال آمده.
+   ══════════════════════════════════════════════════════════════ */
+
+:root{
+  color-scheme:dark;
+  interpolate-size:allow-keywords;
+
+  /* سطوح — سقفِ سطحِ متن‌دار همان #2B2B2F ممیزی‌شده است */
+  --bg:#131114;  --sunk:#1B181C;  --surf:#232025;  --surf-hi:#2B2B2F;
+
+  /* پالت اصلی، برگشته */
+  --gold:#F4B73F;  --cream:#E9DCC8;  --wine:#5A1A26;
+  --on-cream:#191418;   /* روی کِرِم — تیره، ۱۲:۱ به بالا */
+  --on-gold:#0F0F10;    /* Lc 72.2 با ۱۶px نیم‌ضخیم */
+
+  --t-hi:#F4F1EC;  --t-mid:#C9C3BB;  --t-lo:#A9A39C;
+  --surface:var(--surf);  --ink:var(--t-hi);
+  --t-rose:#CB969F;  --t-ok:#7BCF9D;
+
+  /* روی کِرِم، متن‌های ثانویه */
+  --c-mid:#4A4247;  --c-lo:#6E6469;
+
+  --line:color-mix(in oklab,var(--cream) 9%,transparent);
+  --line-hi:color-mix(in oklab,var(--cream) 18%,transparent);
+
+  --fa:"Vazirmatn","IRANSans",Tahoma,"Noto Naskh Arabic UI",system-ui,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t:340ms;      /* بازخورد فوری باشد. ۳۴۰ سقف است، نه هدف. */
+}
+@supports (color:oklch(0 0 0)){
+  :root{--gold-air:oklch(from var(--gold) l c h/.13);
+        --wine-air:oklch(from var(--wine) calc(l + .08) c h/.30)}
+}
+@supports not (color:oklch(0 0 0)){
+  :root{--gold-air:rgb(244 183 63/.13);--wine-air:rgb(90 26 38/.30)}
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:var(--fa);background:var(--bg);color:var(--t-hi);
+  line-height:1.85;letter-spacing:0;min-height:100dvh;
+  /* `viewport-fit=cover` means the page owns the whole screen, notch and
+     status bar included, so every edge it writes to needs its own inset. The
+     bottom had one and the top did not — invisible until now, because the
+     shell only fills the screen once `expand()` runs and `expand()` had never
+     run: `tg` was undefined, so `OFN.shell()` returned early every time. The
+     bug that hid the empty screen was hiding this too. */
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:calc(100px + env(safe-area-inset-bottom));
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* تنها انیمیشن محیطی این صفحه. ۹۰ ثانیه — زیر آستانهٔ توجه. */
+.warm{position:fixed;inset:-25%;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(40% 28% at 74% 4%, var(--wine-air),transparent 68%),
+    radial-gradient(46% 30% at 18% 92%,var(--gold-air),transparent 70%);
+  animation:sway 90s linear infinite alternate}
+@keyframes sway{to{transform:translate3d(-3%,2%,0) scale(1.07)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.4;
+  background-image:radial-gradient(rgb(255 255 255/.03) .6px,transparent .6px);
+  background-size:3px 3px}
+
+.wrap{max-width:432px;margin-inline:auto;padding-inline:18px;container-type:inline-size}
+
+/* ── سربرگ: کم‌ترین چیزی که لازم است ─────────────────────── */
+header{padding:24px 0 6px}
+.eyebrow{font-size:13px;color:var(--t-lo)}
+h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
+
+/* ── یک تصمیم، در جلو ────────────────────────────────────
+   عمق = اولویت. کارت فعال جلوتر، روشن، کِرِم.
+   بقیه عقب، تیره، و عمداً کم‌جزئیات — تا رقابت نکنند.     */
+/* The deck is sized BY its one content sheet — the front card — instead of
+   reserving a fixed dark region. The decorative dark back-sheets were removed
+   so that when the front card is hidden (the resting state, no draft and no
+   question pending) nothing reserves a tall empty gray area above the chatbox.
+   A small `min-height` (not a `height`) keeps the deck able to grow: the
+   front sheet still holds its own shape because it carries its own
+   `min-height`, and the deck never pins it. */
+.stack{position:relative;perspective:1400px;perspective-origin:50% 34%;
+  margin:20px 0 8px;min-height:1px}
+.sheet{
+  transition:transform var(--t) var(--ease),opacity var(--t) var(--ease),
+             filter var(--t) var(--ease)}
+
+/* لایهٔ جلو — کِرِم. اینجاست که «خیلی تیره نباشد» اتفاق می‌افتد. */
+/* The one sheet that carries content is the one sheet in normal flow, so the
+   deck is sized BY it instead of guessing at it. While it was `absolute` its
+   overflow was painted outside the stack entirely and landed on the buttons
+   below — «بعداً» sitting on top of «عکس تازه». */
+.sheet.front{
+  position:relative;
+  min-height:320px;padding:22px;display:flex;flex-direction:column;
+  background:linear-gradient(166deg,#F3EADC,var(--cream));
+  color:var(--on-cream);
+  border:1px solid rgb(90 26 38/.14);
+  box-shadow:0 34px 56px -26px rgb(0 0 0/.85),
+             0 4px 12px rgb(0 0 0/.35),
+             inset 0 1px 0 rgb(255 255 255/.6)}
+/* No `:active` press feedback here on purpose. The sheet holds the draft
+   card and the kernel-question card, both of which have their own real
+   buttons inside; tapping empty space on the sheet itself does nothing, and
+   a press animation on a non-target teaches the partner that taps sometimes
+   register and do nothing — exactly the "I tapped and it didn't work" report
+   from a real phone. If a press effect is wanted, it belongs on the actual
+   interactive controls, not their container. */
+
+/* نوار وضعیت = لبهٔ رنگی. یک رنگ به‌جای یک قرص با متن. */
+.spine{position:absolute;inset-block:22px;inset-inline-start:0;width:4px;
+  border-radius:0 4px 4px 0;background:var(--wine)}
+
+.kicker{font-size:13px;color:var(--c-lo);display:flex;align-items:center;gap:7px}
+.kicker svg{width:13px;height:13px}
+.sheet.front h2{font-size:21px;font-weight:600;margin:6px 0 8px;text-wrap:balance;
+  line-height:1.5}
+.sheet.front p{font-size:14px;color:var(--c-mid);text-wrap:pretty}
+
+/* پیش‌نمایش رسانه — تصویری، نه عددی */
+.strip{display:flex;gap:7px;margin-top:auto;padding-top:16px}
+.strip i{flex:1;aspect-ratio:3/4;border-radius:9px;
+  background:linear-gradient(158deg,#5E4A4E,#2C2226);
+  box-shadow:inset 0 0 0 1px rgb(0 0 0/.18)}
+.strip i:nth-child(2){background:linear-gradient(158deg,#4E4A5E,#232230)}
+.strip i:nth-child(3){background:linear-gradient(158deg,#5E5647,#2E2A22)}
+
+.behind{display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13px;color:var(--t-lo);margin-top:14px}
+.behind b{font-weight:600;color:var(--t-mid)}
+
+/* ── یک کنش اصلی، همیشه در دسترس شست ─────────────────────
+   برچسب می‌گوید *چه اتفاقی می‌افتد*، نه «تأیید».           */
+.act{display:grid;gap:9px;margin-top:16px;flex:none}
+.cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  border:0;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;
+  padding:15px;border-radius:17px;background:var(--gold);color:var(--on-gold);
+  box-shadow:0 14px 30px -13px rgb(244 183 63/.55);
+  transition:transform .15s var(--ease),filter var(--t) var(--ease)}
+.cta:active{transform:translateY(1px) scale(.994)}
+.cta svg{width:18px;height:18px}
+.cta.quiet{background:transparent;color:var(--t-mid);box-shadow:none;
+  border:1px solid var(--line-hi)}
+
+/* ── پاسخ به سؤال کرنل ─────────────────────────────────── */
+/* `flex:none` on both: they are flex children of the front sheet, and a flex
+   child shrinks by default. That is how a fixed-height card squashed the
+   textarea to a sliver — nothing could be typed, so «ثبت کن» answered "write
+   an answer first" and the question looked like a button that does nothing.
+   The sheet grows now, so there is no pressure to shrink under; this is here
+   so that the field and the actions are never the things that give way. */
+.ans{display:flex;flex-direction:column;gap:9px;margin-top:14px;flex:none}
+.opt{font-family:inherit;font-size:16px;font-weight:600;text-align:start;
+  padding:14px 15px;border-radius:14px;border:1.5px solid rgb(90 26 38/.20);
+  background:rgb(255 255 255/.45);color:var(--on-cream);cursor:pointer}
+.opt.pick{border-color:var(--wine);background:rgb(90 26 38/.10)}
+.field{font-family:inherit;font-size:16px;width:100%;padding:13px 14px;
+  border-radius:14px;border:1.5px solid rgb(90 26 38/.20);
+  background:rgb(255 255 255/.55);color:var(--on-cream);resize:vertical}
+.err{font-size:13px;color:var(--wine);margin-top:8px}
+
+
+/* ── gallery ─────────────────────────────────────────────────────────────
+   A contact sheet, which is where a photographer already reviews work. The
+   depth rule does not apply here and that is deliberate: depth means "more
+   decided", and a grid of photos is not a stack of decisions. */
+.sheetgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+.shot{aspect-ratio:3/4;border-radius:10px;overflow:hidden;position:relative;
+  background:linear-gradient(158deg,var(--surf-hi),var(--sunk));
+  border:1px solid var(--line);padding:0;cursor:pointer}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.shot.pick{outline:2px solid var(--gold);outline-offset:2px}
+/* The little × in the corner of each photo. A small red button on the photo
+   itself, so deletion is where the photo is — not in a panel somewhere else.
+   `stopPropagation` on pointerdown/click keeps it from also starting a long-
+   press zoom or selecting the photo underneath it. */
+.shot-del{position:absolute;inset-block-start:6px;inset-inline-end:6px;
+  width:28px;height:28px;flex:none;display:grid;place-items:center;
+  padding:0;border:0;border-radius:99px;cursor:pointer;
+  background:rgb(0 0 0/.55);color:#fff;font-size:18px;line-height:1}
+.shot-del:active{transform:scale(.92)}
+.shot .cat{position:absolute;inset-block-start:6px;inset-inline-start:6px;font-size:13px;padding:2px 7px;border-radius:99px;color:var(--on-gold);background:var(--gold)}
+.shot .note-mark{position:absolute;inset-block-start:6px;inset-inline-start:6px;font-size:13px;padding:2px 7px;border-radius:99px;color:var(--t-hi);background:rgb(0 0 0/.55)}
+.shot .tagged{position:absolute;inset-block-end:0;inset-inline:0;
+  font-size:13px;padding:4px 6px;color:var(--t-hi);
+  background:linear-gradient(0deg,rgb(0 0 0/.62),transparent)}
+.albums{display:flex;gap:7px;overflow-x:auto;padding-block:4px;margin-top:12px}
+/* 44px each, the same touch floor as every other control here — a star small
+   enough to look elegant is a star she taps twice. */
+.stars{display:flex;gap:4px;margin-top:10px}
+.stars button{width:44px;height:44px;flex:none;display:grid;place-items:center;
+  background:none;border:0;cursor:pointer;color:var(--t-lo);padding:0}
+.stars button[aria-checked="true"]{color:var(--gold)}
+.stars svg{width:26px;height:26px}
+.album{flex:none;font-family:inherit;font-size:13px;padding:8px 13px;
+  border-radius:99px;border:1px solid var(--line);background:transparent;
+  color:var(--t-mid);cursor:pointer;white-space:nowrap}
+.album[aria-pressed="true"]{background:var(--gold-air);color:var(--gold);
+  border-color:color-mix(in oklab,var(--gold) 30%,transparent)}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.tag{font-family:inherit;font-size:13px;padding:9px 14px;border-radius:99px;
+  border:1px solid var(--line-hi);background:transparent;color:var(--t-mid);
+  cursor:pointer;min-height:44px}
+.tag[aria-pressed="true"]{background:var(--cream);color:var(--on-cream);
+  border-color:var(--cream)}
+.pairnote{font-size:13px;color:var(--t-lo);margin-top:10px}
+.rows{margin-top:14px}
+.row{display:flex;align-items:baseline;gap:10px;padding:11px 0;
+  border-block-end:1px solid var(--line)}
+.row b{font-size:19px;font-weight:600;min-inline-size:56px}
+.row span{font-size:13px;color:var(--t-mid)}
+.card{margin-top:12px;padding:16px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--line)}
+.card .h{font-size:13px;color:var(--t-rose);display:flex;align-items:center;gap:7px;
+  margin-block-end:8px}
+.card p{font-size:13.5px;color:var(--t-mid);text-wrap:pretty}
+.card .src{font-size:13px;color:var(--t-lo);margin-top:9px;padding-top:9px;
+  border-block-start:1px solid var(--line)}
+.card .big{font-size:34px;font-weight:600;color:var(--ink);direction:ltr;display:inline-block}
+#mkt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media (max-width:480px){#mkt-grid{grid-template-columns:1fr 1fr}}
+#mkt-gates-list div{padding:4px 0;font-size:13.5px;color:var(--t-mid)}
+.field-wrap{display:flex;flex-direction:column;gap:6px;margin-block-start:14px}
+.field-wrap span{font-size:13px;color:var(--t-lo)}
+.field-wrap select{font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;
+  background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.act{margin-block-start:14px;display:flex;gap:10px;flex-wrap:wrap}
+#view-today>.act{align-items:center;justify-content:center}
+#view-today>.act>.cta{flex:0 1 auto}
+@media (max-width:520px){#view-today>.act>.cta{flex:1 1 150px}}
+.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-block-start:14px}
+@media (max-width:480px){.platform-grid{grid-template-columns:1fr}}
+.pcard{padding:12px 14px;border-radius:14px;border:1px solid var(--line);
+  background:var(--surface);display:flex;flex-direction:column;gap:4px}
+.pcard.ok{border-color:#3a8b5a}
+.pcard.no{border-color:#8b3a3a;opacity:.85}
+.pcard .pname{font-size:14px;font-weight:600;color:var(--ink)}
+.pcard .pstat{font-size:13px;color:var(--t-mid)}
+.pcard .pwhy{font-size:13px;color:var(--t-lo)}
+
+/* ── نورسنج: یک شکل، یک جمله، بدون درصد ─────────────────── */
+.gauge{margin-top:26px;background:linear-gradient(168deg,var(--surf-hi),var(--sunk));
+  border:1px solid var(--line);border-radius:22px;padding:17px;
+  display:flex;align-items:center;gap:15px;
+  box-shadow:0 16px 30px -22px rgb(0 0 0/.9),inset 0 1px 0 rgb(255 255 255/.045)}
+.gauge svg{width:96px;height:56px;flex:none;overflow:visible}
+.trk{stroke:var(--line-hi);stroke-width:6.5;fill:none;stroke-linecap:round}
+.val{stroke:url(#gg);stroke-width:6.5;fill:none;stroke-linecap:round;
+  stroke-dasharray:116;stroke-dashoffset:116}
+.ndl{stroke:var(--cream);stroke-width:1.6;stroke-linecap:round;
+  transform-origin:48px 48px;transform:rotate(-80deg)}
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .val{animation:fill linear both;animation-timeline:view();animation-range:entry 10% entry 60%}
+    .ndl{animation:point linear both;animation-timeline:view();animation-range:entry 10% entry 60%}
+  }
+  @keyframes fill{to{stroke-dashoffset:36}}
+  @keyframes point{to{transform:rotate(34deg)}}
+}
+.gauge .lab{font-size:13px;color:var(--t-lo)}
+.gauge .say{font-family:var(--serif);font-size:19px;font-style:italic;
+  color:var(--t-hi);line-height:1.45;text-wrap:balance;margin-top:1px}
+
+/* ── مشاور: یک جمله، و منبعش ─────────────────────────────── */
+.note{margin-top:12px;padding:16px;border-radius:20px;
+  background:linear-gradient(168deg,#241D1F,var(--sunk));
+  border:1px solid color-mix(in oklab,var(--t-rose) 18%,transparent)}
+.note .h{font-size:13px;color:var(--t-rose);display:flex;align-items:center;gap:7px;
+  margin-bottom:7px}
+.note .h svg{width:14px;height:14px}
+.note p{font-size:13.5px;color:var(--t-mid);text-wrap:pretty}
+.note .src{font-size:13px;color:var(--t-lo);margin-top:9px;padding-top:9px;
+  border-top:1px solid var(--line)}
+
+/* ── رضایت — دروازه با :has()، بدون JS ─────────────────── */
+.gate{margin-top:16px}
+.consent{display:flex;gap:12px;align-items:flex-start;padding:15px;border-radius:18px;
+  background:var(--wine-air);border:1px solid color-mix(in oklab,var(--t-rose) 24%,transparent)}
+.consent input{position:absolute;opacity:0;width:44px;height:44px;cursor:pointer}
+.tick{width:44px;height:44px;flex:none;display:grid;place-items:center;margin:-10px -10px -10px 0}
+.tick i{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;
+  border:2px solid var(--line-hi);transition:var(--t) var(--ease)}
+.tick svg{width:13px;height:13px;opacity:0;transform:scale(.5);transition:var(--t) var(--ease)}
+.consent:has(input:checked) .tick i{background:var(--gold);border-color:var(--gold)}
+.consent:has(input:checked) .tick svg{opacity:1;transform:none}
+.consent:has(input:focus-visible) .tick i{outline:2px solid var(--gold);outline-offset:3px}
+.consent b{display:block;font-size:13.5px;margin-bottom:2px}
+.consent small{font-size:13px;color:var(--t-mid);line-height:1.7;display:block}
+.gate:has(input:not(:checked)) .cta-main{filter:grayscale(.8) brightness(.55);pointer-events:none}
+
+/* ── ورقهٔ تأیید ─────────────────────────────────────────── */
+[popover]{border:0;padding:0;background:transparent;color:var(--t-hi);
+  inset:auto 0 0 0;width:100%;max-width:432px;margin-inline:auto;
+  opacity:0;translate:0 22px;
+  transition:opacity var(--t) var(--ease),translate var(--t) var(--ease),
+             overlay var(--t) allow-discrete,display var(--t) allow-discrete}
+[popover]:popover-open{opacity:1;translate:0 0;display:block}
+/* مسیر جایگزین: بدون popover، سینی یک لایهٔ ثابت است. */
+[popover][data-open]{position:fixed;z-index:20;opacity:1;translate:0 0}
+@starting-style{[popover]:popover-open{opacity:0;translate:0 22px}}
+[popover]::backdrop{background:rgb(8 6 8/.74);backdrop-filter:blur(7px);opacity:0;
+  transition:opacity var(--t) var(--ease),display var(--t) allow-discrete,
+             overlay var(--t) allow-discrete}
+[popover]:popover-open::backdrop{opacity:1}
+@starting-style{[popover]:popover-open::backdrop{opacity:0}}
+.tray{background:linear-gradient(178deg,var(--surf-hi),var(--sunk));
+  border:1px solid var(--line-hi);border-radius:26px 26px 0 0;
+  padding:20px 19px calc(20px + env(safe-area-inset-bottom))}
+.grab{width:38px;height:4px;border-radius:99px;background:var(--line-hi);margin:0 auto 18px}
+.tray h4{font-size:18px;font-weight:600;margin-bottom:7px}
+.tray p{font-size:13.5px;color:var(--t-mid);margin-bottom:18px;text-wrap:pretty}
+.warn{color:var(--t-rose)}
+
+/* ── ناوبری ─────────────────────────────────────────────── */
+nav{position:fixed;inset-inline:0;bottom:0;z-index:5;display:flex;
+  justify-content:space-around;max-width:432px;margin-inline:auto;
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  background:color-mix(in oklab,var(--bg) 84%,transparent);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--line)}
+@supports not (backdrop-filter:blur(1px)){nav{background:var(--surf)}}
+nav button{background:none;border:0;cursor:pointer;font-family:inherit;
+  display:grid;justify-items:center;gap:3px;font-size:13px;color:var(--t-lo);
+  padding:5px 22px;border-radius:14px;transition:var(--t) var(--ease)}
+nav button[aria-current="page"]{color:var(--gold);background:var(--gold-air)}
+nav svg{width:21px;height:21px}
+
+:where(button,input):focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .sheet{transform:none!important;filter:none!important;opacity:1!important;
+    position:static;margin-bottom:10px}
+  .stack{height:auto;perspective:none}
+}
+/* سند: سه شاخه اختیاری نیستند. این یکی در مرجع نبود.
+   شیشه → سطح توپر، نه فقط کم‌رنگ‌تر. */
+@media (prefers-reduced-transparency:reduce){
+  nav{background:var(--surf);backdrop-filter:none;-webkit-backdrop-filter:none}
+  [popover]::backdrop{background:rgb(8 6 8/.96);backdrop-filter:none}
+  .consent{background:var(--sunk)}
+}
+@media (forced-colors:active){.sheet,.gauge,.note,.tray{border:1px solid CanvasText}}
+
+/* دروازه‌ها باید روی کف کار کنند. وقتی :has() نباشد، این کلاس همان کار
+   را با جاوااسکریپت می‌کند — بدون آن، دکمهٔ انتشار بدون رضایت زنده است،
+   یعنی دروازه‌ای که باز شکست می‌خورد. */
+.gate.locked .cta-main{filter:grayscale(.8) brightness(.55);pointer-events:none}
+
+/* حالت اتصال — وقتی چیزی سر جایش نیست، پنهانش نمی‌کنیم. */
+.state{margin:18px 0;padding:15px 17px;border-radius:18px;font-size:14px;
+  line-height:1.85;background:var(--sunk);border:1px solid var(--line);
+  color:var(--t-mid)}
+.state b{color:var(--t-hi);font-weight:600}
+.state button{font-family:inherit;font-size:14px;font-weight:600;margin-top:12px;
+  padding:11px 18px;border-radius:13px;border:1px solid var(--line-hi);
+  background:transparent;color:var(--t-hi);cursor:pointer}
+/* ── حالت آرشیو ────────────────────────────────────────────────────
+   کاری که این اپ امشب برایش باز می‌شود: یک عکس، یک آلبوم، چند برچسب،
+   بعدی. عمق اینجا معنا ندارد چون فقط یک چیز روی صفحه است — خودِ عکس. */
+.arc-head{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-top:18px}
+.arc-count{font-size:13px;color:var(--t-lo);font-variant-numeric:tabular-nums}
+.ghost{font-family:inherit;font-size:14px;font-weight:600;padding:10px 16px;
+  min-height:44px;border-radius:13px;border:1px solid var(--line-hi);
+  background:transparent;color:var(--t-hi);cursor:pointer}
+.arc-photo{margin-top:12px;border-radius:20px;overflow:hidden;
+  background:var(--sunk);border:1px solid var(--line);
+  aspect-ratio:3/4;max-height:44dvh;display:flex;align-items:center;
+  justify-content:center}
+/* `contain`، نه `cover`: این صفحه برای *دیدنِ* عکس است، نه برای چیدمان.
+   بریدن لبه‌ها همان جایی است که ممکن است تصمیم را عوض کند. */
+.arc-photo img{width:100%;height:100%;object-fit:contain;display:block}
+.arc-q{font-size:16px;font-weight:600;margin-top:18px}
+.arc-sub{font-size:13px;color:var(--t-lo);margin-top:2px}
+.newalbum{display:flex;gap:8px;margin-top:10px}
+/* ۱۶px حداقلی است که سافاری روی آن zoom نمی‌کند. کوچک‌تر یعنی صفحه هر بار
+   که او شروع به تایپ می‌کند می‌پرد. */
+.newalbum input{flex:1;min-width:0;font-family:inherit;font-size:16px;
+  padding:12px 14px;min-height:44px;border-radius:13px;
+  border:1px solid var(--line-hi);background:var(--sunk);color:var(--t-hi)}
+
+/* یک کنش اصلی داخل حالت خالی، هنوز کنش اصلی است — این قاعده بعد از
+   `.state button` می‌آید چون آن یکی خنثی‌اش می‌کرد. جفت رنگ همان جفت
+   ممیزی‌شده است. */
+.state .cta{background:var(--gold);color:var(--on-gold);border:0;
+  padding:15px;border-radius:17px;font-size:16px;margin-top:14px}
+.demo{display:inline-block;font-size:13px;padding:3px 11px;border-radius:9px;
+  background:var(--sunk);border:1px solid var(--line);color:var(--t-lo)}
+[hidden]{display:none!important}
+.lightbox{position:fixed;inset:0;z-index:35;display:grid;place-items:center;padding:22px;background:rgb(8 6 8/.82)}
+.lightbox img{max-width:min(96vw,720px);max-height:88vh;border-radius:18px;box-shadow:0 24px 70px rgb(0 0 0/.65)}
+.lightbox .src{position:fixed;inset-block-end:18px;inset-inline:18px;text-align:center}
+
+.greet-banner{max-width:720px;margin:6px auto 16px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:rgb(244 183 63/.07);color:var(--t-hi);font-size:14px;line-height:1.7}
+.chatbox{width:100%;max-width:720px;margin:14px auto 18px;padding:12px;border-radius:16px;border:1px solid var(--line);background:rgb(255 255 255/.04)}
+.chatbox textarea{min-height:62px;max-height:120px}
+@media (max-width:520px){.chatbox{max-width:none;width:100%}}
+.chatlog{display:flex;flex-direction:column;gap:8px;max-height:190px;overflow:auto;margin-top:10px}
+.chatmsg{font-size:13.5px;line-height:1.55;padding:9px 10px;border-radius:12px;background:rgb(255 255 255/.05);white-space:pre-wrap}
+.chatmsg.me{color:var(--t-hi);background:rgb(244 183 63/.10)}
+.chatmsg.bot{color:var(--t-mid)}
+</style>
+</head>
+<body>
+<div class="warm"></div><div class="grain"></div>
+
+<div class="lightbox" id="photo-lightbox" hidden><img id="photo-lightbox-img" alt=""><div class="src">رها کنید یا لمس کنید تا بسته شود</div></div>
+
+<div class="wrap">
+
+  <!-- تا وقتی نشست نگوید این صفحه مال کیست، اینجا اسمی نیست. عنوان صفحه
+       هم همین‌طور — نشت اسم در زیمان دقیقاً از یک <title> شروع شد. -->
+  <header>
+    <div class="eyebrow" id="eyebrow">&nbsp;</div>
+    <h1 id="hello">چیدمان</h1>
+  </header>
+
+  <div class="state" id="state" hidden></div>
+
+  <div id="view-today">
+  <div class="stack" id="stack">
+    <div class="sheet front" id="front" hidden></div>
+  </div>
+  <div class="behind" id="behind" hidden></div>
+
+  <div class="chatbox" id="assistant-card"><div class="h">بزن بریم برای امروز</div><textarea class="field" id="assistant-input" rows="2" maxlength="800" placeholder="مثلاً بنویس: برای این عکس یه کپشن قشنگ می‌خوام…"></textarea><div class="act"><button class="cta" type="button" id="assistant-send">بفرست</button><button class="cta quiet" type="button" id="assistant-random">مشاوره</button></div><div class="chatlog" id="assistant-log"></div><div class="src" id="assistant-src">هر چی بگی یادم می‌مونه.</div></div>
+
+
+  <!-- One action, and it is the first one. Everything else about a post is
+       optional and comes later. -->
+  <div class="act">
+    <!-- وقتی عکسِ بی‌آلبوم هست، کنش اصلی همین است و نه افزودن عکس تازه:
+         انباشتن عکس روی عکس، کاری است که خودش را تمام‌نشدنی می‌کند. -->
+    <button class="cta" type="button" id="startarc" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18"
+        height="16" rx="2.5"/><path d="M3 10h18"/><path d="M10 15h4"/></svg>
+      آرشیو کنیم
+    </button>
+    <label class="cta" id="addbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18"
+        height="14" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.5-2h5L16 6"/></svg>
+      عکس تازه
+      <!-- `multiple`: یک جلسهٔ آرشیو با انتخاب تک‌تکِ پنجاه عکس شروع نمی‌شود. -->
+      <input type="file" accept="image/*" id="pick" multiple hidden>
+    </label>
+  </div>
+  <div class="state" id="addnote" hidden></div>
+
+
+  <form class="gate" id="gate" onsubmit="return false" hidden>
+    <label class="consent">
+      <span class="tick"><input type="checkbox" id="c1">
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="#0F0F10" stroke-width="3.6"
+          stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></i>
+      </span>
+      <span><b>رضایت تصویر ثبت شده است</b>
+      <small id="c-detail">تا سندی ثبت نشود، انتشار باز نمی‌شود.</small></span>
+    </label>
+
+    <div class="act">
+      <button class="cta cta-main" type="button" popovertarget="tray">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5"/>
+          <path d="M21 3l-6.5 18-4-8-8-4z"/></svg>
+        همین را منتشر کن
+      </button>
+      <button class="cta quiet" type="button" id="later">فعلاً بماند</button>
+    </div>
+  </form>
+
+  <div class="gauge">
+    <svg viewBox="0 0 96 56">
+      <defs><linearGradient id="gg" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#5A1A26"/><stop offset=".5" stop-color="#CB969F"/>
+        <stop offset="1" stop-color="#F4B73F"/></linearGradient></defs>
+      <path class="trk" d="M9 48a39 39 0 0 1 78 0"/>
+      <path class="val" d="M9 48a39 39 0 0 1 78 0"/>
+      <line class="ndl" x1="48" y1="48" x2="48" y2="16"/>
+      <circle cx="48" cy="48" r="3" fill="#E9DCC8"/>
+    </svg>
+    <div>
+      <div class="lab">نوردهی این هفته</div>
+      <div class="say" id="g-say">هنوز چیزی اندازه گرفته نشده</div>
+    </div>
+  </div>
+
+  </div><!-- /view-today -->
+
+  <!-- Gallery: her archive. Albums, photos, and the tags that make the next
+       month comparable at all. -->
+  <!-- آرشیو: یک عکس در هر لحظه.
+       این تب نیست و عمداً هم نیست — یک *حالت* است که وارد می‌شوی، تا
+       تمام شدنش می‌مانی، و بیرون می‌آیی. نوار پایین سه کار دارد؛ این
+       کارِ چهارم نیست، همان کارِ «امروز» است وقتی عکس منتظر باشد. -->
+  <div id="view-archive" hidden>
+    <div class="arc-head">
+      <button class="ghost" type="button" id="arc-done">تمام</button>
+      <div class="arc-count" id="arc-count"></div>
+    </div>
+    <div class="arc-photo"><img id="arc-img" alt=""></div>
+
+    <div class="arc-q">این عکس کجا برود؟</div>
+    <div class="arc-sub" id="arc-sub"></div>
+    <div class="albums" id="arc-albums"></div>
+    <div class="newalbum" id="arc-new" hidden>
+      <input type="text" id="arc-name" maxlength="60" placeholder="نام آلبوم"
+        autocomplete="off" enterkeyhint="done">
+      <button class="ghost" type="button" id="arc-make">بساز</button>
+    </div>
+
+    <div class="arc-q">چه چیزی را نشان می‌دهد؟</div>
+    <div class="arc-sub">اختیاری — ولی بدون برچسب هیچ مقایسه‌ای بعداً ممکن نیست.</div>
+    <div class="tags" id="arc-tags"></div>
+
+    <!-- Her own mark. Zero stars is "not rated" and is where every photo
+         starts — an unrated library must not read as a library of ones. -->
+    <div class="arc-q">این یکی چقدر خوب است؟</div>
+    <div class="arc-sub">اختیاری. فقط نظر خودت — هیچ عددی از بیرون اینجا نمی‌آید.</div>
+    <div class="stars" id="arc-stars" role="radiogroup" aria-label="امتیاز"></div>
+
+    <!-- The one field the closed vocabulary cannot replace. Eight tick-boxes
+         say which axis; they cannot say "the light came through the blind". -->
+    <div class="arc-q">چیزی دربارهٔ این عکس بنویس</div>
+    <div class="arc-sub">اختیاری — برای وقتی که چند ماه بعد نگاهش می‌کنی.</div>
+    <textarea class="field" id="arc-text" rows="2" maxlength="500"
+      placeholder="مثلاً — نور از پنجره، همین ساعت دوباره امتحان شود"></textarea>
+
+    <div class="act">
+      <button class="cta" type="button" id="arc-next">ثبت و بعدی</button>
+      <button class="cta quiet" type="button" id="arc-skip">فعلاً رد کن</button>
+    </div>
+    <div class="state" id="arc-note" hidden></div>
+  </div>
+
+  <div id="view-gallery" hidden>
+    <div class="greet-banner" id="gallery-greet">خوش اومدی؛ اینجا می‌تونی عکس‌هاتو مرتب کنی، آلبوم بسازی و هر چیزی رو خواستی راحت پاک کنی.</div>
+    <div class="albums" id="albums"></div>
+    <div class="sheetgrid" id="grid"></div>
+    <div class="state" id="gallery-empty" hidden></div>
+    <div id="tagpanel" hidden>
+      <h2 id="tagtitle" style="font-size:19px;font-weight:600;margin-top:18px"></h2>
+      <div class="tags" id="tags"></div>
+      <div class="pairnote" id="pairnote"></div>
+      <div class="arc-q">آلبوم / دستهٔ این عکس</div>
+      <select class="field" id="photo-album"></select>
+      <div class="newalbum">
+        <input type="text" id="new-photo-category" maxlength="60"
+          placeholder="مثلاً آلبوم کیوت" autocomplete="off" enterkeyhint="done">
+        <button class="ghost" type="button" id="add-photo-category">اضافه کن</button>
+      </div>
+      <div class="arc-q">توضیح برای این عکس</div>
+      <textarea class="field" id="photo-note" rows="3" maxlength="500"
+        placeholder="توضیحات این عکس اینجا بماند"></textarea>
+      <div class="act">
+        <button class="cta" type="button" id="save-tags">ذخیره کن</button>
+        <button class="cta quiet" type="button" id="clear-photo-album">حذف آلبوم این عکس</button>
+        <button class="cta quiet" type="button" id="clear-photo-note">حذف توضیح</button>
+        <button class="cta quiet" type="button" id="clear-photo-tags">حذف برچسب‌ها</button>
+        <button class="cta quiet" type="button" id="delete-photo">حذف عکس</button>
+        <button class="cta quiet" type="button" id="export-album">این آلبوم را بگیر</button>
+        <button class="cta quiet" type="button" id="delete-album">حذف آلبوم</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business: counts and one comparison. Nothing here is a projection. -->
+  <div id="view-business" hidden>
+    <div class="rows" id="rows"></div>
+    <div class="note">
+      <div class="h">راهنما</div>
+      <p id="g-body">…</p>
+      <div class="src" id="g-src"></div>
+    </div>
+  </div>
+
+  <div id="view-marketing" hidden>
+    <div class="rows" id="mkt-inspiration">
+      <div class="card">
+        <div class="h">الهام امروز</div>
+        <div id="mkt-insp-cards"></div>
+      </div>
+    </div>
+    <div class="rows" id="mkt-week">
+      <div class="card">
+        <div class="h">هفتهٔ بازاریابی</div>
+        <p id="mkt-focus">هنوز هیچ چرخه‌ای اجرا نشده.</p>
+        <p class="src" id="mkt-style"></p>
+      </div>
+    </div>
+    <div class="rows" id="mkt-grid">
+      <div class="card">
+        <div class="h">مشاهدات ترند</div>
+        <p class="big" id="mkt-obs">۰</p>
+        <p class="src">چیزهایی که این هفته دیده شد</p>
+      </div>
+      <div class="card">
+        <div class="h">ایده‌های ردشده</div>
+        <p class="big" id="mkt-rej">۰</p>
+        <p class="src">حافظهٔ پیشنهادهای ردشده</p>
+      </div>
+      <div class="card">
+        <div class="h">نسخه‌های مسیریابی‌شده</div>
+        <p class="big" id="mkt-var">۰</p>
+        <p class="src">برای هر پلتفرم آماده شده</p>
+      </div>
+    </div>
+    <div class="rows" id="mkt-gates">
+      <div class="card">
+        <div class="h">دریچه‌ها</div>
+        <p id="mkt-gates-list">…</p>
+        <p class="src" id="mkt-brain"></p>
+      </div>
+    </div>
+
+    <div class="rows" id="mkt-action">
+      <div class="card">
+        <div class="h">آزمون مسیر یک پست</div>
+        <p class="src">یک پیش‌نویس را انتخاب کن تا ببینی کدام پلتفرم‌ها می‌پذیرند.</p>
+        <label class="field-wrap">
+          <span>پیش‌نویس</span>
+          <select id="mkt-draft"></select>
+        </label>
+        <div class="act">
+          <button class="cta" id="mkt-preview-btn" type="button">پیش‌نمایش مسیر</button>
+        </div>
+        <div id="mkt-platforms" class="platform-grid" hidden></div>
+        <div class="act" id="mkt-send-wrap" hidden>
+          <button class="cta" id="mkt-send-btn" type="button">برای پلتفرم‌های پذیرفته‌شده به صف بفرست</button>
+        </div>
+        <p class="src" id="mkt-send-result" hidden></p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="h">راهنما</div>
+      <p>چرخهٔ هفتگی هر دوشنبه بعد از پشتیبان اجرا می‌شود. تحقیق ترند چیزی
+        از تو بیرون نمی‌برد — نه عکس، نه نام، نه آمار. فقط دنیا را می‌پرسد.</p>
+      <div class="src">هیچ چیز تا تأیید آری از این دستگاه خارج نمی‌شود. «به صف بفرست» یعنی آمادهٔ انتشار، نه انتشار.</div>
+    </div>
+  </div>
+
+  <div class="note" id="note-card">
+    <div class="h">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2"/><path d="M12 19v2"/>
+        <path d="M5 12H3"/><path d="M21 12h-2"/><circle cx="12" cy="12" r="4.5"/></svg>
+      خواندهٔ این هفته
+    </div>
+    <p id="n-body">وقتی به‌اندازهٔ کافی پست باشد، اولین خوانده اینجا می‌آید.</p>
+    <div class="src" id="n-src">هیچ تصویری از دستگاه خارج نمی‌شود.</div>
+  </div>
+
+</div>
+
+<!-- `display` توسط fallback کنترل می‌شود وقتی popover نیست -->
+<div id="tray" popover style="display:none">
+  <div class="tray">
+    <div class="grab"></div>
+    <h4>منتشر شود؟</h4>
+    <p><span id="t-what">این پیش‌نویس</span> به <b>صف خروج</b> می‌رود و تا
+      تأیید آری هیچ‌جا نمی‌رود.
+      <span class="warn">بعد از تأیید او برگشتی نیست.</span></p>
+    <div class="act">
+      <button class="cta" type="button" id="go-publish">بله، منتشر کن</button>
+      <button class="cta quiet" type="button" popovertarget="tray" popovertargetaction="hide">نه، برگرد</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <button aria-current="page" data-view="view-today" onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/>
+      <path d="M8 8h8"/></svg>امروز
+  </button>
+  <button data-view="view-gallery" onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/>
+      <path d="M3 15l5-4 4 3 3-2 6 5"/><circle cx="9" cy="9" r="1.4"/></svg>گالری
+  </button>
+  <button data-view="view-business" onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/>
+      <path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg>کسب‌وکار
+  </button>
+  <button data-view="view-marketing" onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/>
+      <path d="M12 7v5l3 2"/></svg>بازاریابی
+  </button>
+</nav>
+
+<script>
+const swap = f => document.startViewTransition ? document.startViewTransition(f) : f();
+function go(b){swap(()=>{document.querySelectorAll('nav button')
+  .forEach(x=>x.removeAttribute('aria-current'));b.setAttribute('aria-current','page');
+  if(window.show) show(b.dataset.view)})}
+</script>
+<script>
+/* ── OFN connector ────────────────────────────────────────────────────────
+   Same shape as the other three shells. There is no sample mode here: a
+   studio screen that looks alive while disconnected would show a publish
+   button that does nothing, and the one thing this leg must never do is
+   look like it published something it did not.                            */
+const OFN = (() => {
+  let session = null, live = false, why = '', who = '';
+  /* Read at call time. Never captured.
+
+     This inline script runs while the document is still parsing; the SDK tag
+     is `defer`, so it executes only after parsing ends. A `const tg =
+     window.Telegram && window.Telegram.WebApp` here therefore binds
+     `undefined` ONCE AND FOREVER — on every platform, phone included — and
+     every launch reads as "not opened from Telegram". That was the bug, and
+     it is why this shell showed nothing to anyone.
+
+     The call site of `boot()` was already deferred to DOMContentLoaded to
+     respect this exact ordering, but deferring the call does not help when
+     the *value* was frozen a thousand lines earlier at parse time. The read
+     has to be late, not the caller. A function is late by construction, and
+     stays correct whether the tag is defer, async, or blocking — which the
+     other three shells rely on today and nothing was checking. */
+  const tg = () => window.Telegram && window.Telegram.WebApp;
+
+  async function req(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (session) headers['Authorization'] = 'Bearer ' + session;
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) { const e = new Error('http ' + r.status); e.status = r.status; throw e; }
+    return r.json();
+  }
+
+  return {
+    get live() { return live; },
+    get why() { return why; },
+    /* The given name, from the verified session. Empty until then — this
+       page has no name of its own to fall back on, deliberately. */
+    get who() { return who; },
+    /* Where this page is running, as the client itself reports it. Both are
+       client properties, not user data — no PII, so they may go in a journal
+       line. Empty string when the SDK never arrived, which is itself the
+       answer to a different question. */
+    where() {
+      const t = tg();
+      if (!t) return '';
+      return `${t.platform || '?'} ${t.version || '?'}`;
+    },
+    async connect() {
+      const t = tg();
+      /* Two realities, and until now one name for both.
+
+         no-sdk       telegram-web-app.js never ran. Since it is fetched from
+                      telegram.org, this is a LOADING failure — blocked,
+                      offline, or an execution-order mistake. It does not
+                      mean "this is not Telegram", which is what one shared
+                      label made it look like for both cases.
+         no-initdata  The SDK is here and says nothing was signed. So this is
+                      a real client, opened by a route that carries no launch
+                      blob: a plain browser, an in-app link preview, or a
+                      desktop build that hands mini-apps to the system
+                      browser.
+
+         Opposite causes, opposite fixes, and a reload only helps the first.
+         `where()` separates the last two of those on sight: platform
+         `unknown` is a browser, `tdesktop`/`ios`/`android` is the client. */
+      if (!t) { why = 'no-sdk'; return false; }
+      if (!t.initData) { why = 'no-initdata'; return false; }
+      try {
+        const out = await req('/api/v1/auth/session', {
+          method: 'POST', body: JSON.stringify({ init_data: t.initData }),
+        });
+        session = out.session; who = out.first_name || ''; live = true; why = '';
+        return true;
+      } catch (e) {
+        why = (e && e.status === 401) ? 'rejected'
+            : (e && e.status === 403) ? 'not-allowed'
+            : (e && e.status) ? 'error' : 'unreachable';
+        return false;
+      }
+    },
+    get(p) { return req(p); },
+    post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
+    del(p) { return req(p, { method: 'DELETE' }); },
+    /* Bytes rather than JSON, through the same session header as everything
+       else. This exists because `<img src>` cannot carry one: the browser
+       issues that request itself, with no way to attach `Authorization`, so
+       every photo URL answered 401 and every photo in this app was a broken
+       image. Nobody saw it until the shell could get far enough to draw one.
+
+       The two alternatives were both worse. A token in the query string ends
+       up in the journal, which logs request paths — a session written into a
+       log file. A cookie would work, but it is a SECOND way to authenticate
+       the same API, and two carriers for one rule is two things to keep in
+       agreement and two things that can leak. */
+    async bytes(path) {
+      const headers = {};
+      if (session) headers['Authorization'] = 'Bearer ' + session;
+      const r = await fetch(path, { headers });
+      if (!r.ok) { const e = new Error('http ' + r.status); e.status = r.status; throw e; }
+      return r.blob();
+    },
+    shell() {
+      const t = tg();
+      if (!t) return;
+      t.ready(); t.expand && t.expand();
+    },
+    tap(style = 'light') {
+      const t = tg();
+      if (t && t.HapticFeedback) t.HapticFeedback.impactOccurred(style);
+      else if (navigator.vibrate) navigator.vibrate(8);
+    },
+  };
+})();
+
+const $ = id => document.getElementById(id);
+/* ── the kernel's questions ──────────────────────────────────────────────
+   A question IS a decision, so it takes the front card rather than a panel
+   of its own. One at a time, which is the directive's rule and also the
+   only honest way to ask: a screen of four inputs is four decisions wearing
+   one heading.
+
+   `REASONS` names every way this page can fail to be live. "نمونه" alone
+   used to be the whole answer, and it made a node that was down look
+   exactly like a page being previewed. */
+const REASONS = {
+  /* Said as an instruction, not as a status. "This is a preview" describes
+     the page; it does not tell anybody what to do, and the difference
+     matters because the fix is one tap away and not guessable — a link
+     opened in a browser looks identical to the real thing and can never
+     work, since the launch blob only exists inside the client. */
+  'no-initdata': 'این صفحه از داخل تلگرام باز نشده، برای همین هیچ‌چیزش کار '
+            + 'نمی‌کند. ربات را در تلگرام باز کنید و دکمهٔ منو — کنار کادر '
+            + 'پیام — را بزنید. باز کردن لینک در مرورگر جواب نمی‌دهد.',
+  /* A different sentence because it is a different failure: the client is
+     probably fine and the page simply did not finish loading. Telling
+     somebody to "open it from inside Telegram" when they already did is the
+     kind of instruction that makes a person doubt themselves instead of the
+     network. */
+  'no-sdk': 'بخشی از این صفحه بارگذاری نشد. اینترنت را بررسی کنید و دوباره '
+            + 'تلاش کنید. اگر با فیلترشکن باز کرده‌اید، یک بار بدون آن '
+            + 'امتحان کنید.',
+  'rejected': 'این حساب اجازهٔ ورود ندارد.',
+  'not-allowed': 'این حساب در فهرست این استودیو نیست.',
+  'unreachable': 'به دستگاه وصل نشد. چیزی ثبت نشده.',
+  'error': 'دستگاه جواب داد ولی چیزی که فرستاد را نفهمیدم.',
+};
+
+let queue = [], at = 0;
+
+function askCard(q) {
+  const card = $('front');
+  if (!card) return;
+  card.hidden = false;
+  card.textContent = '';
+  const spine = document.createElement('span');
+  spine.className = 'spine';
+  card.append(spine);
+
+  const kicker = document.createElement('div');
+  kicker.className = 'kicker';
+  kicker.textContent = 'دستگاه می‌پرسد · ' + fa(queue.length - at) + ' مانده';
+  card.append(kicker);
+
+  const h = document.createElement('h2');
+  h.textContent = q.label || q.key;
+  card.append(h);
+  if (q.hint) {
+    const p = document.createElement('p');
+    p.textContent = q.hint;
+    card.append(p);
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ans';
+  let read = () => null;
+
+  if (q.kind === 'choice' && (q.options || []).length) {
+    let picked = null;
+    q.options.forEach(opt => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt';
+      b.textContent = opt;
+      b.onclick = () => {
+        OFN.tap(); picked = opt;
+        wrap.querySelectorAll('.opt').forEach(x => x.classList.remove('pick'));
+        b.classList.add('pick');
+      };
+      wrap.append(b);
+    });
+    read = () => picked;
+  } else if (q.kind === 'confirm') {
+    let picked = null;
+    [['بله', true], ['خیر', false]].forEach(([label, value]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt';
+      b.textContent = label;
+      b.onclick = () => {
+        OFN.tap(); picked = value;
+        wrap.querySelectorAll('.opt').forEach(x => x.classList.remove('pick'));
+        b.classList.add('pick');
+      };
+      wrap.append(b);
+    });
+    read = () => picked;
+  } else if (q.kind === 'number') {
+    const inp = document.createElement('input');
+    /* Not `type=number`: on a Persian keyboard it returns an empty string
+       for ۱۲۵ and blames her for using her own language. The API converts
+       the digits at its boundary. */
+    inp.type = 'text';
+    inp.inputMode = 'decimal';
+    inp.className = 'field';
+    if (q.placeholder) inp.placeholder = q.placeholder;
+    if (q.unit) inp.setAttribute('aria-label', q.label + ' (' + q.unit + ')');
+    if (q.default != null) inp.value = String(q.default);
+    wrap.append(inp);
+    read = () => inp.value.trim() === '' ? null : inp.value.trim();
+  } else {
+    const ta = document.createElement('textarea');
+    ta.className = 'field';
+    ta.rows = 3;
+    ta.maxLength = 800;
+    ta.enterKeyHint = 'done';
+    if (q.placeholder) ta.placeholder = q.placeholder;
+    wrap.append(ta);
+    read = () => ta.value.trim() === '' ? null : ta.value.trim();
+  }
+  card.append(wrap);
+
+  const err = document.createElement('div');
+  err.className = 'err';
+  err.hidden = true;
+  card.append(err);
+
+  const bar = document.createElement('div');
+  bar.className = 'act';
+  const send = document.createElement('button');
+  send.type = 'button';
+  send.className = 'cta';
+  send.textContent = 'ثبت کن';
+  send.onclick = async () => {
+    const value = read();
+    if (value === null || value === '') {
+      err.hidden = false; err.textContent = 'اول جواب را بنویسید.'; return;
+    }
+    err.hidden = true; send.disabled = true; send.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/answers', { key: q.key, value });
+      if (!out.ok) {
+        err.hidden = false; err.textContent = out.error || 'ثبت نشد.';
+        send.disabled = false; send.textContent = 'دوباره'; return;
+      }
+      queue = out.remaining || []; at = 0;
+      drawFront();
+    } catch (e) {
+      err.hidden = false;
+      err.textContent = e && e.status === 401
+        ? 'وقت این صفحه تمام شد. جواب ثبت نشده — ببندید و دوباره باز کنید.'
+        : 'به دستگاه وصل نشد. جواب ثبت نشده.';
+      send.disabled = false; send.textContent = 'دوباره';
+    }
+  };
+  bar.append(send);
+
+  const later = document.createElement('button');
+  later.type = 'button';
+  later.className = 'cta quiet';
+  later.textContent = 'بعداً';
+  later.onclick = () => { OFN.tap(); at += 1; drawFront(); };
+  bar.append(later);
+
+  /* Deferring used to be one way. A question skipped by accident was then
+     unreachable until the queue was rebuilt. */
+  if (at > 0) {
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'cta quiet';
+    back.textContent = 'سؤال قبلی';
+    back.onclick = () => { OFN.tap(); at -= 1; drawFront(); };
+    bar.append(back);
+  }
+  card.append(bar);
+}
+
+function drawFront() {
+  const waiting = unfiled().length;
+  $('startarc').hidden = !waiting;
+  $('addbtn').classList.toggle('quiet', waiting > 0);
+  if (at < queue.length) { askCard(queue[at]); $('gate').hidden = true; return; }
+  const d = currentDraft();
+  if (d) { drawDraft(d); return; }
+  const front = $('front');
+  if (front) { front.hidden = true; front.textContent = ''; }
+  $('gate').hidden = true;
+}
+
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+/* ── the two gates ───────────────────────────────────────────────────────
+   The directive is explicit: beauty may improve on a newer browser, a gate
+   must work on the oldest. Both of these are gates. */
+
+/* `:has()` styles the consent lock. Where it is missing the button would be
+   live without consent — a gate that fails OPEN, which is the only kind
+   that matters. This mirrors it in script. */
+const HAS = (() => {
+  try { return CSS.supports('selector(:has(*))'); } catch (_) { return false; }
+})();
+
+function syncConsentGate() {
+  const box = $('c1'), gate = document.querySelector('.gate');
+  if (!gate || !box) return;
+  gate.classList.toggle('locked', !box.checked);
+}
+
+/* `popover` is Chrome 114+; the Telegram WebView floor is lower. Without
+   this the confirm sheet never opens and the publish path is unreachable —
+   which fails closed, but silently, and silent is its own failure. */
+const POPOVER = HTMLElement.prototype.hasOwnProperty('popover');
+
+function openTray() {
+  const tray = $('tray');
+  if (POPOVER) { tray.style.display = ''; tray.showPopover(); return; }
+  tray.setAttribute('data-open', '1');
+  tray.style.display = 'block';
+}
+function closeTray() {
+  const tray = $('tray');
+  if (POPOVER) { tray.hidePopover(); tray.style.display = 'none'; return; }
+  tray.removeAttribute('data-open');
+  tray.style.display = 'none';
+}
+
+function notice(detail, target = 'state') {
+  const box = $(target) || $('state');
+  if (!box) return;
+  box.hidden = false;
+  box.textContent = '';
+  box.append(Object.assign(document.createElement('div'), { textContent: detail || 'انجام نشد.' }));
+}
+
+function showState(kind, detail) {
+  const box = $('state');
+  const say = (detail || '') || REASONS[kind] || 'چیزی سر جایش نیست.';
+  notice(say);
+  const fatal = kind !== 'refused';
+  /* Offered whenever reloading could plausibly change the answer. It cannot
+     for `no-initdata` — the launch blob is absent because of HOW the page was
+     opened, so the same route will produce the same nothing, and a button
+     that always fails teaches people to distrust the ones that work. It very
+     much can for `no-sdk`, which is usually one failed fetch. */
+  if (fatal && kind !== 'no-initdata') {
+    const again = document.createElement('button');
+    again.type = 'button';
+    again.textContent = 'دوباره تلاش کن';
+    again.onclick = () => location.reload();
+    box.append(again);
+  }
+  /* Nothing may look operable while disconnected. */
+  if (fatal) document.querySelectorAll('.cta').forEach(b => {
+    b.disabled = true; b.style.opacity = '.45'; b.style.pointerEvents = 'none';
+  });
+  /* The state box lives in the today view. If the partner is on the gallery
+     or marketing tab when something breaks, the buttons silently die while
+     the explanation sits on a view she cannot see — which reads as "every
+     button is broken for no reason". Bring her to the only view that holds
+     the explanation before disabling the rest. */
+  if (fatal && typeof show === 'function') show('view-today');
+}
+
+/* The header ships with no name in it. This is the only thing that ever puts
+   one there, and it runs after the session exists — via textContent. */
+function greet(name) {
+  const h = $('hello');
+  if (h) h.textContent = name ? `سلام ${name}` : 'چیدمان';
+  greetGallery(name);
+}
+/* The gallery welcome banner. No name is written into the markup (the same
+   no-leak-before-auth rule as the header); this fills it from the session. */
+function greetGallery(name) {
+  const b = $('gallery-greet');
+  if (!b) return;
+  b.textContent = name
+    ? `خوش اومدی ${name} جان؛ اینجا می‌تونی عکس‌هاتو مرتب کنی، آلبوم بسازی و هر چیزی رو خواستی راحت پاک کنی.`
+    : 'خوش اومدی؛ اینجا می‌تونی عکس‌هاتو مرتب کنی، آلبوم بسازی و هر چیزی رو خواستی راحت پاک کنی.';
+}
+
+
+/* ── the board ───────────────────────────────────────────────────────────
+   One request, not four. The screen shows a single decision, and four
+   requests would let the parts arrive out of order and render a card whose
+   consent state belongs to a different draft.
+
+   `consent_ok` is the node's answer, not ingredients this page re-derives.
+   Rebuilding the rule here would make two implementations of it, and two
+   implementations of a consent rule disagree eventually. */
+let board = { drafts: [], collections: [], platform: '' };
+let cursor = 0;
+
+function currentDraft() {
+  return board.drafts.length ? board.drafts[Math.min(cursor, board.drafts.length - 1)]
+                             : null;
+}
+
+async function loadBoard() {
+  board = await OFN.get('/api/v1/studio/board');
+  cursor = 0;
+  drawFront();
+}
+
+function drawDraft(d) {
+  const card = $('front');
+  if (!card) return;
+  card.hidden = false;
+  card.textContent = '';
+  const spine = document.createElement('span');
+  spine.className = 'spine';
+  card.append(spine);
+
+  const k = document.createElement('div');
+  k.className = 'kicker';
+  k.textContent = d.consent_ok ? 'آمادهٔ تصمیم' : 'رضایت کامل نیست';
+  card.append(k);
+
+  const h = document.createElement('h2');
+  h.textContent = d.caption || 'بی‌عنوان';
+  card.append(h);
+
+  if (!d.consent_ok) {
+    const p = document.createElement('p');
+    /* Says which person and why, because "consent missing" sends her looking
+       through a folder rather than at one name. */
+    p.textContent = d.subjects.length
+      ? d.subjects.map(s => s.label + ': ' + (GAPS[d.consent_gaps[s.id]]
+          || 'رضایت ندارد')).join(' · ')
+      : 'هیچ‌کس برای این پست اعلام نشده. تا کسی اعلام نشود، منتشر نمی‌شود.';
+    card.append(p);
+  }
+
+  const strip = document.createElement('div');
+  strip.className = 'strip';
+  (d.media || []).slice(0, 4).forEach(() => strip.append(document.createElement('i')));
+  card.append(strip);
+
+  $('gate').hidden = false;
+  const box = $('c1');
+  box.checked = !!d.consent_ok;
+  box.disabled = true;      /* the node decides this, not a tick on a screen */
+  const pub = document.querySelector('.cta-main');
+  if (pub) pub.disabled = !d.consent_ok;
+  $('c-detail').textContent = d.consent_ok
+    ? 'رضایت این افراد برای ' + board.platform + ' ثبت شده است.'
+    : 'تا رضایت ثبت نشود، انتشار باز نمی‌شود.';
+  syncConsentGate();
+
+  const behind = $('behind');
+  const rest = board.drafts.length - 1;
+  behind.hidden = rest <= 0;
+  if (rest > 0) {
+    behind.textContent = '';
+    const b = document.createElement('b');
+    b.textContent = fa(rest) + ' مورد';
+    behind.append(document.createTextNode('پشت این، '), b,
+                  document.createTextNode(' دیگر هست'));
+  }
+}
+
+const GAPS = {
+  no_release: 'رضایت‌نامه ندارد',
+  expired: 'رضایت‌نامه منقضی شده',
+  revoked: 'رضایت پس گرفته شده',
+  out_of_scope: 'رضایت‌نامه این پلتفرم را نمی‌گیرد',
+  not_yet_in_force: 'رضایت‌نامه هنوز اعتبار ندارد',
+};
+
+async function publishCurrent() {
+  const d = currentDraft();
+  if (!d) return;
+  const say = $('t-what');
+  try {
+    const out = await OFN.post(
+      '/api/v1/studio/drafts/' + encodeURIComponent(d.draft_id) + '/publish',
+      { platform: board.platform });
+    closeTray();
+    if (!out.ok) { showState('refused', out.error); return; }
+    await loadBoard();
+  } catch (e) {
+    closeTray();
+    showState(e && e.status === 401 ? 'rejected' : 'unreachable');
+  }
+  if (say) say.textContent = 'این پیش‌نویس';
+}
+
+
+/* ── adding a photo ──────────────────────────────────────────────────────
+   The draft exists after the FIRST action, not the last. Picking a photo
+   creates it; caption, collection and schedule are all later and optional.
+
+   The natural shape of an upload form is six decisions at once — photos,
+   caption, collection, genre, sensitivity, time — and six decisions at once
+   is the thing the whole design directive is against.
+
+   `sensitivity` is not asked at all. It is `restricted` and stays that way;
+   making a collection public is a separate, deliberate act, not a field on
+   the screen where she is trying to put a picture down. */
+
+const EDGES = [1600, 320];
+
+/* ── showing a photo she is allowed to see ───────────────────────────────
+   Every rendition lives behind the session, so it arrives as bytes and is
+   handed to the <img> as an object URL.
+
+   Those URLs are held by the document until revoked, so each one is tracked
+   and released when the element is replaced. Forgetting that is a leak that
+   grows with every gallery redraw and looks like nothing until the tab dies.
+
+   Loading is deferred until the thumbnail is near the screen. `loading=lazy`
+   did that for free and does not apply to a fetch, so an observer does it —
+   without it, opening a gallery of two hundred is two hundred simultaneous
+   requests on a phone network. */
+function releasePhoto(img) {
+  if (img.dataset.blobUrl) {
+    URL.revokeObjectURL(img.dataset.blobUrl);
+    delete img.dataset.blobUrl;
+  }
+}
+
+const PHOTO_FETCH_LIMIT = 3;
+let photoFetchActive = 0, photoFetchQueue = [];
+function withPhotoSlot(work) {
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      photoFetchActive += 1;
+      Promise.resolve().then(work).then(resolve, reject).finally(() => {
+        photoFetchActive -= 1;
+        const next = photoFetchQueue.shift();
+        if (next) next.run();
+      });
+    };
+    if (photoFetchActive < PHOTO_FETCH_LIMIT) run();
+    else photoFetchQueue.push({ run, resolve });
+  });
+}
+
+async function paintPhoto(img, mediaId, edge) {
+  if (img.dataset.painting === mediaId) return;
+  img.dataset.painting = mediaId;
+  try {
+    const blob = await withPhotoSlot(() => {
+      if (img.dataset.painting !== mediaId) return null;
+      return OFN.bytes('/api/v1/studio/media/' + encodeURIComponent(mediaId) + '/' + edge);
+    });
+    if (!blob) return;
+    /* She may have moved on while this was in flight. Painting it now would
+       put one photo's bytes under another photo's card. */
+    if (img.dataset.painting !== mediaId) return;
+    releasePhoto(img);
+    const url = URL.createObjectURL(blob);
+    img.dataset.blobUrl = url;
+    img.src = url;
+  } catch (e) {
+    /* Says so, rather than leaving the browser's own broken-image mark —
+       which is what a question mark in the middle of the frame was. */
+    img.removeAttribute('src');
+    img.alt = 'این عکس باز نشد';
+  }
+}
+
+const nearScreen = ('IntersectionObserver' in window)
+  ? new IntersectionObserver((entries, obs) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        obs.unobserve(en.target);
+        guard(paintPhoto(en.target, en.target.dataset.mediaId, 320),
+              'عکس‌ها بارگذاری نشدند.');
+      });
+    }, { rootMargin: '300px' })
+  : null;
+
+function lazyPhoto(img, mediaId) {
+  img.dataset.mediaId = mediaId;
+  if (nearScreen) nearScreen.observe(img);
+  else guard(paintPhoto(img, mediaId, 320), 'عکس‌ها بارگذاری نشدند.');
+}
+
+/* `imageOrientation: 'from-image'` is the whole reason this uses
+   `createImageBitmap` rather than an <img>. Without it a portrait photo from
+   a phone lands sideways — and it lands sideways only on real photos, because
+   a synthetic test file has no EXIF at all. */
+async function renditionsOf(file) {
+  let bmp;
+  try {
+    bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (_) {
+    bmp = await createImageBitmap(file);     // older WebView: no orientation
+  }
+  /* `bmp.close()` in `finally`: the bitmap is megabytes of decoded pixels and
+     the loop below can throw on a huge photo, which on this memory-tight
+     hardware is exactly when leaking it hurts most — the next photo in a batch
+     then has nowhere to allocate and the whole upload freezes. */
+  try {
+    const out = {};
+    for (const edge of EDGES) {
+      const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(bmp.width * scale));
+      c.height = Math.max(1, Math.round(bmp.height * scale));
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      out[String(edge)] = c.toDataURL('image/jpeg', 0.82);
+    }
+    return out;
+  } finally {
+    bmp.close && bmp.close();
+  }
+}
+
+let busy = false;
+
+/* The original, unchanged. This is her archive, so what is kept is the file
+   she took — a 1600px copy is not her work, it is a copy of her work. */
+function asDataUrl(file) {
+  return new Promise(resolve => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => resolve(null);     /* renditions still go; not fatal */
+    r.readAsDataURL(file);
+  });
+}
+
+/* One photo, start to finish. Returns whether it landed, because the
+   caller sending fifty of them has to know which ones did.
+
+   `busy` is released in `finally`: an earlier version returned from inside
+   the try after a success and left the flag set, which locks the picker for
+   the rest of the session — the failure would have looked like "the button
+   stopped working" and nothing else. */
+async function addPhoto(file, progress) {
+  if (busy || !file) return false;
+  busy = true;
+  const note = $('addnote');
+  const say = t => { if (note) { note.hidden = false; note.textContent = t; } };
+  const step = progress ? progress + ' · ' : '';
+  try {
+    /* Under 100ms, something has to move. A silent wait is on the anxiety
+       list, and resizing a 12MP photo is not instant on this hardware. */
+    say(step + 'در حال آماده کردن…');
+    /* Renditions and the original are independent, so they run together — on
+       this hardware the two large base64 buffers done one-after-the-other was
+       most of the wall time of each upload, and in a batch that is what made
+       the picker feel frozen. */
+    const [renditions, original] = await Promise.all([
+      renditionsOf(file), asDataUrl(file),
+    ]);
+    say(step + 'در حال فرستادن…');
+    /* Into the library, not into a post. A picture taken today and used
+       next month needs somewhere to be in between, and making every shot a
+       post decides something she has not decided. */
+    /* When it was taken, as well as we can know it here.
+
+       `file.lastModified` and not EXIF: the renditions are drawn through a
+       canvas, which strips EXIF entirely, and parsing the kept original
+       needs a real camera photo to test the parser against — the golden
+       vector this node is still waiting for. So the number is the file's own
+       timestamp, which for a camera roll is usually the moment of capture
+       and is sometimes the moment it was copied off a card.
+
+       It travels with `taken_source` saying exactly that. A date with no
+       provenance is a date that gets trusted for more than it is worth, and
+       the day EXIF does land the two can be compared instead of one quietly
+       overwriting the other. */
+    const takenMs = Number(file.lastModified) || 0;
+    const sent = await OFN.post('/api/v1/studio/media', {
+      renditions, original,
+      taken_at: takenMs ? Math.floor(takenMs / 1000) : null,
+      taken_source: takenMs ? 'file' : '',
+    });
+    if (!sent.ok) { say(sent.error || 'عکس ذخیره نشد.'); return false; }
+    OFN.tap('medium');
+    return true;
+  } catch (e) {
+    say(e && e.status === 401
+        ? 'وقت این صفحه تمام شد. ببندید و دوباره باز کنید.'
+        : 'به دستگاه وصل نشد. چیزی ثبت نشد.');
+    return false;
+  } finally {
+    busy = false;
+  }
+}
+
+/* A whole selection, one request at a time.
+
+   Sequential rather than parallel on purpose: each photo is its own
+   multi-megabyte body, and fifty at once on a phone network is how a batch
+   fails entirely instead of partly. It also means the count on screen is
+   true while it runs.
+
+   One bad photo no longer aborts the rest: the original `break` stopped the
+   whole batch at the first refusal, so a single oversized or unreadable file
+   in the middle of fifty made the picker look like it froze at photo 3. Now
+   the bad one is skipped and counted, and the rest keep going — exactly what
+   "it only takes one" should not mean.
+
+   The list is refreshed ONCE at the end rather than per photo — that is the
+   part every other screen reads, and re-fetching it fifty times would be
+   fifty round trips to say the same thing. */
+async function addPhotos(files) {
+  const list = Array.from(files || []);
+  if (!list.length) return;
+  const note = $('addnote');
+  let done = 0, failed = 0;
+  for (let n = 0; n < list.length; n += 1) {
+    const label = list.length > 1 ? fa(n + 1) + ' از ' + fa(list.length) : '';
+    if (await addPhoto(list[n], label)) { done += 1; }
+    else { failed += 1; }   /* keep going — one bad photo does not cancel the rest */
+  }
+  if (!done) {
+    if (note) {
+      note.hidden = false;
+      note.textContent = 'هیچ عکسی اضافه نشد. دوباره امتحان کن.';
+    }
+    return;
+  }
+  try {
+    gallery = await OFN.get('/api/v1/studio/gallery');
+    await loadBoard();
+  } catch (_) { /* the photos are in; the screen catches up on reopen */ }
+  if (note) {
+    note.hidden = false;
+    note.textContent = failed
+      ? fa(done) + ' عکس اضافه شد، ' + fa(failed) + ' تا نرفت — دوباره امتحان کن.'
+      : fa(done) + ' عکس اضافه شد — حالا آرشیوشان کنیم.';
+  }
+  drawFront();
+}
+
+
+/* ── the three views ─────────────────────────────────────────────────────
+   One page, three jobs: decide what goes out, keep the archive, see how it
+   is going. Switching hides rather than reloads, so a half-typed caption
+   survives a glance at the gallery. */
+const VIEWS = ['view-today', 'view-archive', 'view-gallery', 'view-business', 'view-marketing'];
+let album = null, picked = null;
+let gallery = { albums: [], photos: [], vocabulary: [] };
+
+function show(which) {
+  VIEWS.forEach(id => { const el = $(id); if (el) el.hidden = id !== which; });
+  const note = $('note-card');
+  if (note) note.hidden = which !== 'view-today';
+  const gate = $('gate');
+  if (gate && which !== 'view-today') gate.hidden = true;
+  if (which === 'view-gallery') guard(loadGallery(), 'گالری باز نشد.');
+  if (which === 'view-business') guard(loadBusiness(), 'این بخش باز نشد.');
+  if (which === 'view-marketing') guard(loadMarketing(), 'بازاریابی باز نشد.');
+}
+
+/* The marketing tab is the partner's steering wheel for one decision:
+   which of her drafts goes where. It shows the weekly cycle's state
+   (read-only) and lets her preview a draft against every platform, then
+   send the ones that pass to the outbox. Nothing here publishes — the
+   outbox is the door, and the release switch (off by default) is the lock.
+   felt-right is asked on the board, before any number; this view does not
+   touch metrics. */
+const PLATFORM_LABELS = {
+  telegram_channel: 'تلگرام', bluesky: 'بلوسکای', email_ses: 'ایمیل',
+  x_twitter: 'ایکس', youtube_shorts: 'یوتیوب', threads: 'تردز',
+  instagram: 'اینستاگرام', tiktok: 'تیک‌تاک', pinterest: 'پینترست',
+  facebook: 'فیسبوک', reddit: 'ردیت',
+};
+const ALL_PLATFORMS = ['telegram_channel','bluesky','email_ses','x_twitter',
+  'youtube_shorts','threads','instagram','tiktok','pinterest','facebook','reddit'];
+
+let mktLastPreview = null;  // {draft_id, platforms:{name:{ok,rule,reasons,risk}}}
+
+async function loadMarketing() {
+  const snap = await OFN.get('/api/v1/studio/marketing');
+  const m = snap.marketing || {};
+  const w = m.current_week || null;
+  $('mkt-focus').textContent = w && w.focus_text
+    ? w.focus_text
+    : 'هنوز هیچ چرخه‌ای اجرا نشده.';
+  $('mkt-style').textContent = w ? 'سبک این هفته: ' + w.style_id : '';
+  $('mkt-obs').textContent = fa(m.trend_observations || 0);
+  $('mkt-rej').textContent = fa(m.rejected_ideas_in_memory || 0);
+  $('mkt-var').textContent = fa(m.routed_variants || 0);
+  // الهام امروز — only real observations, never fabricated. The hard rule:
+  // zero observations = the honest empty state, not a sample card. A fake
+  // trend on screen teaches the partner to trust invented evidence.
+  renderInspiration(m.inspiration_cards || []);
+  const g = snap.gates || {};
+  const lines = [
+    'چرخش رازها: ' + (g.secret_rotation === 'open' ? '✅ باز' : '🔒 بسته'),
+    'پیش‌شرط انتشار: ' + (g.partner_precondition === 'open' ? '✅ باز' : '🔒 بسته'),
+    'انتشار خودکار: ' + (g.wire_publish === 'off' ? ' خاموش' : '⚠ روشن'),
+  ];
+  // Build the gates list without innerHTML — every line is textContent on
+  // its own node, so nothing from the snapshot is ever parsed as HTML.
+  const list = $('mkt-gates-list');
+  list.replaceChildren();
+  for (const s of lines) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    list.appendChild(div);
+  }
+  const brain = snap.brain_modules || {};
+  const bw = renderBrain(brain);
+  $('mkt-brain').textContent = bw;
+  // Load the draft selector from the board (the same source the today tab
+  // uses), so the partner picks from her real drafts, not a fake list.
+  await loadDraftSelector();
+}
+
+function renderBrain(brain) {
+  const parts = [];
+  if (brain.platform_matrix && brain.platform_matrix.loaded) {
+    // Three counts, never one. "11 پلتفرم" alone is a false affordance — it
+    // reads as "eleven live outputs" when policy is the only thing loaded.
+    // policy = what the matrix has a rule for; available = adapter code
+    // exists; armed = actually built and able to send (today: zero).
+    const pm = brain.platform_matrix;
+    const policy = pm.platform_policy_known_count != null
+      ? pm.platform_policy_known_count : pm.platform_count;
+    const avail = pm.platform_adapter_available_count != null
+      ? pm.platform_adapter_available_count : 0;
+    const armed = pm.platform_adapter_armed_count != null
+      ? pm.platform_adapter_armed_count : 0;
+    parts.push('سیاست: ' + policy + ' پلتفرم · آداپتور موجود: '
+      + avail + ' · فعال: ' + armed);
+  }
+  if (brain.marketing_cycle)
+    parts.push('چرخه: ' + (brain.marketing_cycle.status === 'never_run' ? 'هنوز اجرا نشده' : brain.marketing_cycle.status));
+  if (brain.hosted_brain)
+    parts.push('مغز: ' + (brain.hosted_brain.armed ? 'وصل ✓' : 'خاموش'));
+  if (brain.trend_sources)
+    parts.push('منابع ترند: ' + brain.trend_sources.enabled);
+  return parts.join(' · ') || '—';
+}
+
+function renderInspiration(cards) {
+  const host = $('mkt-insp-cards');
+  host.replaceChildren();
+  // Empty observations = the honest sentence, not a fabricated sample card.
+  // The whole point of this widget is that an idea shown to Saba is real
+  // evidence, so an empty store must show itself rather than dress up.
+  if (!cards || cards.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'src';
+    p.textContent = 'هنوز چیزی از دنیا نرسیده — چرخهٔ بعدی دوشنبه.';
+    host.appendChild(p);
+    return;
+  }
+  for (const c of cards) {
+    const card = document.createElement('div');
+    card.className = 'insp-card';
+    const t = document.createElement('div');
+    t.className = 'h';
+    t.textContent = c.title_fa || '—';
+    card.appendChild(t);
+    const meta = [];
+    if (c.count_or_rank_fa) meta.push(c.count_or_rank_fa);
+    if (c.source_id) meta.push('منبع: ' + c.source_id);
+    if (meta.length) {
+      const m = document.createElement('p');
+      m.className = 'src';
+      m.textContent = meta.join(' · ');
+      card.appendChild(m);
+    }
+    // Honest about what isn't derived yet: why_now/why_saba come from a
+    // later proposal step. Show them only when present, never invented.
+    if (c.why_saba_fa) {
+      const why = document.createElement('p');
+      why.textContent = c.why_saba_fa;
+      card.appendChild(why);
+    }
+    host.appendChild(card);
+  }
+}
+
+async function loadDraftSelector() {
+  const sel = $('mkt-draft');
+  if (!sel) return;
+  let drafts = [];
+  try {
+    const board = await OFN.get('/api/v1/studio/board');
+    drafts = (board && board.drafts) || [];
+  } catch (e) { drafts = []; }
+  sel.replaceChildren();
+  if (!drafts.length) {
+    const opt = document.createElement('option');
+    opt.textContent = 'هنوز پیش‌نویسی نیست';
+    opt.value = '';
+    sel.appendChild(opt);
+    sel.disabled = true;
+    const btn = $('mkt-preview-btn'); if (btn) btn.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  const btn = $('mkt-preview-btn'); if (btn) btn.disabled = false;
+  for (const d of drafts) {
+    const opt = document.createElement('option');
+    opt.value = d.draft_id;
+    // Caption truncated for the dropdown, no HTML.
+    const cap = (d.caption || '(بدون کپشن)').slice(0, 40);
+    opt.textContent = cap + ' — ' + d.status;
+    sel.appendChild(opt);
+  }
+  /* Choosing a different draft invalidates the preview that was on screen —
+     without this the old platform cards linger and read as the new draft's
+     verdict, which is the exact kind of stale-result bug a misread comes
+     from. The change listener is the only honest response: clear the stage
+     so the next "پیش‌نمایش مسیر" tap is unambiguously for the picked draft. */
+  sel.onchange = () => {
+    const grid = $('mkt-platforms');
+    if (grid) { grid.hidden = true; grid.replaceChildren(); }
+    const wrap = $('mkt-send-wrap'); if (wrap) wrap.hidden = true;
+    const res = $('mkt-send-result'); if (res) res.textContent = '';
+    mktLastPreview = null;
+  };
+}
+
+async function previewRoute() {
+  const sel = $('mkt-draft');
+  const did = sel && sel.value;
+  if (!did) return;
+  const grid = $('mkt-platforms');
+  const btn = $('mkt-preview-btn'), res = $('mkt-send-result');
+  grid.hidden = true; grid.replaceChildren(); mktLastPreview = null;
+  if (res) { res.hidden = false; res.textContent = 'دارم مسیرها را می‌سنجم…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'در حال سنجش…'; }
+  $('mkt-send-wrap').hidden = true;
+  const out = await OFN.post(
+    '/api/v1/studio/drafts/' + encodeURIComponent(did) + '/route-preview',
+    { platforms: ALL_PLATFORMS });
+  if (!out.ok) { if (res) res.textContent = 'رد شد: ' + (out.error || 'دلیل نامعلوم'); if (btn) { btn.disabled = false; btn.textContent = 'پیش‌نمایش مسیر'; } return; }
+  mktLastPreview = { draft_id: did, platforms: out.platforms || {} };
+  renderPlatforms(grid, out.platforms || {});
+  const anyOk = Object.values(out.platforms || {}).some(p => p.ok);
+  $('mkt-send-wrap').hidden = !anyOk;
+  grid.hidden = false;
+  if (res) res.textContent = anyOk ? 'پیش‌نمایش آماده است.' : 'هیچ پلتفرمی این پیش‌نویس را نپذیرفت.';
+  if (btn) { btn.disabled = false; btn.textContent = 'پیش‌نمایش مسیر'; }
+}
+
+function renderPlatforms(grid, platforms) {
+  grid.replaceChildren();
+  for (const name of ALL_PLATFORMS) {
+    const p = platforms[name];
+    if (!p) continue;
+    const card = document.createElement('div');
+    card.className = 'pcard ' + (p.ok ? 'ok' : 'no');
+    const nm = document.createElement('div');
+    nm.className = 'pname';
+    nm.textContent = PLATFORM_LABELS[name] || name;
+    const st = document.createElement('div');
+    st.className = 'pstat';
+    st.textContent = p.ok ? '✓ پذیرفته' : '✗ رد شده';
+    if (!p.ok && p.reasons && p.reasons.length) {
+      const why = document.createElement('div');
+      why.className = 'pwhy';
+      why.textContent = p.reasons.join('، ');
+      card.append(nm, st, why);
+    } else if (!p.ok) {
+      const why = document.createElement('div');
+      why.className = 'pwhy';
+      why.textContent = p.rule || '';
+      card.append(nm, st, why);
+    } else {
+      card.append(nm, st);
+    }
+    grid.appendChild(card);
+  }
+}
+
+async function sendToOutbox() {
+  if (!mktLastPreview) return;
+  const did = mktLastPreview.draft_id;
+  const okPlatforms = Object.entries(mktLastPreview.platforms)
+    .filter(([_, p]) => p.ok).map(([name]) => name);
+  if (!okPlatforms.length) return;
+  const res = $('mkt-send-result');
+  res.hidden = false;
+  res.textContent = "دارم به صف خروج می‌فرستم…";
+  const btn = $('mkt-send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = "در حال ارسال…"; }
+  try {
+    const out = await OFN.post(
+      '/api/v1/studio/drafts/' + encodeURIComponent(did) + '/send-to-outbox',
+      { platforms: okPlatforms });
+    res.hidden = false;
+    if (out.ok) {
+      const queued = out.queued || 0;
+      const total = (out.results || []).length;
+      res.textContent = fa(queued) + ' از ' + fa(total) + ' به صف رفت' +
+        (queued < total ? ' (بقیه رد شدند — بالاتر ببین)' : '') +
+        '؛ انتشار واقعی تا تأیید آری نیست.';
+    } else {
+      res.textContent = 'رد شد: ' + (out.error || 'دلیل نامعلوم');
+    }
+  } catch (e) {
+    res.hidden = false;
+    res.textContent = 'خطا در ارسال: به دستگاه وصل نشد.';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'برای پلتفرم‌های پذیرفته‌شده به صف بفرست'; }
+  }
+}
+
+async function exportAlbumNow(){if(!album){showState('refused','اول یک آلبوم را انتخاب کنید.');return;}const b=await OFN.bytes('/api/v1/studio/album/'+encodeURIComponent(album)+'/export');const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=album+'.zip';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);}
+
+/* ── gallery ───────────────────────────────────────────────────────────── */
+async function ensureAlbumByLabel(label) {
+  const name = (label || '').trim();
+  if (!name) return null;
+  let a = (gallery.albums || []).find(x => x.label === name);
+  if (a) return a;
+  const out = await OFN.post('/api/v1/studio/albums', { label: name });
+  if (!out.ok) { showState('refused', out.error || 'آلبوم ساخته نشد.'); return null; }
+  gallery.albums.push(out.album); return out.album;
+}
+
+async function savePickedPhoto() {
+  if (!picked) return;
+  const photo = gallery.photos.find(p => p.media_id === picked);
+  if (!photo) return;
+  const out = await OFN.post('/api/v1/studio/media/' + encodeURIComponent(picked) + '/labels', { labels: photo.labels || [] });
+  if (!out.ok) { showState('refused', out.error); return; }
+  const sel = document.getElementById('photo-album');
+  const chosen = sel ? sel.value : (photo.collection_id || '');
+  const u = '/api/v1/studio/media/' + encodeURIComponent(picked);
+  const filed = await OFN.post(u + '/album', { album: chosen || null });
+  if (!filed.ok) { showState('refused', filed.error); return; }
+  const note = document.getElementById('photo-note');
+  const text = note ? note.value.trim() : '';
+  const said = await OFN.post(u + '/describe', { note: text, category: '' });
+  if (!said.ok) { showState('refused', said.error); return; }
+  picked = null; document.getElementById('tagpanel').hidden = true;
+  OFN.tap('medium');
+  await loadGallery(); drawFront();
+}
+
+async function deletePhotoNow() {
+  if (!picked) return;
+  return deletePhotoById(picked);
+}
+
+/* The same deletion as `deletePhotoNow`, but the id comes straight from the
+   little × on the photo it deletes — so it does not depend on which photo is
+   "picked". Used by both the corner × and the panel's «حذف عکس» button. */
+async function deletePhotoById(mediaId) {
+  if (!mediaId) return;
+  if (!confirm('مطمئنی؟ این عکس برای همیشه حذف شود؟')) return;
+  const out = await OFN.del('/api/v1/studio/media/' + encodeURIComponent(mediaId));
+  if (!out.ok) { showState('refused', out.error || 'حذف عکس انجام نشد. دوباره امتحان کن.'); return; }
+  if (picked === mediaId) { picked = null; $('tagpanel').hidden = true; }
+  await loadGallery(); drawFront();
+  notice('عکس حذف شد.');
+}
+
+async function deleteAlbumNow() {
+  if (!album) { showState('refused', 'اول یک آلبوم را انتخاب کنید.'); return; }
+  if (!confirm('آلبوم حذف شود؟ عکس‌ها پاک نمی‌شوند، فقط بی‌آلبوم می‌شوند.')) return;
+  const target = album;
+  const out = await OFN.del('/api/v1/studio/albums/' + encodeURIComponent(target));
+  if (!out.ok) { showState('refused', out.error); return; }
+  album = null; picked = null;
+  await loadGallery(); drawFront();
+}
+
+async function normalizeLegacyCategories() {
+  const legacy = (gallery.photos || []).filter(p => p.category);
+  for (const p of legacy) {
+    if (!p.collection_id) {
+      let a = (gallery.albums || []).find(x => x.label === p.category);
+    if (!a) { const made = await OFN.post('/api/v1/studio/albums', { label: p.category }); if (!made.ok) continue; a = made.album; gallery.albums.push(a); }
+      const filed = await OFN.post('/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/album', { album: a.id });
+      if (filed.ok) p.collection_id = a.id;
+    }
+    const said = await OFN.post('/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/describe', { category: '' });
+    if (said.ok) p.category = '';
+  }
+}
+
+async function loadGallery() {
+  try { gallery = await OFN.get('/api/v1/studio/gallery'); }
+  catch (_) { showState('unreachable'); return; }
+  await normalizeLegacyCategories();
+  drawAlbums();
+  drawGrid();
+}
+
+
+function drawAlbums() {
+  const box = $('albums');
+  box.textContent = '';
+  const all = [{ id: null, label: 'همه' }].concat(gallery.albums || []);
+  all.forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'album';
+    b.textContent = a.label;
+    b.setAttribute('aria-pressed', String(album === a.id));
+    b.onclick = () => { OFN.tap(); album = a.id; drawAlbums(); drawGrid(); };
+    box.append(b);
+  });
+  if (album !== null) {
+    const d = document.createElement('button');
+    d.type = 'button'; d.className = 'album'; d.textContent = 'حذف آلبوم انتخاب‌شده';
+    d.onclick = () => { OFN.tap(); guard(deleteAlbumNow(), 'آلبوم حذف نشد.'); };
+    box.append(d);
+  }
+
+}
+
+function hidePhotoZoom(){const box=$('photo-lightbox'); if(box) box.hidden=true; const img=$('photo-lightbox-img'); if(img) releasePhoto(img);}
+async function showPhotoZoom(mediaId){const box=$('photo-lightbox'), img=$('photo-lightbox-img'); if(!box||!img)return; box.hidden=false; await paintPhoto(img, mediaId, 1600);}
+
+function drawGrid() {
+  const box = $('grid');
+  /* Released before the elements holding them are thrown away. `textContent
+     = ''` drops the nodes but not the object URLs they point at, and those
+     stay alive in the document until revoked — a leak that grows by one
+     photo per redraw and shows up as a tab that dies after a while. */
+  photoFetchQueue.splice(0).forEach(q => q.resolve(null));
+  box.querySelectorAll('img').forEach(img => {
+    img.dataset.painting = '';
+    if (nearScreen) nearScreen.unobserve(img);
+    releasePhoto(img);
+  });
+  box.textContent = '';
+  const shown = gallery.photos.filter(p =>
+    (album === null || p.collection_id === album));
+  if (picked && !shown.some(p => p.media_id === picked)) {
+    picked = null;
+    $('tagpanel').hidden = true;
+  }
+  $('gallery-empty').hidden = shown.length > 0;
+  if (!shown.length) {
+    /* Used to read "this is empty, add a photo from the امروز tab" — an
+       empty screen whose only instruction is to go and use a different
+       screen. The picker lives over there, but a button can reach it, so
+       the tab that is empty is the tab that can fix it. */
+    const box2 = $('gallery-empty');
+    box2.hidden = false;
+    box2.textContent = '';
+    box2.append(Object.assign(document.createElement('div'), {
+      textContent: album === null
+        ? 'هنوز عکسی اینجا نیست. هر عکسی که اضافه کنی همین‌جا می‌مونه و بعد می‌تونی مرتبش کنی.'
+        : 'این آلبوم هنوز خالی است.',
+    }));
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'cta';
+    add.textContent = 'عکس تازه';
+    add.onclick = () => { OFN.tap(); $('pick').click(); };
+    box2.append(add);
+    if (album !== null) {
+      const del = document.createElement('button');
+      del.type = 'button'; del.className = 'cta quiet'; del.textContent = 'حذف همین آلبوم';
+      del.onclick = () => { OFN.tap(); guard(deleteAlbumNow(), 'آلبوم حذف نشد.'); };
+      box2.append(del);
+    }
+    $('tagpanel').hidden = true;
+    return;
+  }
+  shown.forEach(p => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'shot' + (picked === p.media_id ? ' pick' : '');
+    const img = document.createElement('img');
+    /* Fetched one at a time, and only once it is near the screen. Inlining
+       fifty thumbnails as base64 would be a two-megabyte response on a phone
+       network, re-sent on every refresh. */
+    img.alt = '';
+    lazyPhoto(img, p.media_id);
+    b.append(img);
+    /* The little × on the photo itself. `stopPropagation` on every pointer
+       event it can receive keeps it from starting a long-press zoom, from
+       selecting the photo, or from opening the lightbox — it only deletes. */
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'shot-del';
+    del.setAttribute('aria-label', 'حذف این عکس');
+    del.textContent = '×';
+    del.addEventListener('pointerdown', ev => ev.stopPropagation());
+    del.addEventListener('touchstart', ev => ev.stopPropagation(), { passive: true });
+    del.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      OFN.tap();
+      guard(deletePhotoById(p.media_id), 'عکس حذف نشد.');
+    });
+    b.append(del);
+    if (p.note) {
+      const n = document.createElement('span');
+      n.className = 'note-mark'; n.textContent = 'توضیح';
+      b.append(n);
+    }
+    if ((p.labels || []).length) {
+      const t = document.createElement('span');
+      t.className = 'tagged';
+      /* Through the same map the tag buttons use. This badge printed the raw
+         tokens — `bare · soles` — next to buttons that said «بدون پوشش» and
+         «کف پا», so the grid and the panel disagreed about what a photo was
+         called. One vocabulary, said one way. */
+      t.textContent = p.labels.map(l => LABEL_FA[l] || l).join(' · ');
+      b.append(t);
+    }
+    let holdTimer = null, zoomed = false, suppressClick = false;
+    b.oncontextmenu = ev => ev.preventDefault();
+    b.onpointerdown = ev => { holdTimer = setTimeout(() => { zoomed = true; suppressClick = true; guard(showPhotoZoom(p.media_id), 'عکس بزرگ باز نشد.'); }, 420); };
+    b.onpointerup = b.onpointercancel = b.onpointerleave = () => { clearTimeout(holdTimer); if (zoomed) { zoomed = false; hidePhotoZoom(); } };
+    b.onclick = () => {
+      if (suppressClick) { suppressClick = false; hidePhotoZoom(); return; }
+      OFN.tap();
+      if (picked === p.media_id) {
+        picked = null;
+        b.classList.remove('pick');
+        $('tagpanel').hidden = true;
+        return;
+      }
+      picked = p.media_id;
+      box.querySelectorAll('.shot').forEach(x => x.classList.remove('pick'));
+      b.classList.add('pick');
+      drawTags(p);
+    };
+    box.append(b);
+  });
+}
+
+/* Two callers: the gallery's tag panel, and the archive card. The
+   vocabulary, the twin rule and the "one side of each axis" logic are the
+   same in both, so they share this — a second copy is a second place for
+   the pairing rule to drift out of agreement with the first. */
+function drawTags(photo, into) {
+  if (!into) {
+    $('tagpanel').hidden = false;
+    $('tagtitle').textContent = 'این عکس چه چیزی است؟';
+  }
+  const box = $(into || 'tags');
+  box.textContent = '';
+  const chosen = new Set(photo.labels || []);
+  gallery.vocabulary.forEach(label => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tag';
+    b.textContent = LABEL_FA[label] || label;
+    b.setAttribute('aria-pressed', String(chosen.has(label)));
+    b.onclick = () => {
+      OFN.tap();
+      /* The vocabulary is pairs, and a photo is one side of each axis.
+         Ticking one side unticks the other, because a photo tagged both is
+         evidence for both and makes the comparison say nothing. */
+      const twin = TWIN[label];
+      if (chosen.has(label)) { chosen.delete(label); }
+      else { chosen.add(label); if (twin) chosen.delete(twin); }
+      photo.labels = [...chosen];
+      drawTags(photo, into);
+    };
+    box.append(b);
+  });
+  if (!into) {
+    $('pairnote').textContent =
+      'هر جفت یک محور است. برای مقایسه باید از هر دو طرف چند تا داشته باشید.';
+    drawPhotoExtras(photo);
+  }
+}
+
+
+function drawPhotoExtras(photo) {
+  const sel = $('photo-album');
+  if (sel) {
+    sel.dataset.mediaId = photo.media_id; sel.textContent = '';
+    const none = document.createElement('option');
+    none.value = ''; none.textContent = 'بی‌آلبوم'; sel.append(none);
+    (gallery.albums || []).forEach(a => { const o = document.createElement('option'); o.value = a.id; o.textContent = a.label; sel.append(o); });
+    sel.value = photo.collection_id || '';
+  }
+  const note = $('photo-note');
+  if (note) { note.dataset.mediaId = photo.media_id; note.value = photo.note || ''; }
+}
+
+/* Pairs, in the order the pack lists them. Built once from the vocabulary
+   so adding an axis to the pack does not need an edit here. */
+let TWIN = {};
+/* Display only. The pack owns the vocabulary and its order; this map just
+   says each token in her language, and an unknown token falls back to the
+   token itself rather than disappearing. */
+const LABEL_FA = {
+  'bare': 'بدون پوشش', 'covered': 'با پوشش',
+  'soles': 'کف پا', 'top': 'روی پا',
+  'polished': 'لاک‌خورده', 'natural': 'بدون لاک',
+  'close': 'نزدیک', 'wide': 'باز',
+};
+function buildTwins(vocab) {
+  TWIN = {};
+  for (let i = 0; i + 1 < vocab.length; i += 2) {
+    TWIN[vocab[i]] = vocab[i + 1];
+    TWIN[vocab[i + 1]] = vocab[i];
+  }
+}
+
+/* ── business ──────────────────────────────────────────────────────────── */
+/* ── آرشیو ────────────────────────────────────────────────────────────
+   The loop this app is opened for: one photo, one album, some labels, next.
+
+   "Unfiled" is the whole definition of the backlog — a photo with no album
+   is one nobody has decided anything about, and it is a count that goes
+   down as she works. Labels are offered on the same card but are not part
+   of the count: a backlog that only empties when every photo is perfectly
+   described is a backlog that never empties.
+
+   Nothing is batched. Each photo is committed as she leaves it, so putting
+   the phone down after nine of fifty loses nothing. */
+let arc = { list: [], i: 0, album: null, labels: [], rating: 0, note: '' };
+
+/* Zero is "not rated" and is a real state, so the control has to be able to
+   return to it: tapping the star you already chose clears it. Without that a
+   mis-tap on the first photo is permanent, which is the same rule the album
+   chips already follow. */
+function drawStars() {
+  const box = $('arc-stars');
+  box.textContent = '';
+  for (let n = 1; n <= 5; n += 1) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', String(n <= arc.rating));
+    b.setAttribute('aria-label', fa(n));
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', n <= arc.rating ? 'currentColor' : 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7'
+                         + '-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z');
+    svg.append(path);
+    b.append(svg);
+    b.onclick = () => {
+      OFN.tap();
+      arc.rating = (arc.rating === n) ? 0 : n;
+      drawStars();
+    };
+    box.append(b);
+  }
+}
+
+const unfiled = () => (gallery.photos || []).filter(p => !p.collection_id);
+
+function arcNote(text) {
+  const box = $('arc-note');
+  box.hidden = !text;
+  box.textContent = text || '';
+}
+
+function startArchive() {
+  arc.list = unfiled();
+  arc.i = 0;
+  if (!arc.list.length) {
+    /* The button is hidden when the backlog is empty, but the photos it
+       counts can move between the visibility check and the tap — another
+       archive finishing, a sync landing — and then the tap finds an empty
+       list. Returning silently there read on a real phone as "the gold
+       button does nothing", so say it on the today view, where it is
+       visible, using the same note line finishArchive writes to. */
+    const note = $('addnote');
+    note.hidden = false;
+    note.textContent = 'عکس آرشیو‌نشده‌ای نمانده.';
+    return;
+  }
+  show('view-archive');
+  drawArc();
+}
+
+function drawArc() {
+  if (arc.i >= arc.list.length) { finishArchive(); return; }
+  const p = arc.list[arc.i];
+  /* Read from the photo, not carried over from the last one: two shots in a
+     row usually belong in the same album, but "usually" is how the fiftieth
+     photo ends up somewhere nobody chose. */
+  arc.album = p.collection_id || null;
+  arc.labels = [...(p.labels || [])];
+  /* Same rule as the album: read from THIS photo, never carried over. A
+     rating that persists across cards is a rating she did not give. */
+  arc.rating = p.rating || 0;
+  arc.note = p.note || '';
+  $('arc-text').value = arc.note;
+  drawStars();
+  arcNote('');
+  $('arc-count').textContent = fa(arc.i + 1) + ' از ' + fa(arc.list.length);
+  /* 1600, not 320. This is the card where she decides what a photo IS —
+     which album, which axis, whether it is worth keeping — and deciding that
+     from a thumbnail is deciding it from something other than the thing. The
+     grid can have the small one; this screen is the reason the big one is
+     kept. */
+  const shot = $('arc-img');
+  shot.alt = '';
+  guard(paintPhoto(shot, p.media_id, 1600), 'عکس باز نشد.');
+  $('arc-new').hidden = true;
+  $('arc-sub').textContent = gallery.albums.length
+    ? 'یکی را بزنید، یا آلبوم تازه بسازید.'
+    : 'هنوز آلبومی ندارید — اولی را همین‌جا بسازید.';
+  drawArcAlbums();
+  drawTags(arc, 'arc-tags');
+}
+
+function drawArcAlbums() {
+  const box = $('arc-albums');
+  box.textContent = '';
+  (gallery.albums || []).forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'album';
+    b.textContent = a.label;
+    b.setAttribute('aria-pressed', String(arc.album === a.id));
+    /* Tapping the chosen one again clears it. Without that, a mis-tap on
+       the first album is unrecoverable without leaving the screen. */
+    b.onclick = () => {
+      OFN.tap();
+      arc.album = (arc.album === a.id) ? null : a.id;
+      drawArcAlbums();
+    };
+    box.append(b);
+  });
+  const add = document.createElement('button');
+  add.type = 'button';
+  add.className = 'album';
+  add.textContent = '+ آلبوم تازه';
+  add.onclick = () => {
+    OFN.tap();
+    $('arc-new').hidden = false;
+    $('arc-name').focus();
+  };
+  box.append(add);
+}
+
+async function makeAlbum() {
+  const field = $('arc-name');
+  const label = field.value.trim();
+  if (!label) { arcNote('نام آلبوم خالی است.'); return; }
+  const out = await OFN.post('/api/v1/studio/albums', { label });
+  if (!out.ok) { arcNote(out.error || 'آلبوم ساخته نشد.'); return; }
+  gallery.albums.push(out.album);
+  arc.album = out.album.id;          /* made for this photo, so selected */
+  field.value = '';
+  $('arc-new').hidden = true;
+  arcNote('');
+  OFN.tap('medium');
+  drawArcAlbums();
+  $('arc-sub').textContent = 'یکی را بزنید، یا آلبوم تازه بسازید.';
+}
+
+async function saveArc() {
+  const p = arc.list[arc.i];
+  if (!p) return;
+  if (!arc.album) { arcNote('اول آلبومش را انتخاب کنید.'); return; }
+  /* Album first. It is the one that empties the backlog, so if the second
+     call fails she has still made progress rather than none — and the photo
+     is never left filed under a label set that was refused. */
+  const filed = await OFN.post(
+    '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/album',
+    { album: arc.album });
+  if (!filed.ok) { arcNote(filed.error || 'ثبت نشد.'); return; }
+  p.collection_id = filed.album;
+  const tagged = await OFN.post(
+    '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/labels',
+    { labels: arc.labels });
+  if (!tagged.ok) { arcNote(tagged.error || 'برچسب ثبت نشد.'); return; }
+  p.labels = tagged.labels;
+  /* Last, and only when there is something to say. The two calls above are
+     what empty the backlog; a note that fails must not cost her the filing
+     she already did, so this one reports and moves on rather than returning. */
+  const text = $('arc-text').value.trim();
+  if (text !== arc.note || arc.rating !== (p.rating || 0)) {
+    const said = await OFN.post(
+      '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/describe',
+      { note: text, rating: arc.rating });
+    if (said.ok) {
+      p.note = said.media.note;
+      p.rating = said.media.rating;
+    } else {
+      arcNote(said.error || 'یادداشت ثبت نشد — ولی آلبوم و برچسب ثبت شد.');
+    }
+  }
+  OFN.tap('medium');
+  arc.i += 1;
+  drawArc();
+}
+
+function finishArchive() {
+  /* The number is counted, not assumed: skipped photos are still unfiled
+     and saying "12 archived" when nine were skipped would be the kind of
+     claim this project keeps finding in its own bugs. */
+  const filed = arc.list.filter(p => p.collection_id).length;
+  const left = arc.list.length - filed;
+  show('view-today');
+  drawFront();
+  const note = $('addnote');
+  note.hidden = false;
+  note.textContent = filed
+    ? fa(filed) + ' عکس آرشیو شد.'
+      + (left ? ' ' + fa(left) + ' تا ماند — هر وقت خواستید ادامه.' : '')
+    : 'چیزی ثبت نشد.';
+}
+
+async function loadBusiness() {
+  let over, guide;
+  try {
+    [over, guide] = await Promise.all([
+      OFN.get('/api/v1/studio/overview'), OFN.get('/api/v1/studio/guidance'),
+    ]);
+  } catch (_) { showState('unreachable'); return; }
+
+  const rows = $('rows');
+  rows.textContent = '';
+  const line = (value, label) => {
+    const r = document.createElement('div');
+    r.className = 'row';
+    const b = document.createElement('b');
+    b.textContent = value;
+    const s = document.createElement('span');
+    s.textContent = label;
+    r.append(b, s);
+    rows.append(r);
+  };
+  const posts = over.posts || {};
+  line(fa(Object.values(posts).reduce((a, b) => a + b, 0)), 'پست ساخته‌شده');
+  line(fa(posts.published || 0), 'منتشر شده');
+  line(fa(over.subscribers || 0), 'مخاطب');
+  /* `null` is not zero. A business with no audience does not have a bad
+     ownership ratio — it has no ratio, and printing 0٪ would be a claim. */
+  line(over.ownership_ratio == null ? '—'
+       : fa(Math.round(over.ownership_ratio * 100)) + '٪', 'سهم مخاطب خودتان');
+  line(fa(over.waiting_for_a_message || 0), 'منتظر پیام');
+
+  if (guide.mode === 'reading' && (guide.findings || []).length) {
+    const f = guide.findings[0];
+    $('g-body').textContent = f.claim;
+    $('g-src').textContent = 'از ' + fa(f.sample) + ' پست، در '
+      + fa(f.window_days) + ' روز';
+  } else {
+    const axis = (guide.suggested_axis || []).map(l => LABEL_FA[l] || l);
+    $('g-body').textContent = axis.length
+      ? 'برای شروع، چند تا «' + axis[0] + '» و چند تا «' + axis[1]
+        + '» بسازید و هر کدام را برچسب بزنید.'
+      : 'برچسب‌ها را روی عکس‌ها بگذارید تا مقایسه ممکن شود.';
+    $('g-src').textContent = guide.why || '';
+  }
+}
+
+async function boot() {
+  OFN.shell();
+  syncConsentGate();
+  const box = $('c1');
+  if (box) box.addEventListener('change', syncConsentGate);
+
+  // Marketing action buttons — bound here, not inline, so a missing element
+  // never throws at parse time and the listeners share one place.
+  const pv = $('mkt-preview-btn');
+  if (pv) pv.addEventListener('click', () => guard(previewRoute(), 'پیش‌نمایش مسیر باز نشد.'));
+  const sd = $('mkt-send-btn');
+  if (sd) sd.addEventListener('click', () => guard(sendToOutbox(), 'ارسال به صف باز نشد.'));
+
+  window.show = show;
+  const lb = $('photo-lightbox'); if (lb) lb.addEventListener('click', hidePhotoZoom);
+
+  const as = $('assistant-send'); if (as) as.addEventListener('click', ev => { ev.preventDefault(); OFN.tap(); guard(askAssistant(false), 'دستیار جواب نداد.'); });
+  const ar = $('assistant-random'); if (ar) ar.addEventListener('click', ev => { ev.preventDefault(); OFN.tap(); guard(askAssistant(true), 'دستیار جواب نداد.'); });
+
+async function loadAssistantBoot(){ await loadAssistantHistory(); await loadAssistantSuggestion(); }
+async function loadAssistantHistory() {
+  const log = $('assistant-log'); if (!log) return;
+  try {
+    const out = await OFN.get('/api/v1/studio/assistant/history');
+    log.textContent = '';
+    (out.turns || []).forEach(t => {
+      if (t.user) log.append(Object.assign(document.createElement('div'), { className: 'chatmsg me', textContent: t.user }));
+      log.append(Object.assign(document.createElement('div'), { className: 'chatmsg bot', textContent: t.assistant || '' }));
+    });
+    log.scrollTop = log.scrollHeight;
+  } catch (_) {}
+}
+async function loadAssistantSuggestion(){
+  const log=$('assistant-log'), src=$('assistant-src'); if(!log)return;
+  const out=await OFN.get('/api/v1/studio/assistant/suggest'); if(!out.ok)return;
+  const d=document.createElement('div'); d.className='chatmsg bot'; d.textContent=out.answer||'فعلاً چیزی برای گفتن ندارم؛ یه چیز کوچیک بنویس تا کمکت کنم.'; log.append(d);
+  if(src) src.textContent=(out.sources||[]).length?'یه پیشنهاد کوچیک تازه · '+(out.sources||[]).map(s=>s.title||s.source).join('، '):'یه پیشنهاد کوچیک تازه';
+  log.scrollTop=log.scrollHeight;
+}
+async function askAssistant(random) {
+  const inp = $('assistant-input'), log = $('assistant-log'), src = $('assistant-src');
+  const msg = random ? '' : (inp ? inp.value.trim() : '');
+  if (!random && !msg) return;
+  if (msg && log) log.append(Object.assign(document.createElement('div'), { className: 'chatmsg me', textContent: msg }));
+  if (inp) inp.value = '';
+  const hold = log && Object.assign(document.createElement('div'), { className: 'chatmsg bot', textContent: 'یه لحظه، دارم فکر می‌کنم…' });
+  if (hold) log.append(hold);
+  const out = await OFN.post('/api/v1/studio/assistant/chat', { message: msg });
+  if (hold) hold.textContent = out.answer || 'الان جوابی ندارم؛ یه جور دیگه بپرس تا بهتر کمکت کنم.';
+  if (src) src.textContent = (out.sources || []).length ? 'ذخیره شد · منبع: ' + (out.sources || []).map(s => s.title || s.source).join('، ') : 'ذخیره شد.';
+  if (log) log.scrollTop = log.scrollHeight;
+}
+
+  const saveTags = $('save-tags');
+  if (saveTags) saveTags.addEventListener('click', ev => {
+    ev.preventDefault(); guard(savePickedPhoto(), 'ذخیره نشد.');
+  });
+
+
+  const addCat = $('add-photo-category');
+  const newCat = $('new-photo-category');
+  const useNewCat = async () => {
+    if (!picked || !newCat) return;
+    const made = await ensureAlbumByLabel(newCat.value);
+    if (!made) return;
+    newCat.value = '';
+    const sel = $('photo-album'); if (sel) sel.value = made.id;
+    drawAlbums();
+  };
+  if (addCat) addCat.addEventListener('click', ev => { ev.preventDefault(); guard(useNewCat(), 'آلبوم ساخته نشد.'); });
+  if (newCat) newCat.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); guard(useNewCat(), 'آلبوم ساخته نشد.'); }
+  });
+
+  const clearAlbum = $('clear-photo-album');
+  if (clearAlbum) clearAlbum.addEventListener('click', ev => { ev.preventDefault(); const sel=$('photo-album'); if(sel) sel.value=''; guard(savePickedPhoto(), 'آلبوم عکس حذف نشد.'); });
+  const clearNote = $('clear-photo-note');
+  if (clearNote) clearNote.addEventListener('click', ev => { ev.preventDefault(); const n=$('photo-note'); if(n) n.value=''; guard(savePickedPhoto(), 'توضیح حذف نشد.'); });
+  const clearTags = $('clear-photo-tags');
+  if (clearTags) clearTags.addEventListener('click', ev => { ev.preventDefault(); const photo=gallery.photos.find(p=>p.media_id===picked); if(photo){photo.labels=[]; drawTags(photo);} guard(savePickedPhoto(), 'برچسب‌ها حذف نشد.'); });
+  const delPhoto = $('delete-photo');
+  if (delPhoto) delPhoto.addEventListener('click', ev => { ev.preventDefault(); guard(deletePhotoNow(), 'عکس حذف نشد.'); });
+  const delAlbum = $('delete-album');
+  if (delAlbum) delAlbum.addEventListener('click', ev => {
+    ev.preventDefault();
+    guard(deleteAlbumNow(), 'آلبوم حذف نشد.');
+  });
+
+
+  const exportBtn = $('export-album');
+  if (exportBtn) exportBtn.addEventListener('click', ev => {
+    ev.preventDefault();
+    guard(exportAlbumNow(), 'خروجی آلبوم ساخته نشد.');
+  });
+
+  const pick = $('pick');
+  if (pick) pick.addEventListener('change', ev => {
+    const files = Array.from(ev.target.files || []);
+    ev.target.value = '';        /* so the same file can be picked again */
+    guard(addPhotos(files), 'عکس اضافه نشد.');
+  });
+
+  /* Archive mode. Entered from the card that counts the backlog, left by
+     the button that says so — never by a tab, because a half-finished
+     photo would be left in a view that no longer exists on screen. */
+  const arcStart = $('startarc');
+  if (arcStart) arcStart.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap(); startArchive();
+  });
+  const arcNext = $('arc-next');
+  if (arcNext) arcNext.addEventListener('click', ev => {
+    ev.preventDefault(); guard(saveArc(), 'ثبت نشد.');
+  });
+  const arcSkip = $('arc-skip');
+  if (arcSkip) arcSkip.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap();
+    arc.i += 1; drawArc();
+  });
+  const arcDone = $('arc-done');
+  if (arcDone) arcDone.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap(); finishArchive();
+  });
+  const arcMake = $('arc-make');
+  if (arcMake) arcMake.addEventListener('click', ev => {
+    ev.preventDefault(); guard(makeAlbum(), 'آلبوم ساخته نشد.');
+  });
+  const arcName = $('arc-name');
+  if (arcName) arcName.addEventListener('keydown', ev => {
+    /* Enter on a phone keyboard is the natural way to finish a short name;
+       without this it submits nothing and looks broken. */
+    if (ev.key === 'Enter') { ev.preventDefault(); guard(makeAlbum(), 'آلبوم ساخته نشد.'); }
+  });
+
+  const later = $('later');
+  if (later) later.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap();
+    /* Moves to the next draft rather than doing nothing. A safe option that
+       has no effect teaches that buttons sometimes have no effect. */
+    if (board.drafts.length > 1) { cursor = (cursor + 1) % board.drafts.length; }
+    drawFront();
+  });
+
+  const go = $('go-publish');
+  if (go) go.addEventListener('click', ev => { ev.preventDefault(); guard(publishCurrent(), 'انتشار انجام نشد.'); });
+
+  document.querySelectorAll('[popovertarget="tray"]').forEach(b => {
+    b.addEventListener('click', ev => {
+      if (POPOVER) return;              // the attribute already handles it
+      ev.preventDefault();
+      (b.getAttribute('popovertargetaction') === 'hide') ? closeTray() : openTray();
+    });
+  });
+
+  /* The platform ships with the failure, not separately: a journal line
+     saying only "no-initdata" still leaves two guesses open, and one touch
+     should end the guessing rather than start a second round of it. */
+  if (!await OFN.connect()) {
+    tell(OFN.why, OFN.where());
+    showState(OFN.why);
+    return;
+  }
+  greet(OFN.who);
+  guard(loadAssistantBoot(), 'چت‌باکس باز نشد.');
+
+  let status, qs;
+  try {
+    [status, qs] = await Promise.all([
+      OFN.get('/api/v1/status'), OFN.get('/api/v1/questions'),
+    ]);
+  } catch (_) { showState('unreachable'); return; }
+
+  queue = (qs && qs.questions) || [];
+  at = 0;
+  /* Was the one await in this function with nothing around it, and it threw
+     the rest of the response away to keep one field. The whole thing is
+     kept now for two reasons: the front card has to know whether the
+     archive is empty before it can say anything useful about it, and the
+     gallery tab then opens from memory instead of after a round trip. */
+  try {
+    gallery = await OFN.get('/api/v1/studio/gallery');
+    buildTwins(gallery.vocabulary || []);
+  } catch (_) { buildTwins([]); }
+  try { await loadBoard(); }
+  catch (_) { showState('unreachable'); return; }
+
+  /* Nothing here invents a number. Until the studio surface exists, the card
+     says there is nothing to decide, which is true. */
+  const behind = $('behind');
+  const pending = (status && status.pending_decisions) || 0;
+  if (pending > 0) {
+    behind.hidden = false;
+    behind.textContent = '';
+    behind.append(document.createTextNode('پشت این، '));
+    const b = document.createElement('b');
+    b.textContent = fa(pending) + ' مورد';
+    behind.append(b, document.createTextNode(' دیگر هست'));
+  }
+  tell('live');
+}
+
+/* Ordering: a bare `boot()` here would run while the document is still
+   parsing, which is BEFORE any deferred script has executed — so the
+   Telegram SDK would always look absent and every launch would read as
+   "opened outside Telegram".
+
+   And it is wrapped: a blank screen is the worst failure this app can have,
+   because it says nothing at all. Anything that goes wrong during boot now
+   becomes a sentence on the page instead of silence. */
+/* Say what happened, to the node, whether or not there is a session.
+
+   This phone has no console, no devtools and no way to report anything back,
+   so when a partner says "it opens and there is nothing there" the only
+   evidence used to be the ABSENCE of later requests — and absence cannot
+   tell "opened outside the client" apart from "threw on the fourth line",
+   which have opposite fixes. One line in the journal ends that guessing.
+
+   Fire-and-forget by construction: a diagnostic whose own failure needs
+   diagnosing is worse than none, so nothing waits on it and nothing reads
+   the answer. `keepalive` so a report sent while the view is closing still
+   goes out. */
+function tell(stage, detail) {
+  try {
+    fetch('/api/v1/shell/boot', {
+      method: 'POST', keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: stage, detail: String(detail || '').slice(0, 120) }),
+    }).catch(() => {});
+  } catch (_) { /* never let the report break the page it reports on */ }
+}
+
+function died(err) {
+  const msg = (err && err.message) ? err.message : String(err);
+  tell('threw', msg);
+  /* Through `showState`, not by writing to the box directly: that is what
+     also disables every control. A screen that failed to come up but still
+     shows an operable publish button is the worst of both. */
+  try { showState('broken', 'این صفحه بالا نیامد: ' + msg); }
+  catch (_) {
+    const box = document.getElementById('state');
+    if (box) { box.hidden = false; box.textContent = 'این صفحه بالا نیامد: ' + msg; }
+  }
+}
+
+/* Every async call started from an event handler goes through here.
+
+   A promise created inside a click handler has nobody to reject to. The
+   browser reports it to a console this phone does not have, and the screen
+   simply does not change — so a failed tap is indistinguishable from a
+   button that was never wired up. Both of the tab loaders and both of the
+   two actions were in that state.
+
+   Returns the promise so a caller may still chain; callers that do not are
+   now safe rather than silent. */
+function guard(p, sentence) {
+  return Promise.resolve(p).catch(err => {
+    const msg = (err && err.message) ? err.message : String(err);
+    tell('threw', msg);
+    showState('broken', sentence);
+  });
+}
+
+/* `boot` is async, so a synchronous try/catch around it catches NOTHING —
+   the call returns a promise immediately and any failure inside becomes an
+   unhandled rejection. That is precisely the bug this wrapper was written to
+   prevent, and it had it: every throw during boot left the static markup on
+   screen, which reads as "the app opened and is empty" rather than as an
+   error. Caught on the promise, and again globally, because the two catch
+   different things — a rejection here, a listener error later. */
+function start() {
+  tell('opened');
+  try { boot().catch(died); } catch (err) { died(err); }
+}
+window.addEventListener('error', ev => died(ev.error || ev.message));
+window.addEventListener('unhandledrejection', ev => died(ev.reason));
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', start);
+} else {
+  start();
+}
+</script>
+</body>
+</html>
