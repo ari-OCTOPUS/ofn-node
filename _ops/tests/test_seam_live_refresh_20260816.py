@@ -41,6 +41,5 @@ def test_telegram_extractor_runs_clean():
     r = subprocess.run(
         [sys.executable, "-X", "utf8", str(EXTRACTOR)],
         cwd=str(NVS), capture_output=True, text=True, timeout=120)
-    assert r.returncode == 0, f"extractor failed:
-{r.stderr[-400:]}"
+    assert r.returncode == 0, "extractor failed: " + (r.stderr or "")[-400:]
     assert "refreshed" in (r.stdout or ""), f"خروجی انتظار 'refreshed': {r.stdout[-200:]}"
