@@ -89,6 +89,8 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 > **📌 2026-08-16 (~00:1x): جاروی بدهی EXECUTED** (مگاپرامپت v1.1/v1.2، تفویض کامل مالک «اجازه تصمیم‌گیری داری»): R0a/R13 ✅ (manifest مرز اعتماد + هش‌چک TCB؛ **C-013 resolved** — امضای مالک + فلگ OCTOPUS_TCB_MANIFEST_ENFORCE قدمِ بعد) · R3/C-014 ✅ containment اثبات‌شده (بلوک §R3 در شواهد) · R4-R14 ✅ (۱۵ شکست بسته + **۱ باگ تولیدی واقعی**: def callback در collaborator از کامیت 55720f7) · R19 AEB ✅ · R20/R16/R18 مصنوع ✅ · R21-R27 طبق جدول · R2 push ✅. **بازِ دستِ مالک: R1 چرخش PAT (پچ آماده) · امضای trust-boundary.json + AEB.txt · روشن‌کردن enforce · R21 انتخاب ممیز · رأی سیاست صف R16 و DA-1/2/3.** جزئیات: [[../06-EVIDENCE/DEBT-SWEEP-2026-08-16|DEBT-SWEEP]] · [[../02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/DA-1-INDEPENDENT-EVALUATOR|مصنوعات تصمیم DA-1..6]].
 
+> **📌 2026-08-16 شب — شبِ راحتی مالک اجرا شد:** پنج فاز کامل ([[../06-EVIDENCE/REST-NIGHT-2026-08-16|REST-NIGHT]]) · ۳ فیکس کد + ۱۳ فیکس وب + قتلِ 8765 · تست‌ها 326/16/3 · ۵ کارت صبح: [[../00 - Inbox/2026-08-17 MORNING-CARDS|MORNING-CARDS]].
+
 > **📌 مأموریت فعال (2026-08-16 عصر — تفویض جامع):** `agent-prompts/MEGAPROMPT-OWNER-REST-2026-08-16.md` — پوش آزاد (C-023 حل) · خودکار+کارت شبانه · ترتیب: درز→وب‌پنل→R16مصرف→DAها→ریزکارها · ۴ کارت مصوب. کامیت‌های معقل پوش شدند (تا 863957b).
 
 > **📌 مأموریت بعدی (2026-08-16 عصر):** `agent-prompts/MEGAPROMPT-WEBPANEL-REALITY-2026-08-16.md` — کشف همهٔ تب‌ها/دکمه‌ها/گزینه‌های پنل‌های وب (OCTOPUS/*.html · worlds · MiniApp 8774 · 01-Dashboard) · سنجش هر آیتم با واقعیت کد/ابسیدین (حکم REAL/STALE/MOCK/DEAD/PHANTOM) · دیباگ و واقعی‌سازی طبقهٔ A یا کارت · گاوج‌های ۵گانه (درصد REAL قبل/بعد و…).
