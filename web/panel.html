@@ -1054,6 +1054,43 @@ function drawMetrics(m) {
   diskCell.append(diskBar);
   grid.append(diskCell);
 
+  /* Board↔octopus sync — heartbeat age, services, wire, owner backlog.
+     Fed by sysmetrics.sync from the heartbeat service's status.json. An
+     unavailable or stale reading is shown as such, never as a healthy 0. */
+  const sync = m.sync || {};
+  const syncCell = mk('div', 'mcell');
+  syncCell.append(mk('div', 'mlab', '🐙 سینک و ضربان'));
+  if (!sync.available) {
+    syncCell.append(mk('div', 'mval', '—'));
+    syncCell.append(mk('div', 'msub',
+      sync.reason === 'not configured' ? 'غیرفعال' : 'خوانده نشد'));
+  } else {
+    const sv = mk('div', 'mval', sync.stale ? '⚠ قدیمی' : 'زنده');
+    sv.style.color = sync.stale ? 'var(--bad)' : 'var(--ok)';
+    syncCell.append(sv);
+    const a = sync.age_s;
+    const sub = [];
+    if (a != null) {
+      const ageTxt = a < 90 ? fa(Math.round(a)) + ' ثانیه پیش'
+        : a < 5400 ? fa(Math.round(a / 60)) + ' دقیقه پیش'
+        : fa(Math.round(a / 3600)) + ' ساعت پیش';
+      sub.push('ضربان ' + fa(sync.beat ?? 0) + ' · ' + ageTxt);
+    }
+    const svc = sync.services || {};
+    const parts = [];
+    if (svc.ofn) parts.push('ofn ' + (svc.ofn === 'active' ? '✓' : '✗'));
+    if (svc.cloudflared) parts.push('تونل ' + (svc.cloudflared === 'active' ? '✓' : '✗'));
+    if (svc.octopus_bridge) parts.push('بریج ' + (svc.octopus_bridge === 'active' ? '✓' : 'خاموش'));
+    if (parts.length) sub.push(parts.join(' · '));
+    const wire = sync.wire || {};
+    if (wire.last_windows_msg && wire.last_windows_msg.indexOf('id:') === 0) {
+      sub.push('ویندوز: ' + wire.last_windows_msg.split(' @ ')[0]);
+    }
+    sub.push('بک‌لاگ مالک: ' + fa(sync.backlog_open ?? 0) + ' قلم');
+    syncCell.append(mk('div', 'msub', sub.join(' — ')));
+  }
+  grid.append(syncCell);
+
   box.append(grid);
 }
 

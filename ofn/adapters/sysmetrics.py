@@ -12,7 +12,9 @@ pair is the exact shape of a decision made against the wrong screen.
 
 from __future__ import annotations
 
+import json
 import os
+from datetime import datetime, timezone
 from typing import Mapping
 
 
@@ -20,6 +22,21 @@ _THERMAL_BASE = "/sys/class/thermal"
 _PROC_MEMINFO = "/proc/meminfo"
 _PROC_LOADAVG = "/proc/loadavg"
 _PROC_UPTIME = "/proc/uptime"
+
+# Board↔octopus sync status: a small JSON file the heartbeat service
+# rewrites every beat. The path comes from the environment so the kernel
+# never hardcodes a board path; unset means the feature is off on this
+# deployment and the panel shows "غیرفعال" instead of a fabricated zero.
+_SYNC_FILE_ENV = "OFN_SYNC_STATUS_FILE"
+# A beat is written every 30s. Past this age the reading is called stale so
+# the panel colours it — the same rule as the temperature colours: a signal,
+# not a gate. Five minutes tolerates one push cycle without a false alarm.
+_SYNC_STALE_S = 300.0
+# Only these keys are copied from the file into the API response, so the
+# endpoint can never echo arbitrary file content it was not designed for.
+_SYNC_KEYS = ("beat", "time", "services", "legs_healthz", "wire",
+              "backlog_open")
+_SYNC_MAX_BYTES = 65536
 
 # Which thermal zones the panel cares about, by their `type` field. Reading
 # by type (not by index) survives kernel re-ordering; the index is not a
@@ -106,6 +123,42 @@ def _read_disk(path: str) -> dict[str, int]:
         return {"total_b": 0, "free_b": 0, "used_b": 0}
 
 
+def _read_sync() -> dict:
+    """Board↔octopus live-sync status, as written by the heartbeat service.
+
+    Same never-fabricate rule as the thermal zones: unreadable, unconfigured,
+    or malformed input becomes `available: False` with a short reason — never
+    a plausible-looking zero. `stale` is True when the timestamp is older
+    than _SYNC_STALE_S or cannot be parsed at all, so a dead heartbeat shows
+    up on the panel instead of freezing as a healthy reading.
+    """
+    path = os.environ.get(_SYNC_FILE_ENV, "")
+    if not path:
+        return {"available": False, "reason": "not configured"}
+    try:
+        with open(path, "rb") as f:
+            data = json.loads(f.read(_SYNC_MAX_BYTES))
+        if not isinstance(data, dict):
+            raise ValueError("not an object")
+    except (OSError, ValueError):
+        return {"available": False, "reason": "unreadable"}
+    out: dict[str, object] = {"available": True}
+    for key in _SYNC_KEYS:
+        if key in data:
+            out[key] = data[key]
+    age: float | None = None
+    try:
+        t = datetime.fromisoformat(str(data.get("time", "")))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        age = max(0.0, (datetime.now(timezone.utc) - t).total_seconds())
+    except (TypeError, ValueError):
+        age = None
+    out["age_s"] = age
+    out["stale"] = age is None or age > _SYNC_STALE_S
+    return out
+
+
 def snapshot(state_dir: str = "") -> dict:
     """One read of every metric the panel shows. Always returns a dict with
     every key present, so the panel's renderer has no missing-key branches."""
@@ -129,4 +182,5 @@ def snapshot(state_dir: str = "") -> dict:
         "loadavg": list(load) if load else [],
         "uptime_s": uptime,
         "disk": disk,
+        "sync": _read_sync(),
     }

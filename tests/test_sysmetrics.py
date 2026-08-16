@@ -5,9 +5,11 @@ No real hardware needed; all source files are created in temp directories.
 
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 from ofn.adapters import sysmetrics
@@ -331,6 +333,117 @@ class TestSnapshot(unittest.TestCase):
         self.assertFalse(result["throttling"])
         # loadavg should be [] since /dev/null parse fails
         self.assertEqual(result["loadavg"], [])
+        # sync is always present — unavailable, never missing
+        self.assertIn("sync", result)
+        self.assertFalse(result["sync"]["available"])
+
+
+class TestSync(unittest.TestCase):
+    """_read_sync() — the board↔octopus status file the heartbeat writes.
+
+    The never-fabricate rule applies: unconfigured/unreadable/garbage all
+    become available=False with a short reason, and a timestamp that cannot
+    be parsed marks the reading stale rather than fresh.
+    """
+
+    def _write_status(self, tmpdir: str, payload) -> str:
+        path = os.path.join(tmpdir, "status.json")
+        with open(path, "w", encoding="utf-8") as f:
+            if isinstance(payload, str):
+                f.write(payload)
+            else:
+                json.dump(payload, f)
+        return path
+
+    def test_not_configured_when_env_unset(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            result = sysmetrics._read_sync()
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "not configured")
+
+    def test_missing_file_is_unreadable(self):
+        with mock.patch.dict(os.environ,
+                             {sysmetrics._SYNC_FILE_ENV: "/nonexistent/x.json"}):
+            result = sysmetrics._read_sync()
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "unreadable")
+
+    def test_garbage_json_is_unreadable(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            path = self._write_status(tmp.name, "{not json at all")
+            with mock.patch.dict(os.environ, {sysmetrics._SYNC_FILE_ENV: path}):
+                result = sysmetrics._read_sync()
+        finally:
+            tmp.cleanup()
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "unreadable")
+
+    def test_reads_fresh_file(self):
+        now = datetime.now(timezone.utc).isoformat()
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            path = self._write_status(tmp.name, {
+                "beat": 42, "time": now,
+                "services": {"ofn": "active"},
+                "legs_healthz": {"panel": 200},
+                "wire": {"last_windows_msg": "id:w001 @ t"},
+                "backlog_open": 3,
+            })
+            with mock.patch.dict(os.environ, {sysmetrics._SYNC_FILE_ENV: path}):
+                result = sysmetrics._read_sync()
+        finally:
+            tmp.cleanup()
+        self.assertTrue(result["available"])
+        self.assertEqual(result["beat"], 42)
+        self.assertEqual(result["services"], {"ofn": "active"})
+        self.assertEqual(result["backlog_open"], 3)
+        self.assertIsNotNone(result["age_s"])
+        self.assertGreaterEqual(result["age_s"], 0.0)
+        self.assertFalse(result["stale"])
+
+    def test_old_timestamp_is_stale(self):
+        old = (datetime.now(timezone.utc)
+               - timedelta(seconds=sysmetrics._SYNC_STALE_S + 100)).isoformat()
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            path = self._write_status(tmp.name, {"beat": 1, "time": old})
+            with mock.patch.dict(os.environ, {sysmetrics._SYNC_FILE_ENV: path}):
+                result = sysmetrics._read_sync()
+        finally:
+            tmp.cleanup()
+        self.assertTrue(result["available"])
+        self.assertTrue(result["stale"])
+
+    def test_unparseable_timestamp_marks_stale(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            path = self._write_status(tmp.name, {"beat": 2, "time": "yesterday"})
+            with mock.patch.dict(os.environ, {sysmetrics._SYNC_FILE_ENV: path}):
+                result = sysmetrics._read_sync()
+        finally:
+            tmp.cleanup()
+        self.assertTrue(result["available"])
+        self.assertIsNone(result["age_s"])
+        self.assertTrue(result["stale"])
+
+    def test_unknown_keys_are_dropped(self):
+        now = datetime.now(timezone.utc).isoformat()
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            path = self._write_status(tmp.name, {
+                "beat": 7, "time": now,
+                "secrets": "should never pass through",
+                "arbitrary_injection": {"x": 1},
+            })
+            with mock.patch.dict(os.environ, {sysmetrics._SYNC_FILE_ENV: path}):
+                result = sysmetrics._read_sync()
+        finally:
+            tmp.cleanup()
+        self.assertTrue(result["available"])
+        self.assertNotIn("secrets", result)
+        self.assertNotIn("arbitrary_injection", result)
+        self.assertEqual(result["beat"], 7)
 
 
 if __name__ == "__main__":
