@@ -39,13 +39,18 @@ C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall —
 
 ## رأی‌های باز (صف مالک)
 
+> 📋 **دفتر واحد همهٔ کارهای باز مالک:** [[2026-08-16 OWNER-PENDING — All Open Items (Master Checklist)|OWNER-PENDING Master Checklist]] — برای پیگیری با هر ایجنت بعدی، فقط همین فایل + STATE کافی است.
+
 | رأی | موضوع | منبع |
 |---|---|---|
+| 🔴 | «پوش» — دو کامیت محلی منتظر کلمه: `0670297` (پایان ERRORHUNT) + `5922d39` (**مگاپرامپت دومِ بی‌گزارش** continuous-improvement) | git log |
+| 🔴 | انتخاب مگاپرامپت ایجنت بعدی: DEEP-SEAMS (GLM) یا continuous-improvement (Cursor) — هم‌پوشان؛ پیشنهاد: پشت‌سرهم | agent-prompts/ |
 | VOTE 1-5 | منشای حافظه · ماندگاری ابطال PEP · گارد استقلال belief · پیش‌بینی‌گر پایداری (با قید روزهای گذار) · پیکربندی عضو شورا | [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|HARD-TEST Scorecard]] |
 | + | فیکس C-026 (enabled() در approve/reject) | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |
-| + | بودجهٔ deepseek + پروب $0.008 | [[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3]] |
+| + | بودجهٔ deepseek — پروب اجرا شد و رد شد (تفکیک 0.1)؛ پیشنهاد نهایی: همان بماند | [[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3]] |
+| + | چهار کارت ERRORHUNT (پروب Fugu · سقف سوکت reason · HF_TOKEN · هش کرنل) + بازماندهٔ LiveDataRefresh | [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|ERRORHUNT-CARDS]] |
 | + | (قدیمی‌تر) فعال‌سازی PEP · DA-6 · DA-1 L2/L3 · ری‌استارت رسمی برای ۳ عضو env-قدیمی | STATE §8 |
 
 ## وضعیت زنده در پایان روز
 
-دیمون 4d نسل ۳ زنده (enforce مسلح) · readback پس از فیکس ۱۰۰٪ · صف ۳۹۷/۷۵۷ · M1=1.0 · اولاما سبک و خلوت (VRAM 163MB) · push صفر عقب‌مانده.
+دیمون 4d نسل ۳ زنده (enforce مسلح) · readback پس از فیکس ۱۰۰٪ · صف ۳۹۷/۷۵۷ · M1=1.0 · اولاما سبک و خلوت (VRAM 163MB) · **دو کامیت محلی در انتظار «پوش» مالک** (بالا 🔴).
