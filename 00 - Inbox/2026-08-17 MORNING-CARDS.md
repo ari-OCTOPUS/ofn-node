@@ -39,3 +39,21 @@ openssl pkeyutl -verify -pubin -inkey "_ops\owner-signing\octopus-owner-ed25519-
 - **گاوج #۱ (نرخ بستن حلقهٔ ۷روزه):** انبار deep-ledgerِ improve نقشه نشد — UNKNOWN ماند. بله = نشست بعد می‌سازدش.
 - **ریشهٔ «cortex تلاق دوم»:** سه بارِ مستند امشب؛ فرضیه: چرخهٔ ~۱۲۰s استاپ‌مارکر دیر می‌بیند. بله = نشست بعد لاگ-تریس می‌گیرد.
 - **وضعیت shadow→live 4d (ثبت):** دایمن LIVE + سیکل propose فعال (self_code_on)؛ باقیِ مسیر = approve-gate (کارت ۱) + C-024 (env دیمون). کار اضافهٔ امشب لازم نشد — صادقانه.
+
+---
+
+## الحاقیهٔ OFN — دستورهای git-remote (رأی مالک 2026-08-16 ~15:4x: «git remote روی برد»)
+
+### روی برد (شما اجرا کنید — یک‌بار)
+```bash
+cd /مسیر/پروژه‌های/برد
+git init 2>/dev/null; git add -A; git commit -m "ofn: snapshot برد — مقدم بر محلی (NBB-V5)"
+git remote add germline "E:/germline/octopus.git" 2>/dev/null || git remote set-url germline "E:/germline/octopus.git"
+# اگر E: از برد دیده نمی‌شود: از ویندوز یک share بسازید یا مسیر شبکه بدهید.
+git push germline master:ofn/board-snapshot   # شاخهٔ جدا — هیچ overwrite ای روی master نیست
+```
+
+### در ویندوز (ایجنت — پس از پوش شما، خودکار)
+`git fetch germline && git worktree/clone در _ofn-mirror/` → جدول diff per-پا → گزارش → ادغام جداگانه با رأی شما + بکاپ .prev-
+
+**اصل:** برد مقدم؛ هیچ فایل محلی روی برد نمی‌رود تا diff دیده شود.
