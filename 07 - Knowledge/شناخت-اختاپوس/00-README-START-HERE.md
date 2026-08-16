@@ -4,11 +4,19 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, index]
 created: 2026-07-18
-updated: 2026-08-15
+updated: 2026-08-16
 ---
 
 # 🐙 شناخت اختاپوس — نقطهٔ ورود
 
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ بعدازظهر.** شب ۱۵↯۱۶ بسته شد. **ورود عملیاتی امروز:**
+> [[../../01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] ·
+> [[../../00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] ·
+> [[../../00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] ·
+> نوت ماندگار [[49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]]
+> (شکار خطا + درس ۱۰–۱۳ + ثبت تست). مگاپرامپت ۳ اوت تاریخی است.
+> آزاد بعدی: **C-027**. پوش فقط با کلمهٔ مالک.
+>
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۵ شب.** شورای دوم + فکت‌چک TCB در
 > [[48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] و پوشهٔ
 > [[../OCTOPUS-COUNCIL-2-2026-08-15/README|OCTOPUS-COUNCIL-2]]. رأی: NO-GO دقیق‌تر
@@ -110,6 +118,7 @@ updated: 2026-08-15
 | **46-BOARD-CP-PHASE1** | Control Plane ویندوز (board-pull) + بریف فاز ۲ برد | ۲۰۲۶-۰۸-۱۳ |
 | **47-DESKTOP-LAB-D1-D8-GOVERNANCE** | ⭐ **نقطهٔ ورودِ سیزن آزمایشگاه دسکتاپ** — بستهٔ مهرشده، ممیزی همان‌محیط، waiver، v2 آلوده، v3 تمیز. رسمی: D1/D6 NOT_STARTED · PASS شخص ثالث FALSE | ۲۰۲۶-۰۸-۱۵ |
 | **48-SECOND-COUNCIL-TCB-ATTRIBUTION** | ⭐ **شورای دوم + فکت‌چک TCB** — NO-GO دقیق‌تر (مالک پذیرفت)؛ انتساب ویرایش `automation.py` = ایجنت جاروی تست نه مالک؛ پوشهٔ اسناد [[../OCTOPUS-COUNCIL-2-2026-08-15/README|COUNCIL-2]]؛ مگاپرامپت DEBT-SWEEP v1.1 | ۲۰۲۶-۰۸-۱۵ |
+| **49-NIGHT-CLOSE-ERRORHUNT-PERSIST** | ⭐ **بستن شب + شکار خطا ماندگار** — اعداد زنده recall 14.4% · Tick/Watch LastResult=0 · circuit دیسک half_open · درس ۱۰–۱۳ · ۳ تست در run_all · LiveDataRefresh هنوز FILE_NOT_FOUND | ۲۰۲۶-۰۸-۱۶ |
 | **Inbox SELF-CONTAINED Architecture** | ⭐ **دیپ‌اسکن معماری برای قاضی خارجی** — کپی کامل: [[../../00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents\|SELF-CONTAINED 2026-08-15]] · ۵ پروسه · dual-stackها · NO-GO + تنش Hypothesis=1 | ۲۰۲۶-۰۸-۱۵ |
 | **Inbox MEGAPROMPT Hidden Caps** | ⭐ **کشف قابلیت پنهان** — کاشف نه مسلح‌کننده: [[../../00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery\|MEGAPROMPT 2026-08-15]] · ۸ کلاس · اسکنر زنده · اعداد کهنه باطل | ۲۰۲۶-۰۸-۱۵ |
 | **Inbox REPORT Forgotten Gaps** | ⭐ **شکاف‌های فراموش‌شده برای ایجنت بعدی** — [[../../00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent\|REPORT 23:25]] · دوباره نکن C-013/C-014 · تلهٔ آرشیو _octopus/PRIME · SoT ≠ OPEN-VERDICTS صبح | ۲۰۲۶-۰۸-۱۵ |

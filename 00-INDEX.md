@@ -24,7 +24,7 @@ status_legend:
 > این فایل خروجی STEP 1 مگاپرامپت است: انventory کامل فقط-خواندنی.
 > تاریخ ثبت: 2026-08-15. هیچ فایلی برای ساخت این ایندکس تغییر/حذف نشده.
 
-> 🌙 **پایان شب 15↯16 اوت:** [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] — هر ۴ مگاپرامپت اجرا شد · M3 9.28→14.4% · HARDTEST: S5 REAL/S6 METAPHOR · C-019..C-026 · بازِ رأی: پوش·SELF_CODE·۵کارت·ممیز·PAT. آزاد بعدی: C-027.
+> 🌙 **پایان شب 15↯16 اوت:** [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] — هر ۴ مگاپرامپت اجرا شد · M3 9.28→14.4% · ERRORHUNT: circuit half_open + Watch=0 · HARDTEST: S5 REAL/S6 METAPHOR · C-019..C-026 · آزاد بعدی: C-027. پوش فقط با کلمه.
 
 ## ۰. رأی‌های مالک (2026-08-15، این جلسه)
 

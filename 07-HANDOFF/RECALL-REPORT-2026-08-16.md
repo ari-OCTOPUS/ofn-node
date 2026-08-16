@@ -13,9 +13,9 @@ audience: next-agent
 
 ## برای ایجنت بعد
 1. اگر مالک کارت ۱ را داد: `RESTART-ALL.ps1` سپس یک سیکل صبر کن و `recall_reach` را دوباره بگیر — ردیف ۶۲۵ نباید `sk=[]` شود.
-2. تست ثبت‌نشده (WORKLOCK): `_ops/tests/test_recall_loop_distant.py` — در `run_all.py` ثبت نکن مگر lane آزاد.
-3. تسک ویندوزی: `OCTOPUS 4d Consolidation Tick` — لاگ در `06-EVIDENCE/POISONING-WATCH-4d.md`.
-4. C-022 آزاد است. C-021 = NaN-hash recall (این نشست). C-019 = 4d بی‌قلاب daemon (contained با تسک).
+2. تست `_ops/tests/test_recall_loop_distant.py` **ثبت شد** در `run_all.py` (۸/۸). دوباره ثبت نکن.
+3. تسک ویندوزی: `OCTOPUS 4d Consolidation Tick` — Ready · LastResult=0 · LastRun 13:12. لاگ در `06-EVIDENCE/POISONING-WATCH-4d.md`.
+4. آزاد بعدی: **C-027**. C-021 = NaN-hash recall. C-022 = circuit snapshot (ERRORHUNT، دیسک half_open). C-019 = 4d بی‌قلاب daemon (contained با تسک).
 
 ## نکن
 حذف کلید برای «بهبود» آمار · لمس TCB · فلگ تازه · فعال‌سازی یادگیری/NO-GO.

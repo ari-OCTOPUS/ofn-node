@@ -22,7 +22,7 @@ next_free_contradiction: C-027
 | ۵ | سنجش | M1..M10 با روش یکدست؛ M1=1.0 windowed | [[../06-EVIDENCE/MEASUREMENT-2026-08-16|MEASUREMENT]] |
 | ۶ | جاروی تست | نخستین run_all کامل تاریخ؛ C-012 فاز صفر سیم‌کشی | [[../06-EVIDENCE/TEST-SWEEP-2026-08-16|TEST-SWEEP]] |
 | ۷ | کشف unwired | کلاس ۹ نظام‌مند شد؛ تسک Tick اعلام‌شده-اجرنشده | [[2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog|UNWIRED کاتالوگ]] |
-| ۸ | شکار خطا | ۷روز خطا خوشه‌بندی؛ readback پس از فیکس 67/67؛ فیکس persist تنشد circuit | [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] |
+| ۸ | شکار خطا | ۷روز خطا خوشه‌بندی؛ readback 67/67؛ C-022 دیسک half_open؛ Watch تعمیر؛ ۳ تست در run_all | [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] |
 | ۹ | حلقهٔ recall | M3 از 58/2.0 به 90/21.0؛ ریشه NaN در hash-as-float32 (C-021) | [[../06-EVIDENCE/RECALL-LOOP-2026-08-16|RECALL-LOOP]] |
 | ۱۰ | **تست سخت قابلیت‌ها** (این نشست) | شش قابلیت با حمله: S5 خودترمیمی REAL · S1-S4 PARTIAL · **S6 پیش‌بینی METAPHOR + مسیر بهبود واقعی** | [[../06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16|HARDTEST]] · [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|کارت امتیاز]] |
 | ۱۱ | صلیب‌چک مستقل (Sonnet 5) | S1/S4/S6 بازسازی مستقل = تأیید؛ **C-026 approve/reject بی‌گیت**؛ قید روزهای گذار برای VOTE 4 | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |

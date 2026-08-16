@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [selfimprove, ledger, ops]
 created: 2026-07-05
-updated: 2026-08-02
+updated: 2026-08-16
 ---
 
 # EXPERIENCE-LEDGER — حافظهٔ انباشتی چرخهٔ خودبهبودی
@@ -167,3 +167,12 @@ updated: 2026-08-02
   همگی set شوند — وگرنه `BLOCKED_NEEDS_AUTH_CONFIG`. هرگز endpoint عمومیِ بدونِ
   owner-gate برای action نساز. **Telegram MiniApp must be auth-gated; read-only
   first, actions later.**
+
+## 2026-08-16 — ERRORHUNT / بستن شب
+
+| تاریخ | منبع | نوع | درس | وضعیت |
+|---|---|---|---|---|
+| 2026-08-16 | errorhunt | regress | برداشت regex ≠ شمار (`REVIVE` روی «no revive») — pass-2 با sqlite/منبع حقیقت اجباری است | applied |
+| 2026-08-16 | errorhunt | tune | `closed`+`opened_at` پر = ریست نه ریکاوری؛ persist تنزل به half_open (C-022)؛ دیسک زنده 13:1x half_open شد | applied |
+| 2026-08-16 | errorhunt | regress | مرگ مانیتور (FILE_NOT_FOUND) خطای درجهٔ یک است نه سکوت؛ Watch با python.exe مطلق تعمیر شد؛ `OctopusLiveDataRefresh` هنوز شکسته | pending |
+| 2026-08-16 | errorhunt | tune | beatِ بلعنده‌ی استثنا قرارداد را پنهان می‌کند — `mark_nudged()` ×۱۱؛ فیکس در HEAD؛ آخرین خطا 11:31 | applied |

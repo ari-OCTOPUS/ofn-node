@@ -2,7 +2,7 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-08-15
+updated: 2026-08-16
 ---
 
 # خانه — داشبورد اصلی
@@ -12,6 +12,7 @@ updated: 2026-08-15
 > 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (عکس لحظه‌ای — snapshot ۲۰۲۶-۰۷-۰۶، **زنده نیست**، برنامهٔ بازنویسیِ ۳ساعته هرگز دیپلوی نشد) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
 >
 > 🐙 **اختاپوس زنده:** [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck]] · ADR-035 APPLY=1
+> 🐙 **ورود ایجنت امروز (2026-08-16):** [[01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] · [[00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]]
 > 🐙 **مگاپرامپت کشف پنهان (2026-08-15):** [[00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery|Hidden Capabilities Discovery]] — کاشف نه مسلح‌کننده
 > 🐙 **دیپ‌اسکن معماری برای قاضی (2026-08-15 ~22:45):** [[00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents|SELF-CONTAINED Architecture Deep-Scan]] — کپی کامل به ایجنت خارجی
 > 🐙 **شورای دوم (2026-08-15 دیرشب):** [[07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] — NO-GO دقیق‌تر پذیرفته؛ مگاپرامپت DEBT-SWEEP v1.2

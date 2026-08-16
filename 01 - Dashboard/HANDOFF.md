@@ -34,7 +34,7 @@ updated: 2026-08-16
 > صلیب‌چکِ مستقل (سشنِ دیگر، S1/S4/S6 از صفر بازسازی شد، S2/S3/S5 فقط نقدِ کد): [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|HARDTEST-CROSSCHECK]] — **تأییدِ کاملِ S1/S4** + یک شکافِ نو (E3: حذفِ انتهای زنجیرهٔ شواهد تشخیص داده نمی‌شود) + یک باگِ نو (**C-026**: self_code approve/reject هرگز SELF_CODE_ENABLED را چک نمی‌کند) + قیدِ مهم روی S6 (پایداریِ «بهتر» خودش فقط تشخیصِ رژیمِ جاری است، نه پیش‌بینیِ گذار — روی ۱۸/۳۵۰ روزِ باخبر Brier=0.808، بدتر از مدلِ ثبت‌شده).
 > آزاد بعدی: **C-027**. صفر فلگ/TCB/حذف/push در هر دو سند.
 
-> 🎯 **پین 2026-08-16 ~11:5x — شکار خطا:** [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07-HANDOFF/ERRORHUNT-REPORT-2026-08-16|گزارش]] · C-022 contained · کارت‌ها [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|۵ رأی]]
+> 🎯 **پین 2026-08-16 ~13:1x — شکار خطا بسته شد:** [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07-HANDOFF/ERRORHUNT-REPORT-2026-08-16|گزارش]] · [[../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]] · C-022 روی دیسک half_open · Watch LastResult=0 · ۳ تست در run_all · کارت ۲ انجام · ۴ رأی باز + LiveDataRefresh. آزاد **C-027**.
 
 > 🎯 **پین 2026-08-16 ~11:4x — کشف کدِ بی‌فراخوان (کلاس ۹):**
 > [[../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]] ·

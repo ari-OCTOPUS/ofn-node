@@ -28,9 +28,12 @@ updated: 2026-08-16
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-16 (agent — بستن ERRORHUNT + ماندگارسازی برای ایجنت بعد).**
+  نوت [[../../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹]] · circuit دیسک half_open · ۳ تست در run_all · Watch LastResult=0 · آزاد C-027. پوش نشد.
+
 - تغییرات اخیر: **2026-08-16 (agent — کشف مسیرهای مرده / کلاس ۹).**
   نقشه نه سیم‌کشی. کاتالوگ: [[../../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]].
-  C-019 contained-روی-کاغذ (تسک Tick موازی هنوز شلیک نشده). C-020 ثبت. آزاد C-025.
+  C-019 contained (تسک Tick در 13:12 با python.exe مطلق شلیک شد، Result=0). C-020 ثبت. آزاد C-027.
 
 - تغییرات اخیر: **2026-08-15 (agent — ثبت سیزن آزمایشگاه دسکتاپ در vault).**
   خط زندهٔ `_ops` دست نخورده. SoT سیزن: [[../../07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]].
