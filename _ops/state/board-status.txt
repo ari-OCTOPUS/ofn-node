@@ -1,7 +1,2 @@
-2026-08-16T23:00:52+10:00 · source=ofn/heartbeat 88ff37e
-· beat · 601 ·
-· time · 2026-08-16T22:57:36+10:00 ·
-· disk_root_used · 19% ·
-· temp_c · 25.0 ·
-· svc_octopus_bridge · active ·
-· wire_last_windows_msg · (no windows message yet) ·
+2026-08-17T03:02:39+10:00 · source=ofn/heartbeat 743edf7 · beat=1001 · 02:52+10 · bridge=active · wire_last_windows_msg=STALE
+DIAG-2026-08-17T03:0x: transport زنده است (probe-3 → dispatched در <15s ⇒ حلقهٔ pull bridge کار می‌کند) ولی لایهٔ ایجنتِ برد ساکت است: از b003 (17:35+10 دیروز) نه ack آمده نه reply وایر؛ سه فرمان dispatched معلق. وایر-واچ برد هم هنوز GitHub می‌خواند. w003 منتظر پاسخ برد است.
