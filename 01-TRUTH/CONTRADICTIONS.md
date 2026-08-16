@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-026** (C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-027** (C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -396,4 +396,19 @@ contradiction:
   resolution: null — پیشنهاد: یکی‌سازی نرمال‌سازی (فشرده‌سازی \s+ در SQL با REPLACEهای زنجیره‌ای یا محاسبهٔ کلید در پایتون و پرس‌وجو با همان رشته) + تستِ دوقلوی فاصله؛ نیازمند رأی چون automation.py/مهاجرت TCB-مجاورند
   status: open — owner_vote
   registered_by: "hard-test agent 2026-08-16 ~12:5x (grep دو-مخزن پیش از ثبت: C-025 فقط به‌عنوان «آزاد بعدی» در پین‌ها بود؛ C-019..C-024 مصرفِ ایجنت‌های موازی)"
+```
+
+```yaml
+contradiction:
+  id: C-026
+  claim: "SELF_CODE_ENABLED=0 یعنی هیچ تغییرِ خودکدی نمی‌تواند اعمال شود"
+  value_a: "مستندِ ماژول self_code.py: خودمختاریِ کامل «پشتِ گاردِ brain/guardrails عبور می‌کند» + فلگ enabled() نگهبانِ اصلی است"
+  value_b: "approve()/reject() (self_code.py:388-479) هرگز enabled() را چک نمی‌کنند — فقط propose_code_change/auto_propose_once (200-201, 529-530) چک می‌کنند. پیشنهادِ ساخته‌شده حین ON، بعد از OFF شدنِ فلگ هم approve/apply-پذیر می‌ماند. STOP-CODE-AUTONOMY صفر ارجاع در 4d_system دارد (grep)."
+  source_b: "خواندنِ مستقیمِ کد 2026-08-16 (سشنِ کراس‌چکِ hard-test) — static read با line citation، بدون اجرای approve واقعی روی پیشنهادِ زنده"
+  live_check: "grep 'STOP-CODE-AUTONOMY' 4d_system/ → صفر مورد؛ grep 'enabled()' self_code.py → فقط در propose_code_change/auto_propose_once"
+  likely: value_b
+  resolution: null — پیشنهاد: approve()/reject() هم enabled() را چک کنند (یا حداقل approve را با OFF رد کنند با پیام صریح) — additive، بدون تغییرِ رفتارِ فعلیِ ON
+  status: open — owner_vote
+  registered_by: "hardtest-crosscheck agent 2026-08-16 ~13:1x (grep دو-مخزن پیش از ثبت: C-026 آزاد بود)"
+  cross_ref: "هم‌خانوادهٔ C-024 (فلگِ زنده در env دیمون) ولی مکانیزمِ متفاوت — C-024 دربارهٔ روشن‌بودنِ فلگ است، این دربارهٔ بی‌اثریِ خاموش‌کردنش روی صفِ pending. جزئیات: [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|HARDTEST-CROSSCHECK]]"
 ```
