@@ -34,14 +34,13 @@ def test_bat_no_bare_python_absolute_only():
         "PY_EXE مطلق (الگوی Watch) باید تعریف باشد"
 
 
-def test_telegram_extractor_compiles_and_has_local_has_handler():
-    src = EXTRACTOR.read_text("utf-8")
-    tree = ast.parse(src)  # NameErrorِ سطح-ماژول اینجا نمی‌گیرد؛ برای آن، جستجوی تعریف:
-    main_fn = next(n for n in ast.walk(tree)
-                   if isinstance(n, ast.FunctionDef) and n.name == "main")
-    assigned = {t.id for n in ast.walk(main_fn) if isinstance(n, ast.Assign)
-                for t in n.targets if isinstance(t, ast.Name)}
-    used = {n.id for n in ast.walk(main_fn) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)}
-    undefined = {u for u in used if u not in assigned and u not in
-                 {"print", "len", "dict", "set", "str", "int", "frozenset", "sorted"}}  # builtins رایج
-    assert not undefined, f"متغیر بدون تعریف در main(): {undefined} (درزِ C1 همین بود: has_handler)"
+def test_telegram_extractor_runs_clean():
+    """قفلِ واقعی C1: استخراجگر باید بدون NameError تا انتها برود و خروجی بدهد.
+    (رگرسیونِ has_handler — قبل از فیکس همین اجرا می‌ترکید.)"""
+    import subprocess, sys
+    r = subprocess.run(
+        [sys.executable, "-X", "utf8", str(EXTRACTOR)],
+        cwd=str(NVS), capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, f"extractor failed:
+{r.stderr[-400:]}"
+    assert "refreshed" in (r.stdout or ""), f"خروجی انتظار 'refreshed': {r.stdout[-200:]}"
