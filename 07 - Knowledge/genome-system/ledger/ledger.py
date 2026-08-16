@@ -135,6 +135,26 @@ class _AppendLock:
             self.tlock.release()
 
 
+# ── SEAM-LOOP 1-4 (مصوب مالک 2026-08-16): نمونه‌گیریِ صدای پرتکرار ──────────
+# scheduler در یک هفته ۳۶۲۶ از ۴۵۰۱ رویداد لجر را می‌نویسد (۸۱٪). مکانیزم:
+# نگه‌داشتنِ هر k-اُم رویدادِ آن actor (قطعی، بدون RNG — قابل ممیزی).
+# پیش‌فرض 1.0 = همه می‌مانند = رفتارِ بایت‌به‌بایتِ امروز. تغییر نرخ = کارت مالک.
+_ACTOR_SAMPLING: dict[str, float] = {}
+_SAMPLE_COUNTERS: dict[str, int] = {}
+
+
+def set_actor_sampling(actor: str, rate: float) -> None:
+    """نرخ نگه‌داری برای actor (0..1]. پیش‌فرض غیبت = 1.0 (همه)."""
+    if not (0.0 < float(rate) <= 1.0):
+        raise ValueError(f"rate must be in (0,1], got {rate!r}")
+    _ACTOR_SAMPLING[actor] = float(rate)
+    _SAMPLE_COUNTERS.pop(actor, None)
+
+
+def get_actor_sampling() -> dict[str, float]:
+    return dict(_ACTOR_SAMPLING)
+
+
 @dataclass
 class Ledger:
     path: Path
@@ -187,6 +207,14 @@ class Ledger:
         if event_type not in EVENT_TYPES:
             raise ValueError(
                 f"unknown event_type {event_type!r}; allowed: {sorted(EVENT_TYPES)}")
+        rate = _ACTOR_SAMPLING.get(actor, 1.0)
+        if rate < 1.0:
+            k = max(1, round(1.0 / rate))
+            n = _SAMPLE_COUNTERS.get(actor, 0) + 1
+            _SAMPLE_COUNTERS[actor] = n
+            if (n - 1) % k != 0:
+                return {"sampled_out": True, "actor": actor,
+                        "kept_every": k, "seq_seen": n}
         with _AppendLock(self.path):
             prev, prev_age = self._tail_from_disk()     # true tail, under lock
             # v0.4.6: the mortal arrow is heart-driven -- it advances +1 on a human
