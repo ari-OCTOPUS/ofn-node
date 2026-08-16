@@ -241,6 +241,37 @@ def save_hypothesis(domain: str, hypothesis: str, rationale: str = "") -> int:
         return row_id
 
 
+def claim_hypothesis(row_id: int, session_ref: str) -> dict:
+    """قاعدهٔ ۴ R16 (SEAM-LOOP فاز ۳، مصوب مالک 2026-08-16): برداشتن از صف فقط
+    با ارجاعِ ثبت‌شده. اتمی: pending -> claimed + رکورد سیاست. ردیف حذف نمی‌شود.
+    session_ref = شناسهٔ research_session/تستِ ثبت‌شده (خالی/فقط‌فاصله رد)."""
+    ref = str(session_ref or "").strip()
+    if not ref:
+        return {"ok": False, "reason": "قاعدهٔ ۴: ارجاعِ session خالی است"}
+    _ensure_db()
+    from memory.hypothesis_policy import _log, POLICY_VERSION
+    with _conn() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute(
+            "SELECT id, status, tested FROM hypotheses WHERE id = ?", (row_id,)
+        ).fetchone()
+        if row is None:
+            conn.rollback()
+            return {"ok": False, "reason": "یافت نشد"}
+        _id, status, tested = row
+        if status != "pending" or tested:
+            conn.rollback()
+            return {"ok": False, "reason": f"قابل claim نیست: status={status} tested={tested}"}
+        conn.execute(
+            "UPDATE hypotheses SET status='claimed',"
+            " policy_tag = COALESCE(policy_tag, '') || ? WHERE id = ?",
+            (f"|{POLICY_VERSION}:claim:{ref[:80]}", row_id),
+        )
+        _log(conn, "claim", row_id, "pending", f"session={ref[:80]}")
+        conn.commit()
+    return {"ok": True, "status": "claimed", "session": ref}
+
+
 def get_pending_hypotheses(limit: int = 10) -> list[dict]:
     """صفِ فعال R16: فقط pendingِ تست‌نشده — dedup/deferred/dormant بیرون می‌مانند."""
     _ensure_db()
