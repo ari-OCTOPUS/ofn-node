@@ -35,7 +35,7 @@ from bs4 import BeautifulSoup
 # ════════════════════════════════════════════════════════════════════════════
 # 🔑 کلیدهای API — هاردکد برای تست محلی (در production هرگز این کار رو نکن)
 # ════════════════════════════════════════════════════════════════════════════
-GITHUB_TOKEN: str = "<REDACTED-GITHUB-PAT>"
+GITHUB_TOKEN: str = __import__("os").environ.get("GITHUB_TOKEN", "")
 COINGECKO_API_KEY: str = "<REDACTED-COINGECKO>"
 SOCHAIN_API_KEY: str = "<REDACTED-SOCHAIN>"  # اختیاری — خالی بذار اگه نداری
 ANTHROPIC_API_KEY: str = "<REDACTED-anthropic-key-see-secrets-export>"  # اختیاری — اگه بخوای Claude کلاسیفایر استفاده کنی

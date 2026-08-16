@@ -107,7 +107,7 @@ ARCH-O01 (Hetzner vs Oracle ARM) · ARCH-O02 (GROUNDING_REQUIRED) · ARCH-O03 (u
 
 ## 🔑 دستِ مالک — چهار فرمان جاروی بدهی (2026-08-16 ~00:0x)
 
-۱. **R1 چرخش PAT** (فقط از وب‌اکانت؛ پچ آماده: `03 - Projects/Mining/02 - Code/PAT-SCRUB-READY-2026-08-16.md`)
+۱. ~~R1 چرخش PAT~~ **✅ بسته 2026-08-16 ~15:5x**: چرخش توسط مالک (تأیید چتی) + پچ پاک‌سازی اعمال شد (`GITHUB_TOKEN` → env؛ prefix-match بدون چاپ مقدار؛ `github_pat_` صفر در فایل) — شواهد: PAT-SCRUB-READY + کامیت SELFRUN F1
 ۲. **امضا ×۲** (فرمان‌ها در سربرگ فایل‌ها): `4d_system/config/trust-boundary.json → .sig` · `_ops/audit/bundles/AEB-20260816-000508.txt → .sig`
 ۳. پس از امضا: **روشن‌کردن `OCTOPUS_TCB_MANIFEST_ENFORCE`** با ری‌استارت رسمی (از آن لحظه ویرایش TCB = halt واقعی)
 ۴. **رأی‌ها:** سیاست صف فرضیه R16 v1 (۱۰۶۳/۰، ۶۴٪ تکرار خانوادگی) · DA-1/2/3 (02-DECISIONS/DECISION-ARTIFACTS-2026-08-16/) · انتخاب ممیز بیرونی (R21) · فلگ FUZZY (پنجرهٔ بعد)
