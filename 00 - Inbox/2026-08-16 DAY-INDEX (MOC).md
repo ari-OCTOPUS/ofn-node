@@ -9,7 +9,7 @@ tags: [moc, daily-index, 2026-08-16]
 
 # 🗺️ ایندکس روز — 2026-08-16 (پرکارترین روز ثبت‌شدهٔ Vault)
 
-> نقشهٔ کاملِ روز برای ناوبری. **۱۸ مأموریت ثبت‌شده + ۲ عملیات + ۱۴ تناقض نو (C-019..C-032)**. همهٔ لینک‌ها زنده.
+> نقشهٔ کاملِ روز برای ناوبری. **۱۸ مأموریت ثبت‌شده + ۲ عملیات + ۱۵ تناقض نو (C-019..C-033)**. همهٔ لینک‌ها زنده.
 
 ## مأموریت‌های کشف/تست (به ترتیب زمانی)
 
@@ -32,7 +32,7 @@ tags: [moc, daily-index, 2026-08-16]
 | ۱۵ | **حلقهٔ کامل‌شدن (مگاپرامپت بعدی) v2.0** | کشف→فیکس→تست→ابسیدین→ایده→مگاپرامپت بعد؛ تا پرفکت؛ درز طلایی هویت 0.672→knob (DA-5) · claim بی‌caller | [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16|PERPETUAL]] · [[2026-08-16 MEGAPROMPT — Perpetual Perfect|لانچر Inbox]] |
 | ۱۶ | **مصاحبهٔ ارگانیسم (۶ ایده)** | تفویض run+fix: هویت صادق · ۸۷۶۵ مرده · reached_owner · armed() · C-026 TCB · persistence سایه · C-031 family · observation.v1 پارس | [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]] · [[../02-DECISIONS/INTERVIEW-LOG-OCTOPUS-2026-08-16|LOG]] |
 | ۱۷ | **پنل وب · واقعیت** | گذر ۲: کاکپیت اسنپ‌شات برچسب · استخراجگر همیشه-قرمز بسته · پرچم‌دار «زنده»→مفهومی · C-032 · :8773 REAL | [[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]] · [[2026-08-16 DISCOVERY — WebPanel Cards|کارت‌ها]] |
-| ۱۸ | **راحتی مالک** | شش دروازه + صف بهداشت/طبقهٔ A؛ پوش/TCB/پول فقط با آری؛ پیش‌فرض «خودت»=کم‌ریسک | [[../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16|OWNER-EASE]] · [[2026-08-16 MEGAPROMPT — Owner Ease|لانچر]] |
+| ۱۸ | **راحتی مالک EXECUTED** | شش دروازه آری: پوش · C-026/DARE تصویب · ری‌استارت سه عضو به 1.5b · پروب Fugu=429 · LIVE-STRIP · **C-033** · آزاد C-034 | [[../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16|OWNER-EASE]] · [[../06-EVIDENCE/OWNER-EASE-2026-08-16|شواهد]] |
 
 ## عملیات‌های فرمانی مالک (عصر)
 
@@ -41,7 +41,7 @@ tags: [moc, daily-index, 2026-08-16]
 
 ## دفتر تناقض‌ها — رشد ۸تایی در یک روز
 
-C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall — resolved) · C-022 (اسنپ‌شات circuit) · C-023 (پوش بدون one-word) · C-024 (SELF_CODE در env دیمون) · C-025 (دریفت family_key) · C-026 (approve/reject بی‌گیت) · **C-027** (deadline_cycles خودهدف — resolved-in-code) · **C-028** (verify() دمِ ledger — contained) · **C-029** (DARE |ρ|=1 در TCB — contained) · **C-030** (money_gate منفی — resolved-in-code) · **C-031** (تلهٔ استقلال باور — contained) · **C-032** (کاکپیت validator زنده با اسنپ‌شات ۰۷-۰۵ — contained) — **آزاد بعدی: C-033** · دفتر: [[../01-TRUTH/CONTRADICTIONS|CONTRADICTIONS]]
+C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall — resolved) · C-022 (اسنپ‌شات circuit) · C-023 (پوش بدون one-word) · C-024 (SELF_CODE در env دیمون) · C-025 (دریفت family_key) · C-026 (approve/reject بی‌گیت) · **C-027** (deadline_cycles خودهدف — resolved-in-code) · **C-028** (verify() دمِ ledger — contained) · **C-029** (DARE |ρ|=1 در TCB — contained) · **C-030** (money_gate منفی — resolved-in-code) · **C-031** (تلهٔ استقلال باور — contained) · **C-032** (کاکپیت validator زنده با اسنپ‌شات ۰۷-۰۵ — contained) · **C-033** (dir-TCB بدون digest) — **آزاد بعدی: C-034** · دفتر: [[../01-TRUTH/CONTRADICTIONS|CONTRADICTIONS]]
 
 ## رأی‌های باز (صف مالک)
 
@@ -49,14 +49,14 @@ C-019 (docstring/daemon) · C-020 (DEPRECATED کهنه) · C-021 (NaN recall —
 
 | رأی | موضوع | منبع |
 |---|---|---|
-| 🔴 | «پوش» — چهار کامیت محلی منتظر کلمه: `0670297` (پایان ERRORHUNT) · `5922d39` (continuous-improvement) · `4c267be` (**Seam Loop v2 — متحدکنندهٔ هر دو**) · `d4e4806` (چک‌لیست مالک) | git log |
+| ✅ | «پوش» — OWNER-EASE دروازه ۱ = آری؛ این نشست push می‌کند (هش کهنه نگو — `git log germline/master..HEAD`) | git log |
 | ✅ | انتخاب مگاپرامپت ایجنت بعدی — نسل بعد: [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16|PERPETUAL-PERFECT]] (Seam Loop/Continuous/Deep-Seams فقط شواهد) | agent-prompts/ |
 | VOTE 1-5 | منشای حافظه · ماندگاری ابطال PEP · گارد استقلال belief · پیش‌بینی‌گر پایداری (با قید روزهای گذار) · پیکربندی عضو شورا | [[2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|HARD-TEST Scorecard]] |
-| + | فیکس C-026 (enabled() در approve/reject) | [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|CROSSCHECK]] |
+| ✅ | فیکس C-026 — OWNER-EASE دروازه ۲ owner-ratified | [[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] |
 | + | بودجهٔ deepseek — پروب اجرا شد و رد شد (تفکیک 0.1)؛ پیشنهاد نهایی: همان بماند | [[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3]] |
-| + | چهار کارت ERRORHUNT (پروب Fugu · سقف سوکت reason · HF_TOKEN · هش کرنل) + بازماندهٔ LiveDataRefresh | [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|ERRORHUNT-CARDS]] |
-| + | (قدیمی‌تر) فعال‌سازی PEP · DA-6 · DA-1 L2/L3 · ری‌استارت رسمی برای ۳ عضو env-قدیمی | STATE §8 |
+| + | ERRORHUNT باقی: سقف سوکت reason · HF_TOKEN · هش کرنل (پروب Fugu و LiveDataRefresh بسته‌اند) | [[../02-DECISIONS/ERRORHUNT-CARDS-2026-08-16|ERRORHUNT-CARDS]] |
+| + | (قدیمی‌تر) فعال‌سازی PEP · DA-6 · DA-1 L2/L3 | STATE §8 |
 
 ## وضعیت زنده در پایان روز
 
-دیمون 4d نسل ۳ زنده (enforce مسلح) · readback پس از فیکس ۱۰۰٪ · صف ۳۹۷/۷۵۷ · M1=1.0 · اولاما سبک و خلوت (VRAM 163MB) · **دو کامیت محلی در انتظار «پوش» مالک** (بالا 🔴).
+دیمون 4d نسل ۳ زنده (enforce مسلح) · readback پس از فیکس ۱۰۰٪ · صف ۳۹۷/۷۵۷ · M1=1.0 · اولاما live/center/gateway هم `qwen2.5:1.5b` (ری‌استارت 16:37) · پوش با کلمهٔ مالک در همین نشست.

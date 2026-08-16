@@ -83,7 +83,7 @@ status_legend:
 
 | `06-EVIDENCE/IMPROVE-ACF-2026-08-16.md` · `00 - Inbox/2026-08-16 DISCOVERY — Continuous Improve A-C-F.md` | خودبهبودی دائمی A+C+F: DARE ۵→۰ ترکیدگی · money_gate منفی deny · selfheal ok — C-029/C-030 | 2026-08-16 ~14:2x | کشف/فیکس | 06-EVIDENCE + 00 - Inbox | verified |
 
-| `agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16.md` · `00 - Inbox/2026-08-16 MEGAPROMPT — Owner Ease.md` | راحتی مالک: شش دروازه + صف بهداشت/طبقهٔ A — آزاد C-033 | 2026-08-16 ~16:1x | لانچر | agent-prompts + 00 - Inbox | verified |
+| `agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16.md` · `06-EVIDENCE/OWNER-EASE-2026-08-16.md` · `07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16.md` | راحتی مالک EXECUTED: پوش+TCB تصویب+ری‌استارت 1.5b+پروب 429 — C-033 · آزاد C-034 | 2026-08-16 ~16:3x | اجرا | 06-EVIDENCE + 07 + agent-prompts | verified |
 
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 

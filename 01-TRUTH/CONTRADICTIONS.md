@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-033** (C-032 در 2026-08-16 ~15:4x: کاکپیت ابسیدین «validator زنده» با اسنپ‌شات ۰۷-۰۵؛ C-031 در 2026-08-16 ~15:1x: پنج کپی یک مشاهده در epistemics 0.1→0.9998؛ C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-034** (C-033 در 2026-08-16 ~16:3x: فایل‌های dir-TCB مثل core/model.py در digest-map نیستند؛ C-032 در 2026-08-16 ~15:4x: کاکپیت ابسیدین «validator زنده» با اسنپ‌شات ۰۷-۰۵؛ C-031 در 2026-08-16 ~15:1x: پنج کپی یک مشاهده در epistemics 0.1→0.9998؛ C-030 در 2026-08-16 ~14:2x: money_gate مبلغ منفی را allow می‌کرد؛ C-029 در 2026-08-16 ~14:2x: DARE با |ρ|=1 در TCB core می‌ترکد؛ C-028 در 2026-08-16 ~13:2x: verify() دمِ ledger را نمی‌بیند؛ C-027 در 2026-08-16 ~13:2x: deadline_cycles خودهدف اجرا نمی‌شد؛ C-026 در 2026-08-16 ~13:1x: self_code approve/reject بی‌گیتِ enabled()؛ C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -406,10 +406,10 @@ contradiction:
   value_a: "مستندِ ماژول self_code.py: خودمختاریِ کامل «پشتِ گاردِ brain/guardrails عبور می‌کند» + فلگ enabled() نگهبانِ اصلی است"
   value_b: "approve()/reject() (self_code.py:388-479) هرگز enabled() را چک نمی‌کنند — فقط propose_code_change/auto_propose_once (200-201, 529-530) چک می‌کنند. پیشنهادِ ساخته‌شده حین ON، بعد از OFF شدنِ فلگ هم approve/apply-پذیر می‌ماند. STOP-CODE-AUTONOMY صفر ارجاع در 4d_system دارد (grep)."
   source_b: "خواندنِ مستقیمِ کد 2026-08-16 (سشنِ کراس‌چکِ hard-test) — static read با line citation، بدون اجرای approve واقعی روی پیشنهادِ زنده"
-  live_check: "grep 'STOP-CODE-AUTONOMY' 4d_system/ → صفر مورد؛ grep 'enabled()' self_code.py → فقط در propose_code_change/auto_propose_once"
-  likely: value_b
-  resolution: null — پیشنهاد: approve()/reject() هم enabled() را چک کنند (یا حداقل approve را با OFF رد کنند با پیام صریح) — additive، بدون تغییرِ رفتارِ فعلیِ ON
-  status: open — owner_vote
+  live_check: "2026-08-16 ~16:3x: approve()/reject() هر دو enabled() را در ورودی چک می‌کنند (SELF_CODE خاموش است (C-026)). تست test_seam_selfcode_gate_20260816 3/3 مثبت. STOP-CODE-AUTONOMY همچنان صفر ارجاع در 4d_system."
+  likely: value_b (قبل از فیکس)
+  resolution: "resolved-in-code + owner-ratified 2026-08-16 OWNER-EASE دروازه ۲ — گیت در approve/reject (SELFRUN F2a). manifest ۱۴/۱۴ digest_ok · signature=valid. regen تازه لازم نبود."
+  status: resolved-in-code — owner-ratified 2026-08-16 ~16:3x
   registered_by: "hardtest-crosscheck agent 2026-08-16 ~13:1x (grep دو-مخزن پیش از ثبت: C-026 آزاد بود)"
   cross_ref: "هم‌خانوادهٔ C-024 (فلگِ زنده در env دیمون) ولی مکانیزمِ متفاوت — C-024 دربارهٔ روشن‌بودنِ فلگ است، این دربارهٔ بی‌اثریِ خاموش‌کردنش روی صفِ pending. جزئیات: [[../06-EVIDENCE/CAPABILITY-HARDTEST-CROSSCHECK-2026-08-16|HARDTEST-CROSSCHECK]]"
 ```
@@ -454,10 +454,10 @@ contradiction:
   source_a: "4d_system/core/model.py::run_self_test · 4d_system/config/settings.py::ANCHORS"
   value_b: "P_closed(ρ=±1, λ=0) و solve() با |ρ|=1 → ZeroDivisionError؛ همان کلاس مخرج‌صفر C-021. نسخهٔ موازی _ops/heart/sog_math بعد از 2026-08-16 گارد دارد (nan)؛ TCB core ندارد"
   source_b: "پروب 2026-08-16 · test_sog_floor_guards t_tcb_core_still_raises"
-  live_check: "core.model.P_closed(1.0, 0.0, 0.01, 0.0025) همچنان ZeroDivisionError. sog_math همان ورودی را nan می‌دهد. SETTINGS_ANCHORS در verifier import مرده است"
-  likely: هر دو — لنگرهای canonical سالم‌اند؛ لبهٔ |ρ|≥۱ تعریف‌نشده و بی‌گارد در TCB
-  resolution: "contained در مسیر ارگانیسم (sog_math). فیکس TCB نیازمند امضای مجدد — VOTE A Continuous Improve"
-  status: contained — owner_vote برای گارد core + re-sign
+  live_check: "2026-08-16 ~16:3x: P_closed(±1, λ=0) → 2.5e9 finite (کف 1e-12) نه ZeroDivision. sog_math همان ورودی را nan می‌دهد (گارد متفاوت، هر دو بی‌ترکیدگی). test_sog_floor_guards 5/5. SETTINGS_ANCHORS همچنان import مرده (VOTE B باز)."
+  likely: هر دو — لنگرهای canonical سالم‌اند؛ لبهٔ |ρ|≥۱ در TCB با کف مهار شد نه با nan
+  resolution: "resolved-in-code + owner-ratified 2026-08-16 OWNER-EASE دروازه ۳ — گارد کف در core.model (SELFRUN F2b). امضای manifest موجود valid بود؛ bytes عوض نشد پس re-sign نو لازم نبود. core/model.py dir-TCB است نه files-map → C-033."
+  status: resolved-in-code — owner-ratified 2026-08-16 ~16:3x
   registered_by: "continuous-improve agent 2026-08-16 ~14:2x (grep: C-029 فقط به‌عنوان آزاد بعدی بود)"
   cross_ref: "[[../06-EVIDENCE/IMPROVE-ACF-2026-08-16|IMPROVE-ACF]]"
 ```
@@ -502,10 +502,26 @@ contradiction:
   source_a: "01 - Dashboard/CONTROL-PANEL.html model.metrics + SYSTEM-DASHBOARD.html h1"
   value_b: "vault git repo است؛ validator 2026-08-16: 625 نوت / 224 خطا؛ ارگانیسم زنده در CURRENT-TRUTH / :8773 /api/live"
   source_b: "validate_frontmatter.py 2026-08-16 · git status F:\\backup · live/server.py :8773"
-  live_check: "بنر FROZEN-COCKPIT-BANNER additive؛ عنوان متریک به اسنپ‌شات تغییر کرد؛ اعداد JSON دست‌نخورده ماندند (حذف ممنوع)"
+  live_check: "بنر FROZEN-COCKPIT-BANNER additive؛ عنوان متریک به اسنپ‌شات تغییر کرد؛ اعداد JSON دست‌نخورده ماندند (حذف ممنوع). OWNER-EASE: نوار LIVE-STRIP هم additive است — validator امروز را از این صفحه نخوان."
   likely: value_b
   resolution: "contained-in-ui 2026-08-16 — برچسب صادق؛ بازتولید مدل زنده = کارت (مولد cockpit)"
   status: contained — owner_vote برای بازتولید CONTROL-PANEL از اسکن امروز
   registered_by: "webpanel-reality agent 2026-08-16 ~15:4x (grep: C-032 آزاد بود)"
   cross_ref: "[[../06-EVIDENCE/WEBPANEL-AUDIT-2026-08-16|WEBPANEL-AUDIT]]"
+```
+
+```yaml
+contradiction:
+  id: C-033
+  claim: "هر تغییر TCB (از جمله فایل‌های زیر dirs) digest امضاشده را باطل می‌کند و نیازمند regen+sign است"
+  value_a: "trust-boundary.json tcb.dirs = config/core/tests؛ منشور: فیکس TCB = رأی + regen + امضا. C-029 در core/model.py است"
+  source_a: "4d_system/config/trust-boundary.json · generate_trust_boundary.py · MEGAPROMPT-OWNER-EASE دروازه ۳"
+  value_b: "check_trust_boundary فقط tcb.files (۱۴ فایل CODE_TCB_FILES) را هش می‌کند. core/model.py در files-map نیست. پچ DARE روی دیسک است و signature=valid ماند بدون regen"
+  source_b: "brain/guardrails.py::check_trust_boundary 2026-08-16 ~16:3x · P_closed گارد کف · openssl/python verify valid"
+  live_check: "۱۴/۱۴ digest_ok · signature valid · coverage_complete روی files-map نه روی هر برگ dir. is_tcb() همچنان core/model.py را write-block می‌کند"
+  likely: value_b برای تشخیص دستکاریِ امضایی؛ value_a برای write-protect
+  resolution: null — پیشنهاد additive: core/model.py را به CODE_TCB_FILES اضافه کن + regen + sign (رأی جدا؛ این نشست bytes TCB را عوض نکرد چون گارد از قبل بود)
+  status: open — owner_vote
+  registered_by: "owner-ease agent 2026-08-16 ~16:3x (grep دو-مخزن: C-033 آزاد بود؛ NBB-CP خالی)"
+  cross_ref: "[[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · C-029"
 ```
