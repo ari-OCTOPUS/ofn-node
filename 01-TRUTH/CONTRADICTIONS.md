@@ -138,7 +138,7 @@ contradiction:
 
 ## 📛 قانون تخصیص شناسهٔ تناقض (مستقر به حکم مالک — 2026-08-15 شب، پس از برخورد C-008)
 
-1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-025** (C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
+1. شناسه‌ها فقط از **یک شمارندهٔ واحد** — آزاد بعدی: **C-026** (C-025 در 2026-08-16 ~12:5x: دریفت نرمال‌سازی family_key پایتون/SQL؛ C-024 در 2026-08-16 ~12:0x: SELF_CODE در env دیمون نه flags.cmd؛ C-023: پوش agent-decided بدون «one word»؛ C-022: اسنپ‌شات circuit closed بدون ریکاوری اثبات‌شده؛ C-021: NaN در hash-as-float32 حلقهٔ recall؛ C-020: DEPRECATED.md لانچ 4d؛ C-019: docstringِ ConsolidationCycle/daemon؛ C-018: پیش‌فرض کهنهٔ PHASE01؛ C-017: DOCTOR_USE_CENTRAL_ROUTER — resolved؛ C-016: دریچهٔ فرار معمار؛ C-015: COUNCIL-MESH کهنه؛ C-014: fetch دوتایی؛ C-013: TCB)
 2. قبل از تخصیص، `C-0NN` روی **هر دو مخزن** grep شود: `F:ackup` و working repo
 3. دو ایجنتِ هم‌زمان بدون شمارندهٔ مشترک = برخوردِ حتمی (این‌طور C-008 دوبار ثبت شد)
 
@@ -383,3 +383,17 @@ contradiction:
 - **C-021** `status: resolved` by recall-loop agent — closer was agent. Flag for owner.
 - **C-013** already marked owner-ratified.
 - `"delegated-owner"` was not used.
+```yaml
+contradiction:
+  id: C-025
+  claim: "کلید خانوادهٔ R16 در پایتون و SQL یکسان محاسبه می‌شود (migration_dry_run و classify_for_insert یک نگاه دارند)"
+  value_a: "family_key پایتونی (re.sub(r"\s+"," ")) برای ردیفِ آزمون: خانواده در صف نیست ⇒ prefilter «وارد شو» می‌دهد"
+  source_a: "memory/hypothesis_policy.py:26-29 (migration/گزارش‌ها از همین کلید می‌گویند)"
+  value_b: "classify_for_insert با SQLِ خودش (فقط replace \n/\t + lower) همان ردیف را dedup می‌کند به head موجود (شاهد: head=342 در سندباکس S1-G2)"
+  source_b: "memory/hypothesis_policy.py:74-79 + بازتولید زندهٔ تست سخت S1 (2026-08-16 ~12:1x) — دو اجرای اول G2 دقیقاً همین دو داور را جدا دیدند"
+  live_check: "اثر عملی: آمارِ خانوادهٔ گزارش‌ها (dry-run) با رفتار واقعیِ صف می‌تواند عددهای متفاوت بدهد؛ و دوقلوهای متنیِ با فاصلهٔ چندگانه از dedupِ خانواده فرار می‌کنند"
+  likely: value_b رفتارِ نهاییِ ورود است (SQL داورِ واقعی)؛ value_a داورِ گزارش/مهاجرت است — دو نرمال‌سازِ هم‌نامِ ناهم‌ارز
+  resolution: null — پیشنهاد: یکی‌سازی نرمال‌سازی (فشرده‌سازی \s+ در SQL با REPLACEهای زنجیره‌ای یا محاسبهٔ کلید در پایتون و پرس‌وجو با همان رشته) + تستِ دوقلوی فاصله؛ نیازمند رأی چون automation.py/مهاجرت TCB-مجاورند
+  status: open — owner_vote
+  registered_by: "hard-test agent 2026-08-16 ~12:5x (grep دو-مخزن پیش از ثبت: C-025 فقط به‌عنوان «آزاد بعدی» در پین‌ها بود؛ C-019..C-024 مصرفِ ایجنت‌های موازی)"
+```

@@ -73,6 +73,8 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
+> **📌 2026-08-16 ~13:0x — CAPABILITY HARD-TEST EXECUTED (مگاپرامپت چهارم):** شش قابلیت با حمله آزموده شد — **S5 خودترمیمی = REAL (تنها بازندهٔ کامل؛ ۹۲ تسک در پنجرهٔ ۱۱ خطا بدون ری‌استارت)** · S1/S2/S3/S4 = PARTIAL (سمِ حافظه ۱۰/۱۰ منحرف کرد؛ حاکمیتی ۹/۱۳ بلاک؛ شورا 0.3 در برابر 0.0؛ تلهٔ استقلال 0.9998) · **S6 مدل پیش‌بینی ثبت‌شده = METAPHOR (۱/۱۶ زیرمجموعه؛ 0.0978 در برابر ثابت 0.0829) اما مسیر بهبود واقعی: پایداری 0.0472 در برابر اوراکل 0.0617، CV 4/5**. C-025 ثبت (دریفت نرمال‌سازی family_key). پنج کارت رأی: منشای حافظه · ماندگاری ابطال PEP (پیش‌نیاز enforce) · گارد استقلال belief · جایگزینی پیش‌بینی‌گر · پیکربندی عضو شورا. صفر حذف/فلگ/TCB/ارسال. [[../06-EVIDENCE/CAPABILITY-HARDTEST-2026-08-16|HARDTEST]] · [[../00 - Inbox/2026-08-16 DISCOVERY — Capability Hard-Test Scorecard|SCORECARD]]. آزاد بعدی: **C-026**.
+
 > **📌 2026-08-16 ~12:0x — UPDATE-DEBUG-SWEEP (PROPOSE-ONLY):** T1–T8 بدون فلگ/پوش/TCB. دیمون مسلح enforce=True و همزمان `SELF_CODE_ENABLED=1` در env پروسه (در flags.cmd نیست). تسک R18 موازی Ready ولی هرگز اجرا نشده (267011 / `py`). آزاد بعدی پس از C-023/C-024 این نشست. [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-16|UPDATE-DEBUG-SWEEP]]
 
 > **📌 2026-08-16 ~11:5x — ERRORHUNT EXECUTED:** ۷روز خطا خوشه‌بندی شد. readback پس از 05:00 = **67/67 صفر fail**. cortex ۲۴ساعت: ۰ REVIVE / ۸ STOP عمدی. فیکس: persist تنزل circuit (C-022) + `mark_nudged(high_water)`. مانیتور Poisoning Watch در 10:08 = FILE_NOT_FOUND. کارت ۵تایی. آزاد بعدی: **C-023**. [[../06-EVIDENCE/ERRORHUNT-2026-08-16|ERRORHUNT]] · [[../07-HANDOFF/ERRORHUNT-REPORT-2026-08-16|گزارش]]

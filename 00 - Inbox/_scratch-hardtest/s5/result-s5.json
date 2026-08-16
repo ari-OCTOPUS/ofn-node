@@ -1,0 +1,57 @@
+{
+ "test": "S5-self-healing",
+ "ts": "2026-08-16T12:34:22",
+ "H1_corrupt_state": {
+  "scan_found": {
+   "invalid_json": 0,
+   "null_lines": 1
+  },
+  "repair_ok": true,
+  "repair_ms": 3120.6,
+  "removed_invalid": 0,
+  "removed_null": 1,
+  "kept_valid": 15,
+  "valid_before": 16,
+  "data_loss_valid_lines": 1,
+  "quarantined": true,
+  "rescan_clean": true,
+  "receipt_written": true
+ },
+ "H2_model_net_cut_circuit": {
+  "states_after_each_failure": [
+   "closed",
+   "closed",
+   "open"
+  ],
+  "opened_after_3_failures": true,
+  "time_to_open_s": 4.64,
+  "after_cooldown(mock clock)": "open",
+  "after_two_successes": "open",
+  "recovered": false,
+  "note": "cooldown واقعی ۳۰ث؛ گذرِ زمان با mock ساعت شبیه‌سازی شد (بی‌هزینه)"
+ },
+ "H3_disk_full_atomicity": {
+  "error_recorded": true,
+  "ok_flag": false,
+  "original_unchanged": true,
+  "no_partial_write": true,
+  "elapsed_ms": 1255.2,
+  "note": "شکست در replace ⇒ فایل اصلی بایت‌به‌بایت سالم ماند (reset-نه-خرابی)"
+ },
+ "H4_helper_member_kill_history": {
+  "fault_window": "03:57–05:00 (۱۱ خطای readback قبل از فیکس r16-view)",
+  "readback_errors": 11,
+  "memory_reads_continued": 39,
+  "tasks_completed_despite_faults": 92,
+  "tasks_failed_hard": 0,
+  "daemon_restart_needed": false,
+  "all_time_task_failed_by_agent": {},
+  "note": "حافظه‌خوانی خطا داد ولی چرخهٔ تصمیم ادامه یافت؛ فیکس زنده WITHOUT کرش"
+ },
+ "H5_negative_control_ghost": {
+  "ghost_port_reported_dead": true,
+  "ghost_state_reported_stale": true,
+  "any_ghost_reported_healthy": false,
+  "n_alerts_for_ghost": 2
+ }
+}

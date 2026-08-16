@@ -1,0 +1,170 @@
+{
+ "test": "S6-prediction-edge",
+ "n": 351,
+ "base_rate": 0.9088,
+ "reference_all351": {
+  "brier_model_p_base": 0.0978,
+  "brier_constant_baserate": 0.0829
+ },
+ "reference_60frozen": {
+  "matched": 60,
+  "missing_date_join": 0,
+  "brier_model": 0.1392,
+  "brier_baserate": 0.131
+ },
+ "posthoc_subset_scan": {
+  "declared_posthoc": true,
+  "n_comparisons": 16,
+  "n_subsets_model_wins": 1,
+  "best_for_model": {
+   "subset": "period/8ths[4]",
+   "n": 44,
+   "brier_model": 0.0062,
+   "brier_baserate": 0.0083,
+   "delta_model_minus_base": -0.0021
+  },
+  "worst_for_model": {
+   "subset": "period/8ths[0]",
+   "n": 43,
+   "brier_model": 0.0652,
+   "brier_baserate": 0.0273,
+   "delta_model_minus_base": 0.0378
+  },
+  "winners": [
+   {
+    "subset": "period/8ths[4]",
+    "n": 44,
+    "brier_model": 0.0062,
+    "brier_baserate": 0.0083,
+    "delta_model_minus_base": -0.0021
+   }
+  ],
+  "multiplicity_note": "با 16 مقایسه، چند برندهٔ تکی خودبه‌خود انتظار می‌رود؛ برنده فقط با اندازهٔ نمونهٔ کافی و دلتای منفیِ درشت معنادار است"
+ },
+ "improvement_path": {
+  "protocol": "انتخاب α فقط روی train (۷۰٪ اول)؛ داوری روی test (۳۰٪ آخر، زمانی)",
+  "best_by_train": {
+   "name": "y_lag",
+   "alpha": 1.0,
+   "train_brier": 0.0531,
+   "test_brier": 0.0472
+  },
+  "test_brier_best_smoother": 0.0472,
+  "test_brier_constant_train_baserate": 0.063,
+  "test_brier_constant_test_baserate_oracle": 0.0617,
+  "test_brier_registered_model_p_base": 0.0705,
+  "smoother_beats_baserate_onsample": true,
+  "smoother_beats_oracle_baserate": true,
+  "table": [
+   {
+    "source": "y_lag",
+    "alpha": 0.0,
+    "train_brier": 0.0916,
+    "test_brier": 0.063
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.02,
+    "train_brier": 0.0901,
+    "test_brier": 0.0612
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.05,
+    "train_brier": 0.0845,
+    "test_brier": 0.0577
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.1,
+    "train_brier": 0.0788,
+    "test_brier": 0.0527
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.2,
+    "train_brier": 0.0715,
+    "test_brier": 0.0463
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.35,
+    "train_brier": 0.0633,
+    "test_brier": 0.0405
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.5,
+    "train_brier": 0.0578,
+    "test_brier": 0.0383
+   },
+   {
+    "source": "y_lag",
+    "alpha": 0.75,
+    "train_brier": 0.0532,
+    "test_brier": 0.0403
+   },
+   {
+    "source": "y_lag",
+    "alpha": 1.0,
+    "train_brier": 0.0531,
+    "test_brier": 0.0472
+   },
+   {
+    "source": "rate",
+    "alpha": 0.0,
+    "train_brier": 0.0916,
+    "test_brier": 0.063
+   },
+   {
+    "source": "rate",
+    "alpha": 0.02,
+    "train_brier": 3750.1163,
+    "test_brier": 7781.1363
+   },
+   {
+    "source": "rate",
+    "alpha": 0.05,
+    "train_brier": 5018.9323,
+    "test_brier": 7932.5025
+   },
+   {
+    "source": "rate",
+    "alpha": 0.1,
+    "train_brier": 5422.6206,
+    "test_brier": 7932.8207
+   },
+   {
+    "source": "rate",
+    "alpha": 0.2,
+    "train_brier": 5607.3323,
+    "test_brier": 7932.8208
+   },
+   {
+    "source": "rate",
+    "alpha": 0.35,
+    "train_brier": 5681.9303,
+    "test_brier": 7932.8208
+   },
+   {
+    "source": "rate",
+    "alpha": 0.5,
+    "train_brier": 5710.9163,
+    "test_brier": 7932.8208
+   },
+   {
+    "source": "rate",
+    "alpha": 0.75,
+    "train_brier": 5733.1061,
+    "test_brier": 7932.8208
+   },
+   {
+    "source": "rate",
+    "alpha": 1.0,
+    "train_brier": 5744.0817,
+    "test_brier": 7932.8208
+   }
+  ],
+  "note": "oracle = نرخ پایهٔ محاسبه‌شده روی خودِ test (چیده‌شده) — شکستنِ این سقف یعنی سیگنالِ واقعی بالاتر از «همیشه ۹۱٪ بگو»"
+ }
+}
