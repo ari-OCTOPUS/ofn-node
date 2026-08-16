@@ -439,3 +439,16 @@
 {"ts": "2026-08-15T21:35:25", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "36983"}
 {"ts": "2026-08-15T23:02:50", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "37069", "wall": 1786798970.3783991}
 {"ts": "2026-08-16T05:02:59", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "37414", "wall": 1786820579.527742}
+{"ts": "2026-08-16T07:56:32", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37584"}
+{"ts": "2026-08-16T08:01:20", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37589"}
+{"ts": "2026-08-16T08:19:02", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37607"}
+{"ts": "2026-08-16T08:32:59", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37620"}
+{"ts": "2026-08-16T08:47:57", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37635"}
+{"ts": "2026-08-16T09:11:54", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37658"}
+{"ts": "2026-08-16T09:14:21", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37661"}
+{"ts": "2026-08-16T10:06:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37712"}
+{"ts": "2026-08-16T10:11:40", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37717"}
+{"ts": "2026-08-16T10:28:24", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37732"}
+{"ts": "2026-08-16T10:43:49", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37749"}
+{"ts": "2026-08-16T12:44:00", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37855"}
+{"ts": "2026-08-16T12:57:38", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "37869"}

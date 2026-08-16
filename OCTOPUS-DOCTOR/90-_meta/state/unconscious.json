@@ -1,5 +1,5 @@
 {
-  "n": 125,
+  "n": 145,
   "arch": [
     {
       "sig": "خودشناسیِ منفی",
@@ -31,14 +31,15 @@
       "days": [],
       "born": 1785308418.9390233,
       "last_confirmed": 0.0,
-      "counter": 68,
+      "counter": 73,
       "valence": -1.0
     },
     {
       "sig": "wire",
-      "support": 16,
-      "exo_support": 16,
+      "support": 17,
+      "exo_support": 17,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -57,6 +58,7 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -81,9 +83,10 @@
     },
     {
       "sig": "ابزارِ فقط‌خواندنیِ خلاصهٔ وضع دکتر افزوده شود.",
-      "support": 14,
-      "exo_support": 14,
+      "support": 15,
+      "exo_support": 15,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -100,6 +103,7 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -128,8 +132,84 @@
       "days": [],
       "born": 1786482004.3064017,
       "last_confirmed": 0.0,
-      "counter": 4,
+      "counter": 5,
       "valence": -1.0
+    },
+    {
+      "sig": "owner-gate-sign-dN-manifest",
+      "support": 5,
+      "exo_support": 5,
+      "actors": [
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner"
+      ],
+      "days": [
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15"
+      ],
+      "born": 1786781430.077025,
+      "last_confirmed": 1786783164.1546485,
+      "counter": 0,
+      "valence": 1.0
+    },
+    {
+      "sig": "owner-gate-orange-Nd",
+      "support": 3,
+      "exo_support": 3,
+      "actors": [
+        "owner",
+        "owner",
+        "owner"
+      ],
+      "days": [
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15"
+      ],
+      "born": 1786781437.829575,
+      "last_confirmed": 1786783165.7463746,
+      "counter": 0,
+      "valence": 1.0
+    },
+    {
+      "sig": "owner-gate-judgment-wait",
+      "support": 3,
+      "exo_support": 3,
+      "actors": [
+        "owner",
+        "owner",
+        "owner"
+      ],
+      "days": [
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15"
+      ],
+      "born": 1786781442.4918394,
+      "last_confirmed": 1786783161.7964406,
+      "counter": 0,
+      "valence": 1.0
+    },
+    {
+      "sig": "voice-test-single-N",
+      "support": 1,
+      "exo_support": 1,
+      "actors": [
+        "owner"
+      ],
+      "days": [
+        "2026-08-15"
+      ],
+      "born": 1786790035.2676282,
+      "last_confirmed": 1786790035.2676282,
+      "counter": 0,
+      "valence": 1.0
     }
   ]
 }

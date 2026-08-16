@@ -1,15 +1,15 @@
 {
-  "ts": "2026-08-16T05:03:04",
+  "ts": "2026-08-16T13:06:56",
   "schema": "stress.v1",
-  "organism_stress": 0.42,
+  "organism_stress": 0.38,
   "in_fear": [],
-  "level": "🟡 استرس",
+  "level": "🟢 آرام",
   "subsystems": {
     "money": {
       "name": "💰 جریانِ مالی",
       "stress": 0.02,
       "fear": false,
-      "detail": "0/30 دلار"
+      "detail": "1/30 دلار"
     },
     "heart": {
       "name": "❤️ ضربانِ قلب",
@@ -19,9 +19,9 @@
     },
     "legs": {
       "name": "🦿 اعضا",
-      "stress": 0.0,
+      "stress": 0.12,
       "fear": false,
-      "detail": "0 خودترمیم/روز"
+      "detail": "1 خودترمیم/روز"
     },
     "doctor": {
       "name": "🩺 دکتر",
@@ -31,9 +31,9 @@
     },
     "alerts": {
       "name": "🚨 هشدارها",
-      "stress": 0.42,
+      "stress": 0.38,
       "fear": false,
-      "detail": "43 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
+      "detail": "36 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
     }
   }
 }

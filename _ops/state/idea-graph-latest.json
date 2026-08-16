@@ -1,7 +1,7 @@
 {
   "n_nodes": 800,
-  "n_edges": 890,
-  "n_broken_targets": 242,
+  "n_edges": 872,
+  "n_broken_targets": 210,
   "hubs": [
     {
       "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/04 - Adversarial-Defense-and-Antifragility",
@@ -14,6 +14,11 @@
       "title": "لایه ۱۰ — داده، وضعیت و اسکیمای پایگاه (Data & Schema)"
     },
     {
+      "note_id": "07 - Knowledge/OCTOPUS-TRUTH-2026-08-15.prev-20260815-184507/03-ALLOWLIST",
+      "in_degree": 12,
+      "title": "allowlist v1 — امضاشده ۱۵ اوت ۲۰۲۶"
+    },
+    {
       "note_id": "03 - Projects/_OCTOPUS-PMO/Build Waves/Wave-2",
       "in_degree": 11,
       "title": "Build Wave 2 · P1 Channels"
@@ -22,11 +27,6 @@
       "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/01 - GOVERNANCE-and-SAFETY",
       "in_degree": 11,
       "title": "لایه ۱ — حاکمیت و ایمنی (Governance & Safety) — قانون اساسی شکارچی کوین"
-    },
-    {
-      "note_id": "07 - Knowledge/Time-Architecture/PROJECT",
-      "in_degree": 11,
-      "title": "پروژه: Time-Architecture (معماری زمان)"
     },
     {
       "note_id": "03 - Projects/Accounting/PROJECT",
@@ -54,8 +54,8 @@
       "title": "لاگ تصمیم‌های استراتژیک — مارکتینگ زیمان"
     }
   ],
-  "n_clusters": 208,
-  "n_bridges": 394,
+  "n_clusters": 200,
+  "n_bridges": 397,
   "n_proposed_edges": 20,
   "proposed_edges_sample": [
     {

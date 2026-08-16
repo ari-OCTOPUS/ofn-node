@@ -16,3 +16,21 @@
 
 ## 4d-consolidation-tick 2026-08-16T01:48:01+00:00
 - sources=['conclusions', 'experiments', 'frontier', 'reflections'] cycle=4 sk=['cycle-1', 'cycle-2'] after_events=1
+
+## 2026-08-16T03:03:52+00:00
+- telemetry(windowed): jobs/read/ratio/readback = 344 344 1.0 85 74
+- semantic: کل=242 نو-پس-گیت=4 تکرارِ نو=0
+- queue: [('dedup', 765), ('pending', 397)]
+- readback(پنجرهٔ پس از 05:00): 73/73 = 1.0
+- recall_reach: events=90 keys=984 median=21.0 max=60 coverage=0.144 rows=625
+- daemon_state.json: موجود
+- حکم: 🟢 سالم
+
+## 2026-08-16T03:04:23+00:00
+- telemetry(windowed): jobs/read/ratio/readback = 345 345 1.0 85 74
+- semantic: کل=242 نو-پس-گیت=4 تکرارِ نو=0
+- queue: [('dedup', 765), ('pending', 397)]
+- readback(پنجرهٔ پس از 05:00): 73/73 = 1.0
+- recall_reach: events=90 keys=984 median=21.0 max=60 coverage=0.144 rows=625
+- daemon_state.json: موجود
+- حکم: 🟢 سالم

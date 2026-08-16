@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T04:13:55",
+  "ts": "2026-08-16T11:20:11",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
@@ -7,8 +7,8 @@
   "maturity_pct": 82.6,
   "improvement_rate": {
     "closed": 7,
-    "moved": 2,
-    "rate_pct": 28.6
+    "moved": 5,
+    "rate_pct": 71.4
   },
   "n_proposals": 38,
   "by_category": {
@@ -144,10 +144,10 @@
         "status": "proposed"
       },
       {
-        "id": "up-c268b7a099",
+        "id": "up-33eae3c65e",
         "priority": "P1",
-        "title": "کوچک‌ترین فیکسِ دکتر: تغییر در کد پروژه برای اجازه یک تراکنش بدون نیاز به ری‌استارت",
-        "suggested_action": "تغییر در کد پروژه برای اجازه یک تراکنش بدون نیاز به ری‌استارت",
+        "title": "کوچک‌ترین فیکسِ دکتر: یک روش برای اجرای شرط مالک بدون نیاز به ری‌استارت ارگانیسم",
+        "suggested_action": "یک روش برای اجرای شرط مالک بدون نیاز به ری‌استارت ارگانیسم",
         "change_level": "reconfig",
         "source": "smallest_fix",
         "status": "proposed"
@@ -258,24 +258,6 @@
         "status": "proposed"
       },
       {
-        "id": "up-86a91e8132",
-        "priority": "P2",
-        "title": "یادمانِ حلقه (part_loops): part-health:🩺 دکتر",
-        "suggested_action": "channel=part_loops | source=part-health | title=part-health:🩺 دکتر | body=7 منتظر",
-        "change_level": "reconfig",
-        "source": "self_loop:part_loops",
-        "status": "proposed"
-      },
-      {
-        "id": "up-5555566270",
-        "priority": "P3",
-        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
-        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
-        "change_level": "tune",
-        "source": "part-loop",
-        "status": "proposed"
-      },
-      {
         "id": "up-c447f8da48",
         "priority": "P3",
         "title": "قلب: قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
@@ -291,6 +273,26 @@
         "suggested_action": "یک docstringِ یک‌خطی به هرکدام (سندی، بی‌خطر).",
         "change_level": "tune",
         "source": "part-loop",
+        "status": "proposed"
+      }
+    ],
+    "ops": [
+      {
+        "id": "up-5f383c81f9",
+        "priority": "P2",
+        "title": "math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS",
+        "suggested_action": "CHRONO_NUDGE_EVERY_N_BEATS: 780 → 720 (clamp [120,1440], $0, reversible)",
+        "change_level": "tune",
+        "source": "math_spine",
+        "status": "proposed"
+      },
+      {
+        "id": "up-86473a03a3",
+        "priority": "P2",
+        "title": "math-autotune knob: HEART_SAMPLE_INTERVAL_S",
+        "suggested_action": "HEART_SAMPLE_INTERVAL_S: 4500 → 4200 (clamp [1800,7200], $0, reversible)",
+        "change_level": "tune",
+        "source": "math_spine",
         "status": "proposed"
       }
     ],
@@ -515,7 +517,7 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] \"owner merge verdict has real effect (apply_merge wired)\" را باید اول حل کنید، زیرا این مشکل می‌تواند علت ناشیگری مشکلات دیگر شود و تأثیر قابل توجهی بر عملکرد سیستم خودبهبودگر دارد.",
+  "brain_note": "[local] \"owner merge verdict has real effect (apply_merge wired)\" را پیش‌بردن باید پیش بگیرد، زیرا بر سایر گاف‌ها تأثیر می‌گذارد و اطمینان حاصل کردن از صحت آن ضروری است قبل از بررسی وظایف دیگر.",
   "goal_directed": {
     "n_goal_serving": 10,
     "n_circular_dropped": 0,
@@ -523,29 +525,29 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 16,
-      "moved": false,
+      "tracked": 14,
+      "moved": true,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
         "total_discoveries": 136,
+        "proposals_delivered": 18,
+        "proposal_outcomes": 47,
+        "proposal_positive": 45,
+        "proposal_accept_rate": 0.9574468085106383,
+        "proposal_value_aud": 0.0,
+        "proposals_sent": 9
+      },
+      "since": {
+        "confirmed_revenue": 0,
+        "revenue_cells": 0,
+        "total_discoveries": 135,
         "proposals_delivered": 17,
         "proposal_outcomes": 47,
         "proposal_positive": 45,
         "proposal_accept_rate": 0.9574468085106383,
         "proposal_value_aud": 0.0,
         "proposals_sent": 8
-      },
-      "since": {
-        "confirmed_revenue": 0,
-        "revenue_cells": 0,
-        "total_discoveries": 134,
-        "proposals_delivered": 17,
-        "proposal_outcomes": 47,
-        "proposal_positive": 45,
-        "proposal_accept_rate": 0.9574468085106383,
-        "proposal_value_aud": 0.0,
-        "proposals_sent": 9
       }
     }
   },
@@ -556,6 +558,7 @@
     "enabled": true,
     "rank_bias": 0.2,
     "effects": [
+      "autotune_propose",
       "improve_rank_bias",
       "schedule_bias_hint"
     ],
@@ -568,7 +571,10 @@
       "#11_control_law",
       "#10_sog"
     ],
-    "knob_deltas": {},
+    "knob_deltas": {
+      "CHRONO_NUDGE_EVERY_N_BEATS": -60,
+      "HEART_SAMPLE_INTERVAL_S": -300
+    },
     "shadow_blocks_effects": false
   }
 }

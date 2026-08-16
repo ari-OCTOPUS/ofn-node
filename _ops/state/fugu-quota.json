@@ -1,14 +1,16 @@
 {
   "day": "2026-08-16",
-  "used_total": 11,
+  "used_total": 60,
   "consecutive_failures": 0,
   "consecutive_failures_by_tier": {
     "primary": 0,
     "secondary": 0
   },
   "used": {
-    "primary:ARCHITECT_SYS": 11
+    "primary:ARCHITECT_SYS": 60
   },
-  "denied": {},
+  "denied": {
+    "daily-cap": 88
+  },
   "consecutive_timeouts": 0
 }

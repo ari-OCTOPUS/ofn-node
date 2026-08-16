@@ -41,3 +41,5 @@
 {"ts": "2026-08-15T18:39:24", "bot": "center", "update_id": 223883292, "kind": "callback_query", "chars": 37, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
 {"ts": "2026-08-15T18:39:25", "bot": "center", "update_id": 223883293, "kind": "callback_query", "chars": 30, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
 {"ts": "2026-08-15T18:40:20", "bot": "center", "update_id": 223883294, "kind": "voice", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-16T11:37:34", "bot": "center", "update_id": 223883295, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-16T11:37:39", "bot": "center", "update_id": 223883295, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}

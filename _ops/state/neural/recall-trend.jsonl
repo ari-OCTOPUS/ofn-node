@@ -125,3 +125,4 @@
 {"ts": "2026-08-16T01:22:47", "schema": "recall_trend.v1", "cycle": 37199, "wall": 1786807367.1327004, "events": 58, "keys": 267, "reach_median": 2.0, "reach_max": 60, "self_ratio": 0.011235955056179775, "coverage": 0.0928, "rows": 625}
 {"ts": "2026-08-16T07:24:38", "schema": "recall_trend.v1", "cycle": 37553, "wall": 1786829078.965729, "events": 58, "keys": 267, "reach_median": 2.0, "reach_max": 60, "self_ratio": 0.011235955056179775, "coverage": 0.0928, "rows": 625}
 {"ts": "2026-08-16T11:48:36", "schema": "recall_trend.v1", "cycle": "warm-2026-08-16", "wall": 1786844916.7432892, "events": 90, "keys": 987, "reach_median": 21.0, "reach_max": 60, "self_ratio": 0.00303951367781155, "coverage": 0.144, "rows": 625}
+{"ts": "2026-08-16T12:40:16", "schema": "recall_trend.v1", "cycle": 37851, "wall": 1786848016.7433035, "events": 90, "keys": 984, "reach_median": 21.0, "reach_max": 60, "self_ratio": 0.003048780487804878, "coverage": 0.144, "rows": 625}

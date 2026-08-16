@@ -371,6 +371,7 @@ contradiction:
   value_b: "دیمون زنده pid 27164: os.environ SELF_CODE_ENABLED=1؛ git_watcher.enabled در daemon_state=true (فلگ جدا، پیش‌فرض 1)؛ proposals_this_run=0"
   source_b: "psutil.Process(27164).environ() + daemon_state.json 2026-08-16 ~11:25 [A]"
   live_check: "STOP-CODE-AUTONOMY فایل _ops را می‌بندد نه brain.daemon. این نشست فلگ را خاموش نکرد."
+  root_cause: "منبع مقدار = `4d_system/.env:32` (SELF_CODE_ENABLED — load_dotenv در هر پروسهٔ 4d آن را به env تزریق می‌کند؛ flags.cmd بی‌ربط است به مغز). یعنی C-024 همان کلاسِ درس دیپ‌تست است: دو منبع پیکربندی واگرا (flags.cmd برای _ops · .env برای 4d) — علاج ساختاری: یا حذف کلید از .env با رأی مالک، یا پل زدن NO-GO-envelope به env پروسهٔ 4d. [A: grep .env + C-024 خودنگاری ~12:0x]"
   likely: value_b for the 4d process; value_a for flags.cmd
   resolution: null
   status: open — owner_vote (do not flip in this session)

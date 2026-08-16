@@ -2216,6 +2216,235 @@
    "created_ts": 1786818499.3321571,
    "read": false,
    "read_at": null
+  },
+  {
+   "id": "notif_doctor_digest_20260816T052259_ac573272",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 3) خطای پرتکرار failed ×4 — نامعلوم (نیاز به کاوش)\n• (شدت 3) خطای پرتکرار ValueError ×1 — نامعلوم (نیاز به کاوش)\n• (شدت 3) خطای پرتکرار HTTPError ×1 — نامعلوم (نیاز به کاوش)\n🔧 کوچک‌ترین فیکس: اجرای کدی برای ثبت واقعی‌کردن ارزیابی سایه بدون ری‌استارت\n⛔ سدِ راه: حداقل تا زمان مقرر (امروز)\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFC باز ندارد.\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-16T05:22:59+1000",
+   "created_ts": 1786821779.174411,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_brain_digest_20260816T052259_56259f11",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 5 · coherence 0.977 · تنش: 🟡 استرس\n💭 آخرین فکر: [local] موانع چندانی نیست، اما مشخص کردن موانع تمرکز مالک بحثی است. الان مهم‌ترین کار مجموعه بررسی موانع و حل آنها است.\n🧭 steeringِ فعالِ تو: focus=موانع چیست\n⚖️ <b>مناظره</b> — 42 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از سیستم پیش‌بینی مبتنی بر شبکه عصبی رایانه‌ای\n<b>2.</b> پروکسی ارزش per-organ از APPROVALهای sent ساخته شود\n<b>3.</b> استفاده از فناوری‌های پیش‌آماده داده (pre-trained data) برای بهبود مدل\n▸ 39 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-16T05:22:59+1000",
+   "created_ts": 1786821779.4509714,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_heart_digest_20260816T052259_fbac9203",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟡\n──────────\nbeat 37434 · period 489.97s · baro 8.1662\nvelocity 20.4167/hr در باند [0.4588, 4.4467] · σ 0.0\nبودجهٔ ضربانِ امروز: 131/2000 (مانده 1869)\nsetpoint: epoch 47 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-16T05:22:59+1000",
+   "created_ts": 1786821779.6483214,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_leg_proposal_20260816T053110_ec736847",
+   "category": "leg_proposal",
+   "kind": "pointer",
+   "title": "📨 پیشنهادِ پا",
+   "body": "",
+   "meta": {
+    "goto_tab": "approvals",
+    "proposal_id": "P-afa53deae99c",
+    "leg_id": "ziman-gallery"
+   },
+   "created_at": "2026-08-16T05:31:10+1000",
+   "created_ts": 1786822270.983509,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_discovery_20260816T053257_e3013405",
+   "category": "discovery",
+   "kind": "content",
+   "title": "🔍 یادگیری",
+   "body": "🔍 <b>15 چیزِ جدید یاد گرفتم!</b>\n──────────\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)\n🔍 دربارهٔ «perception-bias» تحقیق کردم — «Perception-Aware Bias Detection for Query Suggestions» (6 نتیجه)",
+   "meta": {},
+   "created_at": "2026-08-16T05:32:57+1000",
+   "created_ts": 1786822377.1336648,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260816T053707_cf0aa4c5",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ heart doctor router path failed (fallback به policy): ValueError: invalid JSON in model reply (offset 1): 'Expecting property name enclosed in double quotes'  snippet: '{lo,hi} for target velocity. Need underst'",
+   "meta": {},
+   "created_at": "2026-08-16T05:37:07+1000",
+   "created_ts": 1786822627.2340388,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T060143_92f59ad8",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "dt0816s1"
+   },
+   "created_at": "2026-08-16T06:01:43+1000",
+   "created_ts": 1786824103.1930587,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T094001_0a765b8d",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>notify:card</b> ×۲ — ⚖️ math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS ▸ 🙋 منتظرِ توام ▸ شواهد: 0.0 (",
+   "meta": {},
+   "created_at": "2026-08-16T09:40:01+1000",
+   "created_ts": 1786837201.4194171,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T104408_dda0cbd6",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>notify:card</b> ×۲ — ⚖️ math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS ▸ 🙋 منتظرِ توام ▸ شواهد: 0.0 (",
+   "meta": {},
+   "created_at": "2026-08-16T10:44:08+1000",
+   "created_ts": 1786841048.979692,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_doctor_digest_20260816T112456_46cf6b2d",
+   "category": "doctor_digest",
+   "kind": "content",
+   "title": "🩺 دکتر",
+   "body": "🩺 <b>دکتر — تشخیص و پیشنهادها</b>\n──────────\n🎯 تمرکز: (خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود\n• (شدت 3) خطاهای پرتکرار failed ×3 — نامعلوم (نیاز به کاوش)\n• (شدت 3) خطاهای پرتکرار TypeError ×2 — نامعلوم (نیاز به کاوش)\n• (شدت 3) خطاهای پرتکرار HTTPError ×1 — نامعلوم (نیاز به کاوش)\n🔧 کوچک‌ترین فیکس: {&#x27;description&#x27;: &#x27;یک روش برای اجرای شرط مالک بدون نیاز به ری\\u200cاستارت ارگانیسم&#x27;, &#x27;steps&#x27;: [&#x27;بررسی و تنظیم سیستم تا آنچه که در زمان مشخص (ا\n✍️ تصحیحِ تو (2): شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باش\n📋 RFC باز ندارد.\n<i>پاسخ: دکمه‌های کارتِ RFC، یا «/doctor focus &lt;متن&gt;»، یا «/doctor edit &lt;RFC-id&gt; &lt;متن&gt;»</i>",
+   "meta": {},
+   "created_at": "2026-08-16T11:24:56+1000",
+   "created_ts": 1786843496.62694,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_brain_digest_20260816T112500_c9e05a6c",
+   "category": "brain_digest",
+   "kind": "content",
+   "title": "🧠 مغز (cortex)",
+   "body": "🧠 <b>مغز (cortex) — گزارش</b>\n──────────\ncycle 40 · coherence 0.972 · تنش: 🟢 آرام\n💭 آخرین فکر: [local] موانع مشخص نشده است، اما مهم‌ترین کار آگاهی از موانع و حل آنها است.\n🧭 steeringِ فعالِ تو: focus=موانع چیست\n⚖️ <b>مناظره</b> — 45 ایده منتظرِ رأیِ توست\n▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به @intergrade2725_Bot می‌برد\n<b>1.</b> استفاده از سیستم پیش‌بینی مبتنی بر شبکه عصبی رایانه‌ای\n<b>2.</b> پروکسی ارزش per-organ از APPROVALهای sent ساخته شود\n<b>3.</b> استفاده از فناوری‌های پیش‌آماده داده (pre-trained data) برای بهبود مدل\n▸ 42 ایدهٔ دیگر\n<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · think_every_n:N · pause/resume: think</i>",
+   "meta": {},
+   "created_at": "2026-08-16T11:25:00+1000",
+   "created_ts": 1786843500.5146804,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_heart_digest_20260816T112503_d90abe18",
+   "category": "heart_digest",
+   "kind": "content",
+   "title": "🫀 قلب",
+   "body": "🫀 <b>قلب — گزارشِ ریتم</b> 🟢\n──────────\nbeat 37785 · period 489.97s · baro 8.1662\nvelocity 21.25/hr در باند [0.4588, 4.4484] · σ 0.0\nبودجهٔ ضربانِ امروز: 272/2000 (مانده 1728)\nsetpoint: epoch 48 · target_σ 1.0 · cap 2000\n<i>تنظیم (فقط setpoint، هرگز period — ADR-001): «/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>",
+   "meta": {},
+   "created_at": "2026-08-16T11:25:03+1000",
+   "created_ts": 1786843503.9802275,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_health_digest_20260816T114737_f8da2cb4",
+   "category": "health_digest",
+   "kind": "content",
+   "title": "🩺 دایجستِ سلامت",
+   "body": "🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار\n· <b>notify:card</b> ×۳ — ⏸ تصمیم · high گیر کرده: عضو «lead-naghshi» از کار افتاد (phi=19.3 — پاسخ‌گو نبو",
+   "meta": {},
+   "created_at": "2026-08-16T11:47:37+1000",
+   "created_ts": 1786844857.936414,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T123350_ca71bca3",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-c221b203c20a"
+   },
+   "created_at": "2026-08-16T12:33:50+1000",
+   "created_ts": 1786847630.3000476,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260816T123512_beb8f810",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ circuit OPEN for s5-mock-provider — consecutive>=3 (backoff level 1, next retry in ~1s) network down (mock)",
+   "meta": {},
+   "created_at": "2026-08-16T12:35:12+1000",
+   "created_ts": 1786847712.7787845,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260816T123514_fce4f998",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ circuit RECOVERED for s5-mock-provider — closed after 2 consecutive successes",
+   "meta": {},
+   "created_at": "2026-08-16T12:35:14+1000",
+   "created_ts": 1786847714.6647017,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260816T124012_ef3cabd0",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ circuit OPEN for s5-mock-provider-b — consecutive>=3 (backoff level 1, next retry in ~30s) network down (mock)",
+   "meta": {},
+   "created_at": "2026-08-16T12:40:12+1000",
+   "created_ts": 1786848012.6696002,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_rfc_card_20260816T125449_c96cf01e",
+   "category": "rfc_card",
+   "kind": "pointer",
+   "title": "🔧 پیشنهادِ تکامل (RFC)",
+   "body": "",
+   "meta": {
+    "goto_tab": "system",
+    "rfc_id": "c6-eb0e7ad3b756"
+   },
+   "created_at": "2026-08-16T12:54:49+1000",
+   "created_ts": 1786848889.702422,
+   "read": false,
+   "read_at": null
   }
  ],
  "last_ping_ts": 0.0,

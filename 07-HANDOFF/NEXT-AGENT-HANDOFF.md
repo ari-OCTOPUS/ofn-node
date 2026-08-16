@@ -172,3 +172,11 @@ cands.append((
 ## الحاقیه PHASE02 — 2026-08-16 (~06:0x)
 - شواهد کامل: 06-EVIDENCE/PHASE02-2026-08-16.md. برجسته‌ها: هولداوت L1 (ACL مالک) → یافتهٔ gaming-beats-model؛ PEP سایه دو گلوگاه (tg_api._call_post · approval._url_json_post) — لاگ state/telegram-pep-shadow.jsonl از ری‌استارت بعدی پروسه‌ها پر می‌شود؛ readback الان نمای R16 را می‌فهمد.
 - بازِ رأی مالک: فعال‌سازی PEP-P1 (پس از ≥۷ روز سایه) · DA-6 گزینه‌ها · DA-1 L2/L3 · نام ممیز D1 · چرخش PAT.
+
+### الحاقیهٔ پایانی شب 2026-08-16 (~13:2x) — هر چهار مگاپرامپت اجرا شد
+
+ورودی ایجنت بعد: `00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY` + STATE §8.
+- همهٔ شواهد در 06-EVIDENCE (DEEP-TEST · PHASE01 · PHASE02 · ERRORHUNT · CAPABILITY-HARDTEST · CROSSCHECK · RECALL · UNWIRED).
+- پروتکل پوش (C-023): کامیت آزاد؛ **push فقط با کلمهٔ صریح مالک** — کامیت‌های معلق را در گزارش بالا بیاور.
+- تسک پایش تعمیر شد (python.exe مطلق؛ ریشه: py per-user). تسک گرم‌کنندهٔ recall هم جدید است — هر دو را دست‌نخورده بگذار مگر خراب شوند.
+- قاعدهٔ لانچر (درس C-024/دیپ‌تست): env پروسه‌ها از دو منبع واگرا می‌آید (flags.cmd برای _ops · 4d_system/.env برای مغز) — هر لانچر/تست باید منبع درست را صریح بخواند.

@@ -80,3 +80,4 @@
 {"leg": "lead-naghshi", "ts": 1786252156.679605, "beat": 29408, "reason": "phi-timeout:no-ack", "phi": 17.473}
 {"leg": "lead-naghshi", "ts": 1786292428.682793, "beat": 30063, "reason": "phi-timeout:no-ack", "phi": 18.001}
 {"leg": "lead-naghshi", "ts": 1786411816.6076746, "beat": 31091, "reason": "phi-timeout:no-ack", "phi": 17.882}
+{"leg": "lead-naghshi", "ts": 1786844244.1167622, "beat": 37798, "reason": "phi-timeout:no-ack", "phi": 19.335}

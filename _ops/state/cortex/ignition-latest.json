@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T04:54:41",
+  "ts": "2026-08-16T13:01:59",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
@@ -8,13 +8,13 @@
     "kind": "owner_wait",
     "key": "attention:owner_wait",
     "effective": 1.0,
-    "summary": "🔴 نقطهٔ مرده: 💼 مغزِ دومِ کسب‌وکار، 🔁 لوپِ بخش‌ها، 🪞 خودمدلی beat نمی‌خورد"
+    "summary": "🔴 نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker) beat نمی‌خورد"
   },
   "broadcast_width": 1,
-  "margin": 0.537,
+  "margin": 0.62,
   "n_candidates": 9,
   "ignition_rate": 1.0,
-  "stability": 73,
+  "stability": 119,
   "recent_ignitions": [
     1,
     1,

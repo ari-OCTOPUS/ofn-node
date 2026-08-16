@@ -1,12 +1,12 @@
 {
-  "ts": "2026-08-16T05:00:36",
+  "ts": "2026-08-16T13:04:22",
   "velocity": {
-    "velocity_per_hr": 20.5,
+    "velocity_per_hr": 20.7083,
     "components": {
       "confirmed": 0,
       "effects": 0,
       "consolidation": 5,
-      "beats": 1383,
+      "beats": 1376,
       "cognition": null
     },
     "confirmed_ts": [],
@@ -22,16 +22,16 @@
     "authoritative": false,
     "self_referential": true,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-08-16T05:00:40",
-    "fuel_velocity_per_hr": 20.375,
+    "ts": "2026-08-16T13:04:23",
+    "fuel_velocity_per_hr": 20.5833,
     "value_velocity_per_hr": null,
-    "real_velocity_per_hr": 20.375,
+    "real_velocity_per_hr": 20.5833,
     "real_components": {
-      "fuel_calls": 489,
-      "fuel_musd": 146642
+      "fuel_calls": 494,
+      "fuel_musd": 145492
     },
     "leg_money_count": 0,
-    "metronome_share": 0.9651,
+    "metronome_share": 0.9649,
     "honest_pulse": {
       "enabled": true,
       "beat_cap": 3.0,
@@ -39,10 +39,10 @@
     },
     "channels": {
       "leg_money": 0,
-      "fuel": 489,
+      "fuel": 494,
       "value_cognition": null,
       "effects": 0,
-      "beats": 1383
+      "beats": 1376
     }
   },
   "cpi": {
@@ -54,24 +54,24 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-08-16T05:00:40"
+    "ts": "2026-08-16T13:04:23"
   },
   "delta_self": {
-    "stream_rows": 1746,
+    "stream_rows": 1773,
     "sample_size": 336,
     "window": 336,
     "min_samples": 48,
-    "ts": "2026-08-16T05:00:40",
-    "delta_self_live": -0.001148,
-    "delta_self_raw": -0.001148,
-    "S_blind": 0.042702730008550835,
-    "S_informed": 0.04280089500656099,
-    "resolution_mse": 0.023781882524940515,
+    "ts": "2026-08-16T13:04:23",
+    "delta_self_live": 0.005579,
+    "delta_self_raw": 0.005579,
+    "S_blind": 0.054908153875289495,
+    "S_informed": 0.05429890547332307,
+    "resolution_mse": 0.027827395153061794,
     "cov_dropped_zero_variance": [
       "confirmed",
       "effects"
     ],
-    "ceiling_live": 2.684373,
+    "ceiling_live": 2.688021,
     "holdout_n": 168,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",
@@ -83,5 +83,5 @@
     ]
   },
   "schema": "heart-signals.v1",
-  "gate0_live_producer": false
+  "gate0_live_producer": true
 }

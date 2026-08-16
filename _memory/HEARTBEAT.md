@@ -1313,3 +1313,46 @@
 - 2026-08-16T04:25:47 · chrono=START period=60s beat=37377
 - 2026-08-16T04:28:27 · organism=ok · ماه AU$0.49 · مشکوک متر صفر=0 · سالم
 - 2026-08-16T04:34:13 · cortex=START port=8772
+- 2026-08-16T05:32:57 · organism=ok · ماه AU$0.50 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T06:31:33 · organism=ok · ماه AU$0.50 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T07:32:07 · organism=ok · ماه AU$0.52 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T08:33:23 · organism=ok · ماه AU$0.54 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T09:34:07 · organism=ok · ماه AU$0.56 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T10:36:12 · organism=ok · ماه AU$0.58 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T11:52:20 · organism=ok · ماه AU$0.59 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T12:10:50 · organism=START port=8771
+- 2026-08-16T12:10:52 · human-append guard configured (per-boot secret)
+- 2026-08-16T12:10:53 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-16T12:10:57 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-16T12:11:10 · boot recovery: journal incomplete=11 chrono reconciled=0 attention=0
+- 2026-08-16T12:12:07 · birth certificate: boot=8f8fa83c4b63 prev=532c8f054348 slept=589.858408s
+- 2026-08-16T12:12:09 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-16T12:12:09 · code-apply مسلح ولی active()=False — درایور استارت نشد
+- 2026-08-16T12:12:09 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-16T12:12:09 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': 'live', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-16T12:12:09 · chrono=START period=60s beat=37825
+- 2026-08-16T12:36:41 · organism=ok · ماه AU$0.60 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T12:52:26 · organism=START port=8771
+- 2026-08-16T12:52:27 · human-append guard configured (per-boot secret)
+- 2026-08-16T12:52:27 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-16T12:52:30 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-16T12:52:31 · boot recovery: journal incomplete=12 chrono reconciled=0 attention=0
+- 2026-08-16T12:52:47 · birth certificate: boot=7fe67ca3df18 prev=8f8fa83c4b63 slept=212.946091s
+- 2026-08-16T12:52:47 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-16T12:52:47 · code-apply مسلح ولی active()=False — درایور استارت نشد
+- 2026-08-16T12:52:47 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-16T12:52:47 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': 'live', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-16T12:52:47 · chrono=START period=60s beat=37863
+- 2026-08-16T12:53:10 · organism=START port=8771
+- 2026-08-16T12:53:10 · human-append guard configured (per-boot secret)
+- 2026-08-16T12:53:10 · auto-tuned knobs restored: ['ts', 'CHRONO_NUDGE_EVERY_N_BEATS', 'note', 'HEART_SAMPLE_INTERVAL_S', 'CORTEX_THINK_EVERY_N', 'owner_apply_ts']
+- 2026-08-16T12:53:10 · lead-boundary HTTP started (Trust-Engine ingress, loopback)
+- 2026-08-16T12:53:11 · boot recovery: journal incomplete=12 chrono reconciled=0 attention=0
+- 2026-08-16T12:53:12 · birth certificate: boot=664bde8d7e33 prev=7fe67ca3df18 slept=20.159673s
+- 2026-08-16T12:53:12 · telegram poll thread started after callback recovery (C7.2)
+- 2026-08-16T12:53:12 · code-apply مسلح ولی active()=False — درایور استارت نشد
+- 2026-08-16T12:53:12 · code-brain driver started (حلقهٔ ۸؛ kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)
+- 2026-08-16T12:53:12 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'paid_governor_router': True, 'paid_heart_doctor_router': True, 'paid_doctor_selfknow': True, 'arm_gate_enforcing': True, 'wire_actuator': True, 'wire_context_fence': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': True, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': True, 'wire_fitness': True, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': True, 'wire_heart': True, 'wire_heart_work': True, 'wire_bio': True, 'wire_pulse': True, 'wire_selfheal': True, 'wire_pocketsmith': True, 'wire_web_research': True, 'wire_ziman': True, 'wire_cartographer': True, 'wire_fisher': True, 'wire_mining': True, 'wire_email': True, 'wire_ingest': True, 'wire_harvest': True, 'wire_lead_verdict_effect': True, 'profile': 'live', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-08-16T12:53:12 · chrono=START period=60s beat=37864
+- 2026-08-16T12:55:02 · organism=ok · ماه AU$0.61 · مشکوک متر صفر=0 · سالم
+- 2026-08-16T13:01:55 · cortex=START port=8772

@@ -1,29 +1,34 @@
 {
-  "ts": "2026-08-16T05:02:25",
-  "beat": 37409,
-  "version": 299,
+  "ts": "2026-08-16T12:44:23",
+  "beat": 37826,
+  "version": 313,
   "source": "heuristic",
-  "snapshot_hash": "8bad0b8847c91b02",
+  "snapshot_hash": "feaa44e1553964f4",
   "stable_cycles": 0,
   "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
-    "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 330531 micro-USD",
+    "anatomy": "9 لِگ، 42 سیمِ روشن",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 397999 micro-USD",
     "pathology": [
       {
-        "symptom": "خطای پرتکرار failed ×4",
+        "symptom": "نقطهٔ مردهٔ عصب‌کشی",
+        "root_cause": "کالیبراسیونِ SLA یا نوشندهٔ غایب",
+        "severity": "low"
+      },
+      {
+        "symptom": "خطای پرتکرار TypeError ×2",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       },
       {
-        "symptom": "خطای پرتکرار ValueError ×1",
+        "symptom": "خطای پرتکرار TimeoutError ×2",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       },
       {
-        "symptom": "خطای پرتکرار HTTPError ×1",
+        "symptom": "خطای پرتکرار failed ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
@@ -67,23 +72,33 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 14900,
-      "newest_input_age_s": 56
+      "oldest_input_age_s": 630,
+      "newest_input_age_s": 107
     }
   },
   "deep_dive": {
     "topic": "واقعی‌کردن ارزیابی سایه پیش از promote",
     "cause_chain": [
       "شرطِ مالک: قبول ولی فقط اگر بدون ری‌استارت ارگانیسم باشد و امروز تمام شود",
-      "وضعیت فعلی: بدون ری‌استارت ارگانیسم و قبل از زمان مقرر (امروز)",
-      "محدودیت: نیاز به یک فیکس کوچک برای حل مسئله"
+      "نیاز به داده دقیق برای تصمیم گیری در محیط فعلی",
+      "عدم وجود ری‌استارت می‌تواند منجر به عدم قابلیت آپدیت اطلاعات باشد",
+      "کاهش داده‌ها و اطلاعات می‌تواند منجر به نقص در تصمیمات شود"
     ],
     "evidence": [
-      "owner_corrections: ['شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدون ری‌استارت ارگانیسم باشد و امروز تمام شود']",
-      "recent_lanes: 10 لانه‌های فعال و 1 لانه غیرفعال"
+      {
+        "type": "stakeholder_concern",
+        "description": "مالک معتقد است که بدون ری‌استارت، داده‌ها و اطلاعات محدود هستند."
+      },
+      {
+        "type": "system_limitation",
+        "description": "ارگانیسم در حال حاضر نمی‌تواند بازگشت به حالت قبلی داشته باشد."
+      }
     ],
-    "smallest_fix": "اجرای کدی برای ثبت واقعی‌کردن ارزیابی سایه بدون ری‌استارت",
-    "blocked_by": "حداقل تا زمان مقرر (امروز)"
+    "smallest_fix": "برای حل این مشکل، می‌توان یک روش آپدیت اطلاعات بدون ری‌استارت پیاده‌سازی کرد.",
+    "blocked_by": [
+      "عدم وجود راه‌حل قابل اجرا برای بازگشت به حالت قبلی",
+      "نیاز به زمان و منابع برای پیاده‌سازی روش آپدیت بدون ری‌استارت"
+    ]
   },
   "trajectory": {
     "focus_stable": true,
@@ -99,20 +114,18 @@
     "legs_alive": [
       "lead",
       "accounting",
-      "ziman",
       "system"
     ],
     "in_fear": [],
-    "money_musd": 330531,
+    "money_musd": 397999,
     "recent_errors": {
-      "failed": 4,
-      "ValueError": 1,
-      "HTTPError": 1,
-      "TypeError": 1
+      "TypeError": 2,
+      "TimeoutError": 2,
+      "failed": 1
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-16T05:00:15",
+    "ts": "2026-08-16T12:40:59",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,

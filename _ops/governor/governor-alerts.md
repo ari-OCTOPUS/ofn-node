@@ -4896,3 +4896,39 @@
 ## 2026-08-16T00:53:17 (metabolism)
 - ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
 
+## 2026-08-16T05:32:49 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-16T05:32:56 (metabolism)
+- ⚠️ heart doctor router path failed (fallback به policy): ValueError: invalid JSON in model reply (offset 1): 'Expecting property name enclosed in double quotes'  snippet: '{lo,hi} for target velocity. Need underst'
+
+## 2026-08-16T05:32:57 (metabolism)
+- ⚠️ wiring: discovery_nudge خطا: TypeError: mark_nudged() missing 1 required positional argument: 'high_water'
+
+## 2026-08-16T11:31:25 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-16T12:02:23 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (60/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-16T12:13:28 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-16T12:16:03 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-16T12:34:30 (metabolism)
+- ⚠️ circuit OPEN for s5-mock-provider — consecutive>=3 (backoff level 1, next retry in ~1s) network down (mock)
+
+## 2026-08-16T12:34:35 (metabolism)
+- ⚠️ circuit RECOVERED for s5-mock-provider — closed after 2 consecutive successes
+
+## 2026-08-16T12:36:40 (metabolism)
+- ⚠️ circuit OPEN for s5-mock-provider-b — consecutive>=3 (backoff level 1, next retry in ~30s) network down (mock)
+
+## 2026-08-16T12:44:32 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-16T12:53:48 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+

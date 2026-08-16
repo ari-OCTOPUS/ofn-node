@@ -1,9 +1,9 @@
 {
-  "effective_period_s": 123.82,
+  "effective_period_s": 123.92,
   "base_period_s": 60.0,
-  "consensus_s": 123.82,
+  "consensus_s": 123.92,
   "brake_s": null,
-  "color": "GREEN",
+  "color": "AMBER",
   "driver": "consensus",
   "reasons": [
     "اجماعِ 2 قلبِ متحرک (از 3 حاضر، وزن‌دار) → 124s؛ تندترین «cardiac» 42s"
@@ -36,11 +36,11 @@
     {
       "heart": "rhythm",
       "present": true,
-      "period_s": 80.16,
+      "period_s": 80.39,
       "braking": false,
       "precision": 0.7,
-      "color": "GREEN",
-      "note": "mode=STEADY/GREEN · hrv=0.24",
+      "color": "AMBER",
+      "note": "mode=STEADY/AMBER · hrv=0.13",
       "mode": "LIVE",
       "dof": 0,
       "last_change_ts": null
@@ -52,9 +52,9 @@
   "n_held": 0,
   "n_constant": 1,
   "n_unknown_mode": 0,
-  "ts": "2026-08-16T05:02:57",
+  "ts": "2026-08-16T13:06:34",
   "schema": "pulse-arbiter.v1",
-  "beat": 37414,
+  "beat": 37878,
   "advisory_only": true,
   "precision_mode": "static",
   "wire_open": true,

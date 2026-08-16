@@ -1,6 +1,6 @@
 {
   "schema": "octopus-organism-manifest/0",
-  "observed_at": "2026-08-15T19:03:00+00:00",
+  "observed_at": "2026-08-16T01:24:47+00:00",
   "declared_members": [
     "organism",
     "center",
@@ -106,8 +106,8 @@
     },
     {
       "role": "unknown",
-      "pid": 12276,
-      "started": "/Date(1786820408405",
+      "pid": 27164,
+      "started": "/Date(1786840476614",
       "ports_listening": [],
       "entry_file": null,
       "entry_sha256": null,
@@ -117,9 +117,33 @@
       "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 -m brain.daemon "
     },
     {
+      "role": "unknown",
+      "pid": 7216,
+      "started": "/Date(1786843242711",
+      "ports_listening": [],
+      "entry_file": "F:\\backup\\_ops\\state\\_unwired_scan_20260816.py",
+      "entry_sha256": "979f857146957560c70ac8b16ceac0d72eac3ba6f7cc8e25af9cc1a39a7e1cf7",
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\state\\_unwired_scan_20260816.py"
+    },
+    {
+      "role": "unknown",
+      "pid": 23032,
+      "started": "/Date(1786843487652",
+      "ports_listening": [],
+      "entry_file": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus_t1t8_probe.py",
+      "entry_sha256": "2404a35a47b50aa1cb6e7f697ab208a1345b367b0598c645ebf1a7f7016399d3",
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus_t1t8_probe.py"
+    },
+    {
       "role": "organism",
-      "pid": 16840,
-      "started": "/Date(1786820580018",
+      "pid": 27176,
+      "started": "/Date(1786843487661",
       "ports_listening": [],
       "entry_file": "F:\\backup\\_ops\\audit\\organism_manifest.py",
       "entry_sha256": "a62b2eb7e01512bb8df74dbca13ef345ba1bc65abbf3dee55bae4b9b715fde1a",
@@ -128,7 +152,93 @@
         "send:telegram(via center)",
         "pay:no"
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 _ops/audit/organism_manifest.py"
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 _ops\\audit\\organism_manifest.py"
+    },
+    {
+      "role": "unknown",
+      "pid": 23268,
+      "started": "/Date(1786843487889",
+      "ports_listening": [],
+      "entry_file": "F:\\backup\\06-EVIDENCE\\_errorhunt_harvest_20260816.py",
+      "entry_sha256": "b455f8f1b812bb5269b39824b2cb86ead4c9cfed78dc33fd6991f07289097336",
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\06-EVIDENCE\\_errorhunt_harvest_20260816.py"
+    },
+    {
+      "role": "unknown",
+      "pid": 28616,
+      "started": "/Date(1786843491604",
+      "ports_listening": [],
+      "entry_file": null,
+      "entry_sha256": null,
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -c \"import json,sys; sys.path.insert(0, r'F:\\backup\\4d_system'); os_ok=True\nimport os\nos.chdir(r'F:\\backup\\4d_system')\n# parse flags last-wins into this process then check invariants\nwant='OCTOPUS_TCB_MANIFEST_ENFORCE'\nfor line in open(r'F:\\backup\\_ops\\OCTOPUS"
+    },
+    {
+      "role": "unknown",
+      "pid": 21828,
+      "started": "/Date(1786843491663",
+      "ports_listening": [],
+      "entry_file": null,
+      "entry_sha256": null,
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 -c \"\nimport json, sys\nfrom pathlib import Path\nfrom collections import Counter\nimport numpy as np\n\nCONS = Path(r'F:/backup/_ops/neural/consolidation.json')\nLAT  = Path(r'F:/backup/_ops/state/latent-vectors.json')\nhist = json.loads(CONS.read_text(encodi"
+    },
+    {
+      "role": "unknown",
+      "pid": 5824,
+      "started": "/Date(1786843496214",
+      "ports_listening": [],
+      "entry_file": null,
+      "entry_sha256": null,
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": ""
+    },
+    {
+      "role": "cortex",
+      "pid": 17512,
+      "started": "/Date(1786843496306",
+      "ports_listening": [],
+      "entry_file": null,
+      "entry_sha256": null,
+      "effect_paths": [
+        "write:outputs",
+        "llm:paid(via router)",
+        "pay:budget-capped"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -c \"\ntry:\n    import psutil\nexcept ImportError:\n    print('NO_PSUTIL')\n    raise SystemExit(0)\nimport json\npid=27164\ntry:\n    p=psutil.Process(pid)\n    env=p.environ()\n    keys=['OCTOPUS_TCB_MANIFEST_ENFORCE','CORTEX_HYPOTHESIS','SELF_CODE_ENABLED','DAEMON_TIC"
+    },
+    {
+      "role": "unknown",
+      "pid": 18316,
+      "started": "/Date(1786843496315",
+      "ports_listening": [],
+      "entry_file": "F:\\backup\\.claude\\hooks\\pii_read_guard.py",
+      "entry_sha256": "9053f424904ad860e609a77192a9b01ff1bf200cf78d0191df3ecd7d1ffe1888",
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" F:/backup/.claude/hooks/pii_read_guard.py"
+    },
+    {
+      "role": "unknown",
+      "pid": 23720,
+      "started": "/Date(1786843496647",
+      "ports_listening": [],
+      "entry_file": "F:\\backup\\.claude\\hooks\\pii_read_guard.py",
+      "entry_sha256": "9053f424904ad860e609a77192a9b01ff1bf200cf78d0191df3ecd7d1ffe1888",
+      "effect_paths": [
+        "UNDECLARED — must fail admission in future manifest"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" F:/backup/.claude/hooks/pii_read_guard.py"
     }
   ],
   "flags_effective_last_wins": {
@@ -502,7 +612,7 @@
   "drift": {
     "declared_not_observed": [],
     "observed_not_declared": [],
-    "unknown_cmdline_members": 2,
+    "unknown_cmdline_members": 10,
     "note": "ادعا در برابر مشاهده — هر مقدار نونال = شکافِ شناسنامه"
   },
   "next_steps_with_owner_vote": [

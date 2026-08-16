@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-15T23:56:16",
-  "month_aud": 0.472452,
+  "ts": "2026-08-16T12:36:29",
+  "month_aud": 0.596998,
   "suspect_zero": 0,
   "sigma": 0.0,
   "period_shadow_s": 489.97,
-  "gate0": false,
+  "gate0": true,
   "wire_open": false
 }

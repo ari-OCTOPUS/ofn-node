@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-16T04:13:46",
+  "ts": "2026-08-16T11:19:45",
   "schema": "self-model.v1",
-  "n_modules": 683,
-  "total_lines": 187040,
-  "n_tests": 700,
+  "n_modules": 686,
+  "total_lines": 187303,
+  "n_tests": 702,
   "n_wire_flags": 180,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
@@ -592,7 +592,7 @@
     },
     "audit/generate_aeb.py": {
       "purpose": "R19 — تولید Audit Evidence Bundle (AEB) از درختِ زنده.",
-      "lines": 250,
+      "lines": 265,
       "n_funcs": 4,
       "n_classes": 0,
       "top_defs": [
@@ -626,7 +626,7 @@
     },
     "audit/poisoning_watch_4d.py": {
       "purpose": "پایش مسمومیت حافظهٔ 4d — شرط شورا برای R15-shadow (2026-08-16).",
-      "lines": 98,
+      "lines": 116,
       "n_funcs": 2,
       "n_classes": 0,
       "top_defs": [
@@ -877,7 +877,7 @@
     },
     "budget/approval_channel.py": {
       "purpose": "approval_channel — منبعِ مستقلِ تأییدِ انسانی برای گیت‌های پول (A2/A3).",
-      "lines": 4924,
+      "lines": 4931,
       "n_funcs": 31,
       "n_classes": 5,
       "top_defs": [
@@ -1328,6 +1328,21 @@
       "house_imports": [
         "opslib"
       ]
+    },
+    "budget/telegram_pep_shadow.py": {
+      "purpose": "telegram_pep_shadow — DA-4-P1: PEP سایه روی مرز ارسال تلگرام (PHASE02 STEP1).",
+      "lines": 107,
+      "n_funcs": 3,
+      "n_classes": 2,
+      "top_defs": [
+        "Lease",
+        "PepState",
+        "params_sha",
+        "observe",
+        "hook"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "budget/telemetry.py": {
       "purpose": "telemetry.py — T1 پک: خوانندهٔ واحد مصرف هر دو استک در فضای micro-USD.",
@@ -4097,6 +4112,31 @@
       "house_imports": [
         "model_router"
       ]
+    },
+    "evaluator-holdout/build_holdout.py": {
+      "purpose": "سازندهٔ بستهٔ هولداوت پنهان — DA-1-L1 (PHASE02 STEP2).",
+      "lines": 57,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_gold_hash",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "evaluator-holdout/evaluator.py": {
+      "purpose": "ارزیاب هولداوت — DA-1-L1. تنها API عمومی: score(submissions) → aggregate.",
+      "lines": 53,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_is_y",
+        "score",
+        "items_observable"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "events.py": {
       "purpose": "events.py — ستون‌فقراتِ رویدادِ ساختاریافته برای داشبوردِ اتوماسیونِ مینیمال (جلسه ۴۶).",
@@ -10562,7 +10602,7 @@
     },
     "telegram_center/tg_api.py": {
       "purpose": "tg_api.py — کلاینتِ نازکِ Bot API تلگرام برای «مرکزِ تلگرام» (telegram_center).",
-      "lines": 855,
+      "lines": 861,
       "n_funcs": 18,
       "n_classes": 1,
       "top_defs": [

@@ -1,21 +1,21 @@
 {
- "ts": "2026-08-16T05:03:04",
+ "ts": "2026-08-16T13:06:56",
  "schema": "heartstate.v1",
  "epistemic": "access-only telemetry — read-only، regulator نه commander",
  "shadow": {
-  "velocity": 20.5,
+  "velocity": 20.7083,
   "sigma": 0.0,
   "period_s": 489.97,
   "mode": "shadow",
   "band": [
    0.4588,
-   4.4467
+   4.4484
   ],
   "wire_open": false
  },
  "stress": {
-  "organism": 0.42,
-  "level": "🟡 استرس",
+  "organism": 0.38,
+  "level": "🟢 آرام",
   "in_fear": []
  },
  "innervation": {
