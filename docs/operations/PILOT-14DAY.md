@@ -1,6 +1,19 @@
+---
+tags: [ofn, operations, pilot]
+aliases: [پایلوت ۱۴روزه, PILOT-14DAY]
+updated: 2026-08-11
+---
+
 # O12 — پایلوت ۱۴روزه: روز صفر و هر روز
 
 **فاز O12 · تاریخ: ۲۰۲۶-۰۸-۱۰ · نیازمند همکاری واقعی شریک‌ها — آماده شد، اجرا نشد**
+
+**پیوندها:** [[REVENUE-STAGES]] · [[REVENUE-WEEK-CHECKLIST]] · [[HANDOFF]]
+
+آستانه‌های موفقیت از ۲۰۲۶-۰۸-۱۱ در پنل مالک قابل ثبت‌اند
+(`GET/POST /api/v1/owner/pilot/config` · فایل `pilot_config.json` زیر
+state_dir). پیش‌فرض همان ۳ listing / ۱ inquiry / ۱ payment است؛ روش پرداخت
+هر بیزنس تا حکم مالک `unset` می‌ماند و گزارش آن را «اندازه‌گیری‌نشده» می‌نویسد.
 
 ## روز صفر — با آری و شریک‌ها (واقعی)
 
@@ -25,10 +38,23 @@
 - کارهای دستی فراموش‌شده · false blocker / unsafe bypass attempt
 - partner friction notes (از خود شریک‌ها)
 
-## قانون
-**هیچ threshold موفقیتی اختراع نکن.** در روز صفر آری thresholdها را ثبت
-کند و تست/گزارش همان‌ها را بخواند. اگر threshold ثبت نشد، پایلوت «اندازه‌گیری
-نمی‌شود» می‌گوید — نه عدد جعلی.
+## معیار دقیق موفقیت پایلوت
+
+پایلوت فقط وقتی موفق است که در بازهٔ UTC خواسته‌شده، یک زنجیرهٔ واقعی و
+زمان‌مرتب در جدول‌های commerce وجود داشته باشد:
+
+1. دست‌کم **۳ رویداد listing تولیدی**؛
+2. دست‌کم **۱ inquiry تولیدی** که به یکی از همان listingها وصل است؛
+3. دست‌کم **۱ payment تولیدی** که از راه یک order به همان inquiry وصل است،
+   وضعیتش `confirmed` یا `settled` است، `amount_cents > 0` دارد و
+   `evidence_digest` آن خالی نیست.
+
+همهٔ حلقه‌ها باید داخل همان بازه باشند و ترتیب
+`listing → inquiry → order → payment` را رعایت کنند. پرداخت `refunded` یا
+`reversed` موفقیت نیست. شمارنده‌های جداگانه به‌تنهایی کافی نیستند؛ زنجیرهٔ
+لینک‌شده لازم است. داده‌های `seed`، `test`، `demo` و `legacy_unknown` هرگز
+حساب نمی‌شوند؛ به‌ویژه سناریوهای ساخته‌شده با `tools/seed_pilot.py` فقط برای
+walkthrough هستند و هیچ‌وقت معیار پایلوت را پاس نمی‌کنند.
 
 ## ابزار
 
@@ -43,7 +69,8 @@ python3 tools/seed_pilot.py
 ```bash
 python3 tools/pilot_report.py --days 3
 ```
-گزارش از store های canonical — هیچ DB موازی.
+گزارش از store های canonical — هیچ DB موازی. `--days` یک بازهٔ واقعی UTC
+می‌سازد و فقط زنجیره‌های commerce داخل همان بازه را می‌سنجد.
 
 ---
 
@@ -58,7 +85,7 @@ python3 tools/pilot_report.py --days 3
 | draft استودیو | ۱ | `studio.drafts("studio")` — pilot-draft-1 |
 | pilot تلگرام (فقط-خواندنی) | ✅ کار می‌کند — ۳ آیتم خواند: me/webhook/channel | run زنده با Robo2725_bot |
 | پنل‌ها | ۴/۴ HTML واقعی سرو می‌شود (۲۰۰) | panel/ziman/lead/studio |
-| threshold موفقیت | ⏳ **منتظر حکم آری** — هیچ عددی اختراع نشد | قانون پایلوت |
+| معیار موفقیت | زنجیرهٔ تولیدی ۳ listing → ۱ inquiry لینک‌شده → ۱ order → ۱ payment معتبر | جدول‌های commerce در `products.sqlite` |
 
 ### گزارش روزانه (خودکار)
 ```bash

@@ -167,12 +167,41 @@ class TestStatesAndChannels(unittest.TestCase):
         for word in ("در دست ساخت", "برای فروش", "فروخته شد", "هدیه داده شد"):
             self.assertIn(word, SRC)
 
-    def test_the_four_channels_are_offered(self):
-        for word in ("اینستاگرام", "بازارچه", "Etsy", "مستقیم"):
-            self.assertIn(word, SRC)
+    def test_configured_zero_fee_channels_are_offered(self):
+        # Only channels with fees in packs/ziman.yaml. Marketplace labels
+        # stay absent until Ari sets their percent — unknown fee must not sell.
+        self.assertIn(
+            "const CHANNEL_FA = { direct: 'مستقیم', cash: 'نقد', payid: 'PayID' }",
+            SRC,
+        )
+        self.assertNotIn("instagram:", SRC)
+        self.assertNotIn("etsy:", SRC)
+        self.assertNotIn("market:", SRC)
+        self.assertNotIn("اینستاگرام", SRC)
+        self.assertNotIn("بازارچه", SRC)
 
-    def test_selling_asks_where(self):
-        self.assertIn("کجا فروختید؟", SRC)
+    def test_sale_receipt_collects_channel_and_explicit_unknowns(self):
+        self.assertIn("رسید فروش واقعی", SRC)
+        self.assertIn("amount_unknown", SRC)
+        self.assertIn("fee_unknown", SRC)
+        self.assertIn("واقعی است، آزمایشی نیست", SRC)
+
+    def test_sale_uses_dedicated_route_never_generic_sold_save(self):
+        self.assertIn("+ '/sales'", SRC)
+        self.assertNotIn("state: 'sold'", SRC)
+        self.assertNotIn("askChannel", SRC)
+        self.assertNotIn("فروختمش", SRC)
+
+    def test_listing_packet_and_receipt_words_are_distinct(self):
+        self.assertIn("بستهٔ آگهی", SRC)
+        self.assertIn("/listing-packet", SRC)
+        self.assertIn("رسید فروش ثبت شد", SRC)
+        self.assertIn("پرداخت تأیید شد", SRC)
+
+    def test_api_strings_are_rendered_without_inner_html(self):
+        self.assertNotRegex(SRC, r"\.innerHTML\s*=")
+        self.assertIn("packet.caption", SRC)
+        self.assertIn("textContent", SRC)
 
 
 class TestBootReachability(unittest.TestCase):

@@ -1,7 +1,7 @@
 ---
 tags: [ofn, moc, home]
 aliases: [خانه, نقشه, Home]
-updated: 2026-08-10
+updated: 2026-08-11
 ---
 
 # 🐙 OFN — نقشهٔ پروژه
@@ -71,11 +71,28 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
   برچسب اولویت انسانی در lead · `setHeaderColor` در studio ·
   empty-state گرم در ziman. حذف ممنوع رعایت شد.
 
+**چه کارها تمام شده‌اند (جلسهٔ ۲۰۲۶-۰۸-۱۱ — هفتهٔ درآمد):**
+- ✅ سیم‌کشی پنل P1/Z0/S0 — نه فروش خودکار.
+  نقشه: [[docs/operations/REVENUE-STAGES|مراحل درآمد]] ·
+  اجرا: [[docs/operations/REVENUE-WEEK-CHECKLIST|چک‌لیست هفته]].
+- ✅ آستانه‌های پایلوت owner-writable (`pilot_config` · پیش‌فرض ۳/۱/۱) ·
+  روش پرداخت هر بیزنس هنوز `unset` تا حکم تو.
+- ✅ Painting: follow-up / touch / booked · GiftMesh: کانال‌های zero-fee +
+  sale receipt · Studio: consent + publish از outbox.
+- ✅ گیت‌های موقت بعد از ۲۰۲۶-۰۸-۱۷ UTC خودکار بسته می‌شوند
+  ([[docs/architecture/DECISION-open-gates|DecisionRecord]]).
+
+**الان اولویت انسان (نه کد):**
+1. پنل مالک → روش پرداخت lead/ziman/studio
+2. چرخش راز قبل از ۱۷ اوت — یا قبول auto-close
+3. عباس: follow-up → quote → booked · ملیحه: ۳ listing · سبا: ۱ پست تجاری
+
 **کارهای باز برای بعد (طرح آماده در مگاپرامپت‌ها):**
 - ✅ **[[MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH]] — O1–O9 اجرا شد (۱۸۲۶ pass):**
   approval جدا از send · webhook واقعی · workboard · لید/زیمان/استودیو ·
   marketing workbench · public surface local-only.
-  **مانده فقط حکم آری:** O10 vendor pilot · O11 خروجی محدود · O12 پایلوت ۱۴روزه.
+  **مانده فقط حکم آری:** O10 vendor pilot · O11 خروجی محدود · O12 پایلوت ۱۴روزه
+  (معیار زنجیره آماده؛ اجرای واقعی شریک‌ها باز است — [[docs/operations/PILOT-14DAY]]).
 - ✅ [[MEGAPROMPT-COMPLETE-FINISH]] — فاز H–M اجرا شد (۱۷۶۷ pass · boot ۳۱/۳۱).
   بقیه فقط حکم آری: UNIFY قدم دوم، vendor، kill durable، retention.
 - ✅ [[AGENT-NEXT-DEEPSEEK-V4-FAST]] + [[MEGAPROMPT-P1-TO-P4-COMPLETE]] —
@@ -105,8 +122,9 @@ hypno                   تنانت واقعی در packs/ · بدون WebApp ع�
 | ۱ | [[HANDOFF]] | **وضعیت زنده.** اول هر جلسه بخوان، آخرش تازه کن |
 | ۲ | [[CLAUDE]] | قانون اساسی دستگاه — قوانین سخت، گیت‌ها، درجه‌بندی ریسک |
 | ۳ | [[DECISIONS]] | چه چیزی قفل شده، چه چیزی باز است، چه چیزی برای همیشه رد شد |
-| ۴ | [[README]] | معماری کد و فازهای تحویل‌شده |
-| ۵ | [[CHECKPOINT]] | آخرین وضعیت دروازه‌ها |
+| ۴ | [[docs/operations/REVENUE-WEEK-CHECKLIST]] | **کار این هفته تا اولین پول دستی** |
+| ۵ | [[README]] | معماری کد و فازهای تحویل‌شده |
+| ۶ | [[CHECKPOINT]] | آخرین وضعیت دروازه‌ها |
 
 ## درس‌ها — چه چیزی شکست و چرا
 
@@ -228,6 +246,14 @@ preflight           ۲۸/۲۸ OK
 ```
 
 جزئیات و ترتیب اولویت در [[HANDOFF]] بخش «لید نقاشی — شکاف‌ها» آمده.
+
+### درآمد و عملیات زنده
+- [[docs/operations/REVENUE-STAGES|نقشهٔ مراحل درآمد]]
+- [[docs/operations/REVENUE-WEEK-CHECKLIST|چک‌لیست هفتهٔ درآمد]]
+- [[docs/operations/PILOT-14DAY|پایلوت ۱۴روزه]]
+- [[docs/operations/OWNER-COCKPIT|کاکپیت مالک]]
+- [[docs/architecture/DECISION-open-gates|گیت‌های موقت تا ۱۷ اوت]]
+- [[docs/runbooks/SECRET-ROTATION|چرخش راز]]
 
 ### یادداشت‌های عملیاتی لید نقاشی
 - [[docs/prompts/PAINTING-NEXT-AGENT-MEGAPROMPT-v2|مگاپرامپت عامل بعدی (نسخهٔ ۲ — Flight Deck)]]

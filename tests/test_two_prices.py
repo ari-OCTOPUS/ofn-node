@@ -92,9 +92,12 @@ class TestTheWarningUsesTheFloor(Base):
     def test_the_channel_fee_comes_off_the_floor_not_the_listing(self):
         fees = {"market": {"percent": 0.10, "fixed": 0.0}}
         p = self.make(price_primary_aud=100.0, price_secondary_aud=60.0)
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "market"},
-                                now_iso=JAN)
+        out = self.s.record_sale(
+            "ziman", p.sku, event_id="sale-floor", sold_at=JAN,
+            channel="market", amount_unknown=True, fee_unknown=True,
+            now_iso=JAN)
+        self.assertTrue(out["ok"])
+        sold = self.s.get("ziman", p.sku)
         self.assertAlmostEqual(net_margin_aud(sold, fees), 60.0 - 6.0 - 80.0)
 
 

@@ -194,10 +194,12 @@ class TestArchiving(Base):
         or `in_progress` when it happened, and folding the two loses that."""
         # A sold piece must say where it sold — the store enforces that, and
         # the first version of this fixture did not know it.
-        p = self.s.create("ziman", "ZM", {"name": "x", "state": "sold",
-                                          "channel": "market",
-                                          "sold_at": "2026-01-10"},
-                          now_iso=JAN)
+        p = self.add(name="x")
+        out = self.s.record_sale(
+            "ziman", p.sku, event_id="archive-sale", sold_at=JAN,
+            channel="market", amount_unknown=True, fee_unknown=True,
+            now_iso=JAN)
+        self.assertTrue(out["ok"])
         after = self.s.archive("ziman", p.sku, now_iso=JAN)
         self.assertEqual(after.state, "sold")
         self.assertIsNotNone(after.archived_at)

@@ -687,8 +687,10 @@ const STATE_FA = { in_progress: 'در دست ساخت', for_sale: 'برای فر
                    sold: 'فروخته شد', gifted: 'هدیه داده شد' };
 const STATE_DOT = { in_progress: 'made', for_sale: 'sale',
                     sold: 'sold', gifted: 'gift' };
-const CHANNEL_FA = { instagram: 'اینستاگرام', market: 'بازارچه',
-                     etsy: 'Etsy', direct: 'مستقیم' };
+/* Only channels with configured fees in packs/ziman.yaml. Marketplace
+   channels stay absent until Ari sets their percent — unknown fee must
+   not be sold. */
+const CHANNEL_FA = { direct: 'مستقیم', cash: 'نقد', payid: 'PayID' };
 
 const STEPS = [
   { key: 'name', ask: 'اسم این قطعه چیست؟',
@@ -1145,7 +1147,8 @@ function openPiece(p) {
     bottom.append(b);
   };
   if (p.state === 'in_progress') act('آماده‌اش کردم', () => save(p, { state: 'for_sale' }));
-  else if (p.state === 'for_sale') act('فروختمش', () => askChannel(p));
+  else if (p.state === 'for_sale') act('رسید فروش ثبت کن', () => saleForm(p));
+  act('بستهٔ آگهی', () => listingPacket(p));
   act('قیمتش را عوض کن', () => editPrice(p));
   const back = el('button', 'back', 'برگرد');
   back.type = 'button';
@@ -1181,18 +1184,217 @@ function editPrice(p) {
   drawStep();
 }
 
-function askChannel(p) {
+async function listingPacket(p) {
+  PIECES.textContent = '';
+  PIECES.append(el('div', 'saved', 'در حال گرفتن بستهٔ آگهی…'));
+  try {
+    const out = await OFN.get('/api/v1/products/' + encodeURIComponent(p.sku)
+                              + '/listing-packet');
+    if (!out.ok || !out.packet) {
+      blocked('🌾', 'بسته آماده نشد', out.error || 'بسته‌ای نیامد.',
+              'برگرد', () => openPiece(p));
+      return;
+    }
+    const packet = out.packet;
+    PIECES.textContent = '';
+    const box = el('div', 'step');
+    box.append(el('div', 'where', 'بستهٔ آگهی'),
+               el('div', 'ask', packet.name || 'بی‌نام'));
+    const lines = el('div', 'money');
+    const line = (label, value) => {
+      const row = el('div', 'ln');
+      row.append(el('span', null, label), el('b', null, value));
+      lines.append(row);
+    };
+    line('نام', packet.name || '—');
+    line('متن آگهی', packet.caption || '—');
+    line('کد قطعه', packet.sku || '—');
+    line('قیمت', packet.price_primary_aud == null
+      ? '—' : aud(packet.price_primary_aud));
+    line('کمترین قیمت', packet.price_secondary_aud == null
+      ? '—' : aud(packet.price_secondary_aud));
+    line('هش بسته', packet.sha256 || '—');
+    box.append(lines);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      const copy = el('button', 'later', 'کپی بسته');
+      copy.type = 'button';
+      copy.onclick = async () => {
+        const text = [packet.name || '', packet.caption || '', packet.sku || '',
+          packet.price_primary_aud == null ? '' : String(packet.price_primary_aud),
+          packet.price_secondary_aud == null ? '' : String(packet.price_secondary_aud),
+          packet.sha256 || ''].join('\n');
+        try {
+          await navigator.clipboard.writeText(text);
+          copy.textContent = 'کپی شد';
+          OFN.done();
+        } catch (_) {
+          copy.textContent = 'کپی نشد';
+        }
+      };
+      box.append(copy);
+    }
+    PIECES.append(box);
+    const back = el('button', 'back', 'برگرد');
+    back.type = 'button';
+    back.onclick = () => { OFN.tap(); openPiece(p); };
+    PIECES.append(back);
+  } catch (_) {
+    blocked('🌾', 'بسته آماده نشد',
+            'به دستگاه وصل نشد. بستهٔ ساختگی نشان داده نمی‌شود.',
+            'دوباره', () => listingPacket(p));
+  }
+}
+
+/* Convert a plain AUD decimal to cents without binary floating-point. This
+   accepts Persian/Arabic digits, at most two decimal places, and no exponent. */
+function audCents(value) {
+  let text = toLatinDigits(String(value || '')).trim().replace(/[,٬]/g, '');
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) return null;
+  const parts = text.split('.');
+  const dollars = Number(parts[0]);
+  const cents = Number((parts[1] || '').padEnd(2, '0'));
+  const total = dollars * 100 + cents;
+  if (!Number.isSafeInteger(dollars) || !Number.isSafeInteger(total)) return null;
+  return total;
+}
+
+function saleEventId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  const random = Math.random().toString(36).slice(2, 14);
+  return 'sale-' + Date.now().toString(36) + '-' + random;
+}
+
+function saleForm(p) {
   PIECES.textContent = '';
   const box = el('div', 'step');
-  box.append(el('div', 'where', p.sku), el('div', 'ask', 'کجا فروختید؟'));
-  const wrap = el('div', 'choices');
+  box.append(el('div', 'where', p.sku),
+             el('div', 'ask', 'رسید فروش واقعی'));
+  const explain = el('div', 'why',
+    'فقط فروش واقعی را ثبت کنید. این رسید تأیید پرداخت نیست.');
+  box.append(explain);
+
+  let channel = '';
+  const channels = el('div', 'choices');
   Object.keys(CHANNEL_FA).forEach(k => {
     const b = el('button', 'choice', CHANNEL_FA[k]);
     b.type = 'button';
-    b.onclick = () => { OFN.tap(); save(p, { state: 'sold', channel: k }); };
-    wrap.append(b);
+    b.setAttribute('aria-pressed', 'false');
+    b.onclick = () => {
+      channel = k;
+      channels.querySelectorAll('.choice').forEach(x => {
+        x.classList.remove('pick');
+        x.setAttribute('aria-pressed', 'false');
+      });
+      b.classList.add('pick');
+      b.setAttribute('aria-pressed', 'true');
+      OFN.tap();
+    };
+    channels.append(b);
   });
-  box.append(wrap);
+  box.append(el('div', 'guide', 'کانال فروش'), channels);
+
+  const field = (label, type, value = '') => {
+    const wrap = el('label', 'guide', label);
+    const input = el('input');
+    input.type = type;
+    input.value = value;
+    if (type === 'text') input.inputMode = 'decimal';
+    wrap.append(input);
+    box.append(wrap);
+    return input;
+  };
+  const gross = field('مبلغ کل فروش، دلار استرالیا', 'text');
+  const amountUnknown = el('input');
+  amountUnknown.type = 'checkbox';
+  const amountUnknownLabel = el('label', 'saved');
+  amountUnknownLabel.append(amountUnknown,
+    document.createTextNode(' مبلغ فروش را نمی‌دانم'));
+  box.append(amountUnknownLabel);
+
+  const fee = field('کارمزد، دلار استرالیا', 'text');
+  const feeUnknown = el('input');
+  feeUnknown.type = 'checkbox';
+  const feeUnknownLabel = el('label', 'saved');
+  feeUnknownLabel.append(feeUnknown,
+    document.createTextNode(' کارمزد را نمی‌دانم'));
+  box.append(feeUnknownLabel);
+
+  const soldAt = field('زمان فروش، ISO', 'text', new Date().toISOString());
+  soldAt.inputMode = 'text';
+  const evidence = field('مرجع یا مدرک اختیاری (فقط هش آن نگه داشته می‌شود)', 'text');
+  evidence.inputMode = 'text';
+  const confirmed = el('input');
+  confirmed.type = 'checkbox';
+  const confirmedLabel = el('label', 'saved');
+  confirmedLabel.append(confirmed,
+    document.createTextNode(' واقعی است، آزمایشی نیست'));
+  box.append(confirmedLabel);
+
+  const err = el('div', 'err');
+  err.hidden = true;
+  const submit = el('button', 'next', 'رسید فروش را ثبت کن');
+  submit.type = 'button';
+  submit.onclick = async () => {
+    err.hidden = true;
+    const grossCents = audCents(gross.value);
+    const feeCents = audCents(fee.value);
+    if (!channel) { err.textContent = 'کانال فروش را انتخاب کنید.'; err.hidden = false; return; }
+    if (!amountUnknown.checked && grossCents == null) {
+      err.textContent = 'مبلغ را درست بنویسید یا «نمی‌دانم» را بزنید.';
+      err.hidden = false; return;
+    }
+    if (!feeUnknown.checked && feeCents == null) {
+      err.textContent = 'کارمزد را درست بنویسید یا «نمی‌دانم» را بزنید.';
+      err.hidden = false; return;
+    }
+    if (!confirmed.checked) {
+      err.textContent = 'تأیید کنید که فروش واقعی است، نه آزمایشی.';
+      err.hidden = false; return;
+    }
+    const payload = {
+      event_id: saleEventId(), channel, sold_at: soldAt.value.trim(),
+      production_confirmed: true,
+    };
+    if (amountUnknown.checked) payload.amount_unknown = true;
+    else payload.gross_cents = grossCents;
+    if (feeUnknown.checked) payload.fee_unknown = true;
+    else payload.fee_cents = feeCents;
+    if (evidence.value.trim()) payload.reference = evidence.value.trim();
+
+    submit.disabled = true;
+    submit.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/products/' + encodeURIComponent(p.sku)
+                                 + '/sales', payload);
+      if (!out.ok) {
+        err.textContent = out.error || 'رسید ثبت نشد.';
+        err.hidden = false;
+        submit.disabled = false;
+        submit.textContent = 'دوباره';
+        return;
+      }
+      OFN.done();
+      PIECES.textContent = '';
+      const done = el('div', 'card done-card');
+      done.append(el('div', 'done-t', 'رسید فروش ثبت شد'),
+                  el('div', 'done-s',
+                    'این رسید به معنی «پرداخت تأیید شد» نیست.'));
+      const back = el('button', 'next', 'برگرد به قطعه‌ها');
+      back.type = 'button';
+      back.onclick = async () => { await load(); };
+      done.append(back);
+      PIECES.append(done);
+    } catch (_) {
+      err.textContent = 'به دستگاه وصل نشد. رسید ثبت نشده است.';
+      err.hidden = false;
+      submit.disabled = false;
+      submit.textContent = 'دوباره';
+    }
+  };
+  box.append(submit, err);
   PIECES.append(box);
   const back = el('button', 'back', 'برگرد');
   back.type = 'button';

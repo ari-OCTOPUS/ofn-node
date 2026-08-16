@@ -41,9 +41,20 @@ def _add_ops_columns(conn) -> None:
         add_column_if_absent(conn, "painting_leads", col, ddl)
 
 
+def _add_booked_revenue_columns(conn) -> None:
+    """P1 revenue: booked amount for a won job (independent of status text)."""
+    for col, ddl in (
+        ("booked_amount_cents", "INTEGER"),
+        ("booked_currency", "TEXT NOT NULL DEFAULT 'AUD'"),
+        ("booked_at", "TEXT NOT NULL DEFAULT ''"),
+        ("payment_ref_digest", "TEXT NOT NULL DEFAULT ''"),
+    ):
+        add_column_if_absent(conn, "painting_leads", col, ddl)
+
+
 # Same contract as the other adapters' `MIGRATIONS`: idempotent callables that
 # each take a connection and bring an older file forward.
-MIGRATIONS = (_add_score_json, _add_ops_columns)
+MIGRATIONS = (_add_score_json, _add_ops_columns, _add_booked_revenue_columns)
 
 SCHEMA = (
     """
@@ -848,6 +859,38 @@ class LeadStore:
             " updated_at = ? WHERE tenant_id = ? AND lead_id = ?",
             (at_iso, at_iso, tenant, lead_id))
         self._conn.commit()
+
+    def record_booked_revenue(
+            self, tenant: str, lead_id: str, *, amount_cents: int,
+            booked_at: str, payment_ref_digest: str = "",
+            currency: str = "AUD", outcome_reason: str = "") -> dict:
+        """Record a real booked amount when a lead is won.
+
+        amount_cents must be > 0. payment_ref_digest is a hash/reference only
+        — never a raw bank account or customer PII. Marks status=won.
+        """
+        if amount_cents is None or int(amount_cents) <= 0:
+            return {"ok": False, "error": "booked amount must be positive cents"}
+        cents = int(amount_cents)
+        if cents > 100_000_000_00:  # $1e8 AUD hard ceiling
+            return {"ok": False, "error": "booked amount too large"}
+        cur = currency.strip().upper()[:8] or "AUD"
+        digest = (payment_ref_digest or "").strip()[:64]
+        reason = (outcome_reason or "").strip()[:220]
+        lead = self.get(tenant, lead_id)
+        if not lead:
+            return {"ok": False, "error": "lead not found"}
+        self._conn.execute(
+            "UPDATE painting_leads SET status = 'won',"
+            " booked_amount_cents = ?, booked_currency = ?,"
+            " booked_at = ?, payment_ref_digest = ?,"
+            " outcome_reason = CASE WHEN ? != '' THEN ? ELSE outcome_reason END,"
+            " updated_at = ?"
+            " WHERE tenant_id = ? AND lead_id = ?",
+            (cents, cur, booked_at, digest, reason, reason, booked_at,
+             tenant, lead_id))
+        self._conn.commit()
+        return {"ok": True, "lead": self.get(tenant, lead_id)}
 
     def duplicate_candidates(self, tenant: str, lead_id: str) -> list[dict]:
         """Other leads sharing the same contact hash (phone/email).

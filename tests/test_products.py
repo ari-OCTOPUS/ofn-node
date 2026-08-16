@@ -52,6 +52,14 @@ class Base(unittest.TestCase):
         f.update(over)
         return self.s.create("ziman", "ZM", f, now_iso=when)
 
+    def sell(self, sku, *, when=FEB, channel="direct"):
+        out = self.s.record_sale(
+            "ziman", sku, event_id=f"sale-{sku}", sold_at=when,
+            channel=channel, amount_unknown=True, fee_unknown=True,
+            now_iso=when)
+        self.assertTrue(out["ok"])
+        return self.s.get("ziman", sku)
+
 
 class TestCost(Base):
     def test_cogs_is_the_packs_formula_with_no_division(self):
@@ -125,26 +133,20 @@ class TestChannelFeeIsNotCost(Base):
 
     def test_the_fee_never_enters_cost(self):
         p = self.make()
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "etsy"},
-                                now_iso=FEB)
+        sold = self.sell(p.sku, channel="etsy")
         # Same piece, same cost, regardless of who bought it.
         self.assertAlmostEqual(sold.cogs_aud, 80.5)
 
     def test_the_fee_comes_off_the_margin(self):
         p = self.make()
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "etsy"},
-                                now_iso=FEB)
+        sold = self.sell(p.sku, channel="etsy")
         expected = 120.0 - (120.0 * 0.065 + 0.30) - 80.5
         self.assertAlmostEqual(net_margin_aud(sold, self.FEES), expected)
 
     def test_an_unconfigured_channel_refuses_rather_than_assuming_zero(self):
         # A silent zero would report a margin the business does not keep.
         p = self.make()
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "market"},
-                                now_iso=FEB)
+        sold = self.sell(p.sku, channel="market")
         with self.assertRaises(ProductError):
             net_margin_aud(sold, self.FEES)
 
@@ -185,9 +187,7 @@ class TestStateAndAge(Base):
         # number keeps growing long after the event.
         p = self.make()
         self.s.update("ziman", p.sku, {"state": "for_sale"}, now_iso=JAN)
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "direct"},
-                                now_iso="2026-01-13T09:00:00Z")
+        sold = self.sell(p.sku, when="2026-01-13T09:00:00Z")
         self.assertEqual(sold.days_on_sale("2026-12-31"), 3)
         self.assertIn(QUICK_SALE, verdicts(sold, "2026-12-31",
                                            stale_after_days=90,
@@ -196,17 +196,13 @@ class TestStateAndAge(Base):
     def test_a_slow_sale_is_not_a_quick_one(self):
         p = self.make()
         self.s.update("ziman", p.sku, {"state": "for_sale"}, now_iso=JAN)
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "direct"},
-                                now_iso=MAY)
+        sold = self.sell(p.sku, when=MAY)
         self.assertEqual(verdicts(sold, MAY, stale_after_days=90,
                                   quick_sale_days=7), ())
 
     def test_sold_without_ever_being_listed_has_age_zero(self):
         p = self.make()
-        _, sold = self.s.update("ziman", p.sku,
-                                {"state": "sold", "channel": "direct"},
-                                now_iso=FEB)
+        sold = self.sell(p.sku)
         self.assertEqual(sold.days_on_sale(MAY), 0)
 
     def test_an_unlisted_piece_has_no_age(self):

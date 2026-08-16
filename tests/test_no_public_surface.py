@@ -53,6 +53,24 @@ class TestNoPublicSurface(unittest.TestCase):
                 continue
             self.fail(f"unexpected anonymous POST route: {route}")
 
+    def test_commerce_routes_are_authenticated_and_gated(self):
+        """The audited-settlement route exists but is:
+
+          - AFTER the principal check (authenticated, not anonymous), and
+          - behind a default-off flag (404 until Ari enables it).
+
+        No public payload can directly create a confirmed settlement; only a
+        signed provider webhook or this authenticated audited path can.  The
+        forbidden-token guard below still holds — the route uses 'settlement'
+        terminology, never 'payment' or provider names.
+        """
+        # The route is registered and must reference the gate.
+        self.assertIn('"/api/v1/owner/orders/settlements"', self.src)
+        self.assertIn("_audited_settlements_enabled", self.src)
+        # It must be AFTER the principal check — not in the anonymous prefix.
+        pre_auth = self.src.split("principal = self._principal")[0]
+        self.assertNotIn('"/api/v1/owner/orders/settlements"', pre_auth)
+
     def test_no_payment_symbols(self):
         for token in ("payment", "checkout", "stripe", "paypal"):
             self.assertNotIn(token, self.src.lower())

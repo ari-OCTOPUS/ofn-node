@@ -1,15 +1,15 @@
 ---
 tags: [ofn, decisions, mining]
 aliases: [تصمیم‌ها, Decisions]
-updated: 2026-08-09
+updated: 2026-08-11
 ---
 
 # DECISIONS — تصمیم‌های قفل‌شده و باز
 
 > این فایل همراه کد سفر می‌کند. هر ایجنتی که روی این مخزن کار می‌کند اول
-> این را می‌خواند. آخرین به‌روزرسانی: ۲۰۲۶-۰۸-۰۹
+> این را می‌خواند. آخرین به‌روزرسانی: ۲۰۲۶-۰۸-۱۱
 
-**پیوندها:** [[INDEX]] · [[CLAUDE]] · [[HANDOFF]] · [[MEGAPROMPT-MINING]] · [[APPLY]]
+**پیوندها:** [[INDEX]] · [[CLAUDE]] · [[HANDOFF]] · [[docs/operations/REVENUE-STAGES|مراحل درآمد]] · [[MEGAPROMPT-MINING]] · [[APPLY]]
 
 ---
 
@@ -508,6 +508,26 @@ XMRig + monerod + P2Pool روی همان برد  →  احتمال OOM
 Gridcoin / BOINC تنها کاندیدی است که کار **مفید** انجام می‌دهد و هیچ ایجنتی
 سراغش نرفت. ولی طبق D-1 باید سؤال درست پرسیده شود: **سهم ما از انتشار GRC
 چقدر است؟** اگر رقابت جهانی است، احتمالاً `MARGINAL`.
+
+### ⬜ O-5 · احکام هفتهٔ درآمد (۲۰۲۶-۰۸-۱۱)
+
+سیم‌کشی پنل آماده است ([[docs/operations/REVENUE-STAGES]] ·
+[[docs/operations/REVENUE-WEEK-CHECKLIST]]). این‌ها هنوز حکم مالک می‌خواهند
+و بدونشان مرحله قفل می‌ماند:
+
+| # | حکم | وضعیت کد | باز می‌کند |
+|---|---|---|---|
+| ۱ | threshold پایلوت ۱۴روزه | پیش‌فرض ۳/۱/۱ در `pilot_config`؛ سخت‌تر کردن اختیاری | گزارش معنادار |
+| ۲ | روش پرداخت Painting | UI آماده؛ مقدار `unset` | P1 پول |
+| ۳ | کانال + fee GiftMesh | `direct`/`cash`/`payid` با fee صفر؛ Instagram/Etsy غایب | Z0→Z1 |
+| ۴ | مدل تحویل + GST زیمان | fact در پک؛ جواب شریک باز | حاشیه صادقانه |
+| ۵ | مسیر درآمد Studio (A/B/C/D) | انتشار از outbox آماده؛ مسیر پول نه | S1 |
+| ۶ | چرخش راز یا قبول auto-close تا ۱۷ اوت | auto-close در `config.load()` | ایمنی ادامه |
+| ۷ | catalog عمومی + صاحب follow-up | flag-gated؛ پیش‌فرض خاموش | O9 واقعی |
+
+تا وقتی ردیف ۲–۵ خالی‌اند، سیستم منشی است نه فروشندهٔ خودکار.
+
+گیت‌های موقت: [[docs/architecture/DECISION-open-gates]].
 
 ---
 

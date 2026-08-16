@@ -35,7 +35,7 @@ Three rules here, all of which are cheap now and expensive later:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Any, Mapping, Sequence
 
 from .sqlite_base import Pool, add_column_if_absent, apply_schema
@@ -83,6 +83,11 @@ SCHEMA = (
                                      'photo_done', 'caption_done', 'posted')),
         marketing_notes     TEXT,
 
+        environment         TEXT    NOT NULL DEFAULT 'legacy_unknown'
+                              CHECK (environment IN ('production', 'seed',
+                                     'test', 'demo', 'legacy_unknown')),
+        source              TEXT    NOT NULL DEFAULT 'legacy_unknown',
+        created_by          TEXT    NOT NULL DEFAULT 'legacy_unknown',
         created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
         updated_at          TEXT,
 
@@ -154,8 +159,8 @@ SCHEMA = (
     "ON product_photos (product_id, position)",
     "CREATE INDEX IF NOT EXISTS product_photos_product "
     "ON product_photos (product_id)",
-    # O6: real sale events. Amount and fee may be unknown (explicit), never
-    # guessed; customer PII is forbidden in this table.
+    # Real sale events. Amount and fee are known or explicitly unknown;
+    # customer PII is forbidden in this and every commerce table below.
     """
     CREATE TABLE IF NOT EXISTS product_sale_events (
         event_id       TEXT PRIMARY KEY,
@@ -169,16 +174,128 @@ SCHEMA = (
         fee_unknown    INTEGER NOT NULL DEFAULT 0
                        CHECK (fee_unknown IN (0, 1)),
         sold_at        TEXT NOT NULL,
+        evidence_digest TEXT NOT NULL DEFAULT '',
+        environment    TEXT NOT NULL DEFAULT 'legacy_unknown'
+                       CHECK (environment IN ('production', 'seed', 'test',
+                              'demo', 'legacy_unknown')),
+        source         TEXT NOT NULL DEFAULT 'legacy_unknown',
+        created_by     TEXT NOT NULL DEFAULT 'legacy_unknown',
         created_at     TEXT NOT NULL,
         UNIQUE (tenant_id, event_id)
     )
     """,
     "CREATE INDEX IF NOT EXISTS product_sale_sku "
     "ON product_sale_events (tenant_id, sku, sold_at)",
+    """
+    CREATE TABLE IF NOT EXISTS product_listing_events (
+        listing_id          TEXT PRIMARY KEY,
+        tenant_id           TEXT NOT NULL,
+        sku                 TEXT NOT NULL,
+        channel             TEXT NOT NULL,
+        packet_sha256       TEXT NOT NULL,
+        external_ref_digest TEXT NOT NULL DEFAULT '',
+        published_at        TEXT NOT NULL,
+        environment         TEXT NOT NULL CHECK (environment IN
+                            ('production', 'seed', 'test', 'demo',
+                             'legacy_unknown')),
+        source              TEXT NOT NULL,
+        created_by          TEXT NOT NULL,
+        created_at          TEXT NOT NULL,
+        FOREIGN KEY (tenant_id, sku) REFERENCES products (tenant_id, sku)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS product_listing_piece "
+    "ON product_listing_events (tenant_id, sku, published_at)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS product_listing_external_ref "
+    "ON product_listing_events (tenant_id, channel, external_ref_digest) "
+    "WHERE external_ref_digest <> ''",
+    """
+    CREATE TABLE IF NOT EXISTS product_inquiries (
+        inquiry_id       TEXT PRIMARY KEY,
+        tenant_id        TEXT NOT NULL,
+        sku              TEXT NOT NULL,
+        listing_id       TEXT NOT NULL,
+        channel          TEXT NOT NULL,
+        source_ref_digest TEXT NOT NULL DEFAULT '',
+        received_at      TEXT NOT NULL,
+        status           TEXT NOT NULL,
+        environment      TEXT NOT NULL CHECK (environment IN
+                         ('production', 'seed', 'test', 'demo',
+                          'legacy_unknown')),
+        source           TEXT NOT NULL,
+        created_by       TEXT NOT NULL,
+        created_at       TEXT NOT NULL,
+        FOREIGN KEY (tenant_id, sku) REFERENCES products (tenant_id, sku),
+        FOREIGN KEY (listing_id) REFERENCES product_listing_events (listing_id)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS product_inquiry_piece "
+    "ON product_inquiries (tenant_id, sku, received_at)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS product_inquiry_source_ref "
+    "ON product_inquiries (tenant_id, channel, source_ref_digest) "
+    "WHERE source_ref_digest <> ''",
+    """
+    CREATE TABLE IF NOT EXISTS product_orders (
+        order_id       TEXT PRIMARY KEY,
+        tenant_id      TEXT NOT NULL,
+        sku            TEXT NOT NULL,
+        listing_id     TEXT,
+        inquiry_id     TEXT,
+        status         TEXT NOT NULL CHECK (status IN
+                       ('reserved', 'expired', 'cancelled', 'paid')),
+        reserved_at    TEXT NOT NULL,
+        expires_at     TEXT NOT NULL,
+        environment    TEXT NOT NULL CHECK (environment IN
+                       ('production', 'seed', 'test', 'demo',
+                        'legacy_unknown')),
+        source         TEXT NOT NULL,
+        created_by     TEXT NOT NULL,
+        created_at     TEXT NOT NULL,
+        updated_at     TEXT,
+        FOREIGN KEY (tenant_id, sku) REFERENCES products (tenant_id, sku),
+        FOREIGN KEY (listing_id) REFERENCES product_listing_events (listing_id),
+        FOREIGN KEY (inquiry_id) REFERENCES product_inquiries (inquiry_id)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS product_order_piece "
+    "ON product_orders (tenant_id, sku, reserved_at)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS product_one_active_order "
+    "ON product_orders (tenant_id, sku) WHERE status = 'reserved'",
+    """
+    CREATE TABLE IF NOT EXISTS product_payments (
+        payment_id          TEXT PRIMARY KEY,
+        tenant_id           TEXT NOT NULL,
+        order_id            TEXT NOT NULL,
+        amount_cents        INTEGER NOT NULL,
+        fee_cents           INTEGER,
+        currency            TEXT NOT NULL,
+        status              TEXT NOT NULL CHECK (status IN
+                            ('pending', 'confirmed', 'settled', 'failed',
+                             'refunded', 'reversed')),
+        provider            TEXT NOT NULL,
+        provider_event_digest TEXT NOT NULL DEFAULT '',
+        confirmation_source TEXT NOT NULL,
+        evidence_digest     TEXT NOT NULL DEFAULT '',
+        confirmed_at        TEXT,
+        environment         TEXT NOT NULL CHECK (environment IN
+                            ('production', 'seed', 'test', 'demo',
+                             'legacy_unknown')),
+        source              TEXT NOT NULL,
+        created_by          TEXT NOT NULL,
+        created_at          TEXT NOT NULL,
+        updated_at          TEXT,
+        FOREIGN KEY (order_id) REFERENCES product_orders (order_id)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS product_payment_order "
+    "ON product_payments (tenant_id, order_id, created_at)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS product_payment_provider_event "
+    "ON product_payments (provider, provider_event_digest) "
+    "WHERE provider_event_digest <> ''",
 )
 
 def _add_sale_events(conn) -> None:
-    """O6: sale-events table for files created before it shipped."""
+    """Sale-events table for files created before it shipped."""
     conn.execute(
         "CREATE TABLE IF NOT EXISTS product_sale_events ("
         " event_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL,"
@@ -188,6 +305,33 @@ def _add_sale_events(conn) -> None:
         " fee_unknown INTEGER NOT NULL DEFAULT 0,"
         " sold_at TEXT NOT NULL, created_at TEXT NOT NULL,"
         " UNIQUE (tenant_id, event_id))")
+
+
+def _add_provenance(conn) -> None:
+    """Add provenance without relabelling historical rows as production."""
+    for table in ("products", "product_sale_events"):
+        add_column_if_absent(
+            conn, table, "environment",
+            "TEXT NOT NULL DEFAULT 'legacy_unknown' CHECK (environment IN "
+            "('production','seed','test','demo','legacy_unknown'))")
+        add_column_if_absent(
+            conn, table, "source", "TEXT NOT NULL DEFAULT 'legacy_unknown'")
+        add_column_if_absent(
+            conn, table, "created_by", "TEXT NOT NULL DEFAULT 'legacy_unknown'")
+    add_column_if_absent(
+        conn, "product_sale_events", "evidence_digest", "TEXT NOT NULL DEFAULT ''")
+    # Defensive repair for databases manually altered with nullable columns.
+    for table in ("products", "product_sale_events"):
+        conn.execute(
+            f"UPDATE {table} SET environment = 'legacy_unknown' "
+            "WHERE environment IS NULL OR environment NOT IN "
+            "('production','seed','test','demo','legacy_unknown')")
+        conn.execute(
+            f"UPDATE {table} SET source = 'legacy_unknown' "
+            "WHERE source IS NULL OR trim(source) = ''")
+        conn.execute(
+            f"UPDATE {table} SET created_by = 'legacy_unknown' "
+            "WHERE created_by IS NULL OR trim(created_by) = ''")
 
 def _split_price_into_two(conn) -> None:
     """One `price_aud` becomes `price_primary_aud` + `price_secondary_aud`.
@@ -254,11 +398,16 @@ def _add_archive_column(conn) -> None:
 
 
 MIGRATIONS = (_split_price_into_two, _seed_sku_high_water,
-              _add_archive_column, _add_sale_events)
+              _add_archive_column, _add_sale_events, _add_provenance)
 
 MAX_PHOTOS_PER_PRODUCT = 5
 STATES = ("in_progress", "for_sale", "sold", "gifted")
 CHANNELS = ("instagram", "market", "etsy", "direct")
+ENVIRONMENTS = ("production", "seed", "test", "demo", "legacy_unknown")
+ORDER_STATUSES = ("reserved", "expired", "cancelled", "paid")
+PAYMENT_STATUSES = ("pending", "confirmed", "settled", "failed",
+                    "refunded", "reversed")
+TRUSTED_CONFIRMATION_SOURCES = ("provider_webhook", "audited_receipt")
 
 # Verdict names. Deliberately three, matching the three things worth saying.
 LOSES_MONEY = "loses_money"    # priced under cost
@@ -311,6 +460,11 @@ class Product:
     updated_at: str | None
     # Set when she puts it away. Orthogonal to `state`.
     archived_at: str | None = None
+    # Provenance travels at the end with defaults so a caller (or fixture)
+    # that predates it still constructs a Product; old rows read as legacy.
+    environment: str = "legacy_unknown"
+    source: str = "legacy_unknown"
+    created_by: str = "legacy_unknown"
 
     @property
     def judged_price_aud(self) -> float | None:
@@ -500,7 +654,7 @@ _COLUMNS = ("id, tenant_id, sku, name, category, description, "
             "packaging_cost_aud, cogs_aud, price_primary_aud, "
             "price_secondary_aud, state, channel, "
             "listed_at, sold_at, marketing_status, marketing_notes, "
-            "created_at, updated_at, archived_at")
+            "created_at, updated_at, archived_at, environment, source, created_by")
 
 
 class ProductStore:
@@ -542,73 +696,420 @@ class ProductStore:
         return [Product(*r) for r in self._conn.execute(
             sql + "ORDER BY id", (tenant,))]
 
-    # ── sale events (O6) ──────────────────────────────────────────────────
+    # ── sale events ───────────────────────────────────────────────────────
     def record_sale(self, tenant: str, sku: str, *, event_id: str,
                     sold_at: str, channel: str,
                     gross_cents: int | None = None,
                     amount_unknown: bool = False,
                     fee_cents: int | None = None,
                     fee_unknown: bool = False,
+                    evidence_digest: str = "",
+                    environment: str = "production",
+                    source: str = "authenticated_panel",
+                    created_by: str = "authenticated_panel",
                     now_iso: str = "") -> dict:
-        """Record a real sale. Idempotent by event_id.
+        """Record a real sale and its canonical product mutation atomically.
 
-        Amount and fee may be explicitly unknown — never guessed. The sale
-        event and the product's state='sold' move in ONE transaction, so a
-        crash cannot leave the product sold with no event or vice versa.
+        A manual/operational receipt is a sale event, not a payment-provider
+        event; this method deliberately never inserts into ``product_payments``.
         """
-        import time as _t
-        if not now_iso:
-            now_iso = _t.strftime("%Y-%m-%dT%H:%M:%S", _t.gmtime())
-        if not event_id or not sku or not channel:
-            return {"ok": False, "error": "event_id, sku, channel required"}
-        # Amount known and unknown simultaneously is a constraint violation.
-        if amount_unknown and gross_cents is not None:
-            return {"ok": False, "error": "amount cannot be both known and unknown"}
-        if fee_unknown and fee_cents is not None:
-            return {"ok": False, "error": "fee cannot be both known and unknown"}
+        now_iso = now_iso or _utc_now()
+        error = _sale_input_error(
+            event_id=event_id, sku=sku, sold_at=sold_at, channel=channel,
+            gross_cents=gross_cents, amount_unknown=amount_unknown,
+            fee_cents=fee_cents, fee_unknown=fee_unknown,
+            environment=environment, source=source, created_by=created_by)
+        if error:
+            return {"ok": False, "error": error}
         self._conn.execute("BEGIN IMMEDIATE")
         try:
-            cur = self._conn.execute(
-                "INSERT OR IGNORE INTO product_sale_events "
-                "(event_id, tenant_id, sku, gross_cents, amount_unknown,"
-                " channel, fee_cents, fee_unknown, sold_at, created_at)"
-                " VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (event_id, tenant, sku,
-                 gross_cents, 1 if amount_unknown else 0,
-                 channel, fee_cents, 1 if fee_unknown else 0,
-                 sold_at, now_iso))
-            if cur.rowcount == 0:
+            out = self._record_sale_tx(
+                tenant, sku, event_id=event_id, sold_at=sold_at,
+                channel=channel, gross_cents=gross_cents,
+                amount_unknown=amount_unknown, fee_cents=fee_cents,
+                fee_unknown=fee_unknown, evidence_digest=evidence_digest,
+                environment=environment, source=source,
+                created_by=created_by, now_iso=now_iso)
+            self._conn.execute("COMMIT")
+            return out
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def _record_sale_tx(self, tenant: str, sku: str, *, event_id: str,
+                        sold_at: str, channel: str,
+                        gross_cents: int | None, amount_unknown: bool,
+                        fee_cents: int | None, fee_unknown: bool,
+                        evidence_digest: str, environment: str, source: str,
+                        created_by: str, now_iso: str) -> dict:
+        """Sale write assuming the caller already owns a write transaction."""
+        duplicate = self._conn.execute(
+            "SELECT tenant_id, sku FROM product_sale_events WHERE event_id = ?",
+            (event_id,)).fetchone()
+        if duplicate is not None:
+            return {"ok": False, "error": "duplicate sale event",
+                    "event_id": event_id, "duplicate": True}
+
+        product = self._conn.execute(
+            "SELECT state, archived_at, listed_at FROM products "
+            "WHERE tenant_id = ? AND sku = ?", (tenant, sku)).fetchone()
+        if product is None:
+            return {"ok": False, "error": "unknown tenant or sku"}
+        if product["archived_at"] is not None:
+            return {"ok": False, "error": "archived product cannot be sold"}
+        if product["state"] not in ("in_progress", "for_sale"):
+            return {"ok": False,
+                    "error": f"product state {product['state']} cannot be sold"}
+
+        self._conn.execute(
+            "INSERT INTO product_sale_events "
+            "(event_id, tenant_id, sku, gross_cents, amount_unknown, channel, "
+            "fee_cents, fee_unknown, sold_at, evidence_digest, environment, "
+            "source, created_by, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (event_id, tenant, sku, gross_cents, int(amount_unknown), channel,
+             fee_cents, int(fee_unknown), sold_at, evidence_digest or "",
+             environment, source, created_by, now_iso))
+        cur = self._conn.execute(
+            "UPDATE products SET state = 'sold', channel = ?, sold_at = ?, "
+            "listed_at = COALESCE(listed_at, ?), updated_at = ? "
+            "WHERE tenant_id = ? AND sku = ? AND archived_at IS NULL "
+            "AND state IN ('in_progress', 'for_sale')",
+            (channel, sold_at, sold_at, now_iso, tenant, sku))
+        if cur.rowcount != 1:
+            raise ProductError("sale product mutation affected an unexpected row count")
+        return {"ok": True, "event_id": event_id, "tenant_id": tenant,
+                "sku": sku, "state": "sold", "channel": channel,
+                "sold_at": sold_at, "listed_at": product["listed_at"] or sold_at}
+
+    def sales(self, tenant: str, sku: str,
+              limit: int = 50) -> list[dict]:
+        """Sale events for one piece, newest first, without customer data."""
+        rows = self._conn.execute(
+            "SELECT event_id, tenant_id, sku, gross_cents, amount_unknown, "
+            "channel, fee_cents, fee_unknown, sold_at, evidence_digest, "
+            "environment, source, created_by, created_at "
+            "FROM product_sale_events WHERE tenant_id = ? AND sku = ? "
+            "ORDER BY sold_at DESC LIMIT ?", (tenant, sku, limit)).fetchall()
+        out = [dict(r) for r in rows]
+        for row in out:
+            row["amount_unknown"] = bool(row["amount_unknown"])
+            row["fee_unknown"] = bool(row["fee_unknown"])
+        return out
+
+    # ── gated commerce records ────────────────────────────────────────────
+    def record_listing(self, tenant: str, sku: str, *, listing_id: str,
+                       channel: str, packet_sha256: str,
+                       external_ref_digest: str = "", published_at: str,
+                       environment: str = "production",
+                       source: str = "authenticated_panel",
+                       created_by: str = "authenticated_panel",
+                       now_iso: str = "") -> dict:
+        now_iso = now_iso or _utc_now()
+        _require_id("listing_id", listing_id)
+        _require_channel(channel)
+        _require_timestamp("published_at", published_at)
+        _require_digest("packet_sha256", packet_sha256)
+        _require_provenance(environment, source, created_by)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            old = self._conn.execute(
+                "SELECT * FROM product_listing_events WHERE listing_id = ?",
+                (listing_id,)).fetchone()
+            if old is not None:
+                if old["tenant_id"] != tenant or old["sku"] != sku:
+                    raise ProductError("listing_id already belongs to another product")
                 self._conn.execute("COMMIT")
-                return {"ok": False, "error": "duplicate sale event"}
+                return _idempotent(old, listing_id=listing_id)
+            product = self._commerce_product(tenant, sku)
+            if product["state"] in ("sold", "gifted"):
+                raise ProductError("A sold or gifted product cannot be listed")
             self._conn.execute(
-                "UPDATE products SET state = 'sold', updated_at = ?"
-                " WHERE tenant_id = ? AND sku = ?",
-                (now_iso, tenant, sku))
+                "INSERT INTO product_listing_events (listing_id, tenant_id, sku, "
+                "channel, packet_sha256, external_ref_digest, published_at, "
+                "environment, source, created_by, created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (listing_id, tenant, sku, channel, packet_sha256,
+                 external_ref_digest or "", published_at, environment, source,
+                 created_by, now_iso))
+            self._conn.execute("COMMIT")
+        except Exception as exc:
+            self._conn.execute("ROLLBACK")
+            if "unique" in str(exc).lower():
+                return {"ok": False, "error": "duplicate listing reference",
+                        "duplicate": True}
+            raise
+        return {"ok": True, "listing_id": listing_id, "tenant_id": tenant,
+                "sku": sku, "environment": environment}
+
+    def create_inquiry(self, tenant: str, sku: str, *, inquiry_id: str,
+                       listing_id: str, channel: str,
+                       source_ref_digest: str = "", received_at: str,
+                       status: str = "received",
+                       environment: str = "production",
+                       source: str = "authenticated_panel",
+                       created_by: str = "authenticated_panel",
+                       now_iso: str = "") -> dict:
+        now_iso = now_iso or _utc_now()
+        _require_id("inquiry_id", inquiry_id)
+        _require_channel(channel)
+        _require_timestamp("received_at", received_at)
+        _require_text("status", status)
+        _require_provenance(environment, source, created_by)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            old = self._conn.execute(
+                "SELECT * FROM product_inquiries WHERE inquiry_id = ?",
+                (inquiry_id,)).fetchone()
+            if old is not None:
+                if old["tenant_id"] != tenant or old["sku"] != sku:
+                    raise ProductError("inquiry_id already belongs to another product")
+                self._conn.execute("COMMIT")
+                return _idempotent(old, inquiry_id=inquiry_id)
+            self._commerce_product(tenant, sku)
+            listing = self._linked("product_listing_events", "listing_id",
+                                   listing_id, tenant, sku)
+            if listing["channel"] != channel:
+                raise ProductError("Inquiry channel does not match its listing")
+            if listing["environment"] != environment:
+                raise ProductError("Inquiry environment does not match its listing")
+            self._conn.execute(
+                "INSERT INTO product_inquiries (inquiry_id, tenant_id, sku, "
+                "listing_id, channel, source_ref_digest, received_at, status, "
+                "environment, source, created_by, created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (inquiry_id, tenant, sku, listing_id, channel,
+                 source_ref_digest or "", received_at, status, environment,
+                 source, created_by, now_iso))
+            self._conn.execute("COMMIT")
+        except Exception as exc:
+            self._conn.execute("ROLLBACK")
+            if "unique" in str(exc).lower():
+                return {"ok": False, "error": "duplicate inquiry reference",
+                        "duplicate": True}
+            raise
+        return {"ok": True, "inquiry_id": inquiry_id, "listing_id": listing_id,
+                "tenant_id": tenant, "sku": sku, "environment": environment}
+
+    def reserve(self, tenant: str, sku: str, *, order_id: str,
+                reserved_at: str, expires_at: str,
+                listing_id: str | None = None, inquiry_id: str | None = None,
+                environment: str = "production",
+                source: str = "authenticated_panel",
+                created_by: str = "authenticated_panel",
+                now_iso: str = "") -> dict:
+        now_iso = now_iso or _utc_now()
+        _require_id("order_id", order_id)
+        _require_timestamp("reserved_at", reserved_at)
+        _require_timestamp("expires_at", expires_at)
+        if _parse_timestamp(expires_at) <= _parse_timestamp(reserved_at):
+            raise ProductError("expires_at must be after reserved_at")
+        _require_provenance(environment, source, created_by)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            old = self._conn.execute(
+                "SELECT * FROM product_orders WHERE order_id = ?", (order_id,)
+            ).fetchone()
+            if old is not None:
+                if old["tenant_id"] != tenant or old["sku"] != sku:
+                    raise ProductError("order_id already belongs to another product")
+                self._conn.execute("COMMIT")
+                return _idempotent(old, order_id=order_id)
+            product = self._commerce_product(tenant, sku)
+            if product["state"] in ("sold", "gifted"):
+                raise ProductError("A sold or gifted product cannot be reserved")
+            listing = None
+            if listing_id:
+                listing = self._linked("product_listing_events", "listing_id",
+                                       listing_id, tenant, sku)
+            if inquiry_id:
+                inquiry = self._linked("product_inquiries", "inquiry_id",
+                                       inquiry_id, tenant, sku)
+                if listing_id and inquiry["listing_id"] != listing_id:
+                    raise ProductError("Inquiry and listing links do not match")
+                listing_id = listing_id or inquiry["listing_id"]
+                listing = listing or self._linked(
+                    "product_listing_events", "listing_id", listing_id,
+                    tenant, sku)
+            if listing is not None and listing["environment"] != environment:
+                raise ProductError("Order environment does not match its listing")
+            self._conn.execute(
+                "UPDATE product_orders SET status = 'expired', updated_at = ? "
+                "WHERE tenant_id = ? AND sku = ? AND status = 'reserved' "
+                "AND expires_at <= ?", (now_iso, tenant, sku, reserved_at))
+            active = self._conn.execute(
+                "SELECT order_id FROM product_orders WHERE tenant_id = ? "
+                "AND sku = ? AND status = 'reserved'", (tenant, sku)).fetchone()
+            if active is not None:
+                raise ProductError("Product already has an active reservation")
+            self._conn.execute(
+                "INSERT INTO product_orders (order_id, tenant_id, sku, listing_id, "
+                "inquiry_id, status, reserved_at, expires_at, environment, source, "
+                "created_by, created_at) VALUES (?,?,?,?,?,'reserved',?,?,?,?,?,?)",
+                (order_id, tenant, sku, listing_id, inquiry_id, reserved_at,
+                 expires_at, environment, source, created_by, now_iso))
             self._conn.execute("COMMIT")
         except Exception:
             self._conn.execute("ROLLBACK")
             raise
-        return {"ok": True, "event_id": event_id, "state": "sold"}
+        return {"ok": True, "order_id": order_id, "tenant_id": tenant,
+                "sku": sku, "status": "reserved", "expires_at": expires_at,
+                "environment": environment}
 
-    def sales(self, tenant: str, sku: str,
-              limit: int = 50) -> list[dict]:
-        """Sale events for one piece, newest first."""
-        rows = self._conn.execute(
-            "SELECT * FROM product_sale_events WHERE tenant_id = ? AND sku = ?"
-            " ORDER BY sold_at DESC LIMIT ?",
-            (tenant, sku, limit)).fetchall()
-        out = []
-        for r in rows:
-            d = dict(r)
-            out.append({
-                "event_id": d["event_id"], "sku": d["sku"],
-                "gross_cents": d["gross_cents"],
-                "amount_unknown": bool(d["amount_unknown"]),
-                "channel": d["channel"], "fee_cents": d["fee_cents"],
-                "fee_unknown": bool(d["fee_unknown"]),
-                "sold_at": d["sold_at"],
-            })
-        return out
+    def record_payment_confirmation(
+            self, tenant: str, *, payment_id: str, order_id: str,
+            amount_cents: int, currency: str, status: str,
+            provider: str, provider_event_digest: str,
+            confirmation_source: str, evidence_digest: str,
+            confirmed_at: str | None = None, fee_cents: int | None = None,
+            environment: str = "production", source: str = "payment_confirmation",
+            created_by: str = "system", now_iso: str = "") -> dict:
+        """Record a payment and, when confirmed, sell in one SQL transaction."""
+        now_iso = now_iso or _utc_now()
+        _require_id("payment_id", payment_id)
+        _require_id("order_id", order_id)
+        _require_nonnegative_int("amount_cents", amount_cents)
+        if fee_cents is not None:
+            _require_nonnegative_int("fee_cents", fee_cents)
+        _require_text("currency", currency)
+        _require_text("provider", provider)
+        _require_digest("provider_event_digest", provider_event_digest)
+        _require_text("confirmation_source", confirmation_source)
+        if status not in PAYMENT_STATUSES:
+            raise ProductError(f"Invalid payment status: {status}")
+        _require_provenance(environment, source, created_by)
+        if confirmed_at is not None:
+            _require_timestamp("confirmed_at", confirmed_at)
+        confirmed = status in ("confirmed", "settled")
+        if confirmed and not confirmed_at:
+            raise ProductError("confirmed_at is required for confirmed payments")
+        if environment == "production" and confirmed:
+            if amount_cents <= 0:
+                raise ProductError("Production confirmed payment amount must be positive")
+            if confirmation_source not in TRUSTED_CONFIRMATION_SOURCES:
+                raise ProductError("Untrusted production confirmation_source")
+            _require_digest("evidence_digest", evidence_digest)
+
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            old = self._conn.execute(
+                "SELECT * FROM product_payments WHERE payment_id = ? OR "
+                "(provider = ? AND provider_event_digest = ?)",
+                (payment_id, provider, provider_event_digest)).fetchone()
+            if old is not None:
+                if old["tenant_id"] != tenant or old["order_id"] != order_id:
+                    raise ProductError("payment id/event already belongs to another order")
+                self._conn.execute("COMMIT")
+                return _idempotent(old, payment_id=old["payment_id"])
+            order = self._conn.execute(
+                "SELECT * FROM product_orders WHERE order_id = ?", (order_id,)
+            ).fetchone()
+            if order is None or order["tenant_id"] != tenant:
+                raise ProductError("Order does not belong to tenant")
+            if order["environment"] != environment:
+                raise ProductError("Payment environment does not match its order")
+            if environment == "production" and order["environment"] != "production":
+                raise ProductError("Sandbox/test order cannot become production payment")
+            if confirmed and order["status"] not in ("reserved", "paid"):
+                raise ProductError(f"Order status {order['status']} cannot be paid")
+            self._conn.execute(
+                "INSERT INTO product_payments (payment_id, tenant_id, order_id, "
+                "amount_cents, fee_cents, currency, status, provider, "
+                "provider_event_digest, confirmation_source, evidence_digest, "
+                "confirmed_at, environment, source, created_by, created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (payment_id, tenant, order_id, amount_cents, fee_cents, currency,
+                 status, provider, provider_event_digest, confirmation_source,
+                 evidence_digest or "", confirmed_at, environment, source,
+                 created_by, now_iso))
+            sale = None
+            if confirmed and order["status"] == "reserved":
+                listing = None
+                if order["listing_id"]:
+                    listing = self._conn.execute(
+                        "SELECT channel FROM product_listing_events "
+                        "WHERE listing_id = ?", (order["listing_id"],)).fetchone()
+                channel = listing["channel"] if listing else "direct"
+                sale = self._record_sale_tx(
+                    tenant, order["sku"], event_id=f"payment:{payment_id}",
+                    sold_at=confirmed_at or now_iso, channel=channel,
+                    gross_cents=amount_cents, amount_unknown=False,
+                    fee_cents=fee_cents, fee_unknown=fee_cents is None,
+                    evidence_digest=evidence_digest, environment=environment,
+                    source=source, created_by=created_by, now_iso=now_iso)
+                if not sale["ok"]:
+                    raise ProductError(sale["error"])
+                cur = self._conn.execute(
+                    "UPDATE product_orders SET status = 'paid', updated_at = ? "
+                    "WHERE order_id = ? AND tenant_id = ? AND status = 'reserved'",
+                    (now_iso, order_id, tenant))
+                if cur.rowcount != 1:
+                    raise ProductError("payment order mutation affected unexpected rows")
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return {"ok": True, "payment_id": payment_id, "order_id": order_id,
+                "status": status, "order_status": "paid" if confirmed else order["status"],
+                "sale_event_id": sale["event_id"] if sale else None,
+                "environment": environment}
+
+    def listings(self, tenant: str, sku: str | None = None) -> list[dict]:
+        return self._commerce_rows("product_listing_events", tenant, sku,
+                                   "published_at")
+
+    def inquiries(self, tenant: str, sku: str | None = None) -> list[dict]:
+        return self._commerce_rows("product_inquiries", tenant, sku, "received_at")
+
+    def orders(self, tenant: str, sku: str | None = None) -> list[dict]:
+        return self._commerce_rows("product_orders", tenant, sku, "reserved_at")
+
+    def payments(self, tenant: str, order_id: str | None = None) -> list[dict]:
+        sql = "SELECT * FROM product_payments WHERE tenant_id = ?"
+        args: list[Any] = [tenant]
+        if order_id is not None:
+            sql += " AND order_id = ?"
+            args.append(order_id)
+        return [dict(r) for r in self._conn.execute(
+            sql + " ORDER BY created_at DESC", args)]
+
+    def is_available(self, tenant: str, sku: str, *, at_iso: str) -> bool:
+        product = self.get(tenant, sku)
+        if product is None or product.archived_at or product.state not in (
+                "in_progress", "for_sale"):
+            return False
+        row = self._conn.execute(
+            "SELECT 1 FROM product_orders WHERE tenant_id = ? AND sku = ? "
+            "AND status = 'reserved' AND expires_at > ? LIMIT 1",
+            (tenant, sku, at_iso)).fetchone()
+        return row is None
+
+    def _commerce_rows(self, table: str, tenant: str, sku: str | None,
+                       order_column: str) -> list[dict]:
+        sql = f"SELECT * FROM {table} WHERE tenant_id = ?"
+        args: list[Any] = [tenant]
+        if sku is not None:
+            sql += " AND sku = ?"
+            args.append(sku)
+        return [dict(r) for r in self._conn.execute(
+            sql + f" ORDER BY {order_column} DESC", args)]
+
+    def _commerce_product(self, tenant: str, sku: str):
+        row = self._conn.execute(
+            "SELECT state, archived_at FROM products WHERE tenant_id = ? AND sku = ?",
+            (tenant, sku)).fetchone()
+        if row is None:
+            raise ProductError("Product does not belong to tenant")
+        if row["archived_at"] is not None:
+            raise ProductError("Archived product is unavailable for commerce")
+        return row
+
+    def _linked(self, table: str, id_column: str, value: str,
+                tenant: str, sku: str):
+        row = self._conn.execute(
+            f"SELECT * FROM {table} WHERE {id_column} = ?", (value,)).fetchone()
+        if row is None or row["tenant_id"] != tenant or row["sku"] != sku:
+            raise ProductError(f"{id_column} does not belong to tenant/product")
+        return row
 
     def listing_packet(self, tenant: str, sku: str) -> dict | None:
         """The exact manual listing packet for a piece (read-only).
@@ -803,16 +1304,22 @@ class ProductStore:
         return piece
 
     def create(self, tenant: str, prefix: str, fields: Mapping[str, Any],
-               *, now_iso: str) -> Product:
+               *, now_iso: str, environment: str = "production",
+               source: str = "authenticated_panel",
+               created_by: str = "authenticated_panel") -> Product:
         clean = _validated(fields, required=("name",))
+        _reject_generic_sold(clean)
+        _require_provenance(environment, source, created_by)
         _check_state(clean, prior=None)
         _stamp_dates(clean, prior=None, now_iso=now_iso)
         clean["cogs_aud"] = self._cogs(clean, prior=None)
 
         sku = self.next_sku(tenant, prefix)
         number = int(sku.rsplit("-", 1)[-1])
-        cols = ["tenant_id", "sku", "created_at"] + list(clean)
-        vals = [tenant, sku, now_iso] + [clean[c] for c in clean]
+        cols = ["tenant_id", "sku", "environment", "source", "created_by",
+                "created_at"] + list(clean)
+        vals = [tenant, sku, environment, source, created_by, now_iso] + [
+            clean[c] for c in clean]
         self._conn.execute("BEGIN IMMEDIATE")
         try:
             self._conn.execute(
@@ -838,6 +1345,7 @@ class ProductStore:
         clean = _validated(changes, required=())
         if not clean:
             raise ProductError("چیزی برای تغییر نیست")
+        _reject_generic_sold(clean)
         _check_state(clean, prior=before)
         _stamp_dates(clean, prior=before, now_iso=now_iso)
         clean["cogs_aud"] = self._cogs(clean, prior=before)
@@ -892,6 +1400,12 @@ def _validated(fields: Mapping[str, Any], required: Sequence[str]
     return clean
 
 
+def _reject_generic_sold(clean: Mapping[str, Any]) -> None:
+    if clean.get("state") == "sold":
+        raise ProductError(
+            "فروش فقط با record_sale ثبت می‌شود / sold state requires record_sale")
+
+
 def _check_state(clean: Mapping[str, Any], prior: Product | None) -> None:
     state = clean.get("state") or (prior.state if prior else "in_progress")
     if state not in STATES:
@@ -922,6 +1436,97 @@ def _stamp_dates(clean: dict[str, Any], prior: Product | None,
             clean.setdefault("listed_at", now_iso)
     if was == state:
         return
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace(
+        "+00:00", "Z")
+
+
+def _parse_timestamp(value: str) -> datetime:
+    if not isinstance(value, str) or not value.strip():
+        raise ProductError("timestamp is required")
+    text = value.strip()
+    try:
+        parsed = datetime.fromisoformat(
+            text[:-1] + "+00:00" if text.endswith("Z") else text)
+        return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise ProductError(f"Invalid timestamp: {value}") from None
+
+
+def _require_timestamp(name: str, value: str) -> None:
+    try:
+        _parse_timestamp(value)
+    except ProductError:
+        raise ProductError(f"{name} must be a valid ISO timestamp") from None
+
+
+def _require_id(name: str, value: str) -> None:
+    _require_text(name, value)
+
+
+def _require_text(name: str, value: str) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise ProductError(f"{name} is required")
+
+
+def _require_digest(name: str, value: str) -> None:
+    _require_text(name, value)
+
+
+def _require_channel(channel: str) -> None:
+    if not channel:
+        raise ProductError("channel is required")
+    if channel not in CHANNELS:
+        raise ProductError(f"Invalid channel: {channel}")
+
+
+def _require_nonnegative_int(name: str, value: Any) -> None:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ProductError(f"{name} must be a nonnegative integer")
+
+
+def _require_provenance(environment: str, source: str, created_by: str) -> None:
+    if environment not in ENVIRONMENTS:
+        raise ProductError(f"Invalid environment: {environment}")
+    _require_text("source", source)
+    _require_text("created_by", created_by)
+
+
+def _sale_input_error(*, event_id: str, sku: str, sold_at: str, channel: str,
+                      gross_cents: int | None, amount_unknown: bool,
+                      fee_cents: int | None, fee_unknown: bool,
+                      environment: str, source: str, created_by: str) -> str | None:
+    try:
+        _require_id("event_id", event_id)
+        _require_id("sku", sku)
+        _require_timestamp("sold_at", sold_at)
+        _require_channel(channel)
+        _require_provenance(environment, source, created_by)
+        if not isinstance(amount_unknown, bool):
+            raise ProductError("amount_unknown must be boolean")
+        if not isinstance(fee_unknown, bool):
+            raise ProductError("fee_unknown must be boolean")
+        if gross_cents is not None:
+            _require_nonnegative_int("gross_cents", gross_cents)
+        if fee_cents is not None:
+            _require_nonnegative_int("fee_cents", fee_cents)
+        if (gross_cents is not None) == amount_unknown:
+            raise ProductError("exactly one of gross_cents or amount_unknown is required")
+        if (fee_cents is not None) == fee_unknown:
+            raise ProductError("exactly one of fee_cents or fee_unknown is required")
+    except ProductError as exc:
+        return str(exc)
+    return None
+
+
+def _idempotent(row: Any, **identity: Any) -> dict:
+    out = {"ok": True, "idempotent": True}
+    out.update(identity)
+    if "status" in row.keys():
+        out["status"] = row["status"]
+    return out
 
 
 def _friendly(exc: Exception) -> str:

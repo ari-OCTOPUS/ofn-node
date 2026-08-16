@@ -563,6 +563,21 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
   </div>
 </div>
 
+<!-- پایلوت: thresholdها و روش پرداخت — پیش‌فرض از PILOT-14DAY تا عوض کنی. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">🎯</span><h2>پایلوت — آستانه‌ها و پرداخت</h2><span class="chipx" id="pilotChip">…</span></div>
+  <div id="pilotConfig"><div class="empty">در حال خواندن…</div></div>
+  <div class="memo" style="margin-top:14px">
+    <b>بدون روش پرداخت مشخص، درآمد اندازه‌گیری نمی‌شود.</b> آستانه‌ها پیش‌فرض سند پایلوت‌اند؛ عوضشان فقط با حکم تو.
+  </div>
+</div>
+
+<!-- رضایت انتشار استودیو (O7) — API از قبل بود؛ کارت مالک اینجا. -->
+<div class="panel" style="margin-bottom:20px">
+  <div class="ph"><span class="ic">🔏</span><h2>رضایت انتشار</h2><span class="chipx" id="consentChip">…</span></div>
+  <div id="consentAdmin"><div class="empty">در حال خواندن…</div></div>
+</div>
+
 <!-- سطوح: پیکربندی، نه سلامت. -->
 <div class="panel" style="margin-bottom:20px">
   <div class="ph"><span class="ic">🛰️</span><h2>سطوح — چه چیزی سرو می‌شود</h2><span class="chipx" id="surfChip">…</span></div>
@@ -1185,6 +1200,133 @@ function drawInbox(obs) {
   }
 }
 
+function drawPilotConfig(data) {
+  const box = document.getElementById('pilotConfig');
+  const chip = document.getElementById('pilotChip');
+  box.textContent = '';
+  if (!data || !data.ok) {
+    chip.textContent = 'قطع';
+    box.append(mk('div', 'empty', 'پیکربندی پایلوت خوانده نشد.'));
+    return;
+  }
+  const th = data.thresholds || {};
+  const pay = data.payment_methods || {};
+  chip.textContent = data.ready_for_measured_pilot
+    ? 'آمادهٔ سنجش' : 'پرداخت unset';
+  box.append(mk('div', 'muted',
+    `آستانه‌ها (${data.source}): `
+    + `${fa(th.min_production_listings)} listing · `
+    + `${fa(th.min_linked_production_inquiries)} inquiry · `
+    + `${fa(th.min_qualifying_production_payments)} payment`));
+  const form = mk('div', 'row');
+  const mkSel = (biz) => {
+    const s = mk('select');
+    ['unset','payid','bank_transfer','cash','stripe','other'].forEach(v => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = biz + ': ' + v;
+      if ((pay[biz] || 'unset') === v) o.selected = true;
+      s.append(o);
+    });
+    s.dataset.biz = biz;
+    return s;
+  };
+  const sLead = mkSel('lead');
+  const sZiman = mkSel('ziman');
+  const sStudio = mkSel('studio');
+  form.append(sLead, sZiman, sStudio);
+  const save = mk('button', 'k', 'ذخیرهٔ روش پرداخت');
+  save.type = 'button';
+  save.onclick = async () => {
+    save.disabled = true;
+    try {
+      const out = await OFN.post('/api/v1/owner/pilot/config', {
+        payment_methods: {
+          lead: sLead.value, ziman: sZiman.value, studio: sStudio.value,
+        },
+      });
+      if (!out.ok) throw new Error(out.error || 'ذخیره نشد');
+      OFN.done('success');
+      drawPilotConfig(out);
+    } catch (e) {
+      box.append(mk('div', 'out no', e.message || 'ذخیره نشد'));
+    } finally { save.disabled = false; }
+  };
+  form.append(save);
+  box.append(form);
+}
+
+function drawConsentAdmin(data) {
+  const box = document.getElementById('consentAdmin');
+  const chip = document.getElementById('consentChip');
+  box.textContent = '';
+  if (!data) {
+    chip.textContent = 'قطع';
+    box.append(mk('div', 'empty', 'رضایت خوانده نشد.'));
+    return;
+  }
+  const gaps = (data.gaps && data.gaps.gaps) || [];
+  const subjects = (data.subjects && data.subjects.subjects) || [];
+  chip.textContent = gaps.length
+    ? `${fa(gaps.length)} گپ` : `${fa(subjects.length)} سوژه`;
+  if (gaps.length) {
+    gaps.slice(0, 8).forEach(g => {
+      box.append(mk('div', 'muted',
+        `draft ${g.draft_id} · سوژه‌های بدون رضایت: `
+        + (g.missing_subjects || []).join('، ')));
+    });
+  } else {
+    box.append(mk('div', 'empty',
+      subjects.length
+        ? 'گپ رضایت باز نیست.'
+        : 'هنوز سوژه‌ای ثبت نشده — از API یا همین‌جا اضافه کن.'));
+  }
+  const form = mk('div', 'row');
+  const sid = mk('input'); sid.placeholder = 'subject_id';
+  const label = mk('input'); label.placeholder = 'برچسب';
+  const add = mk('button', 'k', 'افزودن سوژه');
+  add.type = 'button';
+  add.onclick = async () => {
+    if (!sid.value.trim() || !label.value.trim()) return;
+    add.disabled = true;
+    try {
+      const out = await OFN.post('/api/v1/owner/consent/subjects', {
+        subject_id: sid.value.trim(), label: label.value.trim(),
+      });
+      if (!out.ok) throw new Error(out.error || 'اضافه نشد');
+      OFN.done('success');
+      refresh();
+    } catch (e) {
+      box.append(mk('div', 'out no', e.message || 'اضافه نشد'));
+    } finally { add.disabled = false; }
+  };
+  form.append(sid, label, add);
+  box.append(form);
+  const rel = mk('div', 'row');
+  const rid = mk('input'); rid.placeholder = 'release_id';
+  const rsid = mk('input'); rsid.placeholder = 'subject_id';
+  const scope = mk('input'); scope.placeholder = 'scope (مثلاً telegram_channel)';
+  const rdoc = mk('input'); rdoc.placeholder = 'document_ref (مسیر امن)';
+  const addRel = mk('button', 'k', 'ثبت رضایت');
+  addRel.type = 'button';
+  addRel.onclick = async () => {
+    addRel.disabled = true;
+    try {
+      const out = await OFN.post('/api/v1/owner/consent/releases', {
+        release_id: rid.value.trim(), subject_id: rsid.value.trim(),
+        scope: scope.value.trim() || 'telegram_channel',
+        document_ref: rdoc.value.trim() || 'owner-panel',
+      });
+      if (!out.ok) throw new Error(out.error || 'ثبت نشد');
+      OFN.done('success');
+      refresh();
+    } catch (e) {
+      box.append(mk('div', 'out no', e.message || 'ثبت نشد'));
+    } finally { addRel.disabled = false; }
+  };
+  rel.append(rid, rsid, scope, rdoc, addRel);
+  box.append(rel);
+}
+
 function drawToday(board) {
   const host = document.getElementById('todayBoard');
   const chip = document.getElementById('todayChip');
@@ -1203,6 +1345,10 @@ function drawToday(board) {
   grid.append(pstat('منتظر تأیید', t.approvals || 0));
   grid.append(pstat('انجام دستی', t.manual_pending || 0));
   grid.append(pstat('لید باز', lead.open != null ? lead.open : '—'));
+  grid.append(pstat('پیگیری معوق', lead.follow_ups_due != null
+    ? lead.follow_ups_due : '—'));
+  grid.append(pstat('booked $', lead.booked_revenue_cents != null
+    ? Math.round(lead.booked_revenue_cents / 100) : '—'));
   grid.append(pstat('قطعات آماده', ziman.ready_to_list != null
     ? ziman.ready_to_list : '—'));
   grid.append(pstat('draft استودیو', studio.drafts != null
@@ -1294,6 +1440,55 @@ function drawManual(data) {
       }, 5000);
     };
     box.append(doneRow);
+    /* Telegram publish for studio items that already have a caption —
+       always dry-run first, then real with second confirm. */
+    if (it.tenant === 'studio' && it.kind && String(it.kind).indexOf('publish') >= 0) {
+      const tg = mk('button', 'k', 'آزمایش خشک تلگرام');
+      tg.type = 'button';
+      const tgRow = mk('div', 'row');
+      tgRow.append(tg);
+      let tgArmed = false;
+      tg.onclick = async () => {
+        const scoped = encodeURIComponent(it.id);
+        if (!tgArmed) {
+          tg.disabled = true;
+          try {
+            const res = await OFN.post(
+              `/api/v1/owner/outbox/${scoped}/publish-telegram`,
+              { dry_run: true, confirmed_twice: true });
+            if (!res.ok) {
+              tgRow.replaceWith(mk('div', 'out no', '✕ ' + (res.error || res.rule || 'خشک نشد')));
+              return;
+            }
+            tgArmed = true;
+            tg.disabled = false;
+            tg.textContent = '⚠️ ارسال واقعی — دوباره بزن';
+          } catch (e) {
+            tg.disabled = false;
+            tgRow.replaceWith(mk('div', 'out no', 'به نود نرسید'));
+          }
+          return;
+        }
+        tg.disabled = true;
+        try {
+          const res = await OFN.post(
+            `/api/v1/owner/outbox/${scoped}/publish-telegram`,
+            { dry_run: false, confirmed_twice: true });
+          if (!res.ok) {
+            tgRow.replaceWith(mk('div', 'out no', '✕ ' + (res.error || res.rule || 'ارسال نشد')));
+            return;
+          }
+          OFN.done('success');
+          tgRow.replaceWith(mk('div', 'out ok',
+            '✓ تلگرام · ' + (res.external_id || 'ارسال شد')));
+          setTimeout(refresh, 2500);
+        } catch (e) {
+          tg.disabled = false;
+          tgRow.replaceWith(mk('div', 'out no', 'به نود نرسید'));
+        }
+      };
+      box.append(tgRow);
+    }
   });
 }
 
@@ -1817,8 +2012,12 @@ async function refresh() {
     const inboxP = OFN.get('/api/v1/owner/observability').catch(() => null);
     const manualP = OFN.get('/api/v1/owner/approved-manual').catch(() => null);
     const todayP = OFN.get('/api/v1/owner/workboard').catch(() => null);
+    const pilotP = OFN.get('/api/v1/owner/pilot/config').catch(() => null);
+    const consentSubP = OFN.get('/api/v1/owner/consent/subjects').catch(() => null);
+    const consentGapP = OFN.get('/api/v1/owner/consent/gaps').catch(() => null);
     const [status, queue, events, painting, metrics,
-           risks, chain, snapshot, brain, inbox, manual, today] =
+           risks, chain, snapshot, brain, inbox, manual, today,
+           pilot, consentSub, consentGap] =
       await Promise.all([
         OFN.get('/api/v1/owner/status'),
         OFN.get('/api/v1/queue'),
@@ -1826,6 +2025,7 @@ async function refresh() {
         paintingP,
         metricsP,
         riskP, chainP, snapP, brainP, inboxP, manualP, todayP,
+        pilotP, consentSubP, consentGapP,
       ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
@@ -1841,6 +2041,8 @@ async function refresh() {
     drawInbox(inbox);
     drawManual(manual);
     drawToday(today);
+    drawPilotConfig(pilot);
+    drawConsentAdmin({ subjects: consentSub, gaps: consentGap });
     drawUnmeasured(snapshot);
     loadSurfaces().catch(e => console.error('loadSurfaces failed:', e));
     lastOk = Date.now();

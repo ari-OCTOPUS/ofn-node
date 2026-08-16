@@ -1,14 +1,23 @@
 ---
 tags: [ofn, status, gates]
 aliases: [چک‌پوینت, Checkpoint]
-updated: 2026-08-04
+updated: 2026-08-11
 ---
 
 # CHECKPOINT — دروازهٔ A بسته · دروازهٔ B تقریباً بسته
 
-**پیوندها:** [[INDEX]] · [[HANDOFF]] · [[DECISIONS]]
+**پیوندها:** [[INDEX]] · [[HANDOFF]] · [[DECISIONS]] ·
+[[docs/operations/REVENUE-STAGES|مراحل درآمد]]
 
-**تاریخ:** ۲۰۲۶-۰۸-۰۴ · **کد:** v0.8.0 + پچ پوسته‌ها · **کامیت پایه:** 08c47cd
+**وضعیت زنده:** همیشه [[HANDOFF]] را بخوان — این فایل تاریخ ۲۰۲۶-۰۸-۰۴ را
+حفظ می‌کند؛ گیت‌های موقت و هفتهٔ درآمد آنجا تازه می‌شوند.
+
+**تاریخ این یادداشت تاریخی:** ۲۰۲۶-۰۸-۰۴ · **کد آن روز:** v0.8.0 + پچ پوسته‌ها ·
+**کامیت پایه:** 08c47cd
+
+**یادداشت ۲۰۲۶-۰۸-۱۱:** `secret_rotation` و `partner_precondition` تا
+۲۰۲۶-۰۸-۱۷ UTC بازند؛ بعد auto-close مگر `OFN_KEEP_GATES_OPEN=1`.
+جزئیات: [[docs/architecture/DECISION-open-gates]].
 
 ---
 

@@ -11,9 +11,15 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Mapping
 
 from .adapters import remote_brain
+
+# DecisionRecord DECISION-open-gates.md: temporary open until this UTC date.
+# After midnight UTC on this day, secret_rotation and partner_precondition
+# return to the closed default unless OFN_KEEP_GATES_OPEN=1 (owner override).
+GATE_OPEN_UNTIL_UTC = "2026-08-17"
 
 
 def _flag(name: str) -> bool:
@@ -60,6 +66,13 @@ class Config:
     # requires Ari's five preconditions (path, privacy text, follow-up
     # owner, service area, runbook review). When off, the route 404s.
     public_catalog_enabled: bool = False
+    # Commerce scaffolding stays inert unless each reviewed surface is armed.
+    # The authenticated schema/routes and signed provider webhook are separate
+    # switches so enabling one cannot accidentally expose the other.
+    commerce_routes_enabled: bool = False
+    commerce_audited_receipts_enabled: bool = False
+    commerce_provider_webhook_enabled: bool = False
+    commerce_webhook_secret: str = ""
     # O11: Telegram channel to broadcast to (public identifier, not a
     # secret). The bot token stays in secrets.env and is read at call time.
     telegram_channel_id: str = ""
@@ -211,11 +224,24 @@ def load() -> Config:
     #
     # secret_rotation and partner_precondition were opened by Ari's explicit
     # decision on 2026-08-10 ("همرو روشن کن" — risk accepted for one week).
-    # See docs/architecture/DECISION-open-gates.md. This is a temporary
-    # window; if a week passes without rotation the gates must go back.
+    # See docs/architecture/DECISION-open-gates.md. Runtime expiry:
+    # after GATE_OPEN_UNTIL_UTC they re-close automatically unless the
+    # owner sets OFN_KEEP_GATES_OPEN=1 after rotating secrets.
     gates: list[str] = ["miner_isolation"]
+    keep_open = _flag("OFN_KEEP_GATES_OPEN")
+    try:
+        deadline = datetime.strptime(
+            GATE_OPEN_UNTIL_UTC, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        expired = datetime.now(timezone.utc) >= deadline
+    except ValueError:
+        expired = True
+    if expired and not keep_open:
+        gates += ["secret_rotation", "partner_precondition"]
     extra = os.environ.get("OFN_EXTRA_CLOSED_GATES", "")
     gates += [g.strip() for g in extra.split(",") if g.strip()]
+    # Deduplicate while preserving order.
+    seen: set[str] = set()
+    gates = [g for g in gates if not (g in seen or seen.add(g))]
 
     return Config(
         state_dir=state,
@@ -261,6 +287,13 @@ def load() -> Config:
         owner_host=f"panel.{domain}",
         wire_outbound=_flag("OFN_WIRE_OUTBOUND"),
         public_catalog_enabled=_flag("OFN_PUBLIC_CATALOG"),
+        commerce_routes_enabled=_flag("OFN_COMMERCE_ROUTES"),
+        commerce_audited_receipts_enabled=_flag(
+            "OFN_COMMERCE_AUDITED_RECEIPTS"),
+        commerce_provider_webhook_enabled=_flag(
+            "OFN_COMMERCE_PROVIDER_WEBHOOK"),
+        commerce_webhook_secret=os.environ.get(
+            "OFN_COMMERCE_WEBHOOK_SECRET", ""),
         telegram_channel_id=os.environ.get("OFN_TELEGRAM_CHANNEL_ID", ""),
         base_closed_gates=tuple(gates),
     )

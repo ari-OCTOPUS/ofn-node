@@ -24,3 +24,7 @@
 ## بازگشت
 اگر یک هفته گذشت و رازها نچرخیدند: گیت‌ها را برگردان
 (secret_rotation و partner_precondition به default config).
+
+**اجرای خودکار (۲۰۲۶-۰۸-۱۱):** از نیمه‌شب UTC تاریخ `2026-08-17`
+`config.load()` این دو گیت را دوباره می‌بندد مگر `OFN_KEEP_GATES_OPEN=1`
+پس از چرخش رازها ست شده باشد. دستور چرخش: `docs/runbooks/SECRET-ROTATION.md`.

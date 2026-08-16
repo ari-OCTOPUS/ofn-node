@@ -16,8 +16,10 @@ from __future__ import annotations
 import calendar
 import hashlib
 import json
+import re
 import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Callable, Mapping, Sequence
 
 from .adapters.boot import BootReport, closed_gates_for
@@ -1630,6 +1632,253 @@ class Node:
                 "time_counted": bool(pack.labour_hours_field
                                      and pack.labour_rate_field)}
 
+    def product_listing_packet(self, scope: TenantScope, sku: str) -> dict:
+        """Return the store-built, read-only packet for one piece.
+
+        There is deliberately no synthesized packet when the product store is
+        absent or the SKU is missing. A manual listing copied from invented or
+        stale fields is worse than a visible failure.
+        """
+        if self.products is None:
+            return {"ok": False, "error": "انبار محصولات در دسترس نیست"}
+        packet = self.products.listing_packet(scope.tenant.value, sku)
+        if packet is None:
+            return {"ok": False,
+                    "error": f"قطعه‌ای با کد «{sku}» پیدا نشد"}
+        return {"ok": True, "packet": packet}
+
+    def record_product_sale(self, scope: TenantScope, user_id: str, sku: str,
+                            body: Mapping[str, object]) -> dict:
+        """Record a production sale receipt without asserting payment.
+
+        The boundary is intentionally narrow. Monetary values are integer
+        cents or explicitly unknown, evidence is reduced to a digest before it
+        reaches storage or the ledger, and a production confirmation must be
+        literal ``true``. Generic product edits are not a substitute for this
+        method because the store records the sale event and state atomically.
+        """
+        if self.killed:
+            return {"ok": False, "error": "kill switch engaged",
+                    "rule": "gate:kill-switch"}
+        if self.products is None:
+            return {"ok": False, "error": "انبار محصولات در دسترس نیست"}
+
+        allowed = {
+            "event_id", "channel", "sold_at", "gross_cents",
+            "amount_unknown", "fee_cents", "fee_unknown", "evidence",
+            "reference", "production_confirmed",
+        }
+        unknown = sorted(set(body) - allowed)
+        if unknown:
+            return {"ok": False,
+                    "error": "unknown sale fields: " + ", ".join(unknown)}
+        if body.get("production_confirmed") is not True:
+            return {"ok": False,
+                    "error": "production_confirmed must be true"}
+
+        event_id = body.get("event_id")
+        if not isinstance(event_id, str) or not re.fullmatch(
+                r"[A-Za-z0-9][A-Za-z0-9._:-]{7,127}", event_id):
+            return {"ok": False,
+                    "error": "event_id must be a non-identifying unique id"}
+        channel = body.get("channel")
+        if not isinstance(channel, str) or not re.fullmatch(
+                r"[A-Za-z0-9_-]{1,64}", channel):
+            return {"ok": False, "error": "channel is required"}
+        sold_at = body.get("sold_at")
+        if not isinstance(sold_at, str) or len(sold_at) > 40:
+            return {"ok": False, "error": "sold_at must be an ISO timestamp"}
+        try:
+            parsed_sold_at = datetime.fromisoformat(
+                sold_at[:-1] + "+00:00" if sold_at.endswith("Z") else sold_at)
+            if parsed_sold_at.tzinfo is None:
+                raise ValueError("timezone required")
+        except ValueError:
+            return {"ok": False, "error": "sold_at must be an ISO timestamp"}
+
+        def known_or_unknown(value_key: str, unknown_key: str
+                             ) -> tuple[int | None, bool] | str:
+            has_value = value_key in body
+            has_unknown = unknown_key in body
+            if has_value == has_unknown:
+                return f"exactly one of {value_key} or {unknown_key} is required"
+            if has_unknown:
+                if body.get(unknown_key) is not True:
+                    return f"{unknown_key} must be true"
+                return None, True
+            value = body.get(value_key)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                return f"{value_key} must be a non-negative integer"
+            return value, False
+
+        amount = known_or_unknown("gross_cents", "amount_unknown")
+        if isinstance(amount, str):
+            return {"ok": False, "error": amount}
+        fee = known_or_unknown("fee_cents", "fee_unknown")
+        if isinstance(fee, str):
+            return {"ok": False, "error": fee}
+        gross_cents, amount_unknown = amount
+        fee_cents, fee_unknown = fee
+
+        evidence_keys = [key for key in ("evidence", "reference")
+                         if key in body]
+        if len(evidence_keys) > 1:
+            return {"ok": False,
+                    "error": "provide evidence or reference, not both"}
+        evidence = body.get(evidence_keys[0], "") if evidence_keys else ""
+        if not isinstance(evidence, str) or len(evidence) > MAX_TEXT_ANSWER:
+            return {"ok": False, "error": "evidence must be a short string"}
+        evidence_digest = (hashlib.sha256(evidence.encode("utf-8")).hexdigest()
+                           if evidence else "")
+
+        tenant = scope.tenant.value
+        if self.products.get(tenant, sku) is None:
+            return {"ok": False,
+                    "error": f"قطعه‌ای با کد «{sku}» پیدا نشد"}
+        actor = f"partner:{user_id}"
+        now = self.now_iso()
+        try:
+            recorded = self.products.record_sale(
+                tenant, sku, event_id=event_id, sold_at=sold_at,
+                channel=channel, gross_cents=gross_cents,
+                amount_unknown=amount_unknown, fee_cents=fee_cents,
+                fee_unknown=fee_unknown, now_iso=now,
+                environment="production", source="panel",
+                created_by=actor, evidence_digest=evidence_digest)
+        except ProductError as exc:
+            return {"ok": False, "error": str(exc)}
+        if not recorded.get("ok"):
+            return dict(recorded)
+
+        self.ledger.append(scope, "PRODUCT_SALE_RECORDED", {
+            "sku": sku, "event_id": event_id, "sold_at": sold_at,
+            "channel": channel, "gross_cents": gross_cents,
+            "amount_unknown": amount_unknown, "fee_cents": fee_cents,
+            "fee_unknown": fee_unknown, "evidence_digest": evidence_digest,
+            "environment": "production", "source": "panel", "actor": actor,
+        }, now)
+        product = self.products.get(tenant, sku)
+        pack = self.registry.pack(scope.tenant)
+        receipt = {
+            "message": "رسید فروش ثبت شد", "payment_confirmed": False,
+            "event_id": event_id, "sku": sku, "sold_at": sold_at,
+            "channel": channel, "gross_cents": gross_cents,
+            "amount_unknown": amount_unknown, "fee_cents": fee_cents,
+            "fee_unknown": fee_unknown, "evidence_digest": evidence_digest,
+            "environment": "production", "source": "panel", "actor": actor,
+        }
+        return {
+            "ok": True,
+            "product": self._decorated(
+                pack, product, now[:10], self._stale_after(scope),
+                self._gst(scope, pack)),
+            "receipt": receipt,
+        }
+
+    def confirm_order_settlement(self, scope: TenantScope, user_id: str,
+                                 body: Mapping[str, object]) -> dict:
+        """Record a production audited-receipt settlement on an existing order.
+
+        This is the *authenticated* counterpart to the signed provider webhook.
+        The owner reviews a real bank/cash receipt and records it here.  Like
+        the webhook path it calls the store's ``record_payment_confirmation``
+        which atomically marks the order paid and the product sold.
+
+        The receipt must point at an order that already exists; this method
+        does not create orders.  Evidence is reduced to a digest before
+        storage.  A production settlement requires a positive amount and a
+        trusted confirmation source (``audited_receipt``).
+        """
+        if self.killed:
+            return {"ok": False, "error": "kill switch engaged",
+                    "rule": "gate:kill-switch"}
+        if self.products is None:
+            return {"ok": False, "error": "انبار محصولات در دسترس نیست"}
+
+        allowed = {
+            "order_id", "settlement_id", "amount_cents", "fee_cents",
+            "currency", "evidence", "confirmed_at", "production_confirmed",
+        }
+        unknown = sorted(set(body) - allowed)
+        if unknown:
+            return {"ok": False,
+                    "error": "unknown settlement fields: " + ", ".join(unknown)}
+        if body.get("production_confirmed") is not True:
+            return {"ok": False,
+                    "error": "production_confirmed must be true"}
+
+        order_id = body.get("order_id")
+        if not isinstance(order_id, str) or not re.fullmatch(
+                r"[A-Za-z0-9][A-Za-z0-9._:-]{7,127}", order_id):
+            return {"ok": False, "error": "order_id is required"}
+        settlement_id = body.get("settlement_id")
+        if not isinstance(settlement_id, str) or not re.fullmatch(
+                r"[A-Za-z0-9][A-Za-z0-9._:-]{7,127}", settlement_id):
+            return {"ok": False, "error": "settlement_id is required"}
+        amount_cents = body.get("amount_cents")
+        if (isinstance(amount_cents, bool) or not isinstance(amount_cents, int)
+                or amount_cents <= 0):
+            return {"ok": False,
+                    "error": "amount_cents must be a positive integer"}
+        fee_cents = body.get("fee_cents")
+        if fee_cents is not None:
+            if (isinstance(fee_cents, bool)
+                    or not isinstance(fee_cents, int) or fee_cents < 0):
+                return {"ok": False,
+                        "error": "fee_cents must be a non-negative integer"}
+        currency = body.get("currency") or "AUD"
+        if not isinstance(currency, str) or len(currency) > 8:
+            return {"ok": False, "error": "currency is required"}
+        confirmed_at = body.get("confirmed_at")
+        if not isinstance(confirmed_at, str) or len(confirmed_at) > 40:
+            return {"ok": False,
+                    "error": "confirmed_at must be an ISO timestamp"}
+        try:
+            parsed = datetime.fromisoformat(
+                confirmed_at[:-1] + "+00:00"
+                if confirmed_at.endswith("Z") else confirmed_at)
+            if parsed.tzinfo is None:
+                raise ValueError("timezone required")
+        except ValueError:
+            return {"ok": False,
+                    "error": "confirmed_at must be an ISO timestamp"}
+
+        evidence = body.get("evidence") or ""
+        if not isinstance(evidence, str) or len(evidence) > MAX_TEXT_ANSWER:
+            return {"ok": False, "error": "evidence must be a short string"}
+        evidence_digest = hashlib.sha256(evidence.encode("utf-8")).hexdigest()
+        provider_event_digest = hashlib.sha256(
+            settlement_id.encode("utf-8")).hexdigest()
+
+        tenant = scope.tenant.value
+        actor = f"owner:{user_id}"
+        now = self.now_iso()
+        try:
+            out = self.products.record_payment_confirmation(
+                tenant, payment_id=settlement_id, order_id=order_id,
+                amount_cents=amount_cents, currency=currency,
+                status="confirmed", provider="audited",
+                provider_event_digest=provider_event_digest,
+                confirmation_source="audited_receipt",
+                evidence_digest=evidence_digest, confirmed_at=confirmed_at,
+                fee_cents=fee_cents, environment="production",
+                source="panel", created_by=actor, now_iso=now)
+        except ProductError as exc:
+            return {"ok": False, "error": str(exc)}
+        if not out.get("ok"):
+            return dict(out)
+
+        self.ledger.append(scope, "ORDER_SETTLEMENT_CONFIRMED", {
+            "order_id": order_id, "settlement_id": settlement_id,
+            "amount_cents": amount_cents, "currency": currency,
+            "evidence_digest": evidence_digest,
+            "confirmation_source": "audited_receipt",
+            "environment": "production", "source": "panel", "actor": actor,
+        }, now)
+        return {"ok": True, "settlement": out,
+                "payment_confirmed": True,
+                "confirmation_source": "audited_receipt"}
+
     def create_product(self, scope: TenantScope, user_id: str,
                        body: Mapping[str, object]) -> dict:
         pack = self.registry.pack(scope.tenant)
@@ -2318,15 +2567,26 @@ class Node:
         if self.painting is not None:
             try:
                 leads = self.painting.list_leads("lead", limit=100)
+                due = self.painting.follow_ups_due(
+                    "lead", before_iso=now)
+                booked_cents = sum(
+                    int(l.get("booked_amount_cents") or 0)
+                    for l in leads
+                    if l.get("status") == "won"
+                    and l.get("booked_amount_cents") is not None)
                 out["lead"] = {
                     "open": sum(1 for l in leads
                                 if l.get("status") in
                                 ("new", "review", "contacted", "quoted")),
                     "hot": sum(1 for l in leads
                                if l.get("temperature") == "hot"),
+                    "follow_ups_due": len(due),
+                    "booked_revenue_cents": booked_cents,
                 }
             except Exception:
                 out["lead"] = {"open": None, "hot": None,
+                               "follow_ups_due": None,
+                               "booked_revenue_cents": None,
                                "why": "not_measured"}
         if self.products is not None:
             try:
@@ -2680,8 +2940,69 @@ class Node:
             print(f"  ⚠ webhook stored but ledger append failed: {exc}",
                   file=sys.stderr)
 
+        # Apply commerce effects for verified provider events.  The store
+        # methods are idempotent on their own IDs, so a replayed webhook is
+        # a no-op rather than a double-sale.  Errors here do not un-store the
+        # inbox record — the event was received, even if the effect failed.
+        if (event.event_type in ("commerce.inquiry", "commerce.settlement")
+                and self.products is not None):
+            try:
+                self._apply_commerce_event(scope, tenant_name, event, now)
+            except Exception as exc:
+                import sys
+                print(f"  ⚠ commerce effect failed for {inbox_id}: {exc}",
+                      file=sys.stderr)
+
         return {"ok": True, "status": "accepted",
                 "inbox_id": inbox_id, "correlation_id": cid}
+
+    def _apply_commerce_event(self, scope: TenantScope, tenant: str,
+                              event, now: str) -> None:
+        """Map one verified commerce connector event to store effects.
+
+        The connector has already verified the signature and reduced the raw
+        payload to a reviewed safe shape.  This method turns that safe shape
+        into a store call.  It never sees customer PII — the connector rejects
+        unknown fields before this point.
+        """
+        from .adapters.products import ProductError
+        payload = event.payload
+        if event.event_type == "commerce.inquiry":
+            sku = payload.get("sku", "")
+            try:
+                self.products.create_inquiry(
+                    tenant, sku, inquiry_id=payload["inquiry_id"],
+                    listing_id=payload["listing_id"],
+                    channel=payload["channel"],
+                    source_ref_digest=payload.get("source_ref_digest", ""),
+                    received_at=payload["received_at"],
+                    environment="production", source="provider_webhook",
+                    created_by="system", now_iso=now)
+            except ProductError as exc:
+                if "duplicate" not in str(exc).lower():
+                    raise
+        elif event.event_type == "commerce.settlement":
+            order_id = payload["order_id"]
+            settlement_id = payload["settlement_id"]
+            amount_cents = int(payload["amount_cents"])
+            fee_raw = payload.get("fee_cents")
+            fee_cents = int(fee_raw) if fee_raw is not None else None
+            provider_event_digest = hashlib.sha256(
+                settlement_id.encode("utf-8")).hexdigest()
+            try:
+                self.products.record_payment_confirmation(
+                    tenant, payment_id=settlement_id, order_id=order_id,
+                    amount_cents=amount_cents, currency=payload["currency"],
+                    status=payload["status"], provider="commerce_provider",
+                    provider_event_digest=provider_event_digest,
+                    confirmation_source="provider_webhook",
+                    evidence_digest=payload["evidence_digest"],
+                    confirmed_at=payload.get("confirmed_at"),
+                    fee_cents=fee_cents, environment="production",
+                    source="provider_webhook", created_by="system", now_iso=now)
+            except ProductError as exc:
+                if "duplicate" not in str(exc).lower():
+                    raise
 
     def owner_status(self) -> dict:
         """Everything the owner's panel shows, measured rather than assumed.
@@ -3313,6 +3634,125 @@ class Node:
             }, self.now_iso())
         return out
 
+    def set_lead_follow_up(self, lead_id: str, body: Mapping[str, object],
+                           *, actor: str = "partner") -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        due_at = str(body.get("due_at") or "").strip()
+        action = str(body.get("action") or body.get("next_action") or "").strip()
+        if not due_at:
+            return {"ok": False, "error": "due_at required"}
+        ok = self.painting.set_follow_up(
+            scope.tenant.value, lead_id, due_at=due_at, action=action,
+            now_iso=self.now_iso())
+        if not ok:
+            return {"ok": False, "error": "lead not found"}
+        self.ledger.append(scope, "LEAD_FOLLOW_UP_SET", {
+            "lead_id": lead_id, "due_at": due_at, "actor": actor,
+        }, self.now_iso())
+        return {"ok": True, "lead_id": lead_id, "due_at": due_at}
+
+    def touch_lead_contact(self, lead_id: str, *, actor: str = "partner") -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        lead = self.painting.get(scope.tenant.value, lead_id)
+        if not lead:
+            return {"ok": False, "error": "lead not found"}
+        now = self.now_iso()
+        self.painting.touch_contact(scope.tenant.value, lead_id, at_iso=now)
+        if lead.get("status") == "new":
+            self.painting.update_lead(
+                scope.tenant.value, lead_id, {"status": "contacted"},
+                now_iso=now)
+        self.ledger.append(scope, "LEAD_CONTACTED", {
+            "lead_id": lead_id, "actor": actor,
+        }, now)
+        return {"ok": True, "lead_id": lead_id, "last_contacted_at": now}
+
+    def lead_duplicate_candidates(self, lead_id: str) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        dups = self.painting.duplicate_candidates(scope.tenant.value, lead_id)
+        # Never return raw phone/email — strip to ids + suburb + status.
+        safe = [{"lead_id": d.get("lead_id"), "status": d.get("status"),
+                 "suburb": d.get("suburb"), "customer_name": d.get("customer_name"),
+                 "score": d.get("score")} for d in dups]
+        return {"ok": True, "duplicates": safe, "count": len(safe)}
+
+    def record_lead_booked(self, lead_id: str, body: Mapping[str, object],
+                           *, actor: str = "owner") -> dict:
+        """P1: record real booked revenue when a job is won."""
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        try:
+            cents = int(body.get("amount_cents")
+                        if body.get("amount_cents") is not None
+                        else round(float(body.get("amount_aud") or 0) * 100))
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "amount_cents or amount_aud required"}
+        # Digest only — never store raw payment references with PII.
+        ref = str(body.get("payment_ref_digest")
+                  or body.get("external_ref_digest") or "").strip()
+        if ref and len(ref) < 8:
+            return {"ok": False, "error": "payment_ref_digest too short"}
+        out = self.painting.record_booked_revenue(
+            scope.tenant.value, lead_id, amount_cents=cents,
+            booked_at=self.now_iso(), payment_ref_digest=ref,
+            currency=str(body.get("currency") or "AUD"),
+            outcome_reason=str(body.get("outcome_reason") or ""))
+        if out.get("ok"):
+            self.ledger.append(scope, "LEAD_BOOKED", {
+                "lead_id": lead_id, "amount_cents": cents,
+                "has_payment_ref": bool(ref), "actor": actor,
+            }, self.now_iso())
+        return out
+
+    def owner_pilot_config(self) -> dict:
+        from .adapters.pilot_thresholds import as_dict, load as load_pilot
+        if not self.state_dir:
+            return {"ok": False, "error": "state_dir missing"}
+        return as_dict(load_pilot(self.state_dir))
+
+    def set_owner_pilot_config(self, body: Mapping[str, object]) -> dict:
+        from .adapters.pilot_thresholds import as_dict, save as save_pilot
+        if not self.state_dir:
+            return {"ok": False, "error": "state_dir missing"}
+        try:
+            cfg = save_pilot(self.state_dir, body)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
+        # Ledger under lead tenant — portfolio pilot is painting-led.
+        if "lead" in self.registry:
+            self.ledger.append(self.registry.scope("lead"), "PILOT_CONFIG_SET", {
+                "thresholds": dict(cfg.thresholds),
+                "payment_methods": dict(cfg.payment_methods),
+            }, self.now_iso())
+        return as_dict(cfg)
+
+    def owner_publish_telegram(self, item_id: str, *,
+                               dry_run: bool = True,
+                               confirmed_twice: bool = False) -> dict:
+        """Owner-only thin wrapper: publish one approved outbox item."""
+        tenant_name, _, key = item_id.partition(":")
+        if not key or tenant_name not in self.registry:
+            return {"ok": False, "error": "unknown item"}
+        scope = self.registry.scope(tenant_name)
+        return self.publish_to_telegram(
+            scope, idem_key=key, dry_run=dry_run,
+            confirmed_twice=confirmed_twice)
+
     # ── lead outbound: reply / quote ─────────────────────────────────────
     # Mirrors the studio publish path (`publish_draft`, node.py:480). A partner
     # composes a reply or quote; it goes into the outbox as RED (it leaves the
@@ -3387,6 +3827,7 @@ class Node:
         if lead.get("status") == "new":
             self.painting.update_lead(scope.tenant.value, lead_id,
                                       {"status": "contacted"}, now_iso=now)
+        self.painting.touch_contact(scope.tenant.value, lead_id, at_iso=now)
         return {"ok": True, "queued": queued, "kind": channel}
 
     def send_lead_quote(self, lead_id: str, body: Mapping[str, object],

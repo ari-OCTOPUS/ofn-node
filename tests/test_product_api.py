@@ -64,7 +64,9 @@ class Base(unittest.TestCase):
             partner_user_ids={"ziman": [MALIHEH]}, now=lambda: NOW_S,
             products_for=self.node.products_for,
             create_product=self.node.create_product,
-            update_product=self.node.update_product)
+            update_product=self.node.update_product,
+            product_listing_packet=self.node.product_listing_packet,
+            record_product_sale=self.node.record_product_sale)
         self.session = issue_session("ziman", MALIHEH, SECRET,
                                      now_epoch_s=NOW_S)
 
@@ -193,20 +195,112 @@ class TestUpdateAndLedger(Base):
         self.assertEqual(r.status, 400)
         self.assertIn("ZM-9999", r.body["error"])
 
-    def test_selling_needs_a_channel(self):
-        self.add()
-        r = self.call("POST", "/api/v1/products/ZM-0001", {"state": "sold"})
-        self.assertEqual(r.status, 400)
-        self.assertIn("کانال", r.body["error"])
-
-    def test_a_sale_on_an_unpriced_channel_reports_blocked_not_zero(self):
+    def test_generic_sold_is_refused_even_with_a_channel(self):
         self.add()
         r = self.call("POST", "/api/v1/products/ZM-0001",
                       {"state": "sold", "channel": "etsy"})
+        self.assertEqual(r.status, 400)
+        self.assertIn("record_sale", r.body["error"])
+
+
+class TestListingPacketAndSales(Base):
+    SALE = {
+        "event_id": "sale-event-0001",
+        "channel": "instagram",
+        "sold_at": "2026-08-04T08:55:00Z",
+        "gross_cents": 12000,
+        "fee_cents": 550,
+        "reference": "manual receipt 42",
+        "production_confirmed": True,
+    }
+
+    def test_packet_is_authenticated_read_only_and_not_cached(self):
+        self.add()
+        before = self.node.products.get("ziman", "ZM-0001")
+        r = self.call("GET", "/api/v1/products/ZM-0001/listing-packet")
         self.assertEqual(r.status, 200)
-        p = r.body["product"]
-        self.assertIsNone(p["net_margin_aud"])
-        self.assertIn("etsy", p["net_margin_blocked"])
+        self.assertTrue(r.body["ok"])
+        self.assertEqual(r.body["packet"]["sku"], "ZM-0001")
+        self.assertEqual(len(r.body["packet"]["sha256"]), 64)
+        self.assertEqual(r.headers["Cache-Control"], "private, no-store")
+        after = self.node.products.get("ziman", "ZM-0001")
+        self.assertEqual(before, after)
+
+    def test_packet_missing_and_crafted_paths_fail_closed(self):
+        self.add()
+        missing = self.call(
+            "GET", "/api/v1/products/ZM-9999/listing-packet")
+        self.assertEqual(missing.status, 404)
+        for path in (
+                "/api/v1/products//listing-packet",
+                "/api/v1/products/ZM-0001/extra/listing-packet"):
+            self.assertEqual(self.call("GET", path).status, 404)
+
+    def test_packet_needs_auth_and_right_tenant_session(self):
+        self.add()
+        path = "/api/v1/products/ZM-0001/listing-packet"
+        self.assertEqual(self.app.handle("GET", path, dict(HOST), b"").status,
+                         401)
+        wrong = issue_session("studio", MALIHEH, SECRET, now_epoch_s=NOW_S)
+        r = self.app.handle(
+            "GET", path,
+            dict(HOST, authorization="Bearer " + wrong), b"")
+        self.assertEqual(r.status, 401)
+
+    def test_sale_records_receipt_product_and_safe_ledger_event(self):
+        self.add()
+        r = self.call("POST", "/api/v1/products/ZM-0001/sales", self.SALE)
+        self.assertEqual(r.status, 200)
+        self.assertEqual(r.body["receipt"]["message"], "رسید فروش ثبت شد")
+        self.assertFalse(r.body["receipt"]["payment_confirmed"])
+        self.assertEqual(r.body["product"]["state"], "sold")
+        event = [e for e in self.events()
+                 if e.kind == "PRODUCT_SALE_RECORDED"][-1]
+        self.assertEqual(event.payload["gross_cents"], 12000)
+        self.assertEqual(event.payload["fee_cents"], 550)
+        self.assertEqual(event.payload["actor"], f"partner:{MALIHEH}")
+        self.assertEqual(len(event.payload["evidence_digest"]), 64)
+        self.assertNotIn(self.SALE["reference"], json.dumps(
+            event.payload, ensure_ascii=False))
+
+    def test_sale_body_and_confirmation_are_strict(self):
+        self.add()
+        headers = dict(HOST, authorization="Bearer " + self.session)
+        malformed = self.app.handle(
+            "POST", "/api/v1/products/ZM-0001/sales", headers, b"[1]")
+        self.assertEqual(malformed.status, 400)
+        no_confirm = dict(self.SALE)
+        no_confirm.pop("production_confirmed")
+        self.assertEqual(self.call(
+            "POST", "/api/v1/products/ZM-0001/sales", no_confirm).status, 400)
+        both = dict(self.SALE, amount_unknown=True)
+        self.assertEqual(self.call(
+            "POST", "/api/v1/products/ZM-0001/sales", both).status, 400)
+        extra = dict(self.SALE, customer_name="not allowed")
+        self.assertEqual(self.call(
+            "POST", "/api/v1/products/ZM-0001/sales", extra).status, 400)
+
+    def test_sale_callback_absent_is_404(self):
+        self.add()
+        app = ApiApp(
+            self.node.registry,
+            HostMap(tenants={"z.test": "ziman"}, owner_host="p.test"),
+            bot_tokens={"ziman": "t", "__owner__": "t"},
+            session_secret=SECRET, partner_user_ids={"ziman": [MALIHEH]},
+            now=lambda: NOW_S)
+        headers = dict(HOST, authorization="Bearer " + self.session)
+        r = app.handle("POST", "/api/v1/products/ZM-0001/sales", headers,
+                       json.dumps(self.SALE).encode())
+        self.assertEqual(r.status, 404)
+
+    def test_kill_switch_rejects_sale_without_mutation(self):
+        self.add()
+        self.node.killed = True
+        r = self.call("POST", "/api/v1/products/ZM-0001/sales", self.SALE)
+        self.assertEqual(r.status, 400)
+        self.assertEqual(r.body["rule"], "gate:kill-switch")
+        self.assertEqual(self.node.products.get(
+            "ziman", "ZM-0001").state, "in_progress")
 
 
 class TestTheDoorStillHolds(Base):

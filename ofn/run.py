@@ -144,6 +144,20 @@ def build_node(cfg: config.Config) -> Node:
     except Exception as exc:
         print(f"  ⚠ pilot not wired: {exc}")
 
+    # Phase C — signed provider commerce connector.  Default-off: instantiated
+    # only when the flag is on AND a non-empty signing secret is configured.
+    # A node booted without these has an empty connector map, and every
+    # webhook to /api/v1/webhooks/{tenant}/commerce fails closed with
+    # "unknown connector" — exactly as if no provider existed.
+    connectors: dict[str, object] = {}
+    if cfg.commerce_provider_webhook_enabled and cfg.commerce_webhook_secret:
+        try:
+            from .adapters.commerce_connector import CommerceConnector
+            connectors["commerce"] = CommerceConnector(
+                secret=cfg.commerce_webhook_secret)
+        except Exception as exc:
+            print(f"  ⚠ commerce connector not wired: {exc}")
+
     return Node(products=products, studio=studio, consent=consent, media=media,
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
@@ -151,7 +165,7 @@ def build_node(cfg: config.Config) -> Node:
                 now_iso=config.now_iso, state_dir=cfg.state_dir,
                 base_closed_gates=cfg.base_closed_gates, boot=report,
                 inbox=inbox, rate_limiter=rate_limiter,
-                connector_metrics=connector_metrics,
+                connector_metrics=connector_metrics, connectors=connectors,
                 pilot=pilot, pilot_state=pilot_state,
                 _telegram_channel_id=cfg.telegram_channel_id,
                 _telegram_token=str(cfg.bot_tokens.get("__owner__") or ""))
@@ -223,6 +237,9 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         products_for=node.products_for,
         create_product=node.create_product,
         update_product=node.update_product,
+        product_listing_packet=node.product_listing_packet,
+        record_product_sale=node.record_product_sale,
+        confirm_order_settlement=node.confirm_order_settlement,
         attach_photo=node.attach_product_photo,
         studio_board=node.studio_board,
         studio_marketing=node.studio_marketing,
@@ -262,6 +279,13 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_outbox_complete=node.owner_outbox_complete,
         owner_approved_manual=node.owner_approved_manual,
         set_telegram_channel=node.set_telegram_channel,
+        owner_publish_telegram=node.owner_publish_telegram,
+        owner_pilot_config=node.owner_pilot_config,
+        set_owner_pilot_config=node.set_owner_pilot_config,
+        set_lead_follow_up=node.set_lead_follow_up,
+        touch_lead_contact=node.touch_lead_contact,
+        lead_duplicate_candidates=node.lead_duplicate_candidates,
+        record_lead_booked=node.record_lead_booked,
         owner_consent_subjects=node.owner_consent_subjects,
         owner_consent_gaps=node.owner_consent_gaps,
         owner_consent_add_subject=node.owner_consent_add_subject,
@@ -275,6 +299,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_growth_workbench=node.owner_growth_workbench,
         public_catalog=node.public_catalog,
         public_catalog_enabled=cfg.public_catalog_enabled,
+        audited_settlements_enabled=cfg.commerce_audited_receipts_enabled,
         engage_kill=node.engage_kill,
         release_kill=node.release_kill,
         owner_snapshot=node.owner_snapshot,

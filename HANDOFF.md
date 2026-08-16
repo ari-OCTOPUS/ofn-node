@@ -1,36 +1,126 @@
 ---
 tags: [ofn, handoff, status]
 aliases: [وضعیت زنده, Handoff]
-updated: 2026-08-10
+updated: 2026-08-14
 ---
 
 # HANDOFF — برای جلسهٔ بعدی
 
-**پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
+**پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] ·
+[[docs/operations/REVENUE-STAGES|مراحل درآمد]] ·
+[[docs/operations/REVENUE-WEEK-CHECKLIST|چک‌لیست هفته]] ·
+[[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      1860 pass · 5 skip (۲۰۲۶-۰۸-۱۰ · P0 بسته شد — سه ممیزی)
-preflight   boot OK — ۳۱/۳۱ · memory.sqlite read-only در quick_check
-گیت‌ها       secret_rotation 🔓 (باز — تا ۲۰۲۶-۰۸-۱۷) · partner_precondition 🔓 (باز)
-            miner_isolation 🔒 · + ۱۵ گیت بستهٔ اضافی در OFN_EXTRA_CLOSED_GATES
-            (wire_outbound · live_email/publish/sms/dm · tender/vendor/portal
-            submit · terms/fee/auto_* — همه بسته)
-WIRE        outbound خاموش (OFN_WIRE_OUTBOUND=0) · email/publish در env روشن ولی
-            کد Python نمی‌خواندشان (امنیت از outbox + store-layer status تأمین
-            می‌شود، نه از این پرچم‌ها)
-بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅
-            (Robo2725_bot = پنل اصلی همهٔ بیزنس‌ها + انتشار کانال) · hypno ✅
+pytest      ofn: test_command_surface_absent 4/4 · bridge: 115 pass (۲۰۲۶-۰۸-۱۴)
+            خط پایهٔ کامل OFN را با tools/repo_baseline.py --tests بگیر
+preflight   (این جلسه ری‌استارت نشد)
+گیت‌ها       secret_rotation 🔓 (باز — تا ۲۰۲۶-۰۸-۱۷ UTC، بعد auto-close)
+            partner_precondition 🔓 (همان مهلت) · miner_isolation 🔒
+            + OFN_EXTRA_CLOSED_GATES · override: OFN_KEEP_GATES_OPEN=1
+WIRE        outbound خاموش (OFN_WIRE_OUTBOUND=0)
+بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
-سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear  →  هر چهار active
-            پورت‌ها: ۸۷۹۱–۸۷۹۴ + hypno ۸۸۹۵ · ۸۰۹۰ تمیز
-دامنه‌ها     panel/ziman/lead/studio/app/hypno → همه ۲۰۰
-UNIFY       edge داخل OFN (`/api/v1/hypno/edge/*`) · hypno هنوز جدا روی ۸۸۹۵
-            قدم دوم (خاموش‌کردن سرویس) منتظر حکم
-جدید        P0 از سه ممیزی (آمادگی کسب‌وکار · پنل‌ها · ریسک انتشار) بسته شد:
-            completion چندتنانتی · publish فقط از outbox · checkهای release
-            واقعی · pilot read_page · HANDOFF/گیت‌ها همگام
-            قدم بعد: پنل‌های عملیاتی + پایلوت واقعی ۱۴روزه
+سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear
+دامنه‌ها     panel/ziman/lead/studio/app/hypno
+جدید        G5 زنده روی هر چهار هاست عمومی /healthz → ۲۰۰ · {"ok":true}
+            G6 کلاینت pull در octopus-bridge، سه‌قفل خاموش.
+            قفل سبز سر جایش: outbound=0 · BOARD_CP_PULL=0 · بدون listener :8796.
+            رصد = GET `/healthz`. ۴۰۱ روی `/api/*` = تله.
+قدم بعد     آری: G7 Gate 0 (CONTROL_URL ویندوز-facing + راز + فلگ‌ها).
+            روش پرداخت هر بیزنس در پنل · چرخش راز قبل از ۱۷ اوت
+            عباس: follow-up → quote → booked · ملیحه: ۳ listing · سبا: ۱ پست
 ```
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۴ — G5 تأیید شد · G6 کلاینت pull (خاموش)
+
+منبع: مگاپرامپت ارشد↔برد. کار این برد فقط G5 و G6 بود. G7 دست مالک است.
+جزئیات در `~/HANDOFF.md`.
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۳ — نیمهٔ رصد لگ‌ها (کنسول اختاپوس)
+
+منبع: چت «پرسش از اختاپوس». روی **این** مخزن (`~/ofn`) فایلی عوض نشد.
+کد در والت اختاپوس است، هنوز commit نشده، و در `run_all.py` ثبت نشده.
+
+قرارداد:
+- پرسش «وضعیت بیزنس‌های برد» دیگر به مغز تجاری داخلی نمی‌رود.
+- `kind=legs` — فقط GET به HTTPS عمومی `/healthz` روی همان چهار هاست.
+- لوپ‌بک/LAN رد می‌شود. redirect به غیرعمومی همان لگ را می‌خواباند، نه کل snapshot را.
+- پاسخ `legs` به مدل نمی‌رود (HTTP 401 نباید «سالم» بازنویسی شود).
+- intent `_LEGS` قبل از `_BUSINESS`. رفتار قبلی «مغز تجاری» و «وضعیت چیست؟» دست‌نخورده.
+- غیر۲۰۰ روی `/healthz` = نرسید/غیرسالم برای همان لگ؛ fallback به `/` یا `/api/health` نیست.
+  فقط HTTP ۲۰۰ = رسید (listener/تونل). متن چت «بیزنس بالا» نمی‌گوید.
+
+سطح زنده از خود برد (GET `/healthz`): هر چهار **۲۰۰**. `ofn` و `cloudflared` active.
+
+عمداً ساخته نشد: Bridge ویندوزی موازی، مسیر فرمان، تماس با loopback برد، ثبت در `run_all.py`.
+
+**قدم بعد:** نیمهٔ فرمان قفل شد (نه ساخته). حکم جدا می‌خواهد.
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۳ — قفل فرمان (سبز)
+
+قفل است، نه مسیر فرمان. Listener روشن نشد. تونل خوانده/لو نشد.
+
+- تست بریج: `octopus-bridge/tests/test_command_half_lock.py`
+- تست OFN: `ofn/tests/test_command_surface_absent.py`
+- قرارداد: `octopus-bridge/docs/COMMAND-HALF-LOCK.md`
+- ویندوز: فقط GET `/healthz` روی چهار هاست؛ `/api/*` و `:8796` نمی‌زند
+- HTTP 401 روی `/api/*` = تلهٔ auth، نه سطح فرمان؛ سالم بازنویسی نمی‌شود
+
+**قدم بعد:** Gate 0 و حکم فاز ۲/۳ با مالک است. ایجنت برد فاز ۲ را شروع نکرد.
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۳ — فاز ۱ ویندوز تمام؛ برد پارک
+
+منبع: [ادامهٔ board_cp](282fe239-f2a6-4bb9-a14c-c5c4c39ddacb). با فاز ۱ فعلی یکی است. کار تازه‌ای روی برد نماند.
+
+- ویندوز: صف `_ops/board_cp/`، فلگ `OCTOPUS_BOARD_CP=0`، ویندوز `/api/*` برد و `:8796` را نمی‌زند
+- برد: قفل سبز دست‌نخورده · outbound خاموش · listener نیست
+- معماری عوض نشد: برد می‌کشد؛ مینی‌اپ مستقیم به هاست عمومی فرمان نمی‌زند
+
+تا حکم تو: Gate 0 (CONTROL_URL به CP ویندوز، نه لگ‌های برد + راز که ایجنت نمی‌نویسد) سپس فاز ۲ (بریج برد) سپس فاز ۳ (مسلح‌سازی).
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۱ — سیم‌کشی هفتهٔ درآمد (نقشهٔ نیازمندی‌ها)
+
+هدف: چک‌لیست عملیاتی + شکاف پنل برای اولین پول دستی — نه اتوماسیون فروش.
+
+- **آستانه‌های پایلوت:** `ofn/adapters/pilot_thresholds.py` +
+  `GET/POST /api/v1/owner/pilot/config` · پیش‌فرض ۳/۱/۱ از PILOT-14DAY ·
+  روش پرداخت هر بیزنس با `unset` شروع می‌شود (هنوز حکم مالک ثبت نشده).
+- **Painting P1:** follow-up / touch / booked revenue + duplicate hint در
+  `lead.html` · مبلغ booked در workboard مالک.
+- **GiftMesh Z0:** کانال‌های `direct`/`cash`/`payid` با fee صفر در پک ·
+  listing packet + sale receipt در پوسته (Instagram/Etsy عمداً غایب تا fee).
+- **Studio S0:** consent در پنل مالک · dry-run→publish تلگرام فقط از outbox
+  (`…/publish-telegram`).
+- **گیت‌ها:** بعد از `2026-08-17` بدون `OFN_KEEP_GATES_OPEN=1`،
+  `secret_rotation` و `partner_precondition` دوباره بسته می‌شوند.
+  چرخش راز هنوز کار انسان است (`SECRET-ROTATION.md`).
+- تست: `tests/test_revenue_stage_wiring.py` · کل suite سبز.
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۸-۱۰ — Phase D: معیار سنجش پایلوت
+
+- معیار مصوب دیگر threshold نامعلوم یا شمارندهٔ مستقل نیست: در بازهٔ UTC،
+  دست‌کم ۳ listing تولیدی باید به حداقل ۱ inquiry تولیدی و سپس از راه order
+  به ۱ payment تولیدیِ `confirmed`/`settled` با مبلغ مثبت و شاهد digestدار
+  وصل شوند؛ ترتیب زمانی و حضور همهٔ حلقه‌ها در بازه اجباری است.
+- `seed`، `test`، `demo` و `legacy_unknown` کنار گذاشته می‌شوند؛ پرداخت
+  `refunded`/`reversed` هم قبول نیست. سناریوهای `seed_pilot.py` هیچ‌وقت در
+  موفقیت پایلوت حساب نمی‌شوند.
+- پیاده‌سازی در `tools/pilot_report.py` و `tools/seed_pilot.py` کامل شد؛
+  `tests/test_pilot_report.py`: **۱۱ pass**. ابزار seed روی DB موقت دو بار اجرا شد:
+  شمارش ثابت ماند و دو محصول `environment=seed` و `source=seed_pilot` داشتند.
 
 ---
 

@@ -88,10 +88,13 @@ class TestDriftIsDetected(Tmp):
             conn.close()
         # Grows as columns are added. That is the point: the fixture is the
         # schema as it stood before, frozen, and every later addition shows
-        # up here — which is exactly what a drift detector is for.
+        # up here — which is exactly what a drift detector is for. The last
+        # three entries are the provenance columns that now disqualify a row
+        # from being counted as a real sale.
         self.assertEqual(sorted(gap["products"]),
-                         ["archived_at", "price_primary_aud",
-                          "price_secondary_aud"])
+                         ["archived_at", "created_by", "environment",
+                          "price_primary_aud", "price_secondary_aud",
+                          "source"])
 
     def test_a_current_file_reports_nothing(self):
         store = P.ProductStore(self.path, cost_fields=("materials_cost_aud",),

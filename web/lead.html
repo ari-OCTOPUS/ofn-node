@@ -568,6 +568,15 @@ function leadRow(l){
     c.append(ex);
   }
   if(l.message)c.append(el('div','lmsg',l.message));
+  if(l.next_action_at){
+    c.append(el('div','lmeta','پیگیری: '+(l.next_action||'')+' · '+l.next_action_at));
+  }
+  if(l.last_contacted_at){
+    c.append(el('div','lmeta','آخرین تماس: '+l.last_contacted_at));
+  }
+  if(l.booked_amount_cents!=null){
+    c.append(el('div','lmeta','مبلغ booked: $'+fa((l.booked_amount_cents/100).toFixed(0))));
+  }
   /* status dropdown */
   const acts=el('div','lacts');
   const sel=el('select','stsel');
@@ -585,8 +594,87 @@ function leadRow(l){
   const qb=el('button','b go','قیمت بده'); qb.type='button';
   qb.onclick=()=>openQuoteSheet(l);
   acts.append(qb);
+  const tb=el('button','b','الان تماس گرفتم'); tb.type='button';
+  tb.onclick=async()=>{
+    try{
+      const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/touch',{});
+      if(!out.ok)throw new Error(out.error||'ثبت نشد');
+      OFN.done(); drawList();
+    }catch(e){alert(e.message||'ثبت نشد');}
+  };
+  acts.append(tb);
+  const fb=el('button','b','موعد پیگیری'); fb.type='button';
+  fb.onclick=()=>openFollowUpSheet(l);
+  acts.append(fb);
+  if(l.status==='won'||l.status==='quoted'||l.status==='contacted'){
+    const bb=el('button','b go','ثبت پیش‌پرداخت/مبلغ'); bb.type='button';
+    bb.onclick=()=>openBookedSheet(l);
+    acts.append(bb);
+  }
   c.append(acts);
+  /* duplicate warning — load lazily, never shows raw contact */
+  OFN.get('/api/v1/painting/duplicates/'+encodeURIComponent(l.lead_id))
+    .then(d=>{
+      if(d&&d.ok&&d.count>0){
+        c.append(el('div','state warn',
+          fa(d.count)+' لید دیگر با همین تماس — قبل از تماس چک کن.'));
+      }
+    }).catch(()=>{});
   return c;
+}
+function openFollowUpSheet(l){
+  closeSheet();
+  const sheet=el('div','sheet');
+  sheet.setAttribute('role','dialog');
+  const p=el('div','spanel');
+  p.append(el('div','shdr','موعد پیگیری — '+(l.customer_name||'لید')));
+  const due=el('input'); due.type='datetime-local'; p.append(due);
+  const act=el('input'); act.type='text'; act.placeholder='کار بعدی (مثلاً تماس دوباره)'; p.append(act);
+  const live=el('div','state warn'); live.hidden=true; p.append(live);
+  const say=(t,ok)=>{live.textContent=t;live.hidden=false;live.className='state '+(ok?'ok':'warn');};
+  const send=el('button','b go','ثبت موعد'); send.type='button';
+  send.onclick=async()=>{
+    if(!due.value){say('تاریخ لازم است');return;}
+    send.disabled=true;
+    try{
+      const iso=new Date(due.value).toISOString().replace(/\.\d{3}Z$/,'Z');
+      const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/follow-up',
+        {due_at:iso, action:act.value.trim()});
+      if(!out.ok)throw new Error(out.error||'ثبت نشد');
+      OFN.done(); closeSheet(); drawList();
+    }catch(e){say(e.message||'ثبت نشد');}finally{send.disabled=false;}
+  };
+  p.append(send); sheet.append(p);
+  sheet.onclick=e=>{if(e.target===sheet)closeSheet();};
+  document.body.append(sheet);
+}
+function openBookedSheet(l){
+  closeSheet();
+  const sheet=el('div','sheet');
+  sheet.setAttribute('role','dialog');
+  const p=el('div','spanel');
+  p.append(el('div','shdr','مبلغ booked — '+(l.customer_name||'لید')));
+  p.append(el('div','state','فقط مبلغ واقعی. مرجع پرداخت را به‌صورت digest کوتاه بنویس — نه شماره حساب.'));
+  const amt=el('input'); amt.type='number'; amt.placeholder='مبلغ AUD'; amt.min='1'; p.append(amt);
+  const ref=el('input'); ref.type='text'; ref.placeholder='digest مرجع (اختیاری، حداقل ۸ حرف)'; p.append(ref);
+  const reason=el('input'); reason.type='text'; reason.placeholder='دلیل برد (اختیاری)'; p.append(reason);
+  const live=el('div','state warn'); live.hidden=true; p.append(live);
+  const say=(t,ok)=>{live.textContent=t;live.hidden=false;live.className='state '+(ok?'ok':'warn');};
+  const send=el('button','b go','ثبت مبلغ و won'); send.type='button';
+  send.onclick=async()=>{
+    const a=parseFloat(amt.value||'0'); if(!(a>0)){say('مبلغ درست نیست');return;}
+    send.disabled=true;
+    try{
+      const body={amount_aud:a, outcome_reason:reason.value.trim()};
+      if(ref.value.trim()) body.payment_ref_digest=ref.value.trim();
+      const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/booked', body);
+      if(!out.ok)throw new Error(out.error||'ثبت نشد');
+      OFN.done(); closeSheet(); drawList();
+    }catch(e){say(e.message||'ثبت نشد');}finally{send.disabled=false;}
+  };
+  p.append(send); sheet.append(p);
+  sheet.onclick=e=>{if(e.target===sheet)closeSheet();};
+  document.body.append(sheet);
 }
 function closeSheet(){const s=document.querySelector('.sheet');if(s)s.remove();}
 /* Escape closes the open sheet; the page listens once and the handler

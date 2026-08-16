@@ -154,6 +154,9 @@ class ApiApp:
         products_for: Callable[[TenantScope], dict] | None = None,
         create_product: Callable[[TenantScope, str, dict], dict] | None = None,
         update_product: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        product_listing_packet: Callable[[TenantScope, str], dict] | None = None,
+        record_product_sale: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        confirm_order_settlement: Callable[[TenantScope, str, str, dict], dict] | None = None,
         attach_photo: Callable[[TenantScope, str, str, dict], dict] | None = None,
         studio_board: Callable[[TenantScope], dict] | None = None,
         studio_marketing: Callable[[TenantScope], dict] | None = None,
@@ -190,6 +193,13 @@ class ApiApp:
         owner_outbox_complete: Callable[[str, Mapping, bool], dict] | None = None,
         owner_approved_manual: Callable[[], list] | None = None,
         set_telegram_channel: Callable[[str], dict] | None = None,
+        owner_publish_telegram: Callable[..., dict] | None = None,
+        owner_pilot_config: Callable[[], dict] | None = None,
+        set_owner_pilot_config: Callable[[Mapping], dict] | None = None,
+        set_lead_follow_up: Callable[..., dict] | None = None,
+        touch_lead_contact: Callable[..., dict] | None = None,
+        lead_duplicate_candidates: Callable[[str], dict] | None = None,
+        record_lead_booked: Callable[..., dict] | None = None,
         owner_consent_subjects: Callable[..., dict] | None = None,
         owner_consent_gaps: Callable[..., dict] | None = None,
         owner_consent_add_subject: Callable[..., dict] | None = None,
@@ -203,6 +213,7 @@ class ApiApp:
         owner_growth_workbench: Callable[[], dict] | None = None,
         public_catalog: Callable[[], dict] | None = None,
         public_catalog_enabled: bool = False,
+        audited_settlements_enabled: bool = False,
         owner_snapshot: Callable[[], dict] | None = None,
         owner_businesses: Callable[[], dict] | None = None,
         owner_business_snapshot: Callable[[str], dict | None] | None = None,
@@ -300,12 +311,25 @@ class ApiApp:
             lambda s, u, b: {"ok": False, "error": "products are not wired"})
         self._update_product = update_product or (
             lambda s, u, k, b: {"ok": False, "error": "products are not wired"})
+        # Unlike product list/create/edit, these callbacks deliberately have no
+        # harmless fallback. A missing Phase-B wire means the route is absent,
+        # not an empty packet or a receipt that only looks recorded.
+        self._product_listing_packet = product_listing_packet
+        self._record_product_sale = record_product_sale
+        self._confirm_order_settlement = confirm_order_settlement
         self._owner_queue = owner_queue or (lambda: [])
         self._owner_decide = owner_decide or (lambda i, a, c: {"ok": False, "error": "decision not wired"})
         self._owner_outbox_packet = owner_outbox_packet
         self._owner_outbox_complete = owner_outbox_complete
         self._owner_approved_manual = owner_approved_manual
         self._set_telegram_channel = set_telegram_channel
+        self._owner_publish_telegram = owner_publish_telegram
+        self._owner_pilot_config = owner_pilot_config
+        self._set_owner_pilot_config = set_owner_pilot_config
+        self._set_lead_follow_up = set_lead_follow_up
+        self._touch_lead_contact = touch_lead_contact
+        self._lead_duplicate_candidates = lead_duplicate_candidates
+        self._record_lead_booked = record_lead_booked
         self._owner_consent_subjects = owner_consent_subjects
         self._owner_consent_gaps = owner_consent_gaps
         self._owner_consent_add_subject = owner_consent_add_subject
@@ -318,6 +342,7 @@ class ApiApp:
         self._owner_growth_workbench = owner_growth_workbench
         self._public_catalog = public_catalog
         self._public_catalog_enabled = public_catalog_enabled
+        self._audited_settlements_enabled = audited_settlements_enabled
         self._owner_events = owner_events or (lambda n: [])
         self._owner_snapshot = owner_snapshot
         self._owner_businesses = owner_businesses
@@ -639,6 +664,26 @@ class ApiApp:
                 return Response(400, {"error": "bad request"})
             out = self._create_product(scope, p.user_id, data)
             return Response(200 if out.get("ok") else 400, out)
+        if method == "GET" and path.startswith("/api/v1/products/") \
+                and path.endswith("/listing-packet"):
+            sku = path[len("/api/v1/products/"):-len("/listing-packet")]
+            if (not sku or "/" in sku
+                    or self._product_listing_packet is None):
+                return Response(404, {"error": "not found"})
+            out = self._product_listing_packet(scope, sku)
+            return Response(200 if out.get("ok") else 404, out, headers={
+                "Cache-Control": "private, no-store",
+            })
+        if method == "POST" and path.startswith("/api/v1/products/") \
+                and path.endswith("/sales"):
+            sku = path[len("/api/v1/products/"):-len("/sales")]
+            if not sku or "/" in sku or self._record_product_sale is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._record_product_sale(scope, p.user_id, sku, data)
+            return Response(200 if out.get("ok") else 400, out)
         if method == "POST" and path.startswith("/api/v1/products/") \
                 and path.endswith("/photos"):
             sku = path[len("/api/v1/products/"):-len("/photos")]
@@ -875,8 +920,11 @@ class ApiApp:
             lead_id = urllib.parse.unquote(parts[0])
             verb = parts[1] if len(parts) == 2 else None
             data = _json_object(body)
-            if data is None:
+            # touch is a body-less action; everything else needs a JSON object.
+            if data is None and verb != "touch":
                 return Response(400, {"error": "bad request"})
+            if data is None:
+                data = {}
             if verb is None:
                 # plain update
                 if self._update_painting_lead is None:
@@ -890,9 +938,29 @@ class ApiApp:
                 if self._send_lead_quote is None:
                     return Response(404, {"error": "not found"})
                 out = self._send_lead_quote(lead_id, data, actor="partner")
+            elif verb == "follow-up":
+                if self._set_lead_follow_up is None:
+                    return Response(404, {"error": "not found"})
+                out = self._set_lead_follow_up(lead_id, data, actor="partner")
+            elif verb == "touch":
+                if self._touch_lead_contact is None:
+                    return Response(404, {"error": "not found"})
+                out = self._touch_lead_contact(lead_id, actor="partner")
+            elif verb == "booked":
+                if self._record_lead_booked is None:
+                    return Response(404, {"error": "not found"})
+                out = self._record_lead_booked(lead_id, data, actor="partner")
             else:
                 return Response(404, {"error": "not found"})
             return Response(200 if out.get("ok") else 400, out)
+        if (p.tenant.value == "lead" and method == "GET"
+                and path.startswith("/api/v1/painting/duplicates/")):
+            lead_id = urllib.parse.unquote(
+                path[len("/api/v1/painting/duplicates/"):])
+            if (not lead_id or "/" in lead_id
+                    or self._lead_duplicate_candidates is None):
+                return Response(404, {"error": "not found"})
+            return Response(200, self._lead_duplicate_candidates(lead_id))
 
         if method == "POST" and path.startswith("/api/v1/studio/drafts/"):
             rest = path[len("/api/v1/studio/drafts/"):]
@@ -1247,6 +1315,19 @@ class ApiApp:
                     return Response(404, {"error": "not found"})
                 return self._owner_read(
                     self._owner_outbox_packet(item_id))
+        # Authenticated audited-receipt settlement: owner reviews a real bank
+        # or cash receipt and records it.  Default-off (404 until enabled),
+        # like the public catalog.  Only the owner can call this.
+        if method == "POST" and path == "/api/v1/owner/orders/settlements":
+            if (not self._audited_settlements_enabled
+                    or self._confirm_order_settlement is None):
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            scope = self._registry.scope(p.tenant.value)
+            out = self._confirm_order_settlement(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
         if method == "POST" and path.startswith("/api/v1/owner/outbox/"):
             rest = path[len("/api/v1/owner/outbox/"):]
             if rest.endswith("/complete"):
@@ -1280,6 +1361,52 @@ class ApiApp:
                 return Response(400, {"error": "bad request"})
             out = self._set_telegram_channel(
                 str(data.get("channel_id") or ""))
+            return Response(200 if out.get("ok") else 400, out)
+        # Publish one approved outbox item to Telegram (dry_run default).
+        if method == "POST" and path.startswith("/api/v1/owner/outbox/") \
+                and path.endswith("/publish-telegram"):
+            item_id = urllib.parse.unquote(
+                path[len("/api/v1/owner/outbox/"):-len("/publish-telegram")])
+            tenant_name, _, key = item_id.partition(":")
+            if (not key or "/" in item_id
+                    or tenant_name not in self._registry
+                    or self._owner_publish_telegram is None):
+                return Response(404, {"error": "not found"})
+            data = _json_object(body) or {}
+            out = self._owner_publish_telegram(
+                item_id,
+                dry_run=bool(data.get("dry_run", True)),
+                confirmed_twice=bool(data.get("confirmed_twice", False)))
+            return Response(200 if out.get("ok") else 400, out)
+
+        # Pilot thresholds + money rails (owner-writable; defaults from
+        # PILOT-14DAY.md until overridden).
+        if method == "GET" and path == "/api/v1/owner/pilot/config":
+            if self._owner_pilot_config is None:
+                return Response(404, {"error": "not found"})
+            return self._owner_read(self._owner_pilot_config())
+        if method == "POST" and path == "/api/v1/owner/pilot/config":
+            if self._set_owner_pilot_config is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._set_owner_pilot_config(data)
+            return Response(200 if out.get("ok") else 400, out)
+
+        # Owner booked-revenue for a painting lead.
+        owner_booked_prefix = "/api/v1/owner/painting/leads/"
+        if (method == "POST" and path.startswith(owner_booked_prefix)
+                and path.endswith("/booked")):
+            lead_id = urllib.parse.unquote(
+                path[len(owner_booked_prefix):-len("/booked")])
+            if (not lead_id or "/" in lead_id
+                    or self._record_lead_booked is None):
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._record_lead_booked(lead_id, data, actor="owner")
             return Response(200 if out.get("ok") else 400, out)
 
         # ── consent administration (O7) ───────────────────────────────────
