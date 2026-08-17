@@ -33,6 +33,10 @@ updated: 2026-08-16
 
 ## وضعِ لحظه‌ای
 
+> 🎯 **پین 2026-08-17 ~21:1x — ریاستارتِ دیمونِ 4d + گزارشِ حافظه/یادگیری برای مالک:**
+> گزارشِ کاملِ ۵هفته‌ای (تایم‌لاین + ۴ الگویِ تکرارشونده + ۱۰ عیبِ باز) مستقیم به مالک تحویل شد (فایل، نه vault). یافتهٔ کلیدی: **دیمونِ 4d از ۲۰۲۶-۰۸-۱۶T15:39:45 بی‌صدا متوقف بود — ۲۹ ساعت، صفر آلارم.** مالک تأیید داد → ریاستارتِ دستی با env کاملِ flags.cmd (۴۳۵ متغیر) → pid نو **24588** → `kernel.integrity_ok`: false→true (manifest امضاشدهٔ C-033 برای اولین‌بار لود شد) → enforce=1/self_code_env=1 در پروسهٔ واقعی تأیید شد. شواهد: [[../06-EVIDENCE/4D-DAEMON-RESTART-2026-08-17|4D-DAEMON-RESTART]]. مالک دو مسیرِ طراحی را هم تأیید کرد برای ادامه: وصل‌کردنِ `claim_hypothesis` و EQUIP G2 به تولید — در حالِ انجام.
+> **کارِ باز که مالک رد کرد این دور:** آلارمِ «دیمون بی‌تیکِ طولانی».
+
 > 🎯 **پین 2026-08-17 — VibeGuard تحقیق وارد vault:** پروژه [[../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · [[../03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]] · [[../03 - Projects/VibeGuard/chat-ingest/README|chat-ingest]] (۱،۲،۵؛ ۳–۴ نرسید). Spec SoT. اصل Downloads روی ماشین مالک پاک شد؛ کپی vault ماند. به `_ops` وصل نشود.
 
 > 🎯 **پین 2026-08-16 دیرشب — اجرای دستورالعمل Worker Agent (فازهای ۰–۸):** نوت [[../07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|۶۲]] · گزارش [[../04-SYSTEMS/AGENT-REPORT|AGENT-REPORT]] · رجیستری [[../04-SYSTEMS/DECISIONS-REGISTRY.yaml|D1-D8]]. ۹ کامیت (`c7915e5..cc0a45c`) · ۷۱ تستِ سبز · بدون restart. HEARTSTATE-audit بسته · life-currency + مبادلهٔ D4 · روترِ provider D5/D6 · وتوی دوگانه D2/D3 · W1 فقط‌خواندنِ 4d · synapse/chord وصل. **A2 مسلح نشد** (تعارض D7 با VQ-SELFGOAL-002 → رأی مالک). فلگ‌ها از مسیرِ owner-verdicts (نه `.env`). سه سؤالِ باز در گزارش. آزاد **C-034**.
