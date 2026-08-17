@@ -21,6 +21,7 @@ sources:
 | ۲ | [[Deep-Research-and-Architecture-Report]] | شواهد، بازار، تهدید، ۸ گزینه معماری، roadmap. |
 | ۳ | [[NEXT-AGENT]] | دستور ایجنت بعد (Claude Code / Cursor). |
 | ۴ | `research/` | هفت داسیهٔ استناد اولیه — **هنوز وارد نشده**؛ ببین [[research/README]]. |
+| ۵ | [[chat-ingest/README\|chat-ingest]] | تکه‌های داخل‌گفتگو (۱/۵ ذخیره شد). Downloads spec را بازنویسی نمی‌کند. |
 
 ## تصمیم‌های قطعی (بحث مجدد ممنوع مگر مالک)
 
