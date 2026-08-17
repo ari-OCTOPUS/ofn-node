@@ -1,0 +1,81 @@
+--- a/4d_system/brain/automation.py
++++ b/4d_system/brain/automation.py
+@@ -491,6 +491,78 @@
+                     approval_state="not_required")
+         return {"ok": True, "mode": "create", "summary": idea[:40]}
+ 
++    # ── research: مصرفِ صفِ فرضیه (R16 قاعدهٔ ۴) ─────────────────────────
++    def _job_research(self) -> dict:
++        """پژوهش: یک فرضیهٔ راکد از صف برمی‌دارد، نسبت به experiments موجود
++        می‌سنجد (شباهتِ توکنیِ سبک — نه آزمونِ علمیِ عمیق)، و طبقِ قاعدهٔ ۴ِ
++        R16 با یک session_ref واقعی claim می‌کند. صفِ pending را می‌کاهد بدونِ
++        حذفِ هیچ ردیفی (claim فقط status را عوض می‌کند). تنها مصرف‌کنندهٔ
++        امروزِ claim_hypothesis — قبل از این، تابع صفر فراخوان داشت."""
++        trace = events.new_trace_id()
++        events.emit("task.started", "پژوهش: بررسیِ یک فرضیهٔ راکد از صف",
++                    status="info", agent_id="research", trace_id=trace,
++                    approval_state="not_required")
++        try:
++            from memory.store import get_pending_hypotheses
++            pending = get_pending_hypotheses(limit=200)
++            candidates = sorted(
++                (p for p in pending if not p.get("tested") and p.get("status") == "pending"),
++                key=lambda p: str(p.get("timestamp", "")),
++            )
++        except Exception as e:
++            logger.warning("research: pending fetch failed: %s", e)
++            events.emit("task.failed", f"پژوهش ناموفق: {type(e).__name__}",
++                        status="error", agent_id="research", trace_id=trace)
++            return {"ok": False, "mode": "research"}
++
++        if not candidates:
++            events.emit("task.completed", "پژوهش: صفِ فعال خالی است",
++                        status="ok", agent_id="research", trace_id=trace,
++                        approval_state="not_required")
++            return {"ok": True, "mode": "research", "summary": "empty-queue"}
++
++        target = candidates[0]
++        row_id = target.get("id")
++        hyp_text = str(target.get("hypothesis", ""))
++
++        related_count = 0
++        try:
++            from memory.store import query_experiments
++            from brain import memory_read_patch as mrp
++            for exp in query_experiments(limit=100):
++                if mrp.hypothesis_similarity(hyp_text, str(exp.get("narrative", ""))) >= 0.30:
++                    related_count += 1
++        except Exception as e:
++            logger.warning("research: relatedness check failed: %s", e)
++
++        result_note = (
++            f"{related_count} تجربهٔ مرتبط (شباهتِ توکنی ≥۰.۳۰)" if related_count
++            else "هیچ تجربهٔ مرتبطی یافت نشد"
++        )
++
++        try:
++            from memory.store import claim_hypothesis
++            claimed = claim_hypothesis(row_id, session_ref=f"auto-research-{trace}")
++        except Exception as e:
++            logger.error("research: claim failed for #%s: %s", row_id, e)
++            events.emit("task.failed", f"پژوهش: claim نشد #{row_id}",
++                        status="error", agent_id="research", trace_id=trace)
++            return {"ok": False, "mode": "research"}
++
++        if not claimed.get("ok"):
++            logger.warning("research: claim rejected for #%s: %s", row_id, claimed.get("reason"))
++            events.emit("task.completed", f"پژوهش: #{row_id} رد شد ({claimed.get('reason')})",
++                        status="ok", agent_id="research", trace_id=trace,
++                        approval_state="not_required")
++            return {"ok": True, "mode": "research", "claimed": False, "reason": claimed.get("reason")}
++
++        events.emit("task.completed",
++                    f"پژوهش: فرضیهٔ #{row_id} claim شد · {result_note}",
++                    status="ok", agent_id="research", trace_id=trace,
++                    next_action="بازبینیِ دوره‌ای", approval_state="not_required")
++        return {"ok": True, "mode": "research", "claimed": True,
++                "claimed_id": row_id, "related_count": related_count}
++
+     # ── mutate: خودتنظیمی (از میانِ guardrails) ──────────────────────────
+     def _propose_change(self) -> tuple[str, float]:
+         s = events.get_summary(300)
