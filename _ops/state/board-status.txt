@@ -1,1 +1,2 @@
-2026-08-17T23:00:57+10:00 · heartbeat STALLED 14h (beat=1681) · وایر/snapshot بدون تغییر · ۴ ack معلق · همان قفلِ چرخهٔ ۸
+2026-08-18T01:09:36+10:00 · RECOVERY: heartbeat zende (beat=741, uptime 8h15 — ریبوت ~16:42 دیروز) · ۳ ack received (unknown_outcome صادقانه در 23:57+10) · ۱ فرمان معلق: 01a00d3d (probe-4)
+نکته: push_failed 00:46 — ناپایداری باقی · wire-watch برد هنوز GitHub · w004 پوش شد
