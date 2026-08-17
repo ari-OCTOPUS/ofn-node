@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-08-16
+updated: 2026-08-17
 ---
 
 # پروژه: architect
@@ -28,8 +28,42 @@ updated: 2026-08-16
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-17 — ورود تحقیق VibeGuard** (محصول جدا، نه ارگانیسم).
+  [[../../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · نوت [[../../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]. به `_ops` وصل نشود.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: قفل ابسیدین نوت ۶۱).**
+  نقطهٔ ورود کل روز نوت ۶۱. عصر هنوز ۵۴. rsync نشد. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: سه برد + تصحیح FPGA).**
+  نوت ۶۰: پا=M4 · خالی۱=M1 شاهد · خالی۲=M2/M3 · Artix-7 PolarFire نیست. rsync نشد. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: مگاپرامپت بستن جاافتادگی مهاجرت).**
+  لانچر Inbox + `MEGAPROMPT-MIGRATE-CLOSE-GAPS` · نوت ۵۹. G8 را از نو نکن. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: fencing Beat Lease + FPGA propose-only).**
+  SoT `_ops/runtime/beat_lease.py` · CLI · ۱۷ pytest · نوت ۵۷/۵۸. chrono وصل نیست. freeze زنده نوشته نشد.
+  FPGA: ترمز نه گاز؛ Vitis AI روی Artix-7 نه. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: مهاجرت لپ‌تاپ→Arm 1 · فاز ۰ Beat Lease).**
+  نوت [[../../07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|۵۷]] · `_ops/octopus_v3/beat_lease.py` · تست ۱۰/۱۰ · فلگ خاموش · chrono وصل نیست.
+  جمله: مالکیت حقیقت جابه‌جا می‌شود نه پوشه. بعدی = اسکریپت M0. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: OCTOPUS v3.0 S0+S1+P0 overlay).**
+  نوت [[../../07 - Knowledge/شناخت-اختاپوس/56-OCTOPUS-V3-FREEDOM-P0-2026-08-16|۵۶]] · `_ops/octopus_v3/` unarmed · تست ۱۸/۱۸.
+  آزادی=حاکمیت نه abliteration. ۲۷بی/AU$۳۰۰ رد. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-16 شب (agent — Grok: ۱۰ مگاپرامپت EQUIP ترتیبی).**
+  لانچر Inbox + SHARED + گروه‌های ۲/۶/۷/۸/۱/۳/۴/۵/۹/۱۰ + اسکن مستقل + نوت ۵۵.
+  ترتیب اجرا نه موازی. ADR-012/013 این مخزن sandbox/kill نیستند. آزاد **C-034**.
+
+- تغییرات اخیر: **2026-08-17 — ورود تحقیق VibeGuard** (محصول جدا، نه ارگانیسم).
+  [[../../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · نوت [[../../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]. به `_ops` وصل نشود.
+
+- تغییرات اخیر: **2026-08-16 عصر (agent — Grok: EASE+CLOSE+Cowork+ابسیدین).**
+  نوت [[../../07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|۵۴]] · آزاد **C-034** · TCB ۱۵ امضا valid · OWNER-PENDING دفتر واحد. پوش با کلمه در پنجره‌های EASE/CLOSE.
+
 - تغییرات اخیر: **2026-08-16 (agent — بستن ERRORHUNT + ماندگارسازی برای ایجنت بعد).**
-  نوت [[../../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹]] · circuit دیسک half_open · ۳ تست در run_all · Watch LastResult=0 · آزاد C-027. پوش نشد.
+  نوت [[../../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹]] · circuit دیسک half_open · ۳ تست در run_all · Watch LastResult=0 · آزاد آن لحظه C-027 (کهنه — حالا C-034).
 
 - تغییرات اخیر: **2026-08-16 (agent — کشف مسیرهای مرده / کلاس ۹).**
   نقشه نه سیم‌کشی. کاتالوگ: [[../../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]].
@@ -162,7 +196,14 @@ updated: 2026-08-16
 
 ## Progress
 
-- **کشف مسیرهای مرده / کلاس ۹ (نو، ۲۰۲۶-۰۸-۱۶):** کاتالوگ Inbox + C-019/C-020 ERRATA. سیم‌کشی نشد. آزاد C-025. جزئیات: [[../../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]].
+- **شب Grok 16 اوت (نو):** قفل ابسیدین نوت ۶۱. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|نوت ۶۱]].
+- **شب Grok 16 اوت (نو):** سه برد + PolarFire≠Artix-7 · نوت ۶۰ · بدون rsync. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|نوت ۶۰]].
+- **شب Grok 16 اوت (نو):** مگاپرامپت MIGRATE-CLOSE-GAPS + نوت ۵۹. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|نوت ۵۹]].
+- **شب Grok 16 اوت (نو):** fencing lease ۱۷/۱۷ + CLI + نوت ۵۷/۵۸. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|نوت ۵۷]].
+- **شب Grok 16 اوت (نو):** مهاجرت Arm 1 نوت ۵۷ · Beat Ownership Lease unarmed ۱۰/۱۰ · M0 بعدی. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|نوت ۵۷]].
+- **شب Grok 16 اوت (نو):** ۱۰ مگاپرامپت EQUIP ترتیبی + اسکن مستقل + نوت ۵۵. لانچر Inbox. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|نوت ۵۵]].
+- **عصر Grok 16 اوت (نو):** نوت ۵۴ نقطهٔ ورود · آزاد C-034 · TCB ۱۵ امضا valid · Cowork نوشته شد · OWNER-PENDING دفتر واحد. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|نوت ۵۴]].
+- **کشف مسیرهای مرده / کلاس ۹ (نو، ۲۰۲۶-۰۸-۱۶):** کاتالوگ Inbox + C-019/C-020 ERRATA. سیم‌کشی نشد. آزاد آن لحظه C-025. جزئیات: [[../../00 - Inbox/2026-08-16 DISCOVERY — Unwired & Dead Paths Catalog]].
 - **سیزن آزمایشگاه دسکتاپ (نو، ۲۰۲۶-۰۸-۱۵):** نوت ۴۷ ثبت شد. v3 تمیز روی دسکتاپ
   (`octopus-owner-to-end-20260815T110641`)؛ D6 آزمایشگاه constraint ۱۲۰/۱۲۰ روی
   candidate غیرمهرشده؛ رسمی NOT_STARTED. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]].
@@ -183,6 +224,7 @@ updated: 2026-08-16
 
 ## Next actions
 
+- [ ] **مهاجرت — ایجنت بعد:** مگاپرامپت [[../../00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps|MIGRATE-CLOSE-GAPS]] (M0 + دیباگ dual-lease). G8 از نو نه. FPGA فقط ضبط داده (نوت ۵۸).
 - [ ] **بررسیِ مالک لازم:** آیتمِ آرشیوشدهٔ «tentacle فروش ۰۷-۲۰» در
   `_Archive/Logs/architect-PROJECT-Progress-archive-2026-08-07.md` — ددلاینش حالا هفته‌ها
   گذشته و در هیچ ورودیِ جدیدتری تکرار نشده؛ منسوخ یا فراموش‌شده؟

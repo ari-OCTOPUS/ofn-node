@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [moc]
-updated: 2026-08-15
+updated: 2026-08-17
 ---
 
 # ایندکس دانش
@@ -14,6 +14,20 @@ updated: 2026-08-15
 ## شناخت اختاپوس (OCTOPUS)
 
 - [[07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE|00-README-START-HERE]] — ⭐ نقطهٔ ورودِ خط زنده
+- [[07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵ — ورود تحقیق VibeGuard (محصول جدا)]]
+- [[07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|۶۲ — اجرای دستورالعمل Worker Agent (فازهای ۰–۸)]]
+- [[07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱ — قفل ابسیدین شب ۱۶ اوت]]
+- [[07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|۶۰ — سه برد فیزیکی + FPGA PolarFire≠Artix-7]]
+- [[07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹ — مگاپرامپت بستن جاافتادگی مهاجرت]]
+- [[07 - Knowledge/شناخت-اختاپوس/58-FPGA-REFLEX-LAYER-2026-08-16|۵۸ — FPGA لایهٔ رفلکس (propose-only)]]
+- [[07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|۵۷ — مهاجرت لپ‌تاپ→Arm 1 · YOU ARE HERE فاز ۰ fencing]]
+- [[07 - Knowledge/شناخت-اختاپوس/56-OCTOPUS-V3-FREEDOM-P0-2026-08-16|۵۶ — v3.0 آزادی قانونی + P0 overlay]]
+- [[07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|۵۵ — EQUIP ترتیبی ۱۰ گروه + اسکن]]
+- [[07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|۵۴ — حقیقت عصر Grok · Cowork · آزاد C-034]]
+- [[07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16|۵۳ — بستن صف باز]]
+- [[07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16|۵۲ — راحتی مالک]]
+- [[07 - Knowledge/شناخت-اختاپوس/51-WEBPANEL-REALITY-2026-08-16|۵۱ — پنل وب صادق]]
+- [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹ — بستن شب (شناسهٔ آزاد کهنه)]]
 - [[07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|۴۷ — سیزن آزمایشگاه دسکتاپ D1–D8]] — PASS شخص ثالث و D1 رسمی **نه**
 - [[07 - Knowledge/شناخت-اختاپوس/46-BOARD-CP-PHASE1-AND-BOARD-BRIEF-2026-08-13|۴۶ — board-cp فاز ۱]]
 - [[07 - Knowledge/شناخت-اختاپوس/45-BOARD-LEGS-READONLY-READER-2026-08-13|۴۵ — رصد لگ‌های برد]] · [[07 - Knowledge/شناخت-اختاپوس/45-DO-IT-ALL-COMPLETION-2026-08-13|۴۵ تکراری — انجام بده همرو]]
@@ -26,8 +40,8 @@ updated: 2026-08-15
 - [[07 - Knowledge/شناخت-اختاپوس/36-AI-ARCHITECTURE-GAP-ANALYSIS-2026-08-08|۳۶ — تحلیلِ شکافِ معماری + وب‌اپ]] — ۱۵ اشتباه + ۹ تب (با بخشِ راستی‌آزماییِ ۲۰۲۶-۰۸-۰۸)
 - [[07 - Knowledge/شناخت-اختاپوس/23-P1-P5-VERIFIED-AND-NEXT-MEGAPROMPT-2026-08-07|۲۳ — تأییدِ P1-P5 + مگاپرامپت]]
 
-> vault شناخت اختاپوس حالا تا نوت ۴۷ است. خط زنده از 00-README؛ سیزن آزمایشگاه
-> دسکتاپ از نوت ۴۷. سؤال‌های باز در `00 - Inbox/AGENT_QUESTIONS.md`.
+> vault شناخت اختاپوس حالا تا نوت ۶۱ است. خط زنده از 00-README و نوت ۶۱؛ عصر از نوت ۵۴؛ EQUIP از نوت ۵۵؛ v3 P0 از نوت ۵۶؛ مهاجرت از نوت ۵۷؛ FPGA از نوت ۵۸؛ مگاپرامپت بعد از نوت ۵۹؛ سه برد از نوت ۶۰. سیزن آزمایشگاه
+> دسکتاپ از نوت ۴۷. کارهای باز مالک: `00 - Inbox/2026-08-16 OWNER-PENDING — All Open Items (Master Checklist).md`.
 
 ## حاکمیت و کنترل (Governance)
 

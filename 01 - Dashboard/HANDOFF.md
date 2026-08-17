@@ -33,6 +33,39 @@ updated: 2026-08-16
 
 ## وضعِ لحظه‌ای
 
+> 🎯 **پین 2026-08-17 — VibeGuard تحقیق وارد vault:** پروژه [[../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · [[../03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]. Spec SoT. داسیه‌های Cowork `workspace/research/` پیدا نشد. به `_ops` وصل نشود.
+
+> 🎯 **پین 2026-08-16 دیرشب — اجرای دستورالعمل Worker Agent (فازهای ۰–۸):** نوت [[../07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|۶۲]] · گزارش [[../04-SYSTEMS/AGENT-REPORT|AGENT-REPORT]] · رجیستری [[../04-SYSTEMS/DECISIONS-REGISTRY.yaml|D1-D8]]. ۹ کامیت (`c7915e5..cc0a45c`) · ۷۱ تستِ سبز · بدون restart. HEARTSTATE-audit بسته · life-currency + مبادلهٔ D4 · روترِ provider D5/D6 · وتوی دوگانه D2/D3 · W1 فقط‌خواندنِ 4d · synapse/chord وصل. **A2 مسلح نشد** (تعارض D7 با VQ-SELFGOAL-002 → رأی مالک). فلگ‌ها از مسیرِ owner-verdicts (نه `.env`). سه سؤالِ باز در گزارش. آزاد **C-034**.
+
+> 🎯 **پین 2026-08-16 ~21:3x — ابسیدین شب قفل:** نقطهٔ ورود کل روز = نوت [[../07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱]]. عصر هنوز [[../07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|۵۴]]. نشست [[../00 - Inbox/2026-08-16 SESSION — Three Boards FPGA Obsidian|SESSION]]. آزاد **C-034**.
+
+> 🎯 **پین 2026-08-16 ~21:2x — سه برد + FPGA تصحیح:** پاهای روشن = M4 (beat نه). خالی۱ = M1 شاهد لجر (killswitch نه). خالی۲ = M2→M3. ۲× 200T = M5 ترمز؛ PolarFire PUF روی Artix-7 **نیست**. کل اختاپوس را امشب کپی نکن. نوت [[../07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|۶۰]] · شواهد [[../06-EVIDENCE/LIVE-VS-PASTE-SCAN-2026-08-16|LIVE-VS-PASTE]] · کارت [[../00 - Inbox/2026-08-16 DISCOVERY — Three Boards and FPGA Correction|کارت]]. آزاد **C-034**.
+
+> 🎯 **پین 2026-08-16 ~21:0x — مگاپرامپت ایجنت بعد (بستن جاافتادگی مهاجرت):** کپی کامل →
+> [[../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16|MIGRATE-CLOSE-GAPS]] · لانچر [[../00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps|لانچر]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹]]
+> PERPETUAL/SEAM/COWORK/G8-از-نو برای شروع این پنجره باطل. M0+دیباگ dual-lease. آزاد **C-034** (grep؛ G8 ادعا کرده).
+
+> 🎯 **پین 2026-08-16 ~20:4x — fencing Beat Lease (۱۷ تست) + رودمپ Arm:** TTL کافی نیست؛ token صعودی + vacate-not-delete + freeze + CLI. SoT: `_ops/runtime/beat_lease.py`. chrono وصل نیست. FPGA نوت ۵۸ propose-only. شواهد [[../06-EVIDENCE/BEAT-OWNERSHIP-LEASE-2026-08-16|BEAT-LEASE]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|۵۷]] · [[../07 - Knowledge/شناخت-اختاپوس/58-FPGA-REFLEX-LAYER-2026-08-16|۵۸]]. آزاد **C-034**.
+
+> 🎯 **پین 2026-08-16 ~20:3x — مهاجرت لپ‌تاپ→Arm 1 · فاز ۰ Beat Lease:** مالکیت حقیقت جابه‌جا می‌شود نه پوشه. YOU ARE HERE = فاز ۰ کد هست، فلگ خاموش، chrono وصل نیست. M0 بعدی. شواهد [[../06-EVIDENCE/BEAT-OWNERSHIP-LEASE-2026-08-16|BEAT-LEASE]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|۵۷]] · تست ۱۰/۱۰. آزاد **C-034**.
+
+> 🎯 **پین 2026-08-16 ~19:4x — OCTOPUS v3.0 S0+S1+P0 overlay (این نشست):** ریپو وصل بود پس S0 جعل نشد.
+> شواهد: [[../06-EVIDENCE/OCTOPUS-V3-S0-PROFILE-2026-08-16|S0]] · [[../06-EVIDENCE/OCTOPUS-V3-S1-BASELINE-2026-08-16|S1 yaml]] · [[../06-EVIDENCE/OCTOPUS-V3-P0-2026-08-16|P0]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/56-OCTOPUS-V3-FREEDOM-P0-2026-08-16|۵۶]]
+> کد: `_ops/octopus_v3/` · تست ۱۸/۱۸ · `WIRED=False` · سقف overlay ≤ AU$2/روز · ۲۷بی روی این لپ‌تاپ NO-GO · vaara نصب نشد.
+> آزادی = حاکمیت نه abliteration. آزاد **C-034**.
+
+> ⚠️ **پین‌های زیر که «آزاد C-027 / C-029 / C-031» می‌گویند کهنه‌اند.** حقیقت عصر: آزاد **C-034** · نوت [[../07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|۵۴]] · OWNER-PENDING.
+
+> 🎯 **پین 2026-08-16 ~19:4x — مگاپرامپت‌های EQUIP ترتیبی (۱۰ گروه + اسکن):** نه هم‌زمان.
+> لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Equip Octopus Sequential|لانچر EQUIP]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|۵۵]]
+> ترتیب: ۲ حافظه → ۶ تله‌متری → ۷ هویت → ۸ containment → ۱ ارکستراسیون → ۳ ادراک → ۴ کدنویسی → ۵ زیرساخت → ۹ اتصالات → ۱۰ شناخت. بعد از هر دو گروه: `MEGAPROMPT-EQUIP-SCAN-INDEPENDENT`. قرارداد: `MEGAPROMPT-EQUIP-00-SHARED-CONTRACT`. ADR-012/013 این vault sandbox/kill نیستند. آزاد **C-034**.
+
+> 🎯 **پین 2026-08-16 ~17:2x — ابسیدین عصر هم‌تراز شد:** نوت ۵۴ · DAY-INDEX ردیف ۲۰ · Cowork لانچر. پیست موازی SoT نیست.
+
+> 🎯 **پین 2026-08-16 ~17:1x — مگاپرامپت Claude Cowork:** کپی کامل → Cowork:
+> [[../agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16|CLAUDE-COWORK]] · لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Claude Cowork|لانچر]]
+> پیست AUTOFLOW/REST-NIGHT/SELFRUN را SoT نگیر. TCB ۱۵ · آزاد **C-034**.
+
 > 🎯 **پین 2026-08-16 ~16:5x — OWNER-CLOSE EXECUTED:** [[../06-EVIDENCE/OWNER-CLOSE-2026-08-16|OWNER-CLOSE]] · [[../07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16|نوت ۵۳]] — C-033 · reason 215 · کرنل ok · retired experiments · پوش. آزاد **C-034**.
 
 > 🎯 **پین 2026-08-16 ~16:3x — OWNER-EASE EXECUTED:** [[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · [[../07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16|نوت ۵۲]] — پوش با کلمه · C-026/C-029 تصویب · سه عضو `1.5b` · Fugu 429 · **C-033** · آزاد **C-034**.

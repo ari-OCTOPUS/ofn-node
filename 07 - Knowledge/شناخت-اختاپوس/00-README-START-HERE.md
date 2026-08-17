@@ -4,19 +4,23 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, index]
 created: 2026-07-18
-updated: 2026-08-16
+updated: 2026-08-17
 ---
 
 # 🐙 شناخت اختاپوس — نقطهٔ ورود
 
-> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ بعدازظهر.** شب ۱۵↯۱۶ بسته شد. **ورود عملیاتی امروز:**
-> [[../../01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] ·
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۷.** محصول جدا [[../../03 - Projects/VibeGuard/00-START-HERE|VibeGuard]] وارد شد (نوت [[65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]). به خط زندهٔ `_ops` قاطی نکن.
+
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ شب (~21:3x).** ورود عملیاتی کل روز:
+> [[61-OBSIDIAN-NIGHT-LOCK-2026-08-16|نوت ۶۱ قفل ابسیدین]] · [[54-GROK-SESSION-SOT-2026-08-16|نوت ۵۴ عصر]] · [[55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|نوت ۵۵ EQUIP]] · [[56-OCTOPUS-V3-FREEDOM-P0-2026-08-16|نوت ۵۶ v3 P0]] · [[57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|نوت ۵۷ مهاجرت]] · [[58-FPGA-REFLEX-LAYER-2026-08-16|نوت ۵۸ FPGA]] · [[59-MIGRATE-CLOSE-GAPS-2026-08-16|نوت ۵۹ مگاپرامپت بعد]] · [[60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|نوت ۶۰ سه برد]] ·
+> [[../../01-TRUTH/STATE-2026-08-15-NIGHT|STATE §8]] ·
 > [[../../00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] ·
-> [[../../00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] ·
-> نوت ماندگار [[49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]]
-> (شکار خطا + درس ۱۰–۱۳ + ثبت تست). مگاپرامپت ۳ اوت تاریخی است.
-> **مأموریت بعدی:** [[../../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16|حلقهٔ درز v2]].
-> آزاد بعدی: **C-027**. پوش فقط با کلمهٔ مالک.
+> [[../../00 - Inbox/2026-08-16 OWNER-PENDING — All Open Items (Master Checklist)|OWNER-PENDING]].
+> آزاد بعدی: **C-034** (grep؛ G8 ادعا کرده). TCB ۱۵ فایل امضا valid. اولاما سه عضو = 1.5b.
+> **سه برد:** پا=M4 · خالی۱=شاهد · خالی۲=Arm1 سایه · FPGA PolarFire نیست — [[60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|نوت ۶۰]]. rsync امشب نه.
+> **مأموریت بعدی تک‌نفره:** [[../../00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps|لانچر بستن جاافتادگی]] — نه PERPETUAL/SEAM/COWORK، نه G8 از نو.
+> **تجهیز چندایجنتی:** ترتیبی نه موازی — [[../../00 - Inbox/2026-08-16 MEGAPROMPT — Equip Octopus Sequential|لانچر EQUIP]] (۲→۶→۷→۸→۱→۳→۴→۵→۹→۱۰ + اسکن بعد از هر موج). KIT می‌گوید MCP v2 را ۵-الف اول بزن.
+> پوش فقط با کلمهٔ مالک در همان پنجره (C-023).
 >
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۵ شب.** شورای دوم + فکت‌چک TCB در
 > [[48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] و پوشهٔ
@@ -119,7 +123,11 @@ updated: 2026-08-16
 | **46-BOARD-CP-PHASE1** | Control Plane ویندوز (board-pull) + بریف فاز ۲ برد | ۲۰۲۶-۰۸-۱۳ |
 | **47-DESKTOP-LAB-D1-D8-GOVERNANCE** | ⭐ **نقطهٔ ورودِ سیزن آزمایشگاه دسکتاپ** — بستهٔ مهرشده، ممیزی همان‌محیط، waiver، v2 آلوده، v3 تمیز. رسمی: D1/D6 NOT_STARTED · PASS شخص ثالث FALSE | ۲۰۲۶-۰۸-۱۵ |
 | **48-SECOND-COUNCIL-TCB-ATTRIBUTION** | ⭐ **شورای دوم + فکت‌چک TCB** — NO-GO دقیق‌تر (مالک پذیرفت)؛ انتساب ویرایش `automation.py` = ایجنت جاروی تست نه مالک؛ پوشهٔ اسناد [[../OCTOPUS-COUNCIL-2-2026-08-15/README|COUNCIL-2]]؛ مگاپرامپت DEBT-SWEEP v1.1 | ۲۰۲۶-۰۸-۱۵ |
-| **49-NIGHT-CLOSE-ERRORHUNT-PERSIST** | ⭐ **بستن شب + شکار خطا ماندگار** — اعداد زنده recall 14.4% · Tick/Watch LastResult=0 · circuit دیسک half_open · درس ۱۰–۱۳ · ۳ تست در run_all · LiveDataRefresh هنوز FILE_NOT_FOUND | ۲۰۲۶-۰۸-۱۶ |
+| **49-NIGHT-CLOSE-ERRORHUNT-PERSIST** | بستن شب + شکار خطا — اعداد recall آن لحظه. **کهنه:** آزاد C-027 و LiveDataRefresh FILE_NOT_FOUND (عصر: LastResult=0 · آزاد C-034) | ۲۰۲۶-۰۸-۱۶ |
+| **51-WEBPANEL-REALITY** | پنل وب: برچسب صادق · C-032 · 8765 مرده | ۲۰۲۶-۰۸-۱۶ |
+| **52-OWNER-EASE** | شش دروازه اجرا: پوش · C-026/DARE · 1.5b · Fugu 429 | ۲۰۲۶-۰۸-۱۶ |
+| **53-OWNER-CLOSE** | صف باز: C-033 پانزده فایل · reason 215 · کرنل · HF قفل | ۲۰۲۶-۰۸-۱۶ |
+| **54-GROK-SESSION-SOT** | ⭐ **نقطهٔ ورود عصر** — حقیقت قفل‌شده · پیست موازی کهنه · صف HARDTEST/PEP باز · مگاپرامپت Cowork | ۲۰۲۶-۰۸-۱۶ |
 | **Inbox SELF-CONTAINED Architecture** | ⭐ **دیپ‌اسکن معماری برای قاضی خارجی** — کپی کامل: [[../../00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents\|SELF-CONTAINED 2026-08-15]] · ۵ پروسه · dual-stackها · NO-GO + تنش Hypothesis=1 | ۲۰۲۶-۰۸-۱۵ |
 | **Inbox MEGAPROMPT Hidden Caps** | ⭐ **کشف قابلیت پنهان** — کاشف نه مسلح‌کننده: [[../../00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery\|MEGAPROMPT 2026-08-15]] · ۸ کلاس · اسکنر زنده · اعداد کهنه باطل | ۲۰۲۶-۰۸-۱۵ |
 | **Inbox REPORT Forgotten Gaps** | ⭐ **شکاف‌های فراموش‌شده برای ایجنت بعدی** — [[../../00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent\|REPORT 23:25]] · دوباره نکن C-013/C-014 · تلهٔ آرشیو _octopus/PRIME · SoT ≠ OPEN-VERDICTS صبح | ۲۰۲۶-۰۸-۱۵ |

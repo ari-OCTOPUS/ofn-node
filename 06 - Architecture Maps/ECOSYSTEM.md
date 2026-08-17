@@ -2,7 +2,7 @@
 type: reference
 status: active
 tags: [ecosystem, overview]
-updated: 2026-07-03
+updated: 2026-08-17
 ---
 
 # نقشهٔ اکوسیستم پروژه‌ها
@@ -26,5 +26,7 @@ updated: 2026-07-03
                         Accounting
               (مالیات و حساب‌کتاب — پیش‌نیاز کارهای بزرگ)
 ```
+
+محصول جانبی (زیر نظارت architect، جدا از `_ops` زنده): [[03 - Projects/VibeGuard/PROJECT|VibeGuard]] — موتور امنیتی local-first برای مخزن‌های vibe-coded.
 
 هر پوشه یک `PROJECT.md` (شناسنامهٔ پروژه) و یک فایل Markdown از پیام‌های تلگرام مرتبط دارد.

@@ -2,7 +2,7 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-08-16
+updated: 2026-08-17
 ---
 
 # خانه — داشبورد اصلی
@@ -11,8 +11,17 @@ updated: 2026-08-16
 >
 > 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (عکس لحظه‌ای — snapshot ۲۰۲۶-۰۷-۰۶، **زنده نیست**، برنامهٔ بازنویسیِ ۳ساعته هرگز دیپلوی نشد) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
 >
+> 🐙 **VibeGuard (2026-08-17 — محصول جدا، تحقیق وارد شد):** [[03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · نوت [[07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]] · مگاپرامپت [[agent-prompts/MEGAPROMPT-VIBEGUARD-IMPLEMENT-2026-08-17|IMPLEMENT]]
 > 🐙 **اختاپوس زنده:** [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck]] · ADR-035 APPLY=1
-> 🐙 **ورود ایجنت امروز (2026-08-16):** [[01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] · [[00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]]
+> 🐙 **دستورالعمل Worker Agent اجرا شد (2026-08-16 دیرشب — فازهای ۰–۸):** [[07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|نوت ۶۲]] · گزارش [[04-SYSTEMS/AGENT-REPORT|AGENT-REPORT]] · **A2 مسلح نشد** (تعارض D7 با VQ-SELFGOAL-002 → رأی مالک) · ۳ سؤالِ باز
+> 🐙 **ورود ایجنت امشب (2026-08-16 ~21:3x):** [[07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|نوت ۶۱]] · [[01-TRUTH/STATE-2026-08-15-NIGHT|STATE §8]] · [[00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · [[00 - Inbox/2026-08-16 OWNER-PENDING — All Open Items (Master Checklist)|OWNER-PENDING]] · آزاد **C-034**
+> 🐙 **ورود ایجنت امروز (2026-08-16 عصر — لایهٔ زیر شب):** [[07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|نوت ۵۴]]
+> 🐙 **سه برد امشب (نوت ۶۰ — کپی کل ارگانیسم نه):** [[07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|نوت ۶۰]] · FPGA PolarFire≠Artix-7
+> 🐙 **ایجنت بعد (بستن جاافتادگی مهاجرت):** [[00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps|لانچر]] · نوت [[07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹]]
+> 🐙 **مهاجرت لپ‌تاپ→Arm 1 (YOU ARE HERE فاز ۰ fencing):** [[07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|نوت ۵۷]] · FPGA [[07 - Knowledge/شناخت-اختاپوس/58-FPGA-REFLEX-LAYER-2026-08-16|نوت ۵۸]] propose-only
+> 🐙 **EQUIP ترتیبی (۱۰ ایجنت، نه هم‌زمان):** [[00 - Inbox/2026-08-16 MEGAPROMPT — Equip Octopus Sequential|لانچر EQUIP]] · [[07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|نوت ۵۵]]
+> 🐙 **Claude Cowork:** [[00 - Inbox/2026-08-16 MEGAPROMPT — Claude Cowork|لانچر]] — پیست AUTOFLOW/SELFRUN را نده
+> 🐙 **ورود ایجنت امروز (2026-08-16 صبح — کهنه برای شناسهٔ آزاد):** [[01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] · [[00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]]
 > 🐙 **مگاپرامپت کشف پنهان (2026-08-15):** [[00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery|Hidden Capabilities Discovery]] — کاشف نه مسلح‌کننده
 > 🐙 **دیپ‌اسکن معماری برای قاضی (2026-08-15 ~22:45):** [[00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents|SELF-CONTAINED Architecture Deep-Scan]] — کپی کامل به ایجنت خارجی
 > 🐙 **شورای دوم (2026-08-15 دیرشب):** [[07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] — NO-GO دقیق‌تر پذیرفته؛ مگاپرامپت DEBT-SWEEP v1.2

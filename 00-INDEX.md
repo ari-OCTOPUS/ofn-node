@@ -85,6 +85,24 @@ status_legend:
 
 | `agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16.md` · `06-EVIDENCE/OWNER-CLOSE-2026-08-16.md` · `07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16.md` | بستن صف باز: C-033 digest ۱۵ فایل · reason 215 · کرنل ok · experiments retired — آزاد C-034 | 2026-08-16 ~16:5x | اجرا | 06-EVIDENCE + 07 + agent-prompts | verified |
 
+| `agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16.md` · `00 - Inbox/2026-08-16 MEGAPROMPT — Claude Cowork.md` | مگاپرامپت خودکفا برای Claude Cowork: پیست موازی کهنه است · TCB ۱۵ · آزاد C-034 | 2026-08-16 ~17:1x | لانچر | agent-prompts + 00 - Inbox | verified |
+
+| `07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16.md` · `00 - Inbox/2026-08-16 SESSION — Grok Owner Close + Cowork.md` | نقطهٔ ورود عصر: فکت‌چک پیست · EASE/CLOSE · Cowork · ابسیدین هم‌تراز · آزاد C-034 | 2026-08-16 ~17:2x | دانش | 07 + 00 - Inbox | verified |
+
+| `03 - Projects/VibeGuard/` · `07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17.md` · `agent-prompts/MEGAPROMPT-VIBEGUARD-IMPLEMENT-2026-08-17.md` | ورود تحقیق VibeGuard: spec + گزارش معماری · داسیه Cowork غایب · محصول جدا از `_ops` | 2026-08-17 | دانش/پروژه | 03 + 07 + agent-prompts | verified |
+
+| `_ops/octopus_v3/` · `06-EVIDENCE/OCTOPUS-V3-*-2026-08-16.*` · `07 - Knowledge/شناخت-اختاپوس/56-OCTOPUS-V3-FREEDOM-P0-2026-08-16.md` | v3.0 S0 از ریپو + S1 زنده + P0 overlay unarmed (۱۸ تست) — آزادی=حاکمیت | 2026-08-16 ~19:4x | اجرا/شواهد | `_ops` + 06-EVIDENCE + 07 | verified |
+
+| `_ops/octopus_v3/beat_lease.py` · `06-EVIDENCE/BEAT-OWNERSHIP-LEASE-2026-08-16.md` · `07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16.md` | مهاجرت لپ‌تاپ→Arm 1: YOU ARE HERE فاز ۰ Beat Lease unarmed (۱۰ تست) — مالکیت حقیقت نه کپی پوشه | 2026-08-16 ~20:3x | اجرا/شواهد | `_ops` + 06-EVIDENCE + 07 | verified |
+
+| `_ops/runtime/beat_lease.py` · `_ops/runtime/beat_lease_cli.py` · `_ops/tests/test_beat_lease.py` · `07 - Knowledge/شناخت-اختاپوس/58-FPGA-REFLEX-LAYER-2026-08-16.md` | fencing token + CLI (۱۷ pytest) · FPGA propose-only · chrono unwired | 2026-08-16 ~20:4x | اجرا/شواهد | `_ops` + 06-EVIDENCE + 07 | verified |
+
+| `agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16.md` · `00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps.md` · `07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16.md` | مگاپرامپت ایجنت بعد: دیباگ dual-lease + M0 + قلاب فلگ‌خاموش؛ G8 از نو نه | 2026-08-16 ~21:0x | لانچر | agent-prompts + 00 + 07 | verified |
+
+| `07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16.md` · `06-EVIDENCE/LIVE-VS-PASTE-SCAN-2026-08-16.md` · `00 - Inbox/2026-08-16 DISCOVERY — Three Boards and FPGA Correction.md` | سه برد: پا=M4 · شاهد=M1 · سایه=M2 · Artix-7 PolarFire نیست · بدون rsync | 2026-08-16 ~21:2x | دانش/شواهد | 07 + 06 + 00 | verified |
+
+| `07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16.md` · `00 - Inbox/2026-08-16 SESSION — Three Boards FPGA Obsidian.md` | قفل ابسیدین شب: نقطهٔ ورود کل ۱۶ اوت = نوت ۶۱ | 2026-08-16 ~21:3x | دانش | 07 + 00 | verified |
+
 **خارج از شمارش یادداشت (کد/زیرساخت):** `_ops/`، `4d_system/`، `octopus-bridge/`، `node_modules/`، `.git/`، `.claude/`، `_build/`، `_portable-build/`، `_zip-verify/`، `_archive-binaries/`، `_Archive/`، `_Duplicates/` — ایندکس تک‌فایلی نمی‌شوند؛ فقط سندهای مرجعشان ثبت شده است.
 
 ## ۲. فایل‌های کلیدی (تک‌تک)
