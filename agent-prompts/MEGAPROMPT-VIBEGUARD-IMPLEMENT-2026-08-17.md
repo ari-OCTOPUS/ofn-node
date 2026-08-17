@@ -16,6 +16,7 @@ You are implementing **VibeGuard (`vg`)**, a local-first offline security engine
 2. `F:\backup\03 - Projects\VibeGuard\NEXT-AGENT.md`
 3. `F:\backup\03 - Projects\VibeGuard\Project-Specification.md` — **this wins** on conflict
 4. `F:\backup\03 - Projects\VibeGuard\Deep-Research-and-Architecture-Report.md` — evidence only
+5. `F:\backup\03 - Projects\VibeGuard\chat-ingest\` — chat chunks 1, 2, 5. Chunks 3–4 were never pasted; those sections already live in the Downloads spec.
 
 `research/00_design_directive.md` is **missing** from this vault. Treat locked decisions in START-HERE as D1–D11. Do not invent new product surfaces.
 

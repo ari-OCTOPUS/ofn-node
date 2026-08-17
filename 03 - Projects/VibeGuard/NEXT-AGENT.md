@@ -20,9 +20,12 @@ sources:
 1. کد زنده اگر وجود داشت.
 2. [[Project-Specification]] — SoT. IDهای SR/FR/NFR/INV/AC را عوض نکن.
 3. [[Deep-Research-and-Architecture-Report]] — شواهد.
-4. این نوت.
+4. [[chat-ingest/README]] — تکه‌های چت ۱، ۲، ۵. بخش‌های ۳/۴ چت نرسید؛ همان‌ها داخل spec است.
+5. این نوت.
 
 `research/00_design_directive.md` در این vault **نیست**. تا وارد شود: تصمیم‌های قفل‌شده در [[00-START-HERE]] را D1–D11 عملی بگیر و دوباره بحث نکن.
+
+اصل فایل‌های Downloads روی ماشین مالک بعد از تکهٔ ۵ پاک شد. کپی vault را پاک نکن.
 
 ## دامنهٔ MVP (گزارش §۲۱ / D10)
 

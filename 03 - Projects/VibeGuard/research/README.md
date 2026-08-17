@@ -13,7 +13,9 @@ sources:
 
 # research/ — هفت داسیه (هنوز وارد نشده)
 
-گزارش می‌گوید هفت مسیر موازی در `workspace/research/` Cowork مانده‌اند. روی این ماشین در Downloads فقط **دو خروجی نهایی** بود. جستجوی `00_design_directive.md` در Desktop / `.claude` / Downloads نتیجه نداد.
+گزارش می‌گوید هفت مسیر موازی در `workspace/research/` Cowork مانده‌اند. روی این ماشین در Downloads فقط **دو خروجی نهایی** بود؛ همان دو به vault کپی شد. مالک بعد از تکهٔ ۵ گفت اصل فایل‌ها را از سیستم پاک می‌کند — کپی vault را پاک نکن.
+
+جستجوی `00_design_directive.md` در Desktop / `.claude` / Downloads نتیجه نداد. جدول ۹۴ ریپو و تحلیل رقابتی عمیق اگر لازم شد داخل [[../Deep-Research-and-Architecture-Report]] است، نه داسیهٔ خام.
 
 | Track | دامنه (از گزارش §۲.۱) | فایل انتظاری |
 |---|---|---|

@@ -11,16 +11,18 @@ sources:
   - "[[../00-START-HERE]]"
 ---
 
-# chat-ingest — تکه‌های داخل‌گفتگو (۵/۵)
+# chat-ingest — تکه‌های داخل‌گفتگو
 
 مالک چون فایل حجیم بود محتوا را در چت فرستاد. **بازنویسی spec کامل Downloads نیست** — کنار آن می‌نشیند.
 
+اصل فایل‌های Downloads روی ماشین مالک بعد از تکهٔ ۵ پاک شد. کپی vault هنوز اینجاست: [[../Project-Specification]] و [[../Deep-Research-and-Architecture-Report]].
+
 | تکه | فایل | وضعیت |
 |---|---|---|
-| ۱/۵ مشخصات فنی | [[01-spec-chunk-1]] | ذخیره شد 2026-08-17 |
+| ۱/۵ مشخصات فنی (Goal → Stack) | [[01-spec-chunk-1]] | ذخیره شد 2026-08-17 |
 | ۲/۵ Security Engine + VIBE-xx + scanners + MCP | [[02-security-engine]] | ذخیره شد 2026-08-17 |
-| ۳/۵ Trust / Finding / Risk / Auto-Fix | — | منتظر «ادامه» |
-| ۴/۵ | — | منتظر |
-| ۵/۵ بخش‌های کلیدی گزارش تحقیق | — | منتظر |
+| ۳/۵ Trust / Finding / Risk / Auto-Fix | — | **نرسید** — ببین [[GAP-chunks-3-4]] |
+| ۴/۵ Testing / Config (احتمالی) | — | **نرسید** — ببین [[GAP-chunks-3-4]] |
+| ۵/۵ CLI / API / CI / INV / MVP / AC | [[05-cli-api-ci-invariants]] | ذخیره شد 2026-08-17 (پایانی) |
 
-تقدم: اگر تعارض جزئی با [[../Project-Specification]] دیدی، آن فایل Downloads هنوز SoT است تا هر پنج تکه بیاید و مالک بگوید کدام نسخه نهایی است.
+تقدم: [[../Project-Specification]] SoT پیاده‌سازی است. تکه‌های چت شاهدند. اگر مالک ۳ و ۴ را بعداً فرستاد، همان‌جا فایل جدا بساز.

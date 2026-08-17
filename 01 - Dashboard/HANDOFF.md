@@ -33,7 +33,7 @@ updated: 2026-08-16
 
 ## وضعِ لحظه‌ای
 
-> 🎯 **پین 2026-08-17 — VibeGuard تحقیق وارد vault:** پروژه [[../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · [[../03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]. Spec SoT. داسیه‌های Cowork `workspace/research/` پیدا نشد. به `_ops` وصل نشود.
+> 🎯 **پین 2026-08-17 — VibeGuard تحقیق وارد vault:** پروژه [[../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · [[../03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]] · [[../03 - Projects/VibeGuard/chat-ingest/README|chat-ingest]] (۱،۲،۵؛ ۳–۴ نرسید). Spec SoT. اصل Downloads روی ماشین مالک پاک شد؛ کپی vault ماند. به `_ops` وصل نشود.
 
 > 🎯 **پین 2026-08-16 دیرشب — اجرای دستورالعمل Worker Agent (فازهای ۰–۸):** نوت [[../07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|۶۲]] · گزارش [[../04-SYSTEMS/AGENT-REPORT|AGENT-REPORT]] · رجیستری [[../04-SYSTEMS/DECISIONS-REGISTRY.yaml|D1-D8]]. ۹ کامیت (`c7915e5..cc0a45c`) · ۷۱ تستِ سبز · بدون restart. HEARTSTATE-audit بسته · life-currency + مبادلهٔ D4 · روترِ provider D5/D6 · وتوی دوگانه D2/D3 · W1 فقط‌خواندنِ 4d · synapse/chord وصل. **A2 مسلح نشد** (تعارض D7 با VQ-SELFGOAL-002 → رأی مالک). فلگ‌ها از مسیرِ owner-verdicts (نه `.env`). سه سؤالِ باز در گزارش. آزاد **C-034**.
 
