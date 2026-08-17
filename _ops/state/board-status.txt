@@ -1,2 +1,2 @@
-2026-08-17T15:01:50+10:00 · heartbeat همچنان STALLED از 08:47+10 (6 ساعت) · beat=1681 آخرین
-وایر/snapshot بدون تغییر · ۴ فرمان dispatched معلق · FOR-BOARD-ACTION-NEEDED.md (بازیابی mount + لاگ fail) در share منتظر · w003 معلق
+2026-08-17T17:06:25+10:00 · heartbeat STALLED 8h (beat=1681 از 08:47+10) · پینگ ✓ · وایر/snapshot بدون تغییر · ۴ ack معلق
+وضعیت پایدار-قفل‌شده: برد روشن/پل فعال، push های git خواب — راه‌حل فقط دستِ برد (FOR-BOARD-ACTION-NEEDED.md در share)
