@@ -1,2 +1,1 @@
-2026-08-17T17:06:25+10:00 · heartbeat STALLED 8h (beat=1681 از 08:47+10) · پینگ ✓ · وایر/snapshot بدون تغییر · ۴ ack معلق
-وضعیت پایدار-قفل‌شده: برد روشن/پل فعال، push های git خواب — راه‌حل فقط دستِ برد (FOR-BOARD-ACTION-NEEDED.md در share)
+2026-08-17T19:15:30+10:00 · heartbeat STALLED 10h (beat=1681) · وایر/snapshot بدون تغییر · ۴ ack معلق · وضعیت همان قفلِ چرخهٔ ۸-۱۰
