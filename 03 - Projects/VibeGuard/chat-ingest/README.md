@@ -18,8 +18,8 @@ sources:
 | تکه | فایل | وضعیت |
 |---|---|---|
 | ۱/۵ مشخصات فنی | [[01-spec-chunk-1]] | ذخیره شد 2026-08-17 |
-| ۲/۵ Security Engine + VIBE-xx | — | منتظر «ادامه» |
-| ۳/۵ Scanner / Finding / Risk / Auto-Fix / Trust / CLI | — | منتظر |
+| ۲/۵ Security Engine + VIBE-xx + scanners + MCP | [[02-security-engine]] | ذخیره شد 2026-08-17 |
+| ۳/۵ Trust / Finding / Risk / Auto-Fix | — | منتظر «ادامه» |
 | ۴/۵ | — | منتظر |
 | ۵/۵ بخش‌های کلیدی گزارش تحقیق | — | منتظر |
 

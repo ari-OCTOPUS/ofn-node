@@ -21,8 +21,8 @@ updated: 2026-08-17
 ## Active Context
 
 - تمرکز فعلی: تحقیق و مشخصات v1.0 بسته‌اند (2026-08-17). پیاده‌سازی شروع نشده.
-- تغییرات اخیر: ورود دو سند نهایی از Downloads + تکهٔ ۱/۵ چت در `chat-ingest/` (مشخصات فنی تا Technology Stack).
-- ۳ قدم بعدی: (۱) تکهٔ ۲–۵ با «ادامه» · (۲) `vg` CLI MVP · (۳) واردات داسیه‌های `workspace/research/` اگر پیدا شد.
+- تغییرات اخیر: ورود Downloads + تکهٔ ۱–۲/۵ چت در `chat-ingest/` (تا Sandbox/MCP).
+- ۳ قدم بعدی: (۱) تکهٔ ۳–۵ با «ادامه» · (۲) `vg` CLI MVP · (۳) واردات داسیه‌های `workspace/research/` اگر پیدا شد.
 - تصمیم‌های باز: محل مخزن کد (این vault یا ریپوی جدا) · واردات ۷ داسیهٔ گم‌شده.
 
 ## Progress
@@ -43,6 +43,7 @@ updated: 2026-08-17
 - ایجنت بعد: [[NEXT-AGENT]]
 - مشخصات Downloads: [[Project-Specification]]
 - تکهٔ چت ۱/۵: [[chat-ingest/01-spec-chunk-1]]
+- تکهٔ چت ۲/۵: [[chat-ingest/02-security-engine]]
 - تحقیق: [[Deep-Research-and-Architecture-Report]]
 - نوت شناخت: [[../../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17]]
 - مگاپرامپت: [[../../agent-prompts/MEGAPROMPT-VIBEGUARD-IMPLEMENT-2026-08-17]]
