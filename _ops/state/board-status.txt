@@ -1,2 +1,2 @@
-2026-08-18T01:09:36+10:00 · RECOVERY: heartbeat zende (beat=741, uptime 8h15 — ریبوت ~16:42 دیروز) · ۳ ack received (unknown_outcome صادقانه در 23:57+10) · ۱ فرمان معلق: 01a00d3d (probe-4)
-نکته: push_failed 00:46 — ناپایداری باقی · wire-watch برد هنوز GitHub · w004 پوش شد
+2026-08-18T19:00:55+10:00 · heartbeat service زنده (beat=1861 · 10:39+10) ولی push ناپایدار: آخرین push موفق ~8h پیش، push_failed 10:29 (دومین fail از دیروز)
+وایر: بی‌پاسخ از برد (w004 · 18h) · probe-4 (01a00d3d) همچنان dispatched · سرویس‌ها همه active · uptime 18h
