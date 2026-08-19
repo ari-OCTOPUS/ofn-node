@@ -115,5 +115,39 @@ check("RCPT-1 old bug line gone",
 check("RCPT-2 wired: paid_blocked_today() pre-check in _ask_paid",
       "paid_blocked_today()" in src and "paid_blocked_cost_unobservable" in src)
 
-print("\n" + ("ALL PASS" if not FAIL else "FAILURES: " + str(FAIL)))
+
+# ── F18: fx_pinned_fresh ────────────────────────────────────────────────
+import json as _j18
+from datetime import datetime as _dt18, timezone as _tz18, timedelta as _td18
+_pp = tmp / "pricing_pinned.json"
+_pp.write_text(_j18.dumps({"fx_record": {"fx_timestamp_utc":
+    _dt18.now(_tz18.utc).isoformat(timespec="seconds")}}), encoding="utf-8")
+okf, _ = CR.fx_pinned_fresh(path=_pp)
+check("F18 fresh pinned fx -> ok", okf is True)
+_pp.write_text(_j18.dumps({"fx_record": {"fx_timestamp_utc":
+    (_dt18.now(_tz18.utc) - _td18(hours=25)).isoformat(timespec="seconds")}}), encoding="utf-8")
+okf2, why2 = CR.fx_pinned_fresh(path=_pp)
+check("F18 expired -> blocked", okf2 is False and "expired" in why2)
+okf3, why3 = CR.fx_pinned_fresh(path=tmp / "none.json")
+check("F18 missing -> blocked", okf3 is False)
+okf4, why4 = CR.fx_pinned_fresh()
+check("F18 LIVE pricing_pinned.json currently expired (post-06:00Z, pre-pin) -> fail-closed",
+      okf4 is False and why4 == "expired(>24h)")
+
+# ── F15: fallback receipt (free_tier + fallback_of) ─────────────────────
+_fb = CR.CostReceiptAdapter().build(
+    trace_id="mrfb-test-1", provider="local-ollama", model="qwen2.5:1.5b",
+    ts_req=f"{today}T05:00:00+00:00", ts_resp=f"{today}T05:00:01+00:00",
+    budget_before_aud=29.5, tokens_in=None, tokens_out=None, input_sha256="",
+    free_tier=True, fallback_of={"receipt_status": "PAID_UNAVAILABLE",
+                                 "provider": "primary: fx_expired", "trace": "mrf-1"})
+check("F15 fallback receipt: COMPLETE / FREE_OR_UNBILLED / budget unchanged / fallback block",
+      _fb["receipt_status"] == "COMPLETE" and _fb["cost_method"] == "FREE_OR_UNBILLED"
+      and _fb["budget_after_aud"] == 29.5 and _fb.get("fallback", {}).get("primary_status") == "PAID_UNAVAILABLE")
+
+src2 = (ROOT / "_ops/cortex/model_router.py").read_text(encoding="utf-8")
+check("F18 wired in _ask_paid", "fx_pinned_fresh()" in src2)
+check("F15 wired in ask() fallback path", "mrfb-" in src2 and "fallback_of=" in src2)
+
+print("FINAL: " + ("ALL PASS" if not FAIL else "FAILURES: " + str(FAIL)))
 sys.exit(1 if FAIL else 0)

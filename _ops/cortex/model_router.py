@@ -244,6 +244,18 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
             return None
     except Exception:  # noqa: BLE001 — گارد هرگز مسیر را نمی‌کشد
         pass
+    # ── FX-EXP (F18, 2026-08-19): حسابداریِ AUD به FXِ پین‌شدهٔ تازه نیاز دارد —
+    # stale/missing ⇒ مسیرِ پولی بسته (fail-closed، هم‌ترازِ validate_fx در Live-4).
+    try:
+        from cost_receipt import fx_pinned_fresh  # noqa: E402 — هم‌پوشه
+        _okfx, _whyfx = fx_pinned_fresh()
+        if not _okfx:
+            _paid_log(task=task, tier=tier, role=role, ok=False,
+                      error=f"fx_{_whyfx}", ms=0,
+                      note="F18: paid path blocked until fresh FX pin (pricing_pinned.json)")
+            return None
+    except Exception:  # noqa: BLE001
+        pass
     # ── circuit breaker (per-provider، auto half-open recovery) ────────────────
     # 2026-07-25: fugu_quota global بود (موفقیتِ GLM consecutive_failures را ریست
     # می‌کرد) و recovery دستی بود (فایلِ STOP-FUGU). در زنده، fugu ۳ ساعتِ پشتِ هم
@@ -691,6 +703,29 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
                                 from_provider=str(res.get("tier") or task or "paid"),
                                 to_provider="local",
                                 trace_id=f"mrf-{int(_t0 * 1000)}")
+            # F15 (2026-08-19): پا‌یِ fallbackِ محلی هم رسیدِ دیدنی می‌گیرد —
+            # FREE_OR_UNBILLED با fallback_of؛ دیگر fallbackِ半‌ساکت نیست.
+            try:
+                import time as _tf15
+                from cost_receipt import (CostReceiptAdapter as _CRA,  # noqa: WPS433
+                                          remaining_budget_aud as _rb15)
+                _fr = _CRA().build(
+                    trace_id=f"mrfb-{int(_tf15.time() * 1000)}",
+                    provider="local-ollama", model="qwen2.5:1.5b",
+                    ts_req=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="seconds"),
+                    ts_resp=_dt.datetime.now(_tz.utc).isoformat(timespec="seconds"),
+                    budget_before_aud=_rb15(), tokens_in=None, tokens_out=None,
+                    input_sha256="", free_tier=True,
+                    fallback_of={"receipt_status": "PAID_UNAVAILABLE",
+                                 "provider": str(res.get("fallback_from"))[:60],
+                                 "trace": f"mrf-{int(_t0 * 1000)}"})
+                import json as _jf15
+                from pathlib import Path as _Pf15
+                _rfp = _Pf15(str(_Pf15(__file__).resolve().parent.parent / "state" / "cortex" / "cost-receipts.jsonl"))
+                _rfp.parent.mkdir(parents=True, exist_ok=True)
+                _rfp.open("a", encoding="utf-8").write(_jf15.dumps(_fr, ensure_ascii=False, default=str) + chr(10))
+            except Exception:  # noqa: BLE001 — رسیدِ fallback هرگز مسیر را نمی‌کشد
+                pass
     except Exception:  # noqa: BLE001 — گزارشِ fallback هرگز مسیرِ LLM را نمی‌کشد
         pass
     return res

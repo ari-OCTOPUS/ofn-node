@@ -200,6 +200,20 @@ def remaining_budget_aud(path=None, *, daily_cap_aud: float = DAILY_CAP_AUD) -> 
     return round(float(daily_cap_aud) - spent, 6)
 
 
+def fx_pinned_fresh(*, max_age_h: float = 24.0, path=None):
+    """F18: مسیرِ پرداختیِ عمومی هم مثل Live-4 به FXِ تازه نیاز دارد.
+    (ok, reason) — stale/missing ⇒ بسته (fail-closed). منبع: pricing_pinned.json::fx_record."""
+    pp = Path(path or (_HERE / "pricing_pinned.json"))
+    try:
+        rec = json.loads(pp.read_text(encoding="utf-8")).get("fx_record") or {}
+        ts = _dtm.fromisoformat(str(rec.get("fx_timestamp_utc", "")).replace("Z", "+00:00"))
+    except Exception:  # noqa: BLE001
+        return False, "missing-or-malformed"
+    if (_dtm.now(_tzm.utc) - ts).total_seconds() > max_age_h * 3600:
+        return False, "expired(>24h)"
+    return True, "ok"
+
+
 def paid_blocked_today(path=None) -> bool:
     """RCPT-2: اگر امروز رسیدِ COST_UNOBSERVABLE یا نقضِ سقفِ فراخوانی هست، بسته."""
     return any(r.get("receipt_status") == "COST_UNOBSERVABLE" or r.get("cap_violation")

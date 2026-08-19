@@ -39,7 +39,7 @@ for i in range(START, NPAIRS):
             emit(PAIRS, {"batch": b, "pair": i+1, "void": True, "why": f"base={bok}/{bmod} cond={cnote}"})
             continue
         bp = D.H.blind_pair(base_txt, cond_txt, seed=100*b + i, template=D.H.JUDGE_PROMPT_V3)
-        j_txt, jok, jmod = D.ask_fugu(bp["judge_prompt"].replace("{TASK}", D.Q), f"live4-b{b}-judge-{i}", max_tokens=512)
+        j_txt, jok, jmod = D.ask_fugu(bp["judge_prompt"].replace("{TASK}", D.Q), f"live4-b{b}-judge-{i}")
         jc = D.H.judge_choice_v3(j_txt if jok else "", bp["cond_position"],
                                 judge_provider="deepseek", judge_model=jmod or "deepseek-v4-flash",
                                 trace_id=f"{pid}-judge")
@@ -50,7 +50,7 @@ for i in range(START, NPAIRS):
                                                "raw_sha256": jc["raw_output_sha256"], "ts": D.now()})
             # D-B/V3: دقیقاً یک re-ask رسیددار (بدون حدسِ برنده) — ناخوانای دوم = VOID قطعی
             D.receipt("JUDGE_REASK", prediction_id=pid, note="unreadable-1st contract=v3")
-            j_txt, jok, jmod = D.ask_fugu(bp["judge_prompt"].replace("{TASK}", D.Q), f"live4-b{b}-judge2-{i}", max_tokens=512)
+            j_txt, jok, jmod = D.ask_fugu(bp["judge_prompt"].replace("{TASK}", D.Q), f"live4-b{b}-judge2-{i}")
             jc = D.H.judge_choice_v3(j_txt if jok else "", bp["cond_position"],
                                 judge_provider="deepseek", judge_model=jmod or "deepseek-v4-flash",
                                 trace_id=f"{pid}-judge2")

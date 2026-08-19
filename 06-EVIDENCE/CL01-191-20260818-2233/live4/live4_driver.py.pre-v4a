@@ -63,11 +63,10 @@ def fx_gate() -> bool:
         return False
     return True
 
-def ask_fugu(prompt, task, max_tokens=200):
+def ask_fugu(prompt, task):
     ST["fugu_calls"] += 1
     # D-A fix: بدونِ tier، TASK_TIERS→local بود؛ هر دو بازو باید همان provider باشند
-    # V4a (OWNER-CONSENTS-2026-08-19T0615Z §1): داور ۵۱۲ می‌گیرد — بازوها ۲۰۰ می‌مانند
-    r = mr.ask(task=task, prompt=prompt, max_tokens=max_tokens, tier="primary")
+    r = mr.ask(task=task, prompt=prompt, max_tokens=200, tier="primary")
     return (str(r.get("text") or ""), bool(r.get("ok")), str(r.get("model") or "fugu"))
 
 def ask_paid(prompt, task):
