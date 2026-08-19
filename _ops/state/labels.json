@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T12:32:49+00:00",
+ "generated_at_utc": "2026-08-19T12:50:38+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -497,14 +497,13 @@
   },
   "VARIANCE_ROBUSTNESS_CAPABILITY": {
    "label_id": "VARIANCE_ROBUSTNESS_CAPABILITY",
-   "value": "MEASUREMENT_TOOL_REPAIR_VOID_0_OF_20_UPPER95_13_9PCT",
+   "value": "MEASURED_VOID_8_OF_59_RATE_13_6PCT",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate20.json",
-   "evidence_hash": "ec4adf9bb007eab1",
-   "updated_at_utc": "2026-08-19T12:32:49+00:00",
-   "supersedes": "VERIFIED_VOID_0PCT_20_SAMPLES",
-   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4",
-   "note": "ترمیم ابزار سنجش (نه قابلیت شناختی نو): 0/20 مشاهده — کران بالای 95٪ نرخ واقعی ≈13.9% (3/n)؛ ادعای «زیر 5%» نمی‌شود. calibration ادعا نمی‌شود. مقایسه با اجراهای پیش از 261030f به‌طراحی VOID."
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate59.json",
+   "evidence_hash": "20ed88a7db88e7e4",
+   "updated_at_utc": "2026-08-19T12:50:38+00:00",
+   "supersedes": "MEASUREMENT_TOOL_REPAIR_VOID_0_OF_20_UPPER95_13_9PCT",
+   "note": "0/20 شانس نمونه‌گیری بود — n=59: 8 VOID = 13.6%؛ کران بالای 95% ≈ 20%؛ قابلیت معیار بخش 1 هنوز واجد نیست (نیاز <5%). مقایسه با پیش از 261030f VOID."
   },
   "JUDGE_FIELD_SPLIT": {
    "label_id": "JUDGE_FIELD_SPLIT",
@@ -518,14 +517,13 @@
   },
   "JUDGE_FALLBACK_DEPENDENCY": {
    "label_id": "JUDGE_FALLBACK_DEPENDENCY",
-   "value": "FIRST_LINE_2_OF_20_FALLBACK_CARRIES_18",
+   "value": "FIRST_LINE_5_OF_59_FALLBACK_CARRIES_46",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate20.json",
-   "evidence_hash": "ec4adf9bb007eab1",
-   "updated_at_utc": "2026-08-19T12:32:49+00:00",
-   "supersedes": null,
-   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4",
-   "note": "قرارداد خط-اول داور شکسته است؛ fallback تک‌توکنی 18/20 را حمل می‌کند — crutch سالم روی قرارداد ضعیف؛ اگر fallback شکست بخورد VOID به ~90% برمی‌گردد."
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate59.json",
+   "evidence_hash": "20ed88a7db88e7e4",
+   "updated_at_utc": "2026-08-19T12:50:38+00:00",
+   "supersedes": "FIRST_LINE_2_OF_20_FALLBACK_CARRIES_18",
+   "note": "fallback 46/59 را حمل می‌کند و خودش 8/59 شکست می‌خورد — شکنندگی ساختاری؛ قرارداد خط اول داور ضعیف است."
   }
  }
 }
