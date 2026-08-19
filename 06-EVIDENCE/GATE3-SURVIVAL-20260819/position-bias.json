@@ -1,0 +1,39 @@
+{
+ "n_pairs": 4,
+ "flips": 1,
+ "flip_rate": 0.25,
+ "details": [
+  {
+   "pair": 0,
+   "v_order1": "B",
+   "v_order2": "A",
+   "w_content_order1": "یک لاگ حداقلی از بازخورد",
+   "w_content_order2": "یک لاگ حداقلی از بازخورد",
+   "flip": false
+  },
+  {
+   "pair": 1,
+   "v_order1": "B",
+   "v_order2": "B",
+   "w_content_order1": "یک تست واحد برای memory_",
+   "w_content_order2": "معیار یکسانی برای hit/mi",
+   "flip": true
+  },
+  {
+   "pair": 2,
+   "v_order1": "B",
+   "v_order2": "VOID",
+   "w_content_order1": "یک نمونهٔ خطای پیش‌بینی ",
+   "w_content_order2": "TIE",
+   "flip": false
+  },
+  {
+   "pair": 3,
+   "v_order1": "VOID",
+   "v_order2": "VOID",
+   "w_content_order1": "TIE",
+   "w_content_order2": "TIE",
+   "flip": false
+  }
+ ]
+}
