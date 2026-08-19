@@ -38,3 +38,16 @@ _دیباگ‌سوئیپ 2026-08-19T07:0xZ (هرچی مونده بود):_
 | زامبی :8765 | ✅ خودحل — listener دیگر وجود ندارد |
 | V4a (سقف توکن داور ۵۱۲) | ✅ پیاده + بکاپ؛ ⏸ پروب/فریز منتظر نرخ تازهٔ RBA |
 | HTTP-8765/TASKS-PATH/MATH-TCB/DAEMON-PRED/WIRING-ORPHANS | مالک‌محور — بدون تغییر |
+
+_اجرای OWNER-QUEUE-RESOLUTION + هماهنگی 06:42Z (2026-08-19 ~07:1xZ):_
+| مورد | وضعیت |
+|---|---|
+| حلقهٔ یادگیری دیمن (Q3) | ✅ **LIVE_VERIFIED** — دیمن واقعی: ۲۰ prediction/۱۴ outcome؛ لیبل DAEMON_PREDICTION_LOOP |
+| باگ پیام novelty (Q3b) | ✅ فیکس — ریشه: پیام دروغگو (گیت عمدی بود)؛ self_evolve با مراسم TCB |
+| لنگرهای ریاضی (Q1) | ✅ Var_ex + I_pred در self-test؛ **C-035**: ناهمخوانی Var_eff باز |
+| سه‌گانهٔ router (Q2) | ✅ llm/router.py بنر RETIRED (مراسم ×۲، امضا معتبر)؛ survival-gateway یافت نشد |
+| Councils (Q4) / supervisor (Q5) | ✅ CLOSED / RETIRED — بدون schtask |
+| تسک‌های ویندوزی (Q7) | ✅ از قبل سبز بود (کاتالوگ کهنه) |
+| زنجیرهٔ FX→V4a→فریز→primary | 🔒 **PIPELINE-OWNERSHIP.lock** (مالک 06:42Z) — مالکش سشن دارای آخرین وضعیت؛ LOOP-01 کنار کشید |
+| c7 در تست رگرسیون | ⏳ رفع هماهنگ دوسشن‌ای — BLOCKERS جزیره |
+| نسل دوم candidateها | 📋 پیش‌شرط جدید: اعتبارسنجی روی کد واقعی (یافتهٔ سشن ۲) |
