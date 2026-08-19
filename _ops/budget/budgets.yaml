@@ -1,170 +1,153 @@
-# budgets.yaml — SINGLE SOURCE OF TRUTH بودجهٔ API کل ارگانیسم
-# تعارض #۴ STATE-MAP بسته شد: verdict آری 2026-07-06 → cap_monthly = AU$30
-# مصرف‌کننده: METABOLIC-GOVERNOR (shadow) — سند: "04 - Architect System/2026-07-06 METABOLIC-GOVERNOR-proposal.md"
-# enforce: budget_gate v1.1 هاردکد هم‌خوان (همهٔ سقف‌ها AUD — verdict V1 آری 2026-07-07: روز 2 · ماه 30 · فاجعه 500)؛ v2 باید از این فایل بخواند.
-# config-only: خواندنِ این فایل هیچ اتوماسیونی روشن نمی‌کند.
-#
-# Talk Discovery (collab model soft call-cap — NOT AUD money):
-#   OCTOPUS_COLLAB_MODEL_DAILY_CAP default=30 (env; see DISCOVERY-PROTOCOL.md).
-#   Paid calls still flow through organ_gate / model_router under cap_monthly above.
-#   Arming OCTOPUS_COLLAB_USE_MODEL requires owner vote; this file does not auto-arm.
-
 global:
-  cap_monthly: 30            # AUD — verdict آری 2026-07-10 «۳۰ بماند» هنگام go-live (بازگشت از ۲۰۰ که 07-09 balanced شده بود). سقفِ سختِ خرجِ ماهانه با گیتِ پولیِ باز.
-  # ⚠️ enforceِ واقعیِ این عدد نیازِ راست‌کردنِ hardcode-floor در budget_gate.py دارد (تسکِ GLM)؛
-  #    تا آن، سقفِ مؤثر همان min(yaml, hardcode) می‌ماند. disaster line=۵۰۰ (ترمزِ recursive-loop) و
-  #    spike_pct=۲۵ (kill-switch) و alert ۵۰/۸۰٪ همه دست‌نخورده. GLM=سابسکرایبِ فلت؛ Fugu=متریِ AU$100.
+  cap_monthly: 30
   currency: AUD
-  aud_per_usd: 1.5           # نرخ پین USD→AUD [FACT: budgets-proposed-diff.md §۱ · verdict 2026-07-18 integration-debug]؛ منبع تبدیل تلمتری/گیت
-  epoch: daily               # re-plan استراتژیک: هفتگی، جمعه (هم‌راستا با حلقهٔ KPI)
-  explore_pct: 0.10          # سهم MUSE / جهش — ارگان‌های جاافتاده حق برداشت ندارند
-  spike_pct: 25              # آستانهٔ kill-switch: ٪ بودجهٔ epoch در <۱ ساعت — MAX_DRAWDOWN پک OCTOPUS ≡ همین کلید (verdict 2026-07-07)
-  idle_epochs: 5             # خواب خودکار سلول بی‌خروجی
-  lend_max_pct: 15           # سقف قرض بین‌پروژه‌ای بدون verdict
-  human_gate_aud: 20         # Autonomy Ramp: بالای این مبلغ هر اقدام پولی همیشه human-gated — verdict آری 2026-07-07 (پاسخ‌های STAGE-0: AU$20، جایگزین $10 اولیه)
-  weights: {value: 0.30, urgency: 0.25, efficiency: 0.20, human: 0.20, waste: 0.05}
-  # ✅ بسته شد 2026-07-07 (verdict V1 همه-AUD): budget_gate v1.1 — روز AU$2 (سقف burst، نه نرخ پایدار)،
-  # ماه AU$30، فاجعه AU$500؛ باگ واحد DISASTER (:90) فیکس شد. حل نهایی (خواندن از همین فایل): budget_gate v2.
-
+  aud_per_usd: 1.5
+  epoch: daily
+  explore_pct: 0.1
+  spike_pct: 25
+  idle_epochs: 5
+  lend_max_pct: 15
+  human_gate_aud: 20
+  weights:
+    value: 0.3
+    urgency: 0.25
+    efficiency: 0.2
+    human: 0.2
+    waste: 0.05
+  life_currency_daily_cap: 1000.0
 projects:
-  # ۲۰۲۶-۰۷-۲۸ — رأیِ مالک: «کلیدِ ددلاین را بردار».
-  # ددلاینِ 2026-07-20 هشت روز گذشته بود و `_deadline_proximity` همچنان
-  # فوریتش را روی سقف قفل می‌کرد: در epochِ ۱۷:۳۵ این اندام fitness=0.3833
-  # می‌گرفت در برابرِ 0.3167ِ همهٔ بقیه — یعنی بیشترین بودجهٔ فوریت به اندامی
-  # می‌رفت که نه حالتِ زنده داشت، نه پروسه‌ای، و مهلتش هم رد شده بود.
-  # خودِ `governor_epoch._alert_lapsed` سه راه شمرده بود (تمدید / حذفِ کلید /
-  # اعلامِ پایان) و مالک دومی را انتخاب کرد: پروژه بسته نمی‌شود، فقط دیگر
-  # ساعتِ ترکیده ندارد. `human_priority: 2.0` عمداً می‌ماند — اولویتِ انسانی
-  # حرفِ مالک است، فوریتِ مصنوعی حرفِ یک تاریخِ گذشته بود.
-  PROJECT_F:      {floor: 3,  human_priority: 2.0}   # فاز −۱ فروش (بی‌ددلاین)
-  ARCHITECT_SYS:  {floor: 2,  human_priority: 1.0}
-  GENOME_SYS:     {floor: 2,  human_priority: 1.0}
-  ZIMAN:          {floor: 1,  human_priority: 0.5}
-  PAINTING:       {floor: 1,  human_priority: 1.0}   # بیزنس نقاشی (lead-naghshi) — [proposed-diff §۵ · verdict 2026-07-18]؛ قبلاً UNMAPPED بود → crash lead-naghshi
-  ACCOUNTING:     {floor: 1,  human_priority: 1.0}   # حسابداری — [proposed-diff §۵ · verdict 2026-07-18]؛ privacy: sensitive (ژنوم)
-  DOCTOR:         {floor: 0,  human_priority: 0.5}   # W0.3 (۲۰۲۶-۰۷-۳۱): رفع VQ-BUDGET-001 — plumbing فقط. doctor فعلاً صفر LLM (chamber stub)، floor=0 یعنی سهم پایه نمی‌گیرد ولی وقتی reserve/settle صدا زده شد به AU$30 سراسری متصل و قابل‌مشاهده می‌شود (نه «دکترِ پولیِ کور»). cap صریح بعداً با verdict.
-  # جمع floorها = AU$10 (+ explore 10% = AU$3 + DEBATE_LOOP AU$5) → headroom رقابتی ≈ AU$12/ماه.
-
+  PROJECT_F:
+    floor: 3
+    human_priority: 2.0
+  ARCHITECT_SYS:
+    floor: 2
+    human_priority: 1.0
+  GENOME_SYS:
+    floor: 2
+    human_priority: 1.0
+  ZIMAN:
+    floor: 1
+    human_priority: 0.5
+  PAINTING:
+    floor: 1
+    human_priority: 1.0
+  ACCOUNTING:
+    floor: 1
+    human_priority: 1.0
+  DOCTOR:
+    floor: 0
+    human_priority: 0.5
 loop:
-  # مرجع رسمی سقف لوپ مناظره — opslib.organ_table از همین بخش می‌خواند (پیش‌فرض کد 5 = fallback)
-  DEBATE_LOOP: {cap_monthly: 5, floor: 0.5}   # verdict 2026-07-18 integration-debug (proposed-diff §۲: از 10 به 5 کاهش برای headroom بعد از PAINTING/ACCOUNTING)
-
+  DEBATE_LOOP:
+    cap_monthly: 5
+    floor: 0.5
 allocation:
-  # پول‌بر‌درصد — تخصیصِ barbell (verdict آری 2026-07-09). propose-only: تخصیصِ کوشش/API، نه پولِ بیزنس.
   barbell:
-    core_share: 0.70              # CORE = Ziman+Lead (امن/اثبات‌نزدیک)
-    satellite_share: 0.30         # SATELLITE = Project-F/Crypto/Mining/experiment (انفجاری/capped)
-    satellite_cap_pct: 0.10       # هیچ satelliteِ منفرد از ۱۰٪ کل بیشتر نمی‌گیرد
-    cull_zero_streak_days: 30     # survival-cull: satellite با سیگنالِ صفرِ پایدار (۳۰ روز) → cull
-    hysteresis_max_delta: 0.05    # تغییرِ درصدِ هر organ در هر epoch حداکثر ۵٪ (ضدِ نوسان)
-  core_members: [ZIMAN, ARCHITECT_SYS, GENOME_SYS]
-  satellite_members: [PROJECT_F, MINING]
-
-  # ─── مسیرِ رویا — تخصیصِ اعلام‌شدهٔ پژوهشِ بنیادی (رأیِ مالک 2026-07-25) ───
-  # مالک: «۲۵ درصدِ کلِ بودجهٔ اختاپوس برای همین بخش است… عینِ رویایی غیرممکن ولی
-  # بی‌خطر برای امتحان کردن، حتی اگر شانس کم باشد.»
-  #
-  # ⚠️ این بلوک declaration است نه enforcement. مثلِ بقیهٔ این فایل config-only:
-  #    خواندنش هیچ اتوماسیونی روشن نمی‌کند. رزروِ واقعیِ ۲۵٪ توسط گاورنر = رأیِ جدا.
-  #    نسبتش با explore_pct بالا: explore_pct سهمِ **عمومیِ** جهش است؛ این سهمِ
-  #    **هدف‌دارِ** یک برنامهٔ پژوهشیِ مشخص. دو knobِ رقیب نیستند — این زیرمجموعهٔ
-  #    هدف‌دارِ آن است و مجموعشان از share زیر بیشتر نمی‌شود.
+    core_share: 0.7
+    satellite_share: 0.3
+    satellite_cap_pct: 0.1
+    cull_zero_streak_days: 30
+    hysteresis_max_delta: 0.05
+  core_members:
+  - ZIMAN
+  - ARCHITECT_SYS
+  - GENOME_SYS
+  satellite_members:
+  - PROJECT_F
+  - MINING
   research:
-    share: 0.25                   # ۲۵٪ از تخصیصِ کوشش/API — یعنی AU$7.50 از cap_monthly=30
-    is_cap_not_floor: true        # 🔴 سقف است نه کف: با فشارِ مالی، مسیرِ رویا هرگز
-                                  #    ranway را نمی‌خورد. اگر CORE پول لازم داشت، این کم می‌شود.
-    beat_share: 0.25              # ۲۵٪ از BeatBudget روزانه (daily_cap=288 → ۷۲ ضربان)
-    program: romajan              # هدف: F:\romajan — ریاضیاتِ تکثیر، Ramanujan ↔ ژنتیکِ جمعیت
-    ledger: "F:/romajan/propagation-lab/data/claims_ledger.json"   # SoT ادعاها (۲۷ executed)
-    thesis_ledger: "_ops/state/thesis/thesis-ledger.json"          # SoT وضعیتِ تزها
-    mutation_store: git           # «ذخیرهٔ جهش‌ها» — F:\romajan از 2026-07-25 گیت دارد (496a2cd)
-    kill_condition: >
-      اگر ۹۰ روزِ متوالی هیچ ردیفی در thesis_ledger تغییرِ وضعیت نداد (نه اثبات،
-      نه ابطال)، این تخصیص متوقف می‌شود. پژوهشی که هیچ ردیفی را حرکت نمی‌دهد
+    share: 0.25
+    is_cap_not_floor: true
+    beat_share: 0.25
+    program: romajan
+    ledger: F:/romajan/propagation-lab/data/claims_ledger.json
+    thesis_ledger: _ops/state/thesis/thesis-ledger.json
+    mutation_store: git
+    kill_condition: 'اگر ۹۰ روزِ متوالی هیچ ردیفی در thesis_ledger تغییرِ وضعیت نداد
+      (نه اثبات، نه ابطال)، این تخصیص متوقف می‌شود. پژوهشی که هیچ ردیفی را حرکت نمی‌دهد
       پژوهش نیست؛ هزینه است. ابطال هم حرکت است — پیشرفت لازم نیست، سنجش لازم است.
-    no_phenomenal_claims: true    # ادعای «آگاهی/تجربه» ساختاراً ممنوع می‌ماند (گاردهای
-                                  # موجود). ادعاها فقط دربارهٔ **ساختار و توانایی**اند.
+
+      '
+    no_phenomenal_claims: true
   partners_default:
-    # انتسابِ سهمِ پیش‌فرض (attribution partners[]) — verdict آری 2026-07-09
-    PROJECT_F: [{who: Ari, pct: 50}, {who: Saba, pct: 50}]
-    ZIMAN: [{who: Ari, pct: 70}, {who: Mother, pct: 30}]
-    ARCHITECT_SYS: [{who: Ari, pct: 100}]
-    GENOME_SYS: [{who: Ari, pct: 100}]
-    MINING: [{who: Ari, pct: 100}]
-
-# ─── business identity (invoice/quote — config-only, no secrets) ──────────
+    PROJECT_F:
+    - who: Ari
+      pct: 50
+    - who: Saba
+      pct: 50
+    ZIMAN:
+    - who: Ari
+      pct: 70
+    - who: Mother
+      pct: 30
+    ARCHITECT_SYS:
+    - who: Ari
+      pct: 100
+    GENOME_SYS:
+    - who: Ari
+      pct: 100
+    MINING:
+    - who: Ari
+      pct: 100
 business:
-  abn: ""                        # Australian Business Number — REQUIRED for tax invoice
-  trading_name: ""               # Business trading name
-  address: ""                    # Business address
-  payment_terms: "Due within 14 days"
-  payment_methods: "Bank Transfer"
-  bank_details: ""               # BSB + Account number
-
-# ─── email integration (P3 — flag-off, secrets in .env) ────────────────
+  abn: ''
+  trading_name: ''
+  address: ''
+  payment_terms: Due within 14 days
+  payment_methods: Bank Transfer
+  bank_details: ''
 email:
-  gmail_client_id: ""            # Google Cloud OAuth client ID
-  gmail_client_secret: ""         # Google Cloud OAuth client secret
-  gmail_token_path: "state/email/gmail_token.json"
+  gmail_client_id: ''
+  gmail_client_secret: ''
+  gmail_token_path: state/email/gmail_token.json
   polling_interval_minutes: 30
-
 routing:
-  # 🔴 اصلاح 2026-07-06: aliasهای deepseek-chat/reasoner از 2026-07-24 (15:59 UTC) بازنشسته می‌شوند [FACT — چند منبع].
-  # قیمت‌ها ✅ [VERIFIED 2026-07-07 · api-docs.deepseek.com/quick_start/pricing] — قفل شد (verdict پاسخ‌های STAGE-0؛ تخمین بی‌مدرک ممنوع)
   econ:
     provider: deepseek
-    model: deepseek-v4-flash          # [VERIFIED 2026-07-07] in $0.14 (cache-hit $0.0028) / out $0.28 per 1M
-    base_url: "https://api.deepseek.com"
-    price_in: 0.14                    # USD/1M cache-miss [FACT: api-docs.deepseek.com · verdict 2026-07-18] — قفل تا رفع ۶۸ خطای گاورنر
-    price_out: 0.28                   # USD/1M [FACT]
-    price_in_cache_hit: 0.0028        # فقط اطلاعی؛ est بدترین‌حالت هرگز cache-hit فرض نمی‌کند
+    model: deepseek-v4-flash
+    base_url: https://api.deepseek.com
+    price_in: 0.14
+    price_out: 0.28
+    price_in_cache_hit: 0.0028
   reason:
     provider: deepseek
-    model: deepseek-v4-flash          # thinking پیش‌فرض؛ همان قیمت flash [VERIFIED]. جایگزین: deepseek-v4-pro — [VERIFIED 2026-07-07] $0.435 (hit $0.003625) / $0.87
+    model: deepseek-v4-flash
     mode: thinking
-    base_url: "https://api.deepseek.com"
-    price_in: 0.14                    # USD/1M [FACT · verdict 2026-07-18]
-    price_out: 0.28                   # USD/1M [FACT]
-    # 🔀 verdict آری 2026-07-09: reason باید به GLM (زیر ↓) سوییچ کند — ولی فقط پس از multi-providerشدنِ
-    #    client.py (تسکِ GLM)؛ تا آن، deepseek فعال می‌ماند تا leak-guard چیزی را RefuseToSend نکند.
-  glm:                                # مغزِ فرعی (verdict آری 2026-07-10: fugu اصلی، glm فرعی)
+    base_url: https://api.deepseek.com
+    price_in: 0.14
+    price_out: 0.28
+  glm:
     provider: glm
-    model: "glm-4.6"                  # [نیازِ تأییدِ GLM از dashboardِ پلنِ MAX — مدلِ دقیق را بگذارد]
-    base_url: "${GLM_BASE_URL}"       # از env (Ari نوشته)؛ کلید فقط env: GLM_API_KEY — هرگز hardcode
-    subscription: max                 # فلت (~AU$200 خریده‌شده) → سقفِ دلاریِ متری ندارد
-    system_share: 0.5                 # verdict آری 2026-07-10: نصفِ سهمیهٔ اشتراک سهمِ سیستم است
+    model: glm-4.6
+    base_url: ${GLM_BASE_URL}
+    subscription: max
+    system_share: 0.5
   anthropic:
     provider: anthropic
-    note: >
-      فقط برای متر شدن مصرف. genome-system طبق genome/gates.yaml روی سه-tier Anthropic
-      قفل است (invariant core؛ تغییر = پروتکل تغییر ژنوم + owner_confirmed).
+    note: 'فقط برای متر شدن مصرف. genome-system طبق genome/gates.yaml روی سه-tier
+      Anthropic قفل است (invariant core؛ تغییر = پروتکل تغییر ژنوم + owner_confirmed).
       تعارض #۳ STATE-MAP عمداً این‌جا حل نشده — verdict جدا.
+
+      '
   orchestr:
     provider: sakana
-    model: fugu                        # نرخ = top-model فعال pool؛ fee انباشته نمی‌شود [FACT: sakana.ai/fugu]
-    base_url: "https://api.sakana.ai/v1"   # verdict آری 2026-07-09 — باید /v1 داشته باشد وگرنه ۴۰۴ (مستند Sakana). کلید فقط env: FUGU_API_KEY
-    cap_monthly: 100                   # AUD — بودجهٔ متریِ Fugu، verdict آری 2026-07-09 (پس از اطمینانِ پایداری → ۵۰۰)
-    subscription: max                  # verdict آری 2026-07-10: پلنِ MAX خریده شد (2026-07-24، $200، 20× Standard) — مغزِ اصلی؛ subscription=max → est=0 → گاردِ fugu_quota سهمیه را می‌راند
-    system_share: 0.5                  # نصفِ سهمیهٔ اشتراک سهمِ سیستم
+    model: fugu
+    base_url: https://api.sakana.ai/v1
+    cap_monthly: 100
+    subscription: max
+    system_share: 0.5
   premium:
     provider: sakana
-    model: fugu-ultra-20260615         # [FACT] $5/$30؛ >272K: $10/$45؛ cache $0.50/$1.00 — توکن orchestration هم شارژ می‌شود
+    model: fugu-ultra-20260615
     human_gated: true
-  local:                               # مغزِ محلیِ روزمره (verdict آری 2026-07-10) — $0، فقط localhost
+  local:
     provider: ollama
-    model: "qwen2.5:1.5b"              # روی Legion 5 (i5 + GTX 1660Ti)؛ ارتقایِ بعدی: 7B-quantized
-    base_url: "http://127.0.0.1:11434"
-    cost: 0                            # بدونِ متر — بیرونِ مسیرِ پول؛ rate-limit در cortex/local_llm
-
-# ─── resilience: circuit breaker per-provider (config-only، خوانده‌شده توسط circuit_breaker._cfg) ───
-# 2026-07-25: افزودنیِ additive — تا اینجا نبود و breaker با defaultها کار می‌کرد.
-# هدف: وقتی یک provider (مثل fugu/sakana) ناپایدار است، تماس‌ها زود fail-fast شوند
-# تا سهمیه و دیوارِ متابولیک نسوزد. breaker per-target (role) است، نه global.
-# ⚠️ این config-only است: خواندنش هیچ اتوماسیونی روشن نمی‌کند. breaker از قبل
-#    در model_router._ask_paid فعال است؛ این فقط اعدادش را کوک می‌کند.
+    model: qwen2.5:1.5b
+    base_url: http://127.0.0.1:11434
+    cost: 0
 resilience:
   circuit_breaker:
-    failure_threshold: 3              # بعد از ۳ شکستِ پیاپی → OPEN (default ۵؛ کاهش به ۳ برای پاسخِ سریع‌تر به ناپایداریِ fugu)
-    cooldown_seconds: 60              # OPEN → بعد از ۶۰s HALF_OPEN (یک probe مجاز)
-    half_open_max: 3                  # سقفِ probe در HALF_OPEN
-    success_to_close: 2               # در HALF_OPEN، ۲ موفقیتِ پیاپی → CLOSED
+    failure_threshold: 3
+    cooldown_seconds: 60
+    half_open_max: 3
+    success_to_close: 2

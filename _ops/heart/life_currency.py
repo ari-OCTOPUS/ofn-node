@@ -168,14 +168,29 @@ def color_scale(color: str) -> float:
 
 
 def daily_pool(*, daily_cap=None) -> dict:
-    """استخرِ روزانه از cardiac-budget.json (تک‌نویسنده: cardiac). fail-soft."""
+    """استخرِ روزانه: cardiac-budget.json (تک‌نویسنده: cardiac) → budgets.yaml
+    global.life_currency_daily_cap (fallback B1، رأی مالک 2026-08-19) → صفر.
+
+    B1-APPLIED 2026-08-19: پیش از این، نبودِ daily_cap در cardiac-budget.json به
+    معنای تخصیصِ همیشگیِ صفر بود (همهٔ اعضا ۰ می‌گرفتند). fallback از budgets.yaml
+    فقط وقتی فعال است که cardiac اصلاً کلید را ننوشته باشد (نه وقتی صفرِ عمدی است).
+    rollback: حذفِ کلیدِ global.life_currency_daily_cap از budgets.yaml."""
+    source = "cardiac-budget.json"
     try:
         if daily_cap is None:
             cb = json.loads((opslib.STATE_DIR / "cardiac-budget.json").read_text("utf-8"))
             daily_cap = cb.get("daily_cap")
     except (OSError, ValueError):
         daily_cap = None
-    return {"daily_cap": _f(daily_cap, 0.0), "known": _f(daily_cap, 0.0) > 0}
+    if daily_cap is None:
+        source = "budgets.yaml"
+        try:
+            b = opslib.load_budgets()
+            daily_cap = (b.get("global") or {}).get("life_currency_daily_cap")
+        except Exception:  # noqa: BLE001 — fallback هرگز قلب را نمی‌کشد
+            daily_cap = None
+    return {"daily_cap": _f(daily_cap, 0.0), "known": _f(daily_cap, 0.0) > 0,
+            "source": source}
 
 
 def allocate_beat(color: str, *, daily_cap: float, period_s: float = 124.0,
