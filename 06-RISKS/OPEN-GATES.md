@@ -72,3 +72,7 @@ _موج 0/A — research-sprint (2026-08-20):_
 | R01 (حقیقت عملیاتی) | ✅ اسلات ۱ آماده؛ اسلات ۲ PENDING-OWNER-PASTE · GAP-001 کاندید: چرخهٔ بستهٔ ایده‌ها |
 | ساختار R01–R10 | ✅ ساخته شد (`octopus-research-sprint/`) |
 | CARD-001 | ⏳ ممنوع تا R10 + تأیید مالک (طبق پروتکل) |
+
+| P10 root-cause (daily_cap) | باگ سیم‌کشی B2 تأیید شد: cardiac-budget.json بدون daily_cap → daily_pool→0.0؛ اصلاح در FASE 6 | OPEN | life_currency.py:170 |
+| swap_consistency.py | FOUND_AT (island, 68279b4) — اختلاف panel-only حل شد | VERIFIED | ls+hash |
+| LAW-23 | تثبیت شد: ادعای «ساخته شد» = مسیر+هش+git ls-files | ACTIVE | DEAD-CLAIMS-REGISTRY |
