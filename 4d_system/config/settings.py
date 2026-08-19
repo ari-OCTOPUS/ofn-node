@@ -163,7 +163,7 @@ ANCHORS = {
     "E_shadow":    0.012553,
     "I_pred":      0.0144179,
     "Var_ex":      0.217327,
-    "Var_eff":     0.208232,
+    "Var_eff":     0.199136,   # C-035 fixed 2026-08-19: stale pre-formula anchor; canonical compute = 0.1991360968
     "identity":    0.135073,   # ½log(σ_z²/S) = E_shadow + Δ_self
     "sigma_z2":    0.0141667,
 }

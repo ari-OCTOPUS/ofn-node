@@ -1,7 +1,7 @@
 {
   "schema": "octopus-trust-boundary/1",
   "version": 1,
-  "generated_at": "2026-08-19T06:51:54+00:00",
+  "generated_at": "2026-08-19T10:37:08+00:00",
   "generated_by": "scripts/generate_trust_boundary.py (R13 debt-sweep 2026-08-16)",
   "owner_binding": {
     "authority": "owner (Armin)",
@@ -20,8 +20,8 @@
       "brain/self_code.py": "sha256:9046e79196ae63afbf305b32cf81e7103eac0df755347e2682d2f3cc0512acd7",
       "brain/self_evolve.py": "sha256:206b6b11b110b230c4dfcd13342600002bfe35ec12f0cb51fcbb9189ec62c074",
       "brain/telegram_bot.py": "sha256:ff939c42ef27dec9ebf2de2cdce25d25be3a4bc30fe1db6c9edc42606fef2c42",
-      "config/settings.py": "sha256:b29241c45a4d1d49020ed7b8157638274f7b3665486f440b1b8a9bfee37bde15",
-      "core/model.py": "sha256:670f4e94255ffb8b54ed9e21c759ab606526a6b9f8b9eab47c543bd13402c859",
+      "config/settings.py": "sha256:c4763b1f9a93a7b92eadac81605e081c7464ea3e47405f11fe883c2515bf3f77",
+      "core/model.py": "sha256:da04012954766297d13951c4cf4de767ce7d080259b8cdadb26ae74611b52488",
       "llm/fugu_client.py": "sha256:278bb7800e80c7a550fe7824ea5a8143f9c85b9dcf9b2e21999f8845e28128ff",
       "llm/glm_client.py": "sha256:7f227729783a08f565ff537bb2bc2532fafd8321dcab651b66d48b443508f98c",
       "llm/langchain_models.py": "sha256:e48c063230761f0b0e8a22fb2f8830f382eb32ea05c56f6010a772edaaaa09b2",
