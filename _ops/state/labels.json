@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T12:50:38+00:00",
+ "generated_at_utc": "2026-08-19T12:59:11+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -524,6 +524,25 @@
    "updated_at_utc": "2026-08-19T12:50:38+00:00",
    "supersedes": "FIRST_LINE_2_OF_20_FALLBACK_CARRIES_18",
    "note": "fallback 46/59 را حمل می‌کند و خودش 8/59 شکست می‌خورد — شکنندگی ساختاری؛ قرارداد خط اول داور ضعیف است."
+  },
+  "CORTEX_8772_INCIDENT": {
+   "label_id": "CORTEX_8772_INCIDENT",
+   "value": "OPEN_MONITOR_ONLY_BOUNDED",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/position-bias.json",
+   "evidence_hash": "f52e1b5a76665025",
+   "updated_at_utc": "2026-08-19T12:59:11+00:00",
+   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4",
+   "note": "cortex port 8772 LISTENING بی‌پاسخ (الگوی زامبی) — incident محدود؛ فقط مانیتور تا زمانی که dependency مستقیم S1 باشد؛ triage حداکثر ۲۰دقیقه، فاز ۳ کامل جلو کشیده نمی‌شود"
+  },
+  "POSITION_SWAP_PILOT": {
+   "label_id": "POSITION_SWAP_PILOT",
+   "value": "OBSERVED_PILOT_1_OF_4_RS_UNRESOLVED",
+   "status": "OBSERVED",
+   "evidence_path": "F:/backup-island/shared/ledger/judge-reliability-p1.json",
+   "evidence_hash": "f52e1b5a76665025",
+   "updated_at_utc": "2026-08-19T12:59:11+00:00",
+   "note": "1/4 pilot; repetition: AB RS=1.0 / BA RS=0.6 -> RANDOMNESS_UNRESOLVED؛ ادعای نرخ یا جهت عمومی bias نمی‌شود"
   }
  }
 }

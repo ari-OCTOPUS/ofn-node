@@ -1,4 +1,4 @@
-# NOW — OCTOPUS current truth (generated 2026-08-19T12:50:38+00:00 from _ops/state/labels.json)
+# NOW — OCTOPUS current truth (generated 2026-08-19T12:59:11+00:00 from _ops/state/labels.json)
 ## Headline
 - **VALID_PAIRS = 30** (OBSERVED) — primary metric; PRIMARY_VALID_PAIRS = 30; threshold 20_WINS_OF_30_VALID_PAIRS
 - LIVE4: PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED · SCORING: PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W (OBSERVED)
@@ -87,5 +87,7 @@
 |---|---|---|
 | JUDGE_FIELD_SPLIT | VERIFIED_CLIENT_CONTENT_ONLY_FIX | VERIFIED |
 | JUDGE_FALLBACK_DEPENDENCY | FIRST_LINE_5_OF_59_FALLBACK_CARRIES_46 | OBSERVED |
+| CORTEX_8772_INCIDENT | OPEN_MONITOR_ONLY_BOUNDED | OBSERVED |
+| POSITION_SWAP_PILOT | OBSERVED_PILOT_1_OF_4_RS_UNRESOLVED | OBSERVED |
 
 _Rules: statuses are OBSERVED|VERIFIED|CLAIMED|BLOCKED|VOID|UNKNOWN; two agents agreeing never makes VERIFIED; expired evidence auto-downgrades; history append-only in _ops/state/label-history.jsonl. Renderer: _ops/scripts/render_now.py._
