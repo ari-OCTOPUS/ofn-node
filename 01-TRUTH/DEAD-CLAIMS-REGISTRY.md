@@ -30,3 +30,12 @@ cardiac-budget.json = {date, spent, resting} — فیلد `daily_cap` غایب �
 - VOID 24.5% کران → 46 تلاش/بازو (P=95.9%) · چهار بازو = 184
 - K=9 پیش‌ثبت: 13 تلاش/ترتیب = 26 فراخوان (P=97.7%) — اجرای 18 فراخوانِ ما 9/9 شانس بود (با 0.864^9 ≈ 27% اگر VOID واقعی)
 - کران کلاپر-پیرسون 0/20: یک‌طرفه 13.9% · دوطرفه 16.8%
+
+## R01/GAP-001 correction (2026-08-20)
+- عبارت مرده «۳۳۵/۳۵۸» دوباره در R01 برگشته بود → حذف شد.
+- جانشین: `OBSERVED_EXACT_REPETITION` در کوهورت ۱۹۱تایی: ۱۵ رکورد تکرار دقیق، ۱۷۶ متن یکتا، ۶ stub repetition؛ `behavioral_novelty=UNKNOWN` (بدون vector/replay).
+- «ماشین چرخهٔ بسته» فقط برای `_stub_transport→live=False` مجاز است؛ تعمیم به کل idea system ممنوع.
+
+## min_k correction
+- ادعای `min_k=4` مرده است. ابزار اصلاح شد: two-sided fair-coin p=2*(0.5)^K؛ .05→K=6؛ .01→K=8؛ K9 p=.00390625.
+- اجرای K=9 گذشته: ANALYZABLE_9_VALID_PER_ORDER، اما UNDERBUDGETED_PREEXECUTION؛ آینده 13 تلاش/ترتیب=26 calls.

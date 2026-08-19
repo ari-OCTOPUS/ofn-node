@@ -27,7 +27,12 @@ created: 2026-08-20
 
 ## ۲) GAP-001 (کاندید — برای تأیید مالک)
 
-**ماشین چرخهٔ بستهٔ ایده‌ها**: ۱۰۶+ ایده تولیدشده، ۳۵۸+ رد تکراری → سیستم تازگی تولید نمی‌کند، واریاسیون تولید می‌کند. این با معیار تحول (۲ سپتامبر) هم‌راستاست: گیت بدایع (بدیع AND یادگرفتنی) پیش از مصرف بودجه.
+**GAP-001 — OBSERVED_EXACT_REPETITION, NOT BEHAVIORAL-NOVELTY FAILURE**
+
+- cohort_path: `_ops/debate/SURVIVORS-QUEUE.md`
+- cohort_size: 191 · exact_repeat_records: 15 · exact_unique_texts: 176 · stub_repetitions: 6
+- behavioral_novelty: **UNKNOWN** — behavior vectors و replay receipts هنوز وجود ندارند
+- عبارت «ماشین چرخهٔ بسته» فقط برای مسیر مشخص `_stub_transport → live=False` مجاز است، نه کل سامانهٔ تولید ایده
 
 ## ۳) تناقض‌های ثبت‌شده (resolve یا صریحاً open)
 

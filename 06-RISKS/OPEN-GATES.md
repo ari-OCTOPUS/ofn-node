@@ -69,7 +69,7 @@ _صبح 2026-08-20 — صف مالک (از ممیزی مستقل + شب):_
 _موج 0/A — research-sprint (2026-08-20):_
 | مورد | وضعیت |
 |---|---|
-| R01 (حقیقت عملیاتی) | ✅ اسلات ۱ آماده؛ اسلات ۲ PENDING-OWNER-PASTE · GAP-001 کاندید: چرخهٔ بستهٔ ایده‌ها |
+| R01 (حقیقت عملیاتی) | ✅ اسلات ۱ آماده؛ اسلات ۲ PENDING-OWNER-PASTE · GAP-001 کاندید: stub-only closed-loop (_stub_transport→live=False); cohort novelty UNKNOWN |
 | ساختار R01–R10 | ✅ ساخته شد (`octopus-research-sprint/`) |
 | CARD-001 | ⏳ ممنوع تا R10 + تأیید مالک (طبق پروتکل) |
 

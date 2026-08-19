@@ -1023,6 +1023,6 @@ updated: 2026-08-18
 
 - 📡✅ **2026-08-20 (~01:2xZ — موج 0/A research-sprint + سینک Obsidian).**
   ساختار R01–R10 + بستهٔ ورودی (EVIDENCE-MANIFEST/LOCKED/CONSTRAINTS/OPEN-QUESTIONS) ساخته شد.
-  R01 حقیقت عملیاتی نوشته شد (GAP-001 کاندید: ماشین چرخهٔ بستهٔ ایده‌ها؛ گلوگاه فعلی: ابزار داور
+  R01 حقیقت عملیاتی نوشته شد (GAP-001 کاندید: ماشین stub-only closed-loop (_stub_transport→live=False); cohort novelty UNKNOWN؛ گلوگاه فعلی: ابزار داور
   VOID 13.6% + نبود زایش قابلیت)؛ اسلات مدل دوم PENDING-OWNER-PASTE. گیت R01: همه‌چیز مشخص،
   board not fabricated، external effects 0. **کدنویسی صفر** (طبق پروتکل تا CARD-001).
