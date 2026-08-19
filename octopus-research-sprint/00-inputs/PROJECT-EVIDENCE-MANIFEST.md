@@ -1,0 +1,11 @@
+# PROJECT-EVIDENCE-MANIFEST — wave 0 (2026-08-19T13:01Z)
+
+## شاهدهای کلیدی (مسیرها)
+- حقیقت runtime: `_ops/state/labels.json` (58 لیبل) · `docs/NOW.md` (همگام، render --check سبز)
+- یادگیری: predictions.db (705/691) · LEARNING-VERDICT (UNVERIFIED) · PRIMARY-V4-REPORT (13/30 ابطال)
+- قابلیت ابزار: JUDGE_FIELD_SPLIT=VERIFIED · JUDGE_FALLBACK_DEPENDENCY=46/59 · VOID 13.6% (n=59)
+- قابلیت‌اطمینان داور: `F:/backup-island/shared/ledger/judge-reliability-p1.json` (RS AB=1.0/BA=0.6)
+- TCB: trust-boundary.json (15 فایل، امضاشده/وریفای ×۳) · C-035 CLOSED (ratify TCB3)
+- تصمیم‌ها: 02-DECISIONS/ (GENESIS-01 … MEGAPROMPT-CONTINUATION-v4 — همگی امضاشده)
+- پایداری: GATE3-SURVIVAL (stop path VERIFIED؛ ledger 0/0)
+- ممیزی چت: CHAT-PIPELINE-AUDIT-20260820 (نشت reasoning = صفر سطح)

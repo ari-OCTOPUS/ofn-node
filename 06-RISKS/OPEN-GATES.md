@@ -65,3 +65,10 @@ _صبح 2026-08-20 — صف مالک (از ممیزی مستقل + شب):_
 
 | answer-first wrap (پروتکل-هم‌مرز) | CLAIMED — بازو 8/8 و داور 7/8 در دور اول، 3/8 در دور دوم (غیرقطعی)؛ fallback تک‌توکنی VERIFIED؛ iteration سوم ممنوع؛ V5 freeze نه | CLAIMED |  |
 | improve→digest | READY-FOR-OWNER-VOTE — کد بسته، فقط رأی زندهٔ مالک لازم | READY |  |
+
+_موج 0/A — research-sprint (2026-08-20):_
+| مورد | وضعیت |
+|---|---|
+| R01 (حقیقت عملیاتی) | ✅ اسلات ۱ آماده؛ اسلات ۲ PENDING-OWNER-PASTE · GAP-001 کاندید: چرخهٔ بستهٔ ایده‌ها |
+| ساختار R01–R10 | ✅ ساخته شد (`octopus-research-sprint/`) |
+| CARD-001 | ⏳ ممنوع تا R10 + تأیید مالک (طبق پروتکل) |
