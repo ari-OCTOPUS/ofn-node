@@ -176,3 +176,12 @@ status_legend:
 - [ ] جداسازی استراتژی OCTOPUS از persistence (کار مدل‌سازی آتی — ریشه مستند شد: run_observatory.py:120-135)
 - [ ] تست‌های 4d_system/src/nbb_cp و nbb-cp-kre و اعداد README پاها (۳۳/۲۱/۲۹/۸ از ۹) — جلسهٔ بعد
 
+## 2026-08-19/20 — ناوبری سریع (افزوده 2026-08-20)
+- خلاصهٔ روز: [[00 - Inbox/2026-08-19 MASTER SUMMARY]] · شاخص: [[00 - Inbox/2026-08-19 DAY-INDEX (MOC)]]
+- کارت‌های صبح: [[00 - Inbox/2026-08-20 MORNING-CARDS]]
+- رودمپ جاری: [[00 - Inbox/2026-08-19 ROADMAP-v2 (PRIVATE-LAB)]] · کیت/بایگانی جنگ: [[00 - Inbox/2026-08-19 24H-WAR-PLAN + ROADMAP]]
+- تصمیم‌ها (امضاشده): 02-DECISIONS/{GENESIS-01, DEEPSEEK-AUTOMATIC-ROUTING-01, OWNER-CONSENTS, WAR24-LOCK(+ADDENDUM), OWNER-QUEUE-RESOLUTION, STRATEGIC-PIVOT, MEGAPROMPT-AUTONOMY-v3}
+- شواهد: 06-EVIDENCE/{AUDIT-191, RCPT-FIX, TEAM-A-PROMOTION, Q3-Q1-TCB, GATE3-SURVIVAL}-20260819/ · live4/
+- جزیره: F:/backup-island (CURRENT_STATE / NEXT_ACTION / PIPELINE-OWNERSHIP.lock)
+- صف مالک: OWNER-DECISION-QUEUE.md · بازها: 06-RISKS/OPEN-GATES.md
+
