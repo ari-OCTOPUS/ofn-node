@@ -968,3 +968,13 @@ updated: 2026-08-18
   RECEIPT_BUDGET_ACCOUNTING=FIXED_VERIFIED_RUNTIME_PROBED (VERIFIED) + ترنزیشن
   تاریخچه؛ NOW.md بازتولید. یعنی پس از پین FX و فریز V2 توسط مالک، batch کامل
   primary (۲×۱۵) از نظر ساختاری و رسیدی بی‌مانع است.
+
+- ✅🔒 **2026-08-19 (~06:30Z — چهار رضایت مالک + ارتقای TEAM-A همین حالا).**
+  `02-DECISIONS/OWNER-CONSENTS-2026-08-19T0615Z.md`: (۱) V4 فقط **V4a** (سقف توکن داور
+  ۵۱۲؛ V4b/V4c موکول)؛ (۲) سیاست void = **قاعدهٔ سختِ فعلی، پیش‌ثبت‌شده** (۳۰ تلاش،
+  بدون top-up)؛ (۳) **مجوز دائمی پین FX** با قاعدهٔ سخت؛ (۴) **TEAM-A همین حالا** —
+  اجرا شد: رادار تناقض روی MemoryGate تولیدی وصل شد (تناقض ⇒ QUARANTINED بدون حذف)،
+  ستون‌های evidence_ref/confidence_source/confidence_method (ALTER افزایشی، مهاجرت
+  زندهٔ ۵۱۸ ردیف بدون تغییر)، F3 بسته شد (insert بدون confidence = fail-closed) —
+  ۱۰/۱۰ تست؛ لیبل‌ها VERIFIED شدند. commit ‏`f4a2447`. فردا: پین RBA (~06:10Z) →
+  پروب V4a هشت‌تایی (گیت ۸/۸ خوانا) → فریز V4 → primary تازه (نمونهٔ مستقل).

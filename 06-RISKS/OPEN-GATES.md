@@ -20,3 +20,9 @@ _به‌روزرسانی 2026-08-19T02:39Z پس از اجرای DEEPSEEK-AUTOMAT
 _به‌روزرسانی 2026-08-19T03:32Z: RCPT-1/RCPT-2 (15/15 تست + probe واقعی) و G10/G11 (رسید مستقل ریست/توقف رزرو) طبق یادآوری حاکمیتی مالک بسته شدند — پیش از باز شدن پنجرهٔ primary._
 | LIVE4_PRIMARY_V2 | اجرا شد زیر پروتکل منجمد؛ معیار برآورده نشد (22/30 معتبر، 13/20 برد؛ هر ۸ void = قضاوتِ ناخوانا) — نرخ برد 59% در n=22، نتیجهٔ منفیِ معتبر | OBSERVED | `06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md` |
 | D_B_READABILITY_AT_SCALE | خوانایی داور در حجم batch ‏73% (E2E چهارتایی پنهانش می‌کرد) — سه گزینهٔ مالک در گزارش | OPEN | همان گزارش §Next options |
+| ~~CONTRADICTION_RADAR~~ | ACTIVE_VERIFIED_WIRED — رادار روی MemoryGate تولیدی؛ تناقض ⇒ QUARANTINED (10/10 تست + مهاجرت زنده) | RESOLVED | `06-EVIDENCE/TEAM-A-PROMOTION-20260819/` |
+| ~~F3_METADATA_ENTRY~~ | FIXED_VERIFIED — insert بدون confidence هرگز وارد نمی‌شود (fail-closed) | RESOLVED | همان |
+| D-B/V4 | مالک: فقط V4a (سقف توکن ۵۱۲)؛ void سختِ فعلی پیش‌ثبت؛ پروب ۸تایی فردا → فریز V4 | SCHEDULED | `02-DECISIONS/OWNER-CONSENTS-2026-08-19T0615Z.md` |
+| FX_PIN_STANDING | مجوز دائمی fetch/pin روزانهٔ RBA با قاعدهٔ سخت (بدون جعل + رسید) — شروع از فردا ~06:10Z | AUTHORIZED | همان سند §3 |
+
+_به‌روزرسانی 2026-08-19T06:3xZ: ارتقای TEAM-A طبق رضایت §4 همین حالا اجرا شد._
