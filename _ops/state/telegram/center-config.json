@@ -68,7 +68,7 @@
   "last_pulse": 1787138949.771826,
   "home_message_id": 504,
   "leg_card_hash": {
-    "lead": "2e22dd5654527526",
+    "lead": "6bc68ee5d09ac8ca",
     "ziman": "f7c61efcd11dab5d",
     "mining": "8c62c55798988893",
     "crypto": "1ca209993f59a2eb",
@@ -91,8 +91,8 @@
     "cartographer": 372,
     "mirror": 374
   },
-  "leg_card_cursor": 9,
-  "last_leg_card": 1787140542.8726969,
+  "leg_card_cursor": 4,
+  "last_leg_card": 1787142155.7891188,
   "guide_message_id": 358,
   "guide_hash": "54c2aa87a0fd6935",
   "watchdog_receipt_cursor": "2026-08-18T02:47:19 centre down (silent 538s) - launching RUN-TG-CENTER.bat",

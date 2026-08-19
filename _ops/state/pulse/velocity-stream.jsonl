@@ -2017,3 +2017,4 @@
 {"ts": "2026-08-19T21:26:30", "v": 12.5417, "cov": {"confirmed": 0, "effects": 0, "hour": 21}}
 {"ts": "2026-08-19T21:42:19", "v": 12.625, "cov": {"confirmed": 0, "effects": 0, "hour": 21}}
 {"ts": "2026-08-19T21:57:46", "v": 12.5, "cov": {"confirmed": 0, "effects": 0, "hour": 21}}
+{"ts": "2026-08-19T22:14:09", "v": 12.4583, "cov": {"confirmed": 0, "effects": 0, "hour": 22}}

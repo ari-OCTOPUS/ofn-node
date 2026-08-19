@@ -10,9 +10,10 @@
     "primary:ARCHITECT_SYS": 300
   },
   "denied": {
-    "daily-cap": 210
+    "daily-cap": 266
   },
   "consecutive_timeouts": 0,
-  "last_error_class": "URLError",
-  "last_error_was_local_timeout": false
+  "last_error_class": "ConnectionResetError",
+  "last_error_was_local_timeout": false,
+  "timeouts_total": 1
 }

@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-19T21:37:53",
-  "beat": 41998,
-  "version": 361,
+  "ts": "2026-08-19T22:08:44",
+  "beat": 42028,
+  "version": 362,
   "source": "heuristic",
-  "snapshot_hash": "95334907dc5047b7",
+  "snapshot_hash": "85287396c94e4ba7",
   "stable_cycles": 0,
   "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
     "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 561656 micro-USD",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 567668 micro-USD",
     "pathology": [
       {
         "symptom": "خطای پرتکرار failed ×2",
@@ -57,27 +57,24 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 22421,
-      "newest_input_age_s": 25
+      "oldest_input_age_s": 24272,
+      "newest_input_age_s": 4
     }
   },
   "deep_dive": {
-    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
+    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟) تا ریشهٔ واقعی",
     "cause_chain": [
-      "https://github.com/username/repository#issue-1",
-      "https://github.com/username/repository#issue-2",
-      "https://github.com/username/repository#issue-3"
+      "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
+      "ریشهٔ واقعی",
+      "شواهدِ دقیق"
     ],
     "evidence": [
-      "https://github.com/username/repository#evidence-1",
-      "https://github.com/username/repository#evidence-2",
-      "https://github.com/username/repository#evidence-3"
+      "برنامه‌ریزی",
+      "سیستم‌های ارگانیسمی",
+      "کاربردهای عملی"
     ],
-    "smallest_fix": "https://github.com/username/repository#smallest-fix-1",
-    "blocked_by": [
-      "https://github.com/username/repository#blocked-by-1",
-      "https://github.com/username/repository#blocked-by-2"
-    ]
+    "smallest_fix": "بسته به روش‌های ارگانیسمی و ابزارهای آموزشی",
+    "blocked_by": "بدونِ ارگانیسم و عملکرد کاربردی"
   },
   "trajectory": {
     "focus_stable": true,
@@ -97,13 +94,13 @@
       "system"
     ],
     "in_fear": [],
-    "money_musd": 561656,
+    "money_musd": 567668,
     "recent_errors": {
       "failed": 2
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-19T21:37:12",
+    "ts": "2026-08-19T22:08:14",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,

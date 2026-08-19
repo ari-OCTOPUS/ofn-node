@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T11:59:58+00:00",
+ "generated_at_utc": "2026-08-19T12:22:53+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -497,11 +497,21 @@
   },
   "VARIANCE_ROBUSTNESS_CAPABILITY": {
    "label_id": "VARIANCE_ROBUSTNESS_CAPABILITY",
-   "value": "MEASURED_VOID_12PCT_THRESHOLD_5PCT_NOT_YET",
-   "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate8.json",
-   "evidence_hash": "4fe32b7edac78fa1",
-   "updated_at_utc": "2026-08-19T11:59:58+00:00",
+   "value": "VERIFIED_VOID_0PCT_20_SAMPLES",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate20.json",
+   "evidence_hash": "ec4adf9bb007eab1",
+   "updated_at_utc": "2026-08-19T12:22:53+00:00",
+   "supersedes": "MEASURED_VOID_12PCT_THRESHOLD_5PCT_NOT_YET",
+   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
+  },
+  "JUDGE_FIELD_SPLIT": {
+   "label_id": "JUDGE_FIELD_SPLIT",
+   "value": "VERIFIED_CLIENT_CONTENT_ONLY_FIX",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate20.json",
+   "evidence_hash": "ec4adf9bb007eab1",
+   "updated_at_utc": "2026-08-19T12:22:53+00:00",
    "supersedes": null,
    "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
   }

@@ -5539,3 +5539,7 @@
 {"ts": "2026-08-19T21:48:05", "beat": 42011, "period_s": 357.44, "sigma_now": 0.0, "baro_factor": 5.9574, "wire_open": false}
 {"ts": "2026-08-19T21:54:00", "beat": 42016, "period_s": 347.14, "sigma_now": 0.0, "baro_factor": 5.7857, "wire_open": false}
 {"ts": "2026-08-19T21:57:46", "beat": 42020, "period_s": 349.69, "sigma_now": 0.0, "baro_factor": 5.8282, "wire_open": false}
+{"ts": "2026-08-19T22:04:15", "beat": 42026, "period_s": 342.1, "sigma_now": 0.0, "baro_factor": 5.7017, "wire_open": false}
+{"ts": "2026-08-19T22:08:33", "beat": 42030, "period_s": 344.62, "sigma_now": 0.0, "baro_factor": 5.7436, "wire_open": false}
+{"ts": "2026-08-19T22:14:09", "beat": 42036, "period_s": 347.14, "sigma_now": 0.0, "baro_factor": 5.7857, "wire_open": false}
+{"ts": "2026-08-19T22:17:51", "beat": 42040, "period_s": 344.62, "sigma_now": 0.0, "baro_factor": 5.7436, "wire_open": false}

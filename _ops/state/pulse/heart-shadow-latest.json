@@ -1,37 +1,37 @@
 {
-  "ts": "2026-08-19T21:57:46",
-  "beat": 42020,
+  "ts": "2026-08-19T22:17:51",
+  "beat": 42040,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 42020,
-    "period_s": 349.69,
+    "beat_seq": 42040,
+    "period_s": 344.62,
     "sigma_now": 0.0,
-    "baro_factor": 5.8282
+    "baro_factor": 5.7436
   },
-  "period_s": 349.69,
+  "period_s": 344.62,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
-    "velocity_per_hr": 12.5,
+    "velocity_per_hr": 12.4167,
     "cpi_0_1": 0.0,
-    "delta_self_live": -0.007316,
+    "delta_self_live": -0.006874,
     "band_lo": 0.4588,
     "band_hi": 4.4484,
     "gates": {
       "g_learn": 0.0,
       "band_effective_mid": 2.4536,
-      "err": 2.5181,
+      "err": 2.4973,
       "plant_saturation": {
         "saturated": false,
         "loop_gain": null,
-        "velocity_now": 12.5,
+        "velocity_now": 12.4167,
         "reason": "غیراشباع — عملگر می‌تواند velocity را حرکت دهد",
         "beat_cap": 3.0,
         "window_hours": 24.0,
         "beats_at_slowest_period": 96.0,
         "beats_at_fastest_period": 2880.0,
         "beat_units_at_slowest_period": 9.6,
-        "fuel_units": 297.0,
-        "velocity_locked_at": 12.5
+        "fuel_units": 295.0,
+        "velocity_locked_at": 12.416667
       },
       "cpi_guard": 1.0,
       "budget_pressure": 1.0,
@@ -40,7 +40,7 @@
       "fail_closed_reason": null,
       "drift_flag": false
     },
-    "period_s": 349.69
+    "period_s": 344.62
   },
   "setpoint": {
     "schema": "HeartParams.v1",
@@ -53,11 +53,11 @@
     "baroreflex_gain": 0.0
   },
   "gate0_live_producer": false,
-  "sampled_this_step": true,
+  "sampled_this_step": false,
   "production_wire": {
     "open": false,
     "reasons": [
-      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.007316) — خودشناسیِ منفی این گیت را باز نمی‌کند",
+      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.006874) — خودشناسیِ منفی این گیت را باز نمی‌کند",
       "hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)"
     ]
   },

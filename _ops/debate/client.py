@@ -216,7 +216,7 @@ class DeepSeekClient:
         _finish = _choice.get("finish_reason")
         _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
-        text = _msg.get("content") or _msg.get("reasoning_content") or ""
+        text = _msg.get("content") or ""   # OVN-5 step0: reasoning هرگز به‌جای پاسخ (فقط content)
         # 2026-08-16 (R27): مدل‌های thinking (deepseek-v4-flash) گاهی کلِ زنجیرهٔ
         # استدلالِ انگلیسی را داخلِ content می‌آورند و پاسخِ واقعیِ فارسی بعدش —
         # دو نمونهٔ زندهٔ 2026-08-13/15 در state/chat/chat-log.jsonl. اگر متن با
@@ -237,7 +237,7 @@ class DeepSeekClient:
         # تا ledger بینِ stubِ آفلاین و مغزِ محلیِ واقعی فرق بگذارد. نبودِ این کلید =
         # رفتارِ امروز بایت‌به‌بایت (هر transport = stub؛ بدونِ transport = زنده).
         _tier = raw.get("octopus_tier")
-        return {"text": text, "model": raw.get("octopus_model") or self.model,
+        return {"text": text, "reasoning_content": _msg.get("reasoning_content") or "", "model": raw.get("octopus_model") or self.model,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
                 "finish_reason": _infer_finish(_finish, tout, max_tokens),
                 "tier": _tier or ("stub" if self.transport is not None else "paid"),
@@ -579,7 +579,7 @@ class MultiProviderClient:
         _finish = _choice.get("finish_reason")
         _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
-        text = _msg.get("content") or _msg.get("reasoning_content") or ""
+        text = _msg.get("content") or ""   # OVN-5 step0: reasoning هرگز به‌جای پاسخ (فقط content)
         # 2026-08-16 (R27): مدل‌های thinking (deepseek-v4-flash) گاهی کلِ زنجیرهٔ
         # استدلالِ انگلیسی را داخلِ content می‌آورند و پاسخِ واقعیِ فارسی بعدش —
         # دو نمونهٔ زندهٔ 2026-08-13/15 در state/chat/chat-log.jsonl. اگر متن با
@@ -599,7 +599,7 @@ class MultiProviderClient:
             cost = 0.0
         else:
             cost = (tin / 1e6) * self.price_in + (tout / 1e6) * self.price_out
-        return {"text": text, "model": self.model, "provider": self.provider,
+        return {"text": text, "reasoning_content": _msg.get("reasoning_content") or "", "model": self.model, "provider": self.provider,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
                 "finish_reason": _infer_finish(_finish, tout, max_tokens),
                 "subscription": self.subscription or "metered",
