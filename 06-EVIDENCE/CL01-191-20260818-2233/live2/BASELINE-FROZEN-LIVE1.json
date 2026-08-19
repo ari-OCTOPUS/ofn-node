@@ -1,0 +1,20 @@
+{
+ "schema": "learning-evaluator.v1",
+ "kind": "frozen-baseline",
+ "metrics": {
+  "brier": null,
+  "provenance_coverage": {
+   "admitted": 482,
+   "provenance": 1.0,
+   "timestamp": 1.0,
+   "confidence": 0.917,
+   "expiry": 1.0,
+   "coverage": 0.9793
+  },
+  "note": "frozen pre-live-activation; no prediction outcomes yet"
+ },
+ "evaluation_contract": {
+  "min_brier_delta": 0.0,
+  "min_provenance_coverage": 0.9
+ }
+}

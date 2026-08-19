@@ -35,6 +35,11 @@ control_plane/supervisor.py — v5: ترمیمِ خود (self-healing) برای 
 اجرا:  python -m control_plane.supervisor            (loop کامل)
        python -m control_plane.supervisor --dry-run  (فقط تصمیم‌ها، بدونِ spawn)
 """
+
+
+# ═══ STATUS: RETIRED (2026-08-19, OWNER-QUEUE-RESOLUTION Q5) ═══
+# هرگز wire نشد؛ پروسهٔ ماندگار ۲۴/۷ بدون نظارت مالک مجاز نیست؛ schtask ساخته نمی‌شود.
+# کد حذف نمی‌شود؛ صرفاً از نقشهٔ فعال خارج است (canonical: _ops/cortex/model_router.py).
 from __future__ import annotations
 
 import argparse

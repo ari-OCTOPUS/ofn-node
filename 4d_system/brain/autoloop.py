@@ -378,6 +378,15 @@ class AutoLoopEngine:
         # ۳. تحلیل
         analysis = self._analyze(series, source_label)
 
+        # Q3 (OWNER-QUEUE-RESOLUTION §Q3, 2026-08-19): بستنِ حلقهٔ
+        # observe→predict→outcome→belief-update در خودِ دیمن — prediction_writer
+        # غیر-TCB است، فقط INSERT به ledger ضدفتلش می‌زند و fail-soft است.
+        try:
+            from brain import prediction_writer as _pw
+            _pw.cycle(source_label, float(analysis.get("temporal_mi", 0.0)))
+        except Exception as _e:  # noqa: BLE001 — حلقه هرگز به‌خاطرِ پیش‌بینی نمی‌میرد
+            logger.warning("prediction_writer.cycle failed: %s", _e)
+
         # ۴. insight
         insight = self._get_insight(analysis)
 

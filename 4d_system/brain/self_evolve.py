@@ -256,6 +256,16 @@ def test_candidate(candidate: dict, n_experiments: int = 4) -> dict:
 #  حلقه‌ی تحول — «اول تست، بعد تغییر یا بازگردانی»
 # ════════════════════════════════════════════════════════════════════════
 
+
+def _reject_reason(cand_score: float, baseline: float) -> str:
+    """Q3b (OWNER-QUEUE-RESOLUTION §Q3): پیامِ ردِ صادقانه — گیت «اکیداً بیشتر»
+    عمدی است (تساوی رد می‌شود)؛ پیامِ قبلی برای حالتِ تساوی دروغ می‌گفت («کمتر»)."""
+    if cand_score == baseline:
+        return (f"رد شد — تازگیِ بدونِ بهبود (برابر: {cand_score:.1f} == {baseline:.1f}؛ "
+                f"گیتِ پذیرش اکیداً-بیشتر است)")
+    return f"رد شد — تازگیِ کمتر ({cand_score:.1f} < {baseline:.1f})"
+
+
 def evolve(seed: int = 0, n_experiments: int = 4, apply: bool = True) -> dict:
     """
     یک گامِ خودتحولِ راستی‌آزمایی‌شده با هدفِ **باز** (تازگی، نه نمره‌ی سقف‌دار).
@@ -312,8 +322,7 @@ def evolve(seed: int = 0, n_experiments: int = 4, apply: bool = True) -> dict:
         if not cand_report["passed"]:
             result["reason"] = f"رد شد — {cand_report['reason']}"
         else:
-            result["reason"] = (f"رد شد — تازگیِ کمتر "
-                                f"({cand_score:.1f} < {baseline:.1f})")
+            result["reason"] = _reject_reason(cand_score, baseline)
 
     return result
 

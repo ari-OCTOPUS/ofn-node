@@ -17,6 +17,11 @@ from config.settings import LLMConfig
 
 class MockClient(BaseLLMClient):
     """Produces canned but structured responses for UI testing without API keys."""
+
+
+# ═══ STATUS: RETIRED (2026-08-19, OWNER-QUEUE-RESOLUTION Q2) ═══
+# مسیر dormat تکراری — canonical مسیریابی فقط _ops/cortex/model_router.py است (ARCHITECTURE-SOT + AUDIT §F1)؛ حذف فیزیکی منطق فقط با مراسم TCB جداگانه.
+# کد حذف نمی‌شود؛ صرفاً از نقشهٔ فعال خارج است (canonical: _ops/cortex/model_router.py).
     name = "Mock"
 
     def __init__(self, config: LLMConfig | None = None):

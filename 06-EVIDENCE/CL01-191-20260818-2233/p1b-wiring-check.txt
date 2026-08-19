@@ -1,0 +1,47 @@
+=== F) who imports/calls write_gate_enforcer? ===
+_ops\budget\governor.py:102:# این یک **برچسب** نیست: `write_gate()` پایین واقعاً همین تابع را صدا می‌زند.
+_ops\budget\governor.py:352:def write_gate(decision: dict, gate_mod=None) -> dict:
+_ops\budget\governor.py:442:        g = write_gate(d)
+_ops\tests\test_g7_identity_zero_trust.py:9:  D. MEDIUM-001 Remediation (ghp_ pattern in write_gate_enforcer and gate)
+_ops\tests\test_g7_identity_zero_trust.py:514:    def test_ghp_detected_in_write_gate_enforcer(self):
+_ops\tests\test_g7_identity_zero_trust.py:516:        from write_gate_enforcer import validate_content
+_ops\tests\test_g7_identity_zero_trust.py:521:    def test_gho_detected_in_write_gate_enforcer(self):
+_ops\tests\test_g7_identity_zero_trust.py:523:        from write_gate_enforcer import validate_content
+_ops\tests\test_g7_identity_zero_trust.py:527:    def test_ghu_detected_in_write_gate_enforcer(self):
+_ops\tests\test_g7_identity_zero_trust.py:529:        from write_gate_enforcer import validate_content
+
+=== G) who imports/calls memory_read_patch? ===
+4d_system\brain\automation.py:377:            from brain import memory_read_patch as mrp
+4d_system\brain\automation.py:436:            from brain import memory_read_patch as mrp
+4d_system\brain\automation.py:467:                from brain import memory_read_patch as mrp
+4d_system\brain\automation.py:623:            from brain import memory_read_patch as mrp
+4d_system\tests\test_memory_loop_c012.py:20:from brain import memory_read_patch as mrp
+4d_system\tests\test_readback_r16_views.py:16:from brain import memory_read_patch as mrp
+_ops\audit\poisoning_watch_4d.py:45:              "from brain import memory_read_patch as mrp; import sqlite3; "
+
+=== H) head of write_gate_enforcer (contract) ===
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""write_gate_enforcer.py — Enforces Write Gate rules on any memory write (EQUIP G2).
+
+Closes the gap: the 4d brain writes hypotheses through memory.store.save_hypothesis()
+which bypasses the graded MemoryGate entirely. This module provides a lightweight
+enforcement layer that can wrap ANY write path:
+
+  1. Content hash (SHA-256) computation and verification
+  2. Source classification: trusted (owner, deterministic) vs untrusted (llm, tool, web)
+  3. Provenance stamping: schema_version, source, timestamp, confidence, evidence_ref,
+     writer_agent, content_hash
+  4. Quarantine: untrusted source writes are quarantined (admission_state=QUARANTINED)
+     instead of directly committed
+
+This module is a BRIDGE, not a replacement for gate.py. It adds gate-like validation
+to writes that happen outside the graded MemoryStore (e.g., 4d hypotheses table).
+
+Security: follows Tool Contract principles:
+  - Typed input/output
+  - Least privilege (only validates, does not grant)
+  - Idempotent (same content + same source = same decision)
+  - Audit trace (every decision is logged)
+  - Kill-switch compatible (no side effects beyond DB)
+

@@ -73,6 +73,16 @@ NBB-CP vault: **171** · رصدخانه: **93** · hypothesis: **23** (پس از
 
 ## ۸. کارِ باز (به ترتیب درسِ معلم)
 
+> **📌 2026-08-16 ~21:3x — ابسیدین شب قفل:** نوت [[../07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱]] نقطهٔ ورود کل روز. سه برد [[../07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|۶۰]] — rsync نه. PolarFire≠Artix-7. آزاد **C-034**.
+
+> **📌 2026-08-16 ~21:2x — سه برد + FPGA تصحیح:** پا=M4 · خالی۱=M1 شاهد · خالی۲=M2/M3 · ۲۰۰T=M5 ترمز. شواهد [[../06-EVIDENCE/LIVE-VS-PASTE-SCAN-2026-08-16|LIVE-VS-PASTE]]. آزاد **C-034**.
+
+> **📌 2026-08-16 ~21:0x — مگاپرامپت بستن جاافتادگی مهاجرت:** `agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16.md` · نوت [[../07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹]]. PERPETUAL/SEAM/COWORK/G8-از-نو برای شروع باطل. آزاد **C-034**.
+
+> **📌 2026-08-16 ~17:2x — ابسیدین عصر هم‌تراز:** نوت [[../07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|۵۴]] نقطهٔ ورود **عصر**. پین‌های C-027/C-031 در اسناد صبح کهنه‌اند. آزاد **C-034**.
+
+> **📌 2026-08-16 ~17:1x — مگاپرامپت Claude Cowork:** `agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16.md` — پیست گزارش‌های موازی را SoT نگیر؛ آزاد **C-034**؛ TCB ۱۵ فایل امضا valid. لانچر: [[../00 - Inbox/2026-08-16 MEGAPROMPT — Claude Cowork|لانچر]].
+
 > **📌 2026-08-16 ~16:5x — OWNER-CLOSE EXECUTED:** [[../06-EVIDENCE/OWNER-CLOSE-2026-08-16|OWNER-CLOSE]] · [[../07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16|نوت ۵۳]] — C-033 digest ۱۵ فایل + امضا valid · reason ask=215 · کرنل integrity ok · experiments retired · HF expected-absent · پوش با کلمه. آزاد **C-034**. HARDTEST 1–4 و PEP/PAT باز ماندند.
 
 > **📌 2026-08-16 ~16:3x — OWNER-EASE EXECUTED:** [[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · [[../07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16|نوت ۵۲]] — دروازه‌ها همه آری. live/center/gateway → `qwen2.5:1.5b` (pid 7852/11724/4504). پروب Fugu **429**. C-026/C-029 owner-ratified · **C-033** dir-TCB بی‌digest. LIVE-STRIP. آزاد آن لحظه **C-034**. پوش با کلمه.

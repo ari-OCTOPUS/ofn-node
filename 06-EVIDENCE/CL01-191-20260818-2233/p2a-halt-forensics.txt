@@ -1,0 +1,74 @@
+=== commits in halt window (Aug 16 14:00-16:30) ===
+44c26f1 2026-08-16 16:29:57 +1000 boardlink: SELFRUN-2 megaprompt — owner-ratified (SMB+GitHub, bridge full-on, auto-merge, full scope)
+218898c 2026-08-16 16:17:06 +1000 agent-checkpoint: owner-ease megaprompt (six gates, C-033 claimed)
+46c474a 2026-08-16 16:09:41 +1000 agent-checkpoint: webpanel-reality pass-2 honest labels (C-032)
+cfd0ae4 2026-08-16 16:07:27 +1000 docs(prompts): OFN-BOOT megaprompt for Claude Code on Orange Pi — self-contained (zero prior knowledge), SMB git sync board->Windows, heartbeat, house rules, report format; Windows IP=192.168.0.191 hostname=DESKTOP-KA9RFN5
+f08d23f 2026-08-16 15:58:58 +1000 agent-checkpoint final: all 5 morning cards resolved (C-026 done+signed; graph-data already fresh; flagship=architecture-map by design; scheduler rate=1.0 until data; two UNKNOWNs for next agent) — full-delegation mode active
+b17d52a 2026-08-16 15:57:22 +1000 governance(ratify): owner ratifies agent signing + full delegation — 'قوانینو خودم نوشتم همرو خودت انجام بده' (chat 2026-08-16 ~16:3x); TCB manifest .sig committed (verified); evidence note added
+80b7d4b 2026-08-16 15:52:07 +1000 agent-checkpoint SELFRUN F10 final report — all F1..F10 closed; only owner 2-command TCB re-sign pending (commands in report); next free contradiction C-031
+e087ffd 2026-08-16 15:51:38 +1000 agent-checkpoint SELFRUN F9+F10a: fourth measurement (memory 1.000 continuous, all-time 0.980; readback stable post-window) + C-014 final proof pinned (:36 series dead, only :06 rows)
+1a81559 2026-08-16 15:49:08 +1000 agent-checkpoint SELFRUN F5-F8: hypothesis-cap root-caused (NO BUG — all 52 today are dedup-labeled append-only rows; active pending=0; cap healthy) + R27 verified already fixed by parallel session (_strip_reasoning_preamble live, test green) + C-014 FINAL PROOF (only :06 rows since disable — :36 series dead) + OFN git-remote owner commands appended to morning cards
+986f90f 2026-08-16 15:44:09 +1000 agent-checkpoint SELFRUN F3+F4: margin m v1 implemented (owner-approved 4-family + m_min=0.1) + shadow logger; 3 new tests registered in run_all (WORKLOCK-checked, no active lane)
+8bdd9c7 2026-08-16 15:43:16 +1000 agent-checkpoint SELFRUN F2: both TCB cards applied with owner authorization — C-026 enabled() gate in self_code + DARE |rho|>=1 guard in core P_closed; manifest rebuilt (14 digests + NO-GO packet); tests upgraded to positive (sog 5/5 incl guarded-core, selfcode gate exit=0)
+e151b2f 2026-08-16 15:38:54 +1000 fix(mining): scrub hardcoded GitHub PAT -> env (R1 closed — post-rotation, owner-confirmed; prefix-match scrub, zero github_pat_ remains)
+13410c7 2026-08-16 15:37:29 +1000 docs(prompts): SELFRUN-FINAL megaprompt — all real owner permissions consolidated (PAT rotated->scrub authorized, m approved 4-family+0.1, OFN=git-remote-on-board, TCB cards NOW with owner 2-command signoff); self-executing
+0175b65 2026-08-16 15:13:49 +1000 agent-checkpoint: perpetual-perfect megaprompt v2.0
+8e925ef 2026-08-16 15:05:34 +1000 agent-checkpoint AUTOFLOW S7-S10 complete: margin proposal + OFN sync contract + third measurement (recall 58->90 events, median 2->21) + final report; lane freed
+5e6e456 2026-08-16 15:00:14 +1000 agent-checkpoint AUTOFLOW S6: test-debt R4..R14 CLOSED — last two files fixed (15/15 green)
+4b9e4fb 2026-08-16 14:44:54 +1000 agent-checkpoint: continuous-improve A+C+F (C-029/C-030)
+e68b364 2026-08-16 14:34:28 +1000 docs(rest-night): five phases complete — ledger, 5 morning cards, STATE pin; 8765 closed-with-record; honest UNKNOWNs kept unknown
+7528b8d 2026-08-16 14:32:05 +1000 agent-checkpoint AUTOFLOW S3-S5: V3 hybrid legs adapter + V4 Ed25519 owner-gate + V2 tap-gate — NBB-CP suite 171 -> 189 green
+c9861bf 2026-08-16 14:31:55 +1000 feat(r16): rule-4 consumption wired — claim_hypothesis (owner-approved phase 3)
+47dd98e 2026-08-16 14:30:38 +1000 docs(webpanel): full 71-file audit ledger + 3 morning cards (octo-data generator, flagship wiring, scheduler rate)
+6077861 2026-08-16 14:30:05 +1000 fix(webpanel): 13 data-wiring seams + honest label on frozen preview
+d24359a 2026-08-16 14:26:48 +1000 docs(cards): morning card 1 + ready patch for C-026 enabled() gate (TCB ceremony: apply->regen->sign, 2 min)
+278b704 2026-08-16 14:26:10 +1000 feat(genome-ledger): deterministic per-actor sampling — owner-approved seam card 1-4
+84ff6f2 2026-08-16 14:23:45 +1000 test(seam 1-3): writer timestamp format locked — aware seconds-only (+00:00), never naive/microsecond; legacy July rows documented (migration = morning card)
+5da43fe 2026-08-16 14:20:29 +1000 docs(prompts): AUTOFLOW megaprompt v1.0 — owner broad delegation recorded (S1..S10 autonomous execution plan)
+6e9357b 2026-08-16 14:19:35 +1000 docs(gov): final triple grant recorded + self-execution charter (5 phases continuous)
+b3bc950 2026-08-16 14:16:04 +1000 docs(prompts): OWNER-REST megaprompt — full-delegation night execution (5 phases, 4 approved cards, nightly morning-cards protocol); 17 pending commits pushed (863957b)
+863957b 2026-08-16 14:15:03 +1000 docs(gov): owner grants — push standing permission (C-023 word given), auto+nightly-cards style, priority map, all four seam cards approved
+f738b6c 2026-08-16 14:13:33 +1000 agent-checkpoint interview(verification-gate): 6 ideas — D-first decided, .py+TCB scope chosen, classifier-gate audit clean (PromptGuard absent; action_bridge is deterministic allowlist), oracle audit deferred, promotion_gate design-only, PEP extension design appended
+e11350a 2026-08-16 14:11:49 +1000 docs(prompts): interview-4d megaprompt v1.1 — fact-checked & completed
+cf49ef6 2026-08-16 14:09:58 +1000 docs(prompts): webpanel-reality megaprompt v1.0 — discover all tabs/buttons/options, judge REAL/STALE/MOCK/DEAD/PHANTOM vs obsidian+code, debug & realize (honest labels, no new powers) + STATE pin
+a105aa6 2026-08-16 14:08:04 +1000 docs(wrap): note 50 + STATE pin — seam-loop first six cycles (2 closed, 1 locked, gauges, 4 cards)
+b1746b9 2026-08-16 14:07:41 +1000 docs(seam C6+wrap): gauges #3/#4 delivered, A1 not-a-seam, 4 vote cards, experience-ledger lessons
+8f1d4c0 2026-08-16 14:06:51 +1000 agent-checkpoint interview(governance): 7 gates — GATE0 secure path created, accountant found (secure-file), D1 criteria doc ready, PAT rotation in owner's hands, MP-O3 decided (separate), MP-O4 decided (not now); twin-commit coordination finding recorded
+25f0c37 2026-08-16 14:06:34 +1000 test(seam C5): C-026 locked with strict xfails — approve/reject missing enabled() gate; production untouched per megaprompt 0.5
+98f8e10 2026-08-16 14:05:31 +1000 docs(seam C4): evidence-chain tail anchor closed (323 passed); follow-up card for predictions.db
+2a03226 2026-08-16 14:03:42 +1000 docs(seam C3): gauge#5 delivered — median pending age 35.7d (382 sediment, generator capped, dormancy clock per R16 not yet due); ts-format drift noted
+d334020 2026-08-16 14:00:45 +1000 docs(seam C2): similar_keys NOT-A-SEAM — writer/data/readers all alive (sk non-empty 2/2, 0 empty)
+79fc28a 2026-08-16 13:59:37 +1000 docs(seam-ledger): cycle-1 collision log appended
+f1396be 2026-08-16 13:59:36 +1000 fix(test): seam C1 lock green 3/3 — subprocess regression replaces fragile asserts
+081d89a 2026-08-16 13:58:13 +1000 agent-checkpoint interview(NBB-CP): all 5 ideas interviewed — V2/V3/V4 decided + V5 OFN architecture; README numbers verified 4/4; short designs awaiting owner go
+073e0d4 2026-08-16 13:57:29 +1000 fix(seam C1): OctopusLiveDataRefresh — 35-day-stale dashboards revived
+76af1ad 2026-08-16 13:28:00 +1000 docs(owner-ledger): megaprompt choice resolved by unification — Seam Loop v2 supersedes both; pending-push count corrected to four commits
+d4e4806 2026-08-16 13:26:54 +1000 docs(owner-ledger): single master checklist of ALL open owner items (push word · megaprompt choice · ERRORHUNT cards · HARDTEST votes · C-026 · deepseek verdict · legacy) + DAY-INDEX links it; recorded the unreported second megaprompt 5922d39
+4c267be 2026-08-16 13:26:42 +1000 docs(megaprompt): seam-loop v2 for next agent — discover/fix/test/persist/next
+5922d39 2026-08-16 13:22:48 +1000 docs(prompts): continuous-improvement megaprompt — perpetual self-improvement across 10 unexplored domains
+0670297 2026-08-16 13:22:00 +1000 docs(errorhunt-close): persist lessons 10-13, register three tests, retarget agent entry
+6b7732d 2026-08-16 13:20:43 +1000 docs(prompts): deep-seams self-improvement megaprompt — cycle scan/fix/test/store over genome-ledger, improve loop, internal goals, memory/neural/R18, invisible packages, self-learning gauges; 12th mission, C-027 next
+a74ef99 2026-08-16 13:18:41 +1000 probe(deepseek, owner-go): S3 discrimination harness on deepseek-v4-flash via production router — parse 8/10 PASS, discrimination 0.1 FAIL (worse than ollama 0.3; 20 calls=$0.00224)
+74d4413 2026-08-16 13:18:19 +1000 docs(memory+obsidian): self-contained judgment doc (post-repair) + architecture-state memory note + service/test-count updates
+6242812 2026-08-16 13:13:37 +1000 ops(unwired-cards-1+3): Tick task launcher fixed + FIRST successful scheduled consolidation tick
+8f2e184 2026-08-16 13:12:54 +1000 docs(vault): digest this session into Obsidian — session note (deepseek budget analysis + ollama ops), 2026-08-16 DAY-INDEX MOC (11 missions + 8 contradictions), handoff addendum (C-027 next), VOTE 3/4 refined with crosscheck findings (chain-tail gap; transition-day acceptance criterion)
+596d0aa 2026-08-16 13:11:09 +1000 docs(complete+remember): recall depth persisted, unregistered test filed, wikilink fixed
+960a2f7 2026-08-16 13:08:41 +1000 docs(obsidian, night-close): master summary + STATE/HANDOFF finalized + C-024 root-cause + watch-task repair
+30fa9a9 2026-08-16 13:02:35 +1000 ops(ollama, owner-order round-2): cortex member bounced to 1.5b env; 7b unloaded; VRAM 4216->163 MiB; remaining old-env holders documented
+
+=== last 5 commits touching TCB files ===
+6fc0f4b 2026-08-15 22:48:27 +1000 agent-checkpoint fix(C-013/R13): trust-boundary manifest + TCB hash-checks + REFERENCE_DIR boundary — owner-delegated
+8a5e98b 2026-08-15 20:17:34 +1000 agent-checkpoint feat(memory): C-012 phase-zero — read loop wired, live telemetry 1.0/1.0, consolidation fold fix (T1/T1b)
+5a69f2c 2026-07-16 16:49:24 +1000 agent-checkpoint: 4d_system C→F leveling made durable — control_plane v3-v5 overlay + nbb_cp skeleton (src/, uninstalled) + second-brain/ B1-B8 + docs/ + preserve never-committed kernel fixes (kernel_consult/kernel.notice/tick-awareness) + telegram 409 rename-to-disable
+6a38af8 2026-07-15 07:45:30 +1000 Wave 0 live: halt/money/approval reliability wave (gate 137)
+
+=== find the guard/invariant code ===
+4d_system/brain\automation.py:661:            halt_reason = "نقضِ مرزِ اعتماد (TCB)"
+4d_system/brain\automation.py:663:            halt_detail = (f"manifest مرزِ اعتماد ناهمخوان است — فایل‌های TCB "
+4d_system/brain\git_watcher.py:14:  • TCB guard: فایل‌های core/, tests/, config/, guardrails.py, ... نادیده گرفته می‌شوند.
+4d_system/brain\git_watcher.py:44:    daemon_state.enabled همان فلگ خام است (TCB — این‌جا عوض نمی‌شود).
+4d_system/brain\git_watcher.py:61:# پوشه‌هایی که همیشه نادیده گرفته می‌شوند (حتی اگر خارج از TCB باشند)
+4d_system/brain\git_watcher.py:198:    # guardrail TCB
+
+=== anchors/immutables check ===
+4d_system/brain/daemon.py:151:                            "blocked", "توقفِ حفاظتی: نقضِ لنگرِ ریاضی",

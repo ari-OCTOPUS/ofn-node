@@ -19,6 +19,11 @@ SHADOW = True   # ثابتِ ماژول — هیچ مسیر اجرایی ساخ�
 class CouncilMember:
     """عضو = تابعِ نظر (opinion_fn) + خانوادهٔ شواهد. ابزار ندارد و ندارد."""
 
+
+# ═══ STATUS: CLOSED (2026-08-19, OWNER-QUEUE-RESOLUTION Q4) ═══
+# شوراها DEAD-BY-DESIGN بودند (shadow vote-seeking)؛ حکم مالک Q4: بستهٔ رسمی — نه حذف، نه فعال‌سازی؛ فعال‌سازی توجیه نشده.
+# کد حذف نمی‌شود؛ صرفاً از نقشهٔ فعال خارج است (canonical: _ops/cortex/model_router.py).
+
     def __init__(self, name: str, family: str,
                  opinion_fn: Callable[[dict], dict]):
         self._name = name            # فقط برای ثبتِ داخلی؛ به نظر نمی‌آید

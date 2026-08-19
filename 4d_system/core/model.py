@@ -227,6 +227,11 @@ ANCHORS = {
     "E_shadow":   0.012553,
     "sigma_z2":   0.0141667,
     "identity":   0.135073,
+    # Q1 (OWNER-QUEUE-RESOLUTION §Q1, 2026-08-19): Var_ex به لنگرها اضافه شد —
+    # مقدار محاسبه‌شده با لنگرِ settings مطابق است (0.217327). I_pred جداگانه در
+    # run_self_test از core.metrics (غیر-TCB) چک می‌شود. Var_eff عمداً اضافه نشد:
+    # ناهمخوانی 0.1991 (محاسبه) در برابر 0.2082 (لنگر settings) → کاندیدای C-035.
+    "Var_ex":     0.217327,
 }
 
 
@@ -241,6 +246,13 @@ def run_self_test() -> dict:
         computed = getattr(sol, name) if hasattr(sol, name) else sol.summary()[name]
         rel_err = abs(computed - expected) / max(abs(expected), 1e-15)
         results[name] = (computed, expected, rel_err)
+    # Q1 (2026-08-19): چکِ I_pred از مسیرِ غیر-TCB (core.metrics) — همان لنگرِ settings
+    try:
+        from core.metrics import compute_I_pred
+        ip = float(compute_I_pred()["total"])
+        results["I_pred"] = (ip, 0.0144179, abs(ip - 0.0144179) / 0.0144179)
+    except Exception:  # noqa: BLE001 — نبودِ metrics نباید self-test را بکشد
+        results["I_pred"] = (float("nan"), 0.0144179, float("inf"))
     return results
 
 
