@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T05:37:57+00:00",
+ "generated_at_utc": "2026-08-19T05:45:08+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -257,12 +257,13 @@
   },
   "LIVE4_STATE": {
    "label_id": "LIVE4_STATE",
-   "value": "PRIMARY_V2_EXECUTED_AWAITING_OWNER_DECISION",
+   "value": "AWAITING_FX_2026-08-20_AND_DB_V4_NEXT_SESSION",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md",
-   "evidence_hash": "9780d1a229542b48",
-   "updated_at_utc": "2026-08-19T05:37:57+00:00",
-   "supersedes": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX"
+   "evidence_path": "02-DECISIONS/OWNER-IMMEDIATE-2026-08-19T0542Z.md",
+   "evidence_hash": "a8f12cf52a8934e2",
+   "updated_at_utc": "2026-08-19T05:45:08+00:00",
+   "supersedes": "PRIMARY_V2_EXECUTED_AWAITING_OWNER_DECISION",
+   "owner_decision_id": "OWNER-IMMEDIATE-2026-08-19T0542Z"
   },
   "LIVE4_PROTOCOL": {
    "label_id": "LIVE4_PROTOCOL",
