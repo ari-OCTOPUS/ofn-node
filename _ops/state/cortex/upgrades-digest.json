@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-19T20:16:44",
+  "ts": "2026-08-19T21:57:51",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
@@ -10,7 +10,7 @@
     "moved": 4,
     "rate_pct": 66.7
   },
-  "n_proposals": 37,
+  "n_proposals": 38,
   "by_category": {
     "business": [
       {
@@ -141,6 +141,15 @@
         "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
         "change_level": "reconfig",
         "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-ed3ad5d515",
+        "priority": "P1",
+        "title": "کوچک‌ترین فیکسِ دکتر: https://github.com/username/repository#smallest-fix-1",
+        "suggested_action": "https://github.com/username/repository#smallest-fix-1",
+        "change_level": "reconfig",
+        "source": "smallest_fix",
         "status": "proposed"
       },
       {
@@ -513,7 +522,7 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 13,
+      "tracked": 14,
       "moved": true,
       "now": {
         "confirmed_revenue": 0,
@@ -529,7 +538,7 @@
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 138,
+        "total_discoveries": 140,
         "proposals_delivered": 20,
         "proposal_outcomes": 48,
         "proposal_positive": 46,
@@ -547,7 +556,7 @@
   },
   "self_improve_gauges": {
     "schema": "self-improve-gauges.v1",
-    "ts": "2026-08-19T10:16:44.006807+00:00",
+    "ts": "2026-08-19T11:57:51.343224+00:00",
     "goal_loop_close_7d": {
       "n": 15,
       "n_pass": 0,

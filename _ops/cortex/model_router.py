@@ -223,7 +223,7 @@ def is_useless_truncation(text: str, finish_reason) -> bool:
 
 
 def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
-              task: str = "", temperature: float | None = None) -> dict | None:
+              task: str = "", temperature: float | None = None, seed: int | None = None) -> dict | None:
     """مسیرِ پولی — فقط پشتِ گیتِ باز. lazy organ_gate (I2)؛ metering سهمیه‌ای:
     settle(actual=0.0) چون subscription؛ خودِ reserve/settle مصرف را ثبت می‌کند."""
     ok, why = paid_gate()
@@ -300,7 +300,8 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
         try:
             # OVN-5: temperature قابل‌عبور — پیش‌فرض None = رفتار قبلی؛ پروب‌ها 0 می‌دهند
             out = cli.complete(system, prompt, max_tokens=max_tokens,
-                               temperature=temperature if temperature is not None else 0.7)
+                               temperature=temperature if temperature is not None else 0.7,
+                               seed=seed)
             fugu_quota.ok(tier)
             _cb.record_success(role)   # provider سالم است → breaker را reset/بهبود بده
         except Exception as _ce:
@@ -445,7 +446,7 @@ def _scored_tier(task: str) -> str | None:
 
 
 def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
-              temperature: float | None = None,
+              temperature: float | None = None, seed: int | None = None,
               tier: str | None = None, opener=None, quality=None) -> dict:
     """درِ واحد. خروجی همیشه dict: {ok, tier?, text?, reason?}.
     ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق.
@@ -574,7 +575,7 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
                 tried.append(f"{_t}:skipped-deadline")
                 break
             out = _ask_paid(_t, prompt, system, max_tokens, task=task,
-                               temperature=temperature)
+                               temperature=temperature, seed=seed)
             tried.append(_t)
             if out:
                 return {"ok": True, **out}
@@ -636,7 +637,8 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
 
 
 def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
-        tier: str | None = None, opener=None, quality=None, temperature: float | None = None) -> dict:
+        tier: str | None = None, opener=None, quality=None, temperature: float | None = None,
+        seed: int | None = None) -> dict:
     """درِ واحدِ LLM (wrapper). رفتار = `_ask_impl` بایت‌به‌بایت + یک side-effectِ observability:
     هر call واقعیِ LLM را در استریمِ «سوختِ» قلب ثبت می‌کند (fuel_meter) تا producers.velocity_meter
     دادهٔ واقعی بخواند — بستنِ orphanِ کانالِ خون (HH-fuel، 2026-07-21).
@@ -663,7 +665,7 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
     except Exception:  # noqa: BLE001 — رزرو هرگز مسیرِ مغز را نمی‌کشد
         pass
     res = _ask_impl(task, prompt, system, max_tokens, tier=tier, opener=opener, quality=quality,
-                      temperature=temperature)
+                      temperature=temperature, seed=seed)
     # CL01/FREEZE-01: درخواستِ ردهٔ پولی در حالتِ freeze ⇒ هرگز موفقیتِ local بی‌رسید نیست
     try:
         _want = tier or TASK_TIERS.get(task, "local")

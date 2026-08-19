@@ -1,8 +1,8 @@
 {
-  "ts": "2026-08-19T20:16:42",
+  "ts": "2026-08-19T21:57:49",
   "schema": "self-model.v1",
   "n_modules": 778,
-  "total_lines": 207134,
+  "total_lines": 207145,
   "n_tests": 758,
   "n_wire_flags": 183,
   "wire_flags": [
@@ -3183,7 +3183,7 @@
     },
     "cortex/model_router.py": {
       "purpose": "model_router.py — «به همه جا API بده»: یک درِ واحد به سه مغز.",
-      "lines": 738,
+      "lines": 745,
       "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
@@ -3583,7 +3583,7 @@
     },
     "debate/client.py": {
       "purpose": "client.py — کلاینت LLM حداقلی (stdlib، بدون SDK) برای لوپ مناظره و Governor.",
-      "lines": 604,
+      "lines": 608,
       "n_funcs": 11,
       "n_classes": 5,
       "top_defs": [

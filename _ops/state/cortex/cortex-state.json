@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-19T21:47:35",
-  "cycle": 39,
-  "coherence": 0.963,
+  "ts": "2026-08-19T21:57:51",
+  "cycle": 40,
+  "coherence": 0.966,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.978,
-      "age_s": 79,
+      "awareness": 0.972,
+      "age_s": 102,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.957,
-      "age_s": 311,
+      "awareness": 0.97,
+      "age_s": 214,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.957,
-      "age_s": 311,
+      "awareness": 0.97,
+      "age_s": 215,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.978,
-      "age_s": 311,
+      "awareness": 0.985,
+      "age_s": 214,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.956,
-      "age_s": 15151,
+      "awareness": 0.954,
+      "age_s": 15756,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 80,
+      "awareness": 0.993,
+      "age_s": 103,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.933,
-      "age_s": 23005,
+      "awareness": 0.932,
+      "age_s": 23610,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.933,
-      "age_s": 23005,
+      "awareness": 0.932,
+      "age_s": 23610,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.971,
-      "age_s": 15257,
+      "awareness": 0.969,
+      "age_s": 15861,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.956,
-      "age_s": 23004,
+      "awareness": 0.954,
+      "age_s": 23608,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -108,7 +108,7 @@
       "id": "fourd_system",
       "present": true,
       "awareness": 0.958,
-      "age_s": 609,
+      "age_s": 604,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -122,7 +122,7 @@
   },
   "rhythm": {
     "period_s": 600.0,
-    "source": "×۲ قلبِ سایه (357.44s)"
+    "source": "×۲ قلبِ سایه (349.69s)"
   },
   "brains": {
     "keys": {
@@ -133,7 +133,77 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] این مجموعه کاربردی است در مورد میزان ریتمی قلب‌ها و تغییرات آن در افراد مختلف. همچنین، می‌توانیم این مجموعه را به عنوان یک مدل‌سازی‌گر برای بررسی میزان تغییرات در ری",
+  "thought": "[local] می‌بینی که مجموعه‌ای از یک جمله کوتاه باید در نظر گرفته شود. برای این منظور، می‌توانیم متن را به صورت زیر تجزیه کنیم:\n\n1. وضعیت مجموعه: Coherence=0.966، stale",
+  "self_improve": {
+    "maturity_pct": 82.6,
+    "checklist_static": true,
+    "improvement_rate": {
+      "closed": 6,
+      "moved": 4,
+      "rate_pct": 66.7
+    },
+    "n_proposals": 38,
+    "top": [
+      "Lead-نقاشی: هنوز درآمدِ تأییدشده‌ای ثبت نشده",
+      "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (19/۲۸ روز، سایه)",
+      "owner merge verdict has real effect (apply_merge wired)"
+    ]
+  },
+  "self_model": {
+    "ok": true,
+    "n_modules": 778,
+    "total_lines": 207145,
+    "self_awareness_pct": 94.7,
+    "self_claims_written": 1
+  },
+  "part_loops": {
+    "n_parts": 7,
+    "n_proposals": 3,
+    "attention": []
+  },
+  "business_brain": {
+    "n_projects": 2,
+    "n_proposals": 2
+  },
+  "hypothesis_brain": {
+    "n_ranked": 3,
+    "n_active": 3,
+    "n_overflow": 0,
+    "top": "HYP-2026-08-12-004",
+    "ranked": [
+      {
+        "id": "HYP-2026-08-12-004",
+        "statement": "فرضیه‌سازیِ آزمون‌پذیر (pursue روی باورِ کم‌احتمالِ پرارزش) در محیط‌های فریبنده کشف را ممکن می‌کند — ولی در محیط‌های benign هزینه‌اش بی‌بازده است",
+        "priority": 1.05,
+        "status": "TESTING"
+      },
+      {
+        "id": "HYP-2026-08-12-003",
+        "statement": "ریتم چرونو می‌تواند بدون تغییر ledger، period را بهینه کند",
+        "priority": 0.84,
+        "status": "HYPOTHESIZING"
+      },
+      {
+        "id": "HYP-2026-08-12-001",
+        "statement": "الگوی پنهان در telemetry Octopus وجود دارد که با PCA قابل استخراج است",
+        "priority": 0.82,
+        "status": "TESTING"
+      }
+    ]
+  },
+  "epistemic_tick": {
+    "cycle": 40,
+    "wired": true,
+    "policy_schema_version": 1,
+    "default_off": true,
+    "max_authority": "propose",
+    "sandbox_profile": "no_network",
+    "invariants_count": 10,
+    "receipt_chain_ok": true,
+    "receipt_chain_n": 0,
+    "may_execute": false,
+    "note": "shadow health-check only; no claim/test executed (C5)"
+  },
   "stress": {
     "level": "🟡 استرس",
     "organism_stress": 0.64,
@@ -142,11 +212,11 @@
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 357.44
+    "heart_period_s": 347.14
   },
   "fourd_health": {
     "status": "fresh",
-    "age_s": 32
+    "age_s": 10
   },
   "ignition": {
     "ignited": true,
@@ -161,13 +231,21 @@
     "ungraded": 340
   },
   "consolidate": {
-    "n_in": 6,
+    "n_in": 7,
     "n_semantic": 0,
-    "archived": 6
+    "archived": 7
   },
   "truth_sync": {
-    "skipped": "cooldown",
-    "next_in_s": 584.9
+    "wrote": true,
+    "keys": [
+      "coherence",
+      "members_present",
+      "stale_members",
+      "beat",
+      "halted",
+      "rfcs_pending",
+      "HEAD"
+    ]
   },
   "owner_guidance": {
     "focus": "موانع چیست",

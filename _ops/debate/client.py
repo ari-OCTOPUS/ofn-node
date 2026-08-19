@@ -181,7 +181,7 @@ class DeepSeekClient:
         return (prompt_chars / 3.0) / 1e6 * pin + (max_tokens * 1.5) / 1e6 * pout
 
     def complete(self, system: str, user: str, max_tokens: int = 1024,
-                 temperature: float = 0.7) -> dict[str, Any]:
+                 temperature: float = 0.7, seed: int | None = None) -> dict[str, Any]:
         body = {
             "model": self.model or "stub",
             "messages": [{"role": "system", "content": system},
@@ -189,6 +189,8 @@ class DeepSeekClient:
             "max_tokens": max_tokens,
             "temperature": temperature,
         }
+        if seed is not None:
+            body["seed"] = seed
         # [VERIFIED 2026-07-18 live-probe 3/3] GLM-4.6 بدونِ این پارامتر توکن‌ها را در reasoning_content
         # می‌سوزاند و content خالی برمی‌گردد (ریشهٔ flake در smoke). با disabled: content='PONG' قطعی.
         if "glm" in str(self.model or "").lower() or "api.z.ai" in self.base_url or "bigmodel.cn" in self.base_url:
@@ -531,7 +533,7 @@ class MultiProviderClient:
         return (prompt_chars / 3.0) / 1e6 * self.price_in + (max_tokens * 1.5) / 1e6 * self.price_out
 
     def complete(self, system: str, user: str, max_tokens: int = 1024,
-                 temperature: float = 0.7) -> dict[str, Any]:
+                 temperature: float = 0.7, seed: int | None = None) -> dict[str, Any]:
         body = {
             "model": self.model or "stub",
             "messages": [{"role": "system", "content": system},
@@ -539,6 +541,8 @@ class MultiProviderClient:
             "max_tokens": max_tokens,
             "temperature": temperature,
         }
+        if seed is not None:
+            body["seed"] = seed
         # [VERIFIED 2026-07-18 live-probe 3/3] GLM-4.6 بدونِ این پارامتر توکن‌ها را در reasoning_content
         # می‌سوزاند و content خالی برمی‌گردد (ریشهٔ flake در smoke). با disabled: content='PONG' قطعی.
         if "glm" in str(self.model or "").lower() or "api.z.ai" in self.base_url or "bigmodel.cn" in self.base_url:

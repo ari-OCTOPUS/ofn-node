@@ -1,13 +1,13 @@
 {
-  "ts": "2026-08-19T20:16:42",
+  "ts": "2026-08-19T21:57:50",
   "schema": "part-loops.v1",
-  "beat": 30,
+  "beat": 40,
   "parts": [
     {
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢",
-      "detail": "ضربان 368s"
+      "detail": "ضربان 350s"
     },
     {
       "id": "cortex",
@@ -25,7 +25,7 @@
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.831622$/۳۰"
+      "detail": "0.849805$/۳۰"
     },
     {
       "id": "learning",

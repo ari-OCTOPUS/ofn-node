@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T11:48:35+00:00",
+ "generated_at_utc": "2026-08-19T11:59:58+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -467,12 +467,42 @@
   },
   "ANSWER_FIRST_NONDETERMINISM": {
    "label_id": "ANSWER_FIRST_NONDETERMINISM",
-   "value": "PARTIAL_TEMPERATURE_CONTRIBUTES_NOT_SOLE_4_3_4",
+   "value": "ROOTCAUSE_SERVER_SIDE_BATCH_VARIANCE_EXTERNAL",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/stat20-seed42.json",
+   "evidence_hash": "c9ea81be09966cf6",
+   "updated_at_utc": "2026-08-19T11:59:58+00:00",
+   "supersedes": "PARTIAL_TEMPERATURE_CONTRIBUTES_NOT_SOLE_4_3_4",
+   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
+  },
+  "ARM_FIRST_LINE_STAT": {
+   "label_id": "ARM_FIRST_LINE_STAT",
+   "value": "VERIFIED_19_OF_20_95PCT",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/stat20-seed42.json",
+   "evidence_hash": "c9ea81be09966cf6",
+   "updated_at_utc": "2026-08-19T11:59:58+00:00",
+   "supersedes": null,
+   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
+  },
+  "JUDGE_FIRST_LINE_STAT": {
+   "label_id": "JUDGE_FIRST_LINE_STAT",
+   "value": "MEASURED_1_OF_8_RESCUE_75PCT_VOID_12PCT",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/nondet-temp0.json",
-   "evidence_hash": "7081541f1238684f",
-   "updated_at_utc": "2026-08-19T11:48:35+00:00",
-   "supersedes": "UNKNOWN_SAMPLING_CONSISTENT_DISPERSION_4_4_2",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate8.json",
+   "evidence_hash": "4fe32b7edac78fa1",
+   "updated_at_utc": "2026-08-19T11:59:58+00:00",
+   "supersedes": null,
+   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
+  },
+  "VARIANCE_ROBUSTNESS_CAPABILITY": {
+   "label_id": "VARIANCE_ROBUSTNESS_CAPABILITY",
+   "value": "MEASURED_VOID_12PCT_THRESHOLD_5PCT_NOT_YET",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/voidrate8.json",
+   "evidence_hash": "4fe32b7edac78fa1",
+   "updated_at_utc": "2026-08-19T11:59:58+00:00",
+   "supersedes": null,
    "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
   }
  }

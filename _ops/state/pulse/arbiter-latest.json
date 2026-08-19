@@ -1,12 +1,12 @@
 {
-  "effective_period_s": 111.17,
+  "effective_period_s": 109.91,
   "base_period_s": 60.0,
-  "consensus_s": 111.17,
+  "consensus_s": 109.91,
   "brake_s": null,
   "color": "GREEN",
   "driver": "consensus",
   "reasons": [
-    "اجماعِ 2 قلبِ متحرک (از 3 حاضر، وزن‌دار) → 111s؛ تندترین «cardiac» 42s"
+    "اجماعِ 2 قلبِ متحرک (از 3 حاضر، وزن‌دار) → 110s؛ تندترین «cardiac» 42s"
   ],
   "votes": [
     {
@@ -24,7 +24,7 @@
     {
       "heart": "control_law",
       "present": true,
-      "period_s": 357.44,
+      "period_s": 349.69,
       "braking": false,
       "precision": 1.0,
       "color": "GREEN",
@@ -36,11 +36,11 @@
     {
       "heart": "rhythm",
       "present": true,
-      "period_s": 83.0,
+      "period_s": 81.94,
       "braking": false,
       "precision": 0.7,
       "color": "GREEN",
-      "note": "mode=STEADY/GREEN · hrv=0.31",
+      "note": "mode=STEADY/GREEN · hrv=0.29",
       "mode": "LIVE",
       "dof": 0,
       "last_change_ts": null
@@ -52,9 +52,9 @@
   "n_held": 0,
   "n_constant": 1,
   "n_unknown_mode": 0,
-  "ts": "2026-08-19T21:48:02",
+  "ts": "2026-08-19T21:59:37",
   "schema": "pulse-arbiter.v1",
-  "beat": 42011,
+  "beat": 42022,
   "advisory_only": true,
   "precision_mode": "static",
   "wire_open": true,

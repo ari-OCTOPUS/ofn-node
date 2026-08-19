@@ -1,17 +1,17 @@
 {
-  "ts": "2026-08-19T21:48:05",
-  "beat": 42011,
+  "ts": "2026-08-19T21:57:46",
+  "beat": 42020,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 42011,
-    "period_s": 357.44,
+    "beat_seq": 42020,
+    "period_s": 349.69,
     "sigma_now": 0.0,
-    "baro_factor": 5.9574
+    "baro_factor": 5.8282
   },
-  "period_s": 357.44,
+  "period_s": 349.69,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
-    "velocity_per_hr": 12.625,
+    "velocity_per_hr": 12.5,
     "cpi_0_1": 0.0,
     "delta_self_live": -0.007316,
     "band_lo": 0.4588,
@@ -19,19 +19,19 @@
     "gates": {
       "g_learn": 0.0,
       "band_effective_mid": 2.4536,
-      "err": 2.5495,
+      "err": 2.5181,
       "plant_saturation": {
         "saturated": false,
         "loop_gain": null,
-        "velocity_now": 12.625,
+        "velocity_now": 12.5,
         "reason": "غیراشباع — عملگر می‌تواند velocity را حرکت دهد",
         "beat_cap": 3.0,
         "window_hours": 24.0,
         "beats_at_slowest_period": 96.0,
         "beats_at_fastest_period": 2880.0,
         "beat_units_at_slowest_period": 9.6,
-        "fuel_units": 300.0,
-        "velocity_locked_at": 12.625
+        "fuel_units": 297.0,
+        "velocity_locked_at": 12.5
       },
       "cpi_guard": 1.0,
       "budget_pressure": 1.0,
@@ -40,7 +40,7 @@
       "fail_closed_reason": null,
       "drift_flag": false
     },
-    "period_s": 357.44
+    "period_s": 349.69
   },
   "setpoint": {
     "schema": "HeartParams.v1",
@@ -53,7 +53,7 @@
     "baroreflex_gain": 0.0
   },
   "gate0_live_producer": false,
-  "sampled_this_step": false,
+  "sampled_this_step": true,
   "production_wire": {
     "open": false,
     "reasons": [

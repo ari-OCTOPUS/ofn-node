@@ -35,56 +35,62 @@ def parse_single_token(text: str, cond_position: str) -> dict:
     return {"verdict": v or "UNREADABLE", "winner": winner,
             "schema": "judge-single-token/1", "void": v is None}
 
-SINGLE_TOKEN = ("\n\nANSWER NOW with exactly ONE character: A or B or T. "
-                "If truly equal, T. Nothing else.")
-N = 8
-t0 = time.time()
-results = []
-for i in range(N):
-    pid = f"{D.TRACE}-v4p-{i+1:02d}"
-    rows = D.retrieve_evidence()
-    ev = " | ".join(f"[{r[0]} conf={r[2]}] {r[1][:90]}" for r in rows)
-    try:
-        D.LED.append_prediction(prediction_id=pid,
-            content=f"V4 probe case{i+1}: GLM judge reads the blind pair",
-            trace_id=D.TRACE, source="cortex", model="deepseek-arms+glm-judge",
-            confidence=0.55, eval_window="immediate")
-        base_txt, bok, bmod = D.ask_fugu(D.Q, f"live4-v4p-base-{i}", max_tokens=200)
-        cond_txt, cok, cnote = D.ask_paid(D.Q + "\n\nشواهد بازیابی‌شده (provenance‌دار):\n" + ev, f"live4-v4p-cond-{i}")
-        if not (bok and cok and base_txt.strip() and cond_txt.strip()):
-            D.LED.attach_outcome(prediction_id=pid, outcome="VOID_PROVIDER_UNAVAILABLE")
-            emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": f"arms base={bok} cond={cnote}", "probe": "v4"})
-            results.append({"i": i+1, "readable": False, "void": True, "why": "arms"}); continue
-        bp = H.blind_pair(base_txt, cond_txt, seed=400 + i, template=H.JUDGE_PROMPT_V3)
-        j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q), 512)
-        jc = H.judge_choice_v3(j_txt, bp["cond_position"], judge_provider="deepseek-v4a-512",
-                               judge_model=jmod, trace_id=f"{pid}-judge")
-        if jc["void"]:
-            emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 1, "raw": (j_txt or "")[:600], "ts": D.now(), "probe": "v4"})
-            D.receipt("JUDGE_REASK", prediction_id=pid, note="unreadable-1st contract=v3")
-            j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q) + SINGLE_TOKEN, 8)
-            jc = parse_single_token(j_txt, bp["cond_position"])
-            jc.update({"judge_provider": "deepseek-v4a-512", "judge_model": jmod,
-                       "trace_id": f"{pid}-judge2", "raw_output_sha256": __import__("hashlib").sha256(j_txt.encode()).hexdigest()})
-            jc["reasked"] = True; jc["fallback"] = "single-token"
-        readable = not jc["void"]
-        won = jc["winner"]
-        if not readable:
-            emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 2, "raw": (j_txt or "")[:600], "ts": D.now(), "probe": "v4"})
-            D.LED.attach_outcome(prediction_id=pid, outcome="VOID_JUDGE_UNREADABLE")
-            emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": "judge", "probe": "v4"})
-        else:
-            hit = (won == "conditioned")
-            D.LED.attach_outcome(prediction_id=pid, outcome=f"{'hit' if hit else 'miss'}: pos={bp['cond_position']}")
-            emit(PAIRS, {"batch": 9, "pair": i+1, "void": False, "cond_won": hit,
-                         "cond_position": bp["cond_position"], "evidence_ids": [r[0] for r in rows],
-                         "contract": "judge-choice-v3/1-glm", "probe": "v4", "judge": jc})
-        results.append({"i": i+1, "readable": readable, "void": not readable,
-                        "pos": bp["cond_position"], "verdict": jc["verdict"]})
-        print(f"case{i+1}: readable={readable} verdict={jc['verdict']} pos={bp['cond_position']} reasked={jc.get('reasked', False)}")
-    except Exception as e:  # noqa: BLE001
-        emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": f"exc:{type(e).__name__}", "probe": "v4"})
-        results.append({"i": i+1, "readable": False, "void": True, "why": type(e).__name__})
-        print(f"case{i+1}: EXC {type(e).__name__}")
-ok = sum(1 for r in results if r.get("readable"))
-print(f"\nV4 GATE: {ok}/{N} readable | {'PASS' if ok == N else 'FAIL'} | spent={D.ST['spent_aud']:.4f} | {time.time()-t0:.0f}s")
+def main():
+
+    SINGLE_TOKEN = ("\n\nANSWER NOW with exactly ONE character: A or B or T. "
+                    "If truly equal, T. Nothing else.")
+    N = 8
+    t0 = time.time()
+    results = []
+    for i in range(N):
+        pid = f"{D.TRACE}-v4p-{i+1:02d}"
+        rows = D.retrieve_evidence()
+        ev = " | ".join(f"[{r[0]} conf={r[2]}] {r[1][:90]}" for r in rows)
+        try:
+            D.LED.append_prediction(prediction_id=pid,
+                content=f"V4 probe case{i+1}: GLM judge reads the blind pair",
+                trace_id=D.TRACE, source="cortex", model="deepseek-arms+glm-judge",
+                confidence=0.55, eval_window="immediate")
+            base_txt, bok, bmod = D.ask_fugu(D.Q, f"live4-v4p-base-{i}", max_tokens=200)
+            cond_txt, cok, cnote = D.ask_paid(D.Q + "\n\nشواهد بازیابی‌شده (provenance‌دار):\n" + ev, f"live4-v4p-cond-{i}")
+            if not (bok and cok and base_txt.strip() and cond_txt.strip()):
+                D.LED.attach_outcome(prediction_id=pid, outcome="VOID_PROVIDER_UNAVAILABLE")
+                emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": f"arms base={bok} cond={cnote}", "probe": "v4"})
+                results.append({"i": i+1, "readable": False, "void": True, "why": "arms"}); continue
+            bp = H.blind_pair(base_txt, cond_txt, seed=400 + i, template=H.JUDGE_PROMPT_V3)
+            j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q), 512)
+            jc = H.judge_choice_v3(j_txt, bp["cond_position"], judge_provider="deepseek-v4a-512",
+                                   judge_model=jmod, trace_id=f"{pid}-judge")
+            if jc["void"]:
+                emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 1, "raw": (j_txt or "")[:600], "ts": D.now(), "probe": "v4"})
+                D.receipt("JUDGE_REASK", prediction_id=pid, note="unreadable-1st contract=v3")
+                j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q) + SINGLE_TOKEN, 8)
+                jc = parse_single_token(j_txt, bp["cond_position"])
+                jc.update({"judge_provider": "deepseek-v4a-512", "judge_model": jmod,
+                           "trace_id": f"{pid}-judge2", "raw_output_sha256": __import__("hashlib").sha256(j_txt.encode()).hexdigest()})
+                jc["reasked"] = True; jc["fallback"] = "single-token"
+            readable = not jc["void"]
+            won = jc["winner"]
+            if not readable:
+                emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 2, "raw": (j_txt or "")[:600], "ts": D.now(), "probe": "v4"})
+                D.LED.attach_outcome(prediction_id=pid, outcome="VOID_JUDGE_UNREADABLE")
+                emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": "judge", "probe": "v4"})
+            else:
+                hit = (won == "conditioned")
+                D.LED.attach_outcome(prediction_id=pid, outcome=f"{'hit' if hit else 'miss'}: pos={bp['cond_position']}")
+                emit(PAIRS, {"batch": 9, "pair": i+1, "void": False, "cond_won": hit,
+                             "cond_position": bp["cond_position"], "evidence_ids": [r[0] for r in rows],
+                             "contract": "judge-choice-v3/1-glm", "probe": "v4", "judge": jc})
+            results.append({"i": i+1, "readable": readable, "void": not readable,
+                            "pos": bp["cond_position"], "verdict": jc["verdict"]})
+            print(f"case{i+1}: readable={readable} verdict={jc['verdict']} pos={bp['cond_position']} reasked={jc.get('reasked', False)}")
+        except Exception as e:  # noqa: BLE001
+            emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": f"exc:{type(e).__name__}", "probe": "v4"})
+            results.append({"i": i+1, "readable": False, "void": True, "why": type(e).__name__})
+            print(f"case{i+1}: EXC {type(e).__name__}")
+    ok = sum(1 for r in results if r.get("readable"))
+    print(f"\nV4 GATE: {ok}/{N} readable | {'PASS' if ok == N else 'FAIL'} | spent={D.ST['spent_aud']:.4f} | {time.time()-t0:.0f}s")
+
+
+if __name__ == "__main__":
+    main()
