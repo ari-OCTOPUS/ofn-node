@@ -15,7 +15,12 @@ tags: [owner, pending, votes, checklist, follow-up]
 ## 🔴 فوری (عملیاتی)
 
 - [x] **«پوش»** — دروازهٔ OWNER-EASE = آری («پوش — برو») 2026-08-16 ~16:3x. شمارش زندهٔ `germline/master..HEAD` را همان لحظه بگیر؛ هش‌های کهنهٔ `0670297`/`5922d39` را تکرار نکن. این نشست پس از کامیت شواهد push می‌کند.
-- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **نسل بستن صف (فرمان ~16:5x):** `agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16.md` — هشت دروازه. آزاد **C-034** اگر ثبت نشد.
+- [x] ~~انتخاب مگاپرامپت ایجنت بعدی~~ **نسل بستن صف (فرمان ~16:5x):** `agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16.md` — هشت دروازه. آزاد **C-034**.
+- [x] **مگاپرامپت Claude Cowork نوشته شد (~17:1x):** `agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16.md` — پیست موازی را SoT نگیر. نوت [[../07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|۵۴]].
+- [ ] **EQUIP ترتیبی — شروع موج A (اختیاری، بعد از صف HARDTEST اگر خواستی):** پیست SHARED + `MEGAPROMPT-EQUIP-01-G2-MEMORY` به **یک** ایجنت. هم‌زمان ۱۰ گروه نده. لانچر: [[2026-08-16 MEGAPROMPT — Equip Octopus Sequential]]. نوت [[../07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|۵۵]]. G8 روی شاخهٔ خودش CONDITIONAL PASS است — از نو نکن.
+- [x] **مگاپرامپت ایجنت بعد (مهاجرت/M0) نوشته شد (~21:0x):** `agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16.md` — PERPETUAL/SEAM/COWORK برای شروع این کار باطل. نوت [[../07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹]].
+- [x] **نگاشت سه برد + تصحیح FPGA (~21:2x):** نوت [[../07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|۶۰]]. کل ارگانیسم امشب مهاجرت نشد. PolarFire≠Artix-7.
+- [x] **ابسیدین شب قفل شد (~21:3x):** نوت [[../07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱]] نقطهٔ ورود کل روز. عصر هنوز ۵۴.
 - [x] ~~MEGAPROMPT-INTERVIEW-OCTOPUS-ORGANISM~~ اجرا شد 2026-08-16 ~15:1x با تفویض «run it and fix it». شواهد: [[../06-EVIDENCE/INTERVIEW-ORGANISM-2026-08-16|INTERVIEW-ORGANISM]].
 - [x] **ری‌استارت رسمی سه عضو env-قدیمی** — 2026-08-16 ~16:37 `RESTART-PROCESS.ps1` live/center/gateway exit=0. OLLAMA: 9836/11500/20572 `qwen2.5:latest` → **7852/11724/4504 `qwen2.5:1.5b`**. :8773/api/live=200.
 
@@ -38,6 +43,12 @@ tags: [owner, pending, votes, checklist, follow-up]
 
 ## 🔵 تصمیم‌های بودجه
 
+- [ ] **P0 overlay v3 سیم به یک PEP** — کد هست (`_ops/octopus_v3/`, WIRED=False, ۱۸/۱۸). تا رأی به organism وصل نشود. نوت ۵۶.
+- [ ] **سیم fencing lease به chrono** — SoT `_ops/runtime/beat_lease.py` (۱۷/۱۷). `assert_valid()` قبل از هر beat؛ `on_event` به لجر؛ نوشتن state با token. پیشنهاد: no-lease → `pause`. نوت ۵۷.
+- [ ] **اسکریپت بازرسی M0** — hardcode / CRLF / case-fold در `F:\backup` قبل از هر کپی به Arm 1.
+- [ ] **IP/OS سه برد** — تا ندهی، rsync/scp نوشته نمی‌شود. نگاشت نقش‌ها: نوت ۶۰.
+- [ ] **ممنوع تا رأی جدا:** کپی `killswitch.py` / approvals نوشتنی به برد خالی · dual-beat · فلگ lease روی پروسهٔ زنده.
+- [ ] **قبل از M3 cutover:** یک‌بار rollback واقعی (مسیر تست‌نشده وجود ندارد).
 - [ ] **deepseek v4 flash:** پروب رد شد ⇒ پیشنهاد نهایی: **بودجه همان بماند** (سقف $20/هفته = بیمه؛ مصرف ۱٫۲٪). فقط اگر مصرف‌کنندهٔ نو با عدد رأی شد، سقف بالاتر. ([[2026-08-16 SESSION — Hard-Test + Ops + DeepSeek Budget|SESSION §3-پروب]])
 - [ ] (قدیمی) سقف‌های budgets.yaml / spike / disaster — بازبینی دوره‌ای
 
@@ -57,8 +68,11 @@ tags: [owner, pending, votes, checklist, follow-up]
 ## ⚪ بازِ قدیمی‌تر (از STATE §8 — با ایجنت بعدی پیگیری شود)
 
 - [ ] فعال‌سازی PEP تلگرام (پس از VOTE 2) · DA-6 (B/C) · DA-1 L2/L3 (داور مستقل) · ممیز D1
-- [ ] چرخش PAT (پچ آماده) · امضای trust-boundary/AEB تازه در صورت تغییر TCB
+- [x] ~~امضای trust-boundary تازه~~ **valid** عصر ۱۶ اوت — ۱۵ فایل شامل `core/model.py` (C-033). امضای مجدد فقط اگر TCB دوباره عوض شود.
+- [ ] چرخش PAT **حساب گیت‌هاب** (وب) — فایل توکن به `os.environ` رفته (SELFRUN F1). مقدار را چاپ نکن.
 - [ ] زمان‌بند R18 (تسک Tick الان سبز است — بماند؟) · سقف ۱۰/روز صف فرضیه
+- [ ] ری‌استارت رسمی **cortex** تا `_ASK_BUDGET_BY_ROLE[REASON]=215` در پروسه لود شود
+- [ ] OFN روی برد: پوش به `ofn/board-snapshot` (دستور در [[2026-08-17 MORNING-CARDS|کارت صبح الحاقیه]])
 
 ---
 
@@ -80,5 +94,9 @@ tags: [owner, pending, votes, checklist, follow-up]
 | 2026-08-16 ~16:5x | Deep-Seams باقی | close-honest | STATUS retired · recall بماند · ledger verify | |
 | 2026-08-16 ~16:5x | پروب پولی | نه، دیگر نزن | — | صفر تماس نو |
 | 2026-08-16 ~16:5x | دامنه | B | همان + دروازه ۲/۳ مستقل | |
+| 2026-08-16 ~17:2x | ابسیدین عصر | براساس تمام چت به‌روز کن | Cursor Grok 4.6 | نوت ۵۴ · DAY-INDEX #۲۱ |
+| 2026-08-16 ~21:0x | مگاپرامپت ایجنت بعد | تموم چت را بخوان + مگاپرامپت + ابسیدین | Cursor Grok 4.6 | نوت ۵۹ · MIGRATE-CLOSE-GAPS |
+| 2026-08-16 ~21:2x | سه برد + FPGA | مهاجرت کن / کاربرد عجیب FPGA | Cursor Grok 4.6 | نوت ۶۰ · بدون rsync · PolarFire رد |
+| 2026-08-16 ~21:3x | ابسیدین | ابسیدین را بروز کن | Cursor Grok 4.6 | نوت ۶۱ · STATE §8 · HANDOFF |
 
 > مرجع ناوبری روز: [[2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · وضعیت سیستم: [[../01-TRUTH/STATE-2026-08-15-NIGHT|STATE §8]]
