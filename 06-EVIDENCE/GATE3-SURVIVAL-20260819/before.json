@@ -1,0 +1,8 @@
+{
+ "before_kill": {
+  "predictions": 319,
+  "outcomes": 311,
+  "double": 0,
+  "pending": 8
+ }
+}
