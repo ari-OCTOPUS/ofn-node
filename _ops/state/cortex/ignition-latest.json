@@ -1,20 +1,20 @@
 {
-  "ts": "2026-08-16T16:54:56",
+  "ts": "2026-08-19T15:29:20",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
   "winner": {
-    "source": "attention",
-    "kind": "owner_wait",
-    "key": "attention:owner_wait",
+    "source": "alerts",
+    "kind": "stress",
+    "key": "alerts:stress",
     "effective": 1.0,
-    "summary": "سرچِ عمیق: paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است"
+    "summary": "🚨 هشدارها"
   },
-  "broadcast_width": 1,
-  "margin": 0.461,
+  "broadcast_width": 2,
+  "margin": 0.15,
   "n_candidates": 9,
   "ignition_rate": 1.0,
-  "stability": 142,
+  "stability": 12,
   "recent_ignitions": [
     1,
     1,
@@ -38,6 +38,6 @@
     1
   ],
   "reentry_prior": {
-    "attention:owner_wait": 0.3749
+    "alerts:stress": 0.3742
   }
 }

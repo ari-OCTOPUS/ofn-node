@@ -492,3 +492,155 @@
 {"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T16:14:32", "source": "goal_directed", "schema": "self-claim.v1"}
 {"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-16T16:14:32", "source": "goal_directed", "schema": "self-claim.v1"}
 {"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T16:14:32", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.944, "ts": "2026-08-16T17:55:39", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T17:55:45", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-16T17:55:45", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T17:55:45", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.944, "ts": "2026-08-16T19:36:52", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T19:36:53", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-16T19:36:53", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T19:36:53", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.947, "ts": "2026-08-16T21:18:00", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T21:18:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-16T21:18:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T21:18:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.949, "ts": "2026-08-16T23:00:59", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-16T23:01:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-16T23:01:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-16T23:01:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T00:42:52", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T00:42:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T00:42:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T00:42:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T02:24:54", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T02:25:00", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T02:25:00", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T02:25:00", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T04:06:13", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T04:06:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T04:06:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T04:06:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T05:47:22", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T05:47:24", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T05:47:24", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T05:47:24", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T07:28:37", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T07:28:39", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T07:28:39", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T07:28:39", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T09:09:55", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T09:09:59", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T09:09:59", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T09:09:59", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T10:51:31", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T10:51:33", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T10:51:33", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T10:51:33", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T12:34:11", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T12:34:15", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T12:34:15", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T12:34:15", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T14:16:02", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T14:16:12", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T14:16:12", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T14:16:12", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T15:57:38", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T15:57:40", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T15:57:40", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T15:57:40", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T18:23:55", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T18:24:02", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T18:24:02", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T18:24:02", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T20:06:00", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T20:06:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T20:06:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T20:06:04", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T21:48:18", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T21:48:23", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T21:48:23", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T21:48:23", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-17T23:30:42", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-17T23:30:44", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-17T23:30:44", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-17T23:30:44", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T01:23:09", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T01:23:19", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T01:23:19", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T01:23:19", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T03:25:03", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T03:25:11", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T03:25:11", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T03:25:11", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T05:14:45", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T05:14:48", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T05:14:48", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T05:14:48", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T07:01:29", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T07:01:38", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T07:01:38", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T07:01:38", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T08:43:21", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T08:43:23", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T08:43:23", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T08:43:23", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T10:26:12", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T10:26:12", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T10:26:12", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T10:26:12", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T17:48:51", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T17:48:55", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T17:48:55", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T17:48:55", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T19:12:07", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T19:12:11", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T19:12:11", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T19:12:11", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T20:32:20", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T20:32:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T20:32:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T20:32:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T21:53:14", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T21:53:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T21:53:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T21:53:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-18T23:17:53", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-18T23:18:05", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-18T23:18:05", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-18T23:18:05", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T00:44:31", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T00:44:33", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T00:44:33", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T00:44:33", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T02:10:38", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T02:10:39", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T02:10:39", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T02:10:39", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T03:37:32", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T03:37:35", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T03:37:35", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T03:37:35", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T05:04:55", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T05:04:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T05:04:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T05:04:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T06:32:37", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T06:32:38", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T06:32:38", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T06:32:38", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T08:01:11", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T08:01:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T08:01:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T08:01:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T09:30:52", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T09:30:53", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T09:30:53", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T09:30:53", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.948, "ts": "2026-08-19T11:02:12", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T11:02:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T11:02:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T11:02:13", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.947, "ts": "2026-08-19T12:43:39", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-08-19T12:43:42", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-60b8b9a70f", "confidence": 1.0, "ts": "2026-08-19T12:43:42", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-86a2454554", "confidence": 0.866667, "ts": "2026-08-19T12:43:42", "source": "goal_directed", "schema": "self-claim.v1"}

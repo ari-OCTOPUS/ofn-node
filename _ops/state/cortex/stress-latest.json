@@ -1,13 +1,13 @@
 {
-  "ts": "2026-08-16T16:56:18",
+  "ts": "2026-08-19T15:37:09",
   "schema": "stress.v1",
-  "organism_stress": 0.37,
+  "organism_stress": 0.64,
   "in_fear": [],
-  "level": "🟢 آرام",
+  "level": "🟡 استرس",
   "subsystems": {
     "money": {
       "name": "💰 جریانِ مالی",
-      "stress": 0.02,
+      "stress": 0.03,
       "fear": false,
       "detail": "1/30 دلار"
     },
@@ -31,9 +31,9 @@
     },
     "alerts": {
       "name": "🚨 هشدارها",
-      "stress": 0.37,
+      "stress": 0.64,
       "fear": false,
-      "detail": "35 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
+      "detail": "105 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
     }
   }
 }

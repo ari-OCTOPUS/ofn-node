@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T03:32:19+00:00",
+ "generated_at_utc": "2026-08-19T05:37:57+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -130,12 +130,12 @@
   },
   "VALID_PAIRS": {
    "label_id": "VALID_PAIRS",
-   "value": "0",
+   "value": "22",
    "status": "OBSERVED",
    "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
-   "evidence_hash": null,
-   "updated_at_utc": "2026-08-19T01:08:35+00:00",
-   "supersedes": null
+   "evidence_hash": "0b32d71b8a6e9d98",
+   "updated_at_utc": "2026-08-19T05:37:57+00:00",
+   "supersedes": "0"
   },
   "LEARNING_THRESHOLD": {
    "label_id": "LEARNING_THRESHOLD",
@@ -257,12 +257,12 @@
   },
   "LIVE4_STATE": {
    "label_id": "LIVE4_STATE",
-   "value": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX",
+   "value": "PRIMARY_V2_EXECUTED_AWAITING_OWNER_DECISION",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/DEEPSEEK-ROUTING-CONTRACT.md",
-   "evidence_hash": null,
-   "updated_at_utc": "2026-08-19T02:39:22+00:00",
-   "supersedes": "ACTIVE_DEBUG_NOT_SCORING"
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md",
+   "evidence_hash": "9780d1a229542b48",
+   "updated_at_utc": "2026-08-19T05:37:57+00:00",
+   "supersedes": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX"
   },
   "LIVE4_PROTOCOL": {
    "label_id": "LIVE4_PROTOCOL",
@@ -314,11 +314,12 @@
   },
   "LIVE4_JUDGE": {
    "label_id": "LIVE4_JUDGE",
-   "value": "BLIND_RANDOMIZED_AB",
-   "status": "VERIFIED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4_harness.py",
-   "evidence_hash": "e18d08acb5f53bb8",
-   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+   "value": "BLIND_RANDOMIZED_AB_READABILITY_73PCT",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md",
+   "evidence_hash": "9780d1a229542b48",
+   "updated_at_utc": "2026-08-19T05:37:57+00:00",
+   "supersedes": "BLIND_RANDOMIZED_AB"
   },
   "LIVE4_VOID_POLICY": {
    "label_id": "LIVE4_VOID_POLICY",
@@ -378,12 +379,12 @@
   },
   "LIVE4_SCORING": {
    "label_id": "LIVE4_SCORING",
-   "value": "GATE_4_OF_4_PASS_PENDING_V2_FREEZE_AND_FX_PIN",
-   "status": "BLOCKED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/DEEPSEEK-ROUTING-CONTRACT.md",
-   "evidence_hash": null,
-   "updated_at_utc": "2026-08-19T02:39:22+00:00",
-   "supersedes": "BLOCKED_JUDGE_UNREADABLE_1_OF_4"
+   "value": "PRIMARY_V2_EXECUTED_CRITERION_NOT_MET_22V_13W",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md",
+   "evidence_hash": "9780d1a229542b48",
+   "updated_at_utc": "2026-08-19T05:37:57+00:00",
+   "supersedes": "UNBLOCKED_PRIMARY_V2_AUTHORIZED"
   },
   "D_A_BASELINE_ARM": {
    "label_id": "D_A_BASELINE_ARM",
@@ -414,19 +415,22 @@
   },
   "LIVE4_PRIMARY_VALID_PAIRS": {
    "label_id": "LIVE4_PRIMARY_VALID_PAIRS",
-   "value": "0",
+   "value": "22",
    "status": "OBSERVED",
    "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
-   "evidence_hash": null,
-   "updated_at_utc": "2026-08-19T01:12:07+00:00"
+   "evidence_hash": "0b32d71b8a6e9d98",
+   "updated_at_utc": "2026-08-19T05:37:57+00:00",
+   "supersedes": "0"
   },
   "LIVE4_PROTOCOL_VERSION": {
    "label_id": "LIVE4_PROTOCOL_VERSION",
-   "value": "PENDING_V2_FREEZE",
-   "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
-   "evidence_hash": null,
-   "updated_at_utc": "2026-08-19T01:12:07+00:00"
+   "value": "V2_FROZEN",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PROTOCOL-V2-FREEZE.json",
+   "evidence_hash": "498a0ce92045e0d7",
+   "updated_at_utc": "2026-08-19T03:38:46+00:00",
+   "supersedes": "PENDING_V2_FREEZE",
+   "owner_decision_id": "LIVE4-PROTOCOL-V2-FREEZE-01"
   },
   "RECEIPT_BUDGET_ACCOUNTING": {
    "label_id": "RECEIPT_BUDGET_ACCOUNTING",

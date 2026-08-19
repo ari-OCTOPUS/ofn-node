@@ -18,3 +18,5 @@ _به‌روزرسانی 2026-08-19T02:39Z پس از اجرای DEEPSEEK-AUTOMAT
 | ~~RECEIPT_BUDGET_BUG~~ | FIXED_VERIFIED — مبنای بودجه = باقی‌ماندهٔ روز؛ اولین رسیدهای غیرمنفیِ تاریخ repo (probe زندهٔ 13:30 local) | RESOLVED | `06-EVIDENCE/RCPT-FIX-20260819/PROMOTION-NOTES.md` |
 
 _به‌روزرسانی 2026-08-19T03:32Z: RCPT-1/RCPT-2 (15/15 تست + probe واقعی) و G10/G11 (رسید مستقل ریست/توقف رزرو) طبق یادآوری حاکمیتی مالک بسته شدند — پیش از باز شدن پنجرهٔ primary._
+| LIVE4_PRIMARY_V2 | اجرا شد زیر پروتکل منجمد؛ معیار برآورده نشد (22/30 معتبر، 13/20 برد؛ هر ۸ void = قضاوتِ ناخوانا) — نرخ برد 59% در n=22، نتیجهٔ منفیِ معتبر | OBSERVED | `06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md` |
+| D_B_READABILITY_AT_SCALE | خوانایی داور در حجم batch ‏73% (E2E چهارتایی پنهانش می‌کرد) — سه گزینهٔ مالک در گزارش | OPEN | همان گزارش §Next options |

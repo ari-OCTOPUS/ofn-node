@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T16:14:32",
+  "ts": "2026-08-19T12:43:42",
   "schema": "audit-matrix.v1",
   "n": 43,
   "tally": {
@@ -30,7 +30,7 @@
     {
       "item": "heartbeat / pulse system",
       "status": "Done",
-      "evidence": "heart-shadow period=489.97",
+      "evidence": "heart-shadow period=342.1",
       "priority": "P1",
       "gap_type": "none",
       "section": "§16 time-loops"

@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-16T16:14:33",
+  "ts": "2026-08-19T12:43:42",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
   "checklist_static": true,
   "maturity_pct": 82.6,
   "improvement_rate": {
-    "closed": 8,
-    "moved": 2,
-    "rate_pct": 25.0
+    "closed": 5,
+    "moved": 0,
+    "rate_pct": 0.0
   },
-  "n_proposals": 37,
+  "n_proposals": 38,
   "by_category": {
     "business": [
       {
@@ -144,6 +144,15 @@
         "status": "proposed"
       },
       {
+        "id": "up-038ca160bb",
+        "priority": "P1",
+        "title": "کوچک‌ترین فیکسِ دکتر: بدونِ ری‌استارتِ ارگانیسم، ارزیابی سایه را روی امروز انجام می‌دهم",
+        "suggested_action": "بدونِ ری‌استارتِ ارگانیسم، ارزیابی سایه را روی امروز انجام می‌دهم",
+        "change_level": "reconfig",
+        "source": "smallest_fix",
+        "status": "proposed"
+      },
+      {
         "id": "up-81fe6de7c7",
         "priority": "P1",
         "title": "prioritized implementation backlog",
@@ -166,28 +175,19 @@
         "status": "proposed"
       },
       {
-        "id": "up-637452c68d",
+        "id": "up-1f26aabc78",
         "priority": "P2",
-        "title": "سنتزِ مغز: اتصال نظارت خودکارِ attribution به خروجی هر مغز",
-        "suggested_action": "قدم اول: افزودن hook در پایپلاین خروجی که پیش از ارسال، `attribution.claimed` را بر اساس تطبیق داخلی با محتوای استفاده‌شده به‌روز کند.",
+        "title": "سنتزِ مغز: \"ردیابِ پول در loop تحلیل",
+        "suggested_action": "در `self-analysis` یک پیش‌شرط اضافه کن که اگر `attribution.claimed` صفر است، خروجیِ جلسه فقط راه‌های فروش/قیمت‌گذاری باشد نه بهبود کد.\"",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-d1574ba315",
+        "id": "up-5f84866f76",
         "priority": "P2",
-        "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با شرط توقفِ بهبودمحور",
-        "suggested_action": "قدم اول: افزودن معیار توقف به حلقه که بعد از ۳ تکرار بدون افزایشِ `attribution.claimed` یا بهبود سنجه، متوقف و گزارش دهد.",
-        "change_level": "reconfig",
-        "source": "synthesis",
-        "status": "proposed"
-      },
-      {
-        "id": "up-84c10b27bd",
-        "priority": "P2",
-        "title": "سنتزِ مغز: ردیابی انگیزش در خروجی‌های درآمدزا",
-        "suggested_action": "قدم اول: برچسب‌گذاری خودکار پروپوزال‌های لید با ابعاد انگیزش (از مقالهٔ Crowdworker Motivation) و ثبت در حافظهٔ ماندگار برای تصمیم‌های عملی.",
+        "title": "سنتزِ مغز: \"حافظهٔ حالت به Git/CRDT",
+        "suggested_action": "state و proposals را به یک مخزن git محلی ببر و بعد از هر commit یک validate/restore تست کن.\"",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
@@ -208,6 +208,15 @@
         "suggested_action": "channel=synthesis | source=synth:local | title=پیاده‌سازی حافظه ماندگار | body=بهبود پایداری سیستم",
         "change_level": "reconfig",
         "source": "self_loop:synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-19855fa449",
+        "priority": "P2",
+        "title": "سنتزِ مغز: Need output only Persian, one line each. No preamble. Need ensure each line has ",
+        "suggested_action": "first step. We can propose:",
+        "change_level": "reconfig",
+        "source": "synthesis",
         "status": "proposed"
       },
       {
@@ -249,10 +258,10 @@
         "status": "proposed"
       },
       {
-        "id": "up-3c91a9cedb",
+        "id": "up-1093faeabb",
         "priority": "P3",
-        "title": "یادمانِ دور: cycle-625 → cycle-606",
-        "suggested_action": "فیکس‌های تأییدشده: 3 · آگاهیِ میانگین: 0.73",
+        "title": "یادمانِ دور: cycle-639 → cycle-606",
+        "suggested_action": "فیکس‌های تأییدشده: 3 · آگاهیِ میانگین: 0.74",
         "change_level": "tune",
         "source": "consolidation_recall",
         "status": "proposed"
@@ -456,15 +465,15 @@
       "impact": 2.6
     },
     {
-      "id": "up-637452c68d",
+      "id": "up-1f26aabc78",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: اتصال نظارت خودکارِ attribution به خروجی هر مغز",
-      "rationale": "به «اولین پولِ مطالبه‌شده» وصل است چون هر خروجی باید `attribution.claimed` را جلو ببرد یا صریح صفر بماند",
-      "evidence": "synthesis-latest.json [secondary]",
-      "suggested_action": "قدم اول: افزودن hook در پایپلاین خروجی که پیش از ارسال، `attribution.claimed` را بر اساس تطبیق داخلی با محتوای استفاده‌شده به‌روز کند.",
+      "title": "سنتزِ مغز: \"ردیابِ پول در loop تحلیل",
+      "rationale": "مستقیماً `attribution.claimed` را به هر جلسهٔ خودتحلیلی وصل می‌کند تا گپِ «اولین پول» را ببندد؛ به جهت مالک اول و توقفِ خودتحلیلی جواب می‌دهد",
+      "evidence": "synthesis-latest.json [primary]",
+      "suggested_action": "در `self-analysis` یک پیش‌شرط اضافه کن که اگر `attribution.claimed` صفر است، خروجیِ جلسه فقط راه‌های فروش/قیمت‌گذاری باشد نه بهبود کد.\"",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -472,31 +481,31 @@
       "impact": 2.2
     },
     {
-      "id": "up-d1574ba315",
+      "id": "up-5f84866f76",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: حلقهٔ خودتحلیلی با شرط توقفِ بهبودمحور",
-      "rationale": "به گپِ «self-analysis loop has stop-condition» وصل است",
-      "evidence": "synthesis-latest.json [secondary]",
-      "suggested_action": "قدم اول: افزودن معیار توقف به حلقه که بعد از ۳ تکرار بدون افزایشِ `attribution.claimed` یا بهبود سنجه، متوقف و گزارش دهد.",
+      "title": "سنتزِ مغز: \"حافظهٔ حالت به Git/CRDT",
+      "rationale": "گپِ «هیچ‌چیز با خاموش/روشن گم نشود» و ارتقای امن را با نسخه‌بندی و rollback پوشش می‌دهد",
+      "evidence": "synthesis-latest.json [primary]",
+      "suggested_action": "state و proposals را به یک مخزن git محلی ببر و بعد از هر commit یک validate/restore تست کن.\"",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
+      "serves_goal": "حافظهٔ ماندگار مثلِ شرکت‌های بزرگ: با خاموش/روشن هیچ‌چیز گم نشود.",
       "impact": 2.2
     },
     {
-      "id": "up-84c10b27bd",
-      "source": "synthesis",
+      "id": "up-ccda8773d0",
+      "source": "self_loop:synthesis",
       "category": "architecture",
       "priority": "P2",
-      "_rank": 1.8,
-      "title": "سنتزِ مغز: ردیابی انگیزش در خروجی‌های درآمدزا",
-      "rationale": "به جهتِ «Ziman و Lead-نقاشی» و یافتهٔ motivation وصل است",
-      "evidence": "synthesis-latest.json [secondary]",
-      "suggested_action": "قدم اول: برچسب‌گذاری خودکار پروپوزال‌های لید با ابعاد انگیزش (از مقالهٔ Crowdworker Motivation) و ثبت در حافظهٔ ماندگار برای تصمیم‌های عملی.",
+      "_rank": 2.0,
+      "title": "یادمانِ حلقه (synthesis): تحلیل خودکار عملکرد",
+      "rationale": "خروجیِ قبلیِ خودآگاهی/خودترمیمی که در pulse overwrite شده بود — از ingest بازیابی شد",
+      "evidence": "selfloop:synthesis:0e8fbeb0f86a4db0fe0b",
+      "suggested_action": "channel=synthesis | source=synth:local | title=تحلیل خودکار عملکرد | body=بهبود عملکرد کل سیستم",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -507,35 +516,35 @@
   "auto_eligible": [],
   "auto_enabled": true,
   "goal_directed": {
-    "n_goal_serving": 10,
+    "n_goal_serving": 9,
     "n_circular_dropped": 0,
     "goals_count": 7,
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 13,
+      "tracked": 18,
       "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 137,
-        "proposals_delivered": 18,
-        "proposal_outcomes": 47,
-        "proposal_positive": 45,
-        "proposal_accept_rate": 0.9574468085106383,
+        "total_discoveries": 140,
+        "proposals_delivered": 20,
+        "proposal_outcomes": 48,
+        "proposal_positive": 46,
+        "proposal_accept_rate": 0.9583333333333334,
         "proposal_value_aud": 0.0,
         "proposals_sent": 8
       },
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 136,
-        "proposals_delivered": 18,
-        "proposal_outcomes": 47,
-        "proposal_positive": 45,
-        "proposal_accept_rate": 0.9574468085106383,
+        "total_discoveries": 138,
+        "proposals_delivered": 20,
+        "proposal_outcomes": 48,
+        "proposal_positive": 46,
+        "proposal_accept_rate": 0.9583333333333334,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 9
+        "proposals_sent": 8
       }
     }
   },
@@ -547,7 +556,7 @@
   },
   "self_improve_gauges": {
     "schema": "self-improve-gauges.v1",
-    "ts": "2026-08-16T06:14:33.519426+00:00",
+    "ts": "2026-08-19T02:43:42.897871+00:00",
     "goal_loop_close_7d": {
       "n": 15,
       "n_pass": 0,
@@ -562,8 +571,8 @@
       "keys": []
     },
     "consolidation_24h": {
-      "n": 5,
-      "last_cycle": 625
+      "n": 1,
+      "last_cycle": 639
     },
     "pending_queue": {
       "n_pending": null,

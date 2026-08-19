@@ -1,0 +1,9 @@
+{
+ "fx_source_id": "RBA_EXCHANGE_RATES_DAILY_2026-08-18",
+ "fx_timestamp_utc": "2026-08-18T06:00:00Z",
+ "fx_rate_usd_to_aud": 1.4082523588,
+ "FX_SOURCE_VALUE": "AUD_USD = 0.7101",
+ "FX_CONVERSION_METHOD": "reciprocal_of_RBA_AUD_USD",
+ "owner_pin_id": "FX-PIN-20260819-01",
+ "fx_hash": "839517e38172210c61a4fe57950d63bda10d8456edd91ed8f082b1be8560d6b8"
+}

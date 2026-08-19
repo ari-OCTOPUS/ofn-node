@@ -1,37 +1,37 @@
 {
-  "ts": "2026-08-16T16:14:30",
+  "ts": "2026-08-19T12:43:41",
   "schema": "part-loops.v1",
-  "beat": 20,
+  "beat": 140,
   "parts": [
     {
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢",
-      "detail": "ضربان 490s"
+      "detail": "ضربان 342s"
     },
     {
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 96٪"
+      "detail": "هم‌آهنگی 95٪"
     },
     {
       "id": "doctor",
       "name": "🩺 دکتر",
-      "status": "🟢",
-      "detail": "0 منتظر"
+      "status": "🟡",
+      "detail": "1 منتظر"
     },
     {
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.667525$/۳۰"
+      "detail": "0.770655$/۳۰"
     },
     {
       "id": "learning",
       "name": "📚 یادگیری",
       "status": "🟢",
-      "detail": "5 کشفِ ۴۸h"
+      "detail": "2 کشفِ ۴۸h"
     },
     {
       "id": "legs",
@@ -43,7 +43,7 @@
       "id": "self",
       "name": "🪞 خودمدلی",
       "status": "🟢",
-      "detail": "94.4٪ سند"
+      "detail": "94.7٪ سند"
     }
   ],
   "n_proposals": 3,

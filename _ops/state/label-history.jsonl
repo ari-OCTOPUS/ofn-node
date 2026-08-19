@@ -65,3 +65,10 @@
 {"ts_utc": "2026-08-19T02:39:22+00:00", "label_id": "LIVE4_STATE", "event": "TRANSITION", "from": "ACTIVE_DEBUG_NOT_SCORING", "to": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX"}
 {"ts_utc": "2026-08-19T02:39:22+00:00", "label_id": "PROVIDER_ROUTE", "event": "TRANSITION", "from": "PRIMARY_DEEPSEEK", "to": "PRIMARY_DEEPSEEK_AUTOMATIC", "owner_decision_id": "DEEPSEEK-AUTOMATIC-ROUTING-01"}
 {"ts_utc": "2026-08-19T03:32:19+00:00", "label_id": "RECEIPT_BUDGET_ACCOUNTING", "event": "TRANSITION", "from": null, "to": "FIXED_VERIFIED_RUNTIME_PROBED", "owner_decision_id": "CORE-LIVE-LEARNING-01"}
+{"ts_utc": "2026-08-19T03:38:46+00:00", "label_id": "LIVE4_PROTOCOL_VERSION", "event": "TRANSITION", "from": "PENDING_V2_FREEZE", "to": "V2_FROZEN", "owner_decision_id": "LIVE4-PROTOCOL-V2-FREEZE-01"}
+{"ts_utc": "2026-08-19T03:38:46+00:00", "label_id": "LIVE4_SCORING", "event": "TRANSITION", "from": "GATE_4_OF_4_PASS_PENDING_V2_FREEZE_AND_FX_PIN", "to": "UNBLOCKED_PRIMARY_V2_AUTHORIZED", "owner_decision_id": "LIVE4-PROTOCOL-V2-FREEZE-01"}
+{"ts_utc": "2026-08-19T05:37:57+00:00", "label_id": "LIVE4_PRIMARY_VALID_PAIRS", "event": "TRANSITION", "from": "0", "to": "22"}
+{"ts_utc": "2026-08-19T05:37:57+00:00", "label_id": "VALID_PAIRS", "event": "TRANSITION", "from": "0", "to": "22"}
+{"ts_utc": "2026-08-19T05:37:57+00:00", "label_id": "LIVE4_SCORING", "event": "TRANSITION", "from": "UNBLOCKED_PRIMARY_V2_AUTHORIZED", "to": "PRIMARY_V2_EXECUTED_CRITERION_NOT_MET_22V_13W"}
+{"ts_utc": "2026-08-19T05:37:57+00:00", "label_id": "LIVE4_STATE", "event": "TRANSITION", "from": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX", "to": "PRIMARY_V2_EXECUTED_AWAITING_OWNER_DECISION"}
+{"ts_utc": "2026-08-19T05:37:57+00:00", "label_id": "LIVE4_JUDGE", "event": "TRANSITION", "from": "BLIND_RANDOMIZED_AB", "to": "BLIND_RANDOMIZED_AB_READABILITY_73PCT"}

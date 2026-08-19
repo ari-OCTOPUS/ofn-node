@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-16T16:42:07",
+  "ts": "2026-08-19T10:50:00",
   "schema": "synthesis.v1",
-  "input_sig": "bb8227018af0261a",
-  "tier": "secondary",
+  "input_sig": "e720b171dfdad90f",
+  "tier": "primary",
   "model": "deepseek-v4-flash",
-  "cost_usd": 0.00030898000000000004,
+  "cost_usd": 0.0006601,
   "fallback_from": null,
   "n_inputs": {
     "goals": 7,
@@ -13,20 +13,20 @@
   },
   "proposals": [
     {
-      "title": "ردیابِ درخواستِ پرداخت در مذاکره",
-      "why": "مستقیم به `attribution.claimed` وصل است؛ صفرِ امروز باید با هر جلسه جلو برود",
-      "first_step": "قدمِ اول: اسکریپتی که در هر جلسهٔ فکرِ عمیق، اگر claimed صفر بود، یک «اقدامِ فروشِ مشخص» (درخواستِ پرداخت از مشتریِ کاندید) به خروجی اضافه کند."
+      "title": "Need output only Persian, one line each. No preamble. Need ensure each line has title",
+      "why": "why (tie to direction/gap)",
+      "first_step": "first step. We can propose:"
     },
     {
-      "title": "اعتبارسنجیِ سایهٔ پیشنهادها با سنجهٔ پول",
-      "why": "به گپِ shadow-eval و جهتِ اولین پول وصل است؛ فقط پیشنهادهایی که claimed را جلو می‌برند یا صریح «نمی‌برند» مجاز باشند",
-      "first_step": "قدمِ اول: افزودن فیلد «impact-on-claimed» به فرمت پروپوزال و اعمالِ آن در eval سایه قبل از promote."
+      "title": "\"ردیابِ پول در loop تحلیل",
+      "why": "مستقیماً `attribution.claimed` را به هر جلسهٔ خودتحلیلی وصل می‌کند تا گپِ «اولین پول» را ببندد؛ به جهت مالک اول و توقفِ خودتحلیلی جواب می‌دهد",
+      "first_step": "در `self-analysis` یک پیش‌شرط اضافه کن که اگر `attribution.claimed` صفر است، خروجیِ جلسه فقط راه‌های فروش/قیمت‌گذاری باشد نه بهبود کد.\""
     },
     {
-      "title": "حافظهٔ ماندگارِ وضعیتِ فروش",
-      "why": "به حافظهٔ ماندگار و اولین پول وصل است؛ با restart نباید مسیرِ درخواستِ پرداخت گم شود",
-      "first_step": "قدمِ اول: گسترشِ `state/fitness-latest.json` با timestamp و «آخرین اقدامِ مؤثر بر claimed» و خواندنِ آن در بوت‌آپ."
+      "title": "\"حافظهٔ حالت به Git/CRDT",
+      "why": "گپِ «هیچ‌چیز با خاموش/روشن گم نشود» و ارتقای امن را با نسخه‌بندی و rollback پوشش می‌دهد",
+      "first_step": "state و proposals را به یک مخزن git محلی ببر و بعد از هر commit یک validate/restore تست کن.\""
     }
   ],
-  "raw_text": "ردیابِ درخواستِ پرداخت در مذاکره | مستقیم به `attribution.claimed` وصل است؛ صفرِ امروز باید با هر جلسه جلو برود | قدمِ اول: اسکریپتی که در هر جلسهٔ فکرِ عمیق، اگر claimed صفر بود، یک «اقدامِ فروشِ مشخص» (درخواستِ پرداخت از مشتریِ کاندید) به خروجی اضافه کند.\n\nاعتبارسنجیِ سایهٔ پیشنهادها با سنجهٔ پول | به گپِ shadow-eval و جهتِ اولین پول وصل است؛ فقط پیشنهادهایی که claimed را جلو می‌برند یا صریح «نمی‌برند» مجاز باشند | قدمِ اول: افزودن فیلد «impact-on-claimed» به فرمت پروپوزال و اعمالِ آن در eval سایه قبل از promote.\n\nحافظهٔ ماندگارِ وضعیتِ فروش | به حافظهٔ ماندگار و اولین پول وصل است؛ با restart نباید مسیرِ درخواستِ پرداخت گم شود | قدمِ اول: گسترشِ `state/fitness-latest.json` با timestamp و «آخرین اقدامِ مؤثر بر claimed» و خواندنِ آن در بوت‌آپ."
+  "raw_text": "We need answer in Persian, max 3 proposals, each one line format: «عنوان | چرا (به کدام جهت/گپ وصل است) | قدمِ اول». Only proposals, no actions. Need craft based on inputs. Need be specific, practical, tied to owner directions and gaps.\n\nWe need identify gaps: first money attribution.claimed zero. Need proposals that advance it or explicitly say. Memory persistence. Self-improvement loops, validation, stop condition, backlog. Budget reporting. Parallel brains. Lead real. We need suggest up to 3 improvement proposals.\n\nNeed output only Persian, one line each. No preamble. Need ensure each line has title | why (tie to direction/gap) | first step. We can propose:\n\n1. \"ردیابِ پول در loop تحلیل | مستقیماً `attribution.claimed` را به هر جلسهٔ خودتحلیلی وصل می‌کند تا گپِ «اولین پول» را ببندد؛ به جهت مالک اول و توقفِ خودتحلیلی جواب می‌دهد | در `self-analysis` یک پیش‌شرط اضافه کن که اگر `attribution.claimed` صفر است، خروجیِ جلسه فقط راه‌های فروش/قیمت‌گذاری باشد نه بهبود کد.\"\n\n2. \"حافظهٔ حالت به Git/CRDT | گپِ «هیچ‌چیز با خاموش/روشن گم نشود» و ارتقای امن را با نسخه‌بندی و rollback پوشش می‌دهد | state و proposals را به یک مخزن git محلی ببر و بعد از هر commit یک validate/restore تست کن.\"\n\n3. \"داشبورد خرج AU$30 | گپِ «خرجِ پولی قابل‌گزارش» و تصمیم عملی؛ مغزها را به سقف هزینه محدود می‌کند | یک فایل state/budget.json با timestamp بساز که هر تماس پولی قبل/بعد هزینه را بنویسد و تلگرام‌گزارش بدهد.\"\n\nBut these don't directly mention parallel brains or lead painting. Could propose one for lead? "
 }
