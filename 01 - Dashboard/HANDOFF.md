@@ -853,8 +853,7 @@ updated: 2026-08-18
   (WinError 87 → همهٔ ۵ پروسه alive=False در حالی که زنده بودند) → فیکس با ctypes
   `OpenProcess`. **کشفِ معماری:** یک پکیجِ `control_plane/` از ۰۸-۰۳ وجود داشت؛ فایلِ من
   به‌عنوانِ `live_snapshot.py` درونِ همان پکیج نشست (مکملِ collector، نه جایگزین).
-  `test_control_plane_live_snapshot` 10/10 سبز. جزئیاتِ کامل: [[../07 - Knowledge/شناخت-
-  اختاپوس/30-CONTROL-PLANE-SNAPSHOT-2026-08-08|نوتِ ۳۰]].
+  `test_control_plane_live_snapshot` 10/10 سبز. جزئیاتِ کامل: [[../07 - Knowledge/شناخت-اختاپوس/30-CONTROL-PLANE-SNAPSHOT-2026-08-08|نوتِ ۳۰]].
 
 - 🔌✅ **2026-08-07 (عصر — Reader Map + وصلهٔ مصرف‌کنندگان: دو DEAD-OUTPUT وصل شد).**
   نوتِ [[../07 - Knowledge/شناخت-اختاپوس/31-READER-MAP-AND-CONSUMER-WIRING-2026-08-07|۳۱]].
