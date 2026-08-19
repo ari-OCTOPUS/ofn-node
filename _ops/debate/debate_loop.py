@@ -39,6 +39,16 @@ MAX_ROUNDS = 3
 ORGAN = "DEBATE_LOOP"
 QUEUE_MD = opslib.DEBATE_DIR / "SURVIVORS-QUEUE.md"   # env-پذیر (تست‌ها ایزوله می‌مانند)
 
+
+def _novelty_gate_on() -> bool:
+    """فلگ گیت بدایع از debate_hook (env برنده، رأی owner-verdicts fallback؛ fail-soft)."""
+    try:
+        from novelty.debate_hook import novelty_gate_enabled
+        return bool(novelty_gate_enabled())
+    except Exception:  # noqa: BLE001 — گیتِ غایب = رفتارِ قبلی (خاموش)
+        return False
+
+
 MUSE_KEYS = {"idea", "why_genius", "why_insane", "est_tokens", "quality_bar", "epistemic_tag"}
 ARCHITECT_KEYS = {"verdict", "kill_condition", "cheapest_test", "epistemic_tag"}
 
@@ -377,9 +387,9 @@ def _rounds(topic: dict, wrapped: str, topic_hash: str, rounds: int,
         muse_out = extract_json(muse_raw["text"])
         if not MUSE_KEYS.issubset(muse_out):
             raise ValueError(f"muse JSON contract broken (r{rnd}): {sorted(muse_out)}")
-        # NOVELTY-GATE (B2 · پیشفرض خاموش · fail-soft): ایدهٔ تکراریِ آرشیوشده
-        # پیش از دور دوم (هزینهٔ دوم) رد میشود — بودجه هدر نمیرود (LAW-07).
-        if os.environ.get("OCTOPUS_WIRE_NOVELTY_GATE") == "1":
+        # NOVELTY-GATE (B2 · رأی مالک در owner-verdicts؛ fail-soft): ایدهٔ تکراریِ
+        # آرشیوشده پیش از دور دوم (هزینهٔ دوم) رد میشود — بودجه هدر نمیرود (LAW-07).
+        if _novelty_gate_on():
             try:
                 _nov = str(Path(__file__).resolve().parents[1])
                 if _nov not in sys.path:

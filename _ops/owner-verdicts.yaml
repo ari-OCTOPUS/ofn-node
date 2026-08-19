@@ -184,3 +184,17 @@ verdicts:
     standing: "yes"
     expires_to: "0 only by explicit owner rollback"
     note: "SHADOW می‌ماند (chord/__init__: SHADOW_ONLY): verdict فقط در ledgerِ hash-chainِ خودش؛ allowed_actions هرگز code.apply ندارد و مجوزِ اجرا نیست. هر ۳۶۰ beat یک ارزیابی از ORGANISM-STATE واقعی. پایشِ ۱ هفته‌ایِ مالک (roadmap §۳) جاری است."
+
+
+  wire_novelty_gate:
+    env: OCTOPUS_WIRE_NOVELTY_GATE
+    value: "1"
+    unit: boolean
+    decided: "2026-08-19"
+    reader: debate_loop._novelty_gate_on (novelty.debate_hook)
+    quote: "OWNER-DIRECTIVE: ACTIVATE-FULL-INTERNAL-EXECUTION-v1 — همهچیز فعال شود"
+    standing: "yes"
+    expires_to: "0 only by explicit owner rollback"
+    note: >-
+      گیت بدایع پیش از مصرف بودجه در حلقهٔ مناظره. fail-soft؛ برگشتپذیر با
+      value=0. رفتار: ایدهٔ تکراری/واریاسیونِ آرشیوشده در دور اول رد و ledger میخورد.

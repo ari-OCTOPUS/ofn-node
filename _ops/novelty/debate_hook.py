@@ -10,9 +10,24 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 _SCHEMA = "novelty-gate.v1"
+_FLAG = "OCTOPUS_WIRE_NOVELTY_GATE"
+
+
+def novelty_gate_enabled() -> bool:
+    """فلگ گیت بدایع: env صریح برنده؛ وگرنه رأیِ tracked owner-verdicts (همقراردادِ
+    life_currency.enabled). fail-soft: هر خطا = خاموش."""
+    v = os.environ.get(_FLAG)
+    if v is not None:
+        return str(v).strip().lower() in ("1", "true", "yes", "on")
+    try:
+        import owner_verdicts as _ov  # noqa: WPS433 — _ops روی sys.path
+        return str(_ov.get(_FLAG) or "0").strip().lower() in ("1", "true", "yes", "on")
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def pre_budget_gate(idea: str, topic_id: str, archive_path: Path | None = None) -> dict:

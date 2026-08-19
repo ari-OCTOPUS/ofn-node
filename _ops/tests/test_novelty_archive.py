@@ -104,6 +104,23 @@ def test_hook_failsoft_when_archive_missing():
     assert r["state"] == "ARCHIVE_EMPTY"
 
 
+def test_novelty_gate_enabled_env_wins():
+    import os
+    from novelty.debate_hook import novelty_gate_enabled
+    old = os.environ.get("OCTOPUS_WIRE_NOVELTY_GATE")
+    os.environ["OCTOPUS_WIRE_NOVELTY_GATE"] = "1"
+    try:
+        assert novelty_gate_enabled() is True
+    finally:
+        if old is None:
+            os.environ.pop("OCTOPUS_WIRE_NOVELTY_GATE", None)
+        else:
+            os.environ["OCTOPUS_WIRE_NOVELTY_GATE"] = old
+    os.environ["OCTOPUS_WIRE_NOVELTY_GATE"] = "0"
+    assert novelty_gate_enabled() is False
+    os.environ.pop("OCTOPUS_WIRE_NOVELTY_GATE", None)
+
+
 def test_hook_blocks_duplicate():
     p = Path(__file__).resolve().parent / "_tmp_hook_archive.jsonl"
     if p.exists():
