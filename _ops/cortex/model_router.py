@@ -232,6 +232,18 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
     role = _TIER_ROLE.get(tier)
     if not role:
         return None
+    # ── RCPT-2 (2026-08-19, CORE-AUTO-DEBUG): COST_UNOBSERVABLE یا نقضِ سقفِ
+    # فراخوانی در رسیدهایِ امروز ⇒ مسیرِ پولی بسته می‌ماند — همان fail-closedِ
+    # وعده‌داده‌شده در کامنتِ COST-OBS-1 که تا امروز خوانده نمی‌شد.
+    try:
+        from cost_receipt import paid_blocked_today  # noqa: E402 — هم‌پوشه
+        if paid_blocked_today():
+            _paid_log(task=task, tier=tier, role=role, ok=False,
+                      error="paid_blocked_cost_unobservable", ms=0,
+                      note="RCPT-2: receipt-visible block; manual/owner reset required")
+            return None
+    except Exception:  # noqa: BLE001 — گارد هرگز مسیر را نمی‌کشد
+        pass
     # ── circuit breaker (per-provider، auto half-open recovery) ────────────────
     # 2026-07-25: fugu_quota global بود (موفقیتِ GLM consecutive_failures را ریست
     # می‌کرد) و recovery دستی بود (فایلِ STOP-FUGU). در زنده، fugu ۳ ساعتِ پشتِ هم
@@ -302,6 +314,34 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
                           float(out.get("cost_usd", 0.0) or 0.0),
                           task=f"cortex-{tier}")
         _elapsed_ms = int((_pt.time() - _t0) * 1000)
+        # ── COST-OBS-1 (رأی مالک 2026-08-19): رسیدِ هزینهٔ پرداختی در همان
+        # لایه‌ای که usage/cost_usd هنوز در دسترس است — fail-soft برای مغز،
+        # fail-closed برای پرداخت: COST_UNOBSERVABLE ⇒ فراخوانیِ بعدیِ پرداختی بسته می‌شود.
+        try:
+            import hashlib as _hl, json as _jn, datetime as _dt
+            from datetime import timezone as _tz
+            from pathlib import Path as _P
+            from cost_receipt import CostReceiptAdapter, remaining_budget_aud  # noqa: WPS433 — هم‌پوشه
+            _rp = _P(str(_P(__file__).resolve().parent.parent / "state" / "cortex" / "cost-receipts.jsonl"))
+            _recpt = CostReceiptAdapter().build(
+                trace_id=f"paid-{tier}-{int(_pt.time()*1000)}",
+                provider=str(getattr(cli, "provider", "") or ""),
+                model=str(out.get("model") or ""),
+                ts_req=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="seconds"),
+                ts_resp=_dt.datetime.now(_tz.utc).isoformat(timespec="seconds"),
+                # RCPT-1 (2026-08-19): مبنای بودجه = باقی‌ماندهٔ روز از رسیدهای خودِ
+                # امروز — نه هزینهٔ خودِ فراخوانی (باگِ budget_afterِ منفی).
+                budget_before_aud=remaining_budget_aud(_rp),
+                usage_payload=({"cost_usd": out.get("cost_usd"),
+                                "prompt_tokens": out.get("tokens_in"),
+                                "completion_tokens": out.get("tokens_out")}
+                               if out.get("cost_usd") is not None else None),
+                tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
+                input_sha256=_hl.sha256(str(prompt).encode("utf-8", "replace")).hexdigest())
+            _rp.parent.mkdir(parents=True, exist_ok=True)
+            _rp.open("a", encoding="utf-8").write(_jn.dumps(_recpt, ensure_ascii=False, default=str) + "\n")
+        except Exception:  # noqa: BLE001 — رسید هرگز مغز را نمی‌کشد
+            pass
         _paid_log(task=task, tier=tier, role=role,
                   provider=getattr(cli, "provider", ""),
                   model=out.get("model"),
@@ -484,9 +524,11 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         kp = keys_present()
         # secondary → budgets routing.reason (الان deepseek؛ قبلاً glm).
         # کلیدِ همان provider را بسنج، نه فقط GLM.
+        # CL01/INC-2 + FREEZE-01 (رأی مالک 2026-08-15 و 2026-08-19): primary = DeepSeek
+        # طبق سیاستِ ثبت‌شده؛ fugu فقط مسیرِ سهمیه‌ایِ صریح است، نه نگاشتِ پنهانِ primary.
         _has = {
             "secondary": bool(kp.get("deepseek") or kp.get("glm")),
-            "primary": bool(kp.get("fugu")),
+            "primary": bool(kp.get("deepseek")),
         }
         order = [want] + [t for t in ("primary", "secondary") if t != want]
         tried = []
@@ -499,7 +541,18 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         except (TypeError, ValueError):
             _budget_s = 90.0
         _deadline = _tb.time() + max(5.0, _budget_s)
+        # CL01/FREEZE-01: یخِ فعال ⇒ حلقهٔ پرداخت اصلاً اجرا نمی‌شود (pre-check قطعی)؛
+        # رسید و نشانه‌گذاری در ask() انجام می‌شود — هرگز موفقیتِ localِ بی‌رسید نیست.
+        _frozen_pre = None
+        try:
+            import opslib as _ol0
+            _frozen_pre = _ol0.freeze_state()
+        except Exception:  # noqa: BLE001
+            _frozen_pre = None
         for _t in order:
+            if _frozen_pre:
+                tried.append(f"{_t}:skipped-frozen")
+                break
             if not _has.get(_t):
                 continue
             if _tb.time() >= _deadline:
@@ -577,7 +630,43 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
     tier/model/cost/latency) — مسیرِ داغِ LLM هرگز کشته نمی‌شود."""
     import time as _t
     _t0 = _t.time()
+    # CL01/LIVE-4-RESERVATION-01: پنجرهٔ رزرو — درخواستِ پولیِ غیر-Live4 ⇒ DEFERRED رسیددار
+    try:
+        _want_r = tier or TASK_TIERS.get(task, "local")
+        if _want_r in ("primary", "secondary"):
+            import live4_reservation as _lr
+            _d = _lr.gate_paid(str(task or ""))
+            if _d is not None and "DEFERRED_FOR_LIVE4_RESERVATION" in str(_d.get("receipt_status", "")):
+                _paid_log(kind="deferred_for_live4", task=task,
+                          receipt_status=_d["receipt_status"], provider_actual="none",
+                          cost_aud=0, retry_after=_d["retry_after"],
+                          evaluation_eligible=False, code=_d["code"])
+                return {"ok": False, "reason": _d["receipt_status"],
+                        "retry_after": _d["retry_after"], "provider_actual": "none",
+                        "cost_aud": 0, "evaluation_eligible": False}
+    except Exception:  # noqa: BLE001 — رزرو هرگز مسیرِ مغز را نمی‌کشد
+        pass
     res = _ask_impl(task, prompt, system, max_tokens, tier=tier, opener=opener, quality=quality)
+    # CL01/FREEZE-01: درخواستِ ردهٔ پولی در حالتِ freeze ⇒ هرگز موفقیتِ local بی‌رسید نیست
+    try:
+        _want = tier or TASK_TIERS.get(task, "local")
+        if _want in ("primary", "secondary"):
+            import opslib as _ol2
+            _fz = _ol2.freeze_state()
+            if _fz and isinstance(res, dict) and res.get("ok"):
+                res.setdefault("fallback_reason", "PAID_PATH_BLOCKED_BY_FREEZE")
+                res.setdefault("provider_actual", "local")
+                res.setdefault("evaluation_eligible", False)
+                _paid_log(kind="paid_path_blocked_by_freeze", task=task,
+                          receipt_status="PAID_PATH_BLOCKED_BY_FREEZE",
+                          trace_id=f"{task}-{int(_t0*1000)}",
+                          freeze_id=_fz["freeze_id"],
+                          freeze_created_at=_fz["freeze_created_at"],
+                          freeze_reason_code=_fz["freeze_reason_code"],
+                          freeze_scope=_fz["freeze_scope"],
+                          freeze_expiry_or_review_condition=_fz["freeze_expiry_or_review_condition"])
+    except Exception:  # noqa: BLE001 — شفافیت هرگز مسیرِ مغز را نمی‌کشد
+        pass
     try:
         if isinstance(res, dict) and res.get("ok") and res.get("reason") != "kill-switch":
             _hp = str(_HERE.parent / "heart") if "_HERE" in globals() else \

@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-16
+updated: 2026-08-18
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -32,6 +32,47 @@ updated: 2026-08-16
 | `autoflow-s1-s10` (ZCode/GLM-5.3 — MEGAPROMPT-AUTOFLOW) | 2026-08-16 ~14:5x | ✅ تمام 2026-08-16 ~15:2x — S1..S10 بسته (گزارش: 06-EVIDENCE/AUTOFLOW-REPORT در کامیت پایانی) |
 
 ## وضعِ لحظه‌ای
+
+> 🔧 **پین 2026-08-18 ~09:58 (+10) — P3 DIAGNOSTICS_VERIFIED, writer not healthy:** natural `09:49` cycle · `--all` NONE · `--tags` REF_REJECTED · lock released · GITWRITE OPEN. [[../06-EVIDENCE/P3-SCHEDULED-CYCLE-OBSERVED-2026-08-18|P3 cycle]] · [[../00 - Inbox/2026-08-18 NOTE — Continuation state + P3 cycle|Inbox]]. آزاد **C-034**.
+
+> 📦 **پین 2026-08-18 ~04:16 (+10) — WAVE0 A–D:** A PARTIAL (ACK + exec auth; Lab `BASE_COMMIT_UNAVAILABLE`) · B PARTIAL (`EVIDENCE_INSUFFICIENT`, cancel نشد) · C PARTIAL (P3 `ACTIVATED`, نه `DIAGNOSTICS_VERIFIED`) · D NOT_STARTED (فقط design). [[../06-EVIDENCE/WAVE0-OWNER-EXEC-A-D-2026-08-18|WAVE0]] · [[../00 - Inbox/2026-08-18 NOTE — WAVE0 A-D owner exec|Inbox]]. آزاد **C-034**.
+
+> 📦 **پین 2026-08-18 ~04:16 (+10) — A2-001 ACK + exec auth:** binding DELIVERED · Lab halted missing `d10887cb`. [[../06-EVIDENCE/A2-001-ACK-AND-EXEC-AUTH-2026-08-18|ACK+auth]] · [[../00 - Inbox/2026-08-18 NOTE — WAVE0 A-D owner exec|Inbox]]. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 ~04:16 (+10) — P3 ceremony ACTIVATED:** jsonl هنوز نیست؛ lock TIMEOUT. GITWRITE پاک نشد. [[../06-EVIDENCE/P3-TCB-CEREMONY-2026-08-18|P3 ceremony]] · [[../00 - Inbox/2026-08-18 NOTE — WAVE0 A-D owner exec|Inbox]]. آزاد **C-034**.
+
+> 🗳️ **پین 2026-08-18 ~04:16 (+10) — GitHub/wire design only:** Option R vs M انتخاب نشد. [[../06-EVIDENCE/GITHUB-WIRE-RECOVERY-DESIGN-2026-08-18|design]] · [[../00 - Inbox/2026-08-18 NOTE — WAVE0 A-D owner exec|Inbox]]. آزاد **C-034**.
+
+> 🛑 **پین 2026-08-18 ~04:00 (+10) — DEV-182-0001 store unread:** automation `25cfa808…` از harness خوانده نشد. Verdict `INSUFFICIENT_EVIDENCE`. نه PASS_READONLY. Cancel نشد. [[../06-EVIDENCE/DEV-182-0001-AUTOMATION-REVIEW-2026-08-18|review]] · [[../00 - Inbox/2026-08-18 NOTE — DEV-182-0001 automation review|Inbox]]. آزاد **C-034**.
+
+> 📦 **پین 2026-08-18 ~03:52 (+10) — A2-001 binding copy sent, NOT DELIVERED:** `scp -p` → `/opt/octopus/a2-lab/inbox/TO-180-A2-001-binding.json`. Source+dest sha256 `95527b06…` observed from `.191`. Independent `.180` ACK still required. Lab not started. [[../06-EVIDENCE/A2-001-BINDING-TRANSFER-2026-08-18|transfer]] · [[../00 - Inbox/2026-08-18 NOTE — A2-001 binding transfer awaiting 180 ACK|Inbox]]. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 ~03:40 (+10) — P3 hourly push error capture:** stderr هر push در TEMP، ردکت، jsonl با `exit_code`/`stderr_sha256`/`error_class`/`elapsed_ms`. fallback/remote/credential دست‌نخورده. تست PASS. [[../06-EVIDENCE/P3-HOURLY-PUSH-ERROR-CAPTURE-2026-08-18|P3]] · [[../00 - Inbox/2026-08-18 NOTE — P3 hourly push error capture|Inbox]]. آزاد **C-034**.
+
+> 📦 **پین 2026-08-18 ~03:36 (+10) — A2-001 state locked:** `canonical_binding: DELIVERED_TO_180` · `lab_execution: NOT_STARTED` · `local_artifact: QUARANTINED_PASS_LOCAL_ONLY` · `promotion_authority: NONE` · next = ACK + fresh-worktree receipt from `.180`. [[../06-EVIDENCE/canonical/decisions/a2-001-state-2026-08-18.json|state]] · [[../00 - Inbox/2026-08-18 NOTE — TO-180 A2-001 canonical binding|Inbox]]. آزاد **C-034**.
+
+> ✅ **پین 2026-08-18 ~03:20 (+10) — A2-001 development_canonical owner-approved · QUARANTINED_PASS:** کد در `F:\backup\octopus-bridge` · ۱۰/۱۰ تست · merge نشده. [[../06-EVIDENCE/A2-001-QUARANTINED-PASS-2026-08-18|شواهد]] · [[../00 - Inbox/2026-08-18 NOTE — A2-001 development_canonical owner-approved|Inbox]]. `ofn/bridge` نوشته نشد. آزاد **C-034**.
+
+> 🗳️ **پین 2026-08-18 ~03:16 (+10) — A2-001 proposed canonical binding (owner yes/no):** commits matched (`d10887c` / `e21f20d`). Split = vault `octopus-bridge` @ `equip/g10-cognition-20260816` for quarantined dev · germline `ofn/bridge` mirror-only. Not in force. [[../06-EVIDENCE/canonical/decisions/a2-001-proposed-canonical-binding-2026-08-18|binding]] · [[../00 - Inbox/2026-08-18 DECISION CANDIDATE — A2-001 proposed canonical binding|Inbox]]. آزاد **C-034**.
+
+> 🛑 **پین 2026-08-18 ~03:08 (+10) — CUSTODIAN-191 health ledger (observe-only):** [[../00 - Inbox/2026-08-18 NOTE — Custodian-191 health ledger|Inbox]] · [[../06-EVIDENCE/canonical/contradictions/custodian-191-health-ledger-2026-08-18|contradictions]] · [[../06-EVIDENCE/canonical/decisions/owner-constitution-role-2026-08-18|owner-role]] · receipt `06-EVIDENCE/canonical/receipts/custodian-191-20260818T030354p10.json`. آزاد **C-034**.
+
+> 🛑 **پین 2026-08-18 ~03:00 (+10) — A2-001 inventory-first · `UNKNOWN_CANONICAL`:** `.191` `octopus-bridge` را canonical این شغل اعلام نکرد. دو ریشهٔ مبهم (stub vault در برابر `ofn/bridge`). `schemas/` خالی در octopus-bridge نیست. پیاده‌سازی متوقف. [[../06-EVIDENCE/A2-001-CANONICAL-DECISION-2026-08-18|DECISION]] · [[../02-DECISIONS/A2-001-MIRROR-MANIFEST-VERIFIER|A2-001]] · [[../00 - Inbox/2026-08-18 DECISION — A2-001 inventory-first not octopus-bridge canonical|Inbox]]. `.180` فعال نشد. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 — Wi-Fi 5GHz + SSH .138 + Envelope cycle-2:** [[../06-EVIDENCE/NETWORK-PATH-5GHZ-2026-08-18|NETWORK-PATH-5GHZ]] · [[../00 - Inbox/2026-08-18 NOTE — Laptop network switch + SSH 138|NOTE]].
+
+> 📋 **پین 2026-08-18 ~02:4x (+10) — موجودی سرویس لپ‌تاپ برای .180 (فقط پیشنهاد، هیچ سرویسی جابه‌جا نشد):** ماتریس [[../06-EVIDENCE/SERVICE-INVENTORY-AND-MIGRATION-MATRIX-2026-08-18|MATRIX]] · گراف [[../06-EVIDENCE/DEPENDENCY-GRAPH-2026-08-18|GRAPH]] · اسرار بدون مقدار [[../06-EVIDENCE/SECRET-INVENTORY-REDACTED-2026-08-18|SECRETS]] · مانع‌ها [[../06-EVIDENCE/HARD-BLOCKERS-MIGRATION-180-2026-08-18|BLOCKERS]] · توالی+rollback [[../06-EVIDENCE/PROPOSED-MIGRATION-SEQUENCE-2026-08-18|SEQUENCE]] · لانچر [[../00 - Inbox/2026-08-18 NOTE — Laptop service inventory for .180 (awaiting owner)|NOTE]] · **STOPPED** منتظر تأیید مالک. GITWRITE دست‌نخورده. `.180` کانونیکال نیست. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 — A2 lab first task locked (PROPOSE-ONLY):** اولین شغل = **mirror manifest verifier**. آزمایشگاه شروع نشد. قبل از هر فعال‌سازی `.180` تأیید مالک لازم است. [[../00 - Inbox/2026-08-18 DECISION — A2 lab first task = mirror manifest verifier|Inbox DECISION]] · [[../02-DECISIONS/A2-SANDBOX-LAB-FIRST-TASK-2026-08-18|DECISION]] · [[../07 - Knowledge/شناخت-اختاپوس/67-COUNCIL-CONSERVATIVE-PATH-A2-MIRROR-2026-08-18|۶۷]] · [[../06-EVIDENCE/A2-LAB-NOT-STARTED-AWAITING-OWNER-2026-08-18|not-started]]. Inventory `.180` in flight / pending. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 — Evidence Envelope cycle-1 (سایدکار، نه TCB):** Verifier Pattern سه گره. schema `octopus-handshake-envelope/1` · `_ops/handshake/` · تست خارج از `run_all.py`. پاکت‌ها [[../06-EVIDENCE/EVIDENCE-ENVELOPE-CYCLE-01-2026-08-18|CYCLE-01]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/66-VERIFIER-EVIDENCE-ENVELOPE-2026-08-18|۶۶]] · لانچر [[../00 - Inbox/2026-08-18 MEGAPROMPT — Verifier Pattern Three Nodes|لانچر]] · پاسخ به برد [[../00 - Inbox/2026-08-18 NOTE — Laptop Evidence Envelope cycle-1|NOTE]]. autonomy عوض نشد. Sensorium v2 بعد از تأیید پاکت. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 ~01:52 (+10) — علت `push err:` خالی:** تگ جابه‌جاشده `pre-deploy-2026-07-25` (محلی `dab81a82` ≠ vault `9c49f174`) · `--all` سبز است · حساب تسک همان Armin است. شواهد [[../06-EVIDENCE/HOURLY-PUSH-EMPTY-ERR-2026-08-18|HOURLY-PUSH-EMPTY-ERR]] · تأیید Sensorium [[../00 - Inbox/2026-08-18 SENSORIUM REPLY — round-2 verified + push diagnostics|round-2]]. پرچم GITWRITE ماند. آزاد **C-034**.
+
+> 🔧 **پین 2026-08-18 ~01:18 (+10) — احیای کانال لپ‌تاپ (مالک تأیید کرد):** :8801 برگشت · ۳ ack صادق · equip دوباره روی germline · پرچم GITWRITE **عمداً ماند**. شواهد [[../06-EVIDENCE/LAPTOP-CHANNEL-RESTORE-2026-08-17|LAPTOP-CHANNEL-RESTORE]] · پاسخ به برد [[../00 - Inbox/2026-08-18 NOTE — Laptop restore reply to Sensorium|NOTE to Sensorium]]. پچ‌های TCB هنوز مراسم نخورده‌اند. آزاد **C-034**.
+
+> 🔗 **پین 2026-08-17 ~22:45 (+10) — گرهٔ سوم وصل شد · Sensorium Pi (.182):** ایجنتِ بردِ رصد از SMB متصل شد (shareهای `germline` RO + `octopus-main`)؛ نقشهٔ سه‌گره‌ای + کارهای امروزِ آن با receipt: [[../00 - Inbox/2026-08-17 SENSORIUM-NODE-ALIGNMENT|SENSORIUM-NODE-ALIGNMENT]] · تناقض «دو روایت» حل: [[../01-TRUTH/CONTRADICTIONS|C-034]] (resolved, owner-verified). بیدارباشِ برد پاها + ۳ ack معلق: پیشنهاد §۵ همان نوت.
+
 
 > 🎯 **پین 2026-08-17 ~22:2x — `_job_research` (گزینهٔ ب، مصوبِ مالک): پچِ آماده، دو فایل TCB:**
 > مالک از پیشنهادِ قبلی گزینهٔ بزرگ‌تر رو انتخاب کرد — modeِ نوِ خودکار، نه ابزارِ دستی. طراحی: کیدنسِ جدا در `daemon.py` (مثلِ git_watcher)، `_MODE_CYCLE` دست‌نخورده. سندباکس: ۴ فراخوانِ مستقیم (claim به ترتیبِ قدیم→جدید + صفِ خالی بدونِ کرش) + یک `run_forever(max_ticks=4)` کاملِ یکپارچه، صفر خطا. شواهد [[../06-EVIDENCE/JOB-RESEARCH-MODE-READY-2026-08-17|JOB-RESEARCH-MODE-READY]] · پچ‌ها `00 - Inbox/PATCH-JOB-RESEARCH-{automation,daemon}-2026-08-17.patch`. **پیشنهاد: با پچِ EQUIP G2 در یک مراسمِ TCB بزنید.**
@@ -870,3 +911,60 @@ updated: 2026-08-16
   PIIِ خودِ فایل («هیچ متنِ مالک در context تکرار نمی‌شود») بود. ۷ فایلِ فازِ اسکن +
   REDESIGN-PROPOSAL.md روی دسکتاپ (`Desktop\OCTOPUS-REDESIGN-SCAN-2026-08-07\`).
 
+
+- 🔍✅ **2026-08-19 (ممیزی کامل + پاس معماری — ایجنت ZCode، فقط-خواندنی).**
+  ممیزی جامع A–L با پنج سند تحویلی + هفت سند معماری در
+  `06-EVIDENCE/AUDIT-191-20260819/` (FULL-AUDIT · OPEN-BLOCKERS · NEXT-24H-ACTIONS ·
+  CLAIMS-VS-EVIDENCE · OWNER-DECISIONS · TRUE-STATE · ARCHITECTURE-RECONCILIATION ·
+  MEMORY-CONTRACT · LEARNING-VALIDATION-PROTOCOL · DEFECT-REGISTER · 90-DAY-BUILD ·
+  OWNER-DECISIONS-NEXT). نکات کلیدی: دیمن سالم/لوکال · VALID_PAIRS از ۳ به ۰
+  supersede شد (pilot جدا از primary) · تنها مسدودکنندهٔ امتیازدهی = ۱-from-4
+  قضاوتِ غیرقابل‌خواندن D-B در گیت E2E (شش اجرا، بهترین ۳/۴) · FX_PIN ساعت
+  **06:00Z** می‌گذرد — بدون پینِ تازه، مسیر پرداختی Live-4 قفل می‌شود ·
+  `LIVE4_PROTOCOL_VERSION=PENDING_V2_FREEZE` (فریز مالک پیش از primary) · باگ
+  budget_after منفی در همهٔ رسیدها + سه شکاف سیم‌کشی (radar/paid_blocked/FX-expiry)
+  ثبت شد. `docs/NOW.md` حالا با رندرر قطعی `_ops/scripts/render_now.py` از هر ۵۰
+  برچسب تولید می‌شود (--check سبز). دستِ سیستم: هیچ فایل evidence/حافظه/TCB تغییری
+  نگرفت؛ فقط NOW.md بازتولید و همین دو صفحهٔ Obsidian به‌صورت additive افزوده شد.
+
+- ⚡✅ **2026-08-19 (اجرای DEEPSEEK-AUTOMATIC-ROUTING-01 — گیتِ E2E برای اولین‌بار ۴/۴ پاس).**
+  تصمیم مالک ثبت شد (`02-DECISIONS/DEEPSEEK-AUTOMATIC-ROUTING-01-2026-08-19.md`). بهداشت کلید:
+  **PASS** (کلید حاضر؛ ۰ نشت در ۱۳۵۲ فایلِ سطح‌های نشت + درخت git؛ فقط fingerprint
+  `ada979483727` ثبت شد) → `DEEPSEEK-CREDENTIAL-HYGIENE-TEST.md`. قرارداد داوری
+  **D-B/V3** پیاده شد (پیلودِ دقیقاً `{"choice":"A|B|TIE"}`، تک re-ask رسیددار، دوم =
+  VOID؛ ۱۹/۱۹ تست در `test_judge_v3.py`) با rollback کامل (`V3-ROLLBACK.patch` +
+  `.pre-v3`). اجرای اول ۲/۴ شد (ریشه: نثرِ ۷۰۰کاراکتری به‌جای JSON — با V3.1 یعنی
+  دستورِ فرمت در انتهای پرامپت + مثال، حل شد؛ قرارداد ضعیف نشد)؛ اجرای دوم
+  **۴/۴، صفر void، positions={A,A,B,B}، رسید کامل، $0.0005 AUD** (trace
+  `cl1-live4-023601`). باگِ تکراریِ `exc:IntegrityError` هم ریشه‌یابی و رفع شد
+  (pid زمان‌دار؛ PK تکراری بود). رجیستری: ۴ ترنزیشن (D_B، LIVE4_SCORING،
+  LIVE4_STATE، PROVIDER_ROUTE) در label-history. **مlasک فقط دو کار دارد: پین FX
+  قبل از 06:00Z + فریز V2** — بعدش batch کامل primary آزاد است.
+
+- 🧬✅ **2026-08-19 (GENESIS-01 — Evolutionary Island متولد شد؛ معیار اولین پیروزی محقق شد).**
+  دستور مالک ثبت (`02-DECISIONS/GENESIS-01-2026-08-19.md`). Island در worktree جدا
+  `F:\backup-island` (branch `island/genesis-01`، فورک از HEAD `2bcd469`) با
+  state/memory/ledger مستقل؛ Core **دست‌نخورده** (labels/NOW.md تغییر نکرد — دو خط
+  آخر Core همان E2E 4/4 و FX تازه است). هفت تیم با Change Contract و مالکیت مسیر
+  تحویل دادند: **۹۹/۹۹ تست سبز** (A=12 B=16 C=17 D=19 E=11 F=14 G=10) ·
+  **۶ اجرای کامل حلقهٔ شناختی ۹-مرحله‌ای** در runtime جزیره (۵۴ رکورد trace با
+  replay hash_fail=0؛ پیش‌بینی‌ها قبل از نتیجه در ledger ضدفتلش؛ خواندنِ
+  فقط-ADMITTED از حافظهٔ canonical با mode=ro) · ۷ candidate نسل اول با
+  predicted_gain/falsifier/fitness چندهدفه · Promotion Bridge فقط packet صادر
+  می‌کند (دو packet آماده: اصلاحات رسید TEAM-E و پذیرش دومرحله‌ای TEAM-A).
+  انحراف صادقانه: ساخت سریال توسط نشست اصلی شد چون ۶/۷ ایجنت فرعی زیر خطای
+  provider مردند — در SESSION_LOG و NEGATIVE-MEMORY هر تیم ثبت شد. وضعیت در
+  پنج فایل `F:\backup-island\{CURRENT_STATE,NEXT_ACTION,DECISIONS,BLOCKERS,SESSION_LOG}.md`
+  و `OWNER-DECISION-PACKET.md`. همچنان منتظر دو کار مالک: **پین FX قبل از 06:00Z**
+  و **فریز V2 پروتکل**.
+
+- 🧾✅ **2026-08-19 (RCPT-1/RCPT-2/G10/G11 بسته شد — پیش‌شرط مالک برای primary برآورده شد).**
+  طبق یادآوری حاکمیتی مالک (ریستِ بدون رسید ممنوع + رسیدهای primary نباید budget_afterِ غلط به ارث ببرند):
+  ارتقای CORE-AUTO-DEBUG با بستهٔ کامل `06-EVIDENCE/RCPT-FIX-20260819/` — مبنای
+  budget_before حالا بودجهٔ باقی‌ماندهٔ روز است، COST_UNOBSERVABLE مسیر پولی را
+  receipt-دار می‌بندد، و ریست/توقف پنجرهٔ رزرو رسید مستقل می‌گیرد (ODN-6).
+  ۱۵/۱۵ تست + **probe زنده: دو رسیدِ اولِ غیرمنفیِ budget_after در تاریخ repo**
+  (29.985215→29.985194 و →29.985173). لیبل جدید
+  RECEIPT_BUDGET_ACCOUNTING=FIXED_VERIFIED_RUNTIME_PROBED (VERIFIED) + ترنزیشن
+  تاریخچه؛ NOW.md بازتولید. یعنی پس از پین FX و فریز V2 توسط مالک، batch کامل
+  primary (۲×۱۵) از نظر ساختاری و رسیدی بی‌مانع است.

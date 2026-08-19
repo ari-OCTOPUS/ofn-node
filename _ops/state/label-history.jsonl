@@ -1,0 +1,67 @@
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "OCTOPUS_MODE", "event": "INIT", "value": "CORE_AUTO_DEBUG", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "AUTONOMY", "event": "INIT", "value": "INTERNAL_HIGH/EXTERNAL_PROPOSE_ONLY", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "DAEMON_4D", "event": "INIT", "value": "RUNNING_OBSERVED", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "DAEMON_PID", "event": "INIT", "value": "18020", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "TCB", "event": "INIT", "value": "VERIFIED_CLEAN_AT_LAST_PREFLIGHT", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "SH", "event": "INIT", "value": "DISARMED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "BOARDS", "event": "INIT", "value": "NO_CONTACT", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "SCHEDULER", "event": "INIT", "value": "UNCHANGED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "EXTERNAL_ACTION", "event": "INIT", "value": "PROPOSE_ONLY", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "MEMORY_ADMISSION_GATE", "event": "INIT", "value": "ACTIVE", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "CONTRADICTION_RADAR", "event": "INIT", "value": "ACTIVE", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "PREDICTION_LEDGER", "event": "INIT", "value": "APPEND_ONLY", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "METADATA_ELIGIBILITY", "event": "INIT", "value": "ACTIVE", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "MEMORY_LEARNING", "event": "INIT", "value": "MEMORY_LIVE_LEARNING_UNVERIFIED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LEARNING_PRIMARY_METRIC", "event": "INIT", "value": "VALID_PAIRED_CASES", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "VALID_PAIRS", "event": "INIT", "value": "3", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LEARNING_THRESHOLD", "event": "INIT", "value": "20_WINS_OF_30_VALID_PAIRS", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "CALIBRATION_GROUP_B", "event": "INIT", "value": "UNDERCONFIDENT_OR_INCONCLUSIVE", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "FREEZE", "event": "INIT", "value": "RELEASED_RECEIPTED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "PAID_SMOKE", "event": "INIT", "value": "VERIFIED_PASS", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "COST_OBSERVABILITY", "event": "INIT", "value": "ACTIVE", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "FX_PIN", "event": "INIT", "value": "STALE_OR_EXPIRING", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "PROVIDER_ROUTE", "event": "INIT", "value": "PRIMARY_DEEPSEEK", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "PROVIDER_CAPACITY", "event": "INIT", "value": "AVAILABLE_AT_LAST_PROBE_SHARED", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_RESERVATION", "event": "INIT", "value": "ARMED_OVERRIDE", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "EXPERIMENT_DAILY_CAP_AUD", "event": "INIT", "value": "30", "status": "VERIFIED", "supersedes": "15"}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "EXPERIMENT_HARD_STOP_AUD", "event": "INIT", "value": "24", "status": "VERIFIED", "supersedes": "12"}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "PER_CALL_CAP_AUD", "event": "INIT", "value": "1", "status": "VERIFIED", "supersedes": "0.50"}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "PAID_CALLS", "event": "INIT", "value": "RECEIPT_REQUIRED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_STATE", "event": "INIT", "value": "ACTIVE_FG_PENDING_DEFECT_FIXES_DA_DB", "status": "OBSERVED", "supersedes": "BLOCKED_PENDING_QUOTA_RESET"}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_PROTOCOL", "event": "INIT", "value": "FROZEN", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_TARGET", "event": "INIT", "value": "60_VALID_PAIRS", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_PRIMARY_SAMPLE", "event": "INIT", "value": "30_VALID_PAIRS", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_BATCHES", "event": "INIT", "value": "TWO_X_15_PRIMARY_PLUS_CONFIRMATORY", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_BATCH_WIN_MINIMUM", "event": "INIT", "value": "10", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_TOTAL_WIN_MINIMUM", "event": "INIT", "value": "20", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_JUDGE", "event": "INIT", "value": "BLIND_RANDOMIZED_AB", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_VOID_POLICY", "event": "INIT", "value": "PROVIDER_FAILURE_NOT_WIN_NOT_LOSS", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "INC_CL1_001", "event": "INIT", "value": "FIXED_VERIFIED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "INC_2_TIER_MAP", "event": "INIT", "value": "FIXED_OR_MONITORED", "status": "OBSERVED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "FREEZE_ERRNO22", "event": "INIT", "value": "FIXED_VERIFIED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "F3_METADATA_ENTRY", "event": "INIT", "value": "OPEN", "status": "CLAIMED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "D3_GIT_HISTORY_RISK", "event": "INIT", "value": "OPEN", "status": "CLAIMED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "CARD_A", "event": "INIT", "value": "CLOSED_DISARMED", "status": "VERIFIED", "supersedes": null}
+{"ts_utc": "2026-08-19T01:04:06+00:00", "label_id": "LIVE4_STATE", "event": "TRANSITION", "from": "BLOCKED_PENDING_QUOTA_RESET", "to": "ACTIVE_FG_PENDING_DEFECT_FIXES_DA_DB", "owner_decision_id": "LEARNING-FIRST-BUDGET-EXPANSION-01", "reason": "quota probe PASS + override + fg-runner"}
+{"ts_utc": "2026-08-19T01:08:35+00:00", "label_id": "LIVE4_STATE", "event": "TRANSITION", "from": "ACTIVE_FG_PENDING_DEFECT_FIXES_DA_DB", "to": "ACTIVE_DEBUG_NOT_SCORING", "owner_decision_id": "LIVE4-DEFECT-CLOSURE-AND-E2E-01"}
+{"ts_utc": "2026-08-19T01:08:35+00:00", "label_id": "LIVE4_SCORING", "event": "TRANSITION", "from": null, "to": "BLOCKED_PENDING_DA_DB_E2E", "owner_decision_id": "LIVE4-DEFECT-CLOSURE-AND-E2E-01"}
+{"ts_utc": "2026-08-19T01:08:35+00:00", "label_id": "VALID_PAIRS", "event": "TRANSITION", "from": "3", "to": "0", "owner_decision_id": "LIVE4-DEFECT-CLOSURE-AND-E2E-01"}
+{"ts_utc": "2026-08-19T01:08:35+00:00", "label_id": "D_A_BASELINE_ARM", "event": "TRANSITION", "from": null, "to": "OPEN_ROOTCAUSE_MISSING_TIER", "owner_decision_id": "LIVE4-DEFECT-CLOSURE-AND-E2E-01"}
+{"ts_utc": "2026-08-19T01:08:35+00:00", "label_id": "D_B_JUDGE_CONTRACT", "event": "TRANSITION", "from": null, "to": "OPEN_IMPLEMENTED_PENDING_E2E4", "owner_decision_id": "LIVE4-DEFECT-CLOSURE-AND-E2E-01"}
+{"ts_utc": "2026-08-19T01:10:50+00:00", "label_id": "D_A_BASELINE_ARM", "event": "TRANSITION", "from": "OPEN_ROOTCAUSE_MISSING_TIER", "to": "FIXED_VERIFIED"}
+{"ts_utc": "2026-08-19T01:10:50+00:00", "label_id": "D_B_JUDGE_CONTRACT", "event": "TRANSITION", "from": "OPEN_IMPLEMENTED_PENDING_E2E4", "to": "OPEN_JUDGE_UNREADABLE_1_OF_4"}
+{"ts_utc": "2026-08-19T01:10:50+00:00", "label_id": "LIVE4_SCORING", "event": "TRANSITION", "from": "BLOCKED_PENDING_DA_DB_E2E", "to": "BLOCKED_JUDGE_UNREADABLE_1_OF_4"}
+{"ts_utc": "2026-08-19T01:12:07+00:00", "label_id": "D_A_BASELINE_ARM", "event": "TRANSITION", "from": "FIXED_VERIFIED", "to": "ACTIVE_DEBUG_ROOTCAUSED_TIER_FIX_DEPLOYED", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:12:07+00:00", "label_id": "D_B_JUDGE_CONTRACT", "event": "TRANSITION", "from": "OPEN_JUDGE_UNREADABLE_1_OF_4", "to": "ACTIVE_DEBUG_JSON_V2_IMPLEMENTED", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:12:07+00:00", "label_id": "LIVE4_STATE", "event": "TRANSITION", "from": "ACTIVE_DEBUG_NOT_SCORING", "to": "ACTIVE_DEBUG_NOT_SCORING", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:12:07+00:00", "label_id": "LIVE4_PILOT_VALID_PAIRS", "event": "TRANSITION", "from": null, "to": "3", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:12:07+00:00", "label_id": "LIVE4_PRIMARY_VALID_PAIRS", "event": "TRANSITION", "from": null, "to": "0", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:12:07+00:00", "label_id": "LIVE4_PROTOCOL_VERSION", "event": "TRANSITION", "from": null, "to": "PENDING_V2_FREEZE", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:22:49+00:00", "label_id": "D_A_BASELINE_ARM", "event": "TRANSITION", "from": "ACTIVE_DEBUG_ROOTCAUSED_TIER_FIX_DEPLOYED", "to": "FIXED_VERIFIED_0_FAILURES_IN_LAST_8", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:22:49+00:00", "label_id": "D_B_JUDGE_CONTRACT", "event": "TRANSITION", "from": "ACTIVE_DEBUG_JSON_V2_IMPLEMENTED", "to": "V2_JSON_PLUS_REASK_3_OF_4", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T01:22:49+00:00", "label_id": "LIVE4_SCORING", "event": "TRANSITION", "from": "BLOCKED_JUDGE_UNREADABLE_1_OF_4", "to": "BLOCKED_JUDGE_UNREADABLE_1_OF_4", "owner_decision_id": "CONTINUE-LIVE4-DA-DB-CLOSURE-02"}
+{"ts_utc": "2026-08-19T02:39:22+00:00", "label_id": "D_B_JUDGE_CONTRACT", "event": "TRANSITION", "from": "V2_JSON_PLUS_REASK_3_OF_4", "to": "V3_CHOICE_JSON_4_OF_4_E2E_PASS", "owner_decision_id": "DEEPSEEK-AUTOMATIC-ROUTING-01"}
+{"ts_utc": "2026-08-19T02:39:22+00:00", "label_id": "LIVE4_SCORING", "event": "TRANSITION", "from": "BLOCKED_JUDGE_UNREADABLE_1_OF_4", "to": "GATE_4_OF_4_PASS_PENDING_V2_FREEZE_AND_FX_PIN"}
+{"ts_utc": "2026-08-19T02:39:22+00:00", "label_id": "LIVE4_STATE", "event": "TRANSITION", "from": "ACTIVE_DEBUG_NOT_SCORING", "to": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX"}
+{"ts_utc": "2026-08-19T02:39:22+00:00", "label_id": "PROVIDER_ROUTE", "event": "TRANSITION", "from": "PRIMARY_DEEPSEEK", "to": "PRIMARY_DEEPSEEK_AUTOMATIC", "owner_decision_id": "DEEPSEEK-AUTOMATIC-ROUTING-01"}
+{"ts_utc": "2026-08-19T03:32:19+00:00", "label_id": "RECEIPT_BUDGET_ACCOUNTING", "event": "TRANSITION", "from": null, "to": "FIXED_VERIFIED_RUNTIME_PROBED", "owner_decision_id": "CORE-LIVE-LEARNING-01"}

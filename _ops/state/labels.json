@@ -1,0 +1,442 @@
+{
+ "schema": "octopus-labels/1",
+ "generated_at_utc": "2026-08-19T03:32:19+00:00",
+ "labels": {
+  "OCTOPUS_MODE": {
+   "label_id": "OCTOPUS_MODE",
+   "value": "CORE_AUTO_DEBUG",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md",
+   "evidence_hash": "38f9e36050662b21",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "CORE-AUTO-DEBUG-01"
+  },
+  "AUTONOMY": {
+   "label_id": "AUTONOMY",
+   "value": "INTERNAL_HIGH/EXTERNAL_PROPOSE_ONLY",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md",
+   "evidence_hash": "38f9e36050662b21",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "CORE-AUTO-DEBUG-01"
+  },
+  "DAEMON_4D": {
+   "label_id": "DAEMON_4D",
+   "value": "RUNNING_OBSERVED",
+   "status": "OBSERVED",
+   "evidence_path": "4d_system/outputs/daemon-launch4b.err.log",
+   "evidence_hash": "caa4c81770ffeb92",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "expires_at_utc": "2026-08-19T12:30:00+00:00"
+  },
+  "DAEMON_PID": {
+   "label_id": "DAEMON_PID",
+   "value": "18020",
+   "status": "OBSERVED",
+   "evidence_path": "4d_system/outputs/daemon-launch4b.err.log",
+   "evidence_hash": "caa4c81770ffeb92",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "expires_at_utc": "2026-08-19T12:30:00+00:00"
+  },
+  "TCB": {
+   "label_id": "TCB",
+   "value": "VERIFIED_CLEAN_AT_LAST_PREFLIGHT",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/preflight-invariant.txt",
+   "evidence_hash": "abbe16b06f08869d",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "expires_at_utc": "2026-08-20T00:00:00+00:00"
+  },
+  "SH": {
+   "label_id": "SH",
+   "value": "DISARMED",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CARD-A-DISARM-2026-08-19.md",
+   "evidence_hash": "efb89515ac1c29f4",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "CARD-A-DISARM"
+  },
+  "BOARDS": {
+   "label_id": "BOARDS",
+   "value": "NO_CONTACT",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/R01-191-20260818-2217/R01-REALITY-MANIFEST.md",
+   "evidence_hash": "ef57c719dff9dabf",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "SCHEDULER": {
+   "label_id": "SCHEDULER",
+   "value": "UNCHANGED",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/F1-191-20260818-2122/00-REPORT.md",
+   "evidence_hash": "ba978d9378ed54ea",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "EXTERNAL_ACTION": {
+   "label_id": "EXTERNAL_ACTION",
+   "value": "PROPOSE_ONLY",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md",
+   "evidence_hash": "38f9e36050662b21",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "MEMORY_ADMISSION_GATE": {
+   "label_id": "MEMORY_ADMISSION_GATE",
+   "value": "ACTIVE",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/memory/admission.py",
+   "evidence_hash": "272f7a3126228b91",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "CONTRADICTION_RADAR": {
+   "label_id": "CONTRADICTION_RADAR",
+   "value": "ACTIVE",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/memory/gate.py",
+   "evidence_hash": "44488d0f67cb1038",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "PREDICTION_LEDGER": {
+   "label_id": "PREDICTION_LEDGER",
+   "value": "APPEND_ONLY",
+   "status": "VERIFIED",
+   "evidence_path": "4d_system/memory/prediction_ledger.py",
+   "evidence_hash": "0f58fba622c85d74",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "METADATA_ELIGIBILITY": {
+   "label_id": "METADATA_ELIGIBILITY",
+   "value": "ACTIVE",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/METADATA-CONFIDENCE-AUDIT.md",
+   "evidence_hash": "0f51e76d764b4bc9",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "MEMORY_LEARNING": {
+   "label_id": "MEMORY_LEARNING",
+   "value": "MEMORY_LIVE_LEARNING_UNVERIFIED",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live3/LEARNING-VERDICT.md",
+   "evidence_hash": "11740f426539a33b",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LEARNING_PRIMARY_METRIC": {
+   "label_id": "LEARNING_PRIMARY_METRIC",
+   "value": "VALID_PAIRED_CASES",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "VALID_PAIRS": {
+   "label_id": "VALID_PAIRS",
+   "value": "0",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T01:08:35+00:00",
+   "supersedes": null
+  },
+  "LEARNING_THRESHOLD": {
+   "label_id": "LEARNING_THRESHOLD",
+   "value": "20_WINS_OF_30_VALID_PAIRS",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "LIVE-4 THRESHOLD"
+  },
+  "CALIBRATION_GROUP_B": {
+   "label_id": "CALIBRATION_GROUP_B",
+   "value": "UNDERCONFIDENT_OR_INCONCLUSIVE",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live3/CORRECTION-CALIBRATION.md",
+   "evidence_hash": "5367d16113826929",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "FREEZE": {
+   "label_id": "FREEZE",
+   "value": "RELEASED_RECEIPTED",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/budget/FREEZE-RELEASE-RECEIPT.json",
+   "evidence_hash": "4d37b87e868cd160",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "FREEZE-RELEASE-20260819-01"
+  },
+  "PAID_SMOKE": {
+   "label_id": "PAID_SMOKE",
+   "value": "VERIFIED_PASS",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/freeze-recovery/PAID-SMOKE-REPORT.md",
+   "evidence_hash": "51ca898900e98a6c",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "COST_OBSERVABILITY": {
+   "label_id": "COST_OBSERVABILITY",
+   "value": "ACTIVE",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/cortex/cost_receipt.py",
+   "evidence_hash": "41d1faf103cabd98",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "FX_PIN": {
+   "label_id": "FX_PIN",
+   "value": "STALE_OR_EXPIRING",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/FX-RECORD.json",
+   "evidence_hash": "9275047ac861592a",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "expires_at_utc": "2026-08-19T06:00:00+00:00",
+   "owner_decision_id": "FX-PIN-20260819-01"
+  },
+  "PROVIDER_ROUTE": {
+   "label_id": "PROVIDER_ROUTE",
+   "value": "PRIMARY_DEEPSEEK_AUTOMATIC",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/cortex/model_router.py",
+   "evidence_hash": "962baad2a02e8ccb",
+   "updated_at_utc": "2026-08-19T02:39:22+00:00",
+   "owner_decision_id": "DEEPSEEK-AUTOMATIC-ROUTING-01",
+   "supersedes": "PRIMARY_DEEPSEEK"
+  },
+  "PROVIDER_CAPACITY": {
+   "label_id": "PROVIDER_CAPACITY",
+   "value": "AVAILABLE_AT_LAST_PROBE_SHARED",
+   "status": "OBSERVED",
+   "evidence_path": "_ops/state/paid-calls.jsonl",
+   "evidence_hash": "32df5a2b770f0945",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "expires_at_utc": "2026-08-19T04:00:00+00:00"
+  },
+  "LIVE4_RESERVATION": {
+   "label_id": "LIVE4_RESERVATION",
+   "value": "ARMED_OVERRIDE",
+   "status": "OBSERVED",
+   "evidence_path": "_ops/cortex/live4_reservation.py",
+   "evidence_hash": "b8730a328a175e65",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "LEARNING-FIRST-BUDGET-EXPANSION-01"
+  },
+  "EXPERIMENT_DAILY_CAP_AUD": {
+   "label_id": "EXPERIMENT_DAILY_CAP_AUD",
+   "value": "30",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md",
+   "evidence_hash": "38f9e36050662b21",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "LEARNING-FIRST-BUDGET-EXPANSION-01",
+   "supersedes": "15"
+  },
+  "EXPERIMENT_HARD_STOP_AUD": {
+   "label_id": "EXPERIMENT_HARD_STOP_AUD",
+   "value": "24",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md",
+   "evidence_hash": "38f9e36050662b21",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "LEARNING-FIRST-BUDGET-EXPANSION-01",
+   "supersedes": "12"
+  },
+  "PER_CALL_CAP_AUD": {
+   "label_id": "PER_CALL_CAP_AUD",
+   "value": "1",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md",
+   "evidence_hash": "38f9e36050662b21",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00",
+   "owner_decision_id": "LEARNING-FIRST-PER-CALL-EXPANSION-02",
+   "supersedes": "0.50"
+  },
+  "PAID_CALLS": {
+   "label_id": "PAID_CALLS",
+   "value": "RECEIPT_REQUIRED",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/state/cortex/cost-receipts.jsonl",
+   "evidence_hash": "f3fbab069a1dcca3",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_STATE": {
+   "label_id": "LIVE4_STATE",
+   "value": "E2E_GATE_4_OF_4_PASS_AWAITING_OWNER_FREEZE_FX",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/DEEPSEEK-ROUTING-CONTRACT.md",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T02:39:22+00:00",
+   "supersedes": "ACTIVE_DEBUG_NOT_SCORING"
+  },
+  "LIVE4_PROTOCOL": {
+   "label_id": "LIVE4_PROTOCOL",
+   "value": "FROZEN",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_TARGET": {
+   "label_id": "LIVE4_TARGET",
+   "value": "60_VALID_PAIRS",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_PRIMARY_SAMPLE": {
+   "label_id": "LIVE4_PRIMARY_SAMPLE",
+   "value": "30_VALID_PAIRS",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_BATCHES": {
+   "label_id": "LIVE4_BATCHES",
+   "value": "TWO_X_15_PRIMARY_PLUS_CONFIRMATORY",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_BATCH_WIN_MINIMUM": {
+   "label_id": "LIVE4_BATCH_WIN_MINIMUM",
+   "value": "10",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_TOTAL_WIN_MINIMUM": {
+   "label_id": "LIVE4_TOTAL_WIN_MINIMUM",
+   "value": "20",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_JUDGE": {
+   "label_id": "LIVE4_JUDGE",
+   "value": "BLIND_RANDOMIZED_AB",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4_harness.py",
+   "evidence_hash": "e18d08acb5f53bb8",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_VOID_POLICY": {
+   "label_id": "LIVE4_VOID_POLICY",
+   "value": "PROVIDER_FAILURE_NOT_WIN_NOT_LOSS",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": "8d33263fb31aa66f",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "INC_CL1_001": {
+   "label_id": "INC_CL1_001",
+   "value": "FIXED_VERIFIED",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/costobs1/FIRST-AUTO-DEBUG-INCIDENT.md",
+   "evidence_hash": "65c99413f3c64e7c",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "INC_2_TIER_MAP": {
+   "label_id": "INC_2_TIER_MAP",
+   "value": "FIXED_OR_MONITORED",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/INC-2-TIER-MAP.md",
+   "evidence_hash": "382409f672a9c84c",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "FREEZE_ERRNO22": {
+   "label_id": "FREEZE_ERRNO22",
+   "value": "FIXED_VERIFIED",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/freeze-recovery/FREEZE-ROOT-CAUSE.md",
+   "evidence_hash": "26803a164da6b2af",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "F3_METADATA_ENTRY": {
+   "label_id": "F3_METADATA_ENTRY",
+   "value": "OPEN",
+   "status": "CLAIMED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/METADATA-CONFIDENCE-AUDIT.md",
+   "evidence_hash": "0f51e76d764b4bc9",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "D3_GIT_HISTORY_RISK": {
+   "label_id": "D3_GIT_HISTORY_RISK",
+   "value": "OPEN",
+   "status": "CLAIMED",
+   "evidence_path": "02-DECISIONS/D3-PHASE2-UNTRACK-2026-08-19.md",
+   "evidence_hash": "78fcddc61c75b259",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "CARD_A": {
+   "label_id": "CARD_A",
+   "value": "CLOSED_DISARMED",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/CARD-A-DISARM-2026-08-19.md",
+   "evidence_hash": "efb89515ac1c29f4",
+   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+  },
+  "LIVE4_SCORING": {
+   "label_id": "LIVE4_SCORING",
+   "value": "GATE_4_OF_4_PASS_PENDING_V2_FREEZE_AND_FX_PIN",
+   "status": "BLOCKED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/DEEPSEEK-ROUTING-CONTRACT.md",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T02:39:22+00:00",
+   "supersedes": "BLOCKED_JUDGE_UNREADABLE_1_OF_4"
+  },
+  "D_A_BASELINE_ARM": {
+   "label_id": "D_A_BASELINE_ARM",
+   "value": "FIXED_VERIFIED_0_FAILURES_IN_LAST_8",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T01:22:49+00:00",
+   "supersedes": "ACTIVE_DEBUG_ROOTCAUSED_TIER_FIX_DEPLOYED"
+  },
+  "D_B_JUDGE_CONTRACT": {
+   "label_id": "D_B_JUDGE_CONTRACT",
+   "value": "V3_CHOICE_JSON_4_OF_4_E2E_PASS",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
+   "evidence_hash": "f1f72559c3eea1d8",
+   "updated_at_utc": "2026-08-19T02:39:22+00:00",
+   "owner_decision_id": "DEEPSEEK-AUTOMATIC-ROUTING-01",
+   "supersedes": "V2_JSON_PLUS_REASK_3_OF_4"
+  },
+  "LIVE4_PILOT_VALID_PAIRS": {
+   "label_id": "LIVE4_PILOT_VALID_PAIRS",
+   "value": "3",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T01:12:07+00:00"
+  },
+  "LIVE4_PRIMARY_VALID_PAIRS": {
+   "label_id": "LIVE4_PRIMARY_VALID_PAIRS",
+   "value": "0",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T01:12:07+00:00"
+  },
+  "LIVE4_PROTOCOL_VERSION": {
+   "label_id": "LIVE4_PROTOCOL_VERSION",
+   "value": "PENDING_V2_FREEZE",
+   "status": "OBSERVED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/TASK-CLASS-TAXONOMY.json",
+   "evidence_hash": null,
+   "updated_at_utc": "2026-08-19T01:12:07+00:00"
+  },
+  "RECEIPT_BUDGET_ACCOUNTING": {
+   "label_id": "RECEIPT_BUDGET_ACCOUNTING",
+   "value": "FIXED_VERIFIED_RUNTIME_PROBED",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/RCPT-FIX-20260819/TEST-EVIDENCE-MANIFEST.sha256",
+   "evidence_hash": "9409b3e8a16a0232",
+   "updated_at_utc": "2026-08-19T03:32:19+00:00",
+   "supersedes": "BUG_ALL_82_RECEIPTS_NEGATIVE_BUDGET_AFTER",
+   "owner_decision_id": "CORE-LIVE-LEARNING-01"
+  }
+ }
+}
