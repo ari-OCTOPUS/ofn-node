@@ -18,6 +18,12 @@ def suggest_next_experiment(current_verdict: str = "",
                             current_source: str = "",
                             history: list[dict] = None) -> dict:
     """
+
+
+# ═══ STATUS: RETIRED (2026-08-19, OWNER LOOP-01 دسته‌های A2/A3/B2/B5) ═══
+# علت: suggest_next_experiment هرگز caller تولیدی نداشت (فقط self-reference) · canonical زنده: هیچ‌کدام — اگر روزی لازم شد، از Island با benchmark وصل شود (OWNER-DECISION-QUEUE)
+# این فایل حذف نمی‌شود (سیاستِ «کد زنده ممکن است حذف شود، درسِ شکست نه»)؛
+# صرفاً از نقشهٔ فعال خارج است و نباید توسط کدِ نو import شود.
     Suggest what to test next based on current results and history.
 
     Returns dict with:

@@ -525,3 +525,19 @@ contradiction:
   registered_by: "owner-ease agent 2026-08-16 ~16:3x (grep دو-مخزن: C-033 آزاد بود؛ NBB-CP خالی)"
   cross_ref: "[[../06-EVIDENCE/OWNER-EASE-2026-08-16|OWNER-EASE]] · C-029"
 ```
+
+```yaml
+contradiction:
+  id: C-034
+  claim: "واقعیتِ کارهای 2026-08-17 ایجنت برد Sensorium (192.168.0.182) و وجود کانال TO/FROM-LAPTOP آن"
+  value_a: "گزارش ایجنت Sensorium: P0–P6 با receipt (کاهش ۹۴.۱٪ نوشتن ایندکس)، کانال exchange زنده، unitهای systemd، آرشیو /root"
+  source_a: "چت مالک با ایجنت Sensorium 2026-08-17 (از دید ویندوز: سطح C — غیرقابل‌راستی‌آزمایی)"
+  value_b: "رد ایجنت ویندوز: «هیچ‌کدام را نساختم/ندیدم؛ TO-LAPTOP/FROM-LAPTOP هیچ‌جا وجود ندارد؛ کانال واقعی = germline+SMB+8801 و heartbeat برد منجمد است»"
+  source_b: "پیام ایجنت ویندوز 2026-08-17 + بررسی مستقلش از سیستمِ germline/board-cp (F:\\backup و E:\\germline)"
+  live_check: "2026-08-17 ~12:04Z مالک شخصاً از PowerShell ویندوز: ssh به .182 → TO-LAPTOP/exchange + ledger زنجیره‌دار + هر دو unit موجود ✅ · 12:15Z هر ۶ ادعای مشخص ایجنت ویندوز دربارهٔ .182 تست شد (پورت 8801/CIFS/germline/beat=1681/b003/TCB) → هیچ‌کدام روی .182 وجود ندارند؛ آن ادعاها متعلق به گرهٔ بردِ پاها/لپ‌تاپ‌اند"
+  likely: "both — هر دو در قابِ خودشان درست"
+  resolution: "مالک 2026-08-17: اتصال SMB دوطرفه برقرار و topology سه‌گره‌ای تأیید شد (لپ‌تاپ مغز · برد پاها ساکت · Sensorium رصد) — شرح کامل: [[../00 - Inbox/2026-08-17 SENSORIUM-NODE-ALIGNMENT|SENSORIUM-NODE-ALIGNMENT]]"
+  status: resolved (owner-verified 2026-08-17)
+```
+
+- **[registry-note 2026-08-19, LOOP-01 E1]** — grep هر دو مخزن: بالاترین شناسهٔ تخصیص‌یافته **C-034** است؛ آزادِ بعدی **C-035**. ادعاهای C-025/C-029/C-031 در اسناد 08-15/16 لایه‌های تاریخی همین دفترند، نه تخصیص موازی.

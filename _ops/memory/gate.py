@@ -178,9 +178,15 @@ class MemoryGate:
                "evidence_ref": candidate.get("evidence_ref"),
                "confidence_source": candidate.get("confidence_source"),
                "confidence_method": candidate.get("confidence_method"),
-               # Two-phase admission: PENDING is durable but invisible to retrieval until
-               # every receipt/outcome/ledger artifact is committed.
-               "admission_state": str(candidate.get("admission_state") or "ADMITTED").upper(),
+               # Two-phase admission (A1 wired 2026-08-19, OWNER LOOP-01 دسته A):
+               # ترَّسیلِ ردپا، پذیرشِ مستقیم می‌خرد — نویسندهٔ غیرسیستمیِ بدونِ
+               # inputs_sha/evidence_ref ⇒ PENDING (نامرئی برای بازیابی تا promote).
+               "admission_state": str(
+                   candidate.get("admission_state")
+                   or ("ADMITTED" if (
+                           str(source).lower() in ("owner", "deterministic")
+                           or bool(candidate.get("inputs_sha") or candidate.get("evidence_ref")))
+                       else "PENDING")).upper(),
                "created_at": _utc_now_iso()}
         try:
             mid = self._store.insert(rec)

@@ -99,5 +99,27 @@ check("t9 live row count unchanged BY MIGRATION itself (before==after read post-
 check("t10 historical rows untouched (columns NULL, not fabricated)",
       con_ro is not None)
 
-print("\n" + ("ALL PASS" if not FAIL else "FAILURES: " + str(FAIL)))
+
+# ── A1 (LOOP-01 دسته A): دو مرحله‌ای برای نویسنده‌های پرریسک ────────────
+store2 = MS.MemoryStore(path=tmp.with_name("lab-a1.db"))
+gate2 = GT.MemoryGate(store2)
+gate2.contradiction_checker = (lambda c, m: radar.check_against_store(
+    new_content=c, new_memory_id=m)) if False else None
+# (رادار روی استورِ خالی بی‌معناست؛ این تست فقط منطقِ پیش‌فرضِ PENDING را می‌سنجد)
+rA = gate2.submit(cand("traceable claim with sha", source="self_loop:self_knowledge",
+                       inputs_sha="ab" * 32, namespace=NS))
+check("A1 traceable self_loop -> ADMITTED", rA.get("verb") == "commit" and
+      store2._conn.execute("SELECT admission_state FROM memory WHERE content LIKE 'traceable%'"
+                           ).fetchone()[0] == "ADMITTED")
+rB = gate2.submit(cand("untraceable free-text claim", source="self_loop:improve",
+                       evidence_ref=None, namespace=NS))
+row_b = store2._conn.execute("SELECT admission_state FROM memory WHERE content LIKE 'untraceable%'").fetchone()
+check("A1 untraceable self_loop -> PENDING (invisible to retrieval)",
+      rB.get("verb") == "commit" and row_b[0] == "PENDING")
+rC = gate2.submit(cand("system rule row", source="deterministic", namespace=NS))
+check("A1 deterministic -> ADMITTED directly",
+      store2._conn.execute("SELECT admission_state FROM memory WHERE content LIKE 'system rule%'"
+                           ).fetchone()[0] == "ADMITTED")
+
+print("FINAL-A1: " + ("ALL PASS" if not FAIL else "FAILURES: " + str(FAIL)))
 sys.exit(1 if FAIL else 0)

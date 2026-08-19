@@ -32,6 +32,12 @@ Design principles (matching _ops original):
   - idempotent: same sources → same result
   - atomic writes: .tmp → replace
 """
+
+
+# ═══ STATUS: RETIRED (2026-08-19, OWNER LOOP-01 دسته‌های A2/A3/B2/B5) ═══
+# علت: دوقلوی NEVER-WIRED با docstring نادرست («daemon صدا می‌زند» — هرگز نزد)؛ لاگ‌ها فقط runner دستی زدند · canonical زنده: _ops/neural/consolidation.py (۶۲۵+ سیکل زنده، وصل به wiring.make_neural_stack)
+# این فایل حذف نمی‌شود (سیاستِ «کد زنده ممکن است حذف شود، درسِ شکست نه»)؛
+# صرفاً از نقشهٔ فعال خارج است و نباید توسط کدِ نو import شود.
 from __future__ import annotations
 import hashlib
 import json

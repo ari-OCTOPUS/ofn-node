@@ -1,3 +1,9 @@
+
+
+# ═══ STATUS: RETIRED (2026-08-19, OWNER LOOP-01 دسته‌های A2/A3/B2/B5) ═══
+# علت: orphAN با صفر import تولیدی (کاتالوگ 08-16 طبقه ۵/۷؛ Deep-Seams VOTE 1) · canonical زنده: هیچ‌کدام — wire-or-retire رأی مالک در صف
+# این فایل حذف نمی‌شود (سیاستِ «کد زنده ممکن است حذف شود، درسِ شکست نه»)؛
+# صرفاً از نقشهٔ فعال خارج است و نباید توسط کدِ نو import شود.
 # experiments/analysis.py — بازتولید §۳ گزارش از results.csv
 # آزمون‌های پیش‌ثبت‌شده طبق §4 طرح DECEPTIVE-ENV-3AGENT-EXPERIMENT.md:
 #   permutation test (10k shuffle) روی median ttd · Cliff's δ ·
