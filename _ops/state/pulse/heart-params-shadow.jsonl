@@ -5522,3 +5522,6 @@
 {"ts": "2026-08-19T20:23:01", "beat": 41926, "period_s": 365.37, "sigma_now": 0.0, "baro_factor": 6.0895, "wire_open": false}
 {"ts": "2026-08-19T20:26:47", "beat": 41931, "period_s": 362.71, "sigma_now": 0.0, "baro_factor": 6.0451, "wire_open": false}
 {"ts": "2026-08-19T20:30:33", "beat": 41935, "period_s": 365.37, "sigma_now": 0.0, "baro_factor": 6.0895, "wire_open": false}
+{"ts": "2026-08-19T20:36:49", "beat": 41940, "period_s": 360.07, "sigma_now": 0.0, "baro_factor": 6.0012, "wire_open": false}
+{"ts": "2026-08-19T20:42:27", "beat": 41946, "period_s": 360.07, "sigma_now": 0.0, "baro_factor": 6.0012, "wire_open": false}
+{"ts": "2026-08-19T20:46:10", "beat": 41950, "period_s": 360.07, "sigma_now": 0.0, "baro_factor": 6.0012, "wire_open": false}

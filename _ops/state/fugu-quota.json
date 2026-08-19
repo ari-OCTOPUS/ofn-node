@@ -10,7 +10,7 @@
     "primary:ARCHITECT_SYS": 300
   },
   "denied": {
-    "daily-cap": 108
+    "daily-cap": 114
   },
   "consecutive_timeouts": 0,
   "last_error_class": "URLError",

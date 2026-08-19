@@ -1,11 +1,11 @@
 {
-  "ts": "2026-08-19T20:06:38",
-  "beat": 41909,
+  "ts": "2026-08-19T20:36:14",
+  "beat": 41938,
   "version": 359,
-  "source": "heuristic",
+  "source": "cached:no-change",
   "snapshot_hash": "b93855ec3d9b219d",
-  "stable_cycles": 0,
-  "llm_calls": 1,
+  "stable_cycles": 1,
+  "llm_calls": 0,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
@@ -86,7 +86,7 @@
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-19T20:06:38",
+    "ts": "2026-08-19T20:36:14",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,

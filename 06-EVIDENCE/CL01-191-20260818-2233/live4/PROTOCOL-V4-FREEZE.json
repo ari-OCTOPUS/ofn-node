@@ -38,7 +38,7 @@
   "confirmatory_protection": "primary threshold NEVER modified from batches 3-4 results (WAR24-LOCK-ADDENDUM-1 §3)"
  },
  "sizing_note": "at observed V4-readability (8/8 gate), 30 attempts ≈ 30 valid expected; reservation cap 200 ample",
- "owner_decision_id": null,
+ "owner_decision_id": "OWNER-RATIFY-2026-08-19-V4-FREEZE",
  "recorded_by": "LOOP-01 session (gap-fill: decision_id was None)",
  "basis_signed_decisions": [
   {
@@ -54,5 +54,6 @@
    "covers": "different-family judge incl. primary; DeepSeek fallback per overnight directive"
   }
  ],
- "ratify_pending": "owner ratification of the V4 freeze record itself is PENDING; field intentionally null"
+ "ratify_pending": false,
+ "ratified_at_utc": "2026-08-19T10:50:58+00:00"
 }

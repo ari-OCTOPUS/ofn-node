@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T10:31:57+00:00",
+ "generated_at_utc": "2026-08-19T10:50:58+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -432,9 +432,9 @@
    "status": "VERIFIED",
    "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PROTOCOL-V4-FREEZE.json",
    "evidence_hash": "8826297f8e0ee694",
-   "updated_at_utc": "2026-08-19T10:31:57+00:00",
+   "updated_at_utc": "2026-08-19T10:50:58+00:00",
    "supersedes": "V2_FROZEN",
-   "owner_decision_id": "OWNER-OVERNIGHT-AUTONOMOUS-2026-08-19"
+   "owner_decision_id": "OWNER-RATIFY-2026-08-19-V4-FREEZE"
   },
   "RECEIPT_BUDGET_ACCOUNTING": {
    "label_id": "RECEIPT_BUDGET_ACCOUNTING",

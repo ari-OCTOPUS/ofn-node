@@ -1341,3 +1341,6 @@
 {"ts": "2026-08-19T20:26:13", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "1e8599cbb307b8602dad87a5", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
 {"ts": "2026-08-19T20:26:26", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "cbfb538e70c34c1e71a0e248", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
 {"ts": "2026-08-19T20:31:26", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "1e8599cbb307b8602dad87a5", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
+{"ts": "2026-08-19T20:36:26", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "1e8599cbb307b8602dad87a5", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
+{"ts": "2026-08-19T20:41:49", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "9e7307c0703b821eb9c00320", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
+{"ts": "2026-08-19T20:47:16", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "9e7307c0703b821eb9c00320", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}

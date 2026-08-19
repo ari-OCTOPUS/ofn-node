@@ -61,7 +61,7 @@
       "fail_count": 0,
       "success_count": 0,
       "last_fail_ts": "2026-08-19T15:18:35",
-      "last_ok_ts": "2026-08-19T19:59:43",
+      "last_ok_ts": "2026-08-19T20:45:56",
       "opened_at_ts": null,
       "half_open_attempts": 0,
       "consecutive_opens": 0,

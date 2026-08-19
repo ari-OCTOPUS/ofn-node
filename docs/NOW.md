@@ -1,4 +1,4 @@
-# NOW — OCTOPUS current truth (generated 2026-08-19T10:31:57+00:00 from _ops/state/labels.json)
+# NOW — OCTOPUS current truth (generated 2026-08-19T10:50:58+00:00 from _ops/state/labels.json)
 ## Headline
 - **VALID_PAIRS = 30** (OBSERVED) — primary metric; PRIMARY_VALID_PAIRS = 30; threshold 20_WINS_OF_30_VALID_PAIRS
 - LIVE4: PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED · SCORING: PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W (OBSERVED)

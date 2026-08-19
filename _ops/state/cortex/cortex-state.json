@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-19T20:26:48",
-  "cycle": 31,
-  "coherence": 0.969,
+  "ts": "2026-08-19T20:47:02",
+  "cycle": 33,
+  "coherence": 0.979,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.969,
-      "age_s": 110,
+      "awareness": 0.988,
+      "age_s": 44,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.969,
-      "age_s": 223,
+      "awareness": 0.994,
+      "age_s": 45,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.969,
-      "age_s": 223,
+      "awareness": 0.994,
+      "age_s": 45,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.985,
-      "age_s": 222,
+      "awareness": 0.997,
+      "age_s": 45,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.97,
-      "age_s": 10304,
+      "awareness": 0.967,
+      "age_s": 11515,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.992,
-      "age_s": 111,
+      "awareness": 0.997,
+      "age_s": 47,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.947,
-      "age_s": 18158,
+      "awareness": 0.944,
+      "age_s": 19369,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.947,
-      "age_s": 18159,
+      "awareness": 0.944,
+      "age_s": 19370,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.98,
-      "age_s": 10410,
+      "awareness": 0.978,
+      "age_s": 11621,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.965,
-      "age_s": 18157,
+      "awareness": 0.963,
+      "age_s": 19368,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,8 +107,8 @@
     {
       "id": "fourd_system",
       "present": true,
-      "awareness": 0.957,
-      "age_s": 613,
+      "awareness": 0.958,
+      "age_s": 606,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -122,7 +122,7 @@
   },
   "rhythm": {
     "period_s": 600.0,
-    "source": "×۲ قلبِ سایه (362.71s)"
+    "source": "×۲ قلبِ سایه (360.07s)"
   },
   "brains": {
     "keys": {
@@ -133,7 +133,7 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] وضعیتِ مجموعه: می‌توانستیم به توضیح‌های دقیق‌تر و مفصل‌تری کمک کنیم.\n\nآخرین بازتاب: 🔴 نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker)، 🧠 مغزِ مرکزی، ❤️ قلب beat نم",
+  "thought": "[local] ان مهم‌ترین کارِ مجموعه چیست تمرکز‌کنید برای تهدید‌ها و موانع‌های خواسته‌تان.",
   "stress": {
     "level": "🟡 استرس",
     "organism_stress": 0.63,
@@ -142,11 +142,11 @@
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 365.37
+    "heart_period_s": 360.07
   },
   "fourd_health": {
     "status": "fresh",
-    "age_s": 1582
+    "age_s": 2793
   },
   "ignition": {
     "ignited": true,
@@ -161,21 +161,13 @@
     "ungraded": 340
   },
   "consolidate": {
-    "n_in": 7,
+    "n_in": 6,
     "n_semantic": 0,
-    "archived": 7
+    "archived": 6
   },
   "truth_sync": {
-    "wrote": true,
-    "keys": [
-      "coherence",
-      "members_present",
-      "stale_members",
-      "beat",
-      "halted",
-      "rfcs_pending",
-      "HEAD"
-    ]
+    "skipped": "cooldown",
+    "next_in_s": 589.2
   },
   "owner_guidance": {
     "focus": "موانع چیست",

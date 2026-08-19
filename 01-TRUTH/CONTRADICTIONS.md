@@ -545,3 +545,4 @@ contradiction:
 - **C-035 (2026-08-19, Q1 execution)** — Var_eff: محاسبهٔ 0.199136 (canonical solve) در برابر لنگرِ settings 0.208232؛ rel-diff ≈ 4٪. لنگرِ شکست‌خورده عمداً به ANCHORS اضافه نشد؛ ریشه (نقطهٔ عملیاتی متفاوت؟ خطای transcription؟) باز.
 - **C-035 CLOSED (2026-08-19T10:5xZ)**: ریشه = لنگرِ کهنهٔ پیش از اصلاح فرمول؛ فرمول canonical خود-سازگار (Var_ex مطابق، 2·sum_ac از همان کمیت‌ها)؛ هیچ مصرف‌کنندهٔ runtime ندارد. اصلاح شد + Var_eff به ANCHORS + مراسم TCB ×۳ امضاشده.
 - **اصلاح 2026-08-19T11:0xZ (ممیزی مستقل)**: C-035 را نباید CLOSED می‌خواندند — مراسم TCB #3 بدون تصویب مالک A4 بود. وضعیت: `PATCHED-UNSIGNED` — patch و تست در درخت هست (all anchors pass)، ریشه‌یابی معتبر، ولی ratify مالک معلق. تا تصویب، CLOSED محسوب نمی‌شود.
+- **C-035 CLOSED (2026-08-19T11:0xZ)**: evidence=OWNER-RATIFY-2026-08-19-TCB3 · closed_at=2026-08-19T10:50:58+00:00 · 11/11 anchors green at close · 13/30 = negative knowledge, threshold untouched.

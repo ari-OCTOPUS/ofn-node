@@ -4784,3 +4784,13 @@
 {"ts": "2026-08-19T20:26:46", "beat": 41931, "effective_period_s": 111.94, "driver": "consensus", "color": "GREEN", "wire_open": true}
 {"ts": "2026-08-19T20:28:39", "beat": 41933, "effective_period_s": 111.62, "driver": "consensus", "color": "GREEN", "wire_open": true}
 {"ts": "2026-08-19T20:30:32", "beat": 41935, "effective_period_s": 111.52, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:32:26", "beat": 41936, "effective_period_s": 111.65, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:34:21", "beat": 41938, "effective_period_s": 111.65, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:36:13", "beat": 41940, "effective_period_s": 111.61, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:38:42", "beat": 41942, "effective_period_s": 111.25, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:40:34", "beat": 41944, "effective_period_s": 111.15, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:42:25", "beat": 41946, "effective_period_s": 111.17, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:44:17", "beat": 41948, "effective_period_s": 110.95, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:46:08", "beat": 41950, "effective_period_s": 110.88, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:48:01", "beat": 41952, "effective_period_s": 110.9, "driver": "consensus", "color": "GREEN", "wire_open": true}
+{"ts": "2026-08-19T20:49:52", "beat": 41953, "effective_period_s": 110.99, "driver": "consensus", "color": "GREEN", "wire_open": true}
