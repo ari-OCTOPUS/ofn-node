@@ -10,7 +10,7 @@
 | CONTRADICTION_RADAR | ادعای ACTIVE ولی در زنده وصل نیست (label باید CLAIMED شود تا سیم‌کشی) | CLAIMED | `06-EVIDENCE/AUDIT-191-20260819/OCTOPUS-FULL-AUDIT.md` §C4 |
 | RECEIPT_BUDGET_BUG | هر ۸۲ رسید budget_after منفی (model_router.py:319) | OPEN | `06-EVIDENCE/AUDIT-191-20260819/OCTOPUS-DEFECT-REGISTER.md` RCPT-1 |
 
-_افزودهٔ 2026-08-19T02:2xZ پس از ممیزی کامل: [[../../06-EVIDENCE/AUDIT-191-20260819/OCTOPUS-FULL-AUDIT|AUDIT-191]] — ردیف‌های بالایی دست‌نخورده ماندند._
+_افزودهٔ 2026-08-19T02:2xZ پس از ممیزی کامل: [[../06-EVIDENCE/AUDIT-191-20260819/OCTOPUS-FULL-AUDIT|AUDIT-191]] — ردیف‌های بالایی دست‌نخورده ماندند._
 | ~~LIVE4 D-A/D-B~~ | D-A: FIXED_VERIFIED · D-B: V3 4/4 E2E PASS (02:38Z) — گیتِ اولیه سبز شد | RESOLVED | `06-EVIDENCE/CL01-191-20260818-2233/live4/DEEPSEEK-ROUTING-CONTRACT.md` |
 | LIVE4_SCORING | صرفاً منتظر دو کارِ مالک: فریز V2 (ODN-2) + پین FX قبل از 06:00Z (ODN-1) | BLOCKED | `02-DECISIONS/DEEPSEEK-AUTOMATIC-ROUTING-01-2026-08-19.md` |
 

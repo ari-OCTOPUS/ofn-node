@@ -6,7 +6,7 @@ updated: 2026-08-18
 # HANDOFF — وضعیت برای جلسه بعد
 
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16). سرریزِ 2026-07-29 (ورودی‌های ≤ 07-24): `_Archive/Logs/HANDOFF-archive-2026-07-29.md`. سرریزِ 2026-08-01 (ورودی‌های ≤ 07-27): `_Archive/Logs/HANDOFF-archive-2026-08-01.md`. سرریزِ 2026-08-04 (ورودی‌های ≤ 08-02): `_Archive/Logs/HANDOFF-archive-2026-08-04.md`. سرریزِ 2026-08-05 (ورودی‌های ≤ 08-04): `_Archive/Logs/HANDOFF-archive-2026-08-05.md`. سرریزِ 2026-08-06 (ورودی‌های 08-05): `_Archive/Logs/HANDOFF-archive-2026-08-06.md`. سرریزِ 2026-08-07 (ورودی‌های 08-06): `_Archive/Logs/HANDOFF-archive-2026-08-07.md`. سرریزِ 2026-08-08 (ورودی‌های 08-06..08-07): `_Archive/Logs/HANDOFF-archive-2026-08-08.md`.
-> 🧭 **ایجنتِ جدید؟** خلاصهٔ کاملِ کارِ 2026-08-02 + honest boundaries + قواعدی که این سشن رعایت کرد: [[00 - Inbox/SESSION-NOTES-2026-08-02|SESSION-NOTES-2026-08-02]]. درس‌های این سشن در [[../_memory/EXPERIENCE-LEDGER|ledger]] (§ 2026-08-02).
+> 🧭 **ایجنتِ جدید؟** خلاصهٔ کاملِ کارِ 2026-08-02 + honest boundaries + قواعدی که این سشن رعایت کرد: [[../00 - Inbox/SESSION-NOTES-2026-08-02|SESSION-NOTES-2026-08-02]]. درس‌های این سشن در [[../_memory/EXPERIENCE-LEDGER|ledger]] (§ 2026-08-02).
 
 ## 🔒 WORKLOCK — قفلِ کارِ موازی
 
