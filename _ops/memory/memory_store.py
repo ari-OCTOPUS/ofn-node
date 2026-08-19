@@ -26,12 +26,12 @@ import taxonomy as tax  # noqa: E402
 
 SCHEMA_VERSION = 3
 _LOCK = threading.RLock()
-_ADMISSION_STATES = frozenset({"PENDING", "ADMITTED", "RETRACTED"})
+_ADMISSION_STATES = frozenset({"PENDING", "ADMITTED", "RETRACTED", "QUARANTINED"})
 _COLS = ("memory_id", "namespace", "mkey", "content", "content_sha256", "trust",
          "provenance_json", "confidence", "salience", "valid_from", "valid_to",
          "supersedes", "privacy", "admission_state", "schema_version", "created_at",
          "tenant_id", "project_id", "scope", "agent_id", "task_id", "classification",
-         "policy_version")
+         "policy_version", "evidence_ref", "confidence_source", "confidence_method")
 
 
 def _utc_now_iso() -> str:
@@ -78,6 +78,11 @@ class MemoryStore:
                 ("task_id", "TEXT NOT NULL DEFAULT ''"),
                 ("classification", "TEXT NOT NULL DEFAULT 'internal'"),
                 ("policy_version", "TEXT NOT NULL DEFAULT 'memory-policy.v1'"),
+                # TEAM-A promotion (OWNER-CONSENTS-2026-08-19T0615Z §4): ستون‌های
+                # افزایشی — provenance همچنان منبع کامل است؛ ستون‌ها برای پرس‌وجوی مستقیم.
+                ("evidence_ref", "TEXT"),
+                ("confidence_source", "TEXT"),
+                ("confidence_method", "TEXT"),
             ):
                 if name not in cols:
                     self._conn.execute(f"ALTER TABLE memory ADD COLUMN {name} {ddl}")
@@ -118,6 +123,11 @@ class MemoryStore:
         if not tax.is_trust(trust):
             raise ValueError(f"unknown trust: {trust!r}")
         content = str(rec.get("content") or "")
+        # F3 (OWNER-CONSENTS-2026-08-19T0615Z §4): متادیتای اجباری — fail-closed.
+        # ردیفِ بدون confidence هرگز وارد حافظهٔ کانونی نمی‌شود (۴۲ ردیفِ تاریخیِ
+        # فاقدِ confidence دست‌نخورده و EXCLUDED می‌مانند؛ این قانون فقط insert نو است).
+        if rec.get("confidence") is None or rec.get("confidence") == "":
+            raise ValueError("F3: confidence required for canonical insert (fail-closed)")
         csha = _sha(content)
         mkey = rec.get("mkey")
         mkey = str(mkey) if mkey is not None else None
@@ -151,7 +161,10 @@ class MemoryStore:
                    str(rec.get("agent_id") or "unknown"),
                    str(rec.get("task_id") or ""),
                    str(rec.get("classification") or "internal"),
-                   str(rec.get("policy_version") or "memory-policy.v1"))
+                   str(rec.get("policy_version") or "memory-policy.v1"),
+                   (str(rec["evidence_ref"]) if rec.get("evidence_ref") else None),
+                   (str(rec["confidence_source"]) if rec.get("confidence_source") else None),
+                   (str(rec["confidence_method"]) if rec.get("confidence_method") else None))
             self._conn.execute(
                 "INSERT OR IGNORE INTO memory(" + ",".join(_COLS) + ") VALUES(" +
                 ",".join("?" * len(_COLS)) + ")", row)
@@ -172,6 +185,16 @@ class MemoryStore:
             return mid
 
     # ── خواندن ────────────────────────────────────────────────────────────────
+    def quarantine(self, memory_id: str) -> bool:
+        """TEAM-A: تناقض ⇒ QUARANTINED — گذارِ وضعیت، بدون حذفِ رکورد."""
+        with _LOCK:
+            cur = self._conn.execute(
+                "UPDATE memory SET admission_state='QUARANTINED' "
+                "WHERE memory_id=? AND admission_state IN ('PENDING','ADMITTED')",
+                (memory_id,))
+            self._conn.commit()
+            return cur.rowcount > 0
+
     def get(self, namespace: str, mkey: str, min_trust: str = None) -> "dict | None":
         """آخرین رکوردِ معتبرِ (namespace, mkey). min_trust → فقط اگر دستِ‌کم آن قوّت."""
         with _LOCK:

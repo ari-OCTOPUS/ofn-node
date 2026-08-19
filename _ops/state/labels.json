@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T05:45:08+00:00",
+ "generated_at_utc": "2026-08-19T06:03:31+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -90,11 +90,13 @@
   },
   "CONTRADICTION_RADAR": {
    "label_id": "CONTRADICTION_RADAR",
-   "value": "ACTIVE",
+   "value": "ACTIVE_VERIFIED_WIRED_QUARANTINE_ON_CONTRADICTION",
    "status": "VERIFIED",
-   "evidence_path": "_ops/memory/gate.py",
-   "evidence_hash": "44488d0f67cb1038",
-   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+   "evidence_path": "06-EVIDENCE/TEAM-A-PROMOTION-20260819/TEST-EVIDENCE-MANIFEST.sha256",
+   "evidence_hash": "79641473d309a051",
+   "updated_at_utc": "2026-08-19T06:03:31+00:00",
+   "owner_decision_id": "OWNER-CONSENTS-2026-08-19T0615Z",
+   "supersedes": "ACTIVE"
   },
   "PREDICTION_LEDGER": {
    "label_id": "PREDICTION_LEDGER",
@@ -356,11 +358,13 @@
   },
   "F3_METADATA_ENTRY": {
    "label_id": "F3_METADATA_ENTRY",
-   "value": "OPEN",
-   "status": "CLAIMED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/METADATA-CONFIDENCE-AUDIT.md",
-   "evidence_hash": "0f51e76d764b4bc9",
-   "updated_at_utc": "2026-08-19T01:04:06+00:00"
+   "value": "FIXED_VERIFIED_CONFIDENCE_FAIL_CLOSED",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/TEAM-A-PROMOTION-20260819/TEST-EVIDENCE-MANIFEST.sha256",
+   "evidence_hash": "79641473d309a051",
+   "updated_at_utc": "2026-08-19T06:03:31+00:00",
+   "owner_decision_id": "OWNER-CONSENTS-2026-08-19T0615Z",
+   "supersedes": "OPEN"
   },
   "D3_GIT_HISTORY_RISK": {
    "label_id": "D3_GIT_HISTORY_RISK",

@@ -3167,6 +3167,17 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                 mem = _msx.MemoryStore(path=mem_db)
                 if _gate_on and _mgx is not None:
                     mgate = _mgx.MemoryGate(mem)
+                    # TEAM-A promotion (OWNER-CONSENTS-2026-08-19T0615Z §4): رادارِ تناقض
+                    # روی مسیرِ تولیدی — hookِ موجودِ gate.contradiction_checker از این‌جا
+                    # وصل می‌شود؛ هر تناقض ⇒ verb=quarantine + ردیف QUARANTINED.
+                    try:
+                        import contradiction_radar as _crx  # noqa: WPS433 — هم‌پوشه
+                        _radar = _crx.ContradictionRadar(store=mem)
+                        mgate.contradiction_checker = (
+                            lambda content, mid, _r=_radar: _r.check_against_store(
+                                new_content=content, new_memory_id=mid))
+                    except Exception:  # noqa: BLE001 — رادار اختیاری است، گیت نمی‌میرد
+                        pass
             except Exception:  # noqa: BLE001 — حافظه اختیاری است
                 mem = mgate = None
         # LEG-07: Event Spine (اختیاری، پشتِ OCTOPUS_WIRE_SPINE) — dual-write زنجیرهٔ

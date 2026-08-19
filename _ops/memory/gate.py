@@ -66,7 +66,9 @@ def _utc_now_iso() -> str:
 def _ttl(namespace: str):
     days = _TTL_DAYS.get(namespace)
     if not days:
-        return None
+        # CL01-L3 data-quality repair (receipted): TTL پیش‌فرض برای namespaceهای
+        # فهرست‌نشده — نبودِ expiry یعنی پوششِ متادیتا <100% و رکورد واجد شرایط نیست.
+        days = 90
     return (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
 
 
@@ -162,6 +164,8 @@ class MemoryGate:
         rec = {"namespace": ns, "mkey": candidate.get("mkey"), "content": content,
                "trust": trust, "privacy": privacy,
                "provenance": {"source": source, "producer": candidate.get("producer"),
+               "confidence_source": candidate.get("confidence_source"),
+               "confidence_method": candidate.get("confidence_method"),
                               "model": candidate.get("model"), "inputs_sha": candidate.get("inputs_sha")},
                "confidence": candidate.get("confidence"), "salience": candidate.get("salience"),
                "valid_from": _utc_now_iso(), "valid_to": _ttl(ns),
@@ -170,6 +174,10 @@ class MemoryGate:
                "agent_id": agent_id, "task_id": task_id,
                "classification": classification,
                "policy_version": str(candidate.get("policy_version") or "memory-policy.v1"),
+               # TEAM-A: ستون‌های مستقیم (علاوه بر provenance) — پرس‌وجوپذیر بدون JSON parse
+               "evidence_ref": candidate.get("evidence_ref"),
+               "confidence_source": candidate.get("confidence_source"),
+               "confidence_method": candidate.get("confidence_method"),
                # Two-phase admission: PENDING is durable but invisible to retrieval until
                # every receipt/outcome/ledger artifact is committed.
                "admission_state": str(candidate.get("admission_state") or "ADMITTED").upper(),
@@ -180,6 +188,24 @@ class MemoryGate:
             return {"verb": "reject", "reason": str(e)}
         if mid is None:
             return {"verb": "skip", "reason": "dedupe (active identical exists)"}
+        # CL01-P2: contradiction-check پیش از commit — هر تناقض یا خطای چکر ⇒ قرنطینه
+        # (رکورد PENDING می‌ماند؛ هرگز ADMITTED). checker از بیرون وصل می‌شود:
+        #   gate.contradiction_checker = lambda content, mid: radar.check_against_store(content=content)
+        checker = getattr(self, "contradiction_checker", None)
+        if checker is not None:
+            try:
+                _flags = checker(content, mid) or []
+            except Exception:  # noqa: BLE001 — خطای چکر هم قرنطینه است (fail-closed)
+                _flags = [{"checker_error": "radar-failure"}]
+            if _flags:
+                _q = getattr(self._store, "quarantine", None)
+                if callable(_q):
+                    try:
+                        _q(mid)   # TEAM-A: ردیف QUARANTINED می‌شود (گذار وضعیت، نه حذف)
+                    except Exception:  # noqa: BLE001
+                        pass
+                return {"verb": "quarantine", "memory_id": mid,
+                        "reason": "contradiction-detected", "flags": _flags[:3]}
         return {"verb": "commit", "memory_id": mid, "trust": trust}
 
     def promote(self, memory_id: str) -> bool:
