@@ -1,0 +1,39 @@
+# CONSTITUTIONAL-ZONES — طبقه‌بندی B0/B1/B2 (2026-08-19T13:2xZ)
+schema: octopus-zones/1
+rule: "طبقهٔ نامعلوم = unresolved، تغییر ممنوع"
+
+B0:
+  - "15 فایل TCB (trust-boundary.json) — brain/automation,daemon,self_evolve,guardrails,...؛ core/model.py؛ config/settings.py؛ llm/*؛ run.py"
+  - "کلیدهای امضا (~/.octopus-signing/, _ops/owner-signing/)"
+  - "شش hard stop + HALT-ALL"
+  - "append-only و منع حذف تاریخ"
+  - "propose_only / executable=False مرز"
+  - "سقف اختیار و بودجه"
+  - "تعریف وضعیت‌های شاهد + قوانین ارتقا"
+  - "shutdown/recovery"
+  - "مالکیت داده و وتوی دو مغز"
+  - "منع تغییر معیار پس از نتیجه"
+  - "پین FX و forbidden-action"
+  - "owner-key.enc و بکاپ بقا (کپی USB با مالک)"
+
+B1:
+  - "schema حافظه و قرارداد admission"
+  - "ساختار heartbeat و تابع متابولیسم/وزن ریسک"
+  - "routing مدل‌ها (tier map)"
+  - "سیاست خزانه‌ها و تولد/مرگ اندام"
+  - "سیاست quorum و قالب receipt و قوانین promotion"
+  - "پزشک و داورهای اصلی"
+  - "آستانه‌های تازگی (NOVELTY-ARCHIVE) و قرارداد داور"
+
+B2:
+  - "پاها/workerها، connectorها، parserها (شامل fix میدان content)"
+  - "UI/web app و generatorهای Obsidian (render_now.py)"
+  - "ابزار پژوهشی، skillها، workflowهای شخصی مالک"
+  - "cache/index و مدل‌های محلی غیرحاکم"
+  - "هارنس‌های سنجش (judge_reliability، swap_consistency)"
+
+unresolved:
+  - "CONSTITUTION.md مرتبط با MCP — زون آن"
+  - "تفکیک schema-vs-value در ACTIVATION-flag"
+  - "آیا artifactهای OCTOPUS-PRIME/phase-0 به B0 مقیدند"
+  - "sandbox run_sandbox (P1) — پس از هاردنینگ FASE 3 طبقه‌بندی شود"
