@@ -1,31 +1,31 @@
 {
-  "ts": "2026-08-19T12:43:41",
+  "ts": "2026-08-19T18:34:34",
   "schema": "part-loops.v1",
-  "beat": 140,
+  "beat": 20,
   "parts": [
     {
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢",
-      "detail": "ضربان 342s"
+      "detail": "ضربان 368s"
     },
     {
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 95٪"
+      "detail": "هم‌آهنگی 97٪"
     },
     {
       "id": "doctor",
       "name": "🩺 دکتر",
-      "status": "🟡",
-      "detail": "1 منتظر"
+      "status": "🟢",
+      "detail": "0 منتظر"
     },
     {
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.770655$/۳۰"
+      "detail": "0.798624$/۳۰"
     },
     {
       "id": "learning",

@@ -1,13 +1,13 @@
 {
  "active": true,
- "started_at": 1787116976.297582,
+ "started_at": 1787132224.0044618,
  "reset_record": {
   "schema": "reservation-override/1",
-  "owner_decision_id": "LIVE4-PROTOCOL-V2-FREEZE-01",
+  "owner_decision_id": "PROTOCOL-V4-FREEZE 2026-08-19T09:4xZ",
   "basis": "usable paid path probe-observed; budget expanded (30/24/1.00)",
-  "observed_at": 1787116976.2806125
+  "observed_at": 1787132224.0042455
  },
- "provider_attempts": 81,
+ "provider_attempts": 95,
  "judge_evals": 0,
- "pairs": 18
+ "pairs": 30
 }

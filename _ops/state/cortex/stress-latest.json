@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-19T15:37:09",
+  "ts": "2026-08-19T20:00:23",
   "schema": "stress.v1",
-  "organism_stress": 0.64,
+  "organism_stress": 0.63,
   "in_fear": [],
   "level": "🟡 استرس",
   "subsystems": {
@@ -31,9 +31,9 @@
     },
     "alerts": {
       "name": "🚨 هشدارها",
-      "stress": 0.64,
+      "stress": 0.63,
       "fear": false,
-      "detail": "105 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
+      "detail": "100 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
     }
   }
 }

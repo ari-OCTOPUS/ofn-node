@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T07:02:07+00:00",
+ "generated_at_utc": "2026-08-19T10:00:28+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -132,12 +132,12 @@
   },
   "VALID_PAIRS": {
    "label_id": "VALID_PAIRS",
-   "value": "22",
+   "value": "30",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
-   "evidence_hash": "0b32d71b8a6e9d98",
-   "updated_at_utc": "2026-08-19T05:37:57+00:00",
-   "supersedes": "0"
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V4-REPORT.md",
+   "evidence_hash": "13379e94c5ee692c",
+   "updated_at_utc": "2026-08-19T10:00:28+00:00",
+   "supersedes": "22"
   },
   "LEARNING_THRESHOLD": {
    "label_id": "LEARNING_THRESHOLD",
@@ -259,13 +259,12 @@
   },
   "LIVE4_STATE": {
    "label_id": "LIVE4_STATE",
-   "value": "AWAITING_FX_2026-08-20_AND_DB_V4_NEXT_SESSION",
+   "value": "PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED",
    "status": "OBSERVED",
-   "evidence_path": "02-DECISIONS/OWNER-IMMEDIATE-2026-08-19T0542Z.md",
-   "evidence_hash": "a8f12cf52a8934e2",
-   "updated_at_utc": "2026-08-19T05:45:08+00:00",
-   "supersedes": "PRIMARY_V2_EXECUTED_AWAITING_OWNER_DECISION",
-   "owner_decision_id": "OWNER-IMMEDIATE-2026-08-19T0542Z"
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V4-REPORT.md",
+   "evidence_hash": "13379e94c5ee692c",
+   "updated_at_utc": "2026-08-19T10:00:28+00:00",
+   "supersedes": "AWAITING_FX_2026-08-20_AND_DB_V4_NEXT_SESSION"
   },
   "LIVE4_PROTOCOL": {
    "label_id": "LIVE4_PROTOCOL",
@@ -317,12 +316,12 @@
   },
   "LIVE4_JUDGE": {
    "label_id": "LIVE4_JUDGE",
-   "value": "BLIND_RANDOMIZED_AB_READABILITY_73PCT",
-   "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md",
-   "evidence_hash": "9780d1a229542b48",
-   "updated_at_utc": "2026-08-19T05:37:57+00:00",
-   "supersedes": "BLIND_RANDOMIZED_AB"
+   "value": "V4A_512_PLUS_SINGLE_TOKEN_READABILITY_100PCT",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V4-REPORT.md",
+   "evidence_hash": "13379e94c5ee692c",
+   "updated_at_utc": "2026-08-19T10:00:28+00:00",
+   "supersedes": "BLIND_RANDOMIZED_AB_READABILITY_73PCT"
   },
   "LIVE4_VOID_POLICY": {
    "label_id": "LIVE4_VOID_POLICY",
@@ -384,12 +383,12 @@
   },
   "LIVE4_SCORING": {
    "label_id": "LIVE4_SCORING",
-   "value": "PRIMARY_V2_EXECUTED_CRITERION_NOT_MET_22V_13W",
+   "value": "PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V2-REPORT.md",
-   "evidence_hash": "9780d1a229542b48",
-   "updated_at_utc": "2026-08-19T05:37:57+00:00",
-   "supersedes": "UNBLOCKED_PRIMARY_V2_AUTHORIZED"
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V4-REPORT.md",
+   "evidence_hash": "13379e94c5ee692c",
+   "updated_at_utc": "2026-08-19T10:00:28+00:00",
+   "supersedes": "PRIMARY_V2_EXECUTED_CRITERION_NOT_MET_22V_13W"
   },
   "D_A_BASELINE_ARM": {
    "label_id": "D_A_BASELINE_ARM",
@@ -420,12 +419,12 @@
   },
   "LIVE4_PRIMARY_VALID_PAIRS": {
    "label_id": "LIVE4_PRIMARY_VALID_PAIRS",
-   "value": "22",
+   "value": "30",
    "status": "OBSERVED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl",
-   "evidence_hash": "0b32d71b8a6e9d98",
-   "updated_at_utc": "2026-08-19T05:37:57+00:00",
-   "supersedes": "0"
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PRIMARY-V4-REPORT.md",
+   "evidence_hash": "13379e94c5ee692c",
+   "updated_at_utc": "2026-08-19T10:00:28+00:00",
+   "supersedes": "22"
   },
   "LIVE4_PROTOCOL_VERSION": {
    "label_id": "LIVE4_PROTOCOL_VERSION",

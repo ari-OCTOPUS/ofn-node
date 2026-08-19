@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-19T12:43:39",
+  "ts": "2026-08-19T18:34:34",
   "schema": "self-model.v1",
-  "n_modules": 776,
-  "total_lines": 206818,
-  "n_tests": 756,
+  "n_modules": 778,
+  "total_lines": 207134,
+  "n_tests": 758,
   "n_wire_flags": 183,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
@@ -2822,13 +2822,17 @@
     },
     "cortex/cost_receipt.py": {
       "purpose": "cost_receipt.py — آداپتور رسیدِ هزینهٔ provider (CL01 / COST-OBS-1، حکم مالک 2026-08-19).",
-      "lines": 165,
-      "n_funcs": 1,
+      "lines": 221,
+      "n_funcs": 5,
       "n_classes": 2,
       "top_defs": [
         "PricingTable",
         "CostReceiptAdapter",
-        "_sha"
+        "_sha",
+        "_today_receipts",
+        "remaining_budget_aud",
+        "fx_pinned_fresh",
+        "paid_blocked_today"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -3146,18 +3150,18 @@
     },
     "cortex/live4_reservation.py": {
       "purpose": "live4_reservation.py — لایهٔ رزروِ ظرفیت برای LIVE-4 (LIVE-4-CAPACITY-RESERVATION-01).",
-      "lines": 129,
-      "n_funcs": 12,
+      "lines": 150,
+      "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
+        "_receipt",
         "_load",
         "_save",
         "quota_snapshot",
         "observe_quota_reset",
         "start",
         "stop",
-        "is_active",
-        "gate_paid"
+        "is_active"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -3179,7 +3183,7 @@
     },
     "cortex/model_router.py": {
       "purpose": "model_router.py — «به همه جا API بده»: یک درِ واحد به سه مغز.",
-      "lines": 689,
+      "lines": 738,
       "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
@@ -5429,7 +5433,7 @@
     },
     "hypothesis_engine/experiments/analysis.py": {
       "purpose": "",
-      "lines": 423,
+      "lines": 429,
       "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
@@ -7763,7 +7767,7 @@
     },
     "memory/gate.py": {
       "purpose": "gate.py — Memory Gate: تنها مسیرِ نوشتنِ مجازِ حافظهٔ مشتق (FSM با قوانینِ trust).",
-      "lines": 265,
+      "lines": 281,
       "n_funcs": 4,
       "n_classes": 1,
       "top_defs": [
@@ -7793,7 +7797,7 @@
     },
     "memory/memory_store.py": {
       "purpose": "memory_store.py — storeِ حافظهٔ graded (SQLite + FTS5)، append-only، trust-stamped.",
-      "lines": 362,
+      "lines": 385,
       "n_funcs": 4,
       "n_classes": 1,
       "top_defs": [
@@ -10190,6 +10194,32 @@
       "wire_flags": [
         "OCTOPUS_WIRE_COLLAB"
       ],
+      "house_imports": []
+    },
+    "scripts/label_history.py": {
+      "purpose": "label_history.py — hash-chain helper for _ops/state/label-history.jsonl.",
+      "lines": 69,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_rows",
+        "_entry_hash",
+        "append",
+        "verify"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "scripts/memory_promote.py": {
+      "purpose": "memory_promote.py — promotion pass for PENDING canonical-memory rows (A1 wiring).",
+      "lines": 65,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "pending_rows",
+        "main"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "scripts/render_now.py": {
@@ -12854,7 +12884,7 @@
     },
     "wiring.py": {
       "purpose": "wiring.py — Phase 5+ · W-1..W-5: اتصالِ ۵ لایه به یک حلقهٔ زنده (پشتِ flag، paper-mode).",
-      "lines": 4348,
+      "lines": 4359,
       "n_funcs": 105,
       "n_classes": 0,
       "top_defs": [

@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-19T12:43:42",
+  "ts": "2026-08-19T18:34:35",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 82.6,
   "checklist_static": true,
   "maturity_pct": 82.6,
   "improvement_rate": {
-    "closed": 5,
-    "moved": 0,
-    "rate_pct": 0.0
+    "closed": 6,
+    "moved": 4,
+    "rate_pct": 66.7
   },
   "n_proposals": 38,
   "by_category": {
@@ -23,9 +23,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-60b8b9a70f",
+        "id": "up-0f61fe2b2e",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (16/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (19/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
@@ -144,10 +144,10 @@
         "status": "proposed"
       },
       {
-        "id": "up-038ca160bb",
+        "id": "up-8d9b5c4565",
         "priority": "P1",
-        "title": "کوچک‌ترین فیکسِ دکتر: بدونِ ری‌استارتِ ارگانیسم، ارزیابی سایه را روی امروز انجام می‌دهم",
-        "suggested_action": "بدونِ ری‌استارتِ ارگانیسم، ارزیابی سایه را روی امروز انجام می‌دهم",
+        "title": "کوچک‌ترین فیکسِ دکتر: بی‌پی‌ی‌ای‌ها و کنترل‌های محدودی را تایید کردن",
+        "suggested_action": "بی‌پی‌ی‌ای‌ها و کنترل‌های محدودی را تایید کردن",
         "change_level": "reconfig",
         "source": "smallest_fix",
         "status": "proposed"
@@ -398,12 +398,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-60b8b9a70f",
+      "id": "up-0f61fe2b2e",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (16/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (19/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -522,18 +522,18 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 18,
-      "moved": false,
+      "tracked": 17,
+      "moved": true,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
         "total_discoveries": 140,
-        "proposals_delivered": 20,
+        "proposals_delivered": 21,
         "proposal_outcomes": 48,
         "proposal_positive": 46,
         "proposal_accept_rate": 0.9583333333333334,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 8
+        "proposals_sent": 9
       },
       "since": {
         "confirmed_revenue": 0,
@@ -556,7 +556,7 @@
   },
   "self_improve_gauges": {
     "schema": "self-improve-gauges.v1",
-    "ts": "2026-08-19T02:43:42.897871+00:00",
+    "ts": "2026-08-19T08:34:35.553497+00:00",
     "goal_loop_close_7d": {
       "n": 15,
       "n_pass": 0,

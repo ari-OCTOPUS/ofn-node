@@ -198,3 +198,16 @@ def synthetic_smoke_receipt() -> dict:
     return {"schema": "live4-smoke/1", "kind": "SYNTHETIC_PREFLIGHT_SMOKE",
             "fx": load_fx(), "harness": SCHEMA,
             "note": "non-live preflight only; no provider call"}
+
+
+# V4 (consent §1 + V4-FREEZE-PREP): fallback تک‌توکنی داور — پارسر جدا از JSON
+SINGLE_TOKEN = '\n\nANSWER NOW with exactly ONE character: A or B or T. If truly equal, T. Nothing else.'
+
+def parse_single_token(text: str, cond_position: str) -> dict:
+    t = str(text or "").strip().upper()[:3]
+    v = {"A": "A", "B": "B", "T": "TIE", "TI": "TIE", "TIE": "TIE"}.get(t)
+    winner = None
+    if v == "A": winner = "conditioned" if cond_position == "A" else "baseline"
+    elif v == "B": winner = "conditioned" if cond_position == "B" else "baseline"
+    return {"verdict": v or "UNREADABLE", "winner": winner,
+            "schema": "judge-single-token/1", "void": v is None}

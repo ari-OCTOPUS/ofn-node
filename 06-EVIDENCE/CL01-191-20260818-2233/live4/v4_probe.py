@@ -16,15 +16,24 @@ sys.path.insert(0, str(ROOT / "_ops")); sys.path.insert(0, str(ROOT / "_ops/cort
 sys.path.insert(0, str(ROOT / "_ops/memory")); sys.path.insert(0, str(ROOT / "4d_system")); sys.path.insert(0, str(L4))
 import live4_driver as D
 import live4_harness as H
-from llm.glm_client import GLMClientSync
-
-glm = GLMClientSync()
+# V4a (consent §1): judge = DeepSeek @512 + single-token fallback (GLM BLOCKED-INFRA-BALANCE)
+glm = None
 PAIRS = L4 / "live4-pairs.jsonl"
 def emit(p, o): p.open("a", encoding="utf-8").write(json.dumps(o, ensure_ascii=False, default=str) + "\n")
 
 def glm_judge(prompt: str, max_tokens: int) -> tuple[str, str]:
-    txt = glm.chat([{"role": "user", "content": prompt}], temperature=0.0, max_tokens=max_tokens)
-    return str(txt or ""), "glm"
+    txt, ok, mod = D.ask_fugu(prompt, "live4-v4p-judge", max_tokens=max_tokens)
+    return (txt if ok else ""), (mod or "deepseek-v4-flash")
+
+def parse_single_token(text: str, cond_position: str) -> dict:
+    """V4 fallback: قرارداد تک‌توکنی — فقط A/B/T/TIE خالص؛ برنده از نگاشت موقعیت."""
+    t = str(text or "").strip().upper()[:3]
+    v = {"A": "A", "B": "B", "T": "TIE", "TI": "TIE", "TIE": "TIE"}.get(t)
+    winner = None
+    if v == "A": winner = "conditioned" if cond_position == "A" else "baseline"
+    elif v == "B": winner = "conditioned" if cond_position == "B" else "baseline"
+    return {"verdict": v or "UNREADABLE", "winner": winner,
+            "schema": "judge-single-token/1", "void": v is None}
 
 SINGLE_TOKEN = ("\n\nANSWER NOW with exactly ONE character: A or B or T. "
                 "If truly equal, T. Nothing else.")
@@ -47,18 +56,21 @@ for i in range(N):
             emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": f"arms base={bok} cond={cnote}", "probe": "v4"})
             results.append({"i": i+1, "readable": False, "void": True, "why": "arms"}); continue
         bp = H.blind_pair(base_txt, cond_txt, seed=400 + i, template=H.JUDGE_PROMPT_V3)
-        j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q), 256)
-        jc = H.judge_choice_v3(j_txt, bp["cond_position"], judge_provider="glm",
+        j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q), 512)
+        jc = H.judge_choice_v3(j_txt, bp["cond_position"], judge_provider="deepseek-v4a-512",
                                judge_model=jmod, trace_id=f"{pid}-judge")
         if jc["void"]:
+            emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 1, "raw": (j_txt or "")[:600], "ts": D.now(), "probe": "v4"})
             D.receipt("JUDGE_REASK", prediction_id=pid, note="unreadable-1st contract=v3")
             j_txt, jmod = glm_judge(bp["judge_prompt"].replace("{TASK}", D.Q) + SINGLE_TOKEN, 8)
-            jc = H.judge_choice_v3(j_txt, bp["cond_position"], judge_provider="glm",
-                                   judge_model=jmod, trace_id=f"{pid}-judge2")
+            jc = parse_single_token(j_txt, bp["cond_position"])
+            jc.update({"judge_provider": "deepseek-v4a-512", "judge_model": jmod,
+                       "trace_id": f"{pid}-judge2", "raw_output_sha256": __import__("hashlib").sha256(j_txt.encode()).hexdigest()})
             jc["reasked"] = True; jc["fallback"] = "single-token"
         readable = not jc["void"]
         won = jc["winner"]
         if not readable:
+            emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 2, "raw": (j_txt or "")[:600], "ts": D.now(), "probe": "v4"})
             D.LED.attach_outcome(prediction_id=pid, outcome="VOID_JUDGE_UNREADABLE")
             emit(PAIRS, {"batch": 9, "pair": i+1, "void": True, "why": "judge", "probe": "v4"})
         else:

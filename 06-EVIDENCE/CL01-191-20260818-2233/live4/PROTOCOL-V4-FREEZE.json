@@ -1,0 +1,41 @@
+{
+ "schema": "live4-protocol-freeze/1",
+ "protocol_version": "V4",
+ "owner_decision_ids": [
+  "OWNER-CONSENTS-2026-08-19T0615Z §1",
+  "WAR24-LOCK-2026-08-19T0815Z §4 (GLM→BLOCKED-INFRA-BALANCE)"
+ ],
+ "frozen_at_utc": "2026-08-19T09:37:03+00:00",
+ "composite_sha256": "e7f6c4af596235c9c00b340aa1cd692924f18ff1dbedd945bbb1ee70dfef0ba5",
+ "frozen_set": {
+  "files": [
+   "TASK-CLASS-TAXONOMY.json",
+   "live4_harness.py",
+   "live4_fg_runner.py",
+   "live4_driver.py",
+   "v4_probe.py",
+   "../../RCPT-FIX-20260819/TEST-EVIDENCE-MANIFEST.sha256",
+   "DEEPSEEK-ROUTING-CONTRACT.md"
+  ],
+  "sha256_by_file": {
+   "../../RCPT-FIX-20260819/TEST-EVIDENCE-MANIFEST.sha256": "9409b3e8a16a02321b810798e5b201de84302f0aec6f4c4284f15d80f4aea246",
+   "DEEPSEEK-ROUTING-CONTRACT.md": "39f9c4f36344b7e855f5c3dab943ebf75f101b121f0bf7cd2f545f07078a3c0a",
+   "TASK-CLASS-TAXONOMY.json": "8d33263fb31aa66f52cd4bc2aba932e829da382c4a908766e6d36450adb824e6",
+   "live4_driver.py": "82e827f1b9e8b50c9a9a1432905db6520083b21411da58a708f17b2e43853028",
+   "live4_fg_runner.py": "126942810f6828fe4e7c00d735c434ca65336414bf09fc3334706dddc048ae5f",
+   "live4_harness.py": "d8363926d884b9b1e154c2a63d221a94f901d94f0fbac37e968b978f0c84d2b7",
+   "v4_probe.py": "98c20402efa43bfe4bbcbb3bda8a228b9becd96ce78ec4b8190973db24c19281"
+  }
+ },
+ "content": {
+  "judge": "DeepSeek deepseek-v4-flash @512 tokens; strict single-key JSON {\"choice\":A|B|TIE}; ONE receipted re-ask → SINGLE-TOKEN contract (8 tokens, bare A/B/T/TIE); second unreadable = VOID",
+  "e2e_gate": "8/8 readable — PASSED 2026-08-19T09:3xZ (probe trace: 6 first-try + 2 single-token recovered; spent $0.0014)",
+  "primary_criterion": "2 batches × 15 attempts; ≥15 valid/batch not required — STRICT: exactly 30 attempts, voids reduce valid count; ≥10 wins/batch, ≥30 valid, ≥20 wins total (frozen, unchanged)",
+  "void_policy": "provider failure & unreadable judge (after both contracts) = VOID; local/freeze fallback evaluation_eligible=false",
+  "arms": "both tier=primary deepseek-v4-flash; conditioned arm carries retrieved ADMITTED evidence mem-ids",
+  "mechanical_separation": "primary-pairs.jsonl (batches 1-4) / e2e-pairs.jsonl (batch 9) / live4-pairs.jsonl = historical pilot+V2 (read-only)",
+  "V2_V4_cross_comparison": "VOID by design (judge contract changed; internal-V4 delta only)",
+  "confirmatory_protection": "primary threshold NEVER modified from batches 3-4 results (WAR24-LOCK-ADDENDUM-1 §3)"
+ },
+ "sizing_note": "at observed V4-readability (8/8 gate), 30 attempts ≈ 30 valid expected; reservation cap 200 ample"
+}
