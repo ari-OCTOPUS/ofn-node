@@ -1362,3 +1362,4 @@
 {"ts": "2026-08-19T21:39:39", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "3cac06a1de8604d5566138d3", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
 {"ts": "2026-08-19T21:39:50", "sender": "tg_api._call_post", "action": "sendMessage", "params_sha": "52db82ecd893476df35a05ed", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
 {"ts": "2026-08-19T21:39:52", "sender": "tg_api._call_post", "action": "pinChatMessage", "params_sha": "424d4f6c81e101fa690457cd", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
+{"ts": "2026-08-19T21:44:46", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "743a14fe88d5cb9f3429d009", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}

@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-19T21:42:19",
-  "beat": 42005,
+  "ts": "2026-08-19T21:48:05",
+  "beat": 42011,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 42005,
+    "beat_seq": 42011,
     "period_s": 357.44,
     "sigma_now": 0.0,
     "baro_factor": 5.9574
@@ -13,7 +13,7 @@
     "schema": "HeartTelemetry.v1",
     "velocity_per_hr": 12.625,
     "cpi_0_1": 0.0,
-    "delta_self_live": -0.006897,
+    "delta_self_live": -0.007316,
     "band_lo": 0.4588,
     "band_hi": 4.4484,
     "gates": {
@@ -53,11 +53,11 @@
     "baroreflex_gain": 0.0
   },
   "gate0_live_producer": false,
-  "sampled_this_step": true,
+  "sampled_this_step": false,
   "production_wire": {
     "open": false,
     "reasons": [
-      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.006897) — خودشناسیِ منفی این گیت را باز نمی‌کند",
+      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.007316) — خودشناسیِ منفی این گیت را باز نمی‌کند",
       "hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)"
     ]
   },

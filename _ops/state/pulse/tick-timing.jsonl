@@ -14026,3 +14026,12 @@
 {"name": "doctor_beat", "beat": 42005, "ms": 0, "ok": true, "err": ""}
 {"name": "leg_beat", "beat": 42005, "ms": 354, "ok": true, "err": ""}
 {"name": "ziman_beat", "beat": 42005, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 42007, "ms": 0, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 42007, "ms": 441, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 42007, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 42009, "ms": 0, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 42009, "ms": 400, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 42009, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 42011, "ms": 0, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 42011, "ms": 474, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 42011, "ms": 0, "ok": true, "err": ""}

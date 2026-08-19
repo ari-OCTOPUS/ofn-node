@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T11:43:39+00:00",
+ "generated_at_utc": "2026-08-19T11:48:35+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -467,12 +467,13 @@
   },
   "ANSWER_FIRST_NONDETERMINISM": {
    "label_id": "ANSWER_FIRST_NONDETERMINISM",
-   "value": "UNKNOWN_SAMPLING_CONSISTENT_DISPERSION_4_4_2",
+   "value": "PARTIAL_TEMPERATURE_CONTRIBUTES_NOT_SOLE_4_3_4",
    "status": "OBSERVED",
-   "evidence_path": "F:/backup-island/shared/ledger/mutation-ledger.jsonl",
-   "evidence_hash": "f553ca353d0356b9",
-   "updated_at_utc": "2026-08-19T11:43:39+00:00",
-   "owner_decision_id": "OWNER-ORDER-2026-08-19-OVERNIGHT-4"
+   "evidence_path": "06-EVIDENCE/GATE3-SURVIVAL-20260819/nondet-temp0.json",
+   "evidence_hash": "7081541f1238684f",
+   "updated_at_utc": "2026-08-19T11:48:35+00:00",
+   "supersedes": "UNKNOWN_SAMPLING_CONSISTENT_DISPERSION_4_4_2",
+   "owner_decision_id": "MEGAPROMPT-CONTINUATION-v4"
   }
  }
 }

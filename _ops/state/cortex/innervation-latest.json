@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-19T21:42:20",
+  "ts": "2026-08-19T21:48:05",
   "schema": "innervation.v1",
   "heart_period_s": 357.44,
   "coverage_pct": 100.0,
@@ -27,7 +27,7 @@
       "id": "cortex",
       "name": "🧠 مغزِ مرکزی",
       "status": "🟢 عصب‌دار",
-      "age_min": 4.8,
+      "age_min": 0.5,
       "sla_min": 30,
       "connected": true
     },
@@ -35,7 +35,7 @@
       "id": "work",
       "name": "⚙️ پمپِ کار",
       "status": "🟢 عصب‌دار",
-      "age_min": 0.0,
+      "age_min": 5.8,
       "sla_min": 360,
       "connected": true
     },
@@ -51,7 +51,7 @@
       "id": "parts",
       "name": "🔁 لوپِ بخش‌ها",
       "status": "🟢 عصب‌دار",
-      "age_min": 85.6,
+      "age_min": 91.4,
       "sla_min": 120,
       "connected": true
     },
@@ -59,7 +59,7 @@
       "id": "business",
       "name": "💼 مغزِ دومِ کسب‌وکار",
       "status": "🟢 عصب‌دار",
-      "age_min": 85.6,
+      "age_min": 91.4,
       "sla_min": 120,
       "connected": true
     },
@@ -67,7 +67,7 @@
       "id": "learning",
       "name": "📚 یادگیری/تحقیق",
       "status": "🟢 عصب‌دار",
-      "age_min": 668.1,
+      "age_min": 673.8,
       "sla_min": 1440,
       "connected": true
     },
@@ -75,7 +75,7 @@
       "id": "selfmodel",
       "name": "🪞 خودمدلی",
       "status": "🟢 عصب‌دار",
-      "age_min": 85.6,
+      "age_min": 91.4,
       "sla_min": 120,
       "connected": true
     },
@@ -91,7 +91,7 @@
       "id": "fourd",
       "name": "🧩 4d_system (مشاهده)",
       "status": "🟢 عصب‌دار",
-      "age_min": 5.0,
+      "age_min": 0.6,
       "sla_min": 120,
       "connected": true
     }

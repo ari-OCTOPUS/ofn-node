@@ -1,12 +1,12 @@
 {
-  "ts": "2026-08-19T21:42:19",
+  "ts": "2026-08-19T21:48:04",
   "velocity": {
     "velocity_per_hr": 12.625,
     "components": {
       "confirmed": 0,
       "effects": 0,
       "consolidation": 1,
-      "beats": 1281,
+      "beats": 1282,
       "cognition": null
     },
     "confirmed_ts": [],
@@ -22,7 +22,7 @@
     "authoritative": false,
     "self_referential": true,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-08-19T21:42:19",
+    "ts": "2026-08-19T21:48:04",
     "fuel_velocity_per_hr": 12.5,
     "value_velocity_per_hr": null,
     "real_velocity_per_hr": 12.5,
@@ -42,7 +42,7 @@
       "fuel": 300,
       "value_cognition": null,
       "effects": 0,
-      "beats": 1281
+      "beats": 1282
     }
   },
   "cpi": {
@@ -54,24 +54,24 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-08-19T21:42:19"
+    "ts": "2026-08-19T21:48:04"
   },
   "delta_self": {
-    "stream_rows": 2017,
+    "stream_rows": 2018,
     "sample_size": 336,
     "window": 336,
     "min_samples": 48,
-    "ts": "2026-08-19T21:42:19",
-    "delta_self_live": -0.006897,
-    "delta_self_raw": -0.006897,
-    "S_blind": 0.11763488851789505,
-    "S_informed": 0.1192687323886523,
-    "resolution_mse": 0.01631385656925174,
+    "ts": "2026-08-19T21:48:04",
+    "delta_self_live": -0.007316,
+    "delta_self_raw": -0.007316,
+    "S_blind": 0.11139398723054207,
+    "S_informed": 0.11303599923170819,
+    "resolution_mse": 0.016194333444251738,
     "cov_dropped_zero_variance": [
       "confirmed",
       "effects"
     ],
-    "ceiling_live": 2.086249,
+    "ceiling_live": 2.084042,
     "holdout_n": 168,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",

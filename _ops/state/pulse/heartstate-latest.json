@@ -1,5 +1,5 @@
 {
- "ts": "2026-08-19T21:42:18",
+ "ts": "2026-08-19T21:48:03",
  "schema": "heartstate.v1",
  "epistemic": "access-only telemetry — read-only، regulator نه commander",
  "shadow": {
