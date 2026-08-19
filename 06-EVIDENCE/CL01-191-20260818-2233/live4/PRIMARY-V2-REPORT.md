@@ -40,3 +40,18 @@ Executed under owner sign-off FX-PIN-01 + LIVE4-PROTOCOL-V2-FREEZE-01, 03:43Z–
 3. Stop here: the falsified run is itself valid scientific output (negative knowledge preserved).
 
 Artifacts: live4-pairs.jsonl rows 63–92 · primary-v2-score.json · primary-v2-b1-run.log (partial, crashed shell) · API-RECEIPTS.jsonl · cost-receipts (RCPT-1 basis) · reservation-receipts.jsonl (RESET×2).
+
+## Addendum — عدد ۸ در برابر ۲۷ (تطبیق فایل‌محور، 2026-08-19T05:5xZ)
+
+منبع: `live4-judge-raws.jsonl` + برش primary در `live4-pairs.jsonl` (ردیف‌های ۶۳–۹۲) — هر عدد از فایل سنجیده شد:
+
+| عدد | معنا | مقدار |
+|---|---|---|
+| 27 | کل تلاش‌های داورِ ضبط‌شده (خام) | ۱ مربوط به اجرای E2E ‏4/4 + ۲۶ مربوط به primary |
+| 18/30 | جفت‌های primary که **تلاش اولِ** داور ناخوانا بود (خوانایی تلاش اول = ۴۰٪) | ۱۸ |
+| 10 | نجات‌یافته با تک re-ask مجاز (۵۶٪ از شکست‌ها) | ۱۰ |
+| **8** | **VOID نهایی** (هر دو تلاش ناخوانا؛ منطبق با فایل pairs — assert صحت‌سنجی شد) | **۸** |
+
+و تأیید کمّی ریشهٔ V4: **۰ از ۲۷** خروجی خام هیچ شیء JSON‌ای ندارد — صددرم بریدگیِ پیش از JSON در سقف توکن.
+
+گزارش اولیهٔ گفت‌وگو که می‌گفت «۸ خروجی خام» تعبیر نادقیقی بود (۸ = تعداد void نهایی، نه تعداد خام‌ها)؛ متن گزارش از ابتدا ۸ را به‌درستی «void» خوانده بود. این addendum مرجع یکدست است.
