@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-19T20:46:56",
+  "ts": "2026-08-19T21:37:21",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
@@ -14,7 +14,7 @@
   "margin": 0.8,
   "n_candidates": 8,
   "ignition_rate": 1.0,
-  "stability": 43,
+  "stability": 48,
   "recent_ignitions": [
     1,
     1,

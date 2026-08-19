@@ -66,3 +66,5 @@
 {"ts": "2026-08-19T11:03:07", "bot": "center", "update_id": 223883302, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "private"}
 {"ts": "2026-08-19T15:33:04", "bot": "center", "update_id": 223883303, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
 {"ts": "2026-08-19T15:33:04", "bot": "center", "update_id": 223883303, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-19T21:39:54", "bot": "center", "update_id": 223883304, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-19T21:39:54", "bot": "center", "update_id": 223883304, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}

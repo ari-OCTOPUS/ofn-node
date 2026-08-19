@@ -989,3 +989,6 @@
 {"ts": 1787117342.516096, "sender": "approval_channel.send_text", "caller_file": "instant_alert_bridge.py", "caller_line": 187, "caller_func": "check", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send_text"}
 {"ts": 1787117579.8519814, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1841, "caller_func": "_refresh_leg_card", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send"}
 {"ts": 1787133947.1980612, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1841, "caller_func": "_refresh_leg_card", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send"}
+{"ts": 1787137070.9306216, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1841, "caller_func": "_refresh_leg_card", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send"}
+{"ts": 1787139263.2321358, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 2545, "caller_func": "<lambda>", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send"}
+{"ts": 1787139590.6903985, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1841, "caller_func": "_refresh_leg_card", "on_watchlist": true, "watch_topic": "conditional", "watch_method": "send"}

@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T10:50:58+00:00",
+ "generated_at_utc": "2026-08-19T11:43:39+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -454,6 +454,25 @@
    "evidence_hash": "e42e3f3dede4b0ee",
    "updated_at_utc": "2026-08-19T07:02:07+00:00",
    "owner_decision_id": "OWNER-QUEUE-RESOLUTION-2026-08-19T0640Z"
+  },
+  "INCIDENT_UNGUARDED_IMPORT": {
+   "label_id": "INCIDENT_UNGUARDED_IMPORT",
+   "value": "CLOSED_WITH_TEST",
+   "status": "VERIFIED",
+   "evidence_path": "F:/backup-island/shared/ledger/mutation-ledger.jsonl",
+   "evidence_hash": "f553ca353d0356b9",
+   "updated_at_utc": "2026-08-19T11:43:39+00:00",
+   "owner_decision_id": "OWNER-ORDER-2026-08-19-OVERNIGHT-4",
+   "note": "negative test green: importing all 5 probe modules = 0 paid calls; 33-call incident $0.0064AUD under cap"
+  },
+  "ANSWER_FIRST_NONDETERMINISM": {
+   "label_id": "ANSWER_FIRST_NONDETERMINISM",
+   "value": "UNKNOWN_SAMPLING_CONSISTENT_DISPERSION_4_4_2",
+   "status": "OBSERVED",
+   "evidence_path": "F:/backup-island/shared/ledger/mutation-ledger.jsonl",
+   "evidence_hash": "f553ca353d0356b9",
+   "updated_at_utc": "2026-08-19T11:43:39+00:00",
+   "owner_decision_id": "OWNER-ORDER-2026-08-19-OVERNIGHT-4"
   }
  }
 }

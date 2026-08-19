@@ -2995,3 +2995,14 @@
 {"ts": "2026-08-19T20:26:48", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 1475, "ok": true}
 {"ts": "2026-08-19T20:36:55", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 5190, "ok": true}
 {"ts": "2026-08-19T20:47:02", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 5076, "ok": true}
+{"ts": "2026-08-19T20:57:07", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 1207, "ok": true}
+{"ts": "2026-08-19T21:07:12", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 1524, "ok": true}
+{"ts": "2026-08-19T21:08:10", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 680, "ms": 22702, "ok": true}
+{"ts": "2026-08-19T21:08:19", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 9304, "ok": true}
+{"ts": "2026-08-19T21:17:17", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 1243, "ok": true}
+{"ts": "2026-08-19T21:22:11", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 1086, "ms": 30888, "ok": true}
+{"ts": "2026-08-19T21:27:20", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 1196, "ok": true}
+{"ts": "2026-08-19T21:37:12", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 448, "ms": 20043, "ok": true}
+{"ts": "2026-08-19T21:37:30", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 6949, "ok": true}
+{"ts": "2026-08-19T21:37:46", "tier": "secondary", "model": "deepseek-v4-flash", "cost_musd": 680, "ms": 33500, "ok": true}
+{"ts": "2026-08-19T21:37:53", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 6246, "ok": true}

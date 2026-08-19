@@ -87,3 +87,5 @@
 {"ts_utc": "2026-08-19T10:00:28+00:00", "label_id": "LIVE4_JUDGE", "event": "TRANSITION", "from": "BLIND_RANDOMIZED_AB_READABILITY_73PCT", "to": "V4A_512_PLUS_SINGLE_TOKEN_READABILITY_100PCT"}
 {"ts_utc": "2026-08-19T10:31:57+00:00", "label_id": "LIVE4_PROTOCOL_VERSION", "event": "TRANSITION", "from": "V2_FROZEN", "to": "V4_FROZEN", "owner_decision_id": "OWNER-OVERNIGHT-AUTONOMOUS-2026-08-19"}
 {"ts_utc": "2026-08-19T10:50:58+00:00", "label_id": "LIVE4_PROTOCOL_VERSION", "event": "RATIFIED", "from": "V4_FROZEN", "to": "V4_FROZEN", "owner_decision_id": "OWNER-RATIFY-2026-08-19-V4-FREEZE", "note": "جایگزین با تصویب مالک 10:45Z"}
+{"ts_utc": "2026-08-19T11:43:39+00:00", "label_id": "INCIDENT_UNGUARDED_IMPORT", "event": "TRANSITION", "from": null, "to": "CLOSED_WITH_TEST", "owner_decision_id": "OWNER-ORDER-2026-08-19-OVERNIGHT-4"}
+{"ts_utc": "2026-08-19T11:43:39+00:00", "label_id": "ANSWER_FIRST_NONDETERMINISM", "event": "TRANSITION", "from": null, "to": "UNKNOWN_SAMPLING_CONSISTENT_DISPERSION_4_4_2", "owner_decision_id": "OWNER-ORDER-2026-08-19-OVERNIGHT-4"}

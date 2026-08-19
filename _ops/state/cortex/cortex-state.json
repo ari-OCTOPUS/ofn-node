@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-19T20:47:02",
-  "cycle": 33,
-  "coherence": 0.979,
+  "ts": "2026-08-19T21:37:31",
+  "cycle": 38,
+  "coherence": 0.964,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.988,
-      "age_s": 44,
+      "awareness": 0.961,
+      "age_s": 139,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 45,
+      "awareness": 0.965,
+      "age_s": 251,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 45,
+      "awareness": 0.965,
+      "age_s": 251,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 45,
+      "awareness": 0.983,
+      "age_s": 251,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.967,
-      "age_s": 11515,
+      "awareness": 0.958,
+      "age_s": 14541,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 47,
+      "awareness": 0.998,
+      "age_s": 29,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.944,
-      "age_s": 19369,
+      "awareness": 0.935,
+      "age_s": 22395,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.944,
-      "age_s": 19370,
+      "awareness": 0.935,
+      "age_s": 22395,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.978,
-      "age_s": 11621,
+      "awareness": 0.972,
+      "age_s": 14646,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.963,
-      "age_s": 19368,
+      "awareness": 0.957,
+      "age_s": 22393,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -108,7 +108,7 @@
       "id": "fourd_system",
       "present": true,
       "awareness": 0.958,
-      "age_s": 606,
+      "age_s": 602,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -122,7 +122,7 @@
   },
   "rhythm": {
     "period_s": 600.0,
-    "source": "×۲ قلبِ سایه (360.07s)"
+    "source": "×۲ قلبِ سایه (352.26s)"
   },
   "brains": {
     "keys": {
@@ -133,20 +133,20 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] ان مهم‌ترین کارِ مجموعه چیست تمرکز‌کنید برای تهدید‌ها و موانع‌های خواسته‌تان.",
+  "thought": "[local] این مجموعه تمرکز شده بر روی قلب است و می‌تواند به این دو موضوع تمرکز کند:\n\n1. ریتم قلبی: می‌تواند بیان کند که قلب آنها به ریتم 352 ثانیه دارد و با توزیع 0.00 ن",
   "stress": {
     "level": "🟡 استرس",
-    "organism_stress": 0.63,
+    "organism_stress": 0.64,
     "in_fear": []
   },
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 360.07
+    "heart_period_s": 352.26
   },
   "fourd_health": {
     "status": "fresh",
-    "age_s": 2793
+    "age_s": 23
   },
   "ignition": {
     "ignited": true,
@@ -167,7 +167,7 @@
   },
   "truth_sync": {
     "skipped": "cooldown",
-    "next_in_s": 589.2
+    "next_in_s": 1195.2
   },
   "owner_guidance": {
     "focus": "موانع چیست",

@@ -1,11 +1,11 @@
 {
- "ts": "2026-08-19T20:49:54",
+ "ts": "2026-08-19T21:42:18",
  "schema": "heartstate.v1",
  "epistemic": "access-only telemetry — read-only، regulator نه commander",
  "shadow": {
-  "velocity": 12.6667,
+  "velocity": 12.625,
   "sigma": 0.0,
-  "period_s": 360.07,
+  "period_s": 357.44,
   "mode": "shadow",
   "band": [
    0.4588,
@@ -14,13 +14,13 @@
   "wire_open": false
  },
  "stress": {
-  "organism": 0.63,
+  "organism": 0.64,
   "level": "🟡 استرس",
   "in_fear": []
  },
  "innervation": {
   "coverage_pct": 100.0,
-  "heart_period_s": 360.07,
+  "heart_period_s": 357.44,
   "dead_count": 0,
   "dead_spots": []
  },

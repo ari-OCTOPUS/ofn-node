@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-19T20:36:14",
-  "beat": 41938,
-  "version": 359,
-  "source": "cached:no-change",
-  "snapshot_hash": "b93855ec3d9b219d",
-  "stable_cycles": 1,
-  "llm_calls": 0,
+  "ts": "2026-08-19T21:37:53",
+  "beat": 41998,
+  "version": 361,
+  "source": "heuristic",
+  "snapshot_hash": "95334907dc5047b7",
+  "stable_cycles": 0,
+  "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
     "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 554415 micro-USD",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 561656 micro-USD",
     "pathology": [
       {
         "symptom": "خطای پرتکرار failed ×2",
@@ -57,11 +57,28 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 16953,
-      "newest_input_age_s": 13
+      "oldest_input_age_s": 22421,
+      "newest_input_age_s": 25
     }
   },
-  "deep_dive": {},
+  "deep_dive": {
+    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
+    "cause_chain": [
+      "https://github.com/username/repository#issue-1",
+      "https://github.com/username/repository#issue-2",
+      "https://github.com/username/repository#issue-3"
+    ],
+    "evidence": [
+      "https://github.com/username/repository#evidence-1",
+      "https://github.com/username/repository#evidence-2",
+      "https://github.com/username/repository#evidence-3"
+    ],
+    "smallest_fix": "https://github.com/username/repository#smallest-fix-1",
+    "blocked_by": [
+      "https://github.com/username/repository#blocked-by-1",
+      "https://github.com/username/repository#blocked-by-2"
+    ]
+  },
   "trajectory": {
     "focus_stable": true,
     "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
@@ -80,13 +97,13 @@
       "system"
     ],
     "in_fear": [],
-    "money_musd": 554415,
+    "money_musd": 561656,
     "recent_errors": {
       "failed": 2
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-19T20:36:14",
+    "ts": "2026-08-19T21:37:12",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,

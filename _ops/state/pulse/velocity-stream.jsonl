@@ -2012,3 +2012,7 @@
 {"ts": "2026-08-19T19:56:34", "v": 12.875, "cov": {"confirmed": 0, "effects": 0, "hour": 19}}
 {"ts": "2026-08-19T20:16:17", "v": 12.7917, "cov": {"confirmed": 0, "effects": 0, "hour": 20}}
 {"ts": "2026-08-19T20:36:49", "v": 12.6667, "cov": {"confirmed": 0, "effects": 0, "hour": 20}}
+{"ts": "2026-08-19T20:52:22", "v": 12.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 20}}
+{"ts": "2026-08-19T21:08:15", "v": 12.5833, "cov": {"confirmed": 0, "effects": 0, "hour": 21}}
+{"ts": "2026-08-19T21:26:30", "v": 12.5417, "cov": {"confirmed": 0, "effects": 0, "hour": 21}}
+{"ts": "2026-08-19T21:42:19", "v": 12.625, "cov": {"confirmed": 0, "effects": 0, "hour": 21}}
