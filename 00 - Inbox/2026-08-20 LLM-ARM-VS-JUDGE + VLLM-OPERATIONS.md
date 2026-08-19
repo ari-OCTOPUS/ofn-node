@@ -45,7 +45,7 @@ content = msg.get("content") or ""            # فقط پاسخ
 reasoning = msg.get("reasoning_content") or ""  # فقط شواهد/لاگ
 ```
 
-- **Multi-turn و خطای 400**: اگر `reasoning_content` دریافتی را در پیام بعدی به‌عنوان `content` یا در `messages` بازفرستید، بسیاری از APIها 400 می‌دهند (میدان ناسازگار با نقش user/assistant). قانون: یا آن را کامل حذف کنید، یا در میدان اختصاصی (در صورت پشتیبانی) بازگردانید — هرگز به‌جای content.
+- **Multi-turn و خطای 400**: رفتار بازگرداندن `reasoning_content` به مدل/parser/نسخه/API وابسته است — عمومی‌سازی نمی‌شود. قانون امن: در مسیر عمومی فقط `content` را history کن؛ reasoning را فقط پس از compatibility probe و مطابق قرارداد همان مدل بازگردان (میدان ناسازگار با نقش user/assistant). قانون: یا آن را کامل حذف کنید، یا در میدان اختصاصی (در صورت پشتیبانی) بازگردانید — هرگز به‌جای content.
 - برای لاگ: reasoning را جدا ذخیره کنید (خود ما `raw_output_sha256` + اکنون `reasoning_content` را در رسید می‌گذاریم).
 
 ### ۲.۲ stop sequences بهینه بر اساس سناریو
@@ -54,10 +54,10 @@ reasoning = msg.get("reasoning_content") or ""  # فقط شواهد/لاگ
 |---|---|---|---|
 | حکم تک‌حرفی (A/B/T) | `["\n", " "]` | ۲–۴ | تولید بعد از حرف اول قطع می‌شود؛ preamble ناممکن |
 | خط اول + rationale جدا | `["\n\n"]` | ۵۱۲ | اولین پاراگراف حکم، rationale بعد از بلوک |
-| JSON دقیق | `response_format={"type":"json_object"}` (در صورت پشتیبانی) | طبق اسکیما | الزام در سطح تولید، نه درخواست |
+| حکم انتخابی (روش اصلی) | `structured_outputs.choice=["A","B","TIE"]` (vLLM) | ۴–۸ | محدودسازی تولید در سطح ساختار — نه درخواست؛ `stop` فقط fallback سازگاری است (با whitespace ابتدایی ممکن است خروجی خالی بسازد) |
 | پاسخ بلند مستند | بدون stop | فرمول پایین | — |
 
-### ۲.۳ فرمول سایزینگ max_tokens (ضد اتلاف)
+### ۲.۳ فرمول سایزینگ max_tokens (heuristic اولیه، نه فرمول عمومی — نسبت نویسه/توکن بین زبان‌ها و tokenizerها متفاوت است)
 
 ```
 T = ceil( chars_expected / tokens_per_char ) + headroom
