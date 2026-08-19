@@ -1,0 +1,29 @@
+{
+ "schema": "action-receipt.v1",
+ "action_id": "act:08467ac86771d08c2c8d",
+ "idempotency_key": "act:08467ac86771d08c2c8d:96d14f86167415b090484ed23a904ec3",
+ "status": "EXECUTED",
+ "classification": "A0",
+ "started_at": "2026-08-18T00:21:24",
+ "finished_at": "2026-08-18T00:21:24",
+ "steps_completed": [
+  {
+   "op": "observe",
+   "result": "read"
+  }
+ ],
+ "artifacts": [],
+ "external_effects": [],
+ "cost": 0.0,
+ "before": {},
+ "after": {},
+ "rollback_available": false,
+ "evidence": [
+  {
+   "path": "state/neural/recall-trend.jsonl",
+   "exists": true,
+   "bytes": 32931
+  }
+ ],
+ "errors": []
+}

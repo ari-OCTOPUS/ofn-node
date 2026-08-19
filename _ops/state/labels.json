@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-19T10:00:28+00:00",
+ "generated_at_utc": "2026-08-19T10:31:57+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -428,13 +428,13 @@
   },
   "LIVE4_PROTOCOL_VERSION": {
    "label_id": "LIVE4_PROTOCOL_VERSION",
-   "value": "V2_FROZEN",
+   "value": "V4_FROZEN",
    "status": "VERIFIED",
-   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PROTOCOL-V2-FREEZE.json",
-   "evidence_hash": "498a0ce92045e0d7",
-   "updated_at_utc": "2026-08-19T03:38:46+00:00",
-   "supersedes": "PENDING_V2_FREEZE",
-   "owner_decision_id": "LIVE4-PROTOCOL-V2-FREEZE-01"
+   "evidence_path": "06-EVIDENCE/CL01-191-20260818-2233/live4/PROTOCOL-V4-FREEZE.json",
+   "evidence_hash": "8826297f8e0ee694",
+   "updated_at_utc": "2026-08-19T10:31:57+00:00",
+   "supersedes": "V2_FROZEN",
+   "owner_decision_id": "OWNER-OVERNIGHT-AUTONOMOUS-2026-08-19"
   },
   "RECEIPT_BUDGET_ACCOUNTING": {
    "label_id": "RECEIPT_BUDGET_ACCOUNTING",

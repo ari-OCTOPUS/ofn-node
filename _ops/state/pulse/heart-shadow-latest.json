@@ -1,37 +1,37 @@
 {
-  "ts": "2026-08-16T16:53:53",
-  "beat": 38100,
+  "ts": "2026-08-19T20:30:33",
+  "beat": 41935,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 38100,
-    "period_s": 489.97,
+    "beat_seq": 41935,
+    "period_s": 365.37,
     "sigma_now": 0.0,
-    "baro_factor": 8.1662
+    "baro_factor": 6.0895
   },
-  "period_s": 489.97,
+  "period_s": 365.37,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
-    "velocity_per_hr": 24.4167,
+    "velocity_per_hr": 12.75,
     "cpi_0_1": 0.0,
-    "delta_self_live": -0.005388,
+    "delta_self_live": -0.008099,
     "band_lo": 0.4588,
     "band_hi": 4.4484,
     "gates": {
       "g_learn": 0.0,
       "band_effective_mid": 2.4536,
-      "err": 3.0,
+      "err": 2.5808,
       "plant_saturation": {
         "saturated": false,
         "loop_gain": null,
-        "velocity_now": 24.4167,
+        "velocity_now": 12.75,
         "reason": "غیراشباع — عملگر می‌تواند velocity را حرکت دهد",
         "beat_cap": 3.0,
         "window_hours": 24.0,
         "beats_at_slowest_period": 96.0,
         "beats_at_fastest_period": 2880.0,
         "beat_units_at_slowest_period": 9.6,
-        "fuel_units": 583.0,
-        "velocity_locked_at": 24.416667
+        "fuel_units": 303.0,
+        "velocity_locked_at": 12.75
       },
       "cpi_guard": 1.0,
       "budget_pressure": 1.0,
@@ -40,14 +40,14 @@
       "fail_closed_reason": null,
       "drift_flag": false
     },
-    "period_s": 489.97
+    "period_s": 365.37
   },
   "setpoint": {
     "schema": "HeartParams.v1",
     "target_sigma": 1.0,
     "viable_band_lo": 0.4588,
     "viable_band_hi": 4.4484,
-    "epoch_seq": 48,
+    "epoch_seq": 52,
     "target_mass_scale": 1.0,
     "daily_beat_cap": 2000,
     "baroreflex_gain": 0.0
@@ -57,7 +57,7 @@
   "production_wire": {
     "open": false,
     "reasons": [
-      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.005388) — خودشناسیِ منفی این گیت را باز نمی‌کند",
+      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=-0.008099) — خودشناسیِ منفی این گیت را باز نمی‌کند",
       "hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)"
     ]
   },

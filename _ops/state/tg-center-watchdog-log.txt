@@ -80,3 +80,18 @@
 2026-08-15T14:52:17 centre down (silent 514s) - launching RUN-TG-CENTER.bat
 2026-08-16T00:27:03 STOP-TG-CENTER present - not reviving centre
 2026-08-16T16:37:03 STOP-TG-CENTER present - not reviving centre
+2026-08-17T16:47:10 centre down (silent 382s) - launching RUN-TG-CENTER.bat
+2026-08-18T00:07:12 centre HUNG (alive, silent 384s) - killing pid 2772 then relaunching
+2026-08-18T00:07:23 centre down 384s but loop alive - stopping 1 stale loop(s)
+2026-08-18T00:07:28 centre down (silent 384s) - launching RUN-TG-CENTER.bat
+2026-08-18T00:12:09 centre HUNG (alive, silent 681s) - killing pid 18452 then relaunching
+2026-08-18T00:12:18 centre down 681s but loop alive - stopping 1 stale loop(s)
+2026-08-18T00:12:22 centre down (silent 681s) - launching RUN-TG-CENTER.bat
+2026-08-18T01:12:04 centre HUNG (alive, silent 301s) - killing pid 11432 then relaunching
+2026-08-18T01:12:07 centre down 301s but loop alive - stopping 1 stale loop(s)
+2026-08-18T01:12:12 centre down (silent 301s) - launching RUN-TG-CENTER.bat
+2026-08-18T02:47:12 centre HUNG (alive, silent 538s) - killing pid 27844 then relaunching
+2026-08-18T02:47:15 centre down 538s but loop alive - stopping 1 stale loop(s)
+2026-08-18T02:47:19 centre down (silent 538s) - launching RUN-TG-CENTER.bat
+2026-08-18T16:27:04 centre down (silent 20834s) - launching RUN-TG-CENTER.bat
+2026-08-19T15:12:04 centre down (silent 5324s) - launching RUN-TG-CENTER.bat

@@ -1,0 +1,16 @@
+{
+ "schema": "life-currency.v1",
+ "color": "GREEN",
+ "scale": 1.0,
+ "beat_pool": 0.0,
+ "reserve": 0.0,
+ "members": {},
+ "hard_cap": 0.0,
+ "reasons": [
+  "color ناشناخته یا سقفِ روزانه صفر — تخصیص نکرد"
+ ],
+ "ts": "2026-08-19T20:32:26",
+ "daily_cap": 0.0,
+ "dry_run": false,
+ "beat": 41936
+}

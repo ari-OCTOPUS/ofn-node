@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-19T18:34:34",
+  "ts": "2026-08-19T20:16:42",
   "schema": "part-loops.v1",
-  "beat": 20,
+  "beat": 30,
   "parts": [
     {
       "id": "heart",
@@ -13,7 +13,7 @@
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 97٪"
+      "detail": "هم‌آهنگی 96٪"
     },
     {
       "id": "doctor",
@@ -25,7 +25,7 @@
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.798624$/۳۰"
+      "detail": "0.831622$/۳۰"
     },
     {
       "id": "learning",

@@ -1,0 +1,43 @@
+2026-08-19T06:01:17Z INF Starting tunnel tunnelID=c438ba8e-6522-4bbe-a1e3-316eb7fc4158
+2026-08-19T06:01:17Z INF Version 2026.8.2 (Checksum c29eee2b121f5436a642eed69fd9767da7e7b8c510fa50aaa130337f931357b5)
+2026-08-19T06:01:17Z INF GOOS: windows, GOVersion: go1.26.4, GoArch: amd64
+2026-08-19T06:01:17Z INF Settings: map[config:C:\Users\Armin\.cloudflared\octopus-cp-config.yml cred-file:C:\Users\Armin\.cloudflared\c438ba8e-6522-4bbe-a1e3-316eb7fc4158.json credentials-file:C:\Users\Armin\.cloudflared\c438ba8e-6522-4bbe-a1e3-316eb7fc4158.json no-autoupdate:true]
+2026-08-19T06:01:17Z INF cloudflared will not automatically update on Windows systems.
+2026-08-19T06:01:17Z INF Generated Connector ID: f9ba6a34-d76d-4da7-84da-4a62fb44c4ad
+2026-08-19T06:01:17Z INF Initial protocol quic
+2026-08-19T06:01:17Z INF ICMP proxy will use 172.20.10.6 as source for IPv4
+2026-08-19T06:01:17Z INF ICMP proxy will use 2405:6e00:e0c:3c71:b32c:cacc:f2b9:afd4 in zone Wi-Fi as source for IPv6
+2026-08-19T06:01:17Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-08-19T06:01:17Z INF ICMP proxy will use 172.20.10.6 as source for IPv4
+2026-08-19T06:01:17Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveID(65074) CurveP256] connIndex=0 event=0 ip=2405:6e00:64::c629:c01b
+2026-08-19T06:01:17Z INF ICMP proxy will use 2405:6e00:e0c:3c71:b32c:cacc:f2b9:afd4 in zone Wi-Fi as source for IPv6
+2026-08-19T06:01:17Z INF Starting metrics server on 127.0.0.1:20242/metrics
+2026-08-19T06:01:18Z INF +-------------------------------------------------------------------------------------+
+2026-08-19T06:01:18Z INF |                               CONNECTIVITY PRE-CHECKS                               |
+2026-08-19T06:01:18Z INF +-------------------------------------------------------------------------------------+
+2026-08-19T06:01:18Z INF |  COMPONENT         TARGET                     STATUS  DETAILS                       |
+2026-08-19T06:01:18Z INF |  DNS Resolution    region1.v2.argotunnel.com  PASS    DNS Resolved successfully     |
+2026-08-19T06:01:18Z INF |  DNS Resolution    region2.v2.argotunnel.com  PASS    DNS Resolved successfully     |
+2026-08-19T06:01:18Z INF |  UDP Connectivity  region1.v2.argotunnel.com  PASS    QUIC connection successful    |
+2026-08-19T06:01:18Z INF |  UDP Connectivity  region2.v2.argotunnel.com  PASS    QUIC connection successful    |
+2026-08-19T06:01:18Z INF |  TCP Connectivity  region1.v2.argotunnel.com  PASS    HTTP/2 connection successful  |
+2026-08-19T06:01:18Z INF |  TCP Connectivity  region2.v2.argotunnel.com  PASS    HTTP/2 connection successful  |
+2026-08-19T06:01:18Z INF |  Cloudflare API    api.cloudflare.com:443     PASS    API is reachable              |
+2026-08-19T06:01:18Z INF |                                                                                     |
+2026-08-19T06:01:18Z INF |  SUMMARY: Environment is healthy. cloudflared will use 'quic' as primary protocol.  |
+2026-08-19T06:01:18Z INF +-------------------------------------------------------------------------------------+
+2026-08-19T06:01:18Z INF precheck component="DNS Resolution" details="DNS Resolved successfully" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=region1.v2.argotunnel.com
+2026-08-19T06:01:18Z INF precheck component="DNS Resolution" details="DNS Resolved successfully" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=region2.v2.argotunnel.com
+2026-08-19T06:01:18Z INF precheck component="UDP Connectivity" details="QUIC connection successful" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=region1.v2.argotunnel.com
+2026-08-19T06:01:18Z INF precheck component="UDP Connectivity" details="QUIC connection successful" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=region2.v2.argotunnel.com
+2026-08-19T06:01:18Z INF precheck component="TCP Connectivity" details="HTTP/2 connection successful" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=region1.v2.argotunnel.com
+2026-08-19T06:01:18Z INF precheck component="TCP Connectivity" details="HTTP/2 connection successful" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=region2.v2.argotunnel.com
+2026-08-19T06:01:18Z INF precheck component="Cloudflare API" details="API is reachable" run_id=3a254fef-048f-4119-9300-c02b4120274a status=pass target=api.cloudflare.com:443
+2026-08-19T06:01:18Z INF precheck complete hard_fail=false run_id=3a254fef-048f-4119-9300-c02b4120274a suggested_protocol=quic
+2026-08-19T06:01:18Z INF Registered tunnel connection connIndex=0 connection=6b261d26-9dc1-42dd-8c9a-b5fc7f80a8a2 event=0 ip=2405:6e00:64::c629:c01b location=syd08 protocol=quic
+2026-08-19T06:01:18Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveID(65074) CurveP256] connIndex=1 event=0 ip=2606:4700:a8::2
+2026-08-19T06:01:18Z INF Registered tunnel connection connIndex=1 connection=a7e35d72-4209-41cd-bb03-3f552b481285 event=0 ip=2606:4700:a8::2 location=syd05 protocol=quic
+2026-08-19T06:01:19Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveID(65074) CurveP256] connIndex=2 event=0 ip=2405:6e00:64::c629:c06b
+2026-08-19T06:01:19Z INF Registered tunnel connection connIndex=2 connection=3769360e-35b9-4041-87ae-499d17743881 event=0 ip=2405:6e00:64::c629:c06b location=syd08 protocol=quic
+2026-08-19T06:01:20Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveID(65074) CurveP256] connIndex=3 event=0 ip=2606:4700:a8::4
+2026-08-19T06:01:20Z INF Registered tunnel connection connIndex=3 connection=b4566f2d-08ba-4b14-8f6e-245461642f40 event=0 ip=2606:4700:a8::4 location=syd01 protocol=quic

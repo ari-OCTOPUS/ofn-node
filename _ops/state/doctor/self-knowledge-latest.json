@@ -1,29 +1,19 @@
 {
-  "ts": "2026-08-16T16:54:25",
-  "beat": 38097,
-  "version": 321,
+  "ts": "2026-08-19T20:06:38",
+  "beat": 41909,
+  "version": 359,
   "source": "heuristic",
-  "snapshot_hash": "1121dca197c675af",
+  "snapshot_hash": "b93855ec3d9b219d",
   "stable_cycles": 0,
   "llm_calls": 1,
   "deep_dive_ran": true,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
     "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 453020 micro-USD",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 554415 micro-USD",
     "pathology": [
       {
-        "symptom": "خطای پرتکرار TimeoutError ×2",
-        "root_cause": "نامعلوم (نیاز به کاوش)",
-        "severity": "medium"
-      },
-      {
-        "symptom": "خطای پرتکرار ValueError ×2",
-        "root_cause": "نامعلوم (نیاز به کاوش)",
-        "severity": "medium"
-      },
-      {
-        "symptom": "خطای پرتکرار TypeError ×1",
+        "symptom": "خطای پرتکرار failed ×2",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
@@ -67,32 +57,11 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 14377,
-      "newest_input_age_s": 15
+      "oldest_input_age_s": 16953,
+      "newest_input_age_s": 13
     }
   },
-  "deep_dive": {
-    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
-    "cause_chain": [
-      {
-        "cause": "من می‌خواهم روی درآمدِ نقاشی تمرکز کنم.",
-        "evidence": [
-          "می‌خواستهٔ مالک را روی «واقعی‌کردن ارزیابی سایه پیش از promote» تمرکز کرد.",
-          "از داده‌ها به نظر می‌رسد که شرطِ من برای قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود."
-        ]
-      }
-    ],
-    "evidence": [
-      {
-        "source": "من می‌خواهم روی درآمدِ نقاشی تمرکز کنم.",
-        "content": [
-          "من می‌خواهم روی درآمدِ نقاشی تمرکز کنم."
-        ]
-      }
-    ],
-    "smallest_fix": null,
-    "blocked_by": null
-  },
+  "deep_dive": {},
   "trajectory": {
     "focus_stable": true,
     "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
@@ -111,16 +80,13 @@
       "system"
     ],
     "in_fear": [],
-    "money_musd": 453020,
+    "money_musd": 554415,
     "recent_errors": {
-      "TimeoutError": 2,
-      "ValueError": 2,
-      "TypeError": 1,
-      "failed": 1
+      "failed": 2
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-16T16:53:35",
+    "ts": "2026-08-19T20:06:38",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,
@@ -133,10 +99,9 @@
     "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
   ],
   "c6_unknown": {
-    "produced": true,
-    "id": "c6-7e2de8fe98bc",
-    "probe": "doctor_unknown_root_cause",
-    "unknown": 3,
+    "produced": false,
+    "reason": "all-already-queued",
+    "unknown": 1,
     "duplicates": 1
   }
 }

@@ -43,3 +43,26 @@
 {"ts": "2026-08-15T18:40:20", "bot": "center", "update_id": 223883294, "kind": "voice", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
 {"ts": "2026-08-16T11:37:34", "bot": "center", "update_id": 223883295, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
 {"ts": "2026-08-16T11:37:39", "bot": "center", "update_id": 223883295, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-16T17:38:23", "bot": "center", "update_id": 223883296, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-16T17:38:23", "bot": "center", "update_id": 223883296, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-17T10:58:26", "bot": "inner", "update_id": 732409565, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:58:30", "bot": "inner", "update_id": 732409566, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:58:37", "bot": "inner", "update_id": 732409567, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:58:42", "bot": "inner", "update_id": 732409568, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:58:44", "bot": "inner", "update_id": 732409569, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:58:47", "bot": "inner", "update_id": 732409570, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:58:52", "bot": "inner", "update_id": 732409571, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:59:01", "bot": "inner", "update_id": 732409572, "kind": "callback_query", "chars": 17, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T10:59:46", "bot": "center", "update_id": 223883297, "kind": "callback_query", "chars": 26, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": true}
+{"ts": "2026-08-17T16:48:46", "bot": "center", "update_id": 223883298, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-17T16:48:46", "bot": "center", "update_id": 223883298, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-19T00:35:43", "bot": "center", "update_id": 223883299, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-19T00:35:43", "bot": "center", "update_id": 223883299, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-19T08:36:08", "bot": "center", "update_id": 223883300, "kind": "text", "chars": 24, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-19T08:36:08", "bot": "center", "update_id": 223883300, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-19T09:53:59", "bot": "center", "update_id": 223883301, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-19T09:53:59", "bot": "center", "update_id": 223883301, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}
+{"ts": "2026-08-19T11:03:07", "bot": "center", "update_id": 223883302, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "private", "from_owner": false}
+{"ts": "2026-08-19T11:03:07", "bot": "center", "update_id": 223883302, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "private"}
+{"ts": "2026-08-19T15:33:04", "bot": "center", "update_id": 223883303, "kind": "message", "chars": 0, "is_command": false, "cmd": "", "chat_kind": "supergroup", "from_owner": false}
+{"ts": "2026-08-19T15:33:04", "bot": "center", "update_id": 223883303, "kind": "disposition", "outcome": "not-owner", "reason": "allowlist — فرستنده مالک نیست", "detail": "", "chat_kind": "supergroup"}

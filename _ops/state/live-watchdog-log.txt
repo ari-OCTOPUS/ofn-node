@@ -66,3 +66,6 @@
 2026-08-12T22:53:02 global HALT-ALL/architect-STOP present - not reviving 8773
 2026-08-12T22:58:04 8773 down - launching run-live-headless.bat
 2026-08-14T11:43:04 8773 down - launching run-live-headless.bat
+2026-08-17T16:48:06 8773 down - launching run-live-headless.bat
+2026-08-18T16:28:07 8773 down - launching run-live-headless.bat
+2026-08-19T15:13:04 8773 down - launching run-live-headless.bat

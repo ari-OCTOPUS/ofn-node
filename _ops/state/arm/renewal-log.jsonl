@@ -14,3 +14,9 @@
 {"ts": "2026-08-15T00:40:28+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786754428.0383563}
 {"ts": "2026-08-15T22:47:37+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786834057.2044792}
 {"ts": "2026-08-15T22:47:37+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786834057.2044792}
+{"ts": "2026-08-16T20:50:40+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786913440.7285593}
+{"ts": "2026-08-16T20:50:40+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786913440.7285593}
+{"ts": "2026-08-17T18:59:21+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786993161.3525639}
+{"ts": "2026-08-17T18:59:21+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786993161.3525639}
+{"ts": "2026-08-18T16:59:46+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1787072386.6384327}
+{"ts": "2026-08-18T16:59:46+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1787072386.6384327}

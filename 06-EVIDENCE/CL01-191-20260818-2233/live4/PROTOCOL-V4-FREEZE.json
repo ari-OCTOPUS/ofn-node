@@ -37,5 +37,7 @@
   "V2_V4_cross_comparison": "VOID by design (judge contract changed; internal-V4 delta only)",
   "confirmatory_protection": "primary threshold NEVER modified from batches 3-4 results (WAR24-LOCK-ADDENDUM-1 §3)"
  },
- "sizing_note": "at observed V4-readability (8/8 gate), 30 attempts ≈ 30 valid expected; reservation cap 200 ample"
+ "sizing_note": "at observed V4-readability (8/8 gate), 30 attempts ≈ 30 valid expected; reservation cap 200 ample",
+ "owner_decision_id": "OWNER-OVERNIGHT-AUTONOMOUS-2026-08-19 (DeepSeek judge per item 2; GLM BLOCKED-INFRA-BALANCE)",
+ "recorded_by": "LOOP-01 session (gap-fill: decision_id was None)"
 }

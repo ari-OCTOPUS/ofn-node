@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-16T12:54:52",
+  "ts": "2026-08-19T17:32:55",
   "schema": "doctor-rfcs.v1",
   "rfcs": [
     {
@@ -56,6 +56,42 @@
       "knob": "",
       "created_ts": 1786483756.2932084,
       "evidence_key": "legs-starved"
+    },
+    {
+      "rfc_id": "RFC-892cd209",
+      "bottleneck": "ارگانیسم در حالت FREEZE است (حسابداری نامعلوم)",
+      "fix": "رفعِ تعارضِ تلمتری که FREEZE کرده",
+      "expected_lift": "رفعِ critical: ارگانیسم در حالت FREEZE است (حسابداری نامعلوم)",
+      "rollback": "revert flag",
+      "sandbox_result": {
+        "chamber": {
+          "confidence": 0.8,
+          "rounds": 1,
+          "temperature": 0.5705
+        },
+        "sandbox_dir": "C:\\Users\\Armin\\AppData\\Local\\Temp\\doctor-sandbox-RFC-892cd209-34oh21o5",
+        "applied": false,
+        "tests": null,
+        "critic": {
+          "verdict": "unvalidated",
+          "concerns": [],
+          "reward_integrity_ok": true,
+          "sandbox_validated": false
+        }
+      },
+      "critic_review": {
+        "verdict": "unvalidated",
+        "concerns": [],
+        "reward_integrity_ok": true,
+        "sandbox_validated": false
+      },
+      "status": "expired",
+      "ledger_ref": "4da857441dba04c082885fc55f539c03525688429fb7969589cc3c69032894b2",
+      "rfc_hash": "8ed6df377efb89a62a921f2d",
+      "change_level": "code",
+      "knob": "",
+      "created_ts": 1787005956.4589083,
+      "evidence_key": "frozen-conflict"
     }
   ]
 }

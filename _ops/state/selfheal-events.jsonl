@@ -81,3 +81,5 @@
 {"leg": "lead-naghshi", "ts": 1786292428.682793, "beat": 30063, "reason": "phi-timeout:no-ack", "phi": 18.001}
 {"leg": "lead-naghshi", "ts": 1786411816.6076746, "beat": 31091, "reason": "phi-timeout:no-ack", "phi": 17.882}
 {"leg": "lead-naghshi", "ts": 1786844244.1167622, "beat": 37798, "reason": "phi-timeout:no-ack", "phi": 19.335}
+{"leg": "lead-naghshi", "ts": 1786976101.2520866, "beat": 39902, "reason": "phi-timeout:no-ack", "phi": 41.487, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787062254.7086332, "beat": 40859, "reason": "phi-timeout:no-ack", "phi": 18.104, "ok": true}

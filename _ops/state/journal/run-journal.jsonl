@@ -203,3 +203,14 @@
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786846270.302454, "meta": {"incomplete": 11}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786848751.862032, "meta": {"incomplete": 12}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786848791.1936548, "meta": {"incomplete": 12}}
+{"run_id": "rfc-RFC-5f88ab51", "step": "propose", "status": "ok", "ts": 1786910847.5998044, "meta": {}}
+{"run_id": "rfc-RFC-5f88ab51", "step": "sandbox", "status": "start", "ts": 1786910847.8397372, "meta": {}}
+{"run_id": "rfc-RFC-5f88ab51", "step": "sandbox", "status": "ok", "ts": 1786910848.0791705, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-5f88ab51", "step": "submit", "status": "ok", "ts": 1786910850.8577034, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1786949564.6461883, "meta": {"incomplete": 12}}
+{"run_id": "rfc-RFC-892cd209", "step": "propose", "status": "ok", "ts": 1787005957.1101992, "meta": {}}
+{"run_id": "rfc-RFC-892cd209", "step": "sandbox", "status": "start", "ts": 1787005958.96383, "meta": {}}
+{"run_id": "rfc-RFC-892cd209", "step": "sandbox", "status": "ok", "ts": 1787005959.739218, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-892cd209", "step": "submit", "status": "ok", "ts": 1787005966.1439924, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787035042.3068736, "meta": {"incomplete": 2}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787117006.9240453, "meta": {"incomplete": 3}}
