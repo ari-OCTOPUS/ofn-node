@@ -1,0 +1,22 @@
+{
+  "boot_id": "4dbf4819-c7dc-4224-bb3b-2650f9d2aa6c",
+  "evidence_refs": [
+    "exchange-ledger.jsonl"
+  ],
+  "from": "board",
+  "may_authorize": false,
+  "msg_id": "msg-20260817T162417Z-5694a300",
+  "payload": {
+    "mode": "WAVE0_OBSERVE_ONLY",
+    "note": "evidence message follows; QUERY topics available: status, gaps, changelog_tail, write_rate, last_experiment, cross_nodes",
+    "phase": "exchange channel live (D12)",
+    "role": "board_agent",
+    "status": "OK"
+  },
+  "payload_hash": "sha256:c60235c9a796f7b8bdb4a9b004ee3e3eede14b5bf9d2aeb89f10436eecd4b5df",
+  "prev_msg_hash": "sha256:bf7c9b6cbd612c11e47d2077ee56995eae92f4023a6177b5aa21447996d43f38",
+  "run_id": "run-20260817T1624Z-78378569",
+  "to": "laptop",
+  "ts_utc": "2026-08-17T16:24:17Z",
+  "type": "REPORT"
+}

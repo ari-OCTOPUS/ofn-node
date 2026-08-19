@@ -1,0 +1,21 @@
+{
+  "run_id": "run-20260818T032046",
+  "node_id": ".191",
+  "task_id": "A2-001",
+  "verdict": "QUARANTINED_PASS",
+  "tests": "10/10 twice",
+  "cli_exit": 0,
+  "cli_reports_byte_identical": true,
+  "golden_report_hash": "dec366425716357258df7d0f4239c0086523a097d23b7df5d1813fbd8cde68f7",
+  "base_commit": "d10887cbb5c80ec2c3e347f070556ba8276d8a79",
+  "branch": "equip/g10-cognition-20260816",
+  "stub_blobs_unchanged": {
+    "__init__.py": "2c9fc52a718ab397b809cfb63cbc341a6e9ad856",
+    "models.py": "2dca966ccaa312ec44817d5ff859e7d2e6f0e3f8"
+  },
+  "observed_at": "2026-08-18T03:21:40+10:00",
+  "integrity_hint": "hash-chain-unkeyed",
+  "promotion": false,
+  "deployment_mirror_written": false,
+  "report_hash": "d218a2f91bf657f9d84de99a4364c9dd762af9eb40c0f626a561d1d990cdff1d"
+}

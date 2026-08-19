@@ -1,0 +1,43 @@
+{
+  "action": "none",
+  "agent_id": "agent://octopus/lab-180/a2-001",
+  "board_id": "octopus-continuity-180",
+  "canonical": false,
+  "effect_authority": "none",
+  "event_time": "2026-08-17T17:49:31Z",
+  "outcome": "INSUFFICIENT_EVIDENCE",
+  "payload": {
+    "a2_001_implemented": false,
+    "a2_002_started": false,
+    "a2_003_started": false,
+    "binding_path": "/opt/octopus/a2-lab/inbox/TO-180-A2-001-binding.json",
+    "binding_present": false,
+    "binding_sha256_expected": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+    "binding_sha256_observed": null,
+    "cloned": false,
+    "commands_run": [
+      "test -e /opt/octopus/a2-lab/inbox/TO-180-A2-001-binding.json -> absent",
+      "ls /opt/octopus/a2-lab/inbox -> No such file or directory"
+    ],
+    "confidence": "high",
+    "deepseek_invoked": false,
+    "fetched": false,
+    "finished_at": "2026-08-17T17:49:31Z",
+    "fugu_invoked": false,
+    "inbox_present": false,
+    "mode": "BINDING_ACK_READ_ONLY",
+    "node_id": ".180",
+    "observed_at": "2026-08-17T17:49:31Z",
+    "outcome": "INSUFFICIENT_EVIDENCE",
+    "report_hash": "4d7e6b5ad5f9dcac2a34a1c3b7a2d3b517776eb7e24c68bf43d043b96fa1a4e9",
+    "run_id": "run-20260817T174916Z-a2-001-binding-ack",
+    "started_at": "2026-08-17T17:49:31Z",
+    "task_id": "A2-001",
+    "worktree_created": false
+  },
+  "recorded_at": "2026-08-17T17:49:31Z",
+  "schema": "octopus.evidence.envelope.lab-180.v1",
+  "source_hash": "12b98cada241c597a4dfa2460857608fd3d0ac97b4697e1750e3d16f4e3f114a",
+  "timestamp_utc": "2026-08-17T17:49:31Z",
+  "timestamp_utc_plus_11": "2026-08-18T04:49:31+1100"
+}

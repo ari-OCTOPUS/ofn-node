@@ -1,0 +1,10 @@
+task_id: A2-001
+repo_locator: "F:\\backup\\octopus-bridge"
+branch: "equip/g10-cognition-20260816"
+base_commit: "d10887cbb5c80ec2c3e347f070556ba8276d8a79"
+input_manifest_hash: "a002cf6d012d409508acf6e6f113eaf62266b4ca3b379ae9850f06c3dda8a807"
+allowed_paths:
+  - "schemas/"
+  - "octopus_bridge/"
+  - "tests/"
+  - "docs/"

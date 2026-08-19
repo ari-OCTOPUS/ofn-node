@@ -1,0 +1,71 @@
+=== envelopes (latest 12 by mtime) ===
+total 119
+-rw-r--r-- 1 Armin 197121 5271 Aug 18 18:55 service-inventory-2026-08-18.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 03:21 a2-001-impl-feet.json.sha256
+-rw-r--r-- 1 Armin 197121 4472 Aug 18 03:21 a2-001-impl-feet.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 03:21 a2-001-impl-sensorium.json.sha256
+-rw-r--r-- 1 Armin 197121 4477 Aug 18 03:21 a2-001-impl-sensorium.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 03:21 a2-001-impl-continuity.json.sha256
+-rw-r--r-- 1 Armin 197121 4478 Aug 18 03:21 a2-001-impl-continuity.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 03:01 a2-001-feet.json.sha256
+-rw-r--r-- 1 Armin 197121 7532 Aug 18 03:01 a2-001-feet.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 03:01 a2-001-sensorium.json.sha256
+-rw-r--r-- 1 Armin 197121 7537 Aug 18 03:01 a2-001-sensorium.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 03:01 a2-001-continuity.json.sha256
+
+=== _ops/state (latest 25 by mtime) ===
+total 23025
+-rw-r--r-- 1 Armin 197121  4181832 Aug 18 21:29 chrono.db-wal
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:29 pulse
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:29 telegram
+-rw-r--r-- 1 Armin 197121    12692 Aug 18 21:29 ORGANISM-STATE.json
+-rw-r--r-- 1 Armin 197121       50 Aug 18 21:29 cardiac-budget.json
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:29 seed
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:29 cortex
+-rw-r--r-- 1 Armin 197121      434 Aug 18 21:29 epoch-guard.json
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:29 legs
+-rw-r--r-- 1 Armin 197121      172 Aug 18 21:29 ORGANISM-STATE.lead_discovery
+-rw-r--r-- 1 Armin 197121      290 Aug 18 21:29 ORGANISM-STATE.lead_email_intake
+-rw-r--r-- 1 Armin 197121   233674 Aug 18 21:29 watchdog-log.txt
+-rw-r--r-- 1 Armin 197121       56 Aug 18 21:29 cortex-watchdog.json
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:28 memory
+-rw-r--r-- 1 Armin 197121      910 Aug 18 21:28 ORGANISM-STATE.mining_os
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:28 doctor
+-rw-r--r-- 1 Armin 197121      539 Aug 18 21:28 bcm-signal-weights.json
+-rw-r--r-- 1 Armin 197121  1824429 Aug 18 21:28 events.jsonl
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:28 telemetry
+-rw-r--r-- 1 Armin 197121      922 Aug 18 21:28 telemetry-latest.json
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:28 spine
+-rw-r--r-- 1 Armin 197121   599427 Aug 18 21:28 events.archive.jsonl
+-rw-r--r-- 1 Armin 197121   111478 Aug 18 21:28 miniapp-watchdog-log.txt
+-rw-r--r-- 1 Armin 197121   356217 Aug 18 21:27 tg-send-log.jsonl
+drwxr-xr-x 1 Armin 197121        0 Aug 18 21:27 outcomes
+
+=== _ops/state/handshake ===
+total 117
+-rw-r--r-- 1 Armin 197121   65 Aug 18 02:45 cycle-02-feet.json.sha256
+-rw-r--r-- 1 Armin 197121 9613 Aug 18 02:45 latest-cycle02-feet.json
+-rw-r--r-- 1 Armin 197121 9613 Aug 18 02:45 cycle-02-feet.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 02:45 cycle-02-sensorium.json.sha256
+-rw-r--r-- 1 Armin 197121 9618 Aug 18 02:45 latest-cycle02-sensorium.json
+-rw-r--r-- 1 Armin 197121 9618 Aug 18 02:45 cycle-02-sensorium.json
+-rw-r--r-- 1 Armin 197121   65 Aug 18 02:45 cycle-02-continuity.json.sha256
+-rw-r--r-- 1 Armin 197121 9619 Aug 18 02:45 latest-cycle02-continuity.json
+-rw-r--r-- 1 Armin 197121 9619 Aug 18 02:45 cycle-02-continuity.json
+
+=== CHANGELOG tail ===
+- Network path: Wi-Fi `Tenda_EBBAA0` (2.4 GHz n ch11) → `Tenda_EBBAA0_5G` (5 GHz ac ch36). Ethernet stayed Disconnected (no cable to plug).
+- 5 GHz profile did not exist; Current User profile cloned in TEMP from `Tenda_EBBAA0` (PSK not written into vault/notes).
+- Local 200×4KB write-bench (atomic + fsync + size-verify): 53452.7ms before → 73387.0ms after → 40411.9ms recheck. Owner-stated 1080ms not reproduced.
+- SSH `.138`: `$env:USERPROFILE\.ssh\octopus_key` absent. Exact owner command exit 0 after OpenSSH fallback warning. `id_ed25519` IdentitiesOnly also OK (different key).
+- Cycle-2 envelopes (`octopus-handshake-envelope/1`) for continuity + sensorium + feet. `may_authorize=false`, `autonomy_delta=0`. Additive `RECEIVER_CONTINUITY`.
+- Canonical: `06-EVIDENCE/envelopes/cycle-02-*.json` + companion `*.sha256`.
+- GITWRITE-FAILED.flag not cleared. `01a00d3d` not acked. TCB not edited. `.138` cache=none not touched. Tests not registered in `run_all.py`.
+
+## seq 1 — 2026-08-18
+
+- Added `_ops/handshake/` Evidence Envelope (12 groups + raw command evidence).
+- Not wired into `4d_system/brain/daemon.py` (TCB). Sidecar only: `python -X utf8 _ops/handshake/emit_cycle.py`.
+- Tests: `_ops/tests/test_evidence_envelope_handshake.py` (not in `run_all.py`).
+- Cycle-1 envelopes emitted for Sensorium and feet.
+- GITWRITE-FAILED.flag not cleared. Tag `pre-deploy-2026-07-25` not force-updated. Command `01a00d3d` not acked. TCB patches not applied.

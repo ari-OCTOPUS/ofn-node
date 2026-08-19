@@ -1,0 +1,67 @@
+{
+  "schema": "octopus.a2.lab.policy.v0",
+  "node": "192.168.0.180",
+  "lab_id": "a2-self-improve-lab",
+  "authority": "sandbox-only",
+  "canonical": false,
+  "effect_authority": "none",
+  "locked_first_job": "mirror-manifest-verifier",
+  "locked_reason": "Until .180 has a comparable snapshot/manifest from .191 it must not host memory or orchestration. Memory Write Contract stays laptop-gated. Evidence Envelope schema is later. Event spine waits for two green nights.",
+  "deferred": [
+    "graphiti",
+    "neo4j",
+    "global_workspace",
+    "typed_event_spine_publish",
+    "nats_broker",
+    "sensorium_workspace_host",
+    "memory_v1_writes"
+  ],
+  "budget": {
+    "nightly_cap_jobs": 3,
+    "max_active_jobs": 1,
+    "max_queued_jobs": 3
+  },
+  "proposal_score": {
+    "formula": "expected_benefit - l_c*cost - l_r*risk - l_u*uncertainty",
+    "use": "rank pre-allowed A2 sandbox tasks only",
+    "never": "open gates, grant permissions, create autonomy, deploy"
+  },
+  "models": {
+    "implementer": "Fugu non-Ultra",
+    "reviewer": "DeepSeek V4 Flash"
+  },
+  "allowed_outputs": [
+    "quarantined patches",
+    "test receipts",
+    "evidence envelopes"
+  ],
+  "forbidden": [
+    "merge",
+    "deploy",
+    "TCB change",
+    "service change",
+    "external action",
+    "command to 192.168.0.138",
+    "actuator",
+    "financial action",
+    "self-promotion",
+    "canonical=true",
+    "sensorium.* NATS",
+    "write to F:\\backup",
+    "write to germline"
+  ],
+  "event_types_reserved_shadow_only": [
+    "heartbeat.v1",
+    "mirror.sync.v1",
+    "self_improve.run.v1",
+    "self_improve.test_result.v1",
+    "evidence.claim.v1",
+    "system.alert.v1"
+  ],
+  "event_types_forbidden": [
+    "command.*",
+    "actuator.*",
+    "permission.*",
+    "payment.*"
+  ]
+}

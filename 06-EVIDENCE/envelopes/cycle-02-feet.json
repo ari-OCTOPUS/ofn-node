@@ -1,0 +1,183 @@
+{
+  "schema": "octopus-handshake-envelope/1",
+  "identity": {
+    "handoff_id": "ho-20260817T164540Z-1b57e136",
+    "task_id": "envelope-cycle-02",
+    "sender": "agent://octopus/laptop-brain/main",
+    "receiver": "agent://octopus/feet-board/main",
+    "initiating_owner": "Armin",
+    "host": "DESKTOP-KA9RFN5"
+  },
+  "relation": {
+    "role": "source-of-truth",
+    "sees": "peer-artifacts-only",
+    "does_not_see": "peer-reasoning-chain",
+    "modality_shift": true
+  },
+  "goal": {
+    "one_sentence": "Switch laptop off congested 2.4 GHz onto 5 GHz (Ethernet unplugged), measure local write bench, SSH-test .138, emit WAVE0 envelopes. No TCB edit, no GITWRITE clear, no 01a00d3d ack.",
+    "cycle": "envelope-cycle-02"
+  },
+  "scope": {
+    "vault": "F:\\backup",
+    "may_exec_on_feet": false,
+    "may_edit_tcb": false,
+    "may_clear_gitwrite_flag": false
+  },
+  "status": {
+    "operational": "WAVE0_OBSERVE_ONLY",
+    "authority_level": "L2-armed-propose-only",
+    "gap_001": "open"
+  },
+  "inputs": [],
+  "decisions": [
+    {
+      "id": "cmd-01a00d3d",
+      "state": "owner-pending",
+      "what": "board-cp command 01a00d3d still dispatched; do not self-close"
+    },
+    {
+      "id": "tcb-equip-g2-job-research",
+      "state": "owner-pending",
+      "what": "TCB ceremony for EQUIP-G2 + JOB-RESEARCH patches — not applied"
+    },
+    {
+      "id": "hourly-tag-pre-deploy-2026-07-25",
+      "state": "owner-pending",
+      "what": "align/skip/force tag pre-deploy-2026-07-25 on vault.git to unblock hourly --tags"
+    },
+    {
+      "id": "gitwrite-failed-flag",
+      "state": "held-deliberately",
+      "what": "GITWRITE-FAILED.flag stays until AUTO hourly path is green"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "F:\\backup\\_ops\\backup\\GITWRITE-FAILED.flag",
+      "bytes": 120,
+      "sha256": "e0774eec840e10b2808171fb999b5b5e7a8360b9fc2867e7280a1f22de2ed05e"
+    }
+  ],
+  "evidence": {
+    "claim": "Wi-Fi switched Tenda_EBBAA0 (2.4 GHz n ch11) to Tenda_EBBAA0_5G (5 GHz ac ch36); Ethernet stayed Disconnected; local 200×4KB write-bench 53452.7ms → 73387.0ms (recheck 40411.9ms, size-verified); octopus_key absent; exact ssh command exit 0 via fallback, id_ed25519 IdentitiesOnly also OK; GITWRITE-FAILED still held.",
+    "raw": [
+      {
+        "command": "netsh wlan show interfaces",
+        "stdout": "\nThere is 1 interface on the system: \n\n    Name                   : Wi-Fi\n    Description            : Intel(R) Wi-Fi 6 AX201 160MHz\n    GUID                   : dae9b794-6711-4b4f-bb99-bb4cc90bac39\n    Physical address       : 70:9c:d1:e0:30:4e\n    Interface type         : Primary\n    State                  : connected\n    SSID                   : Tenda_EBBAA0_5G\n    AP BSSID               : 08:40:f3:eb:ba:a8\n    Band                   : 5 GHz\n    Channel                : 36\n    Connected Akm-cipher   : [ akm = 00-0f-ac:02, cipher =  00-0f-ac:04 ]\n    Network type           : Infrastructure\n    Radio type             : 802.11ac\n    Authentication         : WPA2-Personal\n    Cipher                 : CCMP\n    Connection mode        : Auto Connect\n    Receive rate (Mbps)    : 390\n    Transmit rate (Mbps)   : 162\n    Signal                 : 72% \n    Rssi                   : -69\n    Profile                : Tenda_EBBAA0_5G \n    QoS MSCS Configured         : 0\n    QoS Map Configured          : 0\n    QoS Map Allowed by Policy   : 0\n\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:10+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "powershell.exe -NoProfile -Command Get-NetAdapter -Name 'Wi-Fi','Ethernet' | Select-Object Name,Status,LinkSpeed | Format-List",
+        "stdout": "\n\nName      : Wi-Fi\nStatus    : Up\nLinkSpeed : 162 Mbps\n\nName      : Ethernet\nStatus    : Disconnected\nLinkSpeed : 0 bps\n\n\n\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:11+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "ping -n 4 192.168.0.182",
+        "stdout": "\nPinging 192.168.0.182 with 32 bytes of data:\nReply from 192.168.0.182: bytes=32 time=3ms TTL=64\nReply from 192.168.0.182: bytes=32 time=2ms TTL=64\nReply from 192.168.0.182: bytes=32 time=1ms TTL=64\nReply from 192.168.0.182: bytes=32 time=2ms TTL=64\n\nPing statistics for 192.168.0.182:\n    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),\nApproximate round trip times in milli-seconds:\n    Minimum = 1ms, Maximum = 3ms, Average = 2ms\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:15+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "ping -n 4 192.168.0.138",
+        "stdout": "\nPinging 192.168.0.138 with 32 bytes of data:\nReply from 192.168.0.138: bytes=32 time=2ms TTL=64\nReply from 192.168.0.138: bytes=32 time=2ms TTL=64\nReply from 192.168.0.138: bytes=32 time=1ms TTL=64\nReply from 192.168.0.138: bytes=32 time=1ms TTL=64\n\nPing statistics for 192.168.0.138:\n    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),\nApproximate round trip times in milli-seconds:\n    Minimum = 1ms, Maximum = 2ms, Average = 1ms\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:19+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "python -X utf8 -c \"200x4KB mkstemp+fsync+replace+size-verify under F:\\\\backup\\\\_ops\\\\state\\\\handshake\\\\netbench-* then delete\\\"",
+        "stdout": "BEFORE_MS=53452.7\nAFTER_MS=73387.0\nAFTER_RECHECK_MS=40411.9\nN=200 BYTES_EACH=4096\nVERIFIED_OK=True ZERO_BYTE=false\nMETHOD=atomic-local-write+fsync+size-verify (SMB-cache rule)\nOWNER_STATED_PRIOR_MS=1080 (not re-verified this session)\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:22+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "Get-ChildItem $env:USERPROFILE\\.ssh | Select-Object Name",
+        "stdout": "filenames=config,id_ed25519,id_ed25519.pub,known_hosts,known_hosts.old,piggybank_id_ed25519,piggybank_id_ed25519.pub\noctopus_key_exists=False",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:22+10:00"
+      },
+      {
+        "command": "ssh -o BatchMode=yes -o ConnectTimeout=8 -i C:\\Users\\Armin\\.ssh\\octopus_key ari@192.168.0.138 echo OK",
+        "stdout": "OK\n",
+        "stderr": "Warning: Identity file C:\\Users\\Armin\\.ssh\\octopus_key not accessible: No such file or directory.\n",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:22+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "ssh -o BatchMode=yes -o ConnectTimeout=8 -o IdentitiesOnly=yes -i C:\\Users\\Armin\\.ssh\\id_ed25519 ari@192.168.0.138 echo OK",
+        "stdout": "OK\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:22+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "Get-Content F:\\backup\\_ops\\backup\\GITWRITE-FAILED.flag",
+        "stdout": "GITWRITE-FAILED 2026-08-16_035024 : git-write lock TIMEOUT after 40 attempts on F:\\backup\\_ops\\backup\\gitwrite.lock",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T02:45:23+10:00",
+        "bytes": 120
+      }
+    ],
+    "reproduction_command": "netsh wlan show interfaces && netsh wlan show profiles && ping -n 4 192.168.0.182 && ping -n 4 192.168.0.138 && ssh -o BatchMode=yes -o ConnectTimeout=8 -i $env:USERPROFILE\\.ssh\\octopus_key ari@192.168.0.138 \\\"echo OK\\\" && Test-Path F:\\backup\\_ops\\backup\\GITWRITE-FAILED.flag"
+  },
+  "authority": {
+    "may_authorize": false,
+    "autonomy_delta": 0,
+    "external_effect": false,
+    "propose_only": true
+  },
+  "sensitivity": {
+    "secrets_in_envelope": false,
+    "classification": "ops-internal"
+  },
+  "uncertainty": {
+    "notes": [
+      "Sydney in August is AEST UTC+10; owner megaprompt said UTC+11 — WRONG. Used OS local offset (+10).",
+      "Owner-stated prior write-bench 1080ms was not re-verified this session; this session baseline is 53452.7ms with per-file fsync.",
+      "No saved WLAN profile named Tenda_EBBAA0_5G existed; a Current User profile was cloned in TEMP from Tenda_EBBAA0 (PSK never written into vault/notes).",
+      "Specified key octopus_key is absent. Exact owner ssh command still printed OK because OpenSSH fell back after the missing -i file. Separate IdentitiesOnly id_ed25519 also OK — that is a different key.",
+      "Local F:\\backup write times did not improve with the radio change (expected if F: is local). After 73387ms then recheck 40412ms — load variance, not disk death (size-verified 4096).",
+      "Owner-stated 2.4 GHz channel util 99% was not reproduced on the live scan this session (scan showed ~1% util on ch11)."
+    ],
+    "tz_note": "Sydney in August is AEST UTC+10; megaprompt said UTC+11 — using OS local offset"
+  },
+  "escalation": {
+    "on_repro_fail": "If reproduction disagrees, do not retry more than 3 times. Escalate to owner. Do not delete GITWRITE-FAILED.flag. Do not ack 01a00d3d. Do not set cache=none on .138.",
+    "max_retries": 3,
+    "retry_count": 0,
+    "after_max": "owner"
+  },
+  "changelog_seq": 2,
+  "issued_at_utc": "2026-08-17T16:45:40+00:00",
+  "issued_at_local": "2026-08-18T02:45:40+10:00",
+  "extra": {
+    "ethernet": "Disconnected",
+    "ssid_before": "Tenda_EBBAA0",
+    "ssid_after": "Tenda_EBBAA0_5G",
+    "write_bench_ms": {
+      "before_ms": 53452.7,
+      "after_ms": 73387.0,
+      "after_recheck_ms": 40411.9,
+      "n": 200,
+      "bytes_each": 4096,
+      "verified": true
+    },
+    "wave0": true
+  }
+}

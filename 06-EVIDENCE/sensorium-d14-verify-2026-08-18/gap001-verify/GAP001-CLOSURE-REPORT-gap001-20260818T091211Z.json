@@ -1,0 +1,112 @@
+﻿{
+    "schema":  "octopus:world_discovery:gap001-closure-report:v1",
+    "run_id":  "gap001-20260818T091211Z",
+    "gap_id":  "GAP-001",
+    "ledger_id":  "board-checkpoint-ledger",
+    "ran_on":  "LAPTOP-191",
+    "read_only":  true,
+    "packets_injected":  0,
+    "flags_lifted":  false,
+    "verdict":  "PENDING_OWNER_SIGNATURE",
+    "reasons":  [
+                    "criteria met per evidence (D5) but the owner-signed checkpoint formalizing GAP-001 CLOSED + rider POWER_LOSS_UNTESTED has not been captured under 06-EVIDENCE"
+                ],
+    "structural_gate_note":  "WAVE0_OBSERVE_ONLY + GITWRITE-FAILED retention stays in force regardless of this verdict; only the owner lifts it (D14).",
+    "checks":  [
+                   {
+                       "check_id":  "HOMONYM-SCOPE",
+                       "kind":  "JSON_PATH",
+                       "mandatory":  true,
+                       "status":  "PASS",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\msg-evidence-latest.json",
+                       "sha256":  "52277d491e94256a350737571744bb1eee2a192e75748e384cfd3cd3e7c599b2",
+                       "note":  "path=payload.gaps.GAP-001.boot_id value=4dbf4819-c7dc-4224-bb3b-2650f9d2aa6c expect=EXISTS",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "GAP-PAYLOAD-READY",
+                       "kind":  "JSON_PATH",
+                       "mandatory":  true,
+                       "status":  "PASS",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\msg-evidence-latest.json",
+                       "sha256":  "52277d491e94256a350737571744bb1eee2a192e75748e384cfd3cd3e7c599b2",
+                       "note":  "path=payload.gaps.GAP-001.readiness value=READY expect=READY",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "GATES-FAILED-EMPTY",
+                       "kind":  "JSON_PATH",
+                       "mandatory":  true,
+                       "status":  "PASS",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\msg-evidence-latest.json",
+                       "sha256":  "52277d491e94256a350737571744bb1eee2a192e75748e384cfd3cd3e7c599b2",
+                       "note":  "path=payload.readiness.gates_failed value=\u003cempty\u003e expect=EMPTY_ARRAY",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "REBOOT-PASS-STREAK",
+                       "kind":  "FILE_REGEX",
+                       "mandatory":  true,
+                       "status":  "PASS_DOCUMENTED",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\OWNER-DECISIONS.md",
+                       "sha256":  "9f97eab11e3c1737aa999832658b283813458f233334c5d606b1170173ce6fcd",
+                       "note":  "pattern \u00272 consecutive software-reboot PASS\u0027 line 42: Closure criteria met (2 consecutive software-reboot PASS, new boot_ids,",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "BOOT-IDS-DISTINCT",
+                       "kind":  "FILE_REGEX",
+                       "mandatory":  true,
+                       "status":  "PASS_DOCUMENTED",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\OWNER-DECISIONS.md",
+                       "sha256":  "9f97eab11e3c1737aa999832658b283813458f233334c5d606b1170173ce6fcd",
+                       "note":  "pattern \u0027new boot_ids\u0027 line 42: Closure criteria met (2 consecutive software-reboot PASS, new boot_ids,",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "OWNER-SIGNED-CHECKPOINT",
+                       "kind":  "ARTIFACT_SEARCH",
+                       "mandatory":  true,
+                       "status":  "UNKNOWN_PENDING",
+                       "evidence":  null,
+                       "sha256":  null,
+                       "note":  "no artifact under 06-EVIDENCE matches /SIGNED-CHECKPOINT|CHECKPOINT-SIGNED|signed_checkpoint/ with content [GAP-001, CLOSED, POWER_LOSS_UNTESTED] -- closure not yet formalized by owner",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "RIDER-POWER-LOSS-UNTESTED",
+                       "kind":  "FILE_REGEX",
+                       "mandatory":  true,
+                       "status":  "PASS_DOCUMENTED",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\OWNER-DECISIONS.md",
+                       "sha256":  "9f97eab11e3c1737aa999832658b283813458f233334c5d606b1170173ce6fcd",
+                       "note":  "pattern \u0027POWER_LOSS_UNTESTED\u0027 line 44: POWER_LOSS_UNTESTED. To be formalized by the owner in the next signed",
+                       "severity":  "mandatory"
+                   },
+                   {
+                       "check_id":  "STRUCTURAL-GATE-RETAINED",
+                       "kind":  "FILE_REGEX",
+                       "mandatory":  false,
+                       "status":  "PASS",
+                       "evidence":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\OWNER-DECISIONS.md",
+                       "sha256":  "9f97eab11e3c1737aa999832658b283813458f233334c5d606b1170173ce6fcd",
+                       "note":  "pattern \u0027until GAP-001 formally closed. No agent lifts it alone\u0027 line 132: until GAP-001 formally closed. No agent lifts it alone.",
+                       "severity":  "informational"
+                   }
+               ],
+    "integrity_inputs":  [
+                             {
+                                 "sha256":  "0dc706e7503b01ca9b6e86676cbe061f1eabfe819697f20981eb2540e0963e85",
+                                 "path":  "F:\\backup\\_ops\\world_discovery\\gap001-criteria.manifest.json"
+                             },
+                             {
+                                 "sha256":  "52277d491e94256a350737571744bb1eee2a192e75748e384cfd3cd3e7c599b2",
+                                 "path":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\msg-evidence-latest.json"
+                             },
+                             {
+                                 "sha256":  "9f97eab11e3c1737aa999832658b283813458f233334c5d606b1170173ce6fcd",
+                                 "path":  "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18\\OWNER-DECISIONS.md"
+                             }
+                         ],
+    "canonical_definition":  "06-EVIDENCE/sensorium-d14-verify-2026-08-18/OWNER-DECISIONS.md :: D5"
+}
