@@ -978,3 +978,14 @@ updated: 2026-08-18
   زندهٔ ۵۱۸ ردیف بدون تغییر)، F3 بسته شد (insert بدون confidence = fail-closed) —
   ۱۰/۱۰ تست؛ لیبل‌ها VERIFIED شدند. commit ‏`f4a2447`. فردا: پین RBA (~06:10Z) →
   پروب V4a هشت‌تایی (گیت ۸/۸ خوانا) → فریز V4 → primary تازه (نمونهٔ مستقل).
+
+- 🧠✅ **2026-08-19 (~07:05Z — OWNER-QUEUE-RESOLUTION اجرا شد؛ خط Q3-probe: سبز).**
+  **Q3 (اولویت اول مالک) اثبات شد**: حلقهٔ observe→predict→outcome→belief-update
+  اکنون در دیمنِ واقعی می‌چرخد — prediction_writer غیر-TCB + wiring در autoloop
+  (بدون لمس automation) + فیکس پیام دروغگوی novelty در self_evolve (TCB با مراسم).
+  دیمن با wrapper رسمی ری‌استارت شد (رفع B7) و در ~۱۵ دقیقه **۱۴ prediction و ۸
+  outcome چسبیده** ثبت شد؛ باورها زنده‌اند و θ تابع باور (7.5→8.33→8.75).
+  لیبل DAEMON_PREDICTION_LOOP=LIVE_VERIFIED. **Q1**: Var_ex+I_pred به self-test
+  (مراسم ×۲ با کلید تفویض‌شده، وریفای سبز)؛ ناهمخوانی Var_eff → C-035.
+  **Q2/Q4/Q5**: بنر RETIRED/CLOSED؛ **Q7**: از قبل سبز بود؛ **Q6/Q8**: ثبت.
+  commit d71ebf4 · شواهد: 06-EVIDENCE/Q3-Q1-TCB-20260819/.
