@@ -1,0 +1,32 @@
+[
+ {
+  "name": "zai-intl-public",
+  "base": "https://api.z.ai/api/paas/v4",
+  "class": "HTTP400",
+  "code": 400
+ },
+ {
+  "name": "zai-intl-coding",
+  "base": "https://api.z.ai/api/coding/paas/v4",
+  "class": "HTTP400",
+  "code": 400
+ },
+ {
+  "name": "bigmodel-cn-public",
+  "base": "https://open.bigmodel.cn/api/paas/v4",
+  "class": "HTTP400",
+  "code": 400
+ },
+ {
+  "name": "bigmodel-cn-coding",
+  "base": "https://open.bigmodel.cn/api/coding/paas/v4",
+  "class": "HTTP400",
+  "code": 400
+ },
+ {
+  "name": "current-default(.com)",
+  "base": "https://open.bigmodel.com/api/paas/v4",
+  "class": "TLS",
+  "code": null
+ }
+]
