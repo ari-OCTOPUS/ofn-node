@@ -62,3 +62,6 @@ _صبح 2026-08-20 — صف مالک (از ممیزی مستقل + شب):_
 | ratify فریز V4 (decision_id خالی شد) | ⏳ مبانی امضاشده نشان داده شد؛ خودِ ratify با شما |
 | چرخش واقعی سه کلید (D3) | ⏳ OPEN تا ابطال واقعی |
 | پذیرش answer-first در پروتکل منجمد (بازو/داور) | 🆕 A4 — پس از ratifyها؛ پروب PASS است |
+
+| answer-first wrap (پروتکل-هم‌مرز) | CLAIMED — بازو 8/8 و داور 7/8 در دور اول، 3/8 در دور دوم (غیرقطعی)؛ fallback تک‌توکنی VERIFIED؛ iteration سوم ممنوع؛ V5 freeze نه | CLAIMED |  |
+| improve→digest | READY-FOR-OWNER-VOTE — کد بسته، فقط رأی زندهٔ مالک لازم | READY |  |
