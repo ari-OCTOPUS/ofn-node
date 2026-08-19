@@ -4,3 +4,12 @@
 - **Restart**: processes alive (new pid); NOTE: daemon-launch5.err.log last line 10:00Z — new instance's loop-write confirmation pending (may log elsewhere via watchdog relaunch).
 - 8 pending predictions remain unresolved — expected (outcomes attach on next source occurrence).
 - No fabricated outcome, no lost history. Receipts: before.json.
+
+## Overnight milestone report — 2026-08-19T10:5xZ (short, per directive §9)
+- زنجیرهٔ علمی: توسط سشن claim-holder اجرا شد (V4: 30/30 معتبر، 13/30 برد = ابطال صادقانهٔ فرضیهٔ حافظه در این نقطه). من gap-fix کردم: OVERNIGHT directive ثبت، decision_id فریز V4 پر شد، رجیستری V4_FROZEN+VALID_PAIRS=30 (evidence-backed).
+- GATE-3 survival: PASS (کشت mid-run؛ صفر گم/دوباره‌شماری؛ ری‌استارت رصد شد).
+- C-035: CLOSED (لنگر کهنهٔ Var_eff؛ مراسم TCB #3 امضا+وریفای؛ ۱۱/۱۱ لنگر سبز).
+- لجرها: ۱۵ ردیف تستی annotation + قاعدهٔ hygiene (append-only، هیچ حذفی).
+- VOTE-2 digest: CLOSED-IN-CODE (تست record_verdict→فایل→penalty ✓)؛ اجرای زنده منوط به رأی مالک.
+- Ablation: هارنس اثبات‌شده؛ input-causal YES؛ سطح پیشنهاد منوط به فیکس answer-first (بیماری مشترک بازوها/داور — یافتهٔ استراتژیک اسپرینت).
+- صف مالک: خالی از آیتم‌های جدید A4؛ فقط چرخش کلیدها (D3 OPEN تا ابطال واقعی).
