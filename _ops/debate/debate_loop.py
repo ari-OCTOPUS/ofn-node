@@ -377,6 +377,30 @@ def _rounds(topic: dict, wrapped: str, topic_hash: str, rounds: int,
         muse_out = extract_json(muse_raw["text"])
         if not MUSE_KEYS.issubset(muse_out):
             raise ValueError(f"muse JSON contract broken (r{rnd}): {sorted(muse_out)}")
+        # NOVELTY-GATE (B2 · پیشفرض خاموش · fail-soft): ایدهٔ تکراریِ آرشیوشده
+        # پیش از دور دوم (هزینهٔ دوم) رد میشود — بودجه هدر نمیرود (LAW-07).
+        if os.environ.get("OCTOPUS_WIRE_NOVELTY_GATE") == "1":
+            try:
+                _nov = str(Path(__file__).resolve().parents[1])
+                if _nov not in sys.path:
+                    sys.path.insert(0, _nov)
+                from novelty.debate_hook import pre_budget_gate  # noqa: WPS433
+                _ng = pre_budget_gate(str(muse_out.get("idea", "")),
+                                      str(topic.get("id", "")))
+                if _ng.get("allow") is False:
+                    final = "novelty-rejected"
+                    opslib.ledger_note("EXPERIENCE", {"loop": "debate",
+                                                      "topic_id": topic["id"],
+                                                      "round": rnd,
+                                                      "verdict": "novelty-rejected",
+                                                      "state": _ng.get("state"),
+                                                      "cost_usd": muse_raw.get("cost_usd", 0.0),
+                                                      "stub": muse_raw.get("stub", False),
+                                                      "tier": _tier_of(muse_raw)},
+                                       actor="debate")
+                    break
+            except Exception:  # noqa: BLE001 — گیت هرگز مناظره را نمیکشد
+                pass
         arch_raw = _gated_call(architect_client, architect_sys,
                                f"topic: {wrapped}\nidea (artifact ثبت‌شده): "
                                + json.dumps(muse_out, ensure_ascii=False)
