@@ -63,7 +63,17 @@ def enabled() -> bool:
 
 
 def killed() -> bool:
-    return str(os.environ.get(KILL_SWITCH, "")).strip().lower() in {"1", "true", "yes", "on"}
+    """kill switch: env فوری + فایلِ ماندگار (که /pause می‌نویسد و /resume پاک می‌کند)."""
+    if str(os.environ.get(KILL_SWITCH, "")).strip().lower() in {"1", "true", "yes", "on"}:
+        return True
+    try:
+        ks = _root() / "kill-switch.json"
+        if ks.exists():
+            d = json.loads(ks.read_text("utf-8"))
+            return bool(d.get("killed"))
+    except Exception:  # noqa: BLE001 — fail-closed نمی‌شود؛ فقط فایلِ خراب نادیده
+        return False
+    return False
 
 
 def _root() -> Path:

@@ -1,17 +1,83 @@
 {
   "schema": "wave1-authority/1",
   "generated_at": "2026-08-21T00:31:00Z",
-  "wave0": {"baseline": "9bc506f", "verifier": "WAVE0_PASS confirmed by independent verifier", "frozen": true},
+  "wave0": {
+    "baseline": "9bc506f",
+    "verifier": "WAVE0_PASS confirmed by independent verifier",
+    "frozen": true
+  },
   "artifacts": [
-    {"path": "_ops/state/wave1/lock.json", "writer": "wave1-sidecar", "claims": {"wave1_unlocked": true, "activation": "canary-sidecar"}, "note": "self-declared canary-sidecar"},
-    {"path": "06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-ENTRY-GATES.json", "writer": "wave1-gates", "claims": {"all_pass": true, "wave1_unlocked": false}, "note": "authorizes canary proposal only; never flips the lock"},
-    {"path": "06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-VERIFIER.json", "writer": "wave1-verifier", "claims": {"confirmed": false, "failed_checks": ["entry_gates_all_pass"]}},
-    {"path": "06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-CLOSEOUT.json", "writer": "wave1-closeout", "claims": {"verifier_confirmed": true, "wave1_api_unlocked": true, "wave0_governor_wave1_unlocked": false}}
+    {
+      "path": "_ops/state/wave1/lock.json",
+      "writer": "wave1-sidecar",
+      "claims": {
+        "wave1_unlocked": true,
+        "activation": "canary-sidecar"
+      },
+      "note": "self-declared canary-sidecar"
+    },
+    {
+      "path": "06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-ENTRY-GATES.json",
+      "writer": "wave1-gates",
+      "claims": {
+        "all_pass": true,
+        "wave1_unlocked": false
+      },
+      "note": "authorizes canary proposal only; never flips the lock"
+    },
+    {
+      "path": "06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-VERIFIER.json",
+      "writer": "wave1-verifier",
+      "claims": {
+        "confirmed": false,
+        "failed_checks": [
+          "entry_gates_all_pass"
+        ]
+      }
+    },
+    {
+      "path": "06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-CLOSEOUT.json",
+      "writer": "wave1-closeout",
+      "claims": {
+        "verifier_confirmed": true,
+        "wave1_api_unlocked": true,
+        "wave0_governor_wave1_unlocked": false
+      }
+    }
   ],
   "contradiction": "lock says unlocked while entry-gates say locked, older verifier says confirmed=false, later closeout says confirmed=true; wave0 governor remains locked throughout",
   "precedence_rule": "wave0_governor is the single authority for the production lock; sidecar/closeout artifacts cannot flip it; any claim of unlocked requires wave0_governor.wave1_unlocked=true AND an independent verifier",
-  "runtime_actual_state": {"wave0_governor_wave1_unlocked": false, "memory_writes": 0, "production_memory_read": false},
-  "authoritative_state": {"wave1_unlocked": false, "production_memory_read": false, "memory_write": false},
+  "runtime_actual_state": {
+    "wave0_governor_wave1_unlocked": false,
+    "memory_writes": 0,
+    "production_memory_read": false
+  },
+  "authoritative_state": {
+    "wave1_unlocked": false,
+    "production_memory_read": false,
+    "memory_write": false
+  },
   "reconciliation_result": "canary-sidecar read-only authorization recognized; full Wave 1 production unlock NOT authorized until entry gates re-verified independently and wave0 governor agrees",
-  "requirements_before_unlock": ["scope+threat model", "write guard", "kill switch", "task isolation", "deterministic fixture", ">=10 shadow reads", "receipt/readback", "zero-mutation proof", "rollback test", "independent verifier"]
+  "requirements_before_unlock": [
+    "scope+threat model",
+    "write guard",
+    "kill switch",
+    "task isolation",
+    "deterministic fixture",
+    ">=10 shadow reads",
+    "receipt/readback",
+    "zero-mutation proof",
+    "rollback test",
+    "independent verifier"
+  ],
+  "verifier_recomputed": {
+    "ts": "2026-08-21T01:35:00Z",
+    "confirmed": false,
+    "failed_checks": [
+      "entry_gates_all_pass",
+      "wave0_artifacts_unmodified"
+    ],
+    "gate_failure_detail": "wave0_checkpoint_frozen: cost-receipts.jsonl hash drifted (expected 2e9f84a7.. freeze hash, got ed4d8eb7..) — live cortex keeps appending runtime receipts; append-only growth, not a rewrite",
+    "decision": "wave1_unlocked stays false; closure path: re-freeze wave0 artifacts at current checkpoint with evidence OR owner decision that runtime append-only logs are freeze-exempt; then re-run verifier"
+  }
 }

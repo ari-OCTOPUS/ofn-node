@@ -1077,6 +1077,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # Fake transport only; zero network and zero paid calls.
     "test_telegram_durable_loop.py",
     "test_self_insight_card_cheap.py",
+    "test_owner_cockpit_commands.py",
     # 2026-08-20 OWNER #16 A19 — agent_C organ tests (lease held by A/B).
     # Append-only; do not reorder prior entries.
     "test_organ_cartographer_20260820.py",

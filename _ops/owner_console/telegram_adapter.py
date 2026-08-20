@@ -100,8 +100,9 @@ def handle_message(text: str, *, surface_decision: dict, model_fn=None) -> dict:
         n = int(brains.get("brains_receive_cognition_inbox") or 0)
         return {"handled": True, "reason": "local-degraded-paid-paused",
                 "reply": _ok_local(
-                    f"مغزها پیام را شنیدند (n={n}، advisory، executable=false). "
-                    "مدل پولی تا گیت A13 خاموش است. /status · /remember"
+                    f"[DEGRADED_LOCAL_ONLY] مغزها پیام را شنیدند (n={n}، advisory، "
+                    "executable=false). مدل پولی تا گیت A13 خاموش است. "
+                    "/status · /remember"
                     + extra,
                     kind="local-degraded"),
                 "hc_wm": hcwm, "brains": brains,

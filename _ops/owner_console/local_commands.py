@@ -47,6 +47,21 @@ COMMAND_TABLE = {
                 "model_allowed": False, "owner_only": True, "expected_receipt": "local-resume"},
     "/why": {"local_handler": "_why", "reads_memory": True, "writes_memory": False,
              "model_allowed": False, "owner_only": True, "expected_receipt": "local-why"},
+    # ── Telegram cockpit (FULL-GREEN 2026-08-21): سریع، read-only (جز pause/resume) ──
+    "/loops": {"local_handler": "loops_text", "reads_memory": False, "writes_memory": False,
+               "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-loops"},
+    "/task": {"local_handler": "task_text", "reads_memory": False, "writes_memory": False,
+              "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-task"},
+    "/receipts": {"local_handler": "receipts_text", "reads_memory": False, "writes_memory": False,
+                  "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-receipts"},
+    "/dlq": {"local_handler": "dlq_text", "reads_memory": False, "writes_memory": False,
+             "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-dlq"},
+    "/memory_status": {"local_handler": "memory_status_text", "reads_memory": True, "writes_memory": False,
+                       "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-memory-status"},
+    "/brain_status": {"local_handler": "brain_status_text", "reads_memory": False, "writes_memory": False,
+                      "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-brain-status"},
+    "/pause": {"local_handler": "pause_text", "reads_memory": False, "writes_memory": True,
+               "model_allowed": False, "owner_only": True, "expected_receipt": "cockpit-pause"},
 }
 
 ALIASES = {
@@ -239,9 +254,27 @@ def _handle_local_inner(text: str, *, model_fn=None, memory_store: Path | None =
     if cmd == "/stop":
         return _ok("local-command", _stop(), receipt="local-stop")
     if cmd == "/resume":
+        parts = raw.split(maxsplit=1)
+        if len(parts) >= 2 and parts[1].strip():
+            return _ok("local-command", resume_cockpit_text(parts[1].strip()),
+                       receipt="cockpit-resume")
         return _ok("local-command", _resume(), receipt="local-resume")
     if cmd == "/why":
         return _ok("local-command", _why(), receipt="local-why")
+    if cmd == "/loops":
+        return _ok("local-command", loops_text(), receipt=spec["expected_receipt"])
+    if cmd == "/task":
+        return _ok("local-command", task_text(raw), receipt=spec["expected_receipt"])
+    if cmd == "/receipts":
+        return _ok("local-command", receipts_text(raw), receipt=spec["expected_receipt"])
+    if cmd == "/dlq":
+        return _ok("local-command", dlq_text(), receipt=spec["expected_receipt"])
+    if cmd == "/memory_status":
+        return _ok("local-command", memory_status_text(), receipt=spec["expected_receipt"])
+    if cmd == "/brain_status":
+        return _ok("local-command", brain_status_text(), receipt=spec["expected_receipt"])
+    if cmd == "/pause":
+        return _ok("local-command", pause_text(), receipt=spec["expected_receipt"])
     return _ok("local-help", help_text())
 
 
@@ -361,3 +394,162 @@ def _why() -> str:
 
 def stopped() -> bool:
     return STOP_FLAG.exists()
+
+
+# ── Telegram cockpit (FULL-GREEN 2026-08-21) ────────────────────────────────
+# همه read-only و fail-soft؛ هیچ محتوای خصوصی/secret نمایش داده نمی‌شود.
+# استثنا: /pause و /resume <nonce> (kill switch با nonce و ماندگاری روی دیسک).
+
+def _state_dir() -> Path:
+    base = str(os.environ.get("OCTOPUS_STATE_DIR", "") or "").strip()
+    return Path(base) if base else (_OPS / "state")
+
+
+def _readj(path: Path) -> dict:
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    return {}
+
+
+def loops_text() -> str:
+    reg = _state_dir() / "loops" / "LOOP-REGISTRY.json"
+    d = _readj(reg)
+    entries = d.get("entries") or []
+    incidents = d.get("incidents") or []
+    counts: dict = {}
+    for e in entries:
+        counts[str(e.get("status") or "open")] = counts.get(str(e.get("status") or "open"), 0) + 1
+    for inc in incidents:
+        k = str(inc.get("status") or "OPEN").lower()
+        counts[k] = counts.get(k, 0) + 1
+    parts = [f"{k}={v}" for k, v in sorted(counts.items())]
+    return f"🔁 loops: " + (" · ".join(parts) if parts else "registry خالی") + \
+           f" (کل: {len(entries) + len(incidents)})"
+
+
+def _find_event(event_id: str) -> dict | None:
+    safe = str(event_id or "").strip().replace(":", "_").replace("/", "_")
+    if not safe:
+        return None
+    p = _state_dir() / "telegram" / "loop" / "events" / f"{safe}.json"
+    return _readj(p) or None
+
+
+def task_text(raw: str) -> str:
+    parts = raw.split(maxsplit=1)
+    if len(parts) < 2:
+        return "usage: /task <event_id|task_id>"
+    target = parts[1].strip()
+    ev = _find_event(target)
+    if ev is None:
+        ev_dir = _state_dir() / "telegram" / "loop" / "events"
+        try:
+            for f in sorted(ev_dir.glob("*.json")):
+                d = _readj(f)
+                if d.get("task_id") == target or d.get("event_id") == target:
+                    ev = d
+                    break
+        except OSError:
+            ev = None
+    if ev is None:
+        return f"task/event «{target[:60]}» در state ماندگار نیست."
+    ts = ev.get("transitions") or []
+    tl = " → ".join(str(t.get("transition")) for t in ts[-8:]) or ev.get("state")
+    return (f"🧾 {ev.get('event_id')} · {ev.get('state')}\n"
+            f"task={ev.get('task_id')} run={ev.get('run_id')}\n"
+            f"timeline: {tl}\nreadback={bool(ev.get('readback_verified'))}")
+
+
+def receipts_text(raw: str) -> str:
+    parts = raw.split(maxsplit=1)
+    if len(parts) < 2:
+        return "usage: /receipts <event_id>"
+    ev = _find_event(parts[1].strip())
+    if ev is None:
+        return "receipt برای این event نیست."
+    ids = ev.get("reply_receipt_ids") or []
+    if ev.get("reply_receipt_id"):
+        ids = list(ids) + [ev["reply_receipt_id"]]
+    out = [f"📬 {ev.get('event_id')} · receipts={len(ids)} · readback={bool(ev.get('readback_verified'))}"]
+    ob_dir = _state_dir() / "telegram" / "loop" / "outbox"
+    try:
+        for f in sorted(ob_dir.glob("*.json")):
+            r = _readj(f)
+            if r.get("message_key") in ids or r.get("event_id") == ev.get("event_id"):
+                out.append(f"  {r.get('message_key','')[:12]} {r.get('state')} mid={r.get('message_id')}")
+    except OSError:
+        pass
+    return "\n".join(out) if len(out) > 1 else out[0]
+
+
+def dlq_text() -> str:
+    ev_dir = _state_dir() / "telegram" / "loop" / "events"
+    ob_dir = _state_dir() / "telegram" / "loop" / "outbox"
+    n_events = n_outbox = 0
+    try:
+        n_events = sum(1 for f in ev_dir.glob("*.json")
+                       if _readj(f).get("state") in ("NEEDS_RECONCILIATION", "DEAD_LETTERED"))
+        n_outbox = sum(1 for f in ob_dir.glob("*.json")
+                       if _readj(f).get("state") in ("DELIVERY_FAILED", "DLQ", "NEEDS_RECONCILIATION"))
+    except OSError:
+        pass
+    return f"🗑 DLQ: events={n_events} · outbox={n_outbox}"
+
+
+def memory_status_text() -> str:
+    mr = _readj(_state_dir() / "pulse" / "memory-read-latest.json")
+    mu = _readj(_state_dir() / "pulse" / "memory-read-last.json")
+    line = f"🧠 memory: read-only={not bool(os.environ.get('OCTOPUS_MEMORY_WRITE_ALLOWED'))}"
+    if mr:
+        line += f" · readback_ok={mr.get('readback_ok')} reads={mr.get('reads') or mr.get('n')}"
+    if mu and mu.get("ts"):
+        line += f" · last={mu.get('ts')}"
+    return line + " (بدون نمایش محتوا)"
+
+
+def brain_status_text() -> str:
+    parity = _readj(_state_dir() / "pulse" / "beat-parity.json")
+    c = parity.get("counters") or {}
+    fourd = _readj(_state_dir() / "pulse" / "fourd-health-latest.json")
+    out = ["🧠 brains:"]
+    if c:
+        out.append(f"  parity: matched={c.get('matched')} missing_old={c.get('missing_old')} " +
+                   ("NO_BASELINE" if (c.get('missing_old') or 0) > 0 else "ok"))
+    else:
+        out.append("  parity: state نیست")
+    out.append(f"  4d: {'ok' if fourd else 'state نیست'}")
+    return "\n".join(out)
+
+
+KILL_SWITCH_FILE = "kill-switch.json"
+
+
+def pause_text() -> str:
+    import uuid
+    nonce = uuid.uuid4().hex[:16]
+    path = _state_dir() / "telegram" / "loop" / KILL_SWITCH_FILE
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"killed": True, "nonce": nonce}, ensure_ascii=False),
+                        encoding="utf-8")
+    except OSError:
+        return "پایانِ dispatch ثبت نشد (state قابل نوشتن نیست)."
+    os.environ["OCTOPUS_TG_LOOP_KILL"] = "1"
+    return (f"🛑 dispatch متوقف شد. برای ادامه: /resume {nonce}\n"
+            f"(nonce یک‌بار مصرف است و در state می‌ماند.)")
+
+
+def resume_cockpit_text(nonce: str) -> str:
+    path = _state_dir() / "telegram" / "loop" / KILL_SWITCH_FILE
+    d = _readj(path)
+    if not d or d.get("nonce") != str(nonce).strip():
+        return "nonce نادرست یا منقضی. /pause را دوباره اجرا کن."
+    try:
+        path.unlink()
+    except OSError:
+        pass
+    os.environ.pop("OCTOPUS_TG_LOOP_KILL", None)
+    return "▶️ dispatch از سر گرفته شد."
