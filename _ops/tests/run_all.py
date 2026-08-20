@@ -1073,6 +1073,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # 2026-08-20 OWNER #16 A9 — telegram closed-loop typed local contract.
     # Unique file; append-only; do not reorder prior entries.
     "test_telegram_closed_loop_20260820.py",
+    # 2026-08-20 OWNER #16 A19 — agent_C organ tests (lease held by A/B).
+    # Append-only; do not reorder prior entries.
+    "test_organ_cartographer_20260820.py",
+    "test_ratio_model.py",
+    # 2026-08-20 OWNER nervous-recovery — file-level register (8+ functions in one file).
+    # Append-only; worklock override by owner this session. Do not reorder prior entries.
+    "test_nervous_recovery.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -1120,6 +1127,8 @@ PYTEST_TESTS = {
     # (ØªÙ„Ù…ØªØ±ÛŒÙ `mining_os` Ø¨Ù‡ Ø¯Ø§ÛŒØ¬Ø³Øª ÙˆØµÙ„ Ù†Ø´Ø¯Ù‡). ØªÙØµÛŒÙ„ Ùˆ Ø¯Ùˆ ØªØµÙ…ÛŒÙ…Ù Ø¨Ø§Ù‚ÛŒâ€ŒÙ…Ø§Ù†Ø¯Ù‡:
     # `00 - Inbox/AGENT_QUESTIONS.md` â€” ÙˆØ±ÙˆØ¯ÛŒÙ Û²Û°Û²Û¶-Û°Û¸-Û°Û±.
     "test_mining_wiring.py",
+    # 2026-08-20 OWNER #16 A19 — C13 ratio_model is pytest-native (no __main__).
+    "test_ratio_model.py",
 }
 
 # Û²Û°Û²Û¶-Û°Û·-Û³Û° â€” Â«Ù‚Ø±Ù…Ø²Ù Ú©Ø§Ø°Ø¨Ù Û±Û²Û°Â». Ù¾Ø§Ø³Ù Ø§ÙˆÙ„Ù Ø³ÙˆÛŒÛŒØª Ø¨Ø¯ÙˆÙ†Ù capture Ø§Ø¬Ø±Ø§ Ù…ÛŒâ€ŒØ´Ø¯ØŒ Ù¾Ø³ Ù‡Ø±

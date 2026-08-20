@@ -8,7 +8,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from . import capability_immune, capability_parser, memory_continuity, receipt_v2, test_discovery
+from . import (
+    capability_immune,
+    capability_parser,
+    memory_continuity,
+    receipt_v2,
+    shadow_adapter,
+    test_discovery,
+)
 
 _OPS = Path(__file__).resolve().parent.parent
 _ROOT = _OPS.parent
@@ -40,6 +47,8 @@ def audit_wave0(*, receipts_path: Path | None = None,
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     attr = receipt_v2.scan_jsonl(
         rec_path, run_to_task=run_to_task, since_iso=today)
+    shadow = shadow_adapter.evaluate_window(
+        rec_path, since_iso=today, run_to_task=run_to_task)
     tests = test_discovery.report(run_all=RUN_ALL, tests_dir=_OPS / "tests")
 
     parse_ok = False
@@ -88,15 +97,29 @@ def audit_wave0(*, receipts_path: Path | None = None,
         },
     }
     passed = sum(1 for g in gates.values() if g["pass"])
-    verdict = Wave0Verdict.PASS if passed == 4 else (
-        Wave0Verdict.PARTIAL if passed >= 1 else Wave0Verdict.BLOCKED
-    )
+    fabricated = int((shadow.get("criteria") or {}).get("fabricated_task_ids") or 0)
+    hygiene = {
+        "fabricated_task_ids": fabricated,
+        "critical_regressions": 0,
+        "shadow_pass": bool(shadow.get("shadow_pass")),
+        "shadow": {k: shadow.get(k) for k in (
+            "n_source_in_window", "criteria", "shadow_pass", "rewrites_original")},
+        "note": "WAVE0_PASS needs 4 gates + fabricated_task_ids==0 + critical_regressions==0",
+    }
+    hygiene_ok = fabricated == 0 and hygiene["critical_regressions"] == 0
+    if passed == 4 and hygiene_ok:
+        verdict = Wave0Verdict.PASS
+    elif passed >= 1:
+        verdict = Wave0Verdict.PARTIAL
+    else:
+        verdict = Wave0Verdict.BLOCKED
     return {
-        "schema": "wave0-governor/1",
+        "schema": "wave0-governor/2",
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "verdict": verdict,
         "wave1_unlocked": False,
         "gates_passed": passed,
+        "hygiene": hygiene,
         "gates": gates,
         "github_public": "UNLOCATED",
         "git_remote": "germline E:/germline/octopus.git (not GitHub)",
@@ -105,6 +128,7 @@ def audit_wave0(*, receipts_path: Path | None = None,
             "WAVE0_PASS is required before readable-memory Wave 1.",
             "Rail B P0/P1 findings stay isolated (see CANDIDATE-FINDINGS).",
             "C-048..C-053 remain candidates, not CONTRADICTIONS truth.",
+            "Canary restart not executed (owner permit NOT_GRANTED).",
         ],
     }
 

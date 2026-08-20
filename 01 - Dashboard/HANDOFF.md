@@ -32,8 +32,11 @@ updated: 2026-08-20
 | `autoflow-s1-s10` (ZCode/GLM-5.3 — MEGAPROMPT-AUTOFLOW) | 2026-08-16 ~14:5x | ✅ تمام 2026-08-16 ~15:2x — S1..S10 بسته (گزارش: 06-EVIDENCE/AUTOFLOW-REPORT در کامیت پایانی) |
 | `organs_and_afferent_wiring` (agent_C · مگا #۱۵) | 2026-08-20 ~18:4x | ✅ PASS_WITH_FINDINGS — sidecar؛ تلگرام دست‌نخورده؛ merge نشد |
 | `telegram_closed_loop` (agent A/B) | 2026-08-20 ~19:3x | ✅ A13–A17 PASS · A18 BLOCKED · A19 handoff · lease released |
+| `nervous_recovery_run_all` (owner override) | 2026-08-20 ~22:0x | ✅ `test_nervous_recovery.py` append-only در `run_all.py` |
 
 ## وضعِ لحظه‌ای
+
+> 🧬 **پین 2026-08-20 ~22:0x (+10) — Attribution shadow (فاز ۱).** رسید اصلی دست‌نخورده. shadow **PASS** (0 duplicate · 0 fabricated · schema 100% · hash 100%). `run_all` +۱۲ تست. حکم **WAVE0_PARTIAL** · wave1 قفل · canary **اجرا نشد** (اولین producer=cortex). [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW|فاز ۱]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]]
 
 > 🧬 **پین 2026-08-20 ~21:5x (+10) — Nervous-System Recovery.** لایهٔ ادغام Wave 0: receipt v2 + test discovery + AST capability parser + immune cards. حکم **WAVE0_PARTIAL** · wave1_unlocked=false. GitHub عمومی UNLOCATED؛ `7a66352` محلی است. C-048..C-053 کاندید. ریل B/C اعمال نشد. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CANDIDATE-FINDINGS|کاندیدها]] · [[../06-EVIDENCE/GLM53-WAVE0-2026-08-20/VERDICT|WAVE0 GLM]]
 

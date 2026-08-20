@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from typing import Any
 
-TRUTH = ("VERIFIED", "DEGRADED", "DORMANT", "BLOCKED", "UNKNOWN")
+TRUTH = (
+    "VERIFIED",
+    "DEGRADED",
+    "DECLARED_UNOBSERVED",
+    "DORMANT",
+    "BLOCKED",
+    "UNKNOWN",
+)
 
 
 def card(name: str, spec: dict[str, Any], *,
@@ -17,15 +24,16 @@ def card(name: str, spec: dict[str, Any], *,
 
     if receipt_backed is True and observed_recently is True and callable_:
         truth = "VERIFIED"
-    elif st == "dead-output":
-        truth = "BLOCKED"
+    elif st == "dead-output" or (not callable_ and receipt_backed is not True and bool(st)):
+        # Proven inactive / unreachable call path — not merely "no receipt".
+        truth = "DORMANT"
     elif receipt_backed is True and callable_ and observed_recently is False:
         truth = "DEGRADED"
-    elif receipt_backed is not True:
-        # Code or docs exist; no live receipt → not VERIFIED.
-        truth = "DORMANT"
-        if observed_recently is None and receipt_backed is None and not st:
-            truth = "UNKNOWN"
+    elif receipt_backed is not True and callable_:
+        # Declared + callable, but no attributable receipt yet.
+        truth = "DECLARED_UNOBSERVED"
+    elif observed_recently is None and receipt_backed is None and not st:
+        truth = "UNKNOWN"
     else:
         truth = "UNKNOWN"
 
@@ -40,6 +48,10 @@ def card(name: str, spec: dict[str, Any], *,
         "registry_status": st or "UNKNOWN",
         "truth_status": truth,
         "propose_only": spec.get("propose_only"),
+        "note": (
+            "DECLARED_UNOBSERVED = missing attributable receipt, not proof the "
+            "capability is absent. DORMANT = call path inactive/unreachable."
+        ),
     }
 
 
@@ -49,7 +61,7 @@ def inventory(effectors: dict[str, dict], **flags) -> dict[str, Any]:
     for c in cards:
         counts[str(c["truth_status"])] = counts.get(str(c["truth_status"]), 0) + 1
     return {
-        "schema": "capability-immune/1",
+        "schema": "capability-immune/2",
         "total": len(cards),
         "parse_ok": True,
         "counts": counts,

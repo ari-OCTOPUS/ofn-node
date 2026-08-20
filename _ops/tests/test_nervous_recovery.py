@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Nervous recovery unit tests — isolated; not registered in run_all.py (WORKLOCK)."""
+"""Nervous recovery unit tests — registered in run_all.py (owner 2026-08-20)."""
 import json
 import sys
 import tempfile
@@ -9,12 +9,14 @@ _OPS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_OPS))
 
 from nervous_recovery import (  # noqa: E402
+    canary_restart,
     capability_immune,
     capability_parser,
     memory_continuity,
     reality_ledger,
     receipt_v2,
     repair_planner,
+    shadow_adapter,
     test_discovery,
     wave0_governor,
 )
@@ -67,9 +69,15 @@ def test_effectors_ast_parse_nonzero():
     inv = capability_immune.inventory(caps, observed_recently=False, receipt_backed=False)
     assert inv["parse_ok"] is True and inv["total"] == len(caps)
     assert inv["counts"]["VERIFIED"] == 0  # no receipts → not VERIFIED
+    # Callable sensors without receipts are DECLARED_UNOBSERVED, not DORMANT.
+    assert inv["counts"]["DECLARED_UNOBSERVED"] >= 1
     dead = capability_immune.card("x", {"status": "dead-output", "actuator": None},
                                   observed_recently=False, receipt_backed=False)
-    assert dead["truth_status"] == "BLOCKED"
+    assert dead["truth_status"] == "DORMANT"
+    observed = capability_immune.card(
+        "z", {"status": "wired", "actuator": "foo"},
+        observed_recently=False, receipt_backed=False)
+    assert observed["truth_status"] == "DECLARED_UNOBSERVED"
     live = capability_immune.card("y", {"status": "wired", "actuator": "foo"},
                                   observed_recently=True, receipt_backed=True)
     assert live["truth_status"] == "VERIFIED"
@@ -120,6 +128,76 @@ def test_ledger_resolved_requires_evidence():
         raise AssertionError("should have failed")
     except ValueError:
         pass
+
+
+def test_shadow_does_not_rewrite_source_and_never_guesses():
+    d = Path(tempfile.mkdtemp())
+    src = d / "orig.jsonl"
+    dest = d / "shadow.jsonl"
+    rows = [
+        {"task_id": "tsk_real", "run_id": "run_a", "trace_id": "t1",
+         "created_at": "2026-08-20T12:00:00Z", "process_id": 99999},
+        {"task_id": "", "run_id": "run_unknown", "trace_id": "t2",
+         "created_at": "2026-08-20T12:01:00Z", "process_id": 111},
+        {"task_id": "", "run_id": "run_ctx", "trace_id": "t3",
+         "created_at": "2026-08-20T12:02:00Z"},
+    ]
+    src.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    before = src.read_bytes()
+    rep = shadow_adapter.scan_to_shadow(
+        src, dest, since_iso="2026-08-20",
+        run_to_task={"run_ctx": "tsk_from_map"})
+    after = src.read_bytes()
+    assert before == after
+    assert src.read_text(encoding="utf-8").count("task_id") >= 1
+    assert dest.exists()
+    shadows = [json.loads(x) for x in dest.read_text(encoding="utf-8").splitlines() if x.strip()]
+    assert len(shadows) == 3
+    assert shadows[0]["task_id"] == "tsk_real" and shadows[0]["task_id_source"] == "caller"
+    assert shadows[1]["task_id"] is None and shadows[1]["attribution_status"] == "unresolved"
+    assert shadows[1]["task_id_source"] == "legacy_missing"
+    assert shadows[2]["task_id"] == "tsk_from_map" and shadows[2]["task_id_source"] == "context"
+    assert all(s["original_receipt_hash"] for s in shadows)
+    assert all(s["adapter_version"] == "v2" for s in shadows)
+    assert "99999" not in str(shadows[1].get("task_id"))
+    assert rep["criteria"]["duplicate_receipts"] == 0
+    assert rep["criteria"]["fabricated_task_ids"] == 0
+    assert rep["criteria"]["schema_validation"] == 1.0
+    assert rep["criteria"]["original_receipt_hash_coverage"] == 1.0
+    assert rep["shadow_pass"] is True
+    # second pass is idempotent on hash, source still untouched
+    rep2 = shadow_adapter.scan_to_shadow(
+        src, dest, since_iso="2026-08-20",
+        run_to_task={"run_ctx": "tsk_from_map"})
+    assert before == src.read_bytes()
+    assert rep2["n_written"] == 0
+    assert rep2["n_skipped_duplicate_hash"] == 3
+
+
+def test_shadow_pid_timestamp_capability_are_not_task_ids():
+    env = shadow_adapter.shadow_one({
+        "process_id": 43210,
+        "created_at": "2026-08-20T00:00:00Z",
+        "capability_id": "model.call.paid",
+        "exact_model": "glm-5.3",
+    })
+    assert env["task_id"] is None
+    assert env["attribution_status"] == "unresolved"
+    assert env["task_id_source"] == "legacy_missing"
+
+
+def test_canary_execute_is_false_and_order_is_cortex_only():
+    assert canary_restart.EXECUTE is False
+    assert canary_restart.canary_order() == ["cortex"]
+    pl = canary_restart.plan()
+    assert pl["execute"] is False
+    assert pl["wave1_unlocked"] is False
+    assert "paid_call_or_actuator_or_wave_state_change" in pl["stop"]
+
+
+def test_run_all_registers_this_file():
+    names = test_discovery.registered_from_run_all()
+    assert "test_nervous_recovery.py" in names
 
 
 if __name__ == "__main__":

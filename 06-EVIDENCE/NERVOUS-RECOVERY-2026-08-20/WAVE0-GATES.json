@@ -1,19 +1,36 @@
 {
-  "schema": "wave0-governor/1",
-  "ts": "2026-08-20T11:53:31+00:00",
+  "schema": "wave0-governor/2",
+  "ts": "2026-08-20T12:06:41+00:00",
   "verdict": "WAVE0_PARTIAL",
   "wave1_unlocked": false,
   "gates_passed": 1,
+  "hygiene": {
+    "fabricated_task_ids": 0,
+    "critical_regressions": 0,
+    "shadow_pass": true,
+    "shadow": {
+      "n_source_in_window": 149,
+      "criteria": {
+        "duplicate_receipts": 0,
+        "fabricated_task_ids": 0,
+        "schema_validation": 1.0,
+        "original_receipt_hash_coverage": 1.0
+      },
+      "shadow_pass": true,
+      "rewrites_original": false
+    },
+    "note": "WAVE0_PASS needs 4 gates + fabricated_task_ids==0 + critical_regressions==0"
+  },
   "gates": {
     "receipt_attribution": {
-      "now": 0.3378,
+      "now": 0.3423,
       "threshold": 0.95,
       "pass": false,
       "detail": {
-        "n": 148,
-        "attributed": 50,
+        "n": 149,
+        "attributed": 51,
         "unattributed": 98,
-        "ratio": 0.3378,
+        "ratio": 0.3423,
         "gate_95pct": false,
         "source": "F:\\backup\\_ops\\state\\cortex\\cost-receipts.jsonl",
         "since_iso": "2026-08-20",
@@ -21,13 +38,13 @@
       }
     },
     "test_registry": {
-      "now": "636/790",
+      "now": "637/790",
       "threshold": "discovered==registered",
       "pass": false,
       "detail": {
         "discovered": 790,
-        "registered": 636,
-        "gap": 160,
+        "registered": 637,
+        "gap": 159,
         "ci_failure": true,
         "not_registered_sample": [
           "test_ablation_harness.py",
@@ -77,7 +94,8 @@
         "immune_counts": {
           "VERIFIED": 0,
           "DEGRADED": 0,
-          "DORMANT": 10,
+          "DECLARED_UNOBSERVED": 5,
+          "DORMANT": 5,
           "BLOCKED": 0,
           "UNKNOWN": 0
         }
@@ -90,6 +108,7 @@
   "notes": [
     "WAVE0_PASS is required before readable-memory Wave 1.",
     "Rail B P0/P1 findings stay isolated (see CANDIDATE-FINDINGS).",
-    "C-048..C-053 remain candidates, not CONTRADICTIONS truth."
+    "C-048..C-053 remain candidates, not CONTRADICTIONS truth.",
+    "Canary restart not executed (owner permit NOT_GRANTED)."
   ]
 }

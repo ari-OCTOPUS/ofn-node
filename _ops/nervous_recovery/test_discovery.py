@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Discover test_*.py vs AST-registered names in run_all.py. Do not edit run_all."""
+"""Discover test_*.py vs AST-registered names in run_all.py.
+
+Registry is file-level (one `test_*.py` = one slot). Function count inside a
+file is a separate metric and must not be added to `discovered`.
+"""
 from __future__ import annotations
 
 import ast

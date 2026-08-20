@@ -14,9 +14,11 @@ RAIL_A = [
      "desc": "AST/YAML/JSON/TOML parser replaces regex inventory"},
     {"id": "A-memory-10-cycles", "depends_on": ["A-receipt-v2"], "applies": False,
      "desc": "10 consecutive healthy memory cycles; no Wave 1 activation here"},
-    {"id": "A-controlled-restart", "depends_on": ["A-receipt-v2"], "applies": False,
+    {"id": "A-shadow-adapter", "depends_on": ["A-receipt-v2"], "applies": False,
+     "desc": "Shadow v2 ledger; original receipts untouched; no fabricated task_id"},
+    {"id": "A-controlled-restart", "depends_on": ["A-shadow-adapter"], "applies": False,
      "owner_required": True,
-     "desc": "After producers emit task_id, owner-approved restart of daemon/live/cortex"},
+     "desc": "Canary restart ONE producer (cortex first). Not granted this session."},
 ]
 RAIL_B = [
     {"id": "S-B01", "depends_on": [], "applies": False, "owner_required": True,

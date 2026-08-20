@@ -28,6 +28,8 @@ updated: 2026-08-20
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-20 ~22:0x — Attribution shadow فاز ۱.** اصل رسید دست‌نخورده · shadow PASS · registry 637/790 · canary اجرا نشد. [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW]].
+
 - تغییرات اخیر: **2026-08-20 ~21:5x — Nervous-System Recovery.** `_ops/nervous_recovery/` · WAVE0_PARTIAL · wave1_unlocked=false · C-048..C-053 کاندید. [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README]].
 
 - تغییرات اخیر: **2026-08-20 ~20:3x — Telegram A13–A19.** Canary PASS (صفر رسید ۲۰:۱۸) · `READ_BACK_USED` · A15 رسید مغز · A17 HC/WM علّی · A18 BLOCKED · lease آزاد. [[../../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]].
@@ -222,6 +224,7 @@ updated: 2026-08-20
 
 ## Progress
 
+- **2026-08-20 Attribution shadow فاز ۱ (نو):** اصل رسید دست‌نخورده · 149 ردیف v2 · fabricated=0 · canary اجرا=false. جزئیات: [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW]].
 - **2026-08-20 Nervous-System Recovery (نو):** governor Wave 0 · receipt v2 · AST parser · ledger کاندید. حکم WAVE0_PARTIAL. جزئیات: [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README]].
 - **2026-08-20 A/B telegram closed loop (نو):** A0 PASS · A1 زنده FAIL (کد قدیم) · A2–A3 PASS آفلاین · A4–A8 زنده نماند. جزئیات: [[../../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]].
 - **2026-08-20 مگا #۱۵ agent_C (نو):** نقشه ۱۴ اندام · knowledge afferent sidecar · mapper فهرست مسیر · lead ACK_TIMEOUT · R1–R5 sidecar · cognition_inbox. جزئیات: [[../../06-EVIDENCE/ORGAN-MAP-2026-08-20/REPORT]].
