@@ -36,3 +36,7 @@ status_vocab: PROPOSED | RUNNING | DONE | BLOCKED | REJECTED | SUPERSEDED
 | DISC-20260820-13 | نویسندهٔ جفت‌مارکر C-047 (استاتیک §۱۰ دستور #۱۲) | safety | 8.5 | DONE | CONFIRMED (RESTART-PROCESS.ps1؛ اصلاح + تست ۶/۶) | 06-EVIDENCE/DIRECTIVE-12-REPORT-AGENT-B-2026-08-20.md | ZCode #12 |
 | DISC-20260820-14 | نگاشت Active Inference + surprise اکتشافی (§۹) | decision | 7.0 | DONE | NOT_READY_FOR_ACTIVE_INFERENCE (GREEN 17.33 vs AMBER 17.81 nat · n_AMBER=56) | 06-EVIDENCE/DIRECTIVE-12-REPORT-AGENT-B-2026-08-20.md | ZCode #12 |
 | DISC-20260820-15 | صدور خودکار LIVE-B پس از داده‌ها (§۱۱) | senses | 7.0 | PROPOSED | — (منتظر تلگرام+server_created) | — | — |
+
+| DISC-20260820-16 | parser RBA کامل با schema-validation + logging ردیفی + reconciliation ماهانه (درخواست مالک) — **منجمد تا حلقهٔ بسته** (§۱ مگادستور #۱۳) | senses | 6.0 | REJECTED-FROZEN | — | — | ZCode #13 |
+| DISC-20260820-17 | شبیه‌ساز audit-log هش‌چین SHA-256 + signing + notarization + dashboard شکست‌ها (درخواست مالک) — **منجمد تا حلقهٔ بسته** (§۱ مگادستور #۱۳) | safety | 5.5 | REJECTED-FROZEN | — | — | ZCode #13 |
+| DISC-20260820-18 | تداخل 409 Telegram: center/approval_channel همان bot token را long-poll می‌کنند؛ راه‌حل = توکن اختصاصی کاکپیت (رأی مالک) | governance | 7.5 | BLOCKED | — | research/full_loop/telegram_cockpit.py (env: TELEGRAM_COCKPIT_TOKEN) | ZCode #13 |

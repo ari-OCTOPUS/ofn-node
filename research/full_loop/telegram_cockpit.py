@@ -35,10 +35,16 @@ STOP_FILE = _HERE / "state/COCKPIT-STOP"
 
 
 def _env():
-    if not os.environ.get("TELEGRAM_BOT_TOKEN"):
+    if not os.environ.get("TELEGRAM_BOT_TOKEN") and not os.environ.get("TELEGRAM_COCKPIT_TOKEN"):
         import env_loader
         env_loader.load_env()
-    return os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_OWNER_CHAT_ID"]
+    # اولویت: توکن اختصاصی کاکپیت (برای حل تداخل 409 با center/approval_channel
+    # که همان bot اصلی را long-poll می‌کنند — 2026-08-20 ثبت شد)؛ وگرنه fallback
+    # به bot اصلی فقط وقتی poller دیگری فعال نباشد.
+    token = os.environ.get("TELEGRAM_COCKPIT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat = os.environ.get("TELEGRAM_COCKPIT_OWNER_CHAT_ID") or \
+        os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
+    return token, chat
 
 
 def _tg(method: str, payload: dict) -> dict:
