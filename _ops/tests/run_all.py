@@ -1082,6 +1082,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_canary_window.py",
     "test_telegram_verdict_conflict.py",
     "test_delivery_reconciliation.py",
+    # 2026-08-21 OWNER security laboratory — C1 auth_date/HMAC,
+    # C2 decision nonce, C3 full retry_after, C4 durable rate queue.
+    # Fixture-only; fake transport; isolated state; zero live sends/writes/paid calls.
+    "test_security_c1_c4.py",
     "test_self_insight_card_cheap.py",
     "test_owner_cockpit_commands.py",
     "test_dark_capabilities_cache.py",
@@ -1255,6 +1259,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_probe_invalid_spam.py",
     # 2026-08-20 OWNER — TEST_ONLY shadow roundtrip + unowned fear containment.
     "test_telegram_shadow_roundtrip.py",
+    # 2026-08-21 OWNER grant — AGI loop T-01..T-24 + pass pins. Append-only.
+    "test_agi_t01_t24.py",
+    "test_agi_pass1_readonly.py",
+    "test_agi_pass2_shadow.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
