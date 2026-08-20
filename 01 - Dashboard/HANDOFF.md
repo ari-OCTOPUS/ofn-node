@@ -33,6 +33,8 @@ updated: 2026-08-20
 
 ## وضعِ لحظه‌ای
 
+> 🔧 **پین 2026-08-20 ~12:55 (+10) — دستور مالک #۴ Shadow slice:** T14 کانونیکال **ONE_TICK_TEMPORAL_SKEW** · C-045 همان تناقض (مسیر ثابت) · T22 adapter لاب · تست ۱۸/۱۸ · **نه** wire زنده. GAP-001 OPEN. آزاد **C-047**. [[../06-EVIDENCE/HC-WM-MC-WAVE0-2026-08-20/README|WAVE0 pack]] · [[../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20|C-045]] · [[../_ops/shadow_homeostasis/__init__|shadow_homeostasis]]
+
 > 🔧 **پین 2026-08-20 ~12:36 (+10) — دستور مالک #۳ T14–T18:** C-043 **SUSPECTED_VOID** · period **DIFFERENT_SOURCE** (C-045) · C-046 retention · identity **RESTART_ARTIFACT_SUSPECTED** · intra-beat نقص ترتیب · لجر≠تناقض. K=9/ریاستارت/فیکس حساب‌داری شروع نشد. آزاد **C-047**. [[../06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20|T14]] · [[../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20|C-045]] · [[../06-EVIDENCE/EVIDENCE-RETENTION-DESIGN-2026-08-20|retention]] · [[../01-TRUTH/LEDGER-VS-CONTRADICTIONS|لجر]] · [[../01-TRUTH/CONTRADICTIONS|تناقض‌ها]]
 
 > 🔧 **پین 2026-08-20 ~12:25 (+10) — دستور مالک #۲ T7–T12:** C-042 ERRATA + **REPRODUCED_OFFLINE** · C-043 OPEN · C-044 OPEN · AMBER=**RESTART_INDUCED** · identity 0.572→0.672 MEASURED · cap30 leftover در `b17620b`. K=9/ablation/micro-credit شروع نشد. آزاد **C-045**. [[../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20|C-042]] · [[../06-EVIDENCE/C-043-INCONSISTENT-ROUNDING-2026-08-20|C-043]] · [[../06-EVIDENCE/C-044-EMPTY-COLOR-REASONS-2026-08-20|C-044]] · [[../06-EVIDENCE/AMBER-CAUSALITY-2026-08-20|AMBER]] · [[../06-EVIDENCE/IDENTITY-HEALTH-DELTA-2026-08-20|identity]] · [[../06-EVIDENCE/COMMIT-GAP-2026-08-20|commit-gap]] · [[../01-TRUTH/CONTRADICTIONS|تناقض‌ها]]

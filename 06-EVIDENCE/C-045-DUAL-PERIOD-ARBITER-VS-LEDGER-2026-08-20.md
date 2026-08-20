@@ -1,11 +1,17 @@
-# C-045 — period دوگانه بین داور و حساب‌داری
+# C-045 — Life currency consumes previous-tick judge period without provenance
 
 contradiction_id: C-045
 status: OPEN
+canonical_verdict: ONE_TICK_TEMPORAL_SKEW
+source_relation: SAME_PIPELINE_DIFFERENT_SNAPSHOT
 owner: CORE
 related: C-043 SUSPECTED_VOID · C-044 · C-046
 created: 2026-08-20T12:36+10:00
+updated: 2026-08-20T12:48+10:00
 implementation: diagnose only
+path_frozen: این فایل همان C-045 است (بین C-044 و C-046). نام مسیر حفظ شد تا لینک‌ها نشکند.
+
+عنوان کهنه «period دوگانه» = ERRATA. مسئله دو pipeline جدا نیست؛ حساب‌داری period داورِ **تیک قبل** را بدون ثبت `period_s` در JSON خرج می‌کند.
 
 ## ادعا
 
@@ -26,4 +32,6 @@ value_b = تیک قبلی؛ value_a = تیک فعلی. C-043 به عنوان rou
 
 ## حکم
 
-OPEN · DIFFERENT_SOURCE · فیکس نشد.
+OPEN · **ONE_TICK_TEMPORAL_SKEW** · `SAME_PIPELINE_DIFFERENT_SNAPSHOT`.
+ERRATA: برچسب `DIFFERENT_SOURCE` گمراه‌کننده بود (حفظ شد، منسوخ).
+فیکس نشد.

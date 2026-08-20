@@ -1,0 +1,668 @@
+{
+  "schema": "shadow-pipeline.v1",
+  "observations": [
+    {
+      "observation_id": "lo1",
+      "source_id": "pulse.life_currency",
+      "metric": "life_currency.tokens_min",
+      "value": 0.003,
+      "unit": "life_credit",
+      "occurred_at": "2026-08-20T01:47:26+00:00",
+      "recorded_at": "2026-08-20T01:47:26+00:00",
+      "decision_time": "2026-08-20T01:47:26+00:00",
+      "beat": 42784,
+      "boot_id": "boot-2026-08-20T11:47:04+10",
+      "process_id": 7096,
+      "provenance_path": "latest.json",
+      "source_hash": "abc123",
+      "quality": "UNLOCATED",
+      "quality_reasons": [
+        "latest-only evidence cannot prove a historical beat"
+      ],
+      "latest_only": true,
+      "historical_claim": true,
+      "window_n": null,
+      "window_ready": 2
+    }
+  ],
+  "eligibility": {
+    "lo1": "UNLOCATED"
+  },
+  "homeostatic_assessment": {
+    "schema": "homeostatic-assessment.v1",
+    "assessment_id": "ha-793dfcdb30255b50",
+    "decision_time": "2026-08-20T01:47:26+00:00",
+    "boot_id": "boot-2026-08-20T11:47:04+10",
+    "domain_states": {
+      "cardiac": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "HRV observation missing; not coerced to 0"
+        ]
+      },
+      "resource_health": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "resource.cpu_pct UNLOCATED in this slice"
+        ]
+      },
+      "telemetry_integrity": {
+        "state": "AMBER",
+        "reasons": [
+          "state=AMBER",
+          "some telemetry UNLOCATED"
+        ]
+      },
+      "identity_integrity": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "identity component missing; not optimistic default"
+        ]
+      },
+      "life_currency_integrity": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "tokens quality=UNLOCATED"
+        ]
+      },
+      "judge_reliability": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "judge.rs_ba absent; D6 remains BETWEEN_RUN_VARIANCE"
+        ]
+      }
+    },
+    "global_state": "UNKNOWN",
+    "confidence": 0.0,
+    "evidence_ids": [],
+    "excluded_evidence": [
+      {
+        "observation_id": "lo1",
+        "source_id": "pulse.life_currency",
+        "metric": "life_currency.tokens_min",
+        "value": 0.003,
+        "unit": "life_credit",
+        "occurred_at": "2026-08-20T01:47:26+00:00",
+        "recorded_at": "2026-08-20T01:47:26+00:00",
+        "decision_time": "2026-08-20T01:47:26+00:00",
+        "beat": 42784,
+        "boot_id": "boot-2026-08-20T11:47:04+10",
+        "process_id": 7096,
+        "provenance_path": "latest.json",
+        "source_hash": "abc123",
+        "quality": "UNLOCATED",
+        "quality_reasons": [
+          "latest-only evidence cannot prove a historical beat"
+        ],
+        "latest_only": true,
+        "historical_claim": true,
+        "window_n": null,
+        "window_ready": 2
+      }
+    ],
+    "reasons": [
+      "state=UNKNOWN",
+      "HRV observation missing; not coerced to 0",
+      "state=UNKNOWN",
+      "resource.cpu_pct UNLOCATED in this slice",
+      "state=AMBER",
+      "some telemetry UNLOCATED",
+      "state=UNKNOWN",
+      "identity component missing; not optimistic default",
+      "state=UNKNOWN",
+      "tokens quality=UNLOCATED",
+      "state=UNKNOWN",
+      "judge.rs_ba absent; D6 remains BETWEEN_RUN_VARIANCE",
+      "global=UNKNOWN"
+    ],
+    "contradictions": [],
+    "setpoints_version": "setpoints.v1",
+    "executable": false
+  },
+  "world_state": {
+    "schema": "world-state.v1",
+    "state_id": "ws-90de8df41d847d9a",
+    "valid_at": "2026-08-20T01:47:26+00:00",
+    "known_at": "2026-08-20T01:47:26+00:00",
+    "decision_time": "2026-08-20T01:47:26+00:00",
+    "entities": {
+      "organism": {
+        "kind": "octopus_laptop"
+      }
+    },
+    "facts": [],
+    "hypotheses": [],
+    "predictions": [
+      {
+        "horizon_s": 113.0,
+        "expiry": "2026-08-20T01:49:19+00:00",
+        "claim": "next beat telemetry may remain overwrite-only without T22 store",
+        "confidence": 0.4
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "UNLOCATED",
+        "id": "lo1",
+        "metric": "life_currency.tokens_min"
+      }
+    ],
+    "contradictions": [],
+    "evidence_ids": [],
+    "homeostatic_assessment_id": "ha-793dfcdb30255b50",
+    "confidence": 0.0,
+    "executable": false
+  },
+  "skill_scores": [
+    {
+      "domain": "telemetry_interpretation",
+      "evidence_coverage": 0.0,
+      "freshness": 1.0,
+      "calibration": 0.8,
+      "stability": 0.7,
+      "agreement": 0.8,
+      "restart_readiness": 0.8,
+      "ood_risk": 0.2,
+      "contradiction_penalty": 0.0,
+      "final_score": 0.58,
+      "confidence": 0.0,
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN"
+      ],
+      "evidence_ids": [
+        "lo1"
+      ],
+      "weights_version": "skill-weights.v1",
+      "block_flags": {
+        "future": false,
+        "unit_mismatch": false,
+        "conflicting": false,
+        "warmup": false
+      }
+    },
+    {
+      "domain": "homeostasis",
+      "evidence_coverage": 0.0,
+      "freshness": 1.0,
+      "calibration": 0.8,
+      "stability": 0.7,
+      "agreement": 0.8,
+      "restart_readiness": 0.8,
+      "ood_risk": 0.2,
+      "contradiction_penalty": 0.0,
+      "final_score": 0.58,
+      "confidence": 0.0,
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN"
+      ],
+      "evidence_ids": [
+        "lo1"
+      ],
+      "weights_version": "skill-weights.v1",
+      "block_flags": {
+        "future": false,
+        "unit_mismatch": false,
+        "conflicting": false,
+        "warmup": false
+      }
+    },
+    {
+      "domain": "identity_assessment",
+      "evidence_coverage": 0.0,
+      "freshness": 1.0,
+      "calibration": 0.8,
+      "stability": 0.7,
+      "agreement": 0.8,
+      "restart_readiness": 0.8,
+      "ood_risk": 0.2,
+      "contradiction_penalty": 0.0,
+      "final_score": 0.58,
+      "confidence": 0.0,
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN"
+      ],
+      "evidence_ids": [
+        "lo1"
+      ],
+      "weights_version": "skill-weights.v1",
+      "block_flags": {
+        "future": false,
+        "unit_mismatch": false,
+        "conflicting": false,
+        "warmup": false
+      }
+    },
+    {
+      "domain": "judge_reliability",
+      "evidence_coverage": 0.0,
+      "freshness": 1.0,
+      "calibration": 0.5,
+      "stability": 0.7,
+      "agreement": 0.8,
+      "restart_readiness": 0.8,
+      "ood_risk": 0.2,
+      "contradiction_penalty": 0.0,
+      "final_score": 0.535,
+      "confidence": 0.0,
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN"
+      ],
+      "evidence_ids": [
+        "lo1"
+      ],
+      "weights_version": "skill-weights.v1",
+      "block_flags": {
+        "future": false,
+        "unit_mismatch": false,
+        "conflicting": false,
+        "warmup": false
+      }
+    },
+    {
+      "domain": "life_currency_accounting",
+      "evidence_coverage": 0.0,
+      "freshness": 1.0,
+      "calibration": 0.8,
+      "stability": 0.7,
+      "agreement": 0.8,
+      "restart_readiness": 0.8,
+      "ood_risk": 0.2,
+      "contradiction_penalty": 0.0,
+      "final_score": 0.58,
+      "confidence": 0.0,
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN"
+      ],
+      "evidence_ids": [
+        "lo1"
+      ],
+      "weights_version": "skill-weights.v1",
+      "block_flags": {
+        "future": false,
+        "unit_mismatch": false,
+        "conflicting": false,
+        "warmup": false
+      }
+    },
+    {
+      "domain": "world_state_estimation",
+      "evidence_coverage": 0.0,
+      "freshness": 1.0,
+      "calibration": 0.8,
+      "stability": 0.7,
+      "agreement": 0.8,
+      "restart_readiness": 0.8,
+      "ood_risk": 0.2,
+      "contradiction_penalty": 0.0,
+      "final_score": 0.58,
+      "confidence": 0.0,
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN"
+      ],
+      "evidence_ids": [
+        "lo1"
+      ],
+      "weights_version": "skill-weights.v1",
+      "block_flags": {
+        "future": false,
+        "unit_mismatch": false,
+        "conflicting": false,
+        "warmup": false
+      }
+    }
+  ],
+  "gate_decisions": [
+    {
+      "schema": "gate-decision.v1",
+      "domain": "telemetry_interpretation",
+      "skill_score": {
+        "domain": "telemetry_interpretation",
+        "evidence_coverage": 0.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.58,
+        "confidence": 0.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=0.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "lo1"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-793dfcdb30255b50",
+      "world_state_id": "ws-90de8df41d847d9a"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "homeostasis",
+      "skill_score": {
+        "domain": "homeostasis",
+        "evidence_coverage": 0.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.58,
+        "confidence": 0.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=0.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "lo1"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-793dfcdb30255b50",
+      "world_state_id": "ws-90de8df41d847d9a"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "identity_assessment",
+      "skill_score": {
+        "domain": "identity_assessment",
+        "evidence_coverage": 0.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.58,
+        "confidence": 0.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=0.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "lo1"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-793dfcdb30255b50",
+      "world_state_id": "ws-90de8df41d847d9a"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "judge_reliability",
+      "skill_score": {
+        "domain": "judge_reliability",
+        "evidence_coverage": 0.0,
+        "freshness": 1.0,
+        "calibration": 0.5,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.535,
+        "confidence": 0.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=0.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "lo1"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN",
+        "D6_BETWEEN_RUN_VARIANCE_CAP"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN",
+        "blocker=D6_BETWEEN_RUN_VARIANCE_CAP"
+      ],
+      "assessment_id": "ha-793dfcdb30255b50",
+      "world_state_id": "ws-90de8df41d847d9a"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "life_currency_accounting",
+      "skill_score": {
+        "domain": "life_currency_accounting",
+        "evidence_coverage": 0.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.58,
+        "confidence": 0.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=0.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "lo1"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-793dfcdb30255b50",
+      "world_state_id": "ws-90de8df41d847d9a"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "world_state_estimation",
+      "skill_score": {
+        "domain": "world_state_estimation",
+        "evidence_coverage": 0.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.58,
+        "confidence": 0.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=0.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "lo1"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=0.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-793dfcdb30255b50",
+      "world_state_id": "ws-90de8df41d847d9a"
+    }
+  ],
+  "executable": false,
+  "code_version": "shadow_homeostasis/0.1.0",
+  "output_hash": "7e6d7b8d41bb9cebec9e9e101933890f7286d88ad2dc8cc698bf8d6da5a1a9d8"
+}

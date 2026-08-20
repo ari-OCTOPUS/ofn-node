@@ -1,0 +1,66 @@
+{
+  "schema": "hc-wm-mc-manifest.v1",
+  "when": "2026-08-20T12:50:17+10:00",
+  "files": [
+    {
+      "path": "_ops\\heart\\life_currency.py",
+      "size": 14165,
+      "mtime": "2026-08-20T10:08:26+10:00",
+      "sha256": "af6e54099d960c51a1c5f66247e3805b4be43e7ce162baf57089c4087034e7b1"
+    },
+    {
+      "path": "_ops\\heart\\pulse_arbiter.py",
+      "size": 31260,
+      "mtime": "2026-08-12T17:04:25+10:00",
+      "sha256": "ac131604c6ca006363503461539f26be91e0da593d2d33a42d894358fdfa8fd5"
+    },
+    {
+      "path": "_ops\\organism.py",
+      "size": 103943,
+      "mtime": "2026-08-16T23:01:23+10:00",
+      "sha256": "1fd3c6c99b15b3cab3215ec5e2fc34acd47bb24ddc113e26f4fefc1d0bf1031d"
+    },
+    {
+      "path": "_ops\\chrono_rhythm\\rhythm.py",
+      "size": 9593,
+      "mtime": "2026-08-12T13:36:52+10:00",
+      "sha256": "5ed61162c1db5ef6925980182c8a3d3b3ca7c119f7ea4ef079ff2fef99ef69c6"
+    },
+    {
+      "path": "_ops\\identity_equations.py",
+      "size": 21911,
+      "mtime": "2026-07-25T21:17:46+10:00",
+      "sha256": "1e123826a33222f941756b4dd9b97d2ce5d5df651a7814f15a0ee64986d5b53a"
+    },
+    {
+      "path": "_ops\\telemetry\\criticality_metrics.py",
+      "size": 4083,
+      "mtime": "2026-08-12T18:53:42+10:00",
+      "sha256": "620479ab73cf8b21ac3d83873c64577f78c3202810fa204bfc3132e43bbe0eb3"
+    },
+    {
+      "path": "_ops\\telemetry\\health_digest.py",
+      "size": 9534,
+      "mtime": "2026-08-16T20:24:48+10:00",
+      "sha256": "0ef209cf6770f4239b2912353b41bd5e668e733fef097cfb7c94af45624ac663"
+    },
+    {
+      "path": "06-EVIDENCE\\T14-PERIOD-PROVENANCE-2026-08-20.md",
+      "size": 5136,
+      "mtime": "2026-08-20T12:46:40+10:00",
+      "sha256": "7276f88beefd81201b033efa92aa18ed63575c7229a92427720098833129d454"
+    },
+    {
+      "path": "06-EVIDENCE\\C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20.md",
+      "size": 1766,
+      "mtime": "2026-08-20T12:46:45+10:00",
+      "sha256": "5c29ab38544c8d1badf89a73522f8142adc99e51e8bbfaf1ea3de56570df69b4"
+    },
+    {
+      "path": "06-EVIDENCE\\EVIDENCE-RETENTION-DESIGN-2026-08-20.md",
+      "size": 2652,
+      "mtime": "2026-08-20T12:38:00+10:00",
+      "sha256": "9a4fc9e29de31b92ec56a9f5c4044bddc281a27b56a034eb8703c62449e3b45c"
+    }
+  ]
+}

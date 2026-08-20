@@ -8,10 +8,23 @@ tags: [octopus, life-currency, provenance, C-043, C-045]
 
 # T14 — provenance مقدار period
 
-verdict: **DIFFERENT_SOURCE**
+verdict: **ONE_TICK_TEMPORAL_SKEW**
 created: 2026-08-20T12:36+10:00
+updated: 2026-08-20T12:48+10:00
 implementation: diagnose only — فیکس این جلسه اجرا نشد
 snapshot: `06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20.snapshot.json`
+
+```yaml
+verdict: ONE_TICK_TEMPORAL_SKEW
+source_relation: SAME_PIPELINE_DIFFERENT_SNAPSHOT
+judge_period_beat_42830: 113.61
+life_currency_period_beat_42784: UNLOCATED
+reconstructed_period_range: "[112.32, 113.04)"
+```
+
+## ERRATA — DIFFERENT_SOURCE گمراه‌کننده بود
+
+حکم اولیهٔ T18/دستور #۳: `DIFFERENT_SOURCE`. مالک 2026-08-20 ACCEPT_WITH_CORRECTIONS: منبع فایل یکی است (`ORGANISM-STATE.arbiter`)؛ اختلاف **یک تیک تأخیر** است نه دو منبع جدا. `DIFFERENT_SOURCE` حذف نشد؛ منسوخ است. کانونیکال = `ONE_TICK_TEMPORAL_SKEW` / `SAME_PIPELINE_DIFFERENT_SNAPSHOT`. C-043 همچنان `SUSPECTED_VOID`.
 
 ## منبع خواندن در کد (نه cache، نه فاصلهٔ دو beat)
 

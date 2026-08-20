@@ -602,17 +602,18 @@ contradiction:
 ```yaml
 contradiction:
   id: C-045
-  claim: "period/color مصرفی life_currency همان period/color داورِ همان beat است"
-  value_a: "arbiter-shadow beat 42784 period=113.65 AMBER ts 11:52:18"
+  claim: "Life currency consumes previous-tick judge period without provenance"
+  value_a: "arbiter-shadow beat 42784 period=113.65 AMBER ts 11:52:18; judge_period_beat_42830=113.61"
   source_a: "_ops/state/pulse/arbiter-shadow.jsonl · [[../06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20]]"
-  value_b: "حساب‌داری beat 42784 hard_cap=0.078 → period∈[112.32,113.04) منطبق 112.76 از beat 42780؛ tick ارز قبل از persist (organism.py:558–565 سپس 609–623)"
+  value_b: "life_currency_period_beat_42784=UNLOCATED; reconstructed_period_range=[112.32, 113.04); matches 112.76@42780; tick ارز قبل از persist"
   source_b: "[[../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20]] · life_currency._read_color:258–273"
-  likely: value_b is t-1 organism tick; value_a is this tick. DIFFERENT_SOURCE
-  resolution: "OPEN · diagnose only · حداقل فیکس: tick ارز بعد از persist + پاس period/color · اجرا نشد"
+  likely: SAME_PIPELINE_DIFFERENT_SNAPSHOT / ONE_TICK_TEMPORAL_SKEW
+  errata: "DIFFERENT_SOURCE misleading — not two sources; one-tick lag. Kept as historical label."
+  resolution: "OPEN · canonical ONE_TICK_TEMPORAL_SKEW · فیکس نشد · sits between C-044 and C-046"
   status: open
   owner: CORE
-  related: C-043
-  registered_by: "owner-order-3 T14 2026-08-20"
+  related: C-043, C-044, C-046
+  registered_by: "owner-order-3 T14 · canonicalize owner-order-4 PRE-T20"
 ```
 
 ```yaml
