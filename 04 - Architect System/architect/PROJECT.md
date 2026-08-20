@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-08-20
+updated: 2026-08-21
 ---
 
 # پروژه: architect
@@ -27,6 +27,10 @@ updated: 2026-08-20
 **قاعده حریم Project-F:** پروژه اونلی فنز در هر خروجی cross-domain (تلگرام، داشبورد، گزارش) فقط با کد «Project-F» ارجاع می‌شود — نه نام پلتفرم، نه هویت پارتنر، نه جزئیات محتوا. جزئیات فقط داخل پوشه خود پروژه.
 
 ## Active Context
+
+- تغییرات اخیر: **2026-08-21 — OWNER GRANT بازکردن قفل‌ها.** Wave 1 unlocked · digest زنده msg 583 · doctor-pulse merged. [[../../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/README]].
+
+- تغییرات اخیر: **2026-08-21 — AGI-LOOPS PASS 1 READ-ONLY + PASS 2 SHADOW.** ۱۲ خانواده / ۲۴ کشف / نردبان L0–L6. Wave 1 قفل. حافظهٔ production نوشته نشد. Pass 3 LIVE داده نشد. [[../../06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/README]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/README]].
 
 - تغییرات اخیر: **2026-08-20 ~22:2x — WAVE0 exec.** schema-window attribution 1.0 · registry 786/786 · memory streak باز. wave1 قفل. [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-A]].
 
@@ -224,6 +228,8 @@ updated: 2026-08-20
 
 ## Progress
 
+- **2026-08-21 OWNER GRANT unlock (نو):** lock.json wave1_unlocked=true · digest 583 · STOPها در `_Archive/Stops`. جزئیات: [[../../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/README]].
+- **2026-08-21 AGI-LOOPS PASS 1+2 (نو):** رجیستری ۱۲+۲۴ · نردبان L0–L6 · shadow چهار حلقه. Wave 1 قفل. Pass 3 نه. جزئیات: [[../../06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/README]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/README]].
 - **2026-08-20 Attribution shadow فاز ۱ (نو):** اصل رسید دست‌نخورده · 149 ردیف v2 · fabricated=0 · canary اجرا=false. جزئیات: [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW]].
 - **2026-08-20 Nervous-System Recovery (نو):** governor Wave 0 · receipt v2 · AST parser · ledger کاندید. حکم WAVE0_PARTIAL. جزئیات: [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README]].
 - **2026-08-20 A/B telegram closed loop (نو):** A0 PASS · A1 زنده FAIL (کد قدیم) · A2–A3 PASS آفلاین · A4–A8 زنده نماند. جزئیات: [[../../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]].

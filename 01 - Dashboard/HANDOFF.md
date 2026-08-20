@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-20
+updated: 2026-08-21
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -35,6 +35,10 @@ updated: 2026-08-20
 | `nervous_recovery_run_all` (owner override) | 2026-08-20 ~22:0x | ✅ `test_nervous_recovery.py` append-only در `run_all.py` |
 
 ## وضعِ لحظه‌ای
+
+> 🐙 **پین 2026-08-21 ~05:5x (+10) — OWNER GRANT قفل‌ها.** Wave 1 UNLOCKED (حافظه+hook). STOP-TG-HEARTBEAT و STOP-CODE-AUTONOMY منتقل شدند نه حذف. doctor-pulse=merged. digest زنده message_id=583. BotFather دستی. [[../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21|حکم]] · [[../06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/README|Pass 3]]
+
+> 🐙 **پین 2026-08-21 ~05:3x (+10) — AGI-LOOPS PASS 1+2.** ۱۲ خانواده + ۲۴ کشف. L6=OWNER_VISIBLE. Pass 1 read-only · Pass 2 shadow (کالیبراسیون، EMA، قرنطینهٔ کپیِ doctor-pulse، digest خشک). Wave 1 قفل. Pass 3 LIVE داده نشد. [[../06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/README|Pass 1]] · [[../06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/README|Pass 2]]
 
 > 🛑 **پین 2026-08-20 ~23:4x (+10) — TELEGRAM_SHADOW_ROUNDTRIP.** ترسِ بی‌مالک outbox-only شد (`LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT` OPEN). سایهٔ n=1 روی `durable_loop` با fake sender **verifier.confirmed**؛ حلقهٔ زندهٔ event→response **OPEN**. کاناری زنده ارسال نشد. [[../06-EVIDENCE/TELEGRAM-SHADOW-ROUNDTRIP-2026-08-20/README|pack]]
 

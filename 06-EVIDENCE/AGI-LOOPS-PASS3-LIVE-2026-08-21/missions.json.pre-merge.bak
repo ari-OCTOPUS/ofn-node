@@ -3,7 +3,7 @@
     "schema": "doctor-mission.v1",
     "mission_id": "doctor-pulse",
     "title": "ابزارِ فقط‌خواندنیِ خلاصهٔ وضع دکتر افزوده شود.",
-    "state": "merged",
+    "state": "awaiting-merge",
     "risk": "low",
     "created": 1785313088.6151195,
     "patch": {
@@ -52,9 +52,7 @@
       "سوئیت سبز نشد یا درختِ زنده تغییر کرد",
       "reset for cycle-6 (commit-free)",
       "سوئیت سبز نشد یا درختِ زنده تغییر کرد",
-      "reset for cycle-7 (tight fp window)",
-      "merged 2026-08-20T19:54:16Z owner-grant: _ops/tools/doctor_pulse.py already on disk"
-    ],
-    "merged_at": "2026-08-20T19:54:16Z"
+      "reset for cycle-7 (tight fp window)"
+    ]
   }
 ]

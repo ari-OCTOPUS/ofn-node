@@ -5910,6 +5910,15 @@ class Center:
             uid = u.get("update_id")
             if isinstance(uid, int) and uid > max_id:
                 max_id = uid
+            # D15 (owner grant 2026-08-21): never ingest the bot's own replies.
+            # Offset still advances so restart does not replay them.
+            try:
+                from self_bot_filter import is_self_bot_update as _is_self_bot
+                if _is_self_bot(u):
+                    n += 1
+                    continue
+            except Exception:  # noqa: BLE001 — filter must not kill the poller
+                pass
             # **قبل** از dispatch: اگر پردازش بترکد، ردیفِ «رسید» از قبل نشسته
             # و کنارِ نامهٔ مرده تصویرِ کامل می‌دهد.
             self._log_inbound(u)

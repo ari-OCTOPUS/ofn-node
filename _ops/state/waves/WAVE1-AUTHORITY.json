@@ -53,9 +53,10 @@
     "production_memory_read": false
   },
   "authoritative_state": {
-    "wave1_unlocked": false,
-    "production_memory_read": false,
-    "memory_write": false
+    "wave1_unlocked": true,
+    "production_memory_read": true,
+    "memory_write": true,
+    "authority": "owner-grant-2026-08-21"
   },
   "reconciliation_result": "canary-sidecar read-only authorization recognized; full Wave 1 production unlock NOT authorized until entry gates re-verified independently and wave0 governor agrees",
   "requirements_before_unlock": [
@@ -90,5 +91,26 @@
       "wave0_artifacts_unmodified": true
     },
     "decision": "gates now genuinely pass; wave1_unlocked stays FALSE (owner keeps Wave 1 locked until explicit activation order)"
+  },
+  "owner_grant_2026_08_21": {
+    "ts": "2026-08-20T19:54:16Z",
+    "wave1_unlocked": true,
+    "memory_writes": true,
+    "organism_hook": true,
+    "source": "AskQuestion owner form",
+    "lock": {
+      "schema": "wave1-lock/1",
+      "wave1_unlocked": true,
+      "verifier_pass": true,
+      "updated": "2026-08-20T19:54:16Z",
+      "activation": "owner-grant-2026-08-21-full",
+      "prompt_injection": false,
+      "memory_writes": true,
+      "organism_hook": true,
+      "paid_calls": "budgeted",
+      "grant": "F:/backup/02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21.md",
+      "note": "Owner explicit full Wave 1 unlock. Wave0 governor report stays a historical WAVE0_PASS artifact; production authority is this lock."
+    },
+    "precedence_now": "Explicit owner grant flips production lock.json. wave0_governor source still reports historical WAVE0_PASS with wave1_unlocked=False so Wave 0 freeze stays bit-stable."
   }
 }
