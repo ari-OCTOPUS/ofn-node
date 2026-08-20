@@ -1,0 +1,24 @@
+{
+ "card": "PRE-REG-JUDGE-BIAS-PHASE2-2026-08-20",
+ "design_locks": {
+  "fisher_direction": "two_sided",
+  "flip_rate_on": "only_pairs_with_advantage",
+  "hash": "PYTHONHASHSEED=0",
+  "quality_and_length": "decorrelated",
+  "seeds": "fixed_and_recorded",
+  "void_rule": "unstable_judgment_is_VOID"
+ },
+ "execution_condition": "Ed25519 signature verified on this payload",
+ "hard_max_calls": 600,
+ "hard_stop_aud": 0.2,
+ "judge_rule": "یک داور از هر خانواده؛ GLM unavailable ⇒ فاز ۲ اجرا نشود؛ جایگزینی هم‌خانواده ممنوع",
+ "judges_paid": [
+  "DeepSeek",
+  "GLM"
+ ],
+ "objective": "سنجش سوگیری جایگاه و طول در داورهای واقعی",
+ "pairs": 120,
+ "permutations": 2,
+ "planned_calls": 480,
+ "tasks": 20
+}

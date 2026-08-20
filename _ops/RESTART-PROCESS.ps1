@@ -85,14 +85,17 @@ $cfg = @{
 # ran against the live tree) kept the whole system down for 30 minutes. So it gets its own
 # path with two rules the generic one does not have:
 #   1. If it is not running, just launch. Never write a marker to start something.
-#   2. If it is running, write STOP-ORGANISM *together with* RESTART-REQUESTED. That pair
-#      means "temporary" to RUN-ORGANISM.bat, which reboots itself; STOP-ORGANISM alone
-#      means "stay down until a human deletes it". Both are removed in finally regardless.
+#   2. If it is running, write ONLY RESTART-REQUESTED (C-047 fix, OWNER-DIRECTIVE-12
+#      section 10): under the P2 launcher, STOP-ORGANISM is NEVER auto-deleted, so
+#      writing the pair risks a stray STOP killing the whole system if this script
+#      dies mid-restart (exactly the 2026-07-28 incident class). Single marker =
+#      organism clean-exits as RESTART; the launcher loop (or this script's own
+#      relaunch below) brings it back. STOP-ORGANISM alone still means "stay down
+#      until a human deletes it".
 if ($Target -eq "organism") {
     $bat = "$ops\RUN-ORGANISM.bat"
     if (-not (Test-Path $bat)) { Write-Host ("ERROR: launcher not found: " + $bat); exit 1 }
     $before = Get-Proc "organism.py"
-    $stopF = Join-Path $ops "STOP-ORGANISM"
     $restF = Join-Path $ops "RESTART-REQUESTED"
     if (-not $before) {
         Write-Host "BEFORE : not running - launching directly (no marker written)."
@@ -100,9 +103,8 @@ if ($Target -eq "organism") {
         Write-Host ("BEFORE : pid={0} started {1}" -f $before.ProcessId,
                     $before.CreationDate.ToString("HH:mm:ss"))
         try {
-            Set-Content -Path $stopF -Value "RESTART-PROCESS.ps1" -Encoding utf8
             Set-Content -Path $restF -Value (Get-Date -Format "s") -Encoding utf8
-            Write-Host "STOP-ORGANISM + RESTART-REQUESTED written - waiting up to 300s..."
+            Write-Host "RESTART-REQUESTED written (single marker, C-047) - waiting up to 300s..."
             $deadline = (Get-Date).AddSeconds(300)
             while ((Get-Date) -lt $deadline) {
                 $still = Get-Proc "organism.py"
@@ -110,10 +112,8 @@ if ($Target -eq "organism") {
                 Start-Sleep -Seconds 5
             }
         } finally {
-            # A stray STOP-ORGANISM is the worst outcome this script can produce.
-            foreach ($m in @($stopF, $restF)) {
-                if (Test-Path $m) { Remove-Item $m -Force -ErrorAction SilentlyContinue }
-            }
+            # Only OUR OWN marker is cleaned here; the owner STOP is never touched (P2).
+            if (Test-Path $restF) { Remove-Item $restF -Force -ErrorAction SilentlyContinue }
         }
     }
     if (-not (Get-Proc "organism.py")) {

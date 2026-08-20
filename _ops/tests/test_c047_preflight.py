@@ -46,3 +46,28 @@ def test_bat_comment_documents_single_marker_protocol():
     # پروتکل کهنهٔ جفت‌مارکری دیگر توصیه نشود:
     bad = re.search(r"[Cc]lear both", bat)
     assert not bad, "stale dual-marker protocol text still present"
+
+
+def test_no_repo_script_writes_dual_markers():
+    """§۱۰ دستور #۱۲: هیچ اسکریپتی نباید STOP-ORGANISM را همراه RESTART-REQUESTED
+    بنویسد (ریشهٔ C-047). اسکن استاتیک repo — بدون اجرا."""
+    import re as _re
+    offenders = []
+    for pat in ("*.ps1", "*.bat", "*.cmd", "*.py"):
+        for p in _OPS.rglob(pat):
+            s = str(p)
+            if "__pycache__" in s or "/tests/" in s.replace("\\", "/"):
+                continue
+            try:
+                text = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            # نوشتنِ هر دو مارکر در یک فایل = جفت‌مارکر
+            has_stop = _re.search(r"Set-Content\s+-Path\s+\$?stop|touch[^\n]*STOP-ORGANISM|"
+                                  r"open\([^\n]*STOP-ORGANISM[^\n]*['\"]w", text)
+            has_rest = "RESTART-REQUESTED" in text and _re.search(
+                r"Set-Content\s+-Path\s+\$?rest|touch[^\n]*RESTART-REQUESTED|"
+                r"open\([^\n]*RESTART-REQUESTED[^\n]*['\"]w", text)
+            if has_stop and has_rest:
+                offenders.append(str(p.relative_to(_OPS)))
+    assert not offenders, f"dual-marker writers still present: {offenders}"
