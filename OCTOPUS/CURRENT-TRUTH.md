@@ -5,20 +5,46 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-16T06:34:40Z
+> auto-generated: 2026-08-20T04:42:19Z
 
 ## Current Truth
 
-- **coherence:** 0.975
-- **members_present:** 11
-- **stale_members:** هیچ
-- **beat:** 38081
+- **beat:** 42948
+- **organism_pid:** 19736 (restarted 14:36 +10, supervised)
+- **brain_daemon_pid:** 25680 (old code — T48 producer pending its restart)
 - **halted:** False
-- **rfcs_pending:** 0
-- **HEAD:** 44c26f1
+- **HEAD:** 8644c24
+- **D6:** CLOSED_NEGATIVE (JUDGMENT_IS_PAIR_DEPENDENT)
+- **writer_lease:** ACTIVE_MANDATORY (T47, fail-closed)
+- **memory_read_loop:** LIVE_READONLY reads=3/cycle readback=read_ok (T49)
+- **event_time_producers:** 2 DEPLOYED, spine schema v2 dual-write (T48)
+- **LIVE_gates:** A=PASS · B=measuring(~15:49) · C=PASS · D/E=BLOCKED
+- **executable:** false everywhere
 
 
 <!-- OCTOPUS-AUTO-END -->
+
+### Human status — دستورهای مالک #۶–#۸ و مسیر LIVE (2026-08-20 بعدازظهر، additive)
+
+> خارج از بلوک auto. رأی چت دیگر جانشین امضا نیست (R10)؛ lease نویسندهٔ واحد
+> فعال و fail-closed است؛ ابسیدین از labels.json بازتولید شد (render_now بدون drift).
+
+- **T34/T41:** کلید امضا `KEY_IDENTITY_CONFIRMED_SAME`؛ لنگر اعتماد
+  `2413e974…ab6b2` پین شد (`_ops/owner-signing/TRUST-ANCHOR.md`)؛ B1 = `B1_SIGNED_ED25519`.
+- **T36:** D6 = `CLOSED_NEGATIVE` — قضاوت داور تابع جفت است (Fisher دقیق
+  p=4.113533525298231e-05؛ ERRATA-2). داور تک‌نفره ground truth نیست.
+- **T47:** lease فیزیکی ACTIVE (دستور #۸ پذیرش هر دو ایجنت را تحمیل کرد) → **LIVE-A=PASS**.
+- **T48:** دو producer واقعی event-time مستقر (dual-write افزودنی؛ spine schema v2؛
+  ۷,۲۶۷ ردیف legacy دست‌نخورده)؛ سنجش ۶۵+ دقیقه → گزارش ~15:49 → گیت LIVE-B.
+- **T49:** خواندن حافظه در حلقهٔ زنده (فقط‌خواندنی): `memory_reads_per_cycle=3`،
+  read-back زنده `read_ok`، DEGRADED-نه-crash → شواهد **LIVE-C=PASS**.
+- **T51:** کارت `PRE-REG-FULL-LOOP-FLASH-2026-08-20` آماده، اجرا=۰ تا LIVE-B و
+  امضای Ed25519 جداگانه.
+- باز ماندهٔ مالک: تست بکاپ کلید (runbook آماده؛ verdict فعلاً UNTESTED) ·
+  امضای کارت LIVE-D پس از LIVE-B · پیام تلگرامی برای دادهٔ producer_2.
+- جزئیات: `06-EVIDENCE/DIRECTIVE-8-REPORT-AGENT-B-2026-08-20.md` · نوت‌های ۶۸–۷۰
+  (تست بار DeepSeek، playbook بitemporal، گزارش زیست‌شناسی) در
+  `07 - Knowledge/شناخت-اختاپوس/`.
 
 ### Human status — Desktop lab D1–D8 season (2026-08-15, additive; not `_ops`)
 
