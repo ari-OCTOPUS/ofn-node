@@ -17,7 +17,36 @@ from .paths import INBOX, ORGANS_STATE, SKIP_DIR_NAMES, VAULT, assert_not_telegr
 FRONTMATTER_RE = re.compile(r"^---\r?\n(.*?)\r?\n---", re.S)
 KEY_RE = re.compile(r"^(type|status|tags|updated|created)\s*:\s*(.+)$", re.M)
 MAX_BYTES = 2_000_000
-SCHEMA_VERSION = "knowledge-afferent/2"
+SCHEMA_VERSION = "knowledge-afferent/3"
+
+# C14 quality enum — فقط VALID وارد memory candidates می‌شود
+QUALITY_ENUM = frozenset({
+    "VALID", "FRONTMATTER_INVALID", "UNTAGGED", "STALE", "CONFLICTING",
+    "SECRET_SUSPECTED", "INELIGIBLE_TEMPORAL_METADATA", "FILE_CHANGED_DURING_READ",
+    "DENYLISTED", "BINARY_OR_ATTACHMENT",
+})
+
+# C14: symlink/junction loop protection
+def _is_symlink_or_junction(path: Path) -> bool:
+    try:
+        return path.is_symlink() or (path.name.endswith(".lnk") or
+                                      path.suffix in {".exe", ".dll", ".so", ".bin", ".zip",
+                                                      ".tar", ".gz", ".7z", ".rar", ".pdf",
+                                                      ".jpg", ".png", ".gif", ".ico"})
+    except OSError:
+        return True
+
+
+# C14: file read race detection — hash قبل و بعد از خواندن
+def _safe_read_with_race_check(path: Path, max_bytes: int) -> tuple[str, str, str]:
+    """(text, hash_before, hash_after) — اگر تغییر کرد FILE_CHANGED_DURING_READ."""
+    try:
+        h1 = _hash_file(path)
+        text = path.read_text("utf-8", errors="replace")[:max_bytes]
+        h2 = _hash_file(path)
+        return text, h1, h2
+    except OSError:
+        return "", "", ""
 
 # C2 (OWNER-DIRECTIVE-AGENT-C-PLAN §C2): production-grade security
 SECRET_PATTERNS = (
@@ -154,6 +183,10 @@ def scan(*, vault: Path | None = None, now: float | None = None,
     ineligible = 0
 
     for path in files:
+        # C14: symlink/junction/binary protection
+        if _is_symlink_or_junction(path):
+            malformed += 1
+            continue
         try:
             st = path.stat()
         except OSError:
@@ -162,11 +195,14 @@ def scan(*, vault: Path | None = None, now: float | None = None,
         if st.st_size > MAX_BYTES:
             malformed += 1
             continue
-        try:
-            text = path.read_text(encoding="utf-8", errors="replace")[:50_000]
-        except OSError:
+        # C14: file read race detection
+        text, hash_before, hash_after = _safe_read_with_race_check(path, 50_000)
+        if not text:
             malformed += 1
             continue
+        race_detected = hash_before != hash_after
+        if race_detected:
+            ineligible += 1  # FILE_CHANGED_DURING_READ — not fake, just ineligible
         fm = _frontmatter(text)
         if fm["valid"]:
             fm_valid += 1
@@ -177,10 +213,7 @@ def scan(*, vault: Path | None = None, now: float | None = None,
             stale += 1
         if st.st_mtime >= hour_ago:
             changed_hour += 1
-        try:
-            digest = _hash_file(path)
-        except OSError:
-            digest = ""
+        digest = hash_after or hash_before  # use post-read hash as canonical
         try:
             rel = str(path.relative_to(vault)).replace("\\", "/")
         except ValueError:
@@ -195,12 +228,23 @@ def scan(*, vault: Path | None = None, now: float | None = None,
             tags=fm["tags"],
             extra={"frontmatter_valid": fm["valid"], "debt": fm["debt"],
                    "age_days": round(age_days, 2), "bytes": st.st_size,
-                   # C2: production-grade fields
+                   # C14: production-grade v3 fields
                    "path_hash": _path_hash(rel),
                    "link_count": _link_count(text),
                    "provenance": "filesystem_scan",
-                   "quality": "UNSCANNED" if _secret_scan(text) else "CLEAN",
-                   "denylisted": _denylisted(rel)},
+                   "schema_version": SCHEMA_VERSION,
+                   # C14: quality enum (نه string آزاد)
+                   "quality": (
+                       "FILE_CHANGED_DURING_READ" if race_detected else
+                       "DENYLISTED" if _denylisted(rel) else
+                       "SECRET_SUSPECTED" if _secret_scan(text) else
+                       "INELIGIBLE_TEMPORAL_METADATA" if st.st_mtime <= 0 or st.st_mtime > now else
+                       "FRONTMATTER_INVALID" if not fm["valid"] else
+                       "UNTAGGED" if not fm["tags"] else
+                       "STALE" if age_days > 30 else
+                       "VALID"),
+                   "denylisted": _denylisted(rel),
+                   "race_detected": race_detected},
             now=now,
         )
         if ev["status"] != "ok":
