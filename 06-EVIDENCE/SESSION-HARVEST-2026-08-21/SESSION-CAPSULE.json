@@ -12,19 +12,18 @@
   "S-T01 transport PRODUCTION_CLOSED",
   "LOOP-TELEGRAM-COMMAND-COVERAGE PRODUCTION_CLOSED",
   "LOOP-RUNNING-CODE-DRIFT PRODUCTION_CLOSED",
-  "RUN_ALL_TIMEOUT ROOT_CAUSE_FIXED",
-  "Unowned fear CONTAINED_VERIFIED",
-  "Window-B 344/346 OWNER_OBSERVED_UNCONFIRMED_API"
+  "RUN_ALL_TIMEOUT ROOT_CAUSE_FIXED"
  ],
  "open_loops": [
   "S-T02 event_bridge IN_PROGRESS",
   "PROBE-INVALID OPEN",
   "LIVE-ORPHAN OPEN",
-  "Wave 1 LOCKED",
+  "OFN-Board LANE K OPEN",
+  "Wave 1 LOCKED (preflight gate)",
   "cognitive chain OPEN",
   "doctor mission OPEN",
   "parity NO_BASELINE",
-  "OFN-Board LANE K OPEN"
+  "LOOP-APPROVAL-QUEUE OPEN/OWNER_DECISION_REQUIRED"
  ],
  "owner_decisions": [
   "gate scope owner-side / no Mimosa bypass",
@@ -53,5 +52,30 @@
   "_ops/state/loops/EVENT-BRIDGE-CANARY-2026-08-21.json",
   "_ops/state/waves/WAVE1-PREFLIGHT-2026-08-21.json",
   "06-EVIDENCE/SESSION-HARVEST-2026-08-21/"
- ]
+ ],
+ "generated_from_head": "e8b7415",
+ "harvest_evidence_commit": "3f5343b",
+ "harvest_reflections_commit": "10eceb3",
+ "harvest_capsule_commit": "fec3288",
+ "current_head_at_final_verification": "fec3288",
+ "contained_loops": [
+  "LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT CONTAINED_VERIFIED (no task identity)",
+  "LOOP-LEGACY-RECEIPT-UNCONFIRMED CONTAINED_VERIFIED (owner-observed resolution)"
+ ],
+ "quarantined_uncertain": [
+  "updates 223883344/223883346 OWNER_OBSERVED_UNCONFIRMED_API (no API message_id/readback)"
+ ],
+ "loop_accounting": {
+  "closed": 3,
+  "contained": 2,
+  "quarantined_uncertain": 2,
+  "open": 9
+ },
+ "needs_accounting": {
+  "total_unique_needs": 12,
+  "self_resolvable": 9,
+  "owner_required": 3,
+  "externally_blocked": 0,
+  "secondary_tags_overlap": "earlier 'automatic=4/repairable=8' labels dropped: primary classes are disjoint (self_resolvable ∩ owner_required = ∅)"
+ }
 }

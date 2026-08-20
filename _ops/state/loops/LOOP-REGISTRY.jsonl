@@ -45,3 +45,4 @@
 {"loop_id": "LOOP-RUNNING-CODE-DRIFT", "status": "PRODUCTION_CLOSED", "updated": "2026-08-21", "note": "commit + controlled restart + hash manifest + 3 healthy cycles + smoke + verifier; evidence RUNNING-CODE-MANIFEST-2026-08-21.json"}
 {"loop_id": "LOOP-TELEGRAM-COMMAND-COVERAGE", "status": "PRODUCTION_CLOSED", "updated": "2026-08-21", "note": "window CANARY-COVERAGE-20260821-C: 5/5 strict sequence, 5/5 confirmed + readback, verifier confirmed=true; evidence canary-coverage-2026-08-21-C/"}
 {"loop_id": "LOOP-LEGACY-RECEIPT-UNCONFIRMED", "status": "CONTAINED_VERIFIED", "updated": "2026-08-21", "note": "344/346 -> OWNER_OBSERVED_UNCONFIRMED_API via bounded reconciliation (owner visibility evidence, no message_id invented, never resent)"}
+{"loop_id": "LOOP-APPROVAL-QUEUE", "status": "OPEN", "updated": "2026-08-21", "note": "owner-reported pending=20; digest in SESSION-HARVEST-2026-08-21/"}

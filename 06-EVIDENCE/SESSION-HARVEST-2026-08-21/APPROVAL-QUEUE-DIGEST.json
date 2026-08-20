@@ -1,0 +1,316 @@
+{
+ "schema": "approval-queue-digest/1",
+ "generated_at": "2026-08-21T07:00:00Z",
+ "loop": "LOOP-APPROVAL-QUEUE",
+ "status": "OPEN / OWNER_DECISION_REQUIRED",
+ "counts_owner_reported": {
+  "pending": 20,
+  "approved": 0,
+  "rejected": 0,
+  "done": 0
+ },
+ "source": "owner-observed approval panel; no local durable store contains a 20-item pending set",
+ "local_store_discrepancy": "state/telegram/approvals: 49 records all verdict=ok (resolved); unified-approval-queue.json: items=0 pending=0; approval-log.jsonl: 2026-07-12 era. The 20 pending item IDs are not present in local state — digest lists countable records below; pending item list requires the owner panel data or its store path.",
+ "safe_summaries_local": [
+  {
+   "id": "0c32749f50ee8d7e",
+   "ts": "2026-07-11T23:25:57",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "1eeff2f382f1a716",
+   "ts": "2026-07-12T02:56:44",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "2dc3b138f5b2145b",
+   "ts": "2026-07-12T02:56:46",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "34e116ce37e46797",
+   "ts": "2026-08-20T18:17:25",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "4a2d171bef056cc8",
+   "ts": "2026-08-20T18:17:29",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "4e0e022f8d81dd7d",
+   "ts": "2026-07-25T22:04:24",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "70d2cabfe086bc01",
+   "ts": "2026-08-20T18:17:22",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "76e9749566bc19e9",
+   "ts": "2026-07-11T23:25:15",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "921790c3f3ca5716",
+   "ts": "2026-07-25T22:04:27",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "b164fc241ba09a68",
+   "ts": "2026-08-20T18:17:35",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "c77783397779c64d",
+   "ts": "2026-07-12T04:13:58",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "code-2191f6fc43",
+   "ts": "2026-07-31T09:28:48+1000",
+   "verdict": "ok",
+   "source": "owner-chat-2026-07-31-explicit"
+  },
+  {
+   "id": "d6042424a8432b00",
+   "ts": "2026-07-11T23:25:06",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "f711f8177cf78e8d",
+   "ts": "2026-07-31T09:11:02",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "job_scan_20260719T102925",
+   "ts": "2026-07-25T22:04:43+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260723-171018-bc4cdacc",
+   "ts": "2026-07-25T22:04:48+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260723-194513-735e341e",
+   "ts": "2026-07-25T22:03:16+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-135403-20eddcd4",
+   "ts": "2026-07-26T12:46:07+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-140731-faa251cf",
+   "ts": "2026-07-25T22:03:06+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-141039-26f71489",
+   "ts": "2026-07-25T22:04:52+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-142206-d413a32d",
+   "ts": "2026-07-25T22:03:38+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-142440-022f840e",
+   "ts": "2026-07-25T22:03:42+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-144953-cef7a547",
+   "ts": "2026-07-27T18:29:03+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-145855-215d7cfc",
+   "ts": "2026-07-25T22:04:55+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-153714-1aad7ab8",
+   "ts": "2026-07-27T19:37:34+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-160416-9e46f043",
+   "ts": "2026-07-25T22:05:00+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260724-202938-3596d9e3",
+   "ts": "2026-07-26T13:28:45+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-092435-e1d777f7",
+   "ts": "2026-07-26T13:28:51+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-102742-163e5d91",
+   "ts": "2026-07-27T18:29:08+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-103805-56a86974",
+   "ts": "2026-07-27T19:37:26+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-105552-9e202294",
+   "ts": "2026-07-27T19:37:20+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-120407-83252280",
+   "ts": "2026-07-27T19:37:04+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-124425-da827ab2",
+   "ts": "2026-07-27T19:37:13+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-145030-b81d790e",
+   "ts": "2026-07-27T19:37:54+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260725-152151-6c5625b9",
+   "ts": "2026-07-27T19:37:49+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260726-122600-6eae6601",
+   "ts": "2026-07-27T18:16:45+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-130641-7ba1eb6a",
+   "ts": "2026-07-27T13:17:56+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-181456-41681190",
+   "ts": "2026-07-27T18:15:39+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-182820-1742bc53",
+   "ts": "2026-07-27T18:28:23+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-184028-e19d3dcb",
+   "ts": "2026-07-27T18:44:02+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-200635-7b91ffe1",
+   "ts": "2026-07-27T20:07:09+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-201100-ad098217",
+   "ts": "2026-07-27T20:11:16+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-202855-fd4e8577",
+   "ts": "2026-07-27T20:34:33+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260727-205107-63ba7b1b",
+   "ts": "2026-07-27T20:52:42+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "M-20260728-174102-d15eee46",
+   "ts": "2026-07-28T17:41:02+1000",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "some-decision-id",
+   "ts": "2026-07-28T20:10:24",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "up-5f383c81f9",
+   "ts": "2026-08-17T10:59:48",
+   "verdict": "ok",
+   "source": "tg-center"
+  },
+  {
+   "id": "uxfix",
+   "ts": "2026-07-12T02:56:52",
+   "verdict": "ok",
+   "source": "tg-center"
+  }
+ ],
+ "rules": [
+  "no auto approve/reject/archive/delete",
+  "silence is NOT approval",
+  "money locked",
+  "delete prohibited",
+  "owner digest with approve/reject/defer options required"
+ ],
+ "owner_options": [
+  "approve <id>",
+  "reject <id> <reason>",
+  "defer <id>"
+ ]
+}

@@ -6,7 +6,10 @@ session_start: 2026-08-20
 session_end: 2026-08-21
 baseline: 9bc506f
 accepted_checkpoint: 0ad6f53
-current_head: e8b7415
+generated_from_head: e8b7415
+current_head_at_final_verification: fec3288
+canonical_entry: 75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21
+superseded_by_note: "این گزارش، هدف تفصیلی نوت ۷۵ است؛ نوت ۷۵ ورودی معتبر هاروست است"
 wave0: frozen-pass
 wave1: locked
 telegram_transport: production-closed
