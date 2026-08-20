@@ -14,6 +14,7 @@ was not checked. This module enforces the protocol at ingestion:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -25,6 +26,11 @@ _OPS = Path(__file__).resolve().parent.parent
 
 SEQUENCE = ["CANARY-01", "CANARY-02", "CANARY-03", "CANARY-04", "CANARY-05"]
 _LABEL = re.compile(r"^CANARY-0([1-5])\b", re.IGNORECASE)
+
+
+def hash_text(text: str) -> str:
+    """پای‌لود‌هشِ متنی برای بایندِ ردیف (کوتاه، نه برای امنیت)."""
+    return hashlib.sha256(str(text or "").encode("utf-8")).hexdigest()[:16]
 
 
 def _state_dir() -> Path:
@@ -72,44 +78,61 @@ def open_window(canary_id: str | None = None) -> dict:
     return {"ok": True, **win}
 
 
-def observe(text: str, update_id: int, now: float | None = None) -> dict:
+def observe(text: str, update_id: int, now: float | None = None,
+            payload_hash: str | None = None) -> dict:
     """Classify an inbound message against the open window.
 
     ACCEPTED  — matches the expected next command; sequence advances.
-    DUPLICATE — command already seen; recorded, sequence NOT advanced.
+    DUPLICATE — command already seen OR update_id already seen; recorded,
+                sequence NOT advanced.
     OUT_OF_ORDER — not the expected command; recorded, no advance.
     UNKNOWN   — no CANARY-0X label at all.
     NO_WINDOW — no open window.
+
+    Every row is bound to update_id, payload hash (when supplied), and the
+    window's canary_id + nonce. Repeating an update_id (crash replay) is
+    recorded as DUPLICATE so a replayed update can never advance or dispatch
+    twice.
     """
     state = _load()
     now = float(now if now is not None else time.time())
     if not state.get("open"):
         return {"ok": False, "decision": "NO_WINDOW"}
+    base = {"canary_id": state.get("canary_id"), "nonce": state.get("nonce")}
+    if payload_hash:
+        base["payload_hash"] = str(payload_hash)[:64]
     m = _LABEL.match(str(text or "").strip())
     if not m:
         row = {"command": None, "update_id": update_id, "decision": "UNKNOWN",
-               "ts": now}
+               "ts": now, **base}
         state.setdefault("seen", []).append(row)
         _save(state)
         return {"ok": False, "decision": "UNKNOWN", "row": row}
     command = "CANARY-0" + m.group(1)
     idx = int(m.group(1)) - 1
     seen = state.get("seen") or []
+    if any(s.get("update_id") == update_id for s in seen):
+        row = {"command": command, "update_id": update_id, "decision": "DUPLICATE",
+               "reason": "repeat_update_id", "ts": now, **base}
+        state["seen"].append(row)
+        _save(state)
+        return {"ok": False, "decision": "DUPLICATE", "row": row}
     already = [s for s in seen if s.get("command") == command]
     if already:
         row = {"command": command, "update_id": update_id, "decision": "DUPLICATE",
-               "ts": now}
+               "reason": "repeat_command", "ts": now, **base}
         state["seen"].append(row)
         _save(state)
         return {"ok": False, "decision": "DUPLICATE", "row": row}
     if idx != int(state.get("next_index") or 0):
         row = {"command": command, "update_id": update_id, "decision": "OUT_OF_ORDER",
-               "expected": SEQUENCE[int(state.get("next_index") or 0)], "ts": now}
+               "expected": SEQUENCE[int(state.get("next_index") or 0)], "ts": now,
+               **base}
         state["seen"].append(row)
         _save(state)
         return {"ok": False, "decision": "OUT_OF_ORDER", "row": row}
     row = {"command": command, "update_id": update_id, "decision": "ACCEPTED",
-           "ts": now}
+           "ts": now, **base}
     state["seen"].append(row)
     state["next_index"] = int(state.get("next_index") or 0) + 1
     if state["next_index"] >= len(SEQUENCE):

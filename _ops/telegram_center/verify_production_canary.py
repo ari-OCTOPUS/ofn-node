@@ -13,6 +13,28 @@ STATE = _OPS / "state"
 EVENTS = STATE / "telegram" / "loop" / "events"
 OUTBOX = STATE / "telegram" / "loop" / "outbox"
 
+_PRESERVED_KEYS = ("SUPERSEDED_BY", "effective_claim", "scope",
+                   "AUTHORITATIVE_VERDICT")
+
+
+def merge_preserved(prev: dict, verdict: dict) -> dict:
+    """Regeneration must never erase or broaden the authoritative surface:
+    the supersession pointer, scope, effective claim, authoritative verdict
+    pointer and the historical result all survive every rewrite. Foreign
+    claims from a previous file (e.g. 'command_coverage: CLOSED') are NOT in
+    the allowlist and therefore cannot survive into a regenerated verdict."""
+    for key in _PRESERVED_KEYS:
+        if isinstance(prev.get(key), str) and prev[key]:
+            verdict[key] = prev[key]
+    if any(k in prev for k in ("generated_at", "confirmed", "failed_checks")):
+        verdict["historical_result"] = {
+            "previous_generated_at": prev.get("generated_at"),
+            "previous_confirmed": prev.get("confirmed"),
+            "previous_failed_checks": prev.get("failed_checks"),
+            "previous_production_closed": prev.get("production_closed"),
+        }
+    return verdict
+
 
 def _load(path: Path) -> dict:
     try:
@@ -98,12 +120,8 @@ def main() -> int:
         "production_closed": not failed,
         "note": "production gates per owner table; memory writes 0; paid calls 0.",
     }
-    # Regeneration must never erase the supersession pointer: this artifact
-    # stays subordinate to the single authoritative verdict.
-    for key in ("SUPERSEDED_BY", "effective_claim"):
-        if isinstance(prev.get(key), str) and prev[key]:
-            verdict[key] = prev[key]
-    out.write_text(json.dumps(verdict, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    out.write_text(json.dumps(merge_preserved(prev, verdict),
+                              ensure_ascii=False, indent=2) + "\n", "utf-8")
     print(json.dumps({"confirmed": verdict["confirmed"], "failed_checks": failed,
                       "events": len(owner_events), "confirmed_outbox": len(confirmed)},
                      ensure_ascii=False))
