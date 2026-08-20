@@ -38,7 +38,10 @@ def append_unique(sample: dict) -> bool:
     if b in seen:
         return False
     rec = dict(sample)
-            rec["cycle_receipt"] = f"memory-obs:{b}:{rec['observed_at']}"
+    rec["observed_at"] = rec.get("observed_at") or datetime.now(
+        timezone.utc).isoformat(timespec="seconds")
+    rec["wave1_unlocked"] = False
+    rec["cycle_receipt"] = f"memory-obs:{b}:{rec['observed_at']}"
     with OUT.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return True
@@ -53,5 +56,6 @@ if __name__ == "__main__":
         if s and _beat(s) != last:
             if append_unique(s):
                 last = _beat(s)
-                print("appended beat", last, s.get("readback"), s.get("memory_reads_per_cycle"))
+                print("appended beat", last, s.get("readback"), s.get("memory_reads_per_cycle"),
+                      flush=True)
         time.sleep(20)

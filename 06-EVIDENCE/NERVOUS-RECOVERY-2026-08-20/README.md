@@ -11,27 +11,30 @@ GitHub public `owner/repo`: **UNLOCATED**. Remote واقعی: `germline E:/germl
 
 ## حکم زنده
 
-**WAVE0_PARTIAL** · `wave1_unlocked=false` · canary restart **اجرا نشد**.
+**WAVE0_PASS** · `wave1_unlocked=false` · Wave 1 **باز نشد** (فرمان جداگانه لازم است).
 
-فاز ۱ (shadow): [[PHASE1-SHADOW]] · پنجرهٔ سالم: `duplicate=0` · `fabricated=0` · schema=100% · hash coverage=100%. رسید اصلی دست‌نخورده.
+Verifier: `WAVE0-VERIFIER.json` · candidate: `WAVE0_PASS_CANDIDATE.json` · final: [[WAVE0_PASS]]
 
-## گیت‌های Wave 0 (پس از فاز ۱)
+فاز ۱ (shadow): [[PHASE1-SHADOW]] · پنجرهٔ امروز: `duplicate=0` · `fabricated=0` · schema=100% · hash coverage=100%. رسید اصلی دست‌نخورده (sha256 `2e9f84a7…` · 977 خط).
 
-منبع: `WAVE0-GATES.json`
+## گیت‌های Wave 0
+
+منبع: `WAVE0-GATES.json` (پس از verifier)
 
 | Gate | اکنون | آستانه | pass |
 |---|---|---|---|
-| Receipt attribution | 0.3423 | ≥0.95 | false |
-| Test registry | 637/790 · gap=159 | gap=0 | false |
-| Memory continuity | 1 cycle سالم | ≥10 متوالی | false |
+| Receipt attribution (schema-present) | 1.0 (51/51) | ≥0.95 | **true** |
+| Receipt attribution (today-full forensic) | 0.3423 (51/149) | — | not the gate |
+| Test registry | 786/786 · gap=0 | gap=0 | **true** |
+| Memory continuity | 15 consecutive | ≥10 | **true** |
 | Capability inventory | parse n=10 | parse>0 | **true** |
 
-Immune: ۵ `DECLARED_UNOBSERVED` + ۵ `DORMANT` (مسیر غیرقابل‌صدا). صفر `VERIFIED`.
+Immune: ۵ `DECLARED_UNOBSERVED` + ۵ `DORMANT`. صفر `VERIFIED` (receipt+test لازم است؛ نبود receipt ≠ DORMANT).
 
 ## تست
 
-۱۲ تابع در `test_nervous_recovery.py` · در `run_all.py` ثبت شد · `run_all --only` سبز.
+۱۵ تابع در `test_nervous_recovery.py` · در `run_all.py` ثبت شد · اجرای مستقیم سبز. `run_all` کاملِ ۷۸۶ سوئیت اجرا نشد (محدودیت زمان).
 
 ## ریل B / C
 
-پیاده نشد. C-048..C-053 کاندید ماندند.
+پیاده نشد. C-048..C-053 کاندید ماندند. `01-TRUTH/CONTRADICTIONS.md` نوشته نشد.

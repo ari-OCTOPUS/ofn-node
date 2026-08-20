@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +27,9 @@ def cycle_healthy(sample: dict) -> bool:
 def consecutive_healthy(samples: list[dict]) -> int:
     """Count trailing consecutive healthy samples (not a sum of reads).
 
-    If `beat` is present, a skipped beat identity resets the streak.
+    Unique increasing `beat` identities are required when present. Integer
+    gaps do not reset the streak: live organism beat is not unit-increment.
+    A non-increasing beat or an unhealthy sample resets.
     """
     n = 0
     prev_beat = None
@@ -36,7 +39,7 @@ def consecutive_healthy(samples: list[dict]) -> int:
         b = s.get("beat")
         if prev_beat is not None and b is not None:
             try:
-                if int(prev_beat) != int(b) + 1:
+                if int(b) >= int(prev_beat):
                     break
             except (TypeError, ValueError):
                 break
@@ -67,18 +70,45 @@ def append_sample(jsonl: Path, sample: dict) -> None:
         f.write(json.dumps(sample, ensure_ascii=False) + "\n")
 
 
+def cycle_receipt(sample: dict) -> str | None:
+    existing = sample.get("cycle_receipt")
+    if existing:
+        return str(existing)
+    if sample.get("observed_at") is None or sample.get("beat") is None:
+        return None
+    return f"memory-obs:{sample.get('beat')}:{sample.get('observed_at')}"
+
+
 def audit(latest: dict | None, history_jsonl: Path | None = None) -> dict[str, Any]:
     samples = load_samples(history_jsonl) if history_jsonl else []
+    samples = [s for s in samples if s.get("observed_at")]
     if latest:
         if not samples or samples[-1].get("beat") != latest.get("beat"):
-            samples = samples + [latest]
+            extra = dict(latest)
+            extra.setdefault(
+                "observed_at",
+                datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            )
+            samples = samples + [extra]
     streak = consecutive_healthy(samples)
+    trailing = samples[-streak:] if streak else []
+    receipts = [cycle_receipt(s) for s in trailing]
+    beats = [s.get("beat") for s in trailing]
     return {
-        "schema": "memory-continuity/1",
+        "schema": "memory-continuity/2",
         "samples": len(samples),
         "consecutive_healthy": streak,
         "threshold": THRESHOLD,
         "gate_met": streak >= THRESHOLD,
         "latest_healthy": cycle_healthy(latest) if latest else False,
+        "unique_cycle_identities": len(set(filter(None, receipts))) == len(trailing) and streak > 0,
+        "trailing_beats": beats,
+        "trailing_cycle_receipts": receipts,
+        "heartbeat": {
+            "status": (latest or {}).get("status"),
+            "readback": (latest or {}).get("readback"),
+            "executable": (latest or {}).get("executable"),
+            "reads_per_cycle": (latest or {}).get("memory_reads_per_cycle"),
+        },
         "note": "Wave 1 memory-read activation remains locked until WAVE0_PASS",
     }

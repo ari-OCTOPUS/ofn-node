@@ -191,8 +191,9 @@ def evaluate_window(
                 if _is_fabricated(env, row, mapping):
                     fabricated += 1
     dup_in_window = len(hashes) - len(set(hashes))
-    coverage = 1.0 if n_src == 0 else 1.0  # preview covers all parsed rows in memory
-    schema_ok = 1.0 if n_src == 0 else (n_src - schema_fail) / n_src
+    n_hashed = sum(1 for h in hashes if len(h) == 64)
+    coverage = (n_hashed / n_src) if n_src else 0.0
+    schema_ok = (n_src - schema_fail) / n_src if n_src else 0.0
     criteria = {
         "duplicate_receipts": dup_in_window,
         "fabricated_task_ids": fabricated,

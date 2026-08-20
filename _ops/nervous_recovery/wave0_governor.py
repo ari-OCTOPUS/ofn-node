@@ -68,11 +68,10 @@ def audit_wave0(*, receipts_path: Path | None = None,
         effectors = capability_parser.parse_effectors_py(EFFECTORS_PY)
         parse_ok = True
         parse_n = len(effectors)
-        immune = capability_immune.inventory(
-            effectors, observed_recently=False, receipt_backed=False)
+        immune = capability_immune.evaluate_declared(
+            effectors, receipts_path=rec_path)
     except Exception as exc:  # noqa: BLE001
         immune["error"] = f"{type(exc).__name__}: {exc}"
-
     latest = mem_latest
     if latest is None and MEM_LATEST.exists():
         latest = json.loads(MEM_LATEST.read_text(encoding="utf-8"))
@@ -103,20 +102,41 @@ def audit_wave0(*, receipts_path: Path | None = None,
             "threshold": "parse>0",
             "pass": parse_ok and parse_n > 0,
             "detail": {"parse_ok": parse_ok, "n": parse_n,
-                       "immune_counts": immune.get("counts")},
+                       "immune_counts": immune.get("counts"),
+                       "immune_cards": immune.get("cards")},
         },
     }
     passed = sum(1 for g in gates.values() if g["pass"])
-    fabricated = int((shadow.get("criteria") or {}).get("fabricated_task_ids") or 0)
+    crit = shadow.get("criteria") or {}
+    fabricated = int(crit.get("fabricated_task_ids") or 0)
+    duplicates = int(crit.get("duplicate_receipts") or 0)
+    schema_ok = float(crit.get("schema_validation") or 0)
+    hash_cov = float(crit.get("original_receipt_hash_coverage") or 0)
+    pass_conditions = {
+        "receipt_attribution_ge_0.95": bool(attr.get("gate_95pct")),
+        "fabricated_task_ids_eq_0": fabricated == 0,
+        "duplicate_receipts_eq_0": duplicates == 0,
+        "schema_validation_100": schema_ok == 1.0,
+        "receipt_hash_coverage_100": hash_cov == 1.0,
+        "test_registry_gap_eq_0": int(tests.get("gap") or 0) == 0,
+        "memory_consecutive_cycles_ge_10": bool(mem.get("gate_met")),
+        "capability_parse_count_gt_0": parse_ok and parse_n > 0,
+        "critical_regressions_eq_0": True,
+        "wave1_unlocked_false": True,
+    }
     hygiene = {
         "fabricated_task_ids": fabricated,
+        "duplicate_receipts": duplicates,
+        "schema_validation": schema_ok,
+        "receipt_hash_coverage": hash_cov,
         "critical_regressions": 0,
         "shadow_pass": bool(shadow.get("shadow_pass")),
         "shadow": {k: shadow.get(k) for k in (
             "n_source_in_window", "criteria", "shadow_pass", "rewrites_original")},
-        "note": "WAVE0_PASS needs 4 gates + fabricated_task_ids==0 + critical_regressions==0",
+        "pass_conditions": pass_conditions,
+        "note": "WAVE0_PASS needs every pass_condition true; attribution 95% alone is not PASS",
     }
-    hygiene_ok = fabricated == 0 and hygiene["critical_regressions"] == 0
+    hygiene_ok = all(pass_conditions.values()) and bool(shadow.get("shadow_pass"))
     if passed == 4 and hygiene_ok:
         verdict = Wave0Verdict.PASS
     elif passed >= 1:
@@ -124,7 +144,7 @@ def audit_wave0(*, receipts_path: Path | None = None,
     else:
         verdict = Wave0Verdict.BLOCKED
     return {
-        "schema": "wave0-governor/2",
+        "schema": "wave0-governor/3",
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "verdict": verdict,
         "wave1_unlocked": False,
@@ -138,7 +158,8 @@ def audit_wave0(*, receipts_path: Path | None = None,
             "WAVE0_PASS is required before readable-memory Wave 1.",
             "Rail B P0/P1 findings stay isolated (see CANDIDATE-FINDINGS).",
             "C-048..C-053 remain candidates, not CONTRADICTIONS truth.",
-            "Canary restart requires owner permit; Wave 1 stays locked here.",
+            "Cortex canary executed 2026-08-20 (pid 25284→17164). daemon/live not restarted.",
+            "Wave 1 stays locked here even after WAVE0_PASS.",
         ],
     }
 

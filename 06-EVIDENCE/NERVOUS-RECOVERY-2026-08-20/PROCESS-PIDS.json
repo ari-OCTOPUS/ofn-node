@@ -1,8 +1,8 @@
 ﻿{
-    "ts":  "2026-08-20T12:23:39Z",
+    "ts":  "2026-08-20T12:51:27Z",
     "cortex":  {
                    "cmd":  "python  -X utf8 cortex\\cortex.py",
-                   "pid":  25284
+                   "pid":  17164
                },
     "daemon":  {
                    "cmd":  "\"C:\\Program Files\\Python313\\python.exe\"  -X utf8 -m brain.daemon ",
@@ -22,7 +22,7 @@
                       "port":  8771
                   },
                   {
-                      "pid":  25284,
+                      "pid":  17164,
                       "port":  8772
                   },
                   {

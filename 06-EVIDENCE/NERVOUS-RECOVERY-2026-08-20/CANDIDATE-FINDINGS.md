@@ -13,3 +13,6 @@ C-048..C-053 remain **candidates** until an owner action + evidence hash + post-
 | C-053 | WAVE0-ATTR | receipt attribution 33.8% today < 95% | `WAVE0-GATES.json` + `cost-receipts.jsonl` | see WAVE0-GATES.json | Rail A |
 
 Status of all six: **candidate**. `resolved` forbidden without post-fix receipt + test + snapshot.
+
+Conflicts kept in Reality Ledger (not CONTRADICTIONS.md): `CONFLICT-ATTR-DENOMINATOR`, `CONFLICT-C048-NUMBER`, `CONFLICT-BCM-CONSUMER`.
+

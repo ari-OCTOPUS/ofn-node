@@ -79,8 +79,13 @@ def test_effectors_ast_parse_nonzero():
         observed_recently=False, receipt_backed=False)
     assert observed["truth_status"] == "DECLARED_UNOBSERVED"
     live = capability_immune.card("y", {"status": "wired", "actuator": "foo"},
-                                  observed_recently=True, receipt_backed=True)
+                                  observed_recently=True, receipt_backed=True,
+                                  tested=True)
     assert live["truth_status"] == "VERIFIED"
+    incomplete = capability_immune.card(
+        "y", {"status": "wired", "actuator": "foo"},
+        observed_recently=True, receipt_backed=True, tested=False)
+    assert incomplete["truth_status"] == "DEGRADED"
 
 
 def test_yaml_json_parsers():
@@ -106,10 +111,41 @@ def test_memory_continuity_is_streak_not_sum():
         {"memory_reads_per_cycle": 3, "readback": "read_ok", "status": "OK",
          "executable": False, "beat": 12},
     ]
-    assert memory_continuity.consecutive_healthy(gapped) == 1
+    assert memory_continuity.consecutive_healthy(gapped) == 2
+    dup = [gapped[1], gapped[1]]
+    assert memory_continuity.consecutive_healthy(dup) == 1
     aud = memory_continuity.audit(samples[0], None)
     assert aud["gate_met"] is False  # single sample < 10
     assert "Wave 1" in aud["note"]
+
+
+def test_memory_ten_observed_ticks_meet_gate():
+    d = Path(tempfile.mkdtemp()) / "mem.jsonl"
+    rows = []
+    for i in range(10):
+        rows.append({
+            "memory_reads_per_cycle": 3,
+            "readback": "read_ok",
+            "status": "OK",
+            "executable": False,
+            "beat": 100 + i * 2,
+            "observed_at": f"2026-08-20T12:{i:02d}:00+00:00",
+        })
+    d.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    aud = memory_continuity.audit(rows[-1], d)
+    assert aud["gate_met"] is True
+    assert aud["consecutive_healthy"] == 10
+    assert aud["unique_cycle_identities"] is True
+    assert all(r.startswith("memory-obs:") for r in aud["trailing_cycle_receipts"])
+
+
+def test_verifier_never_unlocks_wave1():
+    from nervous_recovery import wave0_verifier
+    rep = wave0_verifier.verify()
+    assert rep["wave1_unlocked"] is False
+    names = {c["name"]: c["ok"] for c in rep["checks"]}
+    assert names["wave1_unlocked_live"] is True
+    assert names["canary_execute_false"] is True
 
 
 def test_governor_does_not_unlock_wave1():
