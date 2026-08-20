@@ -54,7 +54,7 @@
     {
       "id": "H",
       "name": "capability-verification",
-      "status": "PENDING",
+      "status": "INVENTORY_WRITTEN",
       "blocker": null,
       "next_executable": "post-canary capability level refresh"
     },
