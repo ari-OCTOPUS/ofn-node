@@ -38,7 +38,11 @@ STATE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 # source 4 (هماهنگ با c6_state_machine.py:56 از Opus مافوق): دفترِ گذارِ تولدِ نسلی.
 C6_JOURNAL = opslib.STATE_DIR / "c6" / "state-machine.jsonl"
 CURSOR = opslib.STATE_DIR / "telegram" / "event-bridge-cursor.json"
+OUTBOX = opslib.STATE_DIR / "telegram" / "event-bridge-outbox.jsonl"
+PENDING = opslib.STATE_DIR / "telegram" / "event-bridge-pending.jsonl"
 MAX_PUSH_PER_HOUR = 10
+# Lane C (2026-08-21): bounded retry budget for delivery-failed pushes.
+PENDING_MAX_ATTEMPTS = 3
 # 2026-07-25 (build-spec §4): سقفِ روزانهٔ سراسری — حداکثر ۶ پیامِ ابتکاری در روز.
 # رسیدن به سقف = لاگ، نه پیامِ بیشتر. رباتی که زیاد حرف می‌زند mute می‌شود و کل سیستم می‌میرد.
 MAX_PUSH_PER_DAY = 6
@@ -142,6 +146,82 @@ def _rate_ok(cur: dict, now: float) -> bool:
     return True
 
 
+def _read_jsonl(path: Path) -> list:
+    try:
+        if not path.exists():
+            return []
+        return [json.loads(x) for x in path.read_text("utf-8", errors="replace").splitlines()
+                if x.strip()]
+    except Exception:  # noqa: BLE001 — state never kills beat
+        return []
+
+
+def _append_jsonl(path: Path, row: dict) -> None:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _rewrite_jsonl(path: Path, rows: list) -> None:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows)
+                        + ("\n" if rows else ""), encoding="utf-8")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _outbox_record(key: str, state: str, *, extra: dict | None = None) -> None:
+    row = {"key": key, "state": state, "ts": time.time()}
+    if extra:
+        row.update(dict(extra))
+    _append_jsonl(OUTBOX, row)
+
+
+def _attempt_send(center, text: str, *, low_urgency: bool = False) -> bool:
+    """یک تلاشِ ارسالِ واقعی (با مسیرِ notif_inbox برای low_urgency). هرگز
+    seen را علامت نمی‌زند — علامت‌زدن وظیفهٔ caller پس از موفقیت است."""
+    try:
+        def _real_push():
+            if center is not None and hasattr(center, "push_alert"):
+                return bool(center.push_alert(text))
+            return False
+        _ni = _notif_inbox_mod() if low_urgency else None
+        if _ni is not None and _ni.flag_on():
+            return bool(_ni.route("tech_alert", "", text, send_fn=_real_push))
+        return _real_push()
+    except Exception:  # noqa: BLE001 — fail-soft: push هرگز beat را نمی‌کشد
+        return False
+
+
+def _drain_pending(center, cur: dict, now: float, out: dict) -> None:
+    """بازتلاشِ کران‌دارِ pushهای شکست‌خورده (Lane C). موفق → seen + CONFIRMED؛
+    پشت‌سرهم شکست تا PENDING_MAX_ATTEMPTS → DLQ (هرگز suppressِ ۲۴ساعته)."""
+    rows = _read_jsonl(PENDING)
+    if not rows:
+        return
+    kept = []
+    for row in rows:
+        key = str(row.get("key") or "")
+        text = str(row.get("text") or "")
+        low = bool(row.get("low_urgency"))
+        attempts = int(row.get("attempts") or 0) + 1
+        if _attempt_send(center, text, low_urgency=low):
+            _outbox_record(key, "CONFIRMED", extra={"event": "pending-retry"})
+            _dedup_ok(cur, now, text)
+            out["pushed"] = out.get("pushed", 0) + 1
+            continue
+        if attempts >= PENDING_MAX_ATTEMPTS:
+            _outbox_record(key, "DLQ", extra={"event": "pending-exhausted", "attempts": attempts})
+            continue
+        row["attempts"] = attempts
+        kept.append(row)
+    _rewrite_jsonl(PENDING, kept)
+
+
 def _sign(text: str) -> str:
     """امضای محتوا برای dedup — sha256 (اولین ۱۶ hex کافی‌اند؛ این dedup است نه امنیت)."""
     import hashlib
@@ -229,42 +309,35 @@ def beat(center=None) -> dict:
     cur = _load_cursor()
     now = time.time()
 
+    # Lane C: بازتلاشِ کران‌دارِ pushهای شکست‌خورده، قبل از منابعِ تازه.
+    _drain_pending(center, cur, now, out)
+
     def _push(text: str, *, low_urgency: bool = False) -> bool:
         if not text:
             return False
         if not _rate_ok(cur, now):
             out["skipped"] += 1
             return False
-        # ضدِ تکرارِ محتوا (build-spec §4): همان امضا در ۲۴h فقط یک‌بار.
-        if not _dedup_ok(cur, now, text):
-            out["skipped"] += 1
-            return False
         scrubbed = _scrub(text)
-        ok = False
-        try:
-            def _real_push():
-                if center is not None and hasattr(center, "push_alert"):
-                    return bool(center.push_alert(scrubbed))
-                return False
-            # ۲۰۲۶-۰۸-۰۷ — پشتِ notif_inbox.FLAG (پیش‌فرض خاموش) و فقط برای منابعِ
-            # کم‌فوریت (low_urgency=True: خطِ critical ِ ساده، task.failed). سه
-            # منبعِ دیگر (incident.opened/contained، protective-halt، تولدِ نسلیِ
-            # c6) عمداً همیشه مستقیم به تلگرام می‌روند — پنلِ مینی‌اپ هیچ poll
-            # ندارد و پینگ cooldown دارد؛ یک halt واقعی نباید تا ۱۵ دقیقه دیده نشه.
-            _ni = _notif_inbox_mod() if low_urgency else None
-            if _ni is not None and _ni.flag_on():
-                ok = bool(_ni.route("tech_alert", "", scrubbed, send_fn=_real_push))
-            else:
-                ok = _real_push()
-        except Exception:  # noqa: BLE001 — fail-soft: push هرگز beat را نمی‌کشد
-            ok = False
+        key = _sign(scrubbed)
+        # Lane C: outbox record قبل از transport — شکستِ ارسال دیگر امضای
+        # «دیده‌شده» نمی‌گیرد و تا ۲۴ ساعت suppress نمی‌شود.
+        _outbox_record(key, "QUEUED", extra={"event": "push"})
+        ok = _attempt_send(center, scrubbed, low_urgency=low_urgency)
         if ok:
+            # علامتِ dedup فقط پس از تحویلِ موفق (Lane C).
+            if not _dedup_ok(cur, now, scrubbed):
+                out["skipped"] += 1
+            _outbox_record(key, "CONFIRMED", extra={"event": "push"})
             out["pushed"] += 1
             cur["push_count"] = cur.get("push_count", 0) + 1
             cur["day_push_count"] = cur.get("day_push_count", 0) + 1
-        else:
-            out["skipped"] += 1
-        return ok
+            return True
+        _outbox_record(key, "DELIVERY_FAILED", extra={"event": "push"})
+        _append_jsonl(PENDING, {"key": key, "text": scrubbed,
+                                "low_urgency": low_urgency, "attempts": 1})
+        out["skipped"] += 1
+        return False
 
     # ۱) governor-alerts.md — خطوطِ جدیدِ بحرانی (کم‌فوریت: واجدِ شرطِ notif_inbox)
     lines, new_pos = _read_past(ALERTS_MD, cur.get("alerts_pos", 0))

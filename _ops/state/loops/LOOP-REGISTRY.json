@@ -922,8 +922,8 @@
       "loop_id": "LOOP-EVENT-BRIDGE-PRE-SEND-DEDUPE",
       "class": "SILENT_DEGRADATION",
       "severity": "HIGH",
-      "status": "OPEN",
-      "note": "event_bridge marks content signature seen before direct send; failed alert can be suppressed 24h; must route through durable outbox",
+      "status": "IN_PROGRESS",
+      "note": "seen marked only after confirmed delivery; outbox QUEUED/DELIVERY_FAILED/CONFIRMED/DLQ rows; pending retry budget 3; test_event_bridge_outbox 3/3; live process still old code until center restart",
       "regression_test": null,
       "verified": false,
       "updated": "2026-08-21"
@@ -932,8 +932,8 @@
       "loop_id": "LOOP-LEGACY-RECEIPT-UNCONFIRMED",
       "class": "FAKE_GREEN",
       "severity": "MEDIUM",
-      "status": "OPEN",
-      "note": "legacy receipt rows without ok remain ANSWERED-compatible; not delivery confirmation; must label LEGACY_UNCONFIRMED",
+      "status": "IN_PROGRESS",
+      "note": "truth labels added (DELIVERY_CONFIRMED/DELIVERY_FAILED/LEGACY_UNCONFIRMED) + confirmation_counts/denominator; legacy rows not rewritten; t_m 15/15",
       "regression_test": null,
       "verified": false,
       "updated": "2026-08-21"
@@ -942,8 +942,8 @@
       "loop_id": "LOOP-RUN_ALL-TIMEOUT",
       "class": "UNBOUNDED",
       "severity": "HIGH",
-      "status": "OPEN",
-      "note": "run_all blocks coverage on 300s per-file timeout in test_capability_registry; needs independent lane and time budget",
+      "status": "IN_PROGRESS",
+      "note": "per-file timeout map (capability_registry 900s) + continue-on-timeout + execution-manifest.jsonl with stdout/stderr hashes; timed-out suites revoke capability; root cause of the hang still open",
       "regression_test": null,
       "verified": false,
       "updated": "2026-08-21"

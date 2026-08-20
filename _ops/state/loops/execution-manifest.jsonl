@@ -1,0 +1,2 @@
+{"file": "test_tg_poll_health.py", "status": "PASS", "exit": 0, "duration_s": 0.3, "stdout_sha256": "d8bdf9b5c3610f19", "stderr_sha256": "e3b0c44298fc1c14", "ts": "2026-08-20T14:42:22+00:00"}
+{"file": "test_tg_409_rival_poller.py", "status": "PASS", "exit": 0, "duration_s": 0.2, "stdout_sha256": "29c909dec9a09678", "stderr_sha256": "e3b0c44298fc1c14", "ts": "2026-08-20T14:42:23+00:00"}

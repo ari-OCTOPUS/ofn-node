@@ -154,7 +154,6 @@ def collect(*, inbound: "list | None" = None, sends: "list | None" = None) -> di
                 if str(r.get("state") or "") == "sent" and r.get("ok") is not False]
         withheld = [r for r in reps if str(r.get("state") or "") in ("held", "blocked")]
         ae = _iso_to_epoch(a.get("ts"))
-
         if sent:
             verdict = "ANSWERED"
         elif withheld:
@@ -175,6 +174,22 @@ def collect(*, inbound: "list | None" = None, sends: "list | None" = None) -> di
             except (TypeError, ValueError):
                 latency = None
 
+        # ── برچسبِ صدقِ تحویل (2026-08-21، Lane D) ──────────────────────────
+        # compatibility (verdict) جدا از truth (confirmation):
+        #   ok=true            → DELIVERY_CONFIRMED
+        #   ok=false           → DELIVERY_FAILED
+        #   ok غایب (legacy)   → LEGACY_UNCONFIRMED — سازگار است، تأیید تحویل نیست.
+        # ⚠️ از فهرستِ کاملِ state=sent می‌شمارد (شامل ok=false)، نه از `sent`
+        # که عمداً برای verdict، ok=false را حذف می‌کند.
+        all_sent = [r for r in reps if str(r.get("state") or "") == "sent"]
+        sent_oks = [r.get("ok") for r in all_sent]
+        if any(ok is True for ok in sent_oks):
+            confirmation = "DELIVERY_CONFIRMED"
+        elif any(ok is False for ok in sent_oks):
+            confirmation = "DELIVERY_FAILED"
+        else:
+            confirmation = "LEGACY_UNCONFIRMED"
+
         rows.append({
             "update_id": uid,
             "ts": a.get("ts"),
@@ -189,11 +204,21 @@ def collect(*, inbound: "list | None" = None, sends: "list | None" = None) -> di
             "reason": (disp[-1].get("reason") if disp else None),
             "detail": (disp[-1].get("detail") if disp else None),
             "latency_s": latency,
+            "confirmation": confirmation,
         })
 
     counts: dict = {}
     for r in rows:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
+
+    confirmation_counts: dict = {}
+    confirmation_denominator = 0
+    for r in rows:
+        if r.get("confirmation") is None:
+            continue
+        confirmation_counts[r["confirmation"]] = \
+            confirmation_counts.get(r["confirmation"], 0) + 1
+        confirmation_denominator += 1
 
     return {
         "schema": SCHEMA,
@@ -204,6 +229,8 @@ def collect(*, inbound: "list | None" = None, sends: "list | None" = None) -> di
         "tz_sane": tz_sane,
         "tz_median_offset_s": (round(tz_median, 1) if tz_median is not None else None),
         "counts": counts,
+        "confirmation_counts": confirmation_counts,
+        "confirmation_denominator": confirmation_denominator,
         "rows": rows,
     }
 

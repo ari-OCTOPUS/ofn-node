@@ -1387,6 +1387,49 @@ if __name__ == "__main__":
         if not _only:
             print("FATAL: --only list empty", file=sys.stderr)
             sys.exit(2)
+# Lane E (2026-08-21): timeout های per-file؛ یک suite کند نباید بقیه را اجرانشده بگذارد.
+DEFAULT_TIMEOUT = 300
+SLOW_TIMEOUTS = {"test_capability_registry.py": 900}
+MANIFEST_PATH = HERE.parent / "state" / "loops" / "execution-manifest.jsonl"
+
+
+def _run_one(cmd, cwd, timeout, env):
+    import time as _t
+    _start = _t.time()
+    try:
+        r = subprocess.run(cmd, cwd=cwd, timeout=timeout,
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", env=env)
+        return {"status": "PASS" if r.returncode == 0 else "FAIL",
+                "exit": r.returncode, "duration_s": round(_t.time() - _start, 1),
+                "stdout": r.stdout or "", "stderr": r.stderr or ""}
+    except subprocess.TimeoutExpired as e:
+        return {"status": "TIMED_OUT", "exit": None,
+                "duration_s": round(_t.time() - _start, 1),
+                "stdout": e.stdout or "",
+                "stderr": (e.stderr or "") + f"\nTIMED_OUT after {timeout}s"}
+
+
+def _record_manifest(row):
+    import json as _json, hashlib as _hl
+    from datetime import datetime, timezone as _tz
+    row = dict(row)
+    row["stdout_sha256"] = _hl.sha256(
+        str(row.get("stdout") or "").encode("utf-8", "replace")).hexdigest()[:16]
+    row["stderr_sha256"] = _hl.sha256(
+        str(row.get("stderr") or "").encode("utf-8", "replace")).hexdigest()[:16]
+    row.pop("stdout", None)
+    row.pop("stderr", None)
+    row["ts"] = datetime.now(_tz.utc).isoformat(timespec="seconds")
+    try:
+        MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with MANIFEST_PATH.open("a", encoding="utf-8") as f:
+            f.write(_json.dumps(row, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+
+
+if __name__ == "__main__":
     _run = list(TESTS) + list(EXTRA_TESTS)
     if _only is not None:
         _resolved, _missing = [], []
@@ -1412,6 +1455,7 @@ if __name__ == "__main__":
             sys.exit(2)
         _run = _resolved
     failed = []
+    timed_out = []
     for t in _run:
         p = HERE / t          # Ù†Ø§Ù…â€ŒÙ‡Ø§ÛŒ Ù†Ø³Ø¨ÛŒÙ TESTS â†’ _ops/testsØ› EXTRA_TESTSÙ absolute Ø¯Ø³Øªâ€ŒÙ†Ø®ÙˆØ±Ø¯Ù‡ Ù…ÛŒâ€ŒÙ…Ø§Ù†Ø¯
         label = p.name
@@ -1422,13 +1466,30 @@ if __name__ == "__main__":
         # capture Ø¯Ø± **Ù¾Ø§Ø³Ù Ø§ÙˆÙ„** Ù‡Ù… Ù„Ø§Ø²Ù… Ø§Ø³Øª: Ù‡Ø± ÙØ±Ø²Ù†Ø¯ Ø¨Ù‡ Ù„ÙˆÙ„Ù‡Ù” Ø§Ø®ØªØµØ§ØµÛŒÙ Ø®ÙˆØ¯Ø´
         # flush Ù…ÛŒâ€ŒÚ©Ù†Ø¯ØŒ Ù†Ù‡ Ø¨Ù‡ Ú©Ù†Ø³ÙˆÙ„Ù Ù…Ø´ØªØ±Ú©Ù ÙˆØ§Ù„Ø¯ â€” Ø±ÛŒØ´Ù‡Ù” Û±Û²Û° Ù‡Ù…ÛŒÙ† Ø§Ø´ØªØ±Ø§Ú© Ø¨ÙˆØ¯.
         # ÙˆØ§Ù„Ø¯ Ø®Ø±ÙˆØ¬ÛŒ Ø±Ø§ Ø±ÙˆÛŒ Ù‡Ù…Ø§Ù† Ø¬Ø±ÛŒØ§Ù†Ù Ø§ØµÙ„ÛŒ Ø¨Ø§Ø²Ù¾Ø®Ø´ Ù…ÛŒâ€ŒÚ©Ù†Ø¯ ØªØ§ Ù„Ø§Ú¯ Ú©Ù…â€Œ Ù†Ø´ÙˆØ¯.
-        r = subprocess.run(cmd, cwd=str(p.parent), timeout=300,
-                           capture_output=True, text=True,
-                           encoding="utf-8", errors="replace", env=_guarded_env())
+        _timeout = SLOW_TIMEOUTS.get(label, DEFAULT_TIMEOUT)
+        _res = _run_one(cmd, str(p.parent), _timeout, _guarded_env())
+        if _res["status"] == "TIMED_OUT":
+            timed_out.append(label)
+            if _res["stdout"]:
+                sys.stdout.write(_res["stdout"])
+            if _res["stderr"]:
+                sys.stderr.write(_res["stderr"])
+            _record_manifest({"file": label, "status": "TIMED_OUT", "exit": None,
+                              "duration_s": _res["duration_s"],
+                              "stdout": _res["stdout"], "stderr": _res["stderr"]})
+            print(f"   ⏱ TIMED_OUT after {_timeout}s — continuing (Lane E); suite: {label}")
+            sys.stdout.flush()
+            sys.stderr.flush()
+            continue
+        r = subprocess.CompletedProcess(cmd, int(_res["exit"] if _res["exit"] is not None else 1),
+                                        _res["stdout"], _res["stderr"])
+        _record_manifest({"file": label, "status": _res["status"],
+                          "exit": _res["exit"], "duration_s": _res["duration_s"],
+                          "stdout": r.stdout or "", "stderr": r.stderr or ""})
         if r.stdout:
             sys.stdout.write(r.stdout)
         if r.stderr:
-            sys.stderr.write(r.stderr)   # unittest Ù¾ÛŒØ´Ø±ÙØªØ´ Ø±Ø§ Ø±ÙˆÛŒ stderr Ù…ÛŒâ€ŒÙ†ÙˆÛŒØ³Ø¯
+            sys.stderr.write(r.stderr)   # unittest پیشرفت را روی stderr مینویسد
         sys.stdout.flush()
         sys.stderr.flush()
         if r.returncode != 0:
@@ -1485,6 +1546,11 @@ if __name__ == "__main__":
         _cg = None
         print(f"(Ù‡Ø´Ø¯Ø§Ø±: capability_gate Ù„ÙˆØ¯ Ù†Ø´Ø¯ØŒ marker Ø¯Ø³Øªâ€ŒÙ†Ø®ÙˆØ±Ø¯Ù‡: {_e})")
 
+    if timed_out:
+        if _cg:
+            _cg.revoke_capability()
+        print(f"⏱ TIMED_OUT (coverage incomplete): {', '.join(timed_out)}  (capability revoked)")
+        sys.exit(1)
     if failed:
         if _cg:
             _cg.revoke_capability()

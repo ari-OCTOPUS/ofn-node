@@ -250,6 +250,26 @@ def t_l_durable_begin_is_inside_dead_letter_guard():
     assert guarded, "durable intent failure must dead-letter and clear correlation"
 
 
+def t_m_receipt_truth_labels():
+    import tg_receipts
+    inbound = [{"update_id": 61, "ts": "2026-08-20T12:00:00", "kind": "message"},
+               {"update_id": 62, "ts": "2026-08-20T12:01:00", "kind": "message"},
+               {"update_id": 63, "ts": "2026-08-20T12:02:00", "kind": "message"}]
+    sends = [{"update_id": 61, "ts": 1787227201.0, "state": "sent", "ok": True},
+             {"update_id": 62, "ts": 1787227261.0, "state": "sent", "ok": False},
+             {"update_id": 63, "ts": 1787227321.0, "state": "sent"}]
+    result = tg_receipts.collect(inbound=inbound, sends=sends)
+    conf = {r["update_id"]: r.get("confirmation") for r in result["rows"]}
+    assert conf[61] == "DELIVERY_CONFIRMED", conf
+    assert conf[62] == "DELIVERY_FAILED", conf
+    assert conf[63] == "LEGACY_UNCONFIRMED", conf
+    c = result.get("confirmation_counts") or {}
+    assert c.get("DELIVERY_CONFIRMED") == 1
+    assert c.get("DELIVERY_FAILED") == 1
+    assert c.get("LEGACY_UNCONFIRMED") == 1
+    assert result.get("confirmation_denominator") == 3
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_") and callable(v)]
     failed = []
