@@ -21,7 +21,10 @@ CANONICAL_OWNER_BOT_ID = 7992324219
 APPROVAL_BOT_ID = 8187434784
 ZIMAN_BOT_ID = 8861821707
 _OPS = Path(__file__).resolve().parents[1]
-_COERCE_LOG = _OPS / "state" / "telegram" / "legacy-coerce.jsonl"
+# Unit 4 (2026-08-21): env-override state (همان الگوی tg_api) تا تست‌های
+# ایزوله به temp بنویسند، نه به درخت زنده.
+_STATE_BASE = str(os.environ.get("OCTOPUS_STATE_DIR", "") or "").strip()
+_COERCE_LOG = (Path(_STATE_BASE) if _STATE_BASE else (_OPS / "state")) / "telegram" / "legacy-coerce.jsonl"
 LEGACY_COERCE_COUNT = 0
 
 

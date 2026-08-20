@@ -2685,6 +2685,28 @@ class Center:
                 pass
             raise
 
+    def _canary_gate(self, u: dict, uid: int) -> bool:
+        """گیتِ پنجرهٔ canary — فقط وقتی پنجره‌ای مسلح است اثر دارد.
+
+        مالک‌سنجی اول، بعد observe؛ DUPLICATE یا OUT_OF_ORDER → True (رد: هیچ
+        intent/effect ای ساخته نمی‌شود، رکورد می‌ماند). ACCEPTED/UNKNOWN/
+        NO_WINDOW → False = مسیرِ عادی دست‌نخورده. fail-open: خطایِ گارد هرگز
+        مرکز را نمی‌ایستاند."""
+        try:
+            if not self._is_owner(u):
+                return False
+            m = (u.get("message")
+                 or (u.get("callback_query") or {}).get("message") or {})
+            text = m.get("text") or m.get("caption") or ""
+            if not isinstance(text, str) or not text.strip():
+                return False
+            import canary_window as _cw  # noqa: WPS433
+            obs = _cw.observe(text.strip(), uid,
+                              payload_hash=_cw.hash_text(text.strip()))
+            return obs.get("decision") in ("DUPLICATE", "OUT_OF_ORDER")
+        except Exception:  # noqa: BLE001 — fail-open
+            return False
+
     def handle_update(self, u) -> "dict | None":
         """یک update. غیرمالک/ناوصل/ناسازگار → None (صفر اثر، صفر پاسخ)."""
         if not self._wired() or not isinstance(u, dict):
@@ -5902,20 +5924,29 @@ class Center:
             _dctx = None
             _durable = None
             try:
-                _dctx = self._begin_durable(u)
-                if _dctx is not None:
-                    import durable_loop as _durable  # noqa: WPS433
-                    _durable.bind_context(_dctx)
-                if _dctx is not None and getattr(_dctx, "duplicate", False):
+                # گیتِ پنجرهٔ canary (فقط وقتی مسلح): بعد از مالکیت‌سنجی و قبل
+                # از هر intent/dispatch. DUPLICATE/OUT_OF_ORDER رکورد می‌شوند و
+                # رد می‌شوند؛ بقیه (ACCEPTED/UNKNOWN/NO_WINDOW) مسیرِ عادی.
+                if self._canary_gate(u, uid):
                     self._log_disposition(
-                        u, outcome="duplicate-suppressed",
-                        reason="durable-loop idempotency (update replay)")
+                        u, outcome="canary-lane-rejected",
+                        reason="canary window guard — duplicate/out-of-order "
+                               "recorded without advance or dispatch")
                 else:
+                    _dctx = self._begin_durable(u)
                     if _dctx is not None:
-                        _durable.start_dispatch(_dctx.event_id)
-                    _handler_result = self.handle_update(u)
-                    if _dctx is not None:
-                        _durable.commit_result(_handler_result)
+                        import durable_loop as _durable  # noqa: WPS433
+                        _durable.bind_context(_dctx)
+                    if _dctx is not None and getattr(_dctx, "duplicate", False):
+                        self._log_disposition(
+                            u, outcome="duplicate-suppressed",
+                            reason="durable-loop idempotency (update replay)")
+                    else:
+                        if _dctx is not None:
+                            _durable.start_dispatch(_dctx.event_id)
+                        _handler_result = self.handle_update(u)
+                        if _dctx is not None:
+                            _durable.commit_result(_handler_result)
             except Exception as exc:  # noqa: BLE001 — یک updateِ خراب حلقه را نمی‌کشد
                 self._dead_letter(u, exc)   # ماندگار + هشدارِ cooldown‌دار
             finally:

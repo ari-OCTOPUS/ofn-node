@@ -17,6 +17,18 @@ if str(_OPS) not in sys.path:
     sys.path.insert(0, str(_OPS))
 if str(_OPS / "owner_console") not in sys.path:
     sys.path.insert(0, str(_OPS / "owner_console"))
+if str(_OPS / "tests") not in sys.path:
+    sys.path.insert(0, str(_OPS / "tests"))
+
+# Unit 4 (2026-08-21): پیش‌شرط محیطیِ قطعی — ایزولاسیون از طریق harness تا
+# تست هم زیر اجرای مستقیم و هم زیر run_all (با live-state guard) یکسان و
+# قطعی بماند؛ «سبز با rerun» دیگر معنا ندارد چون مسیر هرگز state زنده را
+# لمس نمی‌کند.
+import harness  # noqa: E402
+ENV = harness.setup("tg-closed-loop")  # noqa: E402
+_TEST_STATE = Path(tempfile.mkdtemp(prefix="tg-closed-loop-"))
+os.environ["OCTOPUS_STATE_DIR"] = str(_TEST_STATE / "_ops" / "state")
+os.environ["ORG_ROOT"] = str(_TEST_STATE)
 
 from owner_console import local_commands, telegram_adapter  # noqa: E402
 from owner_console.local_commands import LocalCommandResult  # noqa: E402

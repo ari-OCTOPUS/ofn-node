@@ -1,0 +1,25 @@
+{
+ "schema": "post-commit-center-restart-plan/1",
+ "generated_at": "2026-08-21T04:10:00Z",
+ "status": "BLOCKED_COMMIT_GATE",
+ "blocked_by": "Mimosa git-gate-hook whole-repo scan blocks every commit on pre-existing OFN-Board findings (583 high) even though the staged set is 66 Octopus-only files with 0 OFN-Board; owner opened the commit window but the hook-level gate did not propagate; agent did not bypass (standing rule); restart and CANARY READY remain gated on the commit per owner ruling section 5",
+ "preconditions": [
+  "staged package committed",
+  "repository HEAD contains telegram_adapter.py, organs/paths.py, canary_window.py",
+  "code hashes match commit",
+  "STOP-TG-HEARTBEAT remains ON",
+  "Wave 1 remains locked"
+ ],
+ "steps": [
+  "snapshot PID 23568, port 8776, offset, pending intents, outbox, DLQ, poll health",
+  "restart only Telegram center via arm-canary.ps1",
+  "verify new PID owns 8776",
+  "wait for 3 healthy poll cycles, fails=0, no 409, offset no regression",
+  "verify running code hashes equal committed working-tree hashes",
+  "run cockpit smoke and durable verifier",
+  "mark LOOP-RUNNING-CODE-DRIFT closed only after verifier"
+ ],
+ "rollback": "unset newly added flags if needed, restart center, reconcile durable state; never restart organism/cortex/daemon/live",
+ "commit_attempts_this_window": 2,
+ "owner_action_required": "disable/pause the mimosa plugin git-gate hook in the ZCode client for one commit (or provide an owner-side gate release mechanism), then agent commits the ready 66-file staged set"
+}

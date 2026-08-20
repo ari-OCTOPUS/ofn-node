@@ -79,5 +79,16 @@
     ],
     "gate_failure_detail": "wave0_checkpoint_frozen: cost-receipts.jsonl hash drifted (expected 2e9f84a7.. freeze hash, got ed4d8eb7..) — live cortex keeps appending runtime receipts; append-only growth, not a rewrite",
     "decision": "wave1_unlocked stays false; closure path: re-freeze wave0 artifacts at current checkpoint with evidence OR owner decision that runtime append-only logs are freeze-exempt; then re-run verifier"
+  },
+  "gate_fix": {
+    "ts": "2026-08-21T02:30:00Z",
+    "what": "append-only prefix-integrity for runtime ledgers (WAVE0-APPEND-ONLY-MANIFEST.json); static files keep strict whole-file hashing",
+    "verifier_recomputed": {
+      "confirmed": true,
+      "failed_checks": [],
+      "entry_gates_all_pass": true,
+      "wave0_artifacts_unmodified": true
+    },
+    "decision": "gates now genuinely pass; wave1_unlocked stays FALSE (owner keeps Wave 1 locked until explicit activation order)"
   }
 }

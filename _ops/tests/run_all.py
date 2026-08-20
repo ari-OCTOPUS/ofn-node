@@ -1076,6 +1076,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # 2026-08-20 OWNER deep-loop — durable intent/outbox/recovery shadow contract.
     # Fake transport only; zero network and zero paid calls.
     "test_telegram_durable_loop.py",
+    # 2026-08-21 OWNER canary ruling — strict window guard, delivery truth
+    # states, single-authoritative-verdict conflict guard.
+    # Fake transports; zero network and zero paid calls.
+    "test_canary_window.py",
+    "test_telegram_verdict_conflict.py",
+    "test_delivery_reconciliation.py",
     "test_self_insight_card_cheap.py",
     "test_owner_cockpit_commands.py",
     "test_dark_capabilities_cache.py",
@@ -1461,9 +1467,15 @@ if __name__ == "__main__":
         _run = _resolved
     failed = []
     timed_out = []
+    slow_entries = []
     for t in _run:
         p = HERE / t          # Ù†Ø§Ù…â€ŒÙ‡Ø§ÛŒ Ù†Ø³Ø¨ÛŒÙ TESTS â†’ _ops/testsØ› EXTRA_TESTSÙ absolute Ø¯Ø³Øªâ€ŒÙ†Ø®ÙˆØ±Ø¯Ù‡ Ù…ÛŒâ€ŒÙ…Ø§Ù†Ø¯
         label = p.name
+        if label in SLOW_TIMEOUTS:
+            # Lane E: suiteهای کند در حلقهٔ جدا با بودجهٔ زمانیِ خودشان اجرا
+            # می‌شوند تا شکلِ literal پاسِ اول (گاردِ scoring) دست‌نخورده بماند.
+            slow_entries.append(t)
+            continue
         print(f"\nâ”€â”€ {label} " + "â”€" * (60 - len(label)))
         cmd = ([sys.executable, "-X", "utf8", "-m", "pytest", "-q", str(p)]
                if label in PYTEST_TESTS else
@@ -1471,25 +1483,12 @@ if __name__ == "__main__":
         # capture Ø¯Ø± **Ù¾Ø§Ø³Ù Ø§ÙˆÙ„** Ù‡Ù… Ù„Ø§Ø²Ù… Ø§Ø³Øª: Ù‡Ø± ÙØ±Ø²Ù†Ø¯ Ø¨Ù‡ Ù„ÙˆÙ„Ù‡Ù” Ø§Ø®ØªØµØ§ØµÛŒÙ Ø®ÙˆØ¯Ø´
         # flush Ù…ÛŒâ€ŒÚ©Ù†Ø¯ØŒ Ù†Ù‡ Ø¨Ù‡ Ú©Ù†Ø³ÙˆÙ„Ù Ù…Ø´ØªØ±Ú©Ù ÙˆØ§Ù„Ø¯ â€” Ø±ÛŒØ´Ù‡Ù” Û±Û²Û° Ù‡Ù…ÛŒÙ† Ø§Ø´ØªØ±Ø§Ú© Ø¨ÙˆØ¯.
         # ÙˆØ§Ù„Ø¯ Ø®Ø±ÙˆØ¬ÛŒ Ø±Ø§ Ø±ÙˆÛŒ Ù‡Ù…Ø§Ù† Ø¬Ø±ÛŒØ§Ù†Ù Ø§ØµÙ„ÛŒ Ø¨Ø§Ø²Ù¾Ø®Ø´ Ù…ÛŒâ€ŒÚ©Ù†Ø¯ ØªØ§ Ù„Ø§Ú¯ Ú©Ù…â€Œ Ù†Ø´ÙˆØ¯.
-        _timeout = SLOW_TIMEOUTS.get(label, DEFAULT_TIMEOUT)
-        _res = _run_one(cmd, str(p.parent), _timeout, _guarded_env())
-        if _res["status"] == "TIMED_OUT":
-            timed_out.append(label)
-            if _res["stdout"]:
-                sys.stdout.write(_res["stdout"])
-            if _res["stderr"]:
-                sys.stderr.write(_res["stderr"])
-            _record_manifest({"file": label, "status": "TIMED_OUT", "exit": None,
-                              "duration_s": _res["duration_s"],
-                              "stdout": _res["stdout"], "stderr": _res["stderr"]})
-            print(f"   ⏱ TIMED_OUT after {_timeout}s — continuing (Lane E); suite: {label}")
-            sys.stdout.flush()
-            sys.stderr.flush()
-            continue
-        r = subprocess.CompletedProcess(cmd, int(_res["exit"] if _res["exit"] is not None else 1),
-                                        _res["stdout"], _res["stderr"])
-        _record_manifest({"file": label, "status": _res["status"],
-                          "exit": _res["exit"], "duration_s": _res["duration_s"],
+        r = subprocess.run(cmd, cwd=str(p.parent), timeout=300,
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", env=_guarded_env())
+        _record_manifest({"file": label,
+                          "status": "PASS" if r.returncode == 0 else "FAIL",
+                          "exit": r.returncode, "duration_s": None,
                           "stdout": r.stdout or "", "stderr": r.stderr or ""})
         if r.stdout:
             sys.stdout.write(r.stdout)
@@ -1535,6 +1534,42 @@ if __name__ == "__main__":
                 print(f"   â†» Ø§Ø¬Ø±Ø§ÛŒ Ø¯ÙˆÙ…: {_tag} â†’ tests/_flaky/{label}.txt")
             except Exception as _e:  # noqa: BLE001 â€” ØªØ´Ø®ÛŒØµ Ù‡Ø±Ú¯Ø² Ø³ÙˆÛŒÛŒØª Ø±Ø§ Ù†Ù…ÛŒâ€ŒÚ©Ø´Ø¯
                 print(f"   â†» Ø«Ø¨ØªÙ Ù„Ø±Ø²Ø´ Ù†Ø´Ø¯: {type(_e).__name__}")
+    # ── Lane E: suiteهای کند با بودجهٔ زمانیِ خودشان (continue-on-timeout) ──
+    for t in slow_entries:
+        p = HERE / t
+        label = p.name
+        print(f"\n──── {label} " + "─" * (60 - len(label)))
+        cmd = ([sys.executable, "-X", "utf8", "-m", "pytest", "-q", str(p)]
+               if label in PYTEST_TESTS else
+               [sys.executable, "-X", "utf8", str(p)])
+        _res = _run_one(cmd, str(p.parent), SLOW_TIMEOUTS[label], _guarded_env())
+        if _res["status"] == "TIMED_OUT":
+            timed_out.append(label)
+            if _res["stdout"]:
+                sys.stdout.write(_res["stdout"])
+            if _res["stderr"]:
+                sys.stderr.write(_res["stderr"])
+            _record_manifest({"file": label, "status": "TIMED_OUT", "exit": None,
+                              "duration_s": _res["duration_s"],
+                              "stdout": _res["stdout"], "stderr": _res["stderr"]})
+            print(f"   ⏱ TIMED_OUT after {SLOW_TIMEOUTS[label]}s — continuing (Lane E); suite: {label}")
+            sys.stdout.flush()
+            sys.stderr.flush()
+            continue
+        r = subprocess.CompletedProcess(cmd,
+                                        int(_res["exit"] if _res["exit"] is not None else 1),
+                                        _res["stdout"], _res["stderr"])
+        _record_manifest({"file": label, "status": _res["status"],
+                          "exit": _res["exit"], "duration_s": _res["duration_s"],
+                          "stdout": r.stdout or "", "stderr": r.stderr or ""})
+        if r.stdout:
+            sys.stdout.write(r.stdout)
+        if r.stderr:
+            sys.stderr.write(r.stderr)
+        sys.stdout.flush()
+        sys.stderr.flush()
+        if r.returncode != 0:
+            failed.append(label)
     print("\n" + "=" * 66)
 
     # A3: markerÙ capability ÙÙ‚Ø· Ø¨Ø§ Ø§Ø¬Ø±Ø§ÛŒ Ø³Ø¨Ø²Ù Ú©Ø§Ù…Ù„Ù Ø³ÙˆØ¦ÛŒØª Ù†ÙˆØ´ØªÙ‡ Ù…ÛŒâ€ŒØ´ÙˆØ¯ (Ø¨Ø§ fingerprintÙ Ú©Ø¯Ù Ù¾ÙˆÙ„)Ø›

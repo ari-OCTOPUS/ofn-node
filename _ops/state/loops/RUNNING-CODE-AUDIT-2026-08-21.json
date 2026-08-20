@@ -1,0 +1,56 @@
+{
+  "schema": "running-code-vs-working-tree/1",
+  "center_pid": 23568,
+  "started_at": "2026-08-20T15:36:52Z",
+  "finding": "durable_loop/tg_api/center/event_bridge edited BEFORE the final restart -> running code == current working tree for the canary path (verified by window behavior). telegram_adapter/local_commands/organs.paths/canary_window edited AFTER start -> running process executes older versions; repository release completeness NOT claimable while BLK-0005 blocks commit.",
+  "files": [
+    {
+      "file": "_ops/telegram_center/center.py",
+      "working_tree_sha256": "7eda8c3b2550b805",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/telegram_center/tg_api.py",
+      "working_tree_sha256": "63d6b53c0b965115",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/telegram_center/durable_loop.py",
+      "working_tree_sha256": "05796640629dd88c",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/telegram_center/event_bridge.py",
+      "working_tree_sha256": "2b0800c3b9cea3f8",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/owner_console/telegram_adapter.py",
+      "working_tree_sha256": "6fecbf3ac2f5c041",
+      "modified_not_committed": true,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/owner_console/local_commands.py",
+      "working_tree_sha256": "cdc6c151413edc23",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/organs/paths.py",
+      "working_tree_sha256": "bb5c8bb9fb992080",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    },
+    {
+      "file": "_ops/telegram_center/canary_window.py",
+      "working_tree_sha256": "5f51afde233b9787",
+      "modified_not_committed": false,
+      "note": "process started 2026-08-20T15:36:52Z; edits after that are not the running code"
+    }
+  ]
+}

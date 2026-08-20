@@ -9,7 +9,7 @@
   "action_contract": "octopus.decision.v1 → خروجی فقط-خواندنی/پیشنهادی",
   "risk_class": "read",
   "owner_gate": "بدون رأی تازه؛ اجرای بیرونی هرگز",
-  "surface": "بدون کارتِ تلگرام (کلاس ۷ کاتالوگ کشف 2026-08-15 — نامرئی برای SCAN_DIRS)",
+  "surface": "owner_outer_dm",
   "runtime_status_probe": "سوئیت واقعی ۱۷۷ چک (T3/C-007).",
   "tests": [
     "_ops/tests/test_epistemic_bayes.py",
@@ -17,5 +17,6 @@
   ],
   "registration_is_authorization": false,
   "visibility_only_manifest": true,
-  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد"
+  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد",
+  "read_handler": "epistemics:…"
 }

@@ -9,12 +9,13 @@
   "action_contract": "octopus.decision.v1 → خروجی فقط-خواندنی/پیشنهادی",
   "risk_class": "read",
   "owner_gate": "بدون رأی تازه؛ اجرای بیرونی هرگز",
-  "surface": "بدون کارتِ تلگرام (کلاس ۷ کاتالوگ کشف 2026-08-15 — نامرئی برای SCAN_DIRS)",
-  "runtime_status_probe": "قضیهٔ قاضی: دو PolicyGate = نقض INV-4؛ همگرایی طبق DA-4-P1.",
+  "surface": "owner_outer_dm",
+  "runtime_status_probe": "IMPLEMENTED_WIRED — miniapp_gateway reads via runtime store; read-only/proposal contract",
   "tests": [
-    "_ops/tests/test_agi2027_control_url_redaction.py"
+    "_ops/agi2027_control/tests/test_runtime.py"
   ],
   "registration_is_authorization": false,
   "visibility_only_manifest": true,
-  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد"
+  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد",
+  "read_handler": "agi2027_control.runtime:…"
 }

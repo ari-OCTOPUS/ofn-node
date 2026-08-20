@@ -4,12 +4,17 @@
   "title": "💬 چت یکپارچه (Conversation Hub)",
   "version": "0.1.0",
   "adr": "ADR-040",
-  "owner_phrases": ["چت یکپارچه", "conversation hub", "گفتگوی اختاپوس", "chat unified"],
+  "owner_phrases": [
+    "چت یکپارچه",
+    "conversation hub",
+    "گفتگوی اختاپوس",
+    "chat unified"
+  ],
   "read_handler": "conversation_hub.service:…",
   "action_contract": "octopus.decision.v1 → پیام‌ها؛ صفر اثرِ اجرایی (فقط گفتگو)",
   "risk_class": "read",
   "owner_gate": "بدون رأی تازه؛ اجرای بیرونی هرگز",
-  "surface": "owner_outer_dm + /api/octopus/chat",
+  "surface": "owner_outer_dm",
   "runtime_status_probe": "OCTOPUS_UNIFIED_CHAT=1 ON (flags.cmd، تأیید 2026-08-15 شب) · ADR-040 فاز ۱+۲-lite · card() ندارد (ثبتِ صادقانه — کاتالوگ کاشف)",
   "tests": [
     "_ops/tests/test_conversation_hub.py",

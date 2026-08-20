@@ -127,6 +127,15 @@ def _metric(name: str, amount: int = 1) -> None:
     _atomic(path, current)
 
 
+def _enqueue_uncertain(event_id: str, message_key: str) -> None:
+    """Fail-open: an uncertain send enters the bounded reconciliation queue."""
+    try:
+        import delivery_reconciliation as _dr  # noqa: WPS433
+        _dr.enqueue_uncertain(event_id=event_id, message_key=message_key)
+    except Exception:  # noqa: BLE001 — queue must never break delivery
+        pass
+
+
 def metrics() -> dict:
     return _read(_metrics_path())
 
@@ -310,13 +319,20 @@ def deliver(*, text: str, chat_id, topic_id, stream: str, send_fn: Callable[[], 
     if existing:
         state = str(existing.get("state") or "")
         if state == "CONFIRMED":
+            if not existing.get("delivery_truth"):
+                existing["delivery_truth"] = "DELIVERY_CONFIRMED"
+                _atomic(path, existing)
             return {"managed": True, "ok": True, "state": state,
                     "message_id": existing.get("message_id"), "message_key": key, "replayed": True}
         if state in {"SENDING", "NEEDS_RECONCILIATION"}:
             if state == "SENDING":
                 existing["state"] = "NEEDS_RECONCILIATION"
+                existing["delivery_truth"] = "UNCERTAIN_SEND_OUTCOME"
                 existing["error_code"] = "RESTART_AFTER_SEND_ATTEMPT"
                 existing["updated_at"] = _now()
+                _atomic(path, existing)
+            elif not existing.get("delivery_truth"):
+                existing["delivery_truth"] = "UNCERTAIN_SEND_OUTCOME"
                 _atomic(path, existing)
             return {"managed": True, "ok": False, "state": "NEEDS_RECONCILIATION",
                     "message_id": None, "message_key": key}
@@ -339,6 +355,7 @@ def deliver(*, text: str, chat_id, topic_id, stream: str, send_fn: Callable[[], 
             "stream": str(stream or "center"),
             "payload_hash": _hash(text),
             "state": "QUEUED",
+            "delivery_truth": "QUEUED",
             "attempts": 0,
             "created_at": _now(),
         }
@@ -363,6 +380,7 @@ def deliver(*, text: str, chat_id, topic_id, stream: str, send_fn: Callable[[], 
             "stream": str(stream or "center"),
             "payload_hash": _hash(text),
             "state": "QUEUED",
+            "delivery_truth": "QUEUED",
             "attempts": 0,
             "created_at": _now(),
         }
@@ -382,6 +400,7 @@ def deliver(*, text: str, chat_id, topic_id, stream: str, send_fn: Callable[[], 
     if not queued:
         return {"managed": True, "ok": False, "state": "OUTBOX_MISSING", "message_id": None}
     queued["state"] = "SENDING"
+    queued["delivery_truth"] = "ATTEMPTING"
     queued["attempts"] = int(queued.get("attempts") or 0) + 1
     queued["attempted_at"] = _now()
     _atomic(path, queued)
@@ -389,12 +408,14 @@ def deliver(*, text: str, chat_id, topic_id, stream: str, send_fn: Callable[[], 
         response = send_fn()
     except Exception as exc:
         queued["state"] = "NEEDS_RECONCILIATION"
+        queued["delivery_truth"] = "UNCERTAIN_SEND_OUTCOME"
         queued["error_code"] = type(exc).__name__
         queued["updated_at"] = _now()
         _atomic(path, queued)
         transition(context.event_id, "NEEDS_RECONCILIATION", outcome="error",
                    error_code="UNCERTAIN_SEND_OUTCOME")
         _metric("telegram_delivery_failures_total")
+        _enqueue_uncertain(context.event_id, key)
         return {"managed": True, "ok": False, "state": queued["state"],
                 "message_id": None, "message_key": key}
 
@@ -407,17 +428,20 @@ def deliver(*, text: str, chat_id, topic_id, stream: str, send_fn: Callable[[], 
             message_id = None
     if message_id is None:
         queued["state"] = "NEEDS_RECONCILIATION"
+        queued["delivery_truth"] = "UNCERTAIN_SEND_OUTCOME"
         queued["error_code"] = "UNCERTAIN_SEND_OUTCOME"
         queued["updated_at"] = _now()
         _atomic(path, queued)
         transition(context.event_id, "NEEDS_RECONCILIATION", outcome="error",
                    error_code="UNCERTAIN_SEND_OUTCOME")
         _metric("telegram_delivery_failures_total")
+        _enqueue_uncertain(context.event_id, key)
         return {"managed": True, "ok": False, "state": queued["state"],
                 "message_id": None, "message_key": key}
 
     transition(context.event_id, "RESPONSE_SENT")
     queued["state"] = "CONFIRMED"
+    queued["delivery_truth"] = "DELIVERY_CONFIRMED"
     queued["message_id"] = message_id
     queued["confirmed_at"] = _now()
     _atomic(path, queued)
