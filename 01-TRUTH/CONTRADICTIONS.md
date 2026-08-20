@@ -547,20 +547,54 @@ contradiction:
 - **اصلاح 2026-08-19T11:0xZ (ممیزی مستقل)**: C-035 را نباید CLOSED می‌خواندند — مراسم TCB #3 بدون تصویب مالک A4 بود. وضعیت: `PATCHED-UNSIGNED` — patch و تست در درخت هست (all anchors pass)، ریشه‌یابی معتبر، ولی ratify مالک معلق. تا تصویب، CLOSED محسوب نمی‌شود.
 - **C-035 CLOSED (2026-08-19T11:0xZ)**: evidence=OWNER-RATIFY-2026-08-19-TCB3 · closed_at=2026-08-19T10:50:58+00:00 · 11/11 anchors green at close · 13/30 = negative knowledge, threshold untouched.
 
-- **[registry-note 2026-08-20 ~11:18]** — C-042 ثبت شد. آزادِ بعدی: **C-043**.
+- **[registry-note 2026-08-20 ~11:18]** — C-042 ثبت شد. آزادِ بعدی آن لحظه: **C-043**.
+- **[registry-note 2026-08-20 ~12:12]** — C-043 ثبت شد (گردکردن ناسازگار). C-042 ERRATA: 0.00047348→0.000379 · 1.3636→1.0920.
+- **[registry-note 2026-08-20 ~12:22]** — C-044 ثبت شد (reasons خالی روی تغییر رنگ). آزادِ بعدی: **C-045**.
 
 ```yaml
 contradiction:
   id: C-042
   claim: "گرد کردن milli-unit پس از تقسیم بین ۱۱ عضو می‌تواند سهم را بی‌صدا صفر کند"
   value_a: "cap=30 period=30s AMBER → سهم 0.00047348 → round 0.000 starvation؛ GREEN همان کف 0.000947→0.001؛ GREEN@115.72s → 0.00365 سالم"
-  source_a: "دستور کار مالک 2026-08-20T11:15+10 T2"
-  value_b: "کد reserve 20% را قبل از تقسیم کم می‌کند؛ allocate_beat AMBER@30s@30cap tokens=0.000 (pytest 10/10)"
+  source_a: "دستور کار مالک 2026-08-20T11:15+10 T2 · جدول مرجع دستور مالک #۱ (ERRATA: بدون کسر ۲۰٪ ذخیره)"
+  value_b: "فرمول مالک #۲: (pool−reserve)/11 · AMBER floor raw=0.000379 → round 0.000؛ per-member/day=1.0920 نه 1.3636"
   source_b: "[[../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20]] · heart.life_currency.allocate_beat"
-  likely: both — هر دو لایه در بدترین حالت واقعی به صفر می‌رسند
-  resolution: "OPEN · پیشنهاد µc + carry_ledger + MEMBER_STARVED · اجرا نشد · ریاستارت را قفل نمی‌کند"
+  likely: both — starvation در کف AMBER با هر دو لایه؛ اعداد لایهٔ الف مالک #۱ غلط بودند
+  resolution: "REPRODUCED_OFFLINE · ERRATA ثبت شد · pytest test_life_currency_floor_rounding.py 5/5 · پیشنهاد µc + carry_ledger اجرا نشد · ریاستارت را قفل نمی‌کند"
+  status: reproduced_offline
+  registered_by: "work-order 2026-08-20 T2 · errata T7 دستور #۲"
+```
+
+```yaml
+contradiction:
+  id: C-043
+  claim: "hard_cap در life-currency-latest با round-3dpِ 2×beat_share نمی‌خواند"
+  value_a: "beat 42784 hard_cap=0.078 در حالی که 2×0.039462=0.078924 → round-3dp باید 0.079؛ beat_pool/reserve/tokens با round می‌خوانند"
+  source_a: "دستور مالک #۲ T8 شاهد · فایل latest در 12:00 beat 42792 بازنویسی شده (42784 UNLOCATED)"
+  value_b: "allocate_beat AMBER@113.65 hard_cap=0.079=round(2×raw)؛ 2×round(share,3)=0.078 مسیر دیگری است؛ هر فیلد مستقل round(raw,3) است (خطوط 123-124، 232-233، 246-247)"
+  source_b: "[[../06-EVIDENCE/C-043-INCONSISTENT-ROUNDING-2026-08-20]] · _ops/heart/life_currency.py"
+  likely: "ترکیب فیلدها ناسازگار است؛ مقدار 0.078 روی دیسک برای 42784 UNLOCATED — کد فعلی 0.079 می‌دهد"
+  resolution: "OPEN · diagnose only · فیکس نشد"
   status: open
-  registered_by: "work-order 2026-08-20 T2"
+  owner: CORE
+  related: C-042
+  registered_by: "owner-order-2 T8 2026-08-20"
+```
+
+```yaml
+contradiction:
+  id: C-044
+  claim: "reasons روی گذار رنگ GREEN→AMBER خالی/غایب است"
+  value_a: "life-currency-latest.json reasons=[] در color=AMBER؛ arbiter-shadow.jsonl فیلد reasons ندارد"
+  source_a: "_ops/state/pulse/life-currency-latest.json · arbiter-shadow.jsonl beat 42780–42790 · [[../06-EVIDENCE/AMBER-CAUSALITY-2026-08-20]]"
+  value_b: "allocate_beat موفق همیشه reasons=[] (خط 247)؛ arbitrate فقط RED را در reasons رنگ می‌نویسد (243–244)؛ persist jsonl reasons را حذف می‌کند (443–446)"
+  source_b: "[[../06-EVIDENCE/C-044-EMPTY-COLOR-REASONS-2026-08-20]] · pulse_arbiter.py · life_currency.py"
+  likely: "خالی بودن تخصیص طراحی است؛ خالی بودن علیت رنگ نقص تله‌متری است"
+  resolution: "OPEN · فیکس نشد"
+  status: open
+  owner: CORE
+  related: C-043
+  registered_by: "owner-order-2 T10 2026-08-20"
 ```
 
 ```yaml

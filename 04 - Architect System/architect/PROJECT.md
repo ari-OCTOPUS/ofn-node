@@ -28,6 +28,8 @@ updated: 2026-08-20
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-20 ~12:25 — دستور مالک #۲ T7–T12.** C-042 ERRATA + REPRODUCED_OFFLINE · C-043/C-044 OPEN · AMBER=RESTART_INDUCED · leftover cap30=`b17620b`. K=9/ablation/micro-credit شروع نشد. [[../../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20]] · [[../../06-EVIDENCE/AMBER-CAUSALITY-2026-08-20]] · [[../../01-TRUTH/CONTRADICTIONS]].
+
 - تغییرات اخیر: **2026-08-20 ~11:50 — B1 SIGNED + ریاستارت cap=30.** تلاش۱ fail-closed · تلاش۲ OK · daily_cap زنده ۳۰ · UNIT=life_credit · C-042 OPEN · K=9 اجرا=0. [[../../02-DECISIONS/B1-SIGNING-CARD-2026-08-20]] · [[../../06-EVIDENCE/RESTART-BASELINE-2026-08-20/README]].
 
 - تغییرات اخیر: **2026-08-20 — کارت امضای B1 + dry-run cap=30 + پیش‌ثبت K=9 سه‌بذر.** openssl/ریاستارت/K=9/ablation اجرا نشد. [[../../02-DECISIONS/B1-SIGNING-CARD-2026-08-20]] · [[../../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20]].
@@ -206,6 +208,7 @@ updated: 2026-08-20
 
 ## Progress
 
+- **2026-08-20 T7–T12 (نو):** C-042 ERRATA + REPRODUCED_OFFLINE · C-043/C-044 · AMBER=RESTART_INDUCED · leftover `b17620b`. جزئیات: [[../../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20]] · [[../../06-EVIDENCE/AMBER-CAUSALITY-2026-08-20]].
 - **2026-08-20 T1–T4 (نو):** B1 SIGNED · C-042 · freeze 42770 · restart attempt2 OK · cap زنده ۳۰. جزئیات: [[../../06-EVIDENCE/RESTART-BASELINE-2026-08-20/README]].
 - **2026-08-20 امضا+dry-run (نو):** کارت B1 UNSIGNED · پیش‌ثبت سه‌بذر UNSIGNED · AMBER@۳۰s توکن صفر. جزئیات: [[../../02-DECISIONS/B1-SIGNING-CARD-2026-08-20]].
 - **2026-08-20 چهار تناقض (نو):** واحد daily_cap · B1 unsigned در لجر · D6 STABLE باطل · owner-key FOUND_AT. جزئیات: [[../../06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20]].

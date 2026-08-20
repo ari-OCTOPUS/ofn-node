@@ -33,6 +33,8 @@ updated: 2026-08-20
 
 ## وضعِ لحظه‌ای
 
+> 🔧 **پین 2026-08-20 ~12:25 (+10) — دستور مالک #۲ T7–T12:** C-042 ERRATA + **REPRODUCED_OFFLINE** · C-043 OPEN · C-044 OPEN · AMBER=**RESTART_INDUCED** · identity 0.572→0.672 MEASURED · cap30 leftover در `b17620b`. K=9/ablation/micro-credit شروع نشد. آزاد **C-045**. [[../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20|C-042]] · [[../06-EVIDENCE/C-043-INCONSISTENT-ROUNDING-2026-08-20|C-043]] · [[../06-EVIDENCE/C-044-EMPTY-COLOR-REASONS-2026-08-20|C-044]] · [[../06-EVIDENCE/AMBER-CAUSALITY-2026-08-20|AMBER]] · [[../06-EVIDENCE/IDENTITY-HEALTH-DELTA-2026-08-20|identity]] · [[../06-EVIDENCE/COMMIT-GAP-2026-08-20|commit-gap]] · [[../01-TRUTH/CONTRADICTIONS|تناقض‌ها]]
+
 > 🔧 **پین 2026-08-20 ~11:50 (+10) — T1–T4:** کارت B1 SIGNED · C-042 OPEN · baseline منجمد beat 42770 cap=1000 · ریاستارت تلاش۲ OK · زنده daily_cap=30 UNIT=life_credit min_share=0.003. K=9 اجرا=0. [[../02-DECISIONS/B1-SIGNING-CARD-2026-08-20|کارت SIGNED]] · [[../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20|C-042]] · [[../06-EVIDENCE/RESTART-BASELINE-2026-08-20/README|baseline]] · آزاد **C-043**.
 
 > 🗳️ **پین 2026-08-20 ~10:32 (+10) — ترتیب مالک: امضا → dry-run ۳۰ → ریاستارت → K=9 سه‌بذر → ablation.** کارت امضا و پیش‌ثبت سه‌بذر نوشته شد؛ openssl و ریاستارت اجرا نشد. استخر زنده هنوز ۱۰۰۰ (cache). [[../02-DECISIONS/B1-SIGNING-CARD-2026-08-20|کارت امضا]] · [[../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20|K=9 سه‌بذر]] · [[../06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20|dry-run]] · [[../00 - Inbox/2026-08-20 TASK — frontmatter debt independent|بدهی فرانت‌متر]] · C-041.
