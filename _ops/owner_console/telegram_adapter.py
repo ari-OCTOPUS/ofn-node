@@ -25,6 +25,10 @@ def handle_message(text: str, *, surface_decision: dict) -> dict:
         return {"handled": False, "reason": "not-authorized-outer-core-conversation",
                 "reply": None}
     _emit_owner_inbound(d, text)   # #14A F2: emitter دوزمانی مسیر canonical
+    from . import local_commands
+    _handled, _reply = local_commands.handle_local(text)
+    if _handled:
+        return {"handled": True, "reason": "local-command", "reply": _reply}
     if _collab_armed():
         from . import collaborator
         return {"handled": True, "reason": "collaborator",
@@ -44,6 +48,26 @@ def handle_callback(data: str, *, surface_decision: dict) -> dict:
         return {"handled": True, "reason": "collaborator",
                 "reply": collaborator.callback(data)}
     return {"handled": True, "reason": "owner-console", "reply": conversation.callback(data)}
+
+
+_BOT_ID_CACHE: dict = {}
+
+
+def _bot_id() -> "int | None":
+    """bot_id عددی از TG_CENTER_BOT_TOKEN — یک‌بار getMe، کش ماژولی."""
+    import os as _os2
+    if _BOT_ID_CACHE:
+        return _BOT_ID_CACHE.get("id")
+    tok = _os2.environ.get("TG_CENTER_BOT_TOKEN", "")
+    if not tok:
+        return None
+    try:
+        import urllib.request as _ur
+        with _ur.urlopen(f"https://api.telegram.org/bot{tok}/getMe", timeout=10) as r:
+            _BOT_ID_CACHE.update(json.loads(r.read().decode()).get("result", {}))
+    except Exception:  # noqa: BLE001
+        _BOT_ID_CACHE["id"] = None
+    return _BOT_ID_CACHE.get("id")
 
 
 def _emit_owner_inbound(decision: dict, text: str) -> None:
@@ -71,7 +95,8 @@ def _emit_owner_inbound(decision: dict, text: str) -> None:
             subject="owner_message", producer="owner_console_seam",
             trust="DETERMINISTIC", occurred_at=occ,
             event_time_source="telegram_message_date", time_precision="1s",
-            payload={"mode": decision.get("mode"), "reason": decision.get("reason")},
+            payload={"mode": decision.get("mode"), "reason": decision.get("reason"),
+                     "bot_id": _bot_id()},
             idempotency_key=f"tg-{decision.get('chat_id')}-{date}-{decision.get('update_id')}|owner-console")
     except Exception:  # noqa: BLE001 — seam هرگز مسیر مرکز را نمی‌کشد
         pass

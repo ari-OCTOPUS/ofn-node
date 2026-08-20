@@ -1,0 +1,8 @@
+{
+ "ts": "2026-08-20T18:42:08",
+ "center_pid": "25400→8796",
+ "supervisor": "RUN-TG-CENTER.bat :loop",
+ "why": "F3 fix (local short-circuit + bot_id + poller-lease)",
+ "note": "baseline پس‌نوشت — فایل قبلی به‌خاطر خطای parse ساخته نشد؛ رویداد واقعی بود",
+ "lease": "HOLD by parallel session C (organ-map) — edits branch-isolated, documented exception"
+}
