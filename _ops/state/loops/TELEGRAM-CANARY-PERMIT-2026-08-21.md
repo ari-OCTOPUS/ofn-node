@@ -4,6 +4,10 @@ Generated: 2026-08-21
 Owner permit: OWNER PERMIT — BOUNDED OWNER-ONLY TELEGRAM LIVE CANARY (2026-08-21)
 Baseline: `913cbcf`
 
+## Amendment (2026-08-21)
+
+OWNER AMENDMENT — TELEGRAM CANARY BASELINE RECONCILIATION: the executable checkpoint is reconciled from `913cbcf` to **`af12d5e`**. Verification performed: `913cbcf` is an ancestor of `af12d5e`; index is clean for all canary-critical files; code hashes match the verifier manifest (`LOOP-VERIFIER.json` confirmed=true). Full manifest: `TELEGRAM-CANARY-MANIFEST-2026-08-21.json`.
+
 ## Status: NOT ARMED
 
 The permit is recorded but the canary is **not armed**. Two hard blockers remain, exactly as stated by the owner:
