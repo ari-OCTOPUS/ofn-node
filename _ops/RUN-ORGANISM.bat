@@ -1,8 +1,13 @@
 @echo off
 rem RUN-ORGANISM.bat - always-on organism loop for the 30-day data run.
 rem Clean kill: create file F:\backup\_ops\STOP-ORGANISM then wait one tick.
-rem Restart (from dashboard): dashboard creates STOP-ORGANISM + RESTART-REQUESTED.
-rem   We see STOP, notice RESTART-REQUESTED, clear both, and loop again with new env.
+rem RESTART PROTOCOL (P2, corrected 2026-08-20 per C-047 / OWNER-DIRECTIVE-11):
+rem   To restart, create ONLY F:\backup\_ops\RESTART-REQUESTED (no STOP marker).
+rem   The organism clean-exits on it; THIS launcher clears ONLY that marker and
+rem   loops again with fresh env. If STOP-ORGANISM is also present, this launcher
+rem   ENDS at :stopped and never deletes STOP (owner kill-switch, P2 TOCTOU rule).
+rem   NOTE: any dashboard/cockpit code still creating BOTH markers is buggy -
+rem   see 06-EVIDENCE/INCIDENT-ORGANISM-GAP-2026-08-20.md (two availability gaps).
 rem
 rem Secrets (TELEGRAM_BOT_TOKEN, TELEGRAM_OWNER_CHAT_ID, API keys) load from the
 rem canonical secrets file F:\backup\.env via env_loader.py inside python - NOT here.

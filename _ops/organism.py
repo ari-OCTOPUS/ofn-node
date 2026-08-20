@@ -530,8 +530,28 @@ def main() -> int:
             # نمی‌کند → دیگر هیچ مسیرِ خودکاری STOPِ مالک را ابطال نمی‌کند.
             _restart_req = (opslib.OPS / "RESTART-REQUESTED").exists()
             if opslib.STOP_ORGANISM.exists() or opslib.master_halted() or _restart_req:
-                _why = "RESTART" if (_restart_req and not opslib.STOP_ORGANISM.exists()
-                                     and not opslib.master_halted()) else "STOP"
+                # C-047 preflight (OWNER-DIRECTIVE-11 §۲): اگر درخواستِ ریاستارت
+                # همراهِ STOP مالک رسیده باشد، سکوت نکن — بلند اعلام کن که
+                # ریاستارت سلبِ دسترسی شده و خروج، STOP است (نه RESTART).
+                if _restart_req and opslib.STOP_ORGANISM.exists():
+                    _why = "STOP"
+                    opslib.heartbeat(
+                        "ABORT_RESTART_STOP_PRESENT — درخواست ریاستارت نادیده "
+                        "گرفته شد: STOP مالک موجود است؛ خروج STOP")
+                    try:  # رویداد spine پشت فلگ خودش؛ fail-soft
+                        import spine_adapters as _sa047  # noqa: WPS433
+                        _sa047.emit_event(
+                            event_type="decision-recorded", domain="governance",
+                            correlation_id=f"c047-{int(time.time())}",
+                            subject="ABORT_RESTART_STOP_PRESENT",
+                            producer="organism_c047_preflight",
+                            trust="DETERMINISTIC",
+                            payload={"restart_requested": True,
+                                     "stop_present": True, "verdict": "STOP"})
+                    except Exception:  # noqa: BLE001
+                        pass
+                else:
+                    _why = "RESTART" if (_restart_req and not opslib.master_halted()) else "STOP"
                 opslib.heartbeat(f"organism=HALT ({_why}) — خروج تمیز")
                 _write_state({"exited": _why}, merge_prev=True)
                 return 0

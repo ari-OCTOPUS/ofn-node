@@ -1,6 +1,6 @@
 {
  "schema": "octopus-labels/1",
- "generated_at_utc": "2026-08-20T04:42:02+00:00",
+ "generated_at_utc": "2026-08-20T05:25:54+00:00",
  "labels": {
   "OCTOPUS_MODE": {
    "label_id": "OCTOPUS_MODE",
@@ -602,6 +602,38 @@
    "evidence_path": "06-EVIDENCE/DIRECTIVE-8-REPORT-AGENT-B-2026-08-20.md",
    "evidence_hash": "710115abc1d77c79",
    "updated_at_utc": "2026-08-20T04:42:02+00:00"
+  },
+  "EXECUTABLE_RULE": {
+   "label_id": "EXECUTABLE_RULE",
+   "value": "ALLOWLIST: protective_halt/throttle only · restrictive_only · unexpected=0",
+   "status": "VERIFIED",
+   "evidence_path": "_ops/safety/EXECUTABLE-ALLOWLIST.md",
+   "evidence_hash": "7bb661cc4937a21b",
+   "updated_at_utc": "2026-08-20T05:25:54+00:00"
+  },
+  "C047_RESTART_PROTOCOL": {
+   "label_id": "C047_RESTART_PROTOCOL",
+   "value": "CLOSED_WITH_FIX — single-marker RESTART-REQUESTED + loud preflight",
+   "status": "VERIFIED",
+   "evidence_path": "06-EVIDENCE/INCIDENT-ORGANISM-GAP-2026-08-20.md",
+   "evidence_hash": "be329ee7d3c36982",
+   "updated_at_utc": "2026-08-20T05:25:54+00:00"
+  },
+  "JUDGE_ACCEPTANCE": {
+   "label_id": "JUDGE_ACCEPTANCE",
+   "value": "STABLE_UNDER_PERMUTATION · VOID_UNSTABLE · flip_rate_on=pairs_with_advantage",
+   "status": "VERIFIED",
+   "evidence_path": "02-DECISIONS/OWNER-DIRECTIVE-08-2026-08-20.md",
+   "evidence_hash": "0b11db4859a4fef9",
+   "updated_at_utc": "2026-08-20T05:25:54+00:00"
+  },
+  "T54_CLOCK_PRECISION": {
+   "label_id": "T54_CLOCK_PRECISION",
+   "value": "provider_server_created=1s · semantics UNKNOWN(receipt-vs-generation) · skew collector armed",
+   "status": "MEASURED",
+   "evidence_path": "06-EVIDENCE/DIRECTIVE-11-REPORT-AGENT-B-2026-08-20.md",
+   "evidence_hash": "",
+   "updated_at_utc": "2026-08-20T05:25:54+00:00"
   }
  }
 }

@@ -1,4 +1,4 @@
-# NOW — OCTOPUS current truth (generated 2026-08-20T04:42:02+00:00 from _ops/state/labels.json)
+# NOW — OCTOPUS current truth (generated 2026-08-20T05:25:54+00:00 from _ops/state/labels.json)
 ## Headline
 - **VALID_PAIRS = 30** (OBSERVED) — primary metric; PRIMARY_VALID_PAIRS = 30; threshold 20_WINS_OF_30_VALID_PAIRS
 - LIVE4: PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED · SCORING: PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W (OBSERVED)
@@ -96,5 +96,9 @@
 | SIGNING_KEY | ANCHORED 2413e974..ab6b2 · B1_SIGNED_ED25519 | VERIFIED |
 | GOVERNANCE_VOTE_RULE | CHAT_IS_NOT_SIGNATURE (R10) | VERIFIED |
 | LIVE_GATES | A=PASS · B=MEASURING · C=PASS · D/E=BLOCKED | MEASURED |
+| EXECUTABLE_RULE | ALLOWLIST: protective_halt/throttle only · restrictive_only · unexpected=0 | VERIFIED |
+| C047_RESTART_PROTOCOL | CLOSED_WITH_FIX — single-marker RESTART-REQUESTED + loud preflight | VERIFIED |
+| JUDGE_ACCEPTANCE | STABLE_UNDER_PERMUTATION · VOID_UNSTABLE · flip_rate_on=pairs_with_advantage | VERIFIED |
+| T54_CLOCK_PRECISION | provider_server_created=1s · semantics UNKNOWN(receipt-vs-generation) · skew collector armed | MEASURED |
 
 _Rules: statuses are OBSERVED|VERIFIED|CLAIMED|BLOCKED|VOID|UNKNOWN; two agents agreeing never makes VERIFIED; expired evidence auto-downgrades; history append-only in _ops/state/label-history.jsonl. Renderer: _ops/scripts/render_now.py._

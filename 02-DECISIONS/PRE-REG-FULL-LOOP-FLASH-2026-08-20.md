@@ -26,6 +26,11 @@ timeout_seconds: 60
 max_retries: 1
 judge: advisory_only         # D6 = CLOSED_NEGATIVE: قضاوت داور تابع جفت است
 output: proposal_only        # هر خروجی فقط پیشنهاد؛ executable هرگز true نمی‌شود
+judgment_acceptance:         # حکم ۳ دستور مالک #۱۱ — داور advisory هم فقط قضاوتِ پایدار
+  method: هر مقایسه در دو ترتیب اجرا شود
+  accept_if: هر دو ترتیب یک برنده بدهند
+  otherwise: VOID_UNSTABLE
+  flip_rate_on: only_pairs_with_advantage
 executable: false
 memory: هر task از memory_read_loop با decision_time می‌خواند (LIVE-C)
 receipts: هر فراخوان رسید کامل با task_id/run_id (T50) + گیت FX تازه ≤24h
