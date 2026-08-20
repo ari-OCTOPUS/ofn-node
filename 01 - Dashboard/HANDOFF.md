@@ -36,6 +36,10 @@ updated: 2026-08-20
 
 ## وضعِ لحظه‌ای
 
+> 🛑 **پین 2026-08-20 ~23:2x (+10) — LOOP-TELEGRAM-PROBE-INVALID.** اسپم heartbeat هر ~۵ دقیقه با `probe=PROBE_RESPONSE_INVALID` و `telegram_events=11` ثابت. Safe mode: `_ops/STOP-TG-HEARTBEAT`. حلقهٔ تلگرام **بسته نیست** (memread OK ≠ closure). [[../06-EVIDENCE/LOOP-TELEGRAM-PROBE-INVALID-2026-08-20/INCIDENT|incident]]
+
+> 🧬 **پین 2026-08-20 ~23:0x (+10) — WAVE1 canary-sidecar GO.** قفل `lock.json` باز شد فقط برای API فقط-خواندنی؛ prompt injection خاموش؛ `wave0_governor.wave1_unlocked=false`. [[../06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-OWNER-DECISION|تصمیم]] · [[../06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-SCOPE|scope]]
+
 > 🧬 **پین 2026-08-20 ~22:5x (+10) — WAVE0_PASS.** چهار گیت پاس · verifier تأیید · `wave1_unlocked=false` · Wave 1 باز نشد. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0_PASS|حکم]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]]
 
 > 🧬 **پین 2026-08-20 ~22:2x (+10) — WAVE0 exec.** Attribution schema-window **1.0 (51/51)** · today-full 0.3423 pre-schema. Registry eligible **786/786 gap=0**. Memory streak هنوز <10. wave1 قفل. کاناری cortex در صف. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-A|A]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-B|B]]

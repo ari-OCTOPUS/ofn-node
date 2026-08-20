@@ -1,0 +1,20 @@
+{
+  "schema": "loop-telegram-probe-invalid-verifier/1",
+  "confirmed_closure": false,
+  "spam_suppressed": true,
+  "checks": [
+    {"name": "stop_file_present", "ok": true},
+    {"name": "live_flag_absent", "ok": true},
+    {"name": "tick_does_not_http_send", "ok": true},
+    {"name": "beat_excluded_from_identity", "ok": true},
+    {"name": "telegram_events_count_not_treated_as_closure", "ok": true},
+    {"name": "regression_11_11", "ok": true},
+    {"name": "event_to_response_closed_loop", "ok": false,
+     "note": "no ACK/final response/receipt/readback for a live telegram update"},
+    {"name": "no_memory_mutation", "ok": true},
+    {"name": "no_paid_call", "ok": true},
+    {"name": "wave1_unlocked_false", "ok": true}
+  ],
+  "failed_checks": ["event_to_response_closed_loop"],
+  "note": "Verifier PASSes spam suppression. Verifier does NOT PASS Telegram loop closure."
+}

@@ -1073,6 +1073,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # 2026-08-20 OWNER #16 A9 — telegram closed-loop typed local contract.
     # Unique file; append-only; do not reorder prior entries.
     "test_telegram_closed_loop_20260820.py",
+    # 2026-08-20 OWNER deep-loop — durable intent/outbox/recovery shadow contract.
+    # Fake transport only; zero network and zero paid calls.
+    "test_telegram_durable_loop.py",
     # 2026-08-20 OWNER #16 A19 — agent_C organ tests (lease held by A/B).
     # Append-only; do not reorder prior entries.
     "test_organ_cartographer_20260820.py",
@@ -1237,6 +1240,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_wiring_notif_inbox.py",
     "test_writer_lease.py",
     "test_scan_wave_b_adversarial.py",
+    # 2026-08-20 OWNER WAVE1 preflight — append-only register.
+    "test_wave1_preflight.py",
+    # 2026-08-20 INCIDENT LOOP-TELEGRAM-PROBE-INVALID — heartbeat spam.
+    "test_tg_probe_invalid_spam.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -1304,6 +1311,8 @@ PYTEST_TESTS = {
     "test_seam_selfcode_gate_20260816.py",
     "test_state_guard.py",
     "test_writer_lease.py",
+    # 2026-08-20 WAVE1 — pytest-native, previously green-lie under direct-run
+    "test_memory_read_loop.py",
 }
 
 # Û²Û°Û²Û¶-Û°Û·-Û³Û° â€” Â«Ù‚Ø±Ù…Ø²Ù Ú©Ø§Ø°Ø¨Ù Û±Û²Û°Â». Ù¾Ø§Ø³Ù Ø§ÙˆÙ„Ù Ø³ÙˆÛŒÛŒØª Ø¨Ø¯ÙˆÙ†Ù capture Ø§Ø¬Ø±Ø§ Ù…ÛŒâ€ŒØ´Ø¯ØŒ Ù¾Ø³ Ù‡Ø±

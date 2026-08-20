@@ -1,0 +1,9 @@
+# STOP-TG-HEARTBEAT
+# 2026-08-20 PRIORITY INCIDENT — LOOP-TELEGRAM-PROBE-INVALID
+# Presence of this file forbids user-facing heartbeat/probe spam from
+# _ops/scripts/tg_bridge_once.py. Ingest, receipts, memory observation,
+# and evidence logging remain allowed.
+# Remove only after verifier PASS on event-to-response closure.
+schema: stop-tg-heartbeat/1
+reason: PROBE_RESPONSE_INVALID coalesced; beat must not be user-facing
+wave1_unlocked: false
