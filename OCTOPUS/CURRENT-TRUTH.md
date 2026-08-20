@@ -5,20 +5,20 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-20T05:25:55Z
+> auto-generated: 2026-08-20T10:44:52Z
 
 ## Current Truth
 
-- **beat:** see ORGANISM-STATE (live)
-- **organism_pid:** 9904 (post C-047-fix restart)
+- **beat:** live (ORGANISM-STATE)
+- **organism_pid:** zive · center=26388 · daemon=25680(old)
 - **halted:** False
-- **HEAD:** 7f97fd0 (pre-commit of directive-11)
-- **C047:** CLOSED_WITH_FIX
-- **executable_rule:** ALLOWLIST (protective only) · unexpected=0
-- **judge_acceptance:** STABLE_UNDER_PERMUTATION (flip gate)
-- **LIVE_gates:** A=PASS · B=BLOCKED(awaiting telegram+server_created) · C=PASS_WITH_INCIDENT · D/E=BLOCKED
-- **phase2_card:** AWAITING_ED25519
-- **executable:** false (allowlisted protective reflexes only)
+- **HEAD:** 6cf2086
+- **LIVE_gates:** A=PASS · B=BLOCKED(awaiting tg+sc) · C=PASS·incident · D/E=BLOCKED
+- **telegram_canary:** INGEST_PASS(4 events) · MODEL_FAIL(fixed,awaiting round-3)
+- **organ_lane_C:** ACCEPTED(C12-15,C19-21,C23) · hook READY_FLAG_OFF · awaiting handoff A19
+- **D6:** CLOSED_NEGATIVE (pair-dependent) · flip_rate gate official
+- **executable:** false (allowlisted protective only)
+- **paid_cognition:** PAUSED (attribution gap 98/122)
 
 
 <!-- OCTOPUS-AUTO-END -->

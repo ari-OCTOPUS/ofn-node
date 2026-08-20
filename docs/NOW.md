@@ -1,9 +1,9 @@
-# NOW — OCTOPUS current truth (generated 2026-08-20T05:41:53+00:00 from _ops/state/labels.json)
+# NOW — OCTOPUS current truth (generated 2026-08-20T10:44:42+00:00 from _ops/state/labels.json)
 ## Headline
 - **VALID_PAIRS = 30** (OBSERVED) — primary metric; PRIMARY_VALID_PAIRS = 30; threshold 20_WINS_OF_30_VALID_PAIRS
 - LIVE4: PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED · SCORING: PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W (OBSERVED)
 - D-A: FIXED_VERIFIED_0_FAILURES_IN_LAST_8 · D-B: V3_CHOICE_JSON_4_OF_4_E2E_PASS
-- MEMORY_LIVE_LEARNING_UNVERIFIED · FX: STALE_EXPIRED_06:00Z · awaiting RBA 2026-08-20 publication (auto-pin under signed probe authority) (expires None)
+- MEMORY_LIVE_LEARNING_UNVERIFIED · FX: PINNED 2026-08-20 rate=0.7116 (CSV canonical) · divergence HTML resolved (1-day lag) (expires None)
 
 ## SYSTEM
 | label | value | status | evidence |
@@ -11,7 +11,7 @@
 | OCTOPUS_MODE | CORE_AUTO_DEBUG | VERIFIED | `02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md` |
 | AUTONOMY | INTERNAL_HIGH/EXTERNAL_PROPOSE_ONLY | VERIFIED | `02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md` |
 | DAEMON_4D | RUNNING_OBSERVED | OBSERVED | `4d_system/outputs/daemon-launch4b.err.log · expires 2026-08-19T12:30:00+00:00` |
-| DAEMON_PID | organism=19736 · brain.daemon=25680 | OBSERVED | `06-EVIDENCE/STATE-RECHECK-2026-08-20.md · expires 2026-08-21T05:00:00+00:00` |
+| DAEMON_PID | organism=zive · center=26388 · brain.daemon=25680(old code) · cortex=25284 | OBSERVED | `06-EVIDENCE/DIRECTIVE-14A-REPORT-2026-08-20.md` |
 | TCB | VERIFIED_CLEAN_AT_LAST_PREFLIGHT | VERIFIED | `06-EVIDENCE/CL01-191-20260818-2233/preflight-invariant.txt · expires 2026-08-20T00:00:00+00:00` |
 | SH | DISARMED | VERIFIED | `02-DECISIONS/CARD-A-DISARM-2026-08-19.md` |
 | BOARDS | NO_CONTACT | VERIFIED | `06-EVIDENCE/R01-191-20260818-2217/R01-REALITY-MANIFEST.md` |
@@ -39,7 +39,7 @@
 | FREEZE | RELEASED_RECEIPTED | VERIFIED | `_ops/budget/FREEZE-RELEASE-RECEIPT.json` |
 | PAID_SMOKE | VERIFIED_PASS | VERIFIED | `06-EVIDENCE/CL01-191-20260818-2233/live4/freeze-recovery/PAID-SMOKE-REPORT.md` |
 | COST_OBSERVABILITY | ACTIVE | VERIFIED | `_ops/cortex/cost_receipt.py` |
-| FX_PIN | STALE_EXPIRED_06:00Z · awaiting RBA 2026-08-20 publication (auto-pin under signed probe authority) | OBSERVED | `_ops/cortex/pricing_pinned.json` |
+| FX_PIN | PINNED 2026-08-20 rate=0.7116 (CSV canonical) · divergence HTML resolved (1-day lag) | VERIFIED | `06-EVIDENCE/FX-SOURCE-DIVERGENCE-RESOLVED-2026-08-20.md` |
 | PROVIDER_ROUTE | PRIMARY_DEEPSEEK_AUTOMATIC | VERIFIED | `_ops/cortex/model_router.py` |
 | PROVIDER_CAPACITY | AVAILABLE_AT_LAST_PROBE_SHARED | OBSERVED | `_ops/state/paid-calls.jsonl · expires 2026-08-19T04:00:00+00:00` |
 | LIVE4_RESERVATION | ARMED_OVERRIDE | OBSERVED | `_ops/cortex/live4_reservation.py` |
@@ -89,8 +89,8 @@
 | JUDGE_FALLBACK_DEPENDENCY | FIRST_LINE_5_OF_59_FALLBACK_CARRIES_46 | OBSERVED |
 | CORTEX_8772_INCIDENT | OPEN_MONITOR_ONLY_BOUNDED | OBSERVED |
 | POSITION_SWAP_PILOT | OBSERVED_PILOT_1_OF_4_RS_UNRESOLVED | OBSERVED |
-| D6_VERDICT | CLOSED_NEGATIVE · JUDGMENT_IS_PAIR_DEPENDENT · p=4.1135e-05 | MEASURED |
-| WRITER_LEASE | ACTIVE_MANDATORY_ALL_AGENTS (fail-closed) | VERIFIED |
+| D6_VERDICT | CLOSED_NEGATIVE · JUDGMENT_IS_PAIR_DEPENDENT · flip_rate gate official | VERIFIED |
+| WRITER_LEASE | ACTIVE held by A (telegram session) · C lane-scoped accepted | VERIFIED |
 | MEMORY_READ_LOOP | LIVE_READONLY · reads=3/cycle · readback=read_ok | MEASURED |
 | EVENT_TIME_PRODUCERS | DEPLOYED_2 (provider/router_request_ts + telegram/message.date) · schema v2 dual-write | MEASURED |
 | SIGNING_KEY | ANCHORED 2413e974..ab6b2 · B1_SIGNED_ED25519 | VERIFIED |
@@ -100,7 +100,11 @@
 | C047_RESTART_PROTOCOL | CLOSED_WITH_FIX — single-marker RESTART-REQUESTED + loud preflight | VERIFIED |
 | JUDGE_ACCEPTANCE | STABLE_UNDER_PERMUTATION · VOID_UNSTABLE · flip_rate_on=pairs_with_advantage | VERIFIED |
 | T54_CLOCK_PRECISION | provider_server_created=1s · semantics UNKNOWN(receipt-vs-generation) · skew collector armed | MEASURED |
-| SIGNED_CARDS | 3×ED25519 VERIFIED (probe+phase2+full-loop) via SIGN wrapper · anchor-gated | VERIFIED |
+| SIGNED_CARDS | 3×ED25519 VERIFIED (probe=RESPONSE_INVALID · phase2=NOT_RUN · fullloop=GATED_BY_LIVE_B) | VERIFIED |
 | EVENT_TIME_PROBE | SIGNED · FX_GATE_WAITING (RBA 20-Aug pending) · auto-run watcher armed | MEASURED |
+| AGENT_ROLES | A/B=telegram(critical,lease) · C=organs(lane done,awaiting handoff A19) | VERIFIED |
+| TELEGRAM_CANARY | INGEST_PASS(4 events,+1 each,bot_id mapped) · MODEL_FAIL(2 paid calls pre-fix) · LOCAL_FIX_DEPLOYED awaiting round-3 | MEASURED |
+| ORGAN_LANE | C12-C15,C19-C21,C23 ACCEPTED by owner · hook CODE_READY_FLAG_OFF · canary pending handoff A19 | VERIFIED |
+| MEGA_DATA | senior agent briefing: 71-MEGA-DATA (13 sections, 383 lines, path map) | VERIFIED |
 
 _Rules: statuses are OBSERVED|VERIFIED|CLAIMED|BLOCKED|VOID|UNKNOWN; two agents agreeing never makes VERIFIED; expired evidence auto-downgrades; history append-only in _ops/state/label-history.jsonl. Renderer: _ops/scripts/render_now.py._
