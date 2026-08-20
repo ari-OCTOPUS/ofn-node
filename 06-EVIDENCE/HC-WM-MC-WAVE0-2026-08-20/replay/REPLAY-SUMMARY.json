@@ -271,7 +271,7 @@
         },
         {
           "domain": "life_currency_accounting",
-          "mode": "ADVISORY",
+          "mode": "BLOCK",
           "executable": false
         },
         {
@@ -280,7 +280,7 @@
           "executable": false
         }
       ],
-      "output_hash": "a9689cfac2a3a5fbbe63de0a7c88be671ed949b131b127bcf7d7e53b51eadb68",
+      "output_hash": "e82d1d5de78a92307232d9557c45798d35c02921583b24d98e8fd5c3c7d228e3",
       "executable": false
     },
     "color_empty_reasons": {
@@ -324,5 +324,5 @@
       "executable": false
     }
   },
-  "results_hash": "ebaed63c4d58d98a5df219dd022a5e4e85a99dfa3ffafec466dd29629b5079ab"
+  "results_hash": "e1eaf3027cef9a6f4d427794bec483ff6b5f7399144289d0e4ef39257bb7073a"
 }

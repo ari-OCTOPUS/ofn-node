@@ -93,7 +93,7 @@ def _score_vector(obs: list[Observation], assessment: dict[str, Any], world: dic
     }
 
 
-def _mode(vec: dict[str, Any], domain: str) -> tuple[str, list[str]]:
+def _mode(vec: dict[str, Any], domain: str, assessment: dict[str, Any]) -> tuple[str, list[str]]:
     blockers: list[str] = []
     flags = vec["block_flags"]
     if flags["future"]:
@@ -104,13 +104,16 @@ def _mode(vec: dict[str, Any], domain: str) -> tuple[str, list[str]]:
         blockers.append("CONFLICTING")
     if GAP_001 == "OPEN":
         blockers.append("GAP-001_OPEN")
-    if blockers and set(blockers) - {"GAP-001_OPEN"}:
+    cons = assessment.get("contradictions") or []
+    if any("C-042" in str(c) for c in cons) and domain == "life_currency_accounting":
+        blockers.append("C-042_STARVATION")
+    hard = {"FUTURE_DATA", "UNIT_MISMATCH", "CONFLICTING", "C-042_STARVATION"} & set(blockers)
+    if hard:
         return "BLOCK", blockers
     if flags["warmup"]:
         return "SHADOW", blockers + ["WARMUP_MAX_SHADOW"]
     if domain == "judge_reliability":
         return "ADVISORY", blockers + ["D6_BETWEEN_RUN_VARIANCE_CAP"]
-    # GAP-001 open: never action; ADVISORY is the ceiling for skilled domains
     return "ADVISORY", blockers
 
 
@@ -122,7 +125,7 @@ def decide(
     out = []
     for domain in DOMAINS:
         vec = _score_vector(observations, assessment, world, domain)
-        mode, blockers = _mode(vec, domain)
+        mode, blockers = _mode(vec, domain, assessment)
         reasons = list(vec["reasons"]) + [f"mode={mode}"] + [f"blocker={b}" for b in blockers]
         out.append({
             "schema": "gate-decision.v1",

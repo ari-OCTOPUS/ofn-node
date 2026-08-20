@@ -974,10 +974,11 @@
           "warmup": false
         }
       },
-      "mode": "ADVISORY",
+      "mode": "BLOCK",
       "executable": false,
       "blockers": [
-        "GAP-001_OPEN"
+        "GAP-001_OPEN",
+        "C-042_STARVATION"
       ],
       "reasons": [
         "weights=skill-weights.v1",
@@ -986,8 +987,9 @@
         "restart_readiness=0.800",
         "D6=BETWEEN_RUN_VARIANCE",
         "GAP-001=OPEN",
-        "mode=ADVISORY",
-        "blocker=GAP-001_OPEN"
+        "mode=BLOCK",
+        "blocker=GAP-001_OPEN",
+        "blocker=C-042_STARVATION"
       ],
       "assessment_id": "ha-793db9315b05c0e0",
       "world_state_id": "ws-21251c7703474a2f"
@@ -1056,5 +1058,5 @@
   ],
   "executable": false,
   "code_version": "shadow_homeostasis/0.1.0",
-  "output_hash": "a9689cfac2a3a5fbbe63de0a7c88be671ed949b131b127bcf7d7e53b51eadb68"
+  "output_hash": "e82d1d5de78a92307232d9557c45798d35c02921583b24d98e8fd5c3c7d228e3"
 }
