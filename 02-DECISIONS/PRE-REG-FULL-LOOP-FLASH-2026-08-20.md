@@ -10,7 +10,7 @@ created_by: agent B (ZCode) — directive #۸ §۶ (T51)
 # کارت پیش‌ثبت LIVE-D — اولین حلقهٔ کامل با مدل واقعی — UNSIGNED · اجرا = ۰
 
 decision_id: PRE-REG-FULL-LOOP-FLASH-2026-08-20
-status: AWAITING_ED25519_SIGNATURE
+status: SIGNED_ED25519 (2026-08-20 · payload E9DC768B...DFC9 · .sig verified vs anchor)
 execution_condition: LIVE-A + LIVE-B + LIVE-C همگی PASS **و** امضای Ed25519 جداگانهٔ
 مخصوص همین کارت (لنگر: `_ops/owner-signing/TRUST-ANCHOR.md`؛ رأی چت هرگز
 جانشین امضا نیست — R10).

@@ -9,7 +9,7 @@ execution: 0 تا امضای Ed25519 مالک روی همین کارت (رأی �
 separate_from: PRE-REG-FULL-LOOP-FLASH-2026-08-20 (بودجه‌ها قاطی نمی‌شوند)
 ---
 
-# PRE-REG-JUDGE-BIAS-PHASE2-2026-08-20 — UNSIGNED
+# PRE-REG-JUDGE-BIAS-PHASE2-2026-08-20 — SIGNED (Ed25519, 2026-08-20)
 
 ```yaml
 card: PRE-REG-JUDGE-BIAS-PHASE2-2026-08-20

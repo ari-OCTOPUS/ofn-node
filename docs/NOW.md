@@ -1,9 +1,9 @@
-# NOW — OCTOPUS current truth (generated 2026-08-20T05:25:54+00:00 from _ops/state/labels.json)
+# NOW — OCTOPUS current truth (generated 2026-08-20T05:41:53+00:00 from _ops/state/labels.json)
 ## Headline
 - **VALID_PAIRS = 30** (OBSERVED) — primary metric; PRIMARY_VALID_PAIRS = 30; threshold 20_WINS_OF_30_VALID_PAIRS
 - LIVE4: PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED · SCORING: PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W (OBSERVED)
 - D-A: FIXED_VERIFIED_0_FAILURES_IN_LAST_8 · D-B: V3_CHOICE_JSON_4_OF_4_E2E_PASS
-- MEMORY_LIVE_LEARNING_UNVERIFIED · FX: PINNED_UNTIL_2026-08-20T06:00Z_THEN_EXPIRES (expires 2026-08-19T06:00:00+00:00)
+- MEMORY_LIVE_LEARNING_UNVERIFIED · FX: STALE_EXPIRED_06:00Z · awaiting RBA 2026-08-20 publication (auto-pin under signed probe authority) (expires None)
 
 ## SYSTEM
 | label | value | status | evidence |
@@ -39,7 +39,7 @@
 | FREEZE | RELEASED_RECEIPTED | VERIFIED | `_ops/budget/FREEZE-RELEASE-RECEIPT.json` |
 | PAID_SMOKE | VERIFIED_PASS | VERIFIED | `06-EVIDENCE/CL01-191-20260818-2233/live4/freeze-recovery/PAID-SMOKE-REPORT.md` |
 | COST_OBSERVABILITY | ACTIVE | VERIFIED | `_ops/cortex/cost_receipt.py` |
-| FX_PIN | PINNED_UNTIL_2026-08-20T06:00Z_THEN_EXPIRES | OBSERVED | `06-EVIDENCE/CL01-191-20260818-2233/live4/FX-RECORD.json · expires 2026-08-19T06:00:00+00:00` |
+| FX_PIN | STALE_EXPIRED_06:00Z · awaiting RBA 2026-08-20 publication (auto-pin under signed probe authority) | OBSERVED | `_ops/cortex/pricing_pinned.json` |
 | PROVIDER_ROUTE | PRIMARY_DEEPSEEK_AUTOMATIC | VERIFIED | `_ops/cortex/model_router.py` |
 | PROVIDER_CAPACITY | AVAILABLE_AT_LAST_PROBE_SHARED | OBSERVED | `_ops/state/paid-calls.jsonl · expires 2026-08-19T04:00:00+00:00` |
 | LIVE4_RESERVATION | ARMED_OVERRIDE | OBSERVED | `_ops/cortex/live4_reservation.py` |
@@ -100,5 +100,7 @@
 | C047_RESTART_PROTOCOL | CLOSED_WITH_FIX — single-marker RESTART-REQUESTED + loud preflight | VERIFIED |
 | JUDGE_ACCEPTANCE | STABLE_UNDER_PERMUTATION · VOID_UNSTABLE · flip_rate_on=pairs_with_advantage | VERIFIED |
 | T54_CLOCK_PRECISION | provider_server_created=1s · semantics UNKNOWN(receipt-vs-generation) · skew collector armed | MEASURED |
+| SIGNED_CARDS | 3×ED25519 VERIFIED (probe+phase2+full-loop) via SIGN wrapper · anchor-gated | VERIFIED |
+| EVENT_TIME_PROBE | SIGNED · FX_GATE_WAITING (RBA 20-Aug pending) · auto-run watcher armed | MEASURED |
 
 _Rules: statuses are OBSERVED|VERIFIED|CLAIMED|BLOCKED|VOID|UNKNOWN; two agents agreeing never makes VERIFIED; expired evidence auto-downgrades; history append-only in _ops/state/label-history.jsonl. Renderer: _ops/scripts/render_now.py._
