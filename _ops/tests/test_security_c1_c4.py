@@ -36,6 +36,9 @@ OWNER = "777"
 os.environ["TG_CENTER_BOT_TOKEN"] = TOKEN
 os.environ["TELEGRAM_OWNER_CHAT_ID"] = OWNER
 
+import itertools  # noqa: E402
+_UNIQ = itertools.count(1)
+
 
 def _init_data(*, auth_date=NOW, user=None, token=TOKEN, extra=None,
                tamper_hash=False, duplicate_pair=None):
@@ -160,10 +163,10 @@ def _decision_module():
         raise AssertionError("C2 decision nonce ledger is not implemented") from exc
 
 
-def _ledger(clock=NOW):
+def _ledger(clock=NOW, tag="d"):
     mod = _decision_module()
-    return mod.DecisionLedger(Path(ENV["ops"]) / "state" / "decision-ledger.db",
-                              clock=lambda: float(clock))
+    path = Path(ENV["ops"]) / "state" / f"decision-ledger-{tag}-{next(_UNIQ)}.db"
+    return mod.DecisionLedger(path, clock=lambda: float(clock))
 
 
 def _issue(ledger, nonce="nonce-security-fixture", expires_at=NOW + 60):
@@ -246,10 +249,61 @@ def t_c2_concurrent_consumers_have_one_winner():
     ledger.close()
 
 
+def t_c2_gateway_shadow_guard_is_default_off_and_missing_nonce_fails_closed():
+    os.environ.pop(mg.DECISION_NONCE_SHADOW_FLAG, None)
+    off = mg._shadow_consume_decision_nonce({}, now=NOW)
+    assert not off["ok"] and off["state"] == "SHADOW_FLAG_OFF"
+    os.environ[mg.DECISION_NONCE_SHADOW_FLAG] = "1"
+    try:
+        missing = mg._shadow_consume_decision_nonce({}, now=NOW)
+        assert not missing["ok"] and missing["status_code"] == 409
+        assert missing["state"] == "NONCE_REQUIRED"
+    finally:
+        os.environ.pop(mg.DECISION_NONCE_SHADOW_FLAG, None)
+
+
+def t_c2_gateway_shadow_guard_consumes_issued_nonce_once():
+    mod = _decision_module()
+    path = Path(ENV["ops"]) / "state" / f"shadow-guard-{next(_UNIQ)}.db"
+    ledger = mod.DecisionLedger(path, clock=lambda: NOW)
+    _issue(ledger)
+    ledger.close()
+    payload = {"decision": {"proposal_id": "prop_fixture", "card_id": "card_fixture",
+                            "nonce": "nonce-security-fixture", "owner_id_ref": "owner:fixture",
+                            "scope_hash": "a" * 64}}
+    os.environ[mg.DECISION_NONCE_SHADOW_FLAG] = "1"
+    try:
+        first = mg._shadow_consume_decision_nonce(payload, ledger_path=path, now=NOW)
+        replay = mg._shadow_consume_decision_nonce(payload, ledger_path=path, now=NOW)
+        assert first["ok"] and first["state"] == "CONSUMED"
+        assert not replay["ok"] and replay["state"] == "REPLAY_REJECTED"
+    finally:
+        os.environ.pop(mg.DECISION_NONCE_SHADOW_FLAG, None)
+
+
 # ── C3: full retry_after (no cap of Telegram prohibition) ──────────────────
 def t_c3_retry_after_75_is_not_capped():
     data = {"error_code": 429, "parameters": {"retry_after": 75}}
     assert tg_api._retry_after_from_429(data) == 75.0
+
+
+def t_c3_long_retry_is_offered_to_durable_scheduler_without_early_send():
+    calls = []
+    deferred = []
+
+    def post(url, body, timeout_s=10.0):
+        calls.append(1)
+        return {"ok": False, "error_code": 429,
+                "parameters": {"retry_after": 75}}
+
+    client = tg_api.TgClient(token=TOKEN, owner_chat_id=777,
+                             post_fn=post, get_fn=lambda *_a, **_k: {})
+    client._sleep = lambda seconds: (_ for _ in ()).throw(
+        AssertionError(f"must not sleep partial prohibition: {seconds}"))
+    client._defer = lambda method, retry_after: deferred.append((method, retry_after))
+    assert client.send("fixture") is None
+    assert calls == [1], "no early retry before full prohibition"
+    assert deferred == [("sendMessage", 75.0)]
 
 
 # ── C4: durable scheduler / queue ──────────────────────────────────────────
@@ -260,10 +314,10 @@ def _queue_module():
         raise AssertionError("C4 durable rate-limit queue is not implemented") from exc
 
 
-def _queue(now=NOW):
+def _queue(now=NOW, tag="q"):
     mod = _queue_module()
-    return mod.RateLimitQueue(Path(ENV["ops"]) / "state" / "rate-queue.db",
-                              clock=lambda: float(now), jitter=lambda: 0.0)
+    path = Path(ENV["ops"]) / "state" / f"rate-queue-{tag}-{next(_UNIQ)}.db"
+    return mod.RateLimitQueue(path, clock=lambda: float(now), jitter=lambda: 0.0)
 
 
 def t_c4_duplicate_enqueue_and_fifo():
@@ -320,6 +374,64 @@ def t_c4_poison_goes_dlq_and_confirmed_never_resends():
     assert q.due(limit=10) == []
     assert q.get("bad")["state"] == "DLQ"
     assert q.get("ok")["state"] == "CONFIRMED"
+    q.close()
+
+
+def t_c4_crash_after_transport_is_quarantined_not_resent():
+    q = _queue()
+    q.enqueue(message_key="m1", chat_hash="c1", payload_hash="p1")
+    assert q.mark_delivery_attempt("m1")
+    assert q.get("m1")["state"] == "SENDING"
+    # Simulate process restart: SENDING is uncertain, never eligible for due().
+    assert q.due(limit=10) == []
+    assert q.reconcile_sending("m1")
+    assert q.get("m1")["state"] == "DLQ"
+    assert q.get("m1")["last_error"] == "UNCERTAIN_SEND_OUTCOME"
+    q.close()
+
+
+def t_c4_queue_depth_and_age_are_bounded_without_drop():
+    mod = _queue_module()
+    path = Path(ENV["ops"]) / "state" / f"bounded-{next(_UNIQ)}.db"
+    q = mod.RateLimitQueue(path, clock=lambda: NOW, jitter=lambda: 0.0,
+                           max_depth=1, max_age_s=10)
+    first = q.enqueue(message_key="old", chat_hash="c", payload_hash="p")
+    full = q.enqueue(message_key="overflow", chat_hash="c", payload_hash="p2")
+    assert first["state"] == "QUEUED" and full["state"] == "REJECTED_QUEUE_FULL"
+    q.set_clock(lambda: NOW + 11)
+    assert q.due(limit=10) == []
+    assert q.get("old")["state"] == "DLQ"
+    assert q.get("old")["last_error"] == "QUEUE_AGE_EXCEEDED"
+    q.close()
+
+
+def t_c4_local_per_chat_policy_is_one_per_second():
+    q = _queue(now=NOW)
+    assert q.admit(chat_hash="chat-a")["allowed"]
+    denied = q.admit(chat_hash="chat-a")
+    assert not denied["allowed"] and "CHAT_1_PER_SECOND" in denied["reasons"]
+    q.set_clock(lambda: NOW + 1.0)
+    assert q.admit(chat_hash="chat-a")["allowed"]
+    q.close()
+
+
+def t_c4_local_group_policy_is_twenty_per_minute():
+    q = _queue(now=NOW)
+    for i in range(20):
+        q.set_clock(lambda i=i: NOW + i * 2.0)
+        assert q.admit(chat_hash="group-a", is_group=True)["allowed"]
+    q.set_clock(lambda: NOW + 40.0)
+    denied = q.admit(chat_hash="group-a", is_group=True)
+    assert not denied["allowed"] and "GROUP_20_PER_MINUTE" in denied["reasons"]
+    q.close()
+
+
+def t_c4_local_global_policy_is_thirty_per_second():
+    q = _queue(now=NOW)
+    for i in range(30):
+        assert q.admit(chat_hash=f"chat-{i}")["allowed"]
+    denied = q.admit(chat_hash="chat-overflow")
+    assert not denied["allowed"] and "GLOBAL_30_PER_SECOND" in denied["reasons"]
     q.close()
 
 

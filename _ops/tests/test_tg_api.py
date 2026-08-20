@@ -430,9 +430,13 @@ def t_y_429_retry_after_respected_then_succeeds():
     assert slept == [5.0], f"باید retry_after=5 را خوابیده باشد: {slept}"
 
 
-def t_y2_429_retry_after_capped_at_safe_ceiling():
-    """retry_after خطرناکِ بزرگ (مثلاً ۳۶۰۰s) باید تا سقفِ ۳۰s کلاه‌گذاری شود —
-    هیچ retry_afterای کلاینت را ساعت‌ها نخواباند."""
+def t_y2_long_retry_after_is_not_capped_or_retried_early():
+    """A long Telegram prohibition is preserved for durable scheduling.
+
+    The client must not sleep a partial 30 seconds and retry early. Long waits
+    fail/defer without a second transport call; the durable queue owns
+    retry_not_before.
+    """
     slept = []
     state = {"calls": 0}
 
@@ -446,8 +450,12 @@ def t_y2_429_retry_after_capped_at_safe_ceiling():
     c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
                  post_fn=post, get_fn=FakeNet().get)
     c._sleep = slept.append
-    c.send("x")
-    assert slept == [30.0], f"retry_after=3600 باید به ۳۰ کلاه بخورد: {slept}"
+    deferred = []
+    c._defer = lambda method, retry_after: deferred.append((method, retry_after))
+    assert c.send("x") is None
+    assert slept == [], f"long prohibition must not be partially slept: {slept}"
+    assert state["calls"] == 1, "sender must not retry before the full retry_after"
+    assert deferred == [("sendMessage", 3600.0)]
 
 
 def t_y3_429_then_second_429_is_failsoft_no_storm():

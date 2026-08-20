@@ -48,9 +48,13 @@ import opslib  # noqa: E402
 FLAG = "OCTOPUS_TG_MINIAPP"
 PORT = int(os.environ.get("OCTOPUS_MINIAPP_PORT", "8774"))
 UPSTREAM_PORT = int(os.environ.get("LIVE_PORT", "8773"))
-# ۲۰۲۶-۰۸-۱۲ owner: مینی‌اپ باز می‌ماند؛ ۵ دقیقه init-data را زود می‌کشت (403 روی POST).
-# پیش‌فرض ۱ ساعت؛ override با OCTOPUS_MINIAPP_AUTH_MAX_AGE_S.
-AUTH_MAX_AGE_S = float(os.environ.get("OCTOPUS_MINIAPP_AUTH_MAX_AGE_S", "3600") or "3600")
+# Telegram initData is a short-lived bootstrap credential, not a session and
+# not replay protection. All direct initData requests use the same strict TTL;
+# a future server-side session must be issued only after this validation.
+INITDATA_TTL_S = float(os.environ.get("OCTOPUS_MINIAPP_INITDATA_TTL_S", "300") or "300")
+MAX_FUTURE_SKEW_S = float(os.environ.get("OCTOPUS_MINIAPP_FUTURE_SKEW_S", "30") or "30")
+# Backward-compatible name for callers/tests; it now reflects the strict TTL.
+AUTH_MAX_AGE_S = INITDATA_TTL_S
 STOP_NAME = "STOP-MINIAPP"
 
 # ۲۰۲۶-۰۸-۰۸: مهلتِ زمانیِ سقف برای مسیرهای غیر-خواندنی. ThreadingHTTPServer هر
@@ -205,7 +209,13 @@ def validate_init_data(init_data: str, *, bot_token: str, owner_id,
     try:
         if not init_data or not bot_token or owner_id in (None, ""):
             return None
-        data = dict(parse_qsl(str(init_data), keep_blank_values=True))
+        pairs = parse_qsl(str(init_data), keep_blank_values=True)
+        keys = [key for key, _ in pairs]
+        # Duplicate keys make the signed interpretation ambiguous (dict() would
+        # silently keep the last value). Ambiguity is rejected fail-closed.
+        if len(keys) != len(set(keys)):
+            return None
+        data = dict(pairs)
         got_hash = data.pop("hash", "")
         if not got_hash:
             return None
@@ -218,9 +228,9 @@ def validate_init_data(init_data: str, *, bot_token: str, owner_id,
             return None
         now = float(now if now is not None else time.time())
         auth_date = float(data.get("auth_date") or 0)
-        age = now - auth_date
-        if auth_date <= 0 or age > AUTH_MAX_AGE_S or age < -60.0:
-            return None                                   # ضدِ replay
+        age_s = now - auth_date
+        if auth_date <= 0 or age_s > INITDATA_TTL_S or age_s < -MAX_FUTURE_SKEW_S:
+            return None                                   # freshness only; mutation replay needs nonce
         user = json.loads(data.get("user") or "{}")
         if int(user.get("id")) != int(owner_id):
             return None                                   # allowlist تک‌نفره
@@ -427,6 +437,43 @@ def _read_api_authorized(headers, now: "float | None" = None) -> bool:
     if not read_gate_enabled():
         return True
     return _owner_initdata_ok(headers, now=now)
+
+
+DECISION_NONCE_SHADOW_FLAG = "OCTOPUS_MINIAPP_DECISION_NONCE_SHADOW"
+
+
+def _shadow_consume_decision_nonce(payload: dict, *, ledger_path=None, now=None) -> dict:
+    """Default-off fixture/shadow integration point for mutation envelopes.
+
+    Live routes do not call this helper yet. A future owner-approved canary may
+    wire it after security shadow verification. When enabled it fails closed on
+    a missing/mismatched/replayed decision envelope.
+    """
+    if str(os.environ.get(DECISION_NONCE_SHADOW_FLAG, "0")).strip().lower() \
+            not in {"1", "true", "yes", "on"}:
+        return {"ok": False, "status_code": 403, "state": "SHADOW_FLAG_OFF"}
+    envelope = payload.get("decision") if isinstance(payload, dict) else None
+    if not isinstance(envelope, dict):
+        return {"ok": False, "status_code": 409, "state": "NONCE_REQUIRED"}
+    try:
+        import miniapp_decision_ledger as _mdl  # noqa: WPS433
+        path = Path(ledger_path) if ledger_path else (
+            Path(os.environ.get("OCTOPUS_STATE_DIR", str(_OPS / "state")))
+            / "telegram" / "miniapp-decision-shadow.db")
+        ledger = _mdl.DecisionLedger(path, clock=(lambda: float(now)) if now is not None else None)
+        try:
+            return ledger.consume(
+                proposal_id=str(envelope.get("proposal_id") or ""),
+                card_id=str(envelope.get("card_id") or ""),
+                nonce=str(envelope.get("nonce") or ""),
+                owner_ref=str(envelope.get("owner_id_ref") or ""),
+                scope_hash=str(envelope.get("scope_hash") or ""),
+            )
+        finally:
+            ledger.close()
+    except Exception as exc:  # noqa: BLE001 — shadow security gate fails closed
+        return {"ok": False, "status_code": 409,
+                "state": "FAILED_SAFE", "error_code": type(exc).__name__}
 
 
 def _stopped() -> bool:

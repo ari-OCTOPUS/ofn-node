@@ -35,7 +35,7 @@ DEFAULT_LONGPOLL_S = 25                          # $0-idle: getUpdates روی س
 _ALERT_THROTTLE_S = 3600                         # هشدارِ شکست: حداکثر ۱/ساعت به‌ازای هر متد
 _TEXT_CAP = 4096                                 # سقفِ متنِ پیامِ تلگرام
 _TOAST_CAP = 200                                 # سقفِ متنِ answerCallbackQuery
-_429_RETRY_CAP_S = 30                            # سقفِ امنِ احترام به retry_after (طوفانِ sleep ممنوع)
+_429_MAX_SYNC_SLEEP_S = 30                        # سقفِ فقط برای sleep همگام؛ زمانِ ممنوعیتِ تلگرام cap نمی‌شود
 _429_MAX_RETRIES = 1                             # فقط یک تلاشِ مجدد (هرگز retry-storm)
 _FILE_MAX_BYTES = 25 * 1024 * 1024               # سقفِ دانلودِ فایلِ ورودی (۲۵MB)
 _FILE_TIMEOUT_S = 30.0                           # مهلتِ دانلود (ویسِ چنددقیقه‌ای هم جا می‌شود)
@@ -171,15 +171,13 @@ def _http_err_json(exc) -> dict:
 
 
 def _retry_after_from_429(data: dict) -> float | None:
-    """از پاسخِ ۴۲۹ تلگرام مقدارِ ``parameters.retry_after`` را بیرون بکشد.
+    """Extract Telegram's full ``parameters.retry_after`` prohibition.
 
-    تلگرام می‌گوید «چند ثانیه صبر کن». ما تا سقفِ ``_429_RETRY_CAP_S`` احترام
-    می‌گذاریم — هیچ retry_afterای (حتی سوءاستفاده‌شده) نباید کلاینت را برایِ ساعت‌ها
-    بخواباند. مقدارِ نامعتبر/غایب → None (احترام‌گذاشتن به چیزی که نیست بی‌معنی است).
-
-    ۴۲۹ تا امروز در کلِ لایهٔ تلگرام غایب بود؛ send واقعی بی‌هیچ صبرِ، شکستِ fail-soft
-    می‌کرد و سرورِ تلگرام فقط بیشتر rate-limit می‌کرد. این مسیرِ retry را «همیشه
-    روشن» گذاشتیم (رأیِ مالک): ۴۲۹ یک باگِ واقعی است نه یک ویژگیٔ flag-gated."""
+    This value is never capped. ``_429_MAX_SYNC_SLEEP_S`` limits only how long
+    this process may block synchronously; a longer prohibition must be stored
+    as ``retry_not_before`` by the durable scheduler instead of retrying early.
+    Invalid/missing values return None.
+    """
     try:
         params = (data or {}).get("parameters") or {}
         ra = float(params.get("retry_after"))
@@ -187,7 +185,24 @@ def _retry_after_from_429(data: dict) -> float | None:
         return None
     if ra <= 0:
         return None
-    return min(ra, _429_RETRY_CAP_S)
+    return ra
+
+
+def _sync_retry_delay(retry_after: float | None) -> float | None:
+    """Return a safe synchronous wait, or None when durable deferral is needed."""
+    if retry_after is None or retry_after > _429_MAX_SYNC_SLEEP_S:
+        return None
+    return retry_after
+
+
+def _defer_long_retry(client, method: str, retry_after: float | None) -> None:
+    """Offer a long prohibition to an injected durable scheduler, fail-soft."""
+    if retry_after is None or retry_after <= _429_MAX_SYNC_SLEEP_S:
+        return
+    try:
+        client._defer(str(method), float(retry_after))
+    except Exception:  # noqa: BLE001 — deferral instrumentation never breaks caller
+        pass
 
 
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
@@ -326,6 +341,7 @@ class TgClient:
         # تست هرگز شبکه نمی‌زند؛ همین امضا در تست جعل می‌شود.
         self._download = download_fn or _url_bytes_get
         self._sleep = time.sleep                   # تزریقی برایِ تستِ ۴۲۹ بدونِ انتظارِ واقعی
+        self._defer = lambda method, retry_after: None  # default-off durable scheduler hook
         self._last_alert: dict[str, float] = {}   # ضدِ اسپم: هشدارِ شکست ۱/ساعت/متد
 
     # ── وضعیت ────────────────────────────────────────────────────────────────
@@ -419,26 +435,32 @@ class TgClient:
                 desc = str(err_json.get("description") or "")[:200]
                 if "message is not modified" in desc:
                     return {"ok": True, "result": True, "not_modified": True}
-                if ra is not None and _attempt < _429_MAX_RETRIES:
+                _sync = _sync_retry_delay(ra)
+                if _sync is not None and _attempt < _429_MAX_RETRIES:
                     try:
-                        self._sleep(ra)
+                        self._sleep(_sync)
                     except Exception:  # noqa: BLE001
                         pass
                     continue
+                # long prohibition (or none): do not retry early — fail-soft so
+                # the durable scheduler owns retry_not_before.
+                _defer_long_retry(self, method, ra)
                 self._note_fail(method, e, desc)
                 return None
             if not isinstance(data, dict):
                 return None
             if data.get("ok"):
                 return data
-            # پاسخِ ok=False: اگر ۴۲۹ است و retry_after دارد، یک‌بار دوباره.
+            # پاسخِ ok=False: اگر ۴۲۹ است و retry_after ِ کوتاه دارد، یک‌بار دوباره.
             ra = _retry_after_from_429(data) if int(data.get("error_code") or 0) == 429 else None
-            if ra is not None and _attempt < _429_MAX_RETRIES:
+            _sync = _sync_retry_delay(ra)
+            if _sync is not None and _attempt < _429_MAX_RETRIES:
                 try:
-                    self._sleep(ra)
+                    self._sleep(_sync)
                 except Exception:  # noqa: BLE001
                     pass
                 continue
+            _defer_long_retry(self, method, ra)
             return None
         return None
 
@@ -713,9 +735,10 @@ class TgClient:
             _code = data.get("error_code") if isinstance(data, dict) else "no-dict"
             self._maybe_alert_deaf(_record_poll(False, "api:%s" % (_code,)))
             ra = _retry_after_from_429(data if isinstance(data, dict) else {})
-            if ra is not None:
+            _sync = _sync_retry_delay(ra)
+            if _sync is not None:
                 try:
-                    self._sleep(ra)
+                    self._sleep(_sync)
                 except Exception:  # noqa: BLE001
                     pass
             # (۲۰۲۶-۰۷-۳۱، رفعِ boundary-12) — تشخیصِ pollerِ رقیب: 409 Conflict
@@ -833,9 +856,10 @@ class TgClient:
             except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
                 err_json = _http_err_json(e)
                 ra = _retry_after_from_429(err_json)
-                if ra is not None and _attempt < _429_MAX_RETRIES:
+                _sync = _sync_retry_delay(ra)
+                if _sync is not None and _attempt < _429_MAX_RETRIES:
                     try:
-                        self._sleep(ra)
+                        self._sleep(_sync)
                     except Exception:  # noqa: BLE001
                         pass
                     continue
