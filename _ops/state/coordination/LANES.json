@@ -7,7 +7,8 @@
       "name": "telegram-production-canary",
       "status": "ARMED_WAITING_OWNER_EVENTS",
       "blocker": "BLK-0002",
-      "next_executable": "process exactly five owner events; then close window and run independent verifier"
+      "next_executable": "process exactly five owner events; then close window and run independent verifier",
+      "note": "second controlled restart done (PID 23568); event_bridge outbox-first flag ON; 3 healthy cycles verified; durable AUTH_REJECTED records live"
     },
     {
       "id": "B",
@@ -33,9 +34,10 @@
     {
       "id": "E",
       "name": "test-runner-timeout-isolation",
-      "status": "ROOT_CAUSE_FIXED",
+      "status": "FULL_SUITE_RUNNING",
       "blocker": null,
-      "next_executable": "per-file timeout map + continue-on-timeout in run_all"
+      "next_executable": "per-file timeout map + continue-on-timeout in run_all",
+      "note": "manifest 583 rows so far (553 PASS / 29 FAIL / 1 TIMED_OUT) at 2026-08-21"
     },
     {
       "id": "F",
