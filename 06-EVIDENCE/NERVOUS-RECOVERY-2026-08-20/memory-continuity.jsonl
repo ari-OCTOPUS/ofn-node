@@ -1,0 +1,1 @@
+{"schema": "memory-read-tick/1", "beat": 43363, "executable": false, "status": "OK", "memory_reads_per_cycle": 3, "readback": "read_ok", "last_id_seen": "evt_58ee800a3afcddb1", "newest_id": "evt_b545e63365575eed", "n_rows": 7562}

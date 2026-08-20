@@ -1,0 +1,95 @@
+{
+  "schema": "wave0-governor/1",
+  "ts": "2026-08-20T11:53:31+00:00",
+  "verdict": "WAVE0_PARTIAL",
+  "wave1_unlocked": false,
+  "gates_passed": 1,
+  "gates": {
+    "receipt_attribution": {
+      "now": 0.3378,
+      "threshold": 0.95,
+      "pass": false,
+      "detail": {
+        "n": 148,
+        "attributed": 50,
+        "unattributed": 98,
+        "ratio": 0.3378,
+        "gate_95pct": false,
+        "source": "F:\\backup\\_ops\\state\\cortex\\cost-receipts.jsonl",
+        "since_iso": "2026-08-20",
+        "skipped_older_than_since": 828
+      }
+    },
+    "test_registry": {
+      "now": "636/790",
+      "threshold": "discovered==registered",
+      "pass": false,
+      "detail": {
+        "discovered": 790,
+        "registered": 636,
+        "gap": 160,
+        "ci_failure": true,
+        "not_registered_sample": [
+          "test_ablation_harness.py",
+          "test_accounting_leg_beat_signal.py",
+          "test_agents.py",
+          "test_alert_rules_testable.py",
+          "test_awareness_ask_bridge.py",
+          "test_bcm_real_sources.py",
+          "test_beat_lease.py",
+          "test_beat_ownership_lease_20260816.py",
+          "test_bitemporal_spine_spec.py",
+          "test_board_cp.py",
+          "test_board_cp_server.py",
+          "test_c047_preflight.py",
+          "test_capability_classifier.py",
+          "test_center_notif_inbox.py",
+          "test_chat_log.py",
+          "test_chatbox_unified.py",
+          "test_circuit_breaker_backoff_window.py",
+          "test_clade_ledger.py",
+          "test_close_c025_family_key_20260816.py",
+          "test_close_experiments_retired_20260816.py"
+        ]
+      }
+    },
+    "memory_continuity": {
+      "now": 1,
+      "threshold": 10,
+      "pass": false,
+      "detail": {
+        "schema": "memory-continuity/1",
+        "samples": 1,
+        "consecutive_healthy": 1,
+        "threshold": 10,
+        "gate_met": false,
+        "latest_healthy": true,
+        "note": "Wave 1 memory-read activation remains locked until WAVE0_PASS"
+      }
+    },
+    "capability_inventory": {
+      "now": 10,
+      "threshold": "parse>0",
+      "pass": true,
+      "detail": {
+        "parse_ok": true,
+        "n": 10,
+        "immune_counts": {
+          "VERIFIED": 0,
+          "DEGRADED": 0,
+          "DORMANT": 10,
+          "BLOCKED": 0,
+          "UNKNOWN": 0
+        }
+      }
+    }
+  },
+  "github_public": "UNLOCATED",
+  "git_remote": "germline E:/germline/octopus.git (not GitHub)",
+  "effector_registry_sha256": "6045546734461d692ef6b879877c1e4d38212b6b1cc5caf5e1d173e6325bc914",
+  "notes": [
+    "WAVE0_PASS is required before readable-memory Wave 1.",
+    "Rail B P0/P1 findings stay isolated (see CANDIDATE-FINDINGS).",
+    "C-048..C-053 remain candidates, not CONTRADICTIONS truth."
+  ]
+}

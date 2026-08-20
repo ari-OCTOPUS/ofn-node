@@ -30,8 +30,22 @@ updated: 2026-08-20
 | lane | شروع | وضعیت |
 |------|------|--------|
 | `autoflow-s1-s10` (ZCode/GLM-5.3 — MEGAPROMPT-AUTOFLOW) | 2026-08-16 ~14:5x | ✅ تمام 2026-08-16 ~15:2x — S1..S10 بسته (گزارش: 06-EVIDENCE/AUTOFLOW-REPORT در کامیت پایانی) |
+| `organs_and_afferent_wiring` (agent_C · مگا #۱۵) | 2026-08-20 ~18:4x | ✅ PASS_WITH_FINDINGS — sidecar؛ تلگرام دست‌نخورده؛ merge نشد |
+| `telegram_closed_loop` (agent A/B) | 2026-08-20 ~19:3x | ✅ A13–A17 PASS · A18 BLOCKED · A19 handoff · lease released |
 
 ## وضعِ لحظه‌ای
+
+> 🧬 **پین 2026-08-20 ~21:5x (+10) — Nervous-System Recovery.** لایهٔ ادغام Wave 0: receipt v2 + test discovery + AST capability parser + immune cards. حکم **WAVE0_PARTIAL** · wave1_unlocked=false. GitHub عمومی UNLOCATED؛ `7a66352` محلی است. C-048..C-053 کاندید. ریل B/C اعمال نشد. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CANDIDATE-FINDINGS|کاندیدها]] · [[../06-EVIDENCE/GLM53-WAVE0-2026-08-20/VERDICT|WAVE0 GLM]]
+
+> 🐙 **پین 2026-08-20 ~20:3x (+10) — A14–A19.** `READ_BACK_USED` `mem-6c528a350df6` · A15 سه مغز + رسید · A16 پنجرهٔ تلگرام صفر رسید · A17 `HC_WM_CAUSAL` · A18 BLOCKED · lease آزاد · hook دانش برای C مجاز. یافته‌ها: `MISSING_ACK_FOR_/remember` · `CORRECT_ACCEPTED_INVALID_TURN_ID` · `STALE_GATE_LABEL_IN_REPLY`. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|گزارش]] · [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF|A19]]
+
+> 🐙 **پین 2026-08-20 ~20:20 (+10) — A13 PASS.** `update_id=223883327` · spine+1 · مدل+0 · یک reply. **TELEGRAM MEMORY READY.** بعدی: `/remember کلمه رمز: مرجان` سپس `کلمه رمز چه بود؟`. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A13-TRACE|A13]]
+
+> 🐙 **پین 2026-08-20 ~20:15 (+10) — Center reloaded:** PID **8828** · commit `3abc16b` · schema `typed-v1` · bot `7992324219` · offset 223883327 · organism/brain دست‌نخورده. **CENTER RELOADED — SEND ONE /status** به `@intergrade2725_Bot`. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|گزارش]]
+
+> 🐙 **پین 2026-08-20 ~19:5x (+10) — A/B Telegram Closed Loop:** A1 زنده `update_id=223883326` FAIL (string-reply→ask_brain، ~AU$0.000711) · پچ dict روی دیسک · PID مرکز `26388` هنوز قدیم · Memory Ready اعلام نشد · LIVE-B BLOCKED · Full Loop نشد. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|گزارش]] · [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A1-TRACE|رد A1]] · [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A0-BASELINE|A0]].
+
+> 🗺️ **پین 2026-08-20 ~19:2x (+10) — مگا #۱۵ agent_C:** starvation=`MIXED` · knowledge sidecar ۶۵۵ رویداد · mapper ۱۲۵۷ مسیر · lead فقط تشخیص · cognition_inbox ۳ مغز. commit `b936a0f` روی `agent_C`. [[../06-EVIDENCE/ORGAN-MAP-2026-08-20/REPORT|REPORT]] · [[../06-EVIDENCE/ORGAN-MAP-2026-08-20/ORGAN-MAP|نقشه]] · [[../06-EVIDENCE/ORGAN-MAP-2026-08-20/AFFERENT-STARVATION|گرسنگی]] · [[../06-EVIDENCE/ORGAN-MAP-2026-08-20/KNOWLEDGE-WIRING|دانش]]. hook زنده خاموش.
 
 > 🛑 **پین 2026-08-20 ~13:1x (+10) — دستور #۵A soak معلق.** حلقهٔ واقعی sidecar Stage A **PASS** (بدون شبکه). Stage B/C شروع نشد: `DEEPSEEK_API_KEY` در env این سشن **UNLOCATED**. K=9 مخلوط نشد. [[../06-EVIDENCE/FULL-LOOP-FLASH-2026-08-20/STAGE-A|Stage A]] · [[../_ops/lab/full_loop_flash/__init__|full_loop_flash]] · T28 unsigned ماند.
 
