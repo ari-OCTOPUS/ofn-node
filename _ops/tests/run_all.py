@@ -1078,6 +1078,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_telegram_durable_loop.py",
     "test_self_insight_card_cheap.py",
     "test_owner_cockpit_commands.py",
+    "test_dark_capabilities_cache.py",
     # 2026-08-20 OWNER #16 A19 — agent_C organ tests (lease held by A/B).
     # Append-only; do not reorder prior entries.
     "test_organ_cartographer_20260820.py",
@@ -1391,7 +1392,9 @@ if __name__ == "__main__":
             sys.exit(2)
 # Lane E (2026-08-21): timeout های per-file؛ یک suite کند نباید بقیه را اجرانشده بگذارد.
 DEFAULT_TIMEOUT = 300
-SLOW_TIMEOUTS = {"test_capability_registry.py": 900}
+SLOW_TIMEOUTS = {"test_capability_registry.py": 900,
+                 "test_orphan_scan.py": 900,
+                 "test_live_control_panel_smoke.py": 900}
 MANIFEST_PATH = HERE.parent / "state" / "loops" / "execution-manifest.jsonl"
 
 

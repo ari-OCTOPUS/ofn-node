@@ -56,6 +56,7 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -299,9 +300,33 @@ def _live_by_process(ops: Path) -> tuple[dict[str, set[str]], str]:
     return (out, "live") if out else ({}, "unreadable")
 
 
+_CACHE: dict = {"sig": None, "ts": 0.0, "result": None}
+CACHE_TTL_S = 120.0
+
+
+def _cache_sig(ops: Path) -> tuple:
+    """امضای ورودیِ scan: root + mtime/size فایلِ flags. هر write ای امضا را
+    عوض می‌کند تا cache بلافاصله بی‌اعتبار شود (write→read تازه می‌ماند)."""
+    fp = ops / "OCTOPUS-flags.cmd"
+    try:
+        st = fp.stat()
+        return (str(ops), st.st_mtime_ns, st.st_size)
+    except OSError:
+        return (str(ops), None)
+
+
 def scan(ops_root=None) -> dict:
-    """گزارشِ کامل. هرگز استثنا نمی‌دهد و هرگز چیزی نمی‌نویسد."""
+    """گزارشِ کامل. هرگز استثنا نمی‌دهد و هرگز چیزی نمی‌نویسد.
+
+    Item 20 (2026-08-21): خروجی با امضای ورودی (flags mtime/size + root) و
+    TTL کوتاه کش می‌شود — renderهای پشت‌سرهم در منوی تلگرام سبک‌اند، ولی هر
+    write به فایلِ flags بلافاصله کش را بی‌اعتبار می‌کند (تازگی حفظ می‌شود)."""
     ops = Path(ops_root or _HERE).resolve()
+    now = time.time()
+    sig = _cache_sig(ops)
+    if (_CACHE["result"] is not None and _CACHE["sig"] == sig
+            and now - _CACHE["ts"] < CACHE_TTL_S):
+        return _CACHE["result"]
     readers: dict[str, set[str]] = {}
     tuning: dict[str, bool] = {}
     mentioned: set[str] = set()
@@ -347,12 +372,19 @@ def scan(ops_root=None) -> dict:
     # جدولِ پیکربندی هم گواهِ زنده‌بودن است. تست‌ها عمداً بیرون‌اند: تستی که
     # فلگی را ست می‌کند مصرف‌کنندهٔ تولیدی نیست.
     orphan_armed = sorted(armed - mentioned)
-    return {"ops_root": str(ops), "live_source": live_src,
-            "processes": sorted(per_proc), "n_live_on": len(live_all),
-            "n_flags": len(rows), "n_dark": len(dark), "n_partial": len(partial),
-            "n_tuning": sum(1 for r in rows if r["state"] == "TUNING"),
-            "rows": rows, "dark": dark, "partial": partial,
-            "orphan_armed": orphan_armed}
+    return _cache_result({"ops_root": str(ops), "live_source": live_src,
+                          "processes": sorted(per_proc), "n_live_on": len(live_all),
+                          "n_flags": len(rows), "n_dark": len(dark), "n_partial": len(partial),
+                          "n_tuning": sum(1 for r in rows if r["state"] == "TUNING"),
+                          "rows": rows, "dark": dark, "partial": partial,
+                          "orphan_armed": orphan_armed}, sig)
+
+
+def _cache_result(result: dict, sig: tuple) -> dict:
+    _CACHE["sig"] = sig
+    _CACHE["ts"] = time.time()
+    _CACHE["result"] = result
+    return result
 
 
 def render(res: dict) -> str:
