@@ -266,8 +266,7 @@ class Budget:
             self.halted_reason = "BLOCKED_BUDGET_TOKENS"
         elif time.monotonic() - self.started > self.wall_clock_budget_s:
             self.halted_reason = "BLOCKED_BUDGET_WALLCLOCK"
-        elif cfg.retry_budget_ratio and self.retries > 0 and False:
-            pass  # retry budget در summarize/گیت بررسی می‌شود (نرخ، نه حد مطلق)
+        # سهم retry نرخ است نه حد مطلق → در summarize/گیت G5 بررسی می‌شود
         return self.halted_reason or None
 
 
