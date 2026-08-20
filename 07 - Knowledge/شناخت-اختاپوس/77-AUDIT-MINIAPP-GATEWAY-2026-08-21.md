@@ -1,155 +1,222 @@
 ---
 type: architecture-audit
-status: evidence-backed
+status: conditional-pass
+audit_verdict: CONDITIONAL_PASS
+documentation_quality: PASS
+external_code_verification: INCONCLUSIVE (local-only repository)
 date: 2026-08-21
 session_id: SESSION-20260820-21
 scope: miniapp_gateway.py — code-level audit and requirements
-current_head: 4faad7d
-paid_calls: forbidden
-memory_production_writes: forbidden
+baseline_head: 4faad7d
+document_commit: 7ebbc2251af86d57ee137d11b184298f6580c42b
+verified_head: pending-this-commit
+hmac_design: PASS_WITH_AUTH_DATE_FIX
+replay_protection: PARTIAL
+webhook_migration: DESIGN_ONLY
+rate_limit_retry: NEEDS_RETRY_AFTER_FIX
+rate_limit_queue: REQUIRED
+log_governance: NEEDS_GIT_POLICY_FIX
+owner_visible_closure: DESIGN_ACCEPTED
+wave1_unlock: false
+paid_calls: 0
+memory_production_writes: 0
 ---
 
 # AUDIT — معماری درگاه AGI اختاپوس (miniapp_gateway.py)
 
-این سند، ممیزی سطح-کد درگاه مالک است: چه چیزی پیاده‌سازی‌شده (با مسیر واقعی)، چه چیزی
-شکاف است (با مشخصات پیاده‌سازی)، و هر دو با اصل fail-closed. عددها و مسیرها از کد
-فعلی استخراج شده‌اند، نه حدس.
+> **حکم ممیزی: CONDITIONAL_PASS.** کد محلی `F:/backup` بررسی شد، اما این مخزن در GitHub عمومی
+> قابل‌شناسایی نیست؛ بنابراین external verification = INCONCLUSIVE. SHA کامل سند اول:
+> `7ebbc2251af86d57ee137d11b184298f6580c42b`. `baseline_head=4faad7d` مربوط به قبل
+> از commit سند است؛ `document_commit=7ebbc22…` خود اسناد را ساخته؛ `verified_head` باید
+> پس از commit این تصحیح به SHA کامل به‌روزرسانی شود.
 
-## ۰) خلاصهٔ ممیزی
+## ۰) ماتریس حقیقت (کد محلی در برابر سند)
 
-| مؤلفه | وضعیت | شواهد |
+| مؤلفه | وضعیت | شواهد / ناسازگاری |
 |---|---|---|
-| HMAC-SHA-256 initData | ✅ پیاده‌سازی‌شده | `telegram_center/miniapp_gateway.py` (بایند 127.0.0.1:8774) |
-| درگاه تک‌مقصد تونل | ✅ پیاده‌سازی‌شده | docstring PLAN-T4 §۱–۳ |
-| Kill switch | ✅ پیاده‌سازی‌شده | فایل `STOP-MINIAPP` → 503 |
-| Redaction دولایه | ✅ پیاده‌سازی‌شده | مسیر proxy + redaction دوباره |
-| مدیریت 429 (کران‌دار) | ✅ پایه موجود | `tg_api.py: _429_MAX_RETRIES=1, _429_RETRY_CAP_S=30` |
-| صف rate-limit با backoff/jitter | ❌ شکاف | نیازمند RateLimitQueue |
-| Webhook + secret_token | ❌ شکاف | مرکز polling است؛ بدون کلید webhook در config |
-| حلقهٔ رویداد یکپارچه (memory+agentic) | 🟡 ناقص | hub موجود؛ اتصال read-only + ledger لازم است |
-| لاگ‌های پایدار از طریق رابط تلگرام | 🟡 ناقص | لاگ‌ها موجودند؛ مسیرهای cockpit/miniapp باید کامل شوند |
+| HMAC-SHA-256 initData | PASS_WITH_AUTH_DATE_FIX | HMAC درست؛ freshness فعلی 3600s و skew -60s (نیاز: 300/-30 برای mutation) |
+| Replay داخل TTL | PARTIAL | فقط freshness؛ nonce یک‌بارمصرف Decision Ledger وجود ندارد |
+| درگاه تک‌مقصد / kill switch / redaction | PASS | `miniapp_gateway.py`، bind 127.0.0.1:8774، STOP-MINIAPP، proxy redaction |
+| 429 retry | NEEDS_RETRY_AFTER_FIX | `_retry_after_from_429` به 30s cap می‌کند (خطر retry زودهنگام) |
+| Rate-limit queue | REQUIRED | token bucket/durable scheduler/DLQ کامل وجود ندارد |
+| Webhook | DESIGN_ONLY | مرکز polling؛ هیچ config webhook/secret فعالی نیست |
+| Conversation Hub | PARTIAL | typed router موجود؛ اتصال یکپارچه read-only/ledger ناقص |
+| Log governance | NEEDS_GIT_POLICY_FIX | inbound/miniapp-hits/tg-send-log اکنون tracked و not-ignored هستند |
 
-## ۱) منطق اعتبارسنجی امضا (HMAC-SHA-256)
+## ۱) HMAC و freshness — یافتهٔ سطح کد
 
-الگوریتم دقیق (پیاده‌سازی‌شده در `miniapp_gateway.py` — دیوار §۲):
+`telegram_center/miniapp_gateway.py:210-219` الگوریتم رسمی را درست پیاده می‌کند:
 
-```
-1. پارس query string (parse_qsl)
-2. حذف پارامتر hash
-3. مرتب‌سازی الفبایی پارامترهای باقی‌مانده
-4. اتصال با "\n" به‌صورت key=value → data_check_string
-5. secret_key = HMAC_SHA256(key=b"WebAppData", msg=bot_token)
-6. signature = HMAC_SHA256(key=secret_key, msg=data_check_string)
-7. hmac.compare_digest(signature, hash) — مقایسهٔ زمان‌ثابت
-8. auth_date ≤ now + 300s ؛ user.id == TELEGRAM_OWNER_CHAT_ID
+```python
+check_string = "\n".join(f"{k}={v}" for k, v in sorted(data.items()))
+secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+calc = hmac.new(secret_key, check_string.encode(), hashlib.sha256).hexdigest()
+hmac.compare_digest(calc, got_hash)
 ```
 
-الزامات تکمیل:
+ولی `miniapp_gateway.py:52-53`:
 
-- **آزمون منفی** (T-05): تغییر یک بایت از initData → رد؛ hash جعلی → رد؛ auth_date منقضی →
-  رد؛ user غیرمالک → رد؛ replay همان initData پس از ۳۰۰s → رد.
-- **ثبت ردّ**: پاسخ 403 با بدنهٔ خالی (بدون اطلاعات)، اما ردیف audit با دلیل طبقه‌بندی‌شده
-  (بدون token/chat id خام).
-- **مقاومت زمان‌ثابت**: `hmac.compare_digest` در همهٔ مقایسه‌ها، از جمله secret_token وب‌هوک.
-
-## ۲) مکانیزم صف برای Rate Limit (HTTP 429)
-
-واقعیت: `tg_api._call_post` روی 429 تا سقف `_429_RETRY_CAP_S=30` احترام می‌گذارد و فقط
-`_429_MAX_RETRIES=1` تلاش مجدد دارد؛ `_retry_after_from_429` مقدار `parameters.retry_after`
-را استخراج می‌کند. این fail-safe است، ولی **صف نیست**: پیام‌ها drop می‌شوند.
-
-مشخصات `RateLimitQueue` (پیشنهادی):
-
-```
-class RateLimitQueue:
-  - token bucket: 1 msg/s per chat، 30 msg/s global (سقف تلگرام)
-  - enqueue(message) → bucket؛ ظرفیت خالی → صف FIFO با اولویت critical
-  - on 429: خواندن retry_after (تا سقف 30s)، backoff = retry_after + jitter(0..1s)
-  - تلاش مجدد = ۱ بار؛ شکست دوم → DLQ (هرگز حلقهٔ بی‌نهایت)
-  - دو شمارندهٔ مستقل: business_attempts / delivery_attempts
-  - coalescing: پیام‌های هم‌نوع در پنجرهٔ ۵s → یک digest (count + last_seen)
-  - خروجی از صف فقط از طریق sender تک‌مالک (single-owner sender)
+```python
+AUTH_MAX_AGE_S = float(os.environ.get("OCTOPUS_MINIAPP_AUTH_MAX_AGE_S", "3600"))
 ```
 
-نکتهٔ حیاتی (مستند در SOP §۴): 429 بات را **کاملاً** بلاک می‌کند، نه فقط یک چت؛ پس صف
-و coalescing پیش‌شرط ارسال زنده‌اند، نه بهبود.
+و `:220-223`:
 
-## ۳) حلقهٔ رویداد یکپارچه: memory محلی + فراخوانی‌های agentic
-
-معماری هدف (façade واحد — هر دو مسیر Telegram و Mini App به همین حلقه):
-
-```
-miniapp_gateway / telegram center
-  → orchestrator (conversation_hub.router — typed، extra="forbid")
-      → memory lane:   sqlite3.connect(f"file:state/memory/memory.db?mode=ro", uri=True)
-                       فقط خواندن؛ VETO از owner_fact؛ retrieval با goal_key
-      → cortex lane:   fallback محلی/propose-only؛ DEGRADED_LOCAL_ONLY صریح
-      → mcp lane:      allowlist + budget؛ بدون budget → propose
-  → provenance: event_id / correlation_id / task_id / run_id (از durable context)
-  → decision ledger: append-only immutable (decision-record.jsonl)
-  → durable outbox → Telegram delivery → receipt → readback
+```python
+age = now - auth_date
+reject if auth_date <= 0 or age > AUTH_MAX_AGE_S or age < -60.0
 ```
 
-الزامات:
+**تصحیح امنیتی اجباری**:
 
-- **Memory read-only**: اتصال با `mode=ro` (مثل WAVE1-PREFLIGHT: hash قبل/بعد یکسان)؛
-  هیچ مسیری از gateway نتواند write کند (write guard: F3 + two-phase admission + quarantine).
-- **Agentic calls**: propose-only؛ هر effect بیرونی فقط پس از تصمیم ledger و با task_id.
-- **Unified loop**: یک حلقهٔ poll/event برای هر دو سطح (Telegram و Mini App)؛ دو مسیر
-  موازی approval ممنوع — هر دو façade روی همان ledger.
-- **Budget هر حلقه**: max_retries، timeout، kill_switch، rollback — هیچ حلقه‌ای بی‌سقف نباشد.
+```python
+INITDATA_TTL_S = 300
+MAX_FUTURE_SKEW = 30
+age_s = now_utc_s - auth_date
+if age_s < -MAX_FUTURE_SKEW: reject("AUTH_DATE_IN_FUTURE")
+if age_s > INITDATA_TTL_S:   reject("AUTH_DATE_EXPIRED")
+```
 
-## ۴) لاگ‌های پایدار، قابل‌دسترس از طریق رابط تلگرام
+نکته: شرط فعلی برخلاف سند اولیه «timestamp قدیمی را بی‌حد نمی‌پذیرد»، ولی پنجرهٔ آن ۳۶۰۰s
+است نه ۳۰۰s؛ سند اولیه ادعای ۳۰۰s را بدون تطبیق کد نوشته بود.
 
-فهرست واقعی لاگ‌های ماندگار (state/telegram/):
+## ۲) Replay داخل TTL — شکاف واقعی
 
-| لاگ | محتوا | دسترسی کنونی |
-|---|---|---|
-| `inbound-log.jsonl` | هر update ورودی (بدون متن خام) | cockpit /loops، /receipts |
-| `miniapp-hits.jsonl` | هر درخواست gateway + authed | — |
-| `brain-receipts.jsonl` | رسید مغزها | — |
-| `tg-send-log.jsonl` | هر ارسال + message_id/ok | /receipts |
-| `event-bridge-outbox.jsonl` | صف push رویدادها | /dlq |
-| `reconciliation-queue.jsonl` | صف reconciliation تحویل | /dlq |
-| `digest-buffer.jsonl` | بافر digest | — |
-| `legacy-coerce.jsonl` | coerceهای legacy | — |
+کامنت خط ۲۲۳ می‌گوید «ضدِ replay»، ولی freshness فقط replay **پس از TTL** را رد می‌کند.
+درخواست mutation/approval باید این قرارداد را داشته باشد:
 
-الزامات:
+```
+proposal_id + card_id + one_time_nonce + expires_at
+Decision Ledger: PENDING → CONSUMED (اولین استفاده)
+دومین استفاده → 409 REPLAY_REJECTED
+```
 
-- **persistence**: append-only + rotation با سقف اندازه (بدون حذف تاریخچه)؛ همهٔ لاگ‌ها
-  در git قابل‌بازبینی (درخت state).
-- **دسترسی از طریق رابط تلگرام**:
-  - Cockpit: `/loops`، `/receipts <task_id>`، `/dlq`، `/memory_status`، `/brain_status` (موجود در
-    `owner_console/local_commands.py`) — خلاصه + evidence reference، نه dump.
-  - Mini App: مسیرهای فقط-خواندنی `/api/logs/<kind>?since=` و `/api/status` روی 8774 با
-    همان auth HMAC؛ خروجی JSON محدود (آخرین N ردیف، redactشده).
-- **بدون secret**: token/chat_id خام/raw payload در هیچ لاگ؛ redaction در لایهٔ نوشتن
-  (parity با `center.py:_scrub`).
-- **freshness**: داشبورد بدون event تازه، stale است؛ `last_round_ts` نمایش داده شود.
+- read-only: HMAC + freshness + rate limit.
+- mutation: HMAC + freshness + nonce یک‌بارمصرف.
+- query_id/hash cache فقط کمک ضداسپم است، جای nonce تصمیم نیست.
 
-## ۵) ماتریس تست اجباری
+## ۳) Rate limit — یافتهٔ سطح کد و اصلاح
 
-| تست | هدف | وضعیت |
-|---|---|---|
-| T-05 initData دستکاری‌شده رد شود | auth | REQUIRED |
-| T-08 restart → resend صفر | outbox | ✅ موجود (durable_loop 15/15) |
-| T-21 webhook+polling dual-ingestion صفر | ingestion | REQUIRED (پس از webhook) |
-| T-22 ۴۲ درز = یک digest | rate/coalescing | REQUIRED |
-| 429-queue بدون retry-storm و بدون drop | rate | REQUIRED |
-| F3/staging/write-guard | memory | ✅ موجود (12/12 + 49/49) |
+`tg_api.py:_retry_after_from_429` در کد فعلی:
 
-## ۶) نتیجه‌گیری
+```python
+return min(ra, _429_RETRY_CAP_S)   # cap=30s
+```
 
-درگاه مالک پایهٔ امنِ درستی دارد (HMAC + kill switch + redaction + retry کران‌دار).
-شکاف‌های ساختاری: صف rate-limit کامل، webhook با secret_token (با گارد dual-ingestion)،
-اتصال read-only حلقهٔ رویداد به memory/ledger، و سطح دسترسی لاگ‌ها در Mini App.
-هر شکاف با NEED در Needs Ledger و loop در Loop Registry ثبت می‌شود؛ هیچ‌کدام
-closure تلقی نمی‌شوند مگر با verifier مستقل و مشاهدهٔ مالک (OWNER_VISIBLE).
+این یعنی `retry_after=75` → تلاش بعد از 30s (زودهنگام). قرارداد درست:
 
-## Evidence
+```
+next_attempt_at = now + full_retry_after + jitter
+```
 
-- `telegram_center/miniapp_gateway.py` (بایند 8774، HMAC §۲، STOP-MINIAPP)
-- `telegram_center/tg_api.py:38-39,173-181` (429 کران‌دار)
-- `conversation_hub/{router,service,schemas,shadow_rollout}.py`
-- `state/telegram/miniapp-hits.jsonl` (شواهد authed)
-- `state/waves/WAVE1-PREFLIGHT-2026-08-21.json` (memory read-only اثبات)
+- سقف روی `sleep` همگام، نه زمان ممنوعیت؛ اگر بزرگ است، پیام durable بماند و sender scheduler بردارد.
+- پایان attempt budget → DLQ، نه drop.
+- business result جدا از delivery result.
+- نرخ‌ها را فقط سیاست محافظه‌کارانهٔ محلی بنامید:
+  - `[LOCAL CONSERVATIVE POLICY]` ~۱/s per chat، ~۲۰/min group، ~۳۰/s bulk.
+  - `[LOCAL FAIL-SAFE POLICY]` global sender cooldown تا retry_after.
+- ادعای «Telegram guarantee: whole bot blocked» حذف شد (سند رسمی تضمین نمی‌کند).
+
+## ۴) Webhook migration — دستور دقیق و status code ثابت
+
+`getUpdates` و webhook متقابلاً انحصاری‌اند:
+
+1. polling input را pause کن؛ 2. highest durable update_id را ثبت کن؛ 3. `setWebhook` با
+`secret_token` (۱–۲۵۶ نویسه، حروف/عدد/_/-)؛ 4. `getWebhookInfo` + secret-header test؛
+5. سپس worker polling را stop کن؛ 6. rollback = `deleteWebhook(drop_pending_updates=false)`؛
+7. polling از highest_durable+1.
+
+Status code contract:
+
+```
+missing/invalid secret → 403 empty body
+valid duplicate update → 200 after durable dedupe
+valid new update       → 200 only after intent commit
+```
+
+## ۵) Log governance — اصلاح سیاست Git
+
+یافتهٔ مستقیم:
+
+| مسیر | tracked | ignored |
+|---|---:|---:|
+| `_ops/state/telegram/inbound-log.jsonl` | yes | no |
+| `_ops/state/telegram/miniapp-hits.jsonl` | yes | no |
+| `_ops/state/tg-send-log.jsonl` | yes | no |
+
+پس عبارت قبلی «همهٔ لاگ‌ها در git قابل‌بازبینی» **حذف شد** — این رفتار مطلوب نیست.
+طرح صحیح:
+
+- `state/telegram/*.jsonl` در `.gitignore` (پس از migration امن؛ historical artifacts را حذف نکن).
+- segment فعال append-only؛ rotation بر اساس size/time؛ segment sealed تغییرناپذیر + hash.
+- archive فشرده با retention مشخص؛ evidence manifest فقط:
+  `path_ref, sha256, first_event_at, last_event_at, record_count`.
+- فقط fixture غیرحساس و verifier report وارد Git؛ secret scan روی diff هر commit.
+
+## ۶) API لاگ Mini App — allowlist ثابت، نه path آزاد
+
+مسیر `/api/logs/<kind>` فقط اگر `<kind>` به دیکشنری ثابت نگاشت شود:
+
+```python
+LOG_VIEWS = {
+    "inbound": inbound_read_model,
+    "delivery": delivery_read_model,
+    "receipts": receipt_read_model,
+    "dlq": dlq_read_model,
+}
+```
+
+قیود: `limit<=100` · cursor امضاشده (نه offset دلخواه) · بدون path parameter آزاد · فیلتر
+زمان + task scope · redaction بعد از read و قبل serialization · max response bytes · raw فقط
+backend evidence store · snapshot کهنه با `freshness_status=STALE`.
+
+## ۷) Kill switch — قرارداد بدون ابهام
+
+```
+STOP-MINIAPP exists  → gateway 503
+STOP-MINIAPP removed → may serve فقط پس از health gate
+OCTOPUS_TG_MINIAPP=0 → process disabled
+```
+
+حذف فایل kill switch به‌تنهایی resume کامل نیست؛ resume باید health-gated و owner-authenticated.
+
+## ۸) Conversation Hub — نیازهای کد
+
+```
+Gateway (HMAC+nonce)
+ → conversation_hub.router (typed, extra=forbid)
+   ├ memory: sqlite uri mode=ro
+   ├ cortex: propose-only, DEGRADED_LOCAL_ONLY
+   └ MCP: allowlist + budget
+ → provenance (event/correlation/task/run)
+ → Decision Ledger append-only
+ → durable outbox → receipt → readback
+```
+
+## ۹) شروط EVIDENCE_BACKED_PASS
+
+- `verified_head` SHA کامل ۴۰کاراکتری + diff واقعی commit؛
+- auth_date = 300s/-30s (mutation) + تست آینده/انقضا؛
+- nonce replay داخل TTL (409) + تست؛
+- retry_after کامل در scheduler durable (بدون cap زمان ممنوعیت)؛
+- T-05/T-08/T-21/T-22 با receipt غیرتهی؛
+- log policy migration + allowlisted Mini App log API؛
+- verifier مستقل (نه نویسندهٔ سند) confirmed=true.
+
+تا آن زمان:
+
+```yaml
+audit_verdict: CONDITIONAL_PASS
+documentation_quality: PASS
+external_code_verification: INCONCLUSIVE
+hmac_design: PASS_WITH_AUTH_DATE_FIX
+replay_protection: PARTIAL
+webhook_migration: DESIGN_ONLY
+rate_limit_retry: NEEDS_RETRY_AFTER_FIX
+rate_limit_queue: REQUIRED
+log_governance: NEEDS_GIT_POLICY_FIX
+owner_visible_closure: DESIGN_ACCEPTED
+wave1_unlock: false
+paid_calls: 0
+memory_production_writes: 0
+```
