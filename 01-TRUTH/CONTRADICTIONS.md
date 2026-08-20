@@ -546,3 +546,106 @@ contradiction:
 - **C-035 CLOSED (2026-08-19T10:5xZ)**: ریشه = لنگرِ کهنهٔ پیش از اصلاح فرمول؛ فرمول canonical خود-سازگار (Var_ex مطابق، 2·sum_ac از همان کمیت‌ها)؛ هیچ مصرف‌کنندهٔ runtime ندارد. اصلاح شد + Var_eff به ANCHORS + مراسم TCB ×۳ امضاشده.
 - **اصلاح 2026-08-19T11:0xZ (ممیزی مستقل)**: C-035 را نباید CLOSED می‌خواندند — مراسم TCB #3 بدون تصویب مالک A4 بود. وضعیت: `PATCHED-UNSIGNED` — patch و تست در درخت هست (all anchors pass)، ریشه‌یابی معتبر، ولی ratify مالک معلق. تا تصویب، CLOSED محسوب نمی‌شود.
 - **C-035 CLOSED (2026-08-19T11:0xZ)**: evidence=OWNER-RATIFY-2026-08-19-TCB3 · closed_at=2026-08-19T10:50:58+00:00 · 11/11 anchors green at close · 13/30 = negative knowledge, threshold untouched.
+
+- **[registry-note 2026-08-20 ~11:18]** — C-042 ثبت شد. آزادِ بعدی: **C-043**.
+
+```yaml
+contradiction:
+  id: C-042
+  claim: "گرد کردن milli-unit پس از تقسیم بین ۱۱ عضو می‌تواند سهم را بی‌صدا صفر کند"
+  value_a: "cap=30 period=30s AMBER → سهم 0.00047348 → round 0.000 starvation؛ GREEN همان کف 0.000947→0.001؛ GREEN@115.72s → 0.00365 سالم"
+  source_a: "دستور کار مالک 2026-08-20T11:15+10 T2"
+  value_b: "کد reserve 20% را قبل از تقسیم کم می‌کند؛ allocate_beat AMBER@30s@30cap tokens=0.000 (pytest 10/10)"
+  source_b: "[[../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20]] · heart.life_currency.allocate_beat"
+  likely: both — هر دو لایه در بدترین حالت واقعی به صفر می‌رسند
+  resolution: "OPEN · پیشنهاد µc + carry_ledger + MEMBER_STARVED · اجرا نشد · ریاستارت را قفل نمی‌کند"
+  status: open
+  registered_by: "work-order 2026-08-20 T2"
+```
+
+```yaml
+contradiction:
+  id: C-041
+  claim: "نوت‌های جلسه پاک‌اند پس لایهٔ دانش سالم‌تر شده / بدهی فرانت‌متر ثابت است"
+  value_a: "فاز ۰ در فهرست خطا نبود"
+  source_a: "گزارش GATE-0 و جلسهٔ تناقض‌ها 2026-08-20"
+  value_b: "شمار خطا ۳۱۰/۷۲۰ → ۳۴۵/۷۳۹ → ۳۴۵/۷۴۰ (نرخ ۴۳.۱٪ → ۴۶.۷٪)"
+  source_b: "validate_frontmatter.py 2026-08-20 · پیام مالک 10:24 · [[../00 - Inbox/2026-08-20 TASK — frontmatter debt independent]]"
+  likely: value_b for the vault-wide rate; value_a only for session files
+  resolution: "کار مستقل زمان‌بندی شود؛ این جلسه پاکسازی نشد. رشد شمار خطا اثر جانبی B1/D6 نیست."
+  status: open — scheduled as independent item
+  registered_by: "contradiction-audit 2026-08-20 ~10:32"
+```
+
+```yaml
+contradiction:
+  id: C-036
+  claim: "daily_cap=1000 اگر به خرج پولی ترجمه شود سقف‌های AUD را می‌شکند؛ beat_pool=1.246 از 1000 با فرض 30s درنمی‌آید"
+  value_a: "سقف‌های پولی مالک: 2 AUD/روز و 30 AUD/ماه؛ فرض period=30s → سهم 0.347"
+  source_a: "پیام مالک 2026-08-20 ~09:54 +10"
+  value_b: "واحد=life_credit نه AUD؛ period زنده ≈107.69s → 1000/(86400/107.69)=1.246؛ 2× سقف ضربان است نه ضریب GREEN؛ سقف روزانهٔ پولی لیبل‌شده روی دیسک 30 AUD آزمایش است نه 2"
+  source_b: "[[../06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20]] · life_currency.allocate_beat · owner-verdicts.wire_life_currency"
+  live_check: "yaml rollback 1000→30 · pytest test_life_currency_units_safety.py 11 passed · credits_to_aud fail-closed · no import life_currency↔money_gate/model_router"
+  likely: "both — خطر R7 اگر تبدیل ساخته شود درست است؛ مشتق 1.246 با period نادرست غلط خوانده شده بود"
+  resolution: "واحد اعلام شد + rollback به 30 life_credit + تست مسیر-صفر. سقف 2 AUD/روز روی دیسک به‌عنوان daily money cap پیدا نشد (نزدیک‌ترین=پیش‌ثبت ablation UNSIGNED)."
+  status: open-mitigated — تبدیل به پول هنوز با قرارداد صفر است نه با اثبات ریاضی ابدی
+  registered_by: "contradiction-audit 2026-08-20"
+```
+
+```yaml
+contradiction:
+  id: C-037
+  claim: "B1 بدون امضای Ed25519 به runtime رفت"
+  value_a: "مراسم اجباری: proposal → simulation → falsifier → shadow → owner vote → signed promotion"
+  source_a: "PROPOSAL-B1 owner_vote PENDING + قانون B1"
+  value_b: "phase-gates b1-apply APPLIED_WITH_ROLLBACK signature PENDING؛ تخصیص غیرصفر beat 42165 زنده شد"
+  source_b: "_ops/state/pipeline/phase-gates.jsonl · [[../02-DECISIONS/B1-APPLIED-UNSIGNED-2026-08-20]]"
+  likely: value_b happened; ceremony incomplete
+  resolution: "حکم B1_APPLIED_UNSIGNED در لجر + rollback ایمنی به 30 (همچنان unsigned). امضا با حل owner-key؛ تاریخ پاک نمی‌شود."
+  status: open — applied unsigned
+  registered_by: "contradiction-audit 2026-08-20"
+```
+
+```yaml
+contradiction:
+  id: C-038
+  claim: "دو اجرای K=9 روی همان جفت: RS_BA 0.56 سپس 1.0 ⇒ STABLE"
+  value_a: "دیشب ~23:28 RS_AB=1.0 RS_BA=0.56 RANDOMNESS_UNRESOLVED؛ امروز 9/9 STABLE؛ فرضیهٔ artifact ابطال شد"
+  source_a: "ACTIVATION-REPORT §3 · phase-gates k9-pilot · پیام مالک"
+  value_b: "فایل 5/9 UNLOCATED؛ نزدیک‌ترین UNRESOLVED = K=5 جزیره RS_BA=0.6؛ canonical روی 5/9 می‌شود SECOND_POSITION_BIAS نه UNRESOLVED؛ RS_AB در هر دو 1.0 است پس نقد نمونهٔ کوچک تأیید شد نه ابطال؛ مقایسهٔ cross-instrument = VOID"
+  source_b: "[[../06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20]] · judge-reliability-p1.json · classify_swap"
+  live_check: "Fisher 5/9 vs 9/9 p=0.082 · classify_swap(9,9,5,9)=SECOND_POSITION_BIAS · classify_swap(5,5,3,5)=RANDOMNESS_UNRESOLVED"
+  likely: "different instruments / different K"
+  resolution: "حکم BETWEEN_RUN_VARIANCE. STABLE cherry-pick باطل. D6 باز تا K=9 ×3 seed روی canonical با بودجهٔ تازه."
+  status: open — D6 not closed
+  registered_by: "contradiction-audit 2026-08-20"
+```
+
+```yaml
+contradiction:
+  id: C-039
+  claim: "صفر VOID در 20 نمونه (و ترکیب 0/40) یعنی نرخ VOID بهتر از 13.6% شده"
+  value_a: "8/59=13.6% baseline؛ P(0/20)=5.4%؛ P(0/40)=0.29%"
+  source_a: "swap_consistency.py header + دو اجرای 0/20"
+  value_b: "PREFIX و POSTFIX ابزارهای متفاوت‌اند؛ ادغام ممنوع؛ 0/40 کران بالای یک‌طرفه ≈7% underpowered برای ادعای بهبود"
+  source_b: "[[../06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20]]"
+  likely: value_b
+  resolution: "VOID_PREFIX=8/59 بایگانی · VOID_POSTFIX=0/40 جدا · sizing ablation همچنان 8/59. ادعای بهبود ثبت نشد."
+  status: open — underpowered
+  registered_by: "contradiction-audit 2026-08-20"
+```
+
+```yaml
+contradiction:
+  id: C-040
+  claim: "owner-key.enc سه وضعیت: FOUND_AT+hash · FOUND_AT · UNVERIFIED/مسیر نیامد"
+  value_a: "FINISH-ALL FOUND_AT sha256 4637015fa44d9755 size 144"
+  source_a: "[[../06-EVIDENCE/GATE-0-FINISH-ALL-20260819T1315]]"
+  value_b: "ACTIVATION: UNVERIFIED چون مسیر در Q&A نیامد"
+  source_b: "[[../02-DECISIONS/ACTIVATION-REPORT-2026-08-20]] §5"
+  live_check: "2026-08-20 Test-Path True · Length=144 · mtime 2026-08-19 18:44:51 +10 · bytes not read · hash not recomputed"
+  likely: "وجود فایل = FOUND_AT؛ UNVERIFIED مال گزارش مسیر بود نه غیبت"
+  resolution: "FOUND_AT (وجود) تأیید. «فایل/مسیر نیست» ابطال. هش آن جلسه بازتولید نشد؛ USB/ابر و صلاحیت امضا UNVERIFIED."
+  status: open-mitigated — existence confirmed, signing key not used
+  registered_by: "contradiction-audit 2026-08-20"
+```

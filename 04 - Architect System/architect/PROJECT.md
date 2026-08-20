@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-08-17
+updated: 2026-08-20
 ---
 
 # پروژه: architect
@@ -27,6 +27,16 @@ updated: 2026-08-17
 **قاعده حریم Project-F:** پروژه اونلی فنز در هر خروجی cross-domain (تلگرام، داشبورد، گزارش) فقط با کد «Project-F» ارجاع می‌شود — نه نام پلتفرم، نه هویت پارتنر، نه جزئیات محتوا. جزئیات فقط داخل پوشه خود پروژه.
 
 ## Active Context
+
+- تغییرات اخیر: **2026-08-20 ~11:50 — B1 SIGNED + ریاستارت cap=30.** تلاش۱ fail-closed · تلاش۲ OK · daily_cap زنده ۳۰ · UNIT=life_credit · C-042 OPEN · K=9 اجرا=0. [[../../02-DECISIONS/B1-SIGNING-CARD-2026-08-20]] · [[../../06-EVIDENCE/RESTART-BASELINE-2026-08-20/README]].
+
+- تغییرات اخیر: **2026-08-20 — کارت امضای B1 + dry-run cap=30 + پیش‌ثبت K=9 سه‌بذر.** openssl/ریاستارت/K=9/ablation اجرا نشد. [[../../02-DECISIONS/B1-SIGNING-CARD-2026-08-20]] · [[../../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20]].
+
+- تغییرات اخیر: **2026-08-20 — چهار تناقض پس از فعال‌سازی.** daily_cap=`life_credit` · yaml→۳۰ · `B1_APPLIED_UNSIGNED` · D6=`BETWEEN_RUN_VARIANCE`. ablation/K=9 اجرا نشد. [[../../06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20]] · [[../../00 - Inbox/2026-08-20 NOTE — four contradictions after activation]].
+
+- تغییرات اخیر: **2026-08-20 — MEGA-DISCOVERY فاز ۰ (GATE-0 / D6 / D8 CANARY / پیش‌ثبت ablation).** LINE 1–4 اجرا نشد. شواهد: [[../../06-EVIDENCE/GATE-0-DISCOVERY-2026-08-20]] · [[../../00 - Inbox/2026-08-20 NOTE — MEGA-DISCOVERY GATE-0 D6 D8]].
+
+- تغییرات اخیر: **2026-08-18 — P3 hourly push error capture** در `scripts/germline-hourly.ps1` + `scripts/hourly-push-error-capture.ps1`. Remote/credential/fallback عوض نشد.
 
 - تغییرات اخیر: **2026-08-17 — ورود تحقیق VibeGuard** (محصول جدا، نه ارگانیسم).
   [[../../03 - Projects/VibeGuard/PROJECT|VibeGuard]] · نوت [[../../07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]. به `_ops` وصل نشود.
@@ -196,6 +206,11 @@ updated: 2026-08-17
 
 ## Progress
 
+- **2026-08-20 T1–T4 (نو):** B1 SIGNED · C-042 · freeze 42770 · restart attempt2 OK · cap زنده ۳۰. جزئیات: [[../../06-EVIDENCE/RESTART-BASELINE-2026-08-20/README]].
+- **2026-08-20 امضا+dry-run (نو):** کارت B1 UNSIGNED · پیش‌ثبت سه‌بذر UNSIGNED · AMBER@۳۰s توکن صفر. جزئیات: [[../../02-DECISIONS/B1-SIGNING-CARD-2026-08-20]].
+- **2026-08-20 چهار تناقض (نو):** واحد daily_cap · B1 unsigned در لجر · D6 STABLE باطل · owner-key FOUND_AT. جزئیات: [[../../06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20]].
+- **2026-08-20 MEGA-DISCOVERY فاز ۰ (نو):** GATE-0 زنده · D6 یک ابزار canonical · D8 pain-triage CANARY · پیش‌ثبت چهاربازویی UNSIGNED. جزئیات: [[../../06-EVIDENCE/GATE-0-DISCOVERY-2026-08-20]].
+- **2026-08-18 P3 (نو):** capture stderr hourly git push → TEMP → redact → `E:\germline\hourly-push-errors.jsonl`. تست PASS. شواهد: [[../../06-EVIDENCE/P3-HOURLY-PUSH-ERROR-CAPTURE-2026-08-18]].
 - **شب Grok 16 اوت (نو):** قفل ابسیدین نوت ۶۱. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|نوت ۶۱]].
 - **شب Grok 16 اوت (نو):** سه برد + PolarFire≠Artix-7 · نوت ۶۰ · بدون rsync. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|نوت ۶۰]].
 - **شب Grok 16 اوت (نو):** مگاپرامپت MIGRATE-CLOSE-GAPS + نوت ۵۹. جزئیات: [[../../07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|نوت ۵۹]].

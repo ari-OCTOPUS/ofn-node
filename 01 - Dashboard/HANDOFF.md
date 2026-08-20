@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-08-18
+updated: 2026-08-20
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -32,6 +32,14 @@ updated: 2026-08-18
 | `autoflow-s1-s10` (ZCode/GLM-5.3 — MEGAPROMPT-AUTOFLOW) | 2026-08-16 ~14:5x | ✅ تمام 2026-08-16 ~15:2x — S1..S10 بسته (گزارش: 06-EVIDENCE/AUTOFLOW-REPORT در کامیت پایانی) |
 
 ## وضعِ لحظه‌ای
+
+> 🔧 **پین 2026-08-20 ~11:50 (+10) — T1–T4:** کارت B1 SIGNED · C-042 OPEN · baseline منجمد beat 42770 cap=1000 · ریاستارت تلاش۲ OK · زنده daily_cap=30 UNIT=life_credit min_share=0.003. K=9 اجرا=0. [[../02-DECISIONS/B1-SIGNING-CARD-2026-08-20|کارت SIGNED]] · [[../06-EVIDENCE/C-042-MILLI-ROUNDING-STARVATION-2026-08-20|C-042]] · [[../06-EVIDENCE/RESTART-BASELINE-2026-08-20/README|baseline]] · آزاد **C-043**.
+
+> 🗳️ **پین 2026-08-20 ~10:32 (+10) — ترتیب مالک: امضا → dry-run ۳۰ → ریاستارت → K=9 سه‌بذر → ablation.** کارت امضا و پیش‌ثبت سه‌بذر نوشته شد؛ openssl و ریاستارت اجرا نشد. استخر زنده هنوز ۱۰۰۰ (cache). [[../02-DECISIONS/B1-SIGNING-CARD-2026-08-20|کارت امضا]] · [[../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20|K=9 سه‌بذر]] · [[../06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20|dry-run]] · [[../00 - Inbox/2026-08-20 TASK — frontmatter debt independent|بدهی فرانت‌متر]] · C-041.
+
+> 🧬 **پین 2026-08-20 ~10:13 (+10) — چهار تناقض پس از فعال‌سازی:** daily_cap واحد=`life_credit` نه AUD · yaml ۱۰۰۰→۳۰ · `B1_APPLIED_UNSIGNED` · D6=`BETWEEN_RUN_VARIANCE` نه STABLE · ablation/K=9 تازه اجرا نشد. [[../06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20|واحد]] · [[../02-DECISIONS/B1-APPLIED-UNSIGNED-2026-08-20|B1 unsigned]] · [[../06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20|D6]] · [[../06-EVIDENCE/OWNER-KEY-STATUS-2026-08-20|owner-key]] · [[../00 - Inbox/2026-08-20 NOTE — four contradictions after activation|Inbox]] · [[../01-TRUTH/CONTRADICTIONS|C-036..C-040]].
+
+> 🧬 **پین 2026-08-20 ~00:28 (+10) — MEGA-DISCOVERY فاز ۰:** GATE-0 + D6 canonical + D8 CANARY + پیش‌ثبت ablation (بدون امضا). LINE 1–4 اجرا نشد. [[../06-EVIDENCE/GATE-0-DISCOVERY-2026-08-20|GATE-0]] · [[../06-EVIDENCE/D6-CANONICAL-MEASURE-2026-08-20|D6]] · [[../06-EVIDENCE/D8-PAIN-TRIAGE-CANARY-2026-08-20|D8]] · [[../02-DECISIONS/PRE-REG-ABLATION-FOUR-ARM-2026-08-20|پیش‌ثبت]] · [[../00 - Inbox/2026-08-20 NOTE — MEGA-DISCOVERY GATE-0 D6 D8|Inbox]].
 
 > 🔧 **پین 2026-08-18 ~09:58 (+10) — P3 DIAGNOSTICS_VERIFIED, writer not healthy:** natural `09:49` cycle · `--all` NONE · `--tags` REF_REJECTED · lock released · GITWRITE OPEN. [[../06-EVIDENCE/P3-SCHEDULED-CYCLE-OBSERVED-2026-08-18|P3 cycle]] · [[../00 - Inbox/2026-08-18 NOTE — Continuation state + P3 cycle|Inbox]]. آزاد **C-034**.
 
