@@ -63,5 +63,14 @@
   "server_created_captured": true,
   "spine_event_written": false,
   "executable": false
+ },
+ "errata": {
+  "field": "timing.created_minus_send_ms",
+  "original_value_ms": -239.2,
+  "classification": "WITHIN_TIMESTAMP_QUANTIZATION",
+  "reason": "created دقت 1s دارد؛ |−239ms| < 500ms (نیم‌کوانتوم) → نه شواهد skew، نه شواهد request-receipt؛ درون کوانتیزاسیون است",
+  "applied_at": "2026-08-20T18:42+10:00",
+  "authority": "owner instruction (chat)",
+  "probe_rerun": 0
  }
 }
