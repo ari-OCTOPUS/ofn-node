@@ -137,11 +137,15 @@ def validate_row(row: dict) -> "tuple[bool, list]":
 
 def emit_event(*, event_type: str, domain: str, correlation_id: str, subject=None,
                mission_id=None, producer: str = "unknown", trust: str = "ADVISORY",
-               payload=None, idempotency_key=None, spine=None) -> dict:
+               payload=None, idempotency_key=None, spine=None,
+               occurred_at=None, event_time_source: str = "",
+               time_precision: str = "") -> dict:
     """**سطحِ تولیدِ واحدِ spine** (C4). هر producer — چه دامنه‌ایِ typed و چه verdict/lead —
     از همین در می‌گذرد؛ نه dual_write خام. مثلِ emit_canonical است ولی به CANONICAL_EVENTS
     محدود نیست (هر event_typeِ معتبرِ taxonomy). producer اجباری (provenance هرگز null).
-    هرگز raise نمی‌کند؛ flag خاموش → صفر I/O؛ idempotent."""
+    هرگز raise نمی‌کند؛ flag خاموش → صفر I/O؛ idempotent.
+    T48 (دستور #۸ §۳): occurred_at فقط با منبعِ مستقلِ صریح (event_time_source)
+    داده شود — ساعتِ نوشتن هرگز occurred_at واقعی نیست (legacy flag خودکار)."""
     try:
         if not flag_on():
             return {"published": False, "reason": "flag-off"}
@@ -160,6 +164,10 @@ def emit_event(*, event_type: str, domain: str, correlation_id: str, subject=Non
                   "payload": sanitize_payload(payload)}
             if idempotency_key:
                 ev["idempotency_key"] = str(idempotency_key)[:200]
+            if event_time_source and occurred_at:
+                ev["occurred_at"] = str(occurred_at)
+                ev["event_time_source"] = str(event_time_source)[:48]
+                ev["time_precision"] = str(time_precision or "ms")[:8]
             return event_spine.dual_write(spine, ev)
         finally:
             if own and spine is not None:

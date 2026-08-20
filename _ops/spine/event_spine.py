@@ -25,12 +25,26 @@ if str(_HERE.parent / "outcomes") not in sys.path:
     sys.path.insert(0, str(_HERE.parent / "outcomes"))
 import taxonomy as tax  # noqa: E402
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2   # T48 (OWNER-DIRECTIVE-08 §۳): یک پله بالا — dual-write افزودنی event-time
+# رکوردهای legacy (نسخهٔ ۱) دست نمی‌خورند؛ legacy_no_event_time=1 خودکار via DEFAULT.
 FLAG = "OCTOPUS_WIRE_SPINE"
 _LOCK = threading.RLock()
 _COLS = ("event_id", "idempotency_key", "event_type", "domain", "occurred_at", "recorded_at",
          "producer", "producer_sequence", "correlation_id", "mission_id", "subject",
-         "trust", "schema_version", "payload_json")
+         "trust", "schema_version", "payload_json",
+         # T48 dual-write افزودنی: ستون‌های موجود هرگز بازنویسی نمی‌شوند؛
+         # رکوردهای قدیمی legacy_no_event_time=1 (DEFAULT) می‌گیرند.
+         "occurred_at_real", "event_time_source", "time_precision",
+         "legacy_no_event_time", "clock_skew")
+
+# migration افزودنیِ idempotent — دفعهٔ اولِ باز شدنِ DB ستون‌ها را اضافه می‌کند.
+_EVENT_TIME_DDL = (
+    "ALTER TABLE events ADD COLUMN occurred_at_real TEXT",
+    "ALTER TABLE events ADD COLUMN event_time_source TEXT",
+    "ALTER TABLE events ADD COLUMN time_precision TEXT",
+    "ALTER TABLE events ADD COLUMN legacy_no_event_time INTEGER NOT NULL DEFAULT 1",
+    "ALTER TABLE events ADD COLUMN clock_skew TEXT",
+)
 
 
 def flag_on() -> bool:
@@ -39,6 +53,10 @@ def flag_on() -> bool:
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _parse_iso(v: str) -> datetime:
+    return datetime.fromisoformat(str(v).replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
 def _sha(obj) -> str:
@@ -96,6 +114,11 @@ class EventSpine:
                 "producer TEXT, producer_sequence INTEGER, correlation_id TEXT NOT NULL,"
                 "mission_id TEXT, subject TEXT, trust TEXT, schema_version INTEGER NOT NULL,"
                 "payload_json TEXT)")
+            for _ddl in _EVENT_TIME_DDL:
+                try:
+                    self._conn.execute(_ddl)   # idempotent: duplicate-column → ignore
+                except sqlite3.OperationalError:
+                    pass
             self._conn.commit()
 
     def publish(self, ev: dict) -> "str | None":
@@ -115,11 +138,32 @@ class EventSpine:
         eid = str(ev.get("event_id") or ("evt_" + hashlib.sha256(idem.encode()).hexdigest()[:16]))
         trust = ev.get("trust")
         trust = trust if tax.is_trust(trust) else "UNKNOWN"
-        row = (eid, idem, et, domain, str(ev.get("occurred_at") or _utc_now_iso()), _utc_now_iso(),
+        # ── T48: event-time واقعی (dual-write افزودنی) ─────────────────────
+        # قواعد دستور #۸ §۳: ساعتِ نوشتن هرگز occurred_atِ واقعی نیست؛ منبعِ
+        # مستقل (router_request_ts / telegram_message_date / …) باید صریح باشد؛
+        # occurred_at > recorded_at ⇒ CLOCK_SKEW_SUSPECTED (بدون اصلاح خودکار).
+        ets = str(ev.get("event_time_source") or "").strip()
+        occ = str(ev.get("occurred_at") or _utc_now_iso())
+        rec = _utc_now_iso()
+        if ets:
+            legacy = 0
+            occ_real = str(ev.get("occurred_at_real") or occ)
+            try:
+                _skew = "CLOCK_SKEW_SUSPECTED" if _parse_iso(occ_real) > _parse_iso(rec) else ""
+            except ValueError:
+                _skew = "CLOCK_SKEW_SUSPECTED"
+        else:
+            legacy = 1                      # بدون منبع مستقل — صریح، نه قلبی
+            occ_real = None
+            _skew = ""
+        row = (eid, idem, et, domain, occ, rec,
                (ev.get("producer") or "unknown"),   # C4: provenance هرگز null (قراردادِ envelope)
                _inti(ev.get("producer_sequence")), corr, ev.get("mission_id"),
                ev.get("subject"), trust, SCHEMA_VERSION,
-               json.dumps(ev.get("payload") or {}, ensure_ascii=False, sort_keys=True))
+               json.dumps(ev.get("payload") or {}, ensure_ascii=False, sort_keys=True),
+               occ_real, ets or "write_clock_derived",
+               str(ev.get("time_precision") or ("write_clock" if not ets else "ms")),
+               legacy, _skew)
         with _LOCK:
             cur = self._conn.execute(
                 "INSERT OR IGNORE INTO events(" + ",".join(_COLS) + ") VALUES(" +

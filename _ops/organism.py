@@ -561,10 +561,25 @@ def main() -> int:
             # (env برنده؛ fallback رأیِ tracked). fail-soft و additive.
             try:
                 sys.path.insert(0, str(_HERE / "heart"))   # noqa: WPS433
-                import life_currency as _lc   # noqa: WPS433 — lazy
+                import life_currency as _lc  # noqa: WPS433 — lazy
                 _lc.tick(int(((_cstat or {}).get("beat") or 0)))
             except Exception:  # noqa: BLE001 — ارز هرگز تیک را نمی‌کشد
                 pass
+            # ── T49 (دستور مالک #۸ §۴): خواندنِ حافظه در حلقهٔ زنده — فقط‌خواندنی.
+            # سه خواندن (query_experiments/get_pending_hypotheses/search_vault) از
+            # spine با decision_time؛ شمارندهٔ memory_reads_per_cycle + read-back در
+            # pulse و state/pulse/memory-read-latest.json. flag =
+            # OCTOPUS_WIRE_MEMORY_READ (پیش‌فرض روشن برای خواندن؛ rollback: 0).
+            # خطا ⇒ MEMORY_READ_DEGRADED — هرگز تیک را نمی‌کشد. executable=false.
+            try:
+                if str(os.environ.get("OCTOPUS_WIRE_MEMORY_READ", "1")).strip().lower() \
+                        in ("1", "true", "yes", "on"):
+                    import memory_read_loop as _mrl  # noqa: WPS433 — lazy، _ops روی path
+                    pulse["memory_read"] = _mrl.tick_from_spine(
+                        beat=int(((_cstat or {}).get("beat") or 0)))
+            except Exception as _mre:  # noqa: BLE001 — قرارداد DEGRADED نه crash
+                pulse["memory_read"] = {"status": "MEMORY_READ_DEGRADED",
+                                        "error": type(_mre).__name__, "executable": False}
             # ── Provider Router (فاز ۵، D5/D6): هر beat سلامتِ providerها تازه
             # می‌شود و انتخاب در ترتیبِ Fugu→DeepSeek→GLM→Ollama می‌ماند؛ تغییرِ
             # provider = ثبتِ fallback (NO_SILENT_DOWNGRADE). passive — صفر شبکه.

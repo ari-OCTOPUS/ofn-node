@@ -115,3 +115,98 @@ class MemoryReadLoop:
                 "memory_reads_per_cycle": self.reads_this_cycle,
                 "readback": dict(self.readback_log),
                 "executable": False}
+
+
+# ── T49 (دستور #۸ §۴): اتصال زنده به spine — فقط خواندن ─────────────────────
+class SpineReadStore:
+    """آداپتور فقط-خواندنی از رویدادهای spine به ReadStore.
+
+    نگاشت اولیه (صادقانه و مستند): proposal-issued→experiment ·
+    hebb.observation→hypothesis(pending) · متن جست‌وجو = event_type+subject.
+    مسیر ارتقا: آداپتور vault_bridge/retrieval_router در فعال‌سازی بعدی."""
+
+    def __init__(self, rows: list[dict]):
+        self.rows = rows
+
+    def all_records(self) -> list[dict]:
+        out = []
+        for r in self.rows:
+            et = str(r.get("event_type") or "")
+            kind = ("experiment" if et == "proposal-issued"
+                    else "hypothesis" if et == "hebb.observation" else et)
+            out.append({"id": r.get("event_id"), "kind": kind,
+                        "occurred_at": r.get("occurred_at"),
+                        "recorded_at": r.get("recorded_at"),
+                        "resolved": False,
+                        "text": f"{et} {r.get('subject') or ''}"})
+        return out
+
+
+_PULSE_DIR = None
+
+
+def tick_from_spine(beat: int | None = None, *, spine_rows=None) -> dict:
+    """یک تیکِ خواندنِ حافظهٔ زنده از spine + انتشار تلمتری.
+
+    فقط خواندن؛ خطا ⇒ MEMORY_READ_DEGRADED (هرگز حلقهٔ organism را نمی‌کشد)؛
+    read-back: جدیدترین رویدادِ تیک قبل باید این تیک قابل‌خواندن باشد (N→N+1)."""
+    global _PULSE_DIR
+    from pathlib import Path
+    if _PULSE_DIR is None:
+        _PULSE_DIR = Path(__file__).resolve().parent / "state" / "pulse"
+    out: dict = {"schema": "memory-read-tick/1", "beat": beat, "executable": False}
+    try:
+        if spine_rows is None:
+            import sys as _sys
+            _sp = str(Path(__file__).resolve().parent / "spine")
+            if _sp not in _sys.path:
+                _sys.path.insert(0, _sp)
+            import event_spine as _es
+            _spine = _es.EventSpine()
+            try:
+                spine_rows = _spine.events()
+            finally:
+                _spine.close()   # EventSpine context-manager نیست — close صریح
+        now_dt = datetime.now(timezone.utc)
+        loop = MemoryReadLoop(SpineReadStore(spine_rows),
+                              agent_id="organism", session_id=f"beat-{beat}")
+        loop.query_experiments(now_dt)
+        loop.get_pending_hypotheses(now_dt)
+        loop.search_vault("spine", now_dt)
+        state_path = _PULSE_DIR / "memory-read-last.json"
+        prev = {}
+        try:
+            import json as _json
+            prev = _json.loads(state_path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            prev = {}
+        last_id = prev.get("last_id")
+        newest = spine_rows[-1].get("event_id") if spine_rows else None
+        if not last_id:
+            rb = "first_cycle"
+        else:
+            match = next((r for r in spine_rows if r.get("event_id") == last_id), None)
+            rb = "read_ok" if (match and MemoryReadLoop._eligible(match, now_dt)) else "read_miss"
+        out.update({"status": "OK", "memory_reads_per_cycle": loop.reads_this_cycle,
+                    "readback": rb, "last_id_seen": last_id, "newest_id": newest,
+                    "n_rows": len(spine_rows)})
+        try:
+            import json as _json
+            _PULSE_DIR.mkdir(parents=True, exist_ok=True)
+            state_path.write_text(_json.dumps({"last_id": newest, "beat": beat,
+                                               "ts": now_dt.isoformat(timespec="seconds")},
+                                              ensure_ascii=False), encoding="utf-8")
+            (_PULSE_DIR / "memory-read-latest.json").write_text(
+                _json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+        except Exception:  # noqa: BLE001 — تلمتری هرگز تیک را نمی‌کشد
+            pass
+    except Exception as e:  # noqa: BLE001 — قرارداد T49: DEGRADED نه crash
+        out.update({"status": "MEMORY_READ_DEGRADED", "error": type(e).__name__})
+        try:
+            import json as _json
+            _PULSE_DIR.mkdir(parents=True, exist_ok=True)
+            (_PULSE_DIR / "memory-read-latest.json").write_text(
+                _json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+        except Exception:  # noqa: BLE001
+            pass
+    return out

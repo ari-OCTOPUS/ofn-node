@@ -62,10 +62,17 @@ class CostReceiptAdapter:
         self.paid_blocked: bool = False           # COST_UNOBSERVABLE ⇒ true
 
     # ── helpers ────────────────────────────────────────────────────────────
-    def _base(self, trace_id, provider, model, ts_req, ts_resp, budget_before):
+    def _base(self, trace_id, provider, model, ts_req, ts_resp, budget_before,
+              task_id=None, run_id=None):
+        # T50 (OWNER-DIRECTIVE-08 §۵): تفکیک انتساب — افزودنی؛ رسید بدون
+        # task_id صریحاً UNATTRIBUTED برچسب می‌خورد تا حسابرسی‌ها بدون
+        # بدترین‌حالت‌سازی باشند.
         return {"schema": SCHEMA, "trace_id": trace_id, "provider": provider,
                 "exact_model": model, "request_timestamp": ts_req,
-                "response_timestamp": ts_resp, "budget_before_aud": round(float(budget_before), 6)}
+                "response_timestamp": ts_resp, "budget_before_aud": round(float(budget_before), 6),
+                "task_id": str(task_id or ""),
+                "run_id": str(run_id or ""),
+                "attribution": "TASK" if task_id else "UNATTRIBUTED"}
 
     def _finish(self, rec, *, tokens_in, tokens_out, usage_hash, pricing_src, pricing_ver,
                 cost, method, status, budget_after, extra=None):
@@ -86,11 +93,13 @@ class CostReceiptAdapter:
               budget_before_aud: float, usage_payload: dict | None = None,
               tokens_in: int | None = None, tokens_out: int | None = None,
               input_sha256: str = "", free_tier: bool = False,
-              fallback_of: dict | None = None, test_mode: bool = False) -> dict:
+              fallback_of: dict | None = None, test_mode: bool = False,
+              task_id: str | None = None, run_id: str | None = None) -> dict:
         key = f"{trace_id}:{input_sha256}"
         if key in self._seen:                      # idempotency — بدون شارژ دوباره
             return dict(self._seen[key])
-        rec = self._base(trace_id, provider, model, ts_req, ts_resp, budget_before_aud)
+        rec = self._base(trace_id, provider, model, ts_req, ts_resp, budget_before_aud,
+                         task_id=task_id, run_id=run_id)
         if fallback_of:
             rec["fallback"] = {"primary_status": fallback_of.get("receipt_status"),
                                "primary_provider": fallback_of.get("provider"),

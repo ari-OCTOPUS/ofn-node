@@ -41,6 +41,9 @@ def log_incoming(update: dict, owner_id: int | None = None) -> str | None:
         # detect /stop یا kill — این‌ها همیشه allow، فقط log
         is_stop = text.strip().lower().startswith(("/stop", "/halt", "/kill"))
 
+        _emit_t48_spine_event(msg, from_id=from_id, chat_id=chat_id,
+                              kind="command" if text.startswith("/") else "message")
+
         return intel_spine.log_interaction(
             source="telegram",
             direction="in",
@@ -55,6 +58,36 @@ def log_incoming(update: dict, owner_id: int | None = None) -> str | None:
     except Exception:
         # logger نباید caller را بشکند
         return None
+
+
+def _emit_t48_spine_event(msg: dict, *, from_id, chat_id, kind: str) -> None:
+    """T48 producer_2 (دستور #۸ §۳): رویداد spine با event-time واقعی.
+
+    occurred_at = msg['date'] — **ساعتِ سرورِ تلگرام** (unix seconds، دقت ۱s)؛
+    recorded_at = زمان ingest محلی. تأخیر طبیعی انسانی + اختلاف ساعت دو سرور
+    (skew>0 ⇒ CLOCK_SKEW_SUSPECTED خودکار در publish). fail-soft مطلق؛
+    rollback: OCTOPUS_T48_EVENT_TIME=0."""
+    import os as _os
+    if str(_os.environ.get("OCTOPUS_T48_EVENT_TIME", "1")).strip().lower() not in ("1", "true", "yes", "on"):
+        return
+    try:
+        from datetime import datetime, timezone as _tz
+        date = msg.get("date")
+        if not date:
+            return   # بدون منبع واقعی، رویداد منتشر نمی‌شود (نه تزریق ساعت نوشتن)
+        occ = datetime.fromtimestamp(int(date), tz=_tz.utc).isoformat(timespec="seconds")
+        import spine_adapters as _sa   # path زندهٔ center (همان import provider_adapter)
+        _sa.emit_event(
+            event_type="delivered", domain="telegram",
+            correlation_id=f"tg-{from_id}-{int(date)}",
+            subject=str(chat_id)[:64],
+            producer="telegram_adapter_t48", trust="DETERMINISTIC",
+            occurred_at=occ,
+            event_time_source="telegram_message_date", time_precision="1s",
+            payload={"kind": kind, "actor": str(from_id)[:24]},
+            idempotency_key=f"tg-{from_id}-{int(date)}|t48-incoming")
+    except Exception:  # noqa: BLE001 — هرگز receive loop تلگرام را نمی‌کشد
+        pass
 
 
 def log_outgoing(chat_id: int | str, text: str, stream: str = "") -> str | None:

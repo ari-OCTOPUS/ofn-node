@@ -352,11 +352,34 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
                                 "completion_tokens": out.get("tokens_out")}
                                if out.get("cost_usd") is not None else None),
                 tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
-                input_sha256=_hl.sha256(str(prompt).encode("utf-8", "replace")).hexdigest())
+                input_sha256=_hl.sha256(str(prompt).encode("utf-8", "replace")).hexdigest(),
+                # T50 (OWNER-DIRECTIVE-08 §۵): انتساب رسید — task از caller؛
+                # run از env (هر پروسه یک run_id؛ غایب = ردیف UNATTRIBUTED).
+                task_id=str(task or "")[:64] or None,
+                run_id=str(os.environ.get("OCTOPUS_RUN_ID") or "")[:64] or None)
             _rp.parent.mkdir(parents=True, exist_ok=True)
             _rp.open("a", encoding="utf-8").write(_jn.dumps(_recpt, ensure_ascii=False, default=str) + "\n")
         except Exception:  # noqa: BLE001 — رسید هرگز مغز را نمی‌کشد
             pass
+        # ── T48 producer_1 (دستور #۸ §۳): رویداد spine با event-time واقعی ──
+        # occurred_at = زمانِ ارسالِ درخواست (لحظهٔ آغازِ رویدادِ provider-call؛
+        # مستقل از لحظهٔ نوشتن؛ تأخیر طبیعی = شبکه+استنتاج). آپگرید آینده:
+        # plumbing فیلد `created` خود provider (ساعت سرور). fail-soft مطلق.
+        if str(os.environ.get("OCTOPUS_T48_EVENT_TIME", "1")).strip().lower() in ("1", "true", "yes", "on"):
+            try:
+                import spine_adapters as _sat48  # noqa: WPS433 — همان path زندهٔ provider_adapter
+                _sat48.emit_event(
+                    event_type="accepted-measurement", domain="provider",
+                    correlation_id=str(_recpt.get("trace_id") or f"paid-{tier}-{int(_pt.time()*1000)}"),
+                    subject=str(task or "unknown")[:64],
+                    producer="model_router_t48", trust="DETERMINISTIC",
+                    occurred_at=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="milliseconds"),
+                    event_time_source="router_request_ts", time_precision="ms",
+                    payload={"tier": str(tier)[:16], "task": str(task or "")[:40],
+                             "receipt_trace": str(_recpt.get("trace_id") or "")[:48]},
+                    idempotency_key=f"{_recpt.get('trace_id')}|t48-provider-call")
+            except Exception:  # noqa: BLE001 — instrumentation هرگز مسیر پولی را نمی‌کشد
+                pass
         _paid_log(task=task, tier=tier, role=role,
                   provider=getattr(cli, "provider", ""),
                   model=out.get("model"),
