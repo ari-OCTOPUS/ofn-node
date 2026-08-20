@@ -319,3 +319,5 @@ write-only به LIVE تبدیل شد:
 - [[لایه‌ها/2026-08-21-LAYER-REFLECTION-CAPABILITIES|Reflection: Capabilities]]
 - [[تصمیم‌ها/2026-08-21-LAYER-NEEDS-COUNCIL|شورای نیازهای لایه‌ها]]
 - [[تصمیم‌ها/2026-08-21-OWNER-DECISION-INBOX|Owner Decision Inbox]]
+- [[76-SOP-OWNER-GATEWAY-MINIAPP-2026-08-21|SOP — Owner-Gateway (Mini App)]]
+- [[77-AUDIT-MINIAPP-GATEWAY-2026-08-21|AUDIT — معماری درگاه AGI (miniapp_gateway)]]
