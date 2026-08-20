@@ -33,7 +33,7 @@
     {
       "id": "E",
       "name": "test-runner-timeout-isolation",
-      "status": "PATCHED_TESTS_3of3_SMOKE_OK",
+      "status": "ROOT_CAUSE_FIXED",
       "blocker": null,
       "next_executable": "per-file timeout map + continue-on-timeout in run_all"
     },

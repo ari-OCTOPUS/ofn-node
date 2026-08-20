@@ -298,37 +298,62 @@ def run(root=None, journal=True) -> dict:
 
 
 def card(root=None, top=6) -> str:
-    r = run(root, journal=False)
-    c = r["calibration"]
+    """کارتِ بینش — ارزان و همیشه فوری (Lane E root-cause, 2026-08-21).
+
+    نسخهٔ قبلی هر بار `run()` را صدا می‌زد که اسکنِ سراسریِ درخت را اجرا می‌کند
+    (~۱۳۰s) — یعنی هر render در منوی کابین و هر `/insight` تلگرام، نخ مرکز را
+    برای دو دقیقه قفل می‌کرد. حالا کارت از آخرین اجرای ثبت‌شده در journal
+    می‌خواند؛ اسکن فقط با فراخوانیِ صریح (CLI / shadow) اجرا می‌شود.
+    نبودِ journal صادقانه می‌گوید «هنوز اجرا نشده» (S-A02)."""
+    root = Path(root) if root else Path(__file__).resolve().parent
+    jpath = root / "state" / JOURNAL
+    entry = None
+    try:
+        if jpath.exists():
+            rows = [json.loads(l) for l in
+                    jpath.read_text(encoding="utf-8").splitlines() if l.strip()]
+            if rows:
+                entry = rows[-1]
+    except Exception:  # noqa: BLE001 — کارت هرگز به‌خاطر journal خراب نمی‌میرد
+        entry = None
     lines = ["🧠 بینش — از یافته تا فرضیه", ""]
-    if c["previous_hypotheses"]:
-        rr = c["resolution_rate"]
+    if entry is None:
+        lines.append("این کارت هنوز اجرا نشده است (S-A02).")
+        lines.append("برای اجرا: <code>python _ops/self_insight.py</code>")
+        return "\n".join(lines)
+    ts = entry.get("ts")
+    hyps = entry.get("hypotheses") or []
+    calib = entry.get("calibration") or {}
+    if ts:
+        try:
+            ago = max(0, int(time.time() - float(ts)))
+            lines.append(f"🕒 آخرین اجرا: {ago}s پیش")
+        except (TypeError, ValueError):
+            pass
+    if calib.get("previous_hypotheses"):
+        rr = calib.get("resolution_rate")
         lines.append(
-            f"📊 نمرهٔ خودم از اجرای قبل: {len(c['resolved'])} از {c['measured']} "
-            f"پیش‌بینیِ سنجیدنی محقق شد"
-            + (f" ({rr:.0%})" if rr is not None else "")
-            + (f"، {len(c['unmeasurable'])} سنجیدنی نبود" if c["unmeasurable"] else ""))
+            f"📊 نمرهٔ اجرای قبل: {len(calib.get('resolved') or [])} از "
+            f"{calib.get('measured')} پیش‌بینیِ سنجیدنی محقق شد"
+            + (f" ({rr:.0%})" if rr is not None else ""))
     else:
         lines.append("📊 اولین اجراست — هنوز پیش‌بینی‌ای برای نمره‌دادن ندارم.")
     lines.append("")
-    if not r["hypotheses"]:
-        lines.append("هیچ فرضیه‌ای ساخته نشد.")
-    for h in r["hypotheses"][:top]:
+    if not hyps:
+        lines.append("آخرین اجرا فرضیه‌ای نداشت.")
+    for h in hyps[:top]:
         lines += [
-            f"▸ [{h['rank']:.2f}] {h['claim']}",
-            f"    اثر {h['impact']}/5 · اطمینان {h['confidence']:.0%} "
-            f"({h['confidence_why']}) · هزینه {h['cost']}",
-            f"    ابطال: {h['falsifier']}",
-            f"    ارزان‌ترین تست: {h['cheapest_test']}",
+            f"▸ [{h.get('rank', 0):.2f}] {h.get('claim', '')}",
+            f"    اثر {h.get('impact', 0)}/5 · اطمینان "
+            f"{float(h.get('confidence', 0)):.0%} ({h.get('confidence_why', '')}) "
+            f"· هزینه {h.get('cost', '')}",
+            f"    ابطال: {h.get('falsifier', '')}",
+            f"    ارزان‌ترین تست: {h.get('cheapest_test', '')}",
             "",
         ]
-    n = r["counts"]["total"]
+    n = len(hyps)
     if n > top:
         lines.append(f"… و {n - top} فرضیهٔ دیگر با رتبهٔ پایین‌تر.")
-    if r["rule_errors"]:
-        lines.append(f"🚩 {len(r['rule_errors'])} قاعده خطا داد: "
-                     + ", ".join(r["rule_errors"]))
-    lines += ["", f"({r['elapsed_s']}s · {r['corpus']['files']} فایل)"]
     return "\n".join(lines)
 
 

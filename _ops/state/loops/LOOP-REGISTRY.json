@@ -942,8 +942,8 @@
       "loop_id": "LOOP-RUN_ALL-TIMEOUT",
       "class": "UNBOUNDED",
       "severity": "HIGH",
-      "status": "IN_PROGRESS",
-      "note": "per-file timeout map (capability_registry 900s) + continue-on-timeout + execution-manifest.jsonl with stdout/stderr hashes; timed-out suites revoke capability; root cause of the hang still open",
+      "status": "ROOT_CAUSE_FIXED",
+      "note": "root cause: capability_registry render(self_insight) ran the ~130s full-tree scan on every card render (also blocked Telegram /insight ~2min). Fix: self_insight.card() is journal-based; scan runs only on explicit invocation. test_self_insight_card_cheap 3/3; test_capability_registry 20/20 < 300s; test_self_insight 23/23. Residual: dark_capabilities render ~7.8s.",
       "regression_test": null,
       "verified": false,
       "updated": "2026-08-21"
