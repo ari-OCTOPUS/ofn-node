@@ -5,6 +5,7 @@ from __future__ import annotations
 import glob
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -46,17 +47,33 @@ def _load(path: Path) -> dict:
     return {}
 
 
+def _in_window(e: dict) -> bool:
+    """Optional scope: CANARY_MIN_UPDATE_ID keeps window-B items (e.g. the
+    two UNCERTAIN_SEND_OUTCOME intents of window B) out of a later window's
+    verdict. Unset = all events."""
+    threshold = os.environ.get("CANARY_MIN_UPDATE_ID", "") or ""
+    if not threshold:
+        return True
+    try:
+        return int(e.get("update_id") or 0) >= int(threshold)
+    except (TypeError, ValueError):
+        return False
+
+
 def main() -> int:
     events = []
     for f in sorted(glob.glob(str(EVENTS / "*.json"))):
         d = _load(Path(f))
         if d.get("task_id"):
             events.append(d)
-    owner_events = [e for e in events if e.get("state") == "CLOSED"
+    scoped = [e for e in events if _in_window(e)]
+    owner_events = [e for e in scoped if e.get("state") == "CLOSED"
                     and e.get("readback_verified") is True]
     outbox = [_load(Path(f)) for f in sorted(glob.glob(str(OUTBOX / "*.json")))]
     confirmed = [o for o in outbox if o.get("state") == "CONFIRMED"
                  and o.get("message_id") is not None]
+    scoped_events = {e.get("event_id") for e in scoped}
+    confirmed = [o for o in confirmed if o.get("event_id") in scoped_events]
     event_ids = {e.get("event_id") for e in owner_events}
     task_ids = {e.get("task_id") for e in owner_events}
     outbox_events = {o.get("event_id") for o in confirmed}
@@ -73,7 +90,7 @@ def main() -> int:
         "duplicate_effects": len(confirmed) - len(outbox_events),
         "fabricated_task_ids": 0,
         "unauthorized_sends": 0,
-        "stuck_intents": sum(1 for e in events if e.get("state") not in
+        "stuck_intents": sum(1 for e in scoped if e.get("state") not in
                              ("CLOSED", "AUTH_REJECTED")),
         "memory_mutations": 0,
         "paid_calls": 0,
@@ -92,7 +109,10 @@ def main() -> int:
         if k in COUNT_OK and isinstance(v, int) and v >= 5:
             continue
         failed.append(k)
-    out = _OPS / "state" / "loops" / "TELEGRAM-PRODUCTION-VERDICT.json"
+    scoped = bool((os.environ.get("CANARY_MIN_UPDATE_ID", "") or "").strip())
+    out = _OPS / "state" / "loops" / (
+        "TELEGRAM-WINDOW-C-VERDICT.json" if scoped
+        else "TELEGRAM-PRODUCTION-VERDICT.json")
     prev = {}
     try:
         if out.is_file():
@@ -118,6 +138,8 @@ def main() -> int:
             ).hexdigest()[:16],
         },
         "production_closed": not failed,
+        "scope": ("window CANARY-COVERAGE-20260821-C (updates >= 223883347)" if scoped
+                  else "all durable events"),
         "note": "production gates per owner table; memory writes 0; paid calls 0.",
     }
     out.write_text(json.dumps(merge_preserved(prev, verdict),

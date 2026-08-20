@@ -23,9 +23,16 @@ def t_a_authoritative_verdict_exists_and_is_scoped():
     d = _read(AUTH)
     v = d["authoritative_verdict"]
     assert v["TELEGRAM_CENTER_DURABLE_TRANSPORT_LOOP"] == "PRODUCTION_CLOSED"
-    assert v["TELEGRAM_COMMAND_COVERAGE"] == "OPEN"
+    assert v["TELEGRAM_COMMAND_COVERAGE"] == "PRODUCTION_CLOSED"
     assert v["TELEGRAM_EVENT_BRIDGE_PATH"] == "IN_PROGRESS"
     assert v["WAVE1"] == "LOCKED"
+    # closure must be evidence-backed, never claimed
+    wc = d["window_20260821_C"]
+    assert wc["verifier_confirmed"] is True
+    assert wc["guard_wired_at_runtime"] is True
+    assert wc["uncertain_send_outcomes"] == 0
+    assert (LOOPS / "TELEGRAM-WINDOW-C-VERDICT.json").is_file()
+    assert (LOOPS / "canary-coverage-2026-08-21-C" / "AUDIT.json").is_file()
 
 
 def t_b_every_old_verdict_points_to_authority():
@@ -46,11 +53,17 @@ def t_c_duplicate_effect_and_content_are_not_conflated():
 
 def t_d_no_artifact_may_claim_command_coverage_closed():
     d = _read(AUTH)
-    assert d["authoritative_verdict"]["TELEGRAM_COMMAND_COVERAGE"] == "OPEN"
+    # closure lives only in the authoritative verdict; every subordinate
+    # artifact keeps its historical open-claim pointer
+    assert d["authoritative_verdict"]["TELEGRAM_COMMAND_COVERAGE"] == "PRODUCTION_CLOSED"
     for p in SUPERSEDED:
         old = _read(p)
         effective = str(old.get("effective_claim") or "")
         assert "command coverage OPEN" in effective, (p, effective)
+    # the window-C verifier artifact exists, is confirmed, and is scoped
+    vc = _read(LOOPS / "TELEGRAM-WINDOW-C-VERDICT.json")
+    assert vc.get("confirmed") is True
+    assert "CANARY-COVERAGE-20260821-C" in str(vc.get("scope") or "")
 
 
 def t_e_registry_matches_authoritative_scope():
@@ -60,8 +73,8 @@ def t_e_registry_matches_authoritative_scope():
     assert by["S-T02"]["status"] == "in_progress"
     inc = {i.get("loop_id"): i for i in d.get("incidents") or []}
     assert inc["LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT"]["status"] == "CONTAINED_VERIFIED"
-    assert inc["LOOP-TELEGRAM-COMMAND-COVERAGE"]["status"] == "OPEN"
-    assert inc["LOOP-RUNNING-CODE-DRIFT"]["status"] == "OPEN"
+    assert inc["LOOP-TELEGRAM-COMMAND-COVERAGE"]["status"] == "PRODUCTION_CLOSED"
+    assert inc["LOOP-RUNNING-CODE-DRIFT"]["status"] == "PRODUCTION_CLOSED"
 
 
 def t_f_verifier_regeneration_cannot_broaden_or_erase():
