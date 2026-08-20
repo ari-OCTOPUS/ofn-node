@@ -4,10 +4,14 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, index]
 created: 2026-07-18
-updated: 2026-08-17
+updated: 2026-08-20
 ---
 
 # 🐙 شناخت اختاپوس — نقطهٔ ورود
+
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۲۰ ~20:4x.** حلقهٔ تلگرام A13–A19 بسته شد. ورود امشب: [[72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20|نوت ۷۲]] · [[../../OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[../../docs/NOW|NOW]] · [[../../01 - Dashboard/HANDOFF|HANDOFF]]. A18/Full Loop هنوز BLOCKED. lease آزاد. hook دانش برای C مجاز.
+
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۸.** پاکت شاهد سه‌گرهی (Verifier Pattern) = نوت [[66-VERIFIER-EVIDENCE-ENVELOPE-2026-08-18|۶۶]] · سایدکار `_ops/handshake/` · WAVE0، نه پچ دیمون.
 
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۷.** محصول جدا [[../../03 - Projects/VibeGuard/00-START-HERE|VibeGuard]] وارد شد (نوت [[65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]]). به خط زندهٔ `_ops` قاطی نکن.
 
@@ -296,3 +300,22 @@ write-only به LIVE تبدیل شد:
 > این سیستم بارها «سبز» بوده و کار نکرده. هر بار ریشه یکی بود: **ادعایی که هیچ
 > مشاهده‌ای نمی‌توانست ابطالش کند.** پس هر چیزی که می‌سازی را طوری بساز که بتواند
 > دروغ‌گفتنش را نشان دهد — و بعد بررسی کن که واقعاً نشان می‌دهد.
+
+---
+
+## جلسات و Harvest (2026-08-21)
+
+- [[جلسات/2026-08-20--21-SESSION-HARVEST-WAVE0-TELEGRAM|برداشت کامل نشست Wave0→Telegram]]
+- [[جلسات/CURRENT-SESSION-CAPSULE|CURRENT-SESSION-CAPSULE — شروع نشست بعدی]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-TELEGRAM|Reflection: Telegram]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-MEMORY|Reflection: Memory]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-ORGANISM|Reflection: Organism]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-CORTEX|Reflection: Cortex]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-SELF_MODEL|Reflection: Self-model]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-DOCTOR|Reflection: Doctor]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-4D_SYSTEM|Reflection: 4d_system]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-SAFETY|Reflection: Safety]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-TESTS|Reflection: Tests]]
+- [[لایه‌ها/2026-08-21-LAYER-REFLECTION-CAPABILITIES|Reflection: Capabilities]]
+- [[تصمیم‌ها/2026-08-21-LAYER-NEEDS-COUNCIL|شورای نیازهای لایه‌ها]]
+- [[تصمیم‌ها/2026-08-21-OWNER-DECISION-INBOX|Owner Decision Inbox]]
