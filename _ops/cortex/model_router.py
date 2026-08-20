@@ -361,22 +361,42 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
             _rp.open("a", encoding="utf-8").write(_jn.dumps(_recpt, ensure_ascii=False, default=str) + "\n")
         except Exception:  # noqa: BLE001 — رسید هرگز مغز را نمی‌کشد
             pass
-        # ── T48 producer_1 (دستور #۸ §۳): رویداد spine با event-time واقعی ──
-        # occurred_at = زمانِ ارسالِ درخواست (لحظهٔ آغازِ رویدادِ provider-call؛
-        # مستقل از لحظهٔ نوشتن؛ تأخیر طبیعی = شبکه+استنتاج). آپگرید آینده:
-        # plumbing فیلد `created` خود provider (ساعت سرور). fail-soft مطلق.
+        # ── T48 producer_1 (دستور #۸ §۳ + اصلاح T52 دستور #۱۰ §۲) ─────────
+        # occurred_at اولویت با «زمان سرورِ provider» است (فیلد created، unix
+        # seconds — ساعتِ مستقلِ بیرونی)؛ در نبودش fallback به router_request_ts
+        # (DELAY_BEARING_SAME_CLOCK — همان ساعت ماشین، فقط تأخیر می‌سازد).
+        # انحراف ساعت (server − local) در payload ثبت می‌شود؛
+        # occurred>recorded خودکار در spine ⇒ CLOCK_SKEW_SUSPECTED.
         if str(os.environ.get("OCTOPUS_T48_EVENT_TIME", "1")).strip().lower() in ("1", "true", "yes", "on"):
             try:
                 import spine_adapters as _sat48  # noqa: WPS433 — همان path زندهٔ provider_adapter
+                _t48_occ = None
+                _t48_src = None
+                _t48_prec = None
+                try:
+                    _sc = out.get("server_created")
+                    if _sc is not None:
+                        from datetime import datetime as _dt52, timezone as _tz52
+                        _t48_occ = _dt52.fromtimestamp(int(_sc), tz=_tz52.utc).isoformat(timespec="seconds")
+                        _t48_src = "provider_server_created"
+                        _t48_prec = "1s"
+                except Exception:  # noqa: BLE001 — پارس نشد → fallback
+                    _t48_occ = None
+                if _t48_occ is None:
+                    _t48_occ = _dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="milliseconds")
+                    _t48_src = "router_request_ts"
+                    _t48_prec = "ms"
                 _sat48.emit_event(
                     event_type="accepted-measurement", domain="provider",
                     correlation_id=str(_recpt.get("trace_id") or f"paid-{tier}-{int(_pt.time()*1000)}"),
                     subject=str(task or "unknown")[:64],
                     producer="model_router_t48", trust="DETERMINISTIC",
-                    occurred_at=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="milliseconds"),
-                    event_time_source="router_request_ts", time_precision="ms",
+                    occurred_at=_t48_occ,
+                    event_time_source=_t48_src, time_precision=_t48_prec,
                     payload={"tier": str(tier)[:16], "task": str(task or "")[:40],
-                             "receipt_trace": str(_recpt.get("trace_id") or "")[:48]},
+                             "receipt_trace": str(_recpt.get("trace_id") or "")[:48],
+                             "router_request_ts": _dt.datetime.fromtimestamp(
+                                 _t0, _tz.utc).isoformat(timespec="milliseconds")},
                     idempotency_key=f"{_recpt.get('trace_id')}|t48-provider-call")
             except Exception:  # noqa: BLE001 — instrumentation هرگز مسیر پولی را نمی‌کشد
                 pass

@@ -1,0 +1,8 @@
+{
+ "ts": "2026-08-20T14:32:53",
+ "organism_pid": 7096,
+ "daemon_pid": 25680,
+ "beat": 42940,
+ "spine_rows": 7266,
+ "restart_path": "STOP-ORGANISM + RESTART-REQUESTED (RUN-ORGANISM.bat supervisor loop)"
+}

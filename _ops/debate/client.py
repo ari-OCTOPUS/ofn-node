@@ -237,11 +237,16 @@ class DeepSeekClient:
         # تا ledger بینِ stubِ آفلاین و مغزِ محلیِ واقعی فرق بگذارد. نبودِ این کلید =
         # رفتارِ امروز بایت‌به‌بایت (هر transport = stub؛ بدونِ transport = زنده).
         _tier = raw.get("octopus_tier")
+        # T52 (OWNER-DIRECTIVE-10 §۲): زمانِ سرورِ provider — فیلد استاندارد
+        # `created` (unix seconds) در بدنهٔ پاسخ. additive؛ callerهای قدیمی
+        # نادیده می‌گیرند. مبنای occurred_at واقعی دامنهٔ provider می‌شود.
+        _srv_created = raw.get("created")
         return {"text": text, "reasoning_content": _msg.get("reasoning_content") or "", "model": raw.get("octopus_model") or self.model,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
                 "finish_reason": _infer_finish(_finish, tout, max_tokens),
                 "tier": _tier or ("stub" if self.transport is not None else "paid"),
-                "stub": self.transport is not None and (_tier or "stub") == "stub"}
+                "stub": self.transport is not None and (_tier or "stub") == "stub",
+                "server_created": _srv_created}
 
 
 # ─── MultiProviderClient (GLM/Fugu/DeepSeek) — تسکِ routing اصلی ──────────────
