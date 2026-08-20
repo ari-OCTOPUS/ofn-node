@@ -1,6 +1,6 @@
 {
   "schema": "telegram-loop-verifier/1",
-  "generated_at": "2026-08-20T14:10:34+00:00",
+  "generated_at": "2026-08-20T14:46:35+00:00",
   "agent_identity": "independent-reader-process",
   "scope": "fixture-shadow-only",
   "confirmed": true,
@@ -66,7 +66,7 @@
     {
       "name": "independent_test_rerun",
       "ok": true,
-      "summary": "test_telegram_durable_loop: 14/14"
+      "summary": "test_telegram_durable_loop: 15/15"
     }
   ],
   "production_confirmed": false,
@@ -79,9 +79,9 @@
     "_ops/telegram_center/durable_loop.py": "4ab197f533f6a343549f9915a6250646ed56decc6d5eba1c44bf55146d80248e",
     "_ops/telegram_center/tg_api.py": "63d6b53c0b9651156db62602a082db8351244c513b247926e94de2ebd08c9822",
     "_ops/telegram_center/center.py": "7eda8c3b2550b805b61f4a53d4f92bfe15a97a876abf3e2bd02315d6ee906022",
-    "_ops/tests/test_telegram_durable_loop.py": "6b94161ac30d9c85cae37f303597032eff522ca0e19169625b0868260edc4717"
+    "_ops/tests/test_telegram_durable_loop.py": "33b9c40276435d06db48dc26f3336d54bf91008dc0bd15a96e85dff5b7c5b472"
   },
-  "report_hash": "7b0c66ce3420f97e0f6c432a6589db6d7d84e7b333b7b3eab3bdf6eeaedd1d51",
+  "report_hash": "1afee3fb66ed165e84cdf7291665f30710ed94dedfd4219ea82fd1d99c959017",
   "limitations": [
     "fake transport",
     "no external Telegram call",
