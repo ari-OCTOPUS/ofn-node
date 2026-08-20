@@ -130,8 +130,13 @@ def main() -> dict:
             html_date = _html_latest_date(html_raw)
         except Exception:
             html_date = ""
-        if html_date and not parsed.published_date.startswith(html_date[:6]):
-            # تاریخ‌های کامل ممکن است فرمت متفاوت داشته باشند؛ مقایسهٔ ماه/روز
+
+        def _norm_date(d: str) -> str:
+            """نرمال‌سازی جداکننده‌ها — «20-Aug-2026» و «20 Aug 2026» یکی‌اند."""
+            return "".join(ch for ch in d if ch.isalnum()).lower()
+
+        if html_date and _norm_date(html_date) != _norm_date(parsed.published_date):
+            # اختلافِ واقعی تاریخ (نه فرمت) = ابهام → BLOCK؛ BLOCKED بهتر از عدد حدسی
             return _verdict("PROBE_BLOCKED_SOURCE_CONFLICT",
                             {"csv_date": parsed.published_date, "html_date": html_date})
 

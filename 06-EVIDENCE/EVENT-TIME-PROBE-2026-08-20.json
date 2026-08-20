@@ -1,0 +1,67 @@
+{
+ "schema": "event-time-probe.v1",
+ "verdict": "PROBE_RESPONSE_INVALID",
+ "ts": "2026-08-20T08:06:07.292+00:00",
+ "agent_id": "agent-B-ZCode",
+ "session_id": "sess_1d388c34",
+ "probe_id": "probe-5539dd4362da5e7c",
+ "task_id": "event-time-probe-20260820",
+ "run_id": "fcc77e9a-dd4b-4bb0-8828-060a3fb50f08",
+ "authorization": {
+  "payload_sha256": "E175C9430647DA26096ABDB88B52DBC1F94E3E6CDCD9A0DC4C7F1FE322CB5157",
+  "signature_verified": true,
+  "fx_pin_receipt_id": "5539dd4362da5e7c"
+ },
+ "request": {
+  "endpoint_host": "api.deepseek.com",
+  "model_requested": "deepseek-v4-flash",
+  "model_source": "DEEPSEEK-AUTOMATIC-ROUTING-01 (payload مدل را پین نکرده)",
+  "body_sent_at": "2026-08-20T08:06:06.239+00:00",
+  "request_sha256": "5ef207e18f944fb1c406112b2f509d6b591e03169403b48f97947fd57c16a2d7",
+  "nonce_sha256": "2bba5077d4c55466850192419a96f96042de2dc13b5e1e76219933f81f5ad1dc",
+  "max_output_tokens": 32,
+  "temperature": 0,
+  "retries_allowed": 0,
+  "request_started_at": "2026-08-20T08:06:06.146+00:00"
+ },
+ "response": {
+  "http_status": 200,
+  "request_id": "",
+  "headers_received_at": "2026-08-20T08:06:06.516+00:00",
+  "body_completed_at": "2026-08-20T08:06:07.284+00:00",
+  "response_sha256": "c60807a282476019",
+  "model_returned": "deepseek-v4-flash",
+  "created_unix": 1787213166,
+  "created_utc": "2026-08-20T08:06:06+00:00",
+  "nonce_match": false,
+  "finish_reason": "length",
+  "prompt_tokens": 122,
+  "completion_tokens": 32,
+  "total_tokens": 154,
+  "semantic_interpretation": "COMPLETION_CREATED_TIMESTAMP",
+  "exact_server_stage": "UNKNOWN",
+  "precision": "1s"
+ },
+ "timing": {
+  "round_trip_ms": 1138.7,
+  "created_minus_send_ms": -239.2,
+  "receive_minus_created_ms": 516.6,
+  "clock_skew_suspected": false
+ },
+ "cost": {
+  "receipt_id": "cost-5539dd4362da5e7c",
+  "attributed_task_id": "event-time-probe-20260820",
+  "attributed_run_id": "fcc77e9a-dd4b-4bb0-8828-060a3fb50f08",
+  "method": "ESTIMATE_FROM_USAGE",
+  "tokens": 154,
+  "fx_usd_to_aud": 1.405283867
+ },
+ "result": {
+  "calls_attempted": 1,
+  "calls_succeeded": 1,
+  "retry_count": 0,
+  "server_created_captured": true,
+  "spine_event_written": false,
+  "executable": false
+ }
+}
