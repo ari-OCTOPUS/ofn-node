@@ -7,7 +7,7 @@ session_id: SESSION-20260820-21
 scope: owner-gateway — Telegram Mini App integration
 baseline_head: 4faad7d
 document_commit: 7ebbc2251af86d57ee137d11b184298f6580c42b
-verified_head: pending-this-commit
+verified_head: 2bfdefe8aede5ed18ca3e51e28827ca4b585d525
 external_code_verification: local-only (F:/backup, not a public repo)
 paid_calls: forbidden
 memory_production_writes: forbidden

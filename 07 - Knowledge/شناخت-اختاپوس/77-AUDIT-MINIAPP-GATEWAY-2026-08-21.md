@@ -9,7 +9,7 @@ session_id: SESSION-20260820-21
 scope: miniapp_gateway.py — code-level audit and requirements
 baseline_head: 4faad7d
 document_commit: 7ebbc2251af86d57ee137d11b184298f6580c42b
-verified_head: pending-this-commit
+verified_head: 2bfdefe8aede5ed18ca3e51e28827ca4b585d525
 hmac_design: PASS_WITH_AUTH_DATE_FIX
 replay_protection: PARTIAL
 webhook_migration: DESIGN_ONLY
