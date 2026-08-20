@@ -102,7 +102,7 @@ def process_sidecar_queue() -> dict:
 
     n = 0
     try:
-        for ev in batch:
+      for ev in batch:
         # ۱) afferent registry
         with registry.open("a", encoding="utf-8") as f:
             f.write(json.dumps({
