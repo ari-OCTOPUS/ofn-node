@@ -18,9 +18,9 @@ Machine-readable source: `LOOP-REGISTRY.json` / `LOOP-REGISTRY.jsonl`.
 
 ## New registered debts (2026-08-21)
 
-6. **LOOP-EVENT-BRIDGE-PRE-SEND-DEDUPE** — `event_bridge.py` marks a content signature seen before direct send (`event_bridge.py:165-170`); a failed alert can be suppressed for 24 hours. Must be routed through the durable outbox.
-7. **LOOP-LEGACY-RECEIPT-UNCONFIRMED** — legacy receipt rows without `ok` remain ANSWERED-compatible; that is compatibility, not delivery confirmation. Must be explicitly labeled `LEGACY_UNCONFIRMED`.
-8. **LOOP-RUN_ALL-TIMEOUT** — `run_all.py` blocks full coverage on a 300-second per-file timeout at `test_capability_registry.py`. This is an `UNBOUNDED` loop: it needs its own lane and time budget instead of holding the whole suite hostage.
+6. **LOOP-EVENT-BRIDGE-PRE-SEND-DEDUPE** — IN_PROGRESS: `event_bridge.py` now marks seen only after confirmed delivery; outbox QUEUED/DELIVERY_FAILED/CONFIRMED/DLQ rows; bounded pending retry (3 attempts); `test_event_bridge_outbox` 3/3. Live process loads the new module on next center restart.
+7. **LOOP-LEGACY-RECEIPT-UNCONFIRMED** — IN_PROGRESS: truth labels `DELIVERY_CONFIRMED/DELIVERY_FAILED/LEGACY_UNCONFIRMED` plus counts/denominator in the collector view; legacy rows are not rewritten; `test_telegram_durable_loop` 15/15.
+8. **LOOP-RUN_ALL-TIMEOUT** — IN_PROGRESS: per-file timeout map (capability_registry 900s), continue-on-timeout, `execution-manifest.jsonl` with stdout/stderr sha256; timed-out suites revoke the capability marker; `test_runner_timeout_isolation` 3/3 + smoke. Root cause of the capability_registry hang remains open.
 
 ## Pre-existing cognitive failures (next phase)
 
