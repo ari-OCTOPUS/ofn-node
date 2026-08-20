@@ -150,7 +150,8 @@ def collect(*, inbound: "list | None" = None, sends: "list | None" = None) -> di
     for uid, a in sorted(arrivals.items(), key=lambda kv: str(kv[1].get("ts") or "")):
         reps = replies.get(uid, [])
         disp = dispositions.get(uid, [])
-        sent = [r for r in reps if str(r.get("state") or "") == "sent"]
+        sent = [r for r in reps
+                if str(r.get("state") or "") == "sent" and r.get("ok") is not False]
         withheld = [r for r in reps if str(r.get("state") or "") in ("held", "blocked")]
         ae = _iso_to_epoch(a.get("ts"))
 

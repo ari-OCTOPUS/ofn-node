@@ -2671,6 +2671,20 @@ class Center:
         except Exception:  # noqa: BLE001
             return False
 
+    def _begin_durable(self, update: dict):
+        """Intent ماندگارِ opt-in؛ نبود/خطای boundary یعنی مسیر قدیمی، نه نیمه‌فعال."""
+        try:
+            import durable_loop as _durable
+            if not _durable.enabled():
+                return None
+            return _durable.begin_update(update, authorized=self._is_owner(update))
+        except Exception as exc:  # noqa: BLE001 — boundary نیمه‌فعال fail closed می‌شود
+            try:
+                opslib.alert([f"telegram durable intent failed: {type(exc).__name__}"])
+            except Exception:  # noqa: BLE001
+                pass
+            raise
+
     def handle_update(self, u) -> "dict | None":
         """یک update. غیرمالک/ناوصل/ناسازگار → None (صفر اثر، صفر پاسخ)."""
         if not self._wired() or not isinstance(u, dict):
@@ -5882,11 +5896,31 @@ class Center:
             # یک حدسِ زمانی. `finally` باربر است: بدونِ آن یک استثنا برچسب را
             # روی نخ جا می‌گذارد و **ارسالِ بعدی** به updateِ مرده می‌چسبد.
             self._bind_send_correlation(uid)
+            # حلقهٔ ماندگار (flag OCTOPUS_TG_DURABLE_OUTBOX، پیش‌فرض خاموش): پس از
+            # allowlist، intent را قبل از dispatch ماندگار کن و duplicate را همین‌جا
+            # خفه کن تا اصلاً وارد business logic نشود. خاموش = رفتار امروز بایت‌به‌بایت.
+            _dctx = None
+            _durable = None
             try:
-                self.handle_update(u)
+                _dctx = self._begin_durable(u)
+                if _dctx is not None:
+                    import durable_loop as _durable  # noqa: WPS433
+                    _durable.bind_context(_dctx)
+                if _dctx is not None and getattr(_dctx, "duplicate", False):
+                    self._log_disposition(
+                        u, outcome="duplicate-suppressed",
+                        reason="durable-loop idempotency (update replay)")
+                else:
+                    if _dctx is not None:
+                        _durable.start_dispatch(_dctx.event_id)
+                    _handler_result = self.handle_update(u)
+                    if _dctx is not None:
+                        _durable.commit_result(_handler_result)
             except Exception as exc:  # noqa: BLE001 — یک updateِ خراب حلقه را نمی‌کشد
                 self._dead_letter(u, exc)   # ماندگار + هشدارِ cooldown‌دار
             finally:
+                if _durable is not None:
+                    _durable.bind_context(None)   # contextvar reset — never raises
                 self._bind_send_correlation(None)
             n += 1
         if max_id + 1 > offset:

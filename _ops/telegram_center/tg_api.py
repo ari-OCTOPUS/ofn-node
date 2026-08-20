@@ -522,7 +522,29 @@ class TgClient:
                 body["message_thread_id"] = tid
         if keyboard:
             body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
-        data = self._call_post("sendMessage", body)
+        delivery = None
+        _durable = None
+        try:
+            import durable_loop as _durable  # noqa: WPS433
+        except Exception:  # noqa: BLE001 — boundary absent → legacy direct send
+            _durable = None
+        if _durable is not None:
+            try:
+                if _durable.enabled() and _durable.current_context() is not None:
+                    delivery = _durable.deliver(
+                        text=body_text, chat_id=cid,
+                        topic_id=body.get("message_thread_id"),
+                        stream=str(stream or "center"),
+                        send_fn=lambda: self._call_post("sendMessage", body),
+                    )
+            except Exception:  # noqa: BLE001 — mid-delivery error fails closed
+                delivery = {"managed": True, "ok": False, "message_id": None,
+                            "state": "DURABILITY_ERROR"}
+        if isinstance(delivery, dict) and delivery.get("managed"):
+            data = ({"ok": True, "result": {"message_id": delivery.get("message_id")}}
+                    if delivery.get("ok") else None)
+        else:
+            data = self._call_post("sendMessage", body)
         # سنجشِ حجم/تکرار — همان لاگی که approval_channel می‌نویسد. بدونِ این خط،
         # کلِ ارسال‌های باتِ مرکز (پاسخِ دستورها، دایجستِ تاپیک‌ها، کارتِ تصمیم)
         # از شمارش بیرون می‌ماند و «تکرار صفر است» یک ادعای نیم‌بند می‌شود.
