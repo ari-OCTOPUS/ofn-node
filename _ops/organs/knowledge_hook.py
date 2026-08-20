@@ -30,13 +30,23 @@ def hook_active() -> bool:
 def process_sidecar_queue() -> dict:
     """صف sidecar را پردازش و به cognition inbox بفرست.
 
+    C15 (مگا‌دستور #۱۷): write-ahead intent + backpressure + rollback.
     فقط وقتی hook_active() True است. هر event:
-    → ثبت در afferent registry (state/afferent-registry.jsonl)
-    → memory candidate (state/memory-candidates.jsonl)
-    → cognition inbox (cognition_inbox/events.jsonl)
+    → HOOK_INTENT (write-ahead)
+    → afferent registry append
+    → memory candidate append
+    → cognition inbox append
+    → HOOK_COMMITTED
+
+    اگر وسط کار شکست: HOOK_PARTIAL + reconciliation idempotent.
     """
     if not hook_active():
         return {"ok": False, "reason": "flag-off", "processed": 0}
+
+    # C15: backpressure — اگر protective halt فعال است، توقف
+    halt_file = ORGANS_STATE.parent.parent / "STOP-ORGANISM"
+    if halt_file.exists():
+        return {"ok": False, "reason": "protective_halt_active", "processed": 0}
 
     ledger = ORGANS_STATE / "knowledge-afferent.jsonl"
     if not ledger.exists():
@@ -71,6 +81,17 @@ def process_sidecar_queue() -> dict:
     if not batch:
         return {"ok": True, "processed": 0, "reason": "up-to-date"}
 
+    # C15: write-ahead intent — قبل از هر append
+    intent_file = ORGANS_STATE / "knowledge-hook-intent.json"
+    intent = {
+        "schema": "hook-intent/1",
+        "state": "HOOK_INTENT",
+        "batch_ids": [ev["event_id"] for ev in batch],
+        "ts": __import__("time").time(),
+    }
+    intent_file.parent.mkdir(parents=True, exist_ok=True)
+    intent_file.write_text(json.dumps(intent, ensure_ascii=False), encoding="utf-8")
+
     # نوشتن در سه مقصد
     registry = ORGANS_STATE / "afferent-registry.jsonl"
     candidates = ORGANS_STATE / "memory-candidates.jsonl"
@@ -80,7 +101,8 @@ def process_sidecar_queue() -> dict:
         p.parent.mkdir(parents=True, exist_ok=True)
 
     n = 0
-    for ev in batch:
+    try:
+        for ev in batch:
         # ۱) afferent registry
         with registry.open("a", encoding="utf-8") as f:
             f.write(json.dumps({
@@ -124,6 +146,20 @@ def process_sidecar_queue() -> dict:
             }, ensure_ascii=False) + "\n")
         n += 1
 
+    except Exception as e:
+        # C15: crash recovery — HOOK_PARTIAL + state حفظ
+        intent["state"] = "HOOK_PARTIAL"
+        intent["error"] = f"{type(e).__name__}: {e}"
+        intent["processed_before_crash"] = n
+        intent_file.write_text(json.dumps(intent, ensure_ascii=False), encoding="utf-8")
+        return {"ok": False, "reason": f"HOOK_PARTIAL:{type(e).__name__}",
+                "processed": n, "intent": intent}
+
+    # C15: HOOK_COMMITTED
+    intent["state"] = "HOOK_COMMITTED"
+    intent["processed"] = n
+    intent_file.write_text(json.dumps(intent, ensure_ascii=False), encoding="utf-8")
+
     # marker به‌روزرسانی
     processed_marker.write_text(json.dumps({
         "last_event_id": batch[-1]["event_id"],
@@ -131,6 +167,33 @@ def process_sidecar_queue() -> dict:
         "batch_size": n}), encoding="utf-8")
 
     return {"ok": True, "processed": n, "remaining": max(0, len(events) - n)}
+
+
+def rollback() -> dict:
+    """C15: flag OFF باید producer را متوقف کند ولی evidence queue را حذف نکند."""
+    # evidence صف حفظ می‌شود — فقط marker را reset می‌کنیم تا دوباره پردازش شود
+    marker = ORGANS_STATE / "knowledge-hook-last-id.json"
+    if marker.exists():
+        marker.unlink()
+    intent = ORGANS_STATE / "knowledge-hook-intent.json"
+    if intent.exists():
+        d = json.loads(intent.read_text(encoding="utf-8"))
+        d["state"] = "ROLLED_BACK"
+        intent.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+    return {"ok": True, "reason": "flag-off-rollback",
+            "evidence_queue_preserved": True}
+
+
+def reconcile_partial() -> dict:
+    """C15: reconciliation idempotent — اگر HOOK_PARTIAL مانده، از نقطهٔ شکست ادامه بده."""
+    intent_file = ORGANS_STATE / "knowledge-hook-intent.json"
+    if not intent_file.exists():
+        return {"ok": True, "reason": "no-partial"}
+    intent = json.loads(intent_file.read_text(encoding="utf-8"))
+    if intent.get("state") != "HOOK_PARTIAL":
+        return {"ok": True, "reason": "no-partial"}
+    # دوباره process را صدا بزن — idempotent است (event_id duplicate skip می‌شود)
+    return process_sidecar_queue()
 
 
 if __name__ == "__main__":
