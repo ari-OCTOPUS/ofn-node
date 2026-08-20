@@ -1244,6 +1244,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_wave1_preflight.py",
     # 2026-08-20 INCIDENT LOOP-TELEGRAM-PROBE-INVALID — heartbeat spam.
     "test_tg_probe_invalid_spam.py",
+    # 2026-08-20 OWNER — TEST_ONLY shadow roundtrip + unowned fear containment.
+    "test_telegram_shadow_roundtrip.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

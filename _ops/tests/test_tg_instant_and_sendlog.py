@@ -221,7 +221,9 @@ def t_bridge_routes_each_signal_to_its_own_topic():
         ch = Chan()
         r = ib.check(ch, min_interval_s=0.0)
         assert "fear" in r["sent"], r
-        assert ch.sent and ch.sent[0]["stream"] == "cortisol"
+        assert ch.sent == [], "fear must not call send_text"
+        assert r.get("direct_sends") == 0, r
+        assert "fear" in (r.get("outboxed") or []), r
     finally:
         _flag(ib.FLAG, False)
 
@@ -241,6 +243,7 @@ def t_a_broken_signal_is_counted_not_fatal():
         r = ib.check(ch, min_interval_s=0.0)
         assert "boom" in r["failed"], r
         assert "fear" in r["sent"], "سیگنالِ سالم باید همچنان برود"
+        assert ch.sent == [], "fear outbox-only"
     finally:
         ib.SIGNALS.clear()
         ib.SIGNALS.update(orig)
@@ -254,11 +257,9 @@ def t_a_refused_send_is_not_marked_so_it_retries():
     try:
         ch = Chan(ok=False)
         r = ib.check(ch, min_interval_s=0.0)
-        assert "fear" in r["failed"] and "fear" not in r["sent"], r
-        # چون mark نشده، دورِ بعد دوباره تلاش می‌کند
-        ch2 = Chan(ok=True)
-        r2 = ib.check(ch2, min_interval_s=0.0)
-        assert "fear" in r2["sent"], "ارسالِ ناموفق نباید throttle را بسوزاند"
+        assert ch.sent == [], "channel must not be used"
+        assert "fear" in r["sent"] or "fear" in r["failed"], r
+        assert r.get("direct_sends") == 0
     finally:
         _flag(ib.FLAG, False)
 

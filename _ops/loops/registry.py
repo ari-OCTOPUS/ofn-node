@@ -60,6 +60,30 @@ _SEED: tuple[tuple[str, str, str, str], ...] = (
     ("S-T03", "FLOOD_RISK", "HIGH", "42 seams as 42 telegram messages would mute the channel"),
 )
 
+INCIDENTS = (
+    {
+        "loop_id": "LOOP-TELEGRAM-PROBE-INVALID",
+        "class": "BROKEN_FEEDBACK",
+        "also": "SILENT_SPAM",
+        "severity": "HIGH",
+        "status": "OPEN",
+        "note": "heartbeat spam suppressed; event→response closure unproven",
+        "regression_test": "test_tg_probe_invalid_spam.py",
+        "verified": False,
+    },
+    {
+        "loop_id": "LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT",
+        "class": "ORPHAN",
+        "also": "LOST_ACK",
+        "severity": "HIGH",
+        "status": "OPEN",
+        "note": "fear path outbox-only/dry-run; no fabricated task_id; no live send",
+        "regression_test": "test_telegram_shadow_roundtrip.py::t8_sig_fear_cannot_bypass_outbox",
+        "verified": False,
+    },
+)
+
+
 CLOSURE = {
     "S-A01": "self_knowledge._heuristic: constant 0.4 → None or accuracy-ema",
     "S-A02": "self_insight shadow cycle (journal=false) → evidence; weekly later",
@@ -163,6 +187,7 @@ def build(marks: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
         },
         "content_sha256": hashlib.sha256(blob.encode("utf-8")).hexdigest(),
         "entries": entries,
+        "incidents": [dict(x, updated=_now()) for x in INCIDENTS],
     }
 
 

@@ -161,6 +161,87 @@ class TelegramOrgan:
         with self.outbox_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
+    def enqueue_unowned_alert(
+        self,
+        *,
+        name: str,
+        stream: str,
+        message_key: str,
+        text: str,
+        correlation_id: str,
+    ) -> dict:
+        """Outbox-only incident. No task_id (unowned). Never live-sends."""
+        cursor = self._load_json(self.cursor_path, {})
+        seen = cursor.get("alert_keys") if isinstance(cursor.get("alert_keys"), dict) else {}
+        now = self._now()
+        prev = seen.get(message_key) or {}
+        last = float(prev.get("ts") or 0)
+        if last and (now - last) < self.rate_s:
+            return {
+                "ok": True, "sent": False, "status": "rate_limited",
+                "task_id": None, "event_id": None,
+                "correlation_id": correlation_id, "message_key": message_key,
+                "terminal": "BLOCKED",
+            }
+        rec = {
+            "kind": "unowned_alert",
+            "loop_id": "LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT",
+            "type": ["ORPHAN", "LOST_ACK"],
+            "severity": "HIGH",
+            "status": "OPEN",
+            "name": name,
+            "stream": stream,
+            "message_key": message_key,
+            "correlation_id": correlation_id,
+            "task_id": None,
+            "event_id": None,
+            "run_id": None,
+            "text": redact(text)[:500],
+            "mode": "dry_run",
+            "sent": False,
+            "terminal": "BLOCKED",
+            "direct_telegram_send": False,
+        }
+        self._append_outbox(rec)
+        inc_path = self.state_dir / "incidents.jsonl"
+        with inc_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "loop_id": rec["loop_id"], "type": rec["type"],
+                "severity": rec["severity"], "status": rec["status"],
+                "name": name, "message_key": message_key,
+                "correlation_id": correlation_id, "task_id": None,
+                "event_id": None, "run_id": None, "sent": False,
+                "terminal": "BLOCKED", "ts": rec.get("ts") or now,
+            }, ensure_ascii=False) + "\n")
+        seen[message_key] = {"ts": now, "name": name}
+        cursor["alert_keys"] = seen
+        self._save_json(self.cursor_path, cursor)
+        # #region agent log
+        try:
+            import os as _os
+            _lp = Path(r"F:\backup\debug-71ffce.log")
+            _rec = {"sessionId": "71ffce",
+                    "runId": _os.environ.get("DEBUG_RUN_ID", "fear-pre"),
+                    "hypothesisId": "H2",
+                    "location": "telegram_organ.py:enqueue_unowned_alert",
+                    "message": "unowned-alert-outboxed",
+                    "data": {"name": name, "task_id": None, "event_id": None,
+                             "sent": False, "direct_telegram_send": False,
+                             "terminal": "BLOCKED", "message_key": message_key,
+                             "correlation_id": correlation_id},
+                    "timestamp": int(now * 1000)}
+            with _lp.open("a", encoding="utf-8") as _f:
+                _f.write(json.dumps(_rec, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+        # #endregion
+        return {
+            "ok": True, "sent": False, "status": "outboxed",
+            "task_id": None, "event_id": None,
+            "correlation_id": correlation_id, "message_key": message_key,
+            "terminal": "BLOCKED",
+        }
+
     def enqueue_digest(
         self,
         loops: list[dict],

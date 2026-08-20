@@ -36,6 +36,8 @@ updated: 2026-08-20
 
 ## وضعِ لحظه‌ای
 
+> 🛑 **پین 2026-08-20 ~23:4x (+10) — TELEGRAM_SHADOW_ROUNDTRIP.** ترسِ بی‌مالک outbox-only شد (`LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT` OPEN). سایهٔ n=1 روی `durable_loop` با fake sender **verifier.confirmed**؛ حلقهٔ زندهٔ event→response **OPEN**. کاناری زنده ارسال نشد. [[../06-EVIDENCE/TELEGRAM-SHADOW-ROUNDTRIP-2026-08-20/README|pack]]
+
 > 🛑 **پین 2026-08-20 ~23:2x (+10) — LOOP-TELEGRAM-PROBE-INVALID.** اسپم heartbeat هر ~۵ دقیقه با `probe=PROBE_RESPONSE_INVALID` و `telegram_events=11` ثابت. Safe mode: `_ops/STOP-TG-HEARTBEAT`. حلقهٔ تلگرام **بسته نیست** (memread OK ≠ closure). [[../06-EVIDENCE/LOOP-TELEGRAM-PROBE-INVALID-2026-08-20/INCIDENT|incident]]
 
 > 🧬 **پین 2026-08-20 ~23:0x (+10) — WAVE1 canary-sidecar GO.** قفل `lock.json` باز شد فقط برای API فقط-خواندنی؛ prompt injection خاموش؛ `wave0_governor.wave1_unlocked=false`. [[../06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-OWNER-DECISION|تصمیم]] · [[../06-EVIDENCE/WAVE1-ENTRY-PREFLIGHT-2026-08-20/WAVE1-SCOPE|scope]]

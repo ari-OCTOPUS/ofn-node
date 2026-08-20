@@ -67,6 +67,23 @@ def _sha(s: str) -> str:
     return hashlib.sha256(str(s).encode("utf-8")).hexdigest()[:16]
 
 
+def _dbg(hypothesis_id: str, location: str, message: str, data: dict) -> None:
+    # #region agent log
+    try:
+        import time as _t
+        _lp = Path(r"F:\backup\debug-71ffce.log")
+        _rec = {"sessionId": "71ffce",
+                "runId": os.environ.get("DEBUG_RUN_ID", "fear-pre"),
+                "hypothesisId": hypothesis_id, "location": location,
+                "message": message, "data": data,
+                "timestamp": int(_t.time() * 1000)}
+        with _lp.open("a", encoding="utf-8") as _f:
+            _f.write(json.dumps(_rec, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+    # #endregion
+
+
 # ─── سیگنال‌ها ───────────────────────────────────────────────────────────────
 # هرکدام برمی‌گرداند: (متن, stream, hash) یا None. هیچ‌کدام چیزی نمی‌نویسد.
 
@@ -88,6 +105,9 @@ def _sig_fear() -> "tuple | None":
         best = (label, level, who, d.get("ts"))
         break
     if best is None:
+        _dbg("H1", "instant_alert_bridge.py:_sig_fear", "fear-quiet",
+             {"event_id": None, "task_id": None, "correlation_id": None,
+              "trigger": "no-red-level"})
         return None
     label, level, who, ts = best
     body = ("🔴 <b>ترس — همین حالا</b>\n"
@@ -95,7 +115,14 @@ def _sig_fear() -> "tuple | None":
             f"▸ در ترس: {'، '.join(who) if who else 'مشخص نشده'}\n"
             f"▸ نکنی: تا دایجستِ بعدی کسی نمی‌گوید و خودش هم برنمی‌گردد\n"
             f"<i>جزئیات: /now</i>")
-    return (body, "cortisol", _sha(f"fear|{level}|{sorted(who)}"))
+    sig = _sha(f"fear|{level}|{sorted(who)}")
+    _dbg("H1", "instant_alert_bridge.py:_sig_fear", "fear-unowned-payload",
+         {"event_id": None, "task_id": None, "run_id": None,
+          "correlation_id": None, "outbox": None, "receipt": None,
+          "readback": None, "trigger_label": label, "who_n": len(who),
+          "has_ts": ts is not None, "message_key": sig,
+          "who_empty": len(who) == 0})
+    return (body, "cortisol", sig)
 
 
 def _sig_c6_new() -> "tuple | None":
@@ -159,8 +186,27 @@ SIGNALS = {
 
 
 # ─── حلقه ────────────────────────────────────────────────────────────────────
+def _outbox_alert(name: str, body: str, stream: str, sig_hash: str) -> dict:
+    """Never HTTP-sends. Incident + outbox dry_run. No fabricated task_id."""
+    try:
+        from loops.telegram_organ import TelegramOrgan  # noqa: WPS433
+        state = Path(getattr(opslib, "STATE_DIR", _HERE / "state")) / "loops"
+        organ = TelegramOrgan(state, live=False)
+        return organ.enqueue_unowned_alert(
+            name=name, stream=stream, message_key=sig_hash, text=body,
+            correlation_id=f"corr_alert_{sig_hash}")
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "sent": False, "error": type(e).__name__}
+
+
 def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
-    """یک دورِ ارزیابیِ سیگنال‌ها. خروجی: شمارشِ صادق، هرگز استثنا."""
+    """یک دورِ ارزیابیِ سیگنال‌ها. خروجی: شمارشِ صادق، هرگز استثنا.
+
+    2026-08-20: owner-facing send_text is forbidden. Alerts go outbox-only.
+    """
+    _dbg("H3", "instant_alert_bridge.py:check", "check-enter",
+         {"flag_on": enabled(), "has_send_text": bool(channel) and hasattr(channel, "send_text"),
+          "channel_type": type(channel).__name__ if channel is not None else None})
     if not enabled():
         return {"ran": False, "reason": "flag-off"}
     gate, mark = _gate()
@@ -168,7 +214,8 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
         return {"ran": False, "reason": "no-throttle"}
     if channel is None or not hasattr(channel, "send_text"):
         return {"ran": False, "reason": "no-channel"}
-    sent, held, quiet, failed = [], [], [], []
+    stop = (_HERE / "STOP-TG-HEARTBEAT").is_file()
+    sent, held, quiet, failed, outboxed = [], [], [], [], []
     for name, fn in SIGNALS.items():
         try:
             out = fn()
@@ -183,14 +230,18 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
         try:
             if not gate(state_name, sig_hash, min_interval_s):
                 held.append(name)
+                _dbg("H4", "instant_alert_bridge.py:check", "held-throttle",
+                     {"name": name, "message_key": sig_hash})
                 continue
-            ok = bool(channel.send_text(body, None, stream=stream))
-        except TypeError:
-            # channelِ قدیمی بدونِ stream — به DM بفرست، نه هیچ
-            try:
-                ok = bool(channel.send_text(body))
-            except Exception:  # noqa: BLE001
-                ok = False
+            rec = _outbox_alert(name, body, stream, sig_hash)
+            _dbg("H2", "instant_alert_bridge.py:check", "outbox-only-no-send",
+                 {"name": name, "stream": stream, "message_key": sig_hash,
+                  "bypasses_outbox": False, "direct_send": False,
+                  "task_id": rec.get("task_id"),
+                  "correlation_id": rec.get("correlation_id"),
+                  "outbox_ok": rec.get("ok"), "sent": rec.get("sent"),
+                  "stop": stop})
+            ok = bool(rec.get("ok")) and rec.get("sent") is False
         except Exception:  # noqa: BLE001
             ok = False
         if ok:
@@ -199,10 +250,14 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
             except Exception:  # noqa: BLE001
                 pass
             sent.append(name)
+            outboxed.append(name)
         else:
             failed.append(name)
+    _dbg("H2", "instant_alert_bridge.py:check", "check-exit",
+         {"sent": sent, "outboxed": outboxed, "direct_sends": 0,
+          "failed": failed, "channel_send_text_called": False})
     return {"ran": True, "sent": sent, "held": held, "quiet": quiet,
-            "failed": failed}
+            "failed": failed, "outboxed": outboxed, "direct_sends": 0}
 
 
 if __name__ == "__main__":  # pragma: no cover — پیش‌نمایشِ بی‌ارسال
