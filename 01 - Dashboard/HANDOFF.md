@@ -33,6 +33,8 @@ updated: 2026-08-20
 
 ## وضعِ لحظه‌ای
 
+> 🛑 **پین 2026-08-20 ~13:1x (+10) — دستور #۵A soak معلق.** حلقهٔ واقعی sidecar Stage A **PASS** (بدون شبکه). Stage B/C شروع نشد: `DEEPSEEK_API_KEY` در env این سشن **UNLOCATED**. K=9 مخلوط نشد. [[../06-EVIDENCE/FULL-LOOP-FLASH-2026-08-20/STAGE-A|Stage A]] · [[../_ops/lab/full_loop_flash/__init__|full_loop_flash]] · T28 unsigned ماند.
+
 > 🔧 **پین 2026-08-20 ~12:55 (+10) — دستور مالک #۴ Shadow slice:** T14 کانونیکال **ONE_TICK_TEMPORAL_SKEW** · C-045 همان تناقض (مسیر ثابت) · T22 adapter لاب · تست ۱۸/۱۸ · **نه** wire زنده. GAP-001 OPEN. آزاد **C-047**. [[../06-EVIDENCE/HC-WM-MC-WAVE0-2026-08-20/README|WAVE0 pack]] · [[../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20|C-045]] · [[../_ops/shadow_homeostasis/__init__|shadow_homeostasis]]
 
 > 🔧 **پین 2026-08-20 ~12:36 (+10) — دستور مالک #۳ T14–T18:** C-043 **SUSPECTED_VOID** · period **DIFFERENT_SOURCE** (C-045) · C-046 retention · identity **RESTART_ARTIFACT_SUSPECTED** · intra-beat نقص ترتیب · لجر≠تناقض. K=9/ریاستارت/فیکس حساب‌داری شروع نشد. آزاد **C-047**. [[../06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20|T14]] · [[../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20|C-045]] · [[../06-EVIDENCE/EVIDENCE-RETENTION-DESIGN-2026-08-20|retention]] · [[../01-TRUTH/LEDGER-VS-CONTRADICTIONS|لجر]] · [[../01-TRUTH/CONTRADICTIONS|تناقض‌ها]]

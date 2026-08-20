@@ -28,6 +28,8 @@ updated: 2026-08-20
 
 ## Active Context
 
+- تغییرات اخیر: **2026-08-20 ~13:1x — #۵A soak معلق؛ Stage A full-loop sidecar PASS، B/C به‌خاطر کلید UNLOCATED شروع نشد.** [[../../06-EVIDENCE/FULL-LOOP-FLASH-2026-08-20/STAGE-A]]
+
 - تغییرات اخیر: **2026-08-20 ~12:55 — دستور #۴ shadow slice (ایزوله).** T14 ONE_TICK_TEMPORAL_SKEW · `_ops/shadow_homeostasis` · ۱۸ تست. wire زنده نشد. [[../../06-EVIDENCE/HC-WM-MC-WAVE0-2026-08-20/README]] · [[../../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20]].
 
 - تغییرات اخیر: **2026-08-20 ~12:36 — دستور مالک #۳ T14–T18.** C-043 SUSPECTED_VOID · C-045 DIFFERENT_SOURCE · C-046 · identity RESTART_ARTIFACT_SUSPECTED. فیکس/K=9/ریاستارت نشد. [[../../06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20]] · [[../../01-TRUTH/LEDGER-VS-CONTRADICTIONS]].
