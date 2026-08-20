@@ -29,6 +29,12 @@ def handle_message(text: str, *, surface_decision: dict) -> dict:
     _handled, _reply = local_commands.handle_local(text)
     if _handled:
         return {"handled": True, "reason": "local-command", "reply": _reply}
+    # F4 (14A): cognition پولی تا ریشهٔ انتساب رسیدها خاموش می‌ماند — پیام آزاد
+    # بدون OCTOPUS_PAID_COGNITION=1 به مغز نمی‌رود؛ پاسخ محلی تنزلیافته می‌گیرد.
+    if os.environ.get("OCTOPUS_PAID_COGNITION", "0") != "1":
+        return {"handled": True, "reason": "local-degraded-paid-paused",
+                "reply": ("پردازش شناختی پولی موقتاً متوقف است (quota/attribution در حال "
+                          "رفع — 14A F4). فرمان‌های محلی فعال‌اند: /status · /remember ...")}
     if _collab_armed():
         from . import collaborator
         return {"handled": True, "reason": "collaborator",
@@ -56,7 +62,8 @@ _BOT_ID_CACHE: dict = {}
 def _bot_id() -> "int | None":
     """bot_id عددی از TG_CENTER_BOT_TOKEN — یک‌بار getMe، کش ماژولی."""
     import os as _os2
-    if _BOT_ID_CACHE:
+    import json as _json2
+    if _BOT_ID_CACHE.get("id"):
         return _BOT_ID_CACHE.get("id")
     tok = _os2.environ.get("TG_CENTER_BOT_TOKEN", "")
     if not tok:
@@ -64,7 +71,7 @@ def _bot_id() -> "int | None":
     try:
         import urllib.request as _ur
         with _ur.urlopen(f"https://api.telegram.org/bot{tok}/getMe", timeout=10) as r:
-            _BOT_ID_CACHE.update(json.loads(r.read().decode()).get("result", {}))
+            _BOT_ID_CACHE.update(_json2.loads(r.read().decode()).get("result", {}))
     except Exception:  # noqa: BLE001
         _BOT_ID_CACHE["id"] = None
     return _BOT_ID_CACHE.get("id")

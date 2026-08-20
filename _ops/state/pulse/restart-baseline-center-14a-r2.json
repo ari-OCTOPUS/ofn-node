@@ -1,0 +1,8 @@
+{
+ "ts": "2026-08-20T18:51:16",
+ "center_pid": "8796→26388",
+ "supervisor": "RUN-TG-CENTER.bat :loop",
+ "why": "F3+F4 round-2: paid-cognition pause + bot_id json fix",
+ "lease": "HOLD by parallel session C — documented exception (branch-isolated)",
+ "verified": "18:52:11 · 8776 LISTENING"
+}
