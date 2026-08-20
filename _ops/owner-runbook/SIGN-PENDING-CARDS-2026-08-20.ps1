@@ -15,9 +15,15 @@ if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) {
 }
 
 # ── 1) TRUST ANCHOR (fail-closed first) ───────────────────────────────────────
+# PS 5.1 note: native-to-native binary piping corrupts DER bytes, so the DER goes
+# through a temp FILE and Get-FileHash (byte-safe) instead of `openssl | sha256sum`.
 $ANCHOR = "2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2"
-$fp = (openssl pkey -pubin -in "_ops\owner-signing\octopus-owner-ed25519-public.pem" -outform DER |
-       sha256sum) -split ' ')[0].ToLower()
+$_der = New-TemporaryFile
+openssl pkey -pubin -in "_ops\owner-signing\octopus-owner-ed25519-public.pem" `
+    -outform DER -out $_der.FullName
+if ($LASTEXITCODE -ne 0) { Write-Host "openssl DER export failed"; exit 5 }
+$fp = (Get-FileHash $_der.FullName -Algorithm SHA256).Hash.ToLower()
+Remove-Item $_der.FullName -Force -ErrorAction SilentlyContinue
 Write-Host "anchor = $ANCHOR"
 Write-Host "pemfp  = $fp"
 if ($fp -ne $ANCHOR) {
