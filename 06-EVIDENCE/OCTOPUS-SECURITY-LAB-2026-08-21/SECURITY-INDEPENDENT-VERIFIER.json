@@ -1,0 +1,27 @@
+{
+ "schema": "security-independent-verifier/1",
+ "generated_at": "2026-08-21T09:20:00Z",
+ "code_head": "2325ffce7b8408cb0c007c6089a4b7fe1f717b5a",
+ "confirmed": true,
+ "failed_checks": [],
+ "checks": {
+  "all_receipts_pass": true,
+  "receipts_nonempty": true,
+  "receipts_match_head": true,
+  "registered_equals_executed": true,
+  "failed_zero": true,
+  "baseline_was_red": true,
+  "preregistered_experiments": true,
+  "memory_unchanged": true,
+  "miniapp_hits_unchanged": true,
+  "test_live_sends_zero": true,
+  "send_log_appends_are_edits": true,
+  "wave1_locked": true,
+  "paid_calls_zero": true,
+  "webhook_not_activated": true,
+  "provenance_distinct": true
+ },
+ "verifier_independent": false,
+ "terminal_state": "IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING",
+ "note": "All artifact checks pass. verifier_independent=false because the same agent authored the patch and this reader; a separate identity must sign for SECURITY_SHADOW_PASS."
+}

@@ -1,0 +1,108 @@
+{
+ "schema": "security-zero-side-effects/1",
+ "baseline": {
+  "center_pid": 29492,
+  "center_port": 8776,
+  "miniapp_pid": 9120,
+  "miniapp_port": 8774,
+  "memory_sha256": "f451cf67a30e791d9240e669714ebcec88702f7935fc75770bb7bf3b0cf1c2df",
+  "send_log_records": 1216,
+  "miniapp_hits_records": 25292,
+  "wave1_unlocked": false,
+  "paid_calls": 0,
+  "stop_tg_heartbeat": true,
+  "stop_miniapp": false
+ },
+ "post": {
+  "memory": {
+   "size": 1036288,
+   "sha256": "f451cf67a30e791d9240e669714ebcec88702f7935fc75770bb7bf3b0cf1c2df"
+  },
+  "send_log": {
+   "size": 235134,
+   "sha256": "77e6bb00166d9622554598e9b7970479f7ff1931632e4a0715ee6ebb6cc6dd77",
+   "records": 1223
+  },
+  "miniapp_hits": {
+   "size": 1937096,
+   "sha256": "01bc105087de7b20e88f690b6530fc26f0f5cac83a3caef70630366dfa7944ce",
+   "records": 25292
+  }
+ },
+ "memory_unchanged": true,
+ "miniapp_hits_unchanged": true,
+ "test_live_telegram_sends": 0,
+ "send_log_append_classification": {
+  "total": 7,
+  "all_periodic_edits": true,
+  "rows": [
+   {
+    "ts": 1787255559.663,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "dm",
+    "update_id": null
+   },
+   {
+    "ts": 1787255574.397,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "group",
+    "update_id": null
+   },
+   {
+    "ts": 1787255576.262,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "dm",
+    "update_id": null
+   },
+   {
+    "ts": 1787255897.387,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "group",
+    "update_id": null
+   },
+   {
+    "ts": 1787255899.105,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "group",
+    "update_id": null
+   },
+   {
+    "ts": 1787256232.891,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "group",
+    "update_id": null
+   },
+   {
+    "ts": 1787256539.35,
+    "stream": "edit",
+    "state": "sent",
+    "ok": true,
+    "bot_role": "outer",
+    "surface": "group",
+    "update_id": null
+   }
+  ]
+ },
+ "wave1_unlocked": false,
+ "paid_calls": 0,
+ "webhook_activated": false,
+ "note": "send-log rows after baseline are live Center stream=edit/update_id=null metabolism, not fixture sends; harness tests use temp OCTOPUS_STATE_DIR and fake transport"
+}
