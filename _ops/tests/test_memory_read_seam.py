@@ -59,7 +59,7 @@ def _seed_memory() -> None:
         r = g.submit({"namespace": "episodic", "source": "deterministic",
                       "producer": "goal_action_bridge", "agent_id": "goal_action_bridge",
                       "scope": "project", "classification": "internal",
-                      "task_id": f"seed-{i}", "content": txt})
+                      "task_id": f"seed-{i}", "content": txt, "confidence": 0.85})
         assert r.get("verb") in ("commit", "propose"), r
 
 

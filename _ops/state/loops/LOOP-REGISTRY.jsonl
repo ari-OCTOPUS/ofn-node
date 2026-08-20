@@ -46,3 +46,6 @@
 {"loop_id": "LOOP-TELEGRAM-COMMAND-COVERAGE", "status": "PRODUCTION_CLOSED", "updated": "2026-08-21", "note": "window CANARY-COVERAGE-20260821-C: 5/5 strict sequence, 5/5 confirmed + readback, verifier confirmed=true; evidence canary-coverage-2026-08-21-C/"}
 {"loop_id": "LOOP-LEGACY-RECEIPT-UNCONFIRMED", "status": "CONTAINED_VERIFIED", "updated": "2026-08-21", "note": "344/346 -> OWNER_OBSERVED_UNCONFIRMED_API via bounded reconciliation (owner visibility evidence, no message_id invented, never resent)"}
 {"loop_id": "LOOP-APPROVAL-QUEUE", "status": "OPEN", "updated": "2026-08-21", "note": "owner-reported pending=20; digest in SESSION-HARVEST-2026-08-21/"}
+{"loop_id": "LOOP-APPROVAL-QUEUE", "status": "OPEN", "updated": "2026-08-21", "note": "pending=20 verified at _octopus/queue/pending; reconciliation in SESSION-HARVEST-2026-08-21/"}
+{"loop_id": "LOOP-APPROVAL-QUEUE", "status": "CONTAINED_VERIFIED", "updated": "2026-08-21", "note": "pending=20 = archive/report file count, 0 proposals"}
+{"loop_id": "MEMORY-GATE-REPAIR", "status": "RESOLVED", "updated": "2026-08-21", "note": "gate 12/12, seam 5/5, g2 49/49, timeout pair 5/5+8/8 pytest; root causes: A1 staging + F3 fixtures; verifier MEMORY-GATE-VERIFIER-2026-08-21.json"}

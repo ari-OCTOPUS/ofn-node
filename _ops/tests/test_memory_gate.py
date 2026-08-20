@@ -57,6 +57,14 @@ def _gate(td):
     return mg.MemoryGate(st, proposal_path=Path(td) / "proposals.jsonl"), st
 
 
+def _commit(g, out):
+    """Two-phase admission (A1, 2026-08-19, OWNER LOOP-01): submit stages the row
+    PENDING (invisible to get/search until promote); promote() admits it."""
+    assert out["verb"] == "commit", out
+    assert g.promote(out["memory_id"]), out
+    return out
+
+
 def t_a_flag_off_is_noop():
     with _Env(on=False), _tmp() as td:
         g, st = _gate(td)
@@ -70,14 +78,16 @@ def t_b_self_knowledge_always_advisory():
     """رفعِ حلقهٔ خودتقویت: خروجیِ خامِ LLM هرگز OWNER_CONFIRMED/DETERMINISTIC نمی‌شود."""
     with _Env(), _tmp() as td:
         g, st = _gate(td)
-        out = g.submit({"namespace": "self_knowledge", "source": "llm:think",
-                        "content": "the organism believes X", "mkey": "understanding"})
-        assert out["verb"] == "commit" and out["trust"] == "ADVISORY"
+        out = _commit(g, g.submit({"namespace": "self_knowledge", "source": "llm:think",
+                                   "content": "the organism believes X", "mkey": "understanding",
+                                   "confidence": 0.8}))
+        assert out["trust"] == "ADVISORY"
         # L-08/E16 (fixed): a claimant-set external_graded flag must NOT promote
         # trust — GRADED requires an INDEPENDENT grader receipt, so a bare
         # external_graded=True from the claimant stays ADVISORY (no self-grading).
-        out2 = g.submit({"namespace": "self_knowledge", "source": "llm:think",
-                         "content": "graded belief", "external_graded": True})
+        out2 = _commit(g, g.submit({"namespace": "self_knowledge", "source": "llm:think",
+                                    "content": "graded belief", "external_graded": True,
+                                    "confidence": 0.8}))
         assert out2["trust"] == "ADVISORY"
         # هرگز OWNER_CONFIRMED از llm:
         assert st.get("self_knowledge", "understanding")["trust"] == "ADVISORY"
@@ -90,16 +100,19 @@ def t_c_procedural_owner_only_propose_not_commit():
         g, st = _gate(td)
         # از منبعِ llm → propose، صفر commit
         out = g.submit({"namespace": "procedural", "source": "llm:think",
-                        "content": "always deduct 10%", "mkey": "rule1"})
+                        "content": "always deduct 10%", "mkey": "rule1",
+                        "confidence": 0.8})
         assert out["verb"] == "propose"
         assert st.get("procedural", "rule1") is None, "LLM نباید procedural را commit کند"
         # از owner → commit OWNER_CONFIRMED
         out2 = g.submit({"namespace": "owner_fact", "source": "owner",
-                         "content": "ABN is 123", "mkey": "abn"})
+                         "content": "ABN is 123", "mkey": "abn",
+                         "confidence": 0.8})
         assert out2["verb"] == "commit" and out2["trust"] == "OWNER_CONFIRMED"
         # deterministic → procedural commit DETERMINISTIC
         out3 = g.submit({"namespace": "procedural", "source": "deterministic",
-                         "content": "merchant X -> cat Y", "mkey": "m-x"})
+                         "content": "merchant X -> cat Y", "mkey": "m-x",
+                         "confidence": 0.8})
         assert out3["trust"] == "DETERMINISTIC"
         st.close()
 
@@ -119,22 +132,25 @@ def t_d_reject_secret_empty_unknown_owneronly():
 def t_e_semantic_salience_bar():
     with _Env(), _tmp() as td:
         g, st = _gate(td)
-        assert g.submit({"namespace": "semantic", "content": "high", "salience": 0.9})["verb"] == "commit"
-        assert g.submit({"namespace": "semantic", "content": "low", "salience": 0.1})["verb"] == "reject"
+        assert g.submit({"namespace": "semantic", "content": "high", "salience": 0.9,
+                         "confidence": 0.8})["verb"] == "commit"
+        assert g.submit({"namespace": "semantic", "content": "low", "salience": 0.1,
+                         "confidence": 0.8})["verb"] == "reject"
         st.close()
 
 
 def t_f_dedupe_and_supersession():
     with _Env(), _tmp() as td:
         g, st = _gate(td)
-        a = g.submit({"namespace": "semantic", "content": "same", "mkey": "k", "salience": 0.9})
-        assert a["verb"] == "commit"
-        dup = g.submit({"namespace": "semantic", "content": "same", "mkey": "k", "salience": 0.9})
+        a = _commit(g, g.submit({"namespace": "semantic", "content": "same", "mkey": "k", "salience": 0.9,
+                                 "confidence": 0.8}))
+        dup = g.submit({"namespace": "semantic", "content": "same", "mkey": "k", "salience": 0.9,
+                        "confidence": 0.8})
         assert dup["verb"] == "skip" and dup["reason"].startswith("dedupe")
         # supersede: نسخهٔ جدید کهنه را invalidate می‌کند؛ get آخری را می‌دهد
-        b = g.submit({"namespace": "semantic", "content": "newer", "mkey": "k",
-                      "salience": 0.9, "supersedes": a["memory_id"]})
-        assert b["verb"] == "commit"
+        b = _commit(g, g.submit({"namespace": "semantic", "content": "newer", "mkey": "k",
+                                 "salience": 0.9, "supersedes": a["memory_id"],
+                                 "confidence": 0.8}))
         cur = st.get("semantic", "k")
         assert cur["content"] == "newer"
         st.close()
@@ -144,8 +160,8 @@ def t_g_retrieve_and_join_to_decision_receipt():
     """as_memories_used → decision_receipt.record واقعی (تولیدکنندهٔ گمشدهٔ memories_used)."""
     with _Env(), _tmp() as td:
         g, st = _gate(td)
-        g.submit({"namespace": "semantic", "content": "strata remedial pays best",
-                  "mkey": "seg-strata", "salience": 0.8})
+        _commit(g, g.submit({"namespace": "semantic", "content": "strata remedial pays best",
+                             "mkey": "seg-strata", "salience": 0.8, "confidence": 0.8}))
         recs = st.search("strata", namespace="semantic", k=3)
         assert recs and recs[0]["content_sha256"]
         mem_used = st.as_memories_used(recs)
@@ -164,8 +180,9 @@ def t_h_restart_persist():
     with _Env(), _tmp() as td:
         p = Path(td) / "memory.db"
         st = ms.MemoryStore(path=p)
-        mg.MemoryGate(st).submit({"namespace": "semantic", "content": "persist me",
-                                  "mkey": "pk", "salience": 0.9})
+        g = mg.MemoryGate(st)
+        _commit(g, g.submit({"namespace": "semantic", "content": "persist me",
+                             "mkey": "pk", "salience": 0.9, "confidence": 0.8}))
         st.close()
         st2 = ms.MemoryStore(path=p)
         assert st2.get("semantic", "pk")["content"] == "persist me"
@@ -177,23 +194,66 @@ def t_i_concurrent_submit():
     with _Env(), _tmp() as td:
         g, st = _gate(td)
         start = threading.Event()
+        ids: list = []
+        lock = threading.Lock()
 
         def _w(i):
             start.wait()
-            g.submit({"namespace": "semantic", "content": f"c{i}", "mkey": f"k{i}", "salience": 0.9})
+            out = g.submit({"namespace": "semantic", "content": f"c{i}", "mkey": f"k{i}", "salience": 0.9,
+                            "confidence": 0.8})
+            if out.get("verb") == "commit":
+                with lock:
+                    ids.append(out["memory_id"])
         ts = [threading.Thread(target=_w, args=(i,)) for i in range(16)]
         for t in ts:
             t.start()
         start.set()
         for t in ts:
             t.join()
+        # two-phase admission: all rows staged PENDING -> promote -> active
+        for mid in ids:
+            assert g.promote(mid)
         assert st.metrics()["active"] == 16
+        st.close()
+
+
+def t_l_two_phase_admission_staging():
+    """A1 two-phase (OWNER LOOP-01): non-owner write without evidence is staged
+    PENDING — invisible to get/search, never auto-ADMITTED — until promote().
+    Owner/deterministic sources auto-ADMIT. Regression for the staging contract."""
+    with _Env(), _tmp() as td:
+        g, st = _gate(td)
+        out = g.submit({"namespace": "semantic", "content": "staged content", "mkey": "stage1",
+                        "salience": 0.9, "confidence": 0.8})
+        assert out["verb"] == "commit"
+        assert g.admission_state(out["memory_id"]) == "PENDING"
+        assert st.get("semantic", "stage1") is None, "staged rows are invisible until promote"
+        assert st.search("staged", namespace="semantic", k=3) == []
+        assert g.promote(out["memory_id"])
+        assert (st.get("semantic", "stage1") or {}).get("content") == "staged content"
+        # deterministic source auto-ADMITTED (no manual promote needed)
+        det = g.submit({"namespace": "episodic", "source": "deterministic", "content": "auto admit",
+                        "mkey": "auto1", "confidence": 0.9})
+        assert det["verb"] == "commit"
+        assert g.admission_state(det["memory_id"]) == "ADMITTED"
         st.close()
 
 
 def t_j_taxonomy_single_source():
     """taxonomy مرجعِ یگانه است: trust/namespace/effect یکسان در memory + decision_receipt."""
     assert "ADVISORY" in tax.TRUST_GRADES and "OWNER_CONFIRMED" in tax.TRUST_GRADES
+
+
+def t_k_f3_fail_closed_without_confidence():
+    """F3 (OWNER-CONSENTS-2026-08-19 §4): insert بدون confidence هرگز commit نمی‌شود."""
+    with _Env(), _tmp() as td:
+        g, st = _gate(td)
+        out = g.submit({"namespace": "semantic", "content": "no confidence here",
+                        "salience": 0.9})
+        assert out["verb"] == "reject", out
+        assert "F3" in str(out.get("reason") or ""), out
+        assert st.metrics()["total"] == 0, "fail-closed: صفر insert"
+        st.close()
     assert tax.trust_at_least("OWNER_CONFIRMED", "ADVISORY") is True
     assert tax.trust_at_least("ADVISORY", "OWNER_CONFIRMED") is False
     assert set(tax.COMMIT_RULES) == set(tax.NAMESPACES)

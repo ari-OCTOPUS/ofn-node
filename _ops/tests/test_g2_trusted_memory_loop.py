@@ -265,7 +265,7 @@ class TestContradictionRadar(unittest.TestCase):
             store.insert({
                 "namespace": "semantic", "mkey": "k1",
                 "content": "neural networks improve pattern recognition",
-                "trust": "GRADED", "admission_state": "ADMITTED",
+                "trust": "GRADED", "admission_state": "ADMITTED", "confidence": 0.9,
             })
 
             radar = cr.ContradictionRadar(store=store)
@@ -284,7 +284,7 @@ class TestContradictionRadar(unittest.TestCase):
             store.insert({
                 "namespace": "semantic", "mkey": "k2",
                 "content": "entropy always increases in closed systems",
-                "trust": "GRADED", "admission_state": "ADMITTED",
+                "trust": "GRADED", "admission_state": "ADMITTED", "confidence": 0.9,
             })
 
             radar = cr.ContradictionRadar(store=store)
@@ -586,7 +586,7 @@ class TestFullMemoryLoop(unittest.TestCase):
                     "source": "owner",
                     "mkey": "equip-g2-test",
                     "salience": 0.8,
-                    "agent_id": "test",
+                    "agent_id": "test", "confidence": 0.9,
                 })
                 self.assertEqual(r["verb"], "commit")
 
@@ -610,7 +610,7 @@ class TestFullMemoryLoop(unittest.TestCase):
             store.insert({
                 "namespace": "semantic", "mkey": "claim1",
                 "content": "the model should never modify its own reward function",
-                "trust": "OWNER_CONFIRMED", "admission_state": "ADMITTED",
+                "trust": "OWNER_CONFIRMED", "admission_state": "ADMITTED", "confidence": 0.9,
             })
 
             radar = cr.ContradictionRadar(store=store)
