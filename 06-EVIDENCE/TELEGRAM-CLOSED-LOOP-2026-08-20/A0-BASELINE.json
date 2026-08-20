@@ -1,0 +1,484 @@
+{
+  "schema": "telegram-closed-loop-a0/1",
+  "captured_at_unix": 1787219635.755251,
+  "lease": {
+    "schema": "octopus-writer-lease/1",
+    "lease_id": "62440c286ef74d60821fcfc13f1d75de",
+    "agent_id": "A",
+    "session_id": "telegram-closed-loop-20260820",
+    "acquired_at": 1787218827.597,
+    "ttl_seconds": 10800,
+    "scope": [
+      "telegram",
+      "owner_console",
+      "spine_emitter",
+      "router_attribution",
+      "evidence",
+      "git"
+    ],
+    "renewed_at": 1787219635.676,
+    "remaining_s": 9991.841748952866,
+    "valid": true
+  },
+  "bots_frozen": {
+    "canonical_owner": {
+      "id": 7992324219,
+      "handle": "@intergrade2725_Bot"
+    },
+    "approval": {
+      "id": 8187434784,
+      "handle": "@Robo2725_bot"
+    },
+    "ziman": {
+      "id": 8861821707
+    }
+  },
+  "pids": {
+    "center": [
+      {
+        "pid": 26388,
+        "cmd": "python  -X utf8 telegram_center\\center.py"
+      }
+    ],
+    "approval_channel": [],
+    "organism": [
+      {
+        "pid": 9904,
+        "cmd": "python  -X utf8 organism.py"
+      }
+    ],
+    "brain.daemon": [
+      {
+        "pid": 25680,
+        "cmd": "\"C:\\Program Files\\Python313\\python.exe\"  -X utf8 -m brain.daemon "
+      }
+    ],
+    "other_tg": [
+      {
+        "pid": 9120,
+        "cmd": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py "
+      },
+      {
+        "pid": 14600,
+        "cmd": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/snapshot_a0.py"
+      }
+    ],
+    "canonical_inbound_count": 1
+  },
+  "paid_cognition_env": "0",
+  "wire_spine_env": "UNSET",
+  "t48_env": "UNSET",
+  "owner_stop_flag": false,
+  "lane_manifest": [
+    {
+      "path": "_ops/telegram_center/center.py",
+      "exists": true,
+      "sha256": "e7aa0e6838131ab543e5ca9dee9e1e285f3f9cc6038d5e435233db2b7c401256",
+      "bytes": 382380,
+      "mtime": 1787219223
+    },
+    {
+      "path": "_ops/telegram_center/input_surface_policy.py",
+      "exists": true,
+      "sha256": "afe6778c850f34336612f8e652a4a8488f44645d3cef1d7eb19f8e88cabbf0b6",
+      "bytes": 22699,
+      "mtime": 1787214662
+    },
+    {
+      "path": "_ops/owner_console/local_commands.py",
+      "exists": true,
+      "sha256": "c64205505eb84d4be3fc4ef6e5cc74a4c646b361efbc935df2c00ad89dd8fe62",
+      "bytes": 10785,
+      "mtime": 1787219099
+    },
+    {
+      "path": "_ops/owner_console/telegram_adapter.py",
+      "exists": true,
+      "sha256": "e1faf5ef4e51d84abd44970c3bb9dfeba82a354272c18b4af9694ffd0adeeaf2",
+      "bytes": 9570,
+      "mtime": 1787219553
+    },
+    {
+      "path": "_ops/owner_console/conversation.py",
+      "exists": true,
+      "sha256": "dd937ab3fbdec33efaa21d5cde6f9ae308a44a1330c2d421bde2a98f38ed343a",
+      "bytes": 51418,
+      "mtime": 1786614521
+    },
+    {
+      "path": "_ops/cognition_quota.py",
+      "exists": true,
+      "sha256": "63c52e83c9552fbec712beb0687e7044ebfb7cec89239d586d08e4ab36ef5b87",
+      "bytes": 6610,
+      "mtime": 1787219056
+    },
+    {
+      "path": "_ops/cortex/cost_receipt.py",
+      "exists": true,
+      "sha256": "2816c905297cea72e391fe14c793650662e7c71829d80f04c62d0a3a1198737f",
+      "bytes": 14248,
+      "mtime": 1787219458
+    },
+    {
+      "path": "_ops/cortex/model_router.py",
+      "exists": true,
+      "sha256": "ae9fcc8bddace096efcd7f723e447ec43452b875080f0edaf24fdd0653166b2a",
+      "bytes": 54774,
+      "mtime": 1787219286
+    },
+    {
+      "path": "_ops/spine/spine_adapters.py",
+      "exists": true,
+      "sha256": "f173661af97b9332d6c17e898b21ba9a84630af4158ae6a20fe0bbb5102be937",
+      "bytes": 17618,
+      "mtime": 1787200119
+    },
+    {
+      "path": "_ops/tests/test_telegram_closed_loop_20260820.py",
+      "exists": true,
+      "sha256": "dc2b7b17e51a57348f0da972df1cfe21a46d89fcfe146bfbbc734aa045d9af9c",
+      "bytes": 6469,
+      "mtime": 1787219589
+    }
+  ],
+  "forensic_receipts": {
+    "n": 962,
+    "attributed": 6,
+    "unattributed": 956,
+    "attribution_ratio": 0.006237006237006237,
+    "rewritten": 0,
+    "note": "98-class historic UNATTRIBUTED rows are labeled, not rewritten"
+  },
+  "counts": {
+    "cost_receipts": 962,
+    "paid_calls": 5890,
+    "tg_send_log": 1960
+  },
+  "inbound": {
+    "n": 104,
+    "cmd_counts": {
+      "/status": 5,
+      "/remember": 1
+    },
+    "last": [
+      {
+        "update_id": 223883307,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T05:07:36",
+        "chars": 0
+      },
+      {
+        "update_id": 223883307,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T05:07:36",
+        "chars": null
+      },
+      {
+        "update_id": 223883308,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T07:00:22",
+        "chars": 24
+      },
+      {
+        "update_id": 223883308,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T07:00:22",
+        "chars": null
+      },
+      {
+        "update_id": 223883309,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T07:35:24",
+        "chars": 0
+      },
+      {
+        "update_id": 223883309,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T07:35:24",
+        "chars": null
+      },
+      {
+        "update_id": 223883310,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T07:56:15",
+        "chars": 0
+      },
+      {
+        "update_id": 223883310,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T07:56:15",
+        "chars": null
+      },
+      {
+        "update_id": 223883311,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T08:27:56",
+        "chars": 0
+      },
+      {
+        "update_id": 223883311,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T08:27:56",
+        "chars": null
+      },
+      {
+        "update_id": 223883312,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T09:47:41",
+        "chars": 0
+      },
+      {
+        "update_id": 223883312,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T09:47:41",
+        "chars": null
+      },
+      {
+        "update_id": 223883313,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T10:13:15",
+        "chars": 0
+      },
+      {
+        "update_id": 223883313,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T10:13:15",
+        "chars": null
+      },
+      {
+        "update_id": 223883314,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:17:22",
+        "chars": 29
+      },
+      {
+        "update_id": 223883315,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:17:25",
+        "chars": 29
+      },
+      {
+        "update_id": 223883316,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:17:29",
+        "chars": 29
+      },
+      {
+        "update_id": 223883317,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:17:35",
+        "chars": 29
+      },
+      {
+        "update_id": 223883318,
+        "cmd": "/status",
+        "is_command": true,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:18:40",
+        "chars": 7
+      },
+      {
+        "update_id": 732409573,
+        "cmd": "/status",
+        "is_command": true,
+        "from_owner": true,
+        "bot": "inner",
+        "ts": "2026-08-20T18:18:47",
+        "chars": 7
+      },
+      {
+        "update_id": 223883319,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:19:30",
+        "chars": 20
+      },
+      {
+        "update_id": 223883320,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:20:46",
+        "chars": 73
+      },
+      {
+        "update_id": 223883321,
+        "cmd": "/status",
+        "is_command": true,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:39:05",
+        "chars": 7
+      },
+      {
+        "update_id": 223883322,
+        "cmd": "/status",
+        "is_command": true,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:43:29",
+        "chars": 7
+      },
+      {
+        "update_id": 223883323,
+        "cmd": "/remember",
+        "is_command": true,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:45:35",
+        "chars": 25
+      },
+      {
+        "update_id": 223883323,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T18:45:37",
+        "chars": null
+      },
+      {
+        "update_id": 223883324,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T18:46:17",
+        "chars": 16
+      },
+      {
+        "update_id": 223883325,
+        "cmd": "",
+        "is_command": false,
+        "from_owner": false,
+        "bot": "center",
+        "ts": "2026-08-20T19:01:25",
+        "chars": 0
+      },
+      {
+        "update_id": 223883325,
+        "cmd": null,
+        "is_command": null,
+        "from_owner": null,
+        "bot": "center",
+        "ts": "2026-08-20T19:01:32",
+        "chars": null
+      },
+      {
+        "update_id": 223883326,
+        "cmd": "/status",
+        "is_command": true,
+        "from_owner": true,
+        "bot": "center",
+        "ts": "2026-08-20T19:38:01",
+        "chars": 7
+      }
+    ]
+  },
+  "spine": {
+    "exists": true,
+    "n_telegram": 5,
+    "last": [
+      {
+        "event_id": "evt_f726433abb33404b",
+        "idempotency_key": "tg-6150431610-1787218681-223883326|owner-console",
+        "producer": "owner_console_seam",
+        "occurred_at": "2026-08-20T09:38:01+00:00",
+        "event_time_source": "telegram_message_date"
+      },
+      {
+        "event_id": "evt_5360451d5ef73921",
+        "idempotency_key": "tg-6150431610-1787215577-223883324|owner-console",
+        "producer": "owner_console_seam",
+        "occurred_at": "2026-08-20T08:46:17+00:00",
+        "event_time_source": "telegram_message_date"
+      },
+      {
+        "event_id": "evt_22c2ff9abc62a278",
+        "idempotency_key": "tg-6150431610-1787215517-223883323|owner-console",
+        "producer": "owner_console_seam",
+        "occurred_at": "2026-08-20T08:45:17+00:00",
+        "event_time_source": "telegram_message_date"
+      },
+      {
+        "event_id": "evt_003f7b53591ed702",
+        "idempotency_key": "tg-6150431610-1787215409-223883322|owner-console",
+        "producer": "owner_console_seam",
+        "occurred_at": "2026-08-20T08:43:29+00:00",
+        "event_time_source": "telegram_message_date"
+      },
+      {
+        "event_id": "evt_d517c8eff22f292d",
+        "idempotency_key": "tg-6150431610-1787215141-223883321|owner-console",
+        "producer": "owner_console_seam",
+        "occurred_at": "2026-08-20T08:39:01+00:00",
+        "event_time_source": "telegram_message_date"
+      }
+    ]
+  },
+  "git": {
+    "branch": "equip/g10-cognition-20260816",
+    "commit": "121ef67"
+  },
+  "live_b": "BLOCKED",
+  "full_loop": "PAUSED_UNTIL_A7_GATES",
+  "paid_cognition_policy": "off_until_A4_code_ready_live_process_not_reloaded"
+}

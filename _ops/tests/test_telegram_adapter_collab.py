@@ -18,10 +18,14 @@ import harness  # noqa: E402
 def t_adapter_uses_conversation_when_collab_off():
     from owner_console import telegram_adapter as ta
     os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
-    r = ta.handle_message(
-        "سلام خودتو معرفی کن",
-        surface_decision={"allow": True, "mode": "core_conversation"},
-    )
+    os.environ["OCTOPUS_PAID_COGNITION"] = "1"
+    try:
+        r = ta.handle_message(
+            "سلام خودتو معرفی کن",
+            surface_decision={"allow": True, "mode": "core_conversation"},
+        )
+    finally:
+        os.environ.pop("OCTOPUS_PAID_COGNITION", None)
     assert r["handled"] and r["reason"] == "owner-console"
     assert r["reply"]["kind"] == "intro"
 
@@ -30,6 +34,7 @@ def t_adapter_uses_collaborator_when_collab_on():
     from owner_console import telegram_adapter as ta
     os.environ["OCTOPUS_WIRE_COLLAB"] = "1"
     os.environ["OCTOPUS_COLLAB_USE_MODEL"] = "0"  # stub contract, not live model
+    os.environ["OCTOPUS_PAID_COGNITION"] = "1"
     try:
         r = ta.handle_message(
             "سلام خودتو معرفی کن",
@@ -38,6 +43,7 @@ def t_adapter_uses_collaborator_when_collab_on():
     finally:
         os.environ.pop("OCTOPUS_WIRE_COLLAB", None)
         os.environ.pop("OCTOPUS_COLLAB_USE_MODEL", None)
+        os.environ.pop("OCTOPUS_PAID_COGNITION", None)
     assert r["handled"] and r["reason"] == "collaborator"
     assert r["reply"]["kind"] == "intro"
     assert r["reply"].get("model_source") == "deterministic-stub"

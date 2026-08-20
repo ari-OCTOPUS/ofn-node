@@ -277,20 +277,32 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
         cli = MultiProviderClient(role=role)
         est = cli.est_worst_case(len(system) + len(prompt), max_tokens=max_tokens) \
             if hasattr(cli, "est_worst_case") else 0.05
+        # A3 (2026-08-20): attribution + bucket cap BEFORE reserve/network.
+        try:
+            sys.path.insert(0, str(_HERE.parent))
+            from cognition_quota import gate_paid_intent  # noqa: WPS433
+            _gq = gate_paid_intent(
+                task=task,
+                run_id=str(os.environ.get("OCTOPUS_RUN_ID") or ""),
+                bucket=str(os.environ.get("OCTOPUS_COGNITION_BUCKET") or "telegram_normal"))
+            if not _gq.get("allow"):
+                _paid_log(task=task, tier=tier, role=role, ok=False,
+                          error=f"cognition_quota_{_gq.get('reason')}", ms=0,
+                          note=_gq.get("mode"))
+                return None
+        except Exception:  # noqa: BLE001
+            if os.environ.get("OCTOPUS_PAID_COGNITION", "0") != "1":
+                _paid_log(task=task, tier=tier, role=role, ok=False,
+                          error="cognition_quota_guard_error", ms=0)
+                return None
         r = organ_gate.reserve("ARCHITECT_SYS", est, task=f"cortex-{tier}")
         if not r.get("allow"):
             return None
         # ── گاردِ فوگو (روزِ اول): شمارندهٔ attempt-counted + STOP-FUGU ──────────
-        # قبل از هر egressِ پولی +۱ می‌شود (پس شکست/حلقه هم سهمیه را می‌سوزاند)؛
-        # STOP-FUGU یا سقفِ روزانه → deny → برگشت به مغزِ محلی (fail-closed).
-        import fugu_quota  # noqa: E402 — همسایهٔ همین ماژول در cortex/
+        import fugu_quota  # noqa: E402
         _q = fugu_quota.reserve(tier, "ARCHITECT_SYS")
         if not _q.get("allow"):
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
-            # ۲۰۲۶-۰۸-۰۶: قبل از این خط، denyِ سهمیه هیچ ردی در paid-calls.jsonl
-            # نمی‌گذاشت — لاگ درست تا آخرین موفقیت پر بود و بعد از آن، سه بارِ
-            # پیاپیِ deny (سقفِ روزانه) کاملاً نامرئی. الگوی همینِ log از circuit
-            # breaker (بالاتر) عیناً پورت شد.
             _paid_log(task=task, tier=tier, role=role, ok=False,
                       error=f"quota_{_q.get('reason')}", ms=0,
                       quota_used=_q.get("used"))

@@ -1070,6 +1070,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # may_authorize=false · APPLY=0 · additive.
     "test_research_ingest.py",
     "test_self_loop_ingest.py",
+    # 2026-08-20 OWNER #16 A9 — telegram closed-loop typed local contract.
+    # Unique file; append-only; do not reorder prior entries.
+    "test_telegram_closed_loop_20260820.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

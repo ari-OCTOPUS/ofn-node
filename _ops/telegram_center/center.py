@@ -2862,18 +2862,46 @@ class Center:
                     or OPS_ASK_MONEY in _rt0
                 )
                 if _mtx0 and _cmd0 not in _CENTER_SLASH and not _skip_console:
-                    _r = _oc.handle_message(_mtx0, surface_decision=_d)
-                    _rep = _r.get("reply") if _r.get("handled") else None
-                    # Phase B: collaborator brain accepts clarify/intro/chat too
-                    # (same as MiniApp). Legacy owner-console still skips clarify
-                    # so free chat can fall through to ask_brain.
-                    if _rep and (
-                        _r.get("reason") == "collaborator"
-                        or _rep.get("kind") != "clarify"
-                    ):
-                        return self._send_console_reply(_rep, {"message": _mg})
+                    try:
+                        from owner_console import local_commands as _lc_fw
+                        _fw = _lc_fw.is_local_firewall(_mtx0)
+                    except Exception:  # noqa: BLE001
+                        _fw = _mtx0.lstrip().startswith("/")
+                    try:
+                        _r = _oc.handle_message(_mtx0, surface_decision=_d)
+                        _rep = _r.get("reply") if _r.get("handled") else None
+                        # A10: string is fail-closed, not .get fall-through to model.
+                        if isinstance(_rep, str):
+                            return self._send_console_reply(
+                                {"kind": "LOCAL_COMMAND_ERROR",
+                                 "text": "پاسخ محلی نامعتبر. مدل صدا نشد.",
+                                 "model_allowed": False, "executable": False},
+                                {"message": _mg})
+                        if _rep and (
+                            _r.get("reason") == "collaborator"
+                            or _rep.get("kind") != "clarify"
+                        ):
+                            return self._send_console_reply(_rep, {"message": _mg})
+                    except Exception:  # noqa: BLE001
+                        if _fw or os.environ.get("OCTOPUS_PAID_COGNITION", "0") != "1":
+                            return self._send_console_reply(
+                                {"kind": "LOCAL_COMMAND_ERROR",
+                                 "text": "خطای فرمان محلی. مدل صدا نشد.",
+                                 "model_allowed": False, "executable": False},
+                                {"message": _mg})
+                        pass
             except Exception:  # noqa: BLE001 — مامورِ شکسته = مسیرِ قبلی، نه سکوت
-                pass
+                try:
+                    _mtx_e = str((u.get("message") or {}).get("text") or "")
+                    if _mtx_e.lstrip().startswith("/") or os.environ.get(
+                            "OCTOPUS_PAID_COGNITION", "0") != "1":
+                        return self._send_console_reply(
+                            {"kind": "LOCAL_COMMAND_ERROR",
+                             "text": "خطای فرمان محلی. مدل صدا نشد.",
+                             "model_allowed": False, "executable": False},
+                            {"message": u.get("message")})
+                except Exception:  # noqa: BLE001
+                    pass
             # ── مدلِ Task ِ گروهِ پاها (رأیِ مالک ۰۷-۳۰ شب + ۰۷-۳۱) ─────────
             # «هر پیامِ تو = یک کار برای همان پا» — با سه استثنای صریح، به
             # همین ترتیب: (الف) ریپلای به کارتِ 🚧 = رفعِ مانعِ همان کار؛
@@ -6043,5 +6071,21 @@ if __name__ == "__main__":
     except Exception:  # noqa: BLE001
         pass
     print("tg-center: زنده — kill تمیز: فایلِ _ops/STOP-TG-CENTER را بساز")
+    try:
+        import process_identity as _pident  # noqa: WPS433 — هم‌پوشه
+        import tg_poller_lease as _pll  # noqa: WPS433
+        _tok = os.environ.get("TG_CENTER_BOT_TOKEN") or ""
+        _lease_id = ""
+        if _tok:
+            _okl, _whyl = _pll.acquire(_tok, "center-canonical")
+            if not _okl:
+                print("tg-center: poller lease refused —", _whyl)
+                sys.exit(0)
+            _lease_id = "center-canonical"
+        _ident = _pident.write_started(_pident.build(poller_lease_id=_lease_id))
+        print("tg-center: TELEGRAM_PROCESS_STARTED",
+              _ident.get("short_build_id"), "pid", _ident.get("process_id"))
+    except Exception:  # noqa: BLE001
+        pass
     c.run_forever()
     print("tg-center: ایستاد (STOP)")

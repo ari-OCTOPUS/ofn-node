@@ -67,12 +67,26 @@ class CostReceiptAdapter:
         # T50 (OWNER-DIRECTIVE-08 §۵): تفکیک انتساب — افزودنی؛ رسید بدون
         # task_id صریحاً UNATTRIBUTED برچسب می‌خورد تا حسابرسی‌ها بدون
         # بدترین‌حالت‌سازی باشند.
-        return {"schema": SCHEMA, "trace_id": trace_id, "provider": provider,
+        import os as _os
+        import time as _t
+        rid = str(trace_id or "")
+        rec = {"schema": SCHEMA, "trace_id": trace_id, "provider": provider,
                 "exact_model": model, "request_timestamp": ts_req,
                 "response_timestamp": ts_resp, "budget_before_aud": round(float(budget_before), 6),
                 "task_id": str(task_id or ""),
                 "run_id": str(run_id or ""),
-                "attribution": "TASK" if task_id else "UNATTRIBUTED"}
+                "attribution": "TASK" if task_id else "UNATTRIBUTED",
+                # A3 additive fields (old rows on disk are not rewritten)
+                "receipt_id": "rcp-" + rid[:16],
+                "turn_id": str(task_id or ""),
+                "request_id": rid,
+                "model": model,
+                "status": "PENDING",
+                "process_id": _os.getpid(),
+                "code_version": str(_os.environ.get("OCTOPUS_CODE_VERSION") or "cost-receipt/1"),
+                "created_at": ts_resp or _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime()),
+                "cognitive_quota_eligible": bool(task_id) and bool(run_id)}
+        return rec
 
     def _finish(self, rec, *, tokens_in, tokens_out, usage_hash, pricing_src, pricing_ver,
                 cost, method, status, budget_after, extra=None):
@@ -81,7 +95,13 @@ class CostReceiptAdapter:
                     "provider_usage_payload_hash": usage_hash,
                     "pricing_source_id": pricing_src, "pricing_version": pricing_ver,
                     "estimated_or_reported_cost_aud": cost, "cost_method": method,
-                    "receipt_status": status, "budget_after_aud": round(float(budget_after), 6)})
+                    "receipt_status": status, "budget_after_aud": round(float(budget_after), 6),
+                    "status": status,
+                    "tokens": (
+                        (tokens_in if isinstance(tokens_in, int) else 0)
+                        + (tokens_out if isinstance(tokens_out, int) else 0)
+                    ) if isinstance(tokens_in, int) or isinstance(tokens_out, int) else rec.get("tokens"),
+                    "cost_aud": cost if cost is not None else rec.get("cost_aud")})
         if extra:
             rec.update(extra)
         if status == "COST_UNOBSERVABLE":
