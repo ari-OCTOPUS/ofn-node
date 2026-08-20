@@ -24,6 +24,7 @@ def handle_message(text: str, *, surface_decision: dict) -> dict:
     if not (d.get("allow") is True and d.get("mode") == "core_conversation"):
         return {"handled": False, "reason": "not-authorized-outer-core-conversation",
                 "reply": None}
+    _emit_owner_inbound(d, text)   # #14A F2: emitter دوزمانی مسیر canonical
     if _collab_armed():
         from . import collaborator
         return {"handled": True, "reason": "collaborator",
@@ -43,3 +44,34 @@ def handle_callback(data: str, *, surface_decision: dict) -> dict:
         return {"handled": True, "reason": "collaborator",
                 "reply": collaborator.callback(data)}
     return {"handled": True, "reason": "owner-console", "reply": conversation.callback(data)}
+
+
+def _emit_owner_inbound(decision: dict, text: str) -> None:
+    """#14A F2 (2026-08-20): رویداد spine دوزمانی برای پیام مالک در مسیر
+    canonical inbound (owner-console seam). flags: OCTOPUS_T48_EVENT_TIME +
+    OCTOPUS_WIRE_SPINE؛ بدون message.date رویداد ساخته نمی‌شود (نه تزریق ساعت)."""
+    import os as _os
+    if _os.environ.get("OCTOPUS_T48_EVENT_TIME", "1").strip().lower() not in ("1", "true", "yes", "on"):
+        return
+    try:
+        import sys as _sys
+        from pathlib import Path as _P
+        _sp = str(_P(__file__).resolve().parents[1] / "spine")
+        if _sp not in _sys.path:
+            _sys.path.insert(0, _sp)
+        import spine_adapters as _sa
+        date = decision.get("message_date")
+        if not date:
+            return
+        from datetime import datetime, timezone as _tz
+        occ = datetime.fromtimestamp(int(date), tz=_tz.utc).isoformat(timespec="seconds")
+        _sa.emit_event(
+            event_type="delivered", domain="telegram",
+            correlation_id=f"tg-{decision.get('chat_id')}-{date}",
+            subject="owner_message", producer="owner_console_seam",
+            trust="DETERMINISTIC", occurred_at=occ,
+            event_time_source="telegram_message_date", time_precision="1s",
+            payload={"mode": decision.get("mode"), "reason": decision.get("reason")},
+            idempotency_key=f"tg-{decision.get('chat_id')}-{date}-{decision.get('update_id')}|owner-console")
+    except Exception:  # noqa: BLE001 — seam هرگز مسیر مرکز را نمی‌کشد
+        pass

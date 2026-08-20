@@ -179,6 +179,11 @@ def classify(update: dict, *, bot_role: str, owner_id, group_id,
     cb = cb if isinstance(cb, dict) else None
     raw_msg = update.get("message")
     raw_msg = raw_msg if isinstance(raw_msg, dict) else None
+    # #14A F2 (2026-08-20): متادیتای additive برای مسیر canonical inbound —
+    # تا seam بتواند رویداد دوزمانی با message.date بسازد. تغییر رفتار: صفر.
+    _meta = {"update_id": update.get("update_id"),
+             "message_date": (raw_msg or {}).get("date"),
+             "chat_id": ((raw_msg or {}).get("chat") or {}).get("id")}
     msg = raw_msg if raw_msg is not None else \
         ((cb or {}).get("message") if isinstance((cb or {}).get("message"), dict) else None)
     if msg is None:
@@ -208,16 +213,16 @@ def classify(update: dict, *, bot_role: str, owner_id, group_id,
     if is_dm:
         if role == "outer":
             return {"allow": True, "mode": "core_conversation", "leg": None,
-                    "redirect": None, "reason": "outer-dm-owner"}
+                    "redirect": None, "reason": "outer-dm-owner", **_meta}
         if role == "inner":
             # چتِ آزاد در inner جایش نیست — ولی deny نمی‌شود، هدایت می‌شود.
             if _verb_of(text) in (None,) and len(text.strip()) > 0 \
                     and cb is None:
                 return {"allow": False, "mode": "clarify", "leg": None,
                         "redirect": "outer_dm",
-                        "reason": "inner-dm-free-chat→outer"}
+                        "reason": "inner-dm-free-chat→outer", **_meta}
             return {"allow": True, "mode": "status_approval", "leg": None,
-                    "redirect": None, "reason": "inner-dm-owner"}
+                    "redirect": None, "reason": "inner-dm-owner", **_meta}
         return _deny(f"unknown-bot-role:{role!r}")
 
     # ── گروه ────────────────────────────────────────────────────────────────
