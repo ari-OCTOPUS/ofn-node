@@ -2702,6 +2702,24 @@ def _observations_from_snapshot(snap: dict) -> list:
             source="organism", obs_type="payment",
             label=f"month spend · {int(mon_musd)} micro-USD (aggregate only)",
             intensity=0.35))
+    # C21/APPROVED-BY-OWNER: knowledge afferent — منبع حسی دوم (NO_SOURCE fix)
+    # فقط notes با quality=VALID وارد می‌شوند؛ fail-soft مطلق
+    try:
+        import json as _json_ka
+        from pathlib import Path as _Path_ka
+        _ka_ledger = _Path_ka(__file__).parent / "organs" / "state" / "knowledge-afferent.jsonl"
+        if _ka_ledger.exists():
+            _ka_lines = _ka_ledger.read_text(encoding="utf-8").strip().splitlines()
+            _ka_events = [_json_ka.loads(l) for l in _ka_lines[-20:] if l.strip()]
+            for _ka_ev in _ka_events:
+                if _ka_ev.get("extra", {}).get("quality") == "VALID":
+                    obs.append(Observation(
+                        source="knowledge_afferent",
+                        obs_type="note_change",
+                        label=f"vault note: {_ka_ev.get('note_type', 'note')} (hash={_ka_ev.get('content_hash', '')[:8]})",
+                        intensity=0.3))
+    except Exception:
+        pass  # knowledge source نباید مسیر اصلی را بکشد
     return obs
 
 

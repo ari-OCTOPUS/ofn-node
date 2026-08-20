@@ -117,8 +117,8 @@ def process_sidecar_queue() -> dict:
                 "payload_hash": ev.get("content_hash", ""),
             }, ensure_ascii=False) + "\n")
 
-        # ۲) memory candidate (فقط اگر quality=CLEAN و denylisted=False)
-        if ev.get("extra", {}).get("quality") == "CLEAN" and \
+        # ۲) memory candidate (فقط اگر quality=VALID و denylisted=False)
+        if ev.get("extra", {}).get("quality") == "VALID" and \
            not ev.get("extra", {}).get("denylisted"):
             with candidates.open("a", encoding="utf-8") as f:
                 f.write(json.dumps({
