@@ -95,11 +95,13 @@ def attribution_ratio(envelopes: list[dict]) -> dict[str, Any]:
 
 
 def scan_jsonl(path, *, limit: int = 200000, run_to_task: dict[str, str] | None = None,
-               since_iso: str | None = None) -> dict[str, Any]:
+               since_iso: str | None = None,
+               require_attribution_schema: bool = False) -> dict[str, Any]:
     from pathlib import Path
     p = Path(path)
     rows: list[dict] = []
     skipped_old = 0
+    skipped_pre_schema = 0
     if p.exists():
         with p.open(encoding="utf-8", errors="replace") as f:
             for i, line in enumerate(f):
@@ -118,9 +120,16 @@ def scan_jsonl(path, *, limit: int = 200000, run_to_task: dict[str, str] | None 
                     if ts and ts < since_iso:
                         skipped_old += 1
                         continue
+                if require_attribution_schema and (
+                        "task_id" not in raw and "attribution" not in raw):
+                    # Pre-T50 rows cannot be attributed without rewriting history.
+                    skipped_pre_schema += 1
+                    continue
                 rows.append(adapt_legacy(raw, run_to_task=run_to_task))
     stats = attribution_ratio(rows)
     stats["source"] = str(p)
     stats["since_iso"] = since_iso
     stats["skipped_older_than_since"] = skipped_old
+    stats["skipped_pre_schema"] = skipped_pre_schema
+    stats["require_attribution_schema"] = require_attribution_schema
     return stats

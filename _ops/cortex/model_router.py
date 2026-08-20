@@ -28,6 +28,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent / "budget"))
 sys.path.insert(0, str(_HERE))
+sys.path.insert(0, str(_HERE.parent))
 import opslib  # noqa: E402
 import local_llm  # noqa: E402
 import circuit_breaker as _cb  # noqa: E402  # per-provider breaker (2026-07-25): Fugu timeoutlarını fail-fast کند
@@ -46,6 +47,21 @@ ACT_RESEARCH_EARLY = opslib.OPS / "ACTIVATION-RESEARCH-EARLY.flag"
 PAID_LOG = opslib.STATE_DIR / "paid-calls.jsonl"
 
 _SECRET_RE = re.compile(r'(?i)\b(bearer|api[_-]?key|authorization)\b\s*[:=]?\s*[A-Za-z0-9_\-\.]{10,}')
+
+
+def _receipt_ids(task: str) -> tuple[str | None, str | None]:
+    """Caller/context only. Never invent task_id from pid/time/model."""
+    try:
+        from nervous_recovery.task_context import resolve  # noqa: WPS433
+        r = resolve(caller_task=task, run_id=os.environ.get("OCTOPUS_RUN_ID"))
+        tid = r.get("task_id")
+        rid = r.get("run_id")
+        return (str(tid)[:64] if tid else None,
+                str(rid)[:64] if rid else None)
+    except Exception:  # noqa: BLE001 — attribution helper must not kill the brain
+        t = str(task or "").strip()[:64] or None
+        r = str(os.environ.get("OCTOPUS_RUN_ID") or "").strip()[:64] or None
+        return t, r
 
 
 def _error_detail(exc: Exception, limit: int = 300) -> str:
@@ -350,6 +366,7 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
             from pathlib import Path as _P
             from cost_receipt import CostReceiptAdapter, remaining_budget_aud  # noqa: WPS433 — هم‌پوشه
             _rp = _P(str(_P(__file__).resolve().parent.parent / "state" / "cortex" / "cost-receipts.jsonl"))
+            _tid, _rid = _receipt_ids(task)
             _recpt = CostReceiptAdapter().build(
                 trace_id=f"paid-{tier}-{int(_pt.time()*1000)}",
                 provider=str(getattr(cli, "provider", "") or ""),
@@ -365,10 +382,9 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
                                if out.get("cost_usd") is not None else None),
                 tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
                 input_sha256=_hl.sha256(str(prompt).encode("utf-8", "replace")).hexdigest(),
-                # T50 (OWNER-DIRECTIVE-08 §۵): انتساب رسید — task از caller؛
-                # run از env (هر پروسه یک run_id؛ غایب = ردیف UNATTRIBUTED).
-                task_id=str(task or "")[:64] or None,
-                run_id=str(os.environ.get("OCTOPUS_RUN_ID") or "")[:64] or None)
+                # T50 + Wave0 plumbing: task from caller/context resolver; never inferred.
+                task_id=_tid,
+                run_id=_rid)
             _rp.parent.mkdir(parents=True, exist_ok=True)
             _rp.open("a", encoding="utf-8").write(_jn.dumps(_recpt, ensure_ascii=False, default=str) + "\n")
         except Exception:  # noqa: BLE001 — رسید هرگز مغز را نمی‌کشد
@@ -769,15 +785,18 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
             # FREE_OR_UNBILLED با fallback_of؛ دیگر fallbackِ半‌ساکت نیست.
             try:
                 import time as _tf15
+                from datetime import datetime as _dtf15, timezone as _tzf15
                 from cost_receipt import (CostReceiptAdapter as _CRA,  # noqa: WPS433
                                           remaining_budget_aud as _rb15)
+                _tid15, _rid15 = _receipt_ids(task)
                 _fr = _CRA().build(
                     trace_id=f"mrfb-{int(_tf15.time() * 1000)}",
                     provider="local-ollama", model="qwen2.5:1.5b",
-                    ts_req=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="seconds"),
-                    ts_resp=_dt.datetime.now(_tz.utc).isoformat(timespec="seconds"),
+                    ts_req=_dtf15.fromtimestamp(_t0, _tzf15.utc).isoformat(timespec="seconds"),
+                    ts_resp=_dtf15.now(_tzf15.utc).isoformat(timespec="seconds"),
                     budget_before_aud=_rb15(), tokens_in=None, tokens_out=None,
                     input_sha256="", free_tier=True,
+                    task_id=_tid15, run_id=_rid15,
                     fallback_of={"receipt_status": "PAID_UNAVAILABLE",
                                  "provider": str(res.get("fallback_from"))[:60],
                                  "trace": f"mrf-{int(_t0 * 1000)}"})

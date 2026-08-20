@@ -100,6 +100,13 @@ def test_memory_continuity_is_streak_not_sum():
     assert memory_continuity.consecutive_healthy(samples) == 1
     ten = [samples[0]] * 10
     assert memory_continuity.consecutive_healthy(ten) == 10
+    gapped = [
+        {"memory_reads_per_cycle": 3, "readback": "read_ok", "status": "OK",
+         "executable": False, "beat": 10},
+        {"memory_reads_per_cycle": 3, "readback": "read_ok", "status": "OK",
+         "executable": False, "beat": 12},
+    ]
+    assert memory_continuity.consecutive_healthy(gapped) == 1
     aud = memory_continuity.audit(samples[0], None)
     assert aud["gate_met"] is False  # single sample < 10
     assert "Wave 1" in aud["note"]
@@ -184,6 +191,22 @@ def test_shadow_pid_timestamp_capability_are_not_task_ids():
     assert env["task_id"] is None
     assert env["attribution_status"] == "unresolved"
     assert env["task_id_source"] == "legacy_missing"
+
+
+def test_task_context_never_infers():
+    from nervous_recovery import task_context
+    r = task_context.resolve(caller_task="", run_id="", environ={})
+    assert r["task_id"] is None and r["attribution_status"] == "unresolved"
+    r2 = task_context.resolve(caller_task="think", run_id="run_1", environ={})
+    assert r2["task_id"] == "think" and r2["task_id_source"] == "caller"
+    r3 = task_context.resolve(
+        caller_task="", run_id="run_x",
+        environ={"OCTOPUS_TASK_ID": "tsk_env", "OCTOPUS_RUN_ID": "run_x"})
+    assert r3["task_id"] == "tsk_env" and r3["task_id_source"] == "context"
+    r4 = task_context.resolve(
+        caller_task="", run_id="run_other",
+        environ={"OCTOPUS_TASK_ID": "tsk_env", "OCTOPUS_RUN_ID": "run_x"})
+    assert r4["task_id"] is None  # foreign run — do not bind
 
 
 def test_canary_execute_is_false_and_order_is_cortex_only():

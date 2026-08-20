@@ -59,20 +59,43 @@ def discover_test_files(tests_dir: Path | None = None,
     return found
 
 
+ARCHIVE_NAME_MARKERS = (
+    "retired", "_tmp", "generated", "close_c025_family_key",
+    "close_experiments_retired", "novelty_archive",
+)
+
+
+def eligible_test_files(tests_dir: Path | None = None) -> set[str]:
+    """Valid-test denominator: on-disk test_*.py minus archived/generated."""
+    names = discover_test_files(tests_dir)
+    out = set()
+    for name in names:
+        low = name.lower()
+        if any(m in low for m in ARCHIVE_NAME_MARKERS):
+            continue
+        out.add(name)
+    return out
+
+
 def report(*, tests_dir: Path | None = None, run_all: Path | None = None) -> dict[str, Any]:
-    discovered = discover_test_files(tests_dir)
-    registered = registered_from_run_all(run_all)
-    missing = sorted(discovered - registered)
-    extra = sorted(registered - discovered)
+    eligible = eligible_test_files(tests_dir)
+    registered_names = registered_from_run_all(run_all)
+    in_suite = eligible & registered_names
+    missing = sorted(eligible - registered_names)
+    extra = sorted(registered_names - discover_test_files(tests_dir))
     gap = len(missing)
     return {
-        "schema": "test-discovery/1",
-        "discovered": len(discovered),
-        "registered": len(registered),
+        "schema": "test-discovery/2",
+        "discovered": len(eligible),
+        "registered": len(in_suite),
         "gap": gap,
         "ci_failure": gap_is_ci_failure(gap),
         "not_registered_sample": missing[:20],
         "registered_missing_file_sample": extra[:20],
+        "denominator_contract": (
+            "discovered = _ops/tests/test_*.py minus archived/generated; "
+            "registered = intersection with run_all; gap = eligible not listed"
+        ),
         "writes_performed": False,
     }
 

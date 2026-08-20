@@ -28,7 +28,7 @@ updated: 2026-08-20
 
 ## Active Context
 
-- تغییرات اخیر: **2026-08-20 ~22:0x — Attribution shadow فاز ۱.** اصل رسید دست‌نخورده · shadow PASS · registry 637/790 · canary اجرا نشد. [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW]].
+- تغییرات اخیر: **2026-08-20 ~22:2x — WAVE0 exec.** schema-window attribution 1.0 · registry 786/786 · memory streak باز. wave1 قفل. [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-A]].
 
 - تغییرات اخیر: **2026-08-20 ~21:5x — Nervous-System Recovery.** `_ops/nervous_recovery/` · WAVE0_PARTIAL · wave1_unlocked=false · C-048..C-053 کاندید. [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README]].
 

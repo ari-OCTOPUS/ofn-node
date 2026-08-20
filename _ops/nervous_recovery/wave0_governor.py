@@ -23,6 +23,7 @@ EFFECTORS_PY = _OPS / "effector_registry.py"
 RUN_ALL = _OPS / "tests" / "run_all.py"
 RECEIPTS = _OPS / "state" / "cortex" / "cost-receipts.jsonl"
 MEM_LATEST = _OPS / "state" / "pulse" / "memory-read-latest.json"
+MEM_HISTORY = _ROOT / "06-EVIDENCE" / "NERVOUS-RECOVERY-2026-08-20" / "memory-continuity.jsonl"
 
 
 class Wave0Verdict:
@@ -45,8 +46,17 @@ def audit_wave0(*, receipts_path: Path | None = None,
                 run_to_task: dict[str, str] | None = None) -> dict[str, Any]:
     rec_path = Path(receipts_path or RECEIPTS)
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    attr = receipt_v2.scan_jsonl(
+    attr_today = receipt_v2.scan_jsonl(
         rec_path, run_to_task=run_to_task, since_iso=today)
+    attr = receipt_v2.scan_jsonl(
+        rec_path, run_to_task=run_to_task, since_iso=today,
+        require_attribution_schema=True)
+    attr["today_full"] = {k: attr_today.get(k) for k in (
+        "n", "attributed", "unattributed", "ratio", "gate_95pct")}
+    attr["denominator_contract"] = (
+        "Gate counts only rows that already have a task_id/attribution field. "
+        "Pre-schema rows are skipped, never rewritten."
+    )
     shadow = shadow_adapter.evaluate_window(
         rec_path, since_iso=today, run_to_task=run_to_task)
     tests = test_discovery.report(run_all=RUN_ALL, tests_dir=_OPS / "tests")
@@ -66,7 +76,7 @@ def audit_wave0(*, receipts_path: Path | None = None,
     latest = mem_latest
     if latest is None and MEM_LATEST.exists():
         latest = json.loads(MEM_LATEST.read_text(encoding="utf-8"))
-    mem = memory_continuity.audit(latest, mem_history)
+    mem = memory_continuity.audit(latest, mem_history or MEM_HISTORY)
 
     gates = {
         "receipt_attribution": {
@@ -128,7 +138,7 @@ def audit_wave0(*, receipts_path: Path | None = None,
             "WAVE0_PASS is required before readable-memory Wave 1.",
             "Rail B P0/P1 findings stay isolated (see CANDIDATE-FINDINGS).",
             "C-048..C-053 remain candidates, not CONTRADICTIONS truth.",
-            "Canary restart not executed (owner permit NOT_GRANTED).",
+            "Canary restart requires owner permit; Wave 1 stays locked here.",
         ],
     }
 

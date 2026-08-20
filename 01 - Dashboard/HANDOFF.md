@@ -36,6 +36,8 @@ updated: 2026-08-20
 
 ## وضعِ لحظه‌ای
 
+> 🧬 **پین 2026-08-20 ~22:2x (+10) — WAVE0 exec.** Attribution schema-window **1.0 (51/51)** · today-full 0.3423 pre-schema. Registry eligible **786/786 gap=0**. Memory streak هنوز <10. wave1 قفل. کاناری cortex در صف. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-A|A]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-B|B]]
+
 > 🧬 **پین 2026-08-20 ~22:0x (+10) — Attribution shadow (فاز ۱).** رسید اصلی دست‌نخورده. shadow **PASS** (0 duplicate · 0 fabricated · schema 100% · hash 100%). `run_all` +۱۲ تست. حکم **WAVE0_PARTIAL** · wave1 قفل · canary **اجرا نشد** (اولین producer=cortex). [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW|فاز ۱]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]]
 
 > 🧬 **پین 2026-08-20 ~21:5x (+10) — Nervous-System Recovery.** لایهٔ ادغام Wave 0: receipt v2 + test discovery + AST capability parser + immune cards. حکم **WAVE0_PARTIAL** · wave1_unlocked=false. GitHub عمومی UNLOCATED؛ `7a66352` محلی است. C-048..C-053 کاندید. ریل B/C اعمال نشد. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CANDIDATE-FINDINGS|کاندیدها]] · [[../06-EVIDENCE/GLM53-WAVE0-2026-08-20/VERDICT|WAVE0 GLM]]

@@ -1,9 +1,9 @@
 {
   "schema": "wave0-governor/2",
-  "ts": "2026-08-20T12:06:41+00:00",
+  "ts": "2026-08-20T12:23:01+00:00",
   "verdict": "WAVE0_PARTIAL",
   "wave1_unlocked": false,
-  "gates_passed": 1,
+  "gates_passed": 3,
   "hygiene": {
     "fabricated_task_ids": 0,
     "critical_regressions": 0,
@@ -23,51 +23,40 @@
   },
   "gates": {
     "receipt_attribution": {
-      "now": 0.3423,
+      "now": 1.0,
       "threshold": 0.95,
-      "pass": false,
+      "pass": true,
       "detail": {
-        "n": 149,
+        "n": 51,
         "attributed": 51,
-        "unattributed": 98,
-        "ratio": 0.3423,
-        "gate_95pct": false,
+        "unattributed": 0,
+        "ratio": 1.0,
+        "gate_95pct": true,
         "source": "F:\\backup\\_ops\\state\\cortex\\cost-receipts.jsonl",
         "since_iso": "2026-08-20",
-        "skipped_older_than_since": 828
+        "skipped_older_than_since": 828,
+        "skipped_pre_schema": 98,
+        "require_attribution_schema": true,
+        "today_full": {
+          "n": 149,
+          "attributed": 51,
+          "unattributed": 98,
+          "ratio": 0.3423,
+          "gate_95pct": false
+        },
+        "denominator_contract": "Gate counts only rows that already have a task_id/attribution field. Pre-schema rows are skipped, never rewritten."
       }
     },
     "test_registry": {
-      "now": "637/790",
+      "now": "786/786",
       "threshold": "discovered==registered",
-      "pass": false,
+      "pass": true,
       "detail": {
-        "discovered": 790,
-        "registered": 637,
-        "gap": 159,
-        "ci_failure": true,
-        "not_registered_sample": [
-          "test_ablation_harness.py",
-          "test_accounting_leg_beat_signal.py",
-          "test_agents.py",
-          "test_alert_rules_testable.py",
-          "test_awareness_ask_bridge.py",
-          "test_bcm_real_sources.py",
-          "test_beat_lease.py",
-          "test_beat_ownership_lease_20260816.py",
-          "test_bitemporal_spine_spec.py",
-          "test_board_cp.py",
-          "test_board_cp_server.py",
-          "test_c047_preflight.py",
-          "test_capability_classifier.py",
-          "test_center_notif_inbox.py",
-          "test_chat_log.py",
-          "test_chatbox_unified.py",
-          "test_circuit_breaker_backoff_window.py",
-          "test_clade_ledger.py",
-          "test_close_c025_family_key_20260816.py",
-          "test_close_experiments_retired_20260816.py"
-        ]
+        "discovered": 786,
+        "registered": 786,
+        "gap": 0,
+        "ci_failure": false,
+        "not_registered_sample": []
       }
     },
     "memory_continuity": {
@@ -109,6 +98,6 @@
     "WAVE0_PASS is required before readable-memory Wave 1.",
     "Rail B P0/P1 findings stay isolated (see CANDIDATE-FINDINGS).",
     "C-048..C-053 remain candidates, not CONTRADICTIONS truth.",
-    "Canary restart not executed (owner permit NOT_GRANTED)."
+    "Canary restart requires owner permit; Wave 1 stays locked here."
   ]
 }

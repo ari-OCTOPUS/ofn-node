@@ -24,13 +24,24 @@ def cycle_healthy(sample: dict) -> bool:
 
 
 def consecutive_healthy(samples: list[dict]) -> int:
-    """Count trailing consecutive healthy samples (not a sum of reads)."""
+    """Count trailing consecutive healthy samples (not a sum of reads).
+
+    If `beat` is present, a skipped beat identity resets the streak.
+    """
     n = 0
+    prev_beat = None
     for s in reversed(samples):
-        if cycle_healthy(s):
-            n += 1
-        else:
+        if not cycle_healthy(s):
             break
+        b = s.get("beat")
+        if prev_beat is not None and b is not None:
+            try:
+                if int(prev_beat) != int(b) + 1:
+                    break
+            except (TypeError, ValueError):
+                break
+        n += 1
+        prev_beat = b
     return n
 
 
@@ -59,7 +70,8 @@ def append_sample(jsonl: Path, sample: dict) -> None:
 def audit(latest: dict | None, history_jsonl: Path | None = None) -> dict[str, Any]:
     samples = load_samples(history_jsonl) if history_jsonl else []
     if latest:
-        samples = samples + [latest]
+        if not samples or samples[-1].get("beat") != latest.get("beat"):
+            samples = samples + [latest]
     streak = consecutive_healthy(samples)
     return {
         "schema": "memory-continuity/1",
