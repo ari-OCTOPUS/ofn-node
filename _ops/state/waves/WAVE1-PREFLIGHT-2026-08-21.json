@@ -18,7 +18,8 @@
   "zero_mutation": {
     "proof": "memory.db sha256 identical before/after read batches: 4cb57a9e7eafd682 == 4cb57a9e7eafd682",
     "read_only_uri": true,
-    "mtime_ns": 1787246349865355800 (unchanged by reads)
+    "mtime_ns": 1787246349865355800,
+    "mtime_note": "unchanged by reads"
   },
   "write_guard": {
     "status": "BLOCKED_BY_PRE_EXISTING_DEBT",

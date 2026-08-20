@@ -1,0 +1,57 @@
+{
+ "session_id": "SESSION-20260820-21",
+ "baseline": "9bc506f",
+ "accepted_checkpoint": "0ad6f53",
+ "current_head": "e8b74150df792e06d1c58f90c2d14e964ff5b87c",
+ "wave_state": {
+  "wave0": "frozen-pass",
+  "wave1": "locked",
+  "wave1_unlocked": false
+ },
+ "closed_loops": [
+  "S-T01 transport PRODUCTION_CLOSED",
+  "LOOP-TELEGRAM-COMMAND-COVERAGE PRODUCTION_CLOSED",
+  "LOOP-RUNNING-CODE-DRIFT PRODUCTION_CLOSED",
+  "RUN_ALL_TIMEOUT ROOT_CAUSE_FIXED",
+  "Unowned fear CONTAINED_VERIFIED",
+  "Window-B 344/346 OWNER_OBSERVED_UNCONFIRMED_API"
+ ],
+ "open_loops": [
+  "S-T02 event_bridge IN_PROGRESS",
+  "PROBE-INVALID OPEN",
+  "LIVE-ORPHAN OPEN",
+  "Wave 1 LOCKED",
+  "cognitive chain OPEN",
+  "doctor mission OPEN",
+  "parity NO_BASELINE",
+  "OFN-Board LANE K OPEN"
+ ],
+ "owner_decisions": [
+  "gate scope owner-side / no Mimosa bypass",
+  "single authoritative verdict",
+  "window C strict sequence",
+  "post-closure continue order",
+  "session harvest granted"
+ ],
+ "active_constraints": [
+  "paid_calls=0",
+  "memory_writes=0",
+  "wave1_unlocked=false",
+  "STOP-TG-HEARTBEAT on",
+  "no fake incidents",
+  "no fake message_ids"
+ ],
+ "next_actions": [
+  "memory gate repair (F3/t_h/timeout)",
+  "calibration→improve failing test",
+  "orphan watchdog observe-only wiring",
+  "S-T02 waits real alert"
+ ],
+ "evidence_entrypoints": [
+  "_ops/state/loops/TELEGRAM-CANARY-AUTHORITATIVE-VERDICT.json",
+  "_ops/state/loops/canary-coverage-2026-08-21-C/AUDIT.json",
+  "_ops/state/loops/EVENT-BRIDGE-CANARY-2026-08-21.json",
+  "_ops/state/waves/WAVE1-PREFLIGHT-2026-08-21.json",
+  "06-EVIDENCE/SESSION-HARVEST-2026-08-21/"
+ ]
+}

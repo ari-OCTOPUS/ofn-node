@@ -1,0 +1,14 @@
+{
+ "confirmed": true,
+ "failed_checks": [],
+ "files_created": 22,
+ "files_updated": 1,
+ "links_checked": 14,
+ "learnings_verified": 18,
+ "needs_verified": 12,
+ "secret_findings": 0,
+ "broken_links": [],
+ "my_index_links_broken": [],
+ "pre_existing_index_links_note": "4 folder-style links in 00-README-START-HERE.md predate the harvest and were not touched",
+ "frontmatter_valid": 14
+}
