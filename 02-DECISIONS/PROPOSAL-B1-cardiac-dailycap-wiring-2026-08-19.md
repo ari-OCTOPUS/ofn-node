@@ -3,7 +3,7 @@ type: proposal
 kind: b1-change
 decision_id: PROPOSAL-B1-CARDIAC-DAILYCAP-WIRING
 status: PROPOSED_NOT_APPLIED
-owner_vote: APPROVED_VIA_CHAT_2026-08-20 (Ed25519 PENDING — owner-key unresolved)
+owner_vote: SIGNED_ED25519 (B1-SIGNING-CARD-2026-08-20 · T34 CONFIRMED_SAME — ERRATA بر APPROVED_VIA_CHAT قبلی)
 scope: B1 (governed genome — _ops/cardiac.py, life_currency data source)
 observed: 2026-08-19
 ---

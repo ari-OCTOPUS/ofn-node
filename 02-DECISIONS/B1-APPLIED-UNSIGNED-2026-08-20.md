@@ -47,3 +47,14 @@ cardiac همچنان `daily_cap` نمی‌نویسد. fallback yaml زنده ا�
 این استثنا تأیید و پنهان نمی‌ماند؛ حکم به `B1_CHAT_APPROVED_ED25519_PENDING`
 ارتقا یافت. جزئیات: [[OWNER-RULINGS-2026-08-20-CHAT]] · کارت اصلی:
 [[PROPOSAL-B1-cardiac-dailycap-wiring-2026-08-19]].
+
+## ERRATA (T34، دستور مالک #۶) — 2026-08-20 ~14:10 +10
+
+حکم `KEY_IDENTITY_CONFIRMED_SAME`: امضای Ed25519 واقعی، معتبر و مستقل‌وریفای است
+([[../06-EVIDENCE/T34-KEY-IDENTITY-2026-08-20]]). برچسب‌های
+«PENDING — owner-key.enc unverified» و «ED25519 معلق به حل owner-key» در این
+کارت **باطلند** — منشأ آن‌ها ندیدنِ کلید زندهٔ `~/.octopus-signing/` بود؛ فایل
+enc صرفاً بکاپ رمزشده (`Salted__`) است و شرط اعتبار امضا نیست.
+**وضعیت نهایی B1: `B1_SIGNED_ED25519`** (کارت امضا از 11:12 +10 SIGNED بود).
+عنوان تاریخی این سند (APPLIED_UNSIGNED) به‌عنوان روایت ساعت صبح حفظ می‌شود؛
+حکم نهایی همین ERRATA است.
