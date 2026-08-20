@@ -1,6 +1,6 @@
 {
   "schema": "telegram-loop-shadow-report/1",
-  "generated_at": "2026-08-20T14:00:07+00:00",
+  "generated_at": "2026-08-20T14:10:32+00:00",
   "scope": "fixture-shadow-only",
   "limitations": [
     "fake transport",
@@ -28,13 +28,13 @@
     "telegram_responses_confirmed_total": 5,
     "telegram_updates_authorized_total": 6,
     "telegram_updates_received_total": 6,
-    "updated_at": "2026-08-20T14:00:07.266+00:00"
+    "updated_at": "2026-08-20T14:10:32.941+00:00"
   },
   "events": [
     {
       "event_id": "tg:9001",
       "task_id": "task_ae444e2ef8684c5e32fb7ffb",
-      "run_id": "run_2448bf6ac4a7480781c5983da330ab6d",
+      "run_id": "run_8e768546348e4f219ae1b071393f0e62",
       "delivery_ok": true,
       "message_id": 19001,
       "state": "CLOSED",
@@ -44,7 +44,7 @@
     {
       "event_id": "tg:9002",
       "task_id": "task_cce390664bbb2099a61fbcfd",
-      "run_id": "run_ee0a6aba4a6349c09553bb84b5594325",
+      "run_id": "run_31c4cb3a6fcf4594abfdd766fbafc86b",
       "delivery_ok": true,
       "message_id": 19002,
       "state": "CLOSED",
@@ -54,7 +54,7 @@
     {
       "event_id": "tg:9003",
       "task_id": "task_b7bf8e70fa98a73523a35bd4",
-      "run_id": "run_210c72260e85489985a5d45b416334fd",
+      "run_id": "run_283aedb3d6fc48778b44dae1c7e9cd5c",
       "delivery_ok": true,
       "message_id": 19003,
       "state": "CLOSED",
@@ -64,7 +64,7 @@
     {
       "event_id": "tg:9004",
       "task_id": "task_d49bd007c836465173328b4b",
-      "run_id": "run_79d6eec9888b416ca12058147b20828e",
+      "run_id": "run_77924e43882049a48857f58353618f80",
       "delivery_ok": true,
       "message_id": 19004,
       "state": "CLOSED",
@@ -74,7 +74,7 @@
     {
       "event_id": "tg:9005",
       "task_id": "task_39748a156147d924c2b0e5ba",
-      "run_id": "run_080fe0188ff144b486c3870099d550d2",
+      "run_id": "run_e9fca9d4fb3541e382893b02fe95dffc",
       "delivery_ok": true,
       "message_id": 19005,
       "state": "CLOSED",
@@ -83,19 +83,19 @@
     }
   ],
   "evidence_hashes": {
-    "telegram/loop/events/tg_9001.json": "82aeff464d0630e466d4be0cac74f7096ed61884330013096659d0768090eb6d",
-    "telegram/loop/events/tg_9002.json": "148e1643c5038ee993297c2ba59b64321cd5ac9928cc5c3b5d3671448f3eb01a",
-    "telegram/loop/events/tg_9003.json": "1a1449719cb18d717d65c3d4d84613402ad3559f81bfe225f05ccb33a8f5ab5f",
-    "telegram/loop/events/tg_9004.json": "107c62b66641a2011e4eb9547b8286a8cc7e8be3c382062e8cc4c25b88e3b103",
-    "telegram/loop/events/tg_9005.json": "bcdaae888734fa49a63517cfd74e380fb580cb4cfdbf53c0b6a51422c9b52414",
-    "telegram/loop/events/tg_9100.json": "c0625e8764ff7148ab0942f2ea11460454753f3355bb77f30273746f460697c5",
-    "telegram/loop/metrics.json": "d94c083d7d7661ddf5c148f2b742d0e53df1bc59b8d6a6e2579458d1e6dad522",
-    "telegram/loop/outbox/0663ca2f5feddb5a673fa1e60214c0dee90b004f.json": "8d4e0480c2b2ba464e08bac1d13eb2d0717b8514e5f546986bfe86b33b154ebe",
-    "telegram/loop/outbox/370b34ff9f013b61675a6b5206dc4cf00e11c16a.json": "caf1d8a68b79c4595d49854324c4f5c340fc792a2bee5a18d18eee121b777a5b",
-    "telegram/loop/outbox/8594d2fdd485b07940009cd9b08f2066bee6ad6c.json": "7ad2860f9e1ad06a30e3fc8853078f46358a15a5056d5a6ec21cda9bbf0a16bf",
-    "telegram/loop/outbox/93e2278b2ef4fd74b5bd8ae2481685e00570b653.json": "5c3ebb76b3682eaf24c921c8221eadd5f1b6df835b3c42a33a2a9b11c28e9c2e",
-    "telegram/loop/outbox/b3a52b1c7b5b027872c1390357086e8e4ac910a9.json": "59348e135bdad4247e62937e90034f11b65789f37c1ddf7f9858cb2d29237758",
-    "telegram/loop/outbox/bb5ca7d590d900e8032cfac418afa04fcfa5918a.json": "217493243b99e6ac80308aff3c77a329ef8eab790f21ba1c45de940cf54713a1"
+    "telegram/loop/events/tg_9001.json": "e5d66f596442e529b494d1abb4c6e6cdbdce7e9549a2377841cef1819ff4f93d",
+    "telegram/loop/events/tg_9002.json": "9f46844e6c010d50ae25b7d6b1defcbef56dab39a6319a7f21bd2709203d8750",
+    "telegram/loop/events/tg_9003.json": "e358721d730df18b9ff4b28a7008d8378321fc9b7de869b65f50fb0a4bdb07a8",
+    "telegram/loop/events/tg_9004.json": "37d463a524a8e33ca709f273a5184204bf65badd7985615e703fd041b87e0219",
+    "telegram/loop/events/tg_9005.json": "f99643f3a0efe2a6646c4c0657c6d8eb68f7f910123966c7a4b79fa559be758b",
+    "telegram/loop/events/tg_9100.json": "8d52a4399104db219a99b1ab5ae6b74db0f3ea4361857997cd67a8e14d3af9b8",
+    "telegram/loop/metrics.json": "09745939979f89690d68dd612ad641243b902d3502f105f78b7a0770a1812588",
+    "telegram/loop/outbox/0663ca2f5feddb5a673fa1e60214c0dee90b004f.json": "2c78727a6b7fc9da3440c91326c8203c742d8fa65205087dc7d0438a3d0416be",
+    "telegram/loop/outbox/370b34ff9f013b61675a6b5206dc4cf00e11c16a.json": "b25c23cf6027ea2cf4ff41d8ed2b35579df45f790870f54fe17b332571772617",
+    "telegram/loop/outbox/8594d2fdd485b07940009cd9b08f2066bee6ad6c.json": "58871f3ac1e6b78eef9df1b9e3240b3ec0cad44c6ec74487852ee24bef50122e",
+    "telegram/loop/outbox/93e2278b2ef4fd74b5bd8ae2481685e00570b653.json": "83fcecdd78390116193b42b39292c3ba0e4131023c353a1297a0c79dfa75a560",
+    "telegram/loop/outbox/b3a52b1c7b5b027872c1390357086e8e4ac910a9.json": "b9bf6bb9fc4228f29d12642350bb426ec3b18f567c53ba8a72e610929681624c",
+    "telegram/loop/outbox/bb5ca7d590d900e8032cfac418afa04fcfa5918a.json": "ffac4240001fb26cd226a2c8a01ee5f768516c42ee2433a8b10a9ea84353d02f"
   },
   "verifier_status": "pending-independent-review",
   "pass": true

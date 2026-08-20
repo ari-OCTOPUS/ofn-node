@@ -1,6 +1,6 @@
 {
   "schema": "telegram-loop-verifier/1",
-  "generated_at": "2026-08-20T14:00:08+00:00",
+  "generated_at": "2026-08-20T14:10:34+00:00",
   "agent_identity": "independent-reader-process",
   "scope": "fixture-shadow-only",
   "confirmed": true,
@@ -81,7 +81,7 @@
     "_ops/telegram_center/center.py": "7eda8c3b2550b805b61f4a53d4f92bfe15a97a876abf3e2bd02315d6ee906022",
     "_ops/tests/test_telegram_durable_loop.py": "6b94161ac30d9c85cae37f303597032eff522ca0e19169625b0868260edc4717"
   },
-  "report_hash": "257e26ff28baaea8f7fd147fdc80717b170144cf041e7c5ceb9f958ebed0db44",
+  "report_hash": "7b0c66ce3420f97e0f6c432a6589db6d7d84e7b333b7b3eab3bdf6eeaedd1d51",
   "limitations": [
     "fake transport",
     "no external Telegram call",

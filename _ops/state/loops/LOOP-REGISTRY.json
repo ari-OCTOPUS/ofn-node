@@ -912,11 +912,41 @@
       "class": "ORPHAN",
       "also": "LOST_ACK",
       "severity": "HIGH",
-      "status": "OPEN",
-      "note": "fear path outbox-only/dry-run; no fabricated task_id; no live send",
+      "status": "CONTAINED_VERIFIED",
+      "note": "fear path outbox-only/dry-run; task_id=None terminal=BLOCKED -> no real identity; CONTAINED_VERIFIED is not CLOSED; instant 15/15 + shadow roundtrip 10/10 + direct_sends=0 verified 2026-08-21",
       "regression_test": "test_telegram_shadow_roundtrip.py::t8_sig_fear_cannot_bypass_outbox",
+      "verified": true,
+      "updated": "2026-08-21"
+    },
+    {
+      "loop_id": "LOOP-EVENT-BRIDGE-PRE-SEND-DEDUPE",
+      "class": "SILENT_DEGRADATION",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "note": "event_bridge marks content signature seen before direct send; failed alert can be suppressed 24h; must route through durable outbox",
+      "regression_test": null,
       "verified": false,
-      "updated": "2026-08-20T13:47:29Z"
+      "updated": "2026-08-21"
+    },
+    {
+      "loop_id": "LOOP-LEGACY-RECEIPT-UNCONFIRMED",
+      "class": "FAKE_GREEN",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "note": "legacy receipt rows without ok remain ANSWERED-compatible; not delivery confirmation; must label LEGACY_UNCONFIRMED",
+      "regression_test": null,
+      "verified": false,
+      "updated": "2026-08-21"
+    },
+    {
+      "loop_id": "LOOP-RUN_ALL-TIMEOUT",
+      "class": "UNBOUNDED",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "note": "run_all blocks coverage on 300s per-file timeout in test_capability_registry; needs independent lane and time budget",
+      "regression_test": null,
+      "verified": false,
+      "updated": "2026-08-21"
     }
   ]
 }
