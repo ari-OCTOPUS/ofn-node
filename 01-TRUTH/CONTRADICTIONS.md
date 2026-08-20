@@ -4,6 +4,7 @@ section: contradictions
 created: 2026-08-15
 status: open — هیچ تناقضی بدون رأی مالک «حل» نشده
 rule: "هر دو مقدار ثبت می‌شوند؛ در صورت شواهد قوی فقط `likely` می‌نویسیم و status را open نگه می‌داریم"
+ledger: "ثبت تناقض در این فایل رخداد ژنوم نمی‌سازد — [[LEDGER-VS-CONTRADICTIONS]]"
 ---
 
 # CONTRADICTIONS — ثبت تناقضات (STEP 7 مگاپرامپت)
@@ -549,7 +550,8 @@ contradiction:
 
 - **[registry-note 2026-08-20 ~11:18]** — C-042 ثبت شد. آزادِ بعدی آن لحظه: **C-043**.
 - **[registry-note 2026-08-20 ~12:12]** — C-043 ثبت شد (گردکردن ناسازگار). C-042 ERRATA: 0.00047348→0.000379 · 1.3636→1.0920.
-- **[registry-note 2026-08-20 ~12:22]** — C-044 ثبت شد (reasons خالی روی تغییر رنگ). آزادِ بعدی: **C-045**.
+- **[registry-note 2026-08-20 ~12:22]** — C-044 ثبت شد (reasons خالی روی تغییر رنگ). آزادِ بعدی آن لحظه: **C-045**.
+- **[registry-note 2026-08-20 ~12:36]** — دستور مالک #۳: C-043 → **SUSPECTED_VOID**. C-045 period دوگانه · C-046 عدم نگه‌داری per-beat. آزادِ بعدی: **C-047**. لجر ژنوم جدا است: [[LEDGER-VS-CONTRADICTIONS]].
 
 ```yaml
 contradiction:
@@ -573,12 +575,12 @@ contradiction:
   source_a: "دستور مالک #۲ T8 شاهد · فایل latest در 12:00 beat 42792 بازنویسی شده (42784 UNLOCATED)"
   value_b: "allocate_beat AMBER@113.65 hard_cap=0.079=round(2×raw)؛ 2×round(share,3)=0.078 مسیر دیگری است؛ هر فیلد مستقل round(raw,3) است (خطوط 123-124، 232-233، 246-247)"
   source_b: "[[../06-EVIDENCE/C-043-INCONSISTENT-ROUNDING-2026-08-20]] · _ops/heart/life_currency.py"
-  likely: "ترکیب فیلدها ناسازگار است؛ مقدار 0.078 روی دیسک برای 42784 UNLOCATED — کد فعلی 0.079 می‌دهد"
-  resolution: "OPEN · diagnose only · فیکس نشد"
-  status: open
+  likely: "SUSPECTED_VOID — 0.078 با period∈[112.32,113.04) و با 112.76@42780 می‌خواند نه با 113.65@42784؛ rounding مستقل هر فیلد برقرار است ولی علت اختلاف provenance است (C-045)"
+  resolution: "SUSPECTED_VOID 2026-08-20 دستور مالک #۳ · پیگیری در C-045 · فیکس حساب‌داری نشد"
+  status: suspected_void
   owner: CORE
-  related: C-042
-  registered_by: "owner-order-2 T8 2026-08-20"
+  related: C-042, C-045
+  registered_by: "owner-order-2 T8 · reclass owner-order-3 T14"
 ```
 
 ```yaml
@@ -590,11 +592,43 @@ contradiction:
   value_b: "allocate_beat موفق همیشه reasons=[] (خط 247)؛ arbitrate فقط RED را در reasons رنگ می‌نویسد (243–244)؛ persist jsonl reasons را حذف می‌کند (443–446)"
   source_b: "[[../06-EVIDENCE/C-044-EMPTY-COLOR-REASONS-2026-08-20]] · pulse_arbiter.py · life_currency.py"
   likely: "خالی بودن تخصیص طراحی است؛ خالی بودن علیت رنگ نقص تله‌متری است"
-  resolution: "OPEN · فیکس نشد"
+  resolution: "OPEN · گسترش دستور #۳: reasons برای هر گذار رنگ نه فقط RED · فیکس نشد"
+  status: open
+  owner: CORE
+  related: C-043, C-045
+  registered_by: "owner-order-2 T10 · expanded owner-order-3 T17"
+```
+
+```yaml
+contradiction:
+  id: C-045
+  claim: "period/color مصرفی life_currency همان period/color داورِ همان beat است"
+  value_a: "arbiter-shadow beat 42784 period=113.65 AMBER ts 11:52:18"
+  source_a: "_ops/state/pulse/arbiter-shadow.jsonl · [[../06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20]]"
+  value_b: "حساب‌داری beat 42784 hard_cap=0.078 → period∈[112.32,113.04) منطبق 112.76 از beat 42780؛ tick ارز قبل از persist (organism.py:558–565 سپس 609–623)"
+  source_b: "[[../06-EVIDENCE/C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20]] · life_currency._read_color:258–273"
+  likely: value_b is t-1 organism tick; value_a is this tick. DIFFERENT_SOURCE
+  resolution: "OPEN · diagnose only · حداقل فیکس: tick ارز بعد از persist + پاس period/color · اجرا نشد"
   status: open
   owner: CORE
   related: C-043
-  registered_by: "owner-order-2 T10 2026-08-20"
+  registered_by: "owner-order-3 T14 2026-08-20"
+```
+
+```yaml
+contradiction:
+  id: C-046
+  claim: "شاهد life-currency برای یک beat بعد از ضربان بعدی قابل بازیابی است"
+  value_a: "life-currency-latest.json beat 42784 (نقل دستور #۲)"
+  source_a: "گزارش T4/T8"
+  value_b: "همان مسیر overwrite می‌شود (life_currency.py:291–294)؛ 42784 UNLOCATED"
+  source_b: "[[../06-EVIDENCE/C-046-NO-PER-BEAT-EVIDENCE-2026-08-20]] · [[../06-EVIDENCE/EVIDENCE-RETENTION-DESIGN-2026-08-20]]"
+  likely: value_b
+  resolution: "OPEN · طرح jsonl append-only · قاعده دستی snapshot.json · پیاده نشد"
+  status: open
+  owner: CORE
+  related: C-043, C-045
+  registered_by: "owner-order-3 T15 2026-08-20"
 ```
 
 ```yaml
