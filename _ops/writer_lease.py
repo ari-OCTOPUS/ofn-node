@@ -40,9 +40,11 @@ def _now() -> float:
     return time.time()
 
 
-def _read(path: Path = LOCK_PATH) -> dict | None:
+def _read(path: Path | None = None) -> dict | None:
+    # مسیر باید پویا حل شود (نه default-arg) تا override در تست‌ها هم برقرار باشد
+    target = path or LOCK_PATH
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(target.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
 
