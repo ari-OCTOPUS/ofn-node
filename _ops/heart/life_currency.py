@@ -100,6 +100,16 @@ SURVIVAL_MEMBERS = ("organism", "heart")
 # هر life_credit چند call می‌خرد (سربارِ ثابتِ فراخوانی) — سند §۱: cost = tok×risk + overhead
 CALL_COST = 10.0
 
+# واحد استخر ≠ AUD. رأی owner-verdicts.wire_life_currency:
+# «صفر مسیرِ پول؛ فقط حسابداریِ داخلیِ سهم‌ها.» تبدیل به خرج پولی ممنوع (R7).
+UNIT = "life_credit"
+MONEY_PATH = False
+
+
+def credits_to_aud(_credits) -> float:
+    """Fail-closed: life_credit is not AUD. Always raises."""
+    raise RuntimeError("life_credit_is_not_aud")
+
 
 @dataclass
 class LifeBudget:
@@ -266,6 +276,8 @@ def plan(*, color: str = None, daily_cap: float = None, period_s: float = None,
                           period_s=period_s, members=members)
     alloc["ts"] = opslib.now_iso()
     alloc["daily_cap"] = dp["daily_cap"]
+    alloc["unit"] = UNIT
+    alloc["money_path"] = MONEY_PATH
     alloc["dry_run"] = not enabled()
     return alloc
 

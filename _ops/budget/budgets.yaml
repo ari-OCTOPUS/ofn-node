@@ -14,7 +14,10 @@ global:
     efficiency: 0.2
     human: 0.2
     waste: 0.05
-  life_currency_daily_cap: 1000.0
+  # UNIT=life_credit NOT AUD. 2026-08-20 owner safety: rollback 1000→30
+  # until conversion-to-money is proven impossible. See
+  # 06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20.md
+  life_currency_daily_cap: 30.0
 projects:
   PROJECT_F:
     floor: 3
