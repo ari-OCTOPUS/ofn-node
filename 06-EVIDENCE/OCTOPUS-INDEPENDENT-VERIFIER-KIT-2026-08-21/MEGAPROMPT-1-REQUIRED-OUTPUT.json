@@ -1,0 +1,124 @@
+{
+  "schema": "megaprompt-1-required-output/1",
+  "generated_at": "2026-08-21T09:26:00Z",
+  "exact_verified_head": "bfbb03f36a6510eafe6d4910625895a127c14e7c",
+  "implementation_checkpoint": "fa38d16cca944a80396ae1e1a16c547ab3122f78",
+  "evidence_checkpoint": "d3013390d52aab2e61bd2578613aff7077f68742",
+  "kit_declared_descendant": "cc267048075b0f64bd56c8ac59074d8a43233ae2",
+  "live_head_at_verification": "922350745fd863ae2f5ade3dca7c3e676d5e95a4",
+  "verifier_identity": "sig-iv-0a7b37c5-independent-20260821",
+  "independence_statement": "06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/INDEPENDENT-SESSION-ATTESTATION.md",
+  "verdict": "SECURITY_SHADOW_PASS",
+  "authorized_next_state": "WAVE1_CANARY_READY",
+  "live_send_authorized": false,
+  "webhook_authorized": false,
+  "paid_calls_authorized": false,
+  "failed_checks": [],
+  "attempt1_note": "First before/after window FAILED_SAFE: send_log +1 row classified live-center stream=edit (not fixture). Preserved as INDEPENDENT-VERDICT-attempt1-FAILED_SAFE.json. Retry2 window byte-identical; verdict re-derived.",
+  "ancestry": {
+    "fa38d16_ancestor_of_d301339": true,
+    "d301339_ancestor_of_cc267048": true,
+    "cc267048_ancestor_of_bfbb03f": false,
+    "cc267048_merge_base_with_live_HEAD": "d3013390d52aab2e61bd2578613aff7077f68742",
+    "organs_blobs_identical_cc267048_94fa59f_bfbb03f": true,
+    "bfbb03f_ancestor_of_live_HEAD": true,
+    "bfbb03f_to_HEAD_ops_diff": "empty",
+    "bfbb03f_to_HEAD_files": [
+      "07 - Knowledge/شناخت-اختاپوس/80-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md",
+      "OCTOPUS/CURRENT-TRUTH.md"
+    ]
+  },
+  "environment": {
+    "repository_root": "F:/backup",
+    "branch": "equip/g10-cognition-20260816",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.7",
+    "worktree": "F:/backup/.claude/worktrees/sig-iv-bfbb03f",
+    "worktree_head": "bfbb03f36a6510eafe6d4910625895a127c14e7c",
+    "dependency_lock_hashes": "ABSENT (no requirements.lock/uv.lock/poetry.lock/Pipfile.lock)",
+    "env_names_only": ["OCTOPUS_MINIAPP_HOSTNAME", "OCTOPUS_MINIAPP_URL"]
+  },
+  "suite_results": {
+    "registered": 163,
+    "executed": 163,
+    "passed": 163,
+    "failed": 0,
+    "skipped": 0,
+    "unexecuted": 0,
+    "all_pass": true,
+    "production_path_delta": [],
+    "suites": [
+      {"test_id": "security-c1-c4", "executed": 34, "expected": 34, "exit_code": 0, "output_sha256": "22c1cdd05f7c96b6c0ed2e912680ea91b441b46ba654bdabf10e7bc119da0bac"},
+      {"test_id": "lab-registry", "executed": 8, "expected": 8, "exit_code": 0, "output_sha256": "397205752051265f7e7af81768b763a3d155c21f1bb73c8f813f751013b7edb3"},
+      {"test_id": "miniapp-regression", "executed": 49, "expected": 49, "exit_code": 0, "output_sha256": "561dcdf2364d366b4c1b2390449a80e63e679f74603ac9e010929b3a53f7390f"},
+      {"test_id": "tg-api-regression", "executed": 34, "expected": 34, "exit_code": 0, "output_sha256": "815a1549ab49aa3ccb340543c8703d332e34ff041383bf785e59f612e747a6eb"},
+      {"test_id": "durable-loop", "executed": 15, "expected": 15, "exit_code": 0, "output_sha256": "7b9ea689e85907b5aca3db98668cdb689f78adbb9c16bfadbad210f59f76a01d"},
+      {"test_id": "delivery-reconciliation", "executed": 8, "expected": 8, "exit_code": 0, "output_sha256": "84b134c4480b28f90fa488efd92ced135a561595b709e4d3752a9574a6386b2e"},
+      {"test_id": "closed-loop", "executed": 15, "expected": 15, "exit_code": 0, "output_sha256": "488049a2241eeaff86be71e61c21debac3f6438326856b048fc9c13269002ab5"}
+    ]
+  },
+  "manifest_verification": {
+    "lab_dir": "06-EVIDENCE/OCTOPUS-SECURITY-LAB-2026-08-21",
+    "manifest_ok": true,
+    "artifact_count": 10,
+    "mismatches": []
+  },
+  "side_effect_before_after_hashes": {
+    "window": "retry2",
+    "memory_research_ingest": "aee9e472eaefd81d94f287db88365274652b5679062627999cce49b13050ca1f",
+    "memory_self_loop_ingest": "49fda3762da8777a340c3bbe6e45b37937f50f0ecf862eed2be0fa0140bbf3ce",
+    "miniapp_hits": "01bc105087de7b20e88f690b6530fc26f0f5cac83a3caef70630366dfa7944ce",
+    "tg_send_log": "75aad44cc295ea86bb2fb8fc99ec0bd4576630c659674ee85aab1a1caa88d6cf",
+    "memory_unchanged": true,
+    "miniapp_hits_unchanged": true,
+    "send_log_unchanged": true,
+    "send_log_delta_rows": 0
+  },
+  "c3_c4_inspection": {
+    "TgClient._defer_queue_default": "None (attach_defer_queue required)",
+    "center_imports_sender_bridge": false,
+    "center_calls_attach_defer_queue": false,
+    "message_key": "sha256 hexdigest of method+chat_id+text (64 hex); None for non-sendMessage",
+    "retry_after": "float(parameters.retry_after) never min-capped; sync sleep only if <= _429_MAX_SYNC_SLEEP_S; longer sendMessage prohibitions go to durable defer",
+    "non_send_429": "getUpdates/download classified no-defer",
+    "SenderBridge_owner": "single class; admit then mark_delivery_attempt then send_fn",
+    "429_full_defer": "queue.defer(key, retry_after=float(retry_after))",
+    "crash_after_attempt": "reconcile_sending -> DLQ UNCERTAIN_SEND_OUTCOME; no auto-resend",
+    "source": "worktree bfbb03f _ops/telegram_center/{tg_api,center,sender_bridge,rate_limit_queue}.py"
+  },
+  "laboratory_core": {
+    "seed_owner_experiments_count": 24,
+    "test_lab_registry_requires_ok_gte_24": true,
+    "execution_modes_closed_set": true,
+    "preregister_hash_drops_mutable_fields": true,
+    "security_preregistry_rows": 11,
+    "verdict_check_preregistered_experiments": "len>=6 PASS"
+  },
+  "adversarial_results": {
+    "covered_in_registered_163": {
+      "duplicate_keys": "t_c1_duplicate_keys_fail_closed",
+      "process_restart": "t_c4_retry_not_before_survives_restart; t_d_restart_never_resends_confirmed_message",
+      "clock_boundary": "t_c1_valid_age_299 / t_c1_expired_age_301_rejected; t_c1_valid_future_skew_minus_29 / t_c1_future_skew_minus_31_rejected",
+      "malformed_retry_after": "tg_api _retry_after_from_429 returns None on TypeError/ValueError/<=0 (exercised via 429 tests)",
+      "repeated_429": "t_y3_429_then_second_429_is_failsoft_no_storm",
+      "queue_corruption_poison": "t_c4_poison_goes_dlq_and_confirmed_never_resends",
+      "concurrent_bridge_or_nonce": "t_c2_concurrent_consumers_have_one_winner",
+      "send_crash": "t_c4_crash_after_transport_is_quarantined_not_resent",
+      "confirmation_crash_uncertain": "test_delivery_reconciliation UNCERTAIN_SEND_OUTCOME never auto-resend",
+      "ledger_mutation_replay": "t_c2_replay_after_consumed_is_409",
+      "path_traversal": "not in the 163 registered set as a named test; not claimed here",
+      "secret_leakage": "t_c1_public_auth_failure_is_empty_403_zero_dispatch (empty body)",
+      "kill_switch": "t_g_kill_switch_blocks_before_outbox_and_transport",
+      "unexpected_network": "fixtures inject transports; reproduce_suites production_path_delta=[]"
+    },
+    "not_separately_reproduced_outside_163": ["path_traversal named case"]
+  },
+  "live_capability_scan": {
+    "webhook_setWebhook_in_center_py_at_bfbb03f": false,
+    "sender_bridge_default_off": true,
+    "this_verifier_process_paid_calls": 0,
+    "this_verifier_live_telegram_send": 0,
+    "this_verifier_webhook_activation": 0,
+    "note": "Live Center may continue background editMessageText outside the clean retry2 window; classified live-background, not a fixture send."
+  }
+}

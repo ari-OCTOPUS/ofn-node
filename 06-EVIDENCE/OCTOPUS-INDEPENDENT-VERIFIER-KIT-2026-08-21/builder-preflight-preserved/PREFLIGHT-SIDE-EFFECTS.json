@@ -5,28 +5,28 @@
    "sha256": "aee9e472eaefd81d94f287db88365274652b5679062627999cce49b13050ca1f"
   },
   "memory_self_loop_ingest": {
-   "sha256": "49fda3762da8777a340c3bbe6e45b37937f50f0ecf862eed2be0fa0140bbf3ce"
+   "sha256": "3259a6ebe02eecddf5d3399942192683485dce58e1771a85f18db64ac927a06b"
   },
   "miniapp_hits": {
    "sha256": "01bc105087de7b20e88f690b6530fc26f0f5cac83a3caef70630366dfa7944ce"
   },
   "tg_send_log": {
-   "sha256": "75aad44cc295ea86bb2fb8fc99ec0bd4576630c659674ee85aab1a1caa88d6cf"
+   "sha256": "ad3f5576e4b5d071c34073ace4491f44ee0b8cba793e8dcfd8d7a81b32262061"
   },
-  "captured_at": 1787304303.629589
+  "captured_at": 1787299256.1218693
  },
  "after": {
   "memory_research_ingest": {
    "sha256": "aee9e472eaefd81d94f287db88365274652b5679062627999cce49b13050ca1f"
   },
   "memory_self_loop_ingest": {
-   "sha256": "49fda3762da8777a340c3bbe6e45b37937f50f0ecf862eed2be0fa0140bbf3ce"
+   "sha256": "3259a6ebe02eecddf5d3399942192683485dce58e1771a85f18db64ac927a06b"
   },
   "miniapp_hits": {
    "sha256": "01bc105087de7b20e88f690b6530fc26f0f5cac83a3caef70630366dfa7944ce"
   },
   "tg_send_log": {
-   "sha256": "75aad44cc295ea86bb2fb8fc99ec0bd4576630c659674ee85aab1a1caa88d6cf"
+   "sha256": "ad3f5576e4b5d071c34073ace4491f44ee0b8cba793e8dcfd8d7a81b32262061"
   }
  },
  "run_local": {

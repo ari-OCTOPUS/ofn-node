@@ -36,6 +36,10 @@ updated: 2026-08-21
 
 ## وضعِ لحظه‌ای
 
+> 🔏 **پین 2026-08-21 ~19:2x (+10) — SIG-IV Megaprompt 1 PASS.** هویت مستقل `sig-iv-0a7b37c5-independent-20260821`. exact head `bfbb03f` (۱۶۳/۱۶۳؛ organs با `cc267048` یکسان؛ `_ops` تا HEAD خالی). `SECURITY_SHADOW_PASS` → `WAVE1_CANARY_READY`. ارسال زنده/وب‌هوک/پولی **نه**. مگاپرامپت ۲ فقط با حکم صریح مالک. [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/SIG-IV-FINDINGS-2026-08-21|یافته‌ها]] · [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/INDEPENDENT-VERDICT.json|رأی]]
+
+> 🧬 **پین 2026-08-21 ~19:0x (+10) — SELF-UPGRADE LAB + ادغام زنده.** memory=`ALREADY_FIXED` ۱۲/۱۲. heart/brain=`LAB_PASS` در worktree. `observe_only` روی live. [[../07 - Knowledge/شناخت-اختاپوس/79-SELF-UPGRADE-LAB-CYCLE-2026-08-21|نوت ۷۹]] · [[../06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README|شواهد]]
+
 > 🐙 **پین 2026-08-21 ~05:5x (+10) — OWNER GRANT قفل‌ها.** Wave 1 UNLOCKED (حافظه+hook). STOP-TG-HEARTBEAT و STOP-CODE-AUTONOMY منتقل شدند نه حذف. doctor-pulse=merged. digest زنده message_id=583. BotFather دستی. [[../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21|حکم]] · [[../06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/README|Pass 3]]
 
 > 🐙 **پین 2026-08-21 ~05:3x (+10) — AGI-LOOPS PASS 1+2.** ۱۲ خانواده + ۲۴ کشف. L6=OWNER_VISIBLE. Pass 1 read-only · Pass 2 shadow (کالیبراسیون، EMA، قرنطینهٔ کپیِ doctor-pulse، digest خشک). Wave 1 قفل. Pass 3 LIVE داده نشد. [[../06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/README|Pass 1]] · [[../06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/README|Pass 2]]
