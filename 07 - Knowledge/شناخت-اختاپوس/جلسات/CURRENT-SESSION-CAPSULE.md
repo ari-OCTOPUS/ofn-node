@@ -16,7 +16,7 @@ canonical_harvest_entry: 75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21
 # CURRENT-SESSION-CAPSULE
 
 ## Octopus چیست؟
-سیستم چندلایهٔ محلی (organism/telegram/memory/brains/doctor) با تلگرام به‌عنوان cockpit مالک؛ موج read-only، نوشتن production ممنوع.
+سیستم چندلایهٔ محلی (organism/telegram/memory/brains/doctor) با تلگرام به‌عنوان cockpit مالک. Wave 1 با حکم مالک باز است؛ LAB_PASS ادعاى AGI نیست.
 
 ## Baseline و HEAD
 - baseline: 9bc506f (Wave 0 PASS، frozen)
@@ -26,7 +26,23 @@ canonical_harvest_entry: 75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21
 
 ## Wave state
 - Wave 0: PASS، frozen، append-only gate 4/4.
-- Wave 1: LOCKED (wave1_unlocked=false). Preflight: ۱۶ shadow read (۱۱ غیرخالی)، zero mutation؛ memory gate suite کهنه → activation مجاز نیست.
+- Wave 1: UNLOCKED (owner grant 2026-08-21). Production authority is `_ops/state/wave1/lock.json`. Memory gate 12/12 on live.
+
+## Continuation 2026-08-21 — AGI loop passes + lab
+- Pass 1 READ-ONLY: `06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/` + `_ops/state/loops/AGI-LOOP-REGISTRY.jsonl`.
+- Pass 2 SHADOW: `06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/`.
+- Pass 3 LIVE: **granted** — [[../../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21]] · digest msg 583 · doctor-pulse merged.
+- Self-upgrade lab: memory ALREADY_FIXED · heart/brain LAB_PASS · observe_only merged to live. [[../../06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README]] · نوت [[../79-SELF-UPGRADE-LAB-CYCLE-2026-08-21|۷۹]].
+
+## Next executable actions
+1. BotFather Menu Button → `/miniapp` (owner manual).
+2. Route miniapp for the 10 families still UNROUTED — without both surfaces they cannot close L6.
+3. Register `_ops/tests/test_improve_reads_calibration.py` in `run_all.py` (WORKLOCK — report name, do not self-register).
+4. LOOP-APPROVAL-QUEUE still OPEN (local pending≠owner-reported 20).
+5. Center restart still required for D15 `is_bot` skip if PID is pre-splice.
+
+## محدودیت‌ها
+- paid_calls this lab cycle=0. LAB_PASS ≠ L6 OWNER_VISIBLE. سکوت = approval نیست. Miniapp 10 UNROUTED not granted.
 
 ## Loopهای بسته (PRODUCTION_CLOSED = 3)
 - S-T01 durable transport — PRODUCTION_CLOSED (پنجرهٔ A، message_ids 554/557/560/561/562).
@@ -41,37 +57,24 @@ canonical_harvest_entry: 75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21
 ## قرنطینه / نامعلوم (2)
 - Window-B updates 223883344 و 223883346 — OWNER_OBSERVED_UNCONFIRMED_API / QUARANTINED: **بدون message_id/readback تأییدشده؛ DELIVERY_CONFIRMED نیستند**؛ هرگز auto-resend.
 
-## Loopهای باز (9)
-- S-T02 event_bridge — IN_PROGRESS (alert واقعی یا تصمیم مالک).
-- PROBE-INVALID، LIVE-ORPHAN، OFN-Board LANE K — OPEN.
-- Wave 1 — LOCKED (پیش‌شرط: تعمیر memory gate).
-- cognitive chain (calibration→improve، EMA، tiers، self_insight shadow، self-audit probes).
-- doctor mission deadlock — OPEN.
+## Loopهای باز
+- S-T02 event_bridge — IN_PROGRESS.
+- PROBE-INVALID / heartbeat — STOP file moved (owner grant); loop not L6-closed.
+- LIVE-ORPHAN — observe_only now on live; L6 still needs owner-visible surface.
+- Miniapp 10 UNROUTED families — cannot close without both surfaces.
+- LOOP-APPROVAL-QUEUE — OPEN (local pending≠owner-reported 20).
 - brain parity — NO_BASELINE.
-- LOOP-APPROVAL-QUEUE — OPEN / OWNER_DECISION_REQUIRED (owner-reported pending=20؛ منبع محلی پیدا نشد).
 
 ## تصمیم‌های فعال مالک
 - گیت commit سمت مالک است؛ Mimosa دور زده نشود؛ OFN-Board جدا.
-- verdict معتبر تک است؛ verifier باید SUPERSEDED_BY را preserve کند.
-- پنجرهٔ C strict؛ duplicate بدون پیشروی.
-- Session Harvest: مستندات Obsidian مجاز؛ memory write تولیدی ممنوع.
-- تصحیح حسابداری هاروست: CONTAINED/UNCERTAIN هرگز CLOSED شمرده نشوند.
-
-## محدودیت‌ها
-- paid_calls=0، memory_mutations=0، Wave 1 locked، STOP-TG-HEARTBEAT روشن، بدون incident جعلی، بدون message_id جعلی، بدون اجرای خودکار approve/reject، سکوت = approval نیست، پول قفل.
-
-## Next executable actions
-1. تعمیر memory gate (F3 + t_h + timeout) — blocker موج ۱.
-2. laneهای شناختی (failing test calibration→improve).
-3. orphan watchdog observe-only.
-4. S-T02: ثبت‌شده، منتظر alert واقعی.
-5. Approval queue: digest به مالک با گزینه‌های approve/reject/defer.
+- سکوت = approval نیست. Miniapp routes for 10 families not granted.
+- LAB_PASS در worktree ≠ PRODUCTION_VERIFIED.
 
 ## Evidence entrypoints
 - `_ops/state/loops/TELEGRAM-CANARY-AUTHORITATIVE-VERDICT.json`
-- `_ops/state/loops/canary-coverage-2026-08-21-C/AUDIT.json`
-- `_ops/state/loops/EVENT-BRIDGE-CANARY-2026-08-21.json`
 - `_ops/state/waves/WAVE1-PREFLIGHT-2026-08-21.json`
+- `06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/`
+- `06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/`
 - `06-EVIDENCE/SESSION-HARVEST-2026-08-21/`
 
 ## چیزهایی که نباید دوباره کشف شوند
@@ -79,3 +82,5 @@ canonical_harvest_entry: 75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21
 - uncertain send → صف reconciliation؛ OWNER_OBSERVED هرگز DELIVERY_CONFIRMED نیست.
 - append-only با prefix integrity؛ verifier با merge_preserved.
 - پنجرهٔ C دقیقاً با همان update_ids/msg_ids بسته شده.
+- Full `git worktree add` روی این vault >۱۲۰ث؛ lab باید `--no-checkout` + sparse `_ops` باشد.
+- `secret-scan` نباید `token` داخل `max_tokens` یا `sk-` داخل `ask-exception` را بلوک کند.

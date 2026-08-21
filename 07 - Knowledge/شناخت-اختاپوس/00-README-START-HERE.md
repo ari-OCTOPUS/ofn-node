@@ -4,10 +4,12 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, index]
 created: 2026-07-18
-updated: 2026-08-20
+updated: 2026-08-21
 ---
 
 # 🐙 شناخت اختاپوس — نقطهٔ ورود
+
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۲۱.** سیکل لاب خودارتقا: [[79-SELF-UPGRADE-LAB-CYCLE-2026-08-21|نوت ۷۹]] · [[../../06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README|شواهد]] · [[جلسات/CURRENT-SESSION-CAPSULE|کپسول]]. `LAB_PASS` ≠ بستن حلقه در L6.
 
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۲۰ ~20:4x.** حلقهٔ تلگرام A13–A19 بسته شد. ورود امشب: [[72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20|نوت ۷۲]] · [[../../OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[../../docs/NOW|NOW]] · [[../../01 - Dashboard/HANDOFF|HANDOFF]]. A18/Full Loop هنوز BLOCKED. lease آزاد. hook دانش برای C مجاز.
 
@@ -322,3 +324,4 @@ write-only به LIVE تبدیل شد:
 - [[76-SOP-OWNER-GATEWAY-MINIAPP-2026-08-21|SOP — Owner-Gateway (Mini App)]]
 - [[77-AUDIT-MINIAPP-GATEWAY-2026-08-21|AUDIT — معماری درگاه AGI (miniapp_gateway)]]
 - [[78-STRUCTURAL-ANALYSIS-FOUR-DOCS-2026-08-21|تحلیل ساختاری ۴ سند (ChatBox+Events+Gap+Master)]]
+- [[79-SESSION-CONTINUATION-MILESTONE-CORRECTION-2026-08-21|ادامهٔ نشست — Milestone Correction (۸ مرحله)]]
