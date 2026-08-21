@@ -1,0 +1,30 @@
+{
+  "all_pass": true,
+  "bundle_version": "OCTOPUS_OWNER_SIGNATURE_BUNDLE_V1",
+  "checks": {
+    "all_payloads_covered_and_unchanged": true,
+    "bundle_root_matches_expected": true,
+    "fingerprint_matches_anchor_and_b1": true,
+    "manifest_hash_stable": true,
+    "no_duplicate_owner_request_actionable": true,
+    "no_paid_calls_today": true,
+    "no_placeholder_owner_signature_remains": true,
+    "no_private_key_in_evidence": true,
+    "receipts_all_resolve_to_same_root": true,
+    "root_signature_verifies": true,
+    "sig_iv_not_impersonated": true,
+    "source_records_append_only_intact": true
+  },
+  "details": {
+    "cards_still_pending": [],
+    "paid_path_blocked_rows_today": "94",
+    "paid_rows_today": "0",
+    "receipt_count": "11",
+    "secret_hits": [],
+    "side_effect_reference": "06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/PREFLIGHT-SIDE-EFFECTS.json (memory/miniapp/send-log byte-identical during dedicated run)"
+  },
+  "failed_checks": [],
+  "generated": "2026-08-21",
+  "schema": "owner-signature-bundle-validation/1",
+  "terminal_state": "OWNER_SIGNATURE_BUNDLE_COMPLETE"
+}

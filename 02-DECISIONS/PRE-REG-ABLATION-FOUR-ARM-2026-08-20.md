@@ -9,7 +9,7 @@ updated: 2026-08-20
 # پیش‌ثبت ablation چهاربازویی — UNSIGNED
 
 decision_id: PRE-REG-ABLATION-FOUR-ARM-2026-08-20
-status: AWAITING_OWNER_SIGNATURE
+status: OWNER_SIGNED_VIA_BUNDLE
 authority: MEGA-DISCOVERY-v1 §۱۴.۴ · اجرا **ممنوع** تا امضا
 created: 2026-08-20T00:28+10:00
 supersedes: none — آزمایش تازه؛ نتایج پیش از تغییر ابزار = VOID

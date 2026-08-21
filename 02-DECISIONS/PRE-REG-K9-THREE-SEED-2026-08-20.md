@@ -9,7 +9,7 @@ updated: 2026-08-20
 # پیش‌ثبت K=9 سه‌بذر — UNSIGNED
 
 decision_id: PRE-REG-K9-THREE-SEED-2026-08-20
-status: AWAITING_OWNER_SIGNATURE
+status: OWNER_SIGNED_VIA_BUNDLE
 authority: بستن D6 · اجرا **ممنوع** تا (۱) امضای همین کارت (۲) امضای B1 (۳) ریاستارت cap=30 با baseline منجمد
 supersedes: ادعای STABLE از `pilot-k9-result-20260820T001141.json` — باطل است
 created: 2026-08-20T10:32+10:00
