@@ -137,17 +137,18 @@ def _atomic_write_json(path: Path, data: dict) -> bool:
 
 
 def _load_state() -> dict:
+    # Wave B (owner order 2026-08-21): mission sweep must not do raw
+    # Path.read_text in the hot loop — bounded read; stall/malformed -> empty.
     try:
-        if not _MISSIONS_JSON.exists():
-            return {"schema_version": _SCHEMA_VERSION, "missions": []}
-        d = json.loads(_MISSIONS_JSON.read_text("utf-8"))
+        import config_manager as _cm  # noqa: WPS433
+        d = _cm.bounded_json_read(_MISSIONS_JSON)
         if not isinstance(d, dict):
             return {"schema_version": _SCHEMA_VERSION, "missions": []}
         if not isinstance(d.get("missions"), list):
             d["missions"] = []
         d.setdefault("schema_version", _SCHEMA_VERSION)
         return d
-    except (OSError, ValueError):
+    except Exception:  # noqa: BLE001 — fail-soft
         return {"schema_version": _SCHEMA_VERSION, "missions": []}
 
 

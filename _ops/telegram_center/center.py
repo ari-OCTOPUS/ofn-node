@@ -192,71 +192,45 @@ def _config_path() -> Path:
 # 2026-08-21 (live hang debug): the center hung twice in _load_config while
 # reading center-config.json — a third-party byte-range lock (antivirus scan on
 # this frequently os.replace'd file) blocks read_text indefinitely. Reads are
-# now bounded: serve a write-through cache and never block the poll loop.
-_CONFIG_CACHE: dict = {}
-_CONFIG_CACHE_KEY: tuple | None = None
+# now bounded AND manager-owned (Wave B, owner order 2026-08-21): boot read once,
+# reload only on content digest change, immutable snapshots for consumers,
+# last-known-good + stale, malformed never replaces the healthy snapshot, and
+# the poll loop can never block on a file lock.
+_CONFIG_MANAGER = None
+
+
+def _config_manager():
+    """Lazy singleton ConfigManager over center-config.json (boot at first use)."""
+    global _CONFIG_MANAGER
+    if _CONFIG_MANAGER is None:
+        import config_manager as _cm  # noqa: WPS433
+        _CONFIG_MANAGER = _cm.ConfigManager(_config_path())
+        _CONFIG_MANAGER.boot()
+    return _CONFIG_MANAGER
 
 
 def _bounded_read_text(path: Path, timeout_s: float = 3.0) -> str | None:
-    """Read a state file in a worker with a hard timeout; None on stall."""
-    import queue as _q
-    import threading as _th
-    box: _q.Queue = _q.Queue(maxsize=1)
-
-    def _reader():
-        try:
-            box.put(path.read_text("utf-8"))
-        except Exception as exc:  # noqa: BLE001 — fail-soft read
-            box.put(exc)
-
-    t = _th.Thread(target=_reader, daemon=True)
-    t.start()
+    """Read a state file through the capped bounded pool; None on stall."""
+    import bounded_io as _bio
     try:
-        got = box.get(timeout=timeout_s)
-    except _q.Empty:
+        return _bio.read_text(path, timeout_s=timeout_s)
+    except Exception:  # noqa: BLE001 — fail-soft read
         return None
-    if isinstance(got, Exception):
-        return None
-    return got
 
 
 def _load_config() -> dict:
-    """config = حافظهٔ idempotency. نبود/خرابی فایل → {} (fail-soft).
+    """config = حافظهٔ idempotency. Snapshot غیرقابلتغییر از ConfigManager.
 
-    Bounded read: stat is lock-free; only a changed file is read, and the read
-    itself is time-boxed. On stall the last known config is served (stale) so
-    the poll loop can never be frozen by a file lock.
+    - boot یک بار؛ reload فقط با تغییر digest محتوا
+    - stall → last-known-good با stale=True (هرگز poll را منجمد نمیکند)
+    - malformed → هرگز جایگزین snapshot سالم نمیشود
     """
-    global _CONFIG_CACHE, _CONFIG_CACHE_KEY
-    try:
-        p = _config_path()
-        try:
-            st = p.stat()
-        except OSError:
-            return {}
-        key = (st.st_mtime_ns, st.st_size)
-        if key == _CONFIG_CACHE_KEY:
-            return _CONFIG_CACHE
-        text = _bounded_read_text(p)
-        if text is None:
-            return _CONFIG_CACHE          # stale-but-alive beats frozen
-        data = json.loads(text)
-        cfg = data if isinstance(data, dict) else {}
-        _CONFIG_CACHE, _CONFIG_CACHE_KEY = cfg, key
-        return cfg
-    except (OSError, ValueError):
-        return {}
+    return _config_manager().reload()
 
 
 def _config_cache_update(cfg: dict) -> None:
-    """Write-through: _save_config keeps the read cache fresh."""
-    global _CONFIG_CACHE, _CONFIG_CACHE_KEY
-    _CONFIG_CACHE = cfg
-    try:
-        st = _config_path().stat()
-        _CONFIG_CACHE_KEY = (st.st_mtime_ns, st.st_size)
-    except OSError:
-        _CONFIG_CACHE_KEY = None
+    """Write-through: _save_config keeps the read cache fresh (manager-owned)."""
+    _config_manager().observe_write(cfg)
 
 
 def _save_config(cfg: dict) -> bool:
@@ -819,7 +793,10 @@ class Center:
         `heart_mood()` را بالا نگه می‌دارد و code_autonomy را منجمد می‌کند
         وقتی زیاد باشد (نقشهٔ G4، تصحیحِ ریشه‌یابیِ ۲۰۲۶-۰۸-۰۵)."""
         try:
-            d = json.loads((opslib.STATE_DIR / "doctor" / "rfcs.json").read_text("utf-8"))
+            import config_manager as _cm  # noqa: WPS433
+            d = _cm.bounded_json_read(opslib.STATE_DIR / "doctor" / "rfcs.json")
+            if not d:
+                return "🩺 خطا در خواندن (stall/malformed)."
         except Exception as e:  # noqa: BLE001
             return f"🩺 خطا در خواندن ({type(e).__name__})."
         rfcs = d.get("rfcs") or []
