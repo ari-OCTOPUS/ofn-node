@@ -1,0 +1,497 @@
+{
+  "schema": "octopus.handoff.capability-loop-map/1",
+  "generated_at": "2026-08-21T22:19:58.680900+10:00",
+  "source_capability_matrix": "_ops/state/debug/capability-matrix.json",
+  "source_loop_matrix": "_ops/state/debug/loop-closure-matrix.json",
+  "state_taxonomy": {
+    "source": "proposed independently by one of three external model analyses the owner pasted into this session; adopted here because it directly operationalizes the owner's original ask ('علت وجود هرکدوم و آیا واقعاً توی تلگرام اعمال شده')",
+    "values": {
+      "METAPHOR_ONLY": "described in a vault doc or spec; no corresponding code found",
+      "IMPLEMENTED_NOT_WIRED": "code exists, tested in isolation, but nothing on the live call path invokes it",
+      "SHADOW_ONLY": "code exists and IS invoked, but only behind a default-off flag or in a shadow/dry-run mode that never touches production state",
+      "LIVE_UNVERIFIED": "code is on the live call path and fixture-tested, but no live/soak evidence proves it behaves correctly under real Telegram traffic",
+      "OPERATIONAL_VERIFIED": "on the live call path, fixture-tested, AND has live evidence (a real run, a real restart, a real reconciled receipt)",
+      "UNKNOWN_PROVENANCE": "artifact exists but this pass found no reference to it anywhere in the code/test/vault graph that would explain its purpose or owner"
+    }
+  },
+  "capabilities": [
+    {
+      "capability": "Telegram poll+dispatch owner loop",
+      "component_id": "tg.center",
+      "code_path": "_ops/telegram_center/center.py",
+      "declared_in": [
+        "04 - Architect System/TELEGRAM-CONTROL-SPEC.md",
+        "06 - Architecture Maps/ADMIN-TELEGRAM-DASHBOARD-MAP.md"
+      ],
+      "telegram_surface": "entire bot — every slash command, button, and free-text message dispatches through this loop",
+      "test_id": [
+        "test_bounded_read.py",
+        "test_telegram_closed_loop_20260820.py"
+      ],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": "controlled restart proven 2026-08-21 (note 80 §5): offset preserved byte-for-byte across a live kill+relaunch."
+    },
+    {
+      "capability": "Bot API transport + 409 circuit",
+      "component_id": "tg.api",
+      "code_path": "_ops/telegram_center/tg_api.py",
+      "declared_in": [],
+      "telegram_surface": "none directly (transport layer)",
+      "test_id": [
+        "test_tg_poll_health.py",
+        "test_health_truth_20260821.py"
+      ],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Health truth (watchdog_truth: last completed poll, not last update, is the health signal)",
+      "component_id": "tg.health",
+      "code_path": "_ops/telegram_center/health_metrics.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md (Wave A / H4)"
+      ],
+      "telegram_surface": "none directly (feeds the watchdog)",
+      "test_id": [
+        "test_health_truth_20260821.py"
+      ],
+      "state": "OPERATIONAL_VERIFIED",
+      "consumption_gap": "the FUNCTION is proven; its intended CONSUMER (tg-center-watchdog.ps1) does not call it — see tg.watchdog row below.",
+      "notes": "last_dispatch_completed_at still missing from the schema per component-map known_failures."
+    },
+    {
+      "capability": "Config snapshot manager (LKG, digest-reload, immutable)",
+      "component_id": "tg.config_manager",
+      "code_path": "_ops/telegram_center/config_manager.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md (Wave B)"
+      ],
+      "telegram_surface": "none directly",
+      "test_id": [
+        "test_config_manager_20260821.py"
+      ],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Per-bot transport circuit breaker + bounded concurrency + terminable subprocess",
+      "component_id": "tg.transport_pool",
+      "code_path": "_ops/telegram_center/transport_pool.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md (Wave C)",
+        "07 - Knowledge/شناخت-اختاپوس/81-TELEGRAM-MINIAPP-FULL-ARCHITECTURE-SCAN-2026-08-21.md"
+      ],
+      "telegram_surface": "none directly",
+      "test_id": [
+        "test_wave_f_battery_20260821.py"
+      ],
+      "state": "LIVE_UNVERIFIED",
+      "notes": "thread-pool + circuit-breaker path is wired and fixture-proven (7/7 + 16-scenario battery); the terminable-subprocess path (transport_subprocess.py) is default-off and additionally untracked in git — see tree-divergence.json reproducibility_defect."
+    },
+    {
+      "capability": "One poll owner per token (SQLite TTL lease)",
+      "component_id": "tg.poll_lease",
+      "code_path": "_ops/telegram_center/poll_lease.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md (Wave D)"
+      ],
+      "telegram_surface": "none directly (prevents 409 conflicts for every command)",
+      "test_id": [
+        "test_poller_lease_20260821.py"
+      ],
+      "state": "LIVE_UNVERIFIED",
+      "flags": [
+        "untracked_dependency"
+      ],
+      "notes": "functionally CONFIRMED per component-map.json, but the file itself is untracked (git status ??). tg_api.py (tracked) imports it, so a clean checkout of current HEAD would not run. Downgraded from OPERATIONAL_VERIFIED to LIVE_UNVERIFIED here specifically because 'operational' should survive a clean checkout and this does not yet."
+    },
+    {
+      "capability": "Mini App owner gateway (HMAC initData auth, cockpit read/write API)",
+      "component_id": "tg.miniapp_gateway",
+      "code_path": "_ops/telegram_center/miniapp_gateway.py",
+      "declared_in": [
+        "04 - Architect System/TELEGRAM-CONTROL-SPEC.md",
+        "07 - Knowledge/شناخت-اختاپوس/76-SOP-OWNER-GATEWAY-MINIAPP-2026-08-21.md",
+        "07 - Knowledge/شناخت-اختاپوس/77-AUDIT-MINIAPP-GATEWAY-2026-08-21.md"
+      ],
+      "telegram_surface": "\"Mini App\" button in the bot menu → opens the 9-tab WebView",
+      "test_id": [
+        "test_miniapp_gateway.py"
+      ],
+      "state": "LIVE_UNVERIFIED",
+      "notes": "note 77's own conditional-pass flagged the initData TTL number as needing a live re-measure (C1: 300s claimed vs 3600s once seen in code); this G0 pass did not re-extract that constant — still open."
+    },
+    {
+      "capability": "Mini App decision nonce (one-time, replay-guard for write actions)",
+      "component_id": "tg.decision_ledger",
+      "code_path": "_ops/telegram_center/miniapp_decision_ledger.py",
+      "declared_in": [
+        "07 - Knowledge/شناخت-اختاپوس/77-AUDIT-MINIAPP-GATEWAY-2026-08-21.md (requirement C2)"
+      ],
+      "telegram_surface": "any write action inside the Mini App (approve/reject/pause buttons)",
+      "test_id": [
+        "security C1-C4 suites"
+      ],
+      "state": "SHADOW_ONLY",
+      "notes": "wired only behind a default-off shadow guard inside miniapp_gateway.py; real Mini App write traffic does not go through it yet."
+    },
+    {
+      "capability": "Durable rate-limited outbound queue (FIFO, full retry_after, DLQ)",
+      "component_id": "tg.rate_queue",
+      "code_path": "_ops/telegram_center/rate_limit_queue.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md (Wave E / C4)"
+      ],
+      "telegram_surface": "none directly — would sit in front of every outbound send/edit if attached",
+      "test_id": [
+        "test_wave_e_c3c4_20260821.py"
+      ],
+      "state": "IMPLEMENTED_NOT_WIRED",
+      "flags": [
+        "ORPHANED_CAPABILITY"
+      ],
+      "notes": "fully built, fully tested. tg_api.py exposes attach_defer_queue() as an integration point but center.py never calls it — confirmed independently by this scan, by state-ownership.json ('not attached to live Center'), and by the external OCTOPUS-MILESTONE-CORRECTION document's own audit. Three independent readings agree."
+    },
+    {
+      "capability": "Single-owner send cycle with UNCERTAIN-on-crash quarantine",
+      "component_id": "tg.sender_bridge",
+      "code_path": "_ops/telegram_center/sender_bridge.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md (Wave E / C3-C4)"
+      ],
+      "telegram_surface": "none directly",
+      "test_id": [
+        "test_wave_e_c3c4_20260821.py"
+      ],
+      "state": "IMPLEMENTED_NOT_WIRED",
+      "flags": [
+        "ORPHANED_CAPABILITY",
+        "intentional_by_design"
+      ],
+      "notes": "component-map.json is explicit: 'called_by: tests only (center does not import)' and 'unattached to live Center by design'. This is a deliberate owner-gated boundary (OWNER-ORDER-WAVE1-2026-08-21.md: live sender default OFF), not an oversight — do not treat as a bug to silently fix."
+    },
+    {
+      "capability": "Idempotent update dispatch (exactly-once intent→result cycle)",
+      "component_id": "tg.durable_loop",
+      "code_path": "_ops/telegram_center/durable_loop.py",
+      "declared_in": [],
+      "telegram_surface": "every command/callback that produces a reply",
+      "test_id": [
+        "test_telegram_durable_loop.py"
+      ],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "External hang/kill/relaunch supervision",
+      "component_id": "tg.watchdog",
+      "code_path": "_ops/tg-center-watchdog.ps1",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21.md (§6, §9-H4)"
+      ],
+      "telegram_surface": "keeps the whole bot alive after a hang; no direct owner-facing surface",
+      "test_id": [],
+      "state": "LIVE_UNVERIFIED",
+      "flags": [
+        "GHOST_SURFACE"
+      ],
+      "notes": "kill+relaunch itself runs live via a Scheduled Task, but it decides 'hung' from pulse-file age alone — it never calls watchdog_truth() from tg.health, so the T5 hang-vs-empty-poll-vs-DNS-stall taxonomy that health_metrics.py already computes is never actually read by the one component whose job is to act on it."
+    },
+    {
+      "capability": "Owner approval queue (tap ✅/❌ on a rendered card)",
+      "component_id": "tg.approval_store",
+      "code_path": "_ops/telegram_center/approval_store.py",
+      "declared_in": [
+        "07 - Knowledge/شناخت-اختاپوس/19-TELEGRAM-APPROVAL-RACE-AND-ALERT-AUDIT-2026-08-06.md",
+        "07 - Knowledge/شناخت-اختاپوس/81-TELEGRAM-MINIAPP-FULL-ARCHITECTURE-SCAN-2026-08-21.md"
+      ],
+      "telegram_surface": "inline keyboard callback_data prefix ap:*",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": "known open debt (per note 81): reads do not take a lock, so read-consistency under concurrent writers is unverified — separate from anything in this G0 pass."
+    },
+    {
+      "capability": "Mission approval bridge (owner_gate card → real approval queue)",
+      "component_id": "tg.mission_approval_bridge",
+      "code_path": "_ops/telegram_center/mission_approval_bridge.py",
+      "declared_in": [],
+      "telegram_surface": "would surface as part of the mission-card approval flow",
+      "test_id": [],
+      "state": "SHADOW_ONLY",
+      "flags": [
+        "ORPHANED_CAPABILITY"
+      ],
+      "notes": "gate flag OCTOPUS_WIRE_MISSION_APPROVAL is deliberately absent from flags.cmd per note 81 — built, not armed, by owner choice."
+    },
+    {
+      "capability": "Leg control-room commands (9 Persian natural-language commands)",
+      "component_id": "tg.leg_commands",
+      "code_path": "_ops/telegram_center/leg_commands.py",
+      "declared_in": [],
+      "telegram_surface": "free-text Persian commands matched in the group control room (exact match, not substring)",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Owner 6-option menu panel",
+      "component_id": "tg.owner_menu",
+      "code_path": "_ops/telegram_center/owner_menu.py",
+      "declared_in": [],
+      "telegram_surface": "/menu or persistent keyboard panel",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Introspection commands (/flags /trace /scan /insight + weekly Brier card)",
+      "component_id": "tg.introspect_cmd",
+      "code_path": "_ops/telegram_center/introspect_cmd.py",
+      "declared_in": [],
+      "telegram_surface": "/flags, /trace, /scan, /insight",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Free-text question answering (local-first, paid-escalation ladder)",
+      "component_id": "tg.ask_brain",
+      "code_path": "_ops/telegram_center/ask_brain.py",
+      "declared_in": [],
+      "telegram_surface": "free-text question in DM",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Vault retrieval (ripgrep-based, local-only)",
+      "component_id": "tg.ask_vault",
+      "code_path": "_ops/telegram_center/ask_vault.py",
+      "declared_in": [],
+      "telegram_surface": "free-text 'what do I have on X' question in DM",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Voice-note transcription",
+      "component_id": "tg.transcribe",
+      "code_path": "_ops/telegram_center/transcribe.py",
+      "declared_in": [],
+      "telegram_surface": "any voice message sent to the bot",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Sales funnel commands (/sent /won /lost /paid) and lead quoting (/lead)",
+      "component_id": "tg.funnel_quote_cmd",
+      "code_path": "_ops/telegram_center/funnel_cmd.py, _ops/telegram_center/quote_cmd.py",
+      "declared_in": [],
+      "telegram_surface": "/sent, /won, /lost, /paid, /lead",
+      "test_id": [],
+      "state": "OPERATIONAL_VERIFIED",
+      "notes": null
+    },
+    {
+      "capability": "Memory read loop (query_experiments / pending hypotheses / vault search per beat)",
+      "component_id": "mem.read_loop",
+      "code_path": "_ops/memory_read_loop.py",
+      "declared_in": [],
+      "telegram_surface": "none directly — feeds cognition, not a command",
+      "test_id": [
+        "test_memory_read_loop.py"
+      ],
+      "state": "SHADOW_ONLY",
+      "flags": [
+        "ORPHANED_CAPABILITY"
+      ],
+      "notes": "component-map.json marks this executable=false: results land in a pulse file but are not consumed by improve.py's planner. It runs, it writes real telemetry, and nothing downstream reads it as a decision input — this is the live-code twin of the 'L3 learning / credit assignment' gap flagged independently by one of the three external model analyses pasted into this session."
+    },
+    {
+      "capability": "Typed memory context + decide_from_context (explore / continue / hold_and_revise)",
+      "component_id": "mem.cycle_context",
+      "code_path": "_ops/memory/cycle_context.py",
+      "declared_in": [
+        "_ops/cortex/plans/TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21.md (W8)"
+      ],
+      "telegram_surface": "none directly",
+      "test_id": [
+        "test_memory_cycle_context.py"
+      ],
+      "state": "LIVE_UNVERIFIED",
+      "notes": "landed 2026-08-21 19:38 (commit bac5097), 3/3 fixture tests green (cycle-1 explore, cycle-2 hold_and_revise). loop-closure-matrix.json marks this loop FIXTURE_CLOSED but explicitly still OPEN for 'live organism consume_tick still explore-only without outcomes' — i.e. not yet proven to change a real decision in production."
+    },
+    {
+      "capability": "Second, independent Mini App with its own approve/reject/freeze backend",
+      "component_id": "owner_cockpit.miniapp",
+      "code_path": "_ops/owner_cockpit/miniapp/index.html",
+      "declared_in": [],
+      "telegram_surface": "unknown — not confirmed reachable from the main bot's menu in this or the prior scan",
+      "test_id": [],
+      "state": "LIVE_UNVERIFIED",
+      "flags": [
+        "SAFETY_INCONSISTENCY"
+      ],
+      "notes": "flagged in note 81: approve/reject here execute without the main Mini App's mandatory 10-second cancel window. Not re-verified in this G0 pass; carried forward as an open item."
+    },
+    {
+      "capability": "Third static Telegram admin dashboard",
+      "component_id": "octopus.admin-telegram",
+      "code_path": "OCTOPUS/admin-telegram/index.html",
+      "declared_in": [],
+      "telegram_surface": "unknown",
+      "test_id": [],
+      "state": "UNKNOWN_PROVENANCE",
+      "notes": "no reference to this file found anywhere in _ops/telegram_center or _ops/tests in either this pass or the prior 91-file scan. Could be a parallel pipeline's leftover, a design mockup, or a genuinely separate live surface — status cannot be determined from static reading alone."
+    },
+    {
+      "capability": "Constrained conversational TelBot (can_execute=false per bots.yaml)",
+      "component_id": "tg.telbot_constrained",
+      "code_path": null,
+      "declared_in": [
+        "_ops/telegram_center/GLM-TELBOT-ROLE-AUDIT.md"
+      ],
+      "telegram_surface": "would be a second, read-only conversational bot persona",
+      "test_id": [],
+      "state": "METAPHOR_ONLY",
+      "flags": [
+        "GHOST_SURFACE"
+      ],
+      "notes": "documented as a role/contract in GLM-TELBOT-ROLE-AUDIT.md; no corresponding bot process or code path was found in either scan. This is the cleanest example in this matrix of a capability that exists only as prose."
+    }
+  ],
+  "loops": [
+    {
+      "id": "T1-inbound-poll",
+      "stages": [
+        "lease",
+        "poll start",
+        "transport",
+        "complete/empty",
+        "offset",
+        "dispatch"
+      ],
+      "closed": "PARTIAL",
+      "evidence": "live empty polls 16/16; lease+409 in fixture W4; soak not measured",
+      "open": [
+        "60min soak",
+        "subprocess default-off"
+      ]
+    },
+    {
+      "id": "T2-miniapp-auth",
+      "stages": [
+        "HMAC",
+        "TTL 300",
+        "skew 30",
+        "dup keys"
+      ],
+      "closed": "PARTIAL",
+      "evidence": "C1 commit 2325ffce; SIG-IV 34/34 at bfbb03f",
+      "open": [
+        "live gateway re-measure"
+      ]
+    },
+    {
+      "id": "T3-decision-nonce",
+      "stages": [
+        "reserve",
+        "consume",
+        "receipt",
+        "replay reject"
+      ],
+      "closed": "PARTIAL",
+      "evidence": "C2 ledger in tree; SIG-IV security-c1-c4 34/34",
+      "open": [
+        "live miniapp nonce path"
+      ]
+    },
+    {
+      "id": "T4-durable-outbound",
+      "stages": [
+        "outbox",
+        "admit",
+        "attempt",
+        "receipt",
+        "reconcile"
+      ],
+      "closed": "PARTIAL",
+      "evidence": "W5 fixture 7/7; SenderBridge unattached live",
+      "open": [
+        "live send owner gate"
+      ]
+    },
+    {
+      "id": "T5-supervision",
+      "stages": [
+        "classify hung vs empty vs dns"
+      ],
+      "closed": "OPEN",
+      "evidence": "PS1 uses pulse age only; watchdog_truth unused",
+      "open": [
+        "T5 taxonomy",
+        "PS1 TCB-adjacent kill policy"
+      ]
+    },
+    {
+      "id": "T6-evidence",
+      "stages": [
+        "cite source/sha/boot/digest"
+      ],
+      "closed": "PARTIAL",
+      "evidence": "SIG-IV INDEPENDENT-VERDICT SECURITY_SHADOW_PASS bfbb03f; W7 receipts",
+      "open": [
+        "60min soak"
+      ]
+    },
+    {
+      "id": "T7-cockpit",
+      "stages": [
+        "API field → UI",
+        "honest pending/confirmed"
+      ],
+      "closed": "NOT_MEASURED",
+      "evidence": "not exercised this session",
+      "open": [
+        "cockpit truth audit"
+      ]
+    },
+    {
+      "id": "C5-memory-cycle",
+      "stages": [
+        "observe",
+        "retrieve",
+        "decide",
+        "later cycle uses prior"
+      ],
+      "closed": "FIXTURE_CLOSED",
+      "evidence": "test_memory_cycle_context 3/3; cycle_context decide_from_context",
+      "open": [
+        "live organism consume_tick still explore-only without outcomes"
+      ]
+    },
+    {
+      "id": "C9-typed-agents",
+      "stages": [
+        "contract",
+        "budget",
+        "critic separate"
+      ],
+      "closed": "SEAMS_CLOSED",
+      "evidence": "test_typed_agent_seams 4/4",
+      "open": [
+        "no free-form runtime agents"
+      ]
+    }
+  ],
+  "closure_rule": [
+    "READ",
+    "DECIDE",
+    "ACT",
+    "OBSERVE",
+    "LEARN",
+    "REUSE"
+  ],
+  "complete_requires_all_six": true
+}
