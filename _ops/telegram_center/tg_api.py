@@ -238,35 +238,62 @@ def _defer_message_key(method: str, body: dict) -> str | None:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
+_TRANSPORT_POOL = None
+
+
+def _transport_pool():
+    """Lazy singleton TransportPool (Wave C). Subprocess (terminable) mode when
+    the owner-gated env flag is on; thread-bounded mode otherwise."""
+    global _TRANSPORT_POOL
+    if _TRANSPORT_POOL is None:
+        import transport_pool as _tp  # noqa: WPS433
+        subprocess_fn = None
+        try:
+            if _tp.subprocess_transport and str(
+                    os.environ.get("OCTOPUS_TG_TRANSPORT_SUBPROCESS", "0")
+            ).strip().lower() in {"1", "true", "yes", "on"}:
+                subprocess_fn = _tp.subprocess_transport
+        except Exception:  # noqa: BLE001 — default to thread mode
+            subprocess_fn = None
+        _TRANSPORT_POOL = _tp.TransportPool(subprocess_fn=subprocess_fn)
+    return _TRANSPORT_POOL
+
+
+def _bot_key_from_url(url: str) -> str:
+    """One-way bot key from the token embedded in the URL (never logged)."""
+    head = TELEGRAM_API_BASE + "/bot"
+    if url.startswith(head):
+        rest = url[len(head):]
+        token = rest.split("/", 1)[0]
+        return hashlib.sha256(("tg-bot:" + token).encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
+
+
 def _bounded_http(url: str, timeout_s: float, *, data: bytes | None = None,
                   headers: dict | None = None) -> bytes | None:
-    """Run a urllib call in a daemon worker with a hard wall-clock bound.
+    """Transport call through the bounded, circuit-protected pool (Wave C).
 
-    2026-08-21 live hang: the center froze in poll_updates inside
-    socket.getaddrinfo — a DNS lookup with no timeout can block forever.
-    This wrapper guarantees the caller regains control within
-    timeout_s + margin; None means the transport stalled (fail-soft).
+    2026-08-21 live hang: DNS getaddrinfo with no timeout can block forever.
+    The pool guarantees the caller regains control within timeout_s + margin
+    (None = stall, fail-soft), caps concurrent workers, refuses calls while the
+    per-bot circuit is open (no retry storm), and uses a terminable subprocess
+    worker when the owner-gated flag is on.
     """
-    import queue as _q
-    import threading as _th
-    box: _q.Queue = _q.Queue(maxsize=1)
-
-    def _worker():
-        try:
-            req = urllib.request.Request(url, data=data, headers=headers or {})
-            with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — gated by callers
-                box.put(resp.read())
-        except Exception as exc:  # noqa: BLE001 — re-raised by caller
-            box.put(exc)
-
-    _th.Thread(target=_worker, daemon=True).start()
     try:
-        got = box.get(timeout=timeout_s + 5.0)
-    except _q.Empty:
-        return None
-    if isinstance(got, Exception):
-        raise got
-    return got
+        pool = _transport_pool()
+        bot = _bot_key_from_url(url)
+        blob = pool.call(bot, url, float(timeout_s), data=data, headers=headers)
+        pool.record_result(bot, ok=blob is not None)
+        return blob
+    except Exception as exc:  # noqa: BLE001 — fail-soft: stall semantics
+        from transport_pool import CircuitOpenError as _coe  # noqa: WPS433
+        if isinstance(exc, _coe):
+            return None                     # circuit open / saturated: no network
+        try:
+            _transport_pool().record_result(_bot_key_from_url(url), ok=False)
+        except Exception:  # noqa: BLE001
+            pass
+        raise
 
 
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
@@ -324,39 +351,14 @@ def _poll_health_path():
     return root / "telegram" / POLL_HEALTH_NAME
 
 
-def _record_poll(ok: bool, reason: str = "") -> dict:
-    """یک دورِ poll را ثبت کن و وضعیتِ تازه را برگردان. هر خطا ⇒ سکوت
-    (رصد هرگز حلقهٔ poll را نمی‌کشد)."""
-    path = _poll_health_path()
-    now = time.time()
-    state = {"last_ok_ts": 0.0, "consecutive_failures": 0, "last_reason": ""}
+def _record_poll(ok: bool, reason: str = "", **kw) -> dict:
+    """یک دورِ poll را با health_metrics ثبت کن (counters + timestamps)."""
     try:
-        import bounded_io as _bio  # noqa: WPS433
-        if path.exists():
-            text = _bio.read_text(path)
-            if text is not None:
-                loaded = json.loads(text)
-                if isinstance(loaded, dict):
-                    state.update(loaded)
-    except (OSError, ValueError):
-        pass
-    if ok:
-        state["last_ok_ts"] = now
-        state["consecutive_failures"] = 0
-        state["last_reason"] = ""
-    else:
-        state["consecutive_failures"] = int(state.get("consecutive_failures", 0)) + 1
-        state["last_reason"] = str(reason or "unknown")[:80]
-    state["last_round_ts"] = now
-    try:
-        import bounded_io as _bio  # noqa: WPS433
-        tmp = path.with_suffix(".json.tmp")
-        payload = json.dumps(state, ensure_ascii=False)
-        if _bio.write_text(tmp, payload):
-            os.replace(tmp, path)
-    except OSError:
-        pass
-    return state
+        import health_metrics as _hm  # noqa: WPS433
+        return _hm.record_poll(ok=ok, reason=reason, **kw)
+    except Exception:  # noqa: BLE001 — observability never kills the loop
+        return {"last_round_ts": time.time(), "consecutive_failures": 0,
+                "last_reason": ""}
 
 
 def poll_deaf_for_s(now: "float | None" = None) -> "float | None":
@@ -813,17 +815,34 @@ class TgClient:
         sleep واقعی فقط در تولید است؛ تست با ``_sleep`` تزریقی ثبت می‌کند."""
         if not self.wired():
             return []
+        started_at = time.time()
+        try:
+            import poll_lease as _pl  # noqa: WPS433
+            lease = _pl.assert_poll_lease(self._token)
+            if not lease.get("ok"):
+                _record_poll(False, "lease:%s" % (lease.get("reason") or "denied",),
+                             started_at=started_at, completed_at=time.time())
+                return []
+        except Exception:  # noqa: BLE001 — lease guard fails open to keep polling
+            pass
         try:
             params = {"offset": int(offset), "timeout": int(timeout_s),
                       "allowed_updates": json.dumps(["message", "callback_query"])}
             data = self._get(self._build_url("getUpdates", params), float(timeout_s))
         except Exception as e:  # noqa: BLE001 — بی‌صدا، بدونِ leakِ URL/token
-            st = _record_poll(False, type(e).__name__)
+            msg = str(e)
+            dns_stall = isinstance(e, TimeoutError) and "transport stalled" in msg
+            st = _record_poll(False, type(e).__name__, started_at=started_at,
+                              completed_at=time.time(), timeout=dns_stall,
+                              dns_stall=dns_stall)
             self._maybe_alert_deaf(st)
             return []
         if not isinstance(data, dict) or not data.get("ok"):
             _code = data.get("error_code") if isinstance(data, dict) else "no-dict"
-            self._maybe_alert_deaf(_record_poll(False, "api:%s" % (_code,)))
+            is_409 = bool(isinstance(data, dict) and data.get("error_code") == 409)
+            st = _record_poll(False, "api:%s" % (_code,), started_at=started_at,
+                              completed_at=time.time(), is_409=is_409)
+            self._maybe_alert_deaf(st)
             ra = _retry_after_from_429(data if isinstance(data, dict) else {})
             _sync = _sync_retry_delay(ra)
             if _sync is not None:
@@ -837,16 +856,29 @@ class TgClient:
             # مسیر بی‌صدا [] برمی‌گرداند — تنها نشانه، یک «غیبت» بود (بات ساکت،
             # صفر لاگ، صفر رسید). الگوی approval_channel.poll_once (جلسه ۴۶) اینجا
             # آورده شد: هشدارِ throttled (۱/ساعت) تا spam نکند.
-            if isinstance(data, dict) and data.get("error_code") == 409:
+            if is_409:
                 import time as _t409
+                try:
+                    import poll_lease as _pl409
+                    _pl409.mark_duplicate_consumer(self._token)
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    _transport_pool().record_result(
+                        _bot_key_from_url(self._build_url("getUpdates", {})),
+                        ok=False, is_409=True)   # Wave C: 409 opens the circuit
+                except Exception:  # noqa: BLE001
+                    pass
                 if _t409.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
                     self._last_409_alert = _t409.time()
                     _alert_soft("tg-center getUpdates 409 Conflict — pollerِ رقیب روی "
                                 "همین توکن! آپدیت‌ها را او می‌بلعد (پروسهٔ دوم؟ "
                                 "وب‌هوک؟). تا حل نشود بات ساکت خواهد بود.")
             return []
-        _record_poll(True)
-        return [u for u in (data.get("result") or []) if isinstance(u, dict)]
+        updates = [u for u in (data.get("result") or []) if isinstance(u, dict)]
+        _record_poll(True, started_at=started_at, completed_at=time.time(),
+                     updates_n=len(updates), empty=not updates)
+        return updates
 
     def _maybe_alert_deaf(self, state: dict) -> None:
         """گوشِ مرده را یک‌بار در ساعت فریاد بزن. «مرده» = هیچ دورِ موفقی در
