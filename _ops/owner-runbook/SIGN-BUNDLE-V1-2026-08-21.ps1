@@ -16,8 +16,17 @@ $priv = "$HOME\.octopus-signing\octopus-owner-ed25519-private.pem"
 $dir  = "_ops\owner-signing\bundle-v1"
 
 # fingerprint anchor check (fail-closed before ANY sign)
-$fp = openssl pkey -pubin -in $pub -outform DER 2>$null | sha256sum
-$fp = ($fp -split '\s+')[0]
+# NOTE: never pipe binary DER through the PowerShell pipeline (text corruption
+# produces a wrong fingerprint -> false abort). Write DER to a temp file and
+# hash the file bytes with Get-FileHash instead.
+$tmp = Join-Path $env:TEMP "octopus-pubkey-der.bin"
+openssl pkey -pubin -in $pub -outform DER -out $tmp 2>$null
+if (-not (Test-Path $tmp)) {
+    Write-Host "FINGERPRINT COMPUTE FAILED - ABORT before any sign"
+    exit 1
+}
+$fp = (Get-FileHash $tmp -Algorithm SHA256).Hash.ToLower()
+Remove-Item $tmp -ErrorAction SilentlyContinue
 Write-Host "pubkey fingerprint: $fp"
 if ($fp -ne "2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2") {
     Write-Host "FINGERPRINT MISMATCH - ABORT before any sign"
