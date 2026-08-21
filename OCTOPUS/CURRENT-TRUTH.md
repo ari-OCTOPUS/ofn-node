@@ -5,23 +5,31 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-20T10:44:52Z
+> auto-generated: 2026-08-21T09:09:41Z
 
 ## Current Truth
 
-- **beat:** live (ORGANISM-STATE)
-- **organism_pid:** zive · center=26388 · daemon=25680(old)
+- **coherence:** 0.87
+- **members_present:** 11
+- **stale_members:** work_pump
+- **beat:** 44059
 - **halted:** False
-- **HEAD:** 6cf2086
-- **LIVE_gates:** A=PASS · B=BLOCKED(awaiting tg+sc) · C=PASS·incident · D/E=BLOCKED
-- **telegram_canary:** INGEST_PASS(4 events) · MODEL_FAIL(fixed,awaiting round-3)
-- **organ_lane_C:** ACCEPTED(C12-15,C19-21,C23) · hook READY_FLAG_OFF · awaiting handoff A19
-- **D6:** CLOSED_NEGATIVE (pair-dependent) · flip_rate gate official
-- **executable:** false (allowlisted protective only)
-- **paid_cognition:** PAUSED (attribution gap 98/122)
+- **rfcs_pending:** 1
+- **HEAD:** c713d26
 
 
 <!-- OCTOPUS-AUTO-END -->
+
+### Human status — مگا #۱۶ A13–A19 (2026-08-20 ~20:4x، additive)
+
+> خارج از بلوک auto. ابسیدین از `labels.json` + `render_now.py` بازتولید شد.
+
+- **A13 PASS** با شرط صفر رسید هزینه در پنجرهٔ ۲۰:۱۸. Center PID **8828** · schema `typed-v1` · bot `7992324219`.
+- **A14 READ_BACK_USED** `mem-6c528a350df6` · as-of تاریخی مرجان · فعلی صدف.
+- **A15** سه مغز + رسید A5 · **A16** پنجرهٔ تلگرام صفر رسید · **A17** `HC_WM_CAUSAL`.
+- **A18 / Full Loop BLOCKED.** **A19** صادر · lease آزاد · hook دانش برای C مجاز.
+- یافته‌ها: `MISSING_ACK_FOR_/remember` · `CORRECT_ACCEPTED_INVALID_TURN_ID` · `STALE_GATE_LABEL_IN_REPLY`.
+- شواهد: [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]] · [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF]] · نوت [[07 - Knowledge/شناخت-اختاپوس/72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20]]
 
 ### Human status — دستورهای مالک #۶–#۸ و مسیر LIVE (2026-08-20 بعدازظهر، additive)
 
@@ -109,3 +117,15 @@ updated: 2026-08-11T13:35:00Z
 - **لایهٔ صداقتِ چت (۶ commit):** auth یکدست (`d81c7c1`) · intro-exclusion تست‌شد (`bfcc353`) · `runtime_truth` halt/quota (`c144297`) · بنرِ وضعیت (`08c9f7f`+`66acec5`) · `honest-self` routing (`2b47b90`).
 - **چارچوبِ deceptive-grid** (`hypothesis_engine/experiments/`): ۹ سناریو + ablation + red-team + verdict V0–V4 + JSONL provenance؛ ۵ سوییت سبز.
 - **committed** (رأیِ git: «هردو»). جزئیات: [[../03 - Projects/research-spec-compiler/adr/ADR-039-epistemic-test-engine|ADR-039]] · [[../03 - Projects/research-spec-compiler/adr/ADR-040-conversation-hub-unified-chat|ADR-040]]
+
+### Human status — فرمانهای مالک ۲۰۲۶-۰۸-۲۱: WAVE1، امضای یکپارچه، موجهای A–F و restart (additive)
+
+> خارج از بلوک auto. ثبت بر اساس چت همین جلسه.
+
+- **فرمان WAVE1** ثبت شد (`02-DECISIONS/OWNER-ORDER-WAVE1-2026-08-21.md`) — `WAVE1_CONDITIONALLY_AUTHORIZED` (L2_ARMED)؛ هدها: impl=`fa38d16…` / evidence=`d301339…`.
+- **یافتهٔ یکپارچگی:** d301339 بهتنهایی ۱۶۳/۱۶۳ بازتولید نمیکند (closed-loop ۱۴/۱۵ — فایلهای organs در commit نبودند). شاخهٔ تعمیر `repair/organs-suite-reproducible-20260821` هد `cc267048`: ۱۶۳/۱۶۳ + side effect صفر. بستهٔ verifier مستقل آماده: `06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/`.
+- **OWNER_SIGNATURE_BUNDLE_V1 COMPLETE:** ۱۱ payload مالک امضا شد (root `b096ad9c…`، validation ۱۲/۱۲)؛ **SIG-IV** همچنان `AWAITING_INDEPENDENT_VERIFIER`.
+- **WRITE AND REPAIR AUTHORIZED → موجهای A–F:** health truth (watchdog_truth) · ConfigManager (digest/LKG/immutable) · transport_pool (circuit/deadline/subprocess) · lease تک-pollery · شواهد C3/C4 · باتری ۱۶ سناریو — **۲۰۲/۲۰۲ تست سبز**، ۹ commit (f7dbebc→c713d26).
+- **restart کنترلشدهٔ مرکز زنده PASS** (`bfbb03f`): pid 27884→2080 با کد جدید؛ counters سلامت ۵/۵/۵؛ صفر شکست/409؛ offset بایت-به-بایت حفظ شد؛ سندلاگ +۳ = رسیدهای edit boot-time؛ snapshot/rollback در `restart-snapshots/2026-08-21T1915Z/`.
+- شواهد: [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/STATUS]] · [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]] · نوت [[07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21]]
+- وضعیت: **`IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING`** · گیت بعدی: SIG-IV (جلسهٔ مستقل) سپس مگاپرامپت ۲ با تأیید مالک.
