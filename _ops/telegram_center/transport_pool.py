@@ -89,10 +89,12 @@ class TransportPool:
     """Bounded transport executor with per-bot circuits and hard deadlines."""
 
     def __init__(self, *, max_concurrent: int = 4, fail_threshold: int = 3,
-                 cooldown_s: float = 60.0, subprocess_fn=None, clock=None):
+                 cooldown_s: float = 60.0, subprocess_fn=None, clock=None,
+                 deadline_margin: float = 5.0):
         self._max = max(1, int(max_concurrent))
         self._fail_threshold = max(1, int(fail_threshold))
         self._cooldown = float(cooldown_s)
+        self._margin = max(0.0, float(deadline_margin))
         self._sem = threading.BoundedSemaphore(self._max)
         self._lock = threading.Lock()
         self._active = 0
@@ -157,12 +159,12 @@ class TransportPool:
             if fn is not None:
                 # injected transports get the same hard deadline
                 return self._run_thread(lambda: fn(url, timeout_s, data, headers),
-                                        float(timeout_s) + 5.0)
+                                        float(timeout_s) + self._margin)
             if self._subprocess_fn is not None:
                 return self._subprocess_fn(url, timeout_s, data=data, headers=headers)
             return self._run_thread(
                 lambda: self._http_bytes(url, timeout_s, data, headers),
-                float(timeout_s) + 5.0)
+                float(timeout_s) + self._margin)
         finally:
             with self._lock:
                 self._active -= 1
