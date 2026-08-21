@@ -113,6 +113,53 @@ def t_e_stale_cache_on_unknown_stall_is_served_not_empty():
         Path.read_text = real_read
 
 
+def t_f_bounded_http_stall_returns_none_without_blocking():
+    import telegram_center.tg_api as tg
+    real_open = tg.urllib.request.urlopen
+
+    def stalled(*a, **k):
+        time.sleep(30)  # simulate a DNS getaddrinfo block
+        return real_open(*a, **k)
+
+    tg.urllib.request.urlopen = stalled
+    try:
+        start = time.time()
+        blob = tg._bounded_http("https://api.telegram.org/", timeout_s=1.0)
+        elapsed = time.time() - start
+        assert blob is None
+        assert elapsed < 8.0, f"bounded http must not block: {elapsed:.1f}s"
+    finally:
+        tg.urllib.request.urlopen = real_open
+
+
+def t_g_stalled_transport_fails_soft_on_get_and_post():
+    import telegram_center.tg_api as tg
+    real_open = tg.urllib.request.urlopen
+
+    def stalled(*a, **k):
+        time.sleep(30)
+        return real_open(*a, **k)
+
+    tg.urllib.request.urlopen = stalled
+    try:
+        start = time.time()
+        try:
+            tg._url_json_get("https://api.telegram.org/botX/getUpdates", 1.0)
+            raised = False
+        except TimeoutError:
+            raised = True
+        assert raised, "stalled get must fail soft with TimeoutError"
+        try:
+            tg._url_json_post("https://api.telegram.org/botX/sendMessage", {"x": 1}, 1.0)
+            raised = False
+        except TimeoutError:
+            raised = True
+        assert raised, "stalled post must fail soft with TimeoutError"
+        assert time.time() - start < 20.0
+    finally:
+        tg.urllib.request.urlopen = real_open
+
+
 if __name__ == "__main__":
     checks = [(name, fn) for name, fn in sorted(globals().items()) if name.startswith("t_")]
     failed = harness.run(checks)

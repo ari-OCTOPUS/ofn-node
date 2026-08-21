@@ -146,9 +146,11 @@ def _url_json_get(url: str, timeout_s: float) -> dict:
     هرگز URL را لاگ نمی‌کند (token داخلش است)."""
     if not url.startswith(TELEGRAM_API_BASE + "/"):
         raise ValueError("blocked host (only api.telegram.org)")
-    req = urllib.request.Request(url, headers={"User-Agent": "octopus-tg-center/0.1"})
-    with urllib.request.urlopen(req, timeout=timeout_s + 5) as resp:  # noqa: S310 — only TELEGRAM_API_BASE
-        return json.loads(resp.read().decode("utf-8"))
+    blob = _bounded_http(url, timeout_s + 5,
+                         headers={"User-Agent": "octopus-tg-center/0.1"})
+    if blob is None:
+        raise TimeoutError("telegram transport stalled (DNS/socket)")
+    return json.loads(blob.decode("utf-8"))
 
 
 def _http_err_desc(exc) -> str:
@@ -226,16 +228,48 @@ def _defer_message_key(method: str, body: dict) -> str | None:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
+def _bounded_http(url: str, timeout_s: float, *, data: bytes | None = None,
+                  headers: dict | None = None) -> bytes | None:
+    """Run a urllib call in a daemon worker with a hard wall-clock bound.
+
+    2026-08-21 live hang: the center froze in poll_updates inside
+    socket.getaddrinfo — a DNS lookup with no timeout can block forever.
+    This wrapper guarantees the caller regains control within
+    timeout_s + margin; None means the transport stalled (fail-soft).
+    """
+    import queue as _q
+    import threading as _th
+    box: _q.Queue = _q.Queue(maxsize=1)
+
+    def _worker():
+        try:
+            req = urllib.request.Request(url, data=data, headers=headers or {})
+            with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — gated by callers
+                box.put(resp.read())
+        except Exception as exc:  # noqa: BLE001 — re-raised by caller
+            box.put(exc)
+
+    _th.Thread(target=_worker, daemon=True).start()
+    try:
+        got = box.get(timeout=timeout_s + 5.0)
+    except _q.Empty:
+        return None
+    if isinstance(got, Exception):
+        raise got
+    return got
+
+
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
     """posterِ پیش‌فرض (JSON body). body هرگز token ندارد (token در URL است)."""
     if not url.startswith(TELEGRAM_API_BASE + "/"):
         raise ValueError("blocked host (only api.telegram.org)")
     data = json.dumps(body, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(url, data=data,
-                                 headers={"User-Agent": "octopus-tg-center/0.1",
-                                          "Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — only TELEGRAM_API_BASE
-        return json.loads(resp.read().decode("utf-8"))
+    blob = _bounded_http(url, timeout_s, data=data,
+                         headers={"User-Agent": "octopus-tg-center/0.1",
+                                  "Content-Type": "application/json"})
+    if blob is None:
+        raise TimeoutError("telegram transport stalled (DNS/socket)")
+    return json.loads(blob.decode("utf-8"))
 
 
 def _url_bytes_get(url: str, timeout_s: float, max_bytes: int) -> bytes:
@@ -249,9 +283,10 @@ def _url_bytes_get(url: str, timeout_s: float, max_bytes: int) -> bytes:
     if not url.startswith(TELEGRAM_API_BASE + "/file/"):
         raise ValueError("blocked host (only api.telegram.org file endpoint)")
     cap = int(max_bytes)
-    req = urllib.request.Request(url, headers={"User-Agent": "octopus-tg-center/0.1"})
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — only TELEGRAM_API_BASE
-        blob = resp.read(cap + 1)
+    blob = _bounded_http(url, timeout_s,
+                         headers={"User-Agent": "octopus-tg-center/0.1"})
+    if blob is None:
+        raise TimeoutError("telegram transport stalled (DNS/socket)")
     if len(blob) > cap:
         raise ValueError("file too large")
     return blob
