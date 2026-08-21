@@ -57,6 +57,11 @@ canonical_harvest_entry: 75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21
 ## قرنطینه / نامعلوم (2)
 - Window-B updates 223883344 و 223883346 — OWNER_OBSERVED_UNCONFIRMED_API / QUARANTINED: **بدون message_id/readback تأییدشده؛ DELIVERY_CONFIRMED نیستند**؛ هرگز auto-resend.
 
+## Milestone Correction (8 مرحله — در حال اجرا)
+وضعیت: `TELEGRAM_HANG_ROOT_CAUSE_CANDIDATES`؛ BASELINE ممنوع تا soak ۶۰ دقیقه.
+گیتپروف کامل؛ health semantics، poll lease، ConfigManager، transport subprocess (flag-gated) آماده؛
+leak tests در تثبیت؛ soak + evidence + verdict = گام بعدی. جزئیات: نوت ۷۹.
+
 ## Loopهای باز
 - S-T02 event_bridge — IN_PROGRESS.
 - PROBE-INVALID / heartbeat — STOP file moved (owner grant); loop not L6-closed.
