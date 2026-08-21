@@ -1,0 +1,36 @@
+{
+  "schema": "wave1-megaprompt-2-result/1",
+  "generated_at": "2026-08-21T09:56:00Z",
+  "mode": "FIXTURE_THEN_HOLD",
+  "verdict": "CANARY_FIXTURE_PASS_LIVE_BLOCKED",
+  "exact_verified_head_sig_iv": "bfbb03f36a6510eafe6d4910625895a127c14e7c",
+  "live_head": "bac509705a90463253e315644dabf93810a673db",
+  "live_telegram_send": 0,
+  "webhook": 0,
+  "paid_calls": 0,
+  "preconditions": {
+    "independent_verification": "PASS",
+    "owner_chat_in_agent_env": false,
+    "token_in_agent_env": false,
+    "kill_switch_test": {"file": "test_telegram_durable_loop.py", "result": "15/15", "exit": 0},
+    "wave_e_fake_bridge_rollback": {"file": "test_wave_e_c3c4_20260821.py", "result": "7/7", "exit": 0},
+    "canary_window_guard": {"file": "test_canary_window.py", "result": "12/12", "exit": 0},
+    "reconciliation_suite": {"file": "test_delivery_reconciliation.py", "result": "8/8", "exit": 0},
+    "reconciliation_pending_last_row": 0,
+    "historical_uncertain_outbox_held": ["tg:223883344", "tg:223883346"],
+    "center_imports_sender_bridge": false,
+    "STOP-TG-CENTER": false,
+    "HALT-ALL": false
+  },
+  "fixture_n1": {
+    "path": "WAVE1-CANARY-N1-FIXTURE.json",
+    "transport_calls": 1,
+    "second_pass_resend": false,
+    "live_http": false
+  },
+  "authorized_next_state": "G-CANARY-OUT_OWNER_DECISION",
+  "blocked_reason": [
+    "This agent process has TG_CENTER_BOT_TOKEN=false and TELEGRAM_OWNER_CHAT_ID=false; live send would require Center-owned env without copying secrets into chat.",
+    "Two historical UNCERTAIN outbox rows (window B) remain NEEDS_RECONCILIATION and must not auto-resend."
+  ]
+}

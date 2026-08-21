@@ -36,6 +36,10 @@ updated: 2026-08-21
 
 ## وضعِ لحظه‌ای
 
+> 🔏 **پین 2026-08-21 ~19:5x (+10) — مگاپرامپت ۲ fixture PASS، زنده BLOCKED.** پیش‌شرط‌ها سبز (kill-switch ۱۵/۱۵، Wave E ۷/۷، canary-window ۱۲/۱۲، reconciliation ۸/۸). کاناری n=1 فقط SenderBridge جعلی. ارسال زنده ۰. توکن/چت مالک در این پروسه false. دو outbox تاریخی `tg:223883344/346` UNCERTAIN مانده. گیت بعدی: G-CANARY-OUT. [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/MEGAPROMPT-2-RESULT.json|نتیجه]]
+
+> 🐙 **پین 2026-08-21 ~19:4x (+10) — TELEGRAM-COGNITION deep debug.** HEAD پایه `c713d26`. حلقهٔ حافظه در fixture بسته شد (چرخه۱ explore → چرخه۲ hold_and_revise). HealthState بدون re-read. Sender/webhook/paid دست‌نخورده. وضعیت `IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING`. [[../_ops/cortex/plans/TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21|plan]]
+
 > 🔏 **پین 2026-08-21 ~19:2x (+10) — SIG-IV Megaprompt 1 PASS.** هویت مستقل `sig-iv-0a7b37c5-independent-20260821`. exact head `bfbb03f` (۱۶۳/۱۶۳؛ organs با `cc267048` یکسان؛ `_ops` تا HEAD خالی). `SECURITY_SHADOW_PASS` → `WAVE1_CANARY_READY`. ارسال زنده/وب‌هوک/پولی **نه**. مگاپرامپت ۲ فقط با حکم صریح مالک. [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/SIG-IV-FINDINGS-2026-08-21|یافته‌ها]] · [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/INDEPENDENT-VERDICT.json|رأی]]
 
 > 🧬 **پین 2026-08-21 ~19:0x (+10) — SELF-UPGRADE LAB + ادغام زنده.** memory=`ALREADY_FIXED` ۱۲/۱۲. heart/brain=`LAB_PASS` در worktree. `observe_only` روی live. [[../07 - Knowledge/شناخت-اختاپوس/79-SELF-UPGRADE-LAB-CYCLE-2026-08-21|نوت ۷۹]] · [[../06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README|شواهد]]
