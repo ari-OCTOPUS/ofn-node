@@ -1086,6 +1086,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # C2 decision nonce, C3 full retry_after, C4 durable rate queue.
     # Fixture-only; fake transport; isolated state; zero live sends/writes/paid calls.
     "test_security_c1_c4.py",
+    # 2026-08-21 OWNER live-hang fix — bounded state-file reads (antivirus
+    # byte-range lock froze center _load_config twice); cache + fail-soft.
+    "test_bounded_read.py",
     # 2026-08-21 OWNER bio-cognitive laboratory — experiment card schema,
     # preregistration hashing, append-only registries, owner experiment seed.
     "test_lab_registry.py",

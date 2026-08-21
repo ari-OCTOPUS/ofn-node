@@ -189,16 +189,74 @@ def _config_path() -> Path:
     return opslib.STATE_DIR / "telegram" / "center-config.json"
 
 
+# 2026-08-21 (live hang debug): the center hung twice in _load_config while
+# reading center-config.json — a third-party byte-range lock (antivirus scan on
+# this frequently os.replace'd file) blocks read_text indefinitely. Reads are
+# now bounded: serve a write-through cache and never block the poll loop.
+_CONFIG_CACHE: dict = {}
+_CONFIG_CACHE_KEY: tuple | None = None
+
+
+def _bounded_read_text(path: Path, timeout_s: float = 3.0) -> str | None:
+    """Read a state file in a worker with a hard timeout; None on stall."""
+    import queue as _q
+    import threading as _th
+    box: _q.Queue = _q.Queue(maxsize=1)
+
+    def _reader():
+        try:
+            box.put(path.read_text("utf-8"))
+        except Exception as exc:  # noqa: BLE001 — fail-soft read
+            box.put(exc)
+
+    t = _th.Thread(target=_reader, daemon=True)
+    t.start()
+    try:
+        got = box.get(timeout=timeout_s)
+    except _q.Empty:
+        return None
+    if isinstance(got, Exception):
+        return None
+    return got
+
+
 def _load_config() -> dict:
-    """config = حافظهٔ idempotency. نبود/خرابی فایل → {} (fail-soft)."""
+    """config = حافظهٔ idempotency. نبود/خرابی فایل → {} (fail-soft).
+
+    Bounded read: stat is lock-free; only a changed file is read, and the read
+    itself is time-boxed. On stall the last known config is served (stale) so
+    the poll loop can never be frozen by a file lock.
+    """
+    global _CONFIG_CACHE, _CONFIG_CACHE_KEY
     try:
         p = _config_path()
-        if not p.exists():
+        try:
+            st = p.stat()
+        except OSError:
             return {}
-        data = json.loads(p.read_text("utf-8"))
-        return data if isinstance(data, dict) else {}
+        key = (st.st_mtime_ns, st.st_size)
+        if key == _CONFIG_CACHE_KEY:
+            return _CONFIG_CACHE
+        text = _bounded_read_text(p)
+        if text is None:
+            return _CONFIG_CACHE          # stale-but-alive beats frozen
+        data = json.loads(text)
+        cfg = data if isinstance(data, dict) else {}
+        _CONFIG_CACHE, _CONFIG_CACHE_KEY = cfg, key
+        return cfg
     except (OSError, ValueError):
         return {}
+
+
+def _config_cache_update(cfg: dict) -> None:
+    """Write-through: _save_config keeps the read cache fresh."""
+    global _CONFIG_CACHE, _CONFIG_CACHE_KEY
+    _CONFIG_CACHE = cfg
+    try:
+        st = _config_path().stat()
+        _CONFIG_CACHE_KEY = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        _CONFIG_CACHE_KEY = None
 
 
 def _save_config(cfg: dict) -> bool:
@@ -231,6 +289,7 @@ def _save_config(cfg: dict) -> bool:
                 fh.flush()
                 os.fsync(fh.fileno())      # دوامِ واقعی، نه صرفاً بافرِ OS
             os.replace(tmp, p)
+            _config_cache_update(cfg)
             return True
         except OSError as e:               # noqa: PERF203 — قفلِ AV گذراست
             last = e

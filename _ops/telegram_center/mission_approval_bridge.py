@@ -139,7 +139,27 @@ def sweep(*, now: "float | None" = None) -> dict:
     latest = None
     for p in _card_files():
         try:
-            rec = json.loads(p.read_text("utf-8"))
+            # bounded read (2026-08-21 hang fix): a third-party byte-range lock
+            # on a card file must never freeze the beat loop.
+            text = None
+            try:
+                import threading as _th
+                import queue as _q
+                box: _q.Queue = _q.Queue(maxsize=1)
+                def _reader():
+                    try:
+                        box.put(p.read_text("utf-8"))
+                    except Exception as exc:  # noqa: BLE001
+                        box.put(exc)
+                _t = _th.Thread(target=_reader, daemon=True)
+                _t.start()
+                got = box.get(timeout=3.0)
+                text = got if isinstance(got, str) else None
+            except Exception:  # noqa: BLE001
+                text = None
+            if text is None:
+                continue
+            rec = json.loads(text)
         except (OSError, ValueError):
             continue
         if not isinstance(rec, dict) or rec.get("staged_job_id") or rec.get("verdict"):
@@ -260,3 +280,4 @@ def beat(*, now: "float | None" = None) -> dict:
 
 if __name__ == "__main__":   # pragma: no cover
     print(json.dumps(beat(), ensure_ascii=False, indent=1))
+
