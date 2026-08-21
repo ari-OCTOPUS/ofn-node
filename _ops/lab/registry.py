@@ -196,3 +196,49 @@ def seed_owner_experiments() -> dict:
         else:
             results["errors"].append((eid, out.get("errors")))
     return results
+
+
+def conclude_experiment(experiment_id: str, *, result: str,
+                        evidence_refs: list | None = None,
+                        ts: str | None = None, note: str = "") -> dict:
+    """Append-only conclusion. Does not rewrite the preregistration card.
+
+    ``result`` must be in the closed result set. CANARY_PROPOSED cards may be
+    concluded INCONCLUSIVE until an owner live gate; they must not be marked
+    SUPPORTED from fixture evidence alone.
+    """
+    eid = str(experiment_id or "").strip()
+    if not eid:
+        return {"ok": False, "errors": ["experiment_id-required"]}
+    if result not in _RESULTS:
+        return {"ok": False, "errors": [f"invalid-result-{result}"]}
+    rec = {
+        "experiment_id": eid,
+        "ts": ts or _now_iso(),
+        "kind": "conclusion",
+        "result": result,
+        "evidence_refs": list(evidence_refs or []),
+        "note": str(note or ""),
+    }
+    return append_record("DECISION", rec)
+
+
+def latest_conclusions(path: Path | None = None) -> dict[str, dict]:
+    """Last DECISION conclusion per experiment_id (append-only view)."""
+    ledger = path or _ledger("DECISION")
+    last: dict[str, dict] = {}
+    if not ledger.is_file():
+        return last
+    for line in ledger.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(row, dict) or row.get("kind") != "conclusion":
+            continue
+        eid = str(row.get("experiment_id") or "")
+        if eid:
+            last[eid] = row
+    return last

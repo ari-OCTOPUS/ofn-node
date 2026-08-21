@@ -13,15 +13,15 @@
       "id": "T2-miniapp-auth",
       "stages": ["HMAC", "TTL 300", "skew 30", "dup keys"],
       "closed": "PARTIAL",
-      "evidence": "C1 commit 2325ffce; live gateway PID 12220 not re-verified this session",
-      "open": ["independent verifier"]
+      "evidence": "C1 commit 2325ffce; SIG-IV 34/34 at bfbb03f",
+      "open": ["live gateway re-measure"]
     },
     {
       "id": "T3-decision-nonce",
       "stages": ["reserve", "consume", "receipt", "replay reject"],
       "closed": "PARTIAL",
-      "evidence": "C2 ledger in tree",
-      "open": ["independent verifier"]
+      "evidence": "C2 ledger in tree; SIG-IV security-c1-c4 34/34",
+      "open": ["live miniapp nonce path"]
     },
     {
       "id": "T4-durable-outbound",
@@ -41,8 +41,8 @@
       "id": "T6-evidence",
       "stages": ["cite source/sha/boot/digest"],
       "closed": "PARTIAL",
-      "evidence": "W7 receipts exist; this session adds debug NDJSON",
-      "open": ["independent verifier"]
+      "evidence": "SIG-IV INDEPENDENT-VERDICT SECURITY_SHADOW_PASS bfbb03f; W7 receipts",
+      "open": ["60min soak"]
     },
     {
       "id": "T7-cockpit",
@@ -54,16 +54,16 @@
     {
       "id": "C5-memory-cycle",
       "stages": ["observe", "retrieve", "decide", "later cycle uses prior"],
-      "closed": "OPEN_PRE_W8",
-      "evidence": "3 reads/cycle; newest_id not in cortex artifacts",
-      "open": ["wire MemoryContext — this session W8"]
+      "closed": "FIXTURE_CLOSED",
+      "evidence": "test_memory_cycle_context 3/3; cycle_context decide_from_context",
+      "open": ["live organism consume_tick still explore-only without outcomes"]
     },
     {
       "id": "C9-typed-agents",
       "stages": ["contract", "budget", "critic separate"],
-      "closed": "OPEN_PRE_W9",
-      "evidence": "no _ops/agents package",
-      "open": ["seams only this session"]
+      "closed": "SEAMS_CLOSED",
+      "evidence": "test_typed_agent_seams 4/4",
+      "open": ["no free-form runtime agents"]
     }
   ]
 }

@@ -36,6 +36,8 @@ updated: 2026-08-21
 
 ## وضعِ لحظه‌ای
 
+> 🔏 **پین 2026-08-21 ~20:0x (+10) — مگاپرامپت ۳ آزمایشگاه.** ۲۴ کارت: ۱۶ SUPPORTED / ۸ INCONCLUSIVE. تست close ۴/۴. حافظه چرخه۱→۲ ۳/۳. ارسال زنده همچنان ۰. مگاپرامپت ۴ فقط طرح. تست ثبت‌نشده: `test_megaprompt3_lab_close_20260821.py`. [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/MEGAPROMPT-3-RESULT.json|نتیجه]]
+
 > 🔏 **پین 2026-08-21 ~19:5x (+10) — مگاپرامپت ۲ fixture PASS، زنده BLOCKED.** پیش‌شرط‌ها سبز (kill-switch ۱۵/۱۵، Wave E ۷/۷، canary-window ۱۲/۱۲، reconciliation ۸/۸). کاناری n=1 فقط SenderBridge جعلی. ارسال زنده ۰. توکن/چت مالک در این پروسه false. دو outbox تاریخی `tg:223883344/346` UNCERTAIN مانده. گیت بعدی: G-CANARY-OUT. [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/MEGAPROMPT-2-RESULT.json|نتیجه]]
 
 > 🐙 **پین 2026-08-21 ~19:4x (+10) — TELEGRAM-COGNITION deep debug.** HEAD پایه `c713d26`. حلقهٔ حافظه در fixture بسته شد (چرخه۱ explore → چرخه۲ hold_and_revise). HealthState بدون re-read. Sender/webhook/paid دست‌نخورده. وضعیت `IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING`. [[../_ops/cortex/plans/TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21|plan]]

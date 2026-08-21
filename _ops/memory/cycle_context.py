@@ -15,7 +15,6 @@ import hashlib
 import json
 import os
 import sys
-import time
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -29,26 +28,6 @@ if str(_OPS) not in sys.path:
 from memory_read_loop import MemoryReadLoop, ReadResult, _parse  # noqa: E402
 
 _FAIL_OUTCOMES = frozenset({"failed", "failure", "error", "fail"})
-_DEBUG_LOG = Path(r"f:\backup\debug-4ab476.log")
-
-
-def _dbg(location: str, message: str, data: dict, hypothesis_id: str, run_id: str = "post-fix") -> None:
-    # #region agent log
-    try:
-        rec = {
-            "sessionId": "4ab476",
-            "timestamp": int(time.time() * 1000),
-            "location": location,
-            "message": message,
-            "data": data,
-            "hypothesisId": hypothesis_id,
-            "runId": run_id,
-        }
-        with _DEBUG_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
-    # #endregion
 
 
 def _sha(text: str) -> str:
@@ -161,10 +140,6 @@ def build_context(store, *, goal_id: str, decision_time: datetime | str,
         ], sort_keys=True)),
         decision_time=dt.isoformat(),
     )
-    _dbg("cycle_context.py:build_context", "MemoryContext built",
-         {"context_id": ctx.context_id, "n_exp": len(ctx.experiments_read),
-          "n_fail": len(ctx.similar_failures), "n_decisions": len(ctx.owner_decisions),
-          "reads": loop.reads_this_cycle}, "H3")
     return ctx
 
 
@@ -194,9 +169,6 @@ def decide_from_context(ctx: MemoryContext) -> dict[str, Any]:
         "used_failure_ids": [x for x in failed_ids if x],
         "source_snapshot_sha": ctx.source_snapshot_sha,
     }
-    _dbg("cycle_context.py:decide_from_context", "decision from MemoryContext",
-         {"action": action, "reason": reason, "context_id": ctx.context_id,
-          "n_failed": len(failed_ids)}, "H3")
     return out
 
 
@@ -248,7 +220,4 @@ def consume_tick(memory_read: dict | None, *, goal_id: str = "organism-beat",
             json.dumps(artifact, ensure_ascii=False, indent=1), encoding="utf-8")
     except Exception:
         pass
-    _dbg("cycle_context.py:consume_tick", "tick consumed",
-         {"context_id": ctx.context_id, "action": decision.get("action"),
-          "n_rows": len(rows), "mem_status": mr.get("status")}, "H3")
     return artifact
