@@ -1,12 +1,12 @@
 {
  "schema": "security-test-summary/1",
- "code_head": "2325ffce7b8408cb0c007c6089a4b7fe1f717b5a",
- "registered": 151,
- "executed": 151,
- "passed": 151,
+ "code_head": "fa38d16cca944a80396ae1e1a16c547ab3122f78",
+ "registered": 163,
+ "executed": 163,
+ "passed": 163,
  "failed": 0,
  "skipped": 0,
  "unexecuted": 0,
- "receipt_count": 6,
+ "receipt_count": 7,
  "all_pass": true
 }

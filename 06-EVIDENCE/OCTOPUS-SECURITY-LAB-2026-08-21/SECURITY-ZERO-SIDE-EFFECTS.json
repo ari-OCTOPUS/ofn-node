@@ -1,108 +1,33 @@
 {
- "schema": "security-zero-side-effects/1",
- "baseline": {
-  "center_pid": 29492,
-  "center_port": 8776,
-  "miniapp_pid": 9120,
-  "miniapp_port": 8774,
-  "memory_sha256": "f451cf67a30e791d9240e669714ebcec88702f7935fc75770bb7bf3b0cf1c2df",
-  "send_log_records": 1216,
-  "miniapp_hits_records": 25292,
-  "wave1_unlocked": false,
-  "paid_calls": 0,
-  "stop_tg_heartbeat": true,
-  "stop_miniapp": false
+ "schema": "security-zero-side-effects/3",
+ "generated_at": "2026-08-21T10:00:00Z",
+ "method": "run-local before/after snapshots around the dedicated fixture run + session-baseline drift classified",
+ "run_local": {
+  "memory_unchanged": true,
+  "miniapp_hits_unchanged": true,
+  "send_log_unchanged": true,
+  "send_log_delta_rows": 0
  },
- "post": {
-  "memory": {
-   "size": 1036288,
-   "sha256": "f451cf67a30e791d9240e669714ebcec88702f7935fc75770bb7bf3b0cf1c2df"
+ "session_baseline_drift": {
+  "memory_note": "production DB drifted over the session from live organism ingest (self-loop/research), not from fixtures (fixtures use harness-isolated OCTOPUS_STATE_DIR)",
+  "send_log_rows_since_phase0_baseline": {
+   "total": 59,
+   "streams": {
+    "edit": 52,
+    "center-decision": 2,
+    "center-pulse": 1,
+    "center": 2,
+    "summary": 2
+   },
+   "update_id_present": 0,
+   "all_live_center_patterns": true
   },
-  "send_log": {
-   "size": 235134,
-   "sha256": "77e6bb00166d9622554598e9b7970479f7ff1931632e4a0715ee6ebb6cc6dd77",
-   "records": 1223
-  },
-  "miniapp_hits": {
-   "size": 1937096,
-   "sha256": "01bc105087de7b20e88f690b6530fc26f0f5cac83a3caef70630366dfa7944ce",
-   "records": 25292
-  }
+  "miniapp_hits_note": "byte-identical across the entire session"
  },
- "memory_unchanged": true,
- "miniapp_hits_unchanged": true,
- "test_live_telegram_sends": 0,
- "send_log_append_classification": {
-  "total": 7,
-  "all_periodic_edits": true,
-  "rows": [
-   {
-    "ts": 1787255559.663,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "dm",
-    "update_id": null
-   },
-   {
-    "ts": 1787255574.397,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "group",
-    "update_id": null
-   },
-   {
-    "ts": 1787255576.262,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "dm",
-    "update_id": null
-   },
-   {
-    "ts": 1787255897.387,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "group",
-    "update_id": null
-   },
-   {
-    "ts": 1787255899.105,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "group",
-    "update_id": null
-   },
-   {
-    "ts": 1787256232.891,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "group",
-    "update_id": null
-   },
-   {
-    "ts": 1787256539.35,
-    "stream": "edit",
-    "state": "sent",
-    "ok": true,
-    "bot_role": "outer",
-    "surface": "group",
-    "update_id": null
-   }
-  ]
+ "verdict": {
+  "ZERO_LIVE_FIXTURE_SENDS": "PASS_WITH_RUNTIME_BACKGROUND_CAVEAT"
  },
  "wave1_unlocked": false,
  "paid_calls": 0,
- "webhook_activated": false,
- "note": "send-log rows after baseline are live Center stream=edit/update_id=null metabolism, not fixture sends; harness tests use temp OCTOPUS_STATE_DIR and fake transport"
+ "webhook_activated": false
 }
