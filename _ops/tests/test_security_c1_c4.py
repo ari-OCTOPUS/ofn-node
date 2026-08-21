@@ -300,10 +300,53 @@ def t_c3_long_retry_is_offered_to_durable_scheduler_without_early_send():
                              post_fn=post, get_fn=lambda *_a, **_k: {})
     client._sleep = lambda seconds: (_ for _ in ()).throw(
         AssertionError(f"must not sleep partial prohibition: {seconds}"))
-    client._defer = lambda method, retry_after: deferred.append((method, retry_after))
+    client._defer = lambda method, retry_after, message_key=None: deferred.append(
+        (method, retry_after, message_key))
     assert client.send("fixture") is None
     assert calls == [1], "no early retry before full prohibition"
-    assert deferred == [("sendMessage", 75.0)]
+    assert deferred and deferred[0][0] == "sendMessage" and deferred[0][1] == 75.0
+    assert deferred[0][2] and len(deferred[0][2]) == 64, "message key must be deterministic"
+
+
+def t_c3_defer_wired_to_durable_queue_restart_safe():
+    import rate_limit_queue as rq
+    path = Path(ENV["ops"]) / "state" / f"c3-wired-{next(_UNIQ)}.db"
+    q = rq.RateLimitQueue(path, clock=lambda: NOW, jitter=lambda: 0.0)
+    calls = []
+
+    def post(url, body, timeout_s=10.0):
+        calls.append(1)
+        return {"ok": False, "error_code": 429,
+                "parameters": {"retry_after": 75}}
+
+    client = tg_api.TgClient(token=TOKEN, owner_chat_id=777,
+                             post_fn=post, get_fn=lambda *_a, **_k: {})
+    client._sleep = lambda seconds: (_ for _ in ()).throw(AssertionError("no sleep"))
+    client.attach_defer_queue(q)
+    assert client.send("durable fixture") is None
+    assert calls == [1]
+    row = q.get(tg_api._defer_message_key("sendMessage", {"chat_id": 777, "text": "durable fixture"}))
+    assert row is not None and row["state"] == "DEFERRED"
+    assert row["retry_not_before"] == NOW + 75.0
+    q.close()
+    # restart: same path, clock advanced only 74s -> not due; at 75s -> due
+    q2 = rq.RateLimitQueue(path, clock=lambda: NOW + 74, jitter=lambda: 0.0)
+    assert q2.due(limit=10) == []
+    q2.set_clock(lambda: NOW + 75)
+    assert [r["message_key"] for r in q2.due(limit=10)] == [row["message_key"]]
+    q2.close()
+
+
+def t_c3_non_send_methods_are_classified_no_defer():
+    """Polling and file-download 429s have no pending delivery message."""
+    client = tg_api.TgClient(token=TOKEN, owner_chat_id=777,
+                             post_fn=lambda *_a, **_k: {}, get_fn=lambda *_a, **_k: {})
+    deferred = []
+    client._defer = lambda method, retry_after, message_key=None: deferred.append(method)
+    tg_api._defer_long_retry(client, "getUpdates", 75.0, None)
+    tg_api._defer_long_retry(client, "getFileDownload", 75.0, None)
+    assert deferred == [], "non-delivery 429 must not create a deferral"
+    assert tg_api._defer_message_key("getUpdates", {}) is None
 
 
 # ── C4: durable scheduler / queue ──────────────────────────────────────────
@@ -432,6 +475,70 @@ def t_c4_local_global_policy_is_thirty_per_second():
         assert q.admit(chat_hash=f"chat-{i}")["allowed"]
     denied = q.admit(chat_hash="chat-overflow")
     assert not denied["allowed"] and "GLOBAL_30_PER_SECOND" in denied["reasons"]
+    q.close()
+
+
+def _bridge(q, send_fn, now=NOW):
+    import sender_bridge as sb
+    return sb.SenderBridge(q, send_fn, clock=lambda: float(now))
+
+
+def t_c4_sender_bridge_full_cycle_no_early_retry():
+    import rate_limit_queue as rq
+    q = _queue(now=NOW)
+    # distinct chats so local per-chat admission does not mask the cycle
+    q.enqueue(message_key="ok", chat_hash="c1", payload_hash="p1")
+    q.enqueue(message_key="slow", chat_hash="c2", payload_hash="p2")
+    q.enqueue(message_key="boom", chat_hash="c3", payload_hash="p3")
+    calls = []
+    attempts = {"slow": 0}
+
+    def send_fn(item):
+        calls.append(item["message_key"])
+        if item["message_key"] == "ok":
+            return {"ok": True, "message_id": 900}
+        if item["message_key"] == "slow":
+            attempts["slow"] += 1
+            if attempts["slow"] == 1:
+                return {"ok": False, "retry_after": 75}
+            return {"ok": True, "message_id": 901}
+        raise RuntimeError("transport crash after attempt")
+
+    bridge = _bridge(q, send_fn)
+    first = bridge.run_once()
+    assert first == {"sent": 1, "deferred": 1, "dlq": 1, "rate_blocked": 0, "due": 3}, first
+    assert q.get("ok")["state"] == "CONFIRMED"
+    assert q.get("slow")["state"] == "DEFERRED" and q.get("slow")["retry_not_before"] == NOW + 75
+    assert q.get("boom")["state"] == "DLQ" and q.get("boom")["last_error"] == "UNCERTAIN_SEND_OUTCOME"
+    # no early retry
+    assert bridge.run_once()["due"] == 0
+    # after full prohibition the slow item is due and succeeds
+    q.set_clock(lambda: NOW + 75)
+    second = bridge.run_once()
+    assert second["sent"] == 1 and q.get("slow")["state"] == "CONFIRMED"
+    assert calls == ["ok", "slow", "boom", "slow"]
+    q.close()
+
+
+def t_c4_sender_bridge_respects_local_rate_admission():
+    q = _queue(now=NOW)
+    q.enqueue(message_key="a", chat_hash="chat-x", payload_hash="p1")
+    q.enqueue(message_key="b", chat_hash="chat-x", payload_hash="p2")
+    calls = []
+
+    def send_fn(item):
+        calls.append(item["message_key"])
+        return {"ok": True, "message_id": 1}
+
+    bridge = _bridge(q, send_fn)
+    first = bridge.run_once()
+    # per-chat 1/s: only "a" is sent; "b" is rate-blocked and deferred +1s
+    assert first["sent"] == 1 and first["rate_blocked"] == 1, first
+    assert q.get("b")["state"] == "DEFERRED" and q.get("b")["retry_not_before"] == NOW + 1
+    assert calls == ["a"]
+    q.set_clock(lambda: NOW + 1)
+    second = bridge.run_once()
+    assert second["sent"] == 1 and q.get("b")["state"] == "CONFIRMED"
     q.close()
 
 

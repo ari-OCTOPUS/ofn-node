@@ -158,6 +158,20 @@ class RateLimitQueue:
                 (retry_not_before, message_key)).rowcount
         return updated == 1
 
+    def defer_or_enqueue(self, *, message_key: str, chat_hash: str,
+                         payload_hash: str, retry_after: float,
+                         priority: int = 0) -> dict:
+        """Ensure a durable row exists, then defer it for the full prohibition."""
+        row = self.get(message_key)
+        if row is None:
+            created = self.enqueue(message_key=message_key, chat_hash=chat_hash,
+                                   payload_hash=payload_hash, priority=priority)
+            if created.get("state") == "REJECTED_QUEUE_FULL":
+                return created
+        ok = self.defer(message_key, retry_after=retry_after)
+        return {"message_key": message_key, "deferred": ok,
+                "retry_not_before": float(self._clock()) + float(retry_after)}
+
     def mark_delivery_attempt(self, message_key: str) -> bool:
         with _LOCK:
             updated = self._conn.execute(

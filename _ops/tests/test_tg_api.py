@@ -451,11 +451,13 @@ def t_y2_long_retry_after_is_not_capped_or_retried_early():
                  post_fn=post, get_fn=FakeNet().get)
     c._sleep = slept.append
     deferred = []
-    c._defer = lambda method, retry_after: deferred.append((method, retry_after))
+    c._defer = lambda method, retry_after, message_key=None: deferred.append(
+        (method, retry_after, message_key))
     assert c.send("x") is None
     assert slept == [], f"long prohibition must not be partially slept: {slept}"
     assert state["calls"] == 1, "sender must not retry before the full retry_after"
-    assert deferred == [("sendMessage", 3600.0)]
+    assert deferred and deferred[0][:2] == ("sendMessage", 3600.0)
+    assert deferred[0][2] and len(deferred[0][2]) == 64
 
 
 def t_y3_429_then_second_429_is_failsoft_no_storm():

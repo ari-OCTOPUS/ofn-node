@@ -22,6 +22,7 @@ secret-guard (I9): token فقط در URL است و URL هرگز لاگ/alert ن�
 """
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import os
@@ -195,14 +196,34 @@ def _sync_retry_delay(retry_after: float | None) -> float | None:
     return retry_after
 
 
-def _defer_long_retry(client, method: str, retry_after: float | None) -> None:
-    """Offer a long prohibition to an injected durable scheduler, fail-soft."""
+def _defer_long_retry(client, method: str, retry_after: float | None,
+                      message_key: str | None = None) -> None:
+    """Offer a long prohibition to an injected durable scheduler, fail-soft.
+
+    Only delivery calls (sendMessage) carry a durable message key; polling and
+    file-download 429s have no pending message to resend and are classified as
+    fail-soft/no-defer.
+    """
     if retry_after is None or retry_after <= _429_MAX_SYNC_SLEEP_S:
         return
+    if method != "sendMessage":
+        return
     try:
-        client._defer(str(method), float(retry_after))
+        client._defer(str(method), float(retry_after), message_key=message_key)
     except Exception:  # noqa: BLE001 — deferral instrumentation never breaks caller
         pass
+
+
+def _defer_message_key(method: str, body: dict) -> str | None:
+    """Deterministic key for a delivery call; None for non-delivery methods."""
+    if method != "sendMessage":
+        return None
+    cid = (body or {}).get("chat_id")
+    text = (body or {}).get("text")
+    if cid is None or not text:
+        return None
+    blob = "\x1f".join((str(method), str(cid), str(text)))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
@@ -341,8 +362,28 @@ class TgClient:
         # تست هرگز شبکه نمی‌زند؛ همین امضا در تست جعل می‌شود.
         self._download = download_fn or _url_bytes_get
         self._sleep = time.sleep                   # تزریقی برایِ تستِ ۴۲۹ بدونِ انتظارِ واقعی
-        self._defer = lambda method, retry_after: None  # default-off durable scheduler hook
+        self._defer = self._default_defer          # key-aware durable scheduler hook
+        self._defer_queue = None                   # attach_defer_queue مسلحش میکند (default-off)
         self._last_alert: dict[str, float] = {}   # ضدِ اسپم: هشدارِ شکست ۱/ساعت/متد
+
+    def _default_defer(self, method, retry_after, message_key=None):
+        """Default no-op unless a durable queue is attached via attach_defer_queue."""
+        if self._defer_queue is not None and message_key:
+            try:
+                return self._defer_queue.defer_or_enqueue(
+                    message_key=message_key,
+                    chat_hash=hashlib.sha256(("defer:" + str(method)).encode("utf-8")).hexdigest(),
+                    payload_hash=hashlib.sha256(
+                        (str(method) + ":" + str(retry_after)).encode("utf-8")).hexdigest(),
+                    retry_after=float(retry_after))
+            except Exception:  # noqa: BLE001 — deferral never breaks caller
+                return None
+        return None
+
+    def attach_defer_queue(self, queue) -> None:
+        """Default-off durable scheduler adapter. The live Center does not call
+        this; an owner-approved canary wiring would do so explicitly."""
+        self._defer_queue = queue
 
     # ── وضعیت ────────────────────────────────────────────────────────────────
     def wired(self) -> bool:
@@ -444,7 +485,7 @@ class TgClient:
                     continue
                 # long prohibition (or none): do not retry early — fail-soft so
                 # the durable scheduler owns retry_not_before.
-                _defer_long_retry(self, method, ra)
+                _defer_long_retry(self, method, ra, _defer_message_key(method, body))
                 self._note_fail(method, e, desc)
                 return None
             if not isinstance(data, dict):
@@ -460,7 +501,7 @@ class TgClient:
                 except Exception:  # noqa: BLE001
                     pass
                 continue
-            _defer_long_retry(self, method, ra)
+            _defer_long_retry(self, method, ra, _defer_message_key(method, body))
             return None
         return None
 
