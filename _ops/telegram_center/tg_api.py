@@ -31,6 +31,16 @@ import time
 import urllib.parse
 import urllib.request
 
+try:
+    import bounded_io  # noqa: F401 — sibling module (same package dir)
+except ImportError:
+    import sys as _sys
+    from pathlib import Path as _P
+    _tc_dir = str(_P(__file__).resolve().parent)
+    if _tc_dir not in _sys.path:
+        _sys.path.insert(0, _tc_dir)
+    import bounded_io  # noqa: F401
+
 TELEGRAM_API_BASE = "https://api.telegram.org"   # تنها میزبانِ مجازِ این ماژول
 DEFAULT_LONGPOLL_S = 25                          # $0-idle: getUpdates روی سرور بلوکه می‌ماند
 _ALERT_THROTTLE_S = 3600                         # هشدارِ شکست: حداکثر ۱/ساعت به‌ازای هر متد
@@ -321,10 +331,13 @@ def _record_poll(ok: bool, reason: str = "") -> dict:
     now = time.time()
     state = {"last_ok_ts": 0.0, "consecutive_failures": 0, "last_reason": ""}
     try:
+        import bounded_io as _bio  # noqa: WPS433
         if path.exists():
-            loaded = json.loads(path.read_text("utf-8"))
-            if isinstance(loaded, dict):
-                state.update(loaded)
+            text = _bio.read_text(path)
+            if text is not None:
+                loaded = json.loads(text)
+                if isinstance(loaded, dict):
+                    state.update(loaded)
     except (OSError, ValueError):
         pass
     if ok:
@@ -336,10 +349,11 @@ def _record_poll(ok: bool, reason: str = "") -> dict:
         state["last_reason"] = str(reason or "unknown")[:80]
     state["last_round_ts"] = now
     try:
-        path.parent.mkdir(parents=True, exist_ok=True)
+        import bounded_io as _bio  # noqa: WPS433
         tmp = path.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(state, ensure_ascii=False), "utf-8")
-        os.replace(tmp, path)
+        payload = json.dumps(state, ensure_ascii=False)
+        if _bio.write_text(tmp, payload):
+            os.replace(tmp, path)
     except OSError:
         pass
     return state

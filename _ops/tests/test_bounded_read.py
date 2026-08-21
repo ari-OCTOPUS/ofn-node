@@ -160,6 +160,46 @@ def t_g_stalled_transport_fails_soft_on_get_and_post():
         tg.urllib.request.urlopen = real_open
 
 
+def t_h_bounded_write_stall_returns_false_quickly():
+    import bounded_io as bio
+    root = Path(ENV["ops"]) / "state"
+    target = root / "hot.json"
+    real_write = Path.write_text
+
+    def stalled(self, *a, **k):
+        time.sleep(30)
+        return real_write(self, *a, **k)
+
+    Path.write_text = stalled
+    try:
+        start = time.time()
+        ok = bio.write_text(target, "{}", timeout_s=1.5)
+        elapsed = time.time() - start
+        assert ok is False
+        assert elapsed < 6.0, f"bounded write must not block: {elapsed:.1f}s"
+    finally:
+        Path.write_text = real_write
+
+
+def t_i_record_poll_survives_stalled_write():
+    import telegram_center.tg_api as tg
+    root = Path(ENV["ops"]) / "state"
+    real_write = Path.write_text
+
+    def stalled(self, *a, **k):
+        time.sleep(30)
+        return real_write(self, *a, **k)
+
+    Path.write_text = stalled
+    try:
+        start = time.time()
+        state = tg._record_poll(True, "")
+        elapsed = time.time() - start
+        assert state.get("consecutive_failures") == 0
+        assert elapsed < 6.0, f"poll health write must not block: {elapsed:.1f}s"
+    finally:
+        Path.write_text = real_write
+
 if __name__ == "__main__":
     checks = [(name, fn) for name, fn in sorted(globals().items()) if name.startswith("t_")]
     failed = harness.run(checks)

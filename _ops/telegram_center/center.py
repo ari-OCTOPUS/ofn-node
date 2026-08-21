@@ -284,10 +284,15 @@ def _save_config(cfg: dict) -> bool:
     last = None
     for attempt in range(4):
         try:
-            with open(tmp, "w", encoding="utf-8") as fh:
-                fh.write(payload)
-                fh.flush()
-                os.fsync(fh.fileno())      # دوامِ واقعی، نه صرفاً بافرِ OS
+            import bounded_io as _bio  # noqa: WPS433
+            wrote = _bio.write_text(tmp, payload)
+            if not wrote:
+                raise OSError("config tmp write stalled (AV lock)")
+            try:
+                with open(tmp, "rb") as _fh:
+                    os.fsync(_fh.fileno())      # دوامِ واقعی، نه صرفاً بافرِ OS
+            except OSError:
+                pass
             os.replace(tmp, p)
             _config_cache_update(cfg)
             return True
