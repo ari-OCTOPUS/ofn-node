@@ -524,6 +524,11 @@ def main() -> int:
         except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
             pass
         try:
+            import orphan_watchdog as _ow_obs  # noqa: WPS433
+            _ow_obs.tick(observe_only=True)
+        except Exception:  # noqa: BLE001 — observe-only, never kill the beat
+            pass
+        try:
             # P2 (structural, 2026-07-20 Stage-1): سیگنالِ restartِ کاکپیت = RESTART-REQUESTED
             # (نه overwriteِ STOP-ORGANISM). organism روی آن هم clean-exit می‌کند؛ launcher
             # فقط همین marker را پاک و relaunch می‌کند و هرگز STOP-ORGANISMِ مالک را حذف
@@ -595,8 +600,18 @@ def main() -> int:
                 if str(os.environ.get("OCTOPUS_WIRE_MEMORY_READ", "1")).strip().lower() \
                         in ("1", "true", "yes", "on"):
                     import memory_read_loop as _mrl  # noqa: WPS433 — lazy، _ops روی path
+                    if str(_HERE) not in sys.path:
+                        sys.path.insert(0, str(_HERE))
                     pulse["memory_read"] = _mrl.tick_from_spine(
                         beat=int(((_cstat or {}).get("beat") or 0)))
+                    try:
+                        from memory.cycle_context import consume_tick as _mctx  # noqa: WPS433
+                        pulse["memory_context"] = _mctx(
+                            pulse.get("memory_read") or {},
+                            goal_id=f"beat-{int(((_cstat or {}).get('beat') or 0))}")
+                    except Exception as _mce:  # noqa: BLE001
+                        pulse["memory_context"] = {
+                            "consumed": False, "error": type(_mce).__name__}
             except Exception as _mre:  # noqa: BLE001 — قرارداد DEGRADED نه crash
                 pulse["memory_read"] = {"status": "MEMORY_READ_DEGRADED",
                                         "error": type(_mre).__name__, "executable": False}

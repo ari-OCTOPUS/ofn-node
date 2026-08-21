@@ -406,6 +406,28 @@ def gather_signals() -> dict:
             math_control = _mcs.beat(write=True) or {}
     except Exception:  # noqa: BLE001
         math_control = {}
+    # 2026-08-20 — S-A03: calibration-latest was DEAD-OUTPUT for improve.
+    # Read-only, propose-only. Missing/corrupt file → {}.
+    calibration = {}
+    try:
+        cal = _read(STATE / "cortex" / "calibration-latest.json") or {}
+        if isinstance(cal, dict) and (
+                cal.get("n") is not None or cal.get("brier") is not None):
+            calibration = {
+                "n": cal.get("n"), "brier": cal.get("brier"),
+                "aurc": cal.get("aurc"), "ungraded": cal.get("ungraded"),
+                "n_claims": cal.get("n_claims"), "ts": cal.get("ts"),
+            }
+    except Exception:  # noqa: BLE001
+        calibration = {}
+    # 2026-08-21 W8 — MemoryContext (typed). Propose-only; never auto-apply.
+    memory_context = {}
+    try:
+        mc = _read(STATE / "pulse" / "memory-context-latest.json") or {}
+        if isinstance(mc, dict) and (mc.get("decision") or mc.get("context")):
+            memory_context = mc
+    except Exception:  # noqa: BLE001
+        memory_context = {}
     return {"matrix": matrix, "idea": idea, "cortex": cortex,
             "research": research, "synthesis": synthesis,
             "self_model": self_model, "part_loops": part_loops,
@@ -414,7 +436,9 @@ def gather_signals() -> dict:
             "research_memory": research_memory,
             "self_loop_memory": self_loop_memory,
             "consolidation_recall": consolidation_recall,
-            "math_control": math_control}
+            "math_control": math_control,
+            "calibration": calibration,
+            "memory_context": memory_context}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -474,6 +498,37 @@ def generate_proposals(signals: dict) -> list[dict]:
             "evidence": "doctor/self-knowledge-latest.json::deep_dive.smallest_fix",
             "suggested_action": sf[:180], "change_level": "reconfig",
             "auto_applicable": False, "status": "proposed",
+        })
+    # ۲.۶b) 2026-08-20 S-A03 — calibration-latest → propose-only (never auto).
+    cal = signals.get("calibration") or {}
+    if cal.get("brier") is not None or cal.get("n") is not None:
+        brier = cal.get("brier")
+        n_cal = cal.get("n")
+        ungraded = cal.get("ungraded")
+        out.append({
+            "id": _pid("calibration:latest"), "source": "calibration",
+            "category": "ops", "priority": "P1", "_rank": 0.9,
+            "title": f"کالیبراسیون: n={n_cal} brier={brier} ungraded={ungraded}",
+            "rationale": "Brier/n/ungraded از calibration-latest — تا امروز به improve نمی‌رسید.",
+            "evidence": "cortex/calibration-latest.json",
+            "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
+            "change_level": "tune", "auto_applicable": False, "status": "proposed",
+            "calibration": cal,
+        })
+    # ۲.۶c) 2026-08-21 W8 — MemoryContext decision → propose-only (never auto).
+    mctx = signals.get("memory_context") or {}
+    dec = mctx.get("decision") if isinstance(mctx, dict) else None
+    if isinstance(dec, dict) and dec.get("context_id") and dec.get("action") == "hold_and_revise":
+        out.append({
+            "id": _pid("memoryctx:" + str(dec.get("context_id"))),
+            "source": "memory_context", "category": "ops", "priority": "P1",
+            "_rank": 0.85,
+            "title": f"حافظه: hold_and_revise ({dec.get('reason')})",
+            "rationale": "چرخهٔ بعد باید شکستِ ثبت‌شده را بخواند، نه فقط تلمتری.",
+            "evidence": f"context_id={dec.get('context_id')}",
+            "suggested_action": "بازبینی آزمایش شکست‌خورده قبل از تکرار.",
+            "change_level": "tune", "auto_applicable": False, "status": "proposed",
+            "memory_context_id": dec.get("context_id"),
         })
     # ۲.۵) از سنتزِ مغز (فراشناختی جلسه ۴۶): پروپوزال‌های fugu/glm/local — همیشه propose-only
     for sp in (signals.get("synthesis") or {}).get("proposals", [])[:3]:

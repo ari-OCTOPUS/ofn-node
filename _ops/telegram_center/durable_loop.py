@@ -471,4 +471,9 @@ def commit_result(result: object) -> dict:
         _atomic(_event_path(context.event_id).with_suffix(".json"), row)
     if state == "RESPONSE_CONFIRMED" and bool(row.get("readback_verified")):
         row = transition(context.event_id, "CLOSED")
+    try:
+        import health_metrics as _hm_disp  # noqa: WPS433
+        _hm_disp.record_dispatch()
+    except Exception:
+        pass
     return row

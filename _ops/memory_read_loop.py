@@ -170,9 +170,9 @@ def tick_from_spine(beat: int | None = None, *, spine_rows=None) -> dict:
         now_dt = datetime.now(timezone.utc)
         loop = MemoryReadLoop(SpineReadStore(spine_rows),
                               agent_id="organism", session_id=f"beat-{beat}")
-        loop.query_experiments(now_dt)
-        loop.get_pending_hypotheses(now_dt)
-        loop.search_vault("spine", now_dt)
+        _ex = loop.query_experiments(now_dt)
+        _hy = loop.get_pending_hypotheses(now_dt)
+        _sv = loop.search_vault("spine", now_dt)
         state_path = _PULSE_DIR / "memory-read-last.json"
         prev = {}
         try:
@@ -189,7 +189,25 @@ def tick_from_spine(beat: int | None = None, *, spine_rows=None) -> dict:
             rb = "read_ok" if (match and MemoryReadLoop._eligible(match, now_dt)) else "read_miss"
         out.update({"status": "OK", "memory_reads_per_cycle": loop.reads_this_cycle,
                     "readback": rb, "last_id_seen": last_id, "newest_id": newest,
-                    "n_rows": len(spine_rows)})
+                    "n_rows": len(spine_rows),
+                    "experiment_ids": list(_ex.ids)[:32],
+                    "hypothesis_ids": list(_hy.ids)[:32],
+                    "vault_ids": list(_sv.ids)[:32]})
+        # #region agent log
+        try:
+            import json as _dj, time as _dt
+            _p = __import__("pathlib").Path(r"f:\backup\debug-4ab476.log")
+            _p.open("a", encoding="utf-8").write(_dj.dumps({
+                "sessionId": "4ab476", "timestamp": int(_dt.time() * 1000),
+                "location": "memory_read_loop.py:tick_from_spine",
+                "message": "memory read tick ids emitted",
+                "hypothesisId": "H3", "runId": "post-fix",
+                "data": {"beat": beat, "n_exp": len(_ex.ids), "n_hyp": len(_hy.ids),
+                         "newest_id": newest, "readback": rb},
+            }) + "\n")
+        except Exception:
+            pass
+        # #endregion
         try:
             import json as _json
             _PULSE_DIR.mkdir(parents=True, exist_ok=True)

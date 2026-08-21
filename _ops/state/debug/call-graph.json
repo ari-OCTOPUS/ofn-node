@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.debug.call-graph/1",
+  "baseline_head": "c713d26c9460e184347c82d13b0f96cb809975dd",
+  "edges": [
+    {"from": "watchdog.ps1", "to": "center.py", "kind": "supervise-kill-relaunch"},
+    {"from": "center.run_once", "to": "tg_api.poll_updates", "kind": "inbound"},
+    {"from": "tg_api.poll_updates", "to": "poll_lease.assert", "kind": "gate"},
+    {"from": "tg_api.poll_updates", "to": "transport_pool.call", "kind": "io"},
+    {"from": "tg_api.poll_updates", "to": "health_metrics.record_poll", "kind": "observe"},
+    {"from": "center.handle_update", "to": "durable_loop.start_dispatch", "kind": "intent"},
+    {"from": "center.handle_update", "to": "durable_loop.commit_result", "kind": "receipt"},
+    {"from": "durable_loop.commit_result", "to": "health_metrics.record_dispatch", "kind": "observe"},
+    {"from": "center", "to": "ask_brain / ask_vault", "kind": "interpret"},
+    {"from": "center", "to": "sender_bridge", "kind": "NOT_WIRED_DEFAULT_OFF"},
+    {"from": "miniapp_gateway", "to": "miniapp_decision_ledger", "kind": "authorize"},
+    {"from": "organism.main", "to": "memory_read_loop.tick_from_spine", "kind": "observe"},
+    {"from": "organism.main", "to": "memory.cycle_context.consume_tick", "kind": "interpret-decide"},
+    {"from": "improve.gather_signals", "to": "pulse/memory-context-latest.json", "kind": "retrieve"},
+    {"from": "improve.generate_proposals", "to": "owner card", "kind": "propose-only"},
+    {"from": "memory_read_loop", "to": "improve/planner", "kind": "WAS_DEAD_OUTPUT"}
+  ]
+}
