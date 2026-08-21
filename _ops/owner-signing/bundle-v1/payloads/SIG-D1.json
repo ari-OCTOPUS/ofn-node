@@ -1,0 +1,38 @@
+{
+  "exclusions": {
+    "live_telegram": "0",
+    "paid_calls": "0 until valid FX pin (R12)"
+  },
+  "execution_blocked_until": [
+    "D6 closed (BETWEEN_RUN_VARIANCE / cross-instrument VOID)",
+    "K=9 three-seed run on the canonical instrument",
+    "owner approval of this bundle"
+  ],
+  "payload_file": "02-DECISIONS/PRE-REG-ABLATION-FOUR-ARM-2026-08-20.md",
+  "payload_sha256": "609061f8884103a054a52d791519fb7d7a8a0a8903898b7bed8befa65caf9f64",
+  "phase": "MEGA-DISCOVERY-GATE-0 D1",
+  "purpose": "Owner approval of the exact D1 (ablation four-arm) payload and scope",
+  "scope": {
+    "arms": [
+      "M+",
+      "M-",
+      "P",
+      "B"
+    ],
+    "learning_gate": "20/30 overall (not per-arm)",
+    "metrics_frozen": [
+      "Brier delta on frozen Live-4 class: delta = Brier(arm) - Brier(baseline); T1 target delta < 0 for M+ vs B",
+      "per-arm hit/miss/void rates (void never silently dropped from valid denominator)",
+      "T6 causality: M- memory removal must change selection vs M+ repeatably"
+    ],
+    "thresholds_frozen": [
+      "30 valid pairs",
+      "20 wins",
+      "Brier delta < 0",
+      "provenance >= 0.9"
+    ],
+    "valid_pairs_target_per_arm": 30
+  },
+  "sig_id": "SIG-D1",
+  "supersedes": "none - new experiment; results from pre-canonical-instrument runs are VOID"
+}

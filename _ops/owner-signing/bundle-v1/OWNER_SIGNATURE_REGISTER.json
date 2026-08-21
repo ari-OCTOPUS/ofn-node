@@ -1,0 +1,58 @@
+{
+  "discovered_and_classified": [
+    {
+      "class": "DUPLICATE - already signed and verified; linked into SIG-B1 superseded",
+      "found_via": "B1",
+      "record": "02-DECISIONS/B1-SIGNING-PAYLOAD-2026-08-20.json (+ .sig)"
+    },
+    {
+      "class": "OWNER_SIGNABLE (SIG-K9)",
+      "found_via": "AWAITING_OWNER_SIGNATURE / K=9 prereg",
+      "record": "02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20.json"
+    },
+    {
+      "class": "OWNER_SIGNABLE (SIG-D1)",
+      "found_via": "AWAITING_OWNER_SIGNATURE / D1",
+      "record": "02-DECISIONS/PRE-REG-ABLATION-FOUR-ARM-2026-08-20.md"
+    },
+    {
+      "class": "OWNER_SIGNABLE (SIG-VS)",
+      "found_via": "AWAITING_OWNER_SIGNATURE",
+      "record": "02-DECISIONS/OWNER-VERDICT-SHADOW-VERTICAL-SLICE-2026-08-20.json"
+    },
+    {
+      "class": "OWNER_SIGNABLE as evidence scope of SIG-D1/SIG-D7",
+      "found_via": "D1 / D7",
+      "record": "06-EVIDENCE/GATE-0-DISCOVERY-2026-08-20.md (D1..D10 table)"
+    },
+    {
+      "class": "OWNER_SIGNABLE as evidence of SIG-D7",
+      "found_via": "D6",
+      "record": "06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20.md"
+    },
+    {
+      "class": "OWNER_SIGNABLE as evidence of SIG-D7",
+      "found_via": "D8",
+      "record": "06-EVIDENCE/D8-PAIN-TRIAGE-CANARY-2026-08-20.md"
+    }
+  ],
+  "generated": "2026-08-21",
+  "never_owner_signed": [
+    "SIG-IV (independent verifier only)"
+  ],
+  "observed_not_signature_items": [
+    {
+      "item": "OWNER-DECISION-QUEUE Q1-Q8",
+      "reason": "owner decisions (TCB/vote), not signature records; remain open"
+    },
+    {
+      "item": "_octopus/queue/pending (20 files)",
+      "reason": "approval-queue decisions, not owner signatures; remain open"
+    },
+    {
+      "item": "00 - Inbox/AGENT_QUESTIONS.md",
+      "reason": "owner inbox questions; signature-relevant ones (OD-002, ablation unsigned) mapped into SIG-B1/SIG-D1"
+    }
+  ],
+  "schema": "owner-signature-register/1"
+}

@@ -1,0 +1,24 @@
+{
+  "effective_date": "2026-08-20",
+  "owner_identity": {
+    "display_name": "OWNER (ari-vault)",
+    "owner_id": "OWNER"
+  },
+  "owner_key": {
+    "algorithm": "Ed25519 (pure, openssl pkeyutl -rawin)",
+    "private_key_never_in_repo": true,
+    "public_key_fingerprint": "2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2",
+    "public_key_location": "_ops/owner-signing/octopus-owner-ed25519-public.pem"
+  },
+  "project": "OCTOPUS",
+  "purpose": "Bind the declared owner identity to the supplied public-key fingerprint",
+  "revocation_procedure": "TRUST-ANCHOR.md + _ops/owner-runbook/BACKUP-KEY-VERIFY-RUNBOOK.md (fail-closed on any fingerprint mismatch)",
+  "sig_id": "SIG-B1",
+  "superseded": [
+    {
+      "record": "02-DECISIONS/B1-SIGNING-PAYLOAD-2026-08-20.json",
+      "sha256": "e11f45e9a0913c066de99f0a25ee1b7aa1621c2a7929b817f48be4d5d9c72290",
+      "status": "ALREADY_SIGNED_AND_VERIFIED (openssl, 2026-08-20)"
+    }
+  ]
+}
