@@ -6048,7 +6048,13 @@ class Center:
             _sp.start()
         except Exception:  # noqa: BLE001 — دیده‌بان هرگز مرکز را نمی‌کشد
             pass
-        last_beat = 0.0
+        # Boot must not fire beat() immediately: last_beat=0 made
+        # (now - 0) >= 300 true on the first unix timestamp, which
+        # editMessageText'd the pinned status (observed +3 send-log
+        # rows on the 2026-08-21T1915Z controlled restart). Wait a
+        # full beat_every_s after start; digest cadence is 24h so a
+        # 5-minute delay is not a missed digest.
+        last_beat = float(self._clock())
         while not self.stopped():
             self.run_once()
             now = float(self._clock())

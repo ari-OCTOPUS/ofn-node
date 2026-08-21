@@ -33,6 +33,7 @@ def _fake_config(root: Path, payload: dict) -> Path:
 
 
 def t_a_bounded_read_returns_content_fast():
+    _drain_pool()
     root = Path(ENV["ops"]) / "state"
     p = _fake_config(root, {"last_offset": 42})
     text = center._bounded_read_text(p, timeout_s=3.0)
@@ -40,12 +41,13 @@ def t_a_bounded_read_returns_content_fast():
 
 
 def t_b_bounded_read_stall_returns_none_without_blocking():
+    _drain_pool()
     root = Path(ENV["ops"]) / "state"
     p = _fake_config(root, {"x": 1})
     real_read = Path.read_text
 
     def stalled(self, *a, **k):
-        time.sleep(30)  # simulate an antivirus byte-range lock
+        time.sleep(10.0)  # simulate an antivirus byte-range lock
         return real_read(self, *a, **k)
 
     Path.read_text = stalled
@@ -60,66 +62,67 @@ def t_b_bounded_read_stall_returns_none_without_blocking():
 
 
 def t_c_load_config_serves_cache_when_read_stalls():
+    _drain_pool()
     root = Path(ENV["ops"]) / "state"
     p = _fake_config(root, {"last_offset": 7})
-    center._CONFIG_CACHE, center._CONFIG_CACHE_KEY = {}, None
-    cfg = center._load_config()
-    assert cfg.get("last_offset") == 7
+    center._CONFIG_MANAGER = None
+    assert center._load_config().get("last_offset") == 7
+    p.write_text(json.dumps({"last_offset": 8}), encoding="utf-8")
     real_read = Path.read_text
 
     def stalled(self, *a, **k):
-        time.sleep(30)
+        time.sleep(10.0)
         return real_read(self, *a, **k)
 
     Path.read_text = stalled
     try:
         start = time.time()
-        cfg2 = center._load_config()
+        cfg = center._load_config()
         elapsed = time.time() - start
-        # unchanged (mtime,size) -> served from cache without any read
-        assert cfg2.get("last_offset") == 7
-        assert elapsed < 5.0
+        assert cfg.get("last_offset") == 7, "stale last-known-good must be served"
+        assert elapsed < 8.0
     finally:
         Path.read_text = real_read
-
+        _drain_pool()
 
 def t_d_save_config_updates_the_read_cache():
+    _drain_pool()
     root = Path(ENV["ops"]) / "state"
     p = _fake_config(root, {"last_offset": 1})
-    center._CONFIG_CACHE, center._CONFIG_CACHE_KEY = {}, None
+    center._CONFIG_MANAGER = None
     assert center._load_config().get("last_offset") == 1
-    center._save_config({"last_offset": 2})
-    # cache updated write-through even before any re-read
-    assert center._CONFIG_CACHE.get("last_offset") == 2
-
+    assert center._save_config({"last_offset": 2})
+    assert center._load_config().get("last_offset") == 2, "write-through must refresh snapshot"
 
 def t_e_stale_cache_on_unknown_stall_is_served_not_empty():
+    _drain_pool()
     root = Path(ENV["ops"]) / "state"
     p = _fake_config(root, {"last_offset": 9})
-    center._CONFIG_CACHE, center._CONFIG_CACHE_KEY = {}, None
+    center._CONFIG_MANAGER = None
     assert center._load_config().get("last_offset") == 9
     p.write_text(json.dumps({"last_offset": 10}), encoding="utf-8")
     real_read = Path.read_text
 
     def stalled(self, *a, **k):
-        time.sleep(30)
+        time.sleep(10.0)
         return real_read(self, *a, **k)
 
     Path.read_text = stalled
     try:
-        cfg = center._load_config()  # mtime/size changed -> would read; stalls
-        assert cfg.get("last_offset") == 9, "stale cache beats frozen loop"
+        cfg = center._load_config()
+        assert cfg.get("last_offset") == 9, "stale last-known-good beats frozen loop"
     finally:
         Path.read_text = real_read
-
+        _drain_pool()
 
 def t_f_bounded_http_stall_returns_none_without_blocking():
+    _drain_pool()
     import telegram_center.tg_api as tg
     real_open = tg.urllib.request.urlopen
 
     def stalled(*a, **k):
-        time.sleep(30)  # simulate a DNS getaddrinfo block
-        return real_open(*a, **k)
+        time.sleep(10.0)  # simulate a DNS getaddrinfo block
+        raise TimeoutError("fixture DNS stall")
 
     tg.urllib.request.urlopen = stalled
     try:
@@ -133,12 +136,13 @@ def t_f_bounded_http_stall_returns_none_without_blocking():
 
 
 def t_g_stalled_transport_fails_soft_on_get_and_post():
+    _drain_pool()
     import telegram_center.tg_api as tg
     real_open = tg.urllib.request.urlopen
 
     def stalled(*a, **k):
-        time.sleep(30)
-        return real_open(*a, **k)
+        time.sleep(10.0)
+        raise TimeoutError("fixture DNS stall")
 
     tg.urllib.request.urlopen = stalled
     try:
@@ -161,13 +165,14 @@ def t_g_stalled_transport_fails_soft_on_get_and_post():
 
 
 def t_h_bounded_write_stall_returns_false_quickly():
+    _drain_pool()
     import bounded_io as bio
     root = Path(ENV["ops"]) / "state"
     target = root / "hot.json"
     real_write = Path.write_text
 
     def stalled(self, *a, **k):
-        time.sleep(30)
+        time.sleep(10.0)
         return real_write(self, *a, **k)
 
     Path.write_text = stalled
@@ -182,12 +187,13 @@ def t_h_bounded_write_stall_returns_false_quickly():
 
 
 def t_i_record_poll_survives_stalled_write():
+    _drain_pool()
     import telegram_center.tg_api as tg
     root = Path(ENV["ops"]) / "state"
     real_write = Path.write_text
 
     def stalled(self, *a, **k):
-        time.sleep(30)
+        time.sleep(10.0)
         return real_write(self, *a, **k)
 
     Path.write_text = stalled
@@ -199,6 +205,69 @@ def t_i_record_poll_survives_stalled_write():
         assert elapsed < 6.0, f"poll health write must not block: {elapsed:.1f}s"
     finally:
         Path.write_text = real_write
+
+def t_j_100_consecutive_dns_stalls_keep_workers_bounded():
+    _drain_pool()
+    import bounded_io as bio
+    import telegram_center.tg_api as tg
+    real_open = tg.urllib.request.urlopen
+
+    def stalled(*a, **k):
+        time.sleep(10.0)
+        raise TimeoutError("fixture DNS stall")
+
+    tg.urllib.request.urlopen = stalled
+    try:
+        for _ in range(100):
+            start = time.time()
+            blob = tg._bounded_http("https://api.telegram.org/x", timeout_s=0.5)
+            assert blob is None
+            assert time.time() - start < 6.0, "deadline exceeded"
+        assert bio.active_worker_count() <= 4, bio.active_worker_count()
+    finally:
+        tg.urllib.request.urlopen = real_open
+
+
+def t_k_100_consecutive_config_stalls_keep_cache_and_workers_bounded():
+    import bounded_io as bio
+    _drain_pool()
+    root = Path(ENV["ops"]) / "state"
+    pfile = _fake_config(root, {"last_offset": 1})
+    center._CONFIG_MANAGER = None
+    assert center._load_config().get("last_offset") == 1
+    real_read = Path.read_text
+
+    def stalled(self, *a, **k):
+        time.sleep(10.0)
+        return real_read(self, *a, **k)
+
+    Path.read_text = stalled
+    try:
+        for i in range(100):
+            pfile.write_text(json.dumps({"last_offset": i + 2}), encoding="utf-8")
+            cfg = center._load_config()
+            assert cfg.get("last_offset") == 1, "last-known-good must survive"
+        assert bio.active_worker_count() <= 4
+    finally:
+        Path.read_text = real_read
+        _drain_pool()
+
+def t_l_malformed_config_never_replaces_last_known_good():
+    _drain_pool()
+    root = Path(ENV["ops"]) / "state"
+    pfile = _fake_config(root, {"last_offset": 5})
+    center._CONFIG_MANAGER = None
+    assert center._load_config().get("last_offset") == 5
+    pfile.write_text("{not-json", encoding="utf-8")
+    cfg = center._load_config()
+    assert cfg.get("last_offset") == 5, "malformed must not replace last-known-good"
+
+def _drain_pool(max_wait=14.0):
+    """Wait for the bounded worker pool to empty (order-independent tests)."""
+    import bounded_io as _bio
+    deadline = time.time() + max_wait
+    while time.time() < deadline and _bio.active_worker_count() > 0:
+        time.sleep(0.1)
 
 if __name__ == "__main__":
     checks = [(name, fn) for name, fn in sorted(globals().items()) if name.startswith("t_")]

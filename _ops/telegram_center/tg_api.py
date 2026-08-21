@@ -816,15 +816,30 @@ class TgClient:
         if not self.wired():
             return []
         started_at = time.time()
+        lease_generation = None
         try:
             import poll_lease as _pl  # noqa: WPS433
-            lease = _pl.assert_poll_lease(self._token)
-            if not lease.get("ok"):
-                _record_poll(False, "lease:%s" % (lease.get("reason") or "denied",),
-                             started_at=started_at, completed_at=time.time())
-                return []
-        except Exception:  # noqa: BLE001 — lease guard fails open to keep polling
-            pass
+            lease = _pl.assert_poll_lease(
+                self._token,
+                request_deadline=started_at + max(1.0, float(timeout_s)) + 10.0,
+            )
+        except Exception as exc:  # noqa: BLE001 — ownership ambiguity fails closed
+            _record_poll(False, "lease-error:%s" % type(exc).__name__,
+                         started_at=started_at)
+            return []
+        if not lease.get("ok"):
+            _record_poll(False, "lease:%s" % (lease.get("reason") or "denied",),
+                         started_at=started_at)
+            return []
+        lease_generation = lease.get("generation")
+
+        def finish_failed(reason: str) -> None:
+            try:
+                _pl.finish_poll_request(
+                    self._token, generation=lease_generation, reason=reason)
+            except Exception:  # noqa: BLE001 — failure stays fail-closed
+                pass
+
         try:
             params = {"offset": int(offset), "timeout": int(timeout_s),
                       "allowed_updates": json.dumps(["message", "callback_query"])}
@@ -835,6 +850,7 @@ class TgClient:
             st = _record_poll(False, type(e).__name__, started_at=started_at,
                               completed_at=time.time(), timeout=dns_stall,
                               dns_stall=dns_stall)
+            finish_failed(type(e).__name__)
             self._maybe_alert_deaf(st)
             return []
         if not isinstance(data, dict) or not data.get("ok"):
@@ -874,6 +890,18 @@ class TgClient:
                     _alert_soft("tg-center getUpdates 409 Conflict — pollerِ رقیب روی "
                                 "همین توکن! آپدیت‌ها را او می‌بلعد (پروسهٔ دوم؟ "
                                 "وب‌هوک؟). تا حل نشود بات ساکت خواهد بود.")
+            finish_failed("api:%s" % (_code,))
+            return []
+        try:
+            confirmed = _pl.mark_poll_success(
+                self._token, generation=lease_generation)
+        except Exception as exc:  # noqa: BLE001 — stale owner may not return updates
+            _record_poll(False, "lease-confirm-error:%s" % type(exc).__name__,
+                         started_at=started_at)
+            return []
+        if not confirmed.get("ok"):
+            _record_poll(False, "lease-confirm:%s" % (
+                confirmed.get("reason") or "denied",), started_at=started_at)
             return []
         updates = [u for u in (data.get("result") or []) if isinstance(u, dict)]
         _record_poll(True, started_at=started_at, completed_at=time.time(),

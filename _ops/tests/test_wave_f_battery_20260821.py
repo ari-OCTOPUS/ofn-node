@@ -57,22 +57,37 @@ def _clock() -> float:
 
 # ── 1. one hundred DNS stalls ───────────────────────────────────────────────
 def test_100_dns_stalls_fail_soft_no_leak():
-    pool = TransportPool(fail_threshold=10_000, cooldown_s=3600.0,
-                         deadline_margin=0.05)  # small margin for the battery
+    from transport_pool import CircuitOpenError
+    pool = TransportPool(max_concurrent=4, fail_threshold=10_000,
+                         cooldown_s=3600.0, deadline_margin=0.0)
     calls = {"n": 0}
+    gate = threading.Event()
 
     def stall(url, timeout_s, data, headers):
         calls["n"] += 1
-        time.sleep(0.2)               # outlasts the deadline (0.05 + 0.02)
+        gate.wait(5.0)
         return b"never"
 
     t0 = time.time()
-    results = [pool.call("bot-dns", "u", 0.02, fn=stall) for _ in range(100)]
+    outcomes = []
+    for index in range(100):
+        bot_key = f"bot-dns-{index}" if index < 4 else "bot-dns-overflow"
+        try:
+            outcomes.append(pool.call(bot_key, "u", 0.01, fn=stall))
+        except CircuitOpenError:
+            outcomes.append("SATURATED")
     elapsed = time.time() - t0
-    assert calls["n"] == 100, "all 100 stalls must actually reach the transport"
-    assert all(r is None for r in results), "every stall returns None (fail-soft)"
-    assert elapsed < 30.0, f"100 stalls must complete within bounds ({elapsed:.1f}s)"
-    assert pool.stats()["active"] == 0, "no worker left behind"
+    assert calls["n"] == 4, "only the bounded worker count may touch transport"
+    assert outcomes[:4] == [None] * 4
+    assert outcomes[4:] == ["SATURATED"] * 96
+    assert elapsed < 5.0, f"100 attempts must complete within bounds ({elapsed:.1f}s)"
+    assert pool.stats()["active"] == 4
+    assert pool.stats()["total_saturated"] == 96
+    gate.set()
+    deadline = time.time() + 5.0
+    while pool.stats()["active"] and time.time() < deadline:
+        time.sleep(0.02)
+    assert pool.stats()["active"] == 0
     assert bounded_io.active_worker_count() == 0
 
 
@@ -184,17 +199,32 @@ def test_health_semantics_coverage():
 
 # ── 16. worker/thread leak detection ────────────────────────────────────────
 def test_worker_thread_leak_detection():
+    from transport_pool import CircuitOpenError
     base_threads = threading.active_count()
-    pool = TransportPool(fail_threshold=10_000)
+    pool = TransportPool(max_concurrent=4, fail_threshold=10_000,
+                         deadline_margin=0.0)
+    gate = threading.Event()
+
     def stall(url, timeout_s, data, headers):
-        time.sleep(0.05)
+        gate.wait(5.0)
         return b"never"
-    for _ in range(30):
-        pool.call("bot-leak", "u", 0.02, fn=stall)
-    time.sleep(0.2)                       # let workers finish/exit
+
+    saturated = 0
+    for index in range(30):
+        bot_key = f"bot-leak-{index}" if index < 4 else "bot-leak-overflow"
+        try:
+            pool.call(bot_key, "u", 0.01, fn=stall)
+        except CircuitOpenError:
+            saturated += 1
+    assert pool.stats()["active"] == 4
+    assert saturated == 26
+    assert threading.active_count() - base_threads <= 5
+    gate.set()
+    deadline = time.time() + 5.0
+    while pool.stats()["active"] and time.time() < deadline:
+        time.sleep(0.02)
     assert pool.stats()["active"] == 0
-    growth = threading.active_count() - base_threads
-    assert growth <= 2, f"thread leak: growth={growth}"
+    assert threading.active_count() - base_threads <= 1
     assert bounded_io.active_worker_count() == 0
 
 

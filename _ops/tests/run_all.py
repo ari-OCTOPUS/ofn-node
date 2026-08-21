@@ -1089,6 +1089,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # 2026-08-21 OWNER live-hang fix — bounded state-file reads (antivirus
     # byte-range lock froze center _load_config twice); cache + fail-soft.
     "test_bounded_read.py",
+    # 2026-08-21 milestone correction — poll lease (single consumer, 409
+    # circuit) and terminable subprocess transport (flag-gated).
+    "test_poll_lease.py",
+    "test_transport_subprocess.py",
+    "test_launcher_state_dir_scrub.py",
+    "test_test_node_map.py",
     # 2026-08-21 OWNER bio-cognitive laboratory — experiment card schema,
     # preregistration hashing, append-only registries, owner experiment seed.
     "test_lab_registry.py",

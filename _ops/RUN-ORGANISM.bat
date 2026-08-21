@@ -29,6 +29,8 @@ powershell -NoProfile -Command "if (Get-NetTCPConnection -LocalPort 8771 -State 
 if not errorlevel 1 goto already
 rem Optional non-secret flag overrides (batch-safe .cmd only; never a .env).
 if exist "F:\backup\_ops\OCTOPUS-flags.cmd" call "F:\backup\_ops\OCTOPUS-flags.cmd"
+rem Live launcher must not inherit pytest OCTOPUS_STATE_DIR (same 2026-08-21 leak).
+set OCTOPUS_STATE_DIR=
 python -X utf8 organism.py
 echo organism exited - waiting 10 seconds ... press Ctrl+C twice to stop
 timeout /t 10 /nobreak >nul

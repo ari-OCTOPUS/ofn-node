@@ -41,7 +41,6 @@ _MEM: dict | None = None
 _MEM_PATH: str | None = None
 _MEM_GEN: tuple = (0, 0)
 _MEM_LOCK = threading.Lock()
-_DEBUG_LOG = Path(r"f:\backup\debug-4ab476.log")
 
 
 def _root() -> Path:
@@ -73,25 +72,6 @@ def _bounded_write(path: Path, state: dict) -> None:
             os.replace(tmp, path)
     except OSError:
         pass
-
-
-def _dbg(location: str, message: str, data: dict, hypothesis_id: str, run_id: str = "post-fix") -> None:
-    # #region agent log
-    try:
-        rec = {
-            "sessionId": "4ab476",
-            "timestamp": int(time.time() * 1000),
-            "location": location,
-            "message": message,
-            "data": data,
-            "hypothesisId": hypothesis_id,
-            "runId": run_id,
-        }
-        with _DEBUG_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
-    # #endregion
 
 
 def reset_memory() -> None:
@@ -144,13 +124,6 @@ def _load(*, force_disk: bool = False) -> dict:
         _MEM = state
         _MEM_PATH = key
         _MEM_GEN = gen if path.exists() else (0, 0)
-        _dbg(
-            "health_metrics.py:_load",
-            "health state loaded",
-            {"disk_read": True, "path_exists": path.exists(),
-             "counters": dict(state.get("counters") or {})},
-            "H1",
-        )
         return _MEM
 
 
@@ -213,20 +186,6 @@ def record_poll(*, ok: bool, reason: str = "", started_at: float | None = None,
         state["last_reason"] = str(reason or "unknown")[:80]
     state["last_round_ts"] = now
     _save(state)
-    # #region agent log
-    try:
-        n = int((state.get("counters") or {}).get("poll_completed_total") or 0)
-        if n <= 2 or (not ok) or n % 10 == 0:
-            _dbg(
-                "health_metrics.py:record_poll",
-                "poll recorded (write-through, no re-read)",
-                {"ok": ok, "empty": empty, "completed_total": n,
-                 "did_disk_write": True, "in_memory": True},
-                "H1",
-            )
-    except Exception:
-        pass
-    # #endregion
     if not ok:
         try:
             inc_path = poll_health_path().with_name("poll-health-incidents.jsonl")
@@ -246,8 +205,6 @@ def record_dispatch(*, completed_at: float | None = None) -> dict:
     state["last_dispatch_completed_at"] = now
     state["last_progress_at"] = now
     _save(state)
-    _dbg("health_metrics.py:record_dispatch", "dispatch completed",
-         {"last_dispatch_completed_at": now}, "H5")
     return state
 
 
@@ -289,9 +246,7 @@ def classify(*, now: float | None = None, hung_after_s: float = 300.0,
             state = "NO_UPDATES"
         else:
             state = "HEALTHY_EMPTY_POLL"
-    out = {"state": state, "process_alive": bool(process_alive)}
-    _dbg("health_metrics.py:classify", "watchdog taxonomy", out, "H4")
-    return out
+    return {"state": state, "process_alive": bool(process_alive)}
 
 
 def record_config_event(kind: str, workers: int = 0) -> dict:

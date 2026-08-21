@@ -69,6 +69,13 @@ function Show-Status {
 
 if ($Target -eq "status") { Write-Host "PROCESS AGES:"; Show-Status; exit 0 }
 
+# Live launchers default to _ops\state. An inherited OCTOPUS_STATE_DIR from a
+# pytest/agent shell redirects poll-health and pulse writes into tests\_tmp_*.
+if ($env:OCTOPUS_STATE_DIR) {
+    Write-Host "NOTE: unsetting inherited OCTOPUS_STATE_DIR (value redacted)."
+    Remove-Item Env:OCTOPUS_STATE_DIR -ErrorAction SilentlyContinue
+}
+
 $cfg = @{
     center = @{ match = "center.py";     stop = "STOP-TG-CENTER"; port = $null
                 loop = "RUN-TG-CENTER"
@@ -97,6 +104,7 @@ if ($Target -eq "organism") {
     if (-not (Test-Path $bat)) { Write-Host ("ERROR: launcher not found: " + $bat); exit 1 }
     $before = Get-Proc "organism.py"
     $restF = Join-Path $ops "RESTART-REQUESTED"
+    $stopF = Join-Path $ops "STOP-ORGANISM"
     if (-not $before) {
         Write-Host "BEFORE : not running - launching directly (no marker written)."
     } else {

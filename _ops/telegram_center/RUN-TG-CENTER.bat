@@ -13,6 +13,10 @@ cd /d F:\backup\_ops
 if exist "F:\backup\_ops\STOP-TG-CENTER" goto stopped
 rem Optional non-secret flag overrides (batch-safe .cmd only; never a .env).
 if exist "F:\backup\_ops\OCTOPUS-flags.cmd" call "F:\backup\_ops\OCTOPUS-flags.cmd"
+rem Live launcher must not inherit pytest OCTOPUS_STATE_DIR (2026-08-21:
+rem a restart from a test-polluted shell wrote poll-health under
+rem _ops\tests\_tmp_w1b while canonical state\telegram\poll-health.json froze).
+set OCTOPUS_STATE_DIR=
 python -X utf8 telegram_center\center.py
 echo tg-center exited - waiting 10 seconds ... press Ctrl+C twice to stop
 timeout /t 10 /nobreak >nul

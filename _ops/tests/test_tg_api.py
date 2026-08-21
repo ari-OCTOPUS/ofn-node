@@ -58,7 +58,20 @@ class FakeNet:
         return self.responses.get(m, {"ok": True, "result": []})
 
 
+def _clear_fake_poll_lease(token=TOKEN):
+    """Each unit test owns isolated lease state; production persistence is unchanged."""
+    try:
+        import poll_lease
+        con = poll_lease._conn()
+        con.execute("DELETE FROM lease WHERE token_digest=?",
+                    (poll_lease._token_digest(token),))
+        con.close()
+    except Exception:
+        pass
+
+
 def _client(responses=None, token=TOKEN, owner=OWNER, center=CENTER):
+    _clear_fake_poll_lease(token)
     net = FakeNet(responses)
     c = TgClient(token=token, owner_chat_id=owner, center_chat_id=center,
                  post_fn=net.post, get_fn=net.get)
@@ -232,6 +245,10 @@ def t_h_poll_updates_offset_math():
     # پاسخِ ok=False → []
     c2, _ = _client({"getUpdates": {"ok": False, "error_code": 409}})
     assert c2.poll_updates() == []
+    import poll_lease
+    snap = poll_lease.lease_snapshot(TOKEN)
+    assert snap["state"] == "OPEN"
+    assert snap["request_deadline"] == 0
 
 
 def t_i_answer_callback():

@@ -120,20 +120,23 @@ def test_409_opens_circuit_and_denies_until_cooldown():
     assert r["ok"] is True
 
 
-def test_409_fail_count_accumulates_then_resets_on_acquire():
+def test_409_fail_count_resets_only_after_successful_poll():
     token = TOKEN + "-count"
-    pl.assert_poll_lease(token)
+    acquired = pl.assert_poll_lease(token)
     pl.mark_duplicate_consumer(token)
-    snap = pl.lease_snapshot(token)
-    assert snap["fail_count"] == 1
-    # a fresh acquire (after cooldown) resets fail_count to 0
+    assert pl.lease_snapshot(token)["fail_count"] == 1
+    # Cooldown expiry permits another request, but does not erase conflict
+    # history. Only a valid completed poll for the same fence resets it.
     con = pl._conn()
-    con.execute("UPDATE lease SET cooldown_until=0 WHERE token_digest=?",
-                (pl._token_digest(token),))
+    con.execute("UPDATE lease SET cooldown_until=? WHERE token_digest=?",
+                (time.time() - 1.0, pl._token_digest(token)))
     con.close()
-    pl.assert_poll_lease(token)
-    snap = pl.lease_snapshot(token)
-    assert snap["fail_count"] == 0
+    refreshed = pl.assert_poll_lease(token)
+    assert refreshed["ok"] is True
+    assert pl.lease_snapshot(token)["fail_count"] == 1
+    assert pl.mark_poll_success(
+        token, generation=acquired["generation"])["ok"] is True
+    assert pl.lease_snapshot(token)["fail_count"] == 0
 
 
 def main() -> int:

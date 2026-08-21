@@ -113,26 +113,36 @@ def test_circuits_are_per_bot():
 
 
 def test_bounded_concurrency_saturates_fail_soft():
-    pool = TransportPool(max_concurrent=2)
+    pool = TransportPool(max_concurrent=2, deadline_margin=0.0)
     gate = threading.Event()
+
     def blocked(url, timeout_s, data, headers):
         gate.wait(5.0)
         return b"x"
-    t1 = threading.Thread(target=lambda: pool.call(BOT_A, "u", 5.0, fn=blocked))
-    t2 = threading.Thread(target=lambda: pool.call(BOT_A, "u", 5.0, fn=blocked))
-    t1.start(); t2.start()
-    time.sleep(0.3)
-    # pool saturated: third call fails soft without spawning a third worker
+
+    # The timed-out worker keeps bot A's ownership and one global slot.
+    assert pool.call(BOT_A, "u", 0.05, fn=blocked) is None
     try:
-        pool.call(BOT_A, "u", 5.0, fn=blocked)
-        raise AssertionError("saturated pool must refuse (fail-soft)")
+        pool.call(BOT_A, "u", 0.05, fn=blocked)
+        raise AssertionError("one bot may not launch a concurrent request")
     except CircuitOpenError:
         pass
-    gate.set(); t1.join(); t2.join()
-    assert pool.stats()["total_saturated"] == 1
-    # after release, calls succeed again
-    blob = pool.call(BOT_A, "u", 1.0, fn=_ok)
-    assert blob is not None
+    # A different bot may use the second global slot.
+    assert pool.call(BOT_B, "u", 0.05, fn=blocked) is None
+    assert pool.stats()["active"] == 2
+    try:
+        pool.call("cccc", "u", 0.05, fn=blocked)
+        raise AssertionError("globally saturated pool must refuse before spawning")
+    except CircuitOpenError:
+        pass
+    assert pool.stats()["total_saturated"] == 2
+    assert pool.stats()["total_calls"] == 2
+    gate.set()
+    deadline = time.time() + 5.0
+    while pool.stats()["active"] and time.time() < deadline:
+        time.sleep(0.02)
+    assert pool.stats()["active"] == 0
+    assert pool.call(BOT_A, "u", 1.0, fn=_ok) is not None
 
 
 def test_timeout_never_advances_offset():
@@ -145,16 +155,19 @@ def test_timeout_never_advances_offset():
 
 def test_subprocess_mode_terminates_stuck_worker():
     import transport_pool as _tp
-    blob = _tp.subprocess_transport("https://api.telegram.org/botX/getUpdates", 0.3)
-    # unreachable host in fixture env: either None (deadline kill) or error path;
-    # the point is the caller returns within the bound and no child survives
-    assert blob is None
-    # pool in subprocess mode refuses nothing structurally; circuit still applies
-    pool = TransportPool(subprocess_fn=_tp.subprocess_transport)
-    t0 = time.time()
-    out = pool.call(BOT_B, "https://api.telegram.org/botX/getUpdates", 0.4)
-    assert out is None
-    assert time.time() - t0 < 10.0
+    real_worker = _tp._WORKER
+    _tp._WORKER = "import time; time.sleep(30)"
+    try:
+        t0 = time.time()
+        blob = _tp.subprocess_transport("http://127.0.0.1:1/x", 0.1)
+        assert blob is None
+        assert time.time() - t0 < 3.0
+        pool = TransportPool(subprocess_fn=_tp.subprocess_transport)
+        out = pool.call(BOT_B, "http://127.0.0.1:1/x", 0.1)
+        assert out is None
+        assert pool.stats()["active"] == 0
+    finally:
+        _tp._WORKER = real_worker
 
 
 def main() -> int:
