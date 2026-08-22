@@ -103,6 +103,51 @@ def count_pending_rfc(doctor) -> int:
         return 0
 
 
+
+def draft_epistemic_uncertainty(snapshot: dict | None = None) -> dict | None:
+    """Smallest doctor->epistemics wire (ADR-039 C1 + claim draft).
+
+    Loads fail-closed policy (C1) and builds a propose-only claim via
+    claim_builder.draft_from_telemetry. Never executes tests, never sets
+    may_execute True. Fail-soft: any import/policy error -> None.
+    """
+    try:
+        import sys as _sys
+        _ops = str(Path(__file__).resolve().parents[1])
+        if _ops not in _sys.path:
+            _sys.path.insert(0, _ops)
+        from epistemics.policy import load_policy
+        from epistemics.claim_builder import draft_from_telemetry, is_runnable_draft
+        cfg = load_policy()
+        snap = dict(snapshot or {})
+        if not any(k in snap for k in ("coherence", "discovery_rate",
+                                       "convergence", "pain")):
+            snap.setdefault("coherence", 0.5)
+        draft = draft_from_telemetry(snap)
+        if not draft or not is_runnable_draft(draft):
+            return None
+        chain_ok, chain_n = None, None
+        try:
+            from epistemics.receipt_store import ReceiptStore
+            chain = ReceiptStore().verify()
+            chain_ok, chain_n = bool(chain.ok), int(chain.n_records)
+        except Exception:  # noqa: BLE001
+            pass
+        return {
+            "wired": True,
+            "policy_schema_version": cfg.schema_version,
+            "max_authority": cfg.max_authority,
+            "sandbox_profile": cfg.sandbox_profile,
+            "default_off": cfg.default_off,
+            "may_execute": False,
+            "receipt_chain_ok": chain_ok,
+            "receipt_chain_n": chain_n,
+            "draft": draft,
+        }
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def effective_mine(doctor, trace: dict | None = None,
                    db=None) -> dict | None:
     """mine() + calibration: bottleneck پیدا کن، ولی skip کن اگر قبلاً رد شده،
@@ -142,4 +187,16 @@ def effective_mine(doctor, trace: dict | None = None,
         return {"bottleneck": bn["bottleneck"], "evidence": bn.get("evidence", {}),
                 "severity": bn.get("severity", "high"),
                 "_suppressed_by_attention_budget": reason}
+    try:
+        ev = bn.get("evidence") or {}
+        score = ev.get("score", ev.get("value", 0.5))
+        epi = draft_epistemic_uncertainty({
+            "coherence": float(score) if isinstance(score, (int, float)) else 0.5,
+            "bottleneck": bn.get("bottleneck"),
+        })
+        if epi is not None:
+            bn = dict(bn)
+            bn["_epistemic"] = epi
+    except Exception:  # noqa: BLE001
+        pass
     return bn

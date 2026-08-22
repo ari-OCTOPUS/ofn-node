@@ -29,6 +29,7 @@
     python _ops/self_insight.py             # کارت
     python _ops/self_insight.py --json
     python _ops/self_insight.py --no-journal
+    python _ops/self_insight.py --once --json   # journal-only fixture cycle
 """
 from __future__ import annotations
 
@@ -251,6 +252,77 @@ def score_previous(scan, journal_path) -> dict:
     }
 
 
+
+def _tiny_fixture_scan() -> dict:
+    """Minimal scan fixture for journal-only cycles (no self_scan)."""
+    return {"checks": {
+        "flags": {"defaults": {
+            "OCTOPUS_ALPHA": [{"module": "fixture.py", "default": "1"}]}},
+        "state": {}, "tests": {}, "markers": {}, "symbols": {},
+        "corpus": {"fixture": True},
+    }, "corpus": {"fixture": True}}
+
+
+def _write_journal(jpath: Path, out: dict) -> None:
+    jpath.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    if jpath.exists():
+        rows = [l for l in jpath.read_text(encoding="utf-8").splitlines()
+                if l.strip()][-(JOURNAL_CAP - 1):]
+    payload = {k: out[k] for k in ("schema", "ts", "hypotheses", "calibration")
+               if k in out}
+    if out.get("mode"):
+        payload["mode"] = out["mode"]
+    rows.append(json.dumps(payload, ensure_ascii=False))
+    jpath.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
+def run_once_journal(root=None, scan=None, limit: int = 50,
+                     journal: bool = True) -> dict:
+    """ONE journal-only cycle — no full self_scan (~46s).
+
+    Uses a tiny fixture scan unless `scan` is provided. Writes at most
+    `limit` hypotheses into root/state/self-insight.jsonl. Callable from
+    tests/tmp without Telegram. Fail-soft on journal I/O.
+    """
+    root = Path(root) if root else Path(__file__).resolve().parent
+    scan = scan if isinstance(scan, dict) else _tiny_fixture_scan()
+    t0 = time.time()
+    hyps, errors = [], {}
+    for rule in RULES:
+        try:
+            hyps.extend(rule(scan))
+        except Exception as exc:  # noqa: BLE001
+            errors[rule.__name__] = f"{type(exc).__name__}: {exc}"
+    hyps.sort(key=lambda h: -h["rank"])
+    if limit is not None and int(limit) >= 0:
+        hyps = hyps[: int(limit)]
+
+    jpath = Path(root) / "state" / JOURNAL
+    calib = score_previous(scan, jpath)
+    out = {
+        "schema": SCHEMA, "ts": time.time(),
+        "elapsed_s": round(time.time() - t0, 2),
+        "mode": "journal_once",
+        "corpus": scan.get("corpus") or {"fixture": True},
+        "hypotheses": hyps,
+        "counts": {"total": len(hyps),
+                   "by_rule": {r.__name__: sum(
+                       1 for h in hyps
+                       if h["rule"] == r.__name__.replace("rule_", ""))
+                               for r in RULES}},
+        "calibration": calib,
+        "rule_errors": errors,
+    }
+    if journal:
+        try:
+            _write_journal(jpath, out)
+            out["journal"] = str(jpath)
+        except Exception as exc:  # noqa: BLE001
+            out["journal_error"] = f"{type(exc).__name__}: {exc}"
+    return out
+
+
 def run(root=None, journal=True) -> dict:
     root = Path(root) if root else Path(__file__).resolve().parent
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -360,7 +432,10 @@ def card(root=None, top=6) -> str:
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     root = next((a for a in argv if not a.startswith("--")), None)
-    if "--json" in argv:
+    if "--once" in argv:
+        print(json.dumps(run_once_journal(root, journal="--no-journal" not in argv),
+                         ensure_ascii=False, indent=2))
+    elif "--json" in argv:
         print(json.dumps(run(root, journal="--no-journal" not in argv),
                          ensure_ascii=False, indent=2))
     else:
