@@ -774,6 +774,54 @@ def doctor_selfknowledge_beat(beat: int = 0) -> dict | None:
         return None
 
 
+
+def doctor_uniqueness_beat(
+    beat: int = 0,
+    *,
+    state_dir=None,
+    dry_run: bool = True,
+    center_pids=None,
+    scan_live_pids=None,
+    require_lock_pid_alive=None,
+) -> dict | None:
+    """RO/fail-closed poller uniqueness on continuous doctor heartbeat cadence.
+
+    Never live-sends Telegram. Never restarts telegram_center.
+    Opt-out: OCTOPUS_WIRE_DOCTOR_UNIQUENESS=0 (default ON).
+    Cadence: CHRONO_DOCTOR_UNIQUENESS_EVERY_N_BEATS (default 60).
+    """
+    if os.environ.get("OCTOPUS_WIRE_DOCTOR_UNIQUENESS", "1") != "1":
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_DOCTOR_UNIQUENESS_EVERY_N_BEATS", "60"))
+    if not _epoch_fire("doctor_uniqueness", beat, every_n):
+        return None
+    try:
+        _dp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "doctor")
+        _syspath(_dp)
+        import uniqueness_heartbeat as _uhb  # noqa: E402
+        return _uhb.run_uniqueness_heartbeat(
+            beat,
+            state_dir=state_dir,
+            dry_run=bool(dry_run),
+            center_pids=center_pids,
+            scan_live_pids=scan_live_pids,
+            require_lock_pid_alive=require_lock_pid_alive,
+            alert=opslib.alert,
+        )
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([
+            f"doctor_uniqueness_beat error (non-fatal): {type(e).__name__}: {e}"
+        ])
+        return {
+            "ok": False,
+            "live_send": False,
+            "dry_run": bool(dry_run),
+            "error": type(e).__name__,
+        }
+
+
 def synapse_beat(beat: int = 0) -> dict | None:
     """اندامِ SENSE (C8، ۲۰۲۶-۰۷-۲۸) — حسِ خود-ارجاعیِ ریاضیِ ارگانیسم روی
     تله‌متریِ خودش. سه ماژولِ synapse کاملاً ساخته بودند ولی **ادغامِ رانتایمِ صفر**

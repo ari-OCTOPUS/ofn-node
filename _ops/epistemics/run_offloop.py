@@ -2,8 +2,9 @@
 to the epi stream -> writes _ops/state/epi-latest.json. Does NOT import organism.py.
 Advisory and reversible.
 
-Numbers are MEANINGLESS until Phase 1-3 fill upstream data. Do NOT wire into the
-loop before Phase 5 (behind OCTOPUS_WIRE_EPISTEMICS).
+Numbers remain non-authoritative until sample_size >= MIN_SAMPLES (contracts.py).
+Do NOT treat as authoritative solely because readers now return non-null samples.
+Wire into the loop only behind OCTOPUS_WIRE_EPISTEMICS (Phase 5).
 
 Usage:
     python -m _ops.epistemics.run_offloop            # print only (default)
@@ -15,23 +16,30 @@ import argparse
 import json
 import os
 import time
+from pathlib import Path
 
 from . import emit as emitter
 from . import metrics, readers
 
-EPI_LATEST = "_ops/state/epi-latest.json"
+_OPS = Path(__file__).resolve().parent.parent
+EPI_LATEST = str(_OPS / "state" / "epi-latest.json")
 
 
-def compute_all() -> list:
-    fitness = readers.read_fitness_history() or []
-    # TODO(GLM): map real fields -> the inputs below once upstream data exists.
-    state_labels = fitness if isinstance(fitness, list) else []
-    sv = readers.read_self_vs_twin()
+def compute_all(ops=None) -> list:
+    """Compute five metrics from on-disk readers. Fail-closed on empty inputs."""
+    labels = readers.read_state_labels(ops)
+    pairs = readers.read_channel_pairs(ops)
+    topo = readers.read_topology(ops)
+    sv = readers.read_self_vs_twin(ops)
     return [
-        metrics.identifiability(state_labels),
-        metrics.channel([]),                         # TODO: paired (H, H_hat) from telemetry/reconcile
-        metrics.levels(readers.read_topology()),
-        metrics.self_reference(sv["err_self"], sv["err_other"]) if sv else metrics.self_reference([], []),
+        metrics.identifiability(labels),
+        metrics.channel(pairs),
+        metrics.levels(topo),
+        (
+            metrics.self_reference(sv["err_self"], sv["err_other"])
+            if sv
+            else metrics.self_reference([], [])
+        ),
         metrics.method(),
     ]
 
@@ -45,7 +53,20 @@ def main() -> None:
     snapshot = {
         "ts": time.time(),
         "metrics": results,
-        "note": "OFF-LOOP scaffold; not authoritative until upstream data is live",
+        "note": (
+            "OFF-LOOP; readers wired to on-disk uniqueness/outbox/self_audit/"
+            "self_accuracy. Not authoritative until MIN_SAMPLES; NOT a "
+            "consciousness claim."
+        ),
+        "reader_sample_sizes": {
+            "state_labels": len(readers.read_state_labels()),
+            "channel_pairs": len(readers.read_channel_pairs()),
+            "topology": (lambda _t: 0 if _t is None else len(_t))(readers.read_topology()),
+            "self_vs_twin": (
+                len((readers.read_self_vs_twin() or {}).get("err_self") or [])
+            ),
+            "outbox_counts": readers.read_outbox_counts(),
+        },
     }
 
     if args.emit:

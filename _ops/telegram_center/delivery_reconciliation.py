@@ -115,6 +115,19 @@ def _read_json(path: Path) -> dict | None:
     return None
 
 
+
+def _event_fs_name(event_id: str) -> str:
+    """Canonical on-disk event filename stem (matches durable_loop._event_path).
+
+    Logical event ids are built as ``tg:<update_id>`` (see durable_loop._normalize).
+    durable_loop persists them under ``events/tg_<update_id>.json`` because ``:``
+    is illegal in Windows filenames. Callers / queue rows may still carry the
+    colon form; this helper is the single compare/lookup normalizer so both
+    ``tg:223883344`` and ``tg_223883344`` resolve to the same file.
+    """
+    return str(event_id).replace(":", "_")
+
+
 def _identity(row: dict) -> tuple[str, str]:
     return (str(row.get("event_id") or ""), str(row.get("message_key") or ""))
 
@@ -166,7 +179,10 @@ def _search_transport_evidence(row: dict) -> dict | None:
                 return {"truth": TRUTH_CONFIRMED,
                         "evidence": "outbox CONFIRMED + message_id"}
         if event_id is not None:
-            d = _read_json(_root().joinpath("telegram", "loop", "events", event_id)
+            # Normalize tg: -> tg_ so queue event_id matches on-disk stem
+            # (durable_loop._event_path). See OCTOPUS-OUTBOX-RECONCILE B5.
+            d = _read_json(_root().joinpath(
+                "telegram", "loop", "events", _event_fs_name(event_id))
                            .with_suffix(".json"))
             if d is not None and d.get("state") == "CLOSED" \
                     and d.get("readback_verified") is True \

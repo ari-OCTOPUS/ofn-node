@@ -240,6 +240,68 @@ def t_h_truth_states_are_explicit():
     assert dr.TRUTH_STATES == expected
 
 
+
+def t_i_event_path_normalize_colon_and_underscore_match():
+    """Both logical (tg:) and on-disk (tg_) forms must resolve identically.
+
+    Reproduces OCTOPUS-OUTBOX-RECONCILE-2026-08-23 blocker B5: reconcile
+    looked up events/{event_id}.json with colon, but durable_loop stores
+    events/tg_<id>.json. No live send; fixture-only transport evidence.
+    """
+    dl, dr, root = _fresh()
+    assert dr._event_fs_name("tg:223883344") == "tg_223883344"
+    assert dr._event_fs_name("tg_223883344") == "tg_223883344"
+    assert dr._event_fs_name("tg:223883344") == dr._event_fs_name("tg_223883344")
+
+    events = root / "telegram" / "loop" / "events"
+    events.mkdir(parents=True, exist_ok=True)
+    # On-disk form as durable_loop._event_path would write it
+    ev_path = events / "tg_223883344.json"
+    ev_path.write_text(json.dumps({
+        "event_id": "tg:223883344",
+        "state": "CLOSED",
+        "readback_verified": True,
+        "delivery_message_id": 999001,
+    }), encoding="utf-8")
+
+    key = "a" * 64
+    dr.enqueue_uncertain(event_id="tg:223883344", message_key=key)
+    found = dr._search_transport_evidence({
+        "event_id": "tg:223883344",
+        "message_key": key,
+    })
+    assert found is not None, "colon form must find underscore on-disk file"
+    assert found["truth"] == "DELIVERY_CONFIRMED"
+
+    found2 = dr._search_transport_evidence({
+        "event_id": "tg_223883344",
+        "message_key": key,
+    })
+    assert found2 is not None, "underscore form must also match"
+    assert found2["truth"] == "DELIVERY_CONFIRMED"
+
+
+def t_j_reconcile_confirms_via_normalized_event_path():
+    """Full reconcile() pass: queue carries tg:, disk has tg_ -> CONFIRMED."""
+    dl, dr, root = _fresh()
+    events = root / "telegram" / "loop" / "events"
+    events.mkdir(parents=True, exist_ok=True)
+    (events / "tg_55.json").write_text(json.dumps({
+        "event_id": "tg:55",
+        "state": "CLOSED",
+        "readback_verified": True,
+        "delivery_message_id": 555,
+    }), encoding="utf-8")
+    key = "b" * 64
+    dr.enqueue_uncertain(event_id="tg:55", message_key=key)
+    r = dr.reconcile()
+    assert r["resolved"]["confirmed"] == 1, r
+    assert r["still_pending"] == 0
+    # Must not dead-letter when transport evidence exists under normalized path
+    assert r["resolved"]["dead_lettered"] == 0
+
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
     failed = 0

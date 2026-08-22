@@ -1077,6 +1077,14 @@ def main() -> int:
                 _w.doctor_selfknowledge_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
             except Exception as _ske:  # noqa: BLE001 — خودشناسی نباید tick را بکشد
                 opslib.alert([f"doctor_selfknowledge_beat error (non-fatal): {type(_ske).__name__}"])
+
+            # ── Doctor uniqueness (2026-08-23): RO/fail-closed poller 1/1/1
+            # on continuous heartbeat. Never Telegram live-send. Never restart center.
+            # Opt-out OCTOPUS_WIRE_DOCTOR_UNIQUENESS=0. Cadence CHRONO_DOCTOR_UNIQUENESS_EVERY_N_BEATS.
+            try:
+                _w.doctor_uniqueness_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+            except Exception as _ue:  # noqa: BLE001 — uniqueness must not kill tick
+                opslib.alert([f"doctor_uniqueness_beat error (non-fatal): {type(_ue).__name__}"])
             # ── Synapse SENSE (2026-07-28, C8): حسِ خود-ارجاعیِ ریاضیِ ارگانیسم —
             # ضربانِ خود را روی تله‌متریِ خود می‌سنجد و سریِ زمانیِ صداقت می‌نویسد.
             # عمداً بیرونِ _protective_skip (مشاهده ≠ تغییر)، $0، propose-only، fail-closed.

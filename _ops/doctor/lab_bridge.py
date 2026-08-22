@@ -474,3 +474,303 @@ def apply_owner_verdict(*, verb: str,
         "live_promote": False,
         "error": "unknown-verb",
     }
+
+
+
+# ── EveLab ↔ Doctor reversible wire (propose-only / dry-run default) ──────────
+# Not RFC-only: doctor can propose one lab experiment ticket into durable outbox;
+# lab can call a dry doctor check and parse the ticket back. Never live-sends.
+
+
+def _experiment_ticket_text(ticket: dict) -> str:
+    tid = ticket.get("experiment_id") or "?"
+    q = ticket.get("question") or ticket.get("hypothesis") or ""
+    organ = ticket.get("organ") or "unknown"
+    mode = ticket.get("execution_mode") or "FIXTURE_ONLY"
+    lines = [
+        "LAB EXPERIMENT TICKET " + str(tid),
+        "question: " + str(q)[:240],
+        "organ: " + str(organ),
+        "execution_mode: " + str(mode),
+        "propose_only: yes",
+        "live_send: no",
+        "",
+        "[merge]  [reject]",
+    ]
+    return "\n".join(lines)
+
+
+def _write_experiment_ticket_outbox(ticket: dict, text: str) -> Path:
+    """Persist a QUEUED lab-experiment ticket. Never calls Bot API."""
+    root = _state_root() / "telegram" / "loop" / "outbox"
+    root.mkdir(parents=True, exist_ok=True)
+    eid = str(ticket.get("experiment_id") or "unknown")
+    key = "labexp-" + _hash({"eid": eid, "text": text})[:16]
+    path = root / (key + ".json")
+    rec = {
+        "schema": "telegram-outbox/1",
+        "message_key": key,
+        "kind": "evo-lab-experiment-ticket",
+        "stream": "evo-lab",
+        "state": "QUEUED",
+        "delivery_truth": "QUEUED",
+        "live_send": False,
+        "payload_text": text,
+        "payload_hash": _hash(text),
+        "experiment_id": eid,
+        "ticket": {
+            "experiment_id": eid,
+            "question": ticket.get("question"),
+            "hypothesis": ticket.get("hypothesis"),
+            "organ": ticket.get("organ"),
+            "execution_mode": ticket.get("execution_mode") or "FIXTURE_ONLY",
+            "rfc_id": ticket.get("rfc_id"),
+        },
+        "attempts": 0,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime()),
+        "dry_run": True,
+        "propose_only": True,
+    }
+    # Optional callback token when owner/rfc present (fail-soft).
+    if ticket.get("rfc_id"):
+        rec = attach_outbox_callback_token(
+            rec, rfc_id=str(ticket.get("rfc_id")),
+            summary=str(ticket.get("question") or eid),
+            owner=ticket.get("owner"))
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(tmp, path)
+    try:
+        ebox = _state_root() / "telegram" / "event-bridge-outbox.jsonl"
+        ebox.parent.mkdir(parents=True, exist_ok=True)
+        with ebox.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps({
+                "key": key, "state": "QUEUED",
+                "event": "evo-lab-experiment-ticket",
+                "experiment_id": eid, "live_send": False,
+                "ts": time.time(),
+            }, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+    return path
+
+
+def propose_lab_experiment_ticket(
+        ticket: dict | None = None, *,
+        experiment_id: str | None = None,
+        question: str = "",
+        hypothesis: str = "",
+        organ: str = "doctor",
+        execution_mode: str = "FIXTURE_ONLY",
+        rfc_id: str | None = None,
+        dry_run: bool = True,
+        state_dir=None) -> dict[str, Any]:
+    """Doctor → lab: propose one experiment ticket into durable outbox.
+
+    Propose-only / dry-run default. Does not run the RFC cycle. Never live-sends.
+    Never opens a network socket.
+    """
+    if state_dir is not None:
+        os.environ["OCTOPUS_STATE_DIR"] = str(state_dir)
+    t = dict(ticket or {})
+    if experiment_id:
+        t["experiment_id"] = experiment_id
+    t.setdefault("experiment_id", "labexp-" + _hash({
+        "q": question or t.get("question"), "t": time.time(),
+    })[:12])
+    if question:
+        t["question"] = question
+    if hypothesis:
+        t["hypothesis"] = hypothesis
+    t.setdefault("question", t.get("hypothesis") or "fixture lab experiment")
+    t.setdefault("hypothesis", t.get("question"))
+    t.setdefault("organ", organ)
+    t.setdefault("execution_mode", execution_mode)
+    if rfc_id:
+        t["rfc_id"] = rfc_id
+    if not dry_run:
+        # Hard default: still no live send; dry_run only skips optional side marks.
+        pass
+    text = _experiment_ticket_text(t)
+    path = _write_experiment_ticket_outbox(t, text)
+    return {
+        "ok": True,
+        "experiment_id": t["experiment_id"],
+        "ticket": t,
+        "card_text": text,
+        "outbox_path": str(path),
+        "kind": "evo-lab-experiment-ticket",
+        "state": "QUEUED",
+        "live_send": False,
+        "dry_run": True,
+        "propose_only": True,
+        "live_promote": False,
+    }
+
+
+def parse_lab_experiment_ticket(payload) -> dict[str, Any] | None:
+    """Reverse parse of an evo-lab-experiment-ticket outbox card (path/dict/json).
+
+    Returns ticket fields + live_send flag, or None if not a lab experiment ticket.
+    Never network.
+    """
+    data = payload
+    if isinstance(payload, (str, Path)):
+        path = Path(payload)
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+    if not isinstance(data, dict):
+        return None
+    if data.get("kind") not in (None, "evo-lab-experiment-ticket"):
+        if not data.get("experiment_id") or data.get("kind") == "evo-lab-rfc-card":
+            return None
+    ticket = data.get("ticket") if isinstance(data.get("ticket"), dict) else {}
+    eid = data.get("experiment_id") or ticket.get("experiment_id")
+    if not eid:
+        return None
+    return {
+        "experiment_id": eid,
+        "question": ticket.get("question") or data.get("question"),
+        "hypothesis": ticket.get("hypothesis"),
+        "organ": ticket.get("organ"),
+        "execution_mode": ticket.get("execution_mode") or "FIXTURE_ONLY",
+        "rfc_id": ticket.get("rfc_id") or data.get("rfc_id"),
+        "outbox_state": data.get("state"),
+        "live_send": bool(data.get("live_send")),
+        "kind": data.get("kind") or "evo-lab-experiment-ticket",
+        "payload_text": data.get("payload_text") or "",
+        "outbox_path": str(payload) if isinstance(payload, (str, Path)) else None,
+    }
+
+
+def lab_call_doctor_check(*, state_dir=None, dry_run: bool = True,
+                          roundtrip: bool = True) -> dict[str, Any]:
+    """Lab → doctor: lightweight dry-run check of the reversible wire.
+
+    Verifies doctor bridge surface + optional propose/parse roundtrip.
+    Never live-sends. Never restarts center. Never mutates live vault code.
+    """
+    if state_dir is not None:
+        os.environ["OCTOPUS_STATE_DIR"] = str(state_dir)
+    checks: list[dict[str, Any]] = []
+    ok = True
+
+    # 1) lab_bridge propose surface present
+    has_propose = callable(globals().get("propose_lab_experiment_ticket"))
+    has_parse = callable(globals().get("parse_lab_experiment_ticket"))
+    checks.append({"name": "lab_bridge_ticket_api", "ok": has_propose and has_parse})
+    ok = ok and has_propose and has_parse
+
+    # 2) doctor._bridge_to_lab present (RFC path still wired)
+    bridge_ok = False
+    try:
+        import doctor as _doc_mod  # noqa: WPS433
+        Doctor = getattr(_doc_mod, "Doctor", None)
+        bridge_ok = Doctor is not None and callable(
+            getattr(Doctor, "_bridge_to_lab", None))
+        # Prefer instance method presence on class
+        if not bridge_ok and Doctor is not None:
+            bridge_ok = "_bridge_to_lab" in getattr(Doctor, "__dict__", {})
+    except Exception as exc:  # noqa: BLE001
+        checks.append({"name": "doctor_import", "ok": False,
+                       "error": type(exc).__name__})
+        ok = False
+    else:
+        checks.append({"name": "doctor_bridge_to_lab", "ok": bridge_ok})
+        ok = ok and bridge_ok
+
+    # 3) optional roundtrip under fixture state_dir
+    if roundtrip and dry_run:
+        sd = Path(state_dir) if state_dir is not None else (
+            _state_root() / "evelab-doctor-wire-fixture")
+        sd.mkdir(parents=True, exist_ok=True)
+        prev = os.environ.get("OCTOPUS_STATE_DIR")
+        os.environ["OCTOPUS_STATE_DIR"] = str(sd)
+        try:
+            prop = propose_lab_experiment_ticket(
+                experiment_id="labexp-wire-check",
+                question="lab can call doctor check",
+                organ="doctor",
+                dry_run=True,
+                state_dir=sd)
+            parsed = parse_lab_experiment_ticket(prop.get("outbox_path"))
+            rt_ok = bool(prop.get("ok") and parsed
+                         and parsed.get("experiment_id") == "labexp-wire-check"
+                         and parsed.get("live_send") is False)
+            checks.append({
+                "name": "propose_parse_roundtrip",
+                "ok": rt_ok,
+                "outbox_path": prop.get("outbox_path"),
+            })
+            ok = ok and rt_ok
+        finally:
+            if prev is None:
+                os.environ.pop("OCTOPUS_STATE_DIR", None)
+            else:
+                os.environ["OCTOPUS_STATE_DIR"] = prev
+    else:
+        checks.append({"name": "propose_parse_roundtrip", "ok": True, "skipped": True})
+
+    # 4) fail-closed poller uniqueness (dry-run fixture under state_dir)
+    uniq_summary: dict[str, Any]
+    try:
+        import poller_uniqueness as _pu  # noqa: WPS433
+        if dry_run:
+            sd = Path(state_dir) if state_dir is not None else (
+                _state_root() / "evelab-doctor-wire-fixture")
+            sd.mkdir(parents=True, exist_ok=True)
+            fixture_pid = 424242
+            _pu.seed_uniqueness_fixture(sd, center_pid=fixture_pid)
+            uniq = _pu.check_poller_uniqueness(
+                state_dir=sd,
+                center_pids=[fixture_pid],
+                require_lock_pid_alive=False,
+                scan_live_pids=False,
+            )
+            uniq_ok = bool(uniq.get("ok"))
+            uniq_summary = {
+                "name": "poller_uniqueness",
+                "ok": uniq_ok,
+                "fixture": True,
+                "center_pid_count": uniq.get("center_pid_count"),
+                "active_lease_count": uniq.get("active_lease_count"),
+                "tg_poller_lock_count": uniq.get("tg_poller_lock_count"),
+                "checks": uniq.get("checks"),
+                "reasons": uniq.get("reasons") or [],
+            }
+            ok = ok and uniq_ok
+        else:
+            # Non-dry path still fail-closed on live probe (read-only).
+            uniq = _pu.check_poller_uniqueness(state_dir=state_dir)
+            uniq_ok = bool(uniq.get("ok"))
+            uniq_summary = {
+                "name": "poller_uniqueness",
+                "ok": uniq_ok,
+                "fixture": False,
+                "center_pid_count": uniq.get("center_pid_count"),
+                "active_lease_count": uniq.get("active_lease_count"),
+                "tg_poller_lock_count": uniq.get("tg_poller_lock_count"),
+                "checks": uniq.get("checks"),
+                "reasons": uniq.get("reasons") or [],
+            }
+            ok = ok and uniq_ok
+    except Exception as exc:  # noqa: BLE001 — fail-closed
+        uniq_summary = {
+            "name": "poller_uniqueness",
+            "ok": False,
+            "error": type(exc).__name__,
+            "error_msg": str(exc)[:200],
+        }
+        ok = False
+    checks.append(uniq_summary)
+
+    return {
+        "ok": ok,
+        "dry_run": True,
+        "live_send": False,
+        "propose_only": True,
+        "checks": checks,
+        "wire": "evelab-doctor-reversible/1",
+    }

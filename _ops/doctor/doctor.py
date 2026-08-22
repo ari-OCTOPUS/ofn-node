@@ -696,6 +696,30 @@ class Doctor:
         except Exception:  # noqa: BLE001 — bridge must never break propose-only
             pass
 
+
+    def propose_lab_experiment_ticket(self, ticket=None, **kwargs):
+        """Additive: propose one lab experiment ticket into durable outbox.
+
+        Propose-only / dry-run default. Never live-sends. Never promotes.
+        Fail-soft — must not break doctor propose-only path.
+        """
+        try:
+            if str(_HERE) not in sys.path:
+                sys.path.insert(0, str(_HERE))
+            import lab_bridge as _lab_bridge  # noqa: WPS433
+            kw = dict(kwargs or {})
+            kw.setdefault("dry_run", True)
+            kw.setdefault("state_dir", Path(self._state_dir))
+            return _lab_bridge.propose_lab_experiment_ticket(ticket, **kw)
+        except Exception as exc:  # noqa: BLE001 — fail-soft
+            return {
+                "ok": False,
+                "error": type(exc).__name__,
+                "live_send": False,
+                "dry_run": True,
+                "propose_only": True,
+            }
+
     def apply_merge(self, rfc: RFC) -> bool:
         """اعمالِ merge بعد از human-append. این فقط بعد از تأییدِ تلگرامی صدا زده
         می‌شود. merge پشتِ flag. درسِ آموخته به knowledge/internal.
