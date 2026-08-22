@@ -105,5 +105,7 @@
     "released": false,
     "heartbeat": true,
     "expires_at_local": "2026-08-22T15:54:07+10:00"
-  }
+  },
+  "HEAD": "f2542451a572e018dd773ea0cf7aa674f4b74fc0",
+  "commit_subject": "fix(self): bind self_audit/self_insight to real evidence"
 }
