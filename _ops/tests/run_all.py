@@ -1287,6 +1287,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # 2026-08-22 OWNER — evolutionary doctor <-> self-upgrade lab
     # Telegram durable outbox. Fixture-only; fake transport; no live send.
     "test_evo_lab_bridge.py",
+    "test_evo_outbox_callback_soak.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

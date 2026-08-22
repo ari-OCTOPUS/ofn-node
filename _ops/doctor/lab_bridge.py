@@ -73,6 +73,108 @@ def _hash(value: object) -> str:
     return hashlib.sha256(blob.encode("utf-8", "replace")).hexdigest()
 
 
+
+def _owner_id(owner=None):
+    """Owner chat id for RFC callback tokens. Env fallback. Never network."""
+    if owner is not None and str(owner).strip() != "":
+        try:
+            return int(owner)
+        except (TypeError, ValueError):
+            return owner
+    raw = str(os.environ.get("TELEGRAM_OWNER_CHAT_ID", "") or "").strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return raw
+
+
+def attach_outbox_callback_token(rec: dict, *, rfc_id: str, summary: str = "",
+                                 owner=None, state_dir=None) -> dict:
+    """Smallest additive callback token on a QUEUED evo outbox card.
+
+    Uses outcomes.pending_card_recovery.prepare_rfc_card (nonce+hash durable;
+    bearer token only on the card payload). Fail-soft when secret/owner missing:
+    marks callback_token_missing=True and leaves merge/deny callback_data empty.
+    Never live-sends. Never opens a network socket.
+    """
+    out = dict(rec or {})
+    oid = _owner_id(owner)
+    sd = Path(state_dir) if state_dir is not None else _state_root()
+    rid = str(rfc_id or out.get("rfc_id") or "unknown")
+    made = None
+    why = "no-owner"
+    if oid is not None:
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            made = _pcr.prepare_rfc_card(
+                state_dir=sd, rfc_id=rid,
+                summary=summary or ("evo-lab " + rid),
+                owner=oid)
+            why = "prepare-failed" if not made else "ok"
+        except Exception as exc:  # noqa: BLE001 — fail-soft
+            made = None
+            why = "prepare-error:" + type(exc).__name__
+    else:
+        why = "no-owner"
+    if not made or not made.get("token"):
+        out["callback_token"] = ""
+        out["callback_merge"] = ""
+        out["callback_deny"] = ""
+        out["callback_token_missing"] = True
+        out["callback_token_why"] = why
+        return out
+    token = str(made["token"])
+    out["callback_token"] = token
+    out["callback_merge"] = "rfc:merge:%s:%s" % (rid, token)
+    out["callback_deny"] = "rfc:deny:%s:%s" % (rid, token)
+    out["callback_token_missing"] = False
+    out["callback_token_why"] = "ok"
+    out["callback_owner"] = oid
+    return out
+
+
+def parse_outbox_callback(payload) -> dict[str, Any] | None:
+    """Parse callback token fields back from an outbox card (path/dict/json).
+
+    Returns {"rfc_id", "token", "callback_merge", "callback_deny",
+             "callback_token_missing"} or None if not an evo outbox card.
+    Fixture / recovery helper. Never network.
+    """
+    data = payload
+    if isinstance(payload, (str, Path)):
+        path = Path(payload)
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+    if not isinstance(data, dict):
+        return None
+    if data.get("kind") not in (None, "evo-lab-rfc-card") and not data.get("rfc_id"):
+        if "callback_token" not in data and "callback_merge" not in data:
+            return None
+    rfc_id = data.get("rfc_id")
+    token = data.get("callback_token") or ""
+    merge = data.get("callback_merge") or ""
+    deny = data.get("callback_deny") or ""
+    if not token and merge.startswith("rfc:merge:"):
+        parts = merge.split(":")
+        if len(parts) >= 4:
+            rfc_id = rfc_id or parts[2]
+            token = parts[3]
+    return {
+        "rfc_id": rfc_id,
+        "token": token,
+        "callback_merge": merge or (
+            ("rfc:merge:%s:%s" % (rfc_id, token)) if rfc_id and token else ""),
+        "callback_deny": deny or (
+            ("rfc:deny:%s:%s" % (rfc_id, token)) if rfc_id and token else ""),
+        "callback_token_missing": bool(data.get("callback_token_missing")) or not bool(token),
+        "live_send": bool(data.get("live_send")),
+    }
+
+
 def _write_queued_outbox(text: str, result: dict) -> Path:
     """Persist a QUEUED card with payload_text so a later center restart can send it.
 
@@ -100,6 +202,12 @@ def _write_queued_outbox(text: str, result: dict) -> Path:
         "attempts": 0,
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime()),
     }
+    # Additive callback token for owner [merge]/[reject] buttons (no live send).
+    rec = attach_outbox_callback_token(
+        rec, rfc_id=rfc_id,
+        summary=str((result.get("telegram_card") or {}).get("bottleneck")
+                    or result.get("bottleneck") or rfc_id),
+        owner=result.get("callback_owner") or result.get("owner"))
     tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
     os.replace(tmp, path)
