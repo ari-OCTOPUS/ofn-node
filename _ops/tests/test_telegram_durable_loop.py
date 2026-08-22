@@ -270,6 +270,54 @@ def t_m_receipt_truth_labels():
     assert result.get("confirmation_denominator") == 3
 
 
+def t_n_remember_local_result_durable_ack():
+    """Disk commit + durable ACK of LocalCommandResult; fake transport only."""
+    dl, root = _fresh()
+    ops = str(Path(__file__).resolve().parents[1])
+    for extra in (ops, str(Path(ops) / "owner_console")):
+        if extra not in sys.path:
+            sys.path.insert(0, extra)
+    from owner_console import local_commands  # noqa: WPS433
+
+    store = root / "memory.jsonl"
+
+    def _boom(*_a, **_k):
+        raise AssertionError("model must not be called")
+
+    res = local_commands.handle_local("/remember fixture-ack: pearl",
+                                      model_fn=_boom, memory_store=store)
+    assert res.handled and res.memory_id and res.memory_id.startswith("mem-")
+    disk = store.read_text(encoding="utf-8")
+    assert res.memory_id in disk
+
+    ctx = dl.begin_update(_update(text="/remember fixture-ack: pearl"), authorized=True)
+    dl.bind_context(ctx)
+    seen = []
+
+    def fake_send():
+        rows = list((root / "telegram" / "loop" / "outbox").glob("*.json"))
+        assert len(rows) == 1
+        queued = json.loads(rows[0].read_text(encoding="utf-8"))
+        assert queued["state"] == "SENDING"
+        seen.append(queued["message_key"])
+        return {"ok": True, "result": {"message_id": 4242}}
+
+    out = dl.ack_local_result(res, chat_id=777, topic_id=None,
+                              stream="owner-reply", send_fn=fake_send)
+    assert out["deliver"]["ok"] is True
+    assert out["deliver"]["message_id"] == 4242
+    assert out["deliver"]["state"] == "CONFIRMED"
+    assert out["commit"]["state"] == "CLOSED"
+    assert len(seen) == 1
+    snap = dl.readback_event(ctx.event_id)
+    assert snap["state"] == "CLOSED" and snap["readback_verified"] is True
+    confirmed = json.loads(next((root / "telegram" / "loop" / "outbox").glob("*.json")).read_text(encoding="utf-8"))
+    assert confirmed["state"] == "CONFIRMED"
+    assert confirmed.get("delivery_truth") == "DELIVERY_CONFIRMED"
+
+
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_") and callable(v)]
     failed = []

@@ -137,7 +137,7 @@ def test_correct_keeps_historical():
     a = local_commands.handle_local("/remember کلمه رمز: مرجان",
                                     model_fn=_boom, memory_store=store)
     t1 = local_commands.last_remember(store=store)["occurred_at"]
-    b = local_commands.handle_local("/correct t-1 کلمه درست: صدف",
+    b = local_commands.handle_local(f"/correct {a.memory_id} کلمه درست: صدف",
                                     model_fn=_boom, memory_store=store)
     assert b.memory_id and b.memory_id != a.memory_id
     cur = local_commands.try_recall("کلمه رمز چه بود؟", store=store)
@@ -146,6 +146,39 @@ def test_correct_keeps_historical():
     assert hist.text == "مرجان"
     rows = local_commands._iter_memory(store)
     assert len(rows) == 2
+
+
+def test_correct_rejects_invalid_turn_id():
+    store = Path(tempfile.mkdtemp()) / "memory.jsonl"
+    a = local_commands.handle_local("/remember fixture-secret: coral",
+                                    model_fn=_boom, memory_store=store)
+    assert a.memory_id
+    before = store.read_text(encoding="utf-8") if store.exists() else ""
+    b = local_commands.handle_local("/correct t-1 fixture-secret: shell",
+                                    model_fn=_boom, memory_store=store)
+    assert b.handled is True
+    assert b.memory_id is None
+    assert b.receipt == "local-correct-invalid"
+    assert "unknown turn_id" in (b.text or "")
+    after = store.read_text(encoding="utf-8") if store.exists() else ""
+    assert after == before, "invalid /correct must not append memory"
+    c = local_commands.handle_local("/correct owner-cmd fixture-secret: shell",
+                                    model_fn=_boom, memory_store=store)
+    assert c.memory_id is None and c.receipt == "local-correct-invalid"
+    d = local_commands.handle_local("/correct not-a-real-id fixture-secret: shell",
+                                    model_fn=_boom, memory_store=store)
+    assert d.memory_id is None and d.receipt == "local-correct-invalid"
+
+
+def test_capabilities_and_degraded_drop_stale_a13():
+    os.environ["OCTOPUS_PAID_COGNITION"] = "0"
+    cap = local_commands.capabilities_text()
+    assert "A13" not in cap
+    r = telegram_adapter.handle_message("free text for brains",
+                                        surface_decision=_auth(), model_fn=_boom)
+    text = (r.get("reply") or {}).get("text") or ""
+    assert "A13" not in text
+    assert r["reason"] == "local-degraded-paid-paused"
 
 
 def test_quota_unattributed_not_eligible():
@@ -236,6 +269,8 @@ def main() -> int:
         test_unknown_slash_is_local_help_not_model,
         test_remember_then_recall_zero_model,
         test_correct_keeps_historical,
+        test_correct_rejects_invalid_turn_id,
+        test_capabilities_and_degraded_drop_stale_a13,
         test_quota_unattributed_not_eligible,
         test_quota_overshoot_blocks_before_network,
         test_post_migration_coverage_ignores_historic,

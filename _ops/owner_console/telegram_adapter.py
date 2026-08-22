@@ -104,7 +104,7 @@ def handle_message(text: str, *, surface_decision: dict, model_fn=None) -> dict:
         return {"handled": True, "reason": "local-degraded-paid-paused",
                 "reply": _ok_local(
                     f"[DEGRADED_LOCAL_ONLY] مغزها پیام را شنیدند (n={n}، advisory، "
-                    "executable=false). مدل پولی تا گیت A13 خاموش است. "
+                    "executable=false). "
                     "/status · /remember"
                     + extra,
                     kind="local-degraded"),

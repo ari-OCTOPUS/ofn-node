@@ -193,7 +193,7 @@ def memory_text() -> str:
 
 def capabilities_text() -> str:
     return ("حلقهٔ مالک: ingest دوزمانی → حافظه → HC/WM → gate → "
-            "مدل امضاشده (پولی تا A13 خاموش) → یک پاسخ → memory commit. executable=false")
+            "مدل امضاشده → یک پاسخ → memory commit. executable=false")
 
 
 def _normalize_cmd(text: str) -> tuple[str, str]:
@@ -332,6 +332,43 @@ def _remember(payload: str, *, store: Path | None = None) -> tuple[str, str]:
     return mid, f"✓ ثبت شد: {mid} (semantic candidate — تا تأیید شما fact نمی‌شود)"
 
 
+_DUMMY_TURN_IDS = frozenset({"", "owner-cmd"})
+
+
+def _all_memory_rows(store: Path) -> list[dict]:
+    rows: list[dict] = []
+    if not store.exists():
+        return rows
+    try:
+        for line in store.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                rows.append(json.loads(line))
+            except ValueError:
+                continue
+    except OSError:
+        return []
+    return rows
+
+
+def _resolve_correct_target(token: str, store: Path) -> dict | None:
+    """Accept only a memory/turn id that already exists on disk. First token is not trusted."""
+    token = (token or "").strip()
+    if not token or token in _DUMMY_TURN_IDS:
+        return None
+    for row in _all_memory_rows(store):
+        if str(row.get("id") or "") == token:
+            return row
+        tid = str(row.get("turn_id") or "")
+        if tid and tid not in _DUMMY_TURN_IDS and tid == token:
+            return row
+        uid = row.get("update_id")
+        if uid is not None and str(uid) == token:
+            return row
+    return None
+
+
 def _correct(raw: str, *, store: Path | None = None) -> LocalCommandResult:
     """Append a new version. Previous row is kept. `/correct <turn_id> کلمه درست: صدف`."""
     dest = Path(store) if store is not None else MEMORY_STORE
@@ -349,11 +386,17 @@ def _correct(raw: str, *, store: Path | None = None) -> LocalCommandResult:
             break
     if not payload:
         return _ok("local-command", "usage: /correct <turn_id> کلمه درست: <text>")
+    target = _resolve_correct_target(turn_id, dest)
+    if target is None:
+        return _ok("local-command",
+                   f"unknown turn_id: {turn_id} -- not a real memory/turn id",
+                   receipt="local-correct-invalid")
     prev = last_remember(store=dest)
     mid, _msg = _remember(payload, store=dest)
     return _ok("local-command", f"✓ اصلاح ثبت شد: {mid} (نسخهٔ قبلی حذف نشد)",
                memory_id=mid, receipt="local-correct",
-               extras={"supersedes": (prev or {}).get("id"), "turn_id": turn_id})
+               extras={"supersedes": (prev or {}).get("id") or target.get("id"),
+                       "turn_id": turn_id})
 
 
 def _feedback(cmd: str, raw: str) -> str:

@@ -477,3 +477,24 @@ def commit_result(result: object) -> dict:
     except Exception:
         pass
     return row
+
+
+def ack_local_result(result: object, *, chat_id, topic_id=None,
+                     stream: str = "owner-reply",
+                     send_fn: Callable[[], dict | None]) -> dict:
+    """Deliver a typed LocalCommandResult through the durable outbox.
+
+    send_fn is injected. This function never opens a network socket.
+    Fixture tests pass a fake transport and assert outbox/confirm receipts.
+    """
+    if hasattr(result, "text"):
+        text = str(getattr(result, "text") or "")
+    elif isinstance(result, dict):
+        text = str(result.get("text") or "")
+    else:
+        text = str(result or "")
+    delivered = deliver(text=text, chat_id=chat_id, topic_id=topic_id,
+                        stream=stream, send_fn=send_fn)
+    closed = commit_result(result)
+    return {"deliver": delivered, "commit": closed, "text": text}
+
