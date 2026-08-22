@@ -1142,13 +1142,43 @@ class Doctor:
                                 rfc_obj.status = "reconcile-required"
                                 continue
                             try:
-                                applied = self.apply_merge(rfc_obj)
+                                # P0 MERGE-EFFECT: [merge] -> gate_promote(+proofs) -> apply_merge.
+                                # Legacy RFCs without proofs keep direct apply_merge (require_gate auto-off).
+                                if str(_HERE) not in sys.path:
+                                    sys.path.insert(0, str(_HERE))
+                                import lab_bridge as _lb_merge  # noqa: WPS433
+                                _proofs = _lb_merge.proofs_from_rfc(rfc_obj)
+                                _vout = _lb_merge.apply_owner_verdict(
+                                    verb="merge",
+                                    apply_merge_fn=self.apply_merge,
+                                    rfc=rfc_obj,
+                                    test_ok=bool(_proofs.get("test_ok")),
+                                    evidence_path=_proofs.get("evidence_path"),
+                                    rollback_plan=_proofs.get("rollback_plan"),
+                                    require_gate=_proofs.get("require_gate"),
+                                )
+                                applied = bool(_vout.get("applied"))
                                 if applied:
                                     receipt_id = str(rfc_obj.ledger_ref or "")
                             except Exception as _ame:
-                                opslib.alert([f"doctor apply_merge failed: {type(_ame).__name__}"])
+                                try:
+                                    applied = self.apply_merge(rfc_obj)
+                                    if applied:
+                                        receipt_id = str(rfc_obj.ledger_ref or "")
+                                except Exception as _ame2:
+                                    opslib.alert([f"doctor apply_merge failed: {type(_ame2).__name__}"])
                         elif mapped == "rejected":
-                            rfc_obj.status = "human-rejected"
+                            try:
+                                if str(_HERE) not in sys.path:
+                                    sys.path.insert(0, str(_HERE))
+                                import lab_bridge as _lb_rej  # noqa: WPS433
+                                _lb_rej.apply_owner_verdict(
+                                    verb="reject",
+                                    apply_merge_fn=self.apply_merge,
+                                    rfc=rfc_obj,
+                                )
+                            except Exception:
+                                rfc_obj.status = "human-rejected"
                     # APPLIED only after an operation receipt. Deny is terminal REJECTED.
                     acked = self._channel.ack_rfc_verdict(
                         rfc_id, revision, applied=applied,

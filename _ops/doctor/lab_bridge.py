@@ -229,3 +229,106 @@ def refuse_merge_without_proofs(*, test_ok: bool = False, evidence_path=None,
     g = gate_merge(test_ok=test_ok, evidence_path=evidence_path,
                    rollback_plan=rollback_plan)
     return {"allowed": bool(g.get("ok")), "gate": g, "live_promote": False}
+
+
+def proofs_from_rfc(rfc) -> dict:
+    """Extract lab/gate proofs from an RFC (sandbox_result or attributes). Additive."""
+    sr = getattr(rfc, "sandbox_result", None)
+    if not isinstance(sr, dict):
+        sr = {}
+    test_ok = sr.get("test_ok")
+    if test_ok is None:
+        test_ok = (sr.get("test_outcome") == "pass")
+    evidence_path = sr.get("evidence_path") or getattr(rfc, "evidence_path", None)
+    rollback_plan = (
+        sr.get("rollback_plan")
+        or getattr(rfc, "rollback", None)
+        or sr.get("rollback")
+    )
+    # Lab / evo cards always enforce gate_promote (even when proofs are incomplete).
+    labby = bool(
+        sr.get("experiment_id")
+        or sr.get("lab_proofs")
+        or sr.get("proposed_promote") is not None
+        or sr.get("worktree")
+    )
+    return {
+        "test_ok": bool(test_ok),
+        "evidence_path": evidence_path,
+        "rollback_plan": rollback_plan,
+        "require_gate": labby,
+    }
+
+
+def apply_owner_verdict(*, verb: str,
+                        apply_merge_fn: Callable[..., bool] | None = None,
+                        rfc=None,
+                        test_ok: bool = False,
+                        evidence_path=None,
+                        rollback_plan=None,
+                        require_gate: bool | None = None) -> dict[str, Any]:
+    """Owner human-append [merge]/[reject] -> real effect.
+
+    [merge]: gate_promote (test+evidence+rollback) then apply_merge_fn.
+    [reject]/deny: never promote / never apply_merge.
+    No live Telegram. No auto-merge without an explicit merge verb.
+    """
+    v = str(verb or "").strip().lower()
+    if v in ("reject", "denied", "deny", "[reject]"):
+        if rfc is not None and hasattr(rfc, "status"):
+            try:
+                rfc.status = "human-rejected"
+            except Exception:
+                pass
+        return {
+            "verb": "reject",
+            "applied": False,
+            "promoted": False,
+            "live_promote": False,
+            "gate": None,
+        }
+    if v in ("merge", "merge-approved", "approved", "[merge]"):
+        has_proof_intent = bool(
+            test_ok or (evidence_path is not None and str(evidence_path).strip())
+            or (rollback_plan is not None and str(rollback_plan).strip())
+        )
+        enforce = bool(require_gate) if require_gate is not None else has_proof_intent
+        if enforce:
+            gate = gate_merge(test_ok=test_ok, evidence_path=evidence_path,
+                              rollback_plan=rollback_plan)
+            if not gate.get("ok"):
+                return {
+                    "verb": "merge",
+                    "applied": False,
+                    "promoted": False,
+                    "live_promote": False,
+                    "refused": True,
+                    "gate": gate,
+                }
+        else:
+            gate = None
+        if apply_merge_fn is None:
+            return {
+                "verb": "merge",
+                "applied": False,
+                "promoted": False,
+                "live_promote": False,
+                "error": "missing-apply_merge_fn",
+                "gate": gate,
+            }
+        applied = bool(apply_merge_fn(rfc))
+        return {
+            "verb": "merge",
+            "applied": applied,
+            "promoted": applied,
+            "live_promote": False,
+            "gate": gate,
+            "legacy": gate is None,
+        }
+    return {
+        "verb": v,
+        "applied": False,
+        "promoted": False,
+        "live_promote": False,
+        "error": "unknown-verb",
+    }

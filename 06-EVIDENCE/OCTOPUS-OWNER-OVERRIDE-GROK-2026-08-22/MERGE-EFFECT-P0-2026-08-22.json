@@ -1,0 +1,52 @@
+{
+  "schema": "merge-effect-p0/1",
+  "title": "MERGE-EFFECT-P0-2026-08-22",
+  "ts_sydney": "2026-08-22T14:15:54+10:00",
+  "live_send": false,
+  "paid": false,
+  "center_restart": false,
+  "auto_merge_without_human_append": false,
+  "starting_head": "5aef4fca4ab5e3ceda005f5d2aa2c0a4b517198c",
+  "pre_commit_head": "5aef4fca4ab5e3ceda005f5d2aa2c0a4b517198c",
+  "writer": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726"
+  },
+  "path_was_missing_or_present": {
+    "apply_merge_in_run_cycle": "already_present_as_self.apply_merge(rfc_obj)",
+    "self_audit_probe_string": "stale_grep_for_self.apply_merge(self._rfcs[rfc_id])_Missing_static",
+    "gate_promote_on_owner_verdict": "missing_added_via_lab_bridge.apply_owner_verdict"
+  },
+  "wire": {
+    "telegram_human_append": "approval_channel._dispatch_rfc verb merge|deny -> persist merge-approved|denied",
+    "doctor_consume": "claim_rfc_verdicts -> apply_owner_verdict -> gate_promote -> apply_merge",
+    "reject": "apply_owner_verdict(reject) -> human-rejected; no promote",
+    "flag": "OCTOPUS_WIRE_APPLY_MERGE default 1",
+    "checkpoint_flag": "OCTOPUS_WIRE_MERGE_CHECKPOINT (unchanged)"
+  },
+  "files": [
+    "_ops/doctor/lab_bridge.py",
+    "_ops/doctor/doctor.py",
+    "_ops/cortex/self_audit.py",
+    "_ops/tests/test_merge_effect_p0.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/MERGE-EFFECT-P0-2026-08-22.json"
+  ],
+  "tests": {
+    "test_merge_effect_p0.py": "6/6 PASS",
+    "test_merge_applies_knob.py": "9/9 PASS (legacy regression)"
+  },
+  "self_audit_probe": {
+    "item": "owner merge verdict has real effect (apply_merge wired)",
+    "status": "Done",
+    "evidence": "run_cycle claim→apply_owner_verdict→gate_promote→apply_merge; [reject] skips promote; apply_merge=True, WIRE_APPLY_MERGE=True, claim_rfc_verdicts=True, apply_owner_verdict=True, gate_promote_or_merge=True, reject_path=True",
+    "priority": "P0",
+    "gap_type": "none",
+    "section": "§15 human-in-loop",
+    "evidence_bound": true
+  },
+  "next_leftover": [
+    "text-literal [merge]/[reject] free-text parser (buttons/callbacks already work)",
+    "optional: bind evidence JSON path into probe Done criteria",
+    "evo-lab outbox card -> callback token end-to-end soak (no live send)"
+  ]
+}

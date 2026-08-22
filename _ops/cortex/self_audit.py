@@ -662,14 +662,52 @@ def _probe_human_append_enforced():
                  "P0", "none" if wired else "governance", "§15 human-in-loop")
 
 
+def _lab_bridge_py_path() -> Path:
+    return OPS / "doctor" / "lab_bridge.py"
+
+
 def _probe_owner_verdict_effect():
-    """P0 رفع‌شده (جلسه ۴۶): apply_merge در run_cycle بعد از verdictِ merged."""
-    called = _grep(OPS / "doctor" / "doctor.py", "self.apply_merge(self._rfcs[rfc_id])")
-    return _item("owner merge verdict has real effect (apply_merge wired)",
-                 "Done" if called else "Missing",
-                 "run_cycle: merged→apply_merge (lesson+NOTE، پشتِ OCTOPUS_WIRE_APPLY_MERGE) "
-                 "+ رفعِ باگِ to_markdown float",
-                 "P0", "none" if called else "implementation", "§15 human-in-loop")
+    """P0 MERGE-EFFECT: owner [merge]/[reject] human-append must hit apply_merge + gate_promote."""
+    doc = _doctor_py_path()
+    lb = _lab_bridge_py_path()
+    try:
+        dsrc = doc.read_text("utf-8")
+    except OSError:
+        return _item("owner merge verdict has real effect (apply_merge wired)", "Missing",
+                     f"doctor.py missing/unreadable: {doc}",
+                     "P0", "implementation", "§15 human-in-loop",
+                     evidence_bound=True)
+    try:
+        lsrc = lb.read_text("utf-8")
+    except OSError:
+        return _item("owner merge verdict has real effect (apply_merge wired)", "Missing",
+                     f"lab_bridge.py missing/unreadable: {lb}",
+                     "P0", "implementation", "§15 human-in-loop",
+                     evidence_bound=True)
+    has_apply = "self.apply_merge(rfc_obj)" in dsrc or "self.apply_merge(self._rfcs[rfc_id])" in dsrc
+    has_wire = "OCTOPUS_WIRE_APPLY_MERGE" in dsrc
+    has_claim = "claim_rfc_verdicts" in dsrc
+    has_owner_fn = "def apply_owner_verdict" in lsrc
+    has_gate = ("gate_promote" in lsrc) or ("def gate_merge" in lsrc)
+    has_reject = ('verb="reject"' in dsrc) or ("human-rejected" in dsrc)
+    bits = [f"apply_merge={has_apply}", f"WIRE_APPLY_MERGE={has_wire}",
+            f"claim_rfc_verdicts={has_claim}", f"apply_owner_verdict={has_owner_fn}",
+            f"gate_promote_or_merge={has_gate}", f"reject_path={has_reject}"]
+    if not (has_apply and has_wire and has_claim):
+        return _item("owner merge verdict has real effect (apply_merge wired)", "Missing",
+                     "owner merge path incomplete; " + ", ".join(bits),
+                     "P0", "implementation", "§15 human-in-loop",
+                     evidence_bound=True)
+    if has_apply and has_wire and has_claim and has_owner_fn and has_gate and has_reject:
+        return _item("owner merge verdict has real effect (apply_merge wired)", "Done",
+                     "run_cycle claim→apply_owner_verdict→gate_promote→apply_merge; "
+                     "[reject] skips promote; " + ", ".join(bits),
+                     "P0", "none", "§15 human-in-loop",
+                     evidence_bound=True)
+    return _item("owner merge verdict has real effect (apply_merge wired)", "Partial",
+                 "apply_merge wired but gate/owner verdict incomplete; " + ", ".join(bits),
+                 "P0", "implementation", "§15 human-in-loop",
+                 evidence_bound=True)
 
 
 def _probe_autonomy_consumed():
