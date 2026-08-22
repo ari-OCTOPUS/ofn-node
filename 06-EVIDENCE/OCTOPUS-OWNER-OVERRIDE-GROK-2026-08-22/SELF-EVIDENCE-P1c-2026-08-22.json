@@ -108,6 +108,7 @@
     "heartbeat": true,
     "expires_at_local": "2026-08-22T15:54:07+10:00"
   },
-  "HEAD": null,
-  "commit_subject": "fix(self): bind remaining static self_audit probes to evidence"
+  "HEAD": "1cacb447aa475fa5b67fabdd1c023518d8a3ea7b",
+  "commit_subject": "fix(self): bind remaining static self_audit probes to evidence",
+  "recorded_final_head_at": "2026-08-22T13:57:57+10:00"
 }
