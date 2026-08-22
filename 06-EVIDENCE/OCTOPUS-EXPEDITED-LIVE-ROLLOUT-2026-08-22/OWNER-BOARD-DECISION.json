@@ -1,7 +1,27 @@
 {
   "schema": "octopus-owner-board-decision/1",
   "received_at_local": "2026-08-22T15:20:33.971891+10:00",
-  "decision": "DEFER_BOARD_CHG_FINISH_LAPTOP_EXPEDITED_FIRST",
-  "board_mode": "WAVE0_OBSERVE_ONLY",
-  "chg_authorized": null
+  "updated_at_local": "2026-08-22T16:53:45+10:00",
+  "prior_decision": "DEFER_BOARD_CHG_FINISH_LAPTOP_EXPEDITED_FIRST",
+  "decision": "AUTHORIZE_ORANGEPI_CHG_ABD_SEPARATE_PLANS",
+  "board_mode": "WAVE0_OBSERVE_ACTUATORS_LOCKED_CHG_ABD_SERVICE_REPAIR",
+  "chg_authorized": {
+    "package": [
+      "A",
+      "B",
+      "D"
+    ],
+    "excluded": [
+      "C_NATS",
+      "E_compaction_unless_incidental_to_A"
+    ],
+    "authorization_id": "OCTOPUS-ORANGEPI-CHG-ABD-20260822",
+    "executor": "sensoriom",
+    "order": [
+      "A",
+      "D",
+      "B"
+    ],
+    "evidence": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22"
+  }
 }

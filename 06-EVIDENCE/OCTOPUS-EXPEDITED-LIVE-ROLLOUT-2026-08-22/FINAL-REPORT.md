@@ -69,3 +69,13 @@
 - RFC-MERGE / CANARY-N1 / LIVE-B-RESULT
 - POST-ACTIVATION-SAMPLES.jsonl / POST-ACTIVATION-SUMMARY / SIDE-EFFECT-ACCOUNTING
 - POST-SOAK-PRIORITY / PROGRESS / FINAL-REPORT (this file)
+
+
+## Update — Orange Pi CHG A+B+D authorized (2026-08-22T16:53:45+10:00)
+
+- Owner (via ari) authorized package **A+B+D** with **separate plans**; executor **sensoriom**; laptop writer plans/grants only (no Pi SSH).
+- Evidence: `06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/`
+- Order: **A → D → B** (see EXECUTION-ORDER.md).
+- Excluded: **C NATS**, **E compaction** (except incidental quarantine under A).
+- Obsidian: `07 - Knowledge/شناخت-اختاپوس/83-ORANGEPI-CHG-ABD-AUTHORIZED-2026-08-22.md`
+- Board decision file updated: `chg_authorized` now set (no longer null).
