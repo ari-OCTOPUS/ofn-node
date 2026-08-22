@@ -48,5 +48,6 @@
     "text-literal [merge]/[reject] free-text parser (buttons/callbacks already work)",
     "optional: bind evidence JSON path into probe Done criteria",
     "evo-lab outbox card -> callback token end-to-end soak (no live send)"
-  ]
+  ],
+  "note_lf": "sources normalized to LF to match repo (PowerShell write had CRLF)"
 }
