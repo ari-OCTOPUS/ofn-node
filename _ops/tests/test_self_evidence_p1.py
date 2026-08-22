@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """self_audit/self_insight must bind Done to real on-disk evidence."""
 from __future__ import annotations
@@ -131,7 +131,7 @@ class TraceBasedProbeTests(unittest.TestCase):
 class RunAuditEvidenceFlagTests(unittest.TestCase):
     def test_run_audit_reports_evidence_bound_and_not_static_only(self):
         r = sa.run_audit(write=False)
-        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 4)
+        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 8)
         self.assertFalse(r.get("static_by_construction"))
         eb = [it for it in r["items"] if it.get("evidence_bound")]
         self.assertGreaterEqual(len(eb), 4)
@@ -349,13 +349,166 @@ class InsightPollAndBrierCardTests(unittest.TestCase):
 class RunAuditEvidenceBoundFloorTests(unittest.TestCase):
     def test_run_audit_has_at_least_four_evidence_bound(self):
         r = sa.run_audit(write=False)
-        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 4)
+        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 8)
         eb_items = [it for it in r["items"] if it.get("evidence_bound")]
         self.assertGreaterEqual(len(eb_items), 4)
-        needles = ("dashboard", "stop-condition", "poll-health", "calibration", "trace-based")
+        needles = ("dashboard", "stop-condition", "poll-health", "calibration", "trace-based", "shadow-eval", "regression suite", "routing logic", "blind-vs-informed")
         blob = " ".join(it["item"].lower() for it in eb_items)
         hits = sum(1 for n in needles if n in blob)
-        self.assertGreaterEqual(hits, 3, blob)
+        self.assertGreaterEqual(hits, 6, blob)
+
+
+
+class ShadowBeforePromoteProbeTests(unittest.TestCase):
+    def test_missing_doctor_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / "doctor.py"
+        with mock.patch.object(sa, "_doctor_py_path", return_value=missing):
+            item = sa._probe_shadow_before_promote()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+        self.assertNotEqual(item["status"], "Done")
+
+    def test_stubbed_doctor_without_sandbox_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "doctor.py"
+        py.write_text("# empty stub\nclass Doctor:\n    pass\n", encoding="utf-8")
+        with mock.patch.object(sa, "_doctor_py_path", return_value=py):
+            item = sa._probe_shadow_before_promote()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_sandbox_lift_tempfile_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "doctor.py"
+        body = chr(10).join([
+            "import tempfile",
+            "def run_sandbox(self, rfc):",
+            "    d = tempfile.mkdtemp(prefix='doctor-sandbox-')",
+            "    return {'measured_lift': 0.1}",
+            "# measured_lift used by evolution",
+            "",
+        ])
+        py.write_text(body, encoding="utf-8")
+        with mock.patch.object(sa, "_doctor_py_path", return_value=py):
+            item = sa._probe_shadow_before_promote()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertTrue(item.get("evidence_bound"))
+        self.assertIn("run_sandbox=True", item["evidence"])
+
+
+class RegressionSuiteProbeTests(unittest.TestCase):
+    def test_missing_run_all_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / "run_all.py"
+        with mock.patch.object(sa, "_run_all_py_path", return_value=missing):
+            item = sa._probe_regression_suite()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_thin_tests_list_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        ra = root / "run_all.py"
+        ra.write_text('TESTS = ["test_a.py"]' + chr(10), encoding="utf-8")
+        (root / "test_a.py").write_text("#" + chr(10), encoding="utf-8")
+        with mock.patch.object(sa, "_run_all_py_path", return_value=ra):
+            item = sa._probe_regression_suite()
+        self.assertEqual(item["status"], "Partial")
+        self.assertNotEqual(item["status"], "Done")
+
+    def test_fixture_suite_with_held_out_and_cap_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        names = [f"test_{i}.py" for i in range(25)]
+        names[0] = "test_held_out_evaluator.py"
+        names[1] = "test_capability_gate.py"
+        for n in names:
+            (root / n).write_text("#" + chr(10), encoding="utf-8")
+        ra = root / "run_all.py"
+        body_lines = ["TESTS = ["] + [f'    "{n}",' for n in names] + ["]"]
+        ra.write_text(chr(10).join(body_lines) + chr(10), encoding="utf-8")
+        with mock.patch.object(sa, "_run_all_py_path", return_value=ra):
+            item = sa._probe_regression_suite()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertTrue(item.get("evidence_bound"))
+        self.assertIn("held_out=True", item["evidence"])
+
+
+class DeterministicRoutingProbeTests(unittest.TestCase):
+    def test_missing_e2e_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / "test_telegram_poll_e2e.py"
+        with mock.patch.object(sa, "_routing_e2e_path", return_value=missing):
+            item = sa._probe_deterministic_routing_tests()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_stubbed_e2e_without_matrix_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "test_telegram_poll_e2e.py"
+        py.write_text("# no tests here" + chr(10), encoding="utf-8")
+        with mock.patch.object(sa, "_routing_e2e_path", return_value=py):
+            item = sa._probe_deterministic_routing_tests()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_dispatch_matrix_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "test_telegram_poll_e2e.py"
+        src = chr(10).join([
+            "# dispatch matrix",
+            "def t_a_menu():",
+            "    ch.poll_once()",
+            "    assert 'menu:'",
+            "def t_b_now():",
+            "    ch.poll_once()",
+            "def t_c_foreign():",
+            "    callback_query = {}",
+            "    ch.poll_once()",
+            "def t_d_drop():",
+            "    ch.poll_once()",
+            "MENU = 'menu:overview'",
+            "",
+        ])
+        py.write_text(src, encoding="utf-8")
+        with mock.patch.object(sa, "_routing_e2e_path", return_value=py):
+            item = sa._probe_deterministic_routing_tests()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertIn("t_defs=4", item["evidence"])
+
+
+class BlindInformedProbeTests(unittest.TestCase):
+    def test_missing_sog_math_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / "sog_math.py"
+        with mock.patch.object(sa, "_sog_math_path", return_value=missing):
+            item = sa._probe_blind_informed()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_stubbed_sog_math_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "sog_math.py"
+        py.write_text("def unrelated():" + chr(10) + "    return 1" + chr(10), encoding="utf-8")
+        with mock.patch.object(sa, "_sog_math_path", return_value=py):
+            item = sa._probe_blind_informed()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_blind_informed_syms_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "sog_math.py"
+        body = chr(10).join([
+            "# blind vs informed",
+            "def delta_self(fl):",
+            "    return 0.0",
+            "def e_shadow(fl):",
+            "    return 0.0",
+            "def mc_witness_core(**kw):",
+            "    return {}",
+            "",
+        ])
+        py.write_text(body, encoding="utf-8")
+        with mock.patch.object(sa, "_sog_math_path", return_value=py):
+            item = sa._probe_blind_informed()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertTrue(item.get("evidence_bound"))
+
 
 if __name__ == "__main__":
     # keep harness-style + unittest dual entry

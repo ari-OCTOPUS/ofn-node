@@ -98,6 +98,55 @@ def _calibration_py_path() -> Path:
     return OPS / "doctor" / "calibration.py"
 
 
+def _run_all_py_path() -> Path:
+    return OPS / "tests" / "run_all.py"
+
+
+def _doctor_py_path() -> Path:
+    return OPS / "doctor" / "doctor.py"
+
+
+def _routing_e2e_path() -> Path:
+    return OPS / "tests" / "test_telegram_poll_e2e.py"
+
+
+def _sog_math_path() -> Path:
+    return OPS / "heart" / "sog_math.py"
+
+
+def _parse_run_all_tests(path: Path):
+    """Parse TESTS = [...] filenames from run_all.py; None if missing/unreadable."""
+    import ast
+    try:
+        src = path.read_text("utf-8")
+    except OSError:
+        return None
+    import re as _re
+    m = _re.search(r"^TESTS\s*=\s*\[", src, _re.M)
+    if not m:
+        return None
+    start = m.end() - 1
+    depth = 0
+    end = None
+    for i, ch in enumerate(src[start:], start):
+        if ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end is None:
+        return None
+    try:
+        names = ast.literal_eval(src[start:end])
+    except (SyntaxError, ValueError):
+        return None
+    if not isinstance(names, list):
+        return None
+    return [n for n in names if isinstance(n, str)]
+
+
 def _read_stop_constants(path: Path):
     """Parse REJECT_FORGET_N / PENDING_* caps from calibration.py source."""
     import re
@@ -326,11 +375,33 @@ def _probe_stop_condition():
 
 
 def _probe_shadow_before_promote():
-    ok = (OPS / "doctor" / "doctor.py").exists()
-    return _item("improvement proposals shadow-eval before promote", "Partial" if ok else "Missing",
-                 "run_sandbox (tempfile isolated) + critic؛ ولی measured_lift eval هنوز stub",
-                 "P0", "implementation", "§9/§10 self-improve")
-
+    """Was file-exists on doctor.py. Now requires run_sandbox + measured_lift + tempfile."""
+    doc = _doctor_py_path()
+    try:
+        src = doc.read_text("utf-8")
+    except OSError:
+        return _item("improvement proposals shadow-eval before promote", "Missing",
+                     f"doctor.py missing/unreadable: {doc}",
+                     "P0", "implementation", "A9/A10 self-improve",
+                     evidence_bound=True)
+    has_sandbox = "def run_sandbox" in src
+    has_lift = "measured_lift" in src
+    has_tmp = ("tempfile.mkdtemp" in src) or ("tempfile.TemporaryDirectory" in src)
+    bits = [f"run_sandbox={has_sandbox}", f"measured_lift={has_lift}", f"tempfile_iso={has_tmp}"]
+    if not (has_sandbox or has_lift or has_tmp):
+        return _item("improvement proposals shadow-eval before promote", "Partial",
+                     "doctor.py present but no sandbox/lift/tempfile markers; " + ", ".join(bits),
+                     "P0", "implementation", "A9/A10 self-improve",
+                     evidence_bound=True)
+    if has_sandbox and has_lift and has_tmp:
+        return _item("improvement proposals shadow-eval before promote", "Done",
+                     "doctor.run_sandbox + measured_lift + tempfile isolation; " + ", ".join(bits),
+                     "P0", "none", "A9/A10 self-improve",
+                     evidence_bound=True)
+    return _item("improvement proposals shadow-eval before promote", "Partial",
+                 "shadow-eval incomplete; " + ", ".join(bits),
+                 "P0", "implementation", "A9/A10 self-improve",
+                 evidence_bound=True)
 
 def _probe_change_leveling():
     return _item("change leveled: tune/reconfig/rewrite + contract", "Missing",
@@ -353,25 +424,109 @@ def _probe_rollback():
 
 
 def _probe_regression_suite():
-    marker = (OPS / "budget" / "capability-marker.json").exists() or (OPS / "tests" / "run_all.py").exists()
-    return _item("regression suite / golden tasks", "Done" if marker else "Missing",
-                 "tests/run_all.py (87 files) + capability_gate marker + held_out_evaluator canaries",
-                 "P0", "none" if marker else "implementation", "§11 validation")
-
+    """Was .exists() on marker/run_all. Now parses TESTS and verifies files on disk."""
+    run_all = _run_all_py_path()
+    names = _parse_run_all_tests(run_all)
+    if names is None:
+        return _item("regression suite / golden tasks", "Missing",
+                     f"run_all.py missing/unparseable TESTS: {run_all}",
+                     "P0", "implementation", "A11 validation",
+                     evidence_bound=True)
+    tests_dir = run_all.parent
+    existing = []
+    for n in names:
+        p = tests_dir / n
+        if p.exists():
+            existing.append(n)
+            continue
+        stem = Path(n).stem
+        if (tests_dir / stem).is_dir():
+            existing.append(n)
+    n_list = len(names)
+    n_exist = len(existing)
+    has_held = any("held_out" in n for n in names)
+    has_cap = any("capability_gate" in n for n in names)
+    bits = f"TESTS={n_list} exist={n_exist} held_out={has_held} capability_gate={has_cap}"
+    if n_list < 20 or n_exist < 15:
+        return _item("regression suite / golden tasks", "Partial",
+                     f"suite thin/incomplete: {bits}",
+                     "P0", "implementation", "A11 validation",
+                     evidence_bound=True)
+    if not (has_held and has_cap):
+        return _item("regression suite / golden tasks", "Partial",
+                     f"missing golden/canary markers in TESTS: {bits}",
+                     "P0", "implementation", "A11 validation",
+                     evidence_bound=True)
+    need = max(20, int(0.7 * n_list))
+    if n_exist < need:
+        return _item("regression suite / golden tasks", "Partial",
+                     f"listed tests missing on disk need>={need}: {bits}",
+                     "P0", "implementation", "A11 validation",
+                     evidence_bound=True)
+    return _item("regression suite / golden tasks", "Done",
+                 f"run_all TESTS verified on disk; {bits}",
+                 "P0", "none", "A11 validation",
+                 evidence_bound=True)
 
 def _probe_deterministic_routing_tests():
-    ok = (OPS / "tests" / "test_telegram_poll_e2e.py").exists()
-    return _item("deterministic tests for routing logic", "Done" if ok else "Partial",
-                 "test_telegram_poll_e2e (dispatch matrix) + test_cortex router fallback",
-                 "P1", "none" if ok else "implementation", "§11 validation")
-
+    """Was file-exists on test_telegram_poll_e2e.py. Now reads dispatch matrix defs."""
+    import re as _re
+    p = _routing_e2e_path()
+    try:
+        src = p.read_text("utf-8")
+    except OSError:
+        return _item("deterministic tests for routing logic", "Missing",
+                     f"routing e2e missing/unreadable: {p}",
+                     "P1", "implementation", "A11 validation",
+                     evidence_bound=True)
+    t_defs = _re.findall(r"^def (t_\w+)\(", src, _re.M)
+    has_poll = "poll_once" in src
+    has_cb = "callback_query" in src or "dispatch" in src.lower()
+    has_menu = "menu:" in src
+    bits = f"t_defs={len(t_defs)} poll_once={has_poll} callback/dispatch={has_cb} menu={has_menu}"
+    if not t_defs:
+        return _item("deterministic tests for routing logic", "Partial",
+                     f"e2e present but no t_* tests; {bits}",
+                     "P1", "implementation", "A11 validation",
+                     evidence_bound=True)
+    if len(t_defs) >= 4 and has_poll and (has_cb or has_menu):
+        return _item("deterministic tests for routing logic", "Done",
+                     f"dispatch matrix in {p.name}: {bits}",
+                     "P1", "none", "A11 validation",
+                     evidence_bound=True)
+    return _item("deterministic tests for routing logic", "Partial",
+                 f"routing coverage thin; {bits}",
+                 "P1", "implementation", "A11 validation",
+                 evidence_bound=True)
 
 def _probe_blind_informed():
-    ok = (OPS / "heart" / "sog_math.py").exists()
-    return _item("blind-vs-informed evaluation harness", "Done" if ok else "Missing",
-                 "sog_math (blind/informed losses, MC-validated) + producers.delta_self_estimator",
-                 "P1", "none" if ok else "theory", "§11 validation")
-
+    """Was file-exists on sog_math.py. Now requires blind/informed symbols."""
+    p = _sog_math_path()
+    try:
+        src = p.read_text("utf-8")
+    except OSError:
+        return _item("blind-vs-informed evaluation harness", "Missing",
+                     f"sog_math.py missing/unreadable: {p}",
+                     "P1", "theory", "A11 validation",
+                     evidence_bound=True)
+    need = ("def delta_self", "def e_shadow", "def mc_witness_core")
+    present = [n for n in need if n in src]
+    has_blind = "blind" in src.lower()
+    bits = f"syms={len(present)}/{len(need)} blind_token={has_blind}"
+    if len(present) == 0 and not has_blind:
+        return _item("blind-vs-informed evaluation harness", "Partial",
+                     f"sog_math present but no harness markers; {bits}",
+                     "P1", "theory", "A11 validation",
+                     evidence_bound=True)
+    if len(present) == len(need) and has_blind:
+        return _item("blind-vs-informed evaluation harness", "Done",
+                     f"sog_math blind/informed harness; {bits} ({', '.join(s.replace('def ','') for s in present)})",
+                     "P1", "none", "A11 validation",
+                     evidence_bound=True)
+    return _item("blind-vs-informed evaluation harness", "Partial",
+                 f"harness incomplete; {bits}",
+                 "P1", "theory", "A11 validation",
+                 evidence_bound=True)
 
 def _probe_single_agent_baseline():
     ok = (OPS / "baseline.py").exists() or (OPS / "doctor" / "box" / "null_dreamer.py").exists()
