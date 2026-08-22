@@ -1,15 +1,15 @@
 {
   "schema": "octopus-evo-cycle-ce/1",
   "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
-  "written_at": "2026-08-22T13:34:20+10:00",
+  "written_at": "2026-08-22T13:35:30+10:00",
   "writer": {
     "agent_id": "grok-ari-single-writer",
     "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
     "lease_id": "9816664e55684900988901c3c1e5b902"
   },
   "branch": "rescue/octopus-live-tree-20260821",
-  "head": "9f8df61d6c9d30e4beb7237d42f95a9b0b7bbdac",
-  "HEAD_short": "9f8df61",
+  "head": "9660fcf0e0943a08ac702cc0f93c0f4257aeb58b",
+  "HEAD_short": "9660fcf",
   "HEAD_before_subject": "fix(self): first self_insight journal cycle and wire epistemics C1",
   "live_send": false,
   "live_promote": false,
@@ -253,5 +253,9 @@
     "center not restarted"
   ],
   "cycle_state_root": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352",
-  "elapsed_s": 3.315
+  "elapsed_s": 3.315,
+  "HEAD": "9660fcf0e0943a08ac702cc0f93c0f4257aeb58b",
+  "commit_subject": "fix(evo): continuous-exec fixture cycle and promote gate",
+  "HEAD_before": "9f8df61d6c9d30e4beb7237d42f95a9b0b7bbdac",
+  "HEAD_before_short": "9f8df61"
 }
