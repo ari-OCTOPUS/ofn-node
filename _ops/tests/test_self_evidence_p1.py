@@ -131,7 +131,7 @@ class TraceBasedProbeTests(unittest.TestCase):
 class RunAuditEvidenceFlagTests(unittest.TestCase):
     def test_run_audit_reports_evidence_bound_and_not_static_only(self):
         r = sa.run_audit(write=False)
-        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 8)
+        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 14)
         self.assertFalse(r.get("static_by_construction"))
         eb = [it for it in r["items"] if it.get("evidence_bound")]
         self.assertGreaterEqual(len(eb), 4)
@@ -349,13 +349,13 @@ class InsightPollAndBrierCardTests(unittest.TestCase):
 class RunAuditEvidenceBoundFloorTests(unittest.TestCase):
     def test_run_audit_has_at_least_four_evidence_bound(self):
         r = sa.run_audit(write=False)
-        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 8)
+        self.assertGreaterEqual(r.get("evidence_bound_n", 0), 14)
         eb_items = [it for it in r["items"] if it.get("evidence_bound")]
         self.assertGreaterEqual(len(eb_items), 4)
-        needles = ("dashboard", "stop-condition", "poll-health", "calibration", "trace-based", "shadow-eval", "regression suite", "routing logic", "blind-vs-informed")
+        needles = ("dashboard", "stop-condition", "poll-health", "calibration", "trace-based", "shadow-eval", "regression suite", "routing logic", "blind-vs-informed", "kill switch", "watchdog", "approval gates", "secrets isolated", "dry-run", "rollback path")
         blob = " ".join(it["item"].lower() for it in eb_items)
         hits = sum(1 for n in needles if n in blob)
-        self.assertGreaterEqual(hits, 6, blob)
+        self.assertGreaterEqual(hits, 10, blob)
 
 
 
@@ -508,6 +508,238 @@ class BlindInformedProbeTests(unittest.TestCase):
             item = sa._probe_blind_informed()
         self.assertEqual(item["status"], "Done", item)
         self.assertTrue(item.get("evidence_bound"))
+
+
+
+
+class KillSwitchProbeTests(unittest.TestCase):
+    def test_missing_opslib_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / "opslib.py"
+        with mock.patch.object(sa, "_opslib_py_path", return_value=missing):
+            item = sa._probe_kill_switch()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+        self.assertNotEqual(item["status"], "Done")
+
+    def test_stubbed_opslib_without_stop_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "opslib.py"
+        py.write_text("# empty stub\nOPS = None\n", encoding="utf-8")
+        with mock.patch.object(sa, "_opslib_py_path", return_value=py):
+            item = sa._probe_kill_switch()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_stop_halted_frozen_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "opslib.py"
+        body = chr(10).join([
+            "STOP_ORGANISM = OPS / 'STOP-ORGANISM'",
+            "def halted(*, for_debate=False):",
+            "    return None",
+            "def frozen():",
+            "    return False",
+            "def master_halted():",
+            "    return None",
+            "",
+        ])
+        py.write_text(body, encoding="utf-8")
+        with mock.patch.object(sa, "_opslib_py_path", return_value=py):
+            item = sa._probe_kill_switch()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertTrue(item.get("evidence_bound"))
+        self.assertIn("STOP_ORGANISM=True", item["evidence"])
+
+
+class WatchdogProbeTests(unittest.TestCase):
+    def test_missing_watchdog_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        with mock.patch.object(sa, "_watchdog_py_path", return_value=root / "watchdog.py"):
+            with mock.patch.object(sa, "_organism_watchdog_ps1_path", return_value=root / "x.ps1"):
+                with mock.patch.object(sa, "_cortex_watchdog_json_path", return_value=root / "cw.json"):
+                    item = sa._probe_watchdog()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_stubbed_watchdog_without_defs_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "watchdog.py"
+        py.write_text("# stub\n", encoding="utf-8")
+        (root / "x.ps1").write_text("# short\n", encoding="utf-8")
+        with mock.patch.object(sa, "_watchdog_py_path", return_value=py):
+            with mock.patch.object(sa, "_organism_watchdog_ps1_path", return_value=root / "x.ps1"):
+                with mock.patch.object(sa, "_cortex_watchdog_json_path", return_value=root / "cw.json"):
+                    item = sa._probe_watchdog()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_watchdog_live_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "watchdog.py"
+        body = chr(10).join([
+            "def beat_health():",
+            "    return True",
+            "def monitor():",
+            "    return None",
+            "def should_revive():",
+            "    return False",
+            "",
+        ])
+        py.write_text(body, encoding="utf-8")
+        ps1 = root / "organism-watchdog.ps1"
+        ps1.write_text("# organism watchdog script with enough body to count as real content here\n", encoding="utf-8")
+        cw = root / "cortex-watchdog.json"
+        _write_json(cw, {"status": "alive", "attempts": [], "last_check": 1})
+        with mock.patch.object(sa, "_watchdog_py_path", return_value=py):
+            with mock.patch.object(sa, "_organism_watchdog_ps1_path", return_value=ps1):
+                with mock.patch.object(sa, "_cortex_watchdog_json_path", return_value=cw):
+                    item = sa._probe_watchdog()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertIn("beat_health=True", item["evidence"])
+
+
+class ApprovalGatesProbeTests(unittest.TestCase):
+    def test_missing_opslib_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        with mock.patch.object(sa, "_opslib_py_path", return_value=root / "opslib.py"):
+            with mock.patch.object(sa, "_human_append_guard_py_path", return_value=root / "hag.py"):
+                item = sa._probe_approval_gates()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_stubbed_gate_incomplete_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "opslib.py"
+        py.write_text("live_gate_open = True  # not a def\n", encoding="utf-8")
+        hag = root / "hag.py"
+        hag.write_text("# tiny\n", encoding="utf-8")
+        with mock.patch.object(sa, "_opslib_py_path", return_value=py):
+            with mock.patch.object(sa, "_human_append_guard_py_path", return_value=hag):
+                item = sa._probe_approval_gates()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_full_gates_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "opslib.py"
+        body = chr(10).join([
+            "GO_LIVE_FLAG = OPS / 'ACTIVATION-GO-LIVE.flag'",
+            "def live_gate_open(activation_flag):",
+            "    return True, 'ok'",
+            "def organ_gate(name):",
+            "    return True",
+            "",
+        ])
+        py.write_text(body, encoding="utf-8")
+        hag = root / "human_append_guard.py"
+        hag.write_text(chr(10).join([
+            "def assert_human_append(path):",
+            "    return True",
+            "def is_human(meta):",
+            "    return True",
+            "",
+        ]), encoding="utf-8")
+        with mock.patch.object(sa, "_opslib_py_path", return_value=py):
+            with mock.patch.object(sa, "_human_append_guard_py_path", return_value=hag):
+                item = sa._probe_approval_gates()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertIn("def_live_gate_open=True", item["evidence"])
+
+
+class SecretsIsolationProbeTests(unittest.TestCase):
+    def test_missing_agentignore_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / ".agentignore"
+        with mock.patch.object(sa, "_agentignore_path", return_value=missing):
+            item = sa._probe_secrets_isolation()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_stubbed_agentignore_without_patterns_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        p = root / ".agentignore"
+        p.write_text("# only comments\n.git/\n", encoding="utf-8")
+        with mock.patch.object(sa, "_agentignore_path", return_value=p):
+            item = sa._probe_secrets_isolation()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_env_key_secret_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        p = root / ".agentignore"
+        p.write_text("*.env\n*key*\nsecrets-export/\n*.seed\n", encoding="utf-8")
+        with mock.patch.object(sa, "_agentignore_path", return_value=p):
+            item = sa._probe_secrets_isolation()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertIn("env=True", item["evidence"])
+
+
+class DryRunProbeTests(unittest.TestCase):
+    def test_missing_both_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        with mock.patch.object(sa, "_governor_epoch_py_path", return_value=root / "ge.py"):
+            with mock.patch.object(sa, "_sim_heart_py_path", return_value=root / "sh.py"):
+                item = sa._probe_dry_run()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_only_allocate_dry_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        ge = root / "governor_epoch.py"
+        ge.write_text("def allocate_dry(snap):\n    return {}\n", encoding="utf-8")
+        with mock.patch.object(sa, "_governor_epoch_py_path", return_value=ge):
+            with mock.patch.object(sa, "_sim_heart_py_path", return_value=root / "missing.py"):
+                item = sa._probe_dry_run()
+        self.assertEqual(item["status"], "Partial")
+        self.assertNotEqual(item["status"], "Done")
+
+    def test_fixture_allocate_and_simulate_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        ge = root / "governor_epoch.py"
+        ge.write_text("def allocate_dry(snap):\n    return {}\n# shadow\n", encoding="utf-8")
+        sh = root / "sim_heart.py"
+        sh.write_text("def simulate(x):\n    return {}\ndef run_sim():\n    return {}\n", encoding="utf-8")
+        with mock.patch.object(sa, "_governor_epoch_py_path", return_value=ge):
+            with mock.patch.object(sa, "_sim_heart_py_path", return_value=sh):
+                item = sa._probe_dry_run()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertIn("def_allocate_dry=True", item["evidence"])
+
+
+class RollbackProbeTests(unittest.TestCase):
+    def test_missing_doctor_is_not_done(self):
+        missing = Path(tempfile.mkdtemp()) / "doctor.py"
+        with mock.patch.object(sa, "_doctor_py_path", return_value=missing):
+            item = sa._probe_rollback()
+        self.assertEqual(item["status"], "Missing")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_stubbed_doctor_without_checkpoint_is_not_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "doctor.py"
+        py.write_text("rollback: str = ''\nmeasured_lift = 0\n", encoding="utf-8")
+        with mock.patch.object(sa, "_doctor_py_path", return_value=py):
+            item = sa._probe_rollback()
+        self.assertNotEqual(item["status"], "Done")
+        self.assertTrue(item.get("evidence_bound"))
+
+    def test_fixture_rollback_lift_checkpoint_is_done(self):
+        root = Path(tempfile.mkdtemp())
+        py = root / "doctor.py"
+        body = chr(10).join([
+            "class RFC:",
+            "    rollback: str = ''",
+            "def apply_merge(self, rfc):",
+            "    measured_lift = 0.1",
+            "    if os.environ.get('OCTOPUS_WIRE_MERGE_CHECKPOINT'):",
+            "        self._write_checkpoint_tag(rfc)",
+            "",
+        ])
+        py.write_text(body, encoding="utf-8")
+        with mock.patch.object(sa, "_doctor_py_path", return_value=py):
+            item = sa._probe_rollback()
+        self.assertEqual(item["status"], "Done", item)
+        self.assertIn("CHECKPOINT=True", item["evidence"])
+
 
 
 if __name__ == "__main__":

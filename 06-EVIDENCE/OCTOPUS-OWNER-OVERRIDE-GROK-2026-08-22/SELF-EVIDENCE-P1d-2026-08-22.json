@@ -1,0 +1,220 @@
+{
+  "schema": "self-evidence-p1d/1",
+  "written_at": "2026-08-22T14:04:27+10:00",
+  "written_at_zone": "Australia/Sydney (UTC+10)",
+  "HEAD_before_commit": "abeb3dbbe41c3c8222c8ba69daa14279a4b1c1f0",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "agent_id": "grok-ari-single-writer",
+  "task": "P1d — bind safety-critical static self_audit probes (kill_switch/approval_gates/secrets_isolation/dry_run/watchdog/rollback) to real evidence",
+  "live_send": false,
+  "paid": false,
+  "center_pid_untouched": 26484,
+  "files": [
+    "_ops/cortex/self_audit.py",
+    "_ops/tests/test_self_evidence_p1.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/SELF-EVIDENCE-P1d-2026-08-22.json"
+  ],
+  "always_true_before": [
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_kill_switch",
+      "what": "Done solely via hasattr(opslib, STOP_ORGANISM/halted) — never read opslib.py stop defs."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_watchdog",
+      "what": "Done/Partial solely if watchdog.py + organism-watchdog.ps1 exist — never read beat_health/monitor/should_revive or cortex-watchdog.json."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_approval_gates",
+      "what": "Done solely if grep live_gate_open in opslib.py — never required def live_gate_open + GO_LIVE_FLAG + organ_gate + human_append_guard."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_secrets_isolation",
+      "what": "Done solely if .agentignore exists — never read env/key/secret deny patterns."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_dry_run",
+      "what": "Done if grep allocate_dry OR sim_heart exists — never required def allocate_dry + simulate/run_sim."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_rollback",
+      "what": "Done via grep rollback/measured_lift/CHECKPOINT without evidence_bound flag or fail-closed Missing on unreadable doctor.py."
+    }
+  ],
+  "now_evidence_bound": [
+    {
+      "probe": "_probe_kill_switch",
+      "reads": [
+        "_ops/budget/opslib.py source"
+      ],
+      "rule": "Done only if STOP_ORGANISM AND def halted AND def frozen present; Missing/Partial otherwise."
+    },
+    {
+      "probe": "_probe_watchdog",
+      "reads": [
+        "_ops/watchdog.py",
+        "_ops/organism-watchdog.ps1",
+        "_ops/state/cortex-watchdog.json"
+      ],
+      "rule": "Done only if beat_health+monitor+should_revive AND ps1 body AND cortex-watchdog.status string."
+    },
+    {
+      "probe": "_probe_approval_gates",
+      "reads": [
+        "_ops/budget/opslib.py",
+        "_ops/budget/human_append_guard.py"
+      ],
+      "rule": "Done only if def live_gate_open + GO_LIVE_FLAG/ACTIVATION + organ_gate + human_append_guard defs."
+    },
+    {
+      "probe": "_probe_secrets_isolation",
+      "reads": [
+        ".agentignore"
+      ],
+      "rule": "Done only if env AND key AND secret patterns present; Missing if unreadable; Partial if incomplete."
+    },
+    {
+      "probe": "_probe_dry_run",
+      "reads": [
+        "_ops/budget/governor_epoch.py",
+        "_ops/heart/sim_heart.py"
+      ],
+      "rule": "Done only if def allocate_dry AND (def simulate OR def run_sim)."
+    },
+    {
+      "probe": "_probe_rollback",
+      "reads": [
+        "_ops/doctor/doctor.py source"
+      ],
+      "rule": "Done only if rollback marker AND measured_lift AND OCTOPUS_WIRE_MERGE_CHECKPOINT; Missing if unreadable."
+    }
+  ],
+  "skipped": {},
+  "live_snapshot": {
+    "evidence_bound_n": 15,
+    "new_probes": {
+      "kill switch + stop reasons": {
+        "status": "Done",
+        "evidence": "opslib STOP_ORGANISM + def halted + def frozen; STOP_ORGANISM=True, def_halted=True, def_frozen=True, master_halted=True"
+      },
+      "long-running loop watchdog": {
+        "status": "Done",
+        "evidence": "watchdog beat_health+monitor+should_revive + organism-watchdog.ps1 + cortex-watchdog; beat_health=True, monitor=True, should_revive=True, ps1=True, cortex_watchdog_status='alive'"
+      },
+      "rollback path before apply": {
+        "status": "Done",
+        "evidence": "RFC.rollback + measured_lift + OCTOPUS_WIRE_MERGE_CHECKPOINT; rollback=True, measured_lift=True, CHECKPOINT=True, _write_checkpoint_tag=True"
+      },
+      "approval gates for high-impact + policy change": {
+        "status": "Done",
+        "evidence": "live_gate_open + GO_LIVE_FLAG + organ_gate + human_append_guard; def_live_gate_open=True, go_live_flag=True, organ_gate=True, human_append_guard=True"
+      },
+      "secrets isolated from agent context": {
+        "status": "Done",
+        "evidence": ".agentignore env+key+secret isolation; env=True, key=True, secret=True, seed=True, lines=23"
+      },
+      "dry-run/simulate before external action": {
+        "status": "Done",
+        "evidence": "governor allocate_dry + sim_heart simulate/run_sim; def_allocate_dry=True, simulate_or_run_sim=True, shadow=True"
+      }
+    }
+  },
+  "tests": {
+    "test_self_evidence_p1.py": {
+      "result": "pass",
+      "n": 55
+    },
+    "test_self_audit_probes.py": {
+      "result": "pass",
+      "n": 3
+    }
+  },
+  "leftover_next": [
+    "Still-static P0/P1: heartbeat / pulse system (Done); truth source explicit (ledger/verdict) (Done); memory poisoning / false-canon guard (Done); trace layer independent of self-report (Done); self-analysis loop observe→critique→propose→validate→promote (Partial); change leveled: tune/reconfig/rewrite + contract (Missing); human-append anti-forgery ENFORCED (is_human unforgeable) (Done); owner merge verdict has real effect (apply_merge wired) (Missing); output sanitization (redaction) (Done); core formulas reusable+versioned+locked (Done); SPEC v0 (2027) + autonomy ladder L0-L5 formalized (Done); self-improvement halts when observability dies (GAAT) (Done); refractory period between self-changes (Done); cost governance (multi-model/internet loops) (Done); prioritized implementation backlog (Partial)",
+    "Other static peers remain exists/grep-only (truth_source, replay, memory_librarian, output_sanitization, observability_gate, refractory, human_append_enforced, drift, memory_poisoning, cost_governance, spec_2027, etc.)."
+  ],
+  "high_value_static_remaining": [
+    {
+      "item": "heartbeat / pulse system",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "truth source explicit (ledger/verdict)",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "memory poisoning / false-canon guard",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "trace layer independent of self-report",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "self-analysis loop observe→critique→propose→validate→promote",
+      "status": "Partial",
+      "priority": "P0"
+    },
+    {
+      "item": "change leveled: tune/reconfig/rewrite + contract",
+      "status": "Missing",
+      "priority": "P1"
+    },
+    {
+      "item": "human-append anti-forgery ENFORCED (is_human unforgeable)",
+      "status": "Done",
+      "priority": "P0"
+    },
+    {
+      "item": "owner merge verdict has real effect (apply_merge wired)",
+      "status": "Missing",
+      "priority": "P0"
+    },
+    {
+      "item": "output sanitization (redaction)",
+      "status": "Done",
+      "priority": "P0"
+    },
+    {
+      "item": "core formulas reusable+versioned+locked",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "SPEC v0 (2027) + autonomy ladder L0-L5 formalized",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "self-improvement halts when observability dies (GAAT)",
+      "status": "Done",
+      "priority": "P0"
+    },
+    {
+      "item": "refractory period between self-changes",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "cost governance (multi-model/internet loops)",
+      "status": "Done",
+      "priority": "P1"
+    },
+    {
+      "item": "prioritized implementation backlog",
+      "status": "Partial",
+      "priority": "P1"
+    }
+  ],
+  "lock": {
+    "released": false,
+    "heartbeat": true,
+    "expires_at_local": "2026-08-22T15:54:07+10:00"
+  },
+  "HEAD": null,
+  "commit_subject": "fix(self): bind safety-critical self_audit probes to evidence"
+}

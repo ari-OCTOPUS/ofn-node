@@ -114,6 +114,38 @@ def _sog_math_path() -> Path:
     return OPS / "heart" / "sog_math.py"
 
 
+def _opslib_py_path() -> Path:
+    return OPS / "budget" / "opslib.py"
+
+
+def _watchdog_py_path() -> Path:
+    return OPS / "watchdog.py"
+
+
+def _organism_watchdog_ps1_path() -> Path:
+    return OPS / "organism-watchdog.ps1"
+
+
+def _cortex_watchdog_json_path() -> Path:
+    return STATE / "cortex-watchdog.json"
+
+
+def _agentignore_path() -> Path:
+    return OPS.parent / ".agentignore"
+
+
+def _governor_epoch_py_path() -> Path:
+    return OPS / "budget" / "governor_epoch.py"
+
+
+def _sim_heart_py_path() -> Path:
+    return OPS / "heart" / "sim_heart.py"
+
+
+def _human_append_guard_py_path() -> Path:
+    return OPS / "budget" / "human_append_guard.py"
+
+
 def _parse_run_all_tests(path: Path):
     """Parse TESTS = [...] filenames from run_all.py; None if missing/unreadable."""
     import ast
@@ -167,17 +199,76 @@ def _read_stop_constants(path: Path):
 
 # ─── probeها (هرکدام یک بندِ چک‌لیست، از واقعیت) ─────────────────────────────────
 def _probe_kill_switch():
-    ok = hasattr(opslib, "STOP_ORGANISM") and hasattr(opslib, "halted")
-    return _item("kill switch + stop reasons", "Done" if ok else "Missing",
-                 "opslib.STOP_ORGANISM/halted/frozen + STOP-CORTEX",
-                 "P0", "none" if ok else "governance", "§13 governance")
+    """Was hasattr on imported opslib. Now reads opslib.py stop symbols."""
+    py = _opslib_py_path()
+    try:
+        src = py.read_text("utf-8")
+    except OSError:
+        return _item("kill switch + stop reasons", "Missing",
+                     f"opslib.py missing/unreadable: {py}",
+                     "P0", "governance", "§13 governance",
+                     evidence_bound=True)
+    has_stop = "STOP_ORGANISM" in src
+    has_halted = "def halted" in src
+    has_frozen = "def frozen" in src
+    has_master = "def master_halted" in src or "master_halted" in src
+    bits = [f"STOP_ORGANISM={has_stop}", f"def_halted={has_halted}",
+            f"def_frozen={has_frozen}", f"master_halted={has_master}"]
+    if not (has_stop or has_halted or has_frozen):
+        return _item("kill switch + stop reasons", "Missing",
+                     "opslib.py present but no stop symbols; " + ", ".join(bits),
+                     "P0", "governance", "§13 governance",
+                     evidence_bound=True)
+    if has_stop and has_halted and has_frozen:
+        return _item("kill switch + stop reasons", "Done",
+                     "opslib STOP_ORGANISM + def halted + def frozen; " + ", ".join(bits),
+                     "P0", "none", "§13 governance",
+                     evidence_bound=True)
+    return _item("kill switch + stop reasons", "Partial",
+                 "kill-switch incomplete; " + ", ".join(bits),
+                 "P0", "governance", "§13 governance",
+                 evidence_bound=True)
 
 
 def _probe_watchdog():
-    ok = (OPS / "watchdog.py").exists() and (OPS / "organism-watchdog.ps1").exists()
-    return _item("long-running loop watchdog", "Done" if ok else "Partial",
-                 "watchdog.py + organism-watchdog.ps1", "P1",
-                 "none" if ok else "observability", "§16 time-loops")
+    """Was file-exists on watchdog.py + ps1. Now reads defs + live cortex-watchdog.json."""
+    py = _watchdog_py_path()
+    ps1 = _organism_watchdog_ps1_path()
+    cw_p = _cortex_watchdog_json_path()
+    try:
+        src = py.read_text("utf-8")
+    except OSError:
+        return _item("long-running loop watchdog", "Missing",
+                     f"watchdog.py missing/unreadable: {py}",
+                     "P1", "observability", "§16 time-loops",
+                     evidence_bound=True)
+    has_beat = "def beat_health" in src
+    has_monitor = "def monitor" in src
+    has_revive = "def should_revive" in src
+    ps1_ok = False
+    try:
+        ps1_ok = ps1.exists() and len(ps1.read_text("utf-8", errors="ignore").strip()) > 40
+    except OSError:
+        ps1_ok = False
+    cw = _read(cw_p)
+    cw_ok = isinstance(cw, dict) and isinstance(cw.get("status"), str) and bool(cw.get("status"))
+    bits = [f"beat_health={has_beat}", f"monitor={has_monitor}", f"should_revive={has_revive}",
+            f"ps1={ps1_ok}", f"cortex_watchdog_status={cw.get('status')!r}" if isinstance(cw, dict) else "cortex_watchdog_status=None"]
+    if not (has_beat or has_monitor or has_revive):
+        return _item("long-running loop watchdog", "Partial",
+                     "watchdog.py present but no beat/monitor/revive defs; " + ", ".join(bits),
+                     "P1", "observability", "§16 time-loops",
+                     evidence_bound=True)
+    if (has_beat and has_monitor and has_revive) and ps1_ok and cw_ok:
+        return _item("long-running loop watchdog", "Done",
+                     "watchdog beat_health+monitor+should_revive + organism-watchdog.ps1 + cortex-watchdog; "
+                     + ", ".join(bits),
+                     "P1", "none", "§16 time-loops",
+                     evidence_bound=True)
+    return _item("long-running loop watchdog", "Partial",
+                 "watchdog incomplete; " + ", ".join(bits),
+                 "P1", "observability", "§16 time-loops",
+                 evidence_bound=True)
 
 
 def _probe_heartbeat_pulse():
@@ -410,17 +501,35 @@ def _probe_change_leveling():
 
 
 def _probe_rollback():
-    ok = _grep(OPS / "doctor" / "doctor.py", "rollback") or _grep(OPS / "doctor" / "evolution.py", "measured_lift")
-    # ۲۰۲۶-۰۸-۰۸ (up-6013ab05d7): git checkpoint tag قبل از merge پیاده شد.
-    checkpoint = _grep(OPS / "doctor" / "doctor.py", "OCTOPUS_WIRE_MERGE_CHECKPOINT")
-    if ok and checkpoint:
+    """Was grep-only on doctor.py. Now requires rollback field + measured_lift + checkpoint tag."""
+    doc = _doctor_py_path()
+    try:
+        src = doc.read_text("utf-8")
+    except OSError:
+        return _item("rollback path before apply", "Missing",
+                     f"doctor.py missing/unreadable: {doc}",
+                     "P1", "governance", "§10 self-modify",
+                     evidence_bound=True)
+    has_rb = ("rollback: str" in src) or ("rollback:" in src and "RFC" in src) or ("rollback" in src)
+    has_lift = "measured_lift" in src
+    has_ckpt = "OCTOPUS_WIRE_MERGE_CHECKPOINT" in src
+    has_tag_fn = "_write_checkpoint_tag" in src
+    bits = [f"rollback={has_rb}", f"measured_lift={has_lift}",
+            f"CHECKPOINT={has_ckpt}", f"_write_checkpoint_tag={has_tag_fn}"]
+    if not (has_rb or has_lift or has_ckpt):
+        return _item("rollback path before apply", "Missing",
+                     "doctor.py present but no rollback/lift/checkpoint markers; " + ", ".join(bits),
+                     "P1", "governance", "§10 self-modify",
+                     evidence_bound=True)
+    if has_rb and has_lift and has_ckpt:
         return _item("rollback path before apply", "Done",
-                     "RFC.rollback field + measured_lift drop<0.05 + git tag "
-                     "pre-merge (OCTOPUS_WIRE_MERGE_CHECKPOINT)",
-                     "P1", "governance", "§10 self-modify")
-    return _item("rollback path before apply", "Partial" if ok else "Missing",
-                 "RFC.rollback field + measured_lift drop<0.05 + git tags (pre-merge)",
-                 "P1", "governance", "§10 self-modify")
+                     "RFC.rollback + measured_lift + OCTOPUS_WIRE_MERGE_CHECKPOINT; " + ", ".join(bits),
+                     "P1", "none", "§10 self-modify",
+                     evidence_bound=True)
+    return _item("rollback path before apply", "Partial",
+                 "rollback path incomplete; " + ", ".join(bits),
+                 "P1", "governance", "§10 self-modify",
+                 evidence_bound=True)
 
 
 def _probe_regression_suite():
@@ -581,17 +690,82 @@ def _probe_autonomy_consumed():
 
 
 def _probe_approval_gates():
-    ok = _grep(OPS / "budget" / "opslib.py", "live_gate_open")
-    return _item("approval gates for high-impact + policy change", "Done" if ok else "Missing",
-                 "live_gate_open (date+flag) + RFC human-append + money organ_gate + human-append-guard",
-                 "P0", "none" if ok else "governance", "§13 governance")
+    """Was grep live_gate_open only. Now requires def live_gate_open + organ_gate + human_append_guard."""
+    py = _opslib_py_path()
+    hag = _human_append_guard_py_path()
+    try:
+        src = py.read_text("utf-8")
+    except OSError:
+        return _item("approval gates for high-impact + policy change", "Missing",
+                     f"opslib.py missing/unreadable: {py}",
+                     "P0", "governance", "§13 governance",
+                     evidence_bound=True)
+    has_gate = "def live_gate_open" in src
+    has_flag = "GO_LIVE_FLAG" in src or "ACTIVATION-GO-LIVE" in src
+    has_organ = "organ_gate" in src
+    hag_ok = False
+    hag_def = False
+    try:
+        if hag.exists():
+            hsrc = hag.read_text("utf-8")
+            hag_ok = len(hsrc.strip()) > 40
+            hag_def = ("def " in hsrc) and ("human" in hsrc.lower() or "append" in hsrc.lower() or "is_human" in hsrc)
+    except OSError:
+        hag_ok = False
+    bits = [f"def_live_gate_open={has_gate}", f"go_live_flag={has_flag}",
+            f"organ_gate={has_organ}", f"human_append_guard={hag_ok and hag_def}"]
+    if not (has_gate or has_organ or hag_ok):
+        return _item("approval gates for high-impact + policy change", "Missing",
+                     "no approval-gate markers; " + ", ".join(bits),
+                     "P0", "governance", "§13 governance",
+                     evidence_bound=True)
+    if has_gate and has_flag and has_organ and hag_ok and hag_def:
+        return _item("approval gates for high-impact + policy change", "Done",
+                     "live_gate_open + GO_LIVE_FLAG + organ_gate + human_append_guard; " + ", ".join(bits),
+                     "P0", "none", "§13 governance",
+                     evidence_bound=True)
+    return _item("approval gates for high-impact + policy change", "Partial",
+                 "approval gates incomplete; " + ", ".join(bits),
+                 "P0", "governance", "§13 governance",
+                 evidence_bound=True)
 
 
 def _probe_secrets_isolation():
-    ok = (OPS.parent / ".agentignore").exists()
-    return _item("secrets isolated from agent context", "Done" if ok else "Missing",
-                 ".agentignore (*.env/*key/*seed) + env_loader never echoes + keys_present bool-only",
-                 "P0", "none" if ok else "governance", "§14 security")
+    """Was .agentignore exists-only. Now reads deny patterns for env/key/secret/seed."""
+    p = _agentignore_path()
+    try:
+        text = p.read_text("utf-8")
+    except OSError:
+        return _item("secrets isolated from agent context", "Missing",
+                     f".agentignore missing/unreadable: {p}",
+                     "P0", "governance", "§14 security",
+                     evidence_bound=True)
+    if not text.strip():
+        return _item("secrets isolated from agent context", "Partial",
+                     ".agentignore empty",
+                     "P0", "governance", "§14 security",
+                     evidence_bound=True)
+    low = text.lower()
+    has_env = (".env" in low) or ("*.env" in low)
+    has_key = ("key" in low) or ("*.pem" in low) or ("id_rsa" in low)
+    has_secret = ("secret" in low) or ("secrets-export" in low)
+    has_seed = "seed" in low
+    bits = [f"env={has_env}", f"key={has_key}", f"secret={has_secret}", f"seed={has_seed}",
+            f"lines={sum(1 for l in text.splitlines() if l.strip() and not l.strip().startswith('#'))}"]
+    if not (has_env or has_key or has_secret):
+        return _item("secrets isolated from agent context", "Partial",
+                     ".agentignore lacks env/key/secret patterns; " + ", ".join(bits),
+                     "P0", "governance", "§14 security",
+                     evidence_bound=True)
+    if has_env and has_key and has_secret:
+        return _item("secrets isolated from agent context", "Done",
+                     ".agentignore env+key+secret isolation; " + ", ".join(bits),
+                     "P0", "none", "§14 security",
+                     evidence_bound=True)
+    return _item("secrets isolated from agent context", "Partial",
+                 "secrets isolation incomplete; " + ", ".join(bits),
+                 "P0", "governance", "§14 security",
+                 evidence_bound=True)
 
 
 def _probe_output_sanitization():
@@ -610,10 +784,40 @@ def _probe_tool_registry():
 
 
 def _probe_dry_run():
-    ok = _grep(OPS / "budget" / "governor_epoch.py", "allocate_dry") or (OPS / "heart" / "sim_heart.py").exists()
-    return _item("dry-run/simulate before external action", "Done" if ok else "Missing",
-                 "sim_heart (closed-loop) + governor allocate_dry + sandbox + shadow-mode everywhere",
-                 "P1", "none" if ok else "implementation", "§18 tools")
+    """Was grep allocate_dry OR sim_heart exists. Now requires def allocate_dry + simulate/run_sim."""
+    ge = _governor_epoch_py_path()
+    sh = _sim_heart_py_path()
+    try:
+        ge_src = ge.read_text("utf-8")
+    except OSError:
+        ge_src = None
+    try:
+        sh_src = sh.read_text("utf-8")
+    except OSError:
+        sh_src = None
+    if ge_src is None and sh_src is None:
+        return _item("dry-run/simulate before external action", "Missing",
+                     f"governor_epoch.py and sim_heart.py unreadable: {ge} / {sh}",
+                     "P1", "implementation", "§18 tools",
+                     evidence_bound=True)
+    has_alloc = bool(ge_src) and ("def allocate_dry" in ge_src)
+    has_sim = bool(sh_src) and (("def simulate" in sh_src) or ("def run_sim" in sh_src))
+    has_shadow = (bool(ge_src) and "shadow" in ge_src) or (bool(sh_src) and "shadow" in sh_src)
+    bits = [f"def_allocate_dry={has_alloc}", f"simulate_or_run_sim={has_sim}", f"shadow={has_shadow}"]
+    if not (has_alloc or has_sim):
+        return _item("dry-run/simulate before external action", "Partial",
+                     "dry-run markers absent; " + ", ".join(bits),
+                     "P1", "implementation", "§18 tools",
+                     evidence_bound=True)
+    if has_alloc and has_sim:
+        return _item("dry-run/simulate before external action", "Done",
+                     "governor allocate_dry + sim_heart simulate/run_sim; " + ", ".join(bits),
+                     "P1", "none", "§18 tools",
+                     evidence_bound=True)
+    return _item("dry-run/simulate before external action", "Partial",
+                 "dry-run incomplete; " + ", ".join(bits),
+                 "P1", "implementation", "§18 tools",
+                 evidence_bound=True)
 
 
 def _probe_math_versioned():
