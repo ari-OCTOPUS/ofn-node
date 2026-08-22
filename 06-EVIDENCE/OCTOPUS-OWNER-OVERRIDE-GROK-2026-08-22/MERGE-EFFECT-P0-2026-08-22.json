@@ -49,5 +49,7 @@
     "optional: bind evidence JSON path into probe Done criteria",
     "evo-lab outbox card -> callback token end-to-end soak (no live send)"
   ],
-  "note_lf": "sources normalized to LF to match repo (PowerShell write had CRLF)"
+  "note_lf": "sources normalized to LF to match repo (PowerShell write had CRLF)",
+  "final_head": "08f18e3c86821cec59f9bf80771e910e7fb80537",
+  "commit_primary": "63528ee04da89fe02a3f958e813206e86b9f0eb4"
 }
