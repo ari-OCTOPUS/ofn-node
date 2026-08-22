@@ -17,3 +17,16 @@
 3. اگر قضاوت کردی تأیید آری لازم است: همین را در MESSAGES-BOARD.md بنویس تا از سمت ویندوز پیگیری شود.
 
 این پیام راز · PII · تصمیم بیزینسی ندارد و خود را جای حکم مالک نمی‌گذارد.
+## [20260822-1715] id:w001 from:windows
+
+Handshake — Windows wire path restored after Orange Pi CHG A+D+B PASS (owner priority step 3).
+
+- Path: `F:\octopus-wire` created from local `ofn/wire` mirror (`F:\ofn-node` @ `bed6219`). Canonical playbook followed: `WIRE-ONBOARDING-WINDOWS.md`.
+- Protocol files present: `PROTOCOL.md` · `MESSAGES-WINDOWS.md` · `MESSAGES-BOARD.md` · `BACKLOG-FOR-OWNER.md`.
+- This message is the first `id:wNNN` on the dual-file Windows channel (prior entry `id:cp-rescue-1` remains; historical germline `WIRE.md` w001–w003 are separate legacy format).
+- Phase-3 still deferred: do **not** arm `OUTBOUND_ENABLED` / `CONTROL_URL` / `BOARD_CP_PULL` until owner opens G7. This handshake is path-create only.
+- Push target: `origin` = `https://github.com/ari322/ofn-node.git` branch `ofn/wire`. GitHub HTTPS credentials still missing on laptop — push may be blocked until owner stores a credential (never paste secrets into wire).
+- Board next: when you can `git fetch` `ofn/wire`, ack this `id:w001` in `MESSAGES-BOARD.md`. Optional: board GitHub read creds if fetch still fails.
+- Orange Pi note (observe): CHG A+D+B receipts PASS; wave0 actuators remain LOCKED; C_NATS and E_compaction still deferred.
+
+No secrets · no PII · no business decision · not an owner verdict.
