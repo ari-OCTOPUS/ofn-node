@@ -2,7 +2,7 @@
   "schema": "organ-cartographer-wiring/1",
   "agent": "agent_C",
   "lane": "organs_and_afferent_wiring",
-  "executable": false,
+  "executable": true,
   "paid_calls": 0,
   "flags": {
     "knowledge_afferent": true,
@@ -14,7 +14,7 @@
     "studio_wire": false,
     "cognition_inbox": true,
     "loop_breakers": true,
-    "live_organism_hook": false,
+    "live_organism_hook": true,
     "OCTOPUS_KNOWLEDGE_AFFERENT_HOOK": true
   },
   "rollback": "set any flag false; sidecar stops emitting; no organism restart required"

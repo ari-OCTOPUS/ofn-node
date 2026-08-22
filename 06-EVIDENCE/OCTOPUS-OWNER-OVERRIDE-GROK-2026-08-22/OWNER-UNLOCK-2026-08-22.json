@@ -1,0 +1,37 @@
+{
+  "schema": "owner-unlock-receipt/1",
+  "ts": "2026-08-22T12:23:01.504173+10:00",
+  "created_live_telegram_flag": true,
+  "archived": [
+    {
+      "from": "F:/backup/_ops/budget/FREEZE.flag",
+      "to": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/unlocked-flags/FREEZE.flag.archived.20260822T122301+1000"
+    },
+    {
+      "from": "F:/backup/_ops/backup/GITWRITE-FAILED.flag",
+      "to": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/unlocked-flags/GITWRITE-FAILED.flag.archived.20260822T122301+1000"
+    }
+  ],
+  "wiring_before": {
+    "executable": false,
+    "live_organism_hook": false,
+    "lead_activation": false,
+    "mining_wire": false,
+    "crypto_wire": false,
+    "accounting_amounts": false,
+    "studio_wire": false
+  },
+  "wiring_after": {
+    "executable": true,
+    "live_organism_hook": true,
+    "lead_activation": false,
+    "mining_wire": false,
+    "crypto_wire": false,
+    "accounting_amounts": false,
+    "studio_wire": false
+  },
+  "doctor_dry_run_before": true,
+  "live_send": false,
+  "center_restarted": false,
+  "grant": "F:/backup/02-DECISIONS/OWNER-GRANT-UNLOCK-LOCKS-2026-08-22.md"
+}
