@@ -1,0 +1,109 @@
+{
+  "schema": "self-evidence-p1/1",
+  "written_at": "2026-08-22T13:40:41+10:00",
+  "written_at_zone": "Australia/Sydney (UTC+10)",
+  "HEAD_before_commit": "c050f229786240254d69bd1ea346cede013c9469",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "agent_id": "grok-ari-single-writer",
+  "task": "P1 deepen — bind self_audit/self_insight to real on-disk evidence",
+  "live_send": false,
+  "paid": false,
+  "center_pid_untouched": 26484,
+  "files": [
+    "_ops/cortex/self_audit.py",
+    "_ops/self_insight.py",
+    "_ops/tests/test_self_evidence_p1.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/SELF-EVIDENCE-P1-2026-08-22.json"
+  ],
+  "always_true_before": [
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_trace_based_analysis",
+      "what": "Hardcoded status=Done with static evidence string; never opened doctor-vitals or verified _gather_trace at runtime."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::run_audit.static_by_construction",
+      "what": "Always True even after evidence-reading probes existed — maturity claimed static forever."
+    },
+    {
+      "where": "_ops/self_insight.py::run_once_journal",
+      "what": "Journal cycle reported calibration of hypotheses only; no bind to calibration-latest.json Brier/n or self-claims.jsonl counts."
+    }
+  ],
+  "now_evidence_bound": [
+    {
+      "probe": "_probe_trace_based_analysis",
+      "reads": [
+        "OCTOPUS-DOCTOR/90-_meta/state/doctor-vitals.json",
+        "_ops/doctor/doctor.py::_gather_trace"
+      ],
+      "rule": "Done only if schema=doctor-vitals.v1 AND >=1 exogenous provenance AND gather_trace present; Missing/Partial otherwise."
+    },
+    {
+      "probe": "_probe_calibration_evidence",
+      "reads": [
+        "_ops/state/cortex/calibration-latest.json",
+        "_ops/state/cortex/self-claims.jsonl"
+      ],
+      "rule": "Done only if schema=calibration.v1 AND n>0 AND numeric brier AND self-claims.jsonl lines>0."
+    },
+    {
+      "insight": "load_disk_evidence + run_once_journal.evidence_ok",
+      "reads": [
+        "<root>/state/cortex/calibration-latest.json",
+        "<root>/state/cortex/self-claims.jsonl"
+      ],
+      "rule": "evidence_ok True only after reading real/fixture files with valid n/brier/claims; missing/stub => False."
+    },
+    {
+      "matrix": "run_audit",
+      "fields": [
+        "static_by_construction=eb_n==0",
+        "evidence_bound_n",
+        "evidence_bound_done"
+      ]
+    }
+  ],
+  "live_snapshot": {
+    "calibration_latest": {
+      "n": 420,
+      "brier": 0.212707,
+      "schema": "calibration.v1",
+      "ts": "2026-08-22T13:34:11",
+      "n_claims_field": 852
+    },
+    "self_claims_jsonl_lines": 852,
+    "doctor_vitals_schema": "doctor-vitals.v1",
+    "doctor_vitals_exogenous_keys": [
+      "missions_merged",
+      "owner_approvals",
+      "owner_rejections"
+    ]
+  },
+  "tests": {
+    "test_self_evidence_p1.py": {
+      "result": "pass",
+      "n": 12
+    },
+    "test_self_audit_probes.py": {
+      "result": "pass",
+      "n": 3
+    },
+    "test_self_insight_journal_epistemics_wire.py": {
+      "result": "pass",
+      "n": 4
+    }
+  },
+  "leftover_next": [
+    "Many other self_audit probes still Done via .exists()/_grep only (honest static checklist) — candidates: _probe_dashboard, _probe_regression_suite, _probe_stop_condition (file-exists, not live calibration.should_skip).",
+    "poll-health.json not yet bound as a probe (available at _ops/state/telegram/poll-health.json).",
+    "self_insight full run() still does not attach disk_evidence (only run_once_journal).",
+    "card() does not surface Brier/n from disk_evidence yet.",
+    "Flag comment-vs-value probe still skipped (SELF-AWARENESS-WIRE)."
+  ],
+  "lock": {
+    "released": false,
+    "heartbeat": true,
+    "expires_at_local": "2026-08-22T15:54:07+10:00"
+  }
+}

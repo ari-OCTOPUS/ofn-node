@@ -253,6 +253,66 @@ def score_previous(scan, journal_path) -> dict:
 
 
 
+
+def load_disk_evidence(root=None) -> dict:
+    """Bind insight cycle to real calibration-latest + self-claims on disk.
+
+    Returns {ok: bool, ...}. ok is False when files are missing or stubbed wrong
+    (no positive n / no numeric brier). Fail-soft — never raises.
+    """
+    root = Path(root) if root else Path(__file__).resolve().parent
+    cal_p = Path(root) / "state" / "cortex" / "calibration-latest.json"
+    claims_p = Path(root) / "state" / "cortex" / "self-claims.jsonl"
+    out = {
+        "ok": False,
+        "paths": {
+            "calibration_latest": str(cal_p),
+            "self_claims": str(claims_p),
+        },
+    }
+    try:
+        if not cal_p.exists():
+            out["error"] = "calibration-latest missing"
+            return out
+        cal = json.loads(cal_p.read_text(encoding="utf-8"))
+        if not isinstance(cal, dict):
+            out["error"] = "calibration-latest not an object"
+            return out
+        if cal.get("schema") != "calibration.v1":
+            out["error"] = f"calibration schema stubbed/wrong: {cal.get('schema')!r}"
+            return out
+        n = cal.get("n")
+        brier = cal.get("brier")
+        if not isinstance(n, (int, float)) or int(n) <= 0:
+            out["error"] = f"calibration n stubbed/invalid: {n!r}"
+            return out
+        if not isinstance(brier, (int, float)):
+            out["error"] = f"calibration brier stubbed/invalid: {brier!r}"
+            return out
+        n_claims = 0
+        if claims_p.exists():
+            n_claims = sum(1 for line in claims_p.read_text(encoding="utf-8").splitlines()
+                           if line.strip())
+        if n_claims <= 0:
+            out["error"] = "self-claims.jsonl empty/missing"
+            out["n"] = int(n)
+            out["brier"] = float(brier)
+            return out
+        out.update({
+            "ok": True,
+            "n": int(n),
+            "brier": float(brier),
+            "n_claims_file": n_claims,
+            "schema": cal.get("schema"),
+            "ts": cal.get("ts"),
+            "n_claims_field": cal.get("n_claims"),
+        })
+        return out
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = f"{type(exc).__name__}: {exc}"
+        return out
+
+
 def _tiny_fixture_scan() -> dict:
     """Minimal scan fixture for journal-only cycles (no self_scan)."""
     return {"checks": {
@@ -269,7 +329,8 @@ def _write_journal(jpath: Path, out: dict) -> None:
     if jpath.exists():
         rows = [l for l in jpath.read_text(encoding="utf-8").splitlines()
                 if l.strip()][-(JOURNAL_CAP - 1):]
-    payload = {k: out[k] for k in ("schema", "ts", "hypotheses", "calibration")
+    payload = {k: out[k] for k in ("schema", "ts", "hypotheses", "calibration",
+                                     "disk_evidence", "evidence_ok")
                if k in out}
     if out.get("mode"):
         payload["mode"] = out["mode"]
@@ -300,6 +361,7 @@ def run_once_journal(root=None, scan=None, limit: int = 50,
 
     jpath = Path(root) / "state" / JOURNAL
     calib = score_previous(scan, jpath)
+    disk_ev = load_disk_evidence(root)
     out = {
         "schema": SCHEMA, "ts": time.time(),
         "elapsed_s": round(time.time() - t0, 2),
@@ -312,6 +374,8 @@ def run_once_journal(root=None, scan=None, limit: int = 50,
                        if h["rule"] == r.__name__.replace("rule_", ""))
                                for r in RULES}},
         "calibration": calib,
+        "disk_evidence": disk_ev,
+        "evidence_ok": bool(disk_ev.get("ok")),
         "rule_errors": errors,
     }
     if journal:

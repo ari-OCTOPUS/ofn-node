@@ -44,9 +44,13 @@ def _fresh(p: Path, sla_min: float) -> bool:
     return a is not None and a <= sla_min
 
 
-def _item(item, status, evidence, priority, gap_type, section):
-    return {"item": item, "status": status, "evidence": evidence,
-            "priority": priority, "gap_type": gap_type, "section": section}
+def _item(item, status, evidence, priority, gap_type, section,
+         evidence_bound: bool = False):
+    out = {"item": item, "status": status, "evidence": evidence,
+           "priority": priority, "gap_type": gap_type, "section": section}
+    if evidence_bound:
+        out["evidence_bound"] = True
+    return out
 
 
 def _grep(path: Path, needle: str) -> bool:
@@ -54,6 +58,28 @@ def _grep(path: Path, needle: str) -> bool:
         return needle in path.read_text("utf-8")
     except OSError:
         return False
+
+
+def _count_jsonl(path: Path):
+    """Line count of a JSONL file; None if missing/unreadable."""
+    try:
+        if not path.exists():
+            return None
+        return sum(1 for line in path.read_text("utf-8").splitlines() if line.strip())
+    except OSError:
+        return None
+
+
+def _calibration_latest_path() -> Path:
+    return STATE / "cortex" / "calibration-latest.json"
+
+
+def _self_claims_path() -> Path:
+    return STATE / "cortex" / "self-claims.jsonl"
+
+
+def _doctor_vitals_path() -> Path:
+    return OPS.parent / "OCTOPUS-DOCTOR" / "90-_meta" / "state" / "doctor-vitals.json"
 
 
 # ─── probeها (هرکدام یک بندِ چک‌لیست، از واقعیت) ─────────────────────────────────
@@ -176,9 +202,37 @@ def _probe_self_analysis_loop():
 
 
 def _probe_trace_based_analysis():
-    return _item("self-analysis is trace-based not self-talk", "Done",
-                 "doctor._gather_trace از ORGANISM-STATE/replication/telemetry/chrono.db — external",
-                 "P1", "none", "§9 self-analysis")
+    """Was always-Done (static claim). Now requires doctor-vitals on disk + gather_trace."""
+    vitals_p = _doctor_vitals_path()
+    vitals = _read(vitals_p)
+    has_gather = _grep(OPS / "doctor" / "doctor.py", "def _gather_trace")
+    if not vitals_p.exists() or vitals is None:
+        return _item("self-analysis is trace-based not self-talk", "Missing",
+                     f"doctor-vitals unreadable: {vitals_p}",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    schema = vitals.get("schema") if isinstance(vitals, dict) else None
+    if schema != "doctor-vitals.v1":
+        return _item("self-analysis is trace-based not self-talk", "Partial",
+                     f"doctor-vitals stubbed/wrong schema={schema!r}",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    exo = 0
+    for val in vitals.values():
+        if isinstance(val, dict):
+            prov = str(val.get("provenance") or "")
+            if prov in ("برون‌زاد", "exogenous", "external") or "برون" in prov:
+                exo += 1
+    if not has_gather:
+        return _item("self-analysis is trace-based not self-talk", "Partial",
+                     f"vitals ok (exo={exo}) but doctor._gather_trace missing",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    st = "Done" if exo >= 1 else "Partial"
+    return _item("self-analysis is trace-based not self-talk", st,
+                 f"doctor-vitals.v1 exo_prov={exo} + _gather_trace present ({vitals_p.name})",
+                 "P1", "none" if st == "Done" else "observability", "§9 self-analysis",
+                 evidence_bound=True)
 
 
 def _probe_stop_condition():
@@ -426,11 +480,57 @@ def _probe_change_backlog():
                  "P1", "implementation", "§19 coding-ready")
 
 
+def _probe_calibration_evidence():
+    """Live Brier/n from calibration-latest.json + self-claims.jsonl counts.
+
+    Cannot be Done without reading those on-disk files. Stubbed/missing → not Done.
+    """
+    cal_p = _calibration_latest_path()
+    claims_p = _self_claims_path()
+    cal = _read(cal_p)
+    n_claims = _count_jsonl(claims_p)
+    if cal is None:
+        return _item("live calibration evidence (Brier/n + self-claims)", "Missing",
+                     f"calibration-latest missing/unreadable: {cal_p}",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    n = cal.get("n")
+    brier = cal.get("brier")
+    schema = cal.get("schema")
+    if schema != "calibration.v1":
+        return _item("live calibration evidence (Brier/n + self-claims)", "Partial",
+                     f"calibration stubbed/wrong schema={schema!r}",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    if not isinstance(n, (int, float)) or int(n) <= 0:
+        return _item("live calibration evidence (Brier/n + self-claims)", "Partial",
+                     f"calibration n stubbed/invalid: {n!r}",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    if not isinstance(brier, (int, float)):
+        return _item("live calibration evidence (Brier/n + self-claims)", "Partial",
+                     f"calibration brier stubbed/invalid: {brier!r}",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    if n_claims is None or n_claims <= 0:
+        return _item("live calibration evidence (Brier/n + self-claims)", "Partial",
+                     f"brier={brier} n={int(n)} but self-claims.jsonl empty/missing",
+                     "P1", "observability", "§9 self-analysis",
+                     evidence_bound=True)
+    return _item("live calibration evidence (Brier/n + self-claims)", "Done",
+                 f"calibration-latest n={int(n)} brier={float(brier):.6f}; "
+                 f"self-claims.jsonl lines={n_claims}",
+                 "P1", "none", "§9 self-analysis",
+                 evidence_bound=True)
+
+
+
 PROBES = [
     _probe_kill_switch, _probe_watchdog, _probe_heartbeat_pulse, _probe_multiscale_loops,
     _probe_truth_source, _probe_replay, _probe_stale_detection, _probe_memory_librarian,
     _probe_memory_poisoning, _probe_trace_independent, _probe_cost_logging, _probe_dashboard,
     _probe_epistemic_signals, _probe_self_analysis_loop, _probe_trace_based_analysis,
+    _probe_calibration_evidence,
     _probe_stop_condition, _probe_shadow_before_promote, _probe_change_leveling, _probe_rollback,
     _probe_regression_suite, _probe_deterministic_routing_tests, _probe_blind_informed,
     _probe_single_agent_baseline, _probe_named_owner,
@@ -459,12 +559,16 @@ def run_audit(write: bool = True) -> dict:
     # گاف‌ها = Missing/Partial، اولویتِ P0>P1>P2>P3
     gaps = sorted([it for it in items if it["status"] in ("Missing", "Partial")],
                   key=lambda it: (it["priority"], it["status"]))
+    eb_n = sum(1 for it in items if it.get("evidence_bound"))
+    eb_done = sum(1 for it in items if it.get("evidence_bound") and it["status"] == "Done")
     out = {"ts": opslib.now_iso(), "schema": "audit-matrix.v1",
            "n": len(items), "tally": tally,
-           # W2: پوششِ چک‌لیستِ ایستا (وجودِ فایل + grepِ سورس)، نه بلوغ. ۱۷/۴۳ بند
-           # ساختاراً به Done نمی‌رسند → عدد در سقفِ خودش قفل است و فقط پایین می‌آید.
+           # W2: maturity_pct still mostly static checklist coverage.
+           # evidence_bound_* count probes that read live on-disk files.
            "maturity_pct": round(100 * (tally["Done"] + 0.5 * tally["Partial"]) / max(1, len(items)), 1),
-           "static_by_construction": True,
+           "static_by_construction": eb_n == 0,
+           "evidence_bound_n": eb_n,
+           "evidence_bound_done": eb_done,
            "items": items, "gaps": gaps}
     if write:
         try:
