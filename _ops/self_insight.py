@@ -255,21 +255,39 @@ def score_previous(scan, journal_path) -> dict:
 
 
 def load_disk_evidence(root=None) -> dict:
-    """Bind insight cycle to real calibration-latest + self-claims on disk.
+    """Bind insight cycle to real calibration-latest + self-claims + poll-health.
 
-    Returns {ok: bool, ...}. ok is False when files are missing or stubbed wrong
-    (no positive n / no numeric brier). Fail-soft — never raises.
+    Returns {ok: bool, ...}. ok is False when calibration files are missing or
+    stubbed (no positive n / no numeric brier). poll-health is attached when
+    readable (fails/progress counters) but does not alone decide ok.
+    Fail-soft — never raises.
     """
     root = Path(root) if root else Path(__file__).resolve().parent
     cal_p = Path(root) / "state" / "cortex" / "calibration-latest.json"
     claims_p = Path(root) / "state" / "cortex" / "self-claims.jsonl"
+    poll_p = Path(root) / "state" / "telegram" / "poll-health.json"
     out = {
         "ok": False,
         "paths": {
             "calibration_latest": str(cal_p),
             "self_claims": str(claims_p),
+            "poll_health": str(poll_p),
         },
     }
+    try:
+        if poll_p.exists():
+            ph = json.loads(poll_p.read_text(encoding="utf-8"))
+            if isinstance(ph, dict):
+                counters = ph.get("counters") if isinstance(ph.get("counters"), dict) else {}
+                out["poll_health"] = {
+                    "consecutive_failures": ph.get("consecutive_failures"),
+                    "poll_started_total": counters.get("poll_started_total"),
+                    "poll_completed_total": counters.get("poll_completed_total"),
+                    "last_progress_at": ph.get("last_progress_at"),
+                    "last_reason": ph.get("last_reason") or "",
+                }
+    except Exception as exc:  # noqa: BLE001
+        out["poll_health_error"] = f"{type(exc).__name__}: {exc}"
     try:
         if not cal_p.exists():
             out["error"] = "calibration-latest missing"
@@ -404,6 +422,7 @@ def run(root=None, journal=True) -> dict:
 
     jpath = Path(root) / "state" / JOURNAL
     calib = score_previous(scan, jpath)
+    disk_ev = load_disk_evidence(root)
     out = {
         "schema": SCHEMA, "ts": time.time(),
         "elapsed_s": round(time.time() - t0, 2),
@@ -414,6 +433,8 @@ def run(root=None, journal=True) -> dict:
                                                if h["rule"] == r.__name__.replace("rule_", ""))
                                for r in RULES}},
         "calibration": calib,
+        "disk_evidence": disk_ev,
+        "evidence_ok": bool(disk_ev.get("ok")),
         "rule_errors": errors,
     }
     if journal:
@@ -424,7 +445,9 @@ def run(root=None, journal=True) -> dict:
                 rows = [l for l in jpath.read_text(encoding="utf-8").splitlines()
                         if l.strip()][-(JOURNAL_CAP - 1):]
             rows.append(json.dumps(
-                {k: out[k] for k in ("schema", "ts", "hypotheses", "calibration")},
+                {k: out[k] for k in ("schema", "ts", "hypotheses", "calibration",
+                                       "disk_evidence", "evidence_ok")
+                 if k in out},
                 ensure_ascii=False))
             jpath.write_text("\n".join(rows) + "\n", encoding="utf-8")
             out["journal"] = str(jpath)
@@ -474,6 +497,24 @@ def card(root=None, top=6) -> str:
             + (f" ({rr:.0%})" if rr is not None else ""))
     else:
         lines.append("📊 اولین اجراست — هنوز پیش‌بینی‌ای برای نمره‌دادن ندارم.")
+    disk_ev = entry.get("disk_evidence") if isinstance(entry.get("disk_evidence"), dict) else None
+    if not disk_ev or not disk_ev.get("ok"):
+        try:
+            disk_ev = load_disk_evidence(root)
+        except Exception:  # noqa: BLE001
+            disk_ev = None
+    if isinstance(disk_ev, dict) and disk_ev.get("ok"):
+        lines.append(
+            f"🎯 کالیبراسیونِ زنده: Brier={float(disk_ev['brier']):.6f} "
+            f"n={int(disk_ev['n'])} claims={disk_ev.get('n_claims_file', '?')}")
+        ph = disk_ev.get("poll_health") if isinstance(disk_ev.get("poll_health"), dict) else None
+        if ph and isinstance(ph.get("consecutive_failures"), (int, float)):
+            lines.append(
+                f"💓 poll-health: fails={int(ph['consecutive_failures'])} "
+                f"started={ph.get('poll_started_total')} "
+                f"completed={ph.get('poll_completed_total')}")
+    elif isinstance(disk_ev, dict) and disk_ev.get("error"):
+        lines.append(f"🎯 کالیبراسیونِ دیسک: ناموجود/stub — {disk_ev.get('error')}")
     lines.append("")
     if not hyps:
         lines.append("آخرین اجرا فرضیه‌ای نداشت.")

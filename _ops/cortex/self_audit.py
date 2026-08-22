@@ -82,6 +82,40 @@ def _doctor_vitals_path() -> Path:
     return OPS.parent / "OCTOPUS-DOCTOR" / "90-_meta" / "state" / "doctor-vitals.json"
 
 
+def _poll_health_path() -> Path:
+    return STATE / "telegram" / "poll-health.json"
+
+
+def _heartstate_path() -> Path:
+    return STATE / "pulse" / "heartstate-latest.json"
+
+
+def _work_health_path() -> Path:
+    return STATE / "pulse" / "work-health.json"
+
+
+def _calibration_py_path() -> Path:
+    return OPS / "doctor" / "calibration.py"
+
+
+def _read_stop_constants(path: Path):
+    """Parse REJECT_FORGET_N / PENDING_* caps from calibration.py source."""
+    import re
+    try:
+        text = path.read_text("utf-8")
+    except OSError:
+        return None
+    out = {}
+    for name in ("REJECT_FORGET_N", "PENDING_SOFT_CAP", "PENDING_HARD_CAP"):
+        m = re.search(rf"^{name}\s*=\s*(\d+)", text, re.M)
+        if not m:
+            return None
+        out[name] = int(m.group(1))
+    out["has_should_skip"] = "def should_skip_bottleneck" in text
+    out["has_attention_gate"] = "def attention_gate" in text
+    return out
+
+
 # ─── probeها (هرکدام یک بندِ چک‌لیست، از واقعیت) ─────────────────────────────────
 def _probe_kill_switch():
     ok = hasattr(opslib, "STOP_ORGANISM") and hasattr(opslib, "halted")
@@ -177,10 +211,37 @@ def _probe_cost_logging():
 
 
 def _probe_dashboard():
-    ok = (OPS / "live" / "server.py").exists()
-    return _item("dashboard for system vitals", "Done" if ok else "Missing",
-                 "live/server.py (8773 hologram) + cockpit v2 telegram",
-                 "P2", "none" if ok else "observability", "§8 observability")
+    """Was file-exists on live/server.py. Now requires live vitals JSON."""
+    hs_p = _heartstate_path()
+    wh_p = _work_health_path()
+    server_ok = (OPS / "live" / "server.py").exists()
+    hs = _read(hs_p)
+    wh = _read(wh_p)
+    if hs is None and wh is None:
+        return _item("dashboard for system vitals", "Missing",
+                     f"heartstate+work-health unreadable; server.py={server_ok}",
+                     "P2", "observability", "§8 observability",
+                     evidence_bound=True)
+    hs_ok = isinstance(hs, dict) and hs.get("schema") == "heartstate.v1"
+    wh_ok = isinstance(wh, dict) and isinstance(wh.get("month_aud"), (int, float))
+    if not (hs_ok or wh_ok):
+        sch = None if hs is None else (hs.get("schema") if isinstance(hs, dict) else type(hs).__name__)
+        wh_keys = list(wh)[:4] if isinstance(wh, dict) else None
+        return _item("dashboard for system vitals", "Partial",
+                     f"vitals stubbed/wrong schema hs={sch!r} wh_keys={wh_keys}; server.py={server_ok}",
+                     "P2", "observability", "§8 observability",
+                     evidence_bound=True)
+    bits = []
+    if hs_ok:
+        bits.append(f"heartstate.v1 ts={hs.get('ts')!r}")
+    if wh_ok:
+        bits.append(f"work-health month_aud={wh.get('month_aud')} gate0={wh.get('gate0')}")
+    bits.append(f"server.py={server_ok}")
+    st = "Done" if (hs_ok and server_ok) or (hs_ok and wh_ok) else "Partial"
+    return _item("dashboard for system vitals", st,
+                 "; ".join(bits),
+                 "P2", "none" if st == "Done" else "observability", "§8 observability",
+                 evidence_bound=True)
 
 
 def _probe_epistemic_signals():
@@ -236,10 +297,32 @@ def _probe_trace_based_analysis():
 
 
 def _probe_stop_condition():
-    ok = (OPS / "doctor" / "calibration.py").exists()
-    return _item("self-analysis loop has stop-condition", "Partial" if ok else "Missing",
-                 "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
-                 "P1", "governance", "§9 self-analysis")
+    """Was file-exists on calibration.py. Now reads live constants + defs."""
+    cal_py = _calibration_py_path()
+    consts = _read_stop_constants(cal_py)
+    if consts is None:
+        return _item("self-analysis loop has stop-condition", "Missing",
+                     f"calibration.py missing/unparseable: {cal_py}",
+                     "P1", "governance", "§9 self-analysis",
+                     evidence_bound=True)
+    expect = {"REJECT_FORGET_N": 3, "PENDING_SOFT_CAP": 3, "PENDING_HARD_CAP": 5}
+    if not consts.get("has_should_skip") or not consts.get("has_attention_gate"):
+        return _item("self-analysis loop has stop-condition", "Partial",
+                     f"defs incomplete should_skip={consts.get('has_should_skip')} "
+                     f"attention_gate={consts.get('has_attention_gate')} consts={consts}",
+                     "P1", "governance", "§9 self-analysis",
+                     evidence_bound=True)
+    if any(consts.get(k) != v for k, v in expect.items()):
+        return _item("self-analysis loop has stop-condition", "Partial",
+                     f"stop caps drifted: " + str({k: consts.get(k) for k in expect}) + f" expected={expect}",
+                     "P1", "governance", "§9 self-analysis",
+                     evidence_bound=True)
+    return _item("self-analysis loop has stop-condition", "Done",
+                 f"calibration.py REJECT_FORGET_N={consts['REJECT_FORGET_N']} "
+                 f"soft={consts['PENDING_SOFT_CAP']} hard={consts['PENDING_HARD_CAP']} "
+                 f"+ should_skip_bottleneck + attention_gate",
+                 "P1", "none", "§9 self-analysis",
+                 evidence_bound=True)
 
 
 def _probe_shadow_before_promote():
@@ -480,6 +563,47 @@ def _probe_change_backlog():
                  "P1", "implementation", "§19 coding-ready")
 
 
+def _probe_poll_health():
+    """Bind telegram poll-health.json fails/progress counters into audit."""
+    ph_p = _poll_health_path()
+    ph = _read(ph_p)
+    if ph is None:
+        return _item("telegram poll-health counters", "Missing",
+                     f"poll-health missing/unreadable: {ph_p}",
+                     "P1", "observability", "§8 observability",
+                     evidence_bound=True)
+    if not isinstance(ph, dict):
+        return _item("telegram poll-health counters", "Partial",
+                     "poll-health not an object",
+                     "P1", "observability", "§8 observability",
+                     evidence_bound=True)
+    fails = ph.get("consecutive_failures")
+    counters = ph.get("counters") if isinstance(ph.get("counters"), dict) else {}
+    started = counters.get("poll_started_total")
+    completed = counters.get("poll_completed_total")
+    progress = ph.get("last_progress_at")
+    if not isinstance(fails, (int, float)):
+        return _item("telegram poll-health counters", "Partial",
+                     f"consecutive_failures stubbed/invalid: {fails!r}",
+                     "P1", "observability", "§8 observability",
+                     evidence_bound=True)
+    if not isinstance(started, (int, float)) or not isinstance(completed, (int, float)):
+        return _item("telegram poll-health counters", "Partial",
+                     f"counters incomplete started={started!r} completed={completed!r}",
+                     "P1", "observability", "§8 observability",
+                     evidence_bound=True)
+    if not isinstance(progress, (int, float)) or float(progress) <= 0:
+        return _item("telegram poll-health counters", "Partial",
+                     f"last_progress_at stubbed/invalid: {progress!r}",
+                     "P1", "observability", "§8 observability",
+                     evidence_bound=True)
+    return _item("telegram poll-health counters", "Done",
+                 f"fails={int(fails)} started={int(started)} completed={int(completed)} "
+                 f"progress_at={float(progress):.3f}",
+                 "P1", "none", "§8 observability",
+                 evidence_bound=True)
+
+
 def _probe_calibration_evidence():
     """Live Brier/n from calibration-latest.json + self-claims.jsonl counts.
 
@@ -531,6 +655,7 @@ PROBES = [
     _probe_memory_poisoning, _probe_trace_independent, _probe_cost_logging, _probe_dashboard,
     _probe_epistemic_signals, _probe_self_analysis_loop, _probe_trace_based_analysis,
     _probe_calibration_evidence,
+    _probe_poll_health,
     _probe_stop_condition, _probe_shadow_before_promote, _probe_change_leveling, _probe_rollback,
     _probe_regression_suite, _probe_deterministic_routing_tests, _probe_blind_informed,
     _probe_single_agent_baseline, _probe_named_owner,
