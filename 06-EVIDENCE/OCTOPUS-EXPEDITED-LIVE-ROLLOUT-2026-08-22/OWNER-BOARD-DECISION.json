@@ -1,0 +1,7 @@
+{
+  "schema": "octopus-owner-board-decision/1",
+  "received_at_local": "2026-08-22T15:20:33.971891+10:00",
+  "decision": "DEFER_BOARD_CHG_FINISH_LAPTOP_EXPEDITED_FIRST",
+  "board_mode": "WAVE0_OBSERVE_ONLY",
+  "chg_authorized": null
+}

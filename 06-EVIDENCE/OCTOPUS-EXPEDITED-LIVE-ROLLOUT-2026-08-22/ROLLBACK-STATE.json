@@ -1,0 +1,21 @@
+{
+  "schema": "octopus-rollback-state/1",
+  "written_at_local": "2026-08-22T15:09:09.281943+10:00",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "pre_rollout_snapshot": "F:\\backup\\_ops\\state\\restart-snapshots\\2026-08-22T0509Z-pre-expedited-rollout",
+  "prior_snapshots": [
+    "F:\\backup\\_ops\\state\\restart-snapshots\\2026-08-21T1915Z",
+    "F:\\backup\\_ops\\state\\restart-snapshots\\2026-08-21T2156Z"
+  ],
+  "git_head": "2ab0eb8725653b02c19b316dc136347af26465c2",
+  "runtime_head": "2ab0eb8725653b02c19b316dc136347af26465c2",
+  "center_pid": 14856,
+  "rollback_commands": [
+    "Do NOT git reset --hard / git clean / force-push",
+    "If Center must be restored: STOP-TG-CENTER then wait both gone then delete STOP then one RUN-TG-CENTER.bat (only if authorized)",
+    "Snapshot manifest: F:\\backup\\_ops\\state\\restart-snapshots\\2026-08-22T0509Z-pre-expedited-rollout\\MANIFEST.json",
+    "Writer lock: do not release; recover via archive only if owner orders"
+  ],
+  "stop_tg_center_flag": "F:\\backup\\_ops\\STOP-TG-CENTER",
+  "run_tg_center_bat": "F:\\backup\\_ops\\telegram_center\\RUN-TG-CENTER.bat"
+}
