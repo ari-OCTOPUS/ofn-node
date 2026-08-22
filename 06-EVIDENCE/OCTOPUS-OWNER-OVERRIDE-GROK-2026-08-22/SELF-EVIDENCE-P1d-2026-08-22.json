@@ -215,6 +215,7 @@
     "heartbeat": true,
     "expires_at_local": "2026-08-22T15:54:07+10:00"
   },
-  "HEAD": null,
-  "commit_subject": "fix(self): bind safety-critical self_audit probes to evidence"
+  "HEAD": "28ff55c9e9a7f799dc6da298a40740d54265bb1e",
+  "commit_subject": "fix(self): bind safety-critical self_audit probes to evidence",
+  "recorded_final_head_at": "2026-08-22T14:04:55+10:00"
 }
