@@ -59,13 +59,18 @@ class FakeNet:
 
 
 def _clear_fake_poll_lease(token=TOKEN):
-    """Each unit test owns isolated lease state; production persistence is unchanged."""
+    """Each unit test owns isolated lease/schedule state; production persistence is unchanged."""
     try:
         import poll_lease
         con = poll_lease._conn()
         con.execute("DELETE FROM lease WHERE token_digest=?",
                     (poll_lease._token_digest(token),))
         con.close()
+    except Exception:
+        pass
+    try:
+        import poll_schedule
+        poll_schedule.record_success(token)
     except Exception:
         pass
 
@@ -522,6 +527,7 @@ def t_y5_poll_updates_429_sleeps_before_returning_empty():
                     "parameters": {"retry_after": 3}}
 
     net = _Net429Get()
+    _clear_fake_poll_lease(TOKEN)
     c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
                  post_fn=net.post, get_fn=net.get)
     c._sleep = slept.append

@@ -27,7 +27,9 @@ import html
 import json
 import os
 import re
+import socket
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -381,7 +383,7 @@ class TgClient:
 
     def __init__(self, token: str | None = None, owner_chat_id=None,
                  center_chat_id=None, post_fn=None, get_fn=None,
-                 download_fn=None):
+                 download_fn=None, poll_preflight_fn=None):
         # TG_CENTER_BOT_TOKEN = باتِ اختصاصیِ مرکزِ گروه (توصیه: باتِ دوم تا با pollerِ
         # approval_channel داخلِ organism روی یک توکن جنگِ 409 نشود)؛ fallback = باتِ اصلی.
         tg_center_tok = _env_str("TG_CENTER_BOT_TOKEN")
@@ -412,6 +414,7 @@ class TgClient:
         # transportِ سومِ تزریق‌پذیر: (url, timeout_s, max_bytes) → bytes.
         # تست هرگز شبکه نمی‌زند؛ همین امضا در تست جعل می‌شود.
         self._download = download_fn or _url_bytes_get
+        self._poll_preflight = poll_preflight_fn
         self._sleep = time.sleep                   # تزریقی برایِ تستِ ۴۲۹ بدونِ انتظارِ واقعی
         self._defer = self._default_defer          # key-aware durable scheduler hook
         self._defer_queue = None                   # attach_defer_queue مسلحش میکند (default-off)
@@ -805,108 +808,343 @@ class TgClient:
             body["scope"] = scope
         return self._call_post("deleteMyCommands", body) is not None
 
-    def poll_updates(self, offset: int = 0, timeout_s: int = DEFAULT_LONGPOLL_S) -> list[dict]:
-        """یک دورِ long-pollِ getUpdates ($0-idle). خروجی = لیستِ updateها (dict) —
-        خطای شبکه/پاسخِ بد → [] بی‌صدا (حلقهٔ poll نباید alert-spam کند؛ الگوی
-        approval_channel.poll_once). offsetِ بعدی با next_offset حساب می‌شود.
+    @staticmethod
+    def _poll_exception_outcome(exc, *, started_at: float,
+                                lease_generation: int | None = None):
+        from poll_outcome import PollOutcome
 
-        ۴۲۹: اگر تلگرام rate-limit بگوید (retry_after)، قبل از برگشتنِ [] به‌اندازهٔ
-        آن صبر می‌کنیم تا حلقهٔ poll بلافاصله دوباره برخورد نکند و spinِ ۴۲۹ نسازد.
-        sleep واقعی فقط در تولید است؛ تست با ``_sleep`` تزریقی ثبت می‌کند."""
-        if not self.wired():
-            return []
-        started_at = time.time()
-        lease_generation = None
+        completed = time.time()
+        payload = _http_err_json(exc)
         try:
-            import poll_lease as _pl  # noqa: WPS433
-            lease = _pl.assert_poll_lease(
+            code = int(payload.get("error_code") or getattr(exc, "code", 0) or 0)
+        except (TypeError, ValueError):
+            code = 0
+        retry_after = _retry_after_from_429(payload)
+        if code == 409:
+            return PollOutcome(
+                "CONFLICT", error_code=409, reason="duplicate-consumer",
+                lease_generation=lease_generation, started_at=started_at,
+                completed_at=completed)
+        if code == 429:
+            return PollOutcome(
+                "RATE_LIMITED", error_code=429, retry_after_s=retry_after,
+                reason="rate-limited", lease_generation=lease_generation,
+                started_at=started_at, completed_at=completed)
+        if code:
+            return PollOutcome(
+                "HTTP_5XX" if code >= 500 else "HTTP_4XX",
+                error_code=code, reason="api:%s" % code,
+                lease_generation=lease_generation, started_at=started_at,
+                completed_at=completed)
+        reason = getattr(exc, "reason", None)
+        dns = isinstance(reason, socket.gaierror) or isinstance(exc, socket.gaierror)
+        timeout = isinstance(exc, (TimeoutError, socket.timeout))
+        if isinstance(exc, urllib.error.URLError):
+            timeout = timeout or isinstance(reason, (TimeoutError, socket.timeout))
+        if not dns and "DNS" in str(exc).upper():
+            dns = True
+        return PollOutcome(
+            "DNS_ERROR" if dns else ("TIMEOUT" if timeout else "HTTP_5XX"),
+            reason=type(exc).__name__, lease_generation=lease_generation,
+            started_at=started_at, completed_at=completed)
+
+    def poll_updates_typed(self, offset: int = 0,
+                           timeout_s: int = DEFAULT_LONGPOLL_S):
+        """Run one canonical poll and return a typed ``PollOutcome``.
+
+        This path never sleeps and never advances an offset.  Retry timing is
+        returned to the Center scheduler.  Ownership, transport and response
+        ambiguity fail closed before updates can reach business dispatch.
+        """
+        from poll_outcome import PollOutcome
+
+        started_at = time.time()
+        if not self.wired():
+            return PollOutcome(
+                "STOPPED", reason="not-wired", started_at=started_at,
+                completed_at=started_at)
+        if getattr(self, "_token_source", "") == "FALLBACK_TELEGRAM_BOT_TOKEN":
+            _record_poll(False, "dedicated-token-required", started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason="dedicated-token-required",
+                started_at=started_at, completed_at=time.time())
+        try:
+            import poll_schedule as schedule_module  # noqa: WPS433
+            scheduled = schedule_module.check(self._token)
+        except Exception as exc:  # noqa: BLE001
+            scheduled = {
+                "allowed": False, "kind": "LEASE_DENIED",
+                "reason": "schedule-error:%s" % type(exc).__name__,
+                "retry_after_s": 1.0,
+            }
+        if not scheduled.get("allowed"):
+            kind = str(scheduled.get("kind") or "LEASE_DENIED")
+            if kind not in {
+                "CONFLICT", "RATE_LIMITED", "TIMEOUT", "DNS_ERROR",
+                "HTTP_5XX", "HTTP_4XX", "WEBHOOK_PRESENT",
+            }:
+                kind = "LEASE_DENIED"
+            reason = str(scheduled.get("reason") or "scheduled")
+            _record_poll(False, "schedule:%s" % reason, started_at=started_at)
+            return PollOutcome(
+                kind, reason=reason,
+                retry_after_s=(float(scheduled["retry_after_s"])
+                               if float(scheduled.get("retry_after_s") or 0) > 0 else None),
+                started_at=started_at, completed_at=time.time())
+        if self._poll_preflight is not None:
+            try:
+                preflight = self._poll_preflight()
+            except Exception as exc:  # noqa: BLE001 — unknown webhook state blocks polling
+                reason = "preflight-error:%s" % type(exc).__name__
+                _record_poll(False, reason, started_at=started_at)
+                stored = schedule_module.record_failure(
+                    self._token, kind="HTTP_5XX", reason=reason)
+                if not stored.get("ok"):
+                    return PollOutcome(
+                        "LEASE_DENIED", reason="schedule-error",
+                        retry_after_s=1.0, started_at=started_at,
+                        completed_at=time.time())
+                return PollOutcome(
+                    "HTTP_5XX", reason=reason,
+                    retry_after_s=float(stored["retry_after_s"]),
+                    started_at=started_at, completed_at=time.time())
+            if not isinstance(preflight, dict):
+                _record_poll(False, "preflight-malformed", started_at=started_at)
+                stored = schedule_module.record_failure(
+                    self._token, kind="MALFORMED", reason="preflight-malformed")
+                if not stored.get("ok"):
+                    return PollOutcome(
+                        "LEASE_DENIED", reason="schedule-error",
+                        retry_after_s=1.0, started_at=started_at,
+                        completed_at=time.time())
+                return PollOutcome(
+                    "MALFORMED", reason="preflight-malformed",
+                    retry_after_s=float(stored["retry_after_s"]),
+                    started_at=started_at, completed_at=time.time())
+            webhook_present = bool(
+                preflight.get("webhook") is True
+                or preflight.get("url_set") is True
+                or str(preflight.get("url") or "").strip()
+            )
+            if webhook_present:
+                _record_poll(False, "webhook-present", started_at=started_at)
+                stored = schedule_module.record_failure(
+                    self._token, kind="WEBHOOK_PRESENT",
+                    reason="webhook-present")
+                if not stored.get("ok"):
+                    return PollOutcome(
+                        "LEASE_DENIED", reason="schedule-error",
+                        retry_after_s=1.0, started_at=started_at,
+                        completed_at=time.time())
+                return PollOutcome(
+                    "WEBHOOK_PRESENT", reason="webhook-present",
+                    retry_after_s=float(stored["retry_after_s"]),
+                    started_at=started_at, completed_at=time.time())
+
+        try:
+            import poll_lease as lease_module  # noqa: WPS433
+            lease = lease_module.assert_poll_lease(
                 self._token,
                 request_deadline=started_at + max(1.0, float(timeout_s)) + 10.0,
             )
-        except Exception as exc:  # noqa: BLE001 — ownership ambiguity fails closed
-            _record_poll(False, "lease-error:%s" % type(exc).__name__,
-                         started_at=started_at)
-            return []
+        except Exception as exc:  # noqa: BLE001
+            reason = "lease-error:%s" % type(exc).__name__
+            _record_poll(False, reason, started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason=reason, started_at=started_at,
+                completed_at=time.time())
+        generation = lease.get("generation")
         if not lease.get("ok"):
-            _record_poll(False, "lease:%s" % (lease.get("reason") or "denied",),
-                         started_at=started_at)
-            return []
-        lease_generation = lease.get("generation")
+            reason = str(lease.get("reason") or "denied")
+            _record_poll(False, "lease:%s" % reason, started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason=reason,
+                retry_after_s=(float(lease["cooldown_s"])
+                               if float(lease.get("cooldown_s") or 0) > 0 else None),
+                lease_generation=generation, started_at=started_at,
+                completed_at=time.time())
+
+        def scheduled_failure(outcome):
+            try:
+                stored = schedule_module.record_failure(
+                    self._token, kind=outcome.kind, reason=outcome.reason,
+                    retry_after_s=outcome.retry_after_s)
+            except Exception:  # noqa: BLE001
+                stored = {"ok": False, "reason": "schedule-error"}
+            from poll_outcome import PollOutcome as _PollOutcome
+            if not stored.get("ok"):
+                return _PollOutcome(
+                    "LEASE_DENIED", retry_after_s=1.0,
+                    reason=str(stored.get("reason") or "schedule-error"),
+                    lease_generation=outcome.lease_generation,
+                    started_at=outcome.started_at,
+                    completed_at=outcome.completed_at)
+            delay = float(stored.get("retry_after_s") or 0)
+            return _PollOutcome(
+                outcome.kind, retry_after_s=(delay if delay > 0 else None),
+                error_code=outcome.error_code, reason=outcome.reason,
+                lease_generation=outcome.lease_generation,
+                started_at=outcome.started_at, completed_at=outcome.completed_at)
 
         def finish_failed(reason: str) -> None:
             try:
-                _pl.finish_poll_request(
-                    self._token, generation=lease_generation, reason=reason)
-            except Exception:  # noqa: BLE001 — failure stays fail-closed
+                lease_module.finish_poll_request(
+                    self._token, generation=generation, reason=reason)
+            except Exception:  # noqa: BLE001
                 pass
 
         try:
-            params = {"offset": int(offset), "timeout": int(timeout_s),
-                      "allowed_updates": json.dumps(["message", "callback_query"])}
-            data = self._get(self._build_url("getUpdates", params), float(timeout_s))
-        except Exception as e:  # noqa: BLE001 — بی‌صدا، بدونِ leakِ URL/token
-            msg = str(e)
-            dns_stall = isinstance(e, TimeoutError) and "transport stalled" in msg
-            st = _record_poll(False, type(e).__name__, started_at=started_at,
-                              completed_at=time.time(), timeout=dns_stall,
-                              dns_stall=dns_stall)
-            finish_failed(type(e).__name__)
-            self._maybe_alert_deaf(st)
-            return []
-        if not isinstance(data, dict) or not data.get("ok"):
-            _code = data.get("error_code") if isinstance(data, dict) else "no-dict"
-            is_409 = bool(isinstance(data, dict) and data.get("error_code") == 409)
-            st = _record_poll(False, "api:%s" % (_code,), started_at=started_at,
-                              completed_at=time.time(), is_409=is_409)
-            self._maybe_alert_deaf(st)
-            ra = _retry_after_from_429(data if isinstance(data, dict) else {})
-            _sync = _sync_retry_delay(ra)
-            if _sync is not None:
+            params = {
+                "offset": int(offset),
+                "timeout": int(timeout_s),
+                "allowed_updates": json.dumps(["message", "callback_query"]),
+            }
+            data = self._get(
+                self._build_url("getUpdates", params), float(timeout_s))
+        except Exception as exc:  # noqa: BLE001
+            outcome = self._poll_exception_outcome(
+                exc, started_at=started_at, lease_generation=generation)
+            is_timeout = outcome.kind == "TIMEOUT"
+            is_dns = outcome.kind == "DNS_ERROR"
+            is_409 = outcome.kind == "CONFLICT"
+            state = _record_poll(
+                False, outcome.reason or outcome.kind, started_at=started_at,
+                timeout=is_timeout, dns_stall=is_dns, is_409=is_409)
+            if is_409:
+                cooldown = None
                 try:
-                    self._sleep(_sync)
+                    marked = lease_module.mark_duplicate_consumer(self._token)
+                    value = float(marked.get("cooldown_s") or 0)
+                    cooldown = value if value > 0 else None
+                    _transport_pool().record_result(
+                        _bot_key_from_url(self._build_url("getUpdates", {})),
+                        ok=False, is_409=True)
                 except Exception:  # noqa: BLE001
                     pass
-            # (۲۰۲۶-۰۷-۳۱، رفعِ boundary-12) — تشخیصِ pollerِ رقیب: 409 Conflict
-            # یعنی مصرف‌کنندهٔ دیگری روی همین توکن getUpdates می‌زند (کنترل‌مغزِ
-            # قدیمی، دستگاهِ دیگر، یا وب‌هوک) و آپدیت‌ها را می‌بلعد. تا امروز این
-            # مسیر بی‌صدا [] برمی‌گرداند — تنها نشانه، یک «غیبت» بود (بات ساکت،
-            # صفر لاگ، صفر رسید). الگوی approval_channel.poll_once (جلسه ۴۶) اینجا
-            # آورده شد: هشدارِ throttled (۱/ساعت) تا spam نکند.
+                from poll_outcome import PollOutcome
+                outcome = PollOutcome(
+                    "CONFLICT", error_code=409, reason="duplicate-consumer",
+                    retry_after_s=cooldown, lease_generation=generation,
+                    started_at=started_at, completed_at=outcome.completed_at)
+            finish_failed(outcome.reason or outcome.kind)
+            self._maybe_alert_deaf(state)
+            return scheduled_failure(outcome)
+
+        completed = time.time()
+        if not isinstance(data, dict):
+            _record_poll(
+                False, "malformed:no-dict", started_at=started_at)
+            finish_failed("malformed:no-dict")
+            return PollOutcome(
+                "MALFORMED", reason="no-dict", lease_generation=generation,
+                started_at=started_at, completed_at=completed)
+        if not data.get("ok"):
+            try:
+                code = int(data.get("error_code") or 0)
+            except (TypeError, ValueError):
+                code = 0
+            retry_after = _retry_after_from_429(data)
+            is_409 = code == 409
+            state = _record_poll(
+                False, "api:%s" % (code or "unknown"),
+                started_at=started_at, is_409=is_409)
+            self._maybe_alert_deaf(state)
             if is_409:
-                import time as _t409
+                cooldown = None
                 try:
-                    import poll_lease as _pl409
-                    _pl409.mark_duplicate_consumer(self._token)
+                    marked = lease_module.mark_duplicate_consumer(self._token)
+                    value = float(marked.get("cooldown_s") or 0)
+                    cooldown = value if value > 0 else None
                 except Exception:  # noqa: BLE001
                     pass
                 try:
                     _transport_pool().record_result(
                         _bot_key_from_url(self._build_url("getUpdates", {})),
-                        ok=False, is_409=True)   # Wave C: 409 opens the circuit
+                        ok=False, is_409=True)
                 except Exception:  # noqa: BLE001
                     pass
-                if _t409.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
-                    self._last_409_alert = _t409.time()
-                    _alert_soft("tg-center getUpdates 409 Conflict — pollerِ رقیب روی "
-                                "همین توکن! آپدیت‌ها را او می‌بلعد (پروسهٔ دوم؟ "
-                                "وب‌هوک؟). تا حل نشود بات ساکت خواهد بود.")
-            finish_failed("api:%s" % (_code,))
-            return []
+                if time.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
+                    self._last_409_alert = time.time()
+                    _alert_soft(
+                        "tg-center getUpdates 409 Conflict — another poller owns "
+                        "this bot; polling is stopped until cooldown.")
+                finish_failed("api:409")
+                return scheduled_failure(PollOutcome(
+                    "CONFLICT", error_code=409, reason="duplicate-consumer",
+                    retry_after_s=cooldown, lease_generation=generation,
+                    started_at=started_at, completed_at=completed))
+            finish_failed("api:%s" % (code or "unknown"))
+            if code == 429:
+                return scheduled_failure(PollOutcome(
+                    "RATE_LIMITED", retry_after_s=retry_after,
+                    error_code=429, reason="rate-limited",
+                    lease_generation=generation, started_at=started_at,
+                    completed_at=completed))
+            kind = "HTTP_5XX" if code >= 500 else "HTTP_4XX"
+            if not code:
+                kind = "MALFORMED"
+            return scheduled_failure(PollOutcome(
+                kind, error_code=(code or None),
+                reason="api:%s" % (code or "unknown"),
+                lease_generation=generation, started_at=started_at,
+                completed_at=completed))
+
+        raw_updates = data.get("result")
+        if not isinstance(raw_updates, list):
+            reason = "malformed:result-not-list"
+            _record_poll(False, reason, started_at=started_at)
+            finish_failed(reason)
+            return scheduled_failure(PollOutcome(
+                "MALFORMED", reason="result-not-list",
+                lease_generation=generation, started_at=started_at,
+                completed_at=time.time()))
+        updates = tuple(item for item in raw_updates if isinstance(item, dict))
         try:
-            confirmed = _pl.mark_poll_success(
-                self._token, generation=lease_generation)
-        except Exception as exc:  # noqa: BLE001 — stale owner may not return updates
-            _record_poll(False, "lease-confirm-error:%s" % type(exc).__name__,
-                         started_at=started_at)
-            return []
+            confirmed = lease_module.mark_poll_success(
+                self._token, generation=generation)
+        except Exception as exc:  # noqa: BLE001
+            reason = "lease-confirm:%s" % type(exc).__name__
+            _record_poll(False, reason, started_at=started_at)
+            finish_failed(reason)
+            return scheduled_failure(PollOutcome(
+                "LEASE_DENIED", reason=reason, lease_generation=generation,
+                started_at=started_at, completed_at=time.time()))
         if not confirmed.get("ok"):
-            _record_poll(False, "lease-confirm:%s" % (
-                confirmed.get("reason") or "denied",), started_at=started_at)
-            return []
-        updates = [u for u in (data.get("result") or []) if isinstance(u, dict)]
-        _record_poll(True, started_at=started_at, completed_at=time.time(),
-                     updates_n=len(updates), empty=not updates)
-        return updates
+            reason = str(confirmed.get("reason") or "denied")
+            _record_poll(False, "lease-confirm:%s" % reason, started_at=started_at)
+            return scheduled_failure(PollOutcome(
+                "LEASE_DENIED", reason=reason, lease_generation=generation,
+                started_at=started_at, completed_at=time.time()))
+        cleared = schedule_module.record_success(self._token)
+        if not cleared.get("ok"):
+            reason = str(cleared.get("reason") or "schedule-clear-failed")
+            _record_poll(False, reason, started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason=reason, lease_generation=generation,
+                started_at=started_at, completed_at=time.time())
+        _record_poll(
+            True, started_at=started_at, completed_at=completed,
+            updates_n=len(updates), empty=not updates)
+        return PollOutcome(
+            "OK", updates=updates, lease_generation=generation,
+            started_at=started_at, completed_at=completed)
+
+    def poll_updates(self, offset: int = 0,
+                     timeout_s: int = DEFAULT_LONGPOLL_S) -> list[dict]:
+        """Backward-compatible list adapter over ``poll_updates_typed``.
+
+        The canonical Center consumes the typed outcome directly.  Legacy
+        callers keep the historic short 429 sleep and list/empty-list API.
+        """
+        outcome = self.poll_updates_typed(offset=offset, timeout_s=timeout_s)
+        if outcome.kind == "RATE_LIMITED" and outcome.retry_after_s is not None:
+            delay = _sync_retry_delay(outcome.retry_after_s)
+            if delay is not None:
+                try:
+                    self._sleep(delay)
+                except Exception:  # noqa: BLE001
+                    pass
+        return outcome.legacy_updates()
 
     def _maybe_alert_deaf(self, state: dict) -> None:
         """گوشِ مرده را یک‌بار در ساعت فریاد بزن. «مرده» = هیچ دورِ موفقی در
