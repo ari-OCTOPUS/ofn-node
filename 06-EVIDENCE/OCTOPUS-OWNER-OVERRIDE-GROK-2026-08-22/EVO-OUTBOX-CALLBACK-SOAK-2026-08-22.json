@@ -54,5 +54,9 @@
     "no paid API",
     "no git reset/clean/force/push",
     "no auto-merge onto live production tree"
-  ]
+  ],
+  "final_head": "cf61357d4b907cf26a8b2bbd735853597cf43c4e",
+  "final_head_short": "cf61357",
+  "commit_primary": "cf61357d4b907cf26a8b2bbd735853597cf43c4e",
+  "commit_subject": "fix(loop): fixture soak evo outbox card to owner merge callback"
 }
