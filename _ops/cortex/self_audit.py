@@ -44,12 +44,83 @@ def _fresh(p: Path, sla_min: float) -> bool:
     return a is not None and a <= sla_min
 
 
+def _evidence_pack_dir() -> Path:
+    """Session evidence pack for evidence_bound Done gate (fail-closed)."""
+    return OPS.parent / "06-EVIDENCE" / "OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22"
+
+
+def _evidence_json_readable(path: Path | str | None) -> tuple[bool, str]:
+    """Fail-closed: missing / empty / invalid JSON => not readable."""
+    if path is None:
+        return False, "missing-evidence-path"
+    raw = str(path).strip()
+    if not raw:
+        return False, "missing-evidence-path"
+    ep = Path(raw)
+    try:
+        if not ep.is_file():
+            return False, "evidence-path-missing-file"
+        body = ep.read_text(encoding="utf-8")
+        if not body.strip():
+            return False, "evidence-json-empty"
+        json.loads(body)
+        return True, "ok"
+    except OSError:
+        return False, "evidence-json-unreadable"
+    except ValueError:
+        return False, "evidence-json-invalid"
+
+
+def _resolve_evidence_json_path(explicit: Path | str | None = None) -> Path | None:
+    """Prefer probe-specific path; else first readable *.json under pack dir."""
+    if explicit is not None and str(explicit).strip():
+        return Path(str(explicit).strip())
+    d = _evidence_pack_dir()
+    try:
+        if not d.is_dir():
+            return None
+        for cand in sorted(d.glob("*.json")):
+            ok, _ = _evidence_json_readable(cand)
+            if ok:
+                return cand
+    except OSError:
+        return None
+    return None
+
+
+def _gate_evidence_bound_done(item: dict) -> dict:
+    """Central Done gate: evidence_bound Done requires on-disk evidence JSON."""
+    if not item.get("evidence_bound") or item.get("status") != "Done":
+        return item
+    path = _resolve_evidence_json_path(item.get("evidence_json"))
+    ok, reason = _evidence_json_readable(path)
+    out = dict(item)
+    out["evidence_json"] = str(path) if path is not None else None
+    if ok:
+        return out
+    out["status"] = "Missing"
+    prior = item.get("evidence")
+    out["evidence"] = f"evidence_json fail-closed ({reason}); prior={prior}"
+    if out.get("gap_type") in (None, "none"):
+        out["gap_type"] = "evidence"
+    return out
+
+
 def _item(item, status, evidence, priority, gap_type, section,
-         evidence_bound: bool = False):
+         evidence_bound: bool = False, evidence_json=None):
+    """Optional evidence_json bind: when set, Done is fail-closed on that path.
+
+    Central pack gate also runs in run_audit for all evidence_bound Done items.
+    """
     out = {"item": item, "status": status, "evidence": evidence,
            "priority": priority, "gap_type": gap_type, "section": section}
     if evidence_bound:
         out["evidence_bound"] = True
+    if evidence_json is not None:
+        out["evidence_json"] = str(evidence_json)
+        # Optional bind: only gate here when a probe-specific path was supplied.
+        if evidence_bound and status == "Done":
+            out = _gate_evidence_bound_done(out)
     return out
 
 
@@ -1071,7 +1142,7 @@ def run_audit(write: bool = True) -> dict:
     items = []
     for pr in PROBES:
         try:
-            items.append(pr())
+            items.append(_gate_evidence_bound_done(pr()))
         except Exception as e:  # noqa: BLE001 — یک probe نباید کلِ ممیزی را بکشد
             items.append(_item(pr.__name__, "Unknown", f"probe-error: {type(e).__name__}",
                               "P3", "none", "?"))

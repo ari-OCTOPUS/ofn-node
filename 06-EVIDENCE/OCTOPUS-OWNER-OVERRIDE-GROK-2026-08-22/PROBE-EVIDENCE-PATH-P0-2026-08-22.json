@@ -1,0 +1,82 @@
+{
+  "schema": "probe-evidence-path-p0/1",
+  "written_at": "2026-08-22T14:43:59+10:00",
+  "written_at_zone": "Australia/Sydney (UTC+10)",
+  "HEAD_before_commit": "1c1d14e0a69898a7e0ed9668516d04fb226c75c3",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "agent_id": "grok-ari-single-writer",
+  "task": "P0 — require on-disk evidence JSON for evidence_bound probe Done (central gate + optional bind)",
+  "live_send": false,
+  "paid": false,
+  "center_pid_untouched": 26484,
+  "files": [
+    "_ops/cortex/self_audit.py",
+    "_ops/tests/test_self_evidence_p1.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/PROBE-EVIDENCE-PATH-P0-2026-08-22.json"
+  ],
+  "implemented": {
+    "evidence_json_readable": {
+      "ok": true,
+      "what": "Fail-closed helper: missing/empty/invalid JSON => not readable (reasons mirror promote gate)."
+    },
+    "optional_bind_on_item": {
+      "ok": true,
+      "what": "_item(..., evidence_json=...) stores path; when evidence_bound+Done+explicit path, gates via _gate_evidence_bound_done."
+    },
+    "central_done_gate": {
+      "ok": true,
+      "what": "run_audit wraps each probe with _gate_evidence_bound_done. evidence_bound Done requires explicit evidence_json OR first readable *.json under 06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/."
+    }
+  },
+  "already_done": {
+    "self_insight_journal": {
+      "ok": true,
+      "commit": "9f8df61",
+      "evidence": "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/BUILD-REST.json",
+      "what": "run_once_journal + --once CLI; test_self_insight_journal_epistemics_wire.py present"
+    },
+    "epistemics_c1": {
+      "ok": true,
+      "commit": "9f8df61",
+      "evidence": "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/BUILD-REST.json",
+      "what": "calibration.draft_epistemic_uncertainty + effective_mine _epistemic attach; propose-only"
+    },
+    "wire_test_file": true
+  },
+  "tests": {
+    "test_self_evidence_p1.py": {
+      "result": "pass",
+      "n": 62
+    },
+    "test_self_audit_probes.py": {
+      "result": "pass"
+    },
+    "test_self_insight_journal_epistemics_wire.py": {
+      "result": "pass"
+    },
+    "new_gate_tests": 7,
+    "total_passed": 66
+  },
+  "live_snapshot": {
+    "evidence_bound_n": 16,
+    "evidence_bound_done": 16,
+    "fail_closed_demotions": 0,
+    "sample_evidence_json": "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/BUILD-REST.json"
+  },
+  "safe_reversible_backlog": [],
+  "live_gated_only": [
+    "LIVE-GATED: center controlled restart (PID 26484) — do not dual-poll / do not touch",
+    "LIVE-GATED: A18 live-real / LIVE-B (5 real owner events)",
+    "LIVE-GATED: 60-min soak / outbound canary",
+    "LIVE-GATED: SIG-IV independent signature",
+    "LIVE-GATED: owner [merge] on a real lab-pass RFC after restart",
+    "LIVE-GATED: work_pump not loaded this boot; legs starved; money wires false on purpose"
+  ],
+  "lock": {
+    "released": false,
+    "heartbeat": true,
+    "expires_note": "renewed this turn; no release"
+  },
+  "commit_subject": "fix(self): require on-disk evidence JSON for evidence-bound probe Done"
+}

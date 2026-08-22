@@ -742,6 +742,77 @@ class RollbackProbeTests(unittest.TestCase):
 
 
 
+
+class EvidenceJsonPathGateTests(unittest.TestCase):
+    """evidence_bound Done requires readable on-disk evidence JSON (fail-closed)."""
+
+    def test_missing_path_demotes_done(self):
+        missing = Path(tempfile.mkdtemp()) / "nope.json"
+        item = sa._item("x", "Done", "prior", "P0", "none", "s",
+                        evidence_bound=True, evidence_json=missing)
+        self.assertEqual(item["status"], "Missing")
+        self.assertIn("fail-closed", item["evidence"])
+        self.assertIn("evidence-path-missing-file", item["evidence"])
+
+    def test_empty_json_demotes_done(self):
+        root = Path(tempfile.mkdtemp())
+        empty = root / "empty.json"
+        empty.write_text("", encoding="utf-8")
+        item = sa._item("x", "Done", "prior", "P0", "none", "s",
+                        evidence_bound=True, evidence_json=empty)
+        self.assertEqual(item["status"], "Missing")
+        self.assertIn("evidence-json-empty", item["evidence"])
+
+    def test_invalid_json_demotes_done(self):
+        root = Path(tempfile.mkdtemp())
+        bad = root / "bad.json"
+        bad.write_text("{not-json", encoding="utf-8")
+        item = sa._item("x", "Done", "prior", "P0", "none", "s",
+                        evidence_bound=True, evidence_json=bad)
+        self.assertEqual(item["status"], "Missing")
+        self.assertIn("evidence-json-invalid", item["evidence"])
+
+    def test_valid_json_keeps_done(self):
+        root = Path(tempfile.mkdtemp())
+        good = root / "good.json"
+        _write_json(good, {"schema": "probe-evidence/1", "ok": True})
+        item = sa._item("x", "Done", "prior", "P0", "none", "s",
+                        evidence_bound=True, evidence_json=good)
+        self.assertEqual(item["status"], "Done")
+        self.assertEqual(item.get("evidence_json"), str(good))
+        self.assertEqual(item["evidence"], "prior")
+
+    def test_non_done_not_gated(self):
+        missing = Path(tempfile.mkdtemp()) / "nope.json"
+        item = sa._item("x", "Partial", "prior", "P0", "none", "s",
+                        evidence_bound=True, evidence_json=missing)
+        self.assertEqual(item["status"], "Partial")
+
+    def test_pack_dir_missing_demotes_via_gate(self):
+        missing_dir = Path(tempfile.mkdtemp()) / "no-pack"
+        with mock.patch.object(sa, "_evidence_pack_dir", return_value=missing_dir):
+            item = sa._gate_evidence_bound_done({
+                "item": "x", "status": "Done", "evidence": "prior",
+                "priority": "P0", "gap_type": "none", "section": "s",
+                "evidence_bound": True,
+            })
+        self.assertEqual(item["status"], "Missing")
+        self.assertIn("fail-closed", item["evidence"])
+
+    def test_pack_dir_with_valid_json_keeps_done(self):
+        root = Path(tempfile.mkdtemp())
+        _write_json(root / "pack.json", {"schema": "ok", "n": 1})
+        with mock.patch.object(sa, "_evidence_pack_dir", return_value=root):
+            item = sa._gate_evidence_bound_done({
+                "item": "x", "status": "Done", "evidence": "prior",
+                "priority": "P0", "gap_type": "none", "section": "s",
+                "evidence_bound": True,
+            })
+        self.assertEqual(item["status"], "Done")
+        self.assertTrue(str(item.get("evidence_json", "")).endswith("pack.json"))
+
+
+
 if __name__ == "__main__":
     # keep harness-style + unittest dual entry
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
