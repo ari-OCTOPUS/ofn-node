@@ -78,5 +78,7 @@
     "heartbeat": true,
     "expires_note": "renewed this turn; no release"
   },
-  "commit_subject": "fix(self): require on-disk evidence JSON for evidence-bound probe Done"
+  "commit_subject": "fix(self): require on-disk evidence JSON for evidence-bound probe Done",
+  "HEAD": "522aa16fab35954a2ebfde65377f5174947299a1",
+  "recorded_final_head_at": "2026-08-22T14:45:59+10:00"
 }
