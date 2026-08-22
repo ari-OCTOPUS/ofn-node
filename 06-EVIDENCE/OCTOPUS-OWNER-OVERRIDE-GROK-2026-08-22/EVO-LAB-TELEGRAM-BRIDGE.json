@@ -48,5 +48,8 @@
     "no git reset/clean/force push/push",
     "no auto-merge onto live production tree",
     "no wave1_closeout.run()"
-  ]
+  ],
+  "HEAD": "cedb322def40d05f6518ab60ad8f3a1e2527404d",
+  "HEAD_short": "cedb322",
+  "commit_subject": "fix(evo): bridge evolutionary doctor to self-upgrade lab and Telegram outbox"
 }
