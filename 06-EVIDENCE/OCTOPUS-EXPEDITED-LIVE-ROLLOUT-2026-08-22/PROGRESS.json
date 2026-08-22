@@ -1,0 +1,21 @@
+{
+  "schema": "octopus-post-activation-progress/1",
+  "phase": "REPORT_OBSIDIAN_DONE",
+  "LIVE_B_status": "PASS",
+  "soak_start_ts_local": "2026-08-22T15:37:53.033499+10:00",
+  "soak_result": "PASS",
+  "terminal_verdict": "OWNER_AUTHORIZED_BOUNDED_LIVE_ROLLOUT",
+  "next_action": "orange_pi_chg_owner_pick",
+  "obsidian_note": "07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md",
+  "written_at_local": "2026-08-22T16:47:12.028246+10:00",
+  "resumed_after_disconnect": true,
+  "board_agents_chg_notice": "NONE_YET",
+  "paths": {
+    "LIVE_B": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\LIVE-B-RESULT.json",
+    "SAMPLES": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\POST-ACTIVATION-SAMPLES.jsonl",
+    "SUMMARY": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\POST-ACTIVATION-SUMMARY.json",
+    "SIDE_EFFECTS": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\SIDE-EFFECT-ACCOUNTING.json",
+    "FINAL_REPORT": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\FINAL-REPORT.md",
+    "OBSIDIAN": "F:\\backup\\07 - Knowledge\\شناخت-اختاپوس\\82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md"
+  }
+}
