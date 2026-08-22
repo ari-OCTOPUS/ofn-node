@@ -680,11 +680,19 @@ def _heuristic(snap: dict, prev: dict, conf_ema: "float | None" = None) -> dict:
             "pathology": path[:5], "trajectory": "نامعلوم (بی‌LLM)",
             "prescription": [{"action": "یک لِگ را به لیدِ واقعی وصل کن", "why": "ترس را می‌شکند", "priority": "high"}],
             "open_questions": ["چرا خطاهای پرتکرار رخ می‌دهند؟"],
-            "focus": focus, "confidence": 0.4, **extra}
-    # ۲۰۲۶-۰۸-۰۶ — سقفِ EMAِ دقتِ اندازه‌گیری‌شده. وقتی `_STEER_FLAG` روشن است این
-    # مقدار می‌تواند از قبل `None` باشد (رجوع به توضیحِ بالای «عددِ اطمینان حذف
-    # می‌شود») — آن حالت دست‌نخورده می‌ماند، چون چیزی برای سقف‌زدن نیست.
-    result["confidence"] = _clamp_confidence(result.get("confidence"), conf_ema)
+            "focus": focus, "confidence": None, **extra}
+    # ۲۰۲۶-۰۸-۲۰ — S-A01: ثابتِ ۰.۴ حذف شد. اگر موتورِ قاعده صریحاً None گذاشته
+    # (steer)، همان می‌ماند. اگر EMAِ دقت موجود است، همان عددِ اندازه‌گیری‌شده
+    # گزارش می‌شود — نه یک ثابت. وگرنه None صادقانه.
+    if extra.get("confidence_basis", "").startswith("none"):
+        result["confidence"] = None
+    elif result.get("confidence") is None and conf_ema is not None:
+        result["confidence"] = conf_ema
+        result["confidence_basis"] = "accuracy-ema-forward-only"
+    else:
+        result["confidence"] = _clamp_confidence(result.get("confidence"), conf_ema)
+        if result.get("confidence") is None and "confidence_basis" not in result:
+            result["confidence_basis"] = "uncalibrated — constant-0.4-removed"
     return result
 
 

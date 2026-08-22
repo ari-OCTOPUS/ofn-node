@@ -203,10 +203,12 @@ def t_brain_keeps_scan_bookkeeping_when_a_tier_is_not_due():
            "_scan_self": {"dead_symbols": 217}, "_scan_self_ts": now,
            # T4 — تایرِ calibration باید همان قاعدهٔ دفترداری را داشته باشد.
            "_scan_calibration": {"calibration_verdict": "stable", "calibration_alert": False},
-           "_scan_calibration_ts": now}
+           "_scan_calibration_ts": now,
+           "_scan_self_knowledge": {"self_knowledge_version": 1},
+           "_scan_self_knowledge_ts": now}
     out = cb.self_awareness(mem, now=now)
     assert out.get("_scans_ran") == [], f"اسکنی دوید که نوبتش نبود: {out.get('_scans_ran')}"
-    for k in ("dark", "orphan", "self", "calibration"):
+    for k in ("dark", "orphan", "self", "calibration", "self_knowledge"):
         assert f"_scan_{k}_ts" in out, f"مهرِ زمانِ {k} گم شد ⇒ selfmap خالی می‌شود"
         assert out.get(f"_scan_{k}") == mem[f"_scan_{k}"], f"مقادیرِ {k} گم شد"
     assert out.get("dark_gates") == 128 and out.get("orphans") == 60
@@ -219,6 +221,14 @@ def t_calibration_tier_is_registered_with_6h_cadence():
     assert "calibration" in cb._TIERS, cb._TIERS
     _mod, every = cb._TIERS["calibration"]
     assert every == 21600.0, f"فاصلهٔ تایرِ calibration باید ۲۱۶۰۰.۰ ثانیه باشد: {every}"
+
+
+def t_self_knowledge_tier_is_registered_with_6h_cadence():
+    """S-A08 — self-knowledge-latest در _TIERS با خواندن فایل (بدون subprocess)."""
+    import cockpit_brain as cb
+    assert "self_knowledge" in cb._TIERS, cb._TIERS
+    _mod, every = cb._TIERS["self_knowledge"]
+    assert every == 21600.0, every
 
 
 def t_calibration_tier_is_fail_soft_when_absent():
@@ -238,7 +248,8 @@ def t_calibration_tier_is_fail_soft_when_absent():
         cb.CALIBRATION_LATEST.unlink()
     mem = {"_scan_dark": {}, "_scan_dark_ts": now,
            "_scan_orphan": {}, "_scan_orphan_ts": now,
-           "_scan_self": {}, "_scan_self_ts": now}
+           "_scan_self": {}, "_scan_self_ts": now,
+           "_scan_self_knowledge": {}, "_scan_self_knowledge_ts": now}
     out = cb.self_awareness(mem, now=now)
     assert out.get("_scans_ran") == ["calibration"], (
         f"فقط calibration باید بدود: {out.get('_scans_ran')}")

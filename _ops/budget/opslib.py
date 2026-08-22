@@ -430,6 +430,45 @@ def frozen() -> bool:
     return FREEZE_FLAG.exists()
 
 
+def freeze_state() -> "dict | None":
+    """CL01/FREEZE-01: وضعیتِ ساخت‌یافتهٔ یخ — همیشه receipt-able، هرگز ساکت."""
+    if not FREEZE_FLAG.exists():
+        return None
+    try:
+        text = FREEZE_FLAG.read_text("utf-8").strip()
+    except OSError:
+        text = ""
+    parts = text.split(" ", 1)
+    created = parts[0] if parts else ""
+    rec = {}
+    try:
+        import json as _j
+        rec = _j.loads((BUDGET_DIR / "FREEZE-RECORD.json").read_text("utf-8"))
+    except Exception:  # noqa: BLE001 — رکورد ساخت‌یافته ممکن است نباشد (legacy)
+        rec = {}
+    return {"freeze_id": rec.get("freeze_id") or ("FREEZE-LEGACY-" + created[:10]),
+            "freeze_created_at": rec.get("freeze_created_at") or created,
+            "freeze_reason_code": rec.get("freeze_reason_code") or "LEGACY_UNSTRUCTURED",
+            "freeze_scope": rec.get("freeze_scope") or "all-organs/paid-grants",
+            "freeze_expiry_or_review_condition": rec.get("freeze_expiry_or_review_condition")
+            or "owner-manual-release (CL01: + decision record + FREEZE-RELEASE-RECEIPT)",
+            "freeze_reason_text": (parts[1] if len(parts) > 1 else text)[:200]}
+
+
+def release_freeze(owner_decision_id: str) -> dict:
+    """CL01/FREEZE-01: رفعِ رسیددار — فقط با رکوردِ تصمیمِ مالک. حذفِ خاموش ممنوع."""
+    import json as _j
+    if not FREEZE_FLAG.exists():
+        return {"ok": False, "reason": "not-frozen"}
+    st = freeze_state()
+    rec = {"schema": "freeze-release/1", "owner_decision_id": str(owner_decision_id),
+           "released_at": now_iso(), "freeze_state": st, "released_by": "owner-decision-recorded"}
+    p = BUDGET_DIR / "FREEZE-RELEASE-RECEIPT.json"
+    p.write_text(_j.dumps(rec, ensure_ascii=False, indent=1), "utf-8")
+    FREEZE_FLAG.rename(BUDGET_DIR / ("FREEZE.flag.released-" + now_iso().replace(":", "")))
+    return {"ok": True, "receipt": str(p), "released_state": st}
+
+
 def freeze(reason: str) -> None:
     """I3: ناسازگاری = FREEZE همهٔ grantها + ثبت دلیل (idempotent)."""
     FREEZE_FLAG.parent.mkdir(parents=True, exist_ok=True)

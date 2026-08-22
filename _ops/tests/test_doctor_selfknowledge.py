@@ -482,6 +482,7 @@ def t_clamp_confidence_pure():
 def t_accuracy_ema_none_below_threshold():
     _sandbox_paths(); _clear_doctor()
     os.environ[_ACC_FLAG] = "1"
+    os.environ.pop(sk._STEER_FLAG, None)
     try:
         rows = [{"ts": f"t{i}", "fields_checked": 3, "fields_correct": 0, "accuracy": 0.05}
                 for i in range(sk._ACCURACY_EMA_MIN_ROWS - 1)]
@@ -489,7 +490,7 @@ def t_accuracy_ema_none_below_threshold():
         assert sk._accuracy_ema() is None, "کمتر از آستانه نباید EMA بدهد"
         snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
         u = sk._heuristic(snap, {}, conf_ema=sk._accuracy_ema())
-        assert u["confidence"] == 0.4, f"دادهٔ کم نباید کلمپ کند: {u['confidence']}"
+        assert u["confidence"] is None, f"دادهٔ کم نباید ثابت بسازد: {u['confidence']}"
     finally:
         os.environ.pop(_ACC_FLAG, None)
 
@@ -497,12 +498,13 @@ def t_accuracy_ema_none_below_threshold():
 def t_accuracy_ema_off_flag_is_noop():
     _sandbox_paths(); _clear_doctor()
     os.environ.pop(_ACC_FLAG, None)
+    os.environ.pop(sk._STEER_FLAG, None)
     rows = [{"ts": f"t{i}", "accuracy": 0.05} for i in range(10)]
     _seed_accuracy_rows(rows)
     assert sk._accuracy_ema() is None, "فلگِ خاموش باید None بدهد صرفِ‌نظر از تاریخچه"
     snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
     u = sk._heuristic(snap, {})
-    assert u["confidence"] == 0.4, "فلگِ خاموش = رفتارِ امروز، بدونِ کلمپ"
+    assert u["confidence"] is None, "بدون EMA نباید ثابت ۰.۴ ساخته شود"
 
 
 def t_run_confidence_unclamped_without_accuracy_history():
@@ -526,6 +528,7 @@ def t_run_confidence_unclamped_without_accuracy_history():
 def t_heuristic_confidence_clamped_by_low_accuracy_history():
     _sandbox_paths(); _clear_doctor()
     os.environ[_ACC_FLAG] = "1"
+    os.environ.pop(sk._STEER_FLAG, None)
     try:
         rows = [{"ts": f"t{i}", "accuracy": 0.15} for i in range(8)]
         _seed_accuracy_rows(rows)
@@ -534,7 +537,7 @@ def t_heuristic_confidence_clamped_by_low_accuracy_history():
         snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
         u = sk._heuristic(snap, {}, conf_ema=ema)
         assert u["confidence"] == ema, u["confidence"]
-        assert u["confidence"] < 0.4, "کلمپ باید پایین‌تر از پیش‌فرضِ ۰.۴ برود"
+        assert u["confidence"] < 0.4, "باید از EMA بیاید نه از ثابت ۰.۴"
     finally:
         os.environ.pop(_ACC_FLAG, None)
 

@@ -272,3 +272,7 @@ _ops/state/owner-private/
 
 # board_cp: صف SQLite + گواهی TLS + راز — هرگز در git
 _ops/state/board_cp/
+
+# handshake live copies (canonical JSON is 06-EVIDENCE/envelopes/)
+_ops/state/handshake/
+_ops/legs/mail_credentials.py

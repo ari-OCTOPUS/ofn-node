@@ -216,25 +216,6 @@ class TelegramOrgan:
         seen[message_key] = {"ts": now, "name": name}
         cursor["alert_keys"] = seen
         self._save_json(self.cursor_path, cursor)
-        # #region agent log
-        try:
-            import os as _os
-            _lp = Path(r"F:\backup\debug-71ffce.log")
-            _rec = {"sessionId": "71ffce",
-                    "runId": _os.environ.get("DEBUG_RUN_ID", "fear-pre"),
-                    "hypothesisId": "H2",
-                    "location": "telegram_organ.py:enqueue_unowned_alert",
-                    "message": "unowned-alert-outboxed",
-                    "data": {"name": name, "task_id": None, "event_id": None,
-                             "sent": False, "direct_telegram_send": False,
-                             "terminal": "BLOCKED", "message_key": message_key,
-                             "correlation_id": correlation_id},
-                    "timestamp": int(now * 1000)}
-            with _lp.open("a", encoding="utf-8") as _f:
-                _f.write(json.dumps(_rec, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
-        # #endregion
         return {
             "ok": True, "sent": False, "status": "outboxed",
             "task_id": None, "event_id": None,

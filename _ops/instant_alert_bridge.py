@@ -13,8 +13,8 @@
 طراحی:
   · throttle از `wiring._dialogue_gate` **قرض گرفته می‌شود، بازنویسی نمی‌شود**
     (قاعدهٔ مخزن: reuse نه rebuild). نبودِ wiring → پل no-opِ امن.
-  · مسیر از `send_text(stream=…)` می‌رود، پس هر هشدار در تاپیکِ خودش می‌افتد و
-    هر شکستِ مسیریابی به DM برمی‌گردد — نه به سکوت.
+  · 2026-08-20: owner-facing `send_text` ممنوع. هشدارها outbox-only / dry-run
+    (`TelegramOrgan.enqueue_unowned_alert`) تا هویت+receipt+readback وصل شود.
   · read-only نسبت به دادهٔ منبع: هیچ سیگنالی را مصرف/پاک نمی‌کند؛ فقط stateِ
     throttleِ خودش را می‌نویسد.
   · fail-soft مطلق: هیچ سیگنالی حق ندارد tick را بکشد.
@@ -67,23 +67,6 @@ def _sha(s: str) -> str:
     return hashlib.sha256(str(s).encode("utf-8")).hexdigest()[:16]
 
 
-def _dbg(hypothesis_id: str, location: str, message: str, data: dict) -> None:
-    # #region agent log
-    try:
-        import time as _t
-        _lp = Path(r"F:\backup\debug-71ffce.log")
-        _rec = {"sessionId": "71ffce",
-                "runId": os.environ.get("DEBUG_RUN_ID", "fear-pre"),
-                "hypothesisId": hypothesis_id, "location": location,
-                "message": message, "data": data,
-                "timestamp": int(_t.time() * 1000)}
-        with _lp.open("a", encoding="utf-8") as _f:
-            _f.write(json.dumps(_rec, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
-    # #endregion
-
-
 # ─── سیگنال‌ها ───────────────────────────────────────────────────────────────
 # هرکدام برمی‌گرداند: (متن, stream, hash) یا None. هیچ‌کدام چیزی نمی‌نویسد.
 
@@ -105,23 +88,14 @@ def _sig_fear() -> "tuple | None":
         best = (label, level, who, d.get("ts"))
         break
     if best is None:
-        _dbg("H1", "instant_alert_bridge.py:_sig_fear", "fear-quiet",
-             {"event_id": None, "task_id": None, "correlation_id": None,
-              "trigger": "no-red-level"})
         return None
-    label, level, who, ts = best
+    label, level, who, _ts = best
     body = ("🔴 <b>ترس — همین حالا</b>\n"
             f"▸ {label}: {level}\n"
             f"▸ در ترس: {'، '.join(who) if who else 'مشخص نشده'}\n"
             f"▸ نکنی: تا دایجستِ بعدی کسی نمی‌گوید و خودش هم برنمی‌گردد\n"
             f"<i>جزئیات: /now</i>")
     sig = _sha(f"fear|{level}|{sorted(who)}")
-    _dbg("H1", "instant_alert_bridge.py:_sig_fear", "fear-unowned-payload",
-         {"event_id": None, "task_id": None, "run_id": None,
-          "correlation_id": None, "outbox": None, "receipt": None,
-          "readback": None, "trigger_label": label, "who_n": len(who),
-          "has_ts": ts is not None, "message_key": sig,
-          "who_empty": len(who) == 0})
     return (body, "cortisol", sig)
 
 
@@ -204,9 +178,6 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
 
     2026-08-20: owner-facing send_text is forbidden. Alerts go outbox-only.
     """
-    _dbg("H3", "instant_alert_bridge.py:check", "check-enter",
-         {"flag_on": enabled(), "has_send_text": bool(channel) and hasattr(channel, "send_text"),
-          "channel_type": type(channel).__name__ if channel is not None else None})
     if not enabled():
         return {"ran": False, "reason": "flag-off"}
     gate, mark = _gate()
@@ -214,7 +185,6 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
         return {"ran": False, "reason": "no-throttle"}
     if channel is None or not hasattr(channel, "send_text"):
         return {"ran": False, "reason": "no-channel"}
-    stop = (_HERE / "STOP-TG-HEARTBEAT").is_file()
     sent, held, quiet, failed, outboxed = [], [], [], [], []
     for name, fn in SIGNALS.items():
         try:
@@ -230,17 +200,8 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
         try:
             if not gate(state_name, sig_hash, min_interval_s):
                 held.append(name)
-                _dbg("H4", "instant_alert_bridge.py:check", "held-throttle",
-                     {"name": name, "message_key": sig_hash})
                 continue
             rec = _outbox_alert(name, body, stream, sig_hash)
-            _dbg("H2", "instant_alert_bridge.py:check", "outbox-only-no-send",
-                 {"name": name, "stream": stream, "message_key": sig_hash,
-                  "bypasses_outbox": False, "direct_send": False,
-                  "task_id": rec.get("task_id"),
-                  "correlation_id": rec.get("correlation_id"),
-                  "outbox_ok": rec.get("ok"), "sent": rec.get("sent"),
-                  "stop": stop})
             ok = bool(rec.get("ok")) and rec.get("sent") is False
         except Exception:  # noqa: BLE001
             ok = False
@@ -253,9 +214,6 @@ def check(channel=None, min_interval_s: float = MIN_INTERVAL_S) -> dict:
             outboxed.append(name)
         else:
             failed.append(name)
-    _dbg("H2", "instant_alert_bridge.py:check", "check-exit",
-         {"sent": sent, "outboxed": outboxed, "direct_sends": 0,
-          "failed": failed, "channel_send_text_called": False})
     return {"ran": True, "sent": sent, "held": held, "quiet": quiet,
             "failed": failed, "outboxed": outboxed, "direct_sends": 0}
 

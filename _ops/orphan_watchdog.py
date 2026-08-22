@@ -133,11 +133,13 @@ def _append_receipt(rec: dict) -> None:
 
 
 def recovery_plan(gateways: list[dict], rows: list[dict],
-                  state: dict | None = None, now: float | None = None) -> list[dict]:
+                  state: dict | None = None, now: float | None = None,
+                  observe_only: bool = False) -> list[dict]:
     """Bounded recovery decisions. Never restarts a healthy/orphan child.
 
     - ORPHAN child: receipt only (report, no restart).
     - No gateway at all: RESTART if within budget and cooldown, else BLOCKED.
+    - observe_only: classify and receipt, never restart.
     """
     state = dict(state or _load_state())
     now = float(now if now is not None else time.time())
@@ -148,6 +150,11 @@ def recovery_plan(gateways: list[dict], rows: list[dict],
             actions.append({"kind": "orphan_receipt", "pid": g["pid"],
                             "parent": g["parent"], "state": "ORPHAN"})
     if not gateways:
+        if observe_only:
+            actions.append({"kind": "missing_gateway_observed",
+                            "restart": False, "observe_only": True})
+            _save_state(state)
+            return actions
         if now - float(state.get("window_start") or 0) >= WINDOW_S:
             state["window_start"] = now
             state["restarts"] = 0
@@ -168,11 +175,12 @@ def recovery_plan(gateways: list[dict], rows: list[dict],
 
 
 def tick(rows: list[dict] | None = None, state: dict | None = None,
-         now: float | None = None) -> dict:
+         now: float | None = None, observe_only: bool = False) -> dict:
     """One watchdog pass: snapshot → classify → plan → receipts → report."""
     rows = rows if rows is not None else _cim_rows()
     gateways = snapshot(rows)
-    actions = recovery_plan(gateways, rows, state=state, now=now)
+    actions = recovery_plan(gateways, rows, state=state, now=now,
+                            observe_only=observe_only)
     now = float(now if now is not None else time.time())
     for a in actions:
         _append_receipt({"ts": now, **a})

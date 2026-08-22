@@ -204,6 +204,9 @@ _TIERS = {
     # فقط برچسبِ مستند است؛ self_awareness() برایِ کلیدِ "calibration" مسیرِ
     # _run_scan را دور می‌زند و مستقیم _read_calibration() را صدا می‌زند.
     "calibration": ("calibration_probe_card", 21600.0),
+    # 2026-08-20 S-A08 — self-knowledge-latest was a live file with zero cockpit
+    # consumers. File-read only (no subprocess, no LLM), same cadence as calibration.
+    "self_knowledge": ("self_knowledge_card", 21600.0),
 }
 #: مسیرِ خروجیِ از-قبل-محاسبه‌شدهٔ calibration_probe.py.
 CALIBRATION_LATEST = STATE / "cortex" / "calibration-latest.json"
@@ -225,6 +228,7 @@ CALIBRATION_UNGRADED_ALERT = 0.5
 #: تغییرِ Brier کمتر از این «نوسان» است نه «بدتر/بهترشدن». Brierِ نمونهٔ
 #: زندهٔ ۲۰۲۶-۰۸-۰۷ ~۰.۲۸۶ بود؛ آستانه در همان مقیاس.
 CALIBRATION_BRIER_EPS = 0.03
+SELF_KNOWLEDGE_LATEST = STATE / "doctor" / "self-knowledge-latest.json"
 
 
 def _run_scan(mod: str, timeout_s: float = 120.0) -> "dict | None":
@@ -416,6 +420,28 @@ def _read_calibration(prev: dict) -> dict:
             "calibration_trend": trend}
 
 
+def _read_self_knowledge(prev: dict) -> dict:
+    """self-knowledge-latest.json — file read only. fail-soft None, never fake 0.4."""
+    d = _j(SELF_KNOWLEDGE_LATEST)
+    if not isinstance(d, dict):
+        return {"self_knowledge_version": None, "self_knowledge_focus": None,
+                "self_knowledge_confidence": None, "self_knowledge_source": None}
+    und = d.get("understanding") if isinstance(d.get("understanding"), dict) else {}
+    conf = und.get("confidence")
+    if not isinstance(conf, (int, float)) or isinstance(conf, bool):
+        conf = d.get("confidence")
+        if not isinstance(conf, (int, float)) or isinstance(conf, bool):
+            conf = None
+    focus = d.get("focus") or und.get("focus")
+    focus_s = str(focus)[:80] if focus else None
+    return {
+        "self_knowledge_version": d.get("version"),
+        "self_knowledge_focus": focus_s,
+        "self_knowledge_confidence": conf,
+        "self_knowledge_source": d.get("source"),
+    }
+
+
 def self_awareness(mem: dict, now: "float | None" = None,
                    force: str = "") -> dict:
     """هر اندام را فقط وقتی می‌دواند که فاصله‌اش گذشته باشد.
@@ -451,6 +477,14 @@ def self_awareness(mem: dict, now: "float | None" = None,
             # است، بالا را ببین)، نه LLM.
             prev_s = mem.get(f"_scan_{key}") or {}
             s = _read_calibration(prev_s)
+            out.update(s)
+            out[f"_scan_{key}"] = s
+            out[f"_scan_{key}_ts"] = t
+            ran.append(key)
+            continue
+        if key == "self_knowledge":
+            prev_s = mem.get(f"_scan_{key}") or {}
+            s = _read_self_knowledge(prev_s)
             out.update(s)
             out[f"_scan_{key}"] = s
             out[f"_scan_{key}_ts"] = t

@@ -57,7 +57,8 @@ class Mission:
 class Daemon:
     def __init__(self, ops: str | Path, vault_root: str | Path, *,
                  doctor=None, channel: TelegramChannel | None = None,
-                 runner=None, scan_fn=None, dry_run: bool = True):
+                 runner=None, scan_fn=None, dry_run: bool = True,
+                 open_timeout_s: float | None = None):
         self.ops = Path(ops)
         self.root = Path(vault_root)
         self.state = self.root / "90-_meta" / "state"
@@ -67,6 +68,13 @@ class Daemon:
         self.dry_run = bool(dry_run)
         self.runner = runner
         self.channel = channel or TelegramChannel(self.state)
+        if open_timeout_s is None:
+            try:
+                open_timeout_s = float(os.environ.get(
+                    "OCTOPUS_DOCTOR_OPEN_TIMEOUT_S", str(7 * 86400)))
+            except (TypeError, ValueError):
+                open_timeout_s = 7 * 86400
+        self.open_timeout_s = float(open_timeout_s)
         if doctor is None:
             from diagnose import Doctor                          # noqa: PLC0415
             doctor = Doctor(self.root)
@@ -139,6 +147,9 @@ class Daemon:
 
         # ۳ — پیشبردِ ماموریتِ باز
         ms = self._advance(ms, log)
+
+        # ۳.۵ — یک ماموریتِ باز + timeout (S-D01). بن‌بست awaiting-merge را می‌شکند.
+        ms = self._expire_stale(ms, now, log)
 
         # ۴ — اگر هیچ ماموریتِ بازی نیست و شاهدِ نو هست ⇒ پیشنهادِ تازه
         if not any(m.open for m in ms):
@@ -269,6 +280,27 @@ class Daemon:
             self._ingest_outcome(m, log)
             log.append(f"⛔ {m.mission_id}: کارتِ قرمز — merge ممنوع")
             self.channel.send(Card(m.mission_id, "diff", card_text, buttons=False))
+        return ms
+
+    def _expire_stale(self, ms: list[Mission], now: float, log: list[str]) -> list[Mission]:
+        """S-D01: one open mission + timeout. created<=0 is not expired (unknown age)."""
+        timeout = self.open_timeout_s
+        if timeout <= 0:
+            return ms
+        for m in ms:
+            if not m.open or not m.created:
+                continue
+            try:
+                age = now - float(m.created)
+            except (TypeError, ValueError):
+                continue
+            if age >= timeout:
+                m.state = "failed"
+                m.notes.append(
+                    f"quarantine: open-mission timeout after {int(age)}s "
+                    f"(limit {int(timeout)}s) — slot freed")
+                log.append(f"⌛ {m.mission_id} timeout age_s={int(age)}")
+                self._ingest_outcome(m, log)
         return ms
 
     # ------------------------------------------------------------- propose

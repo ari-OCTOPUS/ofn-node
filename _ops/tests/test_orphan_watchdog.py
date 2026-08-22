@@ -92,6 +92,24 @@ def t_f_receipts_are_append_only_with_timestamp():
     assert json.loads(lines[0])["ts"] == 1000.0
 
 
+def t_g_observe_only_never_restarts_missing_gateway():
+    w, root = _fresh()
+    rows = [{"Pid": 50, "Parent": 1, "Cmd": "launcher"}]
+    rep = w.tick(rows=rows, state={}, now=1000.0, observe_only=True)
+    kinds = [a["kind"] for a in rep["actions"]]
+    assert "restart" not in kinds, rep
+    assert "missing_gateway_observed" in kinds, rep
+    st = json.loads(w.state_path().read_text(encoding="utf-8")) if w.state_path().is_file() else {}
+    assert int(st.get("restarts") or 0) == 0
+
+
+def t_h_observe_only_orphan_child_still_not_restarted():
+    w, root = _fresh()
+    rep = w.tick(rows=_rows(parent_alive=False), state={}, now=1000.0, observe_only=True)
+    kinds = [a["kind"] for a in rep["actions"]]
+    assert "orphan_receipt" in kinds and "restart" not in kinds, rep
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
     failed = 0
