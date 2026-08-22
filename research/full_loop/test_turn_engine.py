@@ -25,8 +25,10 @@ def _engine(tmp_path, responses=None):
     def send_fn(text):
         return {"ok": True, "message_id": 42}
 
+    evid = tmp_path / "evid"
     eng = te.TurnEngine(store=store, model_fn=model_fn, send_fn=send_fn,
-                        live_b_ok=lambda: True, warmup_turns=0)
+                        live_b_ok=lambda: True, warmup_turns=0,
+                        evid_dir=evid)
     return eng, calls
 
 
@@ -63,7 +65,8 @@ def test_block_no_model_call(tmp_path):
 
     eng = te.TurnEngine(store=store, model_fn=model_fn,
                         send_fn=lambda t: {"ok": True, "message_id": 1},
-                        live_b_ok=lambda: True, warmup_turns=0)
+                        live_b_ok=lambda: True, warmup_turns=0,
+                        evid_dir=tmp_path / "evid")
     t = eng.run_turn(3, 103, "هرچی", "2026-08-20T06:10:00+00:00", "h")
     assert t.gate_mode == "BLOCK" and not calls, "BLOCK نباید مدل صدا بزند"
     assert "MODEL_INTENT_RECORDED" not in _states(t)
@@ -74,8 +77,12 @@ def test_send_fail_partial_turn(tmp_path):
     eng.send_fn = lambda t: {"ok": False}
     t = eng.run_turn(4, 104, "تست partial", "2026-08-20T06:15:00+00:00", "h")
     assert "SEND_FAILED" in _states(t)
-    ledger = (te.EVID / "TURN-LEDGER.jsonl").read_text(encoding="utf-8")
+    ledger = (eng.evid_dir / "TURN-LEDGER.jsonl").read_text(encoding="utf-8")
     assert "TURN_PARTIAL_OUTPUT_NOT_LEARNED" in ledger
+    live = te.EVID / "TURN-LEDGER.jsonl"
+    # Isolation: this test must not append to the live closed-loop evidence pack.
+    if live.exists():
+        assert str(eng.evid_dir.resolve()) != str(te.EVID.resolve())
 
 
 def test_hcwm_not_decorative(tmp_path):
@@ -90,3 +97,12 @@ def test_footer_format(tmp_path):
     eng.send_fn = lambda text: (sent.append(text), {"ok": True, "message_id": 9})[1]
     eng.run_turn(5, 105, "تست فوتر", "2026-08-20T06:20:00+00:00", "h")
     assert "[ADVISORY · turn=" in sent[0] and "gate=" in sent[0]
+
+
+def test_evid_dir_is_isolated(tmp_path):
+    eng, _ = _engine(tmp_path)
+    eng.send_fn = lambda text: {"ok": False}
+    eng.run_turn(9, 109, "iso", "2026-08-20T06:30:00+00:00", "h")
+    assert (eng.evid_dir / "TURN-LEDGER.jsonl").exists()
+    assert eng.evid_dir.resolve() != te.EVID.resolve()
+    assert eng.evid_dir.resolve().is_relative_to(tmp_path.resolve())

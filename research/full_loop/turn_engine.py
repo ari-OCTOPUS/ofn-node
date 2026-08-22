@@ -13,6 +13,7 @@ write-ahead intent برای DeepSeek · حافظهٔ episodic/semantic/skill.
 from __future__ import annotations
 
 import hashlib
+import os
 import json
 import time
 import uuid
@@ -32,6 +33,16 @@ from memory_read_loop import MemoryReadLoop  # noqa: E402
 EVID = _ROOT / "06-EVIDENCE/REAL-CLOSED-LOOP-TELEGRAM-2026-08-20"
 MEMORY = _HERE / "state/memory.jsonl"
 
+
+def resolve_evid_dir(evid_dir: Path | None = None) -> Path:
+    """JSONL evidence dir. Prefer an explicit path or OCTOPUS_STATE_DIR; never assume live."""
+    if evid_dir is not None:
+        return Path(evid_dir)
+    env = (os.environ.get("OCTOPUS_STATE_DIR") or "").strip()
+    if env:
+        return Path(env)
+    return EVID
+
 STATES = ["RECEIVED", "INGESTED", "MEMORY_RETRIEVED", "SELF_ASSESSED",
           "WORLD_MODELED", "GATED", "MODEL_INTENT_RECORDED",
           "MODEL_COMPLETED", "MODEL_FAILED", "RESPONSE_PROPOSED",
@@ -44,9 +55,12 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
-def _append(path: Path, row: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as f:
+def _append(path: Path, row: dict, *, evid_dir: Path | None = None) -> None:
+    dest = Path(path)
+    if evid_dir is not None and not dest.is_absolute():
+        dest = Path(evid_dir) / dest
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("a", encoding="utf-8") as f:
         f.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
 
 
@@ -73,9 +87,12 @@ class Turn:
     learning_verdict: str = ""
     error: str = ""
 
+    evid_dir: Path | None = None
+
     def advance(self, s: str) -> None:
         self.states.append({"state": s, "ts": _now()})
-        _append(EVID / "TURN-LEDGER.jsonl",
+        dest = resolve_evid_dir(self.evid_dir)
+        _append(dest / "TURN-LEDGER.jsonl",
                 {"turn_id": self.turn_id, "state": s, "ts": _now()})
 
 
@@ -113,7 +130,8 @@ class TurnEngine:
                  send_fn: Callable[[str], dict] | None = None,
                  model_fn: Callable[[str, str], str] | None = None,
                  live_b_ok: Callable[[], bool] | None = None,
-                 warmup_turns: int = 1):
+                 warmup_turns: int = 1,
+                 evid_dir: Path | None = None):
         self.store = store or MemoryStore()
         self.send_fn = send_fn          # (text) -> {"ok", "message_id"}
         self.model_fn = model_fn        # (prompt, intent_key) -> response text
@@ -121,6 +139,7 @@ class TurnEngine:
         self.warmup = warmup_turns
         self.turn_count = 0
         self.pending_intents: list[dict] = []
+        self.evid_dir = resolve_evid_dir(evid_dir)
 
     # ── لایهٔ ۱: Homeostatic Core (از وضعیت زنده) ──────────────────────
     def assess_homeostasis(self) -> dict:
@@ -181,10 +200,10 @@ class TurnEngine:
                 or wm_a["hypotheses"] != wm_b["hypotheses"],
                 "uncertainty": wm_a["uncertainties"] != wm_b["uncertainties"]}
         decorative = not any(diff.values())
-        _append(EIV := EVID / "HOMEOSTASIS.jsonl",
+        _append(self.evid_dir / "HOMEOSTASIS.jsonl",
                 {"ts": _now(), "hc": hc, "ablation_diff": diff,
                  "decorative": decorative})
-        _append(EVID / "WORLD-STATES.jsonl", {"ts": _now(), "wm": wm_a})
+        _append(self.evid_dir / "WORLD-STATES.jsonl", {"ts": _now(), "wm": wm_a})
         return {"hc": hc, "wm": wm_a, "decorative": decorative}
 
     # ── حلقهٔ اصلی یک turn ─────────────────────────────────────────────
@@ -194,9 +213,10 @@ class TurnEngine:
                  update_id=update_id, message_id=message_id,
                  text_sha256=hashlib.sha256(text.encode()).hexdigest()[:16],
                  occurred_at=occurred_at, recorded_at=_now(),
-                 decision_time=_now())
+                 decision_time=_now(),
+                 evid_dir=self.evid_dir)
         t.advance("RECEIVED")
-        _append(EVID / "TELEGRAM-INGEST.jsonl",
+        _append(self.evid_dir / "TELEGRAM-INGEST.jsonl",
                 {"turn_id": t.turn_id, "update_id": update_id,
                  "message_id": message_id, "owner_hash": owner_hash,
                  "occurred_at": occurred_at, "recorded_at": t.recorded_at,
@@ -215,7 +235,7 @@ class TurnEngine:
         t.retrieved_ids = sorted(set(r1.ids) | set(r2.ids) | set(r3.ids))
         retrieved_rows = [r for r in self.store.all_records()
                           if r["id"] in set(t.retrieved_ids)]
-        _append(EVID / "MEMORY-READS.jsonl",
+        _append(self.evid_dir / "MEMORY-READS.jsonl",
                 {"turn_id": t.turn_id, "query_time": t.decision_time,
                  "retrieved_ids": t.retrieved_ids,
                  "retrieved_count": len(t.retrieved_ids),
@@ -236,7 +256,7 @@ class TurnEngine:
         prov_ok = all(r.get("provenance") for r in retrieved_rows) or not retrieved_rows
         mode, blockers = self.gate(ab["wm"], prov_ok)
         t.gate_mode = mode
-        _append(EVID / "GATE-DECISIONS.jsonl",
+        _append(self.evid_dir / "GATE-DECISIONS.jsonl",
                 {"turn_id": t.turn_id, "mode": mode, "blockers": blockers,
                  "executable": False, "ts": _now()})
         t.advance("GATED")
@@ -251,7 +271,7 @@ class TurnEngine:
                 f"FULL-LOOP|{t.turn_id}|{t.text_sha256}".encode()).hexdigest()[:16]
             intent = {"intent_key": intent_key, "turn_id": t.turn_id,
                       "state": "PENDING", "ts": _now()}
-            _append(EVID / "MODEL-INTENTS.jsonl", intent)
+            _append(self.evid_dir / "MODEL-INTENTS.jsonl", intent)
             self.pending_intents.append(intent)
             t.advance("MODEL_INTENT_RECORDED")
             try:
@@ -283,7 +303,7 @@ class TurnEngine:
                              "\n(خروجی ثبت شد؛ ارسال با هشدار)")
         footer = f"\n[ADVISORY · turn={t.turn_id[-6:]} · memory={len(t.retrieved_ids)} · gate={mode}]"
         out_text = (response_text + footer)[:3900]
-        _append(EVID / "OUTBOX.jsonl",
+        _append(self.evid_dir / "OUTBOX.jsonl",
                 {"turn_id": t.turn_id, "state": "OUTBOX_PENDING",
                  "text_sha256": hashlib.sha256(out_text.encode()).hexdigest()[:16],
                  "ts": _now()})
@@ -291,7 +311,7 @@ class TurnEngine:
         send = self.send_fn(out_text) if self.send_fn else {"ok": False}
         if send.get("ok"):
             t.telegram_sent = True
-            _append(EVID / "OUTBOX.jsonl",
+            _append(self.evid_dir / "OUTBOX.jsonl",
                     {"turn_id": t.turn_id, "state": "OUTBOX_SENT",
                      "message_id": send.get("message_id"), "ts": _now()})
             t.advance("TELEGRAM_SENT")
@@ -304,7 +324,7 @@ class TurnEngine:
             text=f"turn {t.turn_id}: in={t.text_sha256} out={t.model_response_sha or 'BLOCK'} "
                  f"gate={mode} retrieved={[i for i in t.retrieved_ids[:5]]}",
             turn_id=t.turn_id, occurred_at=t.decision_time)
-        _append(EVID / "MEMORY-COMMITS.jsonl",
+        _append(self.evid_dir / "MEMORY-COMMITS.jsonl",
                 {"turn_id": t.turn_id, "memory_id": t.memory_commit_id,
                  "ts": _now()})
         if t.telegram_sent:
@@ -312,7 +332,7 @@ class TurnEngine:
             t.advance("OUTCOME_PENDING")
             t.advance("CONSOLIDATED")   # feedback از /good|/bad می‌آید
         else:
-            _append(EVID / "TURN-LEDGER.jsonl",
+            _append(self.evid_dir / "TURN-LEDGER.jsonl",
                     {"turn_id": t.turn_id,
                      "verdict": "TURN_PARTIAL_OUTPUT_NOT_LEARNED", "ts": _now()})
         self.turn_count += 1
