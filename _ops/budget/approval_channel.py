@@ -1862,6 +1862,54 @@ class TelegramApprovalChannel(ApprovalChannel):
         "/guards", "/drafts", "/heart"
     })
 
+
+    def _try_owner_merge_text(self, text: str) -> str | None:
+        """Literal free-text [merge]/[reject] -> same human-append as rfc callbacks.
+
+        Persists merge-approved|denied via _persist_rfc_verdict so doctor
+        claim_rfc_verdicts -> apply_owner_verdict runs. Fake-transport safe.
+        Returns reply str, or None if text is not a verdict tag.
+        """
+        try:
+            import sys as _sys
+            from pathlib import Path as _Path
+            _doc = str(_Path(__file__).resolve().parent.parent / "doctor")
+            if _doc not in _sys.path:
+                _sys.path.insert(0, _doc)
+            import lab_bridge as _lb  # noqa: WPS433
+            parsed = _lb.parse_owner_verdict_text(text)
+        except Exception:
+            return None
+        if not parsed:
+            return None
+        verb = parsed.get("verb")
+        rfc_id = parsed.get("rfc_id")
+        if not rfc_id:
+            with self._lk:
+                pending = [
+                    k for k, v in self._pending_rfc.items()
+                    if (v or {}).get("status") in (None, "pending", "submitted")
+                ]
+            if len(pending) == 1:
+                rfc_id = pending[0]
+            else:
+                return ("⚠️ [merge]/[reject] نیاز به شناسهٔ RFC دارد "
+                        "(مثال: RFC-xxx [merge])")
+        new_status = "merge-approved" if verb == "merge" else "denied"
+        if not self._persist_rfc_verdict(rfc_id, new_status):
+            return "⚠️: ثبت رأی RFC شکست خورد"
+        with self._lk:
+            meta = self._pending_rfc.get(rfc_id)
+            if meta is not None:
+                meta["status"] = new_status
+            else:
+                self._pending_rfc[rfc_id] = {
+                    "summary": "(free-text)", "token": "", "status": new_status}
+        if verb == "merge":
+            return ("ثبت شد ✅ — merge فقط پشتِ flag و با human-append اعمال می‌شود"
+                    f" ({rfc_id})")
+        return f"رد شد ❌ ({rfc_id})"
+
     def handle_command(self, text: str, chat_id: int | None = None,
                        from_id: int | None = None) -> str | None:
         """routerِ دستوراتِ مالک. text = پیامِ ورودیِ مالک (بعد از allowlist).
@@ -1986,6 +2034,11 @@ class TelegramApprovalChannel(ApprovalChannel):
             # 3a: اگر مالک وسطِ ویرایشِ RFC است، این متن پاسخِ همان RFC است (قبل از حسابدار)
             if self._awaiting_rfc_edit:
                 return self._consume_rfc_edit_text(t)
+            # P0 MERGE-TEXT: literal [merge]/[reject] free-text -> persist rfc verdict
+            # (same human-append path callbacks use; doctor -> apply_owner_verdict).
+            _mt = self._try_owner_merge_text(t)
+            if _mt is not None:
+                return _mt
             try:
                 import acct_review as _ar
                 if _ar.is_active() and _ar.is_awaiting_free():

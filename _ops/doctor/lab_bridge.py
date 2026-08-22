@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import os
 import sys
 import time
@@ -258,6 +259,39 @@ def proofs_from_rfc(rfc) -> dict:
         "rollback_plan": rollback_plan,
         "require_gate": labby,
     }
+
+
+
+def parse_owner_verdict_text(text: str) -> dict[str, Any] | None:
+    """Smallest free-text parser for owner Telegram [merge]/[reject].
+
+    Callbacks already work via rfc:merge|deny. This catches literal replies that
+    include bracket tags (card footer) and an optional RFC id. Persian bracket
+    aliases [ادغام]/[رد] map to the same verbs (رد is the deny button label).
+    Returns {"verb": "merge"|"reject", "rfc_id": str|None, "raw_tag": str} or None.
+    Never opens a network socket / never live-sends.
+    """
+    raw = str(text or "")
+    if not raw.strip():
+        return None
+    m = re.search(r"\[\s*(merge|reject|deny|ادغام|رد)\s*\]", raw, flags=re.IGNORECASE)
+    if not m:
+        return None
+    tag = m.group(1)
+    low = tag.lower()
+    if low == "merge" or tag == "ادغام":
+        verb = "merge"
+    elif low in ("reject", "deny") or tag == "رد":
+        verb = "reject"
+    else:
+        return None
+    rfc_id = None
+    rm = re.search(
+        r"\b(RFC[-_:]?[A-Za-z0-9][A-Za-z0-9._:-]{0,80})\b",
+        raw, flags=re.IGNORECASE)
+    if rm:
+        rfc_id = rm.group(1)
+    return {"verb": verb, "rfc_id": rfc_id, "raw_tag": m.group(0)}
 
 
 def apply_owner_verdict(*, verb: str,
