@@ -690,6 +690,89 @@ def t_owner_correction_age_absent_without_file():
     assert "owner_correction_stale" not in snap
 
 
+# ═══ ۲۰۲۶-۰۸-۲۲ — V2 must apply measured EMA; run must persist staleness ════
+def t_heuristic_v2_applies_measured_ema():
+    """OCTOPUS_SELFKNOW_HEURISTIC_V2=1 used to force confidence=None and then
+    refuse EMA because confidence_basis started with 'none'. Measured EMA must
+    land. No fake number."""
+    _sandbox_paths(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    os.environ[sk._STEER_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "accuracy": 0.15} for i in range(8)]
+        _seed_accuracy_rows(rows)
+        ema = sk._accuracy_ema()
+        assert ema is not None and ema < 0.4, ema
+        snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+        u = sk._heuristic(snap, {}, conf_ema=ema)
+        assert u["confidence"] == ema, (u.get("confidence"), u.get("confidence_basis"))
+        assert u.get("confidence_basis") == "accuracy-ema-forward-only", u.get("confidence_basis")
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+        os.environ.pop(sk._STEER_FLAG, None)
+
+
+def t_heuristic_v2_keeps_none_without_measured_ema():
+    """V2 without a measured accuracy history stays None — no invented 0.4."""
+    _sandbox_paths(); _clear_doctor()
+    os.environ.pop(_ACC_FLAG, None)
+    os.environ[sk._STEER_FLAG] = "1"
+    try:
+        snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+        u = sk._heuristic(snap, {}, conf_ema=None)
+        assert u["confidence"] is None, u["confidence"]
+        assert str(u.get("confidence_basis", "")).startswith("none"), u.get("confidence_basis")
+    finally:
+        os.environ.pop(sk._STEER_FLAG, None)
+
+
+def t_run_v2_heuristic_persists_measured_ema():
+    """End-to-end: V2 + accuracy history → measured EMA on the persisted record."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    os.environ[sk._STEER_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "accuracy": 0.12} for i in range(10)]
+        _seed_accuracy_rows(rows)
+        _orig = sk._ask_llm
+        sk._ask_llm = lambda p, s, max_tokens=700: (None, "router-down")
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+        conf = (r.get("understanding") or {}).get("confidence")
+        assert conf is not None and conf <= 0.2, (conf, r.get("understanding"))
+        latest = json.loads((_SB / "doctor" / "self-knowledge-latest.json").read_text("utf-8"))
+        assert latest["understanding"]["confidence"] == conf
+        assert latest["understanding"].get("confidence_basis") == "accuracy-ema-forward-only"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+        os.environ.pop(sk._STEER_FLAG, None)
+
+
+def t_run_persists_owner_correction_staleness():
+    """snapshot() already computed age/stale; run() used to drop them."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[sk._STEER_FLAG] = "1"
+    try:
+        over = sk._CORRECTION_STALE_DAYS + 3
+        _seed_owner_corrections([{"ts": _ts_days_ago(over), "text": "ghadimi"}])
+        _orig = sk._ask_llm
+        sk._ask_llm = lambda p, s, max_tokens=700: (None, "router-down")
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+        assert "owner_correction_age_days" in r, sorted(r)
+        assert r["owner_correction_age_days"] > sk._CORRECTION_STALE_DAYS
+        assert r.get("owner_correction_stale"), r.get("owner_correction_stale")
+        latest = json.loads((_SB / "doctor" / "self-knowledge-latest.json").read_text("utf-8"))
+        assert "owner_correction_age_days" in latest
+        assert latest.get("owner_correction_stale")
+    finally:
+        os.environ.pop(sk._STEER_FLAG, None)
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("snapshotِ غنی", t_snapshot_richer),
@@ -737,5 +820,10 @@ if __name__ == "__main__":
         ("سنِ تصحیح از ردیفِ تازه‌ترین نه قدیمی‌ترین", t_owner_correction_age_uses_newest_row_not_oldest),
         ("ts خراب فیل‌سیف است", t_owner_correction_malformed_ts_fails_soft),
         ("بدونِ فایل = بدونِ فیلدِ سن", t_owner_correction_age_absent_without_file),
+        # ۲۰۲۶-۰۸-۲۲ — V2 applies measured EMA; run persists owner-correction staleness
+        ("V2 EMAِ اندازه‌گیری‌شده را اعمال می‌کند", t_heuristic_v2_applies_measured_ema),
+        ("V2 بدونِ EMA همان None می‌ماند", t_heuristic_v2_keeps_none_without_measured_ema),
+        ("run+V2 EMA را persist می‌کند", t_run_v2_heuristic_persists_measured_ema),
+        ("run سن/کهنگیِ تصحیح را persist می‌کند", t_run_persists_owner_correction_staleness),
     ])
     sys.exit(1 if failed else 0)

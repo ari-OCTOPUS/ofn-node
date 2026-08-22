@@ -681,14 +681,14 @@ def _heuristic(snap: dict, prev: dict, conf_ema: "float | None" = None) -> dict:
             "prescription": [{"action": "یک لِگ را به لیدِ واقعی وصل کن", "why": "ترس را می‌شکند", "priority": "high"}],
             "open_questions": ["چرا خطاهای پرتکرار رخ می‌دهند؟"],
             "focus": focus, "confidence": None, **extra}
-    # ۲۰۲۶-۰۸-۲۰ — S-A01: ثابتِ ۰.۴ حذف شد. اگر موتورِ قاعده صریحاً None گذاشته
-    # (steer)، همان می‌ماند. اگر EMAِ دقت موجود است، همان عددِ اندازه‌گیری‌شده
-    # گزارش می‌شود — نه یک ثابت. وگرنه None صادقانه.
-    if extra.get("confidence_basis", "").startswith("none"):
-        result["confidence"] = None
-    elif result.get("confidence") is None and conf_ema is not None:
+    # 2026-08-22 — V2 no longer hides a measured EMA behind "none — rule engine".
+    # The rule engine does not invent a number; if a historical accuracy EMA exists
+    # that measured value lands on the record. No history -> honest None.
+    if result.get("confidence") is None and conf_ema is not None:
         result["confidence"] = conf_ema
         result["confidence_basis"] = "accuracy-ema-forward-only"
+    elif extra.get("confidence_basis", "").startswith("none"):
+        result["confidence"] = None
     else:
         result["confidence"] = _clamp_confidence(result.get("confidence"), conf_ema)
         if result.get("confidence") is None and "confidence_basis" not in result:
@@ -1048,6 +1048,14 @@ def run(persist: bool = True) -> dict:
         rec["llm_calls"] = 0
         if accuracy:
             rec["self_accuracy"] = accuracy
+        # Correction age advances even when the snapshot hash is stable.
+        if _on(_STEER_FLAG):
+            for _k in ("owner_verdicts_open", "owner_corrections",
+                       "owner_correction_age_days", "owner_correction_stale"):
+                if snap.get(_k) is not None:
+                    rec[_k] = snap[_k]
+                elif _k in rec and _k.startswith("owner_correction_"):
+                    rec.pop(_k, None)
         if persist:
             _persist_latest(rec, append_history=False)
             _maybe_propose_to_vault(rec)   # flag-off → no-op؛ fail-soft
@@ -1098,8 +1106,9 @@ def run(persist: bool = True) -> dict:
     # می‌میرند. اندازه‌گیری: هر ۱۳ کلیدِ رکوردِ زنده — هیچ‌کدام این دو نیست.
     # پس دو شاخهٔ خواندنِ ساکت. حالا آن‌چه مصرف‌کننده می‌خواهد در رکورد هست.
     if _on(_STEER_FLAG):
-        for _k in ("owner_verdicts_open", "owner_corrections"):
-            if snap.get(_k):
+        for _k in ("owner_verdicts_open", "owner_corrections",
+                   "owner_correction_age_days", "owner_correction_stale"):
+            if snap.get(_k) is not None:
                 rec[_k] = snap[_k]
     # ── «نمی‌دانم» باید به جایی برسد (۲۰۲۶-۰۷-۲۸) ────────────────────────────
     # `root_cause: "نامعلوم (نیاز به کاوش)"` دو مصرف‌کننده داشت و **هر دو فقط

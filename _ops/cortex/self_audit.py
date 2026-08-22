@@ -136,10 +136,10 @@ def _probe_memory_poisoning():
 
 
 def _probe_trace_independent():
-    ok = (opslib.ALERTS_MD).exists() or True
+    ok = (opslib.ALERTS_MD).exists()
     return _item("trace layer independent of self-report", "Done" if ok else "Partial",
                  "ledger events + governor-alerts + heartbeat (external to agents)",
-                 "P1", "none", "§8 observability")
+                 "P1", "none" if ok else "observability", "§8 observability")
 
 
 def _probe_cost_logging():
@@ -244,8 +244,8 @@ def _probe_single_agent_baseline():
 
 
 def _probe_named_owner():
-    ok = _grep(OPS.parent / "_PROJECT_INSTRUCTIONS.md", "مالک") or True
-    return _item("named human owner per subsystem", "Partial",
+    ok = _grep(OPS.parent / "_PROJECT_INSTRUCTIONS.md", "مالک")
+    return _item("named human owner per subsystem", "Partial" if ok else "Missing",
                  "owner=ari (single operator)؛ ولی per-agent owner-mapping صریح نیست",
                  "P2", "governance", "§13 governance")
 
