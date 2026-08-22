@@ -1,0 +1,52 @@
+{
+  "schema": "octopus-evo-lab-telegram-bridge/1",
+  "written_at": "2026-08-22T12:39:19+10:00",
+  "writer": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "lease_id": "9816664e55684900988901c3c1e5b902"
+  },
+  "branch": "rescue/octopus-live-tree-20260821",
+  "HEAD_before": "1b7b0d7ee8355302e9527298d9ebcd8bf22925c9",
+  "HEAD_before_short": "1b7b0d7",
+  "HEAD_before_subject": "fix(loop): wire fixture cognition consume on telegram free-text path",
+  "live_send": false,
+  "pushed": false,
+  "paid": "FORBIDDEN",
+  "files": [
+    "_ops/doctor/lab_bridge.py",
+    "_ops/doctor/doctor.py",
+    "_ops/self_upgrade_lab/rfc_cycle.py",
+    "_ops/self_upgrade_lab/controller.py",
+    "_ops/tests/test_evo_lab_bridge.py",
+    "_ops/tests/run_all.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/EVO-LAB-TELEGRAM-BRIDGE.json"
+  ],
+  "files_committed_note": "controller.py re-export is on the existing untracked lab file; rfc_cycle.py is the committed entrypoint",
+  "tests": {
+    "test_evo_lab_bridge.py": "5/5 PASS",
+    "test_evolution.py": "20/20 PASS (direct-run checkmarks)",
+    "test_rfc_submit_blocked.py": "3/3 PASS",
+    "totals": "5/5 new + 23/23 related PASS"
+  },
+  "loop": {
+    "rfc_in": "doctor.propose_rfc / submit_for_approval / evolution.propose",
+    "lab": "self_upgrade_lab.rfc_cycle.run_rfc_cycle — isolated git worktree, writes artifact + test, verify, no promote",
+    "telegram": "lab_bridge.enqueue_rfc_card via durable_loop.ack_local_result (injected send_fn) + QUEUED outbox with payload_text",
+    "human_gate": "[merge]/[reject] still required; apply_merge unchanged"
+  },
+  "still_needs": [
+    "center restart on a commit that includes this bridge (PID 35596 still on old commit; dual-poller risk — do not kill/restart in this pass)",
+    "LIVE-TELEGRAM.flag exists but live sendMessage/edit/getUpdates was not used",
+    "owner [merge] human-append to promote a lab-pass RFC to live (promoter + existing doctor apply_merge)",
+    "OCTOPUS_TG_DURABLE_OUTBOX=1 on the restarted center so queued cards actually deliver"
+  ],
+  "not_done": [
+    "no live Telegram send",
+    "no webhook",
+    "no paid API",
+    "no git reset/clean/force push/push",
+    "no auto-merge onto live production tree",
+    "no wave1_closeout.run()"
+  ]
+}

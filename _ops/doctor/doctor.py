@@ -517,6 +517,7 @@ class Doctor:
                 _rs.record_occurrence(error_class=str((bottleneck or {}).get("bottleneck", bottleneck))[:120], source_trace=rfc.rfc_id)
         except Exception:
             pass
+        self._bridge_to_lab(rfc)
         return rfc
 
     # ─── D-4 · run_sandbox + Critic ──────────────────────────────────────────────
@@ -616,6 +617,7 @@ class Doctor:
         # T8 (2026-07-25): idempotency — RFCی که قبلاً submitted شده کارتِ تکراری نمی‌گیرد
         # (مکملِ dedupe: اگر propose_rfc نسخهٔ موجود را برگرداند، این‌جا هم اسپم نمی‌شود).
         if rfc.status == "submitted":
+            self._bridge_to_lab(rfc)
             return True
         try:
             import os as _af_os, sys as _af_sys
@@ -630,6 +632,8 @@ class Doctor:
             pass
         if self._channel is None:
             rfc.status = "submitted-no-channel"   # pending ابدی تا channel
+            self._persist_rfcs()
+            self._bridge_to_lab(rfc)
             return False
         try:
             ok = self._channel.rfc_card(rfc.rfc_id, rfc.to_markdown()[:800])
@@ -673,7 +677,24 @@ class Doctor:
                 except Exception:  # noqa: BLE001 — alert هم نباید مسیر را بکشد
                     pass
         self._persist_rfcs()   # W7: وضعیتِ پس از submit همان لحظه روی دیسک (flag-gated داخل خودش)
+        self._bridge_to_lab(rfc)
         return ok
+
+    def _bridge_to_lab(self, rfc: "RFC") -> None:
+        """Additive: after an RFC is mined, run one isolated lab cycle + outbox card.
+
+        Fail-soft. Never live-sends. Never promotes onto the live tree.
+        """
+        try:
+            if str(_HERE) not in sys.path:
+                sys.path.insert(0, str(_HERE))
+            import lab_bridge as _lab_bridge  # noqa: WPS433
+            payload = rfc.to_dict()
+            payload["organ"] = getattr(rfc, "evidence_key", "") or getattr(rfc, "knob", "") or "unknown"
+            _lab_bridge.on_rfc_ready(
+                payload, state_dir=Path(self._state_dir) / "evo-lab-bridge")
+        except Exception:  # noqa: BLE001 — bridge must never break propose-only
+            pass
 
     def apply_merge(self, rfc: RFC) -> bool:
         """اعمالِ merge بعد از human-append. این فقط بعد از تأییدِ تلگرامی صدا زده

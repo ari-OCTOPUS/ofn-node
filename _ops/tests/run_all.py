@@ -1275,6 +1275,18 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_agi_t01_t24.py",
     "test_agi_pass1_readonly.py",
     "test_agi_pass2_shadow.py",
+    # 2026-08-21 Wave A/B — typed fail-closed polling ownership + durable
+    # retry schedule. Fake transports; zero network; isolated state.
+    "test_poller_lease_20260821.py",
+    "test_transport_pool_20260821.py",
+    "test_config_manager_20260821.py",
+    "test_wave_e_c3c4_20260821.py",
+    "test_wave_f_battery_20260821.py",
+    "test_typed_poll_outcome.py",
+    "test_poll_schedule.py",
+    # 2026-08-22 OWNER — evolutionary doctor <-> self-upgrade lab
+    # Telegram durable outbox. Fixture-only; fake transport; no live send.
+    "test_evo_lab_bridge.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
