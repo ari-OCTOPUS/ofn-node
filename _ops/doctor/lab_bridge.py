@@ -213,3 +213,19 @@ def evolution_propose(rfc: dict, **kwargs) -> dict[str, Any]:
 
 def propose(rfc: dict, **kwargs) -> dict[str, Any]:
     return evolution_propose(rfc, **kwargs)
+
+
+def gate_merge(*, test_ok: bool = False, evidence_path=None,
+               rollback_plan=None) -> dict[str, Any]:
+    """Refuse [merge]/promote without test pass + evidence path + rollback plan."""
+    from self_upgrade_lab.promoter import gate_promote  # noqa: WPS433
+    return gate_promote(test_ok=test_ok, evidence_path=evidence_path,
+                        rollback_plan=rollback_plan)
+
+
+def refuse_merge_without_proofs(*, test_ok: bool = False, evidence_path=None,
+                                rollback_plan=None) -> dict[str, Any]:
+    """Alias used by merge path callers. Never auto-promotes."""
+    g = gate_merge(test_ok=test_ok, evidence_path=evidence_path,
+                   rollback_plan=rollback_plan)
+    return {"allowed": bool(g.get("ok")), "gate": g, "live_promote": False}
