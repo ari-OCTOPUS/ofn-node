@@ -240,6 +240,49 @@ def test_free_text_hears_brains_without_model():
     assert all(x.get("executable") is False for x in a5)
 
 
+
+def test_free_text_fixture_cognition_cites_context_id():
+    os.environ["OCTOPUS_PAID_COGNITION"] = "0"
+    os.environ["OCTOPUS_COGNITION_CONSUME"] = "fixture"
+    telegram_adapter._FIXTURE_STORE_ROWS = None
+    r = telegram_adapter.handle_message("why did the dns stall",
+                                        surface_decision=_auth(), model_fn=_boom)
+    assert r["reason"] == "local-degraded-paid-paused"
+    assert r["reply"]["kind"] == "local-degraded"
+    assert r["reply"].get("model_allowed") is False
+    cog = r.get("cognition") or {}
+    cid = cog.get("context_id")
+    assert cid and str(cid).startswith("mctx-"), cog
+    assert f"context_id={cid}" in (r["reply"].get("text") or "")
+    assert (cog.get("decision") or {}).get("action") == "explore"
+    assert (cog.get("decision") or {}).get("context_id") == cid
+
+
+def test_free_text_fixture_cognition_consume_changes_action():
+    os.environ["OCTOPUS_PAID_COGNITION"] = "0"
+    os.environ["OCTOPUS_COGNITION_CONSUME"] = "fixture"
+    now = "2026-08-22T00:00:00+00:00"
+    telegram_adapter._FIXTURE_STORE_ROWS = [{
+        "id": "exp-dns-1", "kind": "experiment", "outcome": "failed",
+        "text": "dns stall poller", "goal_id": "tg-free-text",
+        "occurred_at": now, "recorded_at": now,
+    }]
+    try:
+        r = telegram_adapter.handle_message("dns stall again",
+                                            surface_decision=_auth(), model_fn=_boom)
+        cog = r.get("cognition") or {}
+        dec = cog.get("decision") or {}
+        assert dec.get("action") == "hold_and_revise", dec
+        assert dec.get("reason") == "prior_failure"
+        cid = cog.get("context_id")
+        assert cid and f"context_id={cid}" in (r["reply"].get("text") or "")
+        assert "exp-dns-1" in (dec.get("used_failure_ids") or [])
+        assert r["reply"].get("model_allowed") is False
+        assert r["reason"] == "local-degraded-paid-paused"
+    finally:
+        telegram_adapter._FIXTURE_STORE_ROWS = None
+
+
 def test_unauthorized_silent():
     r = telegram_adapter.handle_message("/status",
                                         surface_decision={"allow": False, "mode": "deny"},
@@ -276,6 +319,8 @@ def main() -> int:
         test_post_migration_coverage_ignores_historic,
         test_local_commands_when_quota_exhausted,
         test_free_text_hears_brains_without_model,
+        test_free_text_fixture_cognition_cites_context_id,
+        test_free_text_fixture_cognition_consume_changes_action,
         test_unauthorized_silent,
         test_process_identity_fields,
     ]

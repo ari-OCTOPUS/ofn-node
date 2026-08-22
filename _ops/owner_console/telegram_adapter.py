@@ -32,6 +32,67 @@ def _collab_armed() -> bool:
     return os.environ.get("OCTOPUS_WIRE_COLLAB", "0") == "1"
 
 
+def _cognition_consume_mode() -> str:
+    raw = str(os.environ.get("OCTOPUS_COGNITION_CONSUME", "fixture") or "fixture").strip().lower()
+    if raw in ("0", "off", "false", "no"):
+        return "off"
+    return "fixture"
+
+
+# Isolated fixture rows for tests. Never production memory.db.
+_FIXTURE_STORE_ROWS = None
+
+
+class _FixtureStore:
+    def __init__(self, rows):
+        self._rows = list(rows or [])
+
+    def all_records(self):
+        return list(self._rows)
+
+
+def _fixture_cognition_consume(text: str) -> dict | None:
+    """Inbound free-text -> MemoryContext -> decide_from_context.
+
+    Fixture/local only. Zero paid calls. Never opens production memory.db.
+    """
+    if _cognition_consume_mode() != "fixture":
+        return None
+    try:
+        import sys
+        memdir = str(_OPS / "memory")
+        if memdir not in sys.path:
+            sys.path.insert(0, memdir)
+        if str(_OPS) not in sys.path:
+            sys.path.insert(0, str(_OPS))
+        from cycle_context import build_context, decide_from_context
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        ctx = build_context(
+            _FixtureStore(_FIXTURE_STORE_ROWS),
+            goal_id="tg-free-text",
+            decision_time=now,
+            needle=str(text or "")[:120],
+        )
+        decision = decide_from_context(ctx)
+        return {
+            "schema": "tg-fixture-cognition/1",
+            "mode": "fixture",
+            "context_id": decision.get("context_id"),
+            "decision": decision,
+        }
+    except Exception:  # noqa: BLE001
+        return {
+            "schema": "tg-fixture-cognition/1",
+            "mode": "fixture",
+            "status": "DEGRADED",
+            "context_id": None,
+            "decision": None,
+        }
+
+
+
+
 def _log_legacy_coerce(kind: str) -> None:
     global LEGACY_COERCE_COUNT
     LEGACY_COERCE_COUNT += 1
@@ -95,18 +156,25 @@ def handle_message(text: str, *, surface_decision: dict, model_fn=None) -> dict:
                 "handler_schema_version": HANDLER_SCHEMA_VERSION}
     brains = _hear_brains(d, text, kind="owner.free_text")
     hcwm = _hc_wm_effect(text)
+    cognition = _fixture_cognition_consume(text)
     # A15/A16: until live attribution is proven, stay local-degraded.
     if os.environ.get("OCTOPUS_PAID_COGNITION", "0") != "1":
         extra = ""
         if hcwm.get("label") == "HC_WM_DECORATIVE_PATH":
             extra = "\n(HC/WM در این turn اثر علّی جدا نشان نداد.)"
         n = int(brains.get("brains_receive_cognition_inbox") or 0)
+        cite = ""
+        cid = (cognition or {}).get("context_id")
+        if cid:
+            act = ((cognition or {}).get("decision") or {}).get("action") or ""
+            cite = f" context_id={cid} action={act}"
         return {"handled": True, "reason": "local-degraded-paid-paused",
+                "cognition": cognition,
                 "reply": _ok_local(
                     f"[DEGRADED_LOCAL_ONLY] مغزها پیام را شنیدند (n={n}، advisory، "
                     "executable=false). "
                     "/status · /remember"
-                    + extra,
+                    + extra + cite,
                     kind="local-degraded"),
                 "hc_wm": hcwm, "brains": brains,
                 "handler_schema_version": HANDLER_SCHEMA_VERSION}
