@@ -319,7 +319,7 @@ def max_event_id() -> int:
 
 
 def telemetry_metrics(after_id: int = 0) -> dict:
-    """دو متریکِ پذیرشِ فاز صفر، محاسبه‌شده از رویدادهای واقعیِ dashboard_events.
+    """دو متریکِ پذیرشِ فاز صفر، محاسبه‌شده از تاریخچهٔ نگه‌داری‌شدهٔ رویدادها.
 
     memory_read_before_decision_ratio:
       از میانِ کارهای تصمیم (task.completed|task.failed با agent_id در
@@ -327,18 +327,36 @@ def telemetry_metrics(after_id: int = 0) -> dict:
       یک memory.read با همان trace_id دارند.
     memory_readback_success_ratio:
       سهمِ رویدادهای memory.readback با status=ok.
+
+    housekeeping ردیف‌های قدیمیِ dashboard_events را به events_archive منتقل
+    می‌کند. سنجه باید هر دو جدول را بخواند؛ وگرنه after_id=0 به‌مرور فقط پنجرهٔ
+    تازه را «کل تاریخ» جا می‌زند و شکست‌های قدیمی ناپدید می‌شوند.
     """
     from brain import events as ev
     conn = sqlite3.connect(ev._db_path(), timeout=30)
     try:
         conn.row_factory = sqlite3.Row
         try:
+            existing = {
+                row[0] for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+            tables = [
+                name for name in ("events_archive", "dashboard_events")
+                if name in existing
+            ]
+            selects = [
+                f"SELECT id, event_name, agent_id, trace_id, status FROM {name} "
+                "WHERE id > ?"
+                for name in tables
+            ]
             rows = conn.execute(
-                "SELECT id, event_name, agent_id, trace_id, status FROM dashboard_events "
-                "WHERE id > ? ORDER BY id ASC", (after_id,)
-            ).fetchall()
+                " UNION ALL ".join(selects) + " ORDER BY id ASC",
+                tuple(after_id for _ in tables),
+            ).fetchall() if selects else []
         except sqlite3.OperationalError:
-            rows = []  # جدول هنوز ساخته نشده — پنجرهٔ تهی
+            rows = []  # جدول‌ها هنوز ساخته نشده‌اند — پنجرهٔ تهی
     finally:
         conn.close()
 
