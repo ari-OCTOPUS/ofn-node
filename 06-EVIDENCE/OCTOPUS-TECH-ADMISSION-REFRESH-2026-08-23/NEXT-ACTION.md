@@ -62,11 +62,15 @@ of its client, so its restart is that client reconnecting.
 
 ## Open items for the next agent
 
-1. **`initialize` has the same malformed-params DoS** that was just fixed in
-   `server/discover`: `(msg.get("params") or {}).get("protocolVersion")` raises
-   `AttributeError` on a non-dict `params`, and `main()`'s stdio loop has no `try/except`, so
-   one malformed message kills the server. Left untouched because this batch was forbidden
-   from modifying the `initialize` path. **Fix it in a batch that is allowed to.**
+1. ~~**`initialize` malformed-params DoS**~~ — **FIXED** 2026-08-23, commit `f9f294b`
+   (ff-merged). Auditing it found **three** sites of the same class, not one: `_handle`
+   (non-dict message), `initialize`, and `tools/call`. `main()`'s stdio loop now also wraps
+   `_handle` in `try/except`. `initialize` is hardened, **not** weakened — byte-identical for
+   every valid input, pinned by a regression test. Failing-first proof reproduced actual
+   process death. Details: `EXECUTION-RECEIPT-MALFORMED-DOS-2026-08-23.md`.
+   Residual: MCP server **pid 1376** predates the fix and is unhardened until its client
+   reconnects — low exposure, since the DoS is reachable only by the connected client over
+   its own stdio pipe, never over the network.
 2. **Two TDR questions still unanswered by the owner:**
    - Is crash-mid-turn resume a real requirement, or theoretical? Gates
      `TDR-DBOS-RUNSTORE.md` option C (wiring `durable_journal` into chat runs).
