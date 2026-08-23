@@ -44,6 +44,31 @@ PROTOCOL_VERSION = "2025-06-18"
 # نسخه‌هایی که negotiation می‌پذیریم (شکلِ پیام‌ها در همهٔ این‌ها یکی است).
 SUPPORTED_PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
 
+# هویتِ سرور — یک منبعِ واحد برای هر دو مسیرِ `initialize` و `server/discover`.
+# (قبلاً فقط داخلِ پاسخِ initialize inline بود؛ دو نسخهٔ جدا از هم می‌رانَد.)
+SERVER_NAME = "octopus-vault"
+SERVER_VERSION = "1.2.0"          # 1.1.0 → 1.2.0: افزودنِ server/discover
+
+# --- server/discover (رویزیونِ 2026-07-28) ---------------------------------
+# اسپکِ 2026-07-28 می‌گوید سرورها **MUST** این RPC را داشته باشند، و برای stdio
+# نقشِ «backward-compatibility probe» را بازی می‌کند: کلاینتِ dual-era اول این را
+# می‌فرستد و «روی هر خطایی که خطای شناخته‌شدهٔ modern نباشد» به `initialize`
+# برمی‌گردد.
+#
+# ⚠ نکتهٔ صداقت — چرا `2026-07-28` در supportedVersions **نیست**:
+#   این سرور هیچ‌کدام از الزاماتِ رویزیونِ modern را پیاده نکرده است — نه خواندنِ
+#   نسخه از `_meta`، نه MRTR، نه `resultType` روی بقیهٔ نتایج، نه
+#   `subscriptions/listen`. طبقِ ماتریسِ سازگاریِ خودِ اسپک، ادعای پشتیبانی
+#   باعث می‌شود کلاینت ما را «modern» تشخیص دهد و بعد هر درخواستِ modern شکست
+#   بخورد — یعنی همان probe ای که این متد برایش وجود دارد را می‌شکنیم.
+#   پس `DiscoverResult` فقط نسخه‌هایی را اعلام می‌کند که **واقعاً** سرو می‌شوند؛
+#   کلاینتِ dual-era می‌بیند نسخهٔ modern نیست و درست به `initialize` برمی‌گردد.
+#   این از خطای مبهمِ -32601 ِ قبلی **بیشتر** اطلاعات می‌دهد، نه کمتر.
+DISCOVER_TTL_MS = 3_600_000       # نتیجهٔ discover ثابت است؛ کش‌کردن بی‌خطر
+UNSUPPORTED_PROTOCOL_VERSION = -32022   # spec §error-codes (renumbered از -32004)
+_META_PROTOCOL_VERSION = "io.modelcontextprotocol/protocolVersion"
+_META_SERVER_INFO = "io.modelcontextprotocol/serverInfo"
+
 # --- ترابردِ HTTP stateless (فقط stdlib) -----------------------------------
 HTTP_MAX_BODY = 1 * 1024 * 1024          # سقفِ بدنهٔ POST
 HTTP_STARTED = time.monotonic()
@@ -555,9 +580,58 @@ def _tool_defs() -> list[dict]:
     return defs
 
 
+def _discover_result() -> dict:
+    """`DiscoverResult` طبقِ spec 2026-07-28 §server/discover.
+
+    فقط نسخه‌هایی که این سرور واقعاً سرو می‌کند اعلام می‌شوند — دلیلش در
+    کامنتِ SUPPORTED_PROTOCOL_VERSIONS بالا.
+    """
+    return {
+        "resultType": "complete",
+        "supportedVersions": list(SUPPORTED_PROTOCOL_VERSIONS),
+        "capabilities": {"tools": {}},
+        "instructions": (
+            "Read-only vault tools over the local tree. The only writer is "
+            "propose_action, which queues a proposal for owner approval and "
+            "never performs the action itself. This server speaks the listed "
+            "legacy protocol versions and still answers the initialize "
+            "handshake; it does not implement the 2026-07-28 modern revision."
+        ),
+        "ttlMs": DISCOVER_TTL_MS,
+        "cacheScope": "public",
+        "_meta": {_META_SERVER_INFO: {"name": SERVER_NAME,
+                                      "version": SERVER_VERSION}},
+    }
+
+
+def _unsupported_version_error(mid, requested: str) -> dict:
+    """`UnsupportedProtocolVersionError` — کد و شکلِ `data` طبقِ اسپک."""
+    return {"jsonrpc": "2.0", "id": mid, "error": {
+        "code": UNSUPPORTED_PROTOCOL_VERSION,
+        "message": "Unsupported protocol version",
+        "data": {"supported": list(SUPPORTED_PROTOCOL_VERSIONS),
+                 "requested": requested}}}
+
+
 def _handle(msg: dict) -> dict | None:
     mid = msg.get("id")
     method = msg.get("method", "")
+    if method == "server/discover":
+        # additive — مسیرِ `initialize` پایین دست‌نخورده می‌ماند (کلاینتِ
+        # ثبت‌شدهٔ .mcp.json هنوز legacy است و با آن کار می‌کند).
+        # isinstance صریح، نه `or {}`: اگر `params` یا `_meta` از نوعِ dict
+        # نباشند (مثلاً رشته)، `.get` روی‌شان AttributeError می‌دهد — و چون
+        # حلقهٔ stdio ِ `main()` دورِ `_handle` هیچ try ندارد، یک probe ِ بدشکل
+        # کلِ پروسهٔ سرور را می‌کشت. تستِ malformed همین را گرفت.
+        _params = msg.get("params")
+        _meta = _params.get("_meta") if isinstance(_params, dict) else None
+        want = _meta.get(_META_PROTOCOL_VERSION) if isinstance(_meta, dict) else None
+        if want is not None and want not in SUPPORTED_PROTOCOL_VERSIONS:
+            # نسخهٔ صریحاً درخواست‌شده را سرو نمی‌کنیم ⇒ خطای اسپک‌محور که
+            # فهرستِ نسخه‌های واقعی را هم می‌دهد (کلاینت یا نسخهٔ مشترک را
+            # انتخاب می‌کند یا صادقانه به مالکش خطا نشان می‌دهد).
+            return _unsupported_version_error(mid, str(want))
+        return {"jsonrpc": "2.0", "id": mid, "result": _discover_result()}
     if method == "initialize":
         # negotiation (spec §versioning): نسخهٔ خواسته‌شده اگر می‌دانیم همان
         # برگردد؛ وگرنه نسخهٔ خودمان — کلاینت یا می‌پذیرد یا قطع می‌کند.
@@ -566,7 +640,7 @@ def _handle(msg: dict) -> dict | None:
         return {"jsonrpc": "2.0", "id": mid, "result": {
             "protocolVersion": ver,
             "capabilities": {"tools": {}},
-            "serverInfo": {"name": "octopus-vault", "version": "1.1.0"}}}
+            "serverInfo": {"name": SERVER_NAME, "version": SERVER_VERSION}}}
     if method in ("notifications/initialized", "notifications/cancelled"):
         return None
     if method == "tools/list":
