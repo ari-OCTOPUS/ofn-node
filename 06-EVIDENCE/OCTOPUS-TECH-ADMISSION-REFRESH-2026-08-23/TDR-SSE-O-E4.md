@@ -131,6 +131,25 @@ server thread per viewer.
 Whichever is chosen, add the endpoint tests from option C alongside it — but write them
 against the *intended* behavior, not the current behavior.
 
+## 10. Addendum 2026-08-23 — external signal, scoped carefully
+
+While verifying an unrelated claim for `TDR-MCP-ADAPTER-HEADERS.md`, the official
+[MCP 2026-07-28 changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+turned out to have removed exactly the mechanism option B would build:
+
+> *"Remove SSE stream resumability and message redelivery (the `Last-Event-ID` header and
+> SSE event IDs) from the Streamable HTTP transport. A broken response stream loses the
+> in-flight request; clients **MUST** re-issue it as a new request with a new request ID."*
+
+**This does not govern our endpoint.** `/api/runs/{run_id}/events` is the mini-app's private
+API, not MCP. No obligation follows, and it would be an overreach to claim otherwise.
+
+It is a **directional signal** worth one line of weight: a major protocol that had
+`Last-Event-ID` resumability looked at the complexity and deleted it in favor of
+re-issue-the-request. That is the same trade-off §6 poses here, resolved the same way option A
+resolves it. It strengthens option A (name it a poll) and weakens option B (build
+resumability), without changing the decision on its own.
+
 ---
 
 ```yaml

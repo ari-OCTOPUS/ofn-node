@@ -5,34 +5,70 @@
 > recorded lesson that the live tree can switch under a session mid-run. Line numbers are
 > as-of 2026-08-23; if they have drifted, trust the symbol.
 
-## 1. Verification status of the driving claim — **REPORTED_NOT_VERIFIED**
+## 1. Verification status — **VERIFIED 2026-08-23** (was REPORTED_NOT_VERIFIED)
 
-The entire recommendation rests on: *MCP revision 2026-07-28 removed the
-`initialize`/`initialized` handshake and `Mcp-Session-Id`, replacing them with mandatory
-`Mcp-Method` and `Mcp-Name` headers.*
+> **Update, same day.** This record was first written with the driving claim marked
+> `REPORTED_NOT_VERIFIED`, because the audit had filesystem access only. The official
+> changelog has since been fetched. The claim is **confirmed**, and the spec contains two
+> provisions the owner report did not mention that **change this record's verdict**. §1, §6
+> and §11 are rewritten accordingly; the original reasoning is preserved where it still holds.
 
-Provenance is **owner-pasted external research**. `OWNER-REPORT.md` says so itself in its
-closing line: *"Citations [n] are from owner-pasted research; not re-verified in this save
-pass."* Nothing in this repository verifies it, and this audit had filesystem access only —
-no web access — so I could not verify it either.
+Source: [MCP specification 2026-07-28 — Key Changes](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+(official), corroborated by [the 2026-07-28 announcement](https://blog.modelcontextprotocol.io/posts/2026-07-28/).
 
-Two in-repo documents point the same general direction but **do not** confirm the specifics:
+Confirmed as reported:
 
-- `_ops/state/migration/MIGRATION-INVENTORY.md` (2026-08-16) names a "2026-07-28 stateless
-  revision" and flags `PROTOCOL_VERSION` as older than it. But it explicitly logs the
-  backward-compatibility question as `[UNKNOWN]` and defers to an unread official migration
-  guide. It is a plan referencing the claim, not evidence for it.
-- `server.py`'s module docstring attributes its stateless HTTP transport to *"مگاپرامپتِ G5"* —
-  a megaprompt, i.e. another agent instruction, not a spec.
+| Claim | Verdict | Spec wording |
+|---|---|---|
+| Revision 2026-07-28 exists | ✅ | Largest revision since launch |
+| `initialize`/`notifications/initialized` removed | ✅ | *"Make MCP stateless: remove the `initialize`/`notifications/initialized` handshake"* (major #2, SEP-2575) |
+| `Mcp-Session-Id` removed | ✅ | *"Remove protocol-level sessions and the `Mcp-Session-Id` header from the Streamable HTTP transport"* (major #1, SEP-2567) |
+| `Mcp-Method` / `Mcp-Name` mandatory | ✅ **but narrower than implied** | *"Require standard MCP request headers (`Mcp-Method`, `Mcp-Name`) **on Streamable HTTP POST requests**"* (**minor** #4, SEP-2243) |
+| Roots / Sampling / Logging deprecated | ✅ | SEP-2577 |
+| ≥12-month transition | ✅ | *"a minimum twelve-month deprecation window"* (SEP-2596) |
 
-Both trace back to the same class of source as the report. **Agreement between two
-documents that inherited the claim is not corroboration** — see
-`feedback-single-example-math-is-not-a-distribution-check`. Treat as unverified.
+Version/capability negotiation moves into `_meta`
+(`io.modelcontextprotocol/protocolVersion`, `io.modelcontextprotocol/clientCapabilities`);
+mismatch returns `UnsupportedProtocolVersionError`.
 
-**Required before any code change:** fetch `https://py.sdk.modelcontextprotocol.io/migration/`
-and the spec changelog, and confirm (a) the revision date, (b) that these two headers are
-mandatory, (c) the stated transition window. `MIGRATION-INVENTORY.md` §6 already queued
-exactly this and it is still outstanding.
+**Note the headers are a *minor* change scoped explicitly to Streamable HTTP POST.** That is
+the official confirmation of §4 below: they do not exist on stdio, and the report's framing
+of them as the headline item inverts the spec's own emphasis.
+
+### Two provisions the owner report omitted — both decisive
+
+**(a) `server/discover` is a MUST, and it is the stdio backward-compat answer.**
+
+> *"Add `server/discover`: servers **MUST** implement this RPC to advertise their supported
+> protocol versions, capabilities, and identity. Clients MAY call it before any other
+> request for up-front version selection, **or use it as a backward-compatibility probe on
+> STDIO**."* (major #3, SEP-2575)
+
+This is a larger obligation than the headers, and it **closes the `[UNKNOWN]` that
+`MIGRATION-INVENTORY.md` §6 left open** ("what should a stateless server return to an old
+client that still sends `initialize`?"). The answer: the migration is **additive** — add
+`server/discover`, keep `initialize` for old clients through the 12-month window. Nothing
+needs to be removed to conform.
+
+**(b) `Last-Event-ID` and SSE event IDs were removed from MCP's transport.**
+
+> *"Remove SSE stream resumability and message redelivery (the `Last-Event-ID` header and
+> SSE event IDs) from the Streamable HTTP transport. A broken response stream loses the
+> in-flight request; clients **MUST** re-issue it as a new request with a new request ID."*
+> (major #9)
+
+Scoped carefully: this governs **MCP's** transport, **not** the mini-app's private
+`/api/runs/{run_id}/events` endpoint, which is not MCP. It does not bind that endpoint.
+It is, however, a strong directional signal for `TDR-SSE-O-E4.md` — the ecosystem is moving
+*away* from resumable SSE toward re-issue-the-request, which favors that record's option A
+(treat it as a poll) over option B (build `Last-Event-ID` resumability). See the addendum there.
+
+Also newly relevant: MCP now documents **OpenTelemetry** trace-context propagation in `_meta`
+(`traceparent`, `tracestate`, `baggage`; minor #2, SEP-414), and the Logging deprecation
+explicitly suggests *"log to `stderr` (stdio) or use OpenTelemetry instead"*. This does not
+change `TDR-OTEL-MAPPING.md`'s verdict — that record rejects the mapping because 19 of 25
+local event types have no emitter, which no external spec fixes — but it does mean an
+eventual OTel decision would have MCP-side precedent.
 
 ## 2. Two different "stateless" — do not conflate them
 
@@ -176,26 +212,54 @@ holds no persistent state; `propose_action` writes go to the owner queue and are
 Option C's rollback is the reason to refuse it: between breaking change and revert, the
 owner's MCP tooling is simply down.
 
-## 11. Recommendation
+## 11. Recommendation — revised after verification
 
-**DEFER, and verify before anything else.**
+Option A is **done** (§1). The claim is verified, and verification changed the answer.
 
-Ordering matters: this was placed last by the owner as the most complex, and the audit
-inverts its priority further. The claim is unverified; the mechanism (HTTP headers) does not
-exist on the transport actually in use (stdio); the beneficiary (a routing gateway) does not
-exist; and the one concrete change implied (dropping `initialize`) would break the only live
-client for no reachable gain.
+**The headers stay DEFER.** Confirmed HTTP-POST-only and classified *minor* by the spec
+itself. Registered transport is stdio. No gateway exists. Nothing to gain.
 
-Do option A. It costs one document fetch and converts the central `REPORTED_NOT_VERIFIED`
-into a fact. Everything else waits on that.
+**Removing `initialize` stays REJECT — and is now revealed as unnecessary.** The migration
+the spec actually prescribes is **additive**: implement `server/discover` (a MUST) while
+keeping `initialize` for existing clients through the ≥12-month window. `server/discover`
+is explicitly designed as *"a backward-compatibility probe on STDIO"*, so conformance costs
+nothing in compatibility. My original reasoning — that dropping `initialize` breaks the only
+live client — holds, but it was answering a question the spec does not ask.
+
+**New, higher-priority item than anything in the owner report: `server/discover` is a MUST
+we do not implement.** It is additive, ~15-25 lines in `_handle()` alongside the existing
+`initialize` branch, breaks no client, needs no dependency, and is the only genuinely
+required conformance gap found. It was invisible until the spec was actually read — the
+owner report never mentions it.
+
+Revised ordering:
+
+1. **`server/discover`** — additive conformance, low risk, real obligation. Do this first.
+2. `_meta` protocol-version reading — accept `io.modelcontextprotocol/protocolVersion` on
+   requests while `initialize` still works. Additive.
+3. Headers — DEFER indefinitely, revisit only if the server is ever run under `--http`
+   behind a real gateway.
+4. Removing `initialize` — not before the 12-month window closes **and** the registered
+   client has migrated. No action now.
+
+Steps 1-2 are within normal L0-L2 change scope (additive, reversible, no new authority,
+no dependency). Deferred here rather than executed because this record's batch was closed at
+the `run_store` fix; flagged for the next batch.
 
 ---
 
 ```yaml
 candidate: MCP 2026-07-28 stateless revision -- Mcp-Method / Mcp-Name adapter headers
-claim_status: REPORTED_NOT_VERIFIED
-claim_provenance: "owner-pasted external research; OWNER-REPORT.md self-declares citations not re-verified. No web access in this audit. In-repo mentions (MIGRATION-INVENTORY.md 2026-08-16; server.py docstring crediting 'megaprompt G5') INHERIT the claim rather than corroborate it -- both trace to the same class of source."
-observed_problem: "none. No failure, no client complaint, no blocked capability attributable to the current handshake."
+claim_status: VERIFIED
+claim_verified_on: 2026-08-23
+claim_verified_against:
+  - "https://modelcontextprotocol.io/specification/2026-07-28/changelog (official Key Changes)"
+  - "https://blog.modelcontextprotocol.io/posts/2026-07-28/ (announcement)"
+claim_provenance_original: "owner-pasted external research; OWNER-REPORT.md self-declared citations not re-verified. Superseded by direct fetch above."
+verification_outcome: "Claim CONFIRMED on all points. Headers are real but MINOR-classified and scoped to Streamable HTTP POST only. TWO omissions found in the owner report that change this record's verdict -- see below."
+report_omission_1_server_discover: "server/discover is a MUST for servers in this revision (major #3, SEP-2575) and is explicitly the backward-compatibility probe on STDIO. Not implemented here. This is a LARGER and more real obligation than the headers, and it CLOSES the open [UNKNOWN] in MIGRATION-INVENTORY.md §6 -- the prescribed migration is ADDITIVE, nothing must be removed."
+report_omission_2_last_event_id: "Last-Event-ID and SSE event IDs REMOVED from MCP's Streamable HTTP transport (major #9); broken stream -> client MUST re-issue as a new request. Governs MCP transport ONLY, NOT the mini-app's private /api/runs/{id}/events endpoint. Directional signal favoring TDR-SSE-O-E4 option A (poll) over option B (build Last-Event-ID resumability)."
+observed_problem: "one, newly found by reading the spec: server/discover is a MUST and is unimplemented. The headers themselves remain a non-problem."
 baseline_evidence:
   - "_ops/octopus_mcp/server.py :: PROTOCOL_VERSION = '2025-06-18' (~:43)"
   - "_ops/octopus_mcp/server.py :: SUPPORTED_PROTOCOL_VERSIONS = 3-version negotiation (~:45)"
@@ -213,12 +277,14 @@ new_dependency: none for any option considered
 technology_admission_gate: not_triggered
 trial_threshold: "Reopen only when BOTH hold: (1) claim verified from the official migration guide/changelog -- revision date, header mandatoriness, transition window; AND (2) a real consumer exists -- server actually running under --http behind a gateway with a reason to route on headers. (1) without (2) is conformance for its own sake. If reopened, test the gate from BOTH directions: valid headers still denied by _denied on a forbidden path, and absent/forged headers cannot reach anything _resolve would refuse."
 rollback: "n/a -- recommendation is no code change. Option B would be additive to _StatelessHTTPHandler, revertible in 1 commit, no state migration. Option C's rollback cost (owner MCP tooling down between break and revert) is itself the reason to refuse it."
-decision: DEFER
+decision: DEFER_ON_HEADERS / ACT_ON_SERVER_DISCOVER
 sub_decisions:
-  verify_spec_claim: RECOMMENDED_NOW
-  add_headers: DEFER
-  remove_initialize: REJECT
-  bump_protocol_version_alone: DEFER
+  verify_spec_claim: DONE_2026-08-23 (claim CONFIRMED)
+  implement_server_discover: RECOMMENDED_NEXT_BATCH (spec MUST; additive; ~15-25 lines in _handle(); breaks no client; no dependency)
+  read_protocolVersion_from_meta: RECOMMENDED_NEXT_BATCH (additive, alongside surviving initialize)
+  add_headers: DEFER (HTTP-POST-only per spec; registered transport is stdio; no gateway exists)
+  remove_initialize: REJECT_NOW (unnecessary -- prescribed migration is additive; revisit only after the >=12-month window closes AND the registered client migrates)
+  bump_protocol_version_alone: DEFER (cosmetic; would advertise a revision this server does not implement)
 evidence_refs:
   - "_ops/octopus_mcp/server.py :: _handle, _StatelessHTTPHandler, _resolve, _denied, TOOLS, _tool_defs, _rg_search, _py_search"
   - "_ops/octopus_mcp/CONSTITUTION.md §2 (tool surface + guards), §4 (cite symbols not line numbers)"
