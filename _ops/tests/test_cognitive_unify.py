@@ -15,6 +15,18 @@ sys.path.insert(0, str(_OPS / "tests"))
 
 import harness  # noqa: E402
 
+# 2026-08-23 — نشتِ حالت بسته شد.
+# این سوییت `harness.run()` را برای گزارش استفاده می‌کرد ولی **هرگز
+# `harness.setup()` را صدا نمی‌زد** — تنها سوییتِ همسایه‌ای که این کار را
+# نمی‌کرد. نتیجه: نه `OCTOPUS_STATE_DIR` ست می‌شد و نه `live_state_guard`
+# مسلح؛ پس هر تستی که از این فایل به `collaborator.handle` می‌رسید، گفتگوی
+# مالک را در `_ops/state/chat/chat-log.jsonl` و امتیاز را در
+# `_ops/state/criticality/criticality-v2.jsonl` ِ **tracked** می‌نوشت.
+# اندازه‌گیری‌شده: قبل از این خط ۲ فایلِ tracked کثیف می‌شد، بعدش ۰.
+# ترتیب مهم است (قراردادِ خودِ harness): env باید قبل از importِ ماژول‌ها
+# ست شود — importهای واقعی این فایل داخلِ توابعِ تست‌اند، پس اینجا درست است.
+ENV = harness.setup("cognitive-unify")
+
 
 def t_gateway_inject_sets_collab_flag():
     os.environ["OCTOPUS_WIRE_COLLAB"] = "1"

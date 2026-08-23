@@ -14,12 +14,26 @@ clear مرورگر می‌رفت. این ماژول:
 from __future__ import annotations
 
 import json
+import os
 import re
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-STATE_DIR = Path(__file__).resolve().parent.parent / "state"
+# 2026-08-23 — نشتِ حالتِ تست بسته شد.
+# قبلاً این خط مسیر را فقط از `__file__` می‌ساخت و `OCTOPUS_STATE_DIR` را
+# نادیده می‌گرفت؛ یعنی **هر** تستی که `collaborator.handle` را صدا می‌زد،
+# گفتگوی مالک را داخلِ `_ops/state/chat/chat-log.jsonl` ِ **tracked**
+# می‌نوشت. دقیقاً همان کلاسی که کامنتِ VQ-LIVE-STATE-GUARD-001 در
+# `_ops/tests/harness.py` هشدارش را داده بود («هر ماژولی که مسیرش را نسبت به
+# فایلِ خودش حساب کند … همچنان به state ِ زنده می‌افتد»).
+# قرارداد حالا همانِ بقیهٔ ماژول‌های state است — `run_store.py`،
+# `memory_formation.py`، `brain_pulse.py`، `math_control/spine.py`:
+#     OCTOPUS_STATE_DIR وگرنه `_ops/state`
+# پیش‌فرض **بایت‌به‌بایت** همان مسیرِ قبلی است، پس رفتارِ تولیدی وقتی این env
+# ست نشده باشد ذره‌ای تغییر نمی‌کند.
+_OPS = Path(__file__).resolve().parent.parent
+STATE_DIR = Path(os.environ.get("OCTOPUS_STATE_DIR", str(_OPS / "state")))
 CHAT_FILE = STATE_DIR / "chat" / "chat-log.jsonl"
 
 # الگوهای حساس — هرگز سیو نمی‌شوند (فقط جایگزین می‌شوند)

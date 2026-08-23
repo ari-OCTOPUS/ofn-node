@@ -42,6 +42,22 @@ def _turn_id(owner_text: str) -> str:
     return hashlib.sha256(str(owner_text).encode("utf-8")).hexdigest()[:16]
 
 
+def _sanitize_reason(warning: object) -> str:
+    """کدِ دلیلِ شکستِ مدل را به یک توکنِ امن تبدیل کن.
+
+    `data["warning"]` شکلِ `model_call_failed:<reason>` دارد و `<reason>` از
+    آداپتورِ مدل می‌آید — که در بعضی مسیرها متنِ استثنا است و می‌تواند ورودیِ
+    مالک را در خود داشته باشد. `reason`/`failure_reason` جزوِ کلیدهایی نیستند
+    که `run_store` redact می‌کند، پس پالایش اینجا لازم است: فقط
+    حروف/رقم/`-_.:` و سقفِ ۶۰ کاراکتر ⇒ نشتِ نثر ساختاراً ممکن نیست.
+    """
+    s = str(warning or "").strip()
+    if s.startswith("model_call_failed:"):
+        s = s[len("model_call_failed:"):]
+    out = "".join(c for c in s if c.isalnum() or c in "-_.:")[:60]
+    return out or "unknown"
+
+
 def _stub_enhance(base_reply: dict, owner_text: str) -> dict:
     """Deterministic stub enhancement — rationale + model_source stub."""
     enhanced = dict(base_reply)
@@ -166,6 +182,40 @@ def _model_enhance(base_reply: dict, owner_text: str) -> dict:
 
 
 def handle(text: str, *, state_dir: Path | None = None) -> dict:
+    """Handle owner input with collaborator enhancement (public entry point).
+
+    2026-08-23 — این تابع حالا فقط پوششِ چرخهٔ عمرِ run است؛ منطق در
+    `_handle_impl`. چرا: `start_run()` یک run می‌ساخت و `complete_run()` فقط در
+    مسیرِ موفق صدا می‌شد، ولی `fail_run()` **صفر صداکنندهٔ تولیدی** داشت. هر
+    استثنایی که از میانهٔ `handle` بیرون می‌زد (مثلاً `_model_enhance` که
+    wrap نشده است) یک run را برای همیشه غیرترمینال رها می‌کرد —
+    `_state_from_events` تا ابد «ACTIVE» برمی‌گرداند. حالا هر استثنا run را
+    FAILED می‌کند و بعد دوباره raise می‌شود (رفتارِ صداکننده عوض نمی‌شود).
+
+    ctx به‌صورتِ صریح پاس داده می‌شود نه thread-local/global — نویسندهٔ هم‌زمان
+    نباید حالتِ مشترک ببیند.
+    """
+    _run_ctx: dict = {}
+    try:
+        return _handle_impl(text, state_dir=state_dir, _run_ctx=_run_ctx)
+    except BaseException as exc:                      # noqa: BLE001 — ثبت و re-raise
+        _info = _run_ctx.get("info")
+        _es_mod = _run_ctx.get("es")
+        if _info and _es_mod is not None:
+            try:
+                # فقط نامِ نوعِ استثنا — هرگز متنِ استثنا، چون می‌تواند ورودیِ
+                # مالک را در خود داشته باشد و `reason` جزوِ کلیدهای redact‌شدهٔ
+                # run_store نیست.
+                _es_mod.fail_run(_info["run_id"],
+                                 f"unhandled:{type(exc).__name__}",
+                                 trace_id=_info.get("trace_id"))
+            except Exception:  # noqa: BLE001 — ثبتِ شکست هرگز خودِ شکست را نمی‌پوشاند
+                pass
+        raise
+
+
+def _handle_impl(text: str, *, state_dir: Path | None = None,
+                 _run_ctx: dict | None = None) -> dict:
     """Handle owner input with collaborator enhancement.
 
     Default: deterministic stub ($0, no network).
@@ -173,7 +223,12 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
 
     Policy: draft responses only — never external_effect / send.
     Content-free episodic digests (sha256 markers) are not WRITE_EPISODIC_MEMORY.
+
+    `_run_ctx` خصوصی است: `handle()` از آن برای FAILED-کردنِ run در مسیرِ
+    استثنا استفاده می‌کند. صداکنندهٔ بیرونی آن را پاس نمی‌دهد.
     """
+    if _run_ctx is None:
+        _run_ctx = {}
     if not _is_enabled():
         return {
             "schema": "owner-console.reply.v1",
@@ -276,6 +331,10 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
             _csys.path.insert(0, _cog)
         import event_stream as _es  # noqa: WPS433
         _run_info = _es.start_run(text)
+        # از این لحظه run وجود دارد و ترمینال نیست — پوششِ handle() باید بتواند
+        # در صورتِ استثنا FAILED اش کند.
+        _run_ctx["info"] = _run_info
+        _run_ctx["es"] = _es
         _es.emit(_run_info["run_id"], "INTENT_DETECTED",
                  trace_id=_run_info["trace_id"], producer="conversation",
                  intent=str(base_reply.get("kind", "unknown")),
@@ -287,9 +346,22 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
         enhanced = _model_enhance(base_reply, text)
         if _run_info:
             try:
+                # 2026-08-23: تا امروز این event همیشه status="COMPLETED" داشت،
+                # حتی وقتی تماسِ مدل شکست خورده و `_model_enhance` به stub
+                # برگشته بود. یعنی تایم‌لاینِ مالک یک شکستِ واقعی را «کامل»
+                # گزارش می‌کرد. حالا وضعیت راست می‌گوید. خودِ run همچنان
+                # COMPLETED می‌شود — چون جوابی (stub) واقعاً تحویل شد؛ FAILED
+                # کردنِ run دروغِ جهتِ مخالف بود.
+                _msrc = str(enhanced.get("model_source") or "?")
+                _mfailed = _msrc == "model-fallback-stub"
+                _mpayload = {"model_source": _msrc}
+                if _mfailed:
+                    _mpayload["failure_reason"] = _sanitize_reason(
+                        (enhanced.get("data") or {}).get("warning"))
                 _es.emit(_run_info["run_id"], "MODEL_FINISHED",
                          trace_id=_run_info["trace_id"], producer="adapter",
-                         payload={"model_source": enhanced.get("model_source", "?")})
+                         status="FAILED" if _mfailed else "COMPLETED",
+                         payload=_mpayload)
             except Exception:  # noqa: BLE001
                 pass
     else:
@@ -477,6 +549,9 @@ def handle(text: str, *, state_dir: Path | None = None) -> dict:
             _resp_digest = _h2.sha256(str(enhanced.get("text") or "").encode("utf-8")).hexdigest()[:16]
             _es.complete_run(_run_info["run_id"], trace_id=_run_info["trace_id"],
                              response_digest=_resp_digest)
+            # run ترمینال شد — پوششِ handle() دیگر نباید FAILED اش کند، وگرنه
+            # یک run هم RUN_COMPLETED می‌گرفت هم RUN_FAILED.
+            _run_ctx.pop("info", None)
             data = dict(enhanced.get("data") or {})
             data["run_id"] = _run_info["run_id"]
             data["trace_id"] = _run_info["trace_id"]

@@ -11,6 +11,7 @@ Traces append to state/criticality/criticality-v2.jsonl (component scores kept).
 from __future__ import annotations
 
 import json
+import os
 import time
 from collections import deque
 from dataclasses import asdict, dataclass
@@ -20,7 +21,13 @@ from typing import Any
 
 _HERE = Path(__file__).resolve().parent
 _OPS = _HERE.parent
-_TRACE = _OPS / "state" / "criticality" / "criticality-v2.jsonl"
+# 2026-08-23 — همان اصلاحِ `chat_log.py` در همین batch: مسیر باید
+# `OCTOPUS_STATE_DIR` را ببیند وگرنه هر تستی که این ماژول را لمس کند در
+# `_ops/state/criticality/criticality-v2.jsonl` ِ **tracked** می‌نویسد.
+# پیش‌فرض بایت‌به‌بایت همان مسیرِ قبلی است ⇒ رفتارِ تولیدی بدونِ این env
+# تغییر نمی‌کند. قرارداد مشترک با run_store/memory_formation/brain_pulse.
+_STATE = Path(os.environ.get("OCTOPUS_STATE_DIR", str(_OPS / "state")))
+_TRACE = _STATE / "criticality" / "criticality-v2.jsonl"
 VERSION = "criticality_v2.v1"
 
 try:
