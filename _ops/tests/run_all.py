@@ -1357,6 +1357,12 @@ PYTEST_TESTS = {
     "test_writer_lease.py",
     # 2026-08-20 WAVE1 — pytest-native, previously green-lie under direct-run
     "test_memory_read_loop.py",
+    # 2026-08-23 — ثبتِ مرکزی با اجازهٔ صریحِ مالک (L3). این سه سوییت تا امروز
+    # سبز بودند ولی در جاروی مرکزی **اصلاً اجرا نمی‌شدند** — یعنی رگرسیونشان
+    # هیچ‌کس را بیدار نمی‌کرد.
+    "test_run_store_concurrency.py",    # ریسِ append: ۹۶ append → ۶۷ شمارهٔ یکتا + ۲ رویدادِ نابودشده (قبل از فیکس)
+    "test_run_failure_lifecycle.py",    # fail_run صفر صداکننده داشت؛ runِ شکست‌خورده تا ابد ACTIVE می‌ماند
+    "test_mcp_server_discover.py",      # server/discover ِ spec 2026-07-28 + ناوردیِ «نسخهٔ modern را دروغ اعلام نکن»
 }
 
 # Û²Û°Û²Û¶-Û°Û·-Û³Û° â€” Â«Ù‚Ø±Ù…Ø²Ù Ú©Ø§Ø°Ø¨Ù Û±Û²Û°Â». Ù¾Ø§Ø³Ù Ø§ÙˆÙ„Ù Ø³ÙˆÛŒÛŒØª Ø¨Ø¯ÙˆÙ†Ù capture Ø§Ø¬Ø±Ø§ Ù…ÛŒâ€ŒØ´Ø¯ØŒ Ù¾Ø³ Ù‡Ø±
