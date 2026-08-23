@@ -1363,6 +1363,7 @@ PYTEST_TESTS = {
     "test_run_store_concurrency.py",    # ریسِ append: ۹۶ append → ۶۷ شمارهٔ یکتا + ۲ رویدادِ نابودشده (قبل از فیکس)
     "test_run_failure_lifecycle.py",    # fail_run صفر صداکننده داشت؛ runِ شکست‌خورده تا ابد ACTIVE می‌ماند
     "test_mcp_server_discover.py",      # server/discover ِ spec 2026-07-28 + ناوردیِ «نسخهٔ modern را دروغ اعلام نکن»
+    "test_mcp_malformed_hardening.py",  # DoS: یک پیامِ JSON ِ معتبر ولی بدشکل کلِ پروسهٔ سرور را می‌کشت
 }
 
 # Û²Û°Û²Û¶-Û°Û·-Û³Û° â€” Â«Ù‚Ø±Ù…Ø²Ù Ú©Ø§Ø°Ø¨Ù Û±Û²Û°Â». Ù¾Ø§Ø³Ù Ø§ÙˆÙ„Ù Ø³ÙˆÛŒÛŒØª Ø¨Ø¯ÙˆÙ†Ù capture Ø§Ø¬Ø±Ø§ Ù…ÛŒâ€ŒØ´Ø¯ØŒ Ù¾Ø³ Ù‡Ø±

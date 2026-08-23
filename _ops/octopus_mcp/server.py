@@ -613,9 +613,32 @@ def _unsupported_version_error(mid, requested: str) -> dict:
                  "requested": requested}}}
 
 
+def _params_of(msg: dict) -> dict:
+    """`params` را فقط اگر واقعاً dict باشد برگردان، وگرنه dictِ خالی.
+
+    ۲۰۲۶-۰۸-۲۳ — `(msg.get("params") or {}).get(...)` الگوی خطرناکی بود: عبارتِ
+    `or` فقط falsy را می‌گیرد، پس رشته/عدد/لیستِ ناتهی از آن **رد می‌شود** و
+    بعد `.get` رویشان AttributeError می‌دهد. یک تکْ‌پیامِ بدشکل کلِ پروسه را
+    می‌کشت (حلقهٔ stdio هیچ try نداشت). این تابع تنها راهِ خواندنِ params است.
+    """
+    p = msg.get("params")
+    return p if isinstance(p, dict) else {}
+
+
 def _handle(msg: dict) -> dict | None:
+    # گاردِ سطحِ پیام: `42`، `"hi"`، `[1,2]` همگی JSON ِ **معتبر**اند و تا امروز
+    # روی ترابردِ stdio مستقیم به `msg.get(...)` می‌رسیدند ⇒ AttributeError ⇒
+    # مرگِ سرور. ترابردِ HTTP این چک را از قبل داشت (`isinstance(msg, dict)` →
+    # 400) و stdio نداشت؛ همان ناهم‌تراز‌یِ دو ترابرد. حالا گارد در خودِ
+    # dispatcher است، پس هر دو مسیر پوشیده‌اند.
+    if not isinstance(msg, dict):
+        return {"jsonrpc": "2.0", "id": None,
+                "error": {"code": -32600, "message": "Invalid Request: message must be an object"}}
     mid = msg.get("id")
     method = msg.get("method", "")
+    if not isinstance(method, str):
+        return {"jsonrpc": "2.0", "id": mid,
+                "error": {"code": -32600, "message": "Invalid Request: method must be a string"}}
     if method == "server/discover":
         # additive — مسیرِ `initialize` پایین دست‌نخورده می‌ماند (کلاینتِ
         # ثبت‌شدهٔ .mcp.json هنوز legacy است و با آن کار می‌کند).
@@ -635,7 +658,11 @@ def _handle(msg: dict) -> dict | None:
     if method == "initialize":
         # negotiation (spec §versioning): نسخهٔ خواسته‌شده اگر می‌دانیم همان
         # برگردد؛ وگرنه نسخهٔ خودمان — کلاینت یا می‌پذیرد یا قطع می‌کند.
-        want = (msg.get("params") or {}).get("protocolVersion")
+        # ۲۰۲۶-۰۸-۲۳ — همان DoS ِ `server/discover`، اینجا هم بود: `params` ِ
+        # غیر-dict ⇒ AttributeError ⇒ مرگِ پروسه. مسیرِ سازگاریِ legacy **ضعیف
+        # نمی‌شود**؛ فقط در برابر ورودیِ بدشکل سخت می‌شود — رفتار برای هر ورودیِ
+        # معتبر بایت‌به‌بایت همان است (تست‌های رگرسیون همین را قفل می‌کنند).
+        want = _params_of(msg).get("protocolVersion")
         ver = want if want in SUPPORTED_PROTOCOL_VERSIONS else PROTOCOL_VERSION
         return {"jsonrpc": "2.0", "id": mid, "result": {
             "protocolVersion": ver,
@@ -646,9 +673,18 @@ def _handle(msg: dict) -> dict | None:
     if method == "tools/list":
         return {"jsonrpc": "2.0", "id": mid, "result": {"tools": _tool_defs()}}
     if method == "tools/call":
-        params = msg.get("params") or {}
+        params = _params_of(msg)          # ۲۰۲۶-۰۸-۲۳ — سومین جایگاهِ همان DoS
         name = params.get("name", "")
-        args = params.get("arguments") or {}
+        _raw_args = params.get("arguments")
+        # `arguments` ِ غیر-dict را همین‌جا به dict خالی تبدیل نکن — `**args` روی
+        # لیست/رشته TypeError می‌دهد که پایین **گرفته می‌شود** و به‌عنوان
+        # isError برمی‌گردد؛ یعنی کلاینت خطای صادق می‌بیند نه سکوت.
+        args = _raw_args if isinstance(_raw_args, dict) else {}
+        if _raw_args is not None and not isinstance(_raw_args, dict):
+            return {"jsonrpc": "2.0", "id": mid, "result": {
+                "content": [{"type": "text",
+                             "text": "TypeError: arguments must be an object"}],
+                "isError": True}}
         if name not in TOOLS:
             return {"jsonrpc": "2.0", "id": mid,
                     "error": {"code": -32601, "message": f"unknown tool: {name}"}}
@@ -699,7 +735,17 @@ def main() -> None:
             msg = json.loads(line)
         except json.JSONDecodeError:
             continue
-        resp = _handle(msg)
+        # ۲۰۲۶-۰۸-۲۳ — لایهٔ آخر. گاردهای `_handle` مسیرهای شناخته‌شده را
+        # می‌بندند، ولی این حلقه عمرِ سرور است: **هیچ** استثنایی نباید آن را
+        # قطع کند، وگرنه یک پیام کلِ ابزارِ MCP ِ مالک را می‌خواباند.
+        # پیامِ استثنا لو نمی‌رود (می‌تواند مسیر/داده داشته باشد) — فقط نوعش.
+        try:
+            resp = _handle(msg)
+        except Exception as exc:  # noqa: BLE001 — سرور زنده می‌ماند
+            resp = {"jsonrpc": "2.0",
+                    "id": msg.get("id") if isinstance(msg, dict) else None,
+                    "error": {"code": -32603,
+                              "message": f"internal error: {type(exc).__name__}"}}
         if resp is not None:
             stdout.write(json.dumps(resp, ensure_ascii=False) + "\n")
             stdout.flush()
