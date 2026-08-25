@@ -1,0 +1,21 @@
+path,bytes,mtime_utc,kind,group,process_open,notes
+/opt/cellframe,0,,missing,UNKNOWN_DO_NOT_DELETE,no,requested path does not exist
+/opt/cellframe-node,42737517412,2026-04-15T08:20:00Z,install_root,SOURCE_DO_NOT_DELETE,no,dpkg cellframe-node 5.7-36
+/opt/cellframe-node/bin,17800000,2026-04-17T14:48:22Z,binaries,SOURCE_DO_NOT_DELETE,no,cellframe-node cellframe-node-cli cellframe-node-tool
+/opt/cellframe-node/etc,462848,2026-04-20T03:13:00Z,config,SOURCE_DO_NOT_DELETE,no,cellframe-node.cfg listen 8079
+/opt/cellframe-node/python,73400320,2026-04-17T14:46:44Z,bundled_cpython,SOURCE_DO_NOT_DELETE,no,libpython3.10.so.1.0 41MiB
+/opt/cellframe-node/share,430080,2026-04-19T13:11:00Z,assets,SOURCE_DO_NOT_DELETE,no,diagtool unit target missing
+/opt/cellframe-node/var,42700000000,2026-04-15T08:20:00Z,runtime_root,CRITICAL_STATE_DO_NOT_DELETE,no,almost all disk
+/opt/cellframe-node/var/lib/network/scorpion/main/0.dchaincell,18977042230,2026-08-16T10:55:15Z,chain_cell,CRITICAL_STATE_DO_NOT_DELETE,no,scorpion main ledger
+/opt/cellframe-node/var/lib/network/kelvpn/main/0.dchaincell,16305613992,2026-08-16T10:05:50Z,chain_cell,CRITICAL_STATE_DO_NOT_DELETE,no,kelvpn main ledger
+/opt/cellframe-node/var/lib/network/scorpion/zerochain/0.dchaincell,3466955848,2026-08-06T10:03:46Z,chain_cell,CRITICAL_STATE_DO_NOT_DELETE,no,scorpion zerochain
+/opt/cellframe-node/var/lib/network/scorpion/zerochain/0.dchaincell.unsorted,3466922382,2026-08-03T13:34:20Z,chain_sort_buffer,BACKUP_REQUIRED_BEFORE_DELETE,no,unsorted sibling of zerochain cell
+/opt/cellframe-node/var/lib/network/kelvpn/zerochain/0.dchaincell,121943466,2026-08-03T12:44:02Z,chain_cell,CRITICAL_STATE_DO_NOT_DELETE,no,kelvpn zerochain
+/opt/cellframe-node/var/lib/global_db/gdb-mdbx/mdbx.dat,184549376,2026-08-16T11:02:10Z,mdbx,CRITICAL_STATE_DO_NOT_DELETE,no,global_db driver mdbx
+/opt/cellframe-node/var/lib/global_db/gdb-mdbx/mdbx.lck,4096,2026-08-16T11:02:10Z,mdbx_lock,CRITICAL_STATE_DO_NOT_DELETE,no,lockfile stale if process dead
+/opt/cellframe-node/var/log/cellframe-node.log,128349603,2026-08-16T11:02:11Z,log,STALE_LOG_CANDIDATE,no,no holder process
+/opt/cellframe-node/var/lib/ca/node-addr.dcert,4097,2026-04-15T08:20:00Z,node_cert,CRITICAL_STATE_DO_NOT_DELETE,no,local node address cert
+/opt/cellframe-node/var/lib/wallet,4096,2026-04-15T08:20:00Z,wallet_dir_empty,CRITICAL_STATE_DO_NOT_DELETE,no,configured wallets_path empty
+/opt/cellframe-node/var/run/cellframe-node.pid,4,2026-08-16T11:02:00Z,pidfile,ACTIVE_RUNTIME_DO_NOT_TOUCH,no,pid 617 dead
+/etc/systemd/system/cellframe-node.service.d/limits.conf,42,2026-04-19T13:09:00Z,orphan_dropin,UNKNOWN_DO_NOT_DELETE,no,unit file missing
+/etc/systemd/system/cellframe-diagtool.service,52,2026-04-15T08:20:00Z,broken_symlink,UNKNOWN_DO_NOT_DELETE,no,target missing

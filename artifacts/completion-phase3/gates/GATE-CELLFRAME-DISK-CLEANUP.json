@@ -1,0 +1,38 @@
+{
+  "gate": "GATE-CELLFRAME-DISK-CLEANUP",
+  "execute": false,
+  "path_requested": "/opt/cellframe",
+  "path_actual": "/opt/cellframe-node",
+  "node_running": false,
+  "octopus_depends_on_cellframe": false,
+  "safe_reclaim_without_owner_bytes": 0,
+  "options": [
+    {
+      "id": "A_LOG_ROTATE",
+      "command": "cp -a /opt/cellframe-node/var/log/cellframe-node.log /opt/octopus/lab/lab-data/backups/cellframe-node.log.pre-rotate && : > /opt/cellframe-node/var/log/cellframe-node.log",
+      "reclaim_bytes": 128349603,
+      "risk": "low if node remains stopped; destroys recent log unless copied first",
+      "verification": "ls -l /opt/cellframe-node/var/log/cellframe-node.log; df -h /",
+      "rollback": "restore copy from lab-data/backups/cellframe-node.log.pre-rotate",
+      "disk_percent_after": "still ~89%"
+    },
+    {
+      "id": "B_UNSORTED_CELL_AFTER_BACKUP",
+      "command": "cp -a /opt/cellframe-node/var/lib/network/scorpion/zerochain/0.dchaincell.unsorted /opt/octopus/lab/lab-data/backups/ && rm -- /opt/cellframe-node/var/lib/network/scorpion/zerochain/0.dchaincell.unsorted",
+      "reclaim_bytes": 3466922382,
+      "risk": "medium/unknown; may be incomplete chain buffer; copy itself needs ~3.2GiB free (available ~6.5GiB so possible but tight vs 5GiB floor)",
+      "verification": "test ! -e unsorted; original 0.dchaincell still present; df",
+      "rollback": "mv backup copy back to unsorted path",
+      "blocked_if": "copy would leave available < 5GiB"
+    },
+    {
+      "id": "C_PACKAGE_PURGE",
+      "command": "apt-get purge cellframe-node && rm -rf /opt/cellframe-node",
+      "reclaim_bytes": 42737517412,
+      "risk": "high; destroys KelVPN and Scorpion local chain; not reversible from this board",
+      "verification": "dpkg -l cellframe-node; test ! -d /opt/cellframe-node; df -h",
+      "rollback": "none local; reinstall package and full network resync",
+      "forbidden_until": "owner confirms Cellframe is unused and chain has external backup"
+    }
+  ]
+}
