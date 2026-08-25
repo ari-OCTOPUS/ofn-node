@@ -19,6 +19,15 @@ from ofn.organism.event_kernel.kernel import EventKernel
 from ofn.organism.growth.futures import seed_futures
 from ofn.organism.growth.habits import heartbeat_interval_s, set_meta
 from ofn.organism.growth.parent import seed_lessons, write_parent_decisions
+from ofn.organism.growth.capabilities import (
+    CapabilityRegistryError,
+    REGISTRY_PATH as CAPABILITY_REGISTRY_PATH,
+    load_registry,
+)
+from ofn.organism.growth.controlled import (
+    ControlledGrowthError,
+    run_controlled_growth,
+)
 from ofn.organism.homeostasis.core import measure, transition
 from ofn.organism.identity.heartbeat import beat
 from ofn.organism.identity.ledger import (
@@ -258,6 +267,7 @@ class Handler(BaseHTTPRequestHandler):
     kernel = None
     asker = None
     public_status_path = PUBLIC_STATUS_PATH
+    capability_registry_path = CAPABILITY_REGISTRY_PATH
 
     def log_message(self, *args):
         return
@@ -518,6 +528,22 @@ class Handler(BaseHTTPRequestHandler):
                 },
             )
             return
+        if parsed.path == "/api/v1/capabilities":
+            try:
+                registry = load_registry(Path(self.capability_registry_path))
+            except CapabilityRegistryError as exc:
+                self._send_json(
+                    503,
+                    {
+                        "error": str(exc),
+                        "executable": False,
+                        "wave0_observe_only": True,
+                        "propose_only": True,
+                    },
+                )
+                return
+            self._send_json(200, registry)
+            return
         if parsed.path == "/api/v1/attestation":
             if persist:
                 snapshot = self._get_view()
@@ -550,6 +576,60 @@ class Handler(BaseHTTPRequestHandler):
             report["wave0"] = True
             report["autonomy_state"] = "PROPOSE_ONLY"
             self._send_json(200, report)
+            return
+        if parsed.path == "/api/v1/controlled-growth":
+            content_length = self._bounded_length(allow_empty=False)
+            if content_length is None:
+                return
+            try:
+                request = json.loads(self.rfile.read(content_length))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                self._send_json(400, {"error": "invalid_json", "executable": False})
+                return
+            if not isinstance(request, dict):
+                self._send_json(
+                    400,
+                    {"error": "request_must_be_object", "executable": False},
+                )
+                return
+            fields = (
+                "gate_id",
+                "execution_id",
+                "heartbeat_event_id",
+                "experiment",
+            )
+            if any(
+                not isinstance(request.get(field), str)
+                or not request.get(field)
+                or len(request[field]) > 160
+                for field in fields
+            ):
+                self._send_json(
+                    400,
+                    {"error": "invalid_controlled_growth_fields", "executable": False},
+                )
+                return
+            try:
+                result = run_controlled_growth(
+                    self.con,
+                    self.kernel,
+                    gate_id=request["gate_id"],
+                    execution_id=request["execution_id"],
+                    heartbeat_event_id=request["heartbeat_event_id"],
+                    experiment=request["experiment"],
+                    registry_path=Path(self.capability_registry_path),
+                )
+            except (CapabilityRegistryError, ControlledGrowthError) as exc:
+                self._send_json(
+                    409,
+                    {
+                        "error": str(exc),
+                        "action_executed": False,
+                        "executable": False,
+                    },
+                )
+                return
+            self._send_json(200, result)
             return
         if parsed.path != "/api/v1/ask":
             self._send_json(404, {"error": "not_found"})
@@ -607,6 +687,7 @@ def create_server(
     *,
     bind_and_activate=True,
     public_status_path=PUBLIC_STATUS_PATH,
+    capability_registry_path=CAPABILITY_REGISTRY_PATH,
 ):
     if host not in {"127.0.0.1", "::1", LAN_BIND_HOST}:
         raise ValueError("organism_server_must_bind_loopback_or_board_lan")
@@ -614,6 +695,7 @@ def create_server(
     Handler.kernel = kernel
     Handler.asker = AskCascade(con)
     Handler.public_status_path = public_status_path
+    Handler.capability_registry_path = capability_registry_path
     return OrganismHTTPServer(
         (host, port),
         Handler,
@@ -634,6 +716,7 @@ def serve(
     port=8090,
     *,
     public_status_path=PUBLIC_STATUS_PATH,
+    capability_registry_path=CAPABILITY_REGISTRY_PATH,
 ):
     httpd = create_server(
         con,
@@ -641,6 +724,7 @@ def serve(
         host,
         port,
         public_status_path=public_status_path,
+        capability_registry_path=capability_registry_path,
     )
     start_server(httpd)
     return httpd

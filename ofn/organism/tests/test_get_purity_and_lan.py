@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from ofn.organism.event_kernel.kernel import EventKernel
+from ofn.organism.growth.capabilities import atomic_write_registry, load_registry
 from ofn.organism.persistence.db import connect
 from ofn.organism.runtime.app import serve
 from ofn.organism.runtime.lan_auth import TOKEN_HEADER, reset_failures_for_tests
@@ -62,6 +63,16 @@ class GetPurityAndLanTests(unittest.TestCase):
         self.addCleanup(self.temp_dir.cleanup)
         self.db_path = Path(self.temp_dir.name) / "o.db"
         self.public = Path(self.temp_dir.name) / "public.json"
+        self.registry = Path(self.temp_dir.name) / "capabilities.json"
+        atomic_write_registry(
+            load_registry(
+                Path(
+                    "/opt/octopus/lab/artifacts/capability-awakening/"
+                    "02_capability_registry.json"
+                )
+            ),
+            self.registry,
+        )
         self.con = connect(self.db_path)
         self.addCleanup(self.con.close)
         self.kernel = EventKernel(self.con)
@@ -74,7 +85,13 @@ class GetPurityAndLanTests(unittest.TestCase):
         self.env_patch = patch.dict(os.environ, env, clear=False)
         self.env_patch.start()
         self.addCleanup(self.env_patch.stop)
-        self.httpd = serve(self.con, self.kernel, port=0, public_status_path=self.public)
+        self.httpd = serve(
+            self.con,
+            self.kernel,
+            port=0,
+            public_status_path=self.public,
+            capability_registry_path=self.registry,
+        )
         self.addCleanup(self.httpd.server_close)
         self.addCleanup(self.httpd.shutdown)
         self.base = f"http://127.0.0.1:{self.httpd.server_port}"
@@ -102,6 +119,7 @@ class GetPurityAndLanTests(unittest.TestCase):
             "/api/v1/utterance",
             "/api/v1/world",
             "/api/v1/self",
+            "/api/v1/capabilities",
             "/health",
             "/api/v1/attestation",
         ]

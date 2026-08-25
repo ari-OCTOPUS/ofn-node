@@ -1,0 +1,413 @@
+{
+  "approval": {
+    "decision": "APPROVED_WITH_CONDITIONS",
+    "execution_id": null,
+    "expired": false,
+    "expires_after_execution": true,
+    "scope": "ONE_USE",
+    "status": "TESTED_READY",
+    "used_once": false
+  },
+  "capabilities": {
+    "ACTIVE_INFERENCE_SHADOW": {
+      "criteria": "Pure bounded ranking remains disconnected from action dispatch.",
+      "evidence": [
+        "ofn/organism/cognition/active_inference.py",
+        "ofn/organism/tests/test_memory_gate.py::test_active_inference_shadow_not_executable"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "pre-existing disconnected implementation"
+          ],
+          "from": null,
+          "to": "SHADOW"
+        }
+      ],
+      "rollback": "Keep disconnected and SHADOW.",
+      "scope": "SHADOW_ONLY",
+      "state": "SHADOW"
+    },
+    "ENGINEERING_THETA": {
+      "criteria": "Pure local engineering salience only; no subjective or executable claim.",
+      "evidence": [
+        "ofn/organism/growth/controlled.py",
+        "artifacts/concept-tour-phase2/09_ACTIVE_INFERENCE_CONCEPT_FA.md",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; no database rollback.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "INNER_SPEECH": {
+      "criteria": "One grounded local inner turn per ordinary life cycle with mandatory memory read.",
+      "evidence": [
+        "ofn/organism/cognition/inner.py",
+        "ofn/organism/tests/test_memory_gate.py::test_named_decision_paths_emit_receipts_and_evidence",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; preserve inner-speech evidence.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "LOCAL_CURIOSITY": {
+      "criteria": "Produce only a bounded local gap or non-executable proposal after memory retrieval.",
+      "evidence": [
+        "ofn/organism/cognition/curiosity.py",
+        "ofn/organism/tests/test_memory_gate.py::test_named_decision_paths_emit_receipts_and_evidence",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; proposals remain non-executable.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "LOCAL_HYPOTHESIS_ENGINE": {
+      "criteria": "Preregister and classify one allowed local telemetry hypothesis without causation claims.",
+      "evidence": [
+        "ofn/organism/growth/controlled.py",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED and quarantine the failed receipt.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "LOCAL_LEARNING": {
+      "criteria": "Persist only locally measured classification/evidence; external learning remains locked.",
+      "evidence": [
+        "ofn/organism/growth/controlled.py",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; preserve provenance-bearing episodes.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "MEMORY_CONSOLIDATION": {
+      "criteria": "Create one non-duplicate provenance-bearing episode without changing raw events.",
+      "evidence": [
+        "ofn/organism/growth/controlled.py",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; preserve consolidation evidence.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "MEMORY_RETRIEVAL": {
+      "criteria": "At least one successful bitemporal read per decision and future-use total zero.",
+      "evidence": [
+        "ofn/organism/memory/gate.py",
+        "ofn/organism/memory/episodic.py",
+        "ofn/organism/tests/test_memory_gate.py",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; mandatory memory gate remains fail-closed.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "SANDBOX_EXPERIMENTS": {
+      "criteria": "Only the three enumerated bounded local experiments; maximum one per heartbeat and three total.",
+      "evidence": [
+        "ofn/organism/growth/controlled.py",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; endpoint rejects non-CANARY registry.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    },
+    "SELF_MODEL_UPDATE": {
+      "criteria": "Any update requires a source event and mandatory memory read; unsupported facts are forbidden.",
+      "evidence": [
+        "ofn/organism/identity/self_model.py",
+        "ofn/organism/tests/test_memory_gate.py::test_named_decision_paths_emit_receipts_and_evidence",
+        "ofn/organism/tests/test_controlled_growth.py"
+      ],
+      "executable": false,
+      "history": [
+        {
+          "at": "2026-08-25T13:10:00Z",
+          "evidence": [
+            "registry creation"
+          ],
+          "from": null,
+          "to": "LOCKED"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "source inventory complete"
+          ],
+          "from": "LOCKED",
+          "to": "SHADOW"
+        },
+        {
+          "at": "2026-08-25T13:13:40Z",
+          "evidence": [
+            "145 organism tests passed; 1 optional dependency test skipped"
+          ],
+          "from": "SHADOW",
+          "to": "TESTED"
+        }
+      ],
+      "rollback": "Return registry state to TESTED; do not delete post-deploy self-model evidence.",
+      "scope": "LOCAL_ONLY",
+      "state": "TESTED"
+    }
+  },
+  "created_at": "2026-08-25T13:10:00Z",
+  "external_capabilities": {
+    "EXTERNAL_ACTION_CAPABILITY": "LOCKED",
+    "EXTERNAL_LEARNING_CAPABILITY": "LOCKED"
+  },
+  "forbidden": {
+    "ARBITRARY_WEB_ACCESS": false,
+    "AUTONOMY_ESCALATION": false,
+    "CAMERA_RECORDING": false,
+    "DEEPSEEK_CALL": false,
+    "EMAIL_SEND": false,
+    "ESP32_ACTUATION": false,
+    "EXECUTABLE_ACTION": false,
+    "EXTERNAL_MESSAGE": false,
+    "FILE_DELETE": false,
+    "FINANCIAL_ACTION": false,
+    "IDENTITY_REWRITE": false,
+    "MICROPHONE_RECORDING": false,
+    "NETWORK_CONFIGURATION": false,
+    "OCTOPUS_LEARN_EXTERNAL": "0",
+    "OWNER_KEY_ACCESS": false,
+    "PROPOSE_ONLY": true,
+    "PURCHASE": false,
+    "SAFETY_GATE_MODIFICATION": false,
+    "SERVICE_CONTROL_AUTONOMOUS": false,
+    "SHELL_EXECUTION": false,
+    "SSH_TO_OTHER_HOST": false,
+    "SYSTEMD_CONTROL_AUTONOMOUS": false,
+    "TELEGRAM_SEND": false,
+    "WAN_ACCESS": false,
+    "WAVE0_OBSERVE_ONLY": true,
+    "WAVE1_UNLOCKED": false,
+    "WRITE_OUTSIDE_PROJECT": false,
+    "executable": false
+  },
+  "gate_id": "GATE-CONTROLLED-CAPABILITY-AWAKENING-15MIN",
+  "live_schema": "phase3-skin-1",
+  "phase": "TESTED",
+  "schema_version": 1,
+  "updated_at": "2026-08-25T13:13:40Z"
+}
