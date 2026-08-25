@@ -1,12 +1,13 @@
 {
   "approval": {
+    "completed_at": "2026-08-25T13:33:08Z",
     "decision": "APPROVED_WITH_CONDITIONS",
     "execution_id": "capawake-20260825T131651Z-615f0ccc8127",
-    "expired": false,
+    "expired": true,
     "expires_after_execution": true,
     "scope": "ONE_USE",
     "started_at": "2026-08-25T13:16:51Z",
-    "status": "RUNNING",
+    "status": "COMPLETED",
     "used_once": true
   },
   "capabilities": {
@@ -36,7 +37,8 @@
       "evidence": [
         "ofn/organism/growth/controlled.py",
         "artifacts/concept-tour-phase2/09_ACTIVE_INFERENCE_CONCEPT_FA.md",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -71,18 +73,28 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; no database rollback.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "INNER_SPEECH": {
       "criteria": "One grounded local inner turn per ordinary life cycle with mandatory memory read.",
       "evidence": [
         "ofn/organism/cognition/inner.py",
         "ofn/organism/tests/test_memory_gate.py::test_named_decision_paths_emit_receipts_and_evidence",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -117,18 +129,28 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; preserve inner-speech evidence.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "LOCAL_CURIOSITY": {
       "criteria": "Produce only a bounded local gap or non-executable proposal after memory retrieval.",
       "evidence": [
         "ofn/organism/cognition/curiosity.py",
         "ofn/organism/tests/test_memory_gate.py::test_named_decision_paths_emit_receipts_and_evidence",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -163,17 +185,27 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; proposals remain non-executable.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "LOCAL_HYPOTHESIS_ENGINE": {
       "criteria": "Preregister and classify one allowed local telemetry hypothesis without causation claims.",
       "evidence": [
         "ofn/organism/growth/controlled.py",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -208,17 +240,27 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED and quarantine the failed receipt.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "LOCAL_LEARNING": {
       "criteria": "Persist only locally measured classification/evidence; external learning remains locked.",
       "evidence": [
         "ofn/organism/growth/controlled.py",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -253,17 +295,27 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; preserve provenance-bearing episodes.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "MEMORY_CONSOLIDATION": {
       "criteria": "Create one non-duplicate provenance-bearing episode without changing raw events.",
       "evidence": [
         "ofn/organism/growth/controlled.py",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -298,11 +350,20 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; preserve consolidation evidence.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "MEMORY_RETRIEVAL": {
       "criteria": "At least one successful bitemporal read per decision and future-use total zero.",
@@ -310,7 +371,8 @@
         "ofn/organism/memory/gate.py",
         "ofn/organism/memory/episodic.py",
         "ofn/organism/tests/test_memory_gate.py",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -345,17 +407,27 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; mandatory memory gate remains fail-closed.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "SANDBOX_EXPERIMENTS": {
       "criteria": "Only the three enumerated bounded local experiments; maximum one per heartbeat and three total.",
       "evidence": [
         "ofn/organism/growth/controlled.py",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -390,18 +462,28 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; endpoint rejects non-CANARY registry.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     },
     "SELF_MODEL_UPDATE": {
       "criteria": "Any update requires a source event and mandatory memory read; unsupported facts are forbidden.",
       "evidence": [
         "ofn/organism/identity/self_model.py",
         "ofn/organism/tests/test_memory_gate.py::test_named_decision_paths_emit_receipts_and_evidence",
-        "ofn/organism/tests/test_controlled_growth.py"
+        "ofn/organism/tests/test_controlled_growth.py",
+        "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json"
       ],
       "executable": false,
       "history": [
@@ -436,11 +518,20 @@
           ],
           "from": "TESTED",
           "to": "CANARY"
+        },
+        {
+          "at": "2026-08-25T13:33:08Z",
+          "evidence": [
+            "/opt/octopus/lab/artifacts/capability-awakening/CONTROLLED_GROWTH_CANARY_RECEIPT.json",
+            "/opt/octopus/lab/artifacts/capability-awakening/06_growth_receipts.jsonl"
+          ],
+          "from": "CANARY",
+          "to": "ACTIVE_LOCAL"
         }
       ],
       "rollback": "Return registry state to TESTED; do not delete post-deploy self-model evidence.",
       "scope": "LOCAL_ONLY",
-      "state": "CANARY"
+      "state": "ACTIVE_LOCAL"
     }
   },
   "created_at": "2026-08-25T13:10:00Z",
@@ -456,6 +547,7 @@
     "EXTERNAL_ACTION_CAPABILITY": "LOCKED",
     "EXTERNAL_LEARNING_CAPABILITY": "LOCKED"
   },
+  "final_status": "CONTROLLED_GROWTH_CANARY_PASS",
   "forbidden": {
     "ARBITRARY_WEB_ACCESS": false,
     "AUTONOMY_ESCALATION": false,
@@ -488,7 +580,8 @@
   },
   "gate_id": "GATE-CONTROLLED-CAPABILITY-AWAKENING-15MIN",
   "live_schema": "phase3-skin-1",
-  "phase": "CANARY",
+  "phase": "ACTIVE_LOCAL",
+  "ready_for_next_owner_decision": true,
   "schema_version": 1,
-  "updated_at": "2026-08-25T13:16:51Z"
+  "updated_at": "2026-08-25T13:33:08Z"
 }
