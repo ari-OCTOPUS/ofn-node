@@ -1,12 +1,13 @@
 {
   "approval": {
     "decision": "APPROVED_WITH_CONDITIONS",
-    "execution_id": null,
+    "execution_id": "capawake-20260825T131651Z-615f0ccc8127",
     "expired": false,
     "expires_after_execution": true,
     "scope": "ONE_USE",
-    "status": "TESTED_READY",
-    "used_once": false
+    "started_at": "2026-08-25T13:16:51Z",
+    "status": "RUNNING",
+    "used_once": true
   },
   "capabilities": {
     "ACTIVE_INFERENCE_SHADOW": {
@@ -62,11 +63,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; no database rollback.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "INNER_SPEECH": {
       "criteria": "One grounded local inner turn per ordinary life cycle with mandatory memory read.",
@@ -100,11 +109,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; preserve inner-speech evidence.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "LOCAL_CURIOSITY": {
       "criteria": "Produce only a bounded local gap or non-executable proposal after memory retrieval.",
@@ -138,11 +155,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; proposals remain non-executable.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "LOCAL_HYPOTHESIS_ENGINE": {
       "criteria": "Preregister and classify one allowed local telemetry hypothesis without causation claims.",
@@ -175,11 +200,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED and quarantine the failed receipt.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "LOCAL_LEARNING": {
       "criteria": "Persist only locally measured classification/evidence; external learning remains locked.",
@@ -212,11 +245,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; preserve provenance-bearing episodes.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "MEMORY_CONSOLIDATION": {
       "criteria": "Create one non-duplicate provenance-bearing episode without changing raw events.",
@@ -249,11 +290,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; preserve consolidation evidence.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "MEMORY_RETRIEVAL": {
       "criteria": "At least one successful bitemporal read per decision and future-use total zero.",
@@ -288,11 +337,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; mandatory memory gate remains fail-closed.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "SANDBOX_EXPERIMENTS": {
       "criteria": "Only the three enumerated bounded local experiments; maximum one per heartbeat and three total.",
@@ -325,11 +382,19 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; endpoint rejects non-CANARY registry.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     },
     "SELF_MODEL_UPDATE": {
       "criteria": "Any update requires a source event and mandatory memory read; unsupported facts are forbidden.",
@@ -363,14 +428,30 @@
           ],
           "from": "SHADOW",
           "to": "TESTED"
+        },
+        {
+          "at": "2026-08-25T13:16:51Z",
+          "evidence": [
+            "artifacts/capability-awakening/04_test_report.md"
+          ],
+          "from": "TESTED",
+          "to": "CANARY"
         }
       ],
       "rollback": "Return registry state to TESTED; do not delete post-deploy self-model evidence.",
       "scope": "LOCAL_ONLY",
-      "state": "TESTED"
+      "state": "CANARY"
     }
   },
   "created_at": "2026-08-25T13:10:00Z",
+  "deployment": {
+    "max_downtime_seconds": 60,
+    "max_organism_restarts": 1,
+    "max_soak_restarts": 1,
+    "pid_before": 38843,
+    "source_hash_before": "65258776598c6eb43bb49dacb5208c42a65084b4",
+    "tested_commit": "2594e3272e80a526acbd7d7931cfe63c5d1d672e"
+  },
   "external_capabilities": {
     "EXTERNAL_ACTION_CAPABILITY": "LOCKED",
     "EXTERNAL_LEARNING_CAPABILITY": "LOCKED"
@@ -407,7 +488,7 @@
   },
   "gate_id": "GATE-CONTROLLED-CAPABILITY-AWAKENING-15MIN",
   "live_schema": "phase3-skin-1",
-  "phase": "TESTED",
+  "phase": "CANARY",
   "schema_version": 1,
-  "updated_at": "2026-08-25T13:13:40Z"
+  "updated_at": "2026-08-25T13:16:51Z"
 }

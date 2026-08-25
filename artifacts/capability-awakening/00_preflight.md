@@ -75,3 +75,7 @@ Remediation at `2026-08-25T13:05Z`: started PID `41212` under GNU `timeout --sig
 ## Preflight disposition
 
 All immutable safety and integrity checks passed. `checkpoint watcher running` requires the bounded remediation above before capability transitions or live execution. If that remediation fails, final status must be `BLOCKED_PRECONDITION` with `ACTION_EXECUTED=false`.
+
+## Pre-consumption recheck
+
+Immediately before moving `TESTED -> CANARY`, commit `2594e3272e80a526acbd7d7931cfe63c5d1d672e` was clean for the controlled source/artifact paths. Registry was `TESTED`; identity and SQLite integrity were valid/`ok`; schema was `phase3-skin-1`; future use, executable evidence, and WAN fetches were all `0`; the bounded watcher was live; unauthenticated LAN returned `401`; GET state delta was `0`; disk had `7015600128` bytes available at `88.56%` used; RAM available was `2207732 KiB`; temperature was `29615 mC`; all four protected service PIDs were unchanged and active; organism security flags remained `1/1/0`; soak abort was `None`.
