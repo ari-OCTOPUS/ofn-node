@@ -1,0 +1,13 @@
+{
+  "memory_reads_per_cycle": 1,
+  "memory_future_use_total": 0,
+  "executable_total": 0,
+  "identity_chain_valid": true,
+  "live_database_test_writes": 0,
+  "external_calls": 0,
+  "services_restarted": 0,
+  "GPU_benchmark_runs": 0,
+  "proven_by": "unittest tempfile DBs + read-only live probes + shadow DB under artifacts/",
+  "live_organism_pid_still": 12748,
+  "note": "Acceptance numbers are from tests and read-only probes, not from mutating the live organism.db"
+}

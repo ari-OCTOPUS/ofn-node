@@ -1,0 +1,12 @@
+{
+  "gate": "LIVE_PROCESS_RESTART",
+  "execute": false,
+  "units": [
+    "octopus-llama-lab",
+    "octopus-organism-lab",
+    "octopus-soak-lab",
+    "octopus-afferent-lab",
+    "octopus-gateway"
+  ],
+  "reason": "Source/runtime mismatch is real (db.py and wan.py newer than PID 12748). Restart is owner-only."
+}

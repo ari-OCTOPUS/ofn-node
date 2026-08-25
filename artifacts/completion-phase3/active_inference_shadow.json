@@ -1,0 +1,12 @@
+{
+  "ambiguity": 0.41274269846481804,
+  "efe": 0.48786557226945243,
+  "engine": "stdlib-discrete-pomdp",
+  "executable": false,
+  "information_gain_subtracted": false,
+  "jax": false,
+  "obs_dim": 2,
+  "pymdp": false,
+  "risk": 0.0751228738046344,
+  "state_dim": 2
+}

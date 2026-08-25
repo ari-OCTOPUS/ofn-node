@@ -1,0 +1,10 @@
+{
+  "benchmark_runs": 0,
+  "blocked_reason": "BLOCKED_NO_GPU",
+  "cbor2_install_attempted": false,
+  "cuda_available": false,
+  "note": "KV cache is not episodic or identity memory. Orange Pi is orchestrator only.",
+  "nvidia_smi": null,
+  "status": "BLOCKED_NO_GPU",
+  "vllm_bin": null
+}

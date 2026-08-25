@@ -1,0 +1,28 @@
+[Unit]
+Description=OCTOPUS lab afferent LAN watch and owner letters
+After=local-fs.target octopus-organism-lab.service
+Wants=octopus-organism-lab.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/octopus/lab
+Environment=PYTHONPATH=/opt/octopus/lab
+ExecStart=/usr/bin/python3 -m ofn.organism.runtime.afferent
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=20
+TimeoutStopSec=15
+KillSignal=SIGTERM
+PrivateTmp=yes
+NoNewPrivileges=yes
+MemoryAccounting=yes
+MemoryMax=64M
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=octopus-afferent-lab
+
+[Install]
+WantedBy=multi-user.target

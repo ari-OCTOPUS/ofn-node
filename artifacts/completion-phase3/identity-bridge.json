@@ -1,0 +1,8 @@
+{
+  "copied": 16,
+  "dest_organism": "ofn-l4-001",
+  "l4_identity_ledger_rows": 2,
+  "merged": false,
+  "note": "v1 hash material is incompatible with L4 schema_version=2; bridge is metadata only",
+  "source_organism": "board-life-001"
+}

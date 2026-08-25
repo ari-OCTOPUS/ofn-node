@@ -34,6 +34,9 @@ fi
 
 cd "$BASE"
 export PYTHONPATH="$BASE"
+# Owner-enabled conceptual learning via allowlisted DeepSeek only.
+# Unit tests do not set this, so they stay offline.
+export OCTOPUS_LEARN_EXTERNAL=1
 
 exec /usr/bin/python3 -m ofn.organism.runtime.app \
   --db "$DB" \

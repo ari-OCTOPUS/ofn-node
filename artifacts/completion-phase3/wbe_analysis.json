@@ -1,0 +1,29 @@
+{
+  "board_binding": "NONE",
+  "claim_level": "LITERATURE",
+  "executable": false,
+  "savage_2008": {
+    "curvature": "opposite_empirical_convexity",
+    "mass_decades": 8,
+    "ols_a": 0.81,
+    "relation_to_kleiber": "at_odds",
+    "tree": "mixed"
+  },
+  "specific_rate": {
+    "alpha_0.85": -0.15000000000000002,
+    "form": "f \u221d C^{\u03b1\u22121}",
+    "kleiber_0.75": -0.25,
+    "savage_0.81": -0.18999999999999995
+  },
+  "use_as_octopus_safety_trip": false,
+  "use_as_timer_or_halt_threshold": false,
+  "wbe_1997": {
+    "B_scaling": "M^{3/4}",
+    "assumptions": [
+      "space_filling",
+      "invariant_terminals",
+      "min_dissipation"
+    ],
+    "regime": "infinite_size_limit"
+  }
+}

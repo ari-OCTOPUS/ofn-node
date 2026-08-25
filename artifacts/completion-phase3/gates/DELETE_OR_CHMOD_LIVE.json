@@ -1,0 +1,6 @@
+{
+  "gate": "DELETE_OR_CHMOD_LIVE",
+  "execute": false,
+  "cellframe": "/opt/cellframe-node",
+  "reason": "No live chmod/chown/delete. Cellframe disk recovery is owner-gated."
+}

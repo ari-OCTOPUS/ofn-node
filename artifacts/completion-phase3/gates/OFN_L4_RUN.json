@@ -1,0 +1,7 @@
+{
+  "gate": "OFN_L4_RUN",
+  "execute": false,
+  "listen_8091": false,
+  "systemd": false,
+  "reason": "Shadow ticks and tests only. Owner must approve any OFN-L4 process, port bind, or unit."
+}

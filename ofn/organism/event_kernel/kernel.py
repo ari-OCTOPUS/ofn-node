@@ -1,6 +1,7 @@
 
 import json, queue, threading, time
 from ofn.organism.contracts.events import validate_event, EVENT_QUEUE_MAXSIZE
+from ofn.organism.persistence.db import DB_LOCK
 
 class EventKernel:
     def __init__(self, con, maxsize=EVENT_QUEUE_MAXSIZE):
@@ -8,14 +9,21 @@ class EventKernel:
         self.q = queue.PriorityQueue(maxsize=maxsize)
         self.maxsize = maxsize
         self.lock = threading.Lock()
+        self.dispatch_lock = threading.Lock()
         self.handlers = {}
+        with DB_LOCK:
+            last_sequence = int(
+                self.con.execute(
+                    "SELECT COALESCE(MAX(node_seq),0) FROM events"
+                ).fetchone()[0]
+            )
         self.metrics = {
             "committed_event_loss": 0,
             "duplicate_external_effect": 0,
             "unknown_schema_silent_accept": 0,
             "rejected": 0,
             "saturated": 0,
-            "last_seq": 0,
+            "last_seq": last_sequence,
         }
         self._stop = False
 
@@ -28,7 +36,7 @@ class EventKernel:
 
     def commit_event(self, ev: dict) -> dict:
         ev = validate_event(ev)
-        with self.lock:
+        with self.lock, DB_LOCK:
             existing = self.con.execute("SELECT event_id, hash FROM events WHERE event_id=? OR hash=?", (ev["event_id"], ev["hash"])).fetchone()
             if existing:
                 if existing[1] == ev["hash"] and existing[0] == ev["event_id"]:
@@ -71,19 +79,20 @@ class EventKernel:
             return {"status": "rejected", "error": msg}
 
     def drain_outbox_once(self):
-        row = self.con.execute("SELECT delivery_id, event_id, hash FROM outbox WHERE status='pending' ORDER BY delivery_id LIMIT 1").fetchone()
-        if not row:
-            return None
-        delivery_id, event_id, h = row
-        evrow = self.con.execute("SELECT event_type, payload_json, priority FROM events WHERE event_id=?", (event_id,)).fetchone()
-        if not evrow:
-            return {"status": "missing_event", "event_id": event_id}
-        et, payload, pr = evrow
-        handler = self.handlers.get(et) or self.handlers.get("*")
-        if handler:
-            handler({"event_id": event_id, "event_type": et, "payload": json.loads(payload), "priority": pr, "hash": h})
-        self.con.execute("UPDATE outbox SET status='done', done_at=? WHERE delivery_id=?", (time.time(), delivery_id))
-        return {"status": "done", "event_id": event_id}
+        with self.dispatch_lock, DB_LOCK:
+            row = self.con.execute("SELECT delivery_id, event_id, hash FROM outbox WHERE status='pending' ORDER BY delivery_id LIMIT 1").fetchone()
+            if not row:
+                return None
+            delivery_id, event_id, h = row
+            evrow = self.con.execute("SELECT event_type, payload_json, priority FROM events WHERE event_id=?", (event_id,)).fetchone()
+            if not evrow:
+                return {"status": "missing_event", "event_id": event_id}
+            et, payload, pr = evrow
+            handler = self.handlers.get(et) or self.handlers.get("*")
+            if handler:
+                handler({"event_id": event_id, "event_type": et, "payload": json.loads(payload), "priority": pr, "hash": h})
+            self.con.execute("UPDATE outbox SET status='done', done_at=? WHERE delivery_id=?", (time.time(), delivery_id))
+            return {"status": "done", "event_id": event_id}
 
     def replay_pending(self, limit=1000):
         n = 0

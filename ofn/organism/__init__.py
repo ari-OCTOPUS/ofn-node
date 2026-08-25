@@ -1,2 +1,2 @@
-__version__ = '0.1.0'
-ORGANISM_ID = 'board-life-001'
+__version__ = "0.6.0"
+ORGANISM_ID = "board-life-001"

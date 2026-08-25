@@ -1,0 +1,22 @@
+[Unit]
+Description=OCTOPUS one-shot first-stage post-reboot proof
+After=octopus-organism-lab.service
+Wants=octopus-organism-lab.service
+ConditionPathExists=/opt/octopus/lab/evidence/FIRST-STAGE-PENDING
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/octopus/lab
+Environment=PYTHONPATH=/opt/octopus/lab
+ExecStart=/usr/bin/python3 /opt/octopus/lab/bin/post-reboot-first-stage.py
+TimeoutStartSec=300
+PrivateTmp=yes
+NoNewPrivileges=yes
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=octopus-first-stage-proof
+
+[Install]
+WantedBy=multi-user.target

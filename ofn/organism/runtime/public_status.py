@@ -83,6 +83,32 @@ def write_public_status(
             else "UNAVAILABLE"
         ),
         "unknowns": organism_body.get("unknowns", []),
+        "last_utterance": organism_body.get("last_utterance"),
+        "last_utterance_kind": organism_body.get("last_utterance_kind"),
+        "given_name": (organism_body.get("development") or {}).get("given_name"),
+        "developmental_stage": (organism_body.get("development") or {}).get("stage"),
+        "lessons_taught": (organism_body.get("development") or {}).get("lessons_taught"),
+        "season_city": (organism_body.get("season") or {}).get("city"),
+        "season_source": (organism_body.get("season") or {}).get("source"),
+        "school_passed": (organism_body.get("school") or {}).get("all_passed"),
+        "external_api": organism_body.get("external_api"),
+        "topics_count": organism_body.get("topics_count") or 0,
+        "microphone": (
+            (organism_body.get("discovery") or {}).get("senses") or {}
+        ).get("microphone"),
+        "teacher_ready": (organism_body.get("teacher") or {}).get("ready"),
+        "world_hosts": [
+            {
+                "id": item.get("id"),
+                "ip": item.get("ip"),
+                "status": item.get("status"),
+            }
+            for item in (organism_body.get("world_hosts") or [])
+        ],
+        "heartbeat_interval_s": (organism_body.get("growth") or {}).get(
+            "heartbeat_interval_s"
+        ),
+        "last_habit": (organism_body.get("growth") or {}).get("last_habit"),
     }
 
     with _PUBLIC_STATUS_LOCK:

@@ -1,0 +1,29 @@
+{
+  "alive_claim": false,
+  "conscious_claim": false,
+  "executable_total": 0,
+  "health": "STABLE",
+  "homeostatic_error": 0.0,
+  "http_listen": false,
+  "http_port": null,
+  "identity_chain_valid": true,
+  "identity_entries": 2,
+  "organism_id": "ofn-l4-001",
+  "receipt": {
+    "event_id": "01a03890-cf10-7760-be3c-53c95e2a663b",
+    "hash": "b2689b25df165b0d50d596fde5adc6e92ea8b34f6633abcfe35e16332bb30e2a",
+    "seq": 1,
+    "status": "committed"
+  },
+  "recorded_at_utc": "2026-08-25T10:56:49+00:00",
+  "theta": {
+    "action_relevance": 0.1,
+    "belief_change": 1.0,
+    "cognitive": true,
+    "delta_theta": 0.515,
+    "homeostatic_error": 0.0,
+    "memory_retention": 1.0,
+    "note": "token/FLOP consumption is not inner time",
+    "threshold": 0.45
+  }
+}

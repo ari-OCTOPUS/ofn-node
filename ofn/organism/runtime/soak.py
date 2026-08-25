@@ -27,7 +27,9 @@ def llama_rss():
                 cmd = fh.read().replace(b"\0", b" ").decode(errors="replace")
         except Exception:
             continue
-        if "llama-server" in cmd and "-m " in cmd:
+        if "llama-server" in cmd and (
+            "-m " in cmd or "--model " in cmd
+        ):
             with open(f"/proc/{name}/status") as fh:
                 for line in fh:
                     if line.startswith("VmRSS:"):

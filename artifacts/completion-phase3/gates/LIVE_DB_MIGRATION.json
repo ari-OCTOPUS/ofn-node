@@ -1,0 +1,7 @@
+{
+  "gate": "LIVE_DB_MIGRATION",
+  "execute": false,
+  "path": "/opt/octopus/lab/lab-data/organism.db",
+  "would_create": ["memory_read_receipts", "wan_fetches"],
+  "reason": "db.connect() on the live file is blocked unless OCTOPUS_ALLOW_LIVE_SCHEMA=1 after owner approval."
+}

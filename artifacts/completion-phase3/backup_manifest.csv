@@ -1,0 +1,3 @@
+path,role,bytes,mode,integrity
+/opt/octopus/lab/lab-data/backups/organism-phase3-online-20260825T104854Z.db,online_backup,1069056,0o600,ok
+/opt/octopus/lab/lab-data/backups/organism-phase3-restore-rehearsal-20260825T104854Z.db,restore_rehearsal_copy,1077248,0o600,ok

@@ -1,0 +1,26 @@
+[Unit]
+Description=OCTOPUS lab organism continuity service
+After=local-fs.target octopus-llama-lab.service
+Wants=octopus-llama-lab.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/octopus/lab
+Environment=PYTHONPATH=/opt/octopus/lab
+ExecStart=/opt/octopus/lab/bin/start-organism.sh
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=30
+TimeoutStopSec=20
+KillSignal=SIGTERM
+PrivateTmp=yes
+NoNewPrivileges=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=octopus-organism-lab
+
+[Install]
+WantedBy=multi-user.target

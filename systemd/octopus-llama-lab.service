@@ -1,0 +1,44 @@
+[Unit]
+Description=OCTOPUS lab local llama.cpp cortex
+After=local-fs.target
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/octopus
+ExecStartPre=/usr/bin/sha256sum --check /opt/octopus/runtime/model.sha256
+ExecStart=/opt/octopus/runtime/llama-current/bin/run-llama-server \
+  --model /opt/octopus/models/qwen3-0.6b-q4_0.gguf \
+  --host 127.0.0.1 \
+  --port 8081 \
+  --threads 4 \
+  --threads-batch 4 \
+  --ctx-size 2048 \
+  --parallel 1 \
+  --batch-size 128 \
+  --ubatch-size 64 \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --poll 0 \
+  --timeout 120 \
+  --metrics \
+  --no-webui \
+  --offline
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=180
+TimeoutStopSec=30
+KillSignal=SIGTERM
+MemoryAccounting=yes
+MemoryHigh=1800M
+MemoryMax=2300M
+PrivateTmp=yes
+NoNewPrivileges=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=octopus-llama-lab
+
+[Install]
+WantedBy=multi-user.target

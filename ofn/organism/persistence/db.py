@@ -1,6 +1,11 @@
-
+import os
 import sqlite3
+import threading
 from pathlib import Path
+
+DB_LOCK = threading.RLock()
+LIVE_ORGANISM_DB = Path("/opt/octopus/lab/lab-data/organism.db")
+ALLOW_LIVE_SCHEMA_ENV = "OCTOPUS_ALLOW_LIVE_SCHEMA"
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -28,6 +33,16 @@ CREATE TABLE IF NOT EXISTS identity_heartbeat (
   ts REAL NOT NULL,
   body_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS identity_ledger (
+  sequence INTEGER PRIMARY KEY,
+  organism_id TEXT NOT NULL,
+  boot_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  created_at_ns INTEGER NOT NULL,
+  previous_hash TEXT NOT NULL,
+  entry_hash TEXT NOT NULL UNIQUE
+);
 CREATE TABLE IF NOT EXISTS episodes (
   episode_id TEXT PRIMARY KEY,
   source_event_id TEXT NOT NULL REFERENCES events(event_id),
@@ -41,15 +56,182 @@ CREATE TABLE IF NOT EXISTS meta (
   k TEXT PRIMARY KEY,
   v TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS ask_cache (
+  request_hash TEXT PRIMARY KEY,
+  response_text TEXT NOT NULL,
+  source_route TEXT NOT NULL,
+  source_response_hash TEXT NOT NULL,
+  created_at REAL NOT NULL,
+  last_used_at REAL NOT NULL,
+  hits INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS self_models (
+  version INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at REAL NOT NULL,
+  source_event_id TEXT,
+  state_json TEXT NOT NULL,
+  state_hash TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS world_hosts (
+  host_id TEXT PRIMARY KEY,
+  ip TEXT NOT NULL,
+  label TEXT,
+  status TEXT NOT NULL,
+  last_change_at REAL,
+  observations INTEGER NOT NULL DEFAULT 0,
+  up_observations INTEGER NOT NULL DEFAULT 0,
+  updated_at REAL NOT NULL,
+  last_probe_json TEXT NOT NULL DEFAULT '{}'
+);
+CREATE TABLE IF NOT EXISTS utterances (
+  utterance_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  kind TEXT NOT NULL,
+  text TEXT NOT NULL,
+  source_event_id TEXT,
+  grounded_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS growth_habits (
+  habit_id TEXT PRIMARY KEY,
+  status TEXT NOT NULL,
+  parameter TEXT NOT NULL,
+  baseline_json TEXT NOT NULL,
+  candidate_json TEXT NOT NULL,
+  evidence_json TEXT NOT NULL,
+  created_at REAL NOT NULL,
+  updated_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS lessons (
+  lesson_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  source TEXT NOT NULL,
+  topic TEXT NOT NULL,
+  fact TEXT NOT NULL,
+  evidence TEXT NOT NULL,
+  status TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS exams (
+  exam_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  prompt TEXT NOT NULL,
+  expected_json TEXT NOT NULL,
+  forbidden_json TEXT NOT NULL,
+  answer TEXT,
+  passed INTEGER NOT NULL,
+  notes TEXT
+);
+CREATE TABLE IF NOT EXISTS inner_speech (
+  speech_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  prompt TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  kind TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS school_courses (
+  course_id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  status TEXT NOT NULL,
+  evidence TEXT NOT NULL,
+  updated_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS futures (
+  path_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  title TEXT NOT NULL,
+  hypothesis TEXT NOT NULL,
+  status TEXT NOT NULL,
+  evidence TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS learned_topics (
+  topic_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  topic TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  source TEXT NOT NULL,
+  claim_level TEXT NOT NULL,
+  evidence TEXT NOT NULL,
+  response_hash TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS learned_topics_created ON learned_topics(created_at);
+CREATE TABLE IF NOT EXISTS memory_read_receipts (
+  receipt_id TEXT PRIMARY KEY,
+  purpose TEXT NOT NULL,
+  decision_time REAL NOT NULL,
+  recorded_at REAL NOT NULL,
+  occurred_at REAL,
+  created_at REAL,
+  rows_returned INTEGER NOT NULL,
+  future_use_count INTEGER NOT NULL CHECK (future_use_count = 0),
+  ok INTEGER NOT NULL CHECK (ok IN (0,1)),
+  error TEXT,
+  query_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS memory_read_receipts_purpose ON memory_read_receipts(purpose);
+CREATE TABLE IF NOT EXISTS wan_fetches (
+  fetch_id TEXT PRIMARY KEY,
+  created_at REAL NOT NULL,
+  url TEXT NOT NULL,
+  host TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  status TEXT NOT NULL,
+  claim_level TEXT NOT NULL,
+  excerpt TEXT NOT NULL,
+  response_hash TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS wan_fetches_created ON wan_fetches(created_at);
+CREATE INDEX IF NOT EXISTS inner_speech_created ON inner_speech(created_at);
 CREATE INDEX IF NOT EXISTS outbox_status ON outbox(status);
+CREATE INDEX IF NOT EXISTS identity_ledger_boot_id ON identity_ledger(boot_id);
+CREATE INDEX IF NOT EXISTS episodes_created_at ON episodes(created_at);
 """
 
+
+def _ensure_episode_uniqueness(con: sqlite3.Connection) -> None:
+    duplicates = con.execute(
+        """
+        SELECT source_event_id, event_type, COUNT(*)
+        FROM episodes
+        GROUP BY source_event_id, event_type
+        HAVING COUNT(*) > 1
+        LIMIT 1
+        """
+    ).fetchone()
+    if duplicates:
+        raise RuntimeError(
+            "episode_uniqueness_migration_requires_owner_data_decision"
+        )
+    con.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS episodes_source_event
+        ON episodes(source_event_id, event_type)
+        """
+    )
+
+
+def _is_live_organism_db(path: Path) -> bool:
+    try:
+        return path.expanduser().resolve() == LIVE_ORGANISM_DB.resolve()
+    except OSError:
+        return False
+
+
 def connect(path: Path) -> sqlite3.Connection:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(str(path), isolation_level=None, check_same_thread=False)
-    con.execute("PRAGMA journal_mode=WAL")
-    con.execute("PRAGMA synchronous=FULL")
-    con.execute("PRAGMA foreign_keys=ON")
-    con.execute("PRAGMA busy_timeout=5000")
-    con.executescript(SCHEMA)
+    resolved = Path(path)
+    if _is_live_organism_db(resolved) and os.environ.get(ALLOW_LIVE_SCHEMA_ENV) != "1":
+        raise RuntimeError(
+            "live_schema_mutation_blocked: set OCTOPUS_ALLOW_LIVE_SCHEMA=1 only after Owner Gate"
+        )
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(resolved), isolation_level=None, check_same_thread=False)
+    try:
+        with DB_LOCK:
+            con.execute("PRAGMA journal_mode=WAL")
+            con.execute("PRAGMA synchronous=FULL")
+            con.execute("PRAGMA foreign_keys=ON")
+            con.execute("PRAGMA busy_timeout=5000")
+            con.executescript(SCHEMA)
+            _ensure_episode_uniqueness(con)
+    except Exception:
+        con.close()
+        raise
     return con

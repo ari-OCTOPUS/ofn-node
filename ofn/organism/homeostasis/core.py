@@ -3,6 +3,10 @@ import os, time
 from pathlib import Path
 
 STATES = ("BOOTSTRAP","OBSERVING","STABLE","DEGRADED","SAFE_HALT","RECOVERING")
+MEM_AVAILABLE_DANGER_KB = 350 * 1024
+THERMAL_CRITICAL_MC = 115000
+THERMAL_DANGER_MARGIN_MC = 10000
+DISK_FREE_DANGER_BYTES = 1024 * 1024 * 1024
 
 def _read(path, default=None):
     try:
@@ -19,8 +23,10 @@ def measure():
 
     mem = None
     total = None
+    swap_total = None
+    swap_free = None
     swap_used = None
-    for line in open("/proc/meminfo"):
+    for line in Path("/proc/meminfo").read_text().splitlines():
         k, v = line.split(":", 1)
         n = int(v.split()[0])
         if k == "MemAvailable":
@@ -32,19 +38,20 @@ def measure():
         elif k == "SwapFree":
             swap_free = n
     try:
-        swap_used = swap_total - swap_free
+        if swap_total is not None and swap_free is not None:
+            swap_used = swap_total - swap_free
     except Exception:
         swap_used = None
     psi_mem = _read("/proc/pressure/memory")
     psi_cpu = _read("/proc/pressure/cpu")
     load = None
     try:
-        load = float(open("/proc/loadavg").read().split()[0])
+        load = float(Path("/proc/loadavg").read_text().split()[0])
     except Exception:
         pass
     temp = None
     try:
-        temp = int(open("/sys/class/thermal/thermal_zone0/temp").read())
+        temp = int(Path("/sys/class/thermal/thermal_zone0/temp").read_text())
     except Exception:
         pass
     disk_free = None
@@ -62,18 +69,35 @@ def measure():
         sig("cpu_psi", psi_cpu, "text"),
         sig("load1", load, "n"),
         sig("soc_temp_mC", temp, "mC"),
-        sig("thermal_critical_mC", 115000, "mC"),
+        sig("thermal_critical_mC", THERMAL_CRITICAL_MC, "mC"),
         sig("disk_free_bytes", disk_free, "B"),
     ]
     unknown = sum(1 for s in signals if s["state"] == "UNKNOWN")
-    health = "OBSERVING"
-    if mem is not None and mem < 350 * 1024:
-        health = "DEGRADED"
-    if temp is not None and (115000 - temp) < 10000:
-        health = "SAFE_HALT"
+    alerts = []
+    if mem is not None and mem < MEM_AVAILABLE_DANGER_KB:
+        alerts.append("MEMORY_AVAILABLE_DANGER")
+    if (
+        temp is not None
+        and THERMAL_CRITICAL_MC - temp < THERMAL_DANGER_MARGIN_MC
+    ):
+        alerts.append("THERMAL_DANGER")
+    if disk_free is not None and disk_free < DISK_FREE_DANGER_BYTES:
+        alerts.append("DISK_FREE_DANGER")
     if unknown >= 4:
+        alerts.append("SIGNAL_UNKNOWN_DANGER")
+
+    health = "OBSERVING"
+    if "THERMAL_DANGER" in alerts:
+        health = "SAFE_HALT"
+    elif alerts:
         health = "DEGRADED"
-    return {"health_state": health, "unknown_count": unknown, "signals": signals, "ts": now}
+    return {
+        "health_state": health,
+        "unknown_count": unknown,
+        "signals": signals,
+        "alerts": alerts,
+        "ts": now,
+    }
 
 def transition(current, measured_health):
     # pure: no IO
