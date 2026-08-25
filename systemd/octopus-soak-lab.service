@@ -1,0 +1,28 @@
+[Unit]
+Description=OCTOPUS lab soak observer
+After=local-fs.target octopus-organism-lab.service
+Wants=octopus-organism-lab.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/octopus/lab
+Environment=PYTHONPATH=/opt/octopus/lab
+ExecStart=/usr/bin/python3 /opt/octopus/lab/ofn/organism/runtime/soak.py
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=20
+TimeoutStopSec=15
+KillSignal=SIGTERM
+PrivateTmp=yes
+NoNewPrivileges=yes
+MemoryAccounting=yes
+MemoryMax=128M
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=octopus-soak-lab
+
+[Install]
+WantedBy=multi-user.target
