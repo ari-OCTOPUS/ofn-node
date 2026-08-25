@@ -1,0 +1,6 @@
+llama.cpp-src/
+__pycache__/
+*.pyc
+*.db-wal
+*.db-shm
+lab-data/

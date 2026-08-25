@@ -1,0 +1,9 @@
+{
+  "claim_level": "OBSERVED",
+  "commit": "f280b26983ad0fdb705a0d9ebf0503e76f2899b0",
+  "version": "0.2.0-dev (build 1, commit f280b26)",
+  "compiler": "GNU 14.2.0 aarch64",
+  "runtime_path": "/opt/octopus/runtime/llama.cpp-f280b26/bin",
+  "symlink": "/opt/octopus/runtime/llama-current",
+  "tmp_runtime_dependency_now": false
+}

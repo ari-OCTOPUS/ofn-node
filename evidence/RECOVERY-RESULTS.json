@@ -1,0 +1,5 @@
+{
+  "claim_level": "REPRODUCED",
+  "crash_replay": "PASS",
+  "model_kill_core_survives": true
+}

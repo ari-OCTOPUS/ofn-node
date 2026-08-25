@@ -1,0 +1,11 @@
+{
+  "claim_level": "REPRODUCED",
+  "unit_tests": "11/11 ok",
+  "committed_event_loss": 0,
+  "duplicate_same_hash": "PASS",
+  "duplicate_id_different_hash": "PASS",
+  "crash_after_commit_before_dispatch": "PASS",
+  "queue_saturation_safety_retained": "PASS",
+  "unknown_schema_rejected": "PASS",
+  "replay_idempotent": "PASS"
+}
