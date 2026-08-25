@@ -1,0 +1,14 @@
+{
+  "gate": "GATE-LIVE-SKIN-REPLACEMENT",
+  "execute": false,
+  "target_pid": 12748,
+  "required_env_for_first_start": ["OCTOPUS_ALLOW_LIVE_SCHEMA=1"],
+  "forbidden_env_on_first_start": ["OCTOPUS_GET_PURE=1", "OCTOPUS_REQUIRE_LAN_TOKEN=1"],
+  "do_not_stop": ["octopus-llama-lab", "octopus-gateway"],
+  "may_stop": ["octopus-organism-lab"],
+  "schema_created_on_connect": ["memory_read_receipts", "decision_evidence", "wan_fetches"],
+  "wan_wired_into_ask": false,
+  "ofn_l4": "not_included",
+  "expected_downtime_s": "3-20",
+  "abort": ["BLOCKED_SAFETY_DISK", "identity_invalid", "llama_down", "soak_abort", "connect_exception"]
+}
