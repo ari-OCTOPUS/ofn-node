@@ -1,0 +1,11 @@
+{
+  "gate": "GATE-CELLFRAME-DISK-CLEANUP",
+  "decision": "DO_NOTHING",
+  "execute": false,
+  "CELLFRAME_DATA_PRESERVED": true,
+  "CELLFRAME_RECLAIM_EXECUTED": false,
+  "CELLFRAME_NODE_RESTARTED": false,
+  "DISK_RISK_REMAINS": true,
+  "path": "/opt/cellframe-node",
+  "note": "Owner chose preserve. No delete/rotate/compress/move of chain, log, db, or artifacts."
+}

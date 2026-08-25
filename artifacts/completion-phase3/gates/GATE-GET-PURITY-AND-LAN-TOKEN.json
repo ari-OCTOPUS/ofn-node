@@ -1,0 +1,8 @@
+{
+  "gate": "GATE-GET-PURITY-AND-LAN-TOKEN",
+  "execute": false,
+  "reason": "Soak and LAN clients still require GET side effects and no token. Do not set OCTOPUS_GET_PURE=1 or OCTOPUS_REQUIRE_LAN_TOKEN=1 until clients are updated.",
+  "TEMPORARY_GET_COMPATIBILITY": true,
+  "TEMPORARY_LAN_UNAUTHENTICATED": true,
+  "SECURITY_DEBT_OPEN": true
+}

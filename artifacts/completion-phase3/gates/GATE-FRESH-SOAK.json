@@ -1,0 +1,5 @@
+{
+  "gate": "GATE-FRESH-SOAK",
+  "execute": false,
+  "reason": "Open only after five post-skin heartbeats succeed. Current soak spans old and new PIDs."
+}

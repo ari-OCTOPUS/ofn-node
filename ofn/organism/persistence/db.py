@@ -6,6 +6,57 @@ from pathlib import Path
 DB_LOCK = threading.RLock()
 LIVE_ORGANISM_DB = Path("/opt/octopus/lab/lab-data/organism.db")
 ALLOW_LIVE_SCHEMA_ENV = "OCTOPUS_ALLOW_LIVE_SCHEMA"
+ADDITIVE_MIGRATION_VERSION = "phase3-skin-1"
+ADDITIVE_LIVE_TABLES = (
+    "memory_read_receipts",
+    "decision_evidence",
+    "wan_fetches",
+)
+ADDITIVE_STATEMENTS = (
+    """
+    CREATE TABLE IF NOT EXISTS memory_read_receipts (
+      receipt_id TEXT PRIMARY KEY,
+      purpose TEXT NOT NULL,
+      decision_time REAL NOT NULL,
+      recorded_at REAL NOT NULL,
+      occurred_at REAL,
+      created_at REAL,
+      rows_returned INTEGER NOT NULL,
+      future_use_count INTEGER NOT NULL CHECK (future_use_count = 0),
+      ok INTEGER NOT NULL CHECK (ok IN (0,1)),
+      error TEXT,
+      query_json TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS memory_read_receipts_purpose ON memory_read_receipts(purpose)",
+    """
+    CREATE TABLE IF NOT EXISTS decision_evidence (
+      evidence_id TEXT PRIMARY KEY,
+      purpose TEXT NOT NULL,
+      decision_time REAL NOT NULL,
+      receipt_id TEXT NOT NULL,
+      event_ids_json TEXT NOT NULL,
+      episode_ids_json TEXT NOT NULL,
+      created_at REAL NOT NULL,
+      executable INTEGER NOT NULL CHECK (executable = 0)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS decision_evidence_purpose ON decision_evidence(purpose)",
+    """
+    CREATE TABLE IF NOT EXISTS wan_fetches (
+      fetch_id TEXT PRIMARY KEY,
+      created_at REAL NOT NULL,
+      url TEXT NOT NULL,
+      host TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      status TEXT NOT NULL,
+      claim_level TEXT NOT NULL,
+      excerpt TEXT NOT NULL,
+      response_hash TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS wan_fetches_created ON wan_fetches(created_at)",
+)
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -226,13 +277,63 @@ def _is_live_organism_db(path: Path) -> bool:
         return False
 
 
+def _table_names(con: sqlite3.Connection) -> set[str]:
+    return {
+        row[0]
+        for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    }
+
+
+def live_additive_schema_complete(con: sqlite3.Connection) -> bool:
+    names = _table_names(con)
+    return all(name in names for name in ADDITIVE_LIVE_TABLES)
+
+
+def apply_additive_live_migration(con: sqlite3.Connection) -> str:
+    """Create only new tables/indexes. Never DROP/rename. Transactional."""
+    con.execute("BEGIN IMMEDIATE")
+    try:
+        for statement in ADDITIVE_STATEMENTS:
+            con.execute(statement)
+        con.execute(
+            """
+            INSERT INTO meta(k,v) VALUES(?,?)
+            ON CONFLICT(k) DO UPDATE SET v=excluded.v
+            """,
+            ("schema_migration_version", ADDITIVE_MIGRATION_VERSION),
+        )
+        con.execute("COMMIT")
+    except Exception:
+        try:
+            con.execute("ROLLBACK")
+        except sqlite3.Error:
+            pass
+        raise
+    return ADDITIVE_MIGRATION_VERSION
+
+
+def _probe_live_additive_complete(path: Path) -> bool:
+    probe = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        probe.execute("PRAGMA query_only=ON")
+        return live_additive_schema_complete(probe)
+    finally:
+        probe.close()
+
+
 def connect(path: Path) -> sqlite3.Connection:
     resolved = Path(path)
-    if _is_live_organism_db(resolved) and os.environ.get(ALLOW_LIVE_SCHEMA_ENV) != "1":
+    live = _is_live_organism_db(resolved)
+    allow_schema = os.environ.get(ALLOW_LIVE_SCHEMA_ENV) == "1"
+    if live and not resolved.is_file():
+        raise RuntimeError("live_database_missing")
+    if live and not allow_schema and not _probe_live_additive_complete(resolved):
         raise RuntimeError(
-            "live_schema_mutation_blocked: set OCTOPUS_ALLOW_LIVE_SCHEMA=1 only after Owner Gate"
+            "live_schema_incomplete: OCTOPUS_ALLOW_LIVE_SCHEMA=1 required "
+            "only to apply additive phase3-skin-1 tables"
         )
-    resolved.parent.mkdir(parents=True, exist_ok=True)
+    if not live:
+        resolved.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(str(resolved), isolation_level=None, check_same_thread=False)
     try:
         with DB_LOCK:
@@ -240,8 +341,14 @@ def connect(path: Path) -> sqlite3.Connection:
             con.execute("PRAGMA synchronous=FULL")
             con.execute("PRAGMA foreign_keys=ON")
             con.execute("PRAGMA busy_timeout=5000")
-            con.executescript(SCHEMA)
-            _ensure_episode_uniqueness(con)
+            if live:
+                if allow_schema:
+                    apply_additive_live_migration(con)
+                elif not live_additive_schema_complete(con):
+                    raise RuntimeError("live_schema_incomplete_after_open")
+            else:
+                con.executescript(SCHEMA)
+                _ensure_episode_uniqueness(con)
     except Exception:
         con.close()
         raise

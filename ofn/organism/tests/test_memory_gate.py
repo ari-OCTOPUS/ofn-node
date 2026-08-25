@@ -120,7 +120,7 @@ class MemoryGateTests(unittest.TestCase):
         with patch.dict(os.environ, env, clear=True):
             with self.assertRaises(RuntimeError) as ctx:
                 connect(LIVE_ORGANISM_DB)
-        self.assertIn("live_schema_mutation_blocked", str(ctx.exception))
+        self.assertIn("live_schema_incomplete", str(ctx.exception))
         live = sqlite3.connect(f"file:{LIVE_ORGANISM_DB}?mode=ro", uri=True)
         try:
             names = {
@@ -133,6 +133,20 @@ class MemoryGateTests(unittest.TestCase):
             live.close()
         self.assertNotIn("memory_read_receipts", names)
         self.assertNotIn("wan_fetches", names)
+
+    def test_live_connect_without_env_after_additive_tables(self):
+        from ofn.organism.persistence import db as dbmod
+
+        path = Path(self.temp_dir.name) / "already-migrated.db"
+        seeded = connect(path)
+        seeded.close()
+        env = {k: v for k, v in os.environ.items() if k != "OCTOPUS_ALLOW_LIVE_SCHEMA"}
+        with patch.object(dbmod, "LIVE_ORGANISM_DB", path), patch.dict(
+            os.environ, env, clear=True
+        ):
+            opened = dbmod.connect(path)
+            self.addCleanup(opened.close)
+            self.assertTrue(dbmod.live_additive_schema_complete(opened))
 
     def test_tick_and_ask_require_memory_read(self):
         from ofn.organism.runtime.app import _remember_event
