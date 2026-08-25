@@ -142,7 +142,13 @@ class GetPurityAndLanTests(unittest.TestCase):
         except urllib.error.HTTPError as exc:
             self.assertEqual(exc.code, 401)
 
-    def test_valid_token_accepted(self):
+    def test_valid_token_after_unauthorized_probe(self):
+        try:
+            urllib.request.urlopen(self.base + "/api/v1/organism", timeout=3)
+        except urllib.error.HTTPError as exc:
+            self.assertEqual(exc.code, 401)
+        with self._open("/api/v1/organism") as resp:
+            self.assertEqual(resp.status, 200)
         with self._open("/api/v1/organism") as resp:
             body = json.loads(resp.read())
         self.assertEqual(body["organism_id"], "board-life-001")

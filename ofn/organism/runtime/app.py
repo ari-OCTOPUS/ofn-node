@@ -330,8 +330,6 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/health" and self._loopback_listener():
             return "ok"
         peer = self.client_address[0]
-        if failure_cooled(peer):
-            return "cooldown"
         try:
             expected = load_lan_token()
         except Exception:
@@ -344,6 +342,8 @@ class Handler(BaseHTTPRequestHandler):
         if tokens_match(offered, expected):
             record_success(peer)
             return "ok"
+        if failure_cooled(peer):
+            return "cooldown"
         record_failure(peer)
         return "unauthorized"
 

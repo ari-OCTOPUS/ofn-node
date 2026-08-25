@@ -337,12 +337,12 @@ def main() -> int:
         print("ORGANISM_RESTART_FAILED", json.dumps(restarted))
         return 2
     time.sleep(2)
-    unauth_status, unauth_body = http_json("http://192.168.0.180:8090/api/v1/organism")
+    loop_health, _ = http_json("http://127.0.0.1:8090/health")
     auth_status, auth_body = http_json(
         "http://192.168.0.180:8090/api/v1/organism",
         token_headers(),
     )
-    loop_health, _ = http_json("http://127.0.0.1:8090/health")
+    unauth_status, unauth_body = http_json("http://192.168.0.180:8090/api/v1/organism")
     eval_status, eval_body = http_json(
         "http://127.0.0.1:8090/api/v1/eval",
         token_headers(),
