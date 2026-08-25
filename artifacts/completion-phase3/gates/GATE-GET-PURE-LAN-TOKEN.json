@@ -1,0 +1,48 @@
+{
+  "gate": "GATE-GET-PURE-LAN-TOKEN",
+  "execute": true,
+  "owner_instruction": "15-minute homogeneous soak with GET_PURE=1 and LAN_TOKEN_REQUIRED=1; WAVE0 and PROPOSE_ONLY unchanged; LEARN_EXTERNAL=0",
+  "changed_files": [
+    "ofn/organism/runtime/checkpoint.py",
+    "ofn/organism/runtime/lan_auth.py",
+    "ofn/organism/runtime/organism_http.py",
+    "ofn/organism/runtime/app.py",
+    "ofn/organism/runtime/soak.py",
+    "ofn/organism/identity/attestation.py",
+    "ofn/organism/tests/test_checkpoint_watcher.py",
+    "ofn/organism/tests/test_get_purity_and_lan.py",
+    "ofn/organism/tests/test_memory_gate.py",
+    "bin/checkpoint-watcher.py",
+    "bin/post-reboot-first-stage.py"
+  ],
+  "secret_generation_command": "umask 077; head -c 32 /dev/urandom | base64 -w0 > /etc/octopus/lan-token; chmod 0600 /etc/octopus/lan-token",
+  "secret_file": "/etc/octopus/lan-token",
+  "secret_permission": "0600",
+  "environment": {
+    "OCTOPUS_GET_PURE": "1",
+    "OCTOPUS_REQUIRE_LAN_TOKEN": "1",
+    "OCTOPUS_LEARN_EXTERNAL": "0",
+    "OCTOPUS_LAN_TOKEN_FILE": "/etc/octopus/lan-token",
+    "WAVE0_OBSERVE_ONLY": "1",
+    "PROPOSE_ONLY": "1"
+  },
+  "do_not_put_token_in_systemd_environment": true,
+  "client_services_needing_restart": ["octopus-soak-lab"],
+  "organism_restart": true,
+  "restart_order": [
+    "stop octopus-soak-lab and archive mixed soak",
+    "systemctl daemon-reload",
+    "restart octopus-organism-lab only",
+    "start checkpoint-watcher",
+    "start octopus-soak-lab"
+  ],
+  "expected_downtime": "3-20s organism; soak is stopped then replaced",
+  "do_not_restart": ["octopus-llama-lab", "octopus-gateway", "octopus-afferent-lab", "ssh", "cellframe"],
+  "rollback": {
+    "drop_in": "OCTOPUS_GET_PURE=0 OCTOPUS_REQUIRE_LAN_TOKEN=0 OCTOPUS_LEARN_EXTERNAL=0",
+    "keep_token_file": true,
+    "restart_organism": true,
+    "restart_soak": true
+  },
+  "token_rotation": "write new 0600 file to /etc/octopus/lan-token; mtime reload; restart soak; restart organism if cache stale"
+}

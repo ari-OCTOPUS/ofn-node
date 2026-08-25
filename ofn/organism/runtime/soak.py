@@ -1,11 +1,14 @@
 import json, os, time, urllib.request, urllib.error
 from pathlib import Path
 
+from ofn.organism.runtime.organism_http import organism_request
+
 OUT = Path("/opt/octopus/lab/evidence/SOAK-RESULTS.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 samples = []
 abort = None
 started = time.time()
+auth_fail_streak = 0
 
 def mem_avail():
     with open("/proc/meminfo") as f:
@@ -43,6 +46,21 @@ def get(url, timeout=5):
     except Exception:
         return 0
 
+def organism_probe():
+    health = organism_request(
+        "http://127.0.0.1:8090/health",
+        timeout=5,
+        include_token=False,
+        retries=1,
+    )
+    status = organism_request(
+        "http://127.0.0.1:8090/api/v1/organism",
+        timeout=5,
+        include_token=True,
+        retries=1,
+    )
+    return health, status
+
 def post_tiny():
     body = json.dumps({
         "messages": [{"role": "user", "content": "Reply OK"}],
@@ -72,7 +90,12 @@ def write():
     payload = {
         "claim_level": "OBSERVED",
         "cap": "NONE_HOUR",
-        "safety_stops": ["MemAvailable<350MiB", "thermal_margin<10C", "service_down_streak>=5"],
+        "safety_stops": [
+            "MemAvailable<350MiB",
+            "thermal_margin<10C",
+            "service_down_streak>=5",
+            "auth_fail_streak>=2",
+        ],
         "started_at": started,
         "age_seconds": int(time.time() - started),
         "samples": len(samples),
@@ -91,6 +114,7 @@ down_streak = 0
 i = 0
 while abort is None:
     rss, pid = llama_rss()
+    health_probe, organism = organism_probe()
     rec = {
         "t": time.time(),
         "mem_avail_kB": mem_avail(),
@@ -98,13 +122,21 @@ while abort is None:
         "llama_rss_kB": rss,
         "llama_pid": pid,
         "health": get("http://127.0.0.1:8081/health"),
-        "organism": get("http://127.0.0.1:8090/api/v1/organism"),
+        "organism_health": health_probe.status,
+        "organism_health_kind": health_probe.kind,
+        "organism": organism.status,
+        "organism_kind": organism.kind,
     }
-    if rec["health"] != 200 or rec["organism"] != 200:
+    if rec["health"] != 200 or health_probe.status != 200:
         down_streak += 1
         rec["down_streak"] = down_streak
     else:
         down_streak = 0
+    if organism.kind == "auth_failure":
+        auth_fail_streak += 1
+        rec["auth_fail_streak"] = auth_fail_streak
+    elif organism.status == 200:
+        auth_fail_streak = 0
     samples.append(rec)
     write()
     if i % 10 == 0:
@@ -116,6 +148,8 @@ while abort is None:
         abort = "thermal"
     elif down_streak >= 5:
         abort = "service_down"
+    elif auth_fail_streak >= 2:
+        abort = "auth_failure"
     if abort:
         write()
         break

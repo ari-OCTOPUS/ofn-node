@@ -1,0 +1,14 @@
+client_name,source_path,endpoint,GET_or_POST,token_support,timeout,retry,side_effect_assumption,updated,tested
+soak_monitor,ofn/organism/runtime/soak.py,http://127.0.0.1:8090/health,GET,not_required_on_loopback_health,5s,1,liveness_only,true,unit_and_live
+soak_monitor,ofn/organism/runtime/soak.py,http://127.0.0.1:8090/api/v1/organism,GET,header_X-Octopus-Token,5s,1_no_401_retry,GET_pure,true,unit_and_live
+organism_http_helper,ofn/organism/runtime/organism_http.py,any_8090,GET_or_POST,header_only_never_query,5s,bounded,no_token_in_url,true,unit
+checkpoint_watcher,bin/checkpoint-watcher.py,none,n/a,n/a,n/a,quarantine_and_continue,receipt_parse_only,true,unit
+post_reboot_first_stage,bin/post-reboot-first-stage.py,/api/v1/organism and /episodes,GET,header,5s,no_infinite_401,legacy_one_shot,true,code_review
+deploy_live_skin,artifacts/completion-phase3/deploy_live_skin.py,/api/v1/utterance and TCP,GET,loopback,3s,none,compat,parser_fixed,unit
+gateway,/opt/octopus/gateway/app.py,none_to_8090,n/a,n/a,n/a,n/a,reads_files_not_8090,false_not_a_client,n/a
+afferent,ofn/organism/runtime/afferent.py,none_to_8090,n/a,n/a,n/a,n/a,reads_ORGANISM-PUBLIC.json,false_not_a_client,n/a
+icmp_heartbeat,/opt/octopus/bin/heartbeat.sh,none_to_8090,n/a,n/a,n/a,n/a,ICMP_only,false_not_a_client,n/a
+organism_unit_tests,ofn/organism/tests/test_kernel.py,/api/v1/*,GET_POST,optional_in_tests,3s,none,tempfile_db,true,unit
+purity_token_tests,ofn/organism/tests/test_get_purity_and_lan.py,/health and /api/v1/*,GET_POST,fake_secret,3s,none,tempfile_db,true,unit
+ofn_l4_sibling,/opt/octopus/ofn-l4/ofnl4/config.py,http://127.0.0.1:8090/api/v1/organism,GET,false,n/a,n/a,HTTP_LISTEN_false_not_run,false_out_of_scope,n/a
+canvas_report,none_found,n/a,n/a,n/a,n/a,n/a,n/a,n/a,n/a

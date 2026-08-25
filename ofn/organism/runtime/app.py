@@ -20,7 +20,6 @@ from ofn.organism.growth.futures import seed_futures
 from ofn.organism.growth.habits import heartbeat_interval_s, set_meta
 from ofn.organism.growth.parent import seed_lessons, write_parent_decisions
 from ofn.organism.homeostasis.core import measure, transition
-from ofn.organism.identity.attestation import write_attestation
 from ofn.organism.identity.heartbeat import beat
 from ofn.organism.identity.ledger import (
     IdentityChainError,
@@ -36,12 +35,22 @@ from ofn.organism.runtime.life_cycle import (
     tick as life_tick,
 )
 from ofn.organism.school.eval import run_transformation_eval
+from ofn.organism.runtime.lan_auth import (
+    TOKEN_HEADER,
+    failure_cooled,
+    lan_token_required,
+    load_lan_token,
+    record_failure,
+    record_success,
+    tokens_match,
+)
 from ofn.organism.runtime.public_status import (
     PUBLIC_STATUS_PATH,
     first_stage_label,
     meta_value,
     write_public_status,
 )
+from ofn.organism.identity.attestation import read_attestation, write_attestation
 
 BOOT_ID = uuid.uuid4().hex
 STARTED_WALL = time.time()
@@ -171,21 +180,15 @@ def get_pure_enabled() -> bool:
     return os.environ.get("OCTOPUS_GET_PURE", "0") == "1"
 
 
-def lan_token_required() -> bool:
-    return os.environ.get("OCTOPUS_REQUIRE_LAN_TOKEN", "0") == "1"
-
-
-def lan_token_value() -> str:
-    return os.environ.get("OCTOPUS_LAN_TOKEN", "")
-
-
 def organism_snapshot(
     con,
     kernel,
     public_status_path=PUBLIC_STATUS_PATH,
     persist: bool | None = None,
+    mutate_runtime_state: bool | None = None,
 ):
-    persist_writes = True if persist is None else persist
+    persist_writes = (not get_pure_enabled()) if persist is None else persist
+    mutate_state = persist_writes if mutate_runtime_state is None else mutate_runtime_state
     measured = effective_measurement(con)
     cortex = LocalCortex()
     cortex_available = cortex.available()
@@ -204,11 +207,18 @@ def organism_snapshot(
         )
     else:
         health_state = measured_health
-    with STATE_LOCK:
-        STATE["local_cortex"] = (
+    if mutate_state:
+        with STATE_LOCK:
+            STATE["local_cortex"] = (
+                "AVAILABLE" if cortex_available else "DEGRADED"
+            )
+            state = dict(STATE)
+    else:
+        with STATE_LOCK:
+            state = dict(STATE)
+        state["local_cortex"] = (
             "AVAILABLE" if cortex_available else "DEGRADED"
         )
-        state = dict(STATE)
     body = {
         "organism_id": ORGANISM_ID,
         "boot_id": BOOT_ID,
@@ -266,31 +276,121 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
-    def _lan_authorized(self) -> bool:
+    def _loopback_listener(self) -> bool:
+        host = self.server.server_address[0]
+        return host in {"127.0.0.1", "::1"}
+
+    def _public_cached(self) -> dict:
+        path = Path(self.public_status_path)
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        return payload if isinstance(payload, dict) else {}
+
+    def _get_view(self) -> dict:
+        persist = not get_pure_enabled()
+        snapshot = organism_snapshot(
+            self.con,
+            self.kernel,
+            self.public_status_path,
+            persist=persist,
+            mutate_runtime_state=persist,
+        )
+        if persist:
+            return snapshot
+        public = self._public_cached()
+        for key in (
+            "world_hosts",
+            "self_model",
+            "growth",
+            "season",
+            "school",
+            "development",
+            "inner",
+            "futures",
+            "topics",
+            "teacher",
+            "place",
+            "discovery",
+            "last_utterance",
+            "last_utterance_kind",
+            "soak",
+        ):
+            if snapshot.get(key) in (None, {}, []) and key in public:
+                snapshot[key] = public[key]
+        if not snapshot.get("topics"):
+            snapshot["topics"] = list_topics(self.con)
+            snapshot["topics_count"] = len(snapshot["topics"] or [])
+        return snapshot
+
+    def _authorize(self, path: str) -> str:
         if not lan_token_required():
-            return True
-        expected = lan_token_value()
+            return "ok"
+        if path == "/health" and self._loopback_listener():
+            return "ok"
+        peer = self.client_address[0]
+        if failure_cooled(peer):
+            return "cooldown"
+        try:
+            expected = load_lan_token()
+        except Exception:
+            record_failure(peer)
+            return "unauthorized"
         if not expected:
-            return False
-        offered = self.headers.get("X-Octopus-Token") or ""
-        return offered == expected
+            record_failure(peer)
+            return "unauthorized"
+        offered = self.headers.get(TOKEN_HEADER) or ""
+        if tokens_match(offered, expected):
+            record_success(peer)
+            return "ok"
+        record_failure(peer)
+        return "unauthorized"
+
+    def _reject_auth(self, kind: str) -> None:
+        if kind == "cooldown":
+            self._send_json(429, {"error": "auth_cooldown"})
+            return
+        self._send_json(401, {"error": "unauthorized"})
+
+    def _bounded_length(self, *, allow_empty: bool) -> int | None:
+        raw = self.headers.get("Content-Length", "0")
+        try:
+            content_length = int(raw)
+        except ValueError:
+            self._send_json(400, {"error": "invalid_content_length"})
+            return None
+        if content_length < 0 or content_length > MAX_REQUEST_BYTES:
+            self._send_json(413, {"error": "request_size_out_of_range"})
+            return None
+        if not allow_empty and content_length < 1:
+            self._send_json(413, {"error": "request_size_out_of_range"})
+            return None
+        return content_length
 
     def do_GET(self):
-        if not self._lan_authorized():
-            self._send_json(401, {"error": "lan_token_required"})
+        parsed = urllib.parse.urlsplit(self.path)
+        if self._bounded_length(allow_empty=True) is None:
+            return
+        decision = self._authorize(parsed.path)
+        if decision != "ok":
+            self._reject_auth(decision)
             return
         persist = not get_pure_enabled()
-        parsed = urllib.parse.urlsplit(self.path)
-        if parsed.path == "/api/v1/organism":
+        if parsed.path == "/health":
+            with STATE_LOCK:
+                health = STATE.get("health_state")
             self._send_json(
                 200,
-                organism_snapshot(
-                    self.con,
-                    self.kernel,
-                    self.public_status_path,
-                    persist=persist,
-                ),
+                {
+                    "ok": True,
+                    "health_state": health,
+                    "loopback": self._loopback_listener(),
+                },
             )
+            return
+        if parsed.path == "/api/v1/organism":
+            self._send_json(200, self._get_view())
             return
         if parsed.path == "/api/v1/episodes":
             query = urllib.parse.parse_qs(parsed.query)
@@ -315,21 +415,11 @@ class Handler(BaseHTTPRequestHandler):
             })
             return
         if parsed.path == "/api/v1/self":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
+            snapshot = self._get_view()
             self._send_json(200, snapshot.get("self_model") or snapshot)
             return
         if parsed.path == "/api/v1/world":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
+            snapshot = self._get_view()
             self._send_json(
                 200,
                 {
@@ -342,30 +432,13 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, latest_utterance(self.con) or {"text": None})
             return
         if parsed.path == "/api/v1/growth":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, snapshot.get("growth") or {})
+            self._send_json(200, self._get_view().get("growth") or {})
             return
         if parsed.path == "/api/v1/place":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, snapshot.get("place") or {})
+            self._send_json(200, self._get_view().get("place") or {})
             return
         if parsed.path == "/api/v1/tools":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
+            snapshot = self._get_view()
             self._send_json(
                 200,
                 {
@@ -375,22 +448,10 @@ class Handler(BaseHTTPRequestHandler):
             )
             return
         if parsed.path == "/api/v1/development":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, snapshot.get("development") or {})
+            self._send_json(200, self._get_view().get("development") or {})
             return
         if parsed.path == "/api/v1/lessons":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            development = snapshot.get("development") or {}
+            development = self._get_view().get("development") or {}
             self._send_json(
                 200,
                 {
@@ -401,67 +462,36 @@ class Handler(BaseHTTPRequestHandler):
             )
             return
         if parsed.path == "/api/v1/school":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, snapshot.get("school") or {})
+            self._send_json(200, self._get_view().get("school") or {})
             return
         if parsed.path == "/api/v1/inner":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, snapshot.get("inner") or {})
+            self._send_json(200, self._get_view().get("inner") or {})
             return
         if parsed.path == "/api/v1/futures":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
             self._send_json(
                 200,
                 {
                     "kind": "hypothesis",
-                    "paths": snapshot.get("futures") or [],
+                    "paths": self._get_view().get("futures") or [],
+                    "executable": False,
                 },
             )
             return
         if parsed.path == "/api/v1/season":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, snapshot.get("season") or {})
+            self._send_json(200, self._get_view().get("season") or {})
             return
         if parsed.path == "/api/v1/eval":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
+            self._send_json(
+                405,
+                {
+                    "error": "method_not_allowed",
+                    "use": "POST /api/v1/eval",
+                    "executable": False,
+                },
             )
-            report = run_transformation_eval(
-                lambda text: self.asker.ask(text, snapshot).get("answer"),
-                con=self.con,
-            )
-            self._send_json(200, report)
             return
         if parsed.path == "/api/v1/topics":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
+            snapshot = self._get_view()
             self._send_json(
                 200,
                 {
@@ -474,49 +504,58 @@ class Handler(BaseHTTPRequestHandler):
             )
             return
         if parsed.path == "/api/v1/teacher":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
+            snapshot = self._get_view()
             teacher = snapshot.get("teacher") or teacher_status()
-            public = {
-                "deepseek": teacher.get("deepseek"),
-                "flash": teacher.get("flash"),
-                "ready": teacher.get("ready"),
-                "learn_env": teacher.get("learn_env"),
-                "host": teacher.get("host"),
-                "external_api": snapshot.get("external_api"),
-            }
-            self._send_json(200, public)
+            self._send_json(
+                200,
+                {
+                    "deepseek": teacher.get("deepseek"),
+                    "flash": teacher.get("flash"),
+                    "ready": teacher.get("ready"),
+                    "learn_env": teacher.get("learn_env"),
+                    "host": teacher.get("host"),
+                    "external_api": snapshot.get("external_api"),
+                },
+            )
             return
         if parsed.path == "/api/v1/attestation":
-            snapshot = organism_snapshot(
-                self.con,
-                self.kernel,
-                self.public_status_path,
-                persist=persist,
-            )
-            self._send_json(200, write_attestation(snapshot))
+            if persist:
+                snapshot = self._get_view()
+                self._send_json(200, write_attestation(snapshot))
+                return
+            existing = read_attestation()
+            self._send_json(200, existing or {"present": False})
             return
         self._send_json(404, {"error": "not_found"})
 
     def do_POST(self):
-        if not self._lan_authorized():
-            self._send_json(401, {"error": "lan_token_required"})
-            return
         parsed = urllib.parse.urlsplit(self.path)
+        decision = self._authorize(parsed.path)
+        if decision != "ok":
+            self._reject_auth(decision)
+            return
+        if parsed.path == "/api/v1/eval":
+            if self._bounded_length(allow_empty=True) is None:
+                return
+            snapshot = organism_snapshot(
+                self.con,
+                self.kernel,
+                self.public_status_path,
+            )
+            report = run_transformation_eval(
+                lambda text: self.asker.ask(text, snapshot).get("answer"),
+                con=self.con,
+            )
+            report["executable"] = False
+            report["wave0"] = True
+            report["autonomy_state"] = "PROPOSE_ONLY"
+            self._send_json(200, report)
+            return
         if parsed.path != "/api/v1/ask":
             self._send_json(404, {"error": "not_found"})
             return
-        try:
-            content_length = int(self.headers.get("Content-Length", "0"))
-        except ValueError:
-            self._send_json(400, {"error": "invalid_content_length"})
-            return
-        if content_length < 1 or content_length > MAX_REQUEST_BYTES:
-            self._send_json(413, {"error": "request_size_out_of_range"})
+        content_length = self._bounded_length(allow_empty=False)
+        if content_length is None:
             return
         try:
             request = json.loads(self.rfile.read(content_length))
@@ -551,6 +590,7 @@ class Handler(BaseHTTPRequestHandler):
             self.kernel.replay_pending(limit=20)
         result["source_event_id"] = event["event_id"]
         result["event_receipt"] = receipt
+        result["executable"] = False
         self._send_json(200, result)
 
 

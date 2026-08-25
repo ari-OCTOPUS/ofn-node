@@ -1,0 +1,31 @@
+{
+  "gate": "GATE-LIVE-SKIN-REPLACEMENT",
+  "execute": true,
+  "decision": "CONDITIONAL_APPROVAL",
+  "scope": "octopus-organism-lab on 8090 only",
+  "excluded": [
+    "llama.cpp",
+    "Cellframe",
+    "OFN-L4",
+    "gateway",
+    "network",
+    "firewall",
+    "NATS",
+    "SSH",
+    "vLLM"
+  ],
+  "old_pid": 12748,
+  "new_pid": 34330,
+  "migration_version": "phase3-skin-1",
+  "source_hash": "013ec54db389cac417c4c1d9cc8f04daadd85122",
+  "five_heartbeat_watch": "completed",
+  "completed_at": "2026-08-25T11:49:10Z",
+  "LIVE_SKIN_REPLACED": true,
+  "MEMORY_GATE_LIVE": true,
+  "TEMPORARY_GET_COMPATIBILITY": true,
+  "TEMPORARY_LAN_UNAUTHENTICATED": true,
+  "TEMPORARY_LEARN_DISABLED": true,
+  "SECURITY_DEBT_OPEN": true,
+  "READY_FOR_FRESH_SOAK_GATE": true,
+  "production_complete": false
+}

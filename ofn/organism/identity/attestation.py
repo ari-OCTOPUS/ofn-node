@@ -12,6 +12,18 @@ from ofn.organism.cognition.voice import utc_now
 ATTESTATION_PATH = Path("/opt/octopus/lab/state/ATTESTATION.json")
 
 
+def read_attestation(path: Path = ATTESTATION_PATH) -> dict[str, Any] | None:
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return payload
+
+
 def write_attestation(snapshot: dict[str, Any], path: Path = ATTESTATION_PATH) -> dict[str, Any]:
     body = {
         "organism_id": snapshot.get("organism_id"),

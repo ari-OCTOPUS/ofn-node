@@ -1,0 +1,16 @@
+{
+  "variable": "OCTOPUS_ALLOW_LIVE_SCHEMA",
+  "source": "ofn/organism/persistence/db.py",
+  "commit": "013ec54db389cac417c4c1d9cc8f04daadd85122",
+  "only_allows_migration": true,
+  "only_when_value_is_1": true,
+  "behavior": {
+    "tempfile_or_non_live": "Always applies full SCHEMA via executescript. Env is ignored.",
+    "live_without_env_incomplete": "RO probe; raises live_schema_incomplete. Does not RW-open.",
+    "live_without_env_complete": "RW open, pragmas only, no SCHEMA executescript, no additive DDL.",
+    "live_with_env_1": "RW open then transactional additive DDL for memory_read_receipts, decision_evidence, wan_fetches plus schema_migration_version=phase3-skin-1. CREATE IF NOT EXISTS only. No DROP/rename."
+  },
+  "must_remove_after_migration": true,
+  "leaving_env_set_grants_future_schema_power": true,
+  "note": "IF NOT EXISTS makes repeat applies idempotent, but the env still authorizes live DDL on every connect. Do not persist in systemd. Validate startup with the variable unset."
+}

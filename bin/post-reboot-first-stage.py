@@ -16,6 +16,7 @@ from typing import Any
 
 from ofn.organism.identity.ledger import append_identity_event
 from ofn.organism.persistence.db import DB_LOCK, connect
+from ofn.organism.runtime.organism_http import organism_request
 
 
 LAB = Path("/opt/octopus/lab")
@@ -83,19 +84,23 @@ def load_json(path: Path) -> Any:
 
 
 def http_json(url: str, timeout: float = 5) -> tuple[int, Any]:
-    with OPENER.open(url, timeout=timeout) as response:
-        return response.status, json.loads(response.read())
+    result = organism_request(url, timeout=timeout, include_token=True, retries=1)
+    if result.status != 200 or result.body is None:
+        raise RuntimeError(f"organism_http_{result.kind}_{result.status}")
+    return result.status, result.body
 
 
 def wait_for(url: str, seconds: int) -> tuple[int | None, Any]:
     deadline = time.monotonic() + seconds
     last_error = None
     while time.monotonic() < deadline:
-        try:
-            return http_json(url)
-        except Exception as exc:
-            last_error = f"{type(exc).__name__}: {exc}"
-            time.sleep(1)
+        result = organism_request(url, timeout=5, include_token=True, retries=1)
+        if result.status == 401:
+            return 401, {"error": "unauthorized", "retry": False}
+        if result.status == 200:
+            return result.status, result.body
+        last_error = result.kind
+        time.sleep(1)
     return None, {"error": last_error}
 
 

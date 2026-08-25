@@ -115,14 +115,26 @@ class MemoryGateTests(unittest.TestCase):
         with self.assertRaises(MemoryUnavailable):
             require_memory_gate(Boom(), "test.boom", decision_time=1.0)
 
-    def test_connect_blocks_live_path_without_owner_env(self):
+    def test_connect_blocks_incomplete_live_path_without_owner_env(self):
+        from ofn.organism.persistence import db as dbmod
+
         env = {k: v for k, v in os.environ.items() if k != "OCTOPUS_ALLOW_LIVE_SCHEMA"}
-        with patch.dict(os.environ, env, clear=True):
+        incomplete = Path(self.temp_dir.name) / "incomplete-live.db"
+        raw = sqlite3.connect(incomplete)
+        try:
+            raw.execute("CREATE TABLE meta(k TEXT PRIMARY KEY, v TEXT NOT NULL)")
+            raw.commit()
+        finally:
+            raw.close()
+        with patch.object(dbmod, "LIVE_ORGANISM_DB", incomplete), patch.dict(
+            os.environ, env, clear=True
+        ):
             with self.assertRaises(RuntimeError) as ctx:
-                connect(LIVE_ORGANISM_DB)
+                dbmod.connect(incomplete)
         self.assertIn("live_schema_incomplete", str(ctx.exception))
         live = sqlite3.connect(f"file:{LIVE_ORGANISM_DB}?mode=ro", uri=True)
         try:
+            live.execute("PRAGMA query_only=ON")
             names = {
                 row[0]
                 for row in live.execute(
@@ -131,8 +143,8 @@ class MemoryGateTests(unittest.TestCase):
             }
         finally:
             live.close()
-        self.assertNotIn("memory_read_receipts", names)
-        self.assertNotIn("wan_fetches", names)
+        self.assertIn("memory_read_receipts", names)
+        self.assertIn("wan_fetches", names)
 
     def test_live_connect_without_env_after_additive_tables(self):
         from ofn.organism.persistence import db as dbmod
