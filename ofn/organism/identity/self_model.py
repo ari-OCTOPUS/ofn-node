@@ -7,6 +7,7 @@ from typing import Any
 
 from ofn.organism.cognition.policy import learn_external_enabled
 from ofn.organism.cognition.voice import utc_now
+from ofn.organism.memory.gate import require_memory_gate
 from ofn.organism.persistence.db import DB_LOCK
 from ofn.organism.runtime.telegram_letter import telegram_ready
 
@@ -104,6 +105,7 @@ def latest_self_model(con) -> dict[str, Any] | None:
 
 
 def persist_self_model(con, model: dict[str, Any], source_event_id: str | None) -> str:
+    require_memory_gate(con, "create")
     digest = model_hash(model)
     with DB_LOCK:
         con.execute(
@@ -114,6 +116,11 @@ def persist_self_model(con, model: dict[str, Any], source_event_id: str | None) 
             (time.time(), source_event_id, json.dumps(model, sort_keys=True), digest),
         )
     return digest
+
+
+def introspect_self(con) -> dict[str, Any] | None:
+    require_memory_gate(con, "introspect")
+    return latest_self_model(con)
 
 
 def material_self_delta(previous: dict[str, Any] | None, current: dict[str, Any]) -> list[str]:

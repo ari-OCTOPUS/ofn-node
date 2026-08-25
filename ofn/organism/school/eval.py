@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from ofn.organism.growth.exam import grade_answer
+from ofn.organism.memory.gate import require_memory_gate
 
 
 # Transformation tests: did we change the being, or only the labels?
@@ -59,7 +60,12 @@ EVAL_CASES: tuple[dict[str, Any], ...] = (
 )
 
 
-def run_transformation_eval(ask: Callable[[str], str | None]) -> dict[str, Any]:
+def run_transformation_eval(
+    ask: Callable[[str], str | None],
+    con=None,
+) -> dict[str, Any]:
+    if con is not None:
+        require_memory_gate(con, "conclude")
     results = []
     for case in EVAL_CASES:
         answer = ask(case["prompt"])

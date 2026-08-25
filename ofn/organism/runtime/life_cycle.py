@@ -27,13 +27,13 @@ from ofn.organism.growth.parent import (
 )
 from ofn.organism.identity.self_model import (
     build_self_model,
-    latest_self_model,
+    introspect_self,
     material_self_delta,
     persist_self_model,
 )
 from ofn.organism.identity.attestation import write_attestation
 from ofn.organism.memory.episodic import recall
-from ofn.organism.memory.gate import require_memory_gate
+from ofn.organism.memory.gate import MemoryUnavailable, require_memory_gate, unavailable_payload
 from ofn.organism.persistence.db import DB_LOCK
 from ofn.organism.runtime.telegram_letter import append_local_letter
 from ofn.organism.school.curriculum import evaluate_school
@@ -138,6 +138,10 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def persist_utterance(con, kind: str, text: str, source_event_id: str | None, grounded: dict[str, Any]) -> dict[str, Any]:
+    try:
+        require_memory_gate(con, "utterance")
+    except MemoryUnavailable as exc:
+        return unavailable_payload(str(exc))
     utterance_id = hashlib.sha256(f"{time.time_ns()}:{kind}".encode()).hexdigest()[:32]
     record = {
         "utterance_id": utterance_id,
@@ -260,7 +264,7 @@ def tick(
         "school": enriched["school"],
     }
     enriched["self_model"] = build_self_model(enriched, measured, extras)
-    previous_self = latest_self_model(con)
+    previous_self = introspect_self(con)
     self_changes = material_self_delta(previous_self, enriched["self_model"])
     growth = maybe_adapt_heartbeat(con, enriched.get("health_state") or "", measured)
     if parent.get("rhythm") and growth is None:

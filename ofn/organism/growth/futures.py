@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from ofn.organism.memory.gate import require_memory_gate
 from ofn.organism.persistence.db import DB_LOCK
 
 
@@ -65,6 +66,7 @@ FUTURE_PATHS: tuple[dict[str, str], ...] = (
 
 
 def seed_futures(con) -> int:
+    require_memory_gate(con, "proposal")
     now = time.time()
     inserted = 0
     with DB_LOCK:

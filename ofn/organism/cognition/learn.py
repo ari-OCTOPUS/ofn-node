@@ -6,6 +6,7 @@ from typing import Any
 
 from ofn.organism.cognition.policy import topic_allowed
 from ofn.organism.cognition.teacher import complete_deep, complete_flash
+from ofn.organism.memory.gate import MemoryUnavailable, require_memory_gate, unavailable_payload
 from ofn.organism.persistence.db import DB_LOCK
 
 
@@ -166,6 +167,10 @@ def maybe_self_learn(
 
     if not learn_external_enabled():
         return None
+    try:
+        require_memory_gate(con, "learning")
+    except MemoryUnavailable as exc:
+        return unavailable_payload(str(exc))
     now = time.time()
     try:
         last = float(meta_value(con, "last_learn_at", "0") or 0)

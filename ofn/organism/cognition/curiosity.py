@@ -3,9 +3,14 @@ from __future__ import annotations
 from typing import Any
 
 from ofn.organism.cognition.learn import already_learned
+from ofn.organism.memory.gate import MemoryUnavailable, require_memory_gate
 
 
 def propose_curiosity(snapshot: dict[str, Any], con) -> str | None:
+    try:
+        require_memory_gate(con, "curiosity")
+    except MemoryUnavailable:
+        return None
     senses = (snapshot.get("discovery") or {}).get("senses") or {}
     place = snapshot.get("place") or {}
     hosts = snapshot.get("world_hosts") or []

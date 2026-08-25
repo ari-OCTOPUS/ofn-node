@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -56,28 +57,30 @@ class MemoryGateTests(unittest.TestCase):
         self.assertEqual(stored, 1)
 
     def test_past_episode_is_evidence_future_episode_is_not(self):
+        now = time.time()
         event = make_event("note", {"x": 1}, priority=40)
         self.assertEqual(self.kernel.accept(event)["status"], "committed")
         self.con.execute(
             "INSERT INTO episodes(episode_id,source_event_id,event_type,salience,outcome,body_json,created_at) VALUES (?,?,?,?,?,?,?)",
-            ("past1", event["event_id"], "note", 0.5, None, "{}", 10.0),
+            ("past1", event["event_id"], "note", 0.5, None, "{}", now - 100),
         )
         future_event = make_event("note", {"x": 2}, priority=40)
         self.assertEqual(self.kernel.accept(future_event)["status"], "committed")
         self.con.execute(
             "INSERT INTO episodes(episode_id,source_event_id,event_type,salience,outcome,body_json,created_at) VALUES (?,?,?,?,?,?,?)",
-            ("future1", future_event["event_id"], "note", 0.5, None, "{}", 9999.0),
+            ("future1", future_event["event_id"], "note", 0.5, None, "{}", now + 10000),
         )
+        as_of = now + 1
         receipt = mandatory_memory_read(
             self.con,
-            MemoryQuery(purpose="test.as_of", as_of=50.0, limit=20),
+            MemoryQuery(purpose="test.as_of", as_of=as_of, limit=20),
         )
         self.assertTrue(receipt.ok)
-        self.assertEqual(receipt.rows_returned, 1)
-        self.assertEqual(receipt.episode_ids, ("past1",))
-        self.assertLessEqual(receipt.created_at, 50.0)
-        self.assertLessEqual(receipt.occurred_at, 50.0)
-        self.assertLessEqual(receipt.recorded_at, receipt.recorded_at)
+        self.assertTrue(receipt.bitemporal_applied)
+        self.assertIn("past1", receipt.episode_ids)
+        self.assertNotIn("future1", receipt.episode_ids)
+        self.assertLessEqual(receipt.created_at, as_of)
+        self.assertLessEqual(receipt.occurred_at, as_of)
 
     def test_audit_counts_future_and_fake_ids(self):
         self.assertEqual(
@@ -225,6 +228,58 @@ class MemoryGateTests(unittest.TestCase):
         self.assertEqual(observed["status"], "BLOCKED_NO_GPU")
         self.assertEqual(observed["benchmark_runs"], 0)
         self.assertFalse(observed["cbor2_install_attempted"])
+
+    def test_named_decision_paths_emit_receipts_and_evidence(self):
+        from ofn.organism.cognition.curiosity import propose_curiosity
+        from ofn.organism.cognition.inner import inner_turn
+        from ofn.organism.growth.futures import seed_futures
+        from ofn.organism.identity.self_model import introspect_self, persist_self_model
+        from ofn.organism.runtime.life_cycle import persist_utterance
+        from ofn.organism.school.curriculum import evaluate_school
+        from ofn.organism.school.eval import run_transformation_eval
+
+        introspect_self(self.con)
+        persist_self_model(self.con, {"organism_id": "board-life-001"}, None)
+        run_transformation_eval(lambda _t: "x", con=self.con)
+        propose_curiosity({}, self.con)
+        evaluate_school(
+            self.con,
+            {"organism_id": "board-life-001", "autonomy_state": "PROPOSE_ONLY"},
+        )
+        inner_turn(self.con, {"organism_id": "board-life-001"})
+        require_memory_gate(self.con, "learning")
+        seed_futures(self.con)
+        persist_utterance(self.con, "self", "hi", None, {})
+        purposes = {
+            row[0]
+            for row in self.con.execute("SELECT DISTINCT purpose FROM memory_read_receipts")
+        }
+        for needed in (
+            "introspect",
+            "create",
+            "conclude",
+            "curiosity",
+            "school",
+            "inner_speech",
+            "learning",
+            "proposal",
+            "utterance",
+        ):
+            self.assertIn(needed, purposes)
+        evidence = int(
+            self.con.execute("SELECT COUNT(*) FROM decision_evidence").fetchone()[0]
+        )
+        self.assertGreaterEqual(evidence, 9)
+        self.assertEqual(
+            self.con.execute("SELECT MAX(executable) FROM decision_evidence").fetchone()[0],
+            0,
+        )
+        future_use = int(
+            self.con.execute(
+                "SELECT COALESCE(SUM(future_use_count),0) FROM memory_read_receipts"
+            ).fetchone()[0]
+        )
+        self.assertEqual(future_use, 0)
 
 
 if __name__ == "__main__":

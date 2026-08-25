@@ -7,6 +7,7 @@ from typing import Any
 from ofn.organism.cognition.learn import list_topics
 from ofn.organism.cognition.voice import compose_utterance
 from ofn.organism.growth.habits import set_meta
+from ofn.organism.memory.gate import MemoryUnavailable, require_memory_gate, unavailable_payload
 from ofn.organism.persistence.db import DB_LOCK
 from ofn.organism.runtime.public_status import meta_value
 
@@ -74,6 +75,15 @@ def _answer_for(kind: str, snapshot: dict[str, Any]) -> str:
 
 
 def inner_turn(con, snapshot: dict[str, Any]) -> dict[str, Any]:
+    try:
+        require_memory_gate(con, "inner_speech")
+    except MemoryUnavailable as exc:
+        return {
+            "kind": "memory_unavailable",
+            "prompt": "",
+            "answer": "",
+            **unavailable_payload(str(exc)),
+        }
     raw = meta_value(con, "inner_cursor", "0") or "0"
     try:
         cursor = int(raw)

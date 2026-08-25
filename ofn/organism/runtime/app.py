@@ -450,7 +450,8 @@ class Handler(BaseHTTPRequestHandler):
                 persist=persist,
             )
             report = run_transformation_eval(
-                lambda text: self.asker.ask(text, snapshot).get("answer")
+                lambda text: self.asker.ask(text, snapshot).get("answer"),
+                con=self.con,
             )
             self._send_json(200, report)
             return

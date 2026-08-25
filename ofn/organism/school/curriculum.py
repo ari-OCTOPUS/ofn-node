@@ -6,7 +6,7 @@ from typing import Any
 from ofn.organism.cognition.inner import inner_count
 from ofn.organism.cognition.learn import topic_count
 from ofn.organism.growth.futures import list_futures
-from ofn.organism.memory.gate import MemoryQuery, mandatory_memory_read
+from ofn.organism.memory.gate import MemoryQuery, mandatory_memory_read, require_memory_gate
 from ofn.organism.persistence.db import DB_LOCK
 from ofn.organism.world.season import OWNER_SEASON
 
@@ -171,6 +171,7 @@ def evaluate_electives(con, snapshot: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def evaluate_school(con, snapshot: dict[str, Any]) -> dict[str, Any]:
+    require_memory_gate(con, "school")
     courses = evaluate_courses(con, snapshot)
     persist_courses(con, courses)
     passed = sum(1 for item in courses if item["passed"])

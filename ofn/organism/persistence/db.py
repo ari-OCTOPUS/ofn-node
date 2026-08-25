@@ -167,6 +167,17 @@ CREATE TABLE IF NOT EXISTS memory_read_receipts (
   query_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS memory_read_receipts_purpose ON memory_read_receipts(purpose);
+CREATE TABLE IF NOT EXISTS decision_evidence (
+  evidence_id TEXT PRIMARY KEY,
+  purpose TEXT NOT NULL,
+  decision_time REAL NOT NULL,
+  receipt_id TEXT NOT NULL,
+  event_ids_json TEXT NOT NULL,
+  episode_ids_json TEXT NOT NULL,
+  created_at REAL NOT NULL,
+  executable INTEGER NOT NULL CHECK (executable = 0)
+);
+CREATE INDEX IF NOT EXISTS decision_evidence_purpose ON decision_evidence(purpose);
 CREATE TABLE IF NOT EXISTS wan_fetches (
   fetch_id TEXT PRIMARY KEY,
   created_at REAL NOT NULL,

@@ -49,10 +49,13 @@ class MemoryReadReceipt:
     error: str | None
     query: dict[str, Any]
     episode_ids: tuple[str, ...] = ()
+    event_ids: tuple[str, ...] = ()
+    bitemporal_applied: bool = True
 
     def as_dict(self) -> dict[str, Any]:
         payload = asdict(self)
         payload["episode_ids"] = list(self.episode_ids)
+        payload["event_ids"] = list(self.event_ids)
         return payload
 
 
@@ -83,6 +86,8 @@ class DecisionEvidenceBundle:
             "purpose": self.purpose,
             "memory_reads_per_cycle": self.memory_reads_per_cycle,
             "memory_future_use_total": self.memory_future_use_total,
+            "decision_without_memory_receipt_total": 0 if self.ok() else 1,
+            "executable_total": 0,
             "ok": self.ok(),
             "receipts": [item.as_dict() for item in self.receipts],
         }
@@ -151,8 +156,46 @@ def _persist_ok_receipt(con, receipt: MemoryReadReceipt) -> None:
         )
 
 
+def unavailable_payload(error: str) -> dict[str, Any]:
+    return {
+        "memory_status": "UNAVAILABLE",
+        "confidence": "reduced",
+        "external_action": "blocked",
+        "executable": False,
+        "error": error,
+    }
+
+
+def persist_evidence_bundle(con, bundle: DecisionEvidenceBundle) -> None:
+    if not bundle.ok():
+        return
+    now = time.time()
+    with DB_LOCK:
+        for receipt in bundle.receipts:
+            evidence_id = hashlib.sha256(
+                f"{bundle.purpose}:{receipt.receipt_id}:{now}".encode()
+            ).hexdigest()[:32]
+            con.execute(
+                """
+                INSERT OR IGNORE INTO decision_evidence(
+                    evidence_id, purpose, decision_time, receipt_id,
+                    event_ids_json, episode_ids_json, created_at, executable
+                ) VALUES (?,?,?,?,?,?,?,0)
+                """,
+                (
+                    evidence_id,
+                    bundle.purpose,
+                    bundle.decision_time,
+                    receipt.receipt_id,
+                    json.dumps(list(receipt.event_ids)),
+                    json.dumps(list(receipt.episode_ids)),
+                    now,
+                ),
+            )
+
+
 def mandatory_memory_read(con, query: MemoryQuery) -> MemoryReadReceipt:
-    """Successful empty SELECT counts. Futures table is never queried."""
+    """Bitemporal SELECT on episodes+events. Empty result counts. Futures never queried."""
     decision_time = float(query.as_of)
     recorded_at = time.time()
     receipt_id = _receipt_id(query.purpose, decision_time)
@@ -161,33 +204,68 @@ def mandatory_memory_read(con, query: MemoryQuery) -> MemoryReadReceipt:
         "as_of": decision_time,
         "event_type": query.event_type,
         "limit": query.limit,
-        "table": "episodes",
+        "tables": ["episodes", "events"],
+        "bitemporal": "created_at<=as_of AND event.created_at<=as_of",
         "forbidden_tables": sorted(FORBIDDEN_EVIDENCE_TABLES),
     }
     limit = max(0, int(query.limit))
     try:
-        sql = """
-            SELECT episode_id, created_at, event_type
-            FROM episodes
+        episode_sql = """
+            SELECT ep.episode_id, ep.created_at, ep.event_type,
+                   ev.created_at, ev.event_id
+            FROM episodes AS ep
+            LEFT JOIN events AS ev ON ev.event_id = ep.source_event_id
+            WHERE ep.created_at <= ?
+              AND (ev.event_id IS NULL OR ev.created_at <= ?)
+        """
+        episode_params: list[Any] = [decision_time, decision_time]
+        if query.event_type:
+            episode_sql += " AND ep.event_type = ?"
+            episode_params.append(query.event_type)
+        episode_sql += " ORDER BY ep.created_at DESC LIMIT ?"
+        episode_params.append(limit)
+        event_sql = """
+            SELECT event_id, created_at, event_type
+            FROM events
             WHERE created_at <= ?
         """
-        params: list[Any] = [decision_time]
+        event_params: list[Any] = [decision_time]
         if query.event_type:
-            sql += " AND event_type = ?"
-            params.append(query.event_type)
-        sql += " ORDER BY created_at DESC LIMIT ?"
-        params.append(limit)
+            event_sql += " AND event_type = ?"
+            event_params.append(query.event_type)
+        event_sql += " ORDER BY created_at DESC LIMIT ?"
+        event_params.append(limit)
         with DB_LOCK:
-            rows = list(con.execute(sql, params).fetchall())
-        future_use = audit_future_use(rows, decision_time)
-        created_values = [float(row[1]) for row in rows]
-        occurred_at = max(created_values) if created_values else None
-        created_at = min(created_values) if created_values else None
+            episode_rows = list(con.execute(episode_sql, episode_params).fetchall())
+            event_rows = list(con.execute(event_sql, event_params).fetchall())
+        episode_audit = [(row[0], row[1], row[2]) for row in episode_rows]
+        future_use = audit_future_use(episode_audit, decision_time)
+        for _event_id, created_at, _event_type in event_rows:
+            try:
+                if float(created_at) > decision_time:
+                    future_use += 1
+            except (TypeError, ValueError):
+                future_use += 1
+        for row in episode_rows:
+            event_created = row[3]
+            if event_created is not None:
+                try:
+                    if float(event_created) > decision_time:
+                        future_use += 1
+                except (TypeError, ValueError):
+                    future_use += 1
+        stamps = [float(row[1]) for row in episode_rows] + [
+            float(row[1]) for row in event_rows
+        ]
+        occurred_at = max(stamps) if stamps else None
+        created_at = min(stamps) if stamps else None
         if occurred_at is not None and occurred_at > decision_time:
             future_use += 1
         if created_at is not None and created_at > decision_time:
             future_use += 1
         ok = future_use == 0
+        episode_ids = tuple(str(row[0]) for row in episode_rows)
+        event_ids = tuple(str(row[0]) for row in event_rows)
         receipt = MemoryReadReceipt(
             receipt_id=receipt_id,
             purpose=query.purpose,
@@ -195,12 +273,14 @@ def mandatory_memory_read(con, query: MemoryQuery) -> MemoryReadReceipt:
             recorded_at=recorded_at,
             occurred_at=occurred_at,
             created_at=created_at,
-            rows_returned=len(rows),
+            rows_returned=len(episode_rows) + len(event_rows),
             future_use_count=future_use,
             ok=ok,
             error=None if ok else "FUTURE_EPISODIC_EVIDENCE",
             query=query_dict,
-            episode_ids=tuple(str(row[0]) for row in rows),
+            episode_ids=episode_ids,
+            event_ids=event_ids,
+            bitemporal_applied=True,
         )
         if ok:
             _persist_ok_receipt(con, receipt)
@@ -221,6 +301,8 @@ def mandatory_memory_read(con, query: MemoryQuery) -> MemoryReadReceipt:
             error=f"MEMORY_UNAVAILABLE:{type(exc).__name__}:{exc}",
             query=query_dict,
             episode_ids=(),
+            event_ids=(),
+            bitemporal_applied=False,
         )
 
 
@@ -242,4 +324,5 @@ def require_memory_gate(con, purpose: str, decision_time: float | None = None) -
             f"memory_reads={bundle.memory_reads_per_cycle} "
             f"future_use={bundle.memory_future_use_total}"
         )
+    persist_evidence_bundle(con, bundle)
     return bundle
