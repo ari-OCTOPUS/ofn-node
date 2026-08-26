@@ -1,0 +1,50 @@
+{
+  "v1_sections": 25,
+  "mapping": {
+    "§1 هویت و نقش": "§2 هویت و مأموریت → mapped",
+    "§2 مأموریت اصلی": "§2 هویت و مأموریت → mapped",
+    "§3 واقعیت اولیه‌ای که باید راستی‌آزمایی کنی": "§15 کالبدشکافی اجباری → mapped",
+    "§4 مدل زیستی سامانه": "§3 معماری سه‌بردی → mapped",
+    "§5 سلسله‌مراتب حقیقت": "§8 سلسله‌مراتب حقیقت → mapped",
+    "§6 قانون اساسی غیرقابل مذاکره": "§4 قانون اساسی → mapped",
+    "§7 اولین مأموریت: کالبدشکافی کامل GitHub و ": "§15 کالبدشکافی اجباری → mapped",
+    "§8 نقشهٔ موجودی و گراف علت‌و‌معلول": "§13 سیستم عصبی و اثرها → mapped",
+    "§9 خودمدل و مدل جهان": "§11 حافظه، self-model و مدل جهان → mapped",
+    "§10 حلقهٔ معلم و شاگرد": "§9 موتور رشد و calibration → mapped",
+    "§11 موتور فرضیه و یادگیری": "§9 موتور رشد و calibration → mapped",
+    "§12 حافظه و وراثت": "§11 حافظه → mapped",
+    "§13 خودترمیمی و تنزل امن": "§12 self-healing و منابع → mapped",
+    "§14 مدیریت منابع برد": "§12 منابع → mapped",
+    "§15 پایداری اقتصادی بدون فساد هدف": "§14 پاهای اقتصادی → mapped",
+    "§16 راه‌حل درون سامانه است؛ اما حلقهٔ بسته ن": "(اصل درون‌سامانه‌ای) → preserved-by-reference",
+    "§17 تصمیم‌گیری مستقل در محدوده": "§4/§5 خودمختاری 99٪ → mapped",
+    "§18 برنامهٔ ارتقای معماری": "§20 فازهای ارتقا → mapped",
+    "§19 استاندارد کدنویسی و تست": "§16 استاندارد مهندسی و تست → mapped",
+    "§20 سنجه‌های هوشمندترشدن": "§17 سنجه‌های رشد → mapped",
+    "§21 پروتکل روزانهٔ خودمختار": "§18 پروتکل روزانه و incident → mapped",
+    "§22 پروتکل incident": "§18 پروتکل incident → mapped",
+    "§23 خروجی اولین اجرای تو": "§22 FIRST VERDICT → mapped",
+    "§24 معیار موفقیت نهایی": "§1 تقدم و تفسیر (معیار موفقیت) → mapped",
+    "§25 دستور آغاز": "§21 rollout اجرایی V2 → mapped"
+  },
+  "v1_bans_absent_in_v2": [
+    "self-replication",
+    "خرج برای «بقای خودت»"
+  ],
+  "verdict_bans": "review",
+  "gaps_and_contradictions": [
+    {
+      "id": "GAP-1",
+      "v1_rule": "فعال‌کردن self-replication ممنوع (§17 verdict-required)",
+      "v2_status": "no literal or semantic equivalent found",
+      "resolution": "preserved-by-reference: V1 canonical; in conflict the safer rule prevails (V1 §1)"
+    },
+    {
+      "id": "GAP-2",
+      "v1_rule": "خرج برای «بقای خودت» ممنوع (§6.2)",
+      "v2_status": "spending/budget language present but survival-spending ban not explicit",
+      "resolution": "preserved-by-reference: V1 canonical"
+    }
+  ],
+  "final_verdict": "all 25 sections mapped or preserved; no V1 prohibition explicitly weakened in V2; 2 gaps preserved-by-reference"
+}
