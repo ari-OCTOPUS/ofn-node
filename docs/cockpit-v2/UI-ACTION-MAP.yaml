@@ -1,0 +1,6 @@
+# UI-ACTION-MAP (M0) — panel.html
+- identity: Telegram Web App session (no local creds)
+- data: one central fetch() -> /api/v1/*
+- storage: none (no localStorage/sessionStorage)
+- destructive/approval: /owner/kill, /owner/kill/release, /owner/approved-manual, /owner/ask (per-view mapping in M1)
+- polling: per-view interval (verify live in M1)
