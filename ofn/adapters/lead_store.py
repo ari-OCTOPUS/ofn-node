@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from datetime import datetime, timezone
 from typing import Mapping
 
 from .sqlite_base import Pool, add_column_if_absent, apply_schema
@@ -10,6 +11,90 @@ from ..kernel.painting_math import b2b_account_score, lead_priority, source_qual
 
 MAX_TEXT = 1200
 MAX_PAGE = 100
+
+# Contact permission is evidence, not a property inferred from a phone number or
+# a public email address.  Values are deliberately explicit and normalized at
+# the store boundary so callers cannot mint a new legal basis or channel by
+# spelling it differently.
+CONTACT_LEGAL_BASES = frozenset({
+    "explicit_consent",
+    "inbound_request",
+    "existing_customer",
+    "existing_business_relationship",
+    "contract",
+    "legitimate_interest",
+    "legal_obligation",
+})
+_POLICY_LEGAL_BASES = CONTACT_LEGAL_BASES | {"suppression"}
+_LEGAL_BASIS_ALIASES = {
+    "consent": "explicit_consent",
+    "express_consent": "explicit_consent",
+    "explicit_consent": "explicit_consent",
+    "customer_request": "inbound_request",
+    "customer_enquiry": "inbound_request",
+    "inquiry": "inbound_request",
+    "quote_request": "inbound_request",
+    "requested_contact": "inbound_request",
+    "inbound_request": "inbound_request",
+    "existing_customer": "existing_customer",
+    "existing_business_relationship": "existing_business_relationship",
+    "contract": "contract",
+    "legitimate_interest": "legitimate_interest",
+    "legal_obligation": "legal_obligation",
+    "suppression": "suppression",
+}
+CONTACT_CHANNELS = frozenset({
+    "phone", "sms", "email", "whatsapp", "telegram",
+    "instagram", "facebook", "messenger",
+})
+_CHANNEL_ALIASES = {
+    "call": "phone", "voice": "phone", "telephone": "phone",
+    "text": "sms", "text_message": "sms",
+    "e-mail": "email", "mail": "email",
+    "instagram_dm": "instagram", "facebook_dm": "facebook",
+}
+LEAD_STATUSES = frozenset({
+    "new", "review", "contacted", "quoted", "won", "lost", "spam", "archived",
+})
+DELIVERY_DERIVED_STATUSES = frozenset({"contacted", "quoted", "won"})
+TERMINAL_LEAD_STATUSES = frozenset({"won", "lost", "spam", "archived"})
+# Generic edits may classify/close a lead, but delivery evidence owns the three
+# delivery-derived states.  Reopening a terminal row has its own owner method.
+_GENERIC_STATUS_TRANSITIONS = {
+    "new": frozenset({"new", "review", "lost", "spam", "archived"}),
+    "review": frozenset({"new", "review", "lost", "spam", "archived"}),
+    "contacted": frozenset({"contacted", "review", "lost", "spam", "archived"}),
+    "quoted": frozenset({"quoted", "lost", "archived"}),
+    "won": frozenset({"won"}),
+    "lost": frozenset({"lost"}),
+    "spam": frozenset({"spam"}),
+    "archived": frozenset({"archived"}),
+}
+
+_CONTACT_POLICY_TABLE_SQL = """
+    CREATE TABLE IF NOT EXISTS lead_contact_policy (
+        tenant_id TEXT NOT NULL,
+        lead_id TEXT NOT NULL,
+        contact_phone_hash TEXT NOT NULL DEFAULT '',
+        contact_email_hash TEXT NOT NULL DEFAULT '',
+        legal_basis TEXT NOT NULL
+          CHECK (legal_basis IN (
+            'explicit_consent','inbound_request','existing_customer',
+            'existing_business_relationship','contract','legitimate_interest',
+            'legal_obligation','suppression'
+          )),
+        channel_scope_json TEXT NOT NULL DEFAULT '[]',
+        proof_digest TEXT NOT NULL CHECK (length(trim(proof_digest)) > 0),
+        do_not_contact INTEGER NOT NULL DEFAULT 0
+          CHECK (do_not_contact IN (0,1)),
+        opted_out_at TEXT NOT NULL DEFAULT '',
+        revoked_at TEXT NOT NULL DEFAULT '',
+        reason TEXT NOT NULL DEFAULT '',
+        recorded_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, lead_id)
+    )
+"""
 
 # Lead fields `_lead_components` reads from. Changing any of these on an
 # existing lead means the stored score is stale, so `update_lead` recomputes.
@@ -52,9 +137,37 @@ def _add_booked_revenue_columns(conn) -> None:
         add_column_if_absent(conn, "painting_leads", col, ddl)
 
 
+def _add_contact_integrity_schema(conn) -> None:
+    """Add contact-policy evidence and the one-follow-up counters.
+
+    Both operations are safe on old files and on every subsequent boot.  The
+    policy table is intentionally separate from the lead's raw contact fields:
+    it contains only one-way hashes and evidence digests, never new PII.
+    """
+    for col, ddl in (
+        ("follow_up_count", "INTEGER NOT NULL DEFAULT 0"),
+        ("last_follow_up_at", "TEXT NOT NULL DEFAULT ''"),
+    ):
+        add_column_if_absent(conn, "painting_leads", col, ddl)
+    conn.execute(_CONTACT_POLICY_TABLE_SQL)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_lead_contact_policy_phone "
+        "ON lead_contact_policy (tenant_id, contact_phone_hash)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_lead_contact_policy_email "
+        "ON lead_contact_policy (tenant_id, contact_email_hash)"
+    )
+
+
 # Same contract as the other adapters' `MIGRATIONS`: idempotent callables that
 # each take a connection and bring an older file forward.
-MIGRATIONS = (_add_score_json, _add_ops_columns, _add_booked_revenue_columns)
+MIGRATIONS = (
+    _add_score_json,
+    _add_ops_columns,
+    _add_booked_revenue_columns,
+    _add_contact_integrity_schema,
+)
 
 SCHEMA = (
     """
@@ -88,11 +201,20 @@ SCHEMA = (
         last_contacted_at TEXT NOT NULL DEFAULT '',
         outcome_reason TEXT NOT NULL DEFAULT '',
         contact_phone_hash TEXT NOT NULL DEFAULT '',
-        contact_email_hash TEXT NOT NULL DEFAULT ''
+        contact_email_hash TEXT NOT NULL DEFAULT '',
+        follow_up_count INTEGER NOT NULL DEFAULT 0,
+        last_follow_up_at TEXT NOT NULL DEFAULT '',
+        booked_amount_cents INTEGER,
+        booked_currency TEXT NOT NULL DEFAULT 'AUD',
+        booked_at TEXT NOT NULL DEFAULT '',
+        payment_ref_digest TEXT NOT NULL DEFAULT ''
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_painting_leads_status ON painting_leads (tenant_id, status, created_at)",
     "CREATE INDEX IF NOT EXISTS idx_painting_leads_score ON painting_leads (tenant_id, score DESC, created_at DESC)",
+    _CONTACT_POLICY_TABLE_SQL,
+    "CREATE INDEX IF NOT EXISTS idx_lead_contact_policy_phone ON lead_contact_policy (tenant_id, contact_phone_hash)",
+    "CREATE INDEX IF NOT EXISTS idx_lead_contact_policy_email ON lead_contact_policy (tenant_id, contact_email_hash)",
     """
     CREATE TABLE IF NOT EXISTS painting_marketing_channels (
         channel_id TEXT PRIMARY KEY,
@@ -333,6 +455,51 @@ def _json_list(value: object, limit: int = 12) -> str:
     return json.dumps(items[:limit], ensure_ascii=False)
 
 
+def _normalize_channel(value: object) -> str:
+    channel = _clean(value, 40).casefold().replace("-", "_").replace(" ", "_")
+    return _CHANNEL_ALIASES.get(channel, channel)
+
+
+def _channel_scope(value: object) -> tuple[str, ...]:
+    """Return a de-duplicated, deterministic tuple of recognized channels."""
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.startswith("["):
+            try:
+                raw = json.loads(stripped)
+            except (TypeError, json.JSONDecodeError):
+                raw = [stripped]
+        else:
+            raw = stripped.split(",")
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        raw = value
+    else:
+        raw = []
+    channels = {_normalize_channel(item) for item in raw}
+    return tuple(sorted(c for c in channels if c in CONTACT_CHANNELS))
+
+
+def _legal_basis(value: object) -> str:
+    basis = _clean(value, 80).casefold().replace("-", "_").replace(" ", "_")
+    return _LEGAL_BASIS_ALIASES.get(basis, basis)
+
+
+def _policy_row(row) -> dict:
+    out = dict(row)
+    try:
+        channels = json.loads(out.pop("channel_scope_json") or "[]")
+    except (TypeError, json.JSONDecodeError):
+        channels = []
+    out["channel_scope"] = list(_channel_scope(channels))
+    out["channels"] = list(out["channel_scope"])
+    out["do_not_contact"] = bool(out.get("do_not_contact"))
+    return out
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def _row(row) -> dict:
     out = dict(row)
     for key in ("tags_json", "channel_ids_json"):
@@ -464,7 +631,10 @@ class LeadStore:
             "message": _clean(data.get("message") or data.get("text") or "", MAX_TEXT),
             "score": max(0, min(100, _int(data.get("score"), 0))),
             "temperature": _clean(data.get("temperature") or "new", 12),
-            "status": _clean(data.get("status") or "new", 20),
+            # Intake/upsert is not delivery evidence and cannot close a lead.
+            # Only the two non-terminal pre-delivery states are accepted here;
+            # contacted/quoted/won and every terminal state have dedicated paths.
+            "status": _clean(data.get("status") or "new", 20).casefold(),
             "next_action": _clean(data.get("next_action") or "بررسی و تماس", 220),
             "assigned_to": _clean(data.get("assigned_to") or "", 80),
             "tags_json": _json_list(data.get("tags")),
@@ -482,13 +652,18 @@ class LeadStore:
         }
         if row["temperature"] not in {"hot", "warm", "cold", "new"}:
             row["temperature"] = "new"
-        if row["status"] not in {"new", "review", "contacted", "quoted", "won", "lost", "spam", "archived"}:
+        if row["status"] not in {"new", "review"}:
             row["status"] = "new"
         if not row["score"]:
             row["score"], row["temperature"], row["score_json"] = self._score_payload(row)
         cols = tuple(row.keys())
         placeholders = ",".join("?" for _ in cols)
-        updates = ",".join(f"{c}=excluded.{c}" for c in cols if c not in {"lead_id", "created_at"})
+        # Intake retries may refresh the lead details, but must never reopen,
+        # rewind, close, or fabricate delivery on an existing lifecycle row.
+        updates = ",".join(
+            f"{c}=excluded.{c}" for c in cols
+            if c not in {"lead_id", "created_at", "status"}
+        )
         self._conn.execute("BEGIN IMMEDIATE")
         try:
             self._conn.execute(
@@ -615,7 +790,52 @@ class LeadStore:
             item["score_detail"] = _lead_detail(item)
         return out
 
-    def update_lead(self, tenant: str, lead_id: str, data: Mapping[str, object], *, now_iso: str) -> dict:
+    def update_lead(
+            self, tenant: str, lead_id: str, data: Mapping[str, object], *,
+            now_iso: str, authority: str = "partner",
+            actor: str | None = None) -> dict:
+        """Edit mutable lead fields without bypassing lifecycle integrity.
+
+        ``authority`` defaults to the least privilege so a direct store call is
+        safe. ``actor`` is accepted as a compatibility alias; only the exact
+        values ``owner``/``system`` confer their corresponding authority.  The
+        delivery-derived states are never writable here, including by owner.
+        Their dedicated APIs require the receipt/evidence associated with the
+        transition. Terminal rows are locked until ``owner_reopen_lead``.
+        """
+        effective_authority = _clean(authority or "partner", 20).casefold()
+        if actor is not None and effective_authority == "partner":
+            actor_authority = _clean(actor, 20).casefold()
+            if actor_authority in {"owner", "system"}:
+                effective_authority = actor_authority
+        if effective_authority not in {"partner", "owner", "system"}:
+            effective_authority = "partner"
+
+        existing = self.get(tenant, lead_id)
+        if not existing:
+            return {"ok": False, "error": "لید پیدا نشد", "rule": "lead:not-found"}
+
+        requested_status: str | None = None
+        if "status" in data:
+            requested_status = _clean(data.get("status"), 20).casefold()
+            current_status = str(existing.get("status") or "new")
+            if requested_status not in LEAD_STATUSES:
+                return {"ok": False, "error": "وضعیت لید نامعتبر است", "rule": "lead:invalid-status"}
+            if requested_status in DELIVERY_DERIVED_STATUSES and requested_status != current_status:
+                return {
+                    "ok": False,
+                    "error": "این وضعیت فقط با متد اختصاصی و مدرک delivery قابل ثبت است",
+                    "rule": "lead:delivery-status-requires-dedicated-method",
+                }
+            if current_status in TERMINAL_LEAD_STATUSES and requested_status != current_status:
+                return {
+                    "ok": False,
+                    "error": "لید نهایی قفل است؛ بازگشایی فقط با مالک و دلیل",
+                    "rule": "lead:terminal-locked",
+                }
+            if requested_status not in _GENERIC_STATUS_TRANSITIONS.get(current_status, frozenset()):
+                return {"ok": False, "error": "پرش وضعیت مجاز نیست", "rule": "lead:invalid-transition"}
+
         allowed = {"status", "temperature", "score", "next_action", "assigned_to", "notes", "tags", "customer_name", "phone", "email", "suburb", "distance_km", "job_type", "rooms", "budget_text", "message", "next_action_at", "outcome_reason"}
         fields = []
         args: list[object] = []
@@ -636,6 +856,8 @@ class LeadStore:
                 val = _num(data.get(key))
             elif key == "score":
                 val = max(0, min(100, _int(data.get(key), 0)))
+            elif key == "status":
+                val = requested_status
             else:
                 val = _clean(data.get(key), MAX_TEXT if key in {"notes", "message"} else 220)
             fields.append(f"{col} = ?")
@@ -649,7 +871,6 @@ class LeadStore:
         # overrides the model (kept for owner override), so only recompute when
         # the owner did not hand-set the score.
         if "score" not in data and any(k in data for k in SCORE_RELEVANT):
-            existing = self.get(tenant, lead_id) or {}
             merged = {**existing, **{k: data[k] for k in data if k in existing or k == "tags"}}
             new_score, new_temp, new_json = self._score_payload(merged)
             fields += ["score = ?", "temperature = ?", "score_json = ?"]
@@ -670,6 +891,56 @@ class LeadStore:
         if cur.rowcount != 1:
             return {"ok": False, "error": "لید پیدا نشد"}
         return {"ok": True, "lead": self.get(tenant, lead_id)}
+
+    def owner_update_lead(
+            self, tenant: str, lead_id: str, data: Mapping[str, object], *,
+            now_iso: str, actor: str = "owner") -> dict:
+        """Explicit compatibility entry point for ordinary owner edits."""
+        return self.update_lead(
+            tenant, lead_id, data, now_iso=now_iso,
+            authority="owner", actor=actor,
+        )
+
+    def owner_reopen_lead(
+            self, tenant: str, lead_id: str, *, reason: str,
+            now_iso: str, status: str = "review",
+            authority: str = "owner", actor: str | None = None) -> dict:
+        """Owner-only terminal unlock, requiring an auditable nonblank reason."""
+        effective = _clean(authority or "partner", 20).casefold()
+        if actor is not None and effective == "partner" and _clean(actor, 20).casefold() == "owner":
+            effective = "owner"
+        why = _clean(reason, 240)
+        target = _clean(status, 20).casefold()
+        if effective != "owner":
+            return {"ok": False, "error": "فقط مالک می‌تواند لید را باز کند", "rule": "lead:owner-required"}
+        if not why:
+            return {"ok": False, "error": "دلیل بازگشایی لازم است", "rule": "lead:reopen-reason-required"}
+        if target not in {"new", "review"}:
+            return {"ok": False, "error": "وضعیت بازگشایی نامعتبر است", "rule": "lead:invalid-reopen-target"}
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                "UPDATE painting_leads SET status = ?, outcome_reason = ?, updated_at = ? "
+                "WHERE tenant_id = ? AND lead_id = ? "
+                "AND status IN ('won','lost','spam','archived')",
+                (target, why, now_iso, tenant, lead_id),
+            )
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        if cur.rowcount != 1:
+            lead = self.get(tenant, lead_id)
+            return {
+                "ok": False,
+                "error": "لید پیدا نشد" if lead is None else "لید نهایی نیست",
+                "rule": "lead:not-found" if lead is None else "lead:not-terminal",
+            }
+        return {"ok": True, "lead": self.get(tenant, lead_id)}
+
+    # Compatibility aliases use both word orders in older integrations.
+    reopen_lead = owner_reopen_lead
+    owner_reopen = owner_reopen_lead
 
     def channels(self, tenant: str) -> list[dict]:
         rows = self._conn.execute(
@@ -817,28 +1088,320 @@ class LeadStore:
         ).fetchall()
         return [_row(r) for r in rows]
 
-    # ── follow-ups and duplicates (O5) ────────────────────────────────────
+    # ── follow-ups, contact policy, lifecycle and duplicates ───────────────
+    def set_contact_policy(
+            self, tenant: str, lead_id: str,
+            policy: Mapping[str, object] | None = None, *,
+            legal_basis: object = "", channel_scope: object = None,
+            proof_digest: object = "", do_not_contact: bool = False,
+            opted_out_at: object = "", revoked_at: object = "",
+            reason: object = "", now_iso: str = "",
+            recorded_at: str = "", updated_at: str = "") -> dict:
+        """Create or replace the contact evidence for one tenant-scoped lead.
+
+        The row copies only the lead's one-way contact hashes. Publicly visible
+        contact details never imply permission; a recognized basis, scoped
+        channel, and nonblank proof digest must all be supplied explicitly.
+        Once a DNC/opt-out/revocation has been recorded this method cannot clear
+        it; the suppression is permanent for this lead.
+        """
+        supplied = dict(policy or {})
+        if legal_basis == "":
+            legal_basis = supplied.get("legal_basis", "")
+        if channel_scope is None:
+            channel_scope = supplied.get("channel_scope", supplied.get("channels", []))
+        if proof_digest == "":
+            proof_digest = supplied.get("proof_digest", "")
+        if not do_not_contact:
+            do_not_contact = bool(supplied.get("do_not_contact", False))
+        if opted_out_at == "":
+            opted_out_at = supplied.get("opted_out_at", "")
+        if revoked_at == "":
+            revoked_at = supplied.get("revoked_at", "")
+        if reason == "":
+            reason = supplied.get("reason", "")
+        stamp = _clean(
+            now_iso or updated_at or supplied.get("updated_at")
+            or recorded_at or supplied.get("recorded_at") or _now_iso(),
+            80,
+        )
+        recorded = _clean(recorded_at or supplied.get("recorded_at") or stamp, 80)
+        basis = _legal_basis(legal_basis)
+        channels = _channel_scope(channel_scope)
+        proof = _clean(proof_digest, 160)
+        opted = _clean(opted_out_at, 80)
+        revoked = _clean(revoked_at, 80)
+        why = _clean(reason, 500)
+        requested_dnc = bool(do_not_contact or opted or revoked)
+
+        if basis not in _POLICY_LEGAL_BASES:
+            return {"ok": False, "error": "legal basis نامعتبر است", "rule": "contact:invalid-legal-basis"}
+        if not proof:
+            return {"ok": False, "error": "proof_digest خالی مجاز نیست", "rule": "contact:proof-missing"}
+        if not channels and not requested_dnc:
+            return {"ok": False, "error": "حداقل یک کانال معتبر لازم است", "rule": "contact:channel-scope-missing"}
+        lead = self.get(tenant, lead_id)
+        if not lead:
+            return {"ok": False, "error": "لید پیدا نشد", "rule": "contact:lead-missing"}
+
+        existing = self.get_contact_policy(tenant, lead_id)
+        if existing and (
+                existing.get("do_not_contact")
+                or existing.get("opted_out_at")
+                or existing.get("revoked_at")):
+            requested_dnc = True
+            opted = opted or str(existing.get("opted_out_at") or "")
+            revoked = revoked or str(existing.get("revoked_at") or "")
+            why = why or str(existing.get("reason") or "")
+            proof = str(existing.get("proof_digest") or proof)
+        if requested_dnc:
+            basis = "suppression"
+            channels = ()
+
+        row = {
+            "tenant_id": tenant,
+            "lead_id": lead_id,
+            "contact_phone_hash": lead.get("contact_phone_hash") or "",
+            "contact_email_hash": lead.get("contact_email_hash") or "",
+            "legal_basis": basis,
+            "channel_scope_json": json.dumps(channels, ensure_ascii=False),
+            "proof_digest": proof,
+            "do_not_contact": 1 if requested_dnc else 0,
+            "opted_out_at": opted,
+            "revoked_at": revoked,
+            "reason": why,
+            "recorded_at": recorded,
+            "updated_at": stamp,
+        }
+        cols = tuple(row)
+        updates = ",".join(
+            f"{c}=excluded.{c}" for c in cols
+            if c not in {"tenant_id", "lead_id", "recorded_at"}
+        )
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                f"INSERT INTO lead_contact_policy ({','.join(cols)}) "
+                f"VALUES ({','.join('?' for _ in cols)}) "
+                f"ON CONFLICT(tenant_id, lead_id) DO UPDATE SET {updates}",
+                tuple(row[c] for c in cols),
+            )
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return {"ok": True, "policy": self.get_contact_policy(tenant, lead_id)}
+
+    def get_contact_policy(self, tenant: str, lead_id: str) -> dict | None:
+        row = self._conn.execute(
+            "SELECT * FROM lead_contact_policy WHERE tenant_id = ? AND lead_id = ?",
+            (tenant, lead_id),
+        ).fetchone()
+        return _policy_row(row) if row else None
+
+    # Short aliases make the store pleasant to use without changing the stable
+    # explicit names requested by the central wiring.
+    set_policy = set_contact_policy
+    get_policy = get_contact_policy
+
+    def contact_allowed(self, tenant: str, lead_id: str, channel: object) -> dict:
+        """Fail-closed contact verdict with a stable ``allowed``/``rule`` shape."""
+        normalized = _normalize_channel(channel)
+        if normalized not in CONTACT_CHANNELS:
+            return {"allowed": False, "rule": "contact:channel-invalid", "channel": normalized}
+        lead = self.get(tenant, lead_id)
+        if not lead:
+            return {"allowed": False, "rule": "contact:lead-missing", "channel": normalized}
+        # A scoped channel must have a matching canonical contact on the lead.
+        if normalized in {"phone", "sms", "whatsapp"} and not lead.get("contact_phone_hash"):
+            return {"allowed": False, "rule": "contact:contact-missing", "channel": normalized}
+        if normalized == "email" and not lead.get("contact_email_hash"):
+            return {"allowed": False, "rule": "contact:contact-missing", "channel": normalized}
+        policy = self.get_contact_policy(tenant, lead_id)
+        if not policy:
+            return {"allowed": False, "rule": "contact:policy-missing", "channel": normalized}
+        if policy.get("revoked_at"):
+            return {"allowed": False, "rule": "contact:revoked", "channel": normalized}
+        if policy.get("do_not_contact") or policy.get("opted_out_at"):
+            return {"allowed": False, "rule": "contact:do-not-contact", "channel": normalized}
+        # Fingerprint binding is channel-specific: consent for email remains
+        # valid when only the phone changes, while an SMS/phone/WhatsApp policy
+        # is tied to the phone hash. Social channels have no raw contact field
+        # in this store, so both stored hashes are compared when present.
+        if normalized in {"phone", "sms", "whatsapp"}:
+            fingerprint_matches = (
+                policy.get("contact_phone_hash")
+                == (lead.get("contact_phone_hash") or "")
+            )
+        elif normalized == "email":
+            fingerprint_matches = (
+                policy.get("contact_email_hash")
+                == (lead.get("contact_email_hash") or "")
+            )
+        else:
+            stored_hashes = {
+                key: policy.get(key) or ""
+                for key in ("contact_phone_hash", "contact_email_hash")
+            }
+            fingerprint_matches = any(stored_hashes.values()) and all(
+                stored_hashes[key] == (lead.get(key) or "")
+                for key in stored_hashes
+            )
+        if not fingerprint_matches:
+            return {"allowed": False, "rule": "contact:fingerprint-changed", "channel": normalized}
+        if _legal_basis(policy.get("legal_basis")) not in CONTACT_LEGAL_BASES:
+            return {"allowed": False, "rule": "contact:legal-basis-missing", "channel": normalized}
+        if not _clean(policy.get("proof_digest"), 160):
+            return {"allowed": False, "rule": "contact:proof-missing", "channel": normalized}
+        if normalized not in set(_channel_scope(policy.get("channel_scope"))):
+            return {"allowed": False, "rule": "contact:channel-not-scoped", "channel": normalized}
+        return {
+            "allowed": True,
+            "rule": "contact:allowed",
+            "channel": normalized,
+            "legal_basis": policy["legal_basis"],
+        }
+
+    def record_opt_out(
+            self, tenant: str, lead_id: str, *, at_iso: str = "",
+            reason: str = "", proof_digest: str = "") -> dict:
+        """Permanently suppress a lead; later policy writes cannot undo it."""
+        stamp = _clean(at_iso or _now_iso(), 80)
+        why = _clean(reason, 500)
+        lead = self.get(tenant, lead_id)
+        if not lead:
+            return {"ok": False, "error": "لید پیدا نشد", "rule": "contact:lead-missing"}
+        existing = self.get_contact_policy(tenant, lead_id)
+        proof = _clean(proof_digest, 160) or _clean(
+            (existing or {}).get("proof_digest"), 160
+        )
+        if not proof:
+            proof = hashlib.sha256(
+                f"opt-out|{tenant}|{lead_id}|{stamp}".encode("utf-8")
+            ).hexdigest()
+        recorded = _clean((existing or {}).get("recorded_at") or stamp, 80)
+        opted = _clean((existing or {}).get("opted_out_at") or stamp, 80)
+        prior_reason = _clean((existing or {}).get("reason"), 500)
+        combined_reason = why or prior_reason or "opted out"
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "INSERT INTO lead_contact_policy "
+                "(tenant_id, lead_id, contact_phone_hash, contact_email_hash, "
+                "legal_basis, channel_scope_json, proof_digest, do_not_contact, "
+                "opted_out_at, revoked_at, reason, recorded_at, updated_at) "
+                "VALUES (?, ?, ?, ?, 'suppression', '[]', ?, 1, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(tenant_id, lead_id) DO UPDATE SET "
+                "legal_basis='suppression', channel_scope_json='[]', "
+                "proof_digest=CASE WHEN lead_contact_policy.proof_digest != '' "
+                "THEN lead_contact_policy.proof_digest ELSE excluded.proof_digest END, "
+                "do_not_contact=1, "
+                "opted_out_at=CASE WHEN lead_contact_policy.opted_out_at != '' "
+                "THEN lead_contact_policy.opted_out_at ELSE excluded.opted_out_at END, "
+                "reason=CASE WHEN excluded.reason != '' THEN excluded.reason "
+                "ELSE lead_contact_policy.reason END, updated_at=excluded.updated_at",
+                (
+                    tenant, lead_id,
+                    lead.get("contact_phone_hash") or "",
+                    lead.get("contact_email_hash") or "",
+                    proof, opted,
+                    _clean((existing or {}).get("revoked_at"), 80),
+                    combined_reason, recorded, stamp,
+                ),
+            )
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return {"ok": True, "policy": self.get_contact_policy(tenant, lead_id)}
+
+    def revoke_contact_policy(
+            self, tenant: str, lead_id: str, *, at_iso: str,
+            reason: str = "") -> dict:
+        """Permanent policy revocation; like opt-out, it cannot be cleared."""
+        stamp = _clean(at_iso, 80)
+        if not stamp:
+            return {"ok": False, "error": "زمان revoke لازم است", "rule": "contact:revoked-at-missing"}
+        existing = self.get_contact_policy(tenant, lead_id)
+        if not existing:
+            return {"ok": False, "error": "contact policy پیدا نشد", "rule": "contact:policy-missing"}
+        why = _clean(reason, 500) or _clean(existing.get("reason"), 500) or "revoked"
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "UPDATE lead_contact_policy SET legal_basis='suppression', "
+                "channel_scope_json='[]', do_not_contact=1, "
+                "revoked_at=CASE WHEN revoked_at != '' THEN revoked_at ELSE ? END, "
+                "reason=?, updated_at=? WHERE tenant_id=? AND lead_id=?",
+                (stamp, why, stamp, tenant, lead_id),
+            )
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return {"ok": True, "policy": self.get_contact_policy(tenant, lead_id)}
+
+    revoke_contact = revoke_contact_policy
+
+    def record_follow_up(
+            self, tenant: str, lead_id: str, *, at_iso: str = "",
+            now_iso: str = "") -> dict:
+        """Atomically claim the lead's single permitted follow-up.
+
+        The counter predicate is inside one UPDATE under ``BEGIN IMMEDIATE``;
+        competing callers cannot both observe zero and increment it.
+        """
+        stamp = _clean(at_iso or now_iso or _now_iso(), 80)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                "UPDATE painting_leads SET follow_up_count = follow_up_count + 1, "
+                "last_follow_up_at = ?, last_contacted_at = ?, updated_at = ? "
+                "WHERE tenant_id = ? AND lead_id = ? AND follow_up_count < 1 "
+                "AND status NOT IN ('won','lost','spam','archived')",
+                (stamp, stamp, stamp, tenant, lead_id),
+            )
+            row = self._conn.execute(
+                "SELECT status, follow_up_count FROM painting_leads "
+                "WHERE tenant_id = ? AND lead_id = ?",
+                (tenant, lead_id),
+            ).fetchone()
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        if cur.rowcount == 1:
+            return {"ok": True, "lead": self.get(tenant, lead_id)}
+        if row is None:
+            return {"ok": False, "error": "لید پیدا نشد", "rule": "follow-up:lead-missing"}
+        if row["status"] in TERMINAL_LEAD_STATUSES:
+            return {"ok": False, "error": "لید نهایی است", "rule": "follow-up:terminal"}
+        return {"ok": False, "error": "حداکثر یک پیگیری مجاز است", "rule": "follow-up:hard-cap"}
+
     def set_follow_up(self, tenant: str, lead_id: str, *, due_at: str,
                       action: str = "", now_iso: str = "") -> bool:
-        """Set the follow-up due time and (optionally) the next action."""
+        """Schedule a due time; this does not consume the delivery follow-up."""
         if not due_at:
             return False
-        if now_iso:
-            stamp = now_iso
-        else:
-            import time as _t
-            stamp = _t.strftime("%Y-%m-%dT%H:%M:%S", _t.gmtime())
-        cur = self._conn.execute(
-            "UPDATE painting_leads SET next_action_at = ?,"
-            " updated_at = ? WHERE tenant_id = ? AND lead_id = ?",
-            (due_at, stamp, tenant, lead_id))
-        self._conn.commit()
-        if action and cur.rowcount == 1:
-            self._conn.execute(
-                "UPDATE painting_leads SET next_action = ?"
-                " WHERE tenant_id = ? AND lead_id = ?",
-                (action[:220], tenant, lead_id))
-            self._conn.commit()
+        stamp = now_iso or _now_iso()
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            if action:
+                cur = self._conn.execute(
+                    "UPDATE painting_leads SET next_action_at = ?, next_action = ?, "
+                    "updated_at = ? WHERE tenant_id = ? AND lead_id = ?",
+                    (due_at, _clean(action, 220), stamp, tenant, lead_id),
+                )
+            else:
+                cur = self._conn.execute(
+                    "UPDATE painting_leads SET next_action_at = ?, updated_at = ? "
+                    "WHERE tenant_id = ? AND lead_id = ?",
+                    (due_at, stamp, tenant, lead_id),
+                )
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
         return cur.rowcount == 1
 
     def follow_ups_due(self, tenant: str, *, before_iso: str,
@@ -852,8 +1415,68 @@ class LeadStore:
             (tenant, before_iso, limit)).fetchall()
         return [_row(r) for r in rows]
 
+    def mark_delivered(
+            self, tenant: str, lead_id: str, *, kind: str = "reply",
+            at_iso: str) -> dict:
+        """Project a real delivery receipt onto the lead lifecycle.
+
+        ``reply`` advances new/review to contacted. ``quote`` advances
+        new/review/contacted to quoted. It never reopens or rewinds a row.
+        """
+        delivery_kind = _clean(kind, 20).casefold()
+        stamp = _clean(at_iso, 80)
+        if delivery_kind not in {"reply", "quote"}:
+            return {"ok": False, "error": "delivery kind نامعتبر است", "rule": "lead:invalid-delivery-kind"}
+        if not stamp:
+            return {"ok": False, "error": "زمان delivery لازم است", "rule": "lead:delivery-time-missing"}
+        allowed_from = ("new", "review") if delivery_kind == "reply" else ("new", "review", "contacted")
+        target = "contacted" if delivery_kind == "reply" else "quoted"
+        placeholders = ",".join("?" for _ in allowed_from)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            cur = self._conn.execute(
+                f"UPDATE painting_leads SET status = ?, last_contacted_at = ?, "
+                f"updated_at = ? WHERE tenant_id = ? AND lead_id = ? "
+                f"AND status IN ({placeholders})",
+                (target, stamp, stamp, tenant, lead_id, *allowed_from),
+            )
+            row = self._conn.execute(
+                "SELECT status FROM painting_leads WHERE tenant_id = ? AND lead_id = ?",
+                (tenant, lead_id),
+            ).fetchone()
+            # A reply receipt arriving after a quote is still truthful contact,
+            # but it must not rewind quoted -> contacted. Preserve the stronger
+            # lifecycle state and project only its timestamp. A replay of the
+            # same status remains idempotent and preserves its original time.
+            timestamp_only = False
+            if cur.rowcount == 0 and row is not None:
+                compatible_ahead = (
+                    (delivery_kind == "reply" and row["status"] == "quoted")
+                    or row["status"] == target
+                )
+                if delivery_kind == "reply" and row["status"] == "quoted":
+                    touched = self._conn.execute(
+                        "UPDATE painting_leads SET last_contacted_at = ?, updated_at = ? "
+                        "WHERE tenant_id = ? AND lead_id = ? AND status = 'quoted'",
+                        (stamp, stamp, tenant, lead_id),
+                    )
+                    timestamp_only = touched.rowcount == 1
+                elif compatible_ahead:
+                    timestamp_only = True
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        if cur.rowcount == 1:
+            return {"ok": True, "lead": self.get(tenant, lead_id), "transitioned": True}
+        if row is None:
+            return {"ok": False, "error": "لید پیدا نشد", "rule": "lead:not-found"}
+        if timestamp_only:
+            return {"ok": True, "lead": self.get(tenant, lead_id), "transitioned": False}
+        return {"ok": False, "error": "delivery با وضعیت فعلی سازگار نیست", "rule": "lead:invalid-transition"}
+
     def touch_contact(self, tenant: str, lead_id: str, *, at_iso: str) -> None:
-        """Record that the lead was contacted (last_contacted_at)."""
+        """Legacy timestamp-only receipt; does not invent a status transition."""
         self._conn.execute(
             "UPDATE painting_leads SET last_contacted_at = ?,"
             " updated_at = ? WHERE tenant_id = ? AND lead_id = ?",
@@ -863,12 +1486,19 @@ class LeadStore:
     def record_booked_revenue(
             self, tenant: str, lead_id: str, *, amount_cents: int,
             booked_at: str, payment_ref_digest: str = "",
-            currency: str = "AUD", outcome_reason: str = "") -> dict:
-        """Record a real booked amount when a lead is won.
+            currency: str = "AUD", outcome_reason: str = "",
+            authority: str = "owner", actor: str | None = None) -> dict:
+        """Record a real booked amount and its dedicated transition to won.
 
-        amount_cents must be > 0. payment_ref_digest is a hash/reference only
-        — never a raw bank account or customer PII. Marks status=won.
+        Revenue evidence owns the ``won`` transition; generic updates cannot
+        manufacture it.  Existing callers are compatible through the owner
+        default, while an explicit non-owner authority is refused.
         """
+        effective = _clean(authority or "partner", 20).casefold()
+        if actor is not None and effective == "partner" and _clean(actor, 20).casefold() == "owner":
+            effective = "owner"
+        if effective != "owner":
+            return {"ok": False, "error": "فقط مالک می‌تواند درآمد قطعی ثبت کند", "rule": "lead:owner-required"}
         if amount_cents is None or int(amount_cents) <= 0:
             return {"ok": False, "error": "booked amount must be positive cents"}
         cents = int(amount_cents)
@@ -880,17 +1510,60 @@ class LeadStore:
         lead = self.get(tenant, lead_id)
         if not lead:
             return {"ok": False, "error": "lead not found"}
-        self._conn.execute(
-            "UPDATE painting_leads SET status = 'won',"
-            " booked_amount_cents = ?, booked_currency = ?,"
-            " booked_at = ?, payment_ref_digest = ?,"
-            " outcome_reason = CASE WHEN ? != '' THEN ? ELSE outcome_reason END,"
-            " updated_at = ?"
-            " WHERE tenant_id = ? AND lead_id = ?",
-            (cents, cur, booked_at, digest, reason, reason, booked_at,
-             tenant, lead_id))
-        self._conn.commit()
+        if lead.get("status") in TERMINAL_LEAD_STATUSES and lead.get("status") != "won":
+            return {"ok": False, "error": "terminal lead is locked", "rule": "lead:terminal-locked"}
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            update = self._conn.execute(
+                "UPDATE painting_leads SET status = 'won',"
+                " booked_amount_cents = ?, booked_currency = ?,"
+                " booked_at = ?, payment_ref_digest = ?,"
+                " outcome_reason = CASE WHEN ? != '' THEN ? ELSE outcome_reason END,"
+                " updated_at = ?"
+                " WHERE tenant_id = ? AND lead_id = ? "
+                "AND status NOT IN ('lost','spam','archived')",
+                (cents, cur, booked_at, digest, reason, reason, booked_at,
+                 tenant, lead_id))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        if update.rowcount != 1:
+            return {"ok": False, "error": "won transition failed", "rule": "lead:invalid-transition"}
         return {"ok": True, "lead": self.get(tenant, lead_id)}
+
+    def has_duplicate_contact(
+            self, tenant: str, lead_id: str, *,
+            details: bool = False) -> bool | list[dict]:
+        """Stable duplicate-contact check backed only by phone/email hashes."""
+        matches = self.duplicate_candidates(tenant, lead_id)
+        return matches if details else bool(matches)
+
+    def duplicate_contact_hashes(
+            self, tenant: str, *, phone_hash: str = "",
+            email_hash: str = "", exclude_lead_id: str = "") -> list[str]:
+        """Check pre-hashed contacts without accepting or exposing raw PII."""
+        phone = _clean(phone_hash, 64).casefold()
+        email = _clean(email_hash, 64).casefold()
+        clauses: list[str] = []
+        args: list[object] = [tenant]
+        if phone:
+            clauses.append("contact_phone_hash = ?")
+            args.append(phone)
+        if email:
+            clauses.append("contact_email_hash = ?")
+            args.append(email)
+        if not clauses:
+            return []
+        sql = (
+            "SELECT lead_id FROM painting_leads WHERE tenant_id = ? AND ("
+            + " OR ".join(clauses) + ")"
+        )
+        if exclude_lead_id:
+            sql += " AND lead_id != ?"
+            args.append(exclude_lead_id)
+        sql += " ORDER BY created_at, lead_id LIMIT 10"
+        return [r["lead_id"] for r in self._conn.execute(sql, args).fetchall()]
 
     def duplicate_candidates(self, tenant: str, lead_id: str) -> list[dict]:
         """Other leads sharing the same contact hash (phone/email).
@@ -917,7 +1590,7 @@ class LeadStore:
         rows = self._conn.execute(
             "SELECT * FROM painting_leads WHERE ("
             + " OR ".join(clauses) + ") AND tenant_id = ? AND lead_id != ?"
-            " LIMIT 10", args).fetchall()
+            " ORDER BY created_at, lead_id LIMIT 10", args).fetchall()
         return [_row(r) for r in rows]
 
     def create_interaction(self, tenant: str, data: Mapping[str, object], *, now_iso: str) -> dict:

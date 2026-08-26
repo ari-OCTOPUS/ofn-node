@@ -398,6 +398,13 @@ class ApiApp:
         # O9 public catalog: served ONLY when enabled (five Ari preconditions
         # met). Off by default → 404, so the no-public-surface test stays
         # meaningful until Ari explicitly turns it on.
+        # Shopify OAuth / app_url (Ziman only). Public HTTPS via tunnel.
+        # Placed before auth like webhooks: Shopify redirects the browser here.
+        if path.startswith("/api/v1/shopify/"):
+            from .shopify_oauth import handle_shopify_http
+            return handle_shopify_http(
+                method, path, query or {}, tenant_name=tenant_name)
+
         if method == "GET" and path == "/api/v1/public/catalog":
             if not getattr(self, "_public_catalog_enabled", False):
                 return Response(404, {"error": "not found"})

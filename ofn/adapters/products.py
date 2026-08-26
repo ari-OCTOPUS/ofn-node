@@ -74,7 +74,7 @@ SCHEMA = (
         -- Where it sold. Null until it does.
         channel             TEXT
                               CHECK (channel IS NULL OR channel IN
-                                     ('instagram', 'market', 'etsy', 'direct')),
+                                     ('instagram', 'market', 'etsy', 'direct', 'shopify')),
         listed_at           TEXT,
         sold_at             TEXT,
 
@@ -397,12 +397,257 @@ def _add_archive_column(conn) -> None:
     add_column_if_absent(conn, "products", "archived_at", "TEXT")
 
 
+_CHANNEL_CHECK_BODY = (
+    "channel IS NULL OR channel IN "
+    "('instagram', 'market', 'etsy', 'direct')"
+)
+
+
+def _quote_identifier(name: str) -> str:
+    """Quote a SQLite identifier read from SQLite's own catalog."""
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _skip_sql_space_and_comments(sql: str, at: int) -> int:
+    """Advance over SQLite whitespace and comments."""
+    while at < len(sql):
+        if sql[at].isspace():
+            at += 1
+        elif sql.startswith("--", at):
+            newline = sql.find("\n", at + 2)
+            at = len(sql) if newline < 0 else newline + 1
+        elif sql.startswith("/*", at):
+            end = sql.find("*/", at + 2)
+            if end < 0:
+                raise RuntimeError("unterminated comment in products CREATE TABLE")
+            at = end + 2
+        else:
+            break
+    return at
+
+
+def _skip_sql_quoted(sql: str, at: int) -> int:
+    """Return the first byte after a SQLite string or quoted identifier."""
+    opener = sql[at]
+    closer = "]" if opener == "[" else opener
+    at += 1
+    while at < len(sql):
+        if sql[at] == closer:
+            if closer != "]" and at + 1 < len(sql) and sql[at + 1] == closer:
+                at += 2
+                continue
+            return at + 1
+        at += 1
+    raise RuntimeError("unterminated quote in products CREATE TABLE")
+
+
+def _products_table_body_start(create_sql: str) -> int:
+    """Find the top-level column-list opener without parsing its contents."""
+    at = 0
+    while at < len(create_sql):
+        at = _skip_sql_space_and_comments(create_sql, at)
+        if at >= len(create_sql):
+            break
+        if create_sql[at] in "'\"`[":
+            at = _skip_sql_quoted(create_sql, at)
+        elif create_sql[at] == "(":
+            return at
+        else:
+            at += 1
+    raise RuntimeError("products CREATE TABLE has no column list")
+
+
+def _matching_sql_paren(sql: str, opener: int) -> int:
+    """Find a balanced close parenthesis, ignoring quoted/commented text."""
+    depth = 0
+    at = opener
+    while at < len(sql):
+        at = _skip_sql_space_and_comments(sql, at)
+        if at >= len(sql):
+            break
+        char = sql[at]
+        if char in "'\"`[":
+            at = _skip_sql_quoted(sql, at)
+            continue
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return at
+        at += 1
+    raise RuntimeError("unbalanced parentheses in products CREATE TABLE")
+
+
+def _normalized_sql_tokens(sql: str) -> list[tuple[str, int, int]]:
+    """Comparable SQL tokens with source spans; comments/spacing are ignored."""
+    out: list[tuple[str, int, int]] = []
+    at = 0
+    while at < len(sql):
+        at = _skip_sql_space_and_comments(sql, at)
+        if at >= len(sql):
+            break
+        start = at
+        char = sql[at]
+        if char in "'\"`[":
+            at = _skip_sql_quoted(sql, at)
+            token = sql[start:at]
+            if char == "'":
+                normalized = token
+            else:
+                normalized = token[1:-1].replace(char * 2, char).lower()
+            out.append((normalized, start, at))
+        elif char.isalnum() or char in "_$":
+            at += 1
+            while at < len(sql) and (sql[at].isalnum() or sql[at] in "_$"):
+                at += 1
+            out.append((sql[start:at].lower(), start, at))
+        else:
+            at += 1
+            two = sql[start:at + 1]
+            if two in ("<=", ">=", "!=", "==", "<>", "||", "->"):
+                at += 1
+            out.append((sql[start:at].lower(), start, at))
+    return out
+
+
+_CHANNEL_CHECK_TOKENS = tuple(
+    token for token, _start, _end in _normalized_sql_tokens(_CHANNEL_CHECK_BODY)
+)
+
+
+def _legacy_channel_check_span(create_sql: str) -> tuple[int, int] | None:
+    """Return only the exact four-channel CHECK expression's source span."""
+    tokens = _normalized_sql_tokens(create_sql)
+    values = [token for token, _start, _end in tokens]
+    width = len(_CHANNEL_CHECK_TOKENS)
+    matches: list[tuple[int, int]] = []
+    for at in range(len(values) - width + 1):
+        if tuple(values[at:at + width]) == _CHANNEL_CHECK_TOKENS:
+            matches.append((tokens[at][1], tokens[at + width - 1][2]))
+    if not matches:
+        return None
+    if len(matches) != 1:
+        raise RuntimeError("products channel CHECK is ambiguous")
+    return matches[0]
+
+
+def _products_rebuild_sql(create_sql: str, temporary_name: str) -> str:
+    """Change only the legacy channel CHECK and the table being created.
+
+    The source is the SQL SQLite retained in ``sqlite_master``, not ``SCHEMA``.
+    That is what preserves columns added by an older build, manual recovery or a
+    future build this one does not know about.
+    """
+    span = _legacy_channel_check_span(create_sql)
+    if span is None:
+        raise RuntimeError("products channel CHECK is not the expected legacy shape")
+    insertion = span[1] - 1          # before the channel IN-list's closing ')'
+    updated = create_sql[:insertion] + ", 'shopify'" + create_sql[insertion:]
+    body_start = _products_table_body_start(updated)
+    body_end = _matching_sql_paren(updated, body_start)
+    return (f"CREATE TABLE {_quote_identifier(temporary_name)} "
+            f"{updated[body_start:body_end + 1]}{updated[body_end + 1:]}")
+
+
+def _migrate_products_channel_check(conn) -> None:
+    """Permit Shopify in files whose products CHECK still names four channels.
+
+    SQLite cannot alter a CHECK constraint. Rebuilding is therefore necessary,
+    but it must happen before ``apply_schema`` and outside its transaction:
+    ``PRAGMA foreign_keys`` is deliberately a no-op while a transaction is
+    active. All schema objects are copied from SQLite's catalog so the rebuild
+    does not discard legacy/unknown columns, indexes, triggers, or foreign keys.
+    """
+    if conn.in_transaction:
+        raise RuntimeError("products channel migration requires autocommit")
+
+    row = conn.execute(
+        "SELECT sql FROM sqlite_master "
+        "WHERE type = 'table' AND name = 'products'"
+    ).fetchone()
+    if row is None or row[0] is None:
+        return                         # fresh file; apply_schema creates it
+    create_sql = str(row[0])
+    if _legacy_channel_check_span(create_sql) is None:
+        return                         # current, unconstrained, or unrelated CHECK
+
+    objects = [(str(r[0]), str(r[1]), str(r[2])) for r in conn.execute(
+        "SELECT type, name, sql FROM sqlite_master "
+        "WHERE tbl_name = 'products' AND type IN ('index', 'trigger') "
+        "AND sql IS NOT NULL ORDER BY CASE type WHEN 'index' THEN 0 ELSE 1 END, name"
+    )]
+    columns = [str(r[1]) for r in conn.execute("PRAGMA table_xinfo(products)")
+               if int(r[6]) == 0]
+    if not columns:
+        raise RuntimeError("products table has no copyable columns")
+
+    existing = {str(r[0]) for r in conn.execute(
+        "SELECT name FROM sqlite_master UNION SELECT name FROM sqlite_temp_master"
+    )}
+    stem = "products_new"
+    temporary_name = stem
+    suffix = 0
+    while temporary_name in existing:
+        suffix += 1
+        temporary_name = f"{stem}_{suffix}"
+    rebuilt_sql = _products_rebuild_sql(create_sql, temporary_name)
+
+    foreign_keys = int(conn.execute("PRAGMA foreign_keys").fetchone()[0])
+    temporary = _quote_identifier(temporary_name)
+    product_table = _quote_identifier("products")
+    column_list = ", ".join(_quote_identifier(name) for name in columns)
+    succeeded = False
+    try:
+        if foreign_keys:
+            conn.execute("PRAGMA foreign_keys = OFF")
+            if int(conn.execute("PRAGMA foreign_keys").fetchone()[0]) != 0:
+                raise RuntimeError("could not disable foreign key enforcement")
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            conn.execute(rebuilt_sql)
+            conn.execute(
+                f"INSERT INTO {temporary} ({column_list}) "
+                f"SELECT {column_list} FROM {product_table}")
+            conn.execute(f"DROP TABLE {product_table}")
+            conn.execute(f"ALTER TABLE {temporary} RENAME TO {product_table}")
+            for _kind, _name, sql in objects:
+                conn.execute(sql)
+            violations = conn.execute("PRAGMA foreign_key_check").fetchall()
+            if violations:
+                raise RuntimeError(
+                    f"foreign key check failed after products rebuild: {violations!r}")
+            conn.execute("COMMIT")
+            succeeded = True
+        except Exception:
+            if conn.in_transaction:
+                conn.execute("ROLLBACK")
+            raise
+    finally:
+        # CREATE/COPY/DROP/RENAME and object recreation are one transaction, so
+        # rollback is the cleanup: it cannot delete a pre-existing collision or
+        # leave this migration's uniquely-named table behind. A successful
+        # rebuild leaves enforcement on; a failure restores the caller's mode.
+        target_foreign_keys = 1 if succeeded else foreign_keys
+        conn.execute(
+            f"PRAGMA foreign_keys = {'ON' if target_foreign_keys else 'OFF'}")
+        if int(conn.execute("PRAGMA foreign_keys").fetchone()[0]) \
+                != target_foreign_keys:
+            raise RuntimeError("could not restore foreign key enforcement")
+    if succeeded:
+        violations = conn.execute("PRAGMA foreign_key_check").fetchall()
+        if violations:
+            raise RuntimeError(
+                f"foreign key check failed with enforcement restored: {violations!r}")
+
+
 MIGRATIONS = (_split_price_into_two, _seed_sku_high_water,
               _add_archive_column, _add_sale_events, _add_provenance)
+PRE_SCHEMA_MIGRATIONS = (_migrate_products_channel_check,)
 
 MAX_PHOTOS_PER_PRODUCT = 5
 STATES = ("in_progress", "for_sale", "sold", "gifted")
-CHANNELS = ("instagram", "market", "etsy", "direct")
+CHANNELS = ("instagram", "market", "etsy", "direct", "shopify")
 ENVIRONMENTS = ("production", "seed", "test", "demo", "legacy_unknown")
 ORDER_STATUSES = ("reserved", "expired", "cancelled", "paid")
 PAYMENT_STATUSES = ("pending", "confirmed", "settled", "failed",
@@ -666,7 +911,14 @@ class ProductStore:
         self._hours_field = labour_hours_field
         self._rate_field = labour_rate_field
         self._pool = Pool(path)
-        apply_schema(self._conn, SCHEMA, MIGRATIONS)
+        try:
+            # Rebuilding a table with child FKs requires foreign_keys OFF, and
+            # SQLite ignores that PRAGMA inside apply_schema's transaction.
+            _migrate_products_channel_check(self._conn)
+            apply_schema(self._conn, SCHEMA, MIGRATIONS)
+        except Exception:
+            self._pool.close()
+            raise
 
     def close(self) -> None:
         self._pool.close()

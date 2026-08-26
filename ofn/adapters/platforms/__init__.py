@@ -7,10 +7,10 @@ flag is on — which the project's hard rules keep off by default.
 
 `available_platforms()` is what lets the UI tell the truth about the
 difference between *policy* and *wiring*: the platform matrix may know about
-eleven platforms as policy, but only the adapters that exist as code here
+thirteen platforms as policy, but only the adapters that exist as code here
 are ones the node could ever publish to, and only the ones actually built
-into the node are armed. A partner reading "11 platforms" without that
-split would reasonably believe eleven live outputs exist when none do.
+into the node are armed. A partner reading "13 platforms" without that
+split would reasonably believe thirteen live outputs exist when none do.
 """
 
 from __future__ import annotations

@@ -125,8 +125,12 @@ class TestPartnerList(_Base):
 
     def test_partner_get_leads_filter_by_status(self):
         lid = self._seed_lead()
-        # move the lead to "won"
-        self.node.update_painting_lead(lid, {"status": "won"}, actor="owner")
+        # `won` is evidence-derived: only the dedicated booked-revenue path may
+        # create it. A generic status update must not mint revenue truth.
+        booked = self.painting.record_booked_revenue(
+            "lead", lid, amount_cents=10_000, booked_at=NOW_ISO,
+            payment_ref_digest="booking-proof-1")
+        self.assertTrue(booked["ok"], booked)
         # a second lead with a different source so it is not idempotently
         # folded into the first one
         self._seed_lead(source="referral")
@@ -185,13 +189,16 @@ class TestReplyOutbox(_Base):
         self.assertFalse(r2.body["queued"])  # duplicate
         self.assertEqual(len(self.outbox.pending(self.scope)), 1)
 
-    def test_new_lead_auto_flips_to_contacted(self):
+    def test_queued_reply_does_not_claim_contact(self):
         lid = self._seed_lead()
         self.call("POST", f"/api/v1/painting/leads/{lid}/reply",
                   self.partner_headers(),
                   {"channel": "sms", "message": "تماس می‌گیرم"})
         lead = self.painting.get("lead", lid)
-        self.assertEqual(lead["status"], "contacted")
+        self.assertEqual(lead["status"], "new")
+        # Backward-compatible timestamp: this records that an attempt was
+        # prepared, but it is not evidence that delivery happened.
+        self.assertEqual(lead["last_contacted_at"], NOW_ISO)
 
     def test_missing_message_refused(self):
         lid = self._seed_lead()
@@ -222,12 +229,12 @@ class TestQuote(_Base):
                       self.partner_headers(), {"amount": 0})
         self.assertFalse(r.body["ok"])
 
-    def test_quote_flips_status_to_quoted(self):
+    def test_queued_quote_does_not_claim_delivery(self):
         lid = self._seed_lead()
         self.call("POST", f"/api/v1/painting/leads/{lid}/quote",
                   self.partner_headers(), {"amount": 990})
         lead = self.painting.get("lead", lid)
-        self.assertEqual(lead["status"], "quoted")
+        self.assertEqual(lead["status"], "new")
 
 
 class TestOwnerDecide(_Base):

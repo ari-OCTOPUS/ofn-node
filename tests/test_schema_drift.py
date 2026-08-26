@@ -58,6 +58,49 @@ CREATE TABLE products (
 )
 """
 
+# A once-current products table immediately before Shopify became a channel.
+# It deliberately carries an unknown legacy column, non-schema index and
+# trigger. The migration must alter only the channel CHECK and retain all of
+# those, plus the child FK below.
+FOUR_CHANNEL_PRODUCTS = """
+CREATE TABLE products (
+    id                  INTEGER PRIMARY KEY,
+    tenant_id           TEXT    NOT NULL DEFAULT 'ziman',
+    sku                 TEXT    NOT NULL,
+    name                TEXT    NOT NULL,
+    category            TEXT,
+    description         TEXT,
+    materials_cost_aud  REAL    NOT NULL DEFAULT 0,
+    labour_hours        REAL    NOT NULL DEFAULT 0,
+    hourly_rate_aud     REAL    NOT NULL DEFAULT 0,
+    packaging_cost_aud  REAL    NOT NULL DEFAULT 0,
+    cogs_aud            REAL    NOT NULL DEFAULT 0,
+    price_primary_aud   REAL,
+    price_secondary_aud REAL,
+    state               TEXT    NOT NULL DEFAULT 'in_progress'
+                              CHECK (state IN ('in_progress', 'for_sale',
+                                     'sold', 'gifted')),
+    channel             TEXT
+                              CHECK (channel IS NULL OR channel IN
+                                     ('instagram', 'market', 'etsy', 'direct')),
+    listed_at           TEXT,
+    sold_at             TEXT,
+    marketing_status    TEXT    NOT NULL DEFAULT 'not_started'
+                              CHECK (marketing_status IN ('not_started',
+                                     'photo_done', 'caption_done', 'posted')),
+    marketing_notes     TEXT,
+    environment         TEXT    NOT NULL DEFAULT 'legacy_unknown'
+                              CHECK (environment IN ('production', 'seed',
+                                     'test', 'demo', 'legacy_unknown')),
+    source              TEXT    NOT NULL DEFAULT 'legacy_unknown',
+    created_by          TEXT    NOT NULL DEFAULT 'legacy_unknown',
+    created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at          TEXT,
+    archived_at         TEXT,
+    legacy_note         TEXT    NOT NULL DEFAULT 'kept'
+)
+"""
+
 
 class Tmp(unittest.TestCase):
     def setUp(self):
@@ -74,6 +117,36 @@ class Tmp(unittest.TestCase):
         for sku, price in rows:
             conn.execute("INSERT INTO products (tenant_id, sku, name, price_aud) "
                          "VALUES ('ziman', ?, ?, ?)", (sku, sku, price))
+        conn.commit()
+        conn.close()
+
+    def write_four_channel_file(self):
+        """A real pre-Shopify row with objects and a child FK to preserve."""
+        conn = sqlite3.connect(self.path)
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.execute(FOUR_CHANNEL_PRODUCTS)
+        conn.execute(
+            "CREATE UNIQUE INDEX products_sku ON products (tenant_id, sku)")
+        conn.execute(
+            "CREATE INDEX legacy_products_note ON products (legacy_note)")
+        conn.execute(
+            "CREATE TABLE legacy_listing ("
+            " listing_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL,"
+            " sku TEXT NOT NULL, note TEXT NOT NULL,"
+            " FOREIGN KEY (tenant_id, sku)"
+            " REFERENCES products (tenant_id, sku))")
+        conn.execute(
+            "CREATE TABLE legacy_product_audit (sku TEXT NOT NULL, name TEXT NOT NULL)")
+        conn.execute(
+            "CREATE TRIGGER legacy_products_name AFTER UPDATE OF name ON products "
+            "BEGIN INSERT INTO legacy_product_audit (sku, name) "
+            "VALUES (NEW.sku, NEW.name); END")
+        conn.execute(
+            "INSERT INTO products (tenant_id, sku, name, state, legacy_note) "
+            "VALUES ('ziman', 'ZM-0042', 'legacy piece', 'for_sale', 'do not drop')")
+        conn.execute(
+            "INSERT INTO legacy_listing (listing_id, tenant_id, sku, note) "
+            "VALUES ('listing-1', 'ziman', 'ZM-0042', 'child stays')")
         conn.commit()
         conn.close()
 
@@ -222,6 +295,163 @@ class TestMigrationCarriesTheFileForward(Tmp):
         finally:
             conn.close()
         self.assertNotIn("price_primary_aud", cols)
+
+
+class TestShopifyChannelCheckMigration(Tmp):
+    def open_store(self):
+        return P.ProductStore(
+            self.path, cost_fields=("materials_cost_aud",),
+            labour_hours_field="labour_hours",
+            labour_rate_field="hourly_rate_aud")
+
+    def catalog_snapshot(self):
+        conn = sqlite3.connect(self.path)
+        try:
+            return conn.execute(
+                "SELECT type, name, tbl_name, sql FROM sqlite_master "
+                "WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name"
+            ).fetchall()
+        finally:
+            conn.close()
+
+    def test_open_rebuilds_old_check_and_preserves_everything(self):
+        self.write_four_channel_file()
+        store = self.open_store()
+        try:
+            self.assertEqual(store._conn.execute(
+                "PRAGMA foreign_keys").fetchone()[0], 1)
+            sale = store.record_sale(
+                "ziman", "ZM-0042", event_id="sale-shopify",
+                sold_at="2026-08-26T10:00:00Z", channel="shopify",
+                amount_unknown=True, fee_unknown=True,
+                now_iso="2026-08-26T10:00:00Z")
+            self.assertTrue(sale["ok"])
+            self.assertEqual(store.get("ziman", "ZM-0042").channel, "shopify")
+            self.assertEqual(store._conn.execute(
+                "SELECT note FROM legacy_listing WHERE listing_id = 'listing-1'"
+            ).fetchone()[0], "child stays")
+            self.assertEqual(store._conn.execute(
+                "SELECT legacy_note FROM products WHERE sku = 'ZM-0042'"
+            ).fetchone()[0], "do not drop")
+            self.assertEqual(store._conn.execute(
+                "PRAGMA foreign_key_check").fetchall(), [])
+            names = {r[0] for r in store._conn.execute(
+                "SELECT name FROM sqlite_master WHERE type IN ('index','trigger')")}
+            self.assertIn("legacy_products_note", names)
+            self.assertIn("legacy_products_name", names)
+            store._conn.execute(
+                "UPDATE products SET name = 'renamed' WHERE sku = 'ZM-0042'")
+            self.assertEqual(store._conn.execute(
+                "SELECT name FROM legacy_product_audit").fetchone()[0], "renamed")
+            product_sql = store._conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' "
+                "AND name = 'products'").fetchone()[0]
+            self.assertIn("'direct', 'shopify'", product_sql)
+            self.assertNotIn("products_new", product_sql)
+        finally:
+            store.close()
+
+    def test_second_run_is_a_catalog_noop(self):
+        self.write_four_channel_file()
+        first = self.open_store()
+        first.close()
+        before = self.catalog_snapshot()
+        second = self.open_store()
+        second.close()
+        self.assertEqual(self.catalog_snapshot(), before)
+
+    def test_fresh_current_and_no_check_files_are_noops(self):
+        conn = connect(self.path)
+        try:
+            P._migrate_products_channel_check(conn)
+            self.assertEqual(conn.execute(
+                "SELECT count(*) FROM sqlite_master").fetchone()[0], 0)
+        finally:
+            conn.close()
+
+        store = self.open_store()
+        store.close()
+        before = self.catalog_snapshot()
+        conn = connect(self.path)
+        try:
+            P._migrate_products_channel_check(conn)
+        finally:
+            conn.close()
+        self.assertEqual(self.catalog_snapshot(), before)
+
+        os.unlink(self.path)
+        conn = sqlite3.connect(self.path)
+        conn.execute("CREATE TABLE products (id INTEGER PRIMARY KEY, channel TEXT)")
+        conn.execute("INSERT INTO products (channel) VALUES ('legacy-channel')")
+        conn.commit()
+        conn.close()
+        before = self.catalog_snapshot()
+        conn = connect(self.path)
+        try:
+            P._migrate_products_channel_check(conn)
+        finally:
+            conn.close()
+        self.assertEqual(self.catalog_snapshot(), before)
+
+    def test_products_new_collision_is_not_touched(self):
+        self.write_four_channel_file()
+        conn = sqlite3.connect(self.path)
+        conn.execute("CREATE TABLE products_new (sentinel TEXT)")
+        conn.execute("INSERT INTO products_new VALUES ('keep me')")
+        conn.commit()
+        conn.close()
+
+        store = self.open_store()
+        try:
+            self.assertEqual(store._conn.execute(
+                "SELECT sentinel FROM products_new").fetchone()[0], "keep me")
+            self.assertIsNone(store._conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE name = 'products_new_1'"
+            ).fetchone())
+        finally:
+            store.close()
+
+    def test_success_enables_foreign_keys_even_if_caller_had_them_off(self):
+        self.write_four_channel_file()
+        conn = connect(self.path)
+        conn.execute("PRAGMA foreign_keys = OFF")
+        try:
+            P._migrate_products_channel_check(conn)
+            self.assertEqual(conn.execute("PRAGMA foreign_keys").fetchone()[0], 1)
+            self.assertEqual(conn.execute("PRAGMA foreign_key_check").fetchall(), [])
+        finally:
+            conn.close()
+
+    def test_failure_rolls_back_and_restores_foreign_keys(self):
+        self.write_four_channel_file()
+        conn = connect(self.path)
+        original_execute = conn.execute
+
+        class FailingConnection:
+            @property
+            def in_transaction(self):
+                return conn.in_transaction
+
+            def execute(self, sql, parameters=()):
+                if sql.startswith("ALTER TABLE"):
+                    raise RuntimeError("injected rebuild failure")
+                return original_execute(sql, parameters)
+
+        try:
+            with self.assertRaisesRegex(RuntimeError, "injected rebuild failure"):
+                P._migrate_products_channel_check(FailingConnection())
+            self.assertEqual(conn.execute("PRAGMA foreign_keys").fetchone()[0], 1)
+            self.assertEqual(tuple(conn.execute(
+                "SELECT name, legacy_note FROM products WHERE sku = 'ZM-0042'"
+            ).fetchone()), ("legacy piece", "do not drop"))
+            self.assertEqual(conn.execute(
+                "SELECT note FROM legacy_listing").fetchone()[0], "child stays")
+            self.assertIsNone(conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE name LIKE 'products_new%'"
+            ).fetchone())
+            self.assertEqual(conn.execute("PRAGMA foreign_key_check").fetchall(), [])
+        finally:
+            conn.close()
 
 
 class TestBootRefusesToRunOnADriftedFile(Tmp):

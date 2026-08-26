@@ -137,12 +137,12 @@ class TestZimanPack(unittest.TestCase):
         # registered; unresolved is not an answer.
         self.assertFalse(spec.locale.must_register_at(75_000))
 
-    def test_ziman_claims_no_sales_channel_yet(self):
-        # She is not selling anywhere yet. An empty list is the honest state;
-        # a populated one would mean somebody assumed an integration.
+    def test_ziman_wip_enables_only_decided_payment_and_storefront(self):
+        # PayID and the Shopify scaffold are the current explicit WIP. Etsy is
+        # not a platform claim until its fee, adapter, and owner decision exist.
         spec = load_pack("packs/ziman.yaml")
-        self.assertEqual(spec.locale.platforms, ())
-        self.assertEqual(spec.locale.payment_rails, ())
+        self.assertEqual(spec.locale.payment_rails, ("payid",))
+        self.assertEqual(spec.locale.platforms, ("shopify",))
 
 
 class TestDefaultSpec(unittest.TestCase):

@@ -167,6 +167,7 @@ def build_node(cfg: config.Config) -> Node:
                 inbox=inbox, rate_limiter=rate_limiter,
                 connector_metrics=connector_metrics, connectors=connectors,
                 pilot=pilot, pilot_state=pilot_state,
+                public_catalog_enabled=cfg.public_catalog_enabled,
                 _telegram_channel_id=cfg.telegram_channel_id,
                 _telegram_token=str(cfg.bot_tokens.get("__owner__") or ""))
 

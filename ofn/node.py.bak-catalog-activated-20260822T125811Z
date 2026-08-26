@@ -178,9 +178,6 @@ class Node:
     # Dormant (empty) until Ari's decisions; populated by run.py wiring.
     pilot_state: object | None = None    # PilotState
     pilot: object | None = None          # ReadOnlyPilot
-    # O9: the payload and the HTTP route share one source of truth.  False is
-    # the safe default for tests and for any node built without explicit config.
-    public_catalog_enabled: bool = False
     # O11 real-publish config (set by run.py from config; never printed).
     _telegram_channel_id: str = ""
     _telegram_token: str = ""
@@ -2719,7 +2716,7 @@ class Node:
         except Exception:
             return {"ok": False, "error": "catalog read failed"}
         return {"ok": True, "items": pieces, "count": len(pieces),
-                "activated": bool(self.public_catalog_enabled)}
+                "activated": False}
 
     def pilot_run(self) -> dict:
         """One bounded read-only pass of the O10 pilot, if wired.

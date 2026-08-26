@@ -455,6 +455,76 @@
       ],
       "adult_link_markers": [],
       "solicitation_markers": []
+    },
+    "shopify": {
+      "display_name": "Shopify",
+      "layer": "B",
+      "risk": "YELLOW",
+      "api_mode": "api",
+      "adult_policy": "sexual_content_prohibited",
+      "caption_max": 5000,
+      "max_posts_24h": 50,
+      "direct_adult_link_allowed": false,
+      "public_media_required": true,
+      "required_labels": [],
+      "allowed_framing": [
+        "handmade",
+        "gift",
+        "product",
+        "educational",
+        "behind_the_scenes"
+      ],
+      "blocked_framing": [
+        "adult_subscription_link",
+        "pornographic_request",
+        "sexual_solicitation",
+        "fetish",
+        "minor_targeting",
+        "spam"
+      ],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "nudes",
+        "porn",
+        "xxx"
+      ],
+      "solicitation_markers": [
+        "escort",
+        "sex chat",
+        "fetish service"
+      ],
+      "notes": "Board2 scaffold 2026-08-23; Ziman gift storefront; real Admin API closed until OwnerRelease + secrets"
+    },
+    "onlyfans": {
+      "display_name": "OnlyFans",
+      "layer": "A",
+      "risk": "RED",
+      "api_mode": "api_cautious",
+      "adult_policy": "platform_native_adult",
+      "caption_max": 10000,
+      "max_posts_24h": 24,
+      "direct_adult_link_allowed": true,
+      "public_media_required": false,
+      "required_labels": [],
+      "allowed_framing": [
+        "adult_labeled",
+        "teaser",
+        "behind_the_scenes",
+        "community",
+        "beauty"
+      ],
+      "blocked_framing": [
+        "nonconsensual",
+        "minor_targeting",
+        "spam"
+      ],
+      "adult_link_markers": [],
+      "solicitation_markers": [
+        "escort",
+        "meet for"
+      ],
+      "notes": "Board2 scaffold 2026-08-24; live post forbidden until second owner GO; dry_run default; OFN_ONLYFANS_LIVE unset"
     }
   }
 }

@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import os
 import unittest
+from datetime import datetime, timezone
+from unittest.mock import patch
 
 from ofn.adapters.facts import FactStore
 from ofn.adapters.ledger import Ledger
@@ -162,18 +164,29 @@ class TestKillBlocksOwnerApprove(GateEnforcementBase):
 
 
 class TestPartnerPreconditionDefault(unittest.TestCase):
-    """Gate defaults: opened by Ari's explicit 2026-08-10 decision.
+    """The temporary production-gate opening expires at the UTC boundary."""
 
-    secret_rotation and partner_precondition were opened for a one-week
-    window (risk accepted, see DECISION-open-gates.md). miner_isolation
-    stays closed per D-8. When the week passes, secret_rotation goes back.
-    """
+    DEADLINE = datetime(2026, 8, 17, 0, 0, 0, tzinfo=timezone.utc)
 
-    def test_partner_precondition_and_secret_rotation_open(self):
-        cfg = config_module.load()
-        self.assertNotIn("partner_precondition", cfg.base_closed_gates)
-        self.assertNotIn("secret_rotation", cfg.base_closed_gates)
-        self.assertIn("miner_isolation", cfg.base_closed_gates)
+    def test_partner_precondition_and_secret_rotation_closed_at_deadline(self):
+        # Freeze the clock at the exact boundary and clear every environment
+        # input that can alter this contract. This must not depend on the date
+        # the suite happens to run or on an operator's production override.
+        with patch.object(config_module, "datetime") as clock, patch.dict(
+                os.environ,
+                {
+                    "OFN_KEEP_GATES_OPEN": "0",
+                    "OFN_EXTRA_CLOSED_GATES": "",
+                },
+                clear=False):
+            clock.strptime.side_effect = datetime.strptime
+            clock.now.return_value = self.DEADLINE
+            cfg = config_module.load()
+
+        self.assertEqual(
+            cfg.base_closed_gates,
+            ("miner_isolation", "secret_rotation", "partner_precondition"),
+        )
 
 
 class TestHttpStubsFailClosed(unittest.TestCase):

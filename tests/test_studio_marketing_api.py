@@ -160,22 +160,24 @@ class TestBrainModulesAreReal(_Base):
         body = self.call("GET", "/api/v1/studio/marketing").body
         pm = body["brain_modules"]["platform_matrix"]
         self.assertTrue(pm["loaded"])
-        self.assertEqual(pm["platform_count"], 11)
+        self.assertEqual(pm["platform_count"], 13)
+        self.assertEqual(
+            pm["platform_count"], pm["platform_policy_known_count"])
 
     def test_platform_matrix_reports_three_counts_not_one(self):
-        # "11 platforms" alone is a false affordance. The snapshot must carry
-        # the split so a partner isn't misled into thinking eleven live
-        # outputs exist when armed is zero. See test_platforms_contract for
-        # the ordered invariant armed <= available <= policy_known.
+        # A single "platforms" number is a false affordance. The snapshot must
+        # distinguish policy entries from adapter code and live wiring; today
+        # those counts are 13, 5, and 0 respectively.
         body = self.call("GET", "/api/v1/studio/marketing").body
         pm = body["brain_modules"]["platform_matrix"]
         self.assertTrue(pm["loaded"])
         policy = pm["platform_policy_known_count"]
         available = pm["platform_adapter_available_count"]
         armed = pm["platform_adapter_armed_count"]
-        self.assertEqual(policy, 11)
-        self.assertEqual(available, 3)  # bluesky, email_ses, telegram_channel
-        self.assertEqual(armed, 0)      # nothing is built to send yet
+        self.assertEqual(policy, 13)
+        self.assertEqual(available, 5)
+        self.assertEqual(armed, 0)
+        self.assertEqual(pm["platform_count"], policy)
         self.assertLessEqual(armed, available)
         self.assertLessEqual(available, policy)
 

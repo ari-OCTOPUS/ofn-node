@@ -90,7 +90,7 @@ class TestCatalogPreparedNotServed(unittest.TestCase):
         self.assertIn('path == "/api/v1/public/catalog"', src)
         self.assertIn("_public_catalog_enabled", src)
 
-    def test_catalog_payload_says_not_activated(self):
+    def test_catalog_payload_matches_runtime_activation(self):
         from ofn.adapters.products import ProductStore
         from ofn.node import Node
         from ofn.adapters.ledger import Ledger
@@ -123,6 +123,8 @@ class TestCatalogPreparedNotServed(unittest.TestCase):
         out = node.public_catalog()
         self.assertTrue(out["ok"])
         self.assertFalse(out["activated"])
+        node.public_catalog_enabled = True
+        self.assertTrue(node.public_catalog()["activated"])
 
 
 class TestCatalogFlagGate(unittest.TestCase):

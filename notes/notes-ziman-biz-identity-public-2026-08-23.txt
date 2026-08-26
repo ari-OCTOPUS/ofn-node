@@ -1,0 +1,17 @@
+Ziman (Maliheh gifts) PUBLIC biz identity — Board2 SAVE PASS 2026-08-23
+NO TFN in this file / chat / Shopify.
+
+ABN: 21190030795
+GST: NO (ABN only)
+Business + PayPal Business email: aram@ziman-gift.com
+Bank account name: Maliheh Khalajijou
+BSB: 112879
+Account: 463106127
+Currency: AUD
+Channels: Shopify Payments + PayPal Business parallel
+
+Laptop SoT:
+  F:\backup\06-EVIDENCE\ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23\PUBLIC-BIZ.json
+  F:\backup\06-EVIDENCE\ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23\SHOPIFY-READY.json
+Board2 evidence:
+  F:\backup\06-EVIDENCE\BOARD2-ZIMAN-BIZ-FOOT-LIVE-2026-08-23\SAVED-ON-BOARD2.json

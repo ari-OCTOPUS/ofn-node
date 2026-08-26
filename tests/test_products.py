@@ -330,10 +330,11 @@ class TestPackDrivesIt(unittest.TestCase):
         # watching the first real session.
         self.assertNotIn("time.hourly_floor", p.required_facts)
 
-    def test_states_and_channels_are_the_agreed_four(self):
+    def test_states_and_channels_are_the_agreed_values(self):
         self.assertEqual(STATES,
                          ("in_progress", "for_sale", "sold", "gifted"))
-        self.assertEqual(CHANNELS, ("instagram", "market", "etsy", "direct"))
+        self.assertEqual(CHANNELS,
+                         ("instagram", "market", "etsy", "direct", "shopify"))
 
 
 if __name__ == "__main__":

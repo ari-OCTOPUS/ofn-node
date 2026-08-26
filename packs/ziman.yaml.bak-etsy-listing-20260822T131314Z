@@ -32,12 +32,8 @@ locale:
   tax:
     status: unresolved
     pricing: inclusive
-  # WIP explicitly decided by the owner: PayID is the payment rail and the
-  # Shopify adapter scaffold exists. Etsy is intentionally absent until its
-  # fee, adapter, and owner decision exist; the channels fee table below is
-  # unchanged and remains the source of truth for known channel fees.
-  payment_rails: [payid]
-  platforms: [shopify]
+  payment_rails: [payid]  # owner GO 2026-08-22 via marketing chat         # کانال فروش هنوز انتخاب نشده — خالی یعنی «تصمیم نگرفته»
+  platforms: []             # هنوز هیچ‌جا نمی‌فروشد. تازه شروع می‌کند.
 
 # Owner-confirmed 2026-08-03 as a range of 6-10. The operational ceiling is
 # the FLOOR of that range, not the middle and certainly not the top: a system

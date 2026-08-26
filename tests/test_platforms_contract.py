@@ -16,7 +16,23 @@ from ofn.adapters.platforms.base import PublishRequest, RULE_DRY_RUN, RULE_WIRE_
 from ofn.adapters.platforms.telegram_channel import TelegramChannelAdapter
 from ofn.adapters.platforms.bluesky import BlueskyAdapter
 from ofn.adapters.platforms.email_ses import EmailSesAdapter
+from ofn.adapters.platforms.shopify import ShopifyAdapter
+from ofn.adapters.platforms.onlyfans import OnlyFansAdapter
 from ofn.adapters.platform_matrix_loader import load_matrix, default_matrix_path
+
+
+ADAPTER_CLASSES = (
+    TelegramChannelAdapter,
+    BlueskyAdapter,
+    EmailSesAdapter,
+    ShopifyAdapter,
+    OnlyFansAdapter,
+)
+CANONICAL_PLATFORMS = {
+    "telegram_channel", "bluesky", "email_ses", "x_twitter",
+    "youtube_shorts", "threads", "instagram", "tiktok", "pinterest",
+    "facebook", "reddit", "shopify", "onlyfans",
+}
 
 
 def _req(**kw):
@@ -78,43 +94,50 @@ class TestCanonicalIds(unittest.TestCase):
     consistent across adapters and the matrix, or routing silently fails."""
 
     def test_adapter_platform_ids_are_canonical(self):
-        self.assertEqual(TelegramChannelAdapter.platform, "telegram_channel")
-        self.assertEqual(BlueskyAdapter.platform, "bluesky")
-        self.assertEqual(EmailSesAdapter.platform, "email_ses")
+        expected = {
+            TelegramChannelAdapter: "telegram_channel",
+            BlueskyAdapter: "bluesky",
+            EmailSesAdapter: "email_ses",
+            ShopifyAdapter: "shopify",
+            OnlyFansAdapter: "onlyfans",
+        }
+        for adapter in ADAPTER_CLASSES:
+            with self.subTest(adapter=adapter.__name__):
+                self.assertEqual(adapter.platform, expected[adapter])
 
     def test_every_adapter_platform_exists_in_loaded_matrix(self):
         """If this fails, a routed variant hits `platform:unknown` at runtime."""
         m = load_matrix(default_matrix_path())
-        for adapter in (TelegramChannelAdapter, BlueskyAdapter,
-                        EmailSesAdapter):
-            self.assertIn(
-                adapter.platform, m.rules,
-                f"{adapter.platform!r} not in matrix — router would refuse it")
+        for adapter in ADAPTER_CLASSES:
+            with self.subTest(adapter=adapter.__name__):
+                self.assertIn(
+                    adapter.platform, m.rules,
+                    f"{adapter.platform!r} not in matrix — router would refuse it")
 
-    def test_matrix_has_all_eleven_canonical_platforms(self):
+    def test_matrix_has_all_thirteen_canonical_platforms(self):
         m = load_matrix(default_matrix_path())
-        expected = {
-            "telegram_channel", "bluesky", "email_ses", "x_twitter",
-            "youtube_shorts", "threads", "instagram", "tiktok",
-            "pinterest", "facebook", "reddit",
-        }
-        self.assertEqual(expected, set(m.rules),
-                         "matrix platform set drifted from canonical eleven")
+        self.assertEqual(
+            CANONICAL_PLATFORMS,
+            set(m.rules),
+            "matrix platform set drifted from canonical thirteen",
+        )
 
 
 class TestPlatformCountsAreSplitAndHonest(unittest.TestCase):
-    """The UI must never say "11 platforms" as if it means eleven live outputs.
+    """Policy, adapter-code, and armed counts must stay distinct and ordered.
 
-    Three counts travel together, and the invariant is ordered:
-    armed <= available <= policy_known. A partner reading "policy: 11,
-    available: 3, armed: 0" learns exactly what is true: rules exist for
-    eleven, code exists for three, zero can actually send today.
+    The current snapshot is policy: 13, available: 5, armed: 0. Policy entries
+    do not imply live outputs; adapter code is still inert until explicitly
+    wired and released.
     """
 
-    def test_available_platforms_discovers_the_three_adapters(self):
+    def test_available_platforms_discovers_the_five_adapters(self):
         from ofn.adapters.platforms import available_platforms
         got = available_platforms()
-        self.assertEqual(set(got), {"telegram_channel", "bluesky", "email_ses"})
+        self.assertEqual(
+            set(got),
+            {"telegram_channel", "bluesky", "email_ses", "shopify", "onlyfans"},
+        )
 
     def test_available_platforms_are_subset_of_policy_known(self):
         from ofn.adapters.platforms import available_platforms
@@ -133,15 +156,17 @@ class TestPlatformCountsAreSplitAndHonest(unittest.TestCase):
         policy_known = len(m.rules)
         available = len(available_platforms())
         armed = 0
+        self.assertEqual(policy_known, 13)
+        self.assertEqual(available, 5)
+        self.assertEqual(armed, 0)
         self.assertLessEqual(armed, available)
         self.assertLessEqual(available, policy_known)
-        self.assertGreaterEqual(policy_known, 11)
 
 
 class TestMatrixLoader(unittest.TestCase):
-    def test_loads_default_matrix_with_real_platforms(self):
+    def test_loads_default_matrix_with_all_thirteen_platforms(self):
         m = load_matrix(default_matrix_path())
-        self.assertGreaterEqual(len(m.rules), 11)
+        self.assertEqual(len(m.rules), 13)
 
     def test_shipped_matrix_refuses_restricted_everywhere(self):
         m = load_matrix(default_matrix_path())
@@ -190,6 +215,39 @@ class TestContentRouterWithLoadedMatrix(unittest.TestCase):
             self.assertNotEqual(v.screen.rule, "platform:unknown",
                                 f"{v.platform} came back unknown")
 
+
+class TestShopifyAdapter(unittest.TestCase):
+    def test_dry_run_returns_ok(self):
+        a = ShopifyAdapter(shop_domain="example.myshopify.com")
+        r = a.publish(_req(platform="shopify"))
+        self.assertTrue(r.ok)
+        self.assertEqual(r.rule, RULE_DRY_RUN)
+
+    def test_real_publish_returns_wire_closed_not_crash(self):
+        a = ShopifyAdapter(shop_domain="example.myshopify.com")
+        r = a.publish(_req(platform="shopify", dry_run=False))
+        self.assertFalse(r.ok)
+        self.assertEqual(r.rule, RULE_WIRE_CLOSED)
+
+    def test_platform_id_is_shopify(self):
+        self.assertEqual(ShopifyAdapter.platform, "shopify")
+
+
+class TestOnlyFansAdapter(unittest.TestCase):
+    def test_dry_run_returns_ok(self):
+        a = OnlyFansAdapter(account_id="scaffold")
+        r = a.publish(_req(platform="onlyfans"))
+        self.assertTrue(r.ok)
+        self.assertEqual(r.rule, RULE_DRY_RUN)
+
+    def test_real_publish_returns_wire_closed_not_crash(self):
+        a = OnlyFansAdapter(account_id="scaffold")
+        r = a.publish(_req(platform="onlyfans", dry_run=False))
+        self.assertFalse(r.ok)
+        self.assertEqual(r.rule, RULE_WIRE_CLOSED)
+
+    def test_platform_id_is_onlyfans(self):
+        self.assertEqual(OnlyFansAdapter.platform, "onlyfans")
 
 if __name__ == "__main__":
     unittest.main()
