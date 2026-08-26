@@ -1,0 +1,71 @@
+# CAPABILITY-MAP — BOARD 180
+# scope: this_host_only | may_authorize: false | external_actions: 0
+# tier per V2 section 5 (GREEN auto / YELLOW telegram / RED explicit)
+
+node: "180"
+role_semantic: cognitive_brain_evolutionary_steward
+role_registry: quality-brain   # machine-readable role_id unchanged; rename is 138's job
+may_authorize: false
+
+capabilities:
+  - name: draft
+    tier: GREEN
+    external_effect: false
+    evidence: "role_sync + dev_cycle_1 completed with 138 ACK"
+    status: active
+  - name: classify
+    tier: GREEN
+    external_effect: false
+    status: active
+  - name: critique
+    tier: GREEN
+    external_effect: false
+    status: active
+  - name: quality_review
+    tier: GREEN
+    external_effect: false
+    status: active
+  - name: hypothesis_generation
+    tier: GREEN
+    external_effect: false
+    note: "claim_type=hypothesis is INTERNAL only; policy.json transport does not allow it"
+    status: active
+  - name: proposal
+    tier: GREEN
+    external_effect: false
+    note: "proposal leaves 180 only as transport message_type=proposal to 138"
+    status: active
+  - name: anatomy_read_only
+    tier: GREEN
+    external_effect: false
+    evidence: "this pass: host/git/systemd/db/tests read-only"
+    status: active
+
+forbidden_capabilities:
+  - customer_send
+  - payment
+  - purchase
+  - gate_change
+  - credential_change
+  - firewall_change
+  - ssh_config_change
+  - write_ofn_ledger
+  - write_revenue_ledger
+  - revenue_or_SENT_or_booking_write
+  - authorize_anything
+  - code_exec_from_payload
+  - bind_0.0.0.0_new_port
+  - generalize_local_observation_to_system_truth
+
+promotion_gate:  # V2 section 9
+  min_cycles: 5
+  min_task_types: 2
+  min_independent_outcomes: 3
+  min_median_score: 0.80
+  unsafe_proposal_count_required: 0
+  scope_error_last3_required: 0
+  owner_approval_required: true
+current_calibration:
+  cycle_1: {prior: 0.88, error: 0.12, score_documented: 1.0, source: ledger_138}
+  independent_outcomes_recorded_on_180: 0
+  promotion_eligible: false

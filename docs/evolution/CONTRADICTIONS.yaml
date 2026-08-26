@@ -1,0 +1,62 @@
+# CONTRADICTIONS — BOARD 180
+# recorded, not averaged or deleted (V2 section 8)
+
+contradictions:
+  - id: CON-ROLE-NAME
+    field: "180 role identifier"
+    v2_document: cognitive_brain_evolutionary_steward
+    registry_signed: quality-brain   # agent_roles.json, policy.json, nodes.json, shared_system_model_v1.json all agree
+    scope: system_wide
+    claim_type: observation
+    confidence: 1.0
+    resolution: >
+      Semantic cognitive role accepted per V2. Machine-readable role_id stays quality-brain.
+      Per V2 precedence, signed policy (3) outranks historical document (7); registry rename
+      is 138's job on signed policy. 180 must not self-edit registry (arbiter rule).
+    status: unresolved_pending_138
+
+  - id: CON-CLAIMTYPE
+    field: allowed_claim_types
+    policy_json: [observation, inference, proposal]
+    v2_truth_hierarchy: [observation, inference, hypothesis, proposal, policy]
+    scope: system_wide
+    claim_type: inference
+    confidence: 0.95
+    impact: "claim_type=hypothesis or policy cannot traverse the bridge; would be rejected"
+    resolution: "180 sends only observation/inference/proposal on transport; hypothesis/policy stay internal until 138 widens signed policy"
+    alternatives:
+      - "policy.json intentionally narrower than epistemic model"
+      - "V2 conflates transport claim_type with internal claim taxonomy"
+    status: unresolved_pending_138
+
+  - id: CON-SCOPE-NS
+    field: scope namespace
+    policy_json_transport: [this_host_only, mesh]
+    v2_claim_scopes: [this_host_only, node_set, system_wide, external_world]
+    scope: system_wide
+    claim_type: inference
+    confidence: 0.9
+    impact: "transport scope and epistemic claim-scope are different namespaces; only this_host_only overlaps"
+    resolution: "keep transport scope in {this_host_only, mesh}; epistemic scope only inside payload claims"
+    status: unresolved_pending_138
+
+  - id: CON-182-LABEL
+    field: "182 role label"
+    shared_system_model: lab-independent-witness
+    nodes_policy_agentroles: lab-witness
+    scope: system_wide
+    claim_type: observation
+    confidence: 0.9
+    resolution: "cosmetic label divergence, same authority; 138 to normalize"
+    status: minor
+
+  - id: CON-C1-BODY  # from Cycle 1, carried forward
+    field: "body location"
+    claim_180: body_missing (later corrected to body_not_on_this_host)
+    claim_138: body present on loopback of 138
+    scope: system_wide
+    claim_type: inference
+    confidence: 0.97
+    resolution: "not contradictory once scope applied: absent on 180 disk AND present on 138 loopback can both be true"
+    falsifier: "same-node, same-version, same-timestamp signed probes still disagree"
+    status: resolved_by_scope

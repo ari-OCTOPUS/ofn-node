@@ -1,0 +1,110 @@
+{
+  "envelope": 1,
+  "node_id": "180",
+  "asserted_ip": "192.168.0.180",
+  "verified_by": "ip -o -4 addr show eth0",
+  "machine_id_short": "bb41a9407b4f",
+  "vantage": "local-disk",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "ts": "2026-08-26T11:52:16Z",
+  "document": {
+    "v2_file": "tasks/OCTOPUS-180-INTEGRATED-EVOLUTIONARY-ARCHITECTURE-V2.md",
+    "v2_sha256": "fc0f8157544460d64f8f0d8d040bd10468eb150242e0455441c95529012bb02b",
+    "v1_file": "MEGAPROMPT-BOARD-180-EVOLUTIONARY-STEWARD-2026-08-26.md",
+    "v1_present_on_180": false,
+    "v1_s3_status": "403_request_expired_2026-08-26T11:44:54Z",
+    "v1_recovery": "requested_from_138_via_bridge"
+  },
+  "config_evidence": {
+    "agent_roles.json": "a1ab0ee83d99a3ced48a4123b653d4090fe83c46ecaf511eee4f543c092b47ee",
+    "policy.json": "0811077841dcb29926f3d8593508d8c02e8e1013f61869b688f2e90a37f9d0cc",
+    "nodes.json": "cefbd5cafe6893828da66d9fccc96fc36a7691a554b45eb9806c0199f10f9165",
+    "shared_system_model_v1.json": "42126f8324ebf000c444356cdfb4b7de1fd0da8cff2e375135d9a64cc3a2f11a"
+  },
+  "runtime_facts_verified": {
+    "identity": "eth0=192.168.0.180 host=octopus-continuity-180 user=root mid=bb41a9407b4f",
+    "lab_git_head": "747c373",
+    "lab_git_branch": "feat/phase3-completion",
+    "organism_process": "python3 -m ofn.organism.runtime.app --port 8090 (loopback)",
+    "commander_138": "nodes.json + role_sync ACK b3d5a0ea",
+    "witness_182": "nodes.json + SSH pass sensorium-opi5pro"
+  },
+  "role_conflicts": [
+    {
+      "field": "role_id / node role",
+      "v2_wants": "cognitive_brain_evolutionary_steward",
+      "registry_has": "quality-brain (agent_roles.json, policy.json, nodes.json, shared_system_model_v1.json all agree)",
+      "resolution": "semantic cognitive role accepted; machine-readable role_id unchanged. Registry rename is 138's job on signed policy. 180 must not self-edit registry.",
+      "claim_type": "observation",
+      "scope": "system_wide",
+      "confidence": 1.0
+    },
+    {
+      "field": "node 182 role label",
+      "v2_and_ssm": "lab-independent-witness (ssm) vs lab-witness (nodes/policy/agent_roles)",
+      "resolution": "cosmetic label divergence; same authority. Note for 138 to normalize.",
+      "claim_type": "observation",
+      "scope": "system_wide",
+      "confidence": 0.9
+    }
+  ],
+  "policy_conflicts": [
+    {
+      "field": "allowed_claim_types",
+      "policy_json": [
+        "observation",
+        "inference",
+        "proposal"
+      ],
+      "v2_truth_hierarchy": [
+        "observation",
+        "inference",
+        "hypothesis",
+        "proposal",
+        "policy"
+      ],
+      "impact": "claim_type=hypothesis or policy cannot traverse the bridge under current policy.json; would be rejected.",
+      "resolution": "180 keeps sending only observation/inference/proposal over transport. hypothesis/policy stay internal until 138 widens signed policy.",
+      "claim_type": "inference",
+      "scope": "system_wide",
+      "confidence": 0.95,
+      "alternatives": [
+        "policy.json is intentionally narrower than the epistemic model",
+        "V2 conflates transport claim_type with internal claim taxonomy"
+      ]
+    },
+    {
+      "field": "scope namespace",
+      "policy_json_transport_scopes": [
+        "this_host_only",
+        "mesh"
+      ],
+      "v2_claim_scopes": [
+        "this_host_only",
+        "node_set",
+        "system_wide",
+        "external_world"
+      ],
+      "impact": "transport scope and epistemic claim-scope are different namespaces; only this_host_only overlaps.",
+      "resolution": "keep transport scope in {this_host_only,mesh}; use epistemic scope only inside payload claims.",
+      "claim_type": "inference",
+      "scope": "system_wide",
+      "confidence": 0.9,
+      "alternatives": [
+        "two separate fields by design",
+        "needs one unified scope field defined by 138"
+      ]
+    }
+  ],
+  "historical_claims_marked_unverified": [
+    "test counts 634/1938 = DOCUMENTED",
+    "gates 2026-08-10 = STALE/expired",
+    "OFN_WIRE_OUTBOUND=1 = DOCUMENTED (not enabled here)",
+    "miner_isolation = HYPOTHESIS",
+    "approx SHAs 388594e / 32a81d0 = DOCUMENTED",
+    "Cycle1 score=1.0 = DOCUMENTED (138 calculation, not independently recomputed by 180)"
+  ],
+  "may_authorize": false,
+  "external_actions": 0
+}
