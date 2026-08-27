@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">OFN</title>
+  <rect width="512" height="512" rx="112" fill="#101827"/>
+  <circle cx="256" cy="256" r="154" fill="none" stroke="#63d7c6" stroke-width="28"/>
+  <circle cx="256" cy="256" r="52" fill="#f5bd63"/>
+  <path d="M256 68v92M256 352v92M68 256h92M352 256h92M123 123l65 65M324 324l65 65M389 123l-65 65M188 324l-65 65" stroke="#a99bf5" stroke-width="24" stroke-linecap="round"/>
+</svg>

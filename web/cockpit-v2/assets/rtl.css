@@ -1,0 +1,18 @@
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .ltr-isolate,
+html[dir="rtl"] .code-value,
+html[dir="rtl"] .timestamp,
+html[dir="rtl"] .money {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+
+html[dir="rtl"] details.advanced-json pre {
+  direction: ltr;
+  text-align: left;
+}

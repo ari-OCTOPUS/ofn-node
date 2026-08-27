@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101827" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
+  <meta name="description" content="مرکز فرمان فقط‌خواندنی OFN">
+  <title>مرکز فرمان OFN</title>
+  <link rel="manifest" href="/cockpit-v2/manifest.webmanifest">
+  <link rel="icon" href="/cockpit-v2/assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/cockpit-v2/assets/app.css">
+  <link rel="stylesheet" href="/cockpit-v2/assets/rtl.css">
+  <!-- Keep the Telegram SDK before the application module. app.js accesses it lazily. -->
+  <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module" src="/cockpit-v2/src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+
+  <div class="app-shell">
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">OFN · Cockpit V2 · M1</p>
+        <h1>مرکز فرمان</h1>
+        <p id="welcome" class="muted">سطح مالک، فقط‌خواندنی</p>
+      </div>
+      <div class="connection-summary" aria-label="وضعیت اتصال">
+        <span id="connection-dot" class="status-dot" aria-hidden="true"></span>
+        <span id="connection-text">در حال ورود…</span>
+      </div>
+    </header>
+
+    <div id="banner-region" class="banner-stack" aria-live="polite" aria-atomic="true"></div>
+    <p id="live-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+
+    <nav class="primary-nav" aria-label="بخش‌های مرکز فرمان">
+      <a href="#/command-center" data-route="command-center">مرکز</a>
+      <a href="#/nodes" data-route="nodes">نودها</a>
+      <a href="#/legs" data-route="legs">چرخه</a>
+      <a href="#/queue" data-route="queue">صف</a>
+      <a href="#/audit" data-route="audit">ممیزی</a>
+    </nav>
+
+    <main id="main-content" tabindex="-1" aria-busy="true">
+      <section class="page-state" aria-labelledby="boot-title">
+        <p class="loading-indicator" aria-hidden="true"></p>
+        <h2 id="boot-title">در حال برقراری نشست امن</h2>
+        <p>داده‌ها پس از تأیید مستقیم تلگرام نمایش داده می‌شوند.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span id="last-success">آخرین دریافت موفق: نامعلوم</span>
+      <span>فقط خواندن · فرمان‌ها پس از M2 در دسترس‌اند</span>
+    </footer>
+  </div>
+
+  <noscript>این مرکز فرمان برای ورود امن و نمایش داده به JavaScript نیاز دارد.</noscript>
+</body>
+</html>
