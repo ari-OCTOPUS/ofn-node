@@ -1,0 +1,45 @@
+{
+  "node": "138",
+  "hostname": "DietPi",
+  "ip": "192.168.0.138",
+  "collected_at": "2026-08-28T09:02+10:00 (AEST)",
+  "collector": "ZCode via ssh -o BatchMode=yes ari@192.168.0.138",
+  "uptime": "10 days 16:21",
+  "load_average": "1.20 0.63 0.48",
+  "resources": {"ram_total_mb": 3910, "ram_used_mb": 1506, "disk_root_used_pct": 20},
+  "services_active": [
+    "ofn.service",
+    "octopus-bridge.service",
+    "octopus-control-router.service",
+    "octopus-cycle-settler.service",
+    "octopus-router.service",
+    "octopus-supervisor.service",
+    "octopus-verify-dispatcher.service",
+    "ofn-heartbeat.service",
+    "hypno-fugu-mini.service",
+    "ofn-boot.service (exited ok)"
+  ],
+  "services_inactive": ["ofn-backup.service (P1-1)"],
+  "ports": {
+    "127.0.0.1:8791": "ziman leg",
+    "127.0.0.1:8792": "painting/lead leg",
+    "127.0.0.1:8793": "studio leg",
+    "127.0.0.1:8794": "owner panel",
+    "127.0.0.1:8796": "octopus-bridge (pid 589802)",
+    "127.0.0.1:8895": "hypno-fugu-mini (pid 672)"
+  },
+  "git": {
+    "repo": "/home/ari/ofn",
+    "head": "d3fb20c rapid-reconcile-138: truth baseline",
+    "dirty_files": 0,
+    "branch": "ofn/cockpit-v2-20260827 (no upstream)"
+  },
+  "dirs": ["/home/ari/ofn", "/home/ari/octopus-bridge", "/home/ari/octopus-mesh"],
+  "mesh": {"inbox_count": 5, "outbox_count": 9},
+  "databases": {
+    "painting.sqlite_bytes": 180224,
+    "products.sqlite_bytes": 204800,
+    "studio.sqlite_bytes": 118784
+  },
+  "anomalies": ["literal directory named '\\\\; cp -a ' in /home/ari (malformed shell command artifact)"]
+}

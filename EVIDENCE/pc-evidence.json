@@ -1,0 +1,56 @@
+{
+  "node": "pc",
+  "hostname": "WINDOWS-LAPTOP (F:\\backup live tree)",
+  "collected_at": "2026-08-28T09:0x+10:00",
+  "collector": "ZCode audit/zcode-20260828",
+  "root_path": "F:\\backup",
+  "processes": [
+    {"cmd": "python -X utf8 organism.py", "role": "organism metabolic loop", "port": 8771, "evidence": "tasklist+powershell 2026-08-27/28"},
+    {"cmd": "python -X utf8 cortex\\cortex.py", "role": "cortex brain / model router", "port": 8772, "evidence": "same"},
+    {"cmd": "python -X utf8 live\\server.py", "role": "live cockpit", "port": 8773, "evidence": "same"},
+    {"cmd": "python -X utf8 telegram_center\\center.py", "role": "Telegram Bot-2 center (single file ~400KB)", "evidence": "same"},
+    {"cmd": "python -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py", "role": "miniapp gateway", "port": 8774, "evidence": "same"},
+    {"cmd": "extract_graph.py", "role": "UNKNOWN aux process", "evidence": "same"}
+  ],
+  "runtime_state": {
+    "beat": 52218,
+    "coherence": 0.95,
+    "month_spend_aud": 1.07,
+    "epoch_mode": "allostatic",
+    "heart_v2_mode": "DEGRADED",
+    "memory_rows": 12736,
+    "recall_reach_events": 91,
+    "germline_lag_h": 2.46,
+    "source": "F:\\backup\\_ops\\state\\ORGANISM-STATE.json @2026-08-27T21:27Z"
+  },
+  "git": {
+    "branch": "rescue/octopus-live-tree-20260821",
+    "ahead_of_master": 302,
+    "behind_master": 0,
+    "uncommitted_files": 1149,
+    "untracked_risk": ["_ops/budget/governor.py live-but-untracked"],
+    "remote": "E:/germline/octopus.git",
+    "total_branches": 50
+  },
+  "resources": {
+    "ram_used_pct": 94.5,
+    "ram_free_mb": 900,
+    "top_consumers_mb": {"firefox": 965, "Grok Bot": 659, "Cursor": 584, "llama-server": 567},
+    "source": "06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-08-27/13-32.md"
+  },
+  "telegram": {
+    "live_bots": 2,
+    "dormant_bots": 8,
+    "registry": "_ops/BOTS-REGISTRY.md",
+    "inbound_loop": "BLOCKED (A18 canary narrow only, mids 617/618)"
+  },
+  "scheduled_tasks_active": [
+    "OCTOPUS Observatory Hourly",
+    "4d Poisoning Watch (6h)",
+    "4d Consolidation Tick (6h)",
+    "Recall keep-warm (6h)"
+  ],
+  "known_open_contradictions_count": 16,
+  "contradiction_range_open": "C-016..C-054 (selected)",
+  "secrets": "present in vault .env files; NOT printed (rule)"
+}
