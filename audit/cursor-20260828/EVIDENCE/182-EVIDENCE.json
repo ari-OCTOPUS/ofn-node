@@ -1,0 +1,37 @@
+{
+  "schema": "node-evidence.v1",
+  "node_id": "182",
+  "asserted_ip": "192.168.0.182",
+  "hostname": "sensorium-opi5pro",
+  "collected_at": "2026-08-27T23:03:14Z",
+  "source": "live_disk",
+  "vantage": "ssh-from-180-mesh-key",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "root_path": "/root/octopus-mesh",
+  "git": "no git",
+  "queues": {"inbox": 2200, "outbox": 577, "processed": 585, "rejected": 3},
+  "witness": {
+    "worker": "/root/octopus-mesh/bin/octopus_witness_worker.py",
+    "sha256": "0d17890d7eac72513545547b26fc291c0c840b45c9fcb02ad7c03c518a2e6ad1",
+    "timer": "octopus-witness-worker.timer",
+    "last_exec": "2026-08-27T23:01:41Z rc=0 claimed=1",
+    "last_actions_sample": ["generic_rejected", "completed_acked", "generic_rejected"]
+  },
+  "running_sensorium": [
+    "nats-server.service",
+    "octopus-fusiond.service",
+    "octopus-metacontrol.service",
+    "octopus-reflex.service",
+    "octopus-sensorium.service",
+    "octopus-skill-tracker.service",
+    "octopus-stability.service",
+    "octopus-world-model.service"
+  ],
+  "policy_json_sha256": "eee2812d7663721d3256f8c819ada8f5ee86699d0040d7acdd0d78fd742701aa",
+  "nodes_json_sha256": "cefbd5cafe6893828da66d9fccc96fc36a7691a554b45eb9806c0199f10f9165",
+  "policy_vs_180_138": "DRIFT: 180/138 policy.json sha256 e0ffea18df22ceea... ; 182 different. nodes.json MATCHES.",
+  "df": "58G 19G used 34%",
+  "listen": ["127.0.0.1:8222", "0.0.0.0:9101", "192.168.0.182:4222", "127.0.0.1:1883"],
+  "bizop_witness_verdict_on_180": "PENDING_138_RELAY — 180 cannot send witness_request"
+}

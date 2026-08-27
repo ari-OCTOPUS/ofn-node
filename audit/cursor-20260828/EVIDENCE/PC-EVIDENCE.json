@@ -1,0 +1,25 @@
+{
+  "schema": "node-evidence.v1",
+  "node_id": "PC",
+  "asserted_ip": "192.168.0.191",
+  "collected_at": "2026-08-27T23:03Z",
+  "source": "inference_from_180_mirror",
+  "vantage": "180-mirror-state",
+  "scope": "this_host_only",
+  "claim_type": "inference",
+  "icmp_from_180": "UP",
+  "F_backup": "body_not_on_this_host",
+  "mirror": {
+    "path": "/opt/octopus/mirror-cache",
+    "last_sync_result": "blocked",
+    "mirror_healthy": false,
+    "skip_reason": "laptop_reachable_but_no_pull_transport (ssh:22 closed or unauth; cifs creds missing)",
+    "last_attempt_utc": "2026-08-27T22:50:01Z"
+  },
+  "obsidian_on_pc": "UNKNOWN",
+  "alternative_explanations": [
+    "OpenSSH on 191 closed while ICMP answers",
+    "key mismatch",
+    "CIFS creds never filled"
+  ]
+}

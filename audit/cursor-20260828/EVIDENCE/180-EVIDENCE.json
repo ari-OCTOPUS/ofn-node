@@ -1,0 +1,519 @@
+{
+  "schema": "node-evidence.v1",
+  "node_id": "180",
+  "asserted_ip": "192.168.0.180",
+  "vantage": "local-disk",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "collected_at": "2026-08-27T23:02:37Z",
+  "source": "live_disk",
+  "may_authorize": false,
+  "hostname": "octopus-continuity-180",
+  "eth0": "192.168.0.180/24",
+  "user": "root",
+  "resources": {
+    "df_root": "/dev/mmcblk0p1   58G   49G  5.9G  90% /",
+    "mem_mib_total_used_free_avail": "3910 2949 38 961",
+    "loadavg": "0.46 0.38 0.36 2/307 226146",
+    "temp_raw": "26846"
+  },
+  "trees": {
+    "octopus-mesh": {
+      "exists": true,
+      "entries": [
+        "f README_FA.md",
+        "f RISK_REGISTER.md",
+        "f SESSION_AGENT_PROTOCOL_FA.md",
+        "f SESSION_BRIDGE_VERSION",
+        "f SHARED_SYSTEM_MODEL_FA.md",
+        "f VERSION",
+        "d audit",
+        "f audit/audit.jsonl",
+        "d backups",
+        "d backups/app-20260826T091025Z",
+        "d backups/app-20260826T092503Z",
+        "d backups/app-20260826T094917Z",
+        "d backups/app-20260826T095158Z",
+        "d backups/app-20260826T120946Z",
+        "d backups/app-20260827T111625Z",
+        "f backups/policy-20260827T104217Z.json",
+        "d bin",
+        "f bin/octomesh_agent_bridge.py",
+        "f bin/octomesh_agent_bridge.py.bak-20260826T230406Z",
+        "f bin/octomesh_align_permissions.py",
+        "f bin/octomesh_common.py",
+        "f bin/octomesh_process.py",
+        "f bin/octomesh_receive.py",
+        "f bin/octomesh_selftest.py",
+        "f bin/octomesh_send.py",
+        "f bin/octomesh_send.py.bak-20260826T214217Z",
+        "f bin/octomesh_status.py",
+        "f bin/octopus_business_cycle.py",
+        "f bin/octopus_cognitive_worker.py",
+        "f bin/octopus_cognitive_worker.py.bak-20260826T230406Z",
+        "f bin/octopus_cognitive_worker.py.bak-20260827T023117Z-pre-skip",
+        "f bin/octopus_cognitive_worker.py.bak-20260827T111625Z-pre-bizcycle",
+        "f bin/octopus_heartbeat.py",
+        "f bin/octopus_model_adapter.py",
+        "f bin/octopus_reply_outbox.py",
+        "f bin/octopus_reply_outbox.py.bak-20260827T012930Z",
+        "f bin/octopus_reply_outbox.py.bak-20260827T0132Z-pre-handed",
+        "f bin/octopus_reply_outbox.py.bak-20260827T0208Z-pre-inject",
+        "f bin/octopus_self_model.py",
+        "d config",
+        "f config/agent_roles.json",
+        "f config/business_cycle_contracts.v1.json",
+        "f config/cognitive_policy.json",
+        "f config/cognitive_policy.json.bak-20260827T111625Z-pre-bizcycle",
+        "f config/model_routes.json",
+        "f config/nodes.json",
+        "f config/policy.json",
+        "f config/policy.json.bak-20260826T214217Z",
+        "f config/policy.json.bak-20260826T220753Z-pre-byteexact",
+        "f config/shared_system_model_v1.json",
+        "d dead-letter",
+        "f dead-letter/2026-08-27T09-37-12.470514Z__ee738ac4-4997-4090-9cef-daab4fdfac69.json",
+        "f dead-letter/2026-08-27T09-37-12.470514Z__ee738ac4-4997-4090-9cef-daab4fdfac69.json.SUPERSEDED_TYPE_MISMATCH.json",
+        "d docs",
+        "d docs/constitution",
+        "d docs/evolution",
+        "d isolated",
+        "d isolated/skip-already-processed",
+        "d outbox",
+        "f outbox/180-to-138-bizop-20260828T224500Z.json",
+        "...truncated"
+      ],
+      "n_shown": 61
+    },
+    "lab": {
+      "exists": true,
+      "entries": [
+        "f .gitignore",
+        "f AGENT_HANDOFF_RK35XX_VALIDATION.md",
+        "f ARBITER-FEEDBACK-180.md",
+        "f BOARD-138-COMMAND-PATH.md",
+        "f MEGAPROMPT-QUALITY-BRAIN.md",
+        "f QUALITY-DRAFTS-PAINTING.md",
+        "f T1_LOCKED_SOAK_ACTIVE",
+        "d artifacts",
+        "d artifacts/capability-awakening",
+        "d artifacts/completion-phase3",
+        "d artifacts/concept-tour-phase2",
+        "d artifacts/prefix-cache",
+        "d artifacts/vllm-block-size",
+        "d artifacts/wave1-limited-canary",
+        "d audit",
+        "f audit/forbidden_scan.txt",
+        "f audit/help.txt",
+        "f audit/imports.txt",
+        "f audit/machine.txt",
+        "f audit/python_version.txt",
+        "f audit/source.sha256",
+        "f audit/uname.txt",
+        "f audit_runtime_console.log",
+        "d bin",
+        "f bin/checkpoint-watcher.py",
+        "f bin/post-reboot-first-stage.py",
+        "f bin/start-organism.sh",
+        "f bin/verify-identity-chain.py",
+        "f bin/watch-material-hash.py",
+        "d docs",
+        "d docs/adr",
+        "d docs/evolution",
+        "d docs/guides",
+        "d evidence",
+        "f evidence/AFFERENT-LIVE.json",
+        "f evidence/BOARD-LIFE-FIX-LATEST",
+        "f evidence/BOARD-REALITY.json",
+        "f evidence/BOARD-SCAN-AFTER.json",
+        "f evidence/BOARD-SCAN-AFTER.json.sha256",
+        "f evidence/BOARD-SCAN.json",
+        "f evidence/BOARD-SCAN.json.sha256",
+        "f evidence/EVENT-KERNEL-RESULTS.json",
+        "f evidence/FIRST-STAGE-C-DONE",
+        "f evidence/FIRST-STAGE-LABEL.json",
+        "f evidence/FIRST-STAGE-LABEL.json.sha256",
+        "f evidence/FIRST-STAGE-UNIT-SOURCE.sha256",
+        "f evidence/FORENSIC-16fc28ed.json",
+        "f evidence/GROWTH-H-HB-INTERVAL.json",
+        "f evidence/HEALTH-WRITE.json",
+        "f evidence/HEALTH-WRITE.json.sha256",
+        "...truncated"
+      ],
+      "n_shown": 51
+    },
+    "ofn-l4": {
+      "exists": true,
+      "entries": [
+        "f .gitignore",
+        "d docs",
+        "f docs/SCALE-AND-ACTIVE-INFERENCE.md",
+        "d ofnl4",
+        "f ofnl4/__init__.py",
+        "f ofnl4/arbiter.py",
+        "f ofnl4/body.py",
+        "f ofnl4/config.py",
+        "f ofnl4/contracts.py",
+        "f ofnl4/homeostat.py",
+        "f ofnl4/identity.py",
+        "f ofnl4/identity_bridge.py",
+        "f ofnl4/kernel.py",
+        "f ofnl4/shadow.py",
+        "f ofnl4/store.py",
+        "f ofnl4/theta.py",
+        "d tests",
+        "f tests/test_shadow.py",
+        "d var",
+        "f var/L4-GATE.json"
+      ],
+      "n_shown": 20
+    },
+    "vault": {
+      "exists": true,
+      "entries": [
+        "d .obsidian",
+        "f .obsidian/app.json",
+        "f .obsidian/graph.json",
+        "f 00 Home.md",
+        "f AGENTS.md",
+        "f AGI gap.md",
+        "f Attestation.md",
+        "f Body.md",
+        "f Evaluation.md",
+        "f Futures.md",
+        "f Hearing.md",
+        "f Identity.md",
+        "f Inner speech.md",
+        "f Learning.md",
+        "f Limits.md",
+        "f Metaphors.md",
+        "f Place.md",
+        "f School.md",
+        "f Season Sydney.md",
+        "f World.md"
+      ],
+      "n_shown": 20
+    }
+  },
+  "running_services": [
+    "octopus-afferent-lab.service",
+    "octopus-gateway.service",
+    "octopus-llama-lab.service",
+    "octopus-organism-lab.service",
+    "octopus-soak-lab.service"
+  ],
+  "timers": [
+    "Thu octopus-cognitive-worker.service",
+    "Thu octopus-heartbeat.service",
+    "Thu octopus-mesh-heartbeat.service",
+    "Thu octopus-mirror.service"
+  ],
+  "unit_exec": {
+    "octopus-afferent-lab.service": "ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 -m ofn.organism.runtime.afferent ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nFragmentPath=/etc/systemd/system/octopus-afferent-lab.service",
+    "octopus-cognitive-worker.service": "ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 /root/octopus-mesh/bin/octopus_cognitive_worker.py --once ; ignore_errors=no ; start_time=[Thu 2026-08-27 23:01:57 UTC] ; stop_time=[Thu 2026-08-27 23:02:10 UTC] ; pid=226072 ; code=exited ; status=0 }\nActiveState=inactive\nSubState=dead\nFragmentPath=/etc/systemd/system/octopus-cognitive-worker.service",
+    "octopus-first-stage-proof.service": "ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 /opt/octopus/lab/bin/post-reboot-first-stage.py ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=exited\nFragmentPath=/etc/systemd/system/octopus-first-stage-proof.service",
+    "octopus-gateway.service": "ExecStart={ path=/opt/octopus/gateway/venv/bin/uvicorn ; argv[]=/opt/octopus/gateway/venv/bin/uvicorn app:app --host 0.0.0.0 --port 8780 --no-server-header ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nFragmentPath=/etc/systemd/system/octopus-gateway.service",
+    "octopus-heartbeat.service": "ExecStart={ path=/opt/octopus/bin/heartbeat.sh ; argv[]=/opt/octopus/bin/heartbeat.sh ; ignore_errors=no ; start_time=[Thu 2026-08-27 23:02:01 UTC] ; stop_time=[Thu 2026-08-27 23:02:06 UTC] ; pid=226078 ; code=exited ; status=0 }\nActiveState=inactive\nSubState=dead\nFragmentPath=/etc/systemd/system/octopus-heartbeat.service",
+    "octopus-llama-lab.service": "ExecStart={ path=/opt/octopus/runtime/llama-current/bin/run-llama-server ; argv[]=/opt/octopus/runtime/llama-current/bin/run-llama-server --model /opt/octopus/models/qwen3-0.6b-q4_0.gguf --host 0.0.0.0 --port 8081 --threads 4 --threads-batch 4 --ctx-size 2048 --parallel 1 --batch-size 128 --ubatch-size 64 --cache-type-k q8_0 --cache-type-v q8_0 --poll 0 --timeout 120 --metrics --no-webui --offline ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nFragmentPath=/etc/systemd/system/octopus-llama-lab.service",
+    "octopus-mesh-heartbeat.service": "ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 /root/octopus-mesh/bin/octopus_heartbeat.py --once ; ignore_errors=no ; start_time=[Thu 2026-08-27 23:02:01 UTC] ; stop_time=[Thu 2026-08-27 23:02:01 UTC] ; pid=226079 ; code=exited ; status=0 }\nActiveState=inactive\nSubState=dead\nFragmentPath=/etc/systemd/system/octopus-mesh-heartbeat.service",
+    "octopus-mirror.service": "ExecStart={ path=/opt/octopus/bin/mirror-pull.sh ; argv[]=/opt/octopus/bin/mirror-pull.sh ; ignore_errors=no ; start_time=[Thu 2026-08-27 22:50:01 UTC] ; stop_time=[Thu 2026-08-27 22:50:03 UTC] ; pid=225395 ; code=exited ; status=0 }\nActiveState=inactive\nSubState=dead\nFragmentPath=/etc/systemd/system/octopus-mirror.service",
+    "octopus-organism-lab.service": "ExecStart={ path=/opt/octopus/lab/bin/start-organism.sh ; argv[]=/opt/octopus/lab/bin/start-organism.sh ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nFragmentPath=/etc/systemd/system/octopus-organism-lab.service",
+    "octopus-soak-lab.service": "ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 /opt/octopus/lab/ofn/organism/runtime/soak.py ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nFragmentPath=/etc/systemd/system/octopus-soak-lab.service"
+  },
+  "runtime_sha256": {
+    "/root/octopus-mesh/bin/octopus_cognitive_worker.py": {
+      "sha256": "7b6b387f00d8223fffb47a0e6ddd6ab87a16e62febdab765e42e19f541dec3ff",
+      "bytes": 29664,
+      "mtime": 1787829547
+    },
+    "/root/octopus-mesh/bin/octopus_business_cycle.py": {
+      "sha256": "dc8f58a79bc4d113a7084f8f877043f9550e781c95dbe0685eaf59afdb936028",
+      "bytes": 19400,
+      "mtime": 1787829698
+    },
+    "/root/octopus-mesh/bin/octopus_reply_outbox.py": {
+      "sha256": "0e6dccfb6824e0da41c0a99014ee7b3709df9d9da29047e5387be183b12208ff",
+      "bytes": 23614,
+      "mtime": 1787796564
+    },
+    "/root/octopus-mesh/bin/octomesh_send.py": {
+      "sha256": "c2b95b2a6c277e8776907180f232218f62908051b8102d92fed8820931076001",
+      "bytes": 15749,
+      "mtime": 1787780622
+    },
+    "/root/octopus-mesh/bin/octopus_model_adapter.py": {
+      "sha256": "e1ba9d4acf7b1975459a8ff6c3130698cf75ca717ffb0dd4d86976f1ece94cce",
+      "bytes": 5778,
+      "mtime": 1787823855
+    },
+    "/root/octopus-mesh/config/nodes.json": {
+      "sha256": "cefbd5cafe6893828da66d9fccc96fc36a7691a554b45eb9806c0199f10f9165",
+      "bytes": 857,
+      "mtime": 1787735127
+    },
+    "/root/octopus-mesh/config/policy.json": {
+      "sha256": "e0ffea18df22ceeadb2b0b28b9a4bed7b409503ac49f7a28e7632fb7c2c4ec79",
+      "bytes": 1179,
+      "mtime": 1787827337
+    },
+    "/root/octopus-mesh/config/cognitive_policy.json": {
+      "sha256": "1760ac604c769d77cc2ee25222b2cc1a7732aa861cdb63c76666a36d4e516e91",
+      "bytes": 1028,
+      "mtime": 1787829578
+    },
+    "/opt/octopus/lab/ofn/organism/runtime/app.py": {
+      "sha256": "0e881b7fa70252690654e96ba17d565bdc4403dbae179145e8d0d3e767866267",
+      "bytes": 31235,
+      "mtime": 1787663365
+    },
+    "/opt/octopus/lab/ofn/organism/school/vault.py": {
+      "sha256": "8cf8ce8721fd22a0f68f91d2712b620eeb6232a51fc80b6471f9245876ea3b57",
+      "bytes": 19002,
+      "mtime": 1787647759
+    }
+  },
+  "git": {
+    "/root/octopus-mesh": {
+      "git": false,
+      "note": "no git"
+    },
+    "/opt/octopus/lab": {
+      "git": true,
+      "branch": "ofn/evolve-20260826-anatomy-180",
+      "head": "76db5162d9add040bf6c0b589475910f396422a3 2026-08-26 13:29:01 +0000 Add additive anatomy dispute corrections for board 180",
+      "remotes": "NONE",
+      "porcelain_lines": 87
+    },
+    "/opt/octopus/ofn-l4": {
+      "git": true,
+      "branch": "master",
+      "head": "08f915548f3a515becda4c8c33fb20c7d6804786 2026-08-25 10:58:08 +0000 Add OFN-L4 shadow kernel, outbox, and identity bridge.",
+      "remotes": "NONE",
+      "porcelain_lines": 0
+    }
+  },
+  "mesh_queues": {
+    "inbox": {
+      "exists": true,
+      "files": 1490
+    },
+    "outbox": {
+      "exists": true,
+      "files": 22
+    },
+    "processed": {
+      "exists": true,
+      "files": 19
+    },
+    "rejected": {
+      "exists": true,
+      "files": 2
+    },
+    "dead-letter": {
+      "exists": true,
+      "files": 2
+    }
+  },
+  "cognition_state": {
+    "exists": true,
+    "entries": [
+      "prediction-5f0b946d-c95f-4a01-a260-2c67ad712bd7.sha256",
+      "prediction-ed1cf1f3-9510-4dbc-8990-a924007aaa98.json",
+      "prediction-5ff6cfcc-d790-496d-9b5b-e446b992d1fa.sha256",
+      "prediction-22d38340-b8c3-4758-914e-5bc6a4f70a51.json",
+      "prediction-ad16b352-f941-4c77-af52-fde4f4abc282.json",
+      "prediction-c0f34124-d918-4ab3-8a6c-eb29c5a2ad47.json",
+      "prediction-6d7f7b65-e6e4-4785-9df2-89a6654c2b00.sha256",
+      "prediction-05956eee-ac3e-4456-baeb-27dc7428e436.json",
+      "prediction-715f85f3-718b-4730-8434-1667f678b5bd.sha256",
+      "prediction-b5c9bccb-0f26-43a7-8eb6-a0572930c06d.json",
+      "prediction-57f24013-062b-4a38-86e0-41b6dc0d4ba5.json",
+      "prediction-2cfb2462-422c-4ca4-a552-b2bae231f910.json",
+      "prediction-f39667d7-99df-40a5-92c7-d6d08fbca1f2.sha256",
+      "prediction-864b83ab-a52a-4e3a-8c3d-e630b91448f1.json",
+      "prediction-3f11543a-88f9-4588-a1dc-c8798b60da97.json",
+      "prediction-31463d7a-3596-4192-94ed-9ac189125e4e.sha256",
+      "prediction-ece3588e-41ee-42b3-a92d-498379989670.sha256",
+      "prediction-55d50783-841e-4ed9-9f1e-465a26ac81c1.json",
+      "prediction-3243438c-26b9-4287-bfd8-9e03ce9076e6.json",
+      "prediction-b3f78979-d9ea-4961-90be-58083dbd42f1.sha256",
+      "prediction-aa683115-fe25-4e9c-876d-ec6764cb40c3.json",
+      "prediction-5ae5c5b9-9e24-4568-b843-4db5425b1fb3.sha256",
+      "prediction-037b4999-9d21-490b-b73e-b47962f0309c.sha256",
+      "prediction-f75bab53-d444-42ed-a11a-0fb7f750824e.sha256",
+      "prediction-5f438c79-e52c-49bb-8ec3-a9e68a3cf09c.json",
+      "prediction-db13c367-0b37-4157-8d8d-5de43f15c3b7.json",
+      "prediction-8598e871-09de-490f-8b0c-962da22cc7d2.sha256",
+      "prediction-b4af6976-a6bc-447f-9c04-3a8d49ad02b7.json",
+      "prediction-89ca5309-5c38-493a-ac73-d8d23003fea6.sha256",
+      "prediction-fe1f02cb-7d04-4a71-bd54-655dec56baa7.sha256",
+      "prediction-66a9f901-5727-45a9-be53-2ea672327378.json",
+      "prediction-b4e7174e-df97-4c0c-9866-aa89df5312e5.sha256",
+      "prediction-c4b9bebe-ef2c-4a78-801e-0f704290facc.sha256",
+      "prediction-37df8d2a-aa42-4a50-9782-a67b6cc27cf1.sha256",
+      "prediction-67f20418-d09b-4faf-9d8e-ea96c25a76b9.sha256",
+      "prediction-20b3731a-9fab-497e-b3b5-ce92e0d10d66.json",
+      "prediction-1b3bcfad-1301-4ebf-80b4-9673cd6f7afc.json",
+      "prediction-459a1f87-36fc-407e-a176-ae0dbaaaa7a7.json",
+      "prediction-bf8988fc-c773-44ff-9cc7-a7064228819d.json",
+      "prediction-d6ef60d2-97c7-4e57-a1bf-e811c87617ac.json",
+      "prediction-06e46ab3-2be3-43b0-8167-967764cb34c5.sha256",
+      "prediction-a2a36361-83d7-4f30-a43a-7ba934a4f0dd.sha256",
+      "prediction-bff3b0db-b3ac-4f91-bfbb-fbadaceae29d.sha256",
+      "prediction-e4d06c88-01a9-4ed7-a9f8-ae1a4f5ecbcd.sha256",
+      "prediction-96377cb4-39b5-46d8-9873-9ae2bd6cdd9b.json",
+      "prediction-a49548b7-4550-4e95-8a3f-ad5c9adc9a1b.json",
+      "prediction-79f0e339-2c78-4347-b02b-41949e0d6534.sha256",
+      "prediction-7e6a6a09-f48c-4389-bce1-781b24382fd0.json",
+      "prediction-79177fde-c6e9-4874-be75-ea6fc464eaba.sha256",
+      "prediction-5f62379d-5e54-44e1-b826-f65930698510.sha256",
+      "prediction-3c08f6f7-11e8-4455-b16b-ed92a08ec3be.json",
+      "prediction-508ffe3f-ef57-4a6b-a3fd-5533cc36f2b2.sha256",
+      "prediction-f8c2af4b-cdf6-4920-8fdc-5f3e90eb8e48.json",
+      "prediction-ae8bf23c-e9f3-4d1a-b266-24f232e014bf.sha256",
+      "prediction-3cd4ab42-a6bf-4b89-9dcc-32751a5cd394.sha256",
+      "prediction-3f192384-e341-4be6-9896-bbb8341e467f.json",
+      "prediction-2de56e27-1bf0-417d-ac3a-cfa7d75017a7.json",
+      "prediction-1e288621-3dfc-4bb7-8296-a10eac785972.sha256",
+      "prediction-1e3cb95b-3e5b-453e-b637-bf7b7d70f074.json",
+      "prediction-dba6f7e3-2af1-4389-a838-a078e99e2e23.sha256",
+      "prediction-626c05ae-72a9-4e2f-bafa-2a7af57c7d1d.json",
+      "prediction-356c8ee7-d47d-41e3-a10c-0277baca62d8.sha256",
+      "prediction-f3d635ad-a0d7-4c17-bba3-1a255b583a16.json",
+      "prediction-4b5d46f3-736b-4189-a0a6-2689d396fd60.sha256",
+      "prediction-20c60df3-e3da-41e8-8adb-8a532d910533.sha256",
+      "prediction-b772dbb8-f6c3-46e2-8646-546c8c2c42d8.json",
+      "prediction-447cf3b7-7d11-4e1e-b794-a0eb426d1819.sha256",
+      "prediction-bb0923b3-cdb2-4e7e-a15b-256d51bd290f.sha256",
+      "prediction-89e416f1-9f25-4b23-ad76-ea1c73c34cff.sha256",
+      "prediction-62c15c5c-9721-4ef9-8489-88a9c0c4159d.sha256",
+      "prediction-3429b19e-b2c5-4459-a413-9ff6b7ac1771.sha256",
+      "prediction-0735dbb6-0758-46e0-bbbc-baaf3b0130fe.json",
+      "prediction-1fe8e277-75c6-4495-a500-a2cf1fa5b6ab.json",
+      "prediction-39fe27a7-bace-4c24-9bdf-f7fc78e211ca.json",
+      "prediction-88e02c41-056a-44b9-baa0-00b20f3df6a6.json",
+      "prediction-c50e8b17-a53b-4628-9691-294630b7e559.json",
+      "prediction-706779bf-8ed6-4748-93ab-d274f5a94334.json",
+      "prediction-4c2e0085-8564-440f-b50f-64fed4fddc30.json",
+      "prediction-3d6763e5-6b5b-465a-afa0-36aa45846bbe.json",
+      "prediction-fce545b1-a660-4e9b-b0a4-84091bca53b0.sha256"
+    ],
+    "memory_counts": {
+      "semantic": 0,
+      "negative": 1,
+      "procedural": 1,
+      "episodic": 1
+    }
+  },
+  "organism_db": {
+    "path": "/opt/octopus/lab/lab-data/organism.db",
+    "tables": {
+      "events": 2845,
+      "outbox": 2845,
+      "sqlite_sequence": 3,
+      "identity_heartbeat": 895,
+      "episodes": 2845,
+      "meta": 20,
+      "identity_ledger": 951,
+      "ask_cache": 6,
+      "self_models": 785,
+      "world_hosts": 3,
+      "utterances": 290,
+      "growth_habits": 7,
+      "lessons": 9,
+      "exams": 10,
+      "inner_speech": 774,
+      "school_courses": 10,
+      "futures": 9,
+      "learned_topics": 4,
+      "memory_read_receipts": 12001,
+      "decision_evidence": 9072,
+      "wan_fetches": 0
+    },
+    "source": "live_disk"
+  },
+  "listen_addrs": [
+    "127.0.0.1:43811",
+    "192.168.0.180:8090",
+    "0.0.0.0:8081",
+    "0.0.0.0:8780",
+    "127.0.0.1:42871",
+    "127.0.0.1:8090",
+    "0.0.0.0:22",
+    "0.0.0.0:2222",
+    "127.0.0.1:40105",
+    "127.0.0.1:46337",
+    "[::]:22",
+    "[::]:2222"
+  ],
+  "neighbors_icmp": {
+    "192.168.0.1": "UP",
+    "192.168.0.138": "UP",
+    "192.168.0.182": "UP",
+    "192.168.0.191": "UP"
+  },
+  "tests_this_run": {
+    "test_business_cycle": {
+      "ran": 15,
+      "result": "OK",
+      "cmd": "python3 /root/octopus-mesh/tests/test_business_cycle.py -q",
+      "at": "2026-08-27T23:03Z"
+    },
+    "test_reply_retry": {
+      "ran": 27,
+      "result": "OK",
+      "cmd": "python3 /root/octopus-mesh/tests/test_reply_retry.py -q",
+      "at": "2026-08-27T23:03Z"
+    },
+    "test_cognitive_worker": {
+      "ran": 6,
+      "result": "OK",
+      "cmd": "python3 /root/octopus-mesh/tests/test_cognitive_worker.py -q",
+      "at": "2026-08-27T23:03Z"
+    },
+    "organism_subset_test_life_learn": {
+      "ran": 14,
+      "result": "OK",
+      "cmd": "PYTHONPATH=/opt/octopus/lab python3 -m unittest ofn.organism.tests.test_life ofn.organism.tests.test_learn -q",
+      "at": "2026-08-27T23:03Z"
+    }
+  },
+  "capabilities_live": [
+    "organism HTTP 127.0.0.1+192.168.0.180:8090 (LAN token/cooldown)",
+    "llama 8081 health HTTP 200",
+    "cognitive worker timer oneshot --once",
+    "mesh send/receive SSH",
+    "business cycle library three lanes shadow fixtures",
+    "obsidian vault export board-life-001"
+  ],
+  "external_effect_paths": [
+    "HOLD: may_authorize=false painting_shadow_only=true",
+    "Telegram owner dialogue: body on 138, octopus-telegram-bridge inactive",
+    "witness_request: 180 cannot send; 138 must mint",
+    "revenue/SENT/booking: forbidden on 180"
+  ],
+  "gates": {
+    "may_authorize": false,
+    "painting_shadow_only": true,
+    "L4-GATE": {
+      "listen": false,
+      "run": false,
+      "phase": "shadow_only"
+    },
+    "OWNER_PAUSE": false
+  },
+  "secret_key_names_only": [
+    "DEEPSEEK_API_KEY"
+  ],
+  "inbox_sample_400": {
+    "ping": 385,
+    "cognitive_wake.v1": 12,
+    "task": 2,
+    "proposal": 1
+  },
+  "pc_mirror": {
+    "last_sync_result": "blocked",
+    "mirror_healthy": false,
+    "skip_reason": "laptop_reachable_but_no_pull_transport"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "node-evidence.v1",
+  "node_id": "PC_worker",
+  "collected_at": "2026-08-27T23:03Z",
+  "source": "not_observed",
+  "vantage": "180+138+182 scan",
+  "scope": "this_host_only",
+  "claim_type": "inference",
+  "process": "UNKNOWN",
+  "jobs_queue": "UNKNOWN",
+  "receipts": "UNKNOWN",
+  "note": "No PC_worker unit, path, or receipt store found on 180, 138, or 182. Do not treat absence as proof the worker does not exist on the laptop."
+}

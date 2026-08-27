@@ -1,0 +1,67 @@
+{
+  "schema": "node-evidence.v1",
+  "node_id": "138",
+  "asserted_ip": "192.168.0.138",
+  "hostname": "DietPi",
+  "collected_at": "2026-08-27T23:03:21Z",
+  "source": "live_disk",
+  "vantage": "ssh-from-180",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "root_paths": ["/home/ari/ofn", "/home/ari/octopus-mesh"],
+  "git": {
+    "ofn-node": {
+      "path": "/home/ari/ofn",
+      "branch": "octopus/reconcile-138-20260827",
+      "head": "d3fb20c14179ee8572612beda715f8339b0fdcbd",
+      "origin": "https://github.com/ari322/ofn-node.git",
+      "matches_origin_branch": true
+    }
+  },
+  "queues": {"inbox": 5, "outbox": 9, "processed": 6192},
+  "running_services": [
+    "hypno-fugu-mini.service",
+    "octopus-bridge.service",
+    "octopus-control-router.service",
+    "octopus-cycle-settler.service",
+    "octopus-router.service",
+    "octopus-supervisor.service",
+    "octopus-verify-dispatcher.service",
+    "ofn-heartbeat.service",
+    "ofn.service"
+  ],
+  "timers_observed": [
+    "octopus-heartbeat.timer",
+    "octopus-budget-monitor.timer",
+    "octopus-scheduler.timer",
+    "ofn-bridge-watchdog.timer",
+    "ofn-sync-watchdog.timer",
+    "ofn-backup.timer"
+  ],
+  "exec": {
+    "ofn.service": "python3 -m ofn.run",
+    "octopus-scheduler.service": "python3 /home/ari/octopus-mesh/bin/octopus_scheduler.py --once",
+    "octopus-telegram-bridge.service": "ActiveState=inactive"
+  },
+  "executor": {
+    "path": "/home/ari/octopus-mesh/bin/octopus_executor.py",
+    "sha256": "1acdb5dbf988ae146af4946b2c28de5f00f35a9aef5afae1e0692ebc2ff6281e",
+    "bytes": 4339
+  },
+  "packs": ["hypno.yaml", "lead.yaml", "studio.yaml", "ziman.yaml"],
+  "megaprompt_md_count": 15,
+  "ofn_test_files_on_disk": 113,
+  "ofn_test_run_this_session": "NOT_RUN",
+  "telegram": {
+    "octopus_telegram_bridge": "inactive",
+    "hypno_fugu_mini": "running",
+    "note": "hypno-fugu is a separate Telegram web app, not proven as owner-decision gateway for painting/ziman/studio"
+  },
+  "github": {
+    "ls_remote_ofn-node": "ok",
+    "gh_cli": false,
+    "git_credentials": "present"
+  },
+  "df": "58G 11G used 20%",
+  "secret_key_names_only": ["git-credentials=present"]
+}
