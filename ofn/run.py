@@ -17,8 +17,10 @@ import signal
 import sys
 import threading
 import time
+from datetime import datetime, timezone
+from pathlib import Path
 
-from . import config
+from . import __version__, config
 from .adapters.advisor import Advisor
 from .adapters.audience_store import AudienceStore
 from .adapters.boot import BootSupervisor
@@ -222,7 +224,128 @@ def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
     return out
 
 
+def load_cockpit_v2(root: str | None = None, *,
+                    max_files: int = 128,
+                    max_file_bytes: int = 4 * 1024 * 1024,
+                    max_total_bytes: int = 16 * 1024 * 1024,
+                    ) -> dict[str, bytes]:
+    """Load the explicit owner-only V2 static tree once during startup.
+
+    The walk is bounded by count and bytes, rejects links, and only exposes the
+    file types the transport knows how to label. Missing assets leave the old
+    owner panel and APIs fully usable.
+    """
+    if root is None:
+        web_root = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "web")
+        root = os.path.join(web_root, "cockpit-v2")
+    root = os.path.abspath(root)
+    allowed = {".html", ".js", ".mjs", ".css", ".webmanifest",
+               ".json", ".svg", ".png", ".woff2"}
+    loaded: dict[str, bytes] = {}
+    total = 0
+    try:
+        entries = sorted(
+            (entry for entry in os.scandir(root) if not entry.is_symlink()),
+            key=lambda entry: entry.name,
+        )
+    except OSError:
+        return loaded
+
+    pending = entries
+    while pending:
+        entry = pending.pop(0)
+        try:
+            if entry.is_dir(follow_symlinks=False):
+                children = sorted(
+                    (child for child in os.scandir(entry.path)
+                     if not child.is_symlink()),
+                    key=lambda child: child.name,
+                )
+                pending[0:0] = children
+                continue
+            if not entry.is_file(follow_symlinks=False):
+                continue
+            rel = os.path.relpath(entry.path, root).replace(os.sep, "/")
+            suffix = os.path.splitext(rel)[1].lower()
+            if suffix not in allowed:
+                continue
+            size = entry.stat(follow_symlinks=False).st_size
+            if (size < 0 or size > max_file_bytes
+                    or len(loaded) >= max_files
+                    or total + size > max_total_bytes):
+                continue
+            with open(entry.path, "rb") as fh:
+                data = fh.read(max_file_bytes + 1)
+            if len(data) != size or len(data) > max_file_bytes:
+                continue
+        except OSError:
+            continue
+        loaded["/cockpit-v2/" + rel] = data
+        total += len(data)
+
+    index = loaded.get("/cockpit-v2/index.html")
+    if index is not None:
+        loaded["/cockpit-v2"] = index
+        loaded["/cockpit-v2/"] = index
+    return loaded
+
+
+def _cockpit_v2_reader(node: Node):
+    """Construct the local read model once; never do discovery per request."""
+    try:
+        from .adapters.cockpit_v2_read_model import (
+            CockpitV2ReadModel,
+            semantic_etag,
+        )
+    except ImportError as exc:
+        # The module may genuinely be absent during a staged rollout. Do not
+        # hide an import failure *inside* an installed model, which is a broken
+        # deployment and should fail startup rather than silently remove V2.
+        if exc.name in {
+                "ofn.adapters.cockpit_v2_read_model",
+                f"{__package__}.adapters.cockpit_v2_read_model",
+        }:
+            return None
+        raise
+
+    # Metadata-only OFN seams. Payload-returning reads (owner_queue,
+    # recent_events) and mutation-prone projections are deliberately absent.
+    reads = {
+        "status": node.owner_status,
+        "observability": node.owner_observability,
+        "metrics": node.owner_metrics,
+        "businesses": node.owner_businesses,
+        "risks": node.owner_risks,
+        "ledger_summary": node.owner_ledger_summary,
+    }
+    try:
+        model = CockpitV2ReadModel(
+            clock=lambda: datetime.now(timezone.utc),
+            mesh_root=Path(os.path.expanduser(
+                os.environ.get("OCTOPUS_MESH_ROOT", "~/octopus-mesh"))),
+            ofn_callbacks=reads,
+            version_metadata={
+                "ofn": __version__,
+                "ofn_commit": os.environ.get("OFN_COMMIT") or None,
+            },
+        )
+    except TypeError:
+        return None
+    if not callable(getattr(model, "read", None)):
+        return None
+
+    def read(resource, query):
+        envelope = model.read(resource, query)
+        validator = semantic_etag(
+            envelope, resource, model.normalize_query(resource, query))
+        return envelope, {"validator": validator}
+
+    return read
+
+
 def build_api(cfg: config.Config, node: Node) -> ApiApp:
+    owner_v2_read = _cockpit_v2_reader(node)
     return ApiApp(
         node.registry,
         HostMap(tenants=cfg.hosts, owner_host=cfg.owner_host),
@@ -328,13 +451,20 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         send_lead_quote=node.send_lead_quote,
         owner_mini_webs_summary=node.owner_mini_webs_summary,
         owner_telegram_summary=node.owner_telegram_summary,
+        owner_v2_read=owner_v2_read,
         mini_apps=tuple({
             "id": name,
             "business_id": None if name == "owner" else name,
             "role": "owner" if name == "owner" else "partner",
             "listen_port": cfg.ports[name],
-            "paths": (("/", "/index.html", "/sabaapp", "/sabaapp/")
-                      if name == "studio" else ("/", "/index.html")),
+            "paths": (
+                ("/", "/index.html", "/sabaapp", "/sabaapp/")
+                if name == "studio" else
+                ("/", "/index.html", "/cockpit-v2", "/cockpit-v2/",
+                 "/cockpit-v2/*")
+                if name == "owner" else
+                ("/", "/index.html")
+            ),
         } for name in ("lead", "studio", "ziman", "owner")),
     )
 
@@ -427,6 +557,9 @@ def main() -> int:
 
     api = build_api(cfg, node)
     web = load_web(cfg)
+    # V2 is public static content but owner-port-only. Never merge it into a
+    # tenant listener's map; the APIs it calls remain owner-authenticated.
+    web.setdefault(cfg.ports["owner"], {}).update(load_cockpit_v2())
     servers = []
     for port in sorted(set(cfg.ports.values())):
         # One listener per shell. The messaging platform restricts its client

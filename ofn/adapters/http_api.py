@@ -240,6 +240,7 @@ class ApiApp:
         owner_mini_webs_summary: Callable[[], dict] | None = None,
         owner_telegram_summary: Callable[[], dict] | None = None,
         mini_apps: Sequence[Mapping[str, object]] = (),
+        owner_v2_read: Callable[[str, object], object] | None = None,
         brain_status: Callable[[], dict] | None = None,
         brain_probe: Callable[[TenantScope], dict] | None = None,
         owner_ask: Callable[[TenantScope, str], dict] | None = None,
@@ -373,6 +374,7 @@ class ApiApp:
         # never enter this structure, so the owner projection cannot leak them
         # later by accidentally serialising a config object wholesale.
         self._mini_apps = tuple(dict(app) for app in mini_apps)
+        self._owner_v2_read = owner_v2_read
         self._webhook_handler = webhook_handler
 
     # ── entry point ───────────────────────────────────────────────────────
@@ -457,7 +459,8 @@ class ApiApp:
             return Response(401, {"error": "unauthorised"})
 
         if is_owner_host:
-            return self._owner_route(method, path, principal, body)
+            return self._owner_route(
+                method, path, principal, body, query=query, headers=headers)
         return self._partner_route(method, path, principal, body, query=query)
 
     # ── boot report ───────────────────────────────────────────────────────
@@ -1065,10 +1068,142 @@ class ApiApp:
         ("/api/v1/owner/ledger/summary", "_owner_ledger_summary"),
     )
 
+    _OWNER_V2_RESOURCES = frozenset(
+        {"status", "nodes", "legs", "queue", "audit", "version"})
+    _OWNER_V2_PREFIX = "/api/v2/owner/"
+
+    @staticmethod
+    def _owner_v2_query(query: str) -> dict[str, list[str]]:
+        """Parse a V2 query without discarding duplicate or blank values."""
+        return urllib.parse.parse_qs(
+            query or "", keep_blank_values=True, strict_parsing=False)
+
+    @staticmethod
+    def _owner_v2_result(result: object) -> tuple[object, str | None]:
+        """Accept an envelope alone or ``(envelope, metadata)`` from a model.
+
+        Metadata may be a mapping with ``etag``/``validator`` or a validator
+        string.  As a compatibility convenience, an envelope's top-level
+        ``_meta``/``meta`` may carry the same keys without being removed from
+        the public envelope.
+        """
+        envelope = result
+        metadata: object = None
+        if isinstance(result, tuple) and len(result) == 2:
+            envelope, metadata = result
+        elif isinstance(result, Mapping) and "envelope" in result:
+            # Named wrapper convention: {"envelope": {...}, "etag": ...}.
+            # It avoids an untyped tuple while leaving a plain common envelope
+            # unambiguous. Unknown wrapper keys remain metadata only.
+            envelope = result.get("envelope")
+            metadata = result
+
+        validator: object = None
+        if isinstance(metadata, Mapping):
+            validator = (metadata.get("etag") or metadata.get("ETag")
+                         or metadata.get("validator")
+                         or metadata.get("semantic_validator"))
+        elif isinstance(metadata, str):
+            validator = metadata
+        if validator is None and isinstance(envelope, Mapping):
+            for key in ("_meta", "meta", "metadata"):
+                candidate = envelope.get(key)
+                if isinstance(candidate, Mapping):
+                    validator = (candidate.get("etag")
+                                 or candidate.get("ETag")
+                                 or candidate.get("validator")
+                                 or candidate.get("semantic_validator"))
+                    if validator is not None:
+                        break
+            if validator is None:
+                validator = (envelope.get("etag") or envelope.get("ETag")
+                             or envelope.get("validator")
+                             or envelope.get("semantic_validator"))
+        if not isinstance(validator, str) or not validator.strip():
+            return envelope, None
+        validator = validator.strip()
+        if validator.startswith("W/"):
+            opaque = validator[2:]
+            if not (len(opaque) >= 2 and opaque[0] == opaque[-1] == '"'):
+                opaque = opaque.replace("\\", "\\\\").replace('"', '\\"')
+                validator = f'W/"{opaque}"'
+        elif (len(validator) >= 2
+              and validator[0] == validator[-1] == '"'):
+            validator = "W/" + validator
+        else:
+            # Quote the opaque tag safely even if a callback returns arbitrary
+            # revision text rather than an already formatted HTTP validator.
+            opaque = validator.replace("\\", "\\\\").replace('"', '\\"')
+            validator = f'W/"{opaque}"'
+        return envelope, validator
+
+    @staticmethod
+    def _if_none_match_matches(raw: str, validator: str | None) -> bool:
+        if not raw or validator is None:
+            return False
+        # Weak comparison is the correct validator comparison for GET.  Strip
+        # optional W/ prefixes while preserving the quoted opaque tag.
+        wanted = validator[2:] if validator.startswith("W/") else validator
+        for candidate in raw.split(","):
+            candidate = candidate.strip()
+            if candidate == "*":
+                return True
+            current = (candidate[2:]
+                       if candidate.startswith("W/") else candidate)
+            if current == wanted:
+                return True
+        return False
+
+    def _owner_v2_route(self, method: str, path: str, query: str,
+                        headers: Mapping[str, str]) -> Response | None:
+        if not path.startswith(self._OWNER_V2_PREFIX):
+            return None
+        resource = path[len(self._OWNER_V2_PREFIX):]
+        if not resource or "/" in resource \
+                or resource not in self._OWNER_V2_RESOURCES:
+            return Response(404, {"error": "not found"})
+        if method != "GET":
+            return Response(405, {"error": "method not allowed"}, {
+                "Allow": "GET", "Cache-Control": "private, no-store",
+            })
+        if self._owner_v2_read is None:
+            return self._owner_read({"error": "not found"}, 404)
+
+        try:
+            result = self._owner_v2_read(
+                resource, self._owner_v2_query(query))
+        except ValueError as exc:
+            # The read model signals rejected queries with a ValueError
+            # carrying a safe code (BadQuery). Never leak repr/traceback.
+            code = getattr(exc, "code", "bad_query")
+            if not isinstance(code, str) or not code:
+                code = "bad_query"
+            return Response(400, {
+                "schema_version": "2.0",
+                "status": "unavailable",
+                "data": None,
+                "sources": [],
+                "warnings": [code],
+                "stale_after": None,
+            }, {"Cache-Control": "private, no-store"})
+        envelope, validator = self._owner_v2_result(result)
+        response_headers = {"Cache-Control": "private, no-store"}
+        if validator is not None:
+            response_headers["ETag"] = validator
+        if self._if_none_match_matches(
+                headers.get("if-none-match", ""), validator):
+            return Response(304, None, response_headers)
+        return Response(200, envelope, response_headers)
+
     def _owner_route(self, method: str, path: str, p: Principal,
-                     body: bytes) -> Response:
+                     body: bytes, *, query: str = "",
+                     headers: Mapping[str, str] | None = None) -> Response:
         if not p.is_owner:
             return Response(403, {"error": "forbidden"})
+
+        v2 = self._owner_v2_route(method, path, query, headers or {})
+        if v2 is not None:
+            return v2
 
         # Fast path: simple GET reads dispatch straight from the table. The
         # handler attribute may be None (unwired in narrow tests) — treat
@@ -1481,6 +1616,36 @@ class ApiApp:
 
 
 # ── transport ────────────────────────────────────────────────────────────
+_STATIC_MIME_TYPES = {
+    ".js": "text/javascript; charset=utf-8",
+    ".mjs": "text/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".webmanifest": "application/manifest+json; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".svg": "image/svg+xml",
+    ".png": "image/png",
+    ".woff2": "font/woff2",
+    ".html": "text/html; charset=utf-8",
+}
+_FINGERPRINTED_ASSET = re.compile(
+    r"(?:^|[._-])[0-9a-f]{8,}(?:[._-]|$)", re.IGNORECASE)
+
+
+def _static_content_type(path: str, data: bytes) -> str:
+    suffix = "." + path.rsplit(".", 1)[-1].lower() if "." in path else ""
+    if suffix in _STATIC_MIME_TYPES:
+        return _STATIC_MIME_TYPES[suffix]
+    if data[:15].lstrip().lower().startswith(b"<!doctype"):
+        return "text/html; charset=utf-8"
+    return "application/octet-stream"
+
+
+def _static_is_fingerprinted(path: str) -> bool:
+    name = path.rsplit("/", 1)[-1]
+    stem = name.rsplit(".", 1)[0]
+    return bool(_FINGERPRINTED_ASSET.search(stem))
+
+
 def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
     """Build a request handler bound to one `ApiApp`."""
     files = dict(static or {})
@@ -1553,7 +1718,8 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             for k, v in resp.headers.items():
                 self.send_header(k, v)
             self.end_headers()
-            self.wfile.write(payload)
+            if payload:
+                self.wfile.write(payload)
 
         def _headers(self) -> dict[str, str]:
             return {k.lower(): v for k, v in self.headers.items()}
@@ -1589,19 +1755,9 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 key = "/index.html" if path == "/" else path
                 data = files[key]
                 self.send_response(200)
-                # Decided from the bytes, not the name: the studio shell is
-                # also served at `/sabaapp`, which has no extension, and
-                # handing a partner `application/octet-stream` makes the
-                # phone offer to download the page instead of open it.
-                if key.endswith(".woff2"):
-                    ctype = "font/woff2"
-                elif (key.endswith(".html")
-                      or data[:15].lstrip().lower().startswith(b"<!doctype")):
-                    # Decided from the bytes, not the name: the studio shell
-                    # is also served at `/sabaapp`, which has no extension.
-                    ctype = "text/html; charset=utf-8"
-                else:
-                    ctype = "application/octet-stream"
+                # Extension covers explicit V2 modules/assets; byte sniffing
+                # keeps extensionless legacy aliases such as `/sabaapp` HTML.
+                ctype = _static_content_type(key, data)
                 self.send_header("Content-Type", ctype)
                 self.send_header("Content-Length", str(len(data)))
                 self.send_header("X-Content-Type-Options", "nosniff")
@@ -1622,21 +1778,19 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                         "connect-src 'self'; "
                         "frame-ancestors 'none'")
                     self.send_header("X-Frame-Options", "DENY")
-                if key.endswith(".woff2"):
-                    # The font changes when the file changes, which is never
-                    # during a run. A year is what a fingerprinted asset gets;
-                    # this one is not fingerprinted, so a day — long enough to
-                    # stop refetching it on every open, short enough that
-                    # replacing it does not need a cache-busting name.
+                if key.endswith(".woff2") and not key.startswith("/cockpit-v2/"):
+                    # Preserve the legacy shared-font cache contract exactly.
                     self.send_header("Cache-Control", "public, max-age=86400")
+                elif key.startswith("/cockpit-v2/"):
+                    # Unfingerprinted V2 assets must update on restart. A
+                    # content-hashed filename may be cached forever because a
+                    # byte change necessarily changes its URL.
+                    self.send_header(
+                        "Cache-Control",
+                        ("public, max-age=31536000, immutable"
+                         if _static_is_fingerprinted(key) else "no-store"))
                 elif ctype.startswith("text/html"):
-                    # No validator was sent with these — no ETag, no
-                    # Last-Modified — so a client caching them heuristically
-                    # has no way to find out they changed, and the shell is
-                    # not fingerprinted either. The visible symptom is a
-                    # partner reporting "I restarted it and saw no change"
-                    # while the node serves the new file to every other
-                    # caller, which is a very expensive thing to debug.
+                    # Preserve legacy shell behavior: exact bytes, no cache.
                     self.send_header("Cache-Control", "no-store")
                 self.end_headers()
                 self.wfile.write(data)
@@ -1660,19 +1814,26 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             path = urllib.parse.urlparse(self.path).path
             self._dispatch("POST", path, body)
 
-        def do_DELETE(self):  # noqa: N802
-            # http.server answers DELETE with 501 unless this
-            # method exists, so DELETE routes in `handle` (a
-            # photo, an album) were never reached and the shell
-            # reported deletion failed on a request that never
-            # arrived. DELETE may carry a body, so read+bound it.
+        def _bounded_method(self, method: str) -> None:
             length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_BODY_BYTES:
                 self._send(Response(413, {"error": "payload too large"}))
                 return
             body = self.rfile.read(length) if length else b""
             path = urllib.parse.urlparse(self.path).path
-            self._dispatch("DELETE", path, body)
+            self._dispatch(method, path, body)
+
+        def do_DELETE(self):  # noqa: N802
+            # http.server answers DELETE with 501 unless this method exists.
+            # Existing v1 deletion routes and V2's explicit 405 both flow
+            # through the same authenticated application router.
+            self._bounded_method("DELETE")
+
+        def do_PUT(self):  # noqa: N802
+            self._bounded_method("PUT")
+
+        def do_PATCH(self):  # noqa: N802
+            self._bounded_method("PATCH")
 
     return Handler
 
