@@ -309,8 +309,8 @@ def _cockpit_v2_reader(node: Node):
             return None
         raise
 
-    # Metadata-only OFN seams. Payload-returning reads (owner_queue,
-    # recent_events) and mutation-prone projections are deliberately absent.
+    # Metadata-only OFN seams. Raw payload-returning reads (owner_queue,
+    # recent_events) and mutation-prone projections remain deliberately absent.
     reads = {
         "status": node.owner_status,
         "observability": node.owner_observability,
@@ -319,6 +319,10 @@ def _cockpit_v2_reader(node: Node):
         "risks": node.owner_risks,
         "ledger_summary": node.owner_ledger_summary,
     }
+    owner_queue_metadata = getattr(node, "owner_queue_metadata", None)
+    if callable(owner_queue_metadata):
+        reads["owner_queue_metadata"] = owner_queue_metadata
+
     try:
         model = CockpitV2ReadModel(
             clock=lambda: datetime.now(timezone.utc),

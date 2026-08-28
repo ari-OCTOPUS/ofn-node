@@ -2219,6 +2219,34 @@ class Node:
                 })
         return out
 
+    def owner_queue_metadata(self) -> list[dict]:
+        """Metadata-only view of the existing owner approval queue.
+
+        ``owner_queue`` remains the command surface's payload-bearing read.
+        Cockpit V2 receives this allowlisted derivative so adding a read
+        projection cannot disclose customer text or create another queue.
+        """
+        out: list[dict] = []
+        for row in self.owner_queue():
+            native_id = row.get("id")
+            tenant = row.get("tenant")
+            idempotency_key = None
+            if isinstance(native_id, str) and isinstance(tenant, str):
+                prefix = f"{tenant}:"
+                if native_id.startswith(prefix) and len(native_id) > len(prefix):
+                    idempotency_key = native_id[len(prefix):]
+            out.append({
+                "native_id": native_id,
+                "idempotency_key": idempotency_key,
+                "tenant": tenant,
+                "state": (
+                    "held" if row.get("held") is True else "pending_owner"
+                ),
+                "risk": row.get("tier"),
+                "created_at": row.get("created_at"),
+            })
+        return out
+
     def _owner_business(self, tenant: TenantId | str, *,
                         include_missing: bool = False) -> dict:
         """One business as an explicit, owner-safe projection.
