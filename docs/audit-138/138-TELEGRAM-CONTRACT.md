@@ -1,0 +1,3 @@
+# TELEGRAM CONTRACT (2026-08-28T00:14:00Z)
+Required card fields: decision_id, run_id, lane, action, recipient_masked, exact_payload, payload_sha256, artifact_sha256, verdict_sha256, policy_sha256, idempotency_key, expires_at, rollback, APPROVE_ONCE/REJECT/DETAILS; one decision per message; ACK≠SENT≠CUSTOMER_REPLY≠SETTLED_CASH.
+**Status: CONTRACT_GAP** — no production owner-decision Telegram card exists (bridge inactive by design; no card renderer wired; owner dialogue = legacy panel + read-only Cockpit V2). No real Telegram message sent during this audit (0 sends). Semantic distinctions (ACK/SENT/CASH) are already enforced in ledgers (verified_cash provenance gate).

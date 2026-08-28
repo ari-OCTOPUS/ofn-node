@@ -1,0 +1,17 @@
+{
+ "collected_at_utc": "2026-08-28T00:12:35Z",
+ "hostname": "DietPi", "ip": "192.168.0.138", "root_paths": ["/home/ari/ofn", "/home/ari/octopus-mesh"],
+ "deployed_commit": "d3fb20c (branch octopus/reconcile-138-20260827, clean; runtime restarted 2026-08-27T01:33Z on M1-containing tree)",
+ "service_timer_state": {"ofn": "active", "octopus_mesh_daemons": "active", "scheduler_timer": "active",
+   "telegram_bridge": "inactive_by_design", "backup_timer": "active(last ok 2026-08-27T17:18Z)"},
+ "runtime_file_sha256": "ofn.run served from worktree (no separate artifact); worktree clean",
+ "policy_sha256": {"mesh_policy_x3_boards": "eee2812d7663721d…", "agent_roles_x3": "c0ebb5f0bda1e093…"},
+ "queue_counts": {"inbox": 5, "outbox": 9, "processing": 0, "processed": 6489, "rejected": 4},
+ "oldest_queue_age": "UNKNOWN (not measured in read-only pass)",
+ "latest_painting_SoT_ids": {"painting.sqlite": "8 leads / 44 sources / 1 campaign (no PII)"},
+ "latest_witness_verdict": "mesh witness responses flowing; latest consumed verdicts include unresolved-empty (F-2) — re-verify with embedded claims proposed",
+ "latest_owner_decision_status": "owner dialogue via panel/cockpit read-only; 1 approval artifact on record; no pending production approval",
+ "external_effects_count": 0, "verified_cash_aud": 0,
+ "tests_actually_run": "python3 -m unittest discover: 2028 tests, 2017 pass, 1 pre-existing error, 10 skipped; +gate/shell 58 OK",
+ "source": "live_disk|git|runtime per-field in 138-EVIDENCE.json"
+}
