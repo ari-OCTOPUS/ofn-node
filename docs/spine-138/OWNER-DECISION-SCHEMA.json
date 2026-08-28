@@ -1,0 +1,1 @@
+{"fields":["decision_id","run_id","lane","action","recipient_masked","exact_payload","payload_sha","artifact_sha","verdict_sha","idempotency_key","expires_at","rollback"],"rules":["one decision per message","APPROVE_ONCE/REJECT/DETAILS","ACK!=SENT!=REPLY","exact hash binding","expiry strict Z format"]}

@@ -1,0 +1,1 @@
+{"schema":"business_source.v1","fields":["schema","source_node","lane","internal_id_hash","fields","observed_at_utc","source_row_hash","may_contact","pii_redacted"],"pii":"whitelist-mask (no name/phone/email/message/source_ref)","none_vs_unknown":"null named in fields._unknown; empty string preserved","idempotency":"snapshot_id+lane event id"}

@@ -1,0 +1,1 @@
+full restore rehearsal on temp: 11/11 ofn sqlite integrity_check=ok on copies + mesh state/ + config/ copied to temp (manifest gap for mesh backup recorded: ofn-backup.timer covers DBs only; mesh coverage proposal remains open). Originals untouched; temp removed.
