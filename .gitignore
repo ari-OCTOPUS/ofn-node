@@ -22,3 +22,5 @@ evidence/ASK-*.json
 *.tar.gz
 *.tgz
 *.zip
+evidence/
+inbox/
