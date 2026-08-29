@@ -1,0 +1,41 @@
+
+# --- fleet-tidy 20260830 (owner-approved patterns) ---
+# آرتفکت‌های موقت تست
+.tmp-test/
+.tmp-test*/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+.tox/
+.nox/
+# runtime state
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.log
+*.pid
+*.sock
+# محیط و راز
+.env
+.env.*
+venv/
+.venv/
+.test-venv/
+# داده عملیاتی
+receipts/
+inbox/
+outbox/
+state/
+runtime/
+evidence/
+# استثنای مهم: سورس واقعی داخل مسیرهای هم‌نام
+!ofn/organism/runtime/
+!ofn/organism/runtime/**
+!octopus_sensorium/evidence/
+!octopus_sensorium/evidence/**
