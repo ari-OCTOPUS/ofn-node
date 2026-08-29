@@ -57,6 +57,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -91,6 +92,25 @@ def src(p: Path) -> str:
 
 def _reset_src_cache():
     _SRC_CACHE.clear()
+
+
+# region agent log
+def _agent_log(hypothesis_id: str, message: str, data: dict) -> None:
+    path = os.environ.get("OCTOPUS_DEBUG_LOG")
+    if not path:
+        return
+    payload = {
+        "sessionId": "bbea48",
+        "runId": os.environ.get("OCTOPUS_DEBUG_RUN_ID", "undefined-card"),
+        "hypothesisId": hypothesis_id,
+        "location": "_ops/tests/test_miniapp_cockpit_ui.py",
+        "message": message,
+        "data": data,
+        "timestamp": int(time.time() * 1000),
+    }
+    with open(path, "a", encoding="utf-8") as stream:
+        stream.write(json.dumps(payload, sort_keys=True) + "\n")
+# endregion agent log
 
 
 # ── درایورِ Node ────────────────────────────────────────────────────────────
@@ -357,6 +377,28 @@ try {
     boot(); await flush();
     clickTab("system"); await flush();
     out.system_tab_html = stackContent();
+  }
+
+  else if(SCENARIO === "lifecycle_missing_id"){
+    withOwner();
+    routes = {
+      "/api/state": {body: STATE_OK},
+      "/api/approvals": {body: APPROVALS_OK},
+      "/api/lifecycle": {body: {
+        status: "ok",
+        by_stage: {value: {STALLED: 2}},
+        total_cards: {value: 2},
+        stalled_list: [
+          {created_ts: 1787960000, age_days: 4},
+          {rfc_id: "RFC-test-1", created_ts: 1787960100, age_days: 4}
+        ],
+        stalled_list_truncated: 0,
+        sources: ["fixture"]
+      }}
+    };
+    boot(); await flush();
+    clickTab("approvals"); await flush();
+    out.lifecycle_html = stackContent();
   }
 
   else { out.error = "unknown scenario"; }
@@ -671,6 +713,24 @@ def t_k_backend_values_are_html_escaped_before_they_are_painted():
     assert "&lt;img src=x onerror=&quot;boom()&quot;&gt;" in c, "مقدارِ بک‌اند escape نشد"
     assert "<img src=x" not in c, "markup ِ خام وارد DOM شد"
     assert "<b>bold</b>" not in c, "تگِ خام از مقدارِ بک‌اند رد شد"
+
+
+def t_l_lifecycle_card_without_id_is_read_only_not_undefined():
+    d = run_scenario("lifecycle_missing_id")
+    html = d["lifecycle_html"]
+    facts = {
+        "undefined_rendered": "undefined" in html,
+        "approve_buttons": html.count('class="ryes"'),
+        "reject_buttons": html.count('class="rno"'),
+    }
+    # region agent log
+    _agent_log("H14", "lifecycle missing-id rendering", facts)
+    # endregion agent log
+    assert not facts["undefined_rendered"], html
+    assert facts["approve_buttons"] == 1, html
+    assert facts["reject_buttons"] == 1, html
+    assert 'data-pid="RFC-test-1"' in html, html
+    assert "شناسهٔ تصمیم در پاسخ نیست" in html, html
 
 
 if __name__ == "__main__":

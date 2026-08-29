@@ -577,16 +577,23 @@
         h += sl.map(function(c){
           var ag = (c.age_days===null||c.age_days===undefined) ? null : Number(c.age_days);
           var tone = ag===null ? "unk" : (ag>=7 ? "hot" : ag>=3 ? "warm" : "ok");
+          var rid = (c.rfc_id===null||c.rfc_id===undefined) ? "" : String(c.rfc_id).trim();
+          var ridView = rid
+            ? ltr(esc(rid))
+            : '<span class="badge unknown">شناسه نامعلوم</span>';
+          var decisions = rid
+            ? '<div class="tbtns">'+
+                '<button class="ryes" type="button" data-pid="'+esc(rid)+'">پذیرش</button>'+
+                '<button class="rno"  type="button" data-pid="'+esc(rid)+'">رد</button>'+
+              '</div>'
+            : '<div class="muted">شناسهٔ تصمیم در پاسخ نیست — این کارت فقط خواندنی است.</div>';
           return '<div class="titem '+tone+'">'+
             '<div class="tmain">'+
-              '<div class="tid">'+ltr(esc(String(c.rfc_id)))+'</div>'+
+              '<div class="tid">'+ridView+'</div>'+
               '<div class="tage">'+(ag===null ? "سنّ نامعلوم"
                                               : fa(ag)+' روز راکد')+'</div>'+
             '</div>'+
-            '<div class="tbtns">'+
-              '<button class="ryes" type="button" data-pid="'+esc(String(c.rfc_id))+'">پذیرش</button>'+
-              '<button class="rno"  type="button" data-pid="'+esc(String(c.rfc_id))+'">رد</button>'+
-            '</div>'+
+            decisions+
             '<div class="pend" hidden></div></div>';
         }).join("");
         if(cut>0){
