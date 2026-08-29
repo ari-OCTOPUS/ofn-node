@@ -1,0 +1,235 @@
+{
+  "schema": "deep-walk-inventory/1",
+  "experiment_id": "deepwalk-20260829-discovery",
+  "gate": "DISCOVERY_ONLY",
+  "captured_at_utc": "2026-08-29T06:31:13Z",
+  "method": "read-only probes: git, tasklist/CIM, sqlite mode=ro, ssh BatchMode, ls/wc; zero mutations",
+  "constraints_honored": {
+    "runtime_changes": 0,
+    "external_effects": 0,
+    "telegram_posts": 0,
+    "paid_api_calls": 0,
+    "production_cutover": 0,
+    "env_files_read": 0,
+    "ports_8791_8796_touched": false,
+    "panel_or_tunnel_touched": false
+  },
+  "laptop_hub": {
+    "hostname": "PC (local)",
+    "timezone": "AUSEST UTC+10 (verified: local 16:31:13 == 06:31:13Z)",
+    "git": {
+      "root": "F:/backup",
+      "branch": "rescue/octopus-live-tree-20260821",
+      "head": "7d65f2d2e66424c64b85795c7e1de24c838d892b",
+      "dirty_files": 1271,
+      "remotes": { "germline": "E:/germline/octopus.git" }
+    },
+    "processes": [
+      { "pid": 16860, "cmd": "python -X utf8 organism.py" },
+      { "pid": 10052, "cmd": "python -X utf8 cortex\\cortex.py" },
+      { "pid": 18096, "cmd": "python -X utf8 live\\server.py" },
+      { "pid": 23808, "cmd": "python -X utf8 telegram_center\\center.py" },
+      { "pid": 26892, "cmd": "python -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py" }
+    ],
+    "memory_stores": {
+      "spine": {
+        "path": "_ops/state/spine/spine.db",
+        "module": "_ops/spine/event_spine.py (+ spine_adapters.py, spine_reconcile.py)",
+        "tables": {
+          "events": {
+            "rows": 13502,
+            "cols": ["event_id", "idempotency_key", "event_type", "domain", "occurred_at", "recorded_at", "producer", "producer_sequence", "correlation_id", "mission_id", "subject", "trust", "schema_version", "payload_json", "occurred_at_real", "event_time_source", "time_precision", "legacy_no_event_time", "clock_skew"]
+          }
+        },
+        "event_type_distribution": {
+          "system.beat": 11399, "failed": 1182, "outcome-recorded": 559,
+          "system.booted": 181, "accepted-measurement": 97, "delivered": 34,
+          "hebb.observation": 24, "proposal-issued": 21, "decided": 3, "rejected": 2
+        }
+      },
+      "memory": {
+        "path": "_ops/state/memory/memory.db",
+        "module": "_ops/memory/memory_store.py",
+        "tables": {
+          "memory": {
+            "rows": 834,
+            "cols": ["memory_id", "namespace", "mkey", "content", "content_sha256", "trust", "provenance_json", "confidence", "salience", "valid_from", "valid_to", "supersedes", "privacy", "schema_version", "created_at", "admission_state", "tenant_id", "project_id", "scope", "agent_id", "task_id", "classification", "policy_version", "evidence_ref", "confidence_source", "confidence_method"]
+          },
+          "memory_fts": { "rows": 834, "engine": "FTS5", "cols": ["content", "mkey", "memory_id"] }
+        }
+      },
+      "genome_ledger": {
+        "path": "07 - Knowledge/genome-system/ledger/ledger.jsonl",
+        "rows": 15094,
+        "tip": { "n": 15094, "tip_hash": "878b8bc1e5b56185aff7d79a8392dfd0e6341589ecc7662a9144df5352496072", "ts": "2026-08-29T05:37:58.020136+00:00" },
+        "module": "07 - Knowledge/genome-system/ledger/ledger.py"
+      },
+      "dead_duplicate": { "path": "_ops/state/memory.db", "state": "EMPTY (0 tables) - misleading legacy path" }
+    },
+    "read_loop": {
+      "module": "_ops/memory_read_loop.py",
+      "context_builder": "_ops/memory/cycle_context.py",
+      "projection": "_ops/state/pulse/memory-context-latest.json (schema memory-context/1)",
+      "read_contract": [
+        "query_experiments", "get_pending_hypotheses", "search_vault",
+        "retrieve_similar_failures", "retrieve_owner_decisions"
+      ],
+      "bitemporal_rule": "occurred_at<=dt AND recorded_at<=dt else record DROPPED (FUTURE_DATA)",
+      "telemetry_counter": "memory_reads_per_cycle (0 => MEMORY_STILL_WRITE_ONLY)",
+      "live_state": {
+        "beat": 54400, "memory_reads_per_cycle": 3, "readback": "read_ok",
+        "n_rows": 13500, "experiment_ids_read": 21, "hypothesis_ids_read": 24,
+        "vault_ids_read": 0,
+        "experiment_text_sample": "spine (single word, batch-written, same timestamp)"
+      },
+      "consumers": ["_ops/cortex/improve.py (decisions carry memory_context_id)", "_ops/organism.py (pulse.memory_context)"]
+    },
+    "heart": {
+      "heart_v2_latest": {
+        "schema": "heart-v2/1", "beat": 2073, "mode": "RUNNING", "green_streak": 181,
+        "period_advisory_s": 96.44, "wake_brain": true,
+        "brain_stats": { "ok": 188, "degraded": 4 },
+        "store_counts": { "beats": 2006, "max_beat": 2073, "events": 456, "outbox": {} },
+        "advisory_only": true
+      },
+      "chrono_db": {
+        "path": "_ops/state/chrono.db", "user_version": 4, "journal_mode": "wal",
+        "counts": {
+          "heartbeat": 54400, "checkpoint": 54399, "experience_meter": 53906,
+          "heart_beat": 2006, "heart_event": 456, "heart_run": 7, "heart_outbox": 0,
+          "heart_anchor": 0, "gated_effect": 0, "anticipation_queue": 0,
+          "duration_marker": 106, "leg_clock": 1, "metabolic_age": 2
+        }
+      }
+    },
+    "organism_state_top_keys": ["arbiter", "beat", "brain_core", "business_legs", "cardiac", "chrono", "memory_context", "memory_read", "heart_v2", "proposal_metrics", "proposal_router", "recall_reach", "ziman", "wiring"]
+  },
+  "node_180": {
+    "hostname": "octopus-continuity-180",
+    "ssh": "root@192.168.0.180 (key)",
+    "uptime": "4 days",
+    "timezone": "UTC",
+    "repo": "/root/octopus-mesh (NOT a git worktree; deployed copy)",
+    "services_running": [
+      "octopus-afferent-lab.service",
+      "octopus-gateway.service (read-only L0, uvicorn 0.0.0.0)",
+      "octopus-llama-lab.service (local llama.cpp cortex)",
+      "octopus-organism-lab.service (ofn.organism.runtime.app --db /opt/octopus/lab/lab-data/organism.db)"
+    ],
+    "timers": {
+      "octopus-heartbeat.timer": "60s",
+      "octopus-mesh-heartbeat.timer": "60s",
+      "octopus-drain.timer": "5min",
+      "octopus-mirror.timer": "15min",
+      "octopus-cognitive-worker.timer": "oneshot (worker --once, 100% CPU during probe)"
+    },
+    "mesh_queues": {
+      "outbox": 27,
+      "outbox_fresh_today": ["180-to-138-partner-brief-20260829.payload.json", "180-to-138-megaprompt-build-20260829.payload.json"],
+      "processing": 0, "rejected": 2,
+      "dead_letter": 2,
+      "dead_letter_reason": "SUPERSEDED_TYPE_MISMATCH",
+      "receipts_claims": 16, "receipts_control": 2
+    },
+    "cognitive_worker_memory_hooks": "NONE (no memory/episode/lesson/organism.db references in octopus_cognitive_worker.py)",
+    "organism_db": {
+      "path": "/opt/octopus/lab/lab-data/organism.db",
+      "counts": {
+        "events": 6177, "episodes": 6177, "outbox": 6177,
+        "memory_read_receipts": 26094, "decision_evidence": 19781,
+        "identity_ledger": 1859, "identity_heartbeat": 1741,
+        "self_models": 1631, "inner_speech": 1620, "utterances": 753,
+        "lessons": 9, "learned_topics": 4, "exams": 10, "school_courses": 10,
+        "growth_habits": 13, "futures": 9, "ask_cache": 6, "world_hosts": 3
+      },
+      "schemas": {
+        "events": ["event_id", "event_type", "priority", "payload_json", "created_at", "schema_version", "hash", "node_seq"],
+        "episodes": ["episode_id", "source_event_id", "event_type", "salience", "outcome", "body_json", "created_at"],
+        "lessons": ["lesson_id", "created_at", "source", "topic", "fact", "evidence", "status"],
+        "memory_read_receipts": ["receipt_id", "purpose", "decision_time", "recorded_at", "occurred_at", "created_at", "rows_returned", "future_use_count", "ok", "error", "query_json"],
+        "decision_evidence": ["evidence_id", "purpose", "decision_time", "receipt_id", "event_ids_json", "episode_ids_json", "created_at", "executable"],
+        "outbox": ["delivery_id", "event_id", "hash", "status", "attempts", "created_at", "done_at"]
+      },
+      "last_lesson": { "lesson_id": "L-school", "source": "parent", "topic": "school", "status": "taught" },
+      "last_read_receipt": { "purpose": "school.C-memory", "rows_returned": 16, "ok": 1, "future_use_count": 0, "bitemporal": true }
+    }
+  },
+  "node_138": {
+    "hostname": "DietPi",
+    "ssh": "ari@192.168.0.138 (key)",
+    "timezone": "AEST UTC+10",
+    "ofn_repo": {
+      "path": "/home/ari/ofn",
+      "branch": "integration/138-business-spine-20260828",
+      "head": "a27eb0536793c7fc040917bb645e9057707298f4",
+      "dirty_files": 1,
+      "remotes": { "germline": "/mnt/octopus-germline/octopus.git" },
+      "note": "HEAD advanced beyond 68813370 (earlier session baseline)"
+    },
+    "services_running": [
+      "octopus-bridge.service", "octopus-control-router.service",
+      "octopus-cycle-settler.service", "octopus-router.service",
+      "octopus-supervisor.service", "octopus-verify-dispatcher.service",
+      "ofn-heartbeat.service", "ofn.service", "hypno (python3 -m hypno.run)"
+    ],
+    "timers": {
+      "ofn-bridge-watchdog.timer": "2min", "ofn-sync-watchdog.timer": "5min",
+      "octopus-heartbeat.timer": "~5min", "octopus-budget-monitor.timer": "5min",
+      "octopus-scheduler.timer": "15min", "ofn-backup.timer": "daily",
+      "ofn-assistant-update.timer": "daily"
+    },
+    "octopus_mesh": {
+      "path": "/home/ari/octopus-mesh",
+      "queues": { "outbox": 11, "inbox": 5, "processing": 0, "dead_letter": 0, "receipts": 4335, "state_files": 14 },
+      "bins_running": ["octopus_supervisor.py", "octopus_control_router.py", "octopus_cycle_settler.py", "octopus_router.py", "octopus_verify_dispatcher.py"]
+    },
+    "critical_apis": {
+      "owner_decision": {
+        "path": "/home/ari/ofn/ofn/adapters/owner_decision.py",
+        "mtime": "2026-08-28 10:54",
+        "exports": ["class OwnerDecision", "render_fake(decision)", "validate(decision)"],
+        "contract": "12-field owner approval card: decision_id, run_id, lane, action, recipient_masked, exact_payload, payload_sha, artifact_sha, verdict_sha, idempotency_key, expires_at, rollback",
+        "philosophy": "rendered, validated, and never sent - node assembles card, OWNER decides; no decide()/approve() engine exists BY DESIGN"
+      },
+      "outbox": {
+        "path": "/home/ari/ofn/ofn/adapters/outbox.py",
+        "exports": ["class OutboxItem", "class Outbox", "_migrate_manual_columns"]
+      }
+    },
+    "test_artifacts": "/home/ari/ofn/.tmp-test/* (hermetic fixtures only; no live state in ofn/)"
+  },
+  "node_182": {
+    "hostname": "sensorium-opi5pro",
+    "ssh": "root@192.168.0.182 (key)",
+    "uptime": "11 days",
+    "timezone": "UTC",
+    "services_running": [
+      "nats-server.service (JetStream)",
+      "octopus-fusiond.service (S1 registry contract + sensor state + fusion frame)",
+      "octopus-metacontrol.service (shadow, advisory)",
+      "octopus-reflex.service (A0 observe-only)",
+      "octopus-sensorium.service",
+      "octopus-skill-tracker.service (prediction outcome matching)",
+      "octopus-stability.service (Prometheus 9101)",
+      "octopus-world-model.service (predictor only)"
+    ],
+    "witness_ledger": {
+      "path": "/root/octopus-mesh/state/witness/",
+      "events": 161094, "verdicts": 1192, "owner_control_receipts": 2,
+      "last_verdict": {
+        "ts": "2026-08-29T06:26:16.916738Z", "phase": "final",
+        "outcome": "delivered_acked", "verdict": "disputed",
+        "idempotency_key": "auto-verify:b08acb12-9f47-43b7-8723-9f3839184f27"
+      }
+    },
+    "mesh_queues": { "outbox": 1198, "processing": 4, "dead_letter": 0 },
+    "registries": ["/root/OCTOPUS-REGISTRY-100 (SIGNED-REGISTRY-BUNDLE, current-hashes.sha256)", "/root/OCTOPUS-REGISTRY-V6-META-SHADOW"],
+    "opt_package": "/opt/octopus (full python pkg: cognition, core, schemas, ledger.py, releases)"
+  },
+  "cross_node": {
+    "clock_alignment": "all nodes within ~1min of UTC at probe time (laptop 06:31Z, 180 06:25Z, 138 06:26Z-equiv, 182 06:25Z)",
+    "live_cross_board_payloads_today": ["180->138 partner-brief 20260829", "180->138 megaprompt-build 20260829"],
+    "ssh_reachability": { "138": "ok (ari@)", "180": "ok (root@)", "182": "ok (root@)", "138_root": "denied publickey" }
+  },
+  "sanitization": "no secrets, tokens, .env content, or keys captured; recipient fields already masked by design"
+}
