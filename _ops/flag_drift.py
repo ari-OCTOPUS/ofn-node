@@ -33,7 +33,7 @@
 * فقط‌خواندنی. هیچ‌وقت `OCTOPUS-flags.cmd` را نمی‌نویسد.
 * fail-soft. هر استثنا → `status="error"` و `count=0`. هرگز صدازننده را نمی‌کشد.
 * **هیچ مقدارِ رازی هرگز چاپ نمی‌شود.** نامی که الگوی راز دارد
-  (SECRET/TOKEN/KEY/PASS/PWD/CRED) مقدارش با `REDACTED` جایگزین می‌شود، ولی
+  (SECRET/TOKEN/KEY/PASS/PWD/CRED/AUTH/BEARER) مقدارش با `REDACTED` جایگزین می‌شود، ولی
   *وجود و تغییرش* همچنان گزارش می‌شود — چون «کلید عوض شد» خودش یک واقعیتِ
   عملیاتیِ لازم است.
 
@@ -65,7 +65,9 @@ REDACTED = "<redacted>"
 # `is_secret_name` هر نامِ رازدار را redact می‌کند (پیشوند به‌تنهایی دسترسی نمی‌دهد).
 TRACKED_PREFIXES = ("OCTOPUS_", "PAID_", "FUGU_", "TELEGRAM_", "CORTEX_")
 
-_SECRET_TOKENS = ("SECRET", "TOKEN", "KEY", "PASS", "PWD", "CRED", "AUTH")
+_SECRET_TOKENS = (
+    "SECRET", "TOKEN", "KEY", "PASS", "PWD", "CRED", "AUTH", "BEARER",
+)
 
 # ۲۰۲۶-۰۷-۲۹ — شناسه‌های چت/کاربر شبه‌راز اند و باید مثلِ راز رفتار شوند.
 # چرا اضافه شد: با سیم‌کشیِ snapshot به boot، `TELEGRAM_OWNER_CHAT_ID` مقدارِ

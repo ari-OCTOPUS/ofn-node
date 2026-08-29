@@ -69,11 +69,28 @@ class ParseTests(unittest.TestCase):
 class SecretTests(unittest.TestCase):
     def test_secret_name_detection_is_conservative(self):
         for name in ("FUGU_API_KEY", "OCTOPUS_CB_SECRET", "TELEGRAM_BOT_TOKEN",
-                     "SOME_PASSWORD", "X_CRED", "OWNER_AUTH_X"):
+                     "SOME_PASSWORD", "X_CRED", "OWNER_AUTH_X",
+                     "OCTOPUS_BOARD_CP_BEARER", "X_BEARER", "BEARER", "Bearer",
+                     "AUTHORIZATION", "Authorization"):
             self.assertTrue(fd.is_secret_name(name), name)
         for name in ("OCTOPUS_TG_TOPIC_REPLY", "PAID_HTTP_TIMEOUT_S",
                      "OCTOPUS_WIRE_COHERENCE"):
             self.assertFalse(fd.is_secret_name(name), name)
+
+    def test_bearer_name_redacts_snapshot_value(self):
+        tmp = Path(tempfile.mkdtemp())
+        flags = tmp / "f.cmd"
+        snap = tmp / "snap.json"
+        _write_flags(flags, [("OCTOPUS_BOARD_CP_BEARER", "FAKEVALUE_NOT_A_SECRET"),
+                             ("OCTOPUS_TG_TOPIC_REPLY", "1")])
+        fd.snapshot(flags, snap, env={
+            "OCTOPUS_BOARD_CP_BEARER": "FAKEVALUE_NOT_A_SECRET",
+            "OCTOPUS_TG_TOPIC_REPLY": "1",
+        })
+        blob = snap.read_text(encoding="utf-8")
+        self.assertNotIn("FAKEVALUE_NOT_A_SECRET", blob)
+        self.assertIn(fd.REDACTED, blob)
+        self.assertIn("OCTOPUS_BOARD_CP_BEARER", blob)
 
     def test_chat_ids_are_treated_as_secrets(self):
         """۲۰۲۶-۰۷-۲۹: snapshotِ boot مقدارِ TELEGRAM_OWNER_CHAT_ID را خام
