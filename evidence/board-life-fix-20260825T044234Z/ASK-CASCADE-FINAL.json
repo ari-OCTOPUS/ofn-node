@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "cache": true,
+    "local": true,
+    "provenance": true,
+    "rule": true
+  },
+  "claim_level": "REPRODUCED",
+  "local_latency_ms": 337,
+  "source_event_ids": [
+    "db6e3904752a5b27423630dbc31b4956",
+    "78f316c109383093793c214bcd738a1b",
+    "dba692bf9d70063775c79aff18fb62fa"
+  ],
+  "verdict": "PASS"
+}

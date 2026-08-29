@@ -1,0 +1,23 @@
+{
+  "after_boot_id": "b75a11f904d6416aa729470ce7a137bd",
+  "after_chain_entries": 5,
+  "after_event_sequence": 34,
+  "before_boot_id": "c722826f80274c40a4fd8960571b8069",
+  "before_chain_entries": 3,
+  "before_event_sequence": 33,
+  "checks": {
+    "boot_id_changed": true,
+    "episode_provenance_complete": true,
+    "event_sequence_continued": true,
+    "identity_chain_grew_or_held": true,
+    "identity_chain_independently_verified": true,
+    "known_event_recalled": true,
+    "organism_id_unchanged": true
+  },
+  "claim_level": "REPRODUCED",
+  "downtime_probe_ms": 291.342298,
+  "known_source_event_id": "d18cb4469476908585bde9b67a97a070",
+  "new_pid": 218265,
+  "old_pid": 218030,
+  "verdict": "PASS"
+}

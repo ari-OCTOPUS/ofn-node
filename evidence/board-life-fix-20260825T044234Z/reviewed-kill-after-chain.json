@@ -1,0 +1,12 @@
+{
+  "db_path": "/opt/octopus/lab/lab-data/organism.db",
+  "entries": 24,
+  "error": null,
+  "external_anchor": null,
+  "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+  "last_hash": "494f01ce2d6c3458f9c1f6c5ab326462a94f13fb37fe455e22917fa7a66cfb78",
+  "tail_truncation_detectable": false,
+  "valid": true,
+  "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+  "verifier": "independent-stdlib-v1"
+}

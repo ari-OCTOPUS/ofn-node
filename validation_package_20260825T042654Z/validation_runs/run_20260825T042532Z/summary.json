@@ -1,0 +1,30 @@
+{
+  "T3": {
+    "checks": {
+      "monotonic_event_order_preserved": true,
+      "monotonic_never_decreased": true,
+      "wall_clock_event_order_broken": true,
+      "wall_clock_jump_was_observed": true
+    },
+    "minimum_monotonic_delta_ns": 1052894,
+    "minimum_wall_delta_s": -3599.9988510608673,
+    "scope": "SYNTHETIC_WALL_CLOCK_JUMP_UNIT_TEST_NO_SYSTEM_CLOCK_CHANGE",
+    "test": "T3",
+    "verdict": "PASS"
+  },
+  "environment": {
+    "captured_utc": "2026-08-25T04:25:32.867868+00:00",
+    "cwd": "/opt/octopus/lab",
+    "executable": "/usr/bin/python3",
+    "hostname": "octopus-continuity-180",
+    "kernel": "6.1.115-vendor-rk35xx",
+    "machine": "aarch64",
+    "platform": "Linux-6.1.115-vendor-rk35xx-aarch64-with-glibc2.41",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "script_sha256": "2249ba0ecce7f470d307723686dd460d8da86b5a9167e59f4579ffb867fcf979",
+    "script_version": "0.2.0-rk35xx",
+    "stdlib_only": true,
+    "uid": 0
+  },
+  "run_dir": "validation_runs/run_20260825T042532Z"
+}

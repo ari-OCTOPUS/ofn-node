@@ -1,0 +1,240 @@
+{
+  "architecture": "aarch64",
+  "captured_utc": "2026-08-25T05:22:34.314368+00:00",
+  "claim_level": "OBSERVED",
+  "database": {
+    "counts": {
+      "ask_cache": 3,
+      "episodes": 66,
+      "events": 66,
+      "identity_heartbeat": 53,
+      "identity_ledger": 38,
+      "meta": 0,
+      "outbox": 66,
+      "sqlite_sequence": 2
+    },
+    "path": "/opt/octopus/lab/lab-data/organism.db"
+  },
+  "filesystem": {
+    "bytes_available": 7035916288,
+    "bytes_total": 61326831616,
+    "percent_used": 84.4
+  },
+  "git_branch": "experiment/board-life-001",
+  "git_head": "37f61ecac14dd29f05d60b3792173105795c279c",
+  "host": "octopus-continuity-180",
+  "identity_chain": {
+    "db_path": "/opt/octopus/lab/lab-data/organism.db",
+    "entries": 38,
+    "error": null,
+    "external_anchor": null,
+    "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "last_hash": "21a4cfbf8125dd98ec100ad5bed5ea95704b3f6288fbc9477597749309c34de2",
+    "tail_truncation_detectable": false,
+    "valid": true,
+    "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+    "verifier": "independent-stdlib-v1"
+  },
+  "kernel": "6.1.115-vendor-rk35xx",
+  "kernel_boot_id": "dd578f22-6350-4cd4-8e5e-3a5f91ada4c9",
+  "lab_units_before": {
+    "octopus-llama-lab.service": {
+      "active": "inactive",
+      "active_exit": 4,
+      "enabled": "not-found",
+      "enabled_exit": 4
+    },
+    "octopus-organism-lab.service": {
+      "active": "inactive",
+      "active_exit": 4,
+      "enabled": "not-found",
+      "enabled_exit": 4
+    }
+  },
+  "llama_health": {
+    "body": {
+      "status": "ok"
+    },
+    "error": null,
+    "http_code": 200
+  },
+  "memory": {
+    "MemAvailable": "2362324 kB",
+    "MemTotal": "4004732 kB",
+    "SwapFree": "4190716 kB",
+    "SwapTotal": "4194300 kB"
+  },
+  "model": {
+    "mode_octal": "0444",
+    "path": "/opt/octopus/models/qwen3-0.6b-q4_0.gguf",
+    "sha256": "da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4",
+    "size": 428970080
+  },
+  "organism_health": {
+    "body": {
+      "age_seconds": 900,
+      "autonomy_state": "PROPOSE_ONLY",
+      "boot_id": "ad5113e4495b4839bdc89201efe937ec",
+      "current_experiment": "board-life-001",
+      "external_api": "DISABLED",
+      "health_state": "OBSERVING",
+      "identity_chain_entries": 38,
+      "identity_chain_error": null,
+      "identity_chain_external_anchor": null,
+      "identity_chain_first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+      "identity_chain_last_hash": "21a4cfbf8125dd98ec100ad5bed5ea95704b3f6288fbc9477597749309c34de2",
+      "identity_chain_scope": "identity_ledger_v1_from_genesis_forward",
+      "identity_chain_tail_truncation_detectable": false,
+      "identity_chain_valid": true,
+      "identity_chain_verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+      "last_event_sequence": 66,
+      "legacy_heartbeats_in_chain": false,
+      "local_cortex": "AVAILABLE",
+      "memory_status": "AVAILABLE",
+      "model_failure_is_organism_failure": false,
+      "organism_id": "board-life-001",
+      "unknowns": []
+    },
+    "error": null,
+    "http_code": 200
+  },
+  "peak_scan_temp_mC": 31461,
+  "processes": [
+    {
+      "cmdline": [
+        "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+        "--model",
+        "/opt/octopus/models/qwen3-0.6b-q4_0.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8081",
+        "--threads",
+        "4",
+        "--threads-batch",
+        "4",
+        "--ctx-size",
+        "2048",
+        "--parallel",
+        "1",
+        "--batch-size",
+        "128",
+        "--ubatch-size",
+        "64",
+        "--cache-type-k",
+        "q8_0",
+        "--cache-type-v",
+        "q8_0",
+        "--poll",
+        "0",
+        "--timeout",
+        "120",
+        "--metrics",
+        "--no-webui",
+        "--offline",
+        "--check-tensors"
+      ],
+      "cwd": "/root",
+      "exe": "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+      "listen_sockets": [
+        "LISTEN 0      512    127.0.0.1:8081  0.0.0.0:* users:((\"llama-server.f2\",pid=213370,fd=3))"
+      ],
+      "pid": 213370,
+      "role": "llama",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_maps_count": 0
+    },
+    {
+      "cmdline": [
+        "/usr/bin/python3",
+        "-m",
+        "ofn.organism.runtime.app",
+        "--db",
+        "/opt/octopus/lab/lab-data/organism.db",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8090",
+        "--heartbeat-interval",
+        "120",
+        "--pid-file",
+        "/opt/octopus/lab/receipts/organism.pid"
+      ],
+      "cwd": "/opt/octopus/lab",
+      "exe": "/usr/bin/python3.13",
+      "listen_sockets": [
+        "LISTEN 0      5      127.0.0.1:8090  0.0.0.0:* users:((\"python3\",pid=221368,fd=8))        "
+      ],
+      "pid": 221368,
+      "role": "organism",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_maps_count": 0
+    },
+    {
+      "cmdline": [
+        "python3",
+        "/opt/octopus/lab/ofn/organism/runtime/soak.py"
+      ],
+      "cwd": "/root",
+      "exe": "/usr/bin/python3.13",
+      "listen_sockets": [],
+      "pid": 217033,
+      "role": "soak",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_maps_count": 0
+    }
+  ],
+  "public_status_exists": false,
+  "runtime": {
+    "current": "/opt/octopus/runtime/llama.cpp-f280b26",
+    "tmp_runtime": "ZERO"
+  },
+  "schema": "octopus.first-stage.pre-reboot-scan.v1",
+  "soak": {
+    "pids": [
+      217033
+    ],
+    "running": true
+  },
+  "t1_lock_present": true,
+  "temperatures": [
+    {
+      "temp_mC": 30538,
+      "type": "soc-thermal",
+      "zone": "thermal_zone0"
+    },
+    {
+      "temp_mC": 30538,
+      "type": "bigcore0-thermal",
+      "zone": "thermal_zone1"
+    },
+    {
+      "temp_mC": 31461,
+      "type": "bigcore1-thermal",
+      "zone": "thermal_zone2"
+    },
+    {
+      "temp_mC": 30538,
+      "type": "littlecore-thermal",
+      "zone": "thermal_zone3"
+    },
+    {
+      "temp_mC": 29615,
+      "type": "center-thermal",
+      "zone": "thermal_zone4"
+    },
+    {
+      "temp_mC": 28692,
+      "type": "gpu-thermal",
+      "zone": "thermal_zone5"
+    },
+    {
+      "temp_mC": 29615,
+      "type": "npu-thermal",
+      "zone": "thermal_zone6"
+    }
+  ]
+}

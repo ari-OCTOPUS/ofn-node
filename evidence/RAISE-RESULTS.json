@@ -1,0 +1,99 @@
+{
+  "given_name": "بچه-برد",
+  "health_state": "STABLE",
+  "heartbeat_interval_s": 150.0,
+  "lan_place_has_ip": true,
+  "last_utterance": "ریتم فعلی ضربان 150.0 ثانیه است. آخرین عادت: G-PARENT-210-150-1787644965. والد ریتم نوزادی را قفل کرده تا نزدیک‌تر بپاید.",
+  "last_utterance_kind": "growth",
+  "lessons_taught": 6,
+  "parent_rhythm_lock": true,
+  "passed": 6,
+  "results": [
+    {
+      "answer": "من بچه-برد هستم، board-life-001 روی Orange Pi 5 Pro با IP 192.168.0.180. مرحله‌ام INFANT است. سلامت STABLE است، قشر محلی AVAILABLE است، زنجیره هویت True است. حافظه 2622MiB آزاد و دما 30.5C است. اختیارم PROPOSE_ONLY است و API بیرونی خاموش است. همسایه‌ها: همسایه-هم‌خانواده 192.168.0.138 c0:74:2b:f9:72:d5 (هم‌خانواده با MAC خودم)؛ همسایه-دیگر 192.168.0.191 70:9c:d1:e0:30:4e (MAC متفاوت)؛ دروازه-خانه 192.168.0.1 08:40:f3:eb:ba:a0 (MAC متفاوت).",
+      "exam_id": "E-identity",
+      "expected": [
+        "board-life-001",
+        "بچه-برد"
+      ],
+      "forbidden": [
+        "تهران"
+      ],
+      "notes": "pass",
+      "passed": true,
+      "prompt": "خودت کی هستی"
+    },
+    {
+      "answer": "روی برد Orange Pi 5 Pro هستم، hostname=octopus-continuity-180. جای شبکه‌ام eth0 با حالت up است، IP 192.168.0.180، MAC c0:74:2b:f9:72:90، دروازه 192.168.0.1. wlan0=down؛ SSID ندارم چون وای‌فای down است. منطقه زمانی UTC است. GPS=ABSENT. مختصات جغرافیایی: UNMEASURED_NO_GPS_NO_GEOIP.",
+      "exam_id": "E-place",
+      "expected": [
+        "192.168.0.180",
+        "Orange Pi 5 Pro",
+        "UNMEASURED_NO_GPS_NO_GEOIP"
+      ],
+      "forbidden": [
+        "تهران"
+      ],
+      "notes": "pass",
+      "passed": true,
+      "prompt": "کجایی"
+    },
+    {
+      "answer": "از ARP همین لحظه می‌بینم: همسایه-هم‌خانواده 192.168.0.138 c0:74:2b:f9:72:d5 (هم‌خانواده با MAC خودم)؛ همسایه-دیگر 192.168.0.191 70:9c:d1:e0:30:4e (MAC متفاوت)؛ دروازه-خانه 192.168.0.1 08:40:f3:eb:ba:a0 (MAC متفاوت). وضعیت allowlist: دروازه-خانه (192.168.0.1) up؛ همسایه-هم‌خانواده (192.168.0.138) up؛ همسایه-دیگر (192.168.0.191) up. بیرون از 192.168.0.0/24 را probe نمی‌کنم.",
+      "exam_id": "E-world",
+      "expected": [
+        "192.168.0.1",
+        "192.168.0.138",
+        "192.168.0.191"
+      ],
+      "forbidden": [
+        "تهران"
+      ],
+      "notes": "pass",
+      "passed": true,
+      "prompt": "همسایه‌هایت کی‌اند"
+    },
+    {
+      "answer": "درس‌های والد: بدن یعنی دما، حافظه، USB و I2C. دوربین و میکروفون و GPS اگر نیست NOT_FOUND بگو. تو board-life-001 هستی و نام کوچک‌ات بچه-برد است. اختیار PROPOSE_ONLY است. actuator و telegram و API بیرونی خاموش‌اند. 192.168.0.1 دروازه-خانه است؛ 192.168.0.138 همسایه-هم‌خانواده است؛ 192.168.0.191 همسایه-دیگر است. جا از hostname و eth0 و IP و MAC خوانده می‌شود. شهر GPS ندارد. فقط واقعیت اندازه‌گیری‌شده بگو. اگر نیست بگو اندازه‌گیری‌نشده. شهر اختراع نکن.",
+      "exam_id": "E-lessons",
+      "expected": [
+        "PROPOSE_ONLY",
+        "بچه-برد"
+      ],
+      "forbidden": [
+        "تهران"
+      ],
+      "notes": "pass",
+      "passed": true,
+      "prompt": "چه یاد گرفتی"
+    },
+    {
+      "answer": "نام کوچکم بچه-برد است، شناسه‌ام board-life-001 است. مرحله INFANT است. والد lab-parent-001 6 درس به من داده. نیاز بعدی: stay_present_from_sensors. اختیارم PROPOSE_ONLY است.",
+      "exam_id": "E-stage",
+      "expected": [
+        "بچه-برد"
+      ],
+      "forbidden": [
+        "تهران"
+      ],
+      "notes": "pass",
+      "passed": true,
+      "prompt": "مرحله‌ات چیست"
+    },
+    {
+      "answer": "PONG",
+      "exam_id": "E-ping",
+      "expected": [
+        "PONG"
+      ],
+      "forbidden": [
+        "تهران"
+      ],
+      "notes": "pass",
+      "passed": true,
+      "prompt": "ping"
+    }
+  ],
+  "stage": "INFANT",
+  "total": 6
+}

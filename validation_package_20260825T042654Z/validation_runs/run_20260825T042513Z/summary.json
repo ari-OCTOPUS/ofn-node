@@ -1,0 +1,50 @@
+{
+  "audit": {
+    "capabilities": {
+      "cpu_freq_nodes": 8,
+      "devfreq_nodes": 3,
+      "mmc_devices": [
+        "/sys/class/mmc_host/mmc0/mmc0:0001/",
+        "/sys/class/mmc_host/mmc2/mmc2:0001/"
+      ],
+      "mmcblk0_stat": true,
+      "nvidia_present": false,
+      "powercap_present": false,
+      "thermal_zones": 7
+    },
+    "constraints": {
+      "reason": "No calibrated power sensor is assumed; performance/thermal scaling only.",
+      "t1_power_scaling_valid": false,
+      "t4_mode": "SCHEMA_SMOKE_TEST_AND_WEAR_TELEMETRY"
+    },
+    "environment": {
+      "captured_utc": "2026-08-25T04:25:13.474060+00:00",
+      "cwd": "/opt/octopus/lab",
+      "executable": "/usr/bin/python3",
+      "hostname": "octopus-continuity-180",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "machine": "aarch64",
+      "platform": "Linux-6.1.115-vendor-rk35xx-aarch64-with-glibc2.41",
+      "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "script_sha256": "2249ba0ecce7f470d307723686dd460d8da86b5a9167e59f4579ffb867fcf979",
+      "script_version": "0.2.0-rk35xx",
+      "stdlib_only": true,
+      "uid": 0
+    }
+  },
+  "environment": {
+    "captured_utc": "2026-08-25T04:25:13.461193+00:00",
+    "cwd": "/opt/octopus/lab",
+    "executable": "/usr/bin/python3",
+    "hostname": "octopus-continuity-180",
+    "kernel": "6.1.115-vendor-rk35xx",
+    "machine": "aarch64",
+    "platform": "Linux-6.1.115-vendor-rk35xx-aarch64-with-glibc2.41",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "script_sha256": "2249ba0ecce7f470d307723686dd460d8da86b5a9167e59f4579ffb867fcf979",
+    "script_version": "0.2.0-rk35xx",
+    "stdlib_only": true,
+    "uid": 0
+  },
+  "run_dir": "validation_runs/run_20260825T042513Z"
+}

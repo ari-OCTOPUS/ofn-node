@@ -1,0 +1,24 @@
+{
+  "after_boot_id": "6dd06eec75f64d5a9f0a25f73f57d969",
+  "after_event_sequence": 39,
+  "app_sha256": "b453575939af26e3fe35e3df9c714306893fcbf51c0726901d73dabe94a0c0e6",
+  "before_boot_id": "d4274d2d665b4fceaf861f74b7478cc1",
+  "before_event_sequence": 37,
+  "chain_entries": 11,
+  "chain_last_hash": "673c4aa6f47c0aac0df3917add91f60ff189787913d2ae2af9dd0d3fa6796ed3",
+  "checks": {
+    "boot_id_changed": true,
+    "event_sequence_continued": true,
+    "identity_chain_independently_verified": true,
+    "known_event_recalled": true,
+    "organism_id_unchanged": true,
+    "source_event_required": true
+  },
+  "claim_level": "REPRODUCED",
+  "downtime_probe_ms": 251.041929,
+  "known_source_event_id": "9a67a746f78db0e155da57802d88b3d8",
+  "new_pid": 218977,
+  "old_pid": 218910,
+  "scope": "FINAL_SOURCE_PROCESS_KILL_RECALL",
+  "verdict": "PASS"
+}

@@ -1,0 +1,89 @@
+{
+  "boot_id": "5d3a6c01990c46168c256cffc63b0f90",
+  "captured_utc": "2026-08-25T05:30:11.911015+00:00",
+  "chain_after_degraded": {
+    "db_path": "/opt/octopus/lab/lab-data/organism.db",
+    "entries": 56,
+    "error": null,
+    "external_anchor": null,
+    "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "last_hash": "612072f969ef03be2a662cb91c2ebee6396f1075dab48a785968d2de043b9112",
+    "tail_truncation_detectable": false,
+    "valid": true,
+    "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+    "verifier": "independent-stdlib-v1"
+  },
+  "chain_after_restore": {
+    "db_path": "/opt/octopus/lab/lab-data/organism.db",
+    "entries": 58,
+    "error": null,
+    "external_anchor": null,
+    "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "last_hash": "2a79de39a3b36ffddc4ccaf1af78452dae01cf2f56eef9f98ee81f5f5891ae48",
+    "tail_truncation_detectable": false,
+    "valid": true,
+    "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+    "verifier": "independent-stdlib-v1"
+  },
+  "chain_before": {
+    "db_path": "/opt/octopus/lab/lab-data/organism.db",
+    "entries": 55,
+    "error": null,
+    "external_anchor": null,
+    "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "last_hash": "2baed6968bce4028c30277d4e86b30e78c5fd7268299531d971673dd44b94dcb",
+    "tail_truncation_detectable": false,
+    "valid": true,
+    "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+    "verifier": "independent-stdlib-v1"
+  },
+  "checks": {
+    "chain_valid_after_restore": true,
+    "degraded_http_200": true,
+    "degraded_state_observed": true,
+    "degraded_transition_chained": true,
+    "identity_chain_grew": true,
+    "public_alert_cleared": true,
+    "public_alert_set": true,
+    "public_state_degraded": true,
+    "restored_http_200": true,
+    "restored_to_observing": true
+  },
+  "claim_level": "REPRODUCED",
+  "scope": "SAFE_SYNTHETIC_DEGRADED_SIGNAL",
+  "transitions": [
+    {
+      "entry_hash": "612072f969ef03be2a662cb91c2ebee6396f1075dab48a785968d2de043b9112",
+      "payload": {
+        "alerts": [
+          "LAB_SYNTHETIC_DEGRADED:FIRST_STAGE_SAFE_SYNTHETIC_PROBE"
+        ],
+        "current": "DEGRADED",
+        "previous": "RECOVERING",
+        "source": "organism_snapshot"
+      },
+      "sequence": 56
+    },
+    {
+      "entry_hash": "70ed197b24cb4ba17b84a54f8a337ae35dded1e830aa1a35e769cbe7bdbfcb65",
+      "payload": {
+        "alerts": [],
+        "current": "RECOVERING",
+        "previous": "DEGRADED",
+        "source": "organism_snapshot"
+      },
+      "sequence": 57
+    },
+    {
+      "entry_hash": "2a79de39a3b36ffddc4ccaf1af78452dae01cf2f56eef9f98ee81f5f5891ae48",
+      "payload": {
+        "alerts": [],
+        "current": "OBSERVING",
+        "previous": "RECOVERING",
+        "source": "organism_snapshot"
+      },
+      "sequence": 58
+    }
+  ],
+  "verdict": "PASS"
+}

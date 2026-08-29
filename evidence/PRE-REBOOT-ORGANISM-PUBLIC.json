@@ -1,0 +1,18 @@
+{
+  "alert": null,
+  "autonomy_state": "PROPOSE_ONLY",
+  "first_stage_label": "NOT_EARNED",
+  "health_state": "OBSERVING",
+  "identity_chain_last_hash": "51a04b486b1d79019394e8420f6c19c5ff5a53fdf3d6ca31b66c669172b9cb86",
+  "identity_chain_valid": true,
+  "last_event_sequence": 73,
+  "llama_health": "AVAILABLE",
+  "local_cortex": "AVAILABLE",
+  "organism_id": "board-life-001",
+  "soak": {
+    "pids": [],
+    "running": false
+  },
+  "unknowns": [],
+  "updated_utc": "2026-08-25T05:29:48.560012+00:00"
+}

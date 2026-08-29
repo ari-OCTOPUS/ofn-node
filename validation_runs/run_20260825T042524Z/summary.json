@@ -1,0 +1,78 @@
+{
+  "T2": {
+    "checks": {
+      "identical_below_5pct_regime": true,
+      "low_precision_noise_below_25pct_regime": true,
+      "persistent_regime_exceeds_high_precision_noise": true
+    },
+    "scope": "DETERMINISTIC_METRIC_BEHAVIOUR_SIMULATION_NOT_SUBJECTIVE_TIME_PROOF",
+    "seed": 7,
+    "summaries": {
+      "A_identical": {
+        "events": 1000,
+        "n_cog": 1,
+        "parameters": {
+          "hypotheses": 8,
+          "info_threshold_bits": 0.02,
+          "persistence_epsilon": 0.15,
+          "persistence_steps": 20
+        },
+        "persistence_gated_bits": 0.21033632915766973,
+        "raw_bits": 2.1793927861326283
+      },
+      "B_noise_low_precision": {
+        "events": 1000,
+        "n_cog": 73,
+        "parameters": {
+          "hypotheses": 8,
+          "info_threshold_bits": 0.02,
+          "persistence_epsilon": 0.15,
+          "persistence_steps": 20
+        },
+        "persistence_gated_bits": 4.267326683520389,
+        "raw_bits": 11.170194537996972
+      },
+      "C_noise_high_precision": {
+        "events": 1000,
+        "n_cog": 50,
+        "parameters": {
+          "hypotheses": 8,
+          "info_threshold_bits": 0.02,
+          "persistence_epsilon": 0.15,
+          "persistence_steps": 20
+        },
+        "persistence_gated_bits": 20.21015042647166,
+        "raw_bits": 105.56138006587665
+      },
+      "D_persistent_regime_shifts": {
+        "events": 1000,
+        "n_cog": 36,
+        "parameters": {
+          "hypotheses": 8,
+          "info_threshold_bits": 0.02,
+          "persistence_epsilon": 0.15,
+          "persistence_steps": 20
+        },
+        "persistence_gated_bits": 30.32063618683752,
+        "raw_bits": 43.260104365702155
+      }
+    },
+    "test": "T2",
+    "verdict": "PASS"
+  },
+  "environment": {
+    "captured_utc": "2026-08-25T04:25:24.918515+00:00",
+    "cwd": "/opt/octopus/lab",
+    "executable": "/usr/bin/python3",
+    "hostname": "octopus-continuity-180",
+    "kernel": "6.1.115-vendor-rk35xx",
+    "machine": "aarch64",
+    "platform": "Linux-6.1.115-vendor-rk35xx-aarch64-with-glibc2.41",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "script_sha256": "2249ba0ecce7f470d307723686dd460d8da86b5a9167e59f4579ffb867fcf979",
+    "script_version": "0.2.0-rk35xx",
+    "stdlib_only": true,
+    "uid": 0
+  },
+  "run_dir": "validation_runs/run_20260825T042524Z"
+}

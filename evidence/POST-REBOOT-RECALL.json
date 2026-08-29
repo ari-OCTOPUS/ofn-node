@@ -1,0 +1,90 @@
+{
+  "A": {
+    "checks": {
+      "all_three_recalled_database": true,
+      "all_three_recalled_endpoint": true,
+      "identity_chain_computed_true": true,
+      "kernel_boot_id_changed": true,
+      "organism_http_200": true,
+      "pre_reboot_chain_hash_is_ancestor": true,
+      "same_organism_id": true
+    },
+    "level": "PROVEN"
+  },
+  "B": {
+    "checks": {
+      "pre_reboot_ask_receipt_proven": true,
+      "three_asks_recalled_after_reboot": true,
+      "three_distinct_source_event_ids": true
+    },
+    "level": "PROVEN"
+  },
+  "captured_utc": "2026-08-25T05:30:11.224636+00:00",
+  "claim_level": "PROVEN",
+  "database_proof": {
+    "current_chain_hash": "8a4dc0329d4a82d43ef28a848f42d09303fb6eee249d15f52c13a79a528632ad",
+    "current_chain_sequence": 53,
+    "episode_counts_by_source_event_id": {
+      "3836d8a1def89d8d9140ff0f317c9fe1": 1,
+      "91c9ac249ee98f345b057c3aeb861dae": 1,
+      "cb9db13389f67d39cee18634712ac8e2": 1
+    },
+    "pre_chain_sequence": 48,
+    "pre_hash_is_ancestor": true
+  },
+  "episodes_http": 200,
+  "llama_body": {
+    "status": "ok"
+  },
+  "llama_http": 200,
+  "organism_body": {
+    "age_seconds": 1,
+    "alerts": [
+      "CORTEX_DOWN"
+    ],
+    "autonomy_state": "PROPOSE_ONLY",
+    "boot_id": "5d3a6c01990c46168c256cffc63b0f90",
+    "current_experiment": "board-life-001",
+    "external_api": "DISABLED",
+    "first_stage_label": "NOT_EARNED",
+    "health_state": "DEGRADED",
+    "identity_chain_entries": 53,
+    "identity_chain_error": null,
+    "identity_chain_external_anchor": null,
+    "identity_chain_first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "identity_chain_last_hash": "8a4dc0329d4a82d43ef28a848f42d09303fb6eee249d15f52c13a79a528632ad",
+    "identity_chain_scope": "identity_ledger_v1_from_genesis_forward",
+    "identity_chain_tail_truncation_detectable": false,
+    "identity_chain_valid": true,
+    "identity_chain_verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+    "last_event_sequence": 74,
+    "legacy_heartbeats_in_chain": false,
+    "local_cortex": "DEGRADED",
+    "memory_status": "AVAILABLE",
+    "model_failure_is_organism_failure": false,
+    "organism_id": "board-life-001",
+    "unknowns": []
+  },
+  "organism_http": 200,
+  "post_kernel_boot_id": "44cd88d9-6b51-4181-b342-7b5f06aa261f",
+  "post_reboot_chain": {
+    "db_path": "/opt/octopus/lab/lab-data/organism.db",
+    "entries": 53,
+    "error": null,
+    "external_anchor": null,
+    "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "last_hash": "8a4dc0329d4a82d43ef28a848f42d09303fb6eee249d15f52c13a79a528632ad",
+    "tail_truncation_detectable": false,
+    "valid": true,
+    "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+    "verifier": "independent-stdlib-v1"
+  },
+  "pre_kernel_boot_id": "dd578f22-6350-4cd4-8e5e-3a5f91ada4c9",
+  "pre_reboot_chain_last_hash": "51a04b486b1d79019394e8420f6c19c5ff5a53fdf3d6ca31b66c669172b9cb86",
+  "source_event_ids": [
+    "91c9ac249ee98f345b057c3aeb861dae",
+    "3836d8a1def89d8d9140ff0f317c9fe1",
+    "cb9db13389f67d39cee18634712ac8e2"
+  ],
+  "verdict": "PASS"
+}

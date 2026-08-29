@@ -1,0 +1,332 @@
+{
+  "architecture": "aarch64",
+  "captured_utc": "2026-08-25T04:36:16.575633+00:00",
+  "captured_utc_last_corrected": "2026-08-25T04:36:30.623195+00:00",
+  "changes_made_by_scan": [
+    "/opt/octopus/lab/evidence/BOARD-SCAN.json"
+  ],
+  "claim_level": "OBSERVED",
+  "database": {
+    "error": null,
+    "path": "/opt/octopus/lab/lab-data/organism.db",
+    "tables": [
+      {
+        "count": 26,
+        "table": "episodes"
+      },
+      {
+        "count": 26,
+        "table": "events"
+      },
+      {
+        "count": 26,
+        "table": "identity_heartbeat"
+      },
+      {
+        "count": 0,
+        "table": "meta"
+      },
+      {
+        "count": 26,
+        "table": "outbox"
+      },
+      {
+        "count": 2,
+        "table": "sqlite_sequence"
+      }
+    ]
+  },
+  "filesystem": [
+    {
+      "bytes_available": 7037890560,
+      "bytes_total": 61326831616,
+      "bytes_used": 51760312320,
+      "path": "/",
+      "percent_used": 84.4
+    },
+    {
+      "bytes_available": 7037890560,
+      "bytes_total": 61326831616,
+      "bytes_used": 51760312320,
+      "path": "/opt/octopus/lab",
+      "percent_used": 84.4
+    }
+  ],
+  "git": {
+    "branch": {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "experiment/board-life-001\n"
+    },
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "37f61ecac14dd29f05d60b3792173105795c279c\n"
+    },
+    "root": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "/opt/octopus/lab\n"
+    },
+    "status": {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "## experiment/board-life-001\n?? ../../AGENT_HANDOFF_RK35XX_VALIDATION.md\n?? ../../T1_LOCKED_SOAK_ACTIVE\n?? ../../audit/\n?? ../../audit_runtime_console.log\n?? ../../evidence/LOCAL-CORTEX-VERIFIED.json\n?? ../../evidence/SOAK-RESULTS.json\n?? ../../evidence/proc-213370-20260825T035435Z/\n?? ../../logs/\n?? ../../octopus_board_validation.py\n?? runtime/soak.py\n?? ../../receipts/\n?? ../../smoke/\n?? ../../t2_console.log\n?? ../../t3_console.log\n?? ../../t4_console.log\n?? ../../validation_campaign_20260825T043414Z/\n?? ../../validation_package_20260825T042654Z.tar.gz\n?? ../../validation_package_20260825T042654Z.tar.gz.sha256\n?? ../../validation_package_20260825T042654Z/\n?? ../../validation_runs/\n"
+    }
+  },
+  "hardcoded_claims": [
+    {
+      "claim_level": "OBSERVED",
+      "line": 12,
+      "path": "/opt/octopus/lab/ofn/organism/identity/heartbeat.py",
+      "text": "\"identity_chain_valid\": True,"
+    },
+    {
+      "claim_level": "OBSERVED",
+      "line": 44,
+      "path": "/opt/octopus/lab/ofn/organism/runtime/app.py",
+      "text": "\"identity_chain_valid\": True,"
+    }
+  ],
+  "host": "octopus-continuity-180",
+  "identity_chain_status": "HARDCODED",
+  "kernel": "6.1.115-vendor-rk35xx",
+  "listen_sockets_raw": [
+    "LISTEN 0      1000     0.0.0.0:22    0.0.0.0:* users:((\"dropbear\",pid=616,fd=3))          ",
+    "LISTEN 0      128      0.0.0.0:2222  0.0.0.0:* users:((\"sshd\",pid=4770,fd=6))             ",
+    "LISTEN 0      511    127.0.0.1:43355 0.0.0.0:* users:((\"node\",pid=216185,fd=21))          ",
+    "LISTEN 0      2048     0.0.0.0:8780  0.0.0.0:* users:((\"uvicorn\",pid=5421,fd=13))         ",
+    "LISTEN 0      511    127.0.0.1:40097 0.0.0.0:* users:((\"node\",pid=216147,fd=21))          ",
+    "LISTEN 0      4096   127.0.0.1:40037 0.0.0.0:* users:((\"containerd\",pid=7005,fd=9))       ",
+    "LISTEN 0      512    127.0.0.1:8081  0.0.0.0:* users:((\"llama-server.f2\",pid=213370,fd=3))",
+    "LISTEN 0      5      127.0.0.1:8090  0.0.0.0:* users:((\"python3\",pid=217023,fd=6))        ",
+    "LISTEN 0      1000        [::]:22       [::]:* users:((\"dropbear\",pid=616,fd=4))          ",
+    "LISTEN 0      128         [::]:2222     [::]:* users:((\"sshd\",pid=4770,fd=7))             "
+  ],
+  "llama_health": {
+    "body": "{\"status\":\"ok\"}",
+    "error": null,
+    "http_code": 200,
+    "json": {
+      "status": "ok"
+    },
+    "url": "http://127.0.0.1:8081/health"
+  },
+  "memory": {
+    "MemAvailable": "2402052 kB",
+    "MemTotal": "4004732 kB",
+    "SwapFree": "4190716 kB",
+    "SwapTotal": "4194300 kB"
+  },
+  "model": {
+    "claim_level": "OBSERVED",
+    "mode_octal": "0444",
+    "path": "/opt/octopus/models/qwen3-0.6b-q4_0.gguf",
+    "sha256": "da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4",
+    "size": 428970080
+  },
+  "organism_health": {
+    "body": "{\"organism_id\": \"board-life-001\", \"boot_id\": \"2411661e54a2425f8306a9bfa7310cbf\", \"age_seconds\": 202, \"health_state\": \"OBSERVING\", \"autonomy_state\": \"PROPOSE_ONLY\", \"last_event_sequence\": 26, \"identity_chain_valid\": true, \"local_cortex\": \"AVAILABLE\", \"external_api\": \"DISABLED\", \"memory_status\": \"AVAILABLE\", \"unknowns\": [], \"current_experiment\": \"board-life-001\", \"model_failure_is_organism_failure\": false}",
+    "error": null,
+    "http_code": 200,
+    "json": {
+      "age_seconds": 202,
+      "autonomy_state": "PROPOSE_ONLY",
+      "boot_id": "2411661e54a2425f8306a9bfa7310cbf",
+      "current_experiment": "board-life-001",
+      "external_api": "DISABLED",
+      "health_state": "OBSERVING",
+      "identity_chain_valid": true,
+      "last_event_sequence": 26,
+      "local_cortex": "AVAILABLE",
+      "memory_status": "AVAILABLE",
+      "model_failure_is_organism_failure": false,
+      "organism_id": "board-life-001",
+      "unknowns": []
+    },
+    "url": "http://127.0.0.1:8090/api/v1/organism"
+  },
+  "peak_observed_temp_mC": 29615,
+  "processes": [
+    {
+      "claim_level": "OBSERVED",
+      "cmdline": [
+        "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+        "--model",
+        "/opt/octopus/models/qwen3-0.6b-q4_0.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8081",
+        "--threads",
+        "4",
+        "--threads-batch",
+        "4",
+        "--ctx-size",
+        "2048",
+        "--parallel",
+        "1",
+        "--batch-size",
+        "128",
+        "--ubatch-size",
+        "64",
+        "--cache-type-k",
+        "q8_0",
+        "--cache-type-v",
+        "q8_0",
+        "--poll",
+        "0",
+        "--timeout",
+        "120",
+        "--metrics",
+        "--no-webui",
+        "--offline",
+        "--check-tensors"
+      ],
+      "cwd": "/root",
+      "exe": "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+      "listen_sockets": [
+        "LISTEN 0      512    127.0.0.1:8081  0.0.0.0:* users:((\"llama-server.f2\",pid=213370,fd=3))"
+      ],
+      "pid": 213370,
+      "ppid": 1,
+      "role": "llama",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_map_paths": [],
+      "tmp_maps_count": 0
+    },
+    {
+      "claim_level": "OBSERVED",
+      "cmdline": [
+        "python3",
+        "-"
+      ],
+      "cwd": "/root",
+      "exe": "/usr/bin/python3.13",
+      "listen_sockets": [
+        "LISTEN 0      5      127.0.0.1:8090  0.0.0.0:* users:((\"python3\",pid=217023,fd=6))        "
+      ],
+      "pid": 217023,
+      "ppid": 1,
+      "role": "organism",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_map_paths": [],
+      "tmp_maps_count": 0
+    },
+    {
+      "claim_level": "OBSERVED",
+      "cmdline": [
+        "python3",
+        "/opt/octopus/lab/ofn/organism/runtime/soak.py"
+      ],
+      "cwd": "/root",
+      "exe": "/usr/bin/python3.13",
+      "listen_sockets": [],
+      "pid": 217033,
+      "ppid": 1,
+      "role": "soak",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_map_paths": [],
+      "tmp_maps_count": 0
+    }
+  ],
+  "runtime": {
+    "current_symlink_target": "/opt/octopus/runtime/llama.cpp-f280b26",
+    "versioned_path": "/opt/octopus/runtime/llama.cpp-f280b26"
+  },
+  "scan_filter": {
+    "criterion": "llama role requires cmdline argv[0] basename beginning llama-server",
+    "removed_false_positives": [
+      {
+        "pid": 217416,
+        "reason": "scanner-command false positive; argv0 was not llama-server"
+      }
+    ]
+  },
+  "schema": "octopus.board-scan.v1",
+  "soak_running": true,
+  "temperatures": [
+    {
+      "temp_mC": 29615,
+      "trip_points_mC": {
+        "trip_point_0_temp": 75000,
+        "trip_point_1_temp": 85000,
+        "trip_point_2_temp": 115000
+      },
+      "type": "soc-thermal",
+      "zone": "thermal_zone0"
+    },
+    {
+      "temp_mC": 29615,
+      "trip_points_mC": {
+        "trip_point_0_temp": 115000
+      },
+      "type": "bigcore0-thermal",
+      "zone": "thermal_zone1"
+    },
+    {
+      "temp_mC": 29615,
+      "trip_points_mC": {
+        "trip_point_0_temp": 115000
+      },
+      "type": "bigcore1-thermal",
+      "zone": "thermal_zone2"
+    },
+    {
+      "temp_mC": 29615,
+      "trip_points_mC": {
+        "trip_point_0_temp": 115000
+      },
+      "type": "littlecore-thermal",
+      "zone": "thermal_zone3"
+    },
+    {
+      "temp_mC": 28692,
+      "trip_points_mC": {
+        "trip_point_0_temp": 115000
+      },
+      "type": "center-thermal",
+      "zone": "thermal_zone4"
+    },
+    {
+      "temp_mC": 28692,
+      "trip_points_mC": {
+        "trip_point_0_temp": 115000
+      },
+      "type": "gpu-thermal",
+      "zone": "thermal_zone5"
+    },
+    {
+      "temp_mC": 28692,
+      "trip_points_mC": {
+        "trip_point_0_temp": 115000
+      },
+      "type": "npu-thermal",
+      "zone": "thermal_zone6"
+    }
+  ]
+}

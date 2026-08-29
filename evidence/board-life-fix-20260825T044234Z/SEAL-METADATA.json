@@ -1,0 +1,11 @@
+{
+  "archive_format": "deterministic tar.gz",
+  "initial_scan_included": true,
+  "manifest_algorithm": "SHA-256",
+  "manifest_excludes": [
+    "SHA256SUMS.txt"
+  ],
+  "report_included": true,
+  "sealed_utc": "2026-08-25T05:13:01.398727+00:00",
+  "source_included": true
+}

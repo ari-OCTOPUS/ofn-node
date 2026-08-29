@@ -1,0 +1,26 @@
+{
+  "after_boot_id": "ad5113e4495b4839bdc89201efe937ec",
+  "after_event_sequence": 58,
+  "before_boot_id": "d237a5b2a35b4c3998f62819a679b0e3",
+  "before_event_sequence": 57,
+  "chain_entries": 31,
+  "chain_external_anchor": null,
+  "chain_last_hash": "419a76acc9375de52b63b6d48c0c8daec7161cec73cb3ee9529f90d838d0971e",
+  "checks": {
+    "boot_id_changed": true,
+    "chain_scope_explicit": true,
+    "episode_provenance_join_valid": true,
+    "event_sequence_continued": true,
+    "identity_chain_independently_verified": true,
+    "known_event_recalled": true,
+    "organism_id_unchanged": true
+  },
+  "claim_level": "REPRODUCED",
+  "downtime_probe_ms": 363.654222,
+  "known_source_event_id": "be51e8c186348834db032b96fd5d0a70",
+  "new_pid": 221368,
+  "old_pid": 221236,
+  "scope": "FINAL_IDENTITY_GATED_NO_REDIRECT_PROCESS_KILL_RECALL",
+  "tail_truncation_detectable": false,
+  "verdict": "PASS"
+}

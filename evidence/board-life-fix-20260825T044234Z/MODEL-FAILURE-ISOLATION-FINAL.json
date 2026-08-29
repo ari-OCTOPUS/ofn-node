@@ -1,0 +1,16 @@
+{
+  "ask_label": "NEEDS_OWNER",
+  "ask_route": "needs_owner",
+  "checks": {
+    "ask_http_200": true,
+    "episode_has_source_event": true,
+    "event_kernel_recorded_request": true,
+    "explicit_needs_owner": true,
+    "organism_http_still_200": true
+  },
+  "claim_level": "REPRODUCED",
+  "event_type": "ask",
+  "organism_id": "board-life-001",
+  "scope": "ISOLATED_FAILURE_INJECTION_NOT_LIVE_MODEL_OUTAGE",
+  "verdict": "PASS"
+}

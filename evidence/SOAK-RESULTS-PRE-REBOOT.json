@@ -1,0 +1,26 @@
+{
+  "claim_level": "OBSERVED",
+  "cap": "NONE_HOUR",
+  "safety_stops": [
+    "MemAvailable<350MiB",
+    "thermal_margin<10C",
+    "service_down_streak>=5"
+  ],
+  "started_at": 1787632374.673406,
+  "age_seconds": 3365,
+  "samples": 57,
+  "running": true,
+  "abort": null,
+  "peak_llama_rss_kB": null,
+  "min_mem_avail_kB": 2336408,
+  "peak_temp_mC": 29615,
+  "last": {
+    "t": 1787635740.365948,
+    "mem_avail_kB": 2412336,
+    "temp_mC": 28692,
+    "llama_rss_kB": -1,
+    "llama_pid": -1,
+    "health": 200,
+    "organism": 200
+  }
+}

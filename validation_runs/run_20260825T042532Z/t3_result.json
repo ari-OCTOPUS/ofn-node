@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "monotonic_event_order_preserved": true,
+    "monotonic_never_decreased": true,
+    "wall_clock_event_order_broken": true,
+    "wall_clock_jump_was_observed": true
+  },
+  "minimum_monotonic_delta_ns": 1052894,
+  "minimum_wall_delta_s": -3599.9988510608673,
+  "scope": "SYNTHETIC_WALL_CLOCK_JUMP_UNIT_TEST_NO_SYSTEM_CLOCK_CHANGE",
+  "test": "T3",
+  "verdict": "PASS"
+}

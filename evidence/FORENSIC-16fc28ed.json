@@ -1,0 +1,192 @@
+{
+  "doc": "FORENSIC-16fc28ed",
+  "bot": "180",
+  "role": "quality-brain",
+  "written_at": "2026-08-27T01:32:14.356236Z",
+  "subject_message_id": "16fc28ed-ca34-4b11-8a9d-95c38aa38884",
+  "related_task_id": "30f60773-6bee-49ef-9c76-b8b9de8c0335",
+  "method": "read-only reconstruction from claim/rejected/prediction/reply-meta/processed_ids/audit.jsonl; grepped 16fc28ed and a7bbfd75; no fields invented",
+  "sources_observed": {
+    "audit": "/root/octopus-mesh/audit/audit.jsonl",
+    "claim": "/root/octopus-mesh/receipts/16fc28ed-ca34-4b11-8a9d-95c38aa38884.claim.json",
+    "rejected": "/root/octopus-mesh/rejected/16fc28ed-ca34-4b11-8a9d-95c38aa38884.json",
+    "prediction": "/root/octopus-mesh/state/cognition/prediction-16fc28ed-ca34-4b11-8a9d-95c38aa38884.json",
+    "prediction_sha_file": "/root/octopus-mesh/state/cognition/prediction-16fc28ed-ca34-4b11-8a9d-95c38aa38884.sha256",
+    "reply_meta": "/root/octopus-mesh/state/replies/meta/16fc28ed-ca34-4b11-8a9d-95c38aa38884.json",
+    "processed_ids": "/root/octopus-mesh/state/cognition/processed_ids.json",
+    "processed_dir_file": null,
+    "audit_hits_a7bbfd75": 0
+  },
+  "hashes_of_sources": {
+    "receipts/16fc28ed-ca34-4b11-8a9d-95c38aa38884.claim.json": "c968b32a8fc62d1c3927bdba0806dfceae2da69a681c4517cfcad681e19c1a7f",
+    "rejected/16fc28ed-ca34-4b11-8a9d-95c38aa38884.json": "757355b7f01bea4a58cc35c0e71d93efc227322b018a1cd883306c5db238a344",
+    "state/cognition/prediction-16fc28ed-ca34-4b11-8a9d-95c38aa38884.json": "e0fbf4e379b642d108dee084ceaf43010590fdf31ded89b0141481ba78bea5bf",
+    "state/replies/meta/16fc28ed-ca34-4b11-8a9d-95c38aa38884.json": "b34aa19b24e26bb1b2500ea5a67291d10141ea42663380dca1c1475696fd83e9"
+  },
+  "observed_values": {
+    "response_sha256": "fd198dcf13b81fbc5d34e527b19ae890c7b8c8e05fed6495624fa76ec0908c56",
+    "frozen_prediction_sha256": "c3640e1ff8050722d0883d23adefbe01c045784b31b7abb40894302e2791c36c",
+    "prediction_sha256_file_contents": "c3640e1ff8050722d0883d23adefbe01c045784b31b7abb40894302e2791c36c",
+    "reply_message_id": "a7bbfd75-be55-5fca-905d-e661e56f42d2",
+    "reply_idempotency_key": "reply:16fc28ed-ca34-4b11-8a9d-95c38aa38884:fd198dcf13b81fbc5d34e527b19ae890c7b8c8e05fed6495624fa76ec0908c56",
+    "reply_meta_state": "INPUT_PROCESSED",
+    "reply_meta_ack_status": "ack",
+    "processed_dir_has_16fc": false,
+    "rejected_reason_later": "duplicate_already_processed"
+  },
+  "timeline": [
+    {
+      "ts": "2026-08-26T22:52:50.544075Z",
+      "source": "audit.jsonl seq=71",
+      "observed": {
+        "status": "received",
+        "reason": "accepted",
+        "type": "task",
+        "sender": "138",
+        "recipient": "180",
+        "run_id": "autowake-probe",
+        "checksum_prefix": "fc2f7e41f547e2ff",
+        "file": "2026-08-26T22-52-50.921719Z__16fc28ed-ca34-4b11-8a9d-95c38aa38884.json"
+      }
+    },
+    {
+      "ts": "2026-08-26T22:52:50.921719Z",
+      "source": "rejected/16fc28ed-ca34-4b11-8a9d-95c38aa38884.json created_at",
+      "observed": {
+        "envelope_created_at": "2026-08-26T22:52:50.921719Z",
+        "expires_at": "2026-08-26T23:52:50.921901Z",
+        "sender_node": "138",
+        "recipient_node": "180",
+        "requires_ack": true,
+        "idempotency_key": "autowake-probe-1:fresh",
+        "run_id": "autowake-probe",
+        "payload.task": "AUTOWAKE-PROBE-FRESH-EVENT",
+        "checksum": "fc2f7e41f547e2ff60e2990c5ee058f6f74a55e8a73fd8bf7b3bf569fea5ba42"
+      }
+    },
+    {
+      "ts": "2026-08-26T22:53:26.640526Z",
+      "source": "prediction file mtime + submitted_at",
+      "observed": {
+        "submitted_at": "2026-08-26T22:53:26.644365Z",
+        "task_id": "16fc28ed-ca34-4b11-8a9d-95c38aa38884",
+        "frozen_artifact.summary": "AUTOWAKE-PROBE-FRESH-EVENT",
+        "model_runtime": "AVAILABLE",
+        "may_authorize": false,
+        "executed_locally": false
+      }
+    },
+    {
+      "ts": "2026-08-26T22:53:26.645173Z",
+      "source": "state/cognition/processed_ids.json key 16fc28ed-...",
+      "observed": {
+        "ts": "2026-08-26T22:53:26.645173Z",
+        "artifact_sha256": "c3640e1ff8050722d0883d23adefbe01c045784b31b7abb40894302e2791c36c",
+        "immutable": true,
+        "note": "this ts is BEFORE any audit response_frozen/send; later fields reply_acked/reply_acked_at were added at 23:20:11Z"
+      }
+    },
+    {
+      "ts": null,
+      "source": "audit.jsonl gap 22:53:26Z..23:20:11Z",
+      "observed": {
+        "audit_lines_with_16fc28ed_in_gap": 0,
+        "audit_status_sent_for_16fc28ed": 0,
+        "audit_response_frozen_before_23:20": 0
+      }
+    },
+    {
+      "ts": "2026-08-26T23:20:11.060032Z",
+      "source": "reply-meta wire.created_at / meta.created_at",
+      "observed": {
+        "meta.created_at": "2026-08-26T23:20:11.060274Z",
+        "wire.message_id": "a7bbfd75-be55-5fca-905d-e661e56f42d2",
+        "wire.idempotency_key": "reply:16fc28ed-ca34-4b11-8a9d-95c38aa38884:fd198dcf13b81fbc5d34e527b19ae890c7b8c8e05fed6495624fa76ec0908c56",
+        "response_sha256": "fd198dcf13b81fbc5d34e527b19ae890c7b8c8e05fed6495624fa76ec0908c56",
+        "retry_count": 0
+      }
+    },
+    {
+      "ts": "2026-08-26T23:20:11.071096Z",
+      "source": "audit.jsonl seq=93",
+      "observed": {
+        "status": "response_frozen",
+        "reason": "response_frozen",
+        "type": "result",
+        "sender": "180",
+        "recipient": "138",
+        "run_id": "autowake-probe",
+        "checksum_prefix": "fd198dcf13b81fbc"
+      }
+    },
+    {
+      "ts": "2026-08-26T23:20:11.350374Z",
+      "source": "reply-meta acked_at",
+      "observed": {
+        "ack_status": "ack",
+        "state_now": "INPUT_PROCESSED"
+      }
+    },
+    {
+      "ts": "2026-08-26T23:20:11.374253Z",
+      "source": "audit.jsonl seq=94",
+      "observed": {
+        "status": "reply_acked",
+        "reason": "reply_acked",
+        "type": "result",
+        "sender": "180",
+        "recipient": "138",
+        "run_id": "autowake-probe-1",
+        "checksum_prefix": "fd198dcf13b81fbc"
+      }
+    },
+    {
+      "ts": "2026-08-26T23:20:11.379545Z",
+      "source": "processed_ids.json reply_acked_at",
+      "observed": {
+        "reply_acked": true,
+        "reply_acked_at": "2026-08-26T23:20:11.379545Z"
+      }
+    },
+    {
+      "ts": "2026-08-26T23:20:11.392964Z",
+      "source": "audit.jsonl seq=95",
+      "observed": {
+        "status": "processed",
+        "reason": "input_processed_after_reply_ack",
+        "type": "result",
+        "sender": "180",
+        "recipient": "138",
+        "run_id": "autowake-probe-1"
+      }
+    },
+    {
+      "ts": "2026-08-26T23:28:36.905279Z",
+      "source": "receipts/16fc28ed-....claim.json + audit seq=106",
+      "observed": {
+        "status": "rejected",
+        "reason": "duplicate_already_processed",
+        "claimed_by_node": "180",
+        "lease_expires_at": "2026-08-26T23:43:36.905279Z",
+        "audit_status": "claimed",
+        "audit_reason": "lease_granted"
+      }
+    },
+    {
+      "ts": "2026-08-26T23:28:56.508479Z",
+      "source": "audit.jsonl seq=107",
+      "observed": {
+        "status": "rejected",
+        "reason": "duplicate_already_processed",
+        "type": "task",
+        "sender": "138",
+        "recipient": "180"
+      }
+    }
+  ],
+  "not_found": [
+    "a7bbfd75 does not appear in audit.jsonl (0 lines)",
+    "no audit status=sent for 16fc28ed or a7bbfd75",
+    "no /root/octopus-mesh/processed/16fc28ed-*.json"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "forbidden_calls": [],
+  "forbidden_text_matches": {
+    "nvidia-smi": [
+      5
+    ],
+    "pandas": [
+      5
+    ],
+    "powercap": [
+      5,
+      131
+    ],
+    "smartctl": [
+      5
+    ]
+  },
+  "imports": [
+    "__future__",
+    "argparse",
+    "csv",
+    "datetime",
+    "glob",
+    "hashlib",
+    "json",
+    "math",
+    "os",
+    "pathlib",
+    "platform",
+    "random",
+    "sys",
+    "time",
+    "typing"
+  ],
+  "non_stdlib_imports": [],
+  "notes": [
+    "Text-only matches in the module docstring are not executable calls.",
+    "The powercap occurrence is a read-only Path.exists capability check.",
+    "All output writes are routed below the validated --output root."
+  ],
+  "service_or_clock_mutation_calls": [],
+  "sysfs_write_calls": [],
+  "verdict": "PASS"
+}

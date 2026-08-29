@@ -1,0 +1,9 @@
+{
+  "external_anchor": null,
+  "negative_error": "ENTRY_HASH_MISMATCH_AT_SEQUENCE_2",
+  "negative_valid": false,
+  "positive_valid": true,
+  "tail_truncation_detectable": false,
+  "verdict": "PASS",
+  "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY"
+}

@@ -1,0 +1,56 @@
+{
+  "captured_utc": "2026-08-25T05:12:40.879351+00:00",
+  "changed_by_this_task": false,
+  "claim_level": "OBSERVED",
+  "lab_organism_unit_present": false,
+  "preexisting_octopus_units": [
+    {
+      "is_symlink": false,
+      "path": "/etc/systemd/system/octopus-gateway.service",
+      "references_lab_organism": false,
+      "target": null
+    },
+    {
+      "is_symlink": false,
+      "path": "/etc/systemd/system/octopus-heartbeat.service",
+      "references_lab_organism": false,
+      "target": null
+    },
+    {
+      "is_symlink": false,
+      "path": "/etc/systemd/system/octopus-heartbeat.timer",
+      "references_lab_organism": false,
+      "target": null
+    },
+    {
+      "is_symlink": false,
+      "path": "/etc/systemd/system/octopus-mirror.service",
+      "references_lab_organism": false,
+      "target": null
+    },
+    {
+      "is_symlink": false,
+      "path": "/etc/systemd/system/octopus-mirror.timer",
+      "references_lab_organism": false,
+      "target": null
+    },
+    {
+      "is_symlink": true,
+      "path": "/etc/systemd/system/multi-user.target.wants/octopus-gateway.service",
+      "references_lab_organism": false,
+      "target": "/etc/systemd/system/octopus-gateway.service"
+    },
+    {
+      "is_symlink": true,
+      "path": "/etc/systemd/system/timers.target.wants/octopus-heartbeat.timer",
+      "references_lab_organism": false,
+      "target": "/etc/systemd/system/octopus-heartbeat.timer"
+    },
+    {
+      "is_symlink": true,
+      "path": "/etc/systemd/system/timers.target.wants/octopus-mirror.timer",
+      "references_lab_organism": false,
+      "target": "/etc/systemd/system/octopus-mirror.timer"
+    }
+  ]
+}

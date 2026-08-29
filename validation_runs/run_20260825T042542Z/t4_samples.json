@@ -1,0 +1,3319 @@
+[
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5715838976,
+      "io_ms": 196830,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11163748,
+      "weighted_io_ms": 883359,
+      "write_ms": 841958,
+      "writes_completed": 263845,
+      "writes_merged": 272140
+    },
+    "captured_utc": "2026-08-25T04:25:42.544246+00:00",
+    "elapsed_s": 5.5409036576747894e-06,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2256000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2256000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.06 0.18 0.36 1/270 215987",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5715937280,
+      "io_ms": 196837,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11163940,
+      "weighted_io_ms": 883367,
+      "write_ms": 841964,
+      "writes_completed": 263848,
+      "writes_merged": 272161
+    },
+    "captured_utc": "2026-08-25T04:25:44.553022+00:00",
+    "elapsed_s": 2.0081996789667755,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.06 0.18 0.36 2/270 215987",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716117504,
+      "io_ms": 196847,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164292,
+      "weighted_io_ms": 883378,
+      "write_ms": 841974,
+      "writes_completed": 263861,
+      "writes_merged": 272182
+    },
+    "captured_utc": "2026-08-25T04:25:46.562412+00:00",
+    "elapsed_s": 4.017048718989827,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.06 0.18 0.35 1/263 215987",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:25:48.571767+00:00",
+    "elapsed_s": 6.0268654458923265,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.06 0.18 0.35 1/263 215987",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:25:50.575620+00:00",
+    "elapsed_s": 8.036144393961877,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.05 0.18 0.35 1/263 215987",
+    "thermal": [
+      {
+        "temp_c": 27.769,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:25:52.583838+00:00",
+    "elapsed_s": 10.03987504390534,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.05 0.18 0.35 2/263 215988",
+    "thermal": [
+      {
+        "temp_c": 27.769,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:25:54.593453+00:00",
+    "elapsed_s": 12.0481378469849,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.05 0.18 0.35 1/263 215988",
+    "thermal": [
+      {
+        "temp_c": 27.769,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:25:56.604508+00:00",
+    "elapsed_s": 14.057831743964925,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.05 0.17 0.35 2/263 215988",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:25:58.615814+00:00",
+    "elapsed_s": 16.068941692938097,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.05 0.17 0.35 1/263 215988",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:00.631147+00:00",
+    "elapsed_s": 18.080319845001213,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.04 0.17 0.35 1/263 215989",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:02.649871+00:00",
+    "elapsed_s": 20.095553288934752,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.04 0.17 0.35 1/261 215989",
+    "thermal": [
+      {
+        "temp_c": 27.769,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:04.668247+00:00",
+    "elapsed_s": 22.114743271959014,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.04 0.17 0.35 1/261 215989",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:06.694823+00:00",
+    "elapsed_s": 24.133088022936136,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.04 0.17 0.35 1/261 215989",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:08.723116+00:00",
+    "elapsed_s": 26.160238582990132,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.04 0.17 0.35 1/261 215989",
+    "thermal": [
+      {
+        "temp_c": 27.769,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:10.751164+00:00",
+    "elapsed_s": 28.188515993999317,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.12 0.18 0.35 1/261 215990",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:12.761412+00:00",
+    "elapsed_s": 30.216496869921684,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.12 0.18 0.35 3/242 215991",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 27.769,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:14.794816+00:00",
+    "elapsed_s": 32.225586237967946,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.12 0.18 0.35 3/244 216042",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5716228096,
+      "io_ms": 196850,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11164508,
+      "weighted_io_ms": 883451,
+      "write_ms": 842048,
+      "writes_completed": 263881,
+      "writes_merged": 272187
+    },
+    "captured_utc": "2026-08-25T04:26:16.802651+00:00",
+    "elapsed_s": 34.25915711792186,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.19 0.20 0.35 4/248 216093",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5798877184,
+      "io_ms": 197107,
+      "ios_in_progress": 13,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11325932,
+      "weighted_io_ms": 891746,
+      "write_ms": 850341,
+      "writes_completed": 264005,
+      "writes_merged": 272530
+    },
+    "captured_utc": "2026-08-25T04:26:18.805802+00:00",
+    "elapsed_s": 36.26681426691357,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.19 0.20 0.35 3/246 216104",
+    "thermal": [
+      {
+        "temp_c": 31.461,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 33.307,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 33.307,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5954656256,
+      "io_ms": 197530,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11630188,
+      "weighted_io_ms": 908014,
+      "write_ms": 866609,
+      "writes_completed": 264210,
+      "writes_merged": 274549
+    },
+    "captured_utc": "2026-08-25T04:26:20.814607+00:00",
+    "elapsed_s": 38.26977572590113,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.17 0.19 0.35 2/256 216194",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5966514176,
+      "io_ms": 197580,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11653348,
+      "weighted_io_ms": 908159,
+      "write_ms": 866739,
+      "writes_completed": 264230,
+      "writes_merged": 276839
+    },
+    "captured_utc": "2026-08-25T04:26:22.824213+00:00",
+    "elapsed_s": 40.27883467799984,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1608000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.17 0.19 0.35 3/284 216259",
+    "thermal": [
+      {
+        "temp_c": 32.384,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 33.307,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633772544,
+      "bytes_written_512_sector_units": 5966628864,
+      "io_ms": 197590,
+      "ios_in_progress": 0,
+      "read_ms": 10249,
+      "reads_completed": 20121,
+      "reads_merged": 3636,
+      "sectors_read": 1237837,
+      "sectors_written": 11653572,
+      "weighted_io_ms": 908166,
+      "write_ms": 866743,
+      "writes_completed": 264233,
+      "writes_merged": 276864
+    },
+    "captured_utc": "2026-08-25T04:26:24.832013+00:00",
+    "elapsed_s": 42.28846336796414,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2304000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.17 0.19 0.35 2/294 216293",
+    "thermal": [
+      {
+        "temp_c": 32.384,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6124783616,
+      "io_ms": 198040,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11962468,
+      "weighted_io_ms": 927263,
+      "write_ms": 885837,
+      "writes_completed": 264486,
+      "writes_merged": 280702
+    },
+    "captured_utc": "2026-08-25T04:26:26.840036+00:00",
+    "elapsed_s": 44.296135891927406,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2256000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 2256000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1800000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.64 0.29 0.38 3/293 216302",
+    "thermal": [
+      {
+        "temp_c": 33.307,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 33.307,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 33.307,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 33.307,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 32.384,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126303232,
+      "io_ms": 198064,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11965436,
+      "weighted_io_ms": 927318,
+      "write_ms": 885888,
+      "writes_completed": 264490,
+      "writes_merged": 281069
+    },
+    "captured_utc": "2026-08-25T04:26:28.852210+00:00",
+    "elapsed_s": 46.30420049093664,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.64 0.29 0.38 3/293 216330",
+    "thermal": [
+      {
+        "temp_c": 30.538,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126409728,
+      "io_ms": 198074,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11965644,
+      "weighted_io_ms": 927325,
+      "write_ms": 885895,
+      "writes_completed": 264506,
+      "writes_merged": 281069
+    },
+    "captured_utc": "2026-08-25T04:26:30.863665+00:00",
+    "elapsed_s": 48.31671066000126,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1416000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 600000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.67 0.30 0.39 4/293 216332",
+    "thermal": [
+      {
+        "temp_c": 30.538,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 31.461,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 30.538,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126409728,
+      "io_ms": 198074,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11965644,
+      "weighted_io_ms": 927325,
+      "write_ms": 885895,
+      "writes_completed": 264506,
+      "writes_merged": 281069
+    },
+    "captured_utc": "2026-08-25T04:26:32.889380+00:00",
+    "elapsed_s": 50.328202017000876,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.67 0.30 0.39 6/293 216334",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126548992,
+      "io_ms": 198080,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11965916,
+      "weighted_io_ms": 927335,
+      "write_ms": 885902,
+      "writes_completed": 264509,
+      "writes_merged": 281100
+    },
+    "captured_utc": "2026-08-25T04:26:34.920388+00:00",
+    "elapsed_s": 52.35514370689634,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.67 0.30 0.39 1/293 216336",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126548992,
+      "io_ms": 198080,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11965916,
+      "weighted_io_ms": 927335,
+      "write_ms": 885902,
+      "writes_completed": 264509,
+      "writes_merged": 281100
+    },
+    "captured_utc": "2026-08-25T04:26:36.952706+00:00",
+    "elapsed_s": 54.385902105947025,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.61 0.30 0.38 1/293 216336",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126643200,
+      "io_ms": 198084,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11966100,
+      "weighted_io_ms": 927343,
+      "write_ms": 885908,
+      "writes_completed": 264512,
+      "writes_merged": 281120
+    },
+    "captured_utc": "2026-08-25T04:26:38.981866+00:00",
+    "elapsed_s": 56.41829642793164,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.61 0.30 0.38 1/293 216337",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633842176,
+      "bytes_written_512_sector_units": 6126643200,
+      "io_ms": 198084,
+      "ios_in_progress": 0,
+      "read_ms": 10253,
+      "reads_completed": 20123,
+      "reads_merged": 3636,
+      "sectors_read": 1237973,
+      "sectors_written": 11966100,
+      "weighted_io_ms": 927343,
+      "write_ms": 885908,
+      "writes_completed": 264512,
+      "writes_merged": 281120
+    },
+    "captured_utc": "2026-08-25T04:26:40.998137+00:00",
+    "elapsed_s": 58.447332780924626,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1008000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 1200000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.56 0.29 0.38 1/293 216337",
+    "thermal": [
+      {
+        "temp_c": 29.615,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  },
+  {
+    "block_stat": {
+      "bytes_read_512_sector_units": 633952768,
+      "bytes_written_512_sector_units": 6126643200,
+      "io_ms": 198087,
+      "ios_in_progress": 0,
+      "read_ms": 10258,
+      "reads_completed": 20125,
+      "reads_merged": 3636,
+      "sectors_read": 1238189,
+      "sectors_written": 11966100,
+      "weighted_io_ms": 927348,
+      "write_ms": 885908,
+      "writes_completed": 264512,
+      "writes_merged": 281120
+    },
+    "captured_utc": "2026-08-25T04:26:42.564382+00:00",
+    "elapsed_s": 60.000371732981876,
+    "frequencies": {
+      "cpu": [
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq"
+        },
+        {
+          "frequency_khz": 408000,
+          "path": "/sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq"
+        }
+      ],
+      "devfreq": [
+        {
+          "frequency_hz": 534000000,
+          "path": "/sys/class/devfreq/dmc/cur_freq"
+        },
+        {
+          "frequency_hz": 300000000,
+          "path": "/sys/class/devfreq/fb000000.gpu/cur_freq"
+        },
+        {
+          "frequency_hz": 1000000000,
+          "path": "/sys/class/devfreq/fdab0000.npu/cur_freq"
+        }
+      ]
+    },
+    "loadavg": "0.56 0.29 0.38 1/293 216338",
+    "thermal": [
+      {
+        "temp_c": 28.692,
+        "type": "soc-thermal",
+        "zone": "thermal_zone0"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore0-thermal",
+        "zone": "thermal_zone1"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "bigcore1-thermal",
+        "zone": "thermal_zone2"
+      },
+      {
+        "temp_c": 29.615,
+        "type": "littlecore-thermal",
+        "zone": "thermal_zone3"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "center-thermal",
+        "zone": "thermal_zone4"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "gpu-thermal",
+        "zone": "thermal_zone5"
+      },
+      {
+        "temp_c": 28.692,
+        "type": "npu-thermal",
+        "zone": "thermal_zone6"
+      }
+    ]
+  }
+]

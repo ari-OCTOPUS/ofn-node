@@ -1,0 +1,10 @@
+{
+  "hosts": {
+    "gateway": "up",
+    "neighbor-138": "up",
+    "neighbor-191": "up"
+  },
+  "letters_this_tick": [],
+  "telegram": "TELEGRAM_NOT_CONFIGURED",
+  "updated_utc": "2026-08-29T23:29:09+00:00"
+}

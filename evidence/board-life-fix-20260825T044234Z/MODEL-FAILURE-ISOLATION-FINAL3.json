@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "ask_http_200": true,
+    "episode_provenance": true,
+    "event_recorded": true,
+    "explicit_needs_owner": true,
+    "organism_http_after_failure_200": true
+  },
+  "claim_level": "REPRODUCED",
+  "organism_id": "board-life-001",
+  "scope": "FINAL_SOURCE_ISOLATED_FAILURE_INJECTION_NOT_LIVE_OUTAGE",
+  "verdict": "PASS"
+}

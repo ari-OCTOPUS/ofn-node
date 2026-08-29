@@ -1,0 +1,52 @@
+{
+  "asks": [
+    {
+      "label": "LOW_CONFIDENCE",
+      "request_hash": "f16139dfd6ea1bd1db67fc0d5c2bd329a8e6e435a3e08cc6b543b72e4c02f1c3",
+      "response_hash": "7f48b3d3b2015f70b575d1e7cb05c82172178621e80c50c18555bc75b928d09e",
+      "route": "local_qwen",
+      "source_event_id": "91c9ac249ee98f345b057c3aeb861dae"
+    },
+    {
+      "label": "LOW_CONFIDENCE",
+      "request_hash": "8d118cf06fbcf3efbea9f99a148cb65e91b90e54b20086d4342035d2de226223",
+      "response_hash": "26827d6ecf15b9ada3b693ff891023f541015015b74dfb42f25a5b5e7e8ce955",
+      "route": "local_qwen",
+      "source_event_id": "3836d8a1def89d8d9140ff0f317c9fe1"
+    },
+    {
+      "label": "LOW_CONFIDENCE",
+      "request_hash": "0cc02ae3c47eccf6a9c5ece92be46f2600108d87e0717a72c079d4ba64e3fe1c",
+      "response_hash": "4bade2e76d3d3f7a37fc41621d655632f8dec4c501bc1633531c222d2b74ff1a",
+      "route": "local_qwen",
+      "source_event_id": "cb9db13389f67d39cee18634712ac8e2"
+    }
+  ],
+  "captured_utc": "2026-08-25T05:29:06.525657+00:00",
+  "checks": {
+    "chain_valid": true,
+    "database_recall": true,
+    "distinct_request_hashes": true,
+    "distinct_source_event_ids": true,
+    "endpoint_provenance_valid": true,
+    "endpoint_recall": true,
+    "explicit_routes_and_labels": true,
+    "label_not_earned_before_reboot": true,
+    "nonempty_answers": true,
+    "organism_id": true,
+    "three_responses": true
+  },
+  "claim_level": "PROVEN",
+  "database_episode_counts": {
+    "3836d8a1def89d8d9140ff0f317c9fe1": 1,
+    "91c9ac249ee98f345b057c3aeb861dae": 1,
+    "cb9db13389f67d39cee18634712ac8e2": 1
+  },
+  "kernel_boot_id": "dd578f22-6350-4cd4-8e5e-3a5f91ada4c9",
+  "organism_boot_id": "edaf0809138449c0b9ffa92793f2ec50",
+  "organism_id": "board-life-001",
+  "pre_reboot_chain_entries": 48,
+  "pre_reboot_chain_last_hash": "51a04b486b1d79019394e8420f6c19c5ff5a53fdf3d6ca31b66c669172b9cb86",
+  "scope": "THREE_PRE_REBOOT_ASKS_WITH_ENDPOINT_AND_SQLITE_RECALL",
+  "verdict": "PROVEN"
+}

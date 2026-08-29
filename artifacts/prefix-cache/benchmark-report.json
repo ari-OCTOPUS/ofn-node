@@ -1,0 +1,66 @@
+{
+  "algorithms": [
+    {
+      "algorithm": "sha256",
+      "collision_probe": {
+        "collision_rate": 0.0,
+        "collisions": 0,
+        "samples": 5000,
+        "throughput_hashes_per_second": 50384.52
+      },
+      "reproducibility_probe": {
+        "cross_language_reproducibility": "python_pickle_not_cross_language_stable",
+        "encoding_size_bytes": 162,
+        "same_bytes_after_key_reordering": true
+      },
+      "serialization_overhead": {
+        "mean_payload_bytes": 309.16,
+        "mean_us": 8.378,
+        "p50_us": 7.291,
+        "p95_us": 8.167,
+        "samples": 192,
+        "total_seconds": 0.001609
+      },
+      "status": "OK",
+      "tenant_overlap_with_salt": {
+        "cache_salt_included": true,
+        "overlap_ratio": 0.0,
+        "overlapping_hash_count": 0,
+        "records": 192,
+        "unique_hashes": 192
+      },
+      "tenant_overlap_without_salt": {
+        "cache_salt_included": false,
+        "overlap_ratio": 1.0,
+        "overlapping_hash_count": 48,
+        "records": 192,
+        "unique_hashes": 48
+      }
+    },
+    {
+      "algorithm": "sha256_cbor",
+      "reason": "cbor2_not_installed",
+      "status": "UNAVAILABLE"
+    }
+  ],
+  "created_at_utc": "2026-08-25T09:16:46Z",
+  "notes": [
+    "APC hash keys are benchmarked offline; no vLLM service mutation.",
+    "KV cache is inference-temporary and not event memory.",
+    "Use tenant-specific cache_salt for isolation in multi-tenant serving."
+  ],
+  "suite": "vllm_apc_hash_benchmark",
+  "workload_config": {
+    "block_size": 16,
+    "blocks_per_prompt": 4,
+    "collision_samples": 5000,
+    "iterations": 400,
+    "lora_id": "base",
+    "model_id": "model-qwen3-0.6b",
+    "model_revision": "rev-1",
+    "prompts_per_tenant": 12,
+    "random_seed": 7,
+    "tenant_count": 4,
+    "tokenizer_id": "tokenizer-qwen3"
+  }
+}

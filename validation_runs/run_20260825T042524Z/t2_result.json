@@ -1,0 +1,61 @@
+{
+  "checks": {
+    "identical_below_5pct_regime": true,
+    "low_precision_noise_below_25pct_regime": true,
+    "persistent_regime_exceeds_high_precision_noise": true
+  },
+  "scope": "DETERMINISTIC_METRIC_BEHAVIOUR_SIMULATION_NOT_SUBJECTIVE_TIME_PROOF",
+  "seed": 7,
+  "summaries": {
+    "A_identical": {
+      "events": 1000,
+      "n_cog": 1,
+      "parameters": {
+        "hypotheses": 8,
+        "info_threshold_bits": 0.02,
+        "persistence_epsilon": 0.15,
+        "persistence_steps": 20
+      },
+      "persistence_gated_bits": 0.21033632915766973,
+      "raw_bits": 2.1793927861326283
+    },
+    "B_noise_low_precision": {
+      "events": 1000,
+      "n_cog": 73,
+      "parameters": {
+        "hypotheses": 8,
+        "info_threshold_bits": 0.02,
+        "persistence_epsilon": 0.15,
+        "persistence_steps": 20
+      },
+      "persistence_gated_bits": 4.267326683520389,
+      "raw_bits": 11.170194537996972
+    },
+    "C_noise_high_precision": {
+      "events": 1000,
+      "n_cog": 50,
+      "parameters": {
+        "hypotheses": 8,
+        "info_threshold_bits": 0.02,
+        "persistence_epsilon": 0.15,
+        "persistence_steps": 20
+      },
+      "persistence_gated_bits": 20.21015042647166,
+      "raw_bits": 105.56138006587665
+    },
+    "D_persistent_regime_shifts": {
+      "events": 1000,
+      "n_cog": 36,
+      "parameters": {
+        "hypotheses": 8,
+        "info_threshold_bits": 0.02,
+        "persistence_epsilon": 0.15,
+        "persistence_steps": 20
+      },
+      "persistence_gated_bits": 30.32063618683752,
+      "raw_bits": 43.260104365702155
+    }
+  },
+  "test": "T2",
+  "verdict": "PASS"
+}

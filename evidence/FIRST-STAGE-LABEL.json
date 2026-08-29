@@ -1,0 +1,21 @@
+{
+  "FIRST_STAGE_LABEL": "OWNER_ALIVE_C",
+  "captured_utc": "2026-08-25T05:30:11.286029+00:00",
+  "claim_level": "PROVEN",
+  "ledger_entry": {
+    "created_at_ns": 1787635811239019279,
+    "entries": 54,
+    "entry_hash": "0c9c8c0e1657244a9b48796dfbe339c44898c1537410b416b3291207a1512e26",
+    "error": null,
+    "external_anchor": null,
+    "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+    "last_hash": "0c9c8c0e1657244a9b48796dfbe339c44898c1537410b416b3291207a1512e26",
+    "previous_hash": "8a4dc0329d4a82d43ef28a848f42d09303fb6eee249d15f52c13a79a528632ad",
+    "sequence": 54,
+    "tail_truncation_detectable": false,
+    "valid": true,
+    "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY"
+  },
+  "organism_status_label": "OWNER_ALIVE_C",
+  "post_reboot_receipt_sha256": "0e1f5a52caeb6852f18bf3d79c1604de8d9fe77e6602b6301ad16ebdcfcf462e"
+}

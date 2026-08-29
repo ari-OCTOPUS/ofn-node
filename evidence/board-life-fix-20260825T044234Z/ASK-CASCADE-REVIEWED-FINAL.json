@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "cache": true,
+    "explicit_attempts": true,
+    "local": true,
+    "rule": true,
+    "source_event_ids": true
+  },
+  "claim_level": "REPRODUCED",
+  "known_source_event_id": "be51e8c186348834db032b96fd5d0a70",
+  "local_latency_ms": 233,
+  "scope": "FINAL_IDENTITY_GATED_NO_REDIRECT_SOURCE",
+  "verdict": "PASS"
+}

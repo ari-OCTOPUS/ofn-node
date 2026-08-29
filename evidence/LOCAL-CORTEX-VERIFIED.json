@@ -1,0 +1,29 @@
+{
+  "claim_level": "OBSERVED",
+  "status": "LOCAL_CORTEX_VERIFIED",
+  "not_claimed": [
+    "alive",
+    "intelligent",
+    "production-ready",
+    "systemd-enabled"
+  ],
+  "live_pid": 213370,
+  "exe": "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+  "lib_dir": "/opt/octopus/runtime/llama.cpp-f280b26/lib",
+  "rpath": "$ORIGIN/../lib and $ORIGIN on so files",
+  "tmp_maps": 0,
+  "tmp_fds": 0,
+  "ldd_noenv": "no /tmp, no not found",
+  "model_sha256": "da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4",
+  "model_mode": "444",
+  "health": 200,
+  "l1_completion_nonempty": true,
+  "l2_persian": "json_ok generation_in_reasoning_content content_field_empty thinking_model",
+  "l3_invalid": 400,
+  "peak_rss_kb": 852680,
+  "vm_swap_kb": 0,
+  "oom_events": 0,
+  "thermal_throttle_observed": 0,
+  "systemd": "not_installed",
+  "snapshot": "proc-213370-20260825T035435Z"
+}

@@ -1,0 +1,12 @@
+{
+  "db_path": "/opt/octopus/lab/evidence/board-life-fix-20260825T044234Z/final-verifier-tampered.db",
+  "entries": 2,
+  "error": "ENTRY_HASH_MISMATCH_AT_SEQUENCE_2",
+  "external_anchor": null,
+  "first_hash": "c4571d86218dc9ddaa832a65482cbaaef80081787f5d0d69d84a1ba6168be944",
+  "last_hash": "c4571d86218dc9ddaa832a65482cbaaef80081787f5d0d69d84a1ba6168be944",
+  "tail_truncation_detectable": false,
+  "valid": false,
+  "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+  "verifier": "independent-stdlib-v1"
+}

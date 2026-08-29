@@ -1,0 +1,45 @@
+{
+  "captured_utc": "2026-08-25T05:29:48.645308+00:00",
+  "claim_level": "OBSERVED",
+  "first_stage_label": "NOT_EARNED",
+  "identity_chain_last_hash": "51a04b486b1d79019394e8420f6c19c5ff5a53fdf3d6ca31b66c669172b9cb86",
+  "identity_chain_valid": true,
+  "kernel_boot_id": "dd578f22-6350-4cd4-8e5e-3a5f91ada4c9",
+  "llama_http": 200,
+  "llama_pid": 223075,
+  "organism_boot_id": "edaf0809138449c0b9ffa92793f2ec50",
+  "organism_http": 200,
+  "organism_id": "board-life-001",
+  "organism_pid": 223076,
+  "pre_reboot_ask_event_ids": [
+    "91c9ac249ee98f345b057c3aeb861dae",
+    "3836d8a1def89d8d9140ff0f317c9fe1",
+    "cb9db13389f67d39cee18634712ac8e2"
+  ],
+  "public_status": {
+    "alert": null,
+    "autonomy_state": "PROPOSE_ONLY",
+    "first_stage_label": "NOT_EARNED",
+    "health_state": "OBSERVING",
+    "identity_chain_last_hash": "51a04b486b1d79019394e8420f6c19c5ff5a53fdf3d6ca31b66c669172b9cb86",
+    "identity_chain_valid": true,
+    "last_event_sequence": 73,
+    "llama_health": "AVAILABLE",
+    "local_cortex": "AVAILABLE",
+    "organism_id": "board-life-001",
+    "soak": {
+      "pids": [],
+      "running": false
+    },
+    "unknowns": [],
+    "updated_utc": "2026-08-25T05:29:48.560012+00:00"
+  },
+  "soak_paused": true,
+  "tmp_fd_count": 0,
+  "tmp_maps_count": 0,
+  "units": {
+    "llama": "enabled-active",
+    "organism": "enabled-active",
+    "proof": "enabled-inactive-pending"
+  }
+}

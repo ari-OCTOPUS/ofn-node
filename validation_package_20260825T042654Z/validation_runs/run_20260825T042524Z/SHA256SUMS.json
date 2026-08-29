@@ -1,0 +1,9 @@
+{
+  "environment.json": "f5903cf3e33daa95e9c804428ac717e994a9e5bd6fb7d8a140609737d7de9d29",
+  "summary.json": "0768d0988c46eb98b7fd29dc063464e1d8fef486e4b6ed84d96034939d05deda",
+  "t2_A_identical_raw.csv": "51a77187ff1e7981353526312cbbeb9f24c3fc5e85e45a70fc5af648ffaccba9",
+  "t2_B_noise_low_precision_raw.csv": "bb73cc3acec4c1dcfbd30f97bb14411237858ed44022d0b1951764cd0b16e913",
+  "t2_C_noise_high_precision_raw.csv": "3915ec9d970d49e94d56498948eae3da82adba696ea906c4bb4d1f29a659a6b3",
+  "t2_D_persistent_regime_shifts_raw.csv": "e6ae73a57752ceaa6e10515ab3ae52dd7a0cb44d5721994738a8cb15186ed050",
+  "t2_result.json": "ac1b50767a81cac8eb694913e5726938a99fdf67faf33e9c416e870fdbe1186f"
+}

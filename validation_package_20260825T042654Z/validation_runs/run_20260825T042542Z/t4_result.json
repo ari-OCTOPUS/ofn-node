@@ -1,0 +1,134 @@
+{
+  "checks": {
+    "block_stat_available": true,
+    "mmc_health_available": true,
+    "thermal_data_available": true
+  },
+  "delta": {
+    "bytes_read_512_sector_units": 180224,
+    "bytes_written_512_sector_units": 410804224,
+    "io_ms": 1257,
+    "ios_in_progress": 0,
+    "read_bytes_per_second": 3003.7147236694846,
+    "read_ms": 9,
+    "reads_completed": 4,
+    "reads_merged": 0,
+    "sectors_read": 352,
+    "sectors_written": 802352,
+    "weighted_io_ms": 43989,
+    "write_bytes_per_second": 6846694.647629711,
+    "write_ms": 43950,
+    "writes_completed": 667,
+    "writes_merged": 8980
+  },
+  "device": "mmcblk0",
+  "duration_s": 60.000371732981876,
+  "end_block_stat": {
+    "bytes_read_512_sector_units": 633952768,
+    "bytes_written_512_sector_units": 6126643200,
+    "io_ms": 198087,
+    "ios_in_progress": 0,
+    "read_ms": 10258,
+    "reads_completed": 20125,
+    "reads_merged": 3636,
+    "sectors_read": 1238189,
+    "sectors_written": 11966100,
+    "weighted_io_ms": 927348,
+    "write_ms": 885908,
+    "writes_completed": 264512,
+    "writes_merged": 281120
+  },
+  "label": "SCHEMA_SMOKE_TEST",
+  "mmc_health": [
+    {
+      "cid": "d6290343394136313113b01924e9bc00",
+      "life_time_a_code": 1,
+      "life_time_a_interpretation": "ESTIMATED_0_TO_10_PERCENT_USED",
+      "life_time_b_code": 0,
+      "life_time_b_interpretation": "NOT_DEFINED",
+      "life_time_raw": "0x01 0x00",
+      "name": "C9A611",
+      "pre_eol_code": 1,
+      "pre_eol_interpretation": "NORMAL",
+      "pre_eol_raw": "0x01",
+      "sysfs_path": "/sys/class/mmc_host/mmc0/mmc0:0001/"
+    },
+    {
+      "cid": null,
+      "life_time_a_code": null,
+      "life_time_a_interpretation": "UNAVAILABLE",
+      "life_time_b_code": null,
+      "life_time_b_interpretation": "UNAVAILABLE",
+      "life_time_raw": null,
+      "name": null,
+      "pre_eol_code": null,
+      "pre_eol_interpretation": "UNAVAILABLE",
+      "pre_eol_raw": null,
+      "sysfs_path": "/sys/class/mmc_host/mmc2/mmc2:0001/"
+    }
+  ],
+  "power_measurement": "UNAVAILABLE_NO_EXTERNAL_POWER_METER",
+  "sample_count": 31,
+  "start_block_stat": {
+    "bytes_read_512_sector_units": 633772544,
+    "bytes_written_512_sector_units": 5715838976,
+    "io_ms": 196830,
+    "ios_in_progress": 0,
+    "read_ms": 10249,
+    "reads_completed": 20121,
+    "reads_merged": 3636,
+    "sectors_read": 1237837,
+    "sectors_written": 11163748,
+    "weighted_io_ms": 883359,
+    "write_ms": 841958,
+    "writes_completed": 263845,
+    "writes_merged": 272140
+  },
+  "test": "T4",
+  "thermal_summary": {
+    "thermal_zone0:soc-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 33.307,
+      "min_c": 27.769,
+      "range_c": 5.538000000000004
+    },
+    "thermal_zone1:bigcore0-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 33.307,
+      "min_c": 27.769,
+      "range_c": 5.538000000000004
+    },
+    "thermal_zone2:bigcore1-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 33.307,
+      "min_c": 27.769,
+      "range_c": 5.538000000000004
+    },
+    "thermal_zone3:littlecore-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 33.307,
+      "min_c": 28.692,
+      "range_c": 4.615000000000002
+    },
+    "thermal_zone4:center-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 31.461,
+      "min_c": 27.769,
+      "range_c": 3.692
+    },
+    "thermal_zone5:gpu-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 31.461,
+      "min_c": 27.769,
+      "range_c": 3.692
+    },
+    "thermal_zone6:npu-thermal": {
+      "excursions_ge_15c": 0,
+      "max_c": 32.384,
+      "min_c": 27.769,
+      "range_c": 4.615000000000002
+    }
+  },
+  "verdict": "SCHEMA_SMOKE_TEST",
+  "wear_lifetime_prediction": "NOT_CALCULATED_INSUFFICIENT_CALIBRATION"
+}

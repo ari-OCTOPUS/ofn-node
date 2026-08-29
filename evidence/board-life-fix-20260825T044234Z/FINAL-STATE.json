@@ -1,0 +1,337 @@
+{
+  "architecture": "aarch64",
+  "ask_endpoint": {
+    "checks": {
+      "cache": true,
+      "explicit_attempts": true,
+      "local": true,
+      "rule": true,
+      "source_event_ids": true
+    },
+    "claim_level": "REPRODUCED",
+    "known_source_event_id": "be51e8c186348834db032b96fd5d0a70",
+    "local_latency_ms": 233,
+    "scope": "FINAL_IDENTITY_GATED_NO_REDIRECT_SOURCE",
+    "verdict": "PASS"
+  },
+  "captured_utc": "2026-08-25T05:10:33.206706+00:00",
+  "claim_level": "OBSERVED",
+  "controls": {
+    "dependencies_installed": false,
+    "lab_organism_systemd_unit_present": false,
+    "off_board_egress_performed": false,
+    "preexisting_octopus_units_observed": 8,
+    "push_performed": false,
+    "reboot_performed": false,
+    "systemd_unit_written_or_enabled_by_this_task": false,
+    "t1_lock_present": true
+  },
+  "database": {
+    "counts": {
+      "ask_cache": 3,
+      "episodes": 59,
+      "events": 59,
+      "identity_heartbeat": 47,
+      "identity_ledger": 32,
+      "meta": 0,
+      "outbox": 59,
+      "sqlite_sequence": 2
+    },
+    "duplicate_episode_sources": [],
+    "path": "/opt/octopus/lab/lab-data/organism.db"
+  },
+  "filesystem": {
+    "bytes_available": 7036903424,
+    "bytes_total": 61326831616,
+    "percent_used": 84.4
+  },
+  "git": {
+    "branch": "experiment/board-life-001",
+    "head": "37f61ecac14dd29f05d60b3792173105795c279c",
+    "status": "## experiment/board-life-001\n M ofn/organism/__init__.py\n M ofn/organism/cognition/backend.py\n M ofn/organism/event_kernel/kernel.py\n M ofn/organism/homeostasis/core.py\n M ofn/organism/identity/heartbeat.py\n M ofn/organism/memory/episodic.py\n M ofn/organism/persistence/db.py\n M ofn/organism/runtime/app.py\n M ofn/organism/tests/test_kernel.py\n?? AGENT_HANDOFF_RK35XX_VALIDATION.md\n?? T1_LOCKED_SOAK_ACTIVE\n?? audit/\n?? audit_runtime_console.log\n?? bin/\n?? evidence/BOARD-LIFE-FIX-LATEST\n?? evidence/BOARD-SCAN-AFTER.json\n?? evidence/BOARD-SCAN-AFTER.json.sha256\n?? evidence/BOARD-SCAN.json\n?? evidence/BOARD-SCAN.json.sha256\n?? evidence/LOCAL-CORTEX-VERIFIED.json\n?? evidence/SOAK-RESULTS.json\n?? evidence/board-life-fix-20260825T044234Z/\n?? evidence/proc-213370-20260825T035435Z/\n?? logs/\n?? octopus_board_validation.py\n?? ofn/organism/identity/ledger.py\n?? ofn/organism/runtime/soak.py\n?? receipts/\n?? smoke/\n?? t2_console.log\n?? t3_console.log\n?? t4_console.log\n?? validation_campaign_20260825T043414Z/\n?? validation_package_20260825T042654Z.tar.gz\n?? validation_package_20260825T042654Z.tar.gz.sha256\n?? validation_package_20260825T042654Z/\n?? validation_runs/\n"
+  },
+  "host": "octopus-continuity-180",
+  "identity_chain": {
+    "claim_level": "REPRODUCED",
+    "classification": "REAL",
+    "hardcoded_scan": {
+      "classification": "NONE_OBSERVED",
+      "pattern": "identity_chain_valid assigned literal True",
+      "production_matches": []
+    },
+    "verification": {
+      "db_path": "/opt/octopus/lab/lab-data/organism.db",
+      "entries": 32,
+      "error": null,
+      "external_anchor": null,
+      "first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+      "last_hash": "3a78dd6cf63971ee7e1afd7fd6e8ca8179af841056e69349fad6ac473dfcbe27",
+      "tail_truncation_detectable": false,
+      "valid": true,
+      "verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+      "verifier": "independent-stdlib-v1"
+    }
+  },
+  "kernel": "6.1.115-vendor-rk35xx",
+  "llama_health": {
+    "body": {
+      "status": "ok"
+    },
+    "http_code": 200
+  },
+  "memory": {
+    "MemAvailable": "2389624 kB",
+    "MemTotal": "4004732 kB",
+    "SwapFree": "4190716 kB",
+    "SwapTotal": "4194300 kB"
+  },
+  "model_failure_isolation": {
+    "checks": {
+      "ask_http_200": true,
+      "episode_provenance": true,
+      "event_recorded": true,
+      "explicit_needs_owner": true,
+      "organism_http_after_failure_200": true
+    },
+    "claim_level": "REPRODUCED",
+    "organism_id": "board-life-001",
+    "scope": "FINAL_SOURCE_ISOLATED_FAILURE_INJECTION_NOT_LIVE_OUTAGE",
+    "verdict": "PASS"
+  },
+  "organism_health": {
+    "body": {
+      "age_seconds": 147,
+      "autonomy_state": "PROPOSE_ONLY",
+      "boot_id": "ad5113e4495b4839bdc89201efe937ec",
+      "current_experiment": "board-life-001",
+      "external_api": "DISABLED",
+      "health_state": "OBSERVING",
+      "identity_chain_entries": 32,
+      "identity_chain_error": null,
+      "identity_chain_external_anchor": null,
+      "identity_chain_first_hash": "21cd26ba968b5ea358bfd2393ed740592e35428c22a167fe091598552ca82f7e",
+      "identity_chain_last_hash": "3a78dd6cf63971ee7e1afd7fd6e8ca8179af841056e69349fad6ac473dfcbe27",
+      "identity_chain_scope": "identity_ledger_v1_from_genesis_forward",
+      "identity_chain_tail_truncation_detectable": false,
+      "identity_chain_valid": true,
+      "identity_chain_verification_scope": "INTERNAL_HASH_CHAIN_CONSISTENCY",
+      "last_event_sequence": 59,
+      "legacy_heartbeats_in_chain": false,
+      "local_cortex": "AVAILABLE",
+      "memory_status": "AVAILABLE",
+      "model_failure_is_organism_failure": false,
+      "organism_id": "board-life-001",
+      "unknowns": []
+    },
+    "http_code": 200
+  },
+  "process_kill_recall": {
+    "after_boot_id": "ad5113e4495b4839bdc89201efe937ec",
+    "after_event_sequence": 58,
+    "before_boot_id": "d237a5b2a35b4c3998f62819a679b0e3",
+    "before_event_sequence": 57,
+    "chain_entries": 31,
+    "chain_external_anchor": null,
+    "chain_last_hash": "419a76acc9375de52b63b6d48c0c8daec7161cec73cb3ee9529f90d838d0971e",
+    "checks": {
+      "boot_id_changed": true,
+      "chain_scope_explicit": true,
+      "episode_provenance_join_valid": true,
+      "event_sequence_continued": true,
+      "identity_chain_independently_verified": true,
+      "known_event_recalled": true,
+      "organism_id_unchanged": true
+    },
+    "claim_level": "REPRODUCED",
+    "downtime_probe_ms": 363.654222,
+    "known_source_event_id": "be51e8c186348834db032b96fd5d0a70",
+    "new_pid": 221368,
+    "old_pid": 221236,
+    "scope": "FINAL_IDENTITY_GATED_NO_REDIRECT_PROCESS_KILL_RECALL",
+    "tail_truncation_detectable": false,
+    "verdict": "PASS"
+  },
+  "processes": [
+    {
+      "cmdline": [
+        "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+        "--model",
+        "/opt/octopus/models/qwen3-0.6b-q4_0.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8081",
+        "--threads",
+        "4",
+        "--threads-batch",
+        "4",
+        "--ctx-size",
+        "2048",
+        "--parallel",
+        "1",
+        "--batch-size",
+        "128",
+        "--ubatch-size",
+        "64",
+        "--cache-type-k",
+        "q8_0",
+        "--cache-type-v",
+        "q8_0",
+        "--poll",
+        "0",
+        "--timeout",
+        "120",
+        "--metrics",
+        "--no-webui",
+        "--offline",
+        "--check-tensors"
+      ],
+      "cwd": "/root",
+      "exe": "/opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26",
+      "listen_sockets": [
+        "LISTEN 0      512    127.0.0.1:8081  0.0.0.0:* users:((\"llama-server.f2\",pid=213370,fd=3))"
+      ],
+      "pid": 213370,
+      "role": "llama",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_maps_count": 0
+    },
+    {
+      "cmdline": [
+        "/usr/bin/python3",
+        "-m",
+        "ofn.organism.runtime.app",
+        "--db",
+        "/opt/octopus/lab/lab-data/organism.db",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8090",
+        "--heartbeat-interval",
+        "120",
+        "--pid-file",
+        "/opt/octopus/lab/receipts/organism.pid"
+      ],
+      "cwd": "/opt/octopus/lab",
+      "exe": "/usr/bin/python3.13",
+      "listen_sockets": [
+        "LISTEN 0      5      127.0.0.1:8090  0.0.0.0:* users:((\"python3\",pid=221368,fd=8))        "
+      ],
+      "pid": 221368,
+      "role": "organism",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_maps_count": 0
+    },
+    {
+      "cmdline": [
+        "python3",
+        "/opt/octopus/lab/ofn/organism/runtime/soak.py"
+      ],
+      "cwd": "/root",
+      "exe": "/usr/bin/python3.13",
+      "listen_sockets": [],
+      "pid": 217033,
+      "role": "soak",
+      "tmp_fd_count": 0,
+      "tmp_fds": [],
+      "tmp_maps_count": 0
+    }
+  ],
+  "residual_limits": [
+    "identity chain has no external anchor and does not detect tail truncation",
+    "full chain verification cost grows with ledger length",
+    "legacy duplicate episodes require owner decision; no automatic deletion",
+    "active owner-required soak is unbounded and unchanged",
+    "reboot continuity not tested because owner approval is required"
+  ],
+  "schema": "octopus.board-life-final-state.v2",
+  "soak": {
+    "pids": [
+      217033
+    ],
+    "receipt": {
+      "abort": null,
+      "age_seconds": 2223,
+      "cap": "NONE_HOUR",
+      "claim_level": "OBSERVED",
+      "last": {
+        "health": 200,
+        "llama_pid": -1,
+        "llama_rss_kB": -1,
+        "mem_avail_kB": 2401068,
+        "organism": 200,
+        "t": 1787634597.9580956,
+        "temp_mC": 28692
+      },
+      "min_mem_avail_kB": 2398576,
+      "peak_llama_rss_kB": null,
+      "peak_temp_mC": 29615,
+      "running": true,
+      "safety_stops": [
+        "MemAvailable<350MiB",
+        "thermal_margin<10C",
+        "service_down_streak>=5"
+      ],
+      "samples": 38,
+      "started_at": 1787632374.673406
+    },
+    "running": true
+  },
+  "source_sha256": {
+    "/opt/octopus/lab/bin/start-organism.sh": "44a8f239407ddcd7396d568e536106c4ca71e3f1ec0b653521941d16ce42d34a",
+    "/opt/octopus/lab/bin/verify-identity-chain.py": "a8c165303f1080b35f04beca72adb8bb581cfa384b1b46c54679042b6e6787fd",
+    "/opt/octopus/lab/ofn/organism/__init__.py": "a15871f29aaa3288e53ad43a96c8c119ec7912ae22edea6367b55feb534602e1",
+    "/opt/octopus/lab/ofn/organism/cognition/backend.py": "74cae80873b24cf23a466f8243da31642592ff4a1313dd3be4feb22eb9adf7d1",
+    "/opt/octopus/lab/ofn/organism/event_kernel/kernel.py": "888697f562e2dd4336287d10d731fc49bcc4423ffe4ea86d3ac323ee33133b7e",
+    "/opt/octopus/lab/ofn/organism/homeostasis/core.py": "e8c9e25ad4fec9285f487e435802d7eb6874857e4827d7ca41c2fff544c3e780",
+    "/opt/octopus/lab/ofn/organism/identity/heartbeat.py": "7c79e501e46665da5f4f0cf6858d4d7ab53be44ec5657d3b9be4b348546b18f1",
+    "/opt/octopus/lab/ofn/organism/identity/ledger.py": "db643e397ebec6305d0857536f1e4d0e22e66116e3d1c6a8ecef5337d5273f17",
+    "/opt/octopus/lab/ofn/organism/memory/episodic.py": "dc6b852d7ce8d67ac1f6c157d150abb49d3034263fd2b1b5ad40688fe5103b7f",
+    "/opt/octopus/lab/ofn/organism/persistence/db.py": "d17c2d4fff14eaf3aacf3b00219a7f42dfbb13050e7b7e992b33fe39de12a133",
+    "/opt/octopus/lab/ofn/organism/runtime/app.py": "2bdfdc38fce51eeb518fe244d8c4299a2b25eeaaabbb2380c01975b41e719583",
+    "/opt/octopus/lab/ofn/organism/tests/test_kernel.py": "6d3bab77a3718209a89a35678f979f4b01eff4e9f5ed5aaf2bc9d6c903e5d9a2"
+  },
+  "task_peak_temp_mC": 30538,
+  "temperatures": [
+    {
+      "temp_mC": 29615,
+      "type": "soc-thermal",
+      "zone": "thermal_zone0"
+    },
+    {
+      "temp_mC": 30538,
+      "type": "bigcore0-thermal",
+      "zone": "thermal_zone1"
+    },
+    {
+      "temp_mC": 30538,
+      "type": "bigcore1-thermal",
+      "zone": "thermal_zone2"
+    },
+    {
+      "temp_mC": 29615,
+      "type": "littlecore-thermal",
+      "zone": "thermal_zone3"
+    },
+    {
+      "temp_mC": 28692,
+      "type": "center-thermal",
+      "zone": "thermal_zone4"
+    },
+    {
+      "temp_mC": 28692,
+      "type": "gpu-thermal",
+      "zone": "thermal_zone5"
+    },
+    {
+      "temp_mC": 29615,
+      "type": "npu-thermal",
+      "zone": "thermal_zone6"
+    }
+  ],
+  "tmp_runtime": {
+    "classification": "ZERO"
+  }
+}

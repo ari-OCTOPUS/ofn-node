@@ -1,0 +1,94 @@
+{
+  "architecture": "aarch64",
+  "attention_types": null,
+  "backend": null,
+  "block_size_plan": {
+    "baseline_auto": true,
+    "candidates": [],
+    "diagnostic_candidates": [],
+    "reason": "requires same-version vLLM help/log capability evidence"
+  },
+  "blocking_reasons": [
+    "no locally detectable NVIDIA or ROCm compute device",
+    "Orange Pi remains orchestrator/metrics client only"
+  ],
+  "command_availability": {
+    "hipcc": false,
+    "node": false,
+    "nvcc": false,
+    "nvidia-smi": false,
+    "rocm-smi": false,
+    "rocminfo": false,
+    "vllm": false
+  },
+  "device_availability": {
+    "compatible_vllm_gpu_detected": false,
+    "dri_render_node": true,
+    "note": "A generic DRI render node alone is not evidence of a vLLM-compatible CUDA/ROCm accelerator.",
+    "nvidia_compute_device": false,
+    "rocm_compute_device": false
+  },
+  "driver_version": null,
+  "enable_prefix_caching": null,
+  "engine_version": null,
+  "gpu_count": null,
+  "gpu_memory_bytes": null,
+  "gpu_memory_utilization": null,
+  "gpu_name": null,
+  "head_dim": null,
+  "host_role": "orange_pi_orchestrator_and_metrics_client",
+  "hybrid_kv_cache": {
+    "experimental_or_limited": null,
+    "full_attention_groups": null,
+    "kv_cache_group_count": null,
+    "limitations": "unknown until model and same-version GPU-host cache config are resolved",
+    "local_attention_groups": null,
+    "mamba_ssm_groups": null,
+    "padding_grouping_overhead_bytes": null,
+    "physical_page_size_bytes": null,
+    "sliding_window_groups": null
+  },
+  "kv_cache_dtype": null,
+  "kv_cache_memory_bytes": null,
+  "max_model_len": null,
+  "metrics_available": false,
+  "model_architecture": null,
+  "model_dtype": null,
+  "model_id": null,
+  "model_revision": null,
+  "network_calls_performed": false,
+  "num_attention_heads": null,
+  "num_gpu_blocks": null,
+  "num_kv_heads": null,
+  "num_layers": null,
+  "observed_at_utc": "2026-08-25T09:46:27Z",
+  "offline_preflight": true,
+  "owner_thermal_limit_c": null,
+  "package_availability": {
+    "cbor2": {
+      "available": false,
+      "version": null
+    },
+    "vllm": {
+      "available": false,
+      "version": null
+    }
+  },
+  "pipeline_parallel_size": null,
+  "prefix_hash_algorithm": null,
+  "process_command_lines_collected": false,
+  "process_environment_collected": false,
+  "production_endpoint_probed": false,
+  "python_version": "3.13.5",
+  "resolved_cache_config": null,
+  "resolved_default_block_size": null,
+  "runtime_version": null,
+  "schema_version": "1.0",
+  "service_actions_performed": false,
+  "status": "BLOCKED_NO_GPU",
+  "supported_block_sizes": null,
+  "tensor_parallel_size": null,
+  "tokenizer_revision": null,
+  "vllm_version": null,
+  "wave": "WAVE0_OBSERVE_ONLY"
+}

@@ -1,0 +1,9 @@
+{
+  "db_path": "/opt/octopus/lab/evidence/board-life-fix-20260825T044234Z/identity-verifier-negative.db",
+  "entries": 2,
+  "error": null,
+  "first_hash": "4b89cb4456bc97fe662ec0ef44329e1127cc580e70fc8084490cb46d00d99d91",
+  "last_hash": "d6f684c97c7ddc1158a96332efce89b2d9fa026cc2e130e725f818d5db80a7a1",
+  "valid": true,
+  "verifier": "independent-stdlib-v1"
+}
