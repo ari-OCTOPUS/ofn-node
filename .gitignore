@@ -21,3 +21,4 @@ backups/
 
 # Senior-architect reference pack — archive, not project code
 _studio-marketing-architecture/
+.tmp-test*/
