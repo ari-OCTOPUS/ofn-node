@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "octopus-sensorium"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "nats-py",
+  "pynacl",
+  "pyyaml",
+  "bcrypt",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

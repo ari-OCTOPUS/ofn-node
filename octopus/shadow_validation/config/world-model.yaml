@@ -1,0 +1,54 @@
+schema: octopus.world-model.v1
+profile: WAVE0_OBSERVE_ONLY
+execute_enabled: false
+backend: persistence-v1
+torch_enabled: false
+
+# Must match live prediction ledger vectors. Do not reorder without a new model_version.
+state_names:
+  - compute_pressure
+  - memory_pressure
+  - storage_integrity
+  - sensor_coverage
+
+action_names:
+  - NO_ACTION
+  - ADVISORY_RESTART
+  - ADVISORY_THROTTLE
+
+model:
+  hidden_dim: 0
+  layers: 0
+  dropout: 0.0
+
+runtime:
+  horizon_s: 30
+  inference_interval_s: 30
+  torch_threads: 0
+  max_memory_mb: 48
+
+skill:
+  minimum_samples: 50
+  window: 200
+  bootstrap_samples: 1000
+  required_lower_bound: 0.0
+
+homeostatic_weights:
+  - 1.0
+  - 1.2
+  - 0.8
+  - 2.0
+
+ledger:
+  path: /var/lib/octopus/state/world_model/ledger.jsonl
+  backend: jsonl_hash_chain
+  sqlite_path: /var/lib/octopus/state/runtime/predictions.db
+  chaos_sqlite_path: /var/lib/octopus/state/chaos/predictions.db
+  synchronous: FULL
+  wal: true
+
+note: >
+  Live production skill remains the JSONL ledger. Do not write synthetic samples
+  into world_model/ or skill/. ADVISORY_RESTART and ADVISORY_THROTTLE are names
+  only. Wave0 policy never executes them. Do not point Prometheus at
+  192.168.0.182:9101; scrape the SSH tunnel to 127.0.0.1:9101.

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/migration/1.0.0",
+  "title": "Schema migration event",
+  "type": "object",
+  "required": ["event_type", "from", "to", "preserve_original_evidence"],
+  "properties": {
+    "event_type": { "const": "schema_migration" },
+    "preserve_original_evidence": { "const": true }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,9 @@
+# RUNTIME_SENSOR_INVENTORY
+
+ACTIVE: ['OCT-SENSE-051', 'OCT-SENSE-052', 'OCT-SENSE-053', 'OCT-SENSE-053.THERMAL']
+
+SHADOW: ['OCT-SENSE-092', 'OCT-SENSE-095']
+
+is_runtime_enabled: ['OCT-SENSE-051', 'OCT-SENSE-052', 'OCT-SENSE-053', 'OCT-SENSE-092', 'OCT-SENSE-095', 'OCT-SENSE-053.THERMAL']
+
+096/097/099/100 plugins are in the software release and are not loaded from Registry v5.

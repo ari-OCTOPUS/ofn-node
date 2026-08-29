@@ -1,0 +1,8 @@
+{
+  "passed": 79,
+  "failed": 0,
+  "deferred": [
+    "GAP-001-cold-boot",
+    "GAP-002-signed-checkpoint"
+  ]
+}

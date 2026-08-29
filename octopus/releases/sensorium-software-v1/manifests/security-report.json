@@ -1,0 +1,12 @@
+{
+  "pwm_device_policy": "closed_for_agent",
+  "mqtt": "DISABLED",
+  "leg_authority": "DENIED",
+  "actuator_authority": "NONE",
+  "root_v2_active": true,
+  "root_v1_revoked": true,
+  "v2_private_on_board": false,
+  "runtime_cannot_create_stream": true,
+  "leg01_nats_user_present": true,
+  "leg01_active_secret_in_etc_octopus_secrets": false
+}

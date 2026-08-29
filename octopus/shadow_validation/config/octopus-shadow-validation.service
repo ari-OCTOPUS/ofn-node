@@ -1,0 +1,36 @@
+[Unit]
+Description=OCTOPUS shadow validation check (does not replace persistence world-model)
+After=octopus-world-model.service octopus-stability.service
+Wants=octopus-stability.service
+ConditionPathExists=/etc/octopus/world-model.yaml
+
+[Service]
+Type=oneshot
+User=octopus
+Group=octopus
+WorkingDirectory=/opt/octopus/shadow_validation
+ExecStart=/opt/octopus/venv/bin/python -m octopus_shadow.service --config /etc/octopus/world-model.yaml --once
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/octopus/shadow_validation/src
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+RestrictSUIDSGID=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0077
+MemoryMax=64M
+CPUQuota=10%
+Nice=10
+ReadWritePaths=/var/lib/octopus/state/shadow_validation
+ReadOnlyPaths=/etc/octopus/world-model.yaml /var/lib/octopus/state /opt/octopus
+
+[Install]
+WantedBy=multi-user.target

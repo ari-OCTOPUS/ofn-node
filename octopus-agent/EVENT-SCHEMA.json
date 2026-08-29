@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "octopus.mini-scientist.event.v1",
+  "description": "Typed event envelope for every Mini Scientist run. Ordered, append-only, replayable. The event store itself never creates authority.",
+  "type": "object",
+  "required": ["run_id", "seq", "ts", "actor", "phase", "type", "payload", "evidence_refs", "may_authorize"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "pattern": "^run-[0-9]{8}T[0-9]{4}Z-[0-9a-f]{8}$",
+      "description": "run-<UTC timestamp>-<8 hex from /dev/urandom>, generated fresh per run"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "0-based position within the run; gaps are invalid"
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO-8601"
+    },
+    "actor": {
+      "type": "string",
+      "const": "mini_scientist"
+    },
+    "phase": {
+      "type": "string",
+      "pattern": "^[PIS][0-9]_[A-Z0-9_]+$"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["RUN_STARTED", "AUTHORITY_SNAPSHOT", "READ_OBSERVED", "PROPOSAL_WRITTEN", "VALIDATOR_RESULT", "SANDBOX_EXEC_STARTED", "SANDBOX_EXEC_FINISHED", "COMPARATOR_RESULT", "RECEIPT_WRITTEN", "REPORT_WRITTEN", "RUN_FINISHED", "BLOCKED", "HALTED"]
+    },
+    "payload": {
+      "type": "object",
+      "description": "Type-specific, schema-validated per event type in TEST-GATES.yaml"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "description": "Absolute paths (and sha256 where applicable) of raw evidence backing this event"
+    },
+    "may_authorize": {
+      "type": "boolean",
+      "const": false,
+      "description": "Always false. An event can never carry authority."
+    },
+    "prev_hash": {
+      "type": ["string", "null"],
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Hash of the previous event line in this run (null for seq 0)"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 of the canonical JSON of this event without the hash field"
+    }
+  }
+}

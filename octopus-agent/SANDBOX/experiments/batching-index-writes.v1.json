@@ -1,0 +1,39 @@
+{
+  "experiment_id": "exp-batching-index-writes-v1",
+  "created_at": "2026-08-17T11:00:00Z",
+  "authorization_ref": "OWNER-DECISIONS.md D2 (owner chat 2026-08-17T10:38Z)",
+  "hypothesis": "Batching Sensorium evidence-index writes (pending.jsonl + periodic flush) reduces disk bytes written per observation by at least 80 percent without any drift in final index content, event count, event order, or schema. Validating the already-deployed CHG-2026-0817-019.",
+  "fixture": {
+    "file": "FIXTURES/tainted.jsonl",
+    "sha256": "431d0d398714e8584e0a4eca93968d07fa6aa621c37260ac79bfa4c1a58a876e",
+    "records": 2000
+  },
+  "code_under_test": {
+    "source_path": "/opt/octopus/current/src/octopus_sensorium/evidence/store.py",
+    "sha256": "d7b5254f2fa45748d451c180e62bdafdafb68014be5452f46fdf6dc0aea3f8b4",
+    "integrity_anchor": "/opt/octopus/current/SHA256SUMS (release SENSORIUM_SOFTWARE_V1) — verified equal"
+  },
+  "modes": {
+    "baseline": {
+      "env": {"OCTOPUS_INDEX_FLUSH_EVERY": 1},
+      "note": "reproduces pre-fix per-observation rewrite using the same production code"
+    },
+    "candidate": {
+      "env": {"OCTOPUS_INDEX_FLUSH_EVERY": 200, "OCTOPUS_INDEX_FLUSH_MAX_AGE": 300.0},
+      "note": "deployed production defaults"
+    }
+  },
+  "frozen_criteria": {
+    "index_content_equal": true,
+    "event_count_equal": true,
+    "event_order_equal": true,
+    "schema_equal": true,
+    "write_reduction_min_percent": 80,
+    "errors_zero": true
+  },
+  "runs_required": 3,
+  "limits": {"cpu_s": 300, "as_mb": 1536, "fsize_mb": 512, "wall_s": 600},
+  "network": "denied",
+  "rollback": "Sandbox-only experiment: delete SANDBOX/runs/* outputs. Production code and /var/lib/octopus are never touched; nothing to roll back outside the agent pack.",
+  "may_authorize": false
+}

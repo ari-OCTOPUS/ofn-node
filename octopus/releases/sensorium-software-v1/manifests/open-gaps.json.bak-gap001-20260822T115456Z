@@ -1,0 +1,11 @@
+{
+  "GAP-001": {
+    "status": "DEFERRED_BY_OPERATOR",
+    "pass": false
+  },
+  "GAP-002": {
+    "status": "EXTERNALLY_CHECKPOINTED",
+    "audit_integrity": "EXTERNALLY_CHECKPOINTED",
+    "pass": true
+  }
+}

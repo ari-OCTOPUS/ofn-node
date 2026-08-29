@@ -1,0 +1,62 @@
+{
+  "schema": "octopus.mini-scientist.experiment-manifest-schema.v1",
+  "description": "Deterministic, dependency-free validation contract for experiment manifests. The validator (validate_manifest.py) enforces every rule listed here; this file is the human/machine-readable source of truth. No LLM output can satisfy or waive these rules.",
+  "required_top_level_fields": {
+    "experiment_id": "string, pattern exp-[0-9a-z][0-9a-z-]*, unique per experiment",
+    "created_at": "UTC ISO-8601 string ending in Z",
+    "authorization_ref": "non-empty string pointing into OWNER-DECISIONS.md or a signed artifact",
+    "hypothesis": "non-empty string, one bounded claim",
+    "fixture": {
+      "file": "path relative to /opt/octopus-agent, must exist with matching .manifest.json",
+      "sha256": "64 lowercase hex chars, must equal sha256 of the fixture file",
+      "records": "integer >= 1"
+    },
+    "code_under_test": {
+      "source_path": "absolute path under /opt/octopus (read-only import)",
+      "sha256": "64 hex chars, must equal sha256 of that file at validation time",
+      "integrity_anchor": "how the hash is anchored (e.g. release SHA256SUMS)"
+    },
+    "modes": {
+      "baseline": {"env": {"OCTOPUS_INDEX_FLUSH_EVERY": "integer >= 1"}, "note": "string"},
+      "candidate": {"env": {"OCTOPUS_INDEX_FLUSH_EVERY": "integer >= 1", "OCTOPUS_INDEX_FLUSH_MAX_AGE": "number >= 1.0"}, "note": "string"},
+      "rule": "both modes must use the SAME code_under_test; only env differs"
+    },
+    "frozen_criteria": {
+      "index_content_equal": "must be present and true",
+      "event_count_equal": "must be present and true",
+      "event_order_equal": "must be present and true",
+      "schema_equal": "must be present and true",
+      "write_reduction_min_percent": "number, 0 <= x <= 100",
+      "errors_zero": "must be present and true"
+    },
+    "runs_required": "integer >= 3 (reproducibility floor per OWNER-DECISIONS D3)",
+    "limits": {"cpu_s": "int >= 1", "as_mb": "int >= 64", "fsize_mb": "int >= 16", "wall_s": "int >= 1},
+    "network": "must be exactly \"denied\"",
+    "rollback": "non-empty string describing the reversible step",
+    "may_authorize": "must be exactly false"
+  },
+  "hard_rejections": [
+    "R01 missing or malformed experiment_id",
+    "R02 missing created_at or not UTC-Z ISO-8601",
+    "R03 missing/empty authorization_ref",
+    "R04 missing/empty hypothesis",
+    "R05 fixture.file missing or not under /opt/octopus-agent",
+    "R06 fixture.sha256 missing, not 64-hex, or not equal to actual file hash",
+    "R07 fixture.records missing or < 1",
+    "R08 fixture manifest sidecar missing",
+    "R09 code_under_test.source_path outside /opt/octopus",
+    "R10 code_under_test.sha256 mismatch vs live file",
+    "R11 modes.baseline or modes.candidate missing/incomplete",
+    "R12 frozen criteria incomplete (any of the six missing)",
+    "R13 frozen criteria flag not true where required",
+    "R14 write_reduction_min_percent missing or out of [0,100]",
+    "R15 runs_required missing or < 3",
+    "R16 limits missing or below floors",
+    "R17 network present and != \"denied\"",
+    "R18 rollback missing/empty",
+    "R19 may_authorize present and != false",
+    "R20 file not parseable as JSON"
+  ],
+  "on_reject": "validator exits non-zero and prints each violated rule id; no partial acceptance",
+  "on_accept": "validator prints ACCEPT <experiment_id> and exits zero; the manifest becomes eligible for P4 execution"
+}

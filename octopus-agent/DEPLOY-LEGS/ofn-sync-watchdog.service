@@ -1,0 +1,6 @@
+[Unit]
+Description=OCTOPUS legs germline sync watchdog (remount + heartbeat restart)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ofn-sync-watchdog.sh

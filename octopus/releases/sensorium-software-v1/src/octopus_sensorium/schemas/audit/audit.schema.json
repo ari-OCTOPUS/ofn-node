@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/audit/1.0.0",
+  "title": "Sensorium audit record",
+  "type": "object",
+  "required": ["event_type"],
+  "properties": {
+    "event_type": { "type": "string" },
+    "sequence": { "type": "integer" },
+    "previous_hash": { "type": "string" },
+    "payload_hash": { "type": "string" },
+    "record_hash": { "type": "string" },
+    "signature": { "type": ["string", "null"] }
+  },
+  "additionalProperties": true
+}

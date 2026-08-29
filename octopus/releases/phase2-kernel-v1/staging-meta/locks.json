@@ -1,0 +1,14 @@
+{
+  "allow_registry_change": false,
+  "allow_board_config_change": false,
+  "allow_new_sensor_activation": false,
+  "allow_nats_provisioning": false,
+  "allow_mqtt": false,
+  "allow_leg_authorization": false,
+  "allow_actuator_access": false,
+  "allow_reboot": false,
+  "preserve_registry_v4": true,
+  "preserve_registry_v5": true,
+  "preserve_open_gaps": true,
+  "preserve_wave0_baseline": true
+}

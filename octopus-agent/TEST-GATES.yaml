@@ -1,0 +1,56 @@
+# TEST GATES — deterministic, machine-checked. The LLM never judges its own output.
+
+global_gates:
+  authority_stability:
+    check: sha256 of OWNER_REVIEW_DECISION.json and wave_baseline_accepted.json identical before and after run
+    on_fail: HALTED
+  write_boundary:
+    check: no file modified outside /opt/octopus-agent writable set (verify via find -newer marker)
+    on_fail: HALTED
+  no_network:
+    check: sandbox runner blocks socket()/connect() (seccomp/monkeypatch) and no new listening sockets appear during run
+    on_fail: HALTED
+  receipt_completeness:
+    check: receipt contains run_id, boot_id, input hashes, output hashes, exact command outputs, result state
+    on_fail: BLOCKED
+
+phase_gates:
+  P1:
+    - id: fixture_manifest_complete
+      check: FIXTURES/fixture-manifest.json lists every copied item with source path, byte size, sha256
+    - id: fixture_sanitized
+      check: grep for credential patterns (password, token, BEGIN PRIVATE KEY, nats cred) over fixture set returns zero matches
+    - id: runner_limits
+      check: SANDBOX/runner.py enforces RLIMIT_CPU, RLIMIT_AS, wall timeout, and network denial; unit test proves a socket attempt raises
+    - id: replay_determinism
+      check: replaying the fixture twice yields identical sha256 for every output artifact
+  P2:
+    - id: baseline_repeatable
+      check: two baseline replays → identical index content hashes and identical event count/order
+  P3:
+    - id: validator_negative_tests
+      check: malformed manifests (missing run_id, may_authorize true, bad evidence_refs, unknown type) all rejected
+    - id: validator_positive_tests
+      check: well-formed manifest accepted
+  P4:
+    - id: no_drift
+      check: candidate output == baseline output on content, event count, event order, schema
+    - id: write_reduction
+      check: disk bytes written per observation (write_bytes delta via /proc/<pid>/io in sandbox) reduced >= 80% vs baseline measured in the same sandbox
+    - id: zero_errors
+      check: exceptions=0, lost observations=0, authority hash changes=0
+  P5:
+    - id: comparator_reproducible
+      check: same inputs → identical comparator verdict across 3 consecutive runs
+  P6:
+    - id: report_only
+      check: over >= 3 days, journal shows zero deploy/restart/write outside REPORTS
+  P7:
+    - id: owner_signature_per_artifact
+      check: every promoted artifact carries an owner signature valid under the existing signed-bundle verification path
+
+structural_gates_unification:
+  - no direct imports between app packages (adapters only)
+  - network libraries importable only inside the single gateway module
+  - verifier code must not import generator/hypothesis code
+  - policy must not import world model / LLM adapters

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/command/1.0.0",
+  "title": "Signed command envelope",
+  "type": "object",
+  "required": ["sender_id", "signature", "role", "permission", "timestamp", "expiry", "nonce", "command"],
+  "properties": {
+    "sender_id": { "type": "string" },
+    "signature": { "type": "string", "minLength": 1 },
+    "command": { "type": "string" }
+  },
+  "additionalProperties": true
+}

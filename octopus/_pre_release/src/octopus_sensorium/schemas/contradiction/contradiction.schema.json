@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/contradiction/1.0.0",
+  "title": "OCT-SENSE-095 contradiction event",
+  "type": "object",
+  "required": ["event_id", "sensor_id", "observation_type"],
+  "properties": {
+    "event_id": { "type": "string" },
+    "sensor_id": { "const": "OCT-SENSE-095" },
+    "observation_type": { "const": "contradiction" },
+    "can_resolve_belief": { "const": false },
+    "actionable": { "const": false }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,54 @@
+"""Command allow/deny. Wave 0 still does not execute allowlisted commands without a command-trust root."""
+
+from __future__ import annotations
+
+ALLOWED_COMMANDS = {
+    "LIST_SENSORS",
+    "GET_SENSOR_HEALTH",
+    "GET_BOARD_HEALTH",
+    "OBSERVE_ONCE",
+    "SET_SENSOR_RATE",
+    "ENABLE_SENSOR",
+    "DISABLE_SENSOR",
+    "RESTART_SENSOR",
+    "QUARANTINE_SENSOR",
+    "RELEASE_QUARANTINE",
+    "RELOAD_SIGNED_CONFIG",
+    "GET_CAPABILITIES",
+    "GET_RECENT_OBSERVATIONS",
+    "REQUEST_FEATURE",
+    "REQUEST_DIAGNOSTIC",
+    "PREPARE_SHUTDOWN",
+}
+
+FORBIDDEN_COMMANDS = {
+    "EXEC_SHELL",
+    "RUN_REMOTE_CODE",
+    "DOWNLOAD_AND_EXECUTE",
+    "WRITE_ARBITRARY_FILE",
+    "DISABLE_SAFETY",
+    "RELEASE_STO",
+    "DIRECT_MOTOR_COMMAND",
+    "BYPASS_POLICY",
+    "ERASE_AUDIT_LOG",
+    "EXPORT_CREDENTIALS",
+}
+
+REQUIRED_COMMAND_FIELDS = (
+    "sender_id",
+    "signature",
+    "role",
+    "permission",
+    "timestamp",
+    "expiry",
+    "nonce",
+    "command",
+)
+
+
+def classify(command: str) -> str:
+    if command in FORBIDDEN_COMMANDS:
+        return "FORBIDDEN"
+    if command in ALLOWED_COMMANDS:
+        return "ALLOWLISTED_DEFERRED"
+    return "NOT_ALLOWLISTED"

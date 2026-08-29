@@ -1,0 +1,35 @@
+APPROVED-COMMANDS — read-only allowlist for the Mini Scientist agent.
+Anything not listed is forbidden by default. When unsure: STOP, write BLOCKED.
+
+# Filesystem inspection (read-only)
+ls, ls -la, stat, file, du, df, wc, find (no -delete/-exec that mutates),
+cat, head, tail, grep, diff, tree, readlink, sha256sum, md5sum
+
+# Process / system observation (read-only)
+ps, top -b -n1, uptime, free, uname, hostname (read only — NOT hostnamectl),
+cat /proc/*/io /proc/*/stat /proc/loadavg /proc/sys/kernel/random/boot_id,
+ss -tulpn (observe only), date, sleep
+
+# Service state observation (read-only verbs ONLY)
+systemctl status, systemctl list-units, systemctl cat, systemctl show,
+journalctl (read-only query with --since/--until/-u)
+
+# Version control / integrity (read-only; no git repos exist today anyway)
+git status, git log, git diff (never commit/push/checkout on production)
+
+# Python (sandbox only)
+/opt/octopus/venv/bin/python (READ imports from production paths),
+python3 for pure computation over copied fixtures inside SANDBOX/,
+pytest run ONLY from /opt/octopus/current (correct repository root) or SANDBOX
+
+# Comparison / receipts
+sha256sum over fixture/sandbox outputs, diff -r between baseline and candidate dirs
+
+FORBIDDEN (non-exhaustive but explicit)
+sudo, su, ssh, scp, reboot, shutdown, poweroff,
+systemctl start/stop/restart/enable/disable/mask,
+crontab, hostnamectl, nats CLI mutations, curl/wget/nc outbound,
+pip install (no new packages without owner approval),
+rm/mv/chmod/chown/touch on anything outside /opt/octopus-agent writable set,
+dd, mkfs, mount, iptables, echo > into production paths,
+apt/dpkg install, kill (production processes)

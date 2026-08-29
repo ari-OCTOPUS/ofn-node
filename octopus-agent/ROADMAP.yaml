@@ -1,0 +1,75 @@
+# ROADMAP — two tracks, one rule: no phase advances itself.
+# Every phase ends with a receipt + owner report + STOP.
+
+track_A_mini_scientist:
+  P0_DISCOVERY_AND_BASELINE:
+    deliverable: discovery report + resource baseline + this data pack
+    gate: no production writes, authority hashes unchanged
+    status: PASS 2026-08-17 (run-20260817T1031Z-81f8e678)
+  P1_FIXTURE_AND_SANDBOX:
+    deliverable: sanitized fixture copy + isolated sandbox runner
+    gate: fixture hashes recorded; network disabled; two-replay determinism
+    status: PASS 2026-08-17 (run-20260817T1040Z-965ddc9c; drift=0, reduction 94.1%)
+  P2_BASELINE_REPLAY:
+    deliverable: baseline replay of fixture through current index-building code
+    gate: deterministic repeat output (identical hashes across 2 runs)
+    status: PASS 2026-08-17 (B1==B2 byte-identical; closed same run as P1)
+  P3_MANIFEST_SCHEMA:
+    deliverable: hypothesis/experiment manifest schema + deterministic validator
+    gate: validator rejects malformed manifests (negative tests)
+    status: PASS 2026-08-17 (run-20260817T1050Z-fc2f6cae; 22 tests, R01-R20 all fire)
+  P4_CANDIDATE_PATCH:
+    deliverable: one batching candidate patch executed in sandbox only
+    gate: zero schema/event/order drift vs frozen baseline
+    status: PASS 2026-08-17 (run-20260817T1100Z-5e7e84f4; 3/3 pairs, drift 0, reduction 94.1%)
+  P5_COMPARATOR_RECEIPTS:
+    deliverable: baseline-vs-candidate comparator + receipt generator
+    gate: diff is reproducible across 3 consecutive sandbox runs
+    status: PASS 2026-08-17 (comparator verdict byte-identical 3/3; recomputed not trusted)
+  P6_DAILY_ADVISORY:
+    deliverable: daily timer that only produces a report (no deploy/restart)
+    gate: report-only proven by journal evidence over >= 3 days
+    status: PASS (INTERIM) 2026-08-17 — timer live (06:35 UTC daily), first report OK; final close after 3 daily fires
+  P7_PROMOTION_PACKAGE:
+    deliverable: owner-reviewed promotion package (per-artifact)
+    gate: explicit owner signature per artifact; board applies via signed-bundle path only
+
+track_X_exchange_channel:
+  X0_LIVE:
+    deliverable: typed board<->laptop exchange (envelope, 5 types, quarantine, BLOCKED rule)
+    gate: validator + prohibition tests green; first cycle chain-verified
+    status: PASS 2026-08-17 (D12; 14/14 tests; octopus-agent-exchange.timer every 5 min)
+  X1_LAPTOP_SIDE:
+    deliverable: laptop agent reads CONTRACT.md and sends first valid QUERY/ACK
+    gate: board auto-answers and ledger shows inbound_valid
+    status: PENDING (laptop side; CONTRACT.md exported)
+
+track_B_unification_one_core:
+  rule: copy + hash + test + reversible switch. Nothing is deleted or moved in place.
+  I0_INVENTORY:
+    deliverable: BOARD-INVENTORY.md (canonical roots, real vs artifact projects)
+    status: PASS 2026-08-17 (see REPORTS/BOARD-INVENTORY.md)
+  I1_CORE_EVENTS:
+    deliverable: shared core/events (Envelope, run_id) — no behavior change yet
+    gate: structural tests green; zero runtime behavior change
+    status: PASS 2026-08-17 (run-20260817T1210Z-i1-d10; 9/9 tests; zero files outside core/ modified)
+  I2_CORE_EVIDENCE:
+    deliverable: shared receipt + hash-chain module with replay test
+    gate: replay test proves chain integrity
+  I3_ADAPTERS:
+    deliverable: thin adapters connecting sensorium/observatory/cognition to the event spine
+    gate: direct imports between apps forbidden (structural test)
+  I4_SHARED_SANDBOX:
+    deliverable: one sandbox runner used by Mini Scientist and future experiments
+    gate: P1-P5 gates reuse it unchanged
+  I5_CUTOVER_STAGED:
+    deliverable: shadow → opt-in → default per subsystem, after regression suites
+    gate: owner approval per subsystem switch
+
+never_unified:
+  - policy/decision-making with hypothesis/LLM
+  - verifier with generator
+  - secrets with agent context
+  - production runtime with sandbox
+  - raw evidence with editable model memory
+  - network access with all modules (one gateway only)

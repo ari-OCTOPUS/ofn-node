@@ -1,0 +1,574 @@
+#!/usr/bin/env python3
+"""Read-only OCTOPUS Doctor.
+
+Writes findings only. Never repairs, never restarts, never signs, never reboots.
+repairs_attempted is always 0. Missing evidence yields UNKNOWN, not PASS.
+"""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
+
+sys.path.insert(0, "/opt/octopus/cognition/src")
+sys.path.insert(0, "/opt/octopus/current/src")
+
+from octopus_cognition.doctor import DoctorCheck, doctor_status  # noqa: E402
+from octopus_cognition.doctor.chain import digest_bytes  # noqa: E402
+from octopus_cognition.doctor.coverage import classify_coverage  # noqa: E402
+from octopus_cognition.doctor.findings import (  # noqa: E402
+    DoctorFindingsLedger,
+    write_evidence,
+)
+from octopus_cognition.ledger import ChainedLedger  # noqa: E402
+from octopus_cognition.doctor.change import ChangeLedger  # noqa: E402
+
+REPORT_PATHS = [
+    Path("/var/lib/octopus/state/owner-review/doctor-report.json"),
+    Path("/var/lib/octopus/state/doctor/latest.json"),
+]
+INBOUND_REPORT = Path("/var/lib/octopus/inbound/TO-LAPTOP/owner-review/doctor-report.json")
+STATE = Path("/var/lib/octopus/state")
+EVIDENCE_RUN = Path("/var/lib/octopus/evidence/doctor")
+POLICY_VERSION = "wave0-observe-only-v1"
+REPAIRS_ATTEMPTED = 0
+ALLOWED_NONLOCAL = {":22", ":4222"}
+
+
+def _json(path: Path) -> dict[str, Any]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _sha256(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _run(argv: list[str]) -> tuple[int, str]:
+    proc = subprocess.run(argv, capture_output=True, text=True, check=False)
+    return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+
+
+def _active(unit: str) -> str:
+    code, out = _run(["systemctl", "is-active", unit])
+    return (out.strip() or "unknown").splitlines()[0]
+
+
+def _enabled(unit: str) -> str:
+    code, out = _run(["systemctl", "is-enabled", unit])
+    return (out.strip() or "unknown").splitlines()[0]
+
+
+def _imports_planner(path: Path) -> bool:
+    if not path.is_file():
+        return False
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if "planner" in alias.name:
+                    return True
+        elif isinstance(node, ast.ImportFrom) and node.module and "planner" in node.module:
+            return True
+    return False
+
+
+def _write_blob(run_id: str, name: str, text: str) -> tuple[Path, str]:
+    path = EVIDENCE_RUN / run_id / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = text if text.endswith("\n") else text + "\n"
+    path.write_text(data, encoding="utf-8")
+    return path, digest_bytes(data.encode("utf-8"))
+
+
+def _mk(
+    check_id: str,
+    category: str,
+    severity: str,
+    observed: Any,
+    expected: Any,
+    evidence_path: str | None,
+    passed: bool,
+    **kwargs: Any,
+) -> DoctorCheck:
+    return DoctorCheck(
+        check_id=check_id,
+        category=category,
+        severity=severity,
+        observed=observed,
+        expected=expected,
+        evidence_path=evidence_path,
+        passed=passed,
+        read_only=True,
+        **kwargs,
+    )
+
+
+def collect_checks(run_id: str) -> tuple[list[DoctorCheck], dict[str, Any]]:
+    boot = _json(STATE / "boot_report.json")
+    skill = _json(STATE / "skill" / "latest.json")
+    homeo = _json(STATE / "homeostasis" / "latest.json")
+    wm = _json(STATE / "world_model" / "latest.json")
+    mc = _json(STATE / "metacontrol" / "latest.json")
+    reflex = _json(STATE / "reflex" / "latest.json")
+    gap001 = _json(STATE / "gaps" / "GAP-001-cold_boot_unverified.json")
+    gap001_probe = _json(STATE / "gap001" / "boot_report.json")
+    gap002 = _json(STATE / "gaps" / "GAP-002-audit_head_unsigned.json")
+    gap_registry = _json(Path("/opt/octopus/current/manifests/open-gaps.json"))
+
+    ss_code, ss_text = _run(["ss", "-lntup"])
+    ss_path, ss_digest = _write_blob(run_id, "ss.txt", ss_text)
+    metrics_code, metrics_text = _run(["curl", "-fsS", "--max-time", "3", "http://127.0.0.1:9101/metrics"])
+    metrics_path, metrics_digest = _write_blob(run_id, "metrics.txt", metrics_text if metrics_code == 0 else "CURL_FAIL\n")
+
+    units = {
+        "octopus-sensorium": {"active": _active("octopus-sensorium"), "show": _run(["systemctl", "show", "octopus-sensorium", "-p", "ActiveState", "-p", "FragmentPath"])[1]},
+        "octopus-stability": {"active": _active("octopus-stability"), "enabled": _enabled("octopus-stability")},
+        "octopus-reflex": {"show": _run(["systemctl", "show", "octopus-reflex", "-p", "ActiveState", "-p", "FragmentPath"])[1]},
+        "nats-server": {"active": _active("nats-server")},
+    }
+    units_path, units_digest = _write_blob(run_id, "systemctl.json", json.dumps(units, indent=2, ensure_ascii=False))
+
+    coverage = classify_coverage()
+    cov_path, cov_digest = _write_blob(run_id, "coverage.json", json.dumps(coverage, indent=2, ensure_ascii=False))
+
+    wm_ok, wm_brk, wm_det = ChainedLedger(STATE / "world_model", "octopus.prediction-ledger.head.v1").verify()
+    mc_ok, _, mc_det = ChainedLedger(STATE / "metacontrol", "octopus.metacontrol-ledger.head.v1").verify()
+    rx_ok, _, rx_det = ChainedLedger(STATE / "reflex", "octopus.reflex-ledger.head.v1").verify()
+    doc_ok, _, doc_det = DoctorFindingsLedger().verify()
+    chg_ok, _, chg_det = ChangeLedger().verify()
+    ledger_ok = wm_ok and mc_ok and rx_ok and doc_ok and chg_ok
+    ledger_detail = {
+        "chain_ids": {
+            "octopus-prediction": wm_det,
+            "octopus-reflex-advisory": rx_det,
+            "octopus-metacontrol": mc_det,
+            "octopus-doctor-findings": doc_det,
+            "octopus-audit-change": chg_det,
+        },
+        "do_not_conflate_with": "octopus-audit-ledger checkpoint anchored at seq=266",
+        "wm_break": wm_brk,
+        "formula_note": "prediction/reflex/metacontrol use historical prev+seq+body; doctor/change use prev||canonical(body)",
+    }
+    ledger_path, ledger_digest = _write_blob(run_id, "ledger-verify.json", json.dumps(ledger_detail, indent=2))
+    verify_copy = Path("/var/lib/octopus/evidence/ledger") / f"verify-{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H%M')}.json"
+    verify_copy.parent.mkdir(parents=True, exist_ok=True)
+    verify_copy.write_text(ledger_path.read_text(encoding="utf-8"), encoding="utf-8")
+
+    lan_9101 = any("9101" in line and "127.0.0.1:9101" not in line for line in ss_text.splitlines() if ":9101" in line)
+    unexpected = [p for p in (":8080", ":9464") if p in ss_text]
+    planner_scripts = {
+        name: _imports_planner(Path("/opt/octopus/scripts") / name)
+        for name in (
+            "world_model_shadow.py",
+            "skill_tracker_loop.py",
+            "metacontrol_shadow.py",
+            "stability_monitor.py",
+        )
+    }
+
+    ckpt = Path("/var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/checkpoint.json")
+    ckpt_sig = Path("/var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/checkpoint.json.sig")
+    ckpt_ok = False
+    ckpt_reason = "missing_bundle"
+    if ckpt.is_file() and ckpt_sig.is_file():
+        try:
+            from octopus_sensorium.verify import load_root_public_key, load_signed
+
+            load_signed(ckpt, load_root_public_key())
+            ckpt_ok = True
+            ckpt_reason = "ed25519_root_v2_verified"
+        except Exception as exc:  # noqa: BLE001
+            ckpt_reason = f"verify_failed:{type(exc).__name__}"
+    ckpt_path, ckpt_digest = _write_blob(
+        run_id,
+        "checkpoint.json",
+        json.dumps(
+            {
+                "signed_bundle_present": ckpt.is_file() and ckpt_sig.is_file(),
+                "inner_json_signed_field": _json(ckpt).get("signed"),
+                "detached_sig_is_the_signature": True,
+                "algorithm": "Ed25519",
+                "not_gpg": True,
+                "creates_authority": False,
+                "reason": ckpt_reason,
+                "payload_sha256": _sha256(ckpt),
+                "phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
+            },
+            indent=2,
+        ),
+    )
+
+    storage = ((homeo.get("variables") or {}).get("storage_integrity") or {})
+    storage_path = Path("/var/lib/octopus/state/evidence/last_OCT-SENSE-053_STORAGE.json")
+    cal = ((homeo.get("variables") or {}).get("prediction_calibration") or {})
+    host_ratio = coverage.get("ratio")
+    host_ok = (
+        coverage.get("usable") == coverage.get("expected")
+        and host_ratio is not None
+        and float(host_ratio) >= 0.90
+    )
+    gap001_pass = gap001_probe.get("pass") is True and gap001.get("status") not in {None, "OPEN"}
+    gap002_closed = (gap_registry.get("GAP-002") or {}).get("pass") is True
+    wave0 = boot.get("readiness_profile") == "WAVE0_OBSERVE_ONLY" and homeo.get("actuator_authority") == "NONE"
+    planner_invoked = wm.get("planner_invoked") is False and mc.get("planner_invoked") is False
+    executed_ok = mc.get("executable") is False and reflex.get("execute_enabled") is False
+    clock_ok = (boot.get("clock") or {}).get("clock_trust") == "SYNCED_NTP"
+    has_obs_age = "octopus_sensor_observation_age_seconds" in metrics_text
+    missing_imputed = cal.get("status") != "unknown" and cal.get("value") == 0.0
+    disk_ok = storage.get("status") in {"healthy", "watch"} and storage.get("value") is not None
+
+    checks = [
+        _mk(
+            "service_sensorium",
+            "runtime",
+            "blocking",
+            units["octopus-sensorium"]["active"],
+            "active",
+            str(units_path),
+            units["octopus-sensorium"]["active"] == "active",
+            source_command="systemctl is-active octopus-sensorium",
+            source_digest=units_digest,
+        ),
+        _mk(
+            "service_stability_enabled",
+            "runtime",
+            "blocking",
+            units["octopus-stability"]["enabled"],
+            "enabled",
+            str(units_path),
+            units["octopus-stability"]["enabled"] == "enabled",
+            source_command="systemctl is-enabled octopus-stability",
+            source_digest=units_digest,
+        ),
+        _mk(
+            "metrics_bind",
+            "runtime",
+            "blocking",
+            "127.0.0.1:9101" if "127.0.0.1:9101" in ss_text and not lan_9101 else "BAD",
+            "127.0.0.1:9101",
+            str(ss_path),
+            "127.0.0.1:9101" in ss_text and not lan_9101,
+            source_command="ss -lntup",
+            source_digest=ss_digest,
+        ),
+        _mk(
+            "unexpected_listeners",
+            "runtime",
+            "blocking",
+            {"forbidden": unexpected, "lan_9101": lan_9101, "known_nonlocal": sorted(ALLOWED_NONLOCAL)},
+            {"forbidden": [], "lan_9101": False},
+            str(ss_path),
+            not unexpected and not lan_9101,
+            source_command="ss -lntp | grep -vE '127\\.0\\.0\\.1|::1'",
+            source_digest=ss_digest,
+        ),
+        _mk(
+            "ledger_chain_valid",
+            "integrity",
+            "blocking",
+            "PASS" if ledger_ok else "FAIL",
+            "PASS",
+            str(verify_copy),
+            ledger_ok,
+            source_command="python3 -c 'from octopus_cognition.ledger import ChainedLedger; ...verify()'",
+            source_digest=ledger_digest,
+        ),
+        _mk(
+            "checkpoint_unsigned",
+            "integrity",
+            "blocking",
+            "SIGNED_ROOT_V2" if ckpt_ok else ckpt_reason,
+            "SIGNED_ROOT_V2",
+            str(ckpt_path),
+            ckpt_ok,
+            source_command="Ed25519 load_signed(checkpoint.json) against /etc/octopus/trust/root.pub — not gpg",
+            source_digest=ckpt_digest,
+            remediation_owner="owner",
+            remediation_type="laptop_root_v2_signature",
+            extra={"creates_authority": False, "inner_signed_field_is_not_the_signature": True},
+        ),
+        _mk(
+            "gap002_registry",
+            "integrity",
+            "blocking",
+            (gap_registry.get("GAP-002") or {}),
+            {"pass": True, "audit_integrity": "EXTERNALLY_CHECKPOINTED"},
+            "/opt/octopus/current/manifests/open-gaps.json",
+            gap002_closed,
+            source_command="python3 -m json.tool /opt/octopus/current/manifests/open-gaps.json",
+            source_digest=_sha256(Path("/opt/octopus/current/manifests/open-gaps.json")),
+            remediation_owner="owner",
+            remediation_type="registry_close_not_checkpoint_credit",
+            extra={"live_gap_file": gap002.get("status"), "signature_does_not_close_registry": True},
+        ),
+        _mk(
+            "policy_mode",
+            "authority",
+            "blocking",
+            {"profile": boot.get("readiness_profile"), "actuator_authority": homeo.get("actuator_authority")},
+            {"profile": "WAVE0_OBSERVE_ONLY", "actuator_authority": "NONE"},
+            str(STATE / "homeostasis" / "latest.json"),
+            wave0,
+        ),
+        _mk(
+            "planner_isolation",
+            "authority",
+            "blocking",
+            {"imports": planner_scripts, "invoked": {"wm": wm.get("planner_invoked"), "mc": mc.get("planner_invoked")}},
+            {"imports": False, "invoked": False},
+            str(STATE / "metacontrol" / "latest.json"),
+            (not any(planner_scripts.values())) and planner_invoked,
+        ),
+        _mk(
+            "actuator_authority",
+            "authority",
+            "blocking",
+            {"homeostasis": homeo.get("actuator_authority"), "reflex_armed": reflex.get("armed")},
+            {"homeostasis": "NONE", "reflex_armed": False},
+            str(STATE / "homeostasis" / "latest.json"),
+            homeo.get("actuator_authority") == "NONE" and not reflex.get("armed"),
+        ),
+        _mk(
+            "executed_actions",
+            "authority",
+            "blocking",
+            0 if executed_ok else "NONZERO_OR_EXECUTABLE",
+            0,
+            str(STATE / "metacontrol" / "latest.json"),
+            executed_ok,
+        ),
+        _mk(
+            "coverage_or_data_critical",
+            "sensing",
+            "blocking",
+            {
+                "wave0_ratio": host_ratio,
+                "usable": coverage.get("usable"),
+                "expected": coverage.get("expected"),
+                "required": coverage.get("required"),
+                "shadow": coverage.get("shadow"),
+                "fusion_coverage": coverage.get("fusion_coverage"),
+            },
+            "healthy_or_explained",
+            str(cov_path),
+            host_ok,
+            source_command="classify_coverage() over evidence files; curl 127.0.0.1:9101/metrics",
+            source_digest=cov_digest,
+            remediation_owner="agent",
+            remediation_type="evidence_path_diff",
+            extra={"threshold_not_lowered": True, "shadow_not_imputed": True},
+        ),
+        _mk(
+            "missing_not_healthy",
+            "sensing",
+            "blocking",
+            {
+                "prediction_calibration": cal,
+                "observation_age_metric": "PRESENT" if has_obs_age else "MISSING",
+                "imputed_zero": missing_imputed,
+            },
+            {"calibration": "unknown_or_measured", "imputed_zero": False},
+            str(metrics_path),
+            (not missing_imputed) and cal.get("status") == "unknown" and cal.get("value") is None,
+            source_command="curl -fsS http://127.0.0.1:9101/metrics",
+            source_digest=metrics_digest,
+            reason="missing_not_healthy",
+        ),
+        _mk(
+            "clock_trust",
+            "integrity",
+            "blocking",
+            (boot.get("clock") or {}).get("clock_trust"),
+            "SYNCED_NTP",
+            str(STATE / "boot_report.json"),
+            clock_ok,
+        ),
+        _mk(
+            "disk_health",
+            "sensing",
+            "blocking",
+            storage,
+            "healthy_or_watch_with_value",
+            str(storage_path) if storage_path.is_file() else None,
+            disk_ok and storage_path.is_file(),
+        ),
+        _mk(
+            "gap_001_open",
+            "integrity",
+            "blocking",
+            gap001_probe.get("status") or gap001.get("status") or "UNKNOWN",
+            "CLOSED_TESTED_PASS",
+            str(STATE / "gap001" / "boot_report.json") if (STATE / "gap001" / "boot_report.json").is_file() else None,
+            gap001_pass,
+            remediation_owner="owner",
+            remediation_type="maintenance_window_test",
+            extra={"agent_must_not_reboot": True, "gates": gap001_probe.get("gates_failed")},
+        ),
+        _mk(
+            "repairs_attempted",
+            "integrity",
+            "blocking",
+            REPAIRS_ATTEMPTED,
+            0,
+            str(EVIDENCE_RUN / run_id / "repairs.json"),
+            REPAIRS_ATTEMPTED == 0,
+        ),
+        _mk(
+            "metrics_observation_age",
+            "sensing",
+            "informational",
+            "PRESENT" if has_obs_age else "MISSING",
+            "PRESENT",
+            str(metrics_path),
+            has_obs_age,
+            source_command="curl -fsS http://127.0.0.1:9101/metrics | grep observation_age",
+            source_digest=metrics_digest,
+            extra={"promql": 'up{job="octopus_stability_live"} == 1 unless octopus_sensor_observation_age_seconds'},
+        ),
+    ]
+    repairs_blob, _ = _write_blob(run_id, "repairs.json", json.dumps({"repairs_attempted": 0, "mutations": 0}))
+    for check in checks:
+        if check.check_id == "repairs_attempted":
+            check.evidence_path = str(repairs_blob)
+
+    ctx = {
+        "homeo": homeo,
+        "mc": mc,
+        "coverage": coverage,
+        "metrics_digest": metrics_digest,
+        "run_blobs": str(EVIDENCE_RUN / run_id),
+    }
+    return checks, ctx
+
+
+def run_doctor() -> dict[str, Any]:
+    if REPAIRS_ATTEMPTED != 0:
+        raise RuntimeError("Doctor must not attempt repairs")
+    now = datetime.now(timezone.utc)
+    run_id = f"doctor-{now.strftime('%Y-%m-%dT%H%M%SZ')}-{uuid4().hex[:4]}"
+    checks, ctx = collect_checks(run_id)
+    status = doctor_status(checks)
+    blocking_failed = [c.check_id for c in checks if c.severity == "blocking" and not c.passed]
+    degrading_failed = [c.check_id for c in checks if c.severity == "degrading" and not c.passed]
+    unknown = [c.check_id for c in checks if c.evidence_path is None]
+
+    ledger = DoctorFindingsLedger()
+    run_body = {
+        "schema": "octopus.doctor-run.v1",
+        "run_id": run_id,
+        "kind": "run",
+        "status": status,
+        "checks_total": len(checks),
+        "blocking_failed": blocking_failed,
+        "degrading_failed": degrading_failed,
+        "unknown": unknown,
+        "policy_version": POLICY_VERSION,
+        "written_at": now.isoformat(),
+    }
+    run_entry = ledger.append(run_body)
+    findings = []
+    for check in checks:
+        finding_body = {
+            "schema": "octopus.doctor-finding.v1",
+            "run_id": run_id,
+            "kind": "finding",
+            "finding_id": f"{run_id}#{check.check_id}",
+            "check_id": check.check_id,
+            "category": check.category,
+            "severity": check.severity,
+            "observed": check.observed,
+            "expected": check.expected,
+            "passed": check.passed,
+            "source_command": check.source_command,
+            "source_digest": check.source_digest,
+            "evidence_path": check.evidence_path,
+            "policy_version": POLICY_VERSION,
+        }
+        entry = ledger.append(finding_body)
+        ev_path, _ev_digest = write_evidence(int(entry["seq"]), {**check.as_v1(), "finding_seq": entry["seq"]})
+        findings.append(
+            {
+                "finding_id": finding_body["finding_id"],
+                "seq": entry["seq"],
+                "hash": entry["hash"],
+                "evidence_copy": str(ev_path),
+            }
+        )
+
+    homeo = ctx["homeo"]
+    mc = ctx["mc"]
+    report = {
+        "schema": "octopus.doctor-report.v1",
+        "timestamp": now.isoformat(),
+        "run_id": run_id,
+        "status": status,
+        "repairs_attempted": REPAIRS_ATTEMPTED,
+        "checks_total": len(checks),
+        "blocking_failed": len(blocking_failed),
+        "degrading_failed": len(degrading_failed),
+        "unknown": len(unknown),
+        "blocking_failed_ids": blocking_failed,
+        "degrading_failed_ids": degrading_failed,
+        "unknown_ids": unknown,
+        "executed_actions": 0,
+        "planner_invocations": 0 if mc.get("planner_invoked") is False else mc.get("planner_invoked"),
+        "actuator_authority": homeo.get("actuator_authority") or "NONE",
+        "checks": [c.as_v1() for c in checks],
+        "findings": findings,
+        "findings_chain_id": "octopus-doctor-findings",
+        "change_chain_id": "octopus-audit-change",
+        "audit_checkpoint_phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
+        "coverage": ctx["coverage"],
+        "note": (
+            "Read-only. Doctor writes findings only. Change records are a separate chain. "
+            "PASS requires every check to have evidence; missing is not healthy; thresholds were not lowered."
+        ),
+        "pid": os.getpid(),
+    }
+    return report
+
+
+def main() -> int:
+    report = run_doctor()
+    if report["repairs_attempted"] != 0:
+        raise SystemExit("Doctor attempted a repair; abort")
+    text = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
+    for path in REPORT_PATHS:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        os.chmod(path, 0o644)
+    if INBOUND_REPORT.parent.is_dir() and os.access(INBOUND_REPORT.parent, os.W_OK):
+        try:
+            INBOUND_REPORT.write_text(text, encoding="utf-8")
+            os.chmod(INBOUND_REPORT, 0o644)
+        except OSError:
+            pass
+    summary = {
+        "status": report["status"],
+        "repairs_attempted": report["repairs_attempted"],
+        "checks_total": report["checks_total"],
+        "blocking_failed": report["blocking_failed"],
+        "blocking_failed_ids": report["blocking_failed_ids"],
+        "unknown": report["unknown"],
+        "executed_actions": report["executed_actions"],
+        "actuator_authority": report["actuator_authority"],
+    }
+    print(json.dumps(summary, indent=2, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

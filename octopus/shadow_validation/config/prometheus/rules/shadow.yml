@@ -1,0 +1,31 @@
+groups:
+  - name: octopus-shadow
+    interval: 15s
+    rules:
+      - alert: OctopusShadowExecuted
+        expr: |
+          increase(
+            octopus_actions_executed_total{
+              profile="WAVE0_OBSERVE_ONLY",
+              source="live",
+              namespace="runtime"
+            }[5m]
+          ) > 0
+        for: 0m
+        keep_firing_for: 30m
+        labels:
+          severity: critical
+          source: live
+          namespace: runtime
+        annotations:
+          summary: Execution occurred during observe-only mode
+      - alert: OctopusMetacontrolMustNotExecute
+        expr: octopus_metacontrol_executable{source="live", namespace="runtime"} == 1
+        for: 0s
+        keep_firing_for: 30m
+        labels:
+          severity: critical
+          source: live
+          namespace: runtime
+        annotations:
+          summary: WAVE0 metacontrol became executable

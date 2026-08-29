@@ -1,0 +1,5 @@
+BOARD_ID = "octopus.board.id"
+SENSOR_ID = "octopus.sensor.id"
+CLOCK_TRUST = "octopus.clock.trust"
+READINESS_PROFILE = "octopus.readiness.profile"
+ACTUATOR_AUTHORITY = "octopus.actuator.authority"

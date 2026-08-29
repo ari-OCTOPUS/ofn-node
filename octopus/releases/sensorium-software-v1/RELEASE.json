@@ -1,0 +1,13 @@
+{
+  "release": "SENSORIUM_SOFTWARE_V1",
+  "created_at": "2026-08-16T15:32:45.554506+00:00",
+  "tests_passed": 79,
+  "tests_failed": 0,
+  "expected_registry_hash": "sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5",
+  "expected_board_hash": "sha256:b53ec5ba3764f035513535577df5e72f25767e54dda2cedfd5d9b1ca73cd0d5d",
+  "file_count": 182,
+  "contains_private_key": false,
+  "contains_live_evidence": false,
+  "contains_live_audit": false,
+  "finalized_at": "2026-08-16T15:33:46.665089+00:00"
+}

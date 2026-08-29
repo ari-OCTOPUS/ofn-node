@@ -1,0 +1,67 @@
+{
+  "files": {
+    "AGENT_REGISTRY.md": {
+      "bytes": 16344,
+      "sha256": "a1733d8d6375bbab0e9f92187c3ea35f90d82bc91b1f89ec7ce5f16487117e5f"
+    },
+    "ANSWERS-FROM-OCTOPUS.md": {
+      "bytes": 5457,
+      "sha256": "4c2453c30b61f45f06b26c39065b1294f2b15cb5cb4346e1c9bfa3a063319b6c"
+    },
+    "ARCHITECT-DECISIONS.md": {
+      "bytes": 15458,
+      "sha256": "dfa8d7124fb13210ca16ff87741dd7c1c7dbf6852db557cd05d4d6f0cbc939b4"
+    },
+    "ARCHITECTURE-BIBLE.md": {
+      "bytes": 32575,
+      "sha256": "3378fa87f15c9c9f122fe2826543fc517309b1b219d532808c0fd89ea8393d37"
+    },
+    "BOARDLINK-2026-08-16.md": {
+      "bytes": 9548,
+      "sha256": "7a3fe640dc40093c624b947a4ccecb7801feb456a9a8f42a63f56542c892185c"
+    },
+    "CLAUDE.md": {
+      "bytes": 2003,
+      "sha256": "0accd29f861785fc84c1e4b30c105d2ee74570bb3303dc50bf84be9c820c4962"
+    },
+    "CONTRADICTIONS.md": {
+      "bytes": 55004,
+      "sha256": "5ae491aba93dab86e0d1d4e34b584b6af09dbd464e7d0fd0854544581f4a86d3"
+    },
+    "CURRENT-TRUTH.md": {
+      "bytes": 3787,
+      "sha256": "6b0e10c09aed82c524071f460ae2f780ea0fd46a42ff8062cebed2761a063468"
+    },
+    "DECISIONS.md": {
+      "bytes": 2925,
+      "sha256": "88544998433a6eb94ca16d9bb924e0586d40564a950462b701339a5ce66fdacf"
+    },
+    "FOR-BOARD-ACTION-NEEDED.md": {
+      "bytes": 2179,
+      "sha256": "d87f65a781370231c7e86bbf4b6632d9d74f2d9b5e6fe8a2cacba6e19eff5126"
+    },
+    "FOR-BOARD-CONNECT-NOW.md": {
+      "bytes": 1738,
+      "sha256": "3c5c4dcb1608035a1fcc95e1bc7c17d5a78fd92d9a3d2fae74fa0a653cf7e997"
+    },
+    "GATES.md": {
+      "bytes": 4515,
+      "sha256": "13a8de4acb6a604df6e080f05088d6db85a29360ae6d5f891044e91afbf74249"
+    },
+    "NEXT-AGENT-HANDOFF.md": {
+      "bytes": 22456,
+      "sha256": "ba08e21e6e781f531f7645b50fff264ce5fe0f05e43790b072405b3296ab758f"
+    },
+    "WIRE.md": {
+      "bytes": 8101,
+      "sha256": "3e7cbe10d8f7df276bce1ddb1daeee7a3b26ecc4df1bcb8dfc1d898ee0af90af"
+    },
+    "_PROJECT_INSTRUCTIONS.md": {
+      "bytes": 11954,
+      "sha256": "eac6207aff9d7eb92788ca37d679674da0e76ac4b053698604a0e558e23275b8"
+    }
+  },
+  "schema": "octopus.sensorium.reference-library.v1",
+  "snapshot_at": "2026-08-17T13:00:00Z",
+  "warning": "SNAPSHOTS ONLY \u2014 canonical sources: F:\\backup (laptop, canonical vault per owner vote 2026-08-15) and E:\\germline. Re-pull before relying on numbers."
+}

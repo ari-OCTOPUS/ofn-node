@@ -1,0 +1,7 @@
+nats-py
+pynacl
+pyyaml
+bcrypt
+
+[test]
+pytest

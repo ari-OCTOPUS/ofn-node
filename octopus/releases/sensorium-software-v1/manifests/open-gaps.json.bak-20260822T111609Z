@@ -1,0 +1,11 @@
+{
+  "GAP-001": {
+    "status": "DEFERRED_BY_OPERATOR",
+    "pass": false
+  },
+  "GAP-002": {
+    "status": "DEFERRED_TO_WAVE1",
+    "audit_integrity": "HASH_CHAIN_ONLY",
+    "pass": false
+  }
+}

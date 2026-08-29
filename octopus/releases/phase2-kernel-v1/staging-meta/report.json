@@ -1,0 +1,20 @@
+{
+  "board_id": "sensorium-opi5pro-68e44cdf",
+  "phase": "PHASE_2",
+  "execution_state": "COMPLETE",
+  "scope": "sensor_kernel_completion_staging",
+  "tests_passed": 61,
+  "live_registry_changed": false,
+  "live_board_changed": false,
+  "new_sensor_activated": false,
+  "nats_provisioned": false,
+  "mqtt": "DISABLED",
+  "leg_authority": "DENIED",
+  "092_095": "SHADOW",
+  "wave0_baseline_hash": "sha256:046566dab34ca98f7f7c564cde9e8c92b471bae65f93bf7cf4f7d85b9a2fa3d4",
+  "registry_v4_hash": "sha256:3060e7bb00f93de9ece2f4fe0be4529e92180ed40f63950d3538bca74c4a879d",
+  "registry_v5_hash": "sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5",
+  "gaps_open": ["GAP-001", "GAP-002"],
+  "otel_export": false,
+  "otel_055": "not_enabled"
+}

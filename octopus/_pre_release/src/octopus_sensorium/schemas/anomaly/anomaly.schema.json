@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/anomaly/1.0.0",
+  "title": "OCT-SENSE-092 anomaly event",
+  "type": "object",
+  "required": ["event_id", "sensor_id", "observation_type"],
+  "properties": {
+    "event_id": { "type": "string" },
+    "sensor_id": { "const": "OCT-SENSE-092" },
+    "observation_type": { "enum": ["anomaly", "baseline_status"] },
+    "actionable": { "const": false },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "may_change_readiness": { "const": false },
+        "may_quarantine": { "const": false }
+      }
+    }
+  },
+  "additionalProperties": true
+}

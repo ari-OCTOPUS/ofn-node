@@ -1,0 +1,65 @@
+# Real, discovered paths on board sensorium-opi5pro-68e44cdf
+# Verified read-only on 2026-08-17 (run-20260817T1031Z-81f8e678).
+
+canonical_roots:
+  code: /opt/octopus               # canonical runtime root (already real — do NOT create a second one)
+  live_source: /opt/octopus/current/src/octopus_sensorium   # read-only tree, SHA256SUMS present
+  state: /var/lib/octopus          # state, evidence, audit, inbound
+  config: /etc/octopus
+  nats_config: /etc/nats/nats-server.conf
+  agent_pack: /opt/octopus-agent   # this pack — the ONLY writable area
+
+code_layout:
+  - /opt/octopus/current                 # live release tree (RELEASE.json, SHA256SUMS, 182 files, 79 tests passed at build)
+  - /opt/octopus/releases/phase2-kernel-v1
+  - /opt/octopus/releases/sensorium-software-v1
+  - /opt/octopus/releases/wave0-current
+  - /opt/octopus/scripts                 # fusiond.py, world_model_shadow.py, skill_tracker_loop.py, stability_monitor.py, metacontrol_shadow.py, reflex_a0.py
+  - /opt/octopus/cognition               # cognition package (homeostasis/skill/metacontrol contracts)
+  - /opt/octopus/shadow_validation       # staging contracts (service disabled by policy)
+  - /opt/octopus/_pre_release
+  - /opt/octopus/schemas, /opt/octopus/docs, /opt/octopus/shared, /opt/octopus/tools
+  - /opt/octopus/venv                    # service venv (never write, never copy blindly — machine-specific)
+
+state_layout:
+  authority:
+    - /var/lib/octopus/state/OWNER_REVIEW_DECISION.json
+    - /var/lib/octopus/state/wave_baseline_accepted.json
+    - /var/lib/octopus/state/gap001/verifier.json        # rewritten per boot by the probe (hash change across boots is EXPECTED)
+    - /var/lib/octopus/state/snapshots/latest.json       # live authority fields
+  evidence:
+    - /var/lib/octopus/evidence                           # append-only evidence store
+    - /var/lib/octopus/state/quarantine/                  # TAINTED_WINDOW markings
+  owner_flow:
+    - /var/lib/octopus/inbound/TO-LAPTOP/                 # unsigned exports for owner signing (pull to Windows)
+    - /var/lib/octopus/inbound/SIGNED-REGISTRY-BUNDLE/    # owner drops signed bundles here
+    - /var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/
+  ledgers:
+    - /var/lib/octopus/state/reflex/ledger.jsonl           # hash-chained — never touch
+    - /var/lib/octopus/state/world_model/ledger.jsonl
+
+scattered_artifacts_classified_read_only:
+  - /root/OCTOPUS-ROOT-V2, /root/OCTOPUS-REGISTRY-100, /root/OCTOPUS-REGISTRY-V6-META-SHADOW,
+    /root/OCTOPUS-AUDIT-CHECKPOINT, /root/octopus, /root/octopus-ca
+  - /root/LAPTOP-AGENT-*.md|json, /root/SESSION-REPORT-*.md, /root/WIPE-REPORT-*.txt, /root/wipe.sh
+  note: >
+    These are laptop-transfer/signing artifacts and session reports, not runtime
+    projects. They are the "ten projects" impression. Cleanup/consolidation is an
+    owner decision (PROPOSALS/INTEGRATION-CORE-LAYER.md) — the agent never deletes them.
+
+forbidden_paths:
+  - /etc/octopus/secrets
+  - /root/octopus-ca               # CA material — never read, never copy
+  - any private key files
+  - /proc/sys, /sys writable interfaces
+
+services_running_this_boot:
+  - octopus-sensorium, octopus-fusiond, octopus-metacontrol, octopus-reflex,
+    octopus-skill-tracker, octopus-stability, octopus-world-model, nats-server,
+    tailscaled, dropbear, cron
+
+ports_listening:
+  - 0.0.0.0:22      dropbear (SSH)
+  - 192.168.0.182:4222  nats-server (LAN, expected by gate)
+  - 127.0.0.1:8222  nats monitoring (loopback)
+  - 127.0.0.1:9101  stability metrics (loopback only)

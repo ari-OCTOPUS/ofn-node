@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/observation/1.0.0",
+  "title": "OCTOPUS Sensorium Observation",
+  "type": "object",
+  "required": [
+    "event_id",
+    "schema_version",
+    "sequence_number",
+    "sensorium_board_id",
+    "sensor_id",
+    "sensor_agent_id",
+    "observation_type",
+    "observed_property",
+    "subject",
+    "result",
+    "time",
+    "quality",
+    "uncertainty",
+    "provenance",
+    "evidence",
+    "security",
+    "routing",
+    "policy"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "type": "string" },
+    "sequence_number": { "type": "integer", "minimum": 1 },
+    "sensorium_board_id": { "type": "string" },
+    "sensor_id": { "type": "string" },
+    "subsensor_id": { "type": ["string", "null"] },
+    "sensor_agent_id": { "type": "string" },
+    "observation_type": {
+      "enum": ["measurement", "state", "event", "anomaly", "contradiction", "prediction", "fault"]
+    },
+    "observed_property": { "type": "string" },
+    "subject": {
+      "type": "object",
+      "required": ["entity_id"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "entity_type": { "type": "string" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "value": true,
+        "unit": { "type": ["string", "null"] },
+        "encoding": { "const": "json" }
+      }
+    },
+    "time": {
+      "type": "object",
+      "required": ["phenomenon_time", "ingestion_time", "processing_time", "valid_until"],
+      "properties": {
+        "phenomenon_time": { "type": "string" },
+        "ingestion_time": { "type": "string" },
+        "processing_time": { "type": "string" },
+        "valid_until": { "type": "string" },
+        "time_unverified": { "type": "boolean" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source_id", "collector_version", "content_hash", "clock_trust"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "collector_version": { "type": "string" },
+        "transformations": { "type": "array", "items": { "type": "string" } },
+        "content_hash": { "type": "string", "pattern": "^sha256:" },
+        "signature_verified": { "type": "boolean" },
+        "clock_trust": { "type": "string" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "actionable": { "type": "boolean" },
+        "may_change_readiness": { "type": "boolean" },
+        "may_quarantine": { "type": "boolean" },
+        "human_approval_required": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

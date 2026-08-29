@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/manifest/1.0.0",
+  "title": "Sensor manifest",
+  "type": "object",
+  "required": ["sensor_id"],
+  "properties": {
+    "sensor_id": { "type": "string", "minLength": 1 },
+    "enabled": { "type": "boolean" },
+    "status": { "type": "string" },
+    "security": {
+      "type": "object",
+      "properties": {
+        "actuator_access": { "const": false },
+        "shell_access": { "const": false }
+      }
+    }
+  },
+  "additionalProperties": true
+}

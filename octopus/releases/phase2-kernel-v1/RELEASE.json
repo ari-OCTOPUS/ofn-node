@@ -1,0 +1,14 @@
+{
+  "release_id": "phase2-kernel-v1",
+  "milestone": "PHASE2_KERNEL_LIVE_V1",
+  "created_at": "2026-08-16T15:22:36.380223+00:00",
+  "source": {
+    "staging_report": "/var/lib/octopus/staging/phase2-kernel-completion",
+    "code_tree": "/opt/octopus/{src,tests,tools,scripts}",
+    "note": "PHASE 2 kernel was completed in-place under /opt/octopus/src; this freeze is the RC tree. wave0-current is the rollback snapshot of that same tree at deploy start."
+  },
+  "tests_passed": 61,
+  "expected_registry_hash": "sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5",
+  "expected_board_hash": "sha256:b53ec5ba3764f035513535577df5e72f25767e54dda2cedfd5d9b1ca73cd0d5d",
+  "file_count": 146
+}
