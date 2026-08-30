@@ -7,8 +7,8 @@ This is a map, not authorization.
 
 - Keep D1, D7, OWNER_KEY, secret rotation and deploy as owner-only.
 - Do not merge the vault branch into public `ofn-node`.
-- If GitHub publication is needed, use OWNER-02 designed export.
-- Merge method, if any later export PR is approved: create a merge commit, not squash.
+- `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
+- Selective export is complete as PR #6 (`OPEN_AS_PR_6`). Merge remains `NOT_AUTHORIZED`.
 
 ## MAP
 
@@ -24,9 +24,14 @@ This is a map, not authorization.
 - Observatory runner, claim store and Brier producers are
   `NOT_FOUND_IN_CURRENT_LINEAGE`.
 - Historical 0.80 / 0.99 / n=114 values remain narrative.
-- Next measurement work starts from versioned fixtures and independent
-  producer/scorer/verifier modules. Do not copy prose formulas into production.
-- Run the 826-suite hermetic default as a dedicated evaluation (OWNER-09).
+- OWNER-09 executed: `HERMETIC_BOUNDARY_VIOLATION` (770/827). Do not run it again
+  as a campaign gate. Do not copy prose formulas into production.
+- Next local engineering priorities after owner review of PR #6:
+  1. Eliminate the 12 tracked-state writes from hermetic execution.
+  2. Re-run the complete hermetic suite after that repair.
+  3. Build a fixture-only observatory replacement.
+  4. Perform a disposable restore drill.
+  5. Prepare one read-only physical sensor pilot.
 
 ## MANAGE
 

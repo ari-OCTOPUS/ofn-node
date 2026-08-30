@@ -26,11 +26,12 @@ changed by zero. Canonical evidence is indexed at [[INDEX]].
 - `27/27` is one verifier’s 27 checks, not 27 independent verifiers.
 - OFN `secret_rotation` remains a separate gate family.
 
-## Next three evidence-backed tasks
+## Current handoff
 
-1. Decide canonical local lineage (`rescue` vs surgery worktree vs germline). Do not push.
-2. Design the minimum observatory replacement from versioned fixtures; do not revive narrative code.
-3. Close the OWNER-09 state leak: suites still write tracked `_ops/state` and `06-EVIDENCE`.
+- Next owner action: review PR #6 on the exact head SHA in the PR body after four focused checks pass. Merge not authorized. Deploy not authorized.
+- Next local engineering action after owner review: close the tracked-write hermetic boundary (12 paths).
+- Observatory remains `NOT_FOUND_IN_CURRENT_LINEAGE`.
+- Physical sensor remains absent (`REPLAY_SAFE_FOUNDATION` only).
 
 Surgery 2 closed the prior first item: inventory is 8/8 and the gateway is
 `ISOLATED_LAB_ONLY`, default-deny, with no production importer.
@@ -44,7 +45,9 @@ current lineage. Historical Brier tables remain narrative evidence only.
 Surgery 5 added a replay-safe `observation.v1` record and fake/replay adapters.
 The existing USGS/HN parser was not modified. No real sensor was connected.
 
-Campaign closeout files 09–14 are written. GitHub publish of this branch is
-`BLOCKED_PUBLIC_UNRELATED_HISTORY`. Overall completion is `45% ± 7%`.
+Campaign closeout files 09–14 are written.
+`LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
+`SELECTIVE_PUBLIC_EXPORT = OPEN_AS_PR_6`.
+Overall completion is `45% ± 7%`.
 
 Do not infer send, revenue, booking or production readiness from this handoff.

@@ -69,7 +69,7 @@ sources:
 ## 2026-08-30 — Campaign closeout
 
 - Added owner runbook, roadmap, merge/deploy checklist, 90% gates, inbox and final report.
-- Recorded GitHub publish as blocked: public remote, no merge base.
+- HISTORICAL_SNAPSHOT (campaign closeout, before selective export): GitHub publish of the local vault/surgery branch was blocked: public remote, no merge base.
 
 ## 2026-08-30 — OWNER-09 rerun and scoring repair
 
@@ -79,3 +79,14 @@ sources:
 - Repaired `test_run_all_scoring.py` so nested e2e does not inherit isolation-boot PYTHONPATH.
 - Repair commit: `d6eeadd40d867bdc082dbc287c48e24be280a335` (14/14 via `run_all --only`).
 - Did not rerun the 827-suite after that one-file repair.
+
+## 2026-08-30 — Final PR 6 documentation reconciliation
+
+- PR #5 closed superseded (not merged).
+- PR #6 is the canonical selective export (`OPEN_AS_PR_6`).
+- Four focused CI checks passed (`ci_last_observed_before_docs_commit: PASS`).
+- Same-env differential regressions = 0.
+- Obsidian docs branch and content synchronization remain
+  `OBSIDIAN_CONTENT_SYNCED_GIT_BRANCH_SEPARATE`; primary rescue is `DIRTY_NOT_SYNCED`.
+- Merge and deploy remain unauthorized.
+- Local OWNER-09 remains `HERMETIC_BOUNDARY_VIOLATION`.

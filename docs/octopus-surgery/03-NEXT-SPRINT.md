@@ -1,7 +1,9 @@
 # Next sprint — atomic, evidence-bounded tasks
 
-OWNER-09 is executed: `HERMETIC_BOUNDARY_VIOLATION` (770/827). Next owner
-decision is canonical local lineage, not repair and not GitHub publish.
+OWNER-09 is executed: `HERMETIC_BOUNDARY_VIOLATION` (770/827). Selective
+public export is complete as PR #6 (`SELECTIVE_PUBLIC_EXPORT = OPEN_AS_PR_6`)
+and is awaiting owner review. `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
+Merge and deploy remain `NOT_AUTHORIZED`.
 
 Default envelope: `node_id=octopus-continuity-180`,
 `asserted_ip=<redacted-private-ip>`, `vantage=cursor-this-host-only`,
@@ -157,5 +159,9 @@ owner_gate: required
 - Surgery 3: hermetic default runner boundaries; cortex `16/16` — complete.
 - Surgery 4: observatory `NOT_FOUND_IN_CURRENT_LINEAGE` — complete.
 - Surgery 5: replay-safe `observation.v1` foundation `15/15` — complete.
-- Next safe work: campaign closeout docs 09–14; no further runtime surgery in this campaign.
-- GitHub publication: blocked by unrelated histories; no push attempted.
+- Next local engineering task: close the 12 tracked-state writes from hermetic execution.
+- Observatory replacement, physical sensor and restore drill remain open.
+- `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
+- `SELECTIVE_PUBLIC_EXPORT = OPEN_AS_PR_6`.
+- `PUBLIC_EXPORT_CI = FOCUSED_CI_PASS` (last observed before this docs commit).
+- `PUBLIC_EXPORT_REGRESSIONS = 0`.

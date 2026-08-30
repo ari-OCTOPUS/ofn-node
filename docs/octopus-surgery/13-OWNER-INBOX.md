@@ -1,15 +1,27 @@
 # Owner inbox
 
-Maximum five READY decisions. Confirmation text is ready to paste.
+Maximum five decisions. Only one action is immediately READY.
 An agent must not treat silence as yes.
 
 ---
 
-## 1. Accept that GitHub publish of this branch is blocked
+## 1. Review PR #6 on its exact current head after four focused checks pass
 
-Status: READY
-Decision: keep the campaign local to germline/worktree; do not push the vault branch to public `ofn-node`.
-Paste to confirm:
+Status: READY — first and only immediate action
+Decision: inspect focused CI on the current head reported in the PR body; do not merge, deploy, open D1/D7, generate OWNER_KEY, or rotate secrets.
+
+```text
+OWNER-CONFIRM: reviewed PR 6 at <NEW_FINAL_HEAD_SHA from PR body>;
+focused CI passed 4/4 on this exact SHA;
+merge remains unauthorized
+```
+
+---
+
+## 2. Keep the local vault/surgery branch unpublished
+
+Status: STANDING
+Decision: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`. Selective export is already `OPEN_AS_PR_6`.
 
 ```text
 OWNER-CONFIRM: do not push surgery/cognition-authority-denylist-20260830-170620 to public ofn-node
@@ -17,31 +29,18 @@ OWNER-CONFIRM: do not push surgery/cognition-authority-denylist-20260830-170620 
 
 ---
 
-## 2. Review PR 6 at its exact head SHA after focused CI
-
-Status: READY after the reconciliation push and green observation-contract checks
-Decision: inspect CI on the current head; do not merge, deploy, open D7, or rotate secrets.
-The exact SHA is written in the PR body after push. Do not approve an older SHA.
-
-```text
-OWNER-CONFIRM: reviewed PR 6 at <full SHA from PR body>; merge remains unauthorized
-```
-
----
-
 ## 3. OWNER-09 hermetic full suite — recorded
 
 Status: DONE
-Result: `HERMETIC_BOUNDARY_VIOLATION` — 770/827 passed; 57 failed; 1 live skipped; 1459s.
-Scoring campaign regression repaired at `d6eeadd`; 14/14 via `run_all --only`. Full 827 not rerun after repair.
+Result: `HERMETIC_BOUNDARY_VIOLATION` — 770/827 passed; 57 failed; 1 live skipped.
+Do not rerun OWNER-09 as a campaign gate.
 
 ---
 
 ## 4. Keep D1/D7/OWNER_KEY/secret rotation closed
 
-Status: READY
-Decision: this campaign did not open those gates and must not be asked to.
-Paste to confirm:
+Status: STANDING
+Decision: this campaign did not open those gates.
 
 ```text
 OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation remain owner-only and closed
@@ -51,9 +50,8 @@ OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation remain owner-only and closed
 
 ## 5. Accept current distance: 45% ± 7%, not 90%
 
-Status: READY
+Status: STANDING
 Decision: credit the five surgeries; do not promote historical Brier or test-count claims.
-Paste to confirm:
 
 ```text
 OWNER-CONFIRM: campaign overall 45% ± 7%; 90% gates remain closed

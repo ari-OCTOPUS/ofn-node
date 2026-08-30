@@ -78,7 +78,7 @@ commit SHA would be self-referential.
 - Explicit gate requires lab/test zone, approved entrypoint, and non-executable/no-external-action request.
 - Receipt SHA-256:
   `fb3bbcd423e6cfc56132756699bcade58abb950e1d988813da7586a72bf412d8`.
-- GitHub publication is blocked because `github/main` and this vault lineage have no merge base.
+- HISTORICAL_SNAPSHOT (surgery 2 closeout): local vault branch publication was already forbidden because `github/main` and this vault lineage have no merge base.
 
 ## Surgery 3 delta
 
@@ -113,6 +113,25 @@ commit SHA would be self-referential.
 ## Campaign closeout
 
 - Files 09–14 added.
-- GitHub push/PR: `BLOCKED_PUBLIC_UNRELATED_HISTORY`.
 - Implementation HEAD: `1a18c3e6559f5e7a548751d19dc80f1dadec96a6`.
 - Closeout commit SHA is reported out-of-band.
+
+## Public-export checkpoint
+
+These states are separate and must not be collapsed:
+
+- `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`
+- `SELECTIVE_PUBLIC_EXPORT = OPEN_AS_PR_6`
+- `PUBLIC_EXPORT_CI = FOCUSED_CI_PASS` (`ci_last_observed_before_docs_commit: PASS`; 4 focused CI checks passed)
+- `PUBLIC_EXPORT_REGRESSIONS = 0`
+- required branch checks not configured
+- `CANONICAL_VAULT_CONTENT = OBSIDIAN_CONTENT_SYNCED_GIT_BRANCH_SEPARATE`
+- `PRIMARY_RESCUE_BRANCH = DIRTY_NOT_SYNCED`
+- `MERGE = NOT_AUTHORIZED`
+- `DEPLOY = NOT_AUTHORIZED`
+- `OWNER_09 = HERMETIC_BOUNDARY_VIOLATION`
+- observatory: `NOT_FOUND_IN_CURRENT_LINEAGE`
+- observation.v1: `REPLAY_SAFE_FOUNDATION`; no physical sensor
+- 27 checks from one verifier
+- GitHub changed-file count: 37
+- `pr_head_sha: reported_externally_in_pr_body`

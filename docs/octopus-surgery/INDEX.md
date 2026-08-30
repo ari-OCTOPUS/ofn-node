@@ -24,7 +24,9 @@ closeout-only.
 - [[14-FINAL-CAMPAIGN-REPORT]]
 
 This public copy is sanitised evidence on `ari-OCTOPUS/ofn-node`.
-It is not the canonical Obsidian vault. Canonical vault status: `NOT_SYNCED`.
+It is not the canonical Obsidian vault.
+`CANONICAL_VAULT_CONTENT = OBSIDIAN_CONTENT_SYNCED_GIT_BRANCH_SEPARATE`.
+`PRIMARY_RESCUE_BRANCH = DIRTY_NOT_SYNCED`.
 Local vault branch publication remains `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
 
 ## Closure
@@ -57,7 +59,9 @@ Local vault branch publication remains `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN
 - [[receipts/COGNITION-AUTHORITY-TESTS-20260830T071344Z.log|Test log]]
 - [[receipts/SURGERY-COGNITION-AUTHORITY-DENYLIST-20260830T071700Z.json|Surgery receipt]]
 
-No push, merge, deploy, restart, provider call or external effect was performed.
+No local vault or surgery branch was pushed.
+One sanitized GitHub-lineage export branch was pushed as PR #6.
+No merge, deploy, restart, provider call or external effect occurred.
 
 ## Surgery 2
 
@@ -94,7 +98,7 @@ No push, merge, deploy, restart, provider call or external effect was performed.
 - [[receipts/OBSERVATION-V1-FOUNDATION-20260830T081800Z.log|Surgery 5 test log]]
 - [[receipts/SURGERY-OBSERVATION-V1-FOUNDATION-20260830T081900Z.json|Surgery 5 receipt]]
 
-## Campaign closeout (untracked; commit cap reached)
+## Campaign closeout
 
 - [[09-OWNER-ACTION-RUNBOOK|Owner Action Runbook]]
 - [[10-POST-CAMPAIGN-ROADMAP|Post-campaign Roadmap]]

@@ -22,7 +22,7 @@ remote_names: [germline, github]
 germline_fetch: "<germline-remote>"
 germline_push: "<germline-remote>"
 github_fetch: "https://github.com/ari-OCTOPUS/ofn-node.git"
-github_push_status: BLOCKED_UNRELATED_HISTORY
+github_push_status: LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN
 working_tree_initial:
   state: DIRTY_PREEXISTING_UNKNOWN
   porcelain_entries: 136
@@ -212,3 +212,17 @@ limitations:
   - "OWNER-09 executed 827 hermetic suites and recorded HERMETIC_BOUNDARY_VIOLATION; do not report 826"
   - "local vault branch publication remains LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN; selective public export is PR 6"
 generated_at_utc: "2026-08-30T08:17:00Z"
+github:
+  local_vault_branch_publication: FORBIDDEN
+  selective_export:
+    pr_number: 6
+    state: OPEN
+    base_sha: c1969bce5384f3371b916470299c991627c3d63c
+    head_sha_external: true
+    focused_ci: PASS
+    checks_passed: 4
+    required_checks_configured: 0
+    merge: NOT_AUTHORIZED
+    deploy: NOT_AUTHORIZED
+    ci_last_observed_before_docs_commit: PASS
+    public_export_regressions: 0

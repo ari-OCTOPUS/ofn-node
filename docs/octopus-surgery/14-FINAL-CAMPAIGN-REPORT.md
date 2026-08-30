@@ -15,10 +15,25 @@
 Envelope: `node_id=octopus-continuity-180`, `asserted_ip=<redacted-private-ip>`,
 `vantage=isolated-worktree`, `scope=this_host_only`.
 
-Public publication status: `SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW`.
+Public publication status: `SELECTIVE_PUBLIC_EXPORT = OPEN_AS_PR_6`.
 Local vault branch publication: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
-Canonical vault: `NOT_SYNCED`. Merge: `NOT_AUTHORIZED`. Deploy: `NOT_AUTHORIZED`.
-CI until checks run: `NO_CHECKS_REPORTED`. OWNER-09: `HERMETIC_BOUNDARY_VIOLATION`.
+Canonical vault content: `OBSIDIAN_CONTENT_SYNCED_GIT_BRANCH_SEPARATE`.
+Primary rescue branch: `DIRTY_NOT_SYNCED`.
+Merge: `NOT_AUTHORIZED`. Deploy: `NOT_AUTHORIZED`.
+OWNER-09: `HERMETIC_BOUNDARY_VIOLATION`.
+PUBLIC_EXPORT_REGRESSIONS: `0`.
+
+CI:
+  status: FOCUSED_CI_PASS
+  workflow: observation-contract
+  workflow_run: 33307188622
+  checks_passed: 4
+  checks_failed: 0
+  required_branch_checks: NONE_CONFIGURED
+  head_sha: reported externally in PR body
+  ci_status_source: GitHub PR check runs on current head
+  ci_expected: focused observation workflow
+  ci_last_observed_before_docs_commit: PASS
 
 ## Campaign result
 
@@ -38,7 +53,15 @@ CI until checks run: `NO_CHECKS_REPORTED`. OWNER-09: `HERMETIC_BOUNDARY_VIOLATIO
 - Scoring after repair: 14/14 via `run_all --only`; full 827 not rerun
 - GitHub canonical PR: [#6](https://github.com/ari-OCTOPUS/ofn-node/pull/6)
 - Superseded PR: [#5](https://github.com/ari-OCTOPUS/ofn-node/pull/5) `CLOSED_SUPERSEDED`
-- CI: `NO_CHECKS_REPORTED` until focused observation workflow runs on the current head
+- GitHub currently reports 37 changed files on PR #6
+- Differential measurement was made at `4a92e75e`
+- Focused CI last observed before this docs commit was made at `eae404fa` (4/4 PASS)
+- These are separate evidence points
+- Code did not change between the observation code commit and focused CI except workflow/documentation changes
+- The 82 failures plus 1 error are shared base/head failures
+- They are not caused by observation.v1 (`REPLAY_SAFE_FOUNDATION`; no physical sensor)
+- They do not represent a green full repository suite
+- 27 checks from one verifier; `NOT_FOUND_IN_CURRENT_LINEAGE` observatory; merge not authorized; deploy not authorized; required branch checks not configured
 
 ## Surgeries completed
 
@@ -94,9 +117,9 @@ Live tests not executed: `test_llm_routing_smoke.py`.
 
 ## Obsidian synchronization
 
-- Canonical vault: `<vault-root>`
-- Worktree docs are the campaign source of truth for surgeries 2–5
-- Closeout files 09–14 exist in the worktree. Copy into the dirty primary vault is not Git/Obsidian synchronization.
+- Canonical vault content: `OBSIDIAN_CONTENT_SYNCED_GIT_BRANCH_SEPARATE`
+- Primary rescue branch: `DIRTY_NOT_SYNCED`
+- Closeout files 09–14 are committed on the docs-sync and export lineages.
 - No `.bak` or archive notes were updated
 - Absolute isolated worktree paths must not appear in GitHub-facing text
 
@@ -111,8 +134,9 @@ Live tests not executed: `test_llm_routing_smoke.py`.
 - superseded PR: https://github.com/ari-OCTOPUS/ofn-node/pull/5 (`CLOSED_SUPERSEDED`)
 - merge performed: NO (`NOT_AUTHORIZED`)
 - deployment performed: NO (`NOT_AUTHORIZED`)
-- CI: `NO_CHECKS_REPORTED` until the focused observation workflow reports on the current head
-- same-env differential: base `c1969bce` collected 3638 / passed 3545 / failed 82 / errors 1 / skipped 10; head `4a92e75e` collected 3653 / passed 3560 / failed 82 / errors 1 / skipped 10; new regressions 0
+- CI: `FOCUSED_CI_PASS` last observed before this docs commit; 4 focused CI checks passed; required branch checks not configured
+- same-env differential at `4a92e75e`: 0 public-export regressions
+- GitHub changed-file count: 37
 - historical unlabeled pytest-q reports of 72 or 2073/82 are not this measurement
 
 ## Distance to 90%
