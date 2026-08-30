@@ -9,7 +9,7 @@
 
 ## board_138_source_truth (2026-08-30, owner-audited)
 yaml:
-  repository: ari322/ofn-node
+  repository: ari-OCTOPUS/ofn-node
   canonical_branch: backup/board138-20260830
   canonical_commit: c1969bce5384f3371b916470299c991627c3d63c
   remote_verified: true
