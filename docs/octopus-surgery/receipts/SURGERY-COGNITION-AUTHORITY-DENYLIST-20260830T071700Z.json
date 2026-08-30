@@ -1,0 +1,182 @@
+{
+  "schema": "octopus.surgery-receipt.v1",
+  "surgery_id": "cognition-authority-denylist",
+  "node_id": "octopus-continuity-180",
+  "asserted_ip": "192.168.0.180",
+  "vantage": "cursor-this-host-only",
+  "scope": "this_host_only",
+  "outcome": "TEST_ONLY_GUARD",
+  "parent_manifest_sha256": "e09ee5dc550d0191a73571b8881d90192a892a6895c7133beea9f684f2cbe34c",
+  "branch": "surgery/cognition-authority-denylist-20260830-170620",
+  "commit_before": "2a718aaa96235fcf5aa5219d25eba4a9b314eed5",
+  "commit_after": "reported_out_of_band_after_commit_to_avoid_commit_hash_self_reference",
+  "production_source_changes": 0,
+  "production_test_files_changed": [
+    {
+      "path": "_ops/tests/architecture/cognition_authority_policy.yaml",
+      "purpose": "machine-readable capability and zone policy",
+      "sha256": "21fba7b2d545f162750da8b0ae6c6a2ecbaabca92fbac6de8f25c5e32861a897"
+    },
+    {
+      "path": "_ops/tests/test_cognition_authority_denylist.py",
+      "purpose": "AST detector, controlled violation fixture and boundary assertions",
+      "sha256": "a16a2730c5fdd9b53eba43e9efa49dfdc86c98096464ecad062b9d5db9616185"
+    },
+    {
+      "path": "_ops/tests/run_all.py",
+      "purpose": "register the architecture guard in the official runner",
+      "sha256": "542b944599b4dda60a1cecb28502c2b74f729033f1d7c30523ba2175837981fb"
+    }
+  ],
+  "test_log": {
+    "path": "docs/octopus-surgery/receipts/COGNITION-AUTHORITY-TESTS-20260830T071344Z.log",
+    "sha256": "8595bd240f2b45477d394ba0f1486421f33851f7da6b58a72a93b91be6801ef3"
+  },
+  "policy_rules_added": [
+    "COG-AUTH-001",
+    "CORTEX-AUTH-001",
+    "PROVIDER-INFERENCE-001",
+    "PROPOSAL-POLICY-001",
+    "OWNER-APPROVAL-001",
+    "EXECUTOR-BOUNDARY-001",
+    "DYNAMIC-IMPORT-001",
+    "SHELL-CAPABILITY-001",
+    "NETWORK-WRITE-001",
+    "CREDENTIAL-ACCESS-001",
+    "BOUNDED-GIT-READ-001",
+    "LOOPBACK-LISTENER-001"
+  ],
+  "boundary_classification": [
+    {
+      "component": "narrow cognition, planner and world model",
+      "classification": "VERIFIED_NO_AUTHORITY_HANDLE_IN_OBSERVED_SCOPE"
+    },
+    {
+      "component": "broader cortex to model provider",
+      "classification": "SAFE_INFERENCE_BOUNDARY"
+    },
+    {
+      "component": "_ops/cortex/code_brain.py to code_autonomy",
+      "classification": "APPROVED_EXECUTOR_BOUNDARY"
+    },
+    {
+      "component": "action_bridge planner to executor",
+      "classification": "FAIL_CLOSED_APPROVED_EXECUTOR_BOUNDARY"
+    }
+  ],
+  "violations_detected": [
+    {
+      "source": "controlled fixture",
+      "capability": "shell_execute",
+      "symbols": [
+        "subprocess",
+        "subprocess.run"
+      ]
+    },
+    {
+      "source": "controlled fixture",
+      "capability": "executor_handle",
+      "symbols": [
+        "argument:executor",
+        "importlib.import_module(action_bridge.executor)"
+      ]
+    }
+  ],
+  "classifications_corrected": [
+    {
+      "path": "_ops/cortex/code_brain.py",
+      "before": "provider_adapter",
+      "after": "approved_executor",
+      "reason": "The module directly calls code_autonomy policy and execution functions."
+    },
+    {
+      "symbol": "os.environ.get(SYNTHESIS_MAX_TOKENS)",
+      "before": "credential_access",
+      "after": "non_credential_configuration",
+      "reason": "A generation token-count setting is not authentication material."
+    }
+  ],
+  "violations_fixed_in_production": [],
+  "tests_before": [
+    {
+      "command": "python -X utf8 _ops/tests/test_cognition_authority_denylist.py",
+      "result": "8/10",
+      "exit_code": 1,
+      "output_sha256": "e96c80eaa855506b6b87f3fce1981a4235e24b302af2daceda0f73cf6ef7921b"
+    }
+  ],
+  "tests_after": [
+    {
+      "command": "python -X utf8 _ops/tests/test_cognition_authority_denylist.py",
+      "result": "11/11",
+      "exit_code": 0,
+      "output_sha256": "3a4ffcdf50ecf2f0c0aac8438e09c4d9c428d336ffda4fb4e647575fc6296b3c"
+    },
+    {
+      "command": "python -X utf8 _ops/tests/run_all.py --only test_cognition_authority_denylist.py",
+      "result": "1/1 registered suite",
+      "exit_code": 0,
+      "output_sha256": "c7aeae2fd4b5d34a469759c16b2be7938934a4ed20d9edb9c09147c4e614b0d7"
+    },
+    {
+      "command": "python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_executable_allowlist.py",
+      "result": "2 passed",
+      "exit_code": 0,
+      "output_sha256": "3e049d65a7979901c11a6a752fa902492756720adcecb075632c6e65b3239a06"
+    },
+    {
+      "command": "python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_provider_router.py",
+      "result": "10 passed",
+      "exit_code": 0,
+      "output_sha256": "d1dd88f3dfd5718e9618f332c8aadc788c14ea4559351b91344dbf5a0c8daf16"
+    },
+    {
+      "command": "python -X utf8 _ops/action_bridge/tests/test_flow.py",
+      "result": "25/25",
+      "exit_code": 0,
+      "output_sha256": "b19534ef940705a69f8db9ae1446ffa321b0573b59b4cb021e768f0c4fdf6cba"
+    },
+    {
+      "command": "python -X utf8 _ops/cognition/tests/test_g10_cognition.py",
+      "result": "95/95",
+      "exit_code": 0,
+      "output_sha256": "0bc570f015d3d5654d5be033572fadb899b53755b8a78cf972d0a643ad503203"
+    }
+  ],
+  "preexisting_test_failures": [
+    {
+      "command": "python -X utf8 _ops/tests/test_llm_call_inventory.py",
+      "result": "5/6",
+      "reason": "stale caller inventory plus an unfenced lab gateway outside this surgery",
+      "output_sha256": "29c5e09205b165f5f33a456fd6c190763276dde81e6c5957246085eee617c68b"
+    },
+    {
+      "command": "python -X utf8 _ops/tests/test_cortex.py",
+      "result": "6/16",
+      "reason": "test harness path order resolves cortex/__init__.py rather than cortex.py",
+      "output_sha256": "954814f44a2ce12bb6b1ed5c8d2dc8d6a6325595a26d4f1820e54bbff536b5"
+    }
+  ],
+  "full_suite": {
+    "status": "BLOCKED_NON_HERMETIC",
+    "reason": "The official 820-suite runner contains an intentional live provider test and runtime-like state writes."
+  },
+  "secret_scan": {
+    "status": "PASS",
+    "matches": 0,
+    "scope": "surgery policy, test and documentation",
+    "values_read": 0
+  },
+  "external_calls": 0,
+  "runtime_restarts": 0,
+  "deployments": 0,
+  "pushes": 0,
+  "owner_gates_modified": 0,
+  "test_residue_rollback": [
+    "_ops/state/cortex/cost-receipts.jsonl restored from HEAD",
+    "_ops/state/loops/execution-manifest.jsonl restored from HEAD"
+  ],
+  "rollback": "git revert <commit_after_reported_in_final>",
+  "resulting_manifest_sha256": "reported_out_of_band_after_receipt_to_keep_the_hash_chain_acyclic",
+  "generated_at_utc": "2026-08-30T07:17:00Z"
+}

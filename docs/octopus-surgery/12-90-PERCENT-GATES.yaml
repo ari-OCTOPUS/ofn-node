@@ -1,0 +1,51 @@
+schema: octopus.90-percent-gates.v1
+node_id: octopus-continuity-180
+scope: this_host_only
+generated_at_utc: "2026-08-30T08:58:00Z"
+branch: surgery/cognition-authority-denylist-20260830-170620
+implementation_head: b394b999b43ab12573ad574f33a5621a57c66686
+campaign_status: LOCAL_CAMPAIGN_COMPLETE_PUBLICATION_BLOCKED
+hermetic_full_suite: HERMETIC_BOUNDARY_VIOLATION
+caps:
+  no_valid_baseline: 30
+  no_cognition_executor_separation: 40
+  no_owner_governance: 50
+  no_real_grounding: 60
+  no_independent_verifier_and_restore: 75
+active_cap: 50
+active_cap_reason: "owner signing, D1 and D7 remain closed; real sensor and restore drill absent"
+gates:
+  runtime_baseline:
+    status: PARTIAL
+    note: "OWNER-09 executed 827 hermetic suites: 770 passed, 57 failed, 1 live skipped"
+  cognition_executor_separation:
+    status: VERIFIED_IN_SCOPE
+    note: "AST guard 11/11; cortex/provider SAFE_INFERENCE_BOUNDARY"
+  lab_gateway_fence:
+    status: VERIFIED
+    note: "ISOLATED_LAB_ONLY; inventory 8/8"
+  hermetic_runner:
+    status: PARTIAL
+    note: "child env redirect held; tracked _ops/state and 06-EVIDENCE were still mutated"
+  observatory_provenance:
+    status: NOT_FOUND_IN_CURRENT_LINEAGE
+  observation_v1:
+    status: REPLAY_SAFE_FOUNDATION
+    real_sensor: false
+  owner_signing:
+    status: BLOCKED
+  d1:
+    status: NOT_STARTED
+  d7:
+    status: UNAUTHORIZED
+  restore_drill:
+    status: NOT_RUN
+  github_publish:
+    status: BLOCKED_PUBLIC_UNRELATED_HISTORY
+completion:
+  CODE_COMPLETION: "63% ± 7%"
+  EVIDENCE_COMPLETION: "60% ± 8%"
+  OPERATIONAL_COMPLETION: "30% ± 9%"
+  OVERALL: "45% ± 8%"
+  campaign_start_overall: "39% ± 7%"
+ready_for_90_percent: false
