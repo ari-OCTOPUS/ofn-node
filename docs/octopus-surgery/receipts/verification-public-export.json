@@ -9,10 +9,19 @@
   "pr_number": 6,
   "pr_head_sha_reported_externally": true,
   "pr_url": "https://github.com/ari-OCTOPUS/ofn-node/pull/6",
+  "owner_confirm_recorded": "OWNER-CONFIRM: reviewed PR 6 at 33ed8020c0ddc795074f08d6d698cd0c69233f3d; focused CI passed 4/4 on this exact SHA; merge remains unauthorized",
+  "owner_confirm_reviewed_head": "33ed8020c0ddc795074f08d6d698cd0c69233f3d",
+  "contract_hardening": {
+    "simulation_typing": "literal-bool-only",
+    "immutability": "deep-freeze-after-construction",
+    "canonical_serialization": "validate-then-sorted-json-including-extra",
+    "quality_flags": "list-of-nonempty-strings-first-seen-dedupe",
+    "observation_id": "canonical-uuid-string"
+  },
   "superseded_pr": 5,
   "superseded_pr_state": "CLOSED_SUPERSEDED",
   "focused_tests": {
-    "tests/test_observation_v1_foundation.py": "15/15",
+    "tests/test_observation_v1_foundation.py": "44/44",
     "live_provider": false
   },
   "differential_tests": {

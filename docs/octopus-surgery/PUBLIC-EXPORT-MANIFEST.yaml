@@ -9,7 +9,7 @@ files:
   - source_path: _ops/observatory/observation_record.py
     source_sha256: fbf668d7a964b9b607178f9fada604f63c8b7342c62f5ab383a8e79a93255881
     target_path: octopus_observation/observation_record.py
-    target_sha256: 2565d4b393a4c25f01493fcd08f91b813f6a8c8e9d3827919493d09f58470254
+    target_sha256: 79548142059fc335796f8b1a48dab179af222572e81798033345a954d33220b7
     transformation: ADAPT_TO_GITHUB_LINEAGE
     verification:
       focused_test: PASS
@@ -29,7 +29,7 @@ files:
   - source_path: _ops/tests/test_observation_v1_foundation.py
     source_sha256: 0d1398139ea123552d87d437bff44257867b206930fa8c1dc730d0ecd0fbc8fd
     target_path: tests/test_observation_v1_foundation.py
-    target_sha256: 3ca08caafb68bd45a395ec177d4b5203bfd6af4751390172b8f30bf061688bde
+    target_sha256: d1804457fc5aa31f16898081b4ad0111991c5a9c5ae4cd5a6199f1ab8b79abcd
     transformation: ADAPT_TO_GITHUB_LINEAGE
     verification:
       focused_test: PASS
