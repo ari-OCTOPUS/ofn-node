@@ -1,0 +1,228 @@
+schema: octopus.reality-manifest.v1
+claim_envelope:
+  node_id: octopus-continuity-180
+  asserted_ip: <redacted-private-ip>
+  vantage: cursor-this-host-only
+  scope: this_host_only
+  claim_type: observation
+  evidence: "commands and receipts at commit 2a718aaa96235fcf5aa5219d25eba4a9b314eed5"
+
+repo_root_selected: "<vault-root>"
+repo_root_isolated: "<isolated-surgery-worktree>"
+git_dir: "<vault-root>/.git/worktrees/octopus-reality-20260830-160703"
+parent_manifest_sha256: e09ee5dc550d0191a73571b8881d90192a892a6895c7133beea9f684f2cbe34c
+previous_manifest_sha256: 9ae5cb026289887ba9acad17061fe7bab3dcdd7e6a04591955c46dacfa2c8d93
+manifest_ancestors:
+  - b7f6a38aeb33cf503b059a6c24b7d1de9b48914089ca5749e86f8a0b1e9fb017
+branch_before: rescue/octopus-live-tree-20260821
+branch_surgery: surgery/cognition-authority-denylist-20260830-170620
+head_before: 2a718aaa96235fcf5aa5219d25eba4a9b314eed5
+head_after: "reported out-of-band after commit; embedding a commit's own hash is self-referential"
+remote_names: [germline, github]
+germline_fetch: "<germline-remote>"
+germline_push: "<germline-remote>"
+github_fetch: "https://github.com/ari-OCTOPUS/ofn-node.git"
+github_push_status: LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN
+working_tree_initial:
+  state: DIRTY_PREEXISTING_UNKNOWN
+  porcelain_entries: 136
+  policy: "never reset, stash, checkout, delete, overwrite or incorporate"
+working_tree_isolated_before: CLEAN
+python_version: "Python 3.13.7"
+
+test_commands:
+  - "cd '03 - Projects/NBB-Control-Plane'; python -m pytest --collect-only -q -o addopts= -p no:cacheprovider"
+  - "cd '03 - Projects/NBB-Control-Plane'; python -m pytest -q -o addopts= -p no:cacheprovider"
+  - "python -X utf8 _ops/action_bridge/tests/test_claimed_fixture.py"
+  - "python -X utf8 _ops/action_bridge/tests/test_classifier.py"
+  - "python -X utf8 _ops/action_bridge/tests/test_flow.py"
+  - "python -X utf8 _ops/action_bridge/tests/test_scope_guard.py"
+  - "python -X utf8 _ops/cognition/tests/test_g10_cognition.py"
+  - "python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_shadow_homeostasis_arch.py _ops/tests/test_shadow_homeostasis_core.py _ops/tests/test_shadow_homeostasis_replay.py _ops/tests/test_shadow_homeostasis_trust.py"
+  - "python -X utf8 _ops/observatory/envelope.py"
+  - "python -X utf8 _ops/observatory/evidence_parser.py"
+  - "python -X utf8 _ops/observatory/allowlist_loader.py"
+  - "python -X utf8 _ops/tests/test_cognition_authority_denylist.py"
+  - "python -X utf8 _ops/tests/run_all.py --only test_cognition_authority_denylist.py"
+  - "python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_executable_allowlist.py"
+  - "python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_provider_router.py"
+  - "python -X utf8 _ops/tests/test_llm_call_inventory.py"
+  - "python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_full_loop_flash_stage_a.py"
+  - "python -X utf8 _ops/tests/test_run_all_hermetic.py"
+  - "python -X utf8 _ops/tests/run_all.py --only test_run_all_hermetic.py"
+  - "python -X utf8 _ops/tests/test_run_all_scoring.py"
+  - "python -X utf8 _ops/tests/test_cortex.py"
+
+test_results:
+  nbb:
+    collected: 189
+    passed: 189
+    failed: 0
+    skipped: 0
+    warnings: 1
+    output_sha256: a2c282c0737ea2fe45fa61ae5b0a8e219c99e9701c2b4d3ec01863b91bb17e54
+  action_bridge:
+    checks_passed: 66
+    checks_failed: 0
+  cognition:
+    checks_passed: 95
+    checks_failed: 0
+    output_sha256: 0bc570f015d3d5654d5be033572fadb899b53755b8a78cf972d0a643ad503203
+  shadow_homeostasis:
+    passed: 18
+    failed: 0
+    output_sha256: 9ad7e1d3cca4ed7f36df2cfa37654d8f7967a8face671080f5c61c9d47db544e
+  observatory_smoke:
+    scripts_passed: 3
+    scripts_failed: 0
+  cognition_authority_surgery:
+    direct_checks_passed: 11
+    direct_checks_failed: 0
+    detector_fixture_capabilities: [shell_execute, executor_handle, dynamic_import]
+    direct_output_sha256: 3a4ffcdf50ecf2f0c0aac8438e09c4d9c428d336ffda4fb4e647575fc6296b3c
+    registered_suite_passed: 1
+    registered_output_sha256: c7aeae2fd4b5d34a469759c16b2be7938934a4ed20d9edb9c09147c4e614b0d7
+    outcome: TEST_ONLY_GUARD
+  llm_inventory_lab_gateway_surgery:
+    inventory_before: "5/6"
+    inventory_after: "8/8"
+    inventory_output_sha256: 99d579bfc67c79c7a34b1d58337d40250ab26758cb5a889b39aa6baf1c87c3ee
+    gateway_tests_passed: 11
+    gateway_output_sha256: 02694afe35563b2f6e3fdf000d7bd16fdd1fd2181733058cad9d3e73bee264f2
+    classification: ISOLATED_LAB_ONLY
+    production_importers: 0
+    provider_calls: 0
+  hermetic_runner_surgery:
+    boundary_checks_passed: 7
+    registered_suite_passed: 1
+    scoring_tests_passed: 14
+    cortex_before: "6/16"
+    cortex_after: "16/16"
+    live_provider_suite_default: EXPECTED_BLOCK
+    registered_tests: 823
+    extra_tests: 5
+    hermetic_default_candidates: 827
+    full_default_execution: HERMETIC_BOUNDARY_VIOLATION
+    owner_09:
+      executed: 827
+      passed: 770
+      failed: 57
+      live_skipped: 1
+      exit_code: 1
+      duration_s: 1459
+      start_utc: "2026-08-30T09:29:42Z"
+      end_utc: "2026-08-30T09:54:01Z"
+      head_at_run: 470bb6031f1e51c9a8e6e1f1536c349e22a5200e
+      scoring_repair: d6eeadd40d867bdc082dbc287c48e24be280a335
+      full_suite_rerun_after_repair: false
+      receipt_sha256: 4b9470815629583676e37d34338aeee80f2b3aa8e0686e962166e67b4cc9750d
+      log_sha256: d09cb444ef40230098672a4758e3a4b3ef27ddad8616f9324ac2d2f3422390af
+  observation_v1_foundation_surgery:
+    outcome: REPLAY_SAFE_FOUNDATION
+    foundation_checks_passed: 15
+    registered_suite_passed: 1
+    real_sensor_connected: false
+    architecture_guard: "11/11"
+    inventory: "8/8"
+    hermetic_boundary: "7/7"
+    test_log_sha256: 4e3f45f153f149f745c96a3c90a72d096dbab6c84e6f56fe3f72b019c96a33f6
+    receipt_sha256: c7cd3103d09f84ac24e7f05dfc07ad6d338235ce0b2f772d147058013deeb0d1
+  observatory_provenance_surgery:
+    status: NOT_FOUND_IN_CURRENT_LINEAGE
+    classification: body_not_on_this_host
+    receipt_sha256: a23a780af5bb861591a7daf0f0596b1c6c135c80934ccb29960ab2a6494f5713
+    files_copied_from_old_lineage: 0
+    octopus_brier: NOT_REPRODUCED
+    persistence_brier: NOT_REPRODUCED
+    resolved_sample_count: NOT_REPRODUCIBLE
+  full_root_suite:
+    status: BLOCKED
+    reason: "official runner writes manifest/capability state and intentionally includes a live provider test"
+
+verified_claims:
+  - "repository identity and germline remote"
+  - "observation.v1 symbol exists"
+  - "D1 not started and D7 not authorized in current tracked truth artifacts"
+  - "action_bridge narrow fail-closed behavior"
+  - "narrow cognition/planner/world-model set has no authority-bearing handle in policy scope and is guarded by AST"
+  - "broader cortex to provider is SAFE_INFERENCE_BOUNDARY"
+  - "code_brain to code_autonomy is APPROVED_EXECUTOR_BOUNDARY"
+  - "lab full-loop gateway is ISOLATED_LAB_ONLY and defaults to deny"
+  - "default runner redirects state/artifacts and blocks external network"
+  - "cortex test imports the intended module explicitly and passes 16/16"
+contradicted_claims:
+  - "observation.v1 is wholly absent"
+  - "27/27 denotes 27 independent verifier identities"
+partial_claims:
+  - "broad cognition has no executor handle; executor components coexist under cortex but are now explicitly classified"
+  - "all external action is propose-only"
+not_found_claims:
+  - "run_observatory.py at current HEAD"
+  - "bayesian_strategy.py at current HEAD"
+  - "verify_live_store.py at current HEAD"
+  - "77/200 checklist evidence"
+blocked_claims:
+  - "current live process identity"
+  - "current independent Brier score and confidence interval"
+  - "production-like restore"
+  - "GitHub publish: local vault and github/main have no merge base"
+
+artifacts:
+  - {path: "_ops/tests/architecture/cognition_authority_policy.yaml", sha256: "21fba7b2d545f162750da8b0ae6c6a2ecbaabca92fbac6de8f25c5e32861a897", state: surgery}
+  - {path: "_ops/tests/test_cognition_authority_denylist.py", sha256: "a16a2730c5fdd9b53eba43e9efa49dfdc86c98096464ecad062b9d5db9616185", state: surgery}
+  - {path: "_ops/tests/run_all.py", sha256: "c733426babf49117f6d79df650cd95b784c9a58646f4235f709f50c47a0007c1", state: surgery_3}
+  - {path: "_ops/tests/test_run_all_hermetic.py", sha256: "74259729132f9624b36ada70e8b222bdcddfa1fcd3ab7c7a8616c403a4637c74", state: surgery_3}
+  - {path: "_ops/tests/test_cortex.py", sha256: "e74744c248259a468b4c69c0da37dfb359ad86f1c8a42adedaedd92de2e8de05", state: surgery_3}
+  - {path: "_ops/lab/full_loop_flash/gateway.py", sha256: "322b38a00f4e89cdeda8d8b13adfdcd26e66e5233d72ed1fd54b5a20a0b3c664", state: surgery_2}
+  - {path: "_ops/lab/full_loop_flash/stages.py", sha256: "668306fa03cf01c11219eeaf46b6cbeab7114ea4854e6263b2999a48d40cfcde", state: surgery_2}
+  - {path: "_ops/tests/test_full_loop_flash_stage_a.py", sha256: "0267f6e02cb8440466895406219c7db9dfe1fc3f1e186cc4eec59ddad0aae698", state: surgery_2}
+  - {path: "_ops/tests/test_llm_call_inventory.py", sha256: "e35360f10b0ba65d1c5c527348867d4d6bf6bc1c214869bcbd1160f16b239014", state: surgery_2}
+  - {path: "docs/octopus-surgery/00-CONCEPT-MAP.md", sha256: "a71e55432389924b2c56dbc1a382d817c01e7f02baacf4b57a533853af01f762", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/01-DISTANCE-TO-90.md", sha256: "01f0d2618a11cb25a626af64bb07ffc3793c6ae9b37a089d4a57dfa98ce5f82d", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/02-AGENT-CONTRACT.md", sha256: "22f371b2c8ee240a55050db28defafed6f52eeb46aaa33572ccfaea952c1ed66", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/03-NEXT-SPRINT.md", sha256: "36d849ecb4a4a94247d9715c4c6947003cf9217161fcd2099f4c4614891c2e59", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/04-SELF-MODEL-SPEC.md", sha256: "9558a5536fbc302c499869cc84f963ddf6c4ea340c25482f63462effa3b47ad4", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/05-EVIDENCE-PROTOCOL.md", sha256: "83d187f94cd458121ee10a8acb197f5f0db722a015224cd224335b6a175e9cb2", state: untracked_draft}
+  - {path: "docs/octopus-surgery/07-TRACEABILITY-MATRIX.csv", sha256: "93f6cbfc77f919d6cc767e02feb614f813cc44392283e716ad7cda7317f8c9d4", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/08-RISK-REGISTER.md", sha256: "f4a42a099ba57157803ce2a0ab1ccaf92f90e18f64353bcf35f1a4b524752f15", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/INDEX.md", sha256: "5e531d8ca71d03774ce9034bfddf8e681782c5d8d32a3c8665fd9c513500564c", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/CHECKPOINT.md", sha256: "fb4bea1ef51fa3f8952292706049f97516ea8aba8e9853b8ad1c8b55a6b9a6d2", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/HANDOFF.md", sha256: "9273d648c0f4ddfb2cf453ec0438f746571148214fb3823d4e8394777297fdf8", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/CHANGELOG.md", sha256: "2cf3b0cd22d6dafe7a4eeb72e95757d94d346db00c51d6994fc7e124a4f84e45", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/DECISIONS.md", sha256: "45849324e22f0a96849a125ac63b4b33fea2ff21b0759a6c96ab7f748e361f0c", state: surgery_documentation}
+  - {path: "docs/octopus-surgery/receipts/BASELINE-20260830T064824Z.json", sha256: "3f5ca567fed334373a193c4369d752f4c1b7ec8e8c5c947ef23cdcdfc5466c9b", state: untracked_draft}
+  - {path: "docs/octopus-surgery/receipts/COGNITION-AUTHORITY-TESTS-20260830T071344Z.log", sha256: "8595bd240f2b45477d394ba0f1486421f33851f7da6b58a72a93b91be6801ef3", state: surgery_test_log}
+  - {path: "docs/octopus-surgery/receipts/GAP-PROBE-20260830T064840Z.json", sha256: "073990aa8820996fa02ab78b63d9a56823a748871fedc7b124ab479725c82c8f", state: untracked_draft}
+  - {path: "docs/octopus-surgery/receipts/SURGERY-COGNITION-AUTHORITY-DENYLIST-20260830T071700Z.json", sha256: "59785c8f5f3d856d07f637386156fe0bc5753df3cc78370e269861d8c22af8a2", state: surgery_receipt}
+  - {path: "docs/octopus-surgery/receipts/LLM-INVENTORY-LAB-GATEWAY-20260830T074618Z.log", sha256: "259594d356df5059c3822271175361243098eb3141d6a1f05ae018f369fc390f", state: surgery_2_test_log}
+  - {path: "docs/octopus-surgery/receipts/SURGERY-LLM-INVENTORY-LAB-GATEWAY-20260830T074700Z.json", sha256: "fb3bbcd423e6cfc56132756699bcade58abb950e1d988813da7586a72bf412d8", state: surgery_2_receipt}
+  - {path: "docs/octopus-surgery/receipts/HERMETIC-RUNNER-20260830T075600Z.log", sha256: "2cd7f12d0c40ee8f8f7a1c5300048afb0df07c1803b13f693e64c33d1cb5f933", state: surgery_3_test_log}
+  - {path: "docs/octopus-surgery/receipts/SURGERY-HERMETIC-RUNNER-20260830T075700Z.json", sha256: "2e3c8eab3bc102dd7afff4e3b9822099f1b02dc952da3e4e58c41ed7f7b3e6b5", state: surgery_3_receipt}
+  - {path: "docs/octopus-surgery/receipts/OBSERVATORY-PROVENANCE-GAP-20260830T080500Z.json", sha256: "a23a780af5bb861591a7daf0f0596b1c6c135c80934ccb29960ab2a6494f5713", state: surgery_4_gap_receipt}
+  - {path: "_ops/observatory/observation_record.py", sha256: "fbf668d7a964b9b607178f9fada604f63c8b7342c62f5ab383a8e79a93255881", state: surgery_5}
+  - {path: "_ops/observatory/replay_adapters.py", sha256: "3b55602cc91eace00660e6f595ae432ab3ed46b76decb06b5b9b44079fcd4fef", state: surgery_5}
+  - {path: "_ops/tests/test_observation_v1_foundation.py", sha256: "0d1398139ea123552d87d437bff44257867b206930fa8c1dc730d0ecd0fbc8fd", state: surgery_5}
+  - {path: "docs/octopus-surgery/receipts/OBSERVATION-V1-FOUNDATION-20260830T081800Z.log", sha256: "4e3f45f153f149f745c96a3c90a72d096dbab6c84e6f56fe3f72b019c96a33f6", state: surgery_5_test_log}
+  - {path: "docs/octopus-surgery/receipts/SURGERY-OBSERVATION-V1-FOUNDATION-20260830T081900Z.json", sha256: "c7cd3103d09f84ac24e7f05dfc07ad6d338235ce0b2f772d147058013deeb0d1", state: surgery_5_receipt}
+  - {path: "docs/octopus-surgery/06-REALITY-MANIFEST.yaml", sha256: null, state: self_hash_reported_externally}
+limitations:
+  - "eth0 was not present by that interface name; asserted node identity remains unverified, not contradicted"
+  - "external APIs, LAN probes and private material were not accessed"
+  - "runtime projections and historical prose were not promoted to system-wide truth"
+  - "OWNER-09 executed 827 hermetic suites and recorded HERMETIC_BOUNDARY_VIOLATION; do not report 826"
+  - "local vault branch publication remains LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN; selective public export is PR 6"
+generated_at_utc: "2026-08-30T08:17:00Z"
+github:
+  local_vault_branch_publication: FORBIDDEN
+  selective_export:
+    pr_number: 6
+    state: OPEN
+    base_sha: c1969bce5384f3371b916470299c991627c3d63c
+    head_sha_external: true
+    focused_ci: PASS
+    checks_passed: 4
+    required_checks_configured: 0
+    merge: NOT_AUTHORIZED
+    deploy: NOT_AUTHORIZED
+    ci_last_observed_before_docs_commit: PASS
+    public_export_regressions: 0
