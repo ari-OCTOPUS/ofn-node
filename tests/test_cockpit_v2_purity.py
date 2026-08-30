@@ -30,7 +30,9 @@ LEGACY_PANEL_SHA256 = (
 
 class TestLegacyPanelPreserved(unittest.TestCase):
     def test_legacy_panel_exact_bytes_are_unchanged(self):
-        raw = PANEL.read_bytes()
+        # A Windows checkout converts the worktree file to CRLF; the frozen
+        # contract is the LF blob, so compare against the LF normalisation.
+        raw = PANEL.read_bytes().replace(b"\r\n", b"\n")
         self.assertEqual(len(raw), LEGACY_PANEL_BYTES)
         self.assertEqual(hashlib.sha256(raw).hexdigest(), LEGACY_PANEL_SHA256)
 
