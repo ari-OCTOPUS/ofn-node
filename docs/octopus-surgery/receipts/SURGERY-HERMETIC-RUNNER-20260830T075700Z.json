@@ -1,0 +1,89 @@
+{
+  "schema": "octopus.surgery-receipt.v1",
+  "surgery_id": "hermetic-test-runner",
+  "node_id": "octopus-continuity-180",
+  "scope": "this_host_only",
+  "outcome": "HERMETIC_DEFAULT_BOUNDARY_ENFORCED",
+  "branch": "surgery/cognition-authority-denylist-20260830-170620",
+  "commit_before": "ba717a277a355cf81a52ca8c848f4cc7b0b22522",
+  "commit_after": "reported_out_of_band_after_commit",
+  "parent_manifest_sha256": "9ae5cb026289887ba9acad17061fe7bab3dcdd7e6a04591955c46dacfa2c8d93",
+  "files_changed": [
+    {
+      "path": "_ops/tests/run_all.py",
+      "sha256": "c733426babf49117f6d79df650cd95b784c9a58646f4235f709f50c47a0007c1"
+    },
+    {
+      "path": "_ops/tests/test_run_all_hermetic.py",
+      "sha256": "74259729132f9624b36ada70e8b222bdcddfa1fcd3ab7c7a8616c403a4637c74"
+    },
+    {
+      "path": "_ops/tests/test_cortex.py",
+      "sha256": "e74744c248259a468b4c69c0da37dfb359ad86f1c8a42adedaedd92de2e8de05"
+    }
+  ],
+  "test_log": {
+    "path": "docs/octopus-surgery/receipts/HERMETIC-RUNNER-20260830T075600Z.log",
+    "sha256": "2cd7f12d0c40ee8f8f7a1c5300048afb0df07c1803b13f693e64c33d1cb5f933"
+  },
+  "controls": {
+    "network_default": "loopback-only",
+    "live_suite": "test_llm_routing_smoke.py",
+    "live_admission": "--live plus OCTOPUS_ALLOW_LIVE_TESTS=1",
+    "provider_credentials_in_default_child_env": 0,
+    "sender_credentials_in_default_child_env": 0,
+    "outbound_flags": "forced off",
+    "state_root": "per-run temporary directory",
+    "manifest_root": "per-run temporary directory",
+    "capability_marker_default": "untouched"
+  },
+  "inventory": {
+    "registered_tests": 822,
+    "extra_tests": 5,
+    "hermetic_default_candidates": 826,
+    "live_tests_excluded": 1
+  },
+  "tests": [
+    {
+      "command": "python -X utf8 _ops/tests/test_run_all_hermetic.py",
+      "result": "7/7",
+      "output_sha256": "fb386e45d5b8976a93f6e8a55f44cbb0a351f07d1b9467d2017a54bcbba8adf0"
+    },
+    {
+      "command": "python -X utf8 _ops/tests/run_all.py --only test_run_all_hermetic.py",
+      "result": "1/1 registered; 7/7 inner checks",
+      "output_sha256": "52b9490809a9784161ed43c8ed0a06a4afeab1d3bf40522636aad18058b3e3d3"
+    },
+    {
+      "command": "python -X utf8 _ops/tests/test_run_all_scoring.py",
+      "result": "14 passed",
+      "output_sha256": "14ad8c41a8b3fc6fd3927451728e158c9a39b41c35bea5f76ba3d82e83d7fefd"
+    },
+    {
+      "command": "python -X utf8 _ops/tests/test_cortex.py",
+      "before": "6/16",
+      "after": "16/16",
+      "output_sha256": "ea590229ba010858ec125595880d42716ef7294906a66c2af9644686ca8e691b"
+    },
+    {
+      "command": "python -X utf8 _ops/tests/run_all.py --only test_llm_routing_smoke.py",
+      "result": "EXPECTED_BLOCK",
+      "raw_exit_code": 2,
+      "output_sha256": "2655da194de4ea00fce1dc111b2d29ebe4ea35839769ceed164a8b8c3c793b51"
+    }
+  ],
+  "full_default_execution": {
+    "status": "NOT_RUN",
+    "reason": "826 suites require a separate long-running evaluation; focused boundary and mutation tests passed."
+  },
+  "provider_calls": 0,
+  "external_effects": 0,
+  "runtime_restarts": 0,
+  "service_control": 0,
+  "deployments": 0,
+  "secret_values_read": 0,
+  "tracked_test_residue": 0,
+  "github_publish": "BLOCKED_UNRELATED_HISTORY",
+  "rollback": "revert the single hermetic-runner commit",
+  "generated_at_utc": "2026-08-30T07:57:00Z"
+}

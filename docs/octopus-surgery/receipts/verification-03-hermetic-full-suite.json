@@ -1,0 +1,118 @@
+{
+  "schema": "octopus.verification-receipt.v1",
+  "verification_id": "verification-03-hermetic-full-suite",
+  "node_id": "octopus-continuity-180",
+  "asserted_ip": "<redacted-private-ip>",
+  "vantage": "isolated-worktree",
+  "scope": "this_host_only",
+  "final_status": "HERMETIC_BOUNDARY_VIOLATION",
+  "also_partial": true,
+  "branch": "surgery/cognition-authority-denylist-20260830-170620",
+  "head_before": "470bb6031f1e51c9a8e6e1f1536c349e22a5200e",
+  "head_after_repair": "d6eeadd40d867bdc082dbc287c48e24be280a335",
+  "command": "python -X utf8 _ops/tests/run_all.py",
+  "flags_used": [],
+  "live_flag": false,
+  "provider_flag": false,
+  "python_version": "Python 3.13.7",
+  "start_utc": "2026-08-30T09:29:42Z",
+  "end_utc": "2026-08-30T09:54:01Z",
+  "duration_s": 1459,
+  "exit_code": 1,
+  "preflight": {
+    "worktree_clean": true,
+    "persist_runner_state": false,
+    "net_guard": "loopback-only",
+    "live_only_without_live_flag_exit": 2,
+    "excluded_live_suites": ["test_llm_routing_smoke.py"],
+    "runner_has_no_owner_key_or_restart_or_hardware_tokens": true
+  },
+  "inventory": {
+    "registered_tests": 823,
+    "extra_tests": 5,
+    "live_excluded": 1,
+    "hermetic_candidates": 827,
+    "timed_out": 0
+  },
+  "counts": {
+    "discovered_or_registered": 828,
+    "hermetic_executed": 827,
+    "passed_suites": 770,
+    "failed_suites": 57,
+    "skipped_live": 1,
+    "blocked": 0,
+    "timed_out": 0
+  },
+  "sanitized_log": {
+    "path": "docs/octopus-surgery/receipts/HERMETIC-FULL-SUITE-20260830T092942Z.sanitized.log",
+    "sha256": "d09cb444ef40230098672a4758e3a4b3ef27ddad8616f9324ac2d2f3422390af",
+    "raw_utf8_sha256": "08d8ec8373b56023abcfd8d680eb70fcf74da212b68c6726d1b5bb5c008e1e7b",
+    "note": "Runner wrote UTF-8. Stored log redacts local filesystem prefixes."
+  },
+  "network_observation": {
+    "external_network_error_count_in_log": 0,
+    "child_net_guard": "loopback-only",
+    "packet_capture": "NOT_RUN",
+    "note": "No ExternalNetworkError strings. One assertion mentioned local model qwen2.5:1.5b; loopback was allowed. Not treated as a proven external provider call."
+  },
+  "capability_marker": "untouched",
+  "residue_before_restore": [
+    "06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/LOOP-CALL-GRAPH.json",
+    "06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/LOOP-REGISTRY.jsonl",
+    "06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/PASS1-SUMMARY.json",
+    "06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/PASS2-SHADOW.json",
+    "06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/missions.copy.bak",
+    "_ops/budget/organ-gate-log.jsonl",
+    "_ops/state/channel-status.json",
+    "_ops/state/cortex/cost-receipts.jsonl",
+    "_ops/state/cortex/reservation-receipts.jsonl",
+    "_ops/state/loops/AGI-LOOP-REGISTRY.jsonl",
+    "_ops/state/school-awareness.json",
+    "_ops/state/synapse-trail.jsonl"
+  ],
+  "residue_restore": {
+    "method": "git checkout -- <12 tracked residue paths>",
+    "after_restore_working_tree": "clean except later campaign docs/repair"
+  },
+  "boundary_violation": {
+    "kind": "repo_runtime_and_evidence_writes_despite_temp_runner_root",
+    "why_not_partial_only": "hermetic default redirected OCTOPUS_STATE_* to temp, but suites still mutated tracked _ops/state, _ops/budget and 06-EVIDENCE paths"
+  },
+  "campaign_focused_suites_in_this_run": {
+    "test_cognition_authority_denylist.py": "11/11",
+    "test_llm_call_inventory.py": "8/8",
+    "test_run_all_hermetic.py": "7/7",
+    "test_observation_v1_foundation.py": "15/15",
+    "test_run_all_scoring.py": "FAILED CAMPAIGN_REGRESSION during recorded run"
+  },
+  "repairs_after_run": [
+    {
+      "suite": "test_run_all_scoring.py",
+      "class": "CAMPAIGN_REGRESSION",
+      "first_failing_commit": "09dc566254b645e5a7e0ae288f94c4bf2d3ec690",
+      "root_cause": "hermetic child env leaked isolation-boot PYTHONPATH and net-guard into nested scoring e2e, leaving capability witness empty",
+      "fix_commit": "d6eeadd40d867bdc082dbc287c48e24be280a335",
+      "verification": "14/14 standalone; 14/14 under simulated hermetic parent; run_all --only scoring exit 0; hermetic suite 7/7",
+      "full_suite_rerun_after_repair": false
+    }
+  ],
+  "pyyaml": {
+    "test_budgets_resilience_config.py": "not in failed list; PyYAML is present on this host",
+    "added_dependency": false
+  },
+  "class_counts_at_recorded_run": {
+    "CAMPAIGN_REGRESSION": 1,
+    "PRE_EXISTING_FAILURE": 36,
+    "MISSING_DEPENDENCY": 10,
+    "HARNESS_FAILURE": 2,
+    "NON_HERMETIC_BEHAVIOR": 0,
+    "ENVIRONMENT_MISMATCH": 2,
+    "EXPECTED_FAIL_CLOSED": 2,
+    "UNKNOWN": 0
+  },
+  "class_counts_note": "NON_HERMETIC_BEHAVIOR is recorded at run level (12 tracked files). After d6eeadd, scoring is repaired; remaining 56 failures were not re-collected by a second 827-suite run.",
+  "push": false,
+  "merge": false,
+  "deploy": false,
+  "generated_at_utc": "2026-08-30T09:56:00Z"
+}
