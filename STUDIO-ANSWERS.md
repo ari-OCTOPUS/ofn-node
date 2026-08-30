@@ -1,6 +1,6 @@
 # پاسخ به سه سؤال ایجنت + یک تصحیح از من
 
-> ۲۰۲۶-۰۸-۰۴ · ادامهٔ `MEGAPROMPT-STUDIO.md`
+> ۲۰۲۶-۰۸-۰۴ · ادامهٔ `docs/agent-context/archived/MEGAPROMPT-STUDIO.md`
 > ST‑1 و ST‑2 بسته · ۷۹۷ تست · این سند ST‑3 و ST‑4 را باز می‌کند
 
 ---

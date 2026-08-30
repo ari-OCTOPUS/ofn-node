@@ -157,8 +157,8 @@ cd ~/hypno-fugu-mini && python3 -m pytest -q
 # فایل‌های جدید باید track شوند اگر آری commit خواست:
 #   tests/test_octopus_wire_drift.py
 #   tests/test_sysmetrics.py
-#   MEGAPROMPT-OWNER-COMPLETE.md
-#   AGENT-NEXT-OWNER-COMPLETE.md
+#   docs/agent-context/archived/MEGAPROMPT-OWNER-COMPLETE.md
+#   docs/agent-context/archived/AGENT-NEXT-OWNER-COMPLETE.md
 # .bak-* را add نکن
 ```
 

@@ -349,7 +349,7 @@ git push origin ofn-v1.0-three-business-owner-center
 
 #### K.8 — megaprompt test inventory (یافته ۹۴)
 
-1. `MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION.md` را با `test_connector_infra.py` هم‌تراز کن.
+1. `docs/agent-context/archived/MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION.md` را با `test_connector_infra.py` هم‌تراز کن.
 2. تست‌های پیشنهادی که ادغام شده‌اند را در سند به‌روز کن.
 
 #### K.9 — studio capacity (یافته ۹۷)
@@ -489,7 +489,7 @@ ss -lntp | grep 8090 || echo "no listener on 8090"
 سپس:
 1. `HANDOFF.md` تازه کن (چه کردی · چه ماند · چه قرمز · بدون راز/PII)
 2. `INDEX.md` لینک این مگاپرامپت را ✅/🔄 کن
-3. `MEGAPROMPT-COMPLETE-FINISH.md` status را به‌روز کن
+3. `docs/agent-context/archived/MEGAPROMPT-COMPLETE-FINISH.md` status را به‌روز کن
 4. گزارش نهایی به آری با جدول یافتهٔ بسته‌شده
 
 ---

@@ -24,8 +24,8 @@
 ## مکان مگاپرامپت
 
 ```
-/home/ari/hypno-fugu-mini/docs/MEGAPROMPT-UNIFY-FINAL.md
-/home/ari/ofn/MEGAPROMPT-UNIFY-FINAL.md
+/home/ari/hypno-fugu-mini/docs/docs/agent-context/archived/MEGAPROMPT-UNIFY-FINAL.md
+/home/ari/ofn/docs/agent-context/archived/MEGAPROMPT-UNIFY-FINAL.md
 ```
 
 هش: `63ad9bd929a6622e6a537c15bbe1551f10ad491ddd5a730231ff8abce4d5974d`

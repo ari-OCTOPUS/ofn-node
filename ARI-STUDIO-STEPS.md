@@ -127,11 +127,11 @@ journalctl -u ofn -b --no-pager | grep -i allowlist | tail -5
 
 ### الف) از طریق گیت — توصیه‌شده
 
-روی ویندوز، در پوشه‌ای که مخزن را کلون کرده‌ای، `MEGAPROMPT-STUDIO.md` و
+روی ویندوز، در پوشه‌ای که مخزن را کلون کرده‌ای، `docs/agent-context/archived/MEGAPROMPT-STUDIO.md` و
 `saba-darkroom.html` را بگذار، بعد:
 
 ```powershell
-git add MEGAPROMPT-STUDIO.md web/saba-darkroom.html
+git add docs/agent-context/archived/MEGAPROMPT-STUDIO.md web/saba-darkroom.html
 git commit -m "studio: megaprompt + shell"
 git push
 ```
@@ -140,20 +140,20 @@ git push
 
 ```bash
 cd ~/ofn && git pull
-ls -la MEGAPROMPT-STUDIO.md web/saba-darkroom.html
+ls -la docs/agent-context/archived/MEGAPROMPT-STUDIO.md web/saba-darkroom.html
 ```
 
 ### ب) مستقیم با scp
 
 ```powershell
-scp MEGAPROMPT-STUDIO.md ari@192.168.0.138:~/ofn/
+scp docs/agent-context/archived/MEGAPROMPT-STUDIO.md ari@192.168.0.138:~/ofn/
 scp saba-darkroom.html    ari@192.168.0.138:~/ofn/web/
 ```
 
 هر کدام را زدی، **بررسی کن رسیده**:
 
 ```bash
-wc -l ~/ofn/MEGAPROMPT-STUDIO.md ~/ofn/web/saba-darkroom.html
+wc -l ~/ofn/docs/agent-context/archived/MEGAPROMPT-STUDIO.md ~/ofn/web/saba-darkroom.html
 ```
 
 اگر عدد صفر یا خیلی کوچک بود، فایل ناقص رسیده — دوباره بفرست.
@@ -165,7 +165,7 @@ wc -l ~/ofn/MEGAPROMPT-STUDIO.md ~/ofn/web/saba-darkroom.html
 روی پای، در `claude`:
 
 ```
-MEGAPROMPT-STUDIO.md را کامل بخوان و از دروازهٔ ST-1 شروع کن.
+docs/agent-context/archived/MEGAPROMPT-STUDIO.md را کامل بخوان و از دروازهٔ ST-1 شروع کن.
 فرض کن دربارهٔ leg استودیو هیچ نمی‌دانی؛ آن سند تنها منبع توست.
 هیچ WIRE_* را روشن نکن و هیچ چیزی به هیچ پلتفرمی نفرست.
 ```

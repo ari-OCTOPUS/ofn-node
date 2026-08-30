@@ -186,7 +186,7 @@ Content-Security-Policy · Referrer-Policy · X-Frame-Options (frame-ancestors)
 
 ## ۷) دو چیز که باز مانده — تصمیم با آری
 
-1. **`~/MEGAPROMPT-v2.md` روی این دستگاه نیست.** فقط `~/MEGAPROMPT.md`
+1. **`~/MEGAPROMPT-v2.md` روی این دستگاه نیست.** فقط `~/docs/agent-context/prompts/MEGAPROMPT.md`
    (۲۰۲۶-۰۸-۰۴ ۱۰:۴۸) هست که فازهایش A تا E است، نه ۰/۱/۲. یعنی نه بخش ۰
    (گسترش خودمختاری) خوانده شد و نه معلوم است «فاز ۲» کدام است. تا وقتی آن
    فایل نرسد، این جلسه زیر قواعد `~/CLAUDE.md` کار می‌کند.
