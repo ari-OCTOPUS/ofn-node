@@ -1,0 +1,16 @@
+test_callback_exception_does_not_crash (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_callback_exception_does_not_crash) ... ok
+test_duplicate_native_id_is_one_row_and_degraded (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_duplicate_native_id_is_one_row_and_degraded) ... ok
+test_idempotency_key_parity_survives_projection (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_idempotency_key_parity_survives_projection) ... ok
+test_mesh_items_are_unchanged_when_owner_callback_is_added (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_mesh_items_are_unchanged_when_owner_callback_is_added) ... ok
+test_missing_callback_is_unknown_and_degraded_not_empty (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_missing_callback_is_unknown_and_degraded_not_empty) ... ok
+test_owner_queue_callback_is_exposed_additively (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_owner_queue_callback_is_exposed_additively) ... ok
+test_payload_and_pii_are_not_serialized (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_payload_and_pii_are_not_serialized) ... ok
+test_read_does_not_mutate_mesh_tree (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_read_does_not_mutate_mesh_tree) ... ok
+test_held_state_uses_existing_held_marker (tests.test_cockpit_v2_owner_queue.TestNodeOwnerQueueMetadata.test_held_state_uses_existing_held_marker) ... ok
+test_metadata_is_derived_from_real_owner_queue_contract (tests.test_cockpit_v2_owner_queue.TestNodeOwnerQueueMetadata.test_metadata_is_derived_from_real_owner_queue_contract) ... ok
+test_run_reader_injects_metadata_callback (tests.test_cockpit_v2_owner_queue.TestProductionReaderOwnerQueueWiring.test_run_reader_injects_metadata_callback) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.034s
+
+OK
