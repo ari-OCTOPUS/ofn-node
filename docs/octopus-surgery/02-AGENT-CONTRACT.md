@@ -1,7 +1,7 @@
 # Evidence-surgery agent contract — draft
 
 Claim envelope: `node_id=octopus-continuity-180`,
-`asserted_ip=192.168.0.180`, `vantage=cursor-this-host-only`,
+`asserted_ip=<redacted-private-ip>`, `vantage=cursor-this-host-only`,
 `scope=this_host_only`, `claim_type=policy`, evidence: session rules and repository policy.
 
 ## Allowed now

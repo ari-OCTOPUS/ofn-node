@@ -23,9 +23,9 @@ closeout-only.
 - [[13-OWNER-INBOX]]
 - [[14-FINAL-CAMPAIGN-REPORT]]
 
-This folder is the canonical Obsidian copy under `<vault-root>`. The copy under
-`.claude/worktrees/octopus-reality-20260830-160703` is an isolated Git worktree,
-not the canonical vault.
+This public copy is sanitised evidence on `ari-OCTOPUS/ofn-node`.
+It is not the canonical Obsidian vault. Canonical vault status: `NOT_SYNCED`.
+Local vault branch publication remains `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
 
 ## Closure
 

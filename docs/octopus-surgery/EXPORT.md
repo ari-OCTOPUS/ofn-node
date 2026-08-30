@@ -36,3 +36,9 @@ This branch is a sanitised portable extract onto `origin/main`
 - Local surgery final commit: `bf6f45ec28f71fd221ea7c751ec7e19687089164`
 - Canonical vault: `NOT_SYNCED` at export time
 - OWNER-09: 770/827 on the vault lineage; `HERMETIC_BOUNDARY_VIOLATION`
+- Canonical PR: https://github.com/ari-OCTOPUS/ofn-node/pull/6
+- Superseded PR: #5 `CLOSED_SUPERSEDED`
+- Same-env differential (`python -X utf8 -m pytest -q`): base 3545/3638 passed, head 3560/3653 passed; 82 failed + 1 error on both; `PUBLIC_EXPORT_REGRESSIONS = 0`
+- Historical unlabeled counts 72 and 2073/82 are not this measurement
+- CI: focused `observation-contract` workflow; result recorded in the PR body after push
+- Merge/deploy: `NOT_AUTHORIZED`

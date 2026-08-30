@@ -1,7 +1,7 @@
 # Risk register — evidence-bounded draft
 
 Default claim envelope: `node_id=octopus-continuity-180`,
-`asserted_ip=192.168.0.180`, `vantage=cursor-this-host-only`,
+`asserted_ip=<redacted-private-ip>`, `vantage=cursor-this-host-only`,
 `scope=this_host_only`, `claim_type=risk_from_observation`,
 evidence: HEAD `2a718aaa96235fcf5aa5219d25eba4a9b314eed5` and `receipts/`.
 
@@ -20,7 +20,7 @@ evidence: HEAD `2a718aaa96235fcf5aa5219d25eba4a9b314eed5` and `receipts/`.
 | R-11 | Optional D6/dual-veto checks in `goal_action_bridge.run_for_cycle` use `except: pass`, so a gate exception continues toward execution. | Medium | High | Source trace around the A2+ checks. | Current A2+ planner/executor blocks contain the issue; change to explicit BLOCKED before any A2 promotion. | Action owner | CONTAINED |
 | R-12 | LLM caller inventory was stale and the lab gateway callable lacked an explicit admission gate. | Low | High | Inventory now 8/8; gateway tests 11/11; production importers zero. | Default-deny lab gate plus AST reachability test. Revert Surgery 2 to roll back. | Provider owner | RESOLVED |
 | R-13 | Local vault history and `ari-OCTOPUS/ofn-node` GitHub main are unrelated. | High | Critical | `git merge-base github/main HEAD` returned none; divergence 155/1835. | No push/PR; never force or graft histories. Publish only through an explicitly designed migration. | Repository owner | BLOCKED |
-| R-14 | The complete hermetic default has not been executed. | Low | Medium | OWNER-09 receipt 2026-08-30T09:29:42Z. | 770/827 passed; 57 classified at run; scoring later repaired; no live suite. | Test owner | EXECUTED |
+| R-14 | OWNER-09 hermetic default writes tracked state. | High | High | OWNER-09 rerun 2026-08-30T09:29:42Z. | 770/827; `HERMETIC_BOUNDARY_VIOLATION`; 12 tracked writes restored. | Test owner | OPEN |
 | R-15 | Hermetic child env does not stop tracked `_ops/state` and `06-EVIDENCE` writes. | High | High | git status after OWNER-09; 12 restored paths. | Restore after measurement; later close hardcoded writers. | Test owner | OPEN |
 
 No risk entry authorizes execution. A failed gate remains a gate, not a task to bypass it.

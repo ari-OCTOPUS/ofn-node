@@ -4,7 +4,7 @@ Default arbiter envelope for every claim in this document:
 
 ```yaml
 node_id: octopus-continuity-180
-asserted_ip: 192.168.0.180
+asserted_ip: <redacted-private-ip>
 vantage: cursor-this-host-only
 scope: this_host_only
 claim_type: observation_unless_marked_inference

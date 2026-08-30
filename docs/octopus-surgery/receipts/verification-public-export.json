@@ -4,36 +4,54 @@
   "scope": "this_host_only",
   "target_repository": "ari-OCTOPUS/ofn-node",
   "target_base_sha": "c1969bce5384f3371b916470299c991627c3d63c",
-  "target_branch": "export/octopus-surgery-20260830-193052",
-  "target_final_sha": "PENDING_AFTER_COMMITS",
-  "source_commit": "bf6f45ec28f71fd221ea7c751ec7e19687089164",
-  "exported": [
-    "octopus_observation/observation_record.py",
-    "octopus_observation/replay_adapters.py",
-    "octopus_observation/__init__.py",
-    "tests/test_observation_v1_foundation.py",
-    "docs/octopus-surgery/** except runtime logs"
-  ],
-  "omitted": [
-    "cognition deny-list",
-    "LLM inventory",
-    "lab gateway",
-    "hermetic run_all.py",
-    "cortex import fix",
-    "observatory recovery",
-    "vault history"
-  ],
-  "tests_executed": {
-    "test_observation_v1_foundation.py": "15/15",
-    "official_pytest_q": "2073 passed, 82 failed, 10 skipped, 1 error on this Windows host",
-    "observation_in_fail_list": false,
+  "export_code_commit": "462661333dbcfe70883fb2ffb36667b3aaa85a28",
+  "export_docs_commit_before_current": "4a92e75e58dba6913b0fdd7acbda2d288d0779bf",
+  "pr_number": 6,
+  "pr_head_sha_reported_externally": true,
+  "pr_url": "https://github.com/ari-OCTOPUS/ofn-node/pull/6",
+  "superseded_pr": 5,
+  "superseded_pr_state": "CLOSED_SUPERSEDED",
+  "focused_tests": {
+    "tests/test_observation_v1_foundation.py": "15/15",
     "live_provider": false
   },
-  "secret_scan": "passed",
-  "local_paths_removed": true,
-  "ci_pending": true,
+  "differential_tests": {
+    "command": "python -X utf8 -m pytest -q --tb=no -p no:cacheprovider",
+    "python_version": "3.13.7",
+    "os": "win32",
+    "base": {
+      "sha": "c1969bce5384f3371b916470299c991627c3d63c",
+      "collected": 3638,
+      "passed": 3545,
+      "failed": 82,
+      "errors": 1,
+      "skipped": 10
+    },
+    "head_at_measurement": {
+      "sha": "4a92e75e58dba6913b0fdd7acbda2d288d0779bf",
+      "collected": 3653,
+      "passed": 3560,
+      "failed": 82,
+      "errors": 1,
+      "skipped": 10
+    },
+    "new_regressions": 0,
+    "fixed_failures": 0,
+    "shared_failures": 83,
+    "receipt": "docs/octopus-surgery/receipts/verification-public-base-vs-head.json"
+  },
+  "ci_checks": "recorded_after_push_in_pr_body",
+  "new_regressions": 0,
+  "secret_scan": "public_pr_paths_only",
+  "public_paths_scan": "public_pr_paths_only",
+  "historical_unlabeled_pytest_q_counts": [
+    "72 failed on an earlier vault-worktree export session",
+    "2073 passed / 82 failed / 10 skipped / 1 error on this host before same-env junit collection"
+  ],
+  "canonical_same_env_counts": "use differential_tests above; do not prefer 72 or 2073",
   "provider_calls": 0,
   "external_effects": 0,
   "deployment": 0,
-  "generated_at_utc": "2026-08-30T10:06:30Z"
+  "merge": 0,
+  "generated_at_utc": "2026-08-30T10:41:00Z"
 }

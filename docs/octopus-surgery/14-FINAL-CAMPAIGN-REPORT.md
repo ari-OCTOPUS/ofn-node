@@ -12,8 +12,13 @@
 
 # Final campaign report
 
-Envelope: `node_id=octopus-continuity-180`, `asserted_ip=192.168.0.180`,
+Envelope: `node_id=octopus-continuity-180`, `asserted_ip=<redacted-private-ip>`,
 `vantage=isolated-worktree`, `scope=this_host_only`.
+
+Public publication status: `SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW`.
+Local vault branch publication: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
+Canonical vault: `NOT_SYNCED`. Merge: `NOT_AUTHORIZED`. Deploy: `NOT_AUTHORIZED`.
+CI until checks run: `NO_CHECKS_REPORTED`. OWNER-09: `HERMETIC_BOUNDARY_VIOLATION`.
 
 ## Campaign result
 
@@ -31,8 +36,9 @@ Envelope: `node_id=octopus-continuity-180`, `asserted_ip=192.168.0.180`,
 - OWNER-09 status: `HERMETIC_BOUNDARY_VIOLATION`
 - OWNER-09 rerun: `2026-08-30T09:29:42Z`–`09:54:01Z`, 1459s, 770/827 passed, 57 failed, 1 live skipped
 - Scoring after repair: 14/14 via `run_all --only`; full 827 not rerun
-- GitHub PR at this local finalize: pending Phase K/L
-- CI status: inspect after public export SHA
+- GitHub canonical PR: [#6](https://github.com/ari-OCTOPUS/ofn-node/pull/6)
+- Superseded PR: [#5](https://github.com/ari-OCTOPUS/ofn-node/pull/5) `CLOSED_SUPERSEDED`
+- CI: `NO_CHECKS_REPORTED` until focused observation workflow runs on the current head
 
 ## Surgeries completed
 
@@ -92,24 +98,29 @@ Live tests not executed: `test_llm_routing_smoke.py`.
 - Worktree docs are the campaign source of truth for surgeries 2–5
 - Closeout files 09–14 exist in the worktree. Copy into the dirty primary vault is not Git/Obsidian synchronization.
 - No `.bak` or archive notes were updated
-- Absolute `.claude/worktrees/...` links must not appear in GitHub-facing text
+- Absolute isolated worktree paths must not appear in GitHub-facing text
 
 ## GitHub synchronization
 
-- branches pushed: 0
+- public publication status: `SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW`
+- local vault branch publication: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`
+- sanitised export branch pushed: `export/octopus-surgery-20260830-193052`
 - force pushes: 0
 - direct main pushes: 0
-- PR created/updated: NO
-- merge performed: NO
-- deployment performed: NO
-- reason: public repository + unrelated history (github-only 155 / local-only 1835, no merge base)
+- PR created: YES — https://github.com/ari-OCTOPUS/ofn-node/pull/6
+- superseded PR: https://github.com/ari-OCTOPUS/ofn-node/pull/5 (`CLOSED_SUPERSEDED`)
+- merge performed: NO (`NOT_AUTHORIZED`)
+- deployment performed: NO (`NOT_AUTHORIZED`)
+- CI: `NO_CHECKS_REPORTED` until the focused observation workflow reports on the current head
+- same-env differential: base `c1969bce` collected 3638 / passed 3545 / failed 82 / errors 1 / skipped 10; head `4a92e75e` collected 3653 / passed 3560 / failed 82 / errors 1 / skipped 10; new regressions 0
+- historical unlabeled pytest-q reports of 72 or 2073/82 are not this measurement
 
 ## Distance to 90%
 
-- Code completion: 63% ± 7% (was 56% ± 7%)
-- Evidence completion: 60% ± 8% (was 41% ± 8%)
-- Operational completion: 30% ± 9% (was 29% ± 9%)
-- Overall: 45% ± 8% (was 39% ± 7%)
+- Code completion: 63% ± 7%
+- Evidence completion: 57% ± 8%
+- Operational completion: 31% ± 9%
+- Overall: 45% ± 7%
 - Active cap: 50% (owner governance still closed)
 
 ## Owner-only actions
@@ -127,17 +138,23 @@ See [[09-OWNER-ACTION-RUNBOOK]] and [[13-OWNER-INBOX]].
 - secret exposures: 0
 - owner gates modified: 0
 
-## OWNER-09 measurement
+## OWNER-09 measurements (two distinct local executions)
 
-- Command: `python -X utf8 _ops/tests/run_all.py`
-- Start/end: `2026-08-30T08:30:08Z` / `2026-08-30T08:54:14Z` (1446s)
-- Passed 770 / failed 57 / live skipped 1 / timed out 0 / hermetic executed 827
-- Exit 1
-- Sanitized log SHA-256: `58125d4a2c8535f96e9de0d02c2fe824fb38c34addd3b2ad70b9278f969cd48e`
-- Receipt SHA-256: `c6395c0308fef9d418d4375baf0037b4384db28a1230863a391e316c679a285f`
-- Campaign regression: `test_run_all_scoring.py` (expects REVOKE)
-- Residue: 12 tracked files restored with `git checkout --`
-- Repairs: 0. Push: 0. Vault copy: 0.
+These are local vault-lineage results. They are not GitHub-lineage pytest counts.
+
+1. First recorded run at local commit `470bb6031f1e51c9a8e6e1f1536c349e22a5200e`:
+   - Start/end: `2026-08-30T08:30:08Z` / `2026-08-30T08:54:14Z` (1446s)
+   - 770 passed / 57 failed / 1 live skipped / 827 hermetic executed / exit 1
+   - Sanitized log SHA-256: `58125d4a2c8535f96e9de0d02c2fe824fb38c34addd3b2ad70b9278f969cd48e`
+   - Receipt SHA-256: `c6395c0308fef9d418d4375baf0037b4384db28a1230863a391e316c679a285f`
+2. Authorized rerun used for the current local receipt `verification-03`:
+   - Start/end: `2026-08-30T09:29:42Z` / `2026-08-30T09:54:01Z` (1459s)
+   - 770 passed / 57 failed / 1 live skipped / 827 hermetic executed / exit 1
+   - Sanitized log SHA-256: `d09cb444ef40230098672a4758e3a4b3ef27ddad8616f9324ac2d2f3422390af`
+   - Receipt SHA-256: `4b9470815629583676e37d34338aeee80f2b3aa8e0686e962166e67b4cc9750d`
+   - Later scoring repair `d6eeadd40d867bdc082dbc287c48e24be280a335` was not followed by a third 827-suite.
+
+Both runs: `HERMETIC_BOUNDARY_VIOLATION`; 12 tracked residue paths restored. The 57 local failures are not GitHub-lineage failures.
 
 ## Surgery file list for any later designed export
 

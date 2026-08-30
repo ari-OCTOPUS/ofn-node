@@ -17,14 +17,14 @@ OWNER-CONFIRM: do not push surgery/cognition-authority-denylist-20260830-170620 
 
 ---
 
-## 2. Review the public export PR at its exact head SHA
+## 2. Review PR 6 at its exact head SHA after focused CI
 
-Status: READY after Phase K/L
+Status: READY after the reconciliation push and green observation-contract checks
 Decision: inspect CI on the current head; do not merge, deploy, open D7, or rotate secrets.
-Paste to confirm only after the PR URL and full SHA are filled in the later docs-sync note:
+The exact SHA is written in the PR body after push. Do not approve an older SHA.
 
 ```text
-OWNER-CONFIRM: reviewed PR <number> at <full SHA>; merge remains unauthorized
+OWNER-CONFIRM: reviewed PR 6 at <full SHA from PR body>; merge remains unauthorized
 ```
 
 ---

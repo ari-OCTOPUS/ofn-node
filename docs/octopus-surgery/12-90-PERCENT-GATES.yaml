@@ -4,7 +4,7 @@ scope: this_host_only
 generated_at_utc: "2026-08-30T08:58:00Z"
 branch: surgery/cognition-authority-denylist-20260830-170620
 implementation_head: b394b999b43ab12573ad574f33a5621a57c66686
-campaign_status: LOCAL_CAMPAIGN_COMPLETE_PUBLICATION_BLOCKED
+campaign_status: SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW
 hermetic_full_suite: HERMETIC_BOUNDARY_VIOLATION
 caps:
   no_valid_baseline: 30
@@ -41,11 +41,13 @@ gates:
   restore_drill:
     status: NOT_RUN
   github_publish:
-    status: BLOCKED_PUBLIC_UNRELATED_HISTORY
+    status: SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW
+    local_vault_branch: LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN
+    note: "PR 6 is observation.v1 only; vault/surgery refs were not pushed"
 completion:
   CODE_COMPLETION: "63% ± 7%"
-  EVIDENCE_COMPLETION: "60% ± 8%"
-  OPERATIONAL_COMPLETION: "30% ± 9%"
-  OVERALL: "45% ± 8%"
+  EVIDENCE_COMPLETION: "57% ± 8%"
+  OPERATIONAL_COMPLETION: "31% ± 9%"
+  OVERALL: "45% ± 7%"
   campaign_start_overall: "39% ± 7%"
 ready_for_90_percent: false

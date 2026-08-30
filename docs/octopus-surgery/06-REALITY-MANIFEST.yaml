@@ -1,7 +1,7 @@
 schema: octopus.reality-manifest.v1
 claim_envelope:
   node_id: octopus-continuity-180
-  asserted_ip: 192.168.0.180
+  asserted_ip: <redacted-private-ip>
   vantage: cursor-this-host-only
   scope: this_host_only
   claim_type: observation
@@ -209,6 +209,6 @@ limitations:
   - "eth0 was not present by that interface name; asserted node identity remains unverified, not contradicted"
   - "external APIs, LAN probes and private material were not accessed"
   - "runtime projections and historical prose were not promoted to system-wide truth"
-  - "full 826-suite hermetic default has not been executed"
-  - "GitHub ofn-node is PUBLIC and has no merge base with this vault lineage; push/PR would publish the vault"
+  - "OWNER-09 executed 827 hermetic suites and recorded HERMETIC_BOUNDARY_VIOLATION; do not report 826"
+  - "local vault branch publication remains LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN; selective public export is PR 6"
 generated_at_utc: "2026-08-30T08:17:00Z"

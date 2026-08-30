@@ -17,7 +17,7 @@ Default arbiter envelope:
 
 ```yaml
 node_id: octopus-continuity-180
-asserted_ip: 192.168.0.180
+asserted_ip: <redacted-private-ip>
 vantage: canonical-vault-this-host
 scope: this_host_only
 claim_type: verified_provenance

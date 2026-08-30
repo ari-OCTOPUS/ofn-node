@@ -4,7 +4,7 @@ OWNER-09 is executed: `HERMETIC_BOUNDARY_VIOLATION` (770/827). Next owner
 decision is canonical local lineage, not repair and not GitHub publish.
 
 Default envelope: `node_id=octopus-continuity-180`,
-`asserted_ip=192.168.0.180`, `vantage=cursor-this-host-only`,
+`asserted_ip=<redacted-private-ip>`, `vantage=cursor-this-host-only`,
 `scope=this_host_only`, `claim_type=proposal`, evidence: HEAD
 `2a718aaa96235fcf5aa5219d25eba4a9b314eed5`.
 

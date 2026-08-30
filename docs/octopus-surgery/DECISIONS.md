@@ -123,7 +123,12 @@ The new `observation.v1` record lives in `observation_record.py`. The USGS/HN
 Fake and replay adapters may not emit an unlabeled physical observation. A real
 sensor is out of campaign scope.
 
-## S5-D03 — GitHub publish remains blocked
+## S5-D03 — Local vault branch publication remains forbidden
 
 `ari-OCTOPUS/ofn-node` is PUBLIC and has no merge base with this vault. Pushing
-this branch would publish vault history.
+the surgery or rescue branch would publish vault history.
+
+## S5-D04 — Selective public export is PR 6
+
+Canonical export: https://github.com/ari-OCTOPUS/ofn-node/pull/6
+PR 5 is `CLOSED_SUPERSEDED`. Merge remains `NOT_AUTHORIZED`.

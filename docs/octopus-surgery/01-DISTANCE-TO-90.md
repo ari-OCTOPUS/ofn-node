@@ -1,7 +1,7 @@
 # Distance to 90% — evidence-bounded draft
 
 Default claim envelope: `node_id=octopus-continuity-180`,
-`asserted_ip=192.168.0.180`, `vantage=cursor-this-host-only`,
+`asserted_ip=<redacted-private-ip>`, `vantage=cursor-this-host-only`,
 `scope=this_host_only`; evidence is HEAD `2a718aaa96235fcf5aa5219d25eba4a9b314eed5`
 plus the reproducible commands in `receipts/`.
 
@@ -25,15 +25,15 @@ Weighted result:
 = 45.70
 ```
 
-Reported precision: **45% ± 8%**. OWNER-09 measured the suite; it did not raise
-the 50% governance cap. Status remains
-`LOCAL_CAMPAIGN_COMPLETE_PUBLICATION_BLOCKED`.
+Reported precision: **45% ± 7%**. OWNER-09 measured the local suite; it did not raise
+the 50% governance cap. Public status: `SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW`.
+Local vault branch publication: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
 
 Separate completion estimates:
 
 - `CODE_COMPLETION: 63% ± 7%` — no production code changed in OWNER-09.
-- `EVIDENCE_COMPLETION: 60% ± 8%` — full-suite receipt exists; Brier remains unreproduced.
-- `OPERATIONAL_COMPLETION: 30% ± 9%` — hermetic env held, but tracked state files leaked.
+- `EVIDENCE_COMPLETION: 57% ± 8%` — full-suite receipt exists; Brier remains unreproduced.
+- `OPERATIONAL_COMPLETION: 31% ± 9%` — hermetic env held, but tracked state files leaked.
 
 ## Reproduction anchors
 

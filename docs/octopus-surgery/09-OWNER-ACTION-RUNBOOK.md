@@ -34,23 +34,22 @@ Next unlocked gate: OWNER-02 (designed export) or skip publish and keep germline
 
 ---
 
-## OWNER-02: Designed export onto ofn-node, if wanted
+## OWNER-02: Review the sanitised observation export PR
 
-Status: READY (optional)
-Why owner-only: choosing what leaves the vault is a governance decision.
-Preconditions: OWNER-01 accepted.
+Status: READY after focused CI reports on the current head
+Why owner-only: merge remains `NOT_AUTHORIZED`.
+Preconditions: OWNER-01 accepted. Vault/surgery branches were not pushed.
 Risk: HIGH
 Exact action:
-1. Clone or fetch `ari-OCTOPUS/ofn-node` into a separate working tree.
-2. Copy only the surgery paths listed in [[14-FINAL-CAMPAIGN-REPORT]].
-3. Scan for secrets, `.bak`, absolute worktree paths, runtime databases.
-4. Open one PR from that export branch.
-Expected output: a small PR with `_ops` tests/docs only.
-Evidence to save: export PR URL and file list hash.
-Rollback: close the export PR; delete the export branch.
-Do not do: push the vault branch itself.
-Completion test: PR diff contains no `07 - Knowledge` vault notes.
-Next unlocked gate: OWNER-03 after CI on the export PR.
+1. Open https://github.com/ari-OCTOPUS/ofn-node/pull/6
+2. Confirm the title is observation.v1 only, not “surgery guards”.
+3. Confirm `headRefOid` after the reconciliation push (recorded in the PR body).
+4. Confirm focused observation CI on that SHA. Do not treat mergeable_state=clean as CI pass.
+5. Do not merge, deploy, open D7, or rotate secrets.
+Expected output: owner review note; merge still `NOT_AUTHORIZED`.
+Do not do: reopen or merge superseded PR #5.
+Completion test: PR #6 diff contains no `07 - Knowledge` vault notes and no `_ops` private tree.
+Next unlocked gate: none automatically.
 
 ---
 

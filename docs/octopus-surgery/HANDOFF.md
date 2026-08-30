@@ -36,7 +36,7 @@ Surgery 2 closed the prior first item: inventory is 8/8 and the gateway is
 `ISOLATED_LAB_ONLY`, default-deny, with no production importer.
 
 Surgery 3 closed default network/runtime-state leakage and the cortex module
-resolution failure. It did not execute the full 826-suite evaluation.
+resolution failure. OWNER-09 later executed 827 hermetic suites and recorded `HERMETIC_BOUNDARY_VIOLATION`.
 
 Surgery 4 found no recoverable observatory implementation or claim store in the
 current lineage. Historical Brier tables remain narrative evidence only.
