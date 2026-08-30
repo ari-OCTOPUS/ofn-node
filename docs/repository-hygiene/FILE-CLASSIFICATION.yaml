@@ -1,0 +1,13 @@
+# generated 2026-08-30T23:56:44.463382+00:00 — INVENTORY_AND_AUDIT_ONLY (owner Q3=A); no file moved/deleted/untracked
+counts: {'ARCHIVE': 9, 'KEEP_ROOT': 8, 'MOVE': 32}
+root_entries_scanned: 49
+secret_hits: 0
+pii_hits: 0
+local_path_hits: 1
+special_review:
+  MEGAPROMPT-*.md: 16 files
+  AGENT-NEXT-*.md: 3 files
+  bak-files: 10
+  obsidian: 0
+  tmp-test: 0
+  rag-seed: True
