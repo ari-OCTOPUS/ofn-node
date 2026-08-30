@@ -1,0 +1,103 @@
+schema=octopus.sanitized-test-log.v1
+node_id=octopus-continuity-180
+scope=this_host_only
+branch=surgery/cognition-authority-denylist-20260830-170620
+commit_before=2a718aaa96235fcf5aa5219d25eba4a9b314eed5
+provider_calls=0
+external_effects=0
+
+== architecture guard: first execution, before production changes ==
+command=python -X utf8 _ops/tests/test_cognition_authority_denylist.py
+exit_code=1
+output_sha256=e96c80eaa855506b6b87f3fce1981a4235e24b302af2daceda0f73cf6ef7921b
+PASS t_approved_auto_executor_edge_declares_and_contains_guards
+PASS t_cortex_provider_edges_exist_and_are_safe_inference
+FAIL t_current_architecture_respects_authority_policy:
+  _ops/cortex/synthesis.py:39 os.environ.get(SYNTHESIS_MAX_TOKENS)
+    classified credential_access (false positive: model token-count setting)
+  _ops/cortex/code_brain.py:42 code_autonomy
+    classified executor_handle (real edge; code_brain was misclassified as provider inference)
+CONTROLLED_DETECTOR fixture_forbidden.py:3 subprocess -> shell_execute (COG-AUTH-001)
+CONTROLLED_DETECTOR fixture_forbidden.py:6 argument:executor -> executor_handle (COG-AUTH-001)
+CONTROLLED_DETECTOR fixture_forbidden.py:7 dynamic action_bridge.executor -> executor_handle (DYNAMIC-IMPORT-001)
+CONTROLLED_DETECTOR fixture_forbidden.py:8 subprocess.run -> shell_execute (SHELL-CAPABILITY-001)
+RESULTS 8/10 passed
+
+== correction ==
+- Credential detection was narrowed to credential-shaped environment names; MAX_TOKENS is not a credential.
+- code_brain.py was moved from provider_adapter to approved_executor in the policy.
+- No production source was changed: code_brain really owns code_autonomy execution calls and must not be described as provider-only.
+
+== architecture guard: final direct execution ==
+command=python -X utf8 _ops/tests/test_cognition_authority_denylist.py
+exit_code=0
+output_sha256=3a4ffcdf50ecf2f0c0aac8438e09c4d9c428d336ffda4fb4e647575fc6296b3c
+PASS t_approved_auto_executor_edge_declares_and_contains_guards
+PASS t_code_brain_is_explicit_executor_not_provider_inference
+PASS t_cortex_provider_edges_exist_and_are_safe_inference
+PASS t_current_architecture_respects_authority_policy
+CONTROLLED_DETECTOR fixture_forbidden.py:3 subprocess -> shell_execute (COG-AUTH-001)
+CONTROLLED_DETECTOR fixture_forbidden.py:6 argument:executor -> executor_handle (COG-AUTH-001)
+CONTROLLED_DETECTOR fixture_forbidden.py:7 dynamic action_bridge.executor -> executor_handle (DYNAMIC-IMPORT-001)
+CONTROLLED_DETECTOR fixture_forbidden.py:8 subprocess.run -> shell_execute (SHELL-CAPABILITY-001)
+PASS t_detector_catches_controlled_forbidden_capabilities
+PASS t_executor_requires_valid_allow_decision_and_receipt
+PASS t_policy_sources_are_real_and_unique
+PASS t_proposal_creation_never_sets_self_approved_true
+PASS t_provider_interfaces_expose_inference_not_generic_authority
+PASS t_provider_zone_has_no_executor_approval_or_owner_key_access
+PASS t_safe_inference_protocol_and_provider_edge_are_allowed
+RESULTS 11/11 passed
+
+== registration execution ==
+command=python -X utf8 _ops/tests/run_all.py --only test_cognition_authority_denylist.py
+exit_code=0
+output_sha256=c7aeae2fd4b5d34a469759c16b2be7938934a4ed20d9edb9c09147c4e614b0d7
+result=1/1 registered suite green; capability marker untouched
+
+== related passing tests ==
+python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_executable_allowlist.py
+result=2 passed
+output_sha256=3e049d65a7979901c11a6a752fa902492756720adcecb075632c6e65b3239a06
+
+python -m pytest -q -o addopts= -p no:cacheprovider _ops/tests/test_provider_router.py
+result=10 passed
+output_sha256=d1dd88f3dfd5718e9618f332c8aadc788c14ea4559351b91344dbf5a0c8daf16
+
+python -X utf8 _ops/tests/test_llm_fence_coverage.py
+result=3/3 passed
+output_sha256=18ec9e8f331396c480d17b91429613d13c70f185018bad06d14636b8846733da
+
+python -X utf8 _ops/action_bridge/tests/test_flow.py
+result=25/25 passed
+output_sha256=b19534ef940705a69f8db9ae1446ffa321b0573b59b4cb021e768f0c4fdf6cba
+
+python -X utf8 _ops/cognition/tests/test_g10_cognition.py
+result=95/95 passed
+output_sha256=0bc570f015d3d5654d5be033572fadb899b53755b8a78cf972d0a643ad503203
+
+python -X utf8 _ops/tests/test_context_fence_wiring.py
+result=5/5 passed
+output_sha256=a3ce6d9964dba5f6115299d25debd325fb5868d7b6e275be156b54369b93c015
+
+python -X utf8 _ops/tests/test_code_brain.py
+result=PASS
+output_sha256=a3892f49f7b0f93b9b66ff8d158f21606e73e8fb02262b6feb6b4f409393dbd3
+
+python -X utf8 _ops/tests/test_code_brain_local.py
+result=18/18 passed
+output_sha256=d45cbbbe8ba3fbef9e738bf43f058910f79e9a75329d3b4d5a710c819683456f
+
+== pre-existing or environment-blocked checks ==
+python -X utf8 _ops/tests/test_llm_call_inventory.py
+result=5/6; stale inventory plus an unfenced lab gateway outside this surgery
+output_sha256=29c5e09205b165f5f33a456fd6c190763276dde81e6c5957246085eee617c68b
+
+python -X utf8 _ops/tests/test_cortex.py
+result=6/16; harness path order resolves cortex/__init__.py instead of cortex.py
+output_sha256=954814f44a2ce12bb6b1ed5c8d2dc8d6a6325595a26d4f1820e54bbff536b5
+
+full_suite=BLOCKED_NON_HERMETIC
+full_suite_reason=820 registered suites include an intentional live provider test and runtime-like state writes
+
+test_residue_rollback=tracked cost-receipts and execution-manifest restored exactly from HEAD in the isolated worktree
