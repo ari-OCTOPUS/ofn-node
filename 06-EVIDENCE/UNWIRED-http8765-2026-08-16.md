@@ -1,3 +1,4 @@
+<!-- STALE-AS-OF-2026-08-23: superseded by OCTOPUS-GAP-INVENTORY / continuous mission / 08-23 wire packs -->
 ---
 type: report
 status: active

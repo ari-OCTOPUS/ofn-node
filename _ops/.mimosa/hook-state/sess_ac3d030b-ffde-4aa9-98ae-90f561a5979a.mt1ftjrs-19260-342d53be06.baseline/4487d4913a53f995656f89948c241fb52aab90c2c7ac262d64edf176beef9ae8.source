@@ -1,0 +1,197 @@
+# -*- coding: utf-8 -*-
+"""One-shot agent_C session runner. Writes evidence pack. Zero telegram writes."""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import time
+from pathlib import Path
+
+_OPS = Path(__file__).resolve().parent.parent
+if str(_OPS) not in sys.path:
+    sys.path.insert(0, str(_OPS))
+
+from organs.cognition_inbox import brains_hear  # noqa: E402
+from organs.feedback import assess_loop, write_loops  # noqa: E402
+from organs.flags import load_wiring  # noqa: E402
+from organs.knowledge_afferent import scan as knowledge_scan  # noqa: E402
+from organs.lead_diagnose import diagnose as lead_diagnose  # noqa: E402
+from organs.loop_breakers import (  # noqa: E402
+    autotune_card_gate, gate_tool_request, halt_record, merge_rfcs, metric_count,
+)
+from organs.mapper_drift import scan as mapper_scan  # noqa: E402
+from organs.organ_map import build as build_map  # noqa: E402
+from organs.paths import EVIDENCE, INBOX, ORGANS_STATE, STATE, VAULT, is_telegram_lane  # noqa: E402
+from organs.starvation import diagnose as starve_diagnose  # noqa: E402
+from organs.telemetry import per_minute_by_source  # noqa: E402
+
+
+def _sha(path: Path) -> str:
+    h = hashlib.sha256()
+    h.update(path.read_bytes())
+    return h.hexdigest()
+
+
+def _write(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def _dump(path: Path, obj) -> None:
+    _write(path, json.dumps(obj, ensure_ascii=False, indent=2, default=str))
+
+
+def run(*, include_orphan_scan: bool = False) -> dict:
+    t0 = time.time()
+    ORGANS_STATE.mkdir(parents=True, exist_ok=True)
+    INBOX.mkdir(parents=True, exist_ok=True)
+    EVIDENCE.mkdir(parents=True, exist_ok=True)
+
+    starve = starve_diagnose()
+    assert starve["starvation_root_cause"]  # gate: no wiring without this
+    print("session: starvation diagnosed", starve["starvation_root_cause"], flush=True)
+    kn = knowledge_scan()
+    print("session: knowledge events", kn.get("n_events"), flush=True)
+    events = kn.pop("events", [])
+    drift = mapper_scan(include_orphan_scan=include_orphan_scan)
+    print("session: mapper modified", drift.get("modified_count"), "orphans",
+          len(drift.get("orphan_modules") or []), flush=True)
+    lead = lead_diagnose()
+    omap = build_map(knowledge_wired=kn.get("n_events", 0) > 0,
+                     mapper_lists=bool(drift.get("modified_count")))
+
+    epm = per_minute_by_source(events)
+
+    # R1 demo on stored -1
+    r1 = metric_count(-1)
+
+    # R2: two attempts then quarantine; shell.full denied
+    qroot = ORGANS_STATE
+    g1 = gate_tool_request("read file", "x.md", "file.read", state_root=qroot)
+    g2 = gate_tool_request("read file", "x.md", "file.read",
+                           reason_from_reject="denied-once", state_root=qroot)
+    g3 = gate_tool_request("read file", "x.md", "file.read",
+                           reason_from_reject="denied-twice", state_root=qroot)
+    g_shell = gate_tool_request("full shell", ".", "shell.full", state_root=qroot)
+
+    rfcs_raw = []
+    rfc_path = STATE / "doctor" / "rfcs.json"
+    try:
+        blob = json.loads(rfc_path.read_text(encoding="utf-8"))
+        rfcs_raw = blob.get("rfcs") or []
+    except (OSError, ValueError):
+        pass
+    r3 = merge_rfcs(rfcs_raw)
+
+    store = {}
+    a1 = autotune_card_gate("mathknob:CHRONO", 0.0, store=store)
+    a2 = autotune_card_gate("mathknob:CHRONO", 0.0, store=store)
+    halt = halt_record("afferent_starved", extra={"session": "agent_C-2026-08-20"})
+
+    by_id = {r["organ_id"]: r for r in omap.get("organs") or []}
+    cart_props = int(((by_id.get("cartographer") or {}).get("live_status") or {}).get("proposals_total") or 0)
+    loops = [
+        assess_loop("knowledge", proposals=1, votes=0, effects=0, has_acceptance_criteria=True),
+        assess_loop("cartographer", proposals=cart_props, votes=0, effects=0, has_acceptance_criteria=True),
+        assess_loop("lead", proposals=0, votes=0, effects=0, has_acceptance_criteria=False),
+    ]
+    write_loops(loops)
+
+    burst = [{"event_id": "knowledge-burst", "kind": "organ.knowledge.afferent_burst",
+              "n": kn.get("n_events", 0)}]
+    brains = brains_hear(burst + events[:8])
+
+    telegram_conflicts = 0
+    for p in (ORGANS_STATE, INBOX, EVIDENCE):
+        if is_telegram_lane(p):
+            telegram_conflicts += 1
+
+    baseline = {
+        "beat": (json.loads((STATE / "ORGANISM-STATE.json").read_text(encoding="utf-8"))
+                 if (STATE / "ORGANISM-STATE.json").exists() else {}).get("beat"),
+        "halted": None,
+        "paid_calls_claimed": 0,
+    }
+    _dump(EVIDENCE / "BASELINE.json", baseline)
+    _dump(EVIDENCE / "ORGANS.json", omap)
+    _dump(EVIDENCE / "AFFERENT-STARVATION.json", starve)
+    _dump(EVIDENCE / "MAPPER-DRIFT.json", {k: v for k, v in drift.items() if k != "ledger"})
+    _dump(EVIDENCE / "LEAD-FAILURE-ANALYSIS.json", lead)
+    _dump(EVIDENCE / "TELEMETRY-DELTAS.json", {
+        "afferent_events_per_minute_by_source": epm,
+        "knowledge": kn.get("metrics"),
+        "elapsed_s": round(time.time() - t0, 3),
+    })
+    _dump(EVIDENCE / "COGNITION-INBOX-CONTRACT.json", brains)
+    _dump(EVIDENCE / "LOOP-BREAKERS.json", {
+        "R1": r1,
+        "R2": {"g1": g1, "g2": g2, "g3": g3, "shell": g_shell,
+               "duplicates_suppressed": g3.get("status") == "TOOL_REQUEST_QUARANTINED"},
+        "R3": r3,
+        "R4": {"first": a1, "second": a2, "suppressed": a2.get("emit") is False},
+        "R5": halt,
+    })
+
+    counts = omap["counts"]
+    verdict = "ORGAN_WIRING_PASS"
+    findings = []
+    if starve["starvation_root_cause"] != "MIXED":
+        findings.append("root-cause-not-mixed")
+    if kn.get("n_events", 0) < 1:
+        verdict = "INCOMPLETE"
+        findings.append("no-knowledge-events")
+    if brains.get("brains_receive_cognition_inbox", 0) < 1:
+        verdict = "INCOMPLETE"
+        findings.append("brains-deaf")
+    if telegram_conflicts:
+        verdict = "FAIL"
+        findings.append("telegram-lane-write")
+    if verdict == "ORGAN_WIRING_PASS" and findings:
+        verdict = "PASS_WITH_FINDINGS"
+    if loops[0]["label"] == "DEAD_FEEDBACK_LOOP":
+        findings.append("knowledge-dead-feedback-until-owner-vote")
+        if verdict == "ORGAN_WIRING_PASS":
+            verdict = "PASS_WITH_FINDINGS"
+
+    report = {
+        "VERDICT": verdict,
+        "findings": findings,
+        "organs_total": omap["organs_total"],
+        "LIVE": counts.get("LIVE"),
+        "SKELETON": counts.get("SKELETON"),
+        "ORPHAN": counts.get("ORPHAN"),
+        "DEAD": counts.get("DEAD"),
+        "DUPLICATE": counts.get("DUPLICATE"),
+        "UNSAFE": counts.get("UNSAFE_TO_WIRE"),
+        "afferent_starvation_root_cause": starve["starvation_root_cause"],
+        "organs_wired": ["knowledge"] if kn.get("n_events", 0) else [],
+        "new_real_afferent_events": kn.get("n_events", 0),
+        "knowledge_metrics": kn.get("metrics"),
+        "mapper_actionable_drift": drift.get("modified_count"),
+        "lead_failure_class": lead.get("failure_class"),
+        "loop_breakers_implemented": ["R1", "R2", "R3", "R4", "R5"],
+        "dead_feedback_loops": [r["organ_id"] for r in loops if r["label"] == "DEAD_FEEDBACK_LOOP"],
+        "cognition_inbox_status": brains,
+        "paid_calls": 0,
+        "AUD": 0,
+        "executable_unexpected": 0,
+        "telegram_lane_conflicts": telegram_conflicts,
+        "wiring": load_wiring(),
+        "elapsed_s": round(time.time() - t0, 3),
+        "lease_scope": "evidence,organs,git,loop_breakers",
+    }
+    _dump(EVIDENCE / "REPORT.json", report)
+    return report
+
+
+if __name__ == "__main__":
+    include = "--orphan-scan" in sys.argv
+    print("session: start include_orphan_scan=", include, flush=True)
+    out = run(include_orphan_scan=include)
+    print(json.dumps({k: out[k] for k in (
+        "VERDICT", "afferent_starvation_root_cause", "organs_wired",
+        "new_real_afferent_events", "mapper_actionable_drift",
+        "lead_failure_class", "dead_feedback_loops", "paid_calls",
+        "telegram_lane_conflicts", "elapsed_s",
+    ) if k in out}, ensure_ascii=False, indent=2))

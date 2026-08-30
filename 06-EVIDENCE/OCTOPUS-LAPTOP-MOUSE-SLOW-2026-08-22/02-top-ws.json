@@ -1,0 +1,107 @@
+[
+    {
+        "Id":  6700,
+        "ProcessName":  "MsMpEng",
+        "CPU":  null,
+        "WS_MB":  434.7,
+        "StartTime":  null
+    },
+    {
+        "Id":  28576,
+        "ProcessName":  "firefox",
+        "CPU":  42.078125,
+        "WS_MB":  434.6,
+        "StartTime":  "\/Date(1787392052540)\/"
+    },
+    {
+        "Id":  35204,
+        "ProcessName":  "python",
+        "CPU":  4.140625,
+        "WS_MB":  385.5,
+        "StartTime":  "\/Date(1787393365061)\/"
+    },
+    {
+        "Id":  33164,
+        "ProcessName":  "python",
+        "CPU":  1126.34375,
+        "WS_MB":  362.7,
+        "StartTime":  "\/Date(1787306795793)\/"
+    },
+    {
+        "Id":  24416,
+        "ProcessName":  "firefox",
+        "CPU":  29.203125,
+        "WS_MB":  343.5,
+        "StartTime":  "\/Date(1787392071815)\/"
+    },
+    {
+        "Id":  22368,
+        "ProcessName":  "msedgewebview2",
+        "CPU":  263.859375,
+        "WS_MB":  330,
+        "StartTime":  "\/Date(1787292567510)\/"
+    },
+    {
+        "Id":  26208,
+        "ProcessName":  "Grok Bot",
+        "CPU":  5764.484375,
+        "WS_MB":  312.1,
+        "StartTime":  "\/Date(1787379494896)\/"
+    },
+    {
+        "Id":  22932,
+        "ProcessName":  "firefox",
+        "CPU":  19.390625,
+        "WS_MB":  259.6,
+        "StartTime":  "\/Date(1787392054632)\/"
+    },
+    {
+        "Id":  29604,
+        "ProcessName":  "claude",
+        "CPU":  1312.390625,
+        "WS_MB":  256.3,
+        "StartTime":  "\/Date(1787306596624)\/"
+    },
+    {
+        "Id":  26288,
+        "ProcessName":  "Telegram",
+        "CPU":  840.765625,
+        "WS_MB":  222.2,
+        "StartTime":  "\/Date(1787293279404)\/"
+    },
+    {
+        "Id":  22908,
+        "ProcessName":  "explorer",
+        "CPU":  635.609375,
+        "WS_MB":  193.2,
+        "StartTime":  "\/Date(1787301592551)\/"
+    },
+    {
+        "Id":  33168,
+        "ProcessName":  "WindowsTerminal",
+        "CPU":  28.5625,
+        "WS_MB":  181.3,
+        "StartTime":  "\/Date(1787388541837)\/"
+    },
+    {
+        "Id":  35252,
+        "ProcessName":  "claude",
+        "CPU":  1201.109375,
+        "WS_MB":  155.4,
+        "StartTime":  "\/Date(1787306703566)\/"
+    },
+    {
+        "Id":  37684,
+        "ProcessName":  "Grok Bot",
+        "CPU":  124.03125,
+        "WS_MB":  155.2,
+        "StartTime":  "\/Date(1787391675254)\/"
+    },
+    {
+        "Id":  35776,
+        "ProcessName":  "Notepad",
+        "CPU":  2.828125,
+        "WS_MB":  151.9,
+        "StartTime":  "\/Date(1787392586454)\/"
+    }
+]

@@ -1,0 +1,16 @@
+﻿{
+    "task":  "OCTOPUS-SELF-AUDIT-PROBE-2026-08-23",
+    "schema":  "octopus-evidence/1",
+    "timestamp_sydney":  "2026-08-23 03:02:37 AEST",
+    "live_probe_sample":  {
+                              "_probe_secrets_isolation":  "Done (evidence_bound)",
+                              "_probe_dry_run":  "Done (evidence_bound)",
+                              "_probe_regression_suite":  "Done (evidence_bound; TESTS=818)",
+                              "_probe_rollback":  "Done (evidence_bound)",
+                              "_probe_replay":  "Done (not evidence_bound)"
+                          },
+    "status":  "PASS_PROVE_RUNNABLE",
+    "related_evidence":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-OUTBOX-RECOVERY-2026-08-23\\RESULT.json",
+    "finding":  "evidence-driven path is runnable: _gate_evidence_bound_done + _resolve_evidence_json_path + run_audit exist; fail-closed on missing evidence JSON (Done-\u003eMissing).",
+    "gap":  "Several evidence_bound Done probes still have evidence_json=null — gate only fail-closes when evidence_json is set or central pack resolve finds a file. Opportunity: bind durable-outbox prove RESULT.json as evidence_json for an outbox recovery audit item."
+}

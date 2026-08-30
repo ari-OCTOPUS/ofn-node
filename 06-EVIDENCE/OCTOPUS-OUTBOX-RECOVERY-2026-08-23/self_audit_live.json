@@ -1,0 +1,54 @@
+{
+  "mode": "live_ops_paths",
+  "self_audit_file": "F:\\backup\\_ops\\cortex\\self_audit.py",
+  "run_audit": "callable",
+  "gate_fail_closed_on_missing_json": true,
+  "gate_status_when_missing": "Missing",
+  "sample_probes": [
+    {
+      "probe": "_probe_dry_run",
+      "status": "Done",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "none",
+      "priority": "P1",
+      "evidence_snippet": "governor allocate_dry + sim_heart simulate/run_sim; def_allocate_dry=True, simulate_or_run_sim=True, shadow=True"
+    },
+    {
+      "probe": "_probe_regression_suite",
+      "status": "Done",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "none",
+      "priority": "P0",
+      "evidence_snippet": "run_all TESTS verified on disk; TESTS=818 exist=818 held_out=True capability_gate=True"
+    },
+    {
+      "probe": "_probe_replay",
+      "status": "Done",
+      "evidence_bound": false,
+      "evidence_json": null,
+      "gap_type": "none",
+      "priority": "P2",
+      "evidence_snippet": "checkpoint.py replay/replay_state_at + chrono.db"
+    },
+    {
+      "probe": "_probe_rollback",
+      "status": "Done",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "none",
+      "priority": "P1",
+      "evidence_snippet": "RFC.rollback + measured_lift + OCTOPUS_WIRE_MERGE_CHECKPOINT; rollback=True, measured_lift=True, CHECKPOINT=True, _write_checkpoint_tag=True"
+    },
+    {
+      "probe": "_probe_secrets_isolation",
+      "status": "Done",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "none",
+      "priority": "P0",
+      "evidence_snippet": ".agentignore env+key+secret isolation; env=True, key=True, secret=True, seed=True, lines=23"
+    }
+  ]
+}

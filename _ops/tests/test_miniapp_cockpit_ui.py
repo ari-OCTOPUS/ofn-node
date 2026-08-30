@@ -57,7 +57,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -92,25 +91,6 @@ def src(p: Path) -> str:
 
 def _reset_src_cache():
     _SRC_CACHE.clear()
-
-
-# region agent log
-def _agent_log(hypothesis_id: str, message: str, data: dict) -> None:
-    path = os.environ.get("OCTOPUS_DEBUG_LOG")
-    if not path:
-        return
-    payload = {
-        "sessionId": "bbea48",
-        "runId": os.environ.get("OCTOPUS_DEBUG_RUN_ID", "undefined-card"),
-        "hypothesisId": hypothesis_id,
-        "location": "_ops/tests/test_miniapp_cockpit_ui.py",
-        "message": message,
-        "data": data,
-        "timestamp": int(time.time() * 1000),
-    }
-    with open(path, "a", encoding="utf-8") as stream:
-        stream.write(json.dumps(payload, sort_keys=True) + "\n")
-# endregion agent log
 
 
 # ── درایورِ Node ────────────────────────────────────────────────────────────
@@ -723,9 +703,6 @@ def t_l_lifecycle_card_without_id_is_read_only_not_undefined():
         "approve_buttons": html.count('class="ryes"'),
         "reject_buttons": html.count('class="rno"'),
     }
-    # region agent log
-    _agent_log("H14", "lifecycle missing-id rendering", facts)
-    # endregion agent log
     assert not facts["undefined_rendered"], html
     assert facts["approve_buttons"] == 1, html
     assert facts["reject_buttons"] == 1, html

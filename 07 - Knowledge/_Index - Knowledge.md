@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [moc]
-updated: 2026-08-17
+updated: 2026-08-20
 ---
 
 # ایندکس دانش
@@ -14,6 +14,13 @@ updated: 2026-08-17
 ## شناخت اختاپوس (OCTOPUS)
 
 - [[07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE|00-README-START-HERE]] — ⭐ نقطهٔ ورودِ خط زنده
+- [[07 - Knowledge/شناخت-اختاپوس/72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20|۷۲ — قفل ابسیدین پس از A19]]
+- [[07 - Knowledge/شناخت-اختاپوس/71-MEGA-DATA-FOR-SENIOR-AGENT-2026-08-20|۷۱ — MEGA-DATA ایجنت ارشد]]
+- [[07 - Knowledge/شناخت-اختاپوس/70-BITEMPORAL-DB-VS-OCTOPUS-BIOLOGY-2026-08-20|۷۰ — bitemporal در برابر زیست‌شناسی]]
+- [[07 - Knowledge/شناخت-اختاپوس/69-BITEMPORAL-PLAYBOOK-LATE-DATA-2026-08-20|۶۹ — playbook دادهٔ دیر]]
+- [[07 - Knowledge/شناخت-اختاپوس/68-DEEPSEEK-V4-FLASH-LOADTEST-2026-08-20|۶۸ — تست بار DeepSeek]]
+- [[07 - Knowledge/شناخت-اختاپوس/67-COUNCIL-CONSERVATIVE-PATH-A2-MIRROR-2026-08-18|۶۷ — مسیر محافظه‌کار A2]]
+- [[07 - Knowledge/شناخت-اختاپوس/66-VERIFIER-EVIDENCE-ENVELOPE-2026-08-18|۶۶ — پاکت شاهد]]
 - [[07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵ — ورود تحقیق VibeGuard (محصول جدا)]]
 - [[07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|۶۲ — اجرای دستورالعمل Worker Agent (فازهای ۰–۸)]]
 - [[07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱ — قفل ابسیدین شب ۱۶ اوت]]

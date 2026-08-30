@@ -1,0 +1,53 @@
+component_id,category,path,language,status,evidence_tier,notes
+organism-loop,RUNTIME_CORE,_ops/organism.py,python,LIVE_PROCESS,T0,PID 29028 since 12:53; port 8771; 5-min tick; freeze-aware; kill-check each tick
+cortex-controller,RUNTIME_CORE,_ops/cortex/cortex.py,python,LIVE_PROCESS,T0,PID 11144; port 8772; sweep/alignment/think cycle; append-only journal
+live-control-room,UI,_ops/live/server.py,python,LIVE_PROCESS,T0,PID 7852; port 8773; read-only poll of state files + owner chat via 3-brain router
+telegram-center,TELEGRAM,_ops/telegram_center/center.py,python,LIVE_PROCESS,T0,PID 11724; owner-allowlist; approval callbacks; leg digests; zero HTTP outside TgClient
+miniapp-gateway,TELEGRAM,_ops/telegram_center/miniapp_gateway.py,python,LIVE_PROCESS,T0,PID 19076; telegram web-app gateway
+board-cp,CONTROL_PLANE,_ops/board_cp/,python,LIVE_PROCESS,T0,PID 23464; enqueue/pull/ack command queue; tasks always owner_required
+wiring,ORCHESTRATION,_ops/wiring.py,python,CODE_WIRED,T2,4347 lines; imports ~60 subsystems at organism startup; central composition root
+opslib,CORE_LIB,_ops/budget/opslib.py,python,CODE_WIRED,T2,STOP/FREEZE flags; budgets.yaml loader; pinned FX; genome ledger bridge
+budget-gate,BUDGET,_ops/budget/,python,PARTIALLY_FROZEN,T0,grant settle currently failing Errno 22 -> FREEZE.flag since 20:09 local
+money-gate,BUDGET,_ops/budget/money_gate.py,python,CODE_WIRED,T2,fail-closed human gate; <=AU$20 auto; above requires valid approval; channel=NotWiredStub (paper)
+organ-gate,BUDGET,_ops/budget/organ_gate.py,python,CODE_WIRED,T2,two-step organ gate for paid governor calls
+governor-epoch,GOVERNANCE,_ops/budget/governor_epoch.py,python,SHADOW,T0,ALLOCATION_SHADOW notes in live ledger; dry default
+policy-gate,POLICY,_ops/policy/policy_gate.py,python,CODE_WIRED,T2,ADR-033 fail-closed authorization; imported by wiring.py + talk_gate; tested
+talk-gate,POLICY,_ops/policy/talk_gate.py,python,CODE_WIRED,T2,uses policy_gate for talk discovery actions
+octopus-v3-overlay,POLICY,_ops/octopus_v3/,python,CODE_ONLY_UNWIRED,T2,INTENT ledger+kill+budget overlay+taint latch+lease; WIRED=False by design (P0 2026-08-16)
+dual-brain-veto,GOVERNANCE,_ops/control_plane/dual_brain.py,python,CODE_TESTED_FLAG_OFF,T1,mutual veto 4d vs NBB; side effects behind OCTOPUS_WIRE_DUAL_VETO (not set in .env/flags)
+supervisor,GOVERNANCE,_ops/control_plane/supervisor.py,python,CODE_WIRED,T2,process supervision; namespace-constrained per its own charter
+genome-ledger,LEDGER,07 - Knowledge/genome-system/ledger/ledger.py,python,LIVE,T0,hash-chained append-only; 11444 records; last append 2026-08-16T13:44Z; age_tick monotonic (heart rule)
+fence-ledger,LEDGER,_ops/cortex/fence_ledger.py,python,CODE_WIRED,T2,cortex context fence ledger
+legs-ledger,LEDGER,_ops/legs/ledger_core.py,python,CODE_WIRED,T2,business-leg money ledger core
+heart,HOMEOSTASIS,_ops/heart/,python,CODE_WIRED,T2,control_law/pulse_arbiter/work_pump/fuel_meter/sim_heart; allostatic shadow loop (not named 'viability loop')
+neural,COGNITION,_ops/neural/,python,CODE_WIRED,T2,hebbian/bcm/consolidation/latent_space/nociceptor/pain_assessment
+math-control,COGNITION,_ops/math_control/spine.py,python,LIVE,T0,identity_health=0.542 computed live in ORGANISM-STATE
+chrono,RHYTHM,_ops/chrono.py,python,CODE_WIRED,T2,HLC beats; chrono.db WAL present in state
+model-router,LLM,_ops/cortex/model_router.py,python,CODE_WIRED,T2,three-brain local router (ollama port 11434)
+approval-channel,APPROVAL,_ops/budget/approval_channel.py,python,PAPER,T2,ApprovalChannel + NotWiredStub default; has NotImplementedError abstracts
+telegram-approval-channel,APPROVAL,_ops/budget (TelegramApprovalChannel in wiring),python,CODE_WIRED,T2,imported by wiring.py; live status unverified
+lead-leg,LEGS,_ops/legs/lead_leg.py + 80 files,python,LIVE_PROPONLY,T0,business leg; propose_only=true; invoice drafted INV-FY26-9794
+ziman-leg,LEGS,_ops/legs/ziman_leg.py,python,LIVE_PROPONLY,T0,gallery leg; capacity ceiling 30; zero external exec
+mining-leg,LEGS,_ops/legs/mining_leg.py,python,SKELETON,T0,live=false per state; awaits owner business spec
+crypto-leg,LEGS,_ops/legs/crypto_leg.py,python,NOT_LIVE,T0,assets=21 completeness=11%
+cartographer-leg,LEGS,_ops/legs/cartographer_leg.py,python,READONLY_STALE,T0,map stale 18d; drift_files=1143; refresh recommended
+4d-system,BRAIN,4d_system/,python,STANDALONE,T2,709 py; own MANIFEST says NOT wired to Octopus; run.py streamlit+selftest
+nbb-cp-vault,BRAIN,03 - Projects/NBB-Control-Plane/src/nbb_cp,python,CODE_ONLY,T2,divergent copy with adapters/legs + api/owner_gate.py
+nbb-cp-4d,BRAIN,4d_system/src/nbb_cp,python,CODE_ONLY,T2,divergent copy with fugu.py + adapters/vault
+nbb-cp-desktop,BRAIN,C:/Users/Armin/Desktop/OCTOPUS-NBB-CP-WORKING,python,ACTIVE_DEV,T0,separate git repo; commit today 16:02; has adapters/observatory
+nbb-cp-kre,KNOWLEDGE,4d_system/nbb-cp-kre,python,CODE_ONLY,T2,read-only vault link-prediction module; write-guard kernel/guard.py
+genome-system,ORGANISM,07 - Knowledge/genome-system/,python,NESTED_REPO,T2,agents/guardian+doctor+creativity; own .git inside root repo tracking
+octopus-viz,UI,OCTOPUS/,html,STATIC,T2,static 3D dashboards + 10 worlds; no runtime code
+nervous-system,UI,nervous-system/,python+js,EXTRACTORS,T2,data extractors feeding static dashboard
+octopus-queue,STATE,_octopus/,data,STATE_STORE,T2,config/logs/manifests/quarantine/queue/reports/state; queue pending is MCP propose_action exclusive
+genome-ledger-file,STATE,07 - Knowledge/genome-system/ledger/ledger.jsonl,jsonl,LIVE,T0,11444 lines; last ts 2026-08-16T13:44:24Z
+organism-state,STATE,_ops/state/ORGANISM-STATE.json,json,LIVE,T0,ts 2026-08-16T23:49:11; beat 38507; frozen=true
+pre0-governance,GOVERNANCE,PRE-0/,python+md,CODE_ONLY,T2,governance.py + constitutional_tests + CONSTITUTION.md
+octopus-bridge,BRIDGE,octopus-bridge/octopus_bridge/,python,CODE_ONLY,T2,bridge package; deep wiring not inspected (A02/A03 scope)
+telegram-inbox-processing,VAULT,"10 - Telegram processing",md,DATA,T2,vault-side telegram artifacts
+architecture-registries,CONFIG,architecture/,yaml,CONFIG,T2,capabilities-registry.yaml; hypothesis-registry.yaml; signals-registry.yaml+schema; observatory-allowlist
+activation-flags,CONFIG,_ops/ACTIVATION-*.flag,flags,CONFIG,T2,~14 activation flags incl. .off variants
+env,CONFIG,.env,env,CONFIG_T2_SECRETS_NOT_READ,T2,2039 bytes; secrets not opened
+saf-snapshot,ARTIFACT,lead-naghshi-portable.zip,zip,ARTIFACT,T2,23.8MB portable build
+archive-binaries,ARTIFACT,_archive-binaries/,bin,ARTIFACT,T2,legacy binaries
+duplicates-dir,ARTIFACT,_Duplicates/,misc,ARTIFACT,T2,explicit duplicates folder

@@ -1,0 +1,105 @@
+# C7.2 — DECISION LOG (autonomous mission)
+
+Date: 2026-07-23 · Branch: `claude/c7-continuity` · Role: sole writer. Prior report is treated as
+claim; every item below is verified from code.
+
+## 0. Safety lock (verified)
+- branch = `claude/c7-continuity` ✓
+- master = `a1c3ff6` — **unmoved** ✓
+- HEAD = `7ca50c7` (C7.1 commit); C7.2 work is uncommitted working tree.
+- `_ops/STOP-METABOLIC` = PRESENT ✓ (not touched)
+- `OCTOPUS_ONE_HEARTBEAT` = OFF (no activation flag, absent from flags.cmd) ✓
+- `OCTOPUS_SPINE_VIA_ADAPTER` = OFF ✓
+- money/email/customer/deploy/apply/provider external flags = disarmed ✓
+- working dir = `F:\backup` itself (NOT a separate worktree) — recorded explicitly; no checkout/merge.
+- No other writer detected on tracked source (edits are this session's only).
+
+## 1. Diff sanity (the UI +37,068 / −6,032 explained)
+- Tracked vs HEAD: **+11,186 / −6,042 across 72 files** — but most are **runtime churn**.
+- Untracked (excl-standard): **622 files, 36,973 lines** = reports / `.zcode/plans` / WIP scratch
+  tests / generated → the bulk of the UI number. **NONE committed.**
+- Categorization of the 72 tracked files:
+  - **A/B — C7.2 code+tests (COMMIT, ~23 files):** `pending_card_recovery.py`, `approval_channel.py`,
+    `research_loop.py`, `brain_core.py`, `memory_store.py`, `learning_gate.py`, `doctor.py`,
+    `beat_scheduler.py`, `memory/gate.py`, `legs/journal_bridge.py`, `organism.py`,
+    `heart/doctor_setpoint.py` + the 11 `test_*.py` touched.
+  - **D — runtime churn (EXCLUDE, ~49 files):** `_ops/state/**` (cortex/*, pulse/*, *.jsonl, *.lock),
+    `events.jsonl`, `07 - Knowledge/.../ledger.jsonl`, `_memory/HEARTBEAT.md`,
+    `_ops/governor/governor-alerts.md`, `_ops/budget/{budget-state,organ-state,organ-gate-log}.*`,
+    `_ops/neural/*.json`, `_ops/discovery/.../last-run-receipts.json`, `00 - Inbox/AGENT_QUESTIONS.md`,
+    `03 - Projects/.../_INDEX.md`.
+  - **E — generated test artifacts (EXCLUDE):** `OCTOPUS-PRIME/phase-0/test-authority/FULL-SANDBOX-TEST-REPORT.json`,
+    `test_manifest.json` (regenerated per suite run; a dedicated C7.2 evidence copy is committed instead).
+- No formatter-wide / line-ending rewrite found (`git diff --check` shows only pre-existing trailing
+  whitespace in the runtime `AGENT_QUESTIONS.md`, which is excluded). The `−6,042` deletions are
+  concentrated in the two regenerated test-authority JSON artifacts (−3,173 / −2,105) + real code edits.
+
+## 2. Test-integrity ledger (why each test changed — constitution §2)
+Reasons: (1) contract changed & documented; (2) test mocked an old implementation detail;
+(3) broken isolation / shared-store contamination; (4) false-green invariant; (5) new API, same
+semantic + more durability.
+
+| test | change | reason |
+|---|---|---|
+| `test_pending_card_recovery` [۶] | forged-token now rejected via `verify_callback` → assert `bad-token`, not old "نامنطبق" string; deny path needs no chrono | (1) |
+| `test_cockpit_v2` simple_home ×2 | create RFC via `rfc_card` (durable record + nonce) instead of injecting `_pending_rfc` with a hand-made token | (2) |
+| `test_cockpit_v2` backcompat | **kept `==`**; isolated the shared durable RFC/money store at test start (did NOT weaken to membership) | (3) |
+| `test_cockpit_v2` / `test_chamber_temperature` | set `OCTOPUS_CB_SECRET` so actionable card can mint its nonce token (fail-closed without it) | (1) |
+| `test_chamber_temperature` consume | mock `claim_rfc_verdicts`/`ack_rfc_verdict` (new API); registry-label test pins the **legacy** path via `MagicMock(spec=["pop_rfc_verdicts"])` so auto-attrs don't silently pick the claim path | (5)+(2) |
+| `test_telegram_channel` no-owner/wired | removed the module-level `TELEGRAM_OWNER_CHAT_ID=42` env-leak (no test relies on it; all pass owner explicitly) | (3) |
+| `test_telegram_channel` offset ×2 | `state_dir=None` is now durable-by-default (C7.2, code); tests clear the **sandbox** offset file (`opslib.STATE_DIR`, not the real repo path) and assert durable-by-default | (1)+(3) |
+| `test_merge_applies_knob` / `test_p0_security_fixes` | `_VerdictChan`/`_Chan` upgraded to the claim/ack API (3-tuple + `begin_rfc_apply`/`ack_rfc_verdict=True`) so doctor takes the real apply path; legacy-label test kept separate | (5)+(2) |
+
+## 3. Code change (the only production edit this session)
+- `verify_callback(..., require_effect_pending: bool = True)` + `dispatch_callback` passes
+  `require_effect_pending=(verb == "approve")`. **Rationale:** chrono `status=pending` binding is
+  required only for `approve` (the sole verb that settles money). `deny`/`later` do not move money and
+  must remain usable on a non-pending effect (backcompat + rejecting an expired/settled card). Money
+  authorization is UNCHANGED — `approve` still routes through `EffectorGate.release_effect`, which
+  re-checks binding + `status='pending'` atomically. (Constitution reason 1; Mission B: expiry+owner+
+  action+effect+HMAC checked at callback; canonical chrono release only.)
+
+## 4. Full-suite status (evidence)
+run_all after fixes: only environmental failures remain (all "capability revoked" — live network/LLM):
+`test_llm_routing_smoke` (live Fugu API HTTP 429), `test_ziman_*` ×3, `test_cartographer_wiring`,
+`test_leg_chain_wire` + `test_phase1_envelope` (untracked `ACTIVATION-HEARTSTATE.flag` live activation).
+All proven not-C7.2 (baseline `efa0412` + clean-worktree isolation). Every C7.2-touched suite is GREEN.
+
+## 5. Mission axes A–I — verified from code (not from prior report)
+- **A CENTRAL OWNER GATE** ✓ — `dispatch_callback` gates via `_callback_requires_owner`
+  (`_MUTATING_CALLBACK_SCHEMES = {app,rfc,home,act,rev,jrn,acct,prop}` + mutating menu pages) →
+  `_callback_owner_ok(from_id)`. Mutating callback with `external=True` or a real `from_id` that isn't
+  owner → rejected before sub-dispatch. `from_id=None` passes only as a trusted in-process seam
+  (`trusted_internal`). Covered by `test_telegram_group_allowlist` / `test_telegram_rfc_router` (green).
+- **B DURABLE APPROVAL CARD STATE MACHINE** ✓ — `prepare_money_card` persists non-secret binding +
+  `nonce` + `token_sha256` (raw token NOT on disk); delivery PENDING→LEASED→SENT; `persist_money_decision`
+  (DENIED/DEFERRED durable); `verify_callback` re-checks owner+expiry+HMAC+binding at click; approve →
+  `EffectorGate.release_effect` only; unknown amount / missing secret → fail-closed (no AU$0.00).
+  Covered by `test_pending_card_recovery` (12, green).
+- **C RFC CLAIM/APPLY/ACK EXACTLY-ONCE** ✓ — `verify_rfc_callback` (durable SUBMITTED + nonce);
+  `persist_rfc_verdict` before ack; `claim_rfc_verdicts(worker,lease)` + `begin_rfc_apply(op_key)` +
+  `ack_rfc_verdict(applied,receipt)`; doctor uses explicit `hasattr(claim_rfc_verdicts)` (not MagicMock
+  ambiguity — tests pin path via `spec`). Legacy `pop_rfc_verdicts` is adapter-only. Covered by
+  `test_merge_applies_knob`, `test_p0_security_fixes`, `test_chamber_temperature` (green).
+- **D BOOT ORDER** ✓ — organism: `boot_recovery` (309) + `rebuild_money_cards` (341) run BEFORE the
+  Telegram poller thread starts (`run_forever`, 363). `make_telegram_channel` does not auto-poll.
+  Recovery-before-poller invariant holds.
+- **E BEAT ACT/LEARN EXACTLY-ONCE** ✓ — RESERVED/COMMITTED/DEGRADED + `committed_counter` (advances only
+  on checked commit) + `recovery_block` (an incomplete/crossed-ACT beat runs safe-phase/advisory-only
+  until reconciled) + `production_safe` (ACT_ARMED ignored until an operation-level outbox/receipt
+  exists). Shadow composition is structurally ACT/LEARN-free. Covered by `test_beat_scheduler` (13, green).
+- **F RESEARCH RESUME + ADMISSION ATOMICITY** ✓ — per-lane `resume_point` from research-journal;
+  `plan_recovery` (DETECTED); `find_completed(experiment_key)` idempotent resume (no rerun / no dup
+  artifact) + promotion path; final-ledger-fail → memory retracted (compensation). Covered by
+  `test_research_loop` (16, green).
+- **G REAL SEMANTIC PARITY** ✓ — only the typed `health-contract-v1` comparator gates promotion (RECORD
+  stream-count is coverage telemetry, not parity); `soak_fingerprint` restarts the soak on code/schema
+  change; missing authoritative source blocks green; PARITY-GREEN needs ≥24h continuous. Covered by
+  `test_brain_core` (green).
+- **H EVIDENCE ARTIFACT** — C7.2 authoritative barrier suite artifact saved (see §6).
+- **I TEST ISOLATION** ✓ — env-leak removed (telegram owner); durable stores reset per-test where shared
+  (cockpit backcompat kept `==` with isolation); MagicMock claim/pop path pinned via `spec`.
+
+Residual (honest, owner-gated — NOT false-green): full operation-level ACT/LEARN outbox is a precondition
+for arming real ACT (documented, `production_safe` blocks it); C6 resume is idempotent + DETECTED (not a
+fully generalized experiment state machine). Neither is enabled in shadow; both fail-closed.

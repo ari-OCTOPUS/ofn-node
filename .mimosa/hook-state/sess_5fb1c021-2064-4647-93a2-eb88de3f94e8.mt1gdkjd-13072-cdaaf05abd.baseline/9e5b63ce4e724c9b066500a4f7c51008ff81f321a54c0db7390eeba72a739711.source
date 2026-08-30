@@ -1,0 +1,201 @@
+"""
+test_confidence_g16.py — تست آفلاینِ فیکسِ GAP G-16 (decisions.confidence همیشه NULL بود).
+
+بدونِ Postgres/FastAPI/شبکه اجرا می‌شود؛ فقط app.research (پکیجِ خالص) را وارد می‌کند.
+app.main / app.db عمداً وارد نمی‌شوند چون به psycopg/fastapi/pydantic نیاز دارند که در
+این sandbox نصب نیستند (تأیید شد: ModuleNotFoundError). به‌جایش، خطِ دقیقِ main.py که از
+خروجیِ این توابع مصرف می‌کند این‌جا شبیه‌سازی و تست می‌شود (ر.ک. test_main_wiring_contract).
+
+اجرا: python3 -m pytest tests/test_confidence_g16.py -v
+   یا: python3 tests/test_confidence_g16.py   (بدونِ pytest؛ runner ساده‌ی انتهای فایل)
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from app.research import source_quality  # noqa: E402
+from app.research.engine import run_research  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# Fixtures کمکی (بدونِ شبکه)
+# ---------------------------------------------------------------------------
+
+def _ranked(*scores: float) -> list[dict]:
+    """ranked-list جعلی با _score دلخواه (خروجیِ source_quality.rank را شبیه می‌کند)."""
+    return [{"url": f"https://example.com/{i}", "title": f"t{i}", "_score": s}
+            for i, s in enumerate(scores)]
+
+
+class FakeSearch:
+    """search provider خالص؛ بدونِ شبکه."""
+    def __init__(self, results):
+        self._results = results
+
+    def search(self, query, k=5):
+        return self._results
+
+
+class FakeBrain:
+    """brain خالص؛ خروجیِ ثابت، بدونِ LLM واقعی."""
+    name = "fake"
+
+    def ask(self, system, question, results, target="armin"):
+        return "بریفِ آزمایشی [E] با ادعای آزمون‌پذیر."
+
+
+# ---------------------------------------------------------------------------
+# 1) confidence_score() — تابعِ خالصِ جدید
+# ---------------------------------------------------------------------------
+
+def test_confidence_score_empty_is_zero_not_none():
+    assert source_quality.confidence_score([]) == 0.0
+    assert source_quality.confidence_score([]) is not None
+
+
+def test_confidence_score_bounds_always_0_to_1():
+    cases = [
+        _ranked(),
+        _ranked(0.0),
+        _ranked(1.0),
+        _ranked(0.9, 0.8, 0.7),
+        _ranked(0.1, 0.05),
+        _ranked(*(0.6,) * 10),
+    ]
+    for ranked in cases:
+        score = source_quality.confidence_score(ranked)
+        assert isinstance(score, float)
+        assert 0.0 <= score <= 1.0, f"out of bounds for {ranked}: {score}"
+
+
+def test_confidence_score_high_quality_sources_score_high():
+    # top=0.9 و ۲ منبعِ خوب (>=0.6) => good_ratio سقف => confidence بالا
+    ranked = _ranked(0.9, 0.8, 0.65)
+    score = source_quality.confidence_score(ranked)
+    assert score >= 0.8, f"expected high confidence, got {score}"
+
+
+def test_confidence_score_weak_sources_score_low():
+    ranked = _ranked(0.2, 0.1)
+    score = source_quality.confidence_score(ranked)
+    assert score <= 0.2, f"expected low confidence, got {score}"
+
+
+def test_confidence_score_monotonic_with_quality():
+    weak = source_quality.confidence_score(_ranked(0.2))
+    strong = source_quality.confidence_score(_ranked(0.9, 0.8))
+    assert strong > weak
+
+
+# ---------------------------------------------------------------------------
+# 2) uncertainty()["score"] — کلیدِ جدید، سازگار با confidence_score()
+# ---------------------------------------------------------------------------
+
+def test_uncertainty_always_has_numeric_score_key():
+    for ranked in (_ranked(), _ranked(0.3), _ranked(0.9, 0.8, 0.7)):
+        unc = source_quality.uncertainty(ranked)
+        assert "score" in unc
+        assert unc["score"] is not None
+        assert isinstance(unc["score"], float)
+
+
+def test_uncertainty_score_matches_confidence_score():
+    for ranked in (_ranked(), _ranked(0.55), _ranked(0.9, 0.85, 0.7, 0.2)):
+        unc = source_quality.uncertainty(ranked)
+        assert unc["score"] == source_quality.confidence_score(ranked)
+
+
+def test_uncertainty_empty_still_has_level_and_reason_unchanged():
+    # رگرسیون: رفتارِ قبلی (level/reason) دست‌نخورده می‌ماند؛ فقط "score" اضافه شده.
+    unc = source_quality.uncertainty([])
+    assert unc["level"] == "high"
+    assert unc["reason"] == "هیچ منبعی نیست"
+    assert unc["score"] == 0.0
+
+
+def test_uncertainty_low_level_case_unchanged_reason_text():
+    ranked = _ranked(0.9, 0.8)  # top>=0.7 و n_good>=2 => "low"
+    unc = source_quality.uncertainty(ranked)
+    assert unc["level"] == "low"
+    assert "منبعِ قوی هم‌سو" in unc["reason"]
+
+
+# ---------------------------------------------------------------------------
+# 3) run_research() سرتاسری (engine.py) — با search/brain جعلیِ آفلاین
+# ---------------------------------------------------------------------------
+
+def test_run_research_out_uncertainty_has_score_for_main_py():
+    """
+    شبیه‌سازیِ دقیقِ چیزی که main.py می‌سازد:
+        out = run_research(...)
+        out["uncertainty"].get("score")   # <- دیگر نباید None باشد
+    """
+    search = FakeSearch([
+        {"title": "Systematic review of X", "url": "https://pubmed.ncbi.nlm.nih.gov/1",
+         "snippet": "meta-analysis of randomized trials"},
+        {"title": "Cochrane review", "url": "https://cochrane.org/2",
+         "snippet": "systematic review, strong evidence"},
+    ])
+    brain = FakeBrain()
+    out = run_research("آیا X روی Y اثر دارد؟", "armin", search, brain)
+
+    assert "uncertainty" in out
+    score = out["uncertainty"].get("score")
+    assert score is not None, "G-16 regression: confidence would be NULL again"
+    assert isinstance(score, float)
+    assert 0.0 <= score <= 1.0
+
+
+def test_run_research_no_results_still_yields_zero_not_none():
+    out = run_research("سؤالِ بدونِ نتیجه", "armin", FakeSearch([]), FakeBrain())
+    score = out["uncertainty"].get("score")
+    assert score == 0.0
+    assert score is not None
+
+
+# ---------------------------------------------------------------------------
+# 4) قراردادِ سیم‌کشیِ main.py — دقیقاً همان خط را شبیه‌سازی می‌کند
+#    (app.main مستقیماً import نمی‌شود چون fastapi/pydantic/psycopg نصب نیستند؛
+#    این تست منطقِ خط 84-88 را عیناً بازتولید می‌کند تا قراردادِ ادغام تضمین شود)
+# ---------------------------------------------------------------------------
+
+def test_main_wiring_contract_confidence_no_longer_hardcoded_none():
+    search = FakeSearch([{"title": "BBC", "url": "https://bbc.co.uk/x", "snippet": "reuters report"}])
+    brain = FakeBrain()
+    out = run_research("سؤال", "armin", search, brain)
+
+    # --- این دقیقاً همان دو خطِ main.py::research() است (app/main.py) ---
+    risk = out["uncertainty"].get("level", "unknown")
+    confidence = out["uncertainty"].get("score")
+    # ------------------------------------------------------------------
+
+    assert risk in ("low", "medium", "high")
+    assert confidence is not None, "پیش از فیکس همیشه None بود (GAP G-16)"
+    assert isinstance(confidence, (int, float))
+
+
+# ---------------------------------------------------------------------------
+# runner ساده بدونِ pytest (برای محیط‌هایی که pytest نصب نیست)
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    import traceback
+
+    tests = [(name, fn) for name, fn in list(globals().items())
+              if name.startswith("test_") and callable(fn)]
+    passed, failed = 0, 0
+    for name, fn in tests:
+        try:
+            fn()
+            print(f"PASS  {name}")
+            passed += 1
+        except Exception:
+            print(f"FAIL  {name}")
+            traceback.print_exc()
+            failed += 1
+    print(f"\n{passed} passed, {failed} failed out of {len(tests)}")
+    sys.exit(1 if failed else 0)

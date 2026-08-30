@@ -1,0 +1,60 @@
+{
+  "auth": "OCTOPUS-ORANGEPI-GAP002-CLOSE-20260822",
+  "decision": "PASS",
+  "mutate": true,
+  "open_gaps_path": "/opt/octopus/current/manifests/open-gaps.json",
+  "backup_path": "/opt/octopus/current/manifests/open-gaps.json.bak-20260822T111609Z",
+  "before_sha256": "sha256:a2e94c931c0aff3d3625b42040b79783071f978c57962aae1c57764bd1dbdf09",
+  "after_sha256": "sha256:3702d9525406fe1a0adcc0e23a598599c463ac6f7241ab4d7640c1a365d3ba53",
+  "backup_sha256": "sha256:a2e94c931c0aff3d3625b42040b79783071f978c57962aae1c57764bd1dbdf09",
+  "gap002_before": {
+    "status": "DEFERRED_TO_WAVE1",
+    "audit_integrity": "HASH_CHAIN_ONLY",
+    "pass": false
+  },
+  "gap002_after": {
+    "status": "EXTERNALLY_CHECKPOINTED",
+    "audit_integrity": "EXTERNALLY_CHECKPOINTED",
+    "pass": true
+  },
+  "gap001_unchanged": true,
+  "doctor_before_status": "FAIL",
+  "doctor_before_blocking": [
+    "gap002_registry"
+  ],
+  "doctor_after_status": "FAIL",
+  "doctor_after_blocking": [
+    "metrics_bind",
+    "unexpected_listeners"
+  ],
+  "gap002_check_after": {
+    "schema": "octopus.doctor-check.v1",
+    "check_id": "gap002_registry",
+    "category": "integrity",
+    "severity": "blocking",
+    "observed": {
+      "status": "EXTERNALLY_CHECKPOINTED",
+      "audit_integrity": "EXTERNALLY_CHECKPOINTED",
+      "pass": true
+    },
+    "expected": {
+      "pass": true,
+      "audit_integrity": "EXTERNALLY_CHECKPOINTED"
+    },
+    "evidence_path": "/opt/octopus/current/manifests/open-gaps.json",
+    "read_only": true,
+    "passed": true,
+    "remediation_owner": "owner",
+    "remediation_type": "registry_close_not_checkpoint_credit",
+    "source_command": "python3 -m json.tool /opt/octopus/current/manifests/open-gaps.json",
+    "source_digest": "sha256:3702d9525406fe1a0adcc0e23a598599c463ac6f7241ab4d7640c1a365d3ba53",
+    "reason": null,
+    "live_gap_file": "CLOSED_BY_SIGNED_CHECKPOINT",
+    "signature_does_not_close_registry": true
+  },
+  "gap002_cleared": true,
+  "wave0_decision": "KEEP_WAVE0_LOCKED",
+  "actuator_authority": "NONE",
+  "mqtt": "CLOSED",
+  "timestamp_utc": "2026-08-22T11:16:10.737616+00:00"
+}

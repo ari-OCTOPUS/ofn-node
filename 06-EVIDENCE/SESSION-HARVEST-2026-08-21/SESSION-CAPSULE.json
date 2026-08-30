@@ -22,8 +22,7 @@
   "Wave 1 LOCKED (preflight gate)",
   "cognitive chain OPEN",
   "doctor mission OPEN",
-  "parity NO_BASELINE",
-  "LOOP-APPROVAL-QUEUE OPEN/OWNER_DECISION_REQUIRED"
+  "parity NO_BASELINE"
  ],
  "owner_decisions": [
   "gate scope owner-side / no Mimosa bypass",
@@ -60,16 +59,17 @@
  "current_head_at_final_verification": "fec3288",
  "contained_loops": [
   "LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT CONTAINED_VERIFIED (no task identity)",
-  "LOOP-LEGACY-RECEIPT-UNCONFIRMED CONTAINED_VERIFIED (owner-observed resolution)"
+  "LOOP-LEGACY-RECEIPT-UNCONFIRMED CONTAINED_VERIFIED (owner-observed resolution)",
+  "LOOP-APPROVAL-QUEUE CONTAINED_VERIFIED (claim reconciled, 0 proposals)"
  ],
  "quarantined_uncertain": [
   "updates 223883344/223883346 OWNER_OBSERVED_UNCONFIRMED_API (no API message_id/readback)"
  ],
  "loop_accounting": {
   "closed": 3,
-  "contained": 2,
+  "contained": 3,
   "quarantined_uncertain": 2,
-  "open": 9
+  "open": 8
  },
  "needs_accounting": {
   "total_unique_needs": 12,
@@ -77,5 +77,12 @@
   "owner_required": 3,
   "externally_blocked": 0,
   "secondary_tags_overlap": "earlier 'automatic=4/repairable=8' labels dropped: primary classes are disjoint (self_resolvable ∩ owner_required = ∅)"
+ },
+ "approval_queue": {
+  "claim_pending": 20,
+  "verified_proposals": 0,
+  "owner_decision_required": false,
+  "status": "CONTAINED_VERIFIED (claim reconciled: archive file count)",
+  "evidence": "APPROVAL-QUEUE-RECONCILIATION.json"
  }
 }

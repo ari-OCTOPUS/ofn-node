@@ -1,0 +1,56 @@
+# C7.2 — MERGE RECOMMENDATION
+
+Date: 2026-07-23 · Branch: `claude/c7-continuity` @ `3441603` · master `a1c3ff6` (unmoved, 8 ahead).
+Prepared by the sole writer. **Every axis below is marked VERIFIED (read from code + a passing test)
+or OPEN (honest gap). No axis is asserted from a prior report.**
+
+## Changed files (commit 3441603 — reviewable, no runtime)
+12 source: `beat_scheduler.py`, `brain_core.py`, `budget/approval_channel.py`, `doctor/doctor.py`,
+`heart/doctor_setpoint.py`, `legs/journal_bridge.py`, `memory/gate.py`, `memory/memory_store.py`,
+`organism.py`, `outcomes/{learning_gate,pending_card_recovery,research_loop}.py`.
+11 tests + 3 `_phase1a` docs (decision log + evidence). Zero `_ops/state/**`, zero WAL/log/secret.
+
+## Axis status (verified from code + test)
+| axis | status | code evidence | test |
+|---|---|---|---|
+| A owner-gate central | **VERIFIED** | `dispatch_callback` gates `_MUTATING={app,rfc,home,act,rev,jrn,acct,prop}`+menu{stop_confirm,learned}; `card/pg/menu`=read-only (no writes); prod `poll_once` passes `external=True`; `_callback_owner_ok(None)`→False; internal re-entry uses explicit `trusted_internal=True` | `test_telegram_group_allowlist`: non-owner denied; `from_id=None+external=True`→owner-only (fail-closed) |
+| B card state machine | **VERIFIED** | `prepare_money_card` stores `token_sha256` (raw token NEVER on disk); PENDING→LEASED→SENT; `persist_money_decision` durable deny/later; `verify_callback` re-checks owner+expiry+HMAC+binding; no-secret/unknown-amount→fail-closed | `test_pending_card_recovery` (12) |
+| C RFC claim/apply/ack | **VERIFIED** | `verify_rfc_callback`; persist-before-ack; `claim_rfc_verdicts(lease)`+`begin_rfc_apply(op_key)`+`ack_rfc_verdict(applied,receipt)`; doctor path by explicit `hasattr(claim_rfc_verdicts)` | `test_merge_applies_knob`, `test_p0_security_fixes`, `test_chamber_temperature` |
+| D boot order | **VERIFIED** | organism: `boot_recovery`(309)+`rebuild_money_cards`(341) BEFORE poller `run_forever`(363); `make_telegram_channel` doesn't auto-poll | (code-verified; no dedicated race test — see OPEN-1) |
+| E beat ACT/LEARN | **VERIFIED** | `production_safe`→`FORBIDDEN_PRODUCTION_PHASES` skip + `act_armed=(not production_safe and …)`; RESERVED/COMMITTED + `committed_counter` + `recovery_block` | `test_beat_scheduler` `t_production_safe_forbids_act_and_learn` + E-1..E-4 |
+| F research atomicity | **VERIFIED** | per-lane `resume_point`; `find_completed` idempotent (no rerun/dup); retract-on-final-ledger-fail | `test_research_loop` C-1..C-3, B-1..B-3 |
+| G parity validity | **VERIFIED** | only typed `health-contract-v1` gates; `soak_fingerprint`; missing-source blocks green; ≥24h continuous | `test_brain_core` (10) |
+| H evidence artifact | **VERIFIED** | C7.2 authoritative barrier suite | `_phase1a/C7.2-AUTHORITATIVE-SUITE-274.txt` = 274/274, 0 live-writes/network/barrier-fail |
+| I test isolation | **VERIFIED** | env-leak removed; per-test store reset (kept `==`, not membership); claim/pop paths pinned via `spec` | all C7.2 suites green |
+
+## OPEN items (honest — NOT green, all fail-closed / owner-gated)
+- **OPEN-1 boot-order race test:** recovery-before-poller is correct by construction (code), but there is
+  no dedicated test that injects a callback *during* boot and asserts it is reprocessed exactly once after
+  ready. Risk: low (poller literally starts after recovery). Recommend adding before enabling live poll.
+- **OPEN-2 C6 full resume state machine:** C6 has idempotent resume (`find_completed`) + admission
+  atomicity (retract) + `verified-not-admitted`/`quarantined` verdicts, but NOT an explicit named durable
+  `DETECTED→PENDING_ADMISSION→ADMITTED/RETRACTED` machine with per-transition crash tests. **C6 is not
+  live** (no real research mission runs; proposal-only, owner-gated) so this is not on any hot path.
+- **OPEN-3 24h parity soak:** the gate correctly *requires* ≥24h continuous, but no real 24h soak has
+  elapsed — `PARITY-GREEN` has never (and must never yet) be asserted. Flag OFF.
+- **OPEN-4 ACT/LEARN operation outbox:** real armed ACT needs an operation-level idempotency outbox+receipt
+  before `ACT_ARMED` may be honored; `production_safe` currently blocks armed ACT entirely. Owner-gated.
+
+## Safety (verified now)
+STOP-METABOLIC PRESENT · ONE_HEARTBEAT OFF · SPINE_VIA_ADAPTER OFF · external flags disarmed ·
+`chrono.py` money-authorization path 0 diff · master unmoved.
+
+## Risks & mitigations
+- Money card inert without `OCTOPUS_CB_SECRET` (fail-closed, safe) — owner must set the secret to enable
+  actionable cards. Documented; not a regression.
+- The single production edit (`require_effect_pending=(verb=='approve')`) is scoped to deny/later; approve
+  keeps full chrono binding + `release_effect` re-check. Mitigation: covered by money-authorization suite.
+
+## Rollback
+`git revert 3441603` (single commit; independent of `7ca50c7`). Or simply do not merge.
+
+## RECOMMENDATION: **MERGE-READY for the verified axes (A–I core), WAIT on OPEN-1..4 before enabling
+live poll / arming ACT / declaring C5/C6 live.** Merge is safe now because every OPEN item is behind a
+disarmed flag or a not-live path; none is on a currently-enabled hot path. The one-sentence human decision:
+*review the diff (26 files) and the 274/274 barrier artifact, then merge to master — but keep STOP-METABOLIC,
+ONE_HEARTBEAT, SPINE_VIA_ADAPTER, and all external flags OFF until OPEN-1..4 are closed.*

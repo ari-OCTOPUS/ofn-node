@@ -4,12 +4,26 @@ project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, agent-instructions]
 created: 2026-07-18
-updated: 2026-08-16
+updated: 2026-08-20
 ---
 
 # 📣 دستور برای همهٔ ایجنت‌ها — شناخت اختاپوس (۲۰۲۶-۰۸-۰۴)
 
-> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ (additive):** ورود عملیاتی = [[../../01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] + [[../../00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] + [[../../00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] + نوت [[49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹]]. مگاپرامپت `MEGAPROMPT-OCTOPUS-FULL-2026-08-03.md` **تاریخی** است — اگر با STATE/کد زنده اختلاف داشت، کد زنده سپس STATE برنده است. آزاد C-027. پوش فقط با کلمهٔ مالک (C-023).
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۲۰ (additive):** ورود عملیاتی امشب = نوت [[72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20|۷۲]]. A13–A17 PASS · A18 BLOCKED · A19 issued · lease RELEASED. فایل‌های hot تلگرام را ننویس. hook دانش فقط روی خط organism.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۸ (additive):** گزارش بین‌گرهی بدون Evidence Envelope خام قبول نیست. نوت [[66-VERIFIER-EVIDENCE-ENVELOPE-2026-08-18|۶۶]] · سایدکار `_ops/handshake/` · WAVE0. آزاد **C-034**.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ شب (additive):** ورود کل روز = نوت [[61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱]]. عصر = نوت ۵۴. سه برد = نوت ۶۰. PolarFire PUF روی Artix-7 نیست. کل ارگانیسم را کپی نکن. آزاد **C-034**.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ شب (additive):** سه برد = نوت [[60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|۶۰]]. PolarFire PUF روی Artix-7 نیست. کل ارگانیسم را کپی نکن. آزاد **C-034**.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ شب (additive):** مگاپرامپت بعد = [[../../00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps|بستن جاافتادگی مهاجرت]] · نوت [[59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹]]. G8 از نو نه. آزاد **C-034**.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ شب (additive):** fencing lease = `_ops/runtime/beat_lease.py` (۱۷ تست، chrono وصل نیست). رودمپ نوت [[57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|۵۷]]. FPGA نوت [[58-FPGA-REFLEX-LAYER-2026-08-16|۵۸]] propose-only — خرید نه. آزاد **C-034**.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ شب (additive):** مهاجرت لپ‌تاپ→Arm 1 = نوت [[57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|۵۷]]. YOU ARE HERE فاز ۰ Beat Lease (کد هست، فلگ خاموش، chrono وصل نیست). M0 بعدی. آزاد **C-034**.
+>
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۶ عصر (additive):** ورود = نوت [[54-GROK-SESSION-SOT-2026-08-16|۵۴]] + STATE §8 + DAY-INDEX + OWNER-PENDING. آزاد **C-034**. TCB ۱۵ فایل امضا valid. مگاپرامپت ۳ اوت تاریخی است — کد زنده سپس STATE سپس نوت ۵۴. پوش فقط با کلمهٔ مالک در همان پنجره (C-023). SEAM-LOOP/PERPETUAL برای شروع باطل.
 >
 > **به‌روزرسانیِ ۲۰۲۶-۰۸-۱۵ (additive):** سیزن آزمایشگاه دسکتاپ D1–D8 =
 > [[47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]]. آن خط را با `_ops` زنده

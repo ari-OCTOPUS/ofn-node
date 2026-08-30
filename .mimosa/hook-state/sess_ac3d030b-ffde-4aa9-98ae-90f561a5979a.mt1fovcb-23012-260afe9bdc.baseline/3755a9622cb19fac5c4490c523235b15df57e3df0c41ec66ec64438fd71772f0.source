@@ -1,0 +1,995 @@
+"""
+db.py — لایه‌ی دیتابیس SQLite برای بات LANGAR
+single-user · بدون hash-chain · verdict یک‌بارنویس (write-once)
+schema با migrations.py نسخه‌بندی و به‌روزرسانی می‌شود (افزایشی، غیرمخرب).
+"""
+
+import datetime as _dt
+import os
+import sqlite3
+import statistics
+from contextlib import contextmanager
+from pathlib import Path
+
+import migrations
+
+# مسیر دیتابیس: پیش‌فرض کنارِ همین فایل، یا قابلِ تنظیم با متغیرِ LANGAR_DB
+# (روی سرور بهتر است یک مسیرِ ثابتِ مستقل از پوشه‌ی کد بدهی تا با آپدیتِ کد گم نشود)
+DB_PATH = Path(os.environ.get("LANGAR_DB", Path(__file__).resolve().parent / "langar.db"))
+
+
+class AlreadyJudged(Exception):
+    """تلاش برای داوریِ دوباره روی بینشی که قبلاً داوری شده (verdict برگشت‌ناپذیر)."""
+
+    def __init__(self, current: str):
+        self.current = current
+        super().__init__(f"already judged: {current}")
+
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS log (
+    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts    TEXT    NOT NULL DEFAULT (datetime('now', 'localtime')),
+    rmssd REAL,
+    sleep INTEGER,   -- 1..5
+    used  INTEGER,   -- 0 = نه / 1 = بله
+    loc   TEXT,      -- home / work / other
+    note  TEXT
+);
+
+CREATE TABLE IF NOT EXISTS insight (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts      TEXT    NOT NULL DEFAULT (datetime('now', 'localtime')),
+    content TEXT,
+    tag     TEXT,   -- E / S / P
+    recheck TEXT,   -- YYYY-MM-DD
+    verdict TEXT    DEFAULT 'pending'  -- pending / confirmed / refuted
+);
+
+CREATE TABLE IF NOT EXISTS reflection (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts       TEXT    NOT NULL DEFAULT (datetime('now', 'localtime')),
+    domain   TEXT,   -- body / mind / relations / work / meaning / habits / free
+    question TEXT,   -- سؤالِ مغز (اگر آزاد بود، خالی)
+    answer   TEXT    -- پاسخِ کاربر
+);
+
+CREATE TABLE IF NOT EXISTS config (
+    key TEXT PRIMARY KEY,
+    val TEXT
+);
+
+INSERT OR IGNORE INTO config(key, val) VALUES ('halted', '0');
+"""
+
+
+@contextmanager
+def _conn():
+    """یک connection با row factory و commit/rollback خودکار."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def init_db() -> None:
+    """ساخت جدول‌ها + اجرای migrationها. idempotent است."""
+    with _conn() as conn:
+        # WAL: نوشتن مقاوم در برابر قطعِ ناگهانی/کرش — داده‌ی ثبت‌شده گم نمی‌شود
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA synchronous = NORMAL;")
+        conn.executescript(SCHEMA)
+        migrations.run_migrations(conn)
+
+
+def schema_version() -> str | None:
+    return get_config("schema_version")
+
+
+# ----------------------------------------------------------------------
+# config / kill-switch
+# ----------------------------------------------------------------------
+
+def get_config(key: str, default: str | None = None) -> str | None:
+    with _conn() as conn:
+        row = conn.execute("SELECT val FROM config WHERE key = ?", (key,)).fetchone()
+        return row["val"] if row else default
+
+
+def set_config(key: str, val: str) -> None:
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO config(key, val) VALUES (?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET val = excluded.val",
+            (key, val),
+        )
+
+
+def is_halted() -> bool:
+    return get_config("halted", "0") == "1"
+
+
+# ----------------------------------------------------------------------
+# log
+# ----------------------------------------------------------------------
+
+def add_log(
+    rmssd, sleep, used, loc, note,
+    *,
+    rmssd_quality=None,
+    rmssd_source=None,
+    measurement_duration_sec=None,
+    measurement_posture=None,
+) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO log("
+            "rmssd, sleep, used, loc, note, "
+            "rmssd_quality, rmssd_source, measurement_duration_sec, measurement_posture"
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (rmssd, sleep, used, loc, note,
+             rmssd_quality, rmssd_source, measurement_duration_sec, measurement_posture),
+        )
+        return cur.lastrowid
+
+
+def last_log():
+    with _conn() as conn:
+        return conn.execute(
+            "SELECT * FROM log ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+
+
+def recent_logs(n: int = 7):
+    """آخرین n رکورد، مرتب از قدیم به جدید."""
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM log ORDER BY id DESC LIMIT ?", (n,)
+        ).fetchall()
+    return list(reversed(rows))
+
+
+def logs_on(date_str: str):
+    """رکوردهای log در یک روزِ مشخص (YYYY-MM-DD)."""
+    with _conn() as conn:
+        return conn.execute(
+            "SELECT * FROM log WHERE substr(ts,1,10) = ? ORDER BY id", (date_str,)
+        ).fetchall()
+
+
+def log_streak() -> int:
+    """تعدادِ روزهای متوالیِ ثبتِ log که به امروز (یا دیروز) ختم می‌شوند."""
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT substr(ts,1,10) d FROM log"
+        ).fetchall()
+    dates = {r["d"] for r in rows}
+    if not dates:
+        return 0
+    today = _dt.date.today()
+    start = today if today.isoformat() in dates else today - _dt.timedelta(days=1)
+    if start.isoformat() not in dates:
+        return 0
+    streak = 0
+    d = start
+    while d.isoformat() in dates:
+        streak += 1
+        d -= _dt.timedelta(days=1)
+    return streak
+
+
+# ----------------------------------------------------------------------
+# daily_state — وضعیتِ سبکِ روزانه (mood/energy/stress/…)، قابلِ ویرایش
+# ----------------------------------------------------------------------
+
+_DS_FIELDS = {
+    "mood", "energy", "stress", "soreness", "exercise", "caffeine_time",
+    "screen_late", "social", "deep_work_min", "meditation_min",
+    "wake_time", "bedtime", "weight", "tags",
+}
+
+
+def upsert_daily_state(date_str: str, **fields) -> None:
+    """یک ردیفِ روز را ایجاد/به‌روز می‌کند. فقط فیلدهای داده‌شده تغییر می‌کنند."""
+    clean = {k: v for k, v in fields.items() if k in _DS_FIELDS and v is not None}
+    with _conn() as conn:
+        conn.execute("INSERT OR IGNORE INTO daily_state(date) VALUES (?)", (date_str,))
+        if clean:
+            sets = ", ".join(f"{k} = ?" for k in clean)
+            conn.execute(
+                f"UPDATE daily_state SET {sets}, "
+                "updated_at = datetime('now','localtime') WHERE date = ?",
+                (*clean.values(), date_str),
+            )
+
+
+def get_daily_state(date_str: str):
+    with _conn() as conn:
+        return conn.execute(
+            "SELECT * FROM daily_state WHERE date = ?", (date_str,)
+        ).fetchone()
+
+
+def all_daily_state():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM daily_state ORDER BY date").fetchall()
+
+
+# ----------------------------------------------------------------------
+# insight
+# ----------------------------------------------------------------------
+
+def add_insight(content, tag, recheck) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO insight(content, tag, recheck) VALUES (?, ?, ?)",
+            (content, tag, recheck),
+        )
+        return cur.lastrowid
+
+
+def insights_due(date_str: str):
+    """بینش‌هایی که recheck = امروز و هنوز pending هستند."""
+    with _conn() as conn:
+        return conn.execute(
+            "SELECT * FROM insight WHERE recheck = ? AND verdict = 'pending' "
+            "ORDER BY id",
+            (date_str,),
+        ).fetchall()
+
+
+def record_verdict(insight_id: int, verdict: str) -> None:
+    """
+    داوریِ انسانیِ برگشت‌ناپذیر (write-once).
+    اگر بینش قبلاً داوری شده باشد، AlreadyJudged پرتاب می‌شود — بازنویسی ممنوع.
+    تمام بررسی و نوشتن در یک تراکنش انجام می‌شود تا race نخورد.
+    """
+    if verdict not in {"confirmed", "refuted"}:
+        raise ValueError("verdict نامعتبر")
+    with _conn() as conn:
+        row = conn.execute(
+            "SELECT verdict FROM insight WHERE id = ?", (insight_id,)
+        ).fetchone()
+        if row is None:
+            raise ValueError("insight پیدا نشد")
+        if row["verdict"] != "pending":
+            raise AlreadyJudged(row["verdict"])
+        # شرط verdict = 'pending' در خودِ UPDATE هم تکرار می‌شود (محافظِ دوم)
+        conn.execute(
+            "UPDATE insight SET verdict = ? WHERE id = ? AND verdict = 'pending'",
+            (verdict, insight_id),
+        )
+
+
+def insight_stats() -> dict:
+    """آمارِ بینش‌ها: شمارشِ تگ، نرخِ تأیید، overdueها."""
+    today = _dt.date.today().isoformat()
+    with _conn() as conn:
+        rows = conn.execute("SELECT tag, verdict, recheck FROM insight").fetchall()
+    stats = {
+        "total": len(rows),
+        "by_tag": {"E": 0, "S": 0, "P": 0},
+        "confirmed": 0,
+        "refuted": 0,
+        "pending": 0,
+        "overdue": 0,
+    }
+    for r in rows:
+        if r["tag"] in stats["by_tag"]:
+            stats["by_tag"][r["tag"]] += 1
+        if r["verdict"] == "confirmed":
+            stats["confirmed"] += 1
+        elif r["verdict"] == "refuted":
+            stats["refuted"] += 1
+        else:
+            stats["pending"] += 1
+            if r["recheck"] and r["recheck"] < today:
+                stats["overdue"] += 1
+    judged = stats["confirmed"] + stats["refuted"]
+    stats["confirm_rate"] = (stats["confirmed"] / judged) if judged else None
+    return stats
+
+
+def all_logs():
+    """همه‌ی رکوردهای log برای /export."""
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM log ORDER BY id").fetchall()
+
+
+def all_insights():
+    """همه‌ی بینش‌ها برای /export."""
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM insight ORDER BY id").fetchall()
+
+
+# ----------------------------------------------------------------------
+# reflection — کارگاهِ روزانه‌ی مغزِ دوم
+# ----------------------------------------------------------------------
+
+def add_reflection(domain, question, answer) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO reflection(domain, question, answer) VALUES (?, ?, ?)",
+            (domain, question, answer),
+        )
+        return cur.lastrowid
+
+
+def recent_reflections(n: int = 5):
+    """آخرین n بازتاب، از قدیم به جدید."""
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM reflection ORDER BY id DESC LIMIT ?", (n,)
+        ).fetchall()
+    return list(reversed(rows))
+
+
+def domain_counts() -> dict:
+    """شمارشِ بازتاب‌ها به‌تفکیکِ حوزه — برای چرخشِ متوازنِ سؤال‌ها."""
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT domain, COUNT(*) c FROM reflection GROUP BY domain"
+        ).fetchall()
+    return {r["domain"]: r["c"] for r in rows}
+
+
+def all_reflections():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM reflection ORDER BY id").fetchall()
+
+
+# ----------------------------------------------------------------------
+# آمار ترند
+# ----------------------------------------------------------------------
+
+def _pearson(xs, ys):
+    """Pearson correlation ساده. None اگر داده کم یا واریانس صفر باشد."""
+    pairs = [(x, y) for x, y in zip(xs, ys) if x is not None and y is not None]
+    if len(pairs) < 3:
+        return None
+    xs2 = [p[0] for p in pairs]
+    ys2 = [p[1] for p in pairs]
+    try:
+        sx = statistics.stdev(xs2)
+        sy = statistics.stdev(ys2)
+    except statistics.StatisticsError:
+        return None
+    if sx == 0 or sy == 0:
+        return None
+    mx = statistics.mean(xs2)
+    my = statistics.mean(ys2)
+    cov = sum((x - mx) * (y - my) for x, y in pairs) / (len(pairs) - 1)
+    return cov / (sx * sy)
+
+
+def trend(n: int = 7) -> dict:
+    """
+    خروجی محاسبه‌شده برای /trend:
+      count, mean_rmssd, best, worst, corr_sleep, corr_used
+    رکوردهایی که rmssd ندارند در میانگین/همبستگی نادیده گرفته می‌شوند.
+    """
+    rows = recent_logs(n)
+    with_rmssd = [r for r in rows if r["rmssd"] is not None]
+
+    result = {
+        "count": len(rows),
+        "count_rmssd": len(with_rmssd),
+        "mean_rmssd": None,
+        "best": None,
+        "worst": None,
+        "corr_sleep": None,
+        "corr_used": None,
+    }
+    if not with_rmssd:
+        return result
+
+    rmssds = [r["rmssd"] for r in with_rmssd]
+    result["mean_rmssd"] = statistics.mean(rmssds)
+    result["best"] = max(with_rmssd, key=lambda r: r["rmssd"])
+    result["worst"] = min(with_rmssd, key=lambda r: r["rmssd"])
+    result["corr_sleep"] = _pearson(rmssds, [r["sleep"] for r in with_rmssd])
+    result["corr_used"] = _pearson(rmssds, [r["used"] for r in with_rmssd])
+    return result
+
+
+def rmssd_baseline(days: int = 30) -> float | None:
+    """میانگینِ RMSSD در بازه‌ی اخیر (baselineِ شخصی)."""
+    cutoff = (_dt.date.today() - _dt.timedelta(days=days)).isoformat()
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT rmssd FROM log WHERE rmssd IS NOT NULL AND substr(ts,1,10) >= ?",
+            (cutoff,),
+        ).fetchall()
+    vals = [r["rmssd"] for r in rows]
+    return statistics.mean(vals) if vals else None
+
+
+def trend_extended(n: int = 7) -> dict:
+    """ترندِ پایه + baselineِ ۳۰روزه + completeness + هشدارِ کیفیت."""
+    t = trend(n)
+    rows = recent_logs(n)
+    t["baseline_30"] = rmssd_baseline(30)
+    t["completeness"] = (t["count_rmssd"] / n) if n else 0
+    bad = sum(1 for r in rows if (r["rmssd_quality"] in ("bad", "questionable")))
+    t["low_quality"] = bad
+    if t["mean_rmssd"] is not None and t["baseline_30"] is not None:
+        t["vs_baseline"] = t["mean_rmssd"] - t["baseline_30"]
+    else:
+        t["vs_baseline"] = None
+    return t
+
+
+# ----------------------------------------------------------------------
+# habits
+# ----------------------------------------------------------------------
+
+def add_habit(title, cue=None, action=None, min_version=None) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO habit(title, cue, action, min_version) VALUES (?, ?, ?, ?)",
+            (title, cue, action, min_version),
+        )
+        return cur.lastrowid
+
+
+def list_habits(active_only: bool = True):
+    q = "SELECT * FROM habit"
+    if active_only:
+        q += " WHERE active = 1"
+    q += " ORDER BY id"
+    with _conn() as conn:
+        return conn.execute(q).fetchall()
+
+
+def get_habit(habit_id: int):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM habit WHERE id = ?", (habit_id,)).fetchone()
+
+
+def set_habit_active(habit_id: int, active: int) -> None:
+    with _conn() as conn:
+        conn.execute("UPDATE habit SET active = ? WHERE id = ?", (active, habit_id))
+
+
+def mark_habit(habit_id: int, date_str: str, status: str, note=None) -> None:
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO habit_log(habit_id, date, status, note) VALUES (?, ?, ?, ?) "
+            "ON CONFLICT(habit_id, date) DO UPDATE SET status = excluded.status, "
+            "note = excluded.note",
+            (habit_id, date_str, status, note),
+        )
+
+
+def habit_streak(habit_id: int) -> int:
+    """روزهای متوالیِ done که به امروز/دیروز ختم می‌شوند."""
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT date FROM habit_log WHERE habit_id = ? AND status = 'done'",
+            (habit_id,),
+        ).fetchall()
+    done = {r["date"] for r in rows}
+    if not done:
+        return 0
+    today = _dt.date.today()
+    start = today if today.isoformat() in done else today - _dt.timedelta(days=1)
+    if start.isoformat() not in done:
+        return 0
+    s = 0
+    d = start
+    while d.isoformat() in done:
+        s += 1
+        d -= _dt.timedelta(days=1)
+    return s
+
+
+def habit_recent_missed(habit_id: int, days: int = 7) -> int:
+    """تعدادِ روزهای اخیر که done نشده‌اند (برای کوچ)."""
+    cutoff = (_dt.date.today() - _dt.timedelta(days=days)).isoformat()
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT date, status FROM habit_log WHERE habit_id = ? AND date >= ?",
+            (habit_id, cutoff),
+        ).fetchall()
+    done = sum(1 for r in rows if r["status"] == "done")
+    return max(0, days - done)
+
+
+def all_habit_logs():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM habit_log ORDER BY id").fetchall()
+
+
+# ----------------------------------------------------------------------
+# reviews
+# ----------------------------------------------------------------------
+
+def add_review(rtype, period_start, period_end, answers_json, summary) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO review(type, period_start, period_end, answers_json, summary) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (rtype, period_start, period_end, answers_json, summary),
+        )
+        return cur.lastrowid
+
+
+def recent_reviews(rtype=None, n: int = 5):
+    with _conn() as conn:
+        if rtype:
+            rows = conn.execute(
+                "SELECT * FROM review WHERE type = ? ORDER BY id DESC LIMIT ?", (rtype, n)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM review ORDER BY id DESC LIMIT ?", (n,)
+            ).fetchall()
+    return list(reversed(rows))
+
+
+def all_reviews():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM review ORDER BY id").fetchall()
+
+
+# ----------------------------------------------------------------------
+# experiments
+# ----------------------------------------------------------------------
+
+def add_experiment(title, hypothesis, intervention, design,
+                   metric_primary="rmssd", metric_secondary=None,
+                   start_date=None, end_date=None) -> int:
+    start_date = start_date or _dt.date.today().isoformat()
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO experiment(title, hypothesis, intervention, design, "
+            "metric_primary, metric_secondary, start_date, end_date) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (title, hypothesis, intervention, design, metric_primary,
+             metric_secondary, start_date, end_date),
+        )
+        return cur.lastrowid
+
+
+def list_experiments(status="active"):
+    with _conn() as conn:
+        if status:
+            return conn.execute(
+                "SELECT * FROM experiment WHERE status = ? ORDER BY id DESC", (status,)
+            ).fetchall()
+        return conn.execute("SELECT * FROM experiment ORDER BY id DESC").fetchall()
+
+
+def get_experiment(exp_id: int):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM experiment WHERE id = ?", (exp_id,)).fetchone()
+
+
+def set_experiment_status(exp_id: int, status: str, end_date=None) -> None:
+    with _conn() as conn:
+        if end_date:
+            conn.execute(
+                "UPDATE experiment SET status = ?, end_date = ? WHERE id = ?",
+                (status, end_date, exp_id),
+            )
+        else:
+            conn.execute("UPDATE experiment SET status = ? WHERE id = ?", (status, exp_id))
+
+
+def mark_experiment_day(exp_id, date_str, intervention_done, adherence_note=None,
+                        outcome_note=None) -> None:
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO experiment_day(experiment_id, date, intervention_done, "
+            "adherence_note, outcome_note) VALUES (?, ?, ?, ?, ?) "
+            "ON CONFLICT(experiment_id, date) DO UPDATE SET "
+            "intervention_done = excluded.intervention_done, "
+            "adherence_note = excluded.adherence_note, "
+            "outcome_note = excluded.outcome_note",
+            (exp_id, date_str, intervention_done, adherence_note, outcome_note),
+        )
+
+
+def experiment_report(exp_id: int) -> dict:
+    """
+    گزارشِ ساده: میانگینِ RMSSD در روزهای مداخله vs پایه + adherence.
+    روزِ «مداخله» = intervention_done='yes'؛ روزِ «پایه» = 'no'.
+    """
+    exp = get_experiment(exp_id)
+    if exp is None:
+        return {"ok": False, "reason": "آزمایش پیدا نشد"}
+    with _conn() as conn:
+        days = conn.execute(
+            "SELECT * FROM experiment_day WHERE experiment_id = ?", (exp_id,)
+        ).fetchall()
+        logs = {
+            r["d"]: r["rmssd"]
+            for r in conn.execute(
+                "SELECT substr(ts,1,10) d, rmssd FROM log WHERE rmssd IS NOT NULL"
+            ).fetchall()
+        }
+    inter, base = [], []
+    yes = 0
+    for d in days:
+        rv = logs.get(d["date"])
+        if d["intervention_done"] == "yes":
+            yes += 1
+            if rv is not None:
+                inter.append(rv)
+        elif d["intervention_done"] == "no":
+            if rv is not None:
+                base.append(rv)
+    rep = {
+        "ok": True,
+        "title": exp["title"],
+        "hypothesis": exp["hypothesis"],
+        "n_days": len(days),
+        "adherence": (yes / len(days)) if days else None,
+        "baseline_mean": statistics.mean(base) if base else None,
+        "intervention_mean": statistics.mean(inter) if inter else None,
+        "n_baseline": len(base),
+        "n_intervention": len(inter),
+    }
+    if rep["baseline_mean"] is not None and rep["intervention_mean"] is not None:
+        rep["delta"] = rep["intervention_mean"] - rep["baseline_mean"]
+    else:
+        rep["delta"] = None
+    return rep
+
+
+def all_experiments():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM experiment ORDER BY id").fetchall()
+
+
+def all_experiment_days():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM experiment_day ORDER BY id").fetchall()
+
+
+# ----------------------------------------------------------------------
+# measurement_import (Muse)
+# ----------------------------------------------------------------------
+
+def add_measurement_import(**f) -> int:
+    cols = ["file_name", "source", "detected_columns", "sample_rate", "duration_sec",
+            "rmssd", "mean_hr", "beat_count", "quality", "artifact_ratio",
+            "used_in_log_id", "notes"]
+    vals = [f.get(c) for c in cols]
+    with _conn() as conn:
+        cur = conn.execute(
+            f"INSERT INTO measurement_import({', '.join(cols)}) "
+            f"VALUES ({', '.join('?' for _ in cols)})",
+            vals,
+        )
+        return cur.lastrowid
+
+
+def wipe_all_data() -> None:
+    """حذفِ همه‌ی رکوردها (schema و config حفظ می‌شوند جز ریستِ halted)."""
+    with _conn() as conn:
+        for t in ("log", "insight", "reflection", "daily_state", "habit",
+                  "habit_log", "review", "experiment", "experiment_day",
+                  "measurement_import",
+                  # کاملیِ حذف (۰۷-۰۵): observability + پژوهش + خانوادهٔ ailab
+                  # (جدولی به نامِ «ailab» وجود ندارد؛ مصداقش این سه است)
+                  "event_log", "research",
+                  "ailab_entry", "ailab_idea", "ailab_proposal"):
+            conn.execute(f"DELETE FROM {t}")
+        conn.execute("DELETE FROM config WHERE key NOT IN ('halted','schema_version')")
+
+
+def mark_exported() -> None:
+    set_config("last_export_at", _dt.date.today().isoformat())
+
+
+def days_since_last_export(marker_key="last_export_at") -> int | None:
+    val = get_config(marker_key)
+    if not val:
+        return None
+    try:
+        last = _dt.date.fromisoformat(val[:10])
+    except ValueError:
+        return None
+    return (_dt.date.today() - last).days
+
+
+# ----------------------------------------------------------------------
+# CORE — mental model, question quality, improvements, agent weights
+# ----------------------------------------------------------------------
+
+def brain_context() -> dict:
+    """context‌ای که HumanCore برای ساختِ سؤال به agent/brain می‌دهد."""
+    t = trend(7)
+    base = rmssd_baseline(30)
+    parts = []
+    if t["count_rmssd"]:
+        parts.append(f"RMSSD ۷روزه میانگین {t['mean_rmssd']:.0f} ms ({t['count_rmssd']} رکورد)")
+        if t["corr_sleep"] is not None:
+            parts.append(f"همبستگی خواب {t['corr_sleep']:+.2f}")
+        if t["corr_used"] is not None:
+            parts.append(f"همبستگی مصرف {t['corr_used']:+.2f}")
+    else:
+        parts.append("داده‌ی RMSSD کافی نیست.")
+    rmssd_low = (t["mean_rmssd"] is not None and base is not None and t["mean_rmssd"] < base)
+    # شمارشِ پوششِ حوزه‌ها از question_quality (برای چرخشِ router)
+    with _conn() as conn:
+        rows = conn.execute("SELECT domain, COUNT(*) c FROM question_quality GROUP BY domain").fetchall()
+    domain_counts = {r["domain"]: r["c"] for r in rows}
+    return {
+        "data": " · ".join(parts),
+        "rmssd_low": rmssd_low,
+        "domain_counts": domain_counts,
+        "hour": _dt.datetime.now().hour,
+    }
+
+
+def log_question_quality(agent, domain, provider, question) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO question_quality(agent, domain, provider, question) "
+            "VALUES (?, ?, ?, ?)", (agent, domain, provider, question))
+        return cur.lastrowid
+
+
+def update_question_quality(qid, answered=None, response_time=None, led_to_log=None) -> None:
+    sets, vals = [], []
+    if answered is not None:
+        sets.append("answered = ?"); vals.append(answered)
+    if response_time is not None:
+        sets.append("response_time_sec = ?"); vals.append(response_time)
+    if led_to_log is not None:
+        sets.append("led_to_log = ?"); vals.append(led_to_log)
+    if not sets:
+        return
+    vals.append(qid)
+    with _conn() as conn:
+        conn.execute(f"UPDATE question_quality SET {', '.join(sets)} WHERE id = ?", vals)
+
+
+def question_quality_metrics(period_days: int = 14) -> dict:
+    cutoff = (_dt.date.today() - _dt.timedelta(days=period_days)).isoformat()
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT agent, domain, answered FROM question_quality WHERE substr(ts,1,10) >= ?",
+            (cutoff,)).fetchall()
+    total = len(rows)
+    answered = sum(1 for r in rows if r["answered"])
+    per_domain: dict = {}
+    for r in rows:
+        d = per_domain.setdefault(r["domain"], {"asked": 0, "answered": 0})
+        d["asked"] += 1
+        d["answered"] += 1 if r["answered"] else 0
+    return {"total": total, "answer_rate": (answered / total) if total else None,
+            "per_domain": per_domain}
+
+
+def all_question_quality():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM question_quality ORDER BY id").fetchall()
+
+
+def save_mm_snapshot(traits_json: str) -> int:
+    with _conn() as conn:
+        cur = conn.execute("INSERT INTO mental_model_snapshot(traits_json) VALUES (?)",
+                           (traits_json,))
+        return cur.lastrowid
+
+
+def latest_mm_snapshot() -> str | None:
+    with _conn() as conn:
+        row = conn.execute(
+            "SELECT traits_json FROM mental_model_snapshot ORDER BY id DESC LIMIT 1").fetchone()
+    return row["traits_json"] if row else None
+
+
+def all_mm_snapshots():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM mental_model_snapshot ORDER BY id").fetchall()
+
+
+def save_improvement_report(metrics: dict, suggestions: list, status: str = "pending") -> int:
+    import json
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO improvement_report(metrics_json, suggestions_json, status) "
+            "VALUES (?, ?, ?)",
+            (json.dumps(metrics, ensure_ascii=False),
+             json.dumps(suggestions, ensure_ascii=False), status))
+        return cur.lastrowid
+
+
+def list_improvement_reports(status=None):
+    with _conn() as conn:
+        if status:
+            return conn.execute("SELECT * FROM improvement_report WHERE status = ? ORDER BY id DESC",
+                                (status,)).fetchall()
+        return conn.execute("SELECT * FROM improvement_report ORDER BY id DESC").fetchall()
+
+
+def set_improvement_status(report_id: int, status: str) -> bool:
+    with _conn() as conn:
+        cur = conn.execute("UPDATE improvement_report SET status = ? WHERE id = ?",
+                           (status, report_id))
+        return cur.rowcount > 0
+
+
+# ----------------------------------------------------------------------
+# research / event_log / patch / goals
+# ----------------------------------------------------------------------
+
+def save_research(question, target, brief, sources_json, tag) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO research(question, target, brief, sources_json, tag) "
+            "VALUES (?, ?, ?, ?, ?)", (question, target, brief, sources_json, tag))
+        return cur.lastrowid
+
+
+def list_research(n: int = 10):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM research ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+
+
+def get_research(rid: int):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM research WHERE id = ?", (rid,)).fetchone()
+
+
+def set_research_verdict(rid: int, verdict: str) -> None:
+    with _conn() as conn:
+        conn.execute("UPDATE research SET verdict = ?, status = 'closed' WHERE id = ?",
+                     (verdict, rid))
+
+
+def all_research():
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM research ORDER BY id").fetchall()
+
+
+def record_ai_usage(model, in_tokens, out_tokens, cost, command="", provider="") -> None:
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO ai_usage(command, provider, model, input_tokens, output_tokens, "
+            "estimated_cost_usd) VALUES (?, ?, ?, ?, ?, ?)",
+            (command, provider, model, in_tokens, out_tokens, cost))
+
+
+def ai_usage_sum(since_date: str) -> float:
+    with _conn() as conn:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(estimated_cost_usd), 0) s FROM ai_usage "
+            "WHERE substr(ts,1,10) >= ?", (since_date,)).fetchone()
+    return float(row["s"] or 0.0)
+
+
+def ai_usage_recent(n: int = 10):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM ai_usage ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+
+
+def save_ailab_entry(kind, topic, content, sources_json) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO ailab_entry(kind, topic, content, sources_json) VALUES (?, ?, ?, ?)",
+            (kind, topic, content, sources_json))
+        return cur.lastrowid
+
+
+def recent_ailab_entries(n: int = 10):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM ailab_entry ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+
+
+def add_ailab_idea(text: str) -> int:
+    with _conn() as conn:
+        cur = conn.execute("INSERT INTO ailab_idea(text) VALUES (?)", (text,))
+        return cur.lastrowid
+
+
+def list_ailab_ideas(n: int = 20):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM ailab_idea ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+
+
+def add_ailab_proposal(target, issue, path) -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO ailab_proposal(target, issue, path) VALUES (?, ?, ?)",
+            (target, issue, path))
+        return cur.lastrowid
+
+
+def list_ailab_proposals(n: int = 20):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM ailab_proposal ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+
+
+def record_research_verdict(rid: int, verdict: str, note: str = "") -> None:
+    """
+    verdictِ نسخه‌بندی‌شده: تاریخچه در verdict_log تغییرناپذیر می‌ماند (append-only)،
+    ولی «توصیه‌ی فعلی» در research.verdict به‌روز می‌شود. (برخلافِ insight که write-once است.)
+    """
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO verdict_log(subject_type, subject_id, verdict, note) "
+            "VALUES ('research', ?, ?, ?)", (rid, verdict, note))
+        conn.execute("UPDATE research SET verdict = ? WHERE id = ?", (verdict, rid))
+
+
+def verdict_history(subject_type: str, subject_id: int):
+    with _conn() as conn:
+        return conn.execute(
+            "SELECT * FROM verdict_log WHERE subject_type = ? AND subject_id = ? ORDER BY id",
+            (subject_type, subject_id)).fetchall()
+
+
+def log_event(etype: str, data_json: str) -> None:
+    with _conn() as conn:
+        conn.execute("INSERT INTO event_log(type, data_json) VALUES (?, ?)", (etype, data_json))
+
+
+def recent_events(n: int = 50):
+    with _conn() as conn:
+        rows = conn.execute("SELECT * FROM event_log ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+    return list(reversed(rows))
+
+
+def save_patch(issue, path, status="generated") -> int:
+    with _conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO patch_suggestion(issue, path, status) VALUES (?, ?, ?)",
+            (issue, path, status))
+        return cur.lastrowid
+
+
+def list_patches(n: int = 10):
+    with _conn() as conn:
+        return conn.execute("SELECT * FROM patch_suggestion ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+
+
+def get_goals() -> list:
+    import json
+    raw = get_config("goals")
+    if not raw:
+        return []
+    try:
+        return json.loads(raw)
+    except (ValueError, TypeError):
+        return []
+
+
+def set_goals(goals: list) -> None:
+    import json
+    set_config("goals", json.dumps(goals, ensure_ascii=False))
+
+
+def add_goal(text: str) -> list:
+    goals = get_goals()
+    goals.append({"text": text, "ts": _dt.date.today().isoformat()})
+    set_goals(goals)
+    return goals
+
+
+def get_agent_weights() -> dict:
+    with _conn() as conn:
+        rows = conn.execute("SELECT domain, weight FROM agent_weights").fetchall()
+    return {r["domain"]: r["weight"] for r in rows}
+
+
+def bump_agent_weight(domain: str, delta: float, lo: float = 0.2, hi: float = 3.0) -> float:
+    with _conn() as conn:
+        row = conn.execute("SELECT weight FROM agent_weights WHERE domain = ?", (domain,)).fetchone()
+        cur = row["weight"] if row else 1.0
+        new = max(lo, min(hi, cur + delta))
+        conn.execute(
+            "INSERT INTO agent_weights(domain, weight, updated_at) VALUES (?, ?, datetime('now','localtime')) "
+            "ON CONFLICT(domain) DO UPDATE SET weight = excluded.weight, updated_at = excluded.updated_at",
+            (domain, new))
+    return new

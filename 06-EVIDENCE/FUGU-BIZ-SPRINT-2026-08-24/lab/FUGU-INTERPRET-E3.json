@@ -1,0 +1,61 @@
+{
+  "schema": "octopus.fugu.lab-interpret.v1",
+  "id": "FUGU-LAB-E3-INTERPRET-20260824",
+  "model": "fugu",
+  "written_at_utc": "20260824T062206Z",
+  "sprint": "FUGU-BIZ-SPRINT-2026-08-24 Day1 lab slice",
+  "usage_log": {
+    "model": "fugu",
+    "not_ultra": true,
+    "task": "short interpretation of E3 feeds quality soak",
+    "note": "prefer fugu; stop if weekly>=95% (not signaled this turn)"
+  },
+  "e3_status": "DEGRADED",
+  "holds": [
+    "snapshot_age_gt_300s",
+    "homeo_ok_false_seen",
+    "readings_cover_lt_expected_feeds"
+  ],
+  "headline": "Feeds count healthy (7/7, fail=[]) but snapshot timestamp chronically stale and readings schema only exposes 2 meta fields \u2014 quality pack is DEGRADED for freshness/coverage, not for feed failure.",
+  "anomalies": [
+    {
+      "id": "SNAP_TS_STALE",
+      "severity": "medium",
+      "what": "feeds_snapshot ts age max ~1780.399974s (>300s threshold)",
+      "why_it_matters": "ok_count can look green while last_run/ts is old \u2014 misleading green without age gate",
+      "next": "fix homeo-feeds-snapshot writer to refresh ts_utc/last_run_ts on each timer fire (readonly prove first)"
+    },
+    {
+      "id": "READINGS_SCHEMA_THIN",
+      "severity": "low",
+      "what": "readings_n=2 (evidence_age_s, sensor_coverage) while expected_feeds=7",
+      "why_it_matters": "cannot per-feed triage from snapshot alone; ok_count is opaque aggregate",
+      "next": "optional: expand snapshot to per-feed status list (still readonly)"
+    },
+    {
+      "id": "HOMEO_OK_FLAP",
+      "severity": "low",
+      "what": "homeo_ok_false_seen during soak",
+      "why_it_matters": "known freshness envelope flake; not authority mismatch after mirror align",
+      "next": "track separately from feeds; do not unlock WAVE0"
+    }
+  ],
+  "non_issues": [
+    "ok_count stable 7/7",
+    "fail always []",
+    "bus CONNECTED",
+    "ARMED=false",
+    "observation_age_max present on :9101 (E1 still working)",
+    "feed timers active"
+  ],
+  "fugu_call": "Do not spend ultra. Day1 lab done with DEGRADED truth: count OK, freshness debt. Hardware/estop stay locked.",
+  "constraints_honored": {
+    "ARMED": false,
+    "WAVE0_unlock": false,
+    "hardware_buy": false
+  },
+  "paths": {
+    "lab_pack": "F:\\\\backup\\\\06-EVIDENCE\\\\FUGU-BIZ-SPRINT-2026-08-24\\\\lab\\\\",
+    "pi": "/var/lib/octopus/evidence/session-lab-enrich-e3-20260824/"
+  }
+}

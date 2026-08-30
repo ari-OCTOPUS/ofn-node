@@ -29,3 +29,10 @@ private keys/make-root-v2 · MQTT/PWM/legs/root action_executor · arm reflex ·
 ## Next
 
 Paste `SENSORIOM-EXECUTE-BRIEF.txt` to sensoriom; collect receipts on TO-LAPTOP exchange; then Board2 wire remains queued after CHG execution evidence.
+
+
+## Execution result (2026-08-22 ~17:02 AEST)
+- A PASS WatchdogSec=180 NRestarts=0
+- D PASS ledger verify ok prediction seq=9029
+- B PASS MemoryMax=128M WM+skill NRestarts=0
+- C/E deferred; WAVE0 actuators locked

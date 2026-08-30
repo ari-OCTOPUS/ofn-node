@@ -302,6 +302,80 @@ def t_j_reconcile_confirms_via_normalized_event_path():
 
 
 
+
+def t_k_sync_owner_observed_to_dead_letter():
+    """OWNER_OBSERVED queue resolution -> outbox+event DEAD_LETTERED (no send).
+
+    Reproduces OCTOPUS-OUTBOX-RECONCILE B6: sanctioned reversible sync helper.
+    """
+    dl, dr, root = _fresh()
+    key = "c" * 64
+    event_id = "tg:66"
+    # Seed outbox + event in NEEDS_RECONCILIATION (as live quarantine items)
+    outbox = root / "telegram" / "loop" / "outbox"
+    events = root / "telegram" / "loop" / "events"
+    outbox.mkdir(parents=True, exist_ok=True)
+    events.mkdir(parents=True, exist_ok=True)
+    (outbox / f"{key}.json").write_text(json.dumps({
+        "schema": "telegram-outbox/1",
+        "message_key": key,
+        "event_id": event_id,
+        "state": "NEEDS_RECONCILIATION",
+        "error_code": "UNCERTAIN_SEND_OUTCOME",
+        "message_id": None,
+    }), encoding="utf-8")
+    (events / "tg_66.json").write_text(json.dumps({
+        "schema": "telegram-durable-loop/1",
+        "event_id": event_id,
+        "state": "NEEDS_RECONCILIATION",
+        "transitions": [],
+        "readback_verified": False,
+        "delivery_message_id": None,
+    }), encoding="utf-8")
+    dr.enqueue_uncertain(event_id=event_id, message_key=key)
+    dr.record_owner_observation(event_id=event_id, message_key=key,
+                                observed_by="owner", note="seen")
+    assert dr.reconcile()["resolved"]["owner_observed"] == 1
+
+    # Unrelated CONFIRMED outbox must be untouched
+    other = "d" * 64
+    (outbox / f"{other}.json").write_text(json.dumps({
+        "schema": "telegram-outbox/1",
+        "message_key": other,
+        "event_id": "tg:67",
+        "state": "CONFIRMED",
+        "message_id": 123,
+    }), encoding="utf-8")
+
+    dry = dr.sync_owner_observed_to_dead_letter(message_keys=[key], dry_run=True)
+    assert dry["synced"] == 1 and dry["items"][0]["action"] == "would_sync"
+    assert json.loads((outbox / f"{key}.json").read_text(encoding="utf-8"))["state"] == "NEEDS_RECONCILIATION"
+
+    live = dr.sync_owner_observed_to_dead_letter(message_keys=[key], dry_run=False)
+    assert live["synced"] == 1 and live["items"][0]["action"] == "synced"
+    ob = json.loads((outbox / f"{key}.json").read_text(encoding="utf-8"))
+    ev = json.loads((events / "tg_66.json").read_text(encoding="utf-8"))
+    assert ob["state"] == "DEAD_LETTERED"
+    assert ob["delivery_truth"] == "DEAD_LETTERED"
+    assert ob.get("message_id") is None
+    assert ev["state"] == "DEAD_LETTERED"
+    assert ev.get("delivery_message_id") is None
+    other_ob = json.loads((outbox / f"{other}.json").read_text(encoding="utf-8"))
+    assert other_ob["state"] == "CONFIRMED" and other_ob["message_id"] == 123
+    # Journal has before-snapshot (reversible)
+    journal = (root / "telegram" / "loop" / "owner-observed-dead-letter-sync-journal.jsonl")
+    assert journal.is_file()
+    jrow = json.loads(journal.read_text(encoding="utf-8").splitlines()[-1])
+    assert jrow["kind"] == "OWNER_OBSERVED_DEAD_LETTER_SYNC"
+    assert jrow["before"]["outbox"]["state"] == "NEEDS_RECONCILIATION"
+    # Idempotent skip
+    again = dr.sync_owner_observed_to_dead_letter(message_keys=[key], dry_run=False)
+    assert again["synced"] == 0 and again["items"][0]["reason"] == "already_dead_lettered"
+    # Filter refuses non-target
+    refuse = dr.sync_owner_observed_to_dead_letter(message_keys=[other], dry_run=False)
+    assert refuse["synced"] == 0
+    assert other_ob == json.loads((outbox / f"{other}.json").read_text(encoding="utf-8"))
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
     failed = 0

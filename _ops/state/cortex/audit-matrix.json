@@ -1,36 +1,42 @@
 {
-  "ts": "2026-08-19T21:57:50",
+  "ts": "2026-08-30T12:08:42",
   "schema": "audit-matrix.v1",
-  "n": 43,
+  "n": 45,
   "tally": {
-    "Done": 30,
-    "Partial": 11,
+    "Done": 35,
+    "Partial": 8,
     "Missing": 2,
     "Unknown": 0
   },
-  "maturity_pct": 82.6,
-  "static_by_construction": true,
+  "maturity_pct": 86.7,
+  "static_by_construction": false,
+  "evidence_bound_n": 16,
+  "evidence_bound_done": 16,
   "items": [
     {
       "item": "kill switch + stop reasons",
       "status": "Done",
-      "evidence": "opslib.STOP_ORGANISM/halted/frozen + STOP-CORTEX",
+      "evidence": "opslib STOP_ORGANISM + def halted + def frozen; STOP_ORGANISM=True, def_halted=True, def_frozen=True, master_halted=True",
       "priority": "P0",
       "gap_type": "none",
-      "section": "§13 governance"
+      "section": "§13 governance",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "long-running loop watchdog",
       "status": "Done",
-      "evidence": "watchdog.py + organism-watchdog.ps1",
+      "evidence": "watchdog beat_health+monitor+should_revive + organism-watchdog.ps1 + cortex-watchdog; beat_health=True, monitor=True, should_revive=True, ps1=True, cortex_watchdog_status='alive'",
       "priority": "P1",
       "gap_type": "none",
-      "section": "§16 time-loops"
+      "section": "§16 time-loops",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "heartbeat / pulse system",
       "status": "Done",
-      "evidence": "heart-shadow period=349.69",
+      "evidence": "heart-shadow period=489.97",
       "priority": "P1",
       "gap_type": "none",
       "section": "§16 time-loops"
@@ -102,10 +108,12 @@
     {
       "item": "dashboard for system vitals",
       "status": "Done",
-      "evidence": "live/server.py (8773 hologram) + cockpit v2 telegram",
+      "evidence": "heartstate.v1 ts='2026-08-30T12:08:14'; work-health month_aud=1.070862 gate0=False; server.py=True",
       "priority": "P2",
       "gap_type": "none",
-      "section": "§8 observability"
+      "section": "§8 observability",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "epistemic signals (uncertainty/disagreement/missing-evidence)",
@@ -126,26 +134,52 @@
     {
       "item": "self-analysis is trace-based not self-talk",
       "status": "Done",
-      "evidence": "doctor._gather_trace از ORGANISM-STATE/replication/telemetry/chrono.db — external",
+      "evidence": "doctor-vitals.v1 exo_prov=3 + _gather_trace present (doctor-vitals.json)",
       "priority": "P1",
       "gap_type": "none",
-      "section": "§9 self-analysis"
+      "section": "§9 self-analysis",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
+    },
+    {
+      "item": "live calibration evidence (Brier/n + self-claims)",
+      "status": "Done",
+      "evidence": "calibration-latest n=1279 brier=0.087741; self-claims.jsonl lines=2194",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§9 self-analysis",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
+    },
+    {
+      "item": "telegram poll-health counters",
+      "status": "Done",
+      "evidence": "fails=0 started=68721 completed=23551 progress_at=1788055709.013",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§8 observability",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "self-analysis loop has stop-condition",
-      "status": "Partial",
-      "evidence": "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
+      "status": "Done",
+      "evidence": "calibration.py REJECT_FORGET_N=3 soft=3 hard=5 + should_skip_bottleneck + attention_gate",
       "priority": "P1",
-      "gap_type": "governance",
-      "section": "§9 self-analysis"
+      "gap_type": "none",
+      "section": "§9 self-analysis",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "improvement proposals shadow-eval before promote",
-      "status": "Partial",
-      "evidence": "run_sandbox (tempfile isolated) + critic؛ ولی measured_lift eval هنوز stub",
+      "status": "Done",
+      "evidence": "doctor.run_sandbox + measured_lift + tempfile isolation; run_sandbox=True, measured_lift=True, tempfile_iso=True",
       "priority": "P0",
-      "gap_type": "implementation",
-      "section": "§9/§10 self-improve"
+      "gap_type": "none",
+      "section": "A\u00159/A\u001510 self-improve",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "change leveled: tune/reconfig/rewrite + contract",
@@ -158,34 +192,42 @@
     {
       "item": "rollback path before apply",
       "status": "Done",
-      "evidence": "RFC.rollback field + measured_lift drop<0.05 + git tag pre-merge (OCTOPUS_WIRE_MERGE_CHECKPOINT)",
+      "evidence": "RFC.rollback + measured_lift + OCTOPUS_WIRE_MERGE_CHECKPOINT; rollback=True, measured_lift=True, CHECKPOINT=True, _write_checkpoint_tag=True",
       "priority": "P1",
-      "gap_type": "governance",
-      "section": "§10 self-modify"
+      "gap_type": "none",
+      "section": "§10 self-modify",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "regression suite / golden tasks",
       "status": "Done",
-      "evidence": "tests/run_all.py (87 files) + capability_gate marker + held_out_evaluator canaries",
+      "evidence": "run_all TESTS verified on disk; TESTS=820 exist=820 held_out=True capability_gate=True",
       "priority": "P0",
       "gap_type": "none",
-      "section": "§11 validation"
+      "section": "A\u001511 validation",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "deterministic tests for routing logic",
       "status": "Done",
-      "evidence": "test_telegram_poll_e2e (dispatch matrix) + test_cortex router fallback",
+      "evidence": "dispatch matrix in test_telegram_poll_e2e.py: t_defs=7 poll_once=True callback/dispatch=True menu=True",
       "priority": "P1",
       "gap_type": "none",
-      "section": "§11 validation"
+      "section": "A\u001511 validation",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "blind-vs-informed evaluation harness",
       "status": "Done",
-      "evidence": "sog_math (blind/informed losses, MC-validated) + producers.delta_self_estimator",
+      "evidence": "sog_math blind/informed harness; syms=3/3 blind_token=True (delta_self, e_shadow, mc_witness_core)",
       "priority": "P1",
       "gap_type": "none",
-      "section": "§11 validation"
+      "section": "A\u001511 validation",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "single-agent / null baseline",
@@ -197,7 +239,7 @@
     },
     {
       "item": "named human owner per subsystem",
-      "status": "Partial",
+      "status": "Missing",
       "evidence": "owner=ari (single operator)؛ ولی per-agent owner-mapping صریح نیست",
       "priority": "P2",
       "gap_type": "governance",
@@ -213,11 +255,13 @@
     },
     {
       "item": "owner merge verdict has real effect (apply_merge wired)",
-      "status": "Missing",
-      "evidence": "run_cycle: merged→apply_merge (lesson+NOTE، پشتِ OCTOPUS_WIRE_APPLY_MERGE) + رفعِ باگِ to_markdown float",
+      "status": "Done",
+      "evidence": "run_cycle claim→apply_owner_verdict→gate_promote→apply_merge; [reject] skips promote; apply_merge=True, WIRE_APPLY_MERGE=True, claim_rfc_verdicts=True, apply_owner_verdict=True, gate_promote_or_merge=True, reject_path=True",
       "priority": "P0",
-      "gap_type": "implementation",
-      "section": "§15 human-in-loop"
+      "gap_type": "none",
+      "section": "§15 human-in-loop",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "owner autonomy preference modulates behavior",
@@ -230,18 +274,22 @@
     {
       "item": "approval gates for high-impact + policy change",
       "status": "Done",
-      "evidence": "live_gate_open (date+flag) + RFC human-append + money organ_gate + human-append-guard",
+      "evidence": "live_gate_open + GO_LIVE_FLAG + organ_gate + human_append_guard; def_live_gate_open=True, go_live_flag=True, organ_gate=True, human_append_guard=True",
       "priority": "P0",
       "gap_type": "none",
-      "section": "§13 governance"
+      "section": "§13 governance",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "secrets isolated from agent context",
       "status": "Done",
-      "evidence": ".agentignore (*.env/*key/*seed) + env_loader never echoes + keys_present bool-only",
+      "evidence": ".agentignore env+key+secret isolation; env=True, key=True, secret=True, seed=True, lines=23",
       "priority": "P0",
       "gap_type": "none",
-      "section": "§14 security"
+      "section": "§14 security",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "output sanitization (redaction)",
@@ -262,10 +310,12 @@
     {
       "item": "dry-run/simulate before external action",
       "status": "Done",
-      "evidence": "sim_heart (closed-loop) + governor allocate_dry + sandbox + shadow-mode everywhere",
+      "evidence": "governor allocate_dry + sim_heart simulate/run_sim; def_allocate_dry=True, simulate_or_run_sim=True, shadow=True",
       "priority": "P1",
       "gap_type": "none",
-      "section": "§18 tools"
+      "section": "§18 tools",
+      "evidence_bound": true,
+      "evidence_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\BUILD-REST.json"
     },
     {
       "item": "core formulas reusable+versioned+locked",
@@ -358,28 +408,12 @@
   ],
   "gaps": [
     {
-      "item": "owner merge verdict has real effect (apply_merge wired)",
-      "status": "Missing",
-      "evidence": "run_cycle: merged→apply_merge (lesson+NOTE، پشتِ OCTOPUS_WIRE_APPLY_MERGE) + رفعِ باگِ to_markdown float",
-      "priority": "P0",
-      "gap_type": "implementation",
-      "section": "§15 human-in-loop"
-    },
-    {
       "item": "self-analysis loop observe→critique→propose→validate→promote",
       "status": "Partial",
       "evidence": "doctor.run_cycle(mine→rfc→sandbox→chamber→submit) + cortex.align + این audit؛ گاف: apply_merge/eval واقعی",
       "priority": "P0",
       "gap_type": "architecture",
       "section": "§9 self-analysis"
-    },
-    {
-      "item": "improvement proposals shadow-eval before promote",
-      "status": "Partial",
-      "evidence": "run_sandbox (tempfile isolated) + critic؛ ولی measured_lift eval هنوز stub",
-      "priority": "P0",
-      "gap_type": "implementation",
-      "section": "§9/§10 self-improve"
     },
     {
       "item": "change leveled: tune/reconfig/rewrite + contract",
@@ -390,20 +424,20 @@
       "section": "§10 self-modify"
     },
     {
-      "item": "self-analysis loop has stop-condition",
-      "status": "Partial",
-      "evidence": "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
-      "priority": "P1",
-      "gap_type": "governance",
-      "section": "§9 self-analysis"
-    },
-    {
       "item": "prioritized implementation backlog",
       "status": "Partial",
       "evidence": "این audit-matrix + AGENT_QUESTIONS + HANDOFF؛ ولی backlogِ زندهٔ owner-facing = کارِ improve.py",
       "priority": "P1",
       "gap_type": "implementation",
       "section": "§19 coding-ready"
+    },
+    {
+      "item": "named human owner per subsystem",
+      "status": "Missing",
+      "evidence": "owner=ari (single operator)؛ ولی per-agent owner-mapping صریح نیست",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "§13 governance"
     },
     {
       "item": "tool-call cost/latency logging",
@@ -428,14 +462,6 @@
       "priority": "P2",
       "gap_type": "theory",
       "section": "§11/§20 validation"
-    },
-    {
-      "item": "named human owner per subsystem",
-      "status": "Partial",
-      "evidence": "owner=ari (single operator)؛ ولی per-agent owner-mapping صریح نیست",
-      "priority": "P2",
-      "gap_type": "governance",
-      "section": "§13 governance"
     },
     {
       "item": "tool/model registry + trust levels",

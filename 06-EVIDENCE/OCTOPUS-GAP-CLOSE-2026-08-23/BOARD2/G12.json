@@ -1,0 +1,34 @@
+﻿{
+    "hard_rule":  "skip-if-already-published (check outbox/external_id/media_sent before enqueue)",
+    "result":  "HOLD",
+    "title":  "Studio captions 0003-0022",
+    "hold_empty_caption":  [
+                               "shot-0003",
+                               "shot-0004",
+                               "shot-0005",
+                               "shot-0006",
+                               "shot-0007",
+                               "shot-0008",
+                               "shot-0009",
+                               "shot-0010",
+                               "shot-0011",
+                               "shot-0012",
+                               "shot-0013",
+                               "shot-0014",
+                               "shot-0015",
+                               "shot-0016",
+                               "shot-0017",
+                               "shot-0018",
+                               "shot-0019",
+                               "shot-0020",
+                               "shot-0021",
+                               "shot-0022"
+                           ],
+    "published":  [
+                      "shot-0001",
+                      "shot-0002"
+                  ],
+    "gap_id":  "G12",
+    "no_invent_captions":  true,
+    "stamp":  "2026-08-23T09:04+10"
+}

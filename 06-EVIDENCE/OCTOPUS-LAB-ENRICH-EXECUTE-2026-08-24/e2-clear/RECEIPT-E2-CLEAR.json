@@ -1,0 +1,19 @@
+{
+  "schema": "octopus.lab-enrich.e2.clear.v1",
+  "id": "LAB-ENRICH-E2-THERMAL-CLEARED-20260824",
+  "captured_at_utc": "20260824T052611Z",
+  "moved": true,
+  "from": "/var/lib/octopus/state/quarantine/OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+  "to": "/var/lib/octopus/state/quarantine/.cleared-20260824/OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+  "method": "mv_reversible_not_delete",
+  "kept_in_quarantine": [
+    "wave01-range.json"
+  ],
+  "cleared_dir_files": [
+    "OCT-SENSE-053.THERMAL-RANGE_CHECK.json"
+  ],
+  "wave01_range_kept": true,
+  "ARMED": false,
+  "rollback": "mv /var/lib/octopus/state/quarantine/.cleared-20260824/OCT-SENSE-053.THERMAL-RANGE_CHECK.json /var/lib/octopus/state/quarantine/",
+  "pass": true
+}

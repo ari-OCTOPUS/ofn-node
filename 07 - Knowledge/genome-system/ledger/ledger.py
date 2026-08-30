@@ -275,19 +275,27 @@ class Ledger:
     def tip_path(self) -> Path:
         return self.path.parent / (self.path.name + ".tip.json")
 
-    def _commit_tip_unlocked(self, tip_hash: str) -> None:
-        """Write length+hash sidecar. Caller holds the append lock (or seal)."""
-        prev_n = None
-        p = self.tip_path()
-        try:
-            if p.exists():
-                prev_n = int(json.loads(p.read_text("utf-8")).get("n"))
-        except (OSError, ValueError, TypeError, KeyError):
+    def _commit_tip_unlocked(self, tip_hash: str, *, n: "int | None" = None) -> None:
+        """Write length+hash sidecar. Caller holds the append lock (or seal).
+
+        2026-08-25 (G4 rehearsal finding): ``seal_tip`` counts the true length but
+        this helper silently preferred ``prev_n + 1`` whenever a sidecar existed,
+        so a stale count (bulk backfill/reanchor, historical race) could never be
+        repaired — seal just incremented the wrong number. An explicit ``n`` now
+        wins; append() keeps the cheap ``prev_n + 1`` path by passing nothing."""
+        if n is None:
             prev_n = None
-        n = (prev_n + 1) if prev_n is not None else sum(
-            1 for _ in self.iter_events())
+            p = self.tip_path()
+            try:
+                if p.exists():
+                    prev_n = int(json.loads(p.read_text("utf-8")).get("n"))
+            except (OSError, ValueError, TypeError, KeyError):
+                prev_n = None
+            n = (prev_n + 1) if prev_n is not None else sum(
+                1 for _ in self.iter_events())
         rec = {"schema": "genome-ledger-tip.v1", "n": int(n),
                "tip_hash": str(tip_hash), "ts": _utcnow()}
+        p = self.tip_path()
         tmp = p.with_suffix(p.suffix + ".tmp")
         with open(tmp, "w", encoding="utf-8") as fh:
             fh.write(json.dumps(rec, ensure_ascii=False, separators=(",", ":")))
@@ -296,14 +304,18 @@ class Ledger:
         os.replace(tmp, p)
 
     def seal_tip(self) -> dict[str, Any]:
-        """One-shot: persist current n+tip without appending. Idempotent."""
+        """One-shot: persist current n+tip without appending. Idempotent.
+
+        2026-08-25: now actually repairs a stale/mismatched sidecar count — it
+        passes the freshly counted true length (and current head hash) through,
+        instead of letting the helper increment the stale number again."""
         n = 0
         last = None
         for rec in self.iter_events():
             n += 1
             last = rec.get("hash")
         if n and last:
-            self._commit_tip_unlocked(str(last))
+            self._commit_tip_unlocked(str(last), n=n)
         return {"n": n, "sealed": bool(n and last)}
 
     def verify_tip(self) -> tuple[bool, str]:

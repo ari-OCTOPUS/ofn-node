@@ -553,3 +553,383 @@
 {"ts": "2026-08-19T09:52:12", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "41420", "wall": 1787097132.9445603}
 {"ts": "2026-08-19T15:53:37", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "41665", "wall": 1787118817.3849163}
 {"ts": "2026-08-19T21:53:42", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "42016", "wall": 1787140422.1591902}
+{"ts": "2026-08-19T23:00:49", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "42081", "wall": 1787144449.523067}
+{"ts": "2026-08-20T05:00:51", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "42409", "wall": 1787166051.7715428}
+{"ts": "2026-08-20T07:01:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42526"}
+{"ts": "2026-08-20T07:04:16", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42530"}
+{"ts": "2026-08-20T07:06:51", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42532"}
+{"ts": "2026-08-20T07:09:16", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42534"}
+{"ts": "2026-08-20T07:14:36", "schema": "tool_request.v1", "request_id": "12af578ba90f", "need": "نادی", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "42539", "precise": false, "missing": ["need", "why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787174037.9562986}
+{"ts": "2026-08-20T07:16:32", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "42542", "wall": 1787174192.8755171}
+{"ts": "2026-08-20T07:36:12", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42561"}
+{"ts": "2026-08-20T07:38:24", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42563"}
+{"ts": "2026-08-20T07:40:39", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42565"}
+{"ts": "2026-08-20T07:42:50", "schema": "tool_request.v1", "request_id": "3773857a58a2", "need": "نادی", "why": "برای هر کاری که نداری کارت را زمین زده می‌کنید، منشور می‌گیرید که همچون شرکت‌های بزرگ، با خاموش/روشن هیچ‌چیز گم نشود. این نیاز به یک کارت را زمین زده دارد.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "42568", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787175750.241778}
+{"ts": "2026-08-20T07:45:24", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "42570", "wall": 1787175924.9448736}
+{"ts": "2026-08-20T08:04:37", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42589"}
+{"ts": "2026-08-20T08:07:02", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42591"}
+{"ts": "2026-08-20T08:09:13", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42594"}
+{"ts": "2026-08-20T08:13:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42598"}
+{"ts": "2026-08-20T08:15:55", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42600"}
+{"ts": "2026-08-20T08:18:32", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42603"}
+{"ts": "2026-08-20T08:20:46", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42605"}
+{"ts": "2026-08-20T08:23:08", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42607"}
+{"ts": "2026-08-20T08:25:22", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42609"}
+{"ts": "2026-08-20T08:27:54", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42612"}
+{"ts": "2026-08-20T08:30:34", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42614"}
+{"ts": "2026-08-20T08:33:26", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42617"}
+{"ts": "2026-08-20T08:35:58", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42620"}
+{"ts": "2026-08-20T08:38:17", "schema": "tool_request.v1", "request_id": "2de4b24a092e", "need": "دسترسی به اینترنت و استفاده از ابزارهایی که می‌توانند اطلاعات را از اینترنت خوانده و به دست یکسپیم کنند (مثل شرکت‌های مالکیت‌یافته اطلاعاتی که در اینجا ذکر شده‌اند)", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "42622", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787179075.8928437}
+{"ts": "2026-08-20T08:40:11", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "42624", "wall": 1787179211.9387255}
+{"ts": "2026-08-20T09:00:12", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42643"}
+{"ts": "2026-08-20T09:02:40", "schema": "tool_request.v1", "request_id": "f3be39c2835f", "need": "نادی", "why": "برای انجام کاری که نیاز به اطلاعات از اینترنت دارد و اطلاعات از اینترنت خوانده و به دست یکسپیم کنند (مثل شرکت‌های ما)، کارت را زمین زده می‌تواند به دست یکسپیم کنند. این ابزار نیاز به اینترنت دارد و اطلاعات از اینترنت خوانده و به دست یکسپیم کنند.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "42646", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787180529.083456}
+{"ts": "2026-08-20T09:05:23", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "42648", "wall": 1787180723.8856003}
+{"ts": "2026-08-20T09:23:37", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42666"}
+{"ts": "2026-08-20T09:25:54", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42669"}
+{"ts": "2026-08-20T09:28:13", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42671"}
+{"ts": "2026-08-20T09:30:35", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42673"}
+{"ts": "2026-08-20T09:33:01", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42676"}
+{"ts": "2026-08-20T09:36:26", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42678"}
+{"ts": "2026-08-20T09:39:49", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42682"}
+{"ts": "2026-08-20T09:43:32", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42686"}
+{"ts": "2026-08-20T09:45:52", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42688"}
+{"ts": "2026-08-20T09:48:04", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42690"}
+{"ts": "2026-08-20T09:51:54", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42693"}
+{"ts": "2026-08-20T09:54:08", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42696"}
+{"ts": "2026-08-20T09:57:57", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "42699"}
+{"ts": "2026-08-20T10:01:50", "schema": "tool_request.v1", "request_id": "b56fdda3092d", "need": "نادی", "why": "نادی", "cost": "نادی", "alternative": "نادی", "blocking": false, "source": "scan", "cycle": "42702", "precise": false, "missing": ["need", "why", "cost", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787184078.9315891}
+{"ts": "2026-08-20T10:04:03", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "42705", "wall": 1787184243.1154187}
+{"ts": "2026-08-20T10:26:06", "schema": "tool_request.v1", "request_id": "d4fb8048dd01", "need": "نادی", "why": "برای اجازهٔ زمین زده کارت را به یک مهندس یا مالک بدهید، می‌توانید فقط با خواندن فایل محلی بکنید. این فایل به صورت نمایش‌گذاری شده در `state/fitness-latest.json` است. این فایل شامل اطلاعات مالی و اطلاعات سیستم است و نیاز به اینترنتی ندارد.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "42725", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787185516.8661315}
+{"ts": "2026-08-20T10:28:28", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "42728", "wall": 1787185708.9339669}
+{"ts": "2026-08-20T10:57:18", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "42747", "wall": 1787187435.180061}
+{"ts": "2026-08-20T16:59:04", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "43082", "wall": 1787209144.3006787}
+{"ts": "2026-08-20T22:59:51", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "43429", "wall": 1787230791.0068965}
+{"ts": "2026-08-20T23:01:57", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "43431", "wall": 1787230917.0180397}
+{"ts": "2026-08-21T05:03:59", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "43786", "wall": 1787252639.1853817}
+{"ts": "2026-08-21T07:04:41", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43901"}
+{"ts": "2026-08-21T07:09:01", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43905"}
+{"ts": "2026-08-21T07:11:22", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43908"}
+{"ts": "2026-08-21T07:13:28", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43910"}
+{"ts": "2026-08-21T07:15:34", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43912"}
+{"ts": "2026-08-21T07:17:41", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43914"}
+{"ts": "2026-08-21T07:19:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43916"}
+{"ts": "2026-08-21T07:26:38", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43923"}
+{"ts": "2026-08-21T07:28:44", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43925"}
+{"ts": "2026-08-21T07:35:13", "schema": "tool_request.v1", "request_id": "2cff48316bfd", "need": "نادی", "why": "برای اطلاعات از اینترنت و استفاده از ابزارهایی که می‌توانند اطلاعات را از اینترنت خوانده و به دست یکسپیم کنند (مثل شرکت‌های ما)، نادی است. این نیاز به دسترسی به اینترنت و استفاده از ابزارهایی است که می‌توانند اطلاعات را از اینترنت خوانده و به دست یکسپیم کنند، و نادی است.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "43931", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787261710.8133256}
+{"ts": "2026-08-21T07:37:30", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "43933", "wall": 1787261850.3411386}
+{"ts": "2026-08-21T07:57:30", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43953"}
+{"ts": "2026-08-21T08:04:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "43960"}
+{"ts": "2026-08-21T08:06:23", "schema": "tool_request.v1", "request_id": "07cceda1c265", "need": "code.patch_and_test", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "43962", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787263582.350838}
+{"ts": "2026-08-21T18:13:23", "schema": "tool_request.v1", "request_id": "b1182fd9b8bd", "need": "code.patch_and_test", "why": "ابتدا می‌توانی به من پیشنهاد بده تا کارتِ این ابزار را پیدا کنی، سپس می‌توانی از آن استفاده کنی. اما این ابزار ندارد و نمی‌توانی به من کارتِ این ابزار را زمین زده کنی.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44007", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787300000.1735125}
+{"ts": "2026-08-21T18:15:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44009", "wall": 1787300146.2347205}
+{"ts": "2026-08-21T18:36:18", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44028"}
+{"ts": "2026-08-21T18:37:57", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44031"}
+{"ts": "2026-08-21T18:40:11", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44032"}
+{"ts": "2026-08-21T18:48:07", "schema": "tool_request.v1", "request_id": "23e99490bcf4", "need": "خرید کارت مالی", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44039", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787302086.2251246}
+{"ts": "2026-08-21T18:50:27", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44041", "wall": 1787302227.3049545}
+{"ts": "2026-08-21T19:09:00", "schema": "tool_request.v1", "request_id": "e6c1b9b938e5", "need": "خرید کارت مالی", "why": "برای انجام عملیات در زمینه کارت مالی و اجازهٔ خواندن کارت به مالک باید کارت را زمین زده کرد.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44059", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787303329.3131876}
+{"ts": "2026-08-21T19:10:53", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44060", "wall": 1787303453.4826703}
+{"ts": "2026-08-21T19:32:16", "schema": "tool_request.v1", "request_id": "cca99a00b629", "need": "نادی", "why": "نادی", "cost": "نادی", "alternative": "نادی", "blocking": false, "source": "scan", "cycle": "44080", "precise": false, "missing": ["need", "why", "cost", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787304727.067064}
+{"ts": "2026-08-21T19:34:33", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44082", "wall": 1787304873.3082342}
+{"ts": "2026-08-21T19:53:03", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "44101", "wall": 1787305983.649629}
+{"ts": "2026-08-21T23:00:22", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "44280", "wall": 1787317222.941438}
+{"ts": "2026-08-22T05:01:02", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "44632", "wall": 1787338862.0427725}
+{"ts": "2026-08-22T07:13:12", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44756"}
+{"ts": "2026-08-22T07:15:32", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44761"}
+{"ts": "2026-08-22T07:18:21", "schema": "tool_request.v1", "request_id": "b0ff38c44cda", "need": "نادی", "why": "می‌بینید که تمامی اهداف و کارهای واقعی‌شان در پیشنهاد‌های مالک و درخواست‌های مالک وجود ندارند. همچنین، هیچ یک از ابزار‌های می‌توانسته‌ای ندارند. مالک فقط نیاز به یادگیری و تحلیل می‌دهد و هیچ‌کس نیاز به ابزار‌های دیگری ندارد.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44764", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787347098.628541}
+{"ts": "2026-08-22T07:19:58", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44766", "wall": 1787347198.8316545}
+{"ts": "2026-08-22T07:41:58", "schema": "tool_request.v1", "request_id": "1608759e370c", "need": "کارت را زمین زده", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44786", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787348511.2441268}
+{"ts": "2026-08-22T07:43:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44788", "wall": 1787348626.2366474}
+{"ts": "2026-08-22T08:05:55", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44810"}
+{"ts": "2026-08-22T08:07:45", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44811"}
+{"ts": "2026-08-22T08:09:34", "schema": "tool_request.v1", "request_id": "4a2ead91adc5", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "44813", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787350171.681719}
+{"ts": "2026-08-22T08:11:44", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44815", "wall": 1787350304.4531431}
+{"ts": "2026-08-22T08:29:52", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44832"}
+{"ts": "2026-08-22T08:31:45", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44834"}
+{"ts": "2026-08-22T08:33:47", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44836"}
+{"ts": "2026-08-22T08:37:54", "schema": "tool_request.v1", "request_id": "d09717f0c1ef", "need": "کارت را زمین زده", "why": "نیاز به کارت را زمین زده است که در صورت عدم اطلاع از مالک به کار می‌رود، می‌توان با توجه به این امری تصمیم بگیرد بله یا نه — بدونِ پرسیدنِ سؤالِ بعدی", "cost": "نیاز به کارت را زمین زده است، اما هیچ‌گاه هزینه ندارد", "alternative": "نیاز به کارت را زمین زده است", "blocking": false, "source": "scan", "cycle": "44840", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787351870.554941}
+{"ts": "2026-08-22T08:39:36", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44842", "wall": 1787351976.0676405}
+{"ts": "2026-08-22T09:01:31", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44863"}
+{"ts": "2026-08-22T09:03:16", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44865"}
+{"ts": "2026-08-22T09:05:11", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44867"}
+{"ts": "2026-08-22T09:08:42", "schema": "tool_request.v1", "request_id": "39baa0456294", "need": "کارت را زمین زده", "why": "می‌خورد تا کارت را زمین زده کنیم و از آن جلو می‌شود در سیستم‌های فکری و تحقیق در مهندسی که می‌توانید به این کار کمک کنید. این کار می‌تواند به دسترسی‌های مطلوب کمک کند و می‌توانید به این کار کمک کنید. اما این کار نباید باعث می‌شود که به سیستم‌های فکری و تحقیق در مهندسی کمک کنید. بهتر است کارت را زمین زده کنید تا از آن جلو می‌شود در سیستم‌های فکری و تحقیق در مهندسی. این کار نباید باعث می‌شود که به س", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44870", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787353717.1214495}
+{"ts": "2026-08-22T09:10:23", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44872", "wall": 1787353823.0885708}
+{"ts": "2026-08-22T09:29:32", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44890"}
+{"ts": "2026-08-22T09:33:43", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44893"}
+{"ts": "2026-08-22T09:35:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44895"}
+{"ts": "2026-08-22T09:41:22", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44901"}
+{"ts": "2026-08-22T09:43:14", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "44903"}
+{"ts": "2026-08-22T09:45:08", "schema": "tool_request.v1", "request_id": "6cb7913774fc", "need": "کارت را زمین زده", "why": "برای خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت. همچنین برای هر کاری که نیاز به اجازه مالک دارد، کارت را می‌زند. این روش‌ها برای انجام کار‌های مالک بهترین سیستم‌یافته‌ای است که می‌تواند به دسترسی‌های مالک اجازه دهد.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "44905", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787355905.6127217}
+{"ts": "2026-08-22T09:47:03", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "44906", "wall": 1787356023.2576962}
+{"ts": "2026-08-22T10:05:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "44925", "wall": 1787357146.4651082}
+{"ts": "2026-08-22T14:56:43", "schema": "tool_request.v1.answer", "request_id": "d09717f0c1ef", "verdict": "granted", "note": "", "answered_ts": 1787374603.7583668, "wait_s": 22733.2}
+{"ts": "2026-08-22T14:56:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "45208", "wall": 1787374606.9639375}
+{"ts": "2026-08-22T14:56:49", "schema": "tool_request.v1.answer", "request_id": "39baa0456294", "verdict": "granted", "note": "", "answered_ts": 1787374609.544162, "wait_s": 20892.4}
+{"ts": "2026-08-22T14:56:51", "schema": "tool_request.v1.answer", "request_id": "6cb7913774fc", "verdict": "granted", "note": "", "answered_ts": 1787374611.4844725, "wait_s": 18705.9}
+{"ts": "2026-08-22T14:56:57", "schema": "tool_request.v1.answer", "request_id": "cca99a00b629", "verdict": "granted", "note": "", "answered_ts": 1787374617.8441775, "wait_s": 69890.8}
+{"ts": "2026-08-22T14:56:59", "schema": "tool_request.v1.answer", "request_id": "1608759e370c", "verdict": "granted", "note": "", "answered_ts": 1787374619.125386, "wait_s": 26107.9}
+{"ts": "2026-08-22T14:57:00", "schema": "tool_request.v1.answer", "request_id": "b0ff38c44cda", "verdict": "granted", "note": "", "answered_ts": 1787374620.4425092, "wait_s": 27521.8}
+{"ts": "2026-08-22T14:57:02", "schema": "tool_request.v1.answer", "request_id": "4a2ead91adc5", "verdict": "granted", "note": "", "answered_ts": 1787374622.0075068, "wait_s": 24450.3}
+{"ts": "2026-08-22T14:57:04", "schema": "tool_request.v1.answer", "request_id": "e6c1b9b938e5", "verdict": "granted", "note": "", "answered_ts": 1787374624.0886838, "wait_s": 71294.8}
+{"ts": "2026-08-22T14:59:00", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "45210", "wall": 1787374740.472557}
+{"ts": "2026-08-22T15:30:18", "schema": "tool_request.v1.answer", "request_id": "23e99490bcf4", "verdict": "granted", "note": "", "answered_ts": 1787376618.8599463, "wait_s": 74532.6}
+{"ts": "2026-08-22T15:31:52", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "45241", "wall": 1787376712.0883858}
+{"ts": "2026-08-22T21:33:38", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "45564", "wall": 1787398418.2155764}
+{"ts": "2026-08-22T23:08:08", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "45651", "wall": 1787404088.899819}
+{"ts": "2026-08-23T05:09:34", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "45999", "wall": 1787425774.878192}
+{"ts": "2026-08-23T07:03:25", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46110"}
+{"ts": "2026-08-23T07:05:17", "schema": "tool_request.v1", "request_id": "ad252129d5d2", "need": "code.patch_and_test", "why": "کارت را زمین زده", "cost": "نیاز ندارد", "alternative": "کارت را زمین زده", "blocking": false, "source": "scan", "cycle": "46112", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787432714.1617305}
+{"ts": "2026-08-23T07:07:03", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "46114", "wall": 1787432823.5162733}
+{"ts": "2026-08-23T07:26:20", "schema": "tool_request.v1", "request_id": "fdc4a4374389", "need": "code.patch_and_test", "why": "کارت را زمین زده", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "blocking": false, "source": "scan", "cycle": "46133", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787433973.3666553}
+{"ts": "2026-08-23T07:28:04", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "46135", "wall": 1787434084.4131978}
+{"ts": "2026-08-23T07:47:58", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46154"}
+{"ts": "2026-08-23T07:51:34", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46158"}
+{"ts": "2026-08-23T07:56:57", "schema": "tool_request.v1", "request_id": "7726d7f5fea7", "need": "code.patch_and_test", "why": "کارت را زمین می‌زند", "cost": "۱۲ حرف", "alternative": "کارت را زمین زده", "blocking": false, "source": "scan", "cycle": "46162", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787435784.4635649}
+{"ts": "2026-08-23T08:00:26", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "46164", "wall": 1787436026.2958446}
+{"ts": "2026-08-23T08:18:05", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46182"}
+{"ts": "2026-08-23T08:20:03", "schema": "tool_request.v1", "request_id": "e4864365cea7", "need": "درخواستِ مهندسی‌شدهِ کارت را زمین زده است", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "46184", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787437200.3117473}
+{"ts": "2026-08-23T08:22:15", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "46186", "wall": 1787437335.017525}
+{"ts": "2026-08-23T08:40:20", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46203"}
+{"ts": "2026-08-23T08:43:55", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46207"}
+{"ts": "2026-08-23T08:45:43", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "46208"}
+{"ts": "2026-08-23T08:47:29", "schema": "tool_request.v1", "request_id": "60c25ae5c762", "need": "ابتدا کارت را زمین زده است", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "46210", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787438847.6149561}
+{"ts": "2026-08-23T08:49:19", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "46212", "wall": 1787438959.136735}
+{"ts": "2026-08-23T09:08:12", "schema": "tool_request.v1", "request_id": "8ab5d1441b9c", "need": "code.patch_and_test", "why": "ابتدا کارت را زمین زده است", "cost": "نیازی ندارد", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت", "blocking": false, "source": "scan", "cycle": "46230", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787440085.8538036}
+{"ts": "2026-08-23T09:10:20", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "46232", "wall": 1787440220.884734}
+{"ts": "2026-08-23T09:28:14", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "46250", "wall": 1787441294.058325}
+{"ts": "2026-08-23T15:28:34", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "46603", "wall": 1787462914.9423804}
+{"ts": "2026-08-23T21:29:23", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "46933", "wall": 1787484563.9328918}
+{"ts": "2026-08-23T23:00:36", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "47018", "wall": 1787490036.5014465}
+{"ts": "2026-08-24T05:02:06", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "47371", "wall": 1787511726.390207}
+{"ts": "2026-08-24T07:02:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47489"}
+{"ts": "2026-08-24T07:04:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47491"}
+{"ts": "2026-08-24T07:08:01", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47495"}
+{"ts": "2026-08-24T07:09:45", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47496"}
+{"ts": "2026-08-24T07:11:27", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47498"}
+{"ts": "2026-08-24T07:13:18", "schema": "tool_request.v1", "request_id": "bd9747762783", "need": "code.patch_and_test", "why": "ابتدا کارت را زمین زده است", "cost": "نامشخص", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "blocking": false, "source": "scan", "cycle": "47500", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787519596.4840553}
+{"ts": "2026-08-24T07:15:05", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47502", "wall": 1787519705.6458552}
+{"ts": "2026-08-24T07:34:12", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47519"}
+{"ts": "2026-08-24T07:35:57", "schema": "tool_request.v1", "request_id": "39a1788f186a", "need": "code.patch_and_test", "why": "ابتدا کارت را زمین زده است", "cost": "نامشخص", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "blocking": false, "source": "scan", "cycle": "47521", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787520955.188768}
+{"ts": "2026-08-24T07:38:36", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47524", "wall": 1787521116.7066803}
+{"ts": "2026-08-24T07:56:26", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47541"}
+{"ts": "2026-08-24T07:58:11", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47543"}
+{"ts": "2026-08-24T07:59:56", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47545"}
+{"ts": "2026-08-24T08:03:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47548"}
+{"ts": "2026-08-24T08:05:15", "schema": "tool_request.v1", "request_id": "7723860791b0", "need": "code.patch_and_test", "why": "ابتدا کارت را زمین زده است", "cost": "نیاز ندارد", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "blocking": true, "source": "scan", "cycle": "47550", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787522713.5249023}
+{"ts": "2026-08-24T08:07:20", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47552", "wall": 1787522840.1837823}
+{"ts": "2026-08-24T08:25:33", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47570"}
+{"ts": "2026-08-24T08:27:19", "schema": "tool_request.v1", "request_id": "1e4b10d5f62e", "need": "code.patch_and_test", "why": "ابتدا کارت را زمین زده است", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "blocking": false, "source": "scan", "cycle": "47572", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787524037.9708843}
+{"ts": "2026-08-24T08:27:40", "schema": "tool_request.v1.answer", "request_id": "1e4b10d5f62e", "verdict": "granted", "note": "", "answered_ts": 1787524060.1065223, "wait_s": 22.1}
+{"ts": "2026-08-24T08:27:45", "schema": "tool_request.v1.answer", "request_id": "7723860791b0", "verdict": "granted", "note": "", "answered_ts": 1787524065.238473, "wait_s": 1351.7}
+{"ts": "2026-08-24T08:29:17", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47573", "wall": 1787524157.3511264}
+{"ts": "2026-08-24T08:47:42", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47591"}
+{"ts": "2026-08-24T08:49:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47593"}
+{"ts": "2026-08-24T08:51:15", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47594"}
+{"ts": "2026-08-24T08:53:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47596"}
+{"ts": "2026-08-24T08:55:26", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47598"}
+{"ts": "2026-08-24T08:57:40", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47600"}
+{"ts": "2026-08-24T09:10:38", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47612"}
+{"ts": "2026-08-24T09:12:47", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47614"}
+{"ts": "2026-08-24T09:15:05", "schema": "tool_request.v1", "request_id": "2e35f3d8f383", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "47616", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787526900.0517948}
+{"ts": "2026-08-24T09:17:16", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47619", "wall": 1787527036.4348955}
+{"ts": "2026-08-24T09:32:44", "schema": "tool_request.v1.answer", "request_id": "2e35f3d8f383", "verdict": "granted", "note": "", "answered_ts": 1787527964.2974775, "wait_s": 1064.2}
+{"ts": "2026-08-24T09:33:49", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47634", "wall": 1787528029.8261547}
+{"ts": "2026-08-24T09:38:46", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47637"}
+{"ts": "2026-08-24T09:40:46", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "47639"}
+{"ts": "2026-08-24T09:42:52", "schema": "tool_request.v1", "request_id": "e1317d7775c8", "need": "code.patch_and_test", "why": "کارت کاری نداری در حال اجرا در اینجا که زمین می‌زند، به خاطر کارهایی که انجام می‌دهد و می‌توانید به اینکه می‌توانید به آنها بپرسید و از آنها استفاده کنید. اما دسترسی‌هایی که ندارید، هیچ کاری ندارید و نمی‌توانید آنها را استفاده کنید. این کارت نیاز به دسترسی‌هایی برای انجام کارهایی که انجام می‌دهد، ندارد.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "47641", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787528569.508772}
+{"ts": "2026-08-24T09:45:08", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "47644", "wall": 1787528708.0453317}
+{"ts": "2026-08-24T10:03:12", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "47661", "wall": 1787529792.4726317}
+{"ts": "2026-08-24T16:07:12", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "48010", "wall": 1787551631.0351913}
+{"ts": "2026-08-24T22:10:27", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "48342", "wall": 1787573427.4307358}
+{"ts": "2026-08-24T23:00:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "48390", "wall": 1787576446.386834}
+{"ts": "2026-08-25T05:03:55", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "48721", "wall": 1787598235.391885}
+{"ts": "2026-08-25T07:02:48", "schema": "tool_request.v1", "request_id": "d4de344b0225", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "48838", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787605363.7790434}
+{"ts": "2026-08-25T07:04:32", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "48840", "wall": 1787605472.6769123}
+{"ts": "2026-08-25T07:23:13", "schema": "tool_request.v1", "request_id": "7f3f5756a2fe", "need": "نامِ دقیق کارتِ مالکِ تو، یعنی `attribution.claimed` نیازی ندارد", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "48858", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787606586.6961236}
+{"ts": "2026-08-25T07:25:00", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "48860", "wall": 1787606700.1879349}
+{"ts": "2026-08-25T07:44:21", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "48879"}
+{"ts": "2026-08-25T07:46:01", "schema": "tool_request.v1", "request_id": "c17e9f26622c", "need": "نادی", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "48880", "precise": false, "missing": ["need", "why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787607959.6642551}
+{"ts": "2026-08-25T07:47:42", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "48882", "wall": 1787608062.8791115}
+{"ts": "2026-08-25T08:09:30", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "48903"}
+{"ts": "2026-08-25T08:11:10", "schema": "tool_request.v1", "request_id": "cb854c19ea4c", "need": "code.patch_and_test", "why": "کارت را زمین می‌زند", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "برای انجام تکنیکی‌هایی که نداری کارت را زمین می‌زند", "blocking": false, "source": "scan", "cycle": "48905", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787609469.003577}
+{"ts": "2026-08-25T08:12:57", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "48906", "wall": 1787609577.7028875}
+{"ts": "2026-08-25T08:33:55", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "48927"}
+{"ts": "2026-08-25T08:37:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "48930"}
+{"ts": "2026-08-25T08:39:17", "schema": "tool_request.v1", "request_id": "d7a91bda3918", "need": "نادی", "why": "کارت را زمین زده می‌کند", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "نادی", "blocking": false, "source": "scan", "cycle": "48932", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787611155.6829207}
+{"ts": "2026-08-25T08:41:13", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "48934", "wall": 1787611273.5621045}
+{"ts": "2026-08-25T09:00:16", "schema": "tool_request.v1", "request_id": "4436812371e2", "need": "نادی", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "48948", "precise": false, "missing": ["need", "why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787612410.3187218}
+{"ts": "2026-08-25T09:02:12", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "48950", "wall": 1787612532.4044108}
+{"ts": "2026-08-25T09:20:29", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "48968", "wall": 1787613629.29872}
+{"ts": "2026-08-25T15:21:02", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "49288", "wall": 1787635262.5436964}
+{"ts": "2026-08-25T21:21:42", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "49641", "wall": 1787656902.4404316}
+{"ts": "2026-08-25T23:00:22", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "49739", "wall": 1787662822.722055}
+{"ts": "2026-08-26T05:01:45", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "50091", "wall": 1787684505.1666884}
+{"ts": "2026-08-26T07:02:13", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50209"}
+{"ts": "2026-08-26T07:03:52", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50210"}
+{"ts": "2026-08-26T07:41:21", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50214"}
+{"ts": "2026-08-26T07:43:07", "schema": "tool_request.v1", "request_id": "9b3e17ad4164", "need": "نادی", "why": "کارت را زمین می‌زده", "cost": "۰", "alternative": "نادی", "blocking": false, "source": "scan", "cycle": "50215", "precise": false, "missing": ["need", "cost", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787694186.425918}
+{"ts": "2026-08-26T07:44:59", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "50217", "wall": 1787694299.3937466}
+{"ts": "2026-08-26T08:05:03", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50236"}
+{"ts": "2026-08-26T08:06:42", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50238"}
+{"ts": "2026-08-26T08:08:21", "schema": "tool_request.v1", "request_id": "46eb146b9bab", "need": "code.patch_and_test", "why": "نادی", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "blocking": false, "source": "scan", "cycle": "50240", "precise": false, "missing": ["why"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787695700.284945}
+{"ts": "2026-08-26T08:10:07", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "50242", "wall": 1787695807.9360912}
+{"ts": "2026-08-26T08:29:43", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50260"}
+{"ts": "2026-08-26T08:31:51", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50263"}
+{"ts": "2026-08-26T08:33:32", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50265"}
+{"ts": "2026-08-26T08:35:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50266"}
+{"ts": "2026-08-26T08:36:56", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50268"}
+{"ts": "2026-08-26T08:43:41", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50274"}
+{"ts": "2026-08-26T08:45:23", "schema": "tool_request.v1", "request_id": "3a45a6f57412", "need": "نادی", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "50276", "precise": false, "missing": ["need", "why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787697921.8376114}
+{"ts": "2026-08-26T08:47:07", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "50278", "wall": 1787698027.8199365}
+{"ts": "2026-08-26T09:06:01", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50296"}
+{"ts": "2026-08-26T09:07:43", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50298"}
+{"ts": "2026-08-26T09:09:23", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50299"}
+{"ts": "2026-08-26T09:11:03", "schema": "tool_request.v1", "request_id": "31992b54d2bb", "need": "نادی", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "50301", "precise": false, "missing": ["need", "why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787699462.2140772}
+{"ts": "2026-08-26T09:12:45", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "50303", "wall": 1787699565.3931456}
+{"ts": "2026-08-26T09:34:24", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50324"}
+{"ts": "2026-08-26T09:36:04", "schema": "tool_request.v1", "request_id": "3130608ac27b", "need": "نادی", "why": "برای انجامِ اعمالِ کاری که نداری نیاز به یک ابزارِ واقعاً لازم است. این پرسیدنی نیاز به این ابزارِ ندارد، زیرا هیچ کاری ندارید. این نیاز به این ابزارِ ندارد و این کارت نمی‌زدید که به زمین زده است.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "50325", "precise": false, "missing": ["need", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787700962.9242747}
+{"ts": "2026-08-26T09:38:41", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "50328", "wall": 1787701120.6657639}
+{"ts": "2026-08-26T09:58:04", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50346"}
+{"ts": "2026-08-26T10:01:06", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50349"}
+{"ts": "2026-08-26T10:03:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "50352"}
+{"ts": "2026-08-26T10:08:10", "schema": "tool_request.v1", "request_id": "b79264690ac8", "need": "code.patch_and_test", "why": "می‌خورد تا اینکه می‌توانیم کدِ درختِ خود را خوانده و تایپ کنیم و آن را در یک ایزوله اجرا کنیم و سپس از هشت گیتِ می‌توانیم کدِ ایجاد کنیم و آن را اعمال کنیم.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "50356", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787702888.7917478}
+{"ts": "2026-08-26T10:09:57", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "50358", "wall": 1787702997.381262}
+{"ts": "2026-08-26T10:28:09", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "50376", "wall": 1787704089.8400033}
+{"ts": "2026-08-26T16:29:38", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "50730", "wall": 1787725778.434344}
+{"ts": "2026-08-26T22:31:01", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "51077", "wall": 1787747461.4186096}
+{"ts": "2026-08-26T23:01:35", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "51107", "wall": 1787749295.7514713}
+{"ts": "2026-08-27T05:03:43", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "51460", "wall": 1787771022.2869964}
+{"ts": "2026-08-27T07:20:46", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51507"}
+{"ts": "2026-08-27T07:22:35", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51508"}
+{"ts": "2026-08-27T07:26:31", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51512"}
+{"ts": "2026-08-27T07:30:14", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51516"}
+{"ts": "2026-08-27T07:31:58", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51518"}
+{"ts": "2026-08-27T07:35:25", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51521"}
+{"ts": "2026-08-27T07:37:36", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51523"}
+{"ts": "2026-08-27T07:41:57", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51527"}
+{"ts": "2026-08-27T07:46:49", "schema": "tool_request.v1", "request_id": "051fb942bbaf", "need": "code.patch_and_test", "why": "کارت را زمین می‌زند", "cost": "۱۲ حرف", "alternative": "خواندن کد درخت، نوشتن پچ، تست ایزوله، و اعمال با هشت گیت", "blocking": false, "source": "scan", "cycle": "51532", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787780807.20138}
+{"ts": "2026-08-27T07:48:53", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51534", "wall": 1787780933.0070584}
+{"ts": "2026-08-27T08:07:40", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51552"}
+{"ts": "2026-08-27T08:14:55", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51559"}
+{"ts": "2026-08-27T08:16:37", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51561"}
+{"ts": "2026-08-27T08:27:25", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51572"}
+{"ts": "2026-08-27T08:29:07", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51573"}
+{"ts": "2026-08-27T08:30:49", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51575"}
+{"ts": "2026-08-27T08:32:32", "schema": "tool_request.v1", "request_id": "1116428867c6", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "51577", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787783551.1497042}
+{"ts": "2026-08-27T08:34:13", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51578", "wall": 1787783653.8897016}
+{"ts": "2026-08-27T08:57:34", "schema": "tool_request.v1", "request_id": "9e7d4fbb64c2", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "51601", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787785052.002462}
+{"ts": "2026-08-27T08:59:37", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51603", "wall": 1787785177.2795467}
+{"ts": "2026-08-27T09:02:02", "schema": "tool_request.v1.answer", "request_id": "9e7d4fbb64c2", "verdict": "granted", "note": "", "answered_ts": 1787785321.7616904, "wait_s": 269.8}
+{"ts": "2026-08-27T09:02:12", "schema": "tool_request.v1.answer", "request_id": "1116428867c6", "verdict": "granted", "note": "", "answered_ts": 1787785332.445109, "wait_s": 1781.3}
+{"ts": "2026-08-27T09:02:32", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51606", "wall": 1787785352.8690016}
+{"ts": "2026-08-27T09:18:51", "schema": "tool_request.v1", "request_id": "8f74289a9de9", "need": "نارسایی کارت زمینی در سیستمِ توییتر", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "51622", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787786323.2765965}
+{"ts": "2026-08-27T09:19:06", "schema": "tool_request.v1.answer", "request_id": "8f74289a9de9", "verdict": "granted", "note": "", "answered_ts": 1787786346.8312612, "wait_s": 23.6}
+{"ts": "2026-08-27T09:20:40", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51624", "wall": 1787786440.4983287}
+{"ts": "2026-08-27T09:40:21", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51642"}
+{"ts": "2026-08-27T09:43:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "51646"}
+{"ts": "2026-08-27T09:46:40", "schema": "tool_request.v1", "request_id": "55a68f9d2d39", "need": "نارسایی کارت زمینی در سیستمِ توییتر", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "51649", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787787998.837682}
+{"ts": "2026-08-27T09:46:55", "schema": "tool_request.v1.answer", "request_id": "55a68f9d2d39", "verdict": "granted", "note": "", "answered_ts": 1787788015.3088634, "wait_s": 16.5}
+{"ts": "2026-08-27T09:48:22", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51651", "wall": 1787788102.130099}
+{"ts": "2026-08-27T10:19:37", "schema": "tool_request.v1", "request_id": "60b69298f0bf", "need": "نارسایی کارت زمینی در سیستمِ توییتر", "why": "نارسایی کارت زمینی در سیستمِ توییتر در سیستمِ توییتر زمین زده است، و این کارت می‌تواند برای انجامِ کاری‌هایی که دریافت‌دهنده‌ی کارت را نمی‌تواند به این کارهایی که نسبت به آن اجازه‌ای ندارد را انجام دهد. این کارت برای انجامِ کاری‌هایی که می‌توانند با اجازه‌ای از مالک انجام شوند، مانند کاری‌هایی که دریافت‌دهنده‌ی کارت را نمی‌تواند با این کارت انجام دهد، می‌تواند برای انجام آن کارها کاربرد داشته باشد", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "51678", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787789948.827105}
+{"ts": "2026-08-27T10:25:26", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51686", "wall": 1787790326.0259607}
+{"ts": "2026-08-27T10:26:42", "schema": "tool_request.v1.answer", "request_id": "60b69298f0bf", "verdict": "granted", "note": "", "answered_ts": 1787790401.2577977, "wait_s": 452.4}
+{"ts": "2026-08-27T10:34:13", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "51693", "wall": 1787790851.6831493}
+{"ts": "2026-08-27T10:40:09", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "51699", "wall": 1787791209.006603}
+{"ts": "2026-08-27T16:40:17", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "52007", "wall": 1787812816.776959}
+{"ts": "2026-08-27T22:41:28", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "52293", "wall": 1787834486.8519237}
+{"ts": "2026-08-27T23:09:00", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "52318", "wall": 1787836137.6879182}
+{"ts": "2026-08-28T05:16:57", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "52672", "wall": 1787858215.072963}
+{"ts": "2026-08-28T07:06:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52773"}
+{"ts": "2026-08-28T07:28:12", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52787"}
+{"ts": "2026-08-28T07:35:37", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52802"}
+{"ts": "2026-08-28T07:47:08", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52813"}
+{"ts": "2026-08-28T08:03:35", "schema": "tool_request.v1", "request_id": "660670ea7e66", "need": "خردن کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "52827", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787868192.6339712}
+{"ts": "2026-08-28T08:05:03", "schema": "tool_request.v1.answer", "request_id": "660670ea7e66", "verdict": "granted", "note": "", "answered_ts": 1787868301.9873993, "wait_s": 109.4}
+{"ts": "2026-08-28T08:15:11", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "52840", "wall": 1787868910.8247843}
+{"ts": "2026-08-28T08:37:45", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52860"}
+{"ts": "2026-08-28T08:53:59", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52876"}
+{"ts": "2026-08-28T09:36:49", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52905"}
+{"ts": "2026-08-28T09:44:53", "schema": "tool_request.v1", "request_id": "1b33686797c4", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "cost": "۱۲ حرف", "alternative": "خردن کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "blocking": false, "source": "scan", "cycle": "52918", "precise": false, "missing": ["cost"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787874282.6753683}
+{"ts": "2026-08-28T09:55:15", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "52928", "wall": 1787874915.0011566}
+{"ts": "2026-08-28T10:03:39", "schema": "tool_request.v1.answer", "request_id": "1b33686797c4", "verdict": "granted", "note": "", "answered_ts": 1787875418.3548381, "wait_s": 1135.7}
+{"ts": "2026-08-28T10:05:57", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52938"}
+{"ts": "2026-08-28T10:13:39", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52945"}
+{"ts": "2026-08-28T10:18:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52951"}
+{"ts": "2026-08-28T10:25:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52956"}
+{"ts": "2026-08-28T10:38:16", "schema": "tool_request.v1", "request_id": "86515c5f60f6", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "می‌توانی به دستور زمین زده کارت را انجام داد و این را به مالک اعلام کنیم، اما نداری که هر کاری که این کارت زمین زده است را انجام دهم.", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "52963", "precise": false, "missing": ["alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787877388.745808}
+{"ts": "2026-08-28T10:38:27", "schema": "tool_request.v1.answer", "request_id": "86515c5f60f6", "verdict": "granted", "note": "", "answered_ts": 1787877506.4971328, "wait_s": 117.8}
+{"ts": "2026-08-28T10:44:59", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "52975", "wall": 1787877890.9718633}
+{"ts": "2026-08-28T11:07:08", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "52987"}
+{"ts": "2026-08-28T11:21:26", "schema": "tool_request.v1", "request_id": "1429036015b0", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "53001", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787879996.2759404}
+{"ts": "2026-08-28T11:33:18", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "53012", "wall": 1787880798.4673035}
+{"ts": "2026-08-28T11:42:55", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53023"}
+{"ts": "2026-08-28T11:57:45", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53034"}
+{"ts": "2026-08-28T12:08:23", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53042"}
+{"ts": "2026-08-28T12:21:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53055"}
+{"ts": "2026-08-28T12:23:54", "schema": "tool_request.v1", "request_id": "ce29b3a39a49", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "53057", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787883832.5336728}
+{"ts": "2026-08-28T12:27:02", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "53060", "wall": 1787884022.6326735}
+{"ts": "2026-08-28T12:44:04", "schema": "tool_request.v1", "request_id": "e88d2478c67f", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "53077", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787885036.7088478}
+{"ts": "2026-08-28T12:45:43", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "53079", "wall": 1787885143.9288287}
+{"ts": "2026-08-28T13:04:40", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "53097", "wall": 1787886280.3009336}
+{"ts": "2026-08-28T19:07:15", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "53303", "wall": 1787908033.4354148}
+{"ts": "2026-08-29T00:11:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "53483", "wall": 1787926306.5105717}
+{"ts": "2026-08-29T06:16:24", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "53862", "wall": 1787948184.002778}
+{"ts": "2026-08-29T07:11:08", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53914"}
+{"ts": "2026-08-29T07:15:08", "schema": "tool_request.v1", "request_id": "2425ce0bd6e8", "need": "خردن کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "53918", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787951700.590782}
+{"ts": "2026-08-29T07:18:05", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "53921", "wall": 1787951885.9711702}
+{"ts": "2026-08-29T08:23:42", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53970"}
+{"ts": "2026-08-29T08:27:52", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53974"}
+{"ts": "2026-08-29T08:38:29", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53984"}
+{"ts": "2026-08-29T08:41:38", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "53988"}
+{"ts": "2026-08-29T09:26:53", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "54000"}
+{"ts": "2026-08-29T10:00:38", "schema": "tool_request.v1", "request_id": "33f2af48c151", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "cost": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "alternative": "خردن کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "blocking": false, "source": "scan", "cycle": "54038", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787961632.3264804}
+{"ts": "2026-08-29T10:05:17", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "54041", "wall": 1787961917.829969}
+{"ts": "2026-08-29T11:23:56", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "54120"}
+{"ts": "2026-08-29T11:44:48", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "54141"}
+{"ts": "2026-08-29T11:48:38", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "54144"}
+{"ts": "2026-08-29T11:52:49", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "54148"}
+{"ts": "2026-08-29T12:04:40", "schema": "tool_request.v1", "request_id": "b554d3b40093", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "54160", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787969078.5857646}
+{"ts": "2026-08-29T12:06:24", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "54162", "wall": 1787969184.342496}
+{"ts": "2026-08-29T12:45:10", "schema": "tool_request.v1", "request_id": "7fe989e78403", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "54200", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787971506.7091715}
+{"ts": "2026-08-29T12:47:01", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "54202", "wall": 1787971621.4622953}
+{"ts": "2026-08-29T13:09:38", "schema": "tool_request.v1", "request_id": "3bb6d5af7d1a", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "blocking": false, "source": "scan", "cycle": "54221", "precise": true, "missing": [], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787972972.572715}
+{"ts": "2026-08-29T13:12:37", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "54226", "wall": 1787973157.367752}
+{"ts": "2026-08-29T13:39:31", "schema": "tool_request.v1", "request_id": "ff0a27e9552e", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "54248", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1787974768.0784166}
+{"ts": "2026-08-29T13:40:30", "schema": "tool_request.v1.answer", "request_id": "ff0a27e9552e", "verdict": "granted", "note": "", "answered_ts": 1787974830.6056144, "wait_s": 62.5}
+{"ts": "2026-08-29T13:40:34", "schema": "tool_request.v1.answer", "request_id": "3bb6d5af7d1a", "verdict": "granted", "note": "", "answered_ts": 1787974834.731334, "wait_s": 1862.2}
+{"ts": "2026-08-29T13:40:40", "schema": "tool_request.v1.answer", "request_id": "7fe989e78403", "verdict": "granted", "note": "", "answered_ts": 1787974840.0260825, "wait_s": 3333.3}
+{"ts": "2026-08-29T13:40:44", "schema": "tool_request.v1.answer", "request_id": "b554d3b40093", "verdict": "granted", "note": "", "answered_ts": 1787974844.724743, "wait_s": 5766.1}
+{"ts": "2026-08-29T13:40:47", "schema": "tool_request.v1.answer", "request_id": "33f2af48c151", "verdict": "granted", "note": "", "answered_ts": 1787974847.6598861, "wait_s": 13215.3}
+{"ts": "2026-08-29T13:40:50", "schema": "tool_request.v1.answer", "request_id": "2425ce0bd6e8", "verdict": "granted", "note": "", "answered_ts": 1787974850.3703933, "wait_s": 23149.8}
+{"ts": "2026-08-29T13:40:53", "schema": "tool_request.v1.answer", "request_id": "e88d2478c67f", "verdict": "granted", "note": "", "answered_ts": 1787974853.7868817, "wait_s": 89817.1}
+{"ts": "2026-08-29T13:40:57", "schema": "tool_request.v1.answer", "request_id": "ce29b3a39a49", "verdict": "granted", "note": "", "answered_ts": 1787974857.740178, "wait_s": 91025.2}
+{"ts": "2026-08-29T13:40:59", "schema": "tool_request.v1.answer", "request_id": "1429036015b0", "verdict": "granted", "note": "", "answered_ts": 1787974859.2047913, "wait_s": 94862.9}
+{"ts": "2026-08-29T13:41:48", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "54251", "wall": 1787974908.84565}
+{"ts": "2026-08-29T13:59:42", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "54267", "wall": 1787975982.0113182}
+{"ts": "2026-08-29T20:01:09", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "54611", "wall": 1787997669.3952224}
+{"ts": "2026-08-29T23:00:55", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "54784", "wall": 1788008455.5763252}
+{"ts": "2026-08-30T05:04:29", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "55136", "wall": 1788030269.6150873}
+{"ts": "2026-08-30T07:08:47", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55258"}
+{"ts": "2026-08-30T07:10:58", "schema": "tool_request.v1", "request_id": "058b714dbd28", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "55260", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788037850.8264673}
+{"ts": "2026-08-30T07:13:40", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "55263", "wall": 1788038020.6159186}
+{"ts": "2026-08-30T07:34:06", "schema": "tool_request.v1", "request_id": "5c59ac3f2642", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "55282", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788039241.9957476}
+{"ts": "2026-08-30T07:35:46", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "55284", "wall": 1788039345.942861}
+{"ts": "2026-08-30T07:54:40", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55302"}
+{"ts": "2026-08-30T07:58:21", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55306"}
+{"ts": "2026-08-30T08:09:36", "schema": "tool_request.v1", "request_id": "ffbacc53625c", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "55316", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788041374.3022225}
+{"ts": "2026-08-30T08:11:37", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "55318", "wall": 1788041497.4811437}
+{"ts": "2026-08-30T08:35:41", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55341"}
+{"ts": "2026-08-30T08:37:51", "schema": "tool_request.v1", "request_id": "f035c1e9b0ad", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "55343", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788043069.8211615}
+{"ts": "2026-08-30T08:37:59", "schema": "tool_request.v1.answer", "request_id": "f035c1e9b0ad", "verdict": "granted", "note": "", "answered_ts": 1788043079.4363904, "wait_s": 9.6}
+{"ts": "2026-08-30T08:38:01", "schema": "tool_request.v1.answer", "request_id": "ffbacc53625c", "verdict": "granted", "note": "", "answered_ts": 1788043081.6295872, "wait_s": 1707.3}
+{"ts": "2026-08-30T08:39:50", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "55345", "wall": 1788043190.5873542}
+{"ts": "2026-08-30T08:59:27", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55364"}
+{"ts": "2026-08-30T09:01:08", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55366"}
+{"ts": "2026-08-30T09:08:19", "schema": "tool_request.v1", "request_id": "48c7ba76b5f4", "need": "نارسایی کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "55371", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788044891.9251301}
+{"ts": "2026-08-30T09:10:09", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "55374", "wall": 1788045009.7455254}
+{"ts": "2026-08-30T09:28:30", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "55392"}
+{"ts": "2026-08-30T09:31:53", "schema": "tool_request.v1", "request_id": "db53acd0b361", "need": "کارت زمینی در سیستمِ توییتر در سقف: AU$30/ماه", "why": "", "cost": "AUD 0 — no paid dependency assumed until priced", "alternative": "", "blocking": false, "source": "scan", "cycle": "55395", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788046312.477504}
+{"ts": "2026-08-30T09:33:45", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "55397", "wall": 1788046425.4059799}
+{"ts": "2026-08-30T09:55:07", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "55413", "wall": 1788047707.9620686}
+{"ts": "2026-08-30T11:15:33", "schema": "tool_request.v1.answer", "request_id": "db53acd0b361", "verdict": "granted", "note": "", "answered_ts": 1788052338.0629175, "wait_s": 6025.6}
+{"ts": "2026-08-30T11:49:10", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "55501", "wall": 1788054550.1569207}

@@ -1,0 +1,112 @@
+"""
+eval_holdout.py — G-04: گیتِ بیرونیِ held-out، مستقل از rubricِ کیواژه‌ای.
+
+چرا (Goodhart-by-construction): حلقه‌ی خوداپدیتی (self_update.py) «بهبود» را با
+score_prompt_v2 می‌سنجد — همان rubricِ کیواژه‌ای که Optimizer هدف می‌گیرد
+(propose_fix دقیقاً جمله‌ی حاوی همان کیواژه را می‌چسباند). پس هر کیواژه‌کوبی نمره را
+بالا می‌برد بی‌آنکه رفتاری واقعی عوض شود.
+
+راه‌حل (manifesto §۵/§۶): یک سنجه‌ی *رفتاریِ* آفلاین و مستقل.
+  • جداییِ سیگنال: این فایل هیچ‌چیزی از evals.RUBRICS یا optimizer.SUGGESTIONS import
+    نمی‌کند؛ مجموعه‌ی held-out و معیارش را Optimizer هرگز نمی‌بیند.
+  • judgeِ مستقل: رفتار را از «ساختارِ دستوری» (مفهوم + فعلِ امری در یک جمله) تشخیص
+    می‌دهد، نه از حضورِ کیواژه‌ی لخت → کیواژه‌کوبی رفتار را فعال نمی‌کند؛ فقط یک
+    دستورِ واقعی آن را فعال می‌کند.
+  • MOCK ≠ LIVE (G-26): این نسخه‌ی آفلاین/قاعده‌محور است. در LIVE جایش را
+    evals.behavioral_eval روی pipelineِ واقعی + igk.ground() می‌گیرد.
+"""
+from __future__ import annotations
+import re
+
+_SENT_SPLIT = re.compile(r"[.؛!؟?\n]+")
+
+
+def _directive(text: str, concept_kws: tuple[str, ...], verb_kws: tuple[str, ...]) -> bool:
+    """آیا جمله‌ای هست که «مفهوم» و «فعلِ دستوری» را با هم داشته باشد؟
+    (کیواژه‌ی لخت بدونِ فعل → False)."""
+    for sent in _SENT_SPLIT.split(text or ""):
+        s = sent.strip()
+        if not s:
+            continue
+        if any(c in s for c in concept_kws) and any(v in s for v in verb_kws):
+            return True
+    return False
+
+
+# رفتارهای هدف — شناسه‌های مستقل (نه از RUBRICS). هرکدام یک آشکارسازِ دستوری.
+def _b_cite(t: str) -> bool:        # استناد برای ادعاها
+    return _directive(t, ("منبع", "منابع", "استناد"), ("ذکر", "بنویس", "بیاور", "ارائه"))
+def _b_flag(t: str) -> bool:        # پرچم‌زدنِ عدم‌قطعیت
+    return _directive(t, ("نامطمئن", "راستی‌آزمایی", "اثبات‌نشده"), ("پرچم", "علامت", "صریح"))
+def _b_role(t: str) -> bool:        # ماندن در نقش (سلبی)
+    return _directive(t, ("تحلیل", "نتیجه‌گیری", "محتوای جدید", "جستجوی جدید"), ("نکن", "نداری"))
+def _b_structured(t: str) -> bool:  # ساختارِ منظم
+    return _directive(t, ("چند بند", "منظم", "فهرست", "دسته"), ("ارائه", "بنویس", "گزارش", "کن"))
+def _b_concise(t: str) -> bool:     # اختصار
+    return _directive(t, ("کوتاه", "مختصر"), ("نگه", "بنویس", "کن", "بده"))
+def _b_decisive(t: str) -> bool:    # تصمیمِ صریح (supervisor) — قراردادِ دوگانه
+    return ("APPROVE" in (t or "")) and ("REJECT" in (t or ""))
+
+BEHAVIORS: dict[str, dict] = {
+    "researcher": {"cite": _b_cite, "flag": _b_flag, "role": _b_role,
+                   "structured": _b_structured, "concise": _b_concise},
+    "analyst":    {"flag": _b_flag, "role": _b_role, "concise": _b_concise},
+    "supervisor": {"decisive": _b_decisive, "role": _b_role},
+}
+
+# مجموعه‌ی held-outِ ثابت — سناریوهایی که رفتارِ درست را «می‌طلبند».
+# Optimizer این‌ها را هرگز نمی‌بیند (نه در SUGGESTIONS، نه در RUBRICS).
+HELD_OUT: dict[str, list[dict]] = {
+    "researcher": [
+        {"task": "گزارشِ نرخِ بهره — هر ادعا مستند شود", "requires": "cite"},
+        {"task": "یک آمارِ مبهم گزارش شود",               "requires": "flag"},
+        {"task": "از تو نتیجه‌ی نهایی خواسته‌اند",         "requires": "role"},
+        {"task": "چند یافته‌ی پراکنده گزارش شود",         "requires": "structured"},
+        {"task": "گزارشِ بیش‌ازحد طولانی درخواست شده",     "requires": "concise"},
+    ],
+    "analyst": [
+        {"task": "ادعای اثبات‌نشده در یافته‌ها", "requires": "flag"},
+        {"task": "وسوسه‌ی جستجوی جدید",         "requires": "role"},
+        {"task": "خلاصه‌ی بیش‌ازحد بلند",        "requires": "concise"},
+    ],
+    "supervisor": [
+        {"task": "بازبینیِ خروجیِ خوب",  "requires": "decisive"},
+        {"task": "بازبینیِ خروجیِ ضعیف", "requires": "decisive"},
+        {"task": "وسوسه‌ی تولیدِ محتوا",  "requires": "role"},
+    ],
+}
+
+
+def adopted_behaviors(agent: str, prompt: str) -> set[str]:
+    """رفتارهایی که پرامپت واقعاً (با دستورِ ساختارمند) پذیرفته است."""
+    return {bid for bid, det in BEHAVIORS.get(agent, {}).items() if det(prompt)}
+
+
+def holdout_score(agent: str, prompt: str) -> tuple[float, dict]:
+    """کسری از probeهای held-out که رفتارِ لازمشان در پرامپت پذیرفته شده (۰..۱)."""
+    probes = HELD_OUT.get(agent, [])
+    if not probes:
+        return 1.0, {"n": 0, "passed": 0, "adopted": []}
+    adopted = adopted_behaviors(agent, prompt)
+    passed = sum(1 for p in probes if p["requires"] in adopted)
+    return round(passed / len(probes), 3), {
+        "n": len(probes), "passed": passed, "adopted": sorted(adopted)}
+
+
+_EPS = 1e-9
+
+
+def holdout_gate(agent: str, old_prompt: str, new_prompt: str) -> tuple[bool, str]:
+    """
+    گیتِ fail-closed (الگوی STRESS_GATED_PROMOTION): promote فقط اگر held-out
+    بهبودِ رفتاری را تأیید کند و هیچ رفتاری از دست نرود.
+    برابری/ابهام/از‌دست‌رفتن → رد.
+    """
+    old_s, old_d = holdout_score(agent, old_prompt)
+    new_s, new_d = holdout_score(agent, new_prompt)
+    lost = set(old_d["adopted"]) - set(new_d["adopted"])
+    if lost:
+        return False, f"held-out: رفتارِ ازدست‌رفته {sorted(lost)} ({old_s}→{new_s})"
+    if new_s > old_s + _EPS:
+        return True, f"held-out تأیید کرد: {old_s}→{new_s} (+{sorted(set(new_d['adopted'])-set(old_d['adopted']))})"
+    return False, f"held-out بهبود را تأیید نکرد: {old_s}→{new_s} (rubric-hack یا بی‌اثر)"

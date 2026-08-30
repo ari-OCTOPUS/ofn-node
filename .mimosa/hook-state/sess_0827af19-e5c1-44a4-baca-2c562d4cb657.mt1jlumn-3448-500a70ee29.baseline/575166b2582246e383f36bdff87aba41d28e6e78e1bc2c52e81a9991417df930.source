@@ -1,0 +1,54 @@
+"""لایهٔ رمزها — منبعِ رمزها را از منطق جدا می‌کند.
+
+- DictSecrets: برای آزمون و حالتِ ساده (بدون هیچ وابستگی).
+- KeePassSecrets: رمزها را از یک فایلِ KeePassXC (.kdbx) می‌خواند (کتابخانهٔ pykeepass).
+
+هیچ‌جا مقدارِ رمز چاپ یا لاگ نمی‌شود؛ فقط در زمانِ اجرا به فرایندِ فرزند تزریق می‌شود.
+قاعده: عنوانِ (Title) هر ورودی در KeePassXC باید یکتا باشد."""
+from typing import Dict
+
+
+def _title(ref: str) -> str:
+    return ref.split("/")[-1].strip()
+
+
+class DictSecrets:
+    """منبعِ ساده مبتنی بر دیکشنری {عنوان: مقدار}."""
+    def __init__(self, mapping: Dict[str, str]):
+        self._m = dict(mapping or {})
+
+    def has(self, ref: str) -> bool:
+        return _title(ref) in self._m
+
+    def env_for(self, project) -> Dict[str, str]:
+        out = {}
+        for env_var, ref in (project.secrets or {}).items():
+            key = _title(ref)
+            if key in self._m:
+                out[env_var] = self._m[key]
+        return out
+
+
+class KeePassSecrets:
+    """رمزها را از فایلِ KeePassXC می‌خواند. نیازمندِ:  pip install pykeepass"""
+    def __init__(self, kdbx_path, password, keyfile=None):
+        try:
+            from pykeepass import PyKeePass
+        except ImportError as e:  # noqa: BLE001
+            raise RuntimeError("کتابخانهٔ pykeepass نصب نیست:  pip install pykeepass") from e
+        self._kp = PyKeePass(str(kdbx_path), password=password, keyfile=keyfile)
+
+    def _lookup(self, ref: str):
+        entry = self._kp.find_entries(title=_title(ref), first=True)
+        return entry.password if entry else None
+
+    def has(self, ref: str) -> bool:
+        return self._lookup(ref) is not None
+
+    def env_for(self, project) -> Dict[str, str]:
+        out = {}
+        for env_var, ref in (project.secrets or {}).items():
+            val = self._lookup(ref)
+            if val is not None:
+                out[env_var] = val
+        return out

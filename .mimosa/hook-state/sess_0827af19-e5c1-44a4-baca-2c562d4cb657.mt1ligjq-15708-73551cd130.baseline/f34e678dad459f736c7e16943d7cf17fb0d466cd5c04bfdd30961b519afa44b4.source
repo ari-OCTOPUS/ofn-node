@@ -1,0 +1,49 @@
+"""test_provider_metering.py — G-06 همه‌مسیر: MeteredBrainProvider هر call به ask را
+متر می‌کند (choke-pointِ واحد). offline رایگان می‌ماند؛ providerِ واقعی wrap می‌شود."""
+import os, sys, tempfile
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.environ.setdefault("LANGAR_DB", os.path.join(tempfile.mkdtemp(prefix="pm_"), "t.db"))
+from brain.providers import (MeteredBrainProvider, get_brain_provider, BaseBrainProvider)
+from budget import BudgetHalted
+
+results = []
+def check(n, c): results.append((n, c)); print(f"  {'✅' if c else '❌'} {n}")
+
+class FakeInner(BaseBrainProvider):
+    name = "fake"; model = "fake-model"
+    def is_available(self): return True
+    def ask(self, s, c): return "پاسخِ مدل"
+class FakeBudget:
+    def __init__(self, halt=False): self.halt = halt; self.recorded = []
+    def enforce(self, cmd=""):
+        if self.halt: raise BudgetHalted("سقفِ ماهانه")
+    def can_spend(self): return True
+    def record_text(self, m, p, o, cmd=""): self.recorded.append((m, cmd)); return 0.0
+
+# 1) هر ask متر می‌شود + مدل درست ثبت می‌شود
+b = FakeBudget(); mp = MeteredBrainProvider(FakeInner(), b)
+out = mp.ask("sys", {"domain": "work"})
+check("۱: هر ask متر می‌شود (record)", out == "پاسخِ مدل" and len(b.recorded) == 1 and b.recorded[0][0] == "fake-model")
+check("۲: command شاملِ domain است", b.recorded[0][1] == "brain_ask:work")
+# 3) delegate صفات
+check("۳: name/model را delegate می‌کند", mp.name == "fake" and mp.model == "fake-model")
+# 4) hard-stopِ سراسری fail-closed
+bh = FakeBudget(halt=True); mp2 = MeteredBrainProvider(FakeInner(), bh); raised = False
+try: mp2.ask("s", {})
+except BudgetHalted: raised = True
+check("۴: سقفِ ماهانه → BudgetHalted (fail-closed) و بدونِ ثبت", raised and len(bh.recorded) == 0)
+
+# 5/6/7) get_brain_provider: offline رایگان؛ واقعی متر؛ بدونِ budget سازگار
+class Bank:
+    def get_question(self, d, c): return "q"
+class CfgOff:  brain_provider="offline"; claude_key=None; chatbox_api_key=None; chatbox_base_url=None; brain_model=""
+class CfgReal: brain_provider="anthropic"; claude_key="k"; chatbox_api_key=None; chatbox_base_url=None; brain_model="claude-haiku-4-5-20251001"
+check("۵: offline متر نمی‌شود (رایگان)",
+      not isinstance(get_brain_provider(CfgOff(), Bank(), budget=FakeBudget()), MeteredBrainProvider))
+check("۶: providerِ واقعی + budget → metered",
+      isinstance(get_brain_provider(CfgReal(), Bank(), budget=FakeBudget()), MeteredBrainProvider))
+check("۷: بدونِ budget → unwrapped (سازگاریِ عقب‌رو)",
+      not isinstance(get_brain_provider(CfgReal(), Bank(), budget=None), MeteredBrainProvider))
+
+print("\n" + "=" * 50); n = sum(1 for _, c in results if c); print(f"نتیجه: {n}/{len(results)} سبز")
+sys.exit(0 if n == len(results) else 1)

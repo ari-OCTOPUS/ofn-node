@@ -1,0 +1,74 @@
+{
+  "schema": "octopus-remember-correct-prove/1",
+  "status": "PARTIAL",
+  "captured_at_local": "2026-08-23T02:42:15+10:00",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "head": "d07c9ad",
+  "center_pid": 35916,
+  "center_alive": true,
+  "ACTION_COMPLETED": [
+    "renew_writer_lock grok-ari-single-writer",
+    "handle_local /remember -> LIVE memory.jsonl",
+    "handle_local /correct invalid -> local-correct-invalid",
+    "isolated durable_loop.ack_local_result CONFIRMED/CLOSED",
+    "live-loop dry-run prove-* markers (no sendMessage)",
+    "A18 blocker note under evidence + DISCOVER"
+  ],
+  "COMMIT_WORKTREE": {
+    "commit": null,
+    "patch": null,
+    "reason": "No code gap requiring patch; ACK + invalid-correct already in local_commands.py @ HEAD"
+  },
+  "EVIDENCE": "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23",
+  "hashes_counts": {
+    "memory_lines_after": 7,
+    "memory_sha256_after": "e73dacb70025abf18b0aae5548f2218e54e4925b5ec002d1a41142b5305f1403",
+    "memory_bytes_after": 1778,
+    "prove_memory_ids": [
+      "mem-3710e669de79",
+      "mem-0e5a927e2229",
+      "mem-f01598a03521"
+    ]
+  },
+  "receipt_paths": {
+    "memory_store": "F:\\backup\\research\\full_loop\\state\\memory.jsonl",
+    "isolated_outbox": "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23\\isolated-loop\\telegram\\loop\\outbox\\ce8afe1b1b8affaa43226a6f8ec37ef5041e3d6d.json",
+    "isolated_event": "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23\\isolated-loop\\telegram\\loop\\events\\tg_900016905.json",
+    "live_dry_run_outbox": "F:\\backup\\_ops\\state\\telegram\\loop\\outbox\\prove-remember-correct-6ab24aa1.json",
+    "live_dry_run_event": "F:\\backup\\_ops\\state\\telegram\\loop\\events\\prove-remember-correct-6ab24aa1.json",
+    "receipts_summary": "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23\\receipts-summary.json",
+    "a18_note": "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23\\A18-BLOCKER-NOTE.md"
+  },
+  "receipts": {
+    "local_remember": "local-remember",
+    "local_correct_invalid": "local-correct-invalid",
+    "isolated_outbox_state": "CONFIRMED",
+    "isolated_delivery_truth": "DELIVERY_CONFIRMED",
+    "isolated_event_state": "CLOSED",
+    "isolated_readback_verified": true,
+    "live_dry_run_outbox_state": "DRY_RUN_NO_SEND",
+    "prior_receipts_summary_note": "see receipts-summary.json for first canary mem-3710e669de79"
+  },
+  "lock": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "expires_at": 1787417673.7866797,
+    "renewed_at_local": "2026-08-23T02:39:33.786680+10:00",
+    "expired_now": false
+  },
+  "BLOCKERS": [
+    {
+      "id": "A18-LIVE-TELEGRAM-OWNER-ACK",
+      "severity": "partial",
+      "detail": "Local persistence + isolated durable CONFIRMED/CLOSED proven. Fresh LIVE center PID 35916 outbox/events for owner Telegram /remember still needs owner-chat inbound (no TELEGRAM_OWNER_CHAT_ID in agent shell; lease forbids live sendMessage)."
+    }
+  ],
+  "NEXT_ACTION": {
+    "id": "A18-OWNER-TG-REMEMBER-CANARY",
+    "reversible": true,
+    "step": "Owner sends one /remember and one /correct <bad-id> in owner chat only; verify new LIVE outbox CONFIRMED + events CLOSED; then update CURRENT-TRUTH A18 if proven."
+  },
+  "no_process_restart": true,
+  "no_deletes": true,
+  "no_secrets_in_evidence": true
+}

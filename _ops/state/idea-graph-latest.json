@@ -1,7 +1,7 @@
 {
   "n_nodes": 800,
-  "n_edges": 994,
-  "n_broken_targets": 161,
+  "n_edges": 990,
+  "n_broken_targets": 165,
   "hubs": [
     {
       "note_id": "03 - Projects/WLOS - Weight Loss OS/wlos/HANDOFF",
@@ -54,8 +54,8 @@
       "title": "لایه ۳ — غربالگری و فارنزیک / SCORE (موتور بقا)"
     }
   ],
-  "n_clusters": 185,
-  "n_bridges": 362,
+  "n_clusters": 183,
+  "n_bridges": 356,
   "n_proposed_edges": 20,
   "proposed_edges_sample": [
     {

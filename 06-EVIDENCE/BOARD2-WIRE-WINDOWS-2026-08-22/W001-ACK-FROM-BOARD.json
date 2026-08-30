@@ -1,0 +1,11 @@
+{
+  "schema": "octopus-board2-w001-ack/1",
+  "received_at_local": "2026-08-22T17:22:04.621886+10:00",
+  "from": "marketing",
+  "ack_path": "germline ofn/wire",
+  "germline_tip_note": "175e9565→new tip",
+  "phase3_armed": false,
+  "github_fetch_on_board": "FAILED_empty_git_credentials",
+  "script_bug": "LAST_B keeps letter b so $((10#b003)) errors",
+  "cp_rescue_1_control_url": "NOT_EXECUTED"
+}

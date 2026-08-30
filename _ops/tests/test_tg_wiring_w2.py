@@ -463,6 +463,9 @@ def t_f1_miniapp_button_only_appears_with_a_fresh_https_url_file():
         webs = [b for b in _btns() if "web_app" in b]
         assert webs and webs[0]["web_app"]["url"].startswith("https://"), \
             f"دکمهٔ داشبورد ساخته نشد: {webs}"
+        web_url = webs[0]["web_app"]["url"]
+        versioned = "?v=" in web_url or "&v=" in web_url
+        assert versioned, "URL ریشهٔ WebView نسخه ندارد؛ Telegram می‌تواند HTML کهنه را باز کند"
         # url خالی (tunnel ایستاده) ⇒ بی‌دکمه
         p.write_text(json.dumps({"url": "", "started": 1, "pid": 1}), "utf-8")
         assert not any("web_app" in b for b in _btns()), "URL ِ مرده پیشنهاد شد"

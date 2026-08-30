@@ -1,0 +1,11 @@
+port,bind,pid,process,service,code_ref,exposure
+8771,127.0.0.1,29028,python organism.py,organism status server,_ops/organism.py:63,localhost-only
+8772,127.0.0.1,11144,python cortex.py,cortex brain (owner vote),_ops/cortex/cortex.py:33,localhost-only
+8773,127.0.0.1,7852,python live/server.py,live control room,_ops/live/server.py:32,localhost-only
+8774,127.0.0.1,19076,python miniapp_gateway.py,Telegram MiniApp gateway (HMAC initData wall),_ops/telegram_center/miniapp_gateway.py:40,PUBLIC via cloudflared tunnel PID 17332 (octopus-miniapp)
+8776,127.0.0.1,11724,python center.py,telegram center lock port,_ops/telegram_center/center.py:5959,localhost-only
+8777,127.0.0.1,29028,python organism.py,organism secondary listener,netstat only,localhost-only
+8801,0.0.0.0,23464,python board_cp/server.py,board CP TLS pull/ack (Bearer),_ops/board_cp/server.py:144,LAN/all-interfaces (TLS self-signed + Bearer)
+11434,127.0.0.1,20192,ollama.exe,ollama model server,external software,localhost-only
+8790,NOT LISTENING,-,-,panel_8790 claimed live in _ops/state/channel-status.json,claim STALE vs netstat,none
+8770,NOT LISTENING,-,-,dashboard=8770 in _ops/live/server.py PORTS dict,_ops/live/server.py:34,none

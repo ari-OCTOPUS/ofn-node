@@ -1,0 +1,11 @@
+{
+  "stamp_local": "2026-08-23T18:15:02+10:00",
+  "status": "VAULT_INCOMPLETE",
+  "client_json_vaulted": false,
+  "size": 0,
+  "reasons": [
+    "missing"
+  ],
+  "metrics_allowed": false,
+  "secrets_logged": false
+}

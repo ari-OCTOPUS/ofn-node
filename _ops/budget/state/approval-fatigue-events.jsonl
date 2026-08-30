@@ -114,3 +114,6 @@
 {"ts": 1786489479.0298774, "risk": "high", "decision": "CUTOFF", "reasons": ["high-risk density 21≥3 in window → CUTOFF", "volume 28≥8 in window"]}
 {"ts": 1786489479.6484632, "risk": "high", "decision": "CUTOFF", "reasons": ["high-risk density 22≥3 in window → CUTOFF", "volume 29≥8 in window"]}
 {"ts": 1786489479.7990434, "risk": "high", "decision": "CUTOFF", "reasons": ["high-risk density 23≥3 in window → CUTOFF", "volume 30≥8 in window"]}
+{"ts": 1786910850.0175672, "risk": "high", "decision": "ALLOW", "reasons": ["within fatigue thresholds"]}
+{"ts": 1787005964.186842, "risk": "high", "decision": "ALLOW", "reasons": ["within fatigue thresholds"]}
+{"ts": 1787293658.44657, "risk": "high", "decision": "ALLOW", "reasons": ["within fatigue thresholds"]}

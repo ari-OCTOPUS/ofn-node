@@ -1,16 +1,15 @@
 {
   "leg": "lead-naghshi",
-  "ts": 1787062253.8558013,
-  "iso": "2026-08-19T00:10:53",
-  "beat": 40859,
+  "ts": 1788061395.8764036,
+  "iso": "2026-08-30T13:43:15",
+  "beat": 55612,
   "reason": "phi-timeout:no-ack",
-  "phi": 18.104,
+  "phi": 17.165,
   "phi_suspect": 8.0,
   "phi_dead": 16.0,
-  "last_ack_ms": 1787061572934.0,
-  "silence_ms": 680828,
-  "last_beat_seen": 40858,
+  "last_ack_ms": 1788060211967.0,
+  "silence_ms": 1183899,
+  "last_beat_seen": 55611,
   "events_this_beat": 0,
-  "ack_samples": 20,
-  "note": "لِگ در پنجرهٔ phi پاسخ نداد؛ restart علت را برطرف نمی‌کند — اگر silence_ms کوچک است ولی phi بالا، تاریخچهٔ ack مسموم است."
-}
+  "ack_samples": 10,
+  "note": "لِگ در پنجرهٔ phi پاسخ نداد؛ restart علت را برطرف نمی‌کند — اگر silence_ms کوچک است ولی phi بالا، تاریخچهٔ ack مسموم است."

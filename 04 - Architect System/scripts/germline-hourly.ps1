@@ -1,6 +1,9 @@
 # germline-hourly.ps1 - OCTOPUS P0.5 hourly layer: light incremental push + rolling state copy.
 # NOT a full bundle (a 197MB bundle hourly would fill the disk - operator verdict 2026-07-07).
 # Fail-visible: any failure is appended to E:\germline\hourly.log and exits non-zero.
+# P3 (2026-08-18): each git push stderr is captured to TEMP, redacted, then appended to
+# E:\germline\hourly-push-errors.jsonl (exit_code, stderr_sha256, error_class, elapsed_ms).
+# Push args, remotes, credentials, timers, and fallback throttle are unchanged.
 #
 # CHANGE 2026-07-25 (owner verdict "backup must be overwritten, not accumulate"):
 #   1. TEMP scratch is removed in finally{} - a crashed run no longer leaves a ~250MB orphan
@@ -50,14 +53,19 @@ try {
     $lockHandle = Enter-GitWriteLock -LockPath $gitLock -FlagDir $gitFlags
     try {
         Wait-GitIndexLock -RepoRoot $VAULT -FlagDir $gitFlags
-        $ErrorActionPreference = "Continue"
-        $out1 = & git -C $VAULT push --quiet $BARE --all  2>&1; $c1 = $LASTEXITCODE
-        $out2 = & git -C $VAULT push --quiet $BARE --tags 2>&1; $c2 = $LASTEXITCODE
-        $ErrorActionPreference = "Stop"
+        . (Join-Path $PSScriptRoot "hourly-push-error-capture.ps1")
+        $pushCaptureLog = Join-Path $OFFBOX "hourly-push-errors.jsonl"
+        $cycleId = Get-Date -Format "yyyyMMddTHHmmss"
+        $lockState = "held"
+        $cap1 = Invoke-CapturedGitCommand -RepoRoot $VAULT -GitArgs @('push','--quiet',$BARE,'--all') -RecordPath $pushCaptureLog -Label 'all' -CycleId $cycleId -PushPhase 'all' -RemoteClass 'local-path' -TargetPathOrRedactedRemote $BARE -LockState $lockState
+        $c1 = [int]$cap1.ExitCode
+        $cap2 = Invoke-CapturedGitCommand -RepoRoot $VAULT -GitArgs @('push','--quiet',$BARE,'--tags') -RecordPath $pushCaptureLog -Label 'tags' -CycleId $cycleId -PushPhase 'tags' -RemoteClass 'local-path' -TargetPathOrRedactedRemote $BARE -LockState $lockState
+        $c2 = [int]$cap2.ExitCode
+        Write-GitPushErrorRecord -RecordPath $pushCaptureLog -Label 'github_wire' -ExitCode 0 -ErrorClass 'NONE' -ElapsedMs 0 -RedactedStderr 'no github remote configured on F:\backup (germline local-path only); channel kept separate' -CycleId $cycleId -PushPhase 'github_wire' -RemoteClass 'absent' -TargetPathOrRedactedRemote '' -LockState $lockState | Out-Null
         if ($c1 -eq 0 -and $c2 -eq 0) {
             $mode = "push"
         } else {
-            $pushErr = (@($out1 | Select-Object -First 1 | ForEach-Object { "$_" }) -join "")
+            $pushErr = Get-GitPushErrLogLine -First $cap1 -Second $cap2
 
             # --- throttle: has the fallback run recently? ---
             $lastFb = $null

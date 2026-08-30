@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""READ-ONLY homeostasis snapshot from live external feeds.
+Auth: OCTOPUS-HOMEO-FEEDS-SNAPSHOT-20260823
+Never repairs, never restarts feeds, never arms WAVE0.
+"""
+from __future__ import annotations
+
+import json
+import os
+from datetime import datetime, timezone
+from enum import StrEnum
+from dataclasses import dataclass
+from pathlib import Path
+
+ALLOW = Path("/var/lib/octopus/state/external_feeds/ALLOWLIST.json")
+LAST = Path("/var/lib/octopus/state/external_feeds/LAST_RUN.json")
+OUT = Path("/var/lib/octopus/state/homeostasis/feeds_snapshot.json")
+EXCHANGE = Path("/var/lib/octopus/inbound/TO-LAPTOP/exchange/feeds_snapshot.json")
+SESSION_ROOT = Path("/var/lib/octopus/evidence")
+
+
+class Mode(StrEnum):
+    NORMAL = "normal"
+    CONSERVE = "conserve"
+    WOULD_LOCKDOWN = "would_lockdown"
+
+
+class Status(StrEnum):
+    UNKNOWN = "unknown"
+    HEALTHY = "healthy"
+    WATCH = "watch"
+    CRITICAL = "critical"
+
+
+@dataclass(frozen=True)
+class Spec:
+    name: str
+    healthy: tuple[float, float]
+    critical_high: float | None = None
+    critical_low: float | None = None
+
+
+SPECS = (
+    Spec("evidence_age_s", (0.0, 900.0), critical_high=3600.0),
+    Spec("sensor_coverage", (0.90, 1.00), critical_low=0.50),
+)
+
+
+def classify(spec: Spec, value: float | None) -> Status:
+    if value is None:
+        return Status.UNKNOWN
+    lo, hi = spec.healthy
+    if spec.critical_high is not None and value >= spec.critical_high:
+        return Status.CRITICAL
+    if spec.critical_low is not None and value <= spec.critical_low:
+        return Status.CRITICAL
+    if lo <= value <= hi:
+        return Status.HEALTHY
+    return Status.WATCH
+
+
+def parse_ts(ts: str) -> datetime:
+    return datetime.strptime(ts, "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+
+
+def build() -> dict:
+    now = datetime.now(timezone.utc)
+    allow = json.loads(ALLOW.read_text(encoding="utf-8")) if ALLOW.exists() else {"feeds": {}}
+    run = json.loads(LAST.read_text(encoding="utf-8")) if LAST.exists() else {}
+    expected = len(allow.get("feeds") or {})
+    ok = int(run.get("ok_count") or 0) if run else None
+    coverage = (ok / expected) if (expected and ok is not None) else None
+    age = None
+    if run.get("ts"):
+        age = max(0.0, (now - parse_ts(run["ts"])).total_seconds())
+    values = {"evidence_age_s": age, "sensor_coverage": coverage}
+    readings = {}
+    for spec in SPECS:
+        st = classify(spec, values[spec.name])
+        readings[spec.name] = {
+            "value": None if st == Status.UNKNOWN else values[spec.name],
+            "status": st.value,
+        }
+    statuses = [r["status"] for r in readings.values()]
+    if Status.CRITICAL.value in statuses:
+        mode, severity = Mode.WOULD_LOCKDOWN, "critical"
+    elif Status.WATCH.value in statuses or Status.UNKNOWN.value in statuses:
+        mode, severity = Mode.CONSERVE, "watch"
+    else:
+        mode, severity = Mode.NORMAL, "healthy"
+    return {
+        "schema": "octopus.homeostasis-feeds-snapshot.v1",
+        "auth": ["OCTOPUS-HOMEO-FEEDS-SNAPSHOT-20260823"],
+        "advisory_only": True,
+        "mutates_host": False,
+        "ts_utc": now.strftime("%Y%m%dT%H%M%SZ"),
+        "written_ts": now.strftime("%Y%m%dT%H%M%SZ"),
+        "freshness_ts": now.strftime("%Y%m%dT%H%M%SZ"),
+        "expected_feeds": expected,
+        "ok_count": ok,
+        "fail": run.get("fail") or [],
+        "sensor_ids": run.get("sensor_ids") or [],
+        "last_run_ts": run.get("ts"),  # feed ingest time (may lag); use freshness_ts/ts_utc for snapshot age
+        "mode": mode.value,
+        "severity": severity,
+        "readings": readings,
+        "note": "would_lockdown advisory only; Doctor read-only; no feed restart",
+    }
+
+
+def main() -> int:
+    snap = build()
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(snap, indent=2) + "\n"
+    OUT.write_text(text, encoding="utf-8")
+    EXCHANGE.parent.mkdir(parents=True, exist_ok=True)
+    EXCHANGE.write_text(text, encoding="utf-8")
+    sess = SESSION_ROOT / f"session-homeo-feeds-snapshot-{snap['ts_utc']}"
+    sess.mkdir(parents=True, exist_ok=True)
+    (sess / "feeds_snapshot.json").write_text(text, encoding="utf-8")
+    print(json.dumps({"wrote": str(OUT), "mode": snap["mode"], "severity": snap["severity"]}, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

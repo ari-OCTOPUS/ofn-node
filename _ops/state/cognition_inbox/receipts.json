@@ -1,0 +1,69 @@
+{
+  "schema": "cognition-inbox-receipts/1",
+  "ts": 1787980639.6796598,
+  "receipts": [
+    {
+      "brain": "cortex",
+      "heard": true,
+      "input_ids": [
+        "tg-223883385"
+      ],
+      "output_kind": "advisory",
+      "evidence_ids": [
+        "tg-223883385"
+      ],
+      "executable": false,
+      "status": "ok"
+    },
+    {
+      "brain": "business_brain",
+      "heard": true,
+      "input_ids": [
+        "tg-223883385"
+      ],
+      "output_kind": "advisory",
+      "evidence_ids": [
+        "tg-223883385"
+      ],
+      "executable": false,
+      "status": "ok"
+    },
+    {
+      "brain": "metacontrol",
+      "heard": true,
+      "input_ids": [
+        "tg-223883385"
+      ],
+      "output_kind": "advisory",
+      "evidence_ids": [
+        "tg-223883385"
+      ],
+      "executable": false,
+      "status": "ok"
+    }
+  ],
+  "advisories": {
+    "cortex": {
+      "kind": "advisory",
+      "text": "heard 1 organ events; executable=false",
+      "n_events": 1
+    },
+    "business_brain": {
+      "kind": "advisory",
+      "text": "projects=2 proposals=1",
+      "n_events": 1
+    },
+    "cortex_keys": [
+      "ts",
+      "cycle",
+      "coherence",
+      "stale_members",
+      "members",
+      "alignment",
+      "rhythm",
+      "brains"
+    ]
+  },
+  "brains_receive_cognition_inbox": 3,
+  "executable": false
+}

@@ -1,0 +1,783 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20260820T173213769Z-11668-53821a190c50",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "bash-discovery",
+      "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/NEXT-MISSION-CHAMBER-FIX.md",
+      "reason": "bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files"
+    },
+    {
+      "stage": "candidate-select",
+      "target": "nervous-system/queue-data.js",
+      "reason": "candidate_limit_exceeded: 8 changed reviewable file(s) were not scanned because the limit is 20"
+    },
+    {
+      "stage": "baseline",
+      "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/ARMING-ORDER-2026-07-29.md",
+      "reason": "baseline_partial: baseline exceeded 5000 candidate files"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/orphan_watchdog.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/tests/test_orphan_watchdog.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/tests/test_telegram_closed_loop_20260820.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/organs/paths.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/owner_console/telegram_adapter.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/telegram_center/verify_production_canary.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "OCTOPUS/worlds/graph-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "OCTOPUS/worlds/neural-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/audit-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/audit-trail-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/crypto-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/git-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/graph-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/health-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/ideas-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/live-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/mining-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/neural-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/ops-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "nervous-system/project-data.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": false,
+      "captured_files": 5003,
+      "candidate_limit": 5000,
+      "truncated": true,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 28
+    },
+    "change_tracking": {
+      "touched_observed": 6,
+      "touched_retained": 6,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 28,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 28,
+      "selected_files": 20,
+      "limit": 20,
+      "truncated": true
+    },
+    "scanning": {
+      "required_files": 20,
+      "scanned_files": 0,
+      "skipped_files": 0,
+      "failed_files": 20,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "bash_discovery_incomplete": 1,
+      "candidate_limit_exceeded": 1,
+      "baseline_partial": 1,
+      "scanner_failed": 20,
+      "project_check_failed": 23
+    },
+    "reasons": [
+      {
+        "code": "bash_discovery_incomplete",
+        "stage": "bash-discovery",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/NEXT-MISSION-CHAMBER-FIX.md",
+        "detail": "project enumeration exceeded 5000 reviewable files",
+        "affects_completion": true
+      },
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "nervous-system/queue-data.js",
+        "detail": "8 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/ARMING-ORDER-2026-07-29.md",
+        "detail": "baseline exceeded 5000 candidate files",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/orphan_watchdog.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/tests/test_orphan_watchdog.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/tests/test_telegram_closed_loop_20260820.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/organs/paths.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/owner_console/telegram_adapter.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/telegram_center/verify_production_canary.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "OCTOPUS/worlds/graph-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "OCTOPUS/worlds/neural-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/audit-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/audit-trail-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/crypto-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/git-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/graph-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/health-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/ideas-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/live-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/mining-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/neural-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/ops-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "nervous-system/project-data.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "bash-discovery",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/NEXT-MISSION-CHAMBER-FIX.md",
+        "detail": "bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "nervous-system/queue-data.js",
+        "detail": "candidate_limit_exceeded: 8 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/ARMING-ORDER-2026-07-29.md",
+        "detail": "baseline_partial: baseline exceeded 5000 candidate files",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/orphan_watchdog.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/tests/test_orphan_watchdog.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/tests/test_telegram_closed_loop_20260820.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/organs/paths.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/owner_console/telegram_adapter.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/telegram_center/verify_production_canary.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "OCTOPUS/worlds/graph-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "OCTOPUS/worlds/neural-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/audit-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/audit-trail-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/crypto-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/git-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/graph-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/health-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/ideas-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/live-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/mining-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/neural-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/ops-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "nervous-system/project-data.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-08-20T17:32:13.769Z",
+  "session_id": "sess_0827af19-e5c1-44a4-baca-2c562d4cb657",
+  "target": ".",
+  "revision": "8fd7c723c0c9c7da2bfabcfcd9968e6fd91a7a61",
+  "rules_version": "unavailable",
+  "diff_hash": "c528ef2321655c75b6c7edaad7fd849df8c2a669211291b2ada1368be7e4a04e",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 20,
+    "changed_files": [
+      {
+        "file": "_ops/organs/paths.py",
+        "ranges": [
+          {
+            "start": 5,
+            "end": 5
+          },
+          {
+            "start": 10,
+            "end": 14
+          }
+        ],
+        "before_hash": "408b7fc0367bea91cc37417a93c92112e51b80941a43213c6775d09fe6bf22be",
+        "after_hash": "bb5c8bb9fb99208077872975a522bf2c4e074f8be08d62b612f03798ea240f11"
+      },
+      {
+        "file": "_ops/orphan_watchdog.py",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 211
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "aefb09b8892be7cad452fc82c35c812bce9a75b827ba6a0b4dbe70f720c5383e"
+      },
+      {
+        "file": "_ops/owner_console/telegram_adapter.py",
+        "ranges": [
+          {
+            "start": 24,
+            "end": 27
+          }
+        ],
+        "before_hash": "45e8cfe5ce8334d99a881108400d8ddeb27b2641c2dac878a2dff90287b152f5",
+        "after_hash": "6fecbf3ac2f5c041c39d9df1ba294410813e3a8b1983e9179f90da4e85ab7b66"
+      },
+      {
+        "file": "_ops/telegram_center/verify_production_canary.py",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 103
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "b6c799a41b81df00dd9b66b77486ce68d5255d09aea83c4d3995be63312c22ce"
+      },
+      {
+        "file": "_ops/tests/test_orphan_watchdog.py",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 110
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "fbf319751475daafb07967943d836a31768679b74cd083173440f205cff427d7"
+      },
+      {
+        "file": "_ops/tests/test_telegram_closed_loop_20260820.py",
+        "ranges": [
+          {
+            "start": 20,
+            "end": 31
+          }
+        ],
+        "before_hash": "8becd31a64d122e5b57a1cf254e78e89d984ad2d9a61270f9279d50aa4e65408",
+        "after_hash": "7f8df522f0b3eda0d0f071ff2f2aa23ec65f149b28e375abefb81b3fa17eb5ea"
+      },
+      {
+        "file": "nervous-system/audit-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "638198b670f1923ff49a68f12bffc84a8356af6f4c3c149e4962f58e4c259c48",
+        "after_hash": "e8eb6b3f6231d79ce45eeeb0aec208e2a12e1000583b85b28f4f2ed8ed399a8f"
+      },
+      {
+        "file": "nervous-system/audit-trail-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "ba1bebb078fd758f82f4b8dec446a6dc0da65b095bb3f07828394d8fef44a3f7",
+        "after_hash": "af33eff63b81a36d326622a4c9a98dd126c23a328fa21e02756f282764c089a5"
+      },
+      {
+        "file": "nervous-system/crypto-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "f90d0765fab93ada74f083d0bb5b558941eb59aa007e5e8635a91340c31d1f54",
+        "after_hash": "ea6ea566d0c2b04e03a0af04ba48c283ab43d6bff5490ca05622793050d538af"
+      },
+      {
+        "file": "nervous-system/git-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "86762f0ad855488bdfe047298ed3ff275dd95579f60efbb91656c0c7447b45a9",
+        "after_hash": "8ebea2f4b4b5fc446f6801df4148172eb038ce15f41a7690dadb8160f8e02377"
+      },
+      {
+        "file": "nervous-system/graph-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "c7cf209ee9c3d5e85d90f52b7781bea9f0a3c274f1a95e27436f36be925f45f4",
+        "after_hash": "c4483398f1956af849cca2b69ae9c20ac2e384a1f46769d7d1112007a931cd66"
+      },
+      {
+        "file": "nervous-system/health-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "6b9d3c2ed4e2a387ba3fd7f1a269b4727220b558d809f22c6fee3605fdc0c3b1",
+        "after_hash": "bed62e006798efcaf190bab9ebb7c877532950fc6353256e4a65bdf299d38604"
+      },
+      {
+        "file": "nervous-system/ideas-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "4f4dc0f7c52ddd5a5504985e447ee1419a3048e8d7b03cd402ba828caae81d6a",
+        "after_hash": "505a5915fb5c0903d74be3fdfa5b7551233b62d030eb3860f59b533548d7d20a"
+      },
+      {
+        "file": "nervous-system/live-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "77f936dd09760f17697506e703b18e89a5823fa5865782d8ddfa82c164810e2d",
+        "after_hash": "eca27a7af5de795663fe7bd5294f51386a27369bc7e5375df96e27bb0b2902c5"
+      },
+      {
+        "file": "nervous-system/mining-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "f9844a5b497155660392228d7234e134cc6621d091b95fcf6b5a35c5d84f9819",
+        "after_hash": "72721f7617b798408a3d4446bed2eafdb3b8b008f41bc15f802661976c45c076"
+      },
+      {
+        "file": "nervous-system/neural-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "f7f176ca5975209eba6b4691f2443e8f8423102e302fc665330330adcde8f614",
+        "after_hash": "00d8c4d9a267bbc758db4a8c9a584a83230e382a4c7e864e07d6405ebff27995"
+      },
+      {
+        "file": "nervous-system/ops-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "0a7453bcd87ec0668e0457b457b15d1024f20df1dc131f2d9bc03ec44cd268b1",
+        "after_hash": "281fdfd6e4b84b65ba944b8f9732119f40d93ebae9d73cd53288af9f8036f257"
+      },
+      {
+        "file": "nervous-system/project-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "063c0bfd670215c678feadf8bf28dd4470c4220b44c4cb557c98fa8aeb655317",
+        "after_hash": "521eedd7278e54337e56c4755761f577e2022581f5201153e0a26b325d47be74"
+      },
+      {
+        "file": "OCTOPUS/worlds/graph-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "c7cf209ee9c3d5e85d90f52b7781bea9f0a3c274f1a95e27436f36be925f45f4",
+        "after_hash": "c4483398f1956af849cca2b69ae9c20ac2e384a1f46769d7d1112007a931cd66"
+      },
+      {
+        "file": "OCTOPUS/worlds/neural-data.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "f7f176ca5975209eba6b4691f2443e8f8423102e302fc665330330adcde8f614",
+        "after_hash": "00d8c4d9a267bbc758db4a8c9a584a83230e382a4c7e864e07d6405ebff27995"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-08-20T17:32:07.351Z",
+    "completed_at": "2026-08-20T17:32:13.769Z",
+    "duration_ms": 6418,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 6418,
+    "peakMemoryBytes": 122990592,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 0,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/ta<REDACTED-OPENAI-KEY>.json",
+    "latest_report": ".mimosa/reports/ta<REDACTED-OPENAI-KEY>.json",
+    "history_summary": ".mimosa/history/run-20260820T173213769Z-11668-53821a190c50.json"
+  }
+}

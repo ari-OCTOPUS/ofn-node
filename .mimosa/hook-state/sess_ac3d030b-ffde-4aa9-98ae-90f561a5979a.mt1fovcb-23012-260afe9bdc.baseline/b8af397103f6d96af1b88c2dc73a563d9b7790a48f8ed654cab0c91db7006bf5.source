@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(del *)",
+      "Bash(rd *)",
+      "Bash(Remove-Item *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(del *)",
+      "PowerShell(erase *)",
+      "PowerShell(rd *)",
+      "PowerShell(rmdir *)",
+      "Write(**/.git/**)",
+      "Edit(**/.git/**)",
+      "Write(**/_code/**)",
+      "Edit(**/_code/**)",
+      "Write(_Archive/**)",
+      "Edit(_Archive/**)",
+      "Edit(_Duplicates/**)",
+      "Read(**/.env)",
+      "Read(03 - Projects/Mining/Mining-1/Mining Q/monero wallet.txt)",
+      "Read(03 - Projects/Lead-نقاشی/کاریابی/05_راهنمای_API_keys.md)"
+    ]
+  }
+}

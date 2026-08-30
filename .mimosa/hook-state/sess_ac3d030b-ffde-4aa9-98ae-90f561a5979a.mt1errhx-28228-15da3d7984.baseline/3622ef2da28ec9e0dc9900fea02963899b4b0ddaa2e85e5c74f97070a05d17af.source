@@ -1,0 +1,146 @@
+"""
+runner.py — ArchitectBrain: پرامپتِ میسلیوم را به «مغزِ اصلی» (brain provider) وصل می‌کند.
+
+جریان:
+  design(domain, scale, constraints, k) →
+    ۱ route: از BrainRouter عمق/رده را بگیر ("architecture" → deliberate → strong)
+    ۲ assemble: system(static) + task(variable)
+    ۳ k بار raw_ask(provider, system, task)  (حالتِ variance برای SC4)
+    ۴ جمعِ usage + هزینه از نرخ‌های env (هرگز hardcode نمی‌شود)
+
+تزریقِ وابستگی: provider و router تزریق می‌شوند → تست‌پذیرِ آفلاین.
+from_config() نسخه‌ی production را با brain.get_brain_provider + BrainRouter می‌سازد.
+"""
+
+from __future__ import annotations
+
+import logging
+import os
+import time
+from dataclasses import dataclass, field
+from typing import Any
+
+from . import prompt_assembly as _pa
+from .raw_brain import raw_ask
+
+log = logging.getLogger("langar.architect")
+
+_DEFAULT_STRONG = os.environ.get("ARCHITECT_STRONG_MODEL", "claude-sonnet-5")
+_DEFAULT_CHEAP = os.environ.get("ARCHITECT_CHEAP_MODEL", "claude-haiku-4-5-20251001")
+
+
+def _price(env_name: str) -> float | None:
+    v = os.environ.get(env_name)
+    if not v:
+        return None
+    try:
+        return float(v)
+    except ValueError:
+        return None
+
+
+@dataclass
+class DesignRun:
+    """نتیجه‌ی یک اجرا (k نمونه) — قابلِ‌سریال برای گزارش/CI."""
+
+    domain: str
+    scale: str
+    constraints: str
+    variant: str
+    lang: str
+    k: int
+    samples: list[str]
+    route: dict[str, Any]
+    usage: dict[str, int]
+    cost_usd: float | None
+    provider: str
+    elapsed_s: float
+    warnings: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.__dict__.copy()
+
+
+class ArchitectBrain:
+    def __init__(self, provider, *, router=None,
+                 strong_model: str | None = _DEFAULT_STRONG,
+                 cheap_model: str | None = _DEFAULT_CHEAP,
+                 max_tokens: int = 4096):
+        self.provider = provider
+        self.router = router
+        self.strong_model = strong_model
+        self.cheap_model = cheap_model
+        self.max_tokens = max_tokens
+
+    @classmethod
+    def from_config(cls, cfg, *, bank=None, budget=None, **kw) -> "ArchitectBrain":
+        """نسخه‌ی production: provider و router را از «مغزِ اصلی» می‌سازد."""
+        import brain  # lazy
+        b = bank if bank is not None else brain.QuestionBank()
+        provider = brain.get_brain_provider(cfg, b)
+        router = brain.BrainRouter(budget=budget, allow_strong=True)
+        if getattr(provider, "name", "") != "anthropic":
+            kw.setdefault("strong_model", None)
+            kw.setdefault("cheap_model", None)
+        return cls(provider, router=router, **kw)
+
+    def _route(self, task: str, risk: bool):
+        if self.router is None:
+            return {"depth": "deliberate", "model_tier": "strong",
+                    "reason": "no router -> high-stakes default", "downgraded": False}
+        r = self.router.route(task, risk=risk)
+        return {"depth": getattr(r, "depth", "deliberate"),
+                "model_tier": getattr(r, "model_tier", "strong"),
+                "reason": getattr(r, "reason", ""),
+                "downgraded": bool(getattr(r, "downgraded", False))}
+
+    def design(self, domain: str, scale: str, constraints: str, *,
+               variant: str = "guided", lang: str = "en", k: int = 1,
+               risk: bool = True) -> DesignRun:
+        if k < 1:
+            raise ValueError("k must be >= 1")
+        system, task = _pa.assemble(domain, scale, constraints, variant=variant, lang=lang)
+        route = self._route(task + "\n(architecture design task)", risk=risk)
+        model = self.strong_model if route["model_tier"] == "strong" else self.cheap_model
+
+        samples: list[str] = []
+        in_tok = out_tok = cached = 0
+        warnings: list[str] = []
+        t0 = time.monotonic()
+        for i in range(k):
+            try:
+                res = raw_ask(self.provider, system, task, model=model,
+                              max_tokens=self.max_tokens, cache_system=True)
+            except NotImplementedError:
+                raise RuntimeError(
+                    "provider " + str(getattr(self.provider, "name", "?")) + " از raw_ask پشتیبانی نمی‌کند")
+            except Exception as e:  # یک نمونه‌ی شکست‌خورده کلِ اجرا را نمی‌کُشد
+                warnings.append("sample " + str(i) + ": " + type(e).__name__ + ": " + str(e))
+                log.warning("architect sample %d failed: %s", i, e)
+                continue
+            samples.append(res.text)
+            in_tok += int(getattr(res, "input_tokens", 0) or 0)
+            out_tok += int(getattr(res, "output_tokens", 0) or 0)
+            cached += int(getattr(res, "cached_input_tokens", 0) or 0)
+        elapsed = time.monotonic() - t0
+
+        if not samples:
+            raise RuntimeError("هیچ نمونه‌ای تولید نشد: " + "; ".join(warnings))
+
+        cost = self._cost(in_tok, out_tok)
+        return DesignRun(
+            domain=domain, scale=scale, constraints=constraints, variant=variant,
+            lang=lang, k=k, samples=samples, route=route,
+            usage={"input_tokens": in_tok, "output_tokens": out_tok,
+                   "cached_input_tokens": cached},
+            cost_usd=cost, provider=getattr(self.provider, "name", "?"),
+            elapsed_s=round(elapsed, 3), warnings=warnings,
+        )
+
+    @staticmethod
+    def _cost(in_tok: int, out_tok: int) -> float | None:
+        p_in = _price("ARCHITECT_PRICE_IN")
+        p_out = _price("ARCHITECT_PRICE_OUT")
+        if p_in is None or p_out is None:
+            return None
+        return round((in_tok * p_in + out_tok * p_out) / 1_000_000, 6)

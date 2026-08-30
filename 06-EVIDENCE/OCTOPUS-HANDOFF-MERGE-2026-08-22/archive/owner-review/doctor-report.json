@@ -1,0 +1,682 @@
+{
+  "schema": "octopus.doctor-report.v1",
+  "timestamp": "2026-08-22T09:05:45.865565+00:00",
+  "run_id": "doctor-2026-08-22T090545Z-6d46",
+  "status": "FAIL",
+  "repairs_attempted": 0,
+  "checks_total": 18,
+  "blocking_failed": 1,
+  "degrading_failed": 0,
+  "unknown": 0,
+  "blocking_failed_ids": [
+    "gap002_registry"
+  ],
+  "degrading_failed_ids": [],
+  "unknown_ids": [],
+  "executed_actions": 0,
+  "planner_invocations": 0,
+  "actuator_authority": "NONE",
+  "checks": [
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "service_sensorium",
+      "category": "runtime",
+      "severity": "blocking",
+      "observed": "active",
+      "expected": "active",
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/systemctl.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "systemctl is-active octopus-sensorium",
+      "source_digest": "sha256:fc39fb16950c1b4a06de986fc1dcb93a2f9c2f0caeecfe8d23f926896da1dcac",
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "service_stability_enabled",
+      "category": "runtime",
+      "severity": "blocking",
+      "observed": "enabled",
+      "expected": "enabled",
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/systemctl.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "systemctl is-enabled octopus-stability",
+      "source_digest": "sha256:fc39fb16950c1b4a06de986fc1dcb93a2f9c2f0caeecfe8d23f926896da1dcac",
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "metrics_bind",
+      "category": "runtime",
+      "severity": "blocking",
+      "observed": "127.0.0.1:9101",
+      "expected": "127.0.0.1:9101",
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/ss.txt",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "ss -lntup",
+      "source_digest": "sha256:f1c5ac526ce2799bd01b605440b8b2cd0ce069671af4d918427158389779d3f6",
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "unexpected_listeners",
+      "category": "runtime",
+      "severity": "blocking",
+      "observed": {
+        "forbidden": [],
+        "lan_9101": false,
+        "known_nonlocal": [
+          ":22",
+          ":4222"
+        ]
+      },
+      "expected": {
+        "forbidden": [],
+        "lan_9101": false
+      },
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/ss.txt",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "ss -lntp | grep -vE '127\\.0\\.0\\.1|::1'",
+      "source_digest": "sha256:f1c5ac526ce2799bd01b605440b8b2cd0ce069671af4d918427158389779d3f6",
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "ledger_chain_valid",
+      "category": "integrity",
+      "severity": "blocking",
+      "observed": "PASS",
+      "expected": "PASS",
+      "evidence_path": "/var/lib/octopus/evidence/ledger/verify-2026-08-22T0905.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "python3 -c 'from octopus_cognition.ledger import ChainedLedger; ...verify()'",
+      "source_digest": "sha256:05a3239c344391f3d47f39bc58dc7b4c7459576bddfb9731ae0bf50a4d531734",
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "checkpoint_unsigned",
+      "category": "integrity",
+      "severity": "blocking",
+      "observed": "SIGNED_ROOT_V2",
+      "expected": "SIGNED_ROOT_V2",
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/checkpoint.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "laptop_root_v2_signature",
+      "source_command": "Ed25519 load_signed(checkpoint.json) against /etc/octopus/trust/root.pub — not gpg",
+      "source_digest": "sha256:460a8ab52cc5cf661979e6cae184c37a7e5efc38e6a1e1f2d2b7abe153396975",
+      "reason": null,
+      "creates_authority": false,
+      "inner_signed_field_is_not_the_signature": true
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "gap002_registry",
+      "category": "integrity",
+      "severity": "blocking",
+      "observed": {
+        "status": "DEFERRED_TO_WAVE1",
+        "audit_integrity": "HASH_CHAIN_ONLY",
+        "pass": false
+      },
+      "expected": {
+        "pass": true,
+        "audit_integrity": "EXTERNALLY_CHECKPOINTED"
+      },
+      "evidence_path": "/opt/octopus/current/manifests/open-gaps.json",
+      "read_only": true,
+      "passed": false,
+      "remediation_owner": "owner",
+      "remediation_type": "registry_close_not_checkpoint_credit",
+      "source_command": "python3 -m json.tool /opt/octopus/current/manifests/open-gaps.json",
+      "source_digest": "sha256:a2e94c931c0aff3d3625b42040b79783071f978c57962aae1c57764bd1dbdf09",
+      "reason": null,
+      "live_gap_file": "CLOSED_BY_SIGNED_CHECKPOINT",
+      "signature_does_not_close_registry": true
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "policy_mode",
+      "category": "authority",
+      "severity": "blocking",
+      "observed": {
+        "profile": "WAVE0_OBSERVE_ONLY",
+        "actuator_authority": "NONE"
+      },
+      "expected": {
+        "profile": "WAVE0_OBSERVE_ONLY",
+        "actuator_authority": "NONE"
+      },
+      "evidence_path": "/var/lib/octopus/state/homeostasis/latest.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "planner_isolation",
+      "category": "authority",
+      "severity": "blocking",
+      "observed": {
+        "imports": {
+          "world_model_shadow.py": false,
+          "skill_tracker_loop.py": false,
+          "metacontrol_shadow.py": false,
+          "stability_monitor.py": false
+        },
+        "invoked": {
+          "wm": false,
+          "mc": false
+        }
+      },
+      "expected": {
+        "imports": false,
+        "invoked": false
+      },
+      "evidence_path": "/var/lib/octopus/state/metacontrol/latest.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "actuator_authority",
+      "category": "authority",
+      "severity": "blocking",
+      "observed": {
+        "homeostasis": "NONE",
+        "reflex_armed": false
+      },
+      "expected": {
+        "homeostasis": "NONE",
+        "reflex_armed": false
+      },
+      "evidence_path": "/var/lib/octopus/state/homeostasis/latest.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "executed_actions",
+      "category": "authority",
+      "severity": "blocking",
+      "observed": 0,
+      "expected": 0,
+      "evidence_path": "/var/lib/octopus/state/metacontrol/latest.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "coverage_or_data_critical",
+      "category": "sensing",
+      "severity": "blocking",
+      "observed": {
+        "wave0_ratio": 1.0,
+        "usable": 4,
+        "expected": 4,
+        "required": [
+          {
+            "sensor_id": "OCT-SENSE-051",
+            "class": "fresh_valid",
+            "usable": true,
+            "age_s": 5.105082,
+            "time_source": "time.phenomenon_time",
+            "paths": [
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-051.json"
+            ],
+            "reason": "ok",
+            "window_s": 45.0
+          },
+          {
+            "sensor_id": "OCT-SENSE-052",
+            "class": "fresh_valid",
+            "usable": true,
+            "age_s": 4.951484,
+            "time_source": "time.phenomenon_time",
+            "paths": [
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-052.json"
+            ],
+            "reason": "ok",
+            "window_s": 45.0
+          },
+          {
+            "sensor_id": "OCT-SENSE-053",
+            "class": "fresh_valid",
+            "usable": true,
+            "age_s": 4.941078,
+            "time_source": "time.phenomenon_time",
+            "paths": [
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_CPU.json",
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_MEMORY.json",
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_STORAGE.json"
+            ],
+            "reason": "ok",
+            "window_s": 45.0
+          },
+          {
+            "sensor_id": "OCT-SENSE-053.THERMAL",
+            "class": "fresh_valid",
+            "usable": true,
+            "age_s": 4.751615,
+            "time_source": "time.phenomenon_time",
+            "paths": [
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_THERMAL.json"
+            ],
+            "reason": "ok",
+            "window_s": 45.0
+          }
+        ],
+        "shadow": [
+          {
+            "sensor_id": "OCT-SENSE-092",
+            "class": "validity",
+            "usable": false,
+            "age_s": null,
+            "time_source": "MISSING_TIMESTAMP",
+            "paths": [
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-092.json"
+            ],
+            "reason": "missing_timestamp_not_imputed",
+            "has_file": true
+          },
+          {
+            "sensor_id": "OCT-SENSE-095",
+            "class": "event_driven_shadow",
+            "usable": false,
+            "age_s": 10.295855,
+            "time_source": "contradiction.last_seen",
+            "paths": [
+              "/var/lib/octopus/state/evidence/last_OCT-SENSE-095.json"
+            ],
+            "reason": "shadow_not_in_wave0_denominator",
+            "event_age_s": 10.295855
+          }
+        ],
+        "fusion_coverage": 1.0
+      },
+      "expected": "healthy_or_explained",
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/coverage.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "agent",
+      "remediation_type": "evidence_path_diff",
+      "source_command": "classify_coverage() over evidence files; curl 127.0.0.1:9101/metrics",
+      "source_digest": "sha256:65c8539b926a87cb4319cdb02c6f3b3a74eadf5c6d9a4ae70474e9338a76e9e0",
+      "reason": null,
+      "threshold_not_lowered": true,
+      "shadow_not_imputed": true
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "missing_not_healthy",
+      "category": "sensing",
+      "severity": "blocking",
+      "observed": {
+        "prediction_calibration": {
+          "value": null,
+          "status": "unknown",
+          "stale": true,
+          "source": "world_model_calibration_error",
+          "stamp": null,
+          "raw": null
+        },
+        "observation_age_metric": "MISSING",
+        "imputed_zero": false
+      },
+      "expected": {
+        "calibration": "unknown_or_measured",
+        "imputed_zero": false
+      },
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/metrics.txt",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "curl -fsS http://127.0.0.1:9101/metrics",
+      "source_digest": "sha256:d716d43f0e15737f01cb9baa8287d16189a173a6176235a44c26f6a0ce58edc6",
+      "reason": "missing_not_healthy"
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "clock_trust",
+      "category": "integrity",
+      "severity": "blocking",
+      "observed": "SYNCED_NTP",
+      "expected": "SYNCED_NTP",
+      "evidence_path": "/var/lib/octopus/state/boot_report.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "disk_health",
+      "category": "sensing",
+      "severity": "blocking",
+      "observed": {
+        "value": 0.16579999999999998,
+        "status": "healthy",
+        "stale": false,
+        "source": "disk_used_ratio",
+        "stamp": "2026-08-22T09:05:41.240734+00:00",
+        "raw": 16.58
+      },
+      "expected": "healthy_or_watch_with_value",
+      "evidence_path": "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_STORAGE.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "gap_001_open",
+      "category": "integrity",
+      "severity": "blocking",
+      "observed": "TESTED_PASS",
+      "expected": "CLOSED_TESTED_PASS",
+      "evidence_path": "/var/lib/octopus/state/gap001/boot_report.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "maintenance_window_test",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null,
+      "agent_must_not_reboot": true,
+      "gates": []
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "repairs_attempted",
+      "category": "integrity",
+      "severity": "blocking",
+      "observed": 0,
+      "expected": 0,
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/repairs.json",
+      "read_only": true,
+      "passed": true,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": null,
+      "source_digest": null,
+      "reason": null
+    },
+    {
+      "schema": "octopus.doctor-check.v1",
+      "check_id": "metrics_observation_age",
+      "category": "sensing",
+      "severity": "informational",
+      "observed": "MISSING",
+      "expected": "PRESENT",
+      "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T090545Z-6d46/metrics.txt",
+      "read_only": true,
+      "passed": false,
+      "remediation_owner": "owner",
+      "remediation_type": "none",
+      "source_command": "curl -fsS http://127.0.0.1:9101/metrics | grep observation_age",
+      "source_digest": "sha256:d716d43f0e15737f01cb9baa8287d16189a173a6176235a44c26f6a0ce58edc6",
+      "reason": null,
+      "promql": "up{job=\"octopus_stability_live\"} == 1 unless octopus_sensor_observation_age_seconds"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#service_sensorium",
+      "seq": 40,
+      "hash": "sha256:0c52ca2c3539d143ac69a3405dfebb8c564f691b722f10279122800a375ea54d",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/40.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#service_stability_enabled",
+      "seq": 41,
+      "hash": "sha256:f49b13cb5313871b8aef5847fc1dcf155829fb0d316bf08151402b12300f8606",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/41.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#metrics_bind",
+      "seq": 42,
+      "hash": "sha256:93ad0d08141b5cb51b098cf83bcb94d7daa7ebc55b4a822299a5df8fde14f358",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/42.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#unexpected_listeners",
+      "seq": 43,
+      "hash": "sha256:157ab70d4d82332a48d550d217630206c4b373da2798d43758ccfc195fc559f6",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/43.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#ledger_chain_valid",
+      "seq": 44,
+      "hash": "sha256:1f061cdd1bf5b4acddca2d6deab20eb732e0d61ed84a93f136ee4d45c3646d3d",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/44.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#checkpoint_unsigned",
+      "seq": 45,
+      "hash": "sha256:1d9f08d636554c1d0f8d4dba41c075465d9a837b6654856bc201d8202a292cf6",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/45.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#gap002_registry",
+      "seq": 46,
+      "hash": "sha256:d11440abe7a41c59b249c3db6808639e3bf567a49c4f566534f5062b22822fd6",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/46.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#policy_mode",
+      "seq": 47,
+      "hash": "sha256:35715689afd2cbea7d63c1caf808eb364c89eb41e42c17a5458a60aa261474cc",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/47.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#planner_isolation",
+      "seq": 48,
+      "hash": "sha256:7ee9445170a026cfd77eed31c5a3254d443edb6edab2be655dc69f2020ebe475",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/48.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#actuator_authority",
+      "seq": 49,
+      "hash": "sha256:27ac78fda0a82b6ab2a86b262d65f0af465acee23ec9e35beb043daf66b91f1f",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/49.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#executed_actions",
+      "seq": 50,
+      "hash": "sha256:1c5f653d9fa937ba6c4758a73356538de93b42286a3cbcc3bbdd9970da63332d",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/50.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#coverage_or_data_critical",
+      "seq": 51,
+      "hash": "sha256:64b6dfa555a4615a25a72dacc87bf8c2a6b0aece8a203cce0a7147300a0a2cfa",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/51.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#missing_not_healthy",
+      "seq": 52,
+      "hash": "sha256:7bf27b10ffc4afc79324bd9224f9b261509a8a63bd5c05d8c23bb9f85d51b66d",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/52.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#clock_trust",
+      "seq": 53,
+      "hash": "sha256:86a9c870f8bd05de2804d2ffa336ddd873c72166ac18da0ad130d17398151023",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/53.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#disk_health",
+      "seq": 54,
+      "hash": "sha256:358495abc4fbec62e6ba923b58d843549bdc11c5cb48900eb2fa3900f8cac20f",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/54.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#gap_001_open",
+      "seq": 55,
+      "hash": "sha256:9d06d1e59b64a1f69d58e2c350d7ee039ad032f5343a4efa8114f306ed842651",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/55.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#repairs_attempted",
+      "seq": 56,
+      "hash": "sha256:078b34e85f73283c09a598b17c5043a940890ca2e9eb7aec97d360053aad1d24",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/56.json"
+    },
+    {
+      "finding_id": "doctor-2026-08-22T090545Z-6d46#metrics_observation_age",
+      "seq": 57,
+      "hash": "sha256:607228457d4253ac30ab7a0c3800462d507c8b5b249cdff65acbaba24c3739c2",
+      "evidence_copy": "/var/lib/octopus/evidence/doctor/57.json"
+    }
+  ],
+  "findings_chain_id": "octopus-doctor-findings",
+  "change_chain_id": "octopus-audit-change",
+  "audit_checkpoint_phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
+  "coverage": {
+    "schema": "octopus.coverage-classification.v1",
+    "wave0_required": [
+      "OCT-SENSE-051",
+      "OCT-SENSE-052",
+      "OCT-SENSE-053",
+      "OCT-SENSE-053.THERMAL"
+    ],
+    "shadow_optional": [
+      "OCT-SENSE-092",
+      "OCT-SENSE-095"
+    ],
+    "required": [
+      {
+        "sensor_id": "OCT-SENSE-051",
+        "class": "fresh_valid",
+        "usable": true,
+        "age_s": 5.105082,
+        "time_source": "time.phenomenon_time",
+        "paths": [
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-051.json"
+        ],
+        "reason": "ok",
+        "window_s": 45.0
+      },
+      {
+        "sensor_id": "OCT-SENSE-052",
+        "class": "fresh_valid",
+        "usable": true,
+        "age_s": 4.951484,
+        "time_source": "time.phenomenon_time",
+        "paths": [
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-052.json"
+        ],
+        "reason": "ok",
+        "window_s": 45.0
+      },
+      {
+        "sensor_id": "OCT-SENSE-053",
+        "class": "fresh_valid",
+        "usable": true,
+        "age_s": 4.941078,
+        "time_source": "time.phenomenon_time",
+        "paths": [
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_CPU.json",
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_MEMORY.json",
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_STORAGE.json"
+        ],
+        "reason": "ok",
+        "window_s": 45.0
+      },
+      {
+        "sensor_id": "OCT-SENSE-053.THERMAL",
+        "class": "fresh_valid",
+        "usable": true,
+        "age_s": 4.751615,
+        "time_source": "time.phenomenon_time",
+        "paths": [
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_THERMAL.json"
+        ],
+        "reason": "ok",
+        "window_s": 45.0
+      }
+    ],
+    "shadow": [
+      {
+        "sensor_id": "OCT-SENSE-092",
+        "class": "validity",
+        "usable": false,
+        "age_s": null,
+        "time_source": "MISSING_TIMESTAMP",
+        "paths": [
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-092.json"
+        ],
+        "reason": "missing_timestamp_not_imputed",
+        "has_file": true
+      },
+      {
+        "sensor_id": "OCT-SENSE-095",
+        "class": "event_driven_shadow",
+        "usable": false,
+        "age_s": 10.295855,
+        "time_source": "contradiction.last_seen",
+        "paths": [
+          "/var/lib/octopus/state/evidence/last_OCT-SENSE-095.json"
+        ],
+        "reason": "shadow_not_in_wave0_denominator",
+        "event_age_s": 10.295855
+      }
+    ],
+    "usable": 4,
+    "expected": 4,
+    "ratio": 1.0,
+    "fusion_expected": 4,
+    "fusion_active": 4,
+    "fusion_coverage": 1.0,
+    "fusion_degraded": [],
+    "note": "WAVE0 coverage denominator is host sensors, not shadow meta sensors. 092/095 are classified, not imputed. Fusion 4/6 or 3/6 mixes shadow STALE and a 20s thermal window that disagrees with stability's 45s.",
+    "threshold_not_lowered": true,
+    "healthy_low": 0.9,
+    "critical_low": 0.7
+  },
+  "note": "Read-only. Doctor writes findings only. Change records are a separate chain. PASS requires every check to have evidence; missing is not healthy; thresholds were not lowered.",
+  "pid": 377281
+}

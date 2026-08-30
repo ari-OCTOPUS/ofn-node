@@ -1,0 +1,47 @@
+﻿{
+    "schema":  "octopus.center-restart-after.v1",
+    "token":  "OCTOPUS-MONEY-WEBHOOK-WORKPUMP-20260822",
+    "phase3_ref":  "F:\\backup\\06-EVIDENCE\\BOARD2-PHASE3-2026-08-22\\BOARD2-PHASE3-PASS-20260822T091329Z.json",
+    "timestamp_sydney":  "2026-08-22T19:30:02+10:00",
+    "timestamp_utc":  "2026-08-22T09:30:02Z",
+    "restart_path_used":  "F:\\backup\\_ops\\RESTART-PROCESS.ps1 center",
+    "note_race":  "Two concurrent RESTART-PROCESS center runs overlapped (pids 30640 then 35916). Final stable after = 35916. Prefer single owner of restart next time.",
+    "before":  {
+                   "pid":  14856,
+                   "started_sydney":  "2026-08-22T14:47:02+10:00",
+                   "started_utc":  "2026-08-22T04:47:02Z"
+               },
+    "after":  {
+                  "center_count":  1,
+                  "supervisor_loop_pid":  30996,
+                  "pid":  35916,
+                  "started_utc":  "2026-08-22T09:28:37Z",
+                  "started_sydney":  "2026-08-22T19:28:37+10:00",
+                  "loop_count":  1
+              },
+    "verification":  {
+                         "single_center":  true,
+                         "poll_consecutive_failures":  0,
+                         "ACTIVATION_WORK_LLM":  "ON",
+                         "poll_last_reason":  "",
+                         "OCTOPUS_ENFORCE_MONEY_FSM":  "1",
+                         "STOP_TG_CENTER_absent":  true,
+                         "OCTOPUS_WIRE_HEART_WORK":  "1",
+                         "OCTOPUS_DOCTOR_MAY_MERGE":  "1",
+                         "no_second_center":  true,
+                         "flags_loaded_pid_matches":  true,
+                         "OCTOPUS_WIRE_MONEY_PULSE":  "1",
+                         "single_poller_loop":  true
+                     },
+    "money_gates_on_disk":  {
+                                "ACTIVATION-WORK-LLM.flag":  true,
+                                "webhook":  "policy authorized in OCTOPUS-MONEY-WEBHOOK-WORKPUMP evidence; no setWebhook; no new LIVE-WEBHOOK.flag",
+                                "WIRING.json.crypto_wire":  true,
+                                "FREEZE.flag_absent":  true,
+                                "WIRING.json.accounting_amounts":  true,
+                                "WIRING.json.mining_wire":  true
+                            },
+    "secrets_rotated":  false,
+    "git_add_A":  false,
+    "NEED_OWNER_CENTER_RESTART":  false
+}

@@ -1,0 +1,58 @@
+# test_g04_holdout.py — G-04: گیتِ held-outِ مستقل، rubric-hack را رد و بهبودِ واقعی را پاس می‌کند.
+# MOCK/آفلاین (بدون شبکه/کلید). بدونِ pytest هم اجرا می‌شود (بلوکِ __main__).
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from src.agents import Researcher                       # noqa: E402
+from src.optimizer import Optimizer, SUGGESTIONS        # noqa: E402
+from src.evals import score_prompt_v2                   # noqa: E402
+from src.eval_holdout import holdout_gate, holdout_score  # noqa: E402
+
+AGENT = "researcher"
+BASE = Researcher.system
+
+
+def test_1_real_fix_passes_holdout():
+    """بهبودِ واقعی (propose_fix «ساختار منظم») نمره‌ی held-out را بالا می‌برد و پاس می‌شود."""
+    opt = Optimizer()
+    cand = opt.propose_fix(AGENT, BASE, ["ساختار منظم"], verify_holdout=True)
+    assert cand != BASE, "بهبودِ واقعی نباید مسدود شود"
+    assert opt.last_gate and opt.last_gate[0] is True, f"گیت باید پاس کند: {opt.last_gate}"
+    s_old, _ = holdout_score(AGENT, BASE)
+    s_new, _ = holdout_score(AGENT, cand)
+    assert s_new > s_old, f"held-out باید بالا برود: {s_old}→{s_new}"
+
+
+def test_2_rubric_hack_blocked_by_holdout():
+    """کیواژه‌کوبی نمره‌ی rubric را بالا می‌برد ولی گیتِ held-outِ مستقل ردش می‌کند (fail-closed)."""
+    hack = BASE + " منابع منظم فهرست خلاصه کوتاه مختصر."   # کیواژه‌ی لخت، بی‌دستور
+    # (الف) rubric (سیگنالِ خودِ optimizer) گول می‌خورد — همان Goodhart:
+    r_old, _ = score_prompt_v2(AGENT, BASE)
+    r_hack, _ = score_prompt_v2(AGENT, hack)
+    assert r_hack > r_old, f"پیش‌فرض: rubric به کیواژه‌کوبی جایزه می‌دهد ({r_old}→{r_hack})"
+    # (ب) گیتِ held-outِ مستقل رد می‌کند:
+    passed, why = holdout_gate(AGENT, BASE, hack)
+    assert passed is False, f"held-out باید rubric-hack را رد کند (why={why})"
+    # (ج) Optimizer با گیت این نامزد را promote نمی‌کند:
+    opt = Optimizer()
+    ok, _why = opt.verify_candidate(AGENT, BASE, hack)
+    assert ok is False, "Optimizer باید نامزدِ hack را fail-closed رد کند"
+
+
+def test_3_optimizer_default_unchanged_zero_regress():
+    """بدونِ verify_holdout رفتارِ propose_fix/propose_explore دقیقاً مثلِ قبل است (صفر regress)."""
+    opt = Optimizer()
+    expected = (BASE.rstrip() + " " + SUGGESTIONS[AGENT]["ساختار منظم"]).strip()
+    assert opt.propose_fix(AGENT, BASE, ["ساختار منظم"]) == expected
+    # explore بدونِ فلگ باید یک نامزدِ متفاوت (و عمداً بدتر) برگرداند، نه no-op:
+    assert opt.propose_explore(AGENT, BASE) != BASE
+
+
+if __name__ == "__main__":
+    ok = 0
+    for n, f in sorted(globals().items()):
+        if n.startswith("test_") and callable(f):
+            f(); print(f"  ✅ {n}"); ok += 1
+    print(f"G-04 held-out: همه سبز ({ok})")

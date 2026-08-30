@@ -1,0 +1,12 @@
+{
+  "status": "PASS_PREP",
+  "lab_fake": "PASS (prior)",
+  "live_inbound": "OPEN_BLOCKED_UNTIL_OWNER_MSG",
+  "harness": "F:/backup/06-EVIDENCE/OCTOPUS-GAP-CLOSE-2026-08-23/IOS/G04/VERIFY-HARNESS.md",
+  "no_live_sendMessage": true,
+  "no_unlock": true,
+  "gap_id": "G04",
+  "stamp_local": "2026-08-23T09:05:12+10:00",
+  "timezone": "Australia/Sydney",
+  "agent": "Ios"
+}

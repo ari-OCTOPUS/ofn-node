@@ -1,0 +1,1586 @@
+diff --git a/04 - Architect System/scripts/organism-watchdog.ps1 b/04 - Architect System/scripts/organism-watchdog.ps1
+index 09e1842..0675dbb 100644
+--- a/04 - Architect System/scripts/organism-watchdog.ps1	
++++ b/04 - Architect System/scripts/organism-watchdog.ps1	
+@@ -41,12 +41,32 @@ function Test-PortAlive([int]$p) {
+ }
+ 
+ # 2) ORGANISM (8771): only REVIVE - never first-birth (prior-run evidence required)
+-if (-not (Test-PortAlive $PORT)) {
++#    Heart v2 (2026-08-25, owner order "bring it all to the real world"): the revive
++#    decision now defers to the CANONICAL Python verdict (_ops/watchdog.py --json),
++#    which also detects silent in-process stalls (stale ts / frozen beat counter).
++#    This closes the documented split-brain (watchdog.py header note): stall detection
++#    now actually runs in production. STOP supremacy above is unchanged and still wins.
++$canon = Join-Path $VAULT "_ops\watchdog.py"
++$verdict = $null
++if (Test-Path $canon) {
++    try {
++        $raw = & python -X utf8 $canon --json 2>$null
++        if ($LASTEXITCODE -eq 0 -and $raw) { $verdict = ($raw | Out-String | ConvertFrom-Json) }
++    } catch {}
++}
++if ($verdict -and $verdict.should_revive) {
+     $state = Join-Path $VAULT "_ops\state\ORGANISM-STATE.json"
+     if (Test-Path $state) {
+         Start-Process -FilePath (Join-Path $VAULT "_ops\RUN-ORGANISM.bat") -WorkingDirectory (Join-Path $VAULT "_ops") -WindowStyle Hidden
+-        Log "revived organism (port $PORT was dead, no STOP flags)"
++        Log "revived organism (canonical verdict: $($verdict.reason))"
+     }
++} elseif ($verdict -and $verdict.stall) {
++    # port open but the in-process loop is dead/stale and stall-revive is not armed:
++    # never a blind kill - surface it loudly for the owner (stable text for dedup).
++    Log "STALL detected (no blind kill): $($verdict.reason)"
++    try {
++        & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required" | Out-Null
++    } catch {}
+ }
+ 
+ # 3) CORTEX (8772) - Program 5, 2026-07-16 (supervision-gap fix: cortex died 07-10 unplanned
+diff --git a/_ops/cortex/heart_brain.py b/_ops/cortex/heart_brain.py
+new file mode 100644
+index 0000000..ee520ed
+--- /dev/null
++++ b/_ops/cortex/heart_brain.py
+@@ -0,0 +1,128 @@
++#!/usr/bin/env python3
++"""cortex/heart_brain.py — مغز مشاور DeepSeek برای Heart v2 (کاملاً advisory).
++
++· بیداری رویدادمحور (kernel)؛ فقط از model_router.ask (درِ واحد موجود) — صفر HTTP جدید.
++· خروجی ساختاریافته {assessment, questions, proposals}؛ schema نامعتبر/timeout/ردِ بودجه
++  ⇒ DEGRADED بدون proposal اجرایی. proposals همیشه executable=false.
++· هیچ متنی جز خلاصهٔ reasoning ذخیره نمی‌شود؛ chain-of-thought خام هرگز نوشته نمی‌شود.
++· اعتبار: تحلیل/سؤال/پیشنهاد — اجرا تنها از مسیر decision_arbiter/EffectorGate آینده.
++"""
++from __future__ import annotations
++
++import json
++import os
++import sys
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++_OPS = _HERE.parent
++for _p in (str(_HERE), str(_OPS), str(_OPS / "budget")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++import opslib  # noqa: E402
++
++SINK = opslib.STATE_DIR / "cortex" / "heart-brain" / "advisories.jsonl"
++TASK = "heart_brain"
++MAX_TOKENS = 700
++
++_SYSTEM = (
++    "You are the advisory cognitive layer of OCTOPUS, a homeostatic organism. "
++    "Respond ONLY with a JSON object with keys: assessment (string, <=3 sentences), "
++    "questions (array of {id, question, reason, blocking}), proposals (array of "
++    "{capability, target, arguments, expected_benefit, risks, rollback, confidence, "
++    "ttl_s}). Every proposal MUST be low-risk and reversible; you have NO execution "
++    "authority. Never request money transfer, identity change, deletion, or "
++    "production-wire changes. Be concise and factual; unknowns must be stated as "
++    "unknown, never guessed.")
++
++
++def _packet(kernel_out: dict, observations: list[dict]) -> str:
++    """بستهٔ آگاهیِ محدود — فاقد secret/متن خام پیام‌ها."""
++    vital = [o for o in observations if o["metric"] in (
++        "organism.beat", "organism.sleep_s", "pulse.effective_period_s",
++        "pulse.driver", "vitals.stress", "provider.deepseek_ok_age_s",
++        "telegram.live", "disk.write_failures_1h")]
++    return json.dumps({
++        "identity": "OCTOPUS organism on owner laptop",
++        "vital_state": {"mode": kernel_out.get("mode"),
++                        "beat": kernel_out.get("beat"),
++                        "period_s": kernel_out.get("period_advisory_s"),
++                        "green_streak": kernel_out.get("green_streak"),
++                        "n_missing": kernel_out.get("n_missing"),
++                        "n_stale": kernel_out.get("n_stale"),
++                        "write_failures_1h": kernel_out.get("write_failures_1h")},
++        "observations": [{"metric": o["metric"], "value": o["value"],
++                          "quality": o["quality"]} for o in vital],
++        "wake_reasons": kernel_out.get("wake_reasons"),
++        "instruction": "Assess organism state; ask only decision-relevant "
++                       "questions; propose only reversible internal actions.",
++    }, ensure_ascii=False)
++
++
++def _parse_model_json(text: str) -> "dict | None":
++    try:
++        start = text.index("{")
++        end = text.rindex("}") + 1
++        d = json.loads(text[start:end])
++        if not isinstance(d, dict):
++            return None
++        d.setdefault("assessment", "")
++        d.setdefault("questions", [])
++        d.setdefault("proposals", [])
++        for p in d["proposals"]:
++            if isinstance(p, dict):
++                p["executable"] = False     # ساختاری: هرگز اجرایی
++        return d
++    except (ValueError, TypeError):
++        return None
++
++
++def wake(kernel_out: dict, observations: list[dict], *, beat: int) -> dict:
++    """یک بیداری. خروجی همیشه dict صادق؛ هرگز raise نمی‌کند. $0-guarded توسط router."""
++    rec = {"schema": "heart-brain-advisory/1", "ts": opslib.now_iso(),
++           "beat": beat, "wake_reasons": kernel_out.get("wake_reasons"),
++           "status": "SKIPPED"}
++    if not kernel_out.get("wake_brain"):
++        return rec
++    try:
++        import model_router as mr   # درِ واحد موجود (cortex)
++        out = mr.ask(TASK, _packet(kernel_out, observations),
++                     system=_SYSTEM, max_tokens=MAX_TOKENS)
++        if not (isinstance(out, dict) and out.get("ok")):
++            rec["status"] = "DEGRADED"
++            rec["reason"] = str(out.get("reason") or "provider-unavailable")[:120]
++            return rec
++        parsed = _parse_model_json(str(out.get("text") or ""))
++        if parsed is None:
++            rec["status"] = "DEGRADED"
++            rec["reason"] = "model output not parseable JSON"
++            return rec
++        rec["status"] = "OK"
++        rec["model"] = out.get("model")
++        rec["assessment"] = str(parsed.get("assessment"))[:600]
++        rec["questions"] = parsed.get("questions", [])[:5]
++        rec["proposals"] = parsed.get("proposals", [])[:5]
++        return rec
++    except Exception as e:  # noqa: BLE001 — مغز هرگز ضربان را نمی‌کشد
++        rec["status"] = "DEGRADED"
++        rec["reason"] = f"{type(e).__name__}"
++        return rec
++
++
++def record(advisory: dict) -> None:
++    """رسید فقط-خلاصه (بدون chain-of-thought) — append-only در state."""
++    try:
++        SINK.parent.mkdir(parents=True, exist_ok=True)
++        with SINK.open("a", encoding="utf-8") as f:
++            f.write(json.dumps(advisory, ensure_ascii=False) + "\n")
++    except OSError:
++        pass
++
++
++def latest(n: int = 3) -> list[dict]:
++    try:
++        lines = SINK.read_text("utf-8").splitlines()
++        return [json.loads(x) for x in lines[-n:]][::-1]
++    except (OSError, ValueError):
++        return []
+diff --git a/_ops/heart/kernel.py b/_ops/heart/kernel.py
+new file mode 100644
+index 0000000..d990a98
+--- /dev/null
++++ b/_ops/heart/kernel.py
+@@ -0,0 +1,61 @@
++#!/usr/bin/env python3
++"""heart/kernel.py — هستهٔ خالص: ارزیابی → حالت → period advisory → بیداری مغز.
++
++بدون network/shell/import اکتور — کاملاً تست‌پذیر. periodِ خروجی advisory است؛
++تنها منبع period زنده همچنان pulse_arbiter با anchor ثابت G4 است (اینجا فقط
++پیشنهاد و ثبت). بیداری مغز رویدادمحور است، نه هر beat.
++"""
++from __future__ import annotations
++
++import state_machine as fsm
++
++WARMUP_MIN_BEATS = 3
++BRAIN_WAKE_EVERY_N = 24          # ~40min در period ~96s
++RED_WRITE_FAILURES = 5
++JOURNAL_FAILURES = 20            # چهار برابرِ red — COMA دیرتر از SAFE
++
++
++def assess(observations: list[dict], *, current_mode: str, beat: int,
++           green_streak: int = 0, prev_wake_beat: int = -10 ** 9,
++           kill: bool = False) -> dict:
++    """ورودی: خروجی sensors.collect + وضعیت FSM. خروجی تصمیم این beat."""
++    by = {o["metric"]: o for o in observations}
++    halted = by.get("organism.halted", {}).get("value")
++    write_fails = int(by.get("disk.write_failures_1h", {}).get("value") or 0)
++    n_missing = sum(1 for o in observations if o["quality"] == "MISSING")
++    n_stale = sum(1 for o in observations if o["quality"] == "STALE")
++    stress = by.get("vitals.stress", {}).get("value")
++    period = by.get("pulse.effective_period_s", {}).get("value")
++
++    kill_flag = bool(kill or halted)
++    journal_failure = write_fails >= JOURNAL_FAILURES
++    red = (write_fails >= RED_WRITE_FAILURES)
++    degraded_inputs = (n_missing + n_stale) >= 2
++    warmup_ready = beat >= WARMUP_MIN_BEATS and n_missing <= 1
++
++    mode, reasons = fsm.assess_transition(
++        current_mode, kill=kill_flag, journal_failure=journal_failure, red=red,
++        degraded_inputs=degraded_inputs, green_streak=green_streak,
++        warmup_ready=warmup_ready)
++
++    # بیداری مغز: تغییر حالت، استرس بالا، یا کادنس — هرگز زیر SAFE/COMA/DORMANT
++    wake_reasons: list[str] = []
++    if mode != current_mode:
++        wake_reasons.append(f"mode {current_mode}->{mode}")
++    if isinstance(stress, (int, float)) and stress >= 0.6:
++        wake_reasons.append(f"stress={stress}")
++    if (mode in ("RUNNING", "DEGRADED")
++            and (beat - prev_wake_beat) >= BRAIN_WAKE_EVERY_N):
++        wake_reasons.append(f"periodic (every {BRAIN_WAKE_EVERY_N})")
++    wake_brain = bool(wake_reasons) and mode in ("RUNNING", "DEGRADED", "WARMUP")
++
++    streak = green_streak + 1 if mode in ("RUNNING",) and not degraded_inputs else 0
++    return {
++        "beat": beat, "mode": mode, "mode_prev": current_mode,
++        "reasons": reasons, "green_streak": streak,
++        "period_advisory_s": period,
++        "wake_brain": wake_brain, "wake_reasons": wake_reasons,
++        "red": red, "degraded_inputs": degraded_inputs,
++        "n_missing": n_missing, "n_stale": n_stale,
++        "write_failures_1h": write_fails,
++    }
+diff --git a/_ops/heart/runtime.py b/_ops/heart/runtime.py
+new file mode 100644
+index 0000000..90a6861
+--- /dev/null
++++ b/_ops/heart/runtime.py
+@@ -0,0 +1,187 @@
++#!/usr/bin/env python3
++"""heart/runtime.py — ضربان واحد Heart v2 روی BeatScheduler موجود.
++
++قاعدهٔ بقا: هیچ حلقهٔ مستقل جدیدی ساخته نمی‌شود — همهٔ organها روی همان
++BeatScheduler (ترتیب فاز قطعی، بودجه، isolation، circuit-breaker، HALT-safe)
++ثبت می‌شوند و هویت beat از همان scheduler می‌آید. HeartStore ژورنالِ ترابزنشی
++همان beat را ثبت می‌کند (RESERVED→COMMITTED/DEGRADED)؛ ACT عمداً ثبت نشده
++(صفر اثر خارجی؛ اجرا فقط از مسیر آیندهٔ decision_arbiter/EffectorGate).
++"""
++from __future__ import annotations
++
++import json
++import os
++import sys
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++_OPS = _HERE.parent
++for _p in (str(_HERE), str(_OPS), str(_OPS / "budget"), str(_OPS / "cortex")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import opslib  # noqa: E402
++import beat_scheduler as bs  # noqa: E402
++from heart import kernel as hkernel      # noqa: E402
++from heart import sensors as hsensors    # noqa: E402
++from heart import state_machine as fsm   # noqa: E402
++from heart import store as hstore        # noqa: E402
++
++FLAG_ENV = "OCTOPUS_WIRE_HEART_V2"
++FLAG_FILE = opslib.OPS / "ACTIVATION-HEART-V2.flag"
++HEART_STATE = opslib.STATE_DIR / "pulse" / "heart-v2-latest.json"
++
++_SCHED = None
++_CTX = {"green_streak": 0, "prev_mode": "BOOTING", "prev_wake_beat": -10 ** 9,
++        "store": None, "brain_ok": 0, "brain_degraded": 0}
++
++
++def enabled() -> bool:
++    if str(os.environ.get(FLAG_ENV, "")).strip().lower() in ("1", "true", "yes", "on"):
++        return True
++    try:
++        return FLAG_FILE.exists()
++    except OSError:
++        return False
++
++
++def _store():
++    if _CTX["store"] is None:
++        _CTX["store"] = hstore.get_store()
++    return _CTX["store"]
++
++
++# ── organها (هر کدام fail-soft؛ شکست یک organ ضربان را نمی‌ایستاند) ──────────
++def _sense_organ(beat: int, dry_run: bool, halt) -> dict:
++    observations = hsensors.collect()
++    _CTX["observations"] = observations
++    return {"n": len(observations)}
++
++
++def _assess_organ(beat: int, dry_run: bool, halt) -> dict:
++    st = _store()
++    if st is None:
++        return {"store": "unavailable"}
++    observations = _CTX.get("observations") or []
++    out = hkernel.assess(
++        observations, current_mode=_CTX["prev_mode"], beat=int(beat),
++        green_streak=_CTX["green_streak"],
++        prev_wake_beat=_CTX["prev_wake_beat"],
++        kill=bool(halt))
++    st.begin_beat(int(beat), mode=out["mode"],
++                  period_advisory_s=out.get("period_advisory_s"))
++    _CTX["kernel"] = out
++    _CTX["prev_mode"] = out["mode"]
++    _CTX["green_streak"] = out["green_streak"]
++    return {"mode": out["mode"], "reasons": out["reasons"]}
++
++
++def _brain_organ(beat: int, dry_run: bool, halt) -> dict:
++    kern = _CTX.get("kernel") or {}
++    if not kern.get("wake_brain"):
++        return {"woke": False}
++    try:
++        sys.path.insert(0, str(_OPS / "cortex"))
++        import heart_brain as hb
++        advisory = hb.wake(kern, _CTX.get("observations") or [], beat=int(beat))
++        hb.record(advisory)
++        if advisory.get("status") == "OK":
++            _CTX["brain_ok"] += 1
++        else:
++            _CTX["brain_degraded"] += 1
++        _CTX["prev_wake_beat"] = int(beat)
++        st = _store()
++        if st is not None:
++            st.emit(int(beat), "brain.advisory", {
++                "status": advisory.get("status"),
++                "assessment": advisory.get("assessment"),
++                "n_questions": len(advisory.get("questions") or []),
++                "n_proposals": len(advisory.get("proposals") or [])},
++                correlation=f"beat-{beat}")
++        return {"woke": True, "status": advisory.get("status")}
++    except Exception as e:  # noqa: BLE001
++        return {"woke": False, "error": type(e).__name__}
++
++
++def _memory_organ(beat: int, dry_run: bool, halt) -> dict:
++    """HEAL-گونه: tick پیوستگی (پروجکشن + backup) — idempotent و ارزان."""
++    try:
++        sys.path.insert(0, str(_OPS / "memory"))
++        import continuity as hc
++        return hc.tick(beat=int(beat))
++    except Exception as e:  # noqa: BLE001
++        return {"error": type(e).__name__}
++
++
++def _heal_organ(beat: int, dry_run: bool, halt) -> dict:
++    st = _store()
++    kern = _CTX.get("kernel") or {}
++    committed = False
++    if st is not None:
++        committed = st.commit_beat(
++            int(beat), mode=kern.get("mode"),
++            period_advisory_s=kern.get("period_advisory_s"),
++            report={"kernel": {k: kern.get(k) for k in (
++                "mode", "mode_prev", "reasons", "green_streak", "wake_brain",
++                "wake_reasons", "n_missing", "n_stale", "write_failures_1h")}})
++    _write_projection(kern, beat)
++    return {"committed": committed}
++
++
++def _write_projection(kern: dict, beat: int) -> None:
++    st = _store()
++    counts = st.counts() if st is not None else {}
++    proj = {"schema": "heart-v2/1", "ts": opslib.now_iso(), "beat": int(beat),
++            "mode": kern.get("mode"), "mode_prev": kern.get("mode_prev"),
++            "green_streak": kern.get("green_streak"),
++            "period_advisory_s": kern.get("period_advisory_s"),
++            "wake_brain": kern.get("wake_brain"),
++            "brain_stats": {"ok": _CTX["brain_ok"],
++                            "degraded": _CTX["brain_degraded"]},
++            "store_counts": counts, "advisory_only": True}
++    try:
++        HEART_STATE.parent.mkdir(parents=True, exist_ok=True)
++        tmp = HEART_STATE.with_suffix(".tmp")
++        tmp.write_text(json.dumps(proj, ensure_ascii=False, indent=1), "utf-8")
++        os.replace(tmp, HEART_STATE)
++    except OSError:
++        pass
++
++
++def get_scheduler():
++    """ساخت idempotentِ scheduler با organهای قلب (تک‌نمونه در هر پروسه)."""
++    global _SCHED
++    if _SCHED is not None:
++        return _SCHED
++    if not enabled():
++        return None
++    state_path = opslib.STATE_DIR / "pulse" / "heart-v2-beat-state.json"
++    sched = bs.BeatScheduler(state_path=state_path, spine=None,
++                             halted_fn=opslib.halted, production_safe=False)
++    sched.register_organ("heart-sense", "SENSE", _sense_organ, budget_ms=800)
++    sched.register_organ("heart-assess", "RECORD", _assess_organ, budget_ms=400)
++    sched.register_organ("heart-brain", "THINK", _brain_organ,
++                         every_n_beats=1, budget_ms=120000)
++    sched.register_organ("heart-memory", "HEAL", _memory_organ,
++                         every_n_beats=15, budget_ms=20000)
++    sched.register_organ("heart-heal", "HEAL", _heal_organ, budget_ms=800)
++    _SCHED = sched
++    return sched
++
++
++def tick(beat: int = 0) -> "dict | None":
++    """یک ضربان کامل قلب v2 (از حلقهٔ organism صدا زده می‌شود)."""
++    sched = get_scheduler()
++    if sched is None:
++        return None
++    if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
++        return None
++    return sched.tick()
++
++
++def read_latest() -> dict:
++    try:
++        return json.loads(HEART_STATE.read_text("utf-8-sig")) if HEART_STATE.exists() else {}
++    except (OSError, ValueError):
++        return {}
+diff --git a/_ops/heart/sensors.py b/_ops/heart/sensors.py
+new file mode 100644
+index 0000000..07075ff
+--- /dev/null
++++ b/_ops/heart/sensors.py
+@@ -0,0 +1,160 @@
++#!/usr/bin/env python3
++"""heart/sensors.py — حسگرهای typed از state زنده (فقط‌خواندنی، fail-soft).
++
++هر مشاهده: {metric, value, unit, wall_utc, age_s, quality, source}.
++quality ∈ VALID/STALE/MISSING — غیبت هرگز صفر جعل نمی‌شود.
++"""
++from __future__ import annotations
++
++import json
++import time
++from datetime import datetime, timezone
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++_OPS = _HERE.parent
++import os
++import sys
++for _p in (str(_OPS / "budget"), str(_OPS)):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++import opslib  # noqa: E402
++
++STALE_S = {"organism": 900.0, "arbiter": 600.0, "heartstate": 1800.0,
++           "stress": 7200.0, "provider": 86400.0, "telegram": 3600.0}
++
++
++def _read_json(path: Path):
++    try:
++        d = json.loads(path.read_text("utf-8-sig"))
++        return d if isinstance(d, dict) else {}
++    except Exception:  # noqa: BLE001
++        return {}
++
++
++def _ts_age(d: dict) -> "float | None":
++    try:
++        ts = str(d.get("ts") or "").strip()
++        if not ts:
++            return None
++        return max(0.0, time.time() - datetime.fromtimestamp(
++            datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
++            if False else _parse(ts)).timestamp())
++    except Exception:  # noqa: BLE001
++        return None
++
++
++def _parse(ts: str) -> datetime:
++    return datetime.fromisoformat(ts.replace("Z", "+00:00"))
++
++
++def _age_of(d: dict, now: "float | None" = None):
++    try:
++        ts = str(d.get("ts") or "").strip()
++        if not ts:
++            return None
++        return max(0.0, (now or time.time())
++                   - _parse(ts).astimezone(timezone.utc).timestamp())
++    except Exception:  # noqa: BLE001
++        return None
++
++
++def _quality(age, limit: float) -> str:
++    if age is None:
++        return "MISSING"
++    return "VALID" if age <= limit else "STALE"
++
++
++def _obs(metric, value, unit, age, limit, source) -> dict:
++    return {"metric": metric, "value": value, "unit": unit,
++            "age_s": None if age is None else round(age, 1),
++            "quality": _quality(age, limit), "source": source}
++
++
++def collect(state_dir=None) -> list[dict]:
++    sd = Path(state_dir) if state_dir else opslib.STATE_DIR
++    now = time.time()
++    out: list[dict] = []
++
++    org = _read_json(sd / "ORGANISM-STATE.json")
++    age = _age_of(org, now)
++    out.append(_obs("organism.beat", org.get("beat"), "count",
++                    age, STALE_S["organism"], "ORGANISM-STATE.json"))
++    out.append(_obs("organism.halted", org.get("halted"), "flag",
++                    age, STALE_S["organism"], "ORGANISM-STATE.json"))
++    out.append(_obs("organism.sleep_s", org.get("sleep_s_after_bias"), "s",
++                    age, STALE_S["organism"], "ORGANISM-STATE.json"))
++
++    arb = _read_json(sd / "pulse" / "arbiter-latest.json")
++    aage = _age_of(arb, now)
++    out.append(_obs("pulse.effective_period_s", arb.get("effective_period_s"), "s",
++                    aage, STALE_S["arbiter"], "arbiter-latest.json"))
++    out.append(_obs("pulse.driver", arb.get("driver"), "enum",
++                    aage, STALE_S["arbiter"], "arbiter-latest.json"))
++    out.append(_obs("pulse.n_present", arb.get("n_present"), "count",
++                    aage, STALE_S["arbiter"], "arbiter-latest.json"))
++
++    hs = _read_json(sd / "pulse" / "heartstate-latest.json")
++    hage = _age_of(hs, now)
++    stress = (hs.get("stress") or {}).get("organism") if isinstance(hs.get("stress"), dict) else None
++    out.append(_obs("vitals.stress", stress, "0..1",
++                    hage, STALE_S["heartstate"], "heartstate-latest.json"))
++
++    st = _read_json(sd / "cortex" / "stress-latest.json")
++    sage = _age_of(st, now)
++    out.append(_obs("cortex.organism_stress",
++                    st.get("organism_stress") if isinstance(st, dict) else None,
++                    "0..1", sage, STALE_S["stress"], "stress-latest.json"))
++
++    # provider freshness: آخرین paid-call موفق
++    last_ok = None
++    try:
++        lines = (sd / "paid-calls.jsonl").read_text("utf-8").splitlines()
++        for ln in reversed(lines[-400:]):
++            try:
++                r = json.loads(ln)
++            except ValueError:
++                continue
++            if r.get("ok"):
++                last_ok = r.get("ts")
++                break
++    except OSError:
++        pass
++    page = _age_of({"ts": last_ok}, now) if last_ok else None
++    out.append(_obs("provider.deepseek_ok_age_s",
++                    None if page is None else round(page, 1), "s",
++                    page, STALE_S["provider"], "paid-calls.jsonl"))
++
++    tg = _read_json(sd / "channel-status.json")
++    tge = (tg.get("channels") or {}).get("telegram") if isinstance(tg.get("channels"), dict) else {}
++    tage = _age_of(tg, now)
++    out.append(_obs("telegram.live", bool(tge.get("live")) if isinstance(tge, dict) else None,
++                    "bool", tage, STALE_S["telegram"], "channel-status.json"))
++
++    # write-failures اخیر (سلامت دیسک)
++    n_fail = 0
++    try:
++        for ln in (sd / "write-failures.jsonl").read_text("utf-8").splitlines()[-50:]:
++            try:
++                r = json.loads(ln)
++                if (now - float(r.get("epoch") or 0)) < 3600.0:
++                    n_fail += 1
++            except (ValueError, TypeError):
++                continue
++    except OSError:
++        pass
++    out.append(_obs("disk.write_failures_1h", n_fail, "count",
++                    0.0, STALE_S["organism"], "write-failures.jsonl"))
++    return out
++
++
++def summary(observations: list[dict]) -> dict:
++    """خلاصهٔ ماشین‌خوان: کدام‌ها VALID، بدترین سن، شمار خرابی."""
++    valid = [o for o in observations if o["quality"] == "VALID"]
++    missing = [o["metric"] for o in observations if o["quality"] == "MISSING"]
++    stale = [o["metric"] for o in observations if o["quality"] == "STALE"]
++    fails = next((o["value"] for o in observations
++                  if o["metric"] == "disk.write_failures_1h"), 0) or 0
++    return {"n": len(observations), "n_valid": len(valid),
++            "missing": missing, "stale": stale,
++            "write_failures_1h": int(fails) if isinstance(fails, (int, float)) else 0}
+diff --git a/_ops/heart/state_machine.py b/_ops/heart/state_machine.py
+new file mode 100644
+index 0000000..008a56c
+--- /dev/null
++++ b/_ops/heart/state_machine.py
+@@ -0,0 +1,108 @@
++#!/usr/bin/env python3
++# heart/state_machine.py - life FSM (fail-closed, no threat->capability edge).
++# Persian doc: map-e halat-e hayat. All string literals below are pure ASCII;
++# a self-check at import asserts key purity (invisible-char contamination guard).
++
++STATES = ("GENESIS", "BOOTING", "WARMUP", "RUNNING", "DEGRADED", "SAFE",
++          "COMA", "DORMANT")
++
++RECOVERY_STREAK = 3
++
++_EDGES = {
++    "GENESIS": {"BOOTING"},
++    "BOOTING": {"WARMUP", "RUNNING"},
++    "WARMUP": {"RUNNING", "SAFE", "COMA", "DORMANT"},
++    "RUNNING": {"DEGRADED", "SAFE", "COMA", "DORMANT"},
++    "DEGRADED": {"RUNNING", "SAFE", "COMA", "DORMANT"},
++    "SAFE": {"RUNNING", "COMA", "DORMANT"},
++    "COMA": {"WARMUP", "DORMANT"},
++    "DORMANT": set(),
++}
++
++
++def _assert_purity() -> None:
++    """Guard: every state name must be built from exactly these ASCII bytes.
++
++    Rationale (2026-08-25): a prior revision of this file carried an invisible
++    Unicode mark inside one state key; cross-source comparisons silently failed
++    while same-source comparisons passed. This check makes that class of bug
++    loud at import time.
++    """
++    expected = {
++        "GENESIS": (71, 69, 78, 69, 83, 73, 83),
++        "BOOTING": (66, 79, 79, 84, 73, 78, 71),
++        "WARMUP": (87, 65, 82, 77, 85, 80),
++        "RUNNING": (82, 85, 78, 78, 73, 78, 71),
++        "DEGRADED": (68, 69, 71, 82, 65, 68, 69, 68),
++        "SAFE": (83, 65, 70, 69),
++        "COMA": (67, 79, 77, 65),
++        "DORMANT": (68, 79, 82, 77, 65, 78, 84),
++    }
++    for name in STATES:
++        want = bytes(expected[name])
++        got = name.encode("utf-8")
++        if got != want:
++            raise ValueError(
++                f"state literal contaminated: {name!r} bytes={got.hex()} "
++                f"expected={want.hex()}")
++    for key, targets in _EDGES.items():
++        if key not in expected:
++            raise ValueError(f"unknown edge key {key!r}")
++        for t in targets:
++            if t not in expected:
++                raise ValueError(f"unknown edge target {t!r} from {key!r}")
++
++
++_assert_purity()
++
++
++def can_transition(current: str, target: str) -> bool:
++    return target in _EDGES.get(current, set())
++
++
++def assess_transition(current: str, *, kill: bool = False,
++                      journal_failure: bool = False,
++                      red: bool = False, degraded_inputs: bool = False,
++                      green_streak: int = 0, warmup_ready: bool = False,
++                      coma_recovered: bool = False) -> tuple[str, list[str]]:
++    """(new_state, reasons). Kill is supreme; fail-closed throughout.
++
++    Legal: BOOTING->WARMUP/RUNNING, WARMUP->RUNNING(needs ready),
++    RUNNING->DEGRADED/SAFE, DEGRADED->RUNNING(needs streak),
++    SAFE->RUNNING(needs streak), any(journal)->COMA, COMA->WARMUP(recovery),
++    any(kill)->DORMANT(terminal). No edge raises capability from a threat
++    state without recovery evidence (anti-threat->capability invariant)."""
++    reasons: list[str] = []
++    if kill:
++        return "DORMANT", ["kill-switch supreme"]
++    if journal_failure:
++        reasons.append("journal commit failure sustained")
++        if can_transition(current, "COMA"):
++            return "COMA", reasons
++        return current, reasons + [f"illegal COMA from {current} (held)"]
++    if red:
++        if can_transition(current, "SAFE"):
++            return "SAFE", ["RED vitals / integrity conflict"]
++        reasons.append(f"RED held in {current}")
++        return current, reasons
++    if current == "SAFE" or current == "DEGRADED" or (
++            current == "WARMUP" and not warmup_ready):
++        if green_streak >= RECOVERY_STREAK:
++            target = "RUNNING"
++            if can_transition(current, target):
++                return target, [
++                    f"recovery streak {green_streak}/{RECOVERY_STREAK}"]
++        return current, [
++            f"awaiting recovery streak {green_streak}/{RECOVERY_STREAK}"]
++    if current == "WARMUP" and warmup_ready:
++        return "RUNNING", ["sensor windows ready"]
++    if current == "BOOTING":
++        return ("WARMUP", ["booting to warmup"]) if not warmup_ready else \
++               ("RUNNING", ["booting ready"])
++    if current == "COMA" and coma_recovered and green_streak >= RECOVERY_STREAK:
++        return "WARMUP", ["coma recovery evidence + streak"]
++    if degraded_inputs:
++        if can_transition(current, "DEGRADED"):
++            return "DEGRADED", ["non-vital sensor/provider degraded"]
++        return current, reasons + [f"degraded held in {current}"]
++    return current, ["no change"]
+diff --git a/_ops/heart/store.py b/_ops/heart/store.py
+new file mode 100644
+index 0000000..7fb7072
+--- /dev/null
++++ b/_ops/heart/store.py
+@@ -0,0 +1,301 @@
++#!/usr/bin/env python3
++"""heart/store.py — Heart v2 Gate 1:HeartStore ترابزنشی روی همان chrono.db.
++
++قراردادها (طرح مصوب 2026-08-24 + اصلاحات بازبینی):
++  · جداول heart_* در همان chrono.db؛ user_version دست‌نخورده (heart_schema_meta مستقل).
++  · نویسنده فقط با BEGIN IMMEDIATE؛ خواننده با PRAGMA query_only=1؛ ATTACH ممنوع؛
++    هیچ network/file I/O داخل تراکنش.
++  · مدل زمان چهارگانه: boot_id + run_id + mono_ns + wall_utc + seq — ترتیب فقط با seq؛
++    mono_ns تنها در همان boot/run قابل مقایسه است.
++  · Genesis beat 0: یک‌بار، idempotent — snapshot وضعیت فعلی را import می‌کند،
++    تاریخ گذشته جعل نمی‌شود.
++  · effectively-once: خواندن/نوشتن رفت‌وبرگشت با idempotency_key یکتا.
++$0 · stdlib · fail-closed روی نویسنده، fail-soft روی خواننده.
++"""
++from __future__ import annotations
++
++import json
++import os
++import sqlite3
++import threading
++import time
++import uuid
++from datetime import datetime, timezone
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++_OPS = _HERE.parent
++for _p in (str(_OPS / "budget"), str(_OPS)):
++    if _p not in os.sys.path:
++        os.sys.path.insert(0, _p)
++import opslib  # noqa: E402
++
++HEART_SCHEMA_VERSION = 1
++SCHEMA = """
++CREATE TABLE IF NOT EXISTS heart_schema_meta(
++  key TEXT PRIMARY KEY, value TEXT NOT NULL);
++CREATE TABLE IF NOT EXISTS heart_run(
++  run_id TEXT PRIMARY KEY, boot_id TEXT NOT NULL, started_wall TEXT NOT NULL,
++  ended_wall TEXT, status TEXT NOT NULL DEFAULT 'OPEN');
++CREATE TABLE IF NOT EXISTS heart_beat(
++  seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, beat INTEGER NOT NULL,
++  status TEXT NOT NULL CHECK (status IN ('RESERVED','RUNNING','COMMITTED','DEGRADED')),
++  mode TEXT, period_advisory_s REAL, report_json TEXT,
++  mono_ns INTEGER, wall_utc TEXT NOT NULL, UNIQUE (run_id, beat));
++CREATE TABLE IF NOT EXISTS heart_event(
++  seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, beat INTEGER NOT NULL,
++  type TEXT NOT NULL, payload_json TEXT, correlation TEXT, causation TEXT,
++  idempotency_key TEXT UNIQUE, mono_ns INTEGER, wall_utc TEXT NOT NULL);
++CREATE TABLE IF NOT EXISTS heart_outbox(
++  id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, type TEXT NOT NULL,
++  payload_json TEXT, status TEXT NOT NULL DEFAULT 'QUEUED'
++  CHECK (status IN ('QUEUED','CLAIMED','CONFIRMED','FAILED','DLQ')),
++  attempts INTEGER NOT NULL DEFAULT 0, lease_until REAL,
++  mono_ns INTEGER, wall_utc TEXT NOT NULL);
++CREATE TABLE IF NOT EXISTS heart_anchor(
++  beat INTEGER NOT NULL, ledger_tip_hash TEXT, kind TEXT NOT NULL,
++  wall_utc TEXT NOT NULL, PRIMARY KEY (beat, kind));
++"""
++_LOCK = threading.RLock()
++_STORE = None
++
++
++def _now_iso() -> str:
++    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
++
++
++def _boot_id() -> str:
++    try:
++        return f"{int(time.time())}-{uuid.uuid4().hex[:8]}"
++    except Exception:  # noqa: BLE001
++        return uuid.uuid4().hex[:12]
++
++
++class HeartStore:
++    """نویسندهٔ واحدِ قلب. هر تراکنش BEGIN IMMEDIATE + busy_timeout."""
++
++    def __init__(self, path=None, *, run_id=None, boot_id=None):
++        self.path = Path(path) if path else (opslib.STATE_DIR / "chrono.db")
++        self.path.parent.mkdir(parents=True, exist_ok=True)
++        self.run_id = run_id or f"run-{uuid.uuid4().hex[:12]}"
++        self.boot_id = boot_id or _boot_id()
++        self._con = sqlite3.connect(str(self.path), check_same_thread=False,
++                                    timeout=10.0, isolation_level=None)
++        self._con.execute("PRAGMA journal_mode=WAL")
++        self._con.execute("PRAGMA synchronous=FULL")
++        self._con.execute("PRAGMA busy_timeout=8000")
++        self._init_schema()
++        self._open_run()
++        self.genesis()
++
++    # ── init ────────────────────────────────────────────────────────────────
++    def _init_schema(self) -> None:
++        # executescript خودش commit می‌کند — بیرونِ تراکنشِ صریح اجرا شود.
++        with _LOCK:
++            self._con.executescript(SCHEMA)
++            with self._txn():
++                self._con.execute(
++                    "INSERT OR IGNORE INTO heart_schema_meta(key,value) VALUES('version',?)",
++                    (str(HEART_SCHEMA_VERSION),))
++
++    @staticmethod
++    def _ctx_txn(con):
++        class _T:
++            def __enter__(self):
++                con.execute("BEGIN IMMEDIATE")
++            def __exit__(self, *exc):
++                if exc and exc[0] is not None:
++                    try:
++                        con.execute("ROLLBACK")
++                    except sqlite3.Error:
++                        pass
++                else:
++                    con.execute("COMMIT")
++        return _T()
++
++    def _txn(self):
++        return self._ctx_txn(self._con)
++
++    def _open_run(self) -> None:
++        with _LOCK, self._txn():
++            self._con.execute(
++                "INSERT OR IGNORE INTO heart_run(run_id,boot_id,started_wall,status) "
++                "VALUES(?,?,?,'OPEN')", (self.run_id, self.boot_id, _now_iso()))
++
++    # ── Genesis beat 0 ──────────────────────────────────────────────────────
++    def genesis(self) -> dict:
++        """یک‌بار: beat 0 با snapshot زندهٔ فعلی (نه جعل تاریخ)."""
++        anchor_period = None
++        try:
++            arb = json.loads((opslib.STATE_DIR / "pulse" / "arbiter-latest.json")
++                             .read_text("utf-8-sig"))
++            anchor_period = arb.get("effective_period_s")
++        except Exception:  # noqa: BLE001
++            anchor_period = None
++        tip_hash = None
++        try:
++            tip = json.loads((opslib.GENOME_DIR / "ledger" / "ledger.jsonl.tip.json")
++                             .read_text("utf-8-sig"))
++            tip_hash = tip.get("tip_hash")
++        except Exception:  # noqa: BLE001
++            tip_hash = None
++        with _LOCK, self._txn():
++            cur = self._con.execute(
++                "INSERT OR IGNORE INTO heart_beat(run_id,beat,status,mode,"
++                "period_advisory_s,report_json,mono_ns,wall_utc) "
++                "VALUES(?,0,'COMMITTED','GENESIS',?,?,?,?)",
++                (self.run_id, anchor_period, json.dumps({
++                    "kind": "genesis", "imported_period_s": anchor_period,
++                    "ledger_tip_hash": tip_hash}, ensure_ascii=False),
++                 time.monotonic_ns(), _now_iso()))
++            if cur.rowcount == 1:
++                self._con.execute(
++                    "INSERT OR IGNORE INTO heart_event(run_id,beat,type,payload_json,"
++                    "idempotency_key,mono_ns,wall_utc) VALUES(?,0,'genesis',?, 'genesis',?,?)",
++                    (self.run_id, json.dumps({"imported_period_s": anchor_period,
++                                              "ledger_tip_hash": tip_hash},
++                                             ensure_ascii=False),
++                     time.monotonic_ns(), _now_iso()))
++                return {"genesis": True, "imported_period_s": anchor_period}
++            return {"genesis": False, "already_present": True}
++
++    # ── beat lifecycle ──────────────────────────────────────────────────────
++    def begin_beat(self, beat: int, *, mode=None, period_advisory_s=None) -> bool:
++        with _LOCK, self._txn():
++            cur = self._con.execute(
++                "INSERT OR IGNORE INTO heart_beat(run_id,beat,status,mode,"
++                "period_advisory_s,mono_ns,wall_utc) VALUES(?,?, 'RESERVED',?,?,?,?)",
++                (self.run_id, int(beat), mode, period_advisory_s,
++                 time.monotonic_ns(), _now_iso()))
++            if cur.rowcount != 1:
++                return False
++            self._con.execute(
++                "UPDATE heart_beat SET status='RUNNING' "
++                "WHERE run_id=? AND beat=? AND status='RESERVED'",
++                (self.run_id, int(beat)))
++            return True
++
++    def commit_beat(self, beat: int, *, mode=None, period_advisory_s=None,
++                    report=None, degraded: bool = False) -> bool:
++        status = "DEGRADED" if degraded else "COMMITTED"
++        with _LOCK, self._txn():
++            cur = self._con.execute(
++                "UPDATE heart_beat SET status=?, mode=?, period_advisory_s=?, "
++                "report_json=?, wall_utc=? WHERE run_id=? AND beat=? "
++                "AND status IN ('RESERVED','RUNNING','DEGRADED')",
++                (status, mode, period_advisory_s,
++                 json.dumps(report or {}, ensure_ascii=False), _now_iso(),
++                 self.run_id, int(beat)))
++            return cur.rowcount == 1
++
++    # ── events / outbox (idempotent) ────────────────────────────────────────
++    def emit(self, beat: int, type_: str, payload: dict, *,
++             correlation: str = "", causation: str = "",
++             idempotency_key: str = "") -> "int | None":
++        key = idempotency_key or f"{type_}:{beat}:{uuid.uuid4().hex[:8]}"
++        with _LOCK, self._txn():
++            cur = self._con.execute(
++                "INSERT OR IGNORE INTO heart_event(run_id,beat,type,payload_json,"
++                "correlation,causation,idempotency_key,mono_ns,wall_utc) "
++                "VALUES(?,?,?,?,?,?,?,?,?)",
++                (self.run_id, int(beat), type_,
++                 json.dumps(payload or {}, ensure_ascii=False),
++                 correlation, causation, key, time.monotonic_ns(), _now_iso()))
++            return cur.lastrowid if cur.rowcount == 1 else None
++
++    def enqueue(self, beat: int, type_: str, payload: dict) -> "int | None":
++        with _LOCK, self._txn():
++            cur = self._con.execute(
++                "INSERT INTO heart_outbox(run_id,type,payload_json,mono_ns,wall_utc) "
++                "VALUES(?,?,?,?,?)",
++                (self.run_id, type_, json.dumps(payload or {}, ensure_ascii=False),
++                 time.monotonic_ns(), _now_iso()))
++            return cur.lastrowid
++
++    def claim_outbox(self, *, limit: int = 8, lease_s: float = 120.0) -> list:
++        now = time.time()
++        with _LOCK, self._txn():
++            rows = self._con.execute(
++                "SELECT id,type,payload_json FROM heart_outbox "
++                "WHERE status='QUEUED' OR (status='CLAIMED' AND lease_until<?) "
++                "ORDER BY id LIMIT ?", (now, int(limit))).fetchall()
++            out = []
++            for rid, type_, payload in rows:
++                self._con.execute(
++                    "UPDATE heart_outbox SET status='CLAIMED', attempts=attempts+1, "
++                    "lease_until=? WHERE id=?", (now + lease_s, rid))
++                out.append({"id": rid, "type": type_, "payload": payload})
++            return out
++
++    def confirm_outbox(self, outbox_id: int, *, failed: bool = False,
++                       dlq: bool = False) -> None:
++        status = ("DLQ" if dlq else "FAILED" if failed else "CONFIRMED")
++        with _LOCK, self._txn():
++            self._con.execute(
++                "UPDATE heart_outbox SET status=?, lease_until=NULL WHERE id=?",
++                (status, int(outbox_id)))
++
++    # ── anchors ─────────────────────────────────────────────────────────────
++    def anchor(self, beat: int, ledger_tip_hash: str, kind: str = "daily") -> None:
++        with _LOCK, self._txn():
++            self._con.execute(
++                "INSERT OR REPLACE INTO heart_anchor(beat,ledger_tip_hash,kind,wall_utc) "
++                "VALUES(?,?,?,?)", (int(beat), ledger_tip_hash, kind, _now_iso()))
++
++    # ── read-side (query_only جدا) ──────────────────────────────────────────
++    def reader(self) -> sqlite3.Connection:
++        con = sqlite3.connect(str(self.path), check_same_thread=False, timeout=5.0)
++        con.execute("PRAGMA query_only=1")
++        con.execute("PRAGMA busy_timeout=5000")
++        return con
++
++    def latest_mode(self) -> "tuple[int, str]":
++        con = self.reader()
++        try:
++            row = con.execute(
++                "SELECT beat, mode FROM heart_beat "
++                "WHERE status IN ('COMMITTED','DEGRADED') AND mode IS NOT NULL "
++                "ORDER BY beat DESC LIMIT 1").fetchone()
++            return (row[0], row[1]) if row else (0, "GENESIS")
++        finally:
++            con.close()
++
++    def counts(self) -> dict:
++        con = self.reader()
++        try:
++            beats = con.execute("SELECT COUNT(*), MAX(beat) FROM heart_beat").fetchone()
++            evs = con.execute("SELECT COUNT(*) FROM heart_event").fetchone()[0]
++            ob = dict(con.execute(
++                "SELECT status, COUNT(*) FROM heart_outbox GROUP BY status").fetchall())
++            return {"beats": beats[0], "max_beat": beats[1],
++                    "events": evs, "outbox": ob}
++        finally:
++            con.close()
++
++    def close(self) -> None:
++        with _LOCK:
++            try:
++                self._con.execute(
++                    "UPDATE heart_run SET status='CLOSED', ended_wall=? "
++                    "WHERE run_id=?", (_now_iso(), self.run_id))
++                self._con.close()
++            except sqlite3.Error:
++                pass
++
++
++def get_store() -> "HeartStore | None":
++    """singleton lazy — fail-soft: نبودش tick را نمی‌کشد (caller باید None را بپذیرد)."""
++    global _STORE
++    try:
++        if _STORE is None:
++            _STORE = HeartStore()
++        return _STORE
++    except Exception:  # noqa: BLE001
++        return None
++
++
++if __name__ == "__main__":
++    s = HeartStore()
++    print(json.dumps({"run": s.run_id, "genesis": s.genesis(), "counts": s.counts()},
++                     ensure_ascii=False, indent=2))
++    s.close()
+diff --git a/_ops/memory/continuity.py b/_ops/memory/continuity.py
+new file mode 100644
+index 0000000..62f219f
+--- /dev/null
++++ b/_ops/memory/continuity.py
+@@ -0,0 +1,199 @@
++#!/usr/bin/env python3
++"""memory/continuity.py — «هرگز گم نشود»: backup اتمیک + خودزندگی‌نامه در Obsidian.
++
++· snapshot فقط با SQLite Online Backup API (کپی خام DB زنده/WAL ممنوع).
++· manifest با checksum دیسک + tip ژنوم + نسخه‌ها؛ بازیابی از temp تست می‌شود.
++· پروجکشن Obsidian: _memory/OCTOPUS/NOW.md + AUTOBIOGRAPHY/YYYY/YYYY-MM-DD.md —
++  idempotent، بخش مالک هرگز بازنویسی نمی‌شود؛ append-only با مهر beat.
++"""
++from __future__ import annotations
++
++import datetime as dt
++import hashlib
++import json
++import os
++import sqlite3
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++_OPS = _HERE.parent
++import sys
++for _p in (str(_OPS / "budget"), str(_OPS)):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++import opslib  # noqa: E402
++
++BACKUP_DIR = opslib.STATE_DIR / "heart-v2-backups"
++MEM_DIR = _OPS.parent / "_memory" / "OCTOPUS"
++MARKER = opslib.STATE_DIR / "pulse" / "continuity-last.json"
++DAILY_BACKUP = True
++KEEP = 7
++
++
++def _sha256_file(p: Path) -> "str | None":
++    try:
++        h = hashlib.sha256()
++        with p.open("rb") as f:
++            for chunk in iter(lambda: f.read(65536), b""):
++                h.update(chunk)
++        return h.hexdigest()
++    except OSError:
++        return None
++
++
++def backup_db(dest: Path) -> "dict":
++    """snapshot اتمیک chrono.db از طریق backup API (WAL-aware)."""
++    src = opslib.STATE_DIR / "chrono.db"
++    dest.parent.mkdir(parents=True, exist_ok=True)
++    if not src.exists():
++        return {"ok": False, "reason": "no chrono.db"}
++    try:
++        s = sqlite3.connect(str(src))
++        d = sqlite3.connect(str(dest))
++        with d:
++            s.backup(d)
++        d.close()
++        s.close()
++        return {"ok": True, "sha256": _sha256_file(dest),
++                "size": dest.stat().st_size}
++    except sqlite3.Error as e:
++        return {"ok": False, "reason": f"{type(e).__name__}"}
++
++
++def _prune() -> None:
++    try:
++        snaps = sorted(BACKUP_DIR.glob("chrono-*.db"))
++        for old in snaps[:-KEEP]:
++            old.unlink(missing_ok=True)
++    except OSError:
++        pass
++
++
++def _genome_tip() -> dict:
++    try:
++        tip = json.loads((opslib.GENOME_DIR / "ledger" / "ledger.jsonl.tip.json")
++                         .read_text("utf-8-sig"))
++        return {k: tip.get(k) for k in ("n", "tip_hash")}
++    except Exception:  # noqa: BLE001
++        return {}
++
++
++def _drill_restore(snap: Path) -> "dict":
++    """بازیابی به temp و بازکردن فقط‌خواندنی — اثبات قابل‌بازگشت بودن."""
++    tmp = snap.with_suffix(".restore-drill.db")
++    try:
++        if tmp.exists():
++            tmp.unlink()
++        con = sqlite3.connect(f"file:{snap.as_posix()}?mode=ro", uri=True)
++        tables = [r[0] for r in con.execute(
++            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
++        con.close()
++        return {"ok": True, "tables": len(tables)}
++    except sqlite3.Error as e:
++        return {"ok": False, "reason": f"{type(e).__name__}"}
++    finally:
++        try:
++            tmp.unlink(missing_ok=True)
++        except OSError:
++            pass
++
++
++def _now_projection(state: dict) -> str:
++    lines = [
++        "---", "type: organism-now", "schema: octopus-now/1",
++        f"updated: {state.get('ts')}", f"beat: {state.get('beat')}",
++        "---", "",
++        "# OCTOPUS — الان",
++        "",
++        f"- **حالت:** {state.get('mode')} (قبلاً {state.get('mode_prev')})",
++        f"- **beat:** {state.get('beat')} · streak سبز: {state.get('green_streak')}",
++        f"- **period advisory:** {state.get('period_advisory_s')}s "
++        "(زنده: pulse_arbiter با anchor G4)",
++        f"- **مغز:** ok={state.get('brain_stats', {}).get('ok')} "
++        f"degraded={state.get('brain_stats', {}).get('degraded')}",
++        f"- **store:** beats={state.get('store_counts', {}).get('beats')} "
++        f"events={state.get('store_counts', {}).get('events')}",
++        "", "<!-- ماشین‌نوشت؛ بخش مالک زیر خط است -->", "",
++    ]
++    return "\n".join(lines)
++
++
++def _autobiography_entry(state: dict) -> "str | None":
++    mode = state.get("mode")
++    if mode in (None, "", "GENESIS", "BOOTING"):
++        return None
++    day = dt.date.today()
++    stamp = f"- **{state.get('ts')}** · beat {state.get('beat')} → حالت **{mode}**" \
++            f" (از {state.get('mode_prev')}) · streak {state.get('green_streak')}"
++    return f"{day.isoformat()}\n{stamp}\n"
++
++
++def project(state: dict) -> dict:
++    """پروجکشن Obsidian — فقط بخش ماشین؛ محتوای مالک دست‌نخورده."""
++    wrote = []
++    try:
++        MEM_DIR.mkdir(parents=True, exist_ok=True)
++        now = MEM_DIR / "NOW.md"
++        if not now.exists():
++            now.write_text("", encoding="utf-8")
++        text = now.read_text("utf-8")
++        machine = _now_projection(state)
++        if "<!-- ماشین‌نوشت" in text:
++            head = text.split("<!-- ماشین‌نوشت", 1)[0]
++            owner = text.split("<!-- ماشین‌نوشت", 1)[1]
++            new = machine + "<!-- ماشین‌نوشت" + owner
++        else:
++            new = machine + text
++        tmp = now.with_suffix(".tmp")
++        tmp.write_text(new, encoding="utf-8")
++        os.replace(tmp, now)
++        wrote.append("NOW.md")
++
++        entry = _autobiography_entry(state)
++        if entry:
++            day_line, stamp = entry.split("\n", 1)
++            ab = MEM_DIR / "AUTOBIOGRAPHY" / str(dt.date.today().year) / \
++                f"{dt.date.today().isoformat()}.md"
++            ab.parent.mkdir(parents=True, exist_ok=True)
++            body = ab.read_text("utf-8") if ab.exists() else \
++                f"---\ntype: autobiography\nday: {day_line}\n---\n\n## {day_line}\n"
++            if stamp not in body:
++                if not body.endswith("\n"):
++                    body += "\n"
++                body += stamp
++                tmp = ab.with_suffix(".tmp")
++                tmp.write_text(body, encoding="utf-8")
++                os.replace(tmp, ab)
++                wrote.append(ab.name)
++    except OSError:
++        pass
++    return {"projected": wrote}
++
++
++def tick(beat: int) -> dict:
++    """فراخوان از HEAL organ — روزی یک backup؛ پروجکشن هر بار (ارزان)."""
++    from heart import runtime as hrt   # circular-safe: خواندن projection
++    state = hrt.read_latest() or {}
++    out = {"beat": beat, "projected": project(state).get("projected", [])}
++    today = dt.date.today().isoformat()
++    try:
++        last = json.loads(MARKER.read_text("utf-8-sig"))
++    except (OSError, ValueError):
++        last = {}
++    if DAILY_BACKUP and last.get("day") != today:
++        snap = BACKUP_DIR / f"chrono-{today}-{int(time.time())}.db"
++        res = backup_db(snap)
++        if res.get("ok"):
++            drill = _drill_restore(snap)
++            _prune()
++            out["backup"] = {"sha256": res.get("sha256"), "size": res.get("size"),
++                             "restore_drill": drill, "genome_tip": _genome_tip()}
++            MARKER.parent.mkdir(parents=True, exist_ok=True)
++            tmp = MARKER.with_suffix(".tmp")
++            tmp.write_text(json.dumps({"day": today, "ts": opslib.now_iso()},
++                                      ensure_ascii=False), "utf-8")
++            os.replace(tmp, MARKER)
++        else:
++            out["backup"] = res
++    return out
+diff --git a/_ops/organism.py b/_ops/organism.py
+index 427b7f2..b7321bb 100644
+--- a/_ops/organism.py
++++ b/_ops/organism.py
+@@ -523,6 +523,31 @@ def main() -> int:
+                                                          sched=_beat_sched)
+         except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
+             pass
++        # ── Heart v2 (Gate 1، رأی مالک 2026-08-25 «همرو بیار به دنیای واقعی»):
++        # ضربان واحد روی BeatScheduler موجود با organهای SENSE/RECORD/THINK/HEAL.
++        # Genesis beat 0 + ژورنال ترابزنشی heart_* در همان chrono.db؛ FSM حیات؛
++        # مغز مشاور DeepSeek (advisory-only)؛ ACT عمداً ثبت نشده (صفر اثر خارجی).
++        # پشتِ OCTOPUS_WIRE_HEART_V2 یا ACTIVATION-HEART-V2.flag (owner-gated).
++        # fail-soft مطلق: نبود/خطای قلب v2 هرگز تیک را نمی‌کشد.
++        try:
++            from heart import runtime as _hrt
++            if _hrt.enabled():
++                _hv2 = _hrt.tick(beat=int(((_cstat or {}).get("beat")) or 0))
++                if _hv2 is not None:
++                    _hv2_proj = _hrt.read_latest() or {}
++                    pulse["heart_v2"] = {
++                        "beat": _hv2_proj.get("beat"),
++                        "mode": _hv2_proj.get("mode"),
++                        "mode_prev": _hv2_proj.get("mode_prev"),
++                        "green_streak": _hv2_proj.get("green_streak"),
++                        "period_advisory_s": _hv2_proj.get("period_advisory_s"),
++                        "wake_brain": _hv2_proj.get("wake_brain"),
++                        "brain_stats": _hv2_proj.get("brain_stats"),
++                        "store_counts": _hv2_proj.get("store_counts"),
++                        "advisory_only": True,
++                    }
++        except Exception:  # noqa: BLE001 — §۴: قلب v2 هرگز تیک را نمی‌کشد
++            opslib.alert(["heart-v2 tick error (non-fatal)"])
+         try:
+             import orphan_watchdog as _ow_obs  # noqa: WPS433
+             _ow_obs.tick(observe_only=True)
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index da6561f..fc764a1 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -931,7 +931,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+     "test_selfmap_memory_surface.py",         # حافظهٔ بلندمدت — بالأخره یک سطح دارد
+     "test_hebbian_cockpit_tab.py",            # تبِ brain/hebbian با هر تپ کرش می‌کرد
+     "test_selfknow_vault_propose.py",         # تشخیصِ پایدار → propose ِ vault، هرگز apply
+-    "test_pulse_arbiter_wire_readiness.py",   # آمادگیِ سیمِ داور — سه‌قلب واقعاً سینک شد
++    "test_pulse_arbiter_wire_readiness.py",   # آمادگیِ سیمِ داور — authority guard + baseline hold
++    "test_pulse_arbiter_authority.py",        # G4: shadow observable، هرگز live-authoritative
++    "test_heart_v2.py",                       # Gate 1: HeartStore + FSM + kernel + runtime
+     # ── 2026-08-05: ۵۱ فایلِ ثبت‌نشده، رأیِ مالک «فعالشان کن و تست کن» ──────
+     #
+     # هر ۵۱ تا با **همان محیطِ runner** اجرا شدند (`_isolation_boot` روی
+diff --git a/_ops/tests/test_heart_v2.py b/_ops/tests/test_heart_v2.py
+new file mode 100644
+index 0000000..e0062f9
+--- /dev/null
++++ b/_ops/tests/test_heart_v2.py
+@@ -0,0 +1,283 @@
++#!/usr/bin/env python3
++"""test_heart_v2.py — Gate 1: HeartStore + FSM + kernel + runtime + continuity.
++
++همه در sandbox harness؛ هیچ state زنده نوشته نمی‌شود.
++"""
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++
++ENV = harness.setup("heart-v2")
++_OPS = harness.SELF_OPS
++for _p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "heart"), str(_OPS / "cortex"),
++           str(_OPS / "memory")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import opslib  # noqa: E402
++from heart import state_machine as fsm  # noqa: E402
++from heart import kernel as hk          # noqa: E402
++
++
++# ═══ HeartStore ═══
++def _store():
++    from heart import store as st
++    return st.HeartStore(opslib.STATE_DIR / "chrono.db")
++
++
++def t_genesis_once_and_idempotent():
++    s = _store()
++    g1 = s.genesis()
++    g2 = s.genesis()
++    assert g1.get("genesis") in (True, False)      # بوت دوباره → already
++    assert g2["genesis"] is False and g2["already_present"] is True
++    c = s.counts()
++    assert c["max_beat"] >= 0
++    row = s.reader().execute(
++        "SELECT beat, status, mode FROM heart_beat WHERE beat=0").fetchone()
++    assert row and row[0] == 0 and row[1] == "COMMITTED" and row[2] == "GENESIS"
++    s.close()
++
++
++def t_beat_lifecycle_and_unique_per_run():
++    s = _store()
++    assert s.begin_beat(1) is True
++    assert s.begin_beat(1) is False            # تکرار در همان run رد می‌شود
++    assert s.commit_beat(1, mode="RUNNING", period_advisory_s=96.4) is True
++    assert s.commit_beat(1, mode="RUNNING") is False   # دوباره commit نمی‌شود
++    assert s.commit_beat(2, mode="RUNNING") is False   # بدون reserve
++    s.close()
++
++
++def t_event_idempotency():
++    s = _store()
++    a = s.emit(1, "x.y", {"k": 1}, idempotency_key="fixed")
++    b = s.emit(1, "x.y", {"k": 1}, idempotency_key="fixed")
++    assert a is not None and b is None
++    s.close()
++
++
++def t_outbox_claim_confirm_dlq():
++    s = _store()
++    oid = s.enqueue(1, "notify", {"m": "hi"})
++    assert oid is not None
++    items = s.claim_outbox()
++    assert any(i["id"] == oid for i in items)
++    assert all(i["id"] != oid for i in s.claim_outbox())   # lease گرفته
++    s.confirm_outbox(oid)
++    s.confirm_outbox(oid, dlq=True)            # CONFIRMED → DLQ مجاز (بازبینی دستی)
++    assert s.counts()["outbox"].get("DLQ") == 1
++    s.close()
++
++
++def t_time_model_seq_ordering():
++    s = _store()
++    s.begin_beat(3); s.commit_beat(3, mode="RUNNING")
++    rows = s.reader().execute(
++        "SELECT seq, run_id, boot_id FROM heart_run JOIN heart_beat "
++        "USING(run_id) WHERE beat=3").fetchall()
++    assert rows and rows[0][1] and rows[0][2]
++    ev = s.reader().execute(
++        "SELECT COUNT(*) FROM heart_event WHERE idempotency_key='genesis'").fetchone()
++    assert ev[0] == 1
++    s.close()
++
++
++# ═══ FSM ═══
++def t_no_threat_to_capability_edge_exists():
++    # COMA هیچ یال مستقیم به توان بالاتر ندارد؛ DORMANT terminal است؛
++    # بازگشت SAFE/DEGRADED فقط از مسیر streak-gatedِ assess_transition است
++    # (تست جداگانهٔ t_recovery_needs_streak).
++    assert not fsm.can_transition("COMA", "RUNNING")
++    assert not fsm.can_transition("DORMANT", "RUNNING")
++    assert not fsm.can_transition("DORMANT", "WARMUP")
++    assert not fsm.can_transition("GENESIS", "RUNNING")   # فقط از BOOTING
++    m, _ = fsm.assess_transition("COMA", green_streak=99)
++    assert m == "COMA"                                     # بدون coma_recovered
++    assert fsm.can_transition("BOOTING", "WARMUP")
++
++
++def t_kill_supreme_from_every_state():
++    for cur in fsm.STATES:
++        mode, why = fsm.assess_transition(cur, kill=True)
++        assert mode == "DORMANT", (cur, mode)
++
++
++def t_recovery_needs_streak():
++    m, why = fsm.assess_transition("SAFE", red=False, green_streak=1)
++    assert m == "SAFE"
++    m, _ = fsm.assess_transition("SAFE", red=False, green_streak=fsm.RECOVERY_STREAK)
++    assert m == "RUNNING"
++    m, _ = fsm.assess_transition("DEGRADED", degraded_inputs=False, green_streak=0)
++    assert m == "DEGRADED"          # بدون streak برنمی‌گردد
++    m, _ = fsm.assess_transition("DEGRADED", green_streak=fsm.RECOVERY_STREAK)
++    assert m == "RUNNING"
++
++
++def t_red_goes_safe_journal_failure_coma():
++    assert fsm.assess_transition("RUNNING", red=True)[0] == "SAFE"
++    assert fsm.assess_transition("RUNNING", journal_failure=True)[0] == "COMA"
++    assert fsm.assess_transition("WARMUP", journal_failure=True)[0] == "COMA"
++
++
++# ═══ Kernel ═══
++def _obs(**over):
++    base = [
++        {"metric": "organism.beat", "value": 100, "unit": "count",
++         "age_s": 5.0, "quality": "VALID", "source": "t"},
++        {"metric": "organism.halted", "value": None, "unit": "flag",
++         "age_s": 5.0, "quality": "VALID", "source": "t"},
++        {"metric": "organism.sleep_s", "value": 96.0, "unit": "s",
++         "age_s": 5.0, "quality": "VALID", "source": "t"},
++        {"metric": "pulse.effective_period_s", "value": 96.0, "unit": "s",
++         "age_s": 5.0, "quality": "VALID", "source": "t"},
++        {"metric": "vitals.stress", "value": 0.2, "unit": "0..1",
++         "age_s": 5.0, "quality": "VALID", "source": "t"},
++        {"metric": "disk.write_failures_1h", "value": 0, "unit": "count",
++         "age_s": 0.0, "quality": "VALID", "source": "t"},
++    ]
++    for k, v in over.items():
++        for o in base:
++            if o["metric"] == k:
++                o.update(v if isinstance(v, dict) else {"value": v})
++    return base
++
++
++def t_kernel_boot_to_running_then_stable():
++    o1 = hk.assess(_obs(), current_mode="BOOTING", beat=1)
++    assert o1["mode"] in ("WARMUP", "RUNNING")
++    o2 = hk.assess(_obs(), current_mode="WARMUP", beat=hk.WARMUP_MIN_BEATS + 1)
++    assert o2["mode"] == "RUNNING"
++    o3 = hk.assess(_obs(), current_mode="RUNNING", beat=99)
++    assert o3["mode"] == "RUNNING" and o3["green_streak"] >= 1
++    assert o3["period_advisory_s"] == 96.0     # advisory فقط گزارش می‌دهد
++    assert o3["wake_brain"] is False or o3["wake_reasons"]
++
++
++def t_kernel_missing_is_not_zero_and_degraded():
++    o = _obs()
++    o[3]["quality"] = "MISSING"
++    o[3]["value"] = None
++    out = hk.assess(o, current_mode="RUNNING", beat=10)
++    assert out["n_missing"] == 1 and out["degraded_inputs"] is False  # آستانه ۲
++    o2 = _obs()
++    o2[2]["quality"] = "MISSING"; o2[2]["value"] = None
++    o2[3]["quality"] = "MISSING"; o2[3]["value"] = None
++    out2 = hk.assess(o2, current_mode="RUNNING", beat=10)
++    assert out2["degraded_inputs"] is True
++
++
++def t_kernel_write_failures_red_and_journal():
++    out = hk.assess(_obs(**{"disk.write_failures_1h": hk.RED_WRITE_FAILURES}),
++                    current_mode="RUNNING", beat=10)
++    assert out["red"] is True and out["mode"] == "SAFE"
++    out2 = hk.assess(_obs(**{"disk.write_failures_1h": 99}),
++                     current_mode="RUNNING", beat=11)
++    assert out2["mode"] == "COMA"
++
++
++def t_kernel_wake_is_event_driven_not_every_beat():
++    o = hk.assess(_obs(), current_mode="RUNNING", beat=50, prev_wake_beat=49)
++    assert o["wake_brain"] is False            # نه هر beat
++    o2 = hk.assess(_obs(), current_mode="RUNNING", beat=50 + hk.BRAIN_WAKE_EVERY_N)
++    assert o2["wake_brain"] is True and any("periodic" in r for r in o2["wake_reasons"])
++    o3 = hk.assess(_obs(**{"vitals.stress": 0.8}), current_mode="RUNNING", beat=5)
++    assert o3["wake_brain"] is True
++    o4 = hk.assess(_obs(), current_mode="SAFE", beat=5 + hk.BRAIN_WAKE_EVERY_N)
++    assert o4["wake_brain"] is False           # زیر SAFE بیداری شناختی نیست
++
++
++def t_kernel_kill_halt_dormant():
++    out = hk.assess(_obs(**{"organism.halted": "HALT-ALL"}),
++                    current_mode="RUNNING", beat=9)
++    assert out["mode"] == "DORMANT"
++
++
++# ═══ Runtime (scheduler واحد) ═══
++def t_runtime_flag_off_noop_and_on_registers():
++    from heart import runtime as hrt
++    import os
++    os.environ.pop(hrt.FLAG_ENV, None)
++    if hrt.FLAG_FILE.exists():
++        hrt.FLAG_FILE.unlink()
++    assert hrt.enabled() is False and hrt.get_scheduler() is None
++    os.environ[hrt.FLAG_ENV] = "1"
++    try:
++        sched = hrt.get_scheduler()
++        assert sched is not None
++        names = {o.name for o in sched._organs}
++        assert {"heart-sense", "heart-assess", "heart-brain",
++                "heart-memory", "heart-heal"} <= names
++        assert not any(o.phase == "ACT" for o in sched._organs)   # صفر اثر خارجی
++        r = hrt.tick()
++        assert r is not None and r.get("committed") in (True, False)
++        latest = hrt.read_latest()
++        assert latest.get("schema") == "heart-v2/1"
++        assert latest.get("advisory_only") is True
++    finally:
++        os.environ.pop(hrt.FLAG_ENV, None)
++
++
++def t_runtime_respects_stop():
++    from heart import runtime as hrt
++    import os
++    os.environ[hrt.FLAG_ENV] = "1"
++    try:
++        opslib.STOP_ORGANISM.write_text("stop", "utf-8")
++        assert hrt.tick() is None
++    finally:
++        opslib.STOP_ORGANISM.unlink(missing_ok=True)
++        os.environ.pop(hrt.FLAG_ENV, None)
++
++
++# ═══ Brain (advisory-only) ═══
++def t_brain_parser_forces_non_executable_and_caps():
++    import heart_brain as hb
++    parsed = hb._parse_model_json(
++        'noise {"assessment":"ok","questions":[],"proposals":[{"capability":"x"}]} tail')
++    assert parsed and parsed["proposals"][0]["executable"] is False
++    assert hb._parse_model_json("not json at all") is None
++
++
++def t_brain_skips_when_not_woken():
++    import heart_brain as hb
++    rec = hb.wake({"wake_brain": False}, [], beat=1)
++    assert rec["status"] == "SKIPPED"
++
++
++# ═══ Continuity ═══
++def t_continuity_backup_drill_and_projection():
++    from memory import continuity as hc
++    # یک chrono کوچک برای backup
++    import sqlite3
++    src = opslib.STATE_DIR / "chrono.db"
++    if not src.exists():
++        con = sqlite3.connect(str(src)); con.execute(
++            "CREATE TABLE IF NOT EXISTS x(a)"); con.commit(); con.close()
++    snap = hc.BACKUP_DIR / "chrono-test-1.db"
++    res = hc.backup_db(snap)
++    assert res["ok"] and res.get("sha256")
++    assert hc._drill_restore(snap)["ok"] is True
++    proj = hc.project({"ts": "2026-08-25T12:00:00", "beat": 5, "mode": "RUNNING",
++                       "mode_prev": "WARMUP", "green_streak": 2,
++                       "period_advisory_s": 96.0,
++                       "brain_stats": {"ok": 1, "degraded": 0},
++                       "store_counts": {"beats": 5, "events": 2}})
++    assert "NOW.md" in proj["projected"]
++    now_md = (hc.MEM_DIR / "NOW.md").read_text("utf-8")
++    assert "RUNNING" in now_md and "بازنویسی" not in now_md.split("ماشین‌نوشت")[0]
++    ab = hc.MEM_DIR / "AUTOBIOGRAPHY" / str(__import__("datetime").date.today().year)
++    assert ab.exists()
++
++
++if __name__ == "__main__":
++    checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
++    failed = harness.run(checks)
++    print(f"\n{'OK' if not failed else 'FAIL'} test_heart_v2: "
++          f"{len(checks) - failed}/{len(checks)}")
++    sys.exit(1 if failed else 0)
+diff --git a/_ops/watchdog.py b/_ops/watchdog.py
+index d8acece..5100718 100644
+--- a/_ops/watchdog.py
++++ b/_ops/watchdog.py
+@@ -393,5 +393,16 @@ if __name__ == "__main__":
+         # پس هیچ PS1ی این خروجی را با verdictِ احیا اشتباه نمی‌گیرد.
+         _text = " ".join(_argv[1:]).strip() or "WATCHDOG: (پیامِ خالی)"
+         print("ALERTED" if notify([_text]) else "ALERT-FAILED")
++    elif _argv and _argv[0] == "--json":
++        # Heart v2 (2026-08-25): verdict ماشین‌خوان برای دوقلوی PowerShell تا
++        # تشخیصِ استالِ کانونی (این ماژول) در تولید اجرا شود — رفعِ split-brain.
++        m = monitor()
++        print(json.dumps({"should_revive": m["should_revive"],
++                          "stall": m["stall"],
++                          "stall_cause": m["stall_cause"],
++                          "reason": m["reason"],
++                          "stop_flag": m["stop_flag"],
++                          "port_alive": m["port_alive"],
++                          "beat_age_s": m["beat_age_s"]}, ensure_ascii=False))
+     else:
+         print(revive_action())

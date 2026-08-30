@@ -1,0 +1,20 @@
+{
+  "schema": "controlled-restart-post/2",
+  "ts": "2026-08-22T14:47:33.031117+10:00",
+  "old_pid": 26484,
+  "old_commit": "9f8df61",
+  "new_pid": 14856,
+  "new_commit": "2ab0eb8725653b02c19b316dc136347af26465c2",
+  "short_build_id": "2ab0eb8/typed-v1",
+  "single_poller": true,
+  "poll_health": {
+    "reason": "lease:duplicate-consumer",
+    "fails": 4816,
+    "counters": {
+      "poll_started_total": 12760,
+      "poll_completed_total": 2518,
+      "poll_empty_total": 2517
+    }
+  },
+  "live_send_spray": false
+}

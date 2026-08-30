@@ -235,6 +235,11 @@ def t_k_100_consecutive_config_stalls_keep_cache_and_workers_bounded():
     pfile = _fake_config(root, {"last_offset": 1})
     center._CONFIG_MANAGER = None
     assert center._load_config().get("last_offset") == 1
+    # Stress the pool, not the production 3s wall-clock budget: 100 serial waits at
+    # 3s are a guaranteed ~300s runner timeout and prove nothing about boundedness.
+    # ConfigManager deliberately supports an injected reader; use the same bounded
+    # worker path with a 50ms test deadline so saturation/recovery is exercised fast.
+    center._CONFIG_MANAGER._reader = lambda path: bio.read_text(path, timeout_s=0.05)
     real_read = Path.read_text
 
     def stalled(self, *a, **k):
@@ -244,7 +249,11 @@ def t_k_100_consecutive_config_stalls_keep_cache_and_workers_bounded():
     Path.read_text = stalled
     try:
         for i in range(100):
-            pfile.write_text(json.dumps({"last_offset": i + 2}), encoding="utf-8")
+            # Bypass the monkeypatched *read* fixture when changing the generation;
+            # Path.write_text itself delegates through Path.open and was sleeping 10s
+            # per iteration in the old test, so the test accidentally stalled writes too.
+            with pfile.open("w", encoding="utf-8") as fh:
+                fh.write(json.dumps({"last_offset": i + 2}))
             cfg = center._load_config()
             assert cfg.get("last_offset") == 1, "last-known-good must survive"
         assert bio.active_worker_count() <= 4

@@ -1,0 +1,29 @@
+{
+  "gap": "G03",
+  "stamp_local": "2026-08-23T09:06:00+10:00",
+  "slice": "LAPTOP",
+  "status": "PASS",
+  "verdict": "EXPIRED orphan archived; LIVE writer now ios-gap-close; unlock!=send preserved; did not steal live writer",
+  "before": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "expires_at": 1787435945.727212,
+    "heartbeat_at": 1787435052.327633,
+    "expired_delta_s_at_acquire": 3913.2727880477905,
+    "stale_archive": "octopus-writer.lock.stale.1787439859"
+  },
+  "after": {
+    "agent_id": "ios-gap-close",
+    "session_id": "sess-ios-gap-20260823",
+    "expired": false,
+    "expires_at": 1787443459.9608662,
+    "note_g03": "ios-gap-close acquired after EXPIRED ari lock archived; unlock!=send preserved"
+  },
+  "LIVE_TELEGRAM_flag_enabled": true,
+  "LIVE_TELEGRAM_note": "Unlock only. Does not by itself send. Center restart still required to load HEAD e8d661e.",
+  "actions_taken_by_this_agent": "evidence-only; lock already acquired by ios-gap-close; no steal",
+  "forbidden_honored": [
+    "no live sendMessage",
+    "no steal live writer"
+  ]
+}

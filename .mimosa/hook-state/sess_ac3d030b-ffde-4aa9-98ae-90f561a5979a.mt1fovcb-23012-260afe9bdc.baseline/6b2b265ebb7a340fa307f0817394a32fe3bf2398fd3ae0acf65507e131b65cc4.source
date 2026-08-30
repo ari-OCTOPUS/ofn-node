@@ -1,0 +1,151 @@
+import { loadConfig, localDayKey, addDaysToKey, searchKey } from '@wlos/shared';
+import { makePrisma } from '@wlos/memory';
+
+/**
+ * Seed: fictional single user "Ari Test" with ~45 days of plateau-like data —
+ * enough for /report, /weekly, /patterns and the plateau protocol to have
+ * something real to chew on. Run: npm run seed  (requires a running DB)
+ */
+
+async function main() {
+  const cfg = loadConfig();
+  const prisma = makePrisma(cfg.DATABASE_URL);
+  const tz = cfg.TZ_DEFAULT;
+  const chatId = BigInt(process.env.SEED_CHAT_ID ?? '111111111');
+
+  console.log('Seeding fictional user…');
+  await prisma.user.deleteMany({ where: { displayName: 'Ari Test (seed)' } });
+
+  const user = await prisma.user.create({
+    data: {
+      displayName: 'Ari Test (seed)',
+      telegramAccounts: { create: { chatId, username: 'ari_seed' } },
+      profile: {
+        create: {
+          sex: 'male',
+          birthYear: 1991,
+          heightCm: 178,
+          goalWeightKg: 85,
+          goalNote: 'رسیدن به ۸۵ کیلو با حفظ عضله',
+          activityLevel: 'light',
+          onboardingStep: 'done',
+        },
+      },
+      notificationPref: { create: {} },
+      consents: {
+        create: [
+          { scope: 'core_health', granted: true },
+          { scope: 'psychology', granted: true },
+          { scope: 'cannabis', granted: false }, // OFF by default — the seed respects it
+          { scope: 'coach_sharing', granted: true },
+        ],
+      },
+    },
+  });
+
+  const today = localDayKey(new Date(), tz);
+  const dayN = (n: number) => addDaysToKey(today, -n, tz);
+
+  // 45 days: plateau-ish weights ~94.5 ± noise, slightly cyclical
+  const weights: Array<{ dayKey: string; kg: number }> = [];
+  for (let i = 45; i >= 1; i--) {
+    if (i % 9 === 0) continue; // some missed days — realistic
+    const kg = Math.round((94.5 + Math.sin(i / 4) * 0.45 + (i % 7 === 0 ? 0.4 : 0)) * 10) / 10;
+    weights.push({ dayKey: dayN(i), kg });
+  }
+  await prisma.weight.createMany({
+    data: weights.map((w) => ({
+      userId: user.id,
+      kg: w.kg,
+      dayKey: w.dayKey,
+      occurredAt: new Date(`${w.dayKey}T21:00:00Z`),
+    })),
+  });
+
+  // meals: ~2050 kcal weekdays, ~2600 weekends (weekend drift built in)
+  const foods = [
+    ['صبحانه: تخم‌مرغ و نان', 420],
+    ['ناهار: چلو خورشت', 780],
+    ['شام: مرغ و سبزیجات', 610],
+    ['اسنک: ماست و میوه', 240],
+    ['کباب کوبیده', 850],
+    ['protein bar', 220],
+  ] as const;
+  for (let i = 42; i >= 1; i--) {
+    if (i % 11 === 0) continue; // unlogged days
+    const dayKey = dayN(i);
+    const dow = new Date(dayKey + 'T00:00:00Z').getUTCDay();
+    const weekend = dow === 6 || dow === 0;
+    const picks = weekend ? [0, 4, 2, 3] : [0, 1, 2];
+    let total = 0;
+    for (const p of picks) {
+      const [name, kcal] = foods[p]!;
+      total += kcal;
+      await prisma.meal.create({
+        data: {
+          userId: user.id,
+          dayKey,
+          occurredAt: new Date(`${dayKey}T08:00:00Z`),
+          nameRaw: name,
+          nameKey: searchKey(name),
+          calories: kcal,
+        },
+      });
+    }
+    await prisma.nutritionDailySummary.create({
+      data: { userId: user.id, dayKey, totalCalories: total, mealsLogged: picks.length },
+    });
+  }
+
+  // sleep + cravings with a REAL association: short sleep → evening craving
+  for (let i = 30; i >= 1; i--) {
+    const dayKey = dayN(i);
+    const short = i % 3 === 0;
+    const sleep = short ? 5.2 : 7.4;
+    await prisma.stateLog.create({
+      data: { userId: user.id, dayKey, kind: 'sleep_hours', value: sleep, occurredAt: new Date(`${dayKey}T09:00:00Z`) },
+    });
+    if (short ? i % 9 !== 3 : i % 10 === 1) {
+      await prisma.stateLog.create({
+        data: { userId: user.id, dayKey, kind: 'craving', value: 7, occurredAt: new Date(`${dayKey}T10:30:00Z`) },
+      });
+    }
+  }
+
+  // workouts: 3x/week
+  for (let i = 42; i >= 1; i--) {
+    const dow = new Date(dayN(i) + 'T00:00:00Z').getUTCDay();
+    if (![1, 3, 5].includes(dow)) continue;
+    await prisma.workout.create({
+      data: {
+        userId: user.id,
+        dayKey: dayN(i),
+        occurredAt: new Date(`${dayN(i)}T07:30:00Z`),
+        kind: 'gym',
+        title: dow === 3 ? 'باشگاه — Full Body B' : 'باشگاه — Full Body A',
+        durationMin: 55,
+        rpe: 7,
+      },
+    });
+  }
+
+  await prisma.nutritionTarget.create({
+    data: {
+      userId: user.id,
+      kcalLow: 1850,
+      kcalHigh: 2050,
+      proteinG: 153,
+      fiberLow: 30,
+      fiberHigh: 38,
+      rationale: 'seed target: TDEE ~2450 − 400 deficit',
+    },
+  });
+
+  console.log(`Seeded user ${user.id} with ${weights.length} weights, ~38 meal-days, 30 sleep logs, workouts, target.`);
+  await prisma.$disconnect();
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

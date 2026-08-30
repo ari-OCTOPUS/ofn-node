@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""retrieval_router — حافظه در نقطهٔ تصمیم، با یک قاعدهٔ سخت: فقط narrowing.
+
+شکافی که می‌بندد (ممیزی ۰۷-۳۱): زنجیرهٔ goal→action هنگام تصمیم **هیچ**
+خواندنی از MemoryStore نداشت — حافظه پرشونده بود ولی مصرف‌نشونده (همان الگویی
+که W2 برای لِین لید بست: «cited but not consumed»).
+
+قواعد:
+  · حافظه هرگز مجوز نیست: این router نمی‌تواند عملی را باز کند، فقط می‌تواند
+    ببندد (veto) یا شواهد ضمیمه کند. جهتش همیشه fail-closed است.
+  · veto فقط از namespace ِ `owner_fact` می‌آید (mkey = ``veto:<goal_key>``) —
+    ردیفی که خودِ MemoryGate با گاردِ owner_only پذیرفته؛ یعنی این «اختیارِ
+    حافظه» نیست، دستورِ ثبت‌شدهٔ مالک است که relay می‌شود.
+  · فقط ADMITTED دیده می‌شود (قاعدهٔ خودِ store)؛ citation به شکلِ
+    `as_memories_used` (hash/ref، بدون متنِ خام).
+  · انتخابِ حالت: exact (veto) → episodic (تجربهٔ همین هدف) → procedural.
+    نتیجهٔ خالی = هیچ context ِ اضافه‌ای؛ «retrieval که کمکی نمی‌کند اصلاً
+    اضافه نمی‌شود».
+
+فلگ: `OCTOPUS_WIRE_MEMORY_DECISION` — از ۲۰۲۶-۰۷-۳۱ مسلح است
+(`OCTOPUS-flags.cmd:852`؛ رأیِ مالک، بستهٔ TG-UI ۴-موجی «anti-amnesia»).
+این کامنت تا ۲۰۲۶-۰۸-۰۶ کهنه مانده و «غایب/معلق» ادعا می‌کرد؛ زنده تأیید شد:
+`route()` امروز واقعاً اجرا شده و citation در `state/test_cycle/missions.jsonl`
+ثبت کرده (`goal_action_bridge.py` را ببین). فلگ خاموش همچنان = صفر خواندنِ DB.
+
+$0 · stdlib · فقط‌خواندنی روی memory.db · صفر شبکه/نوشتن.
+"""
+from __future__ import annotations
+
+import os
+
+FLAG = "OCTOPUS_WIRE_MEMORY_DECISION"   # از ۰۷-۳۱ مسلح (OCTOPUS-flags.cmd:852)
+SCHEMA = "memory-retrieval.v1"
+
+
+def flag_on() -> bool:
+    return str(os.environ.get(FLAG, "") or "").strip().lower() in (
+        "1", "true", "yes", "on")
+
+
+def route(*, goal_key: str, method_index=None, store=None, k: int = 3,
+          now=None) -> dict:
+    """{schema, mode, memories_used, veto, veto_ref, reasons}.
+
+    `store` تزریق‌پذیر برای تست؛ اگر خودمان ساختیم خودمان می‌بندیم (قفلِ
+    sqlite روی ویندوز). فلگ خاموش یا goal_key خالی = هیچ تماسی با DB."""
+    out = {"schema": SCHEMA, "mode": "none", "memories_used": [],
+           "veto": False, "veto_ref": None, "reasons": []}
+    if not flag_on():
+        out["mode"] = "off"
+        return out
+    gk = str(goal_key or "").strip()
+    if not gk:
+        out["reasons"].append("no-goal-key")
+        return out
+
+    own_store = store is None
+    if own_store:
+        import memory_store as _ms
+        store = _ms.MemoryStore()
+    try:
+        modes = []
+        recs = []
+
+        # ۱) exact — دستورِ ثبت‌شدهٔ مالک: فقط می‌بندد.
+        veto_row = store.get("owner_fact", f"veto:{gk}")
+        if isinstance(veto_row, dict):
+            out["veto"] = True
+            out["veto_ref"] = veto_row.get("memory_id")
+            recs.append(veto_row)
+            modes.append("exact")
+            out["reasons"].append("owner-veto")
+
+        # ۲) episodic — تجربهٔ قبلیِ همین هدف (شواهد، نه حکم).
+        ep = store.search(gk, namespace="episodic", k=max(1, int(k)))
+        if ep:
+            recs.extend(ep)
+            modes.append("episodic")
+
+        # ۳) procedural — روشِ اثبات‌شده برای این هدف، اگر ثبت شده.
+        pr = store.search(gk, namespace="procedural", k=max(1, int(k)))
+        if pr:
+            recs.extend(pr)
+            modes.append("procedural")
+
+        # ۳b) semantic — خاطراتِ معناییِ پذیرش‌شده در store (MEM-01 / DW).
+        # جدا از vault_rag (ChromaDB). fail-soft: نبود namespace = [].
+        try:
+            sem = store.search(gk, namespace="semantic", k=max(1, int(k)))
+            if sem:
+                recs.extend(sem)
+                modes.append("semantic")
+        except Exception:  # noqa: BLE001
+            pass
+
+        # ۴) vault_rag — شواهدِ semantic از ChromaDB (پلِ ۲۰۲۶-۰۸-۰۶، fail-closed).
+        # **فقط شاهد** — هرگز veto، هرگز مجوز. ابسیدین canonical؛ ChromaDB فقط index.
+        # فلگ خاموش → search_vault_evidence [] برمی‌گرداند (no-op، byte-identical).
+        rag_evidence: list[dict] = []
+        try:
+            import vault_bridge  # noqa: WPS433 — هم‌پوشه، lazy
+            rag_evidence = vault_bridge.search_vault_evidence(gk, k=max(1, int(k)))
+        except Exception:  # noqa: BLE001 — پلِ غایب = بدونِ شاهد، نه crash
+            pass
+        if rag_evidence:
+            modes.append("vault_rag")
+
+        out["mode"] = "+".join(modes) if modes else "no-match"
+        out["memories_used"] = store.as_memories_used(recs) if recs else []
+        # شواهدِ RAG را مستقیم ضمیمه کن (نه از store — آن‌ها کهنه نیست، canonical است).
+        # ساختار همان memories_used است (memory_id/namespace/...)، پس safe-append.
+        if rag_evidence:
+            out["memories_used"].extend(rag_evidence)
+        # hebbian rank hint (advisory): assoc_strength از math_control — بدون reorder اجباری
+        try:
+            from math_control.spine import load_latest as _mc_load  # noqa: WPS433
+            _lat = _mc_load() or {}
+            _as = _lat.get("assoc_strength")
+            if _as is not None:
+                out["hebbian_hint"] = {
+                    "assoc_strength": _as,
+                    "effect": "advisory",
+                    "may_authorize": False,
+                }
+                out["reasons"].append("hebbian-hint-advisory")
+        except Exception:  # noqa: BLE001
+            pass
+        if not recs and not rag_evidence:
+            out["reasons"].append("no-admitted-memory")
+        return out
+    finally:
+        if own_store:
+            try:
+                store.close()
+            except Exception:  # noqa: BLE001
+                pass
+
+
+if __name__ == "__main__":   # pragma: no cover — نمای دستیِ اپراتور
+    import json
+    import sys
+    gk = sys.argv[1] if len(sys.argv) > 1 else ""
+    print(json.dumps(route(goal_key=gk), ensure_ascii=False, indent=1))

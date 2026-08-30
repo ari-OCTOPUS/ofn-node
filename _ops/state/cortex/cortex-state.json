@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-19T22:18:01",
-  "cycle": 42,
-  "coherence": 0.976,
+  "ts": "2026-08-30T13:37:45",
+  "cycle": 168,
+  "coherence": 0.888,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.998,
-      "age_s": 6,
+      "awareness": 0.807,
+      "age_s": 695,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 7,
+      "awareness": 0.886,
+      "age_s": 818,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 7,
+      "awareness": 0.886,
+      "age_s": 821,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.984,
-      "age_s": 228,
+      "awareness": 0.943,
+      "age_s": 817,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.951,
-      "age_s": 16978,
+      "awareness": 0.837,
+      "age_s": 56359,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 9,
+      "awareness": 0.959,
+      "age_s": 583,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.928,
-      "age_s": 24832,
+      "awareness": 0.859,
+      "age_s": 48783,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.928,
-      "age_s": 24832,
+      "awareness": 0.859,
+      "age_s": 48784,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.967,
-      "age_s": 17084,
+      "awareness": 0.913,
+      "age_s": 45214,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.952,
-      "age_s": 24831,
+      "awareness": 0.906,
+      "age_s": 48782,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,8 +107,8 @@
     {
       "id": "fourd_system",
       "present": true,
-      "awareness": 0.958,
-      "age_s": 603,
+      "awareness": 0.951,
+      "age_s": 700,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -122,7 +122,7 @@
   },
   "rhythm": {
     "period_s": 600.0,
-    "source": "×۲ قلبِ سایه (344.62s)"
+    "source": "×۲ قلبِ سایه (489.97s)"
   },
   "brains": {
     "keys": {
@@ -130,44 +130,44 @@
       "glm": true,
       "deepseek": true
     },
-    "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
+    "paid_gate": "research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] ان مهم‌ترین کارِ مجموعه چیست تمرکزِ خواسته‌شدهٔ مالک.",
+  "thought": "[local] می‌توانستیم این جمله را به شکل کوتاه‌تری توصیف کنیم:\n\nمی‌بایستی میزان‌های مالک را بیاموزد.",
   "stress": {
-    "level": "🟡 استرس",
-    "organism_stress": 0.66,
+    "level": "🟢 آرام",
+    "organism_stress": 0.31,
     "in_fear": []
   },
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 344.62
+    "heart_period_s": 489.97
   },
   "fourd_health": {
-    "status": "fresh",
-    "age_s": 19
+    "status": "stale",
+    "age_s": 797347
   },
   "ignition": {
     "ignited": true,
-    "winner": "alerts",
+    "winner": "attention",
     "broadcast_width": 1,
-    "n_candidates": 8
+    "n_candidates": 9
   },
   "calibration": {
-    "n": 331,
-    "brier": 0.217839,
-    "aurc": 0.395636,
-    "ungraded": 344
+    "n": 1279,
+    "brier": 0.087301,
+    "aurc": 0.161371,
+    "ungraded": 726
   },
   "consolidate": {
-    "n_in": 39,
+    "n_in": 1,
     "n_semantic": 0,
-    "archived": 39
+    "archived": 1
   },
   "truth_sync": {
     "skipped": "cooldown",
-    "next_in_s": 577.6
+    "next_in_s": 327.2
   },
   "owner_guidance": {
     "focus": "موانع چیست",

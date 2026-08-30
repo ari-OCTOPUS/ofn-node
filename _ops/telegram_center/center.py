@@ -209,6 +209,17 @@ def _config_manager():
     return _CONFIG_MANAGER
 
 
+def _config_cache_reset() -> None:
+    """Forget cached config state — next read reboots from disk.
+
+    Restart semantics for tests/operators: the singleton keeps last-known-good
+    when the file disappears (offset replay safety), so an explicit reset is the
+    only way to make a deleted/moved config visible again.
+    """
+    global _CONFIG_MANAGER
+    _CONFIG_MANAGER = None
+
+
 def _bounded_read_text(path: Path, timeout_s: float = 3.0) -> str | None:
     """Read a state file through the capped bounded pool; None on stall."""
     import bounded_io as _bio
@@ -2601,6 +2612,26 @@ class Center:
         return (("؟" in t or "?" in t)
                 and any(w in t for w in ("والت", "نوت", "ابسیدین")))
 
+    @staticmethod
+    def _miniapp_cache_version() -> "str | None":
+        """Stable root-URL token from the four static asset mtimes.
+
+        Telegram WebView may reuse the HTML root despite ``no-store``. Asset
+        URLs are already content-versioned by the gateway, but that only
+        helps after the root HTML is fetched. Versioning the ``web_app`` URL
+        itself forces that first fetch without changing the canonical host.
+        """
+        try:
+            names = ("index.html", "app.js", "tg_shell.js", "style.css")
+            asset_dir = _HERE / "miniapp"
+            material = "\x1f".join(
+                str((asset_dir / name).stat().st_mtime_ns) for name in names
+            )
+            import hashlib as _hashlib
+            return _hashlib.sha256(material.encode("ascii")).hexdigest()[:10]
+        except Exception:  # noqa: BLE001 — cache bust must not remove the button
+            return None
+
     def _miniapp_url(self) -> "str | None":
         """URL ِ داشبوردِ Mini App (contract F.3) — فقط فایلِ تازهٔ https.
         غایب/کهنه (≥۲۴h)/خالی/غیرِhttps ⇒ None ⇒ بدونِ دکمه — URL ِ مرده هرگز
@@ -2616,7 +2647,12 @@ class Center:
             # دکمه بی‌صدا ناپدید می‌شد (بلاکرِ B1 ِ دیباگِ ۰۷-۳۱ — tunnel زنده،
             # دکمه نامرئی). BOM حالا هم در نوشتن حذف شد هم این‌جا تحمل می‌شود.
             url = str((json.loads(p.read_text("utf-8-sig")) or {}).get("url") or "")
-            return url if url.startswith("https://") else None
+            if not url.startswith("https://"):
+                return None
+            version = self._miniapp_cache_version()
+            if version:
+                url += ("&" if "?" in url else "?") + "v=" + version
+            return url
         except Exception:  # noqa: BLE001
             return None
 
@@ -5909,10 +5945,15 @@ class Center:
         n = int(getattr(self, "_poll_fails", 0)) + 1
         self._poll_fails = n
         if n == self._POLL_FAIL_LOUD_AFTER:
+            kind = getattr(exc, "kind", None)
+            if kind:
+                label = f"{kind}:{getattr(exc, 'reason', '') or 'scheduled'}"
+            else:
+                label = type(exc).__name__
             try:
                 opslib.alert([
                     f"⚠️ {n} بارِ پیاپی poll ِ تلگرام شکست خورد "
-                    f"({type(exc).__name__}). تا رفع نشود هیچ پیامی نمی‌رسد — "
+                    f"({label}). تا رفع نشود هیچ پیامی نمی‌رسد — "
                     "و این از «پیامی نیست» قابلِ تفکیک نبود."])
             except Exception:  # noqa: BLE001
                 pass
@@ -5937,11 +5978,35 @@ class Center:
                               "است پیام‌های قدیمی دوباره پردازش شوند."])
             except Exception:  # noqa: BLE001
                 pass
-        try:
-            ups = self._client.poll_updates(offset=offset, timeout_s=POLL_TIMEOUT_S) or []
-        except Exception as exc:  # noqa: BLE001 — خطای شبکه = دورِ خالی، حلقه زنده می‌ماند
-            self._poll_failed(exc)          # ساکت تا N ِ پیاپی، بعد بلند
-            return 0
+        # Wave B (2026-08-21): canonical path consumes the typed outcome —
+        # failures never collapse to [] and never advance the offset. Legacy
+        # fake clients (tests) expose only poll_updates(); they keep the old
+        # list contract and reset the counter as before.
+        self._last_poll_retry_after_s = 0.0
+        self._last_poll_kind = ""
+        typed_fn = getattr(self._client, "poll_updates_typed", None)
+        if typed_fn is not None:
+            try:
+                outcome = typed_fn(offset=offset, timeout_s=POLL_TIMEOUT_S)
+            except Exception as exc:  # noqa: BLE001 — خطای شبکه = دورِ خالی، حلقه زنده می‌ماند
+                self._poll_failed(exc)          # ساکت تا N ِ پیاپی، بعد بلند
+                return 0
+            self._last_poll_kind = str(outcome.kind or "")
+            retry_s = getattr(outcome, "retry_after_s", None)
+            if isinstance(retry_s, (int, float)):
+                self._last_poll_retry_after_s = max(0.0, float(retry_s))
+            if outcome.kind != "OK":
+                self._poll_failed(outcome)      # شکستِ typed = شکستِ poll
+                return 0
+            ups = outcome.updates
+        else:
+            self._last_poll_kind = "LEGACY"
+            try:
+                ups = self._client.poll_updates(offset=offset,
+                                                timeout_s=POLL_TIMEOUT_S) or []
+            except Exception as exc:  # noqa: BLE001 — legacy seam، مثلِ قبل
+                self._poll_failed(exc)
+                return 0
         self._poll_fails = 0                # موفقیت = ریستِ شمارنده
         n = 0
         max_id = offset - 1
@@ -5958,8 +6023,13 @@ class Center:
                 if _is_self_bot(u):
                     n += 1
                     continue
-            except Exception:  # noqa: BLE001 — filter must not kill the poller
-                pass
+            except Exception as exc:  # noqa: BLE001 — filter must not kill the poller
+                try:
+                    opslib.alert([f"⚠️ فیلترِ خود-پاسخ (self_bot_filter) خراب شد "
+                                  f"({type(exc).__name__}) — پاسخِ خودِ بات ممکن "
+                                  "است پردازش شود."])
+                except Exception:  # noqa: BLE001 — alert خودش حلقه را نمی‌کشد
+                    pass
             # **قبل** از dispatch: اگر پردازش بترکد، ردیفِ «رسید» از قبل نشسته
             # و کنارِ نامهٔ مرده تصویرِ کامل می‌دهد.
             self._log_inbound(u)
@@ -6057,11 +6127,28 @@ class Center:
         last_beat = float(self._clock())
         while not self.stopped():
             self.run_once()
+            # Arch-loop: default-OFF SenderBridge attach (env/flag). No-op unless enabled.
+            try:
+                import poll_sender_bridge_attach as _psba  # noqa: WPS433
+                _psba.maybe_run_after_poll(
+                    queue=getattr(self, "_sender_bridge_queue", None),
+                    send_fn=getattr(self, "_sender_bridge_send_fn", None),
+                )
+            except Exception:  # noqa: BLE001 — attach must never kill poll
+                pass
             now = float(self._clock())
             self._pulse(now)
             if now - last_beat >= float(beat_every_s):
                 self.beat()
                 last_beat = now
+            # typed polling never sleeps in the client; a durable schedule
+            # block is paced here so a waiting loop does not spin on sqlite.
+            retry_s = float(getattr(self, "_last_poll_retry_after_s", 0.0) or 0.0)
+            if retry_s > 0:
+                try:
+                    time.sleep(min(retry_s, 60.0))
+                except Exception:  # noqa: BLE001 — خوابِ پاس‌شده حلقه را نمی‌کشد
+                    pass
 
     # ── نبضِ زنده‌بودن (۲۰۲۶-۰۷-۲۹، رأیِ مالک) ──────────────────────────────
     # چرا: مرکز تا امروز **هیچ سیگنالِ زنده‌بودنی** نمی‌نوشت. عصرِ همین روز بین
@@ -6210,3 +6297,18 @@ if __name__ == "__main__":
         pass
     c.run_forever()
     print("tg-center: ایستاد (STOP)")
+
+
+def owner_gated_sender_bridge_run_once(queue, send_fn, *, limit: int = 10, **kwargs):
+    """Optional SenderBridge drain — refused unless LIVE-TELEGRAM gate send_allowed.
+
+    Default-off path for C03: center can import/call this without auto-wiring
+    the poll loop. No network unless caller-injected send_fn does I/O AND gate allows.
+    """
+    try:
+        import center_sender_bridge as _csb
+    except Exception as exc:  # noqa: BLE001
+        return {"ran": False, "blocked": True, "error": type(exc).__name__}
+    bridge = _csb.build_bridge(queue, send_fn)
+    return _csb.run_once_if_allowed(bridge, limit=limit, **kwargs)
+

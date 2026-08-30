@@ -1,0 +1,72 @@
+{
+  "schema": "octopus.next-actions.v1",
+  "parallel": false,
+  "oa_t7_now": false,
+  "decision": "KEEP_WAVE0_LOCKED",
+  "order": [
+    {
+      "step": 1,
+      "id": "document_doctor_fail",
+      "action": "Document the three Doctor=FAIL blocking checks. No auto-repair.",
+      "status": "RECORDED",
+      "artifact": "DOCTOR_BLOCKING.json"
+    },
+    {
+      "step": 2,
+      "id": "retest_gap_001",
+      "action": "Retest GAP-001 with real cryptographic evidence. Text claims are insufficient.",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 3,
+      "id": "laptop_verify_then_sign_seq_266",
+      "action": "Independently verify the historical octopus-audit-ledger checkpoint anchored at seq=266 on the laptop, then sign with existing root-v2 only.",
+      "status": "NOT_STARTED",
+      "record_hash_full": "sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2"
+    },
+    {
+      "step": 4,
+      "id": "board_verify_signature_only",
+      "action": "On the board, verify the signature bundle only. Signature must not create authority.",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 5,
+      "id": "historical_anchor_semantics",
+      "action": "Treat a successful seq=266 signature as anchoring history through that seq only, not later heads.",
+      "status": "RECORDED"
+    },
+    {
+      "step": 6,
+      "id": "register_shadow_candidate",
+      "action": "Register an interactive candidate only in shadow, off the live Policy path. Persistence remains baseline.",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 7,
+      "id": "candidate_guards",
+      "action": "Run action x state guard, shuffled test, calibration, and lower confidence bound.",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 8,
+      "id": "reevaluate_t4",
+      "action": "Re-evaluate T4 against the candidate with baseline held fixed.",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 9,
+      "id": "rerun_doctor_and_t0_t6",
+      "action": "Re-run Doctor and the full T0-T6 package.",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 10,
+      "id": "new_owner_review_pack",
+      "action": "Only if every condition is green, build a new owner-review pack. Do not issue OA-T7 before that.",
+      "status": "BLOCKED"
+    }
+  ],
+  "note": "A successful seq=266 signature completes one incomplete provenance item. It does not green Doctor, GAP-001, or T4, and alone does not permit OA-T7.",
+  "written_at": "2026-08-17T04:11:13.482600+00:00"
+}

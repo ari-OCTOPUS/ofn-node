@@ -1,0 +1,10 @@
+{
+  "schema": "octopus.cg001.owner-correction/1",
+  "stamp_local": "2026-08-23T17:39:58+10:00",
+  "owner": "Aroma Electronic",
+  "correction": "Previous GA4 property business mapping was WRONG. Owner: those properties/pages are all Ziman main pages (not Master Painting / Studio split as previously recorded).",
+  "supersedes": [
+    "PROPERTY-MAP.json prior painting assignment for 358651346",
+    "INVENTORY painting label"
+  ]
+}

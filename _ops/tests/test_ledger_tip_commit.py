@@ -79,6 +79,38 @@ def t_unsealed_is_not_a_failure():
     assert ok2 is True and reason2 == "ok", (ok2, reason2)
 
 
+def t_seal_repairs_a_stale_count_not_just_increments_it():
+    """۲۰۲۶-۰۸-۲۵ (شاهد زندهٔ G4): sidecar با count کهنه (offset ثابت) و hashِ درست.
+    seal قبلاً فقط prev_n+1 می‌نوشت و mismatch را هرگز ترمیم نمی‌کرد؛ حالا باید
+    شمارش واقعی را بنویسد و verify_tip سبز شود — append همچنان prev_n+1 می‌ماند."""
+    td = Path(tempfile.mkdtemp(prefix="tip-stale-"))
+    p = td / "ledger.jsonl"
+    lg = _Ledger()(p)
+    for i in range(6):
+        lg.append("NOTE", {"i": i}, actor="test")
+    # شبیه‌سازی همان وضعیت زنده: bulk بیرونی ۳ رکیف اضافه کرد بدون عبور از append
+    extra = [lg.append("NOTE", {"bulk": k}, actor="bulk") for k in range(3)]
+    good = json.loads(lg.tip_path().read_text("utf-8"))
+    good["n"] = good["n"] - 3          # count کهنه؛ hash همین head فعلی می‌ماند
+    lg.tip_path().write_text(json.dumps(good), "utf-8")
+    ok_v, _ = lg.verify()
+    ok_t, msg = lg.verify_tip()
+    assert ok_v is True, "verify باید LAW بماند"
+    assert ok_t is False and "length mismatch" in msg, msg
+    lg2 = _Ledger()(p)
+    sealed = lg2.seal_tip()
+    assert sealed["sealed"] is True
+    ok_t2, msg2 = lg2.verify_tip()
+    assert ok_t2 is True and msg2 == "ok", msg2
+    tip2 = json.loads(lg2.tip_path().read_text("utf-8"))
+    assert tip2["n"] == sealed["n"] == 9, tip2          # شمارش واقعی، نه ۷
+    # append بعدی هنوز فقط +1 می‌کند و سازگاری می‌ماند
+    lg2.append("NOTE", {"after": 1}, actor="test")
+    ok_t3, msg3 = lg2.verify_tip()
+    assert ok_t3 is True and msg3 == "ok", msg3
+    assert json.loads(lg2.tip_path().read_text("utf-8"))["n"] == 10
+
+
 def t_organism_daily_calls_verify_tip():
     src = (_OPS / "organism.py").read_text("utf-8")
     assert "verify_tip()" in src

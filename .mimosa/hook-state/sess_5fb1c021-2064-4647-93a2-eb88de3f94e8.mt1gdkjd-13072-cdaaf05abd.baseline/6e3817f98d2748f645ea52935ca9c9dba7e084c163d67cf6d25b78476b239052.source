@@ -1,0 +1,116 @@
+"""
+prompt_assembly.py — مونتاژِ پرامپتِ «هندسه‌ی بقای میسلیوم».
+
+مسئولیت: فقط ساختِ رشته‌ها (خالص، بدونِ شبکه، تست‌پذیر).
+  • load_system(variant, lang) → prefixِ static (system) — کاندیدای prompt-caching
+  • build_task(domain, scale, constraints) → پیامِ user (تنها بخشِ متغیر)
+  • assemble(...) → (system, task)
+
+دو variant:
+  • guided → تکنولوژی‌ها نام‌برده (κ بالا، determinism برای SC4)
+  • open   → هسته‌ی Physarum و ستونِ Technology حذف؛ مدل باید خودش پیشنهاد + توجیه کند
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+_GUIDED_START = "<!--GUIDED_ONLY_START-->"
+_GUIDED_END = "<!--GUIDED_ONLY_END-->"
+VARIANTS = ("guided", "open")
+LANGS = ("en", "fa")
+
+# دستورِ override برای حالتِ open (به زبانِ متناظر)
+_OPEN_DIRECTIVE = {
+    "en": (
+        "\n# OPEN MODE (overrides the guided defaults)\n"
+        "- Row 6 (adaptive resource flow): PROPOSE an adaptive-flow mechanism and\n"
+        "  justify it from first principles; no specific algorithm is given to you.\n"
+        "- §4 Component breakdown: use columns Component | Fungal principle | G/J | Why.\n"
+        "  There is NO provided Technology column — you must NAME and DEFEND each\n"
+        "  technology in prose, weighing at least one alternative and the constraint it meets.\n"
+    ),
+    "fa": (
+        "\n# OPEN MODE (بازنویسیِ پیش‌فرض‌های guided)\n"
+        "- ردیفِ ۶ (جریانِ منابعِ تطبیقی): یک مکانیزمِ adaptive-flow خودت پیشنهاد بده و\n"
+        "  از پایه توجیه کن؛ هیچ الگوریتمِ مشخصی به تو داده نشده.\n"
+        "- §۴ Component breakdown: ستون‌ها = Component | Fungal principle | G/J | Why.\n"
+        "  ستونِ Technology داده نشده — باید هر تکنولوژی را در نثر نام ببری و دفاع کنی،\n"
+        "  با سنجشِ حداقل یک جایگزین و قیدی که برآورده می‌کند.\n"
+    ),
+}
+
+
+class PromptError(ValueError):
+    """ورودیِ نامعتبر برای مونتاژِ پرامپت."""
+
+
+def _system_path(lang: str) -> Path:
+    return _HERE / f"mycelial_system.{lang}.md"
+
+
+def load_system(variant: str = "guided", lang: str = "en") -> str:
+    """prefixِ static را بارگذاری و بر اساسِ variant تبدیل می‌کند."""
+    if variant not in VARIANTS:
+        raise PromptError(f"variantِ ناشناخته: {variant!r} (مجاز: {VARIANTS})")
+    if lang not in LANGS:
+        raise PromptError(f"langِ ناشناخته: {lang!r} (مجاز: {LANGS})")
+
+    path = _system_path(lang)
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except OSError as e:  # pragma: no cover - مسیرِ فایل ثابت است
+        raise PromptError(f"فایلِ system یافت نشد: {path}") from e
+
+    if variant == "guided":
+        # فقط خطوطِ نشانه را حذف کن، محتوا بماند
+        text = raw.replace(_GUIDED_START + "\n", "").replace(_GUIDED_END + "\n", "")
+        text = text.replace(_GUIDED_START, "").replace(_GUIDED_END, "")
+        return text.strip() + "\n"
+
+    # open: بلوکِ بینِ نشانه‌ها را کامل حذف کن + دستورِ open را اضافه کن
+    text = _strip_between(raw, _GUIDED_START, _GUIDED_END)
+    return text.strip() + "\n" + _OPEN_DIRECTIVE[lang]
+
+
+def _strip_between(text: str, start: str, end: str) -> str:
+    """هر بلوکِ بینِ start و end (شاملِ خطوطِ نشانه) را حذف می‌کند."""
+    out = []
+    depth_skip = False
+    for line in text.splitlines():
+        s = line.strip()
+        if s == start:
+            depth_skip = True
+            continue
+        if s == end:
+            depth_skip = False
+            continue
+        if not depth_skip:
+            out.append(line)
+    return "\n".join(out)
+
+
+def build_task(domain: str, scale: str, constraints: str) -> str:
+    """بلوکِ TASK (پیامِ user) — تنها بخشِ متغیرِ پرامپت."""
+    domain, scale, constraints = domain.strip(), scale.strip(), constraints.strip()
+    if not (domain and scale and constraints):
+        raise PromptError("DOMAIN، SCALE و CONSTRAINTS هر سه باید غیرخالی باشند.")
+    task = (
+        "# TASK\n"
+        "Design a production-grade architecture for:\n"
+        f"- DOMAIN:      {domain}\n"
+        f"- SCALE:       {scale}\n"
+        f"- CONSTRAINTS: {constraints}\n"
+        "If any input is ambiguous or missing a figure you need, ask up to 3 "
+        "clarifying questions FIRST and stop. Otherwise proceed and state every assumption."
+    )
+    if "{{" in task or "}}" in task:  # placeholderِ پرنشده نباید بماند
+        raise PromptError("placeholderِ پرنشده در TASK باقی مانده است.")
+    return task
+
+
+def assemble(domain: str, scale: str, constraints: str, *,
+             variant: str = "guided", lang: str = "en") -> tuple[str, str]:
+    """(system, task) را برمی‌گرداند."""
+    return load_system(variant, lang), build_task(domain, scale, constraints)

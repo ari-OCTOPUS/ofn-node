@@ -1,0 +1,18 @@
+from pathlib import Path
+import re
+
+p = Path(r"F:\backup\OCTOPUS-flags.cmd")
+raw = p.read_bytes()
+text = raw.decode("utf-8", errors="replace")
+keys = [
+    "OCTOPUS_WIRE_C6_PRODUCER",
+    "OCTOPUS_GOVERNOR_USE_ROUTER",
+    "OCTOPUS_HEART_DOCTOR_USE_ROUTER",
+    "OCTOPUS_DOCTOR_SELFKNOW_PAID",
+]
+status = {}
+for k in keys:
+    pat = re.compile(rf"(?m)^\s*set\s+{re.escape(k)}=([^\r\n]*)")
+    vals = pat.findall(text)
+    status[k] = vals
+print({"bytes": len(raw), "has_crlf": b"\r\n" in raw, "lone_lf": b"\n" in raw.replace(b"\r\n", b""), "status": status})

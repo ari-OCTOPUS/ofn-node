@@ -1,10 +1,10 @@
----
+﻿---
 type: architecture
 project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, truth, cockpit, miniapp, integration, telegram]
 created: 2026-08-02
-updated: 2026-08-02
+updated: 2026-08-29
 created_by: agent
 sources:
   - "[[_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02]]"
@@ -37,6 +37,9 @@ sources:
 | فلگِ کنترل روشن است | `_ops/agi2027_runtime/managed_flags.json` | `OCTOPUS_WIRE_TG_CONTROL="1"` (به‌علاوهٔ `..._LEAD_OUTBOUND_WAL`، `..._VALUE_LEDGER`) |
 | ۱۱ آیتمِ live در رجیستریِ UI | `_ops/agi2027_runtime/ui-registry.json` | شمارشِ واقعی: ۱۷ آیتم = ۱۱ live / ۵ staged / ۱ unknown |
 | درِ واحدِ مدل | `_ops/cortex/model_router.py::ask` (خطِ ۴۲۶) | تنها choke-point؛ امضا: `ask(task, prompt, system, max_tokens, tier, opener, quality)` |
+| قلب v2 (Gate 1) — **زنده از 2026-08-25** | فلگ `_ops/ACTIVATION-HEART-V2.flag`؛ `_ops/heart/runtime.py::enabled`؛ projection `_ops/state/pulse/heart-v2-latest.json` | سنجشِ زنده: beat 0..11+ COMMITTED، FSM GENESIS→BOOTING→WARMUP→RUNNING، green_streak 2→7، مغز advisory (qwen2.5:1.5b) با proposals همواره executable=false، `chrono.db user_version=4` دست‌نخورده، جداول heart_* در همان chrono.db. رسید: `06-EVIDENCE/HEART-G4-AUTHORITY-2026-08-25/ACTIVATION-RECEIPT.md` |
+| G4 — سلب اختیار رأی shadow | `_ops/heart/pulse_arbiter.py` (`AUTHORITY_POLICY="pulse-authority-g4.v1"`) | سنجشِ زنده: control_law در arbiter-latest `SHADOW_ONLY/eligible_for_live=false/present=false`؛ `authority_hold_applied=true`، floor=96.44s (G4_FIXED_ANCHOR)، `HELD_NO_ACCELERATION`؛ خوابِ واقعی حلقه ~96s (کادنسِ 60s جدول heartbeat = نخ pacemaker قدیمی CHRONO_PERIOD_S=60، نه حلقه) |
+| نقش نودها — رایتیفاید مالک 2026-08-29 (کد ملاک) | 182=شاهد: `state/witness/verdicts.jsonl` (در 182) · 138=business spine+receipt: `/home/ari/octopus-mesh/receipts` · 180=cognition/proposal: `/root/octopus-mesh/outbox` · لپ‌تاپ=hub | شاهدِ زنده: 1192 verdict روی 182، 4335 receipt روی 138، payloadهای 180→138 همین امروز؛ سند: `06-EVIDENCE/DEEP-WALK-20260829/D1-REALITY-MAP.md` + رزولوشن `C-DW29-01-R1` (تغییر نقش‌ها ممنوع؛ فقط مستندات اصلاح شد) |
 
 ## Verified
 
@@ -84,10 +87,7 @@ sources:
 
 ## Blocked
 
-- **`OCTOPUS_MINIAPP_URL` ست نشده** ⇒ `/ui` صادقانه `CONFIG_NEEDED` برمی‌گرداند
-  (`_ops/agi2027_control/runtime.py`). دکمهٔ «📊 داشبورد» در `center.py::_home_keyboard`
-  فقط با `OCTOPUS_TG_MINIAPP=1` + فایلِ URL ِ تازه ظاهر می‌شود؛ بدونِ URL دکمه‌ای وجود ندارد
-  (fake-live نیست).
+- **MiniApp gateway process LIVE** (PID **12220**, stamp 2026-08-23T08:28:35+10:00) listening **`127.0.0.1:8774`** only (localhost bind; `OCTOPUS_MINIAPP_PORT` default 8774; upstream `LIVE_PORT`/8773). **Public Telegram MiniApp URL = not published / BLOCKED for menu:** `OCTOPUS_MINIAPP_URL` unset in `.env` (no `OCTOPUS_TG_MINIAPP` either) so center `/ui` stays `CONFIG_NEEDED` until owner sets `OCTOPUS_TG_MINIAPP=1` + a real public URL — never invent/fake-live. Tunnel candidate may appear in `_ops/state/telegram/miniapp-url.json` (G10 2026-08-23T09:05:12+10:00) without proving Telegram menu wiring. Process-up ≠ public URL.
 - **actionهای HTTP پشتِ owner-auth بسته‌اند.** `POST /api/actions` بدونِ
   `TG_CENTER_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID` + initDataِ معتبر → `403 DENIED
   owner_auth_required`. این گیت **درست** است و برداشته نمی‌شود.

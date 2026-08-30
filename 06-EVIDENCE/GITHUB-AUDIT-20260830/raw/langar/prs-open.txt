@@ -1,0 +1,2 @@
+2	audit/cursor-20260828: langar isolated from OFN money path	audit/cursor-20260828	main
+1	audit(zcode-20260828): langar scan — dead code, _verify drift, proven duplication, test gaps, bugs	audit/zcode-20260828	main

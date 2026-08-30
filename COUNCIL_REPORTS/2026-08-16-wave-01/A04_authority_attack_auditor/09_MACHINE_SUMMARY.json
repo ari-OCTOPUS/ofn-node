@@ -1,0 +1,47 @@
+{
+  "agent": "A04_authority_attack_auditor",
+  "wave": "2026-08-16-wave-01",
+  "mode": "READ_ONLY",
+  "verdict": "READY_FOR_NEXT_WAVE",
+  "verdict_rationale": "No untrusted-input-to-consequential-effect path without a deterministic authorization boundary was found; stop rule not triggered. High-severity governance and posture findings require owner decisions but do not block analysis.",
+  "observed_at": "2026-08-16T14:10:00Z",
+  "organism_live": true,
+  "evidence_rows": 38,
+  "findings": {
+    "total": 31,
+    "by_severity": {"HIGH": 4, "MEDIUM": 11, "LOW": 5, "INFO": 11},
+    "high_ids": ["F-001", "F-002", "F-003", "F-006", "F-015"]
+  },
+  "claims_status": {
+    "layers_L0_L8": "NOT_EXAMINED",
+    "brains_4d_and_NBB_CP": "CONTRADICTED_live_topology_is_cortex_plus_business_brain",
+    "mutual_veto_governance": "UNKNOWN",
+    "propose_only_actions": "SCOPED_TRUE_autonomous_only_owner_commands_execute_now",
+    "money_locked_destructive_disabled": "VERIFIED_CODE_AND_ENV",
+    "A2_bounded_A4_owner_approval": "VERIFIED_CODE_ONLY_WEAKLY_CENTRALISED",
+    "policy_gate_runtime_enforced": "PARTIALLY_CONTRADICTED_narrow_coverage",
+    "viability_loop_runtime_enforced": "NOT_FOUND",
+    "ledger_live_bitemporal": "LIVE_VERIFIED_BITEMPORAL_NOT_FOUND",
+    "sensorium_active_legs_unauthorized": "VERIFIED_NUANCED",
+    "memory_affects_reasoning": "VERIFIED_LIVE_CONFIG",
+    "identity_health_live": "VERIFIED_LIVE"
+  },
+  "authority_model": "federated module-local gates; central gates (octopus_v3 P0ExecutionGate, containment G8) exist but WIRED=False with zero live consumers",
+  "key_surfaces": {
+    "raw_shell": {"armed": true, "executions_recorded": 0, "reach": "telegram /sh owner-only", "deny_list": "regex, charter-scoped, gaps: python -c/pip/file-write"},
+    "code_autonomy": {"activation_armed": true, "killed_by_stop_file": true, "gates": 8, "allow_roots": ["_ops/cortex", "_ops/state"]},
+    "policy_gate_live_consumers": ["wiring.request_protective_halt", "owner_console.collaborator (talk_gate draft)"],
+    "http_listeners": {"loopback": ["8770", "8771", "8772", "8773", "8774", "8777", "8778", "8787"], "non_loopback": ["8801 board_cp, TLS fail-closed, bearer fail-closed"]},
+    "egress_always_on": ["api.telegram.org (host-pinned)", "Xero OAuth (books_xero, hardcoded hosts)"],
+    "egress_flag_gated_default_off": ["web_research", "fugu_proxy", "lead_outbound SMTP", "email_inbound Gmail", "pocketsmith", "ps_writeback", "harvest_austender", "outbound_https (NOT_WIRED)"]
+  },
+  "secrets": {".env_gitignored_untracked": true, "plaintext_backup_at_root": ".env.bak-20260810", "values_read": false},
+  "prompt_injection": {
+    "fenced": ["world_discovery/public_web UNTRUSTED_EXTERNAL_CONTENT", "evidence_plane quarantine (collab path)"],
+    "unfenced": ["cortex/web_research -> improve/synthesis context", "vault RAG + retrieval_router evidence into prompts"],
+    "model_output_treatment": "propose-only buffers + owner taps on effect paths"
+  },
+  "owner_decisions_requested": ["OD-A wire-or-retire central gates", "OD-B raw shell posture", "OD-C enable OCTOPUS_WIRE_CB_TOKEN", "OD-D route web_research through fetch_guard"],
+  "writes_performed": "only within COUNCIL_REPORTS/2026-08-16-wave-01/A04_authority_attack_auditor/",
+  "prohibitions_respected": {"no_code_executed": true, "no_network_calls": true, "no_secrets_printed": true, "no_project_file_modified": true}
+}

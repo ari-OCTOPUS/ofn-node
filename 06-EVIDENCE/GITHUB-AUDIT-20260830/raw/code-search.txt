@@ -1,0 +1,6 @@
+pattern[AKIA]=0
+pattern[BEGIN PRIVATE KEY]=3
+pattern[BOT_TOKEN]=70
+pattern[api_key]=40
+pattern[TELEGRAM]=133
+pattern[password]=12

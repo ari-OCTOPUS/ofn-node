@@ -1,0 +1,58 @@
+"""test_router_budget_coverage.py — G-05 (tier→model با BrainRouter) + G-06 (پوششِ بودجه
+در مسیرِ سؤالِ روزانه). آفلاین کامل: _claude_question مانک، DB جعلی، بدونِ شبکه/کلید."""
+import os, sys, tempfile
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.environ.setdefault("LANGAR_DB", os.path.join(tempfile.mkdtemp(prefix="rbc_"), "t.db"))
+import ai
+from brain.brain_router import pick_model
+from budget import BudgetHalted
+
+results = []
+def check(n, c): results.append((n, c)); print(f"  {'✅' if c else '❌'} {n}")
+
+# ---------- G-05: pick_model نگاشتِ tier→model (بودجه‌آگاه) ----------
+class Bud:
+    def __init__(self, can=True): self._can = can
+    def can_spend(self): return self._can
+
+m, _ = pick_model("سلام حالت خوبه", cheap_model="haiku", strong_model="sonnet", budget=Bud(True))
+check("۱: taskِ ساده → مدلِ ارزان (cheap)", m == "haiku")
+m, _ = pick_model("این تصمیمِ پرریسکِ سرمایه‌گذاری را عمیق تحلیل کن",
+                  cheap_model="haiku", strong_model="sonnet", budget=Bud(True), risk=True)
+check("۲: پرریسک + بودجه‌ی کافی → مدلِ قوی (strong)", m == "sonnet")
+m, _ = pick_model("این تصمیمِ پرریسکِ سرمایه‌گذاری را عمیق تحلیل کن",
+                  cheap_model="haiku", strong_model="sonnet", budget=Bud(False), risk=True)
+check("۳: پرریسک ولی بودجه پر → downgrade به ارزان", m == "haiku")
+
+# ---------- G-06: daily_question خرج را متر و enforce می‌کند ----------
+class FakeDB:
+    def domain_counts(self): return {}
+    def trend(self, n): return {"count_rmssd": 0, "mean_rmssd": 0, "corr_sleep": None, "corr_used": None}
+    def insights_due(self, d): return []
+    def recent_reflections(self, n): return []
+class FakeBudget:
+    def __init__(self, halt=False, can=True): self.halt = halt; self.can = can; self.recorded = []
+    def enforce(self, cmd=""):
+        if self.halt: raise BudgetHalted("سقفِ ماهانه پر")
+    def can_spend(self): return self.can
+    def record_text(self, model, p, o, cmd=""): self.recorded.append((model, cmd)); return 0.0
+
+ai._claude_question = lambda *a, **k: "🧭 سؤالِ آزمایشیِ مانک"   # بدونِ شبکه
+fdb = FakeDB()
+
+b = FakeBudget()
+r = ai.daily_question(database=fdb, api_key="x", budget=b, cheap_model="claude-haiku-4-5-20251001")
+check("۴: مسیرِ claude اجرا شد (source=claude)", r["source"] == "claude")
+check("۵: خرج در بودجه ثبت شد — پوششِ G-06", len(b.recorded) == 1 and b.recorded[0][1] == "daily_question")
+check("۶: مدل از router آمد (نه رشتهٔ ثابت)", b.recorded[0][0] == "claude-haiku-4-5-20251001")
+
+bh = FakeBudget(halt=True)
+r = ai.daily_question(database=fdb, api_key="x", budget=bh, cheap_model="claude-haiku-4-5-20251001")
+check("۷: سقفِ ماهانه پر → fail-closed، degrade به آفلاین بدونِ خرج",
+      r["source"] == "offline" and len(bh.recorded) == 0)
+
+r = ai.daily_question(database=fdb, api_key="x")   # بدونِ budget
+check("۸: سازگاریِ عقب‌رو — بدونِ budget هم claude می‌دهد", r["source"] == "claude")
+
+print("\n" + "=" * 50); n = sum(1 for _, c in results if c); print(f"نتیجه: {n}/{len(results)} سبز")
+sys.exit(0 if n == len(results) else 1)

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "receipt.v1.schema.json",
+  "title": "octopus-bridge sync receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "schema_version",
+    "snapshot_id",
+    "manifest_hash",
+    "previous_receipt_hash",
+    "observed_at",
+    "observer_node",
+    "result",
+    "report_hash",
+    "integrity_hint"
+  ],
+  "properties": {
+    "receipt_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "const": "receipt.v1" },
+    "snapshot_id": { "type": "string", "minLength": 1 },
+    "manifest_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "previous_receipt_hash": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "observed_at": { "type": "string", "minLength": 1 },
+    "observer_node": { "type": "string", "minLength": 1 },
+    "result": { "enum": ["PASS", "MISMATCH", "MALFORMED"] },
+    "report_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "integrity_hint": { "const": "hash-chain-unkeyed" }
+  }
+}

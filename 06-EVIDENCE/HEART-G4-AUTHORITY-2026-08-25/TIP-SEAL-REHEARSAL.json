@@ -1,0 +1,30 @@
+{
+  "schema": "g4-tip-seal-rehearsal/1",
+  "ts_utc": "2026-08-25T01:36:39.961119+00:00",
+  "method": "copy of live ledger+tip into temp dir; seal_tip on the copy only; live untouched",
+  "before": {
+    "verify": [
+      true,
+      "ok"
+    ],
+    "verify_tip": [
+      false,
+      "length mismatch: file=14661 tip=14299"
+    ]
+  },
+  "seal_result": {
+    "n": 14661,
+    "sealed": true
+  },
+  "after": {
+    "verify": [
+      true,
+      "ok"
+    ],
+    "verify_tip": [
+      false,
+      "length mismatch: file=14661 tip=14300"
+    ]
+  },
+  "live_untouched": true
+}

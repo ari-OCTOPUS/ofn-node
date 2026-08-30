@@ -1,0 +1,152 @@
+"""test_tg_bridge_keyboard.py — دکمه‌ها باید از پل رد شوند، نه اینکه بی‌صدا بیفتند.
+
+کشفِ ۲۰۲۶-۰۷-۲۸ (ممیزیِ موازی، تأییدشده با اندازه‌گیریِ مستقل): پلِ دو-باتی در
+`center.py` جوابِ دیکشنریِ روترِ ارگانیسم را باز می‌کرد با کلیدِ `keyboard`، ولی
+روتر کلیدِ `reply_markup` می‌دهد. نتیجه:
+
+    /queue ۱۰ ردیف · /doctor ۶ · /money ۵ · /organs ۴ · /school ۳ · /heart ۱
+
+یعنی **۲۹ ردیف دکمه** در گروه دور ریخته می‌شد. متن می‌رسید، دکمه‌ها نه، و هیچ
+خطایی هم نبود — چون `None` مقدارِ کاملاً معتبری برای `keyboard` است. کارتی که
+دکمه‌اش را از دست داده هنوز «کار می‌کند»، فقط دیگر نمی‌شود باهاش کاری کرد.
+
+این مهم‌تر از یک زشتیِ ظاهری است: کلِ مسیرِ تأیید/رد/بعداً روی همین دکمه‌هاست.
+کارتِ صفِ تصمیم بدونِ دکمه یعنی مالک می‌بیند و نمی‌تواند رأی بدهد — و همان
+«اختاپوس کار نمی‌کند»ی می‌شود که این هفته دربارهٔ آن بود.
+
+⚠️ چرا تستِ رفتاری و نه grep: نسخهٔ قبلی‌اش هیچ تستی نداشت چون «واضح» بود. یک
+عدمِ تطابقِ نام هرگز خطا نمی‌دهد؛ فقط باید **شمرد** که چند دکمه از این‌سو رفت و
+چند تا آن‌سو رسید.
+"""
+import ast
+import sys
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE.parent / "budget"))
+
+import harness  # noqa: E402
+ENV = harness.setup("tg-bridge-kb")
+
+_CENTER = _HERE.parent / "telegram_center" / "center.py"
+
+
+class _Client:
+    def __init__(self):
+        self.sent = []
+
+    def send(self, text, chat_id=None, keyboard=None, topic_id=None):
+        self.sent.append({"text": text, "keyboard": keyboard})
+        return 1
+
+
+class _Fake:
+    """کمینه‌ترین میزبانِ متدِ واقعی — importِ خودِ `center` poller می‌سازد."""
+
+    _bridge_to_organism = None
+    _reply_thread = staticmethod(lambda msg: None)
+
+    def __init__(self, reply):
+        self._client = _Client()
+        self._reply = reply
+
+    class _Ch:
+        def __init__(self, reply):
+            self._reply = reply
+
+        def handle_command(self, text, chat_id=None, from_id=None):
+            return self._reply
+
+    def _organism_channel(self):
+        return self._Ch(self._reply)
+
+
+def _wire(reply):
+    """متدِ واقعیِ `_bridge_to_organism` را از سورس بردار و روی فیک ببند."""
+    tree = ast.parse(_CENTER.read_text("utf-8", errors="replace"))
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef)
+               and n.name == "_bridge_to_organism"), None)
+    assert fn is not None, "متدِ _bridge_to_organism در center.py نیست"
+    ns = {"_scrub": lambda s: s}
+    exec(compile(ast.Module(body=[fn], type_ignores=[]),
+                 "<center._bridge_to_organism>", "exec"), ns)
+    _Fake._bridge_to_organism = ns["_bridge_to_organism"]
+    return _Fake(reply)
+
+
+def _kb(rows: int) -> dict:
+    return {"inline_keyboard": [[{"text": f"b{i}", "callback_data": f"c{i}"}]
+                                for i in range(rows)]}
+
+
+def t_a_reply_markup_survives_the_bridge():
+    """قرارداد **واقعیِ** روترِ ارگانیسم: `{text, reply_markup}`."""
+    f = _wire({"text": "کارت", "reply_markup": _kb(5)})
+    out = f._bridge_to_organism("/money", 1, {})
+    assert out is not None and out["kind"] == "bridged", out
+    got = f._client.sent[0]["keyboard"]
+    assert got is not None, "دکمه‌ها در پل افتادند"
+    assert len(got["inline_keyboard"]) == 5, got
+
+
+def t_b_the_legacy_keyboard_key_still_works():
+    """دو تولیدکننده با دو قرارداد وجود دارد؛ مصرف‌کننده باید هر دو را بفهمد،
+    وگرنه فیکسِ یکی دیگری را می‌شکند."""
+    f = _wire({"text": "کارت", "keyboard": _kb(2)})
+    f._bridge_to_organism("/x", 1, {})
+    got = f._client.sent[0]["keyboard"]
+    assert got is not None and len(got["inline_keyboard"]) == 2, got
+
+
+def t_c_no_keyboard_stays_no_keyboard():
+    f = _wire({"text": "فقط متن"})
+    f._bridge_to_organism("/x", 1, {})
+    assert f._client.sent[0]["keyboard"] is None
+
+
+def t_d_a_plain_string_reply_is_untouched():
+    f = _wire("جوابِ رشته‌ای")
+    f._bridge_to_organism("/x", 1, {})
+    assert f._client.sent[0]["text"] == "جوابِ رشته‌ای"
+    assert f._client.sent[0]["keyboard"] is None
+
+
+def t_e_a_tuple_reply_keeps_its_keyboard():
+    f = _wire(("متن", _kb(3)))
+    f._bridge_to_organism("/x", 1, {})
+    got = f._client.sent[0]["keyboard"]
+    assert got is not None and len(got["inline_keyboard"]) == 3, got
+
+
+def t_f_the_real_router_still_uses_reply_markup():
+    """گاردِ دوجهته. اگر روزی روتر به `keyboard` مهاجرت کند، این تست قرمز
+    می‌شود و کسی می‌رود کدِ پل را ساده کند — به‌جای اینکه شاخهٔ مرده تا ابد
+    بماند و کسی نداند کدام‌شان واقعی است.
+
+    و مهم‌تر: اگر روتر روزی **هیچ** دکمه‌ای ندهد، این‌جا می‌فهمیم؛ چون آن‌وقت
+    مسیرِ تأیید/رد از گروه از بین رفته و هیچ‌جای دیگری داد نمی‌زند.
+    """
+    import approval_channel as ac
+    ch = ac.TelegramApprovalChannel(token=None, owner_chat_id=999001)
+    rows = {}
+    for cmd in ("/queue", "/money", "/doctor", "/school", "/heart", "/organs"):
+        out = ch.handle_command(cmd, chat_id=999001, from_id=999001)
+        if not isinstance(out, dict):
+            continue
+        assert "keyboard" not in out, (
+            f"{cmd} حالا `keyboard` می‌دهد — پل را ساده کن")
+        rm = out.get("reply_markup") or {}
+        rows[cmd] = len(rm.get("inline_keyboard") or [])
+    assert rows, "هیچ‌کدام از این شش فرمان دیکشنری برنگرداند"
+    assert sum(rows.values()) >= 10, (
+        f"مسیرِ دکمه‌ایِ گروه تقریباً تهی شده: {rows}")
+
+
+if __name__ == "__main__":
+    checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
+    failed = harness.run(checks)
+    print(f"\n{'✅' if not failed else '❌'} test_tg_bridge_keyboard: "
+          f"{len(checks) - failed}/{len(checks)}")
+    sys.exit(1 if failed else 0)

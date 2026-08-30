@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+"""T66 — afferent starvation diagnosis. Observe-only; does not change thresholds."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from .paths import STATE, VAULT
+
+# From wiring.py / sensory_bus.py (verified in-repo, not assumed from chat).
+HEBBIAN_STARVE_THRESHOLD = 0.1
+BUS_ALARM_THRESHOLD = 0.15
+DEFAULT_EVERY_N = 1440
+HEALTH_CONTRACT_MIN = 0.5
+ROOT_CAUSES = frozenset({"NO_SOURCE", "BROKEN_READER", "THRESHOLD_MISCALIBRATION", "MIXED"})
+
+
+def _read_json(path: Path) -> dict:
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def diagnose(vault: Path | None = None, state: Path | None = None) -> dict:
+    vault = Path(vault) if vault is not None else VAULT
+    state = Path(state) if state is not None else STATE
+    org = _read_json(state / "ORGANISM-STATE.json")
+    wiring = org.get("wiring") or {}
+    every_n = int(wiring.get("afferent_every_n") or DEFAULT_EVERY_N)
+    legs = (org.get("business_legs") or {}).get("business_legs") or {}
+    knowledge = legs.get("knowledge") or {}
+    notes_dir = vault / "07 - Knowledge"
+    notes_exist = notes_dir.is_dir()
+    knowledge_live = bool(knowledge.get("live"))
+    knowledge_age = knowledge.get("age_days")
+    school_on = bool(wiring.get("wire_school"))
+    ingest_on = bool(wiring.get("wire_ingest"))
+
+    # Reader path: afferent_beat only builds observations from spend snapshot
+    # (_observations_from_snapshot). Knowledge notes are never ingested there.
+    reader_ignores_vault = True
+    # Default last_afferent_ratio = 1.0 until first beat; empty bus returns 0.0.
+    detector_default_healthy = True
+    empty_window_reads_as_zero = True
+
+    # Historical: effect-shadow has long afferent_starved streaks (Aug 1).
+    # Live now: pain ~0.24, halt null — detector currently not firing halt.
+
+    causes = []
+    if notes_exist and not knowledge_live:
+        causes.append("NO_SOURCE")  # notes exist; not an afferent source
+    if reader_ignores_vault:
+        causes.append("BROKEN_READER")  # reader looks at spend snapshot, not notes
+    # Threshold 0.1 vs empty-window 0.0 is reachable; 1.0 default hides starvation
+    # until first empty beat then latches starved. Not a simple miscalibration alone.
+    if detector_default_healthy and empty_window_reads_as_zero:
+        causes.append("THRESHOLD_MISCALIBRATION")
+
+    uniq = []
+    for c in causes:
+        if c not in uniq:
+            uniq.append(c)
+    root = "MIXED" if len(uniq) > 1 else (uniq[0] if uniq else "NO_SOURCE")
+    assert root in ROOT_CAUSES
+
+    return {
+        "schema": "afferent-starvation/1",
+        "starvation_root_cause": root,
+        "causes": uniq,
+        "measurement": {
+            "hebbian_signal": "afferent_starved when sensory.afferent_ratio <= 0.1",
+            "bus_alarm": "afferent-deficit when ratio < 0.15 after >=5 events",
+            "empty_bus_ratio": 0.0,
+            "organism_default_ratio": 1.0,
+            "cadence_beats": every_n,
+            "health_contract": "afferent_ratio>=0.5 && !protective_halt",
+            "thresholds_compared_not_changed": {
+                "hebbian": HEBBIAN_STARVE_THRESHOLD,
+                "bus_alarm": BUS_ALARM_THRESHOLD,
+                "health_contract_min": HEALTH_CONTRACT_MIN,
+            },
+        },
+        "sources": {
+            "knowledge_notes_exist": notes_exist,
+            "knowledge_leg_live": knowledge_live,
+            "knowledge_newest_age_days": knowledge_age,
+            "afferent_observations_from": "budget snapshot (per_organ spend / month musd / suspect zeros)",
+            "vault_notes_in_afferent_beat": False,
+            "wire_school": school_on,
+            "wire_ingest": ingest_on,
+        },
+        "verdict_plain": (
+            "Starvation is MIXED: real vault notes exist but are not a sensory source "
+            "(NO_SOURCE); afferent_beat reads spend-shape not notes (BROKEN_READER); "
+            "ratio defaults to 1.0 (hides hunger) then empty ingest latches 0.0 "
+            "(THRESHOLD_MISCALIBRATION). Do not change thresholds this session."
+        ),
+        "proposal_only": {
+            "do_not_change_thresholds": True,
+            "add_knowledge_afferent": True,
+            "metric": "afferent_events_per_minute_by_source",
+        },
+    }

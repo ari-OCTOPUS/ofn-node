@@ -1,0 +1,1 @@
+{"schema":"octopus.tainted_window.mark.v1","written_at":"2026-08-17T06:06:47Z","boot_id":"bcdab511-3d46-4fdf-b113-f894cb8666f5","path":"/tmp/evidence/stage0-tainted-window.yaml","status":"TAINTED_COLLECTION","start":"2026-08-17T05:49:42Z","end":"2026-08-17T06:06:47Z","unit":"octopus-sensorium","pid":698,"note":"mark-only; no deletion; coverage/skill_score in window not fresh"}

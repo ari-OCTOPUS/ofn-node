@@ -1,0 +1,500 @@
+"""
+spine/gates.py -- typed seam Protocols + deterministic, fail-closed fakes.
+
+Every Protocol here mirrors the call-shape of one real fusion-mvp / AI-sume
+module (named in its docstring). The Fake* dataclasses are minimal,
+in-memory, deterministic implementations that let spine/pipeline.py be
+proven offline; because Python Protocols are structural, a real adapter can
+later satisfy the same Protocol without inheriting from anything here.
+
+Naming maps 1:1 onto the "GATE(kill*budget*permit)" / "GUARD(policy*panel)"
+stages in the river:
+
+    KillGate    <- fusion-mvp/src/killswitch.py      (KillSwitch)
+    BudgetGate  <- fusion-mvp/src/budget.py           (BudgetLedger)
+    PermitGate  <- fusion-mvp/igk/kernel.py           (Kernel.permit/consume)
+    Brain       <- AI-sume/langar/brain/providers.py  (BaseBrainProvider)
+    Grounder    <- fusion-mvp/igk/kernel.py           (Kernel.ground)
+    Guard       <- fusion-mvp/src/guardrails.py + panel.py
+                   (check_output + JudgePanel.review)
+    OwnerGate   <- generalizes kernel.py's CANON["human_above"] invariant
+                   (no single real file owns "human must approve external
+                   actuation"; this Protocol names that seam explicitly)
+    Router      <- AI-sume/langar/brain/brain_router.py
+                   (classify_depth / BrainRouter.route) -- additive: the
+                   river's ROUTE(tier) stage needs a seam, and this is the
+                   real module that owns tier selection, even though the
+                   build spec's named-Protocol list didn't spell it out.
+
+Every Fake* defaults to the SAFE side of its gate: kill starts un-tripped
+(matches real KillSwitch), but budget/permit/ground/guard/owner all reject
+anything they cannot positively verify (matches the "fail-closed" invariant
+stated across kernel.py's CANON).
+"""
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+from typing import Any, Protocol, runtime_checkable
+
+# --------------------------------------------------------------------------- #
+# Exceptions -- local to the spine (NOT imported from the real subsystems,
+# to keep this module self-contained); names mirror the real exception
+# names.
+# --------------------------------------------------------------------------- #
+
+
+class KillTripped(Exception):
+    """Mirrors fusion-mvp/src/killswitch.py: KillSwitchError."""
+
+
+class BudgetExceeded(Exception):
+    """Mirrors fusion-mvp/src/budget.py: BudgetExceeded."""
+
+
+# --------------------------------------------------------------------------- #
+# KillGate -- mirrors fusion-mvp/src/killswitch.py
+#   KillSwitch.check() / .is_tripped (@property) / .trip(reason) / .reset()
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class KillGate(Protocol):
+    def check(self) -> None:
+        """Raise KillTripped if tripped. Mirrors KillSwitch.check()."""
+        ...
+
+    def is_tripped(self) -> bool:
+        """Mirrors KillSwitch.is_tripped. (A @property on the real class;
+        a plain method here so the Protocol stays a pure method-set.)"""
+        ...
+
+    def trip(self, reason: str) -> None:
+        """Mirrors KillSwitch.trip(reason)."""
+        ...
+
+
+@dataclass
+class FakeKillGate:
+    """In-memory kill switch. Fail-closed: once tripped (via trip() or via
+    the `stop_flag` sentinel, which stands in for killswitch.py's STOP
+    file), check() always raises -- nothing un-trips it except reset()."""
+
+    reason: str = ""
+    stop_flag: dict = field(default_factory=dict)  # simulates an external STOP file
+    _tripped: bool = field(default=False, init=False, repr=False)
+
+    def trip(self, reason: str) -> None:
+        self._tripped = True
+        self.reason = reason
+
+    def is_tripped(self) -> bool:
+        if self._tripped:
+            return True
+        if self.stop_flag.get("STOP"):
+            self.reason = self.reason or "external STOP sentinel set"
+            return True
+        return False
+
+    def check(self) -> None:
+        if self.is_tripped():
+            raise KillTripped(f"KILL-SWITCH tripped: {self.reason or 'unknown reason'}")
+
+    def reset(self) -> None:
+        self._tripped = False
+        self.reason = ""
+        self.stop_flag.clear()
+
+
+# --------------------------------------------------------------------------- #
+# BudgetGate -- mirrors fusion-mvp/src/budget.py
+#   BudgetLedger.precheck(agent) / BudgetLedger.record(agent, in_tok, out_tok)
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class BudgetGate(Protocol):
+    def precheck(self, agent: str) -> None:
+        """Pre-spend, fail-closed check. Mirrors BudgetLedger.precheck(agent)
+        -- raises BudgetExceeded BEFORE the call if the next step could
+        cross the cap, so nothing can sneak past it."""
+        ...
+
+    def record(self, agent: str, input_tokens: int, output_tokens: int) -> float:
+        """Mirrors BudgetLedger.record(agent, input_tokens, output_tokens)
+        -> cost_usd. Raises BudgetExceeded if the recorded spend crosses
+        the cap (defense in depth, after the fact)."""
+        ...
+
+
+@dataclass
+class FakeBudgetGate:
+    """Deterministic per-agent + global budget ledger, same two-layer
+    fail-closed shape as the real BudgetLedger: precheck() rejects before
+    spend using a worst-case next-call estimate, record() rejects again
+    after spend as a backstop."""
+
+    per_agent_cap_usd: dict = field(default_factory=dict)
+    default_cap_usd: float = 1.0
+    global_cap_usd: float = 5.0
+    price_per_mtok_input: float = 3.0
+    price_per_mtok_output: float = 15.0
+    max_tokens_per_call: int = 1000
+    max_calls_per_agent: int = 1000
+    _spent: dict = field(default_factory=dict, init=False, repr=False)
+    _calls: dict = field(default_factory=dict, init=False, repr=False)
+    _global_spent: float = field(default=0.0, init=False, repr=False)
+
+    def cost_of(self, input_tokens: int, output_tokens: int) -> float:
+        return (input_tokens / 1_000_000 * self.price_per_mtok_input
+                + output_tokens / 1_000_000 * self.price_per_mtok_output)
+
+    def _cap(self, agent: str) -> float:
+        return self.per_agent_cap_usd.get(agent, self.default_cap_usd)
+
+    def precheck(self, agent: str) -> None:
+        spent = self._spent.get(agent, 0.0)
+        calls = self._calls.get(agent, 0)
+        cap = self._cap(agent)
+        if calls >= self.max_calls_per_agent:
+            raise BudgetExceeded(f"{agent}: call-count cap ({self.max_calls_per_agent}) reached")
+        next_max = self.cost_of(self.max_tokens_per_call, self.max_tokens_per_call)
+        if spent + next_max > cap:
+            raise BudgetExceeded(f"{agent}: next step would cross cap (${cap}) -- pre-spend rejected")
+        if self._global_spent + next_max > self.global_cap_usd:
+            raise BudgetExceeded(f"global: next step would cross cap (${self.global_cap_usd}) -- pre-spend rejected")
+        if spent >= cap:
+            raise BudgetExceeded(f"{agent}: cap (${cap}) already reached")
+        if self._global_spent >= self.global_cap_usd:
+            raise BudgetExceeded(f"global cap (${self.global_cap_usd}) already reached")
+
+    def record(self, agent: str, input_tokens: int, output_tokens: int) -> float:
+        cost = self.cost_of(input_tokens, output_tokens)
+        self._spent[agent] = self._spent.get(agent, 0.0) + cost
+        self._calls[agent] = self._calls.get(agent, 0) + 1
+        self._global_spent += cost
+        cap = self._cap(agent)
+        if self._spent[agent] > cap:
+            raise BudgetExceeded(f"{agent} crossed cap (${cap}) -- auto-halt")
+        if self._global_spent > self.global_cap_usd:
+            raise BudgetExceeded(f"global budget (${self.global_cap_usd}) crossed -- auto-halt")
+        return cost
+
+
+# --------------------------------------------------------------------------- #
+# PermitGate -- mirrors igk/kernel.py: Kernel.permit(action, actor) /
+#   Kernel.consume(token)
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class PermitGate(Protocol):
+    def permit(self, action: str, actor: str) -> dict:
+        """Mirrors Kernel.permit(action, actor) ->
+        {"ok": True, "token": {...}} or {"ok": False, "reason": ...}."""
+        ...
+
+    def consume(self, token: dict) -> dict:
+        """Mirrors Kernel.consume(token) -> {"ok": bool, "reason": ...}.
+        Called right before actuation; re-validates the token (replay,
+        expiry, and -- in the real kernel -- a second STOP check)."""
+        ...
+
+
+@dataclass
+class FakePermitGate:
+    """Deterministic nonce-token permit/consume, fail-closed on `stopped`.
+    Unlike the real Kernel, this fake does not HMAC-sign the token --
+    offline determinism here only needs structural replay/expiry
+    protection; the ledger (not this token) is what carries this module's
+    tamper-evidence."""
+
+    stopped: bool = False
+    ttl_seconds: float = 30.0
+    _used_nonces: set = field(default_factory=set, init=False, repr=False)
+    _counter: int = field(default=0, init=False, repr=False)
+
+    def permit(self, action: str, actor: str) -> dict:
+        if self.stopped:
+            return {"ok": False, "reason": "KILL-SWITCH active (STOP) -- no permit issued"}
+        self._counter += 1
+        token = {"action": action, "actor": actor, "nonce": f"nonce-{self._counter}",
+                 "exp": time.time() + self.ttl_seconds}
+        return {"ok": True, "token": token}
+
+    def consume(self, token: dict) -> dict:
+        if not isinstance(token, dict) or "nonce" not in token:
+            return {"ok": False, "reason": "token missing/malformed"}
+        if token["nonce"] in self._used_nonces:
+            return {"ok": False, "reason": "permit already consumed (replay)"}
+        if time.time() > token["exp"]:
+            return {"ok": False, "reason": "permit expired"}
+        if self.stopped:
+            return {"ok": False, "reason": "KILL-SWITCH tripped since permit was issued"}
+        self._used_nonces.add(token["nonce"])
+        return {"ok": True, "reason": "ok"}
+
+
+# --------------------------------------------------------------------------- #
+# Brain -- mirrors AI-sume/langar/brain/providers.py:
+#   BaseBrainProvider.ask(system_prompt, context) / .is_available()
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class Brain(Protocol):
+    def ask(self, system_prompt: str, context: dict) -> str:
+        """Mirrors BaseBrainProvider.ask(system_prompt, context) -> str."""
+        ...
+
+    def is_available(self) -> bool:
+        """Mirrors BaseBrainProvider.is_available() -> bool."""
+        ...
+
+
+@dataclass
+class FakeBrain:
+    """Deterministic, offline brain -- same spirit as providers.py's
+    OfflineBrainProvider (a canned answer bank, no network, no
+    randomness). Echoes the requested claim_subject/claim_value so GROUND
+    has something concrete to check, and adds a verification caveat when
+    asked to hedge so GUARD's policy/panel checks are exercised
+    deterministically too."""
+
+    name: str = "fake-offline"
+
+    def is_available(self) -> bool:
+        return True
+
+    def ask(self, system_prompt: str, context: dict) -> str:
+        subject = context.get("claim_subject") or "the topic"
+        value = context.get("claim_value") or "unknown"
+        text = (f"Regarding {subject}: the answer is {value}, "
+                f"cross-checked against held-out evidence ({system_prompt}).")
+        if context.get("hedge", True):
+            text += " احتیاط: در صورت شک دوباره راستی‌آزمایی شود."
+        return text
+
+
+# --------------------------------------------------------------------------- #
+# Grounder -- mirrors igk/kernel.py: Kernel.ground(claims, actor)
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class Grounder(Protocol):
+    def ground(self, claims: list, actor: str) -> dict:
+        """Mirrors Kernel.ground(claims, actor) ->
+        {"ok", "grounding_ratio", "bad", "verdicts"}."""
+        ...
+
+
+@dataclass
+class FakeGrounder:
+    """Held-out fact-checker -- a direct, self-contained port of
+    Kernel._judge/Kernel.ground's verdict algebra: each claim is judged
+    ok / contradicted / unverifiable against a fact table the Brain never
+    sees. Fail-closed: zero claims => not valid (mirrors kernel.py's
+    `len(claims) > 0` requirement)."""
+
+    facts: list = field(default_factory=list)  # [{"subject": ..., "value": ...}, ...]
+
+    def _judge(self, claim: Any) -> dict:
+        if isinstance(claim, dict):
+            subj = str(claim.get("subject", "")).lower()
+            val = str(claim.get("value", "")).lower()
+            for f in self.facts:
+                if str(f["subject"]).lower() == subj:
+                    return {"verdict": "ok" if str(f["value"]).lower() == val else "contradicted"}
+            return {"verdict": "unverifiable"}
+        low = str(claim).lower()
+        about_any = False
+        for f in self.facts:
+            subj_tokens = str(f["subject"]).lower().split()
+            if subj_tokens and all(t in low for t in subj_tokens):
+                about_any = True
+                if str(f["value"]).lower() not in low:
+                    return {"verdict": "contradicted"}
+        return {"verdict": "ok" if about_any else "unverifiable"}
+
+    def ground(self, claims: list, actor: str) -> dict:
+        verdicts = [self._judge(c) for c in claims]
+        bad = [{"claim": c, "verdict": v["verdict"]} for c, v in zip(claims, verdicts) if v["verdict"] != "ok"]
+        valid = len(bad) == 0 and len(claims) > 0
+        ratio = round(sum(1 for v in verdicts if v["verdict"] == "ok") / max(1, len(claims)), 3)
+        return {"ok": valid, "grounding_ratio": ratio, "bad": bad, "verdicts": verdicts}
+
+
+# --------------------------------------------------------------------------- #
+# Guard -- mirrors fusion-mvp/src/guardrails.py: check_output(text)
+#          AND   fusion-mvp/src/panel.py: JudgePanel.review(analysis)
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class Guard(Protocol):
+    def check_output(self, text: str) -> tuple:
+        """Mirrors guardrails.check_output(text) -> (ok: bool, reason: str)."""
+        ...
+
+    def review_panel(self, analysis: str) -> dict:
+        """Mirrors JudgePanel.review(analysis) ->
+        {"approved", "yes", "total", "decision", "votes"}."""
+        ...
+
+
+_SUSPICIOUS = ("اثبات‌نشده", "نامطمئن", "شایعه")  # verbatim from guardrails.py
+
+
+def _has_caveat(text: str) -> bool:
+    return ("راستی‌آزمایی" in text) or ("احتیاط" in text)  # verbatim from guardrails.py/panel.py
+
+
+@dataclass
+class FakeGuard:
+    """Deterministic policy check + judge panel. check_output() is a direct
+    port of guardrails.check_output(). review_panel()'s per-judge
+    _decide() is a direct port of panel.Judge._decide() -- the exact
+    fallback heuristic the real Judge.vote() uses when a model's
+    APPROVE/REJECT text is ambiguous, so this fake stays honest without
+    calling any LLM."""
+
+    stances: tuple = ("strict", "lenient", "balanced")
+    quorum: int = 2
+
+    def check_output(self, text: str) -> tuple:
+        if not text or len(text.strip()) < 15:
+            return False, "output empty or too short"
+        has_claim = any(w in text for w in _SUSPICIOUS)
+        if has_claim and not _has_caveat(text):
+            return False, "unverified claim without a verification caveat"
+        return True, "ok"
+
+    def _decide(self, stance: str, analysis: str) -> bool:
+        has_caveat = _has_caveat(analysis)
+        long_enough = len(analysis.strip()) >= 40
+        nonempty = len(analysis.strip()) >= 15
+        if stance == "strict":
+            return has_caveat and long_enough
+        if stance == "lenient":
+            return nonempty
+        return has_caveat or long_enough  # balanced
+
+    def review_panel(self, analysis: str) -> dict:
+        votes = [(self._decide(s, analysis), f"judge-{s}") for s in self.stances]
+        yes = sum(1 for ok, _ in votes if ok)
+        total = len(votes)
+        approved = yes >= self.quorum
+        if approved:
+            decision = "approved"
+        elif yes == 0:
+            decision = "rejected"
+        else:
+            decision = "split"  # neither full approve nor full reject -> human escalation
+        return {"approved": approved, "yes": yes, "total": total,
+                "decision": decision, "votes": votes}
+
+
+# --------------------------------------------------------------------------- #
+# OwnerGate -- human-above-all override for actuation that leaves the
+# system. No single real file owns this seam; it names and enforces the
+# "human_above" invariant stated in igk/kernel.py's CANON, in the same
+# fail-closed shape as Kernel.permit.
+# --------------------------------------------------------------------------- #
+
+
+@runtime_checkable
+class OwnerGate(Protocol):
+    def approve(self, action: str, actor: str, external: bool) -> dict:
+        """Fail-closed owner approval for external actuation ->
+        {"ok": bool, "reason": str}. Internal (non-external) actions are
+        approved automatically -- this gate only guards the boundary
+        where the system's output leaves and touches the outside world."""
+        ...
+
+
+@dataclass
+class FakeOwnerGate:
+    """Deterministic allowlist: an external action is blocked unless its
+    action name was explicitly pre-approved by the owner."""
+
+    preapproved: set = field(default_factory=set)
+
+    def approve(self, action: str, actor: str, external: bool) -> dict:
+        if not external:
+            return {"ok": True, "reason": "internal action -- owner-gate not required"}
+        if action in self.preapproved:
+            return {"ok": True, "reason": f"owner pre-approved: {action}"}
+        return {"ok": False, "reason": f"external action '{action}' has no owner approval"}
+
+
+# --------------------------------------------------------------------------- #
+# Router (additive) -- mirrors AI-sume/langar/brain/brain_router.py:
+#   classify_depth(task, risk) / BrainRouter.route(task, risk) / pick_model()
+# --------------------------------------------------------------------------- #
+
+DEPTHS = ["simple", "react", "plan", "deliberate"]  # verbatim order from brain_router.py
+
+
+@dataclass
+class RouteDecision:
+    """Mirrors brain_router.Route (renamed to avoid clashing with this
+    module's own use of "route" as a verb elsewhere in the pipeline)."""
+
+    depth: str
+    model_tier: str  # "cheap" | "strong"
+    use_loop: bool
+    reason: str
+    downgraded: bool = False
+
+
+def classify_depth(task: str, risk: bool = False) -> str:
+    """Deterministic, English-keyword port of brain_router.classify_depth:
+    same DEPTHS ladder and escalation order (risk/keyword before length),
+    but a plain keyword list instead of the real Persian/English regex
+    bank -- offline-safe and trivially auditable."""
+    t = (task or "").lower()
+    deliberate_kw = ("decision", "risk", "invest", "trade", "strategy", "architecture")
+    plan_kw = ("step by step", "project", "build", "implement", "plan", "refactor", "migrate")
+    tool_kw = ("search", "source", "research", "web", "link", "url", "price", "news")
+    if risk or any(k in t for k in deliberate_kw):
+        return "deliberate"
+    if any(k in t for k in plan_kw) or len(t) > 600:
+        return "plan"
+    if any(k in t for k in tool_kw):
+        return "react"
+    return "simple"
+
+
+@runtime_checkable
+class Router(Protocol):
+    def route(self, task: str, risk: bool = False) -> RouteDecision:
+        """Mirrors BrainRouter.route(task, risk) -> Route."""
+        ...
+
+
+@dataclass
+class FakeRouter:
+    """Deterministic port of BrainRouter: downgrades a strong-tier depth to
+    a cheaper one when budget_ok is False or allow_strong is False -- a
+    fail-DEGRADED choice by design (this stage only picks a tier, it never
+    halts the river; that's GATE's job)."""
+
+    allow_strong: bool = True
+    budget_ok: bool = True  # caller-supplied signal, mirrors budget.can_spend()
+
+    def route(self, task: str, risk: bool = False) -> RouteDecision:
+        depth = classify_depth(task, risk=risk)
+        wants_strong = depth in ("plan", "deliberate")
+        downgraded = False
+        reason = f"depth={depth} from task signals"
+        if wants_strong and (not self.budget_ok or not self.allow_strong):
+            old = depth
+            depth = "react" if depth == "plan" else "plan"
+            wants_strong = depth in ("plan", "deliberate") and self.allow_strong and self.budget_ok
+            downgraded = True
+            reason += f" -> downgraded {old}->{depth} (budget/offline)"
+        tier = "strong" if (wants_strong and self.allow_strong and self.budget_ok) else "cheap"
+        use_loop = depth != "simple"
+        return RouteDecision(depth=depth, model_tier=tier, use_loop=use_loop,
+                              reason=reason, downgraded=downgraded)

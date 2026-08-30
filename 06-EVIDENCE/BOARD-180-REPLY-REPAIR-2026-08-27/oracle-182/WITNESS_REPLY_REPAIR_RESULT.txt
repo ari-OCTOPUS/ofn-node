@@ -1,0 +1,14 @@
+WITNESS_REPLY_REPAIR_RESULT
+PATCH_REF=v2 5834522f reply 11bd33fb sha 7322ddbc ACK 7dc09d56 + vault outbox bac40b1e MATCH + result 512030a0 MATCH + frozen d6c878af MATCH + meta-5834522f 030928a7 MATCH + PC_worker 8fe57d68
+TEST_ORACLE_INDEPENDENT=yes hashed 4 WAVE0 files; read settle-138 SETTLE-5834522f-2026-08-27-1147.md; not 8fb28ba3/b4893759
+FALSIFICATION_ATTEMPTS=Get-FileHash x4 + independent settle read
+ACK_BEFORE_PROCESSED=138 ACK 7dc09d56 of 11bd33fb independently OBSERVED on SETTLE-5834522f 11:47 (in_reply_to=11bd33fb, not old lost reply)
+RETRY_SAME_BYTES=180 JSON transmit_calls=1 TRANSMIT_HANDED; 182 executed 1->1 only on pc-worker 8fe57d6
+MODEL_RERUNS=not executed on 180 outbox.py
+DUPLICATE_EFFECTS=reference 1->1; official claims 1
+CRASH_RECOVERY=hash+receipt only
+START_LIMIT=not re-run
+VERDICT=confirmed
+MUTATIONS=0
+STATUS=V2_CONFIRMED_DURABLE_CYCLE live_enable=NO Fresh_E2E_OFF HOLD_NEW_CYCLES this_is_not_systemd_live_enable pair=11bd33fb+7dc09d56
+END_RESULT

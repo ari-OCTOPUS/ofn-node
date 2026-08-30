@@ -1,4 +1,4 @@
-# NOW — OCTOPUS current truth (generated 2026-08-20T10:44:42+00:00 from _ops/state/labels.json)
+# NOW — OCTOPUS current truth (generated 2026-08-20T10:47:04+00:00 from _ops/state/labels.json)
 ## Headline
 - **VALID_PAIRS = 30** (OBSERVED) — primary metric; PRIMARY_VALID_PAIRS = 30; threshold 20_WINS_OF_30_VALID_PAIRS
 - LIVE4: PRIMARY_V4_EXECUTED_READABILITY_SOLVED_LEARNING_TRENDING_FALSIFIED · SCORING: PRIMARY_V4_EXECUTED_CRITERION_NOT_MET_30V_13W (OBSERVED)
@@ -11,7 +11,7 @@
 | OCTOPUS_MODE | CORE_AUTO_DEBUG | VERIFIED | `02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md` |
 | AUTONOMY | INTERNAL_HIGH/EXTERNAL_PROPOSE_ONLY | VERIFIED | `02-DECISIONS/CORE-LIVE-LEARNING-01-2026-08-18.md` |
 | DAEMON_4D | RUNNING_OBSERVED | OBSERVED | `4d_system/outputs/daemon-launch4b.err.log · expires 2026-08-19T12:30:00+00:00` |
-| DAEMON_PID | organism=zive · center=26388 · brain.daemon=25680(old code) · cortex=25284 | OBSERVED | `06-EVIDENCE/DIRECTIVE-14A-REPORT-2026-08-20.md` |
+| DAEMON_PID | organism=zive · center=8828 · brain.daemon=25680(old code) | OBSERVED | `_ops/state/telegram/process-identity.json` |
 | TCB | VERIFIED_CLEAN_AT_LAST_PREFLIGHT | VERIFIED | `06-EVIDENCE/CL01-191-20260818-2233/preflight-invariant.txt · expires 2026-08-20T00:00:00+00:00` |
 | SH | DISARMED | VERIFIED | `02-DECISIONS/CARD-A-DISARM-2026-08-19.md` |
 | BOARDS | NO_CONTACT | VERIFIED | `06-EVIDENCE/R01-191-20260818-2217/R01-REALITY-MANIFEST.md` |
@@ -82,6 +82,15 @@
 | D_A_BASELINE_ARM | FIXED_VERIFIED_0_FAILURES_IN_LAST_8 | VERIFIED | `06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl` |
 | D_B_JUDGE_CONTRACT | V3_CHOICE_JSON_4_OF_4_E2E_PASS | OBSERVED | `06-EVIDENCE/CL01-191-20260818-2233/live4/live4-pairs.jsonl` |
 
+## LANE
+| label | value | status | evidence |
+|---|---|---|---|
+| WRITER_LEASE | RELEASED after A19 · archive octopus-writer.lock.released.1787222380 | VERIFIED | `_ops/state/locks/octopus-writer.lock.released.1787222380` |
+| LIVE_GATES | A=PASS · B=BLOCKED(telegram A13-A17 PASS; Full Loop not started) · C=PASS · D/E=BLOCKED | MEASURED | `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF.json` |
+| AGENT_ROLES | A/B=telegram A13-A19 done, lease released · C=organs, knowledge_hook_activation_allowed | VERIFIED | `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF.json` |
+| TELEGRAM_CANARY | A13 PASS (0 cost @20:18) · A14 READ_BACK_USED · A15+A5 receipt · A16 window 0 rx · A17 HC_WM_CAUSAL · A18 BLOCKED | MEASURED | `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF.json` |
+| ORGAN_LANE | A19 issued · hook activation allowed on organism line · telegram lane released | VERIFIED | `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF.json` |
+
 ## UNMAPPED (renderer gap — add to SECTIONS)
 | label | value | status |
 |---|---|---|
@@ -90,21 +99,16 @@
 | CORTEX_8772_INCIDENT | OPEN_MONITOR_ONLY_BOUNDED | OBSERVED |
 | POSITION_SWAP_PILOT | OBSERVED_PILOT_1_OF_4_RS_UNRESOLVED | OBSERVED |
 | D6_VERDICT | CLOSED_NEGATIVE · JUDGMENT_IS_PAIR_DEPENDENT · flip_rate gate official | VERIFIED |
-| WRITER_LEASE | ACTIVE held by A (telegram session) · C lane-scoped accepted | VERIFIED |
 | MEMORY_READ_LOOP | LIVE_READONLY · reads=3/cycle · readback=read_ok | MEASURED |
 | EVENT_TIME_PRODUCERS | DEPLOYED_2 (provider/router_request_ts + telegram/message.date) · schema v2 dual-write | MEASURED |
 | SIGNING_KEY | ANCHORED 2413e974..ab6b2 · B1_SIGNED_ED25519 | VERIFIED |
 | GOVERNANCE_VOTE_RULE | CHAT_IS_NOT_SIGNATURE (R10) | VERIFIED |
-| LIVE_GATES | A=PASS · B=MEASURING · C=PASS · D/E=BLOCKED | MEASURED |
 | EXECUTABLE_RULE | ALLOWLIST: protective_halt/throttle only · restrictive_only · unexpected=0 | VERIFIED |
 | C047_RESTART_PROTOCOL | CLOSED_WITH_FIX — single-marker RESTART-REQUESTED + loud preflight | VERIFIED |
 | JUDGE_ACCEPTANCE | STABLE_UNDER_PERMUTATION · VOID_UNSTABLE · flip_rate_on=pairs_with_advantage | VERIFIED |
 | T54_CLOCK_PRECISION | provider_server_created=1s · semantics UNKNOWN(receipt-vs-generation) · skew collector armed | MEASURED |
 | SIGNED_CARDS | 3×ED25519 VERIFIED (probe=RESPONSE_INVALID · phase2=NOT_RUN · fullloop=GATED_BY_LIVE_B) | VERIFIED |
 | EVENT_TIME_PROBE | SIGNED · FX_GATE_WAITING (RBA 20-Aug pending) · auto-run watcher armed | MEASURED |
-| AGENT_ROLES | A/B=telegram(critical,lease) · C=organs(lane done,awaiting handoff A19) | VERIFIED |
-| TELEGRAM_CANARY | INGEST_PASS(4 events,+1 each,bot_id mapped) · MODEL_FAIL(2 paid calls pre-fix) · LOCAL_FIX_DEPLOYED awaiting round-3 | MEASURED |
-| ORGAN_LANE | C12-C15,C19-C21,C23 ACCEPTED by owner · hook CODE_READY_FLAG_OFF · canary pending handoff A19 | VERIFIED |
 | MEGA_DATA | senior agent briefing: 71-MEGA-DATA (13 sections, 383 lines, path map) | VERIFIED |
 
 _Rules: statuses are OBSERVED|VERIFIED|CLAIMED|BLOCKED|VOID|UNKNOWN; two agents agreeing never makes VERIFIED; expired evidence auto-downgrades; history append-only in _ops/state/label-history.jsonl. Renderer: _ops/scripts/render_now.py._

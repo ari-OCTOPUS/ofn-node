@@ -393,5 +393,16 @@ if __name__ == "__main__":
         # پس هیچ PS1ی این خروجی را با verdictِ احیا اشتباه نمی‌گیرد.
         _text = " ".join(_argv[1:]).strip() or "WATCHDOG: (پیامِ خالی)"
         print("ALERTED" if notify([_text]) else "ALERT-FAILED")
+    elif _argv and _argv[0] == "--json":
+        # Heart v2 (2026-08-25): verdict ماشین‌خوان برای دوقلوی PowerShell تا
+        # تشخیصِ استالِ کانونی (این ماژول) در تولید اجرا شود — رفعِ split-brain.
+        m = monitor()
+        print(json.dumps({"should_revive": m["should_revive"],
+                          "stall": m["stall"],
+                          "stall_cause": m["stall_cause"],
+                          "reason": m["reason"],
+                          "stop_flag": m["stop_flag"],
+                          "port_alive": m["port_alive"],
+                          "beat_age_s": m["beat_age_s"]}, ensure_ascii=False))
     else:
         print(revive_action())

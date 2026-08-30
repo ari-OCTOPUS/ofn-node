@@ -214,3 +214,27 @@
 {"run_id": "rfc-RFC-892cd209", "step": "submit", "status": "ok", "ts": 1787005966.1439924, "meta": {}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787035042.3068736, "meta": {"incomplete": 2}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787117006.9240453, "meta": {"incomplete": 3}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787150735.8497956, "meta": {"incomplete": 3}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787161955.3136024, "meta": {"incomplete": 4}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787190427.7552917, "meta": {"incomplete": 4}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787200570.5527139, "meta": {"incomplete": 4}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787202419.964603, "meta": {"incomplete": 5}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787293332.9629076, "meta": {"incomplete": 3}}
+{"run_id": "rfc-RFC-dac24854", "step": "propose", "status": "ok", "ts": 1787293655.9900715, "meta": {}}
+{"run_id": "rfc-RFC-dac24854", "step": "sandbox", "status": "start", "ts": 1787293656.1455276, "meta": {}}
+{"run_id": "rfc-RFC-dac24854", "step": "sandbox", "status": "ok", "ts": 1787293656.5254636, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-dac24854", "step": "submit", "status": "ok", "ts": 1787293660.1091309, "meta": {}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787306363.656143, "meta": {"incomplete": 3}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787306796.9560678, "meta": {"incomplete": 3}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787421201.4455938, "meta": {"incomplete": 0}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787436152.2638316, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787481438.801546, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787485988.2970436, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787622281.0281053, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787626162.549815, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787626691.52875, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787627217.5640922, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787693858.3173957, "meta": {"incomplete": 1}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787778476.3039286, "meta": {"incomplete": 0}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787883212.1924534, "meta": {"incomplete": 0}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787955730.3096523, "meta": {"incomplete": 0}}

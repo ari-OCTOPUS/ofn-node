@@ -41,12 +41,32 @@ function Test-PortAlive([int]$p) {
 }
 
 # 2) ORGANISM (8771): only REVIVE - never first-birth (prior-run evidence required)
-if (-not (Test-PortAlive $PORT)) {
+#    Heart v2 (2026-08-25, owner order "bring it all to the real world"): the revive
+#    decision now defers to the CANONICAL Python verdict (_ops/watchdog.py --json),
+#    which also detects silent in-process stalls (stale ts / frozen beat counter).
+#    This closes the documented split-brain (watchdog.py header note): stall detection
+#    now actually runs in production. STOP supremacy above is unchanged and still wins.
+$canon = Join-Path $VAULT "_ops\watchdog.py"
+$verdict = $null
+if (Test-Path $canon) {
+    try {
+        $raw = & python -X utf8 $canon --json 2>$null
+        if ($LASTEXITCODE -eq 0 -and $raw) { $verdict = ($raw | Out-String | ConvertFrom-Json) }
+    } catch {}
+}
+if ($verdict -and $verdict.should_revive) {
     $state = Join-Path $VAULT "_ops\state\ORGANISM-STATE.json"
     if (Test-Path $state) {
         Start-Process -FilePath (Join-Path $VAULT "_ops\RUN-ORGANISM.bat") -WorkingDirectory (Join-Path $VAULT "_ops") -WindowStyle Hidden
-        Log "revived organism (port $PORT was dead, no STOP flags)"
+        Log "revived organism (canonical verdict: $($verdict.reason))"
     }
+} elseif ($verdict -and $verdict.stall) {
+    # port open but the in-process loop is dead/stale and stall-revive is not armed:
+    # never a blind kill - surface it loudly for the owner (stable text for dedup).
+    Log "STALL detected (no blind kill): $($verdict.reason)"
+    try {
+        & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required" | Out-Null
+    } catch {}
 }
 
 # 3) CORTEX (8772) - Program 5, 2026-07-16 (supervision-gap fix: cortex died 07-10 unplanned

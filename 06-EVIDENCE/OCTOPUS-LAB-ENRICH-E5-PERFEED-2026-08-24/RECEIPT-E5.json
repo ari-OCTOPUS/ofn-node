@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.lab-enrich.e5.receipt.v1",
+  "id": "LAB-ENRICH-E5-PER-FEED-20260824",
+  "pass": true,
+  "taxonomy_counts": {
+    "OK": 7,
+    "FAIL": 0,
+    "MISSING": 0,
+    "STALE": 0
+  },
+  "feed_count": 7,
+  "mutates": false,
+  "ARMED": false,
+  "artifacts": [
+    "PER-FEED-STATUS.json",
+    "PER-FEED-STATUS.md",
+    "PROPOSED-READINGS.json",
+    "ALLOWLIST.json",
+    "LAST_RUN.json",
+    "feeds_snapshot.json"
+  ]
+}

@@ -1,32 +1,16 @@
 {
-  "ts": "2026-08-19T10:50:00",
+  "ts": "2026-08-29T19:04:40",
   "schema": "synthesis.v1",
-  "input_sig": "e720b171dfdad90f",
-  "tier": "primary",
-  "model": "deepseek-v4-flash",
-  "cost_usd": 0.0006601,
-  "fallback_from": null,
+  "input_sig": "62b11dfc9643a2d0",
+  "tier": "local",
+  "model": "qwen2.5:1.5b",
+  "cost_usd": 0.0,
+  "fallback_from": "primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست",
   "n_inputs": {
     "goals": 7,
-    "gaps": 6,
+    "gaps": 3,
     "web": 5
   },
-  "proposals": [
-    {
-      "title": "Need output only Persian, one line each. No preamble. Need ensure each line has title",
-      "why": "why (tie to direction/gap)",
-      "first_step": "first step. We can propose:"
-    },
-    {
-      "title": "\"ردیابِ پول در loop تحلیل",
-      "why": "مستقیماً `attribution.claimed` را به هر جلسهٔ خودتحلیلی وصل می‌کند تا گپِ «اولین پول» را ببندد؛ به جهت مالک اول و توقفِ خودتحلیلی جواب می‌دهد",
-      "first_step": "در `self-analysis` یک پیش‌شرط اضافه کن که اگر `attribution.claimed` صفر است، خروجیِ جلسه فقط راه‌های فروش/قیمت‌گذاری باشد نه بهبود کد.\""
-    },
-    {
-      "title": "\"حافظهٔ حالت به Git/CRDT",
-      "why": "گپِ «هیچ‌چیز با خاموش/روشن گم نشود» و ارتقای امن را با نسخه‌بندی و rollback پوشش می‌دهد",
-      "first_step": "state و proposals را به یک مخزن git محلی ببر و بعد از هر commit یک validate/restore تست کن.\""
-    }
-  ],
-  "raw_text": "We need answer in Persian, max 3 proposals, each one line format: «عنوان | چرا (به کدام جهت/گپ وصل است) | قدمِ اول». Only proposals, no actions. Need craft based on inputs. Need be specific, practical, tied to owner directions and gaps.\n\nWe need identify gaps: first money attribution.claimed zero. Need proposals that advance it or explicitly say. Memory persistence. Self-improvement loops, validation, stop condition, backlog. Budget reporting. Parallel brains. Lead real. We need suggest up to 3 improvement proposals.\n\nNeed output only Persian, one line each. No preamble. Need ensure each line has title | why (tie to direction/gap) | first step. We can propose:\n\n1. \"ردیابِ پول در loop تحلیل | مستقیماً `attribution.claimed` را به هر جلسهٔ خودتحلیلی وصل می‌کند تا گپِ «اولین پول» را ببندد؛ به جهت مالک اول و توقفِ خودتحلیلی جواب می‌دهد | در `self-analysis` یک پیش‌شرط اضافه کن که اگر `attribution.claimed` صفر است، خروجیِ جلسه فقط راه‌های فروش/قیمت‌گذاری باشد نه بهبود کد.\"\n\n2. \"حافظهٔ حالت به Git/CRDT | گپِ «هیچ‌چیز با خاموش/روشن گم نشود» و ارتقای امن را با نسخه‌بندی و rollback پوشش می‌دهد | state و proposals را به یک مخزن git محلی ببر و بعد از هر commit یک validate/restore تست کن.\"\n\n3. \"داشبورد خرج AU$30 | گپِ «خرجِ پولی قابل‌گزارش» و تصمیم عملی؛ مغزها را به سقف هزینه محدود می‌کند | یک فایل state/budget.json با timestamp بساز که هر تماس پولی قبل/بعد هزینه را بنویسد و تلگرام‌گزارش بدهد.\"\n\nBut these don't directly mention parallel brains or lead painting. Could propose one for lead? "
+  "proposals": [],
+  "raw_text": "برای ارتقای مشخص و عملی از طریق ارگانیسمِ نرم‌افزاریِ خود، ابتدا می‌توانید به عنوانی می‌پردازید که:\n\n**عنوان:** ارتقا نرم‌افزاری\n\n**چرا:** این ارگانیسم به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**قلم:** ابتدا ارگانیسم خود را تحلیل می‌کنید و به کمکی از این ارگانیسم، از کم‌ترین به بیشترین عملیات تغییر ارتقا می‌کنید.\n\n**پروپوزال 1:** ابتدا می‌توانید به عنوانی می‌پردازید که:\n\n- ارگانیسم خود را تحلیل می‌کنید و به کم‌ترین عملیات تغییر ارتقا می‌کنید.\n- ارگانیسم خود را تحلیل می‌کنید و به کم‌ترین عملیات تغییر ارتقا می‌کنید.\n- ارگانیسم خود را تحلیل می‌کنید و به کم‌ترین عملیات تغییر ارتقا می‌کنید.\n\n**پروپوزال 2:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 3:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 4:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 5:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 6:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 7:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 8:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 9:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 10:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 11:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 12:** ارتقا نرم‌افزاری به عنوان یک ارگانیسم نرم‌افزاری ارتقا می‌کند.\n\n**پروپوزال 13:** "
 }

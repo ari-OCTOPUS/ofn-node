@@ -1,0 +1,21 @@
+{
+  "schema": "octopus.receipt.v1",
+  "id": "RECEIPT-EDGE-GATEWAY-COLLECT-DIAG-20260823",
+  "ts_utc": "20260823T032343Z",
+  "agent": "sensoriom",
+  "bl01": "FROZEN",
+  "impl": "COLLECT_DIAGNOSTICS+REQUEST_DIAGNOSTIC wired in _on_command",
+  "prove_status": "DEGRADED",
+  "signature_verify": "UNVERIFIED_NO_COMMAND_TRUST_ROOT",
+  "mutates": false,
+  "armed_false": true,
+  "sensorium_restarted": true,
+  "e2e_from_core": "NOT_EXECUTED",
+  "artifacts": [
+    "NATS_CONTRACT_BL01.json",
+    "PROVE.json",
+    "edge_gateway/",
+    "['/var/lib/octopus/evidence/session-diag-20260823T032315Z-prove-202608/diagnostics.json']"
+  ],
+  "overall": "STAGE2D_IMPL_PASS_PROVE_DEGRADED"
+}

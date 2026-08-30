@@ -1,10 +1,10 @@
 {
   "schema": "fourd-health.v1",
-  "ts": "2026-08-19T12:17:58Z",
+  "ts": "2026-08-30T03:36:31Z",
   "observed_path": "F:\\backup\\4d_system\\outputs\\daemon_state.json",
-  "status": "fresh",
-  "mtime": 1787141859.1774006,
-  "age_s": 19,
+  "status": "stale",
+  "mtime": 1787263648.2192748,
+  "age_s": 797347,
   "sla_s": 7200.0,
   "advisory_only": true
 }

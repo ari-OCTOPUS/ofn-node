@@ -1,0 +1,22 @@
+﻿{
+    "stamp":  "2026-08-23T09:04+10",
+    "task":  "OCTOPUS-GAP-CLOSE-2026-08-23/BOARD2",
+    "agent":  "marketing",
+    "forbidden_honored":  [
+                              "no invent money/captions/photos",
+                              "Etsy HELD",
+                              "no unrestricted TG",
+                              "no paid unlock"
+                          ],
+    "results":  {
+                    "G11":  "PASS",
+                    "G12":  "HOLD",
+                    "G01":  "HOLD",
+                    "G02":  "HOLD",
+                    "G20":  "PASS_PARTIAL",
+                    "G13":  "PASS",
+                    "G15":  "PASS",
+                    "G14":  "PASS"
+                },
+    "summary":  "G01 HOLD(payouts noon); G02 HOLD(no binaries except 4109 done); G11 PASS(reconcile); G12 HOLD(captions); G13 PASS(dup note+Etsy HELD); G14 PASS(WIRING vs OOB); G15 PASS(money flags); G20 PASS_PARTIAL(0016 fixed, ABN HOLD)"
+}

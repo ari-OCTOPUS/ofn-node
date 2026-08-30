@@ -39,5 +39,5 @@ RESULT: OK
 
 - For the first time since `life-currency.v1` existed, the live organism allocates a non-zero daily pool (1000/day → ~1.25/beat → 11 members). Root cause (missing `daily_cap`) fixed by B1 fallback; rollback documented in `02-DECISIONS/PROPOSAL-B1-cardiac-dailycap-wiring-2026-08-19.md`.
 - The debate novelty gate is armed via owner verdict; fail-soft, reversible (`value: 0`).
-- K=9 pilot result stands: RS_AB=RS_BA=1.0 at K=9 → CONSISTENT/STABLE; 20 calls, 0 VOID, cost micro (receipts in `_ops/state/pipeline/pilot-k9-receipts.jsonl`).
+- K=9 pilot result **باطل به‌عنوان STABLE** (overlay 2026-08-20): حکم `BETWEEN_RUN_VARIANCE` — `06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20.md`. فایل ۰۰:۱۱ هنوز روی دیسک است؛ cherry-pick ممنوع.
 - Owner-key.enc: still UNVERIFIED (no path provided yet) — separate open item.

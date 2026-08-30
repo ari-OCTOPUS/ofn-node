@@ -22,6 +22,21 @@ import opslib  # noqa: E402
 STATE_PATH = opslib.STATE_DIR / "circuit-state.json"
 
 
+def _debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> None:
+    # region agent log
+    try:
+        with open(r"F:\backup\debug-eab815.log", "a", encoding="utf-8") as _debug_file:
+            _debug_file.write(json.dumps({
+                "sessionId": "eab815", "runId": "initial",
+                "hypothesisId": hypothesis_id, "location": location,
+                "message": message, "data": data,
+                "timestamp": __import__("time").time_ns() // 1_000_000,
+            }, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+    # endregion
+
+
 class State(Enum):
     CLOSED = "closed"       # عادی — تماس مجاز
     OPEN = "open"           # fail-fast — صفر تماس
@@ -59,6 +74,10 @@ def _cfg() -> dict:
 
 
 def _load_state() -> dict:
+    # region agent log
+    _debug_log("H3", "_ops/budget/circuit_breaker.py:_load_state",
+               "Circuit state path selected", {"statePath": str(STATE_PATH)})
+    # endregion
     with opslib.LockedJson(STATE_PATH) as lj:
         return lj.read()
 
@@ -85,6 +104,16 @@ def _target_entry(state: dict, target: str) -> dict:
     # تریگرِ نرخ‌محور. لیستِ ساده کافی است — پنجره «آخرین N call» است نه
     # «آخرین N دقیقه».
     t.setdefault("recent_outcomes", [])
+    # region agent log
+    _debug_log("H1", "_ops/budget/circuit_breaker.py:_target_entry",
+               "Circuit target shape inspected", {
+                   "target": target, "state": t.get("state"),
+                   "openedAtPresent": t.get("opened_at_ts") is not None,
+                   "lastOkPresent": t.get("last_ok_ts") is not None,
+                   "successCount": t.get("success_count"),
+                   "halfOpenAttempts": t.get("half_open_attempts"),
+               })
+    # endregion
     # ۲۰۲۶-۰۸-۱۶ (گزارش ۶ساعته، «ریست نه ریکاوری»): closeِ واقعیِ این ماژول
     # (record_success با success_to_close) همیشه opened_at_ts را خالی و
     # last_ok_ts را تازه می‌کند. اگر state=closed ولی opened_at_ts پر است،
@@ -98,6 +127,12 @@ def _target_entry(state: dict, target: str) -> dict:
     # همان چیزی باشد که انبار می‌گوید — allow/deny همان half_open قبلی.
     if (t.get("state") == State.CLOSED.value
             and t.get("opened_at_ts") is not None):
+        # region agent log
+        _debug_log("H2", "_ops/budget/circuit_breaker.py:_target_entry",
+                   "Invalid closed-with-opened timestamp shape detected",
+                   {"target": target, "priorState": t.get("state"),
+                    "openedAtPresent": True})
+        # endregion
         t["state"] = State.HALF_OPEN.value
         t["half_open_attempts"] = 0
         t["success_count"] = 0
@@ -271,6 +306,13 @@ def status(target: str | None = None) -> dict:
     targets = state.get("targets", {})
     if target:
         t = _target_entry(state, target)
+        # region agent log
+        _debug_log("H4", "_ops/budget/circuit_breaker.py:status",
+                   "Circuit status returned", {
+                       "target": target, "state": t.get("state"),
+                       "openedAtPresent": t.get("opened_at_ts") is not None,
+                   })
+        # endregion
         return {"target": target, **t, "config": cfg}
     for name in list(targets):
         _target_entry(state, name)

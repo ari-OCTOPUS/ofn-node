@@ -1,0 +1,180 @@
+{
+  "registry_version": "1.0",
+  "as_of": "2026-08-22T23:05:00+10:00",
+  "owner": "ari",
+  "source_of_truth": "F:\\backup",
+  "status_model": [
+    {
+      "status": "GAP_OPEN",
+      "meaning": "Gap identified, owner triage pending"
+    },
+    {
+      "status": "WAITING_OWNER_OAUTH",
+      "meaning": "Owner OAuth/login required; no automation allowed"
+    },
+    {
+      "status": "WAITING_OWNER_SIGNATURE",
+      "meaning": "Owner sign-off required before any action"
+    },
+    {
+      "status": "BLOCKED_POLICY_GATE",
+      "meaning": "Policy gate blocks action"
+    },
+    {
+      "status": "BLOCKED_TOS_OR_LICENSE",
+      "meaning": "ToS or license ambiguity blocks action"
+    },
+    {
+      "status": "READY_FOR_RETEST",
+      "meaning": "Owner prerequisites completed; read-only re-probe allowed"
+    },
+    {
+      "status": "CLOSED",
+      "meaning": "Resolved and runtime-verified"
+    }
+  ],
+  "gaps": [
+    {
+      "gap_id": "CG-001",
+      "connector": "GA4",
+      "status": "WAITING_OWNER_OAUTH",
+      "scope": [
+        "master-painting",
+        "ziman",
+        "studio"
+      ],
+      "reason": "API requires owner OAuth and property grants",
+      "required_owner_action": [
+        "oauth-consent",
+        "property-mapping-signoff"
+      ],
+      "gate": [
+        "D1",
+        "D7"
+      ]
+    },
+    {
+      "gap_id": "CG-002",
+      "connector": "GSC",
+      "status": "WAITING_OWNER_OAUTH",
+      "scope": [
+        "master-painting",
+        "ziman",
+        "studio"
+      ],
+      "reason": "API requires owner OAuth and verified site ownership",
+      "required_owner_action": [
+        "oauth-consent",
+        "verified-property-binding"
+      ],
+      "gate": [
+        "D1",
+        "D7"
+      ]
+    },
+    {
+      "gap_id": "CG-003",
+      "connector": "Google Ads",
+      "status": "WAITING_OWNER_OAUTH",
+      "scope": [
+        "master-painting",
+        "ziman",
+        "studio"
+      ],
+      "reason": "API requires owner credentials and account linkage",
+      "required_owner_action": [
+        "oauth-consent",
+        "account-approval-signoff"
+      ],
+      "gate": [
+        "D1",
+        "D7"
+      ]
+    }
+  ],
+  "connector_probe_queue": [
+    {
+      "connector": "Similarweb Premium",
+      "status": "PENDING_RUNTIME_PROBE",
+      "output_policy": {
+        "label": "estimate",
+        "required_fields": [
+          "evidence_id",
+          "captured_at",
+          "confidence",
+          "valid_for"
+        ]
+      }
+    },
+    {
+      "connector": "Statista",
+      "status": "PENDING_RUNTIME_PROBE",
+      "output_policy": {
+        "label": "fact_or_estimate",
+        "required_fields": [
+          "evidence_id",
+          "captured_at",
+          "source_type"
+        ]
+      }
+    },
+    {
+      "connector": "CB Insights",
+      "status": "PENDING_RUNTIME_PROBE",
+      "output_policy": {
+        "label": "fact_or_estimate",
+        "required_fields": [
+          "evidence_id",
+          "captured_at",
+          "source_type"
+        ]
+      }
+    },
+    {
+      "connector": "Realtime Finance Data",
+      "status": "PENDING_RUNTIME_PROBE",
+      "output_policy": {
+        "label": "fact_or_estimate",
+        "required_fields": [
+          "evidence_id",
+          "captured_at",
+          "source_type"
+        ]
+      }
+    },
+    {
+      "connector": "GitHub",
+      "status": "PENDING_RUNTIME_PROBE",
+      "output_policy": {
+        "label": "fact",
+        "required_fields": [
+          "evidence_id",
+          "captured_at",
+          "source_type"
+        ]
+      }
+    },
+    {
+      "connector": "Hugging Face",
+      "status": "PENDING_RUNTIME_PROBE",
+      "output_policy": {
+        "label": "fact",
+        "required_fields": [
+          "evidence_id",
+          "captured_at",
+          "source_type"
+        ]
+      }
+    }
+  ],
+  "hard_rules": [
+    "Any datum missing evidence_id or source_type is unverified",
+    "No external write action without owner gate",
+    "Estimate data is not promoted to fact without explicit verification"
+  ],
+  "evidence_refs": [
+    "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+    "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md",
+    "F:\\backup\\07 - Knowledge\\octopus\\93-LAPTOP-AGENT-OWNER-BRIEF.md"
+  ]
+}

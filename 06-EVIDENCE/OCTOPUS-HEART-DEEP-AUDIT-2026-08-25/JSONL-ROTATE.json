@@ -1,0 +1,136 @@
+{
+  "schema": "octopus-heart-jsonl-rotate/1",
+  "stamp_local": "2026-08-25T08:28:05+10:00",
+  "apply": true,
+  "keep": [
+    "cardiac",
+    "control_law",
+    "rhythm",
+    "pulse_arbiter"
+  ],
+  "archive_dir": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805",
+  "results": [
+    {
+      "file": "arbiter-shadow-divergence.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\arbiter-shadow-divergence.jsonl",
+      "bytes_before": 3006805,
+      "mtime_before": "2026-08-25T08:26:33",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\arbiter-shadow-divergence.jsonl",
+      "archive_bytes": 3006805,
+      "sha256": "ac68a02cffb87a3813226207daf727e1a83bb1d45046dd37ff13b7c842d0c057",
+      "bytes_after": 0,
+      "status": "ROTATED",
+      "why": "copied+sha256 then truncate live (file kept)"
+    },
+    {
+      "file": "math-control-observe.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\math-control-observe.jsonl",
+      "bytes_before": 2049140,
+      "mtime_before": "2026-08-25T08:26:33",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\math-control-observe.jsonl",
+      "archive_bytes": 2049140,
+      "sha256": "ee335a339e8b63404ce651ea5c142ff36d938471109daa536b75679d58ee26da",
+      "bytes_after": 0,
+      "status": "ROTATED",
+      "why": "copied+sha256 then truncate live (file kept)"
+    },
+    {
+      "file": "tick-timing.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\tick-timing.jsonl",
+      "bytes_before": 1735965,
+      "mtime_before": "2026-08-25T08:26:34",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\tick-timing.jsonl",
+      "archive_bytes": 1735965,
+      "sha256": "27ce86a6462038e86987af3d5e91b0b47c0c8c4813c8d883fb07b8c08a82c66e",
+      "bytes_after": 0,
+      "status": "ROTATED",
+      "why": "copied+sha256 then truncate live (file kept)"
+    },
+    {
+      "file": "arbiter-shadow.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\arbiter-shadow.jsonl",
+      "bytes_before": 1119476,
+      "mtime_before": "2026-08-25T08:26:33",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\arbiter-shadow.jsonl",
+      "archive_bytes": 1119476,
+      "sha256": "5df1f3e6624340c0ece3939cbbb78b3f20b698563447558d06271664edbd882d",
+      "bytes_after": 0,
+      "status": "ROTATED",
+      "why": "copied+sha256 then truncate live (file kept)"
+    },
+    {
+      "file": "heart-params-shadow.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\heart-params-shadow.jsonl",
+      "bytes_before": 869527,
+      "mtime_before": "2026-08-25T08:26:36",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\heart-params-shadow.jsonl",
+      "archive_bytes": 869527,
+      "sha256": "3626a0152a3ba3fe7f2a4402d4f367206e8ddf8ae2e6e54d725f41235c28c69f",
+      "bytes_after": 0,
+      "status": "ROTATED",
+      "why": "copied+sha256 then truncate live (file kept)"
+    },
+    {
+      "file": "fuel-stream.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\fuel-stream.jsonl",
+      "bytes_before": 527301,
+      "mtime_before": "2026-08-25T08:22:20",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\fuel-stream.jsonl",
+      "archive_bytes": 527301,
+      "sha256": "a855976b6be50f24ff27b5dd8520efae8f7dcb5dfa93fa171ab99960f70baf3a",
+      "status": "ARCHIVED_NO_TRUNCATE",
+      "why": "producers.py reads fuel-stream for velocity fuel_calls. Truncate would change live velocity components."
+    },
+    {
+      "file": "money-pulse.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\money-pulse.jsonl",
+      "bytes_before": 233361,
+      "mtime_before": "2026-08-25T08:27:17",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\money-pulse.jsonl",
+      "archive_bytes": 233361,
+      "sha256": "29c6c93f59d70b80b1e24f860fee9a608063f339aebebfc6448989c69e0cab4f",
+      "bytes_after": 0,
+      "status": "ROTATED",
+      "why": "copied+sha256 then truncate live (file kept)"
+    },
+    {
+      "file": "velocity-stream.jsonl",
+      "src": "F:\\backup\\_ops\\state\\pulse\\velocity-stream.jsonl",
+      "bytes_before": 229067,
+      "mtime_before": "2026-08-25T08:16:32",
+      "archive": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HEART-DEEP-AUDIT-2026-08-25\\jsonl-archive-20260825T082805\\velocity-stream.jsonl",
+      "archive_bytes": 229067,
+      "sha256": "b2cc15f39ed82873f8311d1beee5632e205ba6968118231db44d0334ddd88ef8",
+      "status": "ARCHIVED_NO_TRUNCATE",
+      "why": "Gate-0 delta_self estimator reads this stream (min 48, window 336). Truncate would reset live Delta_self history."
+    }
+  ],
+  "latest_untouched": [
+    {
+      "file": "arbiter-latest.json",
+      "exists": true,
+      "bytes": 1478
+    },
+    {
+      "file": "heart-shadow-latest.json",
+      "exists": true,
+      "bytes": 1932
+    },
+    {
+      "file": "heartstate-latest.json",
+      "exists": true,
+      "bytes": 559
+    },
+    {
+      "file": "heart-signals-latest.json",
+      "exists": true,
+      "bytes": 2199
+    },
+    {
+      "file": "heart-setpoint-latest.json",
+      "exists": true,
+      "bytes": 251
+    }
+  ],
+  "rollback": "copy each ROTATED archive file back over the live pulse path (see ROLLBACK.md). ARCHIVED_NO_TRUNCATE files were never truncated."
+}

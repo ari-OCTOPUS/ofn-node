@@ -1,8 +1,8 @@
 ---
 type: design
-status: draft
+status: archived
 created: 2026-08-16
-updated: 2026-08-16
+updated: 2026-08-23
 created_by: agent
 tags: [octopus, r18, scheduler]
 sources:
@@ -10,7 +10,15 @@ sources:
   - "[[06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-16]]"
 ---
 
-# R18 scheduler decision — spec, not a second registration
+# R18 scheduler decision — legacy sidecar disabled
+
+> **RESOLVED 2026-08-23:** `OCTOPUS 4d Consolidation Tick` is disabled. Its
+> launcher was repaired to the full Python 3.13 path and returned `0` once, but
+> the task still imports the explicitly RETIRED
+> `4d_system/brain/consolidation.py`. No replacement task was registered.
+> Canonical live consolidation is `_ops/neural/consolidation.py`, already called
+> by `organism.py → wiring.consolidation_beat`. Current evidence:
+> [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]].
 
 `ConsolidationCycle` has code+tests (`test_consolidation_delta_r18.py` **5/5** [A]) and **no** caller in `daemon.py` / `automation.py` [A grep]. C-019 records that.
 
@@ -29,7 +37,9 @@ sources:
 - `brain/daemon.py` is TCB → needs owner re-sign of `trust-boundary.json`.
 - Would still need the fail-closed enforce banner (T2).
 
-**This sweep recommends (a) as interim and does not register a task.**
+**Historical recommendation only.** The 2026-08-23 decision supersedes option
+(a): leave the duplicate sidecar disabled because the live canonical path now
+exists elsewhere.
 
 ## Live fact this session must not duplicate [A]
 
@@ -43,7 +53,8 @@ A parallel recall-loop agent already created:
 | LastRun | 1999-epoch placeholder |
 | Action | `py -X utf8 F:\backup\_ops\audit\consolidation_4d_tick.py` |
 
-Owner vote: ratify and fix launcher to `python.exe`, or Disable. This sweep will not create `OCTOPUS 4d R18 Consolidation` beside it.
+2026-08-23 outcome: launcher fixed to `python.exe`, task then disabled. This
+avoids both the bare-launcher defect and revival of the retired duplicate.
 
 ## Spec if owner rebuilds (do not run)
 

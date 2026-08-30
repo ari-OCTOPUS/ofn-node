@@ -1,0 +1,97 @@
+"""
+test_behavioral_holdout.py — اثباتِ anti-Goodhart:
+  keyword-stuffing نمره نمی‌خرد؛ فقط پاسخِ درستِ لنگرخورده ترفیع می‌گیرد.
+"""
+import sys, os
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+
+from src.behavioral_holdout import behavioral_score, promotion_gate, load_frozen_holdout
+from src import evals
+
+FACTS = [
+    {"subject": "پایتخت استرالیا", "value": "کانبرا"},
+    {"subject": "پایتخت فرانسه", "value": "پاریس"},
+    {"subject": "پایتخت ژاپن", "value": "توکیو"},
+    {"subject": "نقطه جوش آب", "value": "صد"},
+]
+
+# --- runnerهای مصنوعیِ قطعی (به‌جای LLM) ---
+def make_good(facts):
+    # کارخانه‌ی runnerِ «داناى کامل» برای هر مجموعه factِ داده‌شده
+    def r(agent, prompt, probe):
+        for f in facts:
+            if all(t in probe for t in f["subject"].split()):
+                return f"«{f['subject']}» {f['value']} است. (منبع: مرجعِ رسمی)"
+        return "نمی‌دانم"
+    return r
+good_runner = make_good(FACTS)
+
+def stuffer_runner(agent, prompt, probe):
+    # کیواژه‌کوبیِ rubric بدونِ پاسخِ واقعی → باید score رفتاریِ صفر بگیرد
+    return "منبع منابع راستی‌آزمایی نامطمئن کوتاه مختصر منظم فهرست دلیل چرا"
+
+def wrong_runner(agent, prompt, probe):
+    # پاسخِ غلط (contradicted)
+    for f in FACTS:
+        if all(t in probe for t in f["subject"].split()):
+            return f"«{f['subject']}» سیدنی است."
+    return "نمی‌دانم"
+
+def half_runner(agent, prompt, probe):
+    # فقط نیمی از factها را درست می‌داند (baseline)
+    if "استرالیا" in probe or "فرانسه" in probe:
+        return good_runner(agent, prompt, probe)
+    return "نامشخص"
+
+results = []
+def check(name, cond):
+    results.append((name, cond)); print(f"  {'✅' if cond else '❌'} {name}")
+
+# T1 — anti-Goodhart: stuffer با کیواژه‌ی بالا ولی صفرِ رفتاری → رد
+s_good = behavioral_score("researcher", "p", FACTS, good_runner)
+s_stuf = behavioral_score("researcher", "p", FACTS, stuffer_runner)
+check("۱: پاسخِ درست score=1.0 می‌گیرد", s_good["score"] == 1.0)
+check("۲: keyword-stuffing score رفتاریِ 0.0 می‌گیرد (Goodhart شکست)", s_stuf["score"] == 0.0)
+# نشان بده که scorerِ کیواژه‌ای گول می‌خورد ولی گیتِ رفتاری نه:
+kw_hi, _ = evals.score_prompt("researcher",
+    "منبع منابع راستی‌آزمایی نامطمئن اثبات‌نشده کوتاه مختصر منظم فهرست")
+gate_stuf = promotion_gate("live", True, s_good, s_stuf)
+check("۳: scorerِ کیواژه‌ای بالا می‌دهد ("+str(kw_hi)+") ولی گیتِ رفتاری stuffer را رد می‌کند",
+      kw_hi >= 0.4 and gate_stuf["keep"] is False)
+
+# T2 — بهبودِ واقعی پذیرفته می‌شود (baseline نصفه → good کامل، LIVE)
+s_base = behavioral_score("researcher", "p_old", FACTS, half_runner)
+gate_ok = promotion_gate("live", True, s_base, s_good)
+check("۴: baseline نیمه ("+str(s_base['score'])+") → good کامل، LIVE keep=True",
+      s_base["score"] == 0.5 and gate_ok["keep"] is True and gate_ok["provisional"] is False)
+
+# T3 — پاسخِ غلط (contradicted) رد می‌شود
+s_wrong = behavioral_score("researcher", "p", FACTS, wrong_runner)
+gate_wrong = promotion_gate("live", True, s_base, s_wrong)
+check("۵: پاسخِ غلط contradicted و رد می‌شود",
+      s_wrong["contradicted"] >= 2 and gate_wrong["keep"] is False)
+
+# T4 — fail-closed: held-out خالی → رد
+s_empty = behavioral_score("researcher", "p", [], good_runner)
+gate_empty = promotion_gate("live", True, s_empty, s_empty)
+check("۶: held-outِ خالی → fail-closed رد", gate_empty["keep"] is False and s_empty["n"] == 0)
+
+# T5 — زیرِ آستانه: بهبود هست ولی score < 0.8 → رد
+gate_low = promotion_gate("live", True, {"score":0.25,"n":4}, {"score":0.5,"n":4})
+check("۷: بهبود ولی زیرِ آستانه‌ی 0.8 → رد", gate_low["keep"] is False)
+
+# T6 — MOCK: بهبود و ≥0.8 → keep ولی provisional
+gate_mock = promotion_gate("mock", True, s_base, s_good)
+check("۸: MOCK بهبودِ کافی → keep=True و provisional=True",
+      gate_mock["keep"] is True and gate_mock["provisional"] is True)
+
+# T7 — یکپارچگی با held-outِ فریزِ واقعیِ پروژه
+real = load_frozen_holdout(os.path.join(ROOT, "igk", "held_out.json"))
+s_real = behavioral_score("researcher", "p", real[:6], make_good(real[:6]))
+check("۹: روی held-outِ واقعیِ پروژه اجرا و score=1.0", len(real) >= 20 and s_real["score"] == 1.0)
+
+print("\n" + "=" * 52)
+ok = sum(1 for _, c in results if c)
+print(f"نتیجه: {ok}/{len(results)} سبز")
+sys.exit(0 if ok == len(results) else 1)

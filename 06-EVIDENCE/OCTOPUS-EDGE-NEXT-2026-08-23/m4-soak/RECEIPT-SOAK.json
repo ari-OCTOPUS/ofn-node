@@ -1,0 +1,49 @@
+{
+  "schema": "octopus.soak.homeo-feeds.v1",
+  "id": "HOMEO-FEEDS-SOAK-20260823",
+  "started": "2026-08-23T04:15:09Z",
+  "ended": "2026-08-23T04:30:09Z",
+  "duration_sec_requested": 900,
+  "samples": 16,
+  "status": "PASS",
+  "last": {
+    "t": "2026-08-23T04:30:09Z",
+    "homeo_ok": true,
+    "in_envelope": true,
+    "actuator_authority_homeo": "NONE",
+    "thermal": {},
+    "feeds_ok_count": 7,
+    "feeds_total": null,
+    "feeds_generated": null,
+    "snap_bus": "CONNECTED",
+    "snap_obs": 1290813,
+    "snap_age_sec": 8.857184648513794,
+    "timers": "active\nactive",
+    "mem": {
+      "free_out": "               total        used        free      shared  buff/cache   available\nMem:            3910        1514         541          74        1968        2396\nSwap:              0           0           0",
+      "sensorium_rss_kb": 914012
+    },
+    "oom_hits": ""
+  },
+  "first": {
+    "t": "2026-08-23T04:15:09Z",
+    "homeo_ok": false,
+    "in_envelope": true,
+    "actuator_authority_homeo": "NONE",
+    "thermal": {},
+    "feeds_ok_count": 7,
+    "feeds_total": null,
+    "feeds_generated": null,
+    "snap_bus": "CONNECTED",
+    "snap_obs": 1288679,
+    "snap_age_sec": 18.134641647338867,
+    "timers": "active\nactive",
+    "mem": {
+      "free_out": "               total        used        free      shared  buff/cache   available\nMem:            3910        1329         720          74        1974        2580\nSwap:              0           0           0",
+      "sensorium_rss_kb": 737604
+    },
+    "oom_hits": ""
+  },
+  "ARMED": false,
+  "note": "readonly soak; no ARM/PWM"
+}

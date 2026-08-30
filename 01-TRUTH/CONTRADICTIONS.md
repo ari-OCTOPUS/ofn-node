@@ -718,3 +718,52 @@ contradiction:
   status: open-mitigated — existence confirmed, signing key not used
   registered_by: "contradiction-audit 2026-08-20"
 ```
+
+- **[registry-note 2026-08-23, UPDATE-DEBUG-SWEEP]** — C-047 is documented as
+  `CLOSED_WITH_FIX` in the Directive 11 evidence. C-048..C-053 remain explicitly
+  **candidates** in `NERVOUS-RECOVERY-2026-08-20` and are not promoted by this
+  note. To preserve those reservations and prevent another collision, the next
+  free identifier is **C-054**. C-018/C-021 agent-side closures remain
+  owner-review items. Evidence:
+  [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]] ·
+  [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CANDIDATE-FINDINGS]].
+
+```yaml
+contradiction:
+  id: C-054
+  claim: "رأی control_law از رکورد shadow در نبض زندهٔ arbiter اختیار دارد"
+  value_a: "pulse_arbiter سه رأی حاضر منتشر می‌کرد (n_present=3، driver=consensus، wire_open=true) و periodِ زندهٔ ~96s با مشارکت رأی control_law ساخته می‌شد"
+  source_a: "_ops/state/pulse/arbiter-latest.json (beat 48968 و قبل از آن) · ORGANISM-STATE.arbiter"
+  value_b: "همان رکورد shadow خودش production_wire.open=false با دلایل «Gate-0: Δ_self مثبت نیست» و «hash قانون کنترل با SIM-REPORT نمی‌خواند» و sog_provenance=UNVERIFIABLE حمل می‌کرد — یعنی تولیدکننده همان عدد را غیرمعتبر اعلام کرده بود و _control_vote هرگز mode/production_wire/gate0/sog_provenance را نمی‌خواند"
+  source_b: "_ops/state/pulse/heart-shadow-latest.json · _ops/heart/pulse_arbiter.py:_control_vote (پیش از G4) · _ops/heart/shadow.py:production_wire_open"
+  live_check: "۲۰۲۶-۰۸-۲۴/۲۵: مانیت زنده — رأی ۲۴۴.۴s با wire بسته در اجماع ۹۶s؛ بازپخوی آفلاین روی baseline واقعی (06-EVIDENCE/HEART-G4-AUTHORITY-2026-08-25/OFFLINE-LIVE-BASELINE-REPLAY.json)"
+  likely: value_b — رأی بدون authority، نشت اختیار shadow→live
+  resolution: "G4 (پچ تأییدشده، هنوز promote نشده): رأی control_law observable ولی eligible_for_live=false/authority=SHADOW_ONLY؛ anchor ثابت pre-G4 از تسریع جلوگیری می‌کند؛ باز شدن دوبارهٔ authority فقط از Gate 1 (HeartStore). شاهد کامل: [[../06-EVIDENCE/HEART-G4-AUTHORITY-2026-08-25/REPORT.md]]"
+  status: contained — fix PROMOTED LIVE 2026-08-25 (runtime witness beats 49093/49095: n_present 3→2، driver=authority-hold، effective=96.44s=anchor ثابت، رأی shadow observed/غیرمجاز)؛ owner-ratify طبق قاعدهٔ دفتر باقی مانده
+  registered_by: "zcode G4 session 2026-08-25 (grep دو-مخزن: C-054 فقط به‌عنوان آزاد دیده شد)"
+```
+
+- **[registry-note 2026-08-25, G4 session]** — C-054 ثبت شد. آزادِ بعدی: **C-055**.
+
+- **[board138-restoration 2026-08-30]** — ادعای بازتولید baseline در CURRENT-TRUTHِ برنچ اسناد، رسید ندارد و اعدادش با اجرای واقعی نمی‌خواند:
+
+```yaml
+contradiction:
+  id: C-055
+  claim: "test_baseline_reproduced_independently=true با اعداد 2076/2065/1err/10skip در board138_restoration (CURRENT-TRUTH روی work/truth-record-20260830@9bc05ab)"
+  value_a: "سند ادعا می‌کند baseline دقیقاً با همان اعداد اجرای اصلی (a27eb05) روی SHA کانونیکال بازتولید شده — بدون رسید، بدون دستور اجرا، بدون log"
+  source_a: "docs/octopus-rapid/01-TRUTH/CURRENT-TRUTH.md (کامیت 9bc05abc روی برد ۱۳۸، پوش‌شده به GitHub)"
+  value_b: "اجرای مستقل واقعی این session روی همان برد، همان SHA، در worktree ایزوله با محیط تمیز: 2136 collected / 2131 passed / 0 failed / 0 errors / 5 skipped (28.3s) — test_greeting_name PASS؛ اختلاف شمارش با تفاوت SHA سازگار نیست (c1969bc = a27eb05 + یک فایل خارج‌از-collection)"
+  source_b: "[[../06-EVIDENCE/BOARD138-RESTORE-2026-08-30/RECEIPT|RECEIPT]] · log sha256=008edbd8… · ofn.service PID=1351408 دست‌نخورده"
+  live_check: "2026-08-30: اجرای مجدد مستقل — EXIT=0، سبز کامل"
+  likely: value_a — اعداد از رسید اصلی a27eb05 کپی شده‌اند نه از اجرای مجدد
+  resolution: "بازتولید واقعی انجام و رسید شد (لینک value_b)؛ خط reproduced_counts در CURRENT-TRUTH قبل از review PR اسناد باید به اعداد رسید اصلاح شود. gating نمی‌کند: suite روی c1969bc سبز است."
+  status: OPEN_BOUNDED (حکم مالک 2026-08-30): tree_as_cause=REFUTED · probe="collect-only on a27eb05 and c1969bc in clean env" · result="2136 == 2136, nodeid diff = 0" · evidence=raw/138/c055-probe.txt · residual_cause=undocumented_env_of_20260829_run · reproducible=false · reference_count=2136
+  mandatory_forward_rule:
+    - "هر اجرای تست باید env را ثبت کند (BASELINE-MANIFEST-TEMPLATE.txt)"
+    - "شمارش بدون env-manifest معتبر نیست"
+  addendum_20260830_second_dimension: "baseline قدیمی errors=1 (test_greeting_name) داشت؛ اجرای کنترل‌شدهٔ ۰۸-۳۰ errors=0 — خطا در محیط تمیز بازتولید نشد؛ علت آن اجرا هم در همان envِ undocumented است و تا تعیین تکلیف، اعداد 2076/2065/1/10 به‌عنوان baseline مرجع استفاده نمی‌شوند"
+  registered_by: "zcode session 2026-08-30 (بازتولید مستقل baseline روی c1969bc)"
+```
+
+آزادِ بعدی: **C-056**.

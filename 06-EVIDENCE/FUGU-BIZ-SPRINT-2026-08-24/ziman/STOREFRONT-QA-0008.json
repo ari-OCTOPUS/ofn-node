@@ -1,0 +1,82 @@
+{
+  "stamp": "20260824T072439Z",
+  "sku": "ZM-GALLERY-0008",
+  "product_id": "8688854630500",
+  "title": "Cream Flower Basket with Brown Pearl Detailing",
+  "handle": "سبد-گل-کرمی-مروارید-قهوه‌ای",
+  "status": "active",
+  "variant_price": "50.00",
+  "image_count": 4,
+  "image_filenames": [
+    "IMG_2978.jpg",
+    "IMG_3101.jpg",
+    "IMG_3636.HEIC",
+    "IMG_3728.jpg"
+  ],
+  "images": [
+    {
+      "position": 1,
+      "id": 43902522490980,
+      "filename": "IMG_2978.jpg",
+      "alt": "ZM-GALLERY-0008 IMG_2978"
+    },
+    {
+      "position": 2,
+      "id": 43902546313316,
+      "filename": "IMG_3101.jpg",
+      "alt": "ZM-GALLERY-0008 extra IMG_3101"
+    },
+    {
+      "position": 3,
+      "id": 43902546739300,
+      "filename": "IMG_3636.HEIC",
+      "alt": "ZM-GALLERY-0008 extra IMG_3636"
+    },
+    {
+      "position": 4,
+      "id": 43902546772068,
+      "filename": "IMG_3728.jpg",
+      "alt": "ZM-GALLERY-0008 extra IMG_3728"
+    }
+  ],
+  "storefront_url": "https://ziman-gift.com/products/سبد-گل-کرمی-مروارید-قهوه‌ای",
+  "admin_readonly": true,
+  "browser_visual_qa": "ari_reverify_PASS",
+  "result": "ONE_PRODUCT_PASS",
+  "expected_visual_from_title": "cream flower basket with brown pearl detailing",
+  "no_image_replace": true,
+  "hold_paid_orders_if_MIXED": true,
+  "stamp_qa_update": "20260824T072625Z",
+  "browser_source": "ari browserUse",
+  "hold_paid_orders": false,
+  "findings": {
+    "match_title_partial": true,
+    "matching_files": [
+      "IMG_2978.jpg"
+    ],
+    "mismatched_files": [
+      "IMG_3101.jpg",
+      "IMG_3636.HEIC",
+      "IMG_3728.jpg"
+    ],
+    "note": "only IMG_2978 matches cream basket; others are other products"
+  },
+  "stamp_browser_detail": "20260824T072710Z",
+  "browser_detail": {
+    "title_seen": "Cream Flower Basket with Brown Pearl Detailing (\\.00)",
+    "images_desc": [
+      "MAIN: cream/white roses basket + brown foliage + gold chocolates + pale balloons — MATCH",
+      "2: red square gift box white chrysanthemums — OTHER",
+      "3: yellow-white flowers + two white teddies outdoors — OTHER",
+      "4: brown teddy + red heart foil balloon — OTHER",
+      "5: white/gold polka-dot cylinder vase bouquet — OTHER",
+      "6: red-white heart rose cake/box — OTHER"
+    ],
+    "reason": "Only featured matches; remaining gallery unrelated products"
+  },
+  "stamp_reverify": "20260824T073539Z",
+  "image_filenames_live": [
+    "IMG_2978.jpg"
+  ],
+  "no_further_image_mutate_until_GO": true
+}

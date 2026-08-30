@@ -1,0 +1,738 @@
+#!/usr/bin/env python3
+"""تستِ حلقهٔ خودشناسیِ عمیقِ دکتر (2026-07-18): snapshotِ غنی، فهمِ لایه‌ای، کاوشِ
+دو-مرحله‌ای (multi-hop)، trajectory/خود-تصحیح، $0 محلی، fail-soft، غیرمسدودکننده،
+مستقل از ترس. $0 · sandbox · صفر شبکه."""
+import datetime as _dt
+import json
+import os
+import sys
+import types
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import harness  # noqa: E402
+
+ENV = harness.setup("doctor-selfknow")
+_OPS = (harness.SELF_OPS)
+for _p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "doctor")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+import opslib  # noqa: E402
+import self_knowledge as sk  # noqa: E402
+import wiring  # noqa: E402
+
+_SB = Path(ENV["ops"]) / "state"
+
+
+def _sandbox_paths():
+    opslib.STATE_DIR = _SB
+    opslib.STOP_ORGANISM = Path(ENV["ops"]) / "STOP-ORGANISM"
+
+
+def _seed_state(*, in_fear=None, legs=None, beat=8000, lanes=True):
+    (_SB / "cortex").mkdir(parents=True, exist_ok=True)
+    (_SB / "pulse").mkdir(parents=True, exist_ok=True)
+    org = {"started": "2026-07-18T08:00:00", "chrono": {"beat": beat},
+           "month": {"musd": 0},
+           "wiring": {"wire_doctor": True, "wire_email": False, "wire_lead": True},
+           "proposal_metrics": {"proposal_outcomes": 0, "proposal_value_aud": 0},
+           "business_legs": legs or {"mining": {"live": False, "money_link": "incubating"},
+                                     "ziman": {"live": True, "money_link": "active"}}}
+    (_SB / "ORGANISM-STATE.json").write_text(json.dumps(org), "utf-8")
+    (_SB / "cortex" / "stress-latest.json").write_text(
+        json.dumps({"level": "🔴 ترس", "in_fear": in_fear or [], "organism_stress": 1.0}), "utf-8")
+    if lanes:
+        (_SB / "pulse" / "work-log.jsonl").write_text(
+            json.dumps({"lane": "llm_learn", "status": "ok", "cost_usd": 0}) + "\n"
+            + json.dumps({"lane": "web_research", "status": "ok"}) + "\n", "utf-8")
+
+
+def _fake_ask(jsonstr, tier="think"):
+    return lambda p, s, max_tokens=700: (jsonstr, tier)
+
+
+def _clear_doctor():
+    """سندباکسِ _SB بینِ تست‌ها مشترک است؛ برای تست‌های version/count حالتِ دکتر را صفر کن."""
+    import shutil
+    shutil.rmtree(_SB / "doctor", ignore_errors=True)
+
+
+def _counting_ask(jsonstr, tier="think"):
+    calls = {"n": 0}
+
+    def f(p, s, max_tokens=700):
+        calls["n"] += 1
+        return (jsonstr, tier)
+    f.calls = calls
+    return f
+
+
+# ── snapshotِ غنی ─────────────────────────────────────────────────────────────
+def t_snapshot_richer():
+    _sandbox_paths(); _seed_state(in_fear=["legs"])
+    snap = sk.snapshot()
+    assert snap["beat"] == 8000
+    assert snap["legs"]["ziman"]["live"] is True and snap["legs"]["mining"]["live"] is False
+    assert "wire_doctor" in snap["wire_on"] and "wire_email" in snap["wire_off"]
+    assert "proposal_metrics" in snap["money"]
+    assert isinstance(snap["recent_errors"], dict)         # fail-soft dict
+    assert isinstance(snap["recent_lanes"], list) and snap["recent_lanes"], "لِین‌ها باید خوانده شوند"
+    assert "rfcs" in snap["doctor_self"]
+
+
+# ── LLM: محلیِ $0 پیش‌فرض، پولی فقط با پرچم ─────────────────────────────────────
+def t_ask_llm_local_by_default():
+    captured = {}
+    fake = types.ModuleType("model_router")
+
+    def _ask(task, prompt, system="", max_tokens=400, tier=None, opener=None):
+        captured["task"] = task
+        return {"ok": True, "text": '{"focus":"x"}', "tier": task}
+    fake.ask = _ask
+    sys.modules["model_router"] = fake
+    try:
+        os.environ.pop(sk._PAID_FLAG, None)
+        sk._ask_llm("p", "s")
+        assert captured["task"] == "think", f"پیش‌فرض باید محلیِ $0 باشد: {captured}"
+        os.environ[sk._PAID_FLAG] = "1"
+        sk._ask_llm("p", "s")
+        assert captured["task"] == "synthesize"
+    finally:
+        sys.modules.pop("model_router", None)
+        os.environ.pop(sk._PAID_FLAG, None)
+
+
+# ── فهمِ لایه‌ای ───────────────────────────────────────────────────────────────
+def t_synthesize_layered():
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"anatomy":"a","pathology":[{"symptom":"s","root_cause":"r"}],"focus":"legs","confidence":0.7}')
+    try:
+        out = sk.synthesize({"legs": {}}, {}, [])
+        u = out["understanding"]
+        assert u["focus"] == "legs" and u["pathology"][0]["root_cause"] == "r"
+        assert out["source"] == "llm:think"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_heuristic_layered():
+    _orig = sk._ask_llm
+    sk._ask_llm = lambda p, s, max_tokens=700: (None, "router-down")
+    try:
+        out = sk.synthesize({"legs": {"a": {"live": False}}, "stress": {"in_fear": ["legs"]},
+                             "recent_errors": {"PriceNotLocked": 5}}, {}, [])
+        assert out["source"] == "heuristic"
+        u = out["understanding"]
+        assert isinstance(u["pathology"], list) and u["focus"]
+        assert any("ترس" in p["symptom"] for p in u["pathology"])
+    finally:
+        sk._ask_llm = _orig
+
+
+# ── کاوشِ دو-مرحله‌ای (multi-hop) ───────────────────────────────────────────────
+def t_deep_dive():
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"topic":"legs","cause_chain":["a","b"],"smallest_fix":"x"}')
+    try:
+        d = sk.deep_dive("legs", {"legs": {}})
+        assert d["topic"] == "legs" and d["cause_chain"] == ["a", "b"]
+        assert sk.deep_dive(None, {}) == {}, "بدونِ focus کاوش نمی‌کند"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_run_two_hop():
+    _sandbox_paths(); _seed_state(in_fear=["legs"]); _clear_doctor()
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","pathology":[{"symptom":"a"}],"confidence":0.6,"topic":"legs","cause_chain":["c"]}')
+    try:
+        r = sk.run(persist=True)
+        assert r["version"] == 1 and r["focus"] == "legs"
+        assert r["deep_dive"], "مرحلهٔ ۲ (deep-dive) باید روی focus شلیک کند"
+        assert "trajectory" in r
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_no_deepdive_on_heuristic():
+    _sandbox_paths(); _seed_state()
+    _orig = sk._ask_llm
+    sk._ask_llm = lambda p, s, max_tokens=700: (None, "x")   # هیوریستیک → بدونِ hop2
+    try:
+        r = sk.run(persist=True)
+        assert r["source"] == "heuristic"
+        assert r["deep_dive"] == {}, "روی هیوریستیک نباید کاوشِ دومِ LLM بزند"
+    finally:
+        sk._ask_llm = _orig
+
+
+# ── trajectory / خود-تصحیح ─────────────────────────────────────────────────────
+def t_trajectory_converging():
+    prev = {"focus": "legs", "understanding": {"confidence": 0.5}}
+    u = {"focus": "legs", "confidence": 0.7}
+    tj = sk._trajectory(prev, u)
+    assert tj["focus_stable"] is True and tj["confidence_delta"] == 0.2 and tj["converging"] is True
+    tj2 = sk._trajectory({"focus": "legs", "understanding": {"confidence": 0.6}},
+                         {"focus": "money", "confidence": 0.6})
+    assert tj2["focus_stable"] is False
+
+
+def t_run_improves_versions():
+    _sandbox_paths(); _seed_state(in_fear=["legs"]); _clear_doctor()
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.6}')
+    try:
+        r1 = sk.run(persist=True)
+        _seed_state(in_fear=[])          # تغییرِ معنادار → change-gate عبور می‌کند
+        r2 = sk.run(persist=True)
+        assert r1["version"] == 1 and r2["version"] == 2
+        assert r2["trajectory"]["focus_stable"] is True, "focus پایدار → همگرایی"
+        hist = sk._history_path().read_text("utf-8").strip().splitlines()
+        assert len(hist) == 2
+    finally:
+        sk._ask_llm = _orig
+
+
+# ── بهینه‌سازی: change-gate (صفر کال روی بی‌تغییر) ──────────────────────────────
+def t_change_gate_skips_llm():
+    _sandbox_paths(); _seed_state(in_fear=["legs"]); _clear_doctor()
+    _orig = sk._ask_llm
+    mock = _counting_ask('{"focus":"legs","confidence":0.6,"pathology":[{"severity":"high"}],"topic":"t"}')
+    sk._ask_llm = mock
+    try:
+        r1 = sk.run(persist=True)
+        n1 = mock.calls["n"]
+        assert r1["version"] == 1 and r1["llm_calls"] >= 1 and n1 >= 1
+        hist1 = len(sk._history_path().read_text("utf-8").strip().splitlines())
+        r2 = sk.run(persist=True)   # همان state → change-gate
+        assert mock.calls["n"] == n1, "روی بی‌تغییر نباید LLM صدا زده شود"
+        assert r2["source"] == "cached:no-change" and r2["llm_calls"] == 0
+        assert r2["version"] == r1["version"], "version روی no-change بالا نمی‌رود"
+        assert r2["stable_cycles"] == 1
+        hist2 = len(sk._history_path().read_text("utf-8").strip().splitlines())
+        assert hist2 == hist1, "history روی no-change رشد نمی‌کند"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_hash_ignores_clock():
+    _sandbox_paths(); _seed_state(beat=8000)
+    h1 = sk._snapshot_hash(sk.snapshot())
+    _seed_state(beat=9999)                      # فقط beat عوض شد
+    assert sk._snapshot_hash(sk.snapshot()) == h1, "تغییرِ beat نباید hash را عوض کند"
+    _seed_state(beat=9999, in_fear=["legs"])    # تغییرِ معنادار
+    assert sk._snapshot_hash(sk.snapshot()) != h1
+
+
+# ── بهینه‌سازی: adaptive hop-2 ─────────────────────────────────────────────────
+def t_should_deep_dive_logic():
+    prev = {"focus": "legs", "deep_dive": {"x": 1}}
+    assert sk._should_deep_dive({"focus": "money", "confidence": 0.9}, prev, "money") is True   # focusِ نو
+    assert sk._should_deep_dive({"focus": "legs", "confidence": 0.9, "pathology": []}, prev, "legs") is False  # پایدار+مطمئن
+    assert sk._should_deep_dive({"focus": "legs", "confidence": 0.5}, prev, "legs") is True     # کم‌اطمینان
+    assert sk._should_deep_dive({"focus": "legs", "confidence": 0.9, "pathology": [{"severity": "critical"}]}, prev, "legs") is True
+    assert sk._should_deep_dive({"focus": "legs"}, {"focus": "legs", "deep_dive": {}}, "legs") is True  # هرگز کاوش‌نشده
+
+
+def t_adaptive_hop2_skips_when_stable():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.9,"pathology":[{"severity":"low"}],"topic":"t"}')
+    try:
+        r1 = sk.run(persist=True)                # اولین بار: hop-2 چون prev کاوش ندارد
+        assert r1["deep_dive_ran"] is True
+        _seed_state(legs={"mining": {"live": False}, "ziman": {"live": True}, "new": {"live": True}})
+        r2 = sk.run(persist=True)                # تغییر، ولی focus پایدار + مطمئن → فقط hop-1
+        assert r2["source"].startswith("llm") and r2["llm_calls"] == 1
+        assert r2["deep_dive_ran"] is False and r2["deep_dive"] == r1["deep_dive"]
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_run_readonly():
+    _sandbox_paths(); _seed_state()
+    before = (_SB / "ORGANISM-STATE.json").read_text("utf-8")
+    _orig = sk._ask_llm
+    sk._ask_llm = lambda p, s, max_tokens=700: (None, "x")
+    try:
+        sk.run(persist=True)
+        assert (_SB / "ORGANISM-STATE.json").read_text("utf-8") == before
+        assert sk._latest_path().exists()
+    finally:
+        sk._ask_llm = _orig
+
+
+# ── wiring beat: خاموش/STOP/ترس ────────────────────────────────────────────────
+def t_beat_flag_off_noop():
+    _sandbox_paths()
+    os.environ.pop("OCTOPUS_WIRE_DOCTOR_SELFKNOW", None)
+    assert wiring.doctor_selfknowledge_beat(beat=9000) is None
+
+
+def t_beat_fires_under_fear():
+    _sandbox_paths(); _seed_state(in_fear=["legs"])
+    os.environ["OCTOPUS_WIRE_DOCTOR_SELFKNOW"] = "1"
+    wiring._EPOCH_STATE.pop("doctor_selfknow", None)
+    called = {"n": 0}
+    _orig = sk.run_async
+    sk.run_async = lambda: called.__setitem__("n", called["n"] + 1) or True
+    try:
+        out = wiring.doctor_selfknowledge_beat(beat=9000)
+        assert out == {"self_knowledge": "spawned"} and called["n"] == 1
+    finally:
+        sk.run_async = _orig
+        os.environ.pop("OCTOPUS_WIRE_DOCTOR_SELFKNOW", None)
+        wiring._EPOCH_STATE.pop("doctor_selfknow", None)
+
+
+def t_run_async_guard():
+    sk._running = True
+    try:
+        assert sk.run_async() is False
+    finally:
+        sk._running = False
+
+
+
+# ═══ ۲۰۲۶-۰۷-۲۷ — قفلِ باورِ پول ═══════════════════════════════════════════
+# اسکنِ خودآگاهی این را گرفت و راستی‌آزمایی شد: `physiology` به `money.musd` نگاه
+# می‌کرد که **خرجِ خودِ ارگانیسم** است (telemetry.py:174 از جمعِ هزینه‌ها می‌سازدش).
+# نتیجه: هر ۲۷ نسخه «درآمد>۰» در حالی که attribution.confirmed صفر بود — و همین
+# جملهٔ غلط در promptِ مغزِ گران می‌رفت. برای ارگانیسمی که مأموریتش پول است، این
+# بدترین باورِ ممکن بود. این سه تست اجازه نمی‌دهند برگردد.
+
+
+def t_money_musd_is_never_read_as_revenue():
+    snap = {"money": {"musd": 21295}, "revenue": 0.0, "legs": {}, "wire_on": []}
+    u = sk._heuristic(snap, {})
+    assert "درآمد صفر" in u["physiology"], u["physiology"]
+    assert "درآمد>۰" not in u["physiology"], "خرج دوباره درآمد خوانده شد"
+
+
+def t_real_revenue_is_reported_as_revenue():
+    snap = {"money": {"musd": 21295}, "revenue": 12.5, "legs": {}, "wire_on": []}
+    u = sk._heuristic(snap, {})
+    assert "12.5" in u["physiology"], u["physiology"]
+    assert "صفر" not in u["physiology"], u["physiology"]
+
+
+def t_the_snapshot_separates_spend_from_revenue():
+    s = sk.snapshot()
+    assert "revenue" in s, "کلیدِ درآمد در snapshot نیست"
+    # revenue حالا float | None (None = اندازه‌گیری‌نشده، ۰۸-۰۸)
+    assert s["revenue"] is None or isinstance(s["revenue"], float), s["revenue"]
+    assert "_note" in s["money"], "کلیدِ گمراه‌کنندهٔ money بدونِ هشدار ماند"
+    # و تصحیح باید بتواند از پشتِ کشِ no-change بیرون بیاید
+    assert "revenue" in sk._hash_digest(s),         "revenue در hash نیست — باورِ تصحیح‌شده تا تغییرِ بعدی یخ می‌ماند"
+
+
+def t_the_self_model_sees_its_whole_body():
+    """پرسشِ مالک ۲۰۲۶-۰۷-۲۷: «خودآگاهی‌مان با کلِ اختاپوس می‌خوانَد؟»
+
+    اندازه‌گیریِ زنده گفت نه: خودآگاهی ۵ پا می‌دید و رجیستریِ رندر ۱۰ تا. پنج بازو
+    نامرئی بودند — از جمله `ziman` که بازوی **زندهٔ** واقعی است (`money_link=active`).
+    علت: snapshot فقط `business_legs` را می‌خواند، ولی `ziman`/`leg`/`cartographer`
+    کلیدِ جدای خودشان را در ORGANISM-STATE دارند و هیچ‌کس جمعشان نمی‌کرد. یعنی
+    «آناتومی» در هر پرامپتِ مغزِ گران نصفِ حقیقت بود.
+
+    این تست خودبسنده است: بلوک‌ها را در سندباکس می‌کارد و می‌سنجد هر کدام سطحی
+    می‌شوند — نه با درختِ زنده مقایسه می‌کند (نسخهٔ اولش همین اشتباه را کرد)."""
+    _sandbox_paths()
+    _seed_state()
+    org = json.loads((_SB / "ORGANISM-STATE.json").read_text("utf-8"))
+    org["ziman"] = {"leg_id": "ziman-gallery", "money_link": "active",
+                    "propose_only": True}
+    org["leg"] = {"leg_id": "lead-naghshi", "money_link": "active",
+                  "propose_only": True}
+    org["cartographer"] = {"leg_id": "vault-cartographer",
+                           "money_link": "incubating", "propose_only": True}
+    (_SB / "ORGANISM-STATE.json").write_text(json.dumps(org), "utf-8")
+    (_SB / "cortex").mkdir(parents=True, exist_ok=True)
+    (_SB / "cortex" / "part-loops-latest.json").write_text(
+        json.dumps({"parts": [{"status": "🟢"}, {"status": "🔴"}]}), "utf-8")
+
+    prev = os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+    try:
+        legs = sk.snapshot().get("legs") or {}
+    finally:
+        if prev is None:
+            os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = prev
+
+    for name in ("ziman", "lead", "cartographer", "system"):
+        assert name in legs, f"خودآگاهی «{name}» را نمی‌بیند: {sorted(legs)}"
+    assert legs["ziman"]["live"] is True, "بازوی زنده خاموش گزارش شد"
+    assert legs["cartographer"]["live"] is False
+    assert "بخشِ درونی" in str(legs["system"].get("note")), legs["system"]
+
+
+def t_a_live_arm_is_reported_live():
+    """زیمان با money_link=active باید live دیده شود، نه خاموش."""
+    import os as _os
+    _prev = _os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+    try:
+        legs = sk.snapshot().get("legs") or {}
+    finally:
+        if _prev is None:
+            _os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = _prev
+    z = legs.get("ziman")
+    if z is not None:      # فقط وقتی بلوکِ زیمان در state هست
+        assert z.get("live") is (z.get("money_link") == "active"), z
+
+
+def t_the_venture_entry_is_content_free():
+    """ونچر باید در آناتومی شمرده شود ولی هرگز نام/هویت/محتوا لو ندهد."""
+    import os as _os, re as _re
+    _prev = _os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+    try:
+        legs = sk.snapshot().get("legs") or {}
+    finally:
+        if _prev is None:
+            _os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = _prev
+    v = legs.get("studio_pf")
+    if v is not None:
+        blob = json.dumps(v, ensure_ascii=False)
+        for banned in ("فنز", "OnlyFans", "onlyfans", "feet", "creator"):
+            assert banned not in blob, f"نشتِ هویتِ ونچر: {banned}"
+
+def t_revenue_is_dollars_not_a_count():
+    """۲۰۲۶-۰۷-۲۷ — دومین تصحیح در یک روز، و درسش مهم‌تر از خودِ باگ.
+
+    نسخهٔ اولِ امروز فهمید `money.musd` خرجِ خودمان است نه درآمد، و به
+    `attribution.confirmed` رفت. ولی آن هم دلار نبود — با `confirmed += 1`
+    ساخته می‌شود، یعنی **شمارشِ ادعاها**. سه لیدِ تأییدشده می‌شد «revenue: 3.0»
+    و همان عدد در promptِ مغزِ گران و در تصمیمِ هدف‌محور می‌نشست.
+
+    هر دو نسخه `float` برمی‌گرداندند و هیچ‌چیز **واحد** را نمی‌سنجید. این تست
+    همان را می‌سنجد.
+
+    ⚠ ۲۰۲۶-۰۸-۰۸: `revenue_by_cell` خالی دیگر 0.0 برنمی‌گرداند — None
+    (اندازه‌گیری‌نشده)."""
+    import json as _j
+    fit = sk.opslib.STATE_DIR / "fitness-latest.json"  # _read_json از ریشهٔ state می‌خواند نه doctor/
+    fit.parent.mkdir(parents=True, exist_ok=True)
+    old = fit.read_text("utf-8") if fit.exists() else None
+    try:
+        # سه ادعای تأییدشده، جمعاً ۱۲۵۰ دلار
+        fit.write_text(_j.dumps({"attribution": {
+            "confirmed": 3, "claimed": 3,
+            "revenue_by_cell": {"lead": 1000.0, "ziman": 250.0}}}), "utf-8")
+        got = sk._revenue_confirmed()
+        assert got == 1250.0, f"دلار انتظار می‌رفت، {got} آمد (شمارش بود؟)"
+        assert got != 3.0, "هنوز شمارش برمی‌گرداند"
+        # و خالی یعنی نامعلوم (None)، نه شمارش و نه صفر (۰۸-۰۸)
+        fit.write_text(_j.dumps({"attribution": {"confirmed": 7,
+                                                 "revenue_by_cell": {}}}), "utf-8")
+        assert sk._revenue_confirmed() is None, "خالی = نامعلوم (None)، نه صفر و نه شمارش"
+    finally:
+        if old is not None:
+            fit.write_text(old, "utf-8")
+
+
+def t_revenue_survives_a_broken_attribution_block():
+    """ Attribution خراب یا نامعلوم → None یا مقدارِ غیرمنفی."""
+    import json as _j
+    fit = sk.opslib.STATE_DIR / "fitness-latest.json"  # _read_json از ریشهٔ state می‌خواند نه doctor/
+    old = fit.read_text("utf-8") if fit.exists() else None
+    try:
+        for bad in ({"attribution": None}, {"attribution": {"revenue_by_cell": "x"}},
+                    {"attribution": {"revenue_by_cell": {"a": "نه‌عدد"}}}, {}):
+            fit.write_text(_j.dumps(bad), "utf-8")
+            v = sk._revenue_confirmed()
+            assert v is None or (isinstance(v, float) and v >= 0.0), (bad, v)
+    finally:
+        if old is not None:
+            fit.write_text(old, "utf-8")
+
+
+# ═══ ۲۰۲۶-۰۸-۰۶ — confidence سقف‌خورده با EMAِ دقتِ *اندازه‌گیری‌شده* ═══════════
+# پیش از این «confidence» یا ثابتِ هاردکدِ ۰.۴ بود یا خودگزارشِ خامِ LLM بدونِ سقف —
+# هیچ‌کدام با دقتِ واقعاً سنجیده‌شدهٔ خودمدل (self-accuracy.jsonl) تنظیم نمی‌شد.
+# این بلوک سه چیز را قفل می‌کند: (الف) کمی‌بودنِ داده = بدونِ کلمپ، (ب) تاریخچهٔ
+# دقتِ پایین واقعاً confidence را پایین می‌آورد، (ج) ردیفی که خودِ همین چرخه
+# می‌سازد هرگز روی confidenceِ همان چرخه اثر نمی‌گذارد (forward-only).
+
+_ACC_FLAG = "OCTOPUS_SELFKNOW_ACCURACY"
+
+
+def _seed_accuracy_rows(rows):
+    (_SB / "doctor").mkdir(parents=True, exist_ok=True)
+    (_SB / "doctor" / "self-accuracy.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", "utf-8")
+
+
+def t_clamp_confidence_pure():
+    assert sk._clamp_confidence(0.9, None) == 0.9, "ema=None یعنی بدونِ تغییر"
+    assert sk._clamp_confidence(None, 0.2) is None, "value=None یعنی چیزی برای کلمپ نیست"
+    assert sk._clamp_confidence(0.9, 0.2) == 0.2, "بالاتر از EMA باید سقف بخورد"
+    assert sk._clamp_confidence(0.1, 0.5) == 0.1, "پایین‌تر از EMA دست‌نخورده می‌ماند"
+    assert sk._clamp_confidence("نامعتبر", 0.2) == "نامعتبر", "غیرعددی دست‌نخورده می‌ماند"
+
+
+# ── (a) کمتر از آستانه یا فلگِ خاموش → بدونِ کلمپ (byte-identical با امروز) ────
+def t_accuracy_ema_none_below_threshold():
+    _sandbox_paths(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "fields_checked": 3, "fields_correct": 0, "accuracy": 0.05}
+                for i in range(sk._ACCURACY_EMA_MIN_ROWS - 1)]
+        _seed_accuracy_rows(rows)
+        assert sk._accuracy_ema() is None, "کمتر از آستانه نباید EMA بدهد"
+        snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+        u = sk._heuristic(snap, {}, conf_ema=sk._accuracy_ema())
+        assert u["confidence"] == 0.4, f"دادهٔ کم نباید کلمپ کند: {u['confidence']}"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+def t_accuracy_ema_off_flag_is_noop():
+    _sandbox_paths(); _clear_doctor()
+    os.environ.pop(_ACC_FLAG, None)
+    rows = [{"ts": f"t{i}", "accuracy": 0.05} for i in range(10)]
+    _seed_accuracy_rows(rows)
+    assert sk._accuracy_ema() is None, "فلگِ خاموش باید None بدهد صرفِ‌نظر از تاریخچه"
+    snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+    u = sk._heuristic(snap, {})
+    assert u["confidence"] == 0.4, "فلگِ خاموش = رفتارِ امروز، بدونِ کلمپ"
+
+
+def t_run_confidence_unclamped_without_accuracy_history():
+    """(a) در سطحِ run(): سندباکسِ تازه، فلگ روشن ولی هنوز هیچ ردیفی روی دیسک
+    نیست → confidence باید همان مقدارِ خامِ LLM بماند."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        _orig = sk._ask_llm
+        sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.87,"pathology":[{"severity":"low"}]}')
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+        assert r["understanding"]["confidence"] == 0.87, r["understanding"]["confidence"]
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+# ── (b) تاریخچهٔ دقتِ پایین → confidenceِ بعدی واقعاً پایین‌تر می‌آید ────────────
+def t_heuristic_confidence_clamped_by_low_accuracy_history():
+    _sandbox_paths(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "accuracy": 0.15} for i in range(8)]
+        _seed_accuracy_rows(rows)
+        ema = sk._accuracy_ema()
+        assert ema is not None and ema < 0.4, ema
+        snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+        u = sk._heuristic(snap, {}, conf_ema=ema)
+        assert u["confidence"] == ema, u["confidence"]
+        assert u["confidence"] < 0.4, "کلمپ باید پایین‌تر از پیش‌فرضِ ۰.۴ برود"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+def t_synthesize_llm_confidence_clamped_by_history():
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.95}')
+    try:
+        out = sk.synthesize({"legs": {}}, {}, [], conf_ema=0.2)
+        u = out["understanding"]
+        assert u["confidence"] == 0.2, u["confidence"]
+        assert u["confidence"] < 0.95, "خودگزارشِ خامِ LLM باید سقف بخورد"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_synthesize_llm_confidence_unclamped_when_ema_none():
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.95}')
+    try:
+        out = sk.synthesize({"legs": {}}, {}, [], conf_ema=None)
+        assert out["understanding"]["confidence"] == 0.95, "ema=None یعنی بدونِ کلمپ"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_run_end_to_end_confidence_clamped_by_history():
+    """(b) در سطحِ run(): تاریخچهٔ ده‌ردیفیِ دقتِ ۰.۱ باید confidenceِ خامِ ۰.۹۵ی
+    LLM را به‌وضوح پایین بیاورد."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "accuracy": 0.1} for i in range(10)]
+        _seed_accuracy_rows(rows)
+        _orig = sk._ask_llm
+        sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.95,"pathology":[{"severity":"low"}]}')
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+        conf = r["understanding"]["confidence"]
+        assert conf is not None and conf < 0.95, conf
+        assert conf <= 0.2, f"EMAِ رویِ تاریخچهٔ ۰.۱ باید نزدیکِ ۰.۱ بماند، گرفتیم {conf}"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+# ── (c) forward-only: ردیفِ همین چرخه هرگز روی confidenceِ همان چرخه اثر ندارد ──
+def t_run_confidence_never_graded_by_its_own_cycle():
+    """اثباتِ صریحِ ناوردیِ forward-only.
+
+    دقیقاً یکی کمتر از آستانه می‌کاریم. `run()` خودش طیِ همین فراخوانی
+    `_self_accuracy_measure` را صدا می‌زند که (چون فلگ روشن است) یک ردیفِ تازه به
+    self-accuracy.jsonl اضافه می‌کند — یعنی وقتی `_heuristic`/`synthesize` واقعاً
+    اجرا می‌شوند، روی دیسک دیگر به‌اندازهٔ آستانه ردیف هست. اگر پیاده‌سازی EMA را
+    *آن لحظه* (زنده) می‌خواند، آستانه رد می‌شد و کلمپ فعال می‌شد — یعنی
+    confidenceِ این چرخه از ردیفی که خودِ همین چرخه ساخته تغذیه می‌کرد (دورِ
+    ممنوع). پیاده‌سازیِ درست EMA را *پیش از* آن نوشتن می‌خواند، پس کلمپ نباید
+    فعال شود و confidence باید همان مقدارِ خامِ LLM بماند."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        n_pre = sk._ACCURACY_EMA_MIN_ROWS - 1
+        rows = [{"ts": f"t{i}", "accuracy": 0.05} for i in range(n_pre)]
+        _seed_accuracy_rows(rows)
+        trail = _SB / "doctor" / "self-accuracy.jsonl"
+        before = len(trail.read_text("utf-8").strip().splitlines())
+        assert before == n_pre
+
+        _orig = sk._ask_llm
+        sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.9,"pathology":[{"severity":"low"}]}')
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+
+        after = len(trail.read_text("utf-8").strip().splitlines())
+        assert after > before, (
+            "پیش‌شرطِ تست بی‌معنی می‌شود اگر self_accuracy همین چرخه ردیفِ تازه ننویسد")
+
+        conf = r["understanding"]["confidence"]
+        assert conf == 0.9, (
+            f"confidence نباید از ردیفی که خودِ همین چرخه ساخته کلمپ شود؛ گرفتیم {conf}")
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+# ═══ ۲۰۲۶-۰۸-۰۷ — سنِ تصحیحِ مالک (owner_correction_age_days) ═══════════════════
+# متنِ تصحیح به‌تنهایی «کِی» را نمی‌گفت؛ همان یک تصحیحِ ماه‌ها پیش تا ابد در
+# snapshot تازه به نظر می‌رسید. آستانهٔ کهنگی: sk._CORRECTION_STALE_DAYS (۱۴ روز —
+# کمتر از یک هفته نویزِ سکوتِ عادی است، بیشتر از دو هفته یعنی چرخه‌ها دارند رویِ
+# حرفی می‌چرخند که دیگر تازه نیست).
+
+def _seed_owner_corrections(rows):
+    (_SB / "doctor").mkdir(parents=True, exist_ok=True)
+    (_SB / "doctor" / "owner-corrections.jsonl").write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", "utf-8")
+
+
+def _ts_days_ago(n: float) -> str:
+    return (_dt.datetime.now() - _dt.timedelta(days=n)).isoformat(timespec="seconds")
+
+
+def t_owner_correction_age_days_computed():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _seed_owner_corrections([{"ts": _ts_days_ago(5), "text": "تمرکز رو عوض کن"}])
+    snap = sk.snapshot()
+    age = snap.get("owner_correction_age_days")
+    assert age is not None, "سنِ تصحیح باید در snapshot باشد"
+    assert abs(age - 5) < 0.05, f"۵ روز پیش باید ~۵ بدهد؛ گرفتیم {age}"
+    assert "owner_correction_stale" not in snap, "زیرِ آستانه نباید فلگِ کهنگی بزند"
+
+
+def t_owner_correction_stale_flag_fires_past_threshold():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    over = sk._CORRECTION_STALE_DAYS + 3
+    _seed_owner_corrections([{"ts": _ts_days_ago(over), "text": "قدیمی"}])
+    snap = sk.snapshot()
+    assert snap["owner_correction_age_days"] > sk._CORRECTION_STALE_DAYS
+    flag = snap.get("owner_correction_stale")
+    assert flag, "بالاتر از آستانه باید فلگِ کهنگیِ خوانا بدهد"
+    assert str(int(over)) in flag or str(int(snap["owner_correction_age_days"])) in flag
+
+
+def t_owner_correction_age_uses_newest_row_not_oldest():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _seed_owner_corrections([
+        {"ts": _ts_days_ago(30), "text": "قدیمی‌ترین"},
+        {"ts": _ts_days_ago(2), "text": "تازه‌ترین"},
+    ])
+    snap = sk.snapshot()
+    age = snap["owner_correction_age_days"]
+    assert abs(age - 2) < 0.05, f"باید سنِ ردیفِ آخر (۲ روز) را بدهد نه اولی (۳۰)؛ گرفتیم {age}"
+    assert "owner_correction_stale" not in snap
+
+
+def t_owner_correction_malformed_ts_fails_soft():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _seed_owner_corrections([{"ts": "نه-یک-تاریخ", "text": "متنِ سالم"}])
+    snap = sk.snapshot()   # نباید crash کند
+    assert snap["owner_corrections"] == ["متنِ سالم"], "خودِ متن باید سالم بماند"
+    assert "owner_correction_age_days" not in snap, "ts خراب نباید عددِ جعلی بسازد"
+    assert "owner_correction_stale" not in snap
+
+
+def t_owner_correction_age_absent_without_file():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    snap = sk.snapshot()
+    assert "owner_correction_age_days" not in snap
+    assert "owner_correction_stale" not in snap
+
+
+if __name__ == "__main__":
+    failed = harness.run([
+        ("snapshotِ غنی", t_snapshot_richer),
+        ("LLM محلیِ $0", t_ask_llm_local_by_default),
+        ("فهمِ لایه‌ای", t_synthesize_layered),
+        ("هیوریستیکِ لایه‌ای", t_heuristic_layered),
+        ("deep-dive (hop2)", t_deep_dive),
+        ("run دو-مرحله‌ای", t_run_two_hop),
+        ("روی هیوریستیک بدونِ hop2", t_no_deepdive_on_heuristic),
+        ("trajectory همگرایی", t_trajectory_converging),
+        ("run بهبودِ نسخه‌ای", t_run_improves_versions),
+        ("change-gate صفر کال", t_change_gate_skips_llm),
+        ("hash کلاک را نادیده", t_hash_ignores_clock),
+        ("منطقِ adaptive hop-2", t_should_deep_dive_logic),
+        ("hop-2 روی پایدار رد", t_adaptive_hop2_skips_when_stable),
+        ("run فقط‌خواندنی", t_run_readonly),
+        ("beat خاموش=no-op", t_beat_flag_off_noop),
+        ("beat در ترس شلیک", t_beat_fires_under_fear),
+        ("run_async گارد", t_run_async_guard),
+        # ۲۰۲۶-۰۷-۲۷ — قفلِ باورِ پول. این فایل لیستِ صریح دارد نه جمع‌آوریِ
+        # خودکار، پس تستِ ثبت‌نشده بی‌صدا نمی‌دود و سوییت سبز گزارش می‌شود.
+        ("خرج هرگز درآمد خوانده نشود", t_money_musd_is_never_read_as_revenue),
+        ("درآمدِ واقعی درآمد گزارش شود", t_real_revenue_is_reported_as_revenue),
+        ("snapshot خرج و درآمد را جدا کند", t_the_snapshot_separates_spend_from_revenue),
+        ("خودآگاهی کلِ بدنش را ببیند", t_the_self_model_sees_its_whole_body),
+        ("بازوی زنده live گزارش شود", t_a_live_arm_is_reported_live),
+        ("مدخلِ ونچر content-free بماند", t_the_venture_entry_is_content_free),
+        # ۲۰۲۶-۰۷-۲۷ (دومین تصحیح در یک روز) — «عددِ درست‌تر» با «عددِ درست»
+        # یکی نیست: تصحیحِ اول شمارش را به‌جای دلار برداشت.
+        ("درآمد دلار است نه شمارش", t_revenue_is_dollars_not_a_count),
+        ("بلوکِ خرابِ انتساب crash ندهد", t_revenue_survives_a_broken_attribution_block),
+        # ۲۰۲۶-۰۸-۰۶ — confidence سقف‌خورده با EMAِ دقتِ اندازه‌گیری‌شده
+        ("_clamp_confidence خالص", t_clamp_confidence_pure),
+        ("دادهٔ کم = بدونِ کلمپ", t_accuracy_ema_none_below_threshold),
+        ("فلگِ خاموش = بدونِ کلمپ", t_accuracy_ema_off_flag_is_noop),
+        ("run بدونِ تاریخچه = بدونِ کلمپ", t_run_confidence_unclamped_without_accuracy_history),
+        ("تاریخچهٔ دقتِ پایین heuristic را کلمپ می‌کند", t_heuristic_confidence_clamped_by_low_accuracy_history),
+        ("تاریخچهٔ دقتِ پایین LLM را کلمپ می‌کند", t_synthesize_llm_confidence_clamped_by_history),
+        ("ema=None روی synthesize کلمپ نمی‌کند", t_synthesize_llm_confidence_unclamped_when_ema_none),
+        ("run با تاریخچهٔ ضعیف confidence را پایین می‌آورد", t_run_end_to_end_confidence_clamped_by_history),
+        ("confidence از ردیفِ همین چرخهٔ خودش گریدنمی‌شود", t_run_confidence_never_graded_by_its_own_cycle),
+        # ۲۰۲۶-۰۸-۰۷ — سنِ تصحیحِ مالک (owner_correction_age_days) + فلگِ کهنگی
+        ("سنِ تصحیح محاسبه می‌شود", t_owner_correction_age_days_computed),
+        ("فلگِ کهنگی بالاتر از آستانه شلیک می‌کند", t_owner_correction_stale_flag_fires_past_threshold),
+        ("سنِ تصحیح از ردیفِ تازه‌ترین نه قدیمی‌ترین", t_owner_correction_age_uses_newest_row_not_oldest),
+        ("ts خراب فیل‌سیف است", t_owner_correction_malformed_ts_fails_soft),
+        ("بدونِ فایل = بدونِ فیلدِ سن", t_owner_correction_age_absent_without_file),
+    ])
+    sys.exit(1 if failed else 0)

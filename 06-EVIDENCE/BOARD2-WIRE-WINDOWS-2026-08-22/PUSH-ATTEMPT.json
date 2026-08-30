@@ -1,0 +1,9 @@
+﻿{
+    "attempted_at_local":  "2026-08-22T17:16:24+10:00",
+    "remote":  "https://github.com/ari322/ofn-node.git",
+    "branch":  "ofn/wire",
+    "exit_code":  128,
+    "output":  "fatal: could not read Username for \u0027https://github.com\u0027: terminal prompts disabled",
+    "blocked":  true,
+    "reason":  "GitHub HTTPS credentials absent on laptop (terminal prompts disabled / no stored cred)"
+}

@@ -1,0 +1,26 @@
+claim_id,claim,status,evidence_tier,primary_evidence,notes
+CL-01,OCTOPUS has layers L0-L8,UNKNOWN,T6-only,OCTOPUS/worlds 01-10 dirs + _ops modules exist;no runtime exposes an L0-L8 mapping;defer to A01/A03
+CL-02,Brains are 4d_system and NBB-CP,PARTIAL_VERIFIED,T0+T2,4d_system processed via schtasks (consolidation 23:49);NBB observatory runs HOURLY FROM DESKTOP outside repo;live reasoning uses provider router + local ollama;no resident 4d/NBB brain process
+CL-03,Governance is mutual veto,PRESENT_NOT_WIRED,T0+T2,dual_brain.py complete but OCTOPUS_WIRE_DUAL_VETO absent from live flags (F-16)
+CL-04,Actions are propose-only,PARTIALLY_CONTRADICTED,T0+T2,IMPORTANT class owner-gated (autonomy_matrix);but AUTONOMY_FREE=1 + AUTONOMY_GRANT=1 + CODE_AUTOAPPLY_LOWRISK=1 + LEAD_OUTBOUND=1 live (F-12);boot log: code-apply armed active()=False
+CL-05,Money locked,VERIFIED_LIVE,T0+T2,money_gate fail-closed >AU$20 + NotWiredStub deny-all;month spend AU$0.74;ENFORCE_MONEY_FSM=1 (F-13);spend-cap window expired 2026-08-13 (F-14)
+CL-06,Destructive actions disabled,PRESENT_NOT_WIRED,T2+T3,octopus_v3 HARD_NO_GO overlay WIRED=False never imported (F-15);live per-action gates (money/autonomy/policy) do exist in code
+CL-07,A2 bounded automatic; A4 owner approval,VERIFIED_CODE_ONLY,T2,autonomy_matrix.py two-tier + auto_approve self-test gate;A-level naming not literal in code (important/free)
+CL-08,Policy Gate runtime-enforced,VERIFIED_CODE_ONLY,T2+T3,policy_gate.py fail-closed wired via wiring.py:2057;adr-033 event stream silent since 2026-08-13 (F-17)
+CL-09,Viability Loop runtime-enforced,NOT_FOUND,T2,no code anywhere (F-18)
+CL-10,Ledger is live and bitemporal,OUT_OF_SCOPE_A03,T0,chrono.db actively written per beat with HLC epoch-ms;bitemporality verdict deferred to A03 (dataflow auditor)
+CL-11,Sensorium is active,NOT_FOUND,T2,grep zero hits in _ops/4d_system (F-10)
+CL-12,Legs are unauthorized,VERIFIED_CODE_ONLY,T2,no hardware actuation path;legs are software propose-only;empty HANDLERS registry (F-11)
+CL-13,Memory affects reasoning,UNKNOWN,T0,memory/memory.db fresh 23:01 + semantic_memory.jsonl active;causal effect on reasoning not observable read-only;defer to A03
+CL-14,identity_health calculated live,VERIFIED_LIVE,T0,0.542 refreshed per spine beat with identity breakdown (F-07)
+CL-15,beat is live,VERIFIED_LIVE,T0,38511->38513->38516 observed with zero observer writes (F-05)
+CL-16,coherence is live,VERIFIED_CODE_ONLY,T2,OCTOPUS_WIRE_COHERENCE=1;computed on demand inside identity equations;no standalone surfaced value (F-08)
+CL-17,arbiter state is live,VERIFIED_LIVE,T0,3-heart consensus snapshot per beat;advisory_only=true (F-06)
+CL-18,runtime_state exists,NOT_FOUND,T2,no such field (F-09)
+CL-19,readiness_state exists,NOT_FOUND,T2,no such field (F-09)
+CL-20,bus_state exists,NOT_FOUND,T2,no such field;bus is in-process + events.jsonl (F-09/F-21)
+CL-21,acquisition_state exists,NOT_FOUND,T2,no such field (F-09)
+CL-22,safety_state exists,NOT_FOUND,T2,no such field;closest: halted/frozen/protective_skip in ORGANISM-STATE.json (F-09)
+CL-23,Event bus connected,VERIFIED_LIVE,T0,in-process wiring on;file stream sparse (45+ min silent) (F-21)
+CL-24,Disabled modules emit OFF heartbeats,VERIFIED_CODE_ONLY,T2+T0,mechanism wired (off_heartbeat.py every 10 beats) but ZERO dormant modules today so nothing emits;events.jsonl shows no module.heartbeat lines (F-20)
+CL-25,Kill switches work,VERIFIED_CODE_ONLY,T0+T2,per-loop checks in organism/cortex/tg-center + launcher boot guards;KILL_SEAM flag on;rejection not exercised read-only (F-19)

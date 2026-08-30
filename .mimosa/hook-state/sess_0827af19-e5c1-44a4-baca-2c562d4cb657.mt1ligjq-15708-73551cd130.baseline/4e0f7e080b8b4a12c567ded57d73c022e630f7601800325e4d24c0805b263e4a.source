@@ -1,0 +1,54 @@
+from pathlib import Path
+import hashlib
+import re
+
+p = Path(r"F:\backup\_ops\OCTOPUS-flags.cmd")
+raw = p.read_bytes()
+orig_sha = hashlib.sha256(raw).hexdigest()
+orig_len = len(raw)
+if b"\r\n" not in raw:
+    raise SystemExit("STOP: no CRLF found")
+if b"\n" in raw.replace(b"\r\n", b""):
+    raise SystemExit("STOP: lone LF found")
+
+keys = [
+    "OCTOPUS_WIRE_C6_PRODUCER",
+    "OCTOPUS_GOVERNOR_USE_ROUTER",
+    "OCTOPUS_HEART_DOCTOR_USE_ROUTER",
+    "OCTOPUS_DOCTOR_SELFKNOW_PAID",
+]
+text = raw.decode("utf-8", errors="strict")
+status = {}
+for k in keys:
+    pat = re.compile(rf"(?m)^\s*set\s+{re.escape(k)}=([^\r\n]*)")
+    vals = pat.findall(text)
+    status[k] = vals
+    if vals and vals[-1].strip() not in ("0", ""):
+        raise SystemExit(f"STOP: unexpected existing value for {k}")
+
+append = []
+for k in keys:
+    if not status[k]:
+        append.append(f"set {k}=0")
+if append:
+    block = "\r\nrem 2026-07-25 (agent): keep paid/router C6 and paid-brain routes explicitly dark.\r\n" + "\r\n".join(append) + "\r\n"
+    raw = raw + block.encode("utf-8")
+    p.write_bytes(raw)
+
+new = p.read_bytes()
+new_text = new.decode("utf-8", errors="strict")
+for k in keys:
+    pat = re.compile(rf"(?m)^\s*set\s+{re.escape(k)}=([^\r\n]*)")
+    vals = pat.findall(new_text)
+    if vals != ["0"]:
+        raise SystemExit(f"STOP: post-check failed for {k}: {vals}")
+if b"\n" in new.replace(b"\r\n", b""):
+    raise SystemExit("STOP: post-check lone LF")
+print({
+    "orig_len": orig_len,
+    "new_len": len(new),
+    "orig_sha": orig_sha,
+    "new_sha": hashlib.sha256(new).hexdigest(),
+    "appended": len(append),
+    "keys": {k: ["0"] for k in keys},
+})

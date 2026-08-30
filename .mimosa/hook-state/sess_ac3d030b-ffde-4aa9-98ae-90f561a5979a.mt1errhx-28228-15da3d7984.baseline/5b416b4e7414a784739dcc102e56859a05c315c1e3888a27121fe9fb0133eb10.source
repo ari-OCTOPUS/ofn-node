@@ -1,0 +1,99 @@
+"""
+human_core.py — HumanCore: مرکزِ شناخت و ارتباط.
+
+همه‌ی خروجی‌های هوشمند از CORE می‌گذرند. (gate و kill-switch همچنان در bot،
+قبل از CORE و معاف از آن — CORE آن‌ها را دور نمی‌زند.)
+
+با dependency injection ساخته می‌شود تا تست‌پذیر باشد:
+    HumanCore(db, brain, bank, router, base_prompt)
+"""
+
+from __future__ import annotations
+
+import logging
+
+from . import constitution
+from .communication import CommunicationManager
+from .mental_model import MentalModel
+from .self_improver import SelfImprover
+
+log = logging.getLogger("langar.core")
+
+
+class HumanCore:
+    _instance: "HumanCore | None" = None
+
+    def __init__(self, db, brain, bank, router, base_prompt: str = "",
+                 world_model=None, memory=None):
+        self.db = db
+        self.brain = brain
+        self.bank = bank
+        self.router = router
+        self.base_prompt = base_prompt
+        self.world_model = world_model
+        self.memory = memory
+        self.comm = CommunicationManager()
+        self.improver = SelfImprover(db)
+        self.mm = MentalModel.from_json(db.latest_mm_snapshot())
+        self._last_q_id = None
+        HumanCore._instance = self
+
+    # --- سؤالِ روزانه ---
+    def get_daily_question(self) -> str:
+        ctx = self.db.brain_context()  # {data, rmssd_low, domain_counts, hour}
+        # WorldModel + Memory (هر دو اختیاری و best-effort)
+        if self.world_model is not None:
+            try:
+                ctx["world"] = self.world_model.get_current_state()
+            except Exception:
+                pass
+        if self.memory is not None:
+            try:
+                ctx["recent"] = self.memory.load_long_term(7)
+            except Exception:
+                pass
+        agent, domain = self.router.choose(ctx.get("domain_counts"))
+        agent.base_prompt = self.base_prompt
+        # G-03: یادآوریِ معناییِ گذشتهٔ مرتبط (موتورِ حافظه) — best-effort
+        if self.memory is not None:
+            try:
+                ctx["memories"] = [
+                    {"text": h.text, "score": h.score, "meta": h.meta}
+                    for h in self.memory.search_semantic(domain or "بینش", k=3)
+                ]
+            except Exception:
+                pass
+        profile = self.mm.get_profile()
+        raw = agent.generate_question(domain, ctx, profile)
+        # قانونِ اساسی: اگر خروجی ناقضِ یکی از ۱۴ قانون بود، به سؤالِ امنِ آفلاین برگرد
+        # (قانونِ ۱: در شک، سکوت — ولی برای UX به‌جای سکوت، سؤالِ امنِ بانک).
+        if not constitution.is_compliant(raw, ctx):
+            raw = self.bank.get_question(domain, ctx)
+        style = self.comm.decide_style(profile, ctx)
+        msg = self.comm.adapt_message(raw, style)
+        self._last_q_id = self.db.log_question_quality(
+            agent.name, domain, getattr(self.brain, "name", "?"), msg)
+        return msg
+
+    # --- ثبتِ تعامل ---
+    def register_interaction(self, itype: str, content=None, response=None,
+                             response_time=None, led_to_log=False) -> None:
+        self.mm.update_from_interaction(itype, response_time)
+        if itype == "log" and isinstance(content, dict):
+            self.mm.update_from_log(content)
+        if itype == "verdict":
+            self.mm.update_from_insight(content, response)
+        self.db.save_mm_snapshot(self.mm.to_json())
+        if self._last_q_id and itype in ("ask_answer", "log"):
+            self.db.update_question_quality(
+                self._last_q_id, answered=1, response_time=response_time,
+                led_to_log=1 if (itype == "log" or led_to_log) else 0)
+
+    def get_communication_style(self):
+        return self.comm.decide_style(self.mm.get_profile(), {})
+
+    def reflect_and_improve(self) -> dict:
+        metrics = self.improver.collect_metrics()
+        report = SelfImprover.reflect(metrics, self.mm.get_profile())
+        self.improver.apply_report(report)
+        return report

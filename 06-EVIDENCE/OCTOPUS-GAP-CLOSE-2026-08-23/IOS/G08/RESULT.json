@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "surfaces_seen": {
+    "durable_loop_outbox": "F:\\backup\\_ops\\state\\telegram\\loop\\outbox",
+    "durable_loop_events": "F:\\backup\\_ops\\state\\telegram\\loop\\events",
+    "canary_sqlite": "F:\\backup\\_ops\\state\\telegram\\a18-owner-canary-rate-limit.sqlite3"
+  },
+  "contract_extended": "F:/backup/_ops/telegram_center/docs/DUAL-OUTBOX-CONTRACT.md",
+  "helper": "dual_outbox_contract.classify_surface",
+  "pytest_tail": "..................                                                       [100%]\n18 passed in 3.07s\n",
+  "no_merge": true,
+  "gap_id": "G08",
+  "stamp_local": "2026-08-23T09:05:12+10:00",
+  "timezone": "Australia/Sydney",
+  "agent": "Ios"
+}

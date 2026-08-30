@@ -1,0 +1,168 @@
+"""
+raw_brain.py — آداپترِ «پرسشِ خام» روی providerهای موجودِ مغز، بدونِ تغییرِ آن‌ها.
+
+`brain/providers.py` فقط ask(system, context) دارد که خروجی را در قالبِ کارگاهِ
+N-of-1 می‌پیچد. برای معماری به system + userِ دلخواه نیاز داریم. این ماژول به‌جای
+دست‌زدن به مغز، providerِ موجود را می‌گیرد و با استفاده از attributeهای عمومیِ خودش
+(api_key / base_url / model) یک فراخوانِ خام می‌زند. هیچ فایلِ موجودی تغییر نمی‌کند.
+
+اگر providerی خودش ask_raw داشته باشد (مثلِ Fake در تست‌ها) همان استفاده می‌شود.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass
+class RawResult:
+    """متن + مصرفِ توکن (برای هزینه/observability)."""
+
+    text: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cached_input_tokens: int = 0
+    model: str = ""
+    provider: str = ""
+
+
+_OFFLINE_TEMPLATE = """## 1. Summary
+Leaderless mesh for @@DOMAIN@@ at @@SCALE@@. Constraints: @@CONSTRAINTS@@. [OFFLINE STUB]
+
+## 2. Failure modes to survive (top 3, with blast radius)
+1 Region outage (blast: one cell) - 2 Memory-store partition / split-brain - 3 Heal-storm
+
+## 3. Architecture overview
+flowchart: Agent runtime -> CRDT memory; Agent <-> SWIM gossip; memory <-> durable substrate.
+
+## 4. Component breakdown
+| Component | Fungal principle | G/J | Technology | Why |
+|---|---|---|---|---|
+| Memory | Single identity, many nodes [J] | J | CRDT (Automerge) | leaderless writes, eventual convergence |
+| Membership | Anastomosis [J] | J | SWIM gossip | decentralized join/leave |
+| Isolation | Septa (dolipore/parenthesome) [J] | J | bulkhead + circuit breaker | no cascade |
+| Dispatch | Grow to resource [G] | G | Physarum controller (gamma knob) | multi-path allocation |
+
+## 5. Data & consistency model
+CRDT over durable object storage; local strong-ish, global eventual; merge resolves conflict (trade-off: stale reads).
+
+## 6. Failure & self-healing behavior
+node / zone / region death handled; reconciliation rehydrates from durable store; heal-storm bounded (rate-limit + tau_D >> tau_traffic).
+
+## 7. Technology choices
+| Concern | Recommended | Alternatives | Lock-in | Pricing model |
+|---|---|---|---|---|
+| Membership | SWIM/Serf | Consul | low | OSS |
+| Memory | Automerge | Redis Enterprise | low-med | OSS/license |
+
+## 8. Trade-offs
+Cost 6 - Complexity 7 - Scalability 9 - Maintainability 7 - Security 7
+
+## 9. Observability & ops
+OpenTelemetry monitoring + structured logging + chaos testing + CI/CD progressive rollout.
+
+## 10. Next steps
+1 SWIM+CRDT PoC - 2 Physarum dispatch controller with gamma + tau guard - 3 chaos GameDay (kill region). Defaults hold; islanding for physical assets.
+
+_Estimate - offline stub, not a model output._
+"""
+
+
+def _offline_architecture(user_text: str) -> str:
+    """خروجیِ قطعیِ آفلاین با شکلِ schema — برای دمو/CI بدونِ کلید."""
+    import re
+
+    def _f(key: str) -> str:
+        m = re.search(key + r"\s*:\s*(.+)", user_text)
+        return m.group(1).strip() if m else "—"
+
+    return (_OFFLINE_TEMPLATE
+            .replace("@@DOMAIN@@", _f("DOMAIN"))
+            .replace("@@SCALE@@", _f("SCALE"))
+            .replace("@@CONSTRAINTS@@", _f("CONSTRAINTS")))
+
+
+def raw_ask(provider, system_prompt: str, user_text: str, *,
+            model: str | None = None, max_tokens: int = 4096,
+            cache_system: bool = True) -> RawResult:
+    """یک فراخوانِ خام روی providerِ داده‌شده — بدونِ تغییرِ کلاسِ آن.
+
+    ترتیب: (۱) اگر خودش ask_raw دارد از آن استفاده کن؛ (۲) وگرنه بر اساسِ name
+    مستقیم فراخوان بزن با استفاده از attributeهای عمومیِ provider.
+    """
+    fn = getattr(provider, "ask_raw", None)
+    if callable(fn):  # Fake/آینده که خودش پشتیبانی می‌کند
+        return fn(system_prompt, user_text, model=model,
+                  max_tokens=max_tokens, cache_system=cache_system)
+
+    name = getattr(provider, "name", "")
+
+    if name == "offline":
+        text = _offline_architecture(user_text)
+        return RawResult(text=text, input_tokens=len(system_prompt) // 4,
+                         output_tokens=len(text) // 4, model="offline", provider="offline")
+
+    if name == "anthropic":
+        from anthropic import Anthropic
+        client = Anthropic(api_key=provider.api_key)
+        system = ([{"type": "text", "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"}}]
+                  if cache_system else system_prompt)
+        resp = client.messages.create(
+            model=model or provider.model, max_tokens=max_tokens, system=system,
+            messages=[{"role": "user", "content": user_text}],
+        )
+        text = "".join(b.text for b in resp.content
+                       if getattr(b, "type", "") == "text").strip()
+        if not text:
+            raise RuntimeError("پاسخِ خالی")
+        u = getattr(resp, "usage", None)
+        return RawResult(
+            text=text,
+            input_tokens=int(getattr(u, "input_tokens", 0) or 0),
+            output_tokens=int(getattr(u, "output_tokens", 0) or 0),
+            cached_input_tokens=int(getattr(u, "cache_read_input_tokens", 0) or 0),
+            model=model or provider.model, provider="anthropic",
+        )
+
+    if name == "openai_compat":
+        import openai
+        client = openai.OpenAI(api_key=provider.api_key, base_url=provider.base_url, timeout=120.0)
+        mdl = model or provider.model
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_text},
+        ]
+
+        def _create(**cap):
+            return client.chat.completions.create(model=mdl, messages=messages, **cap)
+
+        def _extract(r):
+            return (r.choices[0].message.content or "").strip()
+
+        try:
+            resp = _create(max_tokens=max_tokens)
+        except Exception as e1:
+            m = str(e1).lower()
+            if any(w in m for w in ("max_tokens", "max_completion_tokens", "unsupported", "param")):
+                try:
+                    resp = _create(max_completion_tokens=max_tokens)
+                except Exception:
+                    resp = _create()
+            else:
+                raise
+        text = _extract(resp)
+        if not text:
+            resp = _create()
+            text = _extract(resp)
+        if not text:
+            raise RuntimeError("پاسخِ خالی")
+        u = getattr(resp, "usage", None)
+        return RawResult(
+            text=text,
+            input_tokens=int(getattr(u, "prompt_tokens", 0) or 0),
+            output_tokens=int(getattr(u, "completion_tokens", 0) or 0),
+            model=mdl, provider="openai_compat",
+        )
+
+    raise NotImplementedError(f"raw_ask: providerِ ناشناخته {name!r}")

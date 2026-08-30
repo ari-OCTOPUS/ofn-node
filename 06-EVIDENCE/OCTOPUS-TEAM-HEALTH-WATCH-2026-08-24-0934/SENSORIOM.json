@@ -1,0 +1,11 @@
+﻿{
+  "stamp": "2026-08-24T09:35+10",
+  "color": "YELLOW",
+  "wave0": "hardware locked; ARMED=false; soft SOFTWARE_LATCH; no estop buy",
+  "mqtt": "WAN closed; loopback 127.0.0.1:1883",
+  "lan_9101": "up",
+  "gaps": ["octopus_sensor_observation_age_seconds MISSING", "physical estop ABSENT HOLD", "quarantine THERMAL on disk"],
+  "doctor": "PASS",
+  "homeo_ok": true,
+  "feeds_ok": 7
+}

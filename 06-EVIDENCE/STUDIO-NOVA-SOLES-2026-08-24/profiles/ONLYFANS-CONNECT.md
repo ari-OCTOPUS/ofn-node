@@ -1,0 +1,23 @@
+# OnlyFans Connect - Nova Soles
+
+- **Status:** COMPLETE (profile brand) — 2026-08-24 AEST
+- **Handle:** @novasolesau
+- **URL:** https://onlyfans.com/novasolesau
+- **Display name:** Nova Soles
+- **Bio:** Sexy is an energy, not a body type · X @novasolmate | FeetFinder NovaSolesAU
+- **Location:** Sydney, Australia
+- **Avatar:** YES
+- **Banner:** YES
+- **Posts:** none yet
+- **Face policy:** no-face permanent
+- **Method:** official browser login only
+- **REJECT:** unofficial cookie / HTTP APIs (stay REJECT)
+- **Note:** settings still show Become a creator (to earn) — earnings onboarding may be pending
+- **Cross-link plan:**
+  - X @novasolmate website/bio -> OF https://onlyfans.com/novasolesau (DONE 2026-08-24)
+  - FeetFinder NovaSolesAU bio -> OF
+  - OF about already points X + FeetFinder
+- **Content:** reuse Day1 watermarked packs after FF; no mass OF post until separate GO
+- **Payout:** Sydney AU via legal Paxum / AU bank only (no new payout details invented here)
+- **Secrets:** DO NOT store passwords, cookies, session tokens, phone digits, or bank details in this file
+- **X website cross-link:** DONE 2026-08-24 - https://x.com/novasolmate website -> onlyfans.com/novasolesau

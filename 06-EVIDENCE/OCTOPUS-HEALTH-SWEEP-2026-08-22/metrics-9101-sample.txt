@@ -1,0 +1,61 @@
+﻿# HELP octopus_stability_distance RMS excess outside healthy host ranges
+# TYPE octopus_stability_distance gauge
+octopus_stability_distance 0.000000
+# HELP octopus_stability_in_envelope 1 if host variables are in healthy ranges
+# TYPE octopus_stability_in_envelope gauge
+octopus_stability_in_envelope 1
+# HELP octopus_homeostasis_ok 1 if host ranges and data health are both ok
+# TYPE octopus_homeostasis_ok gauge
+octopus_homeostasis_ok 1
+# HELP octopus_homeostasis_energy_ratio Headroom vs max(cpu, memory)
+# TYPE octopus_homeostasis_energy_ratio gauge
+octopus_homeostasis_energy_ratio 0.662900
+# HELP octopus_homeostasis_mode 0=normal 1=conserve 2=would_lockdown(advisory)
+# TYPE octopus_homeostasis_mode gauge
+octopus_homeostasis_mode 0
+# HELP octopus_axis_value Current host axis value
+# TYPE octopus_axis_value gauge
+# HELP octopus_axis_stale 1 if evidence is missing or older than freshness window
+# TYPE octopus_axis_stale gauge
+# HELP octopus_homeo_value Homeostatic variable value
+# TYPE octopus_homeo_value gauge
+# HELP octopus_homeo_unknown 1 if variable is missing and not zero-filled
+# TYPE octopus_homeo_unknown gauge
+octopus_axis_value{axis="cpu_utilisation"} 0.083750
+octopus_axis_stale{axis="cpu_utilisation"} 0
+octopus_axis_value{axis="memory_used"} 0.337100
+octopus_axis_stale{axis="memory_used"} 0
+octopus_axis_value{axis="soc_temperature"} 27.769000
+octopus_axis_stale{axis="soc_temperature"} 0
+octopus_axis_value{axis="disk_used"} 0.167500
+octopus_axis_stale{axis="disk_used"} 0
+octopus_homeo_value{variable="compute_pressure"} 0.083750
+octopus_homeo_unknown{variable="compute_pressure"} 0
+octopus_homeo_value{variable="memory_pressure"} 0.337100
+octopus_homeo_unknown{variable="memory_pressure"} 0
+octopus_homeo_value{variable="thermal_integrity"} 27.769000
+octopus_homeo_unknown{variable="thermal_integrity"} 0
+octopus_homeo_value{variable="storage_integrity"} 0.167500
+octopus_homeo_unknown{variable="storage_integrity"} 0
+octopus_homeo_value{variable="evidence_freshness"} 1.335334
+octopus_homeo_unknown{variable="evidence_freshness"} 0
+octopus_homeo_value{variable="sensor_coverage"} 1.000000
+octopus_homeo_unknown{variable="sensor_coverage"} 0
+octopus_homeo_value{variable="model_skill"} 0.000000
+octopus_homeo_unknown{variable="model_skill"} 0
+octopus_homeo_unknown{variable="prediction_calibration"} 1
+# HELP octopus_skill_samples Paired prediction outcomes
+# TYPE octopus_skill_samples gauge
+octopus_skill_samples 200
+# HELP octopus_metacontrol_executable Always 0 in WAVE0_OBSERVE_ONLY
+# TYPE octopus_metacontrol_executable gauge
+octopus_metacontrol_executable 0
+# HELP octopus_metacontrol_would_decide Hypothetical WAVE0 decision; never executed
+# TYPE octopus_metacontrol_would_decide gauge
+octopus_metacontrol_would_decide{kind="plan"} 0
+octopus_metacontrol_would_decide{kind="reflex"} 1
+octopus_metacontrol_would_decide{kind="block"} 0
+# HELP octopus_actions_executed_total Host actions executed; must stay 0 in WAVE0
+# TYPE octopus_actions_executed_total counter
+octopus_actions_executed_total{profile="WAVE0_OBSERVE_ONLY"} 0
+

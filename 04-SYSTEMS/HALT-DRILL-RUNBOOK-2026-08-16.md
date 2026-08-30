@@ -1,8 +1,8 @@
 ---
 type: runbook
-status: draft
+status: active
 created: 2026-08-16
-updated: 2026-08-16
+updated: 2026-08-23
 created_by: agent
 tags: [octopus, tcb, halt]
 sources:
@@ -12,7 +12,15 @@ sources:
 
 # Live halt drill — runbook only (owner picks the window)
 
-Do **not** execute in this session. Daemon gen-3 is armed: pid 27164, `OCTOPUS_TCB_MANIFEST_ENFORCE=1`, signature valid [A].
+> **READINESS 2026-08-23:** master-halt, outbound-halt, halt-coverage,
+> provider-effect-halt, launcher-halt, and halt-integration checks all passed.
+> This validates the rehearsal floor, not the live outcome. No TCB file was
+> mutated and no live process was halted. Current evidence:
+> [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]].
+
+Do **not** execute without an owner-selected window. The old pid `27164` was a
+2026-08-16 snapshot and is not a current precondition. Re-measure the daemon pid,
+manifest enforcement, and signature immediately before the drill.
 
 ## Preconditions [A]
 

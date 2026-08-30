@@ -16,6 +16,8 @@ sources:
 
 # ۴۹ — بستن شب + ماندگارسازی شکار خطا (2026-08-16)
 
+> **کهنه برای ورود عصر و شب:** آزاد اینجا C-027 است؛ LiveDataRefresh اینجا FILE_NOT_FOUND. حقیقت شب: نوت [[61-OBSIDIAN-NIGHT-LOCK-2026-08-16|۶۱]] · عصر: [[54-GROK-SESSION-SOT-2026-08-16|۵۴]] · آزاد **C-034** · LiveDataRefresh LastResult=0.
+
 نقطهٔ ورود عملیاتیِ امروز: [[../../01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] · نقشهٔ روز: [[../../00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · جمع‌بندی شب: [[../../00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]]. مگاپرامپت ۳ اوت تاریخی است — کد زنده و STATE برنده است.
 
 ## یک پاراگراف

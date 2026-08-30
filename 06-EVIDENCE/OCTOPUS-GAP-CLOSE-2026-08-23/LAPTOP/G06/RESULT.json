@@ -1,0 +1,8 @@
+{
+  "gap": "G06",
+  "stamp_local": "2026-08-23T09:15:00+10:00",
+  "slice": "PI",
+  "status": "HOLD",
+  "verdict": "WAVE0 physical estop ABSENT; MQTT KEEP_CLOSED; physical deferred",
+  "reason": "owner/external blocker \u2014 folded into CLOSE-MATRIX as HOLD"
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/owner-authorization.v1.json",
+  "title": "octopus.owner-authorization.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "authorization_id",
+    "issued_at",
+    "expires_at",
+    "current_wave",
+    "target_wave",
+    "scope",
+    "allowed_actions",
+    "forbidden_actions",
+    "target_hosts",
+    "config_digest",
+    "checkpoint_digest",
+    "rollback_digest",
+    "max_duration_s",
+    "max_actions",
+    "owner_identity",
+    "owner_signature",
+    "root_key_id"
+  ],
+  "properties": {
+    "schema": {
+      "const": "octopus.owner-authorization.v1"
+    },
+    "authorization_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "current_wave": {
+      "type": "string"
+    },
+    "target_wave": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "allowed_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_hosts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "config_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "checkpoint_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "rollback_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "max_duration_s": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_actions": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "owner_identity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner_signature": {
+      "type": "string",
+      "description": "Ed25519 signature by existing root-v2. Empty => DENY."
+    },
+    "root_key_id": {
+      "const": "root-v2"
+    }
+  }
+}

@@ -2,15 +2,19 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-08-17
+updated: 2026-08-29
 ---
 
 # خانه — داشبورد اصلی
+
+> 🐙 **اختاپوس زنده (2026-08-29 عصر — Deep-Walk حافظه):** نقشه واقعی حافظه/یادگیری ۴ نود + تست زنده روی fixture — گلوگاه `use` اثبات شد (۲۱ proposal→۳ decided؛ ۶۳۳۰ episode→۹ lesson؛ future_use صفر) و ریشه‌اش stub ساختنِ consume_tick است، نه خرابی FTS. [[06-EVIDENCE/DEEP-WALK-20260829/D1-REALITY-MAP|D1 نقشه]] · [[06-EVIDENCE/DEEP-WALK-20260829/D3-CONTRACT-FIELDS|D3 قراردادها]] · [[06-EVIDENCE/DEEP-WALK-20260829/safe-tests/SAFE-TESTS-RUN-RECEIPT|رسید SAFE_TESTS]] · بعدی: PATCH_PROPOSAL
 
 > نقطه ورود به کل vault. قواعد: [[_PROJECT_INSTRUCTIONS|اینستراکشن پروژه v2.0]] · وضعیت جلسه قبل: [[01 - Dashboard/HANDOFF|HANDOFF]]
 >
 > 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (عکس لحظه‌ای — snapshot ۲۰۲۶-۰۷-۰۶، **زنده نیست**، برنامهٔ بازنویسیِ ۳ساعته هرگز دیپلوی نشد) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
 >
+> 🐙 **اختاپوس زنده (2026-08-21 — لاب خودارتقا):** [[07 - Knowledge/شناخت-اختاپوس/79-SELF-UPGRADE-LAB-CYCLE-2026-08-21|نوت ۷۹]] · [[06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README|شواهد لاب]] · [[01 - Dashboard/HANDOFF|HANDOFF]]
+> 🐙 **اختاپوس زنده (2026-08-20 ~20:4x — A19):** [[07 - Knowledge/شناخت-اختاپوس/72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20|نوت ۷۲]] · [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[docs/NOW|NOW]] · [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|حلقهٔ تلگرام]] · A13–A17 PASS · A18 BLOCKED · lease آزاد
 > 🐙 **VibeGuard (2026-08-17 — محصول جدا، تحقیق وارد شد):** [[03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · [[03 - Projects/VibeGuard/chat-ingest/README|chat-ingest]] · نوت [[07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]] · مگاپرامپت [[agent-prompts/MEGAPROMPT-VIBEGUARD-IMPLEMENT-2026-08-17|IMPLEMENT]]
 > 🐙 **اختاپوس زنده:** [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck]] · ADR-035 APPLY=1
 > 🐙 **دستورالعمل Worker Agent اجرا شد (2026-08-16 دیرشب — فازهای ۰–۸):** [[07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|نوت ۶۲]] · گزارش [[04-SYSTEMS/AGENT-REPORT|AGENT-REPORT]] · **A2 مسلح نشد** (تعارض D7 با VQ-SELFGOAL-002 → رأی مالک) · ۳ سؤالِ باز

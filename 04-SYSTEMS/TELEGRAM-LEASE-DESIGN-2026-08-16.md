@@ -1,8 +1,8 @@
 ---
 type: design
-status: draft
+status: active
 created: 2026-08-16
-updated: 2026-08-16
+updated: 2026-08-23
 created_by: agent
 tags: [octopus, pep, lease]
 sources:
@@ -10,9 +10,31 @@ sources:
   - "[[06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-16]]"
 ---
 
-# Telegram lease — spec, issuance OFF
+# Telegram lease — enforcement seam implemented, production issuer OFF
 
-## Shadow already judges real sends [A]
+> **IMPLEMENTATION UPDATE 2026-08-23:** both Telegram HTTP boundaries can now
+> enforce a real `octopus_v3.lease.CapabilityLease`. Enforcement remains
+> default-off; no production caller issues a lease yet. Runtime verification
+> covered no-lease deny, one valid use, replay, action/parameter drift, expiry,
+> revocation, kill, approval-channel parity, and fail-closed hook errors:
+> **6/6 PASS**. See
+> [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]].
+
+## Current contract
+
+- Gate: `OCTOPUS_TG_PEP_ENFORCE` (absent/off by default).
+- Authority key: `OCTOPUS_TG_PEP_HMAC`; missing or shorter than 16 characters
+  cannot mint or validate a real lease.
+- Lease: HMAC-signed, exact `action + params` binding, maximum 30-second TTL,
+  one call, network allow-list limited to `api.telegram.org`.
+- Context: `use_real_lease()` binds the permit to the current execution context.
+- Kill/revoke: `OCTOPUS_TG_PEP_KILL` and local lease-id deny-list.
+- Boundary behavior: shadow mode remains fail-soft; enforcement mode fails
+  closed before network I/O.
+- Remaining gap: owner-approved production issuance and arming. Only tests call
+  `issue_real_lease()` today.
+
+## Historical 2026-08-16 shadow state
 
 `_ops/state/telegram-pep-shadow.jsonl` (2 lines):
 
@@ -24,33 +46,28 @@ Hooks [A source]:
 1. `_ops/telegram_center/tg_api.py` `TelegramBot._call_post` — **before** the POST/retry loop, `telegram_pep_shadow.hook(...)` then send proceeds anyway.
 2. `_ops/budget/approval_channel.py` `_url_json_post` — same pattern. No lines from this sender in the log yet.
 
-`hook()` always calls `observe(..., lease=None)`. `Lease` / `PepState.evaluate` already implement deny-by-default, revoke, replay, TTL, params hash. Issuance is off: nothing constructs a `Lease` on the live path.
+At that time `hook()` always called `observe(..., lease=None)`. This paragraph
+describes the pre-implementation state and is retained as provenance.
 
-## Minimal real lease (not issued)
+## Historical proposed lease
 
 | field | rule |
 |---|---|
 | bind | sha256(canonical json of `[action, params]`)[:24] — existing `params_sha` |
 | single-use | `consumed=True` on allow; replay → deny |
 | TTL | 30s (`_TTL_S` already) |
-| signed | owner Ed25519 over `(lease_id, action, sha, nonce, exp)` — **not wired**; today Lease has no signature field |
+| signed | superseded: implementation reuses the existing HMAC-signed `CapabilityLease` |
 | replay | nonce store + `consumed` |
 | kill | `PepState.revoked` |
 | default | no lease → deny |
 
-Issuance stay OFF until owner vote after ≥7 days shadow (PHASE02 ADR draft). Enforce would currently deny **all** production sends.
+Production issuance and arming remain OFF pending an owner decision. If
+enforcement is enabled without a valid contextual lease, all sends are denied by
+design.
 
-## Attach point (design)
+## Attach points (implemented)
 
-In `_call_post`, immediately after the existing shadow `hook`, **before** `_post`:
-
-```text
-# NOT WIRED
-# lease = load_issued_lease_for(method, body)   # always None today
-# r = pep.evaluate(method, body, lease)
-# if os.environ.get("OCTOPUS_TG_PEP_ENFORCE") == "1" and r["verdict"] != "allow":
-#     return None
-# real HTTP follows
-```
-
-Same insert on `_url_json_post`. Doctor has no direct send (center relay). Councils remain `capability_token=None`.
+`TgClient._call_post` and `approval_channel._url_json_post` call the shared hook
+before transport. A deny in enforcement mode returns without invoking the HTTP
+transport. Doctor still sends through center relay. Councils remain outside this
+issuer path.

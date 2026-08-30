@@ -34,10 +34,20 @@ ENV = harness.setup("tg-poll-health")     # قبل از هر importی که state
 import tg_api  # noqa: E402
 
 
+_SEQ = 0
+
+
+def _token(label: str) -> str:
+    """هر client یک توکنِ تازه — صفِ retryِ ماندگار بینِ تست‌ها نشت نکند."""
+    global _SEQ
+    _SEQ += 1
+    return f"fake:{label}-{_SEQ}"
+
+
 def _client(get_fn, alert_sink=None):
     if alert_sink is not None:
         tg_api._alert_soft = lambda msg: alert_sink.append(msg)
-    return tg_api.TgClient(token="fake:token", owner_chat_id=123,
+    return tg_api.TgClient(token=_token("token"), owner_chat_id=123,
                            center_chat_id=-100, get_fn=get_fn)
 
 

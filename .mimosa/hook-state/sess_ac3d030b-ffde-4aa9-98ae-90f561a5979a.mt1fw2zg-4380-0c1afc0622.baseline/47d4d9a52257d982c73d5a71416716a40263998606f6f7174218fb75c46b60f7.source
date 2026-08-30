@@ -1,0 +1,23 @@
+# -*- coding: utf-8 -*-
+"""File-backed flags — not OCTOPUS_* env, so phantom_guards ledger is untouched."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+WIRING_PATH = _HERE / "WIRING.json"
+
+
+def load_wiring() -> dict:
+    try:
+        d = json.loads(WIRING_PATH.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def enabled(name: str, default: bool = False) -> bool:
+    flags = load_wiring().get("flags") or {}
+    v = flags.get(name, default)
+    return bool(v)

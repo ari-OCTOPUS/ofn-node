@@ -35,8 +35,16 @@ EFFECT_PATHS = {
     "gateway":  ["http:local(8774)", "write:no", "pay:no"],
     "live":     ["http:local(8773)", "write:no", "pay:no"],
     "cortex":   ["write:outputs", "llm:paid(via router)", "pay:budget-capped"],
+    "board_cp(aux)": ["http:local(8801)", "write:queue", "pay:no"],
+    "4d_daemon(aux)": ["write:4d-state", "llm:budgeted", "pay:budget-capped"],
+    "doctor(aux)": ["write:doctor-state", "send:via-center", "pay:no"],
+    "observatory(aux)": ["write:evidence", "http:allowlisted", "pay:no"],
+    "audit(aux)": ["write:audit-output", "pay:no"],
+    "test(aux)": ["test-only", "pay:no"],
+    "tool(aux)": ["tooling", "pay:no"],
     "unknown":  ["UNDECLARED — must fail admission in future manifest"],
 }
+TRANSIENT_ROLES = {"audit(aux)", "test(aux)", "tool(aux)"}
 
 
 def _run(cmd: list[str], timeout=60) -> str:
@@ -97,19 +105,37 @@ def _ports() -> dict[int, list[int]]:
     return m
 
 
-def _role_of(cmdline: str) -> str:
-    """نقش از محتوای cmdline — خاص‌ترها اول (مسیرِ gateway شامل
-    «telegram_center» است؛ ترتیب تطبیق مهم)."""
+def _role_of(cmdline: str, entry_file: str | None = None) -> str:
+    """نقش از entrypoint دقیق؛ نام‌های شامل‌شونده مثل manifest≠organism."""
     c = (cmdline or "").lower().replace("\\", "/")
-    for token, role in (("gateway", "gateway"), ("organism.py", "organism"),
-                        ("cortex", "cortex"), ("live/server", "live"),
-                        ("live.py", "live"), ("telegram_center", "center"),
-                        ("doctor", "doctor(aux)"), ("observatory", "observatory")):
-        if token in c:
-            return role
-    for member in DECLARED_MEMBERS:
-        if member in c:
-            return member
+    entry = (entry_file or "").lower().replace("\\", "/")
+    name = entry.rsplit("/", 1)[-1]
+
+    if name == "organism_manifest.py":
+        return "audit(aux)"
+    if name.startswith("test_") or " -m pytest " in f" {c} ":
+        return "test(aux)"
+    if name.startswith("extract_") and name.endswith(".py"):
+        return "tool(aux)"
+
+    if name == "miniapp_gateway.py":
+        return "gateway"
+    if name == "organism.py":
+        return "organism"
+    if name == "cortex.py" and "/cortex/" in entry:
+        return "cortex"
+    if name in ("server.py", "live.py") and "/live/" in entry:
+        return "live"
+    if name == "center.py" and "/telegram_center/" in entry:
+        return "center"
+    if name == "server.py" and "/board_cp/" in entry:
+        return "board_cp(aux)"
+    if "-m brain.daemon" in c:
+        return "4d_daemon(aux)"
+    if "doctor" in entry:
+        return "doctor(aux)"
+    if "observatory" in entry:
+        return "observatory(aux)"
     return "unknown"
 
 
@@ -145,10 +171,11 @@ def main() -> int:
     flags = _effective_flags_last_wins()
 
     members = []
+    transient = []
     for p in procs:
-        role = _role_of(p["cmdline"])
         entry = _entry_file(p["cmdline"])
-        members.append({
+        role = _role_of(p["cmdline"], entry)
+        record = {
             "role": role,
             "pid": p["pid"],
             "started": p["started"],
@@ -157,7 +184,8 @@ def main() -> int:
             "entry_sha256": _sha256(Path(entry)) if entry else None,
             "effect_paths": EFFECT_PATHS.get(role, EFFECT_PATHS["unknown"]),
             "cmdline": p["cmdline"],
-        })
+        }
+        (transient if role in TRANSIENT_ROLES else members).append(record)
 
     tasks = _run(["powershell", "-NoProfile", "-Command",
                   "Get-ScheduledTask -TaskName '*Observator*','*OCTOPUS*' -ErrorAction "
@@ -169,6 +197,8 @@ def main() -> int:
         "observed_at": now,
         "declared_members": DECLARED_MEMBERS,
         "members_observed": members,
+        "transient_processes_observed": transient,
+        "observed_processes_total": len(members) + len(transient),
         "flags_effective_last_wins": flags,
         "flags_count": len(flags),
         "scheduled_tasks": [t for t in tasks.splitlines() if t.strip()],
@@ -190,7 +220,8 @@ def main() -> int:
     OUT.write_text(json.dumps(manifest, indent=2, ensure_ascii=False),
                    encoding="utf-8")
     print(f"نوشته شد: {OUT.name}")
-    print(f"اعضای مشاهده‌شده: {len(members)} (ادعاشده: {len(DECLARED_MEMBERS)})")
+    print(f"اعضای مشاهده‌شده: {len(members)} (ادعاشده: {len(DECLARED_MEMBERS)})"
+          f"؛ گذرای جداشده: {len(transient)}")
     for m in members:
         print(f"  {m['role']:13} pid={m['pid']} ports={m['ports_listening']} "
               f"entry={'✓' if m['entry_sha256'] else '✗'}")

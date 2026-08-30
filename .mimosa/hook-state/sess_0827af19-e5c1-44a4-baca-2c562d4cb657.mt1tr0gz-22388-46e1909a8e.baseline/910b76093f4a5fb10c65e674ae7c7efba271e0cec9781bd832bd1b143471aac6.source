@@ -1,0 +1,153 @@
+"""
+CLI — end-to-end: design → evaluate → report (+ JSON) با exit-codeی مناسبِ CI.
+
+نمونه‌ها:
+  # دمو کاملاً آفلاین (بدونِ کلید) — برای smoke/CI
+  python -m architect --demo --k 5
+
+  # اجرای واقعی روی «مغزِ اصلی» (provider از config)
+  python -m architect \
+    --domain "multi-agent LLM orchestration platform" \
+    --scale  "500 concurrent agents, 5 regions" \
+    --constraints "<$8k/mo, survive full-region outage, eventual consistency for memory" \
+    --variant guided --lang en --k 5 --judge auto --json out/run.json
+
+exit: 0 = gate pass · 1 = gate fail · 2 = error اجرایی
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+
+_DEMO = dict(
+    domain="multi-agent LLM orchestration platform",
+    scale="500 concurrent agents, 5 regions",
+    constraints="<$8k/mo, survive full-region outage, eventual consistency for agent memory",
+)
+
+
+def _parse(argv=None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(prog="architect", description="Mycelial architect — wired to the brain")
+    p.add_argument("--domain"); p.add_argument("--scale"); p.add_argument("--constraints")
+    p.add_argument("--variant", default="guided", choices=["guided", "open"])
+    p.add_argument("--lang", default="en", choices=["en", "fa"])
+    p.add_argument("--k", type=int, default=1, help="تعدادِ نمونه (برای SC4 حداقل ۵)")
+    p.add_argument("--threshold", type=int, default=12)
+    p.add_argument("--max-tokens", type=int, default=4096)
+    p.add_argument("--judge", default="auto", choices=["fake", "llm", "auto"])
+    p.add_argument("--offline", action="store_true", help="provider را به offline مجبور کن")
+    p.add_argument("--demo", action="store_true", help="ورودیِ نمونه + offline")
+    p.add_argument("--json", dest="json_path", help="مسیرِ ذخیره‌ی گزارشِ JSON")
+    p.add_argument("--save-best", help="مسیرِ ذخیره‌ی بهترین نمونه (.md)")
+    return p.parse_args(argv)
+
+
+def _build_brain(args):
+    import architect
+    if args.offline or args.demo:
+        import brain
+        provider = brain.OfflineBrainProvider(brain.QuestionBank())
+        return architect.ArchitectBrain(provider, router=None, max_tokens=args.max_tokens), None
+    import config
+    cfg = config.CONFIG
+    ab = architect.ArchitectBrain.from_config(cfg, max_tokens=args.max_tokens)
+    return ab, cfg
+
+
+def _build_judge(args, cfg, generator_name):
+    import architect
+    if args.judge == "fake" or args.offline or args.demo:
+        return architect.FakeJudge()
+    if args.judge == "llm" or args.judge == "auto":
+        if cfg is None:
+            return architect.FakeJudge()
+        return architect.build_judge(cfg, generator_provider_name=generator_name)
+    return architect.FakeJudge()
+
+
+def _report(run, scores, gate_res, var, judge_name) -> str:
+    L = []
+    L.append("═" * 64)
+    L.append(f"ARCHITECT RUN · provider={run.provider} · judge={judge_name}")
+    L.append(f"domain={run.domain}")
+    L.append(f"variant={run.variant} lang={run.lang} k={run.k} · route={run.route['depth']}/{run.route['model_tier']}"
+             + (" (downgraded)" if run.route.get("downgraded") else ""))
+    L.append("─" * 64)
+    for i, s in enumerate(scores):
+        dims = " ".join(f"{k}:{s.dims[k]}" for k in sorted(s.dims))
+        L.append(f"sample {i}: total {s.total}/{__import__('architect').MAX_TOTAL}  [{dims}]")
+    L.append("─" * 64)
+    L.append(f"GATE: {'PASS ✅' if gate_res.passed else 'FAIL ❌'}  "
+             f"mean {gate_res.mean_total}/{gate_res.threshold}  min {gate_res.min_total}")
+    for r in gate_res.reasons:
+        L.append(f"   · {r}")
+    L.append(f"per-dim mean: " + ", ".join(f"{k}:{v}" for k, v in gate_res.per_dim_mean.items()))
+    L.append("─" * 64)
+    L.append(f"SC4 (repeatability): {var.sc4_verdict}  ·  section-Jaccard {var.section_jaccard}  "
+             f"tech-Jaccard {var.tech_jaccard}")
+    L.append(f"   {var.detail}")
+    L.append("─" * 64)
+    if run.cost_usd is not None:
+        L.append(f"cost: ${run.cost_usd}  (in {run.usage['input_tokens']} / out {run.usage['output_tokens']} tok, "
+                 f"cached {run.usage['cached_input_tokens']})")
+    else:
+        L.append(f"tokens: in {run.usage['input_tokens']} / out {run.usage['output_tokens']} "
+                 f"(cached {run.usage['cached_input_tokens']}) · set ARCHITECT_PRICE_IN/OUT (USD/1M) for $ estimate")
+    L.append(f"elapsed: {run.elapsed_s}s" + (f" · warnings: {len(run.warnings)}" if run.warnings else ""))
+    L.append("═" * 64)
+    return "\n".join(L)
+
+
+def main(argv=None) -> int:
+    import architect
+    args = _parse(argv)
+
+    if not (args.demo or (args.domain and args.scale and args.constraints)):
+        print("خطا: یا --demo بده یا هر سه‌ی --domain/--scale/--constraints.", file=sys.stderr)
+        return 2
+
+    domain = args.domain or _DEMO["domain"]
+    scale = args.scale or _DEMO["scale"]
+    constraints = args.constraints or _DEMO["constraints"]
+
+    try:
+        brain_ab, cfg = _build_brain(args)
+        run = brain_ab.design(domain, scale, constraints,
+                              variant=args.variant, lang=args.lang, k=args.k)
+    except Exception as e:  # noqa: BLE001
+        print(f"خطای اجرایی: {type(e).__name__}: {e}", file=sys.stderr)
+        return 2
+
+    judge = _build_judge(args, cfg, run.provider)
+    scores = [judge.score(s) for s in run.samples]
+    gate_res = architect.gate(scores, threshold=args.threshold)
+    var = architect.structural_variance(run.samples)
+
+    print(_report(run, scores, gate_res, var, getattr(judge, "name", "?")))
+
+    if args.save_best:
+        best_i = max(range(len(scores)), key=lambda i: scores[i].total)
+        with open(args.save_best, "w", encoding="utf-8") as f:
+            f.write(run.samples[best_i])
+        print(f"→ best sample saved: {args.save_best}")
+
+    if args.json_path:
+        payload = {
+            "run": {**run.to_dict(), "samples_len": [len(s) for s in run.samples]},
+            "scores": [s.to_dict() for s in scores],
+            "gate": gate_res.to_dict(),
+            "variance": var.to_dict(),
+            "judge": getattr(judge, "name", "?"),
+        }
+        payload["run"].pop("samples", None)  # JSONِ خلاصه؛ متنِ کامل جدا ذخیره شود
+        with open(args.json_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+        print(f"→ JSON report: {args.json_path}")
+
+    return 0 if gate_res.passed else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

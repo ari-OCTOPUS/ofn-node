@@ -1,0 +1,19 @@
+{
+  "doctor_status": "FAIL",
+  "doctor_blocking_failed": 2,
+  "doctor_blocking_failed_ids": [
+    "coverage_or_data_critical",
+    "disk_health"
+  ],
+  "doctor_unknown": 0,
+  "doctor_checks_total": 18,
+  "repairs_attempted": 0,
+  "prove_status": "DEGRADED",
+  "prove_doctor_check": {
+    "id": "doctor",
+    "status": "PASS",
+    "note": "age_sec=0",
+    "evidence_ref": "/var/lib/octopus/evidence/session-doctor-refresh-20260823/doctor-summary.json"
+  },
+  "ARMED_false": true
+}

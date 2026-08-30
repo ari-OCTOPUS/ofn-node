@@ -1,0 +1,50 @@
+{
+  "BOT": "180",
+  "ROLE": "quality-brain",
+  "TASK_ID": "5834522f-a8c2-43b5-91e2-42c93ba89d16",
+  "RUN_ID": "repair-worker-reply-retry-v2",
+  "SUPERSEDES": "30f60773-6bee-49ef-9c76-b8b9de8c0335",
+  "reply_message_id": "11bd33fb-9f54-562f-80dc-a25b1919ed7f",
+  "response_sha256": "7322ddbc47b8792f2c62f1cc53592d1f84b9d5872151838b22c5d9110d237e0f",
+  "reply_idempotency_key": "reply:5834522f-a8c2-43b5-91e2-42c93ba89d16:7322ddbc47b8792f2c62f1cc53592d1f84b9d5872151838b22c5d9110d237e0f",
+  "state": "INPUT_PROCESSED",
+  "transmit_handed": true,
+  "transmit_calls": 1,
+  "ack_status": "ack",
+  "last_error": null,
+  "last_transmit_result": {
+    "returncode": 0,
+    "remote_stdout": "{\"status\": \"ack\", \"message_id\": \"11bd33fb-9f54-562f-80dc-a25b1919ed7f\", \"reason\": \"accepted\"}",
+    "remote_stderr_prefix": ""
+  },
+  "frozen_response": {
+    "block": "REPLY_RETRY_REPAIR_180_RESULT",
+    "task_id": "5834522f-a8c2-43b5-91e2-42c93ba89d16",
+    "supersedes": "30f60773-6bee-49ef-9c76-b8b9de8c0335",
+    "run_id": "repair-worker-reply-retry-v2",
+    "BOT": "180",
+    "ROLE": "quality-brain",
+    "claim_level": "OBSERVED",
+    "claimed_once": true,
+    "no_reclaim_30f60773": true,
+    "live_enable": "NO",
+    "transmit_handed_latch": true,
+    "kill_after_send_transmits": 1,
+    "tests_reply_retry": "26/26",
+    "tests_cognitive_worker": "6/6",
+    "mesh_ack_8fb28ba3": "ingested_control_not_checkpoint_a",
+    "may_authorize": false,
+    "status": "DURABLE_REPLY_TRANSMITTED_HOLD",
+    "outbox_sha256": "bac40b1e7923cb67656ecc8c0163f9f3df1e2b4479293e3f5ab55285e1cd6a73"
+  },
+  "on_disk": {
+    "meta": "/root/octopus-mesh/state/replies/meta/5834522f-a8c2-43b5-91e2-42c93ba89d16.json",
+    "pending": "/root/octopus-mesh/state/replies/pending/0a393470ac0f429f8fb33126d6770c81a71b836c84fed7ea7efb69897a2b57b6.json",
+    "acked": "/root/octopus-mesh/state/replies/acked/0a393470ac0f429f8fb33126d6770c81a71b836c84fed7ea7efb69897a2b57b6.json"
+  },
+  "live_enable": "NO",
+  "MAY_AUTHORIZE": false,
+  "STATUS": "INPUT_PROCESSED",
+  "EXTERNAL_ACTIONS": 0,
+  "sealed_utc": "2026-08-27T01:45:43Z"
+}

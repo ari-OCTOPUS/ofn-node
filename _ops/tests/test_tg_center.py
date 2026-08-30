@@ -204,6 +204,9 @@ class Clock:
 def _reset():
     """state تلگرامِ temp را بینِ تست‌ها پاک کن (config حافظهٔ idempotency است)."""
     shutil.rmtree(opslib.STATE_DIR / "telegram", ignore_errors=True)
+    # ConfigManager ِ سراسری LKG را نگه می‌دارد (حفظِ offset هنگامِ حذفِ فایل)؛
+    # هر تست یک «ری‌استارت» است و باید از صفر boot کند.
+    center._config_cache_reset()
     if center.STOP_TG_CENTER.exists():
         center.STOP_TG_CENTER.unlink()
 

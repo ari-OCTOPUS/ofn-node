@@ -26,3 +26,8 @@ private keys/make-root-v2 · MQTT 1883 / PWM / legs / root action_executor · ar
 ## Next
 
 Paste `SENSORIOM-EXECUTE-BRIEF.txt` to sensoriom; collect C receipts on TO-LAPTOP exchange; keep Board2 wire queued until creds authorized separately.
+
+## Execution result
+- C1 PASS JetStream retention; MemoryCurrent ~487M→~58M
+- C2 MemoryMax raise NOT applied
+- WAVE0 locked; MQTT/leg untouched

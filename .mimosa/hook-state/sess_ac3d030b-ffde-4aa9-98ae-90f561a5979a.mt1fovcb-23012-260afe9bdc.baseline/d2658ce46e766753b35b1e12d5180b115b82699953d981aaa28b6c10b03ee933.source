@@ -1,0 +1,175 @@
+"""
+Keyword relevance filter for painting-trade leads (Sydney/NSW).
+
+is_paint_relevant(text) -> bool
+
+This is the ONLY function the harvesters import (austender, nsw_etendering,
+planning_alerts). It decides whether a fetched tender/listing is about the
+building-painting trade — as opposed to:
+  - fine art / portraiture (نقاشی هنری)
+  - nail polish / cosmetics
+  - powder coating in manufacturing
+  - unrelated trades that happen to mention "surface" or "finish"
+
+Design: score-based, not just substring matching.
+  - POSITIVE terms add weight (paint, painter, repainting, coating, strata repaint...)
+  - STRONG_NEGATIVE terms (art, artwork, portrait, nail polish) force-reject
+  - WEAK_NEGATIVE terms subtract weight (manufacturing, automotive, powder coat)
+  - A lead is relevant iff score >= POSITIVE_THRESHOLD after negatives.
+
+Why not plain substring? Because "service" contains "vic", "painting" can mean
+art, and NSW planning alerts mention "paint" in DIY contexts. A pure-AND/OR
+filter either over-matches (noise) or under-matches (missed leads). Scoring
+with strong-negatives is the simplest approach that survives real data.
+
+Status: RECONSTRUCTED 2026-07-12.
+This file was missing from the repo (every active harvester imports from it).
+The keyword set below is a first reasonable cut for Sydney painting trade;
+Ari should tune POSITIVE/NEGATIVE after seeing real hit/miss samples.
+All names provisional, owner veto retained.
+"""
+from __future__ import annotations
+
+import re
+
+# ── Positive terms: the building-painting trade ────────────────────────────
+# Each entry: (regex, weight). Weight reflects how strongly the term signals
+# the painting trade specifically (not just any building work).
+_POSITIVE: list[tuple[str, int]] = [
+    # core trade — high confidence
+    (r"\bpaint(?:ing|er|ers|ed)?\b", 3),
+    (r"\brepaint(?:ing|ed)?\b", 4),
+    (r"\bundercoat(?:ing)?\b", 3),
+    (r"\btop[ -]?coat(?:ing)?\b", 3),
+    (r"\bprimer\b|\bpriming\b", 2),
+    (r"\bsurface preparation\b", 3),
+    (r"\bsand[ -]?blasting\b", 2),
+    (r"\bpressure[ -]?wash(?:ing)?\b", 1),
+    # coatings & finishes — medium confidence (could be industrial)
+    # R24 (2026-08-16): «protective coating» عبارت‌های رایجِ tender نقاشیِ
+    # ساختمانیِ استرالیاست و با وزنِ عمومیِ coating (2) زیرِ آستانه (3) می‌ماند.
+    (r"\bprotective\s+coat(?:ing|ings)?\b", 3),
+    (r"\bcoat(?:ing|ings)?\b", 2),
+    # R24: «internal/external decoration» در tenderهای استرالیایی = کارِ
+    # نقاشی-دکوراسیون (painter-decorator)، نه دکوراسیونِ داخلیِ عمومی.
+    (r"\b(?:internal|external)\s+decorat(?:ion|ing)\b", 3),
+    (r"\bfinish(?:ed|ing)?\b", 1),
+    (r"\bseal(?:er|ing)?\b", 1),
+    (r"\bwaterproof(?:ing)?\b", 2),
+    # contexts that lift confidence — painting in building/strata context
+    (r"\bstrata\b.*\bpaint", 5),
+    (r"\bfacade\b.*\b(?:paint|coat|restor)", 4),
+    (r"\bbody corporate\b.*\bpaint", 5),
+    (r"\bremedial\b.*\b(?:paint|coat|seal|waterproof)", 4),
+    # common Sydney painting-job phrasings
+    (r"\binterior painting\b", 5),
+    (r"\bexterior painting\b", 5),
+    (r"\bcommercial painting\b", 5),
+    (r"\bresidential painting\b", 5),
+    (r"\broof(?:ing)?\s+(?:paint|coat|restor)", 4),
+    (r"\bwall\s+(?:and|&)\s+(?:ceiling|roof)\s+paint", 4),
+]
+
+# ── Strong negatives: force-reject even if positives matched ────────────────
+# These mean "paint" but NOT building painting. One hit → irrelevant.
+_STRONG_NEGATIVE: list[str] = [
+    r"\bartwork\b", r"\bart(?:ist|ists|istic|gallery|galleries)\b",
+    r"\bportrait", r"\blandscape\s+(?:paint|art)",
+    r"\bcanvas\b", r"\bwatercolour\b", r"\bwatercolor\b",
+    r"\bbrushstroke", r"\bstill life\b",
+    r"\bnail\s*polish", r"\bmakeup\b", r"\bcosmetic",
+    r"\bautomotive\s+paint", r"\bcar\s+paint", r"\bvehicle\s+paint",
+    r"\broad\s+marking", r"\bline\s+marking",
+]
+
+# ── Weak negatives: subtract weight, don't force-reject ────────────────────
+# These suggest industrial / non-trade painting contexts.
+_WEAK_NEGATIVE: list[tuple[str, int]] = [
+    (r"\bpowder\s*coat", 4),
+    (r"\bmanufactur", 2),
+    (r"\bfactory\b", 2),
+    (r"\bindustrial\s+plant", 3),
+    (r"\bpipeline\b", 2),
+    (r"\bmarine\b", 2),
+]
+
+# Tunables — adjust after seeing real hit/miss samples
+POSITIVE_THRESHOLD = 3       # need at least this much positive weight
+WEAK_NEGATIVE_CAP = True     # can weak-negatives drop a lead below threshold
+
+
+def _compile(patterns: list[tuple[str, int]]) -> list[tuple[re.Pattern, int]]:
+    return [(re.compile(p, re.IGNORECASE), w) for p, w in patterns]
+
+
+def _compile_plain(patterns: list[str]) -> list[re.Pattern]:
+    return [re.compile(p, re.IGNORECASE) for p in patterns]
+
+
+_POS_RE = _compile(_POSITIVE)
+_STRONG_NEG_RE = _compile_plain(_STRONG_NEGATIVE)
+_WEAK_NEG_RE = _compile(_WEAK_NEGATIVE)
+
+
+def _score(text: str) -> tuple[int, bool]:
+    """Return (net_score, strong_negative_hit)."""
+    if not text:
+        return 0, False
+
+    # strong negatives are absolute rejectors
+    for pat in _STRONG_NEG_RE:
+        if pat.search(text):
+            return 0, True
+
+    pos = sum(w for pat, w in _POS_RE if pat.search(text))
+    neg = sum(w for pat, w in _WEAK_NEG_RE if pat.search(text)) if WEAK_NEGATIVE_CAP else 0
+    return pos - neg, False
+
+
+def is_paint_relevant(text: str) -> bool:
+    """
+    Decide whether a tender/listing is about the building-painting trade.
+
+    Pure function — no I/O, no globals. Tested in test_phase2_sources.py.
+
+    >>> is_paint_relevant("Exterior repainting of strata complex in Parramatta")
+    True
+    >>> is_paint_relevant("Portrait painting commission")
+    False
+    >>> is_paint_relevant("Powder coating service")
+    False
+    >>> is_paint_relevant("General maintenance including painting")
+    True
+    """
+    net, strong_neg = _score(text)
+    if strong_neg:
+        return False
+    return net >= POSITIVE_THRESHOLD
+
+
+def explain(text: str) -> dict:
+    """
+    Diagnostic helper — returns WHY a decision was made.
+    Use in quarantine logs and debug, not in the hot path.
+    """
+    matches = []
+    for pat, w in _POS_RE:
+        m = pat.search(text or "")
+        if m:
+            matches.append(("positive", m.group(0), w))
+    for pat in _STRONG_NEG_RE:
+        m = pat.search(text or "")
+        if m:
+            matches.append(("strong_neg", m.group(0), None))
+    for pat, w in _WEAK_NEG_RE:
+        m = pat.search(text or "")
+        if m:
+            matches.append(("weak_neg", m.group(0), w))
+    net, strong_neg = _score(text or "")
+    return {
+        "score": net,
+        "threshold": POSITIVE_THRESHOLD,
+        "strong_negative_hit": strong_neg,
+        "relevant": is_paint_relevant(text or ""),
+        "matches": matches,
+    }

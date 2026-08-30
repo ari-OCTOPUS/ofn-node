@@ -1,0 +1,27 @@
+{
+  "rfc_id": "RFC-CE-EVO-20260822",
+  "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+  "worktree": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+  "test_outcome": "pass",
+  "verify": true,
+  "proposed_promote": true,
+  "telegram_card": {
+    "kind": "evo-lab-rfc-card",
+    "rfc_id": "RFC-CE-EVO-20260822",
+    "bottleneck": "continuous-exec needs one fixture evolutionary cycle end-to-end",
+    "organ": "doctor",
+    "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+    "worktree": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+    "test_ok": true,
+    "verify": true,
+    "verify_reasons": [],
+    "proposed_promote": true,
+    "live_send": false,
+    "actions": [
+      "[merge]",
+      "[reject]"
+    ]
+  },
+  "outbox_path": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\state\\telegram\\loop\\outbox\\evo-93f34401870f6690.json",
+  "live_send": false
+}

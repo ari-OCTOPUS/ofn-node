@@ -1,0 +1,41 @@
+{
+  "schema": "octopus-orangepi-chg-abd-package-complete/1",
+  "auth": "OCTOPUS-ORANGEPI-CHG-ABD-20260822",
+  "received_at_local": "2026-08-22T17:03:42.322684+10:00",
+  "order": "A->D->B",
+  "results": {
+    "A": "PASS",
+    "D": "PASS",
+    "B": "PASS"
+  },
+  "live": {
+    "sensorium": {
+      "ActiveState": "active",
+      "NRestarts": 0,
+      "WatchdogSec": 180,
+      "MemoryCurrent": "~1.0G"
+    },
+    "world_model": {
+      "ActiveState": "active",
+      "NRestarts": 0,
+      "MemoryMax": "128M",
+      "MemoryCurrent": "~80M"
+    },
+    "skill_tracker": {
+      "ActiveState": "active",
+      "NRestarts": 0,
+      "MemoryMax": "128M",
+      "MemoryCurrent": "~59M"
+    },
+    "ledger_verify": {
+      "ok": true,
+      "prediction_seq": 9029
+    }
+  },
+  "deferred": [
+    "C_NATS",
+    "E_compaction"
+  ],
+  "wave0_actuators": "LOCKED",
+  "next_laptop": "Board2 F:/octopus-wire"
+}

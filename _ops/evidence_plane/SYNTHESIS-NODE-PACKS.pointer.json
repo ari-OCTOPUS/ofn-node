@@ -1,0 +1,30 @@
+{
+  "schema": "octopus-evidence-plane-pointer.v1",
+  "name": "SYNTHESIS-NODE-PACKS",
+  "enabled": true,
+  "reversible": true,
+  "created_at": "2026-08-23T00:58:22+10:00",
+  "timezone": "Australia/Sydney",
+  "points_to": {
+    "synthesis_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\SYNTHESIS.json",
+    "synthesis_md": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\SYNTHESIS.md",
+    "sha256": "dc391586638eff11b5c0305899210d384d23f25cb37633e05e6fbf51d2246356",
+    "result_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\RESULT.json",
+    "package_result_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\PACKAGE\\RESULT.json",
+    "packs_dir": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs"
+  },
+  "wiring_hook": "F:\\backup\\_ops\\organs\\WIRING.json#hooks.synthesis_node_packs",
+  "wiring_backup": "F:\\backup\\_ops\\organs\\WIRING.json.bak-2026-08-23-synthesis-node-packs",
+  "rollback": [
+    "set WIRING.flags.synthesis_node_packs_hook=false",
+    "remove WIRING.hooks.synthesis_node_packs",
+    "restore WIRING from .bak-2026-08-23-synthesis-node-packs",
+    "delete or rename this pointer file"
+  ],
+  "does_not": [
+    "restart center",
+    "unlock WAVE0",
+    "mine",
+    "write secrets"
+  ]
+}

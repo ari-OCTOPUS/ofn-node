@@ -1,0 +1,9 @@
+{
+  "transition": "T3",
+  "doctor": "FAIL",
+  "repairs_attempted": 0,
+  "blocking": [
+    "sensor_coverage",
+    "gap001"
+  ]
+}

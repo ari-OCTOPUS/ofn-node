@@ -503,6 +503,8 @@ def main() -> int:
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         _arb_status = None         # HH-P11: داورِ نبض — پیش از try (بلوکِ _sleep_s بیرونِ try می‌خواندش)
         _mc_period_bias = 0.0      # ADR-036 / DW-05: soft clamp روی sleep بعد از arbiter
+        _hv2_proj_block = None     # Heart v2 (Gate 1): projection قبل از تعریفِ pulse (خطِ ~۵۹۸)
+        _cstat = None              # Heart v2 (Gate 1): بلوکِ قلب v2 (خط ~۵۳۶) پیش از تعریفِ ۵۹۳ می‌خواندش
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
@@ -523,6 +525,31 @@ def main() -> int:
                                                          sched=_beat_sched)
         except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
             pass
+        # ── Heart v2 (Gate 1، رأی مالک 2026-08-25 «همرو بیار به دنیای واقعی»):
+        # ضربان واحد روی BeatScheduler موجود با organهای SENSE/RECORD/THINK/HEAL.
+        # Genesis beat 0 + ژورنال ترابزنشی heart_* در همان chrono.db؛ FSM حیات؛
+        # مغز مشاور DeepSeek (advisory-only)؛ ACT عمداً ثبت نشده (صفر اثر خارجی).
+        # پشتِ OCTOPUS_WIRE_HEART_V2 یا ACTIVATION-HEART-V2.flag (owner-gated).
+        # fail-soft مطلق: نبود/خطای قلب v2 هرگز تیک را نمی‌کشد.
+        try:
+            from heart import runtime as _hrt
+            if _hrt.enabled():
+                _hv2 = _hrt.tick(beat=int(((_cstat or {}).get("beat")) or 0))
+                if _hv2 is not None:
+                    _hv2_proj = _hrt.read_latest() or {}
+                    _hv2_proj_block = {
+                        "beat": _hv2_proj.get("beat"),
+                        "mode": _hv2_proj.get("mode"),
+                        "mode_prev": _hv2_proj.get("mode_prev"),
+                        "green_streak": _hv2_proj.get("green_streak"),
+                        "period_advisory_s": _hv2_proj.get("period_advisory_s"),
+                        "wake_brain": _hv2_proj.get("wake_brain"),
+                        "brain_stats": _hv2_proj.get("brain_stats"),
+                        "store_counts": _hv2_proj.get("store_counts"),
+                        "advisory_only": True,
+                    }
+        except Exception:  # noqa: BLE001 — §۴: قلب v2 هرگز تیک را نمی‌کشد
+            opslib.alert(["heart-v2 tick error (non-fatal)"])
         try:
             import orphan_watchdog as _ow_obs  # noqa: WPS433
             _ow_obs.tick(observe_only=True)
@@ -571,6 +598,10 @@ def main() -> int:
                 except Exception:  # noqa: BLE001
                     _cstat = None
             pulse = {"chrono": _cstat} if _cstat else {}
+            # Heart v2 (Gate 1): ادغامِ projection بعد از تعریفِ pulse — بلوکِ قلب v2
+            # بالاتر اجرا می‌شود؛ بنابراین به متغیرِ موقت می‌نویسد، نه به pulse (NameError).
+            if _hv2_proj_block is not None:
+                pulse["heart_v2"] = _hv2_proj_block
             # ── R9 «هیچی خاموش نیست» (فاز ۳ دستورالعمل ۲۰۲۶-۰۸-۱۶): هر ۱۰ beat،
             # ماژول‌های خفته (chord/synapse/…فلگِ خاموش) یک module.heartbeat با
             # status=OFF و trace_id در events.jsonl می‌زنند. ماژولِ زنده خودش از
@@ -1492,5 +1523,22 @@ def main() -> int:
         time.sleep(_sleep_s)
 
 
+
+def _octopus_apply_low_priority() -> None:
+    """# OCTOPUS-LAPTOP-THROTTLE: low process priority on Windows (UI hitch mitigation)"""
+    try:
+        import sys
+        if sys.platform != "win32":
+            return
+        import ctypes
+        # BELOW_NORMAL_PRIORITY_CLASS
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.GetCurrentProcess()
+        kernel32.SetPriorityClass(handle, 0x00004000)
+    except Exception:
+        return
+
+
 if __name__ == "__main__":
+    _octopus_apply_low_priority()
     sys.exit(main())

@@ -1,0 +1,251 @@
+"""
+SENTINEL — wallet_tracker.py
+ثبت خریدهای دستی اپراتور و موجودی هر کیف سرد
+ربات هرگز کلید خصوصی ندارد — فقط آدرس عمومی
+"""
+
+import os
+import sqlite3
+import logging
+import json
+from datetime import datetime
+from typing import Optional, List
+
+logger = logging.getLogger(__name__)
+
+
+class WalletTracker:
+    def __init__(self, config: dict, db_path: str = "state.db"):
+        self.config = config
+        self.db_path = db_path
+        self.capital_total = config["capital"]["total_aud"]
+        self.assets_config = config["assets"]
+        self._init_db()
+        self._load_cold_addresses()
+
+    def _conn(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def _init_db(self):
+        with self._conn() as conn:
+            conn.executescript("""
+                CREATE TABLE IF NOT EXISTS purchases (
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    symbol      TEXT NOT NULL,
+                    amount_aud  REAL NOT NULL,
+                    price_usd   REAL NOT NULL,
+                    quantity    REAL NOT NULL,
+                    tranche_num INTEGER,
+                    cold_wallet TEXT,
+                    notes       TEXT,
+                    ts          TEXT DEFAULT (datetime('now'))
+                );
+
+                CREATE TABLE IF NOT EXISTS cold_wallet_balances (
+                    symbol      TEXT PRIMARY KEY,
+                    address     TEXT,
+                    quantity    REAL DEFAULT 0,
+                    last_updated TEXT
+                );
+            """)
+
+    def _load_cold_addresses(self):
+        """آدرس‌های کیف سرد را از .env می‌خواند"""
+        wallets = {
+            "CORE": os.getenv("COLD_WALLET_CORE", ""),
+            "XEL":  os.getenv("COLD_WALLET_XEL",  ""),
+            "XMR":  os.getenv("COLD_WALLET_XMR",  ""),
+            "ZEC":  os.getenv("COLD_WALLET_ZEC",  ""),
+            "TAO":  os.getenv("COLD_WALLET_TAO",  ""),
+            "DIL":  os.getenv("COLD_WALLET_DIL",  ""),
+        }
+        with self._conn() as conn:
+            for sym, addr in wallets.items():
+                if addr:
+                    conn.execute("""
+                        INSERT OR IGNORE INTO cold_wallet_balances(symbol, address)
+                        VALUES (?, ?)
+                    """, (sym, addr))
+
+    # ─────────────────────────────────────────────
+    # ثبت خرید دستی
+    # ─────────────────────────────────────────────
+
+    def record_purchase(self, symbol: str, amount_aud: float, price_usd: float,
+                        tranche_num: int = None, notes: str = "") -> int:
+        """
+        اپراتور خرید را تأیید می‌کند → اینجا ثبت می‌شود.
+        quantity به‌صورت تقریبی محاسبه می‌شود.
+        """
+        # تبدیل AUD به USD (تقریبی — اپراتور می‌تواند مستقیم وارد کند)
+        aud_usd_rate = 0.65  # تقریبی — قابل بهبود
+        usd_amount = amount_aud * aud_usd_rate
+        quantity = usd_amount / price_usd if price_usd > 0 else 0
+
+        with self._conn() as conn:
+            cursor = conn.execute("""
+                INSERT INTO purchases
+                (symbol, amount_aud, price_usd, quantity, tranche_num, notes)
+                VALUES (?,?,?,?,?,?)
+            """, (symbol, amount_aud, price_usd, quantity, tranche_num, notes))
+            purchase_id = cursor.lastrowid
+
+        logger.info(f"Purchase recorded: {symbol} A${amount_aud} @ ${price_usd} (ID: {purchase_id})")
+        return purchase_id
+
+    def confirm_cold_transfer(self, purchase_id: int, cold_wallet_address: str) -> bool:
+        """پس از انتقال به کیف سرد، این تابع موجودی را به‌روز می‌کند"""
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM purchases WHERE id=?", (purchase_id,)
+            ).fetchone()
+
+            if not row:
+                logger.error(f"Purchase ID {purchase_id} not found")
+                return False
+
+            symbol = row["symbol"]
+            quantity = row["quantity"]
+
+            # به‌روز کردن آدرس و موجودی
+            conn.execute("""
+                UPDATE cold_wallet_balances
+                SET quantity = quantity + ?,
+                    address = ?,
+                    last_updated = datetime('now')
+                WHERE symbol = ?
+            """, (quantity, cold_wallet_address, symbol))
+
+            # ثبت آدرس در خرید
+            conn.execute(
+                "UPDATE purchases SET cold_wallet=? WHERE id=?",
+                (cold_wallet_address, purchase_id)
+            )
+
+        logger.info(f"Cold transfer confirmed: {symbol} +{quantity:.6f}")
+        return True
+
+    # ─────────────────────────────────────────────
+    # گزارش موجودی
+    # ─────────────────────────────────────────────
+
+    def get_portfolio_summary(self, current_prices: dict = None) -> dict:
+        """
+        خلاصه کامل پرتفوی
+        current_prices: {symbol: price_usd}
+        """
+        with self._conn() as conn:
+            purchases = conn.execute(
+                "SELECT symbol, SUM(amount_aud) as total_aud, SUM(quantity) as total_qty "
+                "FROM purchases GROUP BY symbol"
+            ).fetchall()
+
+            balances = conn.execute(
+                "SELECT * FROM cold_wallet_balances"
+            ).fetchall()
+
+        summary = {
+            "total_invested_aud": 0,
+            "assets": {},
+            "cold_wallets": {},
+        }
+
+        # تخصیص هدف هر دارایی
+        for sym, asset_cfg in self.assets_config.items():
+            target_aud = self.capital_total * (asset_cfg["allocation_pct"] / 100)
+            summary["assets"][sym] = {
+                "target_aud": target_aud,
+                "invested_aud": 0,
+                "remaining_aud": target_aud,
+                "quantity": 0,
+                "tranches_used": 0,
+            }
+
+        # خریدهای واقعی
+        for row in purchases:
+            sym = row["symbol"]
+            if sym in summary["assets"]:
+                summary["assets"][sym]["invested_aud"] = round(row["total_aud"], 2)
+                summary["assets"][sym]["quantity"] = round(row["total_qty"] or 0, 6)
+                remaining = summary["assets"][sym]["target_aud"] - row["total_aud"]
+                summary["assets"][sym]["remaining_aud"] = round(max(0, remaining), 2)
+
+            summary["total_invested_aud"] += row["total_aud"]
+
+        # موجودی کیف‌های سرد
+        for bal in balances:
+            summary["cold_wallets"][bal["symbol"]] = {
+                "address": bal["address"],
+                "quantity": round(bal["quantity"] or 0, 6),
+                "last_updated": bal["last_updated"],
+            }
+
+        # ارزش فعلی (اگر قیمت داریم)
+        if current_prices:
+            total_value_usd = 0
+            for sym, data in summary["assets"].items():
+                price = current_prices.get(sym, 0)
+                qty = data["quantity"]
+                usd_value = qty * price
+                data["current_value_usd"] = round(usd_value, 2)
+                total_value_usd += usd_value
+            summary["total_value_usd"] = round(total_value_usd, 2)
+
+        summary["total_invested_aud"] = round(summary["total_invested_aud"], 2)
+        summary["remaining_capital_aud"] = round(
+            self.capital_total - summary["total_invested_aud"], 2
+        )
+        return summary
+
+    def get_remaining_budget(self, symbol: str) -> float:
+        """بودجه باقی‌مانده برای یک دارایی"""
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT SUM(amount_aud) as total FROM purchases WHERE symbol=?",
+                (symbol,)
+            ).fetchone()
+
+        invested = row["total"] or 0
+        target = self.capital_total * (self.assets_config.get(symbol, {}).get("allocation_pct", 0) / 100)
+        return max(0, target - invested)
+
+    def get_tranche_count(self, symbol: str) -> int:
+        """تعداد پله‌های خریداری‌شده"""
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM purchases WHERE symbol=?",
+                (symbol,)
+            ).fetchone()
+        return row["cnt"] or 0
+
+    def get_recent_purchases(self, limit: int = 10) -> List[dict]:
+        """آخرین خریدها برای گزارش"""
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT * FROM purchases ORDER BY ts DESC LIMIT ?",
+                (limit,)
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def format_portfolio_text(self, summary: dict) -> str:
+        """فرمت متنی برای تلگرام"""
+        lines = [
+            f"💼 <b>وضعیت پرتفوی</b>",
+            f"",
+            f"💰 کل سرمایه‌گذاری‌شده: A${summary['total_invested_aud']:,.0f} "
+            f"از A${self.capital_total:,.0f}",
+            f"💵 باقی‌مانده: A${summary['remaining_capital_aud']:,.0f}",
+            f"",
+            f"<b>دارایی‌ها:</b>",
+        ]
+        for sym, data in summary["assets"].items():
+            invested = data.get("invested_aud", 0)
+            target = data.get("target_aud", 0)
+            pct = (invested / target * 100) if target > 0 else 0
+            bar = "█" * int(pct / 10) + "░" * (10 - int(pct / 10))
+            lines.append(
+                f"  <b>{sym}</b>  A${invested:,.0f}/{target:,.0f}  [{bar}] {pct:.0f}٪"
+            )
+        return "\n".join(lines)

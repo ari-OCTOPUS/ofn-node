@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""
+self_update.py — حلقه‌ی خوداپدیتیِ پرامپت (اعمال خودکار + rollback خودکار).
+
+فلسفه‌ی ایمنِ فیوژن با وجود «اعمال خودکار»:
+  ۱) هر تغییر فقط اگر نمره‌ی eval را بهتر کند نگه داشته می‌شود؛ وگرنه خودکار rollback.
+  ۲) گاردریلِ امنیتی: پرامپت پیشنهادی نباید نقشِ خود را حذف کند یا injection باشد
+     (سیستم نباید گول بخورد و محافظ‌های خودش را بردارد).
+  ۳) kill-switch و سقفِ تعداد دور، و تاریخچه‌ی کاملِ نسخه‌ها برای بازگشت.
+
+اجرا:
+  python self_update.py                 # روی researcher
+  python self_update.py analyst         # روی یک ایجنت دیگر
+  python self_update.py --show researcher    # تاریخچه‌ی نسخه‌ها
+  python self_update.py --rollback researcher  # یک نسخه به عقب (دستی)
+"""
+from __future__ import annotations
+import sys, os
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# بارگذاری .env (برای حالت LIVE)
+def _load_env():
+    p = os.path.join(os.path.dirname(__file__), ".env")
+    if os.path.exists(p):
+        for line in open(p, encoding="utf-8"):
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
+_load_env()
+
+import config
+from src.prompt_store import PromptStore
+from src.evals import score_prompt_v2 as score_prompt, validate_prompt_allowlist, can_keep
+from src.optimizer import Optimizer
+from src.killswitch import KillSwitch, KillSwitchError
+from src.tracing import AuditLog
+from src.agents import Researcher, Analyst, Supervisor
+
+BASELINE = {c.name: c.system for c in (Researcher, Analyst, Supervisor)}
+ROLE_MARKER = {"researcher": "Researcher", "analyst": "Analyst", "supervisor": "Supervisor"}
+
+
+def validate_prompt(agent: str, text: str) -> tuple[bool, str]:
+    """گاردریلِ امنیتیِ خوداپدیتی."""
+    if not text or not (20 <= len(text) <= 2000):
+        return False, "طول نامعتبر"
+    if ROLE_MARKER.get(agent, "") not in text:
+        return False, "نشانه‌ی نقش حذف شده"
+    low = text.lower()
+    for bad in config.FORBIDDEN_IN_PROMPT:
+        if bad.lower() in low:
+            return False, f"عبارت ممنوع: «{bad}»"
+    # G-26: گیت allowlist ساختار (اصلی) — denylist بالا فقط defense-in-depth است.
+    ok, why = validate_prompt_allowlist(text)
+    if not ok:
+        return False, why
+    return True, "ok"
+
+
+def run(agent: str, stress_ok=None):
+    if stress_ok is None:
+        stress_ok = os.environ.get('STRESS_SIGNAL', '') == '1'
+    store = PromptStore(seed=BASELINE)
+    ks = KillSwitch(stop_file="logs/STOP")
+    audit = AuditLog()
+    opt = Optimizer()
+
+    active = store.get_active(agent)
+    score, missing = score_prompt(agent, active)
+    store.set_score(agent, score)
+    print(f"\n🔧 خوداپدیتیِ «{agent}» | نمره‌ی اولیه: {score} | نسخه: v{store.active_version(agent)}")
+    print(f"   معیارهای جاافتاده: {missing or '—'}")
+    audit.log("selfupdate_start", "optimizer", agent=agent, score=score,
+              version=store.active_version(agent))
+
+    explored = False
+    try:
+        for rnd in range(1, config.MAX_UPDATE_ROUNDS + 1):
+            ks.check()  # کلید قطع
+            if missing:
+                cand = opt.propose_fix(agent, active, missing); kind = "fix"
+            elif not explored:
+                cand = opt.propose_explore(agent, active); kind = "explore"; explored = True
+            else:
+                break
+
+            ok, why = validate_prompt(agent, cand)
+            if not ok:
+                audit.log("selfupdate_rejected", "guardrail", agent=agent, kind=kind, reason=why)
+                print(f"  ⛔ دور {rnd}: پیشنهاد رد شد (گاردریل: {why})")
+                if kind == "explore":
+                    break
+                continue
+
+            ks.check()  # ب-۷: دوباره درست قبل از نوشتن نسخه (معادلِ pre-commit)
+            new_score, new_missing = score_prompt(agent, cand)
+            keep, provisional, keep_why = can_keep(
+                config.EVAL_MODE, structural_ok=True, improved=new_score > score)
+            # --- G-04/G-26 wire (LIVE-only, MOCK-inert): ترفیع باید با بهبودِ *رفتاریِ*
+            #     held-out هم تأیید شود (ضدِ Goodhart). runner از بیرون تزریق می‌شود
+            #     (global BEHAVIORAL_RUNNER)؛ اگر LIVE نبود یا runner نبود، رفتار عوض نمی‌شود. ---
+            _runner = globals().get("BEHAVIORAL_RUNNER")
+            if config.EVAL_MODE == "live" and _runner is not None:
+                from src.behavioral_holdout import (behavioral_score, promotion_gate,
+                                                     load_frozen_holdout)
+                _hp = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "igk", "held_out.json")
+                _facts = load_frozen_holdout(_hp)
+                _b = behavioral_score(agent, active, _facts, _runner)
+                _c = behavioral_score(agent, cand, _facts, _runner)
+                _g = promotion_gate("live", True, _b, _c)
+                keep, provisional, keep_why = _g["keep"], _g["provisional"], _g["reason"]
+            masked = getattr(config, 'STRESS_GATED_PROMOTION', False) and keep and not stress_ok
+            tag = " [provisional-mock]" if provisional else ""
+            active_before = store.active_version(agent)
+            v = store.new_version(agent, cand, note=f"{kind} round{rnd}{tag}", score=None)
+            store.set_score(agent, new_score)
+
+            if keep and masked:
+                store.data[agent]["active"] = active_before; store._save()
+                audit.log("selfupdate_masked", "optimizer", agent=agent, kind=kind,
+                          version=v, reason="بدونِ سیگنالِ استرس — masked (L1.5)")
+                print(f"  🧬 دور {rnd} ({kind}): نمره {score} → {new_score} | masked ماند (stress-gated)")
+            elif keep:
+                audit.log("selfupdate_kept", "optimizer", agent=agent, kind=kind,
+                          version=v, old=score, new=new_score,
+                          provisional=provisional, why=keep_why)
+                print(f"  ✅ دور {rnd} ({kind}): نمره {score} → {new_score} | نگه داشته شد (v{v}){tag}")
+                active, score, missing = cand, new_score, new_missing
+            else:
+                store.rollback(agent)
+                back = store.active_version(agent)
+                audit.log("selfupdate_rolledback", "optimizer", agent=agent, kind=kind,
+                          version=v, old=score, new=new_score, reverted_to=back)
+                print(f"  ↩️  دور {rnd} ({kind}): نمره {score} → {new_score} | بدتر شد، rollback به v{back}")
+                if kind == "explore":
+                    break
+    except KillSwitchError as e:
+        audit.log("selfupdate_halted", "optimizer", agent=agent, reason=str(e))
+        print(f"\n🛑 {e}")
+
+    audit.log("selfupdate_done", "optimizer", agent=agent,
+              final_score=score, final_version=store.active_version(agent))
+    print(f"\n🏁 پایان | نمره‌ی نهایی: {score} | نسخه‌ی فعال: v{store.active_version(agent)}")
+    print(f"🔐 صحت audit log: {'سالم' if audit.verify_chain() else 'دستکاری‌شده!'}")
+    show(agent, store)
+
+
+def show(agent: str, store: PromptStore | None = None):
+    store = store or PromptStore(seed=BASELINE)
+    print(f"\n── تاریخچه‌ی نسخه‌های «{agent}» (فعال: v{store.active_version(agent)}) ──")
+    for h in store.history(agent):
+        mark = "→" if h["v"] == store.active_version(agent) else " "
+        print(f"  {mark} v{h['v']} score={h['score']} · {h['note']}")
+        print(f"      {h['prompt'][:90]}{'…' if len(h['prompt']) > 90 else ''}")
+
+
+def rollback(agent: str):
+    store = PromptStore(seed=BASELINE)
+    before = store.active_version(agent)
+    after = store.rollback(agent)
+    AuditLog().log("selfupdate_manual_rollback", "human", agent=agent, frm=before, to=after)
+    print(f"↩️  «{agent}»: از v{before} به v{after} برگشت.")
+    show(agent, store)
+
+
+def main():
+    args = sys.argv[1:]
+    if "--show" in args:
+        i = args.index("--show"); show(args[i + 1] if i + 1 < len(args) else "researcher"); return
+    if "--rollback" in args:
+        i = args.index("--rollback"); rollback(args[i + 1] if i + 1 < len(args) else "researcher"); return
+    agent = args[0] if args else "researcher"
+    run(agent)
+
+
+if __name__ == "__main__":
+    main()

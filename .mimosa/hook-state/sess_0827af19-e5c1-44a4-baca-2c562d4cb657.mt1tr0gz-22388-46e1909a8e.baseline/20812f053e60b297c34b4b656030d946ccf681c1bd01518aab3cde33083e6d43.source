@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+"""
+tests/test_spine_e2e.py -- offline, deterministic end-to-end proof for the
+spine pipeline (spine/pipeline.py). No network, no real subsystems: every
+seam is one of the Fake* adapters from spine/gates.py.
+
+Run:
+    cd <sandbox> && python3 tests/test_spine_e2e.py
+
+Prints one PASS/FAIL line per check and exits nonzero if any check fails.
+"""
+from __future__ import annotations
+
+import json
+import shutil
+import sys
+import tempfile
+import traceback
+from pathlib import Path
+
+# Make `spine` importable regardless of cwd: insert the sandbox root (this
+# file's grandparent directory) at the front of sys.path.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from spine.events import Event
+from spine.gates import (
+    Brain,
+    BudgetGate,
+    FakeBrain,
+    FakeBudgetGate,
+    FakeGrounder,
+    FakeGuard,
+    FakeKillGate,
+    FakeOwnerGate,
+    FakePermitGate,
+    FakeRouter,
+    Grounder,
+    Guard,
+    KillGate,
+    OwnerGate,
+    PermitGate,
+    Router,
+)
+from spine.ledger import Ledger
+from spine.pipeline import STATUS_FINALIZED, STATUS_HALTED, Spine
+
+FACTS = [{"subject": "capital_of_france", "value": "paris"}]
+
+
+def _ledger_path(tmp_dir: Path, name: str) -> Path:
+    return tmp_dir / f"{name}.ledger.jsonl"
+
+
+def _spine(tmp_dir: Path, name: str, **overrides) -> Spine:
+    return Spine.wire_fakes(_ledger_path(tmp_dir, name), **overrides)
+
+
+def _happy_event(**payload_overrides) -> Event:
+    payload = {
+        "task": "please summarize the capital of france",
+        "claims": [{"subject": "capital_of_france", "value": "paris"}],
+        "claim_subject": "capital_of_france",
+        "claim_value": "paris",
+        "action": "answer_question",
+        "external": False,
+    }
+    payload.update(payload_overrides)
+    return Event.create(source="test", actor="tester", kind="ask", payload=payload)
+
+
+# --------------------------------------------------------------------------- #
+# (a) clean input -> OUTPUT=finalized, ledger.verify() == True
+# --------------------------------------------------------------------------- #
+
+def check_happy_path(tmp_dir: Path) -> None:
+    spine = _spine(tmp_dir, "happy", grounder=FakeGrounder(facts=FACTS))
+    result = spine.run(_happy_event())
+    assert result["status"] == STATUS_FINALIZED, f"expected finalized, got: {result}"
+    assert result["output"], "expected non-empty output"
+    ok, msg = spine.ledger.verify()
+    assert ok, f"ledger did not verify clean: {msg}"
+    assert len(result["trace"]) > 0, "expected a non-empty trace"
+
+
+# --------------------------------------------------------------------------- #
+# (b) STOP/kill -> halted before brain
+# --------------------------------------------------------------------------- #
+
+def check_kill_switch(tmp_dir: Path) -> None:
+    kill = FakeKillGate()
+    kill.trip("manual STOP for test")
+    spine = _spine(tmp_dir, "kill", grounder=FakeGrounder(facts=FACTS), kill=kill)
+    result = spine.run(_happy_event())
+    assert result["status"] == STATUS_HALTED, f"expected halted, got: {result}"
+    assert result["reason"].startswith("gate.kill"), f"expected halt at gate.kill, got: {result['reason']}"
+    entered = [t["stage"] for t in result["trace"] if t.get("phase") == "enter"]
+    assert "brain.ask" not in entered, f"brain.ask must not run after kill: {entered}"
+
+
+# --------------------------------------------------------------------------- #
+# (c) budget-exhausted -> halted
+# --------------------------------------------------------------------------- #
+
+def check_budget_exhausted(tmp_dir: Path) -> None:
+    budget = FakeBudgetGate(default_cap_usd=0.0, global_cap_usd=0.0)
+    spine = _spine(tmp_dir, "budget", grounder=FakeGrounder(facts=FACTS), budget=budget)
+    result = spine.run(_happy_event())
+    assert result["status"] == STATUS_HALTED, f"expected halted, got: {result}"
+    assert result["reason"].startswith("gate.budget"), f"expected halt at gate.budget, got: {result['reason']}"
+    entered = [t["stage"] for t in result["trace"] if t.get("phase") == "enter"]
+    assert "brain.ask" not in entered, f"brain.ask must not run after budget halt: {entered}"
+
+
+# --------------------------------------------------------------------------- #
+# (d) ungrounded claim -> halted at GROUND
+# --------------------------------------------------------------------------- #
+
+def check_ungrounded_claim(tmp_dir: Path) -> None:
+    spine = _spine(tmp_dir, "ground", grounder=FakeGrounder(facts=FACTS))
+    bad_event = _happy_event(claims=[{"subject": "capital_of_france", "value": "london"}])
+    result = spine.run(bad_event)
+    assert result["status"] == STATUS_HALTED, f"expected halted, got: {result}"
+    assert result["reason"].startswith("ground"), f"expected halt at ground, got: {result['reason']}"
+    entered = [t["stage"] for t in result["trace"] if t.get("phase") == "enter"]
+    assert "brain.ask" in entered, "brain.ask SHOULD run before GROUND per the river order"
+    assert "guard.policy" not in entered, "guard must not run after a GROUND halt"
+
+
+# --------------------------------------------------------------------------- #
+# (e) tampering with the ledger is detected
+# --------------------------------------------------------------------------- #
+
+def check_tamper_detected(tmp_dir: Path) -> None:
+    path = _ledger_path(tmp_dir, "tamper")
+    spine = Spine.wire_fakes(path, grounder=FakeGrounder(facts=FACTS))
+    result = spine.run(_happy_event())
+    assert result["status"] == STATUS_FINALIZED, f"setup run must finalize, got: {result}"
+    ok, _ = spine.ledger.verify()
+    assert ok, "ledger should verify clean before tampering"
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) >= 2, "expected multiple ledger records to tamper with"
+    victim_idx = len(lines) // 2
+    victim = json.loads(lines[victim_idx])
+    victim["data"] = {**victim.get("data", {}), "reason": "TAMPERED-BY-TEST"}
+    lines[victim_idx] = json.dumps(victim, ensure_ascii=False)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    tampered = Ledger(path)
+    ok2, msg2 = tampered.verify()
+    assert not ok2, "tampering must be detected (verify() should return False)"
+    assert msg2, "tamper message should be non-empty"
+
+
+# --------------------------------------------------------------------------- #
+# (f) an external action without owner approval is blocked
+# --------------------------------------------------------------------------- #
+
+def check_owner_gate_blocks_external(tmp_dir: Path) -> None:
+    ext_event = _happy_event(external=True, action="wire_transfer")
+
+    spine = _spine(tmp_dir, "owner_deny", grounder=FakeGrounder(facts=FACTS),
+                   owner=FakeOwnerGate(preapproved=set()))
+    result = spine.run(ext_event)
+    assert result["status"] == STATUS_HALTED, f"expected halted, got: {result}"
+    assert result["reason"].startswith("owner_gate"), f"expected halt at owner_gate, got: {result['reason']}"
+
+    # Sanity check: the SAME external action, pre-approved, reaches OUTPUT.
+    spine_ok = _spine(tmp_dir, "owner_allow", grounder=FakeGrounder(facts=FACTS),
+                      owner=FakeOwnerGate(preapproved={"wire_transfer"}))
+    result_ok = spine_ok.run(ext_event)
+    assert result_ok["status"] == STATUS_FINALIZED, f"expected finalized with pre-approval, got: {result_ok}"
+
+
+# --------------------------------------------------------------------------- #
+# (bonus) structural conformance: fakes really satisfy their Protocols.
+# --------------------------------------------------------------------------- #
+
+def check_protocol_conformance(tmp_dir: Path) -> None:
+    assert isinstance(FakeKillGate(), KillGate)
+    assert isinstance(FakeBudgetGate(), BudgetGate)
+    assert isinstance(FakePermitGate(), PermitGate)
+    assert isinstance(FakeBrain(), Brain)
+    assert isinstance(FakeGrounder(), Grounder)
+    assert isinstance(FakeGuard(), Guard)
+    assert isinstance(FakeOwnerGate(), OwnerGate)
+    assert isinstance(FakeRouter(), Router)
+
+
+CHECKS = [
+    ("a: clean input -> OUTPUT=finalized, ledger.verify()==True", check_happy_path),
+    ("b: STOP/kill -> halted before brain", check_kill_switch),
+    ("c: budget-exhausted -> halted", check_budget_exhausted),
+    ("d: ungrounded claim -> halted at GROUND", check_ungrounded_claim),
+    ("e: ledger tampering is detected", check_tamper_detected),
+    ("f: external action without owner approval is blocked", check_owner_gate_blocks_external),
+    ("bonus: fakes structurally satisfy their Protocols", check_protocol_conformance),
+]
+
+
+def main() -> int:
+    tmp_dir = Path(tempfile.mkdtemp(prefix="spine_e2e_"))
+    failures = 0
+    try:
+        for label, fn in CHECKS:
+            try:
+                fn(tmp_dir)
+            except Exception as e:  # test harness must not crash mid-suite
+                failures += 1
+                print(f"❌ {label}")
+                print(f"   {type(e).__name__}: {e}")
+                traceback.print_exc(limit=4)
+                continue
+            print(f"✅ {label}")
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    total = len(CHECKS)
+    passed = total - failures
+    print(f"\n{passed}/{total} checks passed")
+    return 0 if failures == 0 else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

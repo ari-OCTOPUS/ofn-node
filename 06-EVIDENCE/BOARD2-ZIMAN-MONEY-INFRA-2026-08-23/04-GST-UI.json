@@ -1,0 +1,11 @@
+﻿{
+  "stamp": "2026-08-23T02:21+10",
+  "GST_STATUS": "PASS_PARTIAL — unchecked include-tax-in-price (saved); AU Collect GST enabled; ABN blank → Missing ID badge; 10% GST to add at checkout. Charge tax on shipping left OFF.",
+  "SHIPPING_STATUS_OBSERVED_NOT_YET_FIXED": {
+    "domestic": ["Express $15", "Standard $11 (free over $100)"],
+    "international": ["Standard $20 to 27 countries — OWNER wants OFF"],
+    "target": "Domestic flat AUD $20 only; intl OFF"
+  },
+  "ABN": "vault later — not entered",
+  "owner_login_deferred": true
+}

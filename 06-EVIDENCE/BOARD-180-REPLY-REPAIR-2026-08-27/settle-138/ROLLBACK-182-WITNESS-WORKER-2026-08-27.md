@@ -1,0 +1,1 @@
+﻿Rollback 182 worker: cp -a /root/octopus-mesh/backups/octopus_witness_worker.py.bak-20260827T021312Z /root/octopus-mesh/bin/octopus_witness_worker.py Preimage da4070e465e86798fe02914a27c87604ce3d349b3ef1cc5223d3fb31b3afd2a6 Patched 33c32e17745fcb25c841b033ae0d999e58a9e643e088eedc5b6a25021486e7dc No wildcard systemctl.

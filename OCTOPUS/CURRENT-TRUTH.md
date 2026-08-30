@@ -1,24 +1,38 @@
----
+﻿---
 type: octopus-auto
 section: current-truth
 updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-08-21T09:09:41Z
+> auto-generated: 2026-08-30T03:12:47Z
 
 ## Current Truth
 
-- **coherence:** 0.87
+- **coherence:** 0.942
 - **members_present:** 11
-- **stale_members:** work_pump
-- **beat:** 44059
+- **stale_members:** هیچ
+- **beat:** 55586
 - **halted:** False
-- **rfcs_pending:** 1
-- **HEAD:** c713d26
+- **rfcs_pending:** 0
+- **HEAD:** ee2ddb5
 
 
 <!-- OCTOPUS-AUTO-END -->
+
+### Human status — Next-agent handoff delta (2026-08-21 ~23:3x، additive)
+
+> خارج از بلوک auto. بستهٔ کاملِ handoff قبلاً ساخته شده بود؛ این فقط یک دلتاست.
+
+- G0 (خواندنِ فقط‌خواندنی + capability-matrix/tree-divergence/plan) قبلاً تکمیل شده بود.
+- token تلگرام در این نشست در دسترس نبود — هیچ اقدامِ زندهٔ تلگرامی انجام نشد.
+- بستهٔ handoff اصلی از نشستِ دیگر: [[07 - Knowledge/شناخت-اختاپوس/81B-OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21|۸۱B]]
+  (`06-EVIDENCE/OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21/`, HEAD `360d436`).
+- دلتای این نشست: [[07 - Knowledge/شناخت-اختاپوس/81C-NEXT-AGENT-HANDOFF-DELTA-2026-08-21|۸۱C]]
+  (`06-EVIDENCE/OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21-v2/`, HEAD `c7ec5f5`).
+- مانعِ باز: reproducibility — `poll_lease.py`/`transport_subprocess.py` هنوز untracked.
+- کشفِ تازه: `_ops/nervous_recovery/` (wave1_readonly/verifier/closeout) — محتوایش خوانده نشد.
+- گیتِ بعدی بدون تغییر: SIG-IV.
 
 ### Human status — مگا #۱۶ A13–A19 (2026-08-20 ~20:4x، additive)
 
@@ -27,7 +41,7 @@ updated: 2026-08-11T13:35:00Z
 - **A13 PASS** با شرط صفر رسید هزینه در پنجرهٔ ۲۰:۱۸. Center PID **8828** · schema `typed-v1` · bot `7992324219`.
 - **A14 READ_BACK_USED** `mem-6c528a350df6` · as-of تاریخی مرجان · فعلی صدف.
 - **A15** سه مغز + رسید A5 · **A16** پنجرهٔ تلگرام صفر رسید · **A17** `HC_WM_CAUSAL`.
-- **A18 / Full Loop BLOCKED.** **A19** صادر · lease آزاد · hook دانش برای C مجاز.
+- **A18 / Full Loop inbound still BLOCKED** (outbound owner-chat canary A18_live_TG=PASS narrow 2026-08-23 — see Human status below). **A19** صادر · lease آزاد · hook دانش برای C مجاز.
 - یافته‌ها: `MISSING_ACK_FOR_/remember` · `CORRECT_ACCEPTED_INVALID_TURN_ID` · `STALE_GATE_LABEL_IN_REPLY`.
 - شواهد: [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]] · [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF]] · نوت [[07 - Knowledge/شناخت-اختاپوس/72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20]]
 
@@ -129,3 +143,21 @@ updated: 2026-08-11T13:35:00Z
 - **restart کنترلشدهٔ مرکز زنده PASS** (`bfbb03f`): pid 27884→2080 با کد جدید؛ counters سلامت ۵/۵/۵؛ صفر شکست/409؛ offset بایت-به-بایت حفظ شد؛ سندلاگ +۳ = رسیدهای edit boot-time؛ snapshot/rollback در `restart-snapshots/2026-08-21T1915Z/`.
 - شواهد: [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/STATUS]] · [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]] · نوت [[07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21]]
 - وضعیت: **`IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING`** · گیت بعدی: SIG-IV (جلسهٔ مستقل) سپس مگاپرامپت ۲ با تأیید مالک.
+
+
+### Human status — A18 owner-chat canary LIVE PASS (narrow, 2026-08-23)
+
+> خارج از بلوک auto. ادعای محدود — نه Full Loop.
+
+- **A18_live_TG = PASS (narrow):** owner-chat canary دو پیام زنده owner-only — mid **617** remember / mid **618** correct-invalid — هر دو `CONFIRMED` via SenderBridge.
+- `send_exceptions` پس از canary حذف شد؛ writer lock همچنان `live sendMessage` را forbid می‌کند.
+- **ادعای گسترده‌تر نمی‌شود:** durable_loop inbound CLOSED برای این midها؛ یا memory write جدید از mid 617.
+- شواهد: `06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/RESULT.json` · `VERIFY.json` · `A18-LIVE-PASS.md` · STATUS مأموریت continuous.
+
+### Human status — MiniApp gateway vs public URL (2026-08-23)
+
+> کارت دستی — نه بولت auto.
+
+- **gateway process LIVE:** PID **12220** · `miniapp_gateway.py` · listen `127.0.0.1:8774` (localhost only).
+- **public URL:** not published — `OCTOPUS_MINIAPP_URL` unset; Telegram `/ui` remains `CONFIG_NEEDED` until real URL + `OCTOPUS_TG_MINIAPP=1`.
+- Evidence: `06-EVIDENCE/OCTOPUS-MINIAPP-DOC-RECONCILE-2026-08-23/RESULT.json`.

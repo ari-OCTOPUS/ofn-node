@@ -7,6 +7,18 @@ agent: "ZCode (GLM-5.2)"
 
 # NEXT-AGENT-HANDOFF — مأموریت بازیابی Vault (2026-08-15)
 
+<!-- GAP-CLOSE-POINTERS 2026-08-23 -->
+## Current evidence pointers (updated 2026-08-23T09:12:30+10:00)
+- Gap inventory SoT: 06-EVIDENCE/OCTOPUS-GAP-INVENTORY-2026-08-23/
+- Gap close evidence: 06-EVIDENCE/OCTOPUS-GAP-CLOSE-2026-08-23/
+- Continuous mission: 06-EVIDENCE/OCTOPUS-CONTINUOUS-MISSION-2026-08-23/STATUS.json
+- Epistemics wire-on: 06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/
+- Doctor uniqueness: 06-EVIDENCE/OCTOPUS-DOCTOR-UNIQUENESS-HEARTBEAT-2026-08-23/
+- A18 inbound: OPEN until real owner TG (LAPTOP/G04)
+- Writer lock: LAPTOP/G03
+- Constraints: no live sendMessage; no paid unlock; no force-git; no invent money/photos/captions
+
+
 > **📌 الحاقیهٔ 2026-08-16 ~13:2x — DEEP-SEAMS EXECUTED:** [[../06-EVIDENCE/DEEP-SEAMS-2026-08-16|شواهد]] · C-027 deadline_cycles → recall-events **۹۰** · C-028 tip-commit · gauge ۰/۱۵ PASS. آزاد **C-029**. پوش فقط با کلمه.
 
 > **📌 الحاقیهٔ 2026-08-16 ~13:1x — بستن ERRORHUNT + ماندگارسازی:** نوت [[../07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|۴۹]] · circuit orchestr روی دیسک **half_open** · Poisoning Watch LastResult=0 · سه تست ERRORHUNT در `run_all.py` · `OctopusLiveDataRefresh` هنوز FILE_NOT_FOUND. آزاد **C-027**. پوش فقط با کلمه.
@@ -186,3 +198,8 @@ cands.append((
 - پروتکل پوش (C-023): کامیت آزاد؛ **push فقط با کلمهٔ صریح مالک** — کامیت‌های معلق را در گزارش بالا بیاور.
 - تسک پایش تعمیر شد (python.exe مطلق؛ ریشه: py per-user). تسک گرم‌کنندهٔ recall هم جدید است — هر دو را دست‌نخورده بگذار مگر خراب شوند.
 - قاعدهٔ لانچر (درس C-024/دیپ‌تست): env پروسه‌ها از دو منبع واگرا می‌آید (flags.cmd برای _ops · 4d_system/.env برای مغز) — هر لانچر/تست باید منبع درست را صریح بخواند.
+
+
+## 2026-08-23 Tech admission (conservative exec)
+See F:\backup\06-EVIDENCE\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\EXEC-GUIDE-CONSERVATIVE.md — TDR-first; Ziman out; PWM/ARM out.
+

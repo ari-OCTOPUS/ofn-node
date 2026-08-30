@@ -1,0 +1,142 @@
+{
+  "agent_id": "A02_runtime_investigator",
+  "wave": "2026-08-16-wave-01",
+  "mode": "READ_ONLY",
+  "observation_window_local": "2026-08-16T23:44:00 -> 23:59:30 +10:00 (AUS Eastern)",
+  "head_commit": "028fe8149515415852b2a3b1feaaff44681e5bf8 (2026-08-16T23:27:30+10:00)",
+  "live_processes": [
+    {
+      "pid": 29028,
+      "name": "organism.py",
+      "ports": [
+        "127.0.0.1:8771",
+        "127.0.0.1:8777"
+      ],
+      "started": "2026-08-16T12:53:10",
+      "boot_config": "_ops/OCTOPUS-flags.cmd + .env via env_loader"
+    },
+    {
+      "pid": 11144,
+      "name": "cortex/cortex.py",
+      "ports": [
+        "127.0.0.1:8772"
+      ],
+      "started": "2026-08-16T13:01:53"
+    },
+    {
+      "pid": 7852,
+      "name": "live/server.py",
+      "ports": [
+        "127.0.0.1:8773"
+      ],
+      "started": "2026-08-16T16:36:56"
+    },
+    {
+      "pid": 11724,
+      "name": "telegram_center/center.py",
+      "ports": [
+        "127.0.0.1:8776"
+      ],
+      "started": "2026-08-16T16:37:33"
+    },
+    {
+      "pid": 19076,
+      "name": "telegram_center/miniapp_gateway.py",
+      "ports": [
+        "127.0.0.1:8774"
+      ],
+      "started": "2026-08-16T16:43:38",
+      "exposed_via": "cloudflared named tunnel https://app.master-painting.com"
+    },
+    {
+      "pid": 23464,
+      "name": "board_cp/server.py",
+      "ports": [
+        "0.0.0.0:8801 TLS"
+      ],
+      "started": "2026-08-16T16:42:50"
+    },
+    {
+      "pid": 17332,
+      "name": "cloudflared (named tunnel)",
+      "ports": [
+        "127.0.0.1:20241 metrics"
+      ],
+      "started": "2026-08-16T06:58:06"
+    },
+    {
+      "pid": 20192,
+      "name": "ollama serve",
+      "ports": [
+        "127.0.0.1:11434"
+      ]
+    },
+    {
+      "pid": 9796,
+      "name": "llama-server --offline",
+      "ports": [
+        "127.0.0.1:1495"
+      ],
+      "started": "2026-08-16T23:41:29"
+    }
+  ],
+  "scheduled_tasks_octopus_related": 12,
+  "heartbeat_observation": {
+    "distinct_beats": [
+      38511,
+      38513,
+      38516
+    ],
+    "advances": 3,
+    "cadence_s_observed": 128,
+    "cadence_s_expected": 125.02,
+    "observer_writes": 0
+  },
+  "value_classification": {
+    "beat": "live (chrono Pacemaker, resumed from chrono.db)",
+    "coherence": "computed-on-demand behind OCTOPUS_WIRE_COHERENCE=1 (no standalone state file)",
+    "identity_health": "live per math_control spine beat (0.542)",
+    "arbiter_state": "live per beat, advisory_only=true, 3-heart consensus 125.02s",
+    "runtime_state": "NOT_FOUND",
+    "readiness_state": "NOT_FOUND",
+    "bus_state": "NOT_FOUND",
+    "acquisition_state": "NOT_FOUND",
+    "safety_state": "NOT_FOUND"
+  },
+  "key_statuses": {
+    "live_stack": "VERIFIED_LIVE",
+    "sensorium_active": "NOT_FOUND (no code)",
+    "legs_unauthorized": "VERIFIED_CODE_ONLY (no hardware path; propose-only)",
+    "propose_only_absolute": "PARTIALLY CONTRADICTED (AUTONOMY_FREE/GRANT/CODE_AUTOAPPLY_LOWRISK/LEAD_OUTBOUND armed)",
+    "money_locked": "VERIFIED_LIVE (money_gate fail-closed; spend AU$0.74/mo)",
+    "destructive_disabled_HARD_NO_GO": "PRESENT_NOT_WIRED (octopus_v3 WIRED=False)",
+    "mutual_veto": "PRESENT_NOT_WIRED (OCTOPUS_WIRE_DUAL_VETO off)",
+    "policy_gate": "VERIFIED_CODE_ONLY (events stale since 08-13)",
+    "viability_loop": "NOT_FOUND",
+    "off_heartbeats": "VERIFIED_CODE_ONLY (mechanism on; zero dormant modules today)",
+    "event_bus": "VERIFIED_LIVE file-based (sparse; 45min silent)",
+    "kill_switches": "VERIFIED_CODE_ONLY per-loop checks; flag OCTOPUS_WIRE_KILL_SEAM=1",
+    "brains_4d_nbb": "CONTRADICTED at runtime (R-003): live brains are organism-loop + cortex; brain_core SHADOW matched=0",
+    "action_classes": "SAFER THAN CLAIMED (R-009): A2/A4/A5 BLOCK, A6 REJECT; only A0/A1 executable; A1 defaults dry_run",
+    "propose_only": "STRUCTURAL, not gated (R-007): executor has no A2+ paths; propose_only label is reporting-only; PLUS autonomy flags armed (F-12)",
+    "policy_gate_scope": "ONE live call site - protective halt only (R-010); not a universal chokepoint",
+    "ledger": "live per beat with per-beat ledger_hash (R-002/R-006); bitemporality NOT FOUND in schema; gated_effect 0 rows (A03 scope)",
+    "identity_health_docs": "docs value 0.572 STALE; live 0.542 (R-005, F-07)",
+    "dashboard_claims": "panel_8790 STALE - no listener (R-013)",
+    "truth_sync": "VERIFIED_LIVE - CURRENT-TRUTH auto-block regenerates every 30 min, HEAD matches git (R-012/R-020)",
+    "secrets_hygiene": ".env.bak-20260810 stale credential copy at repo root (R-016)"
+  },
+  "top_risks": [
+    "safety is structural (absence of executor paths), not gate-enforced - new effector code silently inherits allowed (R-007/R-010)",
+    "governance overlay unwired while narrative claims enforcement (F-15, F-16, F-18)",
+    "public tunnel + 0.0.0.0:8801 exposure (F-03, F-04, R-014)",
+    "runtime runs pre-edit code vs HEAD; no boot-hash recorded (F-23)",
+    "scheduled task executes from Desktop outside repo (F-02)",
+    "autonomy flags armed beyond propose-only narrative (F-12); A2 stays BLOCK only by classifier vote (R-009)",
+    "stale-secret hygiene: .env.bak at root (R-016)",
+    "no time.monotonic + local-time-with-Z bug in math-control (F-24)"
+  ],
+  "special_question_answer": "Runtime evidence can establish PRESENCE (process, listener, fresh state writes) and ACTIVITY (values changing per beat); it CANNOT by itself establish ENFORCEMENT. Enforcement is only provable by observing a violating action being rejected (requires exercising the gate - out of scope for read-only) or by tests (T1). In this wave, runtime evidence affirmatively shows ABSENCE of wiring for two claimed enforcers (dual-brain veto, octopus_v3 HARD_NO_GO).",
+  "verdict": "READY_FOR_NEXT_WAVE",
+  "dual_observer_note": "Two independent read-only A02 instances observed the same host (windows 23:48-23:54 and 23:44-23:59 +10:00). Findings merged: R-001..R-020 (parallel) + F-01..F-30 (primary). Evidence JSONL carries observer tags."
+}

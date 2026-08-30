@@ -1,0 +1,45 @@
+{
+  "schema": "a19-c-handoff/1",
+  "handoff_id": "2816522ef2aa4292babe84e7eb594b47",
+  "issued_at": "2026-08-20T20:35:00+10:00",
+  "from_agents": ["A", "B"],
+  "to_agent": "C",
+  "telegram_canary": "PASS",
+  "center_pid": 8828,
+  "center_commit": "3abc16bcbda26b716be58905d5342951a049da9d",
+  "center_commit_short": "3abc16b",
+  "handler_schema_version": "typed-v1",
+  "center_py_sha256": "52a70b8bd31ce6da8ec9b3726c2ac9015d04f9ff167d25951b0c263530866e51",
+  "bot_id": 7992324219,
+  "hot_files_released": true,
+  "lease_released": true,
+  "lease_id": "62440c286ef74d60821fcfc13f1d75de",
+  "lease_archive": "_ops/state/locks/octopus-writer.lock.released.1787222380",
+  "knowledge_hook_activation_allowed": true,
+  "organism_reload": "FORBIDDEN_BY_THIS_HANDOFF",
+  "brain_daemon_reload": "FORBIDDEN_BY_THIS_HANDOFF",
+  "full_loop": "BLOCKED",
+  "live_b": "BLOCKED",
+  "run_all_registered": [
+    "test_organ_cartographer_20260820.py",
+    "test_ratio_model.py"
+  ],
+  "run_all_results": {
+    "test_organ_cartographer_20260820.py": "15/15",
+    "test_ratio_model.py": "8/8"
+  },
+  "matrix": {
+    "A13": "PASS",
+    "A14": "READ_BACK_USED",
+    "A15": "PASS",
+    "A16": "PASS_TELEGRAM_WINDOW",
+    "A17": "HC_WM_CAUSAL",
+    "A18": "BLOCKED"
+  },
+  "findings": [
+    "CORRECT_ACCEPTED_INVALID_TURN_ID",
+    "STALE_GATE_LABEL_IN_REPLY",
+    "MISSING_ACK_FOR_/remember"
+  ],
+  "note": "C15/C19/C21/C23 have no unique test files to register; C20 loop-breakers are covered by the cartographer suite. Do not write telegram-lane files. Knowledge hook may activate on the organism line at next C-047."
+}

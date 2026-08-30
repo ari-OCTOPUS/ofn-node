@@ -1,0 +1,37 @@
+{
+  "gap": "G05",
+  "stamp_local": "2026-08-23T09:08:30+10:00",
+  "slice": "LAPTOP",
+  "status": "PASS",
+  "verdict": "Dry-run prove send_allowed=false when exceptions absent; unlock!=send contract documented",
+  "dry_run": {
+    "schema": "live-telegram-gate/1",
+    "flag": {
+      "present": true,
+      "enabled": true,
+      "path": "F:\\backup\\_ops\\LIVE-TELEGRAM.flag",
+      "raw_schema": "live-telegram.v1",
+      "note": "Unlock only. Does not by itself send. Center restart still required to load HEAD e8d661e.",
+      "armed_at": "2026-08-22T12:23:01.504173+10:00"
+    },
+    "lock_path": "F:\\backup\\_ops\\state\\locks\\octopus-writer.lock",
+    "lock_present": true,
+    "live_sendMessage_forbidden": true,
+    "active_send_exceptions": 0,
+    "live_mode_allowed": true,
+    "send_allowed": false,
+    "reason": "no_active_send_exception"
+  },
+  "contract": {
+    "LIVE_TELEGRAM_flag_enabled": "unlock / live_mode_allowed only",
+    "send_allowed_requires": "active writer-lock send_exceptions TTL rows",
+    "forbidden_on_lock": "live sendMessage remains in forbidden_actions",
+    "module": "_ops/telegram_center/live_telegram_gate.py"
+  },
+  "assertions": [
+    "send_allowed is False",
+    "live_mode_allowed is True",
+    "active_send_exceptions == 0",
+    "reason == no_active_send_exception"
+  ]
+}

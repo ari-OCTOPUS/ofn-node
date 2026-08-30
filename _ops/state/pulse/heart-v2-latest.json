@@ -1,0 +1,21 @@
+{
+ "schema": "heart-v2/1",
+ "ts": "2026-08-30T13:25:26",
+ "beat": 2658,
+ "mode": "RUNNING",
+ "mode_prev": "RUNNING",
+ "green_streak": 19,
+ "period_advisory_s": 96.44,
+ "wake_brain": false,
+ "brain_stats": {
+  "ok": 225,
+  "degraded": 6
+ },
+ "store_counts": {
+  "beats": 2566,
+  "max_beat": 2658,
+  "events": 495,
+  "outbox": {}
+ },
+ "advisory_only": true
+}

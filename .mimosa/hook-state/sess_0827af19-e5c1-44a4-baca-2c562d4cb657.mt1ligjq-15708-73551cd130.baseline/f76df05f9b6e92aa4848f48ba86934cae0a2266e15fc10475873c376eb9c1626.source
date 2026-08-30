@@ -1,0 +1,55 @@
+"""test_panel_permit.py — G-10(2) کامل: callِ LLMِ پنلِ داوران هم از permit عبور می‌کند."""
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from src.providers import make_providers
+from src.llm import LLMClient
+from src.panel import Judge
+from igk.client import PermitDenied
+
+results = []
+def check(n, c): results.append((n, c)); print(f"  {'✅' if c else '❌'} {n}")
+
+class GateDeny:
+    def act(self, action, fn, *a, **k): raise PermitDenied("بدونِ permit")
+class GateAllow:
+    def act(self, action, fn, *a, **k): return fn(*a, **k)
+class _Msg:
+    class _U: input_tokens = 4; output_tokens = 6
+    def __init__(self, t): self.content=[type("B",(),{"type":"text","text":t})()]; self.usage=_Msg._U()
+class _Anthropic:
+    def __init__(self, t="APPROVE"): self._t=t
+    class messages:
+        _t="APPROVE"
+        @classmethod
+        def create(cls, **k): return _Msg(cls._t)
+class Led:
+    def precheck(self,a): pass
+    def record(self,a,i,o): pass
+class Aud:
+    def log(self,*a,**k): pass
+class Ks:
+    def check(self): pass
+
+# 1) make_providers gate را به هر provider تزریق می‌کند
+provs = make_providers(gate=GateDeny())
+check("۱: make_providers gate را به هر داور می‌دهد",
+      all(getattr(p[1], "gate", None) is not None for p in provs))
+
+def live(gate, text="APPROVE"):
+    c = LLMClient(gate=gate); c.mock=False
+    ap=_Anthropic(); type(ap).messages._t=text; c._client=ap; return c
+
+# 2) داور با LLMِ بدونِ permit → رأی رد می‌شود (fail-closed)
+blocked=False
+try:
+    Judge("d","strict","p", live(GateDeny()), Led(), Aud(), Ks()).vote(
+        "یک تحلیلِ به‌قدرِ کافی بلند با راستی‌آزمایی برای داوری کردن")
+except PermitDenied: blocked=True
+check("۲: رأیِ داور با LLMِ بدونِ permit → رد (پنل هم fail-closed)", blocked)
+
+# 3) با permit، رأی صادر می‌شود
+ok,_ = Judge("d","lenient","p", live(GateAllow(),"APPROVE"), Led(), Aud(), Ks()).vote("تحلیل نمونه‌ی کافی")
+check("۳: با permit رأیِ داور صادر می‌شود", ok is True)
+
+print("\n"+"="*50); n=sum(1 for _,c in results if c); print(f"نتیجه: {n}/{len(results)} سبز")
+sys.exit(0 if n==len(results) else 1)

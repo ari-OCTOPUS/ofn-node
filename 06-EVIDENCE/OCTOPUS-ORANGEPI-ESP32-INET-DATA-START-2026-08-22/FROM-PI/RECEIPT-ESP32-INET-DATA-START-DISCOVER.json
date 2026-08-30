@@ -1,0 +1,51 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "RECEIPT-ESP32-INET-DATA-START-DISCOVER",
+  "auth_context": [
+    "owner_strategy_via_ari",
+    "OCTOPUS-ORANGEPI-ESP32-INET-DATA-START-2026-08-22"
+  ],
+  "result": "DISCOVER_DONE_PROPOSE_READY",
+  "ts_utc": "20260822T124825Z",
+  "mqtt": {
+    "prior_enable": "PARKED_FAIL_UNIT",
+    "ss_1883": "NONE",
+    "status": "CLOSED",
+    "receipt": "/var/lib/octopus/inbound/TO-LAPTOP/exchange/RECEIPT-MQTT-ENABLE.json"
+  },
+  "wave0_hardware": "KEEP_LOCKED",
+  "physical_estop_parts": "DEFERRED_NO_BUY",
+  "discover": {
+    "esp32_code_on_octopus_tree": false,
+    "usb_esp_serial": false,
+    "sensor_plugins": [
+      "filesystem_watch",
+      "system_resources",
+      "thermal",
+      "process"
+    ],
+    "mqtt_bridge_OCT-SENSE-064": "DISABLED_BY_POLICY",
+    "active_host_sensors": [
+      "OCT-SENSE-051",
+      "OCT-SENSE-052",
+      "OCT-SENSE-053"
+    ],
+    "shadow_meta": [
+      "OCT-SENSE-092",
+      "OCT-SENSE-095"
+    ],
+    "manifest_only_approx": 62,
+    "ingest_bus": "NATS OBSERVATION/SENSORIUM",
+    "laptop_esp32_trees": "mining worktrees only \u2014 deferred"
+  },
+  "proposed_abd": {
+    "laptop_package": "F:\\backup\\06-EVIDENCE\\OCTOPUS-ORANGEPI-ESP32-INET-DATA-START-2026-08-22",
+    "phases": [
+      "A_inet_public_feed_observe_only",
+      "B_esp32_json_telemetry_when_hw",
+      "C_later_replace_with_physical"
+    ],
+    "EXECUTE_READY": false,
+    "need": "OWNER mutate_device=true + finalize SENSORIOM-EXECUTE-BRIEF"
+  }
+}

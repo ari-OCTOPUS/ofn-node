@@ -1,0 +1,27 @@
+﻿{
+    "forbidden":  [
+                      "MQTT 1883",
+                      "private keys",
+                      "Doctor auto-patch",
+                      "torch",
+                      "LAN:9101",
+                      "zero-fill",
+                      "hash rewrite",
+                      "money/webhook/work_pump",
+                      "re-run CHG-C"
+                  ],
+    "token":  "OCTOPUS-ORANGEPI-WAVE0-ACTUATORS-20260822",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "owner_choice":  "Unlock WAVE0 actuators on Orange Pi now",
+    "notes":  "File owner authorization only. Do not mutate the Orange Pi. Do not git add -A.",
+    "mutate_device":  false,
+    "scope":  {
+                  "description":  "actuators only",
+                  "target":  "Orange Pi WAVE0",
+                  "allowed":  [
+                                  "actuators"
+                              ]
+              },
+    "schema":  "octopus.owner-authorization.v1",
+    "timestamp":  "2026-08-22T18:42:43+10:00"
+}

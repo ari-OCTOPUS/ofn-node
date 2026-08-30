@@ -1,0 +1,42 @@
+# ============================================================
+# ایده‌یاب شخصی — Personal Idea Discovery Engine
+# Dependencies (final)
+# ============================================================
+
+# Core math
+numpy>=1.24
+# B13: scipy حذف شد — هیچ ماژولی آن را import نمی‌کند (وابستگیِ سنگینِ بلااستفاده)
+
+# Data
+pandas>=2.0
+requests>=2.31
+httpx>=0.24
+# B13: وابستگیِ اعلام‌نشده‌ی web_research — قبلاً فقط transitively از yfinance می‌آمد
+beautifulsoup4>=4.12
+
+# Visualization / UI
+streamlit>=1.30
+plotly>=5.18
+matplotlib>=3.7
+
+# Config / validation
+pydantic>=2.0
+python-dotenv>=1.0
+# control_plane: registry source of truth = YAML (قبلاً transitively از langchain می‌آمد)
+pyyaml>=6.0
+
+# AI Framework
+langchain>=0.3
+langchain-core>=0.3
+langchain-community>=0.3
+langchain-openai>=0.2
+langgraph>=0.2
+
+# Memory / RAG
+chromadb>=0.5
+langchain-chroma>=0.1
+langchain-huggingface>=0.1
+sentence-transformers>=3.0
+
+# Real data feeds (free, no key)
+yfinance>=0.2.31

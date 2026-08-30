@@ -1,0 +1,11 @@
+{
+  "ARCHIVE_ROOT": "/mnt/octopus_main/octopus-evidence-archive",
+  "HOT_EVIDENCE_ROOT": "/var/lib/octopus/state/evidence",
+  "HOT_RETENTION_WINDOW": "last_14d",
+  "DISK_FREE_TARGET": "5G",
+  "no_casual_truncate_affirmation": true,
+  "INDEX_REBUILD_COMMAND": "DISCOVER_FIRST_ON_PI",
+  "owner_all_doors": true,
+  "LAPTOP_ARCHIVE_PATH": "\\\\192.168.0.191\\octopus-main\\octopus-evidence-archive",
+  "LAPTOP_SHARE_ROOT": "\\\\192.168.0.191\\octopus-main"
+}

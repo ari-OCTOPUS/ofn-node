@@ -64,21 +64,23 @@
 |---|---|---|---|---|
 | `ACTIVATION-C6-RESEARCH.flag` | تریگرِ پژوهش/خودترمیمیِ C6 | `c6_trigger.py::ACT_FLAG` | تک‌قفله `exists()` | RAISED |
 | `ACTIVATION-CODE-AUTONOMY.flag` | اکچوایتورِ سطح A (اعمالِ پچ به کد) | `cortex/code_autonomy.py::ACTIVATION` | تک‌قفله `exists()` + نبودِ `STOP-CODE-AUTONOMY`؛ `arm_gate.py::DANGEROUS` توکنِ دومِ تازه می‌خواهد | RAISED |
-| `ACTIVATION-CORTEX-PAID.flag` | لِینِ LLM ِ پولیِ کورتکس | `cortex/model_router.py::ACT_CORTEX_PAID` | دوقفله `opslib.live_gate_open` | RAISED |
+| `ACTIVATION-CORTEX-PAID.flag` | لِینِ LLM ِ پولیِ کورتکس | `cortex/model_router.py::ACT_CORTEX_PAID` | دوقفله `opslib.live_gate_open` | CLOSED |
 | `ACTIVATION-DEBATE.flag` | حلقهٔ مناظرهٔ زنده (نه stub ِ آفلاین) | `budget/opslib.py::ACT_DEBATE` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-GO-LIVE.flag` | بایپسِ سراسریِ سپرِ تاریخِ فاز −۱ | `budget/opslib.py::GO_LIVE_FLAG` | تک‌قفله `exists()` درونِ `live_gate_open` | RAISED |
 | `ACTIVATION-GOVERNOR-LLM.flag` | گاورنرِ LLM ِ اپاک بودجه | `budget/opslib.py::ACT_GOV_LLM` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-HEART-DOCTOR.flag` | setpoint ِ دکترِ قلب | `heart/doctor_setpoint.py::ACT_HEART_DOCTOR` | دوقفله `opslib.live_gate_open` | RAISED |
 | **`ACTIVATION-HEARTSTATE.flag`** | **نوشتنِ `_ops/state/pulse/heartstate-latest.json` هر ضربان** — ↑ هشدارِ بالا | `heart/heartstate.py::_FLAG_FILE` | تک‌قفله `exists()`، **بدونِ سپرِ تاریخ** | RAISED |
+| **`ACTIVATION-HEART-V2.flag`** | **قلب v2 (Gate 1، رأی مالک 2026-08-25): ضربان واحد SENSE/RECORD/THINK/HEAL روی BeatScheduler + ژورنالِ ترابزنشی `heart_*` در chrono.db + FSM حیات + مغز مشاور DeepSeek (advisory-only، بدون ACT)** | `heart/runtime.py::FLAG_FILE` | تک‌قفله `exists()` + overrideِ env | RAISED |
 | `ACTIVATION-PULSE-ARBITER.flag` | persist ِ آربیترِ پالس (`arbiter-latest.json` / `arbiter-shadow.jsonl`) | `heart/pulse_arbiter.py::ACT_ARBITER` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-PULSE.flag` | سایهٔ قلب (`heart/shadow.py`) | `heart/shadow.py::ACT_PULSE` | دوقفله `opslib.live_gate_open` | RAISED |
-| `ACTIVATION-RAW-SHELL.flag` | اجرای فرمانِ پوستهٔ خام از داخلِ ارگانیسم (`/sh`)، با رسید و deny-list ِ منشور | `shell_capability.py::ACTIVATION` | تک‌قفله `exists()` + نبودِ `STOP-RAW-SHELL`/`STOP-ORGANISM` | RAISED |
+| `ACTIVATION-RAW-SHELL.flag` | اجرای فرمانِ پوستهٔ خام از داخلِ ارگانیسم (`/sh`)، با رسید و deny-list ِ منشور | `shell_capability.py::ACTIVATION` | تک‌قفله `exists()` + نبودِ `STOP-RAW-SHELL`/`STOP-ORGANISM` | CLOSED |
 | `ACTIVATION-REPLICATION.flag` | پیشنهاددهیِ زندهٔ replication | `budget/opslib.py::ACT_REPLICATION` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-RESEARCH-EARLY.flag` | overrideِ زودهنگامِ سپرِ تاریخ برای مسیرِ پژوهشِ پولی | `cortex/model_router.py::ACT_RESEARCH_EARLY` | تک‌قفله `exists()` | RAISED |
 | `ACTIVATION-SELF-IMPROVE-AUTO.flag` | خودبهبودیِ **خودکار** (بدونِ تپِ مالک) | `cortex/improve.py::ACT_AUTO` | تک‌قفله `exists()` | RAISED |
 | `ACTIVATION-WORK-LLM.flag` | لِینِ LLM ِ پمپِ کار | `heart/work_pump.py::ACT_WORK_LLM` | دوقفله `opslib.live_gate_open` | RAISED |
 
 `_ops/ACTIVATION-GOVERNOR-LLM.flag.off` عمداً در این جدول نیست: پسوندش `.flag` نیست، هیچ خواننده‌ای
+_ops/ACTIVATION-CORTEX-PAID.flag.off — G17 2026-08-23T09:11:00+10:00: paid stays FORBIDDEN (lock+WIRING). Live .flag removed; registry CLOSED. Do not invent money unlock.
 ندارد و تنها فایلِ **tracked** ِ این خانواده است (یک یادگارِ خاموشِ ۲۰۲۶-۰۷-۱۰).
 
 ---

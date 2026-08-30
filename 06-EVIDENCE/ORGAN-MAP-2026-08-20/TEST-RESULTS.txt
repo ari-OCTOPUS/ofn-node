@@ -1,0 +1,32 @@
+test_organ_cartographer_20260820.py
+  15/15 passed
+  not registered in run_all.py (WORKLOCK)
+
+  ok  test_starvation_root_cause_decided
+  ok  test_sentinel_negative_is_unknown
+  ok  test_tool_request_quarantine_and_policy
+  ok  test_rfc_merge_and_cap
+  ok  test_autotune_zero_evidence_once
+  ok  test_halt_has_machine_cause_and_rfc
+  ok  test_bitemporal_no_future_no_fabricate
+  ok  test_duplicate_event_idempotent
+  ok  test_knowledge_scan_empty_malformed_stale
+  ok  test_classify_and_classes
+  ok  test_dead_feedback_loop
+  ok  test_cognition_inbox_receipts
+  ok  test_telegram_lane_detector
+  ok  test_mapper_dead_imports_skip_stdlib
+  ok  test_telemetry_by_source
+
+paid_calls=0
+executable_unexpected=0
+telegram_lane_conflicts=0
+future_use=0
+fabricated_occurred_at=0
+negative_metric_render=0 (R1)
+tool_request_duplicates_suppressed=true
+rfc_duplicates_merged=true
+dead_feedback_loops_labeled=true (knowledge)
+brains_receive_cognition_inbox=3
+organs_wired_this_session=1 (knowledge sidecar)
+wired_organ_real_events=655

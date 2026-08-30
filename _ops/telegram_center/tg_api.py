@@ -513,12 +513,21 @@ class TgClient:
         ۴۲۹ Too Many Requests: تلگرام ``parameters.retry_after`` می‌گوید. ما تا سقفِ
         امن صبر می‌کنیم و **یک‌بار** دوباره تلاش می‌کنیم (آیتم ۵ِ TG-P2). هیچ‌گاه
         retry-storm درست نمی‌شود؛ شکستِ دوم = fail-soft مثلِ بقیه."""
-        # DA-4-P1 (PHASE02 2026-08-16): ناظرِ سایهٔ PEP — فقط ثبت، صفر تغییر رفتار.
+        # DA-4: shadow by default. If the owner explicitly enables enforcement,
+        # every send needs a bound, single-use real lease in the current context.
         try:
             import budget.telegram_pep_shadow as _pep  # noqa: WPS433
-            _pep.hook(sender="tg_api._call_post", action=method, params=body)
+            _pep_decision = _pep.hook(
+                sender="tg_api._call_post", action=method, params=body)
+            if (_pep_decision.get("enforced")
+                    and _pep_decision.get("verdict") != "allow"):
+                return None
         except Exception:  # noqa: BLE001
-            pass
+            # An enforcement-path import/evaluation failure must never authorize
+            # network I/O. Shadow mode preserves the historical fail-soft behavior.
+            if str(os.environ.get("OCTOPUS_TG_PEP_ENFORCE", "")).strip().lower() in (
+                    "1", "true", "yes", "on"):
+                return None
         for _attempt in range(_429_MAX_RETRIES + 1):   # ۱ تلاشِ اولیه + ۱ retry
             try:
                 data = self._post(self._build_url(method), body)
@@ -885,7 +894,11 @@ class TgClient:
             }:
                 kind = "LEASE_DENIED"
             reason = str(scheduled.get("reason") or "scheduled")
-            _record_poll(False, "schedule:%s" % reason, started_at=started_at)
+            state = _record_poll(False, "schedule:%s" % reason,
+                                 started_at=started_at)
+            # یک بلاکِ ماندگار (۴۲۹/۴۰۹/وب‌هوک) همان «گوشِ مرده» است — بلاکِ
+            # schedule نباید هشدارِ deaf را خفه کند.
+            self._maybe_alert_deaf(state)
             return PollOutcome(
                 kind, reason=reason,
                 retry_after_s=(float(scheduled["retry_after_s"])
@@ -896,7 +909,8 @@ class TgClient:
                 preflight = self._poll_preflight()
             except Exception as exc:  # noqa: BLE001 — unknown webhook state blocks polling
                 reason = "preflight-error:%s" % type(exc).__name__
-                _record_poll(False, reason, started_at=started_at)
+                state = _record_poll(False, reason, started_at=started_at)
+                self._maybe_alert_deaf(state)
                 stored = schedule_module.record_failure(
                     self._token, kind="HTTP_5XX", reason=reason)
                 if not stored.get("ok"):
@@ -927,7 +941,9 @@ class TgClient:
                 or str(preflight.get("url") or "").strip()
             )
             if webhook_present:
-                _record_poll(False, "webhook-present", started_at=started_at)
+                state = _record_poll(False, "webhook-present",
+                                     started_at=started_at)
+                self._maybe_alert_deaf(state)
                 stored = schedule_module.record_failure(
                     self._token, kind="WEBHOOK_PRESENT",
                     reason="webhook-present")

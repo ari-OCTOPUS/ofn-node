@@ -1,0 +1,26 @@
+# tests/test_budget_m4.py — M4 (G-06): آلارمِ پلکانی + hard-stop. Portable، بدونِ telegram.
+import os, sys, datetime as dt
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import budget as B
+
+class FakeDB:
+    def __init__(self, month): self.month = month
+    def ai_usage_sum(self, since):
+        first = dt.date.today().replace(day=1).isoformat()
+        return self.month if since == first else 0.0
+    def record_ai_usage(self, *a, **k): pass
+
+def test_alert_50():   assert B.BudgetManager(FakeDB(10.0), 100, 20).alert_level() == "50%"
+def test_alert_80():   assert B.BudgetManager(FakeDB(16.0), 100, 20).alert_level() == "80%"
+def test_alert_none(): assert B.BudgetManager(FakeDB(5.0), 100, 20).alert_level() is None
+def test_enforce_halt():
+    m = B.BudgetManager(FakeDB(20.0), 100, 20)
+    try: m.enforce("x"); assert False
+    except B.BudgetHalted: pass
+def test_enforce_ok(): B.BudgetManager(FakeDB(3.0), 100, 20).enforce("x")  # نباید پرتاب کند
+
+if __name__ == "__main__":
+    for n,f in sorted(globals().items()):
+        if n.startswith("test_") and callable(f):
+            f(); print(f"  ✅ {n}")
+    print("M4: همه سبز")

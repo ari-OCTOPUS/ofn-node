@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-08-21
+updated: 2026-08-29
 ---
 
 # پروژه: architect
@@ -27,6 +27,32 @@ updated: 2026-08-21
 **قاعده حریم Project-F:** پروژه اونلی فنز در هر خروجی cross-domain (تلگرام، داشبورد، گزارش) فقط با کد «Project-F» ارجاع می‌شود — نه نام پلتفرم، نه هویت پارتنر، نه جزئیات محتوا. جزئیات فقط داخل پوشه خود پروژه.
 
 ## Active Context
+
+- تغییرات اخیر: **2026-08-29 — کشف سه‌گره برگشت.** ۱۳۸ LIVE (`a27eb05`, P1 unload) · ۱۸۲ disk-only · 5a `7d65f2d` · مگاپرامپت کل سامانه GO نیست. [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/00-THREE-NODE-VERDICT]] · نوت [[../../07 - Knowledge/شناخت-اختاپوس/97-THREE-NODE-DISCOVERY-QUALIFIED-2026-08-29]]
+
+- تغییرات اخیر: **2026-08-29 — undefined-card CLOSED.** fresh WebView asset جدید + `/api/lifecycle` + تأیید مالک؛ instrumentation حذف و cleanup `1c163ea`. persistent menu هنوز launch object جداست؛ `/start` مسیر ثابت‌شده. [[../../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]]
+
+- تغییرات اخیر: **2026-08-29 — MiniApp root cache LIVE با WIP پذیرفته‌شده.** reference `c43bc91`؛ 11 suite ترکیبی؛ Center 22352→23808؛ boot receipt مالک؛ poll conflict transient سپس failures=0. loaded source hash ثبت شد و هنوز dirty/uncommitted است. [[../../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]]
+
+- تغییرات اخیر: **2026-08-29 — undefined-card LIVE fail-closed.** commit `0016cdf`: 28/28؛ gateway 20800→26892؛ static loopback 200؛ core PIDs دیگر ثابت؛ Telegram effect=0. تأیید WebView مانده. [[../../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]]
+
+- تغییرات اخیر: **2026-08-29 — Telegram/WebApp Phase 0 چهار نود.** EDGE-6 same-run بسته نیست؛ approval/beatها چند namespace؛ `undefined`/timeout/queue-budget/redaction قطعی؛ ۱۸۰ دو مسیر transmit دارد. پچ BEARER در branch جدا commit `00c4fbf`، deploy=0، GitHub remote ندارد. [[../../06-EVIDENCE/OCTOPUS-TELEGRAM-WEBAPP-PHASE0-2026-08-29]] · [[../../07 - Knowledge/شناخت-اختاپوس/96-TELEGRAM-WEBAPP-EVIDENCE-FIRST-PHASE0-2026-08-29]]
+
+- تغییرات اخیر: **2026-08-29 — P1 metadata-only projection committed on 138.** commit `a27eb05`; 73 targeted سبز؛ full 2076 با همان error تاریخی؛ runtime restart نشد. P2 discovery نشان داد binding باید پیش از enqueue از producer/182 بیاید، نه اینکه داخل approval جعل شود. [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P1-RESULT]] · [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY]]
+
+- تغییرات اخیر: **2026-08-29 — E0 live از ۱۹۱.** `ofn.service` PID 1351408 · HEAD 6881337 · UNPROVEN_RESTART_REQUIRED · 37 fake tests OK · V2 401 · fixed=NO. [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/CHECKPOINT]]
+
+- تغییرات اخیر: **2026-08-29 — reuse audit only.** ساخت Event Store/Command Bus/API موازی/UI سوم متوقف. پنج فایل در `06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/`. نوت ۹۵. هیچ runtime عوض نشد.
+
+- تغییرات اخیر: **2026-08-28 — forensic debug v1.** تونل 8791–8796 روی ۱۹۱ PRESENT (صبح ABSENT). EDGE-6 این run هنوز بدون enqueue پیشنهاد. receipt نقل‌شده envelope run_id دیگری دارد. runtime صفر. [[../../06-EVIDENCE/OCTOPUS-L191-FORENSIC-DEBUG-2026-08-28]].
+
+- تغییرات اخیر: **2026-08-23 — Full Update & Debug Sweep.** KPI حافظه
+  archive-aware شد؛ manifest transientها را جدا می‌کند؛ task قدیمی R18
+  Disabled؛ Telegram real-lease seam پیاده ولی default-off/بدون issuer تولیدی؛
+  halt readiness سبز ولی drill زنده اجرا نشد. نسبت کل حافظه هنوز زیر هدف است و
+  `run_all` کل repo RED/INCOMPLETE. [[../../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]].
+
+- تغییرات اخیر: **2026-08-21 — SELF-UPGRADE LAB CYCLE + ادغام observe_only.** memory ۱۲/۱۲ از قبل سبز. heart/brain LAB_PASS در worktree. هوک observe روی live. [[../../07 - Knowledge/شناخت-اختاپوس/79-SELF-UPGRADE-LAB-CYCLE-2026-08-21]] · [[../../06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README]].
 
 - تغییرات اخیر: **2026-08-21 — OWNER GRANT بازکردن قفل‌ها.** Wave 1 unlocked · digest زنده msg 583 · doctor-pulse merged. [[../../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/README]].
 
@@ -228,6 +254,20 @@ updated: 2026-08-21
 
 ## Progress
 
+- **2026-08-29 three-node discovery (نو):** ۱۳۸ SSH read-only · ۱۸۲ از دیسک · سنتز + پیش‌نویس مگاپرامپت · اجرا/ری‌استارت/T1–T5=0. [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/00-THREE-NODE-VERDICT]].
+- **2026-08-29 undefined card CLOSED:** owner-confirmed؛ debug instrumentation removed؛ cleanup `1c163ea`. [[../../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]].
+- **2026-08-29 root-cache (نو):** reference `c43bc91` · RED 13/14 → combined 11 suites · live Center PID 23808؛ source hash-bound ولی WIP uncommitted. [[../../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]].
+- **2026-08-29 undefined card (نو):** RED `undefined`+دو action → GREEN read-only fallback؛ commit `0016cdf`; live gateway PID 26892. [[../../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]].
+- **2026-08-29 Telegram/WebApp Phase 0 (نو):** چهار lane read-only؛ 182 یک process transient ساخت و contain کرد؛ EDGE6_STILL_BLOCKED؛ پچ امنیتی isolated 34/34. [[../../06-EVIDENCE/OCTOPUS-TELEGRAM-WEBAPP-PHASE0-2026-08-29]].
+- **2026-08-29 P1 (نو):** source commit `a27eb05` · owner queue metadata در V2 additive · PII=0 · mesh unchanged · runtime load نشده · P2 فقط discovery. [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P1-RESULT]].
+- **2026-08-29 reuse audit (نو):** پنج سند evidence · حکم REUSE_ONLY · کد/دیپلوی ۰. جزئیات: [[../../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/REUSE-MAP]] · [[../../07 - Knowledge/شناخت-اختاپوس/95-REUSE-AUDIT-STOP-NEW-ARCHITECTURE-2026-08-29]].
+- **2026-08-28 forensic debug v1:** BLOCKED_WITH_EVIDENCE · tunnels PRESENT now · EDGE-6 this-run enqueue missing · cited witness SHA envelope run_id mismatch · no push. [[../../06-EVIDENCE/OCTOPUS-L191-FORENSIC-DEBUG-2026-08-28]].
+- **2026-08-23 Update/Debug Sweep:** memory KPI fix در `ad788b6`؛ manifest/API
+  compatibility/Telegram lease changes هنوز در shared dirty tree uncommitted؛
+  scheduler duplicate خاموش؛ owner-next = halt window + lease issuer vote +
+  contradiction candidate review. جزئیات:
+  [[../../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]].
+- **2026-08-21 SELF-UPGRADE LAB (نو):** factory sparse · memory ALREADY_FIXED · heart/brain LAB_PASS · observe_only روی live. جزئیات: [[../../06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README]] · [[../../07 - Knowledge/شناخت-اختاپوس/79-SELF-UPGRADE-LAB-CYCLE-2026-08-21]].
 - **2026-08-21 OWNER GRANT unlock (نو):** lock.json wave1_unlocked=true · digest 583 · STOPها در `_Archive/Stops`. جزئیات: [[../../02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS3-LIVE-2026-08-21/README]].
 - **2026-08-21 AGI-LOOPS PASS 1+2 (نو):** رجیستری ۱۲+۲۴ · نردبان L0–L6 · shadow چهار حلقه. Wave 1 قفل. Pass 3 نه. جزئیات: [[../../06-EVIDENCE/AGI-LOOPS-PASS1-2026-08-21/README]] · [[../../06-EVIDENCE/AGI-LOOPS-PASS2-SHADOW-2026-08-21/README]].
 - **2026-08-20 Attribution shadow فاز ۱ (نو):** اصل رسید دست‌نخورده · 149 ردیف v2 · fabricated=0 · canary اجرا=false. جزئیات: [[../../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/PHASE1-SHADOW]].

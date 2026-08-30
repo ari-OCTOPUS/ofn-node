@@ -83,3 +83,17 @@
 {"leg": "lead-naghshi", "ts": 1786844244.1167622, "beat": 37798, "reason": "phi-timeout:no-ack", "phi": 19.335}
 {"leg": "lead-naghshi", "ts": 1786976101.2520866, "beat": 39902, "reason": "phi-timeout:no-ack", "phi": 41.487, "ok": true}
 {"leg": "lead-naghshi", "ts": 1787062254.7086332, "beat": 40859, "reason": "phi-timeout:no-ack", "phi": 18.104, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787149821.0113056, "beat": 42155, "reason": "phi-timeout:no-ack", "phi": 69.846, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787217186.7950966, "beat": 43208, "reason": "phi-timeout:no-ack", "phi": 16.531, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787346791.316719, "beat": 44760, "reason": "phi-timeout:no-ack", "phi": 21.076, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787389886.395542, "beat": 45441, "reason": "phi-timeout:no-ack", "phi": 25.214, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787572847.7057216, "beat": 48338, "reason": "phi-timeout:no-ack", "phi": 29.5, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787580223.1298401, "beat": 48448, "reason": "phi-timeout:no-ack", "phi": 18.3, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787597722.8306122, "beat": 48718, "reason": "phi-timeout:no-ack", "phi": 17.499, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787628916.389429, "beat": 49190, "reason": "phi-timeout:no-ack", "phi": 21.653, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787819913.119892, "beat": 52075, "reason": "phi-timeout:no-ack", "phi": 27.53, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787829012.3803132, "beat": 52215, "reason": "phi-timeout:no-ack", "phi": 17.19, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787889319.4564219, "beat": 53133, "reason": "phi-timeout:no-ack", "phi": 20.02, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787958491.4001389, "beat": 53996, "reason": "phi-timeout:no-ack", "phi": 17.234, "ok": true}
+{"leg": "lead-naghshi", "ts": 1787979276.757844, "beat": 54315, "reason": "phi-timeout:no-ack", "phi": 33.177, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788058850.2789176, "beat": 55577, "reason": "phi-timeout:no-ack", "phi": 16.992, "ok": true}

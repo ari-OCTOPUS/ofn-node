@@ -1,0 +1,155 @@
+{
+  "pass": "OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23",
+  "collected_at": "2026-08-23T00:34:00+10:00",
+  "timezone": "Australia/Sydney",
+  "auth_owner": "Evidence + NODE-PACKs + CONNECTOR-GAP",
+  "synthesis_status": "SYNTHESIS_PASS",
+  "evidence_root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23",
+  "code_vs_docs": {
+    "code": [
+      "F:\\backup\\agents\\octopus_evidence\\connector_evidence.py",
+      "F:\\backup\\agents\\octopus_evidence\\connector_gap_loader.py",
+      "F:\\backup\\_ops\\evidence_plane\\connector_evidence.py",
+      "F:\\backup\\_ops\\evidence_plane\\connector_gap_loader.py",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\code\\connector_evidence.py",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\code\\connector_gap_loader.py",
+      "F:\\backup\\_ops\\organs\\WIRING.json#flags.connector_gap_hook + hooks.connector_gap"
+    ],
+    "docs_data": [
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-BUSINESS.json",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-SENSORIUM.json",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-LAPTOP.json",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\HASHES.sha256",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\GAP-MAP.md",
+      "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\RESULT.json",
+      "F:\\backup\\07 - Knowledge\\octopus\\94-CONCEPTS-TO-CODE-2026-08-23.md",
+      "F:\\backup\\agents\\octopus_evidence\\README.md",
+      "F:\\backup\\agents\\octopus_evidence\\WIRING.json",
+      "F:\\backup\\agents\\octopus_evidence\\connector_evidence.schema.json"
+    ]
+  },
+  "evidence_store": {
+    "preferred_existing": [
+      "F:\\backup\\_ops\\shadow_homeostasis\\evidence_store.py",
+      "F:\\backup\\_ops\\epistemics\\schemas.py",
+      "F:\\backup\\_ops\\evidence_plane\\\\"
+    ],
+    "new_runtime_module": "F:\\backup\\_ops\\evidence_plane\\connector_evidence.py",
+    "agents_stub": "F:\\backup\\agents\\octopus_evidence",
+    "rule": "missing evidence_id OR invalid source_type -> unverified=true; estimates require confidence+valid_for"
+  },
+  "node_packs": {
+    "business": {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-BUSINESS.json",
+      "valid": true,
+      "sha256": "53e1184941606d1b2d38c1586750c7eecaede7037dce1a24d16af6837f9cb1e9"
+    },
+    "sensorium": {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-SENSORIUM.json",
+      "valid": true,
+      "sha256": "2aa394ab91136bca9531c604f8bf56516b5cf022add8ef6b906bca0ce348c211"
+    },
+    "laptop": {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-LAPTOP.json",
+      "valid": true,
+      "sha256": "3a74acdf6c52e9c732c1ce25260be17162e0cdc5b77652f6c0c19c2fd5792a10"
+    }
+  },
+  "connector_gap": {
+    "as_of_registry": "2026-08-22T23:05:00+10:00",
+    "loaded_from": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\CONNECTOR-GAP-REGISTRY.json",
+    "oauth_gaps": [
+      {
+        "connector": "GA4",
+        "gap_id": "CG-001",
+        "status": "WAITING_OWNER_OAUTH",
+        "is_gap": true,
+        "metrics_allowed": false,
+        "reason": "API requires owner OAuth and property grants",
+        "required_owner_action": [
+          "oauth-consent",
+          "property-mapping-signoff"
+        ],
+        "gate": [
+          "D1",
+          "D7"
+        ],
+        "gap_until_oauth": true
+      },
+      {
+        "connector": "GSC",
+        "gap_id": "CG-002",
+        "status": "WAITING_OWNER_OAUTH",
+        "is_gap": true,
+        "metrics_allowed": false,
+        "reason": "API requires owner OAuth and verified site ownership",
+        "required_owner_action": [
+          "oauth-consent",
+          "verified-property-binding"
+        ],
+        "gate": [
+          "D1",
+          "D7"
+        ],
+        "gap_until_oauth": true
+      },
+      {
+        "connector": "Google Ads",
+        "gap_id": "CG-003",
+        "status": "WAITING_OWNER_OAUTH",
+        "is_gap": true,
+        "metrics_allowed": false,
+        "reason": "API requires owner credentials and account linkage",
+        "required_owner_action": [
+          "oauth-consent",
+          "account-approval-signoff"
+        ],
+        "gate": [
+          "D1",
+          "D7"
+        ],
+        "gap_until_oauth": true
+      }
+    ],
+    "hard_rules": [
+      "Any datum missing evidence_id or source_type is unverified",
+      "No external write action without owner gate",
+      "Estimate data is not promoted to fact without explicit verification"
+    ]
+  },
+  "wiring": {
+    "path": "F:\\backup\\_ops\\organs\\WIRING.json",
+    "backup": "F:\\backup\\_ops\\organs\\WIRING.json.bak-2026-08-23-concepts-to-code",
+    "flag": "connector_gap_hook",
+    "reversible": true
+  },
+  "non_actions_honored": [
+    "no secrets",
+    "no WAVE0 unlock",
+    "no mining",
+    "no invent money",
+    "no invent MQTT/WAVE0 PASS"
+  ],
+  "laptop_live": {
+    "hostname": "DESKTOP-KA9RFN5",
+    "os": "Microsoft Windows 11 Pro N 10.0.26200",
+    "local_listen_8791_8792_8793_1883": false,
+    "center_pid_observed": 35916
+  },
+  "synthesized_at": "2026-08-23T00:58:22+10:00",
+  "synthesis": {
+    "path_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\SYNTHESIS.json",
+    "path_md": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\SYNTHESIS.md",
+    "sha256": "dc391586638eff11b5c0305899210d384d23f25cb37633e05e6fbf51d2246356",
+    "order": [
+      "business",
+      "sensorium",
+      "laptop"
+    ],
+    "hash_verification_ok": true,
+    "schema_validation_ok": true,
+    "claims_total": 16,
+    "estimates": 0,
+    "fail_reasons": []
+  }
+}

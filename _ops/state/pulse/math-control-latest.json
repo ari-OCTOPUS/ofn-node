@@ -1,6 +1,6 @@
 {
   "schema": "math-control.v1",
-  "ts": "2026-08-19T12:23:01Z",
+  "ts": "2026-08-30T03:42:16Z",
   "enabled": true,
   "autotune": true,
   "external_effect": false,
@@ -8,25 +8,25 @@
   "shadow_blocks_effects": false,
   "pain_pressure": 0.0,
   "rhythm_color": "GREEN",
-  "schedule_period_s": 109.51,
+  "schedule_period_s": 96.44,
   "protective_skip": false,
-  "beat": 42041,
+  "beat": 55597,
   "halted": false,
-  "assoc_strength": 0.9558895783575597,
+  "assoc_strength": 0.7908122300616085,
   "top_pair": "errors_high+rhythm_amber",
   "n_pairs": 3,
   "bcm_forgetting": 1.0,
   "n_weights": 2,
-  "mean_w": 97.51,
+  "mean_w": 117.01,
   "spectral_sigma_true": null,
   "sigma_source": "unavailable",
-  "identity_health": 0.572,
+  "identity_health": 0.672,
   "identities": {
-    "learner": 0.6,
+    "learner": 1.0,
     "earner": 0.0,
     "guardian": 0.675,
     "creator": 1.0,
-    "organism": 0.585
+    "organism": 0.685
   },
   "sog_voi": null,
   "sog_locked": true,
@@ -41,10 +41,13 @@
     "status"
   ],
   "schedule_period_bias": -2.0,
-  "rank_bias": 0.2,
-  "knob_deltas": {},
+  "rank_bias": 0.0,
+  "knob_deltas": {
+    "CHRONO_NUDGE_EVERY_N_BEATS": -60,
+    "HEART_SAMPLE_INTERVAL_S": -300
+  },
   "effects": [
-    "improve_rank_bias",
+    "autotune_propose",
     "schedule_bias_hint"
   ],
   "equations_touching": [

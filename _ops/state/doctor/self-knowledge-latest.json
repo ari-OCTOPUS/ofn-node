@@ -1,19 +1,19 @@
 {
-  "ts": "2026-08-19T22:08:44",
-  "beat": 42028,
-  "version": 362,
-  "source": "heuristic",
-  "snapshot_hash": "85287396c94e4ba7",
-  "stable_cycles": 0,
-  "llm_calls": 1,
-  "deep_dive_ran": true,
+  "ts": "2026-08-30T13:21:23",
+  "beat": 55589,
+  "version": 489,
+  "source": "cached:no-change",
+  "snapshot_hash": "af3793886cb5e912",
+  "stable_cycles": 4,
+  "llm_calls": 0,
+  "deep_dive_ran": false,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
     "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 567668 micro-USD",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 713908 micro-USD",
     "pathology": [
       {
-        "symptom": "خطای پرتکرار failed ×2",
+        "symptom": "خطای پرتکرار ValueError ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
@@ -30,7 +30,7 @@
       "چرا خطاهای پرتکرار رخ می‌دهند؟"
     ],
     "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
-    "confidence": null,
+    "confidence": 1.0,
     "focus_source": "owner_correction",
     "owner_steer": {
       "corrections": 2,
@@ -51,40 +51,40 @@
         "پرتکرار"
       ]
     },
-    "confidence_basis": "none — rule engine, not calibrated",
+    "confidence_basis": "accuracy-ema-forward-only",
     "evidence": {
       "readable": 6,
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 24272,
-      "newest_input_age_s": 4
+      "oldest_input_age_s": 5299,
+      "newest_input_age_s": 65
     }
   },
   "deep_dive": {
-    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟) تا ریشهٔ واقعی",
+    "topic": "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟) تا ریشهٔ واقعی، شواهدِ دقیق از STATE، کوچکترین فیکسِ برگشت‌پذیر، و اینکه چه چیزی مانعِ حل است",
     "cause_chain": [
-      "زنجیرهٔ علت (چرا؟→چرا؟→چرا؟)",
-      "ریشهٔ واقعی",
-      "شواهدِ دقیق"
+      "البته",
+      "البته",
+      "البته"
     ],
     "evidence": [
-      "برنامه‌ریزی",
-      "سیستم‌های ارگانیسمی",
-      "کاربردهای عملی"
+      "یادآوری‌های دقیق",
+      "شواهدِ دقیق",
+      "اینکه چه چیزی مانعِ حل است"
     ],
-    "smallest_fix": "بسته به روش‌های ارگانیسمی و ابزارهای آموزشی",
-    "blocked_by": "بدونِ ارگانیسم و عملکرد کاربردی"
+    "smallest_fix": "برای حل یکی از این شیوه‌ها",
+    "blocked_by": "بدونِ تصحیحِ مالک برای 28 روز — تمرکز ممکن است کهنه شده باشد"
   },
   "trajectory": {
     "focus_stable": true,
     "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
     "confidence_delta": null,
     "converging": null,
-    "prev_backend": "heuristic",
-    "backend": "heuristic",
+    "prev_backend": "cached:no-change",
+    "backend": "llm:local",
     "comparable": false,
-    "incomparable_reason": "unknown-confidence"
+    "incomparable_reason": "backend-changed"
   },
   "snapshot_digest": {
     "legs_alive": [
@@ -94,24 +94,28 @@
       "system"
     ],
     "in_fear": [],
-    "money_musd": 567668,
+    "money_musd": 713908,
     "recent_errors": {
-      "failed": 2
+      "ValueError": 1,
+      "HTTPError": 1
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-19T22:08:14",
+    "ts": "2026-08-30T13:21:23",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,
-    "confidence": null,
-    "confidence_brier": null,
-    "drifts": []
+    "confidence": 1.0,
+    "confidence_brier": 0.0,
+    "drifts": [],
+    "claims_emitted": 3
   },
   "owner_corrections": [
     "نه، تمرکزت اشتباه است — «خطای پرتکرار» مهم نیست، من میخوام روی درآمدِ نقاشی تمرکز کنی.",
     "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
   ],
+  "owner_correction_age_days": 33.96,
+  "owner_correction_stale": "بدونِ تصحیحِ مالک برای 33 روز — تمرکز ممکن است کهنه شده باشد",
   "c6_unknown": {
     "produced": false,
     "reason": "all-already-queued",

@@ -1,0 +1,58 @@
+﻿{
+    "stamp":  "2026-08-24T16:05:00+10:00",
+    "stamp_note":  "Australia/Sydney (UTC+10)",
+    "result":  "READY_FOR_REVIEW",
+    "schema":  "board2-of-live-path/1",
+    "constraints_honored":  {
+                                "no_live_of_post":  true,
+                                "OFN_ONLYFANS_LIVE_not_set":  true,
+                                "no_secret_values_in_output":  true,
+                                "no_invent_captions_prices":  true,
+                                "no_etsy":  true,
+                                "ziman_multi_image_gallery_shopify":  "HOLD"
+                            },
+    "files":  [
+                  "STATUS.md",
+                  "STATUS.json",
+                  "GAPS.md",
+                  "GAPS.json",
+                  "NEXT-SLICE.md",
+                  "VAULT-PATH.md",
+                  "SECOND-GO-CHECKLIST.md",
+                  "RESULT.json"
+              ],
+    "evidence_dir":  "F:\\backup\\06-EVIDENCE\\BOARD2-OF-LIVE-PATH-2026-08-24\\",
+    "gaps_top5":  [
+                      "G1 HTTP client missing -\u003e adapter:real-publish-not-implemented",
+                      "G2 Vault cookie fields / OFN_ONLYFANS_SESSION_COOKIE unset",
+                      "G3 Consent scope lacks onlyfans (only telegram_channel today)",
+                      "G4 OFN_ONLYFANS_LIVE must stay unset until second owner GO",
+                      "G5 No OwnerRelease-wired node publish path for onlyfans (telegram has one)"
+                  ],
+    "next_slice":  "Implement OF HTTP client scaffold with dry_run default; mock tests; no network / no LIVE until second GO",
+    "vault_path_recommendation":  "F:\\backup\\_ops\\secrets\\onlyfans\\session-cookie.env",
+    "second_go_items":  [
+                            "HTTP client reviewed + dry default",
+                            "Vault cookie at F:\\backup\\_ops\\secrets\\onlyfans\\",
+                            "secrets.env has OFN_ONLYFANS_SESSION_COOKIE (owner-filled)",
+                            "Consent release scope includes onlyfans",
+                            "OwnerRelease/node call-site wired",
+                            "No invent captions; matrix screen pass",
+                            "Gates/kill-switch reviewed",
+                            "Second owner GO receipt archived",
+                            "Then OFN_ONLYFANS_LIVE=1; one item; dry-run first; double confirm"
+                        ],
+    "probe_today":  {
+                        "dry_run":  {
+                                        "ok":  true,
+                                        "rule":  "adapter:dry-run"
+                                    },
+                        "live_unset":  {
+                                           "ok":  false,
+                                           "rule":  "wire:disabled"
+                                       }
+                    },
+    "prior_money_scan":  "F:\\backup\\06-EVIDENCE\\BOARD2-MONEY-DEEP-SCAN-2026-08-24\\",
+    "board":  "ssh ari@192.168.0.138",
+    "adapter":  "/home/ari/ofn/ofn/adapters/platforms/onlyfans.py"
+}

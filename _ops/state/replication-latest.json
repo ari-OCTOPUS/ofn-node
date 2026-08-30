@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-19T15:24:05",
+  "ts": "2026-08-30T00:02:09",
   "config": {
     "max_cells": 6,
     "spawn_depth": 1,
@@ -16,7 +16,7 @@
     "parents": 1,
     "alerts": []
   },
-  "fitness_authoritative": false,
+  "fitness_authoritative": true,
   "eligible_cells": [],
   "live_gate": {
     "open": true,

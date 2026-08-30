@@ -1,0 +1,102 @@
+# tests/test_trace_m6.py — M6 (G-08): چهار spanِ @trace رویداد تولید می‌کنند + کاملیِ حذف در wipe_all_data.
+# Portable و MOCK: بدونِ شبکه/کلید/تلگرام. DB موقت با LANGAR_DB — به langar.db واقعی دست نمی‌زند.
+import json
+import os
+import sys
+import tempfile
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# ایزوله‌سازی DB باید قبل از import db باشد (DB_PATH در import-time خوانده می‌شود)
+_TMP = tempfile.mkdtemp(prefix="langar_m6_")
+os.environ["LANGAR_DB"] = os.path.join(_TMP, "test_m6.db")
+
+import db  # noqa: E402
+import brain  # noqa: E402
+from agents import AgentRouter, HealthAgent, ReflectionAgent, RelationshipAgent  # noqa: E402
+from core import HumanCore  # noqa: E402
+from observability import log_event, tracer  # noqa: E402
+from researcher.researcher import Researcher  # noqa: E402
+
+# گاردِ fail-closed: اگر ایزوله‌سازی نگرفته باشد، همین‌جا بایست (نه wipe روی DB واقعی)
+assert "langar_m6_" in str(db.DB_PATH), f"DB ایزوله نیست: {db.DB_PATH}"
+
+
+class FakeSearch:
+    """ابزارِ MOCK — صفر شبکه."""
+    name = "fake-search"
+
+    def search(self, q):
+        return [{"title": "نمونه", "snippet": "متنِ آزمایشی برای سنتز",
+                 "url": "https://example.invalid/1"}]
+
+
+def _count(table: str) -> int:
+    with db._conn() as conn:
+        return conn.execute(f"SELECT COUNT(*) c FROM {table}").fetchone()["c"]
+
+
+def _event_types() -> set:
+    with db._conn() as conn:
+        return {r["type"] for r in conn.execute("SELECT type FROM event_log").fetchall()}
+
+
+def _wire():
+    """همان سیم‌کشیِ main.py، نسخه‌ی MOCK (provider آفلاین، سرچ جعلی)."""
+    db.init_db()
+    bank = brain.QuestionBank()
+    provider = brain.OfflineBrainProvider(bank)
+    base_prompt = brain.get_system_prompt()
+    ags = [HealthAgent(provider, bank, base_prompt),
+           ReflectionAgent(provider, bank, base_prompt),
+           RelationshipAgent(provider, bank, base_prompt)]
+    router = AgentRouter(ags, weights=db.get_agent_weights())
+    core = HumanCore(db, provider, bank, router, base_prompt)
+    # عینِ main.py:100 — sink ِ tracer به event_log وصل می‌شود
+    tracer.set_sink(lambda name, status, info:
+                    log_event(db, f"trace:{name}", {"status": status, "info": info}))
+    rsr = Researcher(provider, FakeSearch(), db=db)
+    return core, rsr
+
+
+CORE, RSR = _wire()
+
+
+def test_1_sample_interaction_produces_4_spans():
+    """تعاملِ نمونه → event_log ≥۴ رکورد و هر ۴ span حاضر."""
+    db.add_log(55.0, 4, 0, "home", "رکوردِ نمونه‌ی تعامل")          # زمینه‌ی واقع‌گرایانه
+    r = brain.BrainRouter(budget=None).route("تحلیلِ ریسکِ این تصمیمِ سرمایه‌گذاری")  # reasoning
+    assert r.depth == "deliberate"
+    q = CORE.get_daily_question()                                    # handoff + model_call
+    assert isinstance(q, str) and q.strip()
+    CORE.register_interaction("ask_answer", response="پاسخِ نمونه", response_time=1.0)
+    rec = RSR.research("سؤالِ نمونه برای منبع‌سنجی")                 # tool_call (+ سطرِ research)
+    assert rec.get("id", 0) >= 1
+    # بذرِ خانواده‌ی ailab برای تستِ wipe
+    db.save_ailab_entry("note", "m6", "محتوای آزمایشی", "[]")
+    db.add_ailab_idea("ایده‌ی آزمایشی")
+    db.add_ailab_proposal("self", "issue-m6", "patch/path.diff")
+
+    n = _count("event_log")
+    types = _event_types()
+    assert n >= 4, f"event_log فقط {n} رکورد دارد (<4)"
+    for t in ("trace:reasoning", "trace:handoff", "trace:model_call", "trace:tool_call"):
+        assert t in types, f"span غایب: {t} — موجود: {sorted(types)}"
+
+
+def test_2_wipe_all_data_clears_event_log_research_ailab():
+    """بعد از wipe_all_data هر سه گروه (event_log، research، ailab_*) خالی‌اند."""
+    assert _count("event_log") >= 4 and _count("research") >= 1
+    assert _count("ailab_entry") >= 1 and _count("ailab_idea") >= 1 and _count("ailab_proposal") >= 1
+    db.wipe_all_data()
+    for t in ("event_log", "research", "ailab_entry", "ailab_idea", "ailab_proposal", "log"):
+        assert _count(t) == 0, f"جدولِ {t} بعد از wipe خالی نشد"
+    assert db.get_config("halted") is not None  # رفتارِ قبلی حفظ شده (halted می‌ماند)
+
+
+if __name__ == "__main__":
+    for n, f in sorted(globals().items()):
+        if n.startswith("test_") and callable(f):
+            f()
+            print(f"  ✅ {n}")
+    print("M6: همه سبز")

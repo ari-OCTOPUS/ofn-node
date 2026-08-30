@@ -4,12 +4,32 @@ dry-run است: فقط گزارش می‌دهد، چیزی را تغییر نم�
 اجرا:  python "04 - Architect System/scripts/validate_frontmatter.py"
 """
 import json
+import os
 import re
 import sys
+import time
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = Path(__file__).resolve().parents[2]
+
+# #region agent log
+def _agent_dbg(hypothesisId, location, message, data=None, runId="scan1"):
+    rec = {
+        "sessionId": "b71475",
+        "timestamp": int(time.time() * 1000),
+        "location": location,
+        "message": message,
+        "data": data or {},
+        "runId": os.environ.get("DEBUG_RUN_ID", runId),
+        "hypothesisId": hypothesisId,
+    }
+    try:
+        with open(ROOT / "debug-b71475.log", "a", encoding="utf-8") as _df:
+            _df.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+# #endregion
 SCHEMA_MD = ROOT / "06 - Architecture Maps" / "Property Schema.md"
 TYPES_JSON = ROOT / ".obsidian" / "types.json"
 EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude", "_Templates",
@@ -185,16 +205,56 @@ def check_note(rel, fm, *, known_keys=None, types=None, statuses=None):
 
 def scan():
     errors, count = [], 0
-    for p in ROOT.rglob("*.md"):
-        # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
-        # پوشه‌های نقطه‌دار (worktreeهای جامانده مثل .wt-*، .zcode) هرگز نوت نیستند
-        parts = p.relative_to(ROOT).parts
-        if any(x in parts for x in EXCLUDE) or any(x.startswith(".") for x in parts) or not in_scope(p):
-            continue
-        rel = p.relative_to(ROOT).as_posix()
-        count += 1
-        text = p.read_text(encoding="utf-8", errors="replace")
-        errors.extend(check_note(rel, parse_frontmatter(text)))
+    # #region agent log
+    _t0 = time.time()
+    _seen = 0
+    _agent_dbg(
+        "B",
+        "validate_frontmatter.py:scan:entry",
+        "scan_start",
+        {"isatty": bool(sys.stdout.isatty()), "exclude": list(EXCLUDE)},
+    )
+    print("validate_frontmatter scan_start", flush=True)
+    _exclude = set(EXCLUDE)
+    # #endregion
+    for dirpath, dirnames, filenames in os.walk(ROOT, followlinks=False):
+        dirnames[:] = [d for d in dirnames if d not in _exclude and not d.startswith(".")]
+        for fn in filenames:
+            if not fn.lower().endswith(".md"):
+                continue
+            p = Path(dirpath) / fn
+            # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
+            # پوشه‌های نقطه‌دار (worktreeهای جامانده مثل .wt-*، .zcode) هرگز نوت نیستند
+            parts = p.relative_to(ROOT).parts
+            # #region agent log
+            _seen += 1
+            if _seen == 1 or _seen % 3000 == 0:
+                _agent_dbg(
+                    "A",
+                    "validate_frontmatter.py:scan:rglob",
+                    "rglob_progress",
+                    {
+                        "seen": _seen,
+                        "kept": count,
+                        "top": parts[0] if parts else "?",
+                        "elapsed_s": round(time.time() - _t0, 3),
+                    },
+                )
+            # #endregion
+            if any(x in parts for x in EXCLUDE) or any(x.startswith(".") for x in parts) or not in_scope(p):
+                continue
+            rel = p.relative_to(ROOT).as_posix()
+            count += 1
+            text = p.read_text(encoding="utf-8", errors="replace")
+            errors.extend(check_note(rel, parse_frontmatter(text)))
+    # #region agent log
+    _agent_dbg(
+        "A",
+        "validate_frontmatter.py:scan:exit",
+        "scan_done",
+        {"seen": _seen, "kept": count, "elapsed_s": round(time.time() - _t0, 3), "errors": len(errors)},
+    )
+    # #endregion
     return errors, count
 
 

@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""extract_wallet_data.py — read crypto portfolio state and emit wallet-data.js
+
+Sources:
+  - _ops/state/ORGANISM-STATE.json  (cardiac budget, month/today)
+  - 03 - Projects/Crypto - etoro/MANIFEST.yaml
+  - 03 - Projects/Crypto - etoro/Portfolio Registry.md
+  - 03 - Projects/Crypto - etoro/DecisionLog.md
+
+Sink: nervous-system/wallet-data.js → window.WALLET_DATA
+Pattern: stdlib-only, propose-only, read-only.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+NS_DIR = Path("F:/backup/nervous-system")
+CRYPTO_DIR = Path("F:/backup/03 - Projects/Crypto - etoro")
+OPS_STATE = Path("F:/backup/_ops/state/ORGANISM-STATE.json")
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _read_json(path: Path, default: Any = None) -> Any:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return default or {}
+
+
+def _read_text(path: Path, default: str = "") -> str:
+    try:
+        return path.read_text("utf-8", errors="replace")
+    except OSError:
+        return default
+
+
+def _parse_manifest(text: str) -> dict:
+    out: dict[str, Any] = {}
+    snap: dict[str, str] = {}
+    in_snap = False
+    for line in text.splitlines():
+        if line.strip().startswith("status_snapshot:"):
+            in_snap = True
+            continue
+        if in_snap:
+            if re.match(r"^\w+:", line) and not line.startswith("  "):
+                in_snap = False
+                continue
+            m = re.match(r"^  (\w+):\s*(.*)", line)
+            if m:
+                snap[m.group(1)] = m.group(2).strip()
+    out["status_snapshot"] = snap
+    rules: list[str] = []
+    in_rules = False
+    for line in text.splitlines():
+        if line.strip().startswith("hard_rules_locked:"):
+            in_rules = True
+            continue
+        if in_rules:
+            if line.strip().startswith("hard_rules_mutability:"):
+                break
+            m = re.match(r"^\s+-\s+\"(.*)\"", line)
+            if m:
+                rules.append(m.group(1))
+    out["hard_rules"] = rules
+    budget_caps: dict[str, str] = {}
+    in_budget = False
+    for line in text.splitlines():
+        if line.strip().startswith("budget_caps:"):
+            in_budget = True
+            continue
+        if in_budget:
+            if re.match(r"^\w+:", line) and not line.startswith("  "):
+                in_budget = False
+                continue
+            m = re.match(r"^  (\w+):\s*(.*)", line)
+            if m:
+                budget_caps[m.group(1)] = m.group(2).strip()
+    out["budget_caps"] = budget_caps
+    m = re.search(r"security_gate:\s*\"?([^\"\n]+)\"?", text)
+    if m:
+        out["security_gate"] = m.group(1).strip()
+    return out
+
+
+def _is_real_position(pos: dict) -> bool:
+    """Reject template/example rows."""
+    sym = pos.get("position", "").strip().strip('"').strip("'")
+    if not sym or sym in ('', 'position', 'نماد/دارایی'):
+        return False
+    # reject if it contains comment markers or template keywords
+    if '#' in sym and 'نماد' in sym:
+        return False
+    if 'نماد' in sym or 'دارایی' in sym:
+        return False
+    if sym.startswith('YYYY'):
+        return False
+    return True
+
+
+def _parse_portfolio_registry(text: str) -> list[dict]:
+    positions: list[dict] = []
+    blocks = re.split(r"\n##\s+", text)
+    for block in blocks:
+        if "position:" not in block:
+            continue
+        pos: dict[str, Any] = {}
+        for line in block.splitlines():
+            m = re.match(r"^(\w+):\s*(.*)", line.strip())
+            if m:
+                k, v = m.group(1), m.group(2).strip()
+                if k in ("position", "platform", "size_pct", "thesis",
+                         "invalidation_level", "approved_by_owner", "updated"):
+                    pos[k] = v
+                if k == "exit_rules":
+                    pos["exit_rules"] = []
+            if line.strip().startswith("- ") and "exit_rules" in pos:
+                rule = line.strip()[2:].strip()
+                if rule and rule != '""':
+                    pos["exit_rules"].append(rule)
+        if _is_real_position(pos):
+            positions.append(pos)
+    return positions
+
+
+def main() -> None:
+    os.makedirs(NS_DIR, exist_ok=True)
+    generated = _now_iso()
+
+    org = _read_json(OPS_STATE, {})
+    cardiac = org.get("cardiac", {})
+    budget = cardiac.get("budget", {})
+    month = org.get("month", {})
+    today = org.get("today", {})
+
+    manifest = _parse_manifest((CRYPTO_DIR / "MANIFEST.yaml").read_text("utf-8", errors="replace"))
+
+    reg_text = _read_text(CRYPTO_DIR / "Portfolio Registry.md")
+    positions = _parse_portfolio_registry(reg_text)
+
+    dec_text = _read_text(CRYPTO_DIR / "DecisionLog.md")
+    decisions = [l for l in dec_text.splitlines() if l.strip().startswith("**")]
+
+    wallet_data = {
+        "generated": generated,
+        "gate": {
+            "security_gate": manifest.get("security_gate", "unknown"),
+            "hard_rules": manifest.get("hard_rules", []),
+            "execution_state": manifest.get("status_snapshot", {}).get("execution_state", "unknown"),
+            "primary_blocker": manifest.get("status_snapshot", {}).get("primary_blocker", "unknown"),
+        },
+        "portfolio": {
+            "positions": positions,
+            "position_count": len(positions),
+            "approved_count": sum(1 for p in positions if str(p.get("approved_by_owner", "")).lower() in ("yes", "true")),
+            "has_exit_rules": any(p.get("exit_rules") for p in positions),
+        },
+        "budget": {
+            "month_usd": month.get("usd", 0),
+            "month_aud": month.get("aud", 0),
+            "today_usd": today.get("usd", 0),
+            "spent": budget.get("spent", 0),
+            "daily_cap": budget.get("daily_cap", 0),
+            "remaining": budget.get("remaining", 0),
+            "depleted": budget.get("depleted", False),
+        },
+        "manifest_budget_caps": manifest.get("budget_caps", {}),
+        "meta": {
+            "project": "Crypto - etoro",
+            "decisions_logged": len(decisions),
+            "phase": manifest.get("status_snapshot", {}).get("execution_state", "unknown"),
+            "stale_data_mb": 110,
+        },
+    }
+
+    js = "window.WALLET_DATA = " + json.dumps(wallet_data, ensure_ascii=False, default=str) + ";\n"
+    out_path = NS_DIR / "wallet-data.js"
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(js)
+    print("wallet-data.js refreshed", len(js), "chars", "→", out_path)
+
+
+if __name__ == "__main__":
+    main()

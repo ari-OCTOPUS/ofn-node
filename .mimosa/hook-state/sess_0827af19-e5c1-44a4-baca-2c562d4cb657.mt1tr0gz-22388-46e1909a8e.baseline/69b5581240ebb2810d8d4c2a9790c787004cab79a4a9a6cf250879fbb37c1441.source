@@ -1,0 +1,142 @@
+"""
+main.py — FastAPI backendِ LANGAR Pro (فاز ۱).
+
+این اسکلت endpointهای هسته را تعریف می‌کند. منطقِ پژوهش/Constitution را از
+پکیج‌های موجودِ بات (researcher/, core/) می‌توان وارد کرد یا در فاز ۲ مهاجرت داد.
+هدفِ فاز ۱: بالا آمدنِ سرویس + اتصال به Postgres + قالبِ decision/verdict.
+
+⚠️ این کد در sandbox تست نشده (نیاز به Postgresِ در‌حال‌اجرا دارد). روی دستگاهت با
+docker compose up اجرا و تأیید کن.
+"""
+
+import json
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+from . import db
+from .config import settings
+from .research import run_research, get_brain, get_search_provider
+
+app = FastAPI(title="LANGAR Pro", version="0.2")
+
+
+# ── قانونِ طلایی، hard-coded در قالبِ خروجی ──
+GOLDEN_RULES = [
+    "No source → no fact",
+    "No consent → no action",
+    "No feedback → no learning",
+    "No audit → no trust",
+    "No uncertainty → no verdict",
+]
+
+
+class GoalIn(BaseModel):
+    user_id: int
+    text: str
+
+
+class ResearchIn(BaseModel):
+    user_id: int
+    question: str
+    target: str = "armin"   # armin | self
+
+
+class VerdictIn(BaseModel):
+    verdict: str            # confirmed | refuted | revised
+    note: str = ""
+
+
+@app.get("/health")
+def health():
+    try:
+        db.fetchone("SELECT 1 AS ok")
+        return {"status": "ok", "db": "up", "golden_rules": GOLDEN_RULES}
+    except Exception as e:
+        return {"status": "degraded", "db": f"down: {e}"}
+
+
+@app.post("/goals")
+def add_goal(g: GoalIn):
+    row = db.execute(
+        "INSERT INTO goals(user_id, text) VALUES (%s, %s) RETURNING id",
+        (g.user_id, g.text))
+    return {"id": row["id"] if row else None}
+
+
+@app.get("/goals/{user_id}")
+def list_goals(user_id: int):
+    return db.fetchall("SELECT id, text, status FROM goals WHERE user_id = %s ORDER BY id",
+                       (user_id,))
+
+
+@app.post("/research")
+def research(r: ResearchIn):
+    """
+    فاز ۲: پژوهشِ واقعی — search → source scoring → synthesize → Constitution gate
+    → ثبتِ decision + sources + verdict(v1) + constitutional_check در Postgres.
+    قانونِ طلایی: بدونِ منبع fact نده؛ بدونِ uncertainty verdict نده.
+    """
+    search = get_search_provider(settings)
+    brain = get_brain(settings)
+    out = run_research(r.question, r.target, search, brain)
+
+    risk = out["uncertainty"].get("level", "unknown")
+    # G-16 fix: قبلاً confidence همیشه NULL بود؛ حالا از
+    # source_quality.uncertainty()["score"] (که run_research پاس می‌دهد) پر می‌شود.
+    confidence = out["uncertainty"].get("score")
+    dec = db.execute(
+        "INSERT INTO decisions(user_id, question, summary, confidence, risk_level) "
+        "VALUES (%s, %s, %s, %s, %s) RETURNING id",
+        (r.user_id, r.question, out["brief"][:2000], confidence, risk))
+    did = dec["id"]
+
+    # منابعِ امتیازخورده
+    for s in out["sources"]:
+        if s.get("url"):
+            db.execute(
+                "INSERT INTO sources(url, title, score) VALUES (%s, %s, %s)",
+                (s["url"], s.get("title"), s.get("score")))
+
+    # ثبتِ گذرگاهِ قانون اساسی (audit)
+    db.execute(
+        "INSERT INTO constitutional_checks(text, compliant, violations) VALUES (%s, %s, %s)",
+        (out["brief"][:2000], out["compliant"], json.dumps(out["violations"], ensure_ascii=False)))
+
+    # verdict نسخه‌ی ۱
+    db.execute(
+        "INSERT INTO verdicts(decision_id, version, verdict, note) VALUES (%s, 1, 'pending', %s)",
+        (did, f"target={r.target} · provider={getattr(brain,'name','?')} · search={getattr(search,'name','?')}"))
+
+    return {
+        "decision_id": did,
+        "target": r.target,
+        "brief": out["brief"],
+        "sources": out["sources"],
+        "uncertainty": out["uncertainty"],
+        "compliant": out["compliant"],
+        "next_step": out["next_step"],
+        "verdict_endpoint": f"/decisions/{did}/verdict",
+    }
+
+
+@app.post("/decisions/{decision_id}/verdict")
+def add_verdict(decision_id: int, v: VerdictIn):
+    """verdictِ نسخه‌بندی‌شده: نسخه‌ی جدید append می‌شود (تاریخچه تغییرناپذیر)."""
+    last = db.fetchone(
+        "SELECT COALESCE(MAX(version),0) AS v FROM verdicts WHERE decision_id = %s",
+        (decision_id,))
+    if last is None:
+        raise HTTPException(404, "decision نیست")
+    nv = last["v"] + 1
+    db.execute(
+        "INSERT INTO verdicts(decision_id, version, verdict, note) VALUES (%s, %s, %s, %s)",
+        (decision_id, nv, v.verdict, v.note))
+    return {"decision_id": decision_id, "version": nv, "verdict": v.verdict}
+
+
+@app.get("/decisions/{decision_id}/verdicts")
+def verdict_history(decision_id: int):
+    return db.fetchall(
+        "SELECT version, verdict, note, created_at FROM verdicts "
+        "WHERE decision_id = %s ORDER BY version", (decision_id,))

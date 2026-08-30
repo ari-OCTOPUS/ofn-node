@@ -16,9 +16,11 @@ OCTOPUS-DOCTOR هرگز برای لینکِ خروجی اسکن نمی‌شدن�
 گزارش دو بلوک دارد: «لایهٔ دست‌چین» (قانونِ vault) و «لایهٔ عملیاتی/بستهٔ سند»
 (بک‌لاگِ تازه-مرئی). هر دو در exit code حساب می‌شوند؛ `--curated` فقط بلوکِ اول.
 """
+import json
 import os
 import re
 import sys
+import time
 import unicodedata
 from pathlib import Path
 
@@ -27,6 +29,24 @@ sys.stdout.reconfigure(encoding="utf-8")
 # fixture است (درسِ تکرارشده: اسکریپتی که ROOT ِ هاردکد دارد فقط روی والتِ زنده
 # قابلِ آزمون است). هیچ رفتارِ پیش‌فرضی عوض نمی‌شود.
 ROOT = Path(os.environ.get("VAULT_LINK_ROOT") or Path(__file__).resolve().parents[2]).resolve()
+
+# #region agent log
+def _agent_dbg(hypothesisId, location, message, data=None, runId="scan1"):
+    rec = {
+        "sessionId": "b71475",
+        "timestamp": int(time.time() * 1000),
+        "location": location,
+        "message": message,
+        "data": data or {},
+        "runId": os.environ.get("DEBUG_RUN_ID", runId),
+        "hypothesisId": hypothesisId,
+    }
+    try:
+        with open(ROOT / "debug-b71475.log", "a", encoding="utf-8") as _df:
+            _df.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+# #endregion
 # مقصدهای نامعتبر: آرشیو/قرنطینه/کد — لینکِ زنده به این‌ها یعنی نوت باید آپدیت شود
 # ۲۰۲۶-۰۸-۰۶: «4D-Vault» بستهٔ دانشِ خودِ زیرپروژهٔ SOG/Brain-OS است (بازسازی‌شده از
 # ایندکسِ منجمدِ Chroma، ۳۰۵۵ نوت) — قراردادِ ویکی‌لینکِ خودش را دارد (نام‌های مفهومی
@@ -133,21 +153,68 @@ def safe_is_file(p):
         return False
 
 md_files, basenames, relpaths = [], set(), set()
-for p in ROOT.rglob("*"):
-    # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
-    # پوشه‌های نقطه‌دار (worktreeهای جامانده مثل .wt-*، .zcode) نه چک می‌شوند نه مقصدند
-    parts = p.relative_to(ROOT).parts
-    if any(x in parts for x in EXCLUDE) or any(x.startswith(".") for x in parts) or not safe_is_file(p):
-        continue
-    rel = p.relative_to(ROOT).as_posix()
-    relpaths.add(norm(rel))
-    if p.suffix.lower() == ".md":
-        relpaths.add(norm(rel[:-3]))
-        basenames.add(norm(p.stem))
-        if in_link_scope(p):            # هر .mdِ زنده منبعِ لینک است؛ ایندکس کامل می‌ماند
-            md_files.append(p)
-    else:
-        basenames.add(norm(p.name))
+# #region agent log
+_agent_dbg(
+    "C",
+    "find_broken_links.py:index:start",
+    "index_start",
+    {"isatty": bool(sys.stdout.isatty()), "argv": sys.argv[1:], "exclude": list(EXCLUDE)},
+)
+print("find_broken_links index_start", flush=True)
+_t0 = time.time()
+_seen = 0
+_kept = 0
+_exclude = set(EXCLUDE)
+# #endregion
+for dirpath, dirnames, filenames in os.walk(ROOT, followlinks=False):
+    dirnames[:] = [d for d in dirnames if d not in _exclude and not d.startswith(".")]
+    for fn in filenames:
+        p = Path(dirpath) / fn
+        # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
+        # پوشه‌های نقطه‌دار (worktreeهای جامانده مثل .wt-*، .zcode) نه چک می‌شوند نه مقصدند
+        parts = p.relative_to(ROOT).parts
+        # #region agent log
+        _seen += 1
+        if _seen == 1 or _seen % 4000 == 0:
+            _agent_dbg(
+                "A",
+                "find_broken_links.py:index:rglob",
+                "rglob_progress",
+                {
+                    "seen": _seen,
+                    "kept": _kept,
+                    "top": parts[0] if parts else "?",
+                    "elapsed_s": round(time.time() - _t0, 3),
+                },
+            )
+        # #endregion
+        if any(x in parts for x in EXCLUDE) or any(x.startswith(".") for x in parts) or not safe_is_file(p):
+            continue
+        _kept += 1
+        rel = p.relative_to(ROOT).as_posix()
+        relpaths.add(norm(rel))
+        if p.suffix.lower() == ".md":
+            relpaths.add(norm(rel[:-3]))
+            basenames.add(norm(p.stem))
+            if in_link_scope(p):            # هر .mdِ زنده منبعِ لینک است؛ ایندکس کامل می‌ماند
+                md_files.append(p)
+        else:
+            basenames.add(norm(p.name))
+
+# #region agent log
+_agent_dbg(
+    "C",
+    "find_broken_links.py:index:done",
+    "index_done",
+    {
+        "seen": _seen,
+        "kept": _kept,
+        "md_files": len(md_files),
+        "relpaths": len(relpaths),
+        "elapsed_s": round(time.time() - _t0, 3),
+    },
+)
+# #endregion
 
 pat = re.compile(r"\[\[([^\]\|#\^]+?)(?:[#\^][^\]\|]*)?(?:\|[^\]]*)?\]\]")
 

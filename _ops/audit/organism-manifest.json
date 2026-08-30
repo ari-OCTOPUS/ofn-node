@@ -1,6 +1,6 @@
 {
   "schema": "octopus-organism-manifest/0",
-  "observed_at": "2026-08-16T01:24:47+00:00",
+  "observed_at": "2026-08-22T22:58:50+00:00",
   "declared_members": [
     "organism",
     "center",
@@ -10,55 +10,9 @@
   ],
   "members_observed": [
     {
-      "role": "unknown",
-      "pid": 5780,
-      "started": "/Date(1786674024818",
-      "ports_listening": [
-        8765
-      ],
-      "entry_file": null,
-      "entry_sha256": null,
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -m http.server 8765 --bind 127.0.0.1"
-    },
-    {
-      "role": "center",
-      "pid": 11500,
-      "started": "/Date(1786818206912",
-      "ports_listening": [
-        8776
-      ],
-      "entry_file": "F:\\backup\\_ops\\telegram_center\\center.py",
-      "entry_sha256": "d67422f1d32d6b342d7c582d38bd592dd5e856764bfe01640d857ad8a2e0b740",
-      "effect_paths": [
-        "send:telegram(direct)",
-        "write:tg-state",
-        "pay:no"
-      ],
-      "cmdline": "python  -X utf8 telegram_center\\center.py"
-    },
-    {
-      "role": "gateway",
-      "pid": 20572,
-      "started": "/Date(1786818216001",
-      "ports_listening": [
-        8774
-      ],
-      "entry_file": "F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py",
-      "entry_sha256": "0392d2bd2fad47d2c8356cdceed373077a2a163273c6f6de3a9b8bebc821c71c",
-      "effect_paths": [
-        "http:local(8774)",
-        "write:no",
-        "pay:no"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py "
-    },
-    {
       "role": "live",
-      "pid": 9836,
-      "started": "/Date(1786818223775",
+      "pid": 6024,
+      "started": "/Date(1787292788879",
       "ports_listening": [
         8773
       ],
@@ -72,26 +26,25 @@
       "cmdline": "python  -X utf8 live\\server.py"
     },
     {
-      "role": "organism",
-      "pid": 25912,
-      "started": "/Date(1786818335608",
+      "role": "gateway",
+      "pid": 12220,
+      "started": "/Date(1787293084293",
       "ports_listening": [
-        8771,
-        8777
+        8774
       ],
-      "entry_file": "F:\\backup\\_ops\\organism.py",
-      "entry_sha256": "515e4dc65bfb2e48a022b4e6d7071e66805fb0b56e69861e6ea976c0486d7de0",
+      "entry_file": "F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py",
+      "entry_sha256": "c11e8a098f91ac081f71f2d3fdde2d709fc46f647b9cd085de580dc78e531199",
       "effect_paths": [
-        "write:state",
-        "send:telegram(via center)",
+        "http:local(8774)",
+        "write:no",
         "pay:no"
       ],
-      "cmdline": "python  -X utf8 organism.py"
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py "
     },
     {
       "role": "cortex",
-      "pid": 22796,
-      "started": "/Date(1786818852438",
+      "pid": 24760,
+      "started": "/Date(1787293145478",
       "ports_listening": [
         8772
       ],
@@ -105,142 +58,84 @@
       "cmdline": "python  -X utf8 cortex\\cortex.py"
     },
     {
-      "role": "unknown",
-      "pid": 27164,
-      "started": "/Date(1786840476614",
-      "ports_listening": [],
-      "entry_file": null,
-      "entry_sha256": null,
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
+      "role": "board_cp(aux)",
+      "pid": 30496,
+      "started": "/Date(1787392116831",
+      "ports_listening": [
+        8801
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 -m brain.daemon "
-    },
-    {
-      "role": "unknown",
-      "pid": 7216,
-      "started": "/Date(1786843242711",
-      "ports_listening": [],
-      "entry_file": "F:\\backup\\_ops\\state\\_unwired_scan_20260816.py",
-      "entry_sha256": "979f857146957560c70ac8b16ceac0d72eac3ba6f7cc8e25af9cc1a39a7e1cf7",
+      "entry_file": "F:\\backup\\_ops\\board_cp\\server.py",
+      "entry_sha256": "7a388b24f851cfb40273607c50277a58e1ce36ba9633678d7e419a96204e9b4c",
       "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
+        "http:local(8801)",
+        "write:queue",
+        "pay:no"
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\state\\_unwired_scan_20260816.py"
-    },
-    {
-      "role": "unknown",
-      "pid": 23032,
-      "started": "/Date(1786843487652",
-      "ports_listening": [],
-      "entry_file": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus_t1t8_probe.py",
-      "entry_sha256": "2404a35a47b50aa1cb6e7f697ab208a1345b367b0598c645ebf1a7f7016399d3",
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus_t1t8_probe.py"
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\board_cp\\server.py"
     },
     {
       "role": "organism",
-      "pid": 27176,
-      "started": "/Date(1786843487661",
-      "ports_listening": [],
-      "entry_file": "F:\\backup\\_ops\\audit\\organism_manifest.py",
-      "entry_sha256": "a62b2eb7e01512bb8df74dbca13ef345ba1bc65abbf3dee55bae4b9b715fde1a",
+      "pid": 29020,
+      "started": "/Date(1787436146868",
+      "ports_listening": [
+        8771,
+        8777
+      ],
+      "entry_file": "F:\\backup\\_ops\\organism.py",
+      "entry_sha256": "3063e69a3a82b28cd5e992e629eac7e7fcaca571ba88b5568b983579ba794244",
       "effect_paths": [
         "write:state",
         "send:telegram(via center)",
         "pay:no"
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 _ops\\audit\\organism_manifest.py"
+      "cmdline": "python  -X utf8 organism.py"
     },
     {
-      "role": "unknown",
-      "pid": 23268,
-      "started": "/Date(1786843487889",
-      "ports_listening": [],
-      "entry_file": "F:\\backup\\06-EVIDENCE\\_errorhunt_harvest_20260816.py",
-      "entry_sha256": "b455f8f1b812bb5269b39824b2cb86ead4c9cfed78dc33fd6991f07289097336",
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
+      "role": "center",
+      "pid": 2296,
+      "started": "/Date(1787438307527",
+      "ports_listening": [
+        8776
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\06-EVIDENCE\\_errorhunt_harvest_20260816.py"
-    },
-    {
-      "role": "unknown",
-      "pid": 28616,
-      "started": "/Date(1786843491604",
-      "ports_listening": [],
-      "entry_file": null,
-      "entry_sha256": null,
+      "entry_file": "F:\\backup\\_ops\\telegram_center\\center.py",
+      "entry_sha256": "16d37ed3624bc58974c3a9929592fdd7d542bb33becb93d5657ec4c432eeca54",
       "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
+        "send:telegram(direct)",
+        "write:tg-state",
+        "pay:no"
       ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -c \"import json,sys; sys.path.insert(0, r'F:\\backup\\4d_system'); os_ok=True\nimport os\nos.chdir(r'F:\\backup\\4d_system')\n# parse flags last-wins into this process then check invariants\nwant='OCTOPUS_TCB_MANIFEST_ENFORCE'\nfor line in open(r'F:\\backup\\_ops\\OCTOPUS"
-    },
-    {
-      "role": "unknown",
-      "pid": 21828,
-      "started": "/Date(1786843491663",
-      "ports_listening": [],
-      "entry_file": null,
-      "entry_sha256": null,
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 -c \"\nimport json, sys\nfrom pathlib import Path\nfrom collections import Counter\nimport numpy as np\n\nCONS = Path(r'F:/backup/_ops/neural/consolidation.json')\nLAT  = Path(r'F:/backup/_ops/state/latent-vectors.json')\nhist = json.loads(CONS.read_text(encodi"
-    },
-    {
-      "role": "unknown",
-      "pid": 5824,
-      "started": "/Date(1786843496214",
-      "ports_listening": [],
-      "entry_file": null,
-      "entry_sha256": null,
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
-      ],
-      "cmdline": ""
-    },
-    {
-      "role": "cortex",
-      "pid": 17512,
-      "started": "/Date(1786843496306",
-      "ports_listening": [],
-      "entry_file": null,
-      "entry_sha256": null,
-      "effect_paths": [
-        "write:outputs",
-        "llm:paid(via router)",
-        "pay:budget-capped"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -c \"\ntry:\n    import psutil\nexcept ImportError:\n    print('NO_PSUTIL')\n    raise SystemExit(0)\nimport json\npid=27164\ntry:\n    p=psutil.Process(pid)\n    env=p.environ()\n    keys=['OCTOPUS_TCB_MANIFEST_ENFORCE','CORTEX_HYPOTHESIS','SELF_CODE_ENABLED','DAEMON_TIC"
-    },
-    {
-      "role": "unknown",
-      "pid": 18316,
-      "started": "/Date(1786843496315",
-      "ports_listening": [],
-      "entry_file": "F:\\backup\\.claude\\hooks\\pii_read_guard.py",
-      "entry_sha256": "9053f424904ad860e609a77192a9b01ff1bf200cf78d0191df3ecd7d1ffe1888",
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" F:/backup/.claude/hooks/pii_read_guard.py"
-    },
-    {
-      "role": "unknown",
-      "pid": 23720,
-      "started": "/Date(1786843496647",
-      "ports_listening": [],
-      "entry_file": "F:\\backup\\.claude\\hooks\\pii_read_guard.py",
-      "entry_sha256": "9053f424904ad860e609a77192a9b01ff1bf200cf78d0191df3ecd7d1ffe1888",
-      "effect_paths": [
-        "UNDECLARED — must fail admission in future manifest"
-      ],
-      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" F:/backup/.claude/hooks/pii_read_guard.py"
+      "cmdline": "python  -X utf8 telegram_center\\center.py"
     }
   ],
+  "transient_processes_observed": [
+    {
+      "role": "tool(aux)",
+      "pid": 33564,
+      "started": "/Date(1787439482882",
+      "ports_listening": [],
+      "entry_file": "extract_graph.py",
+      "entry_sha256": null,
+      "effect_paths": [
+        "tooling",
+        "pay:no"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\"  extract_graph.py"
+    },
+    {
+      "role": "audit(aux)",
+      "pid": 21532,
+      "started": "/Date(1787439530241",
+      "ports_listening": [],
+      "entry_file": "F:\\backup\\_ops\\audit\\organism_manifest.py",
+      "entry_sha256": "a1bd00505ebf3ec9d81d23874e8a5574d8b1f98f2af0dd256fbf791313646850",
+      "effect_paths": [
+        "write:audit-output",
+        "pay:no"
+      ],
+      "cmdline": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\audit\\organism_manifest.py"
+    }
+  ],
+  "observed_processes_total": 8,
   "flags_effective_last_wins": {
     "OCTOPUS_WIRE_HEART": "1",
     "OCTOPUS_WIRE_HEART_WORK": "1",
@@ -264,7 +159,7 @@
     "OCTOPUS_AUTONOMY_FREE": "1",
     "HEARTSTATE_SHADOW": "1",
     "OCTOPUS_WIRE_STRUCTLOG": "1",
-    "OLLAMA_MODEL": "qwen2.5:latest",
+    "OLLAMA_MODEL": "qwen2.5:1.5b",
     "CORTEX_LOCAL_FIRST": "1",
     "CORTEX_THINK_EVERY_N": "1",
     "OCTOPUS_CORTISOL_EVENTS": "1",
@@ -594,10 +489,13 @@
     "CORTEX_HYPOTHESIS": "1",
     "OCTOPUS_TCB_MANIFEST_ENFORCE": "1",
     "OCTOPUS_WIRE_CHRONO_RHYTHM": "1",
-    "OCTOPUS_CONSOLIDATION_DEDUP_FUZZY": "1"
+    "OCTOPUS_CONSOLIDATION_DEDUP_FUZZY": "1",
+    "OCTOPUS_TG_DURABLE_OUTBOX": "1",
+    "OCTOPUS_DOCTOR_MAY_MERGE": "1"
   },
-  "flags_count": 353,
+  "flags_count": 355,
   "scheduled_tasks": [
+    "OCTOPUS 4d Consolidation Tick=Ready",
     "OCTOPUS 4d Poisoning Watch=Ready",
     "OCTOPUS Observatory Hourly=Ready",
     "OCTOPUS-Cockpit-Brain=Ready",
@@ -605,14 +503,16 @@
     "OCTOPUS-doctor-day=Ready",
     "OCTOPUS-Live-Watchdog=Ready",
     "OCTOPUS-MiniApp-Watchdog=Ready",
-    "OCTOPUS-Observatory=Disabled",
+    "OCTOPUS-Observatory=Ready",
     "OCTOPUS-TG-Center-Watchdog=Ready",
-    "OctopusLiveDataRefresh=Ready"
+    "OctopusLiveDataRefresh=Running"
   ],
   "drift": {
     "declared_not_observed": [],
-    "observed_not_declared": [],
-    "unknown_cmdline_members": 10,
+    "observed_not_declared": [
+      "board_cp(aux)"
+    ],
+    "unknown_cmdline_members": 0,
     "note": "ادعا در برابر مشاهده — هر مقدار نونال = شکافِ شناسنامه"
   },
   "next_steps_with_owner_vote": [

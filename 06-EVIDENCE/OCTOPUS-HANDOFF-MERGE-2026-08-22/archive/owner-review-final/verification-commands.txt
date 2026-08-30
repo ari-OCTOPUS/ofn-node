@@ -1,0 +1,8 @@
+# read-only
+python3 /var/lib/octopus/state/owner-review/verify_owner_review_pack.py /var/lib/octopus/state/owner-review-final
+/opt/octopus/venv/bin/python /opt/octopus/scripts/octopus_doctor_readonly.py
+python3 -m json.tool /var/lib/octopus/state/gaps/GAP-001-cold_boot_unverified.json
+python3 -m json.tool /var/lib/octopus/state/gaps/GAP-002-audit_head_unsigned.json
+python3 -m json.tool /var/lib/octopus/state/shadow_candidate/CANDIDATE_VALIDATION.json
+ss -lntup | grep -E ':9101|:9464|:8080'
+# expected 9101 loopback only

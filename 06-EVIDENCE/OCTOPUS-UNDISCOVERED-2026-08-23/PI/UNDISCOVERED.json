@@ -1,0 +1,256 @@
+{
+  "schema": "octopus.undiscovered.pi.v1",
+  "id": "OCTOPUS-UNDISCOVERED-2026-08-23-PI",
+  "captured_at_utc": "20260823T054910Z",
+  "lane": "OrangePi/sensorium",
+  "constraints": {
+    "ARMED": false,
+    "PWM": false
+  },
+  "context": "after EDGE-NEXT PASS_WITH_HOLDS + HOMEO MIRROR ALIGN PASS_WITH_HOLDS",
+  "top10": [
+    {
+      "id": "MQTT",
+      "title": "MQTT loopback SoT vs stale CLOSED docs",
+      "dark": true,
+      "note": "Confirm live SoT LOCAL_LOOPBACK_AUTH_OPEN__WAN_KEEP_CLOSED; any stale CLOSED receipts; WAN still closed",
+      "evidence": {
+        "ss": "LISTEN 0      100        127.0.0.1:1883      0.0.0.0:*    users:((\"mosquitto\",pid=382176,fd=5))  \n",
+        "mosq": "active\n99-octopus-local-1883.conf\nREADME\nREADME.pre-mqtt-enable-20260822.bak\n/etc/mosquitto/conf.d/99-octopus-local-1883.conf:3:listener 1883 127.0.0.1\n/etc/mosquitto/conf.d/99-octopus-local-1883.conf:4:allow_anonymous false\n/etc/mosquitto/conf.d/99-octopus-local-1883.conf:5:password_file /etc/mosquitto/octopus.passwd\n/etc/mosquitto/conf.d/99-octopus-local-1883.conf:7:per_listener_settings false\n"
+      },
+      "paths": [
+        "/etc/mosquitto/",
+        "/var/lib/octopus/state/mqtt/",
+        "F:\\backup\\06-EVIDENCE\\ (prior MQTT SoT packs)"
+      ]
+    },
+    {
+      "id": "FEEDS",
+      "title": "Public feeds coverage / ok_count without total",
+      "dark": true,
+      "note": "feeds snapshot keys=['schema', 'auth', 'advisory_only', 'mutates_host', 'ts_utc', 'expected_feeds', 'ok_count', 'fail', 'sensor_ids', 'last_run_ts', 'mode', 'severity', 'readings', 'note']; ok=7; total still often null; which feeds failing unknown without deep dump",
+      "evidence": {
+        "summary": {
+          "schema": "octopus.homeostasis-feeds-snapshot.v1",
+          "auth": [
+            "OCTOPUS-HOMEO-FEEDS-SNAPSHOT-20260823"
+          ],
+          "advisory_only": true,
+          "mutates_host": false,
+          "ts_utc": "20260823T054521Z",
+          "expected_feeds": 7,
+          "ok_count": 7,
+          "fail": [],
+          "sensor_ids": [
+            "OCT-FEED-OPENMETEO",
+            "OCT-FEED-AQI",
+            "OCT-FEED-TIME",
+            "OCT-FEED-FX-AUD",
+            "OCT-FEED-BOM-SYD",
+            "OCT-FEED-NEWS-AU",
+            "OCT-FEED-USGS-QUAKE"
+          ],
+          "last_run_ts": "20260823T053018Z",
+          "mode": "conserve",
+          "severity": "watch",
+          "readings": {
+            "evidence_age_s": {
+              "value": 903.642411,
+              "status": "watch"
+            },
+            "sensor_coverage": {
+              "value": 1.0,
+              "status": "healthy"
+            }
+          },
+          "note": "would_lockdown advisory only; Doctor read-only; no feed restart"
+        },
+        "svc": "inactive\nactive\nactive\nSun 2026-08-23 06:00:21 UTC    11min Sun 2026-08-23 05:45:21 UTC 3min 48s ago octopus-external-feeds.timer       octopus-external-feeds.service\nSun 2026-08-23 06:00:21 UTC    11min Sun 2026-08-23 05:45:21 UTC 3min 48s ago octopus-homeo-feeds-snapshot.timer octopus-homeo-feeds-snapshot.service\n"
+      },
+      "paths": [
+        "/var/lib/octopus/state/homeostasis/feeds_snapshot.json",
+        "/var/lib/octopus/state/external_feeds/",
+        "octopus-external-feeds.timer"
+      ]
+    },
+    {
+      "id": "ESP32",
+      "title": "ESP32 Phase B / physical sensors deferred",
+      "dark": true,
+      "note": "WAVE0 software path; physical ESP32 sensor ingest / Phase B still deferred (owner prior decision)",
+      "evidence": {
+        "hits": ""
+      },
+      "paths": [
+        "owner WAVE0 strategy (no physical buy yet)",
+        "/var/lib/octopus/state/ (esp32 absent or stub)"
+      ]
+    },
+    {
+      "id": "PHYSICAL_ESTOP",
+      "title": "Physical e-stop / safety_mcu ABSENT",
+      "dark": true,
+      "note": "safety_mcu=ABSENT; estop_channel=SOFTWARE_LATCH; soft?physical",
+      "evidence": {
+        "safety": {
+          "safety_state": "SOFTWARE_ONLY",
+          "safety_mcu": "ABSENT",
+          "hardware_watchdog_owner": "systemd",
+          "agent_watchdog": "sd_notify",
+          "actuator_authority": "PERMITTED_SOFTWARE_A0",
+          "estop_channel": "SOFTWARE_LATCH",
+          "max_autonomy_level": "OBSERVE_ONLY"
+        }
+      },
+      "paths": [
+        "/etc/octopus/config/board.yaml",
+        "snapshot safety block"
+      ]
+    },
+    {
+      "id": "HOMEO_FRESHNESS",
+      "title": "homeo_ok intermittent (evidence freshness)",
+      "dark": true,
+      "note": "homeo_ok=True; unknown=['prediction_calibration']; FRESH_S envelope still flaps after restarts",
+      "evidence": {
+        "homeo_ok": true,
+        "in_envelope": true,
+        "unknown": [
+          "prediction_calibration"
+        ],
+        "authority": "PERMITTED_SOFTWARE_A0"
+      },
+      "paths": [
+        "/var/lib/octopus/state/homeostasis/latest.json",
+        "/opt/octopus/scripts/stability_monitor.py",
+        "OCTOPUS-HOMEO-MIRROR-ALIGN soak HOLD"
+      ]
+    },
+    {
+      "id": "DOCTOR_RESIDUAL",
+      "title": "Doctor residual / stale assumptions",
+      "dark": true,
+      "note": "latest doctor status=PASS; blocking_failed=[]; failed_checks=['metrics_observation_age']; boot_report age may still be ancient",
+      "evidence": {
+        "status": "PASS",
+        "blocking_failed_ids": [],
+        "failed": [
+          "metrics_observation_age"
+        ],
+        "boot_report_mtime": 1786966418.5098617,
+        "now": 1787464159.7119796
+      },
+      "paths": [
+        "/var/lib/octopus/state/doctor/latest.json",
+        "/var/lib/octopus/state/boot_report.json",
+        "/opt/octopus/current/scripts/octopus_doctor_readonly.py"
+      ]
+    },
+    {
+      "id": "GATEWAY_POST_FREEZE",
+      "title": "Gateway allowlist freeze v1 ? non-diag cmds dark",
+      "dark": true,
+      "note": "Only COLLECT_DIAGNOSTICS/REQUEST_DIAGNOSTIC executable; LIST_SENSORS etc not allowlisted; Core laptop NATS client path still flaky (timeout from Windows)",
+      "evidence": {
+        "allowlist_snip": [
+          "ALLOWED (executable readonly): COLLECT_DIAGNOSTICS, REQUEST_DIAGNOSTIC only.",
+          "ALLOWLIST_VERSION = \"gateway-allowlist-freeze-v1-20260823\"",
+          "ALLOWED_COMMANDS = {",
+          "    \"COLLECT_DIAGNOSTICS\",",
+          "    if command in ALLOWED_COMMANDS:"
+        ],
+        "bl01_exists": true
+      },
+      "paths": [
+        "/opt/octopus/current/src/octopus_sensorium/policy/command_gate.py",
+        "/var/lib/octopus/evidence/session-edge-gateway-20260823/NATS_CONTRACT_BL01.json",
+        "F:\\backup\\06-EVIDENCE\\OCTOPUS-EDGE-NEXT-2026-08-23\\m3-allowlist\\"
+      ]
+    },
+    {
+      "id": "QUARANTINE_THERMAL",
+      "title": "Quarantine / THERMAL RANGE_CHECK residue",
+      "dark": true,
+      "note": "Prior quarantine notes for THERMAL; confirm if still present or auto-cleared",
+      "evidence": {
+        "ls": "total 16\ndrwxrwx---  2 octopus octopus 4096 Aug 22 06:55 .\ndrwxr-xr-x 34 octopus octopus 4096 Aug 23 05:49 ..\n-rw-r-----  1 octopus octopus   68 Aug 16 14:01 OCT-SENSE-053.THERMAL-RANGE_CHECK.json\n-rw-r--r--  1 octopus octopus   24 Aug 16 13:39 wave01-range.json\n/var/lib/octopus/state/evidence/last_OCT-SENSE-053_THERMAL.hash\n/var/lib/octopus/state/evidence/last_OCT-SENSE-053_THERMAL.json\n"
+      },
+      "paths": [
+        "/var/lib/octopus/state/quarantine/",
+        "/var/lib/octopus/state/evidence/"
+      ]
+    },
+    {
+      "id": "NATS_ACL",
+      "title": "NATS ACL / octopus-core E2E creds lifecycle",
+      "dark": true,
+      "note": "octopus-core user exists for E2E; secret rotation if ever exposed; full Core production ACL beyond diagnostics still open design",
+      "evidence": {
+        "conf": "/etc/nats/nats-server.conf:1:server_name: sensorium-opi5pro\n/etc/nats/nats-server.conf:14:      user: sensorium\n/etc/nats/nats-server.conf:16:      permissions: {\n/etc/nats/nats-server.conf:17:        publish: [\n/etc/nats/nats-server.conf:19:          \"octopus.sensorium.>\",\n/etc/nats/nats-server.conf:23:          \"_INBOX.>\"\n/etc/nats/nats-server.conf:25:        subscribe: [\n/etc/nats/nats-server.conf:28:          \"_INBOX.>\"\n/etc/nats/nats-server.conf:33:      user: octopus-core\n/etc/nats/nats-server.conf:35:      permissions: {\n/etc/nats/nats-server.conf:36:        publish: [\n/etc/nats/nats-server.conf:38:          \"_INBOX.>\"\n/etc/nats/nats-server.conf:40:        subscribe: [\n/etc/nats/nats-server.conf:41:          \"octopus.sensorium.>\",\n/etc/nats/nats-server.conf:45:          \"_INBOX.>\"\n",
+        "secret_present": true
+      },
+      "paths": [
+        "/etc/nats-server.conf",
+        "/etc/octopus/secrets/nats-core-e2e.env",
+        "NATS CHG-C evidence"
+      ]
+    },
+    {
+      "id": "TELEGRAM_CONTROL",
+      "title": "Telegram-as-WAVE0-control still out-of-lane on Pi",
+      "dark": true,
+      "note": "C1 contradiction: TG on Board2 only; must not become Pi WAVE0 control",
+      "evidence": {
+        "hits": ""
+      },
+      "paths": [
+        "Board2/marketing lane",
+        "ORANGEPI-CONTRADICTION-SCAN pack"
+      ]
+    }
+  ],
+  "also_seen": [
+    {
+      "id": "STORAGE_STAMP",
+      "title": "STORAGE evidence stamp freshness",
+      "dark": true,
+      "note": "Prior doctor disk_health STALE when storage stamp old; verify current age",
+      "evidence": {
+        "stat": "-rw-r----- 1 octopus octopus 2176 Aug 23 05:49 /var/lib/octopus/state/evidence/last_OCT-SENSE-053_STORAGE.json\n1787464155\n",
+        "now": 1787464159.8147802
+      },
+      "paths": [
+        "/var/lib/octopus/state/evidence/last_OCT-SENSE-053_STORAGE.json"
+      ]
+    },
+    {
+      "id": "GAP001",
+      "title": "GAP-001 cold-boot probe status",
+      "dark": true,
+      "note": "gap001 status fields=['gap', 'probe_started', 'wait_ready_timeout_s', 'probe_waited_s', 'wait_timeout', 'pre_boot_id', 'post_boot_id', 'cold_boot_observed', 'agent_ready', 'status_text', 'systemd_analyze', 'blame_head']; maintenance-window tested close may still be open",
+      "evidence": {
+        "gap": {
+          "gap": "GAP-001",
+          "probe_started": "2026-08-17T10:27:03.553409+00:00",
+          "wait_ready_timeout_s": 300,
+          "probe_waited_s": 37.5,
+          "wait_timeout": false,
+          "pre_boot_id": "c8a0b325-7936-47bc-929d-7474ba9d008e",
+          "post_boot_id": "4dbf4819-c7dc-4224-bb3b-2650f9d2aa6c",
+          "cold_boot_observed": true,
+          "agent_ready": true,
+          "status_text": "StatusText=runtime=ACTIVE readiness=READY/WAVE0_OBSERVE_ONLY bus=CONNECTED\nActiveState=active",
+          "systemd_analyze": "",
+          "blame_head": "8.568s ifup@eth0.service\n3.378s octopus-sensorium.service\n 528ms tailscaled.service\n 471ms ufw.service\n 391ms dev-mmcblk0p1.device\n 305ms ifupdown-pre.service\n 283ms dietpi-preboot.service\n 254ms systemd-udev-trigger.service\n 180ms systemd-journald.service\n 154ms networking.service\n 106ms lm-sensors.service\n  93ms systemd-binfmt.service\n  92ms dietpi-ramlog.service\n  85ms keyboard-setup.service\n  79ms systemd-udevd.service",
+          "readiness_state": "READY",
+          "gates_failed": [],
+          "clock_trust": "SYNCED_NTP"
+        }
+      },
+      "paths": [
+        "/var/lib/octopus/state/gap001/",
+        "octopus-gap001-boot-probe.service"
+      ]
+    }
+  ]
+}

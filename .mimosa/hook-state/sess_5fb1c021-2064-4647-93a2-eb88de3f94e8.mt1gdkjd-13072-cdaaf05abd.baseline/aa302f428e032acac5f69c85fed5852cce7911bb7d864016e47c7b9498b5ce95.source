@@ -1,0 +1,160 @@
+"""
+orchestrator.py — مغز هماهنگ‌کننده. همه‌ی لایه‌های کنترل را به هم می‌بافد.
+
+جریان کار:
+  جستجو (Researcher) → تحلیل (Analyst) → بازبینی (Supervisor)
+  → گاردریل خروجی → دروازه‌ی تأیید انسانی (HITL) برای «finalize» → تحویل
+
+در هر گام: kill-switch چک، بودجه چک، و ثبت کامل در audit log.
+هیچ نقطه‌ی تصرف واحدی نیست: ناظر می‌تواند رد/halt کند، انسان بالاتر از همه است،
+و بودجه می‌تواند مستقل از همه، اجرا را قطع کند.
+"""
+from __future__ import annotations
+
+import config
+from src.llm import LLMClient
+from src.budget import BudgetLedger, BudgetExceeded
+from src.killswitch import KillSwitch, KillSwitchError
+from src.hitl import HITLGate
+from src.tracing import AuditLog
+from src.tools import ToolGateway, ToolPermissionError
+from src.agents import Researcher, Analyst, Supervisor
+from src.providers import make_providers
+from src.panel import JudgePanel
+from src import guardrails
+
+try:
+    from igk.client import PermitDenied
+except Exception:
+    class PermitDenied(Exception):
+        pass
+
+
+class Orchestrator:
+    def __init__(self, hitl_approver=None, stop_file=None, use_igk=None):
+        self.audit = AuditLog()
+        stop_file = stop_file or config.STOP_FILE
+        self.ks = KillSwitch(stop_file=stop_file)
+
+        self.use_igk = config.USE_IGK if use_igk is None else use_igk
+        self.kernel = None
+        self.gate = None
+        self._igk_failed = False
+        if self.use_igk:
+            try:
+                from igk.client import KernelClient, ActuationGate
+                self.kernel = KernelClient(config.IGK_STATE_DIR, stop_path=stop_file)
+                self.gate = ActuationGate(self.kernel, "orchestrator")
+            except Exception as e:
+                print(f"  ⚠️ IGK در دسترس نیست: {e}")
+                self.use_igk = False
+                self._igk_failed = True
+
+        self.ledger = BudgetLedger()
+        self.gateway = ToolGateway(audit=self.audit, gate=self.gate)
+        self.hitl = HITLGate(approver=hitl_approver, audit=self.audit)
+        self.llm = LLMClient(gate=self.gate)   # G-10(2): callهای LLM از permit عبور کنند
+
+        # فاز ۳: انبارِ نسخه‌دارِ پرامپت — اگر خوداپدیتی پرامپت بهتری ساخته باشد،
+        # ایجنت‌ها همان را استفاده می‌کنند؛ وگرنه پیش‌فرضِ کلاس.
+        from src.prompt_store import PromptStore
+        baseline = {Researcher.name: Researcher.system,
+                    Analyst.name: Analyst.system,
+                    Supervisor.name: Supervisor.system}
+        self.prompts = PromptStore(seed=baseline)
+
+        deps = dict(llm=self.llm, ledger=self.ledger, gateway=self.gateway,
+                    audit=self.audit, ks=self.ks, prompt_store=self.prompts)
+        self.researcher = Researcher(**deps)
+        self.analyst = Analyst(**deps)
+        self.supervisor = Supervisor(**deps)
+
+        # چک‌لیست #۵: پنل چندداور به‌جای تک‌ناظر (بدون نقطه‌ی تصمیمِ واحد)
+        self.panel = JudgePanel(make_providers(gate=self.gate), self.ledger, self.audit, self.ks)  # G-10(2): LLMِ داوران هم از permit
+
+    def _kguard(self, step: str) -> None:
+        if self.use_igk and self.kernel is not None:
+            st = self.kernel.status()
+            if st.get("stopped"):
+                raise PermitDenied(f"KILL-SWITCH بیرونی فعال است (STOP) — گام «{step}»")
+        else:
+            self.ks.check()
+
+    def run(self, topic: str) -> dict:
+        mode = "MOCK (بدون هزینه)" if self.llm.mock else f"LIVE ({config.MODEL})"
+        print(f"\n🚀 شروع تحقیق درباره: «{topic}»  | حالت مدل: {mode}\n")
+        self.audit.log("run_start", "orchestrator", topic=topic, mode=mode)
+        if getattr(config, "IGK_REQUIRED", False) and self._igk_failed:
+            return self._stop("IGK لازم است ولی کرنل بالا نیامد (fail-closed)", interrupted=True)
+        try:
+            self._kguard("researcher")
+            findings = self.researcher.run(topic)
+
+            self._kguard("analyst")
+            analysis = self.analyst.run(findings)
+
+            # گاردریل خروجی (چک‌لیست #۷)
+            ok, why = guardrails.check_output(analysis)
+            self.audit.log("guardrail", "orchestrator", passed=ok, reason=why)
+            if not ok:
+                return self._stop(f"گاردریل رد کرد: {why}", findings, analysis)
+
+            # بازبینی ناظر (چک‌لیست #۶)
+            # بازبینیِ پنل چندداور (چک‌لیست #۵/#۶)
+            panel = self.panel.review(analysis)
+            print(f"  🧑‍⚖️ پنل: {panel['yes']}/{panel['total']} رأی تأیید → {panel['decision']}")
+            if not panel["approved"]:
+                if panel["decision"] == "split":
+                    # آرا نصفه‌نیمه → ارجاع به انسان (escalation، چک‌لیست #۶)
+                    human_ok = self.hitl.request("panel_override",
+                                                 {"votes": str(panel["yes"]) + "/" + str(panel["total"]),
+                                                  "preview": analysis[:200]})
+                    if not human_ok:
+                        return self._stop("پنل نصفه‌نیمه؛ انسان هم رد کرد", findings, analysis)
+                else:
+                    return self._stop(f"پنل رد کرد ({panel['yes']}/{panel['total']})", findings, analysis)
+
+            # گیتِ grounding-validity (IGK): خروجی پیش از finalize باید لنگر بخورد.
+            if self.use_igk and self.kernel is not None:
+                claims = [ln.strip() for ln in findings.splitlines() if len(ln.strip()) >= 8]
+                g = self.kernel.ground(claims, "researcher")
+                print(f"  🧭 grounding: ratio={g.get('grounding_ratio')} · valid={g.get('ok')}")
+                if config.GROUNDING_REQUIRED and not g.get("ok"):
+                    return self._stop(f"grounding رد کرد (بی‌لنگر): {g.get('bad')}",
+                                      findings, analysis)
+
+            # دروازه‌ی تأیید انسانی برای اقدام حساسِ «finalize» (چک‌لیست #۲)
+            if self.hitl.requires_approval("finalize"):
+                human_ok = self.hitl.request("finalize",
+                                             {"topic": topic, "preview": analysis[:300]})
+                if not human_ok:
+                    return self._stop("انسان نهایی‌سازی را رد کرد", findings, analysis)
+
+            # actuationِ نهایی فقط با permitِ مصرف‌شده (fail-closed). STOP → PermitDenied.
+            if self.use_igk and self.gate is not None:
+                self.gate.act("finalize", lambda: None)
+
+            self.audit.log("run_done", "orchestrator", status="finalized")
+            print("\n✅ نهایی شد.\n" + self.ledger.report())
+            print("🔐 صحت audit log:", "سالم" if self.audit.verify_chain() else "دستکاری‌شده!")
+            return {"status": "finalized", "findings": findings,
+                    "analysis": analysis, "cost": self.ledger.total.cost_usd}
+
+        except PermitDenied as e:
+            return self._stop(f"IGK: {e}", interrupted=True)
+        except KillSwitchError as e:
+            return self._stop(str(e), interrupted=True)
+        except BudgetExceeded as e:
+            return self._stop(f"بودجه: {e}", interrupted=True)
+        except ToolPermissionError as e:
+            return self._stop(f"least-privilege: {e}", interrupted=True)
+        finally:
+            if self.kernel is not None:
+                self.kernel.close()
+
+    def _stop(self, reason, findings=None, analysis=None, interrupted=False):
+        self.audit.log("run_halted", "orchestrator", reason=reason)
+        print(f"\n🛑 توقف: {reason}\n" + self.ledger.report())
+        return {"status": "halted", "reason": reason,
+                "findings": findings, "analysis": analysis, "interrupted": interrupted,
+                "cost": self.ledger.total.cost_usd}

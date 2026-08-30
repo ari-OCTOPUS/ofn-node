@@ -1,0 +1,205 @@
+"""
+تست‌های hermetic (بدونِ شبکه/کلید/brain) برای قابلیتِ architect.
+اجرا:  cd langar && python -m unittest architect.tests.test_architect -v
+       یا:  python -m pytest architect/tests -q
+"""
+
+from __future__ import annotations
+
+import unittest
+
+import architect
+from architect import prompt_assembly as pa
+from architect import evaluate as ev
+from architect.runner import ArchitectBrain
+
+
+# --- یک معماریِ نمونه با ۱۰ بخش و تگ‌ها (برای judge/variance) ---------------
+SAMPLE_ARCH = """## 1. Summary
+Leaderless mesh. [J]
+## 2. Failure modes
+region outage; memory partition; heal-storm
+## 3. Architecture overview
+mermaid...
+## 4. Component breakdown
+| Memory | Single identity [J] | J | CRDT (Automerge) | leaderless writes |
+| Dispatch | Grow to resource [G] | G | Physarum controller | multi-path |
+| Isolation | Septa [J] | J | bulkhead + circuit breaker | no cascade |
+## 5. Data & consistency model
+CRDT eventual; merge resolves conflict; trade-off stale reads
+## 6. Failure & self-healing behavior
+node / zone / region death; reconciliation; heal-storm bounded (rate-limit, tau_D >> tau_traffic)
+## 7. Technology choices
+SWIM, NATS, etcd, OpenTelemetry, Prometheus, Loki, S3
+## 8. Trade-offs
+Cost 6 Complexity 7 Scalability 9
+## 9. Observability & ops
+OpenTelemetry monitoring + chaos testing + CI/CD rollout
+## 10. Next steps
+PoC; controller; GameDay. defaults hold otherwise. islanding for physical assets.
+"""
+
+# نمونه‌ی واگرا: فقط بخش‌های ۱..۵ + tech متفاوت
+DIVERGENT_ARCH = """## 1. Summary
+x [J]
+## 2. Failure modes
+y
+## 3. Architecture overview
+z
+## 4. Component breakdown
+| a | b [J] | J | Kafka | c |
+## 5. Data & consistency model
+consensus based; Raft
+"""
+
+
+class _Res:
+    def __init__(self, text, i=120, o=800, c=0):
+        self.text = text; self.input_tokens = i; self.output_tokens = o
+        self.cached_input_tokens = c; self.model = "fake"; self.provider = "fake"
+
+
+class FakeProvider:
+    """duck-type برای ask_raw — بدونِ شبکه."""
+    name = "fake"
+
+    def __init__(self, texts=None):
+        self.texts = texts
+        self.calls = 0
+        self.last_system = None
+        self.last_user = None
+
+    def ask_raw(self, system, user, *, model=None, max_tokens=4096, cache_system=True):
+        self.last_system, self.last_user = system, user
+        text = SAMPLE_ARCH if self.texts is None else self.texts[self.calls % len(self.texts)]
+        self.calls += 1
+        return _Res(text)
+
+
+# --------------------------------------------------------------------------- #
+class PromptAssemblyTests(unittest.TestCase):
+    def test_guided_has_physarum_and_no_markers(self):
+        sys = pa.load_system("guided", "en")
+        self.assertIn("Physarum transport model", sys)
+        self.assertNotIn("GUIDED_ONLY", sys)  # خطوطِ نشانه حذف شده‌اند
+
+    def test_open_strips_physarum_adds_open_mode(self):
+        sys = pa.load_system("open", "en")
+        self.assertNotIn("Physarum transport model", sys)
+        self.assertNotIn("GENERATIVE CORE", sys)
+        self.assertIn("OPEN MODE", sys)
+
+    def test_open_fa(self):
+        sys = pa.load_system("open", "fa")
+        self.assertNotIn("مدلِ Physarum", sys)
+        self.assertIn("OPEN MODE", sys)
+
+    def test_build_task_fills_and_validates(self):
+        task = pa.build_task("D", "S", "C")
+        self.assertIn("DOMAIN:      D", task)
+        self.assertNotIn("{{", task)
+
+    def test_build_task_rejects_empty(self):
+        with self.assertRaises(pa.PromptError):
+            pa.build_task("", "S", "C")
+
+    def test_bad_variant(self):
+        with self.assertRaises(pa.PromptError):
+            pa.load_system("nope", "en")
+
+
+class RunnerTests(unittest.TestCase):
+    def test_k_samples_and_usage(self):
+        p = FakeProvider()
+        ab = ArchitectBrain(p, router=None, strong_model="claude-sonnet-5")
+        run = ab.design("dom", "scale", "constraints", k=3)
+        self.assertEqual(len(run.samples), 3)
+        self.assertEqual(run.usage["output_tokens"], 3 * 800)
+        self.assertEqual(run.provider, "fake")
+        # بدونِ router → پیش‌فرضِ high-stakes
+        self.assertEqual(run.route["model_tier"], "strong")
+
+    def test_task_is_user_message_not_system(self):
+        p = FakeProvider()
+        ArchitectBrain(p).design("MYDOMAIN", "s", "c", k=1)
+        self.assertIn("MYDOMAIN", p.last_user)
+        self.assertIn("ROLE", p.last_system)
+        self.assertNotIn("MYDOMAIN", p.last_system)  # split صحیح برای caching
+
+    def test_cost_none_without_env(self):
+        run = ArchitectBrain(FakeProvider()).design("d", "s", "c", k=1)
+        self.assertIsNone(run.cost_usd)  # نرخِ env تنظیم نشده → None
+
+    def test_router_injection_used(self):
+        class R:
+            def route(self, task, risk=False):
+                import types
+                return types.SimpleNamespace(depth="react", model_tier="cheap",
+                                             reason="forced", downgraded=True)
+        run = ArchitectBrain(FakeProvider(), router=R()).design("d", "s", "c", k=1)
+        self.assertEqual(run.route["model_tier"], "cheap")
+        self.assertTrue(run.route["downgraded"])
+
+
+class VarianceTests(unittest.TestCase):
+    def test_identical_high_n_is_measured_pass(self):
+        var = ev.structural_variance([SAMPLE_ARCH] * 5)
+        self.assertEqual(var.section_jaccard, 1.0)
+        self.assertEqual(var.sc4_verdict, "measured-pass")
+
+    def test_single_sample_insufficient(self):
+        var = ev.structural_variance([SAMPLE_ARCH])
+        self.assertEqual(var.sc4_verdict, "insufficient-n")
+
+    def test_divergent_below_one(self):
+        var = ev.structural_variance([SAMPLE_ARCH, DIVERGENT_ARCH] * 3)
+        self.assertLess(var.section_jaccard, 1.0)
+
+    def test_sections_present(self):
+        self.assertEqual(ev.sections_present(SAMPLE_ARCH), frozenset(range(1, 11)))
+        self.assertEqual(ev.sections_present(DIVERGENT_ARCH), frozenset(range(1, 6)))
+
+
+class JudgeGateTests(unittest.TestCase):
+    def test_fakejudge_scores_reasonably(self):
+        s = ev.FakeJudge().score(SAMPLE_ARCH)
+        self.assertGreaterEqual(s.total, 12)
+        self.assertGreaterEqual(s.dims["D7"], 1)   # تگ‌ها موجودند
+        self.assertEqual(s.dims["D7"], 2)          # tag + Physarum
+        self.assertLessEqual(s.total, ev.MAX_TOTAL)
+
+    def test_gate_pass(self):
+        scores = [ev.FakeJudge().score(SAMPLE_ARCH) for _ in range(3)]
+        g = ev.gate(scores)
+        self.assertTrue(g.passed, g.reasons)
+
+    def test_gate_fails_on_d1_zero(self):
+        good = ev.FakeJudge().score(SAMPLE_ARCH)
+        bad = ev.RubricScore(dims={**good.dims, "D1": 0}, total=good.total)
+        g = ev.gate([good, bad])
+        self.assertFalse(g.passed)
+        self.assertTrue(any("D1 == 0" in r for r in g.reasons))
+
+    def test_gate_fails_below_threshold(self):
+        low = ev.RubricScore(dims={k: 1 for k in ev.DIMS}, total=8)
+        g = ev.gate([low])
+        self.assertFalse(g.passed)
+
+
+class EndToEndOfflineLogicTests(unittest.TestCase):
+    """کلِ زنجیره با FakeProvider (بدونِ brain)."""
+
+    def test_full_pipeline(self):
+        ab = ArchitectBrain(FakeProvider())
+        run = ab.design("multi-agent orchestration", "500 agents, 5 regions",
+                        "<$8k/mo, survive region outage, eventual", k=5)
+        judge = ev.FakeJudge()
+        scores = [judge.score(s) for s in run.samples]
+        g = ev.gate(scores)
+        var = ev.structural_variance(run.samples)
+        self.assertTrue(g.passed)
+        self.assertEqual(var.sc4_verdict, "measured-pass")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

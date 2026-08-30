@@ -1,0 +1,24 @@
+--- bin/octopus_cognitive_worker.py
++++ isolated/skip-already-processed/octopus_cognitive_worker.py
+@@ -1,5 +1,8 @@
+ #!/usr/bin/env python3
++# ISOLATED PATCH ? skip-continue already_processed in candidate loop.
++# NOT live. Do not copy to bin/ until PC GO.
++# source_live_sha256=72e3b3a37592644ef368d70b6e383c296ea7e47023c781ddc4e42752cfddc9f8
+ """Event-driven cognitive worker for board 180.
+ 
+ RECEIVE → PROCESS ONCE → FREEZE → REPLY_PENDING → TRANSMIT → ACK → INPUT_PROCESSED
+ Retry never re-runs the model. Frozen response bytes are immutable.
+@@ -270,8 +273,12 @@
+             continue
+         err2 = validate_envelope(data)
+         if err2:
+             continue
++        mid = str(data.get("message_id") or "")
++        idem = str(data.get("idempotency_key") or "")
++        if already_processed(mid, idem):
++            continue
+         return handle_task(data, call_model=not args.dry_run, pause=args.pause_path)
+     return {"status": "idle", "reason": "no_event", "model_called": False}
+ 
+ 

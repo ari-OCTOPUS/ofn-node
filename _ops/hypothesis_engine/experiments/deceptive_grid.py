@@ -22,7 +22,13 @@ if str(_impl_dir) not in sys.path:
     sys.path.insert(0, str(_impl_dir))
 
 from env_factory import DeceptiveGrid, make_S0_reference
-from agents import PriorAgent, NoveltyAgent, HypothesisAgent, AgentResult
+from agents import (
+    AgentResult,
+    HypothesisAgent,
+    NoveltyAgent,
+    PriorAgent,
+    _falsified_assists_at,
+)
 
 # Re-export for backward compat (some test imports may use these)
 from env_factory import MOVES, DEFAULT_SECRET_PATTERN as SECRET_PATTERN
@@ -61,6 +67,11 @@ def _to_legacy_result(r: AgentResult) -> RunResult:
         hyp_steps=r.hyp_steps,
         discovered=r.discovered,
     )
+
+
+def falsified_assists_at(hyps) -> int:
+    """Backward-compatible public name for the canonical P3 accounting helper."""
+    return _falsified_assists_at(hyps)
 
 
 # ---------------------------------------------------------------------------

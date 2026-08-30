@@ -1,0 +1,75 @@
+=== /f/romajan
+TRACKED=187
+--tracked sample:
+.gitignore
+.obsidian/app.json
+.obsidian/appearance.json
+.obsidian/community-plugins.json
+.obsidian/core-plugins.json
+.obsidian/graph.json
+--SECRET_HITS=0
+--BIG_GT1M=0
+--ENVISH_TRACKED=0
+0
+=== /f/_______Black Box
+TRACKED=98
+--tracked sample:
+.env.example
+.github/workflows/ci.yml
+.gitignore
+.obsidian/app.json
+.obsidian/appearance.json
+.obsidian/core-plugins.json
+--SECRET_HITS=0
+--BIG_GT1M=0
+--ENVISH_TRACKED=0
+0
+=== /f/backup-deploy-lab
+TRACKED=1883
+--tracked sample:
+.agentignore
+.claude/rules/architect.md
+.claude/rules/projects.md
+.claude/rules/telegram.md
+.claude/settings.json
+.claude/worktrees/mystifying-williamson-1f95cd
+--SECRET_HITS=0
+--BIG_GT1M=0
+--ENVISH_TRACKED=0
+0
+=== /f/backup-SAFE-2026-07-19
+TRACKED=5262
+--tracked sample:
+.agentignore
+.gitattributes
+.gitignore
+.obsidian/app.json
+.obsidian/app.json.20260712-141853.bak
+.obsidian/app.json.bak
+--SECRET_HITS=3
+--BIG_GT1M=0
+--ENVISH_TRACKED=3
+=== /f/octopus-phase0-isolated
+TRACKED=5696
+--tracked sample:
+.agentignore
+.gitattributes
+.gitignore
+.obsidian/app.json
+.obsidian/app.json.20260712-141853.bak
+.obsidian/app.json.bak
+--SECRET_HITS=3
+--BIG_GT1M=0
+--ENVISH_TRACKED=3
+=== /c/Users/Armin
+TRACKED=5
+--tracked sample:
+Desktop/121212121212121212/research-spec-compiler/CLAIMS_LEDGER.csv
+Desktop/121212121212121212/research-spec-compiler/tools/build_claims_ledger.py
+Desktop/121212121212121212/research-spec-compiler/tools/test_claims_ledger.py
+Documents/Claude/Projects/Ai farm (1)/heart-awareness-map-v3.html
+"Documents/Claude/Projects/Ai farm (1)/\330\263\333\214\330\263\330\252\331\205-\331\207\331\205\333\214\330\264\331\207-\330\261\331\210\330\264\331\206-\331\276\330\261\330\247\331\205\331\276\330\252-\331\210-\330\257\330\263\330\252\331\210\330\261\330\247\331\204\330\271\331\205\331\204.md"
+--SECRET_HITS=0
+--BIG_GT1M=0
+--ENVISH_TRACKED=0
+0

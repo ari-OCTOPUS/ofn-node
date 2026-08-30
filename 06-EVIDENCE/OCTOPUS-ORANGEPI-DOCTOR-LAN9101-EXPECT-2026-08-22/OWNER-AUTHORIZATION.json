@@ -1,0 +1,106 @@
+{
+  "schema": "octopus.owner-authorization.v1",
+  "authorization_id": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-20260822",
+  "token": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-20260822",
+  "owner_fix_all": true,
+  "owner_choice": "Doctor allowlist / expected listeners for intentional LAN:9101 OPEN (0.0.0.0 or 192.168.0.182) + UFW LAN-only note so metrics_bind + unexpected_listeners PASS; do NOT close port; do NOT revert LAN OPEN",
+  "mutate_device": true,
+  "execute": true,
+  "executor": "sensoriom",
+  "laptop_writer": "grok-bot-plans-auth-only",
+  "timezone": "Australia/Sydney (UTC+10)",
+  "timestamp": "2026-08-22T21:19:00+10:00",
+  "written_at_local": "2026-08-22T21:19:00+10:00",
+  "evidence_dir": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-2026-08-22",
+  "package_status": "EXECUTE_READY_DISCOVER_FIRST",
+  "board": {
+    "hostname": "sensorium-opi5pro",
+    "ip": "192.168.0.182",
+    "agent_executor": "sensoriom"
+  },
+  "authorizer": {
+    "role": "owner",
+    "via": "ari",
+    "channel": "owner_chat_directive"
+  },
+  "intent": {
+    "problem": "After GAP-002 close, Orange Pi doctor still FAIL on metrics_bind + unexpected_listeners because LAN:9101 is intentionally OPEN on 0.0.0.0 (UFW LAN-only). Doctor still expects loopback / lan_9101=false.",
+    "goal": "Make doctor treat intentional LAN:9101 OPEN as expected PASS for metrics_bind + unexpected_listeners only; keep gap002_registry passed; keep port OPEN.",
+    "preferred_path": "DISCOVER-FIRST how doctor encodes expected bind/listeners under /opt/octopus; add expected bind 0.0.0.0:9101 or 192.168.0.182:9101 + UFW LAN-only note; doctor readonly prove; do NOT close port; do NOT revert LAN OPEN"
+  },
+  "scope": {
+    "description": "doctor allowlist / expected listeners for 9101 only",
+    "port": 9101,
+    "checks_in_scope": [
+      "metrics_bind",
+      "unexpected_listeners"
+    ],
+    "checks_must_stay_passed": [
+      "gap002_registry"
+    ],
+    "allowed_expected_binds": [
+      "0.0.0.0:9101",
+      "192.168.0.182:9101"
+    ],
+    "ufw_note_required": "LAN-only ACL (e.g. 192.168.0.0/24); WAN refuse",
+    "do_not_close_port": true,
+    "do_not_revert_lan_open": true
+  },
+  "targets": {
+    "doctor_script_historical": "/opt/octopus/scripts/octopus_doctor_readonly.py",
+    "doctor_script_alternates_document_if_different": [
+      "/opt/octopus/current/scripts/octopus_doctor_readonly.py",
+      "/opt/octopus/venv or site-packages doctor module if live path differs"
+    ],
+    "doctor_config_discover_under": [
+      "/opt/octopus/**",
+      "/opt/octopus/current/**",
+      "/etc/octopus/**",
+      "board.yaml / policy / allowlist / expected_listeners / metrics_bind knobs"
+    ],
+    "doctor_readonly_report": "doctor/latest.json (board-standard path; discover if needed)",
+    "open_gaps_gap002_must_remain": "/opt/octopus/current/manifests/open-gaps.json"
+  },
+  "bounds": {
+    "WAVE0_hardware": "KEEP_LOCKED",
+    "MQTT": "CLOSED",
+    "allowed": [
+      "DISCOVER-FIRST: locate how live doctor encodes metrics_bind expected + unexpected_listeners / lan_9101 expected (script and/or config under /opt/octopus)",
+      "Backup any file edited (timestamped copy + sha256) before mutate",
+      "Add/update expected bind allowlist for 0.0.0.0:9101 OR 192.168.0.182:9101 only",
+      "Set unexpected_listeners expected lan_9101=true (or equivalent allow) for intentional LAN OPEN",
+      "Record UFW/firewall LAN-only note in receipt (do not weaken ACL to WAN)",
+      "Doctor readonly re-run; prove metrics_bind + unexpected_listeners no longer FAIL; gap002_registry stays passed",
+      "Write receipts under board evidence + TO-LAPTOP exchange"
+    ],
+    "forbidden": [
+      "Close TCP 9101 / stop stability metrics listener",
+      "Revert LAN OPEN back to 127.0.0.1:9101 (LAN-9101-EXECUTE stays in force)",
+      "WAN/open-internet exposure; broaden UFW beyond LAN",
+      "WAVE0 hardware unlock / GPIO / PWM / legs actuate",
+      "MQTT 1883 open/pair/publish (KEEP CLOSED)",
+      "zero-fill keys / sensors",
+      "private keys / make-root-v2 / key export",
+      "Doctor auto-patch / merge beyond the 9101 expected-listener allowlist scope",
+      "Invent new doctor checks / new ports / new services",
+      "Edit unrelated doctor checks or open-gaps (gap002 must remain pass=true)",
+      "torch / money/webhook/work_pump",
+      "arm reflex / planner / root action_executor",
+      "git add -A",
+      "SSH/mutate Pi from laptop writer (sensoriom executes)"
+    ]
+  },
+  "prior_context": {
+    "gap002_close_package": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-GAP002-CLOSE-2026-08-22",
+    "gap002_receipt": "RECEIPT-GAP002-CLOSE.from-pi.json (gap002_cleared=true; doctor_after_blocking=[metrics_bind, unexpected_listeners])",
+    "lan9101_execute_package": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-LAN-9101-EXECUTE-2026-08-22",
+    "lan9101_token": "OCTOPUS-ORANGEPI-LAN-9101-20260822"
+  },
+  "plans": {
+    "plan": "PLAN.md",
+    "execution_order": "EXECUTION-ORDER.md",
+    "brief": "SENSORIOM-EXECUTE-BRIEF.md",
+    "rollback": "ROLLBACK.md"
+  },
+  "notes": "Owner fix-all authorize continues after GAP-002 close. Laptop writer creates plans+auth only; does not SSH. Sensoriom executes doctor 9101-expect allowlist only. WAVE0_hardware=KEEP_LOCKED; MQTT=CLOSED; LAN:9101 stays OPEN."
+}

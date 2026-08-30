@@ -1,0 +1,39 @@
+{
+  "ts_utc": "20260822T094830Z",
+  "auth": "OWNER SUPERSEDE \u2014 OCTOPUS-BOARD2-BRIDGE-KEY-ROTATE (late answer)",
+  "result": "PASS",
+  "CONTROL_URL": "https://cp.master-painting.com",
+  "before_laptop_sha256": "534cc2e1f74f3cb360d143005dac7074ee7c08903aee8ac396e99073e0bd0242",
+  "after_laptop_sha256": "c2dcaee74cd5bd608f4676d93946a3db785640c30cec89ad7ed6e397973a8e95",
+  "after_board_sha256": "c2dcaee74cd5bd608f4676d93946a3db785640c30cec89ad7ed6e397973a8e95",
+  "probes": {
+    "local_noauth": {
+      "http": 401,
+      "body": "{\"ok\": false, \"reason\": \"board_bearer_required\"}"
+    },
+    "local_auth_new": {
+      "http": 200,
+      "body": "{\"ok\": true, \"commands\": [], \"count\": 0}"
+    },
+    "cf_noauth": {
+      "http": 401,
+      "body": "{\"ok\": false, \"reason\": \"board_bearer_required\"}"
+    },
+    "cf_auth_new": {
+      "http": 200,
+      "body": "{\"ok\": true, \"commands\": [], \"count\": 0}"
+    },
+    "cf_healthz": {
+      "http": 404,
+      "body": "{\"ok\":false,\"reason\":\"not_found\"}"
+    }
+  },
+  "board_connector": [
+    "board_connector_pull_count 0",
+    "bridge_active active",
+    "board_key_sha256 c2dcaee74cd5bd608f4676d93946a3db785640c30cec89ad7ed6e397973a8e95",
+    "board_key_len 43"
+  ],
+  "github": "NOT installed (deferred)",
+  "note": "secrets not printed; only sha256+len"
+}

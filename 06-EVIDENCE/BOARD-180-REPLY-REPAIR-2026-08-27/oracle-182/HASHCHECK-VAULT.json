@@ -1,0 +1,11 @@
+﻿{
+  "schema": "octopus.witness.oracle-182.hashcheck.v1",
+  "outbox_sha256": "bac40b1e7923cb67656ecc8c0163f9f3df1e2b4479293e3f5ab55285e1cd6a73",
+  "outbox_match_expected": true,
+  "result_json_sha256": "ea4f127169f973b6c66003ef0bca4a43ec371aca7cc47f687f5fdaba2b5840a3",
+  "result_json_match_expected": true,
+  "180_ssh": false,
+  "WAVE0_written_by_182": false,
+  "live_enable": false,
+  "verdict": "unresolved"
+}

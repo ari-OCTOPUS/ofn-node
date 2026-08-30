@@ -1,0 +1,8 @@
+{
+  "gap": "G13",
+  "stamp_local": "2026-08-23T09:15:00+10:00",
+  "slice": "BOARD2",
+  "status": "HOLD",
+  "verdict": "Dup shot-0002 + Etsy HELD \u2014 Board2/owner",
+  "reason": "owner/external blocker \u2014 folded into CLOSE-MATRIX as HOLD"
+}

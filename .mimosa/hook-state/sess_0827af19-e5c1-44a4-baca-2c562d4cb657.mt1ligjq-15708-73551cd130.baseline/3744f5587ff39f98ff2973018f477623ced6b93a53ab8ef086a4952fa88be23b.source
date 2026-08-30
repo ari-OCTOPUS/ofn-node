@@ -1,0 +1,56 @@
+"""
+spine/events.py -- the Event that flows through the river.
+
+Minimal, deterministic, dependency-free. `Event.create(...)` is the normal
+entry point (auto id + timestamp); the raw dataclass constructor is there
+for tests that want full control (e.g. a fixed id for reproducible ledger
+fixtures).
+"""
+from __future__ import annotations
+
+import time
+import uuid
+from dataclasses import asdict, dataclass, field
+from typing import Any
+
+
+def new_id() -> str:
+    return uuid.uuid4().hex
+
+
+def now_ts() -> float:
+    return time.time()
+
+
+@dataclass
+class Event:
+    """One unit of work entering the spine at INPUT.
+
+    id      - unique identifier for this event (hex uuid4 by default)
+    source  - where the event came from (e.g. "cli", "webhook", "test")
+    actor   - who/what is asking (budget + permit + owner-gate all key off
+              this)
+    kind    - the event's type (also the default permit/owner-gate action
+              name unless payload["action"] overrides it)
+    payload - free-form dict; the pipeline reads a handful of conventional
+              keys out of it: task, claims, claim_subject, claim_value,
+              risk, external, action, hedge -- see pipeline.py's stage
+              methods for exactly how each is used.
+    ts      - unix timestamp (seconds, float)
+    """
+
+    id: str
+    source: str
+    actor: str
+    kind: str
+    payload: dict = field(default_factory=dict)
+    ts: float = field(default_factory=now_ts)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @staticmethod
+    def create(source: str, actor: str, kind: str,
+               payload: dict | None = None) -> "Event":
+        return Event(id=new_id(), source=source, actor=actor, kind=kind,
+                     payload=dict(payload or {}), ts=now_ts())

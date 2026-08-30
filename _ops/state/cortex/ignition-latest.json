@@ -1,20 +1,20 @@
 {
-  "ts": "2026-08-19T22:17:59",
+  "ts": "2026-08-30T13:36:38",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
   "winner": {
-    "source": "alerts",
-    "kind": "stress",
-    "key": "alerts:stress",
+    "source": "attention",
+    "kind": "owner_wait",
+    "key": "attention:owner_wait",
     "effective": 1.0,
-    "summary": "🚨 هشدارها"
+    "summary": "عضو «lead-naghshi» از کار افتاد (phi=17.0 — پاسخ‌گو نبود)"
   },
   "broadcast_width": 1,
-  "margin": 0.8,
-  "n_candidates": 8,
+  "margin": 0.69,
+  "n_candidates": 9,
   "ignition_rate": 1.0,
-  "stability": 52,
+  "stability": 12,
   "recent_ignitions": [
     1,
     1,
@@ -38,6 +38,6 @@
     1
   ],
   "reentry_prior": {
-    "alerts:stress": 0.3749
+    "attention:owner_wait": 0.3742
   }
 }

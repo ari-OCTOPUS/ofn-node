@@ -1,0 +1,5 @@
+total 16
+drwxrwx---  3 octopus octopus 4096 Aug 24 05:26 .
+drwxr-xr-x 34 octopus octopus 4096 Aug 24 05:26 ..
+drwxr-xr-x  2 root    root    4096 Aug 24 05:26 .cleared-20260824
+-rw-r--r--  1 octopus octopus   24 Aug 16 13:39 wave01-range.json

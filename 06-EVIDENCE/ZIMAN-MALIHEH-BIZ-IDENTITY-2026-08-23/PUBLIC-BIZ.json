@@ -1,0 +1,30 @@
+{
+  "channels_intended": [
+    "PayPal Business",
+    "Shopify Payments / Stripe Link"
+  ],
+  "shopify_tax": "Collect GST ON + ABN 21190030795",
+  "shopify_may_receive": [
+    "abn",
+    "business_gmail",
+    "bank_bsb_account"
+  ],
+  "gst_registered": true,
+  "missing_for_payouts": [],
+  "paypal_business_ready": true,
+  "gst_status": "ATO GST registered YES (owner confirmed 2026-08-23)",
+  "abn": "21190030795",
+  "bank_account_name": "Maliheh Khalajijou",
+  "owner_partner": "Maliheh",
+  "schema": "ziman-biz-identity/1",
+  "bank_bsb": "112879",
+  "business": "Ziman",
+  "currency": "AUD",
+  "stamp_local": "2026-08-23T10:55:32+10:00",
+  "paypal_business_email": "aram@ziman-gift.com",
+  "bank_account_number": "463106127",
+  "shopify_must_not_receive": [
+    "tfn"
+  ],
+  "business_gmail": "aram@ziman-gift.com"
+}

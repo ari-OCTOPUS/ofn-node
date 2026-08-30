@@ -1,0 +1,54 @@
+{
+  "open_meteo_sydney": {
+    "sensor_id": "OCT-FEED-OPENMETEO",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "open_meteo_aqi": {
+    "sensor_id": "OCT-FEED-AQI",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "timeapi_io_sydney": {
+    "sensor_id": "OCT-FEED-TIME",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "frankfurter_aud": {
+    "sensor_id": "OCT-FEED-FX-AUD",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "bom_sydney_obs": {
+    "sensor_id": "OCT-FEED-BOM-SYD",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "guardian_au_rss": {
+    "sensor_id": "OCT-FEED-NEWS-AU",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "usgs_quakes_2p5": {
+    "sensor_id": "OCT-FEED-USGS-QUAKE",
+    "status": "healthy",
+    "age_sec": 422.224662,
+    "value": null
+  },
+  "_meta": {
+    "evidence_age_s": {
+      "value": 306.330878,
+      "status": "healthy"
+    },
+    "sensor_coverage": {
+      "value": 1.0,
+      "status": "healthy"
+    }
+  }
+}

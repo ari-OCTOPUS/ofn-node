@@ -1,0 +1,149 @@
+{
+  "schema": "octopus-evidence-result/1",
+  "folder": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23",
+  "task": "OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23",
+  "stamp_local": "2026-08-23T07:59:25+10:00",
+  "timezone": "Australia/Sydney",
+  "result": "PASS",
+  "epistemics_wire": "ON_ADVISORY",
+  "owner_go": true,
+  "how_read": {
+    "mechanism": "os.environ via wiring.flag(name) -> environ.get(name,\"0\") == \"1\"",
+    "loader": "organism.main() calls env_loader.load_env() reading F:\\\\backup\\\\.env (idempotent, no overwrite of existing env)",
+    "call_sites": {
+      "wiring.epistemics_beat": "gated by flag(\"OCTOPUS_WIRE_EPISTEMICS\"); advisory publish via live_loop._emit_advisory",
+      "organism.py": "tick calls wiring.epistemics_beat(live_loop=..., beat=...) behind Phase 5 comment",
+      "wire_summary": "wire_epistemics: flag(\"OCTOPUS_WIRE_EPISTEMICS\")"
+    },
+    "not_in_PAPER_FULL_FLAGS": true,
+    "note": "merge profile paper-full does NOT enable this flag; explicit OCTOPUS_WIRE_EPISTEMICS=1 required",
+    "cadence_env": "CHRONO_EPISTEMICS_EVERY_N_BEATS (default 720 ~12h)",
+    "fail_closed": [
+      "flag off -> None",
+      "STOP_ORGANISM/halted -> None",
+      "non-epoch beat -> None",
+      "exception -> alert + None (tick survives)"
+    ]
+  },
+  "how_enabled": {
+    "method": "append OCTOPUS_WIRE_EPISTEMICS=1 to F:\\\\backup\\\\.env with Phase 5 advisory comment",
+    "env_has_flag_1": true,
+    "live_center_restart": false,
+    "live_organism_restart": false,
+    "live_pick_up": "deferred until next organism boot (env_loader); dry/advisory prove PASS now",
+    "mode": "ON_ADVISORY",
+    "paid_live_send": false
+  },
+  "dry_advisory_samples": {
+    "flag_off_inert": {
+      "env": null,
+      "flag()": false,
+      "epistemics_beat(beat=720)": null,
+      "wire_summary.wire_epistemics": false
+    },
+    "flag_on_non_epoch": {
+      "env": "1",
+      "flag()": true,
+      "epistemics_beat(beat=100)": null
+    },
+    "flag_on_advisory_fire": {
+      "env": "1",
+      "flag()": true,
+      "epistemics_beat(beat=720)": {
+        "metrics_count": 5,
+        "authoritative_count": 3,
+        "advisory_only": true
+      },
+      "advisory_only": true,
+      "metrics_count": 5,
+      "authoritative_count": 3,
+      "metric_samples": [
+        {
+          "metric": "identifiability",
+          "authoritative": false,
+          "confidence": 0.71,
+          "value_summary": "9.6978"
+        },
+        {
+          "metric": "channel",
+          "authoritative": false,
+          "confidence": 0.198,
+          "value_summary": "0.6906"
+        },
+        {
+          "metric": "levels",
+          "authoritative": true,
+          "confidence": 1.0,
+          "value_summary": "{'eigenvalues': [-0.0, -0.0, -0.0, 0.1288, 0.4168, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,"
+        },
+        {
+          "metric": "self_reference",
+          "authoritative": true,
+          "confidence": 1.0,
+          "value_summary": "0.499724"
+        },
+        {
+          "metric": "method",
+          "authoritative": true,
+          "confidence": 1.0,
+          "value_summary": "{'antecedent_S': 'identifiability, channel, levels, self_reference all hold above calibrated thresholds', 'consequent_L'"
+        }
+      ],
+      "wire_summary.wire_epistemics": true
+    },
+    "fail_closed_killswitch": {
+      "method": "phase5 t_killswitch_blocks (harness-isolated STOP) + live STOP untouched",
+      "live_STOP_ORGANISM_existed_before": false,
+      "live_STOP_ORGANISM_exists_after": false,
+      "live_STOP_untouched": true,
+      "contract": "epistemics_beat returns None when STOP_ORGANISM.exists() or halted(), even if flag=1",
+      "phase5_test": "PASS kill-switch blocks"
+    },
+    "safety_surface": {
+      "in_PAPER_FULL_FLAGS": false,
+      "CHRONO_EPISTEMICS_EVERY_N_BEATS_default": "720",
+      "advisory_only_contract": "wiring.epistemics_beat docstring + return advisory_only=True; _emit_advisory annotate only",
+      "no_telegram_sendMessage": true,
+      "center_restart": false
+    }
+  },
+  "phase5_wiring_tests": {
+    "exit_code": 0,
+    "tests_pass": 8,
+    "tests_fail": 0,
+    "output_file": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23\\phase5-tests.out.txt",
+    "lines": [
+      "�� \u0000 \u0000�\u0003�\u0000�\u0000 \u0000f\u0000l\u0000a\u0000g\u0000 \u0000o\u0000f\u0000f\u0000 \u0000�\u0003�\u0000�\u0000 \u0000i\u0000n\u0000e\u0000r\u0000t\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000b\u0000e\u0000a\u0000t\u0000 \u0000j%Q%�%�\u0000j%�%\u0018%�\u0000 \u0000\u0018%�\u0000j%b%j%�%j%�\u0000\u0018%�\u0000 \u0000N\u0000 \u0000�\u0003�\u0000�\u0000 \u0000N\u0000o\u0000n\u0000e\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000f\u0000l\u0000a\u0000g\u0000 \u0000o\u0000n\u0000 \u0000�\u0003�\u0000�\u0000 \u0000f\u0000i\u0000r\u0000e\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000o\u0000r\u0000g\u0000a\u0000n\u0000i\u0000s\u0000m\u0000 \u0000c\u0000a\u0000l\u0000l\u0000s\u0000 \u0000e\u0000p\u0000i\u0000s\u0000t\u0000e\u0000m\u0000i\u0000c\u0000s\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000a\u0000d\u0000v\u0000i\u0000s\u0000o\u0000r\u0000y\u0000_\u0000o\u0000n\u0000l\u0000y\u0000=\u0000T\u0000r\u0000u\u0000e\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000n\u0000o\u0000t\u0000 \u0000i\u0000n\u0000 \u0000P\u0000A\u0000P\u0000E\u0000R\u0000_\u0000F\u0000U\u0000L\u0000L\u0000_\u0000F\u0000L\u0000A\u0000G\u0000S\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000w\u0000i\u0000r\u0000e\u0000_\u0000s\u0000u\u0000m\u0000m\u0000a\u0000r\u0000y\u0000 \u0000e\u0000p\u0000i\u0000s\u0000t\u0000e\u0000m\u0000i\u0000c\u0000s\u0000",
+      "\u0000",
+      "\u0000 \u0000 \u0000�\u0003�\u0000�\u0000 \u0000k\u0000i\u0000l\u0000l\u0000-\u0000s\u0000w\u0000i\u0000t\u0000c\u0000h\u0000 \u0000b\u0000l\u0000o\u0000c\u0000k\u0000s\u0000",
+      "\u0000",
+      "\u0000"
+    ]
+  },
+  "constraints_honored": {
+    "no_live_telegram_sendMessage": true,
+    "no_DEAD_LETTER": true,
+    "no_secrets_in_evidence": true,
+    "no_center_restart": true,
+    "no_organism_restart": true,
+    "advisory_only_non_enforcer": true,
+    "not_mutating_production_blindly": true,
+    "no_env_commit": true
+  },
+  "NEXT": [
+    "Live organism pick-up of OCTOPUS_WIRE_EPISTEMICS awaits next organism boot/reload (center PID untouched); optional owner GO for organism-only reload to arm live advisory beat",
+    "Outbox NEEDS_RECONCILIATION x2 still BLOCKED pending owner GO for DEAD_LETTER sync (unchanged; no DEAD_LETTER this step)"
+  ]
+}

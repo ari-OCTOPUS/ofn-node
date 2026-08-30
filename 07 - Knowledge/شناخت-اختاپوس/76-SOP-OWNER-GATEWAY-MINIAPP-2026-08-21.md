@@ -1,4 +1,4 @@
----
+﻿---
 type: sop
 status: conditional-pass
 audit_verdict: CONDITIONAL_PASS
@@ -169,3 +169,5 @@ retry_after بدون cap زمانی (C3) · T-05/T-08/T-21/T-22 با receipt غ�
 - gateway: `OCTOPUS_TG_MINIAPP=0` → serve خاموش؛ kill switch مستقل.
 - webhook: `deleteWebhook(drop_pending_updates=false)` + polling از highest_durable+1.
 - rate queue: غیرفعال = مسیر مستقیم قبلی با retry کران‌دار موجود.
+
+> DOC-RECONCILE-2026-08-23: gateway still LIVE on 127.0.0.1:8774 (PID 12220); public OCTOPUS_MINIAPP_URL unset — process-up ≠ Telegram menu URL.

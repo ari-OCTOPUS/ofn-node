@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20260820T174425815Z-11560-b6ddc1abfd47",
+  "runId": "20260820T174425815Z-11560-b6ddc1abfd47",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": [
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/FROZEN-BEAT-FIX-REPORT.md",
+        "detail": "baseline exceeded 5000 candidate files",
+        "affectsCompletion": false
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "8fd7c723c0c9c7da2bfabcfcd9968e6fd91a7a61",
+  "diffHash": "8e8b939bf4396731d2438bc0c8e29fea593095c68175d8088e9fb09526d42b9b",
+  "rulesVersion": "unavailable",
+  "sessionHash": "aa4826a05dba2c947c167e635c784b3ecbde011fcdc2580c71373c3cff8d1e6b",
+  "reportRef": ".mimosa/reports/ta<REDACTED-OPENAI-KEY>.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "_ops/tests/test_telegram_verdict_conflict.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-08-20T17:44:26.364Z"
+}

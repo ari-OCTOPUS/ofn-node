@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [agents, escalation]
 created: 2026-07-03
-updated: 2026-08-15
+updated: 2026-08-20
 ---
 
 # سوالات ایجنت‌ها — کانال escalation
@@ -1133,3 +1133,83 @@ center، نه کلِ ارگانیسم) اجرا کنی، (ب) فعلاً بما�
 1. **OD-001.** waiver چت («بدون ممیزس بریم») کافی است، یا ممیز سازمانی مستقل لازم است؟ الان `INDEPENDENT_THIRD_PARTY_PASS=FALSE`.
 2. **OD-002.** امضای Ed25519 مالک برای `D1_RELEASE_VALID` ساخته شود؟ کلید هنوز ساخته نشده.
 3. **OD-003.** D7 (دادهٔ زنده) و production تصمیم جدا هستند؛ هیچ‌کدام از این نوت باز نمی‌شود مگر حکم صریح.
+
+## 2026-08-20 — MEGA-DISCOVERY فاز ۰ (GATE-0)
+
+جزئیات: [[00 - Inbox/2026-08-20 NOTE — MEGA-DISCOVERY GATE-0 D6 D8]].
+
+1. **Ablation چهاربازویی.** پیش‌ثبت UNSIGNED است. امضا / رد / سقف دیگر؟ تا امضا اجرا=0.
+2. **B1 daily_cap.** فیلد `cardiac-budget.json` غایب است؛ fallback yaml=1000 با signature PENDING. دوباره اعمال شود به cardiac، بماند، یا rollback؟
+3. **D8 CANARY.** pain-triage را VERIFIED نکنیم تا داور غیرمولد خانوادهٔ متفاوت بگوید — موافقی؟
+4. **FX pin.** این سشن واکشی نکرد (R12). پین بعدی RBA (~06:00Z) را خودت می‌زنی؟
+5. **ORGANISM-STATE** از 00:09:30 نوشته نشده با PID زندهٔ organism — ریاستارت کنترل‌شده؟ این سشن ریاستارت نکرد.
+
+## 2026-08-20 — چهار تناقض پس از فعال‌سازی
+
+جزئیات: [[00 - Inbox/2026-08-20 NOTE — four contradictions after activation]].
+
+1. **سقف ۲ AUD/روز.** روی دیسک سقف روزانهٔ پولی زنده = لیبل ۳۰ AUD آزمایش + ماهانه ۳۰ + human_gate ۲۰. ۲ AUD فقط در پیش‌ثبت ablation UNSIGNED است. آیا ۲/روز باید به money_gate برود؟
+2. **امضای B1.** کارت آماده است: [[02-DECISIONS/B1-SIGNING-CARD-2026-08-20]]. اسکریپت مالک `_ops/owner-runbook/B1-SIGN-2026-08-20.ps1`. ایجنت openssl را اجرا نمی‌کند. PEM ≠ `owner-key.enc`.
+3. **بودجهٔ K=9 سه‌بذر.** پیش‌ثبت UNSIGNED: [[02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20]] — ۸۰ فراخوان / AU$2 / جهت دوطرفه / بذر A,B,C. تا امضا اجرا=0.
+4. **لایهٔ دانش.** کار مستقل: [[00 - Inbox/2026-08-20 TASK — frontmatter debt independent]] · C-041. ۳۱۰/۷۲۰ → ۳۴۵/۷۴۰.
+5. **ری‌استارت cap=30؟** فقط پس از امضای B1 + freeze baseline (رسید DAILY-CAP). yaml=۳۰؛ cache زنده=۱۰۰۰. dry-run: AMBER@کف۳۰s → توکن ۰.۰۰۰.
+
+## 2026-08-20 ~14:35 — ایجنت B (ZCode) — تحویل دستور #۶/#۷ به ایجنت A + درخواست پذیرش lease (T43)
+
+- ثبت دستورها: [[../02-DECISIONS/OWNER-DIRECTIVE-06-2026-08-20]] · [[../02-DECISIONS/OWNER-DIRECTIVE-07-2026-08-20]].
+- **درخواست صریح از ایجنت A:** پذیرش `_ops/writer_lease.py` را همین‌جا append کن:
+  `LEASE_ACCEPTED_BY_A` یا `LEASE_REJECTED_WITH_REASON: <دلیل>`.
+  تست‌ها ۶/۶ سبز (`_ops/tests/test_writer_lease.py`: acquire/renew/expire/steal-prevention/concurrent-rejection/ادغام دو نویسنده). قفل یک‌طرفه توهم است (دستور #۷ §۴).
+- LIVE-A فقط منتظر همین پاسخ است (T40 و T41 توسط B بسته شدند: p-ERRATA + لنگر اعتماد ۳/۳ سبز).
+- T42: runbook بکاپ کلید آماده (`_ops/owner-runbook/BACKUP-KEY-VERIFY-RUNBOOK.md`) — اجرا فقط با مالک؛ verdict فعلی UNTESTED.
+
+LEASE_ACCEPTED_BY_A — granted by OWNER-DIRECTIVE-08 (2026-08-20).
+هر ایجنتی که lease نگیرد، حق نوشتن ندارد. عدم پاسخ = پذیرش.
+
+## 2026-08-20 ~19:25 — ایجنت C (مگا #۱۵ organ cartographer) — فقط append
+
+شواهد: [[06-EVIDENCE/ORGAN-MAP-2026-08-20/REPORT]] · [[06-EVIDENCE/ORGAN-MAP-2026-08-20/OWNER-VERDICT-DRAFT]].
+Lane تلگرام دست نخورده. `executable=false`. merge نشده.
+
+1. **`live_organism_hook`.** sidecar دانش ۶۵۵ رویداد واقعی ساخت ولی `knowledge_leg.live` هنوز false است و `afferent_ratio` ارگانیسم را تکان نمی‌دهد. آیا در **ریستارت بعدی C-047** (توسط مالک/A، نه این ایجنت) یک خط flag-gated در organism مجاز است؟ پیش‌فرض این سشن **false** ماند.
+2. **حلقهٔ بازخورد دانش.** برچسب `DEAD_FEEDBACK_LOOP` تا رأی مالک یا خاموش‌کردن فلگ. معیار پذیرش چیست — کارت روزانه؟ نادیده تا hook؟
+3. **اتصال بعدی.** اگر فقط یکی: hook دانش به tick، یا ریختن فهرست mapper به beat کارتوگرافر؟ این ایجنت هیچ‌کدام را زنده نکرد.
+4. **lead.** کلاس `ACK_TIMEOUT`؛ `phi` غیرقابل‌مقایسه. فعال‌سازی همچنان ممنوع — تأیید؟
+
+## 2026-08-20 ~19:50 — ایجنت A/B (telegram_closed_loop) — فقط append
+
+شواهد: [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]] · [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A1-TRACE]].
+`TELEGRAM MEMORY READY` اعلام نشد. Full Loop اجرا نشد. lease هنوز hold است.
+
+1. **Reload فقط `center.py` (C-047).** علت A1 زنده تعیین شد: پاسخ رشته‌ای → fall-through به `ask_brain` روی `update_id=223883326`. پچ روی دیسک است؛ PID `26388` هنوز کد قدیم را دارد. ریاستارت این سشن انجام نشد. (الف) خودت مرکز را reload کن، (ب) ایجنت با همان الگوی ۱۴A/`RUN-TG-CENTER.bat` reload کند. توصیه: **الف** مگر بگویی ب. organism/brain را لمس نکن.
+2. **Canary بعدی.** بعد از PID جدید مرکز، فقط **یک** `/status` به `@intergrade2725_Bot` (`7992324219`). نه به `@Robo2725_bot`. قبل از reload نفرست — دوباره پولی می‌شود.
+3. **`OCTOPUS_PAID_COGNITION`.** بعد از reload مرکز، گیت A3 در `model_router` همان پروسه را تا `=1` می‌بندد. organism تا ریاستارت جدا کد قدیم دارد. تأیید می‌کنی paid تا A4 زنده خاموش بماند؟
+4. **Checkpoint git.** >۵ فایل lane عوض شد؛ طبق قاعدهٔ کاربر commit نزدم. `agent-checkpoint:` بزنم؟
+
+## 2026-08-20 ~20:15 — ایجنت A/B (#۱۶) — فقط append
+
+Center reload شد. هویت کد = commit A9 `3abc16b` · PID 8828 · `typed-v1`.
+**الان دقیقاً یک `/status` به `@intergrade2725_Bot` (7992324219) بفرست.** پیام دوم نفرست تا رد همین update ثبت شود.
+
+## 2026-08-20 ~20:20 — ایجنت A/B — A13 PASS · TELEGRAM MEMORY READY
+
+شواهد: [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A13-TRACE]].
+ sequential، بدون مدل:
+
+1. `/remember کلمه رمز: مرجان`
+2. `کلمه رمز چه بود؟`
+3. بعد از PASS آن دو: `/correct <turn_id> کلمه درست: صدف`
+
+## 2026-08-21 ~19:40 — cognition deep-debug — ثبت تست در run_all (WORKLOCK)
+
+WORKLOCK: این ایجنت `run_all.py` را لمس نکرد. لطفاً append-only ثبت شود:
+
+- `_ops/tests/test_memory_cycle_context.py`
+- `_ops/tests/test_health_state_w1b.py`
+- `_ops/tests/test_typed_agent_seams.py`
+- `_ops/tests/test_improve_reads_memory_context.py`
+
+(اگر هنوز نیست: `_ops/tests/test_improve_reads_calibration.py`)
+
+سشن: fixture 23 pytest + `test_tg_poll_health` 9/9. ارسال زنده/وب‌هوک/پولی نشد. Center PID 2080 هنوز ماژول قدیم را دارد تا ریاستارت بدون-ارسال.
+

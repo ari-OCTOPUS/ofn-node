@@ -1,0 +1,37 @@
+"""
+architect — قابلیتِ «معمارِ الهام‌گرفته از میسلیوم» که به «مغزِ اصلی» (brain) وصل است.
+
+استفاده‌ی سریع (production):
+    import config, architect
+    ab = architect.ArchitectBrain.from_config(config.CONFIG)
+    run = ab.design("multi-agent LLM orchestration",
+                    "500 agents, 5 regions",
+                    "<$8k/mo, survive full-region outage, eventual consistency",
+                    k=5)
+    scores = [architect.FakeJudge().score(s) for s in run.samples]
+    print(architect.gate(scores), architect.structural_variance(run.samples))
+
+هسته خالص و تست‌پذیر است؛ brain/config فقط در from_config/build_judge (lazy) لازم می‌شوند.
+"""
+
+from __future__ import annotations
+
+from .prompt_assembly import assemble, build_task, load_system, PromptError, VARIANTS, LANGS
+from .raw_brain import RawResult, raw_ask, _offline_architecture
+from .runner import ArchitectBrain, DesignRun
+from .evaluate import (
+    DIMS, MAX_TOTAL, GATE_THRESHOLD,
+    Judge, FakeJudge, LLMJudge, RubricScore, build_judge,
+    structural_variance, VarianceReport, gate, GateResult,
+    sections_present, tech_set,
+)
+
+__all__ = [
+    "assemble", "build_task", "load_system", "PromptError", "VARIANTS", "LANGS",
+    "RawResult", "raw_ask",
+    "ArchitectBrain", "DesignRun",
+    "DIMS", "MAX_TOTAL", "GATE_THRESHOLD",
+    "Judge", "FakeJudge", "LLMJudge", "RubricScore", "build_judge",
+    "structural_variance", "VarianceReport", "gate", "GateResult",
+    "sections_present", "tech_set",
+]

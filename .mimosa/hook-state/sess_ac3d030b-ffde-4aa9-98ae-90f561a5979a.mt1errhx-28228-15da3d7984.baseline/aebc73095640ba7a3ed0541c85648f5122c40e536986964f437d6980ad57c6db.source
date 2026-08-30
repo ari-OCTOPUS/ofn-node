@@ -1,0 +1,56 @@
+#!/bin/bash
+# ============================================================================
+# one-liner-vps-setup.sh — راه‌اندازی LANGAR روی VPS (بازنویسی G-02، 2026-07-03)
+#
+# باگ‌های نسخهٔ قبل که این نسخه رفع می‌کند:
+#   1. کد اپلیکیشن هرگز clone نمی‌شد (فقط compose/README ساخته می‌شد → build شکست)
+#   2. read -p داخل heredoc ssh کار نمی‌کرد (stdin اشغال بود)
+#   3. GitHub token داخل remote URL ذخیره می‌شد (نشت secret در .git/config)
+#   4. جهت git برعکس بود (push از VPS به‌جای clone از GitHub = منبع حقیقت)
+#
+# پیش‌نیاز (روی لپ‌تاپ، یک‌بار): طبق GITHUB_PUSH_FA.md ریپو را به GitHub push کن.
+# اجرا: اول خودت SSH بزن، بعد این فایل را روی VPS اجرا کن:
+#   scp one-liner-vps-setup.sh root@<VPS_IP>:/root/ && ssh root@<VPS_IP> bash /root/one-liner-vps-setup.sh
+# ============================================================================
+set -euo pipefail
+
+REPO_SLUG="${1:?استفاده: bash one-liner-vps-setup.sh <github_user>/<repo> (مثلاً user/langar)}"
+WORK_DIR="$HOME/langar"
+
+echo "════════════════════════════════════════"
+echo "🚀 LANGAR — VPS Setup"
+echo "════════════════════════════════════════"
+
+# ۱) Docker (اگر نیست)
+if ! command -v docker >/dev/null; then
+  echo "── نصب Docker..."
+  curl -fsSL https://get.docker.com | sh
+fi
+docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose plugin نیست."; exit 1; }
+
+# ۲) Clone — GitHub منبع حقیقت است (SERVER-ARCHITECTURE §GitOps)
+if [ -d "$WORK_DIR/.git" ]; then
+  echo "── ریپو هست → pull آخرین نسخه..."
+  git -C "$WORK_DIR" pull --ff-only
+else
+  echo "── clone از GitHub (اگر private است، token را همین‌جا وارد می‌کنی؛ ذخیره نمی‌شود)..."
+  read -rp "GitHub Token (برای repo عمومی خالی بگذار): " GH_TOKEN
+  if [ -n "${GH_TOKEN:-}" ]; then
+    git clone "https://x-access-token:${GH_TOKEN}@github.com/${REPO_SLUG}.git" "$WORK_DIR"
+    # token را از remote پاک کن — در دیسک نماند (G-01)
+    git -C "$WORK_DIR" remote set-url origin "https://github.com/${REPO_SLUG}.git"
+  else
+    git clone "https://github.com/${REPO_SLUG}.git" "$WORK_DIR"
+  fi
+fi
+cd "$WORK_DIR"
+
+# ۳) .env — از template، هرگز از repo (در repo نیست و نباید باشد)
+if [ ! -f .env ]; then
+  cp .env.example .env
+  echo "⚠️  .env ساخته شد → مقادیر را پر کن، بعد: bash deploy.sh"
+  exit 0
+fi
+
+# ۴) استقرار — همان deploy.sh ریپو (fail-closed؛ نسخهٔ inline موازی حذف شد تا drift نشود)
+bash deploy.sh

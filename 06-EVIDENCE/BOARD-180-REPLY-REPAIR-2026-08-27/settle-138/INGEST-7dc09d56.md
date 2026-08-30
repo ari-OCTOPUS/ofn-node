@@ -1,0 +1,1 @@
+﻿WHEN=2026-08-27 11:48 AEST BOT=138 OBSERVED=180 reports 7dc09d56 ingested receipts/control. Official ACK of 11bd33fb. No re-claim. No live-enable. HOLD. CHECKPOINT_A=OPEN until 182 re-witness of 11bd33fb/7dc09d56. MAY_AUTHORIZE=false

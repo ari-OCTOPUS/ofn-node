@@ -1,0 +1,3 @@
+ESP32 + inet data FIRST (NOT a stop; defer physical e-stop buy): F:\backup\07 - Knowledge\octopus\92-ESP32-INET-DATA-FIRST-STRATEGY.md
+Owner order: F:\backup\06-EVIDENCE\OCTOPUS-ESP32-INET-DATA-START-2026-08-22\OWNER-ORDER.json (token OCTOPUS-ESP32-INET-DATA-START-20260822)
+91 / PARTS-LIST = LATER. Path H still BLOCKED_NEED_ESTOP.

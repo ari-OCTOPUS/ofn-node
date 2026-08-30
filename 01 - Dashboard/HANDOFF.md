@@ -1,9 +1,84 @@
 ---
 type: handoff
-updated: 2026-08-21
+updated: 2026-08-30
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
+
+> 🔀 **پین 2026-08-30 — SYNC: ‏`main` گیت‌هاب با مجوز مالک روی `c1969bc` رفت.** ادعای «گیت‌هاب ۳هفته عقب» فقط برای main درست بود (۶۳۴ تست، بدون revenue/pilot) — ۱۱ شاخهٔ دیگر برد با گیت‌هاب یکسان بودند؛ فقط `integration/138-business-spine` یک FF عقب داشت (پوش شد: `68813370..a27eb053`). سپس با پرسش مستقیم، مالک fast-forward را انتخاب کرد: `main: 388594e→c1969bc` (+۱۳۶، بدون force، FF_CHECK قبل از push) · کلون لپ‌تاپ هم `c1969bc` = **۲۱۳۶ تست** ✓ · کامیت تنها `e459e5f` (.gitattributes) روی `local/initial-e459e5f` حفظ شد · Draft PR بازیابی الان OBSOLETE (تفاوت main←backup = صفر) · باقی: branch protection روی main + اصلاح C-055. [[../06-EVIDENCE/SYNC-CHECK-20260830/RECEIPT|رسید]]
+
+> 🔌 **پین 2026-08-30 — HW-DISCOVERY: هر سه برد SSH سبز؛ ریسک واقعی = ۱۸۰.** ‏۱۳۸=`ari@`، ۱۸۰=`root@`، ۱۸۲=`root@` (پینگ+tcp22 همه OK؛ ۱۹۱=خودِ لپ‌تاپ، sshd ندارد). **۱۸۰:** ‏`/opt/octopus/lab@76db516` روی `ofn/evolve-20260826-anatomy-180` — **۱ کامیت پوش‌نشده** (+۲۱۰خط، اثبات ancestry با گیت‌هاب `36e579e`) + ۷ untracked + بدون remote → کاندید `backup/board180-20260830` (منتظر go مالک برای push). **۱۸۲:** صفر repo — ‏`/opt/octopus{,-agent}` نسخه‌دارنشده (۲۳,۳۵۲ فایل). اسکجولر ۱۳۸ تایمر زندهٔ ۱۵دقیقه‌ای دارد ولی journal ۲۴ساعته **خالی** → `SCHEDULER_DEEP_TEST_LOGS=NOT_FOUND`. `gh` نیست؛ PRها فقط #1/#2 (audit). [[../06-EVIDENCE/HW-DISCOVERY-20260830/RECEIPT|رسید]]
+
+> 🐙 **پین 2026-08-30 — board138 restoration: baseline مستقل روی `c1969bc` سبز شد + دو تصحیح رکورد.** snapshot روی GitHub دقیقاً `c1969bce` (SNAPSHOT_MUTATED=NO) · اجرای تمیز روی برد ۱۳۸ (DietPi, pytest 8.3.5, worktree ایزوله): **2131 passed / 5 skipped / 0 failed / 0 error** — `test_greeting_name` ذات‌مند نیست · ادعای «reproduced با اعداد 2076/2065/1/10» در CURRENT-TRUTH رسید ندارد → **C-055** · `MAIN_HEAD` رکورد اشتباه: GitHub main = `388594e` (نه `2533aa3` — آن main محلی برد است) · ویندوز: ۷۳ شکست همگی پلتفرم‌محور (media fail-closed/statvfs/مجوز POSIX)، صفر رگرسیون · Draft PR هنوز ساخته نشده؛ live PID=1351408 دست‌نخورده. [[../06-EVIDENCE/BOARD138-RESTORE-2026-08-30/RECEIPT|رسید]]
+
+```yaml
+board138_restoration:
+  canonical_snapshot:
+    branch: backup/board138-20260830
+    sha: c1969bce5384f3371b916470299c991627c3d63c
+    policy: immutable
+  truth_record:
+    branch: work/truth-record-20260830
+    content:
+      - docs/octopus-rapid/01-TRUTH/CURRENT-TRUTH.md
+      - PR-SPEC-board138-restore.md
+  restoration_pr:
+    base: main
+    compare: backup/board138-20260830
+    state: not_created
+    desired_state: draft
+    merge_authorized: false
+  documentation_pr:
+    base: post-restoration-target
+    compare: work/truth-record-20260830
+    state: deferred
+  next_action: reproduce_tests_on_canonical_sha
+```
+
+الحاقیهٔ همان روز (zcode session 2026-08-30 — رسید: [[../06-EVIDENCE/BOARD138-RESTORE-2026-08-30/RECEIPT|BOARD138-RESTORE-2026-08-30]]):
+
+```yaml
+board138_restoration_addendum_20260830:
+  next_action: DONE — reproduce_tests_on_canonical_sha
+  test_baseline_reproduced_independently: "YES (سبز روی پلتفرم baseline) · EXACT_COUNT_MATCH=NO"
+  reproduced_run: "2136 collected / 2131 passed / 0 failed / 0 errors / 5 skipped — برد ۱۳۸، pytest 8.3.5، محیط تمیز، EXIT=0، 28.3s"
+  corrections:
+    - "MAIN_HEAD: GitHub main = 388594e — رکورد قبلی 2533aa3 فقط main محلی برد روی lineage ofn/board-snapshot-20260816 بود"
+    - "C-055: CURRENT-TRUTH@9bc05ab ادعای reproduced=true بدون رسید؛ قبل از review PR اسناد اصلاح شود"
+    - "GitHub فقط PR #1 (audit/cursor) و #2 (audit/zcode) دارد — هیچ PR برای snapshot نیست؛ DRAFT_PR_CREATED=NO تأیید"
+  remaining: "Draft PR مرورگری main←backup/board138-20260830 + CI/audit روی SHA دقیق c1969bc + اصلاح C-055 در برنچ اسناد"
+```
+
+> 🐙 **پین 2026-08-29 عصر — Deep-Walk + SAFE_TESTS: گلوگاه «use» اثبات شد.** نقشه D1/D2 از کد زنده‌ی ۴ نود + D3 (فیلدهای واقعی قرارداد `envelope_version:1`). memtest_live روی کپی fixture: ‏memory.db لپ‌تاپ HEALTHY؛ spine.db (۲۱ proposal→۳ decided) و organism.db برد۱۸۰ (۶۳۳۰ episode→۹ lesson، future_use_count>0 = صفرِ ۲۶هزار+) هر دو BOTTLENECK:use. **ریشه:** ‏`consume_tick` (cycle_context.py:196-199) stub با text=needle می‌سازد — محتوا هرگز به تصمیم نمی‌رسد؛ FTS سالم است. C-DW29-01 رایتیفاید (۱۸۲=شاهد، ۱۳۸=business+receipt — در CURRENT-TRUTH) · C-DW29-02 حل با شاهد. بعدی = گیت PATCH_PROPOSAL با دو پچ متمرکز. [[../06-EVIDENCE/DEEP-WALK-20260829/D1-REALITY-MAP|D1]] · [[../06-EVIDENCE/DEEP-WALK-20260829/D3-CONTRACT-FIELDS|D3]] · [[../06-EVIDENCE/DEEP-WALK-20260829/safe-tests/SAFE-TESTS-RUN-RECEIPT|رسید اجرا]] · [[../06-EVIDENCE/DEEP-WALK-20260829/NEXT_AGENT|NEXT-AGENT]]
+
+> 📡 **پین 2026-08-29 — کشف سه‌گره برگشت؛ مگاپرامپت کل سامانه GO نیست.** ناظر=۱۹۱. ۱۳۸ LIVE HEAD=`a27eb05` PID قدیمی P1 unload. ۱۸۲ disk-only runtime=`NOT_OBSERVED`. 5a=`7d65f2d` بسته. T1–T5/EDGE-6 اجرا=0. `FINAL_SYSTEM_MEGAPROMPT_READY=NO`. بعدی=رتبه نقش + GO ری‌استارت ۱۳۸. [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/00-THREE-NODE-VERDICT]] · [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/FINAL-SYSTEM-MEGAPROMPT]] · [[../07 - Knowledge/شناخت-اختاپوس/97-THREE-NODE-DISCOVERY-QUALIFIED-2026-08-29]]
+
+> 📡 **پین 2026-08-29 — 180 pack QUALIFIED؛ ۱۳۸/۱۸۲ موازی (کشف برگشت).** T1–T5/EDGE-6 اجرا=0. registry=`FOUND_LIVE_UNSIGNED`. worker provenance UNRESOLVED. `FIREWALL_PRESENT_ON_180` / `STATUS_138` حالا از پک ۱۳۸ جداست. [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/180-QUALIFICATIONS]] · [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/180-LANE-RETENTION-PROPOSAL]]
+
+> 🛡️ **پین 2026-08-29 — LANE 5a BEARER CLOSED.** `_SECRET_TOKENS` +`BEARER` · SecretTests 6/6 · instrumentation حذف · مالک تأیید کرد. Lane 1/138 نه. [[../_ops/flag_drift.py]]
+
+> 🧭 **پین 2026-08-29 — P2 mega-prompt lanes drafted.** پنج lane جدا: P1 runtime · owner_items UI · P2 binding BLOCKED · EDGE-6 PATH_B · four defects. GO مالک هنوز نه. [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-MEGAPROMPT-LANES]]
+
+> 🔎 **پین 2026-08-29 — P2 discovery COMPLETE، implementation=0.** `MARK_AS_FIXED=NO` · 182 نقش DISPUTED (رجیستری signed نیست) · ۱۲ فیلد canonical=0 missing=9 · دو transmit · EDGE-6 last=registry first_missing=enqueue · pack SHA `44805a26…`. [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/00-VERDICT]]
+
+> ✅ **پین 2026-08-29 — undefined-card CLOSED on fresh WebView.** asset جدید + authenticated `/api/lifecycle` + تأیید مالک «شناسه نامعلوم/بدون دکمه»؛ instrumentation حذف، cleanup `1c163ea`؛ restart request pending ماند. Persistent Menu Button هنوز جدا و unversioned است؛ مسیر تأییدشده `/start` تازه. [[../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]]
+
+> 🟡 **پین 2026-08-29 — root cache fix LIVE on dirty Center source.** commit reference `c43bc91` · combined suites 11/11 · Center `22352→23808` · cache token `e290d6a0ec` · boot receipt مالک موفق · poll transient conflict سپس failures=0. Git HEAD=`0016cdf` ولی loaded file SHA ثبت شد؛ WIP هنوز uncommitted. [[../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]]
+
+> 🛡️ **پین 2026-08-29 — undefined card LIVE fail-closed.** commit `0016cdf` · RED 11/12 → GREEN 28/28 · gateway `20800→26892` · `/miniapp`+`/app.js` 200 · other core PIDs unchanged · Telegram action=0 · instrumentation retained تا تأیید WebView. [[../06-EVIDENCE/UNDEFINED-CARD-LIVE-VERIFY-2026-08-29]]
+
+> 🧭 **پین 2026-08-29 — Telegram/WebApp Phase 0.** RUN `tg-web-debug-20260828T233407Z` روی 191/180/138/182؛ EDGE-6 هنوز BLOCKED؛ root cause قدیمی ناقص (دو transmit روی ۱۸۰)؛ security patch `00c4fbf` فقط germline، deploy=0؛ GitHub remote UNLOCATED. [[../06-EVIDENCE/OCTOPUS-TELEGRAM-WEBAPP-PHASE0-2026-08-29]] · نوت [[../07 - Knowledge/شناخت-اختاپوس/96-TELEGRAM-WEBAPP-EVIDENCE-FIRST-PHASE0-2026-08-29]]
+
+> ✅ **پین 2026-08-29 — P1 source GREEN، runtime هنوز قدیمی.** commit ۱۳۸=`a27eb05` · targeted 73/73 · full 2076: 2065 pass + 1 historical error + 10 skip · shadow parity PASS · PII=0 · restart=0. P2 فقط discovery. [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P1-RESULT]] · [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY]]
+
+> 🛑 **پین 2026-08-29 — E0 live.** ناظر=۱۹۱ نه ۱۸۰. `ofn.service` PID **1351408** از ۲۷ اوت؛ HEAD **6881337**؛ spine بعد از start. VERDICT=`RUNTIME_BYTES_UNPROVEN_RESTART_REQUIRED`. V2 GET=401. fake tests 37 OK. fixed=NO. [[../06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/CHECKPOINT]]
+
+> 🐙 **پین 2026-08-28 23:4x — forensic debug v1:** تونل 8791–8796 روی ۱۹۱ **PRESENT** (صبح ABSENT). EDGE-6 این run **PROVEN_BROKEN** (enqueue پیشنهاد نیست؛ seq 6006–6017 بیدارباش/اسنپ‌شات‌اند نه proposal). receipt `630c5060` برای envelope run_id این spine نیست. T0 bind=`0.0.0.0:8081`. runtime صفر. [[../06-EVIDENCE/OCTOPUS-L191-FORENSIC-DEBUG-2026-08-28]] · [[../06-EVIDENCE/OCTOPUS-L191-FINDINGS-2026-08-28]]
+
+> **RECONCILE 2026-08-23:** A18_live_TG=PASS narrow (mids 617/618 SenderBridge); Full Loop inbound durable_loop still NOT CLOSED. Cite: OCTOPUS-A18-OWNER-CHAT-CANARY + OCTOPUS-CONTRADICTION-RECONCILE-2026-08-23.
+
+> 🔧 **پین 2026-08-23 — Full Update & Debug Sweep:** [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23|گزارش T1–T8]] · [[../04-SYSTEMS/R18-SCHEDULER-TASK-SPEC-2026-08-16|R18]] · [[../04-SYSTEMS/TELEGRAM-LEASE-DESIGN-2026-08-16|lease]] · [[../04-SYSTEMS/HALT-DRILL-RUNBOOK-2026-08-16|halt drill]].
+
 
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16). سرریزِ 2026-07-29 (ورودی‌های ≤ 07-24): `_Archive/Logs/HANDOFF-archive-2026-07-29.md`. سرریزِ 2026-08-01 (ورودی‌های ≤ 07-27): `_Archive/Logs/HANDOFF-archive-2026-08-01.md`. سرریزِ 2026-08-04 (ورودی‌های ≤ 08-02): `_Archive/Logs/HANDOFF-archive-2026-08-04.md`. سرریزِ 2026-08-05 (ورودی‌های ≤ 08-04): `_Archive/Logs/HANDOFF-archive-2026-08-05.md`. سرریزِ 2026-08-06 (ورودی‌های 08-05): `_Archive/Logs/HANDOFF-archive-2026-08-06.md`. سرریزِ 2026-08-07 (ورودی‌های 08-06): `_Archive/Logs/HANDOFF-archive-2026-08-07.md`. سرریزِ 2026-08-08 (ورودی‌های 08-06..08-07): `_Archive/Logs/HANDOFF-archive-2026-08-08.md`.
 > 🧭 **ایجنتِ جدید؟** خلاصهٔ کاملِ کارِ 2026-08-02 + honest boundaries + قواعدی که این سشن رعایت کرد: [[../00 - Inbox/SESSION-NOTES-2026-08-02|SESSION-NOTES-2026-08-02]]. درس‌های این سشن در [[../_memory/EXPERIENCE-LEDGER|ledger]] (§ 2026-08-02).
@@ -31,10 +106,12 @@ updated: 2026-08-21
 |------|------|--------|
 | `autoflow-s1-s10` (ZCode/GLM-5.3 — MEGAPROMPT-AUTOFLOW) | 2026-08-16 ~14:5x | ✅ تمام 2026-08-16 ~15:2x — S1..S10 بسته (گزارش: 06-EVIDENCE/AUTOFLOW-REPORT در کامیت پایانی) |
 | `organs_and_afferent_wiring` (agent_C · مگا #۱۵) | 2026-08-20 ~18:4x | ✅ PASS_WITH_FINDINGS — sidecar؛ تلگرام دست‌نخورده؛ merge نشد |
-| `telegram_closed_loop` (agent A/B) | 2026-08-20 ~19:3x | ✅ A13–A17 PASS · A18 BLOCKED · A19 handoff · lease released |
+| `telegram_closed_loop` (agent A/B) | 2026-08-20 ~19:3x | ✅ A13–A17 PASS · A18_live_TG=PASS narrow 2026-08-23; Full Loop inbound still open/BLOCKED · A19 handoff · lease released |
 | `nervous_recovery_run_all` (owner override) | 2026-08-20 ~22:0x | ✅ `test_nervous_recovery.py` append-only در `run_all.py` |
 
 ## وضعِ لحظه‌ای
+
+> 🐙 **پین 2026-08-21 ~20:0x (+10) — ری‌استارت کنترل‌شدهٔ Center/organism (بدون ارسال نو).** Center PID **35596** · organism PID **33164** · یک poller · `poll-health` کانونیکال دوباره جلو می‌رود (empty=healthy) · `memory-context-latest.json` با `observe_prior`. ری‌استارت اول `OCTOPUS_STATE_DIR` تست را به زنده برد؛ لانچر حالا آن را خالی می‌کند. **نه** `TELEGRAM_LOOP_BASELINE` · **نه** Wave 1. [[../_ops/cortex/plans/TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21|plan]]
 
 > 🔏 **پین 2026-08-21 ~20:0x (+10) — مگاپرامپت ۳ آزمایشگاه.** ۲۴ کارت: ۱۶ SUPPORTED / ۸ INCONCLUSIVE. تست close ۴/۴. حافظه چرخه۱→۲ ۳/۳. ارسال زنده همچنان ۰. مگاپرامپت ۴ فقط طرح. تست ثبت‌نشده: `test_megaprompt3_lab_close_20260821.py`. [[../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/MEGAPROMPT-3-RESULT.json|نتیجه]]
 
@@ -64,7 +141,7 @@ updated: 2026-08-21
 
 > 🧬 **پین 2026-08-20 ~21:5x (+10) — Nervous-System Recovery.** لایهٔ ادغام Wave 0: receipt v2 + test discovery + AST capability parser + immune cards. حکم **WAVE0_PARTIAL** · wave1_unlocked=false. GitHub عمومی UNLOCATED؛ `7a66352` محلی است. C-048..C-053 کاندید. ریل B/C اعمال نشد. [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README|recovery]] · [[../06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CANDIDATE-FINDINGS|کاندیدها]] · [[../06-EVIDENCE/GLM53-WAVE0-2026-08-20/VERDICT|WAVE0 GLM]]
 
-> 🐙 **پین 2026-08-20 ~20:3x (+10) — A14–A19.** `READ_BACK_USED` `mem-6c528a350df6` · A15 سه مغز + رسید · A16 پنجرهٔ تلگرام صفر رسید · A17 `HC_WM_CAUSAL` · A18 BLOCKED · lease آزاد · hook دانش برای C مجاز. یافته‌ها: `MISSING_ACK_FOR_/remember` · `CORRECT_ACCEPTED_INVALID_TURN_ID` · `STALE_GATE_LABEL_IN_REPLY`. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|گزارش]] · [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF|A19]]
+> 🐙 **پین 2026-08-20 ~20:3x (+10) — A14–A19.** `READ_BACK_USED` `mem-6c528a350df6` · A15 سه مغز + رسید · A16 پنجرهٔ تلگرام صفر رسید · A17 `HC_WM_CAUSAL` · A18_live_TG=PASS narrow 2026-08-23; Full Loop inbound still open/BLOCKED · lease آزاد · hook دانش برای C مجاز. یافته‌ها: `MISSING_ACK_FOR_/remember` · `CORRECT_ACCEPTED_INVALID_TURN_ID` · `STALE_GATE_LABEL_IN_REPLY`. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|گزارش]] · [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A19-HANDOFF|A19]]
 
 > 🐙 **پین 2026-08-20 ~20:20 (+10) — A13 PASS.** `update_id=223883327` · spine+1 · مدل+0 · یک reply. **TELEGRAM MEMORY READY.** بعدی: `/remember کلمه رمز: مرجان` سپس `کلمه رمز چه بود؟`. [[../06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A13-TRACE|A13]]
 

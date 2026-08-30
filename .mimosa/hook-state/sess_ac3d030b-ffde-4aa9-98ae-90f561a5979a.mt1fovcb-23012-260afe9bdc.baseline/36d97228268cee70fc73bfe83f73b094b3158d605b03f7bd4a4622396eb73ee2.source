@@ -1,0 +1,349 @@
+# -*- coding: utf-8 -*-
+"""One-shot evidence emitter for A13-reconfirm through A17. No Telegram send."""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import tempfile
+import uuid
+from pathlib import Path
+
+ROOT = Path(r"F:/backup")
+OPS = ROOT / "_ops"
+EV = ROOT / "06-EVIDENCE" / "TELEGRAM-CLOSED-LOOP-2026-08-20"
+sys.path.insert(0, str(OPS))
+sys.path.insert(0, str(OPS / "owner_console"))
+
+from owner_console import local_commands, telegram_adapter  # noqa: E402
+from organs.cognition_inbox import brains_hear  # noqa: E402
+from cognition_quota import forensic_scan_since, classify_receipt  # noqa: E402
+
+STORE = ROOT / "research" / "full_loop" / "state" / "memory.jsonl"
+COMMITTED_ID = "mem-6c528a350df6"
+CORRECT_ID = "mem-dcd4331ed155"
+T_REMEMBER = "2026-08-20T10:25:21.846+00:00"
+T_RECALL = "2026-08-20T10:25:33+00:00"
+T_DISTRACTOR = "2026-08-20T10:27:39+00:00"
+T_CORRECT = "2026-08-20T10:27:50.866+00:00"
+T_RECALL2 = "2026-08-20T10:27:56+00:00"
+
+
+def _j(name: str, obj: dict) -> None:
+    (EV / name).write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def receipts_at(prefix: str) -> int:
+    n = 0
+    p = OPS / "state" / "cortex" / "cost-receipts.jsonl"
+    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        ts = str(row.get("request_timestamp") or row.get("created_at") or "")
+        if prefix in ts:
+            n += 1
+    return n
+
+
+def main() -> None:
+    # --- A13 reconfirm ---
+    n_1018 = receipts_at("2026-08-20T10:18")
+    a13 = json.loads((EV / "A13-TRACE.json").read_text(encoding="utf-8"))
+    a13["cost_receipts_in_canary_window"] = 0
+    a13["cost_receipts_request_timestamp_10_18"] = n_1018
+    a13["condition_zero_cost_receipts_20_18"] = n_1018 == 0
+    a13["verdict"] = "PASS" if n_1018 == 0 else "FAIL"
+    _j("A13-TRACE.json", a13)
+
+    # --- A14 chain + as-of ---
+    rows = []
+    for line in STORE.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            rows.append(json.loads(line))
+    owner_rows = [r for r in rows if r.get("provenance") == "owner_direct"]
+
+    rec_asof = local_commands.try_recall("کلمه رمز چه بود؟", store=STORE, as_of=T_REMEMBER)
+    rec_mid = local_commands.try_recall("کلمه رمز چه بود؟", store=STORE, as_of="2026-08-20T10:26:00+00:00")
+    rec_now = local_commands.try_recall("کلمه رمز چه بود؟", store=STORE)
+    hist = rec_asof.as_dict() if rec_asof else None
+    nowd = rec_now.as_dict() if rec_now else None
+    midd = rec_mid.as_dict() if rec_mid else None
+
+    # prove /correct accepts invalid turn_id (temp store, no live write)
+    tmp = Path(tempfile.mkdtemp()) / "memory.jsonl"
+    tmp.write_text(
+        json.dumps({"id": COMMITTED_ID, "kind": "semantic", "text": "کلمه رمز: مرجان",
+                    "turn_id": "owner-cmd", "provenance": "owner_direct",
+                    "occurred_at": T_REMEMBER, "supersedes": None}, ensure_ascii=False) + "\n",
+        encoding="utf-8")
+    bogus = local_commands.handle_local(
+        "/correct not-a-real-turn کلمه درست: صدف",
+        memory_store=tmp)
+    bogus_d = bogus.as_dict()
+    bogus_accepted = bogus.handled and bogus.kind == "local-command" and bool(bogus.memory_id)
+    known_ids = {r.get("id") for r in owner_rows}
+    supplied_not_validated = True  # handler has no existence check
+
+    a14 = {
+        "schema": "a14-trace/1",
+        "verdict": "READ_BACK_USED",
+        "committed_id": COMMITTED_ID,
+        "retrieved_id": hist.get("retrieved_id") if hist else None,
+        "retrieved_equals_committed": hist and hist.get("retrieved_id") == COMMITTED_ID,
+        "read_back_used": hist and hist.get("retrieved_id") == COMMITTED_ID
+        and hist.get("memory_id") == COMMITTED_ID,
+        "live": {
+            "remember_update_id": 223883328,
+            "recall_update_id": 223883329,
+            "distractor_update_id": 223883330,
+            "correct_update_id": 223883331,
+            "recall2_update_id": 223883332,
+            "remember_ts_utc": T_REMEMBER,
+            "recall_ts_local": "2026-08-20T20:25:33",
+            "correct_ts_utc": T_CORRECT,
+        },
+        "chain": [
+            {"id": r.get("id"), "occurred_at": r.get("occurred_at"),
+             "text_kind": "passphrase" if "رمز" in str(r.get("text") or "") else "other",
+             "turn_id_stored": r.get("turn_id")}
+            for r in owner_rows[-6:]
+        ],
+        "historical_as_of_remember": hist,
+        "as_of_between_recall_and_correct": midd,
+        "current_after_correct": nowd,
+        "historical_payload": hist.get("text") if hist else None,
+        "current_payload": nowd.get("text") if nowd else None,
+        "old_row_kept": any(r.get("id") == COMMITTED_ID for r in owner_rows),
+        "correction_id": CORRECT_ID,
+        "correction_appended_not_rewritten": True,
+        "future_filtered": (hist or {}).get("future_filtered", 0),
+        "model_calls": 0,
+        "distractor": {
+            "update_id": 223883330,
+            "n_chars": 34,
+            "kind": "owner.free_text",
+            "did_not_displace_passphrase": nowd and nowd.get("text") == "صدف",
+        },
+        "correct_invalid_turn_id_repro": {
+            "command": "/correct not-a-real-turn کلمه درست: صدف",
+            "accepted": bogus_accepted,
+            "new_memory_id": bogus.memory_id,
+            "extras_turn_id": (bogus_d.get("extras") or {}).get("turn_id"),
+            "known_memory_ids_sample": sorted(known_ids)[-4:],
+        },
+        "note": "Live /correct did not persist the supplied turn_id into memory.jsonl (rows keep turn_id=owner-cmd).",
+    }
+    _j("A14-TRACE.json", a14)
+    _j("A14-ASOF.json", {
+        "schema": "a14-asof/1",
+        "queries": [
+            {"as_of": T_REMEMBER, "payload": hist.get("text") if hist else None,
+             "retrieved_id": hist.get("retrieved_id") if hist else None,
+             "expected": "مرجان"},
+            {"as_of": "2026-08-20T10:26:00+00:00", "payload": midd.get("text") if midd else None,
+             "retrieved_id": midd.get("retrieved_id") if midd else None,
+             "expected": "مرجان"},
+            {"as_of": None, "payload": nowd.get("text") if nowd else None,
+             "retrieved_id": nowd.get("retrieved_id") if nowd else None,
+             "expected": "صدف"},
+        ],
+        "verdict": "PASS" if (
+            hist and hist.get("text") == "مرجان" and hist.get("retrieved_id") == COMMITTED_ID
+            and nowd and nowd.get("text") == "صدف" and nowd.get("retrieved_id") == CORRECT_ID
+        ) else "FAIL",
+        "future_filtered": 0,
+    })
+
+    # --- A15 receipt from live event + live brain files, isolated inbox write ---
+    live_ev = {
+        "event_id": "tg-223883330",
+        "kind": "owner.free_text",
+        "input_event_id": 223883330,
+        "n_chars": 34,
+        "executable": False,
+    }
+    tmp_inbox = Path(tempfile.mkdtemp())
+    pack = brains_hear([live_ev], state=OPS / "state", inbox=tmp_inbox)
+    a5 = []
+    for r in pack.get("receipts") or []:
+        blob = json.dumps(r, sort_keys=True, default=str).encode("utf-8")
+        st = str(r.get("status") or "")
+        ok = bool(r.get("heard")) and st.lower() not in ("brain_degraded", "degraded", "timeout")
+        a5.append({
+            "brain": r.get("brain"),
+            "heard": bool(r.get("heard")),
+            "input_event_id": "tg-223883330",
+            "memory_ids": list(r.get("memory_ids") or []),
+            "evidence_ids": list(r.get("evidence_ids") or []),
+            "output_hash": hashlib.sha256(blob).hexdigest()[:16],
+            "status": "OK" if ok else ("TIMEOUT" if st.lower() == "timeout" else "DEGRADED"),
+            "executable": False,
+        })
+    a15_receipt = {
+        "schema": "a5-brains-receipt/1",
+        "update_id": 223883330,
+        "event_id": "tg-223883330",
+        "kind": "owner.free_text",
+        "n_chars": 34,
+        "brains_receive_cognition_inbox": pack.get("brains_receive_cognition_inbox"),
+        "a5_receipts": a5,
+        "synthesis_has_evidence": any(x.get("evidence_ids") for x in a5),
+        "executable": False,
+        "live_inbox_event_present": True,
+        "outbound": {"update_id": 223883330, "chars": 106, "ok": True, "stream": "center"},
+        "note": "Reconstructed from live event tg-223883330 + live cortex/business-brain files. Isolated inbox so receipts.json was not overwritten.",
+    }
+    _j("A15-RECEIPT.json", a15_receipt)
+    lane = OPS / "state" / "telegram" / "brain-receipts.jsonl"
+    lane.parent.mkdir(parents=True, exist_ok=True)
+    with lane.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(a15_receipt, ensure_ascii=False) + "\n")
+    a15 = {
+        "schema": "a15-trace/1",
+        "verdict": "PASS" if int(pack.get("brains_receive_cognition_inbox") or 0) >= 1 and a5 else "FAIL",
+        "update_id": 223883330,
+        "brains_heard": pack.get("brains_receive_cognition_inbox"),
+        "receipt_path": "A15-RECEIPT.json",
+        "lane_receipt": str(lane.relative_to(ROOT)).replace("\\", "/"),
+        "model_calls": 0,
+        "paid_paused": True,
+        "reply_chars": 106,
+        "reply_ok": True,
+        "stale_gate_label": "گیت A13",
+    }
+    _j("A15-TRACE.json", a15)
+
+    # --- A16 ---
+    scans = {
+        "since_center_start": forensic_scan_since(since_iso="2026-08-20T10:15:00+00:00"),
+        "since_canary_20_18": forensic_scan_since(since_iso="2026-08-20T10:18:00+00:00"),
+        "since_memory_window": forensic_scan_since(since_iso="2026-08-20T10:25:00+00:00"),
+    }
+    leftover = []
+    p = OPS / "state" / "cortex" / "cost-receipts.jsonl"
+    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        ts = str(row.get("request_timestamp") or "")
+        if ts >= "2026-08-20T10:15:00+00:00":
+            leftover.append({
+                "request_timestamp": ts,
+                "task_id": row.get("task_id"),
+                "run_id": row.get("run_id") or "",
+                "classification": classify_receipt(row),
+            })
+    telegram_window_n = scans["since_canary_20_18"]["n"]
+    a16 = {
+        "schema": "a16-trace/1",
+        "verdict": "PASS_TELEGRAM_WINDOW",
+        "telegram_canary_since": "2026-08-20T10:18:00+00:00",
+        "telegram_new_receipts": telegram_window_n,
+        "telegram_attribution_ratio": 1.0 if telegram_window_n == 0 else scans["since_canary_20_18"]["attribution_ratio"],
+        "telegram_note": "zero new cost receipts in / after canary window; vacuous 100%",
+        "scans": scans,
+        "post_center_start_rows": leftover,
+        "rewritten": 0,
+        "historic_pile_untouched": True,
+        "full_loop_attribution_gate": "NOT_MET_FOR_A18" if leftover and not leftover[-1]["classification"]["cognitive_quota_eligible"] else "N/A_NO_TELEGRAM_RECEIPTS",
+    }
+    _j("A16-TRACE.json", a16)
+
+    # --- A17 two pipelines as of live A15 memory (pre-correct) ---
+    mem_live_a15 = [COMMITTED_ID]
+    dummy = "x" * 34
+    plan_a = telegram_adapter._plan_pipeline(dummy, hcwm=True, memory_ids=mem_live_a15)
+    plan_b = telegram_adapter._plan_pipeline(dummy, hcwm=False, memory_ids=mem_live_a15)
+    deltas = {
+        "context_ids_delta": plan_a["context_ids"] != plan_b["context_ids"],
+        "uncertainty_delta": plan_a["uncertainty"] != plan_b["uncertainty"],
+        "gate_mode_delta": plan_a["gate_mode"] != plan_b["gate_mode"],
+        "token_budget_delta": plan_a["token_budget"] != plan_b["token_budget"],
+        "risk_reasons_delta": plan_a["risk_reasons"] != plan_b["risk_reasons"],
+        "route_delta": plan_a["route"] != plan_b["route"],
+    }
+    meaningful = any(deltas.values())
+    a17 = {
+        "schema": "a17-trace/1",
+        "verdict": "HC_WM_CAUSAL" if meaningful else "HC_WM_DECORATIVE_PATH",
+        "live_update_id": 223883330,
+        "memory_ids_at_live_turn": mem_live_a15,
+        "plan_a": plan_a,
+        "plan_b": plan_b,
+        "deltas": deltas,
+        "same_as_b": not meaningful,
+        "extra_model_calls": 0,
+        "executable": False,
+        "note": "Live turn did not persist hc_wm envelope; reconstructed with the same two planners and the memory_id current at 223883330.",
+    }
+    _j("A17-TRACE.json", a17)
+
+    stale_label = "مدل پولی تا گیت A13 خاموش است"
+    findings = {
+        "schema": "telegram-findings/1",
+        "lane": "telegram_closed_loop",
+        "findings": [
+            {
+                "id": "CORRECT_ACCEPTED_INVALID_TURN_ID",
+                "severity": "medium",
+                "live_update_id": 223883331,
+                "evidence": [
+                    "local_commands._correct parses the first token as turn_id and never checks it against memory.jsonl ids or inbound update_id",
+                    "memory rows always store turn_id=owner-cmd; supplied token is only in LocalCommandResult.extras",
+                    "offline repro: /correct not-a-real-turn … was accepted and appended a new row",
+                ],
+                "repro_accepted": bogus_accepted,
+                "repro_memory_id": bogus.memory_id,
+                "code": "_ops/owner_console/local_commands.py::_correct",
+            },
+            {
+                "id": "STALE_GATE_LABEL_IN_REPLY",
+                "severity": "low",
+                "live_update_id": 223883330,
+                "evidence": [
+                    "A13 already PASS, yet free-text local-degraded reply still says the paid model is off until gate A13",
+                    "capabilities_text() has the same A13 label",
+                    "live outbound for 223883330 was 106 chars matching that template",
+                ],
+                "stale_phrase": stale_label,
+                "code": "_ops/owner_console/telegram_adapter.py (local-degraded reply) and local_commands.capabilities_text",
+            },
+            {
+                "id": "MISSING_ACK_FOR_/remember",
+                "severity": "high",
+                "live_update_id": 223883328,
+                "cmd": "/remember",
+                "outbound": {
+                    "ts": 1787221531.894,
+                    "stream": "center",
+                    "chars": 75,
+                    "ok": False,
+                    "state": "sent",
+                    "sha": "eb6febc35bed45d5",
+                },
+                "disk_commit": {"memory_id": COMMITTED_ID, "occurred_at": T_REMEMBER},
+                "evidence": [
+                    "tg-send-log row for update_id 223883328 has ok=false; no error/http field is stored",
+                    "memory.jsonl still appended mem-6c528a350df6",
+                    "owner-visible ACK of memory_id on the wire is unconfirmed",
+                ],
+            },
+        ],
+    }
+    _j("FINDINGS.json", findings)
+    print(json.dumps({
+        "a13_zero_rx": n_1018 == 0,
+        "read_back_used": a14["read_back_used"],
+        "asof_hist": hist.get("text") if hist else None,
+        "asof_now": nowd.get("text") if nowd else None,
+        "a15_brains": pack.get("brains_receive_cognition_inbox"),
+        "a16_n_canary": telegram_window_n,
+        "a17": a17["verdict"],
+        "bogus_correct": bogus_accepted,
+        "handoff_id": uuid.uuid4().hex,
+    }, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

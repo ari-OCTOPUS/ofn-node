@@ -1,8 +1,8 @@
 ---
 type: design
-status: draft
+status: active
 created: 2026-08-16
-updated: 2026-08-16
+updated: 2026-08-23
 created_by: agent
 tags: [octopus, tcb, launcher]
 sources:
@@ -11,6 +11,14 @@ sources:
 ---
 
 # Launcher invariant (gen-3 lesson, generalized) — DESIGN ONLY
+
+> **2026-08-23 delta:** the two scheduled-task launcher defects are repaired.
+> Both 4d actions now use
+> `C:\Program Files\Python313\python.exe`; Poisoning Watch is enabled with last
+> result `0`, while Consolidation Tick is disabled because its payload imports a
+> retired module. The broader daemon boot-invariant below is still design-only
+> and still requires the TCB/owner ceremony. Current evidence:
+> [[../06-EVIDENCE/UPDATE-DEBUG-SWEEP-2026-08-23]].
 
 Do not wire into TCB (`brain/daemon.py`, `brain/guardrails.py`, `brain/automation.py`) without an owner re-sign vote.
 
@@ -45,8 +53,8 @@ Absence of enforce currently **does not** fail-closed: `check_invariants` sets `
 | `cockpit-brain-run.ps1` | yes (explicit last-wins parse) | no | comment documents the 08-04 trap |
 | `python -m brain.daemon` (live pid 27164) | **inherited launching shell** | **yes** | no dedicated bat; `4d_system/start.bat` points at Desktop Streamlit |
 | `4d_system/scripts/start_supervisor.bat` | no | supervisor, not `_job_guard` | task `4d_system_supervisor` **not** registered |
-| `OCTOPUS 4d Consolidation Tick` | script tries flags but ambient-wins; action is `py` | no | LastResult 267011 never-run |
-| `OCTOPUS 4d Poisoning Watch` | n/a (read-only) | no | LastResult 2147942402 `py` not found |
+| `OCTOPUS 4d Consolidation Tick` | script tries flags but ambient-wins; action is full `python.exe` | no | 2026-08-23 result 0, then Disabled because payload is retired |
+| `OCTOPUS 4d Poisoning Watch` | n/a (read-only) | no | full `python.exe`; Ready; 2026-08-23 result 0 |
 | `OCTOPUS-doctor-day` | action has no flags call | no | full `python.exe` path |
 
 ## Suggested non-TCB wrapper (not created this session)

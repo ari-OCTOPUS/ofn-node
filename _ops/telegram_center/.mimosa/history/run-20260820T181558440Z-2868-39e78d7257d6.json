@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20260820T181558440Z-2868-39e78d7257d6",
+  "runStatus": "completed",
+  "errors": [],
+  "target": ".",
+  "revision": "8fd7c723c0c9c7da2bfabcfcd9968e6fd91a7a61",
+  "diffHash": "0d1feffcd8214c822966ba3b5b8f6ed27d07a55ff1c12c4f77fde4b0a46919f5",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-08-20T18:15:58.440Z",
+  "timing": {
+    "startedAt": "2026-08-20T18:15:57.196Z",
+    "completedAt": "2026-08-20T18:15:58.440Z",
+    "durationMs": 1244
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 0,
+    "bySeverity": {},
+    "byStatus": {}
+  },
+  "coverage": {
+    "status": "complete",
+    "reasonCounts": {
+      "baseline_partial": 1
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/ta<REDACTED-OPENAI-KEY>.json"
+}

@@ -1,0 +1,33 @@
+"""Shared painting-relevance keyword filter used by all harvesters.
+
+Deliberately broad — the YAML scorer downstream (painter_lead_scoring.yaml)
+does the hard filtering and routing. Tune weights there, not here, unless a
+keyword generates pure noise.
+"""
+from __future__ import annotations
+
+PAINT_KEYWORDS: tuple[str, ...] = (
+    "paint",        # painting / repaint / painter
+    "repaint",
+    "coating",
+    "facade",
+    "external",
+    "render",
+    "refurbish",
+    "alteration",
+    "addition",
+    "remedial",
+    "renovation",
+    "strata",
+    "commercial",
+    "decorat",      # decorating / decoration (common tender wording)
+    "make good",
+    "makegood",
+    "waterproof",   # often bundled with remedial repaint packages
+)
+
+
+def is_paint_relevant(text: str) -> bool:
+    """True if the text plausibly relates to painting work."""
+    t = (text or "").lower()
+    return any(kw in t for kw in PAINT_KEYWORDS)

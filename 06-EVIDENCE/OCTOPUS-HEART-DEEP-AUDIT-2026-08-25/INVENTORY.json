@@ -1,0 +1,174 @@
+{
+  "stamp_local": "2026-08-25T08:16:03+10:00",
+  "apply": false,
+  "keep": [
+    "cardiac",
+    "control_law",
+    "rhythm",
+    "pulse_arbiter"
+  ],
+  "producer": "Ios",
+  "schema": "octopus-heart-full-inventory/1",
+  "folder": "F:/backup/_ops/heart",
+  "modules": [
+    {
+      "file": "pulse_arbiter.py",
+      "role": "KEEP voting contract",
+      "touch": "audit-only"
+    },
+    {
+      "file": "producers.py",
+      "role": "Gate-0 + cardiac/rhythm vote inputs",
+      "touch": "audit-only"
+    },
+    {
+      "file": "control_law.py",
+      "role": "KEEP velocity-first vote + shadow period",
+      "touch": "audit-only"
+    },
+    {
+      "file": "interface.py",
+      "role": "ADR-001 HeartParams/HeartSignal",
+      "touch": "audited P3 holds"
+    },
+    {
+      "file": "doctor_setpoint.py",
+      "role": "Doctor band proposer",
+      "touch": "audited P3 holds"
+    },
+    {
+      "file": "shadow.py",
+      "role": "production_wire predicate",
+      "touch": "audited P1+P2 reasons honest"
+    },
+    {
+      "file": "sog_math.py",
+      "role": "SOG equations",
+      "touch": "audited P2 hash != lock"
+    },
+    {
+      "file": "sim_heart.py",
+      "role": "closed-loop sim",
+      "touch": "audited P2 HOLD no re-run"
+    },
+    {
+      "file": "heartstate.py",
+      "role": "telemetry adapter not commander",
+      "touch": "audited"
+    },
+    {
+      "file": "work_pump.py",
+      "role": "beat work templates",
+      "touch": "audited P4"
+    },
+    {
+      "file": "fuel_meter.py",
+      "role": "stay",
+      "touch": "audited P5"
+    },
+    {
+      "file": "budget_judge.py",
+      "role": "stay dry-default",
+      "touch": "audited P5"
+    },
+    {
+      "file": "money_pulse.py",
+      "role": "extract-later",
+      "touch": "audited P5, confirmed_aud=0"
+    },
+    {
+      "file": "life_economy.py",
+      "role": "extract-later stale",
+      "touch": "audited P5"
+    },
+    {
+      "file": "life_currency.py",
+      "role": "extract-later overlay",
+      "touch": "audited P5"
+    },
+    {
+      "file": "budget_transfer.py",
+      "role": "D4 free_with_log",
+      "touch": "listed, not pacemaker"
+    },
+    {
+      "file": "cognition_effect.py",
+      "role": "LLM effect artery",
+      "touch": "listed"
+    },
+    {
+      "file": "autoregulation.py",
+      "role": "velocity->Governor spend additive",
+      "touch": "listed"
+    },
+    {
+      "file": "kalman_shadow_pipeline.py",
+      "role": "shadow period observer",
+      "touch": "listed"
+    },
+    {
+      "file": "pulse_shadow_compare.py",
+      "role": "arbiter vs shadow divergence",
+      "touch": "listed; feeds 3.0MB jsonl"
+    },
+    {
+      "file": "replay_s.py",
+      "role": "S-batch replay validation",
+      "touch": "listed, offline"
+    },
+    {
+      "file": "__init__.py",
+      "role": "package",
+      "touch": "listed"
+    }
+  ],
+  "adjacent_not_in_heart_folder": [
+    {
+      "file": "_ops/heart_wires.py",
+      "role": "thesis/coherence/identity on beat",
+      "touch": "audited P4"
+    },
+    {
+      "file": "_ops/off_heartbeat.py",
+      "role": "OFF organ emitter",
+      "touch": "not pacemaker"
+    },
+    {
+      "file": "_ops/doctor/uniqueness_heartbeat.py",
+      "role": "RO uniqueness",
+      "touch": "not pacemaker"
+    },
+    {
+      "file": "_ops/registry/entities/organ-heart.json",
+      "role": "live_state=shadow R2/L2",
+      "touch": "read"
+    }
+  ],
+  "activation_flags_present": [
+    "ACTIVATION-PULSE.flag",
+    "ACTIVATION-PULSE-ARBITER.flag",
+    "ACTIVATION-HEARTSTATE.flag",
+    "ACTIVATION-HEART-DOCTOR.flag",
+    "ACTIVATION-WORK-LLM.flag"
+  ],
+  "env_wires_named_in_code": [
+    "OCTOPUS_WIRE_BIO",
+    "OCTOPUS_WIRE_PULSE",
+    "OCTOPUS_WIRE_MONEY_PULSE",
+    "OCTOPUS_WIRE_HEART_FUEL",
+    "OCTOPUS_WIRE_BUDGET_JUDGE",
+    "OCTOPUS_WIRE_THESIS_QUEUE",
+    "OCTOPUS_WIRE_COHERENCE",
+    "OCTOPUS_WIRE_IDENTITY_EQ"
+  ],
+  "fourd_health": "stale (age >> sla 7200s), advisory_only",
+  "untouched_code": "ALL source left unmodified. Evidence only.",
+  "still_forbidden": [
+    "rewrite arbiter",
+    "remove a heart",
+    "open production_wire",
+    "invent CONFIRMED",
+    "auto-rehash",
+    "rm *-latest"
+  ]
+}

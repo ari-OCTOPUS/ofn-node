@@ -1,0 +1,24 @@
+﻿{
+    "captured_at_local":  "2026-08-22T17:12:29+10:00",
+    "octopus_wire_exists":  false,
+    "ofn_node_path":  "F:\\ofn-node",
+    "ofn_node_branches":  [
+                              "* main",
+                              "remotes/origin/HEAD -\u003e origin/main",
+                              "remotes/origin/main",
+                              "remotes/origin/ofn/wire"
+                          ],
+    "github_ls_remote_ofn_wire":  "fatal: could not read Username for \u0027https://github.com\u0027: terminal prompts disabled",
+    "github_auth_blocked":  true,
+    "germline_ofn_wire_has_MESSAGES_WINDOWS":  false,
+    "germline_ofn_wire_has_WIRE_md":  true,
+    "canonical_onboarding_doc_found":  false,
+    "onboarding_hits":  [
+
+                        ],
+    "playbook_sources":  [
+                             "MARKETING-WIRE-DIAGNOSIS.json post_expedited_fix",
+                             "MEGAPROMPT-BOARD-CHARTER-2026-08-16.md section ofn/wire protocol",
+                             "germline ofn/wire:WIRE.md historical single-file format"
+                         ]
+}

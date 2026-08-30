@@ -1,0 +1,10 @@
+HEAD is now at c1969bce sync: preserve board 138 runtime lineage and tests
+==COLLECT==
+2136 tests collected in 1.98s
+==FULL==
+2131 passed, 5 skipped in 31.56s
+==COMPILEALL==
+COMPILE_RC=0
+==POST_STATUS==
+STATUS_LINES=0
+WT_CLEANED

@@ -1,6 +1,6 @@
 {
   "schema": "cultivation-report.v1",
-  "ts": "2026-08-19T21:37:56",
+  "ts": "2026-08-30T12:41:09",
   "legs": {
     "mining": {
       "leg": "mining",
@@ -9,11 +9,11 @@
       "duplicates": 0,
       "pending": 0,
       "starved": false,
-      "last_fed_at": "2026-08-19T00:19:38",
+      "last_fed_at": "2026-08-30T01:01:37",
       "notes": [],
       "source": "coordinator/data/decisions.jsonl",
       "source_exists": true,
-      "source_age_days_raw": 44.6,
+      "source_age_days_raw": 55.2,
       "source_age_days": 0.0,
       "source_bytes": 933,
       "source_lines": 1,
@@ -27,7 +27,7 @@
       "duplicates": 0,
       "pending": 0,
       "starved": false,
-      "last_fed_at": "2026-08-19T00:19:39",
+      "last_fed_at": "2026-08-30T01:01:37",
       "notes": [],
       "stale_source": false
     },
@@ -38,7 +38,7 @@
       "duplicates": 0,
       "pending": 0,
       "starved": false,
-      "last_fed_at": "2026-08-19T00:19:39",
+      "last_fed_at": "2026-08-30T01:01:37",
       "notes": [],
       "stale_source": false
     },
@@ -49,7 +49,7 @@
       "duplicates": 0,
       "pending": 0,
       "starved": false,
-      "last_fed_at": "2026-08-19T00:19:39",
+      "last_fed_at": "2026-08-30T01:01:37",
       "notes": [],
       "stale_source": false
     },
@@ -60,11 +60,11 @@
       "duplicates": 0,
       "pending": 0,
       "starved": false,
-      "last_fed_at": "2026-08-19T00:19:39",
+      "last_fed_at": "2026-08-30T01:01:37",
       "notes": [],
       "catalog": "03 - Projects/Ziman Galerry/03-Offering/ziman-catalog.json",
       "catalog_exists": true,
-      "catalog_age_days_raw": 38.7,
+      "catalog_age_days_raw": 49.3,
       "catalog_age_days": 0.0,
       "catalog_products": 36,
       "catalog_families": 5,

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "octopus-vault": {
+      "command": "python",
+      "args": ["-X", "utf8", "F:\\backup\\_ops\\octopus_mcp\\server.py"]
+    }
+  }
+}

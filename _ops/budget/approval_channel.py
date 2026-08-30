@@ -383,13 +383,19 @@ def _url_json_get(url: str, timeout_s: float) -> dict:
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
     """posterِ پیش‌فرضِ HTTP (stdlib-only، JSON body). body هرگز شاملِ token نیست (token در
     URL است). هرگز URL را لاگ نمی‌کند. برای send/answerCallback/editMessage."""
-    # DA-4-P1 (PHASE02 2026-08-16): ناظرِ سایهٔ PEP — فقط ثبت، صفر تغییر رفتار.
+    # DA-4: shadow by default; owner-enabled enforcement requires a real lease.
     try:
-        import telegram_pep_shadow as _pep  # noqa: WPS433 — same-dir lazy
-        _pep.hook(sender="approval_channel._url_json_post",
-                  action=url.rsplit("/", 1)[-1], params=body)
+        import budget.telegram_pep_shadow as _pep  # noqa: WPS433 — canonical module identity
+        action = url.rsplit("/", 1)[-1].split("?", 1)[0]
+        _pep_decision = _pep.hook(
+            sender="approval_channel._url_json_post", action=action, params=body)
+        if (_pep_decision.get("enforced")
+                and _pep_decision.get("verdict") != "allow"):
+            return {"ok": False, "description": "PEP_DENIED"}
     except Exception:  # noqa: BLE001
-        pass
+        if str(os.environ.get("OCTOPUS_TG_PEP_ENFORCE", "")).strip().lower() in (
+                "1", "true", "yes", "on"):
+            return {"ok": False, "description": "PEP_DENIED"}
     data = json.dumps(body, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(url, data=data,
                                  headers={"User-Agent": "octopus-telegram/0.1",

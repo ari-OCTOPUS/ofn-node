@@ -1,16 +1,16 @@
 {
-  "ts": 1786827602.3839598,
+  "ts": 1788037202.7773259,
   "schema": "doctor-vitals.v1",
   "missions_total": {
     "value": 1,
     "provenance": "درون‌زاد"
   },
   "missions_open": {
-    "value": 1,
+    "value": 0,
     "provenance": "درون‌زاد"
   },
   "missions_merged": {
-    "value": 0,
+    "value": 1,
     "provenance": "برون‌زاد",
     "receipt": "git log — کامیت واقعی، نه ادعا"
   },

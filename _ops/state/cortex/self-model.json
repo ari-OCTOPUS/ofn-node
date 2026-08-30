@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-19T21:57:49",
+  "ts": "2026-08-30T12:08:23",
   "schema": "self-model.v1",
-  "n_modules": 778,
-  "total_lines": 207145,
-  "n_tests": 758,
-  "n_wire_flags": 183,
+  "n_modules": 937,
+  "total_lines": 235877,
+  "n_tests": 854,
+  "n_wire_flags": 189,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
     "ACTIVATION-CORTEX-PAID.flag",
@@ -48,6 +48,7 @@
     "OCTOPUS_WIRE_CHORD"
   ],
   "undocumented": [
+    "ablation/__init__.py",
     "agi2027_control/tests/__init__.py",
     "cognition/tests/__init__.py",
     "collab/__init__.py",
@@ -56,10 +57,9 @@
     "conversation_hub/router.py",
     "conversation_hub/schemas.py",
     "conversation_hub/service.py",
-    "discovery/__init__.py",
-    "evidence_plane/__init__.py"
+    "discovery/__init__.py"
   ],
-  "self_awareness_pct": 94.7,
+  "self_awareness_pct": 95.0,
   "modules": {
     "_agent_reports/live-watch-2026-07-26/watcher.py": {
       "purpose": "watcher.py — دو ساعت مشاهدهٔ زندهٔ سطحِ تلگرام (۲۰۲۶-۰۷-۲۶).",
@@ -199,6 +199,28 @@
         "OCTOPUS_WIRE_COLLAB",
         "OCTOPUS_WIRE_COLLAB_MEMORY"
       ],
+      "house_imports": []
+    },
+    "ablation/__init__.py": {
+      "purpose": "",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "ablation/harness.py": {
+      "purpose": "harness.py — هارنس ابلیشن (فاز ۵ MEGA-FINISH-ALL-v1).",
+      "lines": 100,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "swap_gate_ablation",
+        "prediction_ledger_ablation",
+        "memory_record_ablation"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "action_bridge/__init__.py": {
@@ -622,7 +644,7 @@
     },
     "audit/organism_manifest.py": {
       "purpose": "DA-5 جزء ۱ — شناسنامهٔ پنج‌پروسه‌ای ارگانیسم (organism manifest، قدم صفر).",
-      "lines": 205,
+      "lines": 236,
       "n_funcs": 8,
       "n_classes": 0,
       "top_defs": [
@@ -908,7 +930,7 @@
     },
     "budget/approval_channel.py": {
       "purpose": "approval_channel — منبعِ مستقلِ تأییدِ انسانی برای گیت‌های پول (A2/A3).",
-      "lines": 4931,
+      "lines": 4990,
       "n_funcs": 31,
       "n_classes": 5,
       "top_defs": [
@@ -1050,18 +1072,18 @@
     },
     "budget/circuit_breaker.py": {
       "purpose": "circuit_breaker.py — Circuit breaker per-target برای تماس‌های بیرونی (M1-M2).",
-      "lines": 286,
-      "n_funcs": 11,
+      "lines": 328,
+      "n_funcs": 12,
       "n_classes": 1,
       "top_defs": [
         "State",
+        "_debug_log",
         "_cfg",
         "_load_state",
         "_save_state",
         "_target_entry",
         "_effective_cooldown",
-        "_record_outcome",
-        "_window_says_open"
+        "_record_outcome"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -1362,15 +1384,18 @@
     },
     "budget/telegram_pep_shadow.py": {
       "purpose": "telegram_pep_shadow — DA-4-P1: PEP سایه روی مرز ارسال تلگرام (PHASE02 STEP1).",
-      "lines": 107,
-      "n_funcs": 3,
+      "lines": 243,
+      "n_funcs": 11,
       "n_classes": 2,
       "top_defs": [
         "Lease",
         "PepState",
         "params_sha",
-        "observe",
-        "hook"
+        "enforce_on",
+        "_real_store",
+        "_bound_params",
+        "issue_real_lease",
+        "revoke_real_lease"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -1812,8 +1837,8 @@
     },
     "cockpit_brain.py": {
       "purpose": "cockpit_brain.py — مغزِ حافظه‌دارِ کنترل‌پنل.",
-      "lines": 794,
-      "n_funcs": 18,
+      "lines": 828,
+      "n_funcs": 19,
       "n_classes": 0,
       "top_defs": [
         "enabled",
@@ -1823,7 +1848,7 @@
         "_summarise",
         "_calibration_trend_brier",
         "_read_calibration",
-        "self_awareness"
+        "_read_self_knowledge"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -2082,6 +2107,24 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "cognition_quota.py": {
+      "purpose": "A3 — cognition quota + receipt attribution (telegram closed loop).",
+      "lines": 212,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "classify_receipt",
+        "forensic_scan_since",
+        "forensic_scan",
+        "stamp_new_receipt",
+        "_cap",
+        "used_eligible",
+        "gate_paid_intent",
+        "intent_fingerprint"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "cognitive/__init__.py": {
       "purpose": "__init__.py — _ops/cognitive: Cognitive Runtime v1 (Typed Events + Run ID).",
       "lines": 14,
@@ -2140,18 +2183,18 @@
     },
     "cognitive/run_store.py": {
       "purpose": "run_store.py — Cognitive Runtime: Run Store adapter (minimum viable).",
-      "lines": 188,
-      "n_funcs": 11,
+      "lines": 282,
+      "n_funcs": 15,
       "n_classes": 0,
       "top_defs": [
         "_run_path",
+        "_lock_path",
+        "_acquire",
+        "_release",
+        "_exclusive",
         "_utc",
         "_append_jsonl",
-        "_read_jsonl",
-        "create_run",
-        "append_event",
-        "get_run",
-        "list_events"
+        "_read_jsonl"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -2822,7 +2865,7 @@
     },
     "cortex/cost_receipt.py": {
       "purpose": "cost_receipt.py — آداپتور رسیدِ هزینهٔ provider (CL01 / COST-OBS-1، حکم مالک 2026-08-19).",
-      "lines": 221,
+      "lines": 250,
       "n_funcs": 5,
       "n_classes": 2,
       "top_defs": [
@@ -3045,6 +3088,24 @@
         "opslib"
       ]
     },
+    "cortex/heart_brain.py": {
+      "purpose": "cortex/heart_brain.py — مغز مشاور DeepSeek برای Heart v2 (کاملاً advisory).",
+      "lines": 129,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_packet",
+        "_parse_model_json",
+        "wake",
+        "record",
+        "latest"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "model_router",
+        "opslib"
+      ]
+    },
     "cortex/ignition.py": {
       "purpose": "ignition.py — پرایمریتِ غایبِ GNWT: رقابت + آتش‌گیری (ignition) + بازورود (re-entry).",
       "lines": 239,
@@ -3087,7 +3148,7 @@
     },
     "cortex/improve.py": {
       "purpose": "improve.py — مدیرِ خودارتقایی (لایهٔ تجمیعِ owner-facing که در سیستم غایب بود).",
-      "lines": 1010,
+      "lines": 1065,
       "n_funcs": 20,
       "n_classes": 0,
       "top_defs": [
@@ -3183,18 +3244,18 @@
     },
     "cortex/model_router.py": {
       "purpose": "model_router.py — «به همه جا API بده»: یک درِ واحد به سه مغز.",
-      "lines": 745,
-      "n_funcs": 13,
+      "lines": 819,
+      "n_funcs": 14,
       "n_classes": 0,
       "top_defs": [
+        "_receipt_ids",
         "_error_detail",
         "_error_http_code",
         "_log_provider_usage_safe",
         "_paid_log",
         "_norm_echo",
         "_local_quality_ok",
-        "keys_present",
-        "paid_gate"
+        "keys_present"
       ],
       "wire_flags": [
         "ACTIVATION-CORTEX-PAID.flag",
@@ -3310,18 +3371,18 @@
     },
     "cortex/self_audit.py": {
       "purpose": "self_audit.py — موتورِ ممیزیِ ماشین‌خوان: چک‌لیستِ ۲۰-بخشیِ مالک را در لوپ اجرا می‌کند.",
-      "lines": 489,
-      "n_funcs": 50,
+      "lines": 1186,
+      "n_funcs": 79,
       "n_classes": 0,
       "top_defs": [
         "_read",
         "_age_min",
         "_fresh",
-        "_item",
-        "_grep",
-        "_probe_kill_switch",
-        "_probe_watchdog",
-        "_probe_heartbeat_pulse"
+        "_evidence_pack_dir",
+        "_evidence_json_readable",
+        "_resolve_evidence_json_path",
+        "_gate_evidence_bound_done",
+        "_item"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_APPLY_MERGE",
@@ -3533,8 +3594,8 @@
     },
     "dark_capabilities.py": {
       "purpose": "dark_capabilities — کدی که کامل است، تست دارد، صداکننده دارد… و نمی‌دود.",
-      "lines": 447,
-      "n_funcs": 9,
+      "lines": 479,
+      "n_funcs": 11,
       "n_classes": 0,
       "top_defs": [
         "_iter_py",
@@ -3542,13 +3603,29 @@
         "_armed_in_file",
         "_profile_on",
         "_live_by_process",
+        "_cache_sig",
         "scan",
-        "render",
-        "card"
+        "_cache_result"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_CB_TOKEN",
         "OCTOPUS_WIRE_MINING"
+      ],
+      "house_imports": []
+    },
+    "dashboard/gen_runtime_data.py": {
+      "purpose": "gen_runtime_data.py — تولید دادهٔ runtime برای وباپ (فاز ۸ MEGA-FINISH-ALL-v1).",
+      "lines": 100,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_read_json",
+        "_novelty_payload",
+        "_economy_payload",
+        "generate"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_NOVELTY_GATE"
       ],
       "house_imports": []
     },
@@ -3583,7 +3660,7 @@
     },
     "debate/client.py": {
       "purpose": "client.py — کلاینت LLM حداقلی (stdlib، بدون SDK) برای لوپ مناظره و Governor.",
-      "lines": 608,
+      "lines": 613,
       "n_funcs": 11,
       "n_classes": 5,
       "top_defs": [
@@ -3603,18 +3680,18 @@
     },
     "debate/debate_loop.py": {
       "purpose": "debate_loop.py — STAGE 2 پک: limit cycle دو-قطبی «خلاق × معمار».",
-      "lines": 455,
-      "n_funcs": 15,
+      "lines": 489,
+      "n_funcs": 16,
       "n_classes": 0,
       "top_defs": [
+        "_novelty_gate_on",
         "_role_prompt",
         "_stub_transport",
         "_tier_of",
         "_local_transport",
         "_verdict_on",
         "_verdict_dir",
-        "survivor_sig",
-        "survivor_job_id"
+        "survivor_sig"
       ],
       "wire_flags": [
         "ACTIVATION-DEBATE.flag",
@@ -3966,8 +4043,8 @@
     },
     "doctor/calibration.py": {
       "purpose": "calibration.py — Doctor feedback loop + attention-budget (ضدِ agreement-spiral).",
-      "lines": 146,
-      "n_funcs": 6,
+      "lines": 203,
+      "n_funcs": 7,
       "n_classes": 0,
       "top_defs": [
         "record_verdict",
@@ -3975,6 +4052,7 @@
         "should_skip_bottleneck",
         "attention_gate",
         "count_pending_rfc",
+        "draft_epistemic_uncertainty",
         "effective_mine"
       ],
       "wire_flags": [
@@ -4001,7 +4079,7 @@
     },
     "doctor/criticality_v2.py": {
       "purpose": "criticality_v2.py — SHADOW-only composite criticality C_t.",
-      "lines": 217,
+      "lines": 224,
       "n_funcs": 2,
       "n_classes": 2,
       "top_defs": [
@@ -4017,7 +4095,7 @@
     },
     "doctor/doctor.py": {
       "purpose": "doctor.py — Phase 2: Evolutionary Doctor ( parasite on top of organism ).",
-      "lines": 1469,
+      "lines": 1544,
       "n_funcs": 3,
       "n_classes": 2,
       "top_defs": [
@@ -4057,6 +4135,24 @@
         "tournament_rank",
         "_default_judge",
         "survivor"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "doctor/lab_bridge.py": {
+      "purpose": "Bridge: evolutionary doctor RFC -> self-upgrade lab cycle -> Telegram outbox.",
+      "lines": 777,
+      "n_funcs": 24,
+      "n_classes": 0,
+      "top_defs": [
+        "_state_root",
+        "_card_text",
+        "_hash",
+        "_owner_id",
+        "attach_outbox_callback_token",
+        "parse_outbox_callback",
+        "_write_queued_outbox",
+        "enqueue_rfc_card"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -4101,7 +4197,7 @@
     },
     "doctor/self_knowledge.py": {
       "purpose": "self_knowledge.py — حلقهٔ خودشناسیِ عمیقِ دکتر (2026-07-18، رأی مالک «باهوش و فعال + عمیق‌تر»).",
-      "lines": 1137,
+      "lines": 1154,
       "n_funcs": 40,
       "n_classes": 0,
       "top_defs": [
@@ -4204,6 +4300,29 @@
         "_read_pending",
         "_fmt_one",
         "card"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "doctor_contract/__init__.py": {
+      "purpose": "",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "doctor_contract/prescription_gate.py": {
+      "purpose": "prescription_gate.py — گیت تجویز دکتر (فاز ۴ MEGA-FINISH-ALL-v1).",
+      "lines": 100,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "CostCap",
+        "validate",
+        "run_falsifier",
+        "receipt"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -4474,16 +4593,18 @@
     },
     "epistemics/readers.py": {
       "purpose": "Read-ONLY adapters for the off-loop epistemics layer.",
-      "lines": 60,
-      "n_funcs": 6,
-      "n_classes": 0,
+      "lines": 581,
+      "n_funcs": 37,
+      "n_classes": 1,
       "top_defs": [
+        "_TopoGraph",
+        "ops_root",
         "_load_json",
-        "read_fitness_history",
-        "read_telemetry",
-        "read_debate",
-        "read_topology",
-        "read_self_vs_twin"
+        "_load_jsonl",
+        "_p",
+        "uniqueness_latest_path",
+        "uniqueness_jsonl_path",
+        "outbox_dir"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -4504,7 +4625,7 @@
     },
     "epistemics/run_offloop.py": {
       "purpose": "Off-loop entrypoint. Reads (read-only) -> computes 5 metrics -> optionally emits",
-      "lines": 63,
+      "lines": 84,
       "n_funcs": 2,
       "n_classes": 0,
       "top_defs": [
@@ -4679,12 +4800,33 @@
         "opslib"
       ]
     },
-    "evidence_plane/__init__.py": {
-      "purpose": "",
-      "lines": 4,
-      "n_funcs": 0,
+    "evidence_plane/connector_evidence.py": {
+      "purpose": "Connector Evidence Record rules (ADR-LAPTOP-AGENT-DECISIONS-2026-08-22).",
+      "lines": 115,
+      "n_funcs": 6,
       "n_classes": 0,
-      "top_defs": [],
+      "top_defs": [
+        "_now_iso",
+        "is_valid_source_type",
+        "is_valid_evidence_id",
+        "compute_evidence_id",
+        "normalize_record",
+        "validate_batch"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "evidence_plane/connector_gap_loader.py": {
+      "purpose": "CONNECTOR-GAP runtime hook.",
+      "lines": 93,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "resolve_registry_path",
+        "load_registry",
+        "connector_status",
+        "mark_oauth_gaps"
+      ],
       "wire_flags": [],
       "house_imports": []
     },
@@ -4794,7 +4936,7 @@
     },
     "flag_drift.py": {
       "purpose": "پروبِ رانشِ فلگ — «مسلح» در برابرِ «بارگذاری‌شده».",
-      "lines": 628,
+      "lines": 630,
       "n_funcs": 21,
       "n_classes": 0,
       "top_defs": [
@@ -5138,20 +5280,31 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "heart/kernel.py": {
+      "purpose": "heart/kernel.py — هستهٔ خالص: ارزیابی → حالت → period advisory → بیداری مغز.",
+      "lines": 66,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "assess"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "heart/life_currency.py": {
       "purpose": "life_currency.py — واحدِ زندگی سه‌بعدی (فاز ۴ دستورالعمل ۲۰۲۶-08-16، D4/D7).",
-      "lines": 296,
-      "n_funcs": 10,
+      "lines": 323,
+      "n_funcs": 11,
       "n_classes": 3,
       "top_defs": [
         "ActionClass",
         "LifeBudget",
         "BudgetTransfer",
+        "credits_to_aud",
         "_f",
         "enabled",
         "color_scale",
-        "daily_pool",
-        "allocate_beat"
+        "daily_pool"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_LIFE_CURRENCY"
@@ -5159,6 +5312,18 @@
       "house_imports": [
         "opslib"
       ]
+    },
+    "heart/life_economy.py": {
+      "purpose": "life_economy.py — لایهٔ اقتصاد داروینی (فاز ۶ MEGA-FINISH-ALL-v1).",
+      "lines": 280,
+      "n_funcs": 0,
+      "n_classes": 2,
+      "top_defs": [
+        "EconomyConfig",
+        "LifeEconomy"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "heart/money_pulse.py": {
       "purpose": "money_pulse.py — فازِ money-pulse به هر ضربانِ قلب (۲۰۲۶-۰۷-۲۵).",
@@ -5201,18 +5366,18 @@
     },
     "heart/pulse_arbiter.py": {
       "purpose": "pulse_arbiter.py — HH-P11: داورِ نبض (سه قلب، یک ضربان).",
-      "lines": 519,
-      "n_funcs": 15,
+      "lines": 766,
+      "n_funcs": 21,
       "n_classes": 0,
       "top_defs": [
         "flag",
         "_clamp",
         "inverse_variance_precision",
         "_apply_precision",
-        "_vote",
-        "arbitrate",
-        "_cardiac_vote",
-        "_control_vote"
+        "_finite_period",
+        "_authority_vote",
+        "_mark_live_authority",
+        "_control_authority"
       ],
       "wire_flags": [
         "ACTIVATION-PULSE-ARBITER.flag",
@@ -5254,6 +5419,48 @@
         "label_of",
         "ignition_replay",
         "synthetic_ignition_scenarios"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
+    "heart/runtime.py": {
+      "purpose": "heart/runtime.py — ضربان واحد Heart v2 روی BeatScheduler موجود.",
+      "lines": 188,
+      "n_funcs": 11,
+      "n_classes": 0,
+      "top_defs": [
+        "enabled",
+        "_store",
+        "_sense_organ",
+        "_assess_organ",
+        "_brain_organ",
+        "_memory_organ",
+        "_heal_organ",
+        "_write_projection"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_HEART_V"
+      ],
+      "house_imports": [
+        "opslib"
+      ]
+    },
+    "heart/sensors.py": {
+      "purpose": "heart/sensors.py — حسگرهای typed از state زنده (فقط‌خواندنی، fail-soft).",
+      "lines": 161,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "_read_json",
+        "_ts_age",
+        "_parse",
+        "_age_of",
+        "_quality",
+        "_obs",
+        "collect",
+        "summary"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -5313,6 +5520,35 @@
         "delta_self",
         "e_shadow",
         "identity_total"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
+    "heart/state_machine.py": {
+      "purpose": "",
+      "lines": 109,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_assert_purity",
+        "can_transition",
+        "assess_transition"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "heart/store.py": {
+      "purpose": "heart/store.py — Heart v2 Gate 1:HeartStore ترابزنشی روی همان chrono.db.",
+      "lines": 302,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "HeartStore",
+        "_now_iso",
+        "_boot_id",
+        "get_store"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -5451,13 +5687,14 @@
     },
     "hypothesis_engine/experiments/deceptive_grid.py": {
       "purpose": "",
-      "lines": 131,
-      "n_funcs": 5,
+      "lines": 142,
+      "n_funcs": 6,
       "n_classes": 2,
       "top_defs": [
         "RunResult",
         "AgentB",
         "_to_legacy_result",
+        "falsified_assists_at",
         "_make_env",
         "run_prior_only",
         "run_novelty",
@@ -5832,8 +6069,8 @@
     },
     "instant_alert_bridge.py": {
       "purpose": "instant_alert_bridge.py — چیزی که تا دایجستِ بعدی نباید صبر کند.",
-      "lines": 220,
-      "n_funcs": 8,
+      "lines": 233,
+      "n_funcs": 9,
       "n_classes": 0,
       "top_defs": [
         "enabled",
@@ -5843,7 +6080,7 @@
         "_sig_fear",
         "_sig_c6_new",
         "_sig_card_debt",
-        "check"
+        "_outbox_alert"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -6061,11 +6298,12 @@
     },
     "intel_spine/telegram_adapter.py": {
       "purpose": "telegram_adapter — پلِ no-outbound برای ثبتِ تعاملات تلگرام.",
-      "lines": 97,
-      "n_funcs": 3,
+      "lines": 130,
+      "n_funcs": 4,
       "n_classes": 0,
       "top_defs": [
         "log_incoming",
+        "_emit_t48_spine_event",
         "log_outgoing",
         "log_callback"
       ],
@@ -6115,6 +6353,182 @@
       "wire_flags": [
         "OCTOPUS_WIRE_KERNEL_BRIDGE_READER"
       ],
+      "house_imports": []
+    },
+    "lab/__init__.py": {
+      "purpose": "",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/close_wave1_loops.py": {
+      "purpose": "Megaprompt 3 — close laboratory loops (fixture-only).",
+      "lines": 124,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "close_loops",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "registry"
+      ]
+    },
+    "lab/full_loop_flash/__init__.py": {
+      "purpose": "Removable full-loop flash lab. Not imported by organism.py. executable=false.",
+      "lines": 9,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/adapter.py": {
+      "purpose": "Temporary deletable sidecar: organism READ → shadow pipeline → rendered DeepSeek → lab ledger.",
+      "lines": 226,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_dump",
+        "hop_map",
+        "run_stage_a",
+        "_stage_a_md"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/budget.py": {
+      "purpose": "Isolated flash budget. Not K=9 (80 / AU$2). Lab jsonl only — no _ops/state writes.",
+      "lines": 132,
+      "n_funcs": 5,
+      "n_classes": 2,
+      "top_defs": [
+        "FlashBudget",
+        "BudgetError",
+        "reserve",
+        "settle",
+        "load",
+        "save",
+        "_append"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/gateway.py": {
+      "purpose": "Gateway facade: flash budget → circuit snapshot → DeepSeekClient → lab receipt.",
+      "lines": 341,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "redact",
+        "key_status",
+        "circuit_snapshot",
+        "render_chat_completions",
+        "_http_transport",
+        "call_deepseek_once",
+        "_write_receipt"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/judge.py": {
+      "purpose": "Advisory judge. D6=BETWEEN_RUN_VARIANCE so never confirmatory. executable=false.",
+      "lines": 69,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "count_executable_true",
+        "advisory"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/memory_lab.py": {
+      "purpose": "Lab memory store with mandatory read-back. Live 4d/vault is read-only if present.",
+      "lines": 168,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha",
+        "lab_path",
+        "write_lab",
+        "read_lab",
+        "retrieve_for_task",
+        "_live_label",
+        "_ro_query_experiments",
+        "_ro_pending_hypotheses"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/stages.py": {
+      "purpose": "Stage A → B → C orchestration. C is blocked unless six gates are green.",
+      "lines": 140,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "six_gates",
+        "all_green",
+        "run_stage_a_live",
+        "run_stage_b",
+        "run_stage_c",
+        "_dump",
+        "main",
+        "_report"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/full_loop_flash/telemetry.py": {
+      "purpose": "Read-only organism/pulse → Observation. Never writes _ops/state. No organism.py hook.",
+      "lines": 199,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha",
+        "_load_json",
+        "_aware",
+        "_obs",
+        "default_paths",
+        "read_live",
+        "load_real_task"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/registry.py": {
+      "purpose": "Bio-cognitive laboratory core — schemas and append-only registries.",
+      "lines": 245,
+      "n_funcs": 10,
+      "n_classes": 0,
+      "top_defs": [
+        "_state_dir",
+        "_ledger",
+        "_now_iso",
+        "validate_experiment_card",
+        "preregister_hash",
+        "register_experiment",
+        "append_record",
+        "seed_owner_experiments"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "lab/runner.py": {
+      "purpose": "runner.py — اجرای کاندید در «جعبهٔ کار» (policy sandbox) — فاز ۳ MEGA-FINISH-ALL-v1.",
+      "lines": 173,
+      "n_funcs": 2,
+      "n_classes": 1,
+      "top_defs": [
+        "SandboxRunner",
+        "_scan",
+        "_kill_tree"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "legs/accountant.py": {
@@ -7159,6 +7573,20 @@
         "opslib"
       ]
     },
+    "legs/pain_triage.py": {
+      "purpose": "pain_triage.py — قابلیت نخست‌زاده (first-born capability) از مسیر Organogenesis.",
+      "lines": 131,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "parse_pain_rows",
+        "signals_from_organism",
+        "triage",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "legs/personal_ledger.py": {
       "purpose": "personal_ledger.py — دفترِ شخصی/مشترکِ آرمین+عباس + واحدِ ATO-NSW (propose-only، 2026-07-16).",
       "lines": 170,
@@ -7578,6 +8006,215 @@
         "improve"
       ]
     },
+    "loops/__init__.py": {
+      "purpose": "Machine loop registry — identity, classification, closure paths.",
+      "lines": 8,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/call_graph.py": {
+      "purpose": "AST call graph for eight vital paths. Read-only. No execution of targets.",
+      "lines": 110,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_name",
+        "analyze_file",
+        "graph",
+        "write"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/closeout.py": {
+      "purpose": "Loop-closure closeout: instrument, seed registry, shadow, dry_run telegram.",
+      "lines": 209,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "relock_wave1",
+        "self_insight_shadow",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/decision_card.py": {
+      "purpose": "Decision cards with expiry. Silence applies the safe default, never no-op-forever.",
+      "lines": 77,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "make_card",
+        "apply_if_expired",
+        "resolve",
+        "write_ledger"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/defect_hunt.py": {
+      "purpose": "Read-only hunters for loops unit tests never catch.",
+      "lines": 118,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "_read",
+        "hunt_dual_ingest",
+        "hunt_self_reply_ingest",
+        "hunt_green_heartbeat_dead_worker",
+        "hunt_constant_04",
+        "hunt_calibration_reader",
+        "hunt_all"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/doctor_timeout.py": {
+      "purpose": "One-open-mission + timeout. Pure functions + file quarantine with backup.",
+      "lines": 74,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "expire_open_missions",
+        "quarantine_file"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/families.py": {
+      "purpose": "12 AGI families (execution/SLA) + 24 discovery loops (seam checklist).",
+      "lines": 106,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/ladder.py": {
+      "purpose": "Seven-rung loop ladder. CLOSED requires L6 OWNER_VISIBLE.",
+      "lines": 55,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "stuck_at",
+        "terminal",
+        "require_surfaces"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/pass1_readonly.py": {
+      "purpose": "PASS 1 READ-ONLY — LOOP-REGISTRY.jsonl + AST caller/reader graph + L0..L6.",
+      "lines": 232,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "_utc",
+        "_read_wave1",
+        "_surfaces",
+        "_levels_for_family",
+        "_budget",
+        "build_rows",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/pass2_shadow.py": {
+      "purpose": "PASS 2 SHADOW — four cheap loops. Never live-send. Never unlock Wave 1.",
+      "lines": 117,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_utc",
+        "_wave1_still_locked",
+        "shadow_doctor_copy",
+        "shadow_outbox_digest",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/pass3_live.py": {
+      "purpose": "PASS 3 LIVE — owner-granted 2026-08-21. One coalesced digest. Respect 429.",
+      "lines": 268,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "_utc",
+        "move_stop",
+        "write_lock",
+        "merge_doctor_pulse",
+        "_load_root_env",
+        "send_owner_digest",
+        "write_authority",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/registry.py": {
+      "purpose": "LOOP-REGISTRY — stable loop_id for each of the 42 seams.",
+      "lines": 199,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "loop_id",
+        "_now",
+        "seed_entries",
+        "mark",
+        "build",
+        "write"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/shadow_roundtrip.py": {
+      "purpose": "TEST_ONLY Telegram shadow roundtrip — durable_loop, fake sender, n=1.",
+      "lines": 351,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "_load_dl",
+        "fixture_update",
+        "_ack",
+        "run_one",
+        "write_evidence",
+        "verify",
+        "_patch_registry_incidents",
+        "write_unowned_audit"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/taxonomy.py": {
+      "purpose": "Ten-class loop taxonomy (cause model, not a seam list).",
+      "lines": 26,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "loops/telegram_organ.py": {
+      "purpose": "Telegram as a loop-closure organ — dry_run by default.",
+      "lines": 341,
+      "n_funcs": 4,
+      "n_classes": 1,
+      "top_defs": [
+        "TelegramOrgan",
+        "_canonical_live_flag_path",
+        "_flag_enabled",
+        "redact",
+        "chat_fingerprint"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "margin/__init__.py": {
       "purpose": "margin — حاشیهٔ عددی اوراکل (رأی مالک 2026-08-16: فهرست ۴گانه + m_min=0.1).",
       "lines": 6,
@@ -7643,6 +8280,72 @@
         "wiring"
       ]
     },
+    "measure/__init__.py": {
+      "purpose": "",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "measure/judge_pilot.py": {
+      "purpose": "judge_pilot.py — پایلوت K=9 سازگاری جایگاه (swap consistency) — مجوز مالک 2026-08-19.",
+      "lines": 200,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "_load_q",
+        "_receipt",
+        "_budget",
+        "_ask",
+        "_build_pair",
+        "_judge_order",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "model_router"
+      ]
+    },
+    "measure/judge_triple.py": {
+      "purpose": "judge_triple.py — K=9 سه‌بذر برای بستن D6.",
+      "lines": 253,
+      "n_funcs": 7,
+      "n_classes": 1,
+      "top_defs": [
+        "_Calls",
+        "_load_q",
+        "_receipt",
+        "_budget",
+        "_judge_order",
+        "_fisher_two_sided",
+        "_run_one",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "model_router"
+      ]
+    },
+    "measure/swap_consistency.py": {
+      "purpose": "swap_consistency.py — ابزار سنجش سازگاری جایگاه (position/swap consistency).",
+      "lines": 237,
+      "n_funcs": 9,
+      "n_classes": 2,
+      "top_defs": [
+        "SwapConfig",
+        "ReliabilityGate",
+        "wilson_ci",
+        "unanimity_p_value",
+        "min_k_for_alpha",
+        "_binom_sf_at_least",
+        "required_attempts",
+        "swap_consistency_rate"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "memory/__init__.py": {
       "purpose": "memory — Memory Gate: single graded, trust-stamped write/read path for derived memory.",
       "lines": 3,
@@ -7703,6 +8406,26 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "memory/continuity.py": {
+      "purpose": "memory/continuity.py — «هرگز گم نشود»: backup اتمیک + خودزندگی‌نامه در Obsidian.",
+      "lines": 200,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha256_file",
+        "backup_db",
+        "_prune",
+        "_genome_tip",
+        "_drill_restore",
+        "_now_projection",
+        "_autobiography_entry",
+        "project"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "opslib"
+      ]
+    },
     "memory/contradiction_radar.py": {
       "purpose": "contradiction_radar.py — Detects contradictions between memories (EQUIP G2).",
       "lines": 305,
@@ -7716,6 +8439,24 @@
         "_extract_claim_keywords",
         "_jaccard_similarity",
         "check_textual_contradiction"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "memory/cycle_context.py": {
+      "purpose": "Typed MemoryContext — cycle-1 write must change cycle-2 decision.",
+      "lines": 224,
+      "n_funcs": 8,
+      "n_classes": 2,
+      "top_defs": [
+        "MemoryContext",
+        "_DictStore",
+        "_sha",
+        "_row_public",
+        "retrieve_similar_failures",
+        "retrieve_owner_decisions",
+        "_contradictions",
+        "build_context"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -7971,6 +8712,22 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "memory_read_loop.py": {
+      "purpose": "memory_read_loop.py — PROPOSAL (T45، دستور مالک #۷ §۶).",
+      "lines": 231,
+      "n_funcs": 2,
+      "n_classes": 4,
+      "top_defs": [
+        "ReadStore",
+        "ReadResult",
+        "MemoryReadLoop",
+        "SpineReadStore",
+        "_parse",
+        "tick_from_spine"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "metrics/metric_separation.py": {
       "purpose": "metric_separation.py — جداسازیِ صادقانهٔ متریک‌ها: تپش ≠ کار ≠ پیشنهاد ≠ نتیجه ≠ ارزش.",
       "lines": 166,
@@ -8047,6 +8804,302 @@
         "_read_violations",
         "_fmt_one",
         "card"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/__init__.py": {
+      "purpose": "Nervous-system recovery — Wave 0 integrity layer (no Wave 1 unlock).",
+      "lines": 8,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/artifact_merge.py": {
+      "purpose": "Merge Wave 0 artifacts into the Reality Ledger. Append-only; no CONTRADICTIONS writes.",
+      "lines": 136,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha256_file",
+        "_event",
+        "merge_wave0"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/canary_restart.py": {
+      "purpose": "Canary restart protocol. EXECUTE is always false in this module.",
+      "lines": 148,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "canary_order",
+        "_line_count",
+        "snapshot_baseline",
+        "plan"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/capability_immune.py": {
+      "purpose": "Capability Immune System — declared ≠ alive.",
+      "lines": 173,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "card",
+        "inventory",
+        "_sha256_file",
+        "_produced_source",
+        "_receipt_ids_for",
+        "evaluate_declared"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/capability_parser.py": {
+      "purpose": "Structural parsers for capability registries. No regex over Python source.",
+      "lines": 107,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_literal",
+        "_dict_from_ast",
+        "parse_effectors_py",
+        "parse_json_capabilities",
+        "parse_yaml_capabilities",
+        "parse_capability_file"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/memory_continuity.py": {
+      "purpose": "Memory continuity: 10 consecutive healthy cycles. Does not activate Wave 1.",
+      "lines": 115,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "cycle_healthy",
+        "consecutive_healthy",
+        "load_samples",
+        "append_sample",
+        "cycle_receipt",
+        "audit"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/memory_observer.py": {
+      "purpose": "Observe existing memory-read ticks. Does not activate Wave 1 or new writers.",
+      "lines": 62,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_beat",
+        "once",
+        "append_unique"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/reality_ledger.py": {
+      "purpose": "Append-only Reality Ledger. Findings are not truth without evidence hash.",
+      "lines": 119,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "RealityLedger",
+        "_utc",
+        "evidence_fingerprint",
+        "event_dedupe_key"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/receipt_v2.py": {
+      "purpose": "Receipt envelope v2 + legacy adapter. Never fabricates task_id.",
+      "lines": 136,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_utc",
+        "new_receipt_id",
+        "envelope",
+        "adapt_legacy",
+        "attribution_ratio",
+        "scan_jsonl"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/repair_planner.py": {
+      "purpose": "Repair planner — DAG of bounded patches. Does not apply them.",
+      "lines": 54,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "dag"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/shadow_adapter.py": {
+      "purpose": "Phase-1 shadow adapter: v2 ledger beside original receipts.",
+      "lines": 333,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "_utc",
+        "original_receipt_hash",
+        "load_run_to_task",
+        "_resolve",
+        "shadow_one",
+        "schema_errors",
+        "_is_fabricated",
+        "evaluate_window"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/task_context.py": {
+      "purpose": "Resolve task_id from caller or explicit run_id→task map. Never infer.",
+      "lines": 82,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "load_run_to_task",
+        "resolve"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/test_classify.py": {
+      "purpose": "Classify unregistered test_*.py files. Does not edit run_all by itself.",
+      "lines": 88,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_classify_one",
+        "classify_unregistered"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/test_discovery.py": {
+      "purpose": "Discover test_*.py vs AST-registered names in run_all.py.",
+      "lines": 106,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_string_constants",
+        "registered_from_run_all",
+        "discover_test_files",
+        "eligible_test_files",
+        "report",
+        "gap_is_ci_failure"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave0_closeout.py": {
+      "purpose": "Wave 0 closeout: inventory + merge + candidate + independent verifier.",
+      "lines": 124,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave0_governor.py": {
+      "purpose": "Wave 0 Reality Governor — machine gates. Never unlocks Wave 1 here.",
+      "lines": 181,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "Wave0Verdict",
+        "_sha256_file",
+        "audit_wave0",
+        "write_audit"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave0_verifier.py": {
+      "purpose": "Independent Wave 0 verifier.",
+      "lines": 161,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_check",
+        "verify",
+        "write_report"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave1_closeout.py": {
+      "purpose": "Wave 1 preflight closeout: freeze Wave 0, shadow, verify, optional canary.",
+      "lines": 165,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha",
+        "_utc",
+        "_write",
+        "production_fingerprints",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave1_gates.py": {
+      "purpose": "Wave 1 entry-gate evaluation. Does not unlock Wave 1.",
+      "lines": 253,
+      "n_funcs": 7,
+      "n_classes": 0,
+      "top_defs": [
+        "_load_append_only_manifest",
+        "_append_only_ok",
+        "_sha256_file",
+        "wave0_freeze_ok",
+        "_card",
+        "evaluate_capabilities",
+        "entry_gates"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave1_readonly.py": {
+      "purpose": "Wave 1 read-only memory path.",
+      "lines": 389,
+      "n_funcs": 10,
+      "n_classes": 2,
+      "top_defs": [
+        "WriteGuard",
+        "FixtureStore",
+        "_utc",
+        "_sha256_bytes",
+        "freeze_lock_closed",
+        "read_lock",
+        "kill_engaged",
+        "_eligible"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "nervous_recovery/wave1_verifier.py": {
+      "purpose": "Independent Wave 1 verifier. Recomputes shadow + gates. Never unlocks.",
+      "lines": 71,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "verify",
+        "write_report"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -8246,6 +9299,47 @@
         "SprintRunner"
       ],
       "wire_flags": [],
+      "house_imports": []
+    },
+    "novelty/__init__.py": {
+      "purpose": "",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "novelty/archive.py": {
+      "purpose": "archive.py — آرشیو بدایع (NOVELTY-ARCHIVE) — فاز ۲ MEGA-FINISH-ALL-v1.",
+      "lines": 296,
+      "n_funcs": 10,
+      "n_classes": 2,
+      "top_defs": [
+        "BehaviorVector",
+        "NoveltyArchive",
+        "normalize_text",
+        "exact_key",
+        "shingles",
+        "jaccard",
+        "vector_from_proposal",
+        "distance"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "novelty/debate_hook.py": {
+      "purpose": "debate_hook.py — گیت بدایع برای حلقهٔ مناظره، پیش از مصرف بودجه.",
+      "lines": 63,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "novelty_gate_enabled",
+        "pre_budget_gate"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_NOVELTY_GATE"
+      ],
       "house_imports": []
     },
     "now_moves/__init__.py": {
@@ -8589,6 +9683,26 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "obsidian_sync/gen_pages.py": {
+      "purpose": "gen_pages.py — صفحات ماشینی Obsidian (فاز ۹ MEGA-FINISH-ALL-v1).",
+      "lines": 298,
+      "n_funcs": 11,
+      "n_classes": 0,
+      "top_defs": [
+        "_read",
+        "_read_json",
+        "_phase_gates",
+        "_novelty_page",
+        "_economy_page",
+        "_doctor_page",
+        "_lab_page",
+        "_mutation_page"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_NOVELTY_GATE"
+      ],
+      "house_imports": []
+    },
     "octopus_logger.py": {
       "purpose": "Octopus Structured Logger v1 — stdlib-only, JSON-lines output.",
       "lines": 380,
@@ -8611,8 +9725,8 @@
     },
     "octopus_mcp/server.py": {
       "purpose": "octopus_mcp.server — سرورِ MCP ِ محلیِ read-only روی vault ِ F:\backup.",
-      "lines": 636,
-      "n_funcs": 20,
+      "lines": 756,
+      "n_funcs": 23,
       "n_classes": 1,
       "top_defs": [
         "_StatelessHTTPHandler",
@@ -8867,8 +9981,8 @@
     },
     "organism.py": {
       "purpose": "organism.py — حلقهٔ واحد همیشه-روشن ارگانیسم (آناتومی ⊕ فیزیولوژی ⊕ متابولیسم).",
-      "lines": 1439,
-      "n_funcs": 5,
+      "lines": 1545,
+      "n_funcs": 6,
       "n_classes": 2,
       "top_defs": [
         "_ExclusiveHTTPServer",
@@ -8877,7 +9991,8 @@
         "_write_code_sidecar",
         "_serve",
         "_write_state",
-        "main"
+        "main",
+        "_octopus_apply_low_priority"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_ACCT_BEAT",
@@ -8888,14 +10003,337 @@
         "OCTOPUS_WIRE_CARTOGRAPHER",
         "OCTOPUS_WIRE_CODE_APPLY",
         "OCTOPUS_WIRE_CODE_BRAIN",
-        "OCTOPUS_WIRE_EMAIL",
-        "OCTOPUS_WIRE_FISHER"
+        "OCTOPUS_WIRE_DOCTOR_UNIQUENESS",
+        "OCTOPUS_WIRE_EMAIL"
       ],
       "house_imports": [
         "chrono",
         "opslib",
         "wiring"
       ]
+    },
+    "organogenesis/__init__.py": {
+      "purpose": "",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organogenesis/engine.py": {
+      "purpose": "engine.py — موتور زایش قابلیت (فاز ۷ MEGA-FINISH-ALL-v1).",
+      "lines": 298,
+      "n_funcs": 0,
+      "n_classes": 2,
+      "top_defs": [
+        "LegContract",
+        "OrganogenesisEngine"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/__init__.py": {
+      "purpose": "Organ cartographer + afferent wiring (agent_C). Sidecar; no telegram lane.",
+      "lines": 8,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/broken_reader_analysis.py": {
+      "purpose": "broken_reader_analysis.py — C21 (مگا‌دستور #۱۷): BROKEN_READER بدون تغییر wiring.py.",
+      "lines": 90,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "analyze"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/clade_ledger.py": {
+      "purpose": "clade_ledger.py — از سنتز شورا (نوت ۷۲): درخت تکامل با parent + descendants_accepted.",
+      "lines": 129,
+      "n_funcs": 0,
+      "n_classes": 2,
+      "top_defs": [
+        "CladeNode",
+        "CladeLedger"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/cognition_inbox.py": {
+      "purpose": "T73 — append-only cognition inbox. Brains receive advisories, never execute.",
+      "lines": 96,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_read_json",
+        "append_event",
+        "_receipt",
+        "brains_hear"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/concept_code_mapping.py": {
+      "purpose": "concept_code_mapping.py — C23 (مگا‌دستور #۱۷): نگاشت مفهوم زیستی → کد + falsifier.",
+      "lines": 78,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "summary"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/connector_gap.py": {
+      "purpose": "CONNECTOR-GAP advisory organ beat (U02 close).",
+      "lines": 121,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_ensure_ops_path",
+        "beat"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/contracts.py": {
+      "purpose": "Afferent event contract — bitemporal, no fabricated occurred_at.",
+      "lines": 77,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_iso",
+        "event_id",
+        "make_event",
+        "dumps"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/feedback.py": {
+      "purpose": "T72 — sense → record → assess → propose → owner feedback → learn.",
+      "lines": 50,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "assess_loop",
+        "write_loops"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/feedback_destiny.py": {
+      "purpose": "feedback_destiny.py — C19 (مگا‌دستور #۱۷): Knowledge feedback destiny.",
+      "lines": 127,
+      "n_funcs": 0,
+      "n_classes": 2,
+      "top_defs": [
+        "KnowledgeProposal",
+        "FeedbackDestiny"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/flags.py": {
+      "purpose": "File-backed flags — not OCTOPUS_* env, so phantom_guards ledger is untouched.",
+      "lines": 24,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "load_wiring",
+        "enabled"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/knowledge_afferent.py": {
+      "purpose": "T68 — read-only vault-note afferent. Never mutates notes. No paid calls.",
+      "lines": 314,
+      "n_funcs": 10,
+      "n_classes": 0,
+      "top_defs": [
+        "_is_symlink_or_junction",
+        "_safe_read_with_race_check",
+        "_path_hash",
+        "_link_count",
+        "_secret_scan",
+        "_denylisted",
+        "_hash_file",
+        "_frontmatter"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/knowledge_hook.py": {
+      "purpose": "knowledge_hook.py — C3 (AGENT-C-PLAN): hook اتصال knowledge به organism afferent.",
+      "lines": 201,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "hook_active",
+        "process_sidecar_queue",
+        "rollback",
+        "reconcile_partial"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/lead_diagnose.py": {
+      "purpose": "T70 — lead diagnosis only. No activation, no outbound, no PII fields.",
+      "lines": 82,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_read",
+        "diagnose"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/loop_breakers.py": {
+      "purpose": "R1–R5 loop breakers. Own state under state/organs — never telegram paths.",
+      "lines": 212,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "metric_count",
+        "request_key",
+        "_qpath",
+        "_load_q",
+        "_save_q",
+        "gate_tool_request",
+        "merge_rfcs",
+        "autotune_card_gate"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/loop_breakers_impl.py": {
+      "purpose": "loop_breakers_impl.py — C20 (مگا‌دستور #۱۷): کدنویسی واقعی loop breakers.",
+      "lines": 194,
+      "n_funcs": 2,
+      "n_classes": 7,
+      "top_defs": [
+        "UnknownMetric",
+        "NonNegativeMetric",
+        "ToolRequest",
+        "ToolRequestGate",
+        "RFCDeduper",
+        "Incident",
+        "AlertAggregator",
+        "safe_metric"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/mapper_drift.py": {
+      "purpose": "T69 — turn cartographer drift *count* into actionable lists. Read-only.",
+      "lines": 216,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_map_cutoff",
+        "_iter_py",
+        "_file_hash",
+        "_dead_imports",
+        "scan"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/organ_map.py": {
+      "purpose": "T65 — organ map from live state + code presence. No file deletion.",
+      "lines": 276,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_read",
+        "_exists",
+        "classify_organ",
+        "build"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_ACCT_BEAT",
+        "OCTOPUS_WIRE_CARTOGRAPHER",
+        "OCTOPUS_WIRE_HEART",
+        "OCTOPUS_WIRE_INGEST",
+        "OCTOPUS_WIRE_LEAD",
+        "OCTOPUS_WIRE_MINING",
+        "OCTOPUS_WIRE_MINING_OS",
+        "OCTOPUS_WIRE_SCHOOL",
+        "OCTOPUS_WIRE_SYNC_AGENT"
+      ],
+      "house_imports": []
+    },
+    "organs/paths.py": {
+      "purpose": "Lane-safe paths. Telegram trees are listed so writers can refuse them.",
+      "lines": 66,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "is_telegram_lane",
+        "assert_not_telegram",
+        "skip_path"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/ratio_model.py": {
+      "purpose": "ratio_model.py — C13 (مگا‌دستور #۱۷): مدل کمی starvation با margin صریح.",
+      "lines": 100,
+      "n_funcs": 2,
+      "n_classes": 2,
+      "top_defs": [
+        "SourceState",
+        "RatioBreakdown",
+        "afferent_ratio",
+        "_saturation_constant"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/run_session.py": {
+      "purpose": "One-shot agent_C session runner. Writes evidence pack. Zero telegram writes.",
+      "lines": 225,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha",
+        "_write",
+        "_dump",
+        "run"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/starvation.py": {
+      "purpose": "T66 — afferent starvation diagnosis. Observe-only; does not change thresholds.",
+      "lines": 106,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_read_json",
+        "diagnose"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "organs/telemetry.py": {
+      "purpose": "Unified afferent_events_per_minute_by_source.",
+      "lines": 27,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "per_minute_by_source"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "orphan_scan.py": {
       "purpose": "orphan_scan — چه چیزهایی ساخته شده‌اند و به هیچ‌جا وصل نیستند.",
@@ -8911,6 +10349,24 @@
         "_card_discoverable",
         "_script_launched",
         "scan"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "orphan_watchdog.py": {
+      "purpose": "LOOP-LIVE-ORPHAN-MISSING-SUPERVISION watchdog (Unit 3, 2026-08-21).",
+      "lines": 220,
+      "n_funcs": 13,
+      "n_classes": 0,
+      "top_defs": [
+        "_state_dir",
+        "receipts_path",
+        "state_path",
+        "_cim_rows",
+        "snapshot",
+        "alive_pids",
+        "classify",
+        "_load_state"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -9248,6 +10704,57 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "owner-signing/bundle-v1/build_bundle.py": {
+      "purpose": "Build OWNER_SIGNATURE_BUNDLE_V1 — complete owner signature ceremony (2026-08-21).",
+      "lines": 366,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "sha256_file",
+        "canonical_json",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "owner-signing/bundle-v1/fanout_receipts.py": {
+      "purpose": "Fan-out receipts for OWNER_SIGNATURE_BUNDLE_V1 — run AFTER the owner signs.",
+      "lines": 131,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "sha256_bytes",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "owner-signing/bundle-v1/validation_phase8.py": {
+      "purpose": "Phase 8 validation for OWNER_SIGNATURE_BUNDLE_V1 (ceremony 2026-08-21).",
+      "lines": 180,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "sha256_bytes",
+        "sha256_file",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "owner-signing/check_anchor.py": {
+      "purpose": "check_anchor.py — تطبیق fail-closed انگشت‌نگارتی PEM عمومی با TRUST-ANCHOR.",
+      "lines": 52,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "anchor_fingerprint",
+        "pem_fingerprint",
+        "check"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "owner_auth_log.py": {
       "purpose": "owner_auth_log — حرفِ مجوزِ مالک جایی می‌نشیند، ولی هیچ‌وقت خودش اجرا نمی‌شود.",
       "lines": 170,
@@ -9398,7 +10905,7 @@
     },
     "owner_console/chat_log.py": {
       "purpose": "chat_log.py — سیوِ سرور-ساید گفتگوی مالک (append-only JSONL).",
-      "lines": 110,
+      "lines": 124,
       "n_funcs": 6,
       "n_classes": 0,
       "top_defs": [
@@ -9485,17 +10992,18 @@
     },
     "owner_console/collaborator.py": {
       "purpose": "collaborator.py — collaborator engine (WP-E3 + Talk Discovery Phase A).",
-      "lines": 513,
-      "n_funcs": 7,
+      "lines": 588,
+      "n_funcs": 9,
       "n_classes": 0,
       "top_defs": [
         "_is_enabled",
         "_use_model",
         "_turn_id",
+        "_sanitize_reason",
         "_stub_enhance",
         "_model_enhance",
         "handle",
-        "callback"
+        "_handle_impl"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_COLLAB"
@@ -9569,6 +11077,24 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "owner_console/local_commands.py": {
+      "purpose": "local_commands.py — A2/A10 firewall: owner slash commands never reach a model.",
+      "lines": 599,
+      "n_funcs": 34,
+      "n_classes": 1,
+      "top_defs": [
+        "LocalCommandResult",
+        "_ok",
+        "_snapshot",
+        "status_text",
+        "help_text",
+        "memory_text",
+        "capabilities_text",
+        "_normalize_cmd"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "owner_console/status.py": {
       "purpose": "Read-only current-state answers for the owner conversation.",
       "lines": 130,
@@ -9602,13 +11128,18 @@
     },
     "owner_console/telegram_adapter.py": {
       "purpose": "Pure seam for telegram_center after input_surface_policy has authorized Outer DM.",
-      "lines": 46,
-      "n_funcs": 3,
-      "n_classes": 0,
+      "lines": 355,
+      "n_funcs": 14,
+      "n_classes": 1,
       "top_defs": [
+        "_FixtureStore",
         "_collab_armed",
+        "_cognition_consume_mode",
+        "_fixture_cognition_consume",
+        "_log_legacy_coerce",
+        "_as_reply_dict",
         "handle_message",
-        "handle_callback"
+        "_ok_local"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_COLLAB"
@@ -10169,6 +11700,19 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "runtime/typed_agent.py": {
+      "purpose": "Typed agent seams — no free-form chatting agents.",
+      "lines": 69,
+      "n_funcs": 1,
+      "n_classes": 2,
+      "top_defs": [
+        "AgentContract",
+        "AgentTask",
+        "separate_contexts"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "scripts/daily-cost.py": {
       "purpose": "daily-cost.py — خلاصهٔ هزینهٔ روز از paid-calls.jsonl (فقط‌خواندنی، صفر ارسال).",
       "lines": 79,
@@ -10222,14 +11766,41 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "scripts/octopus_throttle_now.py": {
+      "purpose": "One-shot: set OCTOPUS-related Windows processes to low priority (fix UI hitch).",
+      "lines": 66,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "scripts/render_now.py": {
       "purpose": "",
-      "lines": 79,
+      "lines": 80,
       "n_funcs": 2,
       "n_classes": 0,
       "top_defs": [
         "render",
         "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "scripts/tg_bridge_once.py": {
+      "purpose": "tg_bridge_once.py — owner-facing Telegram bridge (incident-safe).",
+      "lines": 376,
+      "n_funcs": 13,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha",
+        "identity_key",
+        "payload_hash",
+        "stop_armed",
+        "snapshot",
+        "classify",
+        "_decision",
+        "render"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -10340,8 +11911,8 @@
     },
     "self_insight.py": {
       "purpose": "self_insight — لایه‌ای که از **یافته** به **فرضیه** می‌رسد، و بعد نمرهٔ خودش را می‌دهد.",
-      "lines": 348,
-      "n_funcs": 11,
+      "lines": 553,
+      "n_funcs": 15,
       "n_classes": 0,
       "top_defs": [
         "_h",
@@ -10395,6 +11966,347 @@
         "_env_defaults",
         "scan_flags",
         "scan_state"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/__init__.py": {
+      "purpose": "Autonomous self-upgrade lab — observe → diagnose → patch in a worktree → test → verify → learn.",
+      "lines": 17,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/api_router.py": {
+      "purpose": "Discover local/free APIs. Never print secrets. Paid calls forbidden.",
+      "lines": 74,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_present",
+        "_port_open",
+        "inventory",
+        "propose_untrusted"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/contracts.py": {
+      "purpose": "Typed contracts for one self-upgrade cycle. No secrets. No production writes.",
+      "lines": 168,
+      "n_funcs": 10,
+      "n_classes": 2,
+      "top_defs": [
+        "Hypothesis",
+        "Experiment",
+        "utc_now",
+        "sha16",
+        "sha256_file",
+        "priority_score",
+        "append_jsonl",
+        "write_json"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/controller.py": {
+      "purpose": "Coordinator + cycle runner.",
+      "lines": 547,
+      "n_funcs": 14,
+      "n_classes": 0,
+      "top_defs": [
+        "_lease_path",
+        "acquire_lease",
+        "release_lease",
+        "_git",
+        "shadow_memory_reads",
+        "_patch_memory",
+        "_patch_brain_test_only",
+        "_patch_brain_improve"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/diagnoser.py": {
+      "purpose": "Weakest-member scoring. Combines owner P0/P1 targets with scan evidence.",
+      "lines": 62,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "diagnose"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/experiment.py": {
+      "purpose": "Experiment record + worktree factory. Worktrees live outside the live tree.",
+      "lines": 129,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_kill_tree",
+        "_run",
+        "existing_worktree",
+        "_abandon_incomplete",
+        "ensure_worktree",
+        "record_experiment"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/hypothesis.py": {
+      "purpose": "Small testable hypotheses. API proposals are untrusted; local evidence wins.",
+      "lines": 85,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "make_hypothesis"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/learning_writer.py": {
+      "purpose": "Learning receipts: ledger + capability inventory + loop registry notes.",
+      "lines": 74,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "write_learning",
+        "_touch_inventory"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/patch_runner.py": {
+      "purpose": "Apply a bounded patch inside a worktree. Production tree is never the target.",
+      "lines": 107,
+      "n_funcs": 6,
+      "n_classes": 0,
+      "top_defs": [
+        "_run",
+        "_rel",
+        "apply_unified_diff",
+        "write_files",
+        "apply_splices",
+        "patch_hash_running"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/promoter.py": {
+      "purpose": "Promotion ladder. Production only after owner lock + verifier.",
+      "lines": 108,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_lock",
+        "gate_promote",
+        "promote"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/rfc_cycle.py": {
+      "purpose": "Thin RFC-seeded lab cycle.",
+      "lines": 260,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "_safe",
+        "_mod_name",
+        "_state_dir",
+        "_git",
+        "_ensure_isolated_worktree",
+        "_render_artifact",
+        "_render_test",
+        "_run_test"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/rollback.py": {
+      "purpose": "Worktree rollback. Never deletes. git checkout restores HEAD files.",
+      "lines": 36,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "rollback",
+        "rollback_probe"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/scanner.py": {
+      "purpose": "Index-based self scanner. Never walks the whole vault. Each record has",
+      "lines": 146,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_age_hours",
+        "_record",
+        "_tail_jsonl",
+        "scan"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/test_runner.py": {
+      "purpose": "Impact-based test runner with a tiny result cache. Never hangs the whole lab",
+      "lines": 92,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_cache",
+        "_save_cache",
+        "_key",
+        "run_one",
+        "run_many"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "self_upgrade_lab/verifier.py": {
+      "purpose": "Independent verifier. Confirmed only when failing-before, tests pass, no",
+      "lines": 65,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "verify"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/__init__.py": {
+      "purpose": "Isolated WAVE0 shadow slice: Trust → Homeostasis → World Model → Metacontrol.",
+      "lines": 22,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": [
+        "registry"
+      ]
+    },
+    "shadow_homeostasis/evidence_store.py": {
+      "purpose": "Lab-only append-only evidence store. Not a daemon. Auto-delete OFF.",
+      "lines": 108,
+      "n_funcs": 2,
+      "n_classes": 1,
+      "top_defs": [
+        "EvidenceStore",
+        "_canonical",
+        "record_hash"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/homeostasis.py": {
+      "purpose": "Pure Homeostatic Core. executable always false. No planner/policy import.",
+      "lines": 248,
+      "n_funcs": 3,
+      "n_classes": 1,
+      "top_defs": [
+        "HomeostaticInput",
+        "_id",
+        "_state_reasons",
+        "assess"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/metacontrol.py": {
+      "purpose": "Metacontrol Gate — domain skill scores. Never sets executable True.",
+      "lines": 153,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_clip",
+        "_score_vector",
+        "_mode",
+        "decide",
+        "assert_no_executable"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/observation.py": {
+      "purpose": "Typed Observation + quality enum. No policy imports.",
+      "lines": 64,
+      "n_funcs": 1,
+      "n_classes": 2,
+      "top_defs": [
+        "Quality",
+        "Observation",
+        "parse_dt"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/pipeline.py": {
+      "purpose": "Shadow pipeline: Trust → Homeostasis → World Model → Metacontrol.",
+      "lines": 50,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "run_shadow_pipeline"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "registry"
+      ]
+    },
+    "shadow_homeostasis/registry.py": {
+      "purpose": "MetricRegistry — units, staleness, warmup, restart sensitivity.",
+      "lines": 65,
+      "n_funcs": 1,
+      "n_classes": 2,
+      "top_defs": [
+        "MetricSpec",
+        "MetricRegistry",
+        "default_registry"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/replay.py": {
+      "purpose": "Deterministic offline replay + shadow ledger. Lab only.",
+      "lines": 150,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_obs",
+        "fixtures",
+        "run_all"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "shadow_homeostasis/trust.py": {
+      "purpose": "Pure validators. UNKNOWN is never coerced to zero.",
+      "lines": 105,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_age_s",
+        "validate_observation",
+        "mark_conflicting",
+        "eligibility",
+        "never_zero_from_unknown"
+      ],
+      "wire_flags": [],
+      "house_imports": [
+        "registry"
+      ]
+    },
+    "shadow_homeostasis/world_model.py": {
+      "purpose": "World Model — facts/hypotheses/predictions. No policy or action types.",
+      "lines": 90,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "build_world_state"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -10573,18 +12485,18 @@
     },
     "spine/event_spine.py": {
       "purpose": "event_spine.py — لاگِ رویدادِ واحدِ append-only و replayable با envelopeِ canonical.",
-      "lines": 206,
-      "n_funcs": 7,
+      "lines": 250,
+      "n_funcs": 8,
       "n_classes": 1,
       "top_defs": [
         "EventSpine",
         "flag_on",
         "_utc_now_iso",
+        "_parse_iso",
         "_sha",
         "_sanitize_payload",
         "_default_path",
-        "dual_write",
-        "_inti"
+        "dual_write"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_SPINE"
@@ -10593,7 +12505,7 @@
     },
     "spine/spine_adapters.py": {
       "purpose": "spine_adapters.py — آداپتورهای رویدادِ canonical برای Event Spine (LIMITED MULTI-DOMAIN SHADOW).",
-      "lines": 281,
+      "lines": 289,
       "n_funcs": 12,
       "n_classes": 0,
       "top_defs": [
@@ -10910,6 +12822,20 @@
         "opslib"
       ]
     },
+    "telegram_center/bounded_io.py": {
+      "purpose": "Bounded state-file/transport I/O — the Telegram center must never freeze.",
+      "lines": 86,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "active_worker_count",
+        "run",
+        "read_text",
+        "write_text"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/brief.py": {
       "purpose": "brief — بریفِ صبح و جمع‌بندیِ شب (منشور رأی‌های ۵ و ۱۱؛ لِین E).",
       "lines": 251,
@@ -10970,6 +12896,24 @@
       ],
       "house_imports": []
     },
+    "telegram_center/canary_window.py": {
+      "purpose": "Canary window guard — strict sequence, duplicates recorded without advancing.",
+      "lines": 162,
+      "n_funcs": 9,
+      "n_classes": 0,
+      "top_defs": [
+        "hash_text",
+        "_state_dir",
+        "_path",
+        "_load",
+        "_save",
+        "open_window",
+        "observe",
+        "close_window"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/capture.py": {
       "purpose": "capture — ‏Capture ِ یک‌ژسته‌ی DM (منشور رأی ۹–۱۰، لِین D موج ۲).",
       "lines": 687,
@@ -10990,8 +12934,8 @@
     },
     "telegram_center/center.py": {
       "purpose": "center.py — «مرکزِ فرماندهیِ تلگرام» (hub): حلقهٔ setup/beat/poll روی TgClient.",
-      "lines": 6048,
-      "n_funcs": 17,
+      "lines": 6315,
+      "n_funcs": 22,
       "n_classes": 1,
       "top_defs": [
         "Center",
@@ -10999,9 +12943,9 @@
         "_fa_num",
         "_scrub",
         "_config_path",
-        "_load_config",
-        "_save_config",
-        "_decision_id"
+        "_config_manager",
+        "_config_cache_reset",
+        "_bounded_read_text"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_CB_TOKEN",
@@ -11018,6 +12962,18 @@
       "house_imports": [
         "opslib"
       ]
+    },
+    "telegram_center/center_sender_bridge.py": {
+      "purpose": "Optional center-facing SenderBridge attach (default-off).",
+      "lines": 28,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "build_bridge",
+        "run_once_if_allowed"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "telegram_center/chat_room.py": {
       "purpose": "chat_room — فارسیِ ساده بنویس، به کارمندِ درست می‌رسد.",
@@ -11037,6 +12993,36 @@
       "wire_flags": [
         "OCTOPUS_WIRE_CHAT_ROOM"
       ],
+      "house_imports": []
+    },
+    "telegram_center/config_manager.py": {
+      "purpose": "ConfigManager — single owner of hot-loop state-file configuration (Wave B).",
+      "lines": 219,
+      "n_funcs": 1,
+      "n_classes": 1,
+      "top_defs": [
+        "ConfigManager",
+        "bounded_json_read"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/delivery_reconciliation.py": {
+      "purpose": "Delivery truth states + bounded reconciliation queue (never auto-resends).",
+      "lines": 505,
+      "n_funcs": 21,
+      "n_classes": 0,
+      "top_defs": [
+        "_safe_component",
+        "_root",
+        "_queue_path",
+        "_evidence_path",
+        "_append",
+        "_read_rows",
+        "_read_json",
+        "_event_fs_name"
+      ],
+      "wire_flags": [],
       "house_imports": []
     },
     "telegram_center/doctor_link.py": {
@@ -11061,10 +13047,41 @@
         "opslib"
       ]
     },
+    "telegram_center/dual_outbox_contract.py": {
+      "purpose": "Label Telegram outbox paths as SoT vs non-SoT (C05). No I/O merge.",
+      "lines": 65,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "classify",
+        "assert_not_merged_policy",
+        "classify_surface"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/durable_loop.py": {
+      "purpose": "Durable, content-minimizing Telegram intent/outbox boundary.",
+      "lines": 501,
+      "n_funcs": 28,
+      "n_classes": 2,
+      "top_defs": [
+        "InvalidTransition",
+        "LoopContext",
+        "enabled",
+        "killed",
+        "_root",
+        "_event_path",
+        "_outbox_path",
+        "_metrics_path"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/event_bridge.py": {
       "purpose": "event_bridge.py — پلِ push از رویدادهای ارگانیسم به تلگرام (فاز A).",
-      "lines": 336,
-      "n_funcs": 15,
+      "lines": 409,
+      "n_funcs": 21,
       "n_classes": 0,
       "top_defs": [
         "flag_on",
@@ -11074,7 +13091,7 @@
         "_save_cursor",
         "_read_past",
         "_rate_ok",
-        "_sign"
+        "_read_jsonl"
       ],
       "wire_flags": [
         "OCTOPUS_WIRE_EVENT_BRIDGE"
@@ -11117,6 +13134,24 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "telegram_center/health_metrics.py": {
+      "purpose": "Telegram loop health semantics — granular metrics and timestamps.",
+      "lines": 306,
+      "n_funcs": 15,
+      "n_classes": 0,
+      "top_defs": [
+        "_root",
+        "poll_health_path",
+        "_bounded_read",
+        "_bounded_write",
+        "reset_memory",
+        "_file_gen",
+        "_blank",
+        "_load"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/hold_policy.py": {
       "purpose": "hold_policy — ماشینِ حالتِ رأیِ مالک VQ-TG-HOLD-001 (۲۰۲۶-۰۷-۳۰).",
       "lines": 451,
@@ -11139,7 +13174,7 @@
     },
     "telegram_center/input_surface_policy.py": {
       "purpose": "input_surface_policy — «این پیام از کجا آمد و اجازهٔ چه دارد؟»",
-      "lines": 366,
+      "lines": 371,
       "n_funcs": 11,
       "n_classes": 0,
       "top_defs": [
@@ -11267,6 +13302,24 @@
       ],
       "house_imports": []
     },
+    "telegram_center/live_telegram_gate.py": {
+      "purpose": "Canonical LIVE-TELEGRAM.flag + writer-lock send gate.",
+      "lines": 108,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "ops_root",
+        "flag_path",
+        "read_flag",
+        "_read_lock",
+        "_active_send_exceptions",
+        "evaluate",
+        "live_mode_allowed",
+        "send_allowed"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/living_card.py": {
       "purpose": "living_card.py — یک موضوع، یک پیام؛ به‌روز می‌شود، تکثیر نمی‌شود.",
       "lines": 217,
@@ -11338,10 +13391,22 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "telegram_center/miniapp_decision_ledger.py": {
+      "purpose": "Decision-bound one-time nonce ledger for Mini App mutation fixtures/shadow.",
+      "lines": 137,
+      "n_funcs": 1,
+      "n_classes": 1,
+      "top_defs": [
+        "DecisionLedger",
+        "_hash"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/miniapp_gateway.py": {
       "purpose": "miniapp_gateway — دیوارِ 8774 برای Mini App (PLAN-T4 §۱–۳؛ GO ِ مالک ۲۰۲۶-۰۷-۳۱).",
-      "lines": 1291,
-      "n_funcs": 24,
+      "lines": 1338,
+      "n_funcs": 25,
       "n_classes": 2,
       "top_defs": [
         "_Srv",
@@ -11425,7 +13490,7 @@
     },
     "telegram_center/mission.py": {
       "purpose": "mission.py — Mission Genome برای کنترل تلگرامیِ خودکدنویسیِ امن.",
-      "lines": 519,
+      "lines": 520,
       "n_funcs": 27,
       "n_classes": 0,
       "top_defs": [
@@ -11445,7 +13510,7 @@
     },
     "telegram_center/mission_approval_bridge.py": {
       "purpose": "mission_approval_bridge — مسیرِ گمشدهٔ «کارتِ A3 → صفِ تأییدِ مالک → حکم → دفترِ mission».",
-      "lines": 263,
+      "lines": 284,
       "n_funcs": 11,
       "n_classes": 0,
       "top_defs": [
@@ -11650,6 +13715,66 @@
       "wire_flags": [],
       "house_imports": []
     },
+    "telegram_center/poll_lease.py": {
+      "purpose": "Fail-closed Telegram polling lease keyed by a one-way token digest.",
+      "lines": 527,
+      "n_funcs": 19,
+      "n_classes": 0,
+      "top_defs": [
+        "_token_digest",
+        "_root",
+        "_db",
+        "_boot_id",
+        "_host_boot_digest",
+        "_code_head",
+        "_identity",
+        "_ensure_schema"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/poll_outcome.py": {
+      "purpose": "Typed outcome contract for one Telegram long-poll attempt.",
+      "lines": 68,
+      "n_funcs": 0,
+      "n_classes": 1,
+      "top_defs": [
+        "PollOutcome"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/poll_schedule.py": {
+      "purpose": "Durable retry schedule for typed Telegram polling outcomes.",
+      "lines": 222,
+      "n_funcs": 10,
+      "n_classes": 0,
+      "top_defs": [
+        "_token_digest",
+        "_root",
+        "_db",
+        "_conn",
+        "_error",
+        "check",
+        "_local_delay",
+        "record_failure"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/poll_sender_bridge_attach.py": {
+      "purpose": "Default-OFF poll-path attach for owner-gated SenderBridge (arch-loop slice).",
+      "lines": 64,
+      "n_funcs": 3,
+      "n_classes": 0,
+      "top_defs": [
+        "_ops_root",
+        "attach_enabled",
+        "maybe_run_after_poll"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/power.py": {
       "purpose": "power.py — اکشن‌های «مرکزِ فرماندهیِ تلگرام» (رأیِ مالک 2026-07-17: مرکزِ کنترلِ همه‌چیز).",
       "lines": 393,
@@ -11669,6 +13794,21 @@
       "house_imports": [
         "opslib"
       ]
+    },
+    "telegram_center/process_identity.py": {
+      "purpose": "process_identity.py — A11: PID جدید باید بگوید کدام commit/hash را اجرا می‌کند.",
+      "lines": 71,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "_sha256",
+        "_git_commit",
+        "build",
+        "write_started",
+        "load"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "telegram_center/question_budget.py": {
       "purpose": "question_budget — بودجهٔ ۳۰ سؤال/هفتهٔ اختاپوس از مالک (رأی ۲۴ منشور).",
@@ -11727,6 +13867,18 @@
         "opslib",
         "wiring"
       ]
+    },
+    "telegram_center/rate_limit_queue.py": {
+      "purpose": "Durable Telegram rate-limit queue for fixture/shadow verification.",
+      "lines": 240,
+      "n_funcs": 1,
+      "n_classes": 1,
+      "top_defs": [
+        "RateLimitQueue",
+        "deterministic_key"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "telegram_center/reminders.py": {
       "purpose": "reminders — موتورِ یادآوریِ زبانِ طبیعی (منشور رأی‌های ۵–۸؛ لِین E).",
@@ -11792,6 +13944,40 @@
         "opslib"
       ]
     },
+    "telegram_center/self_bot_filter.py": {
+      "purpose": "D15: skip ingest of the bot's own messages. Pure function.",
+      "lines": 20,
+      "n_funcs": 1,
+      "n_classes": 0,
+      "top_defs": [
+        "is_self_bot_update"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/sender_bridge.py": {
+      "purpose": "Single-owner Telegram sender bridge over the durable rate-limit queue.",
+      "lines": 68,
+      "n_funcs": 0,
+      "n_classes": 1,
+      "top_defs": [
+        "SenderBridge"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/shadow_verify.py": {
+      "purpose": "Deterministic Telegram durable-loop shadow run; fake transport, no network.",
+      "lines": 125,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "_hash_file",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/stall_probe.py": {
       "purpose": "stall_probe.py — وقتی مرکز هنگ کرد، بگو **کجا** گیر کرده بود.",
       "lines": 239,
@@ -11854,8 +14040,8 @@
     },
     "telegram_center/tg_api.py": {
       "purpose": "tg_api.py — کلاینتِ نازکِ Bot API تلگرام برای «مرکزِ تلگرام» (telegram_center).",
-      "lines": 861,
-      "n_funcs": 18,
+      "lines": 1311,
+      "n_funcs": 24,
       "n_classes": 1,
       "top_defs": [
         "TgClient",
@@ -11872,6 +14058,20 @@
         "opslib"
       ]
     },
+    "telegram_center/tg_poller_lease.py": {
+      "purpose": "tg_poller_lease.py — گارد «یک bot_id → حداکثر یک poller» (نکتهٔ ۲ مالک، ۱۴A).",
+      "lines": 66,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "_fp",
+        "_pid_alive",
+        "acquire",
+        "release"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "telegram_center/transcribe.py": {
       "purpose": "transcribe — نردبانِ متن‌سازیِ ویس (منشور رأی ۹: «ویس → نوتِ ساختاریافته»).",
       "lines": 345,
@@ -11886,6 +14086,59 @@
         "_lang_arg",
         "models_dir",
         "_importable"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/transport_pool.py": {
+      "purpose": "Bounded, circuit-protected Telegram transport.",
+      "lines": 275,
+      "n_funcs": 2,
+      "n_classes": 3,
+      "top_defs": [
+        "CircuitOpenError",
+        "BotCircuit",
+        "TransportPool",
+        "_subprocess_deadline",
+        "subprocess_transport"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/transport_subprocess.py": {
+      "purpose": "Owner-gated compatibility wrapper for the canonical subprocess transport.",
+      "lines": 23,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "enabled",
+        "call"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/verify_production_canary.py": {
+      "purpose": "Independent production canary verifier — reads the real durable state, never unlocks.",
+      "lines": 155,
+      "n_funcs": 4,
+      "n_classes": 0,
+      "top_defs": [
+        "merge_preserved",
+        "_load",
+        "_in_window",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "telegram_center/verify_shadow.py": {
+      "purpose": "Independent reader for the Telegram shadow closure artifact.",
+      "lines": 83,
+      "n_funcs": 2,
+      "n_classes": 0,
+      "top_defs": [
+        "sha",
+        "main"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -12307,7 +14560,7 @@
     },
     "tg_receipts.py": {
       "purpose": "tg_receipts.py — «آن پیامی که فرستادم، چه بر سرش آمد؟»",
-      "lines": 300,
+      "lines": 328,
       "n_funcs": 10,
       "n_classes": 0,
       "top_defs": [
@@ -12493,6 +14746,21 @@
         "model_router",
         "opslib"
       ]
+    },
+    "tools/doctor_pulse.py": {
+      "purpose": "Read-only doctor pulse — contracts in OCTOPUS-DOCTOR/90-_meta/state.",
+      "lines": 53,
+      "n_funcs": 5,
+      "n_classes": 0,
+      "top_defs": [
+        "read_json",
+        "read_jsonl",
+        "mission_counts",
+        "pending_count",
+        "main"
+      ],
+      "wire_flags": [],
+      "house_imports": []
     },
     "tools/ledger_repair_reanchor_2026_07_31.py": {
       "purpose": "ledger_repair_reanchor_2026_07_31.py — ترمیمِ زنجیرهٔ ledger (رأیِ مالک ۲۰۲۶-۰۷-۳۱).",
@@ -12849,7 +15117,7 @@
     },
     "watchdog.py": {
       "purpose": "watchdog.py — Phase 5 · S-1: watchdogِ کد (revive-after-death، نه persistence-fight).",
-      "lines": 398,
+      "lines": 409,
       "n_funcs": 13,
       "n_classes": 0,
       "top_defs": [
@@ -12884,8 +15152,8 @@
     },
     "wiring.py": {
       "purpose": "wiring.py — Phase 5+ · W-1..W-5: اتصالِ ۵ لایه به یک حلقهٔ زنده (پشتِ flag، paper-mode).",
-      "lines": 4359,
-      "n_funcs": 105,
+      "lines": 4425,
+      "n_funcs": 106,
       "n_classes": 0,
       "top_defs": [
         "flag",
@@ -13168,6 +15436,24 @@
         "is_confirming",
         "is_candidate_only",
         "is_rejected"
+      ],
+      "wire_flags": [],
+      "house_imports": []
+    },
+    "writer_lease.py": {
+      "purpose": "writer_lease.py — قفل نویسندهٔ واحد OCTOPUS (T37، دستور مالک #۶).",
+      "lines": 149,
+      "n_funcs": 8,
+      "n_classes": 0,
+      "top_defs": [
+        "_now",
+        "_read",
+        "_expired",
+        "inspect",
+        "acquire",
+        "_write_renew",
+        "renew",
+        "release"
       ],
       "wire_flags": [],
       "house_imports": []

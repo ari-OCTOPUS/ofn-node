@@ -8,6 +8,8 @@ recorded: 2026-08-20
 
 # Activation Report — 2026-08-20
 
+> **ERRATA 2026-08-20 (تاریخ بازنویسی نشد):** §۳ STABLE و «فرضیهٔ artifact ابطال شد» باطل‌اند — [[../06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20]]. B1 بدون امضا زنده شد = `B1_APPLIED_UNSIGNED` — [[B1-APPLIED-UNSIGNED-2026-08-20]]. `daily_cap=1000` واحدش life_credit است و به ۳۰ برگشت — [[../06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20]]. owner-key وجود دارد؛ «مسیر نیامد» به‌عنوان غیبت فایل ابطال شد — [[../06-EVIDENCE/OWNER-KEY-STATUS-2026-08-20]].
+
 ## 1. Novelty gate — ACTIVE (live)
 
 - Verdict `verdicts.wire_novelty_gate = 1` در `_ops/owner-verdicts.yaml` (15 رأی، ساختار سالم).

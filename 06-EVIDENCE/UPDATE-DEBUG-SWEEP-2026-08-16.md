@@ -2,7 +2,7 @@
 type: report
 status: active
 created: 2026-08-16
-updated: 2026-08-16
+updated: 2026-08-23
 created_by: agent
 tags: [octopus, stale-sync, launcher, pep, halt-drill]
 sources:
@@ -11,6 +11,10 @@ sources:
 ---
 
 # UPDATE-DEBUG-SWEEP — T1–T8 (2026-08-16 ~11:2x–12:0x)
+
+> **SUPERSEDED FOR CURRENT OPERATIONS:** this is the immutable 2026-08-16
+> snapshot. Current measured truth, fixes, and unresolved findings:
+> [[UPDATE-DEBUG-SWEEP-2026-08-23]].
 
 Mode: PROPOSE-ONLY · NO-GO stands · no flag flip · no push · no TCB edit · no status close.
 

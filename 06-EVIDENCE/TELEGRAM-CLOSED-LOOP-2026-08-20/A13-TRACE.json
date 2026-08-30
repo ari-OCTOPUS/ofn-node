@@ -1,0 +1,50 @@
+{
+  "schema": "a13-trace/1",
+  "verdict": "PASS",
+  "update_id": 223883327,
+  "ts_local": "2026-08-20T20:18:20",
+  "bot": "center",
+  "bot_id": 7992324219,
+  "from_owner": true,
+  "cmd": "/status",
+  "spine": {
+    "n_before": 5,
+    "n_after": 6,
+    "delta": 1,
+    "event_id": "evt_4ed9649f50d97dfc",
+    "occurred_at": "2026-08-20T10:18:20+00:00",
+    "event_time_source": "telegram_message_date",
+    "time_precision": "1s",
+    "handler_schema_version": "typed-v1",
+    "producer": "owner_console_seam"
+  },
+  "offset_before": 223883327,
+  "offset_after": 223883328,
+  "model_intents_in_canary_window": 0,
+  "cost_receipts_in_canary_window": 0,
+  "synthesize": 0,
+  "collab_chat": 0,
+  "outbound": {
+    "logical_replies": 1,
+    "stream": "center",
+    "chars": 131,
+    "ok": true,
+    "surface": "dm",
+    "ts": 1787221102.511
+  },
+  "poller": {
+    "pid": 8828,
+    "count": 1,
+    "lease": "center-canonical",
+    "lock": "tg-poller-c33098cc078d.lock"
+  },
+  "process_identity": {
+    "git_commit_short": "3abc16b",
+    "process_id": 8828,
+    "handler_schema_version": "typed-v1",
+    "short_build_id": "3abc16b/typed-v1"
+  },
+  "note": "paid/receipt rows at 20:16 are organism/cortex 'deep', not this /status (20:18:20).",
+  "cost_receipts_request_timestamp_10_18": 0,
+  "condition_zero_cost_receipts_20_18": true
+}

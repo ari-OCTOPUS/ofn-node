@@ -1,0 +1,19 @@
+{
+  "schema": "organogenesis-canary.v1",
+  "capability_id": "b0dea5128a34aa95",
+  "identity": "pain-triage",
+  "prior_verdict": "PROMOTE",
+  "overlay_verdict": "CANARY",
+  "grade": "MEASURED",
+  "replay_ok": true,
+  "receipt_hash": "71799dc069ad6cc981cdfc17",
+  "producer": "OrganogenesisEngine.birth (MEGA-FINISH-ALL-v1 phase 7)",
+  "reviewer": "MEGA-DISCOVERY-v1 GATE-0 session (non-producer)",
+  "law06": "self-PROMOTE",
+  "sandbox_exit_code": 1,
+  "sandbox_ok_field": true,
+  "not_verified": true,
+  "t2_status": "CANDIDATE_CANARY",
+  "evidence": "06-EVIDENCE/D8-PAIN-TRIAGE-CANARY-2026-08-20.md",
+  "ts": "2026-08-20T00:28:00+10:00"
+}

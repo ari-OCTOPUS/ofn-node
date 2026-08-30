@@ -1,0 +1,24 @@
+196
+==SECRET_SCAN==
+0
+Switched to a new branch 'archive/board180-unprotected-20260830'
+COMMIT=c6d6a47bbfa40fbbbe425e3b1b88c8befcd89150 PARENT=28209effa84af68a85ab60329c77dca81c6cea00
+M	vault/board-life-001/00 Home.md
+M	vault/board-life-001/AGENTS.md
+M	vault/board-life-001/AGI gap.md
+M	vault/board-life-001/Attestation.md
+M	vault/board-life-001/Body.md
+M	vault/board-life-001/Evaluation.md
+M	vault/board-life-001/Futures.md
+M	vault/board-life-001/Hearing.md
+M	vault/board-life-001/Identity.md
+M	vault/board-life-001/Inner speech.md
+M	vault/board-life-001/Learning.md
+M	vault/board-life-001/Limits.md
+M	vault/board-life-001/Metaphors.md
+M	vault/board-life-001/Place.md
+M	vault/board-life-001/School.md
+M	vault/board-life-001/Season Sydney.md
+M	vault/board-life-001/World.md
+Switched to branch 'backup/board180-20260830'
+RESTORED_BRANCH=backup/board180-20260830

@@ -1,0 +1,42 @@
+{
+  "run_id": "2026-08-16-wave-01",
+  "agent_id": "A15_synthesis",
+  "role": "Synthesis Coordinator (merged Wave-01 reality freeze)",
+  "mode": "READ_ONLY",
+  "started_at": "2026-08-17T00:12+10:00",
+  "completed_at": "2026-08-17T00:25+10:00",
+  "repository_commit": "028fe8149515415852b2a3b1feaaff44681e5bf8",
+  "runtime_observed": true,
+  "inputs": {
+    "A01_repo_cartographer": "complete (inventory, entrypoint map, drift, 2 special questions answered; no machine summary file — REPOSITORY_STATE.json instead)",
+    "A02_runtime_investigator": "complete (merged dual-observer: R-001..R-020 + F-01..F-30; 9 live processes; FREEZE incident)",
+    "A03_dataflow_contract_auditor": "complete (32 findings; 9 bypass paths; temporal audit; critical condition=false)",
+    "A04_authority_attack_auditor": "complete (31 findings; 4 HIGH; stop-rule not triggered; 4 owner decisions OD-A..OD-D)"
+  },
+  "agent_verdicts": ["READY_FOR_NEXT_WAVE", "READY_FOR_NEXT_WAVE", "READY_FOR_NEXT_WAVE", "READY_FOR_NEXT_WAVE"],
+  "consensus_overridden_by_evidence": [
+    "brains=4d/NBB (T0 process map overrides lore)",
+    "A2 automatic (code ladder A0-A6 overrides claim)",
+    "bitemporal ledger (schema audit overrides claim)",
+    "propose-only absolute (armed AUTONOMY_* flags + lead lane override label)"
+  ],
+  "findings": [
+    {"id": "FZ-1", "claim": "Organism live, beat advancing ~125-128s, monotonic over 3+ cycles", "status": "VERIFIED_LIVE", "evidence_tier": "T0", "confidence": 0.98, "severity": "INFO", "paths": ["_ops/state/ORGANISM-STATE.json"], "commands": ["process/state observation x3"], "dependencies": [], "recommended_action": "none"},
+    {"id": "FZ-5", "claim": "LIVE INCIDENT: FREEZE.flag from budget-settle fault (Errno 22 budget-state.json, 20:09:05); budget grants fail-closed; month spend AU$0.74", "status": "VERIFIED_LIVE", "evidence_tier": "T0", "confidence": 0.9, "severity": "HIGH", "paths": ["_ops/budget/FREEZE.flag", "_ops/state/ORGANISM-STATE.json"], "commands": ["flag read (A01)", "state observation (A02)"], "dependencies": [], "recommended_action": "owner/Windows repair of budget settle; verify freeze clears"},
+    {"id": "FZ-6", "claim": "Raw shell armed (owner /sh), deny-list bypassable, 0 executions recorded", "status": "VERIFIED_CODE_ONLY+T0", "evidence_tier": "T2", "confidence": 0.92, "severity": "HIGH", "paths": ["_ops/shell_capability.py:147-195", "_ops/telegram_center/center.py:648-694", "_ops/ACTIVATION-RAW-SHELL.flag"], "commands": ["grep/read (A04+A02)"], "dependencies": [], "recommended_action": "OD-B"},
+    {"id": "FZ-7", "claim": "Central gates documented but unwired (P0ExecutionGate WIRED=False; PolicyGate 1-2 call sites; dual veto flag OFF)", "status": "VERIFIED_CODE_ONLY", "evidence_tier": "T2", "confidence": 0.9, "severity": "HIGH", "paths": ["_ops/octopus_v3/__init__.py:12", "_ops/policy/policy_gate.py", "_ops/wiring.py:2057-2094"], "commands": ["code audit (A02/A04)"], "dependencies": [], "recommended_action": "OD-A; shadow wiring in wave 2"},
+    {"id": "FZ-8", "claim": "15/15 ACTIVATION flags armed incl RAW-SHELL/CODE-AUTONOMY/SELF-IMPROVE-AUTO/REPLICATION/GO-LIVE", "status": "VERIFIED_LIVE", "evidence_tier": "T0", "confidence": 0.88, "severity": "MEDIUM", "paths": ["_ops/ACTIVATION-*.flag"], "commands": ["dir listing (A04#F-017)"], "dependencies": [], "recommended_action": "flag-hygiene review"},
+    {"id": "FZ-9", "claim": "Unfenced web/vault text reaches prompts (context fence partial)", "status": "VERIFIED_CODE_ONLY", "evidence_tier": "T2", "confidence": 0.8, "severity": "MEDIUM", "paths": ["_ops/cortex/context_fence.py", "_ops/cortex/web_research"], "commands": ["code audit (A04#F-009/F-010)"], "dependencies": [], "recommended_action": "OD-D; wire fence at all prompt assembly points"},
+    {"id": "FZ-10", "claim": "Secrets: .env untracked OK but stale plaintext .env.bak-20260810 at vault root", "status": "VERIFIED_LIVE", "evidence_tier": "T0", "confidence": 0.95, "severity": "MEDIUM", "paths": [".env", ".env.bak-20260810"], "commands": ["key-name grep only (A02#R-016, A04#F-014)"], "dependencies": [], "recommended_action": "purge backup; rotate"},
+    {"id": "FZ-11", "claim": "All live ledgers unitemporal; bitemporality NOT_FOUND; gated_effect 0 rows", "status": "VERIFIED_LIVE", "evidence_tier": "T0", "confidence": 0.9, "severity": "LOW", "paths": ["_ops/state/chrono.db"], "commands": ["sqlite ro (A02#R-006; A03 temporal audit)"], "dependencies": [], "recommended_action": "A12"},
+    {"id": "FZ-12", "claim": "Safety today is structural absence of executor paths for A2-A6; new effectors would inherit 'allowed'", "status": "VERIFIED_CODE_ONLY", "evidence_tier": "T2", "confidence": 0.88, "severity": "MEDIUM", "paths": ["_ops/action_bridge/executor.py:35"], "commands": ["code audit (A02#R-007/R-010)"], "dependencies": [], "recommended_action": "convert to enforced gate before adding any effector"}
+  ],
+  "invariants_tested": ["unknown state -> no write (observed: no writes made)", "unknown capability -> deny (classifier A6/unknown)", "no observability -> no autonomy (telemetry-based halt exists)", "no gate receipt -> no execution (structural today; overlay dormant)", "no verified postcondition -> no success claim (action_bridge postcondition discipline)"],
+  "tests_passed": 0,
+  "tests_failed": 0,
+  "tests_not_run": 0,
+  "changes_made": ["COUNCIL_REPORTS/2026-08-16-wave-01/A15_synthesis/* (this package only)"],
+  "unresolved_critical_questions": ["FREEZE fault repair owner action", "OD-A..OD-D owner decisions", "NBB-CP SoT choice (3 forks)", "provider-order contract verification"],
+  "next_agent_inputs": ["Wave 1: A05-A10 per COUNCIL_PACKET_FOR_SYNTHESIS.md", "Wave 2: A11-A13 (policy prototype, bitemporal ledger, fault injection)", "Wave 3: A14 red team (re-test flip conditions a-d)", "Owner: OD-A..OD-D, freeze repair, fork SoT"],
+  "disposition": "READY_FOR_NEXT_WAVE"
+}

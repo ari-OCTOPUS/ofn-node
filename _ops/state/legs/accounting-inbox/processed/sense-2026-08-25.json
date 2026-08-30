@@ -1,0 +1,11 @@
+{
+  "schema": "leg-feed.v1",
+  "kind": "sense-pulse",
+  "label": "accounting sense 2026-08-25",
+  "leg": "accounting",
+  "day": "2026-08-25",
+  "live": true,
+  "signal": "workbooks=6;acct-beat",
+  "note": "منبعِ مالی موجود — فقط تعداد/mtimeِ workbook دیده شد؛ صفر مقدار/نام/عدد خوانده شد (خط‌قرمزِ PII، فقط‌خواندنی). workbookه",
+  "fed_by": "leg_feed.ensure_food"
+}

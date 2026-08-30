@@ -1,0 +1,124 @@
+﻿{
+    "schema":  "octopus.torch-hunt.not-found.v1",
+    "hunt_id":  "OCTOPUS-TORCH-HUNT-2026-08-22",
+    "written_at_local":  "2026-08-22T21:41:00+10:00",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "scope":  "F:/backup read-only",
+    "target":  {
+                   "board":  "Orange Pi / sensorium-opi5pro (aarch64/arm64)",
+                   "package":  "torch CPU-only wheel",
+                   "need":  [
+                                "HTTPS wheel URL",
+                                "SHA256",
+                                "Python tag match",
+                                "platform tag linux_aarch64/manylinux_*_aarch64"
+                            ],
+                   "forbidden":  [
+                                     "download",
+                                     "install",
+                                     "CUDA invent",
+                                     "ckpt348 sign"
+                                 ]
+               },
+    "context_note":  "Owner deferred ckpt348 sign (separate from this hunt). This hunt is wheel URL/SHA256/local wheel discovery only.",
+    "result":  "NOT_FOUND",
+    "candidates_count":  0,
+    "local_wheels_count":  0,
+    "filled_owner_wheel_supply":  false,
+    "searches":  [
+                     {
+                         "pattern":  "NEED_WHEEL_URL",
+                         "roots":  [
+                                       "F:/backup"
+                                   ],
+                         "hits":  "prior BLOCKED packages only (no URL/SHA256)"
+                     },
+                     {
+                         "pattern":  "pytorch|torch aarch64|arm64|cpu wheel",
+                         "roots":  [
+                                       "F:/backup/06-EVIDENCE",
+                                       "F:/backup/docs",
+                                       "F:/backup/OCTOPUS",
+                                       "F:/backup/_octopus",
+                                       "F:/backup/research",
+                                       "F:/backup/08-PLANS",
+                                       "F:/backup/07-HANDOFF"
+                                   ],
+                         "hits":  "execute/auth packages documenting gate only"
+                     },
+                     {
+                         "pattern":  "download.pytorch.org|whl/cpu|manylinux.*aarch64|torch-*-linux_aarch64",
+                         "roots":  [
+                                       "F:/backup/06-EVIDENCE",
+                                       "F:/backup/OCTOPUS",
+                                       "F:/backup/docs",
+                                       "F:/backup/research"
+                                   ],
+                         "hits":  "zero concrete wheel URLs"
+                     },
+                     {
+                         "pattern":  "dir /s *.whl",
+                         "roots":  [
+                                       "F:/backup"
+                                   ],
+                         "hits":  "zero .whl files"
+                     },
+                     {
+                         "pattern":  "OWNER-WHEEL-SUPPLY.json (filled)",
+                         "roots":  [
+                                       "F:/backup"
+                                   ],
+                         "hits":  "absent; only OWNER-WHEEL-SUPPLY.template.json with REPLACE_ME"
+                     },
+                     {
+                         "pattern":  "requirements*/pyproject torch pin",
+                         "roots":  [
+                                       "F:/backup/OCTOPUS",
+                                       "F:/backup/_octopus",
+                                       "F:/backup/OCTOPUS-PRIME"
+                                   ],
+                         "hits":  "none"
+                     },
+                     {
+                         "pattern":  "*.whl under _archive-binaries/_portable-build/_build/_ops + evidence/docs/octopus roots",
+                         "roots":  [
+                                       "F:/backup/_archive-binaries",
+                                       "F:/backup/_portable-build",
+                                       "F:/backup/_build",
+                                       "F:/backup/_ops",
+                                       "F:/backup/06-EVIDENCE"
+                                   ],
+                         "hits":  "none"
+                     }
+                 ],
+    "related_evidence":  [
+                             {
+                                 "path":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-TORCH-EXECUTE-2026-08-22",
+                                 "status":  "BLOCKED_NEED_WHEEL_URL",
+                                 "mutate_device":  true,
+                                 "note":  "Execute package ready; install gated on owner URL+SHA256+Python match. Template only.",
+                                 "key_files":  [
+                                                   "PACKAGE-STATUS.json",
+                                                   "OWNER-AUTHORIZATION.json",
+                                                   "OWNER-WHEEL-SUPPLY.template.json",
+                                                   "PLAN.md",
+                                                   "EXECUTION-ORDER.md"
+                                               ]
+                             },
+                             {
+                                 "path":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-TORCH-2026-08-22",
+                                 "status":  "superseded auth-only",
+                                 "note":  "Prior auth-only; successor gate BLOCKED_NEED_WHEEL_URL; stated no safe CPU aarch64/arm64 wheel URL in F:/backup docs"
+                             }
+                         ],
+    "negative_findings":  [
+                              "No HTTPS pytorch/torch CPU aarch64/arm64 wheel URL documented under F:/backup.",
+                              "No SHA256 for any torch wheel found in torch-related packages (only unrelated audit/manifest hashes elsewhere).",
+                              "No local *.whl anywhere under F:/backup (dir /s).",
+                              "No filled OWNER-WHEEL-SUPPLY.json; template fields remain REPLACE_ME.",
+                              "No torch pin in OCTOPUS/requirements/pyproject trees searched.",
+                              "Prior execute package already recorded the same NOT_FOUND for docs under F:/backup."
+                          ],
+    "does_not_unblock":  "BLOCKED_NEED_WHEEL_URL on OCTOPUS-ORANGEPI-TORCH-EXECUTE-2026-08-22 remains; owner must supply URL+SHA256+Python match.",
+    "no_download_no_install":  true
+}

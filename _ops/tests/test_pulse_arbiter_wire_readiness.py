@@ -9,9 +9,10 @@
         بسته بماند — حتی وقتی هر دو envِ OCTOPUS_WIRE_PULSE_ARBITER/OCTOPUS_WIRE_BIO
         روشن‌اند. گیت واقعاً AND سه‌طرفه است، نه یک flag تنها.
   (ب) با هر سه شرط حاضر (دو env + فایل)، wire_open() باز می‌شود.
-  (ج) effective_period_if_open واقعاً periodِ *متفاوت* برمی‌گرداند: بسته → default_s
-      دست‌نخورده، باز → periodِ اجماعِ سه‌قلبِ pulse_arbiter — یعنی فلیپ یک اثرِ
-      رفتاریِ اندازه‌گیری‌پذیر دارد، نه فقط تغییرِ یک رشتهٔ وضعیت در JSON.
+  (ج) effective_period_if_open مسیرِ authority را واقعاً اعمال می‌کند: بسته → default_s
+      دست‌نخورده؛ باز بدون baseline معتبر → همچنان بسته؛ باز با baseline معتبر →
+      control_lawِ shadow فقط مشاهده می‌شود و candidateِ دو رأی معتبر با anchor ثابت
+      non-acceleration اعمال می‌شود. این یک اثر رفتاری است، نه فقط تغییرِ رشتهٔ JSON.
 
 ⚠️ همهٔ این تست‌ها داخلِ ops_dir موقتِ harness (تمپ‌فایلِ ویندوز) کار می‌کنند و هیچ
 فایلِ فعال‌سازیِ واقعی یا envِ زندهٔ this-process-only را در `F:\\backup` نمی‌سازند/
@@ -118,7 +119,7 @@ def t_all_three_conditions_open_the_wire():
 
 
 # ════════════════════════════════════════════════════════════════════════════════
-# (ج) effective_period_if_open: بسته=default دست‌نخورده، باز=periodِ واقعیِ اجماع
+# (ج) effective_period_if_open: بسته=default؛ باز=authority guard + anchor ثابت
 # ════════════════════════════════════════════════════════════════════════════════
 def _fixture_views():
     """سه قلبِ متحرک و متمایز (cardiac=40s با mass>1 تا LIVE باشد نه CONSTANT،
@@ -136,32 +137,45 @@ def _fixture_views():
 
 
 def t_effective_period_differs_open_vs_closed():
-    """DoD (ج) — این تست تنها اثباتِ «فلیپ اثرِ واقعی دارد» است: عددِ برگشتی، نه
-    فقط پرچمِ wire_open، باید بینِ بسته/باز فرق کند و با اجماعِ محاسبه‌شده یکی باشد."""
+    """G4: بازشدنِ outer wire بدون baseline، authority نمی‌سازد؛ با baseline معتبر
+    candidateِ دو قلب محاسبه می‌شود ولی حذفِ رأی shadow حقِ تسریع ندارد."""
     views = _fixture_views()
-    default_s = 777.0   # عمداً دور از بازهٔ اجماعِ ~۴۰-۵۰ — هم‌پوشانیِ تصادفی ممکن نیست
+    default_s = 777.0
 
-    # مرجعِ مستقل: همان رأی‌ها را با arbitrate خام حساب کن (بدونِ عبور از wire_open)
-    expected_consensus = pa.arbitrate(pa.gather_views(**views))["effective_period_s"]
-    assert expected_consensus < 60.0, expected_consensus   # پیش‌شرطِ فیکسچر
+    expected_candidate = pa.arbitrate(pa.gather_views(**views))["effective_period_s"]
+    assert expected_candidate < 60.0, expected_candidate
 
     _reset()
     try:
-        # بسته: هرگز override نمی‌کند — period_closed باید دقیقاً default باشد
         period_closed, snap_closed = pa.effective_period_if_open(default_s, **views)
         assert snap_closed["wire_open"] is False, snap_closed
         assert period_closed == default_s, period_closed
 
-        # باز: period_open باید periodِ *واقعیِ* اجماع باشد — نه default، نه رشتهٔ تنها
         _arm_all()
-        period_open, snap_open = pa.effective_period_if_open(default_s, **views)
+        period_no_base, snap_no_base = pa.effective_period_if_open(default_s, **views)
+        assert period_no_base == default_s
+        assert snap_no_base["wire_open"] is False
+        assert snap_no_base["authority_status"] == "NO_VALID_BASELINE"
+
+        previous = {
+            "schema": pa.SCHEMA, "effective_period_s": 98.11,
+            "wire_open": True, "written": True,
+        }
+        original = pa.read_latest
+        pa.read_latest = lambda: previous
+        try:
+            period_open, snap_open = pa.effective_period_if_open(default_s, **views)
+        finally:
+            pa.read_latest = original
         assert snap_open["wire_open"] is True, snap_open
-        assert period_open != period_closed, "فلیپ باید اثرِ رفتاریِ اندازه‌گیری‌پذیر داشته باشد"
-        assert math.isclose(period_open, expected_consensus, rel_tol=1e-9), \
-            (period_open, expected_consensus)
-        assert math.isclose(period_open, snap_open["effective_period_s"], rel_tol=1e-9)
-        assert snap_open["driver"] == "consensus", snap_open  # سه قلبِ واقعاً متحرک، نه برچسبِ تنها
-        assert snap_open["n_present"] == 3 and snap_open["n_moving"] == 3, snap_open
+        assert snap_open["n_present"] == 2, snap_open
+        control = next(v for v in snap_open["votes"] if v["heart"] == "control_law")
+        assert control["present"] is False and control["eligible_for_live"] is False
+        assert control["authority"] == "SHADOW_ONLY"
+        assert math.isclose(snap_open["candidate_period_s"], expected_candidate, rel_tol=1e-9)
+        assert math.isclose(period_open, 98.11, rel_tol=1e-9), snap_open
+        assert snap_open["driver"] == "authority-hold"
+        assert snap_open["authority_hold_applied"] is True
     finally:
         _reset()
 

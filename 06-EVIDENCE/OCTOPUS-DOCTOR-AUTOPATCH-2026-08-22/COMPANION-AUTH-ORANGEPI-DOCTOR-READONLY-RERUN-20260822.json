@@ -1,0 +1,31 @@
+﻿{
+    "schema":  "octopus.companion-auth.v1",
+    "timestamp":  "2026-08-22T18:54:30+10:00",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "companion_to":  "OCTOPUS-DOCTOR-AUTOPATCH-20260822",
+    "token":  "OCTOPUS-ORANGEPI-DOCTOR-READONLY-RERUN-20260822",
+    "device":  "Orange Pi",
+    "mode":  "observe-only",
+    "mutate_device":  false,
+    "allowed":  [
+                    "readonly doctor re-run",
+                    "observe / report vitals",
+                    "read-only evidence capture"
+                ],
+    "forbidden":  [
+                      "merge",
+                      "auto-patch",
+                      "set OCTOPUS_DOCTOR_MAY_MERGE",
+                      "write production code",
+                      "git add -A",
+                      "money/webhook/work_pump",
+                      "MQTT 1883",
+                      "LAN:9101",
+                      "torch",
+                      "private keys",
+                      "zero-fill",
+                      "hash rewrite"
+                  ],
+    "notes":  "Companion auth note only. Laptop autopatch unlock does NOT authorize Orange Pi mutation. This token authorizes observe-only / readonly doctor re-run on Pi.",
+    "evidence_home":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-DOCTOR-AUTOPATCH-2026-08-22"
+}

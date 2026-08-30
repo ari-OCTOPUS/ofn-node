@@ -1,0 +1,61 @@
+"""
+test_fear_classifier.py — unit tests for the fear_type derivation.
+Run: python3 test_fear_classifier.py   (plain asserts, no pytest needed)
+
+Covers every branch + the E-0 honesty and E-1 falsifiability contracts,
+and asserts consistency with edges.yaml's DISLOCATION kill/signature rules.
+"""
+from fear_classifier import classify_fear, enables_edge, FEAR_TYPES
+
+FLOOR = 35.0
+def coin(**kw):
+    base = {"max_dd_pct": None, "holder_count_delta": None,
+            "forensic_vetoed": False, "forensic_reasons": [], "btc_trend": "NEUTRAL"}
+    base.update(kw); return base
+
+CASES = [
+    # name, coin, expected
+    ("panic_sell_organic",
+     coin(max_dd_pct=-42, holder_count_delta=120, btc_trend="NEUTRAL"), "PANIC_SELL"),
+    ("sector_contagion_macro",
+     coin(max_dd_pct=-40, holder_count_delta=30, btc_trend="DISTRIBUTING"), "SECTOR_CONTAGION"),
+    ("insider_dump_holders_fell",
+     coin(max_dd_pct=-45, holder_count_delta=-200, btc_trend="NEUTRAL"), "INSIDER_DUMP"),
+    ("insider_dump_forensic_flag",
+     coin(max_dd_pct=-50, holder_count_delta=80, forensic_vetoed=True), "INSIDER_DUMP"),
+    ("insider_dump_forensic_reasons",
+     coin(max_dd_pct=-50, holder_count_delta=80, forensic_reasons=["mint_authority"]), "INSIDER_DUMP"),
+    ("unknown_no_dislocation",
+     coin(max_dd_pct=-10, holder_count_delta=120), "UNKNOWN"),
+    ("unknown_missing_dd",
+     coin(max_dd_pct=None, holder_count_delta=120), "UNKNOWN"),
+    ("unknown_missing_holders",
+     coin(max_dd_pct=-42, holder_count_delta=None), "UNKNOWN"),
+    ("boundary_exactly_floor",
+     coin(max_dd_pct=-35, holder_count_delta=5, btc_trend="NEUTRAL"), "PANIC_SELL"),
+    ("boundary_just_above_floor",
+     coin(max_dd_pct=-34.9, holder_count_delta=5), "UNKNOWN"),
+    ("distributing_precedes_panic",
+     coin(max_dd_pct=-60, holder_count_delta=999, btc_trend="DISTRIBUTING"), "SECTOR_CONTAGION"),
+]
+
+def run():
+    passed = failed = 0
+    for name, c, expected in CASES:
+        got = classify_fear(c, dd_floor=FLOOR)
+        ok = got == expected
+        # Contract check: only PANIC_SELL/SECTOR_CONTAGION may enable the edge
+        edge_ok = enables_edge(got) == (got in ("PANIC_SELL", "SECTOR_CONTAGION"))
+        assert got in FEAR_TYPES, f"{name}: {got} not a valid fear type"
+        if ok and edge_ok:
+            passed += 1
+            print(f"  PASS  {name:32s} -> {got}")
+        else:
+            failed += 1
+            print(f"  FAIL  {name:32s} -> got={got} expected={expected}")
+    print(f"\n{passed}/{passed+failed} passed")
+    return failed == 0
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(0 if run() else 1)

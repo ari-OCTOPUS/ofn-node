@@ -4953,3 +4953,2355 @@
 ## 2026-08-16T16:45:01 (metabolism)
 - ⚠️ debate: مغزِ محلی نشد → stub (ValueError: قرارداد JSONِ محلی ناقص: ['cheapest_test', 'kill_condition', 'verdict'])
 
+## 2026-08-16T17:20:54 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-16T18:02:48 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (61/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-16T18:44:13 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-16T19:58:41 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-16T20:09:09 (metabolism)
+- ⚠️ FREEZE: settle failed for ARCHITECT_SYS: [Errno 22] Invalid argument: 'F:\\backup\\_ops\\budget\\budget-state.json'
+
+## 2026-08-16T20:11:39 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-16T20:29:47 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-16T20:53:35 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (61/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-16T22:47:49 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-16T22:48:31 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T00:00:02 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-17T00:00:29 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-17T00:00:37 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-17T00:00:46 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-17T00:00:46 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/part_loops.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-17T00:05:00 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-17T00:05:13 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-17T00:07:56 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-17T00:08:12 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-17T00:33:18 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-17T01:34:58 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-17T06:00:45 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-17T06:08:47 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-17T06:12:42 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T11:52:58 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T11:57:42 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T12:01:03 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-17T16:47:21 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-17T16:48:06 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-17T16:48:33 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-17T16:55:31 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T16:57:47 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-17T16:57:59 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T17:01:07 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=11785 tip=11423
+
+## 2026-08-17T17:12:36 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-17T17:51:20 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-17T18:03:20 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-17T18:35:16 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-17T18:42:43 (metabolism)
+- ⚠️ accountant: pullِ PocketSmith ناقص بود (ok=False) — شبکه از فایل‌ها ساخته شد تا تراکنشی ناپدید نشود
+
+## 2026-08-17T18:56:10 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-18T00:07:52 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-18T00:12:30 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-18T00:20:49 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-18T00:39:00 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=11995 tip=11633
+
+## 2026-08-18T00:49:37 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T00:49:45 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T00:49:54 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T01:12:35 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-18T02:40:28 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-18T02:48:06 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary:skipped-deadline'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T02:48:28 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T06:01:41 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-18T07:47:11 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): JSON response truncated (missing closing brace): '{\n  "reason": "The allocation decision is based on the telemetry data and the current state of the organization. The org'  — likely finish_reason=length; raise max_tokens
+
+## 2026-08-18T08:33:27 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T08:33:31 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T08:33:36 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T08:33:40 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T09:24:16 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 112): "Expecting ',' delimiter"  snippet: '    "ZIMAN": 0.0\n  }'
+
+## 2026-08-18T10:11:23 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-18T16:27:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-18T16:27:08 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-18T16:27:09 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-18T16:27:34 (metabolism)
+- ⚠️ tg-center getUpdates: 348 دقیقه هیچ دورِ موفقی نبوده (2 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-18T16:28:08 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-18T16:29:52 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T16:29:53 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T16:29:53 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-18T16:29:53 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-18T16:29:54 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-18T16:34:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-18T16:34:26 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-18T16:34:27 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-18T16:34:27 (metabolism)
+- ⚠️ cortex obs: coherence=0.29 < 0.5
+- ⚠️ cortex obs: 6 stale > 2: organism,heart,producers,work_pump,governor,fourd_system
+
+## 2026-08-18T16:34:28 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-18T16:37:42 (metabolism)
+- ⚠️ telegram getWebhookInfo failed (non-fatal): URLError
+
+## 2026-08-18T16:38:06 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T16:38:16 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T16:39:38 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T16:39:49 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T16:39:49 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-18T16:40:08 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T16:40:14 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T16:41:45 (metabolism)
+- ⚠️ vault_bridge: RAG در دسترس نیست (RuntimeError: Cannot send a request, as the client has been closed.)
+
+## 2026-08-18T16:43:39 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=12260 tip=11898
+
+## 2026-08-18T16:44:40 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+
+## 2026-08-18T16:44:40 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-18T16:44:43 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T16:45:05 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T16:47:45 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-18T17:15:02 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-18T17:15:14 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-18T17:27:34 (metabolism)
+- ⚠️ tg-center getUpdates: 408 دقیقه هیچ دورِ موفقی نبوده (339506 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-18T17:45:43 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-18T18:01:50 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-18T18:01:58 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-18T18:57:05 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-18T19:40:23 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-18T19:42:38 (metabolism)
+- ⚠️ tg-center getUpdates: 5 دقیقه هیچ دورِ موفقی نبوده (25743 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-18T21:49:54 (metabolism)
+- ⚠️ cortex router primary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): PermissionError: [Errno 13] Permission denied: 'F:\\backup\\_ops\\budget\\organ-gate-log.jsonl'
+
+## 2026-08-18T22:51:53 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-18T23:12:59 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 81): "Expecting ',' delimiter"  snippet: 'YS":0.0,"ZIMAN":0.0}'
+
+## 2026-08-18T23:59:18 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-19T00:01:27 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-19T00:01:41 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/self_improve_gauges.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-19T00:02:52 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T00:13:40 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=12517 tip=12155
+
+## 2026-08-19T01:38:05 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-19T02:18:19 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T02:37:42 (metabolism)
+- ⚠️ tg-center getUpdates: 5 دقیقه هیچ دورِ موفقی نبوده (27080 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T02:47:40 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+
+## 2026-08-19T03:18:44 (metabolism)
+- ⚠️ accountant: pullِ PocketSmith ناقص بود (ok=False) — شبکه از فایل‌ها ساخته شد تا تراکنشی ناپدید نشود
+
+## 2026-08-19T03:18:49 (metabolism)
+- ⚠️ harvest_austender fetch failed (non-fatal): URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T03:37:41 (metabolism)
+- ⚠️ tg-center getUpdates: 65 دقیقه هیچ دورِ موفقی نبوده (389725 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T03:48:37 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-19T03:54:40 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T04:37:42 (metabolism)
+- ⚠️ tg-center getUpdates: 125 دقیقه هیچ دورِ موفقی نبوده (744198 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T04:52:06 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-19T05:37:41 (metabolism)
+- ⚠️ tg-center getUpdates: 185 دقیقه هیچ دورِ موفقی نبوده (1103455 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T05:54:10 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-19T06:01:17 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-19T06:08:06 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T06:37:41 (metabolism)
+- ⚠️ tg-center getUpdates: 245 دقیقه هیچ دورِ موفقی نبوده (1463072 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T07:27:28 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T07:29:29 (metabolism)
+- ⚠️ accountant: pullِ PocketSmith ناقص بود (ok=False) — شبکه از فایل‌ها ساخته شد تا تراکنشی ناپدید نشود
+
+## 2026-08-19T07:37:41 (metabolism)
+- ⚠️ tg-center getUpdates: 305 دقیقه هیچ دورِ موفقی نبوده (1802485 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T10:11:10 (metabolism)
+- ⚠️ cortex: هیچ کلیدِ پولی (Fugu/GLM) در دسترس نیست — مغز روی محلیِ $0
+
+## 2026-08-19T10:11:12 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: no-paid-key — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-19T10:11:12 (metabolism)
+- ⚠️ cortex: هیچ کلیدِ پولی (Fugu/GLM) در دسترس نیست — مغز روی محلیِ $0
+
+## 2026-08-19T10:11:59 (metabolism)
+- ⚠️ cortex: هیچ کلیدِ پولی (Fugu/GLM) در دسترس نیست — مغز روی محلیِ $0
+
+## 2026-08-19T10:12:01 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: no-paid-key — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-19T10:12:43 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: no-paid-key — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-19T10:12:46 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-19T10:12:47 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-19T10:13:12 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-19T10:13:15 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-19T10:22:39 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-19T10:37:32 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-19T10:43:21 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-19T10:43:22 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-19T11:01:50 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=300 به سقفِ max_tokens=300 خورد و فقط 25 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T11:14:08 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 28 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T11:17:56 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 15 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T12:00:28 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (83/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-19T12:23:57 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-19T12:36:10 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 31 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T13:30:17 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 35 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T13:30:24 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 38 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T13:40:08 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 18 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T13:41:05 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 14 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T13:42:29 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 17 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T15:12:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-19T15:12:36 (metabolism)
+- ⚠️ tg-center getUpdates: 89 دقیقه هیچ دورِ موفقی نبوده (2 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-19T15:13:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-19T15:14:16 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-19T15:18:37 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T15:18:42 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (140/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T15:19:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-19T15:19:19 (metabolism)
+- ⚠️ cortex obs: coherence=0.482 < 0.5
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-08-19T15:24:06 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13007 tip=12645
+
+## 2026-08-19T15:26:55 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 2 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T15:29:24 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 12 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T15:33:28 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 8 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T15:33:46 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 3 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T15:36:18 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 8 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T15:43:58 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (TimeoutError)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-19T17:17:40 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (221/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T17:22:44 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-19T17:35:00 (metabolism)
+- ⚠️ heart doctor router path failed (fallback به policy): ValueError: invalid JSON in model reply (offset 1): 'Expecting property name enclosed in double quotes'  snippet: '{lo,hi} for target velocity. Need propose'
+
+## 2026-08-19T18:01:51 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (221/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-19T18:22:58 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "استفاده از تکنولوژی آب برای افزایش سرعت حرکت و کاهش هزینه\u200cها",\n  "why_genius": "اگر یک فری\u200cکننده آب با تجهی'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-19T19:06:32 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 29 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:26:46 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 36 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:26:52 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 34 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:27:46 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 36 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:27:51 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 35 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:28:52 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 35 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:28:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 36 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:29:29 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 35 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:29:35 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 31 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:30:05 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 37 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:32:03 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 37 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:32:09 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 32 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:34:52 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 39 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:34:59 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 25 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:38:07 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 16 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:38:07 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/300) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T19:39:26 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 37 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:39:26 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/300) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T19:41:03 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 35 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:41:03 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/300) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T19:41:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 37 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:43:45 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=300 به سقفِ max_tokens=300 خورد و فقط 16 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:44:52 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 2 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:46:22 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 30 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:51:18 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 9 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:54:23 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 35 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:59:02 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 33 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T19:59:02 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/300) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T20:05:46 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-19T20:05:58 (metabolism)
+- ⚠️ tg_api pinChatMessage failed: URLError
+
+## 2026-08-19T21:04:03 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 26 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T21:46:42 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 7 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T21:56:46 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 33 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T21:58:11 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 37 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T21:58:39 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 32 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T21:59:07 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 32 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:05:35 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:05:47 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:06:03 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:06:17 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:06:33 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:06:48 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:10:27 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T22:10:40 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=8 به سقفِ max_tokens=8 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T22:15:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=511 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:18:55 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): TimeoutError: The read operation timed out
+
+## 2026-08-19T22:20:20 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 37 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:20:20 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T22:21:20 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+## 2026-08-19T22:23:27 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (abort)
+
+## 2026-08-19T22:27:23 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T22:27:35 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T22:27:47 (metabolism)
+- ⚠️ circuit OPEN for reason — consecutive>=3 (backoff level 1, next retry in ~60s) URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T22:27:48 (metabolism)
+- ⚠️ cortex router secondary failed (این tier کنار رفت؛ انتخابِ tierِ بعدی یا محلی دستِ caller است): URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T22:34:09 (metabolism)
+- ⚠️ circuit RECOVERED for reason — closed after 2 consecutive successes
+
+## 2026-08-19T22:34:26 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=513 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T22:39:11 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/300) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-19T22:49:26 (metabolism)
+- ⚠️ circuit OPEN for reason — consecutive>=3 (backoff level 1, next retry in ~60s) URLError: <urlopen error [Errno 11001] getaddrinfo failed>
+
+## 2026-08-19T22:54:19 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+
+## 2026-08-19T22:56:48 (metabolism)
+- ⚠️ circuit RECOVERED for reason — closed after 2 consecutive successes
+
+## 2026-08-19T23:11:56 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (300/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-19T23:17:53 (metabolism)
+- ⚠️ governor llm بریده شد (finish_reason=length) با max_tokens=2000 — سقف را ببر بالا (OCTOPUS_GOVERNOR_MAX_TOKENS); جوابِ ناقص parse نمی‌شود
+
+## 2026-08-19T23:17:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 28 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-19T23:22:51 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 22 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T00:03:19 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13055 tip=12693
+
+## 2026-08-20T00:33:52 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T00:46:27 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T00:46:54 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T00:47:45 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13065 tip=12703
+
+## 2026-08-20T01:02:43 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T01:02:56 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T01:02:56 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-20T01:03:27 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T01:03:39 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T01:03:40 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-20T01:47:33 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T01:47:59 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:04:14 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:04:26 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:04:26 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-20T02:04:47 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:04:57 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:05:15 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T02:11:37 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:11:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:26:57 (metabolism)
+- ⚠️ tg_api pinChatMessage failed: URLError
+
+## 2026-08-20T02:34:32 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:34:44 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:35:03 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:35:14 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:47:51 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T02:48:19 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T03:47:28 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-20T03:47:31 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-20T03:48:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-20T03:55:00 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13080 tip=12718
+
+## 2026-08-20T04:42:42 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T04:51:53 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-20T04:57:18 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-20T05:24:12 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T05:24:33 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T06:02:35 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T06:02:53 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T06:03:17 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-20T06:13:23 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T06:16:39 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-20T06:44:16 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=799 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T06:44:29 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T07:00:38 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T07:00:51 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T07:01:25 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T07:01:40 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T07:06:23 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T07:06:37 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T07:17:12 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T07:17:46 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T07:31:09 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T07:40:34 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T07:46:11 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T07:53:44 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T08:16:20 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:16:25 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T08:16:37 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T08:16:49 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:16:54 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T08:17:04 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T08:18:30 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:18:30 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T08:18:32 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T08:20:43 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:20:46 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T08:22:58 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:23:08 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T08:33:23 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (60/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T08:38:14 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=700 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T08:38:17 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T08:46:33 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:46:53 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T08:47:05 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T08:52:39 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T09:10:23 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-20T09:17:32 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-20T09:17:45 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T09:18:19 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T09:50:47 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T10:12:40 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-20T10:20:31 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-20T10:50:43 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T11:14:35 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-20T11:43:50 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-20T11:44:18 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-20T11:47:36 (metabolism)
+- ⚠️ telegram getWebhookInfo failed (non-fatal): URLError
+
+## 2026-08-20T11:48:26 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-20T11:48:52 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 81): "Expecting ',' delimiter"  snippet: 'YS":0.0,"ZIMAN":0.0}'
+
+## 2026-08-20T11:49:43 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13125 tip=12763
+
+## 2026-08-20T11:50:18 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-20T11:51:06 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T11:52:28 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-20T12:00:56 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=1200 به سقفِ max_tokens=1200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T12:01:11 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «self» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (60/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-20T13:20:12 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=800 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T13:23:06 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-20T13:42:15 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:42:22 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:42:22 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-20T13:44:37 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:44:45 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:44:45 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-20T13:44:54 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=300 به سقفِ max_tokens=300 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:44:57 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (82/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T13:45:02 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=300 به سقفِ max_tokens=300 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:45:02 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-20T13:45:59 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:47:26 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:47:33 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=200 به سقفِ max_tokens=200 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:47:39 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=220 به سقفِ max_tokens=220 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:47:43 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=300 به سقفِ max_tokens=300 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:47:44 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (102/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T13:47:51 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=300 به سقفِ max_tokens=300 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:48:28 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:48:52 (metabolism)
+- ⚠️ cortex router primary: پاسخِ بریدهٔ بی‌متن — tokens_out=512 به سقفِ max_tokens=512 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T13:51:34 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (120/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T13:56:11 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (120/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T14:22:38 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (120/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی).
+
+## 2026-08-20T14:37:08 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13141 tip=12779
+
+## 2026-08-20T14:47:41 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=220 به سقفِ max_tokens=220 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T14:57:17 (metabolism)
+- ⚠️ ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد (120/60) → مغز موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ طراحی‌شده، نه خرابی). (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T15:07:14 (metabolism)
+- ⚠️ telegram getWebhookInfo failed (non-fatal): URLError
+
+## 2026-08-20T15:07:39 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=220 به سقفِ max_tokens=220 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T15:07:46 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-20T15:07:55 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13149 tip=12787
+
+## 2026-08-20T15:17:54 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T15:22:44 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T15:56:47 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=799 به سقفِ max_tokens=800 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T15:57:13 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=600 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T16:12:31 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+
+## 2026-08-20T16:13:21 (metabolism)
+- ⚠️ tg-center getUpdates: 5 دقیقه هیچ دورِ موفقی نبوده (27598 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-20T16:20:13 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-08-20T17:13:21 (metabolism)
+- ⚠️ tg-center getUpdates: 65 دقیقه هیچ دورِ موفقی نبوده (404220 شکستِ پیاپی، آخرین دلیل: URLError). ارسال ممکن است سالم به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**.
+
+## 2026-08-20T17:14:04 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (gaierror)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-20T18:00:42 (metabolism)
+- ⚠️ ℹ️ deep_think: جلسهٔ «business» امروز به مغزِ گران نرسید — سقفِ روزانهٔ فوگو پر شد (120/60) — فردا خودکار ریست می‌شود، کارتی ساخته نشد.
+
+## 2026-08-20T18:19:01 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=900 به سقفِ max_tokens=900 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T18:21:00 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=900 به سقفِ max_tokens=900 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T18:39:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=900 به سقفِ max_tokens=900 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T19:16:52 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=320 به سقفِ max_tokens=320 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T19:18:15 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T19:21:43 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=400 به سقفِ max_tokens=400 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T20:03:57 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=2000 به سقفِ max_tokens=2000 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت. (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-20T20:04:48 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "بازسازی سیستم آموزشی و پردازشی موجود برای ایجاد یک سیستم ابزارهای آموزشی و پردازشی که می\u200cتواند به یک راه تک'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-20T20:16:44 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=699 به سقفِ max_tokens=700 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T20:40:16 (metabolism)
+- ⚠️ cortex router secondary: پاسخِ بریدهٔ بی‌متن — tokens_out=599 به سقفِ max_tokens=600 خورد و فقط 0 کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت.
+
+## 2026-08-20T21:01:00 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: قرارداد JSONِ محلی ناقص: ['cheapest_test', 'kill_condition', 'verdict'])
+
+## 2026-08-20T21:57:59 (metabolism)
+- ⚠️ FREEZE: settle failed for DEBATE_LOOP: [Errno 22] Invalid argument: 'F:\\backup\\_ops\\budget\\budget-state.json'
+
+## 2026-08-20T22:11:33 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (TimeoutError)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-21T00:01:47 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T00:02:10 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-21T00:02:12 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T00:05:30 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13190 tip=12828
+
+## 2026-08-21T00:07:26 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T00:12:47 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T00:15:11 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T01:51:11 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T01:51:35 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T01:51:36 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T01:51:38 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T01:51:39 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T03:42:39 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T04:35:53 (metabolism)
+- ⚠️ CANARY-EVENT-BRIDGE-01 critical-path transport probe — bounded owner-only canary for S-T02 closure evidence; no incident; no action needed
+
+## 2026-08-21T04:42:03 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 81): "Expecting ',' delimiter"  snippet: 'YS":0.0,"ZIMAN":0.0}'
+
+## 2026-08-21T05:06:02 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T05:15:14 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T06:01:18 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-21T16:12:12 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-21T16:13:07 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-21T16:14:52 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T16:14:53 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T16:14:55 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-21T16:19:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-21T16:19:27 (metabolism)
+- ⚠️ cortex obs: coherence=0.28 < 0.5
+- ⚠️ cortex obs: 6 stale > 2: organism,heart,producers,work_pump,governor,fourd_system
+
+## 2026-08-21T16:22:42 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T16:22:50 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T16:22:50 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-21T16:22:57 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T16:23:03 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T16:23:09 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T16:26:22 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13231 tip=12869
+
+## 2026-08-21T16:32:29 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T16:32:54 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-21T16:47:35 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-21T16:57:24 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-21T17:46:35 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T17:48:35 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T17:53:11 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-21T17:54:20 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-21T17:57:54 (metabolism)
+- ⚠️ cortex obs: 4 stale > 2: organism,heart,producers,work_pump
+
+## 2026-08-21T18:07:04 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-21T18:09:52 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T18:10:22 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-21T18:13:23 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T18:51:24 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-21T19:44:43 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T19:53:19 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-21T19:57:50 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T19:57:51 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-21T19:59:52 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13300 tip=12938
+
+## 2026-08-21T20:07:01 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13308 tip=12946
+
+## 2026-08-22T00:00:41 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-22T00:00:44 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/semantic_trace.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-22T00:02:12 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=13455 tip=13093
+
+## 2026-08-22T03:07:30 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T06:00:33 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-22T08:05:47 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary:skipped-frozen'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T09:01:31 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T12:00:28 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-22T12:26:32 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-22T12:43:08 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-22T12:52:50 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-22T12:55:39 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-22T12:55:40 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-22T12:55:41 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-22T13:01:35 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-22T13:01:54 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=3589 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-22T13:13:43 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-22T13:57:45 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)
+
+## 2026-08-22T13:57:45 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-22T13:57:45 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-22T14:47:05 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-22T15:04:35 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-22T15:14:28 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-22T15:18:06 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['primary', 'secondary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T16:23:47 (metabolism)
+- ⚠️ calibration_probe persist failed: [WinError 5] Access is denied: 'F:\\backup\\_ops\\state\\cortex\\calibration-latest.json.tmp' -> 'F:\\backup\\_ops\\state\\cortex\\calibration-latest.json'
+
+## 2026-08-22T16:34:03 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-22T16:34:15 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "بازسازی سیستم اطلاعاتی برای اینکه اطلاعات را به یک سیستم یادگیری خود رساند",\n  "why_genius": "یک سیستم یادگ'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-22T18:00:33 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-22T18:36:23 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "این آزمایش، یک نوسان یکی از دو مرکز ارزش در سایه پیش از تصمیم\u200cگیری سیستم\u200cبازی کنار یکی از دو مرکز را می\u200cتوا'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-22T19:09:26 (metabolism)
+- ⚠️ 🚩 tg-center: نوشتنِ center-config پس از ۴ تلاش شکست (OSError) — نشانگرها/cursorها به‌روز نشدند
+
+## 2026-08-22T19:28:28 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-22T19:49:52 (metabolism)
+- ⚠️ 🔴 cortex: مغزِ پولی روی ['secondary', 'primary'] شکست خورد → محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T20:19:41 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T21:39:17 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 112): "Expecting ',' delimiter"  snippet: '    "ZIMAN": 0.0\n  }'
+
+## 2026-08-22T22:23:26 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: paid-call-failed — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-22T23:32:00 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-22T23:50:34 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+
+## 2026-08-23T00:01:37 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-23T00:01:38 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/target_guard.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-23T00:02:10 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14244 tip=13882
+
+## 2026-08-23T00:52:13 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-23T01:52:56 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-23T02:54:42 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-23T03:31:34 (metabolism)
+- ⚠️ poller_uniqueness FAIL-CLOSED: active_lease_count=2 expected=1,pids_agree_skipped
+
+## 2026-08-23T03:47:20 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "یک روش برای کم\u200cهزینه\u200cترین حرکت با بیشترین ارزش این هفته استفاده از تکنیک\u200cهای پیچیده\u200cتر و بهینه\u200cسازی\u200cپذیر ما'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-23T03:54:17 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14387 tip=14025
+
+## 2026-08-23T06:00:23 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — کارتی ساخته نشد
+
+## 2026-08-23T08:03:20 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "ارگان DOCTOR را با استفاده از یک مدل تحلیلی بی\u200cنظیر تکامل\u200cپذیری\u200cبخش از داده\u200cهای پیش\u200cبینی شده از سیستم های ت'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-23T08:03:27 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14414 tip=14052
+
+## 2026-08-23T08:38:32 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-23T09:37:27 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-23T10:04:39 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-23T10:08:28 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-23T10:10:32 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error) (×10 در پنجرهٔ ۶ساعته — escalation)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-23T11:49:41 (metabolism)
+- ⚠️ pulse-arbiter sink write failed: [Errno 13] Permission denied: 'F:\\backup\\_ops\\state\\pulse\\arbiter-shadow.jsonl'
+
+## 2026-08-23T12:00:16 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-23T12:09:46 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-23T13:03:27 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=269 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-23T14:14:38 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-23T14:29:42 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-23T14:45:21 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-23T15:09:10 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "استخدام دانش از روش\u200cهای جدید برای پیش\u200cبینی و تغییرات در باز ژنوم",\n  "why_genius": "می\u200cتواند با توجه به این'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-23T15:46:55 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-23T18:00:44 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-23T18:16:47 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "النیتروژن یکی از ابزارهای ارزش تولیدی است که امکان آن را می\u200cدهد.",\n  "why_genius": "النیتروژن یکی از ابزاره'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-23T19:22:44 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-23T20:02:46 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-23T20:23:13 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-23T20:27:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-23T20:29:04 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-23T20:38:43 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14471 tip=14109
+
+## 2026-08-23T20:45:36 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-23T21:52:13 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-23T21:53:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-23T21:55:50 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14479 tip=14117
+
+## 2026-08-24T00:02:33 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-24T00:02:37 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/wlos_bridge.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-24T00:04:08 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14492 tip=14130
+
+## 2026-08-24T02:13:47 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-24T06:00:52 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-24T11:12:44 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-24T11:35:33 (metabolism)
+- ⚠️ tg_api editMessageText failed: HTTPError (Bad Gateway)
+
+## 2026-08-24T11:35:45 (metabolism)
+- ⚠️ tg_api sendMessage failed: TimeoutError
+
+## 2026-08-24T11:36:06 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-24T12:02:06 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-24T12:40:11 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-24T12:56:29 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-24T13:13:57 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=1118 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-24T15:33:51 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-24T16:36:08 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-24T16:57:37 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-24T18:01:32 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-24T21:19:19 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: قرارداد JSONِ محلی ناقص: ['cheapest_test', 'kill_condition', 'verdict'])
+
+## 2026-08-24T22:02:46 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-25T00:01:11 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-25T00:07:25 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-25T00:07:32 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/__init__.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-25T00:08:05 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=14605 tip=14243
+
+## 2026-08-25T00:52:33 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-25T02:26:51 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 81): "Expecting ',' delimiter"  snippet: 'YS":0.0,"ZIMAN":0.0}'
+
+## 2026-08-25T04:48:30 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-25T04:52:25 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-25T04:53:09 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-25T06:02:06 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-25T06:20:03 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-25T07:35:23 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-25T11:00:36 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-25T11:00:40 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-25T11:07:30 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-25T12:01:16 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-25T12:50:05 (metabolism)
+- ⚠️ heart-v2 tick error (non-fatal)
+
+## 2026-08-25T13:01:12 (metabolism)
+- ⚠️ heart-v2 tick error (non-fatal)
+
+## 2026-08-25T13:39:27 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=392 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-25T18:00:46 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-26T00:02:16 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-26T01:19:35 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 81): "Expecting ',' delimiter"  snippet: 'YS":0.0,"ZIMAN":0.0}'
+
+## 2026-08-26T01:19:46 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接口脑机接'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-26T01:51:58 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-26T02:06:50 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×100 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-26T03:06:41 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-26T06:03:08 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-26T07:32:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-26T07:33:12 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-26T07:34:11 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-26T07:42:40 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-26T10:03:28 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-26T10:08:15 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-26T12:01:00 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-26T12:16:21 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-26T12:17:41 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-26T12:25:39 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-26T13:57:23 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=3716 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-26T18:01:04 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-26T18:52:11 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-26T18:54:16 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-26T19:58:35 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-26T20:51:59 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 112): "Expecting ',' delimiter"  snippet: '    "ZIMAN": 0.0\n  }'
+
+## 2026-08-26T21:53:53 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 112): "Expecting ',' delimiter"  snippet: '    "ZIMAN": 0.0\n  }'
+
+## 2026-08-26T23:15:17 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-26T23:53:32 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-27T00:00:31 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-27T00:00:32 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/autonomy_matrix.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-27T00:02:28 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-27T00:58:32 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-27T03:59:05 (metabolism)
+- ⚠️ governor router path failed (fallback به dry): invalid JSON in model reply (offset 85): "Expecting ',' delimiter"  snippet: '":0.01,"ZIMAN":0.01}'
+
+## 2026-08-27T04:37:21 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T07:07:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-27T07:08:13 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-08-27T07:08:14 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-27T07:17:28 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-27T07:24:35 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+
+## 2026-08-27T11:28:04 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-27T11:28:10 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-27T11:40:08 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-27T11:43:21 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T12:06:45 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-27T12:14:31 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-27T12:22:02 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-27T12:40:42 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: قرارداد JSONِ محلی ناقص: ['cheapest_test', 'kill_condition', 'verdict'])
+
+## 2026-08-27T12:56:39 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T13:17:10 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-27T13:52:02 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-27T14:01:45 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "ارگان DOCTOR (Floor 0) بین\u200cترین حرکت با بیشترین ارزش این هفته بسته به توصیه\u200cهای ارگان هستند. این توصیه\u200cها د'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-27T14:02:04 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T14:26:05 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=753 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-27T15:27:34 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-27T15:28:07 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T15:59:18 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-27T16:40:24 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T17:02:28 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-27T17:40:48 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T18:46:04 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-27T18:51:56 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+
+## 2026-08-27T21:03:30 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-27T21:07:50 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-27T21:24:13 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T21:33:04 (metabolism)
+- ⚠️ tg_api answerCallbackQuery failed: HTTPError (Bad Request: query is too old and response timeout expired or query ID is invali)
+
+## 2026-08-27T21:33:54 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-27T22:08:06 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-27T23:43:02 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-27T23:43:25 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-27T23:54:15 (metabolism)
+- ⚠️ tg_api sendMessage failed: TimeoutError
+
+## 2026-08-27T23:54:36 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-28T00:00:55 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-28T00:00:55 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/business_brain.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-28T02:58:45 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-28T04:39:37 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T05:06:40 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-28T05:34:20 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T06:06:19 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-28T06:07:10 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-28T06:24:13 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T07:26:55 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-28T09:22:25 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T09:22:33 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T09:55:58 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-28T10:38:47 (metabolism)
+- ⚠️ telegram answerCallbackQuery error: HTTPError: HTTP Error 400: Bad Request
+
+## 2026-08-28T11:09:07 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error) (×10 در پنجرهٔ ۶ساعته — escalation)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-28T11:09:38 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-28T12:07:48 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-28T13:24:17 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-28T13:42:45 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T13:47:32 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T13:52:32 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T14:17:43 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T14:18:06 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T14:56:48 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) LEFT A 409 RISK - loop/centre count after relaunch was not 1+1 - see state/tg-center-watchdog-log.txt
+
+## 2026-08-28T14:58:52 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-08-28T14:59:55 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+
+## 2026-08-28T15:00:44 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T15:00:55 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-28T15:07:17 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T15:16:32 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T15:25:01 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T15:25:08 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T15:27:32 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T15:40:41 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T16:12:24 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-28T16:44:50 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T16:45:18 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) LEFT A 409 RISK - loop/centre count after relaunch was not 1+1 - see state/tg-center-watchdog-log.txt
+
+## 2026-08-28T16:52:25 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T17:19:29 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-08-28T17:48:00 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T17:48:59 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T17:51:42 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+
+## 2026-08-28T17:51:45 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-28T17:52:06 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-28T18:02:15 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T18:07:46 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)
+
+## 2026-08-28T18:09:38 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-28T18:10:16 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T18:11:04 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-28T18:19:45 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-28T18:42:02 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-28T18:49:05 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-28T18:55:02 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-28T18:55:03 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-28T19:52:51 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T19:53:54 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-28T19:55:57 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-28T19:57:21 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T19:57:43 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T19:58:22 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-28T20:02:25 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T20:10:13 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T20:10:20 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T20:11:50 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T20:12:45 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-28T20:23:03 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T20:36:28 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T20:39:00 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T20:39:32 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T20:39:46 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-28T21:07:36 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T21:13:49 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-28T21:17:30 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+1 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-28T21:27:11 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-28T22:03:11 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-28T22:22:15 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-28T22:33:34 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-28T22:42:20 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-28T22:56:43 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-28T23:00:29 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+
+## 2026-08-28T23:37:24 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-29T00:08:12 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-29T00:08:20 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:08:28 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-08-29T00:09:16 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-29T00:11:13 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:11:13 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-29T00:11:18 (metabolism)
+- ⚠️ context_fence: ورودیِ مشکوک به prompt-injection در task='deep' — کدها: ['delimiter-escape-attempt']
+
+## 2026-08-29T00:11:23 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:14:11 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:14:13 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-29T00:15:36 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-29T00:22:01 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-29T00:22:05 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+
+## 2026-08-29T00:22:06 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-29T00:22:32 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:26:12 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:26:55 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-29T00:29:58 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T00:30:00 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-29T01:24:59 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T01:25:00 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-08-29T01:55:02 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-08-29T02:25:43 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T03:27:22 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T04:30:53 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T06:28:34 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-29T07:36:52 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "انواع روش\u200cهای مولکولی و فیزیکی برای تحقیق در زندگی ژنومی را برای پیش\u200cبینی یا تغییرات در زندگی ژنومی تحلیل ک'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-29T07:53:28 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T08:03:04 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-29T08:12:23 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-29T08:13:09 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-08-29T08:19:03 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-08-29T08:53:16 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-29T08:59:22 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-08-29T09:08:25 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-29T09:27:28 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T09:27:28 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-29T10:38:15 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T12:00:44 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-29T14:14:55 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (LEASE_DENIED:duplicate-consumer). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-08-29T15:00:20 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T16:15:05 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-29T16:38:27 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "استفاده از آزمایش گرم\u200cکشی سوخته\u200cای با تغییرات مختلف برای سنجش ارزش واقعی سایه پیش از تصمیم\u200cگیری",\n  "why_ge'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-29T17:17:24 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error) (×10 در پنجرهٔ ۶ساعته — escalation)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-29T18:01:01 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-29T18:40:47 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "استفاده از تحلیل آزمایش\u200cهای گرما در ساختار سیستم\u200cهای ارزی برای پیش\u200cبینی ارزش واقعی",\n  "why_genius": "با تو'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-29T19:04:40 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=3505 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-08-29T21:23:41 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-29T21:28:19 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-29T21:55:05 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T21:55:53 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T21:57:27 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-08-29T22:25:48 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-08-29T22:42:10 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-30T00:01:30 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-30T00:01:30 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/depth_guard.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-08-30T03:02:48 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-30T03:48:42 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-30T04:43:30 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-08-30T04:53:58 (metabolism)
+- ⚠️ debate: مغزِ محلی نشد → stub (ValueError: JSON response truncated (missing closing brace): '{\n  "idea": "یک کناره\u200cگیری بی\u200cبی\u200cسی برای ارگان PAINTING را انجام دهید تا بیشترین ارزش این هفته را کسب کند.",\n  "why_geni'  — likely finish_reason=length; raise max_tokens)
+
+## 2026-08-30T06:01:38 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-08-30T11:16:26 (metabolism)
+- ⚠️ telegram answerCallbackQuery error: HTTPError: HTTP Error 400: Bad Request
+
+## 2026-08-30T11:22:09 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-08-30T11:50:34 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-30T13:04:35 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-08-30T13:42:56 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
+

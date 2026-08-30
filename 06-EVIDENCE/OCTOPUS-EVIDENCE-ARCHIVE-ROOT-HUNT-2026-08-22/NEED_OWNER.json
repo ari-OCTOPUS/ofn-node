@@ -1,0 +1,10 @@
+{
+  "schema": "octopus.need-owner.v1",
+  "related_gate": "BLOCKED_NEED_ARCHIVE_ROOT",
+  "package": "OCTOPUS-ORANGEPI-CHG-E-EXECUTE-2026-08-22",
+  "auth_id": "OCTOPUS-ORANGEPI-CHG-E-20260822",
+  "exact_ask": "Supply absolute ARCHIVE_ROOT on Pi or attached volume with free space >= ~4.7G cold payload + margin; also HOT_EVIDENCE_ROOT, HOT_RETENTION_WINDOW, DISK_FREE_TARGET, INDEX_REBUILD_COMMAND (or confirmed sensoriom rebuild), and no_casual_truncate_affirmation=true. File as OWNER-ARCHIVE-SUPPLY.json. Do not invent paths. Optional laptop mirror: F:\\backup\\99-ARCHIVE.",
+  "why_blocked": "EXECUTE package complete but EXECUTE_READY=false until owner archive supply filled.",
+  "documented_preferred_root": null,
+  "abd_skeleton_drafted": false
+}

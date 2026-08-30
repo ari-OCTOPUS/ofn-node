@@ -26,6 +26,38 @@ DEFAULT_RATE_S = 3600.0
 MAX_LOOPS_IN_DIGEST = 3
 
 
+def _canonical_live_flag_path() -> Path:
+    """Prefer _ops/LIVE-TELEGRAM.flag (SoT unlock token), not state_dir."""
+    try:
+        return Path(__file__).resolve().parents[1] / LIVE_FLAG_NAME
+    except Exception:  # noqa: BLE001
+        return Path(LIVE_FLAG_NAME)
+
+
+def _flag_enabled(state_dir: Path) -> bool:
+    """True when canonical ops flag enabled, else legacy state_dir flag file."""
+    try:
+        import sys as _sys
+        _tc = str(Path(__file__).resolve().parents[1] / "telegram_center")
+        if _tc not in _sys.path:
+            _sys.path.insert(0, _tc)
+        import live_telegram_gate as _gate  # type: ignore
+        return bool(_gate.live_mode_allowed())
+    except Exception:
+        pass
+    if (Path(state_dir) / LIVE_FLAG_NAME).is_file():
+        return True
+    canon = _canonical_live_flag_path()
+    if canon.is_file():
+        try:
+            raw = json.loads(canon.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                return bool(raw.get("enabled", True))
+        except (OSError, ValueError):
+            return True
+    return False
+
+
 def redact(text: str) -> str:
     s = str(text or "")
     s = _BOT_TOKEN.sub("[REDACTED_BOT_TOKEN]", s)
@@ -55,7 +87,7 @@ class TelegramOrgan:
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.allowlist = set(allowlist or ())
-        self.live = bool(live) and (self.state_dir / LIVE_FLAG_NAME).is_file()
+        self.live = bool(live) and _flag_enabled(self.state_dir)
         self.transport = transport
         self.rate_s = float(rate_s)
         self._now = now or time.time

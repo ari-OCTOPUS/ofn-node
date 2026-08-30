@@ -1,0 +1,44 @@
+{
+    "public_sot":  "F:\\backup\\06-EVIDENCE\\ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23\\PUBLIC-BIZ.json",
+    "schema":  "ziman-robot-needs/1",
+    "leg":  "marketing",
+    "business":  "Ziman",
+    "notes":  [
+                  "ABN 21190030795 and email aram@ziman-gift.com are in public SoT.",
+                  "Bank BSB/account/name now in public SoT (DONE).",
+                  "PayPal business email = aram@ziman-gift.com (DONE on laptop SoT).",
+                  "GST confirm DONE: not GST-registered (gst false).",
+                  "shopify_abn_email_applied still OPEN until marketing confirms Shopify UI.",
+                  "TFN vault-only - never paste into Shopify/REPORT/STATUS.",
+                  "Laptop SoT only; marketing owns Shopify UI / live Board2 disk."
+              ],
+    "tfn_vault_pointer":  "F:\\backup\\_ops\\secrets\\ziman-maliheh\\maliheh-tfn.json",
+    "stamp_local":  "2026-08-23T10:33:30+10:00",
+    "items":  [
+                  {
+                      "detail":  "BSB 112879 + account 463106127 + name Maliheh Khalajijou in PUBLIC-BIZ / SHOPIFY-READY",
+                      "status":  "DONE",
+                      "id":  "bank_bsb_account"
+                  },
+                  {
+                      "detail":  "PayPal business email aram@ziman-gift.com recorded in public SoT (paypal_business_ready true)",
+                      "status":  "DONE",
+                      "id":  "paypal_business_verify"
+                  },
+                  {
+                      "detail":  "Only IMG_4109 on ZM-GALLERY-0016; Mom-set binaries still missing (G02)",
+                      "status":  "OPEN",
+                      "id":  "gallery_photos"
+                  },
+                  {
+                      "detail":  "Confirmed no GST (gst_registered false / ABN without GST)",
+                      "status":  "DONE",
+                      "id":  "gst_confirm"
+                  },
+                  {
+                      "detail":  "Marketing applies ABN+email in Shopify admin; not done from laptop foot until marketing confirms",
+                      "status":  "OPEN",
+                      "id":  "shopify_abn_email_applied"
+                  }
+              ]
+}

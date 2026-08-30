@@ -1,0 +1,18 @@
+﻿{
+    "gap":  "G17",
+    "stamp_local":  "2026-08-23T09:11:15+10:00",
+    "slice":  "LAPTOP",
+    "status":  "PASS",
+    "verdict":  "CORTEX-PAID disarmed (.flag.off + FLAGS CLOSED); lock+WIRING remain paid FORBIDDEN; no money unlock",
+    "before":  "BEFORE/SNAPSHOT.json",
+    "after":  "AFTER/SNAPSHOT.json",
+    "supersede":  "SUPERSEDE-PAID-FORBIDDEN-2026-08-23.json",
+    "paths_touched":  [
+                          "_ops/ACTIVATION-CORTEX-PAID.flag (removed)",
+                          "_ops/ACTIVATION-CORTEX-PAID.flag.off (written)",
+                          "_ops/ACTIVATION-FLAGS.md (RAISED-\u003eCLOSED + note)",
+                          "06-EVIDENCE/OCTOPUS-GAP-CLOSE-2026-08-23/LAPTOP/G17/*",
+                          "06-EVIDENCE/OCTOPUS-GAP-CLOSE-2026-08-23/STATUS.json"
+                      ],
+    "do_not":  "invent money unlock; enable paid; live Telegram; force git; secrets"
+}

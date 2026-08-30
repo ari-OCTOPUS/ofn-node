@@ -1,10 +1,10 @@
 {
   "schema": "leg-source-pulse.v1",
   "leg": "ziman",
-  "ts": "2026-08-19T21:37:53",
-  "unix": 1787139473.9394536,
+  "ts": "2026-08-30T12:41:08",
+  "unix": 1788057668.645681,
   "meta": {
-    "day": "2026-08-19"
+    "day": "2026-08-30"
   },
   "note": "additive freshness for cultivate enrich — does not mutate coordinator/catalog"
 }

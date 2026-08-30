@@ -1,0 +1,116 @@
+{
+  "schema": "octopus.debug.tree-divergence/1",
+  "produced_by": "G0 read-only pass (claude/telegram-webapp-deep-scan-d9d2bd session, executed against live tree)",
+  "as_of_head": "53e527aef95c9bb30a3822e3ac278df59590e1d4",
+  "as_of_head_short": "53e527a",
+  "as_of_commit_subject": "agent-checkpoint: capsule milestone-correction section (note-79 pointer)",
+  "as_of_commit_time_local": "2026-08-21T20:07:45+10:00",
+  "branch": "equip/g10-cognition-20260816",
+  "repo_root": "F:/backup",
+  "note": "This file is a snapshot, not a stream. HEAD on this branch has advanced roughly every 10-30 minutes all day (12+ agent-checkpoint commits between 16:45 and 20:07 local on 2026-08-21 touching _ops/telegram_center alone). Treat every fact below as true only as of as_of_head; re-grep before acting on it.",
+
+  "reference_commits_in_play": [
+    {
+      "sha": "d3013390d52aab2e61bd2578613aff7077f68742",
+      "short": "d301339",
+      "role": "frozen governance/evidence commit; audited by OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md",
+      "verifier_independent": false,
+      "distance_from_as_of_head_commits": "~13 commits behind as_of_head on the telegram_center path alone (fc3ef66..bac5097..53e527a)"
+    },
+    {
+      "sha": "fa38d16cca944a80396ae1e1a16c547ab3122f78",
+      "short": "fa38d16",
+      "role": "code baseline inherited by d301339's evidence; owner-order implementation head",
+      "commit_subject": "complete and wire loops — C3 key-aware durable deferral, C4 single-owner SenderBridge; suites 163/163 green"
+    },
+    {
+      "sha": "c50327c67120cdb31c01423486bc02ff991a0691",
+      "short": "c50327c",
+      "role": "OWNER_SIGNATURE_BUNDLE_V1 commit; HEAD claimed by TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md at time of writing",
+      "status": "later marked STALE by TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21.md, which found actual HEAD had moved to c713d26"
+    },
+    {
+      "sha": "c713d26c9460e184347c82d13b0f96cb809975dd",
+      "short": "c713d26",
+      "role": "W7 telegram-deep-debug evidence commit; baseline_head for component-map.json / loop-closure-matrix.json / state-ownership.json",
+      "commit_subject": "final evidence: 202/202 green (163 registered + 39 wave)"
+    },
+    {
+      "sha": "53e527aef95c9bb30a3822e3ac278df59590e1d4",
+      "short": "53e527a",
+      "role": "current HEAD (= this file's as_of_head, and = head_observed field inside OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md's own frontmatter)",
+      "caveat": "OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md records head_observed=53e527a but its actual code AUDIT is scoped to d301339/fa38d16, not to this HEAD. See plan_lineage_divergence below."
+    }
+  ],
+
+  "plan_lineage_divergence": {
+    "finding": "Three plan documents exist in _ops/cortex/plans, written in sequence over ~4.5 hours, each targeting a different baseline. The newest one (OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md, pasted into chat by the owner) audits the OLDEST baseline.",
+    "timeline": [
+      { "doc": "TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md", "authored_against_head": "c50327c (already stale at authoring time per the next doc)", "scope": "Waves A-F / W0-W7: health-truth, ConfigManager, transport_pool, poll lease, C3/C4 verification, 16-scenario battery", "outcome": "executed; commits fc3ef66..6249741..c713d26 per note 80's wave table" },
+      { "doc": "TELEGRAM-COGNITION-DEEP-DEBUG-2026-08-21.md", "authored_against_head": "c713d26", "scope": "cognition/memory-consume gap (H3) left open by the prior doc: W0b/W8/W1b/W9", "outcome": "executed; commit bac5097 (19:38:34)" },
+      { "doc": "OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md", "authored_against_head": "53e527a (recorded in frontmatter)", "audit_scope_actually_used": "d301339 / fa38d16 (13 commits behind 53e527a)", "scope": "independent git-blob-hash re-audit of C3/C4 + polling reliability AT the archived commit, explicitly refusing to project later bytes backward", "outcome": "wrote _ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md; proposes Waves W1-W7 (typed poll outcome, TTL lease, global rate governor, etc.) as future work" }
+    ],
+    "consequence": "Most of what OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md's W1-W7 plan proposes to BUILD already exists on current HEAD, built by the first two documents' waves: typed circuit-breaker + bounded transport (transport_pool.py, commit 036ef32), immutable config snapshot + LKG (config_manager.py, commit b78d1b6), health truth via watchdog_truth() (health_metrics.py, commit fc3ef66), and a SQLite TTL poll lease (poll_lease.py, present in working tree though untracked — see reproducibility_defect below). This does NOT make OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md wrong about what it found AT d301339 (its blob-hash pins are presumably accurate for that exact commit) — it means the document's own 'target architecture' and 'sequential implementation plan' sections are, as of as_of_head, substantially a description of work already in progress or already landed, not a green-field plan.",
+    "what_still_genuinely_holds_from_that_document": [
+      "Self-verification cannot open the next gate — SIG-IV (independent verifier) is still pending per note 80 ('SIG-IV جدا ماند — AWAITING_INDEPENDENT_VERIFIER') and per OWNER-ORDER-WAVE1-2026-08-21.md's own current-blocker line ('مانع فعلی طبق شواهدِ d301339: verifier_independent=false — همان گیتِ اولِ ترتیب اجرایی').",
+      "No live send/webhook/paid-call/Wave-1-flip is authorized by any of these three documents.",
+      "sender_bridge.py really is unattached to the live Center on as_of_head — confirmed independently by this G0 pass, by state-ownership.json ('not attached to live Center'), and by component-map.json ('called_by: tests only'). This is by design, not an oversight."
+    ]
+  },
+
+  "worktree_divergence": {
+    "note": "This finding is about the git worktree this Claude Code session was originally launched in, NOT about the live tree at F:/backup. All reads for this G0 pass and the prior deep-scan were redirected to absolute F:/backup paths specifically because of this divergence.",
+    "worktree_path": "F:/backup/.claude/worktrees/octopus-p0-fixes-418a9a",
+    "worktree_branch": "claude/telegram-webapp-deep-scan-d9d2bd",
+    "worktree_head": "8b7e6e8",
+    "live_tree_path": "F:/backup",
+    "live_tree_branch": "equip/g10-cognition-20260816",
+    "files_present_live_but_absent_in_worktree": [
+      "_ops/telegram_center/poll_lease.py",
+      "_ops/telegram_center/transport_subprocess.py"
+    ],
+    "files_stale_in_worktree_vs_live": [
+      "_ops/telegram_center/bounded_io.py",
+      "_ops/telegram_center/center.py",
+      "_ops/telegram_center/health_metrics.py",
+      "_ops/telegram_center/RUN-TG-CENTER.bat"
+    ]
+  },
+
+  "live_tree_dirty_state_at_as_of_head": {
+    "modified_not_committed": [
+      "_ops/telegram_center/RUN-TG-CENTER.bat",
+      "_ops/telegram_center/bounded_io.py",
+      "_ops/telegram_center/center.py",
+      "_ops/telegram_center/health_metrics.py"
+    ],
+    "untracked": [
+      "_ops/telegram_center/.mimosa/",
+      "_ops/telegram_center/poll_lease.py",
+      "_ops/telegram_center/transport_subprocess.py",
+      "_ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md"
+    ]
+  },
+
+  "reproducibility_defect": {
+    "finding": "Tracked runtime code on as_of_head imports an untracked module. A fresh clone/checkout of 53e527a would fail to run tg_api.py's poll-gate and 409-circuit paths.",
+    "detail": "_ops/telegram_center/tg_api.py (tracked, part of commit history) imports poll_lease (untracked, working-tree-only file). _ops/tests/test_poller_lease_20260821.py (tracked) also imports it. component-map.json independently lists tg.poll_lease as runtime_status=CONFIRMED with a passing test file, which is only true in THIS working tree, not from a clean checkout of HEAD.",
+    "independently_confirmed_by": "OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md section 2.3, using git-blob verification (git show d301339:<path> / git rev-parse) — same conclusion reached via a completely different method (this file's authors read live files directly; that document read git blobs). Two independent methods agreeing raises confidence this is real, not a scanning artifact.",
+    "same_pattern_for": "_ops/telegram_center/transport_subprocess.py (untracked; imported by transport_pool.py's optional subprocess path, default-off)."
+  },
+
+  "test_count_reconciliation": {
+    "authoritative_recent_numbers": {
+      "163": "registered suite count after the organs-package reproducibility repair (branch repair/organs-suite-reproducible-20260821, head cc267048) restored the historical '163/163 exact-HEAD' claim, which had been unreproducible because _ops/organs/{__init__,flags,cognition_inbox}.py were untracked. Source: note 79 (07 - Knowledge/شناخت-اختاپوس/79-SESSION-CONTINUATION-MILESTONE-CORRECTION-2026-08-21.md).",
+      "39": "new tests added across Waves W1-W6 (health truth, ConfigManager, transport_pool, lease, C3/C4, 16-scenario battery). Source: commit 6249741's own message ('163 registered + 39 wave tests').",
+      "202": "163 + 39, all green at commit c713d26 per note 80's wave table (row W7: 'شواهد نهایی: ۲۰۲/۲۰۲ سبز')."
+    },
+    "unresolved": "The figure '151' appearing in an external multi-model consensus document pasted into this session's chat was not traced to any source found in this vault during this G0 pass. It may originate from a pre-organs-repair count, a different test scope, or a source outside this repository. Flagged as unreconciled rather than guessed at."
+  },
+
+  "concurrency_risk": {
+    "finding": "This branch is being actively developed by what appears to be multiple agent sessions in the same few hours (distinct narration/authorship styles between TELEGRAM-DEEP-DEBUG-IMPLEMENTATION.md, TELEGRAM-COGNITION-DEEP-DEBUG.md, and OCTOPUS-MILESTONE-CORRECTION.md; 12+ agent-checkpoint commits between 16:45 and 20:07 local).",
+    "known_vault_pattern": "This matches a recurring, previously-documented failure mode in this vault: parallel agent sessions colliding on the same live tree without awareness of each other's concurrent writes.",
+    "recommendation": "Before any session (including this one) starts implementation work, re-run `git log -5` and `git status --porcelain` immediately before writing, not just at session start — the gap between planning and writing has repeatedly been where collisions happen."
+  }
+}
