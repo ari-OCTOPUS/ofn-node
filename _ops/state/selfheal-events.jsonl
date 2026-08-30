@@ -97,3 +97,4 @@
 {"leg": "lead-naghshi", "ts": 1787958491.4001389, "beat": 53996, "reason": "phi-timeout:no-ack", "phi": 17.234, "ok": true}
 {"leg": "lead-naghshi", "ts": 1787979276.757844, "beat": 54315, "reason": "phi-timeout:no-ack", "phi": 33.177, "ok": true}
 {"leg": "lead-naghshi", "ts": 1788058850.2789176, "beat": 55577, "reason": "phi-timeout:no-ack", "phi": 16.992, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788061400.3791196, "beat": 55612, "reason": "phi-timeout:no-ack", "phi": 17.165, "ok": true}

@@ -8284,3 +8284,6 @@
 {"name": "doctor_beat", "beat": 55597, "ms": 0, "ok": true, "err": ""}
 {"name": "leg_beat", "beat": 55597, "ms": 1590, "ok": true, "err": ""}
 {"name": "ziman_beat", "beat": 55597, "ms": 0, "ok": true, "err": ""}
+{"name": "doctor_beat", "beat": 55599, "ms": 66, "ok": true, "err": ""}
+{"name": "leg_beat", "beat": 55599, "ms": 11832, "ok": true, "err": ""}
+{"name": "ziman_beat", "beat": 55599, "ms": 0, "ok": true, "err": ""}

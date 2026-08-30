@@ -7305,3 +7305,6 @@
 ## 2026-08-30T13:42:56 (metabolism)
 - ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)
 
+## 2026-08-30T13:52:10 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+

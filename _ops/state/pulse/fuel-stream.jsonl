@@ -6336,3 +6336,7 @@
 {"ts": "2026-08-30T13:23:44", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 7930, "ok": true}
 {"ts": "2026-08-30T13:37:32", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 13421, "ok": true}
 {"ts": "2026-08-30T13:42:54", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 12473, "ok": true}
+{"ts": "2026-08-30T13:50:32", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 23081, "ok": true}
+{"ts": "2026-08-30T13:59:15", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 33094, "ok": true}
+{"ts": "2026-08-30T14:07:42", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 24233, "ok": true}
+{"ts": "2026-08-30T14:07:43", "tier": "local", "model": "qwen2.5:1.5b", "cost_musd": 0, "ms": 85389, "ok": true}

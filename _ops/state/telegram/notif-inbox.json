@@ -5326,6 +5326,30 @@
    "created_ts": 1788057209.4434314,
    "read": false,
    "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260830T134704_d7eb5d9f",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×100 در پنجرهٔ ۶ساعته — escalation)",
+   "meta": {},
+   "created_at": "2026-08-30T13:47:04+1000",
+   "created_ts": 1788061624.8043046,
+   "read": false,
+   "read_at": null
+  },
+  {
+   "id": "notif_tech_alert_20260830T135213_01aaa16c",
+   "category": "tech_alert",
+   "kind": "content",
+   "title": "⚠️ هشدارِ فنی",
+   "body": "⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required",
+   "meta": {},
+   "created_at": "2026-08-30T13:52:13+1000",
+   "created_ts": 1788061933.6788907,
+   "read": false,
+   "read_at": null
   }
  ],
  "last_ping_ts": 0.0,

@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-30T13:37:45",
-  "cycle": 168,
-  "coherence": 0.888,
+  "ts": "2026-08-30T13:50:34",
+  "cycle": 169,
+  "coherence": 0.814,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.807,
-      "age_s": 695,
+      "awareness": 0.577,
+      "age_s": 1522,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.886,
-      "age_s": 818,
+      "awareness": 0.772,
+      "age_s": 1644,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.886,
-      "age_s": 821,
+      "awareness": 0.771,
+      "age_s": 1647,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.943,
-      "age_s": 817,
+      "awareness": 0.886,
+      "age_s": 1643,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.837,
-      "age_s": 56359,
+      "awareness": 0.835,
+      "age_s": 57185,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.959,
-      "age_s": 583,
+      "awareness": 0.902,
+      "age_s": 1409,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.859,
-      "age_s": 48783,
+      "awareness": 0.856,
+      "age_s": 49609,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.859,
-      "age_s": 48784,
+      "awareness": 0.856,
+      "age_s": 49609,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.913,
-      "age_s": 45214,
+      "awareness": 0.911,
+      "age_s": 46040,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.906,
-      "age_s": 48782,
+      "awareness": 0.904,
+      "age_s": 49607,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,8 +107,8 @@
     {
       "id": "fourd_system",
       "present": true,
-      "awareness": 0.951,
-      "age_s": 700,
+      "awareness": 0.948,
+      "age_s": 742,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -133,10 +133,10 @@
     "paid_gate": "research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] می‌توانستیم این جمله را به شکل کوتاه‌تری توصیف کنیم:\n\nمی‌بایستی میزان‌های مالک را بیاموزد.",
+  "thought": "[local] این جمله کوتاه است:\n\n\"می‌بایستی کمکی در میان موانع ارائه دهی.\"\n\nاین جمله از مجموعه می‌تواند به این چیزهای مورد نظر می‌پردازد:\n\n1. می‌تواند میانگین میزان",
   "stress": {
     "level": "🟢 آرام",
-    "organism_stress": 0.31,
+    "organism_stress": 0.38,
     "in_fear": []
   },
   "innervation": {
@@ -146,7 +146,7 @@
   },
   "fourd_health": {
     "status": "stale",
-    "age_s": 797347
+    "age_s": 798115
   },
   "ignition": {
     "ignited": true,
@@ -166,8 +166,15 @@
     "archived": 1
   },
   "truth_sync": {
-    "skipped": "cooldown",
-    "next_in_s": 327.2
+    "wrote": true,
+    "keys": [
+      "coherence",
+      "members_present",
+      "stale_members",
+      "beat",
+      "halted",
+      "rfcs_pending"
+    ]
   },
   "owner_guidance": {
     "focus": "موانع چیست",

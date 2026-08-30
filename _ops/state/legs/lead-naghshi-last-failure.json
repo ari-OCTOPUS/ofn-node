@@ -12,4 +12,5 @@
   "last_beat_seen": 55611,
   "events_this_beat": 0,
   "ack_samples": 10,
-  "note": "لِگ در پنجرهٔ phi پاسخ نداد؛ restart علت را برطرف نمی‌کند — اگر silence_ms کوچک است ولی phi بالا، تاریخچهٔ ack مسموم است."
+  "note": "لِگ در پنجرهٔ phi پاسخ نداد؛ restart علت را برطرف نمی‌کند — اگر silence_ms کوچک است ولی phi بالا، تاریخچهٔ ack مسموم است."
+}
