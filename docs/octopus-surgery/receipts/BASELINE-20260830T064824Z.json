@@ -1,0 +1,106 @@
+{
+  "schema": "octopus.baseline-receipt.v1",
+  "claim_envelope": {
+    "node_id": "octopus-continuity-180",
+    "asserted_ip": "192.168.0.180",
+    "vantage": "cursor-this-host-only",
+    "scope": "this_host_only",
+    "claim_type": "test_result",
+    "evidence": "local hermetic commands on isolated worktree"
+  },
+  "repo_root": "<isolated-surgery-worktree>",
+  "branch": "surgery/octopus-reality-20260830-164736",
+  "commit": "2a718aaa96235fcf5aa5219d25eba4a9b314eed5",
+  "python": "Python 3.13.7",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "OCTOPUS_TEST_LIVE_STATE_GUARD": "block",
+    "OCTOPUS_WIRE_COLLAB": "0",
+    "OCTOPUS_COLLAB_USE_MODEL": "0",
+    "OCTOPUS_WIRE_ACTUATOR": "0"
+  },
+  "results": [
+    {
+      "command": "python -m pytest --collect-only -q -o addopts= -p no:cacheprovider",
+      "cwd": "03 - Projects/NBB-Control-Plane",
+      "started_at_utc": "2026-08-30T06:48:24.5771851Z",
+      "ended_at_utc": "2026-08-30T06:48:26.0203318Z",
+      "collected": 189,
+      "exit_code": 0,
+      "output_sha256": "7366ff5c446c2faa25ccb65f35db3ef6b5d74bed036e2509c7be3bca5df3fdd4"
+    },
+    {
+      "command": "python -m pytest -q -o addopts= -p no:cacheprovider",
+      "cwd": "03 - Projects/NBB-Control-Plane",
+      "started_at_utc": "2026-08-30T06:48:26.0449391Z",
+      "ended_at_utc": "2026-08-30T06:48:28.3373076Z",
+      "passed": 189,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 1,
+      "duration_seconds_reported": 1.70,
+      "exit_code": 0,
+      "output_sha256": "a2c282c0737ea2fe45fa61ae5b0a8e219c99e9701c2b4d3ec01863b91bb17e54"
+    },
+    {
+      "command": "python -X utf8 _ops/action_bridge/tests/test_claimed_fixture.py",
+      "passed": 5,
+      "failed": 0,
+      "exit_code": 0,
+      "output_sha256": "fe9fef99de9d79a1ca61c775bf38413bc71c41872561b5c0e2da4ac9311520c7"
+    },
+    {
+      "command": "python -X utf8 _ops/action_bridge/tests/test_classifier.py",
+      "passed": 24,
+      "failed": 0,
+      "exit_code": 0,
+      "output_sha256": "e11f85d63a4c50e835706ee42c03a54ae53adf878e6020bb49193a30925db8bc"
+    },
+    {
+      "command": "python -X utf8 _ops/action_bridge/tests/test_flow.py",
+      "passed": 25,
+      "failed": 0,
+      "exit_code": 0,
+      "output_sha256": "b19534ef940705a69f8db9ae1446ffa321b0573b59b4cb021e768f0c4fdf6cba"
+    },
+    {
+      "command": "python -X utf8 _ops/action_bridge/tests/test_scope_guard.py",
+      "passed": 12,
+      "failed": 0,
+      "exit_code": 0,
+      "output_sha256": "0cd0f34bbc85a96f7b597a202eefe3fad039beb76417731b5f29f8a55816b4ba"
+    },
+    {
+      "command": "python -X utf8 _ops/cognition/tests/test_g10_cognition.py",
+      "passed": 95,
+      "failed": 0,
+      "exit_code": 0,
+      "output_sha256": "0bc570f015d3d5654d5be033572fadb899b53755b8a78cf972d0a643ad503203"
+    },
+    {
+      "command": "python -m pytest -q <four shadow-homeostasis tests>",
+      "passed": 18,
+      "failed": 0,
+      "duration_seconds_reported": 1.27,
+      "exit_code": 0,
+      "output_sha256": "9ad7e1d3cca4ed7f36df2cfa37654d8f7967a8face671080f5c61c9d47db544e"
+    },
+    {
+      "command": "python -X utf8 _ops/observatory/{envelope,evidence_parser,allowlist_loader}.py",
+      "scripts_passed": 3,
+      "scripts_failed": 0,
+      "output_sha256s": [
+        "e184184ed8965a049a5e793bb0b66205480a56008a8415a270e2d1c29fdad778",
+        "6806150556fef710dd1368a901cb588785de7c21f23d5316f326a4c3ae2ec64e",
+        "cfa491f501bced2d990ed15076c9fe36892aea812ba1db96043317843aa20b0e"
+      ]
+    }
+  ],
+  "full_root_suite": {
+    "status": "BLOCKED",
+    "reason": "The official runner writes execution/capability state and intentionally includes a live provider request."
+  },
+  "working_tree_after": "CLEAN",
+  "external_effects": 0
+}

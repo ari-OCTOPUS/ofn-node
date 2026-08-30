@@ -1,0 +1,22 @@
+# Docs worktree provenance. Primary vault is NOT_SYNCED.
+documentation_lineage: rescue/octopus-live-tree-20260821
+evidence_lineage: surgery/cognition-authority-denylist-20260830-170620
+closeout_commit: b394b999b43ab12573ad574f33a5621a57c66686
+evidence_commit: 470bb6031f1e51c9a8e6e1f1536c349e22a5200e
+docs_branch: docs/octopus-campaign-sync-20260830
+docs_base: 0f0e7f5345004284bd1355ff72b7b6ec68595dbd
+deployed: false
+merged_into_primary_vault: false
+published_to_github: false
+canonical_vault_status: NOT_SYNCED
+source_worktree_head: 470bb6031f1e51c9a8e6e1f1536c349e22a5200e
+obsidian_claim: DOCS_WORKTREE_COMMITTED
+export_base: c1969bce5384f3371b916470299c991627c3d63c
+export_branch: export/octopus-surgery-20260830
+docs_reconcile_commit: 45c9f20bb02299db4269964abe1bc08eec7b89c1
+portable_package: octopus_observation
+not_ported:
+  - _ops/tests/run_all.py
+  - cognition deny-list
+  - lab gateway
+  - vault git history
