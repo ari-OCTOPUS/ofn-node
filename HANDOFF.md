@@ -67,7 +67,7 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 - شاخه‌ها: dev `7813469` پوش شد (۱۹۳۸ تست سبز) · snapshot `32a81d0` · `ofn/heartbeat` · `ofn/wire`
 - سرویس جدید: `ofn-heartbeat.service` — هر ۳۰ث vitals · ~۲.۵د healthz پاها · ~۱۰د push
 - روتین شبانهٔ ۲۱:۰۰: `~/.local/bin/ofn-daily-snapshot.sh` + run خودکار ایجنت (جواب پیام‌های وایر)
-- منشور: `MEGAPROMPT-BOARD-CHARTER-2026-08-16.md` — ۱۲ حکم مالک ثبت شد؛ قانون اساسی مقدم می‌ماند
+- منشور: `docs/agent-context/prompts/MEGAPROMPT-BOARD-CHARTER-2026-08-16.md` — ۱۲ حکم مالک ثبت شد؛ قانون اساسی مقدم می‌ماند
 - NTP فعال شد · هدرهای امنیتی پنل‌ها زنده تأیید شد (CSP/XFO/Referrer — CHECKPOINT §۶ حل بود)
 - app/hypno روی `/healthz` 404 = طراحی؛ ریشه‌ها 200 با محتوای واقعی
 - ۱۰ فایل WIP کامرس/پایلوت + سوال‌های ویندوز با تست سبز کامیت و پوش شد (حکم مالک)
@@ -204,7 +204,7 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 
 ## 📝 جلسهٔ ۲۰۲۶-۰۸-۱۰ — طراحی Operations Launch
 
-- `MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md` ساخته شد: O0 تا O12، API،
+- `docs/agent-context/archived/MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md` ساخته شد: O0 تا O12، API،
   schema افزایشی، state machine، UX چهار پنل، تست و دروازهٔ پذیرش.
 - Canvas دیداری: `ofn-business-operations-launch.canvas.tsx`.
 - شکاف حیاتی تأیید شد: `Node.owner_decide()` approval را مستقیم
@@ -1031,7 +1031,7 @@ UNIFY فاز ۰ تا ۴ انجام شد. دو پروژه حالا یک مغز (S
 - **۱۳۲ chunk** از hypno research_docs به shared corpus منتقل شد.
 
 **آنچه دست‌نخورده ماند:** کد OFN و hypno تغییر نکرد؛ فقط pack‌ها و env.
-`assistant.sqlite` و `hypno.sqlite` بازنویسی نشدند. MEGAPROMPT-UNIFY.md
+`assistant.sqlite` و `hypno.sqlite` بازنویسی نشدند. docs/agent-context/archived/MEGAPROMPT-UNIFY.md
 باز است (نقاط کور B-2 panel_note، B-3 consent، B-8 worker async).
 
 ---

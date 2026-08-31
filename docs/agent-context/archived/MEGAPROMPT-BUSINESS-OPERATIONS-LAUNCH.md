@@ -930,7 +930,7 @@ gap بسازد؛ هیچ آیتمی خودکار دوباره ارسال یا com
 ## ۱۲) دستور کوتاه برای ایجنت اجراکننده
 
 ```text
-MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md را کامل بخوان.
+docs/agent-context/archived/MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md را کامل بخوان.
 فاز O0 را اجرا و baseline را ثبت کن.
 O1 تا O8 را به ترتیب، هر کدام با تست کامل و commit جدا اجرا کن.
 اگر فاز قبلی سبز نیست، وارد بعدی نشو.
