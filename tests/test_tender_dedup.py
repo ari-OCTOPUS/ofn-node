@@ -40,6 +40,7 @@ def test_replay_100x_single_row():
         matching = [r for r in rows if r["tender_id"] == "lead:tender:buysw:aaaa-1111"]
         assert len(matching) == 1, f"expected 1 row, got {len(matching)}"
     finally:
+        st.close()
         d.cleanup()
 
 
@@ -54,6 +55,7 @@ def test_changed_close_date_is_revision_not_duplicate():
         assert len(matching) == 1, f"expected 1 row after date change, got {len(matching)}"
         assert matching[0]["closing_at"] == "2026-09-20T17:00:00Z", "close date should be updated"
     finally:
+        st.close()
         d.cleanup()
 
 
@@ -68,6 +70,7 @@ def test_distinct_ids_stay_separate():
         assert "lead:tender:buysw:aaaa-1111" in ids
         assert "lead:tender:buysw:bbbb-2222" in ids
     finally:
+        st.close()
         d.cleanup()
 
 
@@ -82,6 +85,7 @@ def test_tenant_isolation():
         assert all(r["tenant_id"] == "lead" for r in rows_lead)
         assert len(rows_other) == 0, "other tenant must not see lead's tenders"
     finally:
+        st.close()
         d.cleanup()
 
 
@@ -110,4 +114,5 @@ def test_title_variants_dedupe_via_slug():
         matching = [r for r in rows if r["tender_id"] == r1["tender"]]
         assert len(matching) == 1, f"expected 1 row for title variants, got {len(matching)}"
     finally:
+        st.close()
         d.cleanup()
