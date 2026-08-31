@@ -1,165 +1,166 @@
-# generated 2026-08-31 — hygiene phase 1
+# regenerated 2026-08-31 — byte-exact normalization pass
 entries: 18
-content_preserved_all: False
+byte_unchanged: 14
+intentional_path_ref_changes: 4
 - source_path: MEGAPROMPT.md
   target_path: docs/agent-context/prompts/MEGAPROMPT.md
   source_sha256: 7bf03d1e9dd9c86b372e935b99c4953824bac096ca913f1ffd4e616c1ba850b9
-  target_sha256: f632f4b75822abc77f37d4502fa9b7560ba3f80a07e39e9337f85401c911be91
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: ACTIVE_CANONICAL_GENERAL
-  references_updated: true
+  target_sha256: 7bf03d1e9dd9c86b372e935b99c4953824bac096ca913f1ffd4e616c1ba850b9
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ACTIVE
+  references_updated: False
   rollback_path: "git mv docs/agent-context/prompts/MEGAPROMPT.md MEGAPROMPT.md"
 - source_path: MEGAPROMPT-REVENUE-COMMANDER.md
   target_path: docs/agent-context/prompts/MEGAPROMPT-REVENUE-COMMANDER.md
   source_sha256: 03b0efaabdad37d62c09c20066f9e518706e15e1ae95d64bc7a719fcb1affbe2
-  target_sha256: 3c16390617f4f0b0381899ad0d8dc9e9bf5337fba4a779b30d58da531eaea99c
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: ACTIVE_SPECIALIZED
-  references_updated: true
+  target_sha256: 03b0efaabdad37d62c09c20066f9e518706e15e1ae95d64bc7a719fcb1affbe2
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ACTIVE
+  references_updated: False
   rollback_path: "git mv docs/agent-context/prompts/MEGAPROMPT-REVENUE-COMMANDER.md MEGAPROMPT-REVENUE-COMMANDER.md"
 - source_path: MEGAPROMPT-BOARD-CHARTER-2026-08-16.md
   target_path: docs/agent-context/prompts/MEGAPROMPT-BOARD-CHARTER-2026-08-16.md
   source_sha256: 3309ed8a34a99639096693ccbf2503e3e6fb395aceb32d2fc7424f8b7fc89855
-  target_sha256: 6940fea199b9728ad2d7baa2d3e3076678c85546003a40aad76e358c17c9eda2
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: ACTIVE_SPECIALIZED
-  references_updated: true
+  target_sha256: 3309ed8a34a99639096693ccbf2503e3e6fb395aceb32d2fc7424f8b7fc89855
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ACTIVE
+  references_updated: False
   rollback_path: "git mv docs/agent-context/prompts/MEGAPROMPT-BOARD-CHARTER-2026-08-16.md MEGAPROMPT-BOARD-CHARTER-2026-08-16.md"
 - source_path: MEGAPROMPT-UNIFY-FINAL.md
   target_path: docs/agent-context/archived/MEGAPROMPT-UNIFY-FINAL.md
   source_sha256: 34b17b0b9e563cc12f83637619b0188c401b14a0838c01116f8368ca3709627d
   target_sha256: 34b17b0b9e563cc12f83637619b0188c401b14a0838c01116f8368ca3709627d
   content_changed: False
-  reason: hygiene phase1 relocation
-  classification: SUPERSEDED
-  references_updated: true
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-UNIFY-FINAL.md MEGAPROMPT-UNIFY-FINAL.md"
 - source_path: MEGAPROMPT-UNIFY.md
   target_path: docs/agent-context/archived/MEGAPROMPT-UNIFY.md
   source_sha256: 8cd4845035822c28f01c337d1ac80492da2336ab8604c9560fb04248c636e544
-  target_sha256: 6acce0beed1664ccd65e6bf66e33ddd7d9a2378719ed90613a1e3adc748fcd1d
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: SUPERSEDED
-  references_updated: true
+  target_sha256: 8cd4845035822c28f01c337d1ac80492da2336ab8604c9560fb04248c636e544
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-UNIFY.md MEGAPROMPT-UNIFY.md"
 - source_path: MEGAPROMPT-COMPLETE-FINISH.md
   target_path: docs/agent-context/archived/MEGAPROMPT-COMPLETE-FINISH.md
   source_sha256: eb288d45a5a2e67792be4ed1cf4c68ae3187e17cfecd25e98797b8e3106041c9
-  target_sha256: a52ca4534fd44d565d743d34d2fe6a0ae2e9a49c40777dbf66af1b24e8de8d29
+  target_sha256: cd91c4c890db4f564f6fb2519e62b202ae0196ebbc912d9eb0e3de220fb869f2
   content_changed: True
-  reason: hygiene phase1 relocation
-  classification: SUPERSEDED
-  references_updated: true
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: True
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-COMPLETE-FINISH.md MEGAPROMPT-COMPLETE-FINISH.md"
 - source_path: MEGAPROMPT-P1-TO-P4-COMPLETE.md
   target_path: docs/agent-context/archived/MEGAPROMPT-P1-TO-P4-COMPLETE.md
   source_sha256: 6c9998fe110e9b7b50072f3fb6fe3e40dc076740807a37ab3e7f437b86d514cd
-  target_sha256: c1bbbad775db4f1eaf35d8b81d2a22acb44bd209cff0bca20b2f3ccda9203070
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: SUPERSEDED
-  references_updated: true
+  target_sha256: 6c9998fe110e9b7b50072f3fb6fe3e40dc076740807a37ab3e7f437b86d514cd
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-P1-TO-P4-COMPLETE.md MEGAPROMPT-P1-TO-P4-COMPLETE.md"
 - source_path: MEGAPROMPT-OWNER-COMPLETE.md
   target_path: docs/agent-context/archived/MEGAPROMPT-OWNER-COMPLETE.md
   source_sha256: 3ae5317b9baa4ca3c5cd5eb1b6c9c00a0360e23b9ac21ab3c1e4892cb6355b5f
-  target_sha256: 4b08fcd7ca3bc6f200b789b372ea304fcb759b0992e82f03f1f82f6f86869bb9
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: SUPERSEDED
-  references_updated: true
+  target_sha256: 3ae5317b9baa4ca3c5cd5eb1b6c9c00a0360e23b9ac21ab3c1e4892cb6355b5f
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-OWNER-COMPLETE.md MEGAPROMPT-OWNER-COMPLETE.md"
 - source_path: MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md
   target_path: docs/agent-context/archived/MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md
   source_sha256: acce1c4eb085117e796dd3c801633c6b6696cbc959ebd0a7884bb3b310827045
-  target_sha256: 92be3e4cedd790f0ebc4fb40fcced6a0932e53b42161ca74cac465b8fd5d7d86
+  target_sha256: dea0e007ad9222fd4694025e0e1e9df3c1d5fc011a5a22367230d2666c0485c5
   content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: True
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md MEGAPROMPT-BUSINESS-OPERATIONS-LAUNCH.md"
 - source_path: MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION.md
   target_path: docs/agent-context/archived/MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION.md
   source_sha256: 232efff2cd713b752621c9bbd7d1e00eec8829320ef95869eede9f69fe47a594
-  target_sha256: 8e68cf53a3debf2457b364cf1e79073389d01bb3711b23f2a038e23ec82c9ef4
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: 232efff2cd713b752621c9bbd7d1e00eec8829320ef95869eede9f69fe47a594
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION.md MEGAPROMPT-MARKETING-PLATFORM-INTEGRATION.md"
 - source_path: MEGAPROMPT-STUDIO.md
   target_path: docs/agent-context/archived/MEGAPROMPT-STUDIO.md
   source_sha256: fd7a73bd114cb342fc8c8f70501728443de114a7cea22865f0998e60284aa492
-  target_sha256: b338554339d84ef705af13ec8edb0e76ed68ecde13bec8975c92b8a794ad4312
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: fd7a73bd114cb342fc8c8f70501728443de114a7cea22865f0998e60284aa492
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-STUDIO.md MEGAPROMPT-STUDIO.md"
 - source_path: MEGAPROMPT-MINING.md
   target_path: docs/agent-context/archived/MEGAPROMPT-MINING.md
   source_sha256: d5c40effaef88f17e65f152af8186a00315d9dd9b25b80f3eb7381d87eca7441
-  target_sha256: 1ab5f4939ff3baee074e091af59b651e05cad61dd29d7cc731b6ab2aba888205
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: d5c40effaef88f17e65f152af8186a00315d9dd9b25b80f3eb7381d87eca7441
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-MINING.md MEGAPROMPT-MINING.md"
 - source_path: MEGAPROMPT-EDGE-DEEP.md
   target_path: docs/agent-context/archived/MEGAPROMPT-EDGE-DEEP.md
   source_sha256: 322fd307437fb0d5a673d3d6fb161cfd8ced3ba51a4a5e50ac99008099433b01
-  target_sha256: c548e58f7783fb6535d814c334c5fa7a4ac556330d02e0fb9c1bcdf9fd283c03
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: 322fd307437fb0d5a673d3d6fb161cfd8ced3ba51a4a5e50ac99008099433b01
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-EDGE-DEEP.md MEGAPROMPT-EDGE-DEEP.md"
 - source_path: MEGAPROMPT-FUGU-FINALIZE.md
   target_path: docs/agent-context/archived/MEGAPROMPT-FUGU-FINALIZE.md
   source_sha256: 68fbf200878fdd4df35b1543081a2e0605827cdb9b7f970f994d74df112783aa
-  target_sha256: fcebf6893578210ddd727114bc784f36b060bec90b6e13e031aa2737927201af
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: 68fbf200878fdd4df35b1543081a2e0605827cdb9b7f970f994d74df112783aa
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-FUGU-FINALIZE.md MEGAPROMPT-FUGU-FINALIZE.md"
 - source_path: MEGAPROMPT-ZIMAN.md
   target_path: docs/agent-context/archived/MEGAPROMPT-ZIMAN.md
   source_sha256: 0b05ab03b920459e792002309790ea3fb47ac3601f545b8733383dc5cb6e30ae
-  target_sha256: d78ccaaa68d47c6d7243357b1c81833903d51bbf769fdc3862d0f939b43d0209
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: 0b05ab03b920459e792002309790ea3fb47ac3601f545b8733383dc5cb6e30ae
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/MEGAPROMPT-ZIMAN.md MEGAPROMPT-ZIMAN.md"
 - source_path: AGENT-NEXT-DEEPSEEK-V4-FAST.md
   target_path: docs/agent-context/archived/AGENT-NEXT-DEEPSEEK-V4-FAST.md
   source_sha256: c1e9f747a997579a656bf9c793a9cab944cb706d7c9a4531c3a97fe4a043e791
-  target_sha256: 73a2ff600edfecfa490fde2f32161fd8b03a1318f57622a9acd8b0ecb4c9c2cc
+  target_sha256: e752ce5c4739a1e18f7ce468ccc7266b8aa068426992ccff6d041deffbd81e7a
   content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: True
   rollback_path: "git mv docs/agent-context/archived/AGENT-NEXT-DEEPSEEK-V4-FAST.md AGENT-NEXT-DEEPSEEK-V4-FAST.md"
 - source_path: AGENT-NEXT-OWNER-COMPLETE.md
   target_path: docs/agent-context/archived/AGENT-NEXT-OWNER-COMPLETE.md
   source_sha256: 7d89b40769c673c7cc7ae16411c04c3a5f1246b062b729c7f403c9713088e473
-  target_sha256: af26d49289a8910d1a1086fe4b800137b431210474bd722c7017ad20ce953880
+  target_sha256: 462da4f7e0ff57293b0d5500b6ce34be5dc23f15e53708b5647754800fbdd25c
   content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: True
   rollback_path: "git mv docs/agent-context/archived/AGENT-NEXT-OWNER-COMPLETE.md AGENT-NEXT-OWNER-COMPLETE.md"
 - source_path: AGENT-NEXT-PANEL-UPGRADE.md
   target_path: docs/agent-context/archived/AGENT-NEXT-PANEL-UPGRADE.md
   source_sha256: 267b1b9d4effaf299ae52d9fa1c4897adca3b287e4be36da542a0f6758151d36
-  target_sha256: 40d8cf04207ad99d49bd31ccac08e63a3a55f39d88a51e77344dde791c5512c3
-  content_changed: True
-  reason: hygiene phase1 relocation
-  classification: HISTORICAL
-  references_updated: true
+  target_sha256: 267b1b9d4effaf299ae52d9fa1c4897adca3b287e4be36da542a0f6758151d36
+  content_changed: False
+  change_reason: path-reference repair only (byte-level; line endings preserved)
+  classification: ARCHIVED
+  references_updated: False
   rollback_path: "git mv docs/agent-context/archived/AGENT-NEXT-PANEL-UPGRADE.md AGENT-NEXT-PANEL-UPGRADE.md"
