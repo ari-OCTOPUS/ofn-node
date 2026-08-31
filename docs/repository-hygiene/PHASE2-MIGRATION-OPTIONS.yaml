@@ -1,0 +1,6 @@
+options:
+  A: untrack .obsidian/.tmp-test* only (gitignore + rm --cached)
+  B: A + git mv *.bak-* to archive/        # recommended
+  C: B + CLAUDE.md split (stable root instructions / session history to agent-context)
+  D: full incl. saba_rag_seed.txt relocation (owner-data decision)
+ask_after: W-B completion (D8-04)
