@@ -1,0 +1,20 @@
+{
+ "lane": "S2B-C-verifier-reach",
+ "files_touched": [
+  "octopus_observation/verifier.py",
+  "tests/test_verifier_store_path.py"
+ ],
+ "defects_closed": [
+  "F12",
+  "F13"
+ ],
+ "f12": "boundary set extended to claim_record/fixture_store/claim_adapter; forbidden: scorer, producer_strategy, producer_persistence, fixture_run. module_boundary_check takes pkg_dir so tests inject violations into temp copies only.",
+ "f13": "store_path_flip_probe(claims_v1, *, feature_supplier, strategy=None, persistence=None) — converts via adapter, hard-asserts duplicate-id and strict time (FixtureError) before producers run, reuses the dataclasses.replace outcome flip, optional producer injection for red-team fakes.",
+ "tests": {
+  "new": 7,
+  "battery": "86 passed, 0 failed (verifier+observatory+fixture+adapter+foundation)"
+ },
+ "official_n": null,
+ "brier": null,
+ "evidence_db": "absent"
+}

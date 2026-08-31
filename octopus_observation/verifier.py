@@ -25,6 +25,14 @@ FORBIDDEN_CROSS_IMPORTS = {
     "producer_strategy": ("producer_persistence",),
     "producer_persistence": ("producer_strategy",),
 }
+# S2b lane C (F12): the store path — claim_record, fixture_store and the
+# adapter — is inside the boundary now. None of them may reach the scorer,
+# the producers or the fixture runner; reaching any of those would let a
+# serialization shape influence or observe scoring.
+FORBIDDEN_STORE_PATH_IMPORTS = (
+    "scorer", "producer_strategy", "producer_persistence", "fixture_run",
+)
+STORE_PATH_MODULES = ("claim_record", "fixture_store", "claim_adapter")
 
 
 def static_import_check(source: str, forbidden: tuple[str, ...]) -> list[str]:
@@ -42,9 +50,14 @@ def static_import_check(source: str, forbidden: tuple[str, ...]) -> list[str]:
     return bad
 
 
-def module_boundary_check() -> list[str]:
-    """Verify scorer/producer import boundaries inside this package."""
-    here = Path(__file__).resolve().parent
+def module_boundary_check(pkg_dir: Path | None = None) -> list[str]:
+    """Verify scorer/producer/store-path import boundaries in the package.
+
+    ``pkg_dir`` defaults to this package's directory. Tests pass a temporary
+    copy so a deliberate violation can be injected without ever touching the
+    real files.
+    """
+    here = (pkg_dir or Path(__file__).resolve().parent)
     problems: list[str] = []
     scorer_src = (here / "scorer.py").read_text(encoding="utf-8")
     problems += [f"scorer imports {m}" for m in
@@ -53,7 +66,58 @@ def module_boundary_check() -> list[str]:
         src = (here / f"{mod}.py").read_text(encoding="utf-8")
         problems += [f"{mod} imports {m}" for m in
                      static_import_check(src, forbidden)]
+    for mod in STORE_PATH_MODULES:
+        path = here / f"{mod}.py"
+        if not path.is_file():
+            problems.append(f"{mod} missing from boundary set")
+            continue
+        src = path.read_text(encoding="utf-8")
+        problems += [f"{mod} imports {m}" for m in
+                     static_import_check(src, FORBIDDEN_STORE_PATH_IMPORTS)]
     return problems
+
+
+def store_path_flip_probe(claims_v1, *, feature_supplier,
+                          strategy=None, persistence=None) -> dict:
+    """F13: the outcome-flip probe, run over the adapter/store path.
+
+    ``claims_v1`` are claim.v1 rows; ``feature_supplier(claim)`` returns the
+    ``(feature_a, feature_b)`` pair for each row (the adapter refuses to
+    invent them). Rows are converted through ``claim_adapter`` — which means
+    the output inherits ``_validate`` guarantees: duplicate ids and
+    resolved_at <= observed_at are rejected before any producer runs.
+
+    The real producers are used unless callables are supplied; tests inject
+    deliberately outcome-peeking fakes and expect the probe to report False
+    rather than wave them through.
+    """
+    from octopus_observation.claim_adapter import claim_v1_to_record
+
+    strat = strategy if strategy is not None else producer_strategy.predict
+    pers = persistence if persistence is not None else producer_persistence.predict
+
+    records = [claim_v1_to_record(c, feature_a=feature_supplier(c)[0],
+                                  feature_b=feature_supplier(c)[1])
+               for c in claims_v1]
+    # Adapter-output guarantees from _validate, enforced as hard assertions:
+    # a violating batch never reaches a producer.
+    ids = [r.claim_id for r in records]
+    if len(ids) != len(set(ids)):
+        raise FixtureError("store-path duplicate claim_id")
+    for r in records:
+        if r.resolved_at is not None and r.resolved_at <= r.observed_at:
+            raise FixtureError(f"store-path future-data violation: {r.claim_id}")
+    checks: dict[str, object] = {
+        "store_no_duplicate_ids": True,
+        "store_strict_time": True,
+    }
+    # Same flip as verify(): outcome inverted, everything else untouched.
+    flipped = [dataclasses.replace(c, outcome=None if c.outcome is None
+                                   else 1 - c.outcome) for c in records]
+    checks["store_path_flip_unchanged"] = (
+        [strat(c) for c in flipped] == [strat(c) for c in records]
+        and [pers(c) for c in flipped] == [pers(c) for c in records])
+    return checks
 
 
 def verify(claims: list[ClaimRecord],
