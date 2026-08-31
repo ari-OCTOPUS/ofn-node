@@ -1,2 +1,2 @@
-{"claim_id": "fix-001", "observed_at": "2026-08-30T08:00:00Z", "outcome": true, "predicted_p": 0.7, "resolved_at": "2026-08-31T08:00:00Z", "schema": "claim.v1"}
+{"claim_id": "fix-001", "observed_at": "2026-08-30T08:00:00Z", "outcome": 1, "predicted_p": 0.7, "resolved_at": "2026-08-31T08:00:00Z", "schema": "claim.v1"}
 {"claim_id": "fix-002", "observed_at": "2026-08-31T08:00:00Z", "outcome": null, "predicted_p": 0.4, "resolved_at": null, "schema": "claim.v1"}

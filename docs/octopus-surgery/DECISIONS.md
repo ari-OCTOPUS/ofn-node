@@ -157,3 +157,12 @@ a non-main base. Closing them is bookkeeping, not a content decision.
 main accepts merges from more than one collaborator account. The owner queue is
 not the only gate at the GitHub layer. Any claim that "nothing reaches main
 without the owner" must be stated as a process intent, not a mechanism.
+
+## S6-D06 — Admin-merge is a mechanism, not a gate (registered 2026-09-01)
+The four docs PRs (#12, #14, #13, #15) and later docs merges were merged
+with administrator privileges while repository checks were not satisfied,
+under owner ruling Q8. This is the concrete mechanism behind S6-D05's
+warning that the owner queue is not the only gate — admin override can
+bypass repository checks entirely. It is registered here so the process
+intent ("owner review before main") is not mistaken for a mechanism. Any
+future admin-merge should be owner-ruled and referenced to this entry.
