@@ -288,9 +288,15 @@ class Worker:
                 "task": job.task, "idem": job.idem_key,
                 "attempts": job.attempts, "reason": result.refused,
                 "code": result.refused_code, "retryable": False,
+                "path": list(result.path),
+                **({"provider_model": result.provider_note}
+                   if result.provider_note else {}),
             }, now)
             if self._on_failure is not None:
-                self._notify_failure(scope, job, result.refused,
+                self._notify_failure(scope, job,
+                                     result.refused + (
+                                         f" [{result.provider_note}]"
+                                         if result.provider_note else ""),
                                      result.refused_code, retryable=False,
                                      next_not_before=0)
         else:
@@ -303,6 +309,9 @@ class Worker:
                 "attempt": job.attempts, "reason": result.refused,
                 "code": result.refused_code, "backoff_s": delay,
                 "next_attempt_at": job.not_before,
+                "path": list(result.path),
+                **({"provider_model": result.provider_note}
+                   if result.provider_note else {}),
             }, now)
             if self._on_failure is not None:
                 self._notify_failure(scope, job, result.refused,

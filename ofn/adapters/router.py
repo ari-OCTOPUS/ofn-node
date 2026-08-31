@@ -80,6 +80,11 @@ class RouterResult:
     # tell a deterministic denial (retrying cannot help) from a transient
     # one (retrying is the only thing that can).
     refused_code: str = ""
+    # What the last rung said it was, per the provider's own response —
+    # "fugu:http-401", "fugu:unreachable", "fugu:no-choice". A parked job
+    # whose only explanation is "capped" hides whether the provider was
+    # refusing, unreachable, or returning shapes nobody parsed.
+    provider_note: str = ""
 
     @property
     def ok(self) -> bool:
@@ -131,6 +136,7 @@ class ModelRouter:
         path: list[str] = []
         total_spend = 0
         last_text = ""
+        last_model_note = ""
 
         while True:
             if rung not in self._brains:
@@ -145,10 +151,13 @@ class ModelRouter:
                     return RouterResult(last_text, rung, tuple(path),
                                         total_spend, cleaned,
                                         refused=gate.reason,
-                                        refused_code=gate.rule)
+                                        refused_code=gate.rule,
+                                        provider_note=last_model_note)
                 reply = self._brains[rung].answer(req.task, cleaned.text)
                 spent = self._record(tenant, rung, reply, now_epoch_s)
                 total_spend += spent
+                if reply.insufficient:
+                    last_model_note = reply.model
                 path.append(f"{rung.value}:{'insufficient' if reply.insufficient else 'ok'}")
                 if reply.text:
                     last_text = reply.text
@@ -163,7 +172,9 @@ class ModelRouter:
                                     cleaned,
                                     refused=("" if last_text else step.reason),
                                     refused_code=("" if last_text
-                                                  else step.rule))
+                                                  else step.rule),
+                                    provider_note=("" if last_text
+                                                   else last_model_note))
             self._emit("ESCALATE", {"tenant": tenant.value,
                                     "from": rung.value, "to": step.rung.value,
                                     "reason": step.reason})
