@@ -1,0 +1,53 @@
+{"releases": [
+  {
+    "ocid": "ocds-43qwtd-RFT-AAAA-1111",
+    "id": "RFT-AAAA-1111",
+    "buyer": {"name": "NSW Department of Education"},
+    "tender": {
+      "id": "TENDER-001",
+      "RFTUUID": "aaaa1111-2222-3333-444455556666",
+      "title": "External Painting Services - Bankstown Public School",
+      "description": "Repainting of external walls, fascia and gutters",
+      "eTenderStatus": "published",
+      "status": "active",
+      "tenderPeriod": {"startDate": "2026-08-20T00:00:00Z", "endDate": "2026-09-15T17:00:00Z"},
+      "value": {"amount": 85000, "currency": "AUD"},
+      "deliveryLocation": {"gazetteer": {"scheme": "xNSWRegions", "Identifiers": ["Sydney", "South West Sydney"]}},
+      "items": [{"classification": {"scheme": "UNSPSC", "id": "72151300", "description": "Painting and paper hanging services"}}]
+    }
+  },
+  {
+    "ocid": "ocds-43qwtd-RFT-BBBB-2222",
+    "id": "RFT-BBBB-2222",
+    "buyer": {"name": "QLD Health"},
+    "tender": {
+      "id": "TENDER-002",
+      "RFTUUID": "bbbb2222-3333-4444-555566667777",
+      "title": "Interior Painting - Cairns Hospital Wing C",
+      "description": "Full repaint interior wards",
+      "eTenderStatus": "published",
+      "status": "active",
+      "tenderPeriod": {"startDate": "2026-08-15T00:00:00Z", "endDate": "2026-09-10T17:00:00Z"},
+      "value": {"amount": 120000, "currency": "AUD"},
+      "deliveryLocation": {"gazetteer": {"scheme": "xNSWRegions", "Identifiers": ["QLD"]}},
+      "items": [{"classification": {"scheme": "UNSPSC", "id": "72151300", "description": "Painting and paper hanging services"}}]
+    }
+  },
+  {
+    "ocid": "ocds-43qwtd-RFT-CCCC-3333",
+    "id": "RFT-CCCC-3333",
+    "buyer": {"name": "NSW Procurement"},
+    "tender": {
+      "id": "TENDER-003",
+      "RFTUUID": "cccc3333-4444-5555-666677778888",
+      "title": "Paint Supply Contract - Bulk Procurement",
+      "description": "Supply of paint products for government facilities",
+      "eTenderStatus": "published",
+      "status": "active",
+      "tenderPeriod": {"startDate": "2026-08-10T00:00:00Z", "endDate": "2026-09-05T17:00:00Z"},
+      "value": {"amount": 200000, "currency": "AUD"},
+      "deliveryLocation": {"gazetteer": {"scheme": "xNSWRegions", "Identifiers": ["Sydney"]}},
+      "items": [{"classification": {"scheme": "UNSPSC", "id": "31211500", "description": "Paints and primers"}}]
+    }
+  }
+]}
