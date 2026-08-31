@@ -1,0 +1,17 @@
+{
+ "schema": "octopus.surgery-receipt.v1",
+ "lane": "S2B-PIECE1-AUDIT-backfill",
+ "receipt_kind": "BACKFILL — audit record of piece 1 reconstructed from the defect register and code as merged; the original audit receipt was not found on this host. No new claims.",
+ "audited_head": "5a984b4 (post-rebase content of 6d815d7)",
+ "findings": "14 defects (F1-F14) confirmed in code before lanes A/B/C: strict-time gap, bool outcome, missing features, predicted_p placement and unvalidated-on-unresolved, silent schema default, datetime/string mismatch, .json suffix hazard, raw JSONDecodeError, duplicate-id acceptance, verifier blind to the store path, no store flip probe, local-only receipt.",
+ "verdict_at_audit": "piece 1 correct in intent, unsafe at the edges; do not build piece 2 on it until A/B/C close the register",
+ "after_lanes": "A/B/C merged (PR #19/#20/#21); batteries 63/0, 70/0, 86/0; PR #16 squash-merged to main 72498532e with main CI success",
+ "still_open_per_dod": [
+  "Q1_host",
+  "R-05",
+  "R-03"
+ ],
+ "official_n": null,
+ "brier": null,
+ "evidence_db": "absent"
+}
