@@ -52,7 +52,9 @@ OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation remain owner-only and closed
 
 Status: STANDING
 Decision: credit the five surgeries; do not promote historical Brier or test-count claims.
+Official announced weighted figure is **45.70** (Recovery=34). Exact 34-weighted
+raw is 45.75; rounding delta −0.05. See `ACCOUNTING-CORRECTION-20260831.yaml`.
 
 ```text
-OWNER-CONFIRM: campaign overall 45% ± 7%; 90% gates remain closed
+OWNER-CONFIRM: campaign overall 45% ± 7%; official announced 45.70; 90% gates remain closed
 ```

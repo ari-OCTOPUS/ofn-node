@@ -48,6 +48,11 @@ completion:
   CODE_COMPLETION: "63% ± 7%"
   EVIDENCE_COMPLETION: "57% ± 8%"
   OPERATIONAL_COMPLETION: "31% ± 9%"
+  split_scores_status: stale
+  split_scores_note: "owner 2026-08-31 Q5: numbers unchanged; do not mix with official announced 45.70"
   OVERALL: "45% ± 7%"
+  official_announced: 45.70
+  raw_weighted_recovery_34: 45.75
+  rounding_delta: -0.05
   campaign_start_overall: "39% ± 7%"
 ready_for_90_percent: false

@@ -15,7 +15,7 @@ plus the reproducible commands in `receipts/`.
 | Real-world grounding | 15 | 36 | Replay-safe observation.v1 record, fake/replay adapters, 15/15 tests | No calibrated real sensor slice; parser and record remain separate. |
 | Measurement quality | 15 | 35 | OWNER-09 n=827 executed with classified failures | No Brier; 57 failures are not a quality score. |
 | Governance | 10 | 40 | Owner-gate binding/replay tests | D1/D7 and owner signing remain closed; HMAC is not Ed25519 governance. |
-| Operations/recovery | 10 | 38 | Clean post-test state and temporary runner artifacts | No restore drill reproduced at this commit. |
+| Operations/recovery | 10 | 34 | Clean post-test state and temporary runner artifacts | No restore drill reproduced at this commit. |
 | Documentation/handoff | 5 | 68 | Artifact chain plus gap ledger plus replay-safe contract | Historical observatory narratives remain contradictory. |
 
 Weighted result:
@@ -25,11 +25,17 @@ Weighted result:
 = 45.70
 ```
 
+Owner 2026-08-31 accounting: table had 38 while the formula used 34.
+Valid Recovery = **34**. Exact 34-weighted raw is 45.75. Official announced
+figure stays **45.70** (rounding delta −0.05). See
+`ACCOUNTING-CORRECTION-20260831.yaml`.
+
 Reported precision: **45% ± 7%**. OWNER-09 measured the local suite; it did not raise
 the 50% governance cap. Public status: `SELECTIVE_PUBLIC_EXPORT_OPEN_FOR_REVIEW`.
 Local vault branch publication: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
 
-Separate completion estimates:
+Separate completion estimates (stale 2026-08-31 — numbers unchanged; do not
+mix with the 45.70 official announced score):
 
 - `CODE_COMPLETION: 63% ± 7%` — no production code changed in OWNER-09.
 - `EVIDENCE_COMPLETION: 57% ± 8%` — full-suite receipt exists; Brier remains unreproduced.
