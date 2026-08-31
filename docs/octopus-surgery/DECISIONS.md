@@ -132,3 +132,28 @@ the surgery or rescue branch would publish vault history.
 
 Canonical export: https://github.com/ari-OCTOPUS/ofn-node/pull/6
 PR 5 is `CLOSED_SUPERSEDED`. Merge remains `NOT_AUTHORIZED`.
+
+## S6-D01 — Publication is no longer forbidden
+S2-D04 and S5-D03 are SUPERSEDED. ari-OCTOPUS/ofn-node main and the working
+lineage were reconciled by PR #11 (merged 2026-08-31). Direct branch push plus
+in-repo PR is the normal path. Force-push, history rewrite and vault-history
+publication remain forbidden.
+
+## S6-D02 — Canonical claim model
+ClaimRecord (obs_fixture.py, owner decision Q5=A) is canonical. claim.v1 is a
+serialization shape reached only through claim_adapter. Strict time rule
+resolved_at > observed_at applies to both. outcome is int 0/1.
+
+## S6-D03 — predicted_p is not a claim field
+Prediction values do not live on the claim row and stay excluded from
+provenance_hash. Until piece 3 removes the field, it is validated before the
+resolved/unresolved branch, never after.
+
+## S6-D04 — Superseded pull requests
+PR #1, #2, #3, #4 are CLOSED_SUPERSEDED by the PR #11 reconciliation or target
+a non-main base. Closing them is bookkeeping, not a content decision.
+
+## S6-D05 — Merge is not single-signature
+main accepts merges from more than one collaborator account. The owner queue is
+not the only gate at the GitHub layer. Any claim that "nothing reaches main
+without the owner" must be stated as a process intent, not a mechanism.
