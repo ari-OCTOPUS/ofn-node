@@ -91,6 +91,18 @@ class RouterResult:
         return not self.refused
 
 
+# Provider failure flavors that a retry can plausibly survive. A rate
+# limit (http-429), a provider-side outage (http-5xx), an unreachable
+# endpoint or an in-flight exception are weather; auth failures and
+# unparsed shapes are configuration and will fail identically forever.
+PROVIDER_TRANSIENT_MARKERS = (":http-429", ":http-5", ":unreachable",
+                              ":error")
+
+
+def provider_note_is_transient(note: str) -> bool:
+    return any(marker in note for marker in PROVIDER_TRANSIENT_MARKERS)
+
+
 class ModelRouter:
     """Cheapest-first routing with a hard budget and no implicit escalation."""
 
@@ -168,6 +180,15 @@ class ModelRouter:
             step = may_escalate(rung, req,
                                 lower_reported_insufficient=reply.insufficient)
             if not step.allowed or step.rung is None:
+                if not last_text and last_model_note and                         provider_note_is_transient(last_model_note):
+                    # The lower rung died of weather, not of policy. Report
+                    # it as a provider failure so the worker retries with
+                    # backoff instead of parking a survivable job forever.
+                    return RouterResult(
+                        "", rung, tuple(path), total_spend, cleaned,
+                        refused=f"provider failure: {last_model_note}",
+                        refused_code=f"provider:{last_model_note}",
+                        provider_note=last_model_note)
                 return RouterResult(last_text, rung, tuple(path), total_spend,
                                     cleaned,
                                     refused=("" if last_text else step.reason),
