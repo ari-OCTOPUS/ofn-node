@@ -73,3 +73,14 @@
 3. Q2 → شاخهٔ export تازه از mainِ پس‌از-merge فقط با فهرست فعلی surgery (۱۵۵ فایل)؛ در والت انتقال به `99-ARCHIVE`؛ HEAD والت هرگز push نمی‌شود.
 4. Q4 → تگ `archive/<name>@<sha>` برای همهٔ شاخه‌های نگه‌داری؛ حذف شاخه فقط پس از تصمیم Q5.
 5. Q6 → commit این نقشه به `docs/lineage/LINEAGE-MAP.md` + قاعدهٔ به‌روزرسانی: هر تغییر HEAD در همین فایل.
+
+
+---
+
+# به‌روزرسانی فصل 2026-09-01 (قاعدهٔ «هر تغییر HEAD همین‌جا ثبت شود»)
+
+- main: `1960c364` → **`0a7afefebe3d62882ef33705dadfa45e5b99c62e`** — squash‌های مالک‌مجاز: PR #11 (owner→brain P0)، #12–#15 (docs)، #16 (S2b piece 1 پس از laneهای A/B/C روی شاخهٔ آن)، #18 (S6-D01..D05)، #22 (receiptهای backfill). CI روی main سبز.
+- شاخهٔ runtime برد: `work/owner-brain-p0-fix @ 570c856` همچنان سند runtime مستقر (بدون تغییر؛ اکنون نیای main از مسیر squash).
+- R-13: در والت به **PARTIALLY_RECONCILED** ارتقا یافت (Q3)؛ نیمهٔ باقی‌مانده = export فایل‌های surgery از main جدید (Q2 تصویب‌شده).
+- PRهای #1–#4: CLOSED_SUPERSEDED با کامنت (lane E).
+- بقا: ۱۴ تگ `archive/<name>-<sha>` بدون تغییر.
