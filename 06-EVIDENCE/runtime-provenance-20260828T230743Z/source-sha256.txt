@@ -1,8 +1,0 @@
-e6564dbdaccecac54722e8bd81e38ab9f8a034b8cfbe9b95a8f4cc6da5c4f5d7  /home/ari/ofn/ofn/run.py
-052864bed63976191022cfc921a43d5df8c66249f2b2ebe31dbf8cf55b284268  /home/ari/ofn/ofn/adapters/http_api.py
-368e11a05b474166fcd91c4f63b984e1c24ba39ed50861c5522891e62bb60b51  /home/ari/ofn/ofn/adapters/ledger.py
-7e3ca0eb3f4eb410c8e3a7740ecb5aa21c04cfefb808fcc39032851aaebf109c  /home/ari/ofn/ofn/adapters/outbox.py
-64d063e112c4743146684f76f48ae86ea73546321f50056f753635d8f5fdc2b3  /home/ari/ofn/ofn/adapters/cockpit_v2_read_model.py
-6cc5d87827c9a5dfe3c0d9ea8931992142123e05081084ac2cf06cafaa5b44a3  /home/ari/ofn/ofn/adapters/owner_decision.py
-dcbb3b9eed126e721968ad0d750bad277460c13cf90c4846da723d5e1d3d9d4e  /home/ari/ofn/ofn/adapters/witness_mint.py
-b50e8edd7d3ecd10f4d2abba83c370b62086c6e9f21efac3d5bee7dde015a7a0  /home/ari/ofn/ofn/adapters/fake_executor.py

@@ -1,0 +1,23 @@
+# Full registered suite in CI — makes the "N passed" claim reproducible
+# outside any single machine. Live-gateway tests stay excluded (they need
+# TG_CENTER_BOT_TOKEN + a running gateway, which CI does not have).
+name: full-suite
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install pytest
+      - name: Registered suite (live excluded)
+        run: python -m pytest tests/ -q --ignore=tests/test_live_control_panel_smoke.py

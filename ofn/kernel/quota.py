@@ -32,6 +32,13 @@ from .errors import FailClosedError, UnknownTenantError
 
 WEEK_SECONDS = 7 * 24 * 60 * 60
 
+# The owner's own thinking does not bill against a business leg. Round 1
+# billed owner asks to whatever tenant sorted first — a personal leg with a
+# 700-token share — which is the bug this constant exists to prevent. The
+# control scope has its own ceiling (see `control_ceiling_tokens`) and its
+# spend still counts against the node total, so the global bound holds.
+CONTROL_SCOPE = "owner-control"
+
 # Ratio of total billed tokens to provider-visible tokens, from published
 # measurements of an orchestrating provider (~54k orchestration vs ~35k
 # visible in one observed session). Used only when the provider reports no
@@ -84,6 +91,7 @@ class NodeQuota:
         shares: Mapping[str, float],
         orchestration_multiplier: float = DEFAULT_ORCHESTRATION_MULTIPLIER,
         capacity_is_estimate: bool = True,
+        control_ceiling_tokens: int = 0,
     ) -> None:
         if estimated_capacity_tokens <= 0:
             raise FailClosedError("capacity must be positive")
@@ -93,6 +101,8 @@ class NodeQuota:
             raise FailClosedError(
                 "orchestration multiplier below 1.0 would under-count billed spend"
             )
+        if control_ceiling_tokens < 0:
+            raise FailClosedError("control ceiling must not be negative")
         total = sum(shares.values())
         if total > 1.0 + 1e-9:
             raise FailClosedError(f"shares sum to {total:.3f}, exceeding 1.0")
@@ -104,6 +114,9 @@ class NodeQuota:
         self._utilisation = float(utilisation)
         self._shares = dict(shares)
         self._multiplier = float(orchestration_multiplier)
+        # 0 disables the control scope entirely: an owner ask is then
+        # refused as unknown rather than silently billed somewhere else.
+        self._control_ceiling = int(control_ceiling_tokens)
         self.capacity_is_estimate = bool(capacity_is_estimate)
         self._ledgers: dict[int, QuotaLedger] = {}
 
@@ -112,8 +125,16 @@ class NodeQuota:
     def node_ceiling(self) -> int:
         return int(self._capacity * self._utilisation)
 
+    @property
+    def control_ceiling(self) -> int:
+        if self._control_ceiling <= 0:
+            raise UnknownTenantError("control scope is not provisioned")
+        return min(self._control_ceiling, self.node_ceiling)
+
     def tenant_ceiling(self, tenant: TenantId | str) -> int:
         name = tenant.value if isinstance(tenant, TenantId) else tenant
+        if name == CONTROL_SCOPE:
+            return self.control_ceiling
         if name not in self._shares:
             raise UnknownTenantError(f"no quota share for tenant {name!r}")
         return int(self.node_ceiling * self._shares[name])
@@ -153,6 +174,75 @@ class NodeQuota:
         return max(0, min(own, node))
 
     # ── the gate ──────────────────────────────────────────────────────────
+    def quote(
+        self,
+        scope: TenantId | str,
+        *,
+        estimated_input: int,
+        reserved_output: int,
+        now_epoch_s: int,
+        multiplier: float | None = None,
+    ) -> dict[str, object]:
+        """One admission arithmetic, shared by status and by the gate.
+
+        The request's visible tokens (input plus reserved output) are
+        inflated by the orchestration multiplier and compared against the
+        scope ceiling and the node ceiling. Every caller — the owner admit
+        path and the worker's per-rung charge — reads the same numbers from
+        here, so status can never disagree with admission about whether a
+        request fits.
+        """
+        name = scope.value if isinstance(scope, TenantId) else scope
+        mult = self._multiplier if multiplier is None else float(multiplier)
+        base: dict[str, object] = {
+            "scope": name,
+            "multiplier": mult,
+            "estimated_input": int(estimated_input),
+            "reserved_output": int(reserved_output),
+        }
+        if name == CONTROL_SCOPE:
+            if self._control_ceiling <= 0:
+                base.update({"fits": False, "code": "UNKNOWN_SCOPE",
+                             "retryable": False})
+                return base
+            ceiling = self.control_ceiling
+        else:
+            if name not in self._shares:
+                base.update({"fits": False, "code": "UNKNOWN_SCOPE",
+                             "retryable": False})
+                return base
+            ceiling = self.tenant_ceiling(name)
+        if estimated_input < 0 or reserved_output < 0:
+            base.update({"fits": False, "code": "BAD_INPUT",
+                         "retryable": False})
+            return base
+
+        visible = int(estimated_input) + int(reserved_output)
+        projected = int(round(visible * mult))
+        led = self.ledger(now_epoch_s)
+        spent = led.per_tenant.get(name, 0)
+        remaining = max(0, min(ceiling - spent,
+                               self.node_ceiling - led.node_spent))
+        node_after = led.node_spent + projected
+        own_after = spent + projected
+        base.update({
+            "visible_tokens": visible,
+            "request_estimate": projected,
+            "ceiling": ceiling,
+            "spent": spent,
+            "remaining": remaining,
+        })
+        if node_after > self.node_ceiling:
+            base.update({"fits": False, "code": "NODE_EXHAUSTED",
+                         "retryable": False})
+            return base
+        if own_after > ceiling:
+            base.update({"fits": False, "code": "REQUEST_EXCEEDS_SCOPE",
+                         "retryable": False})
+            return base
+        base.update({"fits": True, "code": "ADMITTED", "retryable": False})
+        return base
+
     def check(
         self,
         tenant: TenantId | str,
@@ -164,40 +254,39 @@ class NodeQuota:
         The estimate passed in is visible tokens; it is inflated by the same
         multiplier before comparison, so admission and accounting agree.
         Checking against the visible figure would admit calls the ledger then
-        records as over budget.
+        records as over budget. The arithmetic itself lives in `quote()` —
+        this wrapper only translates the verdict into a `Decision`.
         """
         name = tenant.value if isinstance(tenant, TenantId) else tenant
-        if name not in self._shares:
+        q = self.quote(name, estimated_input=int(estimated_visible_tokens),
+                       reserved_output=0, now_epoch_s=now_epoch_s)
+        if q["code"] == "UNKNOWN_SCOPE":
             return Decision(False, RiskTier.RED,
-                            f"tenant {name!r} has no quota share", rule="quota:unknown-tenant")
-        if estimated_visible_tokens < 0:
+                            f"tenant {name!r} has no quota share",
+                            rule="quota:unknown-tenant")
+        if q["code"] == "BAD_INPUT":
             return Decision(False, RiskTier.RED,
                             "negative token estimate", rule="quota:bad-input")
-
-        projected = self.effective_cost(TokenSpend(visible=estimated_visible_tokens))
-        led = self.ledger(now_epoch_s)
         checks: list[str] = []
-
-        node_after = led.node_spent + projected
-        if node_after > self.node_ceiling:
+        if q["code"] == "NODE_EXHAUSTED":
             return Decision(
                 False, RiskTier.RED,
-                f"node ceiling reached: {node_after} > {self.node_ceiling} "
-                f"tokens this week — all legs stop, not just this one",
+                f"node ceiling reached: "
+                f"{self.spent(now_epoch_s) + q['request_estimate']} > "
+                f"{self.node_ceiling} tokens this week — all legs stop, "
+                f"not just this one",
                 rule="quota:node-ceiling", checks=tuple(checks),
             )
         checks.append("node-headroom")
-
-        own_after = led.per_tenant.get(name, 0) + projected
-        own_ceiling = self.tenant_ceiling(name)
-        if own_after > own_ceiling:
+        if q["code"] == "REQUEST_EXCEEDS_SCOPE":
             return Decision(
                 False, RiskTier.RED,
-                f"tenant share exhausted: {own_after} > {own_ceiling} tokens this week",
+                f"tenant share exhausted: "
+                f"{q['spent'] + q['request_estimate']} > {q['ceiling']} "
+                f"tokens this week",
                 rule="quota:tenant-share", checks=tuple(checks),
             )
         checks.append("tenant-headroom")
-
         return Decision(True, RiskTier.GREEN, "within quota",
                         rule="quota:ok", checks=tuple(checks))
 
@@ -214,7 +303,7 @@ class NodeQuota:
         `check()` wrong too. The overrun surfaces as exhausted headroom.
         """
         name = tenant.value if isinstance(tenant, TenantId) else tenant
-        if name not in self._shares:
+        if name != CONTROL_SCOPE and name not in self._shares:
             raise UnknownTenantError(f"no quota share for tenant {name!r}")
         cost = self.effective_cost(spend)
         self.ledger(now_epoch_s).add(name, cost)
@@ -236,7 +325,7 @@ class NodeQuota:
     def snapshot(self, now_epoch_s: int) -> Mapping[str, object]:
         """Everything a dashboard needs, and nothing it does not."""
         led = self.ledger(now_epoch_s)
-        return {
+        out: dict[str, object] = {
             "week": led.week,
             "capacity_tokens": self._capacity,
             "capacity_is_estimate": self.capacity_is_estimate,
@@ -254,3 +343,11 @@ class NodeQuota:
                 for name in sorted(self._shares)
             },
         }
+        if self._control_ceiling > 0:
+            out["control"] = {
+                "scope": CONTROL_SCOPE,
+                "ceiling": self.control_ceiling,
+                "spent": led.per_tenant.get(CONTROL_SCOPE, 0),
+                "remaining": self.remaining(now_epoch_s, CONTROL_SCOPE),
+            }
+        return out
