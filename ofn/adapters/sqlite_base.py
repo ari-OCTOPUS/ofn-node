@@ -63,8 +63,15 @@ def connect(path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(path, isolation_level=None, timeout=5.0,
                            check_same_thread=False)
     conn.row_factory = sqlite3.Row
-    for name, value in PRAGMAS:
-        conn.execute(f"PRAGMA {name} = {value}")
+    try:
+        for name, value in PRAGMAS:
+            conn.execute(f"PRAGMA {name} = {value}")
+    except Exception:
+        # A corrupt database raises on the first pragma. The handle must not
+        # leak: on Windows an open handle also blocks every later delete of
+        # the file, which is how a broken DB wedged its own cleanup.
+        conn.close()
+        raise
     return conn
 
 

@@ -45,8 +45,9 @@ class TestPilotThresholds(unittest.TestCase):
         self.assertEqual(out.source, "owner")
         again = pt.load(d)
         self.assertEqual(again.payment_methods["ziman"], "cash")
-        mode = os.stat(os.path.join(d, "pilot_config.json")).st_mode & 0o777
-        self.assertEqual(mode, 0o600)
+        if os.name != "nt":   # 0600 bits are POSIX-only; the roundtrip above
+            mode = os.stat(os.path.join(d, "pilot_config.json")).st_mode & 0o777
+            self.assertEqual(mode, 0o600)
 
 
 class TestLeadBookedAndFollowUp(unittest.TestCase):

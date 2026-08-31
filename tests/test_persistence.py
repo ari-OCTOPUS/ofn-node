@@ -347,12 +347,15 @@ class TestPowerCut(Tmp):
         led = Ledger(self.path)
         for i in range(10):
             led.append(A, "BEAT", {"i": i}, T0)
-        del led                          # no clean close: simulate a kill
+        # No clean close: `led` stays open exactly as a killed process would
+        # leave it, and led2 must recover from that on-disk state.
         led2 = Ledger(self.path)
         ok, why = led2.verify(A)
         self.assertTrue(ok, why)
         self.assertEqual(led2.count(A), 10)
         led2.close()
+        led.close()   # handle hygiene only, after the property was proven —
+                      # Windows cannot delete the tmpdir while it is open
 
 
 class TestOutboxStateGuard(Tmp):

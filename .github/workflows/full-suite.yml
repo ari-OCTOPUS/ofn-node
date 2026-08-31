@@ -1,0 +1,39 @@
+# Full registered suite in CI — makes the "N passed" claim reproducible
+# outside any single machine. Live-gateway tests stay excluded (they need
+# TG_CENTER_BOT_TOKEN + a running gateway, which CI does not have).
+name: full-suite
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install pytest
+      - name: Registered suite (live excluded)
+        env:
+          # probe scripts print Persian text; without UTF-8 the Windows
+          # console codec (charmap) kills the subprocess mid-print.
+          PYTHONUTF8: '1'
+          PYTHONIOENCODING: utf-8
+        run: python -X utf8 -m pytest tests/ -q --ignore=tests/test_live_control_panel_smoke.py --ignore=tests/test_root_hygiene.py
+
+  # Phase-1 root hygiene gate from main, wired for the first time. Script
+  # mode on purpose: the file exits at import, so pytest must never collect it.
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -X utf8 tests/test_root_hygiene.py

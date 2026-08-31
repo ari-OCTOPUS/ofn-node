@@ -25,6 +25,13 @@ NO_LEDGER_ALLOWLIST = {
     "create_painting_lead": "writes via painting store; the store's own "
         "create_lead is the record, and LEAD_CAPTURED is appended by the "
         "node wrapper (see body)",
+    "record_owner_answer": "persists the answer in the owner store and "
+        "returns THINK_DONE metadata; the WORKER appends the single "
+        "THINK_DONE after the sink succeeds (owner-brain P0 fix)",
+    "mark_owner_job_running": "mirrors queue pickup into the owner store; "
+        "the durable record is THINK_QUEUED already written by worker.submit",
+    "mark_owner_job_failed": "mirrors refusals into the owner store; the "
+        "durable records are the worker's THINK_RETRY/THINK_PARKED rows",
 }
 
 MUTATION_PREFIXES = (
