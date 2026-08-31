@@ -43,7 +43,7 @@ def test_resolved_after_observed() -> None:
 
 
 def test_resolved_before_observed_rejected() -> None:
-    with pytest.raises(ObservationContractError, match="resolved-before-observed"):
+    with pytest.raises(ObservationContractError, match="future-data-violation"):
         claim_from_mapping(
             {
                 "schema": "claim.v1",
