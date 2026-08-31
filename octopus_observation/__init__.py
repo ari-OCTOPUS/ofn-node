@@ -9,6 +9,8 @@ from .observation_record import (
     observation_from_mapping,
     sha256_hex,
 )
+from .claim_record import ClaimV1, claim_from_mapping
+from .fixture_store import FixtureClaimStore
 from .replay_adapters import FakeAdapter, ReplayAdapter
 
 __all__ = [
@@ -19,6 +21,9 @@ __all__ = [
     "Provenance",
     "ReplayAdapter",
     "Uncertainty",
+    "ClaimV1",
+    "FixtureClaimStore",
+    "claim_from_mapping",
     "observation_from_mapping",
     "sha256_hex",
 ]

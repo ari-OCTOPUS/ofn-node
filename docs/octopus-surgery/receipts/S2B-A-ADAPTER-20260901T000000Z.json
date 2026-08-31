@@ -1,0 +1,35 @@
+{
+ "lane": "S2B-A-claim-adapter",
+ "created_utc": "2026-08-31T23:24:00Z",
+ "base": "feat/s2b-claim-record-20260901 @ 5a984b4 (rebased on main)",
+ "files_touched": [
+  "octopus_observation/claim_record.py",
+  "octopus_observation/claim_adapter.py",
+  "tests/test_claim_adapter.py",
+  "tests/test_claim_record_fixture.py"
+ ],
+ "defects_closed": [
+  "F1",
+  "F2",
+  "F3",
+  "F4",
+  "F9",
+  "F10",
+  "F11"
+ ],
+ "defects_deferred": {},
+ "tests": {
+  "new": 12,
+  "updated_pins": 1,
+  "battery": "63 passed, 0 failed"
+ },
+ "owner_rulings_applied": [
+  "Q2 strict time both paths",
+  "Q3 outcome int 0/1 + legacy bool opt-in",
+  "Q1 ClaimRecord canonical via adapter"
+ ],
+ "official_n": null,
+ "brier": null,
+ "evidence_db": "absent",
+ "notes": "predicted_p validated before the resolved/unresolved branch (F9) and marked deprecated per S6-D03 until piece 3. claim-missing-features raised for absent features; no defaults invented."
+}
