@@ -201,6 +201,12 @@ def is_inside(root: str, candidate: str) -> bool:
     A belt to the braces above. `relative_path` cannot produce an escape, so
     this exists for the day somebody adds a second way to build a path and
     does not read this file first.
+
+    Separator-agnostic on purpose: callers pass `os.path.abspath` results,
+    which use the host separator, so both sides are normalised to `/` before
+    comparing. A POSIX-only comparison would reject every legitimate path on
+    Windows (the failure behind the 61-test portability cluster).
     """
-    root = root.rstrip("/") + "/"
+    root = root.replace("\\", "/").rstrip("/") + "/"
+    candidate = candidate.replace("\\", "/")
     return candidate.startswith(root) and ".." not in candidate

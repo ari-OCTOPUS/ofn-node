@@ -344,6 +344,8 @@ class BoardEventStoreTests(unittest.TestCase):
         self.assertTrue(
             unsigned.ingest(item, item.sign(SECRET), secret=SECRET, now=NOW)
         )
+        unsigned.close()   # before tearDown's tmpdir cleanup — Windows cannot
+                           # delete the directory while the sqlite handle is open
 
     def test_replay_same_and_different_valid_envelope_is_idempotent(self):
         first = event(payload={"value": 1})
