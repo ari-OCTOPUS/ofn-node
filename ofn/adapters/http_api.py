@@ -243,7 +243,12 @@ class ApiApp:
         owner_v2_read: Callable[[str, object], object] | None = None,
         brain_status: Callable[[], dict] | None = None,
         brain_probe: Callable[[TenantScope], dict] | None = None,
-        owner_ask: Callable[[TenantScope, str], dict] | None = None,
+        # The owner ask handler receives the whole validated payload
+        # (prompt, optional request id, optional allowlisted target scope,
+        # and the authenticated principal id added by the route). It is the
+        # route's job to authenticate; it is this handler's job to admit.
+        owner_ask: Callable[[Mapping], dict] | None = None,
+        owner_ask_status: Callable[[str, str], dict] | None = None,
         engage_kill: Callable[[str, str, str], dict] | None = None,
         release_kill: (Callable[[str, str, str, bool], dict]
                        | None) = None,
@@ -258,6 +263,7 @@ class ApiApp:
         self._brain_status = brain_status
         self._brain_probe = brain_probe
         self._owner_ask = owner_ask
+        self._owner_ask_status = owner_ask_status
         self._engage_kill = engage_kill
         self._release_kill = release_kill
         self._studio_board = studio_board
@@ -1395,15 +1401,31 @@ class ApiApp:
             scope = self._registry.scope(_first_tenant(self._registry))
             out = self._brain_probe(scope)
             return Response(200 if out.get("ok") else 400, out)
+        # Owner asks: admission is the handler's job, status mapping is
+        # ours. 202 = queued with a job id; 422 = refused before any job
+        # existed. A bare {"ok": true} for a doomed request is the exact
+        # failure mode this endpoint used to have.
         if method == "POST" and path == "/api/v1/owner/ask":
             if self._owner_ask is None:
                 return Response(404, {"error": "not found"})
             data = _json_object(body)
             if data is None:
                 return Response(400, {"error": "bad request"})
-            scope = self._registry.scope(_first_tenant(self._registry))
-            out = self._owner_ask(scope, str(data.get("prompt", "")))
-            return Response(200 if out.get("ok") else 400, out)
+            payload = dict(data)
+            payload["principal_id"] = p.user_id
+            out = self._owner_ask(payload)
+            status = int(out.pop("_http_status", 200 if out.get("ok") else 422))
+            return Response(status, out)
+        if method == "GET" and path.startswith("/api/v1/owner/asks/"):
+            if self._owner_ask_status is None:
+                return Response(404, {"error": "not found"})
+            ask_job_id = urllib.parse.unquote(
+                path[len("/api/v1/owner/asks/"):])
+            if not ask_job_id or "/" in ask_job_id:
+                return Response(404, {"error": "not found"})
+            out = self._owner_ask_status(ask_job_id, p.user_id)
+            status = int(out.pop("_http_status", 200 if out.get("ok") else 404))
+            return Response(status, out)
         # ── weekly marketing cycle, owner-only ─────────────────────────
         # Owner-only because it spends brain budget. The partner sees the
         # result via the read-only /api/v1/studio/marketing snapshot; she

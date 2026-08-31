@@ -45,7 +45,7 @@ from .kernel.quota import NodeQuota
 from .kernel.routing import Rung
 from .kernel.tenancy import TenantRegistry
 from .node import Node
-from .worker import WorkQueue, Worker, loop as worker_loop
+from .worker import OWNER_ASK_TASK, WorkQueue, Worker, loop as worker_loop
 
 _stop = threading.Event()
 
@@ -83,11 +83,17 @@ def build_node(cfg: config.Config) -> Node:
     quota = NodeQuota(
         estimated_capacity_tokens=cfg.estimated_capacity_tokens,
         utilisation=cfg.utilisation,
-        shares={name: p.quota_share for name, p in packs.items()})
+        shares={name: p.quota_share for name, p in packs.items()},
+        control_ceiling_tokens=cfg.control_quota_tokens)
 
     ledger = Ledger(cfg.ledger_path)
     facts = FactStore(cfg.facts_path)
     outbox = Outbox(cfg.outbox_path)
+    # The owner's own job/answer store — where brain answers live until the
+    # owner reads them. Owner-private, outside every business leg's data.
+    from .adapters.owner_asks import OwnerAskStore
+    owner_asks = OwnerAskStore(
+        os.path.join(cfg.state_dir, "owner", "asks.jsonl"))
 
     # The shared fugu_core memory is checked at boot like every other DB
     # (finding 23): it lives outside state_dir, so it is added explicitly.
@@ -165,6 +171,7 @@ def build_node(cfg: config.Config) -> Node:
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso, state_dir=cfg.state_dir,
+                owner_asks=owner_asks,
                 base_closed_gates=cfg.base_closed_gates, boot=report,
                 inbox=inbox, rate_limiter=rate_limiter,
                 connector_metrics=connector_metrics, connectors=connectors,
@@ -401,6 +408,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         brain_probe=node.run_brain_probe,
         run_marketing_cycle=node.run_marketing_cycle,
         owner_ask=node.ask_owner_question,
+        owner_ask_status=node.owner_ask_status,
         owner_queue=node.owner_queue,
         owner_decide=node.owner_decide,
         owner_outbox_packet=node.owner_outbox_packet,
@@ -514,11 +522,28 @@ def build_brains(cfg: config.Config, *, announce: bool = True) -> dict:
 
 
 def build_worker(cfg: config.Config, node: Node) -> Worker:
-    """Assemble the background thinker."""
+    """Assemble the background thinker, with the owner-answer sink wired.
+
+    The sink runs BEFORE the worker records THINK_DONE: it scrubs the
+    answer, persists it in the owner's store, and only a True from it lets
+    the completion event exist. If persisting fails, the job parks with no
+    completion lie in the ledger.
+    """
     router = ModelRouter(build_brains(cfg), node.quota,
                          on_event=lambda kind, payload: None)
     return Worker(WorkQueue(), router, node.registry, node.ledger,
-                  now_epoch_s=config.epoch_seconds, now_iso=config.now_iso)
+                  now_epoch_s=config.epoch_seconds, now_iso=config.now_iso,
+                  result_sink=_make_result_sink(node),
+                  on_failure=node.mark_owner_job_failed,
+                  on_start=node.mark_owner_job_running)
+
+
+def _make_result_sink(node: Node):
+    def sink(scope, job, result, elapsed_ms: int) -> bool:
+        if job.task != OWNER_ASK_TASK:
+            return True      # legacy tasks: nothing to persist, not ours
+        return node.record_owner_answer(scope, job, result, elapsed_ms)
+    return sink
 
 
 def arm_node_brain(cfg: config.Config, node: Node, *,

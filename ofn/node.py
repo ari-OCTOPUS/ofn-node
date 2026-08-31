@@ -17,6 +17,7 @@ import calendar
 import hashlib
 import json
 import re
+import secrets
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -48,9 +49,11 @@ from .kernel.photos import relative_path as photo_path
 from .kernel.photos import inspect as photo_inspect
 from .kernel.gates import admit, executable
 from .kernel.questions import Question, is_stale, plan, readiness
-from .kernel.quota import NodeQuota
+from .kernel.estimate import estimate_request
+from .kernel.quota import CONTROL_SCOPE, NodeQuota
+from .kernel.scrub import scrub as scrub_text
 from .kernel.tenancy import TenantRegistry, TenantScope
-from .worker import Job
+from .worker import OWNER_ASK_TASK, Job
 
 
 MAX_TEXT_ANSWER = 2000
@@ -159,6 +162,9 @@ class Node:
     # the sentence guards do not get added after.
     worker: object | None = None      # Worker
     call_budget: object | None = None # CallBudget
+    # Owner-only job/answer store for the owner → brain loop. None means
+    # owner asks are refused as unwritable rather than dropped on the floor.
+    owner_asks: object | None = None  # OwnerAskStore
     # Phase C: the studio surface may now ask, because the
     # extraction layer exists. Synchronous rather than queued —
     # one short question, and the queue is for background work.
@@ -347,29 +353,227 @@ class Node:
         return {"ok": True, "queued": queued,
                 "note": "پاسخ‌ها در لجر می‌نشینند؛ نتیجه را از brain_status بخوان"}
 
-    def ask_owner_question(self, scope: TenantScope, prompt: str) -> dict:
-        """One question from the owner's panel, in the owner's own words.
+    def ask_owner_question(self, data: Mapping) -> dict:
+        """One question from the owner's panel, admitted before it is queued.
 
-        Phase A on purpose: this carries the owner's data and nobody else's.
-        The partner surfaces stay disconnected from the brain until the
-        extraction layer exists, because the window in which the pipe is
-        connected and the guard is not is exactly the window a bug needs.
+        Round 1 of the black-box audit found the previous version of this
+        path doing five things wrong at once: it billed the owner's question
+        to whichever business tenant sorted first, estimated every prompt at
+        a flat 2000 tokens, returned `{"ok": true}` for a job the quota was
+        about to refuse, retried that deterministic refusal three times in a
+        second, and dropped the brain's answer on the floor. This method is
+        the fix's front door, and the order of its steps is the fix:
+
+          auth (already done by the route) → scope resolution → prompt
+          validation → estimate → quota quote → call budget → store record
+          → queue.
+
+        A deterministic refusal happens before the queue and comes back as
+        `{"ok": false, ...}` with an HTTP status attached; nothing that will
+        be refused is ever queued, and nothing queued is ever silent.
         """
-        if self.worker is None:
-            return {"ok": False, "error": "مغز وصل نیست"}
-        text = str(prompt or "").strip()
-        if not text:
-            return {"ok": False, "error": "سؤال خالی است"}
-        if len(text) > MAX_TEXT_ANSWER:
-            return {"ok": False, "error": "سؤال بلندتر از حد مجاز است"}
+        if self.owner_asks is None or self.worker is None:
+            return self._ask_rejected("BRAIN_NOT_WRITTEN",
+                                      "مغز وصل نیست", 422)
+        prompt = str(data.get("prompt") or "").strip()
+        if not prompt:
+            return self._ask_rejected("EMPTY_PROMPT",
+                                      "سؤال خالی است", 422)
+        if len(prompt) > MAX_TEXT_ANSWER:
+            return self._ask_rejected("PROMPT_TOO_LONG",
+                                      "سؤال بلندتر از حد مجاز است", 422)
+
+        principal_id = str(data.get("principal_id") or "")
+        digest = self._owner_digest(principal_id)
+
+        # Scope: the owner's own control plane unless a leg is named, and a
+        # leg is only honored when the registry actually has it. The scope
+        # is never guessed from registry order or from the prompt text.
+        target = str(data.get("target_scope") or CONTROL_SCOPE)
+        if target != CONTROL_SCOPE and target not in self.registry:
+            return self._ask_rejected("UNKNOWN_TARGET_SCOPE",
+                                      "پای هدف ناشناخته است", 422)
+
+        request_id = str(data.get("request_id") or "")
+        if request_id:
+            existing = self.owner_asks.find_by_request(digest, request_id)
+            if existing is not None:
+                out = self._ask_view(existing)
+                out.update({"ok": True, "duplicate": True,
+                            "_http_status": 200})
+                return out
+
+        # Honest estimate from this prompt, then the shared quote.
+        est = estimate_request(prompt)
         now = self.now_epoch_s()
+        quote = self.quota.quote(
+            target, estimated_input=est["estimated_input"],
+            reserved_output=est["reserved_output"], now_epoch_s=now)
+        if not quote["fits"]:
+            reason = {
+                "REQUEST_EXCEEDS_SCOPE": "حجم درخواست از سقف این scope بیشتر است",
+                "NODE_EXHAUSTED": "سقف کل نود این هفته پر شده است",
+                "UNKNOWN_SCOPE": "این scope سهمیه‌ای ندارد",
+                "BAD_INPUT": "تخمین توکن نامعتبر است",
+            }.get(str(quote["code"]), "درخواست پذیرفته نشد")
+            return self._ask_rejected(str(quote["code"]), reason, 422,
+                                      quote=quote)
+
         if self.call_budget is not None and not self.call_budget.allows(
                 Rung.REMOTE, now):
-            return {"ok": False, "error": "سقف تماس امروز پر شده"}
-        job = Job(tenant=scope.tenant.value, task="owner:ask", prompt=text,
-                  idem_key=f"owner:{now}:{abs(hash(text)) % 10**8}",
-                  max_rung=Rung.REMOTE)
-        return {"ok": bool(self.worker.submit(scope, job))}
+            return self._ask_rejected("CALL_BUDGET_EXHAUSTED",
+                                      "سقف تماس امروز پر شده", 422,
+                                      quote=quote)
+
+        # Everything above said yes — only now does anything durable exist.
+        job_id = f"job_{now}_{secrets.token_hex(6)}"
+        if not request_id:
+            request_id = f"req_{now}_{secrets.token_hex(6)}"
+        try:
+            rec = self.owner_asks.create(
+                job_id=job_id, request_id=request_id,
+                principal_digest=digest, target_scope=target,
+                prompt_sha256=hashlib.sha256(
+                    prompt.encode("utf-8")).hexdigest(),
+                quote=quote, created_at=self.now_iso(),
+                expires_at=self.now_iso(), now_epoch_s=now)
+        except Exception as exc:
+            return self._ask_rejected("STORE_UNAVAILABLE",
+                                      "ذخیرهٔ درخواست ممکن نشد", 500,
+                                      detail=str(exc))
+        if rec["job_id"] != job_id:
+            # The store matched an existing request id; idempotent replay.
+            out = self._ask_view(rec)
+            out.update({"ok": True, "duplicate": True, "http_status": 200})
+            return out
+
+        self.owner_asks.mark(job_id, "QUEUED", at=self.now_iso())
+        scope = TenantScope(TenantId(target))
+        job = Job(tenant=target, task=OWNER_ASK_TASK, prompt=prompt,
+                  idem_key=job_id, max_rung=Rung.REMOTE,
+                  estimated_tokens=est["request_estimate"])
+        if not self.worker.submit(scope, job):
+            self.owner_asks.mark(job_id, "FAILED", at=self.now_iso(),
+                                 error_code="DUPLICATE_JOB",
+                                 error_detail_safe="شناسهٔ تکراری در صف",
+                                 retryable=False)
+            return self._ask_rejected("DUPLICATE_JOB",
+                                      "این درخواست قبلاً ثبت شده است", 422,
+                                      job_id=job_id)
+        out = self._ask_view(self.owner_asks.get(job_id) or {})
+        out.update({"ok": True, "duplicate": False, "_http_status": 202})
+        return out
+
+    def owner_ask_status(self, job_id: str, principal_id: str) -> dict:
+        """Owner-only delivery: the one place an answer can be read back."""
+        if self.owner_asks is None:
+            return {"ok": False, "code": "UNAVAILABLE",
+                    "_http_status": 404}
+        rec = self.owner_asks.get(job_id, now_epoch_s=self.now_epoch_s())
+        if rec is None:
+            return {"ok": False, "code": "UNKNOWN_JOB",
+                    "error": "چنین درخواستی وجود ندارد",
+                    "_http_status": 404}
+        if rec["owner_principal_digest"] != self._owner_digest(principal_id):
+            return {"ok": False, "code": "FORBIDDEN_JOB",
+                    "error": "این درخواست به شما تعلق ندارد",
+                    "_http_status": 403}
+        return {"ok": True, "job": rec, "_http_status": 200}
+
+    def record_owner_answer(self, scope: TenantScope, job, result,
+                            elapsed_ms: int) -> dict:
+        """Persist a brain answer for an owner ask, then bless THINK_DONE.
+
+        Called by the worker's sink BEFORE the completion event is written.
+        Returns the metadata THINK_DONE should commit to; False/None (or an
+        exception) means the answer never landed and the worker parks the
+        job with no THINK_DONE — a completion pointing at an answer nobody
+        can read is a lie with a receipt attached.
+        """
+        if self.owner_asks is None:
+            return False
+        cleaned = scrub_text(result.text or "")
+        digest = hashlib.sha256(
+            cleaned.text.encode("utf-8")).hexdigest()
+        response_id = f"resp_{secrets.token_hex(8)}"
+        self.owner_asks.mark(
+            job.idem_key, "COMPLETED", at=self.now_iso(),
+            response_id=response_id,
+            response_sha256=digest,
+            response_bytes=len(cleaned.text.encode("utf-8")),
+            response_text_scrubbed=cleaned.text,
+            billed_tokens=result.spend,
+            rung=result.rung.value if result.rung else None,
+            elapsed_ms=elapsed_ms,
+            attempts=job.attempts)
+        return {
+            "job_id": job.idem_key,
+            "response_id": response_id,
+            "response_sha256": digest,
+            "response_bytes": len(cleaned.text.encode("utf-8")),
+        }
+
+    def mark_owner_job_failed(self, scope: TenantScope, job, *,
+                              reason: str, code: str, retryable: bool,
+                              next_not_before: int, attempts: int) -> None:
+        """Mirror a worker refusal into the owner's store, best-effort."""
+        if self.owner_asks is None:
+            return
+        try:
+            # Mirror the worker's own verdict: waiting means RETRY_WAIT,
+            # every give-up (policy denial, attempts exhausted, unpersistable
+            # answer) means PARKED — the worker's parked list is the truth.
+            status = "RETRY_WAIT" if retryable else "PARKED"
+            self.owner_asks.mark(
+                job.idem_key, status, at=self.now_iso(),
+                error_code=code or "REFUSED",
+                error_detail_safe=str(reason)[:300],
+                retryable=retryable, attempts=attempts,
+                not_before=next_not_before)
+        except Exception:
+            pass  # the ledger rows are the durable record either way
+
+    def mark_owner_job_running(self, scope: TenantScope, job) -> None:
+        """Mirror the moment the worker picks the job up, best-effort."""
+        if self.owner_asks is None:
+            return
+        try:
+            self.owner_asks.mark(job.idem_key, "RUNNING",
+                                 at=self.now_iso())
+        except Exception:
+            pass  # the ledger rows are the durable record either way
+
+    @staticmethod
+    def _owner_digest(principal_id: str) -> str:
+        return hashlib.sha256(
+            f"owner:{principal_id}".encode("utf-8")).hexdigest()[:12]
+
+    @staticmethod
+    def _ask_rejected(code: str, message: str, http_status: int, *,
+                      quote: Mapping | None = None,
+                      job_id: str | None = None,
+                      detail: str | None = None) -> dict:
+        out: dict = {"ok": False, "code": code, "error": message,
+                     "retryable": False, "job_created": False,
+                     "_http_status": http_status}
+        if quote is not None:
+            out["quote"] = dict(quote)
+        if job_id is not None:
+            out["job_id"] = job_id
+        if detail is not None:
+            out["detail"] = detail
+        return out
+
+    @staticmethod
+    def _ask_view(rec: Mapping) -> dict:
+        """The submit-time view of a job: identity and money, no answer."""
+        return {
+            "job_id": rec.get("job_id"),
+            "request_id": rec.get("request_id"),
+            "status": rec.get("status"),
+            "target_scope": rec.get("target_scope"),
+            "quote": dict(rec.get("quote") or {}),
+        }
 
     # ── studio surface ────────────────────────────────────────────────────
     def _studio(self):

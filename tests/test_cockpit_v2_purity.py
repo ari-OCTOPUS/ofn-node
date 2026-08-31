@@ -22,15 +22,21 @@ READ_MODEL = ROOT / "ofn" / "adapters" / "cockpit_v2_read_model.py"
 HTTP_API = ROOT / "ofn" / "adapters" / "http_api.py"
 RUN = ROOT / "ofn" / "run.py"
 
-LEGACY_PANEL_BYTES = 121_601
+# Re-pinned by the owner-brain P0 fix (2026-08-31): the legacy panel's ask
+# button was updated atomically with the 202/422 + job-polling API contract
+# (silent `{"ok": true}` for doomed asks is the bug being repaired). The
+# previous pin: 121601 bytes, sha256 735134eb...dda29.
+LEGACY_PANEL_BYTES = 123_069
 LEGACY_PANEL_SHA256 = (
-    "735134eb3f175cdf486152f3680b1d6fd54e4980c34c08ecb0a88754376dda29"
+    "43f5312c121055f41c506317a3001c9f8f0f9b6b0bee28e59bdd08350af47423"
 )
 
 
 class TestLegacyPanelPreserved(unittest.TestCase):
     def test_legacy_panel_exact_bytes_are_unchanged(self):
-        raw = PANEL.read_bytes()
+        # A Windows checkout converts the worktree file to CRLF; the frozen
+        # contract is the LF blob, so compare against the LF normalisation.
+        raw = PANEL.read_bytes().replace(b"\r\n", b"\n")
         self.assertEqual(len(raw), LEGACY_PANEL_BYTES)
         self.assertEqual(hashlib.sha256(raw).hexdigest(), LEGACY_PANEL_SHA256)
 

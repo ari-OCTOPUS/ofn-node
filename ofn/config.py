@@ -47,6 +47,10 @@ class Config:
     packs_dir: str
     utilisation: float
     estimated_capacity_tokens: int
+    # Weekly token ceiling for the owner's own control scope — the budget
+    # owner questions bill against instead of whichever business leg sorts
+    # first. 0 disables owner asks entirely (fail-closed default).
+    control_quota_tokens: int
     session_secret: str
     bot_tokens: Mapping[str, str]
     owner_user_ids: tuple[str, ...]
@@ -249,6 +253,7 @@ def load() -> Config:
         utilisation=_float("OFN_UTILISATION", 0.40),
         estimated_capacity_tokens=_int("OFN_ESTIMATED_CAPACITY_TOKENS",
                                        180_000_000),
+        control_quota_tokens=_int("OFN_CONTROL_QUOTA_TOKENS", 7_000),
         session_secret=os.environ.get("OFN_SESSION_SECRET", ""),
         bot_tokens={
             "ziman": os.environ.get("OFN_BOT_TOKEN_ZIMAN", ""),

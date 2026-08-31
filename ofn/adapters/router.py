@@ -75,6 +75,11 @@ class RouterResult:
     spend: int = 0
     scrubbed: ScrubResult | None = None
     refused: str = ""
+    # The machine-readable rule behind a refusal, when there is one — the
+    # quota's rule name or the routing policy's. The worker uses this to
+    # tell a deterministic denial (retrying cannot help) from a transient
+    # one (retrying is the only thing that can).
+    refused_code: str = ""
 
     @property
     def ok(self) -> bool:
@@ -119,6 +124,7 @@ class ModelRouter:
         decision = start_rung(req)
         if not decision.allowed or decision.rung is None:
             return RouterResult("", None, refused=decision.reason,
+                                refused_code=decision.rule,
                                 scrubbed=cleaned)
 
         rung = decision.rung
@@ -138,7 +144,8 @@ class ModelRouter:
                 if not gate.allowed:
                     return RouterResult(last_text, rung, tuple(path),
                                         total_spend, cleaned,
-                                        refused=gate.reason)
+                                        refused=gate.reason,
+                                        refused_code=gate.rule)
                 reply = self._brains[rung].answer(req.task, cleaned.text)
                 spent = self._record(tenant, rung, reply, now_epoch_s)
                 total_spend += spent
@@ -154,7 +161,9 @@ class ModelRouter:
             if not step.allowed or step.rung is None:
                 return RouterResult(last_text, rung, tuple(path), total_spend,
                                     cleaned,
-                                    refused=("" if last_text else step.reason))
+                                    refused=("" if last_text else step.reason),
+                                    refused_code=("" if last_text
+                                                  else step.rule))
             self._emit("ESCALATE", {"tenant": tenant.value,
                                     "from": rung.value, "to": step.rung.value,
                                     "reason": step.reason})
