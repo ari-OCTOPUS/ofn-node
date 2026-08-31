@@ -97,6 +97,9 @@ class RouterResult:
 # unparsed shapes are configuration and will fail identically forever.
 PROVIDER_TRANSIENT_MARKERS = (":http-429", ":http-5", ":unreachable",
                               ":error")
+# Not in the transient list on purpose: usage-limit is a billing wall —
+# retrying it three times just delays the honest receipt by ninety seconds.
+PROVIDER_BILLING_MARKER = ":usage-limit"
 
 
 def provider_note_is_transient(note: str) -> bool:
