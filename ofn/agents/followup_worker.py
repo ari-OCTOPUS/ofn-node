@@ -26,6 +26,8 @@ sys.path.insert(0, str(_HERE.parent / "budget"))
 
 import opslib  # noqa: E402
 import lead_outbound_transport as transport  # noqa: E402
+import capability_token as cap  # noqa: E402
+import memory_chain  # noqa: E402
 from lead_email_writer import write_followup, check_followup  # noqa: E402
 
 PAINTING_DB = Path.home() / ".local/share/ofn/painting.sqlite"
@@ -97,8 +99,17 @@ def cycle(now_iso: str | None = None, dry: bool = False) -> dict:
         if dry:
             out["results"].append({"lead": lead["lead_id"][-30:], "nth": n, "dry": True})
             continue
-        res = transport.send({"lead_id": lead["lead_id"], "email": em},
-                             {"subject": draft["subject"], "body": draft["body"]})
+        tok, tok_reason = cap.request_send_token(
+            {"email": em}, f"followup#{n}:{lead['lead_id'][-30:]}")
+        if tok is None:
+            out["skipped"].append(f"token:{tok_reason}:{lead['lead_id'][-20:]}")
+            continue
+        res = cap.verified_send(tok, {"lead_id": lead["lead_id"], "email": em},
+                                {"subject": draft["subject"], "body": draft["body"]},
+                                f"followup#{n}")
+        memory_chain.append("followup_sent" if res.get("sent") else "followup_denied",
+                            lead["lead_id"],
+                            {"nth": n, "status": res.get("status")})
         c = sqlite3.connect(PAINTING_DB)
         if res.get("sent"):
             c.execute("UPDATE painting_leads SET follow_up_count=?, "

@@ -33,6 +33,20 @@ def _today_utc() -> str:
     return _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
 
 
+def _counter() -> "int | None":
+    """شمارندهٔ سقفِ امروز — تزریق‌پذیر برای تست (دندان‌ها)."""
+    try:
+        import outbound_worker as _ow
+        import os
+        for ln in (HOME / ".config/ofn/secrets.env").read_text().splitlines():
+            if "=" in ln and not ln.startswith("#"):
+                k, v = ln.split("=", 1)
+                os.environ.setdefault(k, v)
+        return _ow.sends_today()
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def run() -> dict:
     rep = {"date": _today_utc(), "checks": {}, "ok": True}
     today = _today_utc()
@@ -67,13 +81,7 @@ def run() -> dict:
         pass
 
     try:
-        import outbound_worker as _ow
-        import os, sys as _sys
-        for ln in (HOME / ".config/ofn/secrets.env").read_text().splitlines():
-            if "=" in ln and not ln.startswith("#"):
-                k, v = ln.split("=", 1)
-                os.environ.setdefault(k, v)
-        counter = _ow.sends_today()
+        counter = _counter()
     except Exception:  # noqa: BLE001
         counter = None
 
