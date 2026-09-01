@@ -80,13 +80,14 @@ SCHEMA = (
 def _migrate_composite_pk(conn) -> None:
     """Rebuild legacy single-PK outbox files onto the composite key.
 
-    Raw-key contract: every legacy row is copied 1:1. The tenant column
-    already carries the tenant; the idem_key column already carries the
-    key. No prefix stripping, no normalization, no collision detection.
-    The composite PK (tenant, idem_key) provides uniqueness. A lossless
-    verification (count + fingerprint) runs before the legacy table is
-    dropped - if anything was lost in transit, boot fails with the exact
-    counts and the legacy table preserved for manual recovery.
+    Raw-key contract: every legacy row is copied 1:1. No prefix stripping,
+    no normalization. The composite PK (tenant, idem_key) provides
+    uniqueness. A lossless verification (count + order-independent
+    fingerprint) runs before the legacy table is dropped.
+
+    If any step fails mid-rebuild, the legacy table is restored and the
+    partial new table is dropped - boot fails cleanly rather than silently
+    losing rows.
     """
     pk = [r["name"] for r in conn.execute("PRAGMA table_info(outbox)")
           if r["pk"] > 0]
@@ -95,14 +96,19 @@ def _migrate_composite_pk(conn) -> None:
         info = {r["name"]: r["type"] or "TEXT"
                 for r in conn.execute("PRAGMA table_info(outbox)")}
         others = [c for c in cols if c not in ("tenant", "idem_key")]
-        sel = ", ".join(["tenant", "idem_key"] + others)
         old_rows = conn.execute(
-            f"SELECT {sel} FROM outbox").fetchall()
-        # fingerprint before rebuild
-        canon = json.dumps([dict(r) for r in old_rows],
-                           sort_keys=True, ensure_ascii=False)
-        before_fp = hashlib.sha256(canon.encode()).hexdigest()
+            "SELECT * FROM outbox ORDER BY tenant, idem_key"
+        ).fetchall()
+
+        # Fingerprint BEFORE: order-independent (sorted by tenant+key)
+        canon_before = json.dumps(
+            [dict(r) for r in sorted(old_rows,
+                                     key=lambda r: (r["tenant"],
+                                                    r["idem_key"]))],
+            sort_keys=True, ensure_ascii=False)
+        before_fp = hashlib.sha256(canon_before.encode()).hexdigest()
         before_n = len(old_rows)
+
         conn.execute("ALTER TABLE outbox RENAME TO outbox_legacy")
         conn.execute(
             "CREATE TABLE outbox ("
@@ -111,14 +117,26 @@ def _migrate_composite_pk(conn) -> None:
             + ", PRIMARY KEY (tenant, idem_key))")
         for row in old_rows:
             d = dict(row)
-            placeholders = ", ".join("?" for _ in d)
-            conn.execute(
-                f"INSERT INTO outbox ({', '.join(d)}) VALUES ({placeholders})",
-                tuple(d.values()))
-        new_rows = conn.execute("SELECT * FROM outbox").fetchall()
-        new_canon = json.dumps([dict(r) for r in new_rows],
-                               sort_keys=True, ensure_ascii=False)
-        after_fp = hashlib.sha256(new_canon.encode()).hexdigest()
+            ph = ", ".join("?" for _ in d)
+            try:
+                conn.execute(
+                    f"INSERT INTO outbox ({', '.join(d)}) "
+                    f"VALUES ({ph})", tuple(d.values()))
+            except Exception:
+                # Mid-loop failure: restore legacy, drop partial, re-raise
+                conn.execute("DROP TABLE outbox")
+                conn.execute(
+                    "ALTER TABLE outbox_legacy RENAME TO outbox")
+                raise
+        new_rows = conn.execute(
+            "SELECT * FROM outbox "
+            "ORDER BY tenant, idem_key").fetchall()
+        canon_after = json.dumps(
+            [dict(r) for r in sorted(new_rows,
+                                     key=lambda r: (r["tenant"],
+                                                    r["idem_key"]))],
+            sort_keys=True, ensure_ascii=False)
+        after_fp = hashlib.sha256(canon_after.encode()).hexdigest()
         after_n = len(new_rows)
         if after_n != before_n or after_fp != before_fp:
             conn.execute("DROP TABLE outbox")
