@@ -92,6 +92,25 @@ def _migrate_composite_pk(conn) -> None:
     pk = [r["name"] for r in conn.execute("PRAGMA table_info(outbox)")
           if r["pk"] > 0]
     if pk and pk[0] == "idem_key" and len(pk) == 1:
+        # Legacy dual-spelling check (S6-D13 review finding): after prefix
+        # stripping, two legacy rows can resolve to the same raw key. The
+        # store refuses to guess which one is authoritative - boot fails
+        # with an actionable message instead of a bare IntegrityError.
+        pairs = conn.execute(
+            "SELECT tenant, idem_key FROM outbox").fetchall()
+        seen = {}
+        for row in pairs:
+            t, k = row["tenant"], row["idem_key"]
+            stripped = (k[len(t) + 1:] if k.startswith(t + ":")
+                        and len(k) > len(t) + 1 else k)
+            if stripped in seen and seen[stripped] != k:
+                raise FailClosedError(
+                    f"duplicate-legacy-id: rows {seen[stripped]!r} and "
+                    f"{k!r} of tenant {t!r} both resolve to {stripped!r} - "
+                    "resolve the duplicate in the outbox file before "
+                    "starting (keep one row, rename the other; the store "
+                    "will not guess)")
+            seen[stripped] = k
         cols = [r["name"] for r in conn.execute("PRAGMA table_info(outbox)")]
         info = {r["name"]: r["type"] or "TEXT"
                 for r in conn.execute("PRAGMA table_info(outbox)")}
