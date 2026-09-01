@@ -122,7 +122,7 @@ class TestNegativeControls(Case):
         conn.commit(); conn.close()
         ob = Outbox(path)
         self.addCleanup(ob.close)
-        item = ob.get(self.scope, "old1")
+        item = ob.get(self.scope, "lead:old1")
         self.assertIsNotNone(item)
         pk = [r[1] for r in ob._conn.execute("PRAGMA table_info(outbox)")
               if r[5] > 0]
