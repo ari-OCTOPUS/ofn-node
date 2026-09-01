@@ -237,3 +237,12 @@ negative controls on the real machine — the guard_target lesson applied.
 Commitments: one decision per PR; branch protection with required approvals
 enabled immediately after this PR merges, making sub-15-minute self-merges
 impossible going forward. Receipt: receipts/S6-D12-OUTBOX-AND-PROCESS-20260901.json.
+
+## S6-D13 — D-26 owner ratification of STAGE-01 package (2026-09-01)
+
+The owner said: take the whole senior-agent package and register it on
+behalf of owner and partners. This is a **record**, not wave-1 start,
+merge, deploy, or WIRE. Partner voices were not independently heard;
+`partner_voices_independently_observed = false`. Canonical split:
+business=`ofn-node`, architecture=vault, mesh after edge contract.
+Receipt: `stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json`.

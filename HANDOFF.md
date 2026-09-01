@@ -1,7 +1,7 @@
 ---
 tags: [ofn, handoff, status]
 aliases: [وضعیت زنده, Handoff]
-updated: 2026-08-16
+updated: 2026-09-01
 ---
 
 # HANDOFF — برای جلسهٔ بعدی
@@ -33,6 +33,8 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
             ofn/wire رسمی شد · منشور خودمختاری: MEGAPROMPT-BOARD-CHARTER.
             روتین شبانهٔ ۲۱:۰۰: snapshot روزانه + DAILY-REPORT + جواب وایر.
             NTP فعال شد (CHECKPOINT §۷-۲ بسته شد) · ۱۹۳۸ تست سبز.
+D-26        ۲۰۲۶-۰۹-۰۱ ثبت شد (نه اجرا): بدن کسب‌وکار=ofn-node · بدن معماری=والت
+            موج ۱ شروع نشده · WIRE/D1/D7/OWNER_KEY بسته · صدای شرکا مستقل شنیده نشد
 قدم بعد     آری: چرخش راز امروز خودش می‌زند (ران‌بوک) — بعدش auto-close درست است.
             G7 Gate 0: ویندوز CONTROL_URL+کلید بدهد → برد خودش bridge را
             روشن می‌کند (حکم صریح مالک، بخش ۳ منشور).

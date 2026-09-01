@@ -61,3 +61,9 @@ WIRE flags, no new envelope/run-store implementation.
 See `docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/STAGE-01-REPORT.md`.
 Next GREEN step on this lineage: keep `tools/gap_scan.py` matching the
 tree. Do not flatten vault H1 or Typed Events onto this repo.
+
+## D-26 (2026-09-01, owner in-session)
+
+Owner: register the whole STAGE-01 package for owner and partners.
+Recorded. Partner voices not independently heard.
+`implementation_authorized=false`. Wave 1 not started.

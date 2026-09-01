@@ -635,6 +635,22 @@
         "tests/test_kernel_purity.py"
       ],
       "must_not_exist": []
+    },
+    {
+      "id": "D-26",
+      "name": "Owner ratification of STAGE-01 canonical bodies",
+      "sources": ["owner-session-2026-09-01"],
+      "tier": "T0",
+      "expected_status": "present_in_this_lineage",
+      "derive": "present_if_all_exist",
+      "must_exist": [
+        "DECISIONS.md",
+        "docs/architecture/DECISION-canonical-bodies-2026-09-01.md",
+        "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json",
+        "tests/test_d26_canonical_bodies.py"
+      ],
+      "must_not_exist": [],
+      "notes": "Record of the owner's utterance. Does not start wave 1."
     }
   ],
   "numeric_claims": [

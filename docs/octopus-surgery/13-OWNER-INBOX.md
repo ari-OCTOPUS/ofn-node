@@ -1,49 +1,53 @@
 # Owner inbox
 
-Maximum five decisions. Only one action is immediately READY.
-An agent must not treat silence as yes.
+D-26 recorded this session. An agent must not treat that record as
+authorization to build, merge, deploy, or open a wire.
 
 ---
 
-## 1. Review PR #6 on its exact current head after four focused checks pass
+## 1. D-26 STAGE-01 package — recorded
 
-Status: READY — first and only immediate action
-Decision: inspect focused CI on the current head reported in the PR body; do not merge, deploy, open D1/D7, generate OWNER_KEY, or rotate secrets.
+Status: DONE
+Decision: owner accepted the senior package in-session and ordered it
+registered for the partnership. Partner voices were not independently
+heard. Wave 1 has not started.
 
 ```text
-OWNER-CONFIRM: reviewed PR 6 at <NEW_FINAL_HEAD_SHA from PR body>;
-focused CI passed 4/4 on this exact SHA;
-merge remains unauthorized
+OWNER-CONFIRM: D-26 recorded 2026-09-01; implementation_authorized=false
 ```
 
 ---
 
 ## 2. Keep the local vault/surgery branch unpublished
 
-Status: STANDING
-Decision: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`. Selective export is already `OPEN_AS_PR_6`.
+Status: STANDING — reinforced by D-26
+Decision: `LOCAL_VAULT_BRANCH_PUBLICATION_FORBIDDEN`.
 
 ```text
-OWNER-CONFIRM: do not push surgery/cognition-authority-denylist-20260830-170620 to public ofn-node
+OWNER-CONFIRM: vault_to_public_ofn_node = forbidden
 ```
 
 ---
 
-## 3. OWNER-09 hermetic full suite — recorded
+## 3. Keep D1/D7/OWNER_KEY/secret rotation/WIRE closed
 
-Status: DONE
-Result: `HERMETIC_BOUNDARY_VIOLATION` — 770/827 passed; 57 failed; 1 live skipped.
-Do not rerun OWNER-09 as a campaign gate.
+Status: STANDING — reinforced by D-26
+
+```text
+OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation WIRE remain closed
+```
 
 ---
 
-## 4. Keep D1/D7/OWNER_KEY/secret rotation closed
+## 4. Wave 1 not started
 
 Status: STANDING
-Decision: this campaign did not open those gates.
+Decision: envelope + run store + financial H1 stay on the vault body.
+Do not start them from this GitHub lineage. Do not add a second envelope
+family on ofn-node.
 
 ```text
-OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation remain owner-only and closed
+OWNER-CONFIRM: wave_1_started=false; wave_1_body=vault
 ```
 
 ---
@@ -52,8 +56,8 @@ OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation remain owner-only and closed
 
 Status: STANDING
 Decision: credit the five surgeries; do not promote historical Brier or test-count claims.
-Official announced weighted figure is **45.70** (Recovery=34). Exact 34-weighted
-raw is 45.75; rounding delta −0.05. See `ACCOUNTING-CORRECTION-20260831.yaml`.
+Official announced weighted figure is **45.70** (Recovery=34). See
+`ACCOUNTING-CORRECTION-20260831.yaml`. D-26 does not close C-001..C-004.
 
 ```text
 OWNER-CONFIRM: campaign overall 45% ± 7%; official announced 45.70; 90% gates remain closed

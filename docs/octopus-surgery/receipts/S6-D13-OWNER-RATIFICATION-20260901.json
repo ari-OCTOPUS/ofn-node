@@ -1,0 +1,10 @@
+{
+  "schema": "octopus.surgery.receipt.v1",
+  "id": "S6-D13",
+  "decision": "D-26",
+  "recorded_at": "2026-09-01T22:53:00Z",
+  "kind": "owner_ratification",
+  "implementation_authorized": false,
+  "partner_voices_independently_observed": false,
+  "source": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json"
+}

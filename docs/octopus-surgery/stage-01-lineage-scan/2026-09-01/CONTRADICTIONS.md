@@ -81,9 +81,9 @@ Absence on this VM is `body_not_on_this_host`, not `body_missing`.
 | value_b | 10-aspect: Obsidian rebuild, then vault H1, then nftables/headers, then Typed Events stage 6 |
 | value_c | CBHF: per-task tokens, memory chain, formal model, MCP, hybrid cost pool |
 | value_d | capability-world-fit: path A forensic demo now; avoid generic agent observability + memory |
-| status | open |
-| resolution | null |
-| note | Sequences apply to different bodies. Flattening them onto ofn-node is how the wrong H1 gets "fixed". |
+| status | closed as sequence |
+| resolution | D-26 |
+| note | Owner ratified: architecture wave-1 on vault (envelope+runstore+H1-idem); ofn-node keeps board_events; no second envelope; CBHF extras forbidden-now. Numeric contradictions stay open. |
 
 ## C-008 · Security headers
 

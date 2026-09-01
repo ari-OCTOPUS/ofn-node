@@ -1,0 +1,57 @@
+{
+  "schema": "octopus.owner_ratification.v1",
+  "decision_id": "D-26",
+  "recorded_at": "2026-09-01T22:53:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "utterance": "همرو ازم همینجا بگیرو از طرف مالک و شرکا ثبت کن",
+  "speaker_role": "owner",
+  "binds_partnership": true,
+  "partner_voices_independently_observed": false,
+  "partners_named_not_heard": ["maliheh", "abbas", "saba"],
+  "implementation_authorized": false,
+  "merge_authorized": false,
+  "deploy_authorized": false,
+  "wire_authorized": false,
+  "canonical_bodies": {
+    "business": "ofn-node",
+    "architecture": "vault",
+    "mesh": "after_edge_contract",
+    "vault_to_public_ofn_node": "forbidden"
+  },
+  "real_means": ["code_on_canonical_body", "failing_test_if_claim_false", "independent_receipt"],
+  "waves": {
+    "auto_advance": false,
+    "wave_1_body": "vault",
+    "wave_1_items": ["typed_envelope", "append_only_run_store", "h1_financial_idempotency"],
+    "wave_1_started": false,
+    "wave_2": "edge_then_boards",
+    "wave_3": "brier_vs_persistence_on_preregistered_claims"
+  },
+  "forbid": [
+    "second-envelope-family-on-ofn-node",
+    "mcp-server",
+    "WIRE",
+    "Mem0-clone",
+    "per-task-capability-token-module",
+    "VBAA-now"
+  ],
+  "keep_closed": [
+    "D1",
+    "D7",
+    "OWNER_KEY",
+    "secret_rotation",
+    "OCTOPUS_WIRE_*"
+  ],
+  "deferred": ["O-3", "S-04"],
+  "unverified": ["STAGE00-unnamed-44"],
+  "contradictions_remain_open": ["C-001", "C-002", "C-003", "C-004", "C-005", "C-006", "C-008"],
+  "contradictions_closed_by_this": ["C-007"],
+  "business_parallel": {
+    "items": ["painting-followup-quote", "ziman-listings", "studio-consent"],
+    "architecture_coupling": false,
+    "writes_revenue_sent_booking": false
+  },
+  "ofn_node_edge_contract": "ofn/adapters/board_events.py",
+  "h1_on_ofn_node": "harvest-not-financial-idempotency"
+}

@@ -74,6 +74,8 @@ Read-only cross-check of the STAGE-00, CB Insights/Hugging Face, and
 - [[stage-01-lineage-scan/2026-09-01/CONCEPT-REGISTRY.json|Concept registry]]
 - Scanner: `tools/gap_scan.py` · tests: `tests/test_gap_scan.py`
 - Live counts stay in `tools/repo_baseline.py`, not in this index.
+- D-26 recorded at `docs/architecture/DECISION-canonical-bodies-2026-09-01.md`;
+  `implementation_authorized=false`.
 
 ## Surgery 2
 
