@@ -13,6 +13,7 @@ scope → کوتِ رسمی QT-YYYYMMDD-NNN → ارسال از همان گیت�
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -26,12 +27,52 @@ sys.path.insert(0, str(_HERE.parent / "budget"))
 import opslib  # noqa: E402
 import capability_token as cap  # noqa: E402
 import memory_chain  # noqa: E402
+import quote_fingerprint as qfp  # noqa: E402
 from lead_email_writer import FORBIDDEN  # noqa: E402
 
 PAINTING_DB = Path.home() / ".local/share/ofn/painting.sqlite"
 DATA = Path.home() / ".local/share/ofn"
 CARD = DATA / "painting_rate_card.json"
 IDENTITY = Path.home() / ".config/ofn/identity.json"
+
+# ── هات‌فیکس‌های ناظر (حکم ۲۰۲۶-09-02، قبل از موج ۲) ─────────────────────────
+# HF-1: سقف روی «مبلغ نهایی»، نه نرخ. عددِ $۲۵٬۰۰۰ پیشنهادِ ناظر است (بحث‌پذیر)؛
+# نبودِ سقف یک تصمیم نیست، غفلت است. عبور از هرکدام → needs_owner_review، نه ارسال.
+import os as _os  # noqa: E402
+QUOTE_MAX_AUD = float(_os.environ.get("OCTOPUS_QUOTE_MAX_AUD", "25000"))
+QUOTE_MIN_M2 = 20.0        # زیرِ این، احتمالاً پارسِ اشتباه است نه کارِ کوچک
+
+
+def needs_owner_review(lead_id: str, qt: str, reason: str, detail: dict) -> dict:
+    """مسیر توقفِ سخاوتمندانه (ناظر §8): فقط مواردِ واقعاً غیرعادی به تلگرام می‌رود."""
+    opslib.append_jsonl(opslib.STATE_DIR / "legs/lead-inbox/events.jsonl",
+                        {"event_type": "quote.needs_owner_review",
+                         "occurred_at": opslib.now_iso(),
+                         "correlation_id": qt,
+                         "source_component": "QuoteEngine",
+                         "payload": {"lead_id": lead_id, "reason": reason,
+                                     **detail}})
+    memory_chain.append("quote_needs_owner_review", lead_id,
+                        {"qt": qt, "reason": reason, **detail})
+    try:
+        import owner_notify
+        owner_notify.alert_owner(
+            f"⚠️ کوت {qt} ({lead_id[-30:]}) نیازمند بررسی توست — {reason}: "
+            + json.dumps(detail, ensure_ascii=False)[:200])
+    except Exception:  # noqa: BLE001
+        pass
+    return {"qt_number": qt, "priced": True, "sent": False,
+            "status": "needs_owner_review", "reason": reason, **detail}
+
+
+def card_sha256(path: Path | None = None) -> str:
+    """HF-3: هشِ کارتِ فعال — در هر رکورد کوت و در گیت ثبت می‌شود.
+    path در call-time خوانده می‌شود (تست/مهاجرت قابل‌تزریق)."""
+    try:
+        return hashlib.sha256(
+            (path or CARD).read_bytes()).hexdigest()
+    except OSError:
+        return ""
 
 
 def load_card() -> dict:
@@ -62,6 +103,16 @@ def identity_line() -> str:
 def next_qt_number(conn) -> str:
     import datetime as _dt
     day = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d")
+    conn.execute("CREATE TABLE IF NOT EXISTS painting_quotes ("
+                 "qt_number TEXT PRIMARY KEY, lead_id TEXT, scope_json TEXT, "
+                 "priced INTEGER, total_aud REAL, status TEXT, created_at TEXT, "
+                 "card_sha256 TEXT, fingerprint TEXT)")
+    # مهاجرت ستون‌های HF برای جدول‌های قدیمی (idempotent)
+    for col in ("card_sha256", "fingerprint"):
+        try:
+            conn.execute(f"ALTER TABLE painting_quotes ADD COLUMN {col} TEXT")
+        except sqlite3.OperationalError:
+            pass
     row = conn.execute("SELECT COUNT(*) FROM painting_quotes "
                        "WHERE qt_number LIKE ?", (f"QT-{day}-%",)).fetchone()
     return f"QT-{day}-{int(row[0]) + 1:03d}"
@@ -141,20 +192,56 @@ def quote(lead_id: str, scope: dict, dry: bool = False) -> dict:
         return out
     out.update({"qt_number": qt, "priced": est.get("priced", False),
                 "subject": draft["subject"]})
-    if dry:
-        out["draft"] = draft
+    csha = card_sha256()
+    # ── HF-2: گارد مقاوم به rollback — بیرون از دیتابیس، قبل از هر تصمیم ──
+    total_for_fp = est.get("total_aud") if est.get("priced") else 0
+    fp, already = qfp.guard(lead_id, scope, total_for_fp)
+    if already:
+        out["error"] = "duplicate-fingerprint-rollback-guard"
+        out["status"] = "DUPLICATE_BLOCKED"
+        memory_chain.append("quote_duplicate_blocked", lead_id,
+                            {"qt": qt, "fingerprint": fp[:16]})
         c.close()
         return out
-    c.execute("CREATE TABLE IF NOT EXISTS painting_quotes ("
-              "qt_number TEXT PRIMARY KEY, lead_id TEXT, scope_json TEXT, "
-              "priced INTEGER, total_aud REAL, status TEXT, created_at TEXT)")
+    if dry:
+        out["draft"] = draft
+        out["card_sha256"] = csha
+        c.close()
+        return out
+    # ── HF-1: سقف مبلغ نهایی + کف متراژ — قبل از توکن، قبل از ارسال ──
+    if est.get("priced"):
+        total = float(est.get("total_aud") or 0)
+        if total > QUOTE_MAX_AUD:
+            c.execute("INSERT OR REPLACE INTO painting_quotes VALUES "
+                      "(?,?,?,?,?,?,?,?,?)",
+                      (qt, lead_id, json.dumps(scope, ensure_ascii=False), 1,
+                       total, "needs_owner_review", opslib.now_iso(), csha, fp))
+            c.commit(); c.close()
+            qfp.record(fp, qt, lead_id, total)
+            return {**needs_owner_review(lead_id, qt, "over-quote-cap",
+                                         {"total_aud": total,
+                                          "cap": QUOTE_MAX_AUD,
+                                          "card_sha256": csha}),
+                    "fingerprint": fp}
+        if float(scope.get("area_m2") or 0) < QUOTE_MIN_M2:
+            c.execute("INSERT OR REPLACE INTO painting_quotes VALUES "
+                      "(?,?,?,?,?,?,?,?,?)",
+                      (qt, lead_id, json.dumps(scope, ensure_ascii=False), 1,
+                       total, "needs_owner_review", opslib.now_iso(), csha, fp))
+            c.commit(); c.close()
+            qfp.record(fp, qt, lead_id, total)
+            return {**needs_owner_review(lead_id, qt, "under-min-area",
+                                         {"area_m2": scope.get("area_m2"),
+                                          "min_m2": QUOTE_MIN_M2,
+                                          "card_sha256": csha}),
+                    "fingerprint": fp}
     tok, tok_reason = cap.request_send_token(
         {"email": row["email"]}, f"quote:{qt}")
     if tok is None:
-        c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?)",
+        c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?,?,?)",
                   (qt, lead_id, json.dumps(scope, ensure_ascii=False),
                    1 if est.get("priced") else 0, est.get("total_aud"),
-                   f"token-denied:{tok_reason}", opslib.now_iso()))
+                   f"token-denied:{tok_reason}", opslib.now_iso(), csha, fp))
         c.commit(); c.close()
         out["error"] = f"token:{tok_reason}"
         return out
@@ -164,12 +251,15 @@ def quote(lead_id: str, scope: dict, dry: bool = False) -> dict:
         f"quote:{qt}")
     memory_chain.append("quote_sent" if res.get("sent") else "quote_denied",
                         lead_id, {"qt": qt, "priced": est.get("priced", False),
-                                  "status": res.get("status")})
-    c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?)",
+                                  "status": res.get("status"),
+                                  "card_sha256": csha[:16]})
+    if res.get("sent"):
+        qfp.record(fp, qt, lead_id, total_for_fp)  # فقط ارسالِ واقعی ثبت می‌شود
+    c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?,?,?)",
               (qt, lead_id, json.dumps(scope, ensure_ascii=False),
                1 if est.get("priced") else 0, est.get("total_aud"),
                "sent" if res.get("sent") else f"not-sent:{res.get('status')}",
-               opslib.now_iso()))
+               opslib.now_iso(), csha, fp))
     c.execute("UPDATE painting_leads SET next_action='quote sent, await reply', "
               "next_action_at=datetime('now','+7 days') WHERE lead_id=?",
               (lead_id,))
