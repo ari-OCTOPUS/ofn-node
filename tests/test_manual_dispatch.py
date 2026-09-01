@@ -115,7 +115,9 @@ class TestManualStateMachine(unittest.TestCase):
         self.ob.enqueue(A, "k2", "sms", {}, RiskTier.RED, T0)
         self.ob.approve_manual(A, "k1", T1)
         approved = self.ob.approved_manual(A)
-        self.assertEqual([i.idem_key for i in approved], ["alpha:k1"])
+        # composite-PK contract (2026-09-01): idem_key is raw; tenant is its
+        # own column — the "alpha:k1" prefix composition is gone by design
+        self.assertEqual([i.idem_key for i in approved], ["k1"])
 
 
 class TestManualPacket(unittest.TestCase):
@@ -149,6 +151,11 @@ class TestMigrationAddsColumns(unittest.TestCase):
             " kind TEXT, payload TEXT, tier TEXT, status TEXT,"
             " attempts INTEGER DEFAULT 0, created_at TEXT, updated_at TEXT,"
             " note TEXT DEFAULT '')")
+        conn.execute(
+            "INSERT INTO outbox (idem_key, tenant, kind, payload, tier,"
+            " status, attempts, created_at, updated_at, note)"
+            " VALUES ('alpha:legacy1', 'alpha', 'email', '{}', 'yellow',"
+            " 'pending', 0, 't0', 't0', '')")
         conn.commit()
         conn.close()
         ob = Outbox(path)
@@ -157,6 +164,12 @@ class TestMigrationAddsColumns(unittest.TestCase):
         for col in ("delivery_mode", "approved_at", "completed_at",
                     "packet_sha256", "external_ref_digest"):
             self.assertIn(col, cols)
+        # composite-PK migration: prefixed legacy row arrives RAW; PK is
+        # (tenant, idem_key)
+        pk = [r[1] for r in ob._conn.execute("PRAGMA table_info(outbox)")
+              if r[5] > 0]
+        self.assertEqual(pk, ["tenant", "idem_key"])
+        self.assertIsNotNone(ob.get(A, "legacy1"))
 
 
 if __name__ == "__main__":
@@ -228,7 +241,7 @@ class TestOwnerApproveManualHttp(unittest.TestCase):
         # Find the queued item id
         scope = self.node.registry.scope("lead")
         item = self.node.outbox.pending(scope)[0]
-        key = item.idem_key.split(":", 1)[1]
+        key = item.idem_key  # raw key since composite-PK contract
 
         # Approve (RED needs confirmed_twice)
         resp = self._owner("POST", "/api/v1/decide",
@@ -279,7 +292,7 @@ class TestOwnerApproveManualHttp(unittest.TestCase):
             lead["lead"]["lead_id"], {"channel": "sms", "message": "x"},
             actor="test")
         scope = self.node.registry.scope("lead")
-        key = self.node.outbox.pending(scope)[0].idem_key.split(":", 1)[1]
+        key = self.node.outbox.pending(scope)[0].idem_key  # raw
         self._owner("POST", "/api/v1/decide",
                     {"id": f"lead:{key}", "approve": True,
                      "confirmed_twice": True})
@@ -472,9 +485,11 @@ class TestApprovedManualIdIsScoped(unittest.TestCase):
             self.registry.scope("beta"), "reply:7", "lead:reply",
             {"text": "x"}, RiskTier.YELLOW, T0)
         item = self.node.outbox.get(self.registry.scope("beta"), "reply:7")
-        self.assertEqual(item.idem_key, "beta:reply:7")   # DB is scoped
+        # composite-PK contract: raw key + tenant column = the scoping proof
+        self.assertEqual(item.idem_key, "reply:7")
+        transport_id = f"beta:{item.idem_key}"  # API id stays prefixed
         resp = self._owner("POST", "/api/v1/decide",
-                           {"id": item.idem_key, "approve": True,
+                           {"id": transport_id, "approve": True,
                             "confirmed_twice": False})
         self.assertEqual(resp.body.get("status"), "approved_manual")
         # The panel receives this id and encodes it straight into the URL.

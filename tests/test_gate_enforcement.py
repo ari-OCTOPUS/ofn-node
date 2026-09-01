@@ -144,7 +144,7 @@ class TestKillBlocksOwnerApprove(GateEnforcementBase):
         # Find the queued item
         queue = self.outbox.pending(self.scope)
         self.assertTrue(len(queue) > 0)
-        key = queue[0].idem_key.split(":", 1)[1]
+        key = queue[0].idem_key  # raw key since composite-PK contract
         result = self.node.owner_decide(
             f"lead:{key}", approve=True, confirmed_twice=True)
         self.assertFalse(result["ok"])
@@ -157,7 +157,7 @@ class TestKillBlocksOwnerApprove(GateEnforcementBase):
             lead_id, {"channel": "sms", "message": "reply"}, actor="test")
         self.node.killed = True
         queue = self.outbox.pending(self.scope)
-        key = queue[0].idem_key.split(":", 1)[1]
+        key = queue[0].idem_key  # raw key since composite-PK contract
         result = self.node.owner_decide(
             f"lead:{key}", approve=False, confirmed_twice=False)
         self.assertTrue(result["ok"])
