@@ -1,0 +1,18 @@
+{
+ "artifact": "round2-answer.txt",
+ "bytes": 4786,
+ "chars": 2863,
+ "sha256": "6beabae57122c10d3f42275995b100635ca13466a70f9d99416c2e37901a23ce",
+ "billed_tokens": 12379,
+ "provider": "Sakana (fugu @ remote)",
+ "captured_at": "2026-09-01T09:07:14Z",
+ "job_id": "job_1788253634_4c255bf3ff50",
+ "stored_sha256_from_job": "6beabae57122c10d3f42275995b100635ca13466a70f9d99416c2e37901a23ce",
+ "hash_matches": true,
+ "numerical_contradiction_resolution": {
+  "12061_tokens_2799_chars": "STALE \u2014 from an earlier round-2 run on a pre-squash board checkout",
+  "12342_tokens_2863_chars": "STALE \u2014 from the board BEFORE the final ff to main",
+  "12379_tokens_2863_chars": "AUTHORITATIVE \u2014 this artifact, hash-matched, job_id job_1788253634_4c255bf3ff50"
+ },
+ "closes": "#45"
+}
