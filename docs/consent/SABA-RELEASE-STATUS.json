@@ -1,0 +1,10 @@
+{
+  "schema": "octopus.consent_document.v1",
+  "subject_id": "saba",
+  "document_id": "saba-release-20260902",
+  "signed": false,
+  "record_release_called": false,
+  "template_path": "docs/consent/SABA-RELEASE-20260902.md",
+  "template_sha256": "68b1edf97dcb9130b0dd55fb420ced7cf691e24135f6d890c79c3d1e672aa23b",
+  "note": "template hash is not a signed-document hash; do not pass this to record_release"
+}

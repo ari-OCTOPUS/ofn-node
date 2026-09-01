@@ -539,6 +539,25 @@ C-009 رسماً بسته شد (هویت آپلود تکراری، نه تناق
 `docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json` ·
 `tests/test_d27_unlock.py` · `octopus_survival/economy.py`.
 
+### D-28 · لبهٔ قوانین؛ سه فیلد جعل نمی‌شود
+
+*(حکم مالک + ایجنت ارشد، ۲۰۲۶-۰۹-۰۲)*
+
+ویس شرکا painting و موج ۱/۲ را قفل نمی‌کند. `partner_voices_independently_observed`
+تا سه رسید با `media_sha256` `false` است. رضایت سبا فقط
+`record_release` است، نه بولین. چرخش راز روی این میزبان نشد:
+`secret_rotation: risk_accepted_unrotated`. پنجرهٔ رسمی
+`GATE_OPEN_UNTIL_UTC = 2026-09-16`. `OFN_KEEP_GATES_OPEN` و
+`OFN_WIRE_OUTBOUND` پیش‌فرض کد نشدند.
+
+ماتریس پلتفرم با قالب `invite_opt_in` / `quote` / `follow_up` پر شد.
+`advisor_gate` همچنان بدون پارامتر بله است. سه خط قرمز: افراد زیر سن،
+انتشار بدون رضایت زنده، راز شخص دیگر.
+
+**کجا:** [[docs/architecture/DECISION-d28-edge-2026-09-02]] ·
+`docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/D-28-OWNER-DIRECTIVE.json` ·
+`tests/test_d28_edge.py`.
+
 ---
 
 ## باز — تصمیم مالک لازم است

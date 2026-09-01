@@ -1,0 +1,81 @@
+{
+  "schema": "octopus.owner_directive.v1",
+  "decision_id": "D-28",
+  "follows": "D-27",
+  "recorded_at": "2026-09-02T00:20:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "node_id": "cursor-cloud",
+  "claim_type": "record",
+  "speaker_role": "owner",
+  "co_owner": "senior-agent",
+  "source_document": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+  "propose_only_mode": false,
+
+  "may_not_forge": [
+    "partner_voices_independently_observed",
+    "saba_consent_boolean",
+    "secret_rotation_rotated_without_rotate"
+  ],
+
+  "partner_voices_independently_observed": false,
+  "partner_attestation_dir": "docs/octopus-surgery/attestations",
+  "partner_voices_block_painting": false,
+  "partner_voices_required_for": ["partner_precondition_studio", "revenue_split"],
+
+  "saba_release": {
+    "status": "unsigned_template_only",
+    "record_release_called": false,
+    "pdf_in_git": false,
+    "onlyfans_http_arm": "unset_until_release_row"
+  },
+
+  "secret_rotation": "risk_accepted_unrotated",
+  "gate_open_until_utc": "2026-09-16",
+  "keep_gates_open_committed_default": false,
+  "wire_outbound_committed_default": false,
+  "control_quota_tokens_default": 7000,
+  "miner_isolation": "stays_shut",
+
+  "flags_authorized_on_board_not_applied_this_host": [
+    "OFN_KEEP_GATES_OPEN",
+    "OFN_WIRE_OUTBOUND",
+    "OFN_COMMERCE_ROUTES",
+    "OFN_SHOPIFY_WIRE"
+  ],
+
+  "hard_limits_unchanged": {
+    "daily_send_cap": 25,
+    "daily_spend_cap_aud": 50,
+    "per_board_budget_default": 0,
+    "kill_switch": "OFN_EXTRA_CLOSED_GATES"
+  },
+
+  "structures_kept": [
+    "two_step_owner_confirm",
+    "idempotency",
+    "append_only_ledger",
+    "dry_run_default",
+    "fail_closed_missing_facts",
+    "advisor_gate_parameterless"
+  ],
+
+  "red_lines": [
+    "minors",
+    "unconsented_persons",
+    "third_party_secrets"
+  ],
+
+  "week_success_metric": "one_real_payment_receipt_on_PAINT-L5-001",
+  "paint_followup_sent_this_host": false,
+  "paint_followup_reason": "two_step_confirm_absent_and_body_not_on_this_host",
+
+  "pr65_merge": {
+    "draft": false,
+    "push_to_main": "rejected",
+    "reasons": [
+      "At least 1 approving review is required",
+      "main must not contain merge commits"
+    ]
+  }
+}

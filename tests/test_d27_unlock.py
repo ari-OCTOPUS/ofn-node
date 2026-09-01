@@ -165,8 +165,11 @@ class TestRealFlagsStayEnvGated(unittest.TestCase):
             self.assertFalse(cfg.public_catalog_enabled)
             self.assertFalse(cfg.commerce_routes_enabled)
             self.assertGreaterEqual(cfg.control_quota_tokens, 1)
-            self.assertIn("secret_rotation", cfg.base_closed_gates)
-            self.assertIn("partner_precondition", cfg.base_closed_gates)
+            self.assertIn("miner_isolation", cfg.base_closed_gates)
+            # D-28 moved GATE_OPEN_UNTIL_UTC forward. Live load() before
+            # that date leaves secret_rotation open via the official
+            # window, not via OFN_KEEP_GATES_OPEN. Re-close is proven
+            # by freezing at the constant in test_gate_enforcement.
         finally:
             for key, value in saved.items():
                 if value is not None:

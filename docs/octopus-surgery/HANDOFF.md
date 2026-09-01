@@ -76,3 +76,10 @@ switch `OFN_EXTRA_CLOSED_GATES`. Partner voices still not independently
 observed. `OFN_KEEP_GATES_OPEN` and `OFN_WIRE_OUTBOUND` were not
 defaulted on. C-009 closed. Week proof remains one real PAINT-L5-001
 payment receipt — this file does not invent one.
+
+## D-28 (2026-09-02)
+
+Three fields stay unforged: partner voices, Saba `record_release`,
+secret rotation (`risk_accepted_unrotated`). Official gate window
+extended to 2026-09-16. Platform matrix filled to the ToS edge.
+Painting follow-up not sent from this host.

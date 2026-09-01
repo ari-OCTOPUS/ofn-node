@@ -19,7 +19,11 @@ from .adapters import remote_brain
 # DecisionRecord DECISION-open-gates.md: temporary open until this UTC date.
 # After midnight UTC on this day, secret_rotation and partner_precondition
 # return to the closed default unless OFN_KEEP_GATES_OPEN=1 (owner override).
-GATE_OPEN_UNTIL_UTC = "2026-08-17"
+# D-28 (2026-09-02): owner re-opened the same official window that
+# DECISION-open-gates.md used on 2026-08-10. Expiry stays mandatory.
+# Secrets were not rotated on the recording host; the receipt is
+# risk_accepted_unrotated, not rotated.
+GATE_OPEN_UNTIL_UTC = "2026-09-16"
 
 # D-27 hard limits. Authorized is not unlimited. These are code constants,
 # not environment aliases: flipping OFN_KEEP_GATES_OPEN or OFN_WIRE_OUTBOUND
