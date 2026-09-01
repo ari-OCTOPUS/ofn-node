@@ -157,6 +157,18 @@ owner decision (#63) before the send.
   UTC unification; first successful restore drill; hourly heartbeat + 07:00 digest;
   G-51 closed; 80 stale supply-side outbox items cancelled; reconcile.py 6/6 green
 
+- **2026-09-02 — owner pivot:** painting set aside by owner decision; wave-1 gap-scan
+  executed on the VAULT (F:ackup) as four lanes, each on its own branch with a
+  5-section EVIDENCE pack under 09-LANES/: W1-SPINE 55baddd+9ec67c0 (typed-events
+  envelope/run_id/run-store+hash-chain, 24 tests), W1-MONEY 700316f (idempotent
+  intake; found POST /proposals exists NOWHERE — CSV premise E0; real duplicate
+  rows found in production log F1), W1-SCALE 948e81b (P3 unlocatable E0; real
+  defect D-1..D4 named; versioned brier w/ 3 baselines + blinded teeth),
+  W1-FREE d14ccfd (6 behavioral findings F1-F6 incl. H1-in-the-wild and dead
+  ZIMAN path; routing snapshot pinned). Board (painting runtime) untouched,
+  timers keep running autonomously. Supervisor wave-2 gate: all five §9 items
+  closed earlier (9ba1c924); wave-2 awaits supervisor verdict on the four packs.
+
 ## 7. Open items (as of this writing)
 
 - Awaiting first human reply; first follow-up fires 2026-09-08 (7d) if silence
