@@ -17,3 +17,13 @@ CON-VAULT-483-19,vault error counts,P1-RESULT 483/19 no new errors,12-VAULT-DEBT
 CON-WITNESS-BEFORE-PROPOSAL,182 wr vs proposal mtime,wr_950f8d0e at 07:19,08-EDGE6-CAUSAL-TRACE.md,proposal mtime 07:21,P2 contradictions.csv,open,950f8d0e is not a git object on this vault
 CON-P1-RUNTIME,p1 source vs running,source commit a27eb05,CHECKPOINT.md,PID started 27 Aug on 6881337,P2 contradictions.csv,open,imported
 CON-OWNERDECISION-UNWIRED,12-field schema vs live,12-field schema exists on 138 spine,node.py + owner_decision.p2.py,live owner_decide ignores it,P2 contradictions.csv,open,imported
+L0-BEAT,beat,58523,F:\backup\OCTOPUS\CURRENT-TRUTH.md auto block,~31812,F:\backup\OCTOPUS\CURRENT-TRUTH.md Controlled restart 23:59 LIVE,open,same file two beats
+L0-COHERENCE,coherence,0.922,F:\backup\OCTOPUS\CURRENT-TRUTH.md auto 2026-09-01T13:30:13Z,0.977,F:\backup\07-HANDOFF\NEXT-AGENT-HANDOFF.md ~2026-08-15,open,dates differ; both kept
+L0-STRATEGY-BRIER,STRATEGY_BRIER,0.34565,F:\backup\docs\octopus-surgery\receipts\DECISIONS.md D7-02/D8-02,0.237387,F:\backup\docs\octopus-surgery\20-SEASON-2026-0901-RECONCILIATION.md n=35,open,n also disagrees
+L0-PERSISTENCE-BRIER,PERSISTENCE_BRIER,0.286113,DECISIONS.md D8-02,0.258498,20-SEASON-2026-0901-RECONCILIATION.md,open,imported from scan
+L0-REPLAY-N,replay_n,59,DECISIONS.md D8-02 RECORDED_REPLAY_SAMPLE,35,20-SEASON-2026-0901-RECONCILIATION.md n=35,open,sample size
+L0-BETTER-MODEL,BETTER_MODEL,PERSISTENCE,DECISIONS.md D8-02,strategy (0.237387 vs 0.258498),20-SEASON-2026-0901-RECONCILIATION.md,open,winner flips with dataset
+L0-GITHUB-MAIN,github_main_SHA,7442c2a596b378f4b2144c8f465d0238b52ac52d,DECISIONS.md D6-01,49547da,20-SEASON-2026-0901-RECONCILIATION.md PR43/main,open,short vs long sha not assumed same
+L0-ORIGIN-MAIN,origin_main_vs_post_merge_main,c1969bce5384f3371b916470299c991627c3d63c,DECISIONS.md S5-D04 origin/main,7442c2a596b378f4b2144c8f465d0238b52ac52d,DECISIONS.md D6-01 GitHub main is now,open,sequential merge possible; still two values
+L0-27-27,27/27_meaning,27 checks by one verifier,DECISIONS.md S1-D02,27 independent verifiers,DECISIONS.md S1-D02 labelled CONTRADICTED,open,file already marks second claim contradicted
+L0-WB-FAIL,WB_fail_count_phrase,51 independently failing + 5 runner-sensitive + 3 previously repaired,DECISIONS.md D5-01,52 of 56,DECISIONS.md D5-01 called non-canonical,open,same file
