@@ -166,3 +166,18 @@ warning that the owner queue is not the only gate — admin override can
 bypass repository checks entirely. It is registered here so the process
 intent ("owner review before main") is not mistaken for a mechanism. Any
 future admin-merge should be owner-ruled and referenced to this entry.
+
+## S6-D07 — Brier contradiction resolved with one canonical bundle (2026-09-01)
+Three contradictory historical records (0.346 vs 0.259; 0.237 vs 0.259;
+0.34565 vs 0.286113) are closed by a single reproducible measurement at a
+pinned commit: strategy 0.237387 CI95 [0.182603, 0.292171] vs persistence
+0.258498 CI95 [0.220513, 0.296484], n=35 resolved, seed 20260830, all
+verifier checks green. The 0.237 record is CONFIRMED; the other two are
+STALE (older fixture/scorer versions). CIs overlap, so no superiority claim
+is made — consistent with the receipt's own superiority_claim: None.
+Bundle: docs/octopus-surgery/receipts/BRIER-CANONICAL-20260901.json.
+This also unblocks the vault manifest's Q1_host ("current independent Brier
+score and confidence interval"): the answer now exists with provenance.
+official_n remains unset; this is a fixture measurement, not an official
+announcement. run_observatory.py / bayesian_strategy.py / verify_live_store.py
+remain absent at HEAD; fixture_run.run_pipeline is their canonical successor.
