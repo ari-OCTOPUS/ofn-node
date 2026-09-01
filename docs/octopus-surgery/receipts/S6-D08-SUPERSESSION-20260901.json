@@ -1,0 +1,19 @@
+{
+ "decision_id": "S6-D08",
+ "title": "SUPERSEDE-P001-STOP",
+ "created_utc": "2026-09-01T01:20:21Z",
+ "supersedes": "24h-megaprompt execution_gate: stop_mutating_work_after_p001 (read-only after P001)",
+ "new_command": "continue phases 2-6 audit + GitHub/Obsidian updates + both parallel paths (market validation + this registration)",
+ "command_source_verbatim": [
+  "\u0645\u0648\u0627\u0632\u06cc \u06a9\u0627\u0631 \u06a9\u0646 \u0648 \u062f\u06cc\u0628\u0627\u06af \u0639\u0645\u06cc\u0642 \u062a\u0631\u06cc \u0628\u06a9\u0646 \u0648\u0628 \u0627\u067e \u0647\u0644\u0631\u0648 \u0647\u0645 \u0628\u062e\u0648\u0646 \u06cc\u0627\u062f\u062a \u0646\u0633\u0647 \u0627\u0628\u0633\u06cc\u062f\u06cc\u0646 \u0648 \u06af\u06cc\u062a \u0647\u0627\u0628\u0645 \u0627\u067e\u062f\u06cc\u062a\u06a9\u0646 (2026-09-01)",
+  "do both paralrll (2026-09-01, this note)"
+ ],
+ "ref_commit": "3e5887c2c3",
+ "scope": "authorizes data/doc mutations of phases 2-6 incl. PR merges to main",
+ "not_in_scope": [
+  "board138 deploy/runtime mutation (stays DEPLOY_BLOCKED)",
+  "paid provider calls",
+  "external business effects"
+ ],
+ "supersession_time": "2026-09-01"
+}
