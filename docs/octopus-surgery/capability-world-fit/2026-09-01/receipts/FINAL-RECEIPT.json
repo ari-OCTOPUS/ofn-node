@@ -1,0 +1,23 @@
+{
+ "campaign": "OCTOPUS-24H-CAPABILITY-WORLD-FIT",
+ "started_at_utc": "2026-09-01T00:00:00Z",
+ "finished_at_utc": "2026-09-01T00:58:41Z",
+ "p001_completed": true,
+ "mutations_performed": [],
+ "external_effects": [],
+ "paid_calls": [],
+ "secrets_exposed": false,
+ "sources_used": [
+  "github",
+  "local-repo",
+  "board138-read-only",
+  "F:/backup-read-only"
+ ],
+ "sources_unavailable": [
+  "huggingface",
+  "cb_insights",
+  "similarweb"
+ ],
+ "top_path": "A: Forensic Repo Audit demo -> B: Rescue/Truth-Audit product",
+ "verdict": "GO_NOW(path A) / GO_AFTER_GAPS(path B) / RESEARCH_ONLY(observatory)"
+}

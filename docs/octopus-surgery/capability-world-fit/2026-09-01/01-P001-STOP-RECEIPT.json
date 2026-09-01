@@ -1,0 +1,9 @@
+{
+ "probe": "P001",
+ "completed_utc": "2026-09-01T00:56:16Z",
+ "stop_after": true,
+ "p003_executed": false,
+ "p022_executed": false,
+ "mutations": [],
+ "next": "read-only capability census only"
+}

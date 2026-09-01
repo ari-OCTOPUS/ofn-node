@@ -1,0 +1,71 @@
+# graded 2026-09-01; reproduction required for >E1
+- capability_id: CAP-001
+  name: owner-brain ask round-trip
+  paths: [ofn/node.py,ofn/adapters/http_api.py]
+  note: "E3 PROVEN live canaries 2026-08-31; model leg blocked by provider subscription"
+  reproduction: "board canary scripts"
+- capability_id: CAP-002
+  name: shared admission quote + owner-control scope
+  paths: [ofn/kernel/quota.py]
+  note: "E3 PROVEN live 422 with quote"
+  reproduction: "live canary A"
+- capability_id: CAP-003
+  name: owner-only answer store, scrub+sha receipts
+  paths: [ofn/adapters/owner_asks.py]
+  note: "E3 PROVEN restart durability live x3"
+  reproduction: "pytest tests/test_owner_ask_p0.py"
+- capability_id: CAP-004
+  name: per-tenant hash-chain ledger
+  paths: [ofn/adapters/ledger.py]
+  note: "E2 tests; live chain green"
+  reproduction: "pytest tests/test_persistence.py"
+- capability_id: CAP-005
+  name: claim.v1 + canonical Brier bundle
+  paths: [octopus_observation/]
+  note: "E2 fixture canonical (BRIER-CANONICAL-20260901)"
+  reproduction: "fixture_run.run_pipeline()"
+- capability_id: CAP-006
+  name: independence verifier (flip/boundary/store-path)
+  paths: [octopus_observation/verifier.py]
+  note: "E2"
+  reproduction: "pytest tests/test_verifier_store_path.py"
+- capability_id: CAP-007
+  name: effect gates/kill switch/closed outbound
+  paths: [ofn/kernel/gates.py,packs]
+  note: "E3 PROVEN live gates closed"
+  reproduction: "GET /owner/status"
+- capability_id: CAP-008
+  name: multi-source drift + lineage reconciliation
+  paths: [docs/lineage + this campaign]
+  note: "E3 PROVEN (c1969bc discovery, PR#11)"
+  reproduction: "gh api compare + sha256 census"
+- capability_id: CAP-009
+  name: truth-gated CI (2OS full-suite + hygiene + contract)
+  paths: [.github/workflows/]
+  note: "E3 PROVEN live green"
+  reproduction: "gh pr checks"
+- capability_id: CAP-010
+  name: backup/restore drill
+  paths: [tests/test_restore_drill_disposable.py]
+  note: "E2; production-like BLOCKED"
+  reproduction: "pytest"
+- capability_id: CAP-011
+  name: board runtime continuity + panel
+  paths: [ofn/run.py, systemd]
+  note: "E4 owner uses daily"
+  reproduction: "curl healthz"
+- capability_id: CAP-012
+  name: painting lead/tender ops
+  paths: [ofn/adapters/lead_store.py + H1 tender adapter]
+  note: "E2 fixture + E4 human lane (quote-sent)"
+  reproduction: "repo H1"
+- capability_id: CAP-013
+  name: hypothesis engine
+  paths: [hypothesis-engine/]
+  note: "E2 TESTING/C: no edge vs novelty"
+  reproduction: "ADR-037 record"
+- capability_id: CAP-014
+  name: internet observatory
+  paths: [internet-observatory/]
+  note: "E0/E1 PLANNED (fixture parts E2)"
+  reproduction: "ADR-041"
