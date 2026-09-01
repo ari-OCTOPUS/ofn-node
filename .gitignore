@@ -27,3 +27,4 @@ docs/octopus-surgery/survival-loop/state/
 ofn/agi2027_runtime/
 data/state/
 data/octopus-alerts.jsonl
+.cursor/hook-ledger.jsonl
