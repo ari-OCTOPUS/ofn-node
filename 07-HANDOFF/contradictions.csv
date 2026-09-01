@@ -1,0 +1,19 @@
+﻿id,quantity,value_a,source_a,value_b,source_b,status,notes
+L0-LIVE-TRUTH-SHA,LIVE-TRUTH.md sha256-8,3f3cc79d,F:\backup\06-EVIDENCE\OCTOPUS-OWNER-BOARD-2026-08-27\LIVE-TRUTH.md,unverified as git object (cat-file fail 2026-08-28),chat/git rev-parse 950f8d0e also missing,open,file hash equals historic token 3f3cc79d; not a git object name
+L0-GIT-HEAD,vault git HEAD,0f0e7f5 claimed in auto block,F:\backup\OCTOPUS\CURRENT-TRUTH.md,bf88423 from git log -1 2026-09-01,git -C F:\backup log -1,open,auto-generated 2026-09-01T13:30:13Z lags two commits (1487d1e + bf88423)
+L0-SOT-WHICH-TRUTH,which CURRENT-TRUTH is live SoT,LIVE-TRUTH supersedes 2026-08-24 board file,F:\backup\06-EVIDENCE\OCTOPUS-OWNER-BOARD-2026-08-27\LIVE-TRUTH.md,2026-08-24 CURRENT-TRUTH still present sha cfd8c134,F:\backup\06-EVIDENCE\OCTOPUS-OWNER-BOARD-2026-08-24\CURRENT-TRUTH.md,open,do not pick; both on disk
+L0-AUTO-TRUTH-DATE,OCTOPUS/CURRENT-TRUTH.md dates,frontmatter updated 2026-08-11T13:35:00Z,F:\backup\OCTOPUS\CURRENT-TRUTH.md,auto-generated 2026-09-01T13:30:13Z same file,F:\backup\OCTOPUS\CURRENT-TRUTH.md,open,same file two clocks
+L0-HOOK-PYTHON,hook interpreter on Windows,python3 Store stub exit 9009,where.exe python3 this session,python 3.13.7 C:\Program Files\Python313\python.exe,python --version this session,open,pack shipped python3; install patched hooks.json to python
+L0-POISON-SHA,POISONING-WATCH-4d.md sha256-8,f159a1fd size 26527 on 2026-08-28 scan,PC_worker vault hash that day,7a283d0c size 33905 mtime 2026-09-01 22:08,F:\backup\06-EVIDENCE\POISONING-WATCH-4d.md,open,same path grew; neither discarded
+CON-ROLE-182-RECEIPT-VS-WITNESS,182 role,older chat: 182 receipt issuer,chat,180 unsigned registry: 182 lab-witness only,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/contradictions.csv sha 47d9b382,open,imported from P2; not resolved
+CON-A2-001-VS-NARRATIVE-B,node roles A2-001 vs V2 pack,A2-001: 138 origin / 180 execute / 191 canonical / 182 silent,A2-001.md,unsigned V2+180: 180 quality-only / 182 lab-witness,P2 contradictions.csv,open,imported
+CON-C034-VS-OFN-WITNESS,182 observation vs witness,C-034/Sensorium: 182 observation,01-TRUTH/CONTRADICTIONS.md C-034,unsigned OFN: 182 independent witness,P2 contradictions.csv,open,imported
+CON-THREE-PAYLOAD-HASHES,payload hash fields,payload_sha vs ManualPacket.sha256 vs witness payload_sha256,03-OWNER-DECIDE-12-FIELDS.md,not proven equal,P2 contradictions.csv,open,three names one idea
+CON-PACKET-RAW-TARGET,OwnerDecision target,schema forbids raw address,OwnerDecision,owner_outbox_packet returns raw target,node.py:3160-3168 via P2,open,imported
+CON-RECEIPT-630c5060,receipt vs snap run_id,cited receipt 630c5060,Phase 0,envelope run_id 425f4012,P2 contradictions.csv,open,imported
+CON-WORKER-HASH,180 live worker sha,live c43afff0,180 pack 2026-08-29,header claims 72e3b3a3 NOT live,P2 contradictions.csv,open,imported; later live worker 0d17890d is 182 not 180
+CON-LLAMA-BIND,llama bind,doc 127.0.0.1:8081,doc 08-26,live 0.0.0.0:8081,P2 contradictions.csv,open,imported
+CON-VAULT-483-19,vault error counts,P1-RESULT 483/19 no new errors,12-VAULT-DEBT.md,baseline missing; prior 345/9 unproven,P2 contradictions.csv,open,UNKNOWN in P2; poisoning watch also showed 345 345 on 2026-08-16
+CON-WITNESS-BEFORE-PROPOSAL,182 wr vs proposal mtime,wr_950f8d0e at 07:19,08-EDGE6-CAUSAL-TRACE.md,proposal mtime 07:21,P2 contradictions.csv,open,950f8d0e is not a git object on this vault
+CON-P1-RUNTIME,p1 source vs running,source commit a27eb05,CHECKPOINT.md,PID started 27 Aug on 6881337,P2 contradictions.csv,open,imported
+CON-OWNERDECISION-UNWIRED,12-field schema vs live,12-field schema exists on 138 spine,node.py + owner_decision.p2.py,live owner_decide ignores it,P2 contradictions.csv,open,imported
