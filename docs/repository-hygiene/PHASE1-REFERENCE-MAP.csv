@@ -1,0 +1,7 @@
+source_file,referenced_path,reference_type,new_path,repair_status
+ARI-STUDIO-STEPS.md,path-ref,path-ref,docs/agent-context/*,REPAIRED
+CHECKPOINT.md,path-ref,path-ref,docs/agent-context/*,REPAIRED
+HANDOFF.md,path-ref,path-ref,docs/agent-context/*,REPAIRED
+INDEX.md,path-ref,path-ref,docs/agent-context/*,REPAIRED
+STUDIO-ANSWERS.md,path-ref,path-ref,docs/agent-context/*,REPAIRED
+UNIFY-ANSWERS.md,path-ref,path-ref,docs/agent-context/*,REPAIRED

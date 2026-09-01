@@ -89,9 +89,18 @@ class RemoteBrain:
             with urllib.request.urlopen(req, timeout=self.timeout_s) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
+            flavor = f"{self.model}:http-{exc.code}"
+            # A billing wall is not weather: naming it lets the receipt say
+            # "renew the subscription" instead of "retry later".
+            try:
+                err = (json.loads(exc.read().decode("utf-8"))
+                       .get("error") or {})
+                if err.get("type") == "usage_limit_reached":
+                    flavor = f"{self.model}:usage-limit"
+            except Exception:
+                pass
             return BrainReply("", insufficient=True,
-                              model=f"{self.model}:http-{exc.code}",
-                              requested=self.model)
+                              model=flavor, requested=self.model)
         except (urllib.error.URLError, TimeoutError, OSError):
             return BrainReply("", insufficient=True,
                               model=f"{self.model}:unreachable",

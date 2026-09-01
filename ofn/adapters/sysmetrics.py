@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from datetime import datetime, timezone
 from typing import Mapping
 
@@ -117,10 +118,16 @@ def _read_disk(path: str) -> dict[str, int]:
         st = os.statvfs(path)
         total = st.f_blocks * st.f_frsize
         free = st.f_bavail * st.f_frsize
-        return {"total_b": total, "free_b": free,
-                "used_b": total - free}
+    except AttributeError:
+        # os.statvfs is POSIX-only. Same never-fabricate contract on Windows.
+        try:
+            usage = shutil.disk_usage(path)
+            total, free = usage.total, usage.free
+        except OSError:
+            return {"total_b": 0, "free_b": 0, "used_b": 0}
     except OSError:
         return {"total_b": 0, "free_b": 0, "used_b": 0}
+    return {"total_b": total, "free_b": free, "used_b": total - free}
 
 
 def _read_sync() -> dict:

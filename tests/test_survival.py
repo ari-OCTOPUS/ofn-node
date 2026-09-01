@@ -79,7 +79,7 @@ class TestBootDatabases(Tmp):
         led = Ledger(self.led_path); led.append(A, "NOTE", {"a": 1}, T0); led.close()
         with open(self.led_path, "r+b") as fh:      # scribble on the header
             fh.seek(30); fh.write(b"\xff" * 200)
-        rep = self.supervisor().run()
+        rep = self.supervisor(ram=2 * 1024 * 1024 * 1024).run()
         self.assertIs(rep.mode, Mode.SAFE)
 
 
@@ -145,7 +145,9 @@ class TestSafeModeIsExpressedAsAClosedGate(Tmp):
 
     def test_summary_is_operator_readable(self):
         self.assertIn("SAFE", self.supervisor(now=1000).run().summary())
-        self.assertIn("OK", self.supervisor().run().summary())
+        self.assertIn(
+            "OK", self.supervisor(ram=2 * 1024 * 1024 * 1024).run().summary()
+        )
 
 
 class TestBootResources(Tmp):

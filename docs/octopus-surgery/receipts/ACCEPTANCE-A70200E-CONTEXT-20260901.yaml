@@ -1,0 +1,72 @@
+schema: octopus.acceptance.v1
+verdict: LOCAL_ACCEPTANCE_COMPLETE
+built_utc: 2026-09-01T02:33:44Z
+builder: ZCode agent, owner layered-protocol step (read-only; no branch/PR created)
+
+source:
+  branch: integration/octopus-parallel-completion-20260830
+  branch_is_exactly: a70200e (0 commits beyond)
+  tested_sha: c46d897        # the run itself executed at this head
+  receipt_doc_sha: a70200e   # adds only WB-TRUE-FINAL-ACCEPTANCE json
+  base_sha: c46d897
+  branch_total_commits: 1860
+  merge_base_with_main: NOT_COMPUTABLE_LOCALLY   # main objects absent in germline repo; cross-fetch blocked by repo size this session; R-13 record (no merge-base, 155/1835) stands
+  main_head_at_test: c7514553   # per the acceptance receipt itself: PRs #6,#7,#8,#9 all MERGED, CI 4/4 each
+  main_head_now: e40f1c1b9bad737feecf27ca85e3c6fcdcf94913
+  board138_head: 570c85666  # verified read-only today
+
+environment:
+  hostname: <redacted-id>
+  os: Windows (laptop host, F:/ germline working copy)
+  python: 3.13.5
+  platform_patch_level: N/A (mesh/_ops repo, not ofn-node)
+  runner: detached batch (survived session cleanup)
+  started_at_utc: 2026-08-31T08:16:57Z
+  finished_at_utc: 2026-08-31T09:10:04Z
+
+acceptance:   # every number below is read verbatim from the in-repo receipt at a70200e, not re-measured
+  duration_seconds: 3187
+  tests_registered: 828
+  excluded_live: 1
+  started: 827
+  passed: 242
+  failed: 17
+  timed_out: 0
+  parse_unknown: 1
+  exit_code: NOT_RECORDED_IN_SOURCE
+  log_sha256: 7f4fba9dca92ff753a812dd33252e1eb643543b7b460ecaa9779d0e80cb1a40f
+  source_receipt_sha256: f051a9d94fcdad25816d3d874e3ef6a4267ffcc9c9ce5fb1639fecb3a5fc50fb
+  repairs_verified_in_run: [test_runner_timeout_handling, test_run_all_scoring, test_test_node_map, test_hermetic_statepaths, test_memory_truth_td51, test_memory_truth_e2e, test_run_all_hermetic]
+
+isolation:   # as recorded by the run; NOT re-verified today
+  tracked_paths_before_sha256: NOT_RECORDED_IN_SOURCE
+  tracked_paths_after_sha256: NOT_RECORDED_IN_SOURCE
+  hashes_equal: NOT_RECORDED_IN_SOURCE
+  porcelain_before: 0
+  porcelain_after: 0
+  tracked_residue: 0
+  restoration_actions: 0
+  external_network_attempts: 0
+  provider_calls: 0
+
+scope_limits:
+  main_merge_proven: false
+  board_deploy_proven: false
+  production_restore_proven: false
+  owner_gates_opened: false
+  business_effect_proven: false
+
+verdicts:
+  local_germline: CONFIRMED      # numbers exist in-repo at a70200e with log+receipt hashes
+  github_main: UNTESTABLE        # no same-SHA PR/CI for a70200e; #6-#9 landed c7514553-era content only
+  board_runtime: UNTESTABLE      # board at 570c85666 (ofn lineage), never ran germline acceptance
+  production: UNTESTABLE
+
+forbidden_interpretations:
+  - main fully accepted
+  - board runs this version
+  - owner gates opened
+  - production restore proven
+  - octopus unified
+
+self_sha256: 2aa8bdc205e834ecf38e068019aa4eb1fbf4dd0c4c80b3c1a0035de676a73f5f

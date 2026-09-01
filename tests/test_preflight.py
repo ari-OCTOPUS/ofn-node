@@ -22,11 +22,15 @@ class TestStateDirModeCheck(unittest.TestCase):
         self.addCleanup(self._dir.cleanup)
         self.path = self._dir.name
 
+    # POSIX permission bits have no Windows equivalent (chmod there only
+    # toggles the read-only flag), so the mode-bit assertions are Linux-only.
+    @unittest.skipIf(os.name == "nt", "POSIX permission-bit semantics")
     def test_0700_passes_silently(self):
         os.chmod(self.path, 0o700)
         warnings = _check_state_dir_mode(self.path)
         self.assertEqual(warnings, [])
 
+    @unittest.skipIf(os.name == "nt", "POSIX permission-bit semantics")
     def test_0755_warns(self):
         os.chmod(self.path, 0o755)
         warnings = _check_state_dir_mode(self.path)
@@ -34,6 +38,7 @@ class TestStateDirModeCheck(unittest.TestCase):
         self.assertIn("0700", warnings[0])
         self.assertIn("chmod", warnings[0])
 
+    @unittest.skipIf(os.name == "nt", "POSIX permission-bit semantics")
     def test_0750_warns(self):
         """Group-readable is still too permissive."""
         os.chmod(self.path, 0o750)

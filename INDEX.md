@@ -212,8 +212,8 @@ preflight           ۲۸/۲۸ OK
 
 ## قواعد والت
 
-- **یک منبع حقیقت.** `~/HANDOFF.md`، `~/MEGAPROMPT.md` و
-  `~/MEGAPROMPT-MINING.md` حالا symlink به داخل همین مخزن‌اند. مسیر قدیمی
+- **یک منبع حقیقت.** `~/HANDOFF.md`، `~/docs/agent-context/prompts/MEGAPROMPT.md` و
+  `~/docs/agent-context/archived/MEGAPROMPT-MINING.md` حالا symlink به داخل همین مخزن‌اند. مسیر قدیمی
   کار می‌کند، ولی فایل واقعی اینجاست و در گیت است.
 - **استثنا: `~/CLAUDE.md`.** عمداً فایل واقعیِ جداست، نه symlink — اگر
   استقرار بعدی `~/ofn` را پاک کند، قانون اساسی نباید با آن برود. الان
@@ -223,7 +223,7 @@ preflight           ۲۸/۲۸ OK
   ```
 - **بعد از پاک شدن مخزن:** `git clone` و بعد symlinkها را دوباره بساز:
   ```bash
-  cd ~ && for f in HANDOFF.md MEGAPROMPT.md MEGAPROMPT-MINING.md; do
+  cd ~ && for f in HANDOFF.md docs/agent-context/prompts/MEGAPROMPT.md docs/agent-context/archived/MEGAPROMPT-MINING.md; do
     ln -sf "ofn/$f" "$f"; done
   ```
 - `tests/` و `web/` از دید ابسیدین پنهان‌اند (`.obsidian/app.json`) — کدند،

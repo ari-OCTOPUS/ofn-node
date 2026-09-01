@@ -1,0 +1,10 @@
+{
+ "run": "SHADOW-C1-20260901T033003Z",
+ "heads": {
+  "gh_main": "838a951503af46ccf2435d3d6d8ea6c89cedb712",
+  "local": "a9959755f762ad8c0dffdfc3e2adfcd64bfc8696",
+  "board138": "570c85666 (per P001 census; read-only)"
+ },
+ "web_app": "healthz 200 x4 + owner panel 200 (P001 receipt)",
+ "cash_collected_aud": 0.0
+}

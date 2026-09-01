@@ -1,0 +1,26 @@
+{
+ "campaign": "OCTOPUS-24H-CAPABILITY-WORLD-FIT",
+ "collected_utc": "2026-09-01T00:56:16Z",
+ "host": {
+  "hostname": "DESKTOP-KA9RFN5",
+  "os": "Windows/11"
+ },
+ "cwd": "F:\\ofn-node",
+ "github_main": "91c977ac612128f54568578281b81287d9e50b62",
+ "sources": {
+  "github_main": "local fetch origin/main",
+  "F_backup": "read-only mount",
+  "board138": "read-only ssh (HEAD 570c85666)"
+ },
+ "connectors": {
+  "github": "AVAILABLE",
+  "huggingface": "SOURCE_UNAVAILABLE",
+  "cb_insights": "SOURCE_UNAVAILABLE",
+  "similarweb": "SOURCE_UNAVAILABLE"
+ },
+ "web_app_alive": {
+  "healthz": "200 on 8791/8792/8793/8794 (live board)",
+  "owner_panel_get_root": "200"
+ },
+ "secrets_printed": false
+}

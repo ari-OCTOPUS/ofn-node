@@ -39,10 +39,31 @@ from typing import Callable, Mapping, Sequence
 from .adapters.ledger import Ledger
 from .adapters.router import ModelRouter, RouterResult
 from .kernel.domain import TenantId
+from .kernel.quota import CONTROL_SCOPE
 from .kernel.routing import RouteRequest, Rung, calibrate_latency
 from .kernel.tenancy import TenantRegistry, TenantScope
 
 MAX_ATTEMPTS = 3
+
+# The owner's control scope is not a business leg and has no pack, but its
+# jobs are legitimate queue citizens. Anything else outside the registry is
+# a routing bug and gets parked, not run.
+QUEUE_TENANTS = frozenset({CONTROL_SCOPE})
+
+# A refusal carrying one of these code prefixes is a policy verdict, not a
+# bad afternoon: the same request will be refused forever, so retrying only
+# burns attempts against a metered brain. Everything else (provider errors,
+# timeouts, exceptions) is treated as transient and retried with backoff.
+NON_TRANSIENT_PREFIXES = ("quota:", "route:")
+
+# Transient failures wait before their next attempt: 30s after the first,
+# doubling, capped at ten minutes. Round 1 retried a deterministic denial
+# three times inside one second; the floor here exists so that can never
+# happen again, the cap so a flapping provider cannot retry forever.
+BACKOFF_BASE_S = 30
+BACKOFF_MAX_S = 600
+
+OWNER_ASK_TASK = "owner:ask"
 
 
 @dataclass
@@ -57,6 +78,9 @@ class Job:
     estimated_tokens: int = 2000
     attempts: int = 0
     owner_approved_deep: bool = False
+    # Earliest epoch second this job may run again after a transient
+    # failure. Zero means ready now.
+    not_before: int = 0
 
 
 @dataclass
@@ -88,6 +112,15 @@ class WorkQueue:
         with self._lock:
             return self._items.pop(0) if self._items else None
 
+    def take_ready(self, now_epoch_s: int) -> Job | None:
+        """FIFO first job whose backoff has elapsed. A waiting job keeps its
+        place; nothing behind it may jump ahead of it."""
+        with self._lock:
+            for i, job in enumerate(self._items):
+                if job.not_before <= now_epoch_s:
+                    return self._items.pop(i)
+            return None
+
     def requeue(self, job: Job) -> None:
         """Put a failed job back at the tail, so one bad job cannot starve
         the rest by being retried at the head forever."""
@@ -116,6 +149,19 @@ class Worker:
         now_epoch_s: Callable[[], int],
         now_iso: Callable[[], str],
         on_result: Callable[[TenantScope, Job, RouterResult], None] | None = None,
+        # The sink owns what happens to a *successful* answer. For owner
+        # asks it scrubs, persists, and returns the metadata (response id,
+        # hash, size) that THINK_DONE should commit to. False/None from the
+        # sink means the answer never landed, so the job must not be marked
+        # done; a bare True means "recorded elsewhere" — legacy tasks.
+        result_sink: (Callable[[TenantScope, Job, RouterResult, int], object]
+                      | None) = None,
+        # Called on every refusal with the classification the worker used,
+        # so the owner's store can mirror the job's real state.
+        on_failure: Callable[..., None] | None = None,
+        # Called the moment a job is picked up, before the brain runs.
+        on_start: Callable[[TenantScope, Job], None] | None = None,
+        backoff_base_s: int = BACKOFF_BASE_S,
     ) -> None:
         self._q = queue
         self._router = router
@@ -124,6 +170,10 @@ class Worker:
         self._now_s = now_epoch_s
         self._now_iso = now_iso
         self._on_result = on_result
+        self._result_sink = result_sink
+        self._on_failure = on_failure
+        self._on_start = on_start
+        self._backoff_base_s = max(0, int(backoff_base_s))
         self.parked: list[Job] = []
 
     def submit(self, scope: TenantScope, job: Job) -> bool:
@@ -137,20 +187,23 @@ class Worker:
         return accepted
 
     def step(self) -> bool:
-        """Process at most one job. Returns False when the queue is empty.
+        """Process at most one ready job. Returns False when none is ready.
 
         One job per call rather than draining: it keeps the caller in control
         of pacing, and it means the stop flag is checked between jobs without
         this class needing to know about shutdown at all.
         """
-        job = self._q.take()
+        job = self._q.take_ready(self._now_s())
         if job is None:
             return False
 
-        if job.tenant not in self._registry:
+        if job.tenant not in self._registry and job.tenant not in QUEUE_TENANTS:
             self.parked.append(job)
             return True
-        scope = self._registry.scope(job.tenant)
+        if job.tenant in self._registry:
+            scope = self._registry.scope(job.tenant)
+        else:
+            scope = TenantScope(TenantId(job.tenant))
 
         req = RouteRequest(
             task=job.task,
@@ -159,13 +212,19 @@ class Worker:
             owner_approved_deep=job.owner_approved_deep,
             max_rung=job.max_rung,
         )
+        if self._on_start is not None:
+            try:
+                self._on_start(scope, job)
+            except Exception:
+                pass  # lifecycle mirroring must never stop the work
 
         started = time.monotonic()
         try:
             result = self._router.ask(TenantId(job.tenant), req, job.prompt,
                                       now_epoch_s=self._now_s())
         except Exception as exc:
-            result = RouterResult("", None, refused=f"router raised: {exc}")
+            result = RouterResult("", None, refused=f"router raised: {exc}",
+                                  refused_code="internal:exception")
         elapsed_ms = int((time.monotonic() - started) * 1000)
 
         # Replace the shipped estimate with what this board actually saw.
@@ -175,36 +234,103 @@ class Worker:
 
         now = self._now_iso()
         if result.ok:
-            self._ledger.append(scope, "THINK_DONE", {
+            # The answer is disposed of FIRST. If the sink cannot land it,
+            # there is no THINK_DONE: a completion event pointing at an
+            # answer nobody can read would be a polite lie.
+            extra = True
+            if self._result_sink is not None:
+                try:
+                    extra = self._result_sink(scope, job, result,
+                                              elapsed_ms)
+                except Exception:
+                    extra = None
+            if extra is None or extra is False:
+                job.attempts += 1
+                self.parked.append(job)
+                self._q.forget(job)
+                self._ledger.append(scope, "THINK_PARKED", {
+                    "task": job.task, "idem": job.idem_key,
+                    "attempts": job.attempts,
+                    "reason": "answer could not be persisted",
+                    "retryable": False,
+                }, now)
+                if self._on_failure is not None:
+                    self._notify_failure(scope, job, "answer could not be "
+                                         "persisted",
+                                         "internal:persist-failed",
+                                         retryable=False, next_not_before=0)
+                return True
+
+            done_payload = {
                 "task": job.task, "idem": job.idem_key,
                 "rung": result.rung.value if result.rung else None,
                 "path": list(result.path), "billed_tokens": result.spend,
                 "elapsed_ms": elapsed_ms,
                 "scrubbed": dict(result.scrubbed.findings) if result.scrubbed else {},
-            }, now)
+            }
+            if isinstance(extra, Mapping):
+                done_payload.update(extra)
+            self._ledger.append(scope, "THINK_DONE", done_payload, now)
             self._q.forget(job)
             if self._on_result is not None:
                 self._on_result(scope, job, result)
             return True
 
         job.attempts += 1
-        if job.attempts >= MAX_ATTEMPTS:
-            # Parked, not retried forever. A job that keeps failing against a
-            # metered brain is an unbounded bill, and the reason it fails is
-            # almost never something another attempt fixes.
+        deterministic = result.refused_code.startswith(NON_TRANSIENT_PREFIXES)
+        if deterministic or job.attempts >= MAX_ATTEMPTS:
+            # Parked, not retried. A policy denial is forever; a repeatedly
+            # failing job against a metered brain is a bill with no upper
+            # limit. Either way, retrying is the wrong next move.
             self.parked.append(job)
             self._q.forget(job)
             self._ledger.append(scope, "THINK_PARKED", {
                 "task": job.task, "idem": job.idem_key,
                 "attempts": job.attempts, "reason": result.refused,
+                "code": result.refused_code, "retryable": False,
+                "path": list(result.path),
+                **({"provider_model": result.provider_note}
+                   if result.provider_note else {}),
             }, now)
+            if self._on_failure is not None:
+                self._notify_failure(scope, job,
+                                     result.refused + (
+                                         f" [{result.provider_note}]"
+                                         if result.provider_note else ""),
+                                     result.refused_code, retryable=False,
+                                     next_not_before=0)
         else:
+            delay = min(self._backoff_base_s * (2 ** (job.attempts - 1)),
+                        BACKOFF_MAX_S)
+            job.not_before = self._now_s() + delay
             self._q.requeue(job)
             self._ledger.append(scope, "THINK_RETRY", {
                 "task": job.task, "idem": job.idem_key,
                 "attempt": job.attempts, "reason": result.refused,
+                "code": result.refused_code, "backoff_s": delay,
+                "next_attempt_at": job.not_before,
+                "path": list(result.path),
+                **({"provider_model": result.provider_note}
+                   if result.provider_note else {}),
             }, now)
+            if self._on_failure is not None:
+                self._notify_failure(scope, job, result.refused,
+                                     result.refused_code, retryable=True,
+                                     next_not_before=job.not_before)
         return True
+
+    def _notify_failure(self, scope: TenantScope, job: Job, reason: str,
+                        code: str, *, retryable: bool,
+                        next_not_before: int) -> None:
+        try:
+            self._on_failure(scope, job, reason=reason, code=code,
+                             retryable=retryable,
+                             next_not_before=next_not_before,
+                             attempts=job.attempts)
+        except Exception:
+            # The store mirroring the failure must never take the worker
+            # down; the ledger rows above are the durable record either way.
+            pass
 
     def drain(self, stop: threading.Event | None = None, limit: int = 100) -> int:
         """Work until the queue empties, the limit is hit, or stop is set.

@@ -75,6 +75,8 @@ class TestWriting(Disk):
         self.assertIn("media_sent", "".join(studio_store.SCHEMA))
         self.assertIn("sha256", "".join(studio_store.SCHEMA))
 
+    @unittest.skipIf(os.name == "nt",
+                     "POSIX permission-bit semantics")
     def test_the_original_is_owner_only_too(self):
         rel = self.m.write_original("studio", "d1", 0, PAY)
         self.assertEqual(
@@ -247,14 +249,22 @@ class TestFilesAreNotWorldReadable(Disk):
     This does not survive theft of the board — nothing here does — but it is
     one fewer account that can read them."""
 
+    # Windows cannot represent owner/group/other bits, so these are Linux
+    # assertions (the product still calls chmod, which is a no-op there).
+    @unittest.skipIf(os.name == "nt",
+                     "POSIX permission-bit semantics")
     def test_the_media_root_is_owner_only(self):
         self.assertEqual(os.stat(self.m.root).st_mode & 0o777, 0o700)
 
+    @unittest.skipIf(os.name == "nt",
+                     "POSIX permission-bit semantics")
     def test_a_stored_file_is_owner_only(self):
         rel = self.put()
         self.assertEqual(
             os.stat(self.m.absolute(rel)).st_mode & 0o777, 0o600)
 
+    @unittest.skipIf(os.name == "nt",
+                     "POSIX permission-bit semantics")
     def test_the_directory_it_lands_in_is_owner_only(self):
         rel = self.put()
         folder = os.path.dirname(self.m.absolute(rel))

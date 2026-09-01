@@ -2235,6 +2235,27 @@ async function boot() {
     finally { probeBtn.disabled = false; }
   };
   const askBtn = document.getElementById('askBtn');
+  const pollAsk = (jobId, tries = 0) => {
+    if (tries > 100) { toolSay('پاسخ دیر آمد — بعداً دوباره بررسی کنید.', false); return; }
+    setTimeout(async () => {
+      try {
+        const out = await OFN.get('/api/v1/owner/asks/' + encodeURIComponent(jobId));
+        const job = out.job || {};
+        if (job.status === 'COMPLETED') {
+          toolSay('پاسخ مغز:\n' + (job.response_text_scrubbed || '(پاسخ خالی)'), true);
+        } else if (job.status === 'FAILED' || job.status === 'PARKED') {
+          toolSay('ناموفق: ' + (job.error_detail_safe || job.error_code || 'نامشخص'), false);
+        } else if (job.status === 'REJECTED') {
+          toolSay('رد شد: ' + (job.error_detail_safe || job.error_code), false);
+        } else {
+          toolSay('وضعیت: ' + job.status + ' — در انتظار…', true);
+          pollAsk(jobId, tries + 1);
+        }
+      } catch (err) {
+        toolSay('خواندن وضعیت ممکن نشد (' + (err.status || 'خطا') + ').', false);
+      }
+    }, 3000);
+  };
   if (askBtn) askBtn.onclick = async () => {
     const q = prompt('سؤال کوتاه از مغز (محدود و با هزینه):');
     if (!q || !q.trim()) return;
@@ -2242,10 +2263,19 @@ async function boot() {
     toolSay('سؤال به صف مغز رفت…', true);
     try {
       const out = await OFN.post('/api/v1/owner/ask', { prompt: q.trim() });
-      toolSay(out.ok
-        ? 'سؤال ثبت شد — جواب در صف می‌آید.'
-        : (out.error || 'سؤال رد شد.'), !!out.ok);
-    } catch (_) { toolSay('سؤال به دستگاه نرسید.', false); }
+      if (out.ok && out.job_id) {
+        toolSay('ثبت شد — ' + out.job_id + ' — در انتظار مغز…', true);
+        pollAsk(out.job_id);
+      } else {
+        const quote = out.quote || {};
+        const detail = quote.request_estimate
+          ? ' (تخمین ' + quote.request_estimate + ' توکن، سقف ' + quote.ceiling + ')'
+          : '';
+        toolSay('رد شد: ' + (out.error || out.code || 'نامشخص') + detail, false);
+      }
+    } catch (err) {
+      toolSay('سؤال به دستگاه نرسید' + (err.status ? ' (' + err.status + ')' : '') + '.', false);
+    }
     finally { askBtn.disabled = false; }
   };
   const cycleBtn = document.getElementById('cycleBtn');

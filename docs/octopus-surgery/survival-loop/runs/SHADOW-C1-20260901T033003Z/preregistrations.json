@@ -1,0 +1,12 @@
+[
+ {
+  "exp_id": "EXP-SEED-AUDIT-001",
+  "authority": 2,
+  "preregistration_sha256": "dc8ec9b92ad6c20281d8087899e9429559b0eff3ca4cfc3fc7cc50003379021b"
+ },
+ {
+  "exp_id": "EXP-PAINT-QUOTE-001",
+  "authority": 4,
+  "preregistration_sha256": "ccdcd97aae29bd772adbb49b5958d961e9392a5d729c46db0f8ccb41ceeb45cf"
+ }
+]

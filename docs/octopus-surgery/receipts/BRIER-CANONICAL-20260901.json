@@ -1,0 +1,57 @@
+{
+ "schema": "octopus.surgery-receipt.v1",
+ "lane": "DEEP-SCAN-CONTRADICTIONS",
+ "purpose": "canonical Brier bundle — resolves the three contradictory historical records",
+ "basis": "fixture-only, deterministic seed 20260830; NOT a live-data or superiority claim",
+ "commit": "cfb01c9ca41a67c4f171d9eeaf4ca596e52c976f",
+ "command": "from octopus_observation import fixture_run; fixture_run.run_pipeline()  # defaults n=40, unresolved=5",
+ "sha256": {
+  "scorer.py": "84d2b09518387915735b890495c177e8046f4a0e61d94d75f9457cbcf1452da0",
+  "fixture_run.py": "17881391e4598695675efb8d22ad66ea5e3026cf7ca3d8cd843c299679924867",
+  "obs_fixture.py": "7f4e181f51915df26b18f80e84391965a382fd1b45d2777ac4850e176df18c75",
+  "producer_strategy.py": "e84a9dde5e147df88f69e5a961fe07407be228fbc83be58a53190a14767d0e58",
+  "producer_persistence.py": "830f823b93d42cd56adf05166ab5e5f9f3f4ff54a899d3525c154b8499b516d2"
+ },
+ "dataset": {
+  "provenance_hash": "253c42138e0b9c98f51e1618ca62527dce14ed5ad04bbbb0824e84055503bd49",
+  "n_claims": 40,
+  "resolved_n": 35,
+  "seed": 20260830,
+  "unresolved": 5
+ },
+ "results": {
+  "strategy_brier": 0.237387,
+  "strategy_ci95": [
+   0.182603,
+   0.292171
+  ],
+  "persistence_brier": 0.258498,
+  "persistence_ci95": [
+   0.220513,
+   0.296484
+  ],
+  "method": "normal-approx"
+ },
+ "verification": {
+  "ok": true,
+  "checks": {
+   "fixture_valid": true,
+   "provenance_match": true,
+   "no_duplicate_ids": true,
+   "no_future_data_leakage": true,
+   "not_copied_baseline": true,
+   "as_of_ordering": true,
+   "module_boundaries": []
+  }
+ },
+ "superiority_claim": null,
+ "historical_numbers_disposition": {
+  "0.346_vs_0.259": "STALE — older fixture/scorer; not reproducible at pinned commit",
+  "0.237_vs_0.259": "CONFIRMED — matches this canonical bundle within rounding",
+  "0.34565_vs_0.286113": "STALE — different dataset version; refuted by this bundle"
+ },
+ "note": "CIs overlap; no superiority claim is made or implied. official_n remains unset; this is a fixture measurement, not an official announcement.",
+ "official_n": null,
+ "brier": "measured-fixture-only",
+ "evidence_db": "absent"
+}

@@ -1,0 +1,39 @@
+# Accounting correction — owner Q1–Q5 on 2026-08-31
+# Official announced score is 45.70. Do not treat other weighted totals as official.
+schema: octopus.accounting-correction.v1
+written_at_utc: "2026-08-31T13:20:00Z"
+writer:
+  role: accounting-correction
+  node_id: desktop-observer-191
+  scope: this_host_only
+lineage_this_fix: github/main
+main_head_observed: f77b68e7abef43afe7a7ebfd9962a2482faf52eb
+
+owner_answers:
+  Q1: {id: use_34, text: "Recovery score is 34 (formula); table 38 is wrong"}
+  Q2: {id: keep_4570, text: "official announced remains 45.70; record 0.05 vs raw 45.75"}
+  Q3: {id: yes_all_three, text: "keep 01-DISTANCE, 13-OWNER-INBOX, 12-90-PERCENT-GATES on 45.70 / 45% ± 7"}
+  Q4: {id: local_export_after, text: "local wave-1 total is not official; export later on a separate PR"}
+  Q5: {id: mark_stale, text: "CODE 63 / EVIDENCE 57 / OPERATIONAL 31 stay numerically unchanged; mark stale"}
+
+main_arithmetic:
+  weights_sum: 100
+  recovery:
+    table_was: 38
+    formula_was_and_remains: 34
+    owner_valid: 34
+  raw_with_recovery_34: 45.75
+  raw_with_recovery_38: 46.15
+  announced_was: 45.70
+  official_announced: 45.70
+  rounding_delta_vs_raw_34: -0.05
+  note: "45.70 is the locked announced figure; 45.75 is the exact 34-weighted raw"
+
+stale_unchanged:
+  - "CODE_COMPLETION 63% ± 7%"
+  - "EVIDENCE_COMPLETION 57% ± 8%"
+  - "OPERATIONAL_COMPLETION 31% ± 9%"
+
+not_this_fix:
+  local_wave1: pending_separate_export
+  do_not_promote_local_wave1_to_main: true

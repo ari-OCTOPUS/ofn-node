@@ -173,14 +173,27 @@ class TestFailureIsBounded(Case):
         self.assertIn("THINK_PARKED", kinds)
 
     def test_retries_are_ledgered_individually(self):
+        # P0 fix semantics: only TRANSIENT failures retry, each with bounded
+        # backoff, and each attempt lands its own THINK_RETRY row. A policy
+        # cap ("route:capped") is deterministic and must park, not retry.
+        w = self.worker({Rung.RULES: RulesBrain({}), Rung.REMOTE: Boom()})
+        w.submit(self.scope, self.job())
+        w.step()
+        w._now_s = lambda: NOW_S + 60      # the backoff elapses
+        w.step()
+        retries = [e for e in self.ledger.read(self.scope)
+                   if e.kind == "THINK_RETRY"]
+        self.assertEqual(len(retries), 2)
+
+    def test_deterministic_route_denial_parks_without_retry(self):
         rules = RulesBrain({})
         remote = Scripted(*[BrainReply("", insufficient=True) for _ in range(5)])
         w = self.worker({Rung.RULES: rules, Rung.REMOTE: remote})
         w.submit(self.scope, self.job())
-        w.step(); w.step()
-        retries = [e for e in self.ledger.read(self.scope)
-                   if e.kind == "THINK_RETRY"]
-        self.assertGreaterEqual(len(retries), 1)
+        w.step(); w.step()                 # nothing left to retry into
+        kinds = [e.kind for e in self.ledger.read(self.scope)]
+        self.assertNotIn("THINK_RETRY", kinds)
+        self.assertIn("THINK_PARKED", kinds)
 
     def test_a_raising_brain_does_not_kill_the_worker(self):
         w = self.worker({Rung.RULES: RulesBrain({}), Rung.REMOTE: Boom()})

@@ -1,0 +1,23 @@
+{
+ "lane": "S2B-B-store-hardening",
+ "files_touched": [
+  "octopus_observation/fixture_store.py",
+  "tests/test_claim_record_fixture.py"
+ ],
+ "defects_closed": [
+  "F6",
+  "F7",
+  "F8"
+ ],
+ "f6_decision": "reject .json — one writer, one suffix (.jsonl only); stated in PR body",
+ "tests": {
+  "new": 7,
+  "battery": "70 passed, 0 failed (fixture+adapter+foundation)"
+ },
+ "regression_guards": [
+  "R-05: .yaml/.yml/.db still rejected"
+ ],
+ "official_n": null,
+ "brier": null,
+ "evidence_db": "absent"
+}

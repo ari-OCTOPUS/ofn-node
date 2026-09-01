@@ -1,0 +1,23 @@
+{
+ "receipt": "ACCEPTANCE-REPRODUCTION",
+ "created_utc": "2026-09-01T01:20:21Z",
+ "base": "fresh worktree at origin/main 3e5887c2c3 (independent of campaign run)",
+ "claims": [
+  {
+   "claim": "Brier numbers",
+   "result": "strategy 0.237387 / persistence 0.258498, n=35, deterministic across 2 runs, superiority_claim null",
+   "level": "GITHUB_REPRODUCED"
+  },
+  {
+   "claim": "suite green",
+   "result": "2272 passed, 18 skipped, 1 failed: tests/test_restore_drill_disposable.py::test_protected_targets_refused (protected parent-path: no exception raised) \u2014 fails deterministically on THIS Windows host while CI windows-latest is green on the same commit",
+   "level": "LOCAL_ENV_FAILURE_UNRESOLVED",
+   "repro": "python -m pytest tests/restore_drill_disposable.py -q"
+  },
+  {
+   "claim": "99GB freed / 8 worktrees / 53min runtime",
+   "level": "LOCAL_RECEIPT_CLAIM (machine-local, not GitHub-reproducible)"
+  }
+ ],
+ "verdict": "Brier + suite-greenness GITHUB_REPRODUCED; one local-env failure isolated and disclosed"
+}

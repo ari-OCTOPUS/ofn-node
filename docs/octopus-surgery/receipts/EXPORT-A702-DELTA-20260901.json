@@ -1,0 +1,58 @@
+{
+ "schema": "octopus.export-manifest.v1",
+ "created_utc": "2026-09-01T03:01:57Z",
+ "authority": "owner ruling INTEGRATION-A702 = EXPORT_PR_ONLY (answered 2026-09-01)",
+ "source": {
+  "germline_branch": "integration/octopus-parallel-completion-20260830",
+  "head": "a70200e",
+  "tested_head": "c46d897",
+  "merge_base_with_ofn_main": "none per R-13 record (unrelated repos); cross-fetch not computable locally"
+ },
+ "exported_now": [
+  {
+   "file": "docs/octopus-surgery/receipts/WB-TRUE-FINAL-ACCEPTANCE-20260831T192000Z.json",
+   "origin": "germline a70200e verbatim",
+   "content": "local acceptance numbers (242/17/827, 3187s, residue 0)"
+  },
+  {
+   "file": "docs/octopus-surgery/receipts/ACCEPTANCE-A70200E-CONTEXT-20260901.yaml",
+   "origin": "agent context receipt (vault copy)",
+   "content": "verdicts + scope limits + forbidden interpretations"
+  }
+ ],
+ "proven_repairs_NOT_transplanted": [
+  {
+   "repair": "test_runner_timeout_handling",
+   "germline_commit": "name-search MISS; proven by acceptance run at c46d897",
+   "class": "mesh _ops runner infra"
+  },
+  {
+   "repair": "test_run_all_scoring",
+   "germline_commit": "3693baf",
+   "class": "mesh _ops runner infra"
+  },
+  {
+   "repair": "test_test_node_map",
+   "germline_commit": "name-search MISS; proven in acceptance",
+   "class": "mesh _ops registry"
+  },
+  {
+   "repair": "test_hermetic_statepaths",
+   "germline_commit": "b43cd4e",
+   "class": "mesh hermetic isolation"
+  },
+  {
+   "repair": "test_memory_truth_td51 / e2e",
+   "germline_commit": "name-search MISS; proven in acceptance",
+   "class": "mesh memory truth"
+  },
+  {
+   "repair": "test_run_all_hermetic",
+   "germline_commit": "name-search MISS; proven in acceptance",
+   "class": "mesh hermetic contract"
+  }
+ ],
+ "why_not_code_transplant": "ofn-node main has no _ops/ tree; transplanting the mesh runner would be a whole-tree graft = the forbidden 'merge of the germline' (precedent: superseded PRs #1-#4). The seven repairs are proven on the germline and recorded here with provenance; any code-level port must be its own scoped decision per repair.",
+ "stale_line_fixed": "09-BLOCKERS SOURCES_UNAVAILABLE line updated: CB Insights MARKET_VALIDATED, Similarweb QUOTA_EXHAUSTED-until-Oct, HF CANDIDATES_FOUND (SmolLM2-1.7B GGUF) \u2014 per owner session runs",
+ "merge_state": "PR opened; NOT merged \u2014 owner checkpoint (protocol step 5) pending"
+}
