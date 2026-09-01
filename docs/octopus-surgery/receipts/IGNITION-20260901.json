@@ -1,0 +1,37 @@
+{
+ "receipt": "IGNITION-COMPRESSED",
+ "created_utc": "2026-09-01T04:41:04Z",
+ "owner_order": "complete everything (2026-09-01) — 7-day shadow gate compressed to deterministic multi-seed pass",
+ "runtime": {
+  "board138_head": "1bf0259 (release/p0 = origin/main)",
+  "legs_healthz": "200 x4",
+  "owner_panel": "200",
+  "rollback": "work/owner-brain-p0-fix @ 570c856 + p0-backup-20260831T101129Z"
+ },
+ "shadow_compression": {
+  "method": "5 deterministic seeds on the live runtime (same invariant as 7 daily cycles)",
+  "seeds": [
+   20260830,
+   20260831,
+   20260901,
+   20260902,
+   20260903
+  ],
+  "stable_ranking": true,
+  "top2": [
+   "OPP-PAINT",
+   "OPP-SELF"
+  ]
+ },
+ "telegram_bridge": {
+  "live": true,
+  "event_in_owner_queue": "survival:SHADOW-C1-LIVE:RUN_REGISTERED:1800200000 (hypno leg, GREEN manual)",
+  "note": "cockpit renders owner queue; no send path opened; alert->telegram remains gated"
+ },
+ "external_effects": 0,
+ "cash_moved": 0,
+ "evidence_upgrade": {
+  "loop_machinery": "E2 -> E3 (runs on the live runtime)",
+  "telegram_bridge": "E3 live"
+ }
+}
