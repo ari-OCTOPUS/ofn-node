@@ -199,3 +199,27 @@ failure' was root-caused to a real guard_target bug (drive-root prefix check)
 and the test is now a host-independent negative-control. The D-program state
 is untouched: THIRD_PARTY_FAILED_STOP / D0_BLOCKED / D1 = NOT_STARTED.
 Receipt: receipts/S6-D09-D0BLOCKED-CONTEXT-20260901.json.
+
+## S6-D10 — governance rules generalized; admin merges registered per S6-D06 (2026-09-01)
+Three standing rules from the owner's verdict: (1) NO_POST_HOC_RUBRIC — no
+criterion is created or re-tuned after seeing the evidence it scores (Brier
+superiority withheld; market deltas withdrawn); (2) SAFETY_GATE_LOCAL_FAILURE_
+STAYS_OPEN — a local failure of a safety-gate test is never closed by "CI is
+green"; it stays OPEN until the differing parameter is found (guard_target:
+cwd-parent-is-drive-root). Green CI on an uncovered parameter space is the
+more dangerous case. (3) externally unobservable claims stay
+LOCAL_RECEIPT_CLAIM until verified from the repo. The full admin-merge
+register (which PRs, under what state, per S6-D06) lives in
+receipts/S6-D10-GOVERNANCE-RULES-20260901.json.
+
+## S6-D11 — survival-loop ratified as the next execution frame; nothing started (2026-09-01)
+The owner's bounded-autonomy plan is the frame for what comes next:
+freedom-to-discover automated (A0-A4), freedom-to-affect envelope/owner-gated
+(A5-A8); north star verified_cash_collected; L0-L7 ladder targeting L5;
+revenue/resource caps 60/25/10/5. Hard gates before any loop runs: the
+20-test mandatory battery, 7 shadow days, observatory runtime re-proven.
+Wave-1: seeded truth-audit benchmark (>=80% recall / <10% FP before any
+public repo), narrow-green CI detector with mutant proof, painting loop,
+rescue-as-truth-audit, capped nightly self-audit. Board deploy stays
+DEPLOY_BLOCKED; no A5+ activity starts without a campaign envelope.
+Receipt: receipts/S6-D11-SURVIVAL-LOOP-FRAME-20260901.json.

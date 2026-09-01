@@ -1,0 +1,30 @@
+{
+ "decision_id": "S6-D11",
+ "created_utc": "2026-09-01T02:40:59Z",
+ "frame": "survival-loop (owner-authored plan, ratified as the NEXT execution frame \u2014 nothing started)",
+ "essence": "separate freedom-to-discover (A0-A4 auto) from freedom-to-affect (A5-A8 envelope/owner-gated); north_star=verified_cash_collected; progress ladder L0-L7 (target L5), not_success list bans test-count/LOC/dashboards/leads-without-contact as progress",
+ "gates_before_any_loop_runs": [
+  "mandatory 20-test battery (halt switch, kill-metric required, campaign envelope for external effects, proposal!=execution, quote_drafted!=quote_sent, invoice!=revenue, only payment receipt increments cash, preregistration immutable, per-gate negative control, provider-outage parks, restart-safe idempotency, PARSE_DRIFT over guesses, canary auto-rollback, separate ledgers, no LLM-only success)",
+  "shadow mode 7 days producing hypotheses/preregistrations only",
+  "observatory runtime location re-proven before any loop connection (docs contradictory: PLANNED vs live)"
+ ],
+ "wave1_experiments": [
+  "truth-audit benchmark on 3 seeded repos (>=80% material-contradiction recall, <10% FP) before any public repo, private report only",
+  "narrow-green CI detector with mutant-based gate proof",
+  "painting revenue loop (parallel, nearest cash)",
+  "rescue = truth-audit with recovery output, A/B/C offer test",
+  "nightly self-audit capped at 10% capacity"
+ ],
+ "resource_cap": {
+  "revenue_experiments": "60%",
+  "customer_delivery": "25%",
+  "self_audit": "10%",
+  "speculative": "5%"
+ },
+ "owner_only_before_any_external_effect": "campaign envelope approval (APPROVE_ENVELOPE/MODIFY/REJECT)",
+ "not_started": [
+  "survival-loop service",
+  "board ff/deploy (DEPLOY_BLOCKED)",
+  "any A5+ activity"
+ ]
+}
