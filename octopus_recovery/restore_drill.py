@@ -49,10 +49,14 @@ def _norm(p: Path) -> str:
 
 
 def guard_target(target: Path) -> None:
-    t = _norm(target)
+    # Containment by pathlib parents, not string prefixes: a Windows drive
+    # root like F:\ normalizes to "f:\" and a startswith(r + "\") check
+    # never matches its children (f:\x), so protecting a drive root used to
+    # protect nothing. pathlib handles the anchor case natively.
+    t = target.resolve()
     for root in _protected_roots():
-        r = _norm(Path(root))
-        if t == r or t.startswith(r + "\\"):
+        r = Path(root).resolve()
+        if t == r or r in t.parents:
             raise DrillError(f"protected target refused: {target}")
 
 

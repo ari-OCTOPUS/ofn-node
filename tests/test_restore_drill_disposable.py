@@ -113,21 +113,47 @@ def test_path_traversal_rejected():
 
 
 def test_protected_targets_refused():
-    print("[5] protected roots refused")
+    """Negative-control form: temp-dir based, host-independent.
+
+    Pins three things the old cwd-based form could not: (a) equal/inside
+    refusal, (b) the Windows drive-root regression — protecting F:\ used to
+    protect nothing because guard_target compared string prefixes, and
+    (c) the NEGATIVE control: an unrelated target must pass through, so a
+    green run proves the harness can tell refused from allowed apart.
+    """
     import os
     key = "OCTOPUS_RESTORE_PROTECTED_ROOTS"
     saved = os.environ.get(key)
-    root = Path.cwd()
-    os.environ[key] = str(root) + os.pathsep + str(root.parent)
-    try:
-        expect_raises("protected root", rd.guard_target, root)
-        expect_raises("protected child", rd.guard_target, root / "state")
-        expect_raises("protected parent-path", rd.guard_target, root.parent / "x")
-    finally:
-        if saved is None:
-            os.environ.pop(key, None)
-        else:
-            os.environ[key] = saved
+    with tempfile.TemporaryDirectory() as tmp:
+        prot = Path(tmp) / "prot"
+        other = Path(tmp) / "other"
+        prot.mkdir()
+        other.mkdir()
+        anchor = str(Path(tmp).anchor)
+        os.environ[key] = str(prot)
+        try:
+            expect_raises("protected root (equal)", rd.guard_target, prot)
+            expect_raises("protected child", rd.guard_target, prot / "state")
+            guard_none = rd.guard_target(other)
+            check("negative control: unrelated target passes",
+                  guard_none is None)
+        finally:
+            if saved is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = saved
+        # Regression pin, separate protection scope: the filesystem anchor
+        # (e.g. F:\ or /) must protect its children. The old string-prefix
+        # check silently protected nothing in exactly this case.
+        os.environ[key] = anchor
+        try:
+            expect_raises("anchor root protects its children",
+                          rd.guard_target, other)
+        finally:
+            if saved is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = saved
 
 def test_non_fresh_destination_refused():
     print("[6] non-fresh destination refused")
