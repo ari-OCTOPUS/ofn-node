@@ -181,3 +181,11 @@ score and confidence interval"): the answer now exists with provenance.
 official_n remains unset; this is a fixture measurement, not an official
 announcement. run_observatory.py / bayesian_strategy.py / verify_live_store.py
 remain absent at HEAD; fixture_run.run_pipeline is their canonical successor.
+
+## S6-D08 — P001 stop-command superseded (owner, 2026-09-01)
+The 24h megaprompt's stop-after-P001 gate is superseded by the owner's
+same-day commands ("...ابسیدین و گیت هابم اپدیتکن" and "do both parallel"):
+phases 2-6 data/doc mutations and their GitHub merges are authorized.
+Board138 deploy/runtime mutation stays DEPLOY_BLOCKED; paid calls and
+external business effects stay out of scope. Receipt:
+receipts/S6-D08-SUPERSESSION-20260901.json.
