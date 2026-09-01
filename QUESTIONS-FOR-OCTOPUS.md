@@ -69,3 +69,18 @@ snapshot کامل برد روی شاخهٔ **`ofn/board-snapshot-20260816`** pus
 - octopus-bridge: ساخته‌شده، سه‌قفل خاموش (outbound=0 · BOARD_CP_PULL=0 · بدون CONTROL_URL) — آمادهٔ G7
 - snapshot: ۲۱۳۵ فایل، ~۱۶MB (بدون .git) — شاخهٔ `ofn/board-snapshot-20260816`
 - heartbeat: زنده — `systemctl status ofn-heartbeat` · شاخهٔ `ofn/heartbeat`
+
+---
+
+## پاسخ نهایی — ۲۰۲۶-09-01 (بستن این پرونده)
+
+این سوال‌ها مالِ معماریِ ۲۰۲۶-08-16 بود (برد=دستیار، ویندوز=ارگانیسم، CONTROL_URL/SMB).
+**معماری عوض شد و این پرونده منسوخ است:**
+
+1. **CONTROL_URL:** منسوخ — بورد خودش runtime است؛ هیچ pull از ویندوز لازم نیست.
+2. **OCTOPUS_BRIDGE_API_KEY:** منسوخ — همان کلید در secrets.env بورد می‌ماند؛ کانال GitHub مسیر گیت است.
+3. **SMB:** بسته شد — GitHub تنها مسیر گیت (رأی عملی سیزن؛ رلهٔ push ویندوز تا deploy key فعال شود).
+4. «برد هر ۱۰ دقیقه fetch می‌کند»: دیگر نه — بورد upstream است، نه mirror.
+
+جانشین: docs/DISCOVERY.md + ROADMAP (#64) + ایتسیوهای گیت‌هاب.
+status: CLOSED-superseded by Armin/ZCode 2026-09-01
