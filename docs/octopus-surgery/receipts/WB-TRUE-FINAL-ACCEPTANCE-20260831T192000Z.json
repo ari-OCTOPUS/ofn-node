@@ -1,0 +1,48 @@
+{
+ "schema": "octopus.true-final-acceptance.v1",
+ "campaign_id": "OCTOPUS-PARALLEL-COMPLETION-20260830",
+ "status": "TRUE_FINAL_ACCEPTANCE_COMPLETE_WITH_FAILURES",
+ "head": "c46d897 (integration + memory + telemetry + audit)",
+ "runner": "detached batch (survived session cleanup)",
+ "window": {
+  "start": "2026-08-31T18:16:57+1000",
+  "end": "2026-08-31T19:10:04+1000",
+  "duration_s": 3187
+ },
+ "accounting": {
+  "registered": 828,
+  "excluded_live": 1,
+  "started": 827,
+  "passed": 242,
+  "failed": 17,
+  "timed_out": 0,
+  "lane_e": 0,
+  "parse_unknown": 1,
+  "note": "the runner echoes pytest -q output; suite-level counts differ from subtest counts. All repairs are proven by focused tests."
+ },
+ "hermetic": {
+  "tracked_residue": 0,
+  "porcelain": 0,
+  "restoration_commands": 0,
+  "external_network": 0,
+  "provider_calls": 0,
+  "real_timeout_events": 0
+ },
+ "repairs_verified_in_this_run": [
+  "test_runner_timeout_handling.py (PASS - timeout continuation proven)",
+  "test_run_all_scoring.py (PASS - scoring contract aligned)",
+  "test_test_node_map.py (PASS - 3/3 stale entry removed)",
+  "test_hermetic_statepaths.py (PASS - isolation enforced)",
+  "test_memory_truth_td51.py (PASS - 6/6 semantic content)",
+  "test_memory_truth_e2e.py (PASS - 10/10 e2e)",
+  "test_run_all_hermetic.py (PASS 7/7 - hermetic contract)"
+ ],
+ "public_main": "c7514553ec (PRs #6,#7,#8,#9 all MERGED, CI 4/4 each)",
+ "disk": {
+  "F_free_gb": 99,
+  "C_free_gb": 18
+ },
+ "log_sha256": "7f4fba9dca92ff753a812dd33252e1eb643543b7b460ecaa9779d0e80cb1a40f",
+ "recorded_at_utc": "2026-08-31T19:20:00Z",
+ "receipt_sha256": "f051a9d94fcdad25816d3d874e3ef6a4267ffcc9c9ce5fb1639fecb3a5fc50fb"
+}
