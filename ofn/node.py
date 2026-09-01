@@ -2405,7 +2405,10 @@ class Node:
             scope = self.registry.scope(tenant)
             for item in self.outbox.pending(scope):
                 out.append({
-                    "id": item.idem_key,
+                    # Transport id carries the tenant (owner_decide
+                    # partitions it); the DB key itself is raw since the
+                    # composite-PK contract.
+                    "id": f"{item.tenant}:{item.idem_key}",
                     "tenant": item.tenant,
                     "kind": item.kind,
                     "tier": item.tier.value,
@@ -2415,7 +2418,10 @@ class Node:
                 })
             for item in self.outbox.held(scope):
                 out.append({
-                    "id": item.idem_key, "tenant": item.tenant,
+                    # Transport id carries the tenant (owner_decide
+                    # partitions it); the DB key itself is raw since the
+                    # composite-PK contract.
+                    "id": f"{item.tenant}:{item.idem_key}", "tenant": item.tenant,
                     "kind": item.kind, "tier": item.tier.value,
                     "payload": dict(item.payload), "created_at": item.created_at,
                     "held": True, "note": item.note,
@@ -2602,7 +2608,10 @@ class Node:
             ]
             for item, state in candidates:
                 items.append({
-                    "id": item.idem_key,
+                    # Transport id carries the tenant (owner_decide
+                    # partitions it); the DB key itself is raw since the
+                    # composite-PK contract.
+                    "id": f"{item.tenant}:{item.idem_key}",
                     "business_id": item.tenant,
                     "kind": item.kind,
                     "tier": item.tier.value,
@@ -3454,7 +3463,10 @@ class Node:
             scope = self.registry.scope(tenant)
             for item in self.outbox.approved_manual(scope):
                 out.append({
-                    "id": item.idem_key,
+                    # Transport id carries the tenant (owner_decide
+                    # partitions it); the DB key itself is raw since the
+                    # composite-PK contract.
+                    "id": f"{item.tenant}:{item.idem_key}",
                     "tenant": item.tenant,
                     "kind": item.kind,
                     "tier": item.tier.value,

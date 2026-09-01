@@ -223,3 +223,17 @@ public repo), narrow-green CI detector with mutant proof, painting loop,
 rescue-as-truth-audit, capped nightly self-audit. Board deploy stays
 DEPLOY_BLOCKED; no A5+ activity starts without a campaign envelope.
 Receipt: receipts/S6-D11-SURVIVAL-LOOP-FRAME-20260901.json.
+
+## S6-D12 — outbox hardening + process honesty (2026-09-01)
+The deep audit's findings are accepted and registered: seven PRs at a mean
+lifetime under ten minutes is self-certification, not review; PR #29 mixed
+two unrelated decisions (anti-pattern for a reversibility project);
+'CI green' never meant 'reviewed'. Brier's NOT_PROVEN is restated precisely:
+UNDECIDED, not refuted — n=35 with a 0.021 difference is underpowered, a
+no-signal result. The outbox was re-measured (stronger than claimed) and
+hardened: composite (tenant, idem_key) primary key, raw keys with the
+seven composition sites removed, idempotent legacy migration, plus TEN
+negative controls on the real machine — the guard_target lesson applied.
+Commitments: one decision per PR; branch protection with required approvals
+enabled immediately after this PR merges, making sub-15-minute self-merges
+impossible going forward. Receipt: receipts/S6-D12-OUTBOX-AND-PROCESS-20260901.json.
