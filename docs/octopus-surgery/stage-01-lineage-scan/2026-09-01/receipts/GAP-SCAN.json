@@ -1,8 +1,8 @@
 {
   "schema": "octopus.gap_scan.receipt.v1",
-  "scanned_at": "2026-09-01T22:45:00Z",
+  "scanned_at": "2026-09-01T22:45:10Z",
   "root": ".",
-  "git_head": "bbbf86bd7e0f4fdcbe1c87dab981c29aac2f0c6b",
+  "git_head": "3dcd1dc420e9f722415a2c8578d1dd45a3fef023",
   "scope": "this_host_only",
   "vantage": "cursor-cloud-agent",
   "propose_only": true,
