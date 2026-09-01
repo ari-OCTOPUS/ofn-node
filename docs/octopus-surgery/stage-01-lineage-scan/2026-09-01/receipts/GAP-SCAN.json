@@ -1,8 +1,8 @@
 {
   "schema": "octopus.gap_scan.receipt.v1",
-  "scanned_at": "2026-09-01T22:45:10Z",
+  "scanned_at": "2026-09-01T22:50:01Z",
   "root": ".",
-  "git_head": "3dcd1dc420e9f722415a2c8578d1dd45a3fef023",
+  "git_head": "cd3b2b7e734b114d7572579cedc9d418f2e97902",
   "scope": "this_host_only",
   "vantage": "cursor-cloud-agent",
   "propose_only": true,
@@ -61,8 +61,7 @@
         "secret_rotation"
       ]
     },
-    "painting_registry_sources": 44,
-    "collected_tests": 2391
+    "painting_registry_sources": 44
   },
   "sources": {
     "cbhf_uploads_identical": true,

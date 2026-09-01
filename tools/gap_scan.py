@@ -41,49 +41,44 @@ INTAKE_REL = os.path.join(
     "receipts",
     "INTAKE-SHA256.json",
 )
+# Text sources are hashed after CRLF → LF. Windows checkouts with
+# core.autocrlf must not look like a different document.
 SOURCE_FILES = {
-    "repo_stage00": os.path.join(
-        "docs",
-        "octopus-surgery",
-        "stage-01-lineage-scan",
-        "2026-09-01",
-        "sources",
-        "STAGE-00-SCAN-REPORT.md",
-    ),
-    "repo_cbhf": os.path.join(
-        "docs",
-        "octopus-surgery",
-        "stage-01-lineage-scan",
-        "2026-09-01",
-        "sources",
-        "CB-INSIGHTS-HUGGING-FACE.md",
-    ),
-    "repo_ten_aspect": os.path.join(
-        "docs",
-        "octopus-surgery",
-        "stage-01-lineage-scan",
-        "2026-09-01",
-        "sources",
-        "octopus-deep-scan-10-aspects.md",
-    ),
-    "repo_image_1": os.path.join(
-        "docs",
-        "octopus-surgery",
-        "stage-01-lineage-scan",
-        "2026-09-01",
-        "sources",
-        "images",
-        "image_1.png",
-    ),
-    "repo_image_2": os.path.join(
-        "docs",
-        "octopus-surgery",
-        "stage-01-lineage-scan",
-        "2026-09-01",
-        "sources",
-        "images",
-        "image_2.png",
-    ),
+    "repo_stage00": {
+        "rel": os.path.join(
+            "docs", "octopus-surgery", "stage-01-lineage-scan",
+            "2026-09-01", "sources", "STAGE-00-SCAN-REPORT.md",
+        ),
+        "normalize_newlines": True,
+    },
+    "repo_cbhf": {
+        "rel": os.path.join(
+            "docs", "octopus-surgery", "stage-01-lineage-scan",
+            "2026-09-01", "sources", "CB-INSIGHTS-HUGGING-FACE.md",
+        ),
+        "normalize_newlines": True,
+    },
+    "repo_ten_aspect": {
+        "rel": os.path.join(
+            "docs", "octopus-surgery", "stage-01-lineage-scan",
+            "2026-09-01", "sources", "octopus-deep-scan-10-aspects.md",
+        ),
+        "normalize_newlines": True,
+    },
+    "repo_image_1": {
+        "rel": os.path.join(
+            "docs", "octopus-surgery", "stage-01-lineage-scan",
+            "2026-09-01", "sources", "images", "image_1.png",
+        ),
+        "normalize_newlines": False,
+    },
+    "repo_image_2": {
+        "rel": os.path.join(
+            "docs", "octopus-surgery", "stage-01-lineage-scan",
+            "2026-09-01", "sources", "images", "image_2.png",
+        ),
+        "normalize_newlines": False,
+    },
 }
 
 FORBIDDEN_READ_PREFIXES = (
@@ -121,11 +116,14 @@ class GapScanError(ValueError):
     """Fail-closed registry or path error."""
 
 
-def _sha256_file(path: str) -> str:
+def _sha256_file(path: str, *, normalize_newlines: bool = False) -> str:
+    """Hash file bytes. Text sources strip CR so Windows CRLF == Linux LF."""
     digest = hashlib.sha256()
     with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(65536), b""):
-            digest.update(chunk)
+        data = fh.read()
+    if normalize_newlines:
+        data = data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    digest.update(data)
     return digest.hexdigest()
 
 
@@ -223,8 +221,13 @@ def scan_sources(root: str = ROOT) -> dict[str, Any]:
     intake_path = os.path.join(root, INTAKE_REL)
     with open(intake_path, encoding="utf-8") as fh:
         intake = json.load(fh)
-    measured = {key: _sha256_file(os.path.join(root, rel))
-                for key, rel in SOURCE_FILES.items()}
+    measured = {
+        key: _sha256_file(
+            os.path.join(root, spec["rel"]),
+            normalize_newlines=bool(spec["normalize_newlines"]),
+        )
+        for key, spec in SOURCE_FILES.items()
+    }
     expected = intake.get("files") or {}
     mismatches = {
         key: {"expected": expected.get(key), "measured": digest}

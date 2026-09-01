@@ -1,6 +1,6 @@
 {
   "schema": "octopus.stage01.intake.v1",
-  "note": "Hashes of the four uploaded sources. The two CB Insights markdown files were byte-identical; only one copy is stored in sources/.",
+  "note": "Hashes of the four uploaded sources. The two CB Insights markdown files were byte-identical; only one copy is stored in sources/. Text hashes are LF-normalized so a Windows CRLF checkout is the same document.",
   "cbhf_uploads_identical": true,
   "files": {
     "upload_stage00": "c851871eb529bd75e0f9469bf780bb76b51e961e59a3817a82fe736e5c1e4ed7",

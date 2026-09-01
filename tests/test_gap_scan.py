@@ -49,6 +49,39 @@ def _import_names(tree: ast.AST) -> set[str]:
     return names
 
 
+class TestSourceHashIsCheckoutStable(unittest.TestCase):
+    def test_text_hash_ignores_crlf(self):
+        from tools.gap_scan import _sha256_file
+        with tempfile.TemporaryDirectory(prefix="gap-scan-nl-") as tmp:
+            lf = os.path.join(tmp, "lf.md")
+            crlf = os.path.join(tmp, "crlf.md")
+            payload = "مرحله ۰\nline two\n"
+            with open(lf, "wb") as fh:
+                fh.write(payload.encode("utf-8"))
+            with open(crlf, "wb") as fh:
+                fh.write(payload.replace("\n", "\r\n").encode("utf-8"))
+            self.assertEqual(
+                _sha256_file(lf, normalize_newlines=True),
+                _sha256_file(crlf, normalize_newlines=True),
+            )
+            self.assertNotEqual(
+                _sha256_file(lf, normalize_newlines=False),
+                _sha256_file(crlf, normalize_newlines=False),
+            )
+
+    def test_binary_hash_does_not_strip_cr(self):
+        from tools.gap_scan import _sha256_file
+        with tempfile.TemporaryDirectory(prefix="gap-scan-bin-") as tmp:
+            path = os.path.join(tmp, "x.png")
+            raw = b"\x89PNG\r\n\x1a\n" + b"\x00\x01"
+            with open(path, "wb") as fh:
+                fh.write(raw)
+            self.assertEqual(
+                _sha256_file(path, normalize_newlines=False),
+                __import__("hashlib").sha256(raw).hexdigest(),
+            )
+
+
 class TestGapScanPurity(unittest.TestCase):
     def test_tool_does_not_import_network(self):
         with open(TOOL, encoding="utf-8") as fh:
