@@ -8,15 +8,19 @@ gate this path.
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 from ofn.config import D27_DAILY_SEND_CAP
 from ofn.kernel.release_switch import RULE_OWNER_TWO_STEP
 
 MISSION = "PAINT-L5-001"
 RULE_NOT_ON_BODY = "paint:body_not_on_this_host"
+RULE_NO_SENDER = "paint:no-sender-bound"
 RULE_DRY_RUN = "paint:dry-run"
+RULE_SENT = "paint:sent"
 RULE_CAP = "paint:send-cap"
+
+Sender = Callable[[str, str], Mapping[str, Any]]
 
 
 class PaintFollowUpError(ValueError):
@@ -33,8 +37,13 @@ def propose_follow_up(
     sends_today: int = 0,
     on_lead_body: bool = False,
     daily_send_cap: int = D27_DAILY_SEND_CAP,
+    sender: Sender | None = None,
 ) -> dict[str, Any]:
-    """Draft or refuse a painting follow-up. Never invents a send receipt."""
+    """Draft, refuse, or hand a confirmed follow-up to a bound sender.
+
+    This module never talks to a customer itself. A live send is reachable
+    only when the lead body binds a sender that returns a receipt_id.
+    """
     if not lead_id or not str(lead_id).strip():
         raise PaintFollowUpError("paint:lead-id-required")
     if not (body or "").strip():
@@ -55,7 +64,21 @@ def propose_follow_up(
         }
     if not on_lead_body:
         raise PaintFollowUpError(RULE_NOT_ON_BODY)
-    raise PaintFollowUpError(RULE_NOT_ON_BODY)
+    if sender is None:
+        raise PaintFollowUpError(RULE_NO_SENDER)
+    receipt = sender(lead_id, body)
+    if not isinstance(receipt, Mapping) or not receipt.get("receipt_id"):
+        raise PaintFollowUpError("paint:sender-receipt-missing")
+    return {
+        "ok": True,
+        "mission": MISSION,
+        "lead_id": lead_id,
+        "rule": RULE_SENT,
+        "dry_run": False,
+        "sent": True,
+        "body": body,
+        "receipt_id": receipt["receipt_id"],
+    }
 
 
 def as_episode_fields(draft: Mapping[str, Any]) -> dict[str, Any]:

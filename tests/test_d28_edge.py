@@ -13,7 +13,9 @@ from ofn.adapters.platform_matrix_loader import default_matrix_path, load_matrix
 from ofn.kernel.advisor_gate import Collection, Sensitivity, may_send_image
 from ofn.config import GATE_OPEN_UNTIL_UTC
 from octopus_survival.paint_followup import (
+    RULE_NO_SENDER,
     RULE_NOT_ON_BODY,
+    RULE_SENT,
     PaintFollowUpError,
     propose_follow_up,
 )
@@ -195,3 +197,31 @@ class TestPaintFollowUpDoesNotSendHere(unittest.TestCase):
                 on_lead_body=False,
             )
         self.assertEqual(str(ctx.exception), RULE_NOT_ON_BODY)
+
+    def test_live_send_reaches_a_bound_sender_on_the_lead_body(self):
+        with self.assertRaises(PaintFollowUpError) as ctx:
+            propose_follow_up(
+                lead_id="PAINT-L5-001",
+                body="quote ready",
+                owner_step1=True,
+                owner_step2=True,
+                dry_run=False,
+                on_lead_body=True,
+            )
+        self.assertEqual(str(ctx.exception), RULE_NO_SENDER)
+
+        def sender(lead_id: str, body: str) -> dict:
+            return {"receipt_id": f"outbox-{lead_id}", "body": body}
+
+        out = propose_follow_up(
+            lead_id="PAINT-L5-001",
+            body="quote ready",
+            owner_step1=True,
+            owner_step2=True,
+            dry_run=False,
+            on_lead_body=True,
+            sender=sender,
+        )
+        self.assertTrue(out["sent"])
+        self.assertEqual(out["rule"], RULE_SENT)
+        self.assertEqual(out["receipt_id"], "outbox-PAINT-L5-001")

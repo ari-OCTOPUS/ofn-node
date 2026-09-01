@@ -193,6 +193,70 @@ class TestPromotionAndDemotion(unittest.TestCase):
             with self.assertRaisesRegex(EconomyError, "WIRE"):
                 eco.grant("A3")
 
+    def test_grant_consumes_the_streak_and_a3_needs_taught_agreement(self):
+        with tempfile.TemporaryDirectory(prefix="econ-") as tmp:
+            eco = school(tmp, level="A1", wire=True)
+            for i in range(CLEAN_TO_PROPOSE_PROMOTION):
+                eid = f"E{i}"
+                eco.open(eid)
+                eco.apply(eid, "selling", {
+                    "decision": "accept_lead",
+                    "proposed_action": "draft_quote",
+                })
+            eco.grant("A2")
+            self.assertIsNone(eco.propose_promotion())
+            for i in range(CLEAN_TO_PROPOSE_PROMOTION):
+                eid = f"U{i}"
+                eco.open(eid)
+                eco.apply(eid, "selling", {
+                    "decision": "accept_lead",
+                    "proposed_action": "draft_quote",
+                })
+            self.assertIsNone(eco.propose_promotion())
+            for i in range(CLEAN_TO_PROPOSE_PROMOTION):
+                eid = f"T{i}"
+                eco.open(eid)
+                eco.apply(eid, "selling", {
+                    "decision": "accept_lead",
+                    "proposed_action": "draft_quote",
+                })
+                eco.teach(
+                    eid,
+                    agent_decision="accept_lead",
+                    teacher_decision="accept_lead",
+                    reason_code="AGREE",
+                    real_outcome="held",
+                    lesson="same call",
+                )
+            self.assertEqual(eco.propose_promotion(), "A3")
+            eco.grant("A3")
+            self.assertIsNone(eco.propose_promotion())
+
+    def test_prior_approval_counts_on_a_later_receipt(self):
+        with tempfile.TemporaryDirectory(prefix="econ-") as tmp:
+            eco = school(tmp, level="A2", wire=True)
+            eco.open("E1")
+            eco.apply("E1", "execution", {"approval": "owner-1"})
+            eco.apply("E1", "execution", {
+                "execution_receipt": {"kind": "send"},
+            })
+            self.assertEqual(eco.get("E1").execution_receipt["kind"], "send")
+
+    def test_rewriting_the_same_send_does_not_burn_another_cap(self):
+        with tempfile.TemporaryDirectory(prefix="econ-") as tmp:
+            eco = school(tmp, level="A2", wire=True)
+            eco.daily_send_cap = 1
+            eco.open("E1")
+            eco.apply("E1", "execution", {
+                "approval": "owner-1",
+                "execution_receipt": {"kind": "send", "n": 1},
+            })
+            eco.apply("E1", "execution", {
+                "approval": "owner-1",
+                "execution_receipt": {"kind": "send", "n": 2},
+            })
+            self.assertEqual(eco.metrics()["sends_today"], 1)
+
     def test_dangerous_error_steps_back_one_rung(self):
         with tempfile.TemporaryDirectory(prefix="econ-") as tmp:
             eco = school(tmp, level="A2")
