@@ -1,0 +1,11 @@
+lane_id,name,owns_paths,forbidden_paths,read_only,depends_on,exit_gate
+L0,Contradiction resolution,"09-LANES/L0/,07-HANDOFF/contradictions.csv","tests/,src/",yes,none,"Every contradicted number has both values, both sources, status open or resolved with a runtime source"
+L1,Log mining (zero-cost discovery),09-LANES/L1/,"src/,tests/",yes,L0,"Three behavioural findings absent from any document, or an explicit zero"
+L2,Metric repair (P3),"metrics/,09-LANES/L2/",src/wire/,no,L0,"Old metric retained, replacement written with metric_version, blinded synthetic test proves it can go green and red"
+L3,External judge harness,"eval/judge/,09-LANES/L3/","src/,metrics/",no,L2,Judge reproduces a verdict with no access to producer context
+L4,Held-out set construction,"eval/heldout/,09-LANES/L4/",eval/judge/,no,L2,"Set hash-locked, never used for tuning, provenance recorded"
+L5,Scaffold variation,"eval/scaffold/,09-LANES/L5/",eval/heldout/,no,L4,"Five scaffold forms measured, variance threshold pre-declared, grades adjusted downward where warranted"
+L6,Fault injection,"eval/fault/,09-LANES/L6/",src/gateway.py,no,L3,At least one fail-closed boundary has a real failure receipt
+L7,Contract and snapshot tests,"tests/contract/,tests/snapshot/,09-LANES/L7/",src/,no,L0,"Context bundle contract asserted, routing boundary snapshotted"
+L8,Ledger topology diagnosis,09-LANES/L8/,"src/,ledger/",yes,L1,"One real causal chain extracted, information loss points named, graph build deferred as proposal"
+L9,Infrastructure hardening proposals,09-LANES/L9/,"/etc/,src/",yes,none,"Firewall and security-header plans written as owner-decision proposals, nothing applied"
