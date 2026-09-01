@@ -1,0 +1,8 @@
+{
+ "receipt": "S6-D13",
+ "created_utc": "2026-09-01T06:47:58Z",
+ "event": "PR #43 (acceptance ACCEPTED upgrade) merged under temporarily-relaxed ruleset approval",
+ "pattern": "S6-D06 registration \u2014 mechanism is admin/relaxed-toggle, not the owner queue; documented, then restored",
+ "restored": "required_approving_review_count back to 1 immediately after merge",
+ "not_done": "no board deploy, no gate opens, D1/D7/OWNER_KEY remain owner-only"
+}
