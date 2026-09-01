@@ -1,0 +1,10 @@
+{
+  "business_id": "business:lead:shadow-idem-1",
+  "idempotency_parity": true,
+  "mesh_items_unchanged": true,
+  "mesh_native_id": "mesh-shadow-1",
+  "mode": "shadow_fixture",
+  "owner_items_visible": true,
+  "pii_leaks": 0,
+  "response_sha256": "2e31f8b404430df33662ca705ca0af06a81fa2921c971cc0bd78cc7ad16964fa"
+}

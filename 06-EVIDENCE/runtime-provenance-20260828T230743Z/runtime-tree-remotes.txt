@@ -1,0 +1,4 @@
+germline	/mnt/octopus-germline/octopus.git (fetch)
+germline	/mnt/octopus-germline/octopus.git (push)
+origin	https://github.com/ari322/ofn-node.git (fetch)
+origin	https://github.com/ari322/ofn-node.git (push)

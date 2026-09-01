@@ -1,0 +1,108 @@
+test_callback_exception_does_not_crash (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_callback_exception_does_not_crash) ... ok
+test_duplicate_native_id_is_one_row_and_degraded (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_duplicate_native_id_is_one_row_and_degraded) ... ok
+test_idempotency_key_parity_survives_projection (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_idempotency_key_parity_survives_projection) ... ok
+test_mesh_items_are_unchanged_when_owner_callback_is_added (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_mesh_items_are_unchanged_when_owner_callback_is_added) ... ok
+test_missing_callback_is_unknown_and_degraded_not_empty (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_missing_callback_is_unknown_and_degraded_not_empty) ... ok
+test_owner_queue_callback_is_exposed_additively (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_owner_queue_callback_is_exposed_additively) ... ok
+test_payload_and_pii_are_not_serialized (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_payload_and_pii_are_not_serialized) ... ok
+test_read_does_not_mutate_mesh_tree (tests.test_cockpit_v2_owner_queue.TestCockpitV2OwnerQueue.test_read_does_not_mutate_mesh_tree) ... ok
+test_held_state_uses_existing_held_marker (tests.test_cockpit_v2_owner_queue.TestNodeOwnerQueueMetadata.test_held_state_uses_existing_held_marker) ... ok
+test_metadata_is_derived_from_real_owner_queue_contract (tests.test_cockpit_v2_owner_queue.TestNodeOwnerQueueMetadata.test_metadata_is_derived_from_real_owner_queue_contract) ... ok
+test_run_reader_injects_metadata_callback (tests.test_cockpit_v2_owner_queue.TestProductionReaderOwnerQueueWiring.test_run_reader_injects_metadata_callback) ... ok
+test_legacy_panel_exact_bytes_are_unchanged (tests.test_cockpit_v2_purity.TestLegacyPanelPreserved.test_legacy_panel_exact_bytes_are_unchanged) ... ok
+test_v2_is_a_separate_tree (tests.test_cockpit_v2_purity.TestLegacyPanelPreserved.test_v2_is_a_separate_tree) ... ok
+test_code_contains_no_systemd_or_listener_mutation (tests.test_cockpit_v2_purity.TestM1DeploymentPurity.test_code_contains_no_systemd_or_listener_mutation) ... ok
+test_v2_uses_no_absolute_secret_path (tests.test_cockpit_v2_purity.TestM1DeploymentPurity.test_v2_uses_no_absolute_secret_path) ... ok
+test_frontend_has_no_effect_api (tests.test_cockpit_v2_purity.TestM1HasNoCommandSurface.test_frontend_has_no_effect_api) ... ok
+test_frontend_persists_no_session_or_token (tests.test_cockpit_v2_purity.TestM1HasNoCommandSurface.test_frontend_persists_no_session_or_token) ... ok
+test_no_v2_command_endpoint_exists (tests.test_cockpit_v2_purity.TestM1HasNoCommandSurface.test_no_v2_command_endpoint_exists) ... ok
+test_only_authentication_post_is_present_in_frontend (tests.test_cockpit_v2_purity.TestM1HasNoCommandSurface.test_only_authentication_post_is_present_in_frontend) ... ok
+test_read_model_does_not_open_files_for_write (tests.test_cockpit_v2_purity.TestReadModelPurity.test_read_model_does_not_open_files_for_write) ... ok
+test_read_model_has_no_process_or_shell_execution (tests.test_cockpit_v2_purity.TestReadModelPurity.test_read_model_has_no_process_or_shell_execution) ... ok
+test_read_model_imports_no_network_process_or_control_module (tests.test_cockpit_v2_purity.TestReadModelPurity.test_read_model_imports_no_network_process_or_control_module) ... ok
+test_read_model_uses_no_store_constructor_names (tests.test_cockpit_v2_purity.TestReadModelPurity.test_read_model_uses_no_store_constructor_names) ... ok
+test_loader_is_bounded (tests.test_cockpit_v2_http.TestCockpitStaticLoader.test_loader_is_bounded) ... ok
+test_loader_maps_only_allowed_regular_files_and_aliases (tests.test_cockpit_v2_http.TestCockpitStaticLoader.test_loader_maps_only_allowed_regular_files_and_aliases) ... ok
+test_auth_matrix_and_auth_failure_never_becomes_304 (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_auth_matrix_and_auth_failure_never_becomes_304) ... http panel GET /api/v2/owner/status -> 401
+http panel GET /api/v2/owner/status -> 401
+http panel GET /api/v2/owner/status -> 401
+http studio GET /api/v2/owner/status -> 404
+ok
+test_etag_nonmatch_and_bodyless_matching_304 (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_etag_nonmatch_and_bodyless_matching_304) ... ok
+test_exact_six_authenticated_routes_and_unknown_suffix (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_exact_six_authenticated_routes_and_unknown_suffix) ... http panel GET /api/v2/owner/not-a-resource -> 404
+ok
+test_query_duplicates_blanks_and_decoding_reach_callback (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_query_duplicates_blanks_and_decoding_reach_callback) ... ok
+test_static_files_are_public (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_static_files_are_public) ... ok
+test_static_shell_every_mime_and_legacy_bytes (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_static_shell_every_mime_and_legacy_bytes) ... http panel GET / -> 200
+ok
+test_wrong_methods_are_405_and_do_not_invoke_callback (tests.test_cockpit_v2_http.TestCockpitV2RealHttp.test_wrong_methods_are_405_and_do_not_invoke_callback) ... http panel POST /api/v2/owner/status -> 405
+http panel POST /api/v2/owner/nodes -> 405
+http panel POST /api/v2/owner/legs -> 405
+http panel POST /api/v2/owner/queue -> 405
+http panel POST /api/v2/owner/audit -> 405
+http panel POST /api/v2/owner/version -> 405
+http panel DELETE /api/v2/owner/status -> 405
+http panel DELETE /api/v2/owner/nodes -> 405
+http panel DELETE /api/v2/owner/legs -> 405
+http panel DELETE /api/v2/owner/queue -> 405
+http panel DELETE /api/v2/owner/audit -> 405
+http panel DELETE /api/v2/owner/version -> 405
+http panel PUT /api/v2/owner/status -> 405
+http panel PUT /api/v2/owner/nodes -> 405
+http panel PUT /api/v2/owner/legs -> 405
+http panel PUT /api/v2/owner/queue -> 405
+http panel PUT /api/v2/owner/audit -> 405
+http panel PUT /api/v2/owner/version -> 405
+http panel PATCH /api/v2/owner/status -> 405
+http panel PATCH /api/v2/owner/nodes -> 405
+http panel PATCH /api/v2/owner/legs -> 405
+http panel PATCH /api/v2/owner/queue -> 405
+http panel PATCH /api/v2/owner/audit -> 405
+http panel PATCH /api/v2/owner/version -> 405
+ok
+test_reader_constructs_real_model_and_returns_etag_metadata (tests.test_cockpit_v2_http.TestProductionReaderWiring.test_reader_constructs_real_model_and_returns_etag_metadata) ... ok
+test_all_resources_share_the_common_envelope (tests.test_cockpit_v2_read_model.TestEnvelopeAndQueries.test_all_resources_share_the_common_envelope) ... ok
+test_list_valued_and_aliased_queries_are_accepted (tests.test_cockpit_v2_read_model.TestEnvelopeAndQueries.test_list_valued_and_aliased_queries_are_accepted) ... ok
+test_query_validation_matrix (tests.test_cockpit_v2_read_model.TestEnvelopeAndQueries.test_query_validation_matrix) ... ok
+test_unknown_resource_is_rejected (tests.test_cockpit_v2_read_model.TestEnvelopeAndQueries.test_unknown_resource_is_rejected) ... ok
+test_missing_mesh_root_degrades_every_resource (tests.test_cockpit_v2_read_model.TestFreshnessAndTruth.test_missing_mesh_root_degrades_every_resource) ... ok
+test_stale_observation_is_labelled_stale_not_live (tests.test_cockpit_v2_read_model.TestFreshnessAndTruth.test_stale_observation_is_labelled_stale_not_live) ... ok
+test_symlink_escape_is_blocked (tests.test_cockpit_v2_read_model.TestFreshnessAndTruth.test_symlink_escape_is_blocked) ... ok
+test_audit_tolerates_one_corrupt_line (tests.test_cockpit_v2_read_model.TestQueueAndAuditProjections.test_audit_tolerates_one_corrupt_line) ... ok
+test_pagination_is_bounded_and_cursor_stable (tests.test_cockpit_v2_read_model.TestQueueAndAuditProjections.test_pagination_is_bounded_and_cursor_stable) ... ok
+test_queue_is_metadata_only_and_ignores_temp_files (tests.test_cockpit_v2_read_model.TestQueueAndAuditProjections.test_queue_is_metadata_only_and_ignores_temp_files) ... ok
+test_etag_changes_with_semantic_content_or_query (tests.test_cockpit_v2_read_model.TestSemanticEtag.test_etag_changes_with_semantic_content_or_query) ... ok
+test_etag_is_deterministic_and_ignores_generation_time (tests.test_cockpit_v2_read_model.TestSemanticEtag.test_etag_is_deterministic_and_ignores_generation_time) ... ok
+test_reads_do_not_mutate_the_mesh_tree (tests.test_cockpit_v2_read_model.TestSemanticEtag.test_reads_do_not_mutate_the_mesh_tree) ... ok
+test_contribution_margin_is_unknown_without_complete_provenance (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_contribution_margin_is_unknown_without_complete_provenance) ... ok
+test_legs_are_the_fixed_eight_lifecycle_legs (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_legs_are_the_fixed_eight_lifecycle_legs) ... ok
+test_missing_business_sources_are_unknown_not_zero (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_missing_business_sources_are_unknown_not_zero) ... ok
+test_money_without_valid_receipt_never_becomes_verified_cash (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_money_without_valid_receipt_never_becomes_verified_cash) ... ok
+test_only_provenance_valid_receipt_becomes_verified_cash (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_only_provenance_valid_receipt_becomes_verified_cash) ... ok
+test_quote_booking_and_invoice_fields_stay_separate_from_cash (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_quote_booking_and_invoice_fields_stay_separate_from_cash) ... ok
+test_status_does_not_fabricate_money (tests.test_cockpit_v2_business_truth.TestBusinessTruthContract.test_status_does_not_fabricate_money) ... ok
+test_audit_never_returns_details_or_raw_error (tests.test_cockpit_v2_business_truth.TestHostileMetadataRedaction.test_audit_never_returns_details_or_raw_error) ... ok
+test_queue_never_returns_payload_evidence_or_raw_error (tests.test_cockpit_v2_business_truth.TestHostileMetadataRedaction.test_queue_never_returns_payload_evidence_or_raw_error) ... ok
+test_read_api_performs_no_file_mutation (tests.test_cockpit_v2_business_truth.TestHostileMetadataRedaction.test_read_api_performs_no_file_mutation) ... ok
+test_direct_launch_and_all_named_auth_errors (tests.test_cockpit_v2_frontend.TestAuthAndReadOnlySurface.test_direct_launch_and_all_named_auth_errors) ... ok
+test_no_effect_endpoint_or_secrets (tests.test_cockpit_v2_frontend.TestAuthAndReadOnlySurface.test_no_effect_endpoint_or_secrets) ... ok
+test_only_auth_post_and_all_v2_calls_are_gets (tests.test_cockpit_v2_frontend.TestAuthAndReadOnlySurface.test_only_auth_post_and_all_v2_calls_are_gets) ... ok
+test_session_is_memory_only_and_not_in_url_or_credentials (tests.test_cockpit_v2_frontend.TestAuthAndReadOnlySurface.test_session_is_memory_only_and_not_in_url_or_credentials) ... ok
+test_all_javascript_has_valid_syntax (tests.test_cockpit_v2_frontend.TestPollingContract.test_all_javascript_has_valid_syntax) ... ok
+test_node_polling_suite (tests.test_cockpit_v2_frontend.TestPollingContract.test_node_polling_suite) ... ok
+test_source_contains_required_polling_guards (tests.test_cockpit_v2_frontend.TestPollingContract.test_source_contains_required_polling_guards) ... ok
+test_dependency_free_es_modules (tests.test_cockpit_v2_frontend.TestRequestedStructure.test_dependency_free_es_modules) ... ok
+test_required_files_exist (tests.test_cockpit_v2_frontend.TestRequestedStructure.test_required_files_exist) ... ok
+test_root_absolute_assets_and_manifest_scope (tests.test_cockpit_v2_frontend.TestRequestedStructure.test_root_absolute_assets_and_manifest_scope) ... ok
+test_persian_rtl_mobile_and_sdk_order (tests.test_cockpit_v2_frontend.TestRtlMobileAccessibility.test_persian_rtl_mobile_and_sdk_order) ... ok
+test_semantics_keyboard_focus_and_live_regions (tests.test_cockpit_v2_frontend.TestRtlMobileAccessibility.test_semantics_keyboard_focus_and_live_regions) ... ok
+test_visible_loading_empty_error_stale_offline_status (tests.test_cockpit_v2_frontend.TestRtlMobileAccessibility.test_visible_loading_empty_error_stale_offline_status) ... ok
+test_api_data_has_no_unsafe_dom_sink (tests.test_cockpit_v2_frontend.TestSafeRenderingAndTruth.test_api_data_has_no_unsafe_dom_sink) ... ok
+test_exact_eight_legs_and_explicit_money_truth (tests.test_cockpit_v2_frontend.TestSafeRenderingAndTruth.test_exact_eight_legs_and_explicit_money_truth) ... ok
+test_hostile_injection_is_only_text_and_bidi_is_isolated (tests.test_cockpit_v2_frontend.TestSafeRenderingAndTruth.test_hostile_injection_is_only_text_and_bidi_is_isolated) ... ok
+test_queue_is_metadata_only_and_audit_has_controls (tests.test_cockpit_v2_frontend.TestSafeRenderingAndTruth.test_queue_is_metadata_only_and_audit_has_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 73 tests in 7.733s
+
+OK

@@ -1,0 +1,22 @@
+{
+ "receipt": "ACCEPTANCE-UPGRADE",
+ "created_utc": "2026-09-01T06:35:10Z",
+ "verdict": "ACCEPTED (from CONDITIONALLY_ACCEPTED)",
+ "trigger": "provider subscription renewed by owner (Sakana Standard, active, period ends Oct 1 2026)",
+ "micro_probe": {
+  "status": "COMPLETED",
+  "reply": "OCTOPUS_BRAIN_LIVE",
+  "billed_tokens": 237,
+  "hash_verified": true
+ },
+ "round2_six_clause": {
+  "status": "COMPLETED",
+  "billed_tokens": 12061,
+  "rung": "remote",
+  "answer_chars": 2799,
+  "response_sha256_verified": true
+ },
+ "external_effects": 0,
+ "source": "board138 live runs; round2-answer.txt captured",
+ "owner_notification": "delivered in chat"
+}

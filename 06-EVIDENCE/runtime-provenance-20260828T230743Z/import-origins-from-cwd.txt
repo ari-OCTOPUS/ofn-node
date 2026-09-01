@@ -1,0 +1,11 @@
+cwd /home/ari/ofn
+ofn.run path=/home/ari/ofn/ofn/run.py bytes=26667 sha256=e6564dbdaccecac54722e8bd81e38ab9f8a034b8cfbe9b95a8f4cc6da5c4f5d7
+ofn.adapters.http_api path=/home/ari/ofn/ofn/adapters/http_api.py bytes=99192 sha256=052864bed63976191022cfc921a43d5df8c66249f2b2ebe31dbf8cf55b284268
+ofn.adapters.cockpit_v2_read_model path=/home/ari/ofn/ofn/adapters/cockpit_v2_read_model.py bytes=109911 sha256=64d063e112c4743146684f76f48ae86ea73546321f50056f753635d8f5fdc2b3
+ofn.adapters.ledger path=/home/ari/ofn/ofn/adapters/ledger.py bytes=7815 sha256=368e11a05b474166fcd91c4f63b984e1c24ba39ed50861c5522891e62bb60b51
+ofn.adapters.outbox path=/home/ari/ofn/ofn/adapters/outbox.py bytes=18452 sha256=7e3ca0eb3f4eb410c8e3a7740ecb5aa21c04cfefb808fcc39032851aaebf109c
+ofn.adapters.owner_decision path=/home/ari/ofn/ofn/adapters/owner_decision.py bytes=5910 sha256=6cc5d87827c9a5dfe3c0d9ea8931992142123e05081084ac2cf06cafaa5b44a3
+ofn.adapters.witness_mint path=/home/ari/ofn/ofn/adapters/witness_mint.py bytes=5271 sha256=dcbb3b9eed126e721968ad0d750bad277460c13cf90c4846da723d5e1d3d9d4e
+ofn.adapters.fake_executor path=/home/ari/ofn/ofn/adapters/fake_executor.py bytes=8204 sha256=b50e8edd7d3ecd10f4d2abba83c370b62086c6e9f21efac3d5bee7dde015a7a0
+LINECOUNT ofn/adapters/cockpit_v2_read_model.py physical 2966 nonempty 2775 bytes 109911 cmd=splitlines+strip
+LINECOUNT ofn/adapters/http_api.py physical 1844 nonempty 1731 bytes 99192 cmd=splitlines+strip
