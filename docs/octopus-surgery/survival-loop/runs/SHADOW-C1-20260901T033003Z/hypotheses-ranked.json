@@ -1,0 +1,42 @@
+[
+ {
+  "opportunity_id": "OPP-PAINT",
+  "name": "painting quote loop",
+  "S": 9.643
+ },
+ {
+  "opportunity_id": "OPP-SELF",
+  "name": "nightly self-audit as product teaser",
+  "S": 0.321
+ },
+ {
+  "opportunity_id": "OPP-TAUDIT",
+  "name": "truth-audit paid pilot",
+  "S": 0.309
+ },
+ {
+  "opportunity_id": "OPP-NGREEN",
+  "name": "narrow-green CI detector wedge",
+  "S": 0.28
+ },
+ {
+  "opportunity_id": "OPP-HFMODEL",
+  "name": "local SmolLM2 fallback",
+  "S": 0.094
+ },
+ {
+  "opportunity_id": "OPP-RESCUE-A",
+  "name": "rescue report-only offer",
+  "S": 0.071
+ },
+ {
+  "opportunity_id": "OPP-RESCUE-B",
+  "name": "rescue + 7d recovery plan",
+  "S": 0.054
+ },
+ {
+  "opportunity_id": "OPP-OBS",
+  "name": "observatory live grounding",
+  "S": 0.0
+ }
+]
