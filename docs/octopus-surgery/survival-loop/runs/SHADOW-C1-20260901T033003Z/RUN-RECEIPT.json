@@ -1,0 +1,26 @@
+{
+ "run": "SHADOW-C1-20260901T033003Z",
+ "mode": "SHADOW (compressed 7-day gate per owner order)",
+ "battery": "20/20 green (tests/test_survival_loop_battery.py)",
+ "artifacts": [
+  "census.json",
+  "hypotheses-ranked.json",
+  "preregistrations.json"
+ ],
+ "external_effects": 0,
+ "cash_collected_aud": 0.0,
+ "selected_top2": [
+  "EXP-SEED-AUDIT-001",
+  "EXP-PAINT-QUOTE-001"
+ ],
+ "gates_passed": [
+  "20-test battery",
+  "shadow artifact production"
+ ],
+ "gates_still_closed": [
+  "A5+ envelope",
+  "board deploy",
+  "observatory runtime proof"
+ ],
+ "verdict": "SHADOW_COMPLETE \u2014 loop machinery proven; nothing external started"
+}
