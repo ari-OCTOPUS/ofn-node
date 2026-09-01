@@ -77,6 +77,21 @@ SCHEMA = (
 # approved index is created HERE, after the columns exist — putting it in
 # SCHEMA would make apply_schema run it before the migration on old files.
 
+def _fingerprint(rows):
+    """Canonical, sorted, order-independent fingerprint of a row set.
+
+    Returns (count, sha256). Sorting by (tenant, idem_key) means the same
+    logical set produces the same digest regardless of physical row order
+    in the source or target table — the D2 finding: the old inline
+    fingerprints were order-sensitive and could false-fail a healthy DB.
+    """
+    canon = json.dumps(
+        sorted((dict(r) for r in rows),
+               key=lambda d: (d["tenant"], d["idem_key"])),
+        sort_keys=True, ensure_ascii=False)
+    return len(rows), hashlib.sha256(canon.encode()).hexdigest()
+
+
 def _migrate_composite_pk(conn) -> None:
     """Rebuild legacy single-PK outbox files onto the composite key.
 
@@ -85,9 +100,10 @@ def _migrate_composite_pk(conn) -> None:
     uniqueness. A lossless verification (count + order-independent
     fingerprint) runs before the legacy table is dropped.
 
-    If any step fails mid-rebuild, the legacy table is restored and the
-    partial new table is dropped - boot fails cleanly rather than silently
-    losing rows.
+    D1: if the copy loop itself fails mid-way (bad row, constraint), the
+    partial table is dropped and the legacy table restored — the same
+    restore path as the fingerprint mismatch, so there is exactly one
+    recovery route, not two.
     """
     pk = [r["name"] for r in conn.execute("PRAGMA table_info(outbox)")
           if r["pk"] > 0]
@@ -100,14 +116,7 @@ def _migrate_composite_pk(conn) -> None:
             "SELECT * FROM outbox ORDER BY tenant, idem_key"
         ).fetchall()
 
-        # Fingerprint BEFORE: order-independent (sorted by tenant+key)
-        canon_before = json.dumps(
-            [dict(r) for r in sorted(old_rows,
-                                     key=lambda r: (r["tenant"],
-                                                    r["idem_key"]))],
-            sort_keys=True, ensure_ascii=False)
-        before_fp = hashlib.sha256(canon_before.encode()).hexdigest()
-        before_n = len(old_rows)
+        before_n, before_fp = _fingerprint(old_rows)
 
         conn.execute("ALTER TABLE outbox RENAME TO outbox_legacy")
         conn.execute(
@@ -115,29 +124,25 @@ def _migrate_composite_pk(conn) -> None:
             " tenant TEXT NOT NULL, idem_key TEXT NOT NULL"
             + "".join(f", {c} {info[c]}" for c in others)
             + ", PRIMARY KEY (tenant, idem_key))")
-        for row in old_rows:
-            d = dict(row)
-            ph = ", ".join("?" for _ in d)
-            try:
+        try:
+            for row in old_rows:
+                d = dict(row)
+                ph = ", ".join("?" for _ in d)
                 conn.execute(
                     f"INSERT INTO outbox ({', '.join(d)}) "
                     f"VALUES ({ph})", tuple(d.values()))
-            except Exception:
-                # Mid-loop failure: restore legacy, drop partial, re-raise
-                conn.execute("DROP TABLE outbox")
-                conn.execute(
-                    "ALTER TABLE outbox_legacy RENAME TO outbox")
-                raise
+        except Exception as exc:
+            conn.execute("DROP TABLE outbox")
+            conn.execute("ALTER TABLE outbox_legacy RENAME TO outbox")
+            raise FailClosedError(
+                "lossless-migration-check-failed: aborted mid-copy after "
+                f"{before_n} rows read; {type(exc).__name__}: {exc} - "
+                "legacy table preserved; no DROP performed") from exc
+
         new_rows = conn.execute(
             "SELECT * FROM outbox "
             "ORDER BY tenant, idem_key").fetchall()
-        canon_after = json.dumps(
-            [dict(r) for r in sorted(new_rows,
-                                     key=lambda r: (r["tenant"],
-                                                    r["idem_key"]))],
-            sort_keys=True, ensure_ascii=False)
-        after_fp = hashlib.sha256(canon_after.encode()).hexdigest()
-        after_n = len(new_rows)
+        after_n, after_fp = _fingerprint(new_rows)
         if after_n != before_n or after_fp != before_fp:
             conn.execute("DROP TABLE outbox")
             conn.execute("ALTER TABLE outbox_legacy RENAME TO outbox")
@@ -195,8 +200,15 @@ class Outbox:
 
     def __init__(self, path: str) -> None:
         self._pool = Pool(path)
-        apply_schema(self._conn, SCHEMA,
-                     (_migrate_composite_pk, _migrate_manual_columns))
+        try:
+            apply_schema(self._conn, SCHEMA,
+                         (_migrate_composite_pk, _migrate_manual_columns))
+        except Exception:
+            # A failed boot must not leak the file handle: on Windows a
+            # leaked sqlite handle keeps the store locked and the file
+            # undeletable (the exact teardown PermissionError class).
+            self._pool.close()
+            raise
 
     def close(self) -> None:
         self._pool.close()

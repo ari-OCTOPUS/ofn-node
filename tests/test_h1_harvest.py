@@ -52,19 +52,20 @@ class Case(unittest.TestCase):
         return {"ok": True, "score": 0.62, "recommendation": "watch"}
 
     def test_painting_tender_harvested_scored_and_notified(self):
-        hits = harvest([ocds()])
-        self.assertEqual(len(hits), 1)
-        out = cycle(lambda n: [ocds()], self.create,
-                    notify=self.notify, now_epoch_s=NOW) \
-            if False else None
-        # run cycle with injected fetch via monkey-free path: use harvest directly
-        result = {"status": "DONE", "new": 1}
-        self.store.rows = []
-        for hit in hits:
-            self.create(hit)
-            self.notify(hit["tender_id"], "TENDER_FOUND", hit)
+        """A REAL cycle call: fetch is injected, create and notify run."""
+        import ofn.agents.h1_harvest as mod
+        orig = mod.fetch_releases
+        mod.fetch_releases = lambda n: [ocds()]
+        try:
+            out = cycle(self.store, self.create,
+                        notify=self.notify, now_epoch_s=NOW)
+        finally:
+            mod.fetch_releases = orig
+        self.assertEqual(out["status"], "DONE")
+        self.assertEqual(out["new"], 1)
+        self.assertEqual(out["notified"], 1)
         self.assertEqual(len(self.notifications), 1)
-        self.assertIn("tender_id", hits[0])
+        self.assertEqual(len(self.store.rows), 1)
 
     def test_non_painting_tender_rejected(self):
         hits = harvest([ocds(title="IT consultancy", unspsc=[])])

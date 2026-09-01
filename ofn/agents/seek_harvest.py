@@ -23,9 +23,7 @@ SEEK_URL = (
 )
 TIMEOUT_S = 20
 MAX_RETRIES = 2
-USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-              "AppleWebKit/537.36 (KHTML, like Gecko) "
-              "Chrome/126.0.0.0 Safari/537.36")
+USER_AGENT = "octopus-lead-harvester/1.0 (Ari; contact via repo owner)"
 
 _TITLE = re.compile(
     r'data-automation="jobTitle"[^>]*>([^<]+)<')
