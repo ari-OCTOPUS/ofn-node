@@ -1,0 +1,62 @@
+{
+ "decision_id": "S6-D10",
+ "created_utc": "2026-09-01T02:40:59Z",
+ "owner_verdict_source": "owner review of PR #29 season, 2026-09-01",
+ "admin_merge_register_per_S6_D06": [
+  {
+   "prs": [
+    "#12",
+    "#14",
+    "#13",
+    "#15"
+   ],
+   "authority": "owner ruling Q8",
+   "state_at_merge": "repository checks not satisfied; admin override used",
+   "note": "registered by S6-D06 same day"
+  },
+  {
+   "prs": [
+    "#18",
+    "#19",
+    "#20",
+    "#21"
+   ],
+   "authority": "owner S2b pack Q8 order",
+   "state_at_merge": "docs/stacked-lane PRs; checks unsatisfied at merge time; #18/#21 reported already-merged on first admin call"
+  },
+  {
+   "pr": "#28",
+   "authority": "standing GitHub-update order via S6-D08",
+   "state_at_merge": "BEHIND (docs-only); 15/15 checks green; admin used"
+  },
+  {
+   "prs_merged_without_admin": [
+    "#11(owner-self)",
+    "#24",
+    "#25",
+    "#26",
+    "#27",
+    "#29"
+   ],
+   "state": "full CI green before merge; no override"
+  }
+ ],
+ "generalized_rules": [
+  {
+   "rule": "NO_POST_HOC_RUBRIC: no scoring criterion, threshold or rubric is created or re-tuned after seeing the evidence it scores. Instances: Brier superiority withheld (CIs overlap); market deltas 74/73 withdrawn (S6-D09).",
+   "origin": "owner generalization of S6-D09 + Brier receipt"
+  },
+  {
+   "rule": "SAFETY_GATE_LOCAL_FAILURE_STAYS_OPEN: a local failure of a safety-gate test is never closed by 'CI is green on the same commit'; it stays OPEN until the differing parameter is identified (guard_target: cwd-parent-is-drive-root) \u2014 green CI only means the parameter space was not covered, which is the more dangerous case (PR #24 anti-pattern family).",
+   "origin": "owner ruling on the guard_target false-negative"
+  },
+  {
+   "rule": "LOCAL_RECEIPT_CLAIM_BOUNDARY: externally unobservable claims (PR #29 merged, main=49142dd, 2-OS CI green) remain LOCAL_RECEIPT_CLAIM until verified from the repo itself; verification one-liners published with the receipt."
+  }
+ ],
+ "verification_commands": [
+  "gh pr view 29 --repo ari-OCTOPUS/ofn-node --json state,mergeCommit",
+  "gh api repos/ari-OCTOPUS/ofn-node/branches/main --jq .commit.sha",
+  "gh run list --repo ari-OCTOPUS/ofn-node --branch main --limit 1"
+ ]
+}
