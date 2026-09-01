@@ -1,0 +1,23 @@
+{
+ "receipt": "DEEP-DEBUG-FINAL",
+ "created_utc": "2026-09-01T06:10:19Z",
+ "resolved": [
+  "CI-green != reviewed: observation-contract gate now runs the S2b proof tests; full-suite two-OS on main",
+  "guard_target drive-root fail-open: pathlib containment + host-independent negative-control test (both directions pinned)",
+  "outbox dual-storage/prefix-composition: composite (tenant, idem_key) PK, raw keys at 7 sites, idempotent legacy migration",
+  "Brier wording: UNDECIDED-not-refuted (underpowered at n=35, delta 0.021)",
+  "S6-D09 withdraws post-hoc market deltas (74/73)",
+  "S6-D12: outbox re-measured STRONGER than documented; 10 negative controls on the real machine",
+  "S6-D13: review item 1 landed as five negative controls; item 3 replaced by migration collision guard (duplicate-legacy-id, no index)"
+ ],
+ "open_owner_only": [
+  "provider subscription renewal",
+  "branch-protection ruleset apply (payload committed)",
+  "board138 ff to latest main (needs separate ruling)"
+ ],
+ "stale_documentation_fixed": [
+  "SOURCES_UNAVAILABLE line in 09-BLOCKERS",
+  "20-test battery '85% unbuilt' claim",
+  "FINAL-STATUS PR table"
+ ]
+}
