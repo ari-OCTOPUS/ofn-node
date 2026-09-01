@@ -64,6 +64,7 @@ tree. Do not flatten vault H1 or Typed Events onto this repo.
 
 ## D-26 (2026-09-01, owner in-session)
 
-Owner: register the whole STAGE-01 package for owner and partners.
-Recorded. Partner voices not independently heard.
-`implementation_authorized=false`. Wave 1 not started.
+Owner: register the whole STAGE-01 package; then “they all signed.”
+`owner_attests_all_signed=true`. This vantage still did not hear
+Maliheh / Abbas / Saba. `implementation_authorized=false`. Wave 1
+not started.

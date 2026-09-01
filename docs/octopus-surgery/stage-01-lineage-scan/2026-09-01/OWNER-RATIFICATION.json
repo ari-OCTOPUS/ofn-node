@@ -5,10 +5,22 @@
   "vantage": "cursor-cloud-agent",
   "scope": "this_host_only",
   "utterance": "همرو ازم همینجا بگیرو از طرف مالک و شرکا ثبت کن",
+  "utterances": [
+    {
+      "at": "2026-09-01T22:53:00Z",
+      "text": "همرو ازم همینجا بگیرو از طرف مالک و شرکا ثبت کن"
+    },
+    {
+      "at": "2026-09-01T22:56:00Z",
+      "text": "همشون امضا کردن"
+    }
+  ],
   "speaker_role": "owner",
   "binds_partnership": true,
+  "owner_attests_all_signed": true,
+  "partner_countersign_status": "owner_attested",
+  "partners": ["maliheh", "abbas", "saba"],
   "partner_voices_independently_observed": false,
-  "partners_named_not_heard": ["maliheh", "abbas", "saba"],
   "implementation_authorized": false,
   "merge_authorized": false,
   "deploy_authorized": false,

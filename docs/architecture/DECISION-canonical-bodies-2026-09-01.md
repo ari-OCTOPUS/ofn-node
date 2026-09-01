@@ -5,6 +5,7 @@
 ## منبع
 
 مالک نوشت: «همرو ازم همینجا بگیرو از طرف مالک و شرکا ثبت کن»
+سپس: «همشون امضا کردن»
 
 منظور «همرو»: بستهٔ پیشنهادی ایجنت ارشد در همان جلسه (سه رأی + سه موج +
 فهرست ممنوع + گیت‌های بسته + کسب‌وکار موازی).
@@ -12,8 +13,10 @@
 ```yaml
 speaker: owner
 binds_partnership: true
+owner_attests_all_signed: true
+partner_countersign_status: owner_attested
+partners: [maliheh, abbas, saba]
 partner_voices_independently_observed: false
-partners_named_not_heard: [maliheh, abbas, saba]
 implementation_authorized: false
 merge_authorized: false
 deploy_authorized: false
@@ -35,5 +38,5 @@ wire_authorized: false
 
 ## آنچه این پرونده نیست
 
-اجازهٔ پیاده‌سازی Envelope/Run Store، باز کردن گیت، ارسال به مشتری، یا
-امضای جعلی سه شریک.
+اجازهٔ پیاده‌سازی Envelope/Run Store، باز کردن گیت، یا ارسال به مشتری.
+امضای سه شریک در این پرونده **ادعای مالک** است، نه مشاهدهٔ مستقل این ایجنت.

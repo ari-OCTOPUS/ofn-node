@@ -1,9 +1,9 @@
 """D-26 is a recorded owner package, not an implementation green-light.
 
-The owner accepted the STAGE-01 senior package in-session. These tests
-keep that record honest: partner voices were not heard, wave 1 did not
-start, the forbids still hold on this tree, and sent/revenue/booking
-were not written as facts.
+The owner accepted the STAGE-01 senior package and later attested that
+all three partners signed. These tests keep two records apart: the
+attestation is true, independent observation by this vantage is still
+false. Wave 1 did not start.
 """
 
 from __future__ import annotations
@@ -55,13 +55,14 @@ class TestRatificationIsARecordNotASignatureForge(unittest.TestCase):
         self.assertEqual(self.data["decision_id"], "D-26")
         self.assertEqual(self.data["speaker_role"], "owner")
 
-    def test_partner_voices_were_not_independently_heard(self):
+    def test_owner_attests_signatures_and_this_vantage_did_not_hear_them(self):
         self.assertTrue(self.data["binds_partnership"])
+        self.assertTrue(self.data["owner_attests_all_signed"])
+        self.assertEqual(self.data["partner_countersign_status"], "owner_attested")
+        self.assertEqual(self.data["partners"], ["maliheh", "abbas", "saba"])
         self.assertFalse(self.data["partner_voices_independently_observed"])
-        self.assertEqual(
-            self.data["partners_named_not_heard"],
-            ["maliheh", "abbas", "saba"],
-        )
+        texts = [row["text"] for row in self.data["utterances"]]
+        self.assertIn("همشون امضا کردن", texts)
 
     def test_registration_does_not_authorize_build_or_egress(self):
         for key in (
@@ -137,5 +138,6 @@ class TestForbidsStillHoldOnThisTree(unittest.TestCase):
             decisions = fh.read()
         self.assertIn("خانوادهٔ envelope دوم", decisions)
         self.assertIn("partner_voices_independently_observed = false", decisions)
+        self.assertIn("owner_attests_all_signed = true", decisions)
         data = _load()
         self.assertIn("second-envelope-family-on-ofn-node", data["forbid"])

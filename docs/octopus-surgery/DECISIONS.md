@@ -241,8 +241,10 @@ impossible going forward. Receipt: receipts/S6-D12-OUTBOX-AND-PROCESS-20260901.j
 ## S6-D13 — D-26 owner ratification of STAGE-01 package (2026-09-01)
 
 The owner said: take the whole senior-agent package and register it on
-behalf of owner and partners. This is a **record**, not wave-1 start,
-merge, deploy, or WIRE. Partner voices were not independently heard;
-`partner_voices_independently_observed = false`. Canonical split:
+behalf of owner and partners, then: they all signed. This is a
+**record**, not wave-1 start, merge, deploy, or WIRE. Owner attests
+all three partners signed; this vantage still did not hear them
+(`owner_attests_all_signed=true`,
+`partner_voices_independently_observed=false`). Canonical split:
 business=`ofn-node`, architecture=vault, mesh after edge contract.
 Receipt: `stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json`.

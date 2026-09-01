@@ -8,9 +8,9 @@ authorization to build, merge, deploy, or open a wire.
 ## 1. D-26 STAGE-01 package — recorded
 
 Status: DONE
-Decision: owner accepted the senior package in-session and ordered it
-registered for the partnership. Partner voices were not independently
-heard. Wave 1 has not started.
+Decision: owner accepted the senior package and later attested that
+Maliheh, Abbas and Saba all signed. This vantage did not hear those
+three voices. Wave 1 has not started.
 
 ```text
 OWNER-CONFIRM: D-26 recorded 2026-09-01; implementation_authorized=false

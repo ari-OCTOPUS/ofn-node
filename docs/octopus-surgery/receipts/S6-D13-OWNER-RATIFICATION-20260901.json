@@ -5,6 +5,8 @@
   "recorded_at": "2026-09-01T22:53:00Z",
   "kind": "owner_ratification",
   "implementation_authorized": false,
+  "owner_attests_all_signed": true,
+  "partner_countersign_status": "owner_attested",
   "partner_voices_independently_observed": false,
   "source": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json"
 }
