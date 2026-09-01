@@ -133,7 +133,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class TestFinalStatusV2Item1(unittest.TestCase):
+class TestFinalStatusV2Item1(Case):
     """The five named refusal directions. Happy path is not rewritten here.
 
     Each test is a negative: if the matching WHERE/default/from_status
