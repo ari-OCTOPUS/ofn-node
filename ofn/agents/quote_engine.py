@@ -24,7 +24,8 @@ sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent / "budget"))
 
 import opslib  # noqa: E402
-import lead_outbound_transport as transport  # noqa: E402
+import capability_token as cap  # noqa: E402
+import memory_chain  # noqa: E402
 from lead_email_writer import FORBIDDEN  # noqa: E402
 
 PAINTING_DB = Path.home() / ".local/share/ofn/painting.sqlite"
@@ -147,9 +148,23 @@ def quote(lead_id: str, scope: dict, dry: bool = False) -> dict:
     c.execute("CREATE TABLE IF NOT EXISTS painting_quotes ("
               "qt_number TEXT PRIMARY KEY, lead_id TEXT, scope_json TEXT, "
               "priced INTEGER, total_aud REAL, status TEXT, created_at TEXT)")
-    res = transport.send({"lead_id": lead_id, "email": row["email"]},
-                         {"subject": draft["subject"], "body": draft["body"],
-                          "qt_number": qt})
+    tok, tok_reason = cap.request_send_token(
+        {"email": row["email"]}, f"quote:{qt}")
+    if tok is None:
+        c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?)",
+                  (qt, lead_id, json.dumps(scope, ensure_ascii=False),
+                   1 if est.get("priced") else 0, est.get("total_aud"),
+                   f"token-denied:{tok_reason}", opslib.now_iso()))
+        c.commit(); c.close()
+        out["error"] = f"token:{tok_reason}"
+        return out
+    res = cap.verified_send(
+        tok, {"lead_id": lead_id, "email": row["email"]},
+        {"subject": draft["subject"], "body": draft["body"], "qt_number": qt},
+        f"quote:{qt}")
+    memory_chain.append("quote_sent" if res.get("sent") else "quote_denied",
+                        lead_id, {"qt": qt, "priced": est.get("priced", False),
+                                  "status": res.get("status")})
     c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?)",
               (qt, lead_id, json.dumps(scope, ensure_ascii=False),
                1 if est.get("priced") else 0, est.get("total_aud"),
