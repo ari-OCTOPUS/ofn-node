@@ -34,6 +34,7 @@ sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent / "budget"))
 
 import opslib  # noqa: E402
+import memory_chain  # noqa: E402
 
 HOME = Path.home()
 PAINTING_DB = HOME / ".local/share/ofn/painting.sqlite"
@@ -173,6 +174,8 @@ def _act(kind: str, intent: str, sender: str, lead_id: str,
                    for w in BOUNCE_PERM)
         _receipt("communication.bounce", lead_id or rcpt or "bounce",
                  {"recipient": rcpt, "permanent": perm})
+        memory_chain.append("bounce", lead_id or rcpt or "bounce",
+                            {"recipient": rcpt, "permanent": perm})
         if perm and rcpt in known:
             CAMPAIGN_HALT_FLAG.write_text(
                 f"wrong_recipient bounce for {rcpt} at {now} — kill_metric fired")
@@ -213,6 +216,8 @@ def _act(kind: str, intent: str, sender: str, lead_id: str,
                       (f"imap:{now}:{sender[:20]}", sender[:60],
                        (msg.get("Subject") or "")[:120], body_snip,
                        lead_id, now, now))
+            memory_chain.append("inbound_autoreply", lead_id,
+                                {"from": sender[:40]})
             c.commit()
             return result
         if intent == "optout":
@@ -257,6 +262,9 @@ def _act(kind: str, intent: str, sender: str, lead_id: str,
                   (f"imap:{now}:{sender[:20]}", sender[:60],
                    (msg.get("Subject") or "")[:120], body_snip,
                    lead_id, now, now))
+        memory_chain.append(f"inbound_{intent}", lead_id,
+                            {"from": sender[:40], "subject":
+                             (msg.get("Subject") or "")[:80]})
         c.commit()
     finally:
         c.close()
