@@ -1,7 +1,7 @@
 ---
 tags: [ofn, decisions, mining]
 aliases: [تصمیم‌ها, Decisions]
-updated: 2026-09-01
+updated: 2026-09-02
 ---
 
 # DECISIONS — تصمیم‌های قفل‌شده و باز
@@ -505,6 +505,40 @@ O-3 (کلاس C3/S3) و S-04 (VLAN) `later` ماندند — این حکم با�
 `docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json` ·
 `tests/test_d26_canonical_bodies.py`.
 
+فیلدهای مجوز این حکم را D-27 عوض کرد. خودِ رکورد D-26 دست‌نخورده می‌ماند
+(`implementation_authorized` همان‌جا `false` است).
+
+### D-27 · آزادسازی مجوز با سقف و ترمز
+
+*(حکم مالک + ایجنت ارشد، ۲۰۲۶-۰۹-۰۲ · «ALL GATES OPEN» ولی آزاد ≠ بی‌سقف)*
+
+```text
+D-27 (2026-09-02): ALL GATES OPEN.
+implementation=yes merge=yes deploy=yes wire=yes money=yes boards=yes
+parallel=yes auto_advance=yes propose_only=no
+caps: 25 sends/day, 50 AUD/day, per-board budget 0, kill-switch OFN_EXTRA_CLOSED_GATES
+cannot-be-decreed: partner voices, saba consent, real secret rotation, platform ToS
+first proof required: one real payment receipt on PAINT-L5-001
+```
+
+`propose_only_mode = false`. سکوت دیگر «نه» نیست.
+
+**آنچه عوض نشد:** بدن کانونی دوتاست. خانوادهٔ envelope دوم روی ofn-node
+ممنوع است. `partner_voices_independently_observed = false`.
+`OFN_KEEP_GATES_OPEN` و `OFN_WIRE_OUTBOUND` در کد پیش‌فرض روشن نشدند —
+اولی rotate واقعی می‌خواهد، دومی تست دود. `GATE_OPEN_UNTIL_UTC` منقضی
+است؛ `secret_rotation` و `partner_precondition` تا آن rotate بسته می‌مانند.
+سهمیهٔ مالک از قبل `7000` است.
+
+O-3 و S-04 از `later` به `open` رفتند و می‌توانند موازی جلو بروند.
+C-009 رسماً بسته شد (هویت آپلود تکراری، نه تناقض عددی).
+
+خطا یک مسیر را یک پله عقب می‌برد، نه هر پنج مسیر را.
+
+**کجا:** [[docs/architecture/DECISION-d27-unlock-2026-09-02]] ·
+`docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json` ·
+`tests/test_d27_unlock.py` · `octopus_survival/economy.py`.
+
 ---
 
 ## باز — تصمیم مالک لازم است
@@ -516,7 +550,8 @@ O-3 (کلاس C3/S3) و S-04 (VLAN) `later` ماندند — این حکم با�
 
 یک سؤال باز برای آری باقی است و تنها یکی: **سوییچ مدیریتی داری یا نه؟**
 جوابش تعیین می‌کند لایهٔ ۴ (VLAN) ساخته می‌شود یا ریسکش پذیرفته می‌شود.
-D-26 همان S-04 را `later` گذاشت.
+D-26 همان S-04 را `later` گذاشت. D-27 آن را `open` کرد — کار موازی مجاز
+است؛ این commit VLAN نمی‌سازد.
 
 ### ⬜ O-2 · حافظهٔ بردها ۴ گیگ است — اثرش روی RandomX
 
@@ -546,7 +581,8 @@ XMRig + monerod + P2Pool روی همان برد  →  احتمال OOM
 ارزش LoRa هیچ ربطی به توکن ندارد: اگر WiFi بمیرد، ناوگان کور نمی‌شود.
 
 ⬜ هنوز نامعلوم: C3 و S3 باید کلاس‌های جدا باشند یا یکی؟ (رم و هسته فرق دارد)
-D-26 این را `later` گذاشت — ساخته نمی‌شود تا موج ۱ والت برسد.
+D-27 این را از `later` به `open` برد — موازی مجاز است؛ این commit پیاده‌سازی
+ESP32 نیست.
 
 ### ⬜ O-4 · لنز ۷ اجرا نشد
 

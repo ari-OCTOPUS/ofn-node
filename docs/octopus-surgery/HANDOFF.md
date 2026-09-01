@@ -68,3 +68,11 @@ Owner: register the whole STAGE-01 package; then “they all signed.”
 `owner_attests_all_signed=true`. This vantage still did not hear
 Maliheh / Abbas / Saba. `implementation_authorized=false`. Wave 1
 not started.
+
+## D-27 (2026-09-02, owner + senior-agent)
+
+Authorization fields of D-26 are true, with caps 25/50/0 and kill
+switch `OFN_EXTRA_CLOSED_GATES`. Partner voices still not independently
+observed. `OFN_KEEP_GATES_OPEN` and `OFN_WIRE_OUTBOUND` were not
+defaulted on. C-009 closed. Week proof remains one real PAINT-L5-001
+payment receipt — this file does not invent one.

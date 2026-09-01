@@ -25,6 +25,7 @@
   "merge_authorized": false,
   "deploy_authorized": false,
   "wire_authorized": false,
+  "authorization_superseded_by": "D-27",
   "canonical_bodies": {
     "business": "ofn-node",
     "architecture": "vault",

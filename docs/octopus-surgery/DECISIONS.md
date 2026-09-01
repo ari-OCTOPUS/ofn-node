@@ -248,3 +248,13 @@ all three partners signed; this vantage still did not hear them
 `partner_voices_independently_observed=false`). Canonical split:
 business=`ofn-node`, architecture=vault, mesh after edge contract.
 Receipt: `stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json`.
+
+## S6-D14 — D-27 unlock (2026-09-02)
+
+Owner + senior-agent: authorization fields of D-26 become true, with
+caps (25 sends/day, 50 AUD/day, per-board budget 0) and kill-switch
+`OFN_EXTRA_CLOSED_GATES`. Propose-only ends. Four facts stay outside
+decree: partner voices, Saba consent record, real secret rotation,
+platform ToS. C-009 closed as identity. O-3 and S-04 move later→open.
+`OFN_KEEP_GATES_OPEN` and `OFN_WIRE_OUTBOUND` are not defaulted on.
+Receipt: `stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json`.

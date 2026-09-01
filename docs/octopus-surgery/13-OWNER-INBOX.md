@@ -1,19 +1,20 @@
 # Owner inbox
 
-D-26 recorded this session. An agent must not treat that record as
-authorization to build, merge, deploy, or open a wire.
+D-27 (2026-09-02) supersedes D-26 authorization fields. D-26 remains
+the historical record. Partner voices are still not independently
+observed. Real flags in `ofn/config.py` were not defaulted on.
 
 ---
 
 ## 1. D-26 STAGE-01 package — recorded
 
-Status: DONE
+Status: DONE — authorization superseded by D-27
 Decision: owner accepted the senior package and later attested that
 Maliheh, Abbas and Saba all signed. This vantage did not hear those
-three voices. Wave 1 has not started.
+three voices.
 
 ```text
-OWNER-CONFIRM: D-26 recorded 2026-09-01; implementation_authorized=false
+OWNER-CONFIRM: D-26 recorded 2026-09-01; authorization_superseded_by=D-27
 ```
 
 ---
@@ -29,12 +30,15 @@ OWNER-CONFIRM: vault_to_public_ofn_node = forbidden
 
 ---
 
-## 3. Keep D1/D7/OWNER_KEY/secret rotation/WIRE closed
+## 3. Keep secret rotation closed until secrets actually rotate
 
-Status: STANDING — reinforced by D-26
+Status: STANDING — D-27 authorizes wire/money but does not flip
+`OFN_KEEP_GATES_OPEN` or `OFN_WIRE_OUTBOUND`. Kill switch remains
+`OFN_EXTRA_CLOSED_GATES`.
 
 ```text
-OWNER-CONFIRM: D1 D7 OWNER_KEY secret_rotation WIRE remain closed
+OWNER-CONFIRM: secret_rotation stays shut until real rotate;
+OFN_KEEP_GATES_OPEN not set; OFN_WIRE_OUTBOUND stays env-gated
 ```
 
 ---
@@ -61,4 +65,17 @@ Official announced weighted figure is **45.70** (Recovery=34). See
 
 ```text
 OWNER-CONFIRM: campaign overall 45% ± 7%; official announced 45.70; 90% gates remain closed
+```
+
+---
+
+## 6. D-27 unlock — authorized, capped, reversible
+
+Status: DONE as a record on this lineage; merge to `main` waits on
+GitHub review (branch protection). Week proof is still one real
+`PAINT-L5-001` payment receipt.
+
+```text
+OWNER-CONFIRM: D-27 implementation=yes merge=yes wire=yes money=yes
+caps 25/50/0; C-009 closed; partner_voices independently observed=false
 ```

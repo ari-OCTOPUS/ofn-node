@@ -21,6 +21,15 @@ from .adapters import remote_brain
 # return to the closed default unless OFN_KEEP_GATES_OPEN=1 (owner override).
 GATE_OPEN_UNTIL_UTC = "2026-08-17"
 
+# D-27 hard limits. Authorized is not unlimited. These are code constants,
+# not environment aliases: flipping OFN_KEEP_GATES_OPEN or OFN_WIRE_OUTBOUND
+# is a separate, evidence-gated act (real secret rotation; outbound smoke).
+D27_DAILY_SEND_CAP = 25
+D27_DAILY_SPEND_CAP_AUD = 50
+D27_PER_BOARD_BUDGET_DEFAULT = 0
+D27_KILL_SWITCH = "OFN_EXTRA_CLOSED_GATES"
+D27_ROLLBACK_WINDOW_HOURS = 24
+
 
 def _flag(name: str) -> bool:
     """Only "1" means on. Not "true", not "yes" — one spelling, no ambiguity."""

@@ -101,6 +101,8 @@ Absence on this VM is `body_not_on_this_host`, not `body_missing`.
 |---|---|
 | value_a | upload file A |
 | value_b | upload file B |
-| status | closed as identity, not as contradiction |
-| resolution | byte-identical (`cbhf_uploads_identical: true` in INTAKE-SHA256.json) |
-| note | One copy stored. Not two studies. |
+| status | closed |
+| resolution | D-27 — identity, not a numeric contradiction |
+| closed_by | D-27 |
+| evidence | `cbhf_uploads_identical: true` in INTAKE-SHA256.json |
+| note | Byte-identical uploads. One copy stored. Not two studies. Listed on D-27 `contradictions_closed_by_this`. |

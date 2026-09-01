@@ -261,6 +261,35 @@ def _git_head(root: str) -> str | None:
     return ref or None
 
 
+def _working_tree_dirty(root: str) -> bool | None:
+    """True when git reports any staged, unstaged, or untracked path.
+
+    None means git could not be asked. A historical receipt that used
+    `git_head` is left alone; new receipts use this plus base_git_head.
+    """
+    try:
+        import subprocess
+        proc = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return None
+    if proc.returncode != 0:
+        return None
+    return bool(proc.stdout.strip())
+
+
+def _scanner_sha256(root: str) -> str:
+    return _sha256_file(
+        os.path.join(root, "tools", "gap_scan.py"),
+        normalize_newlines=True,
+    )
+
+
 def scan(*, root: str = ROOT, with_tests: bool = False) -> dict[str, Any]:
     for prefix in FORBIDDEN_READ_PREFIXES:
         if root.startswith(prefix):
@@ -276,7 +305,9 @@ def scan(*, root: str = ROOT, with_tests: bool = False) -> dict[str, Any]:
         "schema": "octopus.gap_scan.receipt.v1",
         "scanned_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "root": "." if os.path.abspath(root) == os.path.abspath(ROOT) else root,
-        "git_head": _git_head(root),
+        "base_git_head": _git_head(root),
+        "working_tree_dirty": _working_tree_dirty(root),
+        "scanner_sha256": _scanner_sha256(root),
         "scope": "this_host_only",
         "vantage": "cursor-cloud-agent",
         "propose_only": True,
@@ -305,7 +336,7 @@ def render_text(receipt: dict[str, Any]) -> str:
         f"gap_scan ok={receipt['ok']} "
         f"matched={receipt['counts']['matched']}/"
         f"{receipt['counts']['concepts']}",
-        f"head={receipt.get('git_head')}",
+        f"head={receipt.get('base_git_head')}",
         f"tenants={', '.join(receipt['baseline']['tenants'])}",
     ]
     if "collected_tests" in receipt["baseline"]:

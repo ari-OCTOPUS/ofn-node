@@ -210,6 +210,11 @@ class TestScanAgreesWithTheTree(unittest.TestCase):
             self.assertEqual(receipt["schema"], "octopus.gap_scan.receipt.v1")
             self.assertTrue(receipt["ok"])
             self.assertTrue(receipt["propose_only"])
+            self.assertIn("base_git_head", receipt)
+            self.assertNotIn("git_head", receipt)
+            self.assertIsInstance(receipt["working_tree_dirty"], bool)
+            self.assertEqual(len(receipt["scanner_sha256"]), 64)
+            self.assertRegex(receipt["scanner_sha256"], r"^[0-9a-f]{64}$")
 
 
 class TestReportDoesNotFreezeCounts(unittest.TestCase):
