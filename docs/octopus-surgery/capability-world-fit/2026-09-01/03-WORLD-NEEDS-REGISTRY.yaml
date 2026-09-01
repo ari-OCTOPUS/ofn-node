@@ -1,0 +1,8 @@
+# observed via GitHub (AVAILABLE) + owner list; no market numbers invented
+- WN-1 agent eval+observability: crowded (mlflow, posthog, langfuse, arize phoenix, helicone, ragaai-catalyst) saturation HIGH conf MEDIUM
+- WN-2 agent memory: crowded (mem0, cognee) saturation HIGH conf MEDIUM
+- WN-3 evidence/provenance/honesty audit: emerging, preregistration+rare saturation LOW-MED conf LOW-MED
+- WN-4 failed-AI-project rescue: no dominant tool, paid consulting today saturation LOW conf MEDIUM
+- WN-5 local-first SMB agent governance: partial whitespace saturation MED conf LOW-MED
+- WN-6 trades/services tender+lead ops (AU): unsexy, payable saturation LOW(vertical) conf MEDIUM
+sources_unavailable: [huggingface, cb_insights, similarweb]

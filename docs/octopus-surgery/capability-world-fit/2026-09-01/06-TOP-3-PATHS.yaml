@@ -1,0 +1,16 @@
+path_A_24h:
+  name: Forensic Repo Audit demo
+  uses: [CAP-008, CAP-009, CAP-004]
+  demo: census + claim-grading on a fresh repo, one command, graded report
+  missing: []
+  success: finds >= 3 real drifts/contradictions on a fresh repo
+path_B_30d:
+  name: AI-Project Rescue / Truth-Audit product
+  uses: forensic caps + CAP-005/006 engine
+  missing: [intake CLI, foreign-repo adapters, packaged report, 2 design partners]
+  success_metric: 2 paid pilots; >=1 rescue plan accepted
+  kill_metric: 0 pilots in 30d of outreach
+path_C_research:
+  name: octopus brain / observatory
+  uses: [CAP-013, CAP-014]
+  rule: not a product until E3 world-grounding exists

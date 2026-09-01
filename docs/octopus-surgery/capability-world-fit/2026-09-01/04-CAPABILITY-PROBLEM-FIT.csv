@@ -1,0 +1,8 @@
+candidate,pain,freq,buy,oct_evidence,diff,demo24,prod30,safety,fit,total,confidence,penalties
+Agent Truth Auditor,14,9,8,20,13,9,9,5,5,72,HIGH,
+Failed AI Project Rescue,14,7,9,18,14,9,8,5,5,69,HIGH,
+Painting Tender Operator,13,8,9,14,12,7,9,4,5,61,MEDIUM,
+Evidence-grade Evaluation,11,8,7,16,9,7,7,5,4,54,MEDIUM,-10 saturated
+Local-first Governance,10,7,6,16,8,6,6,4,4,47,LOW-MED,-10 saturated
+Multi-node Continuity,9,6,5,12,7,5,5,4,4,37,LOW,
+Read-only Observatory,7,4,4,8,10,3,3,5,4,31,LOW,-15 E0/E1 only

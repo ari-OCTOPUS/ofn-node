@@ -1,0 +1,55 @@
+{
+ "probe": "P001",
+ "mode": "READ_ONLY",
+ "collected_utc": "2026-09-01T00:56:16Z",
+ "heads": {
+  "github_main": "91c977ac612128f54568578281b81287d9e50b62",
+  "board138_runtime": "570c856660795257172463f0f7ccc0d86266d628",
+  "f_backup_vault": "0f0e7f5 + uncommitted 2026-09-01 edits"
+ },
+ "rows": [
+  {
+   "path": "octopus_observation/scorer.py",
+   "role": "comparable-by-path",
+   "github_main_sha256": "27884cd3eb5a39cc41070d0a450df47e65b5a92a3879d5586e50dba6c6024ebd",
+   "f_backup_sha256": null,
+   "board138_sha256": null,
+   "classification": "DRIFT"
+  },
+  {
+   "path": "octopus_observation/fixture_run.py",
+   "role": "comparable-by-path",
+   "github_main_sha256": "079cd02093fd8b7cce66e07a78b8cbb8c25f6a798f77ffd1a62ad9f16df4273c",
+   "f_backup_sha256": null,
+   "board138_sha256": null,
+   "classification": "DRIFT"
+  },
+  {
+   "path": "docs/octopus-surgery/DECISIONS.md",
+   "role": "comparable-by-path",
+   "github_main_sha256": "78cf76c54163a62b9f009b26a2d616795b5e42556bb754ecb34fc765c3b005cb",
+   "f_backup_sha256": "461e9b2e3196f765a2dc17ba30a06e9e90332e5a5c9e3f9be94b8cde7f78b82c",
+   "board138_sha256": null,
+   "classification": "DRIFT"
+  },
+  {
+   "path": "ofn/worker.py",
+   "role": "comparable-by-path",
+   "github_main_sha256": "0d1afd6f989b10138c2d639b66b3802160d8a3289f7716de62dbbee73c77b879",
+   "f_backup_sha256": null,
+   "board138_sha256": "9ee8bd6f9bf20343d41d430e2f7e5b163d0eea323c36f190153103f7a6859e7e",
+   "classification": "DRIFT"
+  }
+ ],
+ "web_app_alive": {
+  "healthz": "200 on 8791/8792/8793/8794 (live board)",
+  "owner_panel_get_root": "200"
+ },
+ "notable": [
+  "board138 runtime HEAD (570c856) = pre-squash ancestor of github main (91c977ac6): runtime lags main by the S2b/docs wave (source-vs-runtime DRIFT, not corruption)",
+  "octopus_observation pipeline absent from board runtime by design (fixture-only subsystem)",
+  "F:/backup docs carry today's uncommitted vault edits (doc-level drift vs main)"
+ ],
+ "mutations_performed": [],
+ "side_effects": "NONE"
+}
