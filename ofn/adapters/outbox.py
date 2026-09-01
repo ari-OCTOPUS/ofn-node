@@ -23,6 +23,7 @@ twice is a real cost, so:
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from typing import Mapping, Sequence
@@ -79,57 +80,55 @@ SCHEMA = (
 def _migrate_composite_pk(conn) -> None:
     """Rebuild legacy single-PK outbox files onto the composite key.
 
-    Legacy rows stored f"{tenant}:{raw}" in idem_key alongside a separate
-    tenant column: dual storage with no constraint, and the prefix
-    composition could collide across tenants (the guard_target bug class).
-    This rebuild strips the matching tenant prefix, moves the primary key
-    to (tenant, idem_key) and keeps every other column. Idempotent: a file
-    already on the composite schema is detected via PRAGMA and untouched.
-    Rows not matching their tenant prefix are NOT migrated silently; the
-    caller can count them (legacy table is dropped only after the guarded
-    INSERT, so anomalies surface as missing rows in boot checks).
+    Raw-key contract: every legacy row is copied 1:1. The tenant column
+    already carries the tenant; the idem_key column already carries the
+    key. No prefix stripping, no normalization, no collision detection.
+    The composite PK (tenant, idem_key) provides uniqueness. A lossless
+    verification (count + fingerprint) runs before the legacy table is
+    dropped - if anything was lost in transit, boot fails with the exact
+    counts and the legacy table preserved for manual recovery.
     """
     pk = [r["name"] for r in conn.execute("PRAGMA table_info(outbox)")
           if r["pk"] > 0]
     if pk and pk[0] == "idem_key" and len(pk) == 1:
-        # Legacy dual-spelling check (S6-D13 review finding): after prefix
-        # stripping, two legacy rows can resolve to the same raw key. The
-        # store refuses to guess which one is authoritative - boot fails
-        # with an actionable message instead of a bare IntegrityError.
-        pairs = conn.execute(
-            "SELECT tenant, idem_key FROM outbox").fetchall()
-        seen = {}
-        for row in pairs:
-            t, k = row["tenant"], row["idem_key"]
-            stripped = (k[len(t) + 1:] if k.startswith(t + ":")
-                        and len(k) > len(t) + 1 else k)
-            if stripped in seen and seen[stripped] != k:
-                raise FailClosedError(
-                    f"duplicate-legacy-id: rows {seen[stripped]!r} and "
-                    f"{k!r} of tenant {t!r} both resolve to {stripped!r} - "
-                    "resolve the duplicate in the outbox file before "
-                    "starting (keep one row, rename the other; the store "
-                    "will not guess)")
-            seen[stripped] = k
         cols = [r["name"] for r in conn.execute("PRAGMA table_info(outbox)")]
         info = {r["name"]: r["type"] or "TEXT"
                 for r in conn.execute("PRAGMA table_info(outbox)")}
         others = [c for c in cols if c not in ("tenant", "idem_key")]
+        sel = ", ".join(["tenant", "idem_key"] + others)
+        old_rows = conn.execute(
+            f"SELECT {sel} FROM outbox").fetchall()
+        # fingerprint before rebuild
+        canon = json.dumps([dict(r) for r in old_rows],
+                           sort_keys=True, ensure_ascii=False)
+        before_fp = hashlib.sha256(canon.encode()).hexdigest()
+        before_n = len(old_rows)
         conn.execute("ALTER TABLE outbox RENAME TO outbox_legacy")
         conn.execute(
             "CREATE TABLE outbox ("
             " tenant TEXT NOT NULL, idem_key TEXT NOT NULL"
             + "".join(f", {c} {info[c]}" for c in others)
             + ", PRIMARY KEY (tenant, idem_key))")
-        conn.execute(
-            "INSERT INTO outbox ({cols}) SELECT {sel} FROM outbox_legacy"
-            " WHERE idem_key LIKE tenant || ':%' AND idem_key != tenant || ':'"
-            .format(cols=", ".join(["tenant", "idem_key"] + others),
-                    sel=", ".join(
-                        ["tenant",
-                         "substr(idem_key, length(tenant) + 2)"] + others)))
+        for row in old_rows:
+            d = dict(row)
+            placeholders = ", ".join("?" for _ in d)
+            conn.execute(
+                f"INSERT INTO outbox ({', '.join(d)}) VALUES ({placeholders})",
+                tuple(d.values()))
+        new_rows = conn.execute("SELECT * FROM outbox").fetchall()
+        new_canon = json.dumps([dict(r) for r in new_rows],
+                               sort_keys=True, ensure_ascii=False)
+        after_fp = hashlib.sha256(new_canon.encode()).hexdigest()
+        after_n = len(new_rows)
+        if after_n != before_n or after_fp != before_fp:
+            conn.execute("DROP TABLE outbox")
+            conn.execute("ALTER TABLE outbox_legacy RENAME TO outbox")
+            raise FailClosedError(
+                f"lossless-migration-check-failed: "
+                f"before={before_n}, after={after_n}, "
+                f"fp_before={before_fp[:12]}, fp_after={after_fp[:12]} - "
+                "legacy table preserved; no DROP performed")
         conn.execute("DROP TABLE outbox_legacy")
-
 
 
 def _migrate_manual_columns(conn) -> None:

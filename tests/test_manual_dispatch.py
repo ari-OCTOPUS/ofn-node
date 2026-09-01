@@ -169,7 +169,7 @@ class TestMigrationAddsColumns(unittest.TestCase):
         pk = [r[1] for r in ob._conn.execute("PRAGMA table_info(outbox)")
               if r[5] > 0]
         self.assertEqual(pk, ["tenant", "idem_key"])
-        self.assertIsNotNone(ob.get(A, "legacy1"))
+        self.assertIsNotNone(ob.get(A, "alpha:legacy1"))
 
 
 if __name__ == "__main__":
