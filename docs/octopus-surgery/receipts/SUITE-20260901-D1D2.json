@@ -1,0 +1,16 @@
+{
+ "receipt": "SUITE-2026-09-01T10:19:55Z",
+ "commit_sha": "51fd6eb0c8fc1f29d22b34ea5a91635ed0c51be7 (branch fix/outbox-lossless-guard, uncommitted D1/D2 patch)",
+ "os": "windows",
+ "python": "Python 3.13.7",
+ "command": "python -m pytest tests/ -q --ignore=tests/test_live_control_panel_smoke.py",
+ "summary": "2336 passed, 18 skipped, 1515 subtests passed in 59.55s",
+ "passed": 2336,
+ "failed": 0,
+ "errors": 0,
+ "skipped": 18,
+ "exit_code": 0,
+ "log_sha256": "dd64abcff3180ed132e6d9e09c0fae101cc539d3e371f819291761eb07f973a2",
+ "captured_utc": "2026-09-01T10:19:55Z",
+ "t1t2t3": "13/13 green (D1 and D2 negative controls now pass)"
+}
