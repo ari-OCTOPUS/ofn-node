@@ -1,0 +1,13 @@
+{
+ "sha256": "015209694fc8d7aea6399b48baad68621829784d6506bc394330b991b241d896",
+ "file": "~/.local/share/ofn/painting_rate_card.json",
+ "approved_by_owner": true,
+ "approval_ref": "#64 ruling Q6, 2026-09-01T14:24Z",
+ "evidence": "E1",
+ "underpowered": true,
+ "n_contracts": 9,
+ "review_at_n": 25,
+ "quote_max_aud": 25000,
+ "quote_min_m2": 20,
+ "recorded_at": "2026-09-02"
+}
