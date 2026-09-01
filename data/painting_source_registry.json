@@ -572,6 +572,19 @@
       "automation_level": "read_only_first",
       "approval_required": true,
       "notes": "council procurement"
+    },
+    {
+      "source_id": "nsw_ocp_registry",
+      "name": "NSW OCP bulk registry (data.open-contracting.org)",
+      "category": "public_data",
+      "official_url": "https://data.open-contracting.org/en/publication/11",
+      "integration_path": "ofn.agents.nsw_ocp_harvest",
+      "status": "active",
+      "automation_level": "harvest_manual_review",
+      "allowlisted": true,
+      "allowlisted_at": "2026-09-01T14:08:08Z",
+      "allowlist_basis": "G-51 closed: owner ruling #63 (dual-source) 2026-09-01; public bulk data; honest UA octopus-lead-harvester/1.0",
+      "notes": "produced the 5 buyer leads emailed 2026-09-01"
     }
   ]
 }

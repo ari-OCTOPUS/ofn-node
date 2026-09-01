@@ -1,0 +1,11 @@
+{
+ "domains": [
+  "det.nsw.edu.au",
+  "transport.nsw.gov.au",
+  "dpie.nsw.gov.au",
+  "health.nsw.gov.au"
+ ],
+ "granted_by": "owner ruling #63 2026-09-01",
+ "review_due": "2026-10-01",
+ "note": "auto_email allowlist; review first Sunday of month per GAPS-95"
+}
