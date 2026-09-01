@@ -6,6 +6,9 @@ updated: 2026-08-07
 
 # OFN — Octopus Field Node · v0.8.0
 
+> **External agent?** Start with [docs/DISCOVERY.md](docs/DISCOVERY.md) —
+> what is real, what is stub, who has authority, how to verify. (2026-09-01)
+
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[HANDOFF]]
 
 سه بیزنس، یک دستگاه، یک کرنل. تحویل **فاز ۱ تا ۷**:
