@@ -51,3 +51,13 @@ Campaign closeout files 09–14 are written.
 Overall completion is `45% ± 7%`.
 
 Do not infer send, revenue, booking or production readiness from this handoff.
+
+## STAGE-01 (2026-09-01, cursor-cloud)
+
+Four uploaded scan documents were hashed and classified against this
+`ofn-node` tree. This vantage is not board 180. No gates opened, no
+WIRE flags, no new envelope/run-store implementation.
+
+See `docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/STAGE-01-REPORT.md`.
+Next GREEN step on this lineage: keep `tools/gap_scan.py` matching the
+tree. Do not flatten vault H1 or Typed Events onto this repo.

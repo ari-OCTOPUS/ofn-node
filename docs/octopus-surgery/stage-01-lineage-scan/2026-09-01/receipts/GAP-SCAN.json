@@ -1,0 +1,1036 @@
+{
+  "schema": "octopus.gap_scan.receipt.v1",
+  "scanned_at": "2026-09-01T22:45:00Z",
+  "root": ".",
+  "git_head": "bbbf86bd7e0f4fdcbe1c87dab981c29aac2f0c6b",
+  "scope": "this_host_only",
+  "vantage": "cursor-cloud-agent",
+  "propose_only": true,
+  "baseline": {
+    "tenants": [
+      "hypno",
+      "lead",
+      "studio",
+      "ziman"
+    ],
+    "tenant_count": 4,
+    "gates_by_tenant": {
+      "hypno": [
+        "safety",
+        "secret_rotation"
+      ],
+      "lead": [
+        "budget",
+        "capacity",
+        "claim",
+        "consent",
+        "secret_rotation",
+        "service_area"
+      ],
+      "studio": [
+        "budget",
+        "capacity",
+        "claim",
+        "consent",
+        "partner_precondition",
+        "publish",
+        "secret_rotation"
+      ],
+      "ziman": [
+        "asset",
+        "budget",
+        "capacity",
+        "claim",
+        "consent",
+        "publish",
+        "secret_rotation"
+      ]
+    },
+    "shut_gates_by_tenant": {
+      "hypno": [
+        "secret_rotation"
+      ],
+      "lead": [
+        "secret_rotation"
+      ],
+      "studio": [
+        "partner_precondition",
+        "secret_rotation"
+      ],
+      "ziman": [
+        "secret_rotation"
+      ]
+    },
+    "painting_registry_sources": 44,
+    "collected_tests": 2391
+  },
+  "sources": {
+    "cbhf_uploads_identical": true,
+    "measured": {
+      "repo_stage00": "c851871eb529bd75e0f9469bf780bb76b51e961e59a3817a82fe736e5c1e4ed7",
+      "repo_cbhf": "fc34ec3274fa977c0fef23c6ee86083cd20296a814a9cc1ac92ddff0516604a3",
+      "repo_ten_aspect": "53a0adb6245de8bd4b38068b2187daf44fef603d849a6410f741219e24b21529",
+      "repo_image_1": "d7fa6b15f2ac53c38d6f0c4fdc6dde8539ca34f0dd33a6f543bfc2e10955e679",
+      "repo_image_2": "1c08b4213b0ae36a4ddf5cb70144358120311afa670cd6320c1dd7614f13cfa6"
+    },
+    "mismatches": {},
+    "match": true
+  },
+  "concepts": [
+    {
+      "id": "C-H1-HARVEST",
+      "name": "H1 buy.nsw / harvest loop on ofn-node",
+      "tier": "T3",
+      "sources": [
+        "this-repo"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/agents/h1_harvest.py",
+        "ofn/agents/h1_buysw.py",
+        "tests/test_h1_harvest.py",
+        "tests/test_h1_buysw.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "This repo's H1 is a tender/harvest adapter. It is not the vault financial idempotency bug."
+    },
+    {
+      "id": "C-H1-IDEM",
+      "name": "H1 proposal-idempotency financial bug (vault NBB-CP)",
+      "tier": "T0",
+      "sources": [
+        "stage-00",
+        "ten-aspect"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "NBB-CP",
+        "nbb-cp",
+        "03 - Projects/NBB-Control-Plane"
+      ],
+      "unexpectedly_present": [],
+      "notes": "STAGE-00 and the 10-aspect scan treat H1 as one verdict creating N budget draws. That body is not on this host. Outbox idempotency here is a different module."
+    },
+    {
+      "id": "C-OUTBOX-IDEM",
+      "name": "Outbox UNIQUE idempotency on ofn-node",
+      "tier": "T1",
+      "sources": [
+        "this-repo"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/outbox.py",
+        "tests/test_outbox_negative_controls.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Do not relabel this as a fix for vault H1."
+    },
+    {
+      "id": "C-EDGE-ENVELOPE",
+      "name": "Three-board typed event envelope (ingest-only)",
+      "tier": "T1",
+      "sources": [
+        "stage-00",
+        "this-repo"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/board_events.py",
+        "tests/test_board_events.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "octopus-unified-chat/TYPED-EVENTS-RUN-ID-EXECUTION-PLAN-2026-08-12.md"
+      ],
+      "unexpectedly_present": [],
+      "notes": "board_events is a real envelope with run_id. It is not the vault Typed Events plan. A second envelope family on this repo would recreate the N×M debt STAGE-00 warned about."
+    },
+    {
+      "id": "C-RUN-STORE",
+      "name": "Single append-only Run Store",
+      "tier": "T1",
+      "sources": [
+        "stage-00",
+        "ten-aspect"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "octopus_survival/loop.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "_ops/cognitive/run_store.py"
+      ],
+      "unexpectedly_present": [],
+      "notes": "Survival JSONL plus board_events SQLite exist. There is no single RunStore class and no vault _ops run store on this host."
+    },
+    {
+      "id": "B-01",
+      "name": "Envelope profile for the edge",
+      "tier": "T3",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/board_events.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "octopus-unified-chat/TYPED-EVENTS-RUN-ID-EXECUTION-PLAN-2026-08-12.md"
+      ],
+      "unexpectedly_present": [],
+      "notes": "STAGE-00 discovery. Partial via ENVELOPE_FIELDS on board_events, not the vault Typed Events envelope."
+    },
+    {
+      "id": "B-02",
+      "name": "Board identity and certificate",
+      "tier": "T3",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/board_events.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "etc/octopus-bridge/board-cp-ca.pem"
+      ],
+      "unexpectedly_present": [],
+      "notes": "BOARDS frozenset names 138/180/182. Certificate material is not in this tree (and must not be)."
+    },
+    {
+      "id": "B-05",
+      "name": "Propose-only guarantee on the edge",
+      "tier": "T3",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/board_events.py",
+        "octopus_survival/loop.py",
+        "tests/test_survival_loop_battery.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "board_events never sends. Survival tests assert proposal is not execution."
+    },
+    {
+      "id": "B-06",
+      "name": "Per-board budget ceiling",
+      "tier": "T3",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "octopus_survival/loop.py",
+        "ofn/kernel/quota.py",
+        "ofn/kernel/callbudget.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "ofn/kernel/per_board_budget.py"
+      ],
+      "unexpectedly_present": [],
+      "notes": "Campaign Envelope and token/call budgets exist. A named per-board-180 ceiling module does not."
+    },
+    {
+      "id": "B-08",
+      "name": "Offline and degraded board behaviour",
+      "tier": "T3",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/cockpit_v2_read_model.py",
+        "tests/test_cockpit_v2_read_model.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "ofn/adapters/edge_offline.py"
+      ],
+      "unexpectedly_present": [],
+      "notes": "Cockpit v2 has ok/degraded/unavailable. A dedicated edge-offline profile is not present."
+    },
+    {
+      "id": "S-05",
+      "name": "Agent-driven pip install dependency scan",
+      "tier": "T2",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "absent",
+      "derived_status": "absent",
+      "match": true,
+      "present": [],
+      "missing": [
+        "tools/agent_pip_scan.py",
+        "tools/dependency_scan.py"
+      ],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "STAGE-00 discovery. No scanner module on this host."
+    },
+    {
+      "id": "O-3",
+      "name": "ESP32 C3 vs S3 decision",
+      "tier": "T4",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "owner_gated",
+      "derived_status": "owner_gated",
+      "match": true,
+      "present": [
+        "DECISIONS.md"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Owner decision. This scan does not open it."
+    },
+    {
+      "id": "S-04",
+      "name": "VLAN separation",
+      "tier": "T4",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "owner_gated",
+      "derived_status": "owner_gated",
+      "match": true,
+      "present": [
+        "DECISIONS.md"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Owner decision. Urgency rose with boards; still not an agent task."
+    },
+    {
+      "id": "C-OBS-RUNTIME",
+      "name": "internet-observatory L1–L7 runtime",
+      "tier": "T2",
+      "sources": [
+        "ten-aspect",
+        "cbhf"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "internet-observatory",
+        "internet-observatory/impl/gateway.py",
+        "internet-observatory/impl/evidence_store.py"
+      ],
+      "unexpectedly_present": [],
+      "notes": "10-aspect and CBHF cite this tree. Surgery already marked it NOT_FOUND_IN_CURRENT_LINEAGE."
+    },
+    {
+      "id": "C-OBS-FIXTURE",
+      "name": "octopus_observation fixture Brier pipeline",
+      "tier": "T2",
+      "sources": [
+        "this-repo",
+        "capability-world-fit"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "octopus_observation/observation_record.py",
+        "octopus_observation/scorer.py",
+        "octopus_observation/producer_persistence.py",
+        "octopus_observation/verifier.py",
+        "tests/test_observation_v1_foundation.py",
+        "tests/test_observatory_fixture_v1.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "This is the observatory that exists here. It is not L1–L7 live fetch."
+    },
+    {
+      "id": "C-HYP-ENGINE",
+      "name": "hypothesis-engine package (ADR-037)",
+      "tier": "T2",
+      "sources": [
+        "ten-aspect",
+        "capability-world-fit"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "hypothesis-engine"
+      ],
+      "unexpectedly_present": [],
+      "notes": "CAP-013 points at a path that is not on this host."
+    },
+    {
+      "id": "C-NBB-CP",
+      "name": "NBB-CP control plane",
+      "tier": "T0",
+      "sources": [
+        "ten-aspect"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "NBB-CP",
+        "nbb-cp"
+      ],
+      "unexpectedly_present": [],
+      "notes": "A surgery receipt records 189 collected tests from another worktree. 207 vs 171 remain open contradictions about that other body."
+    },
+    {
+      "id": "C-CHECKLIST-200",
+      "name": "OCTOPUS 200-item checklist file",
+      "tier": "T0",
+      "sources": [
+        "stage-00",
+        "ten-aspect"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "octopus-checklist/OCTOPUS-200-CHECKLIST-2026-08-15.md",
+        "octopus-checklist"
+      ],
+      "unexpectedly_present": [],
+      "notes": "STAGE-00 49.5% and the doughnut chart are derived-from-chart until this file is on a host that can run them."
+    },
+    {
+      "id": "C-SYNC-ENGINE",
+      "name": "octopus_sync.py fail-closed sync engine",
+      "tier": "T4",
+      "sources": [
+        "ten-aspect"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "sync-engine",
+        "sync-engine/octopus_sync.py"
+      ],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "C-OBSIDIAN-REBUILD",
+      "name": "Obsidian vault rebuild megaprompt tree",
+      "tier": "T4",
+      "sources": [
+        "ten-aspect"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "obsidian-rebuild",
+        "obsidian-rebuild/OBSIDIAN-REBUILD-MEGAPROMPT-2026-08-15.md"
+      ],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "C-OPS",
+      "name": "_ops vault runtime",
+      "tier": "T1",
+      "sources": [
+        "surgery-concept-map"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "_ops"
+      ],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "C-VBAA",
+      "name": "VBAA 15 components",
+      "tier": "T4",
+      "sources": [
+        "ten-aspect"
+      ],
+      "expected_status": "body_not_on_this_host",
+      "derived_status": "body_not_on_this_host",
+      "match": true,
+      "present": [],
+      "missing": [],
+      "absent_ok": [
+        "vbaa",
+        "VBAA"
+      ],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "C-OWNER-KEY",
+      "name": "Owner signing key material",
+      "tier": "T0",
+      "sources": [
+        "ten-aspect"
+      ],
+      "expected_status": "owner_gated",
+      "derived_status": "owner_gated",
+      "match": true,
+      "present": [
+        "docs/octopus-surgery/08-RISK-REGISTER.md"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "This scan must not read or mint owner keys."
+    },
+    {
+      "id": "C-LEDGER",
+      "name": "Per-tenant hash-chain ledger",
+      "tier": "T1",
+      "sources": [
+        "this-repo",
+        "cbhf",
+        "capability-world-fit"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/ledger.py",
+        "tests/test_persistence.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Equivalent to chain_verify is Ledger.verify, not a function of that name."
+    },
+    {
+      "id": "C-GATES",
+      "name": "Closed gates and release switch",
+      "tier": "T0",
+      "sources": [
+        "this-repo",
+        "ten-aspect"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/kernel/gates.py",
+        "ofn/kernel/release_switch.py",
+        "ofn/config.py",
+        "tests/test_gates.py",
+        "tests/test_release_switch_contract.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "secret_rotation, partner_precondition, miner_isolation remain gates. This scan does not open them."
+    },
+    {
+      "id": "C-WIRE-DRIFT",
+      "name": "OCTOPUS_WIRE_* remain intent-only",
+      "tier": "T0",
+      "sources": [
+        "this-repo"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_octopus_wire_drift.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "A test exists so config.py cannot silently honour OCTOPUS_WIRE_*."
+    },
+    {
+      "id": "C-SURVIVAL",
+      "name": "Survival loop with campaign Envelope",
+      "tier": "T1",
+      "sources": [
+        "this-repo"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "octopus_survival/loop.py",
+        "tests/test_survival_loop_battery.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "C-RESTORE",
+      "name": "Disposable restore drill",
+      "tier": "T2",
+      "sources": [
+        "this-repo",
+        "capability-world-fit"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "octopus_recovery/restore_drill.py",
+        "tests/test_restore_drill_disposable.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Fixture drill only. Production-like restore remains blocked."
+    },
+    {
+      "id": "C-SEC-HEADERS",
+      "name": "CSP / X-Frame-Options / Referrer-Policy in http_api",
+      "tier": "T3",
+      "sources": [
+        "ten-aspect",
+        "this-repo"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/adapters/http_api.py",
+        "tests/test_security_headers.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "The 10-aspect scan said these headers were missing. In this lineage the code and tests exist. Live headers on 180 are a different vantage."
+    },
+    {
+      "id": "C-BRIDGE-RUNTIME",
+      "name": "octopus-bridge daemon",
+      "tier": "T3",
+      "sources": [
+        "ten-aspect",
+        "handoff"
+      ],
+      "expected_status": "documented_only",
+      "derived_status": "documented_only",
+      "match": true,
+      "present": [
+        "docs/audit-138/138-SYSTEM-MAP.md"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "octopus-bridge"
+      ],
+      "unexpectedly_present": [],
+      "notes": "Documented against board 138. No bridge package in this repo."
+    },
+    {
+      "id": "C-MCP",
+      "name": "MCP server for market signal",
+      "tier": "T4",
+      "sources": [
+        "cbhf"
+      ],
+      "expected_status": "absent",
+      "derived_status": "absent",
+      "match": true,
+      "present": [],
+      "missing": [
+        "ofn/adapters/mcp_server.py",
+        "ofn/agents/mcp_server.py"
+      ],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "CBHF step 4. D-11 deferred outbound marketing. An allowlist MCP row would still be YELLOW."
+    },
+    {
+      "id": "CBHF-1",
+      "name": "Per-task capability token (Keycard-style)",
+      "tier": "T1",
+      "sources": [
+        "cbhf"
+      ],
+      "expected_status": "absent",
+      "derived_status": "absent",
+      "match": true,
+      "present": [],
+      "missing": [
+        "ofn/kernel/capability_token.py",
+        "ofn/adapters/capability_token.py"
+      ],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "This lineage has module-level gates and forbidden observation keys, not per-task tokens."
+    },
+    {
+      "id": "CBHF-2",
+      "name": "Evidence chain extended to agent memory",
+      "tier": "T2",
+      "sources": [
+        "cbhf"
+      ],
+      "expected_status": "absent",
+      "derived_status": "absent",
+      "match": true,
+      "present": [],
+      "missing": [
+        "ofn/adapters/memory_chain.py",
+        "octopus_observation/memory_chain.py"
+      ],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Ledger hash-chain is event history, not semantic agent memory. capability-world-fit already marks generic agent memory as saturated."
+    },
+    {
+      "id": "CBHF-3",
+      "name": "Formal bounded coordination model with teeth",
+      "tier": "T2",
+      "sources": [
+        "cbhf"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_kernel_purity.py",
+        "octopus_observation/observation_record.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "spec/octopus.tla",
+        "docs/formal/octopus.tla"
+      ],
+      "unexpectedly_present": [],
+      "notes": "Structural tests and authority denylist exist. No TLA+ or equivalent model."
+    },
+    {
+      "id": "CBHF-5",
+      "name": "Hybrid model pool with cost allocation",
+      "tier": "T4",
+      "sources": [
+        "cbhf"
+      ],
+      "expected_status": "partial_in_this_lineage",
+      "derived_status": "partial_in_this_lineage",
+      "match": true,
+      "present": [
+        "ofn/kernel/quota.py",
+        "ofn/kernel/callbudget.py"
+      ],
+      "missing": [],
+      "absent_ok": [
+        "ofn/adapters/model_cost_pool.py"
+      ],
+      "unexpectedly_present": [],
+      "notes": "Call/token budgets exist. A KPI-linked hybrid pool does not."
+    },
+    {
+      "id": "STAGE00-C50",
+      "name": "STAGE-00 claim of 50 classified concepts",
+      "tier": "T0",
+      "sources": [
+        "stage-00"
+      ],
+      "expected_status": "incomplete_enumeration",
+      "derived_status": "incomplete_enumeration",
+      "match": true,
+      "present": [
+        "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/STAGE-00-SCAN-REPORT.md"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": "Tier counts 5+10+13+8+14 = 50. The uploaded report only names six discoveries (B-01, B-02, B-05, B-06, B-08, S-05). The other 44 IDs are not in the upload."
+    },
+    {
+      "id": "DOM-SECURITY",
+      "name": "Security test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_phase_a_security.py",
+        "tests/test_security_headers.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-TENANCY",
+      "name": "Tenancy test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_tenancy.py",
+        "tests/test_packs.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-PERMISSION",
+      "name": "Permission test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_partner_allowlist.py",
+        "tests/test_gate_enforcement.py",
+        "tests/test_kill_switch.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-CONSENT",
+      "name": "Consent test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_consent.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-RELEASE",
+      "name": "Release-switch test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_release_switch_contract.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-OUTBOX",
+      "name": "Outbox test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_outbox_negative_controls.py",
+        "tests/test_persistence.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-BACKUP",
+      "name": "Backup/restore test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_phase_d_backup.py",
+        "tests/test_restore_drill_disposable.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    },
+    {
+      "id": "DOM-KERNEL",
+      "name": "Kernel purity test domain",
+      "tier": "T2",
+      "sources": [
+        "claude-eight"
+      ],
+      "expected_status": "present_in_this_lineage",
+      "derived_status": "present_in_this_lineage",
+      "match": true,
+      "present": [
+        "tests/test_kernel_purity.py"
+      ],
+      "missing": [],
+      "absent_ok": [],
+      "unexpectedly_present": [],
+      "notes": null
+    }
+  ],
+  "numeric_claims": [
+    {
+      "id": "N-OFN-414",
+      "claimed": 414,
+      "source": "CHECKPOINT.md (2026-08-04) and 10-aspect bar chart",
+      "resolution": "historical_stale",
+      "measure": "pytest_collect_via_repo_baseline",
+      "status": "open"
+    },
+    {
+      "id": "N-OFN-408",
+      "claimed": 408,
+      "source": "commit message 08c47cd cited by CHECKPOINT.md",
+      "resolution": "contradicted",
+      "contradicts": "N-OFN-414",
+      "status": "open"
+    },
+    {
+      "id": "N-NBB-207",
+      "claimed": 207,
+      "source": "10-aspect chart MANIFEST",
+      "resolution": "body_not_on_this_host",
+      "contradicts": "N-NBB-171",
+      "status": "open"
+    },
+    {
+      "id": "N-NBB-171",
+      "claimed": 171,
+      "source": "10-aspect chart BACKUP-README",
+      "resolution": "body_not_on_this_host",
+      "contradicts": "N-NBB-207",
+      "status": "open"
+    },
+    {
+      "id": "N-NBB-189",
+      "claimed": 189,
+      "source": "docs/octopus-surgery/receipts/BASELINE-20260830T064824Z.json",
+      "resolution": "receipt_from_other_worktree",
+      "status": "open"
+    },
+    {
+      "id": "N-OBS-93",
+      "claimed": 93,
+      "source": "10-aspect chart / narrative",
+      "resolution": "body_not_on_this_host",
+      "status": "open"
+    },
+    {
+      "id": "N-TOTAL-340",
+      "claimed": 340,
+      "source": "10-aspect narrative after Bayesian strategy",
+      "resolution": "body_not_on_this_host",
+      "status": "open"
+    },
+    {
+      "id": "N-STAGE00-49-5",
+      "claimed": 49.5,
+      "unit": "percent_open_plus_unbuilt_of_200_checklist",
+      "source": "STAGE-00 derived-from-chart",
+      "resolution": "derived-from-chart",
+      "status": "open"
+    },
+    {
+      "id": "N-SURGERY-45",
+      "claimed": 45,
+      "unit": "percent_campaign_complete",
+      "source": "docs/octopus-surgery/HANDOFF.md",
+      "resolution": "documented_in_this_lineage",
+      "note": "Same numeral as STAGE-00 45%, different denominator. Do not merge.",
+      "status": "open"
+    }
+  ],
+  "counts": {
+    "concepts": 44,
+    "matched": 44,
+    "mismatched": 0,
+    "by_derived_status": {
+      "absent": 4,
+      "body_not_on_this_host": 9,
+      "documented_only": 1,
+      "incomplete_enumeration": 1,
+      "owner_gated": 3,
+      "partial_in_this_lineage": 8,
+      "present_in_this_lineage": 18
+    }
+  },
+  "ok": true
+}

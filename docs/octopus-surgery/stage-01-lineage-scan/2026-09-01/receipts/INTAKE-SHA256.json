@@ -1,0 +1,16 @@
+{
+  "schema": "octopus.stage01.intake.v1",
+  "note": "Hashes of the four uploaded sources. The two CB Insights markdown files were byte-identical; only one copy is stored in sources/.",
+  "cbhf_uploads_identical": true,
+  "files": {
+    "upload_stage00": "c851871eb529bd75e0f9469bf780bb76b51e961e59a3817a82fe736e5c1e4ed7",
+    "upload_cbhf_a": "fc34ec3274fa977c0fef23c6ee86083cd20296a814a9cc1ac92ddff0516604a3",
+    "upload_cbhf_b": "fc34ec3274fa977c0fef23c6ee86083cd20296a814a9cc1ac92ddff0516604a3",
+    "upload_zip": "730aa0b78a216bddc8e3c6c12c834ca67328be46fc6a51f6afc5edc79dd2bbea",
+    "repo_stage00": "c851871eb529bd75e0f9469bf780bb76b51e961e59a3817a82fe736e5c1e4ed7",
+    "repo_cbhf": "fc34ec3274fa977c0fef23c6ee86083cd20296a814a9cc1ac92ddff0516604a3",
+    "repo_ten_aspect": "53a0adb6245de8bd4b38068b2187daf44fef603d849a6410f741219e24b21529",
+    "repo_image_1": "d7fa6b15f2ac53c38d6f0c4fdc6dde8539ca34f0dd33a6f543bfc2e10955e679",
+    "repo_image_2": "1c08b4213b0ae36a4ddf5cb70144358120311afa670cd6320c1dd7614f13cfa6"
+  }
+}
