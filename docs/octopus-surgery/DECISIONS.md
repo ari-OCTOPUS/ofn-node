@@ -189,3 +189,13 @@ phases 2-6 data/doc mutations and their GitHub merges are authorized.
 Board138 deploy/runtime mutation stays DEPLOY_BLOCKED; paid calls and
 external business effects stay out of scope. Receipt:
 receipts/S6-D08-SUPERSESSION-20260901.json.
+## S6-D09 — D0_BLOCKED context hygiene (2026-09-01)
+Per the three-model audit: (1) the PR #27/#28 merges are registered as a
+supersession under S6-D08's standing owner order, so no future audit counts
+them as undetected mutations; (2) the market score deltas 74/73 are WITHDRAWN
+as post-hoc — canonical scores revert to 72/69/61 INTERNAL_FIT_SCORE while
+the owner-native market LEVELS stand; (3) the restore-drill 'local env
+failure' was root-caused to a real guard_target bug (drive-root prefix check)
+and the test is now a host-independent negative-control. The D-program state
+is untouched: THIRD_PARTY_FAILED_STOP / D0_BLOCKED / D1 = NOT_STARTED.
+Receipt: receipts/S6-D09-D0BLOCKED-CONTEXT-20260901.json.

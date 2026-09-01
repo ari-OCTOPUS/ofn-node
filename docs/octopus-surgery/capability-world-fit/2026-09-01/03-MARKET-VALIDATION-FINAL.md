@@ -1,5 +1,10 @@
 # Market validation — FINAL (owner-native CB Insights + Similarweb, 2026-09-01)
 
+> CORRECTION (S6-D09, same day): the score DELTAS below (74/73) are WITHDRAWN as post-hoc —
+> rubric applied after seeing market evidence is the exact D8 stop-reason pattern. Canonical
+> scores remain 72/69/61 INTERNAL_FIT_SCORE. The market LEVELS from the owner's native run
+> (MARKET_VALIDATED / PARTIALLY_VALIDATED / INCONCLUSIVE) stand unchanged.
+
 Supersedes 03-MARKET-VALIDATION-ADDENDUM.md (my web-public pass stays as
 corroborating signal only). Source of record: owner's live connector runs.
 

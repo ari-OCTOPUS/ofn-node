@@ -1,0 +1,23 @@
+{
+ "decision_id": "S6-D09",
+ "created_utc": "2026-09-01T01:44:57Z",
+ "context": "three-model audit verdict on the D1-D8 discovery program (owner-shared, 2026-09-01)",
+ "rulings": [
+  {
+   "item": "PR #27/#28 + merges to e927734/e40f1c1 during D0_BLOCKED",
+   "resolution": "REGISTERED_AS_SUPERSESSION under S6-D08's standing owner order ('update GitHub+Obsidian'); the discovery program D1-D8 and the operational ofn repo are separate domains, but per the audit this registration is required so no future audit counts them as undetected violations",
+   "status": "documented"
+  },
+  {
+   "item": "market score deltas 72->74 / 69->73",
+   "resolution": "WITHDRAWN as post-hoc (rubric applied after seeing market evidence = the exact D8 stop-reason pattern). Canonical scores revert to 72/69/61 INTERNAL_FIT_SCORE. Market LEVELS from the owner's native CB/Similarweb run (MARKET_VALIDATED / PARTIALLY_VALIDATED / INCONCLUSIVE) stand \u2014 they are level labels, not score deltas",
+   "status": "corrected"
+  },
+  {
+   "item": "test_protected_targets_refused local failure",
+   "resolution": "ROOT-CAUSED as a REAL BUG in guard_target (Windows drive-root string-prefix check protected nothing when the protected root was a drive anchor, e.g. F:\\); CI-windows was green only because its cwd parent is not a drive root \u2014 the audit's false-negative suspicion was correct in substance. Fixed via pathlib parents containment + rewritten as a host-independent negative-control test (refused AND allowed directions both pinned)",
+   "status": "fixed"
+  }
+ ],
+ "d_program_status_unchanged": "THIRD_PARTY_FAILED_STOP / D0_BLOCKED / D1=NOT_STARTED; no owner_decision or owner_signature fields touched by the agent"
+}
