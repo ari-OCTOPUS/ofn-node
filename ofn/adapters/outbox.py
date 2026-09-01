@@ -44,6 +44,20 @@ APPROVED_MANUAL = "approved_manual"
 REJECTED = "rejected"
 COMPLETED = "manual_completed"
 
+# Logical uniqueness: a prefixed legacy write (tenant:key) and a raw write
+# (key) under the same tenant are ONE item. Composite PK alone still lets
+# those two spellings coexist — the guard_target class. Expression unique
+# index closes it without changing the enqueue path. Shared by SCHEMA and
+# the post-rebuild migration so the SQL cannot drift.
+LOGICAL_IDEM_INDEX = (
+    "CREATE UNIQUE INDEX IF NOT EXISTS outbox_logical_idem "
+    "ON outbox (tenant, "
+    "CASE WHEN idem_key LIKE tenant || ':%' "
+    "AND length(idem_key) > length(tenant) + 1 "
+    "THEN substr(idem_key, length(tenant) + 2) "
+    "ELSE idem_key END)"
+)
+
 SCHEMA = (
     """
     CREATE TABLE IF NOT EXISTS outbox (
@@ -69,6 +83,7 @@ SCHEMA = (
     )
     """,
     "CREATE INDEX IF NOT EXISTS outbox_queue ON outbox (tenant, status, created_at)",
+    LOGICAL_IDEM_INDEX,
 )
 
 # Migration: add the manual-completion columns to files created before the
@@ -111,6 +126,15 @@ def _migrate_composite_pk(conn) -> None:
                          "substr(idem_key, length(tenant) + 2)"] + others)))
         conn.execute("DROP TABLE outbox_legacy")
 
+
+def _ensure_logical_idem_unique(conn) -> None:
+    """Re-apply the logical unique index after a composite-PK rebuild.
+
+    `_migrate_composite_pk` recreates `outbox`, which drops indexes created
+    from SCHEMA on the pre-rebuild table. IF NOT EXISTS keeps this a no-op
+    on a file that already has the index.
+    """
+    conn.execute(LOGICAL_IDEM_INDEX)
 
 
 def _migrate_manual_columns(conn) -> None:
@@ -160,7 +184,8 @@ class Outbox:
     def __init__(self, path: str) -> None:
         self._pool = Pool(path)
         apply_schema(self._conn, SCHEMA,
-                     (_migrate_composite_pk, _migrate_manual_columns))
+                     (_migrate_composite_pk, _migrate_manual_columns,
+                      _ensure_logical_idem_unique))
 
     def close(self) -> None:
         self._pool.close()

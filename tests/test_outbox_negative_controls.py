@@ -3,26 +3,36 @@
 The outbox state machine was already two-phase and idempotent; what it
 lacked was proof of the REFUSED directions. These tests pin every refusal
 path so a future regression cannot hide behind "the happy path is green".
+
+FINAL-STATUS v2 items 1 and 3 add the five refusal directions the owner
+named, plus enqueue logical-key uniqueness (prefixed vs raw cannot coexist).
+Removing the matching guard must turn the corresponding test red.
 """
 from __future__ import annotations
 
 import os
+import sqlite3
 import tempfile
+import threading
 import unittest
 
-from ofn.adapters.outbox import Outbox
+from ofn.adapters.outbox import (
+    COMPLETED, HELD, IN_FLIGHT, PENDING, REJECTED, SENT, Outbox,
+)
 from ofn.kernel.domain import RiskTier, TenantId
-from ofn.kernel.tenancy import TenantRegistry, TenantScope
+from ofn.kernel.tenancy import TenantScope
 
 T0 = "2026-09-01T00:00:00Z"
 T1 = "2026-09-01T00:01:00Z"
+T2 = "2026-09-01T00:02:00Z"
 
 
 class Case(unittest.TestCase):
     def setUp(self):
         self._d = tempfile.TemporaryDirectory()
         self.addCleanup(self._d.cleanup)
-        self.ob = Outbox(os.path.join(self._d.name, "o.sqlite"))
+        self.path = os.path.join(self._d.name, "o.sqlite")
+        self.ob = Outbox(self.path)
         self.addCleanup(self.ob.close)
         self.scope = TenantScope(TenantId("lead"))
 
@@ -123,6 +133,140 @@ class TestNegativeControls(Case):
         pk = [r[1] for r in ob._conn.execute("PRAGMA table_info(outbox)")
               if r[5] > 0]
         self.assertEqual(pk, ["tenant", "idem_key"])
+
+
+class TestFinalStatusV2Item1(Case):
+    """The five named refusal directions. Happy path is not rewritten here.
+
+    Each test is a negative: if the matching WHERE/default/from_status
+    guard is deleted, the assertion goes red.
+    """
+
+    def test_1_mark_sent_from_pending_must_fail(self):
+        """mark_sent from PENDING must FAIL (not succeed)."""
+        self.q()
+        self.ob.mark_sent(self.scope, "k1", T1)
+        item = self.ob.get(self.scope, "k1")
+        self.assertEqual(item.status, PENDING)
+        self.assertNotEqual(item.status, SENT)
+        self.assertEqual(item.updated_at, T0)  # zero rows written
+        self.assertEqual(len(self.ob.pending(self.scope)), 1)
+
+    def test_2_complete_manual_on_rejected_is_refused(self):
+        """complete_manual on REJECTED must be rejected."""
+        self.q(tier=RiskTier.RED)
+        self.assertTrue(self.ob.approve_manual(
+            self.scope, "k1", T1, approved_by="o"))
+        self.assertTrue(self.ob.reject(self.scope, "k1", T1, note="no"))
+        ok = self.ob.complete_manual(
+            self.scope, "k1", T2, completed_by="o", channel="telegram")
+        self.assertFalse(ok)
+        item = self.ob.get(self.scope, "k1")
+        self.assertEqual(item.status, REJECTED)
+
+    def test_3_concurrent_claim_exactly_one_winner(self):
+        """concurrent claim() on the same idem_key: exactly one winner."""
+        self.q()
+        barrier = threading.Barrier(2)
+        results: list[bool] = []
+        errors: list[BaseException] = []
+
+        def go():
+            other = Outbox(self.path)
+            try:
+                barrier.wait()
+                results.append(other.claim(self.scope, "k1", T1))
+            except BaseException as exc:
+                errors.append(exc)
+            finally:
+                other.close()
+
+        threads = [threading.Thread(target=go) for _ in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        self.assertEqual(errors, [])
+        self.assertEqual(sorted(results), [False, True])
+        item = self.ob.get(self.scope, "k1")
+        self.assertEqual(item.status, IN_FLIGHT)
+        self.assertEqual(item.attempts, 1)
+
+    def test_4_reject_on_sent_and_completed_leaves_them_immutable(self):
+        """reject() on SENT/COMPLETED must leave them immutable."""
+        self.q("sent-key")
+        self.assertTrue(self.ob.claim(self.scope, "sent-key", T1))
+        self.ob.mark_sent(self.scope, "sent-key", T1)
+        self.assertFalse(self.ob.reject(self.scope, "sent-key", T2, note="late"))
+        self.assertEqual(self.ob.get(self.scope, "sent-key").status, SENT)
+
+        self.q("done-key", tier=RiskTier.RED)
+        self.assertTrue(self.ob.approve_manual(
+            self.scope, "done-key", T1, approved_by="o"))
+        self.assertTrue(self.ob.complete_manual(
+            self.scope, "done-key", T1, completed_by="o", channel="sms"))
+        self.assertFalse(self.ob.reject(self.scope, "done-key", T2, note="late"))
+        self.assertEqual(self.ob.get(self.scope, "done-key").status, COMPLETED)
+
+    def test_5_restart_must_not_silently_send_held(self):
+        """Restart must NOT silently send a HELD item (do-not-resend default)."""
+        self.q()
+        self.assertTrue(self.ob.claim(self.scope, "k1", T1))
+        self.ob.recover_stale("2026-09-01T09:00:00Z")
+        self.assertEqual(self.ob.get(self.scope, "k1").status, HELD)
+        # Second recover = process restart. HELD is not IN_FLIGHT, so it
+        # must stay HELD; pending() is what a sender would drain.
+        moved = self.ob.recover_stale("2026-09-01T10:00:00Z")
+        self.assertEqual(moved, 0)
+        item = self.ob.get(self.scope, "k1")
+        self.assertEqual(item.status, HELD)
+        self.assertEqual(list(self.ob.pending(self.scope)), [])
+        self.assertEqual(len(self.ob.held(self.scope)), 1)
+
+
+class TestFinalStatusV2Item3(Case):
+    """Enqueue tenant integrity: unprefixed write cannot fork a logical row."""
+
+    def test_unprefixed_write_cannot_create_second_logical_row(self):
+        """A prefixed row already exists; enqueue of the raw key must not
+        insert a second logical row (the dual-spelling hole composite PK
+        alone does not close).
+        """
+        self.ob._conn.execute("BEGIN IMMEDIATE")
+        self.ob._conn.execute(
+            "INSERT INTO outbox (idem_key, tenant, kind, payload, tier,"
+            " status, attempts, created_at, updated_at)"
+            " VALUES ('lead:k1', 'lead', 'email', '{}', 'yellow',"
+            " 'pending', 0, ?, ?)",
+            (T0, T0))
+        self.ob._conn.execute("COMMIT")
+        created = self.ob.enqueue(
+            self.scope, "k1", "email", {"t": "y"}, RiskTier.YELLOW, T1)
+        self.assertFalse(created)
+        n = self.ob._conn.execute(
+            "SELECT COUNT(*) AS n FROM outbox WHERE tenant = ?",
+            ("lead",)).fetchone()["n"]
+        self.assertEqual(int(n), 1)
+        # The surviving spelling is the one that landed first.
+        row = self.ob._conn.execute(
+            "SELECT idem_key FROM outbox WHERE tenant = ?",
+            ("lead",)).fetchone()
+        self.assertEqual(row["idem_key"], "lead:k1")
+
+    def test_prefixed_write_cannot_fork_an_existing_raw_row(self):
+        """Symmetric: raw row first, prefixed INSERT must hit the index."""
+        self.q("k1")
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.ob._conn.execute(
+                "INSERT INTO outbox (idem_key, tenant, kind, payload, tier,"
+                " status, attempts, created_at, updated_at)"
+                " VALUES ('lead:k1', 'lead', 'email', '{}', 'yellow',"
+                " 'pending', 0, ?, ?)",
+                (T1, T1))
+        n = self.ob._conn.execute(
+            "SELECT COUNT(*) AS n FROM outbox WHERE tenant = ?",
+            ("lead",)).fetchone()["n"]
+        self.assertEqual(int(n), 1)
 
 
 if __name__ == "__main__":
