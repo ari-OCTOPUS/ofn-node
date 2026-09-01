@@ -169,3 +169,72 @@ def check(draft: dict) -> list[str]:
     if "$" not in text:
         errs.append("no-concrete-figure")  # R1 به‌صورتِ دفاعِ دوم
     return errs
+
+
+# ─── فالوآپ (Lane E5، رأی Q4) ────────────────────────────────────────────────
+
+_FU_SUBJECTS = (
+    "Following up — painting availability",
+    "Re: painting works — still keen",
+    "Quick follow-up on my last note",
+    "Painting quote — following up once more",
+)
+
+_FU_1 = (
+    "Just floating my earlier note to the top of your inbox in case it got "
+    "buried. Still happy to put a number on any painting works {short} has "
+    "coming up — a rough scope is enough to start.",
+
+    "Following up on my note from last week. If there is a repaint or "
+    "maintenance package in the pipeline for {short}, I would be glad to "
+    "price it. One line with the scope gets you a figure.",
+
+    "Bumping this once. {short} has real painting cycles in its programme "
+    "(we both know the numbers), and I would like to be on the list when "
+    "the next one goes out.",
+)
+
+_FU_2 = (
+    "Last note from me, promise. If painting works are on {short}'s horizon "
+    "this year, keep my details on file — a scope of any size gets a "
+    "straight price back.",
+
+    "I will leave it here so I am not cluttering your inbox. If a painting "
+    "tender or repaint comes up at {short}, my details are below — happy to "
+    "quote at any stage.",
+)
+
+_FU_SIGN = "Kind regards,\n{sign}\n{city}"
+
+
+def write_followup(lead_id: str, buyer: str, nth: int = 1,
+                   total_awarded_aud=None) -> dict:
+    """یادآوریِ ۱ یا ۲ — کوتاه از معرفی، قطعی از seed. بدونِ دادهٔ OCP هم
+    می‌شود (برخلافِ intro) ولی اگر عدد بود طبیعی‌تر است."""
+    import hashlib
+    digest = hashlib.sha256(("fu:" + str(lead_id) + ":" + str(nth)).encode()).digest()
+    short = _short_name(buyer)
+    pool = _FU_1 if int(nth) == 1 else _FU_2
+    si, oi = digest[0] % len(_FU_SUBJECTS), digest[1] % len(pool)
+    amount = _amount_text(total_awarded_aud)
+    body_para = pool[oi].format(short=short, amount=amount or "recent work")
+    subject = _FU_SUBJECTS[si]
+    # سوژهٔ «Re:» را فقط وقتی نگذار که پیام اول همان ترد بود — اینجا ایمیلِ
+    # نو است، پس Re: حذف می‌شود تا صادقانه باشد (نه جعلِ ترد).
+    subject = subject.replace("Re: ", "").strip()
+    body = body_para + "\n\n" + _FU_SIGN.format(sign=SIGN_NAME, city=SIGN_CITY)
+    return {"subject": subject, "body": body}
+
+
+def check_followup(draft: dict) -> list[str]:
+    """گیت سبکِ فالوآپ — مثل check ولی بدونِ الزامِ عدد (R1 فقط برای intro)."""
+    errs = []
+    text = ((draft.get("subject") or "") + "\n" +
+            (draft.get("body") or "")).lower()
+    for bad in FORBIDDEN:
+        if bad in text:
+            errs.append(f"forbidden-phrase:{bad}")
+    words = len((draft.get("body") or "").split())
+    if words > 90:
+        errs.append(f"body-too-long:{words}")
+    return errs
