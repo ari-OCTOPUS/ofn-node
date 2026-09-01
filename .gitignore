@@ -36,3 +36,4 @@ docs/consent/*.pdf
 ofn/agi2027_runtime/
 data/state/
 data/octopus-alerts.jsonl
+.cursor/hook-ledger.jsonl
