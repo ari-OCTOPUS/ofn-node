@@ -1,0 +1,18 @@
+{
+ "receipt": "TELEGRAM-DEBUG-AND-BRIDGE",
+ "created_utc": "2026-09-01T04:27:40Z",
+ "diagnosis": {
+  "symptom": "owner: repo/obsidian data out ranks what telegram shows",
+  "root_cause": "board138 runtime HEAD = 570c856 (pre-squash ancestor of main 96ce9e1+): the telegram cockpit serves the runtime's owner queue/panel, so it shows the pre-P0 world. NOT a bot-logic bug.",
+  "secondary": "two ConnectionResetError (errno 104) at 21:07 in ofn journal \u2014 transient network resets, service stayed active; alert->telegram path is OFF by design (OFN_ALERT_TELEGRAM unset = gate closed).",
+  "authoritative_source_confirmed": "GitHub main + vault receipts (owner ruling this turn: repo data outranks current telegram)"
+ },
+ "bridge": {
+  "module": "octopus_survival/telegram_bridge.py",
+  "mechanism": "loop events -> owner queue (kind=survival_loop_event, tier=GREEN, manual delivery) -> the EXISTING telegram cockpit renders the queue; NO new send path, NO gate opened",
+  "safety": "rate-capped (default 20/day, tested), idempotent per run+kind+tick, informational tier only",
+  "tests": 4,
+  "suite": "2297 passed / 0 failed"
+ },
+ "deploy_note": "seeing loop events in the owner's telegram requires board138 to run main (currently DEPLOY_BLOCKED; owner order this turn covers code+merge, board ff still needs its own go)"
+}
