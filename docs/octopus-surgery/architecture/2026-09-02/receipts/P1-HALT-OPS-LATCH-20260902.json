@@ -1,0 +1,74 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-HALT-OPS-LATCH-20260902",
+  "issued_utc": "2026-09-02T11:34:24Z",
+  "author": "cursor-cloud-agent bc-175eea27 (owner-absent cron; trigger PR #82 require-independent-approval)",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "claim_type": "measurement",
+  "scope_measured": "new kernel-pure halt_ops + LatchIndex + HaltLog adapter on origin/main @45dd9133dc3677630b9a3606fc7a41f00f5458e0 working tree; files listed under file_lock_zone",
+  "scope_not_measured": [
+    "full-suite CI (runs on the PR)",
+    "filesystem immutability of any archive",
+    "wiring into run_gate.py (owned by PR #93)",
+    "wiring into run_store.py / events.py / chaos tests (owned by PR #82)",
+    "envelope factory deadline (owned by PR #83)",
+    "typed ExecutionReceipt (owned by PR #87)",
+    "KindRefIndex / SettlementIndex (owned by PR #88)",
+    "07-INCIDENTS.md append (owned by PR #73; file absent on main)",
+    "MASTER-BLUEPRINT.md / CONTRIBUTING.md / D-27 / D-28 (absent on this worktree; UNKNOWN, not FALSE)"
+  ],
+  "action": "P1 complementary: HALT operation classifier (starts refused, in-flight allowed, resend never) plus latch transition history as a second witness of the live flag. New files only. Not wired into halt_flag or run_gate.",
+  "file_lock_zone": [
+    "ofn/kernel/halt_ops.py",
+    "ofn/kernel/halt_latch.py",
+    "ofn/adapters/halt_log.py",
+    "tests/test_halt_ops.py",
+    "tests/test_halt_latch.py",
+    "tests/test_halt_log.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-HALT-OPS-LATCH-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/halt.py",
+    "ofn/adapters/halt_flag.py",
+    "ofn/adapters/run_gate.py",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/rejection.py",
+    "tests/test_chaos_owner_absent.py",
+    "docs/octopus-os/07-INCIDENTS.md"
+  ],
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 82,
+    "branch": "feat/p1-load-invariants-20260902",
+    "head_sha": "7309a51e4a72648dab854b472ff70c03afffd755",
+    "failed_check": "require-independent-approval",
+    "disposition": "REVIEW_REQUIRED blocks merge, not engineering. Independent lane taken."
+  },
+  "verification": {
+    "command": "python3 -m pytest tests/test_halt_ops.py tests/test_halt_latch.py tests/test_halt_log.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_run_gate.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T11:34:24Z",
+    "parent_head_full": "45dd9133dc3677630b9a3606fc7a41f00f5458e0",
+    "exit_code": 0,
+    "result": "187 passed, 1066 subtests passed, 0 failed, 0 skipped",
+    "pytest": "9.1.1"
+  },
+  "invariants": {
+    "ready_ne_authorized": true,
+    "grants_send": false,
+    "halt_blocks_inflight": false,
+    "halt_blocks_latch": false,
+    "resend_never_granted": true,
+    "wired_into_run_store": false,
+    "wired_into_halt_flag": false,
+    "external_effects": 0
+  },
+  "filesystem_immutability": "NOT claimed",
+  "boundary": "no gate opened, no outbound, no secrets, no merge, no admin bypass"
+}
