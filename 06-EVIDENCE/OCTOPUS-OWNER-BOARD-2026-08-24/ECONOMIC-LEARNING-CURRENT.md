@@ -1,7 +1,7 @@
 ---
 type: economic-learning-current
-generated_at: 2026-09-02T10:42:12Z
-code_sha: ec5c3ecc239b13aa9c147f4a1dc04e6990bcdec1
+generated_at: 2026-09-02T11:29:02Z
+code_sha: 45dd9133dc3677630b9a3606fc7a41f00f5458e0
 board_runtime_snapshot_sha256: 0a67c1fde51821e1fd62b9c9aa0a1c770f4382e44d822cf27ed6badc42a7e8ea
 campaign: PAINT-L5-001
 mode: shadow-only
@@ -33,4 +33,4 @@ state: FRESH
 - LES-zero-payment-o-d008a655 (low, n=1, recheck 2026-09-09): campaign PAINT-L5-001: no verified payment (payment_received_verified=false) — zero-payment is a valid economic observation, not success; local failure stays OPEN until a differing parameter is tested (n=1)
 - LES-intermediate-s-fb4fb13d (low, n=1, recheck 2026-09-09): campaign PAINT-L5-001: quote_signal without verified payment — intermediate signal, not revenue (n=1); continue observing
 
-ledger: {'total': 15, 'by_kind': {'outcome_score': 5, 'lesson': 5, 'proposal': 5}, 'unique_ids': 15} · valid=True · orphans=0
+ledger: {'total': 16, 'by_kind': {'outcome_score': 5, 'lesson': 5, 'proposal': 6}, 'unique_ids': 16} · valid=True · orphans=0
