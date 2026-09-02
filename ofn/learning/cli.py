@@ -79,11 +79,12 @@ def cmd_run(args) -> int:
                        "level": score.level, "snapshot_sha256": snapshot_sha,
                        "outcome": "RECORDED"})
         for lesson in LessonExtractor().extract(score, lead.get("events", [])):
-            lessons.append(lesson.as_dict())
-            ledger.append({"record_id": lesson["lesson_id"], "kind": "lesson",
-                           "lead_id": lead_id, "lesson": lesson["lesson"],
-                           "confidence": lesson["confidence"],
-                           "sample_size": lesson["sample_size"],
+            ldict = lesson.as_dict()
+            lessons.append(ldict)
+            ledger.append({"record_id": ldict["lesson_id"], "kind": "lesson",
+                           "lead_id": lead_id, "lesson": ldict["lesson"],
+                           "confidence": ldict["confidence"],
+                           "sample_size": ldict["sample_size"],
                            "snapshot_sha256": snapshot_sha, "outcome": "RECORDED"})
             prop = ExperimentProposer().propose_from_lesson(lesson)
             if prop.title:

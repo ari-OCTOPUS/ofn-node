@@ -49,6 +49,8 @@ class EconomicLearningLedger:
         with open(self.path, "a", encoding="utf-8") as fh:
             fh.write(canonical_json(row) + "\n")
         self._seen_ids.add(rid)
+        if hasattr(self, "_rows") and self._rows is not None:
+            self._rows.append(row)
         return "appended"
 
     # ----------------------------------------------------------------- state
