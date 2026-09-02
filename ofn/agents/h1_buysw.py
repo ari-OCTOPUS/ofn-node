@@ -1,4 +1,14 @@
-"""H1 buy.nsw tender adapter — read-only, stdlib only.
+"""DEAD SOURCE — labeled 2026-09-02 (D-31 step 1; 4th candidate, D-34 §B-4).
+
+Parses the NSW eTendering OCDS feed, which ENDED Feb 2025 — verified live
+from Sydney (docs/day7/DAY7-SOURCE-DISCOVERY-AND-OWNER-LOG.md). An
+importable, unlabeled parser of a dead feed misleads readers into
+thinking a live eTendering path exists. Do NOT wire new callers to it.
+Disposition: repoint or remove at D-31 step 4.
+
+---
+
+H1 buy.nsw tender adapter — read-only, stdlib only.
 
 Parses NSW eTendering OCDS responses, filters for painting tenders
 in Sydney service area, maps to painting_tenders schema.
