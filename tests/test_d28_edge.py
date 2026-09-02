@@ -6,6 +6,7 @@ import ast
 import hashlib
 import json
 import os
+import re
 import unittest
 
 from ofn.adapters.consent_store import ConsentError, ConsentStore
@@ -20,7 +21,11 @@ from octopus_survival.paint_followup import (
     propose_follow_up,
 )
 from ofn.kernel.release_switch import RULE_OWNER_TWO_STEP
-from tools.partner_attestation import independently_observed, list_receipts
+from tools.partner_attestation import (
+    REQUIRED,
+    independently_observed,
+    list_receipts,
+)
 from tests.tmpdir import temp_dir
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,6 +54,13 @@ def _load(path: str) -> dict:
         return json.load(fh)
 
 
+ATTEST = os.path.join(ROOT, "docs", "octopus-surgery", "attestations")
+INTAKE = os.path.join(ATTEST, "receipts", "INTAKE-20260902.json")
+FILE_HASHES = os.path.join(ATTEST, "receipts", "FILE-HASHES.json")
+SABA_STATUS = os.path.join(ROOT, "docs", "consent", "SABA-RELEASE-STATUS.json")
+MEDIA_EXTS = {".ogg", ".jpg", ".jpeg", ".png", ".pdf", ".mp3", ".wav"}
+
+
 class TestThreeFieldsStayUnforged(unittest.TestCase):
     def test_partner_voices_still_false_without_three_hashes(self):
         d26 = _load(D26)
@@ -58,6 +70,59 @@ class TestThreeFieldsStayUnforged(unittest.TestCase):
         report = independently_observed(list_receipts(ROOT))
         self.assertFalse(report["independently_observed"])
         self.assertFalse(report["ready"])
+        self.assertEqual(report["missing"], ["abbas"])
+        self.assertEqual(report["extra"], ["sume"])
+        self.assertIn("not-observed:maliheh", report["incomplete"])
+        self.assertIn("not-observed:saba", report["incomplete"])
+
+    def test_intake_hashes_exist_and_no_receipt_is_abbas(self):
+        hashes = _load(FILE_HASHES)
+        intake = _load(INTAKE)
+        self.assertTrue(hashes["path_column_not_pasted"])
+        self.assertFalse(intake["sume"]["mapped_to_abbas"])
+        self.assertEqual(intake["abbas_voice"], "missing")
+        self.assertFalse(intake["partner_voices_independently_observed"])
+        self.assertFalse(intake["transfer"]["authorized"])
+        receipts = list_receipts(ROOT)
+        ids = [row["partner_id"] for row in receipts]
+        self.assertIn("maliheh", ids)
+        self.assertIn("saba", ids)
+        self.assertIn("sume", ids)
+        self.assertNotIn("abbas", ids)
+        for row in receipts:
+            self.assertFalse(row["independently_observed"])
+            self.assertFalse(row.get("alias_of_abbas", False))
+            self.assertNotEqual(row["partner_id"], "abbas")
+            self.assertTrue(bool(re.fullmatch(r"[0-9a-f]{64}", row["media_sha256"])))
+
+    def test_no_raw_media_in_attestations_tree(self):
+        for dirpath, _dirnames, filenames in os.walk(ATTEST):
+            for name in filenames:
+                ext = os.path.splitext(name)[1].lower()
+                self.assertNotIn(ext, MEDIA_EXTS, os.path.join(dirpath, name))
+
+    def test_sume_extra_does_not_poison_a_complete_required_set(self):
+        complete = [
+            {
+                "schema": "octopus.partner_attestation.v1",
+                "partner_id": partner,
+                "media_sha256": "a" * 64,
+                "independently_observed": True,
+            }
+            for partner in REQUIRED
+        ]
+        extra = {
+            "schema": "octopus.partner_attestation.v1",
+            "partner_id": "sume",
+            "media_sha256": "b" * 64,
+            "independently_observed": False,
+            "alias_of_abbas": False,
+        }
+        report = independently_observed(complete + [extra])
+        self.assertTrue(report["ready"])
+        self.assertEqual(report["extra"], ["sume"])
+        self.assertEqual(report["missing"], [])
+        self.assertNotIn("unknown:sume", report["incomplete"])
 
     def test_secret_rotation_receipt_is_unrotated_not_rotated(self):
         data = _load(DIRECTIVE)
@@ -79,12 +144,20 @@ class TestThreeFieldsStayUnforged(unittest.TestCase):
         self.assertIn("امضانشده", body)
         digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
         self.assertEqual(len(digest), 64)
-        status = _load(os.path.join(ROOT, "docs", "consent",
-                                    "SABA-RELEASE-STATUS.json"))
+        status = _load(SABA_STATUS)
         self.assertFalse(status["signed"])
         self.assertFalse(status["record_release_called"])
         self.assertEqual(status["template_sha256"], digest)
         self.assertIn("not a signed-document hash", status["note"])
+        scan = status["owner_reported_scan"]
+        self.assertEqual(
+            scan["sha256"],
+            "c5046a1802ba6171b33281dd1d67186a6e565d1509b7474094cb5c064018a628",
+        )
+        self.assertFalse(scan["inspected_this_vantage"])
+        self.assertFalse(scan["four_corners_verified"])
+        self.assertFalse(_load(DIRECTIVE)["saba_release"]
+                         ["owner_reported_scan_inspected_this_vantage"])
 
 
 class TestConsentStoreStillRefusesShortcuts(unittest.TestCase):

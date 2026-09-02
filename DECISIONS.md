@@ -544,7 +544,9 @@ C-009 رسماً بسته شد (هویت آپلود تکراری، نه تناق
 *(حکم مالک + ایجنت ارشد، ۲۰۲۶-۰۹-۰۲)*
 
 ویس شرکا painting و موج ۱/۲ را قفل نمی‌کند. `partner_voices_independently_observed`
-تا سه رسید با `media_sha256` `false` است. رضایت سبا فقط
+تا سه رسید با `media_sha256` **و** مشاهدهٔ واقعی `false` است.
+هش ویندوز ۲۰۲۶-۰۹-۰۲ ثبت شد؛ مشاهده جعل نشد. `SUME` عباس نیست
+مگر تأیید صریح مالک. رضایت سبا فقط
 `record_release` است، نه بولین. چرخش راز روی این میزبان نشد:
 `secret_rotation: risk_accepted_unrotated`. پنجرهٔ رسمی
 `GATE_OPEN_UNTIL_UTC = 2026-09-16`. `OFN_KEEP_GATES_OPEN` و

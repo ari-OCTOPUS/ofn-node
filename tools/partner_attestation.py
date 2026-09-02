@@ -5,6 +5,10 @@ partner_voices_independently_observed flips only when this tool reports
 ready=true: three partners, each with a 64-hex media_sha256, and the
 receipt's independently_observed field is true. Missing media is not
 forged. A receipt without media_sha256 is incomplete.
+
+sume is a known extra subject, not an alias of abbas. Presence of a
+sume receipt must not count as Abbas and must not poison a later
+complete maliheh/abbas/saba set.
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ from typing import Any
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ATTEST_REL = os.path.join("docs", "octopus-surgery", "attestations")
 REQUIRED = ("maliheh", "abbas", "saba")
+KNOWN_EXTRA = frozenset({"sume"})
 SCHEMA = "octopus.partner_attestation.v1"
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -35,31 +40,42 @@ def _load(path: str) -> dict[str, Any]:
 
 
 def list_receipts(root: str = ROOT) -> list[dict[str, Any]]:
+    """Load v1 partner receipts under attestations/, including receipts/."""
     folder = os.path.join(root, ATTEST_REL)
     if not os.path.isdir(folder):
         return []
-    rows = []
-    for name in sorted(os.listdir(folder)):
-        if not name.endswith(".json"):
-            continue
-        rows.append(_load(os.path.join(folder, name)))
+    rows: list[dict[str, Any]] = []
+    for dirpath, _dirnames, filenames in os.walk(folder):
+        for name in sorted(filenames):
+            if not name.endswith(".json"):
+                continue
+            data = _load(os.path.join(dirpath, name))
+            if data.get("schema") != SCHEMA:
+                continue
+            rows.append(data)
+    rows.sort(key=lambda row: str(row.get("partner_id") or ""))
     return rows
 
 
 def independently_observed(receipts: list[dict[str, Any]]) -> dict[str, Any]:
     """Independent record. Absence of three complete files is false, not yes."""
     by_partner: dict[str, dict[str, Any]] = {}
+    present: dict[str, dict[str, Any]] = {}
     incomplete: list[str] = []
+    extras: list[str] = []
     for row in receipts:
         if row.get("schema") != SCHEMA:
-            incomplete.append("schema")
             continue
         partner = row.get("partner_id")
         digest = row.get("media_sha256") or ""
         observed = bool(row.get("independently_observed"))
+        if partner in KNOWN_EXTRA:
+            extras.append(str(partner))
+            continue
         if partner not in REQUIRED:
             incomplete.append(f"unknown:{partner}")
             continue
+        present[str(partner)] = row
         if not _SHA256.match(str(digest).lower()):
             incomplete.append(f"hash:{partner}")
             continue
@@ -67,12 +83,16 @@ def independently_observed(receipts: list[dict[str, Any]]) -> dict[str, Any]:
             incomplete.append(f"not-observed:{partner}")
             continue
         by_partner[str(partner)] = row
+    missing = [p for p in REQUIRED if p not in present]
     ready = all(p in by_partner for p in REQUIRED) and not incomplete
     return {
         "schema": "octopus.partner_attestation.measure.v1",
         "required": list(REQUIRED),
+        "present": sorted(present),
         "complete": sorted(by_partner),
         "incomplete": incomplete,
+        "missing": missing,
+        "extra": sorted(set(extras)),
         "independently_observed": ready,
         "ready": ready,
     }

@@ -22,11 +22,22 @@
   "partner_attestation_dir": "docs/octopus-surgery/attestations",
   "partner_voices_block_painting": false,
   "partner_voices_required_for": ["partner_precondition_studio", "revenue_split"],
+  "evidence_intake_20260902": {
+    "receipts_committed": true,
+    "raw_media_in_git": false,
+    "sume_mapped_to_abbas": false,
+    "abbas_voice_present": false,
+    "telegram_screenshots_in_hash_table": false,
+    "transfer_authorized": false,
+    "ofn_node_host_unknown": true,
+    "observation_reason": "verifier_did_not_access_the_three_records"
+  },
 
   "saba_release": {
     "status": "unsigned_template_only",
     "record_release_called": false,
     "pdf_in_git": false,
+    "owner_reported_scan_inspected_this_vantage": false,
     "onlyfans_http_arm": "unset_until_release_row"
   },
 

@@ -1,0 +1,51 @@
+{
+  "schema": "octopus.windows_file_hashes.v1",
+  "recorded_at": "2026-09-02T00:08:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "claim_type": "record",
+  "source": "owner_powershell_format_table_paste",
+  "windows_staging_root": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02",
+  "path_column_not_pasted": true,
+  "assignment_method": "inferred_getchilditem_recurse_alpha_dirs",
+  "assignment_confidence": "inferred_until_path_stamped_json",
+  "note": "Owner pasted Format-Table without full_path. Get-ChildItem -Recurse over raw\\maliheh, raw\\saba, raw\\sume matches the four-row order. consent-original.jpg is certain by filename. Voice subject assignment is inferred. Size 674080 does not identify a speaker.",
+  "records": [
+    {
+      "file_name": "voice-01.ogg",
+      "inferred_rel_path": "raw/maliheh/voice-01.ogg",
+      "full_path_inferred": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02\\raw\\maliheh\\voice-01.ogg",
+      "size_bytes": 102938,
+      "sha256": "d62bb97714053705bf362f21552e3b0c60d530b0fe87c29f971981071fc4e5ef",
+      "subject_id": "maliheh",
+      "path_certain": false
+    },
+    {
+      "file_name": "consent-original.jpg",
+      "inferred_rel_path": "raw/saba/consent-original.jpg",
+      "full_path_inferred": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02\\raw\\saba\\consent-original.jpg",
+      "size_bytes": 350405,
+      "sha256": "c5046a1802ba6171b33281dd1d67186a6e565d1509b7474094cb5c064018a628",
+      "subject_id": "saba",
+      "path_certain": true
+    },
+    {
+      "file_name": "voice-01.ogg",
+      "inferred_rel_path": "raw/saba/voice-01.ogg",
+      "full_path_inferred": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02\\raw\\saba\\voice-01.ogg",
+      "size_bytes": 49200,
+      "sha256": "d081290ba3bc048cdbd874d7bbf9a26c565707c858adaa7119bec03348f87419",
+      "subject_id": "saba",
+      "path_certain": false
+    },
+    {
+      "file_name": "voice-01.ogg",
+      "inferred_rel_path": "raw/sume/voice-01.ogg",
+      "full_path_inferred": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02\\raw\\sume\\voice-01.ogg",
+      "size_bytes": 674080,
+      "sha256": "586c32ddd27a3134a23accf5d840cc598accf3c67253d5c212a2ac1d36f87788",
+      "subject_id": "sume",
+      "path_certain": false
+    }
+  ]
+}

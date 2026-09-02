@@ -1,0 +1,44 @@
+{
+  "schema": "octopus.owner_evidence_intake.v1",
+  "intake_id": "INTAKE-20260902",
+  "recorded_at": "2026-09-02T00:08:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "claim_type": "record",
+  "windows_staging_root": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02",
+  "raw_in_git": false,
+  "audio_converted": false,
+  "partner_voices_independently_observed": false,
+  "observation_reason": "verifier_did_not_access_the_three_records",
+  "available_hashed": [
+    "maliheh/voice-01.ogg",
+    "sume/voice-01.ogg",
+    "saba/voice-01.ogg",
+    "saba/consent-original.jpg"
+  ],
+  "sume": {
+    "partner_id": "sume",
+    "mapped_to_abbas": false,
+    "owner_confirmed_identity": false
+  },
+  "abbas_voice": "missing",
+  "telegram_screenshots": {
+    "requested": true,
+    "in_pasted_hash_table": false,
+    "identities_recorded": false
+  },
+  "saba_consent_scan": {
+    "owner_reported_sha256": "c5046a1802ba6171b33281dd1d67186a6e565d1509b7474094cb5c064018a628",
+    "inspected_this_vantage": false,
+    "four_corners_verified": false,
+    "record_release_called": false
+  },
+  "transfer": {
+    "authorized": false,
+    "blockers": [
+      "sume_identity_unconfirmed",
+      "ofn_node_host_unknown",
+      "ofn_node_login_unknown"
+    ]
+  }
+}
