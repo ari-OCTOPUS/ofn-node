@@ -1,0 +1,55 @@
+# 02-AGENT-CONTRACTS — eight-arm contract map (blueprint §2)
+# scope_measured: module names read from main @67359a6 (git ls-tree); percentages from
+#   Master Blueprint §2 (agent-measured 2026-09-02, NOT re-measured per arm in this pass)
+# scope_not_measured: runtime behavior of any arm; CI results
+# source_of_truth: the code, always. This file is a map, not the territory.
+
+schema: octopus.agent_contracts.v1
+authority_levels: {A0: observe, A1: propose, A2: reversible-external, A3: bounded-external}
+envelope: {version: 1, factory: "ofn.kernel.envelope.create_envelope", run_id_minted_at: trust_boundary}
+budget: {impl: "ofn.kernel.callbudget.CallBudget", gate: "envelope.may_spend()"}
+publish_gate: {impl: "ofn.kernel.release_switch.OwnerRelease.may_publish", note: "untouched by P1 — owner two-step"}
+halt: {impl: "ofn.adapters.halt_flag", gate: "ofn.adapters.run_gate.RunGate", semantics: "absent=running; corrupt=HALTED (fail-closed)"}
+
+arms:
+  A1_planner:
+    mission: decompose + DAG
+    modules: [kernel/routing.py, kernel/allocation.py, kernel/estimate.py, kernel/fleet.py, kernel/callbudget.py, kernel/quota.py]
+    blueprint_readiness: "70%"
+    gap: explicit task graph
+  A2_research:
+    mission: source gathering
+    modules: [agents/seek_harvest.py, agents/demand_harvest.py, agents/nsw_ocp_harvest.py, agents/h1_harvest.py, agents/h1_buysw.py, adapters/trend_sources.py, adapters/witness_mint.py]
+    blueprint_readiness: "85%"
+    dead_source_labels: "see PR #70 (D-31 step 1): h1_buysw/h1_harvest/demand_harvest + nsw_ocp parked"
+    gap: standard evidence bundle
+  A3_builder:
+    mission: code + branches
+    modules: [".github/workflows/full-suite.yml"]
+    blueprint_readiness: "50%"
+    gap: independent builder agent
+  A4_validator:
+    mission: red-team + eval
+    modules: [kernel/gates.py, kernel/risk.py, kernel/safety.py, kernel/consent.py, kernel/advisor_gate.py, .github/CODEOWNERS]
+    blueprint_readiness: "80%"
+    gap: negative control per gate
+  A5_memory:
+    mission: context + consolidation
+    modules: [adapters/facts.py, adapters/correlation.py, adapters/lead_store.py, adapters/audience_store.py, adapters/consent_store.py, adapters/marketing_store.py]
+    blueprint_readiness: "60%"
+    gap: unified event spine
+  A6_operations:
+    mission: deploy + health
+    modules: [adapters/boot.py, adapters/watchdog.py, adapters/backup.py, adapters/sysmetrics.py, adapters/alert.py, adapters/rate_limit.py]
+    blueprint_readiness: "80%"
+    gap: production-grade restore drill (E2)
+  A7_commerce:
+    mission: lead → receipt
+    modules: [adapters/outbox.py, adapters/ledger.py, adapters/lead_store.py, adapters/commerce_connector.py, adapters/pilot.py, adapters/pilot_thresholds.py]
+    blueprint_readiness: "75%"
+    revenue_chain_state: "harvest✅ → score → quote_drafted(rp0) → policy_checked+campaign_envelope_ready(PR #76) → [quote_sent: OWNER-ONLY, structurally sealed]"
+  A8_truth:
+    mission: registry + audit
+    modules: [adapters/ledger.py, adapters/board_events.py, adapters/owner_decision.py, adapters/fake_executor.py, adapters/run_store.py(P1), kernel/events.py(P1), kernel/envelope.py(P1)]
+    blueprint_readiness: "70%→85% (P1 skeleton: PR #74/#75)"
+    rules: [A8_issues_no_permissions, proposal_ne_execution, one_verdict_one_budget_effect]

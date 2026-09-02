@@ -1,0 +1,131 @@
+{
+ "schema": "octopus.receipt.v1",
+ "receipt_id": "HALT-CHAOS-20260902",
+ "issued_utc": "2026-09-02T06:40:00Z",
+ "author": "ari322 local agent session (F:\\ scope, owner-absent mode)",
+ "owner_ratified": false,
+ "scope_measured": "stacked on feat/p1-envelope-runstore-20260902 @0b3bffd (RunStore/envelope/events/halt_flag present); outbox.py API read on main (HELD, claim, recover_stale(resend=False)); TenantId/RiskTier constructors probed live",
+ "scope_not_measured": [
+  "full-suite CI (runs on the PR)",
+  "board138"
+ ],
+ "action": "LANE HALT + LANE CHAOS per continuation directive",
+ "delivered": {
+  "ofn/adapters/run_gate.py": "RunGate — reads halt flag BEFORE RUN_CREATED; claim() refuses (FailClosedError) while halted; hold_in_flight() parks IN_FLIGHT→HELD via outbox.recover_stale(resend=False); recover_after_restart() has NO resend parameter by design",
+  "ofn/kernel/source_health.py": "pure vocabulary: dead source/None→UNKNOWN (never FALSE); 403→PARKED (policy, no retry); 429/5xx→bounded enumerable backoff then PARKED; caps constant-exposed",
+  "tests/test_run_gate.py": "11 tests incl. negative: armed flag refuses start & writes nothing (idem key not burned); corrupt flag refuses; claim refused under halt; in-flight parks to HELD; restart never resends (no knob exists)",
+  "tests/test_chaos_owner_absent.py": "7 blueprint §11 scenarios: dead-source=UNKNOWN; arm-timeout→siblings continue; rate-limit bounded→PARKED (termination proven); duplicate delivery→one effect; exhausted REMOTE arm stops while RULES arm unaffected; global halt stops all new runs; reversible close-and-restart without owner"
+ },
+ "verification": {
+  "command": "python -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py -q",
+  "output": "19 passed in 0.52s"
+ },
+ "boundary": "no gate opened, no flag left armed, no network, no secrets; halt flag files live only in test tmp dirs",
+ "evidence_hardening_20260902": {
+  "tested_head_full": "2d25ee7354549033d1e7c837cb0c745ff2d7b18b",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @92f5267 (rebased; retargets to main after #74 merges)",
+  "command": "python -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_kernel_purity.py -q",
+  "result": "78 passed, 919 subtests passed",
+  "ran_at_utc": "2026-09-02T05:32:00+00:00",
+  "round2_additions": [
+   "unknown storage: binary garbage + UTF-16LE mojibake flag files both HALT (undecodable intent = halted)",
+   "atomic transition: write_halt now tmp+os.replace (no torn flag, no tmp litter — tested)",
+   "HELD recovery: held item not in pending, claim returns False, approve_manual from HELD deliberately refused (PENDING-only path), human resolution via mark_failed verified",
+   "no-resend across ALL entry points: restart + hold + halt-start + halt-claim — pending never resurfaces, attempts stay 1",
+   "bounded retry: exact backoff tuple (1,2,4), cap clamp at 60s, length bound at attempts"
+  ],
+  "bugs_the_new_tests_caught": [
+   "halt_flag read_text raised UnicodeDecodeError on binary flag (only OSError was caught) — now bytes+decode with fail-closed fallback",
+   "test initially assumed approve_manual works from HELD — outbox contract is PENDING-only (deliberate); test corrected to the real contract"
+  ]
+ },
+ "rebase_onto_p1_20260902T0626Z": {
+  "note": "PR #75 was CONFLICTING vs #74 after token-ceiling commits. Resolved by merge (not force-push). halt_flag keeps #75 bytes-first + atomic write AND #74 UnicodeError fail-closed.",
+  "merge_head_full": "44d1e3861f5140ef6fefd85b5c08472db4115446",
+  "stacked_on_now": "feat/p1-envelope-runstore-20260902 @3d52d7d1aabc35a20f97ff23d9f6cabbc2ff8a8a",
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T06:26:27Z",
+  "exit_code": 0,
+  "result": "100 passed, 950 subtests, 0 failed, 0 skipped"
+ },
+ "error_witness_overrides_status_20260902T0647Z": {
+  "parent_head_full": "6345adcc3676b54b1761bef3296c496a6986260c",
+  "worktree": "/tmp/ofn-halt-chaos-vii",
+  "file_lock_zone": [
+   "ofn/kernel/source_health.py",
+   "tests/test_chaos_owner_absent.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json"
+  ],
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T06:47:54Z",
+  "exit_code": 0,
+  "result": "37 passed, 950 subtests passed, 0 failed, 0 skipped",
+  "fixes": [
+   "classify_fetch: error is a first-class witness — 200+TimeoutError is UNKNOWN not OK; 403+error is UNKNOWN not PARKED (stale status is not a policy answer)"
+  ],
+  "filesystem_immutability": "NOT claimed"
+ },
+ "halt_flag_mode_symlink_20260902T0706Z": {
+  "parent_head_full": "2890444a43db3bae7a286187d3bb689d6af99461",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @a596c191a9a5e3c329b93560296e7f664088a0ee",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-halt-chaos-viii)",
+  "worktree": "/tmp/ofn-halt-chaos-viii",
+  "file_lock_zone": [
+   "ofn/adapters/halt_flag.py",
+   "tests/test_run_gate.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json"
+  ],
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:06:53Z",
+  "exit_code": 0,
+  "result": "132 passed, 952 subtests passed, 0 failed, 0 skipped",
+  "fixes": [
+   "halt_flag_active: symlink (including dangling) is HALTED and is not followed — a planted 'off' target is not a running verdict",
+   "write_halt: parent 0700, tmp fsync, flag 0600, atomic replace still replaces a symlink with a regular file (target untouched)"
+  ],
+  "filesystem_immutability": "NOT claimed"
+ },
+ "halt_directory_flag_20260902T0723Z": {
+  "parent_head_full": "5b1ed3cc2836a802c4fb3af6096394d2b9f7ec50",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @a596c191a9a5e3c329b93560296e7f664088a0ee (pre-merge of later #74 HEAD)",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-halt-ix)",
+  "worktree": "/tmp/ofn-halt-ix",
+  "file_lock_zone": [
+   "ofn/adapters/halt_flag.py",
+   "tests/test_run_gate.py",
+   "tests/test_chaos_owner_absent.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json"
+  ],
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:23:41Z",
+  "exit_code": 0,
+  "result": "136 passed, 952 subtests passed, 0 failed, 0 skipped",
+  "fixes": [
+   "directory at the halt-flag path HALTS; write_halt refuses to replace a directory; clear_halt refuses rmdir",
+   "clear_halt unlinks a symlink (including dangling) and never the target — resume does not follow"
+  ],
+  "filesystem_immutability": "NOT claimed"
+ },
+ "merge_p1_aud_deadline_20260902T0724Z": {
+  "parent_head_full": "cd4ba68602c74791a995ffa83e16cbc248d55afa",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @59eb5c9aec4de4cd2598d757c305364251b7a04c",
+  "worktree": "/tmp/ofn-halt-ix",
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:24:21Z",
+  "exit_code": 0,
+  "result": "179 passed, 954 subtests passed, 0 failed, 0 skipped",
+  "note": "merged #74 @59eb5c9 (aud ceiling + deadline + jsonl symlink). No force-push.",
+  "filesystem_immutability": "NOT claimed"
+ },
+ "merge_p1_digest_idem_replay_20260902T0732Z": {
+  "parent_head_full": "fa0737b11c748b44b317d1a6e279201fb6d9aa98",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @91e939cbf90c99644b7ef9355d00d5df17d52dc8",
+  "worktree": "/tmp/ofn-halt-chaos-ix",
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:32:09Z",
+  "exit_code": 0,
+  "result": "156 passed, 952 subtests passed, 0 failed, 0 skipped",
+  "note": "merged #74 @91e939c (receipt digest on load/replay + idem collision + replay seq). clear_halt symlink/directory already on b56ad1d — not re-implemented. No force-push.",
+  "filesystem_immutability": "NOT claimed"
+ }
+}
