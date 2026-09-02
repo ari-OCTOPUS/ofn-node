@@ -6,9 +6,10 @@ ready=true: three partners, each with a 64-hex media_sha256, and the
 receipt's independently_observed field is true. Missing media is not
 forged. A receipt without media_sha256 is incomplete.
 
-sume is a known extra subject, not an alias of abbas. Presence of a
-sume receipt must not count as Abbas and must not poison a later
-complete maliheh/abbas/saba set.
+A leftover partner_id=sume receipt is a known extra, not a fourth
+required partner. After owner confirmation, Abbas is recorded as
+partner_id=abbas with legal_name_alias Sume. Identity confirmation
+does not flip independently_observed.
 """
 
 from __future__ import annotations

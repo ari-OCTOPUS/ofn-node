@@ -70,36 +70,86 @@ class TestThreeFieldsStayUnforged(unittest.TestCase):
         report = independently_observed(list_receipts(ROOT))
         self.assertFalse(report["independently_observed"])
         self.assertFalse(report["ready"])
-        self.assertEqual(report["missing"], ["abbas"])
-        self.assertEqual(report["extra"], ["sume"])
+        self.assertEqual(report["missing"], [])
+        self.assertEqual(sorted(report["present"]), ["abbas", "maliheh", "saba"])
+        self.assertEqual(report["complete"], [])
+        self.assertEqual(report["extra"], [])
         self.assertIn("not-observed:maliheh", report["incomplete"])
         self.assertIn("not-observed:saba", report["incomplete"])
+        self.assertIn("not-observed:abbas", report["incomplete"])
 
-    def test_intake_hashes_exist_and_no_receipt_is_abbas(self):
+    def test_intake_maps_sume_to_abbas_without_declaring_observation(self):
         hashes = _load(FILE_HASHES)
         intake = _load(INTAKE)
         self.assertTrue(hashes["path_column_not_pasted"])
-        self.assertFalse(intake["sume"]["mapped_to_abbas"])
-        self.assertEqual(intake["abbas_voice"], "missing")
+        self.assertTrue(intake["sume"]["mapped_to_abbas"])
+        self.assertEqual(intake["sume"]["legal_name_alias"], "Sume")
+        self.assertEqual(intake["abbas_voice"], "hashed_pending_verification")
         self.assertFalse(intake["partner_voices_independently_observed"])
         self.assertFalse(intake["transfer"]["authorized"])
+        self.assertNotIn("sume_identity_unconfirmed", intake["transfer"]["blockers"])
+        self.assertIn("ofn_node_host_unknown", intake["transfer"]["blockers"])
+        self.assertIn("ofn_node_login_unknown", intake["transfer"]["blockers"])
+        self.assertIn(
+            "path_assignment_inferred_until_per_file_verify",
+            intake["transfer"]["blockers"],
+        )
         receipts = list_receipts(ROOT)
         ids = [row["partner_id"] for row in receipts]
-        self.assertIn("maliheh", ids)
-        self.assertIn("saba", ids)
-        self.assertIn("sume", ids)
-        self.assertNotIn("abbas", ids)
+        self.assertEqual(sorted(ids), ["abbas", "maliheh", "saba"])
+        self.assertNotIn("sume", ids)
         for row in receipts:
             self.assertFalse(row["independently_observed"])
-            self.assertFalse(row.get("alias_of_abbas", False))
-            self.assertNotEqual(row["partner_id"], "abbas")
+            self.assertEqual(
+                row["path_assignment_risk"], "reordering_after_alias_merge"
+            )
             self.assertTrue(bool(re.fullmatch(r"[0-9a-f]{64}", row["media_sha256"])))
+            self.assertIn("intended_state_ref", row)
+            self.assertNotIn("media_ref", row)
+        abbas = next(row for row in receipts if row["partner_id"] == "abbas")
+        self.assertTrue(abbas["alias_of_abbas"])
+        self.assertTrue(abbas["owner_confirmed_identity"])
+        self.assertEqual(abbas["legal_name_alias"], "Sume")
+        self.assertEqual(abbas["identity_confirmation_type"], "owner_attested")
+        self.assertFalse(abbas["identity_independently_verified"])
+        self.assertNotIn("do_not_map_to", abbas)
 
     def test_no_raw_media_in_attestations_tree(self):
         for dirpath, _dirnames, filenames in os.walk(ATTEST):
             for name in filenames:
                 ext = os.path.splitext(name)[1].lower()
                 self.assertNotIn(ext, MEDIA_EXTS, os.path.join(dirpath, name))
+
+    def test_committed_receipts_have_no_windows_home_path(self):
+        leak = re.compile(r"C:\\Users\\|C:/Users/|/Users/[A-Za-z]|Armin")
+        scanned = [
+            ATTEST,
+            os.path.join(ROOT, "docs", "consent", "SABA-RELEASE-STATUS.json"),
+        ]
+        for root in scanned:
+            paths = [root] if os.path.isfile(root) else []
+            if os.path.isdir(root):
+                for dirpath, _dirnames, filenames in os.walk(root):
+                    for name in filenames:
+                        if name.endswith(".json"):
+                            paths.append(os.path.join(dirpath, name))
+            for path in paths:
+                with open(path, encoding="utf-8") as fh:
+                    body = fh.read()
+                self.assertIsNone(
+                    leak.search(body),
+                    f"{os.path.relpath(path, ROOT)} leaks a home path",
+                )
+
+    def test_abbas_official_legal_name_is_sume(self):
+        identity = _load(os.path.join(ATTEST, "receipts", "PARTNER-IDENTITY.json"))
+        by_id = {row["partner_id"]: row for row in identity["partners"]}
+        abbas = by_id["abbas"]
+        self.assertEqual(abbas["official_legal_name"], "Sume")
+        self.assertEqual(abbas["official_documents_use"], "Sume")
+        self.assertTrue(abbas["do_not_create_parallel_identity"])
+        self.assertNotEqual(abbas["official_documents_use"], "عباس")
+        self.assertEqual(set(by_id), {"maliheh", "abbas", "saba"})
 
     def test_sume_extra_does_not_poison_a_complete_required_set(self):
         complete = [

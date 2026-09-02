@@ -33,7 +33,7 @@ SHELLS = ("ziman.html", "lead.html", "studio.html", "panel.html")
 # The real people this node is for. None may appear in anything served before
 # somebody has proved who they are. Surnames included: a family name is the
 # part that identifies a person outside their own circle.
-FORBIDDEN_TERMS = ("ملیحه", "عباس", "اسدی", "سبا", "سبولی")
+FORBIDDEN_TERMS = ("ملیحه", "عباس", "اسدی", "سبا", "سبولی", "Sume")
 
 # Things that are not names but still say more than a stranger should learn.
 FORBIDDEN_SECRETS = ("OFN_BOT_TOKEN", "OFN_SESSION_SECRET", "api.telegram.org/bot")

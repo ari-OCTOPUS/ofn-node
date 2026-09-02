@@ -264,8 +264,9 @@ Receipt: `stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json`.
 Partner voices do not block painting. Observation stays false until
 three `media_sha256` receipts exist **and** a verifier has accessed
 each file. 2026-09-02 Windows hashes are recorded under
-`attestations/receipts/`; `sume` is not Abbas; observation stays
-false. Saba consent is
+`attestations/receipts/`; owner later attested Sume is Abbas
+(legal name, AU-NSW). Observation stays false until a verifier
+hears each file. Saba consent is
 `record_release` only. Secret rotation on this host is
 `risk_accepted_unrotated`. `GATE_OPEN_UNTIL_UTC=2026-09-16`.
 Platform matrix filled to the ToS edge. Advisor gate stays

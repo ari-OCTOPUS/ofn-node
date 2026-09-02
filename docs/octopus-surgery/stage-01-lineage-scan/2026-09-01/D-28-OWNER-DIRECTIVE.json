@@ -25,11 +25,14 @@
   "evidence_intake_20260902": {
     "receipts_committed": true,
     "raw_media_in_git": false,
-    "sume_mapped_to_abbas": false,
-    "abbas_voice_present": false,
+    "sume_mapped_to_abbas": true,
+    "abbas_legal_name": "Sume",
+    "abbas_voice": "hashed_pending_verification",
     "telegram_screenshots_in_hash_table": false,
     "transfer_authorized": false,
     "ofn_node_host_unknown": true,
+    "ofn_node_login_unknown": true,
+    "path_assignment_risk": "reordering_after_alias_merge",
     "observation_reason": "verifier_did_not_access_the_three_records"
   },
 

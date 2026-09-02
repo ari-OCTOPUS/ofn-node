@@ -2,10 +2,11 @@
   "schema": "octopus.owner_evidence_intake.v1",
   "intake_id": "INTAKE-20260902",
   "recorded_at": "2026-09-02T00:08:00Z",
+  "identity_confirmed_at": "2026-09-02T00:27:00Z",
   "vantage": "cursor-cloud-agent",
   "scope": "this_host_only",
   "claim_type": "record",
-  "windows_staging_root": "C:\\Users\\Armin\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02",
+  "windows_staging_root_ref": "$WINDOWS_STAGING_ROOT",
   "raw_in_git": false,
   "audio_converted": false,
   "partner_voices_independently_observed": false,
@@ -17,11 +18,17 @@
     "saba/consent-original.jpg"
   ],
   "sume": {
-    "partner_id": "sume",
-    "mapped_to_abbas": false,
-    "owner_confirmed_identity": false
+    "partner_id": "abbas",
+    "legal_name_alias": "Sume",
+    "alias_jurisdiction": "AU-NSW",
+    "mapped_to_abbas": true,
+    "owner_confirmed_identity": true,
+    "identity_confirmation_type": "owner_attested",
+    "identity_independently_verified": false
   },
-  "abbas_voice": "missing",
+  "abbas_voice": "hashed_pending_verification",
+  "path_assignment": "inferred_getchilditem_recurse_alpha",
+  "path_assignment_risk": "reordering_after_alias_merge",
   "telegram_screenshots": {
     "requested": true,
     "in_pasted_hash_table": false,
@@ -36,9 +43,9 @@
   "transfer": {
     "authorized": false,
     "blockers": [
-      "sume_identity_unconfirmed",
       "ofn_node_host_unknown",
-      "ofn_node_login_unknown"
+      "ofn_node_login_unknown",
+      "path_assignment_inferred_until_per_file_verify"
     ]
   }
 }
