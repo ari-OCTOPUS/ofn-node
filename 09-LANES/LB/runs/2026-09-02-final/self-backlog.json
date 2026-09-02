@@ -1,0 +1,237 @@
+{
+  "items": [
+    {
+      "id": "SB-doctor-prescription-engine-beyond-validation-generation-needs-the-brai-cc2b5f78",
+      "missing_capability": "doctor: prescription engine beyond validation (generation needs the brain)",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=PROPOSED_EXTENSION",
+      "severity": "LOW",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-flow-budget-allocation-governed-life-currency-bba334eb",
+      "missing_capability": "flow: budget_allocation::governed_life_currency",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=PARTIAL_ZERO_ALLOCATION",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-flow-lab-execution-isolated-lab-81c7118c",
+      "missing_capability": "flow: lab_execution::isolated_lab",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=BLOCKED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-flow-novelty-gate-independent-novelty-evaluator-aa44148c",
+      "missing_capability": "flow: novelty_gate::independent_novelty_evaluator",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_IMPLEMENTED",
+      "severity": "LOW",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-1-novelty-archive-measurement-2af294a2",
+      "missing_capability": "gate: gate_1:novelty_archive_measurement",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=INCONCLUSIVE_FOR_BEHAVIORAL_NOVELTY",
+      "severity": "LOW",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-2-life-currency-economy-d9820601",
+      "missing_capability": "gate: gate_2:life_currency_economy",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_STARTED",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-3-hard-lab-sandbox-036283ef",
+      "missing_capability": "gate: gate_3:hard_lab_sandbox",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=BLOCKED_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-4-doctor-prescriptions-9bb3b33b",
+      "missing_capability": "gate: gate_4:doctor_prescriptions",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_STARTED",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-5-governed-laws-drive-and-black-boxes-c8db9f9b",
+      "missing_capability": "gate: gate_5:governed_laws_drive_and_black_boxes",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_STARTED",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-6-organogenesis-d4da8f84",
+      "missing_capability": "gate: gate_6:organogenesis",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_STARTED",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-gate-gate-7-fair-retirement-61173f0b",
+      "missing_capability": "gate: gate_7:fair_retirement",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_STARTED",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-cpu-limit-e354a744",
+      "missing_capability": "lab: hard_sandbox.cpu_limit",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-host-home-access-8ac2dace",
+      "missing_capability": "lab: hard_sandbox.host_home_access",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_PROVEN_BLOCKED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-network-default-closed-a338919e",
+      "missing_capability": "lab: hard_sandbox.network_default_closed",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-non-root-f4316aba",
+      "missing_capability": "lab: hard_sandbox.non_root",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-os-level-isolation-e08021e5",
+      "missing_capability": "lab: hard_sandbox.os_level_isolation",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-pid-limit-3ae8b471",
+      "missing_capability": "lab: hard_sandbox.pid_limit",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-ram-limit-81cd7fee",
+      "missing_capability": "lab: hard_sandbox.ram_limit",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-secrets-access-ca11d536",
+      "missing_capability": "lab: hard_sandbox.secrets_access",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=NOT_PROVEN_BLOCKED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-timeout-destruction-792d8675",
+      "missing_capability": "lab: hard_sandbox.timeout_destruction",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=PARTIAL_PROCESS_TIMEOUT_AND_TEMP_CLEANUP_ONLY",
+      "severity": "MEDIUM",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    },
+    {
+      "id": "SB-lab-hard-sandbox-workspace-mount-only-3268f719",
+      "missing_capability": "lab: hard_sandbox.workspace_mount_only",
+      "evidence": "LAB-DOCTOR-CONTRACT.yaml status=UNKNOWN_NOT_VERIFIED",
+      "severity": "HIGH",
+      "proposed_action": "design + test the missing organ; scheduling and gate-opening require an owner ruling",
+      "test_required": true,
+      "owner_ruling_required": true,
+      "status": "open",
+      "created_at": "2026-09-02T08:57:06Z"
+    }
+  ],
+  "count": 21,
+  "updated_at": "2026-09-02T08:57:06Z"
+}

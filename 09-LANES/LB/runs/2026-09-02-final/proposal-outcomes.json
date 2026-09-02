@@ -1,0 +1,48 @@
+{
+  "outcomes": {
+    "PROP-LB-CODE": {
+      "outcome": "PR_CREATED",
+      "reason": "reversible change inside lane-owned paths; PR is machine-created, MERGE stays human — executor: https://github.com/ari-OCTOPUS/ofn-node/pull/86",
+      "rule_trace": [
+        "lane_owned_reversible_code"
+      ]
+    },
+    "PROP-LB-ARTIFACTS": {
+      "outcome": "QUEUED_WITH_REASON",
+      "reason": "shared/external surface: prepared payload + proposed append location (artifact under 09-LANES/LB/runs/)",
+      "rule_trace": [
+        "payload_instead_of_direct_write"
+      ]
+    },
+    "PROP-MIRROR-RELAPSE-01": {
+      "outcome": "QUEUED_WITH_REASON",
+      "reason": "shared/external surface: prepared payload + proposed append location (09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md)",
+      "rule_trace": [
+        "payload_instead_of_direct_write"
+      ]
+    },
+    "PROP-DEADREF-CNNN": {
+      "outcome": "ESCALATED_TO_OWNER",
+      "reason": "target carries sensitive marker 'ledger'; owner rules",
+      "rule_trace": [
+        "sensitive_marker:ledger"
+      ]
+    },
+    "PROP-DEADREF-VERIFY-LIVE-STORE": {
+      "outcome": "QUEUED_WITH_REASON",
+      "reason": "shared/external surface: prepared payload + proposed append location (09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md)",
+      "rule_trace": [
+        "payload_instead_of_direct_write"
+      ]
+    },
+    "PROP-JUNK-ARCHIVE": {
+      "outcome": "QUEUED_WITH_REASON",
+      "reason": "shared/external surface: prepared payload + proposed append location (09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md)",
+      "rule_trace": [
+        "payload_instead_of_direct_write"
+      ]
+    }
+  },
+  "orphans": 0,
+  "all_destined": true
+}
