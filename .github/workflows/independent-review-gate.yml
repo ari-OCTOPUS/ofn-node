@@ -1,0 +1,72 @@
+name: independent-review-gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  require-independent-approval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require an approval from someone other than the author
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const SENSITIVE = [
+              'ofn/adapters/',
+              'ofn/kernel/',
+              'migrations/',
+              'octopus_survival/',
+              '.github/workflows/',
+              '.github/CODEOWNERS',
+            ];
+
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = pr.number;
+            const author = pr.user.login;
+
+            const files = await github.paginate(
+              github.rest.pulls.listFiles, { owner, repo, pull_number });
+            const touched = files
+              .map(f => f.filename)
+              .filter(f => SENSITIVE.some(p => f.startsWith(p)));
+
+            if (touched.length === 0) {
+              core.info('No sensitive path touched - gate not applicable.');
+              return;
+            }
+
+            core.info(`Sensitive paths touched:\n  ${touched.join('\n  ')}`);
+
+            const reviews = await github.paginate(
+              github.rest.pulls.listReviews, { owner, repo, pull_number });
+
+            const latest = new Map();
+            for (const r of reviews) {
+              if (!r.user) continue;
+              if (r.state === 'COMMENTED') continue;
+              latest.set(r.user.login, r.state);
+            }
+
+            const approvers = [...latest.entries()]
+              .filter(([login, state]) => state === 'APPROVED' && login !== author)
+              .map(([login]) => login);
+
+            if (approvers.length === 0) {
+              core.setFailed(
+                `No independent approval. Author ${author} cannot approve their ` +
+                'own change on a sensitive path. This check is deliberately ' +
+                'separate from the branch ruleset: lowering required-approvals ' +
+                'does not satisfy it. See issue #51.');
+              return;
+            }
+
+            core.info(`Independent approval by: ${approvers.join(', ')}`);

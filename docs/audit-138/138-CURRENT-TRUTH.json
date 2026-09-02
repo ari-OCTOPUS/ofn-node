@@ -1,6 +1,6 @@
 {
  "collected_at_utc": "2026-08-28T00:12:35Z",
- "hostname": "DietPi", "ip": "192.168.0.138", "root_paths": ["/home/ari/ofn", "/home/ari/octopus-mesh"],
+ "hostname": "DietPi", "ip": "[lan-ip-redacted]", "root_paths": ["/home/ari/ofn", "/home/ari/octopus-mesh"],
  "deployed_commit": "d3fb20c (branch octopus/reconcile-138-20260827, clean; runtime restarted 2026-08-27T01:33Z on M1-containing tree)",
  "service_timer_state": {"ofn": "active", "octopus_mesh_daemons": "active", "scheduler_timer": "active",
    "telegram_bridge": "inactive_by_design", "backup_timer": "active(last ok 2026-08-27T17:18Z)"},
