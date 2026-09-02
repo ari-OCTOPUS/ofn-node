@@ -116,5 +116,16 @@
   "result": "179 passed, 954 subtests passed, 0 failed, 0 skipped",
   "note": "merged #74 @59eb5c9 (aud ceiling + deadline + jsonl symlink). No force-push.",
   "filesystem_immutability": "NOT claimed"
+ },
+ "merge_p1_digest_idem_replay_20260902T0732Z": {
+  "parent_head_full": "fa0737b11c748b44b317d1a6e279201fb6d9aa98",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @91e939cbf90c99644b7ef9355d00d5df17d52dc8",
+  "worktree": "/tmp/ofn-halt-chaos-ix",
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:32:09Z",
+  "exit_code": 0,
+  "result": "156 passed, 952 subtests passed, 0 failed, 0 skipped",
+  "note": "merged #74 @91e939c (receipt digest on load/replay + idem collision + replay seq). clear_halt symlink/directory already on b56ad1d — not re-implemented. No force-push.",
+  "filesystem_immutability": "NOT claimed"
  }
 }
