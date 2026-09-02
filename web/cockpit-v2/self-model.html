@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>خودمدل · OFN Cockpit v2</title>
+  <link rel="icon" href="/cockpit-v2/assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/cockpit-v2/assets/app.css">
+  <link rel="stylesheet" href="/cockpit-v2/assets/rtl.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+  <header class="app-header">
+    <div class="header-inner">
+      <p class="brand">OFN · مرکز فرمان</p>
+      <nav class="primary-nav" aria-label="بخش‌های مرکز فرمان">
+        <a href="/cockpit-v2/index.html">مرکز</a>
+        <a href="/cockpit-v2/self-model.html" aria-current="page">خودمدل</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main-content" tabindex="-1"></main>
+  <script type="module">
+    import { mountSelfModelPage } from "/cockpit-v2/src/self-model-page.js";
+    const viewer = mountSelfModelPage({});
+    globalThis.addEventListener("pagehide", () => viewer.stop(), { once: true });
+  </script>
+</body>
+</html>
