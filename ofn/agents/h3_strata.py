@@ -27,7 +27,7 @@ from __future__ import annotations
 import json
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
 TENANT = "lead"
@@ -88,7 +88,9 @@ def _epoch_ms_to_year(ts: object) -> Optional[int]:
     if not isinstance(ts, (int, float)):
         return None
     try:
-        return datetime.fromtimestamp(ts / 1000, tz=timezone.utc).year
+        _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        dt = _EPOCH + timedelta(seconds=ts / 1000)
+        return dt.year
     except (OverflowError, OSError, ValueError):
         return None
 
