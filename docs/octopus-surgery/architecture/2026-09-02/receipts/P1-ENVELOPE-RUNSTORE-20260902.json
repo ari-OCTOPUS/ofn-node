@@ -152,5 +152,29 @@
    "non-RUN_CREATED event for an unknown run on load fail-closed; duplicate RUN_CREATED fail-closed"
   ],
   "filesystem_immutability": "NOT claimed"
+ },
+ "aud_deadline_log_symlink_20260902T0722Z": {
+  "parent_head_full": "5cdd242b123efb9155b3aea596e162a07161d3df",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-p1-ix)",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "exit_code": 0,
+  "result": "144 passed, 932 subtests passed, 0 failed, 0 skipped",
+  "ran_at_utc": "2026-09-02T07:22:38Z",
+  "worktree": "/tmp/ofn-p1-ix",
+  "file_lock_zone": [
+   "ofn/kernel/envelope.py",
+   "ofn/kernel/token_ceiling.py",
+   "ofn/adapters/run_store.py",
+   "tests/test_envelope.py",
+   "tests/test_run_store.py",
+   "tests/test_token_ceiling.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json"
+  ],
+  "fixes": [
+   "budget_aud_cents persisted and enforced on BUDGET_DEBIT (aud_cents payload); 0 cap authorizes no spend; survives reopen",
+   "deadline_iso persisted and enforced: new create after deadline writes nothing; append at or after deadline refused; equal means closed; late idempotent retry still returns the existing run",
+   "events.jsonl symlink or non-file refused on load, append, and replay (no write-through)"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
 }

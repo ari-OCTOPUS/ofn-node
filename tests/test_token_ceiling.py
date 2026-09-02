@@ -10,7 +10,8 @@ from ofn.kernel.envelope import create_envelope
 from ofn.kernel.errors import FailClosedError
 from ofn.kernel.quota import NodeQuota
 from ofn.kernel.token_ceiling import (
-    SEND_STATES, admit_token_spend, grants_send, per_run_fits, tokens_from_payload,
+    SEND_STATES, admit_token_spend, aud_cents_from_payload, grants_send,
+    per_run_fits, tokens_from_payload,
 )
 
 _AC = hashlib.sha256(b"acceptance: token-ceiling").hexdigest()
@@ -59,6 +60,21 @@ class TokensFromPayload(unittest.TestCase):
             tokens_from_payload({"tokens": "8"})
         with self.assertRaises(FailClosedError):
             tokens_from_payload({"tokens": True})
+
+
+class AudCentsFromPayload(unittest.TestCase):
+    def test_missing_is_zero(self):
+        self.assertEqual(aud_cents_from_payload({}), 0)
+        self.assertEqual(aud_cents_from_payload(None), 0)
+
+    def test_non_int_fails_closed(self):
+        with self.assertRaises(FailClosedError):
+            aud_cents_from_payload({"aud_cents": "50"})
+        with self.assertRaises(FailClosedError):
+            aud_cents_from_payload({"aud_cents": True})
+
+    def test_value_is_returned(self):
+        self.assertEqual(aud_cents_from_payload({"aud_cents": 250}), 250)
 
 
 class BothCeilings(unittest.TestCase):

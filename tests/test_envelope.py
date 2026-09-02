@@ -146,6 +146,23 @@ class PerRunTokenCeiling(unittest.TestCase):
             env.may_consume_tokens(0, -1)
 
 
+class PerRunAudCeiling(unittest.TestCase):
+    def test_zero_aud_authorizes_no_spend(self):
+        env = _envelope()  # default budget_aud_cents == 0
+        self.assertTrue(env.may_consume_aud(0, 0))
+        self.assertFalse(env.may_consume_aud(0, 1))
+
+    def test_aud_ceiling_is_a_ceiling(self):
+        env = _envelope(budget_aud_cents=2500)
+        self.assertTrue(env.may_consume_aud(2000, 500))
+        self.assertFalse(env.may_consume_aud(2000, 501))
+
+    def test_negative_aud_request_refused(self):
+        env = _envelope(budget_aud_cents=100)
+        with self.assertRaises(FailClosedError):
+            env.may_consume_aud(0, -1)
+
+
 class AllowedToolsAreAClosedSet(unittest.TestCase):
     def test_empty_allowlist_permits_ordinary_tools(self):
         env = _envelope()
