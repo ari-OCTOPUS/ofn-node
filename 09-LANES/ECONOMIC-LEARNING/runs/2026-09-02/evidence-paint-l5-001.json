@@ -1,0 +1,118 @@
+{
+  "campaign_id": "PAINT-L5-001",
+  "snapshot_note": "read-only queries on board138 sqlite (mode=ro) 2026-09-02 ~21:4x +1000; every row below is a real receipt; no row invented",
+  "snapshot_queries": [
+    "sqlite3 -readonly ~/.local/share/ofn/outbox.sqlite 'SELECT ... FROM outbox WHERE kind=\"lead:quote\"'",
+    "sqlite3 -readonly ~/.local/share/ofn/painting.sqlite 'SELECT ... FROM painting_interactions'",
+    "sqlite3 -readonly ~/.local/share/ofn/painting.sqlite 'SELECT ... FROM painting_quotes'",
+    "sqlite3 -readonly ~/.local/share/ofn/ledger.sqlite 'SELECT ... WHERE payload LIKE \"%payment%\"'"
+  ],
+  "leads": [
+    {
+      "lead_id": "lead:nsw_ocp_buyer:transport-for-nsw-transport-infrastructure-projects",
+      "events": [
+        {
+          "kind": "lead",
+          "ref": "lead:nsw_ocp_buyer:transport-for-nsw-transport-infrastructure-projects",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite row (kind=lead:quote, status=sent)"
+        },
+        {
+          "kind": "contact",
+          "ref": "outbox:lead-quote:...transport-for-nsw-transport-infrastructure-projects:initial-intro",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite status=sent"
+        },
+        {
+          "kind": "response",
+          "ref": "imap:2026-09-01T14:04:09Z:information@transport.nsw.gov.au",
+          "at": "2026-09-01T14:04:09Z",
+          "evidence": "board138 painting.sqlite painting_interactions (channel=email, kind=inbound, subject=Automatic reply)"
+        }
+      ]
+    },
+    {
+      "lead_id": "lead:nsw_ocp_buyer:transport-for-nsw",
+      "events": [
+        {
+          "kind": "lead",
+          "ref": "lead:nsw_ocp_buyer:transport-for-nsw",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite"
+        },
+        {
+          "kind": "contact",
+          "ref": "outbox:lead-quote:...transport-for-nsw:initial-intro",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite status=sent"
+        }
+      ]
+    },
+    {
+      "lead_id": "lead:nsw_ocp_buyer:environment-and-heritage",
+      "events": [
+        {
+          "kind": "lead",
+          "ref": "lead:nsw_ocp_buyer:environment-and-heritage",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite"
+        },
+        {
+          "kind": "contact",
+          "ref": "outbox:lead-quote:...environment-and-heritage:initial-intro",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite status=sent"
+        }
+      ]
+    },
+    {
+      "lead_id": "lead:nsw_ocp_buyer:healthshare-nsw",
+      "events": [
+        {
+          "kind": "lead",
+          "ref": "lead:nsw_ocp_buyer:healthshare-nsw",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite"
+        },
+        {
+          "kind": "contact",
+          "ref": "outbox:lead-quote:...healthshare-nsw:initial-intro",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite status=sent"
+        }
+      ]
+    },
+    {
+      "lead_id": "lead:nsw_ocp_buyer:department-of-education-corporate",
+      "events": [
+        {
+          "kind": "lead",
+          "ref": "lead:nsw_ocp_buyer:department-of-education-corporate",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite"
+        },
+        {
+          "kind": "contact",
+          "ref": "outbox:lead-quote:...department-of-education-corporate:initial-intro",
+          "at": "2026-09-01T12:15:27Z",
+          "evidence": "board138 outbox.sqlite status=sent"
+        },
+        {
+          "kind": "response",
+          "ref": "imap:2026-09-02T01:30:25Z:amprocurement@det.nsw.edu.au",
+          "at": "2026-09-02T01:30:25Z",
+          "evidence": "board138 painting.sqlite painting_interactions (kind=inbound, status=needs_reply)"
+        },
+        {
+          "kind": "quote",
+          "ref": "QT-20260902-001",
+          "at": "2026-09-02T02:00:13Z",
+          "evidence": "board138 painting.sqlite painting_quotes (status=sent, priced=0, total_aud=NULL — unpriced card, card_sha256=5d2620ad3171…, fingerprint=47937f8bb0d2…)"
+        }
+      ]
+    }
+  ],
+  "payment_claims": [],
+  "payment_receipt_lookup_note": "no payment receipts exist anywhere in the runtime: only ledger 'payment' match is PILOT_CONFIG_SET payment_methods config (2026-08-29); facts.sqlite payment rows = 0",
+  "snapshot_sha256": "0a67c1fde51821e1fd62b9c9aa0a1c770f4382e44d822cf27ed6badc42a7e8ea"
+}
