@@ -92,8 +92,18 @@ class ValidationNegativeControls(unittest.TestCase):
         with self.assertRaises(FailClosedError):
             _envelope(authority_level="A3")
 
+    def test_a3_with_plan_but_no_rollback_ref_refused(self):
+        with self.assertRaises(FailClosedError):
+            _envelope(authority_level="A3", rollback_plan="delete drafts")
+
+    def test_a3_with_plan_and_ref_accepted(self):
+        env = _envelope(authority_level="A3", rollback_plan="delete drafts",
+                        rollback_ref="rb-20260902-001")
+        self.assertEqual(env.rollback_ref, "rb-20260902-001")
+
     def test_a3_with_rollback_plan_accepted(self):
-        env = _envelope(authority_level="A3", rollback_plan="delete drafts, no external effect existed")
+        env = _envelope(authority_level="A3", rollback_plan="delete drafts, no external effect existed",
+                         rollback_ref="rb-fixture-1")
         self.assertEqual(env.authority_level, "A3")
 
     def test_negative_budget_refused(self):
@@ -107,7 +117,8 @@ class BudgetWiring(unittest.TestCase):
         self.assertEqual(rung_for_authority("A2"), Rung.REMOTE)
 
     def test_a3_runs_hit_the_deep_cap(self):
-        env = _envelope(authority_level="A3", rollback_plan="none needed, dry run")
+        env = _envelope(authority_level="A3", rollback_plan="none needed, dry run",
+                         rollback_ref="rb-fixture-2")
         budget = CallBudget()  # DEFAULT_CAPS: REMOTE_DEEP == 5
         now = 1780000000
         allowed = 0

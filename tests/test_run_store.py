@@ -198,3 +198,34 @@ class ReplayIsReadOnly(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DuplicateDeliveryRejected(unittest.TestCase):
+    def test_same_kind_and_ref_delivered_twice_second_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("dup-key"), now_epoch_s=_NOW)
+            ref = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "once"}))
+            store.append(ev.make_event(
+                ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 2, ref=ref))
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(          # the duplicate delivery
+                    ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 3, ref=ref))
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertEqual(kinds.count(ev.TOOL_INVOKED), 1)  # one effect
+
+    def test_rule_survives_reopen(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("dup-key-2"), now_epoch_s=_NOW)
+            ref = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            store.append(ev.make_event(
+                ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 2, ref=ref))
+            reopened = RunStore(root)
+            with self.assertRaises(FailClosedError):
+                reopened.append(ev.make_event(
+                    ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 3, ref=ref))

@@ -47,6 +47,7 @@ class RunStore:
         self._by_idem: Dict[str, str] = {}
         self._receipts: Set[str] = set()   # EXECUTION_RECEIPT event_ids
         self._debited: Set[str] = set()    # receipt event_ids already settled
+        self._seen_kind_ref: Set[tuple] = set()  # (kind, ref) already appended
         self._load()
 
     # ── loading ─────────────────────────────────────────────────────────
@@ -77,6 +78,8 @@ class RunStore:
             self._receipts.add(rec["event_id"])
         elif rec["kind"] == ev.BUDGET_DEBIT:
             self._debited.add(rec["ref"])
+        if rec.get("ref"):
+            self._seen_kind_ref.add((rec["kind"], rec["ref"]))
         elif rec["kind"] == ev.RUN_CLOSED:
             self._closed[run_id] = True
 
@@ -141,6 +144,13 @@ class RunStore:
             if ref in self._debited:
                 raise FailClosedError(
                     f"receipt {ref!r} already settled — refusing second budget effect")
+        if rec.get("ref") and (rec["kind"], rec["ref"]) in self._seen_kind_ref:
+            # Duplicate delivery of the same logical event: the second copy
+            # is refused, not merged — one delivery, one effect. Events
+            # without a ref are not distinguishable duplicates by design;
+            # their idempotency rides on the envelope's idempotency_key.
+            raise FailClosedError(
+                f"duplicate event rejected: {rec['kind']} ref={rec['ref']!r} already recorded")
         rec["event_id"] = self._mint_event_id()
         rec["seq"] = self._seq + 1
         written = self._append(rec)

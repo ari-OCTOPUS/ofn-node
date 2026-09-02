@@ -84,6 +84,7 @@ class TaskEnvelope:
     allowed_tools: Tuple[str, ...]
     parent_evidence: Tuple[str, ...]
     rollback_plan: str | None = None
+    rollback_ref: str | None = None
 
     def __post_init__(self) -> None:
         if self.version != 1:
@@ -116,10 +117,16 @@ class TaskEnvelope:
             if not isinstance(evidence_id, str) or not evidence_id.strip():
                 raise FailClosedError(
                     f"parent_evidence entries must be ids: {evidence_id!r}")
-        # The irreversible tier does not run without a way back.
-        if self.authority_level == "A3" and not (self.rollback_plan or "").strip():
-            raise FailClosedError(
-                "rollback_plan is required_for_external (authority A3)")
+        # The irreversible tier does not run without a way back — and the
+        # way back must be a registered artifact, not a promise in prose.
+        if self.authority_level == "A3":
+            if not (self.rollback_plan or "").strip():
+                raise FailClosedError(
+                    "rollback_plan is required_for_external (authority A3)")
+            if not (self.rollback_ref or "").strip():
+                raise FailClosedError(
+                    "rollback_ref is required_for_external (authority A3) — "
+                    "an id of a registered rollback artifact, not prose")
 
     def rung(self) -> Rung:
         return rung_for_authority(self.authority_level)
@@ -144,6 +151,7 @@ def create_envelope(
     allowed_tools: Tuple[str, ...] = (),
     parent_evidence: Tuple[str, ...] = (),
     rollback_plan: str | None = None,
+    rollback_ref: str | None = None,
 ) -> TaskEnvelope:
     """The boundary's only sanctioned constructor. Arms call this; they
     cannot inject a run_id because the parameter does not exist."""
@@ -161,4 +169,5 @@ def create_envelope(
         allowed_tools=tuple(allowed_tools),
         parent_evidence=tuple(parent_evidence),
         rollback_plan=rollback_plan,
+        rollback_ref=rollback_ref,
     )
