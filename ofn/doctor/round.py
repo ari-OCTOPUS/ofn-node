@@ -183,7 +183,12 @@ class DoctorRound:
                 ))
 
     def dead_ref_check(self, root: Path, opened: dict[str, str]) -> None:
-        """References inside 01-TRUTH must resolve inside the vault."""
+        """References inside 01-TRUTH must resolve inside the vault.
+
+        A reference may be vault-root-relative, source-dir-relative
+        (including ../), or a wildcard glob — each is tried before the
+        reference is declared dead. False positives are worse than silence.
+        """
         truth_dir = root / "01-TRUTH"
         if not truth_dir.is_dir():
             return
@@ -197,17 +202,33 @@ class DoctorRound:
                 m.strip() for m in _WIKI_RE.findall(text)
                 if m.strip().endswith((".md", ".json", ".yaml", ".csv", ".py"))
             ]
+            src_dir = p.parent
             for ref in dict.fromkeys(refs):
-                if not (root / ref).exists():
-                    self._findings.append(Finding(
-                        id=f"DEADREF-{_slug(rel)}-{_slug(ref)}", category="deadref",
-                        severity="MEDIUM",
-                        title=f"dead reference in {rel}: {ref}",
-                        evidence_path=rel, evidence_sha256=opened[rel],
-                        detail=f"referenced path does not exist under {root}",
-                        proposed_action="repair the reference or archive the claim "
-                                        "(proposal; never auto-edit the vault)",
-                    ))
+                if self._ref_resolves(root, src_dir, ref):
+                    continue
+                self._findings.append(Finding(
+                    id=f"DEADREF-{_slug(rel)}-{_slug(ref)}", category="deadref",
+                    severity="MEDIUM",
+                    title=f"dead reference in {rel}: {ref}",
+                    evidence_path=rel, evidence_sha256=opened[rel],
+                    detail=f"referenced path does not resolve under {root} "
+                           f"(tried root-relative, source-relative, wildcard)",
+                    proposed_action="repair the reference or archive the claim "
+                                    "(proposal; never auto-edit the vault)",
+                ))
+
+    @staticmethod
+    def _ref_resolves(root: Path, src_dir: Path, ref: str) -> bool:
+        if any(ch in ref for ch in "*?["):
+            import glob as _glob
+            for base in (root, src_dir):
+                if _glob.glob(str(base / ref)):
+                    return True
+            return False
+        for base in (root, src_dir):
+            if (base / ref).exists():
+                return True
+        return False
 
     def root_junk_check(self, root: Path, opened: dict[str, str]) -> None:
         """Known shell-redirect junk at the vault root (never delete — archive)."""
