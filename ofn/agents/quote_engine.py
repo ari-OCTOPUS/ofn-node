@@ -1,15 +1,18 @@
-"""quote_engine — موتور کوت (Lane Q، رأی‌های Q5/Q6 ۲۰۲۶-۰۹-۰۱).
+"""quote_engine — موتورِ پیش‌نویس کوت (Lane Q، رأی‌های Q5/Q6 ۲۰۲۶-۰۹-۰۱؛ scope-split 110A).
 
-scope → کوتِ رسمی QT-YYYYMMDD-NNN → ارسال از همان گیت‌لدرِ transport.
+scope → پیش‌نویس رسمی QT-YYYYMMDD-NNN (فقط تولید) — ارسال در ماژول/PR جداگانه
+با review صریح مالک (110B)، نه از این فایل.
 
 قفلِ قیمت (رأی Q6): تا painting_rate_card.json ← approved_by_owner=true
-نشود، کوتِ دارای قیمت نمی‌رود؛ به‌جایش «کوت بدونِ قیمت + درخواست بازدید»
-می‌رود (خودکار، صادقانه). استقلالِ کامل بعد از تأیید (رأی Q5) ولی:
+نشود، پیش‌نویسِ دارای قیمت ساخته نمی‌شود؛ به‌جایش «کوت بدونِ قیمت +
+درخواست بازدید» تولید می‌شود (صادقانه). استقلالِ کامل بعد از تأیید (رأی Q5) ولی:
   - قیمت فقط از بازهٔ کارت (نه عددِ آزاد)
   - جملهٔ اعتبار ۳۰ روزه (مسیرِ اصلاح)
   - امضا از secrets/identity.json (ABN/بیمهٔ واقعی) — تا نرسد، بدونِ ادعا
 
-خروجی در جدول painting_quotes (ایجادِ خودکار) + رویداد funnel.
+خروجی: dict پیش‌نویس (draft/qt_number/fingerprint/needs_owner_review) به
+فراخواننده — این ماژول دیگر چیزی در painting_quotes نمی‌نویسد و هیچ
+ارسالی انجام نمی‌دهد (110A).
 """
 from __future__ import annotations
 
@@ -228,38 +231,20 @@ def quote_requests_pending() -> list[str]:
     return [r[0] for r in rows]
 
 
-def book_wins() -> dict:
-    """لیدهای won (از reply) → ثبت booked_amount_cents از آخرین کوتِ قیمت‌دارِ
-    sent. مبلغِ واقعی را جوابِ ایمیل می‌گوید؛ digest مالک تأیید را می‌بیند."""
+def quote_requests_pending() -> list[str]:
     c = sqlite3.connect(PAINTING_DB)
-    out = []
     rows = c.execute("SELECT lead_id FROM painting_leads "
-                     "WHERE status='won' AND "
-                     "(booked_amount_cents IS NULL OR booked_amount_cents=0)"
-                     ).fetchall()
-    for (lid,) in rows:
-        q = c.execute("SELECT qt_number, total_aud FROM painting_quotes "
-                      "WHERE lead_id=? AND status='sent' AND priced=1 "
-                      "ORDER BY created_at DESC LIMIT 1", (lid,)).fetchone()
-        if q and q[1]:
-            cents = int(round(float(q[1]) * 100))
-            c.execute("UPDATE painting_leads SET booked_amount_cents=?, "
-                      "booked_currency='AUD', status='won', "
-                      "booked_at=datetime('now') WHERE lead_id=?", (cents, lid))
-            opslib.append_jsonl(
-                opslib.STATE_DIR / "legs" / "lead-inbox" / "events.jsonl",
-                {"event_type": "revenue.booked", "occurred_at": opslib.now_iso(),
-                 "correlation_id": q[0], "source_component": "QuoteEngine",
-                 "payload": {"lead_id": lid, "aud": q[1], "cents": cents}})
-            out.append({"lead_id": lid, "qt": q[0], "aud": q[1]})
-    c.commit()
+                     "WHERE next_action='quote requested'").fetchall()
     c.close()
-    return {"booked": out}
+    return [r[0] for r in rows]
+
+
+# book_wins() (won-lead booking writes and revenue-booking events) was
+# removed from 110A — booking is revenue scope, not quote generation.
+# It returns with the send/booking path PR (110B lineage).
 
 
 if __name__ == "__main__":
-    if "--book-wins" in sys.argv:
-        print(json.dumps(book_wins(), ensure_ascii=False, indent=1))
-    else:
-        print(json.dumps({"usage": "--book-wins | quote(lead_id, scope) via API"},
-                         ensure_ascii=False))
+    print(json.dumps(
+        {"usage": "quote(lead_id, scope) via API — generation only (110A)"},
+        ensure_ascii=False))

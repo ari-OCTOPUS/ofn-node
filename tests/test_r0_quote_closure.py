@@ -42,6 +42,13 @@ def test_quote_modules_never_import_the_send_path() -> None:
         assert "verified_send" not in source, name
 
 
+def test_booking_scope_is_not_in_the_generation_module() -> None:
+    source = (AGENTS / "quote_engine.py").read_text(encoding="utf-8")
+    assert "def book_wins" not in source
+    assert "revenue.booked" not in source
+    assert "booked_amount_cents" not in source
+
+
 def test_quote_refuses_non_dry_offline() -> None:
     import quote_engine
     out = quote_engine.quote("lead:x", {}, dry=False)
