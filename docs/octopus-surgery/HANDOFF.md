@@ -51,3 +51,28 @@ Campaign closeout files 09–14 are written.
 Overall completion is `45% ± 7%`.
 
 Do not infer send, revenue, booking or production readiness from this handoff.
+
+## STAGE-01 (2026-09-01, cursor-cloud)
+
+Four uploaded scan documents were hashed and classified against this
+`ofn-node` tree. This vantage is not board 180. No gates opened, no
+WIRE flags, no new envelope/run-store implementation.
+
+See `docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/STAGE-01-REPORT.md`.
+Next GREEN step on this lineage: keep `tools/gap_scan.py` matching the
+tree. Do not flatten vault H1 or Typed Events onto this repo.
+
+## D-26 (2026-09-01, owner in-session)
+
+Owner: register the whole STAGE-01 package; then “they all signed.”
+`owner_attests_all_signed=true`. This vantage still did not hear
+Maliheh / Abbas / Saba. `implementation_authorized=false`. Wave 1
+not started.
+
+## D-27 (2026-09-02, owner + senior-agent)
+
+Authorization fields of D-26 are true, with caps 25/50/0 and kill
+switch `OFN_EXTRA_CLOSED_GATES`. Partner voices still not independently
+observed. `OFN_KEEP_GATES_OPEN` and `OFN_WIRE_OUTBOUND` were not
+defaulted on. C-009 closed. Week proof remains one real PAINT-L5-001
+payment receipt — this file does not invent one.

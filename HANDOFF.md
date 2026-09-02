@@ -19,10 +19,11 @@ updated: 2026-09-02
 pytest      ofn: test_command_surface_absent 4/4 · bridge: 115 pass (۲۰۲۶-۰۸-۱۴)
             خط پایهٔ کامل OFN را با tools/repo_baseline.py --tests بگیر
 preflight   (این جلسه ری‌استارت نشد)
-گیت‌ها       secret_rotation 🔓 (باز — تا ۲۰۲۶-۰۸-۱۷ UTC، بعد auto-close)
-            partner_precondition 🔓 (همان مهلت) · miner_isolation 🔒
-            + OFN_EXTRA_CLOSED_GATES · override: OFN_KEEP_GATES_OPEN=1
-WIRE        outbound خاموش (OFN_WIRE_OUTBOUND=0)
+گیت‌ها       secret_rotation 🔒 (GATE_OPEN_UNTIL_UTC=2026-08-17 منقضی)
+            partner_precondition 🔒 · miner_isolation 🔒
+            + kill-switch OFN_EXTRA_CLOSED_GATES
+            OFN_KEEP_GATES_OPEN نزده شد — rotate واقعی هنوز نیست
+WIRE        outbound خاموش (OFN_WIRE_OUTBOUND پیش‌فرض ۰؛ D-27 مجاز کرد، تست دود نه)
 بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear · ofn-heartbeat · octopus-bridge
@@ -37,10 +38,16 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
             ofn/wire رسمی شد · منشور خودمختاری: MEGAPROMPT-BOARD-CHARTER.
             روتین شبانهٔ ۲۱:۰۰: snapshot روزانه + DAILY-REPORT + جواب وایر.
             NTP فعال شد (CHECKPOINT §۷-۲ بسته شد) · ۱۹۳۸ تست سبز.
-قدم بعد     آری: چرخش راز امروز خودش می‌زند (ران‌بوک) — بعدش auto-close درست است.
-            G7 Gate 0: ویندوز CONTROL_URL+کلید بدهد → برد خودش bridge را
-            روشن می‌کند (حکم صریح مالک، بخش ۳ منشور).
+D-26        ۲۰۲۶-۰۹-۰۱ ثبت تاریخی: بدن‌ها + صداها. مجوز را D-27 عوض کرد.
+D-27        ۲۰۲۶-۰۹-۰۲ مجوز باز با سقف ۲۵ پیام / ۵۰ AUD / بودجه برد ۰
+            C-009 بسته · partner_voices هنوز independently observed نیست
+            PR #65 از Draft خارج شد؛ push به main به‌خاطر ریویو +
+            ممنوعیت merge-commit رد شد
+قدم بعد     انسان با write access: squash-merge #65 سپس این شاخهٔ D-27
+            معیار هفته: یک رسید پرداخت واقعی روی PAINT-L5-001
+            آری: rotate واقعی راز — بدون آن OFN_KEEP_GATES_OPEN نزن
             عباس: follow-up → quote → booked · ملیحه: ۳ listing · سبا: ۱ پست
+            (پست سبا رکورد رضایت می‌خواهد، نه flag)
 ```
 
 ---
