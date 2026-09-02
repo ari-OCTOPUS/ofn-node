@@ -8,4 +8,4 @@
 | LB-V2 | ارجاع `06-EVIDENCE/C-NNN-*.md` در LEDGER-VS-CONTRADICTIONS.md (NNN literal بود) | re-anchor / mark-placeholder / open | **رأی مالک ۲۰۲۶-۰۹-۰۲: re-anchor به C-0\* — اجرا شد** | درست‌بودن لجر تناقض‌ها |
 | LB-V3 | ارجاع `scripts/verify_live_store.py` ×۲ در 01-TRUTH (فایل در والت نیست) | strike / restore / open | **رأی مالک ۲۰۲۶-۰۹-۰۲: strike — اجرا شد** (متن تاریخچه حفظ، backtickها برداشته شد) | اعتبار اسناد حقیقت |
 | LB-V4 | ۷ فایل junk ریشهٔ والت | archive-move / keep / open | **رأی مالک ۲۰۲۶-۰۹-۰۲: archive-move — اجرا شد** (99-ARCHIVE\root-junk-20260902 با پیشوند archive_) | بهبود نه حذف (AGENTS.md §7) |
-| LB-V5 | زمان‌بندی ۲۱ اندام گمشدهٔ self-backlog دکتر | lane-C-D / سه‌فوری / defer | open | نقشهٔ راه اندام‌سازی |
+| LB-V5 | زمان‌بندی ۲۱ اندام گمشدهٔ self-backlog دکتر | lane-C-D / سه‌فوری / defer | **رأی مالک ۲۰۲۶-۰۹-۰۲ شب: سپردن به لین C/D** (ثبت: ECONOMIC-LEARNING-RULINGS-2026-09-02 رأی ۵) | نقشهٔ راه اندام‌سازی |
