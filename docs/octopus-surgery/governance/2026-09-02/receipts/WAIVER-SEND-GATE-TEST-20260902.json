@@ -1,0 +1,20 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "WAIVER-SEND-GATE-TEST-20260902",
+  "issued_utc": "2026-09-02T04:05:00Z",
+  "author": "ari322 local agent session (F:\\ scope)",
+  "owner_ratified": false,
+  "scope_measured": "origin/release/p0 @110f6c0 (worktree F:\\wt-waiver); waiver JSON read+hashed from F:\\backup\\docs\\octopus-surgery\\receipts\\ (sha256 40578fef...f980f, byte-identical fixture copied to tests/fixtures/waiver/); send-gate surfaces read on rp0: outbound_worker.enabled (OCTOPUS_WIRE_LEAD_OUTBOUND), lead_outbound_transport _managed_flag_enabled/_wal_enabled (OCTOPUS_WIRE_LEAD_OUTBOUND_WAL / OCTOPUS_WIRE_VALUE_LEDGER, managed_flags.json), mail_credentials.gmail_fallback_enabled (OCTOPUS_SMTP_USE_GMAIL)",
+  "scope_not_measured": ["board138 real flags/WAL state", "the .sig file contents (stays in vault, path recorded in test docstring)", "any send ledger"],
+  "action": "waiver as code — test_no_external_send_while_waiver_active (4 tests): hash pin; external messaging + live-provider execution in not_authorized; fail-closed defaults; NO-ISOLATION host-state guard that goes red loudly if a send path is armed while the waiver blocks external messaging",
+  "verification": {
+    "command": "python -m pytest tests/test_no_external_send_while_waiver_active.py -v",
+    "output": "4 passed in 0.57s (this Windows host: no send flags armed)",
+    "expected_red": "on board138, if managed_flags.json still arms the outbound WAL (per commit 3f095bb claim), test_host_send_state_respects_active_waiver FAILS BY DESIGN — that red is the owner queue, not a bug"
+  },
+  "findings": [
+    "no existing test on rp0 imports outbound_worker/lead_outbound_transport (grep over tests/ = empty) — the outbound stack landed with zero test coverage; this file is the first",
+    "waiver not_authorized includes 'external messaging' — the 5-sends claim in commit 3f095bb (PR #71 blocker) directly contradicts the active waiver unless a later owner GO exists; owner adjudication required"
+  ],
+  "boundary": "no flag touched, no env changed, no secret read; test reads state only"
+}
