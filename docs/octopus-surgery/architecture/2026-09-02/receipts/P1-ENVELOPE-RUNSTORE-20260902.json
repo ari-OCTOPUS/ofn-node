@@ -1,0 +1,35 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-ENVELOPE-RUNSTORE-20260902",
+  "issued_utc": "2026-09-02T05:45:00Z",
+  "author": "ari322 local agent session (F:\\ scope, owner-absent mode)",
+  "owner_ratified": false,
+  "scope_measured": "origin/main @67359a6 (worktree F:\\wt-p1); callbudget.py + release_switch.py + test_kernel_purity.py contracts read before writing; kernel purity allowlist honored (envelope/events/halt use only re/dataclasses/typing)",
+  "scope_not_measured": ["full-suite run on this branch (only new tests + purity + routing executed)", "release_switch wiring beyond rung mapping (may_publish integration deferred to P3 by design)", "board138"],
+  "action": "P1 skeleton per Master Blueprint §4 + HALT layer-3 per §10 — new files only, zero edits to existing kernel/adapters",
+  "delivered": {
+    "ofn/kernel/envelope.py": "TaskEnvelope v1 frozen dataclass; create_envelope() factory = the trust boundary (rand supplied by boundary, kernel stays pure); strict run_id regex; A3 requires rollback_plan; acceptance hash must be sha256-hex (pre-registration); rung_for_authority maps A0..A3 conservatively (A3→REMOTE_DEEP cap 5); may_spend() wires to CallBudget.allows without bypass",
+    "ofn/kernel/events.py": "9-kind fixed vocabulary (8 spine + RUN_REJECTED); make_event() validates; BUDGET_DEBIT without ref refused at construction",
+    "ofn/kernel/halt.py": "pure predicate — absent=None→running (Aug-15 precedent «غایب طبیعی»), known-off→running, unknown/empty/corrupt→HALTED (fail-closed)",
+    "ofn/adapters/halt_flag.py": "file side — write_halt/clear_halt (clear requires armed flag: stray clear ≠ owner decision); unreadable file → halted",
+    "ofn/adapters/run_store.py": "append-only JSONL; create(halted=) raises HaltActive writing NOTHING (idempotency key not burned); duplicate idem-key → same run, single RUN_CREATED; append_after_close rejected incl. after reopen; BUDGET_DEBIT must ref real receipt and second debit for same receipt refused (one verdict → one budget effect; survives reopen); replay() read-only generator by construction; corrupt ledger line → FailClosedError (no skip-and-pretend)"
+  },
+  "verification": {
+    "command": "python -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_kernel_purity.py tests/test_routing.py -q",
+    "output": "36 passed (new) + 57 passed/905 subtests (purity+routing) — purity scan now includes the three new kernel modules",
+    "negative_controls": [
+      "A3 without rollback_plan refused",
+      "post-hoc-looking acceptance hash refused",
+      "corrupt/empty halt flag HALTS (gate can go red)",
+      "clear_halt on unarmed flag raises",
+      "second budget debit refused; unknown receipt refused; survives reopen",
+      "append after close refused; RUN_CREATED smuggle via append refused; halted create leaves store empty"
+    ]
+  },
+  "deferred_honestly": [
+    "ReleaseContext/OwnerRelease integration (P3 — the switch stays the owner's publish gate, untouched)",
+    "event bus / scheduler loop that reads halt before every create (P3)",
+    "OTel spans (P5)"
+  ],
+  "boundary": "no gate opened, no flag flipped, no network, no secrets; kernel files unchanged; all additions PR-bound behind the independent-review gate"
+}
