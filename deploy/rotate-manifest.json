@@ -1,0 +1,61 @@
+{
+  "schema": "octopus.rotation.manifest.v1",
+  "note": "NAMES ONLY. This file must never contain a secret value. Locations are pointers to be verified by the tool at runtime; a location that does not exist on the running host is reported as location-absent, not as rotated.",
+  "confirm_word": "ROTATE",
+  "secrets": [
+    {
+      "name": "OFN_REMOTE_API_KEY",
+      "service": "brain remote rung provider console",
+      "locations": [".env"],
+      "rotation_ref": "provider dashboard -> new key -> replace in .env on boards -> restart is a separate owner decision"
+    },
+    {
+      "name": "DEEPSEEK_API_KEY",
+      "service": "DeepSeek platform",
+      "locations": [".env"],
+      "rotation_ref": "platform api-keys page -> new key -> replace in .env"
+    },
+    {
+      "name": "SAKANA_API_KEY",
+      "service": "Sakana provider",
+      "locations": [".env"],
+      "rotation_ref": "provider console -> new key -> replace in .env"
+    },
+    {
+      "name": "TELEGRAM_BOT_TOKEN",
+      "service": "Telegram BotFather",
+      "locations": [".env"],
+      "rotation_ref": "BotFather /revoke -> new token -> replace in .env on boards"
+    },
+    {
+      "name": "GMAIL_SMTP_PASSWORD",
+      "service": "Google account app-password",
+      "locations": [".env"],
+      "rotation_ref": "Google account -> security -> app passwords -> revoke+new -> replace in .env"
+    },
+    {
+      "name": "HF_TOKEN",
+      "service": "HuggingFace",
+      "locations": [".env"],
+      "rotation_ref": "HF settings -> access tokens -> new token (OLD ONE EXPIRED 2026-09-02 ~09:15Z per season log) -> replace"
+    },
+    {
+      "name": "SHOPIFY_ACCESS_TOKEN",
+      "service": "Shopify partner admin (Ziman)",
+      "locations": [".env"],
+      "rotation_ref": "Shopify admin -> apps -> private app credentials -> rotate -> replace"
+    },
+    {
+      "name": "GITHUB_PAT",
+      "service": "GitHub (ari-OCTOPUS/org)",
+      "locations": [".env"],
+      "rotation_ref": "GitHub settings -> developer settings -> tokens -> new scoped token -> replace (prepared since DEBT-SWEEP R1, never executed)"
+    },
+    {
+      "name": "OCTOPUS_MESH_ED25519",
+      "service": "mesh node keypair (file, not env)",
+      "locations": ["~/.ssh/octopus_mesh_ed25519"],
+      "rotation_ref": "new keypair via ssh-keygen + redistribute public keys to mesh nodes (owner-coordinated)"
+    }
+  ]
+}
