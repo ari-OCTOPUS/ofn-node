@@ -82,3 +82,19 @@ house rules: هر عدد با روش + بدنه (برنچ/SHA) · UNKNOWN نه F
 - `sha256sum` دوباره روی هر دو فایل آرشیو: هر دو هش با جدول بالا برابر — MATCH.
 - آزمون نوشتن: `echo x >> NIGHT-SYNC-C008-COLLISION.md` → `Permission denied`؛ هش پس از تلاش تغییری نکرد.
 - فرمان + خروجی در رسید session iii ثبت شد.
+
+## 2026-09-02 (session iii — hourly operator 05:18Z, owner-absent)
+
+- **branch / HEAD:** `feat/p1-envelope-runstore-20260902` `e41cc26da5e1f1f96fc99556d095635b9b0d2d44` (updates #74); `feat/arch-otel-token-inventory-20260902` `1dbfdbdde22efcfe62bf00258467d3e7a124dddc` (new PR).
+- **files (P1 / #74):** `ofn/adapters/run_store.py`, `ofn/adapters/halt_flag.py`, `ofn/kernel/envelope.py`, `tests/test_run_store.py`, `tests/test_envelope.py`, P1 receipt JSON.
+- **files (arch lane):** `ofn/kernel/otel_map.py`, `ofn/kernel/revenue_states.py`, `tools/worktree_inventory.py`, three tests, three contract docs, P5 receipt JSON.
+- **tests P1:** `python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_kernel_purity.py -q` · `2026-09-02T05:25:11Z` · HEAD `e41cc26da5e1f1f96fc99556d095635b9b0d2d44` · exit 0 · **59 passed / 897 subtests / 0 fail / 0 skip**. Receipt: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json`.
+- **tests arch:** `python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py -q` · `2026-09-02T05:25:11Z` · HEAD `1dbfdbdde22efcfe62bf00258467d3e7a124dddc` · exit 0 · **30 passed / 879 subtests / 0 fail / 0 skip**. Receipt: `docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json`.
+- **merged:** NONE — review-blocked by design (`require-independent-approval` + CODEOWNERS).
+- **review-blocked:** #70 #71(draft) #73 #74 #75 #76 · #72 sequenced behind #71 (base `release/p0`).
+- **owner-blocked:** `quote_sent` / `send_authorized` (no newer scoped authorization); secret rotation; partner voices; vault `.claude/worktrees` prune decision.
+- **external effects:** ZERO. `campaign_envelope_ready` remains structurally ≠ `send_authorized` (`ofn/kernel/revenue_states.py`).
+- **this-host worktree census:** `python3 tools/worktree_inventory.py --json` · `2026-09-02T05:24:48Z` · exit 0 · VERIFIED 1 / SUSPECTED 2 / UNKNOWN 0. SUSPECTED = this session's dirty lock-zone trees before commit. Nothing pruned. Vault census from session ii is a different body (`body_not_on_this_host`).
+- **docs first-read:** `docs/octopus-os/MASTER-BLUEPRINT.md` and `CONTRIBUTING.md` **absent on main @67359a6** (UNKNOWN on this body, not FALSE). D-27 source pointer SHA-256 `c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9` (5469 bytes, PR #66 blob). D-28 source pointer SHA-256 `c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a` (16212 bytes, PR #67 blob). Evidence level B (git blob, not a second disk hash).
+- **#76 CI:** full-suite red on `release/p0` base (`EffectorGate` token in `consent_store.py` docstring; `capability_token` `no-token-secret` on CI hosts). Not introduced by `campaign_envelope`. Left on that PR; no duplicate opened.
+- **next executable action:** independent review of #74 (now includes close-with-ref + non-UTF-8 halt) then #75; land the new arch PR behind the same gate. Do not re-arm send.
