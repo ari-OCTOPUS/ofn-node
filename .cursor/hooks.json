@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "python3 .cursor/hooks/session_init.py"
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "python3 .cursor/hooks/deny_egress.py",
+        "failClosed": true,
+        "timeout": 15
+      },
+      {
+        "command": "python3 .cursor/hooks/deny_destructive.py",
+        "failClosed": true,
+        "timeout": 15
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "python3 .cursor/hooks/deny_secret_read.py",
+        "failClosed": true
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "python3 .cursor/hooks/guard_flags.py",
+        "failClosed": true
+      },
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ],
+    "beforeMCPExecution": [
+      {
+        "command": "python3 .cursor/hooks/allow_mcp.py",
+        "failClosed": true,
+        "timeout": 20
+      }
+    ],
+    "afterMCPExecution": [
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ],
+    "preCompact": [
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ],
+    "stop": [
+      {
+        "command": "python3 .cursor/hooks/lane_report_check.py",
+        "loop_limit": 2
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "python3 .cursor/hooks/audit.py"
+      }
+    ]
+  }
+}
