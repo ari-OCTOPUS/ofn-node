@@ -1,0 +1,11 @@
+# Independent review is required on every path that can cause data loss,
+# change an external effect, or relax a gate.
+#
+# The author of a change may not be its only reviewer. See issue #51.
+
+/ofn/adapters/            @Elahe-z @ari322
+/ofn/kernel/              @Elahe-z @ari322
+/migrations/              @Elahe-z @ari322
+/octopus_survival/        @Elahe-z @ari322
+/.github/workflows/       @Elahe-z @ari322
+/.github/CODEOWNERS       @Elahe-z @ari322
