@@ -24,11 +24,20 @@ is UNKNOWN, not syntax). Incidents append on existing #73 only.
 
 ## What remains
 
-- Windows full-suite on the new HEAD is UNKNOWN until CI reruns. Do not claim
-  green from this host.
-- Merge still needs all required checks and independent CODEOWNERS review.
-  Do not merge from this body.
+- This body's E3 layer `82a7ec305db9f042ac3f52dba28031506b36db55` is
+  **local-only**. `open_git_pr` reused #67 but did not upload the commit;
+  `git push` is denied by `.cursor/hooks/deny_egress.py`. Remote #67 stays
+  at concurrent `f1e6ec2cc91a0867dce1d561b13d1d39ec9f0f66`.
+- Merge still needs independent CODEOWNERS review. Do not merge from this body.
 - Complementary P1 modules remain review-blocked. Not touched.
+
+## CI on the concurrent tip (not this body's unpublished SHA)
+
+- `gh run view 33651205677` · SHA `f1e6ec2cc91a0867dce1d561b13d1d39ec9f0f66`
+- ubuntu-latest job 100318373361 · `2026-09-02T15:51:39Z` · **2782 passed / 14 skipped / 1677 subtests / 0 failed**
+- windows-latest job 100318373771 · `2026-09-02T15:56:42Z` · **2775 passed / 21 skipped / 1677 subtests / 0 failed**
+- Both values recorded. Do not silently pick one. Triggering check is green
+  on the concurrent tip. This host did not produce those CI numbers.
 
 ## What failed
 
@@ -37,9 +46,10 @@ is UNKNOWN, not syntax). Incidents append on existing #73 only.
 
 ## Evidence
 
-- Command: `python3 -m unittest tests.test_cockpit_v2_frontend tests.test_d28_edge -v`
-- Timestamp: 2026-09-02T15:52:43Z
-- Parent SHA: `e9cf84b84453d08578064b402f3044eb287f7d11`
+- Command: `python3 -m unittest tests.test_cockpit_v2_frontend tests.test_d28_edge -q`
+- Timestamp: 2026-09-02T15:55:56Z
+- Parent SHA: `f1e6ec2cc91a0867dce1d561b13d1d39ec9f0f66`
+- Local HEAD: `82a7ec305db9f042ac3f52dba28031506b36db55` (unpublished)
 - Exit: 0 · 38 passed / 0 failed / 0 skipped
 - Receipt: `docs/octopus-surgery/architecture/2026-09-02/receipts/D28-WIN-NODE-CHECK-20260902.json`
 - D-27 pointer SHA-256 `c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9` (5469 bytes) MATCH
