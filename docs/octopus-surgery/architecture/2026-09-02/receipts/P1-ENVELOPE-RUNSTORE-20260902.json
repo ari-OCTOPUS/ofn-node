@@ -53,5 +53,24 @@
    "cross-run budget debit against foreign receipt refused",
    "cross-run duplicate (kind,ref) delivery refused"
   ]
+ },
+ "bugbot_close_and_halt_hardening_20260902": {
+  "parent_head_full": "92f5267913b6ec794e76537888b3d36eaa556176",
+  "tree_state": "dirty — this commit's files only (halt_flag, run_store, envelope, two test modules). Dirt is this session's edits, not an unknown concurrent writer.",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_kernel_purity.py -q",
+  "exit_code": 0,
+  "result": "59 passed, 897 subtests passed",
+  "ran_at_utc": "2026-09-02T05:24:38Z",
+  "fixes": [
+   "RUN_CLOSED with a causal ref now marks the run closed (_index no longer elif-skips)",
+   "halt_flag_active treats UnicodeError/non-UTF-8 as unreadable → HALTED, does not throw",
+   "TaskEnvelope.may_consume_tokens: budget_tokens==0 authorizes no spend"
+  ],
+  "new_tests": [
+   "close event with ref still closes; survives reopen",
+   "non-UTF-8 halt flag HALTS instead of throwing",
+   "zero per-run token budget refuses request>0; ceiling is a ceiling; negative request refused"
+  ],
+  "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
  }
 }

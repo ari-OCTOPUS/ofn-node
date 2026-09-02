@@ -135,6 +135,19 @@ class TaskEnvelope:
         """Wiring to CallBudget — the envelope never bypasses the cap."""
         return budget.allows(self.rung(), now_epoch_s)
 
+    def may_consume_tokens(self, already_consumed: int, request: int) -> bool:
+        """Per-run token ceiling. Independent of the node-level quota —
+        both must pass. ``budget_tokens == 0`` authorizes no spend
+        (request 0 is a no-op and is allowed)."""
+        for name, value in (("already_consumed", already_consumed),
+                            ("request", request)):
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise FailClosedError(
+                    f"{name} must be a non-negative int: {value!r}")
+        if self.budget_tokens == 0:
+            return request == 0
+        return already_consumed + request <= self.budget_tokens
+
 
 def create_envelope(
     *,

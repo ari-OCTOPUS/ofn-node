@@ -27,8 +27,11 @@ def halt_flag_active(path: PathLike) -> bool:
     p = Path(path)
     try:
         raw = p.read_text(encoding="utf-8") if p.exists() else None
-    except OSError:
-        raw = ""  # unreadable ≙ unparsable intent — halted
+    except (OSError, UnicodeError):
+        # Unreadable (I/O) OR un-decodable (not UTF-8) ≙ unparsable intent.
+        # UnicodeDecodeError is not an OSError; failing to catch it would
+        # let the predicate throw instead of fail closed.
+        raw = ""
     return halt.is_halted(raw)
 
 

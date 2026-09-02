@@ -82,7 +82,10 @@ class RunStore:
             self._debited.add(rec["ref"])
         if rec.get("ref"):
             self._seen_kind_ref.add((rec["kind"], rec["ref"]))
-        elif rec["kind"] == ev.RUN_CLOSED:
+        # Close is a state change, not a "ref-less event". A RUN_CLOSED that
+        # carries a causal ref must still mark the run closed — otherwise
+        # append-after-close is only structural for the no-ref happy path.
+        if rec["kind"] == ev.RUN_CLOSED:
             self._closed[run_id] = True
 
     # ── writing ─────────────────────────────────────────────────────────

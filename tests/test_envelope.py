@@ -129,5 +129,22 @@ class BudgetWiring(unittest.TestCase):
         self.assertEqual(allowed, 5)  # the cap is a cap, not a suggestion
 
 
+class PerRunTokenCeiling(unittest.TestCase):
+    def test_zero_budget_authorizes_no_spend(self):
+        env = _envelope()  # default budget_tokens == 0
+        self.assertTrue(env.may_consume_tokens(0, 0))
+        self.assertFalse(env.may_consume_tokens(0, 1))
+
+    def test_ceiling_is_a_ceiling(self):
+        env = _envelope(budget_tokens=10)
+        self.assertTrue(env.may_consume_tokens(8, 2))
+        self.assertFalse(env.may_consume_tokens(8, 3))
+
+    def test_negative_request_refused(self):
+        env = _envelope(budget_tokens=10)
+        with self.assertRaises(FailClosedError):
+            env.may_consume_tokens(0, -1)
+
+
 if __name__ == "__main__":
     unittest.main()

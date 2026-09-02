@@ -65,6 +65,11 @@ class HaltBehaviour(unittest.TestCase):
         halt_flag.clear_halt(self.flag)
         self.assertFalse(halt_flag.halt_flag_active(self.flag))
 
+    def test_non_utf8_flag_halts_instead_of_throwing(self):
+        # A present flag that is not valid UTF-8 must HALT, not raise.
+        self.flag.write_bytes(b"\xff\xfe not utf-8")
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+
 
 class EventVocabulary(unittest.TestCase):
     def test_nine_kinds_fixed(self):
@@ -101,6 +106,27 @@ class StoreLifecycle(unittest.TestCase):
         self.store.close(run_id, now_epoch_s=_NOW + 1)
         with self.assertRaises(FailClosedError):
             self.store.append(ev.make_event(
+                ev.POLICY_DECISION, run_id, now_epoch_s=_NOW + 2))
+
+    def test_close_event_with_ref_still_closes(self):
+        # Bugbot: _index used to skip RUN_CLOSED when ref was present, so
+        # append-after-close was not structural for that path.
+        run_id = self.store.create(_env("close-ref"), now_epoch_s=_NOW)
+        self.store.append(ev.make_event(
+            ev.RUN_CLOSED, run_id, now_epoch_s=_NOW + 1,
+            ref="close-reason-1"))
+        with self.assertRaises(FailClosedError):
+            self.store.append(ev.make_event(
+                ev.POLICY_DECISION, run_id, now_epoch_s=_NOW + 2))
+
+    def test_close_with_ref_survives_reopen(self):
+        run_id = self.store.create(_env("close-ref-reopen"), now_epoch_s=_NOW)
+        self.store.append(ev.make_event(
+            ev.RUN_CLOSED, run_id, now_epoch_s=_NOW + 1,
+            ref="close-reason-2"))
+        reopened = RunStore(self.root / "runs")
+        with self.assertRaises(FailClosedError):
+            reopened.append(ev.make_event(
                 ev.POLICY_DECISION, run_id, now_epoch_s=_NOW + 2))
 
     def test_after_close_rejection_survives_reopen(self):
