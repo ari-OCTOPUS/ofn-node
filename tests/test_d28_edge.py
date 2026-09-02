@@ -159,6 +159,33 @@ class TestThreeFieldsStayUnforged(unittest.TestCase):
         self.assertEqual(receipt["official_documents_use"], "Sume (Abbas)")
         self.assertFalse(receipt["independently_observed"])
 
+    def test_season_close_megaprompt_and_dead_nsw_feed_are_recorded(self):
+        prompt = os.path.join(
+            ROOT,
+            "docs",
+            "agent-context",
+            "prompts",
+            "MEGAPROMPT-SEASON-CLOSE-2026-09-02.md",
+        )
+        with open(prompt, encoding="utf-8") as fh:
+            body = fh.read()
+        self.assertIn("q13_lanes_csv", body)
+        self.assertIn("proposed_on_behalf_of_owner", body)
+        self.assertIn("independently_observed", body)
+        feed = _load(os.path.join(
+            ROOT,
+            "docs",
+            "octopus-surgery",
+            "receipts",
+            "NSW-ETENDERING-FEED-DEAD-20260902.json",
+        ))
+        self.assertEqual(feed["legacy_api"], "dead_redirect")
+        self.assertEqual(feed["new_api_on_buy_nsw"], "unknown_do_not_wire")
+        self.assertEqual(
+            feed["working_alternative_on_this_tree"],
+            "ofn/agents/nsw_ocp_harvest.py",
+        )
+
     def test_sume_extra_does_not_poison_a_complete_required_set(self):
         complete = [
             {

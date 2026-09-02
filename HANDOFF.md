@@ -46,9 +46,13 @@ D-28        لبهٔ ToS · ویس/رضایت/rotate جعل نشد
             merge_authorized ≠ self-merge · protect-main · بدون الهه مسیر نیست
             مالک: هر ogg را جدا گوش بده و جدا هش کن
             میزبان ofn-node؟ نام ورود؟
+            #68: @ari322 روی هر ۶ خط هست — آری باید دوباره approve کند
+            tenders.nsw.gov.au مرده → buy.nsw API نامعلوم؛ nsw_ocp جایگزین
             مالک روی برد: چرخش دو راز + flagهای env
             معیار هفته: یک رسید پرداخت واقعی روی PAINT-L5-001
             follow-up نقاشی از این vantage ارسال نشد (دو مرحله + بدن لید)
+            مگاپرامپت بستن سیزن:
+            docs/agent-context/prompts/MEGAPROMPT-SEASON-CLOSE-2026-09-02.md
 ```
 
 ---

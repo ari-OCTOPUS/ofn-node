@@ -27,11 +27,15 @@ from .h1_buysw import (
     SOURCE_ID, build_score_inputs, filter_painting_tender, parse_tender,
 )
 
-# NSW eTendering public OCDS feed (released tenders, most recent page).
+# Legacy NSW eTendering public OCDS feed. Host redirects to buy.nsw.gov.au;
+# this event URL is dead. Do not treat a successful GET as a live source.
+# Replacement API on buy.nsw is unknown — do not invent one. Working
+# alternative in-tree: nsw_ocp_harvest.py (open-contracting bulk).
 FEED_URL = (
     "https://tenders.nsw.gov.au/?event=public.api.list"
     "&type=released&pagesize=100"
 )
+FEED_STATUS = "dead_redirect_buy_nsw"
 TIMEOUT_S = 20
 MAX_RETRIES = 2
 

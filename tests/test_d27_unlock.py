@@ -122,8 +122,13 @@ class TestD27AuthorizationBlock(unittest.TestCase):
             self.data["error_policy"],
             "demote_one_path_one_rung_not_lock_all_five",
         )
-        from ofn.config import load
-        self.assertEqual(load().control_quota_tokens, 7000)
+        saved = os.environ.pop("OFN_CONTROL_QUOTA_TOKENS", None)
+        try:
+            from ofn.config import load
+            self.assertEqual(load().control_quota_tokens, 7000)
+        finally:
+            if saved is not None:
+                os.environ["OFN_CONTROL_QUOTA_TOKENS"] = saved
         prose = os.path.join(
             ROOT,
             "docs",
@@ -203,6 +208,7 @@ class TestRealFlagsStayEnvGated(unittest.TestCase):
             "OFN_PUBLIC_CATALOG",
             "OFN_COMMERCE_ROUTES",
             "OFN_EXTRA_CLOSED_GATES",
+            "OFN_CONTROL_QUOTA_TOKENS",
         )
         saved = {key: os.environ.pop(key, None) for key in keys}
         try:
