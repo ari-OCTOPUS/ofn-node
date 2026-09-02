@@ -41,7 +41,13 @@ def classify_fetch(status: Optional[int], *, attempts: int = 0,
     status=None means no response exists at all (dead source, timeout,
     DNS): UNKNOWN. A 403 is policy: PARKED, no retry, ever. 429/5xx are
     transient: RETRY_AFTER_BACKOFF while attempts remain, else PARKED.
+
+    ``error`` is a first-class witness. A transport that also filled in
+    a leftover status (e.g. 200 + TimeoutError) is UNKNOWN, not OK —
+    a failure witness is not a successful fetch.
     """
+    if error is not None:
+        return UNKNOWN
     if status is None:
         return UNKNOWN
     if status == 403:

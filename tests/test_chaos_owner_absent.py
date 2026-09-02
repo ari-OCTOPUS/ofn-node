@@ -45,6 +45,22 @@ class Scenario1DeadSourceIsUnknownNotFalse(unittest.TestCase):
             sh.classify_fetch(None, error=TimeoutError("socket dead")),
             sh.UNKNOWN)
 
+    def test_error_with_200_is_unknown_not_ok(self):
+        # A leftover success status plus a transport error is not OK.
+        self.assertEqual(
+            sh.classify_fetch(200, error=TimeoutError("reset after 200")),
+            sh.UNKNOWN)
+        self.assertNotEqual(
+            sh.classify_fetch(200, error=OSError("reset")),
+            sh.OK)
+
+    def test_error_overrides_403_to_unknown(self):
+        # Ambiguous: we have an error, so we do not treat a maybe-stale
+        # 403 as a policy answer. UNKNOWN, not PARKED.
+        self.assertEqual(
+            sh.classify_fetch(403, error=OSError("read failed")),
+            sh.UNKNOWN)
+
     def test_403_is_parked_policy_not_traffic(self):
         self.assertEqual(sh.classify_fetch(403), sh.PARKED)
 

@@ -47,5 +47,22 @@
   "ran_at_utc": "2026-09-02T06:26:27Z",
   "exit_code": 0,
   "result": "100 passed, 950 subtests, 0 failed, 0 skipped"
+ },
+ "error_witness_overrides_status_20260902T0647Z": {
+  "parent_head_full": "6345adcc3676b54b1761bef3296c496a6986260c",
+  "worktree": "/tmp/ofn-halt-chaos-vii",
+  "file_lock_zone": [
+   "ofn/kernel/source_health.py",
+   "tests/test_chaos_owner_absent.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json"
+  ],
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T06:47:54Z",
+  "exit_code": 0,
+  "result": "37 passed, 950 subtests passed, 0 failed, 0 skipped",
+  "fixes": [
+   "classify_fetch: error is a first-class witness — 200+TimeoutError is UNKNOWN not OK; 403+error is UNKNOWN not PARKED (stale status is not a policy answer)"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
 }
