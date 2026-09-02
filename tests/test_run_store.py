@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -24,11 +25,13 @@ _NOW = 1780000000
 _AC = hashlib.sha256(b"acceptance: fixture").hexdigest()
 
 
-def _env(key: str = "idem-1", *, rand: str = "a1b2c3d4e5f6a7b8"):
+def _env(key: str = "idem-1", *, rand: str = "a1b2c3d4e5f6a7b8",
+         budget_tokens: int = 0):
     return create_envelope(
         goal="fixture goal", risk_tier="GREEN", authority_level="A1",
         idempotency_key=key, acceptance_criteria_hash=_AC,
-        now_epoch_s=_NOW, rand=rand, deadline_iso="2026-09-09T12:00:00Z")
+        now_epoch_s=_NOW, rand=rand, deadline_iso="2026-09-09T12:00:00Z",
+        budget_tokens=budget_tokens)
 
 
 class HaltBehaviour(unittest.TestCase):
@@ -300,3 +303,81 @@ class DeduplicationKeySemantics(unittest.TestCase):
             with self.assertRaises(FailClosedError):   # same (kind,ref), other run
                 store.append(ev.make_event(
                     ev.TOOL_INVOKED, run_b, now_epoch_s=_NOW + 3, ref=ref))
+
+
+class ReplayFailsClosedOnCorrupt(unittest.TestCase):
+    def test_corrupt_line_on_replay_is_fail_closed_not_json_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env(), now_epoch_s=_NOW)
+            log = root / "events.jsonl"
+            with log.open("a", encoding="utf-8") as f:
+                f.write("{not-json\n")
+            with self.assertRaises(FailClosedError):
+                list(store.replay())
+
+    def test_corrupt_line_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env(), now_epoch_s=_NOW)
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write("{not-json\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+
+class StoreRootIsOwnerPrivate(unittest.TestCase):
+    def test_new_store_root_is_0700_on_posix(self):
+        if os.name == "nt":
+            self.skipTest("POSIX directory mode is not a Windows fact")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            RunStore(root)
+            self.assertEqual(root.stat().st_mode & 0o777, 0o700)
+
+
+class PerRunTokenCeilingInStore(unittest.TestCase):
+    def test_zero_budget_refuses_positive_token_debit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("tok-0"), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(
+                    ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2,
+                    ref=receipt, payload={"tokens": 1}))
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertNotIn(ev.BUDGET_DEBIT, kinds)
+
+    def test_ceiling_survives_reopen(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("tok-10", budget_tokens=10),
+                                  now_epoch_s=_NOW)
+            r1 = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            store.append(ev.make_event(
+                ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2,
+                ref=r1, payload={"tokens": 8}))
+            reopened = RunStore(root)
+            r2 = reopened.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 3))
+            with self.assertRaises(FailClosedError):
+                reopened.append(ev.make_event(
+                    ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 4,
+                    ref=r2, payload={"tokens": 3}))  # 8+3 > 10
+
+    def test_zero_token_debit_on_zero_budget_is_a_noop(self):
+        # Missing `tokens` is 0 — a verdict can settle without a spend.
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("tok-noop"), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            eid = store.append(ev.make_event(
+                ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2, ref=receipt))
+            self.assertTrue(eid)

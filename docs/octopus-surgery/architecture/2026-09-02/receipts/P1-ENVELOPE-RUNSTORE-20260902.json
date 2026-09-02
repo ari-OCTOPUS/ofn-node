@@ -72,5 +72,38 @@
    "zero per-run token budget refuses request>0; ceiling is a ceiling; negative request refused"
   ],
   "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
+ },
+ "store_token_ceiling_and_replay_20260902": {
+  "parent_head_full": "e41cc26da5e1f1f96fc99556d095635b9b0d2d44",
+  "tree_state": "dirty — this commit's files only (run_store, token_ceiling, two test modules, this receipt). Dirt is this session's lock-zone edits, not an unknown concurrent writer.",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=no",
+  "exit_code": 0,
+  "result": "103 passed, 930 subtests passed, 0 failed, 0 skipped",
+  "ran_at_utc": "2026-09-02T05:33:09Z",
+  "worktree": "/tmp/ofn-p1-harden",
+  "file_lock_zone": [
+   "ofn/adapters/run_store.py",
+   "ofn/kernel/token_ceiling.py",
+   "tests/test_run_store.py",
+   "tests/test_token_ceiling.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json"
+  ],
+  "fixes": [
+   "replay() fail-closed on corrupt JSON (same as _load; JSONDecodeError not leaked)",
+   "store root mkdir 0700 + chmod (CLAUDE.md §7-الف); POSIX-only assertion",
+   "RUN_CREATED persists budget_tokens; BUDGET_DEBIT tokens checked against per-run ceiling before write",
+   "ofn/kernel/token_ceiling.py: both ceilings (per-run + NodeQuota); grants_send always False; send-state names in a Decision fail closed"
+  ],
+  "new_tests": [
+   "corrupt replay line → FailClosedError",
+   "corrupt reopen → FailClosedError",
+   "store root 0700 on POSIX",
+   "zero-budget run refuses tokens>0 debit (nothing written)",
+   "ceiling survives reopen (8+3 > 10)",
+   "missing tokens key is a 0-spend noop",
+   "admit_token_spend: per-run refuse does not touch node ledger; node refuse after per-run pass; both pass; admit never grants send"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
+}
 }

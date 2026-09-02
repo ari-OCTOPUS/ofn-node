@@ -29,6 +29,7 @@ from typing import Dict, Iterator, List, Set
 from ofn.kernel import events as ev
 from ofn.kernel.envelope import RUN_ID_RE, TaskEnvelope
 from ofn.kernel.errors import FailClosedError
+from ofn.kernel.token_ceiling import per_run_fits, tokens_from_payload
 
 
 class HaltActive(FailClosedError):
@@ -39,7 +40,14 @@ class HaltActive(FailClosedError):
 class RunStore:
     def __init__(self, root: Path):
         self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
+        # State dir is owner-private before the first line is written
+        # (CLAUDE.md §7-الف). mkdir mode is umask-masked; chmod is the
+        # second witness. POSIX-only; Windows has no equivalent bits.
+        self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        try:
+            os.chmod(self.root, 0o700)
+        except OSError:
+            pass
         self._log = self.root / "events.jsonl"
         self._seq = 0
         self._runs: Set[str] = set()
@@ -49,6 +57,8 @@ class RunStore:
         self._receipt_run: Dict[str, str] = {}  # receipt event_id -> run_id
         self._debited: Set[str] = set()    # receipt event_ids already settled
         self._seen_kind_ref: Set[tuple] = set()  # (kind, ref) already appended
+        self._budget_tokens: Dict[str, int] = {}   # run_id -> envelope cap
+        self._tokens_consumed: Dict[str, int] = {}  # run_id -> spent
         self._load()
 
     # ── loading ─────────────────────────────────────────────────────────
@@ -75,11 +85,20 @@ class RunStore:
         if rec["kind"] == ev.RUN_CREATED:
             self._runs.add(run_id)
             self._by_idem[rec["payload"]["idempotency_key"]] = run_id
+            cap = rec["payload"].get("budget_tokens", 0)
+            if not isinstance(cap, int) or isinstance(cap, bool) or cap < 0:
+                raise FailClosedError(
+                    f"RUN_CREATED budget_tokens not a non-negative int: {cap!r}")
+            self._budget_tokens[run_id] = cap
+            self._tokens_consumed.setdefault(run_id, 0)
         elif rec["kind"] == ev.EXECUTION_RECEIPT:
             self._receipts.add(rec["event_id"])
             self._receipt_run[rec["event_id"]] = run_id
         elif rec["kind"] == ev.BUDGET_DEBIT:
             self._debited.add(rec["ref"])
+            spent = tokens_from_payload(rec.get("payload"))
+            self._tokens_consumed[run_id] = (
+                self._tokens_consumed.get(run_id, 0) + spent)
         if rec.get("ref"):
             self._seen_kind_ref.add((rec["kind"], rec["ref"]))
         # Close is a state change, not a "ref-less event". A RUN_CLOSED that
@@ -121,7 +140,8 @@ class RunStore:
                         "risk_tier": envelope.risk_tier,
                         "authority_level": envelope.authority_level,
                         "idempotency_key": envelope.idempotency_key,
-                        "acceptance_criteria_hash": envelope.acceptance_criteria_hash},
+                        "acceptance_criteria_hash": envelope.acceptance_criteria_hash,
+                        "budget_tokens": envelope.budget_tokens},
             "ref": None,
         })
         return envelope.run_id
@@ -153,6 +173,13 @@ class RunStore:
             if ref in self._debited:
                 raise FailClosedError(
                     f"receipt {ref!r} already settled — refusing second budget effect")
+            request = tokens_from_payload(rec.get("payload"))
+            already = self._tokens_consumed.get(run_id, 0)
+            cap = self._budget_tokens.get(run_id, 0)
+            if not per_run_fits(cap, already, request):
+                raise FailClosedError(
+                    f"per-run token ceiling: {already} + {request} > {cap} "
+                    f"on {run_id!r} (0 budget authorizes no spend)")
         if rec.get("ref") and (rec["kind"], rec["ref"]) in self._seen_kind_ref:
             # Duplicate delivery of the same logical event: the second copy
             # is refused, not merged — one delivery, one effect. Events
@@ -181,7 +208,15 @@ class RunStore:
         if not self._log.exists():
             return
         with self._log.open("r", encoding="utf-8") as f:
-            for line in f:
+            for lineno, line in enumerate(f, start=1):
                 line = line.strip()
-                if line:
-                    yield json.loads(line)
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except ValueError:
+                    # Same fail-closed as _load: a corrupt line is not
+                    # skipped, and JSONDecodeError is not leaked.
+                    raise FailClosedError(
+                        f"corrupt run store line {lineno} in {self._log}") from None
+                yield rec
