@@ -146,5 +146,31 @@ class PerRunTokenCeiling(unittest.TestCase):
             env.may_consume_tokens(0, -1)
 
 
+class AllowedToolsAreAClosedSet(unittest.TestCase):
+    def test_empty_allowlist_permits_ordinary_tools(self):
+        env = _envelope()
+        self.assertTrue(env.tool_allowed("score"))
+
+    def test_nonempty_allowlist_refuses_unnamed_tool(self):
+        env = _envelope(allowed_tools=("score", "draft"))
+        self.assertTrue(env.tool_allowed("score"))
+        self.assertFalse(env.tool_allowed("smtp"))
+
+    def test_sealed_effect_name_is_never_a_tool(self):
+        env = _envelope()
+        self.assertFalse(env.tool_allowed("send_authorized"))
+        self.assertFalse(env.tool_allowed("quote_sent"))
+        self.assertFalse(env.tool_allowed("campaign_envelope_ready"))
+
+    def test_allowlist_cannot_name_a_sealed_effect(self):
+        with self.assertRaises(FailClosedError):
+            _envelope(allowed_tools=("score", "send_authorized"))
+
+    def test_blank_tool_name_fails_closed(self):
+        env = _envelope()
+        with self.assertRaises(FailClosedError):
+            env.tool_allowed("   ")
+
+
 if __name__ == "__main__":
     unittest.main()

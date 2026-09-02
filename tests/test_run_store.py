@@ -92,6 +92,18 @@ class EventVocabulary(unittest.TestCase):
             with self.assertRaises(FailClosedError):
                 ev.make_event(name, "run-x", now_epoch_s=_NOW)
 
+    def test_payload_key_cannot_smuggle_a_sealed_effect(self):
+        with self.assertRaises(FailClosedError):
+            ev.make_event(
+                ev.PROPOSAL_CREATED, "run-x", now_epoch_s=_NOW,
+                payload={"quote_sent": "no"})
+
+    def test_payload_value_cannot_smuggle_campaign_ready(self):
+        with self.assertRaises(FailClosedError):
+            ev.make_event(
+                ev.POLICY_DECISION, "run-x", now_epoch_s=_NOW,
+                payload={"next": "campaign_envelope_ready"})
+
 
 class StoreLifecycle(unittest.TestCase):
     def setUp(self):
@@ -519,3 +531,132 @@ class ReceiptIdentityAndRollbackPersist(unittest.TestCase):
                          if e["kind"] == ev.RUN_CREATED)
             self.assertEqual(again["payload"]["rollback_ref"],
                              "rb-20260902-persist")
+
+
+class AllowlistPersistAndToolGate(unittest.TestCase):
+    def test_allowed_tools_persisted_and_survive_reopen(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            env = create_envelope(
+                goal="fixture goal", risk_tier="GREEN", authority_level="A1",
+                idempotency_key="allow-1", acceptance_criteria_hash=_AC,
+                now_epoch_s=_NOW, rand="d1d2d3d4e5f6a7b8",
+                deadline_iso="2026-09-09T12:00:00Z",
+                allowed_tools=("score", "draft"))
+            store = RunStore(root)
+            run_id = store.create(env, now_epoch_s=_NOW)
+            created = next(e for e in store.events_for(run_id)
+                           if e["kind"] == ev.RUN_CREATED)
+            self.assertEqual(created["payload"]["allowed_tools"],
+                             ["score", "draft"])
+            reopened = RunStore(root)
+            again = next(e for e in reopened.events_for(run_id)
+                         if e["kind"] == ev.RUN_CREATED)
+            self.assertEqual(again["payload"]["allowed_tools"],
+                             ["score", "draft"])
+
+    def test_tool_outside_allowlist_refused_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            env = create_envelope(
+                goal="fixture goal", risk_tier="GREEN", authority_level="A1",
+                idempotency_key="allow-2", acceptance_criteria_hash=_AC,
+                now_epoch_s=_NOW, rand="e1e2e3d4e5f6a7b8",
+                deadline_iso="2026-09-09T12:00:00Z",
+                allowed_tools=("score",))
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(env, now_epoch_s=_NOW)
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(
+                    ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 1,
+                    payload={"tool": "smtp"}))
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertNotIn(ev.TOOL_INVOKED, kinds)
+
+    def test_named_tool_in_allowlist_accepted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            env = create_envelope(
+                goal="fixture goal", risk_tier="GREEN", authority_level="A1",
+                idempotency_key="allow-3", acceptance_criteria_hash=_AC,
+                now_epoch_s=_NOW, rand="f1f2f3d4e5f6a7b8",
+                deadline_iso="2026-09-09T12:00:00Z",
+                allowed_tools=("score",))
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(env, now_epoch_s=_NOW)
+            eid = store.append(ev.make_event(
+                ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 1,
+                payload={"tool": "score"}))
+            self.assertTrue(eid)
+
+    def test_payload_smuggling_send_authorized_refused_at_construction(self):
+        with self.assertRaises(FailClosedError):
+            ev.make_event(
+                ev.TOOL_INVOKED, "run-x", now_epoch_s=_NOW,
+                payload={"send_authorized": True})
+
+    def test_payload_value_quote_sent_refused_at_store(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("smuggle"), now_epoch_s=_NOW)
+            with self.assertRaises(FailClosedError):
+                store.append({
+                    "kind": ev.TOOL_INVOKED, "run_id": run_id,
+                    "payload": {"state": "quote_sent"}, "ref": None,
+                })
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertEqual(kinds, [ev.RUN_CREATED])
+
+
+class EventIdUniquenessAndSeqIntegrity(unittest.TestCase):
+    def test_duplicate_event_id_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("eid-dup"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            clone = dict(first)
+            clone["seq"] = first["seq"] + 1
+            clone["kind"] = ev.PROPOSAL_CREATED
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(clone, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_seq_gap_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("seq-gap"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            forged = {
+                "event_id": "evt-forged00000000",
+                "seq": first["seq"] + 5,
+                "kind": ev.PROPOSAL_CREATED,
+                "run_id": run_id,
+                "ts": _NOW + 1,
+                "payload": {},
+                "ref": None,
+            }
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(forged, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_event_for_unknown_run_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("orphan"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            forged = {
+                "event_id": "evt-orphan00000000",
+                "seq": first["seq"] + 1,
+                "kind": ev.PROPOSAL_CREATED,
+                "run_id": "run-1780000000-notareal00",
+                "ts": _NOW + 1,
+                "payload": {},
+                "ref": None,
+            }
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(forged, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)

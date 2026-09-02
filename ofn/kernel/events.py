@@ -49,6 +49,31 @@ FORBIDDEN_EFFECT_KINDS = frozenset({
 })
 
 
+def is_forbidden_effect_name(name: object) -> bool:
+    """True only for the sealed send/ready names. UNKNOWN names are not
+    treated as forbidden here — the kind gate handles those separately."""
+    return isinstance(name, str) and name in FORBIDDEN_EFFECT_KINDS
+
+
+def payload_forbidden_effect(payload: Optional[Mapping[str, Any]]) -> Optional[str]:
+    """Return a smuggled ready/authorized/sent name from a payload, if any.
+
+    Top-level keys and string values only. A nested guess is not a
+    verdict — unknown depth is not scanned, and that is recorded as
+    out of scope (not as 'clean').
+    """
+    if payload is None:
+        return None
+    if not isinstance(payload, Mapping):
+        raise FailClosedError(f"payload must be a mapping: {payload!r}")
+    for key, value in payload.items():
+        if is_forbidden_effect_name(key):
+            return str(key)
+        if is_forbidden_effect_name(value):
+            return str(value)
+    return None
+
+
 def make_event(
     kind: str,
     run_id: str,
@@ -82,6 +107,11 @@ def make_event(
         raise FailClosedError(
             "BUDGET_DEBIT requires ref to the EXECUTION_RECEIPT it settles "
             "(one verdict → one budget effect)")
+    smuggled = payload_forbidden_effect(payload)
+    if smuggled is not None:
+        raise FailClosedError(
+            f"payload smuggles forbidden effect name {smuggled!r} — "
+            "ready/authorized/sent are not ledger facts")
     return {
         "kind": kind,
         "run_id": run_id,
