@@ -1,4 +1,16 @@
-"""Demand-side tender harvester — buyers of painting services (issue #55).
+"""DEAD SOURCE — labeled 2026-09-02 (D-31 step 1).
+
+Both upstreams measured dead or empty on Day 7: the NSW eTendering OCDS
+feed ENDED Feb 2025, and AusTender OCDS federal returned ~0 painting
+awards (wrong backbone). Verified live from Sydney — see
+docs/day7/DAY7-SOURCE-DISCOVERY-AND-OWNER-LOG.md and
+docs/research/2026-09-02-demand-channels-deepdive.md. Do NOT wire new
+callers to these sources. Disposition: repoint to live demand channels;
+dead fetchers are removed at D-31 step 4.
+
+---
+
+Demand-side tender harvester — buyers of painting services (issue #55).
 
 The first Seek harvest filled the lead table with job ADS: employers
 looking to HIRE a painter (supply side), not customers looking to BUY

@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+- Read `AGENTS.md` at the repository root before the first edit of every session. It overrides your defaults.
+- Declare your lane ID in the first line of your first response. Work only on files owned by that lane per `09-LANES/LANE-MATRIX.csv`.
+- Never enable a feature flag, never open a closed gate, never send anything to an external network.
+- Every numeric claim you write into a file must carry a source path or the token `unverified`.
+- When two repository files disagree, record both values and mark `status: open`. Do not resolve silently.
+- Do not decide anything reserved for the owner. Escalate to `07-HANDOFF/` and continue with other work.
+- If you are unsure whether an action is permitted, do not do it. Stop and ask.
