@@ -1,0 +1,5 @@
+# Intake text must stay LF in every checkout. The scanner also
+# normalizes CR; this attribute stops git from rewriting the files.
+*.md text eol=lf
+*.json text eol=lf
+*.png binary

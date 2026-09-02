@@ -63,6 +63,20 @@ No local vault or surgery branch was pushed.
 One sanitized GitHub-lineage export branch was pushed as PR #6.
 No merge, deploy, restart, provider call or external effect occurred.
 
+## STAGE-01 lineage scan (2026-09-01)
+
+Read-only cross-check of the STAGE-00, CB Insights/Hugging Face, and
+10-aspect uploads against this GitHub tree. Propose-only.
+`scope=this_host_only`. Vault paths are `body_not_on_this_host`.
+
+- [[stage-01-lineage-scan/2026-09-01/STAGE-01-REPORT|STAGE-01 report]]
+- [[stage-01-lineage-scan/2026-09-01/CONTRADICTIONS|STAGE-01 contradictions]]
+- [[stage-01-lineage-scan/2026-09-01/CONCEPT-REGISTRY.json|Concept registry]]
+- Scanner: `tools/gap_scan.py` · tests: `tests/test_gap_scan.py`
+- Live counts stay in `tools/repo_baseline.py`, not in this index.
+- D-26 recorded at `docs/architecture/DECISION-canonical-bodies-2026-09-01.md`;
+  `implementation_authorized=false`.
+
 ## Surgery 2
 
 - LLM caller inventory: `5/6 → 8/8`.

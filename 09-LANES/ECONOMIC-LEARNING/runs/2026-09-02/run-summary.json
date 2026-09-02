@@ -1,0 +1,180 @@
+{
+  "generated_at": "2026-09-02T10:42:12Z",
+  "code_sha": "ec5c3ecc239b13aa9c147f4a1dc04e6990bcdec1",
+  "snapshot_sha256": "0a67c1fde51821e1fd62b9c9aa0a1c770f4382e44d822cf27ed6badc42a7e8ea",
+  "campaign_id": "PAINT-L5-001",
+  "verified_payments": 0,
+  "unverified_payment_claims": 0,
+  "payment_received_verified": false,
+  "chains_total": 5,
+  "chains_complete": 0,
+  "scores": [
+    {
+      "campaign_id": "PAINT-L5-001",
+      "lead_id": "lead:nsw_ocp_buyer:transport-for-nsw-transport-infrastructure-projects",
+      "level": "RESPONSE_SIGNAL",
+      "reasons": [
+        "response present without quote"
+      ],
+      "payment_received_verified": false
+    },
+    {
+      "campaign_id": "PAINT-L5-001",
+      "lead_id": "lead:nsw_ocp_buyer:transport-for-nsw",
+      "level": "INFO_FAILURE",
+      "reasons": [
+        "contact sent, no response observed (informational, not a market verdict)"
+      ],
+      "payment_received_verified": false
+    },
+    {
+      "campaign_id": "PAINT-L5-001",
+      "lead_id": "lead:nsw_ocp_buyer:environment-and-heritage",
+      "level": "INFO_FAILURE",
+      "reasons": [
+        "contact sent, no response observed (informational, not a market verdict)"
+      ],
+      "payment_received_verified": false
+    },
+    {
+      "campaign_id": "PAINT-L5-001",
+      "lead_id": "lead:nsw_ocp_buyer:healthshare-nsw",
+      "level": "INFO_FAILURE",
+      "reasons": [
+        "contact sent, no response observed (informational, not a market verdict)"
+      ],
+      "payment_received_verified": false
+    },
+    {
+      "campaign_id": "PAINT-L5-001",
+      "lead_id": "lead:nsw_ocp_buyer:department-of-education-corporate",
+      "level": "QUOTE_SIGNAL",
+      "reasons": [
+        "quote present without verified payment"
+      ],
+      "payment_received_verified": false
+    }
+  ],
+  "lessons": [
+    {
+      "lesson_id": "LES-intermediate-s-160d0df8",
+      "lesson": "campaign PAINT-L5-001: response_signal without verified payment — intermediate signal, not revenue (n=1); continue observing",
+      "supporting_evidence": [
+        "contact:outbox:lead-quote:...transport-for-nsw-transport-infrastructure-projects:initial-intro",
+        "response:imap:2026-09-01T14:04:09Z:information@transport.nsw.gov.au"
+      ],
+      "contradicting_evidence": [
+        "none recorded"
+      ],
+      "confidence": "low",
+      "sample_size": 1,
+      "status": "OPEN",
+      "recheck_at": "2026-09-09",
+      "campaign_id": "PAINT-L5-001",
+      "success": false
+    },
+    {
+      "lesson_id": "LES-zero-payment-o-c98e9cbb",
+      "lesson": "campaign PAINT-L5-001: no verified payment (payment_received_verified=false) — zero-payment is a valid economic observation, not success; local failure stays OPEN until a differing parameter is tested (n=1)",
+      "supporting_evidence": [
+        "contact:outbox:lead-quote:...transport-for-nsw:initial-intro"
+      ],
+      "contradicting_evidence": [
+        "none recorded"
+      ],
+      "confidence": "low",
+      "sample_size": 1,
+      "status": "OPEN",
+      "recheck_at": "2026-09-09",
+      "campaign_id": "PAINT-L5-001",
+      "success": false
+    },
+    {
+      "lesson_id": "LES-zero-payment-o-4d0af81c",
+      "lesson": "campaign PAINT-L5-001: no verified payment (payment_received_verified=false) — zero-payment is a valid economic observation, not success; local failure stays OPEN until a differing parameter is tested (n=1)",
+      "supporting_evidence": [
+        "contact:outbox:lead-quote:...environment-and-heritage:initial-intro"
+      ],
+      "contradicting_evidence": [
+        "none recorded"
+      ],
+      "confidence": "low",
+      "sample_size": 1,
+      "status": "OPEN",
+      "recheck_at": "2026-09-09",
+      "campaign_id": "PAINT-L5-001",
+      "success": false
+    },
+    {
+      "lesson_id": "LES-zero-payment-o-d008a655",
+      "lesson": "campaign PAINT-L5-001: no verified payment (payment_received_verified=false) — zero-payment is a valid economic observation, not success; local failure stays OPEN until a differing parameter is tested (n=1)",
+      "supporting_evidence": [
+        "contact:outbox:lead-quote:...healthshare-nsw:initial-intro"
+      ],
+      "contradicting_evidence": [
+        "none recorded"
+      ],
+      "confidence": "low",
+      "sample_size": 1,
+      "status": "OPEN",
+      "recheck_at": "2026-09-09",
+      "campaign_id": "PAINT-L5-001",
+      "success": false
+    },
+    {
+      "lesson_id": "LES-intermediate-s-fb4fb13d",
+      "lesson": "campaign PAINT-L5-001: quote_signal without verified payment — intermediate signal, not revenue (n=1); continue observing",
+      "supporting_evidence": [
+        "contact:outbox:lead-quote:...department-of-education-corporate:initial-intro",
+        "response:imap:2026-09-02T01:30:25Z:amprocurement@det.nsw.edu.au",
+        "quote:QT-20260902-001"
+      ],
+      "contradicting_evidence": [
+        "none recorded"
+      ],
+      "confidence": "low",
+      "sample_size": 1,
+      "status": "OPEN",
+      "recheck_at": "2026-09-09",
+      "campaign_id": "PAINT-L5-001",
+      "success": false
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "EXP-LES-intermediate-s-160d0df8",
+      "title": "test a differing outreach parameter (subject line / timing) on the silent segment",
+      "target": "ofn/learning/",
+      "outcome": "QUEUED_WITH_REASON",
+      "reason": "differing-parameter test design ready; owner approval + send authorization required (never produced here)"
+    },
+    {
+      "proposal_id": "EXP-LES-zero-payment-o-c98e9cbb",
+      "title": "extend runtime vocabulary with VERIFIED economic outcome states",
+      "target": "ofn/kernel/events.py",
+      "outcome": "ESCALATED_TO_OWNER",
+      "reason": "kernel vocabulary is a sealed policy surface (quote_sent-class names are FORBIDDEN_EFFECT_KINDS by design); adapter-level verified outcomes already recorded in this lane"
+    },
+    {
+      "proposal_id": "EXP-LES-zero-payment-o-4d0af81c",
+      "title": "extend runtime vocabulary with VERIFIED economic outcome states",
+      "target": "ofn/kernel/events.py",
+      "outcome": "ESCALATED_TO_OWNER",
+      "reason": "kernel vocabulary is a sealed policy surface (quote_sent-class names are FORBIDDEN_EFFECT_KINDS by design); adapter-level verified outcomes already recorded in this lane"
+    },
+    {
+      "proposal_id": "EXP-LES-zero-payment-o-d008a655",
+      "title": "extend runtime vocabulary with VERIFIED economic outcome states",
+      "target": "ofn/kernel/events.py",
+      "outcome": "ESCALATED_TO_OWNER",
+      "reason": "kernel vocabulary is a sealed policy surface (quote_sent-class names are FORBIDDEN_EFFECT_KINDS by design); adapter-level verified outcomes already recorded in this lane"
+    },
+    {
+      "proposal_id": "EXP-LES-intermediate-s-fb4fb13d",
+      "title": "test a differing outreach parameter (subject line / timing) on the silent segment",
+      "target": "ofn/learning/",
+      "outcome": "QUEUED_WITH_REASON",
+      "reason": "differing-parameter test design ready; owner approval + send authorization required (never produced here)"
+    }
+  ]
+}
