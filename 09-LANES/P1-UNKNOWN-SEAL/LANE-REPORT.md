@@ -43,7 +43,7 @@ Command:
 python3 -m unittest tests.test_unknown_seal tests.test_chaos_unknown_seal tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q
 ```
 
-Receipt pointer: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-UNKNOWN-SEAL-20260902.json` · hash filled after commit · evidence level B. Filesystem immutability: NOT claimed.
+Receipt pointer: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-UNKNOWN-SEAL-20260902.json` · SHA-256 `619e00c70319faf9831cd3ebe4f0cbda1c36f621a98d981dfd45b54e658de4f0` · 5728 bytes · evidence level B (git blob on engineering HEAD `c06dff16c5e8b840480043a54a583b66a1c1117d`). Post-commit suite: `2026-09-02T23:44:19Z` · exit 0 · 219 passed / 0 failed / 0 skipped. Filesystem immutability: NOT claimed.
 
 ## Rollback steps
 
