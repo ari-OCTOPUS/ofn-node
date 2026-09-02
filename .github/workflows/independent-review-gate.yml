@@ -41,7 +41,33 @@ jobs:
               .filter(f => SENSITIVE.some(p => f.startsWith(p)));
 
             if (touched.length === 0) {
-              core.info('No sensitive path touched - gate not applicable.');
+              // structural honesty (2026-09-03): a green check must never read as
+              // "review happened". Mark this run explicitly not-applicable.
+              await core.summary
+                .addHeading('GOV-V6 gate: NOT-APPLICABLE')
+                .addRaw('No sensitive paths touched - this green is NOT a review approval.')
+                .write();
+              core.notice('not-applicable: no sensitive paths');
+              try {
+                const runs = await github.paginate(
+                  github.rest.checks.listForRef,
+                  { owner, repo, ref: pr.head.sha, filter: 'latest', per_page: 100 });
+                const mine = runs.find(r =>
+                  r.name.startsWith('require-independent-approval'));
+                if (mine) {
+                  await github.rest.checks.update({
+                    owner, repo, check_run_id: mine.id, conclusion: 'neutral',
+                    output: {
+                      title: 'not-applicable: no sensitive paths',
+                      summary: 'Gate not applicable - this is NOT a review approval.',
+                    },
+                  });
+                }
+              } catch (err) {
+                // Actions may re-conclude the check when the job finishes; the
+                // step summary above remains the durable signal either way.
+                core.info('neutral re-conclusion unavailable: ' + err.message);
+              }
               return;
             }
 
