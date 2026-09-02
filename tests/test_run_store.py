@@ -792,3 +792,102 @@ class AudCeilingDeadlineAndLogPath(unittest.TestCase):
                 self.skipTest("symlinks unavailable")
             with self.assertRaises(FailClosedError):
                 RunStore(root)
+
+
+class ReceiptDigestVerifiedOnLoad(unittest.TestCase):
+    """Stamp-on-write is not a second witness. Load and replay must
+    recompute the digest; a tampered payload with a leftover stamp is
+    not a receipt."""
+
+    def test_tampered_receipt_payload_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("rcpt-tamper"), now_epoch_s=_NOW)
+            store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "honest"}))
+            log = root / "events.jsonl"
+            lines = log.read_text(encoding="utf-8").splitlines()
+            rec = json.loads(lines[-1])
+            rec["payload"]["what"] = "forged"
+            lines[-1] = json.dumps(rec, sort_keys=True)
+            log.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_missing_receipt_digest_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("rcpt-nodigest"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            forged = {
+                "event_id": "evt-nodigest000000",
+                "seq": first["seq"] + 1,
+                "kind": ev.EXECUTION_RECEIPT,
+                "run_id": run_id,
+                "ts": _NOW + 1,
+                "payload": {"what": "no stamp"},
+                "ref": None,
+            }
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(forged, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_tampered_receipt_fails_closed_on_replay_of_open_store(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("rcpt-replay"), now_epoch_s=_NOW)
+            store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "honest"}))
+            log = root / "events.jsonl"
+            lines = log.read_text(encoding="utf-8").splitlines()
+            rec = json.loads(lines[-1])
+            rec["payload"]["what"] = "forged"
+            lines[-1] = json.dumps(rec, sort_keys=True)
+            log.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            with self.assertRaises(FailClosedError):
+                list(store.replay())
+
+
+class DuplicateIdempotencyOnLoad(unittest.TestCase):
+    def test_two_run_created_same_idem_different_run_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("shared-idem"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            twin = dict(first)
+            twin["event_id"] = "evt-twin0000000000"
+            twin["seq"] = first["seq"] + 1
+            twin["run_id"] = "run-1780000000-bbbbbbbbbb"
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(twin, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+
+class ReplaySeqContinuity(unittest.TestCase):
+    def test_seq_gap_on_replay_of_open_store_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("replay-gap"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            forged = {
+                "event_id": "evt-replaygap00000",
+                "seq": first["seq"] + 5,
+                "kind": ev.PROPOSAL_CREATED,
+                "run_id": run_id,
+                "ts": _NOW + 1,
+                "payload": {},
+                "ref": None,
+            }
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(forged, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                list(store.replay())

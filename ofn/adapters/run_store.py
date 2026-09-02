@@ -171,6 +171,34 @@ class RunStore:
                 raise FailClosedError(
                     f"payload smuggles forbidden effect name on line "
                     f"{lineno}: {smuggled!r}")
+        if kind == ev.EXECUTION_RECEIPT:
+            RunStore._require_receipt_digest(rec, lineno=lineno)
+
+    @staticmethod
+    def _require_receipt_digest(rec: dict, *, lineno: int) -> None:
+        """Second witness: the digest on disk must match the payload.
+
+        Stamp-on-write is not enough — a tampered line that still
+        parses as JSON would otherwise load as a fact. Missing digest
+        after we started stamping is also not a fact.
+        """
+        payload = rec.get("payload")
+        if not isinstance(payload, dict):
+            raise FailClosedError(
+                f"EXECUTION_RECEIPT payload missing or not an object "
+                f"on line {lineno}")
+        claimed = payload.get("receipt_sha256")
+        if not isinstance(claimed, str) or not claimed.strip():
+            raise FailClosedError(
+                f"EXECUTION_RECEIPT missing receipt_sha256 on line {lineno}")
+        body = {k: v for k, v in payload.items() if k != "receipt_sha256"}
+        digest = hashlib.sha256(
+            json.dumps(body, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        if claimed != digest:
+            raise FailClosedError(
+                f"receipt_sha256 mismatch on line {lineno} — "
+                "refusing a tampered receipt")
 
     def _require_seq(self, rec: dict, *, lineno: int) -> None:
         seq = rec.get("seq")
@@ -202,10 +230,19 @@ class RunStore:
                 raise FailClosedError(
                     f"RUN_CREATED payload missing or not an object on {run_id!r}")
             try:
-                self._by_idem[payload["idempotency_key"]] = run_id
+                key = payload["idempotency_key"]
             except KeyError:
                 raise FailClosedError(
                     f"RUN_CREATED missing idempotency_key on {run_id!r}") from None
+            if not isinstance(key, str) or not key.strip():
+                raise FailClosedError(
+                    f"RUN_CREATED idempotency_key empty on {run_id!r}")
+            prior = self._by_idem.get(key)
+            if prior is not None and prior != run_id:
+                raise FailClosedError(
+                    f"duplicate idempotency_key {key!r} bound to "
+                    f"{prior!r} and {run_id!r}")
+            self._by_idem[key] = run_id
             cap = payload.get("budget_tokens", 0)
             if not isinstance(cap, int) or isinstance(cap, bool) or cap < 0:
                 raise FailClosedError(
@@ -476,6 +513,7 @@ class RunStore:
         if not self._log.exists():
             return
         self._refuse_nonregular_log()
+        expected_seq = 1
         with self._log.open("r", encoding="utf-8") as f:
             for lineno, line in enumerate(f, start=1):
                 line = line.strip()
@@ -493,4 +531,12 @@ class RunStore:
                 if not isinstance(seq, int) or isinstance(seq, bool) or seq < 1:
                     raise FailClosedError(
                         f"run store line {lineno} missing or invalid seq")
+                # Same next-expected rule as _load: a gapped replay is
+                # not a clean read. Local counter — replay must not
+                # mutate the live store's _expected_seq.
+                if seq != expected_seq:
+                    raise FailClosedError(
+                        f"seq gap or replay at line {lineno}: expected "
+                        f"{expected_seq}, got {seq!r}")
+                expected_seq = seq + 1
                 yield rec
