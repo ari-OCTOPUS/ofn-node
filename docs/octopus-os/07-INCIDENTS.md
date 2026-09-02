@@ -59,3 +59,14 @@ house rules: هر عدد با روش + بدنه (برنچ/SHA) · UNKNOWN نه F
 4. کارِ باز ≠ تناقض ← همین log: هر بلاکر یک بار با یک دلیل ثبت می‌شود، نه دو.
 
 اصل‌ها در Downloads مالک نیز دست‌نخورده باقی‌اند؛ آرشیو بالا کپی فقط‌خواندنی با هش پین‌شده است.
+
+## 2026-09-02 (session ii — continuation directive: no-idle)
+- **commits/PRs:** #73 fixed in place (appendices → pointer+hash, same PR); #74 +commit (duplicate-event rejection, rollback_ref); #75 NEW (HALT RunGate + source_health + 7 chaos scenarios, stacked on #74); #76 NEW (campaign_envelope on release/p0, draft-only).
+- **tests:** `pytest tests/test_envelope.py tests/test_run_store.py` = 50 passed @0b3bffd ~06:20Z; `pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py` = 19 passed @0b3bffd ~06:40Z; `pytest tests/test_campaign_envelope.py` = 10 passed @110f6c0-base ~07:10Z. Full CI judged on the PRs.
+- **merged:** NONE — all review-blocked (by design; reviewer = @Elahe-z).
+- **review-blocked:** #70 #71(draft) #73 #74 #75 · #72 sequenced behind #71 (base rp0).
+- **owner-blocked:** quote_sent chain (Q-05/rotation), waiver re-scope (Q-08), .claude/worktrees cleanup decision.
+- **external effects:** ZERO (revenue lane stopped at campaign_envelope_ready with structural no-send pin).
+- **receipts:** DEAD-SOURCE-LABELS / WAIVER-SEND-GATE-TEST (branch chore+waiver); P1-ENVELOPE-RUNSTORE (#74); HALT-CHAOS (#75); CAMPAIGN-ENVELOPE (#76); vault: MIRROR-CLEANUP + WORKTREES-INVENTORY (06-EVIDENCE/OCTOPUS-VAULT-MAINT-2026-09-02/).
+- **worktree inventory (definitive count):** 22 registered worktrees of the vault repo (16 under .claude/worktrees + 6 on C: + main). 3 VERIFIED / 18 SUSPECTED / 1 UNKNOWN (w1-spine — active parallel session, status timed out). Four worktrees born TODAY (w1-free/money/scale/spine) → a parallel session is live on the vault repo; re-read their state before any vault write. Read-only; nothing pruned.
+- **next executable action:** independent review of #70 → #74 → #75 (then #71 un-draft after CI) — reviewer's, not mine.
