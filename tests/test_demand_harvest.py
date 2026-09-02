@@ -8,6 +8,8 @@ from __future__ import annotations
 import unittest
 
 from ofn.agents.demand_harvest import (
+    NSW_ETENDERING_FEED_STATUS,
+    NSW_ETENDERING_SEARCH_URL,
     HarvestError, cycle, fetch_json, is_supply_side, parse_ocds_release,
     score_demand, strip_leading_space,
 )
@@ -184,6 +186,11 @@ class TestT5Cycle(unittest.TestCase):
         out = cycle(lambda url, etag="": (None, etag),
                     lambda: set(), lambda l: {"ok": True}, etag='"e"')
         self.assertEqual(out["status"], "NO_CHANGE")
+
+    def test_legacy_nsw_search_is_marked_dead(self):
+        self.assertIn("tenders.nsw.gov.au", NSW_ETENDERING_SEARCH_URL)
+        self.assertEqual(NSW_ETENDERING_FEED_STATUS, "dead_redirect_buy_nsw")
+        self.assertNotIn("buy.nsw.gov.au", NSW_ETENDERING_SEARCH_URL)
 
 
 if __name__ == "__main__":
