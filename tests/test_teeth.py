@@ -100,7 +100,19 @@ def test_tooth_R5_suppressed_lead_in_cycle(tmp_path, monkeypatch):
     assert rep["checks"]["R5_no_suppressed_in_cycle"]["violations"] == 1
 
 
-def test_token_tamper_detected():
+def _hermetic_token_env(monkeypatch, tmp_path):
+    """CI hosts have no session secret and must not read ~/.config/ofn.
+
+    Inject a test-only MAC key and isolate STATE_DIR so issue() cannot
+    write a live capability-token ledger. Production fail-closed
+    (no-token-secret) is unchanged — see test_token_issue_fail_closed.
+    """
+    monkeypatch.setattr(cap, "_secret", lambda: b"ci-hermetic-test-mac-key")
+    monkeypatch.setattr(cap.opslib, "STATE_DIR", tmp_path)
+
+
+def test_token_tamper_detected(monkeypatch, tmp_path):
+    _hermetic_token_env(monkeypatch, tmp_path)
     tok = cap.issue("send_email", "x@nsw.gov.au", "test")
     ok, why = cap.verify(tok, "send_email", "x@nsw.gov.au")
     assert ok
@@ -111,10 +123,24 @@ def test_token_tamper_detected():
     assert not ok and why == "subject-mismatch"
 
 
-def test_token_expired():
+def test_token_expired(monkeypatch, tmp_path):
+    _hermetic_token_env(monkeypatch, tmp_path)
     tok = cap.issue("send_email", "y@nsw.gov.au", "test", ttl_s=-1)
     ok, why = cap.verify(tok, "send_email", "y@nsw.gov.au")
     assert not ok and why == "expired"
+
+
+def test_token_issue_fail_closed_without_secret(monkeypatch, tmp_path):
+    """Absent secret → RuntimeError, never a forged token. Home is an
+    empty tmp so secrets.env is not consulted (and is never created)."""
+    monkeypatch.delenv("OFN_SESSION_SECRET", raising=False)
+    monkeypatch.setattr(cap.Path, "home", classmethod(lambda cls: tmp_path))
+    try:
+        cap.issue("send_email", "z@nsw.gov.au", "test")
+    except RuntimeError as exc:
+        assert "no-token-secret" in str(exc)
+    else:
+        raise AssertionError("issue() must fail-closed when no secret is present")
 
 
 def test_memory_chain_detects_tamper(tmp_path, monkeypatch):

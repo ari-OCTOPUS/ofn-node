@@ -168,6 +168,8 @@ class NegativeControls(unittest.TestCase):
             return {"lead_id": lead_id, "error": "lead-not-found-or-no-email"}
         env, _, _ = _build({"lead:nsw_ocp_buyer:ghost:x": {}}, quote_fn=err_fn)
         self.assertFalse(env["policy_checked"])
+        self.assertFalse(env["campaign_envelope_ready"])
+        self.assertIs(env["send_authorized"], False)
         self.assertEqual(env["quotes"][0]["engine_error"],
                          "lead-not-found-or-no-email")
 
@@ -196,6 +198,15 @@ class StructuralNoSend(unittest.TestCase):
         self.assertIsNone(data["transport_binding"])
         self.assertTrue(data["policy_checked"])          # آماده…
         self.assertIs(data["send_authorized"], False)    # …ولی هرگز مجاز نه
+        # campaign_envelope_ready is a named field, not an inference from
+        # policy_checked, and it must never collapse into send_authorized.
+        self.assertIn("campaign_envelope_ready", data)
+        self.assertIs(data["campaign_envelope_ready"], True)
+        self.assertIsNot(
+            data["campaign_envelope_ready"], data["send_authorized"],
+            "ready and authorized must be distinct values on the artifact")
+        self.assertTrue(
+            data["campaign_envelope_ready"] and not data["send_authorized"])
 
 
 if __name__ == "__main__":
