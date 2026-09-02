@@ -1,0 +1,54 @@
+[
+  {
+    "id": "PROP-LB-CODE",
+    "title": "self-completing doctor package (this lane's deliverable)",
+    "target_path": "ofn/doctor/",
+    "action": "code_change",
+    "reversible": true,
+    "evidence_refs": ["09-LANES/LB/DoD.md", "09-LANES/LB/runs/2026-09-02-final/findings.json"]
+  },
+  {
+    "id": "PROP-LB-ARTIFACTS",
+    "title": "lane artifacts: backlog + verdict-queue payload + lane-matrix payload",
+    "target_path": "09-LANES/LB/runs/2026-09-02-final/self-backlog.json",
+    "action": "create",
+    "reversible": true,
+    "evidence_refs": ["09-LANES/LB/runs/2026-09-02-final/receipt.jsonl"]
+  },
+  {
+    "id": "PROP-MIRROR-RELAPSE-01",
+    "title": "content-bearing CURRENT-TRUTH mirror at 06-EVIDENCE/OCTOPUS-HANDOFF-MERGE-2026-08-22/merged/ (6517 bytes, sha 7354caf8…) violates canonical policy 2026-09-02 (mirrors must be pointers)",
+    "target_path": "F:/backup/06-EVIDENCE/OCTOPUS-HANDOFF-MERGE-2026-08-22/merged/CURRENT-TRUTH.md",
+    "action": "append",
+    "reversible": true,
+    "evidence_refs": ["09-LANES/LB/runs/2026-09-02-final/findings.json#MIRROR-06-evidence-octopus-handoff-merge-2026-08-22-merged-current-truth-md"],
+    "payload_path": "09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md"
+  },
+  {
+    "id": "PROP-DEADREF-CNNN",
+    "title": "wildcard reference 06-EVIDENCE/C-NNN-*.md in LEDGER-VS-CONTRADICTIONS.md matches nothing — pattern never materialized",
+    "target_path": "F:/backup/01-TRUTH/LEDGER-VS-CONTRADICTIONS.md",
+    "action": "append",
+    "reversible": true,
+    "evidence_refs": ["09-LANES/LB/runs/2026-09-02-final/findings.json#DEADREF-01-truth-ledger-vs-contradictions-md-06-evidence-c-nnn-md"],
+    "payload_path": "09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md"
+  },
+  {
+    "id": "PROP-DEADREF-VERIFY-LIVE-STORE",
+    "title": "scripts/verify_live_store.py referenced twice in 01-TRUTH (STATE-2026-08-15-NIGHT, TEST-COUNT) exists nowhere in the vault",
+    "target_path": "F:/backup/01-TRUTH/STATE-2026-08-15-NIGHT.md",
+    "action": "append",
+    "reversible": true,
+    "evidence_refs": ["09-LANES/LB/runs/2026-09-02-final/findings.json#DEADREF-01-truth-state-2026-08-15-night-md-scripts-verify-live-store-py"],
+    "payload_path": "09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md"
+  },
+  {
+    "id": "PROP-JUNK-ARCHIVE",
+    "title": "7 shell-redirect junk files at vault root (debug-*.log ×5, FAIL,/PASS, assertion-named) — move to 99-ARCHIVE per AGENTS.md §7",
+    "target_path": "99-ARCHIVE/root-junk-20260902/",
+    "action": "archive",
+    "reversible": true,
+    "evidence_refs": ["09-LANES/LB/runs/2026-09-02-final/findings.json#JUNK-debug-log"],
+    "payload_path": "09-LANES/LB/runs/2026-09-02-final/verdict-queue-append-payload.md"
+  }
+]
