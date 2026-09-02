@@ -35,5 +35,24 @@
     "live vault worktree census (body_not_on_this_host)"
   ],
   "boundary": "no gate opened, no outbound, no secrets, no prune, no send_authorized",
-  "filesystem_immutability": "NOT claimed"
+  "filesystem_immutability": "NOT claimed",
+  "gitdir_lock_follow_20260902T0647Z": {
+    "parent_head_full": "1dbfdbdde22efcfe62bf00258467d3e7a124dddc",
+    "worktree": "/tmp/ofn-p5-vii",
+    "file_lock_zone": [
+      "tools/worktree_inventory.py",
+      "tests/test_worktree_inventory.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json"
+    ],
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py -q --tb=line",
+    "ran_at_utc": "2026-09-02T06:47:54Z",
+    "exit_code": 0,
+    "result": "34 passed, 879 subtests passed, 0 failed, 0 skipped",
+    "fixes": [
+      "linked worktree .git file: follow gitdir: pointer for index.lock",
+      "unreadable/malformed pointer → lock_unknown → census UNKNOWN, not 'no lock'"
+    ],
+    "pruned": false,
+    "wrote": false
+  }
 }

@@ -68,6 +68,44 @@ def parse_porcelain(text: str) -> list[dict[str, str]]:
     return entries
 
 
+def read_gitdir_pointer(git_file: str) -> str | None:
+    """Parse a linked-worktree ``.git`` *file* for ``gitdir: PATH``.
+
+    Unreadable or malformed → None. The caller must treat None as
+    UNKNOWN (not “no lock”, not FALSE).
+    """
+    try:
+        with open(git_file, encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError:
+        return None
+    for line in text.splitlines():
+        if line.startswith("gitdir:"):
+            path = line.split(":", 1)[1].strip()
+            return path or None
+    return None
+
+
+def index_lock_present(path: str) -> tuple[bool, bool]:
+    """Return ``(lock_present, lock_unknown)``.
+
+    A regular repo looks at ``.git/index.lock``. A linked worktree
+    follows the ``gitdir:`` pointer. An unreadable pointer is
+    ``lock_unknown=True`` — UNKNOWN, not proof of absence.
+    """
+    git = os.path.join(path, ".git")
+    if os.path.isdir(git):
+        return os.path.isfile(os.path.join(git, "index.lock")), False
+    if os.path.isfile(git):
+        pointed = read_gitdir_pointer(git)
+        if pointed is None:
+            return False, True
+        lock = os.path.isfile(os.path.join(pointed, "index.lock"))
+        lock = lock or os.path.isfile(os.path.join(path, ".git.lock"))
+        return lock, False
+    return False, False
+
+
 def classify(
     entry: dict[str, str],
     *,
@@ -125,22 +163,15 @@ def inventory(repo: str, *, timeout_s: float = 8.0) -> dict[str, Any]:
         status_ok: bool | None = None
         lock_present = False
         if path:
-            gitdir = os.path.join(path, ".git")
-            lock_present = (
-                os.path.isfile(os.path.join(path, ".git", "index.lock"))
-                if os.path.isdir(os.path.join(path, ".git"))
-                else False
-            )
-            # A file .git (worktree pointer) — look beside the common dir later;
-            # index.lock next to the pointer file is also a lock signal.
-            if os.path.isfile(gitdir):
-                lock_present = lock_present or os.path.isfile(
-                    os.path.join(path, ".git.lock"))
+            lock_present, lock_unknown = index_lock_present(path)
             try:
                 st = _git(["status", "--porcelain"], path, timeout_s)
                 status_ok = st.returncode == 0 and st.stdout.strip() == ""
             except subprocess.TimeoutExpired:
                 timeout = True
+                status_ok = None
+            if lock_unknown:
+                # Unreadable gitdir pointer: not proof of no lock.
                 status_ok = None
         verdict = classify(
             entry,

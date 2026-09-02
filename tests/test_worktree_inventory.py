@@ -11,7 +11,8 @@ import os
 import unittest
 
 from tools.worktree_inventory import (
-    SUSPECTED, UNKNOWN, VERIFIED, classify, parse_porcelain,
+    SUSPECTED, UNKNOWN, VERIFIED, classify, index_lock_present,
+    parse_porcelain, read_gitdir_pointer,
 )
 
 SRC = os.path.join(
@@ -82,6 +83,56 @@ class ClassifyLockZone(unittest.TestCase):
         self.assertEqual(
             classify({}, status_ok=None, lock_present=False, timeout=False),
             UNKNOWN)
+
+
+class GitdirPointer(unittest.TestCase):
+    def test_reads_gitdir_line(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            git_file = os.path.join(tmp, ".git")
+            with open(git_file, "w", encoding="utf-8") as fh:
+                fh.write("gitdir: /repo/.git/worktrees/feat\n")
+            self.assertEqual(
+                read_gitdir_pointer(git_file),
+                "/repo/.git/worktrees/feat")
+
+    def test_malformed_or_missing_is_none(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            git_file = os.path.join(tmp, ".git")
+            with open(git_file, "w", encoding="utf-8") as fh:
+                fh.write("not a pointer\n")
+            self.assertIsNone(read_gitdir_pointer(git_file))
+            self.assertIsNone(read_gitdir_pointer(os.path.join(tmp, "absent")))
+
+    def test_index_lock_follows_gitdir_pointer(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            pointed = os.path.join(tmp, "real-gitdir")
+            os.mkdir(pointed)
+            wt = os.path.join(tmp, "linked-wt")
+            os.mkdir(wt)
+            with open(os.path.join(wt, ".git"), "w", encoding="utf-8") as fh:
+                fh.write(f"gitdir: {pointed}\n")
+            present, unknown = index_lock_present(wt)
+            self.assertFalse(present)
+            self.assertFalse(unknown)
+            with open(os.path.join(pointed, "index.lock"), "w") as fh:
+                fh.write("locked")
+            present, unknown = index_lock_present(wt)
+            self.assertTrue(present)
+            self.assertFalse(unknown)
+
+    def test_unreadable_pointer_is_unknown_not_no_lock(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            wt = os.path.join(tmp, "linked-wt")
+            os.mkdir(wt)
+            with open(os.path.join(wt, ".git"), "w", encoding="utf-8") as fh:
+                fh.write("garbage\n")
+            present, unknown = index_lock_present(wt)
+            self.assertFalse(present)
+            self.assertTrue(unknown)
 
 
 class NeverPrunes(unittest.TestCase):
