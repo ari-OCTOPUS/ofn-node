@@ -563,6 +563,7 @@ C-009 رسماً بسته شد (هویت آپلود تکراری، نه تناق
 `docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/D-28-OWNER-DIRECTIVE.json` ·
 `tests/test_d28_edge.py`.
 
+
 ---
 
 ## باز — تصمیم مالک لازم است

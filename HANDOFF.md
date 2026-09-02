@@ -40,17 +40,19 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
             NTP فعال شد (CHECKPOINT §۷-۲ بسته شد) · ۱۹۳۸ تست سبز.
 D-26        ۲۰۲۶-۰۹-۰۱ ثبت تاریخی: بدن‌ها + صداها. مجوز را D-27 عوض کرد.
 D-27        ۲۰۲۶-۰۹-۰۲ مجوز باز با سقف ۲۵ / ۵۰ / ۰
+            روی main نشست (#66 squash e68aede) — economy.py آنجا باگ‌دار است
 D-28        لبهٔ ToS · ویس/رضایت/rotate جعل نشد
             GATE_OPEN_UNTIL_UTC=2026-09-16
             intake ۲۰۲۶-۰۹-۰۲: هش ویندوز ثبت شد · مشاهده=false
             SUME=عباس · اسناد رسمی: Sume (Abbas) · محتوا شنیده نشد
             انتساب فایل inferred · انتقال: host+login+per-file verify
             PR #65 هنوز روی main نیست (ریویو + ممنوعیت merge-commit)
-قدم بعد     فقط: approve الهه روی #68، بعد روی #67
+            #68 روی main است
+قدم بعد     squash #67 (نه merge commit) بعد از approve دوبارهٔ الهه
+            اگر review-gate بعد از این merge-from-main stale شد
             merge_authorized ≠ self-merge · protect-main · بدون الهه مسیر نیست
             مالک: هر ogg را جدا گوش بده و جدا هش کن
             میزبان ofn-node؟ نام ورود؟
-            #68: @ari322 روی هر ۶ خط هست — آری باید دوباره approve کند
             tenders.nsw.gov.au مرده → buy.nsw API نامعلوم؛ nsw_ocp جایگزین
             مالک روی برد: چرخش دو راز + flagهای env
             معیار هفته: یک رسید پرداخت واقعی روی PAINT-L5-001

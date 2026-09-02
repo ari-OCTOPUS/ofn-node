@@ -234,10 +234,6 @@ def load() -> Config:
     # says so. It only bites once a pack declares it — no mining pack exists
     # yet, so arming it here costs nothing and means the wiring is already in
     # place the day one does.
-    # miner_isolation stays shut until D-8's items 1-3 are done and the owner
-    # says so. It only bites once a pack declares it — no mining pack exists
-    # yet, so arming it here costs nothing and means the wiring is already in
-    # place the day one does.
     #
     # secret_rotation and partner_precondition were opened by Ari's explicit
     # decision on 2026-08-10 ("همرو روشن کن" — risk accepted for one week).

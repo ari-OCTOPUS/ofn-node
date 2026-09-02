@@ -259,6 +259,7 @@ platform ToS. C-009 closed as identity. O-3 and S-04 move later→open.
 `OFN_KEEP_GATES_OPEN` and `OFN_WIRE_OUTBOUND` are not defaulted on.
 Receipt: `stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json`.
 
+
 ## S6-D15 — D-28 rule-edge; three fields unforged (2026-09-02)
 
 Partner voices do not block painting. Observation stays false until
@@ -273,3 +274,4 @@ hears each file. Saba consent is
 Platform matrix filled to the ToS edge. Advisor gate stays
 parameterless. Receipt:
 `stage-01-lineage-scan/2026-09-01/D-28-OWNER-DIRECTIVE.json`.
+
