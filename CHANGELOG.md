@@ -145,3 +145,13 @@
 - Added painting CRM foundation and safe owner panel extensions.
 - Added B2B/tender/vendor/source-registry plan for next phase.
 - Outbound/publish remains off.
+
+## 2026-09-01 — v0.9.0: خودمختاری کامل (afeatures)
+- **گوش:** imap_listener (systemd/15min) — reply/bounce/optout/autoreply؛ autoreply هیچ‌وقت engaged نمی‌کند (درس Transport IAU)
+- **فالوآپ:** followup_worker — ۲ یادآوری/۷روز/سپس آرشیو (رأی Q4)
+- **کوت:** quote_engine + rate_card_builder (OCP واقعی، قفل تأیید مالک Q6) + book_wins
+- **زیرساخت:** ۶ تایمر systemd، UTC (ADR-A)، بکاپ شبانه+manifest، اولین restore-drill موفق، heartbeat ساعتی + digest ۷صبح (تلگرام مالک، تست‌شده)
+- **حکمرانی:** G-51 بسته، انقضای دامنه‌ها ۱۰-۰۱، identity.json، ADR-B، کمپین رسمی PAINT-L5-001
+- ۵ ایمیل واقعی ارسال‌شده (WAL: sent×5، attempts=1) — campaign PAINT-L5-001
+- reconcile.py: ۶ invariant بین outbox↔WAL↔leads↔counter — همه سبز
+- تست‌ها: tests/test_lane_e_q.py ۱۳/۱۳

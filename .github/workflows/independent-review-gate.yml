@@ -20,6 +20,7 @@ jobs:
           script: |
             const SENSITIVE = [
               'ofn/adapters/',
+              'ofn/agents/',
               'ofn/kernel/',
               'migrations/',
               'octopus_survival/',

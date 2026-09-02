@@ -1521,3 +1521,11 @@ panel.master-painting.com    → 8794
 2. اگر بیش از ~۵ فایل عوض شد، `agent-checkpoint:`.
 3. هیچ راز، هیچ PII، هیچ خروجی مدل خام اینجا ننویس.
 4. اگر تستی قرمز ماند، بنویس **کدام** و **چرا**.
+
+## HANDOFF 2026-09-01 (پایان سیزن) — برای ایجنت بعدی
+- شروع: docs/DISCOVERY.md (ریپو) + ROADMAP (#64) + OWNER-CHECKLIST
+- آنچه زنده است: ۶ تایمر systemd (imap/heartbeat/digest/followup/backup/drill)؛
+  شنونده IMAP؛ فالوآپ مجری‌دار؛ موتور کوت (قفل rate-card)؛ reconcile.py سبز
+- آنچه منتظر مالک است: ABN/بیمه → identity.json · دامنه · Allow deploy keys · buy.nsw · تأیید rate card
+- تاریخ‌های خودکار: فالوآپ اول ۲۰۲۶-09-08 (۷روز پس از ارسال) · بازبینی دامنه‌ها ۱۰-۰۱
+- مسیر ارسال فقط transport (ADR-B)؛ autoreply-gate را خراب نکن؛ فیک‌گرین ممنوع

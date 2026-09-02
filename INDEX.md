@@ -297,3 +297,12 @@ preflight           ۲۸/۲۸ OK
 
 جزئیات در [[HANDOFF]] بخش «پرورش عمیق مدل لبهٔ سیستم». طراحی کامل در
 [[MEGAPROMPT-EDGE-DEEP]].
+
+## ۲۰۲۶-09-01 — ماژول‌های سیزن خودمختاری (Lane E/Q/I از #64)
+- [[imap_listener]] (ofn/agents) — گوشِ IMAP: reply/bounce/optout/autoreply؛ تایمر ۱۵دقیقه
+- [[followup_worker]] — مجریِ یادآوری‌های +۷روز (۲× سپس آرشیو)
+- [[quote_engine]] + [[rate_card_builder]] — کوت با قفلِ تأیید کارت نرخ (رأی Q6)
+- [[owner_notify]] / [[heartbeat]] / [[daily_digest]] — تلگرامِ مالک، نبض ساعتی، گزارش ۷صبح
+- tools/backup_ofn.sh · restore_drill.sh · reconcile.py · install_systemd.sh
+- نظام‌الساعت بورد: UTC (ADR docs/adr/2026-09-01-A)
+- رجوع: [[DISCOVERY]] docs/DISCOVERY.md — نقشهٔ کامل برای ایجنت خارجی

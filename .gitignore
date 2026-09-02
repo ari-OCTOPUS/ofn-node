@@ -22,3 +22,9 @@ backups/
 # Senior-architect reference pack — archive, not project code
 _studio-marketing-architecture/
 docs/octopus-surgery/survival-loop/state/
+
+# Runtime state — live on the board, never in git (2026-09-01)
+ofn/agi2027_runtime/
+data/state/
+data/octopus-alerts.jsonl
+.cursor/hook-ledger.jsonl
