@@ -5,7 +5,7 @@
   "vantage": "cursor-cloud-agent",
   "scope": "this_host_only",
   "claim_type": "record",
-  "note": "System id stays partner_id. Official documents (contracts, invoices, revenue split) use official_legal_name when set. Display names are not a second legal identity.",
+  "note": "System id stays partner_id. Legal name is official_legal_name. Contracts, invoices, and revenue split print official_documents_use so both sides can recognise the person. Display names are not a second legal identity.",
   "partners": [
     {
       "partner_id": "maliheh",
@@ -19,7 +19,7 @@
       "legal_name_alias": "Sume",
       "alias_jurisdiction": "AU-NSW",
       "display_names": ["عباس"],
-      "official_documents_use": "Sume",
+      "official_documents_use": "Sume (Abbas)",
       "do_not_create_parallel_identity": true,
       "identity_confirmation_type": "owner_attested",
       "identity_independently_verified": false

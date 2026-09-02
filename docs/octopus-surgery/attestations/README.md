@@ -13,7 +13,8 @@ here (`receipts/`). Device paths belong in gitignored
 `WINDOWS-PATHS.local.json`.
 
 Owner attested 2026-09-02 that **Sume is Abbas** (legal name, AU-NSW).
-The system id stays `abbas`. Official documents use `Sume`. A leftover
+The system id stays `abbas`. Official documents print `Sume (Abbas)`.
+Legal name is Sume; partners know him as Abbas. A leftover
 `partner_id=sume` file is extra, not a second person.
 
 `path_assignment` is still inferred from the original folder walk.

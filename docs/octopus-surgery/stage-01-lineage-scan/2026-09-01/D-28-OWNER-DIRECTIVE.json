@@ -27,6 +27,7 @@
     "raw_media_in_git": false,
     "sume_mapped_to_abbas": true,
     "abbas_legal_name": "Sume",
+    "abbas_official_documents_use": "Sume (Abbas)",
     "abbas_voice": "hashed_pending_verification",
     "telegram_screenshots_in_hash_table": false,
     "transfer_authorized": false,

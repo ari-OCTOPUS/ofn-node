@@ -20,6 +20,7 @@
   "sume": {
     "partner_id": "abbas",
     "legal_name_alias": "Sume",
+    "official_documents_use": "Sume (Abbas)",
     "alias_jurisdiction": "AU-NSW",
     "mapped_to_abbas": true,
     "owner_confirmed_identity": true,

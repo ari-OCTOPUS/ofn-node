@@ -146,10 +146,18 @@ class TestThreeFieldsStayUnforged(unittest.TestCase):
         by_id = {row["partner_id"]: row for row in identity["partners"]}
         abbas = by_id["abbas"]
         self.assertEqual(abbas["official_legal_name"], "Sume")
-        self.assertEqual(abbas["official_documents_use"], "Sume")
+        self.assertEqual(abbas["official_documents_use"], "Sume (Abbas)")
+        self.assertIn("Sume", abbas["official_documents_use"])
+        self.assertIn("Abbas", abbas["official_documents_use"])
         self.assertTrue(abbas["do_not_create_parallel_identity"])
         self.assertNotEqual(abbas["official_documents_use"], "عباس")
+        self.assertNotEqual(abbas["official_documents_use"], "Sume")
         self.assertEqual(set(by_id), {"maliheh", "abbas", "saba"})
+        receipt = next(
+            row for row in list_receipts(ROOT) if row["partner_id"] == "abbas"
+        )
+        self.assertEqual(receipt["official_documents_use"], "Sume (Abbas)")
+        self.assertFalse(receipt["independently_observed"])
 
     def test_sume_extra_does_not_poison_a_complete_required_set(self):
         complete = [

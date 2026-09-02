@@ -39,7 +39,7 @@ D-27        ۲۰۲۶-۰۹-۰۲ مجوز باز با سقف ۲۵ / ۵۰ / ۰
 D-28        لبهٔ ToS · ویس/رضایت/rotate جعل نشد
             GATE_OPEN_UNTIL_UTC=2026-09-16
             intake ۲۰۲۶-۰۹-۰۲: هش ویندوز ثبت شد · مشاهده=false
-            SUME=عباس (نام قانونی Sume، AU-NSW) · محتوا شنیده نشد
+            SUME=عباس · اسناد رسمی: Sume (Abbas) · محتوا شنیده نشد
             انتساب فایل inferred · انتقال: host+login+per-file verify
             PR #65 هنوز روی main نیست (ریویو + ممنوعیت merge-commit)
 قدم بعد     #68 اول، بعد approve الهه روی #67؛ یا #65/#66/#67 قبل از #68
@@ -58,7 +58,8 @@ D-28        لبهٔ ToS · ویس/رضایت/rotate جعل نشد
 `docs/octopus-surgery/attestations/receipts/` ثبت شد. ویس، اسکرین‌شات
 و برگهٔ رضایت در گیت نیست. این vantage فایل‌ها را نشنید و ندید؛
 `independently_observed` همچنان false است. مالک تأیید کرد SUME نام
-قانونی عباس در سیدنی است (`partner_id=abbas`، اسناد رسمی: Sume).
+قانونی عباس در سیدنی است (`partner_id=abbas`، اسناد رسمی:
+`Sume (Abbas)`).
 تأیید نام ≠ تأیید محتوا. انتساب فایل به شخص هنوز inferred است.
 مسیر مطلق ویندوز از گیت برداشته شد. انتقال بدون host، login و
 تأیید تک‌فایل مجاز نیست.
