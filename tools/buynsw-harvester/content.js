@@ -7,17 +7,23 @@
   "use strict";
 
   // Links that identify a tender/opportunity/CAN, on results pages.
+  // Calibrated 2026-09-02 against the real "All opportunities" list:
+  // titles carry ids like MLHD_6353 / 26.0000139367.0652 (not hex), and the
+  // search/nav path itself is /opportunity/search — excluded below.
   const LINK_PATTERNS = [
     /\/notices\//i,          // /notices/{CNUUID}  (Contract Award Notices)
     /\/prcOpportunity\//i,   // /prcOpportunity/{UUID}
     /\/opportunity\/[0-9a-f-]{8}/i,
+    /\/opportunity\/(?!search(?:\/|$|\?))[a-z0-9._-]{3,}/i,
     /RFTUUID=/i,
     /CNUUID=/i,
     /SONUUID=/i,
   ];
-  const DETAIL_PATTERNS = [/\/notices\//i, /\/prcOpportunity\//i, /RFTUUID=/i, /CNUUID=/i];
+  const DETAIL_PATTERNS = [/\/notices\//i, /\/prcOpportunity\//i,
+    /\/opportunity\/(?!search(?:\/|$|\?))[a-z0-9._-]{3,}/i,
+    /RFTUUID=/i, /CNUUID=/i];
 
-  const DATE_RE = /(\d{1,2}\s+\w{3,9}\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{2,4})/;
+  const DATE_RE = /(\d{1,2}\s+\w{3,9}\s+\d{4}|\d{1,2}-[A-Za-z]{3,9}-\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{2,4})/;
   const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
   const PHONE_RE = /(\(?0\d\)?[\s-]?\d{4}[\s-]?\d{4}|\+61[\s-]?\d[\s-]?\d{4}[\s-]?\d{4})/;
   const ABN_RE = /\b\d{2}\s?\d{3}\s?\d{3}\s?\d{3}\b/;
@@ -78,7 +84,28 @@
       const m = text.match(re);
       if (m) return clean(m[1]);
     }
+    // 3) label on its own line, value on the next non-empty line — the real
+    //    buy.nsw card style ("Agency" / newline / "HealthShare NSW", no colon)
+    const lines = (container.textContent || "")
+      .split("\n").map((l) => l.trim());
+    for (const l of labels) {
+      const idx = lines.findIndex(
+        (line) => line.toLowerCase().replace(/:$/, "").startsWith(l));
+      if (idx >= 0) {
+        for (let j = idx + 1; j < lines.length && j <= idx + 2; j++) {
+          if (lines[j]) return clean(lines[j]);
+        }
+      }
+    }
     return "";
+  }
+
+  // Targeted closing extractor: the real cards render "Closes: 21-Sep-2026 15:00".
+  // Pulls exactly the date(+time), never trailing card text.
+  function matchClosing(text) {
+    const re = /clos(?:e[sd]?)?\s*(?:date|time)?\s*[:\-]?\s*(\d{1,2}-[A-Za-z]{3,9}-\d{4}(?:\s+\d{1,2}:\d{2})?|\d{4}-\d{2}-\d{2}(?:[T ]\d{1,2}:\d{2})?|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}(?:\s+\d{1,2}:\d{2})?)/i;
+    const m = String(text || "").match(re);
+    return m ? m[1].replace(/\s+/g, " ").trim() : "";
   }
 
   function scrapeResults() {
@@ -98,7 +125,9 @@
         agency: fieldNear(card, ["agency", "buyer", "published by", "organisation", "department"]),
         category: fieldNear(card, ["category", "type", "unspsc", "class"]),
         location: fieldNear(card, ["location", "region", "delivery", "suburb"]),
-        closing_at: fieldNear(card, ["clos", "deadline", "due"]) || dateMatches[dateMatches.length - 1] || "",
+        closing_at: matchClosing(cardText) ||
+          fieldNear(card, ["clos", "deadline", "due"]) ||
+          dateMatches[dateMatches.length - 1] || "",
         published_at: fieldNear(card, ["publish", "released", "issued"]) || dateMatches[0] || "",
         amount_text: (cardText.match(MONEY_RE) || [""])[0],
         description: cardText.slice(0, 400),

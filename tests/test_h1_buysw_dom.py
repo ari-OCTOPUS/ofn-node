@@ -183,6 +183,22 @@ class Case(unittest.TestCase):
         out = ingest_batch(v2_export([v2_record(location="")]), self.store)
         self.assertEqual(out["accepted"], 1)
 
+    def test_v2_real_card_closing_normalized_to_iso(self):
+        # Exact field as scraped from the real All-opportunities page:
+        # "Closes: 21-Sep-2026 15:00" -> matchClosing keeps "21-Sep-2026 15:00".
+        out = ingest_batch(
+            v2_export([v2_record(closing_at="21-Sep-2026 15:00")]), self.store)
+        self.assertEqual(out["accepted"], 1)
+        row = self.store.tenders("lead", limit=10)[0]
+        self.assertEqual(row["closing_at"], "2026-09-21T15:00+00:00")
+
+    def test_v2_unparseable_closing_passed_through_untouched(self):
+        out = ingest_batch(
+            v2_export([v2_record(closing_at="see documents")]), self.store)
+        self.assertEqual(out["accepted"], 1)
+        row = self.store.tenders("lead", limit=10)[0]
+        self.assertEqual(row["closing_at"], "see documents")
+
     # ---------------- award (CAN) → warm lead ----------------
 
     def test_v2_award_creates_tender_and_lead(self):

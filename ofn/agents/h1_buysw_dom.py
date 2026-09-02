@@ -86,6 +86,23 @@ def _parse_amount(value: object) -> float | None:
     return num
 
 
+_CLOSING_FORMATS = ("%d-%b-%Y %H:%M", "%d-%b-%Y", "%d %B %Y", "%d %b %Y")
+
+
+def _norm_closing(value: object) -> str:
+    """The real cards render 'Closes: 21-Sep-2026 15:00' — normalize to ISO
+    so deadline-feasibility (D) scores instead of falling back. Passthrough
+    for anything unparseable (never invent a date)."""
+    text = _s(value)
+    for fmt in _CLOSING_FORMATS:
+        try:
+            return datetime.strptime(text, fmt).replace(
+                tzinfo=timezone.utc).isoformat(timespec="minutes")
+        except ValueError:
+            continue
+    return text
+
+
 def _normalize(rec: Mapping) -> dict | None:
     """Either producer's record → one internal shape (or None if invalid).
 
@@ -108,7 +125,7 @@ def _normalize(rec: Mapping) -> dict | None:
             "buyer_name": _s(rec.get("buyer_name")),
             "location": _s(rec.get("location")),
             "category": _s(rec.get("category")),
-            "closing_at": _s(rec.get("closing_at")),
+            "closing_at": _norm_closing(rec.get("closing_at")),
             "amount": _parse_amount(rec.get("amount_aud")
                                     if "amount_aud" in rec
                                     else rec.get("amount_text")),
@@ -131,7 +148,7 @@ def _normalize(rec: Mapping) -> dict | None:
         "buyer_name": _s(rec.get("buyer_name")),
         "location": _s(rec.get("location_text")),
         "category": "",
-        "closing_at": _s(rec.get("closing_at")),
+        "closing_at": _norm_closing(rec.get("closing_at")),
         "amount": _parse_amount(rec.get("amount_aud")),
         "detail_url": _s(rec.get("detail_url")),
         "kind": "opportunity",
