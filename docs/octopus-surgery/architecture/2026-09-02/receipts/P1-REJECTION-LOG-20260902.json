@@ -44,6 +44,14 @@
     "result": "189 passed, 1010 subtests passed, 0 failed, 0 skipped",
     "pytest": "9.1.1"
   },
+  "verification_on_commit": {
+    "command": "python3 -m pytest tests/test_rejection.py tests/test_reject_log.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T11:26:48Z",
+    "committed_head_full": "ea4621153992172bd3274719a170ace465a52d7c",
+    "exit_code": 0,
+    "result": "189 passed, 1010 subtests passed, 0 failed, 0 skipped",
+    "note": "second independent claim: same command after the commit that added the modules"
+  },
   "invariants": {
     "ready_ne_authorized": true,
     "grants_send": false,
