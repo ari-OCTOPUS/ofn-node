@@ -61,7 +61,8 @@ source path or the token `unverified`. Owner executive order 2026-09-02.
   `proposals.json`, `verdict-queue-append-payload.md`
 - Payloads: `runs/lane-matrix-append-payload.csv`
 - Key commits: `847442e` (DoD) → `6a4ded6` (scope+contract) → `04751dc`
-  (core+38 tests) → `74c0a6c` (resolver v2) → `38dc269` (resolver ladder)
+  (core+38 tests) → `117a5b1` (resolver v2) → `c332042` (resolver ladder) →
+  `a2f7e06` (run artifacts)
 - Contract source sha256: `4b9e1ad325fbba907dd5de43cc060dc39a8d9627cc1de0dc3886b00b5591b9e4`
 
 ## 5. Rollback steps
