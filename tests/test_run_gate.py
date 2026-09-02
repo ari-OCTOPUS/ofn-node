@@ -10,6 +10,7 @@ bounded backoff.
 from __future__ import annotations
 
 import hashlib
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -212,6 +213,41 @@ class EvidenceHardeningRound(unittest.TestCase):
         capped = sh.backoff_delays(attempts=10, cap_s=60)
         self.assertTrue(all(d <= 60 for d in capped))
         self.assertEqual(len(capped), 10)
+
+
+class HaltFlagDurabilityAndSymlink(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.flag = Path(self._tmp.name) / "halt.flag"
+
+    def test_write_halt_file_is_0600_on_posix(self):
+        if os.name == "nt":
+            self.skipTest("POSIX file mode is not a Windows fact")
+        halt_flag.write_halt(self.flag)
+        self.assertEqual(self.flag.stat().st_mode & 0o777, 0o600)
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+
+    def test_symlink_flag_halts_without_following(self):
+        target = Path(self._tmp.name) / "not-a-flag"
+        target.write_text("off\n", encoding="utf-8")
+        self.flag.symlink_to(target)
+        # The target says "off" (running). Following it would be a miss.
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+
+    def test_dangling_symlink_halts(self):
+        self.flag.symlink_to(Path(self._tmp.name) / "missing")
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+
+    def test_write_halt_replaces_a_symlink_with_a_regular_file(self):
+        target = Path(self._tmp.name) / "elsewhere"
+        target.write_text("off\n", encoding="utf-8")
+        self.flag.symlink_to(target)
+        halt_flag.write_halt(self.flag)
+        self.assertFalse(self.flag.is_symlink())
+        self.assertTrue(self.flag.is_file())
+        self.assertEqual(target.read_text(encoding="utf-8"), "off\n")
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
 
 
 if __name__ == "__main__":

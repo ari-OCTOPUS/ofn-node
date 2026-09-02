@@ -31,6 +31,10 @@ def halt_flag_active(path: PathLike) -> bool:
     """
     p = Path(path)
     try:
+        # Symlink first: exists() follows the target, and a planted link
+        # is not a flag we can verify. Present-but-not-a-file ≙ HALTED.
+        if p.is_symlink():
+            return True
         if not p.exists():
             return halt.is_halted(None)
         raw_bytes = p.read_bytes()
@@ -49,10 +53,25 @@ def write_halt(path: PathLike, *, reason: str = "owner") -> None:
     flag (an unparsable flag must mean HALTED, and a chatty flag would
     collide with that)."""
     p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
+    p.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    try:
+        os.chmod(p.parent, 0o700)
+    except OSError:
+        pass
     tmp = p.with_suffix(p.suffix + ".tmp")
-    tmp.write_text("1\n", encoding="utf-8")
+    with tmp.open("w", encoding="utf-8") as f:
+        f.write("1\n")
+        f.flush()
+        os.fsync(f.fileno())
+    try:
+        os.chmod(tmp, 0o600)
+    except OSError:
+        pass
     os.replace(tmp, p)  # atomic: a reader never observes a torn flag
+    try:
+        os.chmod(p, 0o600)
+    except OSError:
+        pass
 
 
 def clear_halt(path: PathLike) -> None:
