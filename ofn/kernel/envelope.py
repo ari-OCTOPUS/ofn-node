@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Mapping, Tuple
 
 from .errors import FailClosedError
+from .events import is_forbidden_effect_name
 from .routing import Rung
 
 RISK_TIERS = ("GREEN", "YELLOW", "RED")
@@ -113,6 +114,9 @@ class TaskEnvelope:
         for tool in self.allowed_tools:
             if not isinstance(tool, str) or not tool.strip():
                 raise FailClosedError(f"allowed_tools entries must be names: {tool!r}")
+            if is_forbidden_effect_name(tool):
+                raise FailClosedError(
+                    f"allowed_tools cannot name a sealed effect: {tool!r}")
         for evidence_id in self.parent_evidence:
             if not isinstance(evidence_id, str) or not evidence_id.strip():
                 raise FailClosedError(
@@ -127,6 +131,21 @@ class TaskEnvelope:
                 raise FailClosedError(
                     "rollback_ref is required_for_external (authority A3) — "
                     "an id of a registered rollback artifact, not prose")
+
+    def tool_allowed(self, tool: str) -> bool:
+        """Capability check. A sealed send/ready name is never a tool.
+
+        An empty allowlist is unrestricted for ordinary tools (the
+        store still refuses sealed names). A non-empty list is a
+        closed set — anything not named is refused.
+        """
+        if not isinstance(tool, str) or not tool.strip():
+            raise FailClosedError(f"tool name required: {tool!r}")
+        if is_forbidden_effect_name(tool):
+            return False
+        if not self.allowed_tools:
+            return True
+        return tool in self.allowed_tools
 
     def rung(self) -> Rung:
         return rung_for_authority(self.authority_level)

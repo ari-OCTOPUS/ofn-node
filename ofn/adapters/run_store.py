@@ -25,7 +25,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, Iterator, List, Set
+from typing import Dict, Iterator, List, Set, Tuple
 
 from ofn.kernel import events as ev
 from ofn.kernel.envelope import RUN_ID_RE, TaskEnvelope
@@ -60,6 +60,9 @@ class RunStore:
         self._seen_kind_ref: Set[tuple] = set()  # (kind, ref) already appended
         self._budget_tokens: Dict[str, int] = {}   # run_id -> envelope cap
         self._tokens_consumed: Dict[str, int] = {}  # run_id -> spent
+        self._event_ids: Set[str] = set()
+        self._allowed_tools: Dict[str, Tuple[str, ...]] = {}
+        self._expected_seq = 1
         self._load()
 
     # ── loading ─────────────────────────────────────────────────────────
@@ -79,6 +82,7 @@ class RunStore:
                     raise FailClosedError(
                         f"corrupt run store line {lineno} in {self._log}") from None
                 self._require_record(rec, lineno=lineno)
+                self._require_seq(rec, lineno=lineno)
                 self._seq += 1
                 self._index(rec)
 
@@ -103,10 +107,42 @@ class RunStore:
         if not isinstance(run_id, str) or not run_id.strip():
             raise FailClosedError(
                 f"run store line {lineno} missing run_id")
+        eid = rec.get("event_id")
+        if not isinstance(eid, str) or not eid.strip():
+            raise FailClosedError(
+                f"run store line {lineno} missing event_id")
+        payload = rec.get("payload")
+        if payload is not None:
+            smuggled = ev.payload_forbidden_effect(payload)
+            if smuggled is not None:
+                raise FailClosedError(
+                    f"payload smuggles forbidden effect name on line "
+                    f"{lineno}: {smuggled!r}")
+
+    def _require_seq(self, rec: dict, *, lineno: int) -> None:
+        seq = rec.get("seq")
+        if not isinstance(seq, int) or isinstance(seq, bool) or seq < 1:
+            raise FailClosedError(
+                f"run store line {lineno} missing or invalid seq: {seq!r}")
+        if seq != self._expected_seq:
+            raise FailClosedError(
+                f"seq gap or replay at line {lineno}: expected "
+                f"{self._expected_seq}, got {seq!r}")
+        self._expected_seq = seq + 1
 
     def _index(self, rec: dict) -> None:
+        eid = rec.get("event_id")
+        if isinstance(eid, str) and eid.strip():
+            if eid in self._event_ids:
+                raise FailClosedError(f"duplicate event_id: {eid!r}")
+            self._event_ids.add(eid)
         run_id = rec["run_id"]
+        if rec["kind"] != ev.RUN_CREATED and run_id not in self._runs:
+            raise FailClosedError(
+                f"event for unknown run on load: {run_id!r} kind={rec['kind']!r}")
         if rec["kind"] == ev.RUN_CREATED:
+            if run_id in self._runs:
+                raise FailClosedError(f"duplicate RUN_CREATED for {run_id!r}")
             self._runs.add(run_id)
             payload = rec.get("payload")
             if not isinstance(payload, dict):
@@ -123,6 +159,23 @@ class RunStore:
                     f"RUN_CREATED budget_tokens not a non-negative int: {cap!r}")
             self._budget_tokens[run_id] = cap
             self._tokens_consumed.setdefault(run_id, 0)
+            tools = payload.get("allowed_tools", [])
+            if tools is None:
+                tools = []
+            if not isinstance(tools, list):
+                raise FailClosedError(
+                    f"RUN_CREATED allowed_tools not a list on {run_id!r}")
+            cleaned: List[str] = []
+            for tool in tools:
+                if not isinstance(tool, str) or not tool.strip():
+                    raise FailClosedError(
+                        f"RUN_CREATED allowed_tools entry not a name: {tool!r}")
+                if ev.is_forbidden_effect_name(tool):
+                    raise FailClosedError(
+                        f"RUN_CREATED allowed_tools names a sealed effect: "
+                        f"{tool!r}")
+                cleaned.append(tool)
+            self._allowed_tools[run_id] = tuple(cleaned)
         elif rec["kind"] == ev.EXECUTION_RECEIPT:
             eid = rec.get("event_id")
             if not isinstance(eid, str) or not eid.strip():
@@ -146,6 +199,16 @@ class RunStore:
         # append-after-close is only structural for the no-ref happy path.
         if rec["kind"] == ev.RUN_CLOSED:
             self._closed[run_id] = True
+        if rec["kind"] == ev.TOOL_INVOKED:
+            payload = rec.get("payload") if isinstance(rec.get("payload"), dict) else {}
+            tool = payload.get("tool")
+            allow = self._allowed_tools.get(run_id, ())
+            if ev.is_forbidden_effect_name(tool):
+                raise FailClosedError(
+                    f"TOOL_INVOKED names a sealed effect on {run_id!r}")
+            if allow and (not isinstance(tool, str) or tool not in allow):
+                raise FailClosedError(
+                    f"TOOL_INVOKED tool {tool!r} not in allowlist on {run_id!r}")
 
     # ── writing ─────────────────────────────────────────────────────────
     def _append(self, rec: dict) -> dict:
@@ -165,10 +228,15 @@ class RunStore:
         self._index(rec)
         return rec
 
-    @staticmethod
-    def _mint_event_id() -> str:
+    def _mint_event_id(self) -> str:
         # The boundary mints randomness; adapters are the boundary.
-        return "evt-" + os.urandom(8).hex()
+        # Collision against an already-indexed id is refused by reminting,
+        # not by writing a duplicate identity.
+        for _ in range(8):
+            eid = "evt-" + os.urandom(8).hex()
+            if eid not in self._event_ids:
+                return eid
+        raise FailClosedError("event_id mint exhausted — refusing a collision")
 
     def create(self, envelope: TaskEnvelope, *, halted: bool = False,
                now_epoch_s: int = 0) -> str:
@@ -187,6 +255,10 @@ class RunStore:
             "idempotency_key": envelope.idempotency_key,
             "acceptance_criteria_hash": envelope.acceptance_criteria_hash,
             "budget_tokens": envelope.budget_tokens,
+            "budget_aud_cents": envelope.budget_aud_cents,
+            "deadline_iso": envelope.deadline_iso,
+            "allowed_tools": list(envelope.allowed_tools),
+            "parent_evidence": list(envelope.parent_evidence),
         }
         if envelope.rollback_ref:
             payload["rollback_ref"] = envelope.rollback_ref
@@ -276,6 +348,22 @@ class RunStore:
             # their idempotency rides on the envelope's idempotency_key.
             raise FailClosedError(
                 f"duplicate event rejected: {rec['kind']} ref={rec['ref']!r} already recorded")
+        payload = rec.get("payload")
+        smuggled = ev.payload_forbidden_effect(
+            payload if payload is not None else {})
+        if smuggled is not None:
+            raise FailClosedError(
+                f"payload smuggles forbidden effect name {smuggled!r}")
+        if rec["kind"] == ev.TOOL_INVOKED:
+            allow = self._allowed_tools.get(run_id, ())
+            tool = payload.get("tool") if isinstance(payload, dict) else None
+            if ev.is_forbidden_effect_name(tool):
+                raise FailClosedError(
+                    f"TOOL_INVOKED cannot name a sealed effect: {tool!r}")
+            if allow:
+                if not isinstance(tool, str) or tool not in allow:
+                    raise FailClosedError(
+                        f"TOOL_INVOKED tool {tool!r} not in allowlist {allow!r}")
         if rec["kind"] == ev.EXECUTION_RECEIPT:
             rec["payload"] = self._stamp_receipt_digest(rec.get("payload"))
         rec["event_id"] = self._mint_event_id()
@@ -311,4 +399,8 @@ class RunStore:
                     raise FailClosedError(
                         f"corrupt run store line {lineno} in {self._log}") from None
                 self._require_record(rec, lineno=lineno)
+                seq = rec.get("seq")
+                if not isinstance(seq, int) or isinstance(seq, bool) or seq < 1:
+                    raise FailClosedError(
+                        f"run store line {lineno} missing or invalid seq")
                 yield rec

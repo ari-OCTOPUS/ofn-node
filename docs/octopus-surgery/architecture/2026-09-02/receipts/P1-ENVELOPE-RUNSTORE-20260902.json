@@ -127,5 +127,30 @@
    "A3 rollback_ref and rollback_plan persisted on RUN_CREATED"
   ],
   "filesystem_immutability": "NOT claimed"
+ },
+ "allowlist_event_id_seq_20260902T0705Z": {
+  "parent_head_full": "aa5762b808b6bfee9ccd95c0a0cb265a60fac65c",
+  "tree_state": "dirty — this session's lock-zone edits only (/workspace on feat/p1-envelope-runstore-20260902)",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "exit_code": 0,
+  "result": "129 passed, 932 subtests passed, 0 failed, 0 skipped",
+  "ran_at_utc": "2026-09-02T07:05:08Z",
+  "worktree": "/workspace",
+  "file_lock_zone": [
+   "ofn/kernel/envelope.py",
+   "ofn/kernel/events.py",
+   "ofn/adapters/run_store.py",
+   "tests/test_envelope.py",
+   "tests/test_run_store.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json"
+  ],
+  "fixes": [
+   "allowed_tools persisted on RUN_CREATED; TOOL_INVOKED outside a non-empty allowlist refused; sealed effect names never tools",
+   "payload top-level keys/values cannot smuggle send_authorized/quote_sent/campaign_envelope_ready (make_event + store + load)",
+   "event_id uniqueness: mint remints on collision; duplicate event_id on load fail-closed",
+   "seq must be a positive int and strictly next-expected on load (gap/replay refused)",
+   "non-RUN_CREATED event for an unknown run on load fail-closed; duplicate RUN_CREATED fail-closed"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
 }
