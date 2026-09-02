@@ -249,6 +249,15 @@ PAINTING_UNSPSC = frozenset({
 })
 
 
+# Legacy NSW eTendering search. Host redirects to buy.nsw.gov.au; this
+# event URL is dead. Do not invent a buy.nsw API. In-tree alternative:
+# nsw_ocp_harvest.py.
+NSW_ETENDERING_SEARCH_URL = (
+    "https://tenders.nsw.gov.au/?event=public.api.tender.search"
+)
+NSW_ETENDERING_FEED_STATUS = "dead_redirect_buy_nsw"
+
+
 # ── cycle ─────────────────────────────────────────────────────────────────
 
 def cycle(
@@ -257,7 +266,7 @@ def cycle(
     create_lead: Callable[[Mapping], dict],
     notify: Callable[[str, str, Mapping], bool] | None = None,
     *,
-    url: str = "https://tenders.nsw.gov.au/?event=public.api.tender.search",
+    url: str = NSW_ETENDERING_SEARCH_URL,
     etag: str = "",
 ) -> dict:
     """One harvest cycle. Returns accounting; parks on feed failure."""
