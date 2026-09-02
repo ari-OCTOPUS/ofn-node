@@ -53,6 +53,11 @@ def write_halt(path: PathLike, *, reason: str = "owner") -> None:
     flag (an unparsable flag must mean HALTED, and a chatty flag would
     collide with that)."""
     p = Path(path)
+    # A directory is not a flag. os.replace onto an empty dir can
+    # succeed on some POSIX systems — refuse rather than clobber.
+    if p.exists() and not p.is_symlink() and p.is_dir():
+        raise FailClosedError(
+            f"halt flag path is a directory at {p} — refusing replace")
     p.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     try:
         os.chmod(p.parent, 0o700)
@@ -76,8 +81,21 @@ def write_halt(path: PathLike, *, reason: str = "owner") -> None:
 
 def clear_halt(path: PathLike) -> None:
     """Resume = deliberate removal. Raises if the flag was not armed, so a
-    stray clear can never masquerade as an owner decision."""
+    stray clear can never masquerade as an owner decision.
+
+    A planted symlink is an armed (HALTED) fact — unlink the link, never
+    the target. A directory is not a flag and is never rmdir'd.
+    """
     p = Path(path)
+    if p.is_symlink():
+        p.unlink()
+        return
     if not p.exists():
         raise FailClosedError(f"halt flag not present at {p} — nothing to clear")
+    if p.is_dir():
+        raise FailClosedError(
+            f"halt flag path is a directory at {p} — will not rmdir")
+    if not p.is_file():
+        raise FailClosedError(
+            f"halt flag path is not a regular file at {p}")
     p.unlink()

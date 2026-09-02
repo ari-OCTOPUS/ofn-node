@@ -84,5 +84,26 @@
    "write_halt: parent 0700, tmp fsync, flag 0600, atomic replace still replaces a symlink with a regular file (target untouched)"
   ],
   "filesystem_immutability": "NOT claimed"
+ },
+ "halt_directory_flag_20260902T0723Z": {
+  "parent_head_full": "5b1ed3cc2836a802c4fb3af6096394d2b9f7ec50",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @a596c191a9a5e3c329b93560296e7f664088a0ee (pre-merge of later #74 HEAD)",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-halt-ix)",
+  "worktree": "/tmp/ofn-halt-ix",
+  "file_lock_zone": [
+   "ofn/adapters/halt_flag.py",
+   "tests/test_run_gate.py",
+   "tests/test_chaos_owner_absent.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json"
+  ],
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:23:41Z",
+  "exit_code": 0,
+  "result": "136 passed, 952 subtests passed, 0 failed, 0 skipped",
+  "fixes": [
+   "directory at the halt-flag path HALTS; write_halt refuses to replace a directory; clear_halt refuses rmdir",
+   "clear_halt unlinks a symlink (including dangling) and never the target — resume does not follow"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
 }

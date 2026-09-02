@@ -249,6 +249,35 @@ class HaltFlagDurabilityAndSymlink(unittest.TestCase):
         self.assertEqual(target.read_text(encoding="utf-8"), "off\n")
         self.assertTrue(halt_flag.halt_flag_active(self.flag))
 
+    def test_directory_flag_halts_and_is_not_replaced(self):
+        self.flag.mkdir()
+        (self.flag / "keep").write_text("stay", encoding="utf-8")
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+        with self.assertRaises(FailClosedError):
+            halt_flag.write_halt(self.flag)
+        self.assertTrue(self.flag.is_dir())
+        self.assertEqual((self.flag / "keep").read_text(encoding="utf-8"), "stay")
+        with self.assertRaises(FailClosedError):
+            halt_flag.clear_halt(self.flag)
+        self.assertTrue(self.flag.is_dir())
+
+    def test_clear_halt_unlinks_symlink_not_target(self):
+        target = Path(self._tmp.name) / "elsewhere"
+        target.write_text("off\n", encoding="utf-8")
+        self.flag.symlink_to(target)
+        halt_flag.clear_halt(self.flag)
+        self.assertFalse(self.flag.exists())
+        self.assertFalse(self.flag.is_symlink())
+        self.assertEqual(target.read_text(encoding="utf-8"), "off\n")
+        self.assertFalse(halt_flag.halt_flag_active(self.flag))
+
+    def test_clear_halt_unlinks_dangling_symlink(self):
+        self.flag.symlink_to(Path(self._tmp.name) / "missing")
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+        halt_flag.clear_halt(self.flag)
+        self.assertFalse(self.flag.is_symlink())
+        self.assertFalse(halt_flag.halt_flag_active(self.flag))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -145,6 +145,22 @@ class Scenario6GlobalHaltStopsNewRuns(unittest.TestCase):
                     gate.start_run(_env(key, rand=key * 16),
                                    now_epoch_s=_NOW)
 
+    def test_directory_flag_halts_every_arm(self):
+        # A directory at the flag path is not "running". Three arms
+        # still cannot start; write_halt must not clobber the directory.
+        with tempfile.TemporaryDirectory() as tmp:
+            t = Path(tmp)
+            flag = t / "halt.flag"
+            flag.mkdir()
+            (flag / "keep").write_text("stay", encoding="utf-8")
+            gate = RunGate(RunStore(t / "runs"), flag)
+            for key in ("d", "e", "f"):
+                with self.assertRaises(HaltActive):
+                    gate.start_run(_env(key, rand=key * 16),
+                                   now_epoch_s=_NOW)
+            self.assertTrue(flag.is_dir())
+            self.assertEqual((flag / "keep").read_text(encoding="utf-8"), "stay")
+
 
 class Scenario7ReversibleRecoveryWithoutOwner(unittest.TestCase):
     def test_close_and_restart_a_run_needs_no_owner(self):
