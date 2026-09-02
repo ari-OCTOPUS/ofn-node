@@ -3,6 +3,8 @@
 Fixtures are real records pulled from the live NSW Strata Hub FeatureServer
 on 2026-09-02 (Sydney LGA sample). Fully offline: fetch is injected.
 """
+from datetime import datetime, timezone
+import inspect
 import unittest
 
 from ofn.agents import h3_strata
@@ -83,6 +85,28 @@ class TestParseFeature(unittest.TestCase):
         rec = h3_strata.parse_feature(FEATURE_SYDNEY)
         self.assertEqual(rec["registration_year"], 1963)
 
+    def test_pre1970_year_survives_windows_fromtimestamp_gap(self):
+        # CI job 100305711881 (windows-latest, 2026-09-02T15:20:54Z):
+        # datetime.fromtimestamp(-217641600) raises OSError on Windows.
+        # The helper must still return 1963. POSIX hosts accept the same
+        # instant; the contract is the year, not the OSError.
+        ms = FEATURE_SYDNEY["attributes"]["registrationdate"]
+        self.assertEqual(h3_strata._epoch_ms_to_year(ms), 1963)
+        try:
+            datetime.fromtimestamp(ms / 1000, tz=timezone.utc)
+        except OSError:
+            pass  # expected on Windows; helper already returned 1963
+        rec = h3_strata.parse_feature(FEATURE_SYDNEY)
+        self.assertEqual(rec["registration_year"], 1963)
+
+    def test_post1970_epoch_year(self):
+        rec = h3_strata.parse_feature(FEATURE_OUT_OF_AREA)
+        self.assertEqual(rec["registration_year"], 2001)
+
+    def test_epoch_zero_is_1970(self):
+        rec = h3_strata.parse_feature(FEATURE_UNKNOWN_LGA)
+        self.assertEqual(rec["registration_year"], 1970)
+
     def test_missing_plan_returns_none(self):
         self.assertIsNone(h3_strata.parse_feature(FEATURE_NO_PLAN))
 
@@ -99,6 +123,38 @@ class TestParseFeature(unittest.TestCase):
             rec = h3_strata.parse_feature(feat)
             self.assertEqual(rec["tenant_id"], "lead")
             self.assertTrue(rec["tender_id"].startswith("lead:"))
+
+
+class TestEpochMsToYear(unittest.TestCase):
+    """Negative and boundary cases for the portable year helper."""
+
+    def test_bool_is_not_a_timestamp(self):
+        # bool is a subclass of int; must not be treated as epoch-ms.
+        self.assertIsNone(h3_strata._epoch_ms_to_year(True))
+        self.assertIsNone(h3_strata._epoch_ms_to_year(False))
+
+    def test_non_numeric_returns_none(self):
+        self.assertIsNone(h3_strata._epoch_ms_to_year(None))
+        self.assertIsNone(h3_strata._epoch_ms_to_year("1963"))
+        self.assertIsNone(h3_strata._epoch_ms_to_year({}))
+
+    def test_overflow_returns_none_not_guess(self):
+        self.assertIsNone(h3_strata._epoch_ms_to_year(10**20))
+        self.assertIsNone(h3_strata._epoch_ms_to_year(-(10**20)))
+
+    def test_unix_epoch_zero_is_1970(self):
+        self.assertEqual(h3_strata._epoch_ms_to_year(0), 1970)
+
+    def test_float_milliseconds_accepted(self):
+        self.assertEqual(h3_strata._epoch_ms_to_year(-217641600000.0), 1963)
+
+    def test_helper_source_does_not_call_fromtimestamp(self):
+        # Structural lock: Windows OSError on negative POSIX times.
+        # Docstring may name the forbidden API; the body must not call it.
+        src = inspect.getsource(h3_strata._epoch_ms_to_year)
+        body = src.split('"""', 2)[-1]
+        self.assertIn("timedelta(", body)
+        self.assertNotIn("fromtimestamp(", body)
 
 
 class TestClassifyArea(unittest.TestCase):

@@ -83,9 +83,12 @@ def classify_area(lga: Optional[str]) -> str:
 def _epoch_ms_to_year(ts: object) -> Optional[int]:
     """Convert ArcGIS epoch-milliseconds (may be negative) to a 4-digit year.
 
-    Returns None if ts is missing or not an int. Never guesses.
+    Returns None if ts is missing, bool, or not an int/float. Never guesses.
+    Uses calendar arithmetic from the Unix epoch so pre-1970 dates work on
+    Windows, where datetime.fromtimestamp raises OSError for negative POSIX
+    times (CI job 100305711881, test_registration_year_from_epoch).
     """
-    if not isinstance(ts, (int, float)):
+    if isinstance(ts, bool) or not isinstance(ts, (int, float)):
         return None
     try:
         _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
