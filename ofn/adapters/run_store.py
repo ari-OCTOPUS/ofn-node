@@ -27,10 +27,14 @@ import os
 from pathlib import Path
 from typing import Dict, Iterator, List, Set, Tuple
 
+from datetime import datetime
+
 from ofn.kernel import events as ev
 from ofn.kernel.envelope import RUN_ID_RE, TaskEnvelope
 from ofn.kernel.errors import FailClosedError
-from ofn.kernel.token_ceiling import per_run_fits, tokens_from_payload
+from ofn.kernel.token_ceiling import (
+    aud_cents_from_payload, per_run_fits, tokens_from_payload,
+)
 
 
 class HaltActive(FailClosedError):
@@ -60,15 +64,64 @@ class RunStore:
         self._seen_kind_ref: Set[tuple] = set()  # (kind, ref) already appended
         self._budget_tokens: Dict[str, int] = {}   # run_id -> envelope cap
         self._tokens_consumed: Dict[str, int] = {}  # run_id -> spent
+        self._budget_aud_cents: Dict[str, int] = {}  # run_id -> money cap
+        self._aud_consumed: Dict[str, int] = {}      # run_id -> spent cents
+        self._deadline_iso: Dict[str, str] = {}      # run_id -> ISO deadline
         self._event_ids: Set[str] = set()
         self._allowed_tools: Dict[str, Tuple[str, ...]] = {}
         self._expected_seq = 1
         self._load()
 
+    def _refuse_nonregular_log(self) -> None:
+        """A planted symlink or non-file is not a ledger we can verify.
+
+        Writing through a link would be a second body; reading one would
+        be trusting a path we did not create. Fail closed either way.
+        """
+        if self._log.is_symlink():
+            raise FailClosedError(
+                f"events.jsonl is a symlink at {self._log} — refusing write-through")
+        if self._log.exists() and not self._log.is_file():
+            raise FailClosedError(
+                f"events.jsonl is not a regular file at {self._log}")
+
+    @staticmethod
+    def _deadline_epoch_s(deadline_iso: str) -> int:
+        """Parse a timezone-aware ISO-8601 deadline. No clock is read —
+        only the string. Naive timestamps fail closed."""
+        if not isinstance(deadline_iso, str) or not deadline_iso.strip():
+            raise FailClosedError(
+                f"deadline_iso missing or not a string: {deadline_iso!r}")
+        text = deadline_iso
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        try:
+            dt = datetime.fromisoformat(text)
+        except ValueError:
+            raise FailClosedError(
+                f"deadline_iso not parseable: {deadline_iso!r}") from None
+        if dt.tzinfo is None:
+            raise FailClosedError(
+                f"deadline_iso must be timezone-aware: {deadline_iso!r}")
+        return int(dt.timestamp())
+
+    def _refuse_past_deadline(self, run_id: str, now_epoch_s: int) -> None:
+        deadline = self._deadline_iso.get(run_id)
+        if deadline is None:
+            raise FailClosedError(
+                f"run {run_id!r} has no persisted deadline — refusing")
+        if not isinstance(now_epoch_s, int) or isinstance(now_epoch_s, bool):
+            raise FailClosedError(f"now_epoch_s must be int: {now_epoch_s!r}")
+        if now_epoch_s >= self._deadline_epoch_s(deadline):
+            raise FailClosedError(
+                f"deadline passed for {run_id!r}: now={now_epoch_s} "
+                f">= {deadline} — refusing (equal means the window is closed)")
+
     # ── loading ─────────────────────────────────────────────────────────
     def _load(self) -> None:
         if not self._log.exists():
             return
+        self._refuse_nonregular_log()
         with self._log.open("r", encoding="utf-8") as f:
             for lineno, line in enumerate(f, start=1):
                 line = line.strip()
@@ -159,6 +212,19 @@ class RunStore:
                     f"RUN_CREATED budget_tokens not a non-negative int: {cap!r}")
             self._budget_tokens[run_id] = cap
             self._tokens_consumed.setdefault(run_id, 0)
+            aud_cap = payload.get("budget_aud_cents", 0)
+            if not isinstance(aud_cap, int) or isinstance(aud_cap, bool) or aud_cap < 0:
+                raise FailClosedError(
+                    f"RUN_CREATED budget_aud_cents not a non-negative int: {aud_cap!r}")
+            self._budget_aud_cents[run_id] = aud_cap
+            self._aud_consumed.setdefault(run_id, 0)
+            deadline = payload.get("deadline_iso")
+            if not isinstance(deadline, str) or not deadline.strip():
+                raise FailClosedError(
+                    f"RUN_CREATED missing deadline_iso on {run_id!r}")
+            # Parse once so a corrupt deadline cannot sit in the index.
+            self._deadline_epoch_s(deadline)
+            self._deadline_iso[run_id] = deadline
             tools = payload.get("allowed_tools", [])
             if tools is None:
                 tools = []
@@ -192,6 +258,9 @@ class RunStore:
             spent = tokens_from_payload(rec.get("payload"))
             self._tokens_consumed[run_id] = (
                 self._tokens_consumed.get(run_id, 0) + spent)
+            aud_spent = aud_cents_from_payload(rec.get("payload"))
+            self._aud_consumed[run_id] = (
+                self._aud_consumed.get(run_id, 0) + aud_spent)
         if rec.get("ref"):
             self._seen_kind_ref.add((rec["kind"], rec["ref"]))
         # Close is a state change, not a "ref-less event". A RUN_CLOSED that
@@ -212,6 +281,7 @@ class RunStore:
 
     # ── writing ─────────────────────────────────────────────────────────
     def _append(self, rec: dict) -> dict:
+        self._refuse_nonregular_log()
         line = json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n"
         # Durable append: flush + fsync so a crash cannot silently drop
         # the last accepted event. Mode 0600 is the second witness that
@@ -248,6 +318,12 @@ class RunStore:
         existing = self._by_idem.get(envelope.idempotency_key)
         if existing is not None:
             return existing  # idempotent create — no second RUN_CREATED
+        # New runs only: a deadline that has already arrived is not a
+        # start. Equal means the window is closed (fail closed).
+        if now_epoch_s >= self._deadline_epoch_s(envelope.deadline_iso):
+            raise FailClosedError(
+                f"deadline passed for new run: now={now_epoch_s} "
+                f">= {envelope.deadline_iso} — nothing written")
         payload = {
             "goal": envelope.goal,
             "risk_tier": envelope.risk_tier,
@@ -316,6 +392,12 @@ class RunStore:
             raise FailClosedError(f"unknown run: {run_id!r}")
         if self._closed.get(run_id):
             raise FailClosedError(f"append_after_close REJECTED: {run_id!r}")
+        ts = rec.get("ts", now_epoch_s)
+        if ts is None:
+            ts = now_epoch_s if now_epoch_s is not None else 0
+        if not isinstance(ts, int) or isinstance(ts, bool):
+            raise FailClosedError(f"event ts must be int: {ts!r}")
+        self._refuse_past_deadline(run_id, ts)
         if rec["kind"] == ev.RUN_CREATED:
             raise FailClosedError(
                 "RUN_CREATED only via create() — the store is the minter's gate")
@@ -341,6 +423,13 @@ class RunStore:
                 raise FailClosedError(
                     f"per-run token ceiling: {already} + {request} > {cap} "
                     f"on {run_id!r} (0 budget authorizes no spend)")
+            aud_request = aud_cents_from_payload(rec.get("payload"))
+            aud_already = self._aud_consumed.get(run_id, 0)
+            aud_cap = self._budget_aud_cents.get(run_id, 0)
+            if not per_run_fits(aud_cap, aud_already, aud_request):
+                raise FailClosedError(
+                    f"per-run aud ceiling: {aud_already} + {aud_request} "
+                    f"> {aud_cap} on {run_id!r} (0 budget authorizes no spend)")
         if rec.get("ref") and (rec["kind"], rec["ref"]) in self._seen_kind_ref:
             # Duplicate delivery of the same logical event: the second copy
             # is refused, not merged — one delivery, one effect. Events
@@ -386,6 +475,7 @@ class RunStore:
         has no effect."""
         if not self._log.exists():
             return
+        self._refuse_nonregular_log()
         with self._log.open("r", encoding="utf-8") as f:
             for lineno, line in enumerate(f, start=1):
                 line = line.strip()

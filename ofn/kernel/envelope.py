@@ -167,6 +167,20 @@ class TaskEnvelope:
             return request == 0
         return already_consumed + request <= self.budget_tokens
 
+    def may_consume_aud(self, already_consumed: int, request: int) -> bool:
+        """Per-run money ceiling in cents. Same shape as tokens:
+        ``budget_aud_cents == 0`` authorizes no spend. This is not
+        ``send_authorized`` — a fitting spend still cannot leave the
+        node without a later, scoped owner grant."""
+        for name, value in (("already_consumed", already_consumed),
+                            ("request", request)):
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise FailClosedError(
+                    f"{name} must be a non-negative int: {value!r}")
+        if self.budget_aud_cents == 0:
+            return request == 0
+        return already_consumed + request <= self.budget_aud_cents
+
 
 def create_envelope(
     *,

@@ -58,6 +58,26 @@ def tokens_from_payload(payload) -> int:
     return value
 
 
+def aud_cents_from_payload(payload) -> int:
+    """BUDGET_DEBIT payload → money request in cents.
+
+    Missing ``aud_cents`` is 0 (no-op), same as tokens. A present
+    non-int fails closed — unknown is not zero. This is a ceiling
+    check, not a send authorization.
+    """
+    if payload is None:
+        return 0
+    if not isinstance(payload, dict):
+        raise FailClosedError(f"BUDGET_DEBIT payload must be a mapping: {payload!r}")
+    if "aud_cents" not in payload:
+        return 0
+    value = payload["aud_cents"]
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise FailClosedError(
+            f"BUDGET_DEBIT aud_cents must be a non-negative int: {value!r}")
+    return value
+
+
 def admit_token_spend(
     envelope: TaskEnvelope,
     quota: NodeQuota,

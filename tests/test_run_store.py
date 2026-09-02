@@ -26,12 +26,13 @@ _AC = hashlib.sha256(b"acceptance: fixture").hexdigest()
 
 
 def _env(key: str = "idem-1", *, rand: str = "a1b2c3d4e5f6a7b8",
-         budget_tokens: int = 0):
+         budget_tokens: int = 0, budget_aud_cents: int = 0,
+         deadline_iso: str = "2026-09-09T12:00:00Z"):
     return create_envelope(
         goal="fixture goal", risk_tier="GREEN", authority_level="A1",
         idempotency_key=key, acceptance_criteria_hash=_AC,
-        now_epoch_s=_NOW, rand=rand, deadline_iso="2026-09-09T12:00:00Z",
-        budget_tokens=budget_tokens)
+        now_epoch_s=_NOW, rand=rand, deadline_iso=deadline_iso,
+        budget_tokens=budget_tokens, budget_aud_cents=budget_aud_cents)
 
 
 class HaltBehaviour(unittest.TestCase):
@@ -658,5 +659,136 @@ class EventIdUniquenessAndSeqIntegrity(unittest.TestCase):
             }
             with (root / "events.jsonl").open("a", encoding="utf-8") as f:
                 f.write(json.dumps(forged, sort_keys=True) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+
+class AudCeilingDeadlineAndLogPath(unittest.TestCase):
+    """Money cap, deadline, and events.jsonl path are structural —
+    persisted fields that never ran a check were decorations."""
+
+    def test_zero_aud_refuses_positive_debit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("aud-0"), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(
+                    ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2,
+                    ref=receipt, payload={"aud_cents": 1}))
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertNotIn(ev.BUDGET_DEBIT, kinds)
+
+    def test_aud_ceiling_survives_reopen(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(
+                _env("aud-10", budget_aud_cents=1000), now_epoch_s=_NOW)
+            r1 = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            store.append(ev.make_event(
+                ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2,
+                ref=r1, payload={"aud_cents": 800}))
+            reopened = RunStore(root)
+            r2 = reopened.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 3))
+            with self.assertRaises(FailClosedError):
+                reopened.append(ev.make_event(
+                    ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 4,
+                    ref=r2, payload={"aud_cents": 201}))  # 800+201 > 1000
+
+    def test_zero_aud_debit_on_zero_budget_is_a_noop(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("aud-noop"), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1))
+            eid = store.append(ev.make_event(
+                ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2, ref=receipt))
+            self.assertTrue(eid)
+
+    def test_create_after_deadline_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            # _NOW is 1780000000 ≈ 2026-05; this deadline is already past.
+            past = _env("late-create", deadline_iso="2020-01-01T00:00:00Z")
+            with self.assertRaises(FailClosedError):
+                store.create(past, now_epoch_s=_NOW)
+            self.assertFalse((root / "events.jsonl").exists())
+
+    def test_append_at_or_after_deadline_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(
+                _env("late-append", deadline_iso="2026-09-09T12:00:00Z"),
+                now_epoch_s=_NOW)
+            # Equal to the deadline is closed (fail closed).
+            deadline_epoch = store._deadline_epoch_s("2026-09-09T12:00:00Z")
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(
+                    ev.PROPOSAL_CREATED, run_id, now_epoch_s=deadline_epoch))
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(
+                    ev.PROPOSAL_CREATED, run_id, now_epoch_s=deadline_epoch + 1))
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertEqual(kinds, [ev.RUN_CREATED])
+
+    def test_late_idempotent_retry_returns_existing(self):
+        # A late retry of the same key is not a new start.
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            env = _env("late-idem", deadline_iso="2026-09-09T12:00:00Z")
+            first = store.create(env, now_epoch_s=_NOW)
+            late = store.create(env, now_epoch_s=2_000_000_000)
+            self.assertEqual(first, late)
+            self.assertEqual(len(list(store.replay())), 1)
+
+    def test_events_jsonl_symlink_refuses_open(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            root.mkdir()
+            target = Path(tmp) / "elsewhere.jsonl"
+            target.write_text("", encoding="utf-8")
+            log = root / "events.jsonl"
+            try:
+                log.symlink_to(target)
+            except OSError:
+                self.skipTest("symlinks unavailable")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+            self.assertEqual(target.read_text(encoding="utf-8"), "")
+
+    def test_events_jsonl_symlink_refuses_append_after_init(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("then-swap"), now_epoch_s=_NOW)
+            log = root / "events.jsonl"
+            real = Path(tmp) / "moved.jsonl"
+            log.rename(real)
+            try:
+                log.symlink_to(real)
+            except OSError:
+                self.skipTest("symlinks unavailable")
+            with self.assertRaises(FailClosedError):
+                store.create(_env("after-swap", rand="b1b2c3d4e5f6a7b8"),
+                             now_epoch_s=_NOW)
+            self.assertNotIn("after-swap", real.read_text(encoding="utf-8"))
+
+    def test_events_jsonl_symlink_refuses_reopen(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("then-link"), now_epoch_s=_NOW)
+            log = root / "events.jsonl"
+            real = Path(tmp) / "moved.jsonl"
+            log.rename(real)
+            try:
+                log.symlink_to(real)
+            except OSError:
+                self.skipTest("symlinks unavailable")
             with self.assertRaises(FailClosedError):
                 RunStore(root)
