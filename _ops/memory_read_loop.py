@@ -194,9 +194,14 @@ def tick_from_spine(beat: int | None = None, *, spine_rows=None) -> dict:
                     "hypothesis_ids": list(_hy.ids)[:32],
                     "vault_ids": list(_sv.ids)[:32]})
         # #region agent log
+        # 2026-09-02 رأی مالک (رأی ۴، ECONOMIC-LEARNING-RULINGS): خروجی دیباگ از
+        # ریشهٔ والت به پوشهٔ لاگ منتقل شود؛ kill/restart ممنوع — اثر در ری‌استارت
+        # طبیعی بعدی materialize می‌شود.
         try:
             import json as _dj, time as _dt
-            _p = __import__("pathlib").Path(r"f:\backup\debug-4ab476.log")
+            _log_dir = __import__("pathlib").Path(r"f:\backup\_ops\state\logs")
+            _log_dir.mkdir(parents=True, exist_ok=True)
+            _p = _log_dir / "memory-read-loop.log"
             _p.open("a", encoding="utf-8").write(_dj.dumps({
                 "sessionId": "4ab476", "timestamp": int(_dt.time() * 1000),
                 "location": "memory_read_loop.py:tick_from_spine",
