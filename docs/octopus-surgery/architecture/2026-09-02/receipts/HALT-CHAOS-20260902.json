@@ -1,0 +1,24 @@
+{
+ "schema": "octopus.receipt.v1",
+ "receipt_id": "HALT-CHAOS-20260902",
+ "issued_utc": "2026-09-02T06:40:00Z",
+ "author": "ari322 local agent session (F:\\ scope, owner-absent mode)",
+ "owner_ratified": false,
+ "scope_measured": "stacked on feat/p1-envelope-runstore-20260902 @0b3bffd (RunStore/envelope/events/halt_flag present); outbox.py API read on main (HELD, claim, recover_stale(resend=False)); TenantId/RiskTier constructors probed live",
+ "scope_not_measured": [
+  "full-suite CI (runs on the PR)",
+  "board138"
+ ],
+ "action": "LANE HALT + LANE CHAOS per continuation directive",
+ "delivered": {
+  "ofn/adapters/run_gate.py": "RunGate — reads halt flag BEFORE RUN_CREATED; claim() refuses (FailClosedError) while halted; hold_in_flight() parks IN_FLIGHT→HELD via outbox.recover_stale(resend=False); recover_after_restart() has NO resend parameter by design",
+  "ofn/kernel/source_health.py": "pure vocabulary: dead source/None→UNKNOWN (never FALSE); 403→PARKED (policy, no retry); 429/5xx→bounded enumerable backoff then PARKED; caps constant-exposed",
+  "tests/test_run_gate.py": "11 tests incl. negative: armed flag refuses start & writes nothing (idem key not burned); corrupt flag refuses; claim refused under halt; in-flight parks to HELD; restart never resends (no knob exists)",
+  "tests/test_chaos_owner_absent.py": "7 blueprint §11 scenarios: dead-source=UNKNOWN; arm-timeout→siblings continue; rate-limit bounded→PARKED (termination proven); duplicate delivery→one effect; exhausted REMOTE arm stops while RULES arm unaffected; global halt stops all new runs; reversible close-and-restart without owner"
+ },
+ "verification": {
+  "command": "python -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py -q",
+  "output": "19 passed in 0.52s"
+ },
+ "boundary": "no gate opened, no flag left armed, no network, no secrets; halt flag files live only in test tmp dirs"
+}
