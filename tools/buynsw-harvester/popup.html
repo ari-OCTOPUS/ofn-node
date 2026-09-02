@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      width: 300px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-size: 13px;
+      margin: 0;
+      padding: 10px;
+    }
+    h1 { font-size: 14px; margin: 0 0 8px; }
+    #status {
+      min-height: 18px;
+      margin: 6px 0;
+      color: #333;
+      white-space: pre-line;
+    }
+    button {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 4px 0;
+      padding: 7px 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .row { display: flex; gap: 6px; }
+    .row button { flex: 1; }
+    small { color: #666; line-height: 1.5; display: block; margin-top: 6px; }
+    label.toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>OFN buy.nsw Harvester</h1>
+  <div id="status">…</div>
+
+  <button id="harvest">برداشت از این صفحه</button>
+
+  <label class="toggle">
+    <input type="checkbox" id="auto" />
+    صفحه‌بندی خودکار (۱۰ صفحه، مکث انسانی)
+  </label>
+
+  <div class="row">
+    <button id="exportJson">خروجی JSON</button>
+    <button id="exportCsv">خروجی CSV</button>
+  </div>
+  <div class="row">
+    <button id="debug">دامپ دیباگ DOM</button>
+    <button id="clear">پاک کردن بافر</button>
+  </div>
+
+  <small>
+    JSON خروجی را با اسکریپت <code>tools/ingest_buynsw_batch.py</code>
+    به نود بدهید. فیلتر نهایی سمت پایتون است؛ شمارش این‌جا فقط پیش‌نمایش است.
+  </small>
+
+  <script src="mapping.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

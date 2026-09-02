@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "OFN buy.nsw Harvester",
+  "version": "1.0.0",
+  "description": "Reads buy.nsw tender pages inside a real Sydney browsing session and exports lead batches for the OFN node. Human-driven only: no background fetching, no remote code.",
+  "permissions": ["storage", "downloads"],
+  "host_permissions": [
+    "https://www.buy.nsw.gov.au/*",
+    "https://buy.nsw.gov.au/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.buy.nsw.gov.au/*",
+        "https://buy.nsw.gov.au/*"
+      ],
+      "js": ["mapping.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "OFN buy.nsw Harvester"
+  }
+}
