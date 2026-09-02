@@ -1,0 +1,57 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-REJECTION-LOG-20260902",
+  "issued_utc": "2026-09-02T11:26:13Z",
+  "author": "cursor-cloud-agent bc-a63070c9 (owner-absent cron 17 * * * *)",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "claim_type": "measurement",
+  "scope_measured": "new kernel-pure RefusalIndex + make_rejection + RejectLog adapter + optional RunGate.reject_log wiring on origin/main @45dd9133dc3677630b9a3606fc7a41f00f5458e0 working tree; files listed under file_lock_zone",
+  "scope_not_measured": [
+    "full-suite CI (runs on the PR)",
+    "filesystem immutability of any archive",
+    "wiring RUN_REJECTED into run_store.py (owned by PR #82; store still refuses this kind)",
+    "nested payload scan (owned by PR #82 events.py)",
+    "envelope factory deadline (owned by PR #83)",
+    "typed ExecutionReceipt (owned by PR #87)",
+    "KindRefIndex / SettlementIndex (owned by PR #88)"
+  ],
+  "action": "P1 complementary: RUN_REJECTED side log so a HALT-refused start leaves a trace, not a run. New files plus optional unwired-compatible RunGate constructor arg.",
+  "file_lock_zone": [
+    "ofn/kernel/rejection.py",
+    "ofn/adapters/reject_log.py",
+    "ofn/adapters/run_gate.py",
+    "tests/test_rejection.py",
+    "tests/test_reject_log.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-REJECTION-LOG-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "tests/test_chaos_owner_absent.py",
+    "docs/octopus-os/07-INCIDENTS.md"
+  ],
+  "verification": {
+    "command": "python3 -m pytest tests/test_rejection.py tests/test_reject_log.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T11:26:13Z",
+    "parent_head_full": "45dd9133dc3677630b9a3606fc7a41f00f5458e0",
+    "exit_code": 0,
+    "result": "189 passed, 1010 subtests passed, 0 failed, 0 skipped",
+    "pytest": "9.1.1"
+  },
+  "invariants": {
+    "ready_ne_authorized": true,
+    "grants_send": false,
+    "blocks_later_start": false,
+    "halt_blocks_rejection": false,
+    "wired_into_run_store": false,
+    "external_effects": 0
+  },
+  "filesystem_immutability": "NOT claimed",
+  "boundary": "no gate opened, no outbound, no secrets, no merge, no admin bypass"
+}
