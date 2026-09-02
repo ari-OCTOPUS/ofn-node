@@ -1,10 +1,11 @@
-# بستهٔ خر-پروف — راه‌اندازی پل buy.nsw (از ۲ سپتامبر ۲۰۲۶)
+# بستهٔ خر-پروف — راه‌اندازی پل buy.nsw (نسخهٔ 0.2 — از ۲ سپتامبر ۲۰۲۶)
 
 هر خط = یک دستور کامل. کپی → Paste → Enter. **خروجی هر مرحله را برای ایجنت بفرست (انگار خرم).**
 هیچ خطی را جمع نکن، اگر جا افتاد همان شماره را بگو تا دقیق همان را بدهم.
 
 وضعیت فعلی (کارهای ایجنت — انجام شده):
-- کد ساخته و تست شده (۱۶/۱۶ سبز، روی board138 هم سبز)
+- نسخهٔ 0.2 = ادغام پکیج «buysw-harvester-for-ari» (بازیابی از Temp) با پل فایلی؛
+  تست ۲۶/۲۶ سبز (روی board138 هم سبز)
 - PR #84 باز است: https://github.com/ari-OCTOPUS/ofn-node/pull/84
 - روی board138 پوشهٔ `/home/ari/wt-buynsw-ingest` آمادهٔ اجراست (به نودِ در حال اجرا دست نزدهایم)
 
@@ -52,17 +53,20 @@ Expand-Archive -Path $env:USERPROFILE\Desktop\buynsw.zip -DestinationPath $env:U
 
 ### B3. برداشت
 
-دکمهٔ **«برداشت از این صفحه»** را بزن. اگر چند صفحه نتیجه است، چک‌باکس «صفحه‌بندی خودکار» را فعال کن و دوباره برداشت بزن.
+دکمهٔ **«برداشت از این صفحه»** را بزن. اگر چند صفحه نتیجه است: عدد کادر کنار
+«خودکار» را بگذار (پیش‌فرض ۱۵) و **«شروع خودکار»** را بزن؛ هر وقت خواستی **«توقف»**.
+نکتهٔ طلایی: روی صفحهٔ جزئیات هر مناقصه/جوایز (CAN) هم «برداشت» بزن — تماس‌ها و
+تأمین‌کننده و ABN همان‌جا استخراج و با رکورد قبلی ادغام می‌شود.
 
 ### B4. خروجی نهایی
 
-دکمهٔ **«خروجی JSON»** → فایل `buynsw-harvest-….json` در Downloads ذخیره می‌شود.
+دکمهٔ **«خروجی JSON»** → فایل `buysw-leads-….json` در Downloads ذخیره می‌شود.
 
 ✅ بررسی: شمارش «کل بافر» باید بزرگ‌تر از صفر باشد.
 
 ### B5. این دو فایل را برای ایجنت بفرست
 
-هم `buynsw-debug-….json` و هم `buynsw-harvest-….json` (از Downloads).
+هم `buysw-debug-….json` و هم `buysw-leads-….json` (از Downloads).
 
 ---
 
@@ -73,13 +77,13 @@ Expand-Archive -Path $env:USERPROFILE\Desktop\buynsw.zip -DestinationPath $env:U
 ### C1. فایل بچ را روی board138 بگذار
 
 ```powershell
-scp $env:USERPROFILE\Downloads\buynsw-harvest-PUT-EXACT-NAME-HERE.json ari@192.168.0.138:/home/ari/
+scp $env:USERPROFILE\Downloads\buysw-leads-PUT-EXACT-NAME-HERE.json ari@192.168.0.138:/home/ari/
 ```
 
 ### C2. اجرای ingest (یک خط)
 
 ```powershell
-ssh ari@192.168.0.138 "cd /home/ari/wt-buynsw-ingest && python3 tools/ingest_buynsw_batch.py /home/ari/buynsw-harvest-PUT-EXACT-NAME-HERE.json"
+ssh ari@192.168.0.138 "cd /home/ari/wt-buynsw-ingest && python3 tools/ingest_buynsw_batch.py /home/ari/buysw-leads-PUT-EXACT-NAME-HERE.json"
 ```
 
 ✅ بررسی: خروجی JSON باید `"status": "DONE"` داشته باشد با شمارش `"accepted"`, `"rejected_filter"`, `"rejected_dup"`, `"rejected_invalid"`.

@@ -1,147 +1,123 @@
-// OFN buy.nsw Harvester — service worker.
-//
-// Keeps a session-scoped buffer of harvested records (deduped by
-// detail_url/notice_uuid), builds the batch JSON that the Python ingest
-// gate (ofn/agents/h1_buysw_dom.py) consumes, and saves it via the
-// downloads API. No network egress: records never leave the machine
-// except as a file the human chooses to save.
-
-"use strict";
-
+// background.js — service worker: dedup store, download, optional POST to OFN node.
 importScripts("mapping.js");
 
-const BUFFER_KEY = "ofn_buynsw_buffer";
+const STORE_KEY = "harvest_store";       // { [tender_id]: record }
+const CFG_KEY = "ofn_cfg";               // { endpoint, token, autoPost }
 
-async function readBuffer() {
-  const store = await chrome.storage.session.get(BUFFER_KEY);
-  return Array.isArray(store[BUFFER_KEY]) ? store[BUFFER_KEY] : [];
+async function getStore() {
+  const o = await chrome.storage.local.get(STORE_KEY);
+  return o[STORE_KEY] || {};
+}
+async function setStore(s) {
+  await chrome.storage.local.set({ [STORE_KEY]: s });
 }
 
-async function writeBuffer(records) {
-  await chrome.storage.session.set({ [BUFFER_KEY]: records });
-  await updateBadge(records.length);
-}
-
-async function updateBadge(count) {
-  try {
-    await chrome.action.setBadgeText({ text: count > 0 ? String(count) : "" });
-    await chrome.action.setBadgeBackgroundColor({ color: "#1a5fb4" });
-  } catch (e) {
-    // Badge is cosmetic; never fail a harvest because of it.
-  }
-}
-
-async function mergeRecords(records, fromUrl) {
-  const buffer = await readBuffer();
-  const byKey = new Map(buffer.map((r) => [r.detail_url || r.notice_uuid, r]));
+async function addRecords(records) {
+  const store = await getStore();
   let added = 0;
-  for (const rec of records || []) {
-    if (!rec || !rec.title || !rec.detail_url) continue;
-    const key = rec.detail_url || rec.notice_uuid;
-    if (!key || byKey.has(key)) continue;
-    byKey.set(key, rec);
-    added += 1;
+  for (const r of records) {
+    const id = r.tender_id;
+    if (!store[id]) added++;
+    // keep richer version (detail pages overwrite thin results-page rows)
+    store[id] = mergeRecord(store[id], r);
   }
-  const merged = Array.from(byKey.values());
-  await writeBuffer(merged);
-  return { added: added, total: merged.length, from: fromUrl || "" };
+  await setStore(store);
+  const cfg = (await chrome.storage.local.get(CFG_KEY))[CFG_KEY] || {};
+  if (cfg.autoPost && cfg.endpoint) await postRecords(records, cfg);
+  updateBadge(Object.keys(store).length);
+  return { added, total: Object.keys(store).length };
 }
 
-function stamp() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, "0");
-  return (
-    d.getUTCFullYear() +
-    String(d.getUTCMonth() + 1).padStart(2, "0") +
-    p(d.getUTCDate()) +
-    "-" +
-    p(d.getUTCHours()) +
-    p(d.getUTCMinutes()) +
-    p(d.getUTCSeconds())
-  );
+function mergeRecord(a, b) {
+  if (!a) return b;
+  const out = { ...a };
+  for (const k of Object.keys(b)) {
+    const v = b[k];
+    if (v !== "" && v !== null && v !== undefined) {
+      if (out[k] === "" || out[k] === null || out[k] === undefined) out[k] = v;
+      else if (k === "raw") out[k] = { ...out[k], ...v };
+      else if (k.startsWith("_") || k === "supplier_name" || k === "contact_email") out[k] = v || out[k];
+    }
+  }
+  return out;
 }
 
-async function download(filename, mime, text) {
-  const url =
-    "data:" + mime + ";charset=utf-8," + encodeURIComponent(text);
-  await chrome.downloads.download({
-    url: url,
-    filename: filename,
-    saveAs: true,
-  });
+async function postRecords(records, cfg) {
+  try {
+    const res = await fetch(cfg.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(cfg.token ? { Authorization: `Bearer ${cfg.token}` } : {}),
+      },
+      body: JSON.stringify({ source: "buysw_web", records }),
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn("OFN post failed", e);
+    return false;
+  }
+}
+
+function updateBadge(n) {
+  chrome.action.setBadgeText({ text: n ? String(n) : "" });
+  chrome.action.setBadgeBackgroundColor({ color: "#0b6" });
+}
+
+function toCsv(records) {
+  const cols = [
+    "tender_id", "kind", "title", "buyer_name", "supplier_name", "location",
+    "category", "closing_at", "published_at", "amount_text",
+    "contact_email", "contact_phone", "abn", "_painting_hint",
+    "_in_service_area", "source_url",
+  ];
+  const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  return [cols.join(",")]
+    .concat(records.map((r) => cols.map((c) => esc(r[c])).join(",")))
+    .join("\n");
+}
+
+async function download(kind) {
+  const store = await getStore();
+  const records = Object.values(store);
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+  let dataUrl, filename;
+  if (kind === "csv") {
+    dataUrl = "data:text/csv;charset=utf-8," + encodeURIComponent(toCsv(records));
+    filename = `buysw-leads-${stamp}.csv`;
+  } else {
+    dataUrl = "data:application/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify({ source: "buysw_web", count: records.length, records }, null, 2));
+    filename = `buysw-leads-${stamp}.json`;
+  }
+  await chrome.downloads.download({ url: dataUrl, filename, saveAs: true });
+  return records.length;
 }
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
-    try {
-      if (!msg || typeof msg.type !== "string") return;
-
-      if (msg.type === "RECORDS") {
-        sendResponse(await mergeRecords(msg.records, msg.url));
-        return;
-      }
-
-      if (msg.type === "GET_BUFFER") {
-        const buffer = await readBuffer();
-        const kept = buffer.filter(OFNMapping.previewKeep);
-        sendResponse({ total: buffer.length, previewKept: kept.length });
-        return;
-      }
-
-      if (msg.type === "EXPORT_JSON") {
-        const buffer = await readBuffer();
-        if (!buffer.length) {
-          sendResponse({ ok: false, error: "بافر خالی است" });
-          return;
-        }
-        const batch = OFNMapping.buildBatch(
-          buffer, msg.url || "", new Date().toISOString());
-        await download(
-          "buynsw-harvest-" + stamp() + ".json",
-          "application/json",
-          JSON.stringify(batch, null, 2));
-        sendResponse({ ok: true, records: batch.records.length });
-        return;
-      }
-
-      if (msg.type === "EXPORT_CSV") {
-        const buffer = await readBuffer();
-        if (!buffer.length) {
-          sendResponse({ ok: false, error: "بافر خالی است" });
-          return;
-        }
-        await download(
-          "buynsw-harvest-" + stamp() + ".csv",
-          "text/csv",
-          OFNMapping.toCSV(buffer));
-        sendResponse({ ok: true, records: buffer.length });
-        return;
-      }
-
-      if (msg.type === "DOWNLOAD_DEBUG") {
-        await download(
-          "buynsw-debug-" + stamp() + ".json",
-          "application/json",
-          JSON.stringify(msg.data || {}, null, 2));
-        sendResponse({ ok: true });
-        return;
-      }
-
-      if (msg.type === "CLEAR") {
-        await writeBuffer([]);
-        sendResponse({ ok: true });
-        return;
-      }
-    } catch (e) {
-      try {
-        sendResponse({ ok: false, error: String(e && e.message || e) });
-      } catch (_) {
-        // Listener already answered; nothing more to do.
-      }
+    if (msg.type === "ADD_RECORDS") sendResponse(await addRecords(msg.records || []));
+    else if (msg.type === "GET_COUNT") sendResponse({ total: Object.keys(await getStore()).length });
+    else if (msg.type === "DOWNLOAD") sendResponse({ n: await download(msg.kind) });
+    else if (msg.type === "CLEAR") { await setStore({}); updateBadge(0); sendResponse({ ok: true }); }
+    else if (msg.type === "POST_ALL") {
+      const cfg = (await chrome.storage.local.get(CFG_KEY))[CFG_KEY] || {};
+      const ok = cfg.endpoint ? await postRecords(Object.values(await getStore()), cfg) : false;
+      sendResponse({ ok });
     }
+    else if (msg.type === "AUTO_DONE") sendResponse({ ok: true });
+    // Selector-locking loop: persist the popup's DOM_DUMP so it can be sent
+    // to the agent and tuned against the real page structure.
+    else if (msg.type === "SAVE_DEBUG") {
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+      const dataUrl = "data:application/json;charset=utf-8," +
+        encodeURIComponent(JSON.stringify(msg.data || {}, null, 2));
+      await chrome.downloads.download({
+        url: dataUrl, filename: `buysw-debug-${stamp}.json`, saveAs: true,
+      });
+      sendResponse({ ok: true });
+    }
+    else sendResponse({ ok: false });
   })();
-  return true; // async sendResponse
+  return true;
 });
-
-chrome.runtime.onInstalled.addListener(() => updateBadge(0));
-chrome.runtime.onStartup.addListener(() => updateBadge(0));

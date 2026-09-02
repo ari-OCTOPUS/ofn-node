@@ -1,19 +1,27 @@
-"""H1 buy.nsw DOM-batch ingest — the receiving gate for the Chrome harvester.
+"""H1 buy.nsw DOM-batch ingest — the receiving gate for the browser harvester.
 
 The official OCDS feed (tenders.nsw.gov.au) is dead and buy.nsw has no
 public API; the WAF blocks every non-browser client. The Chrome extension
-(tools/buynsw-harvester) therefore reads the pages a human is already
-browsing in Sydney and exports a batch JSON file. This module is the
-node-side gate for that file. Only the transport differs from the API
-path — the filter, the scorer, and the store are the SAME ones the dead
-feed used (h1_buysw.filter_painting_tender / build_score_inputs), so a
-tender counts as a painting tender for exactly one reason wherever it
-came from.
+(tools/buynsw-harvester, v0.2 — the recovered "for-ari" pack, adopted and
+integrated) reads the pages a human is already browsing in Sydney and
+exports records. This module is the node-side gate for that export. Only
+the transport differs from the API path — the filter, the scorer, and the
+store are the SAME ones the dead feed used (h1_buysw rules +
+LeadStore.create_tender), so a tender counts as a painting tender for
+exactly one reason wherever it came from.
 
-Contract: batch JSON "buynsw-harvest-batch/1" as built by the extension's
-mapping.js (keys pinned by tests/test_h1_buynsw_dom.py — change both sides
-in one commit). Records that fail shape validation are counted as
-rejected_invalid, never silently dropped: no vacuous pass.
+Two producer shapes are accepted, both fail-closed on anything else:
+
+  1. versioned batch  {"schema": "buynsw-harvest-batch/1", "records": [...]}
+     (v1 records: notice_uuid/title/location_text/amount_aud/detail_url/...)
+  2. extension export {"source": "buysw_web", "count": N, "records": [...]}
+     (v2 records: tender_id/kind/title/buyer_name/amount_text/supplier_name/
+      contact_email/...; kind=="award" (CAN) also mints a warm buyer lead —
+      an agency that has paid for painting will pay again)
+
+Honest accounting: records == accepted + rejected_filter + rejected_dup +
+rejected_invalid, or the whole batch is REJECTED before any write. PII in
+free text is measured (kernel.scrub) and reported, never silently kept.
 """
 from __future__ import annotations
 
@@ -21,89 +29,227 @@ import re
 from datetime import datetime, timezone
 from typing import Mapping
 
-from .h1_buysw import build_score_inputs, filter_painting_tender
+from ..kernel.scrub import scrub
+from .h1_buysw import (
+    ACCEPT_KEYWORDS, ACCEPT_REGIONS, MIN_VALUE_AUD, REJECT_KEYWORDS,
+    build_score_inputs,
+)
 
-BATCH_SCHEMA = "buynsw-harvest-batch/1"
+BATCH_SCHEMA_V1 = "buynsw-harvest-batch/1"
+BATCH_SCHEMA = BATCH_SCHEMA_V1            # back-compat alias (tests/README)
+EXPORT_SOURCE_V2 = "buysw_web"
 SOURCE_ID_DOM = "buy_nsw_dom"
 TENANT = "lead"
 
 _UUID_RE = re.compile(r"/notices/([^/?#]+)", re.IGNORECASE)
-_SPLIT_RE = re.compile(r"[,;/]| and ", re.IGNORECASE)
+_GUID_RE = re.compile(
+    r"[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}"
+    r"-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}")
+_MONEY_RE = re.compile(
+    r"\$\s?([\d][\d,\s]*(?:\.\d+)?)\s*(m\b|million|k\b)?", re.IGNORECASE)
 MAX_RECORDS = 5000          # one human session never exceeds this
 _STORE_SCAN_LIMIT = 500     # mirrors h1_harvest.cycle dedup scan
+_MAX_ERRORS_KEPT = 10
 
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _s(value: object) -> str:
+    return str(value or "").strip()
+
+
 def _uuid_from_url(url: object) -> str:
-    m = _UUID_RE.search(str(url or ""))
+    m = _UUID_RE.search(_s(url))
     return m.group(1) if m else ""
 
 
-def dom_to_parsed(rec: Mapping) -> dict | None:
-    """Extension record → the parsed shape h1_buysw's gates consume.
+def _parse_amount(value: object) -> float | None:
+    """v1 numeric amount, or v2 money text like '$180,000' / '$1.2m'."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    text = _s(value)
+    if not text:
+        return None
+    m = _MONEY_RE.search(text)
+    if not m:
+        return None
+    try:
+        num = float(m[1].replace(",", "").replace(" ", ""))
+    except ValueError:
+        return None
+    if m[2] and m[2].lower().startswith("m"):
+        return num * 1e6
+    if m[2] and m[2].lower() == "k":
+        return num * 1e3
+    return num
 
-    Returns None when title or a usable identity (notice_uuid / detail_url
-    UUID) is missing — the extension contract makes both mandatory.
+
+def _normalize(rec: Mapping) -> dict | None:
+    """Either producer's record → one internal shape (or None if invalid).
+
+    v2 detection: the extension's normalize() always emits tender_id and
+    kind; v1 always emits notice_uuid/detail_url.
     """
-    title = str(rec.get("title") or "").strip()
-    uuid = str(rec.get("notice_uuid") or "").strip() or _uuid_from_url(
-        rec.get("detail_url"))
+    is_v2 = bool(rec.get("tender_id") or rec.get("kind")
+                 or rec.get("channel") == "buysw_web")
+    if is_v2:
+        title = _s(rec.get("title"))
+        uuid = _s(rec.get("uuid"))
+        tender_id = _s(rec.get("tender_id")) or (
+            f"{SOURCE_ID_DOM}:{uuid}" if uuid else "")
+        if not title or not tender_id:
+            return None
+        return {
+            "tender_id": tender_id[:160],
+            "title": title,
+            "description": _s(rec.get("description")),
+            "buyer_name": _s(rec.get("buyer_name")),
+            "location": _s(rec.get("location")),
+            "category": _s(rec.get("category")),
+            "closing_at": _s(rec.get("closing_at")),
+            "amount": _parse_amount(rec.get("amount_aud")
+                                    if "amount_aud" in rec
+                                    else rec.get("amount_text")),
+            "detail_url": _s(rec.get("source_url")),
+            "kind": _s(rec.get("kind")) or "opportunity",
+            "supplier_name": _s(rec.get("supplier_name")),
+            "contact_email": _s(rec.get("contact_email")),
+            "contact_phone": _s(rec.get("contact_phone")),
+            "abn": _s(rec.get("abn")),
+        }
+
+    title = _s(rec.get("title"))
+    uuid = _s(rec.get("notice_uuid")) or _uuid_from_url(rec.get("detail_url"))
     if not title or not uuid:
         return None
-
-    location_text = str(rec.get("location_text") or "").strip()
-    regions = [t for t in (
-        p.strip().lower() for p in _SPLIT_RE.split(location_text)) if t]
-
-    amount = rec.get("amount_aud")
-    try:
-        amount = float(amount) if amount is not None else None
-    except (TypeError, ValueError):
-        amount = None
-
     return {
-        "tender_id": f"{SOURCE_ID_DOM}:{uuid}",
+        "tender_id": f"{SOURCE_ID_DOM}:{uuid}"[:160],
         "title": title,
-        "description": str(rec.get("raw_text") or ""),
-        "buyer_name": str(rec.get("buyer_name") or ""),
-        "location": location_text,
-        "regions": regions,
-        "closing_at": str(rec.get("closing_at") or ""),
-        "amount": amount,
-        "unspsc_codes": [],          # DOM cards carry no UNSPSC classification
-        "source": SOURCE_ID_DOM,
-        "source_url": str(rec.get("detail_url") or ""),
-        "access_mode": "owner_upload",
-        "evidence_status": "unverified",
-        "status": "scored",
-        "rftuuid": uuid,
+        "description": _s(rec.get("raw_text")),
+        "buyer_name": _s(rec.get("buyer_name")),
+        "location": _s(rec.get("location_text")),
+        "category": "",
+        "closing_at": _s(rec.get("closing_at")),
+        "amount": _parse_amount(rec.get("amount_aud")),
+        "detail_url": _s(rec.get("detail_url")),
+        "kind": "opportunity",
+        "supplier_name": "", "contact_email": "", "contact_phone": "",
+        "abn": "",
     }
 
 
-def _rejected(reason: str, **counts) -> dict:
-    base = {"status": "REJECTED", "reason": reason, "records": 0,
+def _regions_of(rec: Mapping) -> list[str]:
+    geo_text = " ".join(
+        (rec["location"], rec["title"], rec["buyer_name"])).lower()
+    return [r for r in ACCEPT_REGIONS if r in geo_text]
+
+
+def passes_filter(rec: Mapping) -> bool:
+    """Same deterministic rules as h1_buysw, keyword/geo/value only (no
+    UNSPSC exists on web pages). Reject list wins over accept list."""
+    text = " ".join((rec["title"], rec["description"], rec["category"],
+                     rec["buyer_name"])).lower()
+    if any(rk in text for rk in REJECT_KEYWORDS):
+        return False
+    if not any(ak in text for ak in ACCEPT_KEYWORDS):
+        return False
+    # Geography: an explicitly stated location outside the service area
+    # rejects; no location at all passes (scored G=0.3, like the OCDS path).
+    if rec["location"] and not _regions_of(rec):
+        return False
+    if rec["amount"] is not None and rec["amount"] < MIN_VALUE_AUD:
+        return False
+    return True
+
+
+def _tender_payload(rec: Mapping) -> dict:
+    return {
+        "tender_id": rec["tender_id"],
+        "source": EXPORT_SOURCE_V2 if rec["kind"] else SOURCE_ID_DOM,
+        "source_url": rec["detail_url"],
+        "title": rec["title"],
+        "buyer_name": rec["buyer_name"],
+        "location": rec["location"],
+        "closing_at": rec["closing_at"],
+        "access_mode": "owner_upload",
+        "evidence_status": "unverified",
+        "status": "scored",
+        "score_inputs": build_score_inputs({
+            "title": rec["title"],
+            "description": rec["description"],
+            "regions": _regions_of(rec),
+            "closing_at": rec["closing_at"],
+            "amount": rec["amount"],
+            "unspsc_codes": [],
+        }),
+    }
+
+
+def _lead_payload(rec: Mapping) -> dict | None:
+    """Award (CAN) record with a named buyer → warm buyer lead. Contact
+    fields are structured; outreach stays gated by the contact-policy path
+    (intake is not delivery evidence and cannot close a lead)."""
+    buyer = rec["buyer_name"]
+    if not buyer:
+        return None
+    uuid = ""
+    m = _GUID_RE.search(rec["tender_id"])
+    if m:
+        uuid = m.group(0).replace("-", "").upper()
+    return {
+        "lead_id": f"buysw:{uuid}" if uuid else "",
+        "name": buyer,
+        "email": rec["contact_email"],
+        "phone": rec["contact_phone"],
+        "location": rec["location"],
+        "job_type": rec["title"] or "painting",
+        "source": "buysw_web",
+        "url": rec["detail_url"],
+        "status": "new",
+        "notes": (f"NSW award · supplier={rec['supplier_name'] or ''} · "
+                  f"ABN={rec['abn'] or ''} · "
+                  f"{rec['amount'] if rec['amount'] is not None else ''}"
+                  ).strip(),
+        "tags": ["nsw", "buysw", "award"],
+    }
+
+
+def _pii_findings(rec: Mapping) -> int:
+    blob = " ".join((rec["description"], rec["title"]))
+    return len(scrub(blob).findings)
+
+
+def _rejected(reason: str) -> dict:
+    return {"status": "REJECTED", "reason": reason, "records": 0,
             "accepted": 0, "rejected_filter": 0, "rejected_dup": 0,
-            "rejected_invalid": 0, "created": []}
-    base.update(counts)
-    return base
+            "rejected_invalid": 0, "leads_minted": 0, "pii_findings": 0,
+            "created": [], "errors": []}
 
 
 def ingest_batch(payload: object, store) -> dict:
-    """Validate one batch, run the shared gates, create new tenders.
-
-    Accounting is honest by construction: records == accepted +
-    rejected_filter + rejected_dup + rejected_invalid, or the whole batch
-    is REJECTED before any write. Idempotent: tender_ids already in the
-    store are counted as rejected_dup, never recreated.
-    """
+    """Validate one batch/export, run the shared gates, create tenders
+    (and award leads). Idempotent: tender_ids already in the store count
+    as rejected_dup, never recreated; leads upsert by the store's
+    ON CONFLICT."""
     if not isinstance(payload, Mapping):
         return _rejected("payload is not a JSON object")
-    if payload.get("schema") != BATCH_SCHEMA:
+
+    if payload.get("schema") == BATCH_SCHEMA_V1:
+        pass                                        # versioned v1 batch
+    elif payload.get("source") == EXPORT_SOURCE_V2:
+        declared = payload.get("count")
+        if declared is not None and declared != len(
+                payload.get("records") or []):
+            return _rejected(
+                f"count mismatch: declared {declared} != "
+                f"{len(payload.get('records') or [])}")
+    else:
         return _rejected(
-            f"unknown schema: {payload.get('schema')!r} != {BATCH_SCHEMA!r}")
+            f"unknown wrapper: need schema={BATCH_SCHEMA_V1!r} or "
+            f"source={EXPORT_SOURCE_V2!r}")
+
     records = payload.get("records")
     if not isinstance(records, list):
         return _rejected("records is not a list")
@@ -117,44 +263,51 @@ def ingest_batch(payload: object, store) -> dict:
     now_iso = _now_iso()
     accepted = rejected_filter = rejected_dup = rejected_invalid = 0
     created: list[str] = []
+    leads_minted = pii_findings = 0
+    errors: list[str] = []
 
-    for rec in records:
-        if not isinstance(rec, Mapping):
+    for raw in records:
+        if not isinstance(raw, Mapping):
             rejected_invalid += 1
             continue
-        parsed = dom_to_parsed(rec)
-        if parsed is None:
+        rec = _normalize(raw)
+        if rec is None:
             rejected_invalid += 1
             continue
-        if not filter_painting_tender(parsed):
+        if not passes_filter(rec):
             rejected_filter += 1
             continue
-        if parsed["tender_id"] in existing:
+        if rec["tender_id"] in existing:
             rejected_dup += 1
             continue
-        result = store.create_tender(TENANT, {
-            "tender_id": parsed["tender_id"],
-            "source": parsed["source"],
-            "source_url": parsed["source_url"],
-            "title": parsed["title"],
-            "buyer_name": parsed["buyer_name"],
-            "location": parsed["location"],
-            "closing_at": parsed["closing_at"],
-            "access_mode": parsed["access_mode"],
-            "evidence_status": parsed["evidence_status"],
-            "status": parsed["status"],
-            "score_inputs": build_score_inputs(parsed),
-        }, now_iso=now_iso)
-        if result.get("ok"):
-            accepted += 1
-            created.append(parsed["tender_id"])
-            existing.add(parsed["tender_id"])
-        else:
-            rejected_invalid += 1
 
-    return {"status": "DONE", "schema": BATCH_SCHEMA,
-            "records": len(records), "accepted": accepted,
+        result = store.create_tender(TENANT, _tender_payload(rec),
+                                     now_iso=now_iso)
+        if not result.get("ok"):
+            rejected_invalid += 1
+            if len(errors) < _MAX_ERRORS_KEPT:
+                errors.append(result.get("error") or "tender rejected")
+            continue
+
+        accepted += 1
+        created.append(rec["tender_id"])
+        existing.add(rec["tender_id"])
+        pii_findings += _pii_findings(rec)
+
+        if rec["kind"].lower() == "award":
+            lead = _lead_payload(rec)
+            if lead:
+                try:
+                    lres = store.create_lead(TENANT, lead, now_iso=now_iso)
+                    if lres.get("ok"):
+                        leads_minted += 1
+                except Exception as exc:            # one row never aborts
+                    if len(errors) < _MAX_ERRORS_KEPT:
+                        errors.append(f"lead: {type(exc).__name__}: {exc}")
+
+    return {"status": "DONE", "records": len(records), "accepted": accepted,
             "rejected_filter": rejected_filter,
             "rejected_dup": rejected_dup,
             "rejected_invalid": rejected_invalid,
-            "created": created}
+            "leads_minted": leads_minted, "pii_findings": pii_findings,
+            "created": created, "errors": errors}

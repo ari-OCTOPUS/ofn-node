@@ -1,23 +1,24 @@
-// OFN buy.nsw Harvester — popup controller. Thin: all state lives in the
-// service worker's session buffer; this only routes clicks to messages.
+// buy.nsw Harvester — popup controller for the recovered pack's protocol
+// (SCRAPE_PAGE / START_AUTO / STOP_AUTO / DOM_DUMP to the content script;
+//  ADD_RECORDS / GET_COUNT / DOWNLOAD / CLEAR / SAVE_DEBUG / POST_ALL to
+//  the service worker). State lives in the worker's storage; this is thin.
 
 "use strict";
 
 const statusEl = document.getElementById("status");
+const CFG_KEY = "ofn_cfg";
 
 function setStatus(text) {
   statusEl.textContent = text;
 }
 
 async function activeTab() {
-  const [tab] = await chrome.tabs.query({
-    active: true, currentWindow: true,
-  });
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab || !tab.id) {
     setStatus("تب فعلی پیدا نشد.");
     return null;
   }
-  if (!/^https:\/\/(www\.)?buy\.nsw\.gov\.au\//.test(tab.url || "")) {
+  if (!/^https:\/\/([a-z0-9-]+\.)?buy\.nsw\.gov\.au\//.test(tab.url || "")) {
     setStatus("این ابزار فقط روی صفحات buy.nsw.gov.au کار می‌کند.");
     return null;
   }
@@ -49,85 +50,119 @@ function sendToWorker(message) {
 }
 
 async function refreshCount() {
-  const resp = await sendToWorker({ type: "GET_BUFFER" });
+  const resp = await sendToWorker({ type: "GET_COUNT" });
   if (resp && typeof resp.total === "number") {
-    setStatus(
-      "بافر: " + resp.total + " رکورد" +
-      " (پیش‌نمایش نقاشی: " + resp.previewKept + ")");
+    setStatus("بافر: " + resp.total + " رکورد");
   }
 }
 
-async function harvestOnce() {
+async function scrapeOnce() {
   const tab = await activeTab();
   if (!tab) return;
   setStatus("در حال خواندن صفحه…");
-  const resp = await sendToTab(tab.id, { type: "HARVEST_PAGE" });
-  if (!resp || !resp.ok) {
+  const resp = await sendToTab(tab.id, { type: "SCRAPE_PAGE" });
+  if (!resp || resp.error) {
     setStatus("خطا در خواندن صفحه: " + ((resp && resp.error) || "?"));
     return;
   }
-  if (!resp.found) {
+  const records = (resp && resp.records) || [];
+  if (!records.length) {
     setStatus(
-      "هیچ لینک /notices/ در این صفحه پیدا نشد. " +
-      "اگر فکر می‌کنید باید باشد، «دامپ دیباگ DOM» را بزنید و خروجی را بفرستید.");
+      "رکوردی پیدا نشد. اگر باید باشد، «دامپ دیباگ DOM» را بزن و فایلش را بفرست.");
     return;
   }
   const merge = await sendToWorker({
-    type: "RECORDS", records: resp.records, url: resp.url,
+    type: "ADD_RECORDS", records: records,
   });
+  const hint = records.filter((r) => r._painting_hint).length;
   setStatus(
-    "در این صفحه: " + resp.found + " | پیش‌نمایش نقاشی: " + resp.previewKept +
-    "\nجدید در بافر: " + (merge && merge.added) +
-    " | کل بافر: " + (merge && merge.total));
-  if (document.getElementById("auto").checked) {
-    const adv = await sendToTab(tab.id, { type: "AUTO_ADVANCE" });
-    if (adv && adv.advanced) {
-      setStatus("صفحهٔ بعدی تا چند ثانیه… (" + (adv.next || "") + ")");
-    } else {
-      setStatus((statusEl.textContent || "") +
-        "\nصفحه‌بندی تمام شد: " + ((adv && adv.reason) || "?"));
-    }
-  }
+    "حالت: " + (resp.mode || "?") + " | در این صفحه: " + records.length +
+    " | پیش‌نمایش نقاشی: " + hint +
+    "\nجدید: " + ((merge && merge.added) || 0) +
+    " | کل بافر: " + ((merge && merge.total) || 0));
 }
 
-async function exportJson() {
-  const resp = await sendToWorker({ type: "EXPORT_JSON" });
+async function startAuto() {
+  const tab = await activeTab();
+  if (!tab) return;
+  const maxPages = Math.max(1, Math.min(40,
+    parseInt(document.getElementById("maxPages").value || "15", 10) || 15));
+  const resp = await sendToTab(tab.id, { type: "START_AUTO", maxPages });
   setStatus(resp && resp.ok
-    ? "بچ JSON ذخیره شد (" + resp.records + " رکورد). آن را به ingest بدهید."
+    ? "برداشت خودکار شروع شد (حداکثر " + maxPages + " صفحه، مکث انسانی)."
     : "خطا: " + ((resp && resp.error) || "?"));
 }
 
-async function exportCsv() {
-  const resp = await sendToWorker({ type: "EXPORT_CSV" });
-  setStatus(resp && resp.ok
-    ? "CSV ذخیره شد (" + resp.records + " رکورد)."
-    : "خطا: " + ((resp && resp.error) || "?"));
+async function stopAuto() {
+  const tab = await activeTab();
+  if (!tab) return;
+  await sendToTab(tab.id, { type: "STOP_AUTO" });
+  setStatus("برداشت خودکار متوقف شد.");
 }
 
-async function debugDump() {
+async function domDump() {
   const tab = await activeTab();
   if (!tab) return;
   setStatus("در حال دامپ…");
-  const resp = await sendToTab(tab.id, { type: "DEBUG_DUMP" });
-  if (!resp || !resp.ok) {
+  const resp = await sendToTab(tab.id, { type: "DOM_DUMP" });
+  if (!resp || resp.error) {
     setStatus("خطا در دامپ: " + ((resp && resp.error) || "?"));
     return;
   }
-  await sendToWorker({ type: "DOWNLOAD_DEBUG", data: resp });
+  await sendToWorker({ type: "SAVE_DEBUG", data: resp });
   setStatus(
-    "دامپ ذخیره شد — linkCount: " + resp.linkCount +
+    "دامپ ذخیره شد — linkCount: " + (resp.linkCount ?? "?") +
     " | nextPage: " + (resp.nextPage || "—"));
 }
 
-async function clearBuffer() {
-  await sendToWorker({ type: "CLEAR" });
-  setStatus("بافر پاک شد.");
+async function download(kind) {
+  const resp = await sendToWorker({ type: "DOWNLOAD", kind: kind });
+  if (resp && typeof resp.n === "number" && resp.n > 0) {
+    setStatus("خروجی " + kind.toUpperCase() + " ذخیره شد (" + resp.n + " رکورد).");
+  } else {
+    setStatus("بافر خالی است — اول «برداشت» بزن.");
+  }
 }
 
-document.getElementById("harvest").addEventListener("click", harvestOnce);
-document.getElementById("exportJson").addEventListener("click", exportJson);
-document.getElementById("exportCsv").addEventListener("click", exportCsv);
-document.getElementById("debug").addEventListener("click", debugDump);
-document.getElementById("clear").addEventListener("click", clearBuffer);
+async function loadCfg() {
+  const o = await chrome.storage.local.get(CFG_KEY);
+  const cfg = o[CFG_KEY] || {};
+  document.getElementById("endpoint").value = cfg.endpoint || "";
+  document.getElementById("token").value = cfg.token || "";
+  document.getElementById("autoPost").checked = !!cfg.autoPost;
+}
+
+async function saveCfg() {
+  const cfg = {
+    endpoint: document.getElementById("endpoint").value.trim(),
+    token: document.getElementById("token").value.trim(),
+    autoPost: document.getElementById("autoPost").checked,
+  };
+  await chrome.storage.local.set({ [CFG_KEY]: cfg });
+  setStatus(cfg.endpoint
+    ? "تنظیمات ذخیره شد." + (cfg.autoPost ? " (ارسال خودکار روشن)" : "")
+    : "تنظیمات پاک شد (خاموش).");
+}
+
+async function postAll() {
+  const resp = await sendToWorker({ type: "POST_ALL" });
+  setStatus(resp && resp.ok
+    ? "به نود ارسال شد."
+    : "ارسال نشد — endpoint تنظیم شده؟");
+}
+
+document.getElementById("scrape").addEventListener("click", scrapeOnce);
+document.getElementById("startAuto").addEventListener("click", startAuto);
+document.getElementById("stopAuto").addEventListener("click", stopAuto);
+document.getElementById("debug").addEventListener("click", domDump);
+document.getElementById("exportJson").addEventListener("click", () => download("json"));
+document.getElementById("exportCsv").addEventListener("click", () => download("csv"));
+document.getElementById("clear").addEventListener("click", async () => {
+  await sendToWorker({ type: "CLEAR" });
+  setStatus("بافر پاک شد.");
+});
+document.getElementById("saveCfg").addEventListener("click", saveCfg);
+document.getElementById("postAll").addEventListener("click", postAll);
 
 refreshCount();
+loadCfg();
