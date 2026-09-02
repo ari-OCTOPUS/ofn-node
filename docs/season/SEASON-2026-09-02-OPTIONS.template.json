@@ -1,0 +1,87 @@
+{
+  "schema": "octopus.season_close_options.v1",
+  "season_id": "2026-09-02",
+  "source_prompt": "docs/agent-context/prompts/MEGAPROMPT-SEASON-CLOSE-2026-09-02.md",
+  "speaker_role": "external_agent_design",
+  "note": "Fill four complete packages. Do not set independently_observed true without per-file listen+hash. Do not invent host or login.",
+  "options": [
+    {
+      "option_id": "A",
+      "title": "governance_tonight_evidence_later",
+      "answers": {
+        "q1_season_boundary": "2026-09-02_only",
+        "q2_merge_68_first": true,
+        "q3_squash": "only_67",
+        "q4_elahe_reviews_67_tonight": "unknown",
+        "q5_per_file_listen_and_hash": false,
+        "q6_ofn_node_host": null,
+        "q7_ofn_node_login": null,
+        "q8_transfer": "no_transfer",
+        "q9_telegram_screenshot_hashes": [],
+        "q10_saba_four_corners_seen_by_owner": "unknown",
+        "q11_paint_l5_in_season_definition": false,
+        "q12_board_flags_tonight": "leave_unset",
+        "q13_lanes_csv": "not_on_this_host"
+      }
+    },
+    {
+      "option_id": "B",
+      "title": "evidence_tonight_merge_later",
+      "answers": {
+        "q1_season_boundary": "2026-09-02_only",
+        "q2_merge_68_first": true,
+        "q3_squash": "defer_all",
+        "q4_elahe_reviews_67_tonight": "unknown",
+        "q5_per_file_listen_and_hash": false,
+        "q6_ofn_node_host": null,
+        "q7_ofn_node_login": null,
+        "q8_transfer": "transfer_after_verify_only",
+        "q9_telegram_screenshot_hashes": [],
+        "q10_saba_four_corners_seen_by_owner": "unknown",
+        "q11_paint_l5_in_season_definition": false,
+        "q12_board_flags_tonight": "leave_unset",
+        "q13_lanes_csv": "not_on_this_host"
+      }
+    },
+    {
+      "option_id": "C",
+      "title": "both_only_with_witnesses",
+      "answers": {
+        "q1_season_boundary": "2026-09-02_only",
+        "q2_merge_68_first": true,
+        "q3_squash": "only_67",
+        "q4_elahe_reviews_67_tonight": "required",
+        "q5_per_file_listen_and_hash": false,
+        "q6_ofn_node_host": null,
+        "q7_ofn_node_login": null,
+        "q8_transfer": "transfer_after_verify_only",
+        "q9_telegram_screenshot_hashes": [],
+        "q10_saba_four_corners_seen_by_owner": "unknown",
+        "q11_paint_l5_in_season_definition": false,
+        "q12_board_flags_tonight": "leave_unset",
+        "q13_lanes_csv": "not_on_this_host"
+      }
+    },
+    {
+      "option_id": "D",
+      "title": "honest_incomplete",
+      "answers": {
+        "q1_season_boundary": "2026-08-31_to_2026-09-02",
+        "q2_merge_68_first": true,
+        "q3_squash": "defer_all",
+        "q4_elahe_reviews_67_tonight": "unknown",
+        "q5_per_file_listen_and_hash": false,
+        "q6_ofn_node_host": null,
+        "q7_ofn_node_login": null,
+        "q8_transfer": "no_transfer",
+        "q9_telegram_screenshot_hashes": [],
+        "q10_saba_four_corners_seen_by_owner": "unknown",
+        "q11_paint_l5_in_season_definition": false,
+        "q12_board_flags_tonight": "leave_unset",
+        "q13_lanes_csv": "not_on_this_host"
+      }
+    }
+  ],
+  "default_if_no_new_evidence": "A",
+  "independently_observed": false
+}
