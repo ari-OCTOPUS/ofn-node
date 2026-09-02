@@ -25,7 +25,7 @@ sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent / "budget"))
 
 import opslib  # noqa: E402
-import capability_token as cap  # noqa: E402
+
 import memory_chain  # noqa: E402
 import quote_fingerprint as qfp  # noqa: E402
 from lead_email_writer import FORBIDDEN  # noqa: E402
@@ -170,9 +170,16 @@ def style_gate_ok(draft: dict) -> bool:
     return not any(b in text for b in FORBIDDEN)
 
 
-def quote(lead_id: str, scope: dict, dry: bool = False) -> dict:
-    """ساخت + ارسالِ کوت برای یک لیدِ engaged. همیشه dict."""
+def quote(lead_id: str, scope: dict, dry: bool = True) -> dict:
+    """ساختِ کوت برای یک لیدِ engaged — فقط تولید، هیچ ارسالی.
+
+    PR #110A (scope-split): این ماژول draft می‌سازد؛ مسیر ارسال
+    (capability_token/transport) عمداً در این ماژول وجود ندارد و در PR
+    جداگانه‌ای با review صادقانه بازمی‌گردد.
+    """
     out = {"lead_id": lead_id}
+    if not dry:
+        return {**out, "error": "send-path-removed: generation-only module"}
     card = load_card()
     est = estimate(scope, card)
     c = sqlite3.connect(PAINTING_DB)
@@ -203,71 +210,13 @@ def quote(lead_id: str, scope: dict, dry: bool = False) -> dict:
                             {"qt": qt, "fingerprint": fp[:16]})
         c.close()
         return out
-    if dry:
+    if True:  # generation-only (110A): everything past here returns the draft
         out["draft"] = draft
         out["card_sha256"] = csha
+        out["fingerprint"] = fp
+        out["needs_owner_review"] = not est.get("priced", False)
         c.close()
         return out
-    # ── HF-1: سقف مبلغ نهایی + کف متراژ — قبل از توکن، قبل از ارسال ──
-    if est.get("priced"):
-        total = float(est.get("total_aud") or 0)
-        if total > QUOTE_MAX_AUD:
-            c.execute("INSERT OR REPLACE INTO painting_quotes VALUES "
-                      "(?,?,?,?,?,?,?,?,?)",
-                      (qt, lead_id, json.dumps(scope, ensure_ascii=False), 1,
-                       total, "needs_owner_review", opslib.now_iso(), csha, fp))
-            c.commit(); c.close()
-            qfp.record(fp, qt, lead_id, total)
-            return {**needs_owner_review(lead_id, qt, "over-quote-cap",
-                                         {"total_aud": total,
-                                          "cap": QUOTE_MAX_AUD,
-                                          "card_sha256": csha}),
-                    "fingerprint": fp}
-        if float(scope.get("area_m2") or 0) < QUOTE_MIN_M2:
-            c.execute("INSERT OR REPLACE INTO painting_quotes VALUES "
-                      "(?,?,?,?,?,?,?,?,?)",
-                      (qt, lead_id, json.dumps(scope, ensure_ascii=False), 1,
-                       total, "needs_owner_review", opslib.now_iso(), csha, fp))
-            c.commit(); c.close()
-            qfp.record(fp, qt, lead_id, total)
-            return {**needs_owner_review(lead_id, qt, "under-min-area",
-                                         {"area_m2": scope.get("area_m2"),
-                                          "min_m2": QUOTE_MIN_M2,
-                                          "card_sha256": csha}),
-                    "fingerprint": fp}
-    tok, tok_reason = cap.request_send_token(
-        {"email": row["email"]}, f"quote:{qt}")
-    if tok is None:
-        c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?,?,?)",
-                  (qt, lead_id, json.dumps(scope, ensure_ascii=False),
-                   1 if est.get("priced") else 0, est.get("total_aud"),
-                   f"token-denied:{tok_reason}", opslib.now_iso(), csha, fp))
-        c.commit(); c.close()
-        out["error"] = f"token:{tok_reason}"
-        return out
-    res = cap.verified_send(
-        tok, {"lead_id": lead_id, "email": row["email"]},
-        {"subject": draft["subject"], "body": draft["body"], "qt_number": qt},
-        f"quote:{qt}")
-    memory_chain.append("quote_sent" if res.get("sent") else "quote_denied",
-                        lead_id, {"qt": qt, "priced": est.get("priced", False),
-                                  "status": res.get("status"),
-                                  "card_sha256": csha[:16]})
-    if res.get("sent"):
-        qfp.record(fp, qt, lead_id, total_for_fp)  # فقط ارسالِ واقعی ثبت می‌شود
-    c.execute("INSERT OR REPLACE INTO painting_quotes VALUES (?,?,?,?,?,?,?,?,?)",
-              (qt, lead_id, json.dumps(scope, ensure_ascii=False),
-               1 if est.get("priced") else 0, est.get("total_aud"),
-               "sent" if res.get("sent") else f"not-sent:{res.get('status')}",
-               opslib.now_iso(), csha, fp))
-    c.execute("UPDATE painting_leads SET next_action='quote sent, await reply', "
-              "next_action_at=datetime('now','+7 days') WHERE lead_id=?",
-              (lead_id,))
-    c.commit()
-    c.close()
-    out["send_status"] = res.get("status")
-    out["sent"] = bool(res.get("sent"))
-    return out
 
 
 def quote_requests_pending() -> list[str]:
