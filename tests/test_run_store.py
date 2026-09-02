@@ -105,6 +105,18 @@ class EventVocabulary(unittest.TestCase):
                 ev.POLICY_DECISION, "run-x", now_epoch_s=_NOW,
                 payload={"next": "campaign_envelope_ready"})
 
+    def test_nested_mapping_cannot_smuggle_quote_sent(self):
+        with self.assertRaises(FailClosedError):
+            ev.make_event(
+                ev.PROPOSAL_CREATED, "run-x", now_epoch_s=_NOW,
+                payload={"inner": {"next": "quote_sent"}})
+
+    def test_nested_list_cannot_smuggle_send_authorized(self):
+        with self.assertRaises(FailClosedError):
+            ev.make_event(
+                ev.POLICY_DECISION, "run-x", now_epoch_s=_NOW,
+                payload={"states": ["draft", "send_authorized"]})
+
 
 class StoreLifecycle(unittest.TestCase):
     def setUp(self):
@@ -901,3 +913,167 @@ class ReplaySeqContinuity(unittest.TestCase):
                 f.write(json.dumps(forged, sort_keys=True) + "\n")
             with self.assertRaises(FailClosedError):
                 list(store.replay())
+
+
+def _plant(root: Path, rec: dict) -> None:
+    with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, sort_keys=True) + "\n")
+
+
+class LoadPathDebitAndDedupInvariants(unittest.TestCase):
+    """Append-time debit/dedup rules must also hold on reopen.
+
+    A planted JSONL line is not a store API call — load is the second
+    witness. Ready/authorized/sent remain absent from the ledger.
+    """
+
+    def test_orphan_budget_debit_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("orphan-debit"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            _plant(root, {
+                "event_id": "evt-orphandebit000",
+                "seq": first["seq"] + 1,
+                "kind": ev.BUDGET_DEBIT,
+                "run_id": run_id,
+                "ts": _NOW + 1,
+                "payload": {"tokens": 0},
+                "ref": "evt-doesnotexist0000",
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_second_debit_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("dbl-debit-load"), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "once"}))
+            store.append(ev.make_event(
+                ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2, ref=receipt))
+            last = list(store.replay())[-1]
+            _plant(root, {
+                "event_id": "evt-seconddebit000",
+                "seq": last["seq"] + 1,
+                "kind": ev.BUDGET_DEBIT,
+                "run_id": run_id,
+                "ts": _NOW + 3,
+                "payload": {"tokens": 0},
+                "ref": receipt,
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_cross_run_debit_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_a = store.create(_env("load-a"), now_epoch_s=_NOW)
+            run_b = store.create(_env("load-b", rand="b1b2c3d4e5f6a7b8"),
+                                 now_epoch_s=_NOW)
+            receipt_a = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_a, now_epoch_s=_NOW + 1,
+                payload={"what": "a"}))
+            last = list(store.replay())[-1]
+            _plant(root, {
+                "event_id": "evt-crossload00000",
+                "seq": last["seq"] + 1,
+                "kind": ev.BUDGET_DEBIT,
+                "run_id": run_b,
+                "ts": _NOW + 2,
+                "payload": {"tokens": 0},
+                "ref": receipt_a,
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_duplicate_kind_ref_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("dup-load"), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "once"}))
+            store.append(ev.make_event(
+                ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 2, ref=receipt,
+                payload={"tool": "score"}))
+            last = list(store.replay())[-1]
+            _plant(root, {
+                "event_id": "evt-dupkindref0000",
+                "seq": last["seq"] + 1,
+                "kind": ev.TOOL_INVOKED,
+                "run_id": run_id,
+                "ts": _NOW + 3,
+                "payload": {"tool": "score"},
+                "ref": receipt,
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_token_ceiling_breach_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(
+                _env("ceil-load", budget_tokens=5), now_epoch_s=_NOW)
+            receipt = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "over"}))
+            last = list(store.replay())[-1]
+            _plant(root, {
+                "event_id": "evt-overceil000000",
+                "seq": last["seq"] + 1,
+                "kind": ev.BUDGET_DEBIT,
+                "run_id": run_id,
+                "ts": _NOW + 2,
+                "payload": {"tokens": 6},
+                "ref": receipt,
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_a3_without_rollback_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("a3-seed"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            payload = dict(first["payload"])
+            payload["authority_level"] = "A3"
+            payload.pop("rollback_plan", None)
+            payload.pop("rollback_ref", None)
+            payload["idempotency_key"] = "a3-planted"
+            _plant(root, {
+                "event_id": "evt-a3norb00000000",
+                "seq": first["seq"] + 1,
+                "kind": ev.RUN_CREATED,
+                "run_id": "run-1780000000-cccccccccc",
+                "ts": _NOW,
+                "payload": payload,
+                "ref": None,
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_nested_smuggle_on_load_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("nest-load"), now_epoch_s=_NOW)
+            first = next(store.replay())
+            _plant(root, {
+                "event_id": "evt-nestsmuggle000",
+                "seq": first["seq"] + 1,
+                "kind": ev.PROPOSAL_CREATED,
+                "run_id": run_id,
+                "ts": _NOW + 1,
+                "payload": {"inner": {"next": "campaign_envelope_ready"}},
+                "ref": None,
+            })
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
