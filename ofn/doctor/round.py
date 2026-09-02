@@ -88,6 +88,23 @@ def _slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60] or "x"
 
 
+def _build_index(root: Path, cap: int = 3) -> tuple[set[str], dict[str, list[str]]]:
+    """One walk of the vault: relpath set + basename → up to `cap` locations."""
+    relpaths: set[str] = set()
+    basenames: dict[str, list[str]] = {}
+    for p in root.rglob("*"):
+        rel = p.relative_to(root)
+        parts = set(rel.parts)
+        if parts & SKIP_DIRS or "__pycache__" in p.name or not p.is_file():
+            continue
+        rp = rel.as_posix()
+        relpaths.add(rp)
+        basenames.setdefault(p.name, [])
+        if len(basenames[p.name]) < cap:
+            basenames[p.name].append(rp)
+    return relpaths, basenames
+
+
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -185,13 +202,15 @@ class DoctorRound:
     def dead_ref_check(self, root: Path, opened: dict[str, str]) -> None:
         """References inside 01-TRUTH must resolve inside the vault.
 
-        A reference may be vault-root-relative, source-dir-relative
-        (including ../), or a wildcard glob — each is tried before the
-        reference is declared dead. False positives are worse than silence.
+        Resolution ladder (a false 'dead' claim is worse than silence):
+        exact root-relative → exact source-relative → wildcard glob →
+        unique-basename index over the whole vault. Zero hits at every
+        rung = dead; hits only at the basename rung = relocated/unanchored.
         """
         truth_dir = root / "01-TRUTH"
         if not truth_dir.is_dir():
             return
+        relpaths, basenames = _build_index(root)
         for p in sorted(truth_dir.glob("*.md")):
             rel = p.relative_to(root).as_posix()
             data = self._open(root, rel, opened)
@@ -204,31 +223,49 @@ class DoctorRound:
             ]
             src_dir = p.parent
             for ref in dict.fromkeys(refs):
-                if self._ref_resolves(root, src_dir, ref):
+                if self._ref_resolves(root, src_dir, ref, relpaths):
                     continue
-                self._findings.append(Finding(
-                    id=f"DEADREF-{_slug(rel)}-{_slug(ref)}", category="deadref",
-                    severity="MEDIUM",
-                    title=f"dead reference in {rel}: {ref}",
-                    evidence_path=rel, evidence_sha256=opened[rel],
-                    detail=f"referenced path does not resolve under {root} "
-                           f"(tried root-relative, source-relative, wildcard)",
-                    proposed_action="repair the reference or archive the claim "
-                                    "(proposal; never auto-edit the vault)",
-                ))
+                base = ref.replace("\\", "/").rsplit("/", 1)[-1]
+                candidates = basenames.get(base, [])
+                if candidates:
+                    self._findings.append(Finding(
+                        id=f"RELOCATED-{_slug(rel)}-{_slug(ref)}", category="deadref",
+                        severity="LOW",
+                        title=f"unanchored reference in {rel}: {ref}",
+                        evidence_path=rel, evidence_sha256=opened[rel],
+                        detail=f"path does not resolve, but basename exists at: "
+                               f"{', '.join(candidates[:3])}",
+                        proposed_action="re-anchor the reference to its real path "
+                                        "(proposal; never auto-edit the vault)",
+                    ))
+                else:
+                    self._findings.append(Finding(
+                        id=f"DEADREF-{_slug(rel)}-{_slug(ref)}", category="deadref",
+                        severity="MEDIUM",
+                        title=f"dead reference in {rel}: {ref}",
+                        evidence_path=rel, evidence_sha256=opened[rel],
+                        detail=f"no match at any resolution rung under {root} "
+                               f"(root-relative, source-relative, wildcard, basename)",
+                        proposed_action="repair the reference or archive the claim "
+                                        "(proposal; never auto-edit the vault)",
+                    ))
 
     @staticmethod
-    def _ref_resolves(root: Path, src_dir: Path, ref: str) -> bool:
+    def _ref_resolves(root: Path, src_dir: Path, ref: str, relpaths: set[str]) -> bool:
+        import fnmatch as _fn
+        ref = ref.replace("\\", "/")
         if any(ch in ref for ch in "*?["):
-            import glob as _glob
-            for base in (root, src_dir):
-                if _glob.glob(str(base / ref)):
-                    return True
+            pat = ref
+            return any(_fn.fnmatch(rp, pat) or _fn.fnmatch(rp, f"*/{pat}")
+                       for rp in relpaths)
+        if ref in relpaths:
+            return True
+        src_rel = (src_dir / ref).resolve()
+        try:
+            src_rel = src_rel.relative_to(root.resolve()).as_posix()
+        except ValueError:
             return False
-        for base in (root, src_dir):
-            if (base / ref).exists():
-                return True
-        return False
+        return src_rel in relpaths
 
     def root_junk_check(self, root: Path, opened: dict[str, str]) -> None:
         """Known shell-redirect junk at the vault root (never delete — archive)."""

@@ -25,7 +25,7 @@ def _make_vault(root: Path):
 
 
 def test_deadref_resolver_no_false_positives(tmp_path):
-    """Wildcard, same-dir and ../ references must resolve before 'dead'."""
+    """Wildcard, same-dir, ../ and relocated-basename refs must not be 'dead'."""
     vault = tmp_path / "vault"
     vault.mkdir()
     (vault / "01-TRUTH").mkdir(parents=True)
@@ -34,14 +34,20 @@ def test_deadref_resolver_no_false_positives(tmp_path):
     (vault / "01-TRUTH" / "CONTRADICTIONS.md").write_text("ok\n", encoding="utf-8")
     (vault / "OCTOPUS").mkdir()
     (vault / "OCTOPUS" / "CURRENT-TRUTH.md").write_text("lineage\n", encoding="utf-8")
+    (vault / "4d_system" / "tests").mkdir(parents=True)
+    (vault / "4d_system" / "tests" / "run_all.py").write_text("#", encoding="utf-8")
     (vault / "01-TRUTH" / "STATE.md").write_text(
         "wild `07 - Knowledge/epoch-*.json` · samedir `CONTRADICTIONS.md` · "
-        "parent `../OCTOPUS/CURRENT-TRUTH.md` · truly-gone `nowhere/x.md`\n",
+        "parent `../OCTOPUS/CURRENT-TRUTH.md` · relocated `gone/run_all.py` · "
+        "truly-gone `nowhere/x.md`\n",
         encoding="utf-8")
     result = DoctorRound().run(vault)
-    dead = [f for f in result.findings if f.category == "deadref"]
-    assert len(dead) == 1
-    assert "nowhere/x.md" in dead[0].title
+    dead = [f for f in result.findings if f.id.startswith("DEADREF-")]
+    relocated = [f for f in result.findings if f.id.startswith("RELOCATED-")]
+    assert len(dead) == 1 and "nowhere/x.md" in dead[0].title
+    assert len(relocated) == 1 and dead[0].severity == "MEDIUM"
+    assert relocated[0].severity == "LOW"
+    assert "4d_system/tests/run_all.py" in relocated[0].detail  # candidate shown
 
 
 def test_01_healthy_vault_yields_no_source_findings(tmp_path):
