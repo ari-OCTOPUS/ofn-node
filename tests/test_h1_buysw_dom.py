@@ -19,14 +19,13 @@ Pins the contract points:
 from __future__ import annotations
 
 import os
-import shutil
-import tempfile
 import unittest
 
 from ofn.adapters.lead_store import LeadStore
 from ofn.agents.h1_buysw_dom import (
     BATCH_SCHEMA, _normalize, ingest_batch,
 )
+from tests.tmpdir import temp_dir
 
 
 def v1_record(**over):
@@ -100,12 +99,9 @@ def v2_export(records):
 
 class Case(unittest.TestCase):
     def setUp(self):
-        self.directory = tempfile.mkdtemp(prefix="ofn-buysw-dom-")
+        self.directory = temp_dir(self)
         self.store = LeadStore(os.path.join(self.directory, "painting.sqlite"))
-
-    def tearDown(self):
-        self.store.close()
-        shutil.rmtree(self.directory, ignore_errors=True)
+        self.addCleanup(self.store.close)
 
     def stored_ids(self):
         return {t["tender_id"] for t in self.store.tenders("lead", limit=500)}
