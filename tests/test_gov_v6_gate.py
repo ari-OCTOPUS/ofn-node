@@ -75,6 +75,13 @@ def test_workflow_pins_the_v6_invariants() -> None:
     assert "Bot/App approvals do not satisfy this check" in yaml_text
 
 
+def test_not_applicable_path_is_never_silent_green() -> None:
+    yaml_text = WORKFLOW.read_text(encoding="utf-8")
+    assert "not-applicable: no sensitive paths" in yaml_text
+    assert "NOT a review approval" in yaml_text
+    assert "conclusion: 'neutral'" in yaml_text
+
+
 def test_codeowners_is_the_v6_two_reviewer_line() -> None:
     lines = [
         ln.strip()
