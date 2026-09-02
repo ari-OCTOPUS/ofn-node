@@ -2,7 +2,9 @@
 
 Blueprint §10: halt stops STARTS; in-flight parks to HELD; restart never
 resends. Every rule here has a negative control — a gate that cannot
-refuse is a decoration.
+refuse is a decoration. Round-2 (evidence-hardening): unknown storage,
+atomic transition, HELD recovery, no-resend across ALL entry points,
+bounded backoff.
 """
 
 from __future__ import annotations
@@ -15,9 +17,9 @@ from pathlib import Path
 from ofn.adapters import halt_flag
 from ofn.adapters.run_gate import RunGate
 from ofn.adapters.run_store import HaltActive, RunStore
+from ofn.kernel.domain import RiskTier
 from ofn.kernel.envelope import create_envelope
 from ofn.kernel.errors import FailClosedError
-from ofn.kernel.domain import RiskTier
 from ofn.kernel.tenancy import TenantId, TenantScope
 from ofn.adapters.outbox import Outbox
 
@@ -79,7 +81,7 @@ class GateAndOutbox(unittest.TestCase):
         self.halt_path = t / "halt.flag"
         self.store = RunStore(t / "runs")
         self.outbox = Outbox(str(t / "outbox.db"))
-        self.addCleanup(self.outbox.close)  # Windows: release the db file before tmp cleanup
+        self.addCleanup(self.outbox.close)  # Windows: release db before tmp cleanup
         self.gate = RunGate(self.store, self.halt_path, outbox=self.outbox)
 
     def _enqueue_one(self, key: str = "k1"):
@@ -116,6 +118,100 @@ class GateAndOutbox(unittest.TestCase):
         self.assertNotIn("k1", pending_after)   # not re-queued for sending
         held_keys = [i.idem_key for i in self.outbox.held(scope)]
         self.assertIn("k1", held_keys)          # parked for a human
+
+
+class EvidenceHardeningRound(unittest.TestCase):
+    """Directive round 2: unknown storage, atomic transition, HELD
+    recovery, no-resend across ALL entry points, bounded backoff."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        t = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+        self.halt_path = t / "halt.flag"
+        self.store = RunStore(t / "runs")
+        self.outbox = Outbox(str(t / "outbox.db"))
+        self.addCleanup(self.outbox.close)
+        self.gate = RunGate(self.store, self.halt_path, outbox=self.outbox)
+
+    # ── unknown storage ─────────────────────────────────────────────
+    def test_binary_garbage_flag_halts(self):
+        raw = bytes([0x00, 0xFF, 0xFE, 0x01]) + b"garbage"
+        self.halt_path.write_bytes(raw)
+        self.assertTrue(halt_flag.halt_flag_active(self.halt_path))
+        with self.assertRaises(HaltActive):
+            self.gate.start_run(_env("binkey"), now_epoch_s=_NOW)
+
+    def test_utf16_bom_flag_halts_fail_closed(self):
+        # a UTF-16LE "0" — a naive text reader would mis-parse it as OFF;
+        # our parser must treat mojibake as HALTED, not as "running".
+        raw = bytes([0xFF, 0xFE]) + "0".encode("utf-16-le")
+        self.halt_path.write_bytes(raw)
+        self.assertTrue(halt_flag.halt_flag_active(self.halt_path))
+
+    # ── atomic transition ───────────────────────────────────────────
+    def test_write_halt_is_canonical_and_atomic_final_state(self):
+        halt_flag.write_halt(self.halt_path)
+        self.assertEqual(self.halt_path.read_text(encoding="utf-8"), "1\n")
+        self.assertFalse(list(self.halt_path.parent.glob("*.tmp")),
+                         "atomic replace must leave no temp litter")
+        # decision flips in one step: refuse → clear → allow
+        with self.assertRaises(HaltActive):
+            self.gate.start_run(_env("atom1"), now_epoch_s=_NOW)
+        halt_flag.clear_halt(self.halt_path)
+        self.assertTrue(self.gate.start_run(_env("atom1"), now_epoch_s=_NOW))
+
+    # ── HELD recovery ───────────────────────────────────────────────
+    def test_held_item_not_claimable_and_not_pending(self):
+        scope = _scope()
+        self.outbox.enqueue(scope, "held1", "test_effect",
+                            payload={"n": 1}, tier=RiskTier.GREEN,
+                            now_iso="2026-09-02T00:00:00Z")
+        self.gate.claim(scope, "held1", "2026-09-02T00:00:01Z")
+        self.gate.hold_in_flight("2026-09-02T00:00:02Z")
+        self.assertNotIn("held1",
+                         [i.idem_key for i in self.outbox.pending(scope)])
+        self.assertFalse(
+            self.gate.claim(scope, "held1", "2026-09-02T00:00:03Z"),
+            "HELD must not be claimable without a human decision")
+        # approve_manual is deliberately PENDING-only: a HELD item (send
+        # status unknown) can never slide into an auto-approval path.
+        self.assertFalse(self.outbox.approve_manual(
+            scope, "held1", "2026-09-02T00:04:00Z", approved_by="owner"))
+        # the real human decision on a HELD item: explicit resolve/fail
+        # (mark_failed returns None — the LEDGER is the truth, not the return)
+        self.outbox.mark_failed(
+            scope, "held1", "2026-09-02T00:05:00Z",
+            note="owner reviewed crash-recovered item: do not send")
+        self.assertNotIn("held1",
+                         [i.idem_key for i in self.outbox.held(scope)])
+
+    def test_no_resend_across_all_entry_points_attempts_unchanged(self):
+        scope = _scope()
+        self.outbox.enqueue(scope, "nr1", "test_effect",
+                            payload={"n": 1}, tier=RiskTier.GREEN,
+                            now_iso="2026-09-02T00:00:00Z")
+        self.gate.claim(scope, "nr1", "2026-09-02T00:00:01Z")
+        # every entry point that could resurface work:
+        self.gate.recover_after_restart("2026-09-02T00:00:02Z")   # 1. restart
+        self.gate.hold_in_flight("2026-09-02T00:00:03Z")          # 2. explicit hold
+        halt_flag.write_halt(self.halt_path)                      # 3. halt on
+        with self.assertRaises(HaltActive):                       # 4. start under halt
+            self.gate.start_run(_env("nr-new"), now_epoch_s=_NOW)
+        with self.assertRaises(FailClosedError):                  # 5. claim under halt
+            self.gate.claim(scope, "nr1", "2026-09-02T00:00:04Z")
+        pending_keys = [i.idem_key for i in self.outbox.pending(scope)]
+        self.assertNotIn("nr1", pending_keys)                     # never re-queued
+        item = [i for i in self.outbox.held(scope) if i.idem_key == "nr1"][0]
+        self.assertEqual(item.attempts, 1)  # recovery never bumps attempts
+
+    # ── bounded retry ───────────────────────────────────────────────
+    def test_backoff_schedule_exact_and_capped(self):
+        from ofn.kernel import source_health as sh
+        self.assertEqual(sh.backoff_delays(), (1, 2, 4))
+        capped = sh.backoff_delays(attempts=10, cap_s=60)
+        self.assertTrue(all(d <= 60 for d in capped))
+        self.assertEqual(len(capped), 10)
 
 
 if __name__ == "__main__":

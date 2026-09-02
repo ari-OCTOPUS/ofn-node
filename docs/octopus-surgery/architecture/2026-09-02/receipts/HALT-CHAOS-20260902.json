@@ -20,5 +20,23 @@
   "command": "python -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py -q",
   "output": "19 passed in 0.52s"
  },
- "boundary": "no gate opened, no flag left armed, no network, no secrets; halt flag files live only in test tmp dirs"
+ "boundary": "no gate opened, no flag left armed, no network, no secrets; halt flag files live only in test tmp dirs",
+ "evidence_hardening_20260902": {
+  "tested_head_full": "2d25ee7354549033d1e7c837cb0c745ff2d7b18b",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @92f5267 (rebased; retargets to main after #74 merges)",
+  "command": "python -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_kernel_purity.py -q",
+  "result": "78 passed, 919 subtests passed",
+  "ran_at_utc": "2026-09-02T05:32:00+00:00",
+  "round2_additions": [
+   "unknown storage: binary garbage + UTF-16LE mojibake flag files both HALT (undecodable intent = halted)",
+   "atomic transition: write_halt now tmp+os.replace (no torn flag, no tmp litter — tested)",
+   "HELD recovery: held item not in pending, claim returns False, approve_manual from HELD deliberately refused (PENDING-only path), human resolution via mark_failed verified",
+   "no-resend across ALL entry points: restart + hold + halt-start + halt-claim — pending never resurfaces, attempts stay 1",
+   "bounded retry: exact backoff tuple (1,2,4), cap clamp at 60s, length bound at attempts"
+  ],
+  "bugs_the_new_tests_caught": [
+   "halt_flag read_text raised UnicodeDecodeError on binary flag (only OSError was caught) — now bytes+decode with fail-closed fallback",
+   "test initially assumed approve_manual works from HELD — outbox contract is PENDING-only (deliberate); test corrected to the real contract"
+  ]
+ }
 }

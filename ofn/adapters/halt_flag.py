@@ -11,6 +11,7 @@ an automated loop. `write_halt`/`clear_halt` are owner/supervisor hands.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Union
 
@@ -26,9 +27,15 @@ def halt_flag_active(path: PathLike) -> bool:
     kernel.halt.is_halted; this adds only the read."""
     p = Path(path)
     try:
-        raw = p.read_text(encoding="utf-8") if p.exists() else None
+        if not p.exists():
+            return halt.is_halted(None)
+        raw_bytes = p.read_bytes()          # bytes: binary junk must not crash us
+        try:
+            raw = raw_bytes.decode("utf-8")
+        except (UnicodeDecodeError, ValueError):
+            raw = ""                        # undecodable intent ≙ HALTED
     except OSError:
-        raw = ""  # unreadable ≙ unparsable intent — halted
+        raw = ""                            # unreadable ≙ unparsable intent — halted
     return halt.is_halted(raw)
 
 
@@ -39,7 +46,9 @@ def write_halt(path: PathLike, *, reason: str = "owner") -> None:
     collide with that)."""
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text("1\n", encoding="utf-8")
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text("1\n", encoding="utf-8")
+    os.replace(tmp, p)  # atomic: a reader never observes a torn flag
 
 
 def clear_halt(path: PathLike) -> None:
