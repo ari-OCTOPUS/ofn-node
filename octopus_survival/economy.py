@@ -136,15 +136,10 @@ class Economy:
         self.daily_spend_cap_aud = int(daily_spend_cap_aud)
         self.per_board_budget_default = int(per_board_budget_default)
         self._episodes: dict[str, Episode] = {}
+        self._consumed_ids: set[str] = set()
         self._day: str | None = None
         self._sends_today = 0
         self._spend_today_cents = 0
-        # GOV-V6 debt fix 1: a promotion streak is consumed by the grant that
-        # used it; already-counted episodes cannot re-propose the next rung.
-        self._grant_consumed: set[str] = set()
-        # GOV-V6 debt fix 3: each episode's send/spend burns the daily cap once,
-        # no matter how many times the slot is re-applied.
-        self._capped: set[tuple[str, str]] = set()
 
     def _path(self, episode_id: str) -> Path:
         return self.state_dir / f"episode-{episode_id}.jsonl"
@@ -186,11 +181,11 @@ class Economy:
         if role == "execution":
             self._guard_execution(ep, fields)
         if role == "finance":
-            self._guard_finance(fields)
+            self._guard_finance(ep, fields)
 
+        self._note_caps(ep, role, fields)
         for key, value in fields.items():
             setattr(ep, key, value)
-        self._note_caps(episode_id, role, fields)
         self._append(episode_id, "ROLE_APPLY", {"role": role, **dict(fields)})
         return ep
 
@@ -205,27 +200,19 @@ class Economy:
             self._day = key
             self._sends_today = 0
             self._spend_today_cents = 0
-            self._capped = set()
 
-    def _note_caps(self, episode_id: str, role: str, fields: Mapping[str, Any]) -> None:
-        self._roll_day()
-        receipt = fields.get("execution_receipt")
-        if (
-            role == "execution"
-            and isinstance(receipt, Mapping)
-            and receipt.get("kind") == "send"
-            and (self._day, episode_id, "send") not in self._capped
-        ):
-            self._capped.add((self._day, episode_id, "send"))
-            self._sends_today += 1
-        cost = fields.get("cost")
-        if (
-            role == "finance"
-            and isinstance(cost, Mapping)
-            and (self._day, episode_id, "spend") not in self._capped
-        ):
-            self._capped.add((self._day, episode_id, "spend"))
-            self._spend_today_cents += int(cost.get("amount_cents") or 0)
+    def _note_caps(self, ep: Episode, role: str, fields: Mapping[str, Any]) -> None:
+        if role == "execution":
+            receipt = fields.get("execution_receipt")
+            if isinstance(receipt, Mapping) and receipt.get("kind") == "send":
+                if not _is_send_receipt(ep.execution_receipt):
+                    self._sends_today += 1
+        if role == "finance":
+            cost = fields.get("cost")
+            if isinstance(cost, Mapping):
+                delta = int(cost.get("amount_cents") or 0) - _cost_cents(ep.cost)
+                if delta > 0:
+                    self._spend_today_cents += delta
 
     def board_may_spend(self, board_id: str, amount_cents: int) -> None:
         if not board_id or not str(board_id).strip():
@@ -241,28 +228,30 @@ class Economy:
             return
         if self.granted_level in {"A0", "A1"}:
             raise EconomyError("execution-refused: granted level is draft-only")
-        # approval recorded on the episode by an earlier apply still counts
-        approved = bool(fields.get("approval") or ep.approval)
-        if not approved and self.granted_level == "A2":
+        approval = fields.get("approval")
+        if approval in (None, "", False):
+            approval = ep.approval
+        if not approval and self.granted_level == "A2":
             raise EconomyError("execution-refused: A2 needs approval")
         sending = isinstance(receipt, Mapping) and receipt.get("kind") == "send"
         if self.granted_level >= "A3" or sending:
             if not self.wire_open:
                 raise EconomyError("execution-refused: WIRE closed")
-        if sending:
+        if sending and not _is_send_receipt(ep.execution_receipt):
             self._roll_day()
             if self._sends_today >= self.daily_send_cap:
                 raise EconomyError("send-cap")
 
-    def _guard_finance(self, fields: Mapping[str, Any]) -> None:
+    def _guard_finance(self, ep: Episode, fields: Mapping[str, Any]) -> None:
         cost = fields.get("cost")
         if isinstance(cost, Mapping):
             spend = cost.get("amount_cents")
             if not isinstance(spend, int) or spend < 0:
                 raise EconomyError("PARSE_DRIFT: cost amount_cents")
-            if spend:
+            delta = spend - _cost_cents(ep.cost)
+            if delta > 0:
                 self._roll_day()
-                if self._spend_today_cents + spend > self.daily_spend_cap_aud * 100:
+                if self._spend_today_cents + delta > self.daily_spend_cap_aud * 100:
                     raise EconomyError("spend-cap")
         revenue = fields.get("revenue")
         if revenue in (None, "", {}, 0):
@@ -316,24 +305,34 @@ class Economy:
         self.granted_level = prev_rung(self.granted_level)
         return self.granted_level
 
-    def propose_promotion(self) -> str | None:
-        """After enough clean taught episodes, propose the next rung.
+    def _counts_toward_next(self, ep: Episode) -> bool | None:
+        """True = clean, False = breaks the streak, None = skip."""
+        if ep.decision is None:
+            return None
+        proposing = next_rung(self.granted_level)
+        needs_teacher = proposing is not None and proposing >= "A3"
+        corr = ep.teacher_correction
+        if corr is None:
+            return None if needs_teacher else True
+        if corr.get("agent_decision") == corr.get("teacher_decision"):
+            return True
+        return False
 
-        A3 stays ungranted while WIRE is closed. Proposal is not a grant.
-        Episodes already consumed by an earlier grant never count again
-        (GOV-V6 debt fix 1: the streak is single-use per rung).
+    def propose_promotion(self) -> str | None:
+        """After enough clean episodes *since the last grant*, propose one rung.
+
+        Untaught drafts count only while proposing A2. A3+ needs a matching
+        teacher_correction. A3 stays ungranted while WIRE is closed.
+        Proposal is not a grant.
         """
         clean = 0
         for episode_id, ep in self._episodes.items():
-            if episode_id in self._grant_consumed:
+            if episode_id in self._consumed_ids:
                 continue
-            if ep.decision is None:
+            verdict = self._counts_toward_next(ep)
+            if verdict is None:
                 continue
-            if ep.teacher_correction is None:
-                clean += 1
-                continue
-            corr = ep.teacher_correction
-            if corr.get("agent_decision") == corr.get("teacher_decision"):
+            if verdict:
                 clean += 1
             else:
                 clean = 0
@@ -353,13 +352,10 @@ class Economy:
         proposed = self.propose_promotion()
         if nxt != self.granted_level and nxt != proposed:
             raise EconomyError("grant-refused: not proposed")
-        if nxt != self.granted_level:
-            # consume the streak this grant rode on: every episode that already
-            # carries a decision can never re-propose the next rung
-            self._grant_consumed.update(
-                eid for eid, ep in self._episodes.items() if ep.decision is not None
-            )
+        promoting = nxt != self.granted_level
         self.granted_level = nxt
+        if promoting:
+            self._consumed_ids = set(self._episodes)
         return nxt
 
     def metrics(self) -> dict[str, Any]:
@@ -391,6 +387,16 @@ class Economy:
             "sends_today": self._sends_today,
             "spend_today_cents": self._spend_today_cents,
         }
+
+
+def _is_send_receipt(receipt: Any) -> bool:
+    return isinstance(receipt, Mapping) and receipt.get("kind") == "send"
+
+
+def _cost_cents(cost: Any) -> int:
+    if isinstance(cost, Mapping):
+        return int(cost.get("amount_cents") or 0)
+    return 0
 
 
 def _looks_supply_side(evidence: Mapping[str, Any]) -> bool:
