@@ -24,18 +24,22 @@ PathLike = Union[str, Path]
 def halt_flag_active(path: PathLike) -> bool:
     """Missing file → not halted (normal state). Present but unreadable or
     unparsable → halted (fail-closed). The predicate itself is
-    kernel.halt.is_halted; this adds only the read."""
+    kernel.halt.is_halted; this adds only the read.
+
+    Bytes-first so binary junk cannot raise UnicodeDecodeError out of the
+    predicate (P1 close-with-ref / non-UTF-8 fail-closed, kept on rebase).
+    """
     p = Path(path)
     try:
         if not p.exists():
             return halt.is_halted(None)
-        raw_bytes = p.read_bytes()          # bytes: binary junk must not crash us
+        raw_bytes = p.read_bytes()
         try:
             raw = raw_bytes.decode("utf-8")
-        except (UnicodeDecodeError, ValueError):
-            raw = ""                        # undecodable intent ≙ HALTED
+        except (UnicodeDecodeError, ValueError, UnicodeError):
+            raw = ""  # undecodable intent ≙ HALTED
     except OSError:
-        raw = ""                            # unreadable ≙ unparsable intent — halted
+        raw = ""  # unreadable ≙ unparsable intent — halted
     return halt.is_halted(raw)
 
 
