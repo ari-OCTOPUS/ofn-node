@@ -28,9 +28,19 @@ def test_grant_consumes_promotion_streak(tmp_path):
     assert school.propose_promotion() is None
     with pytest.raises(EconomyError, match="not proposed"):
         school.grant("A3")
-    # three NEW decided episodes unlock the next proposal again
+    # three NEW taught-clean episodes unlock the next proposal again
+    # (D-28 via #67: proposing A3+ requires a matching teacher_correction,
+    #  so a bare decision no longer unlocks A3)
     for n in ("e4", "e5", "e6"):
         _decide_clean(school, n)
+        school.teach(
+            n,
+            agent_decision="quote",
+            teacher_decision="quote",
+            reason_code="REGRESSION_LOCK",
+            real_outcome="sent",
+            lesson="streak lock",
+        )
     assert school.propose_promotion() == "A3"
     assert school.grant("A3") == "A3"
 
