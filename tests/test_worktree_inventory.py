@@ -92,9 +92,22 @@ class GitdirPointer(unittest.TestCase):
             git_file = os.path.join(tmp, ".git")
             with open(git_file, "w", encoding="utf-8") as fh:
                 fh.write("gitdir: /repo/.git/worktrees/feat\n")
+            # Exact string git wrote — Windows must not drive-letter it.
             self.assertEqual(
                 read_gitdir_pointer(git_file),
                 "/repo/.git/worktrees/feat")
+
+    def test_posix_absolute_pointer_is_not_drive_lettered(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            git_file = os.path.join(tmp, ".git")
+            with open(git_file, "w", encoding="utf-8") as fh:
+                fh.write("gitdir: /repo/.git/worktrees/feat\n")
+            got = read_gitdir_pointer(git_file)
+            self.assertFalse(
+                got.startswith("C:") or (len(got) >= 2 and got[1] == ":" and got[0].isalpha()),
+                f"POSIX gitdir was rewritten as a drive path: {got!r}")
+            self.assertEqual(got, "/repo/.git/worktrees/feat")
 
     def test_malformed_or_missing_is_none(self):
         import tempfile

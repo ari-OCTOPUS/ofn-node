@@ -73,5 +73,26 @@
     ],
     "pruned": false,
     "wrote": false
+  },
+  "merge_main_posix_gitdir_20260902T0829Z": {
+    "parent_head_full": "8ff57579029079ee48f1327af41666581fec06d6",
+    "worktree": "/tmp/ofn-p5-xi",
+    "file_lock_zone": [
+      "tools/worktree_inventory.py",
+      "tests/test_worktree_inventory.py",
+      "docs/octopus-os/OTEL-EVENT-MAPPING.md",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json"
+    ],
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_chaos_owner_absent.py -q --tb=line",
+    "ran_at_utc": "2026-09-02T08:29:08Z",
+    "exit_code": 0,
+    "result": "149 passed, 1008 subtests passed, 0 failed, 0 skipped",
+    "fixes": [
+      "merged origin/main @33c9476 so this DRAFT no longer deletes P1/HALT files (pre-merge base 67359a6 predates #74)",
+      "POSIX absolute gitdir: /repo/... is returned as written; Windows must not drive-letter it (CI full-suite windows-latest FAILURE on GitdirPointer.test_reads_gitdir_line)"
+    ],
+    "pruned": false,
+    "wrote": false,
+    "filesystem_immutability": "NOT claimed"
   }
 }

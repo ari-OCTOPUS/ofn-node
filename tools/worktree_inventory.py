@@ -68,6 +68,22 @@ def parse_porcelain(text: str) -> list[dict[str, str]]:
     return entries
 
 
+def _pointer_is_absolute(path: str) -> bool:
+    """A gitdir line is absolute if git wrote it that way.
+
+    Do not ask ntpath to rewrite a POSIX ``/repo/...`` pointer: that
+    prepends a drive letter and is a different path. Leading ``/`` or
+    ``\\``, or a Windows drive letter, all count as already-absolute.
+    """
+    if not path:
+        return False
+    if path.startswith("/") or path.startswith("\\"):
+        return True
+    if len(path) >= 2 and path[1] == ":" and path[0].isalpha():
+        return True
+    return os.path.isabs(path)
+
+
 def read_gitdir_pointer(git_file: str) -> str | None:
     """Parse a linked-worktree ``.git`` *file* for ``gitdir: PATH``.
 
@@ -84,12 +100,17 @@ def read_gitdir_pointer(git_file: str) -> str | None:
             path = line.split(":", 1)[1].strip()
             if not path:
                 return None
+            # Absolute pointers stay exactly as git wrote them. On
+            # Windows, os.path.normpath("/repo/...") becomes
+            # C:\repo\... — that is a second body, not a parse.
+            # A leading slash or backslash, or a drive letter, is
+            # already absolute even when ntpath.isabs disagrees.
+            if _pointer_is_absolute(path):
+                return path
             # Relative pointers are relative to the .git *file*, not CWD.
             # Resolving against CWD would be a second body.
-            if not os.path.isabs(path):
-                base = os.path.dirname(os.path.abspath(git_file))
-                path = os.path.normpath(os.path.join(base, path))
-            return path
+            base = os.path.dirname(os.path.abspath(git_file))
+            return os.path.normpath(os.path.join(base, path))
     return None
 
 
