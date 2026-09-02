@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import re
+import shutil
 import subprocess
 import unittest
 from pathlib import Path
@@ -10,6 +12,62 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 V2 = ROOT / "web" / "cockpit-v2"
 SRC = V2 / "src"
+
+# CI job 100316226517 (windows-latest, HEAD e9cf84b84453d08578064b402f3044eb287f7d11,
+# 2026-09-02T15:48:46Z): node --check on api.js and app.js raised TimeoutExpired
+# after 10s. Those files parse locally (node --check exit 0, 2026-09-02T15:51:55Z).
+# Timeout is UNKNOWN, not a syntax verdict. 60s is a Windows budget, not a
+# measured spawn time.
+_WINDOWS_NODE_CHECK_TIMEOUT_S = 60.0
+_POSIX_NODE_CHECK_TIMEOUT_S = 15.0
+_NODE_CHECK_ATTEMPTS = 2
+
+
+def node_executable() -> str | None:
+    return shutil.which("node") or shutil.which("nodejs")
+
+
+def node_check_timeout_s(os_name: str = os.name) -> float:
+    return (
+        _WINDOWS_NODE_CHECK_TIMEOUT_S
+        if os_name == "nt"
+        else _POSIX_NODE_CHECK_TIMEOUT_S
+    )
+
+
+def run_node_syntax_check(
+    path: Path,
+    *,
+    node: str,
+    timeout: float,
+    runner=subprocess.run,
+    attempts: int = _NODE_CHECK_ATTEMPTS,
+    cwd: Path = ROOT,
+):
+    """Run `node --check`. Timeout is retried, then returned as UNKNOWN.
+
+    A TimeoutExpired is not a syntax failure. stdin is DEVNULL so a Windows
+    host cannot leave node blocked on an inherited pipe.
+    """
+    completed = None
+    timed_out = None
+    for _ in range(attempts):
+        try:
+            completed = runner(
+                [node, "--check", str(path)],
+                cwd=cwd,
+                text=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=timeout,
+                check=False,
+            )
+            timed_out = None
+            break
+        except subprocess.TimeoutExpired as exc:
+            timed_out = exc
+    return completed, timed_out
 
 
 class CockpitFrontendCase(unittest.TestCase):
@@ -252,13 +310,17 @@ class TestPollingContract(CockpitFrontendCase):
             self.assertIn(token, api)
 
     def test_node_polling_suite(self):
+        node = node_executable()
+        if node is None:
+            self.skipTest("node not installed")
         completed = subprocess.run(
-            ["node", "--test", str(V2 / "tests" / "polling.test.mjs")],
+            [node, "--test", str(V2 / "tests" / "polling.test.mjs")],
             cwd=ROOT,
             text=True,
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            timeout=30,
+            timeout=node_check_timeout_s(),
             check=False,
         )
         self.assertEqual(completed.returncode, 0, completed.stdout)
@@ -278,20 +340,107 @@ class TestPollingContract(CockpitFrontendCase):
         self.assertIn("pass 7", completed.stdout)
 
     def test_all_javascript_has_valid_syntax(self):
+        node = node_executable()
+        if node is None:
+            self.skipTest("node not installed")
+        timeout = node_check_timeout_s()
+        warmup = subprocess.run(
+            [node, "-e", "process.exit(0)"],
+            cwd=ROOT,
+            text=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=timeout,
+            check=False,
+        )
+        self.assertEqual(warmup.returncode, 0, warmup.stdout)
         for path in sorted(V2.rglob("*")):
             if path.suffix not in {".js", ".mjs"}:
                 continue
             with self.subTest(path=path.relative_to(ROOT)):
-                completed = subprocess.run(
-                    ["node", "--check", str(path)],
-                    cwd=ROOT,
-                    text=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    timeout=10,
-                    check=False,
+                completed, timed_out = run_node_syntax_check(
+                    path, node=node, timeout=timeout,
                 )
+                self.assertIsNone(
+                    timed_out,
+                    f"node --check timed out after {timeout}s on {path} "
+                    f"(timeout is UNKNOWN, not a syntax failure); "
+                    f"retry exhausted",
+                )
+                self.assertIsNotNone(completed)
                 self.assertEqual(completed.returncode, 0, completed.stdout)
+
+
+class TestNodeCheckTimeoutIsNotSyntax(unittest.TestCase):
+    """E3: timeout stays UNKNOWN; a real parse error still fails closed."""
+
+    def test_windows_budget_exceeds_failed_ci_ten_seconds(self):
+        self.assertGreater(node_check_timeout_s("nt"), 10.0)
+        self.assertEqual(node_check_timeout_s("nt"), _WINDOWS_NODE_CHECK_TIMEOUT_S)
+        self.assertLessEqual(node_check_timeout_s("posix"), _WINDOWS_NODE_CHECK_TIMEOUT_S)
+
+    def test_timeout_is_retried_then_returned_as_unknown(self):
+        calls = []
+
+        def boom(*args, **kwargs):
+            calls.append(kwargs)
+            raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
+
+        completed, timed_out = run_node_syntax_check(
+            Path("web/cockpit-v2/src/api.js"),
+            node="node",
+            timeout=1.0,
+            runner=boom,
+            attempts=2,
+        )
+        self.assertIsNone(completed)
+        self.assertIsInstance(timed_out, subprocess.TimeoutExpired)
+        self.assertEqual(len(calls), 2)
+        for kwargs in calls:
+            self.assertIs(kwargs["stdin"], subprocess.DEVNULL)
+
+    def test_nonzero_check_is_still_a_syntax_failure(self):
+        class Result:
+            returncode = 1
+            stdout = "SyntaxError: unexpected token"
+
+        def fake_runner(*args, **kwargs):
+            self.assertIs(kwargs["stdin"], subprocess.DEVNULL)
+            return Result()
+
+        completed, timed_out = run_node_syntax_check(
+            Path("web/cockpit-v2/src/api.js"),
+            node="node",
+            timeout=1.0,
+            runner=fake_runner,
+            attempts=2,
+        )
+        self.assertIsNone(timed_out)
+        self.assertEqual(completed.returncode, 1)
+        self.assertIn("SyntaxError", completed.stdout)
+
+    def test_success_does_not_retry(self):
+        class Result:
+            returncode = 0
+            stdout = ""
+
+        calls = {"n": 0}
+
+        def fake_runner(*args, **kwargs):
+            calls["n"] += 1
+            return Result()
+
+        completed, timed_out = run_node_syntax_check(
+            Path("web/cockpit-v2/src/api.js"),
+            node="node",
+            timeout=1.0,
+            runner=fake_runner,
+            attempts=2,
+        )
+        self.assertIsNone(timed_out)
+        self.assertEqual(completed.returncode, 0)
+        self.assertEqual(calls["n"], 1)
 
 
 if __name__ == "__main__":

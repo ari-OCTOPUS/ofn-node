@@ -22,3 +22,13 @@ backups/
 # Senior-architect reference pack — archive, not project code
 _studio-marketing-architecture/
 docs/octopus-surgery/survival-loop/state/
+
+# Partner / consent evidence — receipts only; never the raw files
+*.ogg
+*.local.json
+OCTOPUS-ATTESTATIONS/
+docs/octopus-surgery/attestations/raw/
+docs/consent/*.jpg
+docs/consent/*.jpeg
+docs/consent/*.png
+docs/consent/*.pdf
