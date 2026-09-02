@@ -1,0 +1,33 @@
+{
+  "schema": "octopus.receipt.v1",
+  "id": "D28-WIN-NODE-CHECK-20260902",
+  "claim": "Windows CI job 100316226517 failed because node --check timed out after 10s on api.js and app.js; those files parse (node --check exit 0). Timeout is UNKNOWN, not a syntax verdict. Helper retries TimeoutExpired, uses stdin=DEVNULL, Windows budget 60s.",
+  "grade": "E3",
+  "parent_sha": "f1e6ec2cc91a0867dce1d561b13d1d39ec9f0f66",
+  "concurrent_author_fix": "f1e6ec2cc91a0867dce1d561b13d1d39ec9f0f66",
+  "branch": "cursor/d28-edge-runbook-ea6b",
+  "pr": 67,
+  "command": "python3 -m unittest tests.test_cockpit_v2_frontend tests.test_d28_edge -v",
+  "timestamp_utc": "2026-09-02T15:52:43Z",
+  "exit_code": 0,
+  "counts": {"passed": 38, "failed": 0, "skipped": 0},
+  "pytest_on_this_host": "absent — used stdlib unittest; status: verified_absent",
+  "local_node_check": {
+    "command": "node --check web/cockpit-v2/src/api.js && node --check web/cockpit-v2/src/app.js",
+    "timestamp_utc": "2026-09-02T15:51:55Z",
+    "exit_code": 0
+  },
+  "ci_failure_ref": {
+    "job_id": 100316226517,
+    "check": "test (windows-latest)",
+    "failed_test": "tests/test_cockpit_v2_frontend.py::TestPollingContract::test_all_javascript_has_valid_syntax",
+    "assertion": "subprocess.TimeoutExpired after 10s on api.js and app.js",
+    "ci_counts": {"failed": 2, "passed": 2775, "skipped": 21, "subtests_passed": 1675},
+    "ci_timestamp_utc": "2026-09-02T15:48:46Z"
+  },
+  "windows_budget_s": 60.0,
+  "posix_budget_s": 15.0,
+  "attempts": 2,
+  "external_effects": 0,
+  "filesystem_immutability": "NOT claimed"
+}
