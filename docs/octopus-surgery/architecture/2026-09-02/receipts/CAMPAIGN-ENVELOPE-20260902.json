@@ -1,0 +1,23 @@
+{
+ "schema": "octopus.receipt.v1",
+ "receipt_id": "CAMPAIGN-ENVELOPE-20260902",
+ "issued_utc": "2026-09-02T07:10:00Z",
+ "author": "ari322 local agent session (owner-absent mode)",
+ "owner_ratified": false,
+ "scope_measured": "origin/release/p0 @110f6c0: quote_engine.quote() dry-shape، اسکیمای painting_quotes (qt_number/lead_id/scope_json/priced/total_aud/status/created_at/card_sha256/fingerprint)، HF-1 cap env، رأی Q6 rate-card lock",
+ "scope_not_measured": [
+  "اجرای موتور کوت روی دیتابیس واقعی (مسیرهای home سخت‌کد — عمداً fixture-driven)",
+  "هش fingerprint واقعی (در fixture معنا ندارد)",
+  "board138"
+ ],
+ "action": "دو حلقهٔ آخر زنجیرهٔ درآمد دستور: policy_checked + campaign_envelope_ready — draft-only",
+ "delivered": {
+  "ofn/agents/campaign_envelope.py": "build_campaign_envelope(): برای هر لید draft موتور کوت (dry) + شش چک سیاست با دلیل (direction/dedupe/rate-card-lock/total-cap/style/no-send-wiring)؛ artifact JSON با sha256؛ send_status=FORBIDDEN_UNTIL_OWNER_GO همیشگی؛ quote_sent_forbidden=true؛ صفر import شبکه",
+  "tests/test_campaign_envelope.py": "۱۰ تست fixture-driven با کنترل منفی هر چک"
+ },
+ "verification": {
+  "command": "python -m pytest tests/test_campaign_envelope.py -q",
+  "output": "10 passed in 0.37s"
+ },
+ "boundary": "هیچ ارسالی، هیچ گیت‌بازکردنی، هیچ لمس home/DB واقعی؛ quote_sent ممنوعیتش ساختاری است (ماژول مسیر transport ندارد)"
+}
