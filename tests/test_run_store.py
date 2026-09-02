@@ -229,3 +229,48 @@ class DuplicateDeliveryRejected(unittest.TestCase):
             with self.assertRaises(FailClosedError):
                 reopened.append(ev.make_event(
                     ev.TOOL_INVOKED, run_id, now_epoch_s=_NOW + 3, ref=ref))
+
+class DeduplicationKeySemantics(unittest.TestCase):
+    """Directive: same-id/different-payload, cross-run collision — the
+    dedup keys are (a) envelope idempotency_key at create(), (b) the
+    (kind, ref) pair for ref-carrying events, (c) receipt→run binding."""
+
+    def test_same_idem_key_different_payload_collapses_to_one_run(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            a = store.create(_env("same"), now_epoch_s=_NOW)
+            b = store.create(_env("same", rand="ffffffffffffffff"),
+                             now_epoch_s=_NOW + 9)   # different rand → different run_id candidate
+            self.assertEqual(a, b)
+            created = [e for e in store.replay() if e["kind"] == ev.RUN_CREATED]
+            self.assertEqual(len(created), 1)
+            # the second submission's payload was NOT recorded anywhere
+            self.assertNotIn("ffffffffffffffff",
+                             json.dumps(created[0]))
+
+    def test_cross_run_budget_debit_against_foreign_receipt_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_a = store.create(_env("run-a"), now_epoch_s=_NOW)
+            run_b = store.create(_env("run-b", rand="b1b2c3d4e5f6a7b8"),
+                                 now_epoch_s=_NOW)
+            receipt_a = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_a, now_epoch_s=_NOW + 1))
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(     # run B settles run A's receipt
+                    ev.BUDGET_DEBIT, run_b, now_epoch_s=_NOW + 2,
+                    ref=receipt_a))
+
+    def test_cross_run_duplicate_delivery_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_a = store.create(_env("run-a"), now_epoch_s=_NOW)
+            run_b = store.create(_env("run-b", rand="b1b2c3d4e5f6a7b8"),
+                                 now_epoch_s=_NOW)
+            ref = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_a, now_epoch_s=_NOW + 1))
+            store.append(ev.make_event(
+                ev.TOOL_INVOKED, run_a, now_epoch_s=_NOW + 2, ref=ref))
+            with self.assertRaises(FailClosedError):   # same (kind,ref), other run
+                store.append(ev.make_event(
+                    ev.TOOL_INVOKED, run_b, now_epoch_s=_NOW + 3, ref=ref))

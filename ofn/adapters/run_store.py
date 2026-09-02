@@ -46,6 +46,7 @@ class RunStore:
         self._closed: Dict[str, bool] = {}
         self._by_idem: Dict[str, str] = {}
         self._receipts: Set[str] = set()   # EXECUTION_RECEIPT event_ids
+        self._receipt_run: Dict[str, str] = {}  # receipt event_id -> run_id
         self._debited: Set[str] = set()    # receipt event_ids already settled
         self._seen_kind_ref: Set[tuple] = set()  # (kind, ref) already appended
         self._load()
@@ -76,6 +77,7 @@ class RunStore:
             self._by_idem[rec["payload"]["idempotency_key"]] = run_id
         elif rec["kind"] == ev.EXECUTION_RECEIPT:
             self._receipts.add(rec["event_id"])
+            self._receipt_run[rec["event_id"]] = run_id
         elif rec["kind"] == ev.BUDGET_DEBIT:
             self._debited.add(rec["ref"])
         if rec.get("ref"):
@@ -141,6 +143,10 @@ class RunStore:
                 raise FailClosedError(
                     f"BUDGET_DEBIT ref unknown receipt: {ref!r} — one verdict → "
                     "one budget effect starts with a real receipt")
+            if self._receipt_run.get(ref) != run_id:
+                raise FailClosedError(
+                    f"cross-run collision: receipt {ref!r} belongs to run "
+                    f"{self._receipt_run.get(ref)!r}, not {run_id!r}")
             if ref in self._debited:
                 raise FailClosedError(
                     f"receipt {ref!r} already settled — refusing second budget effect")
