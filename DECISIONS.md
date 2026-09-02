@@ -532,6 +532,8 @@ first proof required: one real payment receipt on PAINT-L5-001
 
 O-3 و S-04 از `later` به `open` رفتند و می‌توانند موازی جلو بروند.
 C-009 رسماً بسته شد (هویت آپلود تکراری، نه تناقض عددی).
+`merge_authorized` self-merge نیست؛ `protect-main` approve الهه
+می‌خواهد. ترتیب: #68 سپس #67. `LANES.csv` روی این میزبان نیست.
 
 خطا یک مسیر را یک پله عقب می‌برد، نه هر پنج مسیر را.
 

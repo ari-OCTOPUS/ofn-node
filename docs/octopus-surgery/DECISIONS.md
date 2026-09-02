@@ -265,7 +265,8 @@ Partner voices do not block painting. Observation stays false until
 three `media_sha256` receipts exist **and** a verifier has accessed
 each file. 2026-09-02 Windows hashes are recorded under
 `attestations/receipts/`; owner later attested Sume is Abbas
-(legal name, AU-NSW). Observation stays false until a verifier
+(legal name, AU-NSW). Official documents print `Sume (Abbas)`.
+Observation stays false until a verifier
 hears each file. Saba consent is
 `record_release` only. Secret rotation on this host is
 `risk_accepted_unrotated`. `GATE_OPEN_UNTIL_UTC=2026-09-16`.

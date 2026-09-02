@@ -108,6 +108,53 @@ class TestD27AuthorizationBlock(unittest.TestCase):
             ],
         )
 
+    def test_flags_not_flipped_correct_the_unlock_prose(self):
+        flags = self.data["flags_not_flipped"]
+        self.assertIn("already 7000", flags["OFN_CONTROL_QUOTA_TOKENS"])
+        self.assertIn("not set", flags["OFN_KEEP_GATES_OPEN"])
+        self.assertIn("not defaulted", flags["OFN_WIRE_OUTBOUND"])
+        self.assertEqual(
+            self.data["writes_revenue_sent_booking"],
+            "authorized_to_record_independent_receipts_only",
+        )
+        self.assertIsInstance(self.data["writes_revenue_sent_booking"], str)
+        self.assertEqual(
+            self.data["error_policy"],
+            "demote_one_path_one_rung_not_lock_all_five",
+        )
+        from ofn.config import load
+        self.assertEqual(load().control_quota_tokens, 7000)
+        prose = os.path.join(
+            ROOT,
+            "docs",
+            "octopus-surgery",
+            "stage-01-lineage-scan",
+            "2026-09-01",
+            "sources",
+            "D-27-UNLOCK-DIRECTIVE.md",
+        )
+        with open(prose, encoding="utf-8") as fh:
+            body = fh.read()
+        self.assertIn("پیش‌فرض ۰", body)
+
+    def test_merge_authorized_is_not_github_self_merge(self):
+        self.assertTrue(self.data["merge_authorized"])
+        self.assertTrue(self.data["merge_authorized_is_not_self_merge"])
+        self.assertFalse(self.data["github_self_merge"])
+        self.assertEqual(self.data["pr65_merge"]["push_to_main"], "rejected")
+        self.assertEqual(self.data["recommended_merge_order"], ["68", "67"])
+        overlay = self.data["lanes_overlay"]
+        self.assertFalse(overlay["lanes_csv_on_this_host"])
+        self.assertEqual(overlay["L13"]["pr"], 68)
+        self.assertFalse(
+            os.path.isfile(os.path.join(ROOT, "LANES.csv")),
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(ROOT, "docs", "octopus-surgery", "LANES.csv")
+            ),
+        )
+
     def test_c009_is_on_the_closed_list(self):
         self.assertEqual(self.data["contradictions_closed_by_this"], ["C-009"])
         with open(CONTRADICTIONS, encoding="utf-8") as fh:

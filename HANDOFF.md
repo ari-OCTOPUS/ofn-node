@@ -42,7 +42,8 @@ D-28        لبهٔ ToS · ویس/رضایت/rotate جعل نشد
             SUME=عباس · اسناد رسمی: Sume (Abbas) · محتوا شنیده نشد
             انتساب فایل inferred · انتقال: host+login+per-file verify
             PR #65 هنوز روی main نیست (ریویو + ممنوعیت merge-commit)
-قدم بعد     #68 اول، بعد approve الهه روی #67؛ یا #65/#66/#67 قبل از #68
+قدم بعد     فقط: approve الهه روی #68، بعد روی #67
+            merge_authorized ≠ self-merge · protect-main · بدون الهه مسیر نیست
             مالک: هر ogg را جدا گوش بده و جدا هش کن
             میزبان ofn-node؟ نام ورود؟
             مالک روی برد: چرخش دو راز + flagهای env
