@@ -121,13 +121,29 @@ class NegativeControls(unittest.TestCase):
 
 
 class StructuralNoSend(unittest.TestCase):
-    def test_module_has_no_network_imports(self):
+    BANNED = ("urllib", "smtplib", "socket", "requests",
+              "__import__", "importlib", "subprocess", "os.system",
+              "eval(", "exec(", "Popen", "runpy")
+
+    def test_module_has_no_effect_paths_at_all(self):
         import inspect
         from ofn.agents import campaign_envelope as ce
         src = inspect.getsource(ce)
-        for banned in ("urllib", "smtplib", "socket", "requests"):
+        for banned in self.BANNED:
             self.assertNotIn(banned, src,
-                             f"campaign_envelope must not wire sends: {banned}")
+                             f"campaign_envelope must not wire effects: {banned}")
+
+    def test_authorization_fields_mandatory_and_sealed(self):
+        env, _, data = _build({"lead:nsw_ocp_buyer:tfnsw:x": {}})
+        # هر سه فیلد در artifact هست، هر سه بسته، و از policy_checked جدایند
+        self.assertIn("send_authorized", data)
+        self.assertIn("execution_authorized", data)
+        self.assertIn("transport_binding", data)
+        self.assertIs(data["send_authorized"], False)
+        self.assertIs(data["execution_authorized"], False)
+        self.assertIsNone(data["transport_binding"])
+        self.assertTrue(data["policy_checked"])          # آماده…
+        self.assertIs(data["send_authorized"], False)    # …ولی هرگز مجاز نه
 
 
 if __name__ == "__main__":

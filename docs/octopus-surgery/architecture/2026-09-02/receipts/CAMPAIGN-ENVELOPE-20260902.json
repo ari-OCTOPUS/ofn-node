@@ -19,5 +19,28 @@
   "command": "python -m pytest tests/test_campaign_envelope.py -q",
   "output": "10 passed in 0.37s"
  },
- "boundary": "هیچ ارسالی، هیچ گیت‌بازکردنی، هیچ لمس home/DB واقعی؛ quote_sent ممنوعیتش ساختاری است (ماژول مسیر transport ندارد)"
+ "boundary": "هیچ ارسالی، هیچ گیت‌بازکردنی، هیچ لمس home/DB واقعی؛ quote_sent ممنوعیتش ساختاری است (ماژول مسیر transport ندارد)",
+ "evidence_hardening_20260902": {
+  "tested_head_full": "dd0a59335b66927e3b707c9dc508e7365957b2ec",
+  "command": "python -m pytest tests/test_campaign_envelope.py -q",
+  "result": "11 passed",
+  "ran_at_utc": "2026-09-02T05:33:21+00:00",
+  "separation_of_ready_and_authorized": {
+   "policy_checked": "six-reason checklist — can be true",
+   "send_authorized": "always False, sealed field, independent of policy_checked (tested together: ready AND unauthorized)",
+   "execution_authorized": "always False — no execution may claim this artifact",
+   "transport_binding": "always None — no transport may bind to this artifact"
+  },
+  "structural_bans_extended": [
+   "__import__",
+   "importlib",
+   "subprocess",
+   "os.system",
+   "eval(",
+   "exec(",
+   "Popen",
+   "runpy",
+   "+ original network four"
+  ]
+ }
 }

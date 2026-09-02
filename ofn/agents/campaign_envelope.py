@@ -117,6 +117,10 @@ def build_campaign_envelope(
         "cap_ok": cap_ok,
         "policy_checked": bool(quotes) and cap_ok and
         all(q.get("policy_checked") for q in quotes),
+        # سه فیلدِ جدا و همیشه‌بسته — «آماده» هرگز «مجاز» نیست:
+        "send_authorized": False,          # جدا از policy_checked، برنمی‌گردد
+        "execution_authorized": False,     # هیچ اجرایی از این artifact مجاز نیست
+        "transport_binding": None,         # هیچ transportی به این بسته وصل نیست
         "send_status": "FORBIDDEN_UNTIL_OWNER_GO",
         "quote_sent_forbidden": True,
     }
