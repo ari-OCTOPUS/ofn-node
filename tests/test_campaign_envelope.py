@@ -12,9 +12,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ofn.agents.campaign_envelope import (
-    QUOTE_MAX_AUD, build_campaign_envelope,
-)
+from ofn.agents import campaign_envelope as ce
+from ofn.agents.campaign_envelope import build_campaign_envelope
 
 
 def _fake_quote_fn(lead_id: str, scope):
@@ -23,10 +22,9 @@ def _fake_quote_fn(lead_id: str, scope):
         "lead_id": lead_id,
         "qt_number": "QT-20260902-001",
         "priced": False,
-        "total_aud": 0,
         "subject": "Painting works — site visit request",
         "draft": {"body": "fixture body"},
-    }
+    }   # نکته: خروجی واقعیِ dryِ موتور total_aud ندارد — فیکسچر هم ندارد
 
 
 def _build(lead_scopes, *, card_approved=False, quote_fn=_fake_quote_fn,
@@ -88,10 +86,64 @@ class NegativeControls(unittest.TestCase):
     def test_total_over_cap_fails(self):
         def huge_fn(lead_id, scope):
             d = _fake_quote_fn(lead_id, scope)
-            d.update({"priced": True, "total_aud": QUOTE_MAX_AUD + 1})
+            d.update({"priced": True, "total_aud": ce._cap_aud() + 1})
             return d
         env, _, _ = _build({"lead:nsw_ocp_buyer:doe:x": {}}, quote_fn=huge_fn,
                         card_approved=True)
+        self.assertFalse(env["quotes"][0]["policy"]["total_cap"]["ok"])
+
+    def test_priced_dry_total_read_from_body_text(self):
+        """Bugbot High 2026-09-02: dry موتور کوت total_aud ندارد — رقم فقط
+        در body رندر شده. استخراج از body باید کار کند، وگرنه سقف خلأیی پاس می‌شد."""
+        def dry_priced_fn(lead_id, scope):
+            d = _fake_quote_fn(lead_id, scope)
+            d.update({"priced": True, "draft": {"body":
+                "Reference: QT-1\n\nTotal: $4,200 incl. GST, labour, "
+                "materials and prep.\n"}})
+            return d
+        env, _, _ = _build({"lead:nsw_ocp_buyer:doe:x": {}},
+                           quote_fn=dry_priced_fn, card_approved=True)
+        self.assertTrue(env["quotes"][0]["policy"]["total_cap"]["ok"])
+
+    def test_priced_dry_over_cap_in_body_fails(self):
+        def dry_huge_fn(lead_id, scope):
+            d = _fake_quote_fn(lead_id, scope)
+            d.update({"priced": True, "draft": {"body":
+                "Total: $30,000 incl. GST and prep.\n"}})
+            return d
+        env, _, _ = _build({"lead:nsw_ocp_buyer:doe:x": {}},
+                           quote_fn=dry_huge_fn, card_approved=True)
+        self.assertFalse(env["quotes"][0]["policy"]["total_cap"]["ok"])
+
+    def test_priced_with_no_verifiable_total_fails_closed(self):
+        def blind_fn(lead_id, scope):
+            d = _fake_quote_fn(lead_id, scope)
+            d.update({"priced": True})   # نه فیلد، نه body — هیچ رقمی
+            return d
+        env, _, _ = _build({"lead:nsw_ocp_buyer:doe:x": {}}, quote_fn=blind_fn,
+                        card_approved=True)
+        cap = env["quotes"][0]["policy"]["total_cap"]
+        self.assertFalse(cap["ok"])
+        self.assertIn("unverifiable", cap["reason"])
+        self.assertFalse(env["policy_checked"])
+
+    def test_env_override_tightens_cap(self):
+        def priced_fn(lead_id, scope):
+            d = _fake_quote_fn(lead_id, scope)
+            d.update({"priced": True, "total_aud": 4200.0})
+            return d
+        old = "OCTOPUS_QUOTE_MAX_AUD"
+        import os as _os
+        prev = _os.environ.get(old)
+        _os.environ[old] = "1000"
+        try:
+            env, _, _ = _build({"lead:nsw_ocp_buyer:doe:x": {}},
+                               quote_fn=priced_fn, card_approved=True)
+        finally:
+            if prev is None:
+                _os.environ.pop(old, None)
+            else:
+                _os.environ[old] = prev
         self.assertFalse(env["quotes"][0]["policy"]["total_cap"]["ok"])
 
     def test_duplicate_lead_filtered_once_flagged(self):

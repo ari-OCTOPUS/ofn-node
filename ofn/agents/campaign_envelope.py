@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
 from pathlib import Path
 from typing import Callable, Dict, Mapping, Optional
 
@@ -26,7 +28,34 @@ from typing import Callable, Dict, Mapping, Optional
 SUPPLY_SIDE_MARKERS = ("lead:seek:", "seek:", "job-ad", "employer:")
 
 DEFAULT_MAX_QUOTES = 10          # هم‌قوارهٔ سقف روزانهٔ ارسال لید
-QUOTE_MAX_AUD = 25_000.0         # هم‌قوارهٔ HF-1 موتور کوت
+
+
+def _cap_aud() -> float:
+    """HF-1 cap — همان env موتور کوت، همان پیش‌فرض؛ در زمانِ فراخوانی
+    خوانده می‌شود تا سخت‌گیریِ موقتِ مالک بدون ری‌استارت اثر کند
+    (Bugbot 2026-09-02: کپیِ هاردکد env موتور را کور می‌کرد)."""
+    return float(os.environ.get("OCTOPUS_QUOTE_MAX_AUD", "25000"))
+
+_TOTAL_RE = re.compile(r"Total:\s*\$([\d,]+(?:\.\d+)?)")
+
+
+def _extract_total(draft: Mapping) -> Optional[float]:
+    """رقم کل را از draft بیرون می‌کشد — یا None یعنی «نمی‌توان اثبات کرد».
+
+    ترتیب (Bugbot 2026-09-02، High): برای کوت قیمت‌دار، **body رندرشده
+    منبع حقیقت است** — همان متنی که گیرنده می‌بیند («Total: $X»). مسیر dry
+    موتور `total_aud` برنمی‌گرداند، و اگر کسی فیلد را با صفر پر کرده باشد
+    نباید سقف را خلأیی پاس کند. پس: اول body ← بعد فیلد صریح ← None.
+    None یعنی سقف قابل‌اثبات نیست و چک fail-closed می‌شود.
+    """
+    body = str((draft.get("draft") or {}).get("body") or "")
+    m = _TOTAL_RE.search(body)
+    if m:
+        return float(m.group(1).replace(",", ""))
+    v = draft.get("total_aud")
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        return float(v)
+    return None
 
 
 def _is_demand_side(lead_id: str) -> bool:
@@ -34,12 +63,28 @@ def _is_demand_side(lead_id: str) -> bool:
     return not any(m in lid for m in SUPPLY_SIDE_MARKERS)
 
 
+def _total_cap_check(priced: bool, total: Optional[float]) -> Dict[str, object]:
+    """HF-1: سقفِ مبلغ نهایی. برای کوت بی‌قیمت بی‌معناست؛ برای کوت قیمت‌دار
+    یا رقم باید اثبات شود یا چک قرمز است — پاسِ خلأیی ممنوع (Bugbot 2026-09-02)."""
+    if not priced:
+        return {"ok": True, "reason": ""}
+    if total is None:
+        return {"ok": False,
+                "reason": "total unverifiable in dry artifact — HF-1 cap not "
+                          "demonstrated (fail-closed); needs_owner_review"}
+    cap = _cap_aud()
+    if total > cap:
+        return {"ok": False,
+                "reason": f"total {total} over cap {cap} (HF-1)"}
+    return {"ok": True, "reason": ""}
+
+
 def _check_policy(draft: Mapping, *, card_approved: bool,
                   seen_leads: set) -> Dict[str, object]:
     """هر کوت شش چک می‌خرد؛ نتیجه با دلیل، نه بولی لاک‌پشت."""
     lead_id = str(draft.get("lead_id") or "")
     priced = bool(draft.get("priced"))
-    total = float(draft.get("total_aud") or 0)
+    total = _extract_total(draft)
     checks: Dict[str, object] = {
         "direction_demand_side": {
             "ok": _is_demand_side(lead_id),
@@ -53,10 +98,7 @@ def _check_policy(draft: Mapping, *, card_approved: bool,
             "ok": (not priced) or card_approved,
             "reason": "" if (not priced) or card_approved
             else "priced quote while rate card not owner-approved (vote Q6)"},
-        "total_cap": {
-            "ok": (not priced) or total <= QUOTE_MAX_AUD,
-            "reason": "" if (not priced) or total <= QUOTE_MAX_AUD
-            else f"total {total} over cap {QUOTE_MAX_AUD} (HF-1)"},
+        "total_cap": _total_cap_check(priced, total),
         "style_subject_present": {
             "ok": bool(str(draft.get("subject") or "").strip()),
             "reason": "" if str(draft.get("subject") or "").strip()
