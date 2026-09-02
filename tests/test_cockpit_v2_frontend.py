@@ -192,6 +192,27 @@ class TestSafeRenderingAndTruth(CockpitFrontendCase):
             self.assertIn(control, audit)
 
 
+def _run_node(args: list[str], timeout: int = 30) -> subprocess.CompletedProcess[str]:
+    """Run node with stdin closed. Inherited stdin has hung `node --check`
+    on windows-latest (TimeoutExpired at 10s on api.js/app.js; files parse
+    on Ubuntu and locally). Retry once if the runner still stalls.
+    """
+    kwargs = dict(
+        args=args,
+        cwd=ROOT,
+        text=True,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=timeout,
+        check=False,
+    )
+    try:
+        return subprocess.run(**kwargs)
+    except subprocess.TimeoutExpired:
+        return subprocess.run(**kwargs)
+
+
 class TestPollingContract(CockpitFrontendCase):
     def test_source_contains_required_polling_guards(self):
         api = self.files["src/api.js"]
@@ -204,14 +225,8 @@ class TestPollingContract(CockpitFrontendCase):
             self.assertIn(token, api)
 
     def test_node_polling_suite(self):
-        completed = subprocess.run(
+        completed = _run_node(
             ["node", "--test", str(V2 / "tests" / "polling.test.mjs")],
-            cwd=ROOT,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=30,
-            check=False,
         )
         self.assertEqual(completed.returncode, 0, completed.stdout)
         self.assertIn("pass 8", completed.stdout)
@@ -221,15 +236,7 @@ class TestPollingContract(CockpitFrontendCase):
             if path.suffix not in {".js", ".mjs"}:
                 continue
             with self.subTest(path=path.relative_to(ROOT)):
-                completed = subprocess.run(
-                    ["node", "--check", str(path)],
-                    cwd=ROOT,
-                    text=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    timeout=10,
-                    check=False,
-                )
+                completed = _run_node(["node", "--check", str(path)])
                 self.assertEqual(completed.returncode, 0, completed.stdout)
 
 
