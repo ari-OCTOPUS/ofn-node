@@ -75,6 +75,35 @@
     ]
   },
 
+  "merge_authorized_is_not_self_merge": true,
+  "github_self_merge": false,
+  "protect_main": {
+    "ruleset": "protect-main",
+    "required_approving_review_count": 1,
+    "required_linear_history": true,
+    "self_merge": false
+  },
+  "recommended_merge_order": ["68", "67"],
+  "lanes_overlay": {
+    "schema": "octopus.d27_lanes_overlay.v1",
+    "source": "owner_briefing_2026-09-02",
+    "lanes_csv_on_this_host": false,
+    "claim_type": "record",
+    "paths": {
+      "W1-SPINE": {"lane": "L9", "note": "serial inner chain E1-E7"},
+      "W2-EDGE": {"lane": "L4"},
+      "W3-MONEY": {"lane": "L12", "gaps": ["G-46", "G-49", "G-52"]},
+      "W4-COGNITION": {"lanes": ["L6", "L5"], "mode": "read_only"},
+      "W5-TRUTH": {"lane": "L0", "note": "only lane allowed to write checklist 200; serial by design"}
+    },
+    "L13": {
+      "name": "governance unlock",
+      "gaps": ["G-43", "G-44", "G-45", "G-46", "G-47", "G-48", "G-49", "G-50"],
+      "pr": 68,
+      "note": "governance gate was already in the plan, not a new obstacle"
+    }
+  },
+
   "contradictions_closed_by_this": ["C-009"],
   "contradictions_remain_open": ["C-001", "C-002", "C-003", "C-004", "C-005", "C-006", "C-008"],
 

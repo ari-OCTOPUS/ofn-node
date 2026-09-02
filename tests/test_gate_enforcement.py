@@ -166,7 +166,9 @@ class TestKillBlocksOwnerApprove(GateEnforcementBase):
 class TestPartnerPreconditionDefault(unittest.TestCase):
     """The temporary production-gate opening expires at the UTC boundary."""
 
-    DEADLINE = datetime(2026, 8, 17, 0, 0, 0, tzinfo=timezone.utc)
+    DEADLINE = datetime.strptime(
+        config_module.GATE_OPEN_UNTIL_UTC, "%Y-%m-%d"
+    ).replace(tzinfo=timezone.utc)
 
     def test_partner_precondition_and_secret_rotation_closed_at_deadline(self):
         # Freeze the clock at the exact boundary and clear every environment
