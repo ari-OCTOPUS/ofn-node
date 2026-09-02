@@ -1,0 +1,255 @@
+{
+  "vault_root": "F:\\backup",
+  "findings": [
+    {
+      "id": "MIRROR-06-evidence-octopus-handoff-merge-2026-08-22-merged-current-",
+      "category": "mirror",
+      "severity": "HIGH",
+      "title": "content-bearing CURRENT-TRUTH mirror: 06-EVIDENCE/OCTOPUS-HANDOFF-MERGE-2026-08-22/merged/CURRENT-TRUTH.md",
+      "evidence_path": "06-EVIDENCE/OCTOPUS-HANDOFF-MERGE-2026-08-22/merged/CURRENT-TRUTH.md",
+      "evidence_sha256": "7354caf879f88a5906be5e5f87fc0b7b6387037d36c594341c7b0df711407cef",
+      "detail": "6517 bytes, no pointer marker (mirror-cleanup-20260902, 99-ARCHIVE)",
+      "proposed_action": "reduce to pointer per canonical policy (owner ruling; via PR/artifact only)"
+    },
+    {
+      "id": "RELOCATED-01-truth-dead-claims-registry-md-f-backup-island-teams-b-daemon-loop-swap-consistency-py",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/DEAD-CLAIMS-REGISTRY.md: F:/backup-island/teams/B-daemon-loop/swap_consistency.py",
+      "evidence_path": "01-TRUTH/DEAD-CLAIMS-REGISTRY.md",
+      "evidence_sha256": "269de8819e696ea69ffce668615d21b197e15f29be4c8bbc53fed8bc0aafcce1",
+      "detail": "path does not resolve, but basename exists at: _ops/measure/swap_consistency.py",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-ledger-vs-contradictions-md-ledger-jsonl-tip-json",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/LEDGER-VS-CONTRADICTIONS.md: ledger.jsonl.tip.json",
+      "evidence_path": "01-TRUTH/LEDGER-VS-CONTRADICTIONS.md",
+      "evidence_sha256": "6fe6c4686df3dac742608f72f0d1bbc883b1177f763928ae8e43a96b2cb62c44",
+      "detail": "path does not resolve, but basename exists at: 07 - Knowledge/genome-system/ledger/ledger.jsonl.tip.json",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "DEADREF-01-truth-ledger-vs-contradictions-md-06-evidence-c-nnn-md",
+      "category": "deadref",
+      "severity": "MEDIUM",
+      "title": "dead reference in 01-TRUTH/LEDGER-VS-CONTRADICTIONS.md: 06-EVIDENCE/C-NNN-*.md",
+      "evidence_path": "01-TRUTH/LEDGER-VS-CONTRADICTIONS.md",
+      "evidence_sha256": "6fe6c4686df3dac742608f72f0d1bbc883b1177f763928ae8e43a96b2cb62c44",
+      "detail": "no match at any resolution rung under F:\\backup (root-relative, source-relative, wildcard, basename)",
+      "proposed_action": "repair the reference or archive the claim (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-service-status-md-flags-loaded-organism-json",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/SERVICE-STATUS.md: flags-loaded-organism.json",
+      "evidence_path": "01-TRUTH/SERVICE-STATUS.md",
+      "evidence_sha256": "a2fddaff3013d4bcdcb724fa388205ef42a0d941b16c7c9f5321223bbdf1e184",
+      "detail": "path does not resolve, but basename exists at: _ops/state/flags-loaded-organism.json",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-service-status-md-doctor-vitals-json",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/SERVICE-STATUS.md: doctor-vitals.json",
+      "evidence_path": "01-TRUTH/SERVICE-STATUS.md",
+      "evidence_sha256": "a2fddaff3013d4bcdcb724fa388205ef42a0d941b16c7c9f5321223bbdf1e184",
+      "detail": "path does not resolve, but basename exists at: OCTOPUS-DOCTOR/90-_meta/state/doctor-vitals.json",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "DEADREF-01-truth-state-2026-08-15-night-md-scripts-verify-live-store-py",
+      "category": "deadref",
+      "severity": "MEDIUM",
+      "title": "dead reference in 01-TRUTH/STATE-2026-08-15-NIGHT.md: scripts/verify_live_store.py",
+      "evidence_path": "01-TRUTH/STATE-2026-08-15-NIGHT.md",
+      "evidence_sha256": "ca738bbd6c819bd87cb67e4987b7ff606e6737a722a16d6d024139bf01c15190",
+      "detail": "no match at any resolution rung under F:\\backup (root-relative, source-relative, wildcard, basename)",
+      "proposed_action": "repair the reference or archive the claim (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-state-2026-08-15-night-md-ops-observatory-architecture-observatory-allowlist-yaml",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/STATE-2026-08-15-NIGHT.md: _ops/observatory/architecture/observatory-allowlist.yaml",
+      "evidence_path": "01-TRUTH/STATE-2026-08-15-NIGHT.md",
+      "evidence_sha256": "ca738bbd6c819bd87cb67e4987b7ff606e6737a722a16d6d024139bf01c15190",
+      "detail": "path does not resolve, but basename exists at: architecture/observatory-allowlist.yaml",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-state-2026-08-15-night-md-sig-receipt-md",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/STATE-2026-08-15-NIGHT.md: SIG-RECEIPT.md",
+      "evidence_path": "01-TRUTH/STATE-2026-08-15-NIGHT.md",
+      "evidence_sha256": "ca738bbd6c819bd87cb67e4987b7ff606e6737a722a16d6d024139bf01c15190",
+      "detail": "path does not resolve, but basename exists at: _ops/D1-AUDIT-PACKAGE-2026-08-15/SIG-RECEIPT.md",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-state-2026-08-15-night-md-run-all-py",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/STATE-2026-08-15-NIGHT.md: run_all.py",
+      "evidence_path": "01-TRUTH/STATE-2026-08-15-NIGHT.md",
+      "evidence_sha256": "ca738bbd6c819bd87cb67e4987b7ff606e6737a722a16d6d024139bf01c15190",
+      "detail": "path does not resolve, but basename exists at: _ops/tests/run_all.py, 4d_system/tests/run_all.py",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-state-2026-08-15-night-md-test-recall-loop-distant-py",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/STATE-2026-08-15-NIGHT.md: test_recall_loop_distant.py",
+      "evidence_path": "01-TRUTH/STATE-2026-08-15-NIGHT.md",
+      "evidence_sha256": "ca738bbd6c819bd87cb67e4987b7ff606e6737a722a16d6d024139bf01c15190",
+      "detail": "path does not resolve, but basename exists at: _ops/tests/test_recall_loop_distant.py",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-state-2026-08-15-night-md-megaprompt-debt-sweep-2026-08-16-md",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/STATE-2026-08-15-NIGHT.md: MEGAPROMPT-DEBT-SWEEP-2026-08-16.md",
+      "evidence_path": "01-TRUTH/STATE-2026-08-15-NIGHT.md",
+      "evidence_sha256": "ca738bbd6c819bd87cb67e4987b7ff606e6737a722a16d6d024139bf01c15190",
+      "detail": "path does not resolve, but basename exists at: agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16.md",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-test-count-md-test-planner-py",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/TEST-COUNT.md: test_planner.py",
+      "evidence_path": "01-TRUTH/TEST-COUNT.md",
+      "evidence_sha256": "418675bdea3102acc3943f6ea2663f5f3a688091449f3ea3339f940bab256498",
+      "detail": "path does not resolve, but basename exists at: _ops/epistemics/test_planner.py",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "DEADREF-01-truth-test-count-md-scripts-verify-live-store-py",
+      "category": "deadref",
+      "severity": "MEDIUM",
+      "title": "dead reference in 01-TRUTH/TEST-COUNT.md: scripts/verify_live_store.py",
+      "evidence_path": "01-TRUTH/TEST-COUNT.md",
+      "evidence_sha256": "418675bdea3102acc3943f6ea2663f5f3a688091449f3ea3339f940bab256498",
+      "detail": "no match at any resolution rung under F:\\backup (root-relative, source-relative, wildcard, basename)",
+      "proposed_action": "repair the reference or archive the claim (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "RELOCATED-01-truth-test-count-md-run-all-py",
+      "category": "deadref",
+      "severity": "LOW",
+      "title": "unanchored reference in 01-TRUTH/TEST-COUNT.md: run_all.py",
+      "evidence_path": "01-TRUTH/TEST-COUNT.md",
+      "evidence_sha256": "418675bdea3102acc3943f6ea2663f5f3a688091449f3ea3339f940bab256498",
+      "detail": "path does not resolve, but basename exists at: _ops/tests/run_all.py, 4d_system/tests/run_all.py",
+      "proposed_action": "re-anchor the reference to its real path (proposal; never auto-edit the vault)"
+    },
+    {
+      "id": "JUNK-debug-4ab476-log",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: debug-4ab476.log",
+      "evidence_path": "debug-4ab476.log",
+      "evidence_sha256": "f7e62fd503e03a724aea76c2ffbcad52a01f1cf2eb298694cc9d71c712acf2e3",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "JUNK-debug-b71475-log",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: debug-b71475.log",
+      "evidence_path": "debug-b71475.log",
+      "evidence_sha256": "b8aca82f1d0623d525187394f88f4b0f33a2c943541584955ab5c77ec8a61f9d",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "JUNK-debug-bbea48-log",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: debug-bbea48.log",
+      "evidence_path": "debug-bbea48.log",
+      "evidence_sha256": "528421bce563efa409475e8dbc47181a45bffd4dbf469b7052042fff1c671e06",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "JUNK-debug-eab815-log",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: debug-eab815.log",
+      "evidence_path": "debug-eab815.log",
+      "evidence_sha256": "7fa1fe9f2890830d584142dedc1f165a385de27c5c5cc47229308bb83d8df1f4",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "JUNK-debug-log",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: debug.log",
+      "evidence_path": "debug.log",
+      "evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "JUNK-fail-gate-e2e-mk-p1-mk-p2-mk-p3-mk-p4-void-true-why-judge-pa",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: FAIL, gate_e2e([_mk(p1), _mk(p2), _mk(p3), _mk(p4, void=True, why=judge)])[pass] is False)    check(baseline",
+      "evidence_path": "FAIL, gate_e2e([_mk(p1), _mk(p2), _mk(p3), _mk(p4, void=True, why=judge)])[pass] is False)    check(baseline",
+      "evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "JUNK-pass-gate-e2e-mk-fp-i-for-i-in-range-4-pass-check-1",
+      "category": "junk",
+      "severity": "LOW",
+      "title": "shell-redirect junk at vault root: PASS, gate_e2e([_mk(fp{i}) for i in range(4)])[pass])    check(1",
+      "evidence_path": "PASS, gate_e2e([_mk(fp{i}) for i in range(4)])[pass])    check(1",
+      "evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": "byproduct of a shell quoting bug; not vault content",
+      "proposed_action": "move to 99-ARCHIVE with archive_ prefix (AGENTS.md §7; owner/lane artifact, no deletion)"
+    },
+    {
+      "id": "CONTRACT-GAPS",
+      "category": "contract",
+      "severity": "LOW",
+      "title": "contract gaps feed the self-backlog",
+      "evidence_path": "ofn/doctor/contract/LAB-DOCTOR-CONTRACT.yaml",
+      "evidence_sha256": "4b9e1ad325fbba907dd5de43cc060dc39a8d9627cc1de0dc3886b00b5591b9e4",
+      "detail": "21 gaps (doctor=1; flow=3; gate=7; lab=10); source vault: LAB-DOCTOR-CONTRACT.yaml @ 4b9e1ad325fb",
+      "proposed_action": "upsert into self-backlog; scheduling needs owner ruling"
+    }
+  ],
+  "stats": {
+    "findings": 23,
+    "by_severity": {
+      "HIGH": 1,
+      "LOW": 19,
+      "MEDIUM": 3
+    },
+    "by_category": {
+      "mirror": 1,
+      "deadref": 14,
+      "junk": 7,
+      "contract": 1
+    },
+    "files_opened": 25,
+    "duration_s": 958.412,
+    "read_only_proven": true
+  },
+  "changed_sources": [],
+  "read_only_proven": true,
+  "files_opened": 25
+}
