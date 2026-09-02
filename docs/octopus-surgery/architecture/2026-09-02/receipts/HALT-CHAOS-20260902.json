@@ -105,5 +105,16 @@
    "clear_halt unlinks a symlink (including dangling) and never the target — resume does not follow"
   ],
   "filesystem_immutability": "NOT claimed"
+ },
+ "merge_p1_aud_deadline_20260902T0724Z": {
+  "parent_head_full": "cd4ba68602c74791a995ffa83e16cbc248d55afa",
+  "stacked_on": "feat/p1-envelope-runstore-20260902 @59eb5c9aec4de4cd2598d757c305364251b7a04c",
+  "worktree": "/tmp/ofn-halt-ix",
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T07:24:21Z",
+  "exit_code": 0,
+  "result": "179 passed, 954 subtests passed, 0 failed, 0 skipped",
+  "note": "merged #74 @59eb5c9 (aud ceiling + deadline + jsonl symlink). No force-push.",
+  "filesystem_immutability": "NOT claimed"
  }
 }
