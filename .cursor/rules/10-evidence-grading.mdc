@@ -1,0 +1,11 @@
+---
+description: Evidence grading E0-E5 and capability census rules. Apply when writing, updating, or citing any capability claim, test count, or benchmark number.
+alwaysApply: false
+---
+- Use the E0-E5 scale defined in `AGENTS.md` section 2. State the grade and the file path that justifies it.
+- `test_count` comes only from an actual `pytest -q` run captured in this session. A number quoted from a document is `unverified`.
+- Code path missing means E0, even when a checklist shows the item as done.
+- A green unit test is evidence of function, not evidence of capability. Keep the two columns separate.
+- Held-out sets are hash-locked. A held-out set used once for tuning is retired permanently and must be replaced.
+- Report confidence intervals and sample sizes next to every measured score. A bare point estimate is incomplete.
+- Accuracy alone is not a reliability profile: also report consistency across repeated runs, robustness under perturbation, predictability of failure, and bounded failure severity.
