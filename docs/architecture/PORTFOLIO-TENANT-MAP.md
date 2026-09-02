@@ -37,10 +37,16 @@ brand_id    →  برچسب تجاری/بازار. برای فیلتر UI و گ�
 
 | tenant | برند/بیزنس | شریک | وضعیت در پرتفوی |
 |---|---|---|---|
-| `lead` | Painting · master-painting.com | عباس | فعال |
+| `lead` | Painting · master-painting.com | عباس · نام قانونی **Sume** (AU-NSW) | فعال |
 | `studio` | Studio · تولید محتوا | سبا | فعال · `sensitivity` جدا |
 | `ziman` | **GiftMesh Sydney** (برند تجاری) | ملیحه | فعال · pre-revenue |
 | `hypno` | — | — | خارج از scope پرتفوی · منتظر charter مالک |
+
+نام قانونی شریک `lead` در
+`docs/octopus-surgery/attestations/receipts/PARTNER-IDENTITY.json`
+است: **Sume**. شناسهٔ سیستم `abbas` می‌ماند. قرارداد شرکا، فاکتور و
+تقسیم درآمد باید **Sume (Abbas)** بنویسند — نام قانونی و نامی که
+شرکا می‌شناسند، کنار هم. نه فقط Sume، نه فقط عباس.
 
 **GiftMesh Sydney = برند تنانت `ziman`.** تنانت جدید ساخته نمی‌شود (D-25).
 شناسه‌های پیشنهادی برای لایهٔ تحقیق، وقتی ساخته شود:

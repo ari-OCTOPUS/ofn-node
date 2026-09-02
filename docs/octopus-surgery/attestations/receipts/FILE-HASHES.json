@@ -1,0 +1,51 @@
+{
+  "schema": "octopus.windows_file_hashes.v1",
+  "recorded_at": "2026-09-02T00:08:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "claim_type": "record",
+  "source": "owner_powershell_format_table_paste",
+  "windows_staging_root_ref": "$WINDOWS_STAGING_ROOT",
+  "absolute_paths": "see gitignored WINDOWS-PATHS.local.json",
+  "path_column_not_pasted": true,
+  "assignment_method": "inferred_getchilditem_recurse_alpha_dirs",
+  "assignment_confidence": "inferred_until_path_stamped_json",
+  "path_assignment_risk": "reordering_after_alias_merge",
+  "note": "Owner pasted Format-Table without full_path. Voice subject assignment is inferred from the original folder walk maliheh → saba → sume. After sume→abbas the alphabetical order changes; do not treat these rows as owner-verified per file. consent-original.jpg is certain by filename. Size 674080 does not identify a speaker.",
+  "records": [
+    {
+      "file_name": "voice-01.ogg",
+      "inferred_rel_path": "raw/maliheh/voice-01.ogg",
+      "size_bytes": 102938,
+      "sha256": "d62bb97714053705bf362f21552e3b0c60d530b0fe87c29f971981071fc4e5ef",
+      "subject_id": "maliheh",
+      "path_certain": false
+    },
+    {
+      "file_name": "consent-original.jpg",
+      "inferred_rel_path": "raw/saba/consent-original.jpg",
+      "size_bytes": 350405,
+      "sha256": "c5046a1802ba6171b33281dd1d67186a6e565d1509b7474094cb5c064018a628",
+      "subject_id": "saba",
+      "path_certain": true
+    },
+    {
+      "file_name": "voice-01.ogg",
+      "inferred_rel_path": "raw/saba/voice-01.ogg",
+      "size_bytes": 49200,
+      "sha256": "d081290ba3bc048cdbd874d7bbf9a26c565707c858adaa7119bec03348f87419",
+      "subject_id": "saba",
+      "path_certain": false
+    },
+    {
+      "file_name": "voice-01.ogg",
+      "inferred_rel_path": "raw/sume/voice-01.ogg",
+      "size_bytes": 674080,
+      "sha256": "586c32ddd27a3134a23accf5d840cc598accf3c67253d5c212a2ac1d36f87788",
+      "subject_id": "abbas",
+      "folder_label": "sume",
+      "legal_name_alias": "Sume",
+      "path_certain": false
+    }
+  ]
+}
