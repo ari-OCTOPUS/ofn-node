@@ -6,6 +6,10 @@ updated: 2026-09-02
 
 # HANDOFF — برای جلسهٔ بعدی
 
+> **2026-09-02:** گزارش فصل پل buy.nsw (اکستنشن + گیت ingest، PR #84، ۲۸/۲۸ سبز،
+> مستقر روی board138) + حکم خودکارسازی مالک:
+> [[docs/handoffs/2026-09-02-buynsw-bridge-season-report|گزارش فصل buy.nsw — برای الهه]]
+
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] ·
 [[docs/operations/REVENUE-STAGES|مراحل درآمد]] ·
 [[docs/operations/REVENUE-WEEK-CHECKLIST|چک‌لیست هفته]] ·

@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "octopus-repo": {
+      "command": "python3",
+      "args": [
+        "tools/mcp/octopus_repo_server.py",
+        "--read-only"
+      ],
+      "env": {
+        "OCTOPUS_MCP_MODE": "read_only"
+      }
+    },
+    "huggingface": {
+      "url": "https://huggingface.co/mcp",
+      "headers": {
+        "Authorization": "Bearer ${HF_TOKEN}"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
