@@ -2,6 +2,7 @@
 # refusal to execute untrusted code, receipts (scenarios 11, 12 + contract).
 from __future__ import annotations
 
+import hashlib
 import sys
 from pathlib import Path
 
@@ -49,9 +50,38 @@ def test_miniyaml_fails_closed():
         loads("a: 1\n  b: 2")                   # stray indent
 
 
+# Windows-latest @ca9a758 (job 100188064343, 2026-09-02T09:03:12Z) hashed
+# the working-tree file as 4e758ec2… after autocrlf rewrote LF→CRLF.
+# That is a checkout artefact, not a source change. The LF blob is the
+# contract. Pin: ofn/doctor/contract/.gitattributes (eol=lf).
+_CONTRACT_PATH = Path(contract_map.__file__).with_name("contract") / "LAB-DOCTOR-CONTRACT.yaml"
+_CONTRACT_CRLF_SHA256 = "4e758ec2445881b8eb57b054e82a7977bcf389ca2c7e9897c09a5d046e49dfcb"
+_CONTRACT_GITATTRIBUTES = Path(contract_map.__file__).with_name("contract") / ".gitattributes"
+
+
 def test_bundled_contract_is_byte_identical_to_source():
-    bundled = Path(contract_map.__file__).with_name("contract") / "LAB-DOCTOR-CONTRACT.yaml"
-    assert sha256_file(bundled) == CONTRACT_SOURCE_SHA256
+    raw = _CONTRACT_PATH.read_bytes()
+    assert b"\r" not in raw, (
+        "LAB-DOCTOR-CONTRACT.yaml was checked out with CR bytes; "
+        "ofn/doctor/contract/.gitattributes must pin this hashed contract to LF"
+    )
+    assert sha256_file(_CONTRACT_PATH) == CONTRACT_SOURCE_SHA256
+
+
+def test_windows_crlf_checkout_is_a_known_hash_not_the_source():
+    """Second witness: the windows-latest failure hash is LF→CRLF, not a new source."""
+    raw = _CONTRACT_PATH.read_bytes()
+    crlf = raw.replace(b"\n", b"\r\n")
+    assert hashlib.sha256(crlf).hexdigest() == _CONTRACT_CRLF_SHA256
+    assert _CONTRACT_CRLF_SHA256 != CONTRACT_SOURCE_SHA256
+    assert sha256_file(_CONTRACT_PATH) == CONTRACT_SOURCE_SHA256
+
+
+def test_hashed_contract_checkout_is_pinned_lf():
+    assert _CONTRACT_GITATTRIBUTES.is_file()
+    text = _CONTRACT_GITATTRIBUTES.read_text(encoding="utf-8")
+    assert "eol=lf" in text
+    assert "*.yaml" in text
 
 
 # ───────────────────────────── requirement map ─────────────────────────────
