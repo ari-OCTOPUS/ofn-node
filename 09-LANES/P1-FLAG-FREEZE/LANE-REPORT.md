@@ -45,7 +45,7 @@ Command:
 python3 -m unittest tests.test_flag_freeze tests.test_chaos_flag_freeze tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q
 ```
 
-Receipt pointer: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-FLAG-FREEZE-20260902.json` (hash filled after write; see commit). Filesystem immutability: NOT claimed.
+Receipt pointer: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-FLAG-FREEZE-20260902.json` · SHA-256 `e4b6f238ae17b3e8339a2415874374ff7444bfb9d44092c4d5be472a752a2ed3` · 6176 bytes · evidence level B (this worktree file; git blob after commit). Filesystem immutability: NOT claimed.
 
 ## Rollback steps
 
