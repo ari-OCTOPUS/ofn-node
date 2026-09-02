@@ -74,7 +74,7 @@ def build_scope(lead: dict, reply_body: str = "") -> dict:
     return scope
 
 
-def cycle(dry: bool = False) -> dict:
+def cycle(dry: bool = True) -> dict:
     out = {"checked": 0, "quoted": 0, "skipped": [], "results": []}
     h = opslib.master_halted()
     if h:
@@ -119,7 +119,9 @@ def extract_m2_from_events(lead_id: str) -> str:
 
 
 if __name__ == "__main__":
-    dry = "--dry" in sys.argv
+    # fail-closed: quote_sent / transport binding stays off unless a newer
+    # scoped flag is present. --dry still wins if both are passed.
+    dry = "--authorize-send" not in sys.argv or "--dry" in sys.argv
     try:
         print(json.dumps(cycle(dry=dry), ensure_ascii=False, indent=1))
     except Exception as e:  # noqa: BLE001
