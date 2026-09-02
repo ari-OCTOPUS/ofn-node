@@ -38,5 +38,14 @@
    "halt_flag read_text raised UnicodeDecodeError on binary flag (only OSError was caught) — now bytes+decode with fail-closed fallback",
    "test initially assumed approve_manual works from HELD — outbox contract is PENDING-only (deliberate); test corrected to the real contract"
   ]
+ },
+ "rebase_onto_p1_20260902T0626Z": {
+  "note": "PR #75 was CONFLICTING vs #74 after token-ceiling commits. Resolved by merge (not force-push). halt_flag keeps #75 bytes-first + atomic write AND #74 UnicodeError fail-closed.",
+  "merge_head_full": "44d1e3861f5140ef6fefd85b5c08472db4115446",
+  "stacked_on_now": "feat/p1-envelope-runstore-20260902 @3d52d7d1aabc35a20f97ff23d9f6cabbc2ff8a8a",
+  "command": "python3 -m pytest tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T06:26:27Z",
+  "exit_code": 0,
+  "result": "100 passed, 950 subtests, 0 failed, 0 skipped"
  }
 }
