@@ -38,6 +38,16 @@ EVENT_KINDS = frozenset({
     TOOL_INVOKED, EXECUTION_RECEIPT, BUDGET_DEBIT, RUN_CLOSED, RUN_REJECTED,
 })
 
+# Revenue / send names are states, not spine events. Recording them as a
+# `kind` would collapse proposal into execution. The store checks this
+# set independently of EVENT_KINDS so widening the vocabulary cannot
+# accidentally admit a send.
+FORBIDDEN_EFFECT_KINDS = frozenset({
+    "send_authorized",
+    "quote_sent",
+    "campaign_envelope_ready",
+})
+
 
 def make_event(
     kind: str,
@@ -54,6 +64,10 @@ def make_event(
     EXECUTION_RECEIPT it settles. A verdict without its receipt is not a
     fact we can spend.
     """
+    if kind in FORBIDDEN_EFFECT_KINDS:
+        raise FailClosedError(
+            f"forbidden effect kind: {kind!r} — ready/authorized/sent "
+            "are not ledger events")
     if kind not in EVENT_KINDS:
         raise FailClosedError(f"unknown event kind: {kind!r}")
     if not isinstance(run_id, str) or not run_id.strip():
