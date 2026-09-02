@@ -1,0 +1,30 @@
+# 06-TOKEN-BUDGETS — derived budget schema (blueprint §7)
+# scope_measured: DEFAULT_CAPS read from ofn/kernel/callbudget.py @main 67359a6;
+#   QUOTE_MAX_AUD from agents/quote_engine.py @release/p0 110f6c0 (HF-1);
+#   lead daily cap from agents/outbound_worker.py @release/p0 (owner vote 2026-07-31)
+# binding: CODE IS THE SOURCE OF TRUTH. If this file and callbudget.py disagree,
+#   callbudget.py wins and this file is stale — fix it the same day.
+
+schema: octopus.token_budgets.v1
+daily_call_caps:            # mirror of kernel.callbudget.DEFAULT_CAPS
+  RULES: 0                  # 0 = no ceiling (costs nothing)
+  LOCAL: 0
+  REMOTE: 100
+  REMOTE_DEEP: 5            # second lock: needs a human anyway
+envelope_budget_fields:     # TaskEnvelope v1 (kernel/envelope.py)
+  budget_tokens: int
+  budget_aud_cents: int     # money caps live here, cents, owner-signed changes only
+revenue_chain_caps:
+  quote_max_aud: 25000      # HF-1 (env OCTOPUS_QUOTE_MAX_AUD) — over → needs_owner_review
+  lead_daily_send_cap: 10   # outbound_worker LEAD_DAILY_SEND_CAP (env override exists, owner vote)
+  campaign_envelope_max_quotes: 10
+parallelism:                # anti-"always 8" (blueprint §7): runtime parameter, not constant
+  sequential_hard_dependency: {leader: 1, verifier_max: 1}
+  divisible: {arms: "2..n", synthesizer: 1}
+  dynamic_search: {topology: "neural-loop, limited peer-to-peer"}
+  risky_external: {topology: "centralized go/no-go"}
+  central_reserve_percent: 8   # recovery only
+notes:
+  - "cap semantics: the cap is a cap, not a suggestion (callbudget docstring: an
+     eleventh call passing a 'ten-a-day' cap is a bug somebody must read code to find)"
+  - "HALT (layer 3) sits above all budgets: kernel/halt.py + adapters/run_gate.py"

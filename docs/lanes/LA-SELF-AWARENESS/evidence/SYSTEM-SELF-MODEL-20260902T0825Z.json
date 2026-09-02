@@ -1,0 +1,286 @@
+{
+  "data": {
+    "authority": {
+      "direct_handles": [],
+      "may_approve": false,
+      "may_execute": false,
+      "may_propose": true
+    },
+    "brain_probe": {
+      "detail": "no dated run evidence",
+      "observed_epoch": null,
+      "source": null,
+      "status": "unknown",
+      "verdict": "unverifiable"
+    },
+    "budgets": {
+      "external_effects": 0,
+      "network_write": 0,
+      "new_runtime_dependencies": 0
+    },
+    "capabilities": [
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/cockpit_v2_read_model.py::CockpitV2ReadModel",
+        "observed_epoch": null,
+        "sensor_id": "capability_cockpit_read_model",
+        "source": "ast:ofn/adapters/cockpit_v2_read_model.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/halt_flag.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_halt_flag_adapter",
+        "source": "ast:ofn/adapters/halt_flag.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/kernel/halt.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_halt_layer3",
+        "source": "ast:ofn/kernel/halt.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/kernel/probe.py::QUESTIONS",
+        "observed_epoch": null,
+        "sensor_id": "capability_known_answer_probe",
+        "source": "ast:ofn/kernel/probe.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/remote_brain.py::LocalBrain",
+        "observed_epoch": null,
+        "sensor_id": "capability_local_brain",
+        "source": "ast:ofn/adapters/remote_brain.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/remote_brain.py::RemoteBrain",
+        "observed_epoch": null,
+        "sensor_id": "capability_remote_brain",
+        "source": "ast:ofn/adapters/remote_brain.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/run_gate.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_run_gate",
+        "source": "ast:ofn/adapters/run_gate.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/run_store.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_run_store",
+        "source": "ast:ofn/adapters/run_store.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/kernel/self_model.py::build_model",
+        "observed_epoch": null,
+        "sensor_id": "capability_self_model",
+        "source": "ast:ofn/kernel/self_model.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/adapters/sender_dryrun.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_sender_dryrun",
+        "source": "ast:ofn/adapters/sender_dryrun.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/kernel/source_health.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_source_health",
+        "source": "ast:ofn/kernel/source_health.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/kernel/envelope.py::create_envelope",
+        "observed_epoch": null,
+        "sensor_id": "capability_task_envelope",
+        "source": "ast:ofn/kernel/envelope.py",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": null,
+        "implementation": "ofn/kernel/token_ceiling.py",
+        "observed_epoch": null,
+        "sensor_id": "capability_token_ceiling",
+        "source": "ast:ofn/kernel/token_ceiling.py",
+        "status": "healthy",
+        "value": true
+      }
+    ],
+    "code_identity": {
+      "branch": "lane/self-awareness",
+      "commit_sha": "5f46b113eabef62ffd5a3fb8f0594cb1f7aa4eb8"
+    },
+    "counts": {
+      "absent": 0,
+      "capabilities": 13,
+      "events": 5,
+      "failed": 0,
+      "healthy": 18,
+      "processes": 5,
+      "sensors": 1,
+      "stale": 0,
+      "unknown": 1
+    },
+    "events": [
+      {
+        "at": "2026-09-02T08:14:37Z",
+        "at_epoch": 1788336877.0,
+        "sha": "5f46b113eabef62ffd5a3fb8f0594cb1f7aa4eb8",
+        "source": "git:log",
+        "subject": "docs(lanes): LA self-awareness DoD — machine-written self-model + honest cockpit section (base 33c9476)"
+      },
+      {
+        "at": "2026-09-02T07:38:23Z",
+        "at_epoch": 1788334703.0,
+        "sha": "33c94763005f5cf8c766701f408390c49bba0da7",
+        "source": "git:log",
+        "subject": "evidence: F: drive Obsidian vault scan 2026-09-02 (189 .obsidian dirs, byte-identical mirror of canonical vault copy) (#80)"
+      },
+      {
+        "at": "2026-09-02T07:35:32Z",
+        "at_epoch": 1788334532.0,
+        "sha": "dd1d6cc4d479ca8295c31296274414945df80f73",
+        "source": "git:log",
+        "subject": "feat(p1): TaskEnvelope v1 + typed events + run store + HALT layer-3 (#74)"
+      },
+      {
+        "at": "2026-09-02T06:59:20Z",
+        "at_epoch": 1788332360.0,
+        "sha": "17962c1379c4a915dbca6ab7cc55e1da6b6559ca",
+        "source": "git:log",
+        "subject": "chore(codeowners): add aram-ui as independent reviewer for adapters/kernel/migrations/survival paths (#79)"
+      },
+      {
+        "at": "2026-09-02T06:42:36Z",
+        "at_epoch": 1788331356.0,
+        "sha": "8652fe88073fe1f274116875d9fc1bfb7ee26987",
+        "source": "git:log",
+        "subject": "docs(octopus-os): pack wave 1 — contracts, budgets, OTel map, absence plan (#78)"
+      }
+    ],
+    "processes": [
+      {
+        "detail": "probe timeout",
+        "implementation": "tcp connect 127.0.0.1:8776",
+        "observed_epoch": 1788337552.8379297,
+        "sensor_id": "process_center",
+        "source": "tcp:127.0.0.1:8776",
+        "status": "unknown",
+        "value": null
+      },
+      {
+        "detail": "connected",
+        "implementation": "tcp connect 127.0.0.1:8772",
+        "observed_epoch": 1788337552.8379297,
+        "sensor_id": "process_cortex",
+        "source": "tcp:127.0.0.1:8772",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": "connected",
+        "implementation": "tcp connect 127.0.0.1:8774",
+        "observed_epoch": 1788337552.8379297,
+        "sensor_id": "process_gateway",
+        "source": "tcp:127.0.0.1:8774",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": "connected",
+        "implementation": "tcp connect 127.0.0.1:8773",
+        "observed_epoch": 1788337552.8379297,
+        "sensor_id": "process_live",
+        "source": "tcp:127.0.0.1:8773",
+        "status": "healthy",
+        "value": true
+      },
+      {
+        "detail": "connected",
+        "implementation": "tcp connect 127.0.0.1:8771",
+        "observed_epoch": 1788337552.8379297,
+        "sensor_id": "process_organism",
+        "source": "tcp:127.0.0.1:8771",
+        "status": "healthy",
+        "value": true
+      }
+    ],
+    "schema": "self-model.v2",
+    "sensors": [
+      {
+        "detail": null,
+        "implementation": "git rev-parse HEAD",
+        "observed_epoch": 1788337552.8379297,
+        "sensor_id": "code_identity",
+        "source": "git:HEAD",
+        "status": "healthy",
+        "value": "5f46b113eabef62ffd5a3fb8f0594cb1f7aa4eb8"
+      }
+    ],
+    "status": "unverifiable",
+    "unknowns": [
+      "member process liveness is measured from this host only; board processes are invisible here except as absent",
+      "no dated brain-probe run evidence exists on this host; the probe verdict fails closed until one does"
+    ]
+  },
+  "generated_at": "2026-09-02T08:25:52Z",
+  "generated_epoch": 1788337552.8379297,
+  "schema": "octopus.self-model.v2",
+  "sources": [
+    "ast:ofn/adapters/cockpit_v2_read_model.py",
+    "ast:ofn/adapters/halt_flag.py",
+    "ast:ofn/adapters/remote_brain.py",
+    "ast:ofn/adapters/run_gate.py",
+    "ast:ofn/adapters/run_store.py",
+    "ast:ofn/adapters/sender_dryrun.py",
+    "ast:ofn/kernel/envelope.py",
+    "ast:ofn/kernel/halt.py",
+    "ast:ofn/kernel/probe.py",
+    "ast:ofn/kernel/self_model.py",
+    "ast:ofn/kernel/source_health.py",
+    "ast:ofn/kernel/token_ceiling.py",
+    "git:HEAD",
+    "tcp:127.0.0.1:8771",
+    "tcp:127.0.0.1:8772",
+    "tcp:127.0.0.1:8773",
+    "tcp:127.0.0.1:8774",
+    "tcp:127.0.0.1:8776"
+  ],
+  "stale_after": "2026-09-02T08:28:52Z",
+  "status": "unverifiable",
+  "warnings": [
+    "brain_probe_unknown",
+    "process_center_unknown"
+  ]
+}
