@@ -12,7 +12,7 @@ status: active
 
 | مسیر | فایل | چه کسی می‌نویسد | برای چه |
 |---|---|---|---|
-| دفتر تناقض | `01-TRUTH/CONTRADICTIONS.md` + نوت `06-EVIDENCE/C-NNN-*.md` | ایجنت/مالک هنگام کشف | ادعای دو-مقداری، وضعیت OPEN/… |
+| دفتر تناقض | `01-TRUTH/CONTRADICTIONS.md` + نوت `06-EVIDENCE/C-0*.md` | ایجنت/مالک هنگام کشف | ادعای دو-مقداری، وضعیت OPEN/… |
 | لجر ژنوم | `07 - Knowledge/genome-system/ledger/ledger.jsonl` | `Ledger.append` از ارگانیسم/کد (`GENOME_CHANGE`, `HEARTBEAT`, …) | زنجیرهٔ رویدادهای ماشین |
 
 ثبت C-043 / C-044 / C-045 / C-046 در دفتر تناقض **رخداد ژنوم نمی‌سازد**. هیچ hookای از `CONTRADICTIONS.md` به `ledger.append` در این درخت پیدا نشد (جستجوی 2026-08-20).

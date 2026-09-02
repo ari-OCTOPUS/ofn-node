@@ -46,7 +46,7 @@ entry_point: این فایل نقطهٔ شروع هر ایجنت خارجی اس
 
 - تسک ویندوزی **«OCTOPUS Observatory Hourly»** — هر ساعت یک fetch واقعی USGS + پیش‌بینی pre-registered (نبض امشب: ۴→۵→۶ ردیف)
 - بودجه با `EvidenceStore.begin_epoch()` هر روز UTC ریست (کامیت `e3e9d36`؛ سقف USGS = 100/روز)
-- زنجیره‌های hash **مستقل تأییدشده**: `scripts/verify_live_store.py` → **PASS 27/27** (فرمول‌های src در فایل)
+- زنجیره‌های hash **مستقل تأییدشده**: ~~scripts/verify_live_store.py~~ [REMOVED-20260902: فایل در والت F:\backup وجود ندارد؛ اجرای تاریخی در working-repo دسکتاپ — رأی مالک LB-V3] → **PASS 27/27** (فرمول‌های src در فایل)
 - allowlist **v2** = ۷ دامنه با شاهد robots (USGS: robots 404→allow طبق RFC 9309 §2.3.1.3 · hacker-news: صریح `Allow: /*.json$`) — `_ops/observatory/architecture/observatory-allowlist.yaml` + کپی `F:\backup\architecture\`
 - ADR-041 نوشته شد (پرش ۰۴۰→۰۴۲ بسته) · ناسازگاری‌های باز: استراتژی = persistence (0.80=0.80؛ ریشه: `run_observatory.py:120-135`)
 - **قضاوت n≥60**: رصد روزانه ۱۹:۰۰×۵روز (خودکار؛ گزارش در `00 - Inbox/OBSERVATORY-WATCH-*`)

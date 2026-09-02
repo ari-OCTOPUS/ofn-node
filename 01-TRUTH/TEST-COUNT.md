@@ -18,7 +18,7 @@ status: mixed — هر ردیف برچسب خودش را دارد
 | epistemics (`_ops/epistemics`) | CURRENT-TRUTH: «۴۵/۴۵ + ۲۰/۲۰» · سربرگ ADR-039: «۱۳۳» | `test_planner.py`: collected 0 items (TestPlan مدل است نه تست) — سوئیت اجراشدنی پیدا نشد | `py -m pytest _ops/epistemics/test_planner.py -v` | ⚠️ **unverified** → [[CONTRADICTIONS|C-007]] |
 | کل مخزن (ریشه) | مگاپرامپت: ۴۱۴ یا ۴۰۸ | `--collect-only` از ریشه: `15 tests collected, 2 errors` | `py -m pytest -q --collect-only` | ⚠️ **unverified** → [[CONTRADICTIONS|C-006]] |
 | بازتولید hash زنجیره‌های شاهد | — | **۴/۴ ردیف منطبق** (۲ evidence + ۲ prediction) با فرمول عین سورس | اسکریپت python mode=ro (2026-08-15) | ✅ **verified** — فرمول‌ها در HANDOFF |
-| **راستی‌آزمای کامل انبار زنده** (`scripts/verify_live_store.py` اصلاح‌شده) | — | **VERDICT: PASS — 27/27، CRITICAL 3→0** («All guarantees reproduced on live data») | `python scripts/verify_live_store.py` (2026-08-15 17:1x) | ✅ **verified — سطح A** |
+| **راستی‌آزمای کامل انبار زنده** (~~scripts/verify_live_store.py~~ [REMOVED-20260902: در والت نیست؛ اجرای تاریخی working-repo — رأی LB-V3] اصلاح‌شده) | — | **VERDICT: PASS — 27/27، CRITICAL 3→0** («All guarantees reproduced on live data») | ~~python scripts/verify_live_store.py~~ (2026-08-15 17:1x) | ✅ **verified — سطح A** |
 | کل مخزن کاری Desktop | — | **320 passed in 10.47s** (بازمقایسهٔ جاروی تست 2026-08-15 شب) | `py -m pytest -o addopts= -q` | ✅ **verified** |
 | رصدخانه (working) — بازشماری جاروی تست | مگاپرامپت: 115 | **116 passed in 1.07s** (+۱ نسبت به ادعا؛ ۹۳→۱۱۶ رشد از نشست‌ها) | `py -m pytest _ops\observatory\tests\ -o addopts= -q` | ✅ **verified: ۱۱۶ زنده** |
 | bayes (working) | 21 | **21 passed in 0.26s** | `py -m pytest _ops\observatory\tests\test_bayesian.py -o addopts= -q` | ✅ **verified** |
