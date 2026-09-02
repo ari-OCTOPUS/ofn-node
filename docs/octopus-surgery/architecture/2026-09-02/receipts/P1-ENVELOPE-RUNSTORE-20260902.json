@@ -104,6 +104,28 @@
    "admit_token_spend: per-run refuse does not touch node ledger; node refuse after per-run pass; both pass; admit never grants send"
   ],
   "filesystem_immutability": "NOT claimed"
+ },
+ "schema_forbidden_kinds_receipt_digest_20260902T0647Z": {
+  "parent_head_full": "3d52d7d1aabc35a20f97ff23d9f6cabbc2ff8a8a",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-p1-harden-vii)",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "exit_code": 0,
+  "result": "114 passed, 930 subtests passed, 0 failed, 0 skipped",
+  "ran_at_utc": "2026-09-02T06:47:55Z",
+  "worktree": "/tmp/ofn-p1-harden-vii",
+  "file_lock_zone": [
+   "ofn/kernel/events.py",
+   "ofn/adapters/run_store.py",
+   "tests/test_run_store.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json"
+  ],
+  "fixes": [
+   "FORBIDDEN_EFFECT_KINDS (send_authorized/quote_sent/campaign_envelope_ready) refused at make_event and at the store (raw dict cannot smuggle a send)",
+   "unknown kind / missing kind / missing run_id fail-closed as FailClosedError (not KeyError) on load, append, and replay",
+   "durable append: flush + fsync; events.jsonl chmod 0600",
+   "EXECUTION_RECEIPT stamped with receipt_sha256 of caller payload; forged digest refused and writes nothing",
+   "A3 rollback_ref and rollback_plan persisted on RUN_CREATED"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
-}
 }

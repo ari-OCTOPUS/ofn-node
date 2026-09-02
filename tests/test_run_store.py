@@ -86,6 +86,12 @@ class EventVocabulary(unittest.TestCase):
         with self.assertRaises(FailClosedError):
             ev.make_event(ev.BUDGET_DEBIT, "run-x", now_epoch_s=_NOW)
 
+    def test_forbidden_effect_kinds_are_not_in_the_vocabulary(self):
+        for name in ev.FORBIDDEN_EFFECT_KINDS:
+            self.assertNotIn(name, ev.EVENT_KINDS)
+            with self.assertRaises(FailClosedError):
+                ev.make_event(name, "run-x", now_epoch_s=_NOW)
+
 
 class StoreLifecycle(unittest.TestCase):
     def setUp(self):
@@ -381,3 +387,135 @@ class PerRunTokenCeilingInStore(unittest.TestCase):
             eid = store.append(ev.make_event(
                 ev.BUDGET_DEBIT, run_id, now_epoch_s=_NOW + 2, ref=receipt))
             self.assertTrue(eid)
+
+
+class SchemaFailClosedAndForbiddenKinds(unittest.TestCase):
+    """Raw dicts must not smuggle unknown or send-state kinds into the
+    ledger. Missing kind/run_id is FailClosedError, not KeyError."""
+
+    def test_unknown_kind_refused_at_store_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("schema-unk"), now_epoch_s=_NOW)
+            with self.assertRaises(FailClosedError):
+                store.append({"kind": "NOT_A_KIND", "run_id": run_id,
+                              "payload": {}, "ref": None})
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertEqual(kinds, [ev.RUN_CREATED])
+
+    def test_send_authorized_kind_refused_at_store(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            run_id = store.create(_env("schema-send"), now_epoch_s=_NOW)
+            with self.assertRaises(FailClosedError):
+                store.append({"kind": "send_authorized", "run_id": run_id,
+                              "payload": {}, "ref": None})
+            log = (root / "events.jsonl").read_text(encoding="utf-8")
+            self.assertNotIn("send_authorized", log)
+
+    def test_quote_sent_kind_refused_at_store(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("schema-qs"), now_epoch_s=_NOW)
+            with self.assertRaises(FailClosedError):
+                store.append({"kind": "quote_sent", "run_id": run_id,
+                              "payload": {}, "ref": None})
+
+    def test_object_missing_kind_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("missing-kind"), now_epoch_s=_NOW)
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps({"run_id": "run-1780000000-aaaaaaaaaa",
+                                    "payload": {}}) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_object_missing_run_id_on_reopen_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("missing-rid"), now_epoch_s=_NOW)
+            with (root / "events.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps({"kind": ev.TOOL_INVOKED,
+                                    "payload": {}}) + "\n")
+            with self.assertRaises(FailClosedError):
+                RunStore(root)
+
+    def test_events_jsonl_is_0600_on_posix(self):
+        if os.name == "nt":
+            self.skipTest("POSIX file mode is not a Windows fact")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "runs"
+            store = RunStore(root)
+            store.create(_env("mode-600"), now_epoch_s=_NOW)
+            mode = (root / "events.jsonl").stat().st_mode & 0o777
+            self.assertEqual(mode, 0o600)
+
+
+class ReceiptIdentityAndRollbackPersist(unittest.TestCase):
+    def test_receipt_sha256_is_stamped_from_payload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("rcpt-stamp"), now_epoch_s=_NOW)
+            eid = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "fixture receipt"}))
+            rec = next(e for e in store.events_for(run_id)
+                       if e["event_id"] == eid)
+            expected = hashlib.sha256(
+                json.dumps({"what": "fixture receipt"},
+                           ensure_ascii=False, sort_keys=True).encode()
+            ).hexdigest()
+            self.assertEqual(rec["payload"]["receipt_sha256"], expected)
+
+    def test_forged_receipt_digest_refused_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("rcpt-forge"), now_epoch_s=_NOW)
+            with self.assertRaises(FailClosedError):
+                store.append(ev.make_event(
+                    ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                    payload={"what": "x", "receipt_sha256": "0" * 64}))
+            kinds = [e["kind"] for e in store.events_for(run_id)]
+            self.assertNotIn(ev.EXECUTION_RECEIPT, kinds)
+
+    def test_matching_receipt_digest_accepted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            run_id = store.create(_env("rcpt-ok"), now_epoch_s=_NOW)
+            digest = hashlib.sha256(
+                json.dumps({"what": "ok"},
+                           ensure_ascii=False, sort_keys=True).encode()
+            ).hexdigest()
+            eid = store.append(ev.make_event(
+                ev.EXECUTION_RECEIPT, run_id, now_epoch_s=_NOW + 1,
+                payload={"what": "ok", "receipt_sha256": digest}))
+            self.assertTrue(eid)
+
+    def test_a3_rollback_ref_persisted_on_create(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs")
+            env = create_envelope(
+                goal="fixture goal", risk_tier="RED", authority_level="A3",
+                idempotency_key="a3-rb", acceptance_criteria_hash=_AC,
+                now_epoch_s=_NOW, rand="c1c2c3d4e5f6a7b8",
+                deadline_iso="2026-09-09T12:00:00Z",
+                rollback_plan="delete drafts",
+                rollback_ref="rb-20260902-persist")
+            run_id = store.create(env, now_epoch_s=_NOW)
+            created = next(e for e in store.events_for(run_id)
+                           if e["kind"] == ev.RUN_CREATED)
+            self.assertEqual(created["payload"]["rollback_ref"],
+                             "rb-20260902-persist")
+            self.assertEqual(created["payload"]["rollback_plan"],
+                             "delete drafts")
+            # survives reopen
+            reopened = RunStore(Path(tmp) / "runs")
+            again = next(e for e in reopened.events_for(run_id)
+                         if e["kind"] == ev.RUN_CREATED)
+            self.assertEqual(again["payload"]["rollback_ref"],
+                             "rb-20260902-persist")

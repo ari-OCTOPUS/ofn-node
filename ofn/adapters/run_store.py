@@ -21,6 +21,7 @@ I/O-minimal and the kill switch stays outside it, readable by itself.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -77,25 +78,64 @@ class RunStore:
                     # we cannot verify and pretend to know the state.
                     raise FailClosedError(
                         f"corrupt run store line {lineno} in {self._log}") from None
+                self._require_record(rec, lineno=lineno)
                 self._seq += 1
                 self._index(rec)
+
+    @staticmethod
+    def _require_record(rec: object, *, lineno: int) -> None:
+        """Schema gate shared by load, append, and replay.
+
+        A JSON object missing `kind`/`run_id`, or carrying an unknown or
+        forbidden kind, is not a ledger fact — KeyError is not a verdict.
+        """
+        if not isinstance(rec, dict):
+            raise FailClosedError(
+                f"run store line {lineno} is not an object")
+        kind = rec.get("kind")
+        if kind in ev.FORBIDDEN_EFFECT_KINDS:
+            raise FailClosedError(
+                f"forbidden effect kind on line {lineno}: {kind!r}")
+        if kind not in ev.EVENT_KINDS:
+            raise FailClosedError(
+                f"unknown or missing event kind on line {lineno}: {kind!r}")
+        run_id = rec.get("run_id")
+        if not isinstance(run_id, str) or not run_id.strip():
+            raise FailClosedError(
+                f"run store line {lineno} missing run_id")
 
     def _index(self, rec: dict) -> None:
         run_id = rec["run_id"]
         if rec["kind"] == ev.RUN_CREATED:
             self._runs.add(run_id)
-            self._by_idem[rec["payload"]["idempotency_key"]] = run_id
-            cap = rec["payload"].get("budget_tokens", 0)
+            payload = rec.get("payload")
+            if not isinstance(payload, dict):
+                raise FailClosedError(
+                    f"RUN_CREATED payload missing or not an object on {run_id!r}")
+            try:
+                self._by_idem[payload["idempotency_key"]] = run_id
+            except KeyError:
+                raise FailClosedError(
+                    f"RUN_CREATED missing idempotency_key on {run_id!r}") from None
+            cap = payload.get("budget_tokens", 0)
             if not isinstance(cap, int) or isinstance(cap, bool) or cap < 0:
                 raise FailClosedError(
                     f"RUN_CREATED budget_tokens not a non-negative int: {cap!r}")
             self._budget_tokens[run_id] = cap
             self._tokens_consumed.setdefault(run_id, 0)
         elif rec["kind"] == ev.EXECUTION_RECEIPT:
-            self._receipts.add(rec["event_id"])
-            self._receipt_run[rec["event_id"]] = run_id
+            eid = rec.get("event_id")
+            if not isinstance(eid, str) or not eid.strip():
+                raise FailClosedError(
+                    f"EXECUTION_RECEIPT missing event_id on {run_id!r}")
+            self._receipts.add(eid)
+            self._receipt_run[eid] = run_id
         elif rec["kind"] == ev.BUDGET_DEBIT:
-            self._debited.add(rec["ref"])
+            ref = rec.get("ref")
+            if not isinstance(ref, str) or not ref.strip():
+                raise FailClosedError(
+                    f"BUDGET_DEBIT missing ref on {run_id!r}")
+            self._debited.add(ref)
             spent = tokens_from_payload(rec.get("payload"))
             self._tokens_consumed[run_id] = (
                 self._tokens_consumed.get(run_id, 0) + spent)
@@ -109,8 +149,18 @@ class RunStore:
 
     # ── writing ─────────────────────────────────────────────────────────
     def _append(self, rec: dict) -> dict:
+        line = json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n"
+        # Durable append: flush + fsync so a crash cannot silently drop
+        # the last accepted event. Mode 0600 is the second witness that
+        # the ledger is owner-private (root is already 0700).
         with self._log.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
+            f.write(line)
+            f.flush()
+            os.fsync(f.fileno())
+        try:
+            os.chmod(self._log, 0o600)
+        except OSError:
+            pass
         self._seq += 1
         self._index(rec)
         return rec
@@ -130,26 +180,65 @@ class RunStore:
         existing = self._by_idem.get(envelope.idempotency_key)
         if existing is not None:
             return existing  # idempotent create — no second RUN_CREATED
+        payload = {
+            "goal": envelope.goal,
+            "risk_tier": envelope.risk_tier,
+            "authority_level": envelope.authority_level,
+            "idempotency_key": envelope.idempotency_key,
+            "acceptance_criteria_hash": envelope.acceptance_criteria_hash,
+            "budget_tokens": envelope.budget_tokens,
+        }
+        if envelope.rollback_ref:
+            payload["rollback_ref"] = envelope.rollback_ref
+        if envelope.rollback_plan:
+            payload["rollback_plan"] = envelope.rollback_plan
         self._append({
             "event_id": self._mint_event_id(),
             "seq": self._seq + 1,
             "kind": ev.RUN_CREATED,
             "run_id": envelope.run_id,
             "ts": now_epoch_s,
-            "payload": {"goal": envelope.goal,
-                        "risk_tier": envelope.risk_tier,
-                        "authority_level": envelope.authority_level,
-                        "idempotency_key": envelope.idempotency_key,
-                        "acceptance_criteria_hash": envelope.acceptance_criteria_hash,
-                        "budget_tokens": envelope.budget_tokens},
+            "payload": payload,
             "ref": None,
         })
         return envelope.run_id
+
+    @staticmethod
+    def _stamp_receipt_digest(payload) -> dict:
+        """Bind an EXECUTION_RECEIPT to the hash of its caller payload.
+
+        The digest is of the payload *without* ``receipt_sha256`` so a
+        caller-supplied digest is a second witness, not a self-hash.
+        Missing digest is stamped; a mismatch is refused.
+        """
+        if payload is None:
+            incoming: dict = {}
+        elif isinstance(payload, dict):
+            incoming = dict(payload)
+        else:
+            raise FailClosedError(
+                f"EXECUTION_RECEIPT payload must be a mapping: {payload!r}")
+        claimed = incoming.pop("receipt_sha256", None)
+        digest = hashlib.sha256(
+            json.dumps(incoming, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        if claimed is not None and claimed != digest:
+            raise FailClosedError(
+                "receipt_sha256 does not match payload — refusing forged digest")
+        incoming["receipt_sha256"] = digest
+        return incoming
 
     def append(self, event: dict, *, now_epoch_s: int | None = None) -> str:
         rec = dict(event)
         if now_epoch_s is not None:
             rec["ts"] = now_epoch_s
+        kind = rec.get("kind")
+        if kind in ev.FORBIDDEN_EFFECT_KINDS:
+            raise FailClosedError(
+                f"forbidden effect kind: {kind!r} — ready/authorized/sent "
+                "are not ledger events")
+        if kind not in ev.EVENT_KINDS:
+            raise FailClosedError(f"unknown event kind: {kind!r}")
         run_id = rec.get("run_id")
         if run_id not in self._runs:
             raise FailClosedError(f"unknown run: {run_id!r}")
@@ -187,6 +276,8 @@ class RunStore:
             # their idempotency rides on the envelope's idempotency_key.
             raise FailClosedError(
                 f"duplicate event rejected: {rec['kind']} ref={rec['ref']!r} already recorded")
+        if rec["kind"] == ev.EXECUTION_RECEIPT:
+            rec["payload"] = self._stamp_receipt_digest(rec.get("payload"))
         rec["event_id"] = self._mint_event_id()
         rec["seq"] = self._seq + 1
         written = self._append(rec)
@@ -219,4 +310,5 @@ class RunStore:
                     # skipped, and JSONDecodeError is not leaked.
                     raise FailClosedError(
                         f"corrupt run store line {lineno} in {self._log}") from None
+                self._require_record(rec, lineno=lineno)
                 yield rec
