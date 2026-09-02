@@ -712,3 +712,7 @@ Trigger: owner-absent cron `17 * * * *` @2026-09-02T22:18:49.734Z on body `bc-6b
 - **this-host worktree census:** `git worktree list` · `2026-09-02T22:23:40Z` · exit 0 · 3 registered (`/workspace` assigned checkout @`172fe58` not written; `/tmp/ofn-p1-flag-freeze` #119 @`9ef3841` VERIFIED after push; `/tmp/ofn-inc-xxxiv` this lock-zone @`ba04633` before this append). Nothing pruned. Vault census remains `body_not_on_this_host`.
 - **next executable action:** Independent review of #76 then #82 then #83 then #87 then #88 then complementary P1 then #116 then #119 then #77. Hook-allowed publish of still-unpublished prior-body objects only via their first identifier (do not mint a second). Do not re-arm send. Do not open a second flag-freeze, write-fence, evidence-witness, campaign, receipt, dedup, or incidents PR. Do not merge without an independent CODEOWNERS reviewer.
 
+### session xxxiv addendum — incidents PR identifier collision
+
+`git ls-remote origin pull/73/head` this-run = `ba04633afe89f1f6b20b14a18c34f719784768ca`. `pull/120/head` = `6078825a3776c8918d72d62055dbd43c413899b3`. Branch `docs/octopus-os-incidents-20260902` now @`6078825`. Seed commit `172fe58` (`#73`) is an ancestor of `origin/main`. `open_git_pr` after the xxxiv push minted https://github.com/ari-OCTOPUS/ofn-node/pull/120 (not a silent reuse of #73). claim: incidents PR · value_a `#73` @`ba04633` · value_b `#120` @`6078825` · resolution null · status open. Did not open a third incidents PR. Did not close either PR. Further appends reuse this branch only.
+
