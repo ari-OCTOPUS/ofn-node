@@ -1,11 +1,11 @@
-# Independent review is required on every path that can cause data loss,
-# change an external effect, or relax a gate.
+# V4 independence gate — @Elahe-z is the single required code owner for ALL paths.
 #
-# The author of a change may not be its only reviewer. See issue #51.
-
-/ofn/adapters/            @Elahe-z @ari322 @aram-ui
-/ofn/kernel/              @Elahe-z @ari322 @aram-ui
-/migrations/              @Elahe-z @ari322 @aram-ui
-/octopus_survival/        @Elahe-z @ari322 @aram-ui
-/.github/workflows/       @Elahe-z @ari322
-/.github/CODEOWNERS       @Elahe-z @ari322
+# Why (level A, 2026-09-02): require_code_owner_reviews=true was already active,
+# but the previous owner lists included @ari322 and @aram-ui — accounts agents
+# and the 12:17Z merger could drive — so the code-owner approval could be
+# self-satisfied by a second account, and non-listed paths (docs/) had no owner
+# at all. With one human owner, her approval is specifically required.
+#
+# Owner order 2026-09-02 (R0-CLOSE lane D). Relax/split scope only by an
+# explicit owner ruling after verified_payment_count >= 1.
+* @Elahe-z
