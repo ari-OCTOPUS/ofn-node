@@ -79,3 +79,17 @@ GitHub review (branch protection). Week proof is still one real
 OWNER-CONFIRM: D-27 implementation=yes merge=yes wire=yes money=yes
 caps 25/50/0; C-009 closed; partner_voices independently observed=false
 ```
+
+
+---
+
+## 7. D-28 — three fields still unforged
+
+Status: DONE as a record. Voices, Saba `record_release`, and actual
+secret rotation did not happen on this host. Painting was not blocked.
+
+```text
+OWNER-CONFIRM: D-28 risk_accepted_unrotated; GATE_OPEN_UNTIL_UTC=2026-09-16
+partner_voices independently observed=false; saba release unsigned
+```
+
