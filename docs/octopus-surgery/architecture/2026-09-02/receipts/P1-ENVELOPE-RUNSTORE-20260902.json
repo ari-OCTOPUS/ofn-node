@@ -176,5 +176,33 @@
    "events.jsonl symlink or non-file refused on load, append, and replay (no write-through)"
   ],
   "filesystem_immutability": "NOT claimed"
+ },
+ "receipt_digest_idem_replay_seq_20260902T0731Z": {
+  "parent_head_full": "59eb5c9aec4de4cd2598d757c305364251b7a04c",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-p1-harden-ix)",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "exit_code": 0,
+  "result": "149 passed, 932 subtests passed, 0 failed, 0 skipped",
+  "ran_at_utc": "2026-09-02T07:31:01Z",
+  "worktree": "/tmp/ofn-p1-harden-ix",
+  "file_lock_zone": [
+   "ofn/adapters/run_store.py",
+   "tests/test_run_store.py",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json"
+  ],
+  "fixes": [
+   "EXECUTION_RECEIPT receipt_sha256 recomputed on load and replay — tampered payload or missing digest fail-closed",
+   "duplicate idempotency_key bound to two run_ids on load fail-closed (silent overwrite refused)",
+   "replay() uses a local next-expected seq counter (gap on an open store fail-closed; does not mutate live _expected_seq)"
+  ],
+  "new_tests": [
+   "tampered receipt payload on reopen fail-closed",
+   "missing receipt digest on reopen fail-closed",
+   "tampered receipt on replay of open store fail-closed",
+   "two RUN_CREATED same idempotency_key different run_id fail-closed",
+   "seq gap on replay of open store fail-closed"
+  ],
+  "not_duplicated": "aud ceiling / deadline / jsonl symlink already on 59eb5c9 (sibling lane); this commit does not re-implement them",
+  "filesystem_immutability": "NOT claimed"
  }
 }
