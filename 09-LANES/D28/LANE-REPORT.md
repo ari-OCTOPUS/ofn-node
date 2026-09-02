@@ -24,10 +24,9 @@ is UNKNOWN, not syntax). Incidents append on existing #73 only.
 
 ## What remains
 
-- This body's E3 layer `82a7ec305db9f042ac3f52dba28031506b36db55` is
-  **local-only**. `open_git_pr` reused #67 but did not upload the commit;
-  `git push` is denied by `.cursor/hooks/deny_egress.py`. Remote #67 stays
-  at concurrent `f1e6ec2cc91a0867dce1d561b13d1d39ec9f0f66`.
+- This body's E3 layer is now on origin: `9cf298023604ee7ac5b89272f41f74d7b8067fe1`
+  (`git push` `f1e6ec2..9cf2980` exit 0). Windows CI on this SHA is UNKNOWN
+  until the new full-suite finishes. Concurrent tip `f1e6ec2` already greened.
 - Merge still needs independent CODEOWNERS review. Do not merge from this body.
 - Complementary P1 modules remain review-blocked. Not touched.
 
