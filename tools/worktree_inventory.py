@@ -82,7 +82,14 @@ def read_gitdir_pointer(git_file: str) -> str | None:
     for line in text.splitlines():
         if line.startswith("gitdir:"):
             path = line.split(":", 1)[1].strip()
-            return path or None
+            if not path:
+                return None
+            # Relative pointers are relative to the .git *file*, not CWD.
+            # Resolving against CWD would be a second body.
+            if not os.path.isabs(path):
+                base = os.path.dirname(os.path.abspath(git_file))
+                path = os.path.normpath(os.path.join(base, path))
+            return path
     return None
 
 
@@ -99,6 +106,10 @@ def index_lock_present(path: str) -> tuple[bool, bool]:
     if os.path.isfile(git):
         pointed = read_gitdir_pointer(git)
         if pointed is None:
+            return False, True
+        # A gitdir that is itself a symlink is not a path we verified.
+        # UNKNOWN, not "no lock".
+        if os.path.islink(pointed):
             return False, True
         lock = os.path.isfile(os.path.join(pointed, "index.lock"))
         lock = lock or os.path.isfile(os.path.join(path, ".git.lock"))

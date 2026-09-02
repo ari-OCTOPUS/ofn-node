@@ -134,6 +134,42 @@ class GitdirPointer(unittest.TestCase):
             self.assertFalse(present)
             self.assertTrue(unknown)
 
+    def test_relative_gitdir_is_resolved_against_the_git_file(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            pointed = os.path.join(tmp, "real-gitdir")
+            os.mkdir(pointed)
+            wt = os.path.join(tmp, "linked-wt")
+            os.mkdir(wt)
+            with open(os.path.join(wt, ".git"), "w", encoding="utf-8") as fh:
+                fh.write("gitdir: ../real-gitdir\n")
+            resolved = read_gitdir_pointer(os.path.join(wt, ".git"))
+            self.assertEqual(os.path.realpath(resolved),
+                             os.path.realpath(pointed))
+            with open(os.path.join(pointed, "index.lock"), "w") as fh:
+                fh.write("locked")
+            present, unknown = index_lock_present(wt)
+            self.assertTrue(present)
+            self.assertFalse(unknown)
+
+    def test_symlink_gitdir_is_unknown_not_no_lock(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            real = os.path.join(tmp, "real-gitdir")
+            os.mkdir(real)
+            linked = os.path.join(tmp, "linked-gitdir")
+            try:
+                os.symlink(real, linked)
+            except OSError:
+                self.skipTest("symlinks unavailable")
+            wt = os.path.join(tmp, "linked-wt")
+            os.mkdir(wt)
+            with open(os.path.join(wt, ".git"), "w", encoding="utf-8") as fh:
+                fh.write(f"gitdir: {linked}\n")
+            present, unknown = index_lock_present(wt)
+            self.assertFalse(present)
+            self.assertTrue(unknown)
+
 
 class NeverPrunes(unittest.TestCase):
     def test_source_has_no_prune_or_remove_calls(self):

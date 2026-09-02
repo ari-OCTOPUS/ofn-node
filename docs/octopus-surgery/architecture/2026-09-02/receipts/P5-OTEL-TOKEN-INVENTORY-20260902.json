@@ -54,5 +54,24 @@
     ],
     "pruned": false,
     "wrote": false
+  },
+  "relative_gitdir_symlink_unknown_20260902T0723Z": {
+    "parent_head_full": "45821ed4f77f4a9254bc52ffb605e9e359cfc28f",
+    "worktree": "/tmp/ofn-p5-ix",
+    "file_lock_zone": [
+      "tools/worktree_inventory.py",
+      "tests/test_worktree_inventory.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json"
+    ],
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py -q --tb=line",
+    "ran_at_utc": "2026-09-02T07:23:33Z",
+    "exit_code": 0,
+    "result": "36 passed, 879 subtests passed, 0 failed, 0 skipped",
+    "fixes": [
+      "relative gitdir: pointers resolved against the .git file, not CWD",
+      "gitdir that is itself a symlink → lock_unknown → census UNKNOWN, not 'no lock'"
+    ],
+    "pruned": false,
+    "wrote": false
   }
 }
