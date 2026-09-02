@@ -14,11 +14,12 @@ jobs:
   require-independent-approval:
     runs-on: ubuntu-latest
     steps:
-      - name: Require an approval from someone other than the author
+      - name: Require a GOV-V6 approval (Elahe-z | aram-ui; never author, never bots)
         uses: actions/github-script@v7
         with:
           script: |
             const SENSITIVE = [
+              'ofn/agents/',
               'ofn/adapters/',
               'ofn/kernel/',
               'migrations/',
@@ -56,17 +57,33 @@ jobs:
               latest.set(r.user.login, r.state);
             }
 
-            const approvers = [...latest.entries()]
-              .filter(([login, state]) => state === 'APPROVED' && login !== author)
+            // GOV-V6 (owner ruling 2026-09-03): Elahe-z and aram-ui are equally valid
+            // human reviewers — either one alone is sufficient. Two things still do
+            // NOT count:
+            //   1. the author approving their own change
+            //   2. any bot / GitHub App approval — e.g. cursor[bot] APPROVED #102 at
+            //      13:59:59Z with "no applicable approval policy requires human review"
+            const VALID_REVIEWERS = ['Elahe-z', 'aram-ui'];
+
+            const approvals = [...latest.entries()]
+              .filter(([, state]) => state === 'APPROVED');
+
+            const approvers = approvals
+              .filter(([login]) =>
+                login !== author &&
+                !login.endsWith('[bot]') &&
+                VALID_REVIEWERS.includes(login))
               .map(([login]) => login);
 
             if (approvers.length === 0) {
+              const seen = approvals.map(([l]) => l).join(', ') || 'none';
               core.setFailed(
-                `No independent approval. Author ${author} cannot approve their ` +
-                'own change on a sensitive path. This check is deliberately ' +
-                'separate from the branch ruleset: lowering required-approvals ' +
-                'does not satisfy it. See issue #51.');
+                `No valid independent approval on a sensitive path. Author: ${author}. ` +
+                `Approvals seen: ${seen}. Required: one of ${VALID_REVIEWERS.join(' or ')}, ` +
+                'and not the author. Bot/App approvals do not satisfy this check. ' +
+                'This check is deliberately separate from the branch ruleset: lowering ' +
+                'required-approvals does not satisfy it. See issue #51 and GOV-V6.');
               return;
             }
 
-            core.info(`Independent approval by: ${approvers.join(', ')}`);
+            core.info(`GOV-V6 approval by: ${approvers.join(', ')}`);
