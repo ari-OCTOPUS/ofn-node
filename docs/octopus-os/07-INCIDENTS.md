@@ -98,3 +98,20 @@ house rules: هر عدد با روش + بدنه (برنچ/SHA) · UNKNOWN نه F
 - **docs first-read:** `docs/octopus-os/MASTER-BLUEPRINT.md` and `CONTRIBUTING.md` **absent on main @67359a6** (UNKNOWN on this body, not FALSE). D-27 source pointer SHA-256 `c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9` (5469 bytes, PR #66 blob). D-28 source pointer SHA-256 `c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a` (16212 bytes, PR #67 blob). Evidence level B (git blob, not a second disk hash).
 - **#76 CI:** full-suite red on `release/p0` base (`EffectorGate` token in `consent_store.py` docstring; `capability_token` `no-token-secret` on CI hosts). Not introduced by `campaign_envelope`. Left on that PR; no duplicate opened.
 - **next executable action:** independent review of #74 (now includes close-with-ref + non-UTF-8 halt) then #75; land the new arch PR behind the same gate. Do not re-arm send.
+
+## 2026-09-02 (session iv — CI trigger require-independent-approval on #74, 05:24Z)
+
+Trigger: check-suite failure `require-independent-approval` ×2 on `feat/p1-envelope-runstore-20260902` @`92f5267913b6ec794e76537888b3d36eaa556176`. Author ari322 cannot approve their own change on a CODEOWNERS path. Gate working as designed (issue #51). Not a test failure — full-suite ubuntu was green.
+
+- **blocker (exact):** REVIEW_REQUIRED / no independent approval. Merge blocked. Engineering continued on the same PR.
+- **branch / HEAD:** `feat/p1-envelope-runstore-20260902` `3d52d7d1aabc35a20f97ff23d9f6cabbc2ff8a8a` (updates #74). File-lock zone: `/tmp/ofn-p1-harden` — `ofn/adapters/run_store.py`, `ofn/kernel/token_ceiling.py`, `tests/test_run_store.py`, `tests/test_token_ceiling.py`, P1 receipt JSON.
+- **what landed on #74:** persist `budget_tokens` on `RUN_CREATED`; `BUDGET_DEBIT.payload.tokens` checked against per-run ceiling before write (0 budget authorizes no spend); `replay()` fail-closed on corrupt JSON (same as `_load`); store root `0700` (POSIX); new `ofn/kernel/token_ceiling.py` — both ceilings (per-run + `NodeQuota`); `grants_send` always False.
+- **tests P1:** `python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=no` · `2026-09-02T05:33:09Z` · parent HEAD `e41cc26da5e1f1f96fc99556d095635b9b0d2d44` · exit 0 · **103 passed / 930 subtests / 0 fail / 0 skip**. Receipt: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json` (block `store_token_ceiling_and_replay_20260902`).
+- **not duplicated:** #75 HALT/chaos, #76 campaign_envelope, #77 OTel/revenue-states/inventory (DRAFT), #73 this log.
+- **merged:** NONE — review-blocked by design.
+- **review-blocked:** #70 #71(draft) #73 #74 #75 #76 #77(draft) · #72 sequenced behind #71.
+- **owner-blocked:** `quote_sent` / `send_authorized` (no newer scoped authorization); secret rotation; partner voices; vault `.claude/worktrees` prune.
+- **external effects:** ZERO.
+- **this-host worktree census:** `git worktree list` · `2026-09-02T05:34:01Z` · exit 0 · 3 registered (`/workspace` this session @92f5267; `/tmp/ofn-p1-harden` VERIFIED clean after commit; `/tmp/ofn-incidents-iv` this lock-zone). Nothing pruned. Vault census remains `body_not_on_this_host`.
+- **docs first-read:** `docs/octopus-os/MASTER-BLUEPRINT.md` and `CONTRIBUTING.md` still **absent on main @67359a6** (UNKNOWN, not FALSE). D-27 SHA-256 `c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9` (5469 bytes) MATCH vs session iii. D-28 SHA-256 `c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a` (16212 bytes) MATCH. Evidence level B (git blob).
+- **next executable action:** independent review of #74 (now includes token ceiling + replay fail-closed) then #75; do not re-arm send.
