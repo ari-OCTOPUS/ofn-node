@@ -48,8 +48,8 @@ house rules: هر عدد با روش + بدنه (برنچ/SHA) · UNKNOWN نه F
 
 | سند | محل اصلی (آرشیو immutable، فقط‌خواندنی) | SHA-256 | سطح شاهد |
 |---|---|---|---|
-| همسان‌سازی وضعیت شبانه + برخورد شناسهٔ C-008 | `F:/backup/99-ARCHIVE/nbb-cp-evidence-20260815/NIGHT-SYNC-C008-COLLISION.md` | `ee0e8004c8a68af5fd8d5b550027d5298d68f870e45987b90d5fdf7a04fe195d` | B (گزارش ایجنت؛ در ۱۵ اوت بازآزمایی نشد) |
-| گزارش نهایی همسان‌سازی — ۱۵ اوت ۲۰۲۶ | `F:/backup/99-ARCHIVE/nbb-cp-evidence-20260815/FINAL-SYNC-REPORT.md` | `03290c8e2b07cbbdbb9a694979953394b99e6a49e6eff9e33a1dc8fa69e8e1ad` | A (اعداد از اجرای واقعی روی ماشین مالک) |
+| همسان‌سازی وضعیت شبانه + برخورد شناسهٔ C-008 | `F:/backup/99-ARCHIVE/nbb-cp-evidence-20260815/NIGHT-SYNC-C008-COLLISION.md` (9,775 bytes) | `ee0e8004c8a68af5fd8d5b550027d5298d68f870e45987b90d5fdf7a04fe195d` | B (گزارش ایجنت؛ در ۱۵ اوت بازآزمایی نشد) |
+| گزارش نهایی همسان‌سازی — ۱۵ اوت ۲۰۲۶ | `F:/backup/99-ARCHIVE/nbb-cp-evidence-20260815/FINAL-SYNC-REPORT.md` (7,880 bytes) | `03290c8e2b07cbbdbb9a694979953394b99e6a49e6eff9e33a1dc8fa69e8e1ad` | A (اعداد از اجرای واقعی روی ماشین مالک) |
 
 درس ← کنترل امروزی (هر درس، الان کد/قاعده کجاست):
 
@@ -70,3 +70,15 @@ house rules: هر عدد با روش + بدنه (برنچ/SHA) · UNKNOWN نه F
 - **receipts:** DEAD-SOURCE-LABELS / WAIVER-SEND-GATE-TEST (branch chore+waiver); P1-ENVELOPE-RUNSTORE (#74); HALT-CHAOS (#75); CAMPAIGN-ENVELOPE (#76); vault: MIRROR-CLEANUP + WORKTREES-INVENTORY (06-EVIDENCE/OCTOPUS-VAULT-MAINT-2026-09-02/).
 - **worktree inventory (definitive count):** 22 registered worktrees of the vault repo (16 under .claude/worktrees + 6 on C: + main). 3 VERIFIED / 18 SUSPECTED / 1 UNKNOWN (w1-spine — active parallel session, status timed out). Four worktrees born TODAY (w1-free/money/scale/spine) → a parallel session is live on the vault repo; re-read their state before any vault write. Read-only; nothing pruned.
 - **next executable action:** independent review of #70 → #74 → #75 (then #71 un-draft after CI) — reviewer's, not mine.
+
+### POLICY — حاکمیت این log (2026-09-02، دستور evidence-hardening)
+
+1. **Append-only**: ورودی‌های جدید فقط انتهای فایل، با تاریخ صعودی. تست `tests/test_incidents_log_policy.py` این را مکانیکاً چک می‌کند.
+2. **بدون mirror متنی**: هیچ سند بیرونی verbatim اینجا کپی نمی‌شود؛ فقط pointer + full SHA-256 + byte size + سطح شاهد.
+3. **«immutable» ادعا نمی‌شود**: آرشیو فقط read-only bit دارد (نوشتن رد شد — آزمون 2026-09-02، هش پس از تلاشِ نوشتن تغییر نکرد). در برابر نوشتهٔ دست‌privilege، کنترلِ مقید **هش** است نه attribute.
+
+### راستی‌آزمایی مستقل pointerها (2026-09-02T05:05Z)
+
+- `sha256sum` دوباره روی هر دو فایل آرشیو: هر دو هش با جدول بالا برابر — MATCH.
+- آزمون نوشتن: `echo x >> NIGHT-SYNC-C008-COLLISION.md` → `Permission denied`؛ هش پس از تلاش تغییری نکرد.
+- فرمان + خروجی در رسید session iii ثبت شد.
