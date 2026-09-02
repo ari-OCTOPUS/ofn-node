@@ -139,6 +139,12 @@ class Economy:
         self._day: str | None = None
         self._sends_today = 0
         self._spend_today_cents = 0
+        # GOV-V6 debt fix 1: a promotion streak is consumed by the grant that
+        # used it; already-counted episodes cannot re-propose the next rung.
+        self._grant_consumed: set[str] = set()
+        # GOV-V6 debt fix 3: each episode's send/spend burns the daily cap once,
+        # no matter how many times the slot is re-applied.
+        self._capped: set[tuple[str, str]] = set()
 
     def _path(self, episode_id: str) -> Path:
         return self.state_dir / f"episode-{episode_id}.jsonl"
@@ -178,13 +184,13 @@ class Economy:
             if isinstance(evidence, Mapping) and _looks_supply_side(evidence):
                 raise EconomyError(KILL_METRIC)
         if role == "execution":
-            self._guard_execution(fields)
+            self._guard_execution(ep, fields)
         if role == "finance":
             self._guard_finance(fields)
 
         for key, value in fields.items():
             setattr(ep, key, value)
-        self._note_caps(role, fields)
+        self._note_caps(episode_id, role, fields)
         self._append(episode_id, "ROLE_APPLY", {"role": role, **dict(fields)})
         return ep
 
@@ -199,16 +205,27 @@ class Economy:
             self._day = key
             self._sends_today = 0
             self._spend_today_cents = 0
+            self._capped = set()
 
-    def _note_caps(self, role: str, fields: Mapping[str, Any]) -> None:
-        if role == "execution":
-            receipt = fields.get("execution_receipt")
-            if isinstance(receipt, Mapping) and receipt.get("kind") == "send":
-                self._sends_today += 1
-        if role == "finance":
-            cost = fields.get("cost")
-            if isinstance(cost, Mapping):
-                self._spend_today_cents += int(cost.get("amount_cents") or 0)
+    def _note_caps(self, episode_id: str, role: str, fields: Mapping[str, Any]) -> None:
+        self._roll_day()
+        receipt = fields.get("execution_receipt")
+        if (
+            role == "execution"
+            and isinstance(receipt, Mapping)
+            and receipt.get("kind") == "send"
+            and (self._day, episode_id, "send") not in self._capped
+        ):
+            self._capped.add((self._day, episode_id, "send"))
+            self._sends_today += 1
+        cost = fields.get("cost")
+        if (
+            role == "finance"
+            and isinstance(cost, Mapping)
+            and (self._day, episode_id, "spend") not in self._capped
+        ):
+            self._capped.add((self._day, episode_id, "spend"))
+            self._spend_today_cents += int(cost.get("amount_cents") or 0)
 
     def board_may_spend(self, board_id: str, amount_cents: int) -> None:
         if not board_id or not str(board_id).strip():
@@ -218,13 +235,15 @@ class Economy:
         if self.per_board_budget_default <= 0:
             raise EconomyError("board-budget-zero")
 
-    def _guard_execution(self, fields: Mapping[str, Any]) -> None:
+    def _guard_execution(self, ep: Episode, fields: Mapping[str, Any]) -> None:
         receipt = fields.get("execution_receipt")
         if receipt in (None, "", {}, False):
             return
         if self.granted_level in {"A0", "A1"}:
             raise EconomyError("execution-refused: granted level is draft-only")
-        if not fields.get("approval") and self.granted_level == "A2":
+        # approval recorded on the episode by an earlier apply still counts
+        approved = bool(fields.get("approval") or ep.approval)
+        if not approved and self.granted_level == "A2":
             raise EconomyError("execution-refused: A2 needs approval")
         sending = isinstance(receipt, Mapping) and receipt.get("kind") == "send"
         if self.granted_level >= "A3" or sending:
@@ -301,9 +320,13 @@ class Economy:
         """After enough clean taught episodes, propose the next rung.
 
         A3 stays ungranted while WIRE is closed. Proposal is not a grant.
+        Episodes already consumed by an earlier grant never count again
+        (GOV-V6 debt fix 1: the streak is single-use per rung).
         """
         clean = 0
-        for ep in self._episodes.values():
+        for episode_id, ep in self._episodes.items():
+            if episode_id in self._grant_consumed:
+                continue
             if ep.decision is None:
                 continue
             if ep.teacher_correction is None:
@@ -330,6 +353,12 @@ class Economy:
         proposed = self.propose_promotion()
         if nxt != self.granted_level and nxt != proposed:
             raise EconomyError("grant-refused: not proposed")
+        if nxt != self.granted_level:
+            # consume the streak this grant rode on: every episode that already
+            # carries a decision can never re-propose the next rung
+            self._grant_consumed.update(
+                eid for eid, ep in self._episodes.items() if ep.decision is not None
+            )
         self.granted_level = nxt
         return nxt
 
