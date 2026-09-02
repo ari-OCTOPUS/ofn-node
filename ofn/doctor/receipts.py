@@ -14,7 +14,10 @@ import hashlib
 import json
 from pathlib import Path
 
-__all__ = ["ReceiptLog", "canonical_json", "sha256_file", "sha256_text"]
+__all__ = [
+    "ReceiptLog", "canonical_json", "sha256_file", "sha256_text",
+    "sha256_canonical_text_file",
+]
 
 
 def canonical_json(obj) -> str:
@@ -31,6 +34,17 @@ def sha256_file(path: Path | str, chunk: int = 1 << 20) -> str:
         while block := fh.read(chunk):
             h.update(block)
     return h.hexdigest()
+
+
+def sha256_canonical_text_file(path: Path | str) -> str:
+    """SHA-256 of file bytes after CRLF→LF.
+
+    Text-pin helper. ``.gitattributes eol=lf`` is the preferred checkout
+    pin; this helper is the second witness if a runner still converts.
+    Does not claim working-tree bytes are immutable.
+    """
+    data = Path(path).read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 def _utcnow() -> str:

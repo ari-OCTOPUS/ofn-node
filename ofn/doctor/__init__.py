@@ -7,7 +7,7 @@ Charter: organs diagnose and propose; they do not patch or promote themselves
 (LAB-DOCTOR-CONTRACT.yaml, principle). The round over a source vault is
 strictly read-only; changes travel PR or owner ruling only.
 """
-from .receipts import ReceiptLog, sha256_file, sha256_text
+from .receipts import ReceiptLog, sha256_file, sha256_text, sha256_canonical_text_file
 from .round import DoctorRound, Finding, RoundResult, SourceNotFoundError, tree_hash
 from .backlog import SelfBacklog, BACKLOG_FIELDS
 from .destiny import DestinyEngine, Proposal, Decision, OUTCOMES

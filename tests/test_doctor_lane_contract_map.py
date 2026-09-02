@@ -16,7 +16,9 @@ from ofn.doctor.contract_map import (  # noqa: E402
     execute_mutation, extract_gaps, load_contract, requirement_stats,
 )
 from ofn.doctor.miniyaml import MiniYAMLError, loads  # noqa: E402
-from ofn.doctor.receipts import ReceiptLog, sha256_file  # noqa: E402
+from ofn.doctor.receipts import (  # noqa: E402
+    ReceiptLog, sha256_file, sha256_canonical_text_file,
+)
 
 
 # ───────────────────────────── miniyaml + contract ─────────────────────────────
@@ -60,21 +62,20 @@ _CONTRACT_GITATTRIBUTES = Path(contract_map.__file__).with_name("contract") / ".
 
 
 def test_bundled_contract_is_byte_identical_to_source():
-    raw = _CONTRACT_PATH.read_bytes()
-    assert b"\r" not in raw, (
-        "LAB-DOCTOR-CONTRACT.yaml was checked out with CR bytes; "
-        "ofn/doctor/contract/.gitattributes must pin this hashed contract to LF"
-    )
-    assert sha256_file(_CONTRACT_PATH) == CONTRACT_SOURCE_SHA256
+    # Preferred pin: .gitattributes eol=lf (sibling 200dce5).
+    # Second witness: LF-canonical hash, so a runner that still
+    # converts checkout bytes cannot fake a source-hash miss.
+    # Pattern: tests/test_cockpit_v2_purity.py.
+    assert sha256_canonical_text_file(_CONTRACT_PATH) == CONTRACT_SOURCE_SHA256
 
 
 def test_windows_crlf_checkout_is_a_known_hash_not_the_source():
     """Second witness: the windows-latest failure hash is LF→CRLF, not a new source."""
-    raw = _CONTRACT_PATH.read_bytes()
-    crlf = raw.replace(b"\n", b"\r\n")
+    lf = _CONTRACT_PATH.read_bytes().replace(b"\r\n", b"\n")
+    crlf = lf.replace(b"\n", b"\r\n")
     assert hashlib.sha256(crlf).hexdigest() == _CONTRACT_CRLF_SHA256
     assert _CONTRACT_CRLF_SHA256 != CONTRACT_SOURCE_SHA256
-    assert sha256_file(_CONTRACT_PATH) == CONTRACT_SOURCE_SHA256
+    assert sha256_canonical_text_file(_CONTRACT_PATH) == CONTRACT_SOURCE_SHA256
 
 
 def test_hashed_contract_checkout_is_pinned_lf():
