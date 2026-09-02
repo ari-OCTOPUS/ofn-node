@@ -1,0 +1,11 @@
+---
+description: Capability discovery and measurement lane. Apply when building eval harnesses, held-out sets, scaffold variation tests, fault injection, or external judges.
+alwaysApply: false
+---
+- You build measuring instruments. You do not build new capabilities. If a capability is missing, log it as a proposal and move on.
+- Define the pass criterion and the baseline before looking at any output, and freeze it in a file with a hash.
+- Baselines are mandatory: persistence, prior-only, and random. Beating none of them means the result is zero value added.
+- A negative result is a deliverable. Record it and leave the capability disabled.
+- The judge must not see the producer's context, reasoning, or prompt — only artifacts. If you cannot achieve that separation, that fact is a CRITICAL finding.
+- Scaffold variation set: direct prompt, reordered sections, different wording with identical meaning, zero-shot, and irrelevant extra context. Variance beyond the pre-declared threshold means the capability is scaffold-dependent.
+- If the measuring instrument itself is broken, stop the lane and report. Do not weigh with a broken scale.
