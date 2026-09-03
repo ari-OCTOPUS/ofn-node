@@ -1,12 +1,12 @@
 {
-  "ts": "2026-08-30T13:21:30",
+  "ts": "2026-09-03T14:00:48",
   "velocity": {
-    "velocity_per_hr": 14.875,
+    "velocity_per_hr": 12.2917,
     "components": {
       "confirmed": 0,
       "effects": 0,
       "consolidation": 0,
-      "beats": 1361,
+      "beats": 1147,
       "cognition": null
     },
     "confirmed_ts": [],
@@ -22,12 +22,12 @@
     "authoritative": false,
     "self_referential": true,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-08-30T13:21:31",
-    "fuel_velocity_per_hr": 14.75,
+    "ts": "2026-09-03T14:02:45",
+    "fuel_velocity_per_hr": 12.1667,
     "value_velocity_per_hr": null,
-    "real_velocity_per_hr": 14.75,
+    "real_velocity_per_hr": 12.1667,
     "real_components": {
-      "fuel_calls": 354,
+      "fuel_calls": 292,
       "fuel_musd": 0
     },
     "leg_money_count": 0,
@@ -39,10 +39,10 @@
     },
     "channels": {
       "leg_money": 0,
-      "fuel": 354,
+      "fuel": 292,
       "value_cognition": null,
       "effects": 0,
-      "beats": 1361
+      "beats": 1147
     }
   },
   "cpi": {
@@ -54,24 +54,24 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-08-30T13:21:31"
+    "ts": "2026-09-03T14:02:45"
   },
   "delta_self": {
-    "stream_rows": 2802,
+    "stream_rows": 2877,
     "sample_size": 336,
     "window": 336,
     "min_samples": 48,
-    "ts": "2026-08-30T13:21:31",
-    "delta_self_live": 0.000787,
-    "delta_self_raw": 0.000787,
-    "S_blind": 1.5021205757618457,
-    "S_informed": 1.4997573485781204,
-    "resolution_mse": 0.033170586702098784,
+    "ts": "2026-09-03T14:02:45",
+    "delta_self_live": 0.012911,
+    "delta_self_raw": 0.012911,
+    "S_blind": 1.5270839586508056,
+    "S_informed": 1.4881558393026915,
+    "resolution_mse": 0.025736682910486426,
     "cov_dropped_zero_variance": [
       "confirmed",
       "effects"
     ],
-    "ceiling_live": 1.5835,
+    "ceiling_live": 1.965882,
     "holdout_n": 168,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",

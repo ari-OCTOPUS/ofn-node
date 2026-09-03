@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-29T21:54:24",
+  "ts": "2026-09-03T09:27:48",
   "schema": "doctor-rfcs.v1",
   "rfcs": [
     {
@@ -56,6 +56,78 @@
       "knob": "",
       "created_ts": 1786483756.2932084,
       "evidence_key": "legs-starved"
+    },
+    {
+      "rfc_id": "RFC-3d56a225",
+      "bottleneck": "1 خطا در ۲۴ ساعت گذشته",
+      "fix": "افزودنِ guard برای کاهشِ نرخِ خطا در ارگان‌های متأثر",
+      "expected_lift": "رفعِ high: 1 خطا در ۲۴ ساعت گذشته",
+      "rollback": "revert flag",
+      "sandbox_result": {
+        "chamber": {
+          "confidence": 0.8,
+          "rounds": 1,
+          "temperature": 0.5705
+        },
+        "sandbox_dir": "C:\\Users\\Armin\\AppData\\Local\\Temp\\doctor-sandbox-RFC-3d56a225-y8k0s2fk",
+        "applied": false,
+        "tests": null,
+        "critic": {
+          "verdict": "unvalidated",
+          "concerns": [],
+          "reward_integrity_ok": true,
+          "sandbox_validated": false
+        }
+      },
+      "critic_review": {
+        "verdict": "unvalidated",
+        "concerns": [],
+        "reward_integrity_ok": true,
+        "sandbox_validated": false
+      },
+      "status": "expired",
+      "ledger_ref": "52a4eb167666c0de24bc666f0201a35b746e63fa11b7068ad110550ca98962f0",
+      "rfc_hash": "aea11d70b5d8ca179bceb10f",
+      "change_level": "code",
+      "knob": "",
+      "created_ts": 1788299716.6988163,
+      "evidence_key": "error-rate-high"
+    },
+    {
+      "rfc_id": "RFC-fb0a49f1",
+      "bottleneck": "1 خطا در ۲۴ ساعت گذشته",
+      "fix": "افزودنِ guard برای کاهشِ نرخِ خطا در ارگان‌های متأثر",
+      "expected_lift": "رفعِ high: 1 خطا در ۲۴ ساعت گذشته",
+      "rollback": "revert flag",
+      "sandbox_result": {
+        "chamber": {
+          "confidence": 0.8,
+          "rounds": 1,
+          "temperature": 0.5705
+        },
+        "sandbox_dir": "C:\\Users\\Armin\\AppData\\Local\\Temp\\doctor-sandbox-RFC-fb0a49f1-49t_be20",
+        "applied": false,
+        "tests": null,
+        "critic": {
+          "verdict": "unvalidated",
+          "concerns": [],
+          "reward_integrity_ok": true,
+          "sandbox_validated": false
+        }
+      },
+      "critic_review": {
+        "verdict": "unvalidated",
+        "concerns": [],
+        "reward_integrity_ok": true,
+        "sandbox_validated": false
+      },
+      "status": "submitted",
+      "ledger_ref": "3c0fb4aa9518e005bf3c5f9e98c02865430498a9d8a45144f47b4b1c377662c6",
+      "rfc_hash": "5eba235ad377f2bfdebba826",
+      "change_level": "code",
+      "knob": "",
+      "created_ts": 1788391657.719048,
+      "evidence_key": "error-rate-high"
     }
   ]
 }

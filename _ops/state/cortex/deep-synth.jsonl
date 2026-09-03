@@ -61,3 +61,7 @@
 {"ts": "2026-08-29T03:06:22", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
 {"ts": "2026-08-30T01:26:36", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
 {"ts": "2026-08-30T03:08:24", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
+{"ts": "2026-09-02T10:31:25", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
+{"ts": "2026-09-02T14:30:30", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
+{"ts": "2026-09-03T00:46:19", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
+{"ts": "2026-09-03T01:53:44", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}

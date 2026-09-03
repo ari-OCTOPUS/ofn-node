@@ -1,13 +1,13 @@
 {
   "effective_period_s": 96.44,
   "base_period_s": 60.0,
-  "consensus_s": 55.19,
+  "consensus_s": 55.72,
   "brake_s": null,
   "color": "GREEN",
   "driver": "authority-hold",
   "reasons": [
-    "تنها «rhythm» متحرک است؛ بقیه نگه‌داشته/ثابت‌اند — اجماع نیست، یک قلب می‌راند → 55s",
-    "G4 authority hold: candidate 55.19s < fixed pre-G4 anchor 96.44s; acceleration refused"
+    "تنها «rhythm» متحرک است؛ بقیه نگه‌داشته/ثابت‌اند — اجماع نیست، یک قلب می‌راند → 56s",
+    "G4 authority hold: candidate 55.72s < fixed pre-G4 anchor 96.44s; acceleration refused"
   ],
   "votes": [
     {
@@ -28,12 +28,12 @@
     {
       "heart": "control_law",
       "present": false,
-      "period_s": 489.97,
+      "period_s": 333.64,
       "braking": false,
       "precision": 1.0,
       "color": "GREEN",
       "note": "velocity-tracking",
-      "mode": "HELD",
+      "mode": "LIVE",
       "dof": 1,
       "last_change_ts": null,
       "eligible_for_live": false,
@@ -43,16 +43,16 @@
         "SOG provenance is not VERIFIED",
         "G4 grants no control-law live authority before HeartStore Gate 1"
       ],
-      "observed_period_s": 489.97
+      "observed_period_s": 333.64
     },
     {
       "heart": "rhythm",
       "present": true,
-      "period_s": 80.35,
+      "period_s": 82.25,
       "braking": false,
       "precision": 0.7,
       "color": "GREEN",
-      "note": "mode=STEADY/GREEN · hrv=0.42",
+      "note": "mode=STEADY/GREEN · hrv=0.36",
       "mode": "LIVE",
       "dof": 0,
       "last_change_ts": null,
@@ -67,16 +67,16 @@
   "n_held": 0,
   "n_constant": 1,
   "n_unknown_mode": 0,
-  "candidate_period_s": 55.19,
+  "candidate_period_s": 55.72,
   "candidate_driver": "solo:rhythm",
   "applied_period_known": true,
   "authority_hold_applied": true,
   "authority_floor_s": 96.44,
   "authority_status": "HELD_NO_ACCELERATION",
   "authority_policy": "pulse-authority-g4.v1",
-  "ts": "2026-08-30T13:41:20",
+  "ts": "2026-09-03T14:00:21",
   "schema": "pulse-arbiter.v1",
-  "beat": 55599,
+  "beat": 60316,
   "advisory_only": true,
   "precision_mode": "static",
   "wire_requested_open": true,

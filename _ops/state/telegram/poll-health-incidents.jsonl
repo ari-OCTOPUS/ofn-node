@@ -45169,3 +45169,14 @@
 {"ts": 1787976952.5984368, "reason": "lease:duplicate-consumer", "ok": false}
 {"ts": 1787976952.6062365, "reason": "lease:duplicate-consumer", "ok": false}
 {"ts": 1787976952.7208147, "reason": "lease:duplicate-consumer", "ok": false}
+{"ts": 1788347522.1322045, "reason": "TimeoutError", "ok": false}
+{"ts": 1788347554.1610065, "reason": "URLError", "ok": false}
+{"ts": 1788347591.9402905, "reason": "TimeoutError", "ok": false}
+{"ts": 1788347597.0549896, "reason": "TimeoutError", "ok": false}
+{"ts": 1788347605.5997381, "reason": "TimeoutError", "ok": false}
+{"ts": 1788347622.8860877, "reason": "TimeoutError", "ok": false}
+{"ts": 1788362842.1840408, "reason": "TimeoutError", "ok": false}
+{"ts": 1788362877.5528219, "reason": "URLError", "ok": false}
+{"ts": 1788368242.792295, "reason": "URLError", "ok": false}
+{"ts": 1788400179.8229723, "reason": "TimeoutError", "ok": false}
+{"ts": 1788403119.7767828, "reason": "URLError", "ok": false}

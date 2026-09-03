@@ -98,3 +98,6 @@
 {"leg": "lead-naghshi", "ts": 1787979276.757844, "beat": 54315, "reason": "phi-timeout:no-ack", "phi": 33.177, "ok": true}
 {"leg": "lead-naghshi", "ts": 1788058850.2789176, "beat": 55577, "reason": "phi-timeout:no-ack", "phi": 16.992, "ok": true}
 {"leg": "lead-naghshi", "ts": 1788061400.3791196, "beat": 55612, "reason": "phi-timeout:no-ack", "phi": 17.165, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788312867.383727, "beat": 59137, "reason": "phi-timeout:no-ack", "phi": 17.09, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788322642.824139, "beat": 59171, "reason": "phi-timeout:no-ack", "phi": 300.0, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788355152.3852725, "beat": 59521, "reason": "phi-timeout:no-ack", "phi": 21.875, "ok": true}

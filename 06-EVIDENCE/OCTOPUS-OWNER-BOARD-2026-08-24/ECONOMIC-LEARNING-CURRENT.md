@@ -12,9 +12,10 @@ mode: shadow-only
 state: FRESH
 
 ## Verified payments
-- verified: **0**
+- verified: **0** (campaign PAINT-L5-001)
+- business-wide (bank-verified, ANZ 654214278, May–Sep 2026): **5 payments · $60,418.37** — see payment-receipts/PAYMENT-VERIFIED-20260902-RECEIPT.md (added 2026-09-02T14:10Z under R6 with per-row hashes; Manly contract $59,466.00 of $93k + GST received)
 - unverified claims: **0**
-- payment_received_verified = **false**
+- payment_received_verified = **false** *(campaign-scoped; business-wide = true — first VERIFIED payments in project history)*
 
 ## Action chains
 - total: 5 · complete: 0

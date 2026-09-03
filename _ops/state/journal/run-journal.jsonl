@@ -238,3 +238,9 @@
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787778476.3039286, "meta": {"incomplete": 0}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787883212.1924534, "meta": {"incomplete": 0}}
 {"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1787955730.3096523, "meta": {"incomplete": 0}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1788344548.617446, "meta": {"incomplete": 0}}
+{"run_id": "boot-recovery", "step": "journal-scan", "status": "ok", "ts": 1788391331.558544, "meta": {"incomplete": 0}}
+{"run_id": "rfc-RFC-fb0a49f1", "step": "propose", "status": "ok", "ts": 1788391658.3138778, "meta": {}}
+{"run_id": "rfc-RFC-fb0a49f1", "step": "sandbox", "status": "start", "ts": 1788391664.1161852, "meta": {}}
+{"run_id": "rfc-RFC-fb0a49f1", "step": "sandbox", "status": "ok", "ts": 1788391664.662155, "meta": {"status_after": "sandbox-skip"}}
+{"run_id": "rfc-RFC-fb0a49f1", "step": "submit", "status": "ok", "ts": 1788391668.972656, "meta": {}}

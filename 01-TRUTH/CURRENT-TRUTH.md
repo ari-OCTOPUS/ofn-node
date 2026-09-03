@@ -1,3 +1,7 @@
+# REDIRECT (2026-09-02) — این فایل کهنه است (دورهٔ 2026-08-15)
+# Canonical truth: F:\backup\06-EVIDENCE\OCTOPUS-OWNER-BOARD-2026-08-24\CURRENT-TRUTH.md
+# محتوای زیر صرفاً برای تاریخچه حفظ شده — ویرایش نکنید، به‌عنوان وضعیت جاری نقل نکنید.
+# ---
 ---
 type: truth-note
 section: current-truth

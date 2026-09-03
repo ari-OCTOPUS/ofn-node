@@ -12,3 +12,5 @@
 {"mission_id": "owner-gate-sign-d1-manifest", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158547587537070", "ts": 1786783164.1546485}
 {"mission_id": "owner-gate-orange-4d", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548414340326", "ts": 1786783165.7463746}
 {"mission_id": "voice-test-single-20260815", "gate": "test", "approved": true, "voter_id": 6150431610, "callback_id": "sim-t6-1786790034", "ts": 1786790035.2676282}
+{"mission_id": "doctor-pulse", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548891698653", "ts": 1788391402.7649221}
+{"mission_id": "wire", "gate": "test", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548888138273", "ts": 1788391416.899303}

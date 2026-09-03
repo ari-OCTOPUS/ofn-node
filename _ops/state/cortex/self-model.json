@@ -1,8 +1,8 @@
 {
-  "ts": "2026-08-30T12:08:23",
+  "ts": "2026-09-03T12:36:08",
   "schema": "self-model.v1",
-  "n_modules": 937,
-  "total_lines": 235877,
+  "n_modules": 938,
+  "total_lines": 235884,
   "n_tests": 854,
   "n_wire_flags": 189,
   "wire_flags": [
@@ -61,6 +61,15 @@
   ],
   "self_awareness_pct": 95.0,
   "modules": {
+    "__init__.py": {
+      "purpose": "_ops.events — لایهٔ Typed Events (W1-SPINE، مالکیت انحصاری این لِین).",
+      "lines": 2,
+      "n_funcs": 0,
+      "n_classes": 0,
+      "top_defs": [],
+      "wire_flags": [],
+      "house_imports": []
+    },
     "_agent_reports/live-watch-2026-07-26/watcher.py": {
       "purpose": "watcher.py — دو ساعت مشاهدهٔ زندهٔ سطحِ تلگرام (۲۰۲۶-۰۷-۲۶).",
       "lines": 134,
@@ -8714,7 +8723,7 @@
     },
     "memory_read_loop.py": {
       "purpose": "memory_read_loop.py — PROPOSAL (T45، دستور مالک #۷ §۶).",
-      "lines": 231,
+      "lines": 236,
       "n_funcs": 2,
       "n_classes": 4,
       "top_defs": [

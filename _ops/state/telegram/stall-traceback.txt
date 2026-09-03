@@ -3837,3 +3837,909 @@ Thread 0x00006578 (most recent call first):
   File "F:\backup\_ops\telegram_center\center.py", line 5965 in run_once
   File "F:\backup\_ops\telegram_center\center.py", line 6104 in run_forever
   File "F:\backup\_ops\telegram_center\center.py", line 6273 in <module>
+
+====================================================================
+2026-09-02T11:30:27  pid=11508  reason=pulse-stalled  pulse_age=255s
+====================================================================
+نخ‌ها:
+  0x0000054c  MainThread
+  0x000045fc  reach-flush (daemon)
+  0x00003b48  stall-probe (daemon)
+  0x00003430  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x00003430 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00003b48 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000045fc (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000054c (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T11:32:27  pid=3708  reason=pulse-stalled  pulse_age=375s
+====================================================================
+نخ‌ها:
+  0x000033bc  MainThread
+  0x00000ae0  reach-flush (daemon)
+  0x00002aec  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00002aec (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000ae0 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000033bc (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T12:18:48  pid=3708  reason=pulse-stalled  pulse_age=258s
+====================================================================
+نخ‌ها:
+  0x000033bc  MainThread
+  0x00000ae0  reach-flush (daemon)
+  0x00002aec  stall-probe (daemon)
+  0x000010e4  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x000010e4 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00002aec (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000ae0 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000033bc (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T14:00:13  pid=9120  reason=pulse-stalled  pulse_age=6347s
+====================================================================
+نخ‌ها:
+  0x00004a58  MainThread
+  0x00000008  reach-flush (daemon)
+  0x000032ac  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x000032ac (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000008 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004a58 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1217 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 881 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T14:10:17  pid=9724  reason=pulse-stalled  pulse_age=280s
+====================================================================
+نخ‌ها:
+  0x00004dbc  MainThread
+  0x00005354  reach-flush (daemon)
+  0x000010d4  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x000010d4 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005354 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004dbc (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 881 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T14:23:47  pid=23784  reason=pulse-stalled  pulse_age=501s
+====================================================================
+نخ‌ها:
+  0x00002c2c  MainThread
+  0x000008d0  reach-flush (daemon)
+  0x00002ee8  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00002ee8 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000008d0 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002c2c (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 881 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T15:00:19  pid=23784  reason=pulse-stalled  pulse_age=245s
+====================================================================
+نخ‌ها:
+  0x00002c2c  MainThread
+  0x000008d0  reach-flush (daemon)
+  0x00002ee8  stall-probe (daemon)
+  0x00003404  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x00003404 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00002ee8 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000008d0 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002c2c (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T15:05:10  pid=22152  reason=pulse-stalled  pulse_age=540s
+====================================================================
+نخ‌ها:
+  0x00004790  MainThread
+  0x0000535c  reach-flush (daemon)
+  0x00000f2c  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00000f2c (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000535c (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004790 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T15:20:21  pid=22308  reason=pulse-stalled  pulse_age=582s
+====================================================================
+نخ‌ها:
+  0x00002600  MainThread
+  0x00003c34  reach-flush (daemon)
+  0x00003218  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00003218 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003c34 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002600 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T15:36:38  pid=18344  reason=pulse-stalled  pulse_age=651s
+====================================================================
+نخ‌ها:
+  0x00003ff0  MainThread
+  0x00004ef4  reach-flush (daemon)
+  0x0000486c  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x0000486c (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004ef4 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003ff0 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T15:40:47  pid=16956  reason=pulse-stalled  pulse_age=900s
+====================================================================
+نخ‌ها:
+  0x00005754  MainThread
+  0x00003d20  reach-flush (daemon)
+  0x000017cc  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x000017cc (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003d20 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005754 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T15:59:46  pid=21328  reason=pulse-stalled  pulse_age=812s
+====================================================================
+نخ‌ها:
+  0x00001a30  MainThread
+  0x00003e58  reach-flush (daemon)
+  0x00000f08  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00000f08 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003e58 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00001a30 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T17:10:50  pid=24616  reason=pulse-stalled  pulse_age=3935s
+====================================================================
+نخ‌ها:
+  0x00006480  MainThread
+  0x00006218  reach-flush (daemon)
+  0x00001074  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00001074 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00006218 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00006480 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T17:36:14  pid=25144  reason=pulse-stalled  pulse_age=1211s
+====================================================================
+نخ‌ها:
+  0x00003c0c  MainThread
+  0x00000674  reach-flush (daemon)
+  0x00001a18  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00001a18 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000674 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003c0c (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 881 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T18:38:18  pid=25144  reason=pulse-stalled  pulse_age=246s
+====================================================================
+نخ‌ها:
+  0x00003c0c  MainThread
+  0x00000674  reach-flush (daemon)
+  0x00001a18  stall-probe (daemon)
+  0x00002ce8  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x00002ce8 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00001a18 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000674 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003c0c (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T18:58:50  pid=17848  reason=pulse-stalled  pulse_age=1019s
+====================================================================
+نخ‌ها:
+  0x00006508  MainThread
+  0x00005b40  reach-flush (daemon)
+  0x000056e0  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x000056e0 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005b40 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00006508 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T19:29:17  pid=17848  reason=pulse-stalled  pulse_age=249s
+====================================================================
+نخ‌ها:
+  0x00006508  MainThread
+  0x00005b40  reach-flush (daemon)
+  0x000056e0  stall-probe (daemon)
+  0x00003198  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x00003198 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x000056e0 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005b40 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00006508 (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T19:41:43  pid=15932  reason=pulse-stalled  pulse_age=995s
+====================================================================
+نخ‌ها:
+  0x000063c4  MainThread
+  0x00003854  reach-flush (daemon)
+  0x0000613c  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x0000613c (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003854 (most recent call first):
+  File "F:\backup\_ops\budget\opslib.py", line 322 in append_jsonl
+  File "F:\backup\_ops\reach_probe.py", line 179 in _append
+  File "F:\backup\_ops\reach_probe.py", line 204 in flush
+  File "F:\backup\_ops\reach_probe.py", line 161 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000063c4 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1217 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T19:43:33  pid=7128  reason=pulse-stalled  pulse_age=1105s
+====================================================================
+نخ‌ها:
+  0x00003d14  MainThread
+  0x00000cb4  reach-flush (daemon)
+  0x000048c4  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x000048c4 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000cb4 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003d14 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1218 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T20:03:26  pid=7128  reason=pulse-stalled  pulse_age=259s
+====================================================================
+نخ‌ها:
+  0x00003d14  MainThread
+  0x00000cb4  reach-flush (daemon)
+  0x000048c4  stall-probe (daemon)
+  0x000064e0  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x000064e0 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x000048c4 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00000cb4 (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003d14 (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T20:17:16  pid=14480  reason=pulse-stalled  pulse_age=347s
+====================================================================
+نخ‌ها:
+  0x00003888  MainThread
+  0x000056bc  reach-flush (daemon)
+  0x00002118  stall-probe (daemon)
+--------------------------------------------------------------------
+Current thread 0x00002118 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000056bc (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003888 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1217 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1118 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1022 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "F:\backup\_ops\telegram_center\tg_api.py", line 868 in poll_updates_typed
+  File "F:\backup\_ops\telegram_center\center.py", line 5990 in run_once
+  File "F:\backup\_ops\telegram_center\center.py", line 6129 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-02T23:15:49  pid=14480  reason=pulse-stalled  pulse_age=253s
+====================================================================
+نخ‌ها:
+  0x00003888  MainThread
+  0x000056bc  reach-flush (daemon)
+  0x00002118  stall-probe (daemon)
+  0x000057a8  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x00005630 (most recent call first):
+  File "C:\Program Files\Python313\Lib\pathlib\_local.py", line 537 in open
+  File "C:\Program Files\Python313\Lib\pathlib\_abc.py", line 651 in write_text
+  File "C:\Program Files\Python313\Lib\pathlib\_local.py", line 555 in write_text
+  File "F:\backup\_ops\telegram_center\bounded_io.py", line 79 in _write
+  File "F:\backup\_ops\telegram_center\bounded_io.py", line 43 in _worker
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000057a8 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00002118 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000056bc (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003888 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 363 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 210 in get
+  File "F:\backup\_ops\telegram_center\bounded_io.py", line 58 in run
+  File "F:\backup\_ops\telegram_center\bounded_io.py", line 83 in write_text
+  File "F:\backup\_ops\telegram_center\center.py", line 273 in _save_config
+  File "F:\backup\_ops\telegram_center\center.py", line 1921 in _refresh_leg_card
+  File "F:\backup\_ops\telegram_center\center.py", line 1550 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-03T00:19:17  pid=14480  reason=pulse-stalled  pulse_age=254s
+====================================================================
+نخ‌ها:
+  0x00003888  MainThread
+  0x000056bc  reach-flush (daemon)
+  0x00002118  stall-probe (daemon)
+  0x000057a8  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x000057a8 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00002118 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000056bc (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003888 (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>
+
+====================================================================
+2026-09-03T01:21:52  pid=14480  reason=pulse-stalled  pulse_age=242s
+====================================================================
+نخ‌ها:
+  0x00003888  MainThread
+  0x000056bc  reach-flush (daemon)
+  0x00002118  stall-probe (daemon)
+  0x000057a8  tg-brain-worker (daemon)
+--------------------------------------------------------------------
+Thread 0x000057a8 (most recent call first):
+  File "C:\Program Files\Python313\Lib\threading.py", line 359 in wait
+  File "C:\Program Files\Python313\Lib\queue.py", line 199 in get
+  File "F:\backup\_ops\telegram_center\center.py", line 383 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Current thread 0x00002118 (most recent call first):
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 123 in write_dump
+  File "F:\backup\_ops\telegram_center\stall_probe.py", line 200 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000056bc (most recent call first):
+  File "F:\backup\_ops\reach_probe.py", line 159 in _loop
+  File "C:\Program Files\Python313\Lib\threading.py", line 994 in run
+  File "C:\Program Files\Python313\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Program Files\Python313\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003888 (most recent call first):
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 252 in iter_events
+  File "F:\backup\07 - Knowledge\genome-system\ledger\ledger.py", line 267 in filter
+  File "F:\backup\_ops\budget\attribution.py", line 136 in fold
+  File "F:\backup\_ops\budget\attribution.py", line 159 in confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 61 in _confirmed_revenue
+  File "F:\backup\_ops\heart\money_pulse.py", line 68 in _sense
+  File "F:\backup\_ops\heart\money_pulse.py", line 87 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 1382 in beat
+  File "F:\backup\_ops\telegram_center\center.py", line 6142 in run_forever
+  File "F:\backup\_ops\telegram_center\center.py", line 6298 in <module>

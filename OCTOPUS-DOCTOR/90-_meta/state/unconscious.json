@@ -1,5 +1,5 @@
 {
-  "n": 411,
+  "n": 432,
   "arch": [
     {
       "sig": "خودشناسیِ منفی",
@@ -9,7 +9,7 @@
       "days": [],
       "born": 1785308418.9390233,
       "last_confirmed": 0.0,
-      "counter": 20,
+      "counter": 21,
       "valence": -1.0
     },
     {
@@ -31,14 +31,15 @@
       "days": [],
       "born": 1785308418.9390233,
       "last_confirmed": 0.0,
-      "counter": 138,
+      "counter": 143,
       "valence": -1.0
     },
     {
       "sig": "wire",
-      "support": 30,
-      "exo_support": 30,
+      "support": 31,
+      "exo_support": 31,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -71,6 +72,7 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -109,9 +111,10 @@
     },
     {
       "sig": "ابزارِ فقط‌خواندنیِ خلاصهٔ وضع دکتر افزوده شود.",
-      "support": 28,
-      "exo_support": 28,
+      "support": 29,
+      "exo_support": 29,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -142,6 +145,7 @@
         "owner"
       ],
       "days": [
+        "2026-07-29",
         "2026-07-29",
         "2026-07-29",
         "2026-07-29",
@@ -184,14 +188,19 @@
       "days": [],
       "born": 1786482004.3064017,
       "last_confirmed": 0.0,
-      "counter": 18,
+      "counter": 19,
       "valence": -1.0
     },
     {
       "sig": "owner-gate-sign-dN-manifest",
-      "support": 70,
-      "exo_support": 70,
+      "support": 75,
+      "exo_support": 75,
       "actors": [
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -264,6 +273,11 @@
         "owner"
       ],
       "days": [
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
         "2026-08-15",
         "2026-08-15",
         "2026-08-15",
@@ -342,9 +356,12 @@
     },
     {
       "sig": "owner-gate-orange-Nd",
-      "support": 42,
-      "exo_support": 42,
+      "support": 45,
+      "exo_support": 45,
       "actors": [
+        "owner",
+        "owner",
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -389,6 +406,9 @@
         "owner"
       ],
       "days": [
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
         "2026-08-15",
         "2026-08-15",
         "2026-08-15",
@@ -439,9 +459,12 @@
     },
     {
       "sig": "owner-gate-judgment-wait",
-      "support": 42,
-      "exo_support": 42,
+      "support": 45,
+      "exo_support": 45,
       "actors": [
+        "owner",
+        "owner",
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -486,6 +509,9 @@
         "owner"
       ],
       "days": [
+        "2026-08-15",
+        "2026-08-15",
+        "2026-08-15",
         "2026-08-15",
         "2026-08-15",
         "2026-08-15",
@@ -536,9 +562,10 @@
     },
     {
       "sig": "voice-test-single-N",
-      "support": 14,
-      "exo_support": 14,
+      "support": 15,
+      "exo_support": 15,
       "actors": [
+        "owner",
         "owner",
         "owner",
         "owner",
@@ -555,6 +582,7 @@
         "owner"
       ],
       "days": [
+        "2026-08-15",
         "2026-08-15",
         "2026-08-15",
         "2026-08-15",

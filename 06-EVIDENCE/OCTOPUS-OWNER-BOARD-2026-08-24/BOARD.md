@@ -49,3 +49,21 @@ LIVE | READY_NOT_ARMED | BLOCKED_WITH_REASON | HOLD
 - Inbox / Dashboard / 07-HANDOFF / agent-prompts / FUGU-BIZ-SPRINT\OWNER-BOARD / Ziman|Painting|Studio project Board folders
 Place does not matter as long as pack is saved; prefer updating canonical folder then re-mirror.
 
+## Update 2026-09-02 night AEST (stamp refresh — از نشست ari322)
+- وضعیت کامل این روز در: CURRENT-TRUTH.md (بند «Update 2026-09-02 night») + SEASON-LOG (بندهای viii تا xvii) + DECISIONS-LOG (2026-09-02 night).
+- خلاصهٔ یک‌خطی: **اولین ۵ پرداخت بانکی VERIFIED ($60,418.37)** + ستون درآمد روی main/بورد + گیت استقلال فقط منتظر Elahe-z (#102) + دو موج خود-مرجی aram-ui ثبت‌شده.
+- پوشه‌های تازهٔ همین روز: company-docs/ · revenue-records/ · payment-receipts/ (+ ایندکس‌هایشان).
+- فایل‌های حاکمیتی روز: GOVERNANCE-ANOMALY-PR92 · GOVERNANCE-ANOMALY-WAVE3 · R0-CLOSE-EXECUTION · OWNER-PACK-R0-CLOSE-v2.
+- قواعد اعتماد بالا (one owner per file، شش‌گانه) پابرجا؛ مسیر CODEOWNERS از این پس فقط Elahe-z (پس از merge #102).
+
+
+## Update 2026-09-03 صبح (~01:45 AEST)
+- استمپ تازه: چهار گیت مالک باز شد (WAL مسلح · ماده۱۰ باز · V2=#111 · fast-lane+P1+#71) — جزئیات در CURRENT-TRUTH بند «2026-09-03 صبح» و FOUR-GATES-RULING.
+- تصحیح مهم: #110 → 110A فقط-تولید + #113 پارک (مسیر ارسال حذف شد)؛ حفرهٔ طبقه‌بندی ofn/agents/ در #107 بسته شد.
+
+
+## Update 2026-09-03 عصر (~15:30 AEST)
+- خلاصهٔ یک‌خطی روز: **تفویض مالک اجرا شد؛ هر سه برد شناسایی و باز شدند؛ WAL رسماً WITNESS_A؛ پل #139 با رفع قفل حفاظت مرج شد (main=c78ed9b5)؛ شش PR خودمختاری + چهار PR زیمان در صف رأی.**
+- اسناد تازهٔ همین روز در همین پوشه: DISCOVERY-3BOARD-20260903/ (۹ فایل) · VERIFICATION-BOARD138-WAL (WITNESS_A) · DIGEST-UNIT-REMOVAL-20260903/ · ZIMAN-SEASON-2026-09-03.md (منتقل‌شده از 01-TRUTH طبق سیاست آینه).
+- گیت‌ها: bridge→cp.master-painting.com مجاز (سند ۲۲ اوت) · digest حذف شد · پرچم OFN_WIRE_OUTBOUND در صف حذف (#133).
+- صف رأی انسانی: #87 → #128..#133 (شش خودمختاری) → #140..#144 (زیمان/نقشه) → #115 → #137 (نامه؛ merge لازم ندارد).

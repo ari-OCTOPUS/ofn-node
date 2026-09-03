@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-30T00:02:12",
+  "ts": "2026-09-03T09:23:22",
   "schema": "actuation.v1",
   "n_unactuated": 3,
   "n_actuated": 0,
   "handlers": [],
-  "new_acknowledged": 1,
+  "new_acknowledged": 0,
   "new_actuated": 0,
   "errors": 0
 }

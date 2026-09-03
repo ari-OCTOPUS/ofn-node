@@ -7308,3 +7308,290 @@
 ## 2026-08-30T13:52:10 (metabolism)
 - ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
 
+## 2026-09-02T09:09:20 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/discoveries.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-09-02T09:12:28 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-09-02T09:12:46 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T09:14:29 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T09:14:32 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+1 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T09:16:19 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T09:45:42 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-09-02T09:46:53 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T09:47:28 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-09-02T09:48:55 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:errors_high]
+
+## 2026-09-02T09:50:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:errors_high]
+
+## 2026-09-02T09:52:32 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-02T09:54:15 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved]
+
+## 2026-09-02T09:56:01 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved]
+
+## 2026-09-02T09:57:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved]
+
+## 2026-09-02T10:05:37 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T10:05:39 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-09-02T10:10:01 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T10:13:38 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved] (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T10:17:41 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T10:18:21 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T10:25:23 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-02T10:27:00 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-02T10:27:30 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=3916 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-09-02T10:39:08 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high] (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T10:52:42 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-09-02T11:18:18 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T11:32:15 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T11:58:37 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first
+
+## 2026-09-02T12:03:27 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-02T12:22:57 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T12:27:58 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T12:38:01 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-02T12:52:59 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-02T13:04:38 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T13:08:32 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-02T13:23:35 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-02T13:31:25 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-09-02T13:35:52 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-09-02T13:39:34 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-02T13:40:48 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-09-02T13:44:18 (metabolism)
+- ⚠️ tg_api sendMessage failed: TimeoutError
+
+## 2026-09-02T13:57:31 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-09-02T13:59:14 (metabolism)
+- ⚠️ tg_api sendMessage failed: TimeoutError
+
+## 2026-09-02T14:29:57 (metabolism)
+- ⚠️ self-improve auto BLOCKED — observability degraded: ORGANISM-STATE کهنه (138min > 60)
+
+## 2026-09-02T14:30:06 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-02T14:45:40 (metabolism)
+- ⚠️ cortex obs: 5 stale > 2: organism,heart,producers,work_pump,fourd_system
+
+## 2026-09-02T15:37:09 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T15:52:47 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T16:06:38 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-09-02T16:38:19 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-02T17:00:45 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T17:05:13 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T17:08:24 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T17:10:17 (metabolism)
+- ⚠️ cortex obs: coherence=0.468 < 0.5
+- ⚠️ cortex obs: 4 stale > 2: organism,heart,producers,work_pump
+
+## 2026-09-02T17:23:45 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T17:24:00 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-02T17:25:23 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T17:43:50 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T17:45:24 (metabolism)
+- ⚠️ self-improve auto BLOCKED — observability degraded: ORGANISM-STATE کهنه (171min > 60)
+
+## 2026-09-02T18:01:45 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-02T19:07:13 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T19:38:37 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-02T19:39:02 (metabolism)
+- ⚠️ poller_uniqueness FAIL-CLOSED: center_pid_count=0 expected=1,tg_poller_lock_count=0 expected=1,pids_agree_skipped
+
+## 2026-09-02T20:18:05 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-09-02T20:29:22 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+1 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T21:13:26 (metabolism)
+- ⚠️ ⚠️ 5 بارِ پیاپی poll ِ تلگرام شکست خورد (DNS_ERROR:TimeoutError). تا رفع نشود هیچ پیامی نمی‌رسد — و این از «پیامی نیست» قابلِ تفکیک نبود.
+
+## 2026-09-02T21:35:10 (metabolism)
+- ⚠️ provider fail → fallback local→local: secondary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-02T21:35:37 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T22:37:22 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-02T23:38:34 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-03T00:02:22 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-03T00:02:30 (metabolism)
+- ⚠️ self_patch: مرورِ _ops/cortex/drift_metric.py جوابی نگرفت — «تمیز» ثبت نشد
+
+## 2026-09-03T00:11:04 (metabolism)
+- ⚠️ GENOME LEDGER verify FAILED: chain break at record 15393: prev mismatch
+
+## 2026-09-03T00:11:04 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=15396 tip=15395
+
+## 2026-09-03T00:45:46 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-03T01:51:05 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-03T01:51:08 (metabolism)
+- ⚠️ email_inbound: no valid token — configure OAuth first (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-03T06:00:50 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-03T09:13:07 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat
+
+## 2026-09-03T09:17:02 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-03T09:19:08 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat
+
+## 2026-09-03T09:22:39 (metabolism)
+- ⚠️ surface_router: جریانِ ناشناخته «doctor-test» held شد (به گروه نرفت). یک مدخل در surface-routing.json لازم است.
+
+## 2026-09-03T09:23:13 (metabolism)
+- ⚠️ GENOME LEDGER verify FAILED: chain break at record 15393: prev mismatch
+
+## 2026-09-03T09:23:13 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=15641 tip=15640
+
+## 2026-09-03T09:23:42 (metabolism)
+- ⚠️ tg_api answerCallbackQuery failed: HTTPError (Bad Request: query is too old and response timeout expired or query ID is invali)
+
+## 2026-09-03T09:30:01 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error) (×10 در پنجرهٔ ۶ساعته — escalation)
+- ⚠️ (+3 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-03T10:37:11 (metabolism)
+- ⚠️ synthesis: صفر پیشنهاد از تماسِ موفق — tier=local model=qwen2.5:1.5b finish=None chars=523 max_tokens=2000. مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر.
+
+## 2026-09-03T10:41:13 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-03T12:01:04 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-03T12:30:30 (metabolism)
+- ⚠️ tg_api editMessageText failed: URLError
+

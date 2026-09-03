@@ -1,11 +1,11 @@
 {
-  "ts": "2026-08-30T14:06:16",
+  "ts": "2026-09-03T14:00:36",
   "schema": "calibration.v1",
-  "n": 1279,
-  "brier": 0.087301,
-  "aurc": 0.161371,
-  "abstain_below": 0.7,
-  "ungraded": 726,
+  "n": 1290,
+  "brier": 0.076318,
+  "aurc": 0.141928,
+  "abstain_below": 0.72,
+  "ungraded": 714,
   "target_acc": 0.75,
   "window_h": 720,
   "n_claims": 2000,
@@ -13,11 +13,11 @@
   "ungraded_keys": [
     "self_model.coherence"
   ],
-  "n_claim_keys": 21,
+  "n_claim_keys": 19,
   "pairing": "by_cycle",
-  "truth_rows": 1807,
-  "truth_rows_ungraded": 528,
+  "truth_rows": 1943,
+  "truth_rows_ungraded": 653,
   "truth_contradictions_dropped": 46,
-  "truth_cycles": 798,
+  "truth_cycles": 847,
   "truth_proposals": 29
 }

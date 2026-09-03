@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-30T12:08:54",
+  "ts": "2026-09-03T12:36:46",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 86.7,
   "checklist_static": true,
   "maturity_pct": 86.7,
   "improvement_rate": {
-    "closed": 6,
+    "closed": 5,
     "moved": 1,
-    "rate_pct": 16.7
+    "rate_pct": 20.0
   },
-  "n_proposals": 32,
+  "n_proposals": 33,
   "by_category": {
     "business": [
       {
@@ -93,19 +93,10 @@
       {
         "id": "up-1093faeabb",
         "priority": "P3",
-        "title": "یادمانِ دور: cycle-639 → cycle-615",
+        "title": "یادمانِ دور: cycle-639 → cycle-620",
         "suggested_action": "فیکس‌های تأییدشده: 3 · آگاهیِ میانگین: 0.74",
         "change_level": "tune",
         "source": "consolidation_recall",
-        "status": "proposed"
-      },
-      {
-        "id": "up-5555566270",
-        "priority": "P3",
-        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
-        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
-        "change_level": "tune",
-        "source": "part-loop",
         "status": "proposed"
       },
       {
@@ -131,36 +122,45 @@
       {
         "id": "up-33ee7f6b74",
         "priority": "P1",
-        "title": "کالیبراسیون: n=1279 brier=0.087741 ungraded=726",
+        "title": "کالیبراسیون: n=1284 brier=0.076674 ungraded=720",
         "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
         "change_level": "tune",
         "source": "calibration",
+        "status": "proposed"
+      },
+      {
+        "id": "up-5f383c81f9",
+        "priority": "P2",
+        "title": "math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS",
+        "suggested_action": "CHRONO_NUDGE_EVERY_N_BEATS: 780 → 720 (clamp [120,1440], $0, reversible)",
+        "change_level": "tune",
+        "source": "math_spine",
+        "status": "proposed"
+      },
+      {
+        "id": "up-86473a03a3",
+        "priority": "P2",
+        "title": "math-autotune knob: HEART_SAMPLE_INTERVAL_S",
+        "suggested_action": "HEART_SAMPLE_INTERVAL_S: 4500 → 4200 (clamp [1800,7200], $0, reversible)",
+        "change_level": "tune",
+        "source": "math_spine",
         "status": "proposed"
       }
     ],
     "implementation": [
       {
-        "id": "up-17a5528df2",
-        "priority": "P1",
-        "title": "RFCِ دکتر: RFC-f1939b51",
-        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-        "change_level": "reconfig",
-        "source": "doctor",
-        "status": "proposed"
-      },
-      {
-        "id": "up-3952143790",
-        "priority": "P1",
-        "title": "RFCِ دکتر: RFC-f2bc93b2",
-        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-        "change_level": "reconfig",
-        "source": "doctor",
-        "status": "proposed"
-      },
-      {
         "id": "up-4937e9a408",
         "priority": "P1",
         "title": "RFCِ دکتر: RFC-f2fb5091",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-ba78cfefd9",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f54da13a",
         "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
         "change_level": "reconfig",
         "source": "doctor",
@@ -224,6 +224,15 @@
         "id": "up-7500be803f",
         "priority": "P1",
         "title": "RFCِ دکتر: RFC-f9c89527",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-7bceaf93fa",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-fb0a49f1",
         "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
         "change_level": "reconfig",
         "source": "doctor",
@@ -365,7 +374,7 @@
       "category": "ops",
       "priority": "P1",
       "_rank": 0.9,
-      "title": "کالیبراسیون: n=1279 brier=0.087741 ungraded=726",
+      "title": "کالیبراسیون: n=1284 brier=0.076674 ungraded=720",
       "rationale": "Brier/n/ungraded از calibration-latest — تا امروز به improve نمی‌رسید.",
       "evidence": "cortex/calibration-latest.json",
       "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
@@ -373,12 +382,12 @@
       "auto_applicable": false,
       "status": "proposed",
       "calibration": {
-        "n": 1279,
-        "brier": 0.087741,
-        "aurc": 0.161568,
-        "ungraded": 726,
+        "n": 1284,
+        "brier": 0.076674,
+        "aurc": 0.145689,
+        "ungraded": 720,
         "n_claims": 2000,
-        "ts": "2026-08-30T12:06:30"
+        "ts": "2026-09-03T12:34:24"
       },
       "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
@@ -416,38 +425,6 @@
       "impact": 2.2
     },
     {
-      "id": "up-17a5528df2",
-      "source": "doctor",
-      "category": "implementation",
-      "priority": "P1",
-      "_rank": 1.2,
-      "title": "RFCِ دکتر: RFC-f1939b51",
-      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
-      "evidence": "knowledge/internal/RFC-f1939b51.md",
-      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-      "change_level": "reconfig",
-      "auto_applicable": false,
-      "status": "proposed",
-      "serves_goal": "—",
-      "impact": 1.6
-    },
-    {
-      "id": "up-3952143790",
-      "source": "doctor",
-      "category": "implementation",
-      "priority": "P1",
-      "_rank": 1.2,
-      "title": "RFCِ دکتر: RFC-f2bc93b2",
-      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
-      "evidence": "knowledge/internal/RFC-f2bc93b2.md",
-      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-      "change_level": "reconfig",
-      "auto_applicable": false,
-      "status": "proposed",
-      "serves_goal": "—",
-      "impact": 1.6
-    },
-    {
       "id": "up-4937e9a408",
       "source": "doctor",
       "category": "implementation",
@@ -462,11 +439,43 @@
       "status": "proposed",
       "serves_goal": "—",
       "impact": 1.6
+    },
+    {
+      "id": "up-ba78cfefd9",
+      "source": "doctor",
+      "category": "implementation",
+      "priority": "P1",
+      "_rank": 1.2,
+      "title": "RFCِ دکتر: RFC-f54da13a",
+      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
+      "evidence": "knowledge/internal/RFC-f54da13a.md",
+      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 1.6
+    },
+    {
+      "id": "up-70e6323e00",
+      "source": "doctor",
+      "category": "implementation",
+      "priority": "P1",
+      "_rank": 1.2,
+      "title": "RFCِ دکتر: RFC-f59a8772",
+      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
+      "evidence": "knowledge/internal/RFC-f59a8772.md",
+      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 1.6
     }
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] این گاف‌ها اولویت‌دار برای یک سیستم خودبهبودگر هستند. در ابتدا، Lead-نقاشی (Lead-Analysis) هنوز درآمد تأیید شده‌ای ثبت نشده است. این امری اولویت‌دار باقی می‌ماند",
+  "brain_note": "[local] این گاف‌ها باید به عنوان حلقه‌ای به‌روزرسانی شوند. Lead-نقاشی، بطور خودکار به حل اولویت‌دارِ یک سیستمِ خودبهبودگر اشاره دارد. این حلقه از کلیه مراحل اجرایی",
   "goal_directed": {
     "n_goal_serving": 5,
     "n_circular_dropped": 0,
@@ -474,29 +483,29 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 17,
+      "tracked": 18,
       "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 160,
-        "proposals_delivered": 30,
-        "proposal_outcomes": 54,
-        "proposal_positive": 52,
-        "proposal_accept_rate": 0.9629629629629629,
+        "total_discoveries": 163,
+        "proposals_delivered": 33,
+        "proposal_outcomes": 55,
+        "proposal_positive": 53,
+        "proposal_accept_rate": 0.9636363636363636,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 9
+        "proposals_sent": 8
       },
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 159,
-        "proposals_delivered": 30,
-        "proposal_outcomes": 54,
-        "proposal_positive": 52,
-        "proposal_accept_rate": 0.9629629629629629,
+        "total_discoveries": 162,
+        "proposals_delivered": 33,
+        "proposal_outcomes": 55,
+        "proposal_positive": 53,
+        "proposal_accept_rate": 0.9636363636363636,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 9
+        "proposals_sent": 8
       }
     }
   },
@@ -508,9 +517,9 @@
   },
   "self_improve_gauges": {
     "schema": "self-improve-gauges.v1",
-    "ts": "2026-08-30T02:08:48.768551+00:00",
+    "ts": "2026-09-03T02:36:46.036239+00:00",
     "goal_loop_close_7d": {
-      "n": 15,
+      "n": 11,
       "n_pass": 0,
       "rate_pct": 0.0
     },
@@ -540,6 +549,7 @@
     "enabled": true,
     "rank_bias": 0.0,
     "effects": [
+      "autotune_propose",
       "schedule_bias_hint"
     ],
     "equations_touching": [
@@ -551,7 +561,10 @@
       "#11_control_law",
       "#10_sog"
     ],
-    "knob_deltas": {},
+    "knob_deltas": {
+      "CHRONO_NUDGE_EVERY_N_BEATS": -60,
+      "HEART_SAMPLE_INTERVAL_S": -300
+    },
     "shadow_blocks_effects": false
   }
 }

@@ -1,19 +1,19 @@
 {
-  "ts": "2026-08-30T13:21:23",
-  "beat": 55589,
-  "version": 489,
+  "ts": "2026-09-03T13:40:45",
+  "beat": 60297,
+  "version": 500,
   "source": "cached:no-change",
-  "snapshot_hash": "af3793886cb5e912",
-  "stable_cycles": 4,
+  "snapshot_hash": "9affa693f98b8e64",
+  "stable_cycles": 7,
   "llm_calls": 0,
   "deep_dive_ran": false,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
   "understanding": {
     "anatomy": "10 لِگ، 42 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 713908 micro-USD",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 0 micro-USD",
     "pathology": [
       {
-        "symptom": "خطای پرتکرار ValueError ×1",
+        "symptom": "خطای پرتکرار failed ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
@@ -57,8 +57,8 @@
       "total": 6,
       "blind": [],
       "coverage": 1.0,
-      "oldest_input_age_s": 5299,
-      "newest_input_age_s": 65
+      "oldest_input_age_s": 1860,
+      "newest_input_age_s": 104
     }
   },
   "deep_dive": {
@@ -81,8 +81,8 @@
     "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
     "confidence_delta": null,
     "converging": null,
-    "prev_backend": "cached:no-change",
-    "backend": "llm:local",
+    "prev_backend": "llm:local",
+    "backend": "heuristic",
     "comparable": false,
     "incomparable_reason": "backend-changed"
   },
@@ -94,14 +94,13 @@
       "system"
     ],
     "in_fear": [],
-    "money_musd": 713908,
+    "money_musd": 0,
     "recent_errors": {
-      "ValueError": 1,
-      "HTTPError": 1
+      "failed": 1
     }
   },
   "self_accuracy": {
-    "ts": "2026-08-30T13:21:23",
+    "ts": "2026-09-03T13:40:44",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,
@@ -114,8 +113,8 @@
     "نه، تمرکزت اشتباه است — «خطای پرتکرار» مهم نیست، من میخوام روی درآمدِ نقاشی تمرکز کنی.",
     "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
   ],
-  "owner_correction_age_days": 33.96,
-  "owner_correction_stale": "بدونِ تصحیحِ مالک برای 33 روز — تمرکز ممکن است کهنه شده باشد",
+  "owner_correction_age_days": 37.97,
+  "owner_correction_stale": "بدونِ تصحیحِ مالک برای 37 روز — تمرکز ممکن است کهنه شده باشد",
   "c6_unknown": {
     "produced": false,
     "reason": "all-already-queued",

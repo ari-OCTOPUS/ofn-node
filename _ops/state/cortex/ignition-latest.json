@@ -1,20 +1,20 @@
 {
-  "ts": "2026-08-30T14:04:23",
+  "ts": "2026-09-03T14:00:35",
   "schema": "ignition.v1",
   "epistemic": "access-only",
   "ignited": true,
   "winner": {
-    "source": "attention",
-    "kind": "owner_wait",
-    "key": "attention:owner_wait",
-    "effective": 1.0,
-    "summary": "🔴 نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker) beat نمی‌خورد"
+    "source": "alerts",
+    "kind": "stress",
+    "key": "alerts:stress",
+    "effective": 0.815,
+    "summary": "🚨 هشدارها"
   },
   "broadcast_width": 1,
-  "margin": 0.62,
-  "n_candidates": 9,
+  "margin": 0.473,
+  "n_candidates": 8,
   "ignition_rate": 1.0,
-  "stability": 14,
+  "stability": 130,
   "recent_ignitions": [
     1,
     1,
@@ -38,6 +38,6 @@
     1
   ],
   "reentry_prior": {
-    "attention:owner_wait": 0.3747
+    "alerts:stress": 0.3749
   }
 }

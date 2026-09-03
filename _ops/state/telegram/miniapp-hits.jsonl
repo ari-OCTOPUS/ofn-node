@@ -25581,3 +25581,6 @@ se}
 {"ts": 1787977997.725, "path": "/api/lifecycle", "ok": true, "authed": true}
 {"ts": 1787978597.919, "path": "/api/chat-status", "ok": false, "authed": false}
 {"ts": 1787978598.298, "path": "/api/approvals", "ok": false, "authed": false}
+{"ts": 1788323395.009, "path": "/miniapp", "ok": true, "authed": false}
+{"ts": 1788324401.722, "path": "/", "ok": true, "authed": false}
+{"ts": 1788324401.722, "path": "/", "ok": true, "authed": false}

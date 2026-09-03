@@ -1,43 +1,43 @@
 {
-  "ts": "2026-08-30T12:08:39",
+  "ts": "2026-09-03T12:36:16",
   "schema": "part-loops.v1",
-  "beat": 160,
+  "beat": 20,
   "parts": [
     {
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢",
-      "detail": "ضربان 490s"
+      "detail": "ضربان 312s"
     },
     {
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 94٪"
+      "detail": "هم‌آهنگی 96٪"
     },
     {
       "id": "doctor",
       "name": "🩺 دکتر",
-      "status": "🟢",
-      "detail": "0 منتظر"
+      "status": "🟡",
+      "detail": "1 منتظر"
     },
     {
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "1.070862$/۳۰"
+      "detail": "0.0$/۳۰"
     },
     {
       "id": "learning",
       "name": "📚 یادگیری",
       "status": "🟢",
-      "detail": "4 کشفِ ۴۸h"
+      "detail": "3 کشفِ ۴۸h"
     },
     {
       "id": "legs",
       "name": "🦿 اعضا",
       "status": "🟢",
-      "detail": "1 خودترمیم/روز"
+      "detail": "2 خودترمیم/روز"
     },
     {
       "id": "self",
@@ -46,15 +46,8 @@
       "detail": "95.0٪ سند"
     }
   ],
-  "n_proposals": 3,
+  "n_proposals": 2,
   "proposals": [
-    {
-      "part": "قلب",
-      "title": "قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
-      "action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
-      "change_level": "tune",
-      "auto_ok": false
-    },
     {
       "part": "قلب",
       "title": "قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",

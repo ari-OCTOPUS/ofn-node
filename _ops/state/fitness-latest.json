@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-30T00:02:08",
+  "ts": "2026-09-03T09:23:11",
   "authoritative": true,
-  "experience_span_days": 29,
+  "experience_span_days": 30,
   "authoritative_note": "بازهٔ داده کافی است",
   "acceptance_source": "logs/outbox.jsonl ⟂ core.db/outbox (فقط بعد از کلیک انسان)",
   "integrity_alerts": [],
