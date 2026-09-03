@@ -18,15 +18,17 @@ from ofn.adapters import halt_flag
 from ofn.adapters.run_store import HaltActive, RunStore
 from ofn.kernel.envelope import TaskEnvelope
 from ofn.kernel.errors import FailClosedError
+from ofn.kernel.rejection import make_rejection
 from ofn.kernel.tenancy import TenantScope
 
 
 class RunGate:
     def __init__(self, store: RunStore, halt_path: Path,
-                 outbox=None) -> None:
+                 outbox=None, reject_log=None) -> None:
         self._store = store
         self._halt_path = Path(halt_path)
         self._outbox = outbox  # optional: claim/hold wiring needs it
+        self._reject_log = reject_log  # optional: RUN_REJECTED side log
 
     # ── the flag ────────────────────────────────────────────────────────
     def halted(self) -> bool:
@@ -35,7 +37,19 @@ class RunGate:
     # ── starts ──────────────────────────────────────────────────────────
     def start_run(self, envelope: TaskEnvelope, *, now_epoch_s: int) -> str:
         """Read the flag BEFORE the store writes anything. A refused start
-        leaves no half-born run and burns no idempotency key."""
+        leaves no half-born run and burns no idempotency key.
+
+        When a ``reject_log`` is wired, a HALT-refused start is recorded
+        as ``RUN_REJECTED`` on that side ledger — never on the run
+        store. Unwired callers keep the previous behaviour (raise only).
+        """
+        if self.halted() and self._reject_log is not None:
+            self._reject_log.record(make_rejection(
+                run_id=envelope.run_id,
+                reason="halt_active",
+                now_epoch_s=now_epoch_s,
+                idempotency_key=envelope.idempotency_key,
+            ))
         return self._store.create(
             envelope, halted=self.halted(), now_epoch_s=now_epoch_s)
 

@@ -1,0 +1,123 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-PHASE-WALL-20260902",
+  "issued_utc": "2026-09-02T23:35:44Z",
+  "author": "cursor-cloud-agent bc-c989c138-e0f6-40b4-9220-ba23abce2116",
+  "owner_ratified": false,
+  "body": "bc-c989c138-e0f6-40b4-9220-ba23abce2116",
+  "branch": "feat/p1-phase-wall-20260902",
+  "parent_head_full": "608adb75487142e1431f5ada254b6abe3537337f",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/phase_wall.py",
+    "tests/test_phase_wall.py",
+    "tests/test_chaos_phase_wall.py",
+    "09-LANES/P1-PHASE-WALL/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-PHASE-WALL-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/flag_freeze.py (owned by #119)",
+    "ofn/kernel/artifact_ref.py (owned by feat/p1-evidence-witness-20260902)",
+    "ofn/kernel/numeric_claim.py (collision open: evidence-witness vs other-body numeric-claim)",
+    "ofn/kernel/effect_class.py (owned by other-body effect-replay — not recreated)",
+    "ofn/kernel/replay_pin.py (owned by other-body effect-replay — not recreated)",
+    "ofn/kernel/verdict_bind.py (owned by other-body verdict-bind — not recreated)",
+    "ofn/kernel/alias_seal.py (unpublished prior body — not recreated)",
+    "ofn/kernel/authority_seal.py (unpublished prior body — not recreated)",
+    "ofn/kernel/halt_scope.py (unpublished prior body — not recreated)",
+    "ofn/kernel/dry_run_seal.py (unpublished prior body — not recreated)",
+    "ofn/kernel/zone_lock.py (unpublished prior body — not recreated)",
+    "ofn/kernel/writer_lease.py (unpublished prior body — not recreated)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    ".github/CODEOWNERS (GOV-V6 on origin/main)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by #73/#120 collision; appended separately)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure phase wall. Ready-band names campaign_envelope_ready / quote_drafted are admitted. Send-band names send_authorized / quote_sent are refused (sealed_effect). A later hold outranks an older authorization (later_hold). Unknown phase/intent fail closed — UNKNOWN is not FALSE. campaign_envelope_ready structurally ≠ send_authorized. grants_send / rearms_send / halt_blocks_phase / ready_is_authorized / ready_equals_authorized / claims_immutable / unknown_is_false / proposal_is_execution structurally False. No halt/resend/send knob. Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized. Did not recreate unpublished prior-body identifiers.",
+  "verification": {
+    "command": "python3 -m unittest tests.test_phase_wall tests.test_chaos_phase_wall tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-02T23:35:44Z",
+    "head_full_at_run": "608adb75487142e1431f5ada254b6abe3537337f",
+    "exit_code": 0,
+    "result": "209 passed, 0 failed, 0 skipped",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError)",
+    "per_file_loaded": {
+      "tests.test_phase_wall": 37,
+      "tests.test_chaos_phase_wall": 12,
+      "tests.test_kernel_purity": 10,
+      "tests.test_envelope": 28,
+      "tests.test_run_store": 70,
+      "tests.test_token_ceiling": 13,
+      "tests.test_run_gate": 21,
+      "tests.test_chaos_owner_absent": 14,
+      "tests.test_tmpdir": 4
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @608adb75487142e1431f5ada254b6abe3537337f — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "seed present on origin/main ancestor; operational appends live on docs/octopus-os-incidents-20260902 (#73 vs #120 collision open)",
+    "CONTRIBUTING.md": "absent on origin/main @608adb7 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/main and this worktree",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "collision_open": [
+    {
+      "claim": "origin/main HEAD",
+      "value_a": "58e87774f4428b247601f8b49956948491155f74",
+      "source_a": "prior automation memory MEMORIES.md",
+      "value_b": "608adb75487142e1431f5ada254b6abe3537337f",
+      "source_b": "git rev-parse origin/main this-run after fetch",
+      "resolution": null,
+      "status": "open"
+    },
+    {
+      "claim": "incidents PR",
+      "value_a": "#73 pull/73/head ba04633afe89f1f6b20b14a18c34f719784768ca",
+      "source_a": "prior automation memory MEMORIES.md",
+      "value_b": "#120 docs/octopus-os-incidents-20260902 (origin tip this-run not independently re-measured after fetch of that ref)",
+      "source_b": "prior automation memory MEMORIES.md",
+      "resolution": null,
+      "status": "open"
+    }
+  ],
+  "trigger": {
+    "event": "ci_check_suite",
+    "repository": "ari-OCTOPUS/ofn-node",
+    "branch": "feat/p1-load-invariants-20260902",
+    "head_sha": "6b8ea2ecee1b4a967d222f01ae3263f85391cd62",
+    "pr_number": 82,
+    "failed_check": "require-independent-approval",
+    "verdict": "REVIEW_REQUIRED, not an engineering defect. Gate working as designed (issue #51, GOV-V6). Engineering continued on a free complementary lane. Did not merge. Did not weaken the gate."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}

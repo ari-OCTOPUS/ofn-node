@@ -1,0 +1,89 @@
+{
+  "schema": "octopus.flag-claims.v1",
+  "note": "Repo-side structured mirror of the owner-board lock numbers. The vault OWNER-GO-LOCKS.md stays canonical for prose; this file is the machine-checked claim registry. Every entry MUST carry measured_at + command — a claim without a measurement is not written (F-09). The external witness (PR-3) cross-checks these values against the live board and flags STALE_CLAIM/SILENT_FLIP.",
+  "claims": [
+    {
+      "name": "OCTOPUS_WIRE_LEAD_OUTBOUND_WAL",
+      "scope": "board138:~/ofn/ofn/agi2027_runtime/managed_flags.json",
+      "value": "1",
+      "class": "load-bearing",
+      "ruling": "owner-ruling-4gates-2026-09-03-askuserquestion @2026-09-02T15:10:00Z (chain: ARM 2026-08-31 -> disarm 2026-09-02 -> re-arm)",
+      "measured_at": "2026-09-03T01:22:06Z",
+      "command": "ssh root@192.168.0.182 'ssh ari@192.168.0.138 sha256sum /home/ari/ofn/ofn/agi2027_runtime/managed_flags.json'",
+      "sha256": "234f81f81817b1256654cdaa9ba1a681df2d2260482e561ac813ba3e39b2e2d0",
+      "witness_level": "WITNESS_A (read executed on board-182, hash computed there)"
+    },
+    {
+      "name": "OCTOPUS_WIRE_LEAD_OUTBOUND",
+      "scope": "board138:/etc/systemd/system/octopus-*.service (7 units)",
+      "value": "1",
+      "class": "load-bearing",
+      "ruling": "17 (2026-07-31) + ARM (2026-08-31) + gate-2 (2026-09-02); lead transport cap 10/day dual-layer",
+      "measured_at": "2026-09-02T22:56:00Z",
+      "command": "ssh ari@192.168.0.138 'grep -rn OCTOPUS_WIRE_LEAD_OUTBOUND /etc/systemd/system/'"
+    },
+    {
+      "name": "OFN_WIRE_OUTBOUND",
+      "scope": "board138:~/.config/ofn/node.env",
+      "value": "1",
+      "class": "intent-only (config.py:78-81 — no production code reads this flag to gate a send)",
+      "ruling": "none — never gates anything; removal tracked as debt (autonomy PR-6)",
+      "measured_at": "2026-09-02T22:56:00Z",
+      "command": "ssh ari@192.168.0.138 'grep -n ^OFN_WIRE_OUTBOUND ~/.config/ofn/node.env'"
+    },
+    {
+      "name": "OFN_EXTRA_CLOSED_GATES",
+      "scope": "board138:~/.config/ofn/node.env",
+      "value": "live_sms,live_dm,tender_submit,vendor_submit,portal_submit,terms_acceptance,auto_scrape,auto_post,auto_dm",
+      "class": "load-bearing (D-27 kill-switch)",
+      "ruling": "D-27 (DECISIONS.md); hard-closed classes",
+      "measured_at": "2026-09-02T22:56:00Z",
+      "command": "ssh ari@192.168.0.138 'grep -n ^OFN_EXTRA_CLOSED_GATES ~/.config/ofn/node.env'"
+    },
+    {
+      "name": "LEAD_DAILY_SEND_CAP",
+      "scope": "code: ofn/agents/outbound_worker.py (default 10; env OCTOPUS_LEAD_DAILY_SEND_CAP overrides)",
+      "value": "10",
+      "class": "load-bearing (two-layer: may_release deny + CAP_REACHED belt)",
+      "ruling": "owner 2026-07-31 (default 10); override allowed since 2026-08-12",
+      "measured_at": "2026-09-02T23:30:00Z",
+      "command": "python3 -c 'import sys; sys.path.insert(0,\"ofn/agents\"); import outbound_worker; print(outbound_worker._lead_daily_send_cap())'"
+    },
+    {
+      "name": "D27_DAILY_SEND_CAP",
+      "scope": "code: ofn/config.py",
+      "value": "25",
+      "class": "load-bearing (framework cap, separate from lead transport cap)",
+      "ruling": "D-27 (DECISIONS.md)",
+      "measured_at": "2026-09-02T22:56:00Z",
+      "command": "grep D27_DAILY_SEND_CAP ofn/config.py"
+    },
+    {
+      "name": "D27_DAILY_SPEND_CAP_AUD",
+      "scope": "code: ofn/config.py",
+      "value": "50",
+      "class": "load-bearing (framework cap)",
+      "ruling": "D-27 (DECISIONS.md)",
+      "measured_at": "2026-09-02T22:56:00Z",
+      "command": "grep D27_DAILY_SPEND_CAP_AUD ofn/config.py"
+    },
+    {
+      "name": "OCTOPUS_BRIDGE_OUTBOUND_ENABLED",
+      "scope": "board138:/etc/systemd/system/octopus-bridge.service + ~/.config/ofn/octopus-bridge.env",
+      "value": "1",
+      "class": "load-bearing (bridge -> cp.master-painting.com)",
+      "ruling": "owner unlock session 2026-08-22 (BOARD2-OWNER-PACKAGE-2026-08-22: Bridge key-rotate PASS, OUTBOUND=1, PULL=1; OWNER-UNLOCK-2026-08-22.json)",
+      "measured_at": "2026-09-03T01:05:00Z",
+      "command": "ssh ari@192.168.0.138 'systemctl cat octopus-bridge --no-pager | grep -E \"OUTBOUND|PULL|CONTROL_URL\"'"
+    },
+    {
+      "name": "octopus-digest.timer",
+      "scope": "board138:/etc/systemd/system/octopus-digest.{service,timer}",
+      "value": "REMOVED 2026-09-03T01:23:11Z (was disabled 2026-09-02T23:27:56Z; ExecStart target absent from main since origin)",
+      "class": "state",
+      "ruling": "verifier ruling 2026-09-03 (disable-not-restore) + owner delegation; unit files backed up in vault DIGEST-UNIT-REMOVAL-20260903/",
+      "measured_at": "2026-09-03T01:23:11Z",
+      "command": "ssh ari@192.168.0.138 'ls /etc/systemd/system/octopus-digest.* 2>&1'"
+    }
+  ]
+}
