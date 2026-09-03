@@ -2,19 +2,25 @@
 // Two jobs: (1) scrape a search-results page into records, (2) scrape a detail page.
 // Robust to unknown class names: keyed off link-href patterns + label:value text,
 // not fragile CSS selectors. Tune LINK_PATTERNS / labels if the DOM dump shows drift.
+//
+// v0.3 merges both lineages: the Sep-3 pack (GENERIC_TITLES "See details"
+// handling born from a real 37-record export, next-label lookahead in
+// fieldNear, self-test export window.__BUYSW__) with the live-page
+// calibrations (generic /opportunity/{id} link pattern with search/nav
+// exclusion, line-pair label extraction).
 
 (() => {
   "use strict";
 
   // Links that identify a tender/opportunity/CAN, on results pages.
-  // Calibrated 2026-09-02 against the real "All opportunities" list:
-  // titles carry ids like MLHD_6353 / 26.0000139367.0652 (not hex), and the
+  // Calibrated against the real "All opportunities" list: title links carry
+  // /prcOpportunity/{8-4-4-16 UUID} or id-like segments (MLHD_6353), and the
   // search/nav path itself is /opportunity/search — excluded below.
   const LINK_PATTERNS = [
     /\/notices\//i,          // /notices/{CNUUID}  (Contract Award Notices)
-    /\/prcOpportunity\//i,   // /prcOpportunity/{UUID}
+    /\/prcOpportunity\//i,   // /prcOpportunity/{UUID} — verified real shape
     /\/opportunity\/[0-9a-f-]{8}/i,
-    /\/opportunity\/(?!search(?:\/|$|\?))[a-z0-9._-]{3,}/i,
+    /\/opportunity\/(?!search(?:\/|$|\?))[a-z0-9._-]{3,}/i,  // MLHD_6353-style ids
     /RFTUUID=/i,
     /CNUUID=/i,
     /SONUUID=/i,
@@ -23,7 +29,8 @@
     /\/opportunity\/(?!search(?:\/|$|\?))[a-z0-9._-]{3,}/i,
     /RFTUUID=/i, /CNUUID=/i];
 
-  const DATE_RE = /(\d{1,2}\s+\w{3,9}\s+\d{4}|\d{1,2}-[A-Za-z]{3,9}-\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{2,4})/;
+  // Matches "14-Oct-2026", "14 Oct 2026", "2026-09-03", "14/10/2026", with optional time
+  const DATE_RE = /(\d{1,2}[\s-]+\w{3,9}[\s-]+\d{4}(?:\s+\d{1,2}:\d{2})?|\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2})?|\d{1,2}\/\d{1,2}\/\d{2,4})/;
   const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
   const PHONE_RE = /(\(?0\d\)?[\s-]?\d{4}[\s-]?\d{4}|\+61[\s-]?\d[\s-]?\d{4}[\s-]?\d{4})/;
   const ABN_RE = /\b\d{2}\s?\d{3}\s?\d{3}\s?\d{3}\b/;
@@ -77,17 +84,18 @@
         if (dd) { const v = clean(dd.textContent); if (v) return v; }
       }
     }
-    // 2) "Label: value" inside a single text block
+    // 2) "Label: value" inside a single text block. Stop the value at the next
+    //    "Word:" label so a collapsed one-line card doesn't bleed fields together.
     const text = clean(container.textContent);
     for (const l of labels) {
-      const re = new RegExp(l + "\\s*[:\\-]\\s*([^\\n|]{2,80})", "i");
+      // \w* after the label prefix lets "clos" match "Closes:", "publish" match "Published:", etc.
+      const re = new RegExp(l + "\\w*\\s*[:\\-]\\s*(.+?)(?=\\s+[A-Z][A-Za-z]{2,}\\s*[:\\-]|$)", "i");
       const m = text.match(re);
-      if (m) return clean(m[1]);
+      if (m) return clean(m[1]).slice(0, 80);
     }
     // 3) label on its own line, value on the next non-empty line — the real
     //    buy.nsw card style ("Agency" / newline / "HealthShare NSW", no colon)
-    const lines = (container.textContent || "")
-      .split("\n").map((l) => l.trim());
+    const lines = (container.textContent || "").split("\n").map((l) => l.trim());
     for (const l of labels) {
       const idx = lines.findIndex(
         (line) => line.toLowerCase().replace(/:$/, "").startsWith(l));
@@ -100,24 +108,53 @@
     return "";
   }
 
-  // Targeted closing extractor: the real cards render "Closes: 21-Sep-2026 15:00".
-  // Pulls exactly the date(+time), never trailing card text.
-  function matchClosing(text) {
-    const re = /clos(?:e[sd]?)?\s*(?:date|time)?\s*[:\-]?\s*(\d{1,2}-[A-Za-z]{3,9}-\d{4}(?:\s+\d{1,2}:\d{2})?|\d{4}-\d{2}-\d{2}(?:[T ]\d{1,2}:\d{2})?|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}(?:\s+\d{1,2}:\d{2})?)/i;
-    const m = String(text || "").match(re);
-    return m ? m[1].replace(/\s+/g, " ").trim() : "";
-  }
+  // Generic link labels that are NOT real titles (buy.nsw uses these as click-through text)
+  const GENERIC_TITLES = new Set(["see details", "details", "view", "more", "view details", ""]);
 
   function scrapeResults() {
     const kindGuess = /can|contract|award|archived|closed/i.test(location.href) ? "award" : "opportunity";
     const records = [];
     for (const a of findResultLinks()) {
       const card = cardOf(a);
-      const title = clean(a.textContent) ||
-        clean((card.querySelector("h1,h2,h3,h4,[class*=title]") || {}).textContent);
-      if (!title) continue;
       const cardText = clean(card.textContent);
+
+      // ── Title: reject generic link labels, parse real title from card ──
+      let title = "";
+      const linkText = clean(a.textContent);
+      if (linkText && !GENERIC_TITLES.has(linkText.toLowerCase())) {
+        title = linkText;
+      }
+      if (!title) {
+        const h = card.querySelector("h1,h2,h3,h4,[class*=title]");
+        if (h) {
+          const ht = clean(h.textContent);
+          if (ht && !GENERIC_TITLES.has(ht.toLowerCase())) title = ht;
+        }
+      }
+      if (!title) {
+        // buy.nsw card pattern: "Real Title Closes: DATE ... Agency Foo See details"
+        // Text before "Closes:" is the title.
+        const ci = cardText.search(/\bCloses?\s*:/i);
+        if (ci > 3) title = cardText.slice(0, ci).trim();
+      }
+      if (!title) {
+        title = cardText.slice(0, 150).replace(/\s*Closes?\b.*/i, "").trim();
+      }
+      if (!title) continue;
+
       const dateMatches = cardText.match(new RegExp(DATE_RE, "g")) || [];
+
+      // ── Closing date: direct "Closes: DATE" pattern, then fieldNear fallback ──
+      let closingAt = "";
+      const cm = cardText.match(/Closes?\s*:\s*(\d{1,2}[\s-]+\w{3,9}[\s-]+\d{4}(?:\s+\d{1,2}:\d{2})?)/i);
+      if (cm) {
+        closingAt = cm[1].trim();
+      } else {
+        const fn = fieldNear(card, ["clos", "deadline", "due"]);
+        closingAt = (fn.match(DATE_RE) || [])[0] || "";
+      }
+      if (!closingAt) closingAt = dateMatches[dateMatches.length - 1] || "";
+
       records.push(OFN.normalize({
         href: a.href,
         title,
@@ -125,12 +162,10 @@
         agency: fieldNear(card, ["agency", "buyer", "published by", "organisation", "department"]),
         category: fieldNear(card, ["category", "type", "unspsc", "class"]),
         location: fieldNear(card, ["location", "region", "delivery", "suburb"]),
-        closing_at: matchClosing(cardText) ||
-          fieldNear(card, ["clos", "deadline", "due"]) ||
-          dateMatches[dateMatches.length - 1] || "",
+        closing_at: closingAt,
         published_at: fieldNear(card, ["publish", "released", "issued"]) || dateMatches[0] || "",
         amount_text: (cardText.match(MONEY_RE) || [""])[0],
-        description: cardText.slice(0, 400),
+        description: cardText.slice(0, 2000),
       }));
     }
     return records;
@@ -224,6 +259,17 @@
       await chrome.runtime.sendMessage({ type: "AUTO_DONE", pages: done });
     }
   }
+
+  // Expose the pure scraper so a local self-test page (test-fixtures/selftest.html)
+  // can call it without installing the extension — works from anywhere, incl. Iran.
+  if (typeof window !== "undefined") {
+    window.__BUYSW__ = { scrape, findResultLinks, nextPageUrl, isResultsPage, isDetailPage };
+  }
+
+  // Everything below needs the extension runtime; skip it when loaded as a plain
+  // <script> in the self-test harness (no chrome.runtime there).
+  const hasChrome = typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.id;
+  if (!hasChrome) return;
 
   // messages from popup
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {

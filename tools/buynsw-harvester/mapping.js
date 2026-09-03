@@ -38,10 +38,17 @@ const OFN = (() => {
     return ACCEPT_KEYWORDS.some((k) => t.includes(k));
   }
 
-  function inServiceArea(text) {
-    const t = (text || "").toLowerCase();
-    if (!t) return null; // unknown
-    return ACCEPT_REGIONS.some((r) => t.includes(r));
+  // Opportunity-type patterns (separate from service categories per the spec)
+  const OPP_TYPE_RE = /(?:Request for (?:tender|quote|proposal|information)|Expression of interest|Proposed opportunity|Standing offer|Scheme)\s*\([A-Z][A-Z-]*\)/i;
+
+  function inServiceArea(location, fallbackText) {
+    // When explicit location is given → definitive answer
+    const loc = (location || "").toLowerCase().trim();
+    if (loc) return ACCEPT_REGIONS.some((r) => loc.includes(r));
+    // No location → check agency/title for strong Sydney signal; else unknown (null)
+    const fb = (fallbackText || "").toLowerCase();
+    if (fb && ACCEPT_REGIONS.some((r) => fb.includes(r))) return true;
+    return null; // unknown ≠ out-of-area
   }
 
   // Normalize a raw scraped record into the OFN lead/tender shape.
@@ -50,7 +57,10 @@ const OFN = (() => {
     const blob = [raw.title, raw.description, raw.category, raw.agency]
       .filter(Boolean).join(" ");
     const painting = isPainting(blob);
-    const geo = inServiceArea([raw.location, raw.agency, raw.title].filter(Boolean).join(" "));
+    const geo = inServiceArea(raw.location, [raw.agency, raw.title].filter(Boolean).join(" "));
+    // Separate opportunity type ("RFT", "RFQ") from service categories
+    const oppTypeMatch = (raw.category || "").match(OPP_TYPE_RE);
+    const opportunityType = oppTypeMatch ? oppTypeMatch[0] : "";
     return {
       tender_id: uuid ? `lead:tender:buysw:${uuid}` : `lead:tender:buysw:href:${raw.href || ""}`,
       channel: "buysw_web",
@@ -60,6 +70,7 @@ const OFN = (() => {
       description: raw.description || "",
       location: raw.location || "",
       category: raw.category || "",
+      opportunity_type: opportunityType,       // e.g. "Request for tender (RFT)" — spec §23
       closing_at: raw.closing_at || "",
       published_at: raw.published_at || "",
       amount_text: raw.amount_text || "",
