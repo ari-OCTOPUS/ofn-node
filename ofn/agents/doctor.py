@@ -193,6 +193,12 @@ def probe_units(
         elif file_state == "disabled":
             # خاموشِ عمدی: خودش خرابی نیست، ولی «سالم» هم نیست تا رأی/رسیدش دیده شود
             v, detail = Verdict.UNKNOWN, "disabled — deliberate? check ruling receipt"
+        if active == "activating":
+            # GAP-065: یونیت در همین لحظه در حال اجراست (احتمالاً
+            # خودِ دکتر یا هم‌شلیک‌هایش) — قضاوت پیش از رسید زشت است.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now — self-observation race; "
+                "next tick will judge with a real age")
         elif (svc_type == "oneshot" and result == "success"
               and active in ("inactive", "dead")):
             # oneshotِ بینِ دو اجرا: inactive+success حالتِ طبیعیِ اوست، نه ابهام.
