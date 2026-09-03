@@ -178,6 +178,24 @@ LEADS = [
             "Level 7, 447 Kent St, Sydney NSW 2000."
         ),
     },
+    {
+        "business_name": "Woolworths Group",
+        "segment": "commercial",
+        "suburb": "Bella Vista",
+        "service_area": "National (NSW focus)",
+        "website": "https://woolworthsgroup.com.au",
+        "contact_channel": "+61 2 8885 0000 | Decision maker in Property/Asset/Facilities/Procurement TBD",
+        "evidence_url": "https://linkedin.com/company/woolworths-group/",
+        "stage": "discovered",
+        "outreach_permission": "unknown",
+        "notes": (
+            "Assistant Asset Manager role. National portfolio of owned/controlled "
+            "shopping centres & retail properties. 10,001+ employees. "
+            "Vendor Mgmt, Facility Managers, External Property Managers, "
+            "Maintenance, Capital & Operating Expenditure, OH&S. "
+            "1 Woolworths Way, Bella Vista NSW 2153."
+        ),
+    },
 ]
 
 
