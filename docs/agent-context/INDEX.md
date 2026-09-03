@@ -23,4 +23,6 @@ CLAUDE.md classification: **MIXED (REPOSITORY_ENTRYPOINT + AGENT_SPECIFIC_CONTEX
 | AGENT-NEXT-OWNER-COMPLETE.md | HISTORICAL | owner | handoff | - | - | 2026-08-31 |
 | AGENT-NEXT-PANEL-UPGRADE.md | HISTORICAL | agent | handoff | - | - | 2026-08-31 |
 
+| skills/octopus-business-legs-wiring/SKILL.md | ACTIVE | agent | skill | پاهای بیزنسی/سه‌برد/خودمختاری امن — دکترین هارمونی بقا + دو محور وضعیت | - | 2026-09-03 |
+
 Only one ACTIVE_CANONICAL_GENERAL exists (MEGAPROMPT.md). Root pointer: AGENT.md → this index.
