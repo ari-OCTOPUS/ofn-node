@@ -1,7 +1,7 @@
 ---
 tags: [ofn, decisions, mining]
 aliases: [تصمیم‌ها, Decisions]
-updated: 2026-08-11
+updated: 2026-09-02
 ---
 
 # DECISIONS — تصمیم‌های قفل‌شده و باز
@@ -462,6 +462,108 @@ hypno   →  تنانت واقعی است و در هر inventory باید دید
 شرایط لازم برای اینکه روزی این تصمیم برگردد و GiftMesh تنانت شود، هفت‌تاست
 و در §۵ همان نقشه فهرست شده — نه کمتر.
 
+### D-26 · بدن کانونی دوتاست؛ مفهوم با سه چیز واقعی می‌شود
+
+*(حکم مالک در جلسهٔ ابری، ۲۰۲۶-۰۹-۰۱ · «همرو ازم همینجا بگیرو از طرف مالک و شرکا ثبت کن»)*
+
+بستهٔ پیشنهادی ایجنت ارشد STAGE-01 را مالک در همان جلسه پذیرفت و دستور ثبت
+داد. این **ثبت حکم** است، نه شروع موج ۱، نه merge، نه deploy، نه روشن‌کردن WIRE.
+
+**صدای شرکا — دو ثبت جدا:** مالک بعد گفت «همشون امضا کردن»
+(`owner_attests_all_signed = true` · ملیحه / عباس / سبا). همین ایجنت
+هنوز صدای هیچ‌کدام را جدا نشنید
+(`partner_voices_independently_observed = false`). غیبت اختلاف بین این
+دو فیلد توافق نیست؛ یکی ادعا است، یکی مشاهده.
+
+```
+کسب‌وکار زنده     →  بدن کانونی `ofn-node`
+معماری عصبی       →  بدن کانونی والت / چک‌لیست ۲۰۰
+مش ۱۸۰↔۱۳۸        →  بعد از قرارداد لبه، نه قبل
+مهاجرت والت به ofn-node عمومی  →  ممنوع (ایستاده)
+```
+
+**واقعی یعنی:** کد روی بدن کانونی + تستی که اگر ادعا دروغ باشد قرمز شود +
+رسید مستقل از خودِ ادعا. نثر و مگاپلان کافی نیستند.
+
+**موج ۱ (فقط والت، هنوز اجرا نشده):** Envelope تایپ‌دار + Run Store فقط‌الحاقی
++ H1 مالی (یک verdict → حداکثر یک برداشت). MCP، حافظهٔ معنایی، توکن Keycard،
+VBAA در این موج نیستند.
+
+**روی ofn-node ممنوع:** خانوادهٔ envelope دوم. `board_events` قرارداد لبهٔ
+موجود است. H1 این مخزن harvest است، نه باگ مالی NBB.
+
+**ایستاده بسته:** D1 · D7 · OWNER_KEY · `secret_rotation` · همهٔ `WIRE_*`.
+O-3 (کلاس C3/S3) و S-04 (VLAN) `later` ماندند — این حکم بازشان نمی‌کند.
+
+**۴۴ شناسهٔ بی‌نام STAGE-00** حدس زده نمی‌شوند؛ `unverified` می‌مانند.
+تناقض‌های عددی C-001/C-002/C-003 باز می‌مانند.
+
+**کسب‌وکار موازی، بدون کوپل معماری:** نقاشی follow-up→quote، listing زیمان،
+رضایت استودیو. این حکم booked / sent / revenue نمی‌نویسد.
+
+**کجا:** [[docs/architecture/DECISION-canonical-bodies-2026-09-01]] ·
+`docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json` ·
+`tests/test_d26_canonical_bodies.py`.
+
+فیلدهای مجوز این حکم را D-27 عوض کرد. خودِ رکورد D-26 دست‌نخورده می‌ماند
+(`implementation_authorized` همان‌جا `false` است).
+
+### D-27 · آزادسازی مجوز با سقف و ترمز
+
+*(حکم مالک + ایجنت ارشد، ۲۰۲۶-۰۹-۰۲ · «ALL GATES OPEN» ولی آزاد ≠ بی‌سقف)*
+
+```text
+D-27 (2026-09-02): ALL GATES OPEN.
+implementation=yes merge=yes deploy=yes wire=yes money=yes boards=yes
+parallel=yes auto_advance=yes propose_only=no
+caps: 25 sends/day, 50 AUD/day, per-board budget 0, kill-switch OFN_EXTRA_CLOSED_GATES
+cannot-be-decreed: partner voices, saba consent, real secret rotation, platform ToS
+first proof required: one real payment receipt on PAINT-L5-001
+```
+
+`propose_only_mode = false`. سکوت دیگر «نه» نیست.
+
+**آنچه عوض نشد:** بدن کانونی دوتاست. خانوادهٔ envelope دوم روی ofn-node
+ممنوع است. `partner_voices_independently_observed = false`.
+`OFN_KEEP_GATES_OPEN` و `OFN_WIRE_OUTBOUND` در کد پیش‌فرض روشن نشدند —
+اولی rotate واقعی می‌خواهد، دومی تست دود. `GATE_OPEN_UNTIL_UTC` منقضی
+است؛ `secret_rotation` و `partner_precondition` تا آن rotate بسته می‌مانند.
+سهمیهٔ مالک از قبل `7000` است.
+
+O-3 و S-04 از `later` به `open` رفتند و می‌توانند موازی جلو بروند.
+C-009 رسماً بسته شد (هویت آپلود تکراری، نه تناقض عددی).
+`merge_authorized` self-merge نیست؛ `protect-main` approve الهه
+می‌خواهد. ترتیب: #68 سپس #67. `LANES.csv` روی این میزبان نیست.
+
+خطا یک مسیر را یک پله عقب می‌برد، نه هر پنج مسیر را.
+
+**کجا:** [[docs/architecture/DECISION-d27-unlock-2026-09-02]] ·
+`docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json` ·
+`tests/test_d27_unlock.py` · `octopus_survival/economy.py`.
+
+### D-28 · لبهٔ قوانین؛ سه فیلد جعل نمی‌شود
+
+*(حکم مالک + ایجنت ارشد، ۲۰۲۶-۰۹-۰۲)*
+
+ویس شرکا painting و موج ۱/۲ را قفل نمی‌کند. `partner_voices_independently_observed`
+تا سه رسید با `media_sha256` **و** مشاهدهٔ واقعی `false` است.
+هش ویندوز ۲۰۲۶-۰۹-۰۲ ثبت شد؛ مشاهده جعل نشد. مالک همان روز تأیید
+کرد SUME نام قانونی عباس است (AU-NSW)؛ قرارداد و فاکتور باید
+`Sume (Abbas)` بنویسند. تأیید هویت ≠ شنیدن فایل. رضایت سبا فقط
+`record_release` است، نه بولین. چرخش راز روی این میزبان نشد:
+`secret_rotation: risk_accepted_unrotated`. پنجرهٔ رسمی
+`GATE_OPEN_UNTIL_UTC = 2026-09-16`. `OFN_KEEP_GATES_OPEN` و
+`OFN_WIRE_OUTBOUND` پیش‌فرض کد نشدند.
+
+ماتریس پلتفرم با قالب `invite_opt_in` / `quote` / `follow_up` پر شد.
+`advisor_gate` همچنان بدون پارامتر بله است. سه خط قرمز: افراد زیر سن،
+انتشار بدون رضایت زنده، راز شخص دیگر.
+
+**کجا:** [[docs/architecture/DECISION-d28-edge-2026-09-02]] ·
+`docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/D-28-OWNER-DIRECTIVE.json` ·
+`tests/test_d28_edge.py`.
+
+
 ---
 
 ## باز — تصمیم مالک لازم است
@@ -473,6 +575,8 @@ hypno   →  تنانت واقعی است و در هر inventory باید دید
 
 یک سؤال باز برای آری باقی است و تنها یکی: **سوییچ مدیریتی داری یا نه؟**
 جوابش تعیین می‌کند لایهٔ ۴ (VLAN) ساخته می‌شود یا ریسکش پذیرفته می‌شود.
+D-26 همان S-04 را `later` گذاشت. D-27 آن را `open` کرد — کار موازی مجاز
+است؛ این commit VLAN نمی‌سازد.
 
 ### ⬜ O-2 · حافظهٔ بردها ۴ گیگ است — اثرش روی RandomX
 
@@ -502,6 +606,8 @@ XMRig + monerod + P2Pool روی همان برد  →  احتمال OOM
 ارزش LoRa هیچ ربطی به توکن ندارد: اگر WiFi بمیرد، ناوگان کور نمی‌شود.
 
 ⬜ هنوز نامعلوم: C3 و S3 باید کلاس‌های جدا باشند یا یکی؟ (رم و هسته فرق دارد)
+D-27 این را از `later` به `open` برد — موازی مجاز است؛ این commit پیاده‌سازی
+ESP32 نیست.
 
 ### ⬜ O-4 · لنز ۷ اجرا نشد
 

@@ -1,4 +1,15 @@
-"""NSW OCP registry harvester — real painting-service BUYERS.
+"""DEAD SOURCE (as a lead module — the upstream itself is alive; see below)
+— labeled 2026-09-02 (D-31 step 1).
+
+Day-7 verdict (board CURRENT-TRUTH 2026-09-02): lead-gen was the wrong
+use of this data. OCP buyer + contract-period data belongs in a renewal
+radar; the fetch layer belongs to the sanctioned supplier-email /
+contract-register channels. The module is parked unwired until that
+repoint lands — do NOT wire new callers to it as-is.
+
+---
+
+NSW OCP registry harvester — real painting-service BUYERS.
 
 The AusTender federal API works but has almost zero painting contracts
 (0 in 30 days). The NSW OCP bulk download (via data.open-contracting.org)

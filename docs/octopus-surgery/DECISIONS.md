@@ -237,3 +237,41 @@ negative controls on the real machine — the guard_target lesson applied.
 Commitments: one decision per PR; branch protection with required approvals
 enabled immediately after this PR merges, making sub-15-minute self-merges
 impossible going forward. Receipt: receipts/S6-D12-OUTBOX-AND-PROCESS-20260901.json.
+
+## S6-D13 — D-26 owner ratification of STAGE-01 package (2026-09-01)
+
+The owner said: take the whole senior-agent package and register it on
+behalf of owner and partners, then: they all signed. This is a
+**record**, not wave-1 start, merge, deploy, or WIRE. Owner attests
+all three partners signed; this vantage still did not hear them
+(`owner_attests_all_signed=true`,
+`partner_voices_independently_observed=false`). Canonical split:
+business=`ofn-node`, architecture=vault, mesh after edge contract.
+Receipt: `stage-01-lineage-scan/2026-09-01/OWNER-RATIFICATION.json`.
+
+## S6-D14 — D-27 unlock (2026-09-02)
+
+Owner + senior-agent: authorization fields of D-26 become true, with
+caps (25 sends/day, 50 AUD/day, per-board budget 0) and kill-switch
+`OFN_EXTRA_CLOSED_GATES`. Propose-only ends. Four facts stay outside
+decree: partner voices, Saba consent record, real secret rotation,
+platform ToS. C-009 closed as identity. O-3 and S-04 move later→open.
+`OFN_KEEP_GATES_OPEN` and `OFN_WIRE_OUTBOUND` are not defaulted on.
+Receipt: `stage-01-lineage-scan/2026-09-01/D-27-OWNER-DIRECTIVE.json`.
+
+
+## S6-D15 — D-28 rule-edge; three fields unforged (2026-09-02)
+
+Partner voices do not block painting. Observation stays false until
+three `media_sha256` receipts exist **and** a verifier has accessed
+each file. 2026-09-02 Windows hashes are recorded under
+`attestations/receipts/`; owner later attested Sume is Abbas
+(legal name, AU-NSW). Official documents print `Sume (Abbas)`.
+Observation stays false until a verifier
+hears each file. Saba consent is
+`record_release` only. Secret rotation on this host is
+`risk_accepted_unrotated`. `GATE_OPEN_UNTIL_UTC=2026-09-16`.
+Platform matrix filled to the ToS edge. Advisor gate stays
+parameterless. Receipt:
+`stage-01-lineage-scan/2026-09-01/D-28-OWNER-DIRECTIVE.json`.
+

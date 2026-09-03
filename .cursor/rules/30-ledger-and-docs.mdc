@@ -1,0 +1,9 @@
+---
+globs: **/*.md, **/*.jsonl, **/*.csv, 07-HANDOFF/**, 09-LANES/**
+alwaysApply: false
+---
+- Ledger writes are append-only with a monotonic sequence field. Never rewrite or reorder an existing line.
+- Every ledger row carries `evidence_id`. A row without one is invalid and must be rejected, not patched.
+- Documents state grades and sources, never conclusions without them.
+- When you archive a stale note, keep it verbatim under `99-ARCHIVE/` — it may contain an owner decision.
+- Contradiction table format: claim, value_a, source_a, value_b, source_b, resolution, status.

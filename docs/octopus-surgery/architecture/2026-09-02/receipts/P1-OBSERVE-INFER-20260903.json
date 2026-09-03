@@ -1,0 +1,56 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-OBSERVE-INFER-20260903",
+  "issued_utc": "2026-09-03T02:17:01Z",
+  "author": "cursor-cloud bc-7a2b5fdd-e1a5-423f-a969-2babe462c4f3 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-observe-infer on feat/p1-observe-infer-20260903 parent origin/main @825837cb66ba3684934fd9bd52ce17e24448c699 (#83). observation_class.py and inference_class.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-2f33 @3a242e27a2a1b57cf8fa6d16542a85b5b19033b2 (PR #115) and was not written. #136 CI this-run: 1 of 16 failed = require-independent-approval (REVIEW_REQUIRED, not a code defect).",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary observation_class + inference_class — new files only. Not a second report/verify, clock-bind, envelope, or receipts PR. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/observation_class.py": "classify_claim: None→UNKNOWN; timeout→UNKNOWN; OBSERVATION requires non-empty evidence and refuses agent_reported; INFERENCE with empty evidence stays INFERENCE; as_bool(UNKNOWN/INFERENCE) fail closed; sealed send/ready names refuse; grants_send/halt_blocks_observe/unknown_is_false/agent_reported_is_verified/claims_immutable/ready_is_authorized structurally False",
+    "ofn/kernel/inference_class.py": "promote same-class idempotent; INFERENCE/UNKNOWN→OBSERVATION refused; OBSERVATION→INFERENCE refused; missing→None not False; ready→send sealed names refuse; timeout_proves_concurrent_write structurally False; not wired into run_store.py",
+    "tests/test_observation_class.py": "E3 negatives: empty observation evidence, agent_reported, timeout, unknown type, bool/int, string evidence, sealed aliases, as_bool",
+    "tests/test_inference_class.py": "E3 negatives: cross-class promote, sealed ready/send, bool class, missing UNKNOWN, run_store import absence",
+    "tests/test_chaos_observe_infer.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_observation_class tests.test_inference_class tests.test_chaos_observe_infer tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T02:17:01Z",
+    "parent_head_full": "825837cb66ba3684934fd9bd52ce17e24448c699",
+    "exit_code": 0,
+    "result": "222 passed / 0 failed / 0 skipped (unittest 'Ran 222 tests in 0.250s' / OK). New-module only: 43 passed (2026-09-03T02:17:14Z).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-observe-infer).",
+    "worktree": "/tmp/ofn-p1-observe-infer",
+    "file_lock_zone": [
+      "ofn/kernel/observation_class.py",
+      "ofn/kernel/inference_class.py",
+      "tests/test_observation_class.py",
+      "tests/test_inference_class.py",
+      "tests/test_chaos_observe_infer.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-OBSERVE-INFER-20260903.json",
+      "09-LANES/P1-OBSERVE-INFER/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE",
+      "timeout evidence → UNKNOWN",
+      "agent_reported cannot produce OBSERVATION",
+      "empty OBSERVATION evidence fails closed",
+      "INFERENCE → OBSERVATION refused",
+      "as_bool(UNKNOWN) and as_bool(INFERENCE) fail closed",
+      "campaign_envelope_ready → send_authorized refused",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write structurally False",
+      "run_store source does not import observation_class or inference_class"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "clock_bind / utc_class (#136) / report_class / verify_class (#135) / envelope.py / events.py / run_store.py / receipts / cockpit-v2"
+}
