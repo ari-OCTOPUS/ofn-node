@@ -386,3 +386,23 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
   - **180**: 4 expired archived; 24 TTL-less content-stale messages remain (sender design pending); octopus-mirror still fails (CIFS credentials = owner secret decision).
 - **Equipment (the API):** PR **#150** `ofn/agents/repair_api.py` — loopback POST /v1/repair, whitelist = exactly today's five heals, dry-run default, conservation-refusal (fail-closed on broken absence subsystem), append-only repair-log with rollback per action, 10 negative-first tests. Awaits one GOV-V6 vote.
 - 50-list status after this round: healed/armed = #13(timers), #37, #38, #39, #40(partial: 138 inbox; 182 sender now exists), #46(sensorium+reset), #47; open giants remain: repo consumers (#14/16/26), NATS (#42), 180 outbox/mirror (#41/#43).
+
+## 2026-09-03 — Reality Scan ابری رسید؛ راستی‌آزمایی سطح-یک انجام شد
+- ایجنتِ ابری (بدون دسترسی به نودها) ۷ سند UNVERIFIED داد؛ من همان پرسش‌ها را روی
+  نودهای واقعی فقط‌خواندنی اجرا کردم → REALITY-RECONCILIATION-20260903.md
+- حکم‌ها: C-01 بسته (NBB-CP) · C-02 بسته-مستند · C-04 بسته-مثبت (#136 CLEAN+APPROVED
+  مرج شد؛ گیت از مسیر review) · C-05 بسته-کهنه (۳۷۴۲ collected روی main@60dce961) ·
+  **C-06 حکم اسکن غلط بود: بورد روی main@60dce961 است نه release/p0، ۱۰ کامیت عقب
+  (repair_api/8797 ندارد)** · C-03/C-07 تأیید-باز
+- driftهای تازه: smoke.sh از درخت بورد غایب · SSH@180 رد می‌شود (کلید چرخیده) ·
+  NATS@182 بسته · main حین اسکن جلو رفت (#136 مرج شد)
+- ۱۲ تایمر octopus فعال؛ شش سرویس active؛ secrets 600؛ WAL و فایل‌های runtime حاضرند
+
+### Round 13 — BUSINESS-LEGS handoff files VERIFIED LIVE (2026-09-03 evening, read-only)
+- Owner surfaced three handoff files (Downloads) asking for a 50-question evidence pack. Resident-agent decision: **I am the reachable agent — measure now, don't hand the questions forward.** Ran A/B/C sections read-only across all three boards.
+- **A4 confirmed**: board138 sits on `fix/env-independent-tests-20260903 @ 10de2e13`, **10 behind** main (now `6f9298a8`) — the deploy-line item is REAL and pending.
+- **B-section updates (files were stale here)**: 182 inbox=0 (drained by today's timer), witness-send timer ENABLED (fired 10:00Z), NATS still single local client; 180 outbox still 24 TTL-less (drain runs, by design skips sender-less); 138 outbox=0, rejected=9.
+- **Witness leg end-to-end PROVEN**: the 21 verdicts sent yesterday were **dispatched to `cycle_settler` and marked `processed / terminal_consumed_no_reply`** in 138's audit.jsonl (seq 152920-21) — not just delivered, fully consumed. The 182→138 nerve is a working reflex arc now.
+- **C-section evidence landed**: painting receipts f1516/f1517 in `~/octopus-mesh/receipts/*.claim.json`; ziman title sha `161a167e` **matches exactly**; Shopify admin token NOT in secrets.env (order-ingest scope gap confirmed real).
+- Note on a third parallel scan (auditor claiming "NATS@182 بسته / SSH@180 رد می‌شود"): contradicts today's live probes (NATS 4222 established from loopback client; root@180 opens with laptop id_ed25519). Its vantage/method unknown — treat as UNVERIFIED until receipts.
+- Remaining truly-open for a future agent: laptop-hop design (D), owner-decision list (I), dry-run acceptance (J). Everything A/B/C measurable was measured today.
