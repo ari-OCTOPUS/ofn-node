@@ -1,0 +1,43 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "R0-SPINE-VOCAB-DURABILITY-20260902",
+  "issued_utc": "2026-09-02T13:31:26Z",
+  "author": "cursor-cloud-agent bc-0fb0d5e4-9c73-47d8-8abe-57b2cfa09cb0",
+  "owner_ratified": false,
+  "pr": 101,
+  "branch": "feat/r0-revenue-spine-20260902",
+  "parent_head_full": "310436e4ee3789e6e8cd020eedbc8fe3b6dee658",
+  "scope_measured": "CI full-suite failure on PR #101: TestVocabulary.test_imported_names_exist_only_in_the_map. Ubuntu job 100265007643 and Windows job 100265007380 both FAILED on ofn/agents/consent_store.py containing retired token EffectorGate (docstring negation, not an import).",
+  "scope_not_measured": [
+    "board138 systemd units after merge",
+    "filesystem immutability of any archive",
+    "live IMAP / SMTP / Telegram"
+  ],
+  "file_lock_zone": [
+    "ofn/agents/consent_store.py",
+    "ofn/agents/quote_pipeline.py",
+    "tests/test_r0_spine_restore.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/R0-SPINE-VOCAB-DURABILITY-20260902.json"
+  ],
+  "action": "Update existing PR #101 (owns r0 spine restore). Do not open a second spine PR.",
+  "delivered": {
+    "consent_store_docstring": "retired EffectorGate/MycoLedger tokens removed; mapped names risk/consent/release_switch/outbox used",
+    "consent_store_pragma": "PRAGMA synchronous=FULL (was NORMAL). WAL unchanged.",
+    "quote_pipeline": "cycle(dry=True) default; CLI requires --authorize-send; --dry still wins. send_authorized not granted.",
+    "tests": "vocabulary scan of restored sources; WAL+FULL assertion; dry-default pin"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m pytest tests/ -q --ignore=tests/test_live_control_panel_smoke.py --ignore=tests/test_root_hygiene.py --tb=line",
+    "ran_at_utc": "2026-09-02T13:31:26Z",
+    "tested_parent_full": "310436e4ee3789e6e8cd020eedbc8fe3b6dee658",
+    "exit_code": 0,
+    "result": "2626 passed, 14 skipped, 1 warning, 1672 subtests passed in 24.16s",
+    "targeted_command": "python3 -X utf8 -m pytest tests/test_r0_spine_restore.py tests/test_portfolio_map.py tests/test_consent.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "targeted_ran_at_utc": "2026-09-02T13:31:22Z",
+    "targeted_exit_code": 0,
+    "targeted_result": "214 passed, 977 subtests passed in 1.01s"
+  },
+  "boundary": "no outbound send, no secret read/print/rotate, no admin bypass, no CODEOWNERS/branch-protection change, no merge",
+  "ready_vs_authorized": "campaign_envelope_ready / restore ≠ send_authorized. quote_sent remains owner-blocked.",
+  "filesystem_immutability": "NOT claimed"
+}

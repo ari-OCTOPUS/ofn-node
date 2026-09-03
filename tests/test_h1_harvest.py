@@ -109,6 +109,12 @@ class Case(unittest.TestCase):
         hits = harvest([ocds(regions=["tweed"])])
         self.assertEqual(hits, [])
 
+    def test_legacy_nsw_feed_is_marked_dead(self):
+        from ofn.agents import h1_harvest
+        self.assertIn("tenders.nsw.gov.au", h1_harvest.FEED_URL)
+        self.assertEqual(h1_harvest.FEED_STATUS, "dead_redirect_buy_nsw")
+        self.assertNotIn("buy.nsw.gov.au", h1_harvest.FEED_URL)
+
 
 if __name__ == "__main__":
     unittest.main()
