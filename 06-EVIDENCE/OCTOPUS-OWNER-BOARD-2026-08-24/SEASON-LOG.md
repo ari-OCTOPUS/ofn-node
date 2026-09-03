@@ -431,3 +431,9 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **HARMONY-MERGER-20260903.md written** (canonical): two-generation organ inventory (laptop `_ops` organism vs boards' ofn/mesh/sensorium), final role per organ (heart+metabolism+pharmacy=138 · brain=180 w/ local llama · senses/witness=182 · governance=GitHub · vault=library), three merge-links (P1 heart-pulse on 138 done ✓ · P2 memory mirror done ✓ · P3 cognitive_wake to 180 = next PR), and the «هوسمندتر» loop: verified payment = satiety↑, expired/dead-letter = pain↑ → doctor sensitivity; mood in ORGANISM-STATE on 138.
 - **Laptop-off independence proven by design**: heart beats on 138, brain thinks on 180, eyes see on 182, governance in GitHub — the vault is only a library now; nothing running depends on the laptop.
 - B2B ingest (#151) validated as manual lead flow; next session builds P3.
+
+### Round 18 — season & concepts synced EVERYWHERE (owner order: «گیت‌هاب و ابسیدین و برد‌ها و لپ‌تاپ را با سیزن و مفاهیممون اپدیت کن»)
+- **GitHub**: PR **#160** `docs/agent-context/SEASON-CONCEPTS-2026-09-03.md` — the canonical worldview doc: seasons 0-4 timeline · two-generations-one-organism doctrine with measured organ roles · iron-rules block · owner vibe dictionary · measured season-4 status. (one GOV-V6 vote pending)
+- **Boards**: compact season cards installed in mesh state on all three (138 heart/metabolism/pharmacy · 180 brain/sender-timer · 182 senses/witness/send-timer) — every local agent that touches mesh state now reads the season + iron rules inline.
+- **Vault**: SEASON-LOG Round 17/18 + HARMONY-MERGER + MISSING-WIRING-50 + SCAN A/B/C + NEXT-AGENT-HANDOFF already committed and pushed to germline (`b9bac8d`).
+- Laptop = library role recorded everywhere; nothing running depends on it. main=6f9298a8 everywhere.
