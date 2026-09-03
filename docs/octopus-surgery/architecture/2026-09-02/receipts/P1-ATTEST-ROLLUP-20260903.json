@@ -1,0 +1,107 @@
+{
+  "schema": "octopus.p1.receipt.v1",
+  "id": "P1-ATTEST-ROLLUP-20260903",
+  "lane": "P1-ATTEST-ROLLUP",
+  "recorded_at_utc": "2026-09-03T02:03:32Z",
+  "branch": "feat/p1-attest-manifest-20260903",
+  "parent_full": "825837cb66ba3684934fd9bd52ce17e24448c699",
+  "parent_subject": "fix(p1): factory refuses expired mint, sealed aliases, ready≠send (#83)",
+  "worktree": "/tmp/ofn-p1-attest-manifest",
+  "file_lock_zone": [
+    "ofn/kernel/attest_class.py",
+    "ofn/kernel/rollup_pin.py",
+    "tests/test_attest_class.py",
+    "tests/test_rollup_pin.py",
+    "tests/test_chaos_attest_rollup.py",
+    "09-LANES/P1-ATTEST-ROLLUP/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ATTEST-ROLLUP-20260903.json"
+  ],
+  "not_written": [
+    "ofn/adapters/vault_witness.py (owned by #132 feat/vault-witness-20260903 @84d12893416fb71bd58e28067b56927b3b369273)",
+    "tests/test_vault_witness.py (owned by #132)",
+    "ofn/kernel/envelope.py (on origin/main via #83)",
+    "ofn/kernel/events.py (on origin/main via #82)",
+    "ofn/adapters/run_store.py (on origin/main via #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82 — read-only re-run)",
+    "ofn/kernel/token_ceiling.py (on origin/main via #83)",
+    "ofn/kernel/dedup.py (on origin/main via #88)",
+    "ofn/kernel/settlement.py (on origin/main via #88)",
+    "ofn/kernel/unknown_seal.py (owned by #126)",
+    "ofn/kernel/artifact_ref.py (owned by feat/p1-evidence-witness-20260902)",
+    "ofn/kernel/numeric_claim.py (collision open — do not write)",
+    "ofn/kernel/witness_pair.py (prior body unpublished — do not recreate)",
+    "ofn/kernel/quote_class.py (prior body unpublished — do not recreate)",
+    "ofn/kernel/effect_fence.py (prior body unpublished — do not recreate)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by incidents branch; appended separately)",
+    ".github/CODEOWNERS (GOV-V6 — do not weaken)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main @825837c (#83). Kernel-pure attest class (consistent/incomplete/inconsistent/unknown; unreadable=unknown not skip; missing-expected=incomplete not tamper; unmanifested=incomplete not consistent). Kernel-pure rollup pin (inconsistent wins; unknown files and truncation roll up incomplete; empty+not-truncated is consistent; missing list is UNKNOWN not empty). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_* / ready_is_authorized / claims_immutable / unknown_is_false / unknown_is_inconsistent / missing_expected_is_inconsistent / unmanifested_is_consistent / unreadable_is_skip / proposal_is_execution / truncated_is_consistent / unknown_file_is_* structurally False. No halt/resend/send knob. HALT stops STARTS, not classification. Not wired into run_store.py or vault_witness.py. Does not claim filesystem immutability. Ready ≠ authorized. Trigger PR #132 require-independent-approval was REVIEW_REQUIRED — did not merge, did not weaken the gate, did not write vault-witness files.",
+  "verification": {
+    "command": "python3 -m unittest tests.test_attest_class tests.test_rollup_pin tests.test_chaos_attest_rollup tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent -q",
+    "ran_at_utc": "2026-09-03T02:03:32Z",
+    "head_full_at_run": "825837cb66ba3684934fd9bd52ce17e24448c699",
+    "exit_code": 0,
+    "result": "270 passed, 0 failed, 0 skipped",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError this host)",
+    "per_file": {
+      "tests/test_attest_class.py": "32 passed, 0 failed, 0 skipped",
+      "tests/test_rollup_pin.py": "27 passed, 0 failed, 0 skipped",
+      "tests/test_chaos_attest_rollup.py": "9 passed, 0 failed, 0 skipped",
+      "tests/test_kernel_purity.py": "10 passed, 0 failed, 0 skipped",
+      "tests/test_envelope.py": "35 passed, 0 failed, 0 skipped",
+      "tests/test_dedup.py": "12 passed, 0 failed, 0 skipped",
+      "tests/test_settlement.py": "11 passed, 0 failed, 0 skipped",
+      "tests/test_tmpdir.py": "4 passed, 0 failed, 0 skipped",
+      "tests/test_run_store.py": "79 passed, 0 failed, 0 skipped",
+      "tests/test_token_ceiling.py": "14 passed, 0 failed, 0 skipped",
+      "tests/test_run_gate.py": "21 passed, 0 failed, 0 skipped",
+      "tests/test_chaos_owner_absent.py": "16 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @825837cb66ba3684934fd9bd52ce17e24448c699 — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on origin/main @825837c — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on docs/octopus-os-incidents-20260902 @7c71360834d59b045a0e1c30ca07fc7b52704825 (xxxix)",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/main",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 132,
+    "branch": "feat/vault-witness-20260903",
+    "head_sha": "84d12893416fb71bd58e28067b56927b3b369273",
+    "failed_check": "require-independent-approval",
+    "classification": "REVIEW_REQUIRED — not an engineering defect",
+    "author": "ari322",
+    "required_reviewers": ["Elahe-z", "aram-ui"],
+    "gate_touched": false,
+    "admin_bypass": false
+  },
+  "ready_vs_authorized": {
+    "campaign_envelope_ready_eq_send_authorized": false,
+    "grants_send": false,
+    "quote_sent": "forbidden — no newer scoped authorization"
+  },
+  "external_effects": 0,
+  "filesystem_immutability_claimed": false,
+  "evidence_grade": "E3",
+  "evidence_grade_note": "Negative and boundary cases green. Not E4: no held-out / scaffold-variation measurement.",
+  "body": "bc-cd3e8347-37b9-4a20-a60b-7e7280863a0f"
+}
