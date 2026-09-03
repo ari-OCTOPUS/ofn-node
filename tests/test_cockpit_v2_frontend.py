@@ -103,6 +103,7 @@ class TestRequestedStructure(CockpitFrontendCase):
             "src/pages/legs.js",
             "src/pages/queue.js",
             "src/pages/audit.js",
+            "src/pages/surface.js",
             "src/components/dom.js",
         }
         actual = {
@@ -133,6 +134,53 @@ class TestRequestedStructure(CockpitFrontendCase):
             if not name.startswith("src/"):
                 continue
             self.assertNotRegex(text, r"from\s+['\"](?![./])")
+
+
+class TestSevenCardSurface(CockpitFrontendCase):
+    def test_surface_is_the_default_route_and_polls_its_resource(self):
+        router = self.files["src/router.js"]
+        self.assertIn('"surface"', router)
+        self.assertIn('DEFAULT_ROUTE = "surface"', router)
+        api = self.files["src/api.js"]
+        self.assertIn('surface: "/api/v2/owner/surface"', api)
+        app = self.files["src/app.js"]
+        self.assertIn('surface: { resource: "surface"', app)
+        html = self.files["index.html"]
+        self.assertIn('href="#/surface"', html)
+
+    def test_seven_cards_are_declared_in_order(self):
+        surface = self.files["src/pages/surface.js"]
+        ids = re.findall(r'^\s{2}"([a-z_]+)",$', surface, re.M)
+        self.assertEqual(ids, [
+            "command_center", "self_model", "doctor", "economic_learning",
+            "owner_queue", "telegram_bridge", "receipts_sync",
+        ])
+
+    def test_unknown_and_inconsistent_are_not_green_on_the_surface(self):
+        surface = self.files["src/pages/surface.js"]
+        formatting = self.files["src/formatting.js"]
+        # The verdict helper is the only tone decision and never hardcodes ok.
+        self.assertNotIn('tone: "ok"', surface)
+        self.assertIn("verdictMeta", surface)
+        # inconsistent is loud (bad tone, latin keyword); incomplete and
+        # unknown stay out of the green set.
+        self.assertIn('"inconsistent"', formatting)
+        self.assertIn('"incomplete"', formatting)
+        self.assertIn("ناسازگار", formatting)
+        self.assertNotIn('"unknown"', formatting.split("const ok = new Set")[1].split(")")[0])
+        self.assertNotIn('"unavailable"', formatting.split("const ok = new Set")[1].split(")")[0])
+
+    def test_every_card_names_its_source(self):
+        surface = self.files["src/pages/surface.js"]
+        for source in (
+            "state/self-model/SYSTEM-SELF-MODEL.json",
+            "09-LANES/LB/runs/*/receipt.jsonl",
+            "09-LANES/ECONOMIC-LEARNING/runs/*/run-summary.json",
+            "owner_queue_metadata",
+            "config/telegram_policy.json",
+            "receipts/",
+        ):
+            self.assertIn(source, surface)
 
 
 class TestRtlMobileAccessibility(CockpitFrontendCase):
@@ -277,6 +325,19 @@ class TestPollingContract(CockpitFrontendCase):
         )
         self.assertEqual(completed.returncode, 0, completed.stdout)
         self.assertIn("pass 8", completed.stdout)
+
+    def test_node_surface_suite(self):
+        completed = subprocess.run(
+            ["node", "--test", str(V2 / "tests" / "surface.test.mjs")],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=30,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout)
+        self.assertIn("pass 7", completed.stdout)
 
     def test_all_javascript_has_valid_syntax(self):
         node = node_executable()
