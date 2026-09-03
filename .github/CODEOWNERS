@@ -1,11 +1,6 @@
-# V4 independence gate — @Elahe-z is the single required code owner for ALL paths.
-#
-# Why (level A, 2026-09-02): require_code_owner_reviews=true was already active,
-# but the previous owner lists included @ari322 and @aram-ui — accounts agents
-# and the 12:17Z merger could drive — so the code-owner approval could be
-# self-satisfied by a second account, and non-listed paths (docs/) had no owner
-# at all. With one human owner, her approval is specifically required.
-#
-# Owner order 2026-09-02 (R0-CLOSE lane D). Relax/split scope only by an
-# explicit owner ruling after verified_payment_count >= 1.
-* @Elahe-z
+# GOV-V6 — owner ruling 2026-09-03: Elahe-z and aram-ui are equally valid reviewers.
+# Either one alone satisfies code-owner review. Author may never approve their own PR
+# (enforced separately by .github/workflows/independent-review-gate.yml).
+# Supersedes the V4 single-owner line, per the relaxation clause of PR #102
+# ("relax only by owner ruling after verified_payment_count >= 1"); count is now 5.
+* @Elahe-z @aram-ui
