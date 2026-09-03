@@ -1,0 +1,57 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CLOCK-BIND-20260903",
+  "issued_utc": "2026-09-03T02:09:20Z",
+  "author": "cursor-cloud bc-7a2b5fdd-e1a5-423f-a969-2babe462c4f3 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-clock-bind on feat/p1-clock-bind-20260903 parent origin/main @825837cb66ba3684934fd9bd52ce17e24448c699 (#83). clock_bind.py and utc_class.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-2f33 @3a242e27a2a1b57cf8fa6d16542a85b5b19033b2 (PR #115) and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "unpublished first identifiers xl–xlv / quote-effect / proposal-review / span-bind / resend-fence / verify-class vantage-pair"
+  ],
+  "action": "P1 complementary clock_bind + utc_class — new files only. Not a second envelope/events/run_store/receipts/dedup PR. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/utc_class.py": "classify_stamp: None→UNKNOWN (not FALSE, not 0); UTC_Z vs OFFSET; naive/empty/bool/int/float fail closed; civil dates via deadline_epoch_s; sealed send/ready names refused; grants_send/halt_blocks_utc/unknown_is_false/claims_immutable/ready_is_authorized structurally False",
+    "ofn/kernel/clock_bind.py": "bind_clock requires exact-int epoch + UTC_Z stamp; try_bind missing→None; pair_agrees missing→None, disagreement→False; OFFSET refused; timeout_proves_concurrent_write structurally False; not wired into run_store.py",
+    "tests/test_utc_class.py": "E3 negatives: naive, empty, bool/int/float, impossible civil date, sealed aliases, OFFSET≠UTC_Z",
+    "tests/test_clock_bind.py": "E3 negatives: bool/float/str/negative epoch, OFFSET, naive, sealed names, missing UNKNOWN, pair disagreement, run_store import absence",
+    "tests/test_chaos_clock_bind.py": "seven owner-absent scenarios: missing UNKNOWN, timeout≠writer, HALT does not block bind, failed bind≠send, ready≠sent, disagreement recorded, rebind deterministic"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_utc_class tests.test_clock_bind tests.test_chaos_clock_bind tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T02:09:20Z",
+    "parent_head_full": "825837cb66ba3684934fd9bd52ce17e24448c699",
+    "exit_code": 0,
+    "result": "226 passed / 0 failed / 0 skipped (unittest 'Ran 226 tests in 0.276s' / OK). New-module only: 47 passed (2026-09-03T02:09:45Z).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-clock-bind). Dirt is this body's edits, not an unknown concurrent writer.",
+    "worktree": "/tmp/ofn-p1-clock-bind",
+    "file_lock_zone": [
+      "ofn/kernel/utc_class.py",
+      "ofn/kernel/clock_bind.py",
+      "tests/test_utc_class.py",
+      "tests/test_clock_bind.py",
+      "tests/test_chaos_clock_bind.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-CLOCK-BIND-20260903.json",
+      "09-LANES/P1-CLOCK-BIND/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None stamp → UNKNOWN, not FALSE",
+      "OFFSET is not UTC_Z",
+      "naive local fails closed",
+      "bool/float/str epoch fail closed",
+      "missing epoch try_bind → None, not 0",
+      "pair_agrees missing → None; disagreeing seconds → False",
+      "sealed send/ready names refused as stamps",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write / claims_immutable structurally False",
+      "run_store source does not import clock_bind or utc_class"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "envelope.py / events.py / run_store.py / token_ceiling.py / receipts / dedup / settlement / write_fence / unknown_seal / timeout_verdict / verify_class (memory vantage-pair vs #135 report/verify collision remains open) / report_class / attest_class / campaign_envelope / cockpit-v2"
+}
