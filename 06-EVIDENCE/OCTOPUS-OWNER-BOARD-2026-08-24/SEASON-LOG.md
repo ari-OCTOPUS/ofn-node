@@ -458,3 +458,7 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - Bonus proof: the real ages show the autonomy timers ARE firing on the board (~25min freshness on doctor/heartbeat) — the stack is alive, not just installed.
 - Loop budget rule v2 recorded (per owner question): the ≤150-line cap applies to PRODUCTION diff only; tests additive and uncapped (punishing test-writing is anti-goal).
 - Next per the queue: GAP-018 (pulse precision — empty≠dead; the stale-pulse unhealthy is still visible in tonight's banner, so the target is live).
+
+### Round 22 — both tracks in parallel (owner: «هردو موازی بعدیارو انجام بده»)
+- **Track A — GAP-018 PROPOSED as PR #164** (self-authored #2, baseline clause included): pulse probe now distinguishes QUIET from DEAD — stale events + fresh writers (imap/quote/scheduler via GAP-017 freshness) = HEALTHY·quiet; stale + no fresh writer = UNHEALTHY·death. 6 new tests + 27 doctor = 33; full 4407/0. One test bug caught during build (my own timestamp arithmetic — 29h≠5min, fixed before commit).
+- **Track B — merge wave prepped**: all 14 queued PR branches synced onto post-#163 main `1b46f77` (#156→2eee3f · #157→8e2803 · #158→ab9e5c · #159→1ceb1b · #160→0e8fee · #161→dfc67e · #162→829280 · #152→179e6e · #153→799faf · #154→0e8830 · #155→5b6619 · #134→fbf423 · #127→bb3bd4 · #126→4e00b9). Vote list + protection-window protocol offered to owner (PROTECT-OFF/ON files already validated).
