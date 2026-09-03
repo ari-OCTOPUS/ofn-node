@@ -134,9 +134,26 @@ def read_local_git_head(git_dir: Path) -> tuple[str | None, str]:
 
 # ── cross-check های شش‌ادعایی (جدول §2.2) ──────────────────────────────────
 
+def default_repo_dir() -> Path:
+    """مسیر مخزن در هر دو چیدمان (دیباگ 2026-09-04):
+    لپ‌تاپ F:\\ofn-node\\ofn\\agents → parents[2]/ofn-node ·
+    بورد ~/ofn/ofn/agents → parents[1]. اولویت: env OFN_REPO_ROOT،
+    سپس نخستین نامزدی که .git دارد (فایلِ worktree یا پوشه)."""
+    import os
+    env = os.environ.get("OFN_REPO_ROOT")
+    cands = ([Path(env)] if env else []) + [
+        _HERE.parents[2] / "ofn-node",   # لپ‌تاپ
+        _HERE.parents[1],                # بورد
+    ]
+    for c in cands:
+        if (c / ".git").exists():
+            return c
+    return cands[-1]
+
+
 def check_main_head(git_dir: Path | None = None) -> dict:
     """ادعا: main HEAD — درون: git محلی · بیرون: GitHub API."""
-    g = git_dir or (_HERE.parents[2] / "ofn-node")
+    g = git_dir or default_repo_dir()
     local, src_l = read_local_git_head(g)
     remote, src_r = fetch_github_main_sha()
     claim = {"claim": "main_head", "local": local, "remote": remote}
