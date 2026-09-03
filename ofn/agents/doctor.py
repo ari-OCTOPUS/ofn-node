@@ -193,6 +193,27 @@ def probe_units(
         elif file_state == "disabled":
             # خاموشِ عمدی: خودش خرابی نیست، ولی «سالم» هم نیست تا رأی/رسیدش دیده شود
             v, detail = Verdict.UNKNOWN, "disabled — deliberate? check ruling receipt"
+        elif active == "activating":
+            # GAP-065: unit running right now (the doctor itself
+            # or a same-tick sibling) - judging before its receipt
+            # lands is ugly; next tick judges with a real age.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now - self-observation race; "
+                "next tick will judge with a real age")
+        elif active == "activating":
+            # GAP-065: unit running right now (the doctor itself
+            # or a same-tick sibling) - judging before its receipt
+            # lands is ugly; next tick judges with a real age.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now - self-observation race; "
+                "next tick will judge with a real age")
+        elif active == "activating":
+            # GAP-065: unit running right now (the doctor itself
+            # or a same-tick sibling) - judging before its receipt
+            # lands is ugly; next tick judges with a real age.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now - self-observation race; "
+                "next tick will judge with a real age")
         elif (svc_type == "oneshot" and result == "success"
               and active in ("inactive", "dead")):
             # oneshotِ بینِ دو اجرا: inactive+success حالتِ طبیعیِ اوست، نه ابهام.
@@ -227,7 +248,16 @@ def probe_pulse(
     events_path: Path | None = None,
     now: float | None = None,
     now_iso: str | None = None,
+    writer_ages_s: dict[str, float | None] | None = None,
 ) -> list[Measurement]:
+    """نبضِ بیزینس + تمایز «آرام» از «مرده» (GAP-018).
+
+    events.jsonl فقط وقتی رویدادِ بیزینس می‌آید نوشته می‌شود؛ صندوقِ خالی
+    یعنی سکوت، نه مرگی — تا وقتی نویسنده‌ها (imap/quote/scheduler) تازه
+    اجرا شده باشند. نویسندهٔ زنده + رویداد کهنه = HEALTHY با برچسبِ quiet؛
+    فقط وقتی UNHEALTHY است که رویداد کهنه باشد **و** نویسنده‌ها هم به‌مرور
+    سرد شده باشند. سنِ نویسنده‌ها از همان سنجهٔ GAP-017 می‌آید
+    (ExecMainExitTimestampMonotonic)."""
     ts = now_iso or opslib.now_iso()
     p = events_path or (opslib.STATE_DIR / "legs" / "lead-inbox" / "events.jsonl")
     if not p.exists():
@@ -239,18 +269,53 @@ def probe_pulse(
             .rstrip("\n").splitlines()[-1]
         occurred = json.loads(last_line).get("occurred_at", "")
         age = (now if now is not None else time.time()) - _parse_iso(occurred)
-        verdict = (Verdict.HEALTHY if age <= PULSE_MAX_AGE_S
-                   else Verdict.UNHEALTHY)
+        if age <= PULSE_MAX_AGE_S:
+            verdict, detail = Verdict.HEALTHY, None
+        else:
+            ages = writer_ages_s if writer_ages_s is not None \
+                else _pulse_writer_ages()
+            fresh_writers = [
+                u for u, a in ages.items()
+                if a is not None and a <= PULSE_MAX_AGE_S]
+            if fresh_writers:
+                verdict = Verdict.HEALTHY
+                detail = (f"quiet — empty is not dead: no business event for "
+                          f"{int(age)}s but writers fresh "
+                          f"({', '.join(sorted(fresh_writers))})")
+            else:
+                verdict = Verdict.UNHEALTHY
+                detail = ("stale beyond two timer ticks AND no fresh writer "
+                          "unit — this is death, not quiet")
         return [Measurement(
             "pulse.events", {"last": occurred, "age_s": round(age, 1)},
             verdict, "file", ts, f"tail -1 {p}",
-            detail="stale beyond two timer ticks" if verdict ==
-            Verdict.UNHEALTHY else None, family="pulse")]
+            detail=detail, family="pulse")]
     except (OSError, ValueError, IndexError):
         return [Measurement(
             "pulse.events", None, Verdict.UNKNOWN, "file", ts, f"tail -1 {p}",
             detail="unreadable/corrupt last receipt — fail closed",
             family="pulse")]
+
+
+_PULSE_WRITER_UNITS = ("octopus-imap", "octopus-quote", "octopus-scheduler")
+
+
+def _pulse_writer_ages(now_monotonic: float | None = None) -> dict:
+    """سنِ آخرین اجرای نویسنده‌های events.jsonl — از سنجهٔ GAP-017."""
+    mono = time.monotonic() if now_monotonic is None else now_monotonic
+    ages: dict[str, float | None] = {}
+    for unit in _PULSE_WRITER_UNITS:
+        rc, body = _run(
+            ["systemctl", "show", unit, "--property=Type",
+             "--property=ExecMainExitTimestampMonotonic"])
+        if rc != 0:
+            ages[unit] = None
+            continue
+        props = dict(
+            (k, v) for k, _, v in
+            (ln.partition("=") for ln in body.splitlines() if "=" in ln))
+        ages[unit] = _oneshot_last_run_age_s(props, mono)
+    return ages
 
 
 def _parse_iso(s: str) -> float:
