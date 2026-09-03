@@ -51,5 +51,5 @@ arms:
   A8_truth:
     mission: registry + audit
     modules: [adapters/ledger.py, adapters/board_events.py, adapters/owner_decision.py, adapters/fake_executor.py, adapters/run_store.py(P1), kernel/events.py(P1), kernel/envelope.py(P1)]
-    blueprint_readiness: "70%→85% (P1 skeleton: PR #74/#75)"
+    blueprint_readiness: "85% (P1 merged #74/#75 @dd1d6cc; load-path debit/dedup/A3: PR follow-on)"
     rules: [A8_issues_no_permissions, proposal_ne_execution, one_verdict_one_budget_effect]

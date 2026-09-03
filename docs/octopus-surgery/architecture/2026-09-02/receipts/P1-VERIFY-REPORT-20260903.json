@@ -1,0 +1,92 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-VERIFY-REPORT-20260903",
+  "issued_utc": "2026-09-03T02:03:35Z",
+  "author": "cursor-cloud-agent bc-3fcaae55-cf71-4eb6-9a76-cacdcb9cbdd7",
+  "owner_ratified": false,
+  "body": "bc-3fcaae55-cf71-4eb6-9a76-cacdcb9cbdd7",
+  "branch": "feat/p1-verify-report-20260903",
+  "parent_head_full": "825837cb66ba3684934fd9bd52ce17e24448c699",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/report_class.py",
+    "ofn/kernel/verify_class.py",
+    "tests/test_report_class.py",
+    "tests/test_verify_class.py",
+    "tests/test_chaos_verify_report.py",
+    "09-LANES/P1-VERIFY-REPORT/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-VERIFY-REPORT-20260903.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (on origin/main via #83)",
+    "ofn/kernel/events.py (on origin/main via #82)",
+    "ofn/adapters/run_store.py (on origin/main via #82)",
+    "ofn/kernel/dedup.py (on origin/main via #88)",
+    "ofn/kernel/token_ceiling.py (on origin/main via #83)",
+    "ofn/kernel/unknown_seal.py (owned by #126)",
+    "ofn/kernel/timeout_verdict.py (owned by #104)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/mint_fence.py (owned by #127)",
+    "ofn/kernel/append_class.py (owned by #127)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/numeric_claim.py (owned by evidence-witness)",
+    "ofn/agents/owner_absence.py (owned by #131)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    ".github/CODEOWNERS (GOV-V6 on origin/main)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by #73/#120; appended separately)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure report_class + verify_class. An agent report is admitted as a typed claim and is never independently verified by existing. Independent verification requires a second, distinct, direct witness (direct_observation or artifact_ref). Self-verify, agent-report witness, timeout, and proposal-note are known refusals. Timeout is UNKNOWN, not concurrent writing. Unknown kinds fail closed — UNKNOWN is not FALSE. campaign_envelope_ready structurally distinct from send_authorized; both sealed. grants_send / halt_blocks_* / ready_is_authorized / claims_immutable / report_is_verified / proposal_is_execution structurally False. No halt/resend/send knob. HALT stops STARTS, not classification. Not wired into run_store.py. Does not claim filesystem immutability. Ready is not authorized.",
+  "verification": {
+    "command": "python3 -W ignore -m unittest tests.test_report_class tests.test_verify_class tests.test_chaos_verify_report tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_halt_kernel",
+    "ran_at_utc": "2026-09-03T02:03:35Z",
+    "head_full_at_run": "825837cb66ba3684934fd9bd52ce17e24448c699",
+    "exit_code": 0,
+    "result": "263 passed, 0 failed, 0 skipped",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError)",
+    "per_file": {
+      "tests/test_report_class.py": "27 passed, exit 0",
+      "tests/test_verify_class.py": "30 passed, exit 0",
+      "tests/test_chaos_verify_report.py": "9 passed, exit 0",
+      "tests/test_kernel_purity.py": "10 passed, exit 0",
+      "tests/test_envelope.py": "35 passed, exit 0",
+      "tests/test_run_store.py": "79 passed, exit 0",
+      "tests/test_token_ceiling.py": "14 passed, exit 0",
+      "tests/test_run_gate.py": "21 passed, exit 0",
+      "tests/test_chaos_owner_absent.py": "16 passed, exit 0",
+      "tests/test_tmpdir.py": "4 passed, exit 0",
+      "tests/test_dedup.py": "12 passed, exit 0",
+      "tests/test_halt_kernel.py": "6 passed, exit 0"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @825837cb66ba3684934fd9bd52ce17e24448c699 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on docs/octopus-os-incidents-20260902 @7c71360834d59b045a0e1c30ca07fc7b52704825 (xxxix)",
+    "CONTRIBUTING.md": "absent on origin/main @825837c — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/cursor/d28-edge-runbook-ea6b",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "external_effects": "ZERO",
+  "ready_equals_authorized": false,
+  "send_rearmed": false,
+  "admin_bypass": false,
+  "filesystem_immutability": "NOT claimed"
+}

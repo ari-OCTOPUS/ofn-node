@@ -3,6 +3,12 @@ name: observation-contract
 on:
   pull_request:
 
+# F-07/F-08 lesson (2026-09-03): cancel superseded runs so a stale red/green
+# never lingers as the PR's verdict.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

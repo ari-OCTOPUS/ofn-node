@@ -127,5 +127,18 @@
   "result": "156 passed, 952 subtests passed, 0 failed, 0 skipped",
   "note": "merged #74 @91e939c (receipt digest on load/replay + idem collision + replay seq). clear_halt symlink/directory already on b56ad1d — not re-implemented. No force-push.",
   "filesystem_immutability": "NOT claimed"
+ },
+ "halt_starts_not_inflight_401_20260902T0829Z": {
+  "parent_head_full": "33c94763005f5cf8c766701f408390c49bba0da7",
+  "worktree": "/tmp/ofn-p1-xi",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "ran_at_utc": "2026-09-02T08:29:08Z",
+  "exit_code": 0,
+  "result": "195 passed, 954 subtests passed, 0 failed, 0 skipped",
+  "fixes": [
+   "Scenario6: HALT stops STARTS; in-flight append+close still allowed (owner-absent recovery)",
+   "Scenario1: 401/404 classify UNKNOWN, not FALSE and not PARKED"
+  ],
+  "filesystem_immutability": "NOT claimed"
  }
 }
