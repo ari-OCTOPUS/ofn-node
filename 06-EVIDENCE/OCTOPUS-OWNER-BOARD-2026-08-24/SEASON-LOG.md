@@ -513,3 +513,9 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - Board deployed → a9810863. **octopus-brainwake.timer installed & armed** (hourly; next fire 22:00Z) — 14th autonomy timer on the board.
 - The link as of now: business events (payments/orders/quote-requests/leads) on 138 → hourly brain_wake tick → cognitive_wake.v1 (hold_external=true, may_authorize=false, sha-fingerprinted) → mesh send timer → 180 (llama thinks) → 182 verifies → 138 cards the owner. Every hop receipted, every send owner-gated.
 - HARMONY-MERGER P1✓ P2✓ P3✓ — the two-generation organism is now a single connected body. Remaining open (all parked or data-gated): M5 OwnerRelease implementation (#113 lane), ziman I1-I11 data, Wave-2 P1s, NATS octopus-core password decision.
+
+### Round 30 — MERGE + SEND activated per owner order (2026-09-04 ~02:00)
+- **Merge status**: owner's GitHub session approved/merged #168, #158, #170 themselves. Remaining 3 audited: #153 synced (45cd1c6, no red — awaiting fresh vote), #113 has real content-gate failure (carries capability_token.py — D-26 primitive; the lock test test_r0_quote_closure correctly blocks it; needs owner content-ruling not a sync), #71 stale with 3 red (recommend close, owner call).
+- **SEND loop closed (the discovery of the night)**: 180 already had `bin/octopus_reply_outbox.py` — a durable reply-delivery state machine targeting 138 — but it was never wired to any unit/timer. Installed octopus-reply-outbox.service + 15-min timer on 180 → first run: `Result=success`, **56 pending brain-replies drained to 0** → delivered to 138 (router active, consuming). The brain's replies now flow back automatically every 15 minutes.
+- ۱۴+۱ timers now armed on the boards. HARMONY loop closed both directions: 138→180 (wake) and 180→138 (reply).
+- #170 note: owner merged it themselves (21:30Z, squash 64f7e68f) — first self-written code on main, author = patch_proposer.
