@@ -1,0 +1,96 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "F1-CONTRACT-WIN-LF-20260903",
+  "issued_utc": "2026-09-03T13:00:04Z",
+  "author": "cursor-cloud-agent bc-e4305819-ba51-41c1-b447-f9ec2bea8d80",
+  "owner_ratified": false,
+  "body": "bc-e4305819-ba51-41c1-b447-f9ec2bea8d80",
+  "branch": "feat/f1-contract-20260903",
+  "parent_head_full": "6b0353280b6aca63bcc7e64a6dd63b830470d630",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "pr": 162,
+  "file_lock_zone": [
+    "contracts/.gitattributes",
+    "tests/test_runtime_truth_contract_frozen.py",
+    "09-LANES/F1-CONTRACT/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/F1-CONTRACT-WIN-LF-20260903.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-1d5d @6b0353280b6aca63bcc7e64a6dd63b830470d630 — same SHA as #162; not written)",
+    "contracts/runtime_truth_v1.py (frozen; lock unchanged)",
+    "contracts/FROZEN.lock (LF digest unchanged)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/revenue_states.py",
+    "ofn/agents/campaign_envelope.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Reuse existing PR #162. Windows-latest job 100656285087 failed test_frozen_lock_matches_contract because checkout bytes were CRLF. Independently reproduced on this host: LF sha256 0701aeff94ac92e993c9b9d52d4c9e75837a75c1f8b48a2528b4c9ec9d87ae02 MATCH lock; CRLF sha256 bad38e2496e138d07dccee0135de1a6cf0098f6f1477d99dfce89e1901717b4b MATCH CI want-side. That is a checkout artefact, not a contract edit. Added contracts/.gitattributes eol=lf. Freeze test now hashes LF-canonical bytes (second witness). E3: CRLF is the known CI hash and not the lock; content edit still breaks lock; lone CR normalizes; gitattributes pin. FROZEN.lock not rewritten. Contract module not rewritten. Ready ≠ authorized. Did not claim filesystem immutability. Did not re-arm send. Did not open a second F1 PR.",
+  "verification": {
+    "command": "python3 -m pytest tests/test_runtime_truth_contract_frozen.py tests/test_no_llm_import_in_reflex.py tests/test_kernel_purity.py tests/test_tmpdir.py tests/test_doctor_lane_contract_map.py -q --tb=short",
+    "ran_at_utc": "2026-09-03T12:59:57Z",
+    "head_full_at_run": "6b0353280b6aca63bcc7e64a6dd63b830470d630",
+    "exit_code": 0,
+    "result": "43 passed, 2274 subtests passed, 0 failed, 0 skipped",
+    "pytest_version": "9.1.1",
+    "per_file": {
+      "tests/test_runtime_truth_contract_frozen.py": "12 passed, exit 0 (recount 2026-09-03T13:00:04Z, same parent)"
+    },
+    "windows_ci_trigger": {
+      "job_id": "100656285087",
+      "sha": "6b0353280b6aca63bcc7e64a6dd63b830470d630",
+      "ran_at_utc": "2026-09-03T12:56:27Z",
+      "result": "1 failed, 4399 passed, 26 skipped, 3410 subtests passed",
+      "failed_test": "tests/test_runtime_truth_contract_frozen.py::test_frozen_lock_matches_contract",
+      "lock_digest": "0701aeff94ac92e993c9b9d52d4c9e75837a75c1f8b48a2528b4c9ec9d87ae02",
+      "windows_raw_digest": "bad38e2496e138d07dccee0135de1a6cf0098f6f1477d99dfce89e1901717b4b"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this body and origin/main @6f9298a85fd9dfc04670cb6b161732830ed421b6 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this checkout; incidents branch origin/docs/octopus-os-incidents-20260902 @1988114a5526b7585edb643e2fceabb763f7e79e",
+    "CONTRIBUTING.md": "absent on this body and origin/main @6f9298a85fd9dfc04670cb6b161732830ed421b6 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value": "6f9298a85fd9dfc04670cb6b161732830ed421b6",
+    "source": "git fetch origin main 2026-09-03T12:57:46Z subject #151",
+    "status": "verified_this_host"
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "failed_check": "test (windows-latest)",
+    "job_id": "100656285087",
+    "pr": 162,
+    "branch": "feat/f1-contract-20260903",
+    "head_sha": "6b0353280b6aca63bcc7e64a6dd63b830470d630",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "designated_branch": "cursor/taskenvelope-system-hardening-1d5d",
+    "designated_sha": "6b0353280b6aca63bcc7e64a6dd63b830470d630",
+    "verdict": "Engineering defect (CRLF checkout vs LF lock). Updated existing #162. Did not merge. Did not weaken gates. Did not re-arm send."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
