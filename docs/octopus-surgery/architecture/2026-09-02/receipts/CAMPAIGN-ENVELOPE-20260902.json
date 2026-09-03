@@ -1,0 +1,64 @@
+{
+ "schema": "octopus.receipt.v1",
+ "receipt_id": "CAMPAIGN-ENVELOPE-20260902",
+ "issued_utc": "2026-09-02T07:10:00Z",
+ "author": "ari322 local agent session (owner-absent mode)",
+ "owner_ratified": false,
+ "scope_measured": "origin/release/p0 @110f6c0: quote_engine.quote() dry-shape، اسکیمای painting_quotes (qt_number/lead_id/scope_json/priced/total_aud/status/created_at/card_sha256/fingerprint)، HF-1 cap env، رأی Q6 rate-card lock",
+ "scope_not_measured": [
+  "اجرای موتور کوت روی دیتابیس واقعی (مسیرهای home سخت‌کد — عمداً fixture-driven)",
+  "هش fingerprint واقعی (در fixture معنا ندارد)",
+  "board138"
+ ],
+ "action": "دو حلقهٔ آخر زنجیرهٔ درآمد دستور: policy_checked + campaign_envelope_ready — draft-only",
+ "delivered": {
+  "ofn/agents/campaign_envelope.py": "build_campaign_envelope(): برای هر لید draft موتور کوت (dry) + شش چک سیاست با دلیل (direction/dedupe/rate-card-lock/total-cap/style/no-send-wiring)؛ artifact JSON با sha256؛ send_status=FORBIDDEN_UNTIL_OWNER_GO همیشگی؛ quote_sent_forbidden=true؛ صفر import شبکه",
+  "tests/test_campaign_envelope.py": "۱۰ تست fixture-driven با کنترل منفی هر چک"
+ },
+ "verification": {
+  "command": "python -m pytest tests/test_campaign_envelope.py -q",
+  "output": "10 passed in 0.37s"
+ },
+ "boundary": "هیچ ارسالی، هیچ گیت‌بازکردنی، هیچ لمس home/DB واقعی؛ quote_sent ممنوعیتش ساختاری است (ماژول مسیر transport ندارد)",
+ "evidence_hardening_20260902": {
+  "tested_head_full": "dd0a59335b66927e3b707c9dc508e7365957b2ec",
+  "command": "python -m pytest tests/test_campaign_envelope.py -q",
+  "result": "11 passed",
+  "ran_at_utc": "2026-09-02T05:33:21+00:00",
+  "separation_of_ready_and_authorized": {
+   "policy_checked": "six-reason checklist — can be true",
+   "send_authorized": "always False, sealed field, independent of policy_checked (tested together: ready AND unauthorized)",
+   "execution_authorized": "always False — no execution may claim this artifact",
+   "transport_binding": "always None — no transport may bind to this artifact"
+  },
+  "structural_bans_extended": [
+   "__import__",
+   "importlib",
+   "subprocess",
+   "os.system",
+   "eval(",
+   "exec(",
+   "Popen",
+   "runpy",
+   "+ original network four"
+  ]
+ },
+ "ci_unblock_20260902T0626Z": {
+  "parent_head_full": "81f154f974e4c5a522c070540fd93de840e5222e",
+  "command": "python3 -X utf8 -m pytest tests/ -q --ignore=tests/test_live_control_panel_smoke.py --ignore=tests/test_root_hygiene.py --tb=line",
+  "ran_at_utc": "2026-09-02T06:26:31Z",
+  "finished_at_utc": "2026-09-02T06:26:55Z",
+  "exit_code": 0,
+  "result": "2416 passed, 11 skipped, 0 failed, 1515 subtests, 1 warning",
+  "what_changed": [
+   "consent_store.py docstring: removed banned EffectorGate token (portfolio-map vocabulary); meaning kept as named-effect-path-gate",
+   "tests/test_teeth.py: token tests hermetic (injected MAC key + isolated STATE_DIR); new fail-closed test when secret absent (home redirected to empty tmp; secrets.env never read or created)",
+   "campaign_envelope_ready named field added; always structurally distinct from send_authorized (tested both ready-and-unauthorized and not-ready-and-unauthorized)"
+  ],
+  "not_done": [
+   "send_authorized / quote_sent remain forbidden",
+   "no outbound wiring",
+   "no secret read/print/commit/rotate"
+  ]
+ }
+}
