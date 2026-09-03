@@ -6,6 +6,7 @@ export const API_PATHS = Object.freeze({
   legs: "/api/v2/owner/legs",
   queue: "/api/v2/owner/queue",
   audit: "/api/v2/owner/audit",
+  surface: "/api/v2/owner/surface",
 });
 
 export const VISIBLE_INTERVAL_MS = 15_000;
