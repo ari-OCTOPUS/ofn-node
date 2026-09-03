@@ -1,11 +1,6 @@
-# Independent review is required on every path that can cause data loss,
-# change an external effect, or relax a gate.
-#
-# The author of a change may not be its only reviewer. See issue #51.
-
-/ofn/adapters/            @Elahe-z @ari322 @aram-ui
-/ofn/kernel/              @Elahe-z @ari322 @aram-ui
-/migrations/              @Elahe-z @ari322 @aram-ui
-/octopus_survival/        @Elahe-z @ari322 @aram-ui
-/.github/workflows/       @Elahe-z @ari322
-/.github/CODEOWNERS       @Elahe-z @ari322
+# GOV-V6 — owner ruling 2026-09-03: Elahe-z and aram-ui are equally valid reviewers.
+# Either one alone satisfies code-owner review. Author may never approve their own PR
+# (enforced separately by .github/workflows/independent-review-gate.yml).
+# Supersedes the V4 single-owner line, per the relaxation clause of PR #102
+# ("relax only by owner ruling after verified_payment_count >= 1"); count is now 5.
+* @Elahe-z @aram-ui

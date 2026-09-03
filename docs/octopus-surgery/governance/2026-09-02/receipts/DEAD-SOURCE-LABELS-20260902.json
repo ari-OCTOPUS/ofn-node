@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "DEAD-SOURCE-LABELS-20260902",
+  "issued_utc": "2026-09-02T03:40:00Z",
+  "author": "ari322 local agent session (F:\\ scope)",
+  "owner_ratified": false,
+  "scope_measured": "origin/main @67359a6 (worktree F:\\wt-dsl, branch chore/dead-source-labels-20260902); docstrings of ofn/agents/{h1_buysw,h1_harvest,demand_harvest,nsw_ocp_harvest}.py read and edited; tests run locally",
+  "scope_not_measured": ["board138", "any other body", "GitHub ruleset changes", "whether owner wants h1_buysw exempted instead of labeled"],
+  "action": "D-31 step 1 — DEAD SOURCE docstring labels, no code change",
+  "labeled": {
+    "ofn/agents/h1_buysw.py": "upstream NSW eTendering OCDS feed ENDED Feb 2025 (board-verified from Sydney); SOURCE_ID=buy_nsw_etendering; judged in as 4th candidate per D-34 §B-4 — owner may exempt with written reason",
+    "ofn/agents/h1_harvest.py": "fetch loop whose only upstream is the same ended eTendering feed; repoint = supplier-email digest / info.buy.nsw contract register",
+    "ofn/agents/demand_harvest.py": "both upstreams dead or empty: eTendering ended Feb 2025; AusTender federal ~0 painting awards (wrong backbone)",
+    "ofn/agents/nsw_ocp_harvest.py": "upstream ALIVE (data.open-contracting.org NSW annual) — labeled dead AS A LEAD MODULE: Day-7 verdict repurposes buyer/contract-period data to renewal radar; parked unwired until repoint"
+  },
+  "verification": {
+    "command": "python -m pytest tests/test_h1_buysw.py tests/test_h1_harvest.py tests/test_demand_harvest.py tests/test_nsw_ocp_harvest.py -q",
+    "output": "47 passed, 1 skipped in 2.35s",
+    "note": "docstring-only change; no behavioral diff; seek_harvest.py untouched (not in dead census)"
+  },
+  "boundary": "labels only — actual removal/repoint is D-31 step 4 and needs prior steps + owner GO; deletion without this receipt would itself be an un-evidenced claim"
+}
