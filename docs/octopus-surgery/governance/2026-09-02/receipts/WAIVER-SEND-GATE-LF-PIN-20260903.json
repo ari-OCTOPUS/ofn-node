@@ -1,0 +1,36 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "WAIVER-SEND-GATE-LF-PIN-20260903",
+  "issued_utc": "2026-09-03T04:41:50Z",
+  "author": "cursor-cloud bc-5c1431a1-6935-4bac-b45c-1dcbf32b13f1",
+  "owner_ratified": false,
+  "scope_measured": "origin/feat/waiver-send-gate-test-20260902 @ea538d46a1d1e1fdbde4130ab992679ffec0a9ee; CI job 100523812876 ubuntu-latest; fixture tests/fixtures/waiver/SECRET-ROTATION-WAIVER-20260831.json",
+  "scope_not_measured": [
+    "board138 real flags/WAL state",
+    "the .sig file contents (stays in vault)",
+    "filesystem immutability of the vault copy",
+    "any send ledger"
+  ],
+  "action": "pin git-canonical LF SHA-256; record CRLF vault twin; normalize \\r\\n before hash; one-byte mutation rejected; send gates unchanged",
+  "verification": {
+    "command": "python3 -X utf8 -m pytest tests/ -q --ignore=tests/test_live_control_panel_smoke.py --ignore=tests/test_root_hygiene.py",
+    "started_utc": "2026-09-03T04:41:25Z",
+    "ended_utc": "2026-09-03T04:41:50Z",
+    "parent_head": "ea538d46a1d1e1fdbde4130ab992679ffec0a9ee",
+    "exit_code": 0,
+    "passed": 2423,
+    "failed": 0,
+    "skipped": 11,
+    "subtests_passed": 1515,
+    "focused_command": "python3 -m pytest tests/test_no_external_send_while_waiver_active.py -q --tb=short",
+    "focused_utc": "2026-09-03T04:41:20Z",
+    "focused_exit_code": 0,
+    "focused_passed": 7
+  },
+  "findings": [
+    "CI failed test_waiver_fixture_matches_pinned_hash: pin 40578fef4e192ea869ff0d22ab797f483461847b370877637ead64850d6f980f (CRLF vault, 1314 bytes) vs git blob a21b19a99a93f3b0799eed54ef97bf6de09a69928e2b5c3bf0bfd1cbfbe8fc15 (LF, 1286 bytes)",
+    "JSON fields unchanged: status DEFERRED_OWNER_RISK_ACCEPTED; not_authorized still includes external messaging and live-provider execution",
+    "fixture bytes not rewritten; pin moved to git-canonical LF; both hashes recorded; resolution null status recorded in test"
+  ],
+  "boundary": "no flag touched, no env changed, no secret read, no send re-arm, waiver JSON not edited"
+}
