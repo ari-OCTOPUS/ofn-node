@@ -1,0 +1,114 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-BODY-HOST-20260903",
+  "issued_utc": "2026-09-03T23:44:54Z",
+  "author": "cursor-cloud-agent bc-e7a76125-919f-4f66-9330-ba5bc05522a8",
+  "owner_ratified": false,
+  "body": "bc-e7a76125-919f-4f66-9330-ba5bc05522a8",
+  "branch": "feat/p1-body-host-20260903",
+  "parent_head_full": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/body_class.py",
+    "ofn/kernel/host_pin.py",
+    "tests/test_body_class.py",
+    "tests/test_host_pin.py",
+    "tests/test_chaos_body_host.py",
+    "09-LANES/P1-BODY-HOST/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-BODY-HOST-20260903.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-58c7 @c2878d30d98568c5148057d4b93f95df7d3232fb — designated; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/census_class.py",
+    "ofn/kernel/artifact_ref.py",
+    "ofn/kernel/numeric_claim.py",
+    "ofn/kernel/digest_class.py",
+    "ofn/kernel/fold_pin.py",
+    "ofn/kernel/nonce_class.py",
+    "ofn/kernel/once_pin.py",
+    "ofn/kernel/write_fence.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "tests/test_chaos_owner_absent.py",
+    "ofn/agents/campaign_envelope.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS"
+  ],
+  "action": "Complementary P1 on a new branch from local main: kernel-pure body_class + host_pin. classify_body / admit_body classify this-host presence (ON_THIS_HOST, NOT_ON_THIS_HOST, or UNKNOWN) without hashing a body. Missing is UNKNOWN, not FALSE and not body_missing. A one-vantage body_missing / missing / gone claim is missing_claim (admit) or fail-closed (classify). Sealed send/ready names refuse (sealed_effect). Timeout forces UNKNOWN and does not prove concurrent writing. pin_host / classify_pin bind a presence class to one node_id at vantage this_host_only (BOUND or UNKNOWN). system_wide vantage is promotion_refused. A pin does not invent a second node. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_classify / halt_blocks_pin / unknown_is_false / unknown_body_is_missing / one_host_proves_missing / claims_immutable / ready_is_authorized / proposal_is_execution / timeout_proves_concurrent / wires_into_run_store / copies_canonical / hashes_body / invents_second_node / promotes_to_system_wide / promotes_ready_to_send / burns_idempotency_key structurally False. later_disarm_supersedes structurally True. Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_body_class tests.test_host_pin tests.test_chaos_body_host tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_receipt_bind tests.test_typed_event tests.test_receipts tests.test_write_fence -q",
+    "ran_at_utc": "2026-09-03T23:44:54Z",
+    "head_full_at_run": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+    "exit_code": 0,
+    "result": "387 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_body_class.py": "34 passed, exit 0 (recount 2026-09-03T23:44:49Z, same parent)",
+      "tests/test_host_pin.py": "32 passed, exit 0 (recount 2026-09-03T23:44:49Z, same parent)",
+      "tests/test_chaos_body_host.py": "12 passed, exit 0 (recount 2026-09-03T23:44:49Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-03T23:44:49Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_body_class tests.test_host_pin tests.test_chaos_body_host tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-03T23:44:00Z",
+      "exit_code": 0,
+      "result": "88 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host main @a981086302c2b562bd02c55402ccc619afe4ef1e — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on designated /workspace checkout (digest-fold trigger) through session xxxiii blob; incidents branch origin/docs/octopus-os-incidents-20260902 this-host @74d548f668701acd72b170a75f34e96b4625c9d6 (lxxiii). Memory names later lxxix bc6ab11 — objects ABSENT this-host. Fetch denied. Next append is lxxx. Collision recorded open.",
+    "CONTRIBUTING.md": "absent on this-host main @a981086 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "this-host main @a981086",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_collision": {
+    "value_a": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+    "source_a": "this-run local origin/main and refs/heads/main (subject #172; fetch denied 2026-09-03T23:39Z)",
+    "value_b": "UNKNOWN — remote tip after #173 nonce-once not fetched",
+    "source_b": "deny_egress on git fetch; prior memory parent of #173 was this same a981086",
+    "resolution": null,
+    "status": "open",
+    "note": "This body merged none. P1 parent remains a981086."
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "failed_check": "require-independent-approval",
+    "pr_number": 152,
+    "branch": "feat/p1-digest-fold-20260903",
+    "head_sha": "c2878d30d98568c5148057d4b93f95df7d3232fb",
+    "triggered_at": "2026-09-03T23:37:00Z",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "designated_branch": "cursor/taskenvelope-system-hardening-58c7",
+    "designated_sha": "c2878d30d98568c5148057d4b93f95df7d3232fb",
+    "verdict": "REVIEW_REQUIRED on #152. Gate working as designed (issue #51, GOV-V6). /workspace designated branch not written. Independent lane P1-BODY-HOST. Ready ≠ authorized. No send re-arm. No admin bypass."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
