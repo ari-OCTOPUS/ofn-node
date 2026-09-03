@@ -1,0 +1,5 @@
+# Hashed vendor contract. Windows autocrlf must not rewrite bytes.
+# Guard: tests/test_doctor_lane_contract_map.py
+#   test_bundled_contract_is_byte_identical_to_source
+#   test_windows_crlf_checkout_is_a_known_hash_not_the_source
+*.yaml text eol=lf

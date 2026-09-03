@@ -1,6 +1,6 @@
 {
  "collected_at_utc": "2026-08-28T00:10:52Z",
- "hostname": "DietPi", "ip": "192.168.0.138/24", "kernel": "6.1.115-vendor-rk35xx",
+ "hostname": "DietPi", "ip": "[lan-ip-redacted]/24", "kernel": "6.1.115-vendor-rk35xx",
  "uptime": "10d17h", "ram_available_mb": 2109, "disk_root_used": "20%", "temp_c": 27.8,
  "paths": {"ofn": "OK", "octopus_mesh": "OK", "mesh_git": "NO_GIT (recorded; no git init)"},
  "git": {"branch": "octopus/reconcile-138-20260827", "head": "d3fb20c", "dirty_files": 0,
