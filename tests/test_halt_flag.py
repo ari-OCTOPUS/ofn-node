@@ -38,7 +38,16 @@ class HaltFlagAdapter(unittest.TestCase):
 
     def test_write_is_canonical_one_not_a_chatty_reason(self):
         halt_flag.write_halt(self.flag, reason="operator-note-must-not-land")
-        self.assertEqual(self.flag.read_bytes(), b"1\n")
+        raw = self.flag.read_bytes()
+        self.assertEqual(raw, b"1\n")
+        self.assertNotIn(b"\r", raw)
+
+    def test_legacy_crlf_one_is_still_halted(self):
+        # A Windows text-mode leftover is unparsable-as-chatty, not RUNNING.
+        # strip() folds "1\r\n" to "1" → HALTED. UNKNOWN/foreign is also HALTED.
+        self.flag.write_bytes(b"1\r\n")
+        self.assertTrue(halt_flag.halt_flag_active(self.flag))
+        self.assertNotEqual(self.flag.read_bytes(), b"1\n")
 
     def test_symlink_is_halted_and_clear_unlinks_the_link(self):
         target = self.root / "elsewhere"
@@ -74,6 +83,10 @@ class HaltFlagAdapter(unittest.TestCase):
     def test_parent_is_owner_private(self):
         nested = self.root / "priv" / "halt.flag"
         halt_flag.write_halt(nested)
+        self.assertTrue(halt_flag.halt_flag_active(nested))
+        self.assertEqual(nested.read_bytes(), b"1\n")
+        if os.name == "nt":
+            self.skipTest("POSIX directory/file mode is not a Windows fact")
         mode = stat.S_IMODE(os.stat(nested.parent).st_mode)
         self.assertEqual(mode, 0o700)
         file_mode = stat.S_IMODE(os.stat(nested).st_mode)
