@@ -480,7 +480,7 @@
       "status": "priority",
       "automation_level": "read_only_first",
       "approval_required": true,
-      "notes": "no auto submit"
+      "notes": "legacy tenders.nsw.gov.au API dead (redirect to buy.nsw). New API unknown. Do not auto-submit. In-tree bulk alt: nsw_ocp_harvest."
     },
     {
       "source_id": "austender",

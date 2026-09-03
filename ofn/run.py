@@ -340,6 +340,10 @@ def _cockpit_v2_reader(node: Node):
                 "ofn": __version__,
                 "ofn_commit": os.environ.get("OFN_COMMIT") or None,
             },
+            # Lane 3 (seven-card surface): the repo checkout itself carries
+            # the doctor/economic-learning/self-model receipts. Absent files
+            # degrade to UNKNOWN inside the model; they never fail startup.
+            repo_root=Path(__file__).resolve().parents[1],
         )
     except TypeError:
         return None

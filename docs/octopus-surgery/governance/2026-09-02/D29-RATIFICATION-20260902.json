@@ -1,0 +1,32 @@
+{
+  "schema": "octopus.owner.ratification.v1",
+  "ratified_at": "2026-09-02T09:05Z",
+  "channel": "owner live ZCode session (GLM-5.3) — owner answered interactively, 12/12 questions",
+  "brief_id": "D-29-EXTERNAL-DESIGN-BRIEF",
+  "answers_file": "C:/Users/Armin/Downloads/D-29-ANSWERS.json",
+  "rulings": {
+    "Q-01": {"option": "D", "note": "ratify 3/1/1 as-coded + payment-rail guard: pilot cannot pass while PAYMENT_METHODS unset"},
+    "Q-02": {"option": "B", "note": "owner factual statement: Ziman GST is UNREGISTERED — margin math = revenue minus cost + registration-threshold tripwire"},
+    "Q-03": {"option": "C", "note": "time-based gate opening until GATE_OPEN_UNTIL_UTC=2026-09-16 unless vetoed. RISK:HIGH was flagged in the brief and in the question; owner chose it regardless — recorded as owner-accepted-risk"},
+    "Q-04": {"option": "D", "note": "all-layers studio platform policy NOW. RISK:CRITICAL was flagged (A+B+C: instagram/tiktok/facebook/pinterest/reddit); owner chose it regardless — recorded as owner-accepted-risk"},
+    "Q-05": {"option": "A", "note": "next touch = follow-up email to the P0 lead via email_ses. PRECONDITION: outbound WAL is DISARMED — executing this requires a deliberate re-arm with a signed receipt (Q-05 lesson); first contact already happened (6 authorized sends, 0 replies)"},
+    "Q-06": {"option": "B", "note": "scripted manifest (hash/duration/codec per file) + one-shot owner confirmation"},
+    "Q-07": {"option": "C", "note": "record_release with scope=[layer A] from now; owner chose full-scope over the deferred path"},
+    "Q-08": {"option": "D", "note": "one-command rotate_all.ps1 with dry-run; owner executes in one session; receipts auto-generated. Repo stays PUBLIC (private blocked: collaborator seats) — rotation urgency elevated"},
+    "Q-09": {"option": "RECOMMENDED-ORDER", "note": "original premise stale (#68 already merged). Ratified queue: #81 -> #70 -> #73 -> #85 -> #76 -> #71 -> #72, each merge only on human review (Elahe-z) + mergeable_state=clean"},
+    "Q-10": {"option": "D", "note": "continue with display names on documents. RISK:HIGH was flagged; owner chose it regardless — recorded as owner-accepted-risk; legal names remain null"},
+    "Q-11": {"option": "A", "note": "split base = revenue after costs minus reserve; percentage on the remainder; record lands in the board-138 ledger"},
+    "Q-12": {"option": "A", "note": "independent share = independent events / total reward events, computed nightly, printed in every report header, with a test that goes RED when the ratio breaks again"}
+  },
+  "companion_rulings_same_session": {
+    "repo_visibility": "PUBLIC + sanitize (private attempt failed HTTP 422: collaborator seats required on this plan; owner declined paid seats)",
+    "enforce_admins": "stays FALSE (owner explicit)",
+    "waiver_q08_scope": "RE-SCOPE (PR #85 addendum)",
+    "cockpit_web_page": "approved onto PR #81 (landed f255856)",
+    "review_priority": "#81 FIRST (Elahe-z requested + noted)",
+    "sixth_send_question": "CLOSED — pause intended only future sends; sixth was in flight; timing-inconsistency not violation",
+    "ops_packs_ordered": ["restore-drill", "board138 self-model deployment (after #81 merges)"],
+    "ops_packs_declined": ["buy.nsw registration pack"]
+  },
+  "honesty_note": "Three rulings (Q-03, Q-04, Q-10) go against the risk recommendation recorded in the brief; each is marked owner-accepted-risk rather than silently downgraded. No ruling here arms anything by itself; money/consent/secrets/policy/kill-switch execution still follows the standing iron rules."
+}
