@@ -1,6 +1,6 @@
 # LANE-REPORT — P1-DIGEST-FOLD (session lxii, 2026-09-03)
 
-Declared file-lock zone: `/tmp/ofn-p1-digest-fold` on `feat/p1-digest-fold-20260903`.
+Declared file-lock zone: `/tmp/ofn-p1-digest-fold` on `feat/p1-digest-fold-20260903` engineering HEAD `1b9863f9351f5f346b88ae0dfd30176f6179e1b0`.
 `/workspace` stayed on `cursor/taskenvelope-system-hardening-a458` @`f6a18ca425080b709a5c9b2f226c0de9623b79ff` (designated; also an ancestor of `origin/main` after #136) and was not written.
 
 Lane ID: P1-DIGEST-FOLD. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complementary kernel digest-shape / fold-pair admission. Did not edit LANE-MATRIX.csv.
