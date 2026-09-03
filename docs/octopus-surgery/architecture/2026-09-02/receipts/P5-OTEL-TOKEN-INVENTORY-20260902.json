@@ -1,0 +1,98 @@
+{
+  "schema": "ofn.receipt.v1",
+  "receipt_id": "P5-OTEL-TOKEN-INVENTORY-20260902",
+  "issued_utc": "2026-09-02T05:24:48Z",
+  "author": "cursor cloud agent bc-2e93fe71-8a6e-430c-86de-5b80fa9cc980 (owner-absent)",
+  "owner_ratified": false,
+  "scope_measured": "origin/main @67359a6e80a768261c62161bbf72e53a11f0a343 (worktree /workspace, branch feat/arch-otel-token-inventory-20260902)",
+  "scope_not_measured": [
+    "full-suite on this branch (only new tests + kernel purity executed)",
+    "live OpenTelemetry export (contract only — no SDK)",
+    "board138 / vault worktrees",
+    "MASTER-BLUEPRINT.md and CONTRIBUTING.md — absent on this body (UNKNOWN, not FALSE)"
+  ],
+  "action": "P5 span map + revenue-state pin + read-only worktree inventory. New files only.",
+  "verification": {
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py -q",
+    "exit_code": 0,
+    "result": "30 passed, 879 subtests passed",
+    "ran_at_utc": "2026-09-02T05:24:38Z",
+    "parent_head_full": "67359a6e80a768261c62161bbf72e53a11f0a343",
+    "tree_state": "dirty — this commit's new files only"
+  },
+  "worktree_census": {
+    "command": "python3 tools/worktree_inventory.py --json",
+    "ran_at_utc": "2026-09-02T05:24:48Z",
+    "exit_code": 0,
+    "counts": {"VERIFIED": 1, "SUSPECTED": 2, "UNKNOWN": 0},
+    "note": "SUSPECTED rows are this session's dirty lock-zone worktrees (/workspace, /tmp/ofn-p1). /tmp/ofn-incidents was VERIFIED (clean). Nothing pruned.",
+    "pruned": false,
+    "wrote": false
+  },
+  "deferred_honestly": [
+    "adapter that actually emits spans",
+    "wiring envelope.may_consume_tokens to NodeQuota.check on the P1 body after #74 merges",
+    "live vault worktree census (body_not_on_this_host)"
+  ],
+  "boundary": "no gate opened, no outbound, no secrets, no prune, no send_authorized",
+  "filesystem_immutability": "NOT claimed",
+  "gitdir_lock_follow_20260902T0647Z": {
+    "parent_head_full": "1dbfdbdde22efcfe62bf00258467d3e7a124dddc",
+    "worktree": "/tmp/ofn-p5-vii",
+    "file_lock_zone": [
+      "tools/worktree_inventory.py",
+      "tests/test_worktree_inventory.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json"
+    ],
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py -q --tb=line",
+    "ran_at_utc": "2026-09-02T06:47:54Z",
+    "exit_code": 0,
+    "result": "34 passed, 879 subtests passed, 0 failed, 0 skipped",
+    "fixes": [
+      "linked worktree .git file: follow gitdir: pointer for index.lock",
+      "unreadable/malformed pointer → lock_unknown → census UNKNOWN, not 'no lock'"
+    ],
+    "pruned": false,
+    "wrote": false
+  },
+  "relative_gitdir_symlink_unknown_20260902T0723Z": {
+    "parent_head_full": "45821ed4f77f4a9254bc52ffb605e9e359cfc28f",
+    "worktree": "/tmp/ofn-p5-ix",
+    "file_lock_zone": [
+      "tools/worktree_inventory.py",
+      "tests/test_worktree_inventory.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json"
+    ],
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py -q --tb=line",
+    "ran_at_utc": "2026-09-02T07:23:33Z",
+    "exit_code": 0,
+    "result": "36 passed, 879 subtests passed, 0 failed, 0 skipped",
+    "fixes": [
+      "relative gitdir: pointers resolved against the .git file, not CWD",
+      "gitdir that is itself a symlink → lock_unknown → census UNKNOWN, not 'no lock'"
+    ],
+    "pruned": false,
+    "wrote": false
+  },
+  "merge_main_posix_gitdir_20260902T0829Z": {
+    "parent_head_full": "8ff57579029079ee48f1327af41666581fec06d6",
+    "worktree": "/tmp/ofn-p5-xi",
+    "file_lock_zone": [
+      "tools/worktree_inventory.py",
+      "tests/test_worktree_inventory.py",
+      "docs/octopus-os/OTEL-EVENT-MAPPING.md",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P5-OTEL-TOKEN-INVENTORY-20260902.json"
+    ],
+    "command": "python3 -m pytest tests/test_otel_map.py tests/test_revenue_states.py tests/test_worktree_inventory.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_chaos_owner_absent.py -q --tb=line",
+    "ran_at_utc": "2026-09-02T08:29:08Z",
+    "exit_code": 0,
+    "result": "149 passed, 1008 subtests passed, 0 failed, 0 skipped",
+    "fixes": [
+      "merged origin/main @33c9476 so this DRAFT no longer deletes P1/HALT files (pre-merge base 67359a6 predates #74)",
+      "POSIX absolute gitdir: /repo/... is returned as written; Windows must not drive-letter it (CI full-suite windows-latest FAILURE on GitdirPointer.test_reads_gitdir_line)"
+    ],
+    "pruned": false,
+    "wrote": false,
+    "filesystem_immutability": "NOT claimed"
+  }
+}
