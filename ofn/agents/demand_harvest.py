@@ -1,4 +1,16 @@
-"""Demand-side tender harvester — buyers of painting services (issue #55).
+"""DEAD SOURCE — labeled 2026-09-02 (D-31 step 1).
+
+Both upstreams measured dead or empty on Day 7: the NSW eTendering OCDS
+feed ENDED Feb 2025, and AusTender OCDS federal returned ~0 painting
+awards (wrong backbone). Verified live from Sydney — see
+docs/day7/DAY7-SOURCE-DISCOVERY-AND-OWNER-LOG.md and
+docs/research/2026-09-02-demand-channels-deepdive.md. Do NOT wire new
+callers to these sources. Disposition: repoint to live demand channels;
+dead fetchers are removed at D-31 step 4.
+
+---
+
+Demand-side tender harvester — buyers of painting services (issue #55).
 
 The first Seek harvest filled the lead table with job ADS: employers
 looking to HIRE a painter (supply side), not customers looking to BUY
@@ -237,6 +249,15 @@ PAINTING_UNSPSC = frozenset({
 })
 
 
+# Legacy NSW eTendering search. Host redirects to buy.nsw.gov.au; this
+# event URL is dead. Do not invent a buy.nsw API. In-tree alternative:
+# nsw_ocp_harvest.py.
+NSW_ETENDERING_SEARCH_URL = (
+    "https://tenders.nsw.gov.au/?event=public.api.tender.search"
+)
+NSW_ETENDERING_FEED_STATUS = "dead_redirect_buy_nsw"
+
+
 # ── cycle ─────────────────────────────────────────────────────────────────
 
 def cycle(
@@ -245,7 +266,7 @@ def cycle(
     create_lead: Callable[[Mapping], dict],
     notify: Callable[[str, str, Mapping], bool] | None = None,
     *,
-    url: str = "https://tenders.nsw.gov.au/?event=public.api.tender.search",
+    url: str = NSW_ETENDERING_SEARCH_URL,
     etag: str = "",
 ) -> dict:
     """One harvest cycle. Returns accounting; parks on feed failure."""

@@ -1,0 +1,77 @@
+# DecisionRecord — D-27 آزادسازی مجوز، نه سقف
+
+**تاریخ: ۲۰۲۶-۰۹-۰۲ · حکم مالک + ایجنت ارشد · اجرا با سقف و ترمز**
+
+## منبع
+
+فایل `D-27-UNLOCK-DIRECTIVE.md`. این حکم فقط فیلدهای مجوز D-26 را عوض
+می‌کند. شکاف بدن کانونی، سه معنای «واقعی»، و
+`partner_voices_independently_observed = false` سر جایشان می‌مانند.
+
+```yaml
+speaker: owner
+co_owner: senior-agent
+implementation_authorized: true
+merge_authorized: true
+deploy_authorized: true
+wire_authorized: true
+external_effect_authorized: true
+board_access_authorized: true
+money_authorized: true
+auto_advance_waves: true
+parallel_execution: true
+propose_only_mode: false
+owner_attests_all_signed: true
+partner_voices_independently_observed: false
+```
+
+## سقف
+
+```text
+daily_send_cap: 25
+daily_spend_cap_aud: 50
+per_board_budget_default: 0
+kill_switch: OFN_EXTRA_CLOSED_GATES
+rollback_window_hours: 24
+```
+
+آزاد = مجاز + سقف‌دار + قابل‌بازگشت. خطا یک مسیر را یک پله عقب می‌برد،
+نه هر پنج مسیر را.
+
+## چهار چیزی که با امضا true نمی‌شود
+
+1. مشاهدهٔ مستقل صدای ملیحه / عباس / سبا
+2. رکورد رضایت انتشار سبا (flag کافی نیست)
+3. rotate واقعی رازها — `OFN_KEEP_GATES_OPEN=1` بدون rotate فقط هشدار را خفه می‌کند
+4. قوانین Shopify / Telegram / درگاه پرداخت
+
+## کلیدهای واقعی این مخزن
+
+`_flag()` فقط رشتهٔ `"1"` را روشن می‌گیرد. این حکم پیش‌فرض
+`OFN_WIRE_OUTBOUND` و `OFN_KEEP_GATES_OPEN` را در `ofn/config.py`
+عوض نمی‌کند. سهمیهٔ مالک از قبل `7000` است؛ نثر دستورالعمل که پیش‌فرض را
+صفر گفته بود با کد نمی‌خواند.
+
+`GATE_OPEN_UNTIL_UTC = 2026-08-17` منقضی است. `secret_rotation` و
+`partner_precondition` تا rotate واقعی بسته می‌مانند.
+
+## لبه
+
+`board_events` همان قرارداد لبه است. برد فقط proposal می‌دهد. نوع
+`MESSAGE_SENT` / `REVENUE_RECORDED` / `BOOKING_CONFIRMED` روی این
+قرارداد وجود ندارد. خانوادهٔ envelope دوم روی ofn-node ساخته نمی‌شود.
+
+## معیار هفته
+
+یک رسید پرداخت واقعی روی `PAINT-L5-001`. این پرونده آن رسید را جعل نمی‌کند.
+
+## merge به main
+
+`merge_authorized=true` مجوز حکم است، نه self-merge در GitHub.
+ruleset `protect-main` بعد از incident #51 یک approve از reviewer با
+write access و تاریخ خطی می‌خواهد. مسیر merge بدون الهه در این
+ruleset نیست. ترتیب توصیه‌شده: #68 سپس #67.
+
+`LANES.csv` روی این میزبان نیست. overlay حکم: W1→L9، W2→L4،
+W3→L12، W4→L6+L5، W5→L0 (سریال). L13 همان PR #68 است — گیت
+حاکمیتی از قبل در برنامه بود.

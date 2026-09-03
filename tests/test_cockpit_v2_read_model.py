@@ -15,6 +15,7 @@ from pathlib import Path
 from tests.tmpdir import temp_dir
 
 from ofn.adapters.cockpit_v2_read_model import (
+    UNKNOWN,
     BadQuery,
     CockpitV2ReadModel,
     semantic_etag,
@@ -262,6 +263,155 @@ class TestSemanticEtag(unittest.TestCase):
         (root / "audit" / "audit.jsonl").write_text(json.dumps({
             "seq": 1, "event": "sent", "ts": "2026-08-27T10:00:00Z",
         }) + "\n")
+
+
+class TestSurfaceResource(unittest.TestCase):
+    """The seven-card surface: fail-closed numbers, loud disagreement."""
+
+    SHA_A = "a" * 40
+    SHA_B = "b" * 40
+
+    def make_model(self, root: Path, *, repo_root=None, commit=None,
+                   owner_queue=None) -> CockpitV2ReadModel:
+        callbacks = {}
+        if owner_queue is not None:
+            callbacks["owner_queue_metadata"] = lambda: owner_queue
+        return CockpitV2ReadModel(
+            clock=lambda: NOW,
+            mesh_root=root,
+            ofn_callbacks=callbacks,
+            version_metadata={"ofn": "test", "ofn_commit": commit},
+            repo_root=repo_root,
+        )
+
+    def seed_repo(self, root: Path, *, code_sha: str, self_model: object,
+                  receipt_line: str = "") -> None:
+        artifact = root / "state" / "self-model"
+        artifact.mkdir(parents=True, exist_ok=True)
+        (artifact / "SYSTEM-SELF-MODEL.json").write_text(
+            json.dumps(self_model), encoding="utf-8")
+        doctor = root / "09-LANES" / "LB" / "runs" / "2026-09-02-final"
+        doctor.mkdir(parents=True, exist_ok=True)
+        (doctor / "receipt.jsonl").write_text(receipt_line, encoding="utf-8")
+        econ = root / "09-LANES" / "ECONOMIC-LEARNING" / "runs" / "2026-09-02"
+        econ.mkdir(parents=True, exist_ok=True)
+        (econ / "run-summary.json").write_text(json.dumps({
+            "generated_at": "2026-09-02T10:42:12Z",
+            "code_sha": code_sha,
+            "campaign_id": "PAINT-L5-001",
+            "verified_payments": 0,
+            "unverified_payment_claims": 1,
+            "chains_total": 5,
+            "chains_complete": 0,
+        }), encoding="utf-8")
+
+    @staticmethod
+    def ok_self_model(sha: str) -> dict:
+        return {
+            "schema": "octopus.self-model.v2",
+            "status": "ok",
+            "data": {"code_identity": {"commit_sha": sha}},
+        }
+
+    def test_surface_shares_the_common_envelope_and_takes_no_query(self):
+        model = self.make_model(make_root(self))
+        envelope = model.read("surface", {})
+        envelope_ok(envelope)
+        with self.assertRaises(BadQuery):
+            model.read("surface", {"limit": "5"})
+
+    def test_present_agreeing_sources_are_consistent(self):
+        repo = Path(temp_dir(self))
+        self.seed_repo(
+            repo, code_sha=self.SHA_A, self_model=self.ok_self_model(self.SHA_A),
+            receipt_line=json.dumps({
+                "kind": "round_start", "ts": "2026-09-02T09:17:00Z",
+                "mode": "read-only-dry-run-only"}) + "\n")
+        root = make_root(self)
+        (root / "config" / "telegram_policy.json").write_text(
+            json.dumps({"mode": "owner_reads"}), encoding="utf-8")
+        model = self.make_model(
+            root, repo_root=repo, commit=self.SHA_A,
+            owner_queue=[{
+                "native_id": "t1:k1", "tenant": "t1", "idempotency_key": "k1",
+                "state": "pending", "risk": "low",
+                "created_at": "2026-09-01T00:00:00Z"}])
+        envelope = model.read("surface", {})
+        self.assertEqual(envelope["status"], "ok")
+        self.assertEqual(envelope["warnings"], [])
+        coherence = envelope["data"]["coherence"]
+        self.assertEqual(coherence["verdict"], "consistent")
+        self.assertEqual(coherence["disagreements"], [])
+        self.assertEqual(
+            [number["id"] for number in coherence["numbers"]],
+            ["main_sha", "self_model_sha", "doctor_run_id",
+             "verified_payments", "owner_queue_count"],
+        )
+        self.assertTrue(all(
+            number["truth"] != UNKNOWN for number in coherence["numbers"]))
+        cards = envelope["data"]["cards"]
+        self.assertEqual(sorted(cards), sorted([
+            "command_center", "self_model", "doctor", "economic_learning",
+            "owner_queue", "telegram_bridge", "receipts_sync"]))
+        self.assertEqual(cards["owner_queue"]["count"], 1)
+        self.assertEqual(cards["doctor"]["run_id"], "2026-09-02-final")
+        # verified_payments is 0 — a known zero, not an unknown.
+        self.assertEqual(cards["economic_learning"]["verified_payments"], 0)
+
+    def test_absent_sources_stay_unknown_and_never_green(self):
+        model = self.make_model(make_root(self))
+        envelope = model.read("surface", {})
+        self.assertNotEqual(envelope["status"], "ok")
+        coherence = envelope["data"]["coherence"]
+        self.assertNotEqual(coherence["verdict"], "consistent")
+        self.assertNotEqual(coherence["verdict"], "inconsistent")
+        for number in coherence["numbers"]:
+            self.assertIsNone(number["value"])
+            self.assertEqual(number["truth"], UNKNOWN)
+        statuses = envelope["data"]["card_status"]
+        self.assertEqual(statuses["self_model"], "unavailable")
+        self.assertEqual(statuses["doctor"], "unavailable")
+        self.assertEqual(statuses["economic_learning"], "unavailable")
+
+    def test_disagreeing_identities_are_loud_inconsistent(self):
+        repo = Path(temp_dir(self))
+        self.seed_repo(
+            repo, code_sha=self.SHA_B, self_model=self.ok_self_model(self.SHA_A))
+        model = self.make_model(
+            make_root(self), repo_root=repo, commit=self.SHA_A)
+        envelope = model.read("surface", {})
+        self.assertEqual(envelope["status"], "degraded")
+        coherence = envelope["data"]["coherence"]
+        self.assertEqual(coherence["verdict"], "inconsistent")
+        self.assertIn("coherence_inconsistent", envelope["warnings"])
+        pairs = {
+            (item["left"], item["right"])
+            for item in coherence["disagreements"]
+        }
+        self.assertIn(("main_sha", "economic_code_sha"), pairs)
+        self.assertIn(("self_model_sha", "economic_code_sha"), pairs)
+
+    def test_malformed_repo_files_fail_closed_not_green(self):
+        repo = Path(temp_dir(self))
+        self.seed_repo(
+            repo, code_sha=self.SHA_A,
+            self_model="{not json",
+            receipt_line=": not json\n")
+        econ_summary = (
+            repo / "09-LANES" / "ECONOMIC-LEARNING" / "runs"
+            / "2026-09-02" / "run-summary.json")
+        econ_summary.write_text("{not json", encoding="utf-8")
+        model = self.make_model(
+            make_root(self), repo_root=repo, commit=self.SHA_A)
+        envelope = model.read("surface", {})
+        self.assertNotEqual(envelope["status"], "ok")
+        coherence = envelope["data"]["coherence"]
+        self.assertEqual(coherence["verdict"], "incomplete")
+        cards = envelope["data"]["cards"]
+        self.assertIsNone(cards["self_model"]["commit_sha"])
+        self.assertIsNone(cards["doctor"]["run_id"])
+        self.assertIsNone(cards["economic_learning"]["code_sha"])
+        self.assertIsNone(cards["economic_learning"]["verified_payments"])
 
 
 if __name__ == "__main__":

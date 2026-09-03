@@ -28,3 +28,28 @@
 **اجرای خودکار (۲۰۲۶-۰۸-۱۱):** از نیمه‌شب UTC تاریخ `2026-08-17`
 `config.load()` این دو گیت را دوباره می‌بندد مگر `OFN_KEEP_GATES_OPEN=1`
 پس از چرخش رازها ست شده باشد. دستور چرخش: `docs/runbooks/SECRET-ROTATION.md`.
+
+---
+
+## D-28 · تمدید پنجره، ۲۰۲۶-۰۹-۰۲
+
+حکم مالک + ایجنت ارشد: همان دریچهٔ رسمی دوباره باز است، زمان‌دار.
+
+```text
+GATE_OPEN_UNTIL_UTC = 2026-09-16
+miner_isolation stays shut
+OFN_KEEP_GATES_OPEN authorized on the Orange Pi, not committed as a default
+OFN_WIRE_OUTBOUND / OFN_COMMERCE_ROUTES / OFN_SHOPIFY_WIRE authorized as env
+OFN_ONLYFANS_HTTP_ARM stays unset until a saba record_release row exists
+secret_rotation: risk_accepted_unrotated
+```
+
+چرخش `OFN_SESSION_SECRET` و `OFN_BOT_TOKEN_OWNER` روی این vantage انجام
+نشد — راز خوانده نمی‌شود. مالک روی برد با
+`docs/runbooks/SECRET-ROTATION.md` می‌چرخاند. تا آن لحظه رسید باید
+`risk_accepted_unrotated` بگوید، نه `rotated`.
+
+`OFN_CONTROL_QUOTA_TOKENS` از قبل پیش‌فرض `7000` است.
+
+ساختارهایی که حذف نمی‌شوند: تأیید دو مرحله‌ای، idempotency، dry_run
+پیش‌فرض، لجر فقط‌الحاقی، kill-switch `OFN_EXTRA_CLOSED_GATES`.

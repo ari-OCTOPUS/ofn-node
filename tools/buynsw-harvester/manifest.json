@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "buy.nsw Harvester (OFN H1)",
+  "version": "0.3.0",
+  "description": "Harvests NSW government tender/CAN listings from buy.nsw pages the user is already viewing, in the same real browser session (past the WAF). Local or sidecar POST; no auto-submit.",
+  "permissions": [
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://buy.nsw.gov.au/*",
+    "https://suppliers.buy.nsw.gov.au/*",
+    "https://www.buy.nsw.gov.au/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "buy.nsw Harvester",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://buy.nsw.gov.au/*",
+        "https://suppliers.buy.nsw.gov.au/*",
+        "https://www.buy.nsw.gov.au/*"
+      ],
+      "js": [
+        "mapping.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

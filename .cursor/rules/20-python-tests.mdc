@@ -1,0 +1,10 @@
+---
+globs: **/*.py, tests/**, **/conftest.py
+alwaysApply: false
+---
+- Negative tests are a gate, not an option. A new module ships only when its failure paths are asserted green.
+- Fail-closed default for every new boundary: deny unless explicitly allowed, and no retry after an invariant violation.
+- Network access belongs in exactly one file per subsystem. Add a structural test that greps for network imports outside that file.
+- Replay determinism: two replays of the same recorded input must be byte-identical. If not, find and remove the hidden entropy source.
+- Prefer stdlib. New third-party dependencies require a written justification file, and `import` success alone never justifies adoption.
+- Never write a test that asserts on model-generated prose. Assert on artifacts: files, exit codes, receipts, hashes.

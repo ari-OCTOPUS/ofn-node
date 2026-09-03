@@ -1,0 +1,21 @@
+{
+  "schema": "octopus.source_status.v1",
+  "recorded_at": "2026-09-02T06:15:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "claim_type": "record",
+  "source_id": "nsw_etendering_buy_nsw",
+  "legacy_host": "tenders.nsw.gov.au",
+  "successor_host": "buy.nsw.gov.au",
+  "legacy_api": "dead_redirect",
+  "etendering_product_12_on_api_nsw": "removed",
+  "new_api_on_buy_nsw": "unknown_do_not_wire",
+  "sydney_live_probe": "first_step_not_done_this_vantage",
+  "working_alternative_on_this_tree": "ofn/agents/nsw_ocp_harvest.py",
+  "harvesters_still_pointing_at_dead_feed": [
+    "ofn/agents/h1_harvest.py",
+    "ofn/agents/demand_harvest.py"
+  ],
+  "feed_status_constant": "dead_redirect_buy_nsw",
+  "note": "Parser/filter/score stay fixture-driven. Do not invent a buy.nsw API."
+}

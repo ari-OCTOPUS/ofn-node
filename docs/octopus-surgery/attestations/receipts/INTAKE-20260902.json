@@ -1,0 +1,52 @@
+{
+  "schema": "octopus.owner_evidence_intake.v1",
+  "intake_id": "INTAKE-20260902",
+  "recorded_at": "2026-09-02T00:08:00Z",
+  "identity_confirmed_at": "2026-09-02T00:27:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "claim_type": "record",
+  "windows_staging_root_ref": "$WINDOWS_STAGING_ROOT",
+  "raw_in_git": false,
+  "audio_converted": false,
+  "partner_voices_independently_observed": false,
+  "observation_reason": "verifier_did_not_access_the_three_records",
+  "available_hashed": [
+    "maliheh/voice-01.ogg",
+    "sume/voice-01.ogg",
+    "saba/voice-01.ogg",
+    "saba/consent-original.jpg"
+  ],
+  "sume": {
+    "partner_id": "abbas",
+    "legal_name_alias": "Sume",
+    "official_documents_use": "Sume (Abbas)",
+    "alias_jurisdiction": "AU-NSW",
+    "mapped_to_abbas": true,
+    "owner_confirmed_identity": true,
+    "identity_confirmation_type": "owner_attested",
+    "identity_independently_verified": false
+  },
+  "abbas_voice": "hashed_pending_verification",
+  "path_assignment": "inferred_getchilditem_recurse_alpha",
+  "path_assignment_risk": "reordering_after_alias_merge",
+  "telegram_screenshots": {
+    "requested": true,
+    "in_pasted_hash_table": false,
+    "identities_recorded": false
+  },
+  "saba_consent_scan": {
+    "owner_reported_sha256": "c5046a1802ba6171b33281dd1d67186a6e565d1509b7474094cb5c064018a628",
+    "inspected_this_vantage": false,
+    "four_corners_verified": false,
+    "record_release_called": false
+  },
+  "transfer": {
+    "authorized": false,
+    "blockers": [
+      "ofn_node_host_unknown",
+      "ofn_node_login_unknown",
+      "path_assignment_inferred_until_per_file_verify"
+    ]
+  }
+}
