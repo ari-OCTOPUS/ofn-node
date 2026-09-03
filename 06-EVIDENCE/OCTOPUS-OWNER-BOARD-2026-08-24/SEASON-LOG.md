@@ -497,3 +497,8 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **Live execution on GAP-065 (self-observation race, found in Round 25)**: 3 broken attempts (bad template → 5 test failures each time; the EXISTING test suite caught every one — designed to work) → budget guard blocked attempt #4 until template fixed idempotent → 4th run: clean patch, 27/27 doctor tests → branch `auto/gap-065-1788450216` → **PR #170**.
 - Meta-lesson recorded: the loop's first real run FAILED 3 times and the safety rails (existing tests + budget guard + PR-required-baseline) caught every failure before anything reached main. That is the system working, not failing.
 - Honest note: this first self-written PR was a *template-driven* fix (A4 classification debt), not novel logic — the loop's ladder: templates now, novel patches only after a long PROVE record.
+
+### Round 27 — GATES-31 census + 2026-consistency check (2026-09-04, owner: «مرحله مرحله بازشون کنیم ازم بپرس ثبت کن»)
+- GATES-31-UNLOCK-PLAN-20260904.md written (canonical): 31 human gates enumerated in 4 layers — 2 constitutional (merge vote + reviewer allowlist, never open) · 8 operational (WAL/bridge/caps/kill-switch/alert-telegram/OwnerRelease/harvest) · 7 data/identity (ziman shipping/social/publish/photos/GST/ads/studio) · 16 governance PRs (each = one ordinary GOV-V6 vote). Ready for step-by-step owner Q&A; each unlock logged in the file.
+- **2026-consistency verified**: code dates (GATE_OPEN_UNTIL_UTC=2026-09-16 etc.) all within 2026; board clock NTP-synced (System clock synchronized: yes, 15:53:48Z); 180 chrony-locked. No cross-year drift.
+- Glass-runner (#158) merged 14:21:46Z; #168/#170 still open awaiting votes.
