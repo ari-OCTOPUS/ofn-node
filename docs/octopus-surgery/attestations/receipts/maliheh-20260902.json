@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.partner_attestation.v1",
+  "partner_id": "maliheh",
+  "subject_id": "maliheh",
+  "captured_at": "2026-09-02",
+  "channel": "telegram_voice",
+  "media_sha256": "d62bb97714053705bf362f21552e3b0c60d530b0fe87c29f971981071fc4e5ef",
+  "intended_state_ref": "$OFN_STATE_DIR/attestations/raw/2026-09-02/maliheh/voice-01.ogg",
+  "staging_rel_path": "raw/maliheh/voice-01.ogg",
+  "size_bytes": 102938,
+  "telegram_sender": null,
+  "telegram_sender_status": "screenshot_not_in_pasted_hash_table",
+  "captured_by": "owner_windows_device",
+  "verifier_vantage": "cursor-cloud-agent",
+  "independently_observed": false,
+  "path_assignment": "inferred_getchilditem_recurse_alpha",
+  "path_assignment_risk": "reordering_after_alias_merge",
+  "covers": ["partnership", "activity_logging"],
+  "revocable": true,
+  "alias_of_abbas": false,
+  "note": "Owner-reported SHA-256 of a raw OGG. This vantage did not access or listen to the file. Mapping is inferred until per-file verify."
+}

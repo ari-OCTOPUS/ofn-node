@@ -193,7 +193,7 @@
         "DECISIONS.md"
       ],
       "must_not_exist": [],
-      "notes": "Owner decision. This scan does not open it."
+      "notes": "D-27 opened the decision (later→open). Tree still has no ESP32 implementation, so scan status stays owner_gated."
     },
     {
       "id": "S-04",
@@ -206,7 +206,7 @@
         "DECISIONS.md"
       ],
       "must_not_exist": [],
-      "notes": "Owner decision. Urgency rose with boards; still not an agent task."
+      "notes": "D-27 opened the decision (later→open). Tree still has no VLAN implementation, so scan status stays owner_gated."
     },
     {
       "id": "C-OBS-RUNTIME",
