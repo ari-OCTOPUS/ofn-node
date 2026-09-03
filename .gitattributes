@@ -1,0 +1,3 @@
+# Waiver fixture is pinned by git-canonical LF SHA-256.
+# Windows autocrlf must not rewrite the blob the pin hashes.
+tests/fixtures/waiver/*.json text eol=lf

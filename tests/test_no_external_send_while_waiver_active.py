@@ -39,7 +39,19 @@ import mail_credentials                  # noqa: E402
 import outbound_worker                   # noqa: E402
 
 FIXTURE = Path(__file__).parent / "fixtures" / "waiver" / "SECRET-ROTATION-WAIVER-20260831.json"
-PINNED_SHA256 = "40578fef4e192ea869ff0d22ab797f483461847b370877637ead64850d6f980f"
+# Git blob is LF. The Windows vault copy (F:\backup\docs\octopus-surgery\receipts\)
+# is the CRLF twin of the same JSON. Both hashes recorded; pin is git-canonical LF
+# after \r\n → \n so ubuntu-latest and Windows autocrlf checkouts agree.
+# This is NOT a waiver re-sign and does not authorize send.
+PINNED_SHA256 = "a21b19a99a93f3b0799eed54ef97bf6de09a69928e2b5c3bf0bfd1cbfbe8fc15"
+PINNED_SHA256_CRLF_VAULT = (
+    "40578fef4e192ea869ff0d22ab797f483461847b370877637ead64850d6f980f"
+)
+
+
+def _canonical_waiver_bytes(raw: bytes) -> bytes:
+    """LF-canonical bytes. A CRLF checkout must not fail the pin."""
+    return raw.replace(b"\r\n", b"\n")
 
 SEND_FLAGS = (
     outbound_worker.FLAG,        # OCTOPUS_WIRE_LEAD_OUTBOUND
@@ -58,11 +70,38 @@ def _not_authorized(waiver: dict) -> set:
 
 
 def test_waiver_fixture_matches_pinned_hash():
-    digest = hashlib.sha256(FIXTURE.read_bytes()).hexdigest()
+    raw = FIXTURE.read_bytes()
+    digest = hashlib.sha256(_canonical_waiver_bytes(raw)).hexdigest()
     assert digest == PINNED_SHA256, (
-        "waiver fixture changed vs pinned hash — if the owner re-signed the "
-        "waiver, update PINNED_SHA256 in the same commit and say why"
+        "waiver fixture changed vs pinned git-canonical LF hash — if the owner "
+        "re-signed the waiver, update PINNED_SHA256 in the same commit and say why"
     )
+
+
+def test_waiver_lf_and_crlf_pins_are_both_recorded():
+    """Contradiction recorded, not silently picked: LF git blob vs CRLF vault."""
+    assert PINNED_SHA256 != PINNED_SHA256_CRLF_VAULT
+    lf = _canonical_waiver_bytes(FIXTURE.read_bytes())
+    assert hashlib.sha256(lf).hexdigest() == PINNED_SHA256
+    crlf_twin = lf.replace(b"\n", b"\r\n")
+    assert hashlib.sha256(crlf_twin).hexdigest() == PINNED_SHA256_CRLF_VAULT
+    assert crlf_twin != lf
+
+
+def test_waiver_crlf_checkout_still_matches_lf_pin():
+    """ubuntu-latest CI hashed LF; Windows vault hashed CRLF. Same JSON."""
+    lf = _canonical_waiver_bytes(FIXTURE.read_bytes())
+    crlf_checkout = lf.replace(b"\n", b"\r\n")
+    assert hashlib.sha256(crlf_checkout).hexdigest() == PINNED_SHA256_CRLF_VAULT
+    assert hashlib.sha256(_canonical_waiver_bytes(crlf_checkout)).hexdigest() == PINNED_SHA256
+
+
+def test_waiver_pin_rejects_one_byte_mutation():
+    lf = _canonical_waiver_bytes(FIXTURE.read_bytes())
+    flip = b"Y" if lf[-1:] != b"Y" else b"Z"
+    mutated = lf[:-1] + flip
+    assert hashlib.sha256(mutated).hexdigest() != PINNED_SHA256
+    assert hashlib.sha256(mutated).hexdigest() != PINNED_SHA256_CRLF_VAULT
 
 
 def test_waiver_keeps_external_messaging_not_authorized():
