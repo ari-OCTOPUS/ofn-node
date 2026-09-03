@@ -1,4 +1,5 @@
 const ROUTES = Object.freeze([
+  "surface",
   "command-center",
   "nodes",
   "legs",
@@ -6,9 +7,11 @@ const ROUTES = Object.freeze([
   "audit",
 ]);
 
+const DEFAULT_ROUTE = "surface";
+
 export function normalizeRoute(hash = "") {
   const raw = String(hash).replace(/^#\/?/, "").split(/[/?]/, 1)[0].trim().toLowerCase();
-  return ROUTES.includes(raw) ? raw : "command-center";
+  return ROUTES.includes(raw) ? raw : DEFAULT_ROUTE;
 }
 
 export function createRouter({
@@ -29,22 +32,22 @@ export function createRouter({
   const onHashChange = () => apply({ focus: true });
 
   return {
-    start() {
-      if (started) return current;
-      started = true;
-      globalObject.addEventListener?.("hashchange", onHashChange);
-      if (!globalObject.location?.hash || normalizeRoute(globalObject.location.hash) === "command-center") {
-        if (globalObject.location && globalObject.location.hash !== "#/command-center") {
-          globalObject.history?.replaceState?.(null, "", "#/command-center");
-        }
+  start() {
+    if (started) return current;
+    started = true;
+    globalThis.addEventListener?.("hashchange", onHashChange);
+    if (!globalThis.location?.hash || normalizeRoute(globalThis.location.hash) === DEFAULT_ROUTE) {
+      if (globalThis.location && globalThis.location.hash !== `#/${DEFAULT_ROUTE}`) {
+        globalThis.history?.replaceState?.(null, "", `#/${DEFAULT_ROUTE}`);
       }
-      return apply({ focus: false });
-    },
-    navigate(route) {
-      const normalized = ROUTES.includes(route) ? route : "command-center";
-      if (globalObject.location) globalObject.location.hash = `#/${normalized}`;
-      return normalized;
-    },
+    }
+    return apply({ focus: false });
+  },
+  navigate(route) {
+    const normalized = ROUTES.includes(route) ? route : DEFAULT_ROUTE;
+    if (globalThis.location) globalThis.location.hash = `#/${normalized}`;
+    return normalized;
+  },
     current() {
       return current ?? normalizeRoute(globalObject.location?.hash ?? "");
     },

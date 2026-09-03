@@ -1,4 +1,15 @@
-"""H1 buy.nsw autonomous tender harvester — the missing fetch loop.
+"""DEAD SOURCE — labeled 2026-09-02 (D-31 step 1).
+
+Its only upstream, the NSW eTendering OCDS feed, ENDED Feb 2025 —
+verified live from Sydney (docs/day7/DAY7-SOURCE-DISCOVERY-AND-OWNER-LOG.md).
+A fetch loop over a dead feed cannot produce leads. Do NOT wire new
+callers to it. Disposition: repoint the fetch layer to the sanctioned
+channels (buy.nsw supplier-registration nightly email, info.buy.nsw
+contract register) or remove at D-31 step 4.
+
+---
+
+H1 buy.nsw autonomous tender harvester — the missing fetch loop.
 
 The h1_buysw agent (parse/filter/score) exists but nothing ever calls it:
 no fetch, no dedup, no wiring into the node. This module is that loop.
@@ -27,11 +38,15 @@ from .h1_buysw import (
     SOURCE_ID, build_score_inputs, filter_painting_tender, parse_tender,
 )
 
-# NSW eTendering public OCDS feed (released tenders, most recent page).
+# Legacy NSW eTendering public OCDS feed. Host redirects to buy.nsw.gov.au;
+# this event URL is dead. Do not treat a successful GET as a live source.
+# Replacement API on buy.nsw is unknown — do not invent one. Working
+# alternative in-tree: nsw_ocp_harvest.py (open-contracting bulk).
 FEED_URL = (
     "https://tenders.nsw.gov.au/?event=public.api.list"
     "&type=released&pagesize=100"
 )
+FEED_STATUS = "dead_redirect_buy_nsw"
 TIMEOUT_S = 20
 MAX_RETRIES = 2
 
