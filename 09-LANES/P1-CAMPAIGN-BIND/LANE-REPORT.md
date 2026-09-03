@@ -24,7 +24,7 @@ Lane declared: P1-CAMPAIGN-BIND. `09-LANES/LANE-MATRIX.csv` has L0–L9 only
 
 ## What remains
 
-- Publish of this branch (one PR). Independent review after CI.
+- PR https://github.com/ari-OCTOPUS/ofn-node/pull/145 opened. Independent review after CI.
 - #143 and #141 still REVIEW_REQUIRED (expected).
 - Incidents next published append is lii on origin li
   `ffb0d2f77da2ba657735cff0d323abcd4c9af7cb`. Concurrent unpublished
