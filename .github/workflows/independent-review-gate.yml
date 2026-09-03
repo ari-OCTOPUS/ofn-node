@@ -10,7 +10,50 @@ permissions:
   contents: read
   pull-requests: read
 
+# F-07/F-08 lesson (2026-09-03): a superseded run's red/green lingers in the
+# UI and reads as the PR's verdict. Cancel the previous run of the same PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # F-06 (2026-09-03): a PR based on a pre-rule commit runs the OLD rules —
+  # #73 and #108 sat on stale bases and bypassed GOV-V6. Until this check,
+  # only "strict" branch protection complained, at merge time, invisibly to
+  # reviewers. Now staleness is a visible red context.
+  require-fresh-base:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR head must contain the current base head (stale base = red)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.info('not a pull_request event — nothing to check');
+              return;
+            }
+            const base = pr.base.ref;
+            const head = pr.head.sha;
+            const cmp = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base,
+              head,
+            });
+            const status = cmp.data.status; // ahead | behind | diverged | identical
+            const behindBy = cmp.data.behind_by || 0;
+            core.info(`base=${base} head=${head.slice(0, 7)} status=${status} behind_by=${behindBy}`);
+            if (status === 'behind' || status === 'diverged') {
+              core.setFailed(
+                `Stale base: this PR is ${behindBy || '?'} commit(s) behind ` +
+                `'${base}'. A PR on a pre-rule base executes the OLD rules ` +
+                '(F-06). Fix: `git fetch origin && git merge origin/' + base +
+                '` and push. This check is red until the branch contains the ' +
+                'current base head.');
+              return;
+            }
+            core.info(`fresh base: ${status} vs ${base}`);
   require-independent-approval:
     runs-on: ubuntu-latest
     steps:

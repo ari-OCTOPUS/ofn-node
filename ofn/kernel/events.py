@@ -55,23 +55,47 @@ def is_forbidden_effect_name(name: object) -> bool:
     return isinstance(name, str) and name in FORBIDDEN_EFFECT_KINDS
 
 
+# Payload root is depth 0. One nested mapping or list/tuple is depth 1.
+# Deeper containers are out of scope (not claimed clean). Strings are
+# never walked as sequences.
+_SMUGGLE_SCAN_DEPTH = 1
+
+
+def _scan_forbidden(obj: object, *, depth: int) -> Optional[str]:
+    """Find a sealed send/ready name in a container, bounded by depth."""
+    if is_forbidden_effect_name(obj):
+        return str(obj)
+    if depth > _SMUGGLE_SCAN_DEPTH:
+        return None
+    if isinstance(obj, Mapping):
+        for key, value in obj.items():
+            if is_forbidden_effect_name(key):
+                return str(key)
+            found = _scan_forbidden(value, depth=depth + 1)
+            if found is not None:
+                return found
+        return None
+    if isinstance(obj, (list, tuple)):
+        for item in obj:
+            found = _scan_forbidden(item, depth=depth + 1)
+            if found is not None:
+                return found
+        return None
+    return None
+
+
 def payload_forbidden_effect(payload: Optional[Mapping[str, Any]]) -> Optional[str]:
     """Return a smuggled ready/authorized/sent name from a payload, if any.
 
-    Top-level keys and string values only. A nested guess is not a
-    verdict — unknown depth is not scanned, and that is recorded as
-    out of scope (not as 'clean').
+    Scans the payload root and one nested mapping or list/tuple. Deeper
+    nesting is out of scope (not recorded as 'clean'). Strings are never
+    walked as sequences.
     """
     if payload is None:
         return None
     if not isinstance(payload, Mapping):
         raise FailClosedError(f"payload must be a mapping: {payload!r}")
-    for key, value in payload.items():
-        if is_forbidden_effect_name(key):
-            return str(key)
-        if is_forbidden_effect_name(value):
-            return str(value)
-    return None
+    return _scan_forbidden(payload, depth=0)
 
 
 def make_event(

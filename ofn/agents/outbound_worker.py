@@ -216,6 +216,20 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
         return {"ok": False, "sent": False, "status": "halted", "reason": _halt}
     if not enabled():
         return {"ok": False, "sent": False, "status": "flag_off", "reason": "OCTOPUS_WIRE_LEAD_OUTBOUND off"}
+    # OWNER_ABSENT (autonomy PR-4/6، رأی تفویض 2026-09-03: ارسال در غیبت =
+    # صفر مطلق): سقفِ مجاز با فرضِ حضورِ مالک تصویب شده؛ در Conservation حتی
+    # زیرِ سقف هم ارسال نیست. designed compliance gate مثل consent-denied:
+    # status اختصاصی، هرگز alert، effect دست‌نخورده/releasable می‌مانَد (این
+    # چک قبل از cap و قبل از release_and_settle ایستاده تا چیزی مصرف نشود).
+    try:
+        import owner_absence  # noqa: WPS433 — هم‌پوشه، lazy
+        _cons = owner_absence.conservation_active()
+    except Exception:  # noqa: BLE001 — خرابیِ خودِ زیرسیستم = deny
+        _cons = "conservation-subsystem-error"
+    if _cons:
+        _receipt("send.conservation_denied", effect_id, {"reason": _cons})
+        return {"ok": False, "sent": False, "status": "conservation-denied",
+                "gate_reason": _cons}
     try:
         sys.path.insert(0, str(_HERE))
         import lead_effect_gate as leg   # noqa: WPS433 — lazy، هم‌پوشه

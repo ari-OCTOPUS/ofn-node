@@ -56,10 +56,18 @@ def beat() -> dict:
         sends = outbound_worker.sends_today()
     except Exception:  # noqa: BLE001
         pass
+    # سقف را از worker بخوان، نه عددِ ثابتِ نمایش: override محیطی
+    # (OCTOPUS_LEAD_DAILY_SEND_CAP) باید در همین خط دیده شود؛ ≤0 = بی‌سقف.
+    cap_txt = "?"
+    try:
+        cap = outbound_worker._lead_daily_send_cap()
+        cap_txt = "∞" if cap <= 0 else str(cap)
+    except Exception:  # noqa: BLE001
+        pass
     disk = _disk_free_pct()
     up = _uptime_s()
     line = (f"💓 بورد زنده — آپتایم {up // 3600}ساعت · دیسک {disk}% آزاد · "
-            f"ارسالِ امروز {sends}/10 · WAL {_wal_stats()}")
+            f"ارسالِ امروز {sends}/{cap_txt} · WAL {_wal_stats()}")
     res = owner_notify.send(line)
     return {"line": line, "tg": res}
 
