@@ -19,8 +19,9 @@ CI ubuntu-latest @ 2026-09-03T04:34:31Z–04:35:08Z · exit 1 · 1 failed / 2419
 - CI failure: job 100523812876, test `tests/test_no_external_send_while_waiver_active.py::test_waiver_fixture_matches_pinned_hash`
 - LF pin: `a21b19a99a93f3b0799eed54ef97bf6de09a69928e2b5c3bf0bfd1cbfbe8fc15` (1286 bytes, git blob)
 - CRLF vault twin: `40578fef4e192ea869ff0d22ab797f483461847b370877637ead64850d6f980f` (1314 bytes)
-- Receipt: `docs/octopus-surgery/governance/2026-09-02/receipts/WAIVER-SEND-GATE-LF-PIN-20260903.json`
-- Worktree: `/tmp/ofn-waiver-lf` branch `feat/waiver-send-gate-test-20260902`
+- Receipt: `docs/octopus-surgery/governance/2026-09-02/receipts/WAIVER-SEND-GATE-LF-PIN-20260903.json` · SHA-256 `d3333e233de22ba63fb31a8aed936cc152df6cf60f89fdf57239efc43cb66d76` · 2032 bytes · evidence level B (this-host file; git blob after commit)
+- Worktree: `/tmp/ofn-waiver-lf` branch `feat/waiver-send-gate-test-20260902` engineering HEAD `3d3ee516544e85c1dc598a0c23b376a0308ee281`
+- Post-commit registered suite: `2026-09-03T04:42:16Z`–`2026-09-03T04:42:40Z` · HEAD `3d3ee516544e85c1dc598a0c23b376a0308ee281` · exit 0 · 2423 passed / 0 failed / 11 skipped / 1515 subtests
 
 ## rollback steps
 
