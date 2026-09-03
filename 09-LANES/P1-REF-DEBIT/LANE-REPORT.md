@@ -1,6 +1,7 @@
 # LANE-REPORT — P1-REF-DEBIT (session this-body, 2026-09-03)
 
-Declared file-lock zone: `/tmp/ofn-p1-ref-debit` on `feat/p1-ref-debit-20260903` parent `6f9298a85fd9dfc04670cb6b161732830ed421b6`.
+Declared file-lock zone: `/tmp/ofn-p1-ref-debit` on `feat/p1-ref-debit-20260903` engineering `9a56d75a20f245525889f4bf1451776bb364ad5b` docs tip `7a24ec73a9fc20e2225e0df830844c364d4e8f3a` parent `6f9298a85fd9dfc04670cb6b161732830ed421b6`.
+PR: https://github.com/ari-OCTOPUS/ofn-node/pull/166 (`git push` + `git ls-remote` MATCH `7a24ec73a9fc20e2225e0df830844c364d4e8f3a` 2026-09-03T13:57:44Z).
 `/workspace` stayed on `cursor/taskenvelope-system-hardening-4e23` @`179e6eb6997b5672464e1637b0bab7a22c3eecd8` (#152 digest-fold designated; also `feat/p1-digest-fold-20260903`) and was not written.
 
 Lane ID: P1-REF-DEBIT. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complementary kernel BUDGET_DEBIT.ref-shape / one-verdict debit-pin admission. Did not edit LANE-MATRIX.csv.
