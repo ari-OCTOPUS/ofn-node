@@ -100,7 +100,8 @@ def test_tooth_R5_suppressed_lead_in_cycle(tmp_path, monkeypatch):
     assert rep["checks"]["R5_no_suppressed_in_cycle"]["violations"] == 1
 
 
-def test_token_tamper_detected():
+def test_token_tamper_detected(monkeypatch):
+    monkeypatch.setenv("OFN_SESSION_SECRET", "test-secret-value")
     tok = cap.issue("send_email", "x@nsw.gov.au", "test")
     ok, why = cap.verify(tok, "send_email", "x@nsw.gov.au")
     assert ok
@@ -111,7 +112,8 @@ def test_token_tamper_detected():
     assert not ok and why == "subject-mismatch"
 
 
-def test_token_expired():
+def test_token_expired(monkeypatch):
+    monkeypatch.setenv("OFN_SESSION_SECRET", "test-secret-value")
     tok = cap.issue("send_email", "y@nsw.gov.au", "test", ttl_s=-1)
     ok, why = cap.verify(tok, "send_email", "y@nsw.gov.au")
     assert not ok and why == "expired"
