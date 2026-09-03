@@ -108,7 +108,10 @@ class ReadyIsNotAuthorized(unittest.TestCase):
         decision = Decision(
             True, RiskTier.GREEN, "within ceilings", rule="token:both-ceilings")
         self.assertFalse(grants_send(decision))
-        self.assertNotIn("campaign_envelope_ready", SEND_STATES)
+        # SEND_STATES is the forbidden-mention list, not a grant list:
+        # #83 (ready≠send) added the ready name so a token Decision that
+        # mentions it fails closed — membership IS the ready≠authorized wall.
+        self.assertIn("campaign_envelope_ready", SEND_STATES)
         self.assertIn("send_authorized", SEND_STATES)
         self.assertIn("quote_sent", SEND_STATES)
 

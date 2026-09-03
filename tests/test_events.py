@@ -87,13 +87,12 @@ class PayloadSmuggleTopLevel(unittest.TestCase):
     def test_none_payload_is_clean(self):
         self.assertIsNone(ev.payload_forbidden_effect(None))
 
-    def test_nested_scan_is_out_of_scope_on_main_not_claimed_clean(self):
-        # Main events.py walks top-level keys/values only. A nested
-        # mapping is therefore not a verdict. This test records the
-        # scope (UNKNOWN), not a claim that the nest is clean. PR #82
-        # deepens the scan; when it merges this assertion must change.
+    def test_nested_scan_detects_smuggled_send_state(self):
+        # PR #82 (c446676) merged: events.py now walks nested mappings,
+        # so a smuggled send state inside a nest IS a verdict — this
+        # assertion flipped exactly as the old scope-note prescribed.
         nested = {"inner": {"send_authorized": True}}
-        self.assertIsNone(ev.payload_forbidden_effect(nested))
+        self.assertEqual("send_authorized", ev.payload_forbidden_effect(nested))
 
 
 class NameHelper(unittest.TestCase):
