@@ -204,3 +204,17 @@ ZIMAN        = بریف مدرک‌محور: مغز مش زیمان را کام�
 FILES_I_MERGED (امروز توسط این ایجنت) = #139 (روی CLEAN با دو رأی معتبر)
 ```
 جزئیات کامل: SEASON-LOG بند «Round 5..9» · رجیستر DISCOVERY-3BOARD-20260903/ · OWNER-GO-LOCKS (بند کانال چهارم + WITNESS_A).
+
+
+### آیین سیزن ۴ — بستن روز ۲۰۲۶-۰۹-۰۳ (ماشین-خوان هم‌ارز: state/runtime_truth پس از تایمر بعدی)
+```
+ORGANISM     = one body, two generations merged (HARMONY-MERGER-20260903.md)
+ROLES        = 138 heart+metabolism+pharmacy · 180 brain(local llama) · 182 senses/witness · 191 library · GitHub governance
+LOOP         = MEASURE→GAP→PROPOSE→GATE→OWNER→PROVE (self-coding, CLASS_A only, A2 BLOCK)
+PROVEN       = GAP-017 + GAP-018 + GAP-065-template (PR #170 merged a9810863)
+MOOD         = satiety: 3 gaps closed · pain: 3 broken template attempts (caught by guards)
+TIMERS       = 14 armed on board138 (doctor/witness/absence/selfmodel/brainwake/mesh-drain×3/send)
+GATES        = 31 census (GATES-31 file) · layer2 owner-confirmed · layer3 = 7 ziman data asks · M5=BLOCKED
+MONEY        = 5 verified business / 0 campaign · sends since 02:00Z Sep-3 = 0 · caps 10/25/AUD50 live
+OWNER-QUEUE  = vote #168+P1s · ziman I1-I11 data · M5 design · NATS octopus-core password
+```
