@@ -4,7 +4,7 @@
 
 الگوی موجود: `outcome_store.py` (SQLite/WAL + RLock single-writer + idempotency_key UNIQUE +
 schema-versioned + close() صریح). این ماژول **خارج از مسیرِ اثر** است: stdlib فقط، صفر
-import از chrono/EffectorGate/ledger/telegram. صفر شبکه. صفر side-effectِ بیرونی.
+import از chrono / named-effect-path-gate / ledger / telegram. صفر شبکه. صفر side-effectِ بیرونی.
 
 قراردادِ حاکم: `03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/PHASE-B-CONTRACTS/05_CONSENT_STATE_MACHINE.md`
 (بخشِ ۳: Storage). D2a هستهٔ ایمنی را پیاده می‌کند:
@@ -12,7 +12,7 @@ import از chrono/EffectorGate/ledger/telegram. صفر شبکه. صفر side-ef
     چکِ سریعِ predicate) + suppression (هرگز purge نمی‌شود).
   · CHECKهای structural firewall (لایهٔ ۱): market_signal/outreach_allowed=1 غیرممکن است؛
     basis none/unknown + outreach=1 غیرممکن؛ حالت‌های non-outreach + outreach=1 غیرممکن.
-  · هرگز چیزی نمی‌فرستد، هیچ transitionی را امضای نهایی نمی‌کند، EffectorGate نمی‌سازد.
+  · هرگز چیزی نمی‌فرستد، هیچ transitionی را امضای نهایی نمی‌کند، named-effect-path-gate نمی‌سازد.
 
 بقیهٔ ماشینِ consent (escalation، compliance-overlay، retention-beat، purge-tombstone)
 در فازِ آیندهٔ D2b اضافه می‌شوند. D2a فقط store + CHECK + دسترسیِ پایه را می‌دهد تا
