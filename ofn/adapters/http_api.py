@@ -1075,7 +1075,7 @@ class ApiApp:
     )
 
     _OWNER_V2_RESOURCES = frozenset(
-        {"status", "nodes", "legs", "queue", "audit", "version"})
+        {"status", "nodes", "legs", "queue", "audit", "version", "surface"})
     _OWNER_V2_PREFIX = "/api/v2/owner/"
 
     @staticmethod

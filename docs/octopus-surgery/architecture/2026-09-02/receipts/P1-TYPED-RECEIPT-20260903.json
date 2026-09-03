@@ -1,0 +1,54 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-TYPED-RECEIPT-20260903",
+  "issued_utc": "2026-09-03T03:14:52Z",
+  "author": "cursor-cloud bc-b2c3e3fd-d6bf-45bd-a270-a4915bdbc50f (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-typed-receipt on feat/p1-typed-receipt-20260903 parent origin/main @06b8b24441967859371d24e063452c10f3a0acde (#109). typed_event.py and receipt_bind.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-8d15 @ccdf2d203c3fe4e681bbcb6e596543c70fc86e5e (PR #141) and was not written. #141 CI this-run: 2 of 20 failed = require-independent-approval (REVIEW_REQUIRED, not a code defect).",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary typed_event + receipt_bind — new files only. Record-shape class, not kind_graph succession and not events.make_event. Digest bind, not #87 receipts adapters. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/typed_event.py": "classify_record: None/missing field→UNKNOWN; TYPED requires kind+run_id+ts; unknown/empty/bool kind fail closed; bool/float/str ts fail closed; BUDGET_DEBIT without ref fail closed; sealed send/ready names refuse; is_execution only EXECUTION_RECEIPT; proposal_is_execution/grants_send/halt_blocks_typed/unknown_is_false/claims_immutable/ready_is_authorized/timeout_proves_concurrent_write structurally False",
+    "ofn/kernel/receipt_bind.py": "bind_receipt requires TYPED EXECUTION_RECEIPT + 64 lowercase hex; proposal/RUN_CREATED refuse; uppercase/short/empty/non-hex/bool digest fail closed; try_bind missing→None not ''; digest_agrees disagreement is False not UNKNOWN; burns_idempotency_key structurally False; not wired into run_store.py",
+    "tests/test_typed_event.py": "E3 negatives: missing fields UNKNOWN, sealed aliases, unknown kind, bool ts, string/list record, BUDGET_DEBIT ref, proposal≠execution, run_store/kind_graph import absence",
+    "tests/test_receipt_bind.py": "E3 negatives: proposal bind, forged digest, missing UNKNOWN, digest disagreement, sealed kind",
+    "tests/test_chaos_typed_receipt.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_typed_event tests.test_receipt_bind tests.test_chaos_typed_receipt tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T03:14:52Z",
+    "parent_head_full": "06b8b24441967859371d24e063452c10f3a0acde",
+    "exit_code": 0,
+    "result": "251 passed / 0 failed / 0 skipped (unittest 'Ran 251 tests in 0.299s' / OK). New-module only: 72 passed (2026-09-03T03:14:49Z).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-typed-receipt).",
+    "worktree": "/tmp/ofn-p1-typed-receipt",
+    "file_lock_zone": [
+      "ofn/kernel/typed_event.py",
+      "ofn/kernel/receipt_bind.py",
+      "tests/test_typed_event.py",
+      "tests/test_receipt_bind.py",
+      "tests/test_chaos_typed_receipt.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-TYPED-RECEIPT-20260903.json",
+      "09-LANES/P1-TYPED-RECEIPT/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None / missing required field → UNKNOWN, not FALSE",
+      "BUDGET_DEBIT without ref fails closed",
+      "PROPOSAL_CREATED cannot bind as receipt",
+      "uppercase / short / non-hex digest fails closed",
+      "campaign_envelope_ready refused as kind",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write / burns_idempotency_key structurally False",
+      "run_store and kind_graph sources do not import typed_event or receipt_bind"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "kind_graph / ts_order (#109) / observation_class / inference_class (#138) / events.py / envelope.py / run_store.py / #87 receipts / #141 harvest / clock_bind / report_class / verify_class"
+}
