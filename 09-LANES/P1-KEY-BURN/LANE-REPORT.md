@@ -23,8 +23,10 @@ bind + burn pin.
 
 ## What remains
 
-- Publish isolated branch (shell `git push` likely deny_egress;
-  `open_git_pr` is the configured path). Independent review after CI.
+- PR https://github.com/ari-OCTOPUS/ofn-node/pull/171 opened on
+  isolated first identifier `feat/p1-key-burn-20260903`
+  @`a6350ffa50e058a2afd0c6e0d0853ae47b45e770`. Independent review
+  after CI.
 - Do not merge without an independent CODEOWNERS reviewer.
 - Do not re-arm send. Do not open a second key-burn PR.
 
