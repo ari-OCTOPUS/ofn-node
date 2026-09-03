@@ -56,13 +56,20 @@ def test_quote_refuses_non_dry_offline() -> None:
 
 
 def test_quote_pipeline_fails_closed_offline() -> None:
-    proc = subprocess.run(
-        [sys.executable, str(AGENTS / "quote_pipeline.py")],
-        capture_output=True,
-        text=True,
-        timeout=60,
-        cwd=str(AGENTS),
-    )
+    # 2026-09-03: «offline» باید خصوصیتِ تست باشد — HOME موقتِ خالی یعنی
+    # مسیرِ DB وجود ندارد، قطعی روی هر میزبانی (مسلح یا unarmed)
+    import os
+    import tempfile
+    with tempfile.TemporaryDirectory() as fake_home:
+        child_env = {**os.environ, "HOME": fake_home}
+        proc = subprocess.run(
+            [sys.executable, str(AGENTS / "quote_pipeline.py")],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            cwd=str(AGENTS),
+            env=child_env,
+        )
     # on a host without the live painting DB the pipeline must emit JSON,
     # not raise — unknown/absent is never green
     payload = json.loads(proc.stdout)
