@@ -502,3 +502,8 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - GATES-31-UNLOCK-PLAN-20260904.md written (canonical): 31 human gates enumerated in 4 layers — 2 constitutional (merge vote + reviewer allowlist, never open) · 8 operational (WAL/bridge/caps/kill-switch/alert-telegram/OwnerRelease/harvest) · 7 data/identity (ziman shipping/social/publish/photos/GST/ads/studio) · 16 governance PRs (each = one ordinary GOV-V6 vote). Ready for step-by-step owner Q&A; each unlock logged in the file.
 - **2026-consistency verified**: code dates (GATE_OPEN_UNTIL_UTC=2026-09-16 etc.) all within 2026; board clock NTP-synced (System clock synchronized: yes, 15:53:48Z); 180 chrony-locked. No cross-year drift.
 - Glass-runner (#158) merged 14:21:46Z; #168/#170 still open awaiting votes.
+
+### Round 28 — P3 BUILT: brain_wake (2026-09-04, owner: «بریم پیوند»)
+- **PR #172** `ofn/agents/brain_wake.py`: when wake-worthy business events land (payments/orders/quote-requests/leads), writes a REAL cognitive_wake.v1 into the mesh outbox — the exact envelope format proven Aug-27 (hold_external=true · may_authorize=false · deadline+4h · wake_sha256). The armed hourly mesh-send timer delivers to 180 → local llama thinks → 182 verifies → 138 cards. Quiet = honest no-op; dedup via state; writer path locked.
+- Full suite 4445/0 (+15). One vote closes the heart→brain link.
+- Also merged today by owner: #158 glass-runner (main ab5d3d4→), and Layer-2 gates 3-8 confirmed + 8/10 armed (GATES-31 log updated).
