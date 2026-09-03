@@ -471,3 +471,12 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
   - **#157 LIVE**: heartbeat line now reads `… WAL sent:6 · دکتر:incomplete · 5 blind` — the doctor's verdict reaches the owner's hourly pulse, exactly as designed.
 - **Stack status after the wave**: contract frozen on main (#162) + skill installed (#161) + doctor pulse + quiet-precision + learning feeder + architecture map. The 4 remaining UNKNOWNs on board are honest (2 deliberate-disabled units, drill never-run, journal-perm). Remaining queue: #158 glass-runner, #160 season-concepts, P1s #152-#155/#134/#127/#126 (await votes; window still open or re-toggle).
 - Loop score: 2 gaps PROVEN CLOSED (GAP-017, GAP-018) — the self-coding loop has now closed two consecutive gaps end-to-end.
+
+### Round 24 — پک + تست کامل + دیباگ زنده (2026-09-04 early, owner: «انجام دادم پک کن و تست بگیر از اختاپوس دیباگ کن»)
+- **Packed**: #160 owner-merged himself (main d38c63f7); protection restored by owner (strict+dismiss back ON); #158 synced to e1eaf8 but its vote voided by the push (dismiss=true) — ONE fresh aram-ui click remains. Board deployed to d38c63f7.
+- **Full test on final main: 4,430 passed / 0 failed** (+~20 over the wave — tests riding with the merged PRs).
+- **Live debug sweep** (all six stack components + 12 timers on board): doctor incomplete-38/42 with only honest non-greens (2 deliberate-disabled, drill never-run, journal-perm); absence tier=present; repair_api plan-mode OK; all 12 timers armed. **Two real bugs caught at runtime:**
+  - **BUG-1 feeder NameError** — import time missing; first live run crashed. (No prior test executed feed() end-to-end.)
+  - **BUG-2 witness repo-dir** — laptop-layout default → local HEAD None → main_head UNKNOWN on board.
+  - Both FIXED with 4 regression tests (feeder e2e w/ patched subprocess; per-host resolution incl. .git FILE for worktrees) → **PR #168** (self-authored #3, baseline clause). 18/18 suites green.
+- Loop score now: 2 gaps CLOSED + 2 live bugs caught/fixed by the debug discipline the loop enforces. Queue: #168 + #158(one click) + P1s (unvoted by owner — parked pending his choice).
