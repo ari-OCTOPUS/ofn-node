@@ -25,7 +25,7 @@ shape + receipt digest bind.
 
 ## What remains
 
-- Publish of this branch (one PR). Independent review after CI.
+- PR https://github.com/ari-OCTOPUS/ofn-node/pull/143 opened. Independent review after CI.
 - #141 still REVIEW_REQUIRED (expected).
 - Incidents next published append is li on origin xlix
   `351498d473362bf2b11af236715b55bbd7a84232`. Unpublished l tips
