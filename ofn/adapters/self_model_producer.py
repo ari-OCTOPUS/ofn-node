@@ -27,6 +27,7 @@ import ast
 import hashlib
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -38,19 +39,24 @@ from typing import Any, Callable, Mapping, Sequence
 from ofn.kernel import self_model
 from ofn.kernel.self_model import Reading
 
-SCHEMA_ID = "octopus.self-model.v2"
+SCHEMA_ID = "octopus.self-model.v3"
 
-# Day-7 board members (CURRENT-TRUTH 2026-09-02): the five always-on member
-# processes and their loopback ports. On the board these answer; elsewhere
-# they are measured absent.
-MEMBER_PORTS: dict[str, int] = {
-    "organism": 8771,
-    "cortex": 8772,
-    "live": 8773,
-    "gateway": 8774,
-    "center": 8776,
+# GOV ruling V2 (2026-09-03): probe the REAL always-on board services instead
+# of the dead 877x loopback ports of the previous architecture (those sockets
+# never existed on board138 — the old map read permanently absent).
+# The timer-driven oneshots (heartbeat/imap/quote) are deliberately not listed:
+# "inactive" is their normal between-runs state, so is-active would misreport;
+# their health surfaces via the heartbeat pulse and imap events.
+MEMBER_UNITS: dict[str, str] = {
+    "bridge": "octopus-bridge.service",
+    "control_router": "octopus-control-router.service",
+    "cycle_settler": "octopus-cycle-settler.service",
+    "router": "octopus-router.service",
+    "supervisor": "octopus-supervisor.service",
+    "verify_dispatcher": "octopus-verify-dispatcher.service",
 }
 
+# kept for hosts/colour checks that still want a raw loopback probe
 PORT_TIMEOUT_SECONDS = 0.25
 GIT_TIMEOUT_SECONDS = 10.0
 EVENT_LIMIT = 5
@@ -105,6 +111,7 @@ PROBE_EVIDENCE_GLOBS = (
 
 GitRunner = Callable[..., "str | None"]
 PortProber = Callable[[str, int, float], "tuple[bool | None, str]"]
+UnitProber = Callable[[str], "tuple[bool | None, str]"]
 
 
 def rfc3339(epoch: float) -> str:
@@ -137,6 +144,29 @@ def run_git(repo_root: Path, *args: str) -> str | None:
     if completed.returncode != 0:
         return None
     return completed.stdout
+
+
+def probe_unit(unit: str) -> tuple[bool | None, str]:
+    """systemd is-active measurement with the three-way honest split.
+
+    active -> (True, ...) measured alive. inactive/failed -> (False, ...)
+    measured absent. No systemctl (dev hosts) or any error -> (None, ...)
+    inconclusive: an unanswered question, never a guessed colour.
+    """
+    if shutil.which("systemctl") is None:
+        return None, "systemctl unavailable"
+    try:
+        quiet = subprocess.run(
+            ["systemctl", "is-active", "--quiet", unit],
+            capture_output=True, text=True, timeout=5)
+        if quiet.returncode == 0:
+            return True, "active"
+        state = subprocess.run(
+            ["systemctl", "is-active", unit],
+            capture_output=True, text=True, timeout=5)
+        return False, (state.stdout.strip() or "inactive")
+    except (OSError, subprocess.SubprocessError) as error:
+        return None, f"probe error: {type(error).__name__}"
 
 
 def probe_port(host: str, port: int, timeout: float) -> tuple[bool | None, str]:
@@ -230,22 +260,20 @@ def _collect_code_identity(repo_root: Path, git_runner: GitRunner,
 
 
 def _collect_processes(
-    host: str,
-    ports: Mapping[str, int],
+    units: Mapping[str, str],
     now_epoch: float,
-    prober: PortProber,
-    timeout: float,
+    prober: UnitProber,
 ) -> list[Reading]:
     readings = []
-    for member, port in sorted(ports.items(), key=lambda item: item[1]):
-        alive, detail = prober(host, port, timeout)
+    for member, unit in sorted(units.items()):
+        alive, detail = prober(unit)
         readings.append(
             self_model.process_reading(
                 sensor_id=f"process_{member}",
-                implementation=f"tcp connect {host}:{port}",
+                implementation=f"systemctl is-active {unit}",
                 alive=alive,
                 observed_epoch=now_epoch,
-                source=f"tcp:{host}:{port}",
+                source=f"unit:{unit}",
                 detail=detail,
             )
         )
@@ -320,11 +348,9 @@ def produce(
     *,
     clock: Callable[[], float] | None = None,
     repo_root: Path | str | None = None,
-    host: str = "127.0.0.1",
-    ports: Mapping[str, int] | None = None,
+    units: Mapping[str, str] | None = None,
     git_runner: GitRunner | None = None,
-    port_prober: PortProber | None = None,
-    probe_timeout: float = PORT_TIMEOUT_SECONDS,
+    unit_prober: UnitProber | None = None,
 ) -> dict[str, Any]:
     """Generate the self-model envelope from real (or injected) producers."""
     now_epoch = (clock or default_clock)()
@@ -333,15 +359,14 @@ def produce(
     repo_root = Path(repo_root)
     if git_runner is None:
         git_runner = run_git
-    if port_prober is None:
-        port_prober = probe_port
-    if ports is None:
-        ports = MEMBER_PORTS
+    if unit_prober is None:
+        unit_prober = probe_unit
+    if units is None:
+        units = MEMBER_UNITS
 
     identity, identity_reading = _collect_code_identity(
         repo_root, git_runner, now_epoch)
-    processes = _collect_processes(
-        host, ports, now_epoch, port_prober, probe_timeout)
+    processes = _collect_processes(units, now_epoch, unit_prober)
     capabilities = _collect_capabilities(repo_root)
     events = _collect_events(repo_root, git_runner, EVENT_LIMIT)
     brain_probe = _collect_brain_probe(repo_root, now_epoch)
@@ -356,8 +381,8 @@ def produce(
         authority=dict(AUTHORITY),
         budgets=dict(BUDGETS),
         unknowns=[
-            "member process liveness is measured from this host only; "
-            "board processes are invisible here except as absent",
+            "member service liveness is read via systemctl on this host; "
+            "without systemd (dev machines) it stays unknown, never green",
             "no dated brain-probe run evidence exists on this host; the "
             "probe verdict fails closed until one does",
         ],
@@ -435,7 +460,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Generate the machine-written system self-model.")
     parser.add_argument("--repo", default=".")
-    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument(
         "--output",
         default=None,
@@ -446,7 +470,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     output = Path(args.output) if args.output else (
         repo_root / "state" / "self-model" / "SYSTEM-SELF-MODEL.json")
 
-    envelope = produce(repo_root=repo_root, host=args.host)
+    envelope = produce(repo_root=repo_root)
     path, digest = write_artifact(envelope, output)
     print(summary_line(envelope))
     print(f"artifact={path}")

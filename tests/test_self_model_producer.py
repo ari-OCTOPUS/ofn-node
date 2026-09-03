@@ -50,13 +50,13 @@ def fake_git(repo_root, *args):
     return None
 
 
-def fake_prober_ok(host, port, timeout):
-    return True, "connected"
+def fake_prober_ok(unit):
+    return True, "active"
 
 
 def make_prober(mapping):
-    def prober(host, port, timeout):
-        return mapping.get(port, (None, "no route"))
+    def prober(unit):
+        return mapping.get(unit, (None, "no route"))
     return prober
 
 
@@ -69,7 +69,7 @@ class ProducerEnvelope(unittest.TestCase):
                 clock=lambda: 1000.0,
                 repo_root=ROOT,
                 git_runner=fake_git,
-                port_prober=fake_prober_ok,
+                unit_prober=fake_prober_ok,
             )
         self.assertEqual(envelope["schema"], producer.SCHEMA_ID)
         self.assertEqual(envelope["status"], "ok")
@@ -88,44 +88,36 @@ class ProducerEnvelope(unittest.TestCase):
         self.assertEqual(events[0]["subject"], "feat(x): one")
 
     def test_scenario_2_one_producer_absent(self):
-        ports = dict(producer.MEMBER_PORTS)
-        prober = make_prober({
-            port: (True, "connected")
-            for port in ports.values()
-        })
-        lonely = ports["center"]
-        prober_map = dict.fromkeys(ports.values(), (True, "connected"))
-        prober_map[lonely] = (False, "connection refused")
+        units = dict(producer.MEMBER_UNITS)
+        prober_map = dict.fromkeys(units.values(), (True, "active"))
+        prober_map[units["supervisor"]] = (False, "failed")
 
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=fake_git, port_prober=make_prober(prober_map))
+            git_runner=fake_git, unit_prober=make_prober(prober_map))
         row = next(item for item in envelope["data"]["processes"]
-                   if item["sensor_id"] == "process_center")
+                   if item["sensor_id"] == "process_supervisor")
         self.assertEqual(row["status"], "absent")
-        self.assertIn("process_center_absent", envelope["warnings"])
+        self.assertIn("process_supervisor_absent", envelope["warnings"])
 
     def test_scenario_3_several_producers_absent(self):
-        prober_map = {
-            producer.MEMBER_PORTS["organism"]: (False, "connection refused"),
-            producer.MEMBER_PORTS["live"]: (False, "connection refused"),
-            producer.MEMBER_PORTS["center"]: (False, "connection refused"),
-            producer.MEMBER_PORTS["cortex"]: (True, "connected"),
-            producer.MEMBER_PORTS["gateway"]: (True, "connected"),
-        }
+        units = producer.MEMBER_UNITS
+        prober_map = dict.fromkeys(units.values(), (True, "active"))
+        for member in ("bridge", "cycle_settler", "supervisor"):
+            prober_map[units[member]] = (False, "failed")
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=fake_git, port_prober=make_prober(prober_map))
+            git_runner=fake_git, unit_prober=make_prober(prober_map))
         absent = [item["sensor_id"] for item in envelope["data"]["processes"]
                   if item["status"] == "absent"]
-        self.assertEqual(absent, ["process_center", "process_live",
-                                  "process_organism"])
+        self.assertEqual(absent, ["process_bridge", "process_cycle_settler",
+                                  "process_supervisor"])
 
     def test_scenario_5_git_unavailable_is_unknown_not_fabricated(self):
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
             git_runner=lambda root, *args: None,
-            port_prober=fake_prober_ok)
+            unit_prober=fake_prober_ok)
         identity = envelope["data"]["code_identity"]
         self.assertIsNone(identity["commit_sha"])
         row = envelope["data"]["sensors"][0]
@@ -145,25 +137,25 @@ class ProducerEnvelope(unittest.TestCase):
 
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=garbage_git, port_prober=fake_prober_ok)
+            git_runner=garbage_git, unit_prober=fake_prober_ok)
         self.assertEqual(envelope["data"]["events"], [])
 
     def test_scenario_7_absent_port_value_is_false_not_zero(self):
-        prober_map = dict.fromkeys(producer.MEMBER_PORTS.values(),
-                                   (False, "connection refused"))
+        prober_map = dict.fromkeys(producer.MEMBER_UNITS.values(),
+                                   (False, "failed"))
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=fake_git, port_prober=make_prober(prober_map))
+            git_runner=fake_git, unit_prober=make_prober(prober_map))
         for row in envelope["data"]["processes"]:
             self.assertIs(row["value"], False)
             self.assertIsNot(row["value"], 0)
 
     def test_scenario_9_inconclusive_probe_is_not_green(self):
-        prober_map = dict.fromkeys(producer.MEMBER_PORTS.values(),
-                                   (None, "probe timeout"))
+        prober_map = dict.fromkeys(producer.MEMBER_UNITS.values(),
+                                   (None, "systemctl unavailable"))
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=fake_git, port_prober=make_prober(prober_map))
+            git_runner=fake_git, unit_prober=make_prober(prober_map))
         self.assertEqual(envelope["status"], "unverifiable")
         self.assertNotEqual(envelope["status"], "ok")
 
@@ -171,7 +163,7 @@ class ProducerEnvelope(unittest.TestCase):
         tmp = temp_dir(self)
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=Path(tmp),
-            git_runner=fake_git, port_prober=fake_prober_ok)
+            git_runner=fake_git, unit_prober=fake_prober_ok)
         probe = envelope["data"]["brain_probe"]
         self.assertEqual(probe["status"], "unknown")
         self.assertEqual(probe["verdict"], "unverifiable")
@@ -187,7 +179,7 @@ class ProducerEnvelope(unittest.TestCase):
         os.utime(receipt, (old, old))
         envelope = producer.produce(
             clock=lambda: 100_000_000.0, repo_root=Path(tmp),
-            git_runner=fake_git, port_prober=fake_prober_ok)
+            git_runner=fake_git, unit_prober=fake_prober_ok)
         self.assertEqual(envelope["data"]["brain_probe"]["status"], "stale")
         self.assertEqual(envelope["status"], "degraded")
 
@@ -196,7 +188,7 @@ class ProducerDeterminism(unittest.TestCase):
     def test_scenario_8_same_input_same_document_and_digest(self):
         kwargs = dict(
             repo_root=ROOT, git_runner=fake_git,
-            port_prober=fake_prober_ok, clock=lambda: 1000.0)
+            unit_prober=fake_prober_ok, clock=lambda: 1000.0)
         first = producer.produce(**kwargs)
         second = producer.produce(**kwargs)
         # identical injected inputs must yield the identical document —
@@ -207,7 +199,7 @@ class ProducerDeterminism(unittest.TestCase):
 
     def test_scenario_8_later_read_keeps_semantics_and_updates_stamp(self):
         kwargs = dict(repo_root=ROOT, git_runner=fake_git,
-                      port_prober=fake_prober_ok)
+                      unit_prober=fake_prober_ok)
         first = producer.produce(clock=lambda: 1000.0, **kwargs)
         second = producer.produce(clock=lambda: 2000.0, **kwargs)
         self.assertNotEqual(first["generated_at"], second["generated_at"])
@@ -219,7 +211,7 @@ class ProducerDeterminism(unittest.TestCase):
     def test_scenario_8_document_is_json_roundtrip_stable(self):
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=fake_git, port_prober=fake_prober_ok)
+            git_runner=fake_git, unit_prober=fake_prober_ok)
         self.assertEqual(json.loads(json.dumps(envelope)), envelope)
 
 
@@ -227,7 +219,7 @@ class ArtifactWrite(unittest.TestCase):
     def test_write_artifact_is_atomic_and_reloadable(self):
         envelope = producer.produce(
             clock=lambda: 1000.0, repo_root=ROOT,
-            git_runner=fake_git, port_prober=fake_prober_ok)
+            git_runner=fake_git, unit_prober=fake_prober_ok)
         tmp = temp_dir(self)
         target = Path(tmp) / "state" / "self-model" / "MODEL.json"
         path, digest_one = producer.write_artifact(envelope, target)
@@ -247,14 +239,14 @@ class RealProducersIntegration(unittest.TestCase):
             ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
             capture_output=True, text=True, check=True, timeout=10)
         real_head = completed.stdout.strip()
-        envelope = producer.produce(repo_root=ROOT, port_prober=fake_prober_ok)
+        envelope = producer.produce(repo_root=ROOT, unit_prober=fake_prober_ok)
         self.assertEqual(envelope["data"]["code_identity"]["commit_sha"],
                          real_head)
 
     def test_real_capabilities_all_present_in_this_checkout(self):
         envelope = producer.produce(
             repo_root=ROOT, clock=lambda: 1000.0, git_runner=fake_git,
-            port_prober=fake_prober_ok)
+            unit_prober=fake_prober_ok)
         for row in envelope["data"]["capabilities"]:
             self.assertEqual(row["status"], "healthy", row["sensor_id"])
 
@@ -319,7 +311,7 @@ class RealProducersIntegration(unittest.TestCase):
 class CockpitSection(unittest.TestCase):
     def _producer(self, **kwargs):
         options = dict(
-            repo_root=ROOT, git_runner=fake_git, port_prober=fake_prober_ok)
+            repo_root=ROOT, git_runner=fake_git, unit_prober=fake_prober_ok)
         options.update(kwargs)
         return lambda: producer.produce(**options)
 
@@ -334,11 +326,11 @@ class CockpitSection(unittest.TestCase):
         self.assertTrue(SelfModelSection.is_green(envelope))
 
     def test_scenario_9_section_never_greens_unknown(self):
-        prober_map = dict.fromkeys(producer.MEMBER_PORTS.values(),
-                                   (None, "probe timeout"))
+        prober_map = dict.fromkeys(producer.MEMBER_UNITS.values(),
+                                   (None, "systemctl unavailable"))
         section = SelfModelSection(self._producer(
             clock=lambda: 1000.0,
-            port_prober=make_prober(prober_map)))
+            unit_prober=make_prober(prober_map)))
         envelope = section.read()
         self.assertEqual(envelope["status"], "unverifiable")
         self.assertFalse(SelfModelSection.is_green(envelope))
