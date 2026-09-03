@@ -1,6 +1,6 @@
 # LANE-REPORT — P1-BODY-HOST (session lxxx, 2026-09-03)
 
-Declared file-lock zone: `/tmp/ofn-p1-body-host` on `feat/p1-body-host-20260903` parent `a981086302c2b562bd02c55402ccc619afe4ef1e`.
+Declared file-lock zone: `/tmp/ofn-p1-body-host` on `feat/p1-body-host-20260903` engineering HEAD `d267b13e7808b5f180e066d22ae4bfd08c7e24c1`. PR https://github.com/ari-OCTOPUS/ofn-node/pull/175.
 `/workspace` stayed on `cursor/taskenvelope-system-hardening-58c7` @`c2878d30d98568c5148057d4b93f95df7d3232fb` (designated digest-fold trigger) and was not written.
 
 Lane ID: P1-BODY-HOST. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complementary kernel this-host presence / one-node pin. Did not edit LANE-MATRIX.csv.
