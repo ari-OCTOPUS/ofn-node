@@ -63,6 +63,14 @@
     },
     "pytest": "absent — used stdlib unittest; status: verified_absent"
   },
+  "verification_on_commit": {
+    "command": "python3 -m unittest tests.test_halt_flag tests.test_start_permit tests.test_chaos_start_permit tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T04:28:21Z",
+    "committed_head_full": "bee71be3e60ebd50240bf6fd802572b93376d302",
+    "exit_code": 0,
+    "result": "216 passed, 0 failed, 0 skipped",
+    "note": "second independent claim: same command after the commit that added the Windows LF write"
+  },
   "invariants": {
     "ready_ne_authorized": true,
     "grants_send": false,

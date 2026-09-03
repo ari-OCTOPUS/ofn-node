@@ -26,6 +26,7 @@ Lane declared: P1-START-PERMIT. Not in origin `09-LANES/LANE-MATRIX.csv` (L0–L
 | Claim | Value | Source path | Grade | Status |
 |---|---|---|---|---|
 | Combined suite | 216 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-03T04:27:18Z / parent `4d59044dd4801b85c1e5fe350c681684f2c2f845` | this report + receipt | E3 | measured this run |
+| Post-commit suite | 216 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-03T04:28:21Z / HEAD `bee71be3e60ebd50240bf6fd802572b93376d302` | same command | E3 | measured this run |
 | New-module + chaos | 37 passed @ 2026-09-03T04:27:14Z | unittest halt_flag/start_permit/chaos | E3 | measured this run |
 | halt_flag tests | 10 run / 0 failed / 0 skipped | recount 2026-09-03T04:27:29Z | E3 | measured this run |
 | write_halt bytes | `b"1\n"` | this-host write after patch | E3 | measured this run |
@@ -40,7 +41,7 @@ Command:
 python3 -m unittest tests.test_halt_flag tests.test_start_permit tests.test_chaos_start_permit tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q
 ```
 
-Receipt pointer: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-START-PERMIT-WIN-20260903.json` · SHA-256 pending after write · evidence level B (this-host worktree file). Filesystem immutability: NOT claimed.
+Receipt pointer: `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-START-PERMIT-WIN-20260903.json` · SHA-256 `3753c3dff6370b4ed5b39c4fd9075e7c3d76ef003b63183604da618f4f386f26` · 3798 bytes · evidence level B (this-host worktree file; git blob after docs tip). Filesystem immutability: NOT claimed.
 
 ## Rollback steps
 
