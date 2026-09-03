@@ -1,0 +1,54 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-KEY-BURN-20260903",
+  "issued_utc": "2026-09-03T17:34:22Z",
+  "author": "cursor-cloud bc-9c329b1b-2fcf-44f1-871e-75264788a773 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-key-burn on feat/p1-key-burn-20260903 parent origin/main @ab5d3d450c408cc31ba5fb2431241869d397a48e (#158). key_class.py and burn_pin.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-8bfc @ab5d3d450c408cc31ba5fb2431241869d397a48e and was not written during engineering. pytest ModuleNotFoundError verified this-run; stdlib unittest used.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "origin tip after 2026-09-03T17:32:28Z local survey (git fetch egress-blocked)"
+  ],
+  "action": "P1 complementary key_class + burn_pin — new files only. An idempotency key binds as KEY_BOUND. Missing is UNKNOWN, not FALSE. No outcome burns the key. Ready structurally ≠ authorized. Not a second idempotency.py, receipts, dedup, write_fence, or campaign_bind PR.",
+  "delivered": {
+    "ofn/kernel/key_class.py": "classify_key: None→UNKNOWN; non-empty str→KEY_BOUND; send_authorized/quote_sent/campaign_envelope_ready/empty/bool fail closed; bind_key records stripped key and is frozen; try_bind missing→None; grants_send/burns_key/ready_is_authorized structurally False",
+    "ofn/kernel/burn_pin.py": "admit_burn missing→None; receipt_cited/refused/ready/missing do not burn; sealed names fail closed; BurnDecision refuses burned=True and allowed=True; later_disarm_supersedes structurally True; grants_send structurally False; not wired into run_store.py",
+    "tests/test_key_class.py": "E3 negatives: sealed send/ready names, empty, bool/int, frozen retcon, run_store and idempotency import absence",
+    "tests/test_burn_pin.py": "E3 negatives: every outcome refuses burn, missing UNKNOWN, constructor locks, sealed names",
+    "tests/test_chaos_key_burn.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_key_class tests.test_burn_pin tests.test_chaos_key_burn tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T17:34:22Z",
+    "parent_head_full": "ab5d3d450c408cc31ba5fb2431241869d397a48e",
+    "exit_code": 0,
+    "result": "240 passed / 0 failed / 0 skipped (unittest 'Ran 240 tests in 0.431s' / OK). New-module only: 61 passed (key_class 29 / burn_pin 25 / chaos 7) at 2026-09-03T17:34:21Z. Plus purity 10 = 71 at 2026-09-03T17:34:21Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified this-run)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-key-burn).",
+    "worktree": "/tmp/ofn-p1-key-burn",
+    "file_lock_zone": [
+      "ofn/kernel/key_class.py",
+      "ofn/kernel/burn_pin.py",
+      "tests/test_key_class.py",
+      "tests/test_burn_pin.py",
+      "tests/test_chaos_key_burn.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-KEY-BURN-20260903.json",
+      "09-LANES/P1-KEY-BURN/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as a key",
+      "admit_burn(receipt_cited) burned is False; admit_burn(None) is None",
+      "later_disarm_supersedes is True; grants_send is False",
+      "run_store source does not import key_class or burn_pin",
+      "idempotency.py source does not import key_class or burn_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "idempotency.py / receipts.py / dedup.py / write_fence (#116) / campaign_bind/send_fence (#145) / typed_event/receipt_bind (#143) / envelope_class/store_class (#148) / token_class/spend_fence (#155) / unpublished receipt_class/ack_pin"
+}
