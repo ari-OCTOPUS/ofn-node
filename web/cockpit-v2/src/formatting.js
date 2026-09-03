@@ -27,6 +27,8 @@ const STATUS_LABELS = Object.freeze({
   not_exposed: "ارائه نشده",
   not_modeled: "مدل نشده",
   not_implemented: "پیاده‌سازی نشده",
+  consistent: "سازگار",
+  inconsistent: "ناسازگار",
 });
 
 export function isNil(value) {
@@ -113,9 +115,9 @@ export function truthStatus(value) {
     return { key: "unknown", label: UNKNOWN_TEXT, tone: "neutral" };
   }
   const key = String(raw).trim().toLowerCase().replace(/[\s-]+/g, "_");
-  const ok = new Set(["ok", "healthy", "live", "online", "ready", "verified", "fresh", "true"]);
-  const warn = new Set(["degraded", "partial", "stale", "pending", "warning"]);
-  const bad = new Set(["error", "failed", "offline", "contradicted", "blocked", "false"]);
+  const ok = new Set(["ok", "healthy", "live", "online", "ready", "verified", "fresh", "true", "consistent"]);
+  const warn = new Set(["degraded", "partial", "stale", "pending", "warning", "incomplete", "unverifiable"]);
+  const bad = new Set(["error", "failed", "offline", "contradicted", "blocked", "false", "inconsistent"]);
   return {
     key,
     label: STATUS_LABELS[key] ?? String(raw),
