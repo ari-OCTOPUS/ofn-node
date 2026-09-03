@@ -19,11 +19,11 @@ updated: 2026-09-02
 pytest      ofn: test_command_surface_absent 4/4 · bridge: 115 pass (۲۰۲۶-۰۸-۱۴)
             خط پایهٔ کامل OFN را با tools/repo_baseline.py --tests بگیر
 preflight   (این جلسه ری‌استارت نشد)
-گیت‌ها       secret_rotation 🔒 (GATE_OPEN_UNTIL_UTC=2026-08-17 منقضی)
-            partner_precondition 🔒 · miner_isolation 🔒
-            + kill-switch OFN_EXTRA_CLOSED_GATES
-            OFN_KEEP_GATES_OPEN نزده شد — rotate واقعی هنوز نیست
-WIRE        outbound خاموش (OFN_WIRE_OUTBOUND پیش‌فرض ۰؛ D-27 مجاز کرد، تست دود نه)
+گیت‌ها       secret_rotation/partner_precondition پنجرهٔ رسمی تا ۲۰۲۶-۰۹-۱۶
+            miner_isolation 🔒 · kill-switch OFN_EXTRA_CLOSED_GATES
+            secret_rotation: risk_accepted_unrotated (راز این‌جا نچرخید)
+            OFN_KEEP_GATES_OPEN پیش‌فرض کد نیست — مالک روی برد می‌زند
+WIRE        outbound پیش‌فرض خاموش؛ مجاز روی برد بعد از تست دود
 بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
 allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
 سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear · ofn-heartbeat · octopus-bridge
@@ -39,16 +39,41 @@ allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
             روتین شبانهٔ ۲۱:۰۰: snapshot روزانه + DAILY-REPORT + جواب وایر.
             NTP فعال شد (CHECKPOINT §۷-۲ بسته شد) · ۱۹۳۸ تست سبز.
 D-26        ۲۰۲۶-۰۹-۰۱ ثبت تاریخی: بدن‌ها + صداها. مجوز را D-27 عوض کرد.
-D-27        ۲۰۲۶-۰۹-۰۲ مجوز باز با سقف ۲۵ پیام / ۵۰ AUD / بودجه برد ۰
-            C-009 بسته · partner_voices هنوز independently observed نیست
-            PR #65 از Draft خارج شد؛ push به main به‌خاطر ریویو +
-            ممنوعیت merge-commit رد شد
-قدم بعد     انسان با write access: squash-merge #65 سپس این شاخهٔ D-27
+D-27        ۲۰۲۶-۰۹-۰۲ مجوز باز با سقف ۲۵ / ۵۰ / ۰
+            روی main نشست (#66 squash e68aede) — economy.py آنجا باگ‌دار است
+D-28        لبهٔ ToS · ویس/رضایت/rotate جعل نشد
+            GATE_OPEN_UNTIL_UTC=2026-09-16
+            intake ۲۰۲۶-۰۹-۰۲: هش ویندوز ثبت شد · مشاهده=false
+            SUME=عباس · اسناد رسمی: Sume (Abbas) · محتوا شنیده نشد
+            انتساب فایل inferred · انتقال: host+login+per-file verify
+            PR #65 هنوز روی main نیست (ریویو + ممنوعیت merge-commit)
+            #68 روی main است
+قدم بعد     squash #67 (نه merge commit) بعد از approve دوبارهٔ الهه
+            اگر review-gate بعد از این merge-from-main stale شد
+            merge_authorized ≠ self-merge · protect-main · بدون الهه مسیر نیست
+            مالک: هر ogg را جدا گوش بده و جدا هش کن
+            میزبان ofn-node؟ نام ورود؟
+            tenders.nsw.gov.au مرده → buy.nsw API نامعلوم؛ nsw_ocp جایگزین
+            مالک روی برد: چرخش دو راز + flagهای env
             معیار هفته: یک رسید پرداخت واقعی روی PAINT-L5-001
-            آری: rotate واقعی راز — بدون آن OFN_KEEP_GATES_OPEN نزن
-            عباس: follow-up → quote → booked · ملیحه: ۳ listing · سبا: ۱ پست
-            (پست سبا رکورد رضایت می‌خواهد، نه flag)
+            follow-up نقاشی از این vantage ارسال نشد (دو مرحله + بدن لید)
+            مگاپرامپت بستن سیزن:
+            docs/agent-context/prompts/MEGAPROMPT-SEASON-CLOSE-2026-09-02.md
 ```
+
+---
+
+## جلسهٔ ۲۰۲۶-۰۹-۰۲ — intake شواهد ویندوز (هش، نه مشاهده)
+
+مالک چهار فایل را روی ویندوز هش کرد. رسید SHA-256 در
+`docs/octopus-surgery/attestations/receipts/` ثبت شد. ویس، اسکرین‌شات
+و برگهٔ رضایت در گیت نیست. این vantage فایل‌ها را نشنید و ندید؛
+`independently_observed` همچنان false است. مالک تأیید کرد SUME نام
+قانونی عباس در سیدنی است (`partner_id=abbas`، اسناد رسمی:
+`Sume (Abbas)`).
+تأیید نام ≠ تأیید محتوا. انتساب فایل به شخص هنوز inferred است.
+مسیر مطلق ویندوز از گیت برداشته شد. انتقال بدون host، login و
+تأیید تک‌فایل مجاز نیست.
 
 ---
 

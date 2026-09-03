@@ -1,0 +1,34 @@
+{
+  "schema": "octopus.partner_identity.v1",
+  "recorded_at": "2026-09-02T00:27:00Z",
+  "source": "owner_utterance_2026-09-02",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "claim_type": "record",
+  "note": "System id stays partner_id. Legal name is official_legal_name. Contracts, invoices, and revenue split print official_documents_use so both sides can recognise the person. Display names are not a second legal identity.",
+  "partners": [
+    {
+      "partner_id": "maliheh",
+      "official_legal_name": null,
+      "display_names": ["ملیحه"],
+      "official_documents_use": null
+    },
+    {
+      "partner_id": "abbas",
+      "official_legal_name": "Sume",
+      "legal_name_alias": "Sume",
+      "alias_jurisdiction": "AU-NSW",
+      "display_names": ["عباس"],
+      "official_documents_use": "Sume (Abbas)",
+      "do_not_create_parallel_identity": true,
+      "identity_confirmation_type": "owner_attested",
+      "identity_independently_verified": false
+    },
+    {
+      "partner_id": "saba",
+      "official_legal_name": null,
+      "display_names": ["سبا"],
+      "official_documents_use": null
+    }
+  ]
+}
