@@ -1,0 +1,114 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-TOKEN-SPEND-20260903",
+  "issued_utc": "2026-09-03T10:31:01Z",
+  "author": "cursor-cloud-agent bc-6b341e92-ac14-42eb-ac6a-f54617c532af",
+  "owner_ratified": false,
+  "body": "bc-6b341e92-ac14-42eb-ac6a-f54617c532af",
+  "branch": "feat/p1-token-spend-20260903",
+  "parent_head_full": "6f9298a85fd9dfc04670cb6b161732830ed421b6",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/token_class.py",
+    "ofn/kernel/spend_fence.py",
+    "tests/test_token_class.py",
+    "tests/test_spend_fence.py",
+    "tests/test_chaos_token_spend.py",
+    "09-LANES/P1-TOKEN-SPEND/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-TOKEN-SPEND-20260903.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/bc-6b341e92-ac14-42eb-ac6a-f54617c532af-fe8c @6f9298a85fd9dfc04670cb6b161732830ed421b6 — origin/main #151; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/budget_class.py",
+    "ofn/kernel/callbudget.py",
+    "ofn/kernel/quota.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/otel_map.py",
+    "ofn/kernel/otel_bind.py",
+    "ofn/kernel/census_class.py",
+    "ofn/kernel/arch_bind.py",
+    "ofn/kernel/contract_pin.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902 / #154; appended separately)",
+    ".github/CODEOWNERS"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure dual-ceiling token claim + spend fence. classify_token requires both per_run and node as exact bools; missing is not a fit. Disagreement is SPLIT and is not silently picked. Timeout is UNKNOWN and does not prove concurrent spending. grant_send is never admitted. admit_spend observes a FIT/MISS/SPLIT; promote_send and quote are always refused, including on FIT. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_token / halt_blocks_fence / ready_is_authorized / claims_immutable / unknown_is_false / unknown_is_fit / timeout_proves_concurrent / silently_picks_split / proposal_is_execution / promotes_ready_to_send / fit_is_send structurally False. No halt/resend/send knob. HALT stops STARTS, not a token classify or spend fence. Not wired into run_store.py. Distinct from token_ceiling, budget_class, callbudget, quota, send_fence, campaign_bind. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_token_class tests.test_spend_fence tests.test_chaos_token_spend tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_otel_map tests.test_worktree_inventory tests.test_arch_token_otel_contracts tests.test_census_class tests.test_write_fence tests.test_artifact_ref tests.test_numeric_claim tests.test_flag_freeze tests.test_source_health tests.test_start_permit tests.test_hash_chain tests.test_event_id tests.test_dedup tests.test_receipts tests.test_events tests.test_observation_class tests.test_inference_class tests.test_arch_bind tests.test_contract_pin tests.test_chaos_arch_contract tests.test_budget_class tests.test_otel_bind tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_envelope_class tests.test_store_class tests.test_clock_bind tests.test_utc_class tests.test_report_class tests.test_verify_class tests.test_journal_class tests.test_pragma_class tests.test_dual_record tests.test_phase_wall -q",
+    "ran_at_utc": "2026-09-03T10:31:01Z",
+    "head_full_at_run": "6f9298a85fd9dfc04670cb6b161732830ed421b6",
+    "exit_code": 0,
+    "result": "1207 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_token_class.py": "33 passed, exit 0 (recount 2026-09-03T10:31:08Z, same parent)",
+      "tests/test_spend_fence.py": "28 passed, exit 0 (recount 2026-09-03T10:31:08Z, same parent)",
+      "tests/test_chaos_token_spend.py": "14 passed, exit 0 (recount 2026-09-03T10:31:08Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-03T10:31:08Z, same parent)"
+    },
+    "new_module_pre_suite": {
+      "command": "python3 -X utf8 -m unittest tests.test_token_class tests.test_spend_fence tests.test_chaos_token_spend tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-03T10:30:51Z",
+      "exit_code": 0,
+      "result": "85 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @6f9298a85fd9dfc04670cb6b161732830ed421b6 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-clone /workspace through session xxxiii; incidents branch measured separately (#154 head 9eb2a4c86817fe9de85af49bf8b00436c0711bcc)",
+    "CONTRIBUTING.md": "absent on origin/main @6f9298a — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value": "6f9298a85fd9dfc04670cb6b161732830ed421b6",
+    "source": "git fetch origin --prune 2026-09-03T10:27:56Z subject #151",
+    "prior_memory": "6f9298a85fd9dfc04670cb6b161732830ed421b6",
+    "note": "Matches prior-memory this-run origin/main. This body merged none.",
+    "resolution": "this-run MATCH prior-memory origin/main",
+    "status": "resolved_by_this_host_git_log"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-03T10:24:29.220Z",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "designated_branch": "cursor/bc-6b341e92-ac14-42eb-ac6a-f54617c532af-fe8c",
+    "designated_sha": "6f9298a85fd9dfc04670cb6b161732830ed421b6",
+    "verdict": "Owner-absent hourly operator. Did not write designated checkout. Did not merge. Did not weaken gates. Did not re-arm send."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
