@@ -507,3 +507,9 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **PR #172** `ofn/agents/brain_wake.py`: when wake-worthy business events land (payments/orders/quote-requests/leads), writes a REAL cognitive_wake.v1 into the mesh outbox — the exact envelope format proven Aug-27 (hold_external=true · may_authorize=false · deadline+4h · wake_sha256). The armed hourly mesh-send timer delivers to 180 → local llama thinks → 182 verifies → 138 cards. Quiet = honest no-op; dedup via state; writer path locked.
 - Full suite 4445/0 (+15). One vote closes the heart→brain link.
 - Also merged today by owner: #158 glass-runner (main ab5d3d4→), and Layer-2 gates 3-8 confirmed + 8/10 armed (GATES-31 log updated).
+
+### Round 29 — P3 MERGED + LIVE: the heart→brain link is armed (2026-09-04 ~01:50, owner: «زدم»)
+- aram-ui approved on final head 790e2ad; stale gate anchor cleared (proven rerun); **#172 MERGED on CLEAN** (squash a9810863, ~21:5xZ).
+- Board deployed → a9810863. **octopus-brainwake.timer installed & armed** (hourly; next fire 22:00Z) — 14th autonomy timer on the board.
+- The link as of now: business events (payments/orders/quote-requests/leads) on 138 → hourly brain_wake tick → cognitive_wake.v1 (hold_external=true, may_authorize=false, sha-fingerprinted) → mesh send timer → 180 (llama thinks) → 182 verifies → 138 cards the owner. Every hop receipted, every send owner-gated.
+- HARMONY-MERGER P1✓ P2✓ P3✓ — the two-generation organism is now a single connected body. Remaining open (all parked or data-gated): M5 OwnerRelease implementation (#113 lane), ziman I1-I11 data, Wave-2 P1s, NATS octopus-core password decision.
