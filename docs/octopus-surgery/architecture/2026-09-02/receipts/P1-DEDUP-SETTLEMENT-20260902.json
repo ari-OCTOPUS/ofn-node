@@ -1,0 +1,62 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-DEDUP-SETTLEMENT-20260902",
+  "issued_utc": "2026-09-02T10:25:56Z",
+  "author": "cursor-cloud-agent bc-045011f7 (owner-absent cron 17 * * * *)",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "claim_type": "measurement",
+  "scope_measured": "new kernel-pure KindRefIndex + SettlementIndex + halt.is_halted vocabulary tests on origin/main @94f9622d650d29742722e85b9c7c0dfde943dc97 working tree; files listed under file_lock_zone",
+  "scope_not_measured": [
+    "full-suite CI (runs on the PR)",
+    "filesystem immutability of any archive",
+    "wiring into run_store.py (owned by PR #82)",
+    "nested payload scan (owned by PR #82 events.py)",
+    "envelope factory deadline (owned by PR #83)",
+    "typed ExecutionReceipt (owned by PR #87)"
+  ],
+  "action": "P1 complementary: (kind,ref) dedup + one-verdict-one-debit settlement + HALT kernel vocabulary. New files only.",
+  "file_lock_zone": [
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "tests/test_dedup.py",
+    "tests/test_settlement.py",
+    "tests/test_halt_kernel.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-DEDUP-SETTLEMENT-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/receipts.py",
+    "tests/test_chaos_owner_absent.py",
+    "docs/octopus-os/07-INCIDENTS.md"
+  ],
+  "verification": {
+    "command": "python3 -m pytest tests/test_dedup.py tests/test_settlement.py tests/test_halt_kernel.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T10:25:56Z",
+    "parent_head_full": "94f9622d650d29742722e85b9c7c0dfde943dc97",
+    "exit_code": 0,
+    "result": "189 passed, 1059 subtests passed, 0 failed, 0 skipped",
+    "pytest": "9.1.1"
+  },
+  "verification_on_commit": {
+    "command": "python3 -m pytest tests/test_dedup.py tests/test_settlement.py tests/test_halt_kernel.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T10:26:44Z",
+    "committed_head_full": "53ab77d746339d3ef9dd995ba249577c5bdab29f",
+    "exit_code": 0,
+    "result": "189 passed, 1059 subtests passed, 0 failed, 0 skipped",
+    "note": "second independent claim: same command after the commit that added the modules"
+  },
+  "invariants": {
+    "ready_ne_authorized": true,
+    "grants_send": false,
+    "halt_blocks_dedup": false,
+    "halt_blocks_settlement": false,
+    "wired_into_run_store": false,
+    "external_effects": 0
+  },
+  "filesystem_immutability": "NOT claimed",
+  "boundary": "no gate opened, no outbound, no secrets, no merge, no admin bypass"
+}

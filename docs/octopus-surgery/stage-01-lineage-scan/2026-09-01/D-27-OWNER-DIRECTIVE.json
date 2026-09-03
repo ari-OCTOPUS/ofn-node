@@ -1,0 +1,111 @@
+{
+  "schema": "octopus.owner_directive.v1",
+  "decision_id": "D-27",
+  "supersedes": "D-26 authorization fields only",
+  "recorded_at": "2026-09-02T00:00:00Z",
+  "vantage": "cursor-cloud-agent",
+  "scope": "this_host_only",
+  "node_id": "cursor-cloud",
+  "claim_type": "record",
+  "speaker_role": "owner",
+  "co_owner": "senior-agent",
+  "source_document": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+
+  "implementation_authorized": true,
+  "merge_authorized": true,
+  "deploy_authorized": true,
+  "wire_authorized": true,
+  "external_effect_authorized": true,
+  "board_access_authorized": true,
+  "money_authorized": true,
+
+  "auto_advance_waves": true,
+  "parallel_execution": true,
+  "propose_only_mode": false,
+
+  "owner_attests_all_signed": true,
+  "partner_voices_independently_observed": false,
+  "partner_countersign_status": "owner_attested",
+
+  "hard_limits": {
+    "daily_send_cap": 25,
+    "daily_spend_cap_aud": 50,
+    "per_board_budget_default": 0,
+    "kill_switch": "OFN_EXTRA_CLOSED_GATES",
+    "rollback_window_hours": 24
+  },
+
+  "cannot_be_decreed": [
+    "partner_voices_independently_observed",
+    "saba_publish_consent_record",
+    "real_secret_rotation",
+    "shopify_telegram_payment_tos"
+  ],
+
+  "flags_not_flipped": {
+    "OFN_KEEP_GATES_OPEN": "not set; GATE_OPEN_UNTIL_UTC already expired; requires real secret rotation",
+    "OFN_WIRE_OUTBOUND": "not defaulted to 1; smoke test not run on this host",
+    "OFN_PUBLIC_CATALOG": "wave 3; remains env-gated",
+    "OFN_COMMERCE_ROUTES": "wave 3; remains env-gated",
+    "OFN_ONLYFANS_LIVE": "requires Saba consent record, not a flag",
+    "OFN_CONTROL_QUOTA_TOKENS": "unlock prose said default 0; live default is already 7000"
+  },
+
+  "canonical_bodies_unchanged": {
+    "business": "ofn-node",
+    "architecture": "vault",
+    "mesh": "after_edge_contract",
+    "vault_to_public_ofn_node": "forbidden",
+    "ofn_node_edge_contract": "ofn/adapters/board_events.py"
+  },
+
+  "opened_from_later": ["O-3", "S-04"],
+  "writes_revenue_sent_booking": "authorized_to_record_independent_receipts_only",
+  "week_success_metric": "one_real_payment_receipt_on_PAINT-L5-001",
+
+  "pr65_merge": {
+    "draft": false,
+    "url": "https://github.com/ari-OCTOPUS/ofn-node/pull/65",
+    "ci": "15/15 green",
+    "mergeable": true,
+    "push_to_main": "rejected",
+    "reasons": [
+      "At least 1 approving review is required by reviewers with write access",
+      "This branch must not contain merge commits"
+    ]
+  },
+
+  "merge_authorized_is_not_self_merge": true,
+  "github_self_merge": false,
+  "protect_main": {
+    "ruleset": "protect-main",
+    "required_approving_review_count": 1,
+    "required_linear_history": true,
+    "self_merge": false
+  },
+  "recommended_merge_order": ["68", "67"],
+  "lanes_overlay": {
+    "schema": "octopus.d27_lanes_overlay.v1",
+    "source": "owner_briefing_2026-09-02",
+    "lanes_csv_on_this_host": false,
+    "claim_type": "record",
+    "paths": {
+      "W1-SPINE": {"lane": "L9", "note": "serial inner chain E1-E7"},
+      "W2-EDGE": {"lane": "L4"},
+      "W3-MONEY": {"lane": "L12", "gaps": ["G-46", "G-49", "G-52"]},
+      "W4-COGNITION": {"lanes": ["L6", "L5"], "mode": "read_only"},
+      "W5-TRUTH": {"lane": "L0", "note": "only lane allowed to write checklist 200; serial by design"}
+    },
+    "L13": {
+      "name": "governance unlock",
+      "gaps": ["G-43", "G-44", "G-45", "G-46", "G-47", "G-48", "G-49", "G-50"],
+      "pr": 68,
+      "note": "governance gate was already in the plan, not a new obstacle"
+    }
+  },
+
+  "contradictions_closed_by_this": ["C-009"],
+  "contradictions_remain_open": ["C-001", "C-002", "C-003", "C-004", "C-005", "C-006", "C-008"],
+
+  "error_policy": "demote_one_path_one_rung_not_lock_all_five"
+}

@@ -1,0 +1,21 @@
+# Arbiter envelope for STAGE-01. This is a claim about the scan, not about
+# board 180's runtime. Missing vault paths are body_not_on_this_host.
+schema: octopus.arbiter_envelope.v1
+node_id: cursor-cloud-ofn-node
+asserted_ip: 172.30.0.2
+hostname: cursor
+eth0: present
+eth0_is_192_168_0_180: false
+vantage: cursor-cloud-agent
+scope: this_host_only
+claim_type: observation_unless_marked_inference
+repo: https://github.com/ari-OCTOPUS/ofn-node
+branch_at_scan_start: main
+head_at_scan_start: bbbf86bd7e0f4fdcbe1c87dab981c29aac2f0c6b
+role: PROPOSE_ONLY
+may_authorize: false
+external_api: DISABLED
+notes:
+  - This VM is not octopus-continuity-180.
+  - Disk absence of vault trees is not evidence those trees never existed.
+  - Missing LAN ports on this host is not evidence that loopback APIs on 180 are absent.
