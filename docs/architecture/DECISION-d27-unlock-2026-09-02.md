@@ -67,6 +67,11 @@ rollback_window_hours: 24
 
 ## merge به main
 
-PR #65 از Draft خارج شد و CI سبز است. push مستقیم به `main` از این
-vantage رد شد: ریویو اجباری + ممنوعیت merge-commit. ادغام squashed را
-انسان با write access می‌زند.
+`merge_authorized=true` مجوز حکم است، نه self-merge در GitHub.
+ruleset `protect-main` بعد از incident #51 یک approve از reviewer با
+write access و تاریخ خطی می‌خواهد. مسیر merge بدون الهه در این
+ruleset نیست. ترتیب توصیه‌شده: #68 سپس #67.
+
+`LANES.csv` روی این میزبان نیست. overlay حکم: W1→L9، W2→L4،
+W3→L12، W4→L6+L5، W5→L0 (سریال). L13 همان PR #68 است — گیت
+حاکمیتی از قبل در برنامه بود.
