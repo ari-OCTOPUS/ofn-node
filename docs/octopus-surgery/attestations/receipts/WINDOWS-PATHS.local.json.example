@@ -1,0 +1,11 @@
+{
+  "schema": "octopus.windows_paths.v1",
+  "note": "Copy to WINDOWS-PATHS.local.json on the owner machine. Do not commit. Use %USERPROFILE%, never a personal username.",
+  "windows_staging_root": "%USERPROFILE%\\Documents\\OCTOPUS-ATTESTATIONS\\2026-09-02",
+  "paths": {
+    "maliheh_voice": "%WINDOWS_STAGING_ROOT%\\raw\\maliheh\\voice-01.ogg",
+    "saba_voice": "%WINDOWS_STAGING_ROOT%\\raw\\saba\\voice-01.ogg",
+    "saba_consent": "%WINDOWS_STAGING_ROOT%\\raw\\saba\\consent-original.jpg",
+    "abbas_voice_staging_folder": "%WINDOWS_STAGING_ROOT%\\raw\\sume\\voice-01.ogg"
+  }
+}

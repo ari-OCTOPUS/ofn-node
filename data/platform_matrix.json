@@ -1,7 +1,7 @@
 {
-  "version": "0.3",
-  "updated_at": "2026-08-05",
-  "_note": "This file lives OUTSIDE the kernel on purpose. Brand names and adult-link marker vocabularies are allowed here; they are forbidden inside ofn/kernel/ by the kernel purity test. The kernel's PlatformMatrix is loaded from this file by the adapter layer.",
+  "version": "0.4",
+  "updated_at": "2026-09-02",
+  "_note": "This file lives OUTSIDE the kernel on purpose. Brand names and adult-link marker vocabularies are allowed here; they are forbidden inside ofn/kernel/ by the kernel purity test. The kernel's PlatformMatrix is loaded from this file by the adapter layer. D-28 fills maximum reach inside each ToS; red lines stay structural.",
   "defaults": {
     "unknown_policy": "deny",
     "restricted_never_leaves": true,
@@ -9,7 +9,14 @@
     "minor_targeting": "deny",
     "sensitivity_default": "restricted",
     "consent_state_default": "unknown",
-    "age_safety_default": "unknown_deny"
+    "age_safety_default": "unknown_deny",
+    "daily_send_cap": 25,
+    "daily_spend_cap_aud": 50,
+    "red_lines": [
+      "minors",
+      "unconsented_persons",
+      "third_party_secrets"
+    ]
   },
   "_marker_vocabularies": {
     "_note": "Shared marker lists, referenced per-platform below. Conservative and over-broad by design: a refused caption costs a rewrite, a leaked one costs an account.",
@@ -55,15 +62,31 @@
         "teaser",
         "newsletter",
         "beauty",
-        "educational"
+        "educational",
+        "quote",
+        "follow_up",
+        "local_service",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "spam",
         "illegal_porn",
         "minor_targeting",
-        "nonconsensual"
+        "nonconsensual",
+        "third_party_secrets"
       ],
-      "adult_link_markers": [],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "adult subscription",
+        "premium nsfw",
+        "nudes",
+        "sex chat",
+        "fetish session",
+        "customs available",
+        "porn",
+        "xxx"
+      ],
       "solicitation_markers": [
         "sex chat",
         "escort",
@@ -91,14 +114,29 @@
         "beauty",
         "community",
         "teaser",
-        "educational"
+        "educational",
+        "invite_opt_in",
+        "newsletter",
+        "quote"
       ],
       "blocked_framing": [
         "unlabeled_adult",
         "nonconsensual",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets"
       ],
-      "adult_link_markers": [],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "adult subscription",
+        "premium nsfw",
+        "nudes",
+        "sex chat",
+        "fetish session",
+        "customs available",
+        "porn",
+        "xxx"
+      ],
       "solicitation_markers": []
     },
     "email_ses": {
@@ -120,14 +158,30 @@
         "exclusive",
         "community",
         "beauty",
-        "educational"
+        "educational",
+        "quote",
+        "follow_up",
+        "local_service"
       ],
       "blocked_framing": [
         "cold_spam",
         "no_unsubscribe",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
-      "adult_link_markers": [],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "adult subscription",
+        "premium nsfw",
+        "nudes",
+        "sex chat",
+        "fetish session",
+        "customs available",
+        "porn",
+        "xxx"
+      ],
       "solicitation_markers": []
     },
     "x_twitter": {
@@ -146,15 +200,29 @@
         "adult_labeled",
         "teaser",
         "community",
-        "beauty"
+        "beauty",
+        "invite_opt_in",
+        "educational"
       ],
       "blocked_framing": [
         "unlabeled_adult",
         "profile_banner_adult",
         "minor_targeting",
-        "nonconsensual"
+        "nonconsensual",
+        "third_party_secrets"
       ],
-      "adult_link_markers": [],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "adult subscription",
+        "premium nsfw",
+        "nudes",
+        "sex chat",
+        "fetish session",
+        "customs available",
+        "porn",
+        "xxx"
+      ],
       "solicitation_markers": []
     },
     "youtube_shorts": {
@@ -172,13 +240,16 @@
         "educational",
         "wellness",
         "behind_the_scenes",
-        "beauty"
+        "beauty",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "fetish",
         "sexual_solicitation",
         "adult_subscription_link",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -217,13 +288,16 @@
         "beauty",
         "wellness",
         "educational",
-        "behind_the_scenes"
+        "behind_the_scenes",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "adult_subscription_link",
         "sexual_solicitation",
         "fetish",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -262,14 +336,17 @@
         "beauty",
         "wellness",
         "educational",
-        "behind_the_scenes"
+        "behind_the_scenes",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "adult_subscription_link",
         "pornographic_request",
         "sexual_solicitation",
         "fetish",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -312,14 +389,17 @@
         "beauty",
         "wellness",
         "educational",
-        "behind_the_scenes"
+        "behind_the_scenes",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "adult_link",
         "nudity",
         "sexually_suggestive",
         "fetish",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -356,14 +436,17 @@
         "beauty",
         "foot_care",
         "wellness",
-        "style"
+        "style",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "sexual_suggestive",
         "adult_services",
         "visible_intimate_parts",
         "fetish",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -400,13 +483,16 @@
         "beauty",
         "wellness",
         "educational",
-        "behind_the_scenes"
+        "behind_the_scenes",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "adult_subscription_link",
         "sexual_solicitation",
         "fetish",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -445,15 +531,28 @@
         "community_specific",
         "adult_labeled_where_allowed",
         "educational",
-        "beauty"
+        "beauty",
+        "invite_opt_in"
       ],
       "blocked_framing": [
         "nonconsensual",
         "self_promo_spam",
         "wrong_subreddit",
-        "minor_targeting"
+        "minor_targeting",
+        "third_party_secrets"
       ],
-      "adult_link_markers": [],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "adult subscription",
+        "premium nsfw",
+        "nudes",
+        "sex chat",
+        "fetish session",
+        "customs available",
+        "porn",
+        "xxx"
+      ],
       "solicitation_markers": []
     },
     "shopify": {
@@ -472,7 +571,9 @@
         "gift",
         "product",
         "educational",
-        "behind_the_scenes"
+        "behind_the_scenes",
+        "quote",
+        "local_service"
       ],
       "blocked_framing": [
         "adult_subscription_link",
@@ -480,7 +581,9 @@
         "sexual_solicitation",
         "fetish",
         "minor_targeting",
-        "spam"
+        "spam",
+        "third_party_secrets",
+        "nonconsensual"
       ],
       "adult_link_markers": [
         "onlyfans",
@@ -517,9 +620,21 @@
       "blocked_framing": [
         "nonconsensual",
         "minor_targeting",
-        "spam"
+        "spam",
+        "third_party_secrets"
       ],
-      "adult_link_markers": [],
+      "adult_link_markers": [
+        "onlyfans",
+        "fansly",
+        "adult subscription",
+        "premium nsfw",
+        "nudes",
+        "sex chat",
+        "fetish session",
+        "customs available",
+        "porn",
+        "xxx"
+      ],
       "solicitation_markers": [
         "escort",
         "meet for"

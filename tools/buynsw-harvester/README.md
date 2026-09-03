@@ -54,6 +54,30 @@ python3 tools/ingest_buynsw_batch.py /home/ari/buysw-leads-2026-09-02-09-30-00.j
 (ممیزی نشت PII در متن آزاد). کد خروج: `0` موفق، `2` بچ رد شد (هیچ نوشتنی
 نکرده)، `1` خطای عملیاتی. اجرای دوباره بی‌ضرر است.
 
+## مسیر بدون کلیک — sidecar (اختیاری، خاموش پیش‌فرض)
+
+به‌جای scp+CLI، اکستنشن می‌تواند مستقیم به نود POST کند. روی board138
+(⚠️ پورت‌های 8791–8796 را سرویس‌های خود نود اشغال کرده‌اند — پورت 8799+ بگذارید):
+
+```bash
+cd /home/ari/wt-buynsw-ingest
+INGEST_TOKEN=یک-راز-مخفی OFN_PAINTING_DB=/home/ari/.local/share/ofn/painting.sqlite \
+  python3 tools/buynsw-harvester/ingest_server.py --host 127.0.0.1 --port 8799
+```
+
+بعد در popup اکستنشن → «تنظیمات نود OFN»: endpoint =
+`http://127.0.0.1:8799/api/leads/ingest` (یا آدرس تانل) + همان توکن.
+بدون `INGEST_TOKEN` اصلاً بالا نمی‌آید (fail-closed). همان گیت واحد
+`ingest_batch` را صدا می‌زند؛ مرحلهٔ تولیدی = انتقال به مسیر webhookِ
+ Governed هنگام review. تست‌شده روی خود board138 (POST → accepted:1).
+
+## نجات عنوان/مهلت (v0.3)
+
+اگر متن لینک فقط «See details» بود یا فیلد مهلت خالی آمد، عنوان واقعی و
+`Closes:` از متن کارت بازیابی می‌شوند (idempotent). تولیدکنندهٔ JS هم
+`window.__BUYSW__` را export می‌کند تا صفحهٔ self-test بومی (بدون نصب
+اکستنشن، از هر جایی حتی ایران) بتواند استخراج‌کننده را صدا بزند.
+
 ## حلقهٔ قفل‌کردن سلکتورها
 
 اگر «برداشت» رکوردی پیدا نکرد یا فیلدها خالی بود: **«دامپ دیباگ DOM»** →
@@ -67,8 +91,9 @@ python3 tools/ingest_buynsw_batch.py /home/ari/buysw-leads-2026-09-02-09-30-00.j
 - تولیدکننده JS: `mapping.js` (تابع `normalize` → رکورد v2).
 - مصرف‌کننده: `ofn/agents/h1_buysw_dom.py` (`ingest_batch`) — هر دو شکل
   wrapper و رکورد v1/v2.
-- `tests/test_h1_buysw_dom.py` (۲۶ تست) fixtureها را دقیقاً به شکل خروجی
-  واقعی هر دو تولیدکننده می‌سازد؛ تغییر کلید = تغییر دو طرف + تست در یک commit.
+- `tests/test_h1_buysw_dom.py` (۳۴ تست) fixtureها را دقیقاً به شکل خروجی
+  واقعی هر دو تولیدکننده می‌سازد (شامل فیلد `opportunity_type` و رکوردهای
+  «See details»)؛ تغییر کلید = تغییر دو طرف + تست در یک commit.
 - فیلتر حقیقت فقط سمت پایتون است؛ `_painting_hint` صرفاً پیش‌نمایش UI است.
 
 ## آنچه عمداً نمی‌کند

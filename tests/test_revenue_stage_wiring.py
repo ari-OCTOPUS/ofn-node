@@ -179,8 +179,10 @@ class TestGateExpiry(unittest.TestCase):
                 real = datetime
                 fake_dt.strptime = real.strptime
                 fake_dt.timezone = timezone
-                fake_dt.now.return_value = real(
-                    2026, 8, 17, 0, 0, 1, tzinfo=timezone.utc)
+                deadline = real.strptime(
+                    config_module.GATE_OPEN_UNTIL_UTC, "%Y-%m-%d"
+                ).replace(tzinfo=timezone.utc)
+                fake_dt.now.return_value = deadline.replace(second=1)
                 cfg = config_module.load()
                 self.assertIn("secret_rotation", cfg.base_closed_gates)
                 self.assertIn("partner_precondition", cfg.base_closed_gates)
