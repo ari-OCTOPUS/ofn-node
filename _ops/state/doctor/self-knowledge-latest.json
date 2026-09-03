@@ -1,10 +1,10 @@
 {
-  "ts": "2026-09-03T13:40:45",
-  "beat": 60297,
-  "version": 500,
+  "ts": "2026-09-03T19:46:42",
+  "beat": 60569,
+  "version": 502,
   "source": "cached:no-change",
-  "snapshot_hash": "9affa693f98b8e64",
-  "stable_cycles": 7,
+  "snapshot_hash": "88846a8351b8a8c8",
+  "stable_cycles": 2,
   "llm_calls": 0,
   "deep_dive_ran": false,
   "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
@@ -79,12 +79,11 @@
   "trajectory": {
     "focus_stable": true,
     "prev_focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
-    "confidence_delta": null,
-    "converging": null,
+    "confidence_delta": 0.0,
+    "converging": true,
     "prev_backend": "llm:local",
-    "backend": "heuristic",
-    "comparable": false,
-    "incomparable_reason": "backend-changed"
+    "backend": "llm:local",
+    "comparable": true
   },
   "snapshot_digest": {
     "legs_alive": [
@@ -100,7 +99,7 @@
     }
   },
   "self_accuracy": {
-    "ts": "2026-09-03T13:40:44",
+    "ts": "2026-09-03T19:46:41",
     "fields_checked": 3,
     "fields_correct": 3,
     "accuracy": 1.0,
@@ -113,8 +112,8 @@
     "نه، تمرکزت اشتباه است — «خطای پرتکرار» مهم نیست، من میخوام روی درآمدِ نقاشی تمرکز کنی.",
     "شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود"
   ],
-  "owner_correction_age_days": 37.97,
-  "owner_correction_stale": "بدونِ تصحیحِ مالک برای 37 روز — تمرکز ممکن است کهنه شده باشد",
+  "owner_correction_age_days": 38.22,
+  "owner_correction_stale": "بدونِ تصحیحِ مالک برای 38 روز — تمرکز ممکن است کهنه شده باشد",
   "c6_unknown": {
     "produced": false,
     "reason": "all-already-queued",

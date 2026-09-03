@@ -1,9 +1,9 @@
 {
   "schema": "poller-uniqueness-receipt/1",
   "source": "doctor_uniqueness_beat",
-  "beat": 60300,
-  "checked_at_unix": 1788406843.9297054,
-  "checked_at_local": "2026-09-03T13:40:44+10:00",
+  "beat": 60540,
+  "checked_at_unix": 1788425005.8968425,
+  "checked_at_local": "2026-09-03T18:43:26+10:00",
   "dry_run": true,
   "live_send": false,
   "ok": true,
@@ -19,7 +19,7 @@
   "active_lease_count": 1,
   "tg_poller_lock_count": 1,
   "center_pids": [
-    4624
+    25636
   ],
   "paths": {
     "state_dir": "F:\\backup\\_ops\\state",

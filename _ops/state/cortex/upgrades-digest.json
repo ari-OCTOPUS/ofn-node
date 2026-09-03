@@ -1,5 +1,5 @@
 {
-  "ts": "2026-09-03T12:36:46",
+  "ts": "2026-09-03T18:27:24",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 86.7,
@@ -7,8 +7,8 @@
   "maturity_pct": 86.7,
   "improvement_rate": {
     "closed": 5,
-    "moved": 1,
-    "rate_pct": 20.0
+    "moved": 4,
+    "rate_pct": 80.0
   },
   "n_proposals": 33,
   "by_category": {
@@ -122,7 +122,7 @@
       {
         "id": "up-33ee7f6b74",
         "priority": "P1",
-        "title": "کالیبراسیون: n=1284 brier=0.076674 ungraded=720",
+        "title": "کالیبراسیون: n=1307 brier=0.074193 ungraded=697",
         "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
         "change_level": "tune",
         "source": "calibration",
@@ -239,6 +239,15 @@
         "status": "proposed"
       },
       {
+        "id": "up-f7520c1c22",
+        "priority": "P1",
+        "title": "کوچک‌ترین فیکسِ دکتر: برای حل یکی از این شیوه‌ها",
+        "suggested_action": "برای حل یکی از این شیوه‌ها",
+        "change_level": "reconfig",
+        "source": "smallest_fix",
+        "status": "proposed"
+      },
+      {
         "id": "up-81fe6de7c7",
         "priority": "P1",
         "title": "prioritized implementation backlog",
@@ -246,15 +255,6 @@
         "change_level": "reconfig",
         "source": "audit",
         "status_now": "Partial",
-        "status": "proposed"
-      },
-      {
-        "id": "up-f7520c1c22",
-        "priority": "P1",
-        "title": "کوچک‌ترین فیکسِ دکتر: برای حل یکی از این شیوه‌ها",
-        "suggested_action": "برای حل یکی از این شیوه‌ها",
-        "change_level": "reconfig",
-        "source": "smallest_fix",
         "status": "proposed"
       }
     ],
@@ -373,8 +373,8 @@
       "source": "calibration",
       "category": "ops",
       "priority": "P1",
-      "_rank": 0.9,
-      "title": "کالیبراسیون: n=1284 brier=0.076674 ungraded=720",
+      "_rank": 0.756,
+      "title": "کالیبراسیون: n=1307 brier=0.074193 ungraded=697",
       "rationale": "Brier/n/ungraded از calibration-latest — تا امروز به improve نمی‌رسید.",
       "evidence": "cortex/calibration-latest.json",
       "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
@@ -382,12 +382,12 @@
       "auto_applicable": false,
       "status": "proposed",
       "calibration": {
-        "n": 1284,
-        "brier": 0.076674,
-        "aurc": 0.145689,
-        "ungraded": 720,
+        "n": 1307,
+        "brier": 0.074193,
+        "aurc": 0.137872,
+        "ungraded": 697,
         "n_claims": 2000,
-        "ts": "2026-09-03T12:34:24"
+        "ts": "2026-09-03T18:26:02"
       },
       "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
@@ -475,7 +475,7 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] این گاف‌ها باید به عنوان حلقه‌ای به‌روزرسانی شوند. Lead-نقاشی، بطور خودکار به حل اولویت‌دارِ یک سیستمِ خودبهبودگر اشاره دارد. این حلقه از کلیه مراحل اجرایی",
+  "brain_note": "[local] این گاف‌ها اولویت‌دار برای یک سیستم خودبهبودگر است. Lead-نقاشی باید حل شود زیرا این گاف‌ها به دنبال تأیید و ثبت اینکه هنوز درآمد تأییدشده‌ای ثبت نشده است. ه",
   "goal_directed": {
     "n_goal_serving": 5,
     "n_circular_dropped": 0,
@@ -483,18 +483,18 @@
     "max_circular": 2,
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
-      "tracked": 18,
-      "moved": false,
+      "tracked": 17,
+      "moved": true,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
         "total_discoveries": 163,
-        "proposals_delivered": 33,
+        "proposals_delivered": 34,
         "proposal_outcomes": 55,
         "proposal_positive": 53,
         "proposal_accept_rate": 0.9636363636363636,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 8
+        "proposals_sent": 9
       },
       "since": {
         "confirmed_revenue": 0,
@@ -517,7 +517,7 @@
   },
   "self_improve_gauges": {
     "schema": "self-improve-gauges.v1",
-    "ts": "2026-09-03T02:36:46.036239+00:00",
+    "ts": "2026-09-03T08:27:24.631773+00:00",
     "goal_loop_close_7d": {
       "n": 11,
       "n_pass": 0,
@@ -547,9 +547,10 @@
   },
   "math_control": {
     "enabled": true,
-    "rank_bias": 0.0,
+    "rank_bias": 0.144,
     "effects": [
       "autotune_propose",
+      "improve_rank_bias",
       "schedule_bias_hint"
     ],
     "equations_touching": [

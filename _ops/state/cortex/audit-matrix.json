@@ -1,5 +1,5 @@
 {
-  "ts": "2026-09-03T12:36:29",
+  "ts": "2026-09-03T18:27:04",
   "schema": "audit-matrix.v1",
   "n": 45,
   "tally": {
@@ -36,7 +36,7 @@
     {
       "item": "heartbeat / pulse system",
       "status": "Done",
-      "evidence": "heart-shadow period=312.22",
+      "evidence": "heart-shadow period=391.0",
       "priority": "P1",
       "gap_type": "none",
       "section": "§16 time-loops"
@@ -108,7 +108,7 @@
     {
       "item": "dashboard for system vitals",
       "status": "Done",
-      "evidence": "heartstate.v1 ts='2026-09-03T12:33:17'; work-health month_aud=0.0 gate0=True; server.py=True",
+      "evidence": "heartstate.v1 ts='2026-09-03T18:26:58'; work-health month_aud=0.0 gate0=True; server.py=True",
       "priority": "P2",
       "gap_type": "none",
       "section": "§8 observability",
@@ -144,7 +144,7 @@
     {
       "item": "live calibration evidence (Brier/n + self-claims)",
       "status": "Done",
-      "evidence": "calibration-latest n=1284 brier=0.076674; self-claims.jsonl lines=2395",
+      "evidence": "calibration-latest n=1307 brier=0.074193; self-claims.jsonl lines=2434",
       "priority": "P1",
       "gap_type": "none",
       "section": "§9 self-analysis",
@@ -154,7 +154,7 @@
     {
       "item": "telegram poll-health counters",
       "status": "Done",
-      "evidence": "fails=0 started=412 completed=411 progress_at=1788402975.965",
+      "evidence": "fails=0 started=995 completed=990 progress_at=1788423994.131",
       "priority": "P1",
       "gap_type": "none",
       "section": "§8 observability",

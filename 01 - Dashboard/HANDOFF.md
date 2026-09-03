@@ -5,6 +5,32 @@ updated: 2026-08-30
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+> 📦 **پین 2026-09-03 عصر — بستهٔ ۴تایی معماری (لین C؛ پول = لجر ناقص، پارک):** [[../09-LANES/C-QUEUE-HYGIENE/OWNER_DAILY_PACKET|OWNER_DAILY_PACKET]] · [[../09-LANES/C-QUEUE-HYGIENE/OWNER-COPY-BLOCK|OWNER-COPY-BLOCK]] · [[../09-LANES/C-QUEUE-HYGIENE/MONEY-PARKED|MONEY-PARKED]]
+
+> 💵 **پین 2026-09-03 — سؤال $306.90 پارک شد (لجر ناقص؛ جواب حدس زده نشد):** [[../07-HANDOFF/C-R0-MP-30690-OWNER-QUESTION-2026-09-03|C-R0-MP-30690-OWNER-QUESTION]] · [[../09-LANES/C-QUEUE-HYGIENE/MONEY-PARKED|MONEY-PARKED]]
+
+> 🧭 **پین 2026-09-03 — پرامپت باز + تور A/B/C/D:** [[../07-HANDOFF/NEXT-AGENT-MEGAPROMPT-2026-09-03-OPEN|NEXT-AGENT-MEGAPROMPT-2026-09-03-OPEN]] · [[../09-LANES/A-R0-IDENTITY/LANE-REPORT|A]] · [[../09-LANES/B-PULSE-IMAP/LANE-REPORT|B]] · [[../09-LANES/C-QUEUE-HYGIENE/LANE-REPORT|C]] · [[../09-LANES/D-S0-HUNT/LANE-REPORT|D]]
+
+> 📋 **پین 2026-09-03 — حکم بیمه مالک (لین A، خروجی = on request):** [[../09-LANES/A-R0-IDENTITY/INSURANCE-OWNER-RULING-2026-09-03|INSURANCE-OWNER-RULING]] · [[../09-LANES/A-R0-IDENTITY/INSURANCE-WORDING-OPEN|INSURANCE-WORDING-OPEN]]
+
+> 🔎 **پین 2026-09-03 19:41 — لین D شکار ofn-node:** [[../09-LANES/D-S0-HUNT/HUNT-RECEIPT|D HUNT-RECEIPT]]
+
+> 🔍 **پین 2026-09-03 19:46 — لین D مقایسه دو هش DET (محلی):** [[../09-LANES/D-S0-HUNT/DET-DRAFT-DIFF|DET-DRAFT-DIFF]]
+
+> 🏗️ **پین 2026-09-03 20:10 — لین D معماری محلی ofn-node (بدون fetch):** [[../09-LANES/D-S0-HUNT/OFN-LOCAL-ARCHITECTURE|OFN-LOCAL-ARCHITECTURE]]
+
+> 🩺 **پین 2026-09-03 20:16 — لین D معماری doctor + پروب اسکما (بدون fetch):** [[../09-LANES/D-S0-HUNT/DOCTOR-ARCHITECTURE|DOCTOR-ARCHITECTURE]] · [[../09-LANES/D-S0-HUNT/doctor_schema_probe.py|doctor_schema_probe.py]]
+
+> 🧪 **پین 2026-09-03 20:29 — لین D پنج ضربه doctor (فقط ۵ فایل):** [[../09-LANES/D-S0-HUNT/DOCTOR-LANE-TEST-RECEIPT|DOCTOR-LANE-TEST-RECEIPT]] · [[../09-LANES/D-S0-HUNT/LANE-REPORT|D LANE-REPORT]]
+
+> 🍳 **پین 2026-09-03 20:34 — لین D آشپزخانه خاموش (harvest ≠ ofn.run):** [[../09-LANES/D-S0-HUNT/HARVEST-VS-RUN|HARVEST-VS-RUN]] · [[../09-LANES/D-S0-HUNT/harvest_boundary_probe.py|harvest_boundary_probe.py]]
+
+> ✉️ **پین 2026-09-03 شب — لین B نامهٔ بی‌تمبر vs پستچی ۱۳۸:** [[../09-LANES/B-PULSE-IMAP/IMAP-UNTRACKED-VS-138|IMAP-UNTRACKED-VS-138]] · [[../09-LANES/B-PULSE-IMAP/LANE-REPORT|B LANE-REPORT]]
+
+> 🚪 **پین 2026-09-03 شب — لین B چهار اتاق (بدون استارت):** [[../09-LANES/B-PULSE-IMAP/FOUR-SHELLS-MAP|FOUR-SHELLS-MAP]] · [[../09-LANES/B-PULSE-IMAP/LANE-REPORT|B LANE-REPORT]]
+
+> 📡 **پین 2026-09-03 شب — لین B SSH-RO:** [[../09-LANES/B-PULSE-IMAP/LANE-REPORT|B LANE-REPORT]] · [[../09-LANES/B-PULSE-IMAP/SSH-RO-RECEIPT|SSH-RO-RECEIPT]]
+
 > 🔀 **پین 2026-08-30 — SYNC: ‏`main` گیت‌هاب با مجوز مالک روی `c1969bc` رفت.** ادعای «گیت‌هاب ۳هفته عقب» فقط برای main درست بود (۶۳۴ تست، بدون revenue/pilot) — ۱۱ شاخهٔ دیگر برد با گیت‌هاب یکسان بودند؛ فقط `integration/138-business-spine` یک FF عقب داشت (پوش شد: `68813370..a27eb053`). سپس با پرسش مستقیم، مالک fast-forward را انتخاب کرد: `main: 388594e→c1969bc` (+۱۳۶، بدون force، FF_CHECK قبل از push) · کلون لپ‌تاپ هم `c1969bc` = **۲۱۳۶ تست** ✓ · کامیت تنها `e459e5f` (.gitattributes) روی `local/initial-e459e5f` حفظ شد · Draft PR بازیابی الان OBSOLETE (تفاوت main←backup = صفر) · باقی: branch protection روی main + اصلاح C-055. [[../06-EVIDENCE/SYNC-CHECK-20260830/RECEIPT|رسید]]
 
 > 🔌 **پین 2026-08-30 — HW-DISCOVERY: هر سه برد SSH سبز؛ ریسک واقعی = ۱۸۰.** ‏۱۳۸=`ari@`، ۱۸۰=`root@`، ۱۸۲=`root@` (پینگ+tcp22 همه OK؛ ۱۹۱=خودِ لپ‌تاپ، sshd ندارد). **۱۸۰:** ‏`/opt/octopus/lab@76db516` روی `ofn/evolve-20260826-anatomy-180` — **۱ کامیت پوش‌نشده** (+۲۱۰خط، اثبات ancestry با گیت‌هاب `36e579e`) + ۷ untracked + بدون remote → کاندید `backup/board180-20260830` (منتظر go مالک برای push). **۱۸۲:** صفر repo — ‏`/opt/octopus{,-agent}` نسخه‌دارنشده (۲۳,۳۵۲ فایل). اسکجولر ۱۳۸ تایمر زندهٔ ۱۵دقیقه‌ای دارد ولی journal ۲۴ساعته **خالی** → `SCHEDULER_DEEP_TEST_LOGS=NOT_FOUND`. `gh` نیست؛ PRها فقط #1/#2 (audit). [[../06-EVIDENCE/HW-DISCOVERY-20260830/RECEIPT|رسید]]

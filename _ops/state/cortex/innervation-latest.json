@@ -1,19 +1,21 @@
 {
-  "ts": "2026-09-03T14:02:47",
+  "ts": "2026-09-03T20:53:19",
   "schema": "innervation.v1",
-  "heart_period_s": 336.09,
-  "coverage_pct": 100.0,
+  "heart_period_s": 368.93,
+  "coverage_pct": 91.0,
   "n_organs": 11,
   "n_born": 11,
-  "dead_spots": [],
+  "dead_spots": [
+    "🦴 ستونِ فقرات (pacemaker)"
+  ],
   "organs": [
     {
       "id": "spine",
       "name": "🦴 ستونِ فقرات (pacemaker)",
-      "status": "🟢 عصب‌دار",
-      "age_min": 4.2,
+      "status": "🔴 نقطهٔ مرده",
+      "age_min": 33.8,
       "sla_min": 8,
-      "connected": true
+      "connected": false
     },
     {
       "id": "heart",
@@ -27,7 +29,7 @@
       "id": "cortex",
       "name": "🧠 مغزِ مرکزی",
       "status": "🟢 عصب‌دار",
-      "age_min": 1.8,
+      "age_min": 6.4,
       "sla_min": 30,
       "connected": true
     },
@@ -50,16 +52,16 @@
     {
       "id": "parts",
       "name": "🔁 لوپِ بخش‌ها",
-      "status": "🟢 عصب‌دار",
-      "age_min": 86.5,
+      "status": "🟡 کند",
+      "age_min": 146.3,
       "sla_min": 120,
       "connected": true
     },
     {
       "id": "business",
       "name": "💼 مغزِ دومِ کسب‌وکار",
-      "status": "🟢 عصب‌دار",
-      "age_min": 86.5,
+      "status": "🟡 کند",
+      "age_min": 146.3,
       "sla_min": 120,
       "connected": true
     },
@@ -67,15 +69,15 @@
       "id": "learning",
       "name": "📚 یادگیری/تحقیق",
       "status": "🟢 عصب‌دار",
-      "age_min": 252.0,
+      "age_min": 662.6,
       "sla_min": 1440,
       "connected": true
     },
     {
       "id": "selfmodel",
       "name": "🪞 خودمدلی",
-      "status": "🟢 عصب‌دار",
-      "age_min": 86.6,
+      "status": "🟡 کند",
+      "age_min": 146.3,
       "sla_min": 120,
       "connected": true
     },
@@ -83,7 +85,7 @@
       "id": "telemetry",
       "name": "💰 تلمتریِ مالی",
       "status": "🟢 عصب‌دار",
-      "age_min": 2.5,
+      "age_min": 2.3,
       "sla_min": 360,
       "connected": true
     },
@@ -91,7 +93,7 @@
       "id": "fourd",
       "name": "🧩 4d_system (مشاهده)",
       "status": "🟢 عصب‌دار",
-      "age_min": 2.3,
+      "age_min": 17.9,
       "sla_min": 120,
       "connected": true
     }

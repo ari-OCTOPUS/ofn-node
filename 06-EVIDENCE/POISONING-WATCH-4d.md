@@ -643,3 +643,12 @@
 - recall_reach: events=91 keys=989 median=21.0 max=60 coverage=0.1454 rows=626
 - daemon_state.json: موجود
 - حکم: 🟢 سالم
+
+## 2026-09-03T06:08:10+00:00
+- telemetry(windowed): jobs/read/ratio/readback = ERR:Command '['py', '-X', 'utf8', '-c', 'import sys; sys.path.insert(0, r\'F:/backup/4d_system\'); from brain import mem
+- semantic: کل=301 نو-پس-گیت=63 تکرارِ نو=0
+- queue: [('dedup', 1309), ('pending', 397)]
+- readback(پنجرهٔ پس از 05:00): 82/82 = 1.0
+- recall_reach: events=91 keys=989 median=21.0 max=60 coverage=0.1454 rows=626
+- daemon_state.json: موجود
+- حکم: 🔴 هشدار: telemetry خوانده نشد

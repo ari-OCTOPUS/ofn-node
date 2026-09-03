@@ -7595,3 +7595,60 @@
 ## 2026-09-03T12:30:30 (metabolism)
 - ⚠️ tg_api editMessageText failed: URLError
 
+## 2026-09-03T16:22:16 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-03T16:28:22 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-03T16:32:36 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-03T16:37:07 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-03T17:42:48 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-03T17:47:17 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-03T17:52:45 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:errors_high]
+
+## 2026-09-03T17:56:09 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved]
+
+## 2026-09-03T17:58:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved]
+
+## 2026-09-03T18:00:57 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved]
+
+## 2026-09-03T18:01:11 (metabolism)
+- ⚠️ deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-03T18:24:49 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.25:afferent_starved] (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-03T19:01:36 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-09-03T19:03:58 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat
+
+## 2026-09-03T19:07:50 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-03T19:22:02 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-03T20:31:56 (metabolism)
+- ⚠️ tg_api editMessageText failed: TimeoutError
+
+## 2026-09-03T20:38:53 (metabolism)
+- ⚠️ WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required
+
+## 2026-09-03T20:52:04 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+

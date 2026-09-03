@@ -1629,3 +1629,9 @@
 {"ts": 1788392105.3877158, "sender": "approval_channel.send_text", "caller_file": "wiring.py", "caller_line": 2386, "caller_func": "_real_send", "on_watchlist": false, "watch_topic": null, "watch_method": null}
 {"ts": 1788392117.4316242, "sender": "approval_channel.send_text", "caller_file": "organism.py", "caller_line": 919, "caller_func": "main", "on_watchlist": false, "watch_topic": null, "watch_method": null}
 {"ts": 1788396953.9313748, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 2544, "caller_func": "_budgeted_send", "on_watchlist": false, "watch_topic": null, "watch_method": null}
+{"ts": 1788409194.482892, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 2221, "caller_func": "_route_send", "on_watchlist": false, "watch_topic": null, "watch_method": null}
+{"ts": 1788417265.9604425, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1101, "caller_func": "ensure_setup", "on_watchlist": false, "watch_topic": null, "watch_method": null}
+{"ts": 1788426629.0161824, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1101, "caller_func": "ensure_setup", "on_watchlist": false, "watch_topic": null, "watch_method": null}
+{"ts": 1788426732.3057702, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1101, "caller_func": "ensure_setup", "on_watchlist": false, "watch_topic": null, "watch_method": null}
+{"ts": 1788430789.8445916, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1101, "caller_func": "ensure_setup", "on_watchlist": false, "watch_topic": null, "watch_method": null}
+{"ts": 1788432156.9594693, "sender": "tg_api.send", "caller_file": "telegram_center/center.py", "caller_line": 1101, "caller_func": "ensure_setup", "on_watchlist": false, "watch_topic": null, "watch_method": null}

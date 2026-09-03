@@ -1,19 +1,19 @@
 {
-  "ts": "2026-09-03T12:36:16",
+  "ts": "2026-09-03T18:27:01",
   "schema": "part-loops.v1",
-  "beat": 20,
+  "beat": 50,
   "parts": [
     {
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢",
-      "detail": "ضربان 312s"
+      "detail": "ضربان 391s"
     },
     {
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 96٪"
+      "detail": "هم‌آهنگی 97٪"
     },
     {
       "id": "doctor",

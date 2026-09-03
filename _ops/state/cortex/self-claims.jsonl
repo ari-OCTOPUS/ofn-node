@@ -2402,3 +2402,42 @@
 {"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T13:40:44", "source": "self_accuracy", "schema": "self-claim.v1"}
 {"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T13:40:44", "source": "self_accuracy", "schema": "self-claim.v1"}
 {"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T13:40:44", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T14:15:35", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T14:15:35", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T14:15:35", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.95, "ts": "2026-09-03T14:21:48", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-09-03T14:21:50", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-d6065f91ae", "confidence": 0.866667, "ts": "2026-09-03T14:21:50", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-33ee7f6b74", "confidence": 0.733333, "ts": "2026-09-03T14:21:50", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T14:46:02", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T14:46:02", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T14:46:02", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T15:20:25", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T15:20:25", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T15:20:25", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T15:52:36", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T15:52:36", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T15:52:36", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.95, "ts": "2026-09-03T16:12:08", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-09-03T16:12:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-d6065f91ae", "confidence": 0.866667, "ts": "2026-09-03T16:12:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-33ee7f6b74", "confidence": 0.733333, "ts": "2026-09-03T16:12:56", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T16:57:47", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T16:57:47", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T16:57:47", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T17:37:22", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T17:37:22", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T17:37:22", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T18:11:37", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T18:11:37", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T18:11:37", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "self_model.coherence", "confidence": 0.95, "ts": "2026-09-03T18:26:59", "source": "self_model", "schema": "self-claim.v1", "gradeable": false}
+{"key": "up-173d84e33e", "confidence": 1.0, "ts": "2026-09-03T18:27:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-d6065f91ae", "confidence": 0.866667, "ts": "2026-09-03T18:27:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "up-33ee7f6b74", "confidence": 0.733333, "ts": "2026-09-03T18:27:21", "source": "goal_directed", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T18:43:25", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T18:43:25", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T18:43:25", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.legs", "confidence": 1.0, "ts": "2026-09-03T19:46:41", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.revenue", "confidence": 1.0, "ts": "2026-09-03T19:46:41", "source": "self_accuracy", "schema": "self-claim.v1"}
+{"key": "selfknow.wire_on", "confidence": 1.0, "ts": "2026-09-03T19:46:41", "source": "self_accuracy", "schema": "self-claim.v1"}
