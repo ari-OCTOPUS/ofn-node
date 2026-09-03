@@ -1,0 +1,84 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-START-PERMIT-WIN-20260903",
+  "issued_utc": "2026-09-03T04:27:18Z",
+  "author": "cursor-cloud-agent (owner-absent CI trigger test windows-latest on #95)",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "claim_type": "measurement",
+  "scope_measured": "halt_flag Windows CRLF + POSIX-mode skip on feat/p1-start-permit-20260902 @4d59044dd4801b85c1e5fe350c681684f2c2f845 working tree; files listed under file_lock_zone",
+  "scope_not_measured": [
+    "full-suite CI (runs on the PR after publish)",
+    "filesystem immutability of any archive",
+    "Windows GitHub runner (this host is Linux; CRLF reproduced as the CI assertion, not re-run on windows-latest)",
+    "wiring into run_store.py"
+  ],
+  "action": "P1 follow-up on existing #95: write_halt emits canonical LF bytes (wb); POSIX 0700/0600 asserted only off-nt; leftover CRLF 1 remains HALTED.",
+  "file_lock_zone": [
+    "ofn/adapters/halt_flag.py",
+    "tests/test_halt_flag.py",
+    "09-LANES/P1-START-PERMIT/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-START-PERMIT-WIN-20260903.json"
+  ],
+  "not_written": [
+    "ofn/kernel/start_permit.py",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/token_ceiling.py",
+    "docs/octopus-os/07-INCIDENTS.md"
+  ],
+  "ci_failure_ref": {
+    "job_id": 100521250381,
+    "check": "test (windows-latest)",
+    "head_sha": "4d59044dd4801b85c1e5fe350c681684f2c2f845",
+    "failed_tests": [
+      "tests/test_halt_flag.py::HaltFlagAdapter::test_parent_is_owner_private",
+      "tests/test_halt_flag.py::HaltFlagAdapter::test_write_is_canonical_one_not_a_chatty_reason"
+    ],
+    "assertions": [
+      "511 != 448",
+      "b'1\\r\\n' != b'1\\n'"
+    ],
+    "ci_counts": {
+      "failed": 2,
+      "passed": 3396,
+      "skipped": 21,
+      "subtests_passed": 2377
+    },
+    "ci_timestamp_utc": "2026-09-03T04:23:26Z",
+    "source": "gh run view --job 100521250381 --log-failed"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_halt_flag tests.test_start_permit tests.test_chaos_start_permit tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T04:27:18Z",
+    "parent_head_full": "4d59044dd4801b85c1e5fe350c681684f2c2f845",
+    "exit_code": 0,
+    "result": "216 passed, 0 failed, 0 skipped",
+    "halt_flag_only": {
+      "command": "python3 -m unittest tests.test_halt_flag tests.test_start_permit tests.test_chaos_start_permit -q",
+      "ran_at_utc": "2026-09-03T04:27:14Z",
+      "exit_code": 0,
+      "result": "37 passed, 0 failed, 0 skipped"
+    },
+    "pytest": "absent — used stdlib unittest; status: verified_absent"
+  },
+  "verification_on_commit": {
+    "command": "python3 -m unittest tests.test_halt_flag tests.test_start_permit tests.test_chaos_start_permit tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T04:28:21Z",
+    "committed_head_full": "bee71be3e60ebd50240bf6fd802572b93376d302",
+    "exit_code": 0,
+    "result": "216 passed, 0 failed, 0 skipped",
+    "note": "second independent claim: same command after the commit that added the Windows LF write"
+  },
+  "invariants": {
+    "ready_ne_authorized": true,
+    "grants_send": false,
+    "write_halt_bytes": "1\\n",
+    "posix_mode_not_a_windows_fact": true,
+    "legacy_crlf_still_halted": true,
+    "external_effects": 0
+  },
+  "filesystem_immutability": "NOT claimed",
+  "boundary": "no gate opened, no outbound, no secrets, no merge, no admin bypass"
+}

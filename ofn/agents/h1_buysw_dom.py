@@ -88,6 +88,16 @@ def _parse_amount(value: object) -> float | None:
 
 _CLOSING_FORMATS = ("%d-%b-%Y %H:%M", "%d-%b-%Y", "%d %B %Y", "%d %b %Y")
 
+# Salvage rules born from the real 37-record export (Sep-3 pack): results
+# cards whose only link text was "See details" still carry the real title
+# and the closing date inside the card description, as
+# "{TITLE} Closes: {DATE} {TIME} {CATEGORIES} ... {AGENCY}".
+_GENERIC_TITLES = frozenset(
+    {"see details", "details", "view", "more", "view details"})
+_CLOSES_IN_DESC_RE = re.compile(
+    r"Closes?\s*:\s*(\d{1,2}[\s-]+\w{3,9}[\s-]+\d{4}(?:\s+\d{1,2}:\d{2})?)",
+    re.IGNORECASE)
+
 
 def _norm_closing(value: object) -> str:
     """The real cards render 'Closes: 21-Sep-2026 15:00' — normalize to ISO
@@ -103,6 +113,24 @@ def _norm_closing(value: object) -> str:
     return text
 
 
+def _salvage(title: str, description: str, closing_at: str) -> tuple[str, str]:
+    """Recover title/closing from the description when the link text was a
+    generic click-through label or the closing field came back empty.
+    Idempotent on good records."""
+    if title.lower() in _GENERIC_TITLES or not title:
+        desc = description
+        m = _CLOSES_IN_DESC_RE.search(desc)
+        if m and m.start() > 3:
+            title = desc[:m.start()].strip()[:200]
+        elif len(desc) > 10:
+            title = desc[:150].strip()
+    if not closing_at:
+        m = _CLOSES_IN_DESC_RE.search(description)
+        if m:
+            closing_at = m.group(1).strip()
+    return title, closing_at
+
+
 def _normalize(rec: Mapping) -> dict | None:
     """Either producer's record → one internal shape (or None if invalid).
 
@@ -113,19 +141,22 @@ def _normalize(rec: Mapping) -> dict | None:
                  or rec.get("channel") == "buysw_web")
     if is_v2:
         title = _s(rec.get("title"))
+        description = _s(rec.get("description"))
         uuid = _s(rec.get("uuid"))
         tender_id = _s(rec.get("tender_id")) or (
             f"{SOURCE_ID_DOM}:{uuid}" if uuid else "")
+        title, closing_text = _salvage(
+            title, description, _s(rec.get("closing_at")))
         if not title or not tender_id:
             return None
         return {
             "tender_id": tender_id[:160],
             "title": title,
-            "description": _s(rec.get("description")),
+            "description": description,
             "buyer_name": _s(rec.get("buyer_name")),
             "location": _s(rec.get("location")),
             "category": _s(rec.get("category")),
-            "closing_at": _norm_closing(rec.get("closing_at")),
+            "closing_at": _norm_closing(closing_text),
             "amount": _parse_amount(rec.get("amount_aud")
                                     if "amount_aud" in rec
                                     else rec.get("amount_text")),
@@ -245,11 +276,14 @@ def _rejected(reason: str) -> dict:
             "created": [], "errors": []}
 
 
-def ingest_batch(payload: object, store) -> dict:
+def ingest_batch(payload: object, store, *, relevance: str = "painting") -> dict:
     """Validate one batch/export, run the shared gates, create tenders
     (and award leads). Idempotent: tender_ids already in the store count
     as rejected_dup, never recreated; leads upsert by the store's
-    ON CONFLICT."""
+    ON CONFLICT. relevance="painting" applies the shared filter;
+    relevance="all" admits everything that passes shape validation."""
+    if relevance not in ("painting", "all"):
+        return _rejected(f"unknown relevance mode: {relevance!r}")
     if not isinstance(payload, Mapping):
         return _rejected("payload is not a JSON object")
 
@@ -291,7 +325,7 @@ def ingest_batch(payload: object, store) -> dict:
         if rec is None:
             rejected_invalid += 1
             continue
-        if not passes_filter(rec):
+        if relevance == "painting" and not passes_filter(rec):
             rejected_filter += 1
             continue
         if rec["tender_id"] in existing:
