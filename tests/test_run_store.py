@@ -18,7 +18,7 @@ from pathlib import Path
 from ofn.adapters import halt_flag
 from ofn.adapters.run_store import HaltActive, RunStore
 from ofn.kernel import events as ev
-from ofn.kernel.envelope import create_envelope
+from ofn.kernel.envelope import TaskEnvelope, create_envelope, mint_run_id
 from ofn.kernel.errors import FailClosedError
 
 _NOW = 1780000000
@@ -725,8 +725,18 @@ class AudCeilingDeadlineAndLogPath(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "runs"
             store = RunStore(root)
-            # _NOW is 1780000000 ≈ 2026-05; this deadline is already past.
-            past = _env("late-create", deadline_iso="2020-01-01T00:00:00Z")
+            # Bypass the factory: create_envelope now refuses an expired
+            # mint. This test stays a store-gate witness so a later
+            # factory regression cannot hide a store hole.
+            past = TaskEnvelope(
+                version=1,
+                run_id=mint_run_id(_NOW, "a1b2c3d4e5f6a7b8"),
+                goal="fixture goal", risk_tier="GREEN",
+                authority_level="A1", idempotency_key="late-create",
+                acceptance_criteria_hash=_AC, budget_tokens=0,
+                budget_aud_cents=0, deadline_iso="2020-01-01T00:00:00Z",
+                allowed_tools=(), parent_evidence=(),
+            )
             with self.assertRaises(FailClosedError):
                 store.create(past, now_epoch_s=_NOW)
             self.assertFalse((root / "events.jsonl").exists())
