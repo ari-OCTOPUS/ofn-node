@@ -480,3 +480,12 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
   - **BUG-2 witness repo-dir** — laptop-layout default → local HEAD None → main_head UNKNOWN on board.
   - Both FIXED with 4 regression tests (feeder e2e w/ patched subprocess; per-host resolution incl. .git FILE for worktrees) → **PR #168** (self-authored #3, baseline clause). 18/18 suites green.
 - Loop score now: 2 gaps CLOSED + 2 live bugs caught/fixed by the debug discipline the loop enforces. Queue: #168 + #158(one click) + P1s (unvoted by owner — parked pending his choice).
+
+### Round 25 — تحقیق «نیم‌ساعت اخیر»: تیک‌های زنده + یک یافتهٔ جدید (2026-09-03 15:17Z, owner asked)
+- All four autonomy timers fired on schedule at **15:00:03Z** (doctor · witness · absence · selfmodel). What they DID in the last half-hour:
+  - **Doctor** wrote report @15:00:05 (verdict incomplete, 31/42 clean).
+  - **Witness** appended claims to the hash-chained ledger @15:00 (bridge-outbound + digest-timer rows — the channel table is now being *watched continuously*).
+  - **Absence** ticked @15:00:04: tier=present, conservation OFF, OWNER-QUEUE.md rewritten.
+  - **Self-model** producer ran (fresh card for cockpit).
+- **NEW FINDING (self-observation race, CLASS_A4 candidate GAP-065):** the 15:00 report shows 7 units "activating with last_run_age=None" — the doctor measured **itself and its sibling oneshots MID-RUN** (they all fire at 15:00:03; the report is written at 15:00:05 while siblings are still executing). Live re-run minutes later: same units healthy with real ages (doctor now: healthy, 1117s). Not a regression — a self-observation race: the observer is part of the observed set firing at the same instant. Fix candidate (A4): probe_units should skip-or-delay units whose ExecMainStartTimestamp is within N seconds of now (currently-running), or read ExitTimestamp AFTER quiet-period. Registered as GAP-065; verify: report at HH:00:05 must not contain 'activating' rows.
+- Honest tally of the half hour: 4 ticks fired, 1 report + 2 ledger rows + 1 queue rewrite + 1 self-model card produced; conservation stayed off (owner present); zero sends, zero restarts, zero flags.
