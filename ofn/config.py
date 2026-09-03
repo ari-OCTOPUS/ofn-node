@@ -19,11 +19,16 @@ from .adapters import remote_brain
 # DecisionRecord DECISION-open-gates.md: temporary open until this UTC date.
 # After midnight UTC on this day, secret_rotation and partner_precondition
 # return to the closed default unless OFN_KEEP_GATES_OPEN=1 (owner override).
-GATE_OPEN_UNTIL_UTC = "2026-08-17"
+# D-28 (2026-09-02): owner re-opened the same official window that
+# DECISION-open-gates.md used on 2026-08-10. Expiry stays mandatory.
+# Secrets were not rotated on the recording host; the receipt is
+# risk_accepted_unrotated, not rotated.
+GATE_OPEN_UNTIL_UTC = "2026-09-16"
 
 # D-27 hard limits. Authorized is not unlimited. These are code constants,
-# not environment aliases: flipping OFN_KEEP_GATES_OPEN or OFN_WIRE_OUTBOUND
-# is a separate, evidence-gated act (real secret rotation; outbound smoke).
+# not environment aliases: flipping OFN_KEEP_GATES_OPEN is a separate,
+# evidence-gated act (real secret rotation; outbound smoke). The former
+# OFN_WIRE_OUTBOUND alias was deleted 2026-09-03 (F-10) — it never gated.
 D27_DAILY_SEND_CAP = 25
 D27_DAILY_SPEND_CAP_AUD = 50
 D27_PER_BOARD_BUDGET_DEFAULT = 0
@@ -71,10 +76,11 @@ class Config:
     ports: Mapping[str, int]
     hosts: Mapping[str, str]
     owner_host: str
-    # Intent-only until a real sender exists: no production code reads this
-    # flag to gate an enqueue or send. Outbound safety comes from the outbox
-    # + store-layer status, not from this flag (see HANDOFF wire drift note).
-    wire_outbound: bool = False
+    # F-10 cleanup (2026-09-03, owner delegation): the OFN_WIRE_OUTBOUND /
+    # wire_outbound intent-only flag is DELETED. It never gated anything
+    # (outbound safety = outbox + store-layer status) while node.env said =1
+    # since ~Aug 22 — a flag observers mistake for a control is worse than
+    # no flag. Do not re-add a decorative wire boolean.
     # O9: public catalog route. OFF by default — serving a public page
     # requires Ari's five preconditions (path, privacy text, follow-up
     # owner, service area, runbook review). When off, the route 404s.
@@ -230,10 +236,6 @@ def load() -> Config:
     # says so. It only bites once a pack declares it — no mining pack exists
     # yet, so arming it here costs nothing and means the wiring is already in
     # place the day one does.
-    # miner_isolation stays shut until D-8's items 1-3 are done and the owner
-    # says so. It only bites once a pack declares it — no mining pack exists
-    # yet, so arming it here costs nothing and means the wiring is already in
-    # place the day one does.
     #
     # secret_rotation and partner_precondition were opened by Ari's explicit
     # decision on 2026-08-10 ("همرو روشن کن" — risk accepted for one week).
@@ -299,7 +301,6 @@ def load() -> Config:
                # partner can be asked to change later.
                f"app.{domain}": "studio"},
         owner_host=f"panel.{domain}",
-        wire_outbound=_flag("OFN_WIRE_OUTBOUND"),
         public_catalog_enabled=_flag("OFN_PUBLIC_CATALOG"),
         commerce_routes_enabled=_flag("OFN_COMMERCE_ROUTES"),
         commerce_audited_receipts_enabled=_flag(

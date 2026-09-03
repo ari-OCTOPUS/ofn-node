@@ -1,0 +1,102 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CENSUS-CLASS-20260902",
+  "issued_utc": "2026-09-02T23:40:40Z",
+  "author": "cursor-cloud-agent bc-6ce9379b-e2c0-40b3-bebc-cf594009913a",
+  "owner_ratified": false,
+  "body": "bc-6ce9379b-e2c0-40b3-bebc-cf594009913a",
+  "branch": "feat/p1-census-class-20260902",
+  "parent_head_full": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/census_class.py",
+    "tests/test_census_class.py",
+    "tests/test_chaos_census_class.py",
+    "09-LANES/P1-CENSUS-CLASS/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-CENSUS-CLASS-20260902.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-5277 @02d991f7267e767a1166d078551d437ed1ddbb3a — #87 SHA; not written)",
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/idempotency.py (owned by #87)",
+    "ofn/adapters/receipt.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/dual_record.py (owned by feat/p1-dual-record-20260902)",
+    "ofn/kernel/phase_wall.py (owned by feat/p1-phase-wall-20260902)",
+    "ofn/kernel/artifact_ref.py (owned by feat/p1-evidence-witness-20260902)",
+    "ofn/kernel/numeric_claim.py (owned by feat/p1-evidence-witness-20260902; collision with unpublished numeric-claim body remains open)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure census class. Closed statuses VERIFIED/SUSPECTED/UNKNOWN. Observe admitted for known vocabulary. Write admitted only when VERIFIED and idle. Prune never admitted. Timeout forces UNKNOWN and does not prove concurrent writing. Disk absence label is body_not_on_this_host, never body_missing. Sealed send/ready names refuse (sealed_effect). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_census / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent / prunes_worktree / proposal_is_execution / promotes_ready_to_send / body_missing_is_valid_label structurally False. No halt/resend/send knob. HALT stops STARTS, not inventory. Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_census_class tests.test_chaos_census_class tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-02T23:40:40Z",
+    "head_full_at_run": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1",
+    "exit_code": 0,
+    "result": "223 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_census_class.py": "51 passed, exit 0 (recount 2026-09-02T23:40:53Z, same parent)",
+      "tests/test_chaos_census_class.py": "12 passed, exit 0 (recount 2026-09-02T23:40:53Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-02T23:40:53Z, same parent)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on origin/main through session xxxiii; incidents branch origin/docs/octopus-os-incidents-20260902 @d63041a7 (xxxvi) this-run. Collision with prior-memory origin tip dee19426b4184475faf4bdbd73e9e2e0b4662076 remains open.",
+    "CONTRIBUTING.md": "absent on origin/main @e83a4f22 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_collision": {
+    "value_a": "58e87774f4428b247601f8b49956948491155f74",
+    "source_a": "prior memory designated checkout / #106",
+    "value_b": "608adb75487142e1431f5ada254b6abe3537337f",
+    "source_b": "prior memory git fetch origin main --depth=1 / #108",
+    "value_c": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1",
+    "source_c": "this-run git fetch origin main / #121",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 87,
+    "branch": "cursor/taskenvelope-system-hardening-9a67",
+    "head_sha": "02d991f7267e767a1166d078551d437ed1ddbb3a",
+    "failed_check": "require-independent-approval",
+    "job_ids": ["100464198094", "100463803480"],
+    "verdict": "REVIEW_REQUIRED by design (author cursor[bot], required Elahe-z or aram-ui, issue #51, GOV-V6). Not an engineering defect. Did not merge. Did not weaken the gate. Did not write #87 files."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
