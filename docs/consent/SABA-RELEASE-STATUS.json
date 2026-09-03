@@ -1,0 +1,21 @@
+{
+  "schema": "octopus.consent_document.v1",
+  "subject_id": "saba",
+  "document_id": "saba-release-20260902",
+  "signed": false,
+  "record_release_called": false,
+  "template_path": "docs/consent/SABA-RELEASE-20260902.md",
+  "template_sha256": "68b1edf97dcb9130b0dd55fb420ced7cf691e24135f6d890c79c3d1e672aa23b",
+  "owner_reported_scan": {
+    "file_name": "consent-original.jpg",
+    "size_bytes": 350405,
+    "sha256": "c5046a1802ba6171b33281dd1d67186a6e565d1509b7474094cb5c064018a628",
+    "intended_state_ref": "$OFN_STATE_DIR/consent/documents/saba/saba-release-20260902.jpg",
+    "staging_rel_path": "raw/saba/consent-original.jpg",
+    "inspected_this_vantage": false,
+    "four_corners_verified": false,
+    "signature_verified": false,
+    "date_verified": false
+  },
+  "note": "template hash is not a signed-document hash; owner-reported jpg hash is not inspected on this vantage; do not pass either to record_release"
+}

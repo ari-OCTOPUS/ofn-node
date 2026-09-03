@@ -30,6 +30,17 @@ SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 DEADLINE_ISO_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$"
 )
+# Capturing form of the same grammar. The loose regex is the shape gate;
+# this one plus the civil-date check is the calendar gate. datetime is
+# not imported: the kernel purity wall forbids it (clock lives on the
+# type). Integer civil→unix is deterministic and has no now().
+_DEADLINE_PARSE_RE = re.compile(
+    r"^(?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})T"
+    r"(?P<h>\d{2}):(?P<min>\d{2}):(?P<s>\d{2})"
+    r"(?:\.\d+)?"
+    r"(?:Z|(?P<sign>[+-])(?P<oh>\d{2}):(?P<om>\d{2}))$"
+)
+_MONTH_DAYS = (0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 # Deliberately conservative: external authority rides the deepest rung, so
 # it inherits the smallest cap (DEFAULT_CAPS[REMOTE_DEEP] == 5). If this
@@ -49,6 +60,102 @@ def rung_for_authority(level: str) -> Rung:
         raise FailClosedError(f"unknown authority level: {level!r}") from None
 
 
+def require_epoch_s(value: object, name: str = "now_epoch_s") -> int:
+    """Exact int, not bool/float/str. ``int("178")`` and ``int(True)``
+    are not a clock the boundary supplied — they are coercions."""
+    if type(value) is not int:
+        raise FailClosedError(f"{name} must be int: {value!r}")
+    if value < 0:
+        raise FailClosedError(f"{name} must be non-negative: {value!r}")
+    return value
+
+
+def is_sealed_tool_name(name: object) -> bool:
+    """Exact forbidden names plus case-fold and hyphen aliases.
+
+    A second witness at the envelope so ``Send_Authorized`` /
+    ``send-authorized`` cannot ride an allowlist. UNKNOWN names stay
+    unknown — this does not invent a send.
+    """
+    if not isinstance(name, str):
+        return False
+    if is_forbidden_effect_name(name):
+        return True
+    folded = name.strip().lower().replace("-", "_")
+    return is_forbidden_effect_name(folded)
+
+
+def _is_leap(year: int) -> bool:
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+
+def _days_in_month(year: int, month: int) -> int:
+    if month == 2 and _is_leap(year):
+        return 29
+    return _MONTH_DAYS[month]
+
+
+def _days_from_civil(year: int, month: int, day: int) -> int:
+    """Days since 1970-01-01 (Hinnant civil calendar). No clock."""
+    y = year - (1 if month <= 2 else 0)
+    era = y // 400 if y >= 0 else (y - 399) // 400
+    yoe = y - era * 400
+    doy = (153 * (month + (-3 if month > 2 else 9)) + 2) // 5 + day - 1
+    doe = yoe * 365 + yoe // 4 - yoe // 100 + doy
+    return era * 146097 + doe - 719468
+
+
+def deadline_epoch_s(deadline_iso: str) -> int:
+    """Parse a timezone-aware ISO-8601 deadline to unix seconds.
+
+    Regex-shaped but impossible dates (month 13, day 31 in April,
+    hour 99) fail closed. Fractional seconds are floored, matching
+    ``int(datetime.timestamp())`` in the store adapter. Naive stamps
+    are not accepted — the regex already requires Z or an offset.
+    """
+    if not isinstance(deadline_iso, str):
+        raise FailClosedError(f"deadline_iso not a string: {deadline_iso!r}")
+    if not DEADLINE_ISO_RE.match(deadline_iso):
+        raise FailClosedError(f"deadline_iso not ISO-8601: {deadline_iso!r}")
+    m = _DEADLINE_PARSE_RE.match(deadline_iso)
+    if m is None:
+        raise FailClosedError(f"deadline_iso not parseable: {deadline_iso!r}")
+    year = int(m.group("y"))
+    month = int(m.group("m"))
+    day = int(m.group("d"))
+    hour = int(m.group("h"))
+    minute = int(m.group("min"))
+    second = int(m.group("s"))
+    if month < 1 or month > 12:
+        raise FailClosedError(f"deadline_iso month out of range: {deadline_iso!r}")
+    if day < 1 or day > _days_in_month(year, month):
+        raise FailClosedError(f"deadline_iso day out of range: {deadline_iso!r}")
+    if hour > 23 or minute > 59 or second > 59:
+        raise FailClosedError(f"deadline_iso clock out of range: {deadline_iso!r}")
+    if m.group("sign") is None:
+        offset_s = 0
+    else:
+        oh = int(m.group("oh"))
+        om = int(m.group("om"))
+        if oh > 14 or om > 59:
+            raise FailClosedError(
+                f"deadline_iso offset out of range: {deadline_iso!r}")
+        offset_s = oh * 3600 + om * 60
+        if m.group("sign") == "-":
+            offset_s = -offset_s
+    return _days_from_civil(year, month, day) * 86400 + hour * 3600 + minute * 60 + second - offset_s
+
+
+def deadline_still_open(deadline_iso: str, now_epoch_s: int) -> bool:
+    """True only while ``now < deadline``. Equal means the window closed.
+
+    No clock is read — both sides arrive as arguments. This is the
+    factory-side witness of the store's append-time deadline gate.
+    """
+    now = require_epoch_s(now_epoch_s)
+    return now < deadline_epoch_s(deadline_iso)
+
+
 def mint_run_id(now_epoch_s: int, rand: str) -> str:
     """Format a run_id from boundary-supplied time and randomness.
 
@@ -56,7 +163,10 @@ def mint_run_id(now_epoch_s: int, rand: str) -> str:
     lowercase hex/base32-ish characters — os.urandom(8).hex() at the call
     site is the intended shape.
     """
-    run_id = f"run-{int(now_epoch_s)}-{rand}"
+    now = require_epoch_s(now_epoch_s)
+    if not isinstance(rand, str):
+        raise FailClosedError(f"rand must be a string: {rand!r}")
+    run_id = f"run-{now}-{rand}"
     if not RUN_ID_RE.match(run_id):
         raise FailClosedError(f"refusing malformed run_id: {run_id!r}")
     return run_id
@@ -109,12 +219,13 @@ class TaskEnvelope:
                             ("budget_aud_cents", self.budget_aud_cents)):
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
                 raise FailClosedError(f"{name} must be a non-negative int: {value!r}")
-        if not DEADLINE_ISO_RE.match(self.deadline_iso or ""):
-            raise FailClosedError(f"deadline_iso not ISO-8601: {self.deadline_iso!r}")
+        # Calendar parse, not just the regex: 2026-13-40T99:99:99Z
+        # matches the shape gate and must still fail closed.
+        deadline_epoch_s(self.deadline_iso or "")
         for tool in self.allowed_tools:
             if not isinstance(tool, str) or not tool.strip():
                 raise FailClosedError(f"allowed_tools entries must be names: {tool!r}")
-            if is_forbidden_effect_name(tool):
+            if is_sealed_tool_name(tool):
                 raise FailClosedError(
                     f"allowed_tools cannot name a sealed effect: {tool!r}")
         for evidence_id in self.parent_evidence:
@@ -141,7 +252,7 @@ class TaskEnvelope:
         """
         if not isinstance(tool, str) or not tool.strip():
             raise FailClosedError(f"tool name required: {tool!r}")
-        if is_forbidden_effect_name(tool):
+        if is_sealed_tool_name(tool):
             return False
         if not self.allowed_tools:
             return True
@@ -166,6 +277,10 @@ class TaskEnvelope:
         if self.budget_tokens == 0:
             return request == 0
         return already_consumed + request <= self.budget_tokens
+
+    def deadline_open(self, now_epoch_s: int) -> bool:
+        """Factory/store witness: equal-to-deadline is closed."""
+        return deadline_still_open(self.deadline_iso, now_epoch_s)
 
     def may_consume_aud(self, already_consumed: int, request: int) -> bool:
         """Per-run money ceiling in cents. Same shape as tokens:
@@ -200,10 +315,16 @@ def create_envelope(
     rollback_ref: str | None = None,
 ) -> TaskEnvelope:
     """The boundary's only sanctioned constructor. Arms call this; they
-    cannot inject a run_id because the parameter does not exist."""
-    return TaskEnvelope(
+    cannot inject a run_id because the parameter does not exist.
+
+    A run cannot be born already expired: ``now_epoch_s >= deadline``
+    fails closed here so the store's append-time gate is not the first
+    witness. Ready ≠ authorized — this check never grants a send.
+    """
+    now = require_epoch_s(now_epoch_s)
+    env = TaskEnvelope(
         version=1,
-        run_id=mint_run_id(now_epoch_s, rand),
+        run_id=mint_run_id(now, rand),
         goal=goal,
         risk_tier=risk_tier,
         authority_level=authority_level,
@@ -217,3 +338,8 @@ def create_envelope(
         rollback_plan=rollback_plan,
         rollback_ref=rollback_ref,
     )
+    if not env.deadline_open(now):
+        raise FailClosedError(
+            f"deadline already closed at mint: now={now} >= {deadline_iso!r} "
+            "(equal means the window is closed)")
+    return env
