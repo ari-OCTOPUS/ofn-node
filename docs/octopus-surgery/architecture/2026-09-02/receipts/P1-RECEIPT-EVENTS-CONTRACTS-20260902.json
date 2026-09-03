@@ -1,0 +1,84 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-RECEIPT-EVENTS-CONTRACTS-20260902",
+  "issued_utc": "2026-09-02T09:26:58Z",
+  "author": "cursor-cloud-agent bc-aa77bfa6-900a-4be9-995e-ddd2e1afee05",
+  "owner_ratified": false,
+  "body": "bc-aa77bfa6-900a-4be9-995e-ddd2e1afee05",
+  "branch": "cursor/taskenvelope-system-hardening-9a67",
+  "parent_head_full": "94f9622d650d29742722e85b9c7c0dfde943dc97",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/idempotency.py",
+    "ofn/adapters/receipt.py",
+    "tests/test_idempotency.py",
+    "tests/test_receipt.py",
+    "tests/test_events.py",
+    "tests/test_arch_token_otel_contracts.py",
+    "tests/test_halt_starts_not_inflight.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-RECEIPT-EVENTS-CONTRACTS-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "tests/test_envelope.py (owned by #83)",
+    "tests/test_run_store.py (owned by #82/#83)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/kernel/revenue_states.py (owned by #77)",
+    "tools/worktree_inventory.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by #73; appended there, not here)"
+  ],
+  "action": "Independent P1 complementary lane: receipt digest adapter (same algorithm as the store, not wired into it), envelope binding hash for create-level dedup, typed-event construction tests, docs-vs-code token/OTel/agent-contract checks, HALT-stops-STARTS-not-in-flight on main. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -m pytest tests/test_idempotency.py tests/test_receipt.py tests/test_events.py tests/test_arch_token_otel_contracts.py tests/test_halt_starts_not_inflight.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T09:26:58Z",
+    "head_full_at_run": "94f9622d650d29742722e85b9c7c0dfde943dc97",
+    "exit_code": 0,
+    "result": "210 passed, 1007 subtests passed, 0 failed, 0 skipped",
+    "tree_state": "dirty — this session's lock-zone files only (new files, untracked)"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @94f9622d650d29742722e85b9c7c0dfde943dc97 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on #73 @f2aca5e49b96c01e027063c5f0e04c3499c5a508",
+    "CONTRIBUTING.md": "absent on origin/main @94f9622 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/cursor/d27-unlock-ea6b",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/cursor/d28-edge-runbook-ea6b",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    }
+  },
+  "worktree_census": {
+    "command": "git worktree list",
+    "ran_at_utc": "2026-09-02T09:27:06Z",
+    "exit_code": 0,
+    "registered": ["/workspace 94f9622 cursor/taskenvelope-system-hardening-9a67"],
+    "pruned": false
+  },
+  "boundary": {
+    "external_effects": 0,
+    "send_authorized": false,
+    "quote_sent": false,
+    "campaign_envelope_ready_is_not_send_authorized": true,
+    "admin_bypass": false,
+    "gates_weakened": false,
+    "secrets_rotated": false,
+    "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
+  }
+}
