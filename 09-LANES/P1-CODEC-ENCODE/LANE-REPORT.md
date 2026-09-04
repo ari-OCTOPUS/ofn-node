@@ -12,7 +12,7 @@ Lane ID: P1-CODEC-ENCODE. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complemen
 - Added kernel-pure `admit_codec` + `CodecDecision` and `EncodePin`. Encode is a START (HALT refuses). Inspect/replay continue under HALT. Unknown codec refused, not FALSE. Empty payload refused. Width exact-int match. Timeout is UNKNOWN, not a concurrent-write proof. Sealed send/ready names refuse as intent, codec, or payload. `campaign_envelope_ready` structurally ≠ `send_authorized`. Pin records (run_id → codec); same pair `already_pinned`; different codec `codec_conflict`; peek never writes; missing is None, not FALSE. Not wired into `run_store.py`. HALT stops STARTS, not inspect/replay/pin.
 
 ## What remains
-- Independent CODEOWNERS review of this PR then leftover review-blocked complementary P1 PRs. Merge blocked (REVIEW_REQUIRED).
+- Independent CODEOWNERS review of #198 (`https://github.com/ari-OCTOPUS/ofn-node/pull/198`, HEAD `43b1841d8bb29944ad0b36727ec55fed05b1c57c`) then leftover review-blocked complementary P1 PRs. Merge blocked (REVIEW_REQUIRED).
 - `quote_sent` / `send_authorized` remain owner-blocked. No newer scoped authorization after the later disarm/hold.
 - Wiring these classifiers into `run_store.py` waits for owner review (do not edit that file here).
 - Incidents append is on existing `docs/octopus-os-incidents-20260902` only (do not mint a sixth incidents PR). Collision #187 session e vs unpublished f/g/h remains open. This append is session i.
