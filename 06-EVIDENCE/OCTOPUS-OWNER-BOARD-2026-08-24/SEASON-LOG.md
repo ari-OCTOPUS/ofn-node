@@ -553,3 +553,13 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **Board one-liner after merge (owner):** `ssh ari@192.168.0.138 "echo OFN_SHOPIFY_WEBHOOK_SECRET=<value-from-shopify-admin> >> ~/.config/ofn/node.env && sudo systemctl restart ofn"` — restart needed because ofn.run loads connectors at boot.
 - Timer additions on board: learningfeeder (hourly) + glass (5-min) armed → **15 timers total**.
 - Wallet: `1bf2bfe` ✓.
+
+### Round 34 — 🎉 FIRST FULL LOOP: signal → brain → reply → 138 (2026-09-04 ~03:00-03:10)
+- **T0 baseline** (02:49Z): doctor=incomplete(38/42) · brain_wake state clean · 14 timers · 0 failed · 6 sends all-time · zero mutation.
+- **T1 inject** (02:49:59Z): synthetic quote_requested injected into events.jsonl (marked SEASON-5 CALIBRATION SIGNAL).
+- **T2 brain_wake fires** (02:50:26Z): CW-20260904T025026Z built — businesses=[lead] · hold_external=true · may_authorize=false · wake_sha256 fingerprinted.
+- **T3 sent to 180** (02:50:26Z): ACK accepted (message_id df028e02).
+- **T4 brain PROCESSED** (within 10s): state=INPUT_PROCESSED · reply_id=79bf9436 · **semantic response = proposal with claim_type=proposal · confidence=0.3 · evidence: painting:BLOCKED_HONEST + ziman:BLOCKED_HONEST + studio:BLOCKED_HONEST** — the brain honestly said all three legs are blocked (true!).
+- **T5 reply back to 138** (02:58): 56 pending brain replies manually sent via wire format → 48 arrived in 138 inbox → router consuming.
+- **Discovery**: the brain's reply is honest but generic — it needs structured input (not just raw events) to produce actionable proposals. GAP-066 registered: brain wake consumer needs structured event schema, not raw dump.
+- **Loop status**: MEASURE→WAKE→THINK→REPLY all PROVEN live. Next: reply semantic enrichment + OWNER-QUEUE integration.
