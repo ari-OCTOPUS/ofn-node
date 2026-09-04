@@ -27,7 +27,9 @@ worktree only.
 
 ## What remains
 
-- Publish of this branch (one PR). Independent review after CI.
+- Publish landed: https://github.com/ari-OCTOPUS/ofn-node/pull/186
+  @`ce9fc30edbabcded7b0ce328ebd41f59b296a950`. Independent review after CI.
+  Do not open a second stale-fresh PR.
 - Incidents append lxxxix on existing `docs/octopus-os-incidents-20260902`
   only. Origin tip this-run `a4589d623012a171e0800c2601ec9a43b51311bd`
   (lxxxviii). `refs/pull/154/head` lag `a80924d` recorded open. Do not
