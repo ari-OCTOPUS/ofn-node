@@ -34,6 +34,11 @@ OUTBOX = Path.home() / "octopus-mesh/outbox"
 STATE = opslib.STATE_DIR / "brain-wake-state.json"
 
 # رویدادهایی که ارزش بیدارکردن مغز دارند (بقیه = سکوت)
+_BUSINESS_MAP = {"painting": "painting", "ziman": "ziman", "lead": "painting", "order": "ziman"}
+
+def _to_business(correlation_id: str) -> str:
+    return _BUSINESS_MAP.get(correlation_id.split(":")[0].lower(), "painting")
+
 WAKE_WORTHY = frozenset({
     "payment.verified", "payment.claimed",
     "communication.quote_requested",
