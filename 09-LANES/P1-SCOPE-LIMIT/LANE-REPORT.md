@@ -25,12 +25,16 @@ Lane declared: P1-SCOPE-LIMIT. `09-LANES/LANE-MATRIX.csv` has L0–L9 only
 
 ## What remains
 
-- Hook-allowed publish of this first identifier onto one new PR only.
+- Isolated first identifier published. `open_git_pr` created
+  https://github.com/ari-OCTOPUS/ofn-node/pull/192.
+  `refs/pull/192/head` MATCH `adb43ffb74cebbd251308ee2eb0c4e00e17fe0bd`
+  (2026-09-04T12:28:28Z). Do not open a second scope-limit PR.
 - Independent review after CI. Do not merge without an independent
   CODEOWNERS reviewer.
-- Incidents next published append is xcix on origin xcviii
-  `f023add4738919b136ae43e71cefc133ee7c51c1`. Do not force-push.
-  Do not mint a sixth incidents PR.
+- Incidents xcix published on existing #187
+  `de0286a63e2ca1120f034a393698122a4530c149` (`git push`
+  2026-09-04T12:29:11Z; `refs/pull/187/head` MATCH 2026-09-04T12:29:20Z).
+  Do not force-push. Do not mint a sixth incidents PR.
 
 ## What failed
 
