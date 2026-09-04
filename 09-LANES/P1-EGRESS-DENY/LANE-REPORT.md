@@ -80,8 +80,11 @@ python3 -X utf8 -m unittest tests.test_egress_class tests.test_deny_pin tests.te
 
 Receipt pointer:
 `docs/octopus-surgery/architecture/2026-09-02/receipts/P1-EGRESS-DENY-20260904.json`
-(hash + byte size filled after commit). Filesystem immutability: NOT
-claimed.
+· SHA-256 `154a07f8ce1aa8a4535e0883eee42f7d4ffb530b97dfece94af5be9216cdb519`
+· 4713 bytes · evidence level B (git blob on engineering HEAD
+`1e49fd06cdb07aa31b9a419a0c5a28ea4cff2047`). Post-commit suite:
+`2026-09-04T00:07:47Z` · exit 0 · 236 passed / 0 failed / 0 skipped.
+Filesystem immutability: NOT claimed.
 
 ## Rollback steps
 
