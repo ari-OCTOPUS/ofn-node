@@ -6,7 +6,8 @@
 تازه با ttl کوتاه می‌خواهد. fail-closed: سرویسِ توکن در دسترس نبود = ارسال نیست.
 
 راستی‌آزمایی سند تلاقی: ادعای «capability_flags موجود» در بورد/ولت یافت نشد
-(E0) — این ماژول تازه ساخته شد؛ نمرهٔ صادق: E2 (تست سبز روی ورودی طراحی‌شده).
+(E0) — این ماژول تازه ساخته شد. verified_send پارک است (بدون آداپتر خروج).
+نمرهٔ صادق: E3 (مسیرهای منفی سبز).
 """
 from __future__ import annotations
 
@@ -104,20 +105,36 @@ def request_send_token(candidate: dict, purpose: str) -> tuple[dict | None, str]
     return issue("send_email", em, purpose), "ok"
 
 
+def grants_send() -> bool:
+    """Structurally False. A capability token is not a send."""
+    return False
+
+
+def ready_is_authorized() -> bool:
+    """Structurally False. campaign_envelope_ready ≠ send_authorized."""
+    return False
+
+
 def verified_send(token: dict, candidate: dict, draft: dict,
                   purpose: str) -> dict:
-    """ارسال فقط با توکنِ تازه‌تأیید. transport همان مسیر رسمی (ADR-B)."""
+    """Parked send path. Token may verify; no outbound adapter is imported.
+
+    A later disarm/hold still supersedes any older send claim. Ready
+    is not authorized. This function never sets ``sent`` True.
+    """
     em = str((candidate or {}).get("email") or "")
     ok, reason = verify(token, "send_email", em)
     if not ok:
-        opslib.append_jsonl(opslib.STATE_DIR / "capability-tokens.jsonl",
-                            {"event": "verify_denied", "reason": reason,
-                             "subject": em[:40]})
-        return {"sent": False, "status": "TOKEN_DENIED", "detail": reason}
-    import lead_outbound_transport as transport
-    out = transport.send(candidate, draft)
-    opslib.append_jsonl(opslib.STATE_DIR / "capability-tokens.jsonl",
-                        {"event": "consumed", "subject": em[:40],
-                         "purpose": purpose[:60], "sent": bool(out.get("sent")),
-                         "status": out.get("status")})
-    return out
+        return {
+            "sent": False,
+            "status": "TOKEN_DENIED",
+            "detail": reason,
+            "grants_send": False,
+        }
+    return {
+        "sent": False,
+        "status": "TOKEN_PARKED",
+        "detail": "send-path-parked",
+        "grants_send": False,
+        "purpose": purpose[:60],
+    }

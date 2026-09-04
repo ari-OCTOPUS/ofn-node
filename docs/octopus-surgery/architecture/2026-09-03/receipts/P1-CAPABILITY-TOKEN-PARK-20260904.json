@@ -1,0 +1,71 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CAPABILITY-TOKEN-PARK-20260904",
+  "issued_utc": "2026-09-04T00:04:27Z",
+  "author": "cursor-cloud owner-absent automation (110B park)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-110b-park on feat/110b-capability-token-20260903 parent 404fa4a33d06cd06e35444bada65dc97abaa24c5 (origin #113 + refs/pull/113/head MATCH 2026-09-04T00:01:10Z). /workspace stayed on cursor/bc-bd6d8f40-98ec-4982-9825-d2bd61a72db2-585e @404fa4a and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on the parked SHA (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "prior unpublished park SHAs (objects ABSENT this-host)"
+  ],
+  "action": "Park 110B verified_send: no outbound-adapter import; grants_send structurally False; 110A pin allows parked token file and still fails a live transport name. Same PR #113. Not a second 110B PR.",
+  "delivered": {
+    "ofn/agents/capability_token.py": "verified_send returns TOKEN_PARKED / sent=False after a good verify; TOKEN_DENIED on bad-mac/expired/mismatch; grants_send and ready_is_authorized structurally False; outbound adapter name absent from source",
+    "tests/test_r0_quote_closure.py": "110A pin: transport file absent; parked token allowed only if source has no live transport name",
+    "tests/test_capability_token.py": "E3: source scan, D-26 copies absent, good token parked, bad-mac/subject/expired/action-mismatch denied, missing secret fail-closed, wire-closed still parked, transport.send never called",
+    "tests/test_chaos_capability_token.py": "owner-absent: HALT does not grant send; valid token still parked; missing transport is not a send; ready ≠ authorized"
+  },
+  "verification": {
+    "command": "python3 -m pytest tests/test_r0_quote_closure.py tests/test_capability_token.py tests/test_chaos_capability_token.py tests/test_d26_canonical_bodies.py tests/test_r0_spine_restore.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=line",
+    "ran_at_utc": "2026-09-04T00:04:27Z",
+    "parent_head_full": "404fa4a33d06cd06e35444bada65dc97abaa24c5",
+    "exit_code": 0,
+    "result": "223 passed / 2274 subtests / 0 failed / 0 skipped (pytest 9.x; '223 passed, 2274 subtests passed in 1.49s'). New-module+110A pin only earlier: 48 passed / 2274 subtests / 0 failed at 2026-09-04T00:04:21Z.",
+    "pre_fix_repro": {
+      "command": "python3 -m pytest tests/test_r0_quote_closure.py -q --tb=short",
+      "ran_at_utc": "2026-09-04T00:02:42Z",
+      "head_full": "404fa4a33d06cd06e35444bada65dc97abaa24c5",
+      "exit_code": 1,
+      "result": "1 failed / 5 passed — test_send_path_modules_are_absent_from_this_pr (capability_token.py exists + live transport import)"
+    },
+    "runner": "pytest after python3 -m pip install pytest (stdlib unittest also 21 passed / 0 failed at 2026-09-04T00:04:33Z on test_capability_token + test_chaos_capability_token + test_r0_quote_closure collection)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-110b-park).",
+    "worktree": "/tmp/ofn-110b-park",
+    "file_lock_zone": [
+      "ofn/agents/capability_token.py",
+      "tests/test_r0_quote_closure.py",
+      "tests/test_capability_token.py",
+      "tests/test_chaos_capability_token.py",
+      "docs/octopus-surgery/architecture/2026-09-03/receipts/P1-CAPABILITY-TOKEN-PARK-20260904.json",
+      "09-LANES/P1-CAPABILITY-TOKEN/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "good token → TOKEN_PARKED, sent=False, grants_send False",
+      "bad-mac / subject-mismatch / expired / action-mismatch → TOKEN_DENIED",
+      "missing secret → RuntimeError no-token-secret",
+      "OFN_WIRE_OUTBOUND=0 still parked",
+      "transport.send never called even if a fake module is injected",
+      "D-26 kernel/adapters copies absent",
+      "campaign_envelope_ready structurally ≠ send_authorized"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets printed/rotated, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, quote_sent forbidden",
+  "external_effects": 0
+}
