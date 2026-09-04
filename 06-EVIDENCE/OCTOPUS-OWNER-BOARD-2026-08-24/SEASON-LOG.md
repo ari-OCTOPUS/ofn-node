@@ -547,3 +547,9 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **Season-5 readiness check**: 13 timers armed · M5 pipeline file ✓ · brain_wake ✓ · capability_token ✓ (#113 merged) · glass_runner ✓ · learning_feeder ✓ · inter_board key ✓ · mesh versioned c40f4510 ✓ · 4 env gates =1 ✓.
 - **One dangling unit caught**: `octopus-followup` exit-2 — `followup_worker.py` absent from main (same class as digest). Disabled + timer removed, unit file backed up in FOLLOWUP-UNIT-REMOVAL-20260904/. **Failed units: 0** again.
 - Wallet: `6d97129` → `69de40b` → current.
+
+### Round 34 — ShopifyConnector registered (PR #179, ziman order-ingest unlocked)
+- ShopifyConnector existed with HMAC verification but was never registered in run.py's connector map — every POST to /api/v1/webhooks/{tenant}/shopify failed closed with 'unknown connector'. Now: registered behind OFN_SHOPIFY_WEBHOOK_SECRET env on the board. Fail-closed preserved (no secret = no connector). 3/3 tests.
+- **Board one-liner after merge (owner):** `ssh ari@192.168.0.138 "echo OFN_SHOPIFY_WEBHOOK_SECRET=<value-from-shopify-admin> >> ~/.config/ofn/node.env && sudo systemctl restart ofn"` — restart needed because ofn.run loads connectors at boot.
+- Timer additions on board: learningfeeder (hourly) + glass (5-min) armed → **15 timers total**.
+- Wallet: `1bf2bfe` ✓.
