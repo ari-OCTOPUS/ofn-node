@@ -1,0 +1,7 @@
+# Frozen GAP-066 brain schema. Windows autocrlf must not rewrite bytes.
+# Guard: tests/test_brain_schema.py
+#   test_frozen_lock_matches
+#   test_windows_crlf_checkout_is_a_known_hash_not_the_source
+#   test_hashed_contract_checkout_is_pinned_lf
+*.py text eol=lf
+*.lock text eol=lf
