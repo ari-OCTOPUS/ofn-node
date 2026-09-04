@@ -1,0 +1,15 @@
+{
+  "schema": "octopus-board-worktree.v1",
+  "node": "138",
+  "created_at": "2026-09-04T07:42:45.907849+00:00",
+  "worktree": "/home/ari/ofn-worktrees/codex-self-model-input-trust-001",
+  "branch": "codex/self-model-input-trust-001",
+  "base_head": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+  "plan_sha256": "2a64555137b9558681c73afeee2c19240a54d661b1a4285770c1523919c245ee",
+  "source_sha256": "67b24517f536d80459e4480fea16d65076c8756c3f8e1c387adf6b443b6eb0e8",
+  "files": 90,
+  "bytes": 615251,
+  "setup_correction": "no-checkout initialized empty index; materialized declared sparse paths with read-tree -mu HEAD after verifying own empty worktree",
+  "live_source_modified": false,
+  "service_activated": false
+}
