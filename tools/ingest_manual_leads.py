@@ -1,311 +1,95 @@
 #!/usr/bin/env python3
-"""Ingest manually-collected B2B leads into painting_b2b_accounts.
+"""Ingest all manually-collected B2B leads into painting_b2b_accounts.
 
-Usage:
-    cd ~/Desktop/OFN_Elahe_repo/ofn-node   # or board138 worktree
-    source .venv/bin/activate
-    python tools/ingest_manual_leads.py
-
-Uses existing LeadStore.create_account() upsert (ON CONFLICT DO UPDATE).
-No schema changes. No network I/O. Collection-only.
+Run: python tools/ingest_manual_leads.py
+Upsert — safe to re-run. No schema changes. No network I/O.
 """
-from __future__ import annotations
-
-import os
-import sys
+import os, sys
 from datetime import datetime, timezone
 from pathlib import Path
-
-REPO = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO))
-
-from ofn.adapters.lead_store import LeadStore  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from ofn.adapters.lead_store import LeadStore
 
 TENANT = "lead"
 
-
-def _db_path() -> str:
+def _db():
     p = os.environ.get("OFN_PAINTING_DB")
-    if p:
-        return p
-    default = Path.home() / ".local" / "share" / "ofn" / "painting.sqlite"
-    if default.exists():
-        return str(default)
-    return str(REPO / "painting.sqlite")
-
+    if p: return p
+    d = Path.home() / ".local/share/ofn/painting.sqlite"
+    return str(d) if d.exists() else str(Path(__file__).resolve().parent.parent / "painting.sqlite")
 
 LEADS = [
-    # ── STRATA ──
-    {
-        "business_name": "RD Facilities Management",
-        "segment": "strata",
-        "suburb": "Seven Hills",
-        "service_area": "Sydney metropolitan area, NSW",
-        "website": "https://rdfm.com.au",
-        "contact_channel": (
-            "1800 507 552 | admin@rdfm.com.au | "
-            "Alpesh Prajapati (Director) | "
-            "Bhagyawanti Prajapati (CEO)"
-        ),
-        "evidence_url": "https://rdfm.com.au",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 8/10. APPROACH: Direct. "
-            "Est. 2010. 250+ sites. Strata/Govt/Commercial. "
-            "Cleaning, Building Mgmt, Maintenance, Security, Pest, Garden, Waste, "
-            "High Pressure Cleaning, Mould Remediation, General Maintenance. "
-            "ISO 9001/14001/45001. 24/7 emergency. "
-            "23/45 Powers Rd, Seven Hills NSW 2147."
-        ),
-    },
-    {
-        "business_name": "Bright and Duggan Group",
-        "segment": "strata",
-        "suburb": "St Leonards",
-        "service_area": "Sydney",
-        "website": "https://bright-duggan.com.au",
-        "contact_channel": "1300 092 863 | customercare@bright-duggan.com.au",
-        "evidence_url": "https://linkedin.com/company/bright-duggann/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 8/10. APPROACH: Direct. "
-            "Strata Management company. "
-            "7/558 Pacific Hwy, St Leonards NSW 2065."
-        ),
-    },
-    {
-        "business_name": "Smarter Communities",
-        "segment": "strata",
-        "suburb": "Sydney CBD",
-        "service_area": "Sydney",
-        "website": "https://smartercommunities.com.au",
-        "contact_channel": "1800 519 642 | info@smartercommunities.com.au",
-        "evidence_url": "https://linkedin.com/company/smarter-communities/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 9/10. APPROACH: Direct. "
-            "Strata & Facility Mgmt. $30B+ property value. 201-500 employees. "
-            "Repairs & Maintenance, Quotes & Work Orders. "
-            "Level 7, 447 Kent St, Sydney NSW 2000."
-        ),
-    },
-
-    # ── COMMERCIAL ──
-    {
-        "business_name": "ESR Group",
-        "segment": "commercial",
-        "suburb": "Sydney CBD",
-        "service_area": "NSW, SA",
-        "website": "https://au.esr.com",
-        "contact_channel": (
-            "Fergus Adamson (GM Property Services NSW) "
-            "M:+61 415 784 898 O:+61 2 9186 4727 fergus.adamson@esr.com | "
-            "Nicole Stephens (Regional Mgr Property Mgmt) "
-            "M:+61 429 479 141 O:+61 2 9186 4746 nicole.stephens@esr.com"
-        ),
-        "evidence_url": "https://linkedin.com/company/esrgroup/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 8/10. APPROACH: Direct. "
-            "A$22.9B+ AUM, 195 assets. Industrial/commercial/logistics. "
-            "Main phone: +61 2 9186 4700. "
-            "HQ: Level 13, 39 Martin Place, Sydney NSW 2000."
-        ),
-    },
-    {
-        "business_name": "Siemens Australia - Smart Infrastructure",
-        "segment": "commercial",
-        "suburb": "North Ryde",
-        "service_area": "NSW",
-        "website": "https://siemens.com",
-        "contact_channel": (
-            "Buildings Service NSW: 1300 782 379 | "
-            "Building Products: 1300 773 948 buildingproducts.sales.au@siemens.com | "
-            "General: 137 222"
-        ),
-        "evidence_url": "https://linkedin.com/company/siemens/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 7/10. APPROACH: Direct. "
-            "State Manager NSW Service Ops (Buildings) role open. "
-            "BMS, HVAC, Fire/Safety, Maintenance. "
-            "Office: 3 Richardson Pl, North Ryde NSW 2113."
-        ),
-    },
-    {
-        "business_name": "SGCH",
-        "segment": "commercial",
-        "suburb": "Liverpool",
-        "service_area": "Sydney, Melbourne, Brisbane",
-        "website": "https://sgch.com.au",
-        "contact_channel": "1800 573 370 | office@sgch.com.au",
-        "evidence_url": "https://linkedin.com/company/sgch/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 8/10. APPROACH: Direct. "
-            "Community housing provider. 7,000+ homes. $4.6B assets managed. "
-            "Property care, repairs & maintenance, property condition monitoring. "
-            "Level 4, 50 Scott St, Liverpool NSW 2170."
-        ),
-    },
-    {
-        "business_name": "Dexus",
-        "segment": "commercial",
-        "suburb": "Sydney CBD",
-        "service_area": "NSW",
-        "website": "https://dexus.com",
-        "contact_channel": "+61 2 9017 1100",
-        "evidence_url": "https://linkedin.com/company/dexus-group/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 8/10. APPROACH: Direct. "
-            "$51.4B funds under mgmt. $12.8B dev pipeline. "
-            "Asset & Property Mgmt, Facilities Mgmt, Service Providers. "
-            "Level 30, Quay Quarter Tower, 50 Bridge St, Sydney NSW 2000."
-        ),
-    },
-    {
-        "business_name": "Woolworths Group",
-        "segment": "commercial",
-        "suburb": "Bella Vista",
-        "service_area": "National (NSW focus)",
-        "website": "https://woolworthsgroup.com.au",
-        "contact_channel": "+61 2 8885 0000 | Decision maker in Property/Asset/Facilities/Procurement TBD",
-        "evidence_url": "https://linkedin.com/company/woolworths-group/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 7/10. APPROACH: Direct or Vendor Panel. "
-            "Assistant Asset Manager role. National portfolio of owned/controlled "
-            "shopping centres & retail properties. 10,001+ employees. "
-            "Vendor Mgmt, Facility Managers, External Property Managers, "
-            "Maintenance, Capital & Operating Expenditure, OH&S. "
-            "1 Woolworths Way, Bella Vista NSW 2153."
-        ),
-    },
-    {
-        "business_name": "Cushman and Wakefield Sydney",
-        "segment": "commercial",
-        "suburb": "Sydney CBD",
-        "service_area": "ANZ",
-        "website": "https://cushmanwakefield.com",
-        "contact_channel": "+61 2 8243 9999 | Jon McCormick (Head of IFM & Asset Services ANZ)",
-        "evidence_url": "https://linkedin.com/company/cushman-&-wakefield/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 8/10. APPROACH: Direct. "
-            "Global real estate services. Facilities Mgmt & Asset Services. "
-            "Decision maker: Jon McCormick, Head of IFM & Asset Services ANZ. "
-            "They outsource maintenance/painting to contractors — we are that contractor. "
-            "Level 22, 1 O Connell St, Sydney NSW 2000."
-        ),
-    },
-
-    # ── GOVERNMENT ──
-    {
-        "business_name": "NSW Department of Planning Housing and Infrastructure",
-        "segment": "government",
-        "suburb": "Parramatta",
-        "service_area": "NSW",
-        "website": "https://dphi.nsw.gov.au",
-        "contact_channel": "",
-        "evidence_url": "https://linkedin.com/company/nswdphi/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 7/10. APPROACH: Panel/Tender. "
-            "Senior Manager Property Portfolio role. "
-            "Property Portfolio Mgmt, Asset & Project Mgmt, Leasing, Service Providers. "
-            "No direct phone/email found yet — needs enrichment."
-        ),
-    },
-    {
-        "business_name": "Sydney Water",
-        "segment": "government",
-        "suburb": "Parramatta",
-        "service_area": "Greater Sydney (12,700 km2)",
-        "website": "https://sydneywater.com.au",
-        "contact_channel": "13 20 92",
-        "evidence_url": "https://linkedin.com/company/sydney-water/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 7/10. APPROACH: Panel/Tender — government utility, "
-            "entry via panel/tender not direct outreach. "
-            "Property Asset Program Manager role open — "
-            "asset lifecycle, maintenance program, contractor oversight. "
-            "Thousands of assets/buildings. "
-            "ACTION: Look for panel/vendor registration on sydneywater procurement portal. "
-            "1 Smith St, Parramatta NSW 2150."
-        ),
-    },
-    {
-        "business_name": "City of Canterbury Bankstown",
-        "segment": "government",
-        "suburb": "Bankstown",
-        "service_area": "Canterbury-Bankstown LGA",
-        "website": "https://cbcity.nsw.gov.au",
-        "contact_channel": "02 9707 9000 | council@cbcity.nsw.gov.au",
-        "evidence_url": "https://linkedin.com/company/city-of-canterbury-bankstown/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 7/10. APPROACH: Panel/Tender. "
-            "Local council — Tier1 metro LGA in our service area. "
-            "Council buildings, community facilities, parks infrastructure. "
-            "66-72 Rickard Rd, Bankstown NSW 2200."
-        ),
-    },
-
-    # ── SUBCONTRACTOR PATHWAY ──
-    {
-        "business_name": "Downer Group",
-        "segment": "subcontractor",
-        "suburb": "North Ryde",
-        "service_area": "National",
-        "website": "https://downergroup.com",
-        "contact_channel": "+61 2 9468 9700 | info@downergroup.com",
-        "evidence_url": "https://linkedin.com/company/downer/",
-        "stage": "discovered",
-        "outreach_permission": "unknown",
-        "notes": (
-            "RELEVANCE: 6/10. APPROACH: SUBCONTRACTOR PATHWAY — NOT a direct client. "
-            "Owns Spotless Group. Gets FM contracts from govt/hospitals/schools/defence "
-            "(300+ sites, PPP 25yr contracts) then subcontracts painting to trade partners. "
-            "DO NOT cold call a Property Manager — look for Procurement/Supply Chain/"
-            "Trade Partner Onboarding portal instead. Vendor/panel registration is the entry. "
-            "Completely different outreach strategy from strata/commercial. "
-            "39 Delhi Rd, North Ryde NSW 2113."
-        ),
-    },
+    # ══ STRATA (20) ══
+    {"business_name": "RD Facilities Management", "segment": "strata", "suburb": "Seven Hills", "service_area": "Sydney metropolitan area, NSW", "website": "https://rdfm.com.au", "contact_channel": "1800 507 552 | admin@rdfm.com.au | Alpesh Prajapati (Director)", "evidence_url": "https://rdfm.com.au", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. Est 2010. 250+ sites. Strata/Govt/Commercial. ISO certified. 24/7."},
+    {"business_name": "Bright and Duggan Group", "segment": "strata", "suburb": "St Leonards", "service_area": "Sydney", "website": "https://bright-duggan.com.au", "contact_channel": "1300 092 863 | customercare@bright-duggan.com.au", "evidence_url": "https://linkedin.com/company/bright-duggann/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. 7/558 Pacific Hwy, St Leonards NSW 2065."},
+    {"business_name": "Smarter Communities", "segment": "strata", "suburb": "Sydney CBD", "service_area": "Sydney", "website": "https://smartercommunities.com.au", "contact_channel": "1800 519 642 | info@smartercommunities.com.au", "evidence_url": "https://linkedin.com/company/smarter-communities/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. $30B+ property. 201-500 employees. Level 7, 447 Kent St."},
+    {"business_name": "BCS Strata Sydney (PICA Group)", "segment": "strata", "suburb": "Sydney CBD", "service_area": "Sydney", "website": "https://picagroup.com.au/branches/bcs-sydney/", "contact_channel": "1300 889 227 | bcs_sydney@bcssm.com.au | Ryan Hewit (BDM) 0427 160 092", "evidence_url": "https://picagroup.com.au/branches/bcs-sydney/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. National group. Level 27/66-68 Goulburn St. Ryan Hewit is BDM."},
+    {"business_name": "Progressive Strata Services", "segment": "strata", "suburb": "Edgecliff", "service_area": "Eastern Suburbs, CBD, Inner West", "website": "https://www.prostrata.com.au/", "contact_channel": "(02) 9389 9599", "evidence_url": "https://www.prostrata.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Award-winning boutique. Owner: Karina Heinz, 31yr experience."},
+    {"business_name": "Sydney Strata Specialists", "segment": "strata", "suburb": "Bondi Beach", "service_area": "Sydney", "website": "https://sydneystrataspecialists.com.au/", "contact_channel": "02 8005 3850 | info@sydstrata.com.au", "evidence_url": "https://sydneystrataspecialists.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Unit 1, 171 Bondi Rd, Bondi Beach NSW 2026."},
+    {"business_name": "Strata United", "segment": "strata", "suburb": "Ultimo", "service_area": "Sydney", "website": "https://www.strataunited.com.au/", "contact_channel": "1300 445 900 | info@strataunited.com.au", "evidence_url": "https://www.strataunited.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. No lock-in. 79/330 Wattle St, Ultimo NSW 2007."},
+    {"business_name": "Strata Sense", "segment": "strata", "suburb": "Sydney", "service_area": "Sydney, Newcastle", "website": "https://www.stratasense.com.au/", "contact_channel": "1300 859 044", "evidence_url": "https://www.stratasense.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Award-winning. Sydney + Newcastle."},
+    {"business_name": "Absolute Strata", "segment": "strata", "suburb": "Sydney", "service_area": "Sydney Metro, Regional NSW", "website": "https://absolutestrata.com.au/", "contact_channel": "02 9553 0244 | 1300 012 800 | info@absolutestrata.com.au", "evidence_url": "https://absolutestrata.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. 20+ years."},
+    {"business_name": "Platinum Strata Management", "segment": "strata", "suburb": "Milsons Point", "service_area": "Central Coast, North Shore", "website": "https://platinumstratamanagement.com.au/", "contact_channel": "(02) 9922 4117", "evidence_url": "https://platinumstratamanagement.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. Boutique. Residential/Commercial/Industrial."},
+    {"business_name": "Whelan Property Group", "segment": "strata", "suburb": "Sydney", "service_area": "NSW", "website": "https://www.whelanproperty.com.au/", "contact_channel": "02 9219 4111", "evidence_url": "https://www.whelanproperty.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Since 2005. Multilingual: EN/Mandarin/Cantonese/Italian/Spanish."},
+    {"business_name": "Strata Real Estate Services", "segment": "strata", "suburb": "Sydney", "service_area": "Northern Beaches, North Shore, South, East, West Sydney", "website": "https://www.stratares.com/", "contact_channel": "1300 997 905", "evidence_url": "https://www.stratares.com/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. 10+ years experience. Fixed price."},
+    {"business_name": "Civium Strata NSW", "segment": "strata", "suburb": "North Strathfield", "service_area": "Sydney, National", "website": "https://civium.com.au/nsw/", "contact_channel": "(02) 9715 3999 | enquiries@civium.com.au | Monique Bosma (GM NSW) monique.bosma@civium.com.au", "evidence_url": "https://civium.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. 4.0 stars (354 reviews). 1/13 George St."},
+    {"business_name": "Strata Choice", "segment": "strata", "suburb": "Sydney CBD", "service_area": "Sydney", "website": "https://www.stratachoice.com.au/", "contact_channel": "1300 322 213 | (02) 9249 9800 | info@stratachoice.com.au", "evidence_url": "https://www.stratachoice.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 10/10. APPROACH: Direct. 40+ years. 30,000+ owners. Family owned. Multiple offices: CBD, Parramatta, St Leonards."},
+    {"business_name": "Proactive Strata Services", "segment": "strata", "suburb": "West Ryde", "service_area": "Sydney", "website": "", "contact_channel": "02 9807 9255", "evidence_url": "https://directory.strata.community/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. Level 1, 979 Victoria Rd, West Ryde NSW 2114."},
+    {"business_name": "Guardian Strata", "segment": "strata", "suburb": "Leichhardt", "service_area": "Sydney", "website": "https://www.guardianstrata.com.au", "contact_channel": "02 8030 8950 | 02 9475 4818 | admin@guardianstrata.com.au", "evidence_url": "https://www.guardianstrata.com.au", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Suite 4, 39-45 Norton St, Leichhardt NSW 2040."},
+    {"business_name": "Ace Body Corporate Management", "segment": "strata", "suburb": "Balmain", "service_area": "Sydney", "website": "", "contact_channel": "0400 549 724", "evidence_url": "https://www.stratamanagement.com/australia/new-south-wales", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. Boutique/owner-operator."},
+    {"business_name": "Strata Excellence", "segment": "strata", "suburb": "Sydney CBD", "service_area": "Eastern Suburbs, North Shore, Northern Beaches, Inner West, Western, Blue Mountains", "website": "https://www.strataexcellence.com.au/", "contact_channel": "1300 16 16 37", "evidence_url": "https://www.strataexcellence.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Level 21, 133 Castlereagh St + Hazelbrook office."},
+    {"business_name": "Foreshew Strata Agency", "segment": "strata", "suburb": "Menai", "service_area": "Sydney Metro, South Coast, Illawarra", "website": "https://www.foreshewstrata.com.au/", "contact_channel": "1300 774 784 | service@foreshewstrata.com.au", "evidence_url": "https://www.foreshewstrata.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. Boutique."},
+    {"business_name": "Elevated Strata Communities", "segment": "strata", "suburb": "Alexandria", "service_area": "All Sydney", "website": "https://elevatedstrata.com.au/", "contact_channel": "1300 951 203 | hello@elevatedsm.com.au", "evidence_url": "https://elevatedsm.com.au/contact-us/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Founded 2020. No insurance commissions. A1/35-39 Bourke Rd, Alexandria."},
+    {"business_name": "Strata Title Management (STM)", "segment": "strata", "suburb": "Sydney", "service_area": "NSW", "website": "https://www.stratatitle.com.au/", "contact_channel": "(02) 9266 2600 | 1800 519 642 | info@stratatitle.com.au", "evidence_url": "https://www.stratatitle.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Since 1978. Parent: Smarter Communities."},
+    {"business_name": "Michael Roberts Strata Management", "segment": "strata", "suburb": "Sydney", "service_area": "St George, Sutherland Shire, Eastern Suburbs", "website": "https://www.mrstrata.com.au/", "contact_channel": "(02) 8567 5900", "evidence_url": "https://www.mrstrata.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Family owned. 40+ years."},
+    {"business_name": "Delux Building Management Group", "segment": "strata", "suburb": "Gladesville", "service_area": "Sydney", "website": "https://deluxgroup.com.au", "contact_channel": "1300 606 666 | info@deluxgroup.com.au", "evidence_url": "https://seek.com.au/job/94099619", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Body Corporate & FM. Contractor mgmt."},
+    {"business_name": "IB Property", "segment": "strata", "suburb": "Annandale", "service_area": "Sydney", "website": "https://ibproperty.com.au", "contact_channel": "(02) 9221 3333 | info@ibproperty.com.au | Nick Warren (Head FM) 0438 451 846 nick@ibproperty.com.au", "evidence_url": "https://seek.com.au/job/94393670", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 10/10. APPROACH: Direct. Part of IB Group. FM core service. PRIMARY: Nick Warren Head of FM."},
+    {"business_name": "Excel Building Management", "segment": "strata", "suburb": "Sydney", "service_area": "Sydney", "website": "", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94188911", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. 23+ years. Premium strata. Phone needs enrichment."},
+    {"business_name": "National Facilities Management", "segment": "strata", "suburb": "Sydney", "service_area": "Sydney", "website": "", "contact_channel": "", "evidence_url": "https://seek.com.au/job/93913373", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. APPROACH: Direct. Family-owned 35yr. Premium clients. Multiple sites. RECURRING potential. Phone needs enrichment."},
+    {"business_name": "Bond Services", "segment": "strata", "suburb": "Meadowbank", "service_area": "Sydney, Northern Beaches, Parramatta", "website": "https://bondservices.com.au", "contact_channel": "(02) 8117 8184 | social@bondservices.com.au", "evidence_url": "https://bondservices.com.au/pages/about", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 6/10. APPROACH: Partnership/Referral. Cleaning company — inside buildings already. Client List page may reveal buildings."},
+    # ══ COMMERCIAL (11) ══
+    {"business_name": "ESR Group", "segment": "commercial", "suburb": "Sydney CBD", "service_area": "NSW, SA", "website": "https://au.esr.com", "contact_channel": "Fergus Adamson (GM Property Services NSW) M:+61 415 784 898 O:+61 2 9186 4727 fergus.adamson@esr.com | Nicole Stephens M:+61 429 479 141 nicole.stephens@esr.com", "evidence_url": "https://linkedin.com/company/esrgroup/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. A$22.9B AUM, 195 assets. Main: +61 2 9186 4700."},
+    {"business_name": "Siemens Australia - Smart Infrastructure", "segment": "commercial", "suburb": "North Ryde", "service_area": "NSW", "website": "https://siemens.com", "contact_channel": "Buildings Service NSW: 1300 782 379 | Building Products: 1300 773 948", "evidence_url": "https://linkedin.com/company/siemens/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Direct. BMS, HVAC, Fire/Safety, Maintenance."},
+    {"business_name": "SGCH", "segment": "commercial", "suburb": "Liverpool", "service_area": "Sydney, Melbourne, Brisbane", "website": "https://sgch.com.au", "contact_channel": "1800 573 370 | office@sgch.com.au", "evidence_url": "https://linkedin.com/company/sgch/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. 7,000+ homes. $4.6B assets."},
+    {"business_name": "Dexus", "segment": "commercial", "suburb": "Sydney CBD", "service_area": "NSW", "website": "https://dexus.com", "contact_channel": "+61 2 9017 1100", "evidence_url": "https://linkedin.com/company/dexus-group/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. $51.4B funds. $12.8B dev pipeline."},
+    {"business_name": "Woolworths Group", "segment": "commercial", "suburb": "Bella Vista", "service_area": "National (NSW focus)", "website": "https://woolworthsgroup.com.au", "contact_channel": "+61 2 8885 0000", "evidence_url": "https://linkedin.com/company/woolworths-group/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Direct or Vendor Panel. Shopping centres. Decision maker TBD."},
+    {"business_name": "Cushman and Wakefield Sydney", "segment": "commercial", "suburb": "Sydney CBD", "service_area": "ANZ", "website": "https://cushmanwakefield.com", "contact_channel": "+61 2 8243 9999 | Jon McCormick (Head of IFM & Asset Services ANZ)", "evidence_url": "https://linkedin.com/company/cushman-&-wakefield/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. APPROACH: Direct. Global. They outsource painting to contractors — we are that contractor."},
+    {"business_name": "Nation", "segment": "commercial", "suburb": "Merrylands", "service_area": "Sydney", "website": "https://nation.com.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94409050", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. Build-to-rent. THOUSANDS of apartments Sydney. HIGH VOLUME. Phone needs enrichment."},
+    {"business_name": "Opera Australia", "segment": "commercial", "suburb": "Surry Hills", "service_area": "Sydney, Melbourne", "website": "https://opera.org.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94129979", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. Multi-site facilities. Capital works. Need FM contact from website."},
+    {"business_name": "Savills Australia", "segment": "commercial", "suburb": "Sydney CBD", "service_area": "National", "website": "https://savills.com.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94236901", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. Global. 42K staff. Contractor tendering, CapEx/OpEx. Phone needs enrichment."},
+    {"business_name": "CBRE Advisory Charter Hall", "segment": "commercial", "suburb": "Sydney CBD", "service_area": "Sydney CBD", "website": "https://cbre.com.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94363734", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. TWO FMs hiring NOW for Charter Hall premium CBD. Contractor panel opportunity. Phone needs enrichment."},
+    {"business_name": "News Corp Australia", "segment": "commercial", "suburb": "Surry Hills", "service_area": "National (Sydney HQ)", "website": "https://newscorp.com.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94395058", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. Corporate HQ. 150+ brands, 5000+ staff. FM manages vendor contracts. Phone needs enrichment."},
+    {"business_name": "Mission Australia", "segment": "commercial", "suburb": "Sydney", "service_area": "National", "website": "https://missionaustralia.com.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94330117", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. National housing portfolio. Strata, facilities, defects, capital works. Need FM/Property decision maker."},
+    {"business_name": "Capstone Recruitment (Head of Technical Property - undisclosed client)", "segment": "commercial", "suburb": "Sydney", "service_area": "National", "website": "", "contact_channel": "Phil O Keeffe 0404 041 904 (recruiter)", "evidence_url": "https://seek.com.au/job/94310026", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 10/10. TOP PRIORITY. $285K Head of Technical Property. National mission-critical assets. Outsourced contracts. Client UNDISCLOSED."},
+    # ══ GOVERNMENT (5) ══
+    {"business_name": "NSW Department of Planning Housing and Infrastructure", "segment": "government", "suburb": "Parramatta", "service_area": "NSW", "website": "https://dphi.nsw.gov.au", "contact_channel": "", "evidence_url": "https://linkedin.com/company/nswdphi/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Panel/Tender. Phone needs enrichment."},
+    {"business_name": "Sydney Water", "segment": "government", "suburb": "Parramatta", "service_area": "Greater Sydney", "website": "https://sydneywater.com.au", "contact_channel": "13 20 92", "evidence_url": "https://linkedin.com/company/sydney-water/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Panel/Tender. Thousands of assets. ACTION: vendor registration on procurement portal."},
+    {"business_name": "City of Canterbury Bankstown", "segment": "government", "suburb": "Bankstown", "service_area": "Canterbury-Bankstown LGA", "website": "https://cbcity.nsw.gov.au", "contact_channel": "02 9707 9000 | council@cbcity.nsw.gov.au", "evidence_url": "https://linkedin.com/company/city-of-canterbury-bankstown/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Panel/Tender. Tier1 metro LGA."},
+    {"business_name": "Sydney Olympic Park Authority", "segment": "government", "suburb": "Sydney Olympic Park", "service_area": "Sydney", "website": "https://sydneyolympicpark.nsw.gov.au", "contact_channel": "", "evidence_url": "https://buy.nsw.gov.au/prcOpportunity/BF666EDD-8B70-42EC-9A2C29153A900D29", "stage": "discovered", "outreach_permission": "unknown", "notes": "NOT DIRECT PAINTING LEAD. RFT Property Management Services closes 7-Sep-2026. Watch who wins — winner needs painting subcontractors."},
+    {"business_name": "City of Parramatta", "segment": "government", "suburb": "Parramatta", "service_area": "Parramatta LGA", "website": "https://cityofparramatta.nsw.gov.au", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94261498", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8.5/10. APPROACH: Panel/Tender. Tier1 LGA. Coordinates building services and contractors. ACTION: Find FM or Property Services Manager."},
+    # ══ SUBCONTRACTOR / REFERRAL (5) ══
+    {"business_name": "BPS Strata and Insurance Restoration", "segment": "subcontractor", "suburb": "Kingsgrove", "service_area": "ACT, NSW", "website": "", "contact_channel": "1300 724 814", "evidence_url": "https://directory.strata.community/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Partnership/Referral. Since 1978. Strata & insurance restoration."},
+    {"business_name": "Downer Group", "segment": "subcontractor", "suburb": "North Ryde", "service_area": "National (NSW/ACT + QLD)", "website": "https://downergroup.com", "contact_channel": "+61 2 9468 9700 | info@downergroup.com", "evidence_url": "https://seek.com.au/job/94407104", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 10/10. SUBCONTRACTOR PATHWAY. HAS DEFENCE PAS CONTRACT NSW/ACT+QLD. Owns Spotless. 300+ sites. DO NOT cold call — vendor registration is entry point."},
+    {"business_name": "TalentWeb Property (Donny Mudiasa)", "segment": "subcontractor", "suburb": "Sydney", "service_area": "Sydney", "website": "https://www.talentweb.com.au", "contact_channel": "Donny Mudiasa 0430 010 756 | dmudiasa@talentweb.com.au", "evidence_url": "https://seek.com.au/job/94364960", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Referral/Network. FM recruiter. Knows FM hiring managers = indirect lead source."},
+    {"business_name": "Complete Staff Solutions", "segment": "subcontractor", "suburb": "Sydney", "service_area": "National", "website": "https://www.completestaff.com.au", "contact_channel": "1800 308 308 | online@completestaff.com.au", "evidence_url": "https://seek.com.au/job/94379641", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 8/10. Labour hire for Local Govt property roles. Indirect path to council contracts."},
+    {"business_name": "Core Talent (Premium strata ~90 lots - undisclosed)", "segment": "strata", "suburb": "Sydney", "service_area": "Sydney", "website": "", "contact_channel": "Olivia 0406 560 343 (recruiter)", "evidence_url": "https://seek.com.au/job/94397913", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9.5/10. Premium strata ~90 lots. WATERPROOFING AND CLADDING WORKS UNDERWAY. ACTION: Contact Olivia to identify building."},
+    # ══ OTHER (uncategorized above) ══
+    {"business_name": "Strata Republic", "segment": "strata", "suburb": "Sydney CBD", "service_area": "All Sydney + Byron Bay", "website": "https://www.stratarepublic.com.au/", "contact_channel": "", "evidence_url": "https://www.stratarepublic.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. ABN 15110469620 Licence 1305102. Phone needs enrichment."},
+    {"business_name": "Neighbourly Strata (VJ Ray)", "segment": "strata", "suburb": "Bankstown", "service_area": "Sydney South West", "website": "", "contact_channel": "", "evidence_url": "https://directory.strata.community/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. Suite 4.01 Restwell St, Bankstown. Canterbury-Bankstown Tier1. Phone needs enrichment."},
+    {"business_name": "CF Strata Management", "segment": "strata", "suburb": "Eastern Suburbs", "service_area": "Eastern Suburbs, Inner West, Southern Suburbs", "website": "https://cfstrata.com.au/", "contact_channel": "", "evidence_url": "https://cfstrata.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. Covers premium suburbs. Phone needs enrichment."},
+    {"business_name": "Montano Strata", "segment": "strata", "suburb": "Sydney", "service_area": "Sydney", "website": "https://montanostrata.com.au/", "contact_channel": "", "evidence_url": "https://montanostrata.com.au/", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 9/10. 2,500+ lots, 200+ schemes. Part of IB Group. Phone needs enrichment."},
+    {"business_name": "Hays Property (Council client undisclosed)", "segment": "subcontractor", "suburb": "Sydney", "service_area": "Sydney", "website": "", "contact_channel": "", "evidence_url": "https://seek.com.au/job/94361951", "stage": "discovered", "outreach_permission": "unknown", "notes": "RELEVANCE: 7/10. APPROACH: Watch. Recruiter placing Property Officer at undisclosed Council. $50-60/hr."},
 ]
 
-
-def main() -> None:
-    db = _db_path()
-    print(f"DB: {db}")
-    store = LeadStore(db)
+def main():
+    store = LeadStore(_db())
     now = datetime.now(timezone.utc).isoformat()
     ok = 0
     for rec in LEADS:
-        result = store.create_account(TENANT, rec, now_iso=now)
-        tag = "OK" if result.get("ok") else "FAIL"
-        print(f"  [{tag}] {rec['business_name']}: "
-              f"id={result.get('account')}, "
-              f"score={result.get('score')}, "
-              f"{result.get('recommendation', result.get('error', ''))}")
-        if result.get("ok"):
-            ok += 1
-    print(f"\nDone: {ok}/{len(LEADS)} upserted into {db}")
-
+        r = store.create_account(TENANT, rec, now_iso=now)
+        if r.get("ok"): ok += 1
+        print(f"{'OK' if r.get('ok') else 'FAIL'} {rec['business_name']}")
+    print(f"\nDone: {ok}/{len(LEADS)} upserted")
 
 if __name__ == "__main__":
     main()
