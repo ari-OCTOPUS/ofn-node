@@ -27,13 +27,18 @@ def test_draft_too_short_refused(tmp_path, monkeypatch) -> None:
 
 
 def test_verify_refuses_without_two_step(tmp_path, monkeypatch) -> None:
+    """Updated for the P03 corrected contract: the pre-card verify passes
+    only when every OTHER policy gate is green (two-step is then expected).
+    With a real consent refusal present, the consent rule must block."""
     monkeypatch.setattr(rp, "RECEIPTS", tmp_path / "r.jsonl")
+    monkeypatch.setattr(rp, "_consent_ok",
+                        lambda lead: (False, "consent:missing"))
     res = rp.pipeline(
         "draft text long enough for the check",
         step1_token="", step2_token="whatever",
         lead_id="lead:x", dry_run=True)
     assert res["ok"] is False and res["stage"] == "verify"
-    assert "owner" in res.get("rule", "") or "two" in res.get("rule", "")
+    assert res.get("rule") == "consent:invalid-or-missing"
 
 
 def test_verify_refuses_kill_switch(tmp_path, monkeypatch) -> None:
@@ -51,7 +56,18 @@ def test_verify_refuses_kill_switch(tmp_path, monkeypatch) -> None:
 
 
 def test_verify_passes_with_all_gates_open(tmp_path, monkeypatch) -> None:
+    """Updated for the P03 corrected contract: with every real policy source
+    green, the pre-card dry run reaches the card stage (no send). Garbage
+    tokens are NOT consulted here — they are validated only at RELEASE, so
+    garbage strings can no longer authorize anything (old behavior pinned
+    the bool(token) defect and was retired with it)."""
+    monkeypatch.setenv("OCTOPUS_STATE_DIR", str(tmp_path / "state"))
     monkeypatch.setattr(rp, "RECEIPTS", tmp_path / "r.jsonl")
+    monkeypatch.setattr(rp, "_consent_ok", lambda lead: (True, "consent:ok"))
+    monkeypatch.setattr(rp, "_platform_ok", lambda platform: True)
+    monkeypatch.setattr(rp, "_rate_limit_ok", lambda now: True)
+    monkeypatch.setattr(rp, "_ledger_ready", lambda: True)
+    monkeypatch.setattr(rp, "_config_gates_open", lambda: (True, True))
     res = rp.pipeline(
         "draft text long enough for the check",
         step1_token="t1", step2_token="t2",
@@ -62,6 +78,7 @@ def test_verify_passes_with_all_gates_open(tmp_path, monkeypatch) -> None:
 
 def test_receipts_are_append_only(tmp_path, monkeypatch) -> None:
     rp_file = tmp_path / "r.jsonl"
+    monkeypatch.setenv("OCTOPUS_STATE_DIR", str(tmp_path / "state"))
     monkeypatch.setattr(rp, "RECEIPTS", rp_file)
     rp.pipeline("draft text long enough", step1_token="t", step2_token="t",
                 lead_id="l", dry_run=True)

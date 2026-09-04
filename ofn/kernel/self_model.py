@@ -81,7 +81,10 @@ class Reading:
 def _finite_epoch(value: Any) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
-    number = float(value)
+    try:
+        number = float(value)
+    except (OverflowError, ValueError):
+        return None
     return number if math.isfinite(number) else None
 
 
@@ -98,13 +101,14 @@ def classify_freshness(
     """
     observed = _finite_epoch(observed_epoch)
     now = _finite_epoch(now_epoch)
-    if observed is None or now is None or max_age_seconds < 0:
+    window = _finite_epoch(max_age_seconds)
+    if observed is None or now is None or window is None or window < 0:
         return UNKNOWN, None
     age = now - observed
-    if age < -FUTURE_TOLERANCE_SECONDS:
+    if not math.isfinite(age) or age < -FUTURE_TOLERANCE_SECONDS:
         return UNKNOWN, None
     age_seconds = int(max(0.0, age))
-    if age > float(max_age_seconds):
+    if age > window:
         return STALE, age_seconds
     return HEALTHY, age_seconds
 
@@ -146,7 +150,7 @@ def process_reading(
     False is a measured negative and is rendered as value False — which is
     a boolean, never a number, so it cannot be mistaken for a count.
     """
-    if alive is None:
+    if type(alive) is not bool:
         return Reading(sensor_id, implementation, UNKNOWN, None, source,
                        observed_epoch, detail or "probe inconclusive")
     status = HEALTHY if alive else ABSENT
@@ -166,7 +170,7 @@ def capability_reading(
     present=False is a verified absence (the module/symbol is not in this
     checkout). present=None means the check itself failed — unknown.
     """
-    if present is None:
+    if type(present) is not bool:
         return Reading(sensor_id, implementation, UNKNOWN, None, source,
                        None, detail or "check failed")
     status = HEALTHY if present else ABSENT
@@ -265,8 +269,10 @@ def build_model(
     ordered_capabilities = _sorted_readings(capabilities)
     all_readings = ordered_sensors + ordered_processes + ordered_capabilities
     statuses = [reading.status for reading in all_readings]
-    if brain_probe.get("status") in STATUS_VALUES:
-        statuses.append(brain_probe["status"])
+    # A missing or malformed probe verdict is missing evidence, not a
+    # reason to omit the probe from the model's uncertainty rollup.
+    probe_status = brain_probe.get("status")
+    statuses.append(probe_status if probe_status in STATUS_VALUES else UNKNOWN)
     return {
         "schema": SCHEMA,
         "code_identity": dict(code_identity or {}),

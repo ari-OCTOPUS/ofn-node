@@ -1,0 +1,3 @@
+# Documentation completion scope
+
+Direct owner request: update Obsidian across current hardware for later migration, in parallel with code integration and runtime verification. Within this same board lane, add the shared MIGRATION-2026-09-04.md and LANE-REPORT.md, retain safe execution receipts, and append one pointer to root AGENT.md. Its preimage SHA is a02f6f7988b448b0a27f1005bc40eb9ece3bf33fc93ad7c991f523021aade792. No other root instructions or agent-context policy changes. Final commit contains only these explicit safe documentation/receipt files, not runtime journal, original artifact or candidate runtime scratch. Main fast-forward must retain unrelated status/source hashes.

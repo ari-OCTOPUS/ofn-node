@@ -1,0 +1,10 @@
+{
+  "base": "c75473af9eb2439b5cc96a59ca629920416349e7",
+  "capture_sha256": "16e292967f4c867724908bd30dc6805defd7c37cf1e7d88afa6280e984c407a0",
+  "main_status_before": "?? 09-LANES/ECONOMIC-LEARNING/runs/auto-20260904/\n?? data/octopus-alerts.jsonl\n?? data/state/\n?? ofn/agi2027_runtime/\n?? state/\n?? web/cockpit-v2/data/",
+  "observed_at_epoch": 1788510022.1226077,
+  "plan_sha256": "b2fb9582f81734331bddb4f14f872652c9d74053319b7d4567044bb78a26005c",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "scope": "user-requested integration; no service restart/gate/push",
+  "worktree": "/home/ari/ofn-worktrees/codex-exec-001-integration"
+}
