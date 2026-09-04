@@ -12,8 +12,10 @@ Lane ID: P1-FORMAT-PARSE. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complemen
 - Added kernel-pure `admit_format` + `FormatDecision` and `pin_parse` + `ParsePin`. `classify` / `parse` are STARTS (HALT refuses). `inspect` / `peek` continue under HALT. Malformed or missing is UNKNOWN, not FALSE. Second parse is `already_parsed`. Timeout is UNKNOWN, not a concurrent-write proof and not `already_parsed`. Ready ≠ authorized. Not wired into `run_store.py`. HALT stops STARTS, not inspect/peek.
 - Distinct from `envelope.py` (factory + fail-closed validate), `event_id.py` (fail-closed evt-), `receipt_bind.py` (fail-closed digest), `envelope_class` / `store_class` (#148), typed_event / receipt_bind (#143), codec_class / encode_pin (#198), unpublished prefix/hex/normalize/utf8/atomic/index first identifiers (not recreated).
 
+- PR: https://github.com/ari-OCTOPUS/ofn-node/pull/199 · `refs/pull/199/head` MATCH `15bcf898d8f9c10ef4aea1127de998150b4cc403` @ 2026-09-04T23:24:59Z.
+
 ## What remains
-- Independent CODEOWNERS review of this PR then leftover complementary P1 PRs then #77. Merge blocked (REVIEW_REQUIRED).
+- Independent CODEOWNERS review of #199 then leftover complementary P1 PRs then #77. Merge blocked (REVIEW_REQUIRED).
 - `quote_sent` / `send_authorized` remain owner-blocked. No newer scoped authorization after the later disarm/hold.
 - Wiring these classifiers into `run_store.py` waits for owner review (do not edit that file here).
 - Incidents append is on existing `docs/octopus-os-incidents-20260902` / #187 only (do not mint a sixth incidents PR). Unpublished sessions j/k/l remain first identifiers. Next append is session m.
