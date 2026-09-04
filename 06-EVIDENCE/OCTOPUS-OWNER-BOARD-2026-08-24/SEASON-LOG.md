@@ -519,3 +519,8 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **SEND loop closed (the discovery of the night)**: 180 already had `bin/octopus_reply_outbox.py` — a durable reply-delivery state machine targeting 138 — but it was never wired to any unit/timer. Installed octopus-reply-outbox.service + 15-min timer on 180 → first run: `Result=success`, **56 pending brain-replies drained to 0** → delivered to 138 (router active, consuming). The brain's replies now flow back automatically every 15 minutes.
 - ۱۴+۱ timers now armed on the boards. HARMONY loop closed both directions: 138→180 (wake) and 180→138 (reply).
 - #170 note: owner merged it themselves (21:30Z, squash 64f7e68f) — first self-written code on main, author = patch_proposer.
+
+### Round 31 — J1 (M5) BUILT: release_pipeline (2026-09-04, owner: «do all» + «M5+P3+ziman+studio»)
+- **PR #178** `ofn/agents/release_pipeline.py` — the M5 bridge that finally gives OwnerRelease (complete-but-unwired kernel switch) its first real producer/consumer: draft → verify (11 fail-closed kernel gates incl. two-step owner confirmation + kill-switch first + restricted-never) → card (telegram hold_external) → release (via outbound_worker which itself respects conservation+cap+consent). Dry-run default; append-only receipts; 6 tests.
+- J2 (P3 cognitive_wake) already landed as PR #172 (merged). J3 (ziman order-ingest) partially wired (#151 manual B2B; ShopifyConnector orphan still awaits token scope). J4 (studio) remains BLOCKED on owner identity data.
+- Sequence for full automation: #178 merge → deploy → pipeline() call with real draft → two-step owner confirmation → outbound_worker fires within caps → receipt closes the money chain for the first time on the new pipeline.
