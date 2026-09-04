@@ -960,3 +960,12 @@ Trigger: check-suite failure `require-independent-approval` on `feat/brainwake-s
 - **external effects:** ZERO. Ready ≠ authorized.
 - **this-host worktree census:** `git worktree list` · `2026-09-04T03:35:45Z` · exit 0 · 3 registered (`/workspace` #185 trigger checkout @`6d95d40` not written; `/tmp/ofn-p1-stale-fresh` #186 @`ce9fc30` VERIFIED after push; `/tmp/ofn-inc-lxxxix` this lock-zone @`a4589d6` before this append). Nothing pruned. Vault census remains `body_not_on_this_host`.
 - **next executable action:** Independent review of #186 then #185 then leftover review-blocked PRs. Do not re-arm send. Do not open a second stale-fresh, brainwake, or incidents PR. Do not merge without an independent CODEOWNERS reviewer.
+
+## 2026-09-04 (session xc — incidents PR collision after lxxxix publish)
+
+Trigger: same body as lxxxix. After `git push` of lxxxix `93fd0cabbf0caf2356c72ab9f3bc302a9702967f` onto `docs/octopus-os-incidents-20260902` (`2026-09-04T03:36:42Z` MATCH), `open_git_pr` created https://github.com/ari-OCTOPUS/ofn-node/pull/187 instead of reusing #154. `refs/pull/154/head` remained `a80924d47c4ac9dc3cf68fd8c7259c8c730aae83` (lag). This is a duplicate incidents identifier, not a second log body.
+
+- **blocker (exact):** #154 head lag vs branch tip. Merge still REVIEW_REQUIRED. Did not force-push. Did not mint a sixth incidents PR. Did not close #187 (owner decision).
+- **collision (open, not silently picked):** incidents PR identifier — value_a intended reuse #154 · value_b created #187 (same branch `docs/octopus-os-incidents-20260902` @ parent `93fd0ca` then this append). resolution null · status open.
+- **external effects:** ZERO. Ready ≠ authorized. No send re-arm. No admin bypass.
+- **next executable action:** Owner/reviewer pick one incidents PR (#154 or #187) for the same branch. Do not open a third. Independent review of #186. Do not merge without an independent CODEOWNERS reviewer.
