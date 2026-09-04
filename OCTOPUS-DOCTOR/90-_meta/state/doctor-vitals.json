@@ -1,5 +1,5 @@
 {
-  "ts": 1788382802.240354,
+  "ts": 1788469203.3407931,
   "schema": "doctor-vitals.v1",
   "missions_total": {
     "value": 1,
@@ -15,7 +15,7 @@
     "receipt": "git log — کامیت واقعی، نه ادعا"
   },
   "owner_approvals": {
-    "value": 14,
+    "value": 16,
     "provenance": "برون‌زاد",
     "receipt": "رأیِ انسان"
   },

@@ -2246,3 +2246,107 @@
 {"ts": "2026-09-03T19:46:41", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
 {"ts": "2026-09-03T19:46:41", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
 {"ts": "2026-09-03T19:46:41", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-03T20:55:31", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T20:55:31", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T20:55:31", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T20:55:31", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-03T21:24:38", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T21:24:38", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T21:24:38", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T21:24:38", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-03T21:55:47", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T21:55:47", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T21:55:47", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T21:55:47", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-03T22:26:07", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T22:26:07", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T22:26:07", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T22:26:07", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-03T23:03:45", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T23:03:45", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T23:03:45", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T23:03:45", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-03T23:36:10", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T23:36:10", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T23:36:10", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-03T23:36:10", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T00:11:49", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T00:11:49", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T00:11:49", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T00:11:49", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T00:41:52", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T00:41:52", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T00:41:52", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T00:41:52", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T01:14:35", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T01:14:35", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T01:14:35", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T01:14:35", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T02:25:54", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T02:25:54", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T02:25:54", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T02:25:54", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T03:04:41", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T03:04:41", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T03:04:41", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T03:04:41", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T04:02:29", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T04:02:29", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T04:02:29", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T04:02:29", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T04:38:36", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T04:38:36", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T04:38:36", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T04:38:36", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T05:00:51", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T05:00:51", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T05:00:51", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T05:00:51", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T05:30:13", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T05:30:13", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T05:30:13", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T05:30:13", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T06:02:06", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T06:02:06", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T06:02:06", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T06:02:06", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T06:31:52", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T06:31:52", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T06:31:52", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T06:31:52", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T07:02:07", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T07:02:07", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T07:02:07", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T07:02:07", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T07:32:56", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T07:32:56", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T07:32:56", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T07:32:56", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T08:03:14", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T08:03:14", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T08:03:14", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T08:03:14", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T08:34:06", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T08:34:06", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T08:34:06", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T08:34:06", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T09:04:13", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T09:04:13", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T09:04:13", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T09:04:13", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T09:35:07", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T09:35:07", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T09:35:07", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T09:35:07", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T10:09:03", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T10:09:03", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T10:09:03", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T10:09:03", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T10:39:47", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T10:39:47", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T10:39:47", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T10:39:47", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}
+{"ts": "2026-09-04T11:11:23", "key": "selfknow.legs", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T11:11:23", "key": "selfknow.revenue", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T11:11:23", "key": "selfknow.wire_on", "correct": 1, "kind": "truth", "schema": "selfknow-truth.v1"}
+{"ts": "2026-09-04T11:11:23", "fields_checked": 3, "fields_correct": 3, "accuracy": 1.0, "confidence": 1.0, "confidence_brier": 0.0, "drifts": [], "claims_emitted": 3}

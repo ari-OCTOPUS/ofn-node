@@ -1,20 +1,20 @@
 {
  "schema": "heart-v2/1",
- "ts": "2026-09-03T20:46:10",
- "beat": 4688,
+ "ts": "2026-09-04T11:26:09",
+ "beat": 5019,
  "mode": "RUNNING",
  "mode_prev": "RUNNING",
- "green_streak": 213,
+ "green_streak": 49,
  "period_advisory_s": 96.44,
- "wake_brain": false,
+ "wake_brain": true,
  "brain_stats": {
-  "ok": 11,
-  "degraded": 1
+  "ok": 251,
+  "degraded": 24
  },
  "store_counts": {
-  "beats": 4472,
-  "max_beat": 4687,
-  "events": 1573,
+  "beats": 4778,
+  "max_beat": 5019,
+  "events": 1836,
   "outbox": {}
  },
  "advisory_only": true

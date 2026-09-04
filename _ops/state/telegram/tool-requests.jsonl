@@ -980,3 +980,11 @@
 {"ts": "2026-09-03T12:34:42", "schema": "tool_request.v1.answer", "request_id": "fbc28356da64", "verdict": "granted", "note": "", "answered_ts": 1788402880.2599058, "wait_s": 10772.4}
 {"ts": "2026-09-03T12:36:13", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "60246", "wall": 1788402972.9913802}
 {"ts": "2026-09-03T18:38:41", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "daily-cap", "cycle": "60536", "wall": 1788424721.8670459}
+{"ts": "2026-09-03T23:00:02", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "60710", "wall": 1788440400.2747195}
+{"ts": "2026-09-04T05:00:42", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "quiet-hours", "cycle": "60991", "wall": 1788462042.8012893}
+{"ts": "2026-09-04T07:06:36", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "61114"}
+{"ts": "2026-09-04T09:59:50", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "61283"}
+{"ts": "2026-09-04T10:09:00", "schema": "tool_request.v1", "request_id": "4ca3f1f96cda", "need": "خواندنِ کدِ درخت، نوشتنِ پچ، تستِ ایزوله، و اعمال با هشت گیت.", "why": "", "cost": "AUD 0 — local file read only, no paid API", "alternative": "", "blocking": false, "source": "scan", "cycle": "61290", "precise": false, "missing": ["why", "alternative"], "status": "pending", "delivered": true, "throttled": false, "throttle_reason": null, "emitted_ts": 1788480533.0646558}
+{"ts": "2026-09-04T10:10:58", "schema": "tool_request.v1.note", "note": "scan-skipped", "reason": "too-soon", "cycle": "61292", "wall": 1788480658.355041}
+{"ts": "2026-09-04T10:59:37", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "61339"}
+{"ts": "2026-09-04T11:04:17", "schema": "tool_request.v1.note", "note": "self-declined", "cycle": "61344"}

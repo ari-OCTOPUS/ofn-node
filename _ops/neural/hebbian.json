@@ -4,25 +4,16 @@
       "afferent_starved",
       "errors_high"
     ],
-    "strength": 0.5332201477567509,
-    "co_occurrences": 42,
-    "last_seen": 1788428586.151231
-  },
-  {
-    "signals": [
-      "afferent_starved",
-      "rhythm_amber"
-    ],
-    "strength": 0.0052741004581916525,
-    "co_occurrences": 1,
-    "last_seen": 1786175782.1295035
+    "strength": 0.995,
+    "co_occurrences": 59,
+    "last_seen": 1788484859.4347126
   },
   {
     "signals": [
       "errors_high",
       "rhythm_amber"
     ],
-    "strength": 0.7503538610522433,
+    "strength": 0.6890623076975582,
     "co_occurrences": 40,
     "last_seen": 1788394309.78778
   }

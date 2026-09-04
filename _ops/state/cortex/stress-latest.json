@@ -1,9 +1,12 @@
 {
-  "ts": "2026-09-03T20:53:19",
+  "ts": "2026-09-04T11:26:19",
   "schema": "stress.v1",
-  "organism_stress": 0.5,
-  "in_fear": [],
-  "level": "🟡 استرس",
+  "organism_stress": 0.79,
+  "in_fear": [
+    "legs",
+    "alerts"
+  ],
+  "level": "🔴 ترس",
   "subsystems": {
     "money": {
       "name": "💰 جریانِ مالی",
@@ -19,9 +22,9 @@
     },
     "legs": {
       "name": "🦿 اعضا",
-      "stress": 0.5,
-      "fear": false,
-      "detail": "4 خودترمیم/روز"
+      "stress": 0.75,
+      "fear": true,
+      "detail": "6 خودترمیم/روز"
     },
     "doctor": {
       "name": "🩺 دکتر",
@@ -31,9 +34,9 @@
     },
     "alerts": {
       "name": "🚨 هشدارها",
-      "stress": 0.43,
-      "fear": false,
-      "detail": "44 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
+      "stress": 0.79,
+      "fear": true,
+      "detail": "227 هشدارِ ۲۴ساعتِ اخیر (کالیبره، k=59)"
     }
   }
 }

@@ -1,14 +1,14 @@
 {
-  "ts": "2026-09-03T20:46:51",
-  "cycle": 59,
-  "coherence": 0.884,
+  "ts": "2026-09-04T11:19:33",
+  "cycle": 139,
+  "coherence": 0.95,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.885,
-      "age_s": 414,
+      "awareness": 0.996,
+      "age_s": 12,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.804,
-      "age_s": 1407,
+      "awareness": 0.97,
+      "age_s": 218,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.804,
-      "age_s": 1411,
+      "awareness": 0.97,
+      "age_s": 218,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.902,
-      "age_s": 1411,
+      "awareness": 0.985,
+      "age_s": 218,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.971,
-      "age_s": 9943,
+      "awareness": 0.816,
+      "age_s": 63503,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.908,
-      "age_s": 1328,
+      "awareness": 0.999,
+      "age_s": 17,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.885,
-      "age_s": 39820,
+      "awareness": 0.883,
+      "age_s": 40510,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.885,
-      "age_s": 39828,
+      "awareness": 0.883,
+      "age_s": 40511,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.98,
-      "age_s": 10119,
+      "awareness": 0.923,
+      "age_s": 39946,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.923,
-      "age_s": 39832,
+      "awareness": 0.922,
+      "age_s": 40507,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,8 +107,8 @@
     {
       "id": "fourd_system",
       "present": true,
-      "awareness": 0.944,
-      "age_s": 813,
+      "awareness": 0.958,
+      "age_s": 605,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -122,7 +122,7 @@
   },
   "rhythm": {
     "period_s": 600.0,
-    "source": "×۲ قلبِ سایه (391.1s)"
+    "source": "×۲ قلبِ سایه (489.97s)"
   },
   "brains": {
     "keys": {
@@ -133,49 +133,44 @@
     "paid_gate": "research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست",
     "local_model": "qwen2.5:1.5b"
   },
-  "thought": "[local] یک جمله کوتاه برای این وضعیت می‌تواند به شرح زیر باشد:\n\n\"می‌بایستی حل موانع موجود را درک کنیم تا میزان عملکرد ریتمی بهبود یابی کنیم.\"\n\nاین جمله به یک جمله کوتاهی",
+  "thought": "[local] می‌بینیم که مجموعه‌ای که به شکل‌های مختلفی می‌تواند تعریف شود، دارای تعدادی از اعضا بیش از 10 است. این مجموعه‌ای در میانه از وضعیت‌ها که دارای تغییرات کم",
   "stress": {
-    "level": "🟡 استرس",
-    "organism_stress": 0.5,
-    "in_fear": []
+    "level": "🔴 ترس",
+    "organism_stress": 0.79,
+    "in_fear": [
+      "legs",
+      "alerts"
+    ]
   },
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 391.1
+    "heart_period_s": 489.97
   },
   "fourd_health": {
     "status": "stale",
-    "age_s": 1168061
+    "age_s": 1221117
   },
   "ignition": {
     "ignited": true,
-    "winner": "attention",
-    "broadcast_width": 1,
+    "winner": "alerts",
+    "broadcast_width": 3,
     "n_candidates": 9
   },
   "calibration": {
-    "n": 1316,
-    "brier": 0.073753,
-    "aurc": 0.137295,
-    "ungraded": 688
+    "n": 1373,
+    "brier": 0.062119,
+    "aurc": 0.10531,
+    "ungraded": 629
   },
   "consolidate": {
-    "n_in": 3,
-    "n_semantic": 1,
-    "archived": 3
+    "n_in": 6,
+    "n_semantic": 0,
+    "archived": 6
   },
   "truth_sync": {
-    "wrote": true,
-    "keys": [
-      "coherence",
-      "members_present",
-      "stale_members",
-      "beat",
-      "halted",
-      "rfcs_pending",
-      "HEAD"
-    ]
+    "skipped": "cooldown",
+    "next_in_s": 578.7
   },
   "owner_guidance": {
     "focus": "موانع چیست",

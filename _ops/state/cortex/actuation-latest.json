@@ -1,7 +1,7 @@
 {
-  "ts": "2026-09-03T09:23:22",
+  "ts": "2026-09-04T00:04:23",
   "schema": "actuation.v1",
-  "n_unactuated": 3,
+  "n_unactuated": 1,
   "n_actuated": 0,
   "handlers": [],
   "new_acknowledged": 0,

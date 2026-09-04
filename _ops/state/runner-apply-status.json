@@ -1,6 +1,6 @@
 {
   "schema": "runner-apply-gate.v1",
-  "ts": "2026-09-03T09:27:42Z",
+  "ts": "2026-09-04T01:24:31Z",
   "flag_on": true,
   "apply_module_present": false,
   "state": "armed_inert",

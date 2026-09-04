@@ -1225,3 +1225,9 @@ WORKLOCK: این ایجنت `run_all.py` را لمس نکرد. لطفاً append
 شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:
 - observability-gap: billed AU$1.07 ولی تلمتری AU$0.00 — منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)
 رفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.
+
+## 2026-09-04T00:11:23 — metabolism (خودکار) [CONFLICT-METABOLIC-OBS-2026-09-04]
+
+شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:
+- observability-gap: billed AU$1.07 ولی تلمتری AU$0.00 — منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)
+رفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.

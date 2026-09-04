@@ -7652,3 +7652,628 @@
 ## 2026-09-03T20:52:04 (metabolism)
 - ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
 
+## 2026-09-03T20:55:46 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-03T21:24:38 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.24:afferent_starved]
+
+## 2026-09-03T21:26:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.24:afferent_starved]
+
+## 2026-09-03T21:28:00 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:afferent_starved]
+
+## 2026-09-03T21:29:41 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:afferent_starved]
+
+## 2026-09-03T21:31:21 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:afferent_starved]
+
+## 2026-09-03T21:33:00 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.22:afferent_starved]
+
+## 2026-09-03T21:34:51 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.22:afferent_starved]
+
+## 2026-09-03T21:36:45 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:afferent_starved]
+
+## 2026-09-03T21:38:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:afferent_starved]
+
+## 2026-09-03T21:40:47 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:afferent_starved]
+
+## 2026-09-03T21:43:01 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:afferent_starved]
+
+## 2026-09-03T21:45:02 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:afferent_starved]
+
+## 2026-09-03T21:47:03 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:afferent_starved]
+
+## 2026-09-03T21:49:05 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:afferent_starved]
+
+## 2026-09-03T21:51:41 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:afferent_starved]
+
+## 2026-09-03T21:53:30 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:afferent_starved]
+
+## 2026-09-03T21:55:44 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:afferent_starved]
+
+## 2026-09-03T21:59:27 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:afferent_starved]
+
+## 2026-09-03T22:04:08 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:afferent_starved]
+
+## 2026-09-03T22:07:01 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:afferent_starved]
+
+## 2026-09-03T22:09:07 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:afferent_starved]
+
+## 2026-09-03T22:10:49 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:afferent_starved]
+
+## 2026-09-03T22:12:36 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:afferent_starved]
+
+## 2026-09-03T22:14:21 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:afferent_starved]
+
+## 2026-09-03T22:16:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:afferent_starved]
+
+## 2026-09-03T22:18:35 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:afferent_starved]
+
+## 2026-09-03T22:20:47 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:afferent_starved]
+
+## 2026-09-03T22:22:38 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:afferent_starved]
+
+## 2026-09-03T22:24:19 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:afferent_starved]
+
+## 2026-09-03T22:35:58 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:afferent_starved]
+
+## 2026-09-03T22:39:44 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:afferent_starved]
+
+## 2026-09-03T22:46:31 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:afferent_starved]
+
+## 2026-09-03T22:57:28 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:afferent_starved]
+
+## 2026-09-03T23:00:54 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-03T23:03:41 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:afferent_starved]
+
+## 2026-09-03T23:06:09 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:afferent_starved]
+
+## 2026-09-03T23:12:13 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:afferent_starved]
+
+## 2026-09-03T23:15:01 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:afferent_starved]
+
+## 2026-09-03T23:16:57 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:afferent_starved]
+
+## 2026-09-03T23:20:26 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:afferent_starved]
+
+## 2026-09-03T23:22:26 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:afferent_starved]
+
+## 2026-09-03T23:24:11 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:afferent_starved]
+
+## 2026-09-03T23:30:55 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:afferent_starved]
+
+## 2026-09-03T23:32:42 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:afferent_starved]
+
+## 2026-09-03T23:34:29 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:afferent_starved]
+
+## 2026-09-03T23:41:42 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.08:afferent_starved]
+
+## 2026-09-03T23:43:30 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.08:afferent_starved]
+
+## 2026-09-03T23:46:13 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.08:afferent_starved]
+
+## 2026-09-03T23:47:58 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.24:rhythm_yellow]
+
+## 2026-09-03T23:49:41 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.24:rhythm_yellow]
+
+## 2026-09-03T23:51:24 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:rhythm_yellow]
+
+## 2026-09-03T23:53:12 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:rhythm_yellow]
+
+## 2026-09-03T23:54:57 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.23:rhythm_yellow]
+
+## 2026-09-03T23:56:47 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.22:rhythm_yellow]
+
+## 2026-09-04T00:00:52 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.22:rhythm_yellow]
+
+## 2026-09-04T00:02:17 (metabolism)
+- ⚠️ deep_think: جلسهٔ «self» به مغزِ گران نرسید (primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست) — کارتی ساخته نشد
+
+## 2026-09-04T00:04:15 (metabolism)
+- ⚠️ GENOME LEDGER verify FAILED: chain break at record 15393: prev mismatch
+
+## 2026-09-04T00:04:16 (metabolism)
+- ⚠️ GENOME LEDGER tip FAILED: length mismatch: file=16004 tip=16003
+
+## 2026-09-04T00:11:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:rhythm_yellow]
+
+## 2026-09-04T00:13:29 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-04T00:16:31 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:rhythm_yellow]
+
+## 2026-09-04T00:20:19 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:rhythm_yellow]
+
+## 2026-09-04T00:22:18 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:rhythm_yellow]
+
+## 2026-09-04T00:24:02 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:rhythm_yellow]
+
+## 2026-09-04T00:26:20 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:rhythm_yellow]
+
+## 2026-09-04T00:28:53 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:rhythm_yellow]
+
+## 2026-09-04T00:31:21 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:rhythm_yellow]
+
+## 2026-09-04T00:33:16 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:rhythm_yellow]
+
+## 2026-09-04T00:34:59 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:rhythm_yellow]
+
+## 2026-09-04T00:36:41 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:rhythm_yellow]
+
+## 2026-09-04T00:38:24 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:rhythm_yellow]
+
+## 2026-09-04T00:40:08 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:rhythm_yellow]
+
+## 2026-09-04T00:41:50 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:rhythm_yellow]
+
+## 2026-09-04T00:43:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:rhythm_yellow]
+
+## 2026-09-04T00:45:25 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:rhythm_yellow]
+
+## 2026-09-04T00:47:07 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:rhythm_yellow]
+
+## 2026-09-04T00:48:52 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:rhythm_yellow]
+
+## 2026-09-04T00:51:12 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:rhythm_yellow]
+
+## 2026-09-04T00:53:32 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:rhythm_yellow]
+
+## 2026-09-04T00:55:39 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:rhythm_yellow]
+
+## 2026-09-04T00:57:25 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:rhythm_yellow]
+
+## 2026-09-04T01:00:57 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:rhythm_yellow]
+
+## 2026-09-04T01:02:40 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:rhythm_yellow]
+
+## 2026-09-04T01:04:25 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:rhythm_yellow]
+
+## 2026-09-04T01:07:51 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:rhythm_yellow]
+
+## 2026-09-04T01:09:52 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:rhythm_yellow]
+
+## 2026-09-04T01:12:00 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:rhythm_amber]
+
+## 2026-09-04T01:14:17 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:rhythm_amber]
+
+## 2026-09-04T01:22:15 (metabolism)
+- ⚠️ WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-04T01:42:25 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:rhythm_amber]
+
+## 2026-09-04T02:09:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:rhythm_amber]
+
+## 2026-09-04T02:13:19 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:rhythm_amber]
+
+## 2026-09-04T02:20:17 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:rhythm_amber]
+
+## 2026-09-04T02:22:53 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:rhythm_amber]
+
+## 2026-09-04T02:25:46 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:rhythm_amber]
+
+## 2026-09-04T02:26:02 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+1 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-04T02:36:01 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:rhythm_amber]
+
+## 2026-09-04T02:39:12 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:rhythm_amber]
+
+## 2026-09-04T02:41:54 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:rhythm_amber]
+
+## 2026-09-04T02:48:52 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:rhythm_amber]
+
+## 2026-09-04T02:53:09 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:rhythm_amber]
+
+## 2026-09-04T02:55:56 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:rhythm_amber]
+
+## 2026-09-04T03:04:33 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:rhythm_amber]
+
+## 2026-09-04T03:07:28 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:rhythm_amber]
+
+## 2026-09-04T03:09:21 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:rhythm_amber]
+
+## 2026-09-04T03:14:48 (metabolism)
+- ⚠️ chrono beat error: OperationalError: database is locked
+
+## 2026-09-04T04:01:17 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:rhythm_amber]
+
+## 2026-09-04T04:04:21 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+2 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-04T04:37:37 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:rhythm_amber]
+
+## 2026-09-04T04:45:40 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:rhythm_amber]
+
+## 2026-09-04T04:54:58 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:rhythm_amber]
+
+## 2026-09-04T04:56:44 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:rhythm_amber]
+
+## 2026-09-04T05:00:42 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:rhythm_amber]
+
+## 2026-09-04T05:08:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:errors_high]
+
+## 2026-09-04T05:10:06 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.22:errors_high]
+
+## 2026-09-04T05:11:52 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.362>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T05:13:36 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.362>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T05:15:18 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.362>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T05:18:30 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.365>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T05:21:33 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.365>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T05:23:22 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.365>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T05:35:19 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.365>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-04T06:38:43 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.363>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:40:28 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.361>0.35 [+learned=0.24:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:42:09 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3585>0.35 [+learned=0.24:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:43:57 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.356>0.35 [+learned=0.23:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:45:43 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.354>0.35 [+learned=0.23:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:47:59 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.352>0.35 [+learned=0.22:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:50:45 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3515>0.35 [+learned=0.22:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T06:52:30 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:errors_high]
+
+## 2026-09-04T06:54:55 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:errors_high]
+
+## 2026-09-04T06:56:37 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.21:errors_high]
+
+## 2026-09-04T06:59:16 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:errors_high]
+
+## 2026-09-04T07:01:49 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:errors_high]
+
+## 2026-09-04T07:01:57 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-04T07:06:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:errors_high]
+
+## 2026-09-04T07:06:35 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-04T07:09:06 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:errors_high]
+
+## 2026-09-04T07:10:59 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:errors_high]
+
+## 2026-09-04T07:13:01 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:14:41 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:errors_high] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:16:21 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:18:02 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:19:54 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.37>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:22:34 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.372>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:24:16 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.372>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:25:57 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.372>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T07:38:04 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.372>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY) (×10 در پنجرهٔ ۶ساعته — escalation)
+
+## 2026-09-04T09:03:12 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: heart,producers,work_pump
+
+## 2026-09-04T09:17:53 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.371>0.35 [+learned=0.25:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:19:36 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3685>0.35 [+learned=0.24:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:21:25 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.366>0.35 [+learned=0.24:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:23:10 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3635>0.35 [+learned=0.23:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:24:54 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.361>0.35 [+learned=0.23:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:26:35 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.359>0.35 [+learned=0.22:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:29:00 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3565>0.35 [+learned=0.22:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:31:10 (metabolism)
+- ⚠️ tg_api sendMessage failed: URLError
+
+## 2026-09-04T09:31:47 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3545>0.35 [+learned=0.21:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:35:04 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3555>0.35 [+learned=0.21:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:37:34 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.3535>0.35 [+learned=0.21:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:40:03 (metabolism)
+- ⚠️ NEURAL OVERRIDE: pain=0.351>0.35 [+learned=0.20:afferent_starved] — non-essential paused (ADR-035 APPLY)
+
+## 2026-09-04T09:41:44 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.20:afferent_starved]
+
+## 2026-09-04T09:42:23 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+1 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-04T09:47:14 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:afferent_starved]
+
+## 2026-09-04T09:47:24 (metabolism)
+- ⚠️ provider fail → fallback local→local: primary: research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست — خودمختاری طبق D6 پله‌ای کم شد (glm/ollama = propose)
+
+## 2026-09-04T09:49:27 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:afferent_starved]
+
+## 2026-09-04T09:51:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.19:afferent_starved]
+
+## 2026-09-04T09:53:40 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:afferent_starved]
+
+## 2026-09-04T09:55:43 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:afferent_starved]
+
+## 2026-09-04T09:57:28 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.18:afferent_starved]
+
+## 2026-09-04T09:59:44 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:afferent_starved]
+
+## 2026-09-04T10:01:40 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:afferent_starved]
+
+## 2026-09-04T10:08:52 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.17:afferent_starved]
+
+## 2026-09-04T10:10:58 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:afferent_starved]
+
+## 2026-09-04T10:12:39 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:afferent_starved]
+
+## 2026-09-04T10:14:33 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.16:afferent_starved]
+
+## 2026-09-04T10:16:15 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:afferent_starved]
+
+## 2026-09-04T10:17:57 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:afferent_starved]
+
+## 2026-09-04T10:19:40 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.15:afferent_starved]
+
+## 2026-09-04T10:21:23 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:afferent_starved]
+
+## 2026-09-04T10:23:38 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:afferent_starved]
+
+## 2026-09-04T10:25:52 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.14:afferent_starved]
+
+## 2026-09-04T10:29:14 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:afferent_starved]
+
+## 2026-09-04T10:30:59 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:afferent_starved]
+
+## 2026-09-04T10:32:42 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.13:afferent_starved]
+
+## 2026-09-04T10:34:23 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:afferent_starved]
+
+## 2026-09-04T10:36:05 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:afferent_starved]
+
+## 2026-09-04T10:37:51 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.12:afferent_starved]
+
+## 2026-09-04T10:43:28 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:afferent_starved]
+
+## 2026-09-04T10:45:21 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:afferent_starved]
+
+## 2026-09-04T10:47:08 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.11:afferent_starved]
+
+## 2026-09-04T10:51:39 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:afferent_starved]
+
+## 2026-09-04T10:53:22 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:afferent_starved]
+
+## 2026-09-04T10:55:19 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.10:afferent_starved]
+
+## 2026-09-04T10:55:25 (metabolism)
+- ⚠️ lead_email_intake: IMAP خطا (error)
+- ⚠️ (+4 تکرارِ سرکوب‌شده در پنجرهٔ 3600s — کلید lead-email-intake-imap)
+
+## 2026-09-04T10:59:05 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-09-04T11:03:21 (metabolism)
+- ⚠️ cockpit_brain: پاسخ از ردهٔ local آمد نه secondary — دور ریخته شد تا سهمیهٔ Fugu محافظت شود
+
+## 2026-09-04T11:04:12 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:afferent_starved]
+
+## 2026-09-04T11:06:03 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:afferent_starved]
+
+## 2026-09-04T11:07:49 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.09:afferent_starved]
+
+## 2026-09-04T11:15:44 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.08:afferent_starved]
+
+## 2026-09-04T11:17:27 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.08:afferent_starved]
+
+## 2026-09-04T11:19:09 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.08:afferent_starved]
+
+## 2026-09-04T11:24:29 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.07:afferent_starved]
+
+## 2026-09-04T11:26:11 (metabolism)
+- ⚠️ SHADOW_ALERT neural: high reflex: disconnect-alarm [+learned=0.07:afferent_starved]
+

@@ -72,3 +72,7 @@
 {"ts": "2026-09-02T21:22:14+00:00", "capability": "code_autonomy", "which": "arm2", "reason": "near-expiry", "armed_at": 1788384134.9572515}
 {"ts": "2026-09-02T21:22:14+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1788384134.9572515}
 {"ts": "2026-09-02T21:22:14+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1788384134.9572515}
+{"ts": "2026-09-03T20:52:37+00:00", "capability": "code_autonomy", "which": "arm", "reason": "near-expiry", "armed_at": 1788468757.831702}
+{"ts": "2026-09-03T20:52:37+00:00", "capability": "code_autonomy", "which": "arm2", "reason": "near-expiry", "armed_at": 1788468757.831702}
+{"ts": "2026-09-03T20:52:37+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1788468757.831702}
+{"ts": "2026-09-03T20:52:37+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1788468757.831702}

@@ -104,3 +104,6 @@
 {"leg": "lead-naghshi", "ts": 1788417326.6170118, "beat": 60438, "reason": "phi-timeout:no-ack", "phi": 23.693, "ok": true}
 {"leg": "lead-naghshi", "ts": 1788427022.8171282, "beat": 60547, "reason": "phi-timeout:no-ack", "phi": 85.075, "ok": true}
 {"leg": "lead-naghshi", "ts": 1788430899.8416705, "beat": 60592, "reason": "phi-timeout:no-ack", "phi": 51.927, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788449573.3791397, "beat": 60846, "reason": "phi-timeout:no-ack", "phi": 49.464, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788468343.6641867, "beat": 61095, "reason": "phi-timeout:no-ack", "phi": 16.137, "ok": true}
+{"leg": "lead-naghshi", "ts": 1788470905.800319, "beat": 61136, "reason": "phi-timeout:no-ack", "phi": 17.047, "ok": true}

@@ -1,64 +1,32 @@
 {
-  "ts": "2026-09-03T09:50:45",
+  "ts": "2026-09-04T10:02:50",
   "schema": "research-latest.v1",
   "n_topics": 3,
   "findings": [
     {
       "topic": "perception-bias",
       "query": "perception bias",
-      "n": 3,
-      "hits": [
-        {
-          "title": "Perception-Aware Bias Detection for Query Suggestions",
-          "snippet": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and ",
-          "url": "http://arxiv.org/abs/2601.03730v1",
-          "source": "arxiv"
-        },
-        {
-          "title": "Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution",
-          "snippet": "We observe an instance of gender-induced bias in a downstream application, despite the absence of explicit gender words in the test cases. We provide a test set, SoWinoBias, for the purpose of measuring such latent gender bias in coreference resolution systems. We evaluate the performance of current debiasing methods on the SoWinoBias test set, especially in reference to the method's design and altered embedding space properties. See https://github.com/hillarydawkins/SoWinoBias.",
-          "url": "http://arxiv.org/abs/2109.14047v1",
-          "source": "arxiv"
-        },
-        {
-          "title": "Delving into the Devils of Bird's-eye-view Perception: A Review, Evaluation and Recipe",
-          "snippet": "Learning powerful representations in bird's-eye-view (BEV) for perception tasks is trending and drawing extensive attention both from industry and academia. Conventional approaches for most autonomous driving algorithms perform detection, segmentation, tracking, etc., in a front or perspective view. As sensor configurations get more complex, integrating multi-source information from different sensors and representing features in a unified view come of vital importance. BEV perception inherits se",
-          "url": "http://arxiv.org/abs/2209.05324v4",
-          "source": "arxiv"
-        }
-      ]
+      "n": 0,
+      "hits": []
     },
     {
       "topic": "motivation",
       "query": "motivation",
-      "n": 2,
+      "n": 1,
       "hits": [
         {
           "title": "Motivation",
           "snippet": "Motivation is an internal state that propels individuals to engage in goal-directed behavior. It is often understood as a force that explains why people or other animals initiate, continue, or terminate a certain behavior at a particular time. It is a complex phenomenon and its precise definition is disputed. It contrasts with amotivation, which is a state of apathy or listlessness. Motivation is studied in fields such as psychology, motivation science, neuroscience, and philosophy.",
           "url": "https://en.wikipedia.org/wiki/Motivation",
           "source": "wikipedia"
-        },
-        {
-          "title": "Measuring Motivations of Crowdworkers: The Multidimensional Crowdworker Motivation Scale",
-          "snippet": "Crowd employment is a new form of short-term and flexible employment which has emerged during the past decade. In order to understand this new form of employment, it is crucial to illuminate the underlying motivations of the workforce involved in it. This paper introduces the Multidimensional Crowdworker Motivation Scale (MCMS), a scale for measuring the motivation of crowdworkers on micro-task platforms. The MCMS is theoretically grounded in self-determination theory and tailored specifically t",
-          "url": "http://arxiv.org/abs/1702.01661v3",
-          "source": "arxiv"
         }
       ]
     },
     {
       "topic": "self-narrative",
       "query": "self narrative",
-      "n": 1,
-      "hits": [
-        {
-          "title": "CHATTER: A Character Attribution Dataset for Narrative Understanding",
-          "snippet": "Computational narrative understanding studies the identification, description, and interaction of the elements of a narrative: characters, attributes, events, and relations. Narrative research has given considerable attention to defining and classifying character types. However, these character-type taxonomies do not generalize well because they are small, too simple, or specific to a domain. We require robust and reliable benchmarks to test whether narrative models truly understand the nuances ",
-          "url": "http://arxiv.org/abs/2411.05227v2",
-          "source": "arxiv"
-        }
-      ]
+      "n": 0,
+      "hits": []
     }
   ],
   "cost_aud": 0

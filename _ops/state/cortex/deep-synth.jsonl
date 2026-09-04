@@ -65,3 +65,5 @@
 {"ts": "2026-09-02T14:30:30", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
 {"ts": "2026-09-03T00:46:19", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
 {"ts": "2026-09-03T01:53:44", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
+{"ts": "2026-09-04T00:33:05", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}
+{"ts": "2026-09-04T02:35:36", "schema": "deep-synth.v1", "n_top": 8, "ok": false, "model": null, "tier": null, "chars": 0, "reason": "empty-or-short"}

@@ -1,16 +1,16 @@
 {
-  "ts": "2026-09-03T18:27:24",
+  "ts": "2026-09-04T09:47:36",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 86.7,
   "checklist_static": true,
   "maturity_pct": 86.7,
   "improvement_rate": {
-    "closed": 5,
-    "moved": 4,
-    "rate_pct": 80.0
+    "closed": 4,
+    "moved": 1,
+    "rate_pct": 25.0
   },
-  "n_proposals": 33,
+  "n_proposals": 32,
   "by_category": {
     "business": [
       {
@@ -91,12 +91,30 @@
         "status": "proposed"
       },
       {
+        "id": "up-e471431bc0",
+        "priority": "P2",
+        "title": "اعضا: امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",
+        "suggested_action": "بررسیِ ریشه‌ایِ آن عضو (به مالک گزارش).",
+        "change_level": "reconfig",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
         "id": "up-1093faeabb",
         "priority": "P3",
-        "title": "یادمانِ دور: cycle-639 → cycle-620",
+        "title": "یادمانِ دور: cycle-639 → cycle-627",
         "suggested_action": "فیکس‌های تأییدشده: 3 · آگاهیِ میانگین: 0.74",
         "change_level": "tune",
         "source": "consolidation_recall",
+        "status": "proposed"
+      },
+      {
+        "id": "up-5555566270",
+        "priority": "P3",
+        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
+        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
+        "change_level": "tune",
+        "source": "part-loop",
         "status": "proposed"
       },
       {
@@ -122,28 +140,10 @@
       {
         "id": "up-33ee7f6b74",
         "priority": "P1",
-        "title": "کالیبراسیون: n=1307 brier=0.074193 ungraded=697",
+        "title": "کالیبراسیون: n=1368 brier=0.06309 ungraded=635",
         "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
         "change_level": "tune",
         "source": "calibration",
-        "status": "proposed"
-      },
-      {
-        "id": "up-5f383c81f9",
-        "priority": "P2",
-        "title": "math-autotune knob: CHRONO_NUDGE_EVERY_N_BEATS",
-        "suggested_action": "CHRONO_NUDGE_EVERY_N_BEATS: 780 → 720 (clamp [120,1440], $0, reversible)",
-        "change_level": "tune",
-        "source": "math_spine",
-        "status": "proposed"
-      },
-      {
-        "id": "up-86473a03a3",
-        "priority": "P2",
-        "title": "math-autotune knob: HEART_SAMPLE_INTERVAL_S",
-        "suggested_action": "HEART_SAMPLE_INTERVAL_S: 4500 → 4200 (clamp [1800,7200], $0, reversible)",
-        "change_level": "tune",
-        "source": "math_spine",
         "status": "proposed"
       }
     ],
@@ -236,15 +236,6 @@
         "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
         "change_level": "reconfig",
         "source": "doctor",
-        "status": "proposed"
-      },
-      {
-        "id": "up-f7520c1c22",
-        "priority": "P1",
-        "title": "کوچک‌ترین فیکسِ دکتر: برای حل یکی از این شیوه‌ها",
-        "suggested_action": "برای حل یکی از این شیوه‌ها",
-        "change_level": "reconfig",
-        "source": "smallest_fix",
         "status": "proposed"
       },
       {
@@ -373,8 +364,8 @@
       "source": "calibration",
       "category": "ops",
       "priority": "P1",
-      "_rank": 0.756,
-      "title": "کالیبراسیون: n=1307 brier=0.074193 ungraded=697",
+      "_rank": 0.5255000000000001,
+      "title": "کالیبراسیون: n=1368 brier=0.06309 ungraded=635",
       "rationale": "Brier/n/ungraded از calibration-latest — تا امروز به improve نمی‌رسید.",
       "evidence": "cortex/calibration-latest.json",
       "suggested_action": "رتبهٔ پیشنهادها را با Brier و پوشش ungraded وزن بده (propose-only).",
@@ -382,12 +373,12 @@
       "auto_applicable": false,
       "status": "proposed",
       "calibration": {
-        "n": 1307,
-        "brier": 0.074193,
-        "aurc": 0.137872,
-        "ungraded": 697,
+        "n": 1368,
+        "brier": 0.06309,
+        "aurc": 0.105926,
+        "ungraded": 635,
         "n_claims": 2000,
-        "ts": "2026-09-03T18:26:02"
+        "ts": "2026-09-04T09:44:45"
       },
       "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
@@ -475,7 +466,7 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] این گاف‌ها اولویت‌دار برای یک سیستم خودبهبودگر است. Lead-نقاشی باید حل شود زیرا این گاف‌ها به دنبال تأیید و ثبت اینکه هنوز درآمد تأییدشده‌ای ثبت نشده است. ه",
+  "brain_note": "[local] این گاف‌ها باید حلقه‌ای حل شوند. چون حلقه‌ای همچون \"self-analysis loop observe→critique→propose→validate→promote\" در نظر گرفته شده است که به شکل یک حلقه عمل می‌کند. این حلقه برای تحلیل و",
   "goal_directed": {
     "n_goal_serving": 5,
     "n_circular_dropped": 0,
@@ -484,11 +475,11 @@
     "max_circular_reason": "expired:2026-08-13",
     "outcome": {
       "tracked": 17,
-      "moved": true,
+      "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 163,
+        "total_discoveries": 164,
         "proposals_delivered": 34,
         "proposal_outcomes": 55,
         "proposal_positive": 53,
@@ -499,13 +490,13 @@
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 162,
-        "proposals_delivered": 33,
+        "total_discoveries": 164,
+        "proposals_delivered": 34,
         "proposal_outcomes": 55,
         "proposal_positive": 53,
         "proposal_accept_rate": 0.9636363636363636,
         "proposal_value_aud": 0.0,
-        "proposals_sent": 8
+        "proposals_sent": 9
       }
     }
   },
@@ -517,7 +508,7 @@
   },
   "self_improve_gauges": {
     "schema": "self-improve-gauges.v1",
-    "ts": "2026-09-03T08:27:24.631773+00:00",
+    "ts": "2026-09-03T23:47:36.498912+00:00",
     "goal_loop_close_7d": {
       "n": 11,
       "n_pass": 0,
@@ -547,9 +538,8 @@
   },
   "math_control": {
     "enabled": true,
-    "rank_bias": 0.144,
+    "rank_bias": 0.3745,
     "effects": [
-      "autotune_propose",
       "improve_rank_bias",
       "schedule_bias_hint"
     ],
@@ -562,10 +552,7 @@
       "#11_control_law",
       "#10_sog"
     ],
-    "knob_deltas": {
-      "CHRONO_NUDGE_EVERY_N_BEATS": -60,
-      "HEART_SAMPLE_INTERVAL_S": -300
-    },
+    "knob_deltas": {},
     "shadow_blocks_effects": false
   }
 }
