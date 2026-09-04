@@ -541,3 +541,9 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **C (ziman) STATUS**: #153 merged (13 B2B leads). Order-ingest awaits token scope. 7 data gates open.
 - **E (GAP-ledger) STATUS**: 11 items validated in Round 20; awaiting board re-run post-deploy.
 - **Convergence**: all five agents aligned. Zero mutations beyond the authorized git-init. Zero cross-agent collisions.
+
+### Round 33 — SEASON 5 OPEN + followup unit healed (2026-09-04 ~03:30)
+- **Season 5 officially opened** (owner I8=3): painting ACTIVE · ziman full · studio next-season (Saba content / we find customers) · laptop = ACTIVE mesh node (I10=2) · M5 real-send authorized (M5=2) · cognitive_wake every business event (I11-b=1) · inter-board SSH key generated and distributed (I11=1) — tested 138→180 + 138→182.
+- **Season-5 readiness check**: 13 timers armed · M5 pipeline file ✓ · brain_wake ✓ · capability_token ✓ (#113 merged) · glass_runner ✓ · learning_feeder ✓ · inter_board key ✓ · mesh versioned c40f4510 ✓ · 4 env gates =1 ✓.
+- **One dangling unit caught**: `octopus-followup` exit-2 — `followup_worker.py` absent from main (same class as digest). Disabled + timer removed, unit file backed up in FOLLOWUP-UNIT-REMOVAL-20260904/. **Failed units: 0** again.
+- Wallet: `6d97129` → `69de40b` → current.
