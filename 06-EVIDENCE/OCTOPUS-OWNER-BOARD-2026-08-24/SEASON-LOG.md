@@ -589,3 +589,9 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - Queue now: **0 non-draft open** (only drafts and parked PRs remain).
 - **HARMONY-MERGER: ALL THREE LINKS COMPLETE (P1✓ P2✓ P3✓). The organism is a single connected body.**
 - Remaining for owner (data only, no code): ziman I1-I11 data · M5 two-step tokens for first real send · NATS core password decision.
+
+### Round 37b — Season 5 gates FINAL + shipping text (2026-09-04 ~05:00)
+- **All 31 gates status FINAL**: layer-2 all confirmed/armed · layer-3 ziman data gates resolved (shipping text=standard English, footer=remove, Google=publish, 4 drafts=delete, GST=exclusive, ads=0, studio=next-season/Saba)
+- **Shipping policy text written** (English, standard format): Sydney same-day +$20 · standard free · NSW 3-5d · Australia 5-7d · AusPost tracking · @ziman.gift — PR #189 (docs only, paste into Shopify admin)
+- **Gates file distributed to all three boards**: 138/180/182 mesh state/season/
+- Wallet: `69de40b` → current.
