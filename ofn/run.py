@@ -166,6 +166,18 @@ def build_node(cfg: config.Config) -> Node:
         except Exception as exc:
             print(f"  ⚠ commerce connector not wired: {exc}")
 
+    # Shopify order webhooks (ziman order-ingest, Round 33). Default-off:
+    # needs OFN_SHOPIFY_WEBHOOK_SECRET env. Without this registration the
+    # POST to /api/v1/webhooks/{tenant}/shopify fails closed with
+    # "unknown connector" — order-ingest could never land.
+    shopify_secret = os.environ.get("OFN_SHOPIFY_WEBHOOK_SECRET", "")
+    if shopify_secret:
+        try:
+            from .adapters.shopify_connector import ShopifyConnector
+            connectors["shopify"] = ShopifyConnector(secret=shopify_secret)
+        except Exception as exc:
+            print(f"  ⚠ shopify connector not wired: {exc}")
+
     return Node(products=products, studio=studio, consent=consent, media=media,
                 audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
