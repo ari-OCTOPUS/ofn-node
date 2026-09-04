@@ -42,8 +42,13 @@ engineering.
 
 ## What remains
 
-- Hook-allowed publish of `feat/p1-task-bind-20260904` (one new P1 PR).
-  Independent CODEOWNERS review after CI. Merge blocked (REVIEW_REQUIRED).
+- Independent CODEOWNERS review of #191 after CI. Merge blocked
+  (REVIEW_REQUIRED). Isolated first identifier published
+  `feat/p1-task-bind-20260904` @`3302337d7a040b536b53b722786899a92fd580f9`
+  (`git push` 2026-09-04T11:26:18Z MATCH). Designated
+  `cursor/taskenvelope-system-hardening-4cd9`
+  @`22a2c52d3b74f450128f22363ebeec9e0809f98f` (`refs/pull/191/head` MATCH
+  2026-09-04T11:26:39Z). Do not open a second task-bind PR.
 - Incidents append on existing `docs/octopus-os-incidents-20260902`
   (#187) only. Origin / `refs/pull/187/head`
   `bd750c39aeda39145d2871cf3a91eef4eefe1cd3` (xciv). `refs/pull/154/head`
