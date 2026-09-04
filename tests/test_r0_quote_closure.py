@@ -29,14 +29,36 @@ def test_quote_modules_import() -> None:
         __import__(name)
 
 
-def test_send_path_modules_are_absent_from_this_pr() -> None:
-    """110A: live transport file stays absent.
+def test_send_path_modules_are_gated_not_absent() -> None:
+    """UPDATED 2026-09-04 (P03/A08, OWNER-DELEGATION-OCTOPUS-20260904).
 
-    110B may add a parked ``capability_token.py`` (authorization
-    primitive only). Any live outbound-transport import in that
-    file still fails this pin.
+    The original 110A pin demanded ``lead_outbound_transport.py`` stay
+    ABSENT. Main has since merged #113 (110B capability_token, parked) and
+    #178 (release_pipeline — the M5 bridge whose own docstring requires a
+    real ``lead_effect_gate``), so the absence pin contradicted main's own
+    merged code and left the arc fail-closed-by-absence: neither valid nor
+    invalid requests could ever traverse it.
+
+    The invariant this test now pins is the one that matters: a live
+    transport may EXIST only fully gated — no call site may import the
+    transport outside the outbound_worker gate chain, the capability_token
+    stays a parked primitive (no live send import), and the release arc
+    requires the kernel OwnerRelease verdict, the owner-approval store and
+    the lead_effect_gate settle (enforced by
+    tests/test_release_gate_regression.py).
     """
-    assert not (AGENTS / "lead_outbound_transport.py").exists()
+    transport = AGENTS / "lead_outbound_transport.py"
+    if transport.exists():
+        # The transport module itself must expose send() but must not be
+        # imported by anything outside the gated arc.
+        for name in QUOTE_MODULES:
+            source = (AGENTS / f"{name}.py").read_text(encoding="utf-8")
+            assert "lead_outbound_transport" not in source, name
+        for consumer in ("imap_listener", "quote_pipeline", "glass_runner"):
+            path = AGENTS / f"{consumer}.py"
+            if path.exists():
+                assert "lead_outbound_transport" not in path.read_text(
+                    encoding="utf-8"), consumer
     token = AGENTS / "capability_token.py"
     if token.exists():
         source = token.read_text(encoding="utf-8")

@@ -49,10 +49,15 @@ class OwnerAbsentPark(unittest.TestCase):
         self.assertFalse(self.mod.ready_is_authorized())
 
     def test_missing_transport_is_not_a_send(self):
-        self.assertFalse(
-            (Path(self.mod.__file__).resolve().parent
-             / "lead_outbound_transport.py").exists())
+        # UPDATED 2026-09-04 (P03/A08): transport may now exist (gated arc,
+        # see test_capability_token.SourcePark) — the invariant that matters
+        # is unchanged: a parked capability token never authorizes a send,
+        # whatever transport files exist.
         self.assertFalse(self.mod.grants_send())
+        token = self.mod.issue("send_email", "x@y.test", "chaos")
+        out = self.mod.verified_send(token, {}, {}, "chaos")
+        self.assertFalse(out.get("sent"))
+        self.assertIn(out.get("status"), ("TOKEN_PARKED", "TOKEN_DENIED"))
 
     def test_timeout_does_not_prove_send(self):
         # Timeout is UNKNOWN, not a concurrent writer and not a send.
