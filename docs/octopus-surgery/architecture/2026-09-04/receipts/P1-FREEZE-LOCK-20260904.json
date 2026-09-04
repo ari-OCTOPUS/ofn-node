@@ -1,0 +1,82 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-FREEZE-LOCK-20260904",
+  "issued_utc": "2026-09-04T03:17:24Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "branch": "feat/p1-freeze-lock-20260904",
+  "parent_head_full": "b062c5362a718ee53b3235eccdafc390f641020a",
+  "file_lock_zone": [
+    "ofn/kernel/freeze_class.py",
+    "ofn/kernel/lock_pin.py",
+    "tests/test_freeze_class.py",
+    "tests/test_lock_pin.py",
+    "tests/test_chaos_freeze_lock.py",
+    "09-LANES/P1-FREEZE-LOCK/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-FREEZE-LOCK-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout #181; not written)",
+    "ofn/agents/brain_schema.py",
+    "ofn/agents/brain_schema.lock",
+    "ofn/kernel/flag_freeze.py",
+    "ofn/kernel/contract_pin.py",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "docs/octopus-os/07-INCIDENTS.md",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure freeze_class + lock_pin. classify_digest compares caller-supplied sha256 digests (no I/O). LF_MATCH / CRLF_CHECKOUT / MISMATCH / UNKNOWN. Timeout or missing digest → UNKNOWN, not FALSE. Known CRLF checkout is an artefact, not a source edit. pin_lock admits LF_MATCH as frozen_ok; CRLF_CHECKOUT is artefact; UNKNOWN stays unknown; MISMATCH fail-closes. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_* / ready_is_authorized / claims_immutable / crlf_is_source_edit / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / wires_into_run_store / rewrites_lock structurally False. Not wired into run_store.py. Distinct from flag_freeze, contract_pin, and the GAP-066 agents/ file lock. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_freeze_class tests.test_lock_pin tests.test_chaos_freeze_lock tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent -q",
+    "ran_at_utc": "2026-09-04T03:17:24Z",
+    "head_full_at_run": "b062c5362a718ee53b3235eccdafc390f641020a",
+    "exit_code": 0,
+    "result": "265 passed, 0 failed, 0 skipped",
+    "new_module_plus_purity": {
+      "ran_at_utc": "2026-09-04T03:17:02Z",
+      "result": "73 passed, 0 failed, 0 skipped",
+      "per_file": {
+        "tests/test_freeze_class.py": 30,
+        "tests/test_lock_pin.py": 24,
+        "tests/test_chaos_freeze_lock.py": 9,
+        "tests/test_kernel_purity.py": 10
+      }
+    },
+    "pytest_module": "absent (ModuleNotFoundError); stdlib unittest used"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this body and origin/main @b062c5362a718ee53b3235eccdafc390f641020a — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on this body and origin/main @b062c5362a718ee53b3235eccdafc390f641020a — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value": "b062c5362a718ee53b3235eccdafc390f641020a",
+    "source": "git log -1 origin/main 2026-09-04T03:13:18Z subject #179",
+    "status": "verified_this_host"
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
