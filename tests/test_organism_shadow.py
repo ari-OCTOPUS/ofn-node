@@ -17,6 +17,31 @@ from shadow_homeostasis.evidence_store import EvidenceStore, LedgerError
 
 ROOT = Path(__file__).resolve().parents[1]
 CAPTURE = ROOT / "09-LANES/BOARD-EXEC-001-INTEGRATION-001/SOURCE-SNAPSHOT.json"
+GITATTRIBUTES = ROOT / "shadow_homeostasis" / ".gitattributes"
+_SHADOW = ROOT / "shadow_homeostasis"
+
+# windows-latest job 101053713534 @930e0cc94f91a861b6797ffe874d077f31832427
+# (PR #194, 2026-09-04). Autocrlf rewrites LF→CRLF. That is a checkout
+# artefact, not a source change. The LF blob is the contract.
+# Pin: shadow_homeostasis/.gitattributes. This-host LF→CRLF of
+# registry.py MATCH prior GAP-193 witness cfa730c9… .
+_FREEZE_LF = {
+    "registry.py": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b",
+    "metacontrol.py": "a731adcddc37517d813157ce9355686e9a4eb9d61c378dfb71b494746d5a97cf",
+}
+_FREEZE_CRLF = {
+    "registry.py": "cfa730c9d9cda268f89b69c7b11ef8a1dec8f5d9d390a0db36f1d098d2e96ae4",
+    "metacontrol.py": "43abbc04c15fcd9c9f2a34ddb6a4a91f1c7a93ad35d54c907653aefebc75c826",
+}
+
+
+def _canonical_bytes(data: bytes) -> bytes:
+    """LF identity. CRLF checkout is not a contract edit."""
+    return data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
+def _canonical_sha256(data: bytes) -> str:
+    return hashlib.sha256(_canonical_bytes(data)).hexdigest()
 
 
 class OrganismShadowTests(unittest.TestCase):
@@ -34,10 +59,39 @@ class OrganismShadowTests(unittest.TestCase):
 
     def test_captured_source_identity_and_frozen_files(self):
         self.assertEqual(self.capture["source_sha256"], "8e2a1b3c256a58013e2dab212a27984f03d30b6dd09b0808d9df192a915293ec")
-        expected = {"registry.py": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b",
-                    "metacontrol.py": "a731adcddc37517d813157ce9355686e9a4eb9d61c378dfb71b494746d5a97cf"}
-        for name, sha in expected.items():
-            self.assertEqual(hashlib.sha256((ROOT / "shadow_homeostasis" / name).read_bytes()).hexdigest(), sha)
+        # Preferred pin: .gitattributes eol=lf.
+        # Second witness: LF-canonical hash, so a runner that still
+        # converts checkout bytes cannot fake a source-hash miss.
+        # Pattern: tests/test_brain_schema.py / test_runtime_truth_contract_frozen.py.
+        for name, sha in _FREEZE_LF.items():
+            raw = (_SHADOW / name).read_bytes()
+            self.assertEqual(_canonical_sha256(raw), sha)
+
+    def test_windows_crlf_checkout_is_a_known_hash_not_the_source(self):
+        """Second witness: the windows-latest failure hash is LF→CRLF, not a new source."""
+        for name, crlf_sha in _FREEZE_CRLF.items():
+            lf = _canonical_bytes((_SHADOW / name).read_bytes())
+            crlf = lf.replace(b"\n", b"\r\n")
+            self.assertEqual(hashlib.sha256(crlf).hexdigest(), crlf_sha)
+            self.assertNotEqual(crlf_sha, _FREEZE_LF[name])
+            self.assertEqual(_canonical_sha256(crlf), _FREEZE_LF[name])
+
+    def test_hashed_shadow_checkout_is_pinned_lf(self):
+        self.assertTrue(GITATTRIBUTES.is_file())
+        text = GITATTRIBUTES.read_text(encoding="utf-8")
+        self.assertIn("eol=lf", text)
+        self.assertIn("*.py", text)
+
+    def test_content_edit_breaks_freeze(self):
+        for name, sha in _FREEZE_LF.items():
+            mutated = _canonical_bytes((_SHADOW / name).read_bytes()) + b"\n# mutated\n"
+            self.assertNotEqual(_canonical_sha256(mutated), sha)
+
+    def test_lone_cr_normalizes_to_lf_identity(self):
+        for name, sha in _FREEZE_LF.items():
+            lf = _canonical_bytes((_SHADOW / name).read_bytes())
+            lone_cr = lf.replace(b"\n", b"\r")
+            self.assertEqual(_canonical_sha256(lone_cr), sha)
 
     def test_actual_rows_deterministic_and_input_preserved(self):
         before = copy.deepcopy(self.model)
