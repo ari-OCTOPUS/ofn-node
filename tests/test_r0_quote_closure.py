@@ -30,8 +30,19 @@ def test_quote_modules_import() -> None:
 
 
 def test_send_path_modules_are_absent_from_this_pr() -> None:
-    assert not (AGENTS / "capability_token.py").exists()
+    """110A: live transport file stays absent.
+
+    110B may add a parked ``capability_token.py`` (authorization
+    primitive only). Any live outbound-transport import in that
+    file still fails this pin.
+    """
     assert not (AGENTS / "lead_outbound_transport.py").exists()
+    token = AGENTS / "capability_token.py"
+    if token.exists():
+        source = token.read_text(encoding="utf-8")
+        assert "lead_outbound_transport" not in source
+        assert "import smtp" not in source
+        assert "smtplib" not in source
 
 
 def test_quote_modules_never_import_the_send_path() -> None:
