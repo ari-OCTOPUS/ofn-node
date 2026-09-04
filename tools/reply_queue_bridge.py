@@ -26,6 +26,10 @@ SCHEMA = "octopus.reply-queue-bridge.v1"
 INBOX = Path.home() / "octopus-mesh/inbox"
 QUEUE = opslib.STATE_DIR / "OWNER-QUEUE.md"
 SEEN_FILE = opslib.STATE_DIR / "reply-bridge-seen.json"
+# Local queue append is not a send. Ready ≠ authorized.
+grants_send = False
+ready_is_authorized = False
+promotes_ready_to_send = False
 
 
 def _load_seen() -> set:
@@ -71,17 +75,32 @@ def extract_proposals(inbox_dir: Path | None = None) -> list[dict]:
     return proposals
 
 
+def _queue_line(proposal: object) -> str | None:
+    """Format one proposal or refuse it. Missing shape is skip, not write."""
+    if not isinstance(proposal, dict):
+        return None
+    ev_raw = proposal.get("evidence")
+    if not isinstance(ev_raw, list):
+        return None
+    try:
+        conf = float(proposal.get("confidence", 0))
+    except (TypeError, ValueError):
+        return None
+    ev = "; ".join(str(e)[:80] for e in ev_raw[:3])
+    return f"- [{conf:.1f}] {ev}"
+
+
 def append_to_queue(proposals: list[dict]) -> int:
     if not proposals:
         return 0
-    lines = ["", "## Brain Proposals (auto-appended)"]
-    for p in proposals:
-        ev = "; ".join(e[:80] for e in p["evidence"][:3])
-        lines.append(f"- [{p['confidence']:.1f}] {ev}")
+    written = [_queue_line(p) for p in proposals]
+    lines = [line for line in written if line is not None]
+    if not lines:
+        return 0
     QUEUE.parent.mkdir(parents=True, exist_ok=True)
     with QUEUE.open("a", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
-    return len(proposals)
+        f.write("\n".join(["", "## Brain Proposals (auto-appended)", *lines]) + "\n")
+    return len(lines)
 
 
 def run() -> dict:
