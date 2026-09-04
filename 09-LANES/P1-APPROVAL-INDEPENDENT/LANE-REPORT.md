@@ -36,7 +36,7 @@ Complementary P1 (not a duplicate of #134/#116/#145/#173/#175):
 
 ## What remains
 
-- Independent CODEOWNERS review of this PR (and still-open complementary P1 PRs including #134).
+- Independent CODEOWNERS review of #176 (https://github.com/ari-OCTOPUS/ofn-node/pull/176) and still-open complementary P1 PRs including #134.
 - Independent review of #134 (attest-manifest) — REVIEW_REQUIRED, not an engineering defect.
 - Incidents append on existing `docs/octopus-os-incidents-20260902` (do not mint a fifth incidents PR).
 - Do not re-arm send. `quote_sent` / `send_authorized` remain owner-blocked.
