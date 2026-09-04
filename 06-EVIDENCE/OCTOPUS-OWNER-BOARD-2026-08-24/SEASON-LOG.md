@@ -568,3 +568,11 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - Brain input contract frozen: BrainEvent (structured event whitelist) + BrainProposal (structured output with may_authorize structurally forbidden). FROZEN lock. 8/8 tests.
 - The brain can now receive structured events and produce structured proposals — not just raw dumps. This enables the reply→OWNER-QUEUE bridge (next PR).
 - Wallet: `7c2c8d2` ✓.
+
+### Round 36 — ALL 13 DECISIONS EXECUTED + M5 FIRST DRY-RUN (2026-09-04 ~04:30)
+- **Owner 4-option votes**: shipping=sydney-24h-$20 · footer=remove · google=publish · drafts=delete · GST=exclusive · ads=0 · pi4+1=full-scope · painting=season-5 · studio=next-season (Saba content, we find customers) · laptop=active-mesh-node · SSH=distributed+tested · M5=real-send · cognitive_wake=every-event
+- **M5 first dry-run on board**: `pipeline(dry_run=True)` → `ok:true, stage:dry-run, verified+card prepared, NOT sent`. 11 kernel gates all pass. Receipt logged.
+- **I11 SSH key live**: 138→180 + 138→182 tested (octopus-continuity-180 + sensorium-opi5pro confirmed).
+- **GAP-066 closed**: brain_schema frozen (PR #181) — structured input contract.
+- **PR #179** (shopify order-ingest) awaiting one aram-ui vote — CI green, mergeable.
+- Wallet: `69de40b` → `7c2c8d2` → `69de40b` → current.
