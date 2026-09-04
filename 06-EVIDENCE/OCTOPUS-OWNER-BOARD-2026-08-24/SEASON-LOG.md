@@ -563,3 +563,8 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **T5 reply back to 138** (02:58): 56 pending brain replies manually sent via wire format → 48 arrived in 138 inbox → router consuming.
 - **Discovery**: the brain's reply is honest but generic — it needs structured input (not just raw events) to produce actionable proposals. GAP-066 registered: brain wake consumer needs structured event schema, not raw dump.
 - **Loop status**: MEASURE→WAKE→THINK→REPLY all PROVEN live. Next: reply semantic enrichment + OWNER-QUEUE integration.
+
+### Round 35 — GAP-066 CLOSED: brain_schema frozen (PR #181, self-authored #4)
+- Brain input contract frozen: BrainEvent (structured event whitelist) + BrainProposal (structured output with may_authorize structurally forbidden). FROZEN lock. 8/8 tests.
+- The brain can now receive structured events and produce structured proposals — not just raw dumps. This enables the reply→OWNER-QUEUE bridge (next PR).
+- Wallet: `7c2c8d2` ✓.
