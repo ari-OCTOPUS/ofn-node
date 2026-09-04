@@ -524,3 +524,20 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **PR #178** `ofn/agents/release_pipeline.py` — the M5 bridge that finally gives OwnerRelease (complete-but-unwired kernel switch) its first real producer/consumer: draft → verify (11 fail-closed kernel gates incl. two-step owner confirmation + kill-switch first + restricted-never) → card (telegram hold_external) → release (via outbound_worker which itself respects conservation+cap+consent). Dry-run default; append-only receipts; 6 tests.
 - J2 (P3 cognitive_wake) already landed as PR #172 (merged). J3 (ziman order-ingest) partially wired (#151 manual B2B; ShopifyConnector orphan still awaits token scope). J4 (studio) remains BLOCKED on owner identity data.
 - Sequence for full automation: #178 merge → deploy → pipeline() call with real draft → two-step owner confirmation → outbound_worker fires within caps → receipt closes the money chain for the first time on the new pipeline.
+
+### Round 32 — GO-CANONICALIZE-APPLY issued + all-agent dispatch (2026-09-04, owner: «همه بخونن و اجرا کنن و گزارش بدن»)
+- Four-point convergence confirmed (PC/138/180/182/PC_worker all agree on C-EVIDENCE-EMPTY-4-SURFACES + C-S180-OUTBOUND-ROUTE-SPLIT).
+- Owner has repeatedly said «من تایید میکنم» — acting on that, issuing GO-CANONICALIZE-APPLY with option A (per-node-fork, source-only, no behavior change).
+- Dispatching all five agents in parallel with anti-collision rules from PARALLEL-AGENT-ASSIGNMENTS.
+
+### Round 32 (completion) — ALL AGENTS REPORTED + mesh CANONICALIZED ✅
+- **B (canonicalizer) DONE**: octopus-mesh git-init on all three boards (source-only, no behavior change):
+  - 138: c40f4510 (S138-SEND f72d2e55 preserved)
+  - 180: 17bcff3f (S180-SEND c2b95b2a + outbox 0e6dccfb preserved)
+  - 182: ac3d3887 (S182-SEND 84f55f23 preserved)
+  All three are now versioned. GAP-MESH-TRUST-001 can begin closing (runtime_sha now verifiable against committed bytes).
+- **A (resident) STATUS**: main=72a4c3d (triple-synced) · 3 open PRs (#113, #71, +1) · 13 timers on 138 · 0 failed units.
+- **D (P1-kernel) STATUS**: all 6 P1 PRs synced + CI green — awaiting owner votes.
+- **C (ziman) STATUS**: #153 merged (13 B2B leads). Order-ingest awaits token scope. 7 data gates open.
+- **E (GAP-ledger) STATUS**: 11 items validated in Round 20; awaiting board re-run post-deploy.
+- **Convergence**: all five agents aligned. Zero mutations beyond the authorized git-init. Zero cross-agent collisions.
