@@ -1,6 +1,7 @@
 # LANE-REPORT — P1-KIND-ROLE (session d, 2026-09-04)
 
 Declared file-lock zone: `/tmp/ofn-p1-kind-role` on `feat/p1-kind-role-20260904`.
+Engineering HEAD `1dacabf7a0c09e37451055bf2f685a159077a5dd`. PR https://github.com/ari-OCTOPUS/ofn-node/pull/196 (`refs/pull/196/head` MATCH `1dacabf` 2026-09-04T14:38:48Z).
 `/workspace` stayed on `cursor/taskenvelope-system-hardening-857c` @`80d98ff505f02c606b0decc32a36e645fa05d276` (#194 trigger SHA) and was not written.
 
 Lane ID: P1-KIND-ROLE. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complementary kernel typed-event role witness. Did not edit LANE-MATRIX.csv.
