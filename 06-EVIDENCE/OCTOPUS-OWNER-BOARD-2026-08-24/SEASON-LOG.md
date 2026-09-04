@@ -576,3 +576,16 @@ PR_110_MERGE_ALLOWED_NOW          = NO (owner operating rule)
 - **GAP-066 closed**: brain_schema frozen (PR #181) — structured input contract.
 - **PR #179** (shopify order-ingest) awaiting one aram-ui vote — CI green, mergeable.
 - Wallet: `69de40b` → `7c2c8d2` → `69de40b` → current.
+
+### Round 37 — 🏆 FINAL WAVE: 5 more merges + everything deployed (2026-09-04 ~09:00 AEST)
+- **Owner**: «ارسال M5 را تایید میکنم + همه موارد مرج شد» — executed:
+  - **#179** shopify order-ingest → MERGED b062c536
+  - **#181** brain_schema frozen → MERGED e00c8ed5
+  - **#182** reply_queue_bridge → MERGED 67e7f1e
+  - **#184** experiments_output → MERGED 4f1dd25
+  - **#185** brain_wake structured → MERGED aac6d59
+- **Board deployed to e00c8ed5** — M5 pipeline + brain_schema + reply bridge + experiments_output + all prior autonomy organs live on board.
+- **Laptop synced to e00c8ed5.**
+- Queue now: **0 non-draft open** (only drafts and parked PRs remain).
+- **HARMONY-MERGER: ALL THREE LINKS COMPLETE (P1✓ P2✓ P3✓). The organism is a single connected body.**
+- Remaining for owner (data only, no code): ziman I1-I11 data · M5 two-step tokens for first real send · NATS core password decision.
