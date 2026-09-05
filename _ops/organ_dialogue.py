@@ -128,6 +128,10 @@ def doctor_digest(state_dir=None) -> dict:
     open_rfcs = [r for r in rfcs if r.get("status") in open_states]
     und = sk.get("understanding") or {}
     pathology = und.get("pathology") or []
+    if not isinstance(pathology, list):
+        # IGN-2 / F-AUTO-ALERT-529: pathology در دادهٔ زنده گاهی دیکته است —
+        # دیکتهٔ [:3] یعنی KeyError: slice (×346 alert). همان کلاسِ باگِ blocked_by.
+        pathology = list(pathology.values()) if isinstance(pathology, dict) else []
     focus = sk.get("focus") or ""
     lines = ["🩺 <b>دکتر — تشخیص و پیشنهادها</b>", "──────────"]
     if focus:
