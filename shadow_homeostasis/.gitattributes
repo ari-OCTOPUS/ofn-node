@@ -1,0 +1,6 @@
+# Frozen organism-shadow sources. Windows autocrlf must not rewrite bytes.
+# Guard: tests/test_organism_shadow.py
+#   test_captured_source_identity_and_frozen_files
+#   test_windows_crlf_checkout_is_a_known_hash_not_the_source
+#   test_hashed_shadow_checkout_is_pinned_lf
+*.py text eol=lf

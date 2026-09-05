@@ -38,8 +38,6 @@ from typing import Any, Callable, Mapping, Sequence
 
 from ofn.kernel import self_model
 from ofn.kernel.self_model import Reading
-from ofn.adapters import organism_shadow, runtime_provenance
-from shadow_homeostasis import pipeline as shadow_pipeline
 
 SCHEMA_ID = "octopus.self-model.v3"
 
@@ -399,29 +397,11 @@ def produce(
         warnings.append("brain_probe_" + model["brain_probe"]["status"])
     stale_after = rfc3339(
         now_epoch + min(FRESHNESS_SECONDS.values()))
-    # Additive, effect-free organism assessment; primary self-model semantics
-    # and business authority are unchanged. Missing physiology is not invented.
-    try:
-        shadow = organism_shadow.assess_snapshot(
-            model, now_epoch=now_epoch, process_max_age=FRESHNESS_SECONDS["process"])
-    except (ValueError, TypeError, OverflowError, KeyError):
-        shadow = {"schema": organism_shadow.SCHEMA, "state": "UNAVAILABLE",
-                  "reason": "snapshot_contract_failed", "executable": False}
-        warnings.append("organism_shadow_unavailable")
-    witnesses = {
-        "self_model": runtime_provenance.code_witness(self_model,
-            ["build_model", "process_reading", "capability_reading", "brain_probe_verdict"]),
-        "shadow_pipeline": runtime_provenance.code_witness(shadow_pipeline, ["run_shadow_pipeline"]),
-        "organism_adapter": runtime_provenance.code_witness(organism_shadow, ["assess_snapshot", "record_assessment"]),
-        "producer": runtime_provenance.code_witness(sys.modules[__name__], ["produce", "main"]),
-    }
-    if not all(witness.get("matched") is True for witness in witnesses.values()):
-        warnings.append("runtime_code_witness_unverified")
     return {
         "schema": SCHEMA_ID,
         "generated_at": rfc3339(now_epoch),
         "generated_epoch": now_epoch,
-        "status": "unverifiable" if ("organism_shadow_unavailable" in warnings or "runtime_code_witness_unverified" in warnings) else model["status"],
+        "status": model["status"],
         "data": model,
         "sources": sorted({
             reading["source"]
@@ -431,8 +411,6 @@ def produce(
         }),
         "warnings": sorted(warnings),
         "stale_after": stale_after,
-        "organism_shadow": shadow,
-        "runtime_provenance": witnesses,
     }
 
 
@@ -493,26 +471,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         repo_root / "state" / "self-model" / "SYSTEM-SELF-MODEL.json")
 
     envelope = produce(repo_root=repo_root)
-    try:
-        envelope["organism_shadow_persistence"] = organism_shadow.record_assessment(
-            envelope["organism_shadow"], output.parent / "organism-shadow",
-            code_provenance=envelope["runtime_provenance"])
-    except (OSError, ValueError, KeyError, TypeError):
-        envelope["organism_shadow_persistence"] = {
-            "state": "FAILED_PRESERVE_JOURNAL", "executable": False,
-            "reason": "inspect_existing_advisory_state; no automatic repair"}
-        envelope["status"] = "unverifiable"
-        envelope["warnings"] = sorted(set(envelope["warnings"] + ["organism_shadow_persistence_failed"]))
-    envelope["producer_invocation"] = {"pid": os.getpid(), "generated_at": envelope["generated_at"],
-        "scope": "this producer invocation, not other long-running processes"}
     path, digest = write_artifact(envelope, output)
     print(summary_line(envelope))
     print(f"artifact={path}")
     print(f"sha256={digest}")
     print(f"semantic_digest={semantic_digest(envelope)}")
     print(f"generated_at={envelope['generated_at']}")
-    return 0 if (envelope["organism_shadow_persistence"]["state"] == "COMMITTED_ADVISORY"
-                 and "runtime_code_witness_unverified" not in envelope["warnings"]) else 1
+    return 0
 
 
 if __name__ == "__main__":
