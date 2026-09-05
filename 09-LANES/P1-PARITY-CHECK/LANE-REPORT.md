@@ -25,7 +25,7 @@ Lane ID: P1-PARITY-CHECK. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complemen
 | Claim | Value | Source path | Grade | Status |
 |---|---|---|---|---|
 | Related suite (parent) | 269 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T13:32:19Z / parent `f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f` | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-PARITY-CHECK-20260905.json | E3 | verified |
-| Related suite (post-commit) | pending this session | same command in isolated worktree | E0 | unverified until after commit |
+| Related suite (post-commit) | 269 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T13:33:18Z / HEAD `55fd421bd7a33dd7535a1acef0460a3c38036976` | same command in isolated worktree | E3 | verified |
 | Receipt SHA-256 | `d2516d70dd6b68b4d8f31ebb7714c17da36a51436e0f31a3a24cb69036d6b34d` / 7393 bytes | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-PARITY-CHECK-20260905.json | E2 | verified |
 | parity_class methods | 42 passed | tests/test_parity_class.py recount 2026-09-05T13:32:19Z | E3 | verified |
 | check_pin methods | 18 passed | tests/test_check_pin.py recount 2026-09-05T13:32:19Z | E3 | verified |
