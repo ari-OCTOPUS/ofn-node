@@ -92,10 +92,13 @@ def main():
         })
 
     # ---- Counts ------------------------------------------------------------
+    # "Direct or Vendor Panel" whales are callable too — any approach starting
+    # with Direct belongs in Call Today (PR #201 feedback: exact match dropped
+    # 11 top-relevance group accounts out of the call list).
     direct_with_phone = [r for r in rows
-                         if r["approach"] == "Direct" and r["has_phone"]]
+                         if r["approach"].startswith("Direct") and r["has_phone"]]
     direct_no_phone   = [r for r in rows
-                         if r["approach"] == "Direct" and not r["has_phone"]]
+                         if r["approach"].startswith("Direct") and not r["has_phone"]]
     panel_tender      = [r for r in rows
                          if r["approach"] in ("Panel-Tender",
                                               "Panel/Tender",
