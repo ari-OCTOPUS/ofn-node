@@ -1,0 +1,112 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CAPACITY-ROOM-20260905",
+  "lane": "P1-CAPACITY-ROOM",
+  "recorded_at_utc": "2026-09-05T11:32:16Z",
+  "body": "bc-6b40754d-460c-48d9-b055-6bd5030128f6",
+  "branch": "feat/p1-capacity-room-20260905",
+  "parent_head_full": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+  "parent_subject": "feat(leads): master 73-account file with standardized RELEVANCE/APPROACH labels (#208)",
+  "file_lock_zone": "/tmp/ofn-p1-capacity-room",
+  "owns": [
+    "ofn/kernel/capacity_class.py",
+    "ofn/kernel/room_pin.py",
+    "tests/test_capacity_class.py",
+    "tests/test_room_pin.py",
+    "tests/test_chaos_capacity_room.py",
+    "docs/octopus-surgery/architecture/2026-09-05/receipts/P1-CAPACITY-ROOM-20260905.json",
+    "09-LANES/P1-CAPACITY-ROOM/LANE-REPORT.md"
+  ],
+  "does_not_touch": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/adapters/run_store.py",
+    "ofn/config.py",
+    ".github/CODEOWNERS"
+  ],
+  "distinct_from": [
+    "overflow_class/carry_pin (#205) — used+add vs capacity",
+    "underflow_class/borrow_pin (#207) — subtract underflow",
+    "remainder_class/leftover_pin (#204) — leftover after divide",
+    "unpublished saturation_class/clamp_pin",
+    "unpublished quotient_class/divide_pin",
+    "byte_class/length_pin (#200)",
+    "token_class/spend_fence (#155)",
+    "token_ceiling.py",
+    "quota.py",
+    "unpublished payload_bound"
+  ],
+  "claim": "classify_family names empty / has_room / full / over_cap from used vs limit with no add operand. This is occupancy-vs-limit, not used+add overflow and not leftover-after-divide. reserve is a START and is refused under HALT; classify / observe / inspect continue. Missing used or limit is UNKNOWN (None), not FALSE and not 0. Timeout forces UNKNOWN and does not prove concurrent writing. over_cap remaining room is UNKNOWN (None), not a negative borrow. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_room records (slot → room:used:limit:family) at most once per distinct quadruple; same quadruple is already_pinned; disagreement is room_collision. peek never writes. pin_allows_reserve only for reserve+empty or reserve+has_room; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / room_is_zero / over_cap_is_negative / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce structurally False. halt_blocks_reserve and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), seq.py, campaign_bind/send_fence (#145), overflow_class/carry_pin (#205), underflow_class/borrow_pin (#207), remainder_class/leftover_pin (#204), unpublished saturation_class/clamp_pin, unpublished quotient_class/divide_pin, byte_class/length_pin (#200), unpublished align_class/pad_pin, unpublished offset_class/range_pin, unpublished overlap_class/collide_pin, unpublished payload_bound, token_class/spend_fence (#155). Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_capacity_class tests.test_room_pin tests.test_chaos_capacity_room tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement -q",
+    "ran_at_utc": "2026-09-05T11:32:16Z",
+    "head_full_at_run": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "exit_code": 0,
+    "result": "274 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_capacity_class.py": "47 passed, exit 0 (recount 2026-09-05T11:32:16Z, same parent)",
+      "tests/test_room_pin.py": "18 passed, exit 0 (recount 2026-09-05T11:32:16Z, same parent)",
+      "tests/test_chaos_capacity_room.py": "7 passed, exit 0 (recount 2026-09-05T11:32:16Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-05T11:32:16Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_capacity_class tests.test_room_pin tests.test_chaos_capacity_room tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-05T11:32:08Z",
+      "exit_code": 0,
+      "result": "82 passed, 0 failed, 0 skipped (capacity 47 / room 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout and on incidents branch origin/docs/octopus-os-incidents-20260902 @a0827469980c67ce7469a7b4e298cee9cd9b398d (session w this-clone). Next append is session y (unpublished session x remains first identifier; objects ABSENT this body).",
+    "CONTRIBUTING.md": "absent on origin/main @f2b9a5c — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "9ffdeb56e0d8538fa037c202d87950b1947cd0d9",
+    "source_a": "designated /workspace HEAD before fetch (#193; 2026-09-05T11:29:47Z local rev-parse)",
+    "value_b": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "source_b": "git fetch origin/main this-run (#208; 2026-09-05T11:29:47Z). Isolated parent.",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-05T11:28:38.774Z",
+    "body": "bc-6b40754d-460c-48d9-b055-6bd5030128f6",
+    "designated_branch": "cursor/taskenvelope-system-hardening-2c22",
+    "designated_sha": "9ffdeb56e0d8538fa037c202d87950b1947cd0d9",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Designated /workspace not written. Isolated first identifier feat/p1-capacity-room-20260905."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
