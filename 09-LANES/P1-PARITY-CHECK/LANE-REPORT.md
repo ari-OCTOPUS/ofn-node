@@ -12,7 +12,7 @@ Lane ID: P1-PARITY-CHECK. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complemen
 - Added kernel-pure `classify_family` + `ParityBind` and `pin_check`. record is a START (HALT refuses). classify/observe/inspect continue under HALT. Missing count is UNKNOWN, not FALSE. Timeout is UNKNOWN, not a concurrent-write proof. Ready ≠ authorized. Not wired into `run_store.py`. Distinct from #209 capacity/room (occupancy vs limit), #205 overflow/carry, #207 underflow/borrow, #204 remainder/leftover, unpublished modulus/wrap, unpublished saturation/clamp, unpublished quotient/divide, #152 digest/fold, unpublished align/pad, unpublished offset/range, unpublished overlap/collide, unpublished payload_bound.
 
 ## What remains
-- Hook-allowed publish of `feat/p1-parity-check-20260905` (one new P1 PR). Independent CODEOWNERS review after publish. Merge blocked (REVIEW_REQUIRED).
+- Independent CODEOWNERS review of https://github.com/ari-OCTOPUS/ofn-node/pull/210 then leftover review-blocked PRs. Merge blocked (REVIEW_REQUIRED). `refs/pull/210/head` MATCH `c31fa0ec39903c31849a5a8f31d1e3f9bcc276e7` (2026-09-05T13:33:51Z).
 - `quote_sent` / `send_authorized` remain owner-blocked. No newer scoped authorization after the later disarm/hold.
 - Wiring these classifiers into `run_store.py` waits for owner review (do not edit that file here).
 - Incidents append is on existing `docs/octopus-os-incidents-20260902` only (do not mint a sixth incidents PR). Unpublished session z remains first identifier (objects ABSENT this body).
