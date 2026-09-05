@@ -24,7 +24,9 @@ Lane ID: P1-REMAINDER-LEFTOVER. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Com
 ## Evidence paths
 | Claim | Value | Source path | Grade | Status |
 |---|---|---|---|---|
-| Related suite | 270 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T06:22:06Z / parent `d092c9c714fda0615397bf16f046b895bf47a42a` | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-REMAINDER-LEFTOVER-20260905.json | E3 | verified |
+| Related suite (parent) | 270 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T06:22:06Z / parent `d092c9c714fda0615397bf16f046b895bf47a42a` | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-REMAINDER-LEFTOVER-20260905.json | E3 | verified |
+| Related suite (post-commit) | 270 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T06:22:59Z / HEAD `9c66be096505b6c790367bc28f65abd23c01e0e1` | same command in isolated worktree | E3 | verified |
+| Receipt SHA-256 | `fe272eaa941db5321315abb731965d00cc82d731eb6771ee1f632bfdf4a81f3d` / 7389 bytes | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-REMAINDER-LEFTOVER-20260905.json | E2 | verified |
 | remainder_class methods | 44 passed | tests/test_remainder_class.py recount 2026-09-05T06:22:01Z | E3 | verified |
 | leftover_pin methods | 17 passed | tests/test_leftover_pin.py recount 2026-09-05T06:22:01Z | E3 | verified |
 | chaos remainder-leftover | 7 passed | tests/test_chaos_remainder_leftover.py recount 2026-09-05T06:22:01Z | E3 | verified |
