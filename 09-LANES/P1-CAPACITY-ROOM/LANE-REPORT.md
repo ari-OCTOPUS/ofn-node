@@ -12,7 +12,7 @@ Lane ID: P1-CAPACITY-ROOM. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Compleme
 - Added kernel-pure `classify_family` + `CapacityBind` and `pin_room`. reserve is a START (HALT refuses). classify/observe/inspect continue under HALT. Missing remaining room is UNKNOWN, not 0 and not FALSE. over_cap remaining is UNKNOWN, not a negative. Timeout is UNKNOWN, not a concurrent-write proof. Ready ≠ authorized. Not wired into `run_store.py`. Distinct from #205 overflow/carry (used+add vs capacity), #207 underflow/borrow, #204 remainder/leftover, unpublished saturation/clamp, unpublished quotient/divide, #200 byte/length, unpublished align/pad, unpublished offset/range, unpublished overlap/collide, unpublished payload_bound, #155 token/spend.
 
 ## What remains
-- Independent CODEOWNERS review of this first identifier after publish. Merge blocked (REVIEW_REQUIRED).
+- Independent CODEOWNERS review of https://github.com/ari-OCTOPUS/ofn-node/pull/209 then leftover review-blocked PRs. Merge blocked (REVIEW_REQUIRED). `refs/pull/209/head` MATCH `4a8f15f076e16d8b46633edad6583a8da3ce6aab` (2026-09-05T11:33:21Z).
 - `quote_sent` / `send_authorized` remain owner-blocked. No newer scoped authorization after the later disarm/hold.
 - Wiring these classifiers into `run_store.py` waits for owner review (do not edit that file here).
 - Incidents append is on existing `docs/octopus-os-incidents-20260902` only (do not mint a sixth incidents PR). Unpublished session x remains first identifier (objects ABSENT this body).
@@ -25,6 +25,7 @@ Lane ID: P1-CAPACITY-ROOM. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Compleme
 | Claim | Value | Source path | Grade | Status |
 |---|---|---|---|---|
 | Related suite (parent) | 274 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T11:32:16Z / parent `f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f` | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-CAPACITY-ROOM-20260905.json | E3 | verified |
+| Related suite (post-commit) | 274 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T11:33:00Z / HEAD `4a8f15f076e16d8b46633edad6583a8da3ce6aab` | same command in isolated worktree | E3 | verified |
 | Receipt SHA-256 | `d44fba0d3de936851ecbe30a54f3390b99f4a5cd2fc5e2f312aa747cb04630a6` / 7368 bytes | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-CAPACITY-ROOM-20260905.json | E2 | verified |
 | capacity_class methods | 47 passed | tests/test_capacity_class.py recount 2026-09-05T11:32:16Z | E3 | verified |
 | room_pin methods | 18 passed | tests/test_room_pin.py recount 2026-09-05T11:32:16Z | E3 | verified |
