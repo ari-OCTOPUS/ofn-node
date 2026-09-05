@@ -1,0 +1,98 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "GAP-193-WIN-LF-20260904",
+  "issued_utc": "2026-09-04T16:03:44Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "pr": 193,
+  "branch": "feat/gap-193-win-lf-followup",
+  "push_target": "rescue/main-board-integ-20260904",
+  "parent_head_full": "8819e42efb5e8fb815d979b500105f15c34cab8b",
+  "file_lock_zone": [
+    "shadow_homeostasis/.gitattributes",
+    ".gitattributes",
+    "tests/test_organism_shadow.py",
+    "09-LANES/GAP-193-WIN-LF/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-04/receipts/GAP-193-WIN-LF-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-c359 @8819e42efb5e8fb815d979b500105f15c34cab8b — same SHA as #193; not written)",
+    "shadow_homeostasis/registry.py (frozen; LF digest unchanged)",
+    "shadow_homeostasis/metacontrol.py (frozen; LF digest unchanged)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py",
+    "refs/pull/194/head (GAP-194 also pins these files; not rewritten)"
+  ],
+  "action": "Reuse existing PR #193. Windows-latest job 101086693364 failed test_captured_source_identity_and_frozen_files because checkout bytes of registry.py were CRLF. Independently reproduced on this host: LF sha256 e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b MATCH freeze; LF→CRLF sha256 cfa730c9d9cda268f89b69c7b11ef8a1dec8f5d9d390a0db36f1d098d2e96ae4 MATCH CI want-side. metacontrol.py LF a731adcddc37517d813157ce9355686e9a4eb9d61c378dfb71b494746d5a97cf; constructed CRLF 43abbc04c15fcd9c9f2a34ddb6a4a91f1c7a93ad35d54c907653aefebc75c826 this-host only (CI stopped at first assert). Checkout artefact, not a contract edit. Added shadow_homeostasis/.gitattributes eol=lf and root .gitattributes -text for the two frozen files. Freeze test now hashes LF-canonical bytes (second witness; pattern tests/test_brain_schema.py). E3: CRLF is the known CI hash and not the freeze; content edit still breaks freeze; lone CR normalizes; both attributes pins present. registry.py and metacontrol.py not rewritten. Same pin already exists on #194 @06a2854 / 80d98ff (collision open; did not rewrite #194; did not open a second #193 or #194). Ready ≠ authorized. Did not claim filesystem immutability. Did not re-arm send. Did not weaken require-independent-approval.",
+  "collision_open": {
+    "claim": "organism-shadow LF pin ownership #193 vs #194",
+    "value_a": "this body #193 follow-up on 8819e42efb5e8fb815d979b500105f15c34cab8b",
+    "value_b": "refs/pull/194/head 1c3e7c031dc480e3c16635ca67fba9ed603e29b8 contains 06a2854 + 80d98ff pin",
+    "resolution": null,
+    "status": "open"
+  },
+  "verification": {
+    "organism_shadow": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_organism_shadow -q",
+      "ran_at_utc": "2026-09-04T16:03:31Z",
+      "head_full_at_run": "8819e42efb5e8fb815d979b500105f15c34cab8b",
+      "exit_code": 0,
+      "result": "24 passed, 0 failed"
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_organism_shadow tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_campaign_bind tests.test_send_fence -q",
+      "ran_at_utc": "2026-09-04T16:03:43Z",
+      "head_full_at_run": "8819e42efb5e8fb815d979b500105f15c34cab8b",
+      "exit_code": 0,
+      "result": "267 passed, 0 failed, 0 skipped"
+    },
+    "windows_ci_trigger": {
+      "job_id": "101086693364",
+      "sha": "8819e42efb5e8fb815d979b500105f15c34cab8b",
+      "ran_at_utc": "2026-09-04T15:58:56Z",
+      "result": "1 failed, 4529 passed, 28 skipped, 1 warning, 3450 subtests passed",
+      "failed_test": "tests/test_organism_shadow.py::OrganismShadowTests::test_captured_source_identity_and_frozen_files",
+      "freeze_lf_registry": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b",
+      "windows_raw_digest_registry": "cfa730c9d9cda268f89b69c7b11ef8a1dec8f5d9d390a0db36f1d098d2e96ae4"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this body and origin/main @7510c991a07088cc0a0c2097370eb0ba5d976e3a — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on this body and origin/main @7510c991a07088cc0a0c2097370eb0ba5d976e3a — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value": "7510c991a07088cc0a0c2097370eb0ba5d976e3a",
+    "source": "git fetch origin main 2026-09-04T16:02:07Z subject #189",
+    "status": "verified_this_host"
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
