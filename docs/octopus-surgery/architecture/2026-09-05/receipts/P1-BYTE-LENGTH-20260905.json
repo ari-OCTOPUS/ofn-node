@@ -1,0 +1,83 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-BYTE-LENGTH-20260905",
+  "issued_utc": "2026-09-05T00:23:37Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "branch": "feat/p1-byte-length-20260905",
+  "parent_head_full": "7510c991a07088cc0a0c2097370eb0ba5d976e3a",
+  "engineering_head_full": "bb280615936686748cbb9c5d42524e221aed1ee0",
+  "file_lock_zone": [
+    "ofn/kernel/byte_class.py",
+    "ofn/kernel/length_pin.py",
+    "tests/test_byte_class.py",
+    "tests/test_length_pin.py",
+    "tests/test_chaos_byte_length.py",
+    "09-LANES/P1-BYTE-LENGTH/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-05/receipts/P1-BYTE-LENGTH-20260905.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/bc-308daba7-f626-46b0-86b8-97f8a9ba752e-71c2 @7510c991a07088cc0a0c2097370eb0ba5d976e3a — not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 byte_class / length_pin. classify_family names empty/bounded/oversize for exact bytes against an exact int bound. Missing payload is None, not FALSE. Timeout is None and does not prove a writer. str/bytearray/bool-bound fail closed. measure is a START (HALT refuses); classify/observe continue. pin_length records (slot → family:size:bound); same triple already_pinned; length_collision fails closed; peek never writes. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_classify / halt_blocks_observe / pin_allows_send / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / wires_into_run_store / mints_run_id / consumes_nonce structurally False. halt_blocks_measure / later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), token_ceiling, campaign_bind/send_fence (#145), unpublished format/parse, unpublished codec/encode, unpublished payload_bound. Ready ≠ authorized.",
+  "verification": {
+    "new_module_purity": {
+      "command": "python3 -X utf8 -m unittest tests.test_byte_class tests.test_length_pin tests.test_chaos_byte_length tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-05T00:23:09Z",
+      "head_full_at_run": "7510c991a07088cc0a0c2097370eb0ba5d976e3a",
+      "exit_code": 0,
+      "result": "75 passed, 0 failed, 0 skipped"
+    },
+    "per_file_recount": {
+      "ran_at_utc": "2026-09-05T00:23:09Z",
+      "byte_class": "41 passed",
+      "length_pin": "17 passed",
+      "chaos": "7 passed",
+      "purity": "10 passed"
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_byte_class tests.test_length_pin tests.test_chaos_byte_length tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence tests.test_kind_graph tests.test_events tests.test_envelope_class tests.test_store_class -q",
+      "ran_at_utc": "2026-09-05T00:23:21Z",
+      "head_full_at_run": "7510c991a07088cc0a0c2097370eb0ba5d976e3a",
+      "exit_code": 0,
+      "result": "569 passed, 0 failed, 0 skipped"
+    },
+    "post_commit": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_byte_class tests.test_length_pin tests.test_chaos_byte_length tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence tests.test_kind_graph tests.test_events tests.test_envelope_class tests.test_store_class -q",
+      "ran_at_utc": "2026-09-05T00:23:37Z",
+      "head_full_at_run": "bb280615936686748cbb9c5d42524e221aed1ee0",
+      "exit_code": 0,
+      "result": "569 passed, 0 failed, 0 skipped"
+    },
+    "post_commit_new_module": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_byte_class tests.test_length_pin tests.test_chaos_byte_length tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-05T00:23:37Z",
+      "head_full_at_run": "bb280615936686748cbb9c5d42524e221aed1ee0",
+      "exit_code": 0,
+      "result": "75 passed, 0 failed, 0 skipped"
+    },
+    "pytest_module": "absent (ModuleNotFoundError)",
+    "tree_state": "dirty — this session's lock-zone receipt + lane report only"
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
