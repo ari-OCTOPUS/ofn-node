@@ -117,7 +117,44 @@ BLOCKERS=shelf1 probe file never delivered; CALL-TODAY send + daemon flag need o
 NEXT_SINGLE_ACTION=merge or comment PR #208
 ```
 
+## 7. Evening addendum — owner votes executed (10:13-10:45Z)
+
+Owner ordered more tests/loops toward more authority, "ask me, open the remaining gates".
+Ladder conditions were read from the ruling (not invented); owner voted on the four askable
+items (structured Q&A, all approved); the three permanent locks were NOT touched.
+
+- **Drills 3/3 GREEN today**: kill-switch (`IGN1_ABORT code=KILL_SWITCH_PRESENT`, correct ROOT
+  `~/ops-ign1`), idempotency (`ALREADY_DONE` ×2), restore (`RESTORE-DRILL-138-20260905.json` 6/6).
+- **HTB-1 round 2**: 3/3 new rows PASS (bytes 1,916,928 / rows 1,099 / paid 1 — honest persistence);
+  round-1 rows re-scored FAIL (P-HEAD now too: HEAD moved to b9c5767). Battery: 3/6, rate suppressed,
+  Brier oct 0.175 vs base 0.0762, ECE 0.4→0.2. Snapshot `~/ops-htb1/receipts/RESULT-ROUND2-snapshot.json`.
+- **CALL-TODAY card (vote: بفرست)**: `calltoday_send.py` deployed on 138 with full guards
+  (HALT/ALREADY_DONE/BUDGET 25/day/EXT counter 10/day/getMe). **4 attempts aborted — upstream DPI
+  RSTs bot-path TLS from 138** (GET ok; POST bot*/ RST even with invalid token, curl exit 35);
+  `check_calltoday.py` (getUpdates) proved no partial send before each retry — no double-send risk.
+  Blocker receipt: `board138:~/ops-ign1/ops/receipts/CALLTODAY-NETWORK-BLOCK-20260905.json`.
+  Armed; lands in the next open window (morning windows worked for msgs 31/32).
+- **CHECKOUT-1 (vote: می‌خرم)**: `checkout1_poll.py` armed on 138 (idempotent, read-only Shopify
+  admin). Poll at 10:33Z: NO_ORDERS (purchase pending). Honesty flag: its receipt is
+  `REPORTED_NOT_VERIFIED buyer=owner`; per GOV-V8 REV-1 the L2 condition `VERIFIED_CASH ≥ 1` is
+  defined as SALE-1 = first STRANGER order — the purchase proves the RAIL; opening L2 at rail-proof
+  needs an explicit owner ruling amendment (flagged, not assumed).
+- **MEMORY_GATE permanent (vote: دائمی)**: root cause — `OCTOPUS-flags.cmd:359` already had `=1` but
+  the schtask launcher bypassed it; fix = `run_doctor_day.py` `os.environ.setdefault` ×2 (syntax
+  checked), effective at next doctor-day run 07:00 AUSEST.
+- **L1 leg (vote: painting B2B)**: designated; pre-approved template v1 = CALL-TODAY card;
+  10/day cap; counter 4/10 at vote time.
+- **Teach**: `teach_owner_votes.py` — 5 rows commit (1,099 → 1,104), readback OK;
+  receipt sha256 `29915f6bdfdeb1a1`. mkeys `bizvote-{calltoday-card,checkout1-l2,
+  memory-gate-permanent,l1-leg-painting}-20260905` + `bizleg-ladder-status-20260905`.
+- **INCIDENT (same-day, resolved)**: a sparse re-apply dematerialized 43 tracked files
+  (`_ops/memory` 24 + `_ops/outcomes` 18 + `run_doctor_day.py`) from the working tree; restored
+  surgically from HEAD via `git show` (no re-apply — the current sparse pattern `/*`+`!/*/` would
+  collapse ALL dirs; flagged as a standing hazard in the ladder-status memory row).
+- **Round 3**: declared AFTER this commit so P-HEAD anchors on it; 4 probes, persistence, due ~12:0xZ.
+
 ## 6. Rollback
+
 - Memory rows: additive only (gate has no delete); retire by teaching superseding rows with same mkeys.
 - Vault: `git revert b9b9f88` (+ the lane-report commit).
 - ofn-node: close PR #208; delete branch `feat/leads-master-73` on both remotes (ce58cbf/#206 content

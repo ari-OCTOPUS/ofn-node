@@ -17,6 +17,12 @@ sys.path.insert(0, str(_HERE / "budget"))
 import env_loader  # noqa: E402
 
 env_loader.load_env()                              # فقط نامِ کلیدها گزارش می‌شود، نه مقدار
+
+import os  # noqa: E402
+# رأی مالک 2026-09-05 (Q&A): حلقهٔ خود-یادگیری دائمی — MemoryGate همان گیتِ
+# production است (TTL + فیلتر secret/PII + لجر)؛ setdefault تا مقدار صریح بیرونی ببرد.
+os.environ.setdefault("OCTOPUS_WIRE_MEMORY_GATE", "1")
+os.environ.setdefault("OCTOPUS_WIRE_MEMORY_DECISION", "1")
 cli = _HERE.parent / "OCTOPUS-DOCTOR" / "doctor" / "cli.py"
 r = subprocess.run([sys.executable, "-X", "utf8", str(cli), "day", str(_HERE)],
                    timeout=1800)
