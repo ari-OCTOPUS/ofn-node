@@ -25,6 +25,8 @@ Lane ID: P1-OVERFLOW-CARRY. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complem
 | Claim | Value | Source path | Grade | Status |
 |---|---|---|---|---|
 | Related suite (parent) | 272 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T08:20:53Z / parent `d092c9c714fda0615397bf16f046b895bf47a42a` | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-OVERFLOW-CARRY-20260905.json | E3 | verified |
+| Related suite (post-commit) | 272 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-05T08:21:19Z / HEAD `0e24c945a2b5b06beda228892416e381f12315d0` | same command in isolated worktree | E3 | verified |
+| Receipt SHA-256 | `40a15f7f762790cde078760841bb689308d586bbe4a8fd7263fad88c06553948` / 7800 bytes | docs/octopus-surgery/architecture/2026-09-05/receipts/P1-OVERFLOW-CARRY-20260905.json | E2 | verified |
 | overflow_class methods | 46 passed | tests/test_overflow_class.py recount 2026-09-05T08:20:53Z | E3 | verified |
 | carry_pin methods | 17 passed | tests/test_carry_pin.py recount 2026-09-05T08:20:53Z | E3 | verified |
 | chaos overflow-carry | 7 passed | tests/test_chaos_overflow_carry.py recount 2026-09-05T08:20:53Z | E3 | verified |
