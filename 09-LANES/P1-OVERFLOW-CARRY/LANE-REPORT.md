@@ -12,7 +12,7 @@ Lane ID: P1-OVERFLOW-CARRY. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complem
 - Added kernel-pure `classify_family` + `OverflowBind` and `pin_carry`. consume is a START (HALT refuses). classify/observe continue under HALT. Missing carry is UNKNOWN, not 0 and not FALSE. Timeout is UNKNOWN, not a concurrent-write proof. Ready ≠ authorized. Not wired into `run_store.py`. Distinct from #204 remainder/leftover (leftover after divide), unpublished quotient/divide, #200 byte/length, unpublished #202/#203 segment/stride, unpublished align/pad, unpublished offset/range, unpublished overlap/collide, unpublished payload_bound, #155 token/spend.
 
 ## What remains
-- Independent CODEOWNERS review of this PR then leftover review-blocked PRs. Merge blocked (REVIEW_REQUIRED).
+- Independent CODEOWNERS review of https://github.com/ari-OCTOPUS/ofn-node/pull/205 then leftover review-blocked PRs. Merge blocked (REVIEW_REQUIRED). `refs/pull/205/head` MATCH `07399d567ed82315d172d77a8ebd3d656b09b305` (2026-09-05T08:21:55Z).
 - `quote_sent` / `send_authorized` remain owner-blocked. No newer scoped authorization after the later disarm/hold.
 - Wiring these classifiers into `run_store.py` waits for owner review (do not edit that file here).
 - Incidents append is on existing `docs/octopus-os-incidents-20260902` only (do not mint a sixth incidents PR). Unpublished session u remains first identifier (objects ABSENT this body).
