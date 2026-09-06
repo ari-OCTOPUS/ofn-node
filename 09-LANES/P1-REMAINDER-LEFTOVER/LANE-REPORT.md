@@ -40,3 +40,15 @@ Lane ID: P1-REMAINDER-LEFTOVER. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Com
 1. Revert the commit that adds `ofn/kernel/remainder_class.py`, `ofn/kernel/leftover_pin.py`, and the three test modules on `feat/p1-remainder-leftover-20260905`.
 2. Do not delete archives or prune worktrees.
 3. Do not touch unpublished align-pad / offset-range / overlap-collide first identifiers or weaken gates.
+
+## 2026-09-06T01:51Z — require-fresh-base refresh (#210)
+
+Declared file-lock zone this run: `/tmp/ofn-p1-remainder-leftover` on existing `feat/p1-remainder-leftover-20260905`.
+`/workspace` stayed on `cursor/taskenvelope-system-hardening-6870` @`423bb282336ec6173536e8eff76c747b69c440ae` and was not written.
+
+- Trigger: CI `require-fresh-base` job 101410078342 on #204 @`423bb282336ec6173536e8eff76c747b69c440ae`. Missing `origin/main` `#210` `33d2d7bb72b1fd8094574bad418648b28d13190e`.
+- `git fetch origin main` 2026-09-06T01:50:50Z exit 0. Isolated merge 2026-09-06T01:51:33Z exit 0 → `74fb98af62943a0566368879b043a40df2188d28`. Contains `origin/main`. 0 behind / 4 ahead.
+- Did not rewrite `remainder_class.py` (blob `f48c4e219a47b7bdeedc983095180236a55dc940` MATCH pre-merge) or `leftover_pin.py` (blob `c59cf51ced58e540f95530771c4f57388ecb0c46` MATCH pre-merge). Incoming `#210` parity/check files were merge-only, not rewritten. Did not open a second remainder-leftover PR.
+- Related suite: 483 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-06T01:51:43Z / merge HEAD `74fb98af62943a0566368879b043a40df2188d28`. New+incoming+purity: 234 passed @ 01:51:42Z. Recount: remainder 44 / leftover 17 / chaos 7 / purity 10 / parity 42 / check 18 / chaos_parity 7 / later_hold 43 / scoped 39 / chaos_later 7.
+- Receipt: `docs/octopus-surgery/architecture/2026-09-06/receipts/P1-REMAINDER-LEFTOVER-BASE-20260906.json` SHA-256 `7b659408a725200b78eb0c8f81477912361b4f477fe7393f226c0031395c5b56` (8016 bytes). Evidence level B. Filesystem immutability NOT claimed.
+- Rollback of this refresh: revert the merge commit `74fb98a` and this receipt commit. Do not force-push. Do not prune worktrees.
