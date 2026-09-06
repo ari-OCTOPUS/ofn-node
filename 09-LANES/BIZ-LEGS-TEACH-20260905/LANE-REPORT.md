@@ -267,3 +267,17 @@ expected at 12:00:00Z horizon; then execute §8.4 ctx-8192 restart runbook).
 - باقیمانده: enforcement flip (ورود پاکت unsigned مسدود) با GO بعدی مالک + binding برای
   jsonهای wake-سوار؛ rescore رسمی effective_cap در battery بعدی
 - رسید: `ops/p0-wedge/OWNER-SIG-CORPUS-RECEIPT-20260906.json`
+
+### 8.10 Round 42 — PREREG بسته شد + swap اجرا شد (12:17–12:20Z)
+
+- **H-TIME_REFUTED** نوشته شد (WEDGE2_REFUTED.flag @ 12:17:22Z): سالم تا افق ۱۲:۰۰Z و پیوسته از
+  ۲۳:۳۶:۴۵Z (~۱۲h۴۰m)؛ پنجره پاک؛ chain seq 114–121 همه health=200/CLOSE-WAIT=0؛ RSS 853,768→853,216
+  تثبیت. فرضیهٔ تناوب ~۶h رد؛ «--parallel 2 یا حافظهٔ تازه اثر ماندگار داشت». نشتی زیر بارِ وسیع =
+  همچنان NOT_TESTED (n=1).
+- **swap ctx-8192 اجرا شد** (رأی مالک، بعد از verdict — نه بهعنوان watchdog): preimage
+  `override.conf.preimage-20260906T1218Z` → `--ctx-size 8192` → restart → active/health ok،
+  PID 861304، هر دو slot **n_ctx=4096**، RSS زیر بار ۱,۲۰۷,۴۴۰ kB (پیشبینی ۸۰۸۲: ۱,۲۱۰,۹۳۶ — ۰.۳٪ اختلاف).
+- **اثبات مرزی روی ۸۰۸۱ زنده:** همان پرامپت ۱۶۷۹ توکنی که ۳ بار ۴۰۰ خورد → **HTTP 200،
+  tokens_evaluated=1679، ادامهٔ منسجم**. گلوگاه `model_called=false` از این لحظه برطرف است —
+  اولین wake مجاز بعدی باید MODEL_OK بدهد.
+- رسید: `ops/p0-wedge/LLAMA-CTX-8192-RESTART-RECEIPT-20260906.json` · rollback: preimage + reload + restart.
