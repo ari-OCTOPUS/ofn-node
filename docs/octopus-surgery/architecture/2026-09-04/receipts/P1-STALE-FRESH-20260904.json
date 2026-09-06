@@ -1,0 +1,58 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-STALE-FRESH-20260904",
+  "issued_utc": "2026-09-04T03:33:45Z",
+  "author": "cursor-cloud bc-1c090524-528c-4490-80c8-c2ede8f0f18d (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-stale-fresh on feat/p1-stale-fresh-20260904 parent origin/main @b062c5362a718ee53b3235eccdafc390f641020a (#179). stale_class.py and fresh_pin.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-30c1 @6d95d40f0abc0f2a535879bc52e4a2ee58ec0b7c (PR #185) and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "unpublished first identifiers inject-fault / circuit-breaker / halt-scope / receipt-ack"
+  ],
+  "action": "P1 complementary stale_class + fresh_pin — new files only. Not a second envelope/events/run_store/deadline_window/timeout_verdict/clock_bind PR. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/stale_class.py": "classify_age: missing/error→UNKNOWN (not STALE, not FALSE); age<=ttl FRESH; age>ttl STALE; equal age stays FRESH; inversion fail-closed; sealed send/ready names refused; admit_refresh is a START (HALT refuses); grants_send/unknown_is_false/unknown_is_stale/timeout_proves_concurrent_write/ready_is_authorized/wires_into_run_store structurally False; halt_blocks_refresh structurally True",
+    "ofn/kernel/fresh_pin.py": "pin_fresh first FRESH pair admitted; second already_pinned; STALE/UNKNOWN refuse; peek never writes; malformed ids refuse not FALSE; sealed names sealed_effect; not wired into run_store.py",
+    "tests/test_stale_class.py": "E3 negatives: bool/float/str/negative epoch, bool/negative ttl, inversion, sealed intents, missing UNKNOWN, error UNKNOWN, refresh HALT, already_fresh, unknown_age",
+    "tests/test_fresh_pin.py": "E3 negatives: second pin, stale_not_fresh, unknown_not_fresh, peek no write, malformed ids, sealed names, unknown intent/kind",
+    "tests/test_chaos_stale_fresh.py": "seven owner-absent scenarios: missing UNKNOWN, timeout≠writer, HALT blocks refresh not classify, failed classify≠send, ready≠sent, stale≠fresh recorded, peek/pin deterministic"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_stale_class tests.test_fresh_pin tests.test_chaos_stale_fresh tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_settlement tests.test_write_fence tests.test_clock_bind tests.test_utc_class tests.test_deadline_window tests.test_timeout_verdict tests.test_events -q",
+    "ran_at_utc": "2026-09-04T03:33:45Z",
+    "parent_head_full": "b062c5362a718ee53b3235eccdafc390f641020a",
+    "exit_code": 0,
+    "result": "464 passed / 0 failed / 0 skipped (unittest 'Ran 464 tests in 0.615s' / OK). New-module+purity: 85 passed (stale 40 / pin 27 / chaos 8 / purity 10).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-stale-fresh). Dirt is this body's edits, not an unknown concurrent writer.",
+    "worktree": "/tmp/ofn-p1-stale-fresh",
+    "file_lock_zone": [
+      "ofn/kernel/stale_class.py",
+      "ofn/kernel/fresh_pin.py",
+      "tests/test_stale_class.py",
+      "tests/test_fresh_pin.py",
+      "tests/test_chaos_stale_fresh.py",
+      "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-STALE-FRESH-20260904.json",
+      "09-LANES/P1-STALE-FRESH/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None epoch → UNKNOWN, not STALE, not FALSE",
+      "TimeoutError → UNKNOWN, not a concurrent-write proof",
+      "age == ttl stays FRESH",
+      "as_of < observed fail-closes (inversion, not STALE)",
+      "admit_refresh under HALT → halt_blocks_start",
+      "STALE cannot be pinned as FRESH",
+      "UNKNOWN cannot be pinned as FRESH",
+      "sealed send/ready names refused",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write / claims_immutable / wires_into_run_store structurally False",
+      "run_store source does not import stale_class or fresh_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "envelope.py / events.py / run_store.py / deadline_window.py / timeout_verdict.py / clock_bind.py / utc_class.py / typed_event.py / receipt_bind.py / dedup.py / settlement.py / write_fence.py / freeze_class/lock_pin (#183) / nonce_class/once_pin (#173) / campaign_envelope (#76) / #185 brainwake"
+}
