@@ -1,0 +1,87 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "GAP-066-WIN-LF-20260904",
+  "issued_utc": "2026-09-04T03:17:12Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "pr": 181,
+  "branch": "feat/gap-066-brain-schema-20260904",
+  "parent_head_full": "547991646c70fca80f617ab01d599ff067ad07fe",
+  "file_lock_zone": [
+    "ofn/agents/.gitattributes",
+    "tests/test_brain_schema.py",
+    "09-LANES/GAP-066-WIN-LF/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-04/receipts/GAP-066-WIN-LF-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-dd43 @547991646c70fca80f617ab01d599ff067ad07fe — same SHA as #181; not written)",
+    "ofn/agents/brain_schema.py (frozen; lock unchanged)",
+    "ofn/agents/brain_schema.lock (LF digest unchanged)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/revenue_states.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Reuse existing PR #181. Windows-latest job 100896706436 failed test_frozen_lock_matches because checkout bytes were CRLF. Independently reproduced on this host: LF sha256 5c0c16732b60b20f2bb8483955c770574e8d99c217ecc6e9d7a0536bca1be1d6 MATCH lock; CRLF sha256 7e99cb35f8970a5069521f36f72855948b56f2a8d9182326edd2db61d4d9c901 MATCH CI want-side. That is a checkout artefact, not a contract edit. Added ofn/agents/.gitattributes eol=lf. Freeze test now hashes LF-canonical bytes (second witness). E3: CRLF is the known CI hash and not the lock; content edit still breaks lock; lone CR normalizes; gitattributes pin. pytest import is optional so this host can run the functions without the CI extra. brain_schema.py and brain_schema.lock not rewritten. Ready ≠ authorized. Did not claim filesystem immutability. Did not re-arm send. Did not open a second GAP-066 PR.",
+  "verification": {
+    "freeze_functions": {
+      "command": "python3 (stdlib runner of tests.test_brain_schema functions; pytest ModuleNotFoundError)",
+      "ran_at_utc": "2026-09-04T03:17:11Z",
+      "head_full_at_run": "547991646c70fca80f617ab01d599ff067ad07fe",
+      "exit_code": 0,
+      "result": "12 passed, 0 failed"
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -m unittest tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+      "ran_at_utc": "2026-09-04T03:17:12Z",
+      "head_full_at_run": "547991646c70fca80f617ab01d599ff067ad07fe",
+      "exit_code": 0,
+      "result": "179 passed, 0 failed, 0 skipped"
+    },
+    "windows_ci_trigger": {
+      "job_id": "100896706436",
+      "sha": "547991646c70fca80f617ab01d599ff067ad07fe",
+      "ran_at_utc": "2026-09-04T03:11:10Z",
+      "result": "1 failed, 4482 passed, 26 skipped, 3410 subtests passed",
+      "failed_test": "tests/test_brain_schema.py::test_frozen_lock_matches",
+      "lock_digest": "5c0c16732b60b20f2bb8483955c770574e8d99c217ecc6e9d7a0536bca1be1d6",
+      "windows_raw_digest": "7e99cb35f8970a5069521f36f72855948b56f2a8d9182326edd2db61d4d9c901"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this body and origin/main @b062c5362a718ee53b3235eccdafc390f641020a — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on this body and origin/main @b062c5362a718ee53b3235eccdafc390f641020a — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value": "b062c5362a718ee53b3235eccdafc390f641020a",
+    "source": "git log -1 origin/main 2026-09-04T03:13:18Z subject #179",
+    "status": "verified_this_host"
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
