@@ -1,0 +1,108 @@
+{
+  "authority": "NONE",
+  "excluded": [
+    "Windows CLI",
+    "replay harness",
+    "fixture factory",
+    "datasets",
+    "old receipts"
+  ],
+  "executable": false,
+  "files": {
+    "octopus_exec/__init__.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/__init__.py",
+      "sha256": "e1003fde781e50e31a02f92d2c44d34de1a5b2d53f0a07515b3ae3eaa2436696"
+    },
+    "octopus_exec/checkpoint.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/checkpoint.py",
+      "sha256": "179d0275521c6622a21d9531cc5ed8770c5ec5c6771312f2ac44051a9b609df0"
+    },
+    "octopus_exec/contracts.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/contracts.py",
+      "sha256": "c49ab747ff956a41c3bb5af052d7a8a8e86a8f7b046cceb4463806714ff41a49"
+    },
+    "octopus_exec/experience.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/experience.py",
+      "sha256": "95ac66e69e6d7f299720360f172221f8f594bde85fc26231074b657cb4afb37c"
+    },
+    "octopus_exec/handoff.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/handoff.py",
+      "sha256": "15f7eaaa717467d3a6c86c292a252f9f10a75b0416375e5015f210542e208239"
+    },
+    "octopus_exec/resource_budget.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/resource_budget.py",
+      "sha256": "56cd21521d10ab7596ba37751e6a6b5cef5c554f964f7ea5fe7e3e22ef4241c2"
+    },
+    "octopus_exec/snapshot_reader.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/snapshot_reader.py",
+      "sha256": "580dd1865d0245062ea92490e32675db06bd921698deae2bf90614a457d502c0"
+    },
+    "octopus_exec/topology.py": {
+      "origin": "EXEC-001/sandbox-repo/octopus_exec/topology.py",
+      "sha256": "f87a9884f4fb741da9fc1814aa0bb724b41d74130f44b69d98e9590d132c8b0c"
+    },
+    "ofn/adapters/organism_shadow.py": {
+      "origin": "BOARD-EXEC-001-INTEGRATION-001/candidate/ofn/adapters/organism_shadow.py",
+      "sha256": "0a2de4d38a6027d8f86d1d8c2536420be3c0b2fec7f0740817feb25518151a22"
+    },
+    "ofn/adapters/runtime_provenance.py": {
+      "origin": "BOARD-EXEC-001-INTEGRATION-001/candidate/ofn/adapters/runtime_provenance.py",
+      "sha256": "62092c2e992b46f7720229aff163fe12f8793daa953e4e51d6815513617e360e"
+    },
+    "ofn/adapters/self_model_producer.py": {
+      "origin": "BOARD-EXEC-001-INTEGRATION-001/candidate/ofn/adapters/self_model_producer.py",
+      "sha256": "077c77465a9fbf1160edee9f297d59d018eabcf410c8357e4cb2e251ac5b9817"
+    },
+    "shadow_homeostasis/__init__.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/__init__.py",
+      "sha256": "480591ce5442570f9f57eb074b9318dc374957cc7777dbca360b146b1a28a0bf"
+    },
+    "shadow_homeostasis/canonical.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/canonical.py",
+      "sha256": "7f8c5ec7954dd622e241c99b05e3cbc9412696c7630863dd70e3ab3a252fac84"
+    },
+    "shadow_homeostasis/evidence_store.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/evidence_store.py",
+      "sha256": "2cd0e75862ece5af47bf22acb6b058ed18d11855c5158b6bb7086797c070b4fe"
+    },
+    "shadow_homeostasis/homeostasis.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/homeostasis.py",
+      "sha256": "653f83f3f8bc70c1696f984b8e863682f86bfb2d8344d716e663c3fa66680cd9"
+    },
+    "shadow_homeostasis/metacontrol.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/metacontrol.py",
+      "sha256": "a731adcddc37517d813157ce9355686e9a4eb9d61c378dfb71b494746d5a97cf"
+    },
+    "shadow_homeostasis/observation.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/observation.py",
+      "sha256": "f712598aa9ce4c62fd399ab56a37956a0b71fd475db2af5381d7e6a3b69d0edd"
+    },
+    "shadow_homeostasis/pipeline.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/pipeline.py",
+      "sha256": "9f81e1bac5cd246f6b50be4888c92686c6b7c95ba2eb464c5d1c0ec0483efa8f"
+    },
+    "shadow_homeostasis/registry.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/registry.py",
+      "sha256": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b"
+    },
+    "shadow_homeostasis/trust.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/trust.py",
+      "sha256": "205c1d12a75afc9ab5c08d7cc812ef6e59d2866ce5c9f82f1c19567975c9b6eb"
+    },
+    "shadow_homeostasis/world_model.py": {
+      "origin": "EXEC-001/sandbox-repo/shadow_homeostasis/world_model.py",
+      "sha256": "3f7b201b0a7f22d3bcc6c0168739bff489f9376aa80e4bd7c06ca75a5d587fb3"
+    },
+    "tests/test_organism_shadow.py": {
+      "origin": "BOARD-EXEC-001-INTEGRATION-001/candidate/tests/test_organism_shadow.py",
+      "sha256": "ac8efaf1655870477e458ac7c136b0567684d17111e6fe6cd5f57c6b7e543bdc"
+    },
+    "tests/test_runtime_provenance.py": {
+      "origin": "BOARD-EXEC-001-INTEGRATION-001/candidate/tests/test_runtime_provenance.py",
+      "sha256": "981cd267219527b2e671152862e817d1d6ce75d96d456a2bba924a80c96621ad"
+    }
+  },
+  "observed_at_epoch": 1788510084.3098521,
+  "original_package_source_hash": "333f44ac4cf2448c05540cde6b05599d577683f84cf69a71cd074a68f96fa84c",
+  "schema": "octopus.exec-001-runtime-subset.v1"
+}

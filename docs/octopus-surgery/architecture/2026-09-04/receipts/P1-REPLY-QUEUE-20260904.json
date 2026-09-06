@@ -1,0 +1,74 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-REPLY-QUEUE-20260904",
+  "issued_utc": "2026-09-04T03:26:13Z",
+  "author": "cursor-cloud owner-absent automation (PR 182 CI fix)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-182-reply-queue on feat/reply-queue-bridge-ci-fix parent 4a5257fd10104483730c85a3007c5bafa40f12b5 (origin feat/reply-queue-bridge-20260904 + refs/pull/182/head MATCH 2026-09-04T03:24:47Z). /workspace stayed on cursor/taskenvelope-system-hardening-f900 @4a5257f and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on the follow-up SHA (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr view egress-blocked this-run)",
+    "pytest module (ModuleNotFoundError on this host; stdlib unittest used)"
+  ],
+  "action": "Fix test_append_to_queue assert-after-restore on the default home QUEUE path. Assert the injected tmp queue while the patch is applied. Fail-closed skip of malformed proposals. Same PR #182. Not a second reply-queue PR.",
+  "delivered": {
+    "tools/reply_queue_bridge.py": "append_to_queue skips non-dict / missing-evidence / non-numeric confidence; empty list does not mkdir; grants_send / ready_is_authorized / promotes_ready_to_send structurally False",
+    "tests/test_reply_queue_bridge.py": "unittest + temp_dir; assert tmp queue before restore; default path stays unwritten; empty list creates nothing; malformed skipped; no network import"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_reply_queue_bridge tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_gate tests.test_chaos_owner_absent tests.test_token_ceiling -q",
+    "ran_at_utc": "2026-09-04T03:26:06Z",
+    "parent_head_full": "4a5257fd10104483730c85a3007c5bafa40f12b5",
+    "exit_code": 0,
+    "result": "209 passed / 0 failed / 0 skipped (stdlib unittest; 'Ran 209 tests in 0.704s OK')",
+    "new_module": {
+      "command": "python3 -X utf8 -m unittest tests.test_reply_queue_bridge -q",
+      "ran_at_utc": "2026-09-04T03:26:13Z",
+      "exit_code": 0,
+      "result": "7 passed / 0 failed / 0 skipped"
+    },
+    "ci_repro": {
+      "ubuntu_job": "100899044307",
+      "windows_job": "100899044206",
+      "failed_test": "tests/test_reply_queue_bridge.py::test_append_to_queue",
+      "asserted_path_ubuntu": "/home/runner/ofn/data/state/OWNER-QUEUE.md",
+      "asserted_path_windows": "C:/Users/runneradmin/ofn/data/state/OWNER-QUEUE.md",
+      "cause": "finally restored QUEUE then asserted exists() on the default home path"
+    },
+    "runner": "stdlib unittest (pytest ModuleNotFoundError)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-182-reply-queue).",
+    "worktree": "/tmp/ofn-182-reply-queue",
+    "file_lock_zone": [
+      "tools/reply_queue_bridge.py",
+      "tests/test_reply_queue_bridge.py",
+      "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-REPLY-QUEUE-20260904.json",
+      "09-LANES/P1-REPLY-QUEUE/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "empty proposals → 0, queue file not created",
+      "default home QUEUE path not created",
+      "exists() after restore is not evidence of write",
+      "missing evidence / non-dict / bad confidence skipped",
+      "grants_send False; ready_is_authorized False; promotes_ready_to_send False",
+      "campaign_envelope_ready structurally ≠ send_authorized",
+      "no smtplib / http.client / urllib.request / socket import"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets printed/rotated, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, quote_sent forbidden",
+  "external_effects": 0
+}
