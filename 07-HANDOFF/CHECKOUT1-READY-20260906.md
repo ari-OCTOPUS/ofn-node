@@ -57,3 +57,17 @@ checkout1    : READY — مالک می‌تواند بخرد
 ```
 
 دو رسید مکمل: `board138:~/octopus-mesh/receipts/shelf1-20260905/SHELF-1-RECEIPT.json` (5 صفحه، http 200، شاهد ۱۸۲) + این صحه‌گذاری laptop.
+
+## طبقهبندی درست این تراکنش (تصحیح battery run-2)
+
+```yaml
+checkout_1:
+  customer_class: "OWNER_TEST"
+  verified_cash_eligible: false
+  row_class: "INFRA"
+  proves:      [payment_rail, order_object, webhook, fulfillment_path]
+  does_not_prove: [stranger_demand, discoverability, price_acceptance]
+  t29_after_purchase: 0   # فقط یک پرداخت غیرمالک T-29 را حرکت میدهد
+```
+
+این خرید را انجام بده — ولی بدان که «اثبات ریل» است، نه «VERIFIED_CASH». مشتری غریبه همان قدم T-29 را باز میکند.
