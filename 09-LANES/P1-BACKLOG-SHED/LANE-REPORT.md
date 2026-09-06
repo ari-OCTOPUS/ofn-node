@@ -26,7 +26,8 @@ Lane ID: P1-BACKLOG-SHED. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complemen
 |---|---|---|---|---|
 | Related suite (parent) | 498 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-06T09:24:35Z / parent `6ca0d6f01e61512bf60e3aedc466de6dd8e201e4` | docs/octopus-surgery/architecture/2026-09-06/receipts/P1-BACKLOG-SHED-20260906.json | E3 | verified |
 | New-module + purity | 80 passed (backlog 45 / shed 18 / chaos 7 / purity 10) @ 2026-09-06T09:24:26Z | same isolated worktree | E3 | verified |
-| Receipt path | docs/octopus-surgery/architecture/2026-09-06/receipts/P1-BACKLOG-SHED-20260906.json | this lock-zone | E2 | verified after hash |
+| Related suite (post-commit) | 498 passed / 0 failed / 0 skipped / exit 0 @ 2026-09-06T09:25:11Z / HEAD `590ee8653129705b16d5c47ae0e8ca2ce2eada73` | same command in isolated worktree | E3 | verified |
+| Receipt SHA-256 | `aa6c5c7a7671410646bb1e38a64a472684caaf761db67c399a58d0b0f7ef4f55` / 6217 bytes | docs/octopus-surgery/architecture/2026-09-06/receipts/P1-BACKLOG-SHED-20260906.json | E2 | verified |
 | D-27 blob | sha256 c55f9085… / 5469 bytes | this-host file on origin/main | E2 | verified |
 | D-28 blob | sha256 c79f0e74… / 16212 bytes | this-host file on origin/main | E2 | verified |
 | MASTER-BLUEPRINT / CONTRIBUTING on main | absent | origin/main @6ca0d6f | E0 | UNKNOWN, not FALSE |
