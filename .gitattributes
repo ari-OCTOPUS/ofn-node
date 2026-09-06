@@ -1,0 +1,4 @@
+# Byte-faithful frozen advisory sources (organism_shadow identity pins).
+# Any line-ending conversion would break the frozen sha256 guarantees.
+shadow_homeostasis/registry.py -text
+shadow_homeostasis/metacontrol.py -text
