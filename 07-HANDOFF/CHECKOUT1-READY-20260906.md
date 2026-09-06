@@ -1,6 +1,6 @@
 ---
 title: CHECKOUT-1 READY — بستهٔ خرید تستی مالک
-updated: 2026-09-06T01:55:00Z
+updated: 2026-09-06T05:15:00Z
 tags: [octopus, checkout1, verified-cash, draft]
 ---
 
@@ -38,3 +38,22 @@ OMLL_LOOP     = این تراکنش، outcomeِ بازوی baseline/مدل رت�
 ## اگر صفحه ناقص بود
 
 اسکرین‌شات + نام فیلد ناقص → همان یک محصول را کامل می‌کنم (CAP-3 با همین بسته می‌شود؛ محصول تازه لازم نیست).
+
+## رسید صحه‌گذاری بیرونی (vantage دوم، 2026-09-06 ~05:00Z)
+
+صفحه از این ماشین (vantage مستقل از 138) با fetch بیرونی بررسی شد — بدون خطا، همهٔ فیلدها PASS:
+
+```text
+fetched_from : laptop (vantage #2; #1 = board138 2026-09-05T08:20Z SHELF-1-RECEIPT.json)
+title        : "Kitty Bubble Balloon Gift Box with Pink Roses & Chocolates"  (PASS)
+price        : $45.00 AUD                                              (PASS)
+media        : 3 thumbnails + main image                                (PASS)
+availability : "Add to cart" present — not out of stock                (PASS)
+shipping     : "Flat-rate shipping is AUD $20 Australia-wide."          (PASS)
+description  : present (bubble balloon, Kitty doll, chocolates, pink roses) (PASS)
+stock_note   : Shopify inventory untracked (inventory_qty=0, tracked=false) — sellable;
+               182 caveat FAIL_UNPROVEN stands until explicit qty — no fabricated stock
+checkout1    : READY — مالک می‌تواند بخرد
+```
+
+دو رسید مکمل: `board138:~/octopus-mesh/receipts/shelf1-20260905/SHELF-1-RECEIPT.json` (5 صفحه، http 200، شاهد ۱۸۲) + این صحه‌گذاری laptop.

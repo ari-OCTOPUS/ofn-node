@@ -160,3 +160,53 @@ items (structured Q&A, all approved); the three permanent locks were NOT touched
 - ofn-node: close PR #208; delete branch `feat/leads-master-73` on both remotes (ce58cbf/#206 content
   stays in main untouched).
 - Digest fix revert = single hunk in `tools/owner_digest.py`.
+
+## 8. Round 39 — board ops: worker heal + ctx root cause + SHELF-1 re-verify (2026-09-06 ~04:40–05:20Z)
+
+Session: owner approved «restart llama (پس از پنجره), CHECKOUT-1, SHELF-1» → executed from F:\backup.
+
+### 8.1 Worker crash found & healed (180)
+- Symptom: `octopus-cognitive-worker.service` crash-loop every ~50s, `NameError: _model_healthy` at
+  `octopus_cognitive_worker.py:1209` (dangling call from the 04:12–04:14Z patch attempt; the 04:12Z
+  `.preimage` (69,120 B) had the ORIGINAL deny gate `may_authorize=False and not owner_packet_present`).
+- Fix: preserved broken file as `octopus_cognitive_worker.py.bak-nameerror-20260906T0449Z`, restored
+  preimage → sha256 `78178eacf01d28700f27ee5cfd32b6abcbb54d8ffd3aeebd20e2ea560e541e15` (live == preimage), py_compile OK.
+- Proof: run 2026-09-06T04:45:53Z green: `{"status":"wake_ok","reason":"DENY_NO_OWNER_PACKET_BACKOFF",...}` — no crash.
+- Lesson (hazard, like sparse-reapply): sed/patch attempts leave orphan call sites; always `py_compile` + one `--once` run before leaving.
+
+### 8.2 Root cause of model_called=false since wedge (proven, E3 boundary)
+- Chain: deny gate opens when wake carries owner packet (ARM-ALL-ALLOWED 02:33Z, PAINTING-RANK-DRAFT 03:2xZ)
+  → worker POSTs lane memory contexts (painting 1585 tok, ziman 1805 tok) to llama 8081
+  → llama runs `--ctx-size 2048 --parallel 2` ⇒ **1024 tokens per slot**
+  → HTTP 400 `exceed_context_size_error` (probe: 1256-token prompt → 400 n_ctx=1024)
+  → adapter HTTPError → receipts `ok:false reason=HTTPError` (4 wakes: T023010/T024510/T030007/T033011 — frozen, immutable).
+- Sep-5 T233010Z wake receipts show `TimeoutError` = pre-restart wedge era (llama healthy since 23:36:45Z restart).
+- Fix (owner-approved, deferred): at 12:00Z refute horizon, restart llama with `--ctx-size 8192` (4096/slot; RAM-verified: RSS ~853 MB of MemoryHigh 1800 M, growth ~180 MB). FULL RUNBOOK in §8.4.
+
+### 8.3 SHELF-1 status — ALREADY VERIFIED 2026-09-05, re-verified from 2nd vantage today
+- 138 receipt `~/octopus-mesh/receipts/shelf1-20260905/SHELF-1-RECEIPT.json`: 5 SKUs ACTIVE http 200
+  (ZM-GALLERY-0011/0012/0013/0015/0016), 182 witness PASS_WITH_CAVEAT (stock FAIL_UNPROVEN →
+  inventory_qty 0/untracked; gate: explicit qty before claiming verified).
+- TODAY 2nd-vantage (this laptop, external fetch of ziman-gift.com product page, ~05:00Z):
+  ZM-GALLERY-0013 (kitty bubble balloon box) loads error-free; title/price $45.00 AUD/3 media/
+  Add-to-cart present (not out of stock)/shipping AUD $20 flat/description — ALL FIELDS PASS.
+- ⇒ SHELF-1 publish loop closed (5 live pages + 2-vantage fetch). Stock dimension remains the one
+  FAIL_UNPROVEN (Shopify inventory untracked — storefront truth: sellable). CHECKOUT-1 is the consumer step.
+
+### 8.4 NEXT (round 40, ~12:00Z): llama ctx-8192 restart runbook + prereg verdict
+1. Health check first: `curl -s -m 5 http://127.0.0.1:8081/health` (must be ok — refute horizon 12:00:00Z).
+2. If wedged since window (05:33:18–05:46:23Z): DO NOT RESTART — witness (journal/slots/RSS/fd) →
+   WEDGE-2-WITNESS, verdict H-TIME_SUPPORTED, owner vote needed.
+3. If healthy: write PREREG-WEDGE-2-OUTCOME.json verdict H-TIME_REFUTED (healthy until 12:00:00Z), then:
+   `cp /etc/systemd/system/octopus-llama-lab.service.d/*.conf <same>.preimage-20260906T1205Z`
+   `sed -i 's/--ctx-size 2048/--ctx-size 8192/' /etc/systemd/system/octopus-llama-lab.service.d/*.conf`
+   `systemctl daemon-reload && systemctl restart octopus-llama-lab.service`
+   Verify: is-active, /health, /slots n_ctx 4096/slot, boundary POST ~1600 tok → 200 (not 400).
+   Receipt → `F:\wt-capability-school-20260905\ops\p0-wedge\LLAMA-CTX-8192-RESTART-RECEIPT-20260906.json`.
+- Note: no authorized wake is queued (all packet wakes consumed+frozen), so MODEL_OK end-to-end proof
+  needs the next fresh owner packet wake; ctx proof via boundary POST stands alone until then.
+
+### 8.5 CHECKOUT-1 — card for owner (re-issued)
+Buy ZM-GALLERY-0013 https://ziman-gift.com/products/kitty-bubble-balloon-gift-box-with-pink-roses-and-chocolates (A$45) →
+send `order_id` + `payout/confirmation_id`. Page re-verified today (all fields). `checkout1_poll.py` armed on 138
+(read-only admin poll) → agent closes receipt `REPORTED_NOT_VERIFIED` → rail proof.
