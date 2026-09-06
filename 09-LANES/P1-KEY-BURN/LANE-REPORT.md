@@ -60,3 +60,30 @@ bind + burn pin.
 
 ZERO. Ready ≠ authorized. No send re-arm. No admin bypass.
 Worktrees not pruned.
+
+## Addendum — 2026-09-06T02:19Z require-fresh-base (#171)
+
+Trigger: check-suite failure `require-fresh-base` on
+`feat/p1-key-burn-20260903` @`f0087d54780e9c8a36364b9fa50abc874c4340cc`
+(PR #171; job 101413445640). Independently confirmed: 3 ahead / 1 behind
+`origin/main`; missing `4ebdffb38f2eb91032075fd07675db493274e3da` (`#125`
+split_view). F-06 stale-base, not REVIEW_REQUIRED.
+
+- Isolated worktree `/tmp/ofn-p1-key-burn` reused the first identifier
+  `feat/p1-key-burn-20260903`. `/workspace` stayed on
+  `cursor/taskenvelope-system-hardening-bec8` @`f0087d5` and was not written.
+- Merge `eb62c6d0655d6943ea33d0ba690a895a769882ef` parents `f0087d5` +
+  `4ebdffb`. Contains `origin/main` (`git merge-base --is-ancestor` YES).
+  key_class blob `e0e832fd55c8e101a86053a23641ff6f47dd4f6f` MATCH pre-merge.
+  burn_pin blob `5a3a5e81f2d1fb59b6cb1d067969c0302e478660` MATCH pre-merge.
+- Tests: 2026-09-06T02:19:29Z merge HEAD `eb62c6d` exit 0 · 460 passed /
+  0 failed / 0 skipped. stdlib unittest. pytest ModuleNotFoundError.
+  Module counts: key_class 29 / burn_pin 25 / chaos 7 / purity 10 /
+  split_view 36 / chaos_split_view 11 / later_hold 43 / scoped_authz 39 /
+  chaos_later 7 / incidents_policy 4.
+- Receipt: `docs/octopus-surgery/architecture/2026-09-06/receipts/P1-KEY-BURN-BASE-20260906.json`
+- Did not rewrite key_class/burn_pin. Did not open a second key-burn PR.
+  Did not merge #171. Did not weaken CODEOWNERS / branch protection.
+- Rollback: `git revert` the merge + this addendum on
+  `feat/p1-key-burn-20260903`. Leaves `origin/main` untouched.
+
