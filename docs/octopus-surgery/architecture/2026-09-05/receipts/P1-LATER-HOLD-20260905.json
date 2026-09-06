@@ -1,0 +1,66 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-LATER-HOLD-20260905",
+  "issued_utc": "2026-09-05T18:28:33Z",
+  "author": "cursor-cloud bc-65f94528-6eff-4b0a-8fc6-6325ac1b0ece (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-later-hold on feat/p1-later-hold-20260905 parent origin/main @f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f (#208). later_hold.py and scoped_authz.py ABSENT on parent (ls). /workspace stayed on cursor/bc-65f94528-6eff-4b0a-8fc6-6325ac1b0ece-5bb4 @f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary later_hold + scoped_authz — new files only. A later hold supersedes an older authorization epoch. Scoped authorization requires explicit + newer + non-wildcard scope and still does not grant a send. campaign_envelope_ready structurally ≠ send_authorized. Not a second campaign-bind, send-fence, phase-wall, flag-freeze, hold-disarm, or revoke-withdraw PR.",
+  "delivered": {
+    "ofn/kernel/later_hold.py": "classify_hold: missing→UNKNOWN; hold>authz→LATER_HOLD; hold<authz→OLDER_HOLD; equal/bool/float/str/negative/sealed send-ready names fail closed; supersedes later→True older→False missing→None; admit_send_after_hold later/older→False missing→None never True; pin_later frozen LATER_HOLD; grants_send/rearms_send/ready_is_authorized structurally False; later_supersedes_older structurally True",
+    "ofn/kernel/scoped_authz.py": "classify_authz: missing any side→UNKNOWN; authz>hold + scoped token→AUTHZ_SCOPED; authz<hold→AUTHZ_STALE; equal/wildcard/empty/sealed/bool fail closed; pin_allows_effect SCOPED/STALE/UNKNOWN→False; pin_scoped frozen AUTHZ_SCOPED; grants_send/rearms_send/scoped_is_send/ready_is_authorized structurally False; later_hold_supersedes_older structurally True; not wired into run_store.py",
+    "tests/test_later_hold.py": "E3 negatives: missing UNKNOWN, same epoch, sealed names, bool/float/str, older pin refuse, frozen retcon, run_store/send_fence/campaign_bind import absence",
+    "tests/test_scoped_authz.py": "E3 negatives: missing UNKNOWN, stale after later hold, wildcard, sealed ready/send as scope, bad token, pin_allows_effect never True",
+    "tests/test_chaos_later_hold.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_campaign_bind tests.test_send_fence tests.test_chaos_campaign_bind -q",
+    "ran_at_utc": "2026-09-05T18:28:33Z",
+    "parent_head_full": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "exit_code": 0,
+    "result": "339 passed / 0 failed / 0 skipped (unittest 'Ran 339 tests in 0.700s' / OK). New-module + purity: 99 passed (later 43 / scoped 39 / chaos 7 / purity 10) @ 2026-09-05T18:28:29Z.",
+    "runner": "stdlib unittest (this command used unittest)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-later-hold).",
+    "worktree": "/tmp/ofn-p1-later-hold",
+    "file_lock_zone": [
+      "ofn/kernel/later_hold.py",
+      "ofn/kernel/scoped_authz.py",
+      "tests/test_later_hold.py",
+      "tests/test_scoped_authz.py",
+      "tests/test_chaos_later_hold.py",
+      "docs/octopus-surgery/architecture/2026-09-05/receipts/P1-LATER-HOLD-20260905.json",
+      "09-LANES/P1-LATER-HOLD/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE",
+      "same epoch fails closed (not later, not newer)",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as epochs or scopes",
+      "admit_send_after_hold(later) is False; missing is None; never True",
+      "pin_allows_effect(AUTHZ_SCOPED) is False",
+      "later_supersedes_older is True; grants_send is False",
+      "run_store source does not import later_hold or scoped_authz"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "campaign_bind / send_fence (#145) / envelope.py / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88) / phase_wall / flag_freeze / unpublished hold_class/disarm_pin / unpublished revoke_class/withdraw_pin (#213) / unpublished void/cancel / unpublished defer/park / unpublished nack/refuse"
+}

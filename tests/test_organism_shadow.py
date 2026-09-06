@@ -20,11 +20,12 @@ CAPTURE = ROOT / "09-LANES/BOARD-EXEC-001-INTEGRATION-001/SOURCE-SNAPSHOT.json"
 GITATTRIBUTES = ROOT / "shadow_homeostasis" / ".gitattributes"
 _SHADOW = ROOT / "shadow_homeostasis"
 
-# windows-latest job 101053713534 @930e0cc94f91a861b6797ffe874d077f31832427
-# (PR #194, 2026-09-04). Autocrlf rewrites LF→CRLF. That is a checkout
-# artefact, not a source change. The LF blob is the contract.
-# Pin: shadow_homeostasis/.gitattributes. This-host LF→CRLF of
-# registry.py MATCH prior GAP-193 witness cfa730c9… .
+# windows-latest job 101086693364 @8819e42efb5e8fb815d979b500105f15c34cab8b
+# (PR #193, 2026-09-04T15:58:56Z). Autocrlf rewrote registry.py LF→CRLF
+# (cfa730c9…). That is a checkout artefact, not a source change.
+# The LF blob is the contract. Pin: shadow_homeostasis/.gitattributes
+# plus root .gitattributes -text. Same CRLF witness as #194 / prior
+# GAP-193 (resolution: null, status: open — both PRs pin the freeze).
 _FREEZE_LF = {
     "registry.py": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b",
     "metacontrol.py": "a731adcddc37517d813157ce9355686e9a4eb9d61c378dfb71b494746d5a97cf",
@@ -81,6 +82,13 @@ class OrganismShadowTests(unittest.TestCase):
         text = GITATTRIBUTES.read_text(encoding="utf-8")
         self.assertIn("eol=lf", text)
         self.assertIn("*.py", text)
+
+    def test_frozen_files_are_byte_faithful_in_root_gitattributes(self):
+        root_attr = ROOT / ".gitattributes"
+        self.assertTrue(root_attr.is_file())
+        text = root_attr.read_text(encoding="utf-8")
+        self.assertIn("shadow_homeostasis/registry.py -text", text)
+        self.assertIn("shadow_homeostasis/metacontrol.py -text", text)
 
     def test_content_edit_breaks_freeze(self):
         for name, sha in _FREEZE_LF.items():
