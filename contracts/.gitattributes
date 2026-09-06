@@ -1,0 +1,7 @@
+# Frozen F1 contract. Windows autocrlf must not rewrite bytes.
+# Guard: tests/test_runtime_truth_contract_frozen.py
+#   test_frozen_lock_matches_contract
+#   test_windows_crlf_checkout_is_a_known_hash_not_the_source
+#   test_hashed_contract_checkout_is_pinned_lf
+*.py text eol=lf
+*.lock text eol=lf

@@ -41,6 +41,10 @@ import opslib  # noqa: E402
 SCHEMA = "octopus.doctor.v1"
 REPORT_PATH = opslib.STATE_DIR / "doctor" / "report.json"
 PULSE_MAX_AGE_S = 2 * 3600  # دو تیکِ تایمرِ ساعتی (مقصد: نبض قدیمی = UNHEALTHY)
+# سقفِ تازگیِ آخرین اجرای یک oneshot. محافزه‌کارانه (یک تیکِ روزانه
+# + حاشیه) تا تایمرهای روزانه هشدارِ کاذب ندهند. سخت‌کردنِ این سقف بر پایهٔ
+# دورهٔ خودِ تایمر، کارِ مجزا است (خارج از دامنهٔ این اصلاح).
+ONESHOT_MAX_AGE_S = 26 * 3600
 
 # دسته‌بندی پرچم‌ها: کدام بارِ واقعی دارد و کدام فقط ابراز نیت است
 # (config.py:78-81 — OFN_WIRE_OUTBOUND را هیچ کد production نمی‌خواند).
@@ -100,6 +104,30 @@ def _sha256_file(path: Path) -> str | None:
         return None
 
 
+def _oneshot_last_run_age_s(
+    props: Mapping[str, str], now_monotonic: float
+) -> float | None:
+    """سنِ آخرین اجرای یک یونیت oneshot بر پایهٔ CLOCK_MONOTONIC.
+
+    systemd مقدار را به میکروّانیه از زمان بوت می‌دهد؛ صفر یعنی هنوز خارج نشده.
+    هر ناتوانی در خواندن یا تفسیر → None، تا فراخوان fail-closed بماند
+    (قاعدهٔ «UNKNOWN، هرگز حدس»). پس اگر این property روی نسخهٔ systemd
+    میزبان وجود نداشته باشد، رفتار به همین امروز (UNKNOWN) برمی‌گردد
+    و هرگز به HEALTHYِ کاذب نمی‌رسد.
+    """
+    raw = props.get("ExecMainExitTimestampMonotonic", "").strip()
+    if not raw:
+        return None
+    try:
+        exited_us = int(raw)
+    except ValueError:
+        return None
+    if exited_us <= 0:
+        return None
+    age = now_monotonic - (exited_us / 1_000_000)
+    return age if age >= 0 else None
+
+
 def _run(cmd: list[str], timeout: int = 15) -> tuple[int, str]:
     """اجرای فقط-خواندنی و fail-soft. خروجی هرگز پروسه را نمی‌کشد."""
     try:
@@ -116,8 +144,10 @@ def _run(cmd: list[str], timeout: int = 15) -> tuple[int, str]:
 def probe_units(
     runner: Callable[[list[str]], tuple[int, str]] = _run,
     now_iso: str | None = None,
+    now_monotonic: float | None = None,
 ) -> list[Measurement]:
     ts = now_iso or opslib.now_iso()
+    mono = time.monotonic() if now_monotonic is None else now_monotonic
     out: list[Measurement] = []
     if shutil.which("systemctl") is None:
         out.append(Measurement(
@@ -137,7 +167,9 @@ def probe_units(
     for unit in units:
         rc_u, body = runner(
             ["systemctl", "show", unit, "--property=ActiveState",
-             "--property=Result", "--property=UnitFileState"])
+             "--property=Result", "--property=UnitFileState",
+             "--property=Type",
+             "--property=ExecMainExitTimestampMonotonic"])
         if rc_u != 0:
             out.append(Measurement(
                 f"unit.{unit}", None, Verdict.UNPROBED, "systemctl show", ts,
@@ -150,7 +182,10 @@ def probe_units(
         active = props.get("ActiveState", "")
         result = props.get("Result", "")
         file_state = props.get("UnitFileState", "")
-        cmd = f"systemctl show {unit} --property=ActiveState,Result,UnitFileState"
+        svc_type = props.get("Type", "")
+        cmd = (f"systemctl show {unit} --property=ActiveState,Result,"
+               f"UnitFileState,Type,ExecMainExitTimestampMonotonic")
+        age: float | None = None
         if result == "exit-code" or active == "failed":
             v, detail = Verdict.UNHEALTHY, f"Result={result} ActiveState={active}"
         elif active == "active":
@@ -158,11 +193,51 @@ def probe_units(
         elif file_state == "disabled":
             # خاموشِ عمدی: خودش خرابی نیست، ولی «سالم» هم نیست تا رأی/رسیدش دیده شود
             v, detail = Verdict.UNKNOWN, "disabled — deliberate? check ruling receipt"
+        elif active == "activating":
+            # GAP-065: unit running right now (the doctor itself
+            # or a same-tick sibling) - judging before its receipt
+            # lands is ugly; next tick judges with a real age.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now - self-observation race; "
+                "next tick will judge with a real age")
+        elif active == "activating":
+            # GAP-065: unit running right now (the doctor itself
+            # or a same-tick sibling) - judging before its receipt
+            # lands is ugly; next tick judges with a real age.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now - self-observation race; "
+                "next tick will judge with a real age")
+        elif active == "activating":
+            # GAP-065: unit running right now (the doctor itself
+            # or a same-tick sibling) - judging before its receipt
+            # lands is ugly; next tick judges with a real age.
+            v, detail = Verdict.UNKNOWN, (
+                "activating right now - self-observation race; "
+                "next tick will judge with a real age")
+        elif (svc_type == "oneshot" and result == "success"
+              and active in ("inactive", "dead")):
+            # oneshotِ بینِ دو اجرا: inactive+success حالتِ طبیعیِ اوست، نه ابهام.
+            # سنجهٔ درست، تازگیِ آخرین اجراست نه ActiveState — وگرنه هر oneshotِ
+            # سالم بین دو شلیک، UNKNOWNِ کاذب می‌شود و دکتر بی‌اعتبار می‌ماند.
+            age = _oneshot_last_run_age_s(props, mono)
+            if age is None:
+                v, detail = Verdict.UNKNOWN, (
+                    "oneshot: last-run age unavailable — "
+                    "ExecMainExitTimestampMonotonic missing or unparseable")
+            elif age <= ONESHOT_MAX_AGE_S:
+                v, detail = Verdict.HEALTHY, (
+                    f"oneshot between runs — last exit {int(age)}s ago, "
+                    f"Result=success ({file_state})")
+            else:
+                v, detail = Verdict.UNHEALTHY, (
+                    f"oneshot last exit {int(age)}s ago > {ONESHOT_MAX_AGE_S}s — "
+                    "timer likely not firing")
         else:
             v, detail = Verdict.UNKNOWN, f"ActiveState={active} Result={result}"
         out.append(Measurement(
             f"unit.{unit}", {"active": active, "result": result,
-                             "file_state": file_state},
+                             "file_state": file_state, "type": svc_type,
+                             "last_run_age_s": None if age is None else int(age)},
             v, "systemctl show", ts, cmd, detail=detail, family="units"))
     return out
 
@@ -173,7 +248,16 @@ def probe_pulse(
     events_path: Path | None = None,
     now: float | None = None,
     now_iso: str | None = None,
+    writer_ages_s: dict[str, float | None] | None = None,
 ) -> list[Measurement]:
+    """نبضِ بیزینس + تمایز «آرام» از «مرده» (GAP-018).
+
+    events.jsonl فقط وقتی رویدادِ بیزینس می‌آید نوشته می‌شود؛ صندوقِ خالی
+    یعنی سکوت، نه مرگی — تا وقتی نویسنده‌ها (imap/quote/scheduler) تازه
+    اجرا شده باشند. نویسندهٔ زنده + رویداد کهنه = HEALTHY با برچسبِ quiet؛
+    فقط وقتی UNHEALTHY است که رویداد کهنه باشد **و** نویسنده‌ها هم به‌مرور
+    سرد شده باشند. سنِ نویسنده‌ها از همان سنجهٔ GAP-017 می‌آید
+    (ExecMainExitTimestampMonotonic)."""
     ts = now_iso or opslib.now_iso()
     p = events_path or (opslib.STATE_DIR / "legs" / "lead-inbox" / "events.jsonl")
     if not p.exists():
@@ -185,18 +269,53 @@ def probe_pulse(
             .rstrip("\n").splitlines()[-1]
         occurred = json.loads(last_line).get("occurred_at", "")
         age = (now if now is not None else time.time()) - _parse_iso(occurred)
-        verdict = (Verdict.HEALTHY if age <= PULSE_MAX_AGE_S
-                   else Verdict.UNHEALTHY)
+        if age <= PULSE_MAX_AGE_S:
+            verdict, detail = Verdict.HEALTHY, None
+        else:
+            ages = writer_ages_s if writer_ages_s is not None \
+                else _pulse_writer_ages()
+            fresh_writers = [
+                u for u, a in ages.items()
+                if a is not None and a <= PULSE_MAX_AGE_S]
+            if fresh_writers:
+                verdict = Verdict.HEALTHY
+                detail = (f"quiet — empty is not dead: no business event for "
+                          f"{int(age)}s but writers fresh "
+                          f"({', '.join(sorted(fresh_writers))})")
+            else:
+                verdict = Verdict.UNHEALTHY
+                detail = ("stale beyond two timer ticks AND no fresh writer "
+                          "unit — this is death, not quiet")
         return [Measurement(
             "pulse.events", {"last": occurred, "age_s": round(age, 1)},
             verdict, "file", ts, f"tail -1 {p}",
-            detail="stale beyond two timer ticks" if verdict ==
-            Verdict.UNHEALTHY else None, family="pulse")]
+            detail=detail, family="pulse")]
     except (OSError, ValueError, IndexError):
         return [Measurement(
             "pulse.events", None, Verdict.UNKNOWN, "file", ts, f"tail -1 {p}",
             detail="unreadable/corrupt last receipt — fail closed",
             family="pulse")]
+
+
+_PULSE_WRITER_UNITS = ("octopus-imap", "octopus-quote", "octopus-scheduler")
+
+
+def _pulse_writer_ages(now_monotonic: float | None = None) -> dict:
+    """سنِ آخرین اجرای نویسنده‌های events.jsonl — از سنجهٔ GAP-017."""
+    mono = time.monotonic() if now_monotonic is None else now_monotonic
+    ages: dict[str, float | None] = {}
+    for unit in _PULSE_WRITER_UNITS:
+        rc, body = _run(
+            ["systemctl", "show", unit, "--property=Type",
+             "--property=ExecMainExitTimestampMonotonic"])
+        if rc != 0:
+            ages[unit] = None
+            continue
+        props = dict(
+            (k, v) for k, _, v in
+            (ln.partition("=") for ln in body.splitlines() if "=" in ln))
+        ages[unit] = _oneshot_last_run_age_s(props, mono)
+    return ages
 
 
 def _parse_iso(s: str) -> float:
