@@ -254,3 +254,16 @@ expected at 12:00:00Z horizon; then execute §8.4 ctx-8192 restart runbook).
   بدون امضا مسدود) با GO بعدی مالک. تا آن لحظه scheduler رفتار فعلی را دارد (هیچ چیز مسدود نشد).
 - llama سالم (06:09Z health ok) · swap ctx-8192 همچنان 12:05Z پس از نوشتن H-TIME_REFUTED.
 - CHECKOUT-1: منتظر order_id.
+
+### 8.9 Round 41 — امضای مالک landed و ۹/۹ تأیید شد (06:4xZ)
+
+مالک خودش ۹ پاکت را با Ed25519 امضا کرد (`key_fp16=2413e9746f13afc9`). من فقط `.sig` + manifest +
+**کلید عمومی** را به ۱۳۸ بردم (کلید خصوصی هرگز از لپتاپ بیرون نیامد):
+
+- fingerprint حملشده = fp چاپشدهٔ اسکریپت مالک → **pin شد** به `registry/owner-key-fp.txt`
+- verifier (sha `95dc9d4b…`، selftest 3/3) روی **بایت‌های اصلی ۱۳۸** اجرا شد: **PASS=9 FAIL=0**
+  شامل UNLOCK-L1/L2 (قبلاً NOT_AUTHENTICATED) → الان رسماً مالکِ احرازشده
+- زنجیرهٔ custody: queue کپیهای byte-exact از scp بود → امضای لپتاپ = بایتِ ۱۳۸
+- باقیمانده: enforcement flip (ورود پاکت unsigned مسدود) با GO بعدی مالک + binding برای
+  jsonهای wake-سوار؛ rescore رسمی effective_cap در battery بعدی
+- رسید: `ops/p0-wedge/OWNER-SIG-CORPUS-RECEIPT-20260906.json`
