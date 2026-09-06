@@ -1,0 +1,156 @@
+{
+  "schema": "octopus.captured-status-rows.v1",
+  "source_path": "/home/ari/ofn/state/self-model/SYSTEM-SELF-MODEL.json",
+  "source_sha256": "8e2a1b3c256a58013e2dab212a27984f03d30b6dd09b0808d9df192a915293ec",
+  "captured_at_epoch": 1788509739.778736,
+  "generated_epoch": 1788508802.404776,
+  "generated_at": "2026-09-04T08:00:02Z",
+  "model": {
+    "sensors": [
+      {
+        "sensor_id": "code_identity",
+        "status": "healthy",
+        "value": "c75473af9eb2439b5cc96a59ca629920416349e7",
+        "source": "git:HEAD",
+        "observed_epoch": 1788508802.404776
+      }
+    ],
+    "processes": [
+      {
+        "sensor_id": "process_bridge",
+        "status": "healthy",
+        "value": true,
+        "source": "unit:octopus-bridge.service",
+        "observed_epoch": 1788508802.404776
+      },
+      {
+        "sensor_id": "process_control_router",
+        "status": "healthy",
+        "value": true,
+        "source": "unit:octopus-control-router.service",
+        "observed_epoch": 1788508802.404776
+      },
+      {
+        "sensor_id": "process_cycle_settler",
+        "status": "healthy",
+        "value": true,
+        "source": "unit:octopus-cycle-settler.service",
+        "observed_epoch": 1788508802.404776
+      },
+      {
+        "sensor_id": "process_router",
+        "status": "healthy",
+        "value": true,
+        "source": "unit:octopus-router.service",
+        "observed_epoch": 1788508802.404776
+      },
+      {
+        "sensor_id": "process_supervisor",
+        "status": "healthy",
+        "value": true,
+        "source": "unit:octopus-supervisor.service",
+        "observed_epoch": 1788508802.404776
+      },
+      {
+        "sensor_id": "process_verify_dispatcher",
+        "status": "healthy",
+        "value": true,
+        "source": "unit:octopus-verify-dispatcher.service",
+        "observed_epoch": 1788508802.404776
+      }
+    ],
+    "capabilities": [
+      {
+        "sensor_id": "capability_cockpit_read_model",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/cockpit_v2_read_model.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_halt_flag_adapter",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/halt_flag.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_halt_layer3",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/kernel/halt.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_known_answer_probe",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/kernel/probe.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_local_brain",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/remote_brain.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_remote_brain",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/remote_brain.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_run_gate",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/run_gate.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_run_store",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/run_store.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_self_model",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/kernel/self_model.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_sender_dryrun",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/adapters/sender_dryrun.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_source_health",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/kernel/source_health.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_task_envelope",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/kernel/envelope.py",
+        "observed_epoch": null
+      },
+      {
+        "sensor_id": "capability_token_ceiling",
+        "status": "healthy",
+        "value": true,
+        "source": "ast:ofn/kernel/token_ceiling.py",
+        "observed_epoch": null
+      }
+    ]
+  }
+}
