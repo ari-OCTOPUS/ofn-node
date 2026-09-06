@@ -64,6 +64,13 @@ class Scenario1DeadSourceIsUnknownNotFalse(unittest.TestCase):
     def test_403_is_parked_policy_not_traffic(self):
         self.assertEqual(sh.classify_fetch(403), sh.PARKED)
 
+    def test_401_and_404_are_unknown_not_false(self):
+        # Not a policy park, not a negative witness.
+        self.assertEqual(sh.classify_fetch(401), sh.UNKNOWN)
+        self.assertEqual(sh.classify_fetch(404), sh.UNKNOWN)
+        self.assertNotEqual(sh.classify_fetch(401), "FALSE")
+        self.assertNotEqual(sh.classify_fetch(404), sh.PARKED)
+
 
 class Scenario2ArmTimeoutOthersContinue(unittest.TestCase):
     def test_sibling_arms_keep_appending(self):
@@ -160,6 +167,27 @@ class Scenario6GlobalHaltStopsNewRuns(unittest.TestCase):
                                    now_epoch_s=_NOW)
             self.assertTrue(flag.is_dir())
             self.assertEqual((flag / "keep").read_text(encoding="utf-8"), "stay")
+
+    def test_halt_stops_starts_not_in_flight_close(self):
+        # Layer-3 stops STARTS. An already-born run may still append
+        # and close — otherwise recovery without the owner is impossible.
+        with tempfile.TemporaryDirectory() as tmp:
+            t = Path(tmp)
+            gate = RunGate(RunStore(t / "runs"), t / "halt.flag")
+            first = gate.start_run(_env("in-flight"), now_epoch_s=_NOW)
+            halt_flag.write_halt(t / "halt.flag")
+            with self.assertRaises(HaltActive):
+                gate.start_run(_env("late", rand="c" * 16), now_epoch_s=_NOW + 1)
+            gate._store.append(ev.make_event(
+                ev.TOOL_INVOKED, first, now_epoch_s=_NOW + 2,
+                payload={"arm": "in-flight"}))
+            gate._store.close(first, now_epoch_s=_NOW + 3)
+            kinds = [e["kind"] for e in gate._store.events_for(first)]
+            self.assertEqual(
+                kinds, [ev.RUN_CREATED, ev.TOOL_INVOKED, ev.RUN_CLOSED])
+            created = [e for e in gate._store.replay()
+                       if e["kind"] == ev.RUN_CREATED]
+            self.assertEqual(len(created), 1)
 
 
 class Scenario7ReversibleRecoveryWithoutOwner(unittest.TestCase):

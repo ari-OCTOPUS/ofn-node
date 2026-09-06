@@ -25,7 +25,7 @@ PARTNER_ID = "7001"
 OWNER_HOST = "panel.test"
 PARTNER_HOST = "studio.test"
 OWNER_TOKEN = "333:owner-token"
-RESOURCES = ("status", "nodes", "legs", "queue", "audit", "version")
+RESOURCES = ("status", "nodes", "legs", "queue", "audit", "version", "surface")
 
 
 def _registry() -> TenantRegistry:
@@ -129,7 +129,7 @@ class TestCockpitV2RealHttp(unittest.TestCase):
         return self.request(
             "GET", path, session=self.owner_session, **kw)
 
-    def test_exact_six_authenticated_routes_and_unknown_suffix(self):
+    def test_exact_seven_authenticated_routes_and_unknown_suffix(self):
         for resource in RESOURCES:
             with self.subTest(resource=resource):
                 status, raw, headers = self.owner_get(

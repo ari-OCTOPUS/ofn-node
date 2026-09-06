@@ -204,5 +204,39 @@
   ],
   "not_duplicated": "aud ceiling / deadline / jsonl symlink already on 59eb5c9 (sibling lane); this commit does not re-implement them",
   "filesystem_immutability": "NOT claimed"
+ },
+ "load_path_debit_dedup_smuggle_20260902T0829Z": {
+  "parent_head_full": "33c94763005f5cf8c766701f408390c49bba0da7",
+  "tree_state": "dirty — this session's lock-zone edits only (/tmp/ofn-p1-xi)",
+  "command": "python3 -m pytest tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=line",
+  "exit_code": 0,
+  "result": "195 passed, 954 subtests passed, 0 failed, 0 skipped",
+  "ran_at_utc": "2026-09-02T08:29:08Z",
+  "worktree": "/tmp/ofn-p1-xi",
+  "file_lock_zone": [
+   "ofn/kernel/events.py",
+   "ofn/adapters/run_store.py",
+   "tests/test_run_store.py",
+   "tests/test_chaos_owner_absent.py",
+   "docs/octopus-os/02-AGENT-CONTRACTS.yaml",
+   "docs/octopus-os/00-OWNER-ABSENCE-PLAN.md",
+   "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ENVELOPE-RUNSTORE-20260902.json"
+  ],
+  "fixes": [
+   "BUDGET_DEBIT on load: orphan ref, cross-run receipt, second debit, and ceiling breach fail-closed (append-time rules now have a load witness)",
+   "duplicate (kind, ref) on load fail-closed",
+   "A3 RUN_CREATED without rollback_plan/rollback_ref fail-closed on load",
+   "payload smuggle scan covers one nested mapping or list/tuple; deeper nesting remains out of scope (not claimed clean)"
+  ],
+  "new_tests": [
+   "nested mapping/list cannot smuggle quote_sent or send_authorized",
+   "orphan / second / cross-run debit on load fail-closed",
+   "duplicate kind+ref on load fail-closed",
+   "token ceiling breach on load fail-closed",
+   "A3 without rollback on load fail-closed",
+   "nested smuggle on load fail-closed"
+  ],
+  "not_duplicated": "#74/#75 already squash-merged to main @dd1d6cc; this is a follow-on, not a second P1 PR of the same files-from-scratch",
+  "filesystem_immutability": "NOT claimed"
  }
 }

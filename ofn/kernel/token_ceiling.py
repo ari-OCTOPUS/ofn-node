@@ -23,7 +23,14 @@ from .quota import NodeQuota
 
 # Names this module refuses to grant. Presence in a Decision.reason or
 # rule would mean the ceiling was smuggled into a send authorization.
-SEND_STATES = frozenset({"send_authorized", "quote_sent"})
+# campaign_envelope_ready is a draft-only name, not a send. Listing it
+# here keeps ready ≠ authorized: a token Decision that mentions it is
+# a defect, not a grant.
+SEND_STATES = frozenset({
+    "send_authorized",
+    "quote_sent",
+    "campaign_envelope_ready",
+})
 
 
 def per_run_fits(budget_tokens: int, already_consumed: int, request: int) -> bool:
@@ -122,6 +129,7 @@ def grants_send(decision: Decision) -> bool:
     blob = f"{decision.rule} {decision.reason}"
     if any(name in blob for name in SEND_STATES):
         raise FailClosedError(
-            "token ceiling Decision mentioned a send state — "
-            "this module does not grant send_authorized")
+            "token ceiling Decision mentioned a send/ready state — "
+            "this module does not grant send_authorized, quote_sent, "
+            "or campaign_envelope_ready")
     return False

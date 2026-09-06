@@ -121,3 +121,15 @@ class BothCeilings(unittest.TestCase):
             rule="token:forged")
         with self.assertRaises(FailClosedError):
             grants_send(poisoned)
+
+    def test_ready_is_listed_and_is_not_a_send_grant(self):
+        # campaign_envelope_ready is a draft name. Mentioning it in a
+        # token Decision is a defect, not authorization.
+        self.assertIn("campaign_envelope_ready", SEND_STATES)
+        self.assertIn("send_authorized", SEND_STATES)
+        self.assertIn("quote_sent", SEND_STATES)
+        poisoned = Decision(
+            True, RiskTier.GREEN, "promote campaign_envelope_ready",
+            rule="token:forged")
+        with self.assertRaises(FailClosedError):
+            grants_send(poisoned)

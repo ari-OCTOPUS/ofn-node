@@ -1,86 +1,58 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<!doctype html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <style>
-    body {
-      width: 320px;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      font-size: 13px;
-      margin: 0;
-      padding: 10px;
-    }
-    h1 { font-size: 14px; margin: 0 0 8px; }
-    #status {
-      min-height: 34px;
-      margin: 6px 0;
-      color: #333;
-      white-space: pre-line;
-    }
-    button {
-      display: block;
-      width: 100%;
-      box-sizing: border-box;
-      margin: 4px 0;
-      padding: 7px 8px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .row { display: flex; gap: 6px; }
-    .row button { flex: 1; }
-    .row input { width: 64px; text-align: center; }
-    small { color: #666; line-height: 1.5; display: block; margin-top: 6px; }
-    details { margin-top: 8px; }
-    details input[type="text"], details input[type="password"] {
-      width: 100%;
-      box-sizing: border-box;
-      margin: 2px 0;
-      padding: 4px;
-    }
-    label.toggle { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-  </style>
+<meta charset="utf-8" />
+<style>
+  :root { color-scheme: light dark; }
+  body { width: 320px; font: 13px/1.4 system-ui, sans-serif; margin: 0; padding: 12px; }
+  h1 { font-size: 14px; margin: 0 0 8px; }
+  .count { font-size: 22px; font-weight: 700; }
+  button { width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #8886; border-radius: 6px;
+           background: #0b63; cursor: pointer; font-size: 13px; }
+  button.primary { background: #0b6; color: #fff; border-color: #0b6; }
+  button.warn { background: #b003; }
+  .row { display: flex; gap: 6px; }
+  .row button { margin: 4px 0; }
+  input { width: 100%; box-sizing: border-box; padding: 6px; margin: 3px 0; border: 1px solid #8886; border-radius: 6px; }
+  details { margin-top: 8px; }
+  small { color: #888; }
+  #status { min-height: 16px; color: #0a7; margin-top: 6px; }
+  pre { max-height: 160px; overflow: auto; background: #8881; padding: 6px; font-size: 11px; }
+</style>
 </head>
 <body>
-  <h1>buy.nsw Harvester (OFN H1)</h1>
-  <div id="status">…</div>
+  <h1>buy.nsw Harvester · OFN H1</h1>
+  <div>در انبار: <span class="count" id="count">0</span> لید یکتا</div>
 
-  <button id="scrape">برداشت از این صفحه</button>
-
+  <button class="primary" id="scrape">این صفحه را برداشت کن</button>
   <div class="row">
-    <label class="toggle">
-      خودکار
-      <input type="number" id="maxPages" value="15" min="1" max="40" />
-      صفحه
-    </label>
-    <button id="startAuto">شروع خودکار</button>
-    <button id="stopAuto">توقف</button>
+    <button id="auto">Auto: همه‌ی صفحات</button>
+    <button class="warn" id="stop">توقف</button>
   </div>
 
   <div class="row">
-    <button id="exportJson">خروجی JSON</button>
-    <button id="exportCsv">خروجی CSV</button>
+    <button id="dljson">دانلود JSON</button>
+    <button id="dlcsv">دانلود CSV</button>
   </div>
-  <div class="row">
-    <button id="debug">دامپ دیباگ DOM</button>
-    <button id="clear">پاک کردن</button>
-  </div>
+  <button id="post">ارسال به نود OFN</button>
+  <button class="warn" id="clear">پاک‌سازی انبار</button>
+
+  <div id="status"></div>
 
   <details>
-    <summary>تنظیمات نود (پیشرفته — پیش‌فرض خاموش)</summary>
-    <input type="text" id="endpoint" placeholder="https://…/api/leads/ingest" />
-    <input type="password" id="token" placeholder="توکن (اختیاری)" />
-    <label class="toggle">
-      <input type="checkbox" id="autoPost" />
-      ارسال خودکار بعد از هر برداشت
-    </label>
-    <button id="saveCfg">ذخیرهٔ تنظیمات</button>
-    <button id="postAll">ارسال همهٔ رکوردها الان</button>
+    <summary>تنظیمات نود OFN</summary>
+    <input id="endpoint" placeholder="https://<node>/api/leads/ingest" />
+    <input id="token" placeholder="Bearer token (اختیاری)" />
+    <label><input type="checkbox" id="autopost" style="width:auto" /> ارسال خودکار پس از هر برداشت</label>
+    <button id="savecfg">ذخیره تنظیمات</button>
   </details>
 
-  <small>
-    خروجی JSON را با <code>tools/ingest_buynsw_batch.py</code> به نود بدهید.
-    فیلتر نهایی سمت پایتون است؛ فیلدهای <code>_painting_hint</code> فقط پیش‌نمایش‌اند.
-  </small>
+  <details>
+    <summary>حالت دیباگ (تنظیم سلکتور)</summary>
+    <small>اگر برداشت ۰ بود، این را بزن و نمونه‌ی HTML کارت‌ها را برای من بفرست.</small>
+    <button id="dump">DOM را دامپ کن</button>
+    <pre id="dumpout"></pre>
+  </details>
 
   <script src="popup.js"></script>
 </body>

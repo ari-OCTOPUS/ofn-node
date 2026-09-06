@@ -10,8 +10,10 @@ import { renderCommandCenter } from "./pages/command-center.js";
 import { renderLegs } from "./pages/legs.js";
 import { renderNodes } from "./pages/nodes.js";
 import { renderQueue } from "./pages/queue.js";
+import { renderSurface } from "./pages/surface.js";
 
 const PAGE_CONFIG = Object.freeze({
+  surface: { resource: "surface", render: renderSurface, label: "نمای هفت‌کارته" },
   "command-center": { resource: "status", render: renderCommandCenter, label: "مرکز فرمان" },
   nodes: { resource: "nodes", render: renderNodes, label: "نودها" },
   legs: { resource: "legs", render: renderLegs, label: "چرخه" },
@@ -118,7 +120,7 @@ function renderCurrentPage({ focus = false } = {}) {
 
   if (state.auth.status !== "authenticated") return;
 
-  const config = PAGE_CONFIG[state.route] ?? PAGE_CONFIG["command-center"];
+  const config = PAGE_CONFIG[state.route] ?? PAGE_CONFIG["surface"];
   const resourceState = state.resources[config.resource] ?? {};
   const hasData = resourceState.data !== null && resourceState.data !== undefined;
 

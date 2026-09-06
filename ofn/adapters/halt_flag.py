@@ -64,8 +64,10 @@ def write_halt(path: PathLike, *, reason: str = "owner") -> None:
     except OSError:
         pass
     tmp = p.with_suffix(p.suffix + ".tmp")
-    with tmp.open("w", encoding="utf-8") as f:
-        f.write("1\n")
+    # Binary write: Windows text mode would emit CRLF (b"1\r\n"),
+    # which is not the canonical flag. Bytes-first, same as the reader.
+    with tmp.open("wb") as f:
+        f.write(b"1\n")
         f.flush()
         os.fsync(f.fileno())
     try:

@@ -22,7 +22,7 @@ from typing import Any, Callable, Mapping, Sequence
 
 
 SCHEMA_VERSION = "2.0"
-RESOURCES = ("status", "nodes", "legs", "queue", "audit", "version")
+RESOURCES = ("status", "nodes", "legs", "queue", "audit", "version", "surface")
 NODE_IDS = ("138", "180", "182")
 LEG_IDS = (
     "DEMAND",
@@ -191,6 +191,13 @@ _QUEUE_PRECEDENCE = {
     "processed": 4,
     "rejected": 5,
 }
+# Seven-card surface: fixed repo-relative sources.  Constants only — no
+# request input ever reaches one of these paths.  A missing source yields
+# UNKNOWN, never a fallback number.
+_SURFACE_SELF_MODEL = ("state", "self-model", "SYSTEM-SELF-MODEL.json")
+_SURFACE_DOCTOR_RUNS = ("09-LANES", "LB", "runs")
+_SURFACE_ECON_RUNS = ("09-LANES", "ECONOMIC-LEARNING", "runs")
+_SURFACE_RUN_CANDIDATES = 8
 _AUDIT_CATEGORIES = frozenset(
     {"mesh_audit", "receipt", "incident", "calibration", "ofn_ledger"}
 )
@@ -284,6 +291,7 @@ _QUERY_FIELDS = {
     "nodes": frozenset(),
     "legs": frozenset(),
     "version": frozenset(),
+    "surface": frozenset(),
     "queue": frozenset(
         {
             "limit",
@@ -839,6 +847,7 @@ class CockpitV2ReadModel:
         *,
         callbacks: Mapping[str, Callable[[], Any]] | None = None,
         version: Mapping[str, Any] | None = None,
+        repo_root: Path | None = None,
     ) -> None:
         if not callable(clock):
             raise TypeError("clock must be callable")
@@ -872,6 +881,14 @@ class CockpitV2ReadModel:
             self._resolved_root = mesh_root.resolve(strict=False)
         except OSError:
             self._resolved_root = mesh_root.absolute()
+        self._repo_root: Path | None = None
+        if repo_root is not None:
+            if not isinstance(repo_root, Path):
+                repo_root = Path(repo_root)
+            try:
+                self._repo_root = repo_root.resolve(strict=False)
+            except OSError:
+                self._repo_root = repo_root.absolute()
         self._callbacks = normalized_callbacks
         self._version_metadata = dict(supplied_version)
 
@@ -898,6 +915,7 @@ class CockpitV2ReadModel:
             "queue": self._read_queue,
             "audit": self._read_audit,
             "version": self._read_version,
+            "surface": self._read_surface,
         }[resource]
         return handler(ctx, normalized)
 
@@ -2998,6 +3016,449 @@ class CockpitV2ReadModel:
         if not available:
             response_status = "unavailable"
         elif ctx.warnings or any(truth in {UNKNOWN, STALE, CONTRADICTED} for truth in critical_truths):
+            response_status = "degraded"
+        else:
+            response_status = "ok"
+        return ctx.envelope(data, response_status)
+
+    # ---- surface (seven-card owner view) --------------------------------
+    #
+    # Lane 3 (Article-10 unfreeze): one bounded read that rearranges existing
+    # sources into seven cards.  Every card names its source and fails closed:
+    # an absent or malformed source is UNKNOWN, never green.  The Command
+    # Center card carries the five coherence numbers and verdicts loudly when
+    # recorded identities disagree.
+
+    def _repo_read_bytes(
+        self,
+        parts: tuple[str, ...],
+        ctx: _Context,
+        source_id: str,
+        *,
+        maximum: int = MAX_FILE_BYTES,
+    ) -> bytes | None:
+        if self._repo_root is None:
+            ctx.source(source_id, "missing", UNKNOWN)
+            return None
+        candidate = self._repo_root.joinpath(*parts)
+        try:
+            resolved = candidate.resolve(strict=False)
+            if os.path.commonpath(
+                (str(self._repo_root), str(resolved))
+            ) != str(self._repo_root):
+                raise _SourceProblem("blocked")
+            stat = resolved.stat()
+            if not resolved.is_file():
+                raise _SourceProblem("missing")
+            if stat.st_size > maximum:
+                raise _SourceProblem("oversized")
+            ctx.budget.spend(files=1, work=1)
+            with resolved.open("rb") as handle:
+                raw = handle.read(maximum + 1)
+            if len(raw) > maximum:
+                raise _SourceProblem("oversized")
+            ctx.budget.spend(bytes_count=len(raw))
+            return raw
+        except _BudgetExceeded:
+            ctx.source(source_id, "truncated", UNKNOWN, usable=True)
+            return None
+        except _SourceProblem as problem:
+            ctx.source(source_id, problem.status, UNKNOWN)
+            return None
+        except (OSError, PermissionError):
+            ctx.source(source_id, "failed", UNKNOWN)
+            return None
+
+    def _repo_load_json(
+        self,
+        parts: tuple[str, ...],
+        ctx: _Context,
+        source_id: str,
+        *,
+        maximum: int = MAX_FILE_BYTES,
+    ) -> Any | None:
+        raw = self._repo_read_bytes(parts, ctx, source_id, maximum=maximum)
+        if raw is None:
+            return None
+        try:
+            value = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+            ctx.source(source_id, "malformed", UNKNOWN, usable=True)
+            return None
+        ctx.source(source_id, "ok", REPO_VERIFIED, usable=True)
+        return value
+
+    def _repo_scan_run_dirs(
+        self,
+        parts: tuple[str, ...],
+        ctx: _Context,
+        source_id: str,
+    ) -> list[str]:
+        if self._repo_root is None:
+            ctx.source(source_id, "missing", UNKNOWN)
+            return []
+        directory = self._repo_root.joinpath(*parts)
+        try:
+            if not directory.is_dir():
+                ctx.source(source_id, "missing", UNKNOWN)
+                return []
+            names: list[str] = []
+            with os.scandir(directory) as iterator:
+                for index, entry in enumerate(iterator):
+                    ctx.budget.spend(work=1)
+                    if index >= MAX_DIRECTORY_ENTRIES:
+                        ctx.source(source_id, "truncated", UNKNOWN, usable=True)
+                        break
+                    try:
+                        if entry.is_dir(follow_symlinks=False):
+                            names.append(entry.name)
+                    except OSError:
+                        ctx.source(source_id, "failed", UNKNOWN, usable=True)
+            ctx.source(source_id, "ok", REPO_VERIFIED, usable=True)
+            return sorted(names)
+        except _BudgetExceeded:
+            ctx.source(source_id, "truncated", UNKNOWN, usable=True)
+            return []
+        except (OSError, PermissionError):
+            ctx.source(source_id, "failed", UNKNOWN)
+            return []
+
+    def _surface_self_model_card(
+        self, ctx: _Context
+    ) -> dict[str, Any]:
+        artifact = self._repo_load_json(
+            _SURFACE_SELF_MODEL, ctx, "repo_self_model_artifact"
+        )
+        card: dict[str, Any] = {
+            "artifact_present": False,
+            "status": None,
+            "commit_sha": None,
+            "truth": UNKNOWN,
+        }
+        if not isinstance(artifact, Mapping):
+            return card
+        card["artifact_present"] = True
+        card["truth"] = REPO_VERIFIED
+        status = _safe_token(artifact.get("status"), maximum=32)
+        card["status"] = status.casefold() if status is not None else None
+        data = artifact.get("data")
+        if isinstance(data, Mapping):
+            identity = data.get("code_identity")
+            if isinstance(identity, Mapping):
+                card["commit_sha"] = _safe_hash(identity.get("commit_sha"))
+        return card
+
+    def _surface_doctor_card(self, ctx: _Context) -> dict[str, Any]:
+        run_names = self._repo_scan_run_dirs(
+            _SURFACE_DOCTOR_RUNS, ctx, "repo_doctor_runs"
+        )
+        card: dict[str, Any] = {
+            "run_id": None,
+            "started_at": None,
+            "mode": None,
+            "truth": UNKNOWN,
+        }
+        attempts = 0
+        for name in reversed(run_names):
+            if attempts >= _SURFACE_RUN_CANDIDATES:
+                break
+            attempts += 1
+            raw = self._repo_read_bytes(
+                _SURFACE_DOCTOR_RUNS + (name, "receipt.jsonl"),
+                ctx,
+                "repo_doctor_receipt",
+                maximum=MAX_JSONL_LINE_BYTES,
+            )
+            if raw is None:
+                continue
+            first = next(
+                (line for line in raw.splitlines() if line.strip()), b""
+            )
+            try:
+                line = json.loads(first.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+                ctx.source(
+                    "repo_doctor_receipt", "malformed", UNKNOWN, usable=True
+                )
+                continue
+            if not isinstance(line, Mapping):
+                ctx.source(
+                    "repo_doctor_receipt", "malformed", UNKNOWN, usable=True
+                )
+                continue
+            run_id = _safe_token(name, maximum=128)
+            if run_id is None:
+                continue
+            card["run_id"] = run_id
+            card["started_at"] = _timestamp(line.get("ts"))
+            card["mode"] = _safe_token(line.get("mode"), maximum=64)
+            card["truth"] = REPO_VERIFIED
+            break
+        return card
+
+    def _surface_economic_card(self, ctx: _Context) -> dict[str, Any]:
+        run_names = self._repo_scan_run_dirs(
+            _SURFACE_ECON_RUNS, ctx, "repo_economic_runs"
+        )
+        card: dict[str, Any] = {
+            "run_id": None,
+            "generated_at": None,
+            "campaign_id": None,
+            "code_sha": None,
+            "verified_payments": None,
+            "unverified_payment_claims": None,
+            "chains_total": None,
+            "chains_complete": None,
+            "truth": UNKNOWN,
+        }
+        attempts = 0
+        for name in reversed(run_names):
+            if attempts >= _SURFACE_RUN_CANDIDATES:
+                break
+            attempts += 1
+            summary = self._repo_load_json(
+                _SURFACE_ECON_RUNS + (name, "run-summary.json"),
+                ctx,
+                "repo_economic_summary",
+            )
+            if not isinstance(summary, Mapping):
+                continue
+            card["run_id"] = _safe_token(name, maximum=128)
+            card["generated_at"] = _timestamp(summary.get("generated_at"))
+            card["campaign_id"] = _safe_token(
+                summary.get("campaign_id"), maximum=128
+            )
+            card["code_sha"] = _safe_hash(summary.get("code_sha"))
+            card["verified_payments"] = _integer(
+                summary.get("verified_payments"), maximum=10**9
+            )
+            card["unverified_payment_claims"] = _integer(
+                summary.get("unverified_payment_claims"), maximum=10**9
+            )
+            card["chains_total"] = _integer(
+                summary.get("chains_total"), maximum=10**9
+            )
+            card["chains_complete"] = _integer(
+                summary.get("chains_complete"), maximum=10**9
+            )
+            card["truth"] = REPO_VERIFIED
+            break
+        return card
+
+    def _surface_coherence(
+        self,
+        ctx: _Context,
+        main_sha: str | None,
+        self_model_sha: str | None,
+        doctor_card: Mapping[str, Any],
+        economic_card: Mapping[str, Any],
+        owner_queue_count: int | None,
+        owner_queue_truth: str,
+    ) -> dict[str, Any]:
+        numbers = [
+            {
+                "id": "main_sha",
+                "value": main_sha,
+                "truth": REPO_VERIFIED if main_sha is not None else UNKNOWN,
+                "source": "version_metadata:commit",
+            },
+            {
+                "id": "self_model_sha",
+                "value": self_model_sha,
+                "truth": REPO_VERIFIED if self_model_sha is not None else UNKNOWN,
+                "source": "state/self-model/SYSTEM-SELF-MODEL.json",
+            },
+            {
+                "id": "doctor_run_id",
+                "value": doctor_card.get("run_id"),
+                "truth": doctor_card.get("truth", UNKNOWN),
+                "source": "09-LANES/LB/runs",
+            },
+            {
+                "id": "verified_payments",
+                "value": economic_card.get("verified_payments"),
+                "truth": (
+                    REPO_VERIFIED
+                    if economic_card.get("verified_payments") is not None
+                    else UNKNOWN
+                ),
+                "source": "09-LANES/ECONOMIC-LEARNING/runs/run-summary.json",
+            },
+            {
+                "id": "owner_queue_count",
+                "value": owner_queue_count,
+                "truth": owner_queue_truth,
+                "source": "owner_queue_metadata",
+            },
+        ]
+        comparisons = (
+            ("main_sha", "self_model_sha", main_sha, self_model_sha),
+            ("main_sha", "economic_code_sha", main_sha, economic_card.get("code_sha")),
+            ("self_model_sha", "economic_code_sha", self_model_sha, economic_card.get("code_sha")),
+        )
+        disagreements = []
+        for left, right, left_value, right_value in comparisons:
+            if left_value is None or right_value is None:
+                continue
+            if left_value != right_value:
+                disagreements.append({
+                    "left": left,
+                    "right": right,
+                    "left_value": left_value,
+                    "right_value": right_value,
+                })
+        if disagreements:
+            ctx.warn("coherence_inconsistent")
+            verdict = "inconsistent"
+        elif any(number["truth"] == UNKNOWN for number in numbers):
+            verdict = "incomplete"
+        else:
+            verdict = "consistent"
+        return {
+            "numbers": numbers,
+            "economic_code_sha": economic_card.get("code_sha"),
+            "verdict": verdict,
+            "disagreements": disagreements,
+        }
+
+    def _surface_owner_queue(
+        self, ctx: _Context
+    ) -> tuple[int | None, str]:
+        rows, available = self._collect_owner_queue(ctx)
+        if not available or rows is None:
+            return None, UNKNOWN
+        return len(rows), LIVE_VERIFIED
+
+    def _surface_telegram_card(self, ctx: _Context) -> dict[str, Any]:
+        mode = None
+        truth = UNKNOWN
+        telegram_config, _ = self._load_json(
+            "config/telegram_policy.json",
+            ctx,
+            "mesh_telegram_policy",
+            required=False,
+        )
+        if isinstance(telegram_config, Mapping):
+            candidate = _safe_token(telegram_config.get("mode"), maximum=32)
+            if candidate is not None:
+                mode = candidate
+                truth = REPO_VERIFIED
+        telegram_callback = self._callback("telegram", ctx, expected=False)
+        if isinstance(telegram_callback, Mapping):
+            candidate = _safe_token(telegram_callback.get("mode"), maximum=32)
+            if candidate is not None:
+                mode = candidate
+                truth = LIVE_VERIFIED
+        return {"mode": mode, "truth": truth}
+
+    def _surface_receipts_card(self, ctx: _Context) -> dict[str, Any]:
+        rows, readable, complete = self._audit_directory(
+            "receipts", ctx, "mesh_receipts", "receipt"
+        )
+        if not readable:
+            return {
+                "receipt_count": None,
+                "truth": UNKNOWN,
+                "obsidian_sync": None,
+                "obsidian_truth": UNKNOWN,
+                "obsidian_source": "not wired (ofn.learning render-obsidian; "
+                                   "owner-defined output path)",
+            }
+        return {
+            "receipt_count": len(rows) if complete else None,
+            "truth": REPO_VERIFIED if complete else UNKNOWN,
+            "obsidian_sync": None,
+            "obsidian_truth": UNKNOWN,
+            "obsidian_source": "not wired (ofn.learning render-obsidian; "
+                               "owner-defined output path)",
+        }
+
+    def _read_surface(
+        self, ctx: _Context, normalized: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        root_available = self._mesh_root_source(ctx)
+        main_sha = None
+        for key in ("ofn_commit", "commit", "revision"):
+            candidate = self._version_metadata.get(key)
+            if candidate is None:
+                continue
+            safe = _safe_hash(candidate) or _safe_version_value(candidate)
+            if isinstance(safe, str):
+                main_sha = safe
+                break
+
+        self_model_card = self._surface_self_model_card(ctx)
+        doctor_card = self._surface_doctor_card(ctx)
+        economic_card = self._surface_economic_card(ctx)
+        owner_queue_count, owner_queue_truth = self._surface_owner_queue(ctx)
+        telegram_card = self._surface_telegram_card(ctx)
+        receipts_card = self._surface_receipts_card(ctx)
+
+        coherence = self._surface_coherence(
+            ctx,
+            main_sha,
+            self_model_card["commit_sha"],
+            doctor_card,
+            economic_card,
+            owner_queue_count,
+            owner_queue_truth,
+        )
+
+        cards = {
+            "command_center": {
+                "verdict": coherence["verdict"],
+                "numbers": coherence["numbers"],
+                "disagreements": coherence["disagreements"],
+            },
+            "self_model": self_model_card,
+            "doctor": doctor_card,
+            "economic_learning": economic_card,
+            "owner_queue": {
+                "count": owner_queue_count,
+                "truth": owner_queue_truth,
+            },
+            "telegram_bridge": telegram_card,
+            "receipts_sync": receipts_card,
+        }
+        statuses = {
+            "command_center": (
+                "ok" if coherence["verdict"] == "consistent" else "degraded"
+            ),
+            "self_model": (
+                "ok"
+                if self_model_card["status"] == "ok"
+                else "degraded"
+                if self_model_card["artifact_present"]
+                else "unavailable"
+            ),
+            "doctor": "ok" if doctor_card["run_id"] is not None else "unavailable",
+            "economic_learning": (
+                "ok"
+                if economic_card["verified_payments"] is not None
+                else "unavailable"
+            ),
+            "owner_queue": (
+                "ok" if owner_queue_count is not None else "unavailable"
+            ),
+            "telegram_bridge": (
+                "ok" if telegram_card["mode"] is not None else "unavailable"
+            ),
+            "receipts_sync": (
+                "ok"
+                if receipts_card["receipt_count"] is not None
+                else "degraded"
+                if receipts_card["truth"] != UNKNOWN
+                else "unavailable"
+            ),
+        }
+        data = {"coherence": coherence, "cards": cards, "card_status": statuses}
+        any_available = any(status != "unavailable" for status in statuses.values())
+        available = root_available or any_available
+        if not available:
+            response_status = "unavailable"
+        elif ctx.warnings or any(
+            status != "ok" for status in statuses.values()
+        ):
             response_status = "degraded"
         else:
             response_status = "ok"

@@ -1,0 +1,101 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-EVENT-ID-SEQ-20260902",
+  "issued_utc": "2026-09-02T11:34:52Z",
+  "author": "cursor-cloud-agent bc-2f6c9678-ed17-41a0-b0dc-0787614a31e8",
+  "owner_ratified": false,
+  "body": "bc-2f6c9678-ed17-41a0-b0dc-0787614a31e8",
+  "branch": "feat/p1-event-id-seq-20260902",
+  "parent_head_full": "45dd9133dc3677630b9a3606fc7a41f00f5458e0",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/event_id.py",
+    "ofn/kernel/seq.py",
+    "tests/test_event_id.py",
+    "tests/test_seq.py",
+    "tests/test_halt_flag_fail_closed.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-EVENT-ID-SEQ-20260902.json",
+    "09-LANES/P1-EVENT-ID-SEQ/LANE-REPORT.md"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/idempotency.py (owned by #87)",
+    "ofn/adapters/receipt.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/rejection.py (owned by #93)",
+    "ofn/adapters/reject_log.py (owned by #93)",
+    "ofn/adapters/run_gate.py (owned by #93 optional wiring)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "tests/test_h1_buysw_dom.py (owned by #84; sibling harvest body)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by #73; appended separately)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure event_id mint + EventIdIndex (collision ≠ replay) and SeqCursor (first accept is 1; gap and replay fail closed). HALT-flag adapter fail-closed tests lock symlink / non-UTF-8 / directory / resume-is-unlink on main. Ready ≠ authorized. Not wired into run_store.py.",
+  "verification": {
+    "command": "python3 -m pytest tests/test_event_id.py tests/test_seq.py tests/test_halt_flag_fail_closed.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T11:34:52Z",
+    "head_full_at_run": "45dd9133dc3677630b9a3606fc7a41f00f5458e0",
+    "exit_code": 0,
+    "result": "199 passed, 1036 subtests passed, 0 failed, 0 skipped",
+    "tree_state": "dirty — this session's lock-zone files only (new files, untracked)"
+  },
+  "ci_trigger": {
+    "claim_type": "measurement",
+    "pr": 87,
+    "branch": "cursor/taskenvelope-system-hardening-9a67",
+    "head_full": "003d84af4792049d7a142014c9e09402a1566e33",
+    "failed_check": "require-independent-approval",
+    "finding": "Author cursor[bot] cannot approve their own change on a sensitive path. Deliberately separate from branch ruleset. See issue #51. REVIEW_REQUIRED blocks merge, not engineering. Did not weaken the gate.",
+    "evidence_level": "B"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @45dd9133dc3677630b9a3606fc7a41f00f5458e0 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on #73 @5b424b109402e1629ca1dcd2a716e9533fd295ed (session xix)",
+    "CONTRIBUTING.md": "absent on origin/main @45dd913 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/cursor/d27-unlock-ea6b",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/cursor/d28-edge-runbook-ea6b",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    }
+  },
+  "worktree_census": {
+    "command": "git worktree list",
+    "ran_at_utc": "2026-09-02T11:33:19Z",
+    "exit_code": 0,
+    "registered": [
+      "/workspace 003d84a cursor/taskenvelope-system-hardening-27d8 (not written; same SHA as #87)",
+      "/tmp/ofn-p1-xx 45dd913 feat/p1-event-id-seq-20260902 (this lock-zone)",
+      "/tmp/ofn-inc-xx 5b424b1 docs/octopus-os-incidents-20260902 (incidents append)"
+    ],
+    "pruned": false
+  },
+  "boundary": {
+    "external_effects": 0,
+    "send_authorized": false,
+    "quote_sent": false,
+    "campaign_envelope_ready_is_not_send_authorized": true,
+    "admin_bypass": false,
+    "gates_weakened": false,
+    "secrets_rotated": false,
+    "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
+  }
+}

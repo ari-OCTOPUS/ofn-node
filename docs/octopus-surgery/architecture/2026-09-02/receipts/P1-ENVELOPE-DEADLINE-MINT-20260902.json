@@ -1,0 +1,47 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-ENVELOPE-DEADLINE-MINT-20260902",
+  "issued_utc": "2026-09-02T08:38:45Z",
+  "author": "cursor-cloud-agent bc-d26b59d1-3de2-49be-a5b5-06ebc3597cdc",
+  "owner_ratified": false,
+  "file_lock_zone": "/tmp/ofn-envelope-xii",
+  "branch": "feat/p1-envelope-deadline-mint-20260902",
+  "parent_head_full": "33c94763005f5cf8c766701f408390c49bba0da7",
+  "scope_measured": "origin/main @33c94763005f5cf8c766701f408390c49bba0da7; envelope.py + token_ceiling.py + test_envelope.py + test_token_ceiling.py + one store-gate witness in test_run_store.py",
+  "scope_not_measured": [
+    "full suite (live smoke / root hygiene ignored, not executed this body)",
+    "filesystem immutability of this receipt (git blob, rewriteable)",
+    "board138 / vault bodies",
+    "PR #82 load-path events.py/run_store.py (not written)",
+    "PR #76 campaign_envelope.py (not written)"
+  ],
+  "action": "Factory-side second witness for deadline/type/sealed-alias; campaign_envelope_ready listed in token SEND_STATES so ready ≠ authorized",
+  "not_duplicated": {
+    "pr_82": "events.py / run_store.py / chaos tests / P1-ENVELOPE-RUNSTORE receipt left to #82 @cb692bf",
+    "pr_74": "already merged; this is not a second P1 skeleton"
+  },
+  "delivered": {
+    "ofn/kernel/envelope.py": "require_epoch_s rejects bool/float/str; deadline_epoch_s is integer civil math (no datetime import — kernel purity); impossible dates fail closed; create_envelope refuses now >= deadline; is_sealed_tool_name case-fold + hyphen aliases",
+    "ofn/kernel/token_ceiling.py": "SEND_STATES includes campaign_envelope_ready; grants_send still structurally false",
+    "tests/test_run_store.py": "create-after-deadline constructs TaskEnvelope directly so the store gate stays an independent witness of the factory"
+  },
+  "factory_deadline_mint_20260902T0838Z": {
+    "parent_head_full": "33c94763005f5cf8c766701f408390c49bba0da7",
+    "tree_state": "dirty — this commit's files only. Dirt is this session's lock-zone edits, not an unknown concurrent writer.",
+    "command": "python3 -m pytest tests/test_envelope.py tests/test_token_ceiling.py tests/test_run_store.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_kernel_purity.py tests/test_quota.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T08:38:45Z",
+    "exit_code": 0,
+    "result": "192 passed, 954 subtests passed, 0 failed, 0 skipped",
+    "negative_controls": [
+      "now_epoch_s bool/float/str refused",
+      "regex-shaped impossible deadline (month 13 / Apr 31 / hour 99 / non-leap Feb 29) refused",
+      "now >= deadline refused at mint; equal means closed",
+      "deadline_epoch_s matches datetime.fromisoformat (independent witness)",
+      "Send_Authorized / send-authorized / CAMPAIGN-ENVELOPE-READY cannot be tools",
+      "token Decision naming campaign_envelope_ready fails closed; grants_send False"
+    ],
+    "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
+  },
+  "boundary": "no gate opened, no outbound, no secrets, no admin bypass, no CODEOWNERS/protection change; quote_sent / send_authorized remain forbidden",
+  "ready_ne_authorized": true
+}

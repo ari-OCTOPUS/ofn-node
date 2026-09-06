@@ -66,6 +66,7 @@ def v2_record(**over):
         "description": "Repainting of classroom blocks, external painting.",
         "location": "South West Sydney",
         "category": "",
+        "opportunity_type": "",
         "closing_at": "2026-10-01T00:00:00Z",
         "published_at": "2026-09-01T00:00:00Z",
         "amount_text": "$180,000",
@@ -195,6 +196,51 @@ class Case(unittest.TestCase):
         row = self.store.tenders("lead", limit=10)[0]
         self.assertEqual(row["closing_at"], "see documents")
 
+    # ------- salvage (born from the real 37-record export: "See details") -------
+
+    def test_see_details_title_reparsed_from_description(self):
+        rec = v2_record(
+            title="See details",
+            description=(
+                "External Painting Services - Bankstown Public School "
+                "Closes: 14-Oct-2026 15:00 Construction - Trades"))
+        out = ingest_batch(v2_export([rec]), self.store)
+        self.assertEqual(out["accepted"], 1)
+        row = self.store.tenders("lead", limit=10)[0]
+        self.assertIn("External Painting", row["title"])
+        self.assertNotEqual(row["title"], "See details")
+
+    def test_empty_closing_salvaged_from_description(self):
+        rec = v2_record(
+            closing_at="",
+            description="Repainting work Closes: 14-Oct-2026 15:00 Construction")
+        out = ingest_batch(v2_export([rec]), self.store)
+        self.assertEqual(out["accepted"], 1)
+        row = self.store.tenders("lead", limit=10)[0]
+        self.assertEqual(row["closing_at"], "2026-10-14T15:00+00:00")
+
+    def test_salvage_idempotent_on_good_record(self):
+        rec = v2_record()
+        out = ingest_batch(v2_export([rec]), self.store)
+        row = self.store.tenders("lead", limit=10)[0]
+        self.assertEqual(row["title"], rec["title"])
+        self.assertEqual(row["closing_at"], rec["closing_at"])
+
+    # ------- relevance modes -------
+
+    def test_relevance_all_keeps_non_painting_out_of_area(self):
+        rec = v2_record(title="IT consultancy", description="software supply",
+                        location="Broken Hill")
+        out = ingest_batch(v2_export([rec]), self.store, relevance="all")
+        self.assertEqual(out["accepted"], 1)
+        self.assertEqual(out["rejected_filter"], 0)
+
+    def test_unknown_relevance_mode_rejected(self):
+        out = ingest_batch(v2_export([v2_record()]), self.store,
+                           relevance="everything")
+        self.assertEqual(out["status"], "REJECTED")
+        self.assertEqual(self.stored_ids(), set())
+
     # ---------------- award (CAN) → warm lead ----------------
 
     def test_v2_award_creates_tender_and_lead(self):
@@ -266,12 +312,23 @@ class Case(unittest.TestCase):
         self.assertEqual(out["rejected_dup"], 1)
         self.assertEqual(len(self.stored_ids()), 1)
 
-    def test_record_without_title_is_invalid_not_accepted(self):
+    def test_record_without_title_or_description_is_invalid(self):
         rec = v2_record()
         rec["title"] = ""
+        rec["description"] = ""
         out = ingest_batch(v2_export([rec]), self.store)
         self.assertEqual(out["accepted"], 0)
         self.assertEqual(out["rejected_invalid"], 1)
+
+    def test_empty_title_with_description_is_salvaged_not_dropped(self):
+        # v0.3 contract: the real export carried link-text-only records whose
+        # title lives in the description — salvage beats rejection.
+        rec = v2_record()
+        rec["title"] = ""
+        out = ingest_batch(v2_export([rec]), self.store)
+        self.assertEqual(out["accepted"], 1)
+        row = self.store.tenders("lead", limit=10)[0]
+        self.assertIn("Repainting", row["title"])
 
     def test_accounting_sums_to_records(self):
         out = ingest_batch(v2_export([

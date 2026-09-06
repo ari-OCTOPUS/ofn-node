@@ -1,0 +1,107 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-DEADLINE-CLOSE-GATE-20260902",
+  "issued_utc": "2026-09-02T12:45:03Z",
+  "author": "cursor-cloud-agent bc-14e282c9-6d7d-4158-a42a-21db7647eea2",
+  "owner_ratified": false,
+  "body": "bc-14e282c9-6d7d-4158-a42a-21db7647eea2",
+  "branch": "cursor/taskenvelope-system-hardening-c8a7",
+  "parent_head_full": "87b5ed09234db305e405540de95c4e9a34e212df",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/deadline_window.py",
+    "ofn/kernel/close_gate.py",
+    "tests/test_deadline_window.py",
+    "tests/test_close_gate.py",
+    "tests/test_chaos_close_deadline.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-DEADLINE-CLOSE-GATE-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/idempotency.py (owned by #87)",
+    "ofn/adapters/receipt.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/rejection.py (owned by #93)",
+    "ofn/adapters/reject_log.py (owned by #93)",
+    "ofn/adapters/run_gate.py (owned by #93)",
+    "ofn/kernel/callbudget.py (owned by #94)",
+    "ofn/kernel/start_permit.py (owned by #95)",
+    "ofn/kernel/halt_ops.py (owned by #96)",
+    "ofn/kernel/halt_latch.py (owned by #96)",
+    "ofn/kernel/event_id.py (owned by #97)",
+    "ofn/kernel/seq.py (owned by #97)",
+    "ofn/kernel/source_health.py (owned by #98)",
+    "ofn/kernel/hash_chain.py (owned by #99)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/kernel/revenue_states.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "tests/test_h1_buysw_dom.py (owned by #84; sibling harvest body)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by #73; not a second incidents PR)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure deadline window (exact-int; equal means closed; no datetime/clock) and CloseGate (append-after-close; RUN_CLOSED with a causal ref still closes; recovery is a new run_id). Ready ≠ authorized. Not wired into run_store.py.",
+  "verification": {
+    "command": "python3 -m pytest tests/test_deadline_window.py tests/test_close_gate.py tests/test_chaos_close_deadline.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T12:45:03Z",
+    "head_full_at_run": "87b5ed09234db305e405540de95c4e9a34e212df",
+    "exit_code": 0,
+    "result": "198 passed, 1045 subtests passed, 0 failed, 0 skipped",
+    "tree_state": "dirty — this session's lock-zone files only (new files, untracked)"
+  },
+  "ci_trigger": {
+    "claim_type": "measurement",
+    "pr": 67,
+    "branch": "cursor/d28-edge-runbook-ea6b",
+    "head_full": "38ed26b57326057573ec5b65bd026684463aae00",
+    "failed_check": "require-independent-approval",
+    "finding": "Author ari322 cannot approve their own change on a sensitive path. Deliberately separate from branch ruleset. See issue #51. REVIEW_REQUIRED blocks merge, not engineering. Did not weaken the gate. Did not open a second D-28 PR.",
+    "evidence_level": "B"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @87b5ed09234db305e405540de95c4e9a34e212df — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on #73 (session xxiii @5adcea10f2cc57f1b9aadd118e65cc496ff63995)",
+    "CONTRIBUTING.md": "absent on origin/main @87b5ed0 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/cursor/d27-unlock-ea6b",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/cursor/d28-edge-runbook-ea6b",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    }
+  },
+  "worktree_census": {
+    "command": "git worktree list",
+    "ran_at_utc": "2026-09-02T12:45:20Z",
+    "exit_code": 0,
+    "registered": [
+      "/workspace 87b5ed0 cursor/taskenvelope-system-hardening-c8a7 (this lock-zone)"
+    ],
+    "pruned": false
+  },
+  "boundary": {
+    "external_effects": 0,
+    "send_authorized": false,
+    "quote_sent": false,
+    "campaign_envelope_ready_is_not_send_authorized": true,
+    "admin_bypass": false,
+    "gates_weakened": false,
+    "secrets_rotated": false,
+    "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
+  }
+}

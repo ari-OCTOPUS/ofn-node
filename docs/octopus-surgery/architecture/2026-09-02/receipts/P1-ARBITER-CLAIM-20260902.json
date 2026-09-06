@@ -1,0 +1,91 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-ARBITER-CLAIM-20260902",
+  "issued_utc": "2026-09-02T13:34:23Z",
+  "author": "cursor-cloud-agent bc-0fcc8064-570f-4c70-bfcd-fdff6789bd10",
+  "owner_ratified": false,
+  "body": "bc-0fcc8064-570f-4c70-bfcd-fdff6789bd10",
+  "branch": "feat/p1-arbiter-claim-20260902",
+  "parent_head_full": "87b5ed09234db305e405540de95c4e9a34e212df",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/arbiter_claim.py",
+    "tests/test_arbiter_claim.py",
+    "tests/test_chaos_arbiter_claim.py",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-ARBITER-CLAIM-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/rejection.py (owned by #93)",
+    "ofn/kernel/callbudget.py (owned by #94)",
+    "ofn/kernel/start_permit.py (owned by #95)",
+    "ofn/kernel/halt_ops.py (owned by #96)",
+    "ofn/kernel/halt_latch.py (owned by #96)",
+    "ofn/kernel/event_id.py (owned by #97)",
+    "ofn/kernel/seq.py (owned by #97)",
+    "ofn/kernel/source_health.py (owned by #98)",
+    "ofn/kernel/hash_chain.py (owned by #99)",
+    "ofn/kernel/deadline_window.py (owned by #100)",
+    "ofn/kernel/close_gate.py (owned by #100)",
+    "ofn/kernel/arm_isolate.py (owned by #104)",
+    "ofn/kernel/timeout_verdict.py (owned by #104)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/kernel/revenue_states.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "tests/test_h1_buysw_dom.py (owned by #84)",
+    ".github/CODEOWNERS (owned by #102)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by #73; appended separately)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure arbiter claim. Default scope this_host_only. system_wide refused unless two distinct node_ids. UNKNOWN is not FALSE. Proposal is not execution. Agent-reported is not independently verified. Timeout does not prove concurrent writing. Missing LAN ports stay UNKNOWN, not loopback_absent. Disk absence on this host is body_not_on_this_host, not body_missing. Identity contradiction fails closed. grants_send / promotes_ready_to_send / claims_immutable / halt_blocks_claim structurally False. Ready ≠ authorized. Not wired into run_store.py. Does not claim filesystem immutability.",
+  "verification": {
+    "command": "python3 -m pytest tests/test_arbiter_claim.py tests/test_chaos_arbiter_claim.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T13:34:23Z",
+    "head_full_at_run": "87b5ed09234db305e405540de95c4e9a34e212df",
+    "exit_code": 0,
+    "result": "193 passed, 1013 subtests passed, 0 failed, 0 skipped",
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @87b5ed09234db305e405540de95c4e9a34e212df — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on #73",
+    "CONTRIBUTING.md": "absent on origin/main @87b5ed0 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "cursor/d27-unlock-ea6b",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "cursor/d28-edge-runbook-ea6b",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN"
+    }
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 102,
+    "branch": "gov/v4-independence-codeowners-20260902",
+    "head": "9376e15b2f6cbc070fcd083f2b9c9579fe0e0001",
+    "failed_check": "require-independent-approval",
+    "classification": "REVIEW_REQUIRED by design (issue #51). Author ari322 cannot self-approve a CODEOWNERS path. Gate not weakened."
+  },
+  "boundary": "no gate opened, no outbound, no secrets, no admin bypass, no worktree prune",
+  "filesystem_immutability": "NOT claimed",
+  "ready_ne_authorized": true,
+  "wired_into_run_store": false,
+  "external_effects": 0
+}

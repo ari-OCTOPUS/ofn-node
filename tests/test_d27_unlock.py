@@ -214,7 +214,11 @@ class TestRealFlagsStayEnvGated(unittest.TestCase):
         try:
             from ofn.config import load
             cfg = load()
-            self.assertFalse(cfg.wire_outbound)
+            # F-10 cleanup (2026-09-03): the intent-only flag is DELETED —
+            # the stronger D-27 lock. The wire stays closed by the outbox +
+            # store layer, never by a decorative boolean (node.env said =1
+            # since ~Aug 22 while gating nothing).
+            self.assertFalse(hasattr(cfg, "wire_outbound"))
             self.assertFalse(cfg.public_catalog_enabled)
             self.assertFalse(cfg.commerce_routes_enabled)
             self.assertGreaterEqual(cfg.control_quota_tokens, 1)

@@ -1,0 +1,51 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CALLBUDGET-CLOCK-20260902",
+  "issued_utc": "2026-09-02T11:32:33Z",
+  "author": "cursor-cloud-agent bc-d9322efa-e9a0-4c7b-a379-40fd9ee91000",
+  "owner_ratified": false,
+  "file_lock_zone": "/tmp/ofn-p1-xx",
+  "branch": "feat/p1-callbudget-clock-20260902",
+  "parent_head_full": "45dd9133dc3677630b9a3606fc7a41f00f5458e0",
+  "committed_head_full": "761e175580bce64be418e26a97d0613373d2a670",
+  "scope_measured": "origin/main @45dd9133dc3677630b9a3606fc7a41f00f5458e0; ofn/kernel/callbudget.py + tests/test_callbudget.py",
+  "scope_not_measured": [
+    "full suite (live smoke / root hygiene ignored, not executed this body)",
+    "filesystem immutability of this receipt (git blob, rewriteable)",
+    "board138 / vault bodies",
+    "PR #82 events.py/run_store.py (not written)",
+    "PR #83 envelope.py/token_ceiling.py (not written)",
+    "PR #87 receipts / #88 dedup / #93 rejection (not written)"
+  ],
+  "action": "Exact-int clock on CallBudget.day_index; grants_send structurally False; YAML daily caps pinned to DEFAULT_CAPS. HALT is not a parameter.",
+  "not_duplicated": {
+    "pr_83": "envelope.py / token_ceiling.py left to #83 @19532d3 — REVIEW_REQUIRED independent-approval, not an engineering block",
+    "pr_82": "events.py / run_store.py / chaos tests left to #82",
+    "pr_87": "receipts / idempotency left to #87",
+    "pr_88": "dedup / settlement left to #88",
+    "pr_93": "RUN_REJECTED side log left to #93",
+    "pr_77": "otel / inventory left to #77"
+  },
+  "delivered": {
+    "ofn/kernel/callbudget.py": "require_epoch_s rejects bool/float/str/negative; day_index no longer int()-coerces; grants_send structurally False; report refuses send/ready keys",
+    "tests/test_callbudget.py": "clock gate, yaml cap pin, halt-not-a-parameter, ready≠authorized"
+  },
+  "post_commit_witness_20260902T1132Z": {
+    "committed_head_full": "761e175580bce64be418e26a97d0613373d2a670",
+    "tree_state": "clean after code commit; this receipt is the second witness",
+    "command": "python3 -m pytest tests/test_callbudget.py tests/test_brain_wire.py tests/test_kernel_purity.py tests/test_envelope.py tests/test_run_store.py tests/test_token_ceiling.py tests/test_run_gate.py tests/test_chaos_owner_absent.py tests/test_tmpdir.py -q --tb=short",
+    "ran_at_utc": "2026-09-02T11:32:33Z",
+    "exit_code": 0,
+    "result": "200 passed, 994 subtests passed, 0 failed, 0 skipped",
+    "negative_controls": [
+      "now_epoch_s bool/float/str/negative refused on day_index/allows/record/report",
+      "REMOTE 100th is last allowed; RULES stays open",
+      "allows/record/spent/remaining/report/day_index have no halted parameter",
+      "grants_send False; campaign_envelope_ready listed in SEND_STATES, not granted",
+      "06-TOKEN-BUDGETS.yaml daily caps match DEFAULT_CAPS"
+    ],
+    "filesystem_immutability": "NOT claimed — receipt is a git blob, rewriteable by a later commit"
+  },
+  "boundary": "no gate opened, no outbound, no secrets, no admin bypass, no CODEOWNERS/protection change; quote_sent / send_authorized remain forbidden",
+  "ready_ne_authorized": true
+}

@@ -1,6 +1,7 @@
 # 00-OWNER-ABSENCE-PLAN — the 24-hour test (blueprint §11 + PR #75)
 
-scope_measured: scenario list mirrors tests/test_chaos_owner_absent.py (PR #75, HEAD 2ab1fe7);
+scope_measured: scenario list mirrors tests/test_chaos_owner_absent.py
+  (P1 merged #74/#75 @dd1d6cc; load-path + in-flight close on this follow-on);
   gate implementations referenced are merged-or-open code, not aspirations.
 scope_not_measured: the 24-hour run itself has NOT happened yet — this document is the plan,
   the tests are the unit-level proof; the day-long exercise remains open work (P7).
@@ -19,7 +20,7 @@ scope_not_measured: the 24-hour run itself has NOT happened yet — this documen
 | rate limit | bounded backoff سپس PARKED | `source_health.backoff_delays()`=(1,2,4) سرریزبه‌PARKED | Scenario3 |
 | duplicate delivery | یک اثر | `run_store` ردِ (kind,ref) تکراری | Scenario4 |
 | بودجهٔ یک بازو تمام | توقف همان بازو | `callbudget` per-rung (REMOTE=100) | Scenario5 |
-| global HALT | هیچ run جدیدی | `halt_flag` + `run_gate.start_run` | Scenario6 |
+| global HALT | هیچ run جدیدی؛ in-flight close مجاز | `halt_flag` + `run_gate.start_run` (STARTS only) | Scenario6 |
 | recovery بدون مالک | بستن run معیوب و شروع دوباره | `run_store.close()` + start | Scenario7 |
 
 ## Escalation ladder (what genuinely needs the owner)

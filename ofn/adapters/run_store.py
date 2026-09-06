@@ -279,6 +279,14 @@ class RunStore:
                         f"{tool!r}")
                 cleaned.append(tool)
             self._allowed_tools[run_id] = tuple(cleaned)
+            authority = payload.get("authority_level")
+            if authority == "A3":
+                if not str(payload.get("rollback_plan") or "").strip():
+                    raise FailClosedError(
+                        f"A3 RUN_CREATED missing rollback_plan on {run_id!r}")
+                if not str(payload.get("rollback_ref") or "").strip():
+                    raise FailClosedError(
+                        f"A3 RUN_CREATED missing rollback_ref on {run_id!r}")
         elif rec["kind"] == ev.EXECUTION_RECEIPT:
             eid = rec.get("event_id")
             if not isinstance(eid, str) or not eid.strip():
@@ -291,15 +299,41 @@ class RunStore:
             if not isinstance(ref, str) or not ref.strip():
                 raise FailClosedError(
                     f"BUDGET_DEBIT missing ref on {run_id!r}")
-            self._debited.add(ref)
+            if ref not in self._receipts:
+                raise FailClosedError(
+                    f"BUDGET_DEBIT ref unknown receipt on load: {ref!r}")
+            if self._receipt_run.get(ref) != run_id:
+                raise FailClosedError(
+                    f"cross-run collision on load: receipt {ref!r} belongs "
+                    f"to {self._receipt_run.get(ref)!r}, not {run_id!r}")
+            if ref in self._debited:
+                raise FailClosedError(
+                    f"receipt {ref!r} already settled on load — "
+                    "refusing second budget effect")
             spent = tokens_from_payload(rec.get("payload"))
-            self._tokens_consumed[run_id] = (
-                self._tokens_consumed.get(run_id, 0) + spent)
+            already = self._tokens_consumed.get(run_id, 0)
+            cap = self._budget_tokens.get(run_id, 0)
+            if not per_run_fits(cap, already, spent):
+                raise FailClosedError(
+                    f"per-run token ceiling on load: {already} + {spent} "
+                    f"> {cap} on {run_id!r}")
             aud_spent = aud_cents_from_payload(rec.get("payload"))
-            self._aud_consumed[run_id] = (
-                self._aud_consumed.get(run_id, 0) + aud_spent)
+            aud_already = self._aud_consumed.get(run_id, 0)
+            aud_cap = self._budget_aud_cents.get(run_id, 0)
+            if not per_run_fits(aud_cap, aud_already, aud_spent):
+                raise FailClosedError(
+                    f"per-run aud ceiling on load: {aud_already} + "
+                    f"{aud_spent} > {aud_cap} on {run_id!r}")
+            self._debited.add(ref)
+            self._tokens_consumed[run_id] = already + spent
+            self._aud_consumed[run_id] = aud_already + aud_spent
         if rec.get("ref"):
-            self._seen_kind_ref.add((rec["kind"], rec["ref"]))
+            pair = (rec["kind"], rec["ref"])
+            if pair in self._seen_kind_ref:
+                raise FailClosedError(
+                    f"duplicate event on load: {rec['kind']} "
+                    f"ref={rec['ref']!r} already recorded")
+            self._seen_kind_ref.add(pair)
         # Close is a state change, not a "ref-less event". A RUN_CLOSED that
         # carries a causal ref must still mark the run closed — otherwise
         # append-after-close is only structural for the no-ref happy path.

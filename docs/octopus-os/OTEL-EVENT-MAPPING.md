@@ -1,7 +1,9 @@
 # OTEL-EVENT-MAPPING — typed events ↔ OpenTelemetry GenAI (design-only, P5 preview)
 
-scope_measured: event vocabulary read from ofn/kernel/events.py (P1 branch @92f5267 lineage);
-  OTel GenAI convention status quoted from the blueprint's own warning.
+scope_measured: event vocabulary read from ofn/kernel/events.py on main after
+  #74/#75 squash @dd1d6cc; design map only — ofn/kernel/otel_map.py is the
+  isolated projection (this PR). OTel GenAI convention status quoted from
+  the blueprint's own warning.
 scope_not_measured: no OTel SDK added anywhere; no exporter; no network. This is a design map,
   deliberately NOT wired (P5), because the GenAI conventions were still "Development" status —
   adopting an unstable convention as stable is how a schema becomes a liability.

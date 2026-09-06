@@ -1,0 +1,53 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CAMPAIGN-BIND-20260903",
+  "issued_utc": "2026-09-03T03:23:25Z",
+  "author": "cursor-cloud bc-b2c3e3fd-d6bf-45bd-a270-a4915bdbc50f (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-campaign-bind on feat/p1-campaign-bind-20260903 parent origin/main @1f3525cd72f0d19a21bfef2d9afa5b605875007a (#124). campaign_bind.py and send_fence.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-8d15 @ccdf2d203c3fe4e681bbcb6e596543c70fc86e5e (PR #141) and was not written. #143 CI this-run: 1 of 16 failed = require-independent-approval (REVIEW_REQUIRED, not a code defect).",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary campaign_bind + send_fence — new files only. Ready structurally ≠ authorized. Later disarm supersedes older authorization. Not a second typed-receipt, campaign_envelope, or harvest PR.",
+  "delivered": {
+    "ofn/kernel/campaign_bind.py": "classify_state: None→UNKNOWN; campaign_envelope_ready (+hyphen/case)→CAMPAIGN_READY; send_authorized/quote_sent/unknown/empty/bool fail closed; bind_ready records canonical name and is frozen; try_bind missing→None; grants_send/ready_is_authorized/promotes_ready_to_send structurally False",
+    "ofn/kernel/send_fence.py": "admit_send ready→False, missing→None, send_authorized fail closed; promote ready→authorized/quote_sent refused; same-state restates; later_disarm_supersedes structurally True; grants_send structurally False; not wired into run_store.py",
+    "tests/test_campaign_bind.py": "E3 negatives: sealed send names, unknown string, empty, bool/int, frozen retcon, run_store import absence",
+    "tests/test_send_fence.py": "E3 negatives: ready→send, authorized→quote_sent, missing UNKNOWN, later disarm",
+    "tests/test_chaos_campaign_bind.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_campaign_bind tests.test_send_fence tests.test_chaos_campaign_bind tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T03:23:25Z",
+    "parent_head_full": "1f3525cd72f0d19a21bfef2d9afa5b605875007a",
+    "exit_code": 0,
+    "result": "227 passed / 0 failed / 0 skipped (unittest 'Ran 227 tests in 0.279s' / OK). New-module only: 48 passed (2026-09-03T03:23:21Z).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified this-run on prior body; this command used unittest)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-campaign-bind).",
+    "worktree": "/tmp/ofn-p1-campaign-bind",
+    "file_lock_zone": [
+      "ofn/kernel/campaign_bind.py",
+      "ofn/kernel/send_fence.py",
+      "tests/test_campaign_bind.py",
+      "tests/test_send_fence.py",
+      "tests/test_chaos_campaign_bind.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-CAMPAIGN-BIND-20260903.json",
+      "09-LANES/P1-CAMPAIGN-BIND/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE",
+      "send_authorized / quote_sent refuse as campaign bind",
+      "campaign_envelope_ready → send_authorized refused",
+      "admit_send(ready) is False; admit_send(None) is None",
+      "later_disarm_supersedes is True; grants_send is False",
+      "run_store source does not import campaign_bind or send_fence"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "typed_event / receipt_bind (#143) / kind_graph (#109) / campaign_envelope (#76) / harvest (#141) / observation_class / census_class (#124)"
+}

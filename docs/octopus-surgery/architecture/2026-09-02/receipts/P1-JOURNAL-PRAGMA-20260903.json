@@ -1,0 +1,55 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-JOURNAL-PRAGMA-20260903",
+  "issued_utc": "2026-09-03T03:24:20Z",
+  "author": "cursor-cloud bc-08b67b60-c774-40ee-ae27-081cb2fbf861 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-journal-pragma on feat/p1-journal-pragma-20260903 parent origin/main @1f3525cd72f0d19a21bfef2d9afa5b605875007a (#124). journal_class.py and pragma_class.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-f450 @031f923655347c9264ced25943a1df06ea975ab5 (PR #142) and was not written. #142 CI this-run: require-independent-approval x2 (REVIEW_REQUIRED, not a code defect).",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary journal_class + pragma_class — new files only. Not a second census, run_store, receipts, source-registry, or typed-receipt PR. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/pragma_class.py": "admit_pragma: journal_mode admits WAL only; synchronous admits FULL and EXTRA; NORMAL/OFF refuse; unknown pragma name → unknown_pragma (UNKNOWN, not FALSE); sealed send/ready names refuse; grants_send/halt_blocks_pragma/unknown_is_false/admits_normal_sync/claims_immutable/ready_is_authorized/promotes_ready_to_send/proposal_is_execution structurally False",
+    "ofn/kernel/journal_class.py": "admit_journal: open/fsync admitted only when VERIFIED; unlink/truncate/chmod_recursive_root always refused; timeout outranks concurrent → UNKNOWN; sealed names fail closed; deletes_wal_shm/timeout_proves_concurrent/grants_send/ready_is_authorized structurally False; not wired into run_store.py",
+    "tests/test_pragma_class.py": "E3 negatives: NORMAL, OFF, non-WAL journal modes, unknown name, unknown mode, bool/empty/int, sealed aliases, grants_send pin, run_store import absence",
+    "tests/test_journal_class.py": "E3 negatives: unlink wal/shm/events_jsonl, truncate, recursive chmod, timeout, unknown activity, suspected concurrent, sealed names, bool timed_out, census distinctness",
+    "tests/test_chaos_journal_pragma.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -m unittest tests.test_pragma_class tests.test_journal_class tests.test_chaos_journal_pragma tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_census_class tests.test_observation_class tests.test_inference_class -q",
+    "ran_at_utc": "2026-09-03T03:24:20Z",
+    "parent_head_full": "1f3525cd72f0d19a21bfef2d9afa5b605875007a",
+    "exit_code": 0,
+    "result": "329 passed / 0 failed / 0 skipped (unittest 'Ran 329 tests in 0.288s' / OK). New-module only: 63 passed (2026-09-03T03:24:16Z).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-journal-pragma).",
+    "worktree": "/tmp/ofn-p1-journal-pragma",
+    "file_lock_zone": [
+      "ofn/kernel/journal_class.py",
+      "ofn/kernel/pragma_class.py",
+      "tests/test_journal_class.py",
+      "tests/test_pragma_class.py",
+      "tests/test_chaos_journal_pragma.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-JOURNAL-PRAGMA-20260903.json",
+      "09-LANES/P1-JOURNAL-PRAGMA/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "unknown pragma name → UNKNOWN, not FALSE",
+      "synchronous=NORMAL refused (sync_not_full)",
+      "journal_mode non-WAL refused",
+      "timeout on wal open → UNKNOWN, does not prove concurrent writing",
+      "unlink wal/shm refused",
+      "campaign_envelope_ready → send_authorized refused",
+      "grants_send / ready_is_authorized / admits_normal_sync / deletes_wal_shm structurally False",
+      "run_store source does not import journal_class or pragma_class"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "census_class (#124) / observation_class / inference_class (#138) / typed_event / receipt_bind (#143) / source_registry (#142) / envelope.py / events.py / run_store.py / receipts"
+}
