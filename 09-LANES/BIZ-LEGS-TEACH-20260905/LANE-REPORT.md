@@ -241,3 +241,16 @@ expected at 12:00:00Z horizon; then execute §8.4 ctx-8192 restart runbook).
   (live PID 831108 دستنخورده). تصمیم swap با حرف مالک + runbook 12:05Z.
 - **OWNER-SIGN-PACK آماده شد (گزینهٔ B):** `06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-SIGN-PACK/`
   — اسکریپت فقط توسط مالک اجرا میشود (Ed25519، کلید فقط روی لپتاپ، بدون چاپ/انتقال کلید).
+
+### 8.8 Round 40 — GO مالک اجرا شد (06:09–06:20Z): مسیر B تا یک خطِ امضا آماده شد
+
+- مالک: «GO» → همهٔ موارد قابلاجرا بدون انتخاب حرف امنیتی اجرا شد (حرف A/B/C/D با مالک است؛
+  طبق سابقهٔ صریح «فریز نمیخوام/خودم ثبت کردم» مسیر B آمادهسازی شد — re-quarantine انجام نشد).
+- **verify_owner_sig.py روی ۱۳۸ deploy شد** (`bin/`, sha256 `95dc9d4b15b161e5381336abba9042d755bd013f9a09222847d74d505b2c3695`):
+  Ed25519 fail-closed (sig + sha256-manifest + key-fp pin) · SELFTEST **3/3 PASS**
+  (valid-accept / tamper-reject / wrong-file-reject) با کلید آزمایشی دورریز — کلید واقعی هرگز لمس نشد.
+- ساختار B باقی: مالک یک خط اجرا میکند (`OWNER-SIGN-PACK/sign-owner-go.sh`) → من `.sig`+manifest
+  را با رسید به ۱۳۸ میبرم → `owner-key-fp.txt` با تأیید مالک pin → enforcement flip (ورود پاکتِ
+  بدون امضا مسدود) با GO بعدی مالک. تا آن لحظه scheduler رفتار فعلی را دارد (هیچ چیز مسدود نشد).
+- llama سالم (06:09Z health ok) · swap ctx-8192 همچنان 12:05Z پس از نوشتن H-TIME_REFUTED.
+- CHECKOUT-1: منتظر order_id.
