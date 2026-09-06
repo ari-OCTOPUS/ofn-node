@@ -1,0 +1,113 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-PARITY-CHECK-20260905",
+  "lane": "P1-PARITY-CHECK",
+  "recorded_at_utc": "2026-09-05T13:32:19Z",
+  "body": "bc-fc8f0cf9-924c-4873-87b8-57ff3c5da7b3",
+  "branch": "feat/p1-parity-check-20260905",
+  "parent_head_full": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+  "parent_subject": "feat(leads): master 73-account file with standardized RELEVANCE/APPROACH labels (#208)",
+  "file_lock_zone": "/tmp/ofn-p1-parity-check",
+  "owns": [
+    "ofn/kernel/parity_class.py",
+    "ofn/kernel/check_pin.py",
+    "tests/test_parity_class.py",
+    "tests/test_check_pin.py",
+    "tests/test_chaos_parity_check.py",
+    "docs/octopus-surgery/architecture/2026-09-05/receipts/P1-PARITY-CHECK-20260905.json",
+    "09-LANES/P1-PARITY-CHECK/LANE-REPORT.md"
+  ],
+  "does_not_touch": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/adapters/run_store.py",
+    "ofn/config.py",
+    ".github/CODEOWNERS"
+  ],
+  "distinct_from": [
+    "overflow_class/carry_pin (#205) — used+add vs capacity",
+    "underflow_class/borrow_pin (#207) — subtract underflow",
+    "remainder_class/leftover_pin (#204) — leftover after divide",
+    "capacity_class/room_pin (#209) — occupancy vs limit",
+    "unpublished modulus_class/wrap_pin",
+    "unpublished saturation_class/clamp_pin",
+    "unpublished quotient_class/divide_pin",
+    "digest_class/fold_pin (#152)",
+    "receipts.py (#87)",
+    "dedup.py (#88)",
+    "unpublished payload_bound"
+  ],
+  "claim": "classify_family names even / odd from one non-negative count. This is even/odd of one count, not leftover-after-divide and not wrap-to-modulus. record is a START and is refused under HALT; classify / observe / inspect continue. Missing count is UNKNOWN (None), not FALSE. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_check records (slot → family:count) at most once per distinct pair; same pair is already_pinned; disagreement is parity_collision. peek never writes. pin_allows_record only for record+even or record+odd; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / even_is_authorized / odd_is_false / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce structurally False. halt_blocks_record and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), seq.py, campaign_bind/send_fence (#145), overflow_class/carry_pin (#205), underflow_class/borrow_pin (#207), remainder_class/leftover_pin (#204), capacity_class/room_pin (#209), unpublished modulus_class/wrap_pin, unpublished saturation_class/clamp_pin, unpublished quotient_class/divide_pin, unpublished align_class/pad_pin, unpublished offset_class/range_pin, unpublished overlap_class/collide_pin, unpublished payload_bound, digest_class/fold_pin (#152). Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_parity_class tests.test_check_pin tests.test_chaos_parity_check tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement -q",
+    "ran_at_utc": "2026-09-05T13:32:19Z",
+    "head_full_at_run": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "exit_code": 0,
+    "result": "269 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_parity_class.py": "42 passed, exit 0 (recount 2026-09-05T13:32:19Z, same parent)",
+      "tests/test_check_pin.py": "18 passed, exit 0 (recount 2026-09-05T13:32:19Z, same parent)",
+      "tests/test_chaos_parity_check.py": "7 passed, exit 0 (recount 2026-09-05T13:32:19Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-05T13:32:19Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_parity_class tests.test_check_pin tests.test_chaos_parity_check tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-05T13:31:56Z",
+      "exit_code": 0,
+      "result": "77 passed, 0 failed, 0 skipped (parity 42 / check 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host origin/main checkout @f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout and on incidents branch origin/docs/octopus-os-incidents-20260902 @82dc5bb15662ee0bc8a02e1ea64e48df997bcb0e (session y this-clone). Next append is session aa (unpublished session z remains first identifier; objects ABSENT this body).",
+    "CONTRIBUTING.md": "absent on this-host origin/main checkout @f2b9a5c — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "this-host origin/main checkout",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "source_a": "designated /workspace and isolated parent this-run (#208; 2026-09-05T13:30:04Z local rev-parse). git fetch denied by deny_egress.",
+    "value_b": "UNKNOWN",
+    "source_b": "live origin/main after deny_egress this-run (2026-09-05T13:30:04Z). Not treated as FALSE.",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-05T13:28:14.295Z",
+    "body": "bc-fc8f0cf9-924c-4873-87b8-57ff3c5da7b3",
+    "designated_branch": "cursor/taskenvelope-system-hardening-8b35",
+    "designated_sha": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Designated /workspace not written. Isolated first identifier feat/p1-parity-check-20260905."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
