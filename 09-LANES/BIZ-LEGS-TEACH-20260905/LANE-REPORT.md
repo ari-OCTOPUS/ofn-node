@@ -217,3 +217,27 @@ No wedge in the predicted window. Read-only ticks at 05:35:36 / 05:39:36 / 05:43
 (04:55–05:47Z) — zero memory creep toward MemoryHigh=1800M. llama untouched (tamper rule).
 Outcome file: `ops/p0-wedge/PREREG-WEDGE-2-OUTCOME.json` (final_verdict PENDING → H-TIME_REFUTED
 expected at 12:00:00Z horizon; then execute §8.4 ctx-8192 restart runbook).
+
+### 8.7 Round 39c — تصحیحهای روششناختی battery run-2 (پذیرفته شد؛ تخلیهٔ ادعا = موفقیت)
+
+- **SHELF-1 downgrade:** VERIFIED ✗ → **RECONFIRMED** (PAGE_EXISTS=E2 + fetch vantage دوم). ۵ صفحه
+  ACTIVE + http 200 فقط وجود عمومی را ثابت میکند؛ `PUBLICLY_FOUND / STRANGER_VISIT / INTENT_ORDER /
+  VERIFIED_OUTCOME` اثباتنشدهاند (T-27=0.10، T-28=0 درست است). value_row_credit صفحه = 0 — قبول.
+- **RSS flat:** فقط H-TIME را رد میکند. «نشتی نیست» = `NOT_TESTED_UNDER_LOAD` (همهٔ نمونهها با ۴۰۰ و
+  slot بیکار). دادهٔ اولیه زیر بار: تست ۸۰۸۲ (n=1، یک inference موفق ۱۶۷۹ توکن) — RSS instance 8192
+  زیر بار موفق = ۱,۲۱۰,۹۳۶ kB < MemoryHigh 1800M. رسید: `ops/p0-wedge/CTX8192-8082-TEST-RECEIPT-20260906.json`.
+  نشتیِ ساعتی هنوز آزموده نشده.
+- **C-15 اثبات میدانی (قبول):** worker از ~04:17Z هر ~۵۰ ثانیه با NameError میمرد در حالی که ۱۹/۱۹ تست
+  سبز و health=200 بود؛ ~۲۸ دقیقه بدون alert. T-24→0.30 و T-01→0.55 سقوط درست است. درس: تست خودنوشت
+  شاهد نیست؛ healthِ سرویسِ جدا از consumer معنادار نیست. (alert وابسته به consumer-state = ردیف آینده)
+- **effective_cap تصحیح شد:** هدر قبلی «LADDER=L2» طبق حکم battery = **L1** (پاکت‌های UNLOCK بازیافتی
+  از quarantine `NOT_AUTHENTICATED`؛ رفع فریز فقط proposal بود). از این به بعد هدرها:
+  `GOV_VERSION=V8 · LADDER_claimed=L2 · EFFECTIVE_CAP=L1 (owner letter A/B/C/D pending)`.
+  هر دو مقدار ثبت میشود، resolution=null، status=open تا حرف مالک.
+- **CHECKOUT-1 درستی:** `customer_class=OWNER_TEST · verified_cash_eligible=false · row_class=INFRA ·
+  proves=[payment_rail, order_object, webhook, fulfillment_path] · T-29 بعد از آن هم ۰ میماند`.
+- **۸۰۸۲ side-test (بدون رأی restart):** 8081 کنترل منفی = ۴۰۰ (سومین بار) · 8082 همان پرامپت ۱۶۷۹
+  توکنی = پذیرش و تکمیل (log: n_tokens=1686, truncated=0) · RSS زیر بار ۱.۲۱GB · teardown تمیز
+  (live PID 831108 دستنخورده). تصمیم swap با حرف مالک + runbook 12:05Z.
+- **OWNER-SIGN-PACK آماده شد (گزینهٔ B):** `06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-SIGN-PACK/`
+  — اسکریپت فقط توسط مالک اجرا میشود (Ed25519، کلید فقط روی لپتاپ، بدون چاپ/انتقال کلید).
