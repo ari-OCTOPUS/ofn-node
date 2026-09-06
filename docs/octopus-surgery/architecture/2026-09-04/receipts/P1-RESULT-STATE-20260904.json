@@ -1,0 +1,55 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-RESULT-STATE-20260904",
+  "issued_utc": "2026-09-04T14:24:08Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "branch": "feat/p1-result-state-20260904",
+  "parent_head_full": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+  "file_lock_zone": [
+    "ofn/kernel/result_class.py",
+    "ofn/kernel/state_pin.py",
+    "tests/test_result_class.py",
+    "tests/test_state_pin.py",
+    "tests/test_chaos_result_state.py",
+    "09-LANES/P1-RESULT-STATE/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-RESULT-STATE-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-7253 @930e0cc — not written)",
+    "ofn/agents/release_pipeline.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/envelope.py",
+    "ofn/adapters/run_store.py",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 result_class / state_pin. classify_result names passed/rejected/failed/unknown. Missing is None, not FALSE. ok=True with sent=False fails closed (D7). sent=True is only admissible beside passed and still does not grant_send. Sealed send/ready names fail closed. StatePin records (run_id → result); same pair already_pinned; different result result_collision; peek never writes. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_* / pin_allows_send / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / wires_into_run_store structurally False. later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from #194 release_pipeline, #145 campaign_bind/send_fence, #88 settlement, #87 receipts. Ready ≠ authorized.",
+  "verification": {
+    "new_module_purity": {
+      "command": "python3 -X utf8 -m unittest tests.test_result_class tests.test_state_pin tests.test_chaos_result_state tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-04T14:23:51Z",
+      "head_full_at_run": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+      "exit_code": 0,
+      "result": "53 passed, 0 failed"
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_result_class tests.test_state_pin tests.test_chaos_result_state tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence -q",
+      "ran_at_utc": "2026-09-04T14:24:07Z",
+      "head_full_at_run": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+      "exit_code": 0,
+      "result": "405 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
