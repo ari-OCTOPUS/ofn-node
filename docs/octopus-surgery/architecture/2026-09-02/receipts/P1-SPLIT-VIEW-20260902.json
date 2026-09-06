@@ -1,0 +1,110 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-SPLIT-VIEW-20260902",
+  "issued_utc": "2026-09-02T23:38:27Z",
+  "author": "cursor-cloud-agent bc-8adc983a-6f2f-410f-9218-21667e8cc9ec",
+  "owner_ratified": false,
+  "body": "bc-8adc983a-6f2f-410f-9218-21667e8cc9ec",
+  "branch": "feat/p1-split-view-20260902",
+  "parent_head_full": "608adb75487142e1431f5ada254b6abe3537337f",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/split_view.py",
+    "tests/test_split_view.py",
+    "tests/test_chaos_split_view.py",
+    "09-LANES/P1-SPLIT-VIEW/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-SPLIT-VIEW-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/arbiter_claim.py (owned by #105)",
+    "ofn/kernel/artifact_ref.py (owned by feat/p1-evidence-witness-20260902)",
+    "ofn/kernel/numeric_claim.py (collision open: evidence-witness vs other body)",
+    "ofn/kernel/effect_class.py (unpublished prior body — do not recreate)",
+    "ofn/kernel/replay_pin.py (unpublished prior body — do not recreate)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    ".github/CODEOWNERS (GOV-V6 on origin/main)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by incidents branch; appended separately)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure split view. Two independent sources recorded; disagreeing values stay status=open with resolution=null. Agent cannot resolve or silently pick. Missing either side is UNKNOWN, not a pick and not FALSE. Same source both sides fails closed. Float/bool values fail closed. Sealed send/ready names refuse as claim or value. campaign_envelope_ready structurally ≠ send_authorized. grants_send / ready_is_authorized / unknown_is_false / proposal_is_execution / agent_reported_is_verified / timeout_proves_concurrent_write / claims_immutable / halt_blocks_row / silently_picks structurally False. No halt/resend/send/resolution knob. HALT stops STARTS, not classification. Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -m unittest tests.test_split_view tests.test_chaos_split_view tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-02T23:38:27Z",
+    "head_full_at_run": "608adb75487142e1431f5ada254b6abe3537337f",
+    "exit_code": 0,
+    "result": "207 passed, 0 failed, 0 skipped (unittest testsRun; pytest module absent — ModuleNotFoundError)",
+    "runner": "stdlib unittest",
+    "per_file": {
+      "tests/test_split_view.py": "36 passed, 0 failed, 0 skipped, counted 2026-09-02T23:38:59Z",
+      "tests/test_chaos_split_view.py": "11 passed, 0 failed, 0 skipped, counted 2026-09-02T23:38:59Z",
+      "tests/test_kernel_purity.py": "10 passed, 0 failed, 0 skipped, counted 2026-09-02T23:38:59Z"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @608adb75487142e1431f5ada254b6abe3537337f — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on docs/octopus-os-incidents-20260902 @dee19426b4184475faf4bdbd73e9e2e0b4662076 (origin this-run)",
+    "CONTRIBUTING.md": "absent on origin/main @608adb75 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this_host file (also PR #67 blob)",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 83,
+    "branch": "feat/p1-envelope-deadline-mint-20260902",
+    "head_sha": "6732cd4a65db68359fea6320881ccd4dc5add9c1",
+    "failed_check": "require-independent-approval",
+    "job_ids": ["100462280084", "100462001115"],
+    "verdict": "REVIEW_REQUIRED by design (author cursor[bot], required Elahe-z or aram-ui, issue #51, GOV-V6). Not an engineering defect. Did not merge. Did not weaken the gate. This-run origin #83 tip d2e054bd32b2b5f2f2c32189b097421155b8c5a7 (collision with prior-memory 82447ea482d95c49f716f7a1776bd9c18c26971b; resolution null, status open)."
+  },
+  "collision_open": [
+    {
+      "claim": "origin/main HEAD",
+      "value_a": "58e87774f4428b247601f8b49956948491155f74",
+      "source_a": "prior_memory",
+      "value_b": "608adb75487142e1431f5ada254b6abe3537337f",
+      "source_b": "git_fetch_this_run",
+      "resolution": null,
+      "status": "open"
+    },
+    {
+      "claim": "PR 83 HEAD",
+      "value_a": "82447ea482d95c49f716f7a1776bd9c18c26971b",
+      "source_a": "prior_memory",
+      "value_b": "d2e054bd32b2b5f2f2c32189b097421155b8c5a7",
+      "source_b": "origin_this_run",
+      "resolution": null,
+      "status": "open"
+    }
+  ],
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
