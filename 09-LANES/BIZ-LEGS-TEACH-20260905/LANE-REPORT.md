@@ -210,3 +210,10 @@ Session: owner approved «restart llama (پس از پنجره), CHECKOUT-1, SHEL
 Buy ZM-GALLERY-0013 https://ziman-gift.com/products/kitty-bubble-balloon-gift-box-with-pink-roses-and-chocolates (A$45) →
 send `order_id` + `payout/confirmation_id`. Page re-verified today (all fields). `checkout1_poll.py` armed on 138
 (read-only admin poll) → agent closes receipt `REPORTED_NOT_VERIFIED` → rail proof.
+
+### 8.6 PREREG-WEDGE-2 window result (05:33:18–05:46:23Z) — CLEAN
+No wedge in the predicted window. Read-only ticks at 05:35:36 / 05:39:36 / 05:43:36Z + direct check
+05:36:54Z: health ok, closewait=0, both slots idle; RSS EXACTLY FLAT 853,768 kB over 14 ticks
+(04:55–05:47Z) — zero memory creep toward MemoryHigh=1800M. llama untouched (tamper rule).
+Outcome file: `ops/p0-wedge/PREREG-WEDGE-2-OUTCOME.json` (final_verdict PENDING → H-TIME_REFUTED
+expected at 12:00:00Z horizon; then execute §8.4 ctx-8192 restart runbook).
