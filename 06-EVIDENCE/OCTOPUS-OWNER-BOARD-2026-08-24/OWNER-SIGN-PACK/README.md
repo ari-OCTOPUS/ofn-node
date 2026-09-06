@@ -6,11 +6,14 @@
 
 ## اجرا (فقط خود مالک — هیچ ایجنتی این را اجرا نمیکند)
 
-```bash
-cd ~/.octopus-signing  exists?  ls
-bash "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-SIGN-PACK/sign-owner-go.sh" \
-  PACKET1.json PACKET2.json
+در **PowerShell** (توجه: `bash` تنهایی در PowerShell → WSL خراب Docker میزند؛ مسیر کامل Git Bash):
+
+```powershell
+cd "F:\backup\06-EVIDENCE\OCTOPUS-OWNER-BOARD-2026-08-24\OWNER-SIGN-PACK"
+& "C:\Program Files\Git\bin\bash.exe" "./sign-owner-go.sh"
 ```
+
+بدون آرگومان = همهٔ `queue/*.md` و `queue/*.json` امضا میشوند (۹ پاکت آمادهٔ صفحه).
 
 - کلید: `~/.octopus-signing/octopus-owner-ed25519-private.pem` (روی همین لپتاپ هست؛ اسکریپت فقط امضا میکند، کلید را چاپ/کپی/جابه‌جا نمیکند)
 - خروجی: `<packet>.sig` (base64) + `OWNER-SIGN-MANIFEST.jsonl` (file, sha256, sig, key_fp16, scheme)
