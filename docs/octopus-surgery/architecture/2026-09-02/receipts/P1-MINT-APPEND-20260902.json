@@ -1,0 +1,111 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-MINT-APPEND-20260902",
+  "issued_utc": "2026-09-02T23:46:41Z",
+  "author": "cursor-cloud-agent bc-89b1bbc6-0773-4499-9a03-e69488c3ca79",
+  "owner_ratified": false,
+  "body": "bc-89b1bbc6-0773-4499-9a03-e69488c3ca79",
+  "branch": "feat/p1-mint-append-20260902",
+  "parent_head_full": "65b6227de33b98c2d99e30863e53b75bf9cbf1f5",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "node_id": "bc-89b1bbc6-0773-4499-9a03-e69488c3ca79",
+  "asserted_ip": "unverified",
+  "file_lock_zone": [
+    "ofn/kernel/mint_fence.py",
+    "ofn/kernel/append_class.py",
+    "tests/test_mint_fence.py",
+    "tests/test_append_class.py",
+    "tests/test_chaos_mint_append.py",
+    "09-LANES/P1-MINT-APPEND/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-MINT-APPEND-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83 / now on origin/main via ancestors)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82 — read-only re-run)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/dedup.py (merged to origin/main via #88 this-run)",
+    "ofn/kernel/settlement.py (merged to origin/main via #88 this-run)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/phase_wall.py (owned by feat/p1-phase-wall-20260902 / #123)",
+    "ofn/kernel/dual_record.py (owned by feat/p1-dual-record-20260902)",
+    "ofn/kernel/artifact_ref.py (owned by feat/p1-evidence-witness-20260902)",
+    "ofn/kernel/numeric_claim.py (collision open — do not write)",
+    "ofn/kernel/witness_pair.py (prior body unpublished — do not recreate)",
+    "ofn/kernel/effect_class.py (other body — do not duplicate)",
+    "ofn/kernel/replay_pin.py (other body — do not duplicate)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by incidents branch; appended separately)",
+    ".github/CODEOWNERS (GOV-V6 — do not weaken)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main @65b6227 (#88 landed). Kernel-pure mint fence (C-008 second witness: trusted_boundary only; missing registry is UNKNOWN not empty; id_collision / untrusted_boundary / sealed_effect). Kernel-pure append class (append admitted; rewrite/truncate known refusals; unknown mode is UNKNOWN not rewrite). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_* / ready_is_authorized / claims_immutable / unknown_is_false / proposal_is_execution / unknown_registry_is_empty / unknown_mode_is_rewrite structurally False. No halt/resend/send knob. HALT stops STARTS, not collision lookup or in-flight append. Not wired into run_store.py or create_envelope(). Does not claim filesystem immutability. Ready ≠ authorized. Trigger PR #88 require-independent-approval was REVIEW_REQUIRED at fire; this-run later measured #88 merged on origin/main — did not reopen, did not weaken the gate.",
+  "verification": {
+    "command": "python3 -m unittest tests.test_mint_fence tests.test_append_class tests.test_chaos_mint_append tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent -q",
+    "ran_at_utc": "2026-09-02T23:46:41Z",
+    "head_full_at_run": "65b6227de33b98c2d99e30863e53b75bf9cbf1f5",
+    "exit_code": 0,
+    "result": "272 passed, 0 failed, 0 skipped",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError this host)",
+    "per_file": {
+      "tests/test_mint_fence.py": "38 passed, 0 failed, 0 skipped",
+      "tests/test_append_class.py": "34 passed, 0 failed, 0 skipped",
+      "tests/test_chaos_mint_append.py": "17 passed, 0 failed, 0 skipped",
+      "tests/test_kernel_purity.py": "10 passed, 0 failed, 0 skipped",
+      "tests/test_envelope.py": "28 passed, 0 failed, 0 skipped",
+      "tests/test_dedup.py": "12 passed, 0 failed, 0 skipped",
+      "tests/test_settlement.py": "11 passed, 0 failed, 0 skipped",
+      "tests/test_tmpdir.py": "4 passed, 0 failed, 0 skipped",
+      "tests/test_run_store.py+test_token_ceiling.py+test_run_gate.py+test_chaos_owner_absent.py": "118 passed, 0 failed, 0 skipped (combined block 2026-09-02T23:46:37Z)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @65b6227de33b98c2d99e30863e53b75bf9cbf1f5 — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on origin/main @65b6227 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on docs/octopus-os-incidents-20260902 @d63041a11b6f66e4edaa17557cbb559cc2b6346b",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/main",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_latest": "65b6227de33b98c2d99e30863e53b75bf9cbf1f5",
+    "subject": "feat(p1): kernel-pure (kind,ref) dedup + one-debit settlement (#88)",
+    "prior_fetch_same_run": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1 (#121) then advanced e83a4f2..65b6227",
+    "prior_memory_collision": {
+      "value_a": "58e87774f4428b247601f8b49956948491155f74",
+      "value_b": "608adb75487142e1431f5ada254b6abe3537337f",
+      "resolution": null,
+      "status": "open"
+    }
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 88,
+    "branch_at_trigger": "cursor/taskenvelope-system-hardening-c14b",
+    "head_sha_at_trigger": "eb3c435961bfd14fcd22add7722cf25531da2282",
+    "failed_checks": ["require-independent-approval", "require-independent-approval"],
+    "this_run_later_measure": "#88 merged on origin/main @65b6227 — REVIEW_REQUIRED at fire is not a defect; did not weaken gate; did not reopen #88"
+  },
+  "external_effects": "ZERO",
+  "ready_equals_authorized": false,
+  "filesystem_immutability": "NOT claimed",
+  "evidence_grade": "E3",
+  "evidence_grade_path": "tests/test_mint_fence.py + tests/test_append_class.py + tests/test_chaos_mint_append.py (negative + boundary + seven owner-absent chaos scenarios). Not E4: no held-out / scaffold-variation measurement."
+}
