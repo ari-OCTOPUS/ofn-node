@@ -1,0 +1,226 @@
+{
+  "artifact_bytes": 122856,
+  "artifact_path": "/home/ari/ofn/state/self-model/SYSTEM-SELF-MODEL.json",
+  "artifact_pid": 3144440,
+  "artifact_sha256": "ea9deebd8eef8a2bc7d6b8a96910b2f5eec1470c42ff1f6b950c90c6fd0f0bda",
+  "body_state": "UNKNOWN",
+  "brain_probe": "unknown",
+  "daemon_revision": "UNVERIFIED",
+  "exit_code": 0,
+  "flags_changed": 0,
+  "generated_at": "2026-09-04T08:26:14Z",
+  "head": "1c81bdf1d6eaf2c1fb466fbfd2c7fb297f1861d8",
+  "observation_count": 20,
+  "observed_at_epoch": 1788510374.62594,
+  "persistence": {
+    "assessment_hash": "110059dd26dcef7b41b7e06b157675de277d951edd0fad7386db69db4a084752",
+    "budget_cap_bytes": 20971520,
+    "executable": false,
+    "journal_cap_bytes": 8388608,
+    "journal_head": "b1548d8c60dd8f2e0f332db410304fcc9d37370399fc533bb1a38404bb43c32f",
+    "logical_records": 4,
+    "owner_requests": [
+      {
+        "evidence": [
+          {
+            "executable": false,
+            "missing": [
+              "physiology metrics",
+              "inter-organ links/deadlines",
+              "business cost attribution",
+              "prediction outcomes"
+            ]
+          }
+        ],
+        "executable": false,
+        "issue": "SHADOW-SENSOR-COVERAGE: declare real physiology/link/cost/outcome sources before interpreting organism readiness",
+        "issue_id": "owner:7a0f79e9ba9d204278bc21f51ea9452278ce845829c121d1b94e59796ddd92f9",
+        "state": "PENDING"
+      }
+    ],
+    "recall": [
+      {
+        "id": "5b7b68ff934300ea91a0293dda0e598fc098f3ad18d2bdd3e14e17f9f13b9299",
+        "occurred_at": "2026-09-04T08:26:14.183502+00:00",
+        "payload": {
+          "assessment_hash": "110059dd26dcef7b41b7e06b157675de277d951edd0fad7386db69db4a084752",
+          "body_state": "UNKNOWN",
+          "boot_id": null,
+          "node_id": null
+        },
+        "recorded_at": "2026-09-04T08:26:14.183502+00:00",
+        "supersedes": null
+      }
+    ],
+    "state": "COMMITTED_ADVISORY"
+  },
+  "process_pid": 3144440,
+  "remote_pushes": 0,
+  "root": "/home/ari/ofn",
+  "schema": "octopus.organism-producer-invocation.v1",
+  "scope": "explicit existing producer invocation, not daemon restart",
+  "selected_code_matched": true,
+  "service_restarts": 0,
+  "started_at_epoch": 1788510374.037495,
+  "status": "unverifiable",
+  "stderr_present": false,
+  "stdout": "self-model status=unverifiable commit=1c81bdf1d6eaf2c1fb466fbfd2c7fb297f1861d8 sensors=1 processes=6 capabilities=13 healthy=20 absent=0 stale=0 failed=0 unknown=0\nartifact=/home/ari/ofn/state/self-model/SYSTEM-SELF-MODEL.json\nsha256=ea9deebd8eef8a2bc7d6b8a96910b2f5eec1470c42ff1f6b950c90c6fd0f0bda\nsemantic_digest=0de6e8ff71111401a9a7f2a17059974e1bd0a13cb26e8d4498b08e1a92cbff98\ngenerated_at=2026-09-04T08:26:14Z\n",
+  "warnings": [
+    "brain_probe_unknown"
+  ],
+  "witnesses": {
+    "organism_adapter": {
+      "functions": {
+        "assess_snapshot": {
+          "compiled_source_sha256": "7c4e13b82f054b9fe6b8360ae05d19db2c2ded77c6318edc6c0e4a9b7bd257cd",
+          "loaded_sha256": "7c4e13b82f054b9fe6b8360ae05d19db2c2ded77c6318edc6c0e4a9b7bd257cd",
+          "matched": true
+        },
+        "record_assessment": {
+          "compiled_source_sha256": "21393928ae44f2cbea6cf8221b6d114044bdbda3c85b9b3d18352fa9c806fa7c",
+          "loaded_sha256": "21393928ae44f2cbea6cf8221b6d114044bdbda3c85b9b3d18352fa9c806fa7c",
+          "matched": true
+        }
+      },
+      "limitations": [
+        "Does not verify mutable globals, module initialization, dependencies or another process.",
+        "Source correspondence is observed at call time, not an immutable deployment attestation."
+      ],
+      "matched": true,
+      "module": "ofn.adapters.organism_shadow",
+      "module_path": "/home/ari/ofn/ofn/adapters/organism_shadow.py",
+      "python": {
+        "cache_tag": "cpython-313",
+        "implementation": "cpython",
+        "marshal_version": 2,
+        "optimization": 0,
+        "version": [
+          3,
+          13,
+          5
+        ]
+      },
+      "schema": "octopus.selected-code-witness.v1",
+      "scope": "selected_loaded_function_code_only",
+      "source_bytes": 10572,
+      "source_sha256": "0a2de4d38a6027d8f86d1d8c2536420be3c0b2fec7f0740817feb25518151a22",
+      "status": "matched"
+    },
+    "producer": {
+      "functions": {
+        "main": {
+          "compiled_source_sha256": "a75f932053b24ac95c9c07910f5949fea14938a1b98116781cf98fc495cda8e3",
+          "loaded_sha256": "a75f932053b24ac95c9c07910f5949fea14938a1b98116781cf98fc495cda8e3",
+          "matched": true
+        },
+        "produce": {
+          "compiled_source_sha256": "46535fa54514b7192390f11f9660d605bc938a78e9b38bd537c8cc03720dab2c",
+          "loaded_sha256": "46535fa54514b7192390f11f9660d605bc938a78e9b38bd537c8cc03720dab2c",
+          "matched": true
+        }
+      },
+      "limitations": [
+        "Does not verify mutable globals, module initialization, dependencies or another process.",
+        "Source correspondence is observed at call time, not an immutable deployment attestation."
+      ],
+      "matched": true,
+      "module": "__main__",
+      "module_path": "/home/ari/ofn/ofn/adapters/self_model_producer.py",
+      "python": {
+        "cache_tag": "cpython-313",
+        "implementation": "cpython",
+        "marshal_version": 2,
+        "optimization": 0,
+        "version": [
+          3,
+          13,
+          5
+        ]
+      },
+      "schema": "octopus.selected-code-witness.v1",
+      "scope": "selected_loaded_function_code_only",
+      "source_bytes": 19863,
+      "source_sha256": "077c77465a9fbf1160edee9f297d59d018eabcf410c8357e4cb2e251ac5b9817",
+      "status": "matched"
+    },
+    "self_model": {
+      "functions": {
+        "brain_probe_verdict": {
+          "compiled_source_sha256": "9da8067427ebc242e7f3deee99304214b48037fabfd26f14c8aeff0f9fba2435",
+          "loaded_sha256": "9da8067427ebc242e7f3deee99304214b48037fabfd26f14c8aeff0f9fba2435",
+          "matched": true
+        },
+        "build_model": {
+          "compiled_source_sha256": "1a5e35c69df86416fb6751e1f49a19af5d6933a1837db8eb11679c54272a8b70",
+          "loaded_sha256": "1a5e35c69df86416fb6751e1f49a19af5d6933a1837db8eb11679c54272a8b70",
+          "matched": true
+        },
+        "capability_reading": {
+          "compiled_source_sha256": "b7fd370b0f69df56d5ab722f888005244c2f0da4171066ebf365d2c21093df95",
+          "loaded_sha256": "b7fd370b0f69df56d5ab722f888005244c2f0da4171066ebf365d2c21093df95",
+          "matched": true
+        },
+        "process_reading": {
+          "compiled_source_sha256": "ea2f060ea78b3ab7fe65590730141d182b611be9dee880a24e70ecb06086d755",
+          "loaded_sha256": "ea2f060ea78b3ab7fe65590730141d182b611be9dee880a24e70ecb06086d755",
+          "matched": true
+        }
+      },
+      "limitations": [
+        "Does not verify mutable globals, module initialization, dependencies or another process.",
+        "Source correspondence is observed at call time, not an immutable deployment attestation."
+      ],
+      "matched": true,
+      "module": "ofn.kernel.self_model",
+      "module_path": "/home/ari/ofn/ofn/kernel/self_model.py",
+      "python": {
+        "cache_tag": "cpython-313",
+        "implementation": "cpython",
+        "marshal_version": 2,
+        "optimization": 0,
+        "version": [
+          3,
+          13,
+          5
+        ]
+      },
+      "schema": "octopus.selected-code-witness.v1",
+      "scope": "selected_loaded_function_code_only",
+      "source_bytes": 10344,
+      "source_sha256": "c6a60a6c75ab48181d13d97fb0864408f8e7ddf792ddff8d231abf3fda06cb50",
+      "status": "matched"
+    },
+    "shadow_pipeline": {
+      "functions": {
+        "run_shadow_pipeline": {
+          "compiled_source_sha256": "6fa83c1d3c6db0db76a10da6080fc36d6afc26958e66b57fbf9ce23d593d828b",
+          "loaded_sha256": "6fa83c1d3c6db0db76a10da6080fc36d6afc26958e66b57fbf9ce23d593d828b",
+          "matched": true
+        }
+      },
+      "limitations": [
+        "Does not verify mutable globals, module initialization, dependencies or another process.",
+        "Source correspondence is observed at call time, not an immutable deployment attestation."
+      ],
+      "matched": true,
+      "module": "shadow_homeostasis.pipeline",
+      "module_path": "/home/ari/ofn/shadow_homeostasis/pipeline.py",
+      "python": {
+        "cache_tag": "cpython-313",
+        "implementation": "cpython",
+        "marshal_version": 2,
+        "optimization": 0,
+        "version": [
+          3,
+          13,
+          5
+        ]
+      },
+      "schema": "octopus.selected-code-witness.v1",
+      "scope": "selected_loaded_function_code_only",
+      "source_bytes": 2423,
+      "source_sha256": "9f81e1bac5cd246f6b50be4888c92686c6b7c95ba2eb464c5d1c0ec0483efa8f",
+      "status": "matched"
+    }
+  }
+}
