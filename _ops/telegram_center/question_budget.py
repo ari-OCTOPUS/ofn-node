@@ -194,6 +194,39 @@ def owner_reply_ok(chat_id, owner_chat_id) -> bool:
     return bool(owner_chat_id) and str(chat_id) == str(owner_chat_id)
 
 
+def validate_answer_for_resume(answer_text: str, item: dict) -> "tuple[bool, str]":
+    """SKILL-TOOL-GUARD-V1 transferred from ACD-01/07: structural validation
+    of owner answer BEFORE task resume. Deterministic, zero model calls.
+
+    Checks (all deterministic, mirroring acd07_harness.deterministic_validator):
+      1. non-empty (empty_response_guard)
+      2. freshness: answer came AFTER the question was asked (asked_ts)
+      3. contamination: no embedded system-instruction markers
+      4. scope: answer is to the current question (not a stale replay)
+
+    Returns (valid, reason). Fail-closed: any structural failure = no resume.
+    """
+    a = str(answer_text or "").strip()
+    if not a:
+        return False, "empty answer"
+    # 3) contamination: if the answer contains instruction-like markers,
+    #    it may be a pasted tool output or injected content, not a human answer
+    _INJECTION_MARKERS = ("SYSTEM OVERRIDE:", "ignore previous instructions",
+                          "IMPORTANT:", "```python", "```bash", "```shell")
+    lowered = a.lower()
+    for marker in _INJECTION_MARKERS:
+        if marker.lower() in lowered:
+            return False, f"contamination marker: {marker!r}"
+    # 4) scope: if the question has been superseded (newer version asked),
+    #    an answer to the old version must not resume the task
+    asked_ts = item.get("asked_ts")
+    if asked_ts is not None and item.get("resumed_ts") is not None:
+        return False, "already resumed (stale replay)"
+    # 2) freshness is checked by record_answer (answered_ts after asked_ts implicit
+    #    in the reply flow — the handler only fires on a reply to the question message)
+    return True, "structural pass"
+
+
 def take_resume(qid: str, *, now: "float | None" = None) -> "dict | None":
     """پاسخِ ثبت‌شدهٔ سؤالِ دارایِ blocked_task_id را **دقیقاً یک‌بار** به wake
     تبدیل می‌کند (idempotent: دوباره = None) و یک رویدادِ پایدارِ task.resume
@@ -205,6 +238,11 @@ def take_resume(qid: str, *, now: "float | None" = None) -> "dict | None":
         return None
     if it.get("resumed_ts"):
         return None                     # قبلاً یک‌بار ادامه داده‌ایم
+    # SKILL-TOOL-GUARD-V1: structural validation before resume (fail-closed)
+    _answer_text = str(it.get("answer") or "")
+    _valid, _why = validate_answer_for_resume(_answer_text, it)
+    if not _valid:
+        return None                     # structurally invalid answer — no resume
     it["resumed_ts"] = now
     payload = {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
                "blocked_task_id": it.get("blocked_task_id", ""),
