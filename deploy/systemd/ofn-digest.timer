@@ -1,0 +1,14 @@
+# Fires daily at 07:00 local time.
+# ASSUMPTION: board138 timezone is Australia/Sydney.
+# If UTC, change to 21:00 (AEST) or 20:00 (AEDT).
+# Check with: timedatectl on board138.
+
+[Unit]
+Description=Daily owner digest at 7:00 AM
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

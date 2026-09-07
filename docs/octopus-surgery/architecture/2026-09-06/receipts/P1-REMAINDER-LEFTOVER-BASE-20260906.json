@@ -1,0 +1,128 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-REMAINDER-LEFTOVER-BASE-20260906",
+  "issued_utc": "2026-09-06T01:51:43Z",
+  "author": "cursor-cloud-agent bc-1039a072-c564-4c09-a934-ab38c59b83a7",
+  "owner_ratified": false,
+  "body": "bc-1039a072-c564-4c09-a934-ab38c59b83a7",
+  "branch": "feat/p1-remainder-leftover-20260905",
+  "pr": 204,
+  "pre_merge_head_full": "423bb282336ec6173536e8eff76c747b69c440ae",
+  "merge_head_full": "74fb98af62943a0566368879b043a40df2188d28",
+  "origin_main_full": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+  "origin_main_subject": "feat(kernel): parity_class / check_pin — even/odd witness, no send (#210)",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "/tmp/ofn-p1-remainder-leftover",
+    "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-REMAINDER-LEFTOVER-BASE-20260906.json",
+    "09-LANES/P1-REMAINDER-LEFTOVER/LANE-REPORT.md"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-6870 @423bb282336ec6173536e8eff76c747b69c440ae — #204 SHA; not written)",
+    "ofn/kernel/remainder_class.py (blob f48c4e219a47b7bdeedc983095180236a55dc940 MATCH pre-merge)",
+    "ofn/kernel/leftover_pin.py (blob c59cf51ced58e540f95530771c4f57388ecb0c46 MATCH pre-merge)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/parity_class.py (incoming from origin/main #210; not rewritten)",
+    "ofn/kernel/check_pin.py (incoming from origin/main #210; not rewritten)",
+    "ofn/kernel/later_hold.py",
+    "ofn/kernel/scoped_authz.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "require-fresh-base refresh of existing #204. Isolated worktree merged origin/main #210 into feat/p1-remainder-leftover-20260905. Did not rewrite remainder_class / leftover_pin (blobs MATCH pre-merge). Did not open a second remainder-leftover PR. campaign_envelope_ready structurally ≠ send_authorized. Ready ≠ authorized. Filesystem immutability NOT claimed.",
+  "verification": {
+    "new_plus_incoming": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_remainder_class tests.test_leftover_pin tests.test_chaos_remainder_leftover tests.test_parity_class tests.test_check_pin tests.test_chaos_parity_check tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-06T01:51:42Z",
+      "head_full_at_run": "74fb98af62943a0566368879b043a40df2188d28",
+      "exit_code": 0,
+      "result": "234 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)"
+    },
+    "related_suite": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_remainder_class tests.test_leftover_pin tests.test_chaos_remainder_leftover tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_parity_class tests.test_check_pin tests.test_chaos_parity_check tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_events -q",
+      "ran_at_utc": "2026-09-06T01:51:43Z",
+      "head_full_at_run": "74fb98af62943a0566368879b043a40df2188d28",
+      "exit_code": 0,
+      "result": "483 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)"
+    },
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_remainder_class.py": "44 passed, exit 0 (recount 2026-09-06T01:51:43Z, merge HEAD 74fb98af62943a0566368879b043a40df2188d28)",
+      "tests/test_leftover_pin.py": "17 passed, exit 0 (recount 2026-09-06T01:51:43Z, same HEAD)",
+      "tests/test_chaos_remainder_leftover.py": "7 passed, exit 0 (recount 2026-09-06T01:51:43Z, same HEAD)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-06T01:51:44Z, same HEAD)",
+      "tests/test_parity_class.py": "42 passed, exit 0 (recount 2026-09-06T01:51:44Z, incoming #210)",
+      "tests/test_check_pin.py": "18 passed, exit 0 (recount 2026-09-06T01:51:44Z, incoming #210)",
+      "tests/test_chaos_parity_check.py": "7 passed, exit 0 (recount 2026-09-06T01:51:44Z, incoming #210)",
+      "tests/test_later_hold.py": "43 passed, exit 0 (recount 2026-09-06T01:51:44Z, already on #204)",
+      "tests/test_scoped_authz.py": "39 passed, exit 0 (recount 2026-09-06T01:51:44Z, already on #204)",
+      "tests/test_chaos_later_hold.py": "7 passed, exit 0 (recount 2026-09-06T01:51:44Z, already on #204)"
+    },
+    "ahead_behind_after_merge": "origin/main...HEAD = 0 behind / 4 ahead (git rev-list --left-right --count 2026-09-06T01:51:33Z)",
+    "tree_state": "clean merge then this receipt + lane-report append"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @33d2d7bb72b1fd8094574bad418648b28d13190e — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout and on incidents branch origin/docs/octopus-os-incidents-20260902 @93d21b601ba8c21e6a2704510c6e0b7cea3cf4f6 (session oo then merge of origin/main). Next append is session pp.",
+    "CONTRIBUTING.md": "absent on origin/main @33d2d7b — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+    "source_a": "this-clone origin/main after git fetch 2026-09-06T01:50:50Z (#210)",
+    "value_b": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+    "source_b": "prior-memory hysteresis-band parent (#210) 2026-09-06T01:47Z",
+    "value_c_stale_local_before_fetch": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "source_c": "this-clone origin/main before fetch (#208)",
+    "resolution": "value_a MATCH value_b; value_c is stale pre-fetch local. This body merged value_a into #204.",
+    "status": "closed_for_this_refresh"
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "failed_check": "require-fresh-base",
+    "pr": 204,
+    "head_sha": "423bb282336ec6173536e8eff76c747b69c440ae",
+    "job_id": "101410078342",
+    "summary": "Stale base: this PR is 1 commit(s) behind main. Missing #210 33d2d7bb72b1fd8094574bad418648b28d13190e.",
+    "body": "bc-1039a072-c564-4c09-a934-ab38c59b83a7",
+    "designated_branch": "cursor/taskenvelope-system-hardening-6870",
+    "designated_sha": "423bb282336ec6173536e8eff76c747b69c440ae",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Designated /workspace not written. Reused existing #204. Did not mint a second remainder-leftover PR."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
