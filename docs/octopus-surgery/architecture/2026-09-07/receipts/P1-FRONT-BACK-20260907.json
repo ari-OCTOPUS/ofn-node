@@ -1,0 +1,68 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-FRONT-BACK-20260907",
+  "issued_utc": "2026-09-07T06:23:58Z",
+  "author": "cursor-cloud bc-dec773b4-fd26-4a25-af2d-d327a8993973 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-front-back on feat/p1-front-back-20260907 parent origin/main @ee11d612e9f187e9c38bef0d5bf6875ad1161e0f (#152). front_class.py and back_pin.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-5878 @ee11d612e9f187e9c38bef0d5bf6875ad1161e0f and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list deny_egress this-run; git ls-remote used)"
+  ],
+  "action": "P1 complementary front_class + back_pin — new files only. Signed-depth witness: at / back / front from one plane. mark is a START (HALT refuses). classify/observe/inspect continue. Missing depth/plane is UNKNOWN, not FALSE and not 0. Timeout is UNKNOWN, not a concurrent-write proof. campaign_envelope_ready structurally ≠ send_authorized. Not a second left-right (#229), near-far (#228), mid-center (#227), head-tail (#226), carve-extract (#225), remainder-leftover (#204), hysteresis-band (#217), or unpublished splice/stitch / offset/range / watermark/high PR.",
+  "delivered": {
+    "ofn/kernel/front_class.py": "classify_family: missing→UNKNOWN; at/back/front named; mark START; classify/observe/inspect continue; sealed/bool/empty/float fail closed; AT is plane coincidence never BACK or FRONT; signed_of missing→None not 0; grants_send/ready_is_authorized/back_is_authorized structurally False; later_disarm_supersedes structurally True; no radius parameter (unsigned reach is #228); no index/origin (lateral signed is #229)",
+    "ofn/kernel/back_pin.py": "pin_back records family:depth:plane; same triple already_pinned; different back_collision; peek does not write; pin_allows_back only mark+back; pin_allows_front only mark+front; AT recorded not granted; grants_send/ready_is_authorized structurally False; later_disarm_supersedes structurally True; not wired into run_store.py",
+    "tests/test_front_class.py": "E3 negatives: missing UNKNOWN not 0, timeout, sealed names, bool halt, AT never BACK/FRONT, classify_family has no radius/index/origin",
+    "tests/test_back_pin.py": "E3 negatives: missing UNKNOWN, collision, sealed slots, frozen retcon, signed depth pin",
+    "tests/test_chaos_front_back.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_front_class tests.test_back_pin tests.test_chaos_front_back tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_dedup tests.test_settlement tests.test_events tests.test_digest_class tests.test_fold_pin tests.test_chaos_digest_fold tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-07T06:23:58Z",
+    "parent_head_full": "ee11d612e9f187e9c38bef0d5bf6875ad1161e0f",
+    "exit_code": 0,
+    "result": "514 passed / 0 failed / 0 skipped (unittest 'Ran 514 tests in 0.836s' / OK). New-module + purity: 82 passed (front 46 / back 19 / chaos 7 / purity 10) @ 2026-09-07T06:23:52Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-front-back).",
+    "worktree": "/tmp/ofn-p1-front-back",
+    "file_lock_zone": [
+      "ofn/kernel/front_class.py",
+      "ofn/kernel/back_pin.py",
+      "tests/test_front_class.py",
+      "tests/test_back_pin.py",
+      "tests/test_chaos_front_back.py",
+      "docs/octopus-surgery/architecture/2026-09-07/receipts/P1-FRONT-BACK-20260907.json",
+      "09-LANES/P1-FRONT-BACK/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not 0",
+      "timeout → UNKNOWN, does not prove a writer",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as intent/slot",
+      "admit_front(mark, halted=True) is False; classify/observe/inspect continue",
+      "plane coincidence is AT, never BACK or FRONT",
+      "classify_family has no radius/index/origin parameters (unsigned reach is #228; lateral signed is #229)",
+      "pin_allows_send always False; pin_allows_back only mark+back",
+      "back_collision fail closed on different triple",
+      "adapters/run_store.py does not import front_class or back_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "left_class/right_pin (#229) / near_class/far_pin (#228) / mid_class/center_pin (#227) / head_class/tail_pin (#226) / carve_class/extract_pin (#225) / remainder_class/leftover_pin (#204) / hysteresis_class/band_pin (#217) / digest_class/fold_pin (#152) / envelope.py / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88) / unpublished splice_class/stitch_pin / unpublished offset_class/range_pin / unpublished watermark/high / unpublished prefix/stem / unpublished payload_bound"
+}
