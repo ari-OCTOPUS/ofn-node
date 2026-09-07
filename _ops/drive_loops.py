@@ -117,6 +117,39 @@ def _msg38_receipt_present() -> bool:
     return bool((_read_json(MSG38_RCPT) or {}).get("verified"))
 
 
+def _msg38_resolved() -> bool:
+    # رأی مالک 2026-09-07: نمی‌خرم — NOT_PAID. حل‌شدنِ سؤال = باز شدنِ قفل
+    # (رسید روی ۱۳۸؛ این marker آینهٔ محلی همان رسید است)
+    r = _read_json(DRIVE / "msg38-resolution.json") or {}
+    return r.get("resolution") == "NOT_PAID" and bool(r.get("receipt"))
+
+
+def _hold_external_open() -> bool:
+    return (_read_json(DRIVE / "hold-external-open.json") or {}).get("status") == "OPEN"
+
+
+def _go_extended() -> bool:
+    from datetime import datetime, timezone
+    g = _read_json(DRIVE / "go-expiry.json") or {}
+    try:
+        exp = datetime.strptime(str(g.get("expires_at")), "%Y-%m-%dT%H:%M:%SZ"
+                                ).replace(tzinfo=timezone.utc).timestamp()
+        return exp > NOW
+    except ValueError:
+        return False
+
+
+def _new_domains_known() -> bool:
+    d = _read_json(DRIVE / "new-domains.json") or {}
+    doms = d.get("domains")
+    return isinstance(doms, list) and len(doms) >= 2 and all(
+        bool(x.get("name")) for x in doms if isinstance(x, dict))
+
+
+def _registry_round2_done() -> bool:
+    return (_read_json(DRIVE / "registry-round2-done.json") or {}).get("done") is True
+
+
 def _first_order_present() -> bool:
     # رسید واقعی اولین سفارش را هر ایجنت/پالِر ۱۳۸ اینجا می‌اندازد (قرارداد فایل)
     return (_read_json(STATE / "receipts" / "FIRST-ORDER-RECEIPT.json") or {}).get("order_id") \
@@ -138,10 +171,34 @@ LOCKS = {
         "source": "state/drive/sender-identity.json",
     },
     "MSG38_payment": {
-        "title": "msg38 — ادعای پرداخت مالک بدون رسید (REPORTED_NOT_VERIFIED)",
-        "check": _msg38_receipt_present,
-        "next": "ارتقا به VERIFIED + ثبت در فایل سیزن؛ حامل state = mesh/138",
-        "source": "state/drive/msg38-receipt.json",
+        "title": "msg38 — حل‌شده با رأی مالک: NOT_PAID (رسیددار)",
+        "check": _msg38_resolved,
+        "next": "ثبتِ settle outcome در calibration در verify-dispatch بعدی (۱۸۲) — سیگنال منفی صادق",
+        "source": "state/drive/msg38-resolution.json → 138 receipt MSG38-RESOLVED-NOT-PAID-20260907.json",
+    },
+    "L23_hold_external": {
+        "title": "hold_external — باز شد با رأی مالک (باز کن با رسید)",
+        "check": _hold_external_open,
+        "next": "پایش اولین پکت mint‌شده با hold_external=false (۰۹-۰۸ UTC) + اولین اثر بیرونیِ رسیددار از حلقهٔ داخلی",
+        "source": "state/drive/hold-external-open.json → GO-EXT2 receipt + ofn commit 63938eb0",
+    },
+    "L24_go_extended": {
+        "title": "standing GO — تمدید تا 2026-10-07 (رأی مالک)",
+        "check": _go_extended,
+        "next": "هیچ‌چیز تا ۱۰-۰۶؛ بعدش ترسِ انقضا دوباره بالا می‌رود (خودکار)",
+        "source": "state/drive/go-expiry.json → spec ext:2 روی ۱۳۸",
+    },
+    "DOM2_names": {
+        "title": "دو دامنهٔ جدیدِ خریداری‌شدهٔ مالک — نام‌ها هنوز نامعلوم",
+        "check": _new_domains_known,
+        "next": "از مالک بپرس (تلگرام/چت) → ثبت در new-domains.json → DNS + Shopify primary + مینی‌اپ عمومی",
+        "source": "جستجوی 2026-09-07: vault/138/Shopify-API هیچ‌جا نبود — فقط خود مالک می‌داند",
+    },
+    "REGISTRY_round2": {
+        "title": "مرحلهٔ ۲ رجیستری (METABOLIC، PRODUCTION، moot×۸) — پرسیده نشده",
+        "check": _registry_round2_done,
+        "next": "سوال‌های مرحلهٔ ۲ با سؤال ساختاریافته از مالک + ثبت در OWNER-APPROVALS",
+        "source": "01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md فاز ۲",
     },
     "CASH_first_order": {
         "title": "VERIFIED_CASH=0 — اولین سفارش واقعی نیامده",
@@ -176,14 +233,35 @@ def _fear_vector() -> list[dict]:
         fears.append({"id": "SURVIVAL_zero_cash", "title": "VERIFIED_CASH=0 · هزینهٔ ماه AU$200",
                       "severity": 0.85, "state": "chronic",
                       "source": "budget-state.json + owner answers item 2"})
-    deadline_fear("MSG38_deadline", "msg38 NOT_PAID خودثبت می‌شود",
-                  "2026-09-08T12:10:32Z", "ACTIVE-SEASON pointer")
+    # msg38 حل شد (NOT_PAID با رأی مالک 2026-09-07) — ترسِ ددلاینش حذف؛
+    # اگر رسیده نیامده باشد fear برنمی‌گردد چون رأی مالک قطعی است.
+    go_exp = "2026-10-07T00:00:00Z"  # mirror: state/drive/go-expiry.json (GO-EXT2)
+    g = _read_json(DRIVE / "go-expiry.json") or {}
+    if g.get("expires_at"):
+        go_exp = str(g["expires_at"])
     deadline_fear("GO_expiry", "standing GO منقضی ⇒ mint/wake می‌ایستد",
-                  "2026-09-21T00:00:00Z", "STANDING-GO spec (رأی D-2)")
+                  go_exp, "STANDING-GO spec ext:2 (GO-EXT2, رأی مالک تا ۱۰-۰۷)")
     if not LOCKS["D0_domain"]["check"]():
         fears.append({"id": "D0_domain", "title": "دامنهٔ مرده ⇒ فروش زیمان صفر",
                       "severity": 0.95, "state": "blocked_owner_ui_step",
                       "source": "R-059570492a64 + DNS"})
+    if not _new_domains_known():
+        fears.append({"id": "DOM2_unknown", "title": "۲ دامنهٔ جدید خریداری‌شده ولی نامعلوم — فروش و مینی‌اپ عمومی معلق",
+                      "severity": 0.8, "state": "awaiting_owner_input",
+                      "source": "جستجوی 2026-09-07 vault/138/Shopify = نیامد؛ فقط مالک می‌داند"})
+    # فشارِ رجیستری: هر قفلِ PROPOSED باقی‌مانده باید فشار بیاورد تا ارگانیسم ادامه بدهد
+    try:
+        reg = (_HERE.parent / "01 - Dashboard" / "UNLOCK-REGISTRY-2026-09-08.md"
+               ).read_text(encoding="utf-8")
+        pending = reg.count("`PROPOSED`")
+        if pending:
+            fears.append({"id": "unlock_registry_pending",
+                          "title": f"{pending} قفل PROPOSED در رجیستری — زنجیرهٔ بازکردن ناتمام",
+                          "severity": round(min(0.9, 0.15 + 0.01 * pending), 3),
+                          "state": "phase_pending",
+                          "source": "UNLOCK-REGISTRY-2026-09-08.md"})
+    except OSError:
+        pass
     return sorted(fears, key=lambda f: -f["severity"])
 
 

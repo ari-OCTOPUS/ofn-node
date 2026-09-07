@@ -1,1 +1,6 @@
 {"ts_utc": "2026-09-07T13:14:41Z", "lock": "SBX_test", "next": "selftest next", "consumed": false}
+{"ts_utc": "2026-09-07T13:35:19Z", "lock": "SBX_test", "next": "selftest next", "consumed": false}
+{"ts_utc": "2026-09-07T13:37:57Z", "lock": "MSG38_payment", "next": "ثبتِ settle outcome در calibration در verify-dispatch بعدی (۱۸۲) — سیگنال منفی صادق", "consumed": false}
+{"ts_utc": "2026-09-07T13:37:57Z", "lock": "L23_hold_external", "next": "پایش اولین پکت mint‌شده با hold_external=false (۰۹-۰۸ UTC) + اولین اثر بیرونیِ رسیددار از حلقهٔ داخلی", "consumed": false}
+{"ts_utc": "2026-09-07T13:37:57Z", "lock": "L24_go_extended", "next": "هیچ‌چیز تا ۱۰-۰۶؛ بعدش ترسِ انقضا دوباره بالا می‌رود (خودکار)", "consumed": false}
+{"ts_utc": "2026-09-07T13:37:57Z", "lock": "SBX_test", "next": "selftest next", "consumed": false}

@@ -1,8 +1,8 @@
 {
  "schema": "drive-loops.v1",
- "ts_utc": "2026-09-07T13:16:49Z",
+ "ts_utc": "2026-09-07T13:37:57Z",
  "fear": {
-  "total": 2.814,
+  "total": 3.24,
   "top": [
    {
     "id": "D0_domain",
@@ -12,19 +12,18 @@
     "source": "R-059570492a64 + DNS"
    },
    {
-    "id": "MSG38_deadline",
-    "title": "msg38 NOT_PAID خودثبت می‌شود",
-    "severity": 0.864,
-    "hours_left": 22.9,
-    "state": "counting_down",
-    "source": "ACTIVE-SEASON pointer"
-   },
-   {
     "id": "SURVIVAL_zero_cash",
     "title": "VERIFIED_CASH=0 · هزینهٔ ماه AU$200",
     "severity": 0.85,
     "state": "chronic",
     "source": "budget-state.json + owner answers item 2"
+   },
+   {
+    "id": "DOM2_unknown",
+    "title": "۲ دامنهٔ جدید خریداری‌شده ولی نامعلوم — فروش و مینی‌اپ عمومی معلق",
+    "severity": 0.8,
+    "state": "awaiting_owner_input",
+    "source": "جستجوی 2026-09-07 vault/138/Shopify = نیامد؛ فقط مالک می‌داند"
    }
   ]
  },
@@ -54,7 +53,11 @@
  "locks": {
   "D0_domain": "locked",
   "AUTO1_sender": "locked",
-  "MSG38_payment": "locked",
+  "MSG38_payment": "open",
+  "L23_hold_external": "open",
+  "L24_go_extended": "open",
+  "DOM2_names": "locked",
+  "REGISTRY_round2": "locked",
   "CASH_first_order": "locked"
  },
  "opened_now": []
