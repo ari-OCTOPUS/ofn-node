@@ -52,7 +52,7 @@ def test_worthy_events_build_real_envelope(tmp_path, monkeypatch) -> None:
                       if False else res["outbox_file"].split("\\")[-1]
                       and Path(res["outbox_file"])).read_text(encoding="utf-8"))
     assert out["event_type"] == "cognitive_wake.v1"
-    assert out["hold_external"] is True
+    assert out["hold_external"] is False  # owner vote 2026-09-07 L23
     assert out["may_authorize"] is False
     assert "ziman" in out["businesses"] and "painting" in out["businesses"]
     assert len(out["wake_sha256"]) == 64
