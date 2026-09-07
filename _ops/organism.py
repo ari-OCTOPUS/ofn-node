@@ -164,17 +164,7 @@ class _StatusHandler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
         if self.path == "/":
-            try:
-                st = json.loads(STATE_FILE.read_text("utf-8")) if STATE_FILE.exists() else {}
-            except (OSError, ValueError):
-                st = {}
-            html = ("<!doctype html><html dir='rtl' lang='fa'><meta charset='utf-8'>"
-                    "<title>Organism</title><body style='font-family:Tahoma;padding:2em'>"
-                    "<h2>🫀 ارگانیسم — وضعیت زنده</h2>"
-                    f"<pre style='direction:ltr;text-align:left'>{json.dumps(st, ensure_ascii=False, indent=2)}</pre>"
-                    "<p>API: /api/organism · /api/telemetry · /api/fitness · /api/replication</p>"
-                    "</body></html>")
-            b = html.encode("utf-8")
+            b = _ui_page().encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
@@ -185,6 +175,18 @@ class _StatusHandler(BaseHTTPRequestHandler):
 
     def log_message(self, *a):  # ساکت — لاگ HTTP لازم نیست
         pass
+
+
+def _ui_page() -> str:
+    """صفحهٔ زیبا برای :8771 — redirect به کنترل‌پنل کامل."""
+    return ('<!doctype html><html dir="rtl" lang="fa"><head><meta charset="utf-8">'
+            '<meta http-equiv="refresh" content="0;url=http://127.0.0.1:8773/panel">'
+            '<title>🐙 اختاپوس</title>'
+            '<style>body{background:#0a141e;color:#d4ecf7;font:16px Tahoma;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}div{text-align:center}h1{font-size:3em;margin:0 0 10px}p{color:#7fa8bc;margin:5px 0}a{color:#38bdf8;text-decoration:none;font-size:1.2em;padding:12px 30px;border:1px solid #38bdf8;border-radius:12px;display:inline-block;margin-top:15px}</style>'
+            '</head><body><div><h1>🐙</h1><p>در حال انتقال به کنترل‌پنل…</p>'
+            '<p><a href="http://127.0.0.1:8773/panel">ورود به کنترل‌پنل اختاپوس</a></p>'
+            '<p style="font-size:12px;margin-top:20px;color:#4a7086">API: <a href="/api/organism" style="font-size:12px;padding:4px 10px">/api/organism</a></p>'
+            '</div></body></html>')
 
 
 def _serve(port: int) -> _ExclusiveHTTPServer:
@@ -240,6 +242,9 @@ def main() -> int:
         return 0
 
     print(f"organism: زنده روی http://127.0.0.1:{port} — kill تمیز: فایل _ops/STOP-ORGANISM")
+    # HTTP serves on-disk JSON immediately; write a truthful boot snapshot so
+    # /api/organism is not yesterday's file while the first tick is still running.
+    _write_state({"tick_phase": "http_bound"}, merge_prev=True)
     opslib.heartbeat(f"organism=START port={port}")
     # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). بدونِ این، ادعای
     # «فلگ را روشن کردم» هیچ مشاهده‌ای ندارد که ابطالش کند. بعد از env_loader
@@ -295,7 +300,8 @@ def main() -> int:
         _leg = _w.make_lead_leg()
         _ziman_leg = _w.make_ziman_leg()
         _cartographer_leg = _w.make_cartographer_leg()   # default-off flag → None تا گام ۵
-        _chan = _w.make_telegram_channel(leg=_leg)   # auto-on اگر توکن
+        _library_loop = str(os.environ.get("OCTOPUS_LIBRARY_LOOP", "")).strip() == "1"
+        _chan = None if _library_loop else _w.make_telegram_channel(leg=_leg)   # auto-on اگر توکن
         # C7.2: ingress MUST remain closed until all durable callback/RFC projections
         # have been rebuilt.  Starting long-poll here created a boot race where an old
         # owner callback was consumed as "unknown" and its Telegram offset advanced.
@@ -602,6 +608,13 @@ def main() -> int:
             # بالاتر اجرا می‌شود؛ بنابراین به متغیرِ موقت می‌نویسد، نه به pulse (NameError).
             if _hv2_proj_block is not None:
                 pulse["heart_v2"] = _hv2_proj_block
+            _write_state({
+                "month": snap["month"], "today": snap["today"],
+                "beat": (_cstat.get("beat") if _cstat else None),
+                "suspect_zero_total": snap["suspect_zero_total"],
+                "conflicts": conflicts, "tick_phase": "after_snapshot",
+                **pulse,
+            }, merge_prev=True)
             # ── R9 «هیچی خاموش نیست» (فاز ۳ دستورالعمل ۲۰۲۶-۰۸-۱۶): هر ۱۰ beat،
             # ماژول‌های خفته (chord/synapse/…فلگِ خاموش) یک module.heartbeat با
             # status=OFF و trace_id در events.jsonl می‌زنند. ماژولِ زنده خودش از
