@@ -2,11 +2,13 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-09-07
+updated: 2026-09-08
 ---
 
 # خانه — داشبورد اصلی
 
+> 🚨 **داده‌های حیاتی (هر ایجنت اول این را بخواند):** [[01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08|OCTOPUS-VITAL-DATA]] — وضعیت عملگری واقعی، ریشه‌های ضعف، نقشهٔ قفل‌ها، تصمیم‌های باز · پلن باز کردن قفل‌ها: [[01 - Dashboard/UNLOCK-PLAN-2026-09-08|UNLOCK-PLAN]]
+>
 > 🎯 **سیزن ۱ بسته شد → [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|سیزن درآمد روی حلقهٔ زنده]] (2026-09-07):** اولین حکم قابلیتی با ۲۰۴ رسید گیت‌پذیر صادر شد (`09-LANES/ACD-PREREG-20260907/FAMILY-VERDICT-ACD-01`)، حسگرها صادق (`09-LANES/MP-V41-U1-20260907/U1-RECEIPT`)، بکاپ سبز (`09-LANES/R1-GITWRITE-20260907/LANE-REPORT`)، رمزها تجمیع (`09-LANES/R2-SECRETS-20260907/ROTATION-RUNBOOK`، چرخش waive شد)، دکمهٔ `09-LANES/OPS-RESTARTALL-CAPABILITY-20260907/CAPABILITY-MAP-AND-TEST-PROMPTS` آماده. مرور کامل: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]] · وضعیت جلسه قبل: [[01 - Dashboard/HANDOFF|HANDOFF]] · تاریخچهٔ بلوک‌های قبلی: `_Archive/Logs/HANDOFF-archive-2026-09-07.md`
 
 > نقطه ورود به کل vault. قواعد: [[_PROJECT_INSTRUCTIONS|اینستراکشن پروژه v2.0]]

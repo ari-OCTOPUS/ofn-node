@@ -1,11 +1,13 @@
 ---
 type: handoff
-updated: 2026-09-07
+updated: 2026-09-08
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
 
-> 🎯 **سیزن درآمد فعال + اولین انتقال مهارت تاریخ پروژه:** [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON]] · مرور کامل: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]] · تلگرام و وب: [[07 - Knowledge/octopus/96-TELEGRAM-AND-WEB-APP-COMPLETE-2026-09-07|نوت ۹۶]]
+> 🚨 **اول این را بخوان:** [[01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08|داده‌های حیاتی اختاپوس]] — وضعیت عملگری واقعی، ۵ ریشهٔ ضعف، نقشهٔ کامل قفل‌ها، اعداد ACD، تصمیم‌های باز. این نوت مرجع واحد برای هر ایجنت (و خود اختاپوس) است.
+>
+> 🎯 **سیزن درآمد فعال + اولین انتقال مهارت تاریخ پروژه:** [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON]] · مرور کامل: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]] · تلگرام و وب: [[07 - Knowledge/octopus/96-TELEGRAM-AND-WEB-APP-COMPLETE-2026-09-07|نوت ۹۶]] · قفل‌ها: [[07 - Knowledge/octopus/97-INTERNAL-LOCKS-COMPLETE-MAP-2026-09-08|نوت ۹۷]] · پلن باز کردن: [[01 - Dashboard/UNLOCK-PLAN-2026-09-08|UNLOCK-PLAN]]
 
 ## بردهای امروز (همه با رسید و تست)
 
@@ -31,10 +33,12 @@ updated: 2026-09-07
 
 ## باز و منتظر مالک
 
+- 🚨 **تمدید دامنهٔ ziman-gift.com** — NXDOMAIN (منقضی). بدون آن فروش آنلاین غیرممکن. فقط مالک.
+- 🚨 **ارتقای مغز** — qwen-0.6b: ۵۴% جعل، ۰% تودرتو. سه گزینه در [[01 - Dashboard/UNLOCK-PLAN-2026-09-08|UNLOCK-PLAN کارت ۱]]
 - تمدید standing GO (انقضا 2026-09-14) — فرم هفت‌فیلدی v4.1 §۸
 - msg38 NOT_PAID تا 2026-09-08T12:10Z
 - METABOLIC-OBS: دو مسیر — wire تله‌متری یا پذیرش billed (در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]])
-- ری‌استارت center.py برای فعال‌شدن U2 v2
+- ری‌استارت center.py برای فعال‌شدن U2 v3 (کد آماده، ۲۷/۲۷ تست)
 - کارت‌های R4–R10 و اختلاف EX-1
 
 ## قواعد ورود (بی‌تغییر)
