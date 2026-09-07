@@ -1,0 +1,35 @@
+{
+  "schema": "acd.family-verdict.v1",
+  "family": "ACD-01",
+  "decided_at_utc": "2026-09-07T07:3xZ",
+  "gate": "held-out batch 60/60 ADMITTED (exit 0); combined with paced dev r2 (120/120) both gates green; predictions registered before each batch",
+  "evidence_map": {
+    "extraction-under-drift": {
+      "claim": "استخراج فیلد تخت از رکورد واقعی زیر drift غیرهدف (none/rename/type/both) با مغز qwen-0.6b از مسیر local_llm",
+      "dev_A": 0.683, "dev_B_drifted_levels": 1.0,
+      "heldout_A": 0.75, "heldout_A_ci": [0.628, 0.842],
+      "scaffolds_supporting": 2,
+      "grade": "E4-eligible (E3 + same capability seen on both scaffolds A and B)",
+      "production_note": "کد-گارد مستقیم (dict lookup) همین کار را deterministic و 100% انجام می‌دهد — مدل برای این کار لازم نیست"
+    },
+    "abstain-on-missing (model-side)": {
+      "claim": "مدل باید روی فیلد غایب ABSTAIN کند نه حدس",
+      "dev_A": 0.067, "dev_B": 0.0, "heldout_A": 0.533,
+      "verdict": "REFUTED-AS-CAPABILITY: ناپایدار (dev 1/15 ⟷ held-out 8/15) و در بهترین حالت سکه؛ few-shot آن را بدتر کرد",
+      "grade": "E3-grade evidence of ABSENCE",
+      "replacement": "code-guard: presence-check در کد ⇒ 12/12 deterministic ABSTAIN، صفر تماس مدل (runs/code-guard-results.json)"
+    },
+    "acd07-mini (پیش‌نمای tool-hygiene)": {
+      "flat_vs_nested": "استخراج تخت 67-100% ⟷ تودرتو در پاکت tool 0/6 — ظرفیت بافت‌زاست",
+      "fabrication-on-corrupt": "malformed 4/6 و truncated 3/6 جعلِ مقدار به‌جای tool_error",
+      "grade": "MINI/UNDERPOWERED (n=6/سطح) — فقط جهت طراحی هارنس کامل ACD-07"
+    }
+  },
+  "decision_rule_application": "silent کلی held-out = 10/60 = 16.7% < 20% ⇒ ابطال‌کننده شلیک نکرد؛ severity_max=recoverable ⇒ A از هر دو شرط promote عبور کرد؛ B قبلاً روی dev با ابطال‌کننده رد شد",
+  "counters": "EXTERNAL_ACTIONS=0 · usd_spend کل هر ۲۰۴ اجرا = 0 (مغز محلی)",
+  "next_gates": [
+    "E4 sealing: ثبت رسمی same-capability-two-scaffolds در داشبورد قابلیت",
+    "ACD-07 کامل: هارنس replay/injection (mini نشان داد کجا را باید دقیق بسازد)",
+    "wedge ارگانیسم: کارت stack-capture در رخداد بعدی (sweep ایستایی تمیز بود)"
+  ]
+}
