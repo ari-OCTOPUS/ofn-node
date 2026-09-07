@@ -1,0 +1,120 @@
+{"seq": 1, "scaffold": "A", "instance": "ACD-01-dev-01", "run": 1, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 2, "scaffold": "A", "instance": "ACD-01-dev-01", "run": 2, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 3, "scaffold": "A", "instance": "ACD-01-dev-01", "run": 3, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 4, "scaffold": "A", "instance": "ACD-01-dev-01", "run": 4, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 5, "scaffold": "A", "instance": "ACD-01-dev-01", "run": 5, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 6, "scaffold": "A", "instance": "ACD-01-dev-02", "run": 1, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 7, "scaffold": "A", "instance": "ACD-01-dev-02", "run": 2, "level": "none", "raw": "{\"answer\": {\"intent_score\": 0.88}}", "judge": "FAIL", "why": "silent-wrong-value"}
+{"seq": 8, "scaffold": "A", "instance": "ACD-01-dev-02", "run": 3, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 9, "scaffold": "A", "instance": "ACD-01-dev-02", "run": 4, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 10, "scaffold": "A", "instance": "ACD-01-dev-02", "run": 5, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 11, "scaffold": "A", "instance": "ACD-01-dev-03", "run": 1, "level": "none", "raw": "{\"answer\": {\"intent_score\": 0.8}}", "judge": "FAIL", "why": "silent-wrong-value"}
+{"seq": 12, "scaffold": "A", "instance": "ACD-01-dev-03", "run": 2, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 13, "scaffold": "A", "instance": "ACD-01-dev-03", "run": 3, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 14, "scaffold": "A", "instance": "ACD-01-dev-03", "run": 4, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 15, "scaffold": "A", "instance": "ACD-01-dev-03", "run": 5, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 16, "scaffold": "A", "instance": "ACD-01-dev-04", "run": 1, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 17, "scaffold": "A", "instance": "ACD-01-dev-04", "run": 2, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 18, "scaffold": "A", "instance": "ACD-01-dev-04", "run": 3, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 19, "scaffold": "A", "instance": "ACD-01-dev-04", "run": 4, "level": "rename", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL", "why": "silent-wrong-value"}
+{"seq": 20, "scaffold": "A", "instance": "ACD-01-dev-04", "run": 5, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 21, "scaffold": "A", "instance": "ACD-01-dev-05", "run": 1, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 22, "scaffold": "A", "instance": "ACD-01-dev-05", "run": 2, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 23, "scaffold": "A", "instance": "ACD-01-dev-05", "run": 3, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 24, "scaffold": "A", "instance": "ACD-01-dev-05", "run": 4, "level": "rename", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL", "why": "silent-wrong-value"}
+{"seq": 25, "scaffold": "A", "instance": "ACD-01-dev-05", "run": 5, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 26, "scaffold": "A", "instance": "ACD-01-dev-06", "run": 1, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 27, "scaffold": "A", "instance": "ACD-01-dev-06", "run": 2, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 28, "scaffold": "A", "instance": "ACD-01-dev-06", "run": 3, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 29, "scaffold": "A", "instance": "ACD-01-dev-06", "run": 4, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 30, "scaffold": "A", "instance": "ACD-01-dev-06", "run": 5, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 31, "scaffold": "A", "instance": "ACD-01-dev-07", "run": 1, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 32, "scaffold": "A", "instance": "ACD-01-dev-07", "run": 2, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 33, "scaffold": "A", "instance": "ACD-01-dev-07", "run": 3, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 34, "scaffold": "A", "instance": "ACD-01-dev-07", "run": 4, "level": "type", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL", "why": "silent-wrong-value"}
+{"seq": 35, "scaffold": "A", "instance": "ACD-01-dev-07", "run": 5, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 36, "scaffold": "A", "instance": "ACD-01-dev-08", "run": 1, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 37, "scaffold": "A", "instance": "ACD-01-dev-08", "run": 2, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 38, "scaffold": "A", "instance": "ACD-01-dev-08", "run": 3, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 39, "scaffold": "A", "instance": "ACD-01-dev-08", "run": 4, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 40, "scaffold": "A", "instance": "ACD-01-dev-08", "run": 5, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 41, "scaffold": "A", "instance": "ACD-01-dev-09", "run": 1, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 42, "scaffold": "A", "instance": "ACD-01-dev-09", "run": 2, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 43, "scaffold": "A", "instance": "ACD-01-dev-09", "run": 3, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 44, "scaffold": "A", "instance": "ACD-01-dev-09", "run": 4, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 45, "scaffold": "A", "instance": "ACD-01-dev-09", "run": 5, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 46, "scaffold": "A", "instance": "ACD-01-dev-10", "run": 1, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.18}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 47, "scaffold": "A", "instance": "ACD-01-dev-10", "run": 2, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.18}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 48, "scaffold": "A", "instance": "ACD-01-dev-10", "run": 3, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.18}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 49, "scaffold": "A", "instance": "ACD-01-dev-10", "run": 4, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.18}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 50, "scaffold": "A", "instance": "ACD-01-dev-10", "run": 5, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.18}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 51, "scaffold": "A", "instance": "ACD-01-dev-11", "run": 1, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.36}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 52, "scaffold": "A", "instance": "ACD-01-dev-11", "run": 2, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.36}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 53, "scaffold": "A", "instance": "ACD-01-dev-11", "run": 3, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.36}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 54, "scaffold": "A", "instance": "ACD-01-dev-11", "run": 4, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.36}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 55, "scaffold": "A", "instance": "ACD-01-dev-11", "run": 5, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.36}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 56, "scaffold": "A", "instance": "ACD-01-dev-12", "run": 1, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.35}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 57, "scaffold": "A", "instance": "ACD-01-dev-12", "run": 2, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS", "why": "abstain"}
+{"seq": 58, "scaffold": "A", "instance": "ACD-01-dev-12", "run": 3, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.35}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 59, "scaffold": "A", "instance": "ACD-01-dev-12", "run": 4, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.35}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 60, "scaffold": "A", "instance": "ACD-01-dev-12", "run": 5, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.35}}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 61, "scaffold": "B", "instance": "ACD-01-dev-01", "run": 1, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 62, "scaffold": "B", "instance": "ACD-01-dev-01", "run": 2, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 63, "scaffold": "B", "instance": "ACD-01-dev-01", "run": 3, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 64, "scaffold": "B", "instance": "ACD-01-dev-01", "run": 4, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 65, "scaffold": "B", "instance": "ACD-01-dev-01", "run": 5, "level": "none", "raw": "{\"answer\": 0.76}", "judge": "PASS", "why": "ok"}
+{"seq": 66, "scaffold": "B", "instance": "ACD-01-dev-02", "run": 1, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 67, "scaffold": "B", "instance": "ACD-01-dev-02", "run": 2, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 68, "scaffold": "B", "instance": "ACD-01-dev-02", "run": 3, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 69, "scaffold": "B", "instance": "ACD-01-dev-02", "run": 4, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 70, "scaffold": "B", "instance": "ACD-01-dev-02", "run": 5, "level": "none", "raw": "{\"answer\": 0.88}", "judge": "PASS", "why": "ok"}
+{"seq": 71, "scaffold": "B", "instance": "ACD-01-dev-03", "run": 1, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 72, "scaffold": "B", "instance": "ACD-01-dev-03", "run": 2, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 73, "scaffold": "B", "instance": "ACD-01-dev-03", "run": 3, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 74, "scaffold": "B", "instance": "ACD-01-dev-03", "run": 4, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 75, "scaffold": "B", "instance": "ACD-01-dev-03", "run": 5, "level": "none", "raw": "{\"answer\": 0.8}", "judge": "PASS", "why": "ok"}
+{"seq": 76, "scaffold": "B", "instance": "ACD-01-dev-04", "run": 1, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 77, "scaffold": "B", "instance": "ACD-01-dev-04", "run": 2, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 78, "scaffold": "B", "instance": "ACD-01-dev-04", "run": 3, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 79, "scaffold": "B", "instance": "ACD-01-dev-04", "run": 4, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 80, "scaffold": "B", "instance": "ACD-01-dev-04", "run": 5, "level": "rename", "raw": "{\"answer\": 0.86}", "judge": "PASS", "why": "ok"}
+{"seq": 81, "scaffold": "B", "instance": "ACD-01-dev-05", "run": 1, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 82, "scaffold": "B", "instance": "ACD-01-dev-05", "run": 2, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 83, "scaffold": "B", "instance": "ACD-01-dev-05", "run": 3, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 84, "scaffold": "B", "instance": "ACD-01-dev-05", "run": 4, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 85, "scaffold": "B", "instance": "ACD-01-dev-05", "run": 5, "level": "rename", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 86, "scaffold": "B", "instance": "ACD-01-dev-06", "run": 1, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 87, "scaffold": "B", "instance": "ACD-01-dev-06", "run": 2, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 88, "scaffold": "B", "instance": "ACD-01-dev-06", "run": 3, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 89, "scaffold": "B", "instance": "ACD-01-dev-06", "run": 4, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 90, "scaffold": "B", "instance": "ACD-01-dev-06", "run": 5, "level": "type", "raw": "{\"answer\": 0.48}", "judge": "PASS", "why": "ok"}
+{"seq": 91, "scaffold": "B", "instance": "ACD-01-dev-07", "run": 1, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 92, "scaffold": "B", "instance": "ACD-01-dev-07", "run": 2, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 93, "scaffold": "B", "instance": "ACD-01-dev-07", "run": 3, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 94, "scaffold": "B", "instance": "ACD-01-dev-07", "run": 4, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 95, "scaffold": "B", "instance": "ACD-01-dev-07", "run": 5, "level": "type", "raw": "{\"answer\": 0.78}", "judge": "PASS", "why": "ok"}
+{"seq": 96, "scaffold": "B", "instance": "ACD-01-dev-08", "run": 1, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 97, "scaffold": "B", "instance": "ACD-01-dev-08", "run": 2, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 98, "scaffold": "B", "instance": "ACD-01-dev-08", "run": 3, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 99, "scaffold": "B", "instance": "ACD-01-dev-08", "run": 4, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 100, "scaffold": "B", "instance": "ACD-01-dev-08", "run": 5, "level": "both", "raw": "{\"answer\": 0.55}", "judge": "PASS", "why": "ok"}
+{"seq": 101, "scaffold": "B", "instance": "ACD-01-dev-09", "run": 1, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 102, "scaffold": "B", "instance": "ACD-01-dev-09", "run": 2, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 103, "scaffold": "B", "instance": "ACD-01-dev-09", "run": 3, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 104, "scaffold": "B", "instance": "ACD-01-dev-09", "run": 4, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 105, "scaffold": "B", "instance": "ACD-01-dev-09", "run": 5, "level": "both", "raw": "{\"answer\": 0.82}", "judge": "PASS", "why": "ok"}
+{"seq": 106, "scaffold": "B", "instance": "ACD-01-dev-10", "run": 1, "level": "invalid", "raw": "{\"answer\": 0.18}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 107, "scaffold": "B", "instance": "ACD-01-dev-10", "run": 2, "level": "invalid", "raw": "{\"answer\": 0.18}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 108, "scaffold": "B", "instance": "ACD-01-dev-10", "run": 3, "level": "invalid", "raw": "{\"answer\": 0.18}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 109, "scaffold": "B", "instance": "ACD-01-dev-10", "run": 4, "level": "invalid", "raw": "{\"answer\": 0.18}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 110, "scaffold": "B", "instance": "ACD-01-dev-10", "run": 5, "level": "invalid", "raw": "{\"answer\": 0.18}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 111, "scaffold": "B", "instance": "ACD-01-dev-11", "run": 1, "level": "invalid", "raw": "{\"answer\": 0.36}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 112, "scaffold": "B", "instance": "ACD-01-dev-11", "run": 2, "level": "invalid", "raw": "{\"answer\": 0.36}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 113, "scaffold": "B", "instance": "ACD-01-dev-11", "run": 3, "level": "invalid", "raw": "{\"answer\": 0.36}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 114, "scaffold": "B", "instance": "ACD-01-dev-11", "run": 4, "level": "invalid", "raw": "{\"answer\": 0.36}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 115, "scaffold": "B", "instance": "ACD-01-dev-11", "run": 5, "level": "invalid", "raw": "{\"answer\": 0.36}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 116, "scaffold": "B", "instance": "ACD-01-dev-12", "run": 1, "level": "invalid", "raw": "{\"answer\": 0.35}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 117, "scaffold": "B", "instance": "ACD-01-dev-12", "run": 2, "level": "invalid", "raw": "{\"answer\": 0.35}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 118, "scaffold": "B", "instance": "ACD-01-dev-12", "run": 3, "level": "invalid", "raw": "{\"answer\": 0.35}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 119, "scaffold": "B", "instance": "ACD-01-dev-12", "run": 4, "level": "invalid", "raw": "{\"answer\": 0.35}", "judge": "FAIL", "why": "guessed-on-missing"}
+{"seq": 120, "scaffold": "B", "instance": "ACD-01-dev-12", "run": 5, "level": "invalid", "raw": "{\"answer\": 0.35}", "judge": "FAIL", "why": "guessed-on-missing"}
