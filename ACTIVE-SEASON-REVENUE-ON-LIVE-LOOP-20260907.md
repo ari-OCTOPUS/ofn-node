@@ -15,11 +15,11 @@ any time via the organism's own channel (OWNER-QUEUE/Telegram card) or direct ch
 
 ## Inherited live assets (do NOT re-ignite; verify by receipts only)
 - wake spine + hash fix (scheduler sha 44a4f04f…)؛ چرخهٔ مرجع CW-20260906T123001Z
-- standing GO feed: 8 cycles/UTC day تا 2026-09-14T00:00Z (تمدید = تصمیم مالک)
+- standing GO feed: 8 cycles/UTC day تا **2026-09-21T00:00Z** (تصویبِ صریح مالک 2026-09-07 شب — رسید `board138:~/octopus-mesh/receipts/STANDING-GO-RATIFY-20260907.json`؛ متنِ قدیمیِ پکت «۰۹-۱۴» با همین رأی منسوخ شد)
 - settle→calibration loop (dispatcher sha 8b133054…؛ rejoin ≤8/day)
-- answers corpus 13/13 (packets 3e020b24/335631f8/a2d1cac5)؛ owner heartbeat live
+- answers corpus 13/13 (packets 3e020b24/335631f8/a2d1cac5) + **balot شبانهٔ D-0..D-3** (`board138:~/octopus-mesh/state/owner-go/delivered/OWNER-GO-OWNER-ANSWERS-20260907-EVENING.json`, sha 8ff41398fbc23aaf…)؛ owner heartbeat live
 - board 138 main a1f0fa80 (behind:0)؛ PR #224 pending؛ BUDGET L2 live (synced+182-verified)
-- msg38 PENDING_WITH_DEADLINE → 2026-09-08T12:10:32Z (NOT_PAID pre-authorized)
+- msg38 → **REPORTED_NOT_VERIFIED** (مالک 2026-09-07 شب: «پاسخ/پرداخت انجام شده»؛ حامل/رسید در دسترس ایجنت‌ها یافت نشد — مسیر ارتقا در 07-HANDOFF/OWNER-DECISIONS-CAPABILITY-GAP-2026-09-07.md؛ در صورت نبودِ رسید تا ددلاین 2026-09-08T12:10:32Z، NOT_PAID طبق pre-authorization ثبت شود)
 
 ## Locks (unchanged)
 paid_ads OFF · no fake VERIFIED_CASH · no cold spam · no secrets · HALT/budget upstream.

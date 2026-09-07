@@ -46,7 +46,8 @@ units/week نسبت به سقف · سفارش per کانال `[To measure]` · �
 
 ## Open blockers
 
-- **🚨 دامنهٔ `ziman-gift.com` مرده (2026-09-07T11:50Z، NXDOMAIN در 8.8.8.8/1.1.1.1/محلی):** صفحات محصول Shopify به این دامنه ۳۰۱ می‌شوند ⇒ مشتری نمی‌تواند صفحه را باز کند؛ صفر فروش ممکن است. خود فروشگاه سالم است (`ziman-gift.myshopify.com/products.json` = 200؛ ZM-GALLERY-0013 با A$45 موجود). **فقط مالک می‌تواند: تمدید دامنه/DNS یا حذف primary domain در Shopify.** (رسید: three-role run R-059570492a64)
+- **🚨 دامنهٔ `ziman-gift.com` مرده (2026-09-07T11:50Z، NXDOMAIN در 8.8.8.8/1.1.1.1/محلی):** صفحات محصول Shopify به این دامنه ۳۰۱ می‌شوند ⇒ مشتری نمی‌تواند صفحه را باز کند؛ صفر فروش ممکن است. خود فروشگاه سالم است (`ziman-gift.myshopify.com/products.json` = 200؛ ZM-GALLERY-0013 با A$45 موجود). (رسید: three-role run R-059570492a64)
+  **رأی مالک (2026-09-07 شب):** اتصال مستقیم myshopify — مسیر ایجنت بسته است (توکن فقط read_orders+read_products+write_products؛ domains=404؛ permalinkها هم 301). **قدم باقی: خود مالک، ۲ دقیقه — Shopify admin → Settings → Domains → حذف ziman-gift.com یا myshopify primary.** تمدید دامنه بعداً.
 - عدد ظرفیت ثبت نشده → برنامه‌ریزی کمپین مسدود (by design).
 
 ## Active Context

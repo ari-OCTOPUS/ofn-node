@@ -78,3 +78,44 @@ rule_for_next_agents: این فایل را قبل از هر پرسشِ جدید 
 4. اگر مالک در چتِ تلگرام جواب داد، همان verbatim اینجا بیاید (الگوی owner-go packets).
 5. مغزِ تنظیم‌شدهٔ فعلی: local (qwen2.5:1.5b) — تا FX-1 بسته شود paid باز نمی‌شود؛
    three_role.py فعلاً روی مغز محلی است.
+
+---
+
+# رأی‌های دور دوم — 2026-09-07 ~23:00 شب (بالوتِ جلسهٔ MP-CAPABILITY-GAP-01)
+
+## FX-1 — پین نرخ ارز → **رأی: «بله — پین 0.7209» → اجرا و اثبات شد ✅**
+
+- `cortex/pricing_pinned.json` با `owner_pin_id=FX-PIN-20260907-01`، `fx_usd_to_aud=1.38716`
+  (reciprocalِ RBA F11.1 = AUD/USD 0.7209، مورخ 07-Sep-2026) نوشته شد؛
+  رسید = sha256 فایل خام CSV (`5528012f809472ab…`، فایل: `_ops/state/wedge/rba-f111-today.csv`)؛
+  بکاپ: `pricing_pinned.json.bak-fxpin-20260907`.
+- **معیارِ «یک فراخوانی موفق paid با رسید هزینه» محقق شد (23:02 local):**
+  `model_router.ask(tier=primary)` → **deepseek-v4-flash**، پاسخ «OPERATIONAL»،
+  `cost_usd=$0.0000183`، `finish_reason=stop`؛ رسید هزینه در
+  `_ops/state/cortex/cost-receipts.jsonl` (trace `paid-primary-1788786120030`، budget_before A$29.9999،
+  run_id `R-fxpin-test-20260907`). گیت‌های عبورکرده: paid_gate ✓ (فلگ مالکی) · RCPT-2 ✓ ·
+  F18-FX-fresh ✓ · breaker ✓ · cognition-quota (bucket 0/30) ✓ · organ_gate ✓ · fugu_quota (3) ✓.
+- نکتهٔ فنی برای ایجنت بعدی: deepseek-v4-flash مدلِ thinking است — با max_tokens کوچک،
+  کل بودجه صرفِ reasoning می‌شود و متن خالی می‌آید و گاردِ truncation → fallback به local؛
+  برای تست، max_tokens ≥ 200 بدهید. برای فراخوانی paid در شل: `OCTOPUS_PAID_COGNITION=1` +
+  `OCTOPUS_RUN_ID=<id>` + لودِ `/f/backup/.env` لازم است (دیمن این‌ها را از flags دارد).
+
+## AUTO-1 — مسیر تماس → **رأی اول: فرم تماس (A) → بلافاصله با رأی دوم اصلاح شد: «تماس تلفنی خودکار»**
+
+- رأی نهایی و حاکم (verbatim، 2026-09-07 ~23:00): **«از 8 صبح تا 6 عصر هرروز فقط زنگ بزنیم اتوماتیک»**
+  = تماس‌های تلفنیِ خودکار، فقط در پنجرهٔ **08:00–18:00 هر روز**؛ فرمِ تماس کنار گذاشته شد.
+- امشب 23:00 = بیرونِ پنجره ⇒ هیچ ارسالی انجام نشد (fail-closed رعایت شد).
+- **بلاکرهای اجرا (ایجنت بعدی):**
+  1. مشخصات فرستنده — مالک قول داد بنویسد (نام+تلفن+ایمیل)؛ هنوز دریافت نشده.
+  2. انتخاب سرویس تماس AU (VoIP/AI-voice، ~$0.1–0.3/دقیقه) — نیاز به پیشنهاد + رأی جداگانهٔ هزینه
+     (خرج پولی = قلمروی L3؛ فعلاً L2 — یا سرویس سادهٔ «فقط زنگ»).
+  3. اسکریپت مکالمهٔ ۳۰ثانیه‌ای + مسیر ثبتِ نتیجه (painting_interactions روی ۱۳۸).
+- قالب فرمِ تماس (بالاتر) به‌عنوان fallback سرِ جایش می‌ماند ولی بدونِ رأی تازهٔ مالک
+  استفاده نمی‌شود.
+
+## ثبتِ هم‌زمانی (شفافیت)
+
+دو بالوتِ موازی امشب (این دفتر + `07-HANDOFF/OWNER-DECISIONS-CAPABILITY-GAP-2026-09-07.md`
++ پکت `board138:~/octopus-mesh/state/owner-go/delivered/OWNER-GO-OWNER-ANSWERS-20260907-EVENING.json`)
+روی D-0/D-1/D-2 هم‌نتیجه بودند — رأی‌های مالک سازگار ضبط شد. D-2 دوباره‌رسید گرفت
+(GO-EXT1 + STANDING-GO-RATIFY، هر دو روی ۱۳۸؛ فایل spec سالم با هر دو ثبت).

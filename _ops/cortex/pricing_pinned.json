@@ -1,21 +1,21 @@
 {
- "_comment": "FX pinned by owner FX-PIN-20260819-01 (RBA daily 2026-08-18). No auto-refresh. >24h ⇒ adapter AUD blocked. Model prices still owner-pending (DETERMINISTIC off; REPORTED path live).",
- "fx_usd_to_aud": 1.405283867,
- "models": {
-  "test-deepseek-v4": {
-   "TEST_ONLY": true,
-   "in_per_1m": 0.27,
-   "out_per_1m": 1.1
+  "_comment": "FX pinned by owner FX-PIN-20260907-01 (RBA F11.1 daily 07-Sep-2026, owner vote FX-1 2026-09-07 evening). No auto-refresh. >24h => adapter AUD blocked. Model prices still owner-pending (DETERMINISTIC off; REPORTED path live).",
+  "fx_usd_to_aud": 1.38716,
+  "models": {
+    "test-deepseek-v4": {
+      "TEST_ONLY": true,
+      "in_per_1m": 0.27,
+      "out_per_1m": 1.1
+    }
+  },
+  "fx_record": {
+    "fx_source_id": "RBA_EXCHANGE_RATES_DAILY_07-Sep-2026_F11.1",
+    "fx_timestamp_utc": "2026-09-07T00:00:00Z",
+    "fx_rate_usd_to_aud": 1.38716,
+    "FX_SOURCE_VALUE": "AUD_USD = 0.7209",
+    "FX_CONVERSION_METHOD": "reciprocal_of_RBA_AUD_USD",
+    "owner_pin_id": "FX-PIN-20260907-01",
+    "receipt_id": "5528012f809472ab",
+    "standing_authorization": "Owner ballot FX-1 2026-09-07 evening (MP-CAPABILITY-GAP-01 session; recorded in 07-HANDOFF/OWNER-APPROVALS-2026-09-07.md + OWNER-GO-OWNER-ANSWERS-20260907-EVENING.json)"
   }
- },
- "fx_record": {
-  "fx_source_id": "RBA_EXCHANGE_RATES_DAILY_20-Aug-2026",
-  "fx_timestamp_utc": "2026-08-20T06:00:00Z",
-  "fx_rate_usd_to_aud": 1.405283867,
-  "FX_SOURCE_VALUE": "AUD_USD = 0.7116",
-  "FX_CONVERSION_METHOD": "reciprocal_of_RBA_AUD_USD",
-  "owner_pin_id": "FX-PIN-20260820-01",
-  "receipt_id": "5539dd4362da5e7c",
-  "standing_authorization": "SIGNED PRE-REG-EVENT-TIME-PROBE-2026-08-20"
- }
 }
