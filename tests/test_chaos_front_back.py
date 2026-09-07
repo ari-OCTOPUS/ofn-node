@@ -1,0 +1,126 @@
+"""Owner-absent chaos for front_class / back_pin.
+
+While the owner cannot be reached: missing stays UNKNOWN, a timeout
+does not invent a writer, HALT does not block classify/observe/inspect,
+a mark never becomes a send, and a recorded depth never becomes
+authorized.
+"""
+
+from __future__ import annotations
+
+import inspect
+import unittest
+
+from ofn.kernel.back_pin import (
+    pin_allows_send,
+    pin_back,
+    retcon_refused,
+    timeout_proves_concurrent_write,
+    try_pin,
+)
+from ofn.kernel.errors import FailClosedError
+from ofn.kernel.front_class import (
+    BACK,
+    admit_front,
+    bind_front,
+    classify_family,
+    classify_intent,
+    grants_send,
+    halt_blocks_classify,
+    later_disarm_supersedes,
+    ready_is_authorized,
+    signed_of,
+    try_bind,
+)
+from ofn.kernel.halt import is_halted
+
+_PLANE = 10
+_SLOT = "env-front-chaos1"
+
+
+class Scenario1MissingIsUnknownNotFalse(unittest.TestCase):
+    def test_missing_is_unknown(self):
+        self.assertIsNone(classify_family(None, plane=_PLANE))
+        self.assertEqual(classify_intent(None), "UNKNOWN")
+        self.assertIsNone(try_bind(None, 7, plane=_PLANE, slot=_SLOT))
+        self.assertIsNone(try_bind("classify", None, plane=_PLANE, slot=_SLOT))
+        self.assertIsNone(signed_of(None, plane=_PLANE))
+        self.assertIsNot(classify_family(None, plane=_PLANE), False)
+        self.assertIsNot(signed_of(None, plane=_PLANE), 0)
+
+
+class Scenario2TimeoutDoesNotProveWriter(unittest.TestCase):
+    def test_timeout_is_unknown(self):
+        self.assertFalse(timeout_proves_concurrent_write())
+        self.assertIsNone(classify_family(7, plane=_PLANE, timeout=True))
+        self.assertIsNone(
+            admit_front("mark", 7, plane=_PLANE, timeout=True))
+        table: dict[str, str] = {}
+        self.assertIsNone(
+            try_pin(
+                table, "classify", 7, plane=_PLANE, slot=_SLOT,
+                timeout=True))
+        self.assertEqual(table, {})
+
+
+class Scenario3HaltStopsStartsNotClassify(unittest.TestCase):
+    def test_corrupt_halt_is_halted_and_classify_has_no_halt_param(self):
+        self.assertTrue(is_halted("???"))
+        self.assertFalse(halt_blocks_classify())
+        self.assertIs(
+            admit_front("classify", 7, plane=_PLANE, halted=True),
+            True)
+        self.assertIs(
+            admit_front("inspect", 14, plane=_PLANE, halted=True),
+            True)
+        self.assertIs(
+            admit_front("mark", 7, plane=_PLANE, halted=True),
+            False)
+        params = inspect.signature(classify_family).parameters
+        self.assertNotIn("halted", params)
+
+
+class Scenario4ArmFailureDoesNotInventSend(unittest.TestCase):
+    def test_front_and_sealed_do_not_grant_send(self):
+        bind = bind_front("classify", 14, plane=_PLANE, slot=_SLOT)
+        self.assertFalse(pin_allows_send(bind))
+        self.assertFalse(grants_send())
+        with self.assertRaises(FailClosedError):
+            classify_intent("send_authorized")
+
+
+class Scenario5ReadyStaysUnsent(unittest.TestCase):
+    def test_ready_cannot_become_authorized(self):
+        self.assertFalse(ready_is_authorized())
+        self.assertNotEqual("campaign_envelope_ready", "send_authorized")
+        with self.assertRaises(FailClosedError):
+            bind_front(
+                "classify", 7, plane=_PLANE,
+                slot="campaign_envelope_ready")
+
+
+class Scenario6DisagreementIsRecordedNotGuessed(unittest.TestCase):
+    def test_back_collision_is_fail_closed(self):
+        table: dict[str, str] = {}
+        first = bind_front("classify", 7, plane=_PLANE, slot=_SLOT)
+        pin_back(table, first)
+        second = bind_front("classify", 14, plane=_PLANE, slot=_SLOT)
+        self.assertIs(retcon_refused(table, second), True)
+        with self.assertRaises(FailClosedError):
+            pin_back(table, second)
+
+
+class Scenario7RecoveryNeedsNoOwner(unittest.TestCase):
+    def test_reclassify_is_deterministic_and_later_disarm_holds(self):
+        a = classify_family(7, plane=_PLANE)
+        b = classify_family(7, plane=_PLANE)
+        self.assertEqual(a, b)
+        self.assertEqual(a, BACK)
+        first = bind_front("classify", 7, plane=_PLANE, slot=_SLOT)
+        second = bind_front("classify", 7, plane=_PLANE, slot=_SLOT)
+        self.assertEqual(first, second)
+        self.assertTrue(later_disarm_supersedes())
+
+
+if __name__ == "__main__":
+    unittest.main()
