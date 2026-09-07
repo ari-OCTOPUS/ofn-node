@@ -1,0 +1,120 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-MID-CENTER-20260907",
+  "lane": "P1-MID-CENTER",
+  "recorded_at_utc": "2026-09-07T03:21:08Z",
+  "body": "bc-1f94cae6-9d49-450a-9517-7d4a684c661d",
+  "branch": "feat/p1-mid-center-20260907",
+  "parent_head_full": "ee11d612e9f187e9c38bef0d5bf6875ad1161e0f",
+  "parent_subject": "feat(p1): kernel-pure digest_class + fold_pin (shape ≠ chain tip) (#152)",
+  "file_lock_zone": "/tmp/ofn-p1-mid-center",
+  "owns": [
+    "ofn/kernel/mid_class.py",
+    "ofn/kernel/center_pin.py",
+    "tests/test_mid_class.py",
+    "tests/test_center_pin.py",
+    "tests/test_chaos_mid_center.py",
+    "docs/octopus-surgery/architecture/2026-09-07/receipts/P1-MID-CENTER-20260907.json",
+    "09-LANES/P1-MID-CENTER/LANE-REPORT.md"
+  ],
+  "does_not_touch": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/digest_class.py",
+    "ofn/kernel/fold_pin.py",
+    "ofn/kernel/remainder_class.py",
+    "ofn/adapters/run_store.py",
+    "ofn/config.py",
+    ".github/CODEOWNERS"
+  ],
+  "distinct_from": [
+    "head_class/tail_pin (#226) — end of a counted sequence from length + index",
+    "carve_class/extract_pin (#225) — cut_at + guest vs host length",
+    "remainder_class/leftover_pin (#204) — leftover after divide",
+    "digest_class/fold_pin (#152) — receipt-digest shape ≠ chain tip",
+    "segment_class/slice_pin (other body) — interval cuts",
+    "unpublished offset_class/range_pin — interval bounds",
+    "unpublished prefix_class/stem_pin — string prefixes",
+    "unpublished watermark_class/high_pin — newest-observed high water",
+    "unpublished cursor_class/advance_pin — cursor vs next",
+    "unpublished checkpoint_class/mark_pin — observed_seq vs mark_seq",
+    "unpublished splice_class/stitch_pin — insert_at vs host_len",
+    "seq.py — stateful; gap == replay",
+    "unpublished payload_bound"
+  ],
+  "claim": "classify_family names empty / single / odd_center / even_split from length alone. This is the middle of a counted sequence, not an end (head/tail), not leftover-after-divide, not cut_at+guest, not interval bounds. A unique center exists only for single (index 0) and odd_center (length // 2). even_split records two middles (lo = length//2-1, hi = length//2) and does not invent one index. empty has no center. center_of returns None for empty/even_split/missing — UNKNOWN, not 0. center is a START and is refused under HALT; classify / observe / inspect continue. Missing length is UNKNOWN (None), not FALSE and not 0. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_center records (slot → family:length) at most once per distinct pair; same pair is already_pinned; disagreement is center_collision. peek never writes. pin_allows_center only for center+odd_center or center+single; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / halt_blocks_pin / unique_center_is_send / even_split_is_authorized / empty_is_zero / even_split_is_zero / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce / peek_writes structurally False. halt_blocks_center and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), seq.py, campaign_bind/send_fence (#145), digest_class/fold_pin (#152), remainder_class/leftover_pin (#204), head_class/tail_pin (#226), carve_class/extract_pin (#225), unpublished offset/range, unpublished prefix/stem, unpublished watermark/high, unpublished cursor/advance, unpublished checkpoint/mark, unpublished splice/stitch, unpublished merge/join, unpublished fork/branch, unpublished payload_bound. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_mid_class tests.test_center_pin tests.test_chaos_mid_center tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_digest_class tests.test_fold_pin tests.test_campaign_bind tests.test_send_fence -q",
+    "ran_at_utc": "2026-09-07T03:21:08Z",
+    "head_full_at_run": "ee11d612e9f187e9c38bef0d5bf6875ad1161e0f",
+    "exit_code": 0,
+    "result": "396 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_mid_class.py": "49 passed, exit 0 (recount 2026-09-07T03:21:09Z, same parent)",
+      "tests/test_center_pin.py": "19 passed, exit 0 (recount 2026-09-07T03:21:09Z, same parent)",
+      "tests/test_chaos_mid_center.py": "7 passed, exit 0 (recount 2026-09-07T03:21:09Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-07T03:21:09Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_mid_class tests.test_center_pin tests.test_chaos_mid_center tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-07T03:20:59Z",
+      "exit_code": 0,
+      "result": "85 passed, 0 failed, 0 skipped (mid 49 / center 19 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host origin/main checkout @ee11d612e9f187e9c38bef0d5bf6875ad1161e0f — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (ends session qq on main copy) and on named branch origin/docs/octopus-os-incidents-20260902 @cfa8d8cdb2b308067298ea12a4db6f74c2c0f356 (session uuu). Next append is session vvv (unpublished sss/rrr remain first identifiers; objects ABSENT this body).",
+    "CONTRIBUTING.md": "absent on this-host origin/main checkout @ee11d612 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "this-host origin/main checkout",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "ee11d612e9f187e9c38bef0d5bf6875ad1161e0f",
+    "source_a": "git fetch + git rev-parse origin/main 2026-09-07T03:18:38Z (#152). Designated /workspace and isolated parent MATCH.",
+    "value_b": "75b58e7d75b66cca216ab3ba26b883e272becc12",
+    "source_b": "prior-memory carve-extract parent (#134). git merge-base --is-ancestor YES vs origin/main this-run (2026-09-07T03:19Z).",
+    "value_c": "c393e27b5806510bb928efa9853eaefef2282d39",
+    "source_c": "prior-memory #221. git merge-base --is-ancestor YES vs origin/main this-run (2026-09-07T03:19Z).",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-07T03:17:23.552Z",
+    "body": "bc-1f94cae6-9d49-450a-9517-7d4a684c661d",
+    "designated_branch": "cursor/taskenvelope-system-hardening-bc81",
+    "designated_sha": "ee11d612e9f187e9c38bef0d5bf6875ad1161e0f",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Designated /workspace not written. Isolated first identifier feat/p1-mid-center-20260907."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
