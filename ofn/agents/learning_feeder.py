@@ -98,7 +98,7 @@ def feed(now: float | None = None) -> dict:
     ev_f.write_text(json.dumps(evidence, ensure_ascii=False), encoding="utf-8")
     cl_f.write_text(json.dumps(claims, ensure_ascii=False), encoding="utf-8")
     r = subprocess.run(
-        [sys.executable, str(CLI), "run", "--evidence", str(ev_f),
+        [sys.executable, "-m", "ofn.learning.cli", "run", "--evidence", str(ev_f),
          "--claims", str(cl_f), "--out", str(out), "--ledger",
          str(LEDGER)], capture_output=True, text=True, timeout=120,
         cwd=str(_HERE.parents[1]))
@@ -109,8 +109,9 @@ def feed(now: float | None = None) -> dict:
 
 
 def main() -> int:
-    print(json.dumps(feed(), ensure_ascii=False))
-    return 0
+    result = feed()
+    print(json.dumps(result, ensure_ascii=False))
+    return 0 if result.get("ok") else 1
 
 
 if __name__ == "__main__":
