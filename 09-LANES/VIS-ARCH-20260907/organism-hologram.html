@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="color-scheme" content="dark">
+<title>🐙 ارگانیسم اختاپوس — هولوگرام زنده v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cyan:#22d3ee; --purple:#a855f7; --gold:#fcd34d; --red:#ef4444; --green:#22c55e;
+    --ok:#22c55e; --tele:#38bdf8; --stale:#eab308; --wire:#94a3b8; --dead:#64748b;
+    --bg:#02030e; --panel:rgba(6,12,26,.72); --line:rgba(103,232,249,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
+    font-family:'Vazirmatn',Tahoma,'Segoe UI',sans-serif;color:#dbeafe;
+    -webkit-user-select:none;user-select:none;touch-action:none}
+  #c{position:fixed;inset:0;display:block;cursor:grab}
+  #c.drag{cursor:grabbing}
+
+  /* ---------- HUD ---------- */
+  .hud{position:fixed;z-index:10;pointer-events:none}
+  .hud .box{pointer-events:auto}
+
+  #title{top:14px;right:16px;text-align:right;max-width:340px}
+  #title h1{font-size:17px;font-weight:900;letter-spacing:.3px;color:#e0f2fe;
+    text-shadow:0 0 18px rgba(34,211,238,.45)}
+  #title h1 .oct{filter:drop-shadow(0 0 8px rgba(34,211,238,.8))}
+  #title p{font-size:11px;color:#7dd3fc;opacity:.85;margin-top:2px}
+
+  #stats{top:14px;left:16px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:10px 12px;font-size:11.5px;line-height:1.9;
+    direction:ltr;text-align:left;backdrop-filter:blur(8px);min-width:198px}
+  #stats b{color:#67e8f9;font-weight:700}
+  #stats .k{color:#7c8db5;font-size:10px}
+  #stats .flash{animation:flash .5s ease-out}
+  @keyframes flash{0%{color:#fff;text-shadow:0 0 12px #22d3ee}100%{}}
+
+  #palettes{top:86px;right:16px;display:flex;flex-direction:column;gap:6px}
+  .pchip{pointer-events:auto;cursor:pointer;background:var(--panel);border:1px solid rgba(103,232,249,.35);
+    border-radius:10px;padding:6px 12px;font-size:12.5px;font-weight:700;font-family:inherit;color:#cffafe;
+    display:flex;align-items:center;gap:7px;transition:.18s;backdrop-filter:blur(6px);
+    text-shadow:0 0 10px rgba(34,211,238,.55)}
+  .pchip i{width:10px;height:10px;border-radius:50%;display:inline-block;box-shadow:0 0 8px currentColor}
+  .pchip:hover{transform:translateX(-3px);border-color:rgba(103,232,249,.5)}
+  .pchip.on{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px rgba(34,211,238,.35)}
+
+  #modes{bottom:16px;right:50%;transform:translateX(50%);display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:96vw}
+  .mchip{pointer-events:auto;cursor:pointer;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:8px 14px;font-size:13px;font-weight:700;font-family:inherit;
+    color:#cffafe;transition:.18s;backdrop-filter:blur(8px);display:flex;gap:6px;align-items:center;
+    text-shadow:0 0 10px rgba(34,211,238,.4)}
+  .mchip small{font-weight:400;font-size:9.5px;color:#6b7fa7}
+  .mchip:hover{border-color:rgba(103,232,249,.55);color:#fff;transform:translateY(-2px)}
+  .mchip.on{border-color:var(--cyan);color:#fff;background:rgba(8,47,73,.85);
+    box-shadow:0 0 18px rgba(34,211,238,.4)}
+
+  #speed{bottom:16px;right:16px;display:flex;gap:5px}
+  .schip{pointer-events:auto;cursor:pointer;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:4px 9px;font-size:11px;color:#a5f3fc;font-family:inherit;transition:.15s}
+  .schip.on,.schip:hover{border-color:var(--cyan);color:#fff}
+
+  #legend{bottom:16px;left:16px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:8px 11px;font-size:10.5px;line-height:2;backdrop-filter:blur(6px)}
+  #legend .d{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:5px;vertical-align:-1px}
+  #legend .w{display:inline-block;width:9px;height:9px;margin-left:5px;vertical-align:-1px;
+    background:transparent;border:1.5px solid var(--wire);border-radius:2px}
+
+  #stage{top:64px;right:50%;transform:translateX(50%);text-align:center;opacity:0;transition:opacity .4s}
+  #stage .s1{font-size:15px;font-weight:900;color:#fff;text-shadow:0 0 16px currentColor}
+  #stage .s2{font-size:10.5px;color:#7dd3fc;margin-top:1px}
+
+  #toast{bottom:74px;right:50%;transform:translateX(50%);background:rgba(69,10,10,.88);
+    border:1px solid rgba(239,68,68,.6);border-radius:12px;padding:9px 18px;font-size:13px;
+    font-weight:700;color:#fecaca;opacity:0;transition:opacity .3s;text-align:center}
+  #toast.ok{background:rgba(6,40,23,.88);border-color:rgba(34,197,94,.55);color:#bbf7d0}
+
+  #tip{position:fixed;z-index:20;pointer-events:none;background:rgba(4,10,22,.92);
+    border:1px solid rgba(103,232,249,.35);border-radius:12px;padding:9px 12px;max-width:270px;
+    font-size:11.5px;line-height:1.75;opacity:0;transition:opacity .12s;backdrop-filter:blur(8px);
+    box-shadow:0 6px 30px rgba(0,0,0,.55)}
+  #tip .t{font-weight:900;font-size:13px;color:#fff}
+  #tip .en{color:#7dd3fc;font-size:10px;direction:ltr;text-align:right}
+  #tip .st{display:inline-block;padding:0 7px;border-radius:6px;font-size:9.5px;font-weight:700;margin-top:2px}
+  #tip .d{color:#bae6fd;margin-top:3px}
+  #tip .x{color:#8fa3c8;font-size:10.5px;margin-top:2px}
+
+  #hint{top:50%;right:50%;transform:translate(50%,-50%);text-align:center;font-size:13px;
+    color:#a5f3fc;background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px 22px;line-height:2;transition:opacity 1s;backdrop-filter:blur(6px)}
+
+  #foot{bottom:2px;right:50%;transform:translateX(50%);font-size:9px;color:#4d5f82;white-space:nowrap}
+
+  /* 3D labels */
+  .lbl{position:fixed;z-index:5;pointer-events:none;font-size:11px;font-weight:700;color:#cfe9ff;
+    text-shadow:0 0 8px rgba(2,3,14,.95);transform:translate(50%,-50%);white-space:nowrap;
+    transition:opacity .35s;opacity:0}
+  .lbl small{display:block;font-weight:400;font-size:9px;color:#6f86ad;text-align:center;direction:ltr}
+  .lbl.node{color:#a5f3fc;font-size:12.5px}
+  .lbl.island{font-size:10.5px}
+  .lbl.stage{color:#fde68a;font-size:10px;background:rgba(4,10,22,.55);padding:1px 7px;border-radius:7px}
+  .lbl.show{opacity:1}
+
+  #boot{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:14px;background:var(--bg);transition:opacity .8s;font-size:15px;color:#67e8f9}
+  #boot .oct{font-size:44px;animation:pulse 1.6s infinite}
+  #boot .err{color:#fca5a5;font-size:13px;max-width:420px;text-align:center;line-height:2}
+  @keyframes pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+  @media (max-width:640px){
+    #stats{display:none} #title p{display:none} #legend{display:none}
+    .mchip{padding:6px 9px;font-size:11px} .mchip small{display:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="hud" id="title">
+  <h1><span class="oct">🐙</span> ارگانیسم OCTOPUS</h1>
+  <p>هولوگرام زنده · چهار گره · سه قلب و یک جای خالی</p>
+</div>
+
+<div class="hud" id="stats" dir="ltr"></div>
+
+<div class="hud" id="palettes">
+  <div class="pchip on" data-pal="calm"><i style="background:#22d3ee"></i>آرام</div>
+  <div class="pchip" data-pal="ignite"><i style="background:#fb923c"></i>اشتعال</div>
+  <div class="pchip" data-pal="bloom"><i style="background:#e879f9"></i>شکفت</div>
+  <div class="pchip" data-pal="dream"><i style="background:#818cf8"></i>خواب</div>
+</div>
+
+<div class="hud" id="modes">
+  <div class="mchip on" data-mode="body">کل بدن <small>1</small></div>
+  <div class="mchip" data-mode="head">سر و مغزها <small>2</small></div>
+  <div class="mchip" data-mode="hearts">قلب‌ها <small>3</small></div>
+  <div class="mchip" data-mode="arms">هشت بازو <small>4</small></div>
+  <div class="mchip" data-mode="flow">سوار جریان شو <small>5</small></div>
+  <div class="mchip" data-mode="gov">حکومت و مالک <small>6</small></div>
+</div>
+
+<div class="hud" id="speed">
+  <div class="schip" data-sp="1">×1</div>
+  <div class="schip" data-sp="2">×2</div>
+  <div class="schip on" data-sp="4">×4</div>
+  <div class="schip" data-sp="8">×8</div>
+  <div class="schip" id="pause">⏸</div>
+</div>
+
+<div class="hud" id="legend">
+  <div><span class="d" style="background:var(--ok)"></span> زنده — علیّت واقعی</div>
+  <div><span class="d" style="background:var(--tele)"></span> تله‌متری / مشورتی</div>
+  <div><span class="d" style="background:var(--stale)"></span> کهنه / دروغ صادق</div>
+  <div><span class="w"></span> وایرفریم = غایب · مفهوم · خواب</div>
+</div>
+
+<div class="hud" id="stage"><div class="s1"></div><div class="s2"></div></div>
+<div class="hud" id="toast"></div>
+<div class="hud" id="hint">کشیدن = چرخش · اسکرول = زوم · روی هر عضو برو و کلیک کن<br>کلیدهای ۱ تا ۶ = نماها · Space = توقف</div>
+<div class="hud" id="foot">اعداد = عکس‌فوریِ مستند 2026-09-07 · حرکت = شبیه‌سازی با نسبت‌های زمانی واقعی (سه قلب 42s/81s/126s)</div>
+
+<div id="tip"></div>
+<div id="boot"><div class="oct">🐙</div><div id="bootmsg">در حال بارگیری موتور سه‌بعدی…</div></div>
+
+<script>
+/* eslint-disable */
+(function(){
+'use strict';
+
+/* ================= 1. boot: three.js از CDN با زنجیرهٔ جایگزین ================= */
+var CDNS=[
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+  'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',
+  'https://unpkg.com/three@0.128.0/build/three.min.js'
+];
+(function load(i){
+  if(i>=CDNS.length){
+    document.getElementById('bootmsg').innerHTML=
+      '<span class="err">موتور سه‌بعدی بارگیری نشد.<br>اینترنت لازم است (three.js از CDN می‌آید).<br>مسیرها: cdnjs → jsdelivr → unpkg</span>';
+    return;
+  }
+  var s=document.createElement('script');
+  s.src=CDNS[i];
+  s.onload=function(){ if(window.THREE){ main(); } else { load(i+1); } };
+  s.onerror=function(){ load(i+1); };
+  document.head.appendChild(s);
+})(0);
+
+/* ================= 2. ثابت‌های حقیقت (همه از اسناد ولت، 2026-09-07) ================= */
+var DATA={
+  beatBase:64582,          // ORGANISM-STATE.json
+  seqBase:196462,          // audit.jsonl روی 138
+  heartPeriods:[42.4,81,126], // cardiac / rhythm / control_law (HEARTS-TIME.md)
+  arbiterPeriod:120,       // اجماع قلب‌ها
+  wakeLatencyMin:105,      // تأخیر end-to-end
+  standingGo:'3/8',        // شمارندهٔ خودضربان
+  calibErr:0.25, orphans:2583, orphanHeal:8,
+  budget:'A$45/ماه', runway:'67d', level:'L2',
+  selves:[ // learner, earner, guardian, creator, organism
+    {en:'learner', fa:'دانش‌آموز', v:0.6},
+    {en:'earner',  fa:'درآمدزا',  v:0.0},
+    {en:'guardian',fa:'نگهبان',   v:0.675},
+    {en:'creator', fa:'خالق',     v:1.0},
+    {en:'organism',fa:'ارگانیسم', v:0.585}
+  ]
+};
+var COL={cyan:0x22d3ee,sky:0x38bdf8,purple:0xa855f7,amber:0xf59e0b,owner:0xef4444,
+  gold:0xfcd34d,green:0x22c55e,stale:0x84cc16,wire:0x94a3b8,dim:0x3b4a63,ink:0x0a1220};
+var PALS={
+  calm:  {fog:0x02030e,heart:0x22d3ee,arm:0x38bdf8,glow:0x67e8f9,plank:0x5b6b85},
+  ignite:{fog:0x0a0503,heart:0xfb923c,arm:0xf59e0b,glow:0xfdba74,plank:0x7c5a44},
+  bloom: {fog:0x0b0210,heart:0xe879f9,arm:0xc084fc,glow:0xf5d0fe,plank:0x6d4a7c},
+  dream: {fog:0x010208,heart:0x818cf8,arm:0x60a5fa,glow:0xa5b4fc,plank:0x44507c}
+};
+var STCOL={LIVE_CAUSAL:'#22c55e',LIVE_ADVISORY:'#38bdf8',LIVE_TELEMETRY:'#38bdf8',
+  STALE:'#eab308',NOT_FOUND:'#64748b',CONCEPT_ONLY:'#64748b',SHADOW:'#64748b',
+  BLOCKED:'#ef4444',SKELETON:'#64748b',OWNER:'#ef4444',GATE:'#fcd34d'};
+
+/* ================= 3. main ================= */
+function main(){
+document.getElementById('boot').style.opacity='0';
+setTimeout(function(){var b=document.getElementById('boot');if(b)b.remove();},900);
+
+var canvas=document.getElementById('c');
+var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.18;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+var scene=new THREE.Scene();
+var camera=new THREE.PerspectiveCamera(55,1,0.1,400);
+
+function resize(){
+  var w=window.innerWidth,h=window.innerHeight;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize);resize();
+
+/* ---------- state ---------- */
+var simTime=0,timeScale=4,paused=false,MODE='body',PAL='calm';
+var clock=new THREE.Clock();
+
+scene.fog=new THREE.FogExp2(PALS.calm.fog,0.008);
+scene.background=new THREE.Color(PALS.calm.fog);
+
+/* ---------- lights ---------- */
+scene.add(new THREE.AmbientLight(0x8899bb,0.62));
+scene.add(new THREE.HemisphereLight(0x33507a,0x0a0f1e,0.55));
+var dl=new THREE.DirectionalLight(0xaabbff,0.45);dl.position.set(20,40,15);scene.add(dl);
+var heartLight=new THREE.PointLight(COL.cyan,1.1,26);heartLight.position.set(0,6,0);scene.add(heartLight);
+var brainLight=new THREE.PointLight(COL.amber,0.9,20);brainLight.position.set(13,6,-6);scene.add(brainLight);
+var ownerLight=new THREE.PointLight(COL.owner,1.4,50);ownerLight.position.set(0,30,-14);scene.add(ownerLight);
+
+/* ---------- helpers ---------- */
+function mat(o){return new THREE.MeshPhongMaterial(Object.assign({shininess:40,transparent:true,opacity:1},o));}
+function wireMat(c,op){return mat({color:c||COL.wire,wireframe:true,opacity:op==null?0.45:op});}
+function glowTex(){
+  var c=document.createElement('canvas');c.width=c.height=128;
+  var g=c.getContext('2d');var r=g.createRadialGradient(64,64,2,64,64,64);
+  r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.25,'rgba(255,255,255,.55)');
+  r.addColorStop(.6,'rgba(255,255,255,.12)');r.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=r;g.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(c);
+}
+var GLOW=glowTex();
+function glowSprite(color,scale,op){
+  var m=new THREE.SpriteMaterial({map:GLOW,color:color,transparent:true,
+    opacity:op==null?0.65:op,depthWrite:false,blending:THREE.AdditiveBlending});
+  var s=new THREE.Sprite(m);s.scale.setScalar(scale||2);return s;
+}
+function emojiSprite(txt,scale){
+  var c=document.createElement('canvas');c.width=c.height=128;
+  var g=c.getContext('2d');g.font='88px "Segoe UI Emoji","Noto Color Emoji",Arial';
+  g.textAlign='center';g.textBaseline='middle';g.fillText(txt,64,70);
+  var m=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false});
+  var s=new THREE.Sprite(m);s.scale.setScalar(scale||1.4);return s;
+}
+
+/* ---------- organs registry (hover/click tooltip) ---------- */
+var RAY_TARGETS=[];
+var HIT_MAT=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false});
+function organ(parent,pos,r,info){
+  var p=new THREE.Mesh(new THREE.SphereGeometry(r,8,8),HIT_MAT);
+  if(pos)p.position.copy(pos);parent.add(p);
+  p.userData.info=info;RAY_TARGETS.push(p);
+  info._proxy=p;return p;
+}
+
+/* ---------- labels (HTML، فارسی) ---------- */
+var LABELS=[];
+function label(text,sub,cls,obj,dy){
+  var el=document.createElement('div');el.className='lbl '+(cls||'');
+  el.innerHTML=text+(sub?'<small>'+sub+'</small>':'');
+  document.body.appendChild(el);
+  LABELS.push({el:el,obj:obj,dy:dy||0});
+  return LABELS.length-1;
+}
+var V3=new THREE.Vector3();
+function updateLabels(){
+  for(var i=0;i<LABELS.length;i++){
+    var L=LABELS[i];
+    V3.setFromMatrixPosition(L.obj.matrixWorld);V3.y+=L.dy;
+    V3.project(camera);
+    if(V3.z>1||V3.z<-1){L.el.classList.remove('show');continue;}
+    var x=(V3.x*0.5+0.5)*window.innerWidth, y=(-V3.y*0.5+0.5)*window.innerHeight;
+    if(x<-60||x>window.innerWidth+60||y<-40||y>window.innerHeight+40){L.el.classList.remove('show');continue;}
+    L.el.style.left=x+'px';L.el.style.top=y+'px';
+    L.el.classList.toggle('show',!!L.el.dataset.show);
+  }
+}
+function showLabels(mode){
+  for(var i=0;i<LABELS.length;i++){
+    var L=LABELS[i],m=L.el.dataset.modes||'all';
+    L.el.dataset.show=(m==='all'||m.indexOf(mode)>=0)?'1':'';
+  }
+}
+
+/* ================= 4. زمین، ستاره‌ها، پلانکتون ================= */
+var ground=new THREE.Mesh(new THREE.CircleGeometry(44,72),
+  mat({color:0x0d1626,shininess:80,specular:0x24406b}));
+ground.rotation.x=-Math.PI/2;ground.position.y=-0.02;scene.add(ground);
+(function grid(){
+  var g=new THREE.BufferGeometry(),v=[];
+  for(var r=6;r<=42;r+=6){
+    var n=90;for(var i=0;i<n;i++){
+      var a1=i/n*Math.PI*2,a2=(i+1)/n*Math.PI*2;
+      v.push(Math.cos(a1)*r,0.02,Math.sin(a1)*r,Math.cos(a2)*r,0.02,Math.sin(a2)*r);
+    }
+  }
+  for(var s=0;s<12;s++){var a=s/12*Math.PI*2;
+    v.push(Math.cos(a)*4,0.02,Math.sin(a)*4,Math.cos(a)*42,0.02,Math.sin(a)*42);}
+  g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  scene.add(new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x1d3a5c,transparent:true,opacity:0.5})));
+})();
+(function stars(){
+  var n=900,g=new THREE.BufferGeometry(),v=[];
+  for(var i=0;i<n;i++){
+    var r=95+Math.random()*60,t=Math.random()*Math.PI*2,p=Math.acos(2*Math.random()-1);
+    v.push(r*Math.sin(p)*Math.cos(t),r*Math.cos(p)*0.6+15,r*Math.sin(p)*Math.sin(t));
+  }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  var m=new THREE.PointsMaterial({color:0x9db8dd,size:0.55,transparent:true,opacity:0.8,sizeAttenuation:true});
+  scene.add(new THREE.Points(g,m));
+})();
+var plankton;(function(){
+  var n=240,g=new THREE.BufferGeometry(),v=[];
+  for(var i=0;i<n;i++){
+    var r=8+Math.random()*24,t=Math.random()*Math.PI*2;
+    v.push(Math.cos(t)*r,1+Math.random()*13,Math.sin(t)*r);
+  }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  plankton=new THREE.Points(g,new THREE.PointsMaterial({color:PALS.calm.plank,size:0.28,
+    transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(plankton);
+})();
+
+/* ================= 5. بدن اختاپوس ================= */
+var body=new THREE.Group();body.position.set(0,6,0);scene.add(body);
+
+/* 5.1 سر شیشه‌ای */
+var head=new THREE.Group();head.position.set(0,2.4,0);body.add(head);
+var skull=new THREE.Mesh(new THREE.SphereGeometry(3,48,32),
+  mat({color:0x9adcf5,transparent:true,opacity:0.13,shininess:120,specular:0x99e9ff,
+    emissive:0x0a3550,emissiveIntensity:0.25,side:THREE.DoubleSide}));
+head.add(skull);
+var skullRim=new THREE.Mesh(new THREE.SphereGeometry(3.02,36,24),wireMat(0x2b6f8f,0.16));
+head.add(skullRim);
+head.add(glowSprite(0x22d3ee,9,0.16));
+
+/* cortex */
+var cortex=new THREE.Mesh(new THREE.IcosahedronGeometry(0.85,1),
+  mat({color:COL.purple,emissive:COL.purple,emissiveIntensity:0.9,flatShading:true}));
+cortex.position.set(0,0.55,0);head.add(cortex);
+head.add((function(){var g=glowSprite(COL.purple,4.2,0.6);g.position.copy(cortex.position);return g;})());
+organ(head,cortex.position,1.15,{t:'مغز عملیاتی — cortex',s:'cortex :8772',
+  d:'چرخهٔ تصمیم و مسیریابی مدل. زنده.',st:'LIVE_CAUSAL',x:'innervation 100٪ · cadence = 2× قلب'});
+
+/* llama */
+var llama=new THREE.Mesh(new THREE.IcosahedronGeometry(0.62,0),
+  mat({color:COL.amber,emissive:0x7c4a03,emissiveIntensity:0.7,flatShading:true}));
+llama.position.set(1.15,-0.35,0.5);head.add(llama);
+head.add((function(){var g=glowSprite(COL.amber,3.2,0.55);g.position.copy(llama.position);return g;})());
+organ(head,llama.position,0.95,{t:'مغز محلی — llama',s:'qwen3-0.6b @180:8081 · ctx 8192',
+  d:'تنها موتور تفکر. تک‌نقطهٔ خطا: قفلش = مرگ شناخت (۱۸ بیدارباش).',st:'LIVE_CAUSAL',
+  x:'1024→8192 tok در 2026-09-06 تعویض شد'});
+
+/* brain_core shadow */
+var shadowBrain=new THREE.Mesh(new THREE.SphereGeometry(0.5,20,14),
+  mat({color:0x4c3a75,transparent:true,opacity:0.18}));
+shadowBrain.position.set(-1.25,1.0,-0.55);head.add(shadowBrain);
+organ(head,shadowBrain.position,0.8,{t:'مغز سایه — brain_core',s:'SHADOW',
+  d:'مقایسه ۳۵۲۰ · تطابق ۰. هرگز ارتقا نمی‌یابد تا تطبیق ثابت شود.',st:'SHADOW'});
+
+/* پنج خود */
+var selfGroup=new THREE.Group();selfGroup.position.set(0,-1.05,0);head.add(selfGroup);
+DATA.selves.forEach(function(s,i){
+  var a=(90+i*72)*Math.PI/180;
+  var pos=new THREE.Vector3(Math.cos(a)*1.85,Math.sin(a)*0.35,Math.sin(a)*1.85);
+  var r=0.16+0.4*s.v;
+  if(s.v<=0.01){
+    var w=new THREE.Mesh(new THREE.SphereGeometry(0.34,18,12),wireMat(COL.wire,0.6));
+    w.position.copy(pos);selfGroup.add(w);
+    organ(selfGroup,pos,0.55,{t:'خودِ '+s.fa+' — '+s.en,s:'identity '+s.v.toFixed(3),
+      d:'پوستهٔ خالی. موجود می‌سازد و یاد می‌گیرد اما هنوز درآمد verified-cash سازمانی = 0.',st:'NOT_FOUND',
+      x:'قلب پول هم هنوز sensor ندارد — این دو با هم در 2026 وصل می‌شوند'});
+  }else{
+    var m=new THREE.Mesh(new THREE.SphereGeometry(r,22,16),
+      mat({color:0x67e8f9,emissive:0x0e7490,emissiveIntensity:0.45+s.v*0.65}));
+    m.position.copy(pos);selfGroup.add(m);
+    organ(selfGroup,pos,r+0.35,{t:'خودِ '+s.fa+' — '+s.en,s:'identity '+s.v.toFixed(3),
+      d:'اندازهٔ کره = امتیاز واقعی هویت (عکس 2026-08-19).',st:'LIVE_TELEMETRY',
+      x:'سلامت کلی هویت: 0.572'});
+  }
+});
+/* جای‌های خالی سر */
+var sa7=new THREE.Mesh(new THREE.OctahedronGeometry(0.34,0),wireMat(COL.wire,0.5));
+sa7.position.set(-1.5,-0.8,0.95);head.add(sa7);
+organ(head,sa7.position,0.6,{t:'خود-مدل کالیبره — SA-7',s:'NOT_FOUND',
+  d:'اعتمادِ ثابت 0.25 بدون کالیبراسیون. فرورفتگی عمدی — ساخته نشده.',st:'NOT_FOUND'});
+var db2=new THREE.Mesh(new THREE.OctahedronGeometry(0.34,0),wireMat(COL.wire,0.5));
+db2.position.set(1.55,1.1,-0.9);head.add(db2);
+organ(head,db2.position,0.6,{t:'مغز دوم مستقل — DUAL BRAIN',s:'0 از 3 جفت تأیید',
+  d:'دامنهٔ خطای مستقل وجود ندارد؛ producer/consumer است نه هم‌تراز. کالبد شیشه‌ای کنار سر = NBB-CP (فقط نقشه).',st:'NOT_FOUND',
+  x:'حلقه‌های خودآگاهِ رفتار-تغییردهنده: فقط SA-3 ERROR و SA-4 GOAL'});
+
+/* 5.2 تنه + حلقه‌های 0..4 */
+var torso=new THREE.Group();torso.position.set(0,-0.6,0);body.add(torso);
+var flesh=new THREE.Mesh(new THREE.SphereGeometry(2.7,40,30),
+  mat({color:0x7cc7de,transparent:true,opacity:0.11,emissive:0x06283a,emissiveIntensity:0.6}));
+torso.add(flesh);
+var RING_NAMES=['Ring 0 — ژنوم قانون اساسی','Ring 1 — هستهٔ ضربان','Ring 2 — ژنوم آگاهی (ICNS)','Ring 3 — گانگلیون‌های بازو','Ring 4 — اثرگذاران خام'];
+var rings=[];
+for(var ri=0;ri<5;ri++){
+  var rr=1.35+ri*0.34;
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(rr,0.05,10,96),
+    mat({color:ri%2?COL.gold:COL.cyan,emissive:ri%2?COL.gold:COL.cyan,
+      emissiveIntensity:1.05,transparent:true,opacity:0.75}));
+  ring.rotation.x=Math.PI/2;ring.position.y=0.85-ri*0.42;torso.add(ring);rings.push(ring);
+  organ(torso,new THREE.Vector3(0,0.85-ri*0.42,rr*0.75),0.62,
+    {t:RING_NAMES[ri],s:'MycoCardium ring '+ri,d:'پنج پوستهٔ هم‌مرکز؛ همهٔ اثرهای خروجی از یک EffectorGate تک‌دهانه می‌گذرد.',st:'GATE'});
+}
+
+/* 5.3 سه قلب + محفظهٔ خالی چهارم */
+var hearts=[];var heartDefs=[
+  {k:'value',fa:'قلب ارزش (بودجه)',en:'budget_level.json',pos:[0,0,1.5],st:'LIVE_CAUSAL',
+   d:'تپش منابع پولی. ۴ خواننده. NORMAL.',x:'reach 2/11 عضو'},
+  {k:'body',fa:'قلب بدن (بقای بدن)',en:'conservation-mode.json',pos:[1.35,0,-0.85],st:'LIVE_CAUSAL',
+   d:'حالت بقای بدن؛ کم‌شدن منابع = جمع‌شدن.',x:'reach 3/11 عضو'},
+  {k:'mind',fa:'قلب ذهن (دروغ صادق)',en:'RUNTIME_MODE.json',pos:[-1.35,0,-0.85],st:'STALE',
+   d:'از 2026-08-27 پارک روی PERSISTENT_GREEN. مغز ۱۸ بیدارباش مرده بود و این قلب همچنان سبز می‌تپد.',x:'reach 0/11'},
+  {k:'cash',fa:'قلب پول — غایب',en:'verified_cash sensor',pos:[0,0,-1.5],st:'CONCEPT_ONLY',
+   d:'حسگر وجود ندارد؛ VERIFIED_CASH=0 در لجر ارگانیسم. پول واقعی بیرون جریان دارد (≈A$60k) اما به بدن نمی‌رسد.',x:'نردبان: روشن‌شدنش = L3'}
+];
+heartDefs.forEach(function(h){
+  var pos=new THREE.Vector3(h.pos[0],h.pos[1],h.pos[2]);
+  if(h.k==='cash'){
+    var cage=new THREE.Mesh(new THREE.SphereGeometry(0.56,18,14),wireMat(0xef4444,0.85));
+    cage.position.copy(pos);torso.add(cage);
+    var ghost=glowSprite(COL.owner,1.9,0.3);ghost.position.copy(pos);torso.add(ghost);
+    var q=emojiSprite('❓',0.7);q.position.copy(pos);torso.add(q);
+    hearts.push({g:cage,def:h,ghost:ghost,phase:Math.random()*6});
+    organ(torso,pos,0.85,{t:h.fa,s:h.en,d:h.d,st:h.st,x:h.x});
+  }else{
+    var col=h.k==='mind'?COL.stale:COL.cyan;
+    var m=new THREE.Mesh(new THREE.SphereGeometry(0.5,26,20),
+      mat({color:col,emissive:col,emissiveIntensity:h.k==='mind'?0.5:1.3,shininess:90}));
+    m.position.copy(pos);torso.add(m);
+    var gl=glowSprite(col,3.2,h.k==='mind'?0.34:0.75);gl.position.copy(pos);torso.add(gl);
+    hearts.push({g:m,def:h,glow:gl,phase:Math.random()*6});
+    organ(torso,pos,0.85,{t:h.fa,s:h.en+' · '+DATA.heartPeriods[{value:0,body:2,mind:1}[h.k]]+'s',
+      d:h.d,st:h.st,x:h.x+' · نردبان ضربان: L0→L1→L2→DORMANT'});
+  }
+});
+/* حلقهٔ lease — تک‌نویسندهٔ ضربان */
+var lease=new THREE.Mesh(new THREE.TorusGeometry(0.82,0.045,10,60),
+  mat({color:COL.gold,emissive:COL.gold,emissiveIntensity:1.2}));
+torso.add(lease);
+organ(torso,hearts[0].g.position,0.6,{t:'توکنِ تک‌نویسنده — lease',s:'single-writer + fencing',
+  d:'فقط یک قلب در هر لحظه ضربان رسمی می‌سازد؛ حلقهٔ طلایی هر سیکلِ arbiter به قلب بعدی می‌پرد.',st:'GATE',
+  x:'ضدِ split-brain · سه مولد G_primary/G_secondary/G_tertiary'});
+
+/* سه قفل ابدی */
+var locksGroup=new THREE.Group();torso.add(locksGroup);
+['🔒 secret ها','🔒 زنجیرهٔ رسید','🔒 PASS بدون رسید'].forEach(function(t,i){
+  var a=i/3*Math.PI*2;
+  var lr=new THREE.Mesh(new THREE.TorusGeometry(3.15,0.03,8,80),
+    mat({color:0x7c2d12,emissive:0xef4444,emissiveIntensity:0.35,transparent:true,opacity:0.5}));
+  lr.rotation.x=Math.PI/2+0.25*Math.sin(a);lr.rotation.z=a;locksGroup.add(lr);
+  var lk=emojiSprite('🔒',0.8);lk.position.set(Math.cos(a)*3.15,0.5,Math.sin(a)*3.15);locksGroup.add(lk);
+  organ(locksGroup,lk.position.clone(),0.75,{t:'قفل ابدی '+(i+1),s:'GOV-V8 §7',
+    d:['هیچ secret/token/seed چاپ یا ارسال نمی‌شود.','هیچ ردیفی از زنجیرهٔ رسید حذف/بازنویسی نمی‌شود.','هیچ PASS بدون رسید هم‌دامنه اعلام نمی‌شود.'][i],st:'GATE'});
+});
+
+/* ================= 6. جزیره‌های سخت‌افزار ================= */
+function plinth(x,z,r,h,color,glowColor){
+  var g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.12,h,26),
+    mat({color:0x11203a,shininess:70,specular:0x224466}));
+  base.position.y=h/2;g.add(base);
+  var rim=new THREE.Mesh(new THREE.TorusGeometry(r*1.02,0.05,8,44),
+    mat({color:glowColor,emissive:glowColor,emissiveIntensity:0.8,transparent:true,opacity:0.6}));
+  rim.rotation.x=Math.PI/2;rim.position.y=h*0.92;g.add(rim);
+  if(color)g.add((function(){var s=glowSprite(color,r*2.6,0.22);s.position.y=h+1;return s;})());
+  return g;
+}
+
+/* 138 — قلب و لجر */
+var n138=plinth(-13,-7,2.6,2.2,COL.cyan,COL.cyan);
+var ledgerCol=new THREE.Group();ledgerCol.position.y=2.2;n138.add(ledgerCol);
+for(var li=0;li<34;li++){
+  var plate=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.065,14),
+    mat({color:COL.cyan,emissive:0x0e7490,emissiveIntensity:0.8+Math.random()*0.7}));
+  plate.position.y=0.3+li*0.135;plate.rotation.y=Math.random()*3;ledgerCol.add(plate);
+}
+ledgerCol.add(glowSprite(COL.cyan,5,0.3));
+var hE=emojiSprite('❤️',1.5);hE.position.set(0,6.2,0);n138.add(hE);
+label('۱۳۸ — قلب و متابولیسم','heart · ledger · scheduler','node',n138,7.4);
+organ(n138,new THREE.Vector3(0,4.5,0),3.4,{t:'برد ۱۳۸ — قلب/داروخانه',s:'ofn.service PID 3706256',
+  d:'ستون فقرات: scheduler ۱۵دقیقه‌ای، بودجه، supervisor، verify-dispatcher، لجر رسید.',st:'LIVE_CAUSAL',
+  x:'audit.jsonl: 196,462 رکورد append-only (نمایش: ۳۴ صفحه) · HASH-CHAIN ندارد، seq-monotonic'});
+
+/* 180 — مغز */
+var n180=plinth(13,-6,2.6,2.2,COL.amber,COL.amber);
+var dome=new THREE.Mesh(new THREE.SphereGeometry(1.9,30,20,0,Math.PI*2,0,Math.PI/2),
+  mat({color:0x7c4a03,emissive:0x7c4a03,emissiveIntensity:0.7,transparent:true,opacity:0.55}));
+dome.position.y=2.2;n180.add(dome);
+var smoke=[];
+for(var si=0;si<26;si++){
+  var sm=glowSprite(COL.amber,0.9+Math.random(),0.16);
+  sm.position.set((Math.random()-0.5)*1.6,2.4+Math.random()*2.2,(Math.random()-0.5)*1.6);
+  n180.add(sm);smoke.push(sm);
+}
+var bE=emojiSprite('🧠',1.5);bE.position.set(0,5.4,0);n180.add(bE);
+label('۱۸۰ — مغز شناختی','cognitive-worker + llama','node',n180,6.6);
+organ(n180,new THREE.Vector3(0,3,0),3.2,{t:'برد ۱۸۰ — مغز',s:'octopus-cognitive-worker --once',
+  d:'بستهٔ wake را می‌خواند، برای هر پا پیش‌نویس می‌سازد: PROPOSAL_READY یا BLOCKED_HONEST.',st:'LIVE_CAUSAL',
+  x:'تایمر ~45s · بدون بستهٔ GO → DENY_NO_OWNER_PACKET_BACKOFF'});
+
+/* 182 — شاهد بازنشسته */
+var n182=plinth(11,10,2.2,1.4,0x33415c,COL.dim);
+var ruin=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.5,2.4,10),
+  mat({color:0x324666,emissive:0x101c30,emissiveIntensity:0.6,transparent:true,opacity:0.9}));
+ruin.position.set(0.6,2.5,0);ruin.rotation.z=0.3;n182.add(ruin);
+var eye=emojiSprite('👁️',1.7);eye.position.set(0,3.1,0);eye.material.opacity=0.45;n182.add(eye);
+label('۱۸۲ — چشم/شاهد (بازنشسته)','witness · retired','node',n182,4.4);
+organ(n182,new THREE.Vector3(0,2.6,0),2.6,{t:'برد ۱۸۲ — شاهد',s:'sensorium · witness',
+  d:'رأی‌های راستی‌آزمایی می‌داد؛ بازنشسته اما اسکلتش پابرجاست.',st:'STALE',
+  x:'2,591 رأی يتیم از نقص correlation-join شفا می‌یابند: ۸/روز'});
+
+/* لپ‌تاپ — کتابخانه/خانه */
+var nLap=plinth(-11,10,2.4,1.6,0x38bdf8,COL.sky);
+var stack=new THREE.Group();stack.position.y=1.6;nLap.add(stack);
+for(var bi=0;bi<3;bi++){
+  var bk=new THREE.Mesh(new THREE.BoxGeometry(2.4-bi*0.25,0.34,1.7-bi*0.2),
+    mat({color:0x16324f,emissive:0x0b2947,emissiveIntensity:0.7}));
+  bk.position.set((Math.random()-0.5)*0.12,0.2+bi*0.36,(Math.random()-0.5)*0.1);
+  bk.rotation.y=(Math.random()-0.5)*0.2;stack.add(bk);
+}
+var ports=[];
+for(var pi=0;pi<6;pi++){
+  var pd=new THREE.Mesh(new THREE.SphereGeometry(0.09,10,8),
+    mat({color:COL.sky,emissive:COL.sky,emissiveIntensity:1}));
+  pd.position.set(-1.0+pi*0.4,0.14,0.92);stack.add(pd);ports.push(pd);
+}
+var lE=emojiSprite('📚',1.5);lE.position.set(0,2.9,0);nLap.add(lE);
+label('لپ‌تاپ — کتابخانه و خانه','vault · ports 8771–8776','node',nLap,3.8);
+organ(nLap,new THREE.Vector3(0,2,0),2.8,{t:'لپ‌تاپ ۱۹۱ — کتابخانه/خانهٔ مادر',s:'F:\\backup · 8771–8776',
+  d:'ولتِ حافظهٔ بلندمدت + رابط‌ها: پنل :8773/panel، cortex :8772، مینی‌اپ :8774، تلگرام :8776.',st:'LIVE_CAUSAL',
+  x:'بیض ۶۴٬۵۸۲ و در حال تپش · مینی‌اپ تلگرام: ۵ تب'});
+
+/* قانون GitHub + نردبان GOV */
+var law=new THREE.Group();law.position.set(0,0,-17);scene.add(law);
+var slab=new THREE.Mesh(new THREE.BoxGeometry(3.4,4.6,0.4),
+  mat({color:0x1c2740,emissive:0x0e1b33,emissiveIntensity:0.6}));
+slab.position.y=24;slab.rotation.y=Math.PI/2;law.add(slab);
+var gE=emojiSprite('⚖️',2.2);gE.position.set(0,26.2,0);law.add(gE);
+var ladder=new THREE.Group();ladder.position.set(3.2,0,0);law.add(ladder);
+var LADDERS=[
+  ['L0','خواندن',0],['L1','تماس',1],['L2','پول',2],['L3','هزینه',3],['L4','مقیاس',4]
+];
+LADDERS.forEach(function(L,i){
+  var on=(L[0]==='L2');
+  var rung=new THREE.Mesh(new THREE.BoxGeometry(1.7,0.42,0.42),
+    mat({color:on?COL.gold:0x22304c,emissive:on?COL.gold:0x0c1830,emissiveIntensity:on?1.1:0.25}));
+  rung.position.set(0,8.5+i*2.2,0);ladder.add(rung);
+  if(on)rung.add(glowSprite(COL.gold,3,0.5));
+  organ(ladder,new THREE.Vector3(0,8.5+i*2.2,0),1.2,
+    {t:'پلهٔ '+L[0]+' — '+L[1],s:'GOV-V8 ladder',
+     d:['خواندن/تست/تحلیل — باز است','پیام خروجی ≤۱۰/روز با قالب تأییدشده','پذیرش پرداخت و فاکتور بدون رأی موردی — سطح فعلی','خرج تبلیغ/API با سقف — 🔒 تا حاشیهٔ ۳۰روزهٔ مثبت','چرخهٔ کامل بدون انسان — 🔒 ۱۰ رسید پول'][i],
+     st:on?'GATE':'NOT_FOUND',
+     x:'پایین‌آمدن خودکار و بی‌رأی · بالارفتن فقط با رسید · شرط L2 با رأی مالک لغو شد (2026-09-05)'});
+});
+label('قانون‌نامه — GitHub','GOV-V8 · فعلی: L2','node',law,21);
+
+/* مالک — نور بالای صحنه */
+var ownerCol=new THREE.Mesh(new THREE.CylinderGeometry(0.5,1.1,10,18,1,true),
+  mat({color:COL.owner,emissive:COL.owner,emissiveIntensity:0.9,transparent:true,
+    opacity:0.30,side:THREE.DoubleSide}));
+ownerCol.position.set(0,31,-14);scene.add(ownerCol);
+ownerCol.add(glowSprite(COL.owner,7,0.5));
+var oE=emojiSprite('🖊️',1.8);oE.position.set(0,4,0);ownerCol.add(oE);
+label('مالک — امضای Ed25519','fp 2413e974… · سکوت = رد','node',ownerCol,5.6);
+organ(ownerCol,new THREE.Vector3(0,1,0),2.4,{t:'مالک — بیرون از بدن',s:'Ed25519 9/9',
+  d:'تنها منبع اختیار. بسته‌های GO امضاشده از آسمان در رگ اصلی رها می‌شوند. چت ساده ≠ تأیید.',st:'OWNER',
+  x:'سه قفل ابدی + چهار حفاظ: HALT · BUDGET.json · pre-image · «رسید یا rollback»'});
+
+/* دروازهٔ GO */
+var gate=new THREE.Mesh(new THREE.TorusGeometry(1.05,0.09,12,60),
+  mat({color:COL.gold,emissive:COL.gold,emissiveIntensity:1.1}));
+gate.position.set(-11.5,8.5,-7.2);gate.rotation.y=Math.PI/2.4;scene.add(gate);
+gate.add(glowSprite(COL.gold,4.2,0.5));
+label('دروازهٔ خودضربان','standing-GO · max 8/day تا 09-14','stage',gate,2.0);
+organ(gate,new THREE.Vector3(0,0,0),1.6,{t:'دروازهٔ ضربان — WO-E10',s:'standing-GO mint + halt',
+  d:'تصمیمِ «ضربان بعدی» لجر کالیبراسیون را می‌خواند: خطا ≥ 0.5 → HALT. اثبات‌شده در تولید (seq 194298).',st:'GATE',
+  x:'شمارندهٔ فعلی: 3/8 · fail-closed · سکوتِ unresolved = ادامه'});
+
+/* بلور تسویه/کالیبراسیون */
+var crystal=new THREE.Mesh(new THREE.OctahedronGeometry(0.85,0),
+  mat({color:COL.gold,emissive:COL.gold,emissiveIntensity:0.9,flatShading:true,opacity:0.85}));
+crystal.position.set(-9.6,2.7,-4);scene.add(crystal);
+crystal.add(glowSprite(COL.gold,3.4,0.5));
+label('تسویه و کالیبراسیون','settle → calibration.jsonl','stage',crystal,1.9);
+organ(crystal,new THREE.Vector3(0,0,0),1.5,{t:'بلور تسویه — verify/settle',s:'first settles 2026-09-06',
+  d:'حکم شاهد + نتیجه در یک رکورد = ستل. اولین ستل‌های تاریخِ موجود (قبلش 0 از 7550).',st:'LIVE_CAUSAL',
+  x:'err 0.25 · 2156 نتیجهٔ unresolved · 2583 يتیم، شفا ۸/روز'});
+
+/* ذرات يتیم */
+var orphans;(function(){
+  var n=130,g=new THREE.BufferGeometry(),v=[];
+  for(var i=0;i<n;i++){
+    var r=1.2+Math.random()*2.6,t=Math.random()*Math.PI*2;
+    v.push(Math.cos(t)*r,2.7+(Math.random()-0.5)*2.4,-4+Math.sin(t)*r);
+  }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  orphans=new THREE.Points(g,new THREE.PointsMaterial({color:0xfcd34d,size:0.16,
+    transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(orphans);
+})();
+
+/* ================= 7. هشت بازو ================= */
+var ARM_DEFS=[
+  {fa:'نقاشی',en:'painting',ang:20,c:COL.amber,act:1,st:'LIVE_CAUSORY',
+   d:'فعال‌ترین: imap + تایمر نقل‌قول. قیف ۶-مرحله‌ای تا پرداخت کامل.',x:'~A$104k نقل‌قول · 8 سرنخ',e:'🎨'},
+  {fa:'زیمان',en:'ziman',ang:65,c:COL.cyan,act:0.5,st:'LIVE_ADVISORY',
+   d:'Shopify زنده، ۴۰ محصول، بانک/ABN وصل. گلوگاه: ترافیک صفر.',x:'قفسه آماده، خیابان خالی',e:'🎁'},
+  {fa:'استودیو',en:'studio/OF',ang:110,c:COL.owner,act:0,st:'BLOCKED',
+   d:'تا امضای رضایت‌نامهٔ حقوقی مهندسی ممنوع.',x:'BLOCKED_LEGAL',e:'🎬'},
+  {fa:'حسابداری',en:'accounting',ang:155,c:COL.green,act:0.4,st:'LIVE_TELEMETRY',
+   d:'زنده اما فقط متادیتا — هیچ عدد مالی خوانده نمی‌شود.',x:'content-free',e:'🧾'},
+  {fa:'ماینینگ',en:'mining',ang:200,c:0,wire:1,st:'SKELETON',
+   d:'اسکلت: ۰ گره، ۰ سکه، فقط تحلیل.',x:'P0 skeleton',e:'⛏️'},
+  {fa:'کریپتو',en:'crypto',ang:245,c:0,wire:1,st:'STALE',
+   d:'خواب ~۶۵ روزه.',x:'eToro shadow',e:'📈'},
+  {fa:'پروژه-F',en:'project-F',ang:290,c:0,wire:1,st:'NOT_FOUND',
+   d:'پشت دروازه؛ محتوا آزاد نشده.',x:'gated',e:'🤐'},
+  {fa:'نقشه‌کش',en:'cartographer',ang:335,c:COL.stale,act:0.15,st:'STALE',
+   d:'نقشهٔ ولت را می‌کشد؛ نقشهٔ فعلی ۱۷+ روزه، 1163 فایل drift.',x:'read-only floor',e:'🗺️'}
+];
+var arms=[];
+ARM_DEFS.forEach(function(A){
+  var a=A.ang*Math.PI/180,R=23;
+  var end=new THREE.Vector3(Math.cos(a)*R,0.8,Math.sin(a)*R);
+  var start=new THREE.Vector3(0,-0.4,0);
+  var mid=start.clone().lerp(end,0.5);mid.y=2.6+Math.sin(a)*1.2;mid.multiplyScalar(1.05);
+  var curve=new THREE.QuadraticBezierCurve3(start,mid,end);
+  var tubeMat=A.wire?wireMat(COL.dim,0.4)
+    :mat({color:A.c,emissive:A.c,emissiveIntensity:0.5+A.act*0.7,transparent:true,opacity:0.8+A.act*0.2});
+  var tube=new THREE.Mesh(new THREE.TubeGeometry(curve,60,0.17+0.13*A.act,8),tubeMat);
+  body.add(tube);
+  var suckers=[];
+  for(var s2=2;s2<12;s2++){
+    var t=s2/12;
+    var su=new THREE.Mesh(new THREE.SphereGeometry(0.075+0.05*t,8,6),
+      mat({color:A.wire?COL.dim:A.c,emissive:A.wire?0:A.c,emissiveIntensity:A.act*0.7}));
+    su.position.copy(curve.getPoint(t));su.position.y+=0.16;body.add(su);suckers.push(su);
+  }
+  /* جزیرک کسب‌وکار */
+  var isl=new THREE.Group();isl.position.copy(end);scene.add(isl);
+  var ped=new THREE.Mesh(new THREE.CylinderGeometry(0.9,1.05,0.5,16),
+    mat({color:0x101d33,emissive:A.wire?0x050a14:(A.c),emissiveIntensity:A.wire?0.45:0.35+A.act*0.45}));
+  ped.position.y=0.25;isl.add(ped);
+  var ico=emojiSprite(A.e,1.85);ico.position.y=1.7;isl.add(ico);
+  var ic=new THREE.Mesh(new THREE.OctahedronGeometry(0.42,0),
+    A.wire?wireMat(COL.dim,0.5):mat({color:A.c,emissive:A.c,emissiveIntensity:0.5+A.act*1.2,flatShading:true}));
+  ic.position.y=1.7;isl.add(ic);
+  if(A.act>0.3)isl.add(glowSprite(A.c,2.6,0.2+A.act*0.3));
+  label(A.fa,'arm · '+A.en,'island',isl,2.6);
+  organ(isl,new THREE.Vector3(0,1.2,0),1.6,{t:'بازوی '+A.fa,s:A.en,d:A.d,st:A.st==='LIVE_CAUSORY'?'LIVE_CAUSAL':A.st,x:A.x});
+  arms.push({def:A,tube:tube,suckers:suckers,island:isl,curve:curve,ico:ic});
+});
+
+/* ================= 8. ستون فقرات بیدارباش (منحنی جریان) ================= */
+var spinePts=[
+  new THREE.Vector3(0,31,-14),      /* A مالک */
+  new THREE.Vector3(-11.5,8.5,-7.2),/* B دروازه */
+  new THREE.Vector3(-13,3.6,-7),    /* C 138 */
+  new THREE.Vector3(-4,1.6,-3),     /* گذر */
+  new THREE.Vector3(11,2.2,-4.5),   /* نزدیک 180 */
+  new THREE.Vector3(13,5.2,-6),     /* E مغز */
+  new THREE.Vector3(2,2.4,2.6),     /* G بازگشت */
+  new THREE.Vector3(-9.6,2.7,-4)    /* H بلور */
+];
+var spineCurve=new THREE.CatmullRomCurve3(spinePts,true,'catmullrom',0.35);
+var spineTube=new THREE.Mesh(new THREE.TubeGeometry(spineCurve,240,0.035,6,true),
+  mat({color:0x22d3ee,emissive:0x22d3ee,emissiveIntensity:0.65,transparent:true,opacity:0.55}));
+scene.add(spineTube);
+function uOfPoint(p){
+  var best=0,bd=1e9;
+  for(var i=0;i<=400;i++){
+    var u=i/400,q=spineCurve.getPointAt(u),d=q.distanceToSquared(p);
+    if(d<bd){bd=d;best=u;}
+  }
+  return best;
+}
+var uGate=uOfPoint(spinePts[1]),u138=uOfPoint(spinePts[2]),uBrainIn=uOfPoint(spinePts[4]),
+    uBrainOut=uOfPoint(spinePts[5]),uBack=uOfPoint(spinePts[6]),uCrystal=uOfPoint(spinePts[7]);
+var STAGES=[
+  {f:0,        t:uGate,    fa:'امضای مالک',      d:'کپسول GO قرمز از آسمان',c:COL.owner},
+  {f:uGate,    t:u138,     fa:'بیدارباش',        d:'scheduler ۱۵دقیقه‌ای + بستهٔ GO',c:COL.cyan},
+  {f:u138,     t:uBrainIn, fa:'انتقال به مغز',   d:'رگ بین‌بردی 138 → 180',c:COL.sky},
+  {f:uBrainIn, t:uBrainOut,fa:'مغز و پیش‌نویس',  d:'llama → PROPOSAL_READY / BLOCKED_HONEST',c:COL.amber},
+  {f:uBrainOut,t:uBack,    fa:'بازگشت و آینه',   d:'CONSUMED → mirror به 138',c:COL.green},
+  {f:uBack,    t:uCrystal, fa:'تسویهٔ شاهد',     d:'حکم + نتیجه در یک رکورد',c:COL.gold},
+  {f:uCrystal, t:1.0001,   fa:'کالیبراسیون → دروازه',d:'mint یا HALT؛ سیکل بعدی',c:COL.purple}
+];
+var packet=new THREE.Group();scene.add(packet);
+var packCore=new THREE.Mesh(new THREE.SphereGeometry(0.3,14,10),
+  mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:1.4}));
+packet.add(packCore);
+var packGlow=glowSprite(COL.cyan,4.0,0.9);packet.add(packGlow);
+var packLight=new THREE.PointLight(COL.cyan,1.5,14);packet.add(packLight);
+var trail=[];for(var ti=0;ti<16;ti++){
+  var tr=glowSprite(COL.cyan,1.7,0.5*(1-ti/16));scene.add(tr);trail.push(tr);
+}
+var CYCLE=120; /* ثانیهٔ شبیه‌سازی برای یک سیکل کامل */
+var cycleIndex=0,lastStageIdx=-1,haltPulse=0;
+function stageAt(p){
+  for(var i=0;i<STAGES.length;i++){if(p>=STAGES[i].f&&p<STAGES[i].t)return i;}
+  return STAGES.length-1;
+}
+
+/* ================= 9. HUD ================= */
+var statsEl=document.getElementById('stats');
+var beatN=DATA.beatBase,seqN=DATA.seqBase;
+var beatAcc=0,seqAcc=0,seqNext=2.5;
+function renderStats(){
+  statsEl.innerHTML=
+    '<span class="k">beat</span> <b id="hb">'+beatN.toLocaleString('en')+'</b><br>'+
+    '<span class="k">ledger seq</span> <b id="hs">'+seqN.toLocaleString('en')+'</b><br>'+
+    '<span class="k">قلب‌ها</span> <b>42s · 81s · 126s</b><br>'+
+    '<span class="k">arbiter</span> <b>~120s</b> · <span class="k">تأخیر</span> <b>~105m</b><br>'+
+    '<span class="k">GO</span> <b>'+DATA.standingGo+'</b> تا 09-14<br>'+
+    '<span class="k">calib</span> <b>err '+DATA.calibErr+'</b> · يتیم <b>'+DATA.orphans.toLocaleString('en')+'</b><br>'+
+    '<span class="k">'+DATA.level+'</span> · <b>'+DATA.budget+'</b> · runway <b>'+DATA.runway+'</b><br>'+
+    '<span class="k">زمان</span> <b id="ts">×'+timeScale+'</b>'+(paused?' <b style="color:#fca5a5">⏸</b>':'');
+}
+renderStats();
+var toastEl=document.getElementById('toast'),toastT=null;
+function toast(msg,ok){
+  toastEl.textContent=msg;toastEl.classList.toggle('ok',!!ok);toastEl.style.opacity='1';
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(function(){toastEl.style.opacity='0';},ok?3200:4600);
+}
+var stageEl=document.getElementById('stage');
+function showStage(i){
+  var S=STAGES[i];
+  stageEl.querySelector('.s1').textContent='⟐ '+S.fa;
+  stageEl.querySelector('.s2').textContent=S.d;
+  stageEl.style.opacity=MODE==='flow'?'1':'0';
+  stageEl.querySelector('.s1').style.color='#'+S.c.toString(16).padStart(6,'0');
+}
+
+/* ================= 10. دوربین و کنترل ================= */
+var cam={target:new THREE.Vector3(0,6.5,0),radius:27,theta:0,phi:1.15};
+var flyA=null;
+function camState(){return {tx:cam.target.x,ty:cam.target.y,tz:cam.target.z,r:cam.radius,th:cam.theta,ph:cam.phi};}
+function flyTo(st,dur){flyA={t0:performance.now(),dur:dur||1400,from:camState(),to:st};}
+function applyCam(){
+  var sp=Math.sin(cam.phi),x=cam.target.x+cam.radius*sp*Math.sin(cam.theta),
+      y=cam.target.y+cam.radius*Math.cos(cam.phi),
+      z=cam.target.z+cam.radius*sp*Math.cos(cam.theta);
+  camera.position.set(x,y,z);camera.lookAt(cam.target);
+}
+var PRESETS={
+  body:{tx:0,ty:6.5,tz:0,r:27,th:0,ph:1.15},
+  head:{tx:0,ty:8.6,tz:0,r:8.5,th:0.5,ph:1.25},
+  hearts:{tx:0,ty:5.4,tz:0,r:7.5,th:-0.4,ph:1.35},
+  arms:{tx:0,ty:3,tz:0,r:58,th:0.3,ph:0.9},
+  gov:{tx:0,ty:14,tz:-10,r:34,th:0.15,ph:1.25}
+};
+function setMode(m){
+  MODE=m;
+  var chips=document.querySelectorAll('.mchip');
+  for(var i=0;i<chips.length;i++)chips[i].classList.toggle('on',chips[i].dataset.mode===m);
+  showLabels(m);
+  if(m==='flow'){
+    toast('سوار بستهٔ بیدارباش شدی — دوربین دنبال نور می‌رود',true);
+  } else if(PRESETS[m]){flyTo(PRESETS[m],1500);}
+}
+document.querySelectorAll('.mchip').forEach(function(ch){
+  ch.addEventListener('click',function(){setMode(ch.dataset.mode);});
+});
+
+/* pointer */
+var dragging=false,px=0,py=0,pinchD=0,pointers={};
+canvas.addEventListener('pointerdown',function(e){
+  pointers[e.pointerId]={x:e.clientX,y:e.clientY};
+  dragging=true;px=e.clientX;py=e.clientY;flyA=null;
+  canvas.classList.add('drag');canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove',function(e){
+  if(pointers[e.pointerId])pointers[e.pointerId]={x:e.clientX,y:e.clientY};
+  var ks=Object.keys(pointers);
+  if(dragging&&ks.length===2){
+    var a=pointers[ks[0]],b=pointers[ks[1]];
+    var d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(pinchD>0){cam.radius=THREE.MathUtils.clamp(cam.radius*pinchD/d,4,90);}
+    pinchD=d;onHover(e);return;
+  }
+  if(dragging&&ks.length===1){
+    cam.theta-=(e.clientX-px)*0.005;
+    cam.phi=THREE.MathUtils.clamp(cam.phi-(e.clientY-py)*0.005,0.15,1.52);
+    px=e.clientX;py=e.clientY;
+  }
+  onHover(e);
+});
+function endP(e){delete pointers[e.pointerId];var ks=Object.keys(pointers);
+  if(ks.length===0){dragging=false;canvas.classList.remove('drag');}
+  pinchD=0;}
+canvas.addEventListener('pointerup',endP);
+canvas.addEventListener('pointercancel',endP);
+canvas.addEventListener('wheel',function(e){
+  e.preventDefault();
+  cam.radius=THREE.MathUtils.clamp(cam.radius*(1+Math.sign(e.deltaY)*0.09),4,90);
+},{passive:false});
+
+/* hover + click + tooltip */
+var ray=new THREE.Raycaster(),mouse=new THREE.Vector2(-9,-9),hoverInfo=null,pinned=null;
+var tipEl=document.getElementById('tip');
+function onHover(e){
+  mouse.x=(e.clientX/window.innerWidth)*2-1;
+  mouse.y=-(e.clientY/window.innerHeight)*2+1;
+  if(!pinned)tipEl.style.left=(e.clientX+16)+'px',tipEl.style.top=(e.clientY+14)+'px';
+}
+function pick(){
+  ray.setFromCamera(mouse,camera);
+  var hits=ray.intersectObjects(RAY_TARGETS,false);
+  return hits.length?hits[0].object.userData.info:null;
+}
+function tipFor(info){
+  var c=STCOL[info.st]||'#94a3b8';
+  tipEl.innerHTML='<div class="t">'+info.t+'</div><div class="en">'+info.s+'</div>'+
+    '<div class="st" style="color:'+c+';border:1px solid '+c+'55;background:'+c+'18">'+info.st+'</div>'+
+    '<div class="d">'+info.d+'</div>'+(info.x?'<div class="x">'+info.x+'</div>':'');
+  tipEl.style.opacity='1';
+}
+canvas.addEventListener('click',function(e){
+  mouse.x=(e.clientX/window.innerWidth)*2-1;
+  mouse.y=-(e.clientY/window.innerHeight)*2+1;
+  var info=pick();
+  if(info){
+    pinned=info;
+    var wp=new THREE.Vector3();info._proxy.getWorldPosition(wp);
+    flyTo({tx:wp.x,ty:wp.y,tz:wp.z,r:Math.max(5,cam.radius*0.55),th:cam.theta,ph:1.1},900);
+    tipFor(info);
+  } else {pinned=null;tipEl.style.opacity='0';}
+});
+
+/* palette + speed + keys */
+document.querySelectorAll('.pchip').forEach(function(ch){
+  ch.addEventListener('click',function(){applyPal(ch.dataset.pal);});
+});
+document.querySelectorAll('.schip[data-sp]').forEach(function(ch){
+  ch.addEventListener('click',function(){setSpeed(parseInt(ch.dataset.sp,10));});
+});
+document.getElementById('pause').addEventListener('click',togglePause);
+function setSpeed(v){
+  timeScale=v;renderStats();
+  document.querySelectorAll('.schip[data-sp]').forEach(function(c){
+    c.classList.toggle('on',parseInt(c.dataset.sp,10)===v);});
+}
+function togglePause(){paused=!paused;renderStats();
+  document.getElementById('pause').textContent=paused?'▶':'⏸';
+  toast(paused?'زمان ایستاد':'زمان جریان یافت',true);}
+window.addEventListener('keydown',function(e){
+  var k=e.key;
+  if(k>='1'&&k<='6'){setMode(['body','head','hearts','arms','flow','gov'][parseInt(k,10)-1]);}
+  else if(k===' '){e.preventDefault();togglePause();}
+  else if(k==='+'||k==='='){setSpeed(Math.min(8,timeScale*2));}
+  else if(k==='-'){setSpeed(Math.max(1,timeScale/2));}
+});
+
+/* palette application */
+var RECOLOR=[]; /* {m:material, slot:'heart'|'arm'|'glow'|'plank'} */
+function applyPal(name){
+  PAL=name;var p=PALS[name];
+  scene.fog.color.setHex(p.fog);scene.background.setHex(p.fog);
+  RECOLOR.forEach(function(r){
+    if(r.slot==='heart'){r.m.color.setHex(p.heart);
+      if(r.m.emissive&&r.isHeartValue)r.m.emissive.setHex(p.heart);}
+    else if(r.slot==='arm'&&!r.isFixed)r.m.color.setHex(p.arm);
+    else if(r.slot==='glow')r.m.color.setHex(p.glow);
+    else if(r.slot==='plank')r.m.color.setHex(p.plank);
+  });
+  document.querySelectorAll('.pchip').forEach(function(c){
+    c.classList.toggle('on',c.dataset.pal===name);});
+}
+
+/* ================= 11. حلقهٔ انیمیشن ================= */
+var gateFlash=0,heartDim=1;
+function animate(){
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),0.05);
+  var sdt=paused?0:dt*timeScale;
+  simTime+=sdt;
+
+  /* تنفس کل بدن */
+  var breath=1+0.008*Math.sin(simTime*0.35);
+  body.scale.setScalar(breath);
+
+  /* قلب‌ها — نسبت‌های واقعی 42.4/81/126 */
+  for(var hI=0;hI<hearts.length;hI++){
+    var H=hearts[hI];
+    if(H.def.k==='cash'){
+      var gp=0.5+0.5*Math.sin(simTime*0.5+H.phase);
+      H.ghost.material.opacity=0.08+0.12*gp;
+    }else{
+      var per=DATA.heartPeriods[{value:0,body:2,mind:1}[H.def.k]];
+      var ph=simTime/per*Math.PI*2+H.phase;
+      var sy=Math.max(0,Math.sin(ph));
+      var amp=(H.def.k==='mind'?0.10:0.17)*heartDim;
+      var s=1+amp*Math.pow(sy,3);
+      H.g.scale.setScalar(s);
+      if(H.glow)H.glow.material.opacity=(H.def.k==='mind'?0.22:0.5)*s*heartDim;
+    }
+  }
+  /* lease بین قلب‌های زنده */
+  var li2=Math.floor(simTime/DATA.arbiterPeriod)%3;
+  var lh=hearts[li2].g.position;
+  lease.position.lerp(lh,0.04);
+  lease.rotation.y+=dt*1.2;lease.rotation.x+=dt*0.5;
+  /* حلقه‌های تنه */
+  for(var rI=0;rI<rings.length;rI++){rings[rI].rotation.z+=dt*(0.12+rI*0.07)*(rI%2?-1:1);}
+  /* قفل‌ها */
+  locksGroup.rotation.y+=dt*0.1;
+  /* قفل‌ها/چرخ سر */
+  cortex.rotation.y+=dt*0.4;llama.rotation.y-=dt*0.3;
+  selfGroup.rotation.y+=dt*0.12;
+  skullRim.rotation.y-=dt*0.05;
+  /* دود 180 */
+  for(var sI=0;sI<smoke.length;sI++){
+    var sm2=smoke[sI];sm2.position.y+=sdt*0.25;
+    if(sm2.position.y>5.4)sm2.position.y=2.3;
+    sm2.material.opacity=0.1+0.08*Math.sin(simTime+sm2.position.y);
+  }
+  /* پورت‌های لپ‌تاپ */
+  for(var pI=0;pI<ports.length;pI++){
+    var on=Math.sin(simTime*1.5+pI*1.1)>0?1:0.25;
+    ports[pI].material.emissiveIntensity=on;
+  }
+  /* چشم 182 پلک می‌زند */
+  eye.material.opacity=0.3+0.2*Math.max(0,Math.sin(simTime*0.2));
+  /* پلانکتون */
+  plankton.rotation.y+=dt*0.012;
+  /* بلور */
+  crystal.rotation.y+=dt*0.7;crystal.rotation.x+=dt*0.25;
+  /* يتیم‌ها به‌آرامی به بلور مکیده می‌شوند */
+  orphans.rotation.y-=sdt*0.10;orphans.rotation.x=Math.sin(simTime*0.1)*0.1;
+  var op=orphans.geometry.attributes.position;
+  for(var oi=0;oi<op.count;oi++){
+    var ox=op.getX(oi),oz=op.getZ(oi);
+    var rad=Math.hypot(ox+9.6,oz+4);
+    rad=Math.max(0.5,rad-sdt*0.012);
+    var ang2=Math.atan2(oz+4,ox+9.6);
+    op.setX(oi,-9.6+Math.cos(ang2)*rad);
+    op.setZ(oi,-4+Math.sin(ang2)*rad);
+    op.setY(oi,2.7+Math.sin(simTime*0.8+oi)*1.1*Math.min(1,(rad-0.5)/2));
+  }
+  op.needsUpdate=true;
+
+  /* ---- بستهٔ wake ---- */
+  var p=(simTime%CYCLE)/CYCLE;
+  var pos=spineCurve.getPointAt(p);
+  packet.position.copy(pos);
+  var stI=stageAt(p);
+  if(stI!==lastStageIdx){
+    lastStageIdx=stI;showStage(stI);
+    if(stI===6){
+      if(cycleIndex%7===6){
+        gateFlash=-1;haltPulse=1;heartDim=0.45;
+        toast('⏸ HALT — calibration_error ≥ 0.5 · دروازه بسته؛ سیکل بعدی پس از اصلاح');
+      }else{
+        gateFlash=1;
+        toast('✅ ضربان بعدی ضربیده شد — mint با calib_tail',true);
+      }
+    }
+    if(stI===0){cycleIndex++;}
+  }
+  var S=STAGES[stI];
+  packCore.material.color.setHex(S.c);packGlow.material.color.setHex(S.c);
+  packLight.color.setHex(S.c);
+  /* دنباله */
+  var tq=spineCurve.getPointAt(Math.max(0,p-0.012));
+  trail[0].position.copy(pos);trail[0].material.color.setHex(S.c);
+  for(var tI=trail.length-1;tI>0;tI--){
+    trail[tI].position.lerp(trail[tI-1].position,0.55);
+  }
+  /* بازوها هنگام مرحلهٔ مغز جان می‌گیرند */
+  var armGlow=(stI===3)?1:0.25;
+  for(var aI=0;aI<arms.length;aI++){
+    var A2=arms[aI];
+    var shim=0.75+0.25*Math.sin(simTime*1.3+aI*1.7);
+    A2.tube.material.emissiveIntensity=(A2.def.act*armGlow*0.9+0.2)*shim;
+    if(A2.ico)A2.ico.material.emissiveIntensity=(A2.def.act*armGlow+0.25)*shim;
+    for(var s3=0;s3<A2.suckers.length;s3++){
+      A2.suckers[s3].scale.setScalar(1+0.25*Math.sin(simTime*2+s3)*A2.def.act);
+    }
+  }
+  /* دروازه */
+  if(gateFlash!==0){
+    var gI=gateFlash>0?1:-1;
+    gate.material.emissive.setHex(gI>0?COL.green:COL.owner);
+    gate.material.emissiveIntensity=1.6;
+    gateFlash+= -Math.sign(gateFlash)*dt*0.8;
+    if(Math.abs(gateFlash)<0.05){gateFlash=0;gate.material.emissive.setHex(COL.gold);}
+  } else {
+    gate.material.emissiveIntensity=0.8+0.3*Math.sin(simTime*2);
+    gate.rotation.z+=dt*0.6;
+  }
+  if(haltPulse>0){haltPulse-=dt*0.12;if(haltPulse<=0){heartDim=1;}}
+  /* نور قلب */
+  heartLight.intensity=0.9+0.4*Math.sin(simTime*0.8);
+
+  /* HUD شمارنده‌ها */
+  beatAcc+=dt;if(beatAcc>7.5){beatAcc=0;beatN++;renderStats();}
+  seqAcc+=dt;if(seqAcc>seqNext){seqAcc=0;seqNext=2+Math.random()*4;seqN++;renderStats();}
+
+  /* دوربین */
+  if(MODE==='flow'&&!flyA){
+    var look=pos.clone();var tan=spineCurve.getTangentAt(p);
+    var cp=pos.clone().sub(tan.clone().multiplyScalar(4.5));cp.y+=2.2;
+    cam.target.lerp(look,0.06);
+    camera.position.lerp(cp,0.06);camera.lookAt(cam.target);
+  } else if(flyA){
+    var k2=Math.min(1,(performance.now()-flyA.t0)/flyA.dur);
+    var e2=k2<0.5?4*k2*k2*k2:1-Math.pow(-2*k2+2,3)/2;
+    var F=flyA.from,T=flyA.to;
+    cam.target.set(F.tx+(T.tx-F.tx)*e2,F.ty+(T.ty-F.ty)*e2,F.tz+(T.tz-F.tz)*e2);
+    cam.radius=F.r+(T.r-F.r)*e2;cam.theta=F.th+(T.th-F.th)*e2;cam.phi=F.ph+(T.ph-F.ph)*e2;
+    if(k2>=1)flyA=null;
+    applyCam();
+  } else { applyCam(); }
+
+  /* tooltip */
+  var info=pinned||pick();
+  if(info){tipFor(info);}else{tipEl.style.opacity='0';}
+
+  updateLabels();
+  renderer.render(scene,camera);
+}
+
+/* ثبت متریال‌های قابل تغییر پالت */
+hearts.forEach(function(H){
+  if(H.def.k!=='cash'&&H.def.k!=='mind'){
+    RECOLOR.push({m:H.g.material,slot:'heart',isHeartValue:H.def.k==='value'});
+    if(H.glow)RECOLOR.push({m:H.glow.material,slot:'heart'});
+  }
+});
+arms.forEach(function(A){
+  if(!A.def.wire&&A.def.act>=0.4)RECOLOR.push({m:A.tube.material,slot:'arm',isFixed:A.def.en!=='ziman'&&A.def.en!=='painting'});
+});
+RECOLOR.push({m:plankton.material,slot:'plank'});
+
+showLabels('body');
+setTimeout(function(){document.getElementById('hint').style.opacity='0';},6500);
+animate();
+}
+})();
+</script>
+</body>
+</html>
