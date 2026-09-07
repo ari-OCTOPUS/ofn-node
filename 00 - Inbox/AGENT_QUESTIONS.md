@@ -1168,7 +1168,7 @@ LEASE_ACCEPTED_BY_A — granted by OWNER-DIRECTIVE-08 (2026-08-20).
 
 ## 2026-08-20 ~19:25 — ایجنت C (مگا #۱۵ organ cartographer) — فقط append
 
-شواهد: [[06-EVIDENCE/ORGAN-MAP-2026-08-20/REPORT]] · [[06-EVIDENCE/ORGAN-MAP-2026-08-20/OWNER-VERDICT-DRAFT]].
+شواهد: `06-EVIDENCE/ORGAN-MAP-2026-08-20/REPORT` · `06-EVIDENCE/ORGAN-MAP-2026-08-20/OWNER-VERDICT-DRAFT`.
 Lane تلگرام دست نخورده. `executable=false`. merge نشده.
 
 1. **`live_organism_hook`.** sidecar دانش ۶۵۵ رویداد واقعی ساخت ولی `knowledge_leg.live` هنوز false است و `afferent_ratio` ارگانیسم را تکان نمی‌دهد. آیا در **ریستارت بعدی C-047** (توسط مالک/A، نه این ایجنت) یک خط flag-gated در organism مجاز است؟ پیش‌فرض این سشن **false** ماند.
@@ -1178,7 +1178,7 @@ Lane تلگرام دست نخورده. `executable=false`. merge نشده.
 
 ## 2026-08-20 ~19:50 — ایجنت A/B (telegram_closed_loop) — فقط append
 
-شواهد: [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT]] · [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A1-TRACE]].
+شواهد: `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT` · `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A1-TRACE`.
 `TELEGRAM MEMORY READY` اعلام نشد. Full Loop اجرا نشد. lease هنوز hold است.
 
 1. **Reload فقط `center.py` (C-047).** علت A1 زنده تعیین شد: پاسخ رشته‌ای → fall-through به `ask_brain` روی `update_id=223883326`. پچ روی دیسک است؛ PID `26388` هنوز کد قدیم را دارد. ریاستارت این سشن انجام نشد. (الف) خودت مرکز را reload کن، (ب) ایجنت با همان الگوی ۱۴A/`RUN-TG-CENTER.bat` reload کند. توصیه: **الف** مگر بگویی ب. organism/brain را لمس نکن.
@@ -1193,7 +1193,7 @@ Center reload شد. هویت کد = commit A9 `3abc16b` · PID 8828 · `typed-v1
 
 ## 2026-08-20 ~20:20 — ایجنت A/B — A13 PASS · TELEGRAM MEMORY READY
 
-شواهد: [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A13-TRACE]].
+شواهد: `06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A13-TRACE`.
  sequential، بدون مدل:
 
 1. `/remember کلمه رمز: مرجان`
@@ -1231,3 +1231,29 @@ WORKLOCK: این ایجنت `run_all.py` را لمس نکرد. لطفاً append
 شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:
 - observability-gap: billed AU$1.07 ولی تلمتری AU$0.00 — منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)
 رفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.
+
+## 2026-09-05T15:26:35 — metabolism (خودکار) [CONFLICT-METABOLIC-OBS-2026-09-05]
+
+شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:
+- observability-gap: billed AU$1.07 ولی تلمتری AU$0.00 — منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)
+رفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.
+
+## 2026-09-06T00:00:16 — metabolism (خودکار) [CONFLICT-METABOLIC-OBS-2026-09-06]
+
+شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:
+- observability-gap: billed AU$1.07 ولی تلمتری AU$0.00 — منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)
+رفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.
+
+## 2026-09-07T00:10:11 — metabolism (خودکار) [CONFLICT-METABOLIC-OBS-2026-09-07]
+
+شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:
+- observability-gap: billed AU$1.07 ولی تلمتری AU$0.00 — منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)
+رفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.
+
+## 2026-09-07T23:50 — agent (دستی) [SEASON-1-CLOSEOUT-RESOLUTIONS]
+
+رزولوشن‌های این سیزن (جست‌وجو قبل از پرسش، طبق فرم عمومی):
+- **چرخش توکن‌ها: لازم نیست** — رأی صریح مالک همین روز (`09-LANES/R2-SECRETS-20260907/OWNER-DECISION-ROTATION-WAIVED-20260907.json`)؛ سؤالات بازِ امنیتیِ هم‌خانواده همان حل می‌شوند.
+- **قفل GITWRITE/بکاپ:** بسته شد (`09-LANES/R1-GITWRITE-20260907/R1-FLAGCLEAR-RECEIPT`)؛ hourly سبز؛ daily فردا صبح خودکار راستی می‌شود.
+- **هارنس‌های «غایب»:** MEM-000/AUT-001 روی شاخهٔ c7-harness ساخته شده‌اند؛ زنجیرهٔ MEM-020..025 ناقص — «گم‌شده» نیستند.
+- **[CONFLICT-METABOLIC-OBS] همچنان باز و escalate شده:** شش روز تکرار روزانه؛ از مالک می‌خواهد یکی از دو مسیر را تأیید کند: wire منبع تلمتری، یا پذیرش مکتوب billed به‌عنوان مرجع. (این ردیف با تشخیص حل نمی‌شود.)

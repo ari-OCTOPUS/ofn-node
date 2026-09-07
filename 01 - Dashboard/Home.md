@@ -2,36 +2,16 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-08-29
+updated: 2026-09-07
 ---
 
 # خانه — داشبورد اصلی
 
-> 🐙 **اختاپوس زنده (2026-08-29 عصر — Deep-Walk حافظه):** نقشه واقعی حافظه/یادگیری ۴ نود + تست زنده روی fixture — گلوگاه `use` اثبات شد (۲۱ proposal→۳ decided؛ ۶۳۳۰ episode→۹ lesson؛ future_use صفر) و ریشه‌اش stub ساختنِ consume_tick است، نه خرابی FTS. [[06-EVIDENCE/DEEP-WALK-20260829/D1-REALITY-MAP|D1 نقشه]] · [[06-EVIDENCE/DEEP-WALK-20260829/D3-CONTRACT-FIELDS|D3 قراردادها]] · [[06-EVIDENCE/DEEP-WALK-20260829/safe-tests/SAFE-TESTS-RUN-RECEIPT|رسید SAFE_TESTS]] · بعدی: PATCH_PROPOSAL
+> 🎯 **سیزن ۱ بسته شد → [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|سیزن درآمد روی حلقهٔ زنده]] (2026-09-07):** اولین حکم قابلیتی با ۲۰۴ رسید گیت‌پذیر صادر شد (`09-LANES/ACD-PREREG-20260907/FAMILY-VERDICT-ACD-01`)، حسگرها صادق (`09-LANES/MP-V41-U1-20260907/U1-RECEIPT`)، بکاپ سبز (`09-LANES/R1-GITWRITE-20260907/LANE-REPORT`)، رمزها تجمیع (`09-LANES/R2-SECRETS-20260907/ROTATION-RUNBOOK`، چرخش waive شد)، دکمهٔ `09-LANES/OPS-RESTARTALL-CAPABILITY-20260907/CAPABILITY-MAP-AND-TEST-PROMPTS` آماده. مرور کامل: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]] · وضعیت جلسه قبل: [[01 - Dashboard/HANDOFF|HANDOFF]] · تاریخچهٔ بلوک‌های قبلی: `_Archive/Logs/HANDOFF-archive-2026-09-07.md`
 
-> نقطه ورود به کل vault. قواعد: [[_PROJECT_INSTRUCTIONS|اینستراکشن پروژه v2.0]] · وضعیت جلسه قبل: [[01 - Dashboard/HANDOFF|HANDOFF]]
+> نقطه ورود به کل vault. قواعد: [[_PROJECT_INSTRUCTIONS|اینستراکشن پروژه v2.0]]
 >
-> 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (عکس لحظه‌ای — snapshot ۲۰۲۶-۰۷-۰۶، **زنده نیست**، برنامهٔ بازنویسیِ ۳ساعته هرگز دیپلوی نشد) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
->
-> 🐙 **اختاپوس زنده (2026-08-21 — لاب خودارتقا):** [[07 - Knowledge/شناخت-اختاپوس/79-SELF-UPGRADE-LAB-CYCLE-2026-08-21|نوت ۷۹]] · [[06-EVIDENCE/SELF-UPGRADE-LAB-CYCLE-2026-08-21/README|شواهد لاب]] · [[01 - Dashboard/HANDOFF|HANDOFF]]
-> 🐙 **اختاپوس زنده (2026-08-20 ~20:4x — A19):** [[07 - Knowledge/شناخت-اختاپوس/72-TELEGRAM-A19-OBSIDIAN-LOCK-2026-08-20|نوت ۷۲]] · [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[docs/NOW|NOW]] · [[06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT|حلقهٔ تلگرام]] · A13–A17 PASS · A18 BLOCKED · lease آزاد
-> 🐙 **VibeGuard (2026-08-17 — محصول جدا، تحقیق وارد شد):** [[03 - Projects/VibeGuard/00-START-HERE|START-HERE]] · [[03 - Projects/VibeGuard/chat-ingest/README|chat-ingest]] · نوت [[07 - Knowledge/شناخت-اختاپوس/65-VIBEGUARD-RESEARCH-INGEST-2026-08-17|۶۵]] · مگاپرامپت [[agent-prompts/MEGAPROMPT-VIBEGUARD-IMPLEMENT-2026-08-17|IMPLEMENT]]
-> 🐙 **اختاپوس زنده:** [[OCTOPUS/CURRENT-TRUTH|CURRENT-TRUTH]] · [[07 - Knowledge/Architecture/OCTOPUS-BOTTLENECK-LIVE|Bottleneck]] · ADR-035 APPLY=1
-> 🐙 **دستورالعمل Worker Agent اجرا شد (2026-08-16 دیرشب — فازهای ۰–۸):** [[07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16|نوت ۶۲]] · گزارش [[04-SYSTEMS/AGENT-REPORT|AGENT-REPORT]] · **A2 مسلح نشد** (تعارض D7 با VQ-SELFGOAL-002 → رأی مالک) · ۳ سؤالِ باز
-> 🐙 **ورود ایجنت امشب (2026-08-16 ~21:3x):** [[07 - Knowledge/شناخت-اختاپوس/61-OBSIDIAN-NIGHT-LOCK-2026-08-16|نوت ۶۱]] · [[01-TRUTH/STATE-2026-08-15-NIGHT|STATE §8]] · [[00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · [[00 - Inbox/2026-08-16 OWNER-PENDING — All Open Items (Master Checklist)|OWNER-PENDING]] · آزاد **C-034**
-> 🐙 **ورود ایجنت امروز (2026-08-16 عصر — لایهٔ زیر شب):** [[07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16|نوت ۵۴]]
-> 🐙 **سه برد امشب (نوت ۶۰ — کپی کل ارگانیسم نه):** [[07 - Knowledge/شناخت-اختاپوس/60-THREE-BOARD-AND-FPGA-CORRECTED-2026-08-16|نوت ۶۰]] · FPGA PolarFire≠Artix-7
-> 🐙 **ایجنت بعد (بستن جاافتادگی مهاجرت):** [[00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps|لانچر]] · نوت [[07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16|۵۹]]
-> 🐙 **مهاجرت لپ‌تاپ→Arm 1 (YOU ARE HERE فاز ۰ fencing):** [[07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16|نوت ۵۷]] · FPGA [[07 - Knowledge/شناخت-اختاپوس/58-FPGA-REFLEX-LAYER-2026-08-16|نوت ۵۸]] propose-only
-> 🐙 **EQUIP ترتیبی (۱۰ ایجنت، نه هم‌زمان):** [[00 - Inbox/2026-08-16 MEGAPROMPT — Equip Octopus Sequential|لانچر EQUIP]] · [[07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16|نوت ۵۵]]
-> 🐙 **Claude Cowork:** [[00 - Inbox/2026-08-16 MEGAPROMPT — Claude Cowork|لانچر]] — پیست AUTOFLOW/SELFRUN را نده
-> 🐙 **ورود ایجنت امروز (2026-08-16 صبح — کهنه برای شناسهٔ آزاد):** [[01-TRUTH/STATE-2026-08-15-NIGHT|STATE]] · [[00 - Inbox/2026-08-16 DAY-INDEX (MOC)|DAY-INDEX]] · [[00 - Inbox/2026-08-15↯16 NIGHT — MASTER SUMMARY|MASTER SUMMARY]] · [[07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16|نوت ۴۹]]
-> 🐙 **مگاپرامپت کشف پنهان (2026-08-15):** [[00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery|Hidden Capabilities Discovery]] — کاشف نه مسلح‌کننده
-> 🐙 **دیپ‌اسکن معماری برای قاضی (2026-08-15 ~22:45):** [[00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents|SELF-CONTAINED Architecture Deep-Scan]] — کپی کامل به ایجنت خارجی
-> 🐙 **شورای دوم (2026-08-15 دیرشب):** [[07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15|نوت ۴۸]] — NO-GO دقیق‌تر پذیرفته؛ مگاپرامپت DEBT-SWEEP v1.2
-> 🐙 **سیزن آزمایشگاه دسکتاپ (2026-08-15، جدا از `_ops`):** [[07 - Knowledge/شناخت-اختاپوس/47-DESKTOP-LAB-D1-D8-GOVERNANCE-2026-08-15|نوت ۴۷]] — PASS شخص ثالث و D1 رسمی **نه**
->
-> 🏗️ **رکنِ ساختِ سیستم (Build Spine):** [[04 - Architect System/MYCELIAL-MASTER-SPEC|MYCELIAL-MASTER-SPEC]] — spec واحدی که همهٔ ۸ پروژه به آن وصل‌اند؛ چرخهٔ امنِ build/test/delete؛ ۸۰٪ طراحی + handoff به Fable 5. هر ایجنت طبق §۷ آن را نقد و بهتر می‌کند.
+> 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (snapshot ۲۰۲۶-۰۷-۰۶، زنده نیست) · زیرساخت زنده: `_ops` + [[07 - Knowledge/genome-system/INDEX|genome-system]]
 
 ## پروژه‌ها (خودکار — Bases)
 

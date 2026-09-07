@@ -1,16 +1,25 @@
-﻿---
+---
 type: architecture
 project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
 tags: [octopus, truth, cockpit, miniapp, integration, telegram]
 created: 2026-08-02
-updated: 2026-08-29
+updated: 2026-09-07
 created_by: agent
 sources:
   - "[[_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02]]"
   - "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29]]"
   - "[[06 - Architecture Maps/OCTOPUS-KNOWN-RISKS]]"
 ---
+
+> ⚠️ **SUPERSEDED (2026-09-07):** این سند عکسِ ۲۰۲۶-۰۸-۲۹ است و دیگر حقیقتِ جاری نیست — نود ۱۸۲ بازنشسته شد، سیزن درآمد باز شد؛ حقیقت جاری: بورد مالک (`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md`) + فایل ریشهٔ `ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907.md`. فقط تاریخچه.
+
+
+> ⚠️ **SUPERSEDED (2026-09-07):** این سند عکسِ ۲۰۲۶-۰۸-۲۹ است و دیگر حقیقتِ جاری نیست — نود ۱۸۲ بازنشسته شد، سیزن درآمد باز شد؛ حقیقت جاری: بورد مالک (`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md`) + فایل ریشهٔ `ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907.md`. فقط تاریخچه.
+
+
+> ⚠️ **SUPERSEDED (2026-09-07):** این سند عکسِ ۲۰۲۶-۰۸-۲۹ است و دیگر حقیقتِ جاری نیست — نود ۱۸۲ بازنشسته شد، سیزن درآمد باز شد، و حقیقت جاری به [[06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH|بورد مالک]] + [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON]] منتقل شد. فقط به‌عنوان تاریخچه بخوان.
+
 
 # OCTOPUS — Current Truth
 
