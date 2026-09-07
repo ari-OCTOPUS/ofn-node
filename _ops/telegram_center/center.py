@@ -3283,12 +3283,17 @@ class Center:
                         # same-task resume: دقیقاً یک‌بار، با رویدادِ پایدار
                         _rz = (_qb.take_resume(_qm.group(0))
                                if _rec is not None else None)
-                        _ak = (f"✍️ جوابت روی {_qm.group(0)} ثبت شد — ممنون."
+                        _ak = ("✍️ جوابت ثبت شد."
                                if _rec is not None else
-                               "این سؤال را پیدا نکردم — شاید مالِ هفتهٔ کهنه است.")
-                        if _rz:
-                            _ak += (f" و کارِ {_rz.get('blocked_task_id', '?')}"
-                                    " دوباره در جریان افتاد.")
+                               "سؤال پیدا نشد.")
+                        if _rz and _rz.get("rejected"):
+                            _ak += " | ⚠️ " + str(_rz.get("reject_reason", "?"))
+                        elif _rz and _rz.get("resolved_task"):
+                            _rt = _rz["resolved_task"]
+                            _ak += " | ✅ " + str(_rz.get("blocked_task_id", "?")) + " → " + str(_rt.get("state", "?"))
+                        elif _rz:
+                            _ak += " | ✅ resume ثبت شد"
+
                         _mid = None
                         try:
                             _mid = self._client.send(

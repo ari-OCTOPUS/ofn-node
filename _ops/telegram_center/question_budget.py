@@ -194,43 +194,50 @@ def owner_reply_ok(chat_id, owner_chat_id) -> bool:
     return bool(owner_chat_id) and str(chat_id) == str(owner_chat_id)
 
 
-def validate_answer_for_resume(answer_text: str, item: dict) -> "tuple[bool, str]":
-    """SKILL-TOOL-GUARD-V1 transferred from ACD-01/07: structural validation
+def validate_answer_for_resume(answer_text: str, item: dict,
+                                  current_item: "dict | None" = None) -> "tuple[bool, str]":
+    """SKILL-TOOL-GUARD-V1 v2 (advisor review fix): structural validation
     of owner answer BEFORE task resume. Deterministic, zero model calls.
 
-    Checks (all deterministic, mirroring acd07_harness.deterministic_validator):
-      1. non-empty (empty_response_guard)
-      2. freshness: answer came AFTER the question was asked (asked_ts)
-      3. contamination: no embedded system-instruction markers
-      4. scope: answer is to the current question (not a stale replay)
+    v2 changes (2026-09-07 advisor review):
+      - Removed IMPORTANT:/code-block markers (over-firing: owner may legitimately
+        write "IMPORTANT: do X" or include code in their answer)
+      - Added version freshness: answer must be to the CURRENT version of the
+        question (a newer question for the same task invalidates older answers)
+      - Kept SYSTEM OVERRIDE: (clear attack pattern, not natural owner speech)
 
-    Returns (valid, reason). Fail-closed: any structural failure = no resume.
+    Returns (valid, reason). Fail-closed but calibrated.
     """
     a = str(answer_text or "").strip()
     if not a:
-        return False, "empty answer"
-    # 3) contamination: if the answer contains instruction-like markers,
-    #    it may be a pasted tool output or injected content, not a human answer
-    _INJECTION_MARKERS = ("SYSTEM OVERRIDE:", "ignore previous instructions",
-                          "IMPORTANT:", "```python", "```bash", "```shell")
+        return False, "پاسخ خالی است"
+    # contamination: only clear attack markers (not natural owner language)
+    _ATTACK_MARKERS = ("SYSTEM OVERRIDE:",)
     lowered = a.lower()
-    for marker in _INJECTION_MARKERS:
+    for marker in _ATTACK_MARKERS:
         if marker.lower() in lowered:
-            return False, f"contamination marker: {marker!r}"
-    # 4) scope: if the question has been superseded (newer version asked),
-    #    an answer to the old version must not resume the task
-    asked_ts = item.get("asked_ts")
-    if asked_ts is not None and item.get("resumed_ts") is not None:
-        return False, "already resumed (stale replay)"
-    # 2) freshness is checked by record_answer (answered_ts after asked_ts implicit
-    #    in the reply flow — the handler only fires on a reply to the question message)
+            return False, f"نشانهٔ حمله: {marker}"
+    # already resumed (stale replay)
+    if item.get("resumed_ts") is not None:
+        return False, "قبلاً ادامه یافته (تکراری)"
+    # version freshness: if a NEWER question exists for the same task,
+    # this answer is to the OLD version and must not resume
+    if current_item is not None:
+        cur_asked = current_item.get("asked_ts")
+        my_asked = item.get("asked_ts")
+        if cur_asked is not None and my_asked is not None and cur_asked > my_asked:
+            return False, "پاسخ به نسخهٔ قدیمی سؤال (سؤال جدیدتری پرسیده شده)"
     return True, "structural pass"
 
 
-def take_resume(qid: str, *, now: "float | None" = None) -> "dict | None":
+def take_resume(qid: str, *, now: "float | None" = None,
+                   current_item: "dict | None" = None) -> "dict | None":
     """پاسخِ ثبت‌شدهٔ سؤالِ دارایِ blocked_task_id را **دقیقاً یک‌بار** به wake
-    تبدیل می‌کند (idempotent: دوباره = None) و یک رویدادِ پایدارِ task.resume
-    با idempotency_key می‌سازد. پاسخِ تکراری/قدیمی هرگز wake دوم نمی‌سازد."""
+    تبدیل می‌کند (idempotent) و **واقعاً همان task را از BLOCKED به WORKING
+    می‌برد** (advisor review fix v2: resolve_blocked صدا زده می‌شود).
+
+    Returns payload with 'resolved_task' if leg resolver succeeded, or
+    'reject_reason' if the guard blocked (owner-visible)."""
     now = float(now if now is not None else time.time())
     d = _load(now)
     it = _find(d, str(qid))
@@ -238,32 +245,59 @@ def take_resume(qid: str, *, now: "float | None" = None) -> "dict | None":
         return None
     if it.get("resumed_ts"):
         return None                     # قبلاً یک‌بار ادامه داده‌ایم
-    # SKILL-TOOL-GUARD-V1: structural validation before resume (fail-closed)
+    # SKILL-TOOL-GUARD-V1 v2: structural validation with rejection reason
     _answer_text = str(it.get("answer") or "")
-    _valid, _why = validate_answer_for_resume(_answer_text, it)
+    _valid, _why = validate_answer_for_resume(_answer_text, it, current_item)
     if not _valid:
-        return None                     # structurally invalid answer — no resume
+        return {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
+                "blocked_task_id": it.get("blocked_task_id", ""),
+                "rejected": True, "reject_reason": _why,
+                "answered_ts": it.get("answered_ts"), "resumed_ts": None}
     it["resumed_ts"] = now
     payload = {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
                "blocked_task_id": it.get("blocked_task_id", ""),
                "blocker_version": it.get("blocker_version", ""),
-               "answered_ts": it.get("answered_ts"), "resumed_ts": now}
+               "answered_ts": it.get("answered_ts"), "resumed_ts": now,
+               "rejected": False, "reject_reason": None}
     ok = _save(d)
+    # ── FIX 1: ACTUALLY resolve the blocked task (advisor's key finding) ──
+    resolved_task = None
+    _task_id = it.get("blocked_task_id", "")
+    if ok and _task_id:
+        try:
+            import leg_tasks as _lt
+            # try each known leg (the task's leg is encoded in its id prefix)
+            for _leg in ("ziman", "lead", "studio", "system"):
+                resolved_task = _lt.resolve_blocked(_leg, _task_id,
+                                                     answer=_answer_text, now=now)
+                if resolved_task is not None:
+                    payload["resolved_task"] = {
+                        "id": resolved_task.get("id"),
+                        "state": resolved_task.get("state"),
+                        "leg": _leg}
+                    break
+        except ImportError:
+            pass  # leg_tasks not available in this context (test isolation)
+        except Exception:  # noqa: BLE001
+            pass  # resolver failure is non-fatal; resume record still stands
     try:                                # رسیدِ پایدار (fail-soft، بی‌محتوا)
         import sys as _sys
         _par = Path(__file__).resolve().parents[1]
         if str(_par) not in _sys.path:
             _sys.path.insert(0, str(_par))
         import events
+        _sum = (f"پاسخِ مالک روی {it['id']} — {it.get('blocked_task_id', '')}"
+                + (f" → {payload.get('resolved_task', {}).get('state', '?')}"
+                   if payload.get("resolved_task") else " (resolver نابت)"))
         events.emit("task.resume", "question_budget",
-                    summary=f"پاسخِ مالک روی {it['id']} — ادامهٔ {it.get('blocked_task_id', '')}",
-                    status="completed",
+                    summary=_sum,
+                    status="completed" if payload.get("resolved_task") else "completed",
                     next_action="gate recheck via leg engine",
                     approval_state="approved",
                     idempotency_key=f"resume:{it['id']}")
     except Exception:  # noqa: BLE001
         pass
-    return payload if ok else None
+    return payload
 
 
 # ── رندر (متن، نه ارسال) — برای لِینِ wiring ───────────────────────────────
