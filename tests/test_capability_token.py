@@ -42,7 +42,21 @@ def _load_module():
 
 class SourcePark(unittest.TestCase):
     def test_transport_file_absent(self):
-        self.assertFalse((AGENTS / "lead_outbound_transport.py").exists())
+        # UPDATED 2026-09-04 (P03/A08, OWNER-DELEGATION-OCTOPUS-20260904):
+        # #178 (release_pipeline/M5) merged on main requires a real gated
+        # transport; the old absence pin contradicted main and left the arc
+        # fail-closed-by-absence. The invariant is now "exists ONLY gated":
+        # capability_token itself must never import it, and the gated arc is
+        # pinned by tests/test_release_gate_regression.py.
+        if (AGENTS / "lead_outbound_transport.py").exists():
+            self.assertTrue(
+                (AGENTS / "lead_effect_gate.py").exists(),
+                "transport without its settle gate is forbidden")
+            self.assertTrue(
+                (AGENTS / "consent_gate.py").exists(),
+                "transport without consent layer 3 is forbidden")
+        else:
+            self.assertFalse((AGENTS / "lead_effect_gate.py").exists())
 
     def test_source_has_no_transport_import(self):
         source = (AGENTS / "capability_token.py").read_text(encoding="utf-8")
