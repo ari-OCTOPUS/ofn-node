@@ -3291,6 +3291,8 @@ class Center:
                         elif _rz and _rz.get("resolved_task"):
                             _rt = _rz["resolved_task"]
                             _ak += " | ✅ " + str(_rz.get("blocked_task_id", "?")) + " → " + str(_rt.get("state", "?"))
+                        elif _rz and _rz.get("retryable"):
+                            _ak += " | ✉ " + str(_rz.get("reject_reason", "resolver fail"))
                         elif _rz:
                             _ak += " | ✅ resume ثبت شد"
 
@@ -3301,15 +3303,17 @@ class Center:
                                 topic_id=self._reply_thread(msg))
                         except Exception:  # noqa: BLE001
                             pass
-                        if _rz:
-                            try:          # بیدارباشِ طبیعی: همان موتورِ هر ضربان
+                        _resume_ok = bool(_rz and not _rz.get("rejected")
+                                         and _rz.get("resolved_task"))
+                        if _resume_ok:
+                            try:
                                 self._drive_leg_engine()
                             except Exception:  # noqa: BLE001
                                 pass
                         return {"kind": "qbudget-answer",
                                 "id": _qm.group(0),
                                 "recorded": _rec is not None,
-                                "resumed": _rz is not None,
+                                "resumed": _resume_ok,
                                 "sent": _mid is not None}
         except Exception:  # noqa: BLE001 — جوابِ سؤال هرگز پیام را نمی‌کشد
             pass

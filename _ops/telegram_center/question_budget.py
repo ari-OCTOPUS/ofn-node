@@ -95,7 +95,7 @@ def _find(d: dict, qid: str) -> "dict | None":
 
 # ── API ────────────────────────────────────────────────────────────────────
 def submit(question: str, *, context: str = "", goal: str = "",
-           blocked_task_id: str = "", blocker_version: str = "",
+           blocked_task_id: str = "", blocker_version: str = "", leg: str = "",
            now: "float | None" = None) -> "dict | None":
     """سؤالِ نو از سمتِ اختاپوس **فقط ثبت می‌شود** — بودجه هنگامِ **تحویل**
     مصرف می‌شود (`mark_asked`)، نه این‌جا.
@@ -123,6 +123,7 @@ def submit(question: str, *, context: str = "", goal: str = "",
             # همان task را نشانه می‌رود تا پاسخِ مالک «همان کار» را بیدار کند.
             "blocked_task_id": str(blocked_task_id or "")[:120],
             "blocker_version": str(blocker_version or "")[:60],
+            "leg": str(leg or "").strip()[:40],
             "created": now, "asked": False, "asked_ts": None,
             "answer": None, "answered_ts": None, "resumed_ts": None}
     d["queue"].append(item)
@@ -230,68 +231,81 @@ def validate_answer_for_resume(answer_text: str, item: dict,
     return True, "structural pass"
 
 
-def take_resume(qid: str, *, now: "float | None" = None,
-                   current_item: "dict | None" = None) -> "dict | None":
-    """پاسخِ ثبت‌شدهٔ سؤالِ دارایِ blocked_task_id را **دقیقاً یک‌بار** به wake
-    تبدیل می‌کند (idempotent) و **واقعاً همان task را از BLOCKED به WORKING
-    می‌برد** (advisor review fix v2: resolve_blocked صدا زده می‌شود).
+def take_resume(qid: str, *, now: "float | None" = None) -> "dict | None":
+    """U2 v3: پاسخ مالک → همان task همان پا → BLOCKED به WORKING.
 
-    Returns payload with 'resolved_task' if leg resolver succeeded, or
-    'reject_reason' if the guard blocked (owner-visible)."""
+    v3 fixes (advisor v2 review):
+      1) leg stored in question → resolve ONLY that leg (no cross-leg scanning)
+      2) auto-finds newest question for same task (version check built-in)
+      3) resumed_ts set ONLY after resolver succeeds (retryable on failure)
+      4) rejected payload has rejected=True; caller gates on this
+    """
     now = float(now if now is not None else time.time())
     d = _load(now)
     it = _find(d, str(qid))
     if it is None or not it.get("blocked_task_id") or not it.get("answer"):
         return None
     if it.get("resumed_ts"):
-        return None                     # قبلاً یک‌بار ادامه داده‌ایم
-    # SKILL-TOOL-GUARD-V1 v2: structural validation with rejection reason
+        return None
+
     _answer_text = str(it.get("answer") or "")
-    _valid, _why = validate_answer_for_resume(_answer_text, it, current_item)
+    _task_id = it.get("blocked_task_id", "")
+    _leg = it.get("leg") or ""
+
+    # ── FIX 2: auto-find the CURRENT question for this same task ──
+    _current = it
+    for _other in d.get("queue", []):
+        if (_other.get("blocked_task_id") == _task_id
+                and _other.get("asked_ts") is not None
+                and (_current.get("asked_ts") or 0) < _other.get("asked_ts", 0)):
+            _current = _other  # a newer question exists for the same task
+
+    # validate against the CURRENT version (auto-wired, no caller dependency)
+    _valid, _why = validate_answer_for_resume(_answer_text, it, _current)
     if not _valid:
         return {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
-                "blocked_task_id": it.get("blocked_task_id", ""),
-                "rejected": True, "reject_reason": _why,
-                "answered_ts": it.get("answered_ts"), "resumed_ts": None}
-    it["resumed_ts"] = now
-    payload = {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
-               "blocked_task_id": it.get("blocked_task_id", ""),
-               "blocker_version": it.get("blocker_version", ""),
-               "answered_ts": it.get("answered_ts"), "resumed_ts": now,
-               "rejected": False, "reject_reason": None}
-    ok = _save(d)
-    # ── FIX 1: ACTUALLY resolve the blocked task (advisor's key finding) ──
+                "blocked_task_id": _task_id, "rejected": True,
+                "reject_reason": _why, "resolved_task": None}
+
+    # ── FIX 1: resolve ONLY the leg stored in the question ──
     resolved_task = None
-    _task_id = it.get("blocked_task_id", "")
-    if ok and _task_id:
+    if _leg and _task_id:
         try:
             import leg_tasks as _lt
-            # try each known leg (the task's leg is encoded in its id prefix)
-            for _leg in ("ziman", "lead", "studio", "system"):
-                resolved_task = _lt.resolve_blocked(_leg, _task_id,
-                                                     answer=_answer_text, now=now)
-                if resolved_task is not None:
-                    payload["resolved_task"] = {
-                        "id": resolved_task.get("id"),
-                        "state": resolved_task.get("state"),
-                        "leg": _leg}
-                    break
+            resolved_task = _lt.resolve_blocked(_leg, _task_id,
+                                                answer=_answer_text, now=now)
         except ImportError:
-            pass  # leg_tasks not available in this context (test isolation)
+            pass  # test isolation
         except Exception:  # noqa: BLE001
-            pass  # resolver failure is non-fatal; resume record still stands
-    try:                                # رسیدِ پایدار (fail-soft، بی‌محتوا)
+            pass  # transient failure — do NOT consume the answer
+
+    # ── FIX 3: only mark consumed AFTER resolver succeeds ──
+    if resolved_task is None:
+        # resolver failed — answer remains retryable (resumed_ts NOT set)
+        return {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
+                "blocked_task_id": _task_id, "rejected": False,
+                "reject_reason": "resolver نتوانست task را پیدا کند (قابل تلاش مجدد)",
+                "resolved_task": None, "retryable": True}
+
+    # SUCCESS: mark consumed + emit event
+    it["resumed_ts"] = now
+    _save(d)
+    payload = {"schema": TASK_RESUME_SCHEMA, "question_id": it["id"],
+               "blocked_task_id": _task_id, "rejected": False,
+               "reject_reason": None,
+               "resolved_task": {"id": resolved_task.get("id"),
+                                 "state": resolved_task.get("state"),
+                                 "leg": _leg},
+               "retryable": False}
+    try:
         import sys as _sys
         _par = Path(__file__).resolve().parents[1]
         if str(_par) not in _sys.path:
             _sys.path.insert(0, str(_par))
         import events
-        _sum = (f"پاسخِ مالک روی {it['id']} — {it.get('blocked_task_id', '')}"
-                + (f" → {payload.get('resolved_task', {}).get('state', '?')}"
-                   if payload.get("resolved_task") else " (resolver نابت)"))
         events.emit("task.resume", "question_budget",
-                    summary=_sum,
-                    status="completed" if payload.get("resolved_task") else "completed",
+                    summary=f"پاسخ مالک {it['id']} → {_task_id} @{_leg} → WORKING",
+                    status="completed",
                     next_action="gate recheck via leg engine",
                     approval_state="approved",
                     idempotency_key=f"resume:{it['id']}")
