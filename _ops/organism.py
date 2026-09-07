@@ -1423,6 +1423,18 @@ def main() -> int:
                     except Exception as _sbe:  # noqa: BLE001
                         opslib.alert([f"seed_beat (non-fatal): "
                                       f"{type(_sbe).__name__}: {_sbe}"])
+                    # 2026-09-07 (شب — رأی مالک: «همه چیزو به حلقه های دوپامین و ترس
+                    # وصل کن، ارگانیسم خودش ادامشون بده، بعد باز شدن هر قفل»):
+                    # drive_loops — ترس/دوپامینِ رسیددار + ادامه‌دار شدن قفل‌ها.
+                    # هر ۲ beat یک ارزیابی؛ fail-soft مثل بقیهٔ اندام‌ها.
+                    try:
+                        _dl_beat = int((_cstat or {}).get("beat", 0) or 0)
+                        if _dl_beat % 2 == 0:
+                            import drive_loops as _dl  # noqa: WPS433
+                            _dl.tick(_dl_beat)
+                    except Exception as _dle:  # noqa: BLE001
+                        opslib.alert([f"drive_loops (non-fatal): "
+                                      f"{type(_dle).__name__}: {_dle}"])
                     # قدم ۵۲: runner_apply_gate — armed_inert صادق
                     try:
                         _ra_beat = int((_cstat or {}).get("beat", 0) or 0)

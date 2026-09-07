@@ -291,7 +291,15 @@ def run(mission_id: str | None = None, context: str = "") -> dict:
     t0 = time.time()
     candidates = [{"id": k, "title": v["title"], "priority": v["priority"]}
                   for k, v in MISSIONS.items()]
-    ctx = context or "VERIFIED_CASH=0; CHECKOUT-1 awaiting owner test buy; shelf must stay sellable"
+    # DRIVE (رأی مالک 2026-09-07): مدیر باید درایوها را حس کند — ترس/دوپامینِ رسیددار
+    drive_ctx = ""
+    try:
+        import drive_loops
+        drive_ctx = drive_loops.context_for_director()
+    except Exception:  # noqa: BLE001 — درایو نباید مأموریت را بکشد
+        pass
+    ctx = context or (drive_ctx or
+                      "VERIFIED_CASH=0; CHECKOUT-1 awaiting owner test buy; shelf must stay sellable")
     d1 = director_pick(candidates, ctx)
     chosen = mission_id or d1["picked"]
     event_spine.emit("task.started", source="three-role-g1",

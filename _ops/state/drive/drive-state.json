@@ -1,0 +1,61 @@
+{
+ "schema": "drive-loops.v1",
+ "ts_utc": "2026-09-07T13:16:49Z",
+ "fear": {
+  "total": 2.814,
+  "top": [
+   {
+    "id": "D0_domain",
+    "title": "دامنهٔ مرده ⇒ فروش زیمان صفر",
+    "severity": 0.95,
+    "state": "blocked_owner_ui_step",
+    "source": "R-059570492a64 + DNS"
+   },
+   {
+    "id": "MSG38_deadline",
+    "title": "msg38 NOT_PAID خودثبت می‌شود",
+    "severity": 0.864,
+    "hours_left": 22.9,
+    "state": "counting_down",
+    "source": "ACTIVE-SEASON pointer"
+   },
+   {
+    "id": "SURVIVAL_zero_cash",
+    "title": "VERIFIED_CASH=0 · هزینهٔ ماه AU$200",
+    "severity": 0.85,
+    "state": "chronic",
+    "source": "budget-state.json + owner answers item 2"
+   }
+  ]
+ },
+ "dopamine": {
+  "total_24h": 2.5,
+  "wins": [
+   {
+    "id": "owner_votes_recorded",
+    "count": 3,
+    "weight": 0.3,
+    "source": "07-HANDOFF/OWNER-APPROVALS-2026-09-07.md"
+   },
+   {
+    "id": "three_role_runs",
+    "count": 3,
+    "weight": 0.2,
+    "source": "three-role-receipts.jsonl"
+   },
+   {
+    "id": "paid_calls_ok",
+    "count": 5,
+    "weight": 0.2,
+    "source": "cortex/cost-receipts.jsonl"
+   }
+  ]
+ },
+ "locks": {
+  "D0_domain": "locked",
+  "AUTO1_sender": "locked",
+  "MSG38_payment": "locked",
+  "CASH_first_order": "locked"
+ },
+ "opened_now": []
+}
