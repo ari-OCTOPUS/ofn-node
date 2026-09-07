@@ -61,12 +61,69 @@ if ($verdict -and $verdict.should_revive) {
         Log "revived organism (canonical verdict: $($verdict.reason))"
     }
 } elseif ($verdict -and $verdict.stall) {
-    # port open but the in-process loop is dead/stale and stall-revive is not armed:
-    # never a blind kill - surface it loudly for the owner (stable text for dedup).
-    Log "STALL detected (no blind kill): $($verdict.reason)"
+    # ── SEMANTIC-LIVENESS RECOVERY (2026-09-07, owner GO + advisor rec#1) ──────────
+    # Stall = port open AND (ts stale OR beat frozen) — the "silent failure" class
+    # (FailureAtlas Loud/Silent): port probes can never see it. Two wedges measured
+    # 2026-09-07 (15:1x and 16:23, beats frozen with live port) survived exactly
+    # because this branch only alerted. Now, in order:
+    #   1) capture the STACK of the wedged holder FIRST (evidence before action) —
+    #      py-spy dump, saved under _ops/state/stall-stacks/;
+    #   2) only if the owner armed stall-revive (marker file WATCHDOG-STALL-REVIVE,
+    #      the only arming path that reaches a Scheduled Task — see watchdog.py
+    #      "arming that is actually provable"): kill the wedged port-holder and
+    #      relaunch, under a 3-per-6h cap (crash-loop guard, cortex-twin pattern);
+    #   3) disarmed -> previous behavior (log + alert), zero kills.
+    # STOP/HALT-ALL seniority already exited above and always wins.
+    $why = "$($verdict.reason)"
+    $holderPid = $null
     try {
-        & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required" | Out-Null
+        $line = (netstat -ano | Select-String "127.0.0.1:8771\s.*LISTENING" | Select-Object -First 1).Line
+        if ($line) { $holderPid = [int]($line.Trim() -split "\s+")[-1] }
     } catch {}
+    $stackPath = $null
+    if ($holderPid) {
+        $stackDir = Join-Path $VAULT "_ops\state\stall-stacks"
+        if (-not (Test-Path $stackDir)) { New-Item -ItemType Directory -Path $stackDir | Out-Null }
+        $stackPath = Join-Path $stackDir ("{0}-pid{1}.txt" -f (Get-Date -Format "yyyyMMdd-HHmmss"), $holderPid)
+        try {
+            & "C:\Users\Armin\AppData\Roaming\Python\Python313\Scripts\py-spy.exe" dump --pid $holderPid 2>$null | Out-File -FilePath $stackPath -Encoding utf8
+        } catch {}
+    }
+    $armed = Test-Path (Join-Path $VAULT "_ops\WATCHDOG-STALL-REVIVE")
+    if ($armed) {
+        $track = Join-Path $VAULT "_ops\state\stall-revive-attempts.json"
+        $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+        $attempts = @()
+        if (Test-Path $track) {
+            try {
+                $j = Get-Content $track -Raw -Encoding utf8 | ConvertFrom-Json
+                foreach ($t in $j.attempts) { if (($now - [long]$t) -lt 21600) { $attempts += [long]$t } }
+            } catch {}
+        }
+        if ($attempts.Count -lt 3 -and $holderPid) {
+            $attempts += $now
+            try { @{ attempts = $attempts } | ConvertTo-Json -Compress | Out-File -FilePath $track -Encoding utf8 } catch {}
+            try { Stop-Process -Id $holderPid -Force } catch {}
+            Log ("STALL recovery: killed wedged holder pid=$holderPid (stack: $stackPath; $why; attempt $($attempts.Count)/3 in 6h)")
+            Start-Sleep -Seconds 3
+            Start-Process -FilePath (Join-Path $VAULT "_ops\RUN-ORGANISM.bat") -WorkingDirectory (Join-Path $VAULT "_ops") -WindowStyle Hidden
+            Log "STALL recovery: relaunched RUN-ORGANISM.bat"
+            try {
+                & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - stack captured, wedged holder killed and relaunched (armed recovery, capped 3/6h)" | Out-Null
+            } catch {}
+        } elseif (-not $holderPid) {
+            Log "STALL but no holder pid resolved - no kill, alerting ($why)"
+            try { & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - port open, in-process loop dead, holder pid unresolvable" | Out-Null } catch {}
+        } else {
+            Log "STALL recovery CAP reached (3/6h) - yielding to owner ($why)"
+            try { & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - recovery cap reached 3 per 6h - owner decision required" | Out-Null } catch {}
+        }
+    } else {
+        Log "STALL detected (disarmed - no kill): $why (stack: $stackPath)"
+        try {
+            & python -X utf8 $canon --alert "WATCHDOG STALL incident (organism :8771) - port open but in-process loop dead - owner decision required" | Out-Null
+        } catch {}
+    }
 }
 
 # 3) CORTEX (8772) - Program 5, 2026-07-16 (supervision-gap fix: cortex died 07-10 unplanned

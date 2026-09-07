@@ -30,3 +30,6 @@ U1/U2 لند و ری‌استارت شدند · R1 بکاپ نجات (دو ref �
 ## باز برای فردا
 
 تمدید GO (۰۹-۱۴) · msg38 (۰۹-۰۸ ۱۲:۱۰Z) · CHECKOUT-1 · R4–R10 · ریشهٔ دو wedge.
+
+## اصلاح آماری شب اول (مکمل)
+با بازبینی مستقل: silent 0.167 [0.093–0.280] آستانهٔ ۰.۲۰ را رد نمی‌کند (NOT_REFUTED) ⇒ حکم خانواده PROMOTION_SUSPENDED؛ کد-گارد = DETERMINISTIC_BY_CONSTRUCTION (اثبات AST، نه شمارش)؛ «تودرتو ۰٪» → 0/6 UNDERPOWERED (upper95≈0.39). INV-TOOL-GUARD پذیرفته شد: validator قطعیِ کد پیش از لایهٔ تصمیم؛ نقض = HALT نه retry. (`09-LANES/ACD-PREREG-20260907/FAMILY-VERDICT-ACD-01-amend1-stats.json`)
