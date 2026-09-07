@@ -67,13 +67,13 @@ updated: 2026-09-07
 ## Active Context
 
 
-- تمرکز فعلی: سیزن درآمد؛ master-73 کانونیکال (۵۰/۱۳/۵/۵)، مجوز top-5 outreach + PayPal Invoice از مالک.
-- تغییرات اخیر: دادهٔ رجیستری منابع نقاشی به‌عنوان زمین استاندارد ACD استفاده و hash شد (`09-LANES/ACD-PREREG-20260907/PREREG-MANIFEST.json`)؛ مسیرهای ورود اثبات‌شده در پیوست الف v4.1.
-- ۳ قدم بعدی: (۱) اجرای outreach مجاز (بدون cold-call روی مسیر ۵گانه)؛ (۲) هم‌ردیف کردن شمارش لید با master-73؛ (۳) اتصال نتیجهٔ تماس به learning_gate.
-- تصمیم‌های باز: بودجهٔ outreach؛ #197 disposition.
+- master-73 کانونیکال؛ مجوز top-5 outreach + PayPal Invoice؛ رجیستری به‌عنوان زمین ACD استاندارد شد (hash a77dadba).
+- ۳ قدم بعدی: (۱) اجرای outreach؛ (۲) هم‌ردیف کردن شمارش لید؛ (۳) اتصال به learning_gate.
+- باز: بودجه outreach؛ #197.
 
 ## Progress
 
+- 2026-09-07: رجیستری ACD استاندارد؛ حکم قابلیتی ACD-01 صادر شد؛ انتقال مهارت SKILL-TOOL-GUARD-V1.
 - 2026-09-07: رجیستری منابع به‌عنوان زمین ACD استاندارد شد (hash a77dadba)؛ v4.1 assets_ref پیوست شد.
 - **۲۰۲۶-۰۸-۰۱ — چه کار می‌کند:** ماشینِ لیدِ خودمختار زنده (`lead_pipeline` مسلح، کارتِ READY در تاپیکِ 🎨 اثبات‌شده، «گیر=سؤال» کار می‌کند) · سقفِ ۱۰/روزِ دو-لایه با شمارندهٔ durable · transport ِ SMTP نوشته و تست‌شده (ولی تاریک) · Painting-OS ‏P1-P3 · هشت فعلِ قیف از منوی DM برداشته شد («بیزنس هرگز در DM») ولی تایپی زنده است و در `INTENTIONALLY_HIDDEN` با دلیلِ تک‌تک ثبت شده.
 - **۲۰۲۶-۰۸-۰۱ — چه مانده:** رأیِ مالک روی `OCTOPUS_SMTP_*` + `OCTOPUS_WIRE_LEAD_OUTBOUND` · پر کردنِ bank details (بلاکرِ فاکتورِ قابلِ پرداخت) · producerهای واقعی به‌جای کاندیدِ synthetic · Gmail OAuth ‏E2E · build اولِ APK ِ TradeQuote · برداشتنِ PARK از reconcile تا `confirmed_revenue_aud` از `null` دربیاید.

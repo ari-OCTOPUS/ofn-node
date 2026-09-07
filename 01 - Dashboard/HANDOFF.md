@@ -5,24 +5,38 @@ updated: 2026-09-07
 
 # HANDOFF — وضعیت برای جلسه بعد
 
-> 🎯 **سیزن ۱ بسته شد و سیزن درآمد باز شد (2026-09-07):** [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP]] · دستور کار اجرایی جاری: `09-LANES/MP-V41-U1-20260907/MEGAPROMPT-OCTOPUS-v4.1-2026-09-07` (شش‌وصله‌ای، GO مالک) · مرور کامل سیزن: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]]
+> 🎯 **سیزن درآمد فعال + اولین انتقال مهارت تاریخ پروژه:** [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON]] · مرور کامل: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]] · تلگرام و وب: [[07 - Knowledge/octopus/96-TELEGRAM-AND-WEB-APP-COMPLETE-2026-09-07|نوت ۹۶]]
 
-## بردهای عملیاتی امروز (همه با رسید در 09-LANES)
+## بردهای امروز (همه با رسید و تست)
 
-- **حسگرها صادق شدند (U1):** `09-LANES/MP-V41-U1-20260907/U1-RECEIPT` — `stress.v2` در production اثبات‌شده؛ «unknown≠calm» قانون معماری شد (دو شاهد).
-- **پل پاسخ→ادامهٔ همان کار (U2):** `09-LANES/U2-RESUME-20260907/U2-RECEIPT` + ری‌استارت سرویس‌ها؛ اثبات runtime با اولین Q&A واقعی مالک.
-- **بکاپ نجات یافت (R1):** `09-LANES/R1-GITWRITE-20260907/LANE-REPORT` — ریشه: دو ref غیر-FF؛ فلگ طبق شرط ثبت‌شده آرشیو شد؛ اسپاین ۳روزه پوش شد؛ hourly سبز.
-- **رمزها تجمیع شدند (R2):** `09-LANES/R2-SECRETS-20260907/ROTATION-RUNBOOK` — ۱۰ کپی بی‌مصرف به آرشیو امن بیرون-repo؛ **رأی مالک: چرخش توکن لازم نیست** (`09-LANES/R2-SECRETS-20260907/OWNER-DECISION-ROTATION-WAIVED-20260907.json`).
-- **اولین حکم قابلیتی پروژه (ACD):** `09-LANES/ACD-PREREG-20260907/FAMILY-VERDICT-ACD-01` — ۲۰۴ رسید گیت‌پذیر، $۰؛ استخراج‌زیر-drift=E4-eligible؛ ABSTAIN مدل رد شد ⇒ **کد-گارد**.
-- **دکمهٔ ری‌استارت کلی اثبات شد:** `09-LANES/OPS-RESTARTALL-CAPABILITY-20260907/CAPABILITY-MAP-AND-TEST-PROMPTS` (`_ops/RESTART-ALL.bat`).
+- **اولین انتقال مهارت** (کامیت `004f84d` + `b2f59d0`): SKILL-TOOL-GUARD-V1 از ACD به U2 منتقل شد؛ ۲۵/۲۵ تست سبز؛ U2 v2 حالا task را **واقعاً** از BLOCKED به WORKING می‌برد
+- **اولین حکم قابلیتی ACD** (کامیت `f9b8596`→`cc043a6`): ۲۰۴ رسید گیت‌پذیر، $۰؛ استخراج‌زیر-drift تأیید، ABSTAIN مدل رد، کد-گارد = DETERMINISTIC_BY_CONSTRUCTION
+- **ACD-07 کامل** (کامیت `5dd5a58`): هارنس ۱۲خطا؛ Arm-D اعتبارسنج قطعی ۱۳/۱۳ با صفر تماس مدل؛ Arm-M مدل لخت ۵۴٪ جعل
+- **معماری سه‌نقشی پذیرفته شد** (کامیت `7ed9fab`): هدایت‌گر / اجراکننده / ارزیاب-حافظه‌بان
+- **پروب زندگی معنایی مسلح** (کامیت `ea2f3f4`): stall-detector + py-spy stack + kill-first + سقف ۳/۶h
+- **کنترل‌پنل وب** (کامیت `cf71cf1`): `http://127.0.0.1:8773/panel` — ۶ بخش با چت زنده
+- **مینی‌اپ تلگرام** (کامیت `3d4db93`): `:8774` — تعاملی داخل تلگرام با ۵ تب
+- **بکاپ نجات یافت** (R1): دو ref غیر-FF تعمیر شد؛ hourly سبز؛ فلگ طبق شرط پاک شد
+- **رمزها تجمیع** (R2): ۱۰ کپی منتقل؛ **رأی مالک: چرخش لازم نیست**
+- **ربات تلگرام کامل** (`@Robo2725_bot`): ۹ دستور + چت آزاد + ویس + دکمه‌های inline
+
+## وضعیت رابط‌های مالک
+
+| رابط | آدرس | وضعیت |
+|---|---|---|
+| ربات تلگرام | @Robo2725_bot | ✅ زنده — متن بفرست، جواب بگیر |
+| کنترل‌پنل وب | `http://127.0.0.1:8773/panel` | ✅ ۶ بخش |
+| مینی‌اپ تلگرام | از ربات یا `:8774/miniapp` | ✅ ۵ تب |
+| هولوچارت | `http://127.0.0.1:8773/` | ✅ نمودار مداری |
 
 ## باز و منتظر مالک
 
 - تمدید standing GO (انقضا 2026-09-14) — فرم هفت‌فیلدی v4.1 §۸
-- msg38 NOT_PAID تا 2026-09-08T12:10Z · CHECKOUT-1 (سه روایت ثبت‌شده، رزولوشن باز)
-- کارت‌های R4–R10 (`09-LANES/MP-V41-U1-20260907/MEGAPROMPT-OCTOPUS-v4.1-20260907`) · اختلاف EX-1 (لِین criterion ملاک)
-- دو wedge ارگانیسم امروز (ریشه باز؛ دستور: stack-capture در رخداد بعد)
+- msg38 NOT_PAID تا 2026-09-08T12:10Z
+- METABOLIC-OBS: دو مسیر — wire تله‌متری یا پذیرش billed (در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]])
+- ری‌استارت center.py برای فعال‌شدن U2 v2
+- کارت‌های R4–R10 و اختلاف EX-1
 
 ## قواعد ورود (بی‌تغییر)
 
-[[AGENTS|AGENTS.md]] (GOV-V8/L2) → `07-HANDOFF/ENGINEERING-ENTRYPOINT-20260907` · اسکن کامل: `09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT`
+AGENTS.md (GOV-V8/L2) → `07-HANDOFF/ENGINEERING-ENTRYPOINT-20260907` · اسکن: `09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT`
