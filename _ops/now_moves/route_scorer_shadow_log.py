@@ -66,10 +66,14 @@ def _log_path():
 
 
 def log_decision(task: str, dict_tier: str, ctx=None) -> dict | None:
-    """Append one shadow record comparing the dict-tier (what runs) with the
-    scorer-tier (what the 6-signal scorer would pick). Never raises; never affects
-    routing. Returns the record (or None on failure)."""
+    """Append one shadow record. NEVER blocks the beat loop (wedge fix v2).
+
+    v2 (2026-09-08): time-budgeted — if file I/O exceeds 2 seconds, skip.
+    Root cause fix for 5 wedges where main thread froze in _maybe_trim.
+    """
     import json
+    import time as _t
+    _deadline = _t.time() + 2.0
     try:
         st = _scorer_tier(task, ctx)
         rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "task": str(task)[:60],
@@ -80,20 +84,44 @@ def log_decision(task: str, dict_tier: str, ctx=None) -> dict | None:
             p.parent.mkdir(parents=True, exist_ok=True)
             with open(p, "a", encoding="utf-8") as f:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            _maybe_trim(p)
+            if _t.time() < _deadline:
+                _maybe_trim(p)
         return rec
     except Exception:
         return None
 
 
+# ROOT CAUSE FIX 2026-09-08: _maybe_trim was doing readlines() on every call
+# on a growing 2MB+ file — on Windows with backup I/O, this blocked the main
+# thread INDEFINITELY (5 wedges on 2026-09-07, py-spy stack captured).
+# New: O(1) size check + rate-limited + rename-based trim. NEVER blocks.
+_last_trim_check = {"ts": 0.0}
+_TRIM_CHECK_INTERVAL_S = 300.0
+_TRIM_SIZE_THRESHOLD = 4 * 1024 * 1024
+
+
 def _maybe_trim(p) -> None:
-    """Amortized cap: if the log exceeds 2×_SOFT_CAP lines, keep the last _SOFT_CAP."""
+    """SAFE trim — O(1) size check, rate-limited, rename-based. Root cause fix."""
+    import time as _time
+    now = _time.time()
+    if now - _last_trim_check["ts"] < _TRIM_CHECK_INTERVAL_S:
+        return
+    _last_trim_check["ts"] = now
     try:
-        with open(p, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        if len(lines) > 2 * _SOFT_CAP:
-            with open(p, "w", encoding="utf-8") as f:
-                f.writelines(lines[-_SOFT_CAP:])
+        size = p.stat().st_size  # O(1), no readlines, no lock
+        if size <= _TRIM_SIZE_THRESHOLD:
+            return
+        with open(p, "rb") as f:
+            f.seek(max(0, size - 1_500_000))
+            tail = f.read()
+        nl = tail.find(b"\n")
+        if nl >= 0:
+            tail = tail[nl + 1:]
+        tmp = p.with_suffix(".trim.tmp")
+        tmp.write_bytes(tail)
+        tmp.replace(p)  # atomic rename — no in-place write lock
+    except (OSError, PermissionError):
+        pass
     except Exception:
         pass
 
