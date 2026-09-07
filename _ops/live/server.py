@@ -986,6 +986,251 @@ class _Srv(ThreadingHTTPServer):
         super().server_bind()
 
 
+PANEL_PAGE = r"""<!doctype html>
+<html dir="rtl" lang="fa"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🐙 کنترل‌پنل اختاپوس</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a141e;--card:#122430;--card2:#1a3547;--line:#2b4a5e;--ink:#d4ecf7;--muted:#7fa8bc;--ok:#5eead4;--warn:#fbbf24;--bad:#f87171;--accent:#38bdf8;--btn:#1e4a5f;--btnh:#2d6784}
+body{font:15px/1.7 Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:20px;white-space:nowrap}
+header .live-dot{width:10px;height:10px;border-radius:50%;background:var(--ok);animation:pulse 2s ease;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr-spacer{flex:1}
+.hdr-beat{font-size:13px;color:var(--muted)}
+nav{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto;padding:0 8px}
+nav button{background:none;border:none;border-bottom:3px solid transparent;color:var(--muted);font:inherit;font-size:14px;padding:10px 18px;cursor:pointer;white-space:nowrap;transition:color .2s,border .2s}
+nav button:hover{color:var(--ink)}
+nav button.active{color:var(--accent);border-bottom-color:var(--accent)}
+nav button .badge{background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:1px 7px;margin-inline-start:5px}
+main{flex:1;padding:16px 20px;max-width:1200px;width:100%;margin:0 auto}
+.section{display:none}
+.section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{font-size:14px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(43,74,94,.3)}
+.stat:last-child{border:none}
+.stat .k{color:var(--muted);font-size:13px}
+.stat .v{font-weight:bold;font-size:14px}
+.stat .v.ok{color:var(--ok)}.stat .v.warn{color:var(--warn)}.stat .v.bad{color:var(--bad)}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:6px}
+.bar div{height:100%;border-radius:3px;transition:width .5s}
+.chat-box{background:var(--card);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:400px}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:75%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.msg.user{align-self:flex-start;background:var(--btn);color:#fff;border-bottom-left-radius:4px}
+.msg.octo{align-self:flex-end;background:var(--card2);color:var(--ink);border-bottom-right-radius:4px}
+.msg .meta{font-size:11px;color:var(--muted);margin-top:4px}
+.chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.chat-input input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:inherit;padding:10px 16px;outline:none}
+.chat-input input:focus{border-color:var(--accent)}
+.chat-input button{background:var(--btn);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:20px;padding:8px 18px;cursor:pointer}
+.chat-input button:hover{background:var(--btnh)}
+.chat-input button:disabled{opacity:.5;cursor:wait}
+.btn{background:var(--btn);border:1px solid var(--line);border-radius:8px;color:var(--ink);font:inherit;font-size:13px;padding:8px 16px;cursor:pointer;transition:background .2s}
+.btn:hover{background:var(--btnh)}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.approval-item{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.approval-item .info{flex:1;min-width:200px}
+.approval-item .title{font-weight:bold;font-size:14px}
+.approval-item .desc{font-size:12px;color:var(--muted);margin-top:4px}
+.approval-item .actions{display:flex;gap:8px}
+.log-entry{padding:6px 0;border-bottom:1px solid rgba(43,74,94,.2);font-size:13px;display:flex;gap:8px;align-items:baseline}
+.log-entry .time{color:var(--muted);font-size:11px;min-width:60px}
+.log-entry .ev{min-width:80px;font-weight:bold}
+.log-entry .ev.ok{color:var(--ok)}.log-entry .ev.bad{color:var(--bad)}.log-entry .ev.blk{color:var(--warn)}
+.log-entry .txt{flex:1;color:var(--ink);font-size:12px}
+.empty{color:var(--muted);text-align:center;padding:40px 20px;font-size:14px}
+.loading{color:var(--muted);text-align:center;padding:20px;font-size:13px;animation:pulse 1.5s ease infinite}
+footer{background:var(--card);border-top:1px solid var(--line);padding:8px 20px;text-align:center;font-size:11px;color:var(--muted)}
+@media(max-width:600px){main{padding:10px}nav button{padding:8px 12px;font-size:13px}header h1{font-size:17px}}
+</style></head><body>
+
+<header>
+<span class="live-dot" id="dot"></span>
+<h1>🐙 کنترل‌پنل اختاپوس</h1>
+<span class="hdr-spacer"></span>
+<span class="hdr-beat" id="hdrInfo">در حال اتصال…</span>
+</header>
+
+<nav>
+<button class="active" onclick="tab('status')">📊 وضعیت</button>
+<button onclick="tab('chat')">💬 گفتگو</button>
+<button onclick="tab('approvals')">✅ تأییدها <span class="badge" id="apprBadge" style="display:none">0</span></button>
+<button onclick="tab('actions')">⚡ اقدامات</button>
+<button onclick="tab('log')">📜 رویدادها</button>
+<button onclick="tab('ops')">🔧 عملیات</button>
+</nav>
+
+<main>
+
+<div class="section active" id="sec-status">
+  <div class="grid">
+    <div class="card"><h3>💓 حیات</h3><div id="stLife"><div class="loading">…</div></div></div>
+    <div class="card"><h3>💰 بودجه</h3><div id="stMoney"><div class="loading">…</div></div></div>
+    <div class="card"><h3>🧠 مغز</h3><div id="stBrain"><div class="loading">…</div></div></div>
+    <div class="card"><h3>🦿 پاها</h3><div id="stLegs"><div class="loading">…</div></div></div>
+  </div>
+  <div class="card"><h3>⚠️ تعارض‌ها و هشدارها</h3><div id="stConflicts"><div class="loading">…</div></div></div>
+</div>
+
+<div class="section" id="sec-chat">
+  <div class="chat-box">
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg octo">سلام آری! 🐙<br>من اختاپوس هستم. هر سؤالی داری بپرس — از وضعیت بدنم تا کارهایی که امروز انجام دادم.<br><span class="meta">مغز محلی · qwen · $0</span></div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="پیامت را بنویس…" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button id="chatBtn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="sec-approvals">
+  <div class="card"><h3>✅ در انتظار تأیید مالک</h3><div id="approvalList"><div class="loading">…</div></div></div>
+</div>
+
+<div class="section" id="sec-actions">
+  <div class="grid">
+    <div class="card"><h3>🔄 بازیابی</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:10px">ری‌استارت سرویس‌ها (با احیای خودکار واچ‌داگ)</p>
+      <button class="btn" onclick="doAction('restart-organism')">🔄 ارگانیسم</button>
+      <button class="btn" onclick="doAction('restart-cortex')">🧠 کورتکس</button>
+      <button class="btn" onclick="doAction('restart-center')">💬 سنتر</button>
+    </div>
+    <div class="card"><h3>📊 گزارش</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:10px">گزارش‌های سریع</p>
+      <button class="btn" onclick="askBrain('گزارش کامل وضعیت بدن و پاها را بده')">📊 گزارش کامل</button>
+      <button class="btn" onclick="askBrain('تعارض‌های باز را فهرست کن')">⚠️ تعارض‌ها</button>
+      <button class="btn" onclick="askBrain('پیشنهادهای امروز را خلاصه کن')">💡 پیشنهادها</button>
+    </div>
+    <div class="card"><h3>💾 بکاپ</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:10px">وضعیت لایهٔ بکاپ</p>
+      <div id="stBackup"><div class="loading">…</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="sec-log">
+  <div class="card"><h3>📜 رویدادهای زنده</h3><div id="logList"><div class="loading">…</div></div></div>
+</div>
+
+<div class="section" id="sec-ops">
+  <div class="grid">
+    <div class="card"><h3>🖥 فرایندها</h3><div id="opsProcs"><div class="loading">…</div></div></div>
+    <div class="card"><h3>📁 کد</h3><div id="opsCode"><div class="loading">…</div></div></div>
+  </div>
+</div>
+
+</main>
+<footer>کنترل‌پنل اختاپوس · /api/live + /api/ask + /api/ops · بدون تلگرام هم کار می‌کند</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const NM={'task.started':'▶ شروع','task.completed':'✓ تمام','task.failed':'✗ خطا','task.blocked':'⏸ گیر','system.heartbeat':'💓','approval.required':'🙋 تأیید','handoff.created':'🤝'};
+
+function tab(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  $('sec-'+name).classList.add('active');
+  event.target.closest('button').classList.add('active');
+}
+
+let LIVE=null;
+async function poll(){
+  try{
+    const r=await fetch('/api/live');LIVE=await r.json();
+    const b=LIVE.body||{},h=LIVE.heart||{},m=LIVE.money||{},c=LIVE.cortex||{};
+    $('hdrInfo').textContent=`ضربان ${b.beat||'—'} · ${b.epoch_mode||''} · ${h.freshness||''}`;
+    $('dot').style.background=(h.freshness||'').includes('تازه')?'var(--ok)':'var(--warn)';
+    // vitals
+    $('stLife').innerHTML=[
+      ['ضربان',b.beat||'—','ok'],['توقف',b.halted?'⚠️ '+b.halted:'بدون توقف','ok'],
+      ['حالت',b.epoch_mode||'—',''],['فریز',b.frozen?'⚠️ فریز':'غیر فریز','ok'],
+      ['تعارض',(b.conflicts||[]).length,''],['هشدار امروز',LIVE.alerts_today??'—','']
+    ].map(([k,v,c])=>`<div class="stat"><span class="k">${k}</span><span class="v ${c}">${esc(v)}</span></div>`).join('');
+    const pct=m.month_usd!=null?Math.round(m.month_usd/45*100):0;
+    $('stMoney').innerHTML=`
+      <div class="stat"><span class="k">مصرف ماه (AUD)</span><span class="v ${pct>80?'bad':pct>50?'warn':'ok'}">${m.month_usd??'—'} / 45</span></div>
+      <div class="bar"><div style="width:${pct}%;background:${pct>80?'var(--bad)':pct>50?'var(--warn)':'var(--ok)'}"></div></div>
+      <div class="stat"><span class="k">درآمد تأییدشده</span><span class="v ${m.usd_revenue>0?'ok':''}">${m.usd_revenue??0} USD</span></div>
+      <div class="stat"><span class="k">امروز</span><span class="v">${m.today_usd??0} USD</span></div>`;
+    $('stBrain').innerHTML=[
+      ['مدل',c.model||'qwen local',''],['وضعیت',c.available?'فعال':'⚠️ قطع',c.available?'ok':'bad'],
+      ['آخرین تفکر',c.last_tier||'—',''],['هزینه امروز','$'+(c.cost_usd??0),'ok']
+    ].map(([k,v,c])=>`<div class="stat"><span class="k">${k}</span><span class="v ${c}">${esc(v)}</span></div>`).join('');
+    const legs=LIVE.needs||{};
+    $('stLegs').innerHTML=Object.entries(legs).slice(0,6).map(([k,v])=>
+      `<div class="stat"><span class="k">${esc(k)}</span><span class="v ${v>0?'warn':'ok'}">${esc(v)}</span></div>`).join('')||'<div class="empty">پای باز نیاز ندارد</div>';
+    const conflicts=b.conflicts||[];
+    $('stConflicts').innerHTML=conflicts.length?conflicts.map(c=>`<div class="stat"><span class="k">⚠️</span><span class="v warn" style="font-size:12px">${esc(c)}</span></div>`).join(''):'<div class="stat"><span class="k">بدون تعارض فعال</span><span class="v ok">✓</span></div>';
+    // log
+    if(LIVE.log){
+      $('logList').innerHTML=LIVE.log.slice(0,30).map(e=>{
+        const cl=e.status==='failed'?'bad':e.event_name==='task.blocked'?'blk':'ok';
+        return `<div class="log-entry"><span class="time">${esc((e.ts||'').slice(11,19))}</span><span class="ev ${cl}">${NM[e.event_name]||e.event_name||'—'}</span><span class="txt">${esc(e.summary||'')}</span></div>`;
+      }).join('');
+    }
+    // ops
+    if(LIVE.processes){
+      $('opsProcs').innerHTML=Object.entries(LIVE.processes).map(([k,v])=>
+        `<div class="stat"><span class="k">${esc(k)}</span><span class="v ${v.alive?'ok':'bad'}">${v.alive?'✓ pid '+v.pid:'✗ قطع'}</span></div>`).join('');
+    }
+    if(LIVE.code_version){const cv=LIVE.code_version;
+      $('opsCode').innerHTML=`<div class="stat"><span class="k">HEAD</span><span class="v" style="font-family:monospace;font-size:11px">${esc(cv.sha||'—')}</span></div><div class="stat"><span class="k">کد جدید لود شده</span><span class="v ${cv.live?'ok':'warn'}">${cv.live?'✓':'هنوز نه'}</span></div>`;
+    }
+    // backup
+    if(LIVE.germline_lag_h!=null){
+      $('stBackup').innerHTML=`<div class="stat"><span class="k">تأخیر germline</span><span class="v ${LIVE.germline_lag_h<2?'ok':'warn'}">${LIVE.germline_lag_h}h</span></div>`;
+    } else {$('stBackup').innerHTML='<div class="stat"><span class="k">سالم</span><span class="v ok">✓</span></div>';}
+    // approvals from pending questions
+    const needs=LIVE.needs||{};
+    const needCount=Object.values(needs).reduce((a,b)=>a+(b||0),0);
+    $('apprBadge').style.display=needCount>0?'inline':'none';
+    $('apprBadge').textContent=needCount;
+  }catch(e){$('hdrInfo').textContent='⚠️ خطا در اتصال';$('dot').style.background='var(--bad)';}
+}
+setInterval(poll,5000);poll();
+
+async function sendMsg(){
+  const inp=$('chatInput'),btn=$('chatBtn');const t=inp.value.trim();if(!t)return;
+  inp.value='';btn.disabled=true;
+  $('chatMsgs').insertAdjacentHTML('beforeend',`<div class="msg user">${esc(t)}</div>`);
+  $('chatMsgs').scrollTop=999999;
+  try{
+    const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:'daily',prompt:t})});
+    const d=await r.json();
+    const txt=d.ok?d.text:'⚠️ مغز پاسخ نداد';
+    const meta=d.ok?`<span class="meta">${d.model||''} · ${d.ms||''}ms · $${d.cost_usd||0}</span>`:'';
+    $('chatMsgs').insertAdjacentHTML('beforeend',`<div class="msg octo">${esc(txt)}${meta}</div>`);
+  }catch(e){
+    $('chatMsgs').insertAdjacentHTML('beforeend',`<div class="msg octo">⚠️ خطا در اتصال به مغز</div>`);
+  }
+  btn.disabled=false;$('chatMsgs').scrollTop=999999;inp.focus();
+}
+
+async function askBrain(prompt){
+  tab('chat');
+  $('chatInput').value=prompt;sendMsg();
+}
+
+async function doAction(kind){
+  if(!confirm(`اقدام: ${kind}؟`))return;
+  try{
+    const r=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind})});
+    const d=await r.json();
+    alert(d.ok?'✓ انجام شد':(d.note||'نتیجه نامشخص'));
+  }catch(e){alert('⚠️ خطا');}
+  poll();
+}
+</script></body></html>"""
+
 class _Handler(BaseHTTPRequestHandler):
     def _send(self, code, body: bytes, ctype="application/json; charset=utf-8"):
         self.send_response(code)
@@ -1011,6 +1256,8 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path in ("/ops", "/ops/"):
             self._send(200, OPS_PAGE.encode("utf-8"), "text/html; charset=utf-8")
             return
+        if self.path == "/panel":
+            self._send(200, PANEL_PAGE.encode("utf-8"), "text/html; charset=utf-8"); return
         if self.path == "/":
             self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
             return
