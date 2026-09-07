@@ -138,3 +138,18 @@ rule_for_next_agents: این فایل را قبل از هر پرسشِ جدید 
 + پکت `board138:~/octopus-mesh/state/owner-go/delivered/OWNER-GO-OWNER-ANSWERS-20260907-EVENING.json`)
 روی D-0/D-1/D-2 هم‌نتیجه بودند — رأی‌های مالک سازگار ضبط شد. D-2 دوباره‌رسید گرفت
 (GO-EXT1 + STANDING-GO-RATIFY، هر دو روی ۱۳۸؛ فایل spec سالم با هر دو ثبت).
+
+---
+
+# رأی‌های دور سوم — 2026-09-07T13:2xZ (جلسهٔ لپ‌تاپ UNLOCK-REGISTRY، سؤال ساختاریافته ۴تایی)
+
+> هم‌زمانی: این دور با ledger بالا سازگار است — D-2 را جلو می‌برد (۰۹-۲۱→۱۰-۰۷)، D-3 را حل می‌کند (NOT_PAID)، hold_external را باز می‌کند (جدید).
+
+| # | تصمیم | رأی مالک (verbatim) | اجرا | رسید |
+|---|---|---|---|---|
+| U-L23 | hold_external | «باز کن با رسید (پیشنهاد)» | ✅ spec locks + ofn ۳ فایل + ۲ تست ۳۳/۳۳ + scheduler تک‌منبعی ۱۱ سایت + ofn.service ری‌استارت PID 3905410 | `board138:~/octopus-mesh/receipts/GO-EXT2-HOLD-EXTERNAL-OPEN-20260907.json` · کامیت ofn 63938eb0 |
+| U-L24 | standing GO | «تا ۱۰-۰۷» | ✅ spec expires_at=2026-10-07 + ext:2 | همان رسید GO-EXT2 (بکاپ: GO-EXT2-BACKUP-20260907.json.spec) |
+| U-L25 | msg38 | «نمی‌خرم — NOT_PAID ثبت شود» | ✅ قبل از ددلاین (12:10Z ۰۹-۰۸)؛ جایگزین D-3=REPORTED_NOT_VERIFIED (هر دو حفظ، جدیدتر حاکم) | `board138:~/octopus-mesh/receipts/MSG38-RESOLVED-NOT-PAID-20260907.json` |
+| U-DOM | دامنه | «جدید ثبت کردم دوتا خریدم بگرد پیدا کن موازی باهات یه ایجنت نوشته» | ❌ پیدانشد: vault+138+Shopify-API (فقط ۴ دامنهٔ قدیم). **بلاکر: خود مالک نام دو دامنه را بگوید** | جستجوی کامل در `01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md` تاریخچه |
+
+یادداشت: دوباره‌پرسیدنی‌ها با این دور بسته شد: GO (تا ۱۰-۰۷) · msg38 (NOT_PAID) · hold_external (باز) · مغز (=API، از FX-1 دوردوم). نپرسید.

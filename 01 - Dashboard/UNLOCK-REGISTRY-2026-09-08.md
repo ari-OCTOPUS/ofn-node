@@ -74,14 +74,14 @@ updated: 2026-09-08
 | L20 | L3 | با ۳ تراکنش واقعی باز می‌شود — هدف سیزن، نه دستی | AUTO |
 | L21 | L4 | مستند نشده → مالک تعریف کند یا حذف | `PROPOSED` |
 | L22 | `MAY_AUTHORIZE=false` | مطلق درست — هرگز باز نشود | KEEP |
-| L23 | `hold_external=true` | **کلیدی‌ترین رأی**: باز کن = ارگانیسم می‌تواند بیرون بفرستد (با رسید) | `PROPOSED` ← مرحله ۱ |
+| L23 | `hold_external=true` | ✅ رأی مالک ۰۹-۰۷: «باز کن با رسید» → **اجرا شد**: spec locks + ofn سه فایل + ۲ تست (۳۳/۳۳ سبز، کامیت 63938eb0 روی ۱۳۸) + scheduler تک‌منبعی (۱۱ جای هاردکد → `_spec_hold_external()`) + ofn.service ری‌استارت PID 3905410 · رسید: `board138:~/octopus-mesh/receipts/GO-EXT2-HOLD-EXTERNAL-OPEN-20260907.json` | `EXECUTED` |
 
 ## E — زمانی
 
 | ID | قفل | پیشنهاد | وضعیت |
 |---|---|---|---|
-| L24 | standing GO (انقضا 09-14) | تمدید تا 09-21 یا 09-30 | `PROPOSED` ← مرحله ۱ |
-| L25 | msg38 (انقضا 09-08T12:10Z) | مالک جواب بدهد یا NOT_PAID ثبت شود (صداقت) | `PROPOSED` ← مرحله ۱ |
+| L24 | standing GO (انقضا 09-14) | ✅ رأی مالک ۰۹-۰۷: «تا ۱۰-۰۷» → **اجرا شد**: spec `expires_at=2026-10-07` + ext:2 + رسید GO-EXT2 (قبلاً ۰۹-۲۱ با GO-EXT1 از بالوت موازی) | `EXECUTED` |
+| L25 | msg38 (انقضا 09-08T12:10Z) | ✅ رأی مالک ۰۹-۰۷: «نمی‌خرم — NOT_PAID ثبت شود» → **اجرا شد** قبل از ددلاین: رسید `MSG38-RESOLVED-NOT-PAID-20260907.json`؛ جایگزین REPORTED_NOT_VERIFIED از بالوت شب (هر دو ثبت شدند، جدیدترین حاکم) | `EXECUTED` |
 | L26 | L1 scoring (09-08) | خودکار — دست نزن | AUTO |
 
 ## F — فایل‌های switch
@@ -159,4 +159,10 @@ updated: 2026-09-08
 
 ## تاریخچهٔ رأی‌ها (append-only)
 
+- 2026-09-07T13:2xZ (مرحله ۱، سؤال ساختاریافته، جلسهٔ لپ‌تاپ UNLOCK-REGISTRY):
+  - **L23 hold_external**: مالک → «باز کن با رسید (پیشنهاد)» → EXECUTED (رسید GO-EXT2-HOLD-EXTERNAL-OPEN-20260907.json روی ۱۳۸)
+  - **L24 standing GO**: مالک → «تا ۱۰-۰۷» → EXECUTED (spec ext:2، قبلی ۰۹-۲۱ از GO-EXT1 بالوت موازی)
+  - **L25 msg38**: مالک → «نمی‌خرم — NOT_PAID ثبت شود» → EXECUTED (MSG38-RESOLVED-NOT-PAID-20260907.json؛ supersedeٔ REPORTED_NOT_VERIFIED شب، هر دو حفظ شدند)
+  - **دامنهٔ زیمان**: مالک → «جدید ثبت کردم دوتا خریدم بگرد پیدا کن موازی باهات یه ایجنت نوشته» → **جستجو انجام شد، پیدانشد**: vault (کامیت‌ها + diff‌های commitنشده + tg-inbox/outbox + doctor state) · برد ۱۳۸ (delivered packets + platform_matrix + data) · Shopify API (۴ دامنه: فقط قدیمی‌ها) → **منتظر نام دو دامنه از مالک** (status: unverified)
+  - کشف همزمان: بالوت موازی شب قبل (a379298 + OWNER-APPROVALS-2026-09-07.md) D-1 مغز=API را بسته و FX-1 پین را اجرا کرده — فراخوانی paid موفق deepseek-v4-flash با رسید ($0.0000183) ⇒ فاز-۲ «مغز» عملاً حل است؛ دوباره نپرسید.
 - 2026-09-08: رجیستری ساخته شد (کامیت این فایل). هیچ رأیی هنوز ثبت نشده.
