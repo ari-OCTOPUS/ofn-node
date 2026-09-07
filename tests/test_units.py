@@ -54,6 +54,90 @@ class TestEveryReferencedUnitExists(unittest.TestCase):
                               f"install.sh never installs {name}")
 
 
+DIGEST_SYNC_UNITS = (
+    "ofn-digest.service",
+    "ofn-digest.timer",
+    "ofn-sync.service",
+    "ofn-sync.timer",
+)
+
+
+def installer_script() -> str:
+    with open(INSTALLER, encoding="utf-8") as fh:
+        return fh.read()
+
+
+def installer_executed_body(script: str) -> str:
+    """Owner-facing NEXT heredoc is documentation, not a start."""
+    marker = "cat <<'NEXT'"
+    idx = script.find(marker)
+    return script if idx < 0 else script[:idx]
+
+
+class TestDigestSyncCopiedNotEnabled(unittest.TestCase):
+    """#221 CI: unit files existed; install.sh never copied them.
+
+    Copy is not enable. Enable is not send. Ready ≠ authorized.
+    """
+
+    def test_installer_copies_digest_sync_with_install(self):
+        script = installer_script()
+        for name in DIGEST_SYNC_UNITS:
+            with self.subTest(unit=name):
+                self.assertIn(
+                    f"install -m 0644 systemd/{name}",
+                    script,
+                    f"install.sh never copies {name}",
+                )
+
+    def test_executed_body_never_enables_or_starts_any_unit(self):
+        """Comments may mention enable; executable lines must not."""
+        body = installer_executed_body(installer_script())
+        exec_lines = [
+            line for line in body.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        joined = "\n".join(exec_lines)
+        for verb in ("systemctl enable", "systemctl start"):
+            with self.subTest(verb=verb):
+                self.assertNotIn(verb, joined)
+
+    def test_owner_next_block_does_not_enable_digest_sync(self):
+        script = installer_script()
+        marker = "cat <<'NEXT'"
+        idx = script.find(marker)
+        self.assertGreaterEqual(idx, 0, "NEXT heredoc missing")
+        next_block = script[idx:]
+        enable_lines = [
+            line for line in next_block.splitlines()
+            if "systemctl" in line and ("enable" in line or "start" in line)
+        ]
+        self.assertTrue(enable_lines, "expected an owner enable hint")
+        for name in DIGEST_SYNC_UNITS:
+            stem = name.split(".", 1)[0]
+            for line in enable_lines:
+                with self.subTest(unit=name, line=line):
+                    self.assertNotIn(name, line)
+                    self.assertNotIn(stem, line)
+
+    def test_outbound_flags_stay_zero(self):
+        script = installer_script()
+        for flag in ("OFN_WIRE_OUTBOUND=0", "OFN_WIRE_EMAIL=0",
+                     "OFN_WIRE_PUBLISH=0"):
+            with self.subTest(flag=flag):
+                self.assertIn(flag, script)
+        for bad in ("OFN_WIRE_OUTBOUND=1", "OFN_WIRE_EMAIL=1",
+                    "OFN_WIRE_PUBLISH=1", "systemctl enable --now ofn-digest",
+                    "systemctl enable --now ofn-sync"):
+            with self.subTest(bad=bad):
+                self.assertNotIn(bad, script)
+
+    def test_copy_is_not_a_start_in_comments(self):
+        script = installer_script()
+        self.assertIn("Copied but NOT enabled", script)
+        self.assertIn("Copy is not a start", script)
+
+
 class TestTheNodeLogsWhileItRuns(unittest.TestCase):
     def test_stdout_is_unbuffered(self):
         """Under systemd stdout is a pipe, so Python buffers it and the boot
