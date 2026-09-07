@@ -274,8 +274,7 @@ def _miniapp_static_response(path: str) -> tuple:
     """
     p = str(path or "").split("?", 1)[0]
     if p in ("/", "/miniapp", "/miniapp/"):
-        rel = "index.html"
-        ctype = "text/html; charset=utf-8"
+        return 200, MINIAPP_PAGE.encode("utf-8"), "text/html; charset=utf-8"
     elif p in ("/miniapp/app.js", "/app.js"):
         rel = "app.js"
         ctype = "application/javascript; charset=utf-8"
@@ -1220,6 +1219,233 @@ def _cache_control_for(path: str) -> str:
         return "public, max-age=31536000, immutable"
     return "no-store"
 
+
+MINIAPP_PAGE = r"""<!doctype html>
+<html dir="rtl" lang="fa"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>🐙 اختاپوس</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:var(--tg-theme-bg-color,#0d1a26);--card:var(--tg-theme-secondary-bg-color,#162a3a);--ink:var(--tg-theme-text-color,#d4ecf7);--muted:var(--tg-theme-hint-color,#7fa8bc);--accent:var(--tg-theme-link-color,#38bdf8);--ok:#5eead4;--warn:#fbbf24;--bad:#f87171;--btn:var(--tg-theme-button-color,#1e4a5f);--line:rgba(255,255,255,.08)}
+body{font:15px/1.65 Tahoma,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:80px;overscroll-behavior:none}
+.hdr{padding:14px 16px 8px;display:flex;align-items:center;gap:10px}
+.hdr h1{font-size:20px;flex:1}
+.hdr .dot{width:10px;height:10px;border-radius:50%;background:var(--ok);animation:pulse 2s}
+@keyframes pulse{50%{opacity:.3}}
+.tabs{display:flex;overflow-x:auto;gap:0;padding:0 8px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{background:none;border:none;border-bottom:2.5px solid transparent;color:var(--muted);font:inherit;font-size:13.5px;padding:10px 14px;white-space:nowrap;transition:.2s}
+.tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tabs .badge{background:var(--bad);color:#fff;border-radius:9px;font-size:10px;padding:1px 6px;margin-inline-start:4px}
+.sec{display:none;padding:12px 14px}
+.sec.active{display:block}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.card{background:var(--card);border-radius:14px;padding:14px}
+.card.full{grid-column:1/-1}
+.card h3{font-size:12px;color:var(--muted);margin-bottom:8px}
+.stat{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.stat .v{font-weight:bold}
+.stat .v.ok{color:var(--ok)}.stat .v.warn{color:var(--warn)}.stat .v.bad{color:var(--bad)}
+.bar{height:5px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}
+.bar>div{height:100%;border-radius:3px}
+/* chat */
+.chat{display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:350px}
+.msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.m{max-width:82%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.55;word-break:break-word}
+.m.me{align-self:flex-start;background:var(--btn);color:#fff;border-bottom-left-radius:4px}
+.m.bot{align-self:flex-end;background:var(--card);border:1px solid var(--line);border-bottom-right-radius:4px}
+.m .meta{font-size:10px;color:var(--muted);margin-top:3px}
+.inp{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+.inp input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:inherit;padding:10px 14px;outline:none;font-size:15px}
+.inp input:focus{border-color:var(--accent)}
+.inp button{background:var(--btn);border:none;border-radius:12px;color:#fff;font-size:18px;padding:8px 16px;cursor:pointer;min-width:48px}
+.inp button:disabled{opacity:.5}
+/* approvals */
+.appr{background:var(--card);border-radius:14px;padding:12px;margin-bottom:8px}
+.appr .t{font-weight:bold;font-size:14px}
+.appr .d{font-size:12px;color:var(--muted);margin:4px 0 8px}
+.appr .btns{display:flex;gap:6px}
+.btn{border:none;border-radius:10px;font:inherit;font-size:13px;padding:8px 16px;cursor:pointer;transition:.15s}
+.btn.ok{background:rgba(94,234,212,.15);color:var(--ok)}
+.btn.bad{background:rgba(248,113,113,.15);color:var(--bad)}
+.btn.neutral{background:var(--card);color:var(--muted);border:1px solid var(--line)}
+.btn:active{transform:scale(.96)}
+/* log */
+.log-e{display:flex;gap:6px;padding:5px 0;border-bottom:1px solid var(--line);font-size:12px}
+.log-e .tm{color:var(--muted);font-size:10px;min-width:45px}
+.log-e .ev{min-width:65px;font-weight:bold}
+.log-e .ev.ok{color:var(--ok)}.log-e .ev.bad{color:var(--bad)}.log-e .ev.blk{color:var(--warn)}
+.log-e .tx{flex:1}
+.empty{color:var(--muted);text-align:center;padding:30px;font-size:13px}
+.loading{color:var(--muted);text-align:center;padding:15px;font-size:12px}
+/* actions */
+.act-g{margin-bottom:12px}
+.act-g h3{font-size:12px;color:var(--muted);margin-bottom:6px}
+.act-btns{display:flex;gap:6px;flex-wrap:wrap}
+.fab{position:fixed;bottom:16px;right:50%;transform:translateX(50%);background:var(--accent);color:var(--bg);border:none;border-radius:24px;font:inherit;font-size:15px;font-weight:bold;padding:12px 28px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:99}
+footer{padding:8px;text-align:center;font-size:10px;color:var(--muted)}
+</style></head><body>
+
+<div class="hdr">
+<div class="dot" id="dot"></div>
+<h1>🐙 اختاپوس</h1>
+<span style="font-size:11px;color:var(--muted)" id="hInfo">…</span>
+</div>
+
+<div class="tabs" id="tabs">
+<button class="active" data-s="status">📊</button>
+<button data-s="chat">💬</button>
+<button data-s="appr">✅<span class="badge" id="aB" style="display:none">0</span></button>
+<button data-s="acts">⚡</button>
+<button data-s="log">📜</button>
+</div>
+
+<div class="sec active" id="s-status">
+<div class="g">
+<div class="card"><h3>💓 حیات</h3><div id="cLife" class="loading">…</div></div>
+<div class="card"><h3>💰 بودجه</h3><div id="cMoney" class="loading">…</div></div>
+<div class="card"><h3>🧠 مغز</h3><div id="cBrain" class="loading">…</div></div>
+<div class="card"><h3>📌 نیازها</h3><div id="cNeeds" class="loading">…</div></div>
+<div class="card full"><h3>⚠️ تعارض‌ها</h3><div id="cConf" class="loading">…</div></div>
+</div>
+</div>
+
+<div class="sec" id="s-chat">
+<div class="chat">
+<div class="msgs" id="msgs">
+<div class="m bot">سلام! 🐙<br>من اختاپوس هستم — هر چی می‌خوای بپرس.<br><span class="meta">مغز محلی · $0</span></div>
+</div>
+<div class="inp">
+<input id="ci" placeholder="پیام…" onkeydown="if(event.key==='Enter')send()">
+<button id="cb" onclick="send()">➤</button>
+</div>
+</div>
+</div>
+
+<div class="sec" id="s-appr">
+<div id="apprList"><div class="loading">…</div></div>
+</div>
+
+<div class="sec" id="s-acts">
+<div class="act-g"><h3>🔄 بازیابی</h3><div class="act-btns">
+<button class="btn neutral" onclick="act('restart-organism')">🔄 ارگانیسم</button>
+<button class="btn neutral" onclick="act('restart-cortex')">🧠 کورتکس</button>
+<button class="btn neutral" onclick="act('restart-center')">💬 سنتر</button>
+</div></div>
+<div class="act-g"><h3>📊 گزارش سریع</h3><div class="act-btns">
+<button class="btn neutral" onclick="chatAsk('گزارش کامل وضعیت بدن')">📊 کامل</button>
+<button class="btn neutral" onclick="chatAsk('تعارض‌های باز')">⚠️ تعارض‌ها</button>
+<button class="btn neutral" onclick="chatAsk('پیشنهادهای امروز')">💡 پیشنهادها</button>
+</div></div>
+<div class="act-g"><h3>💾 بکاپ</h3><div id="cBk" class="loading">…</div></div>
+</div>
+
+<div class="sec" id="s-log">
+<div class="card"><div id="logL" class="loading">…</div></div>
+</div>
+
+<footer>اختاپوس · از داخل تلگرام</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const e=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const NM={'task.started':'▶','task.completed':'✓','task.failed':'✗','task.blocked':'⏸','approval.required':'🙋','system.heartbeat':'💓'};
+
+// Telegram WebApp
+const TG = window.Telegram && window.Telegram.WebApp;
+if (TG) { TG.ready(); TG.expand(); }
+
+// tabs
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  $('s-'+b.dataset.s).classList.add('active');
+  if (TG) TG.HapticFeedback.impactOccurred('light');
+});
+
+async function api(path, opts) {
+  const url = path.startsWith('http') ? path : path;
+  const r = await fetch(url, opts);
+  return r.json();
+}
+
+let D=null;
+async function poll() {
+  try {
+    // try miniapp API first, fallback to direct
+    let d;
+    try { d = await api('/api/state'); } catch { d = await api('http://127.0.0.1:8773/api/live'); }
+    D=d;
+    const b=d.body||d, h=d.heart||{};
+    $('hInfo').textContent=`ضربان ${b.beat||'—'}`;
+    // vitals
+    $('cLife').innerHTML=[
+      ['ضربان',b.beat||'—','ok'],['توقف',b.halted?'⚠️':'نرم','ok'],
+      ['تعارض',(b.conflicts||[]).length,''],['هشدار',d.alerts_today||0,'']
+    ].map(([k,v,c])=>`<div class="stat"><span>${k}</span><span class="v ${c}">${e(v)}</span></div>`).join('');
+    const m=d.money||{}, pct=m.month_usd!=null?Math.round(m.month_usd/45*100):0;
+    $('cMoney').innerHTML=`<div class="stat"><span>ماه</span><span class="v ${pct>80?'bad':pct>50?'warn':'ok'}">${m.month_usd||0}/45</span></div><div class="bar"><div style="width:${pct}%;background:${pct>80?'var(--bad)':pct>50?'var(--warn)':'var(--ok)'}"></div></div><div class="stat"><span>درآمد</span><span class="v ok">$${m.usd_revenue||0}</span></div>`;
+    $('cBrain').innerHTML=`<div class="stat"><span>مدل</span><span class="v">qwen local</span></div><div class="stat"><span>هزینه</span><span class="v ok">$${(d.cortex||{}).cost_usd||0}</span></div>`;
+    const n=d.needs||{};
+    const nc=Object.values(n).reduce((a,b)=>a+(b||0),0);
+    $('cNeeds').innerHTML=nc>0?`<div class="stat"><span>باز</span><span class="v warn">${nc}</span></div>`:`<div class="stat"><span>وضعیت</span><span class="v ok">نرم</span></div>`;
+    $('aB').style.display=nc>0?'inline':'none'; $('aB').textContent=nc;
+    const cf=b.conflicts||[];
+    $('cConf').innerHTML=cf.length?cf.slice(0,3).map(c=>`<div class="stat"><span class="v warn" style="font-size:11px">${e(c)}</span></div>`).join(''):'<div class="stat"><span class="v ok">✓ بدون تعارض</span></div>';
+    if(d.log){
+      $('logL').innerHTML=d.log.slice(0,25).map(x=>{
+        const c=x.status==='failed'?'bad':x.event_name==='task.blocked'?'blk':'ok';
+        return `<div class="log-e"><span class="tm">${e((x.ts||'').slice(11,19))}</span><span class="ev ${c}">${NM[x.event_name]||'—'}</span><span class="tx">${e(x.summary||'')}</span></div>`;}).join('');
+    }
+    if(d.germline_lag_h!=null){
+      $('cBk').innerHTML=`<div class="stat"><span>تأخیر</span><span class="v ${d.germline_lag_h<2?'ok':'warn'}">${d.germline_lag_h}h</span></div>`;
+    } else { $('cBk').innerHTML='<div class="stat"><span class="v ok">✓ سالم</span></div>'; }
+    // approvals
+    if(nc>0){
+      $('apprList').innerHTML=`<div class="appr"><div class="t">📌 ${nc} نیاز باز</div><div class="d">در چت تلگرام پاسخ بده — اختاپوس می‌بیند.</div><div class="btns"><button class="btn neutral" onclick="chatAsk('نیازهای باز را فهرست کن')">مشاهده</button></div></div>`;
+    } else {
+      $('apprList').innerHTML='<div class="empty">هیچ تأییدِ بازِ جدید نیست ✓</div>';
+    }
+  }catch(err){ $('hInfo').textContent='⚠️ اتصال'; }
+}
+setInterval(poll,5000);poll();
+
+// chat
+async function send(){
+  const i=$('ci'),b=$('cb');const t=i.value.trim();if(!t)return;
+  i.value='';b.disabled=true;
+  $('msgs').insertAdjacentHTML('beforeend',`<div class="m me">${e(t)}</div>`);
+  $('msgs').scrollTop=99999;
+  if(TG)TG.HapticFeedback.impactOccurred('medium');
+  try{
+    let d;
+    try{ d=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:'daily',prompt:t})});}
+    catch{ d=await api('http://127.0.0.1:8773/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:'daily',prompt:t})});}
+    const txt=d.ok?d.text:'⚠️ مغز پاسخ نداد';
+    $('msgs').insertAdjacentHTML('beforeend',`<div class="m bot">${e(txt)}<div class="meta">${d.model||''} ${d.ms||0}ms $${d.cost_usd||0}</div></div>`);
+  }catch(err){ $('msgs').insertAdjacentHTML('beforeend',`<div class="m bot">⚠️ خطا</div>`); }
+  b.disabled=false;$('msgs').scrollTop=99999;i.focus();
+}
+
+function chatAsk(t){
+  document.querySelector('[data-s="chat"]').click();
+  $('ci').value=t;send();
+}
+
+async function act(k){
+  const msg = TG ? TG.showConfirm : confirm;
+  const doIt = () => {
+    api('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:k})})
+    .then(d=>{ if(TG)TG.showAlert(d.ok?'✓ انجام شد':'نامشخص');else alert(d.ok?'OK':'?');poll();})
+    .catch(()=>{if(TG)TG.showAlert('⚠️ خطا');else alert('خطا');});
+  };
+  if(TG){TG.showConfirm(`اقدام: ${k}?`,doIt);}else if(confirm(k+'?'))doIt();
+}
+</script></body></html>"""
 
 class _Handler(BaseHTTPRequestHandler):
     def _run(self, method: str):
