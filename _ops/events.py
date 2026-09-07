@@ -32,6 +32,8 @@ MAX_KEEP = 500
 
 EVENT_NAMES = frozenset({
     "task.started", "task.completed", "task.failed", "task.blocked",
+    # U2 (2026-09-07): پاسخِ احرازشدهٔ مالک ⇒ ادامهٔ همان task (additive)
+    "task.resume",
     "handoff.created", "system.heartbeat", "approval.required",
     # پیشنهاد #۱۳ — رکوردِ Incident (additive؛ خواننده‌های فعلی نمی‌شکنند)
     "incident.opened", "incident.contained",

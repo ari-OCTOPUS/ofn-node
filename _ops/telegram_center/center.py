@@ -3275,11 +3275,20 @@ class Center:
                 _rt = str((msg.get("reply_to_message") or {}).get("text") or "")
                 if "سؤالِ اختاپوس" in _rt:
                     _qm = re.search(r"Q-\d+", _rt)
-                    if _qm:
+                    # U2 (2026-09-07): احرازِ پاسخ‌دهنده — فقط DM ِ مالک
+                    # (fail-closed)؛ ریپلایِ ثالث جواب پروژه را تغییر نمی‌دهد.
+                    _own_ans = getattr(self._client, "owner_chat_id", None)
+                    if _qm and _qb.owner_reply_ok(chat_id, _own_ans):
                         _rec = _qb.record_answer(_qm.group(0), text)
+                        # same-task resume: دقیقاً یک‌بار، با رویدادِ پایدار
+                        _rz = (_qb.take_resume(_qm.group(0))
+                               if _rec is not None else None)
                         _ak = (f"✍️ جوابت روی {_qm.group(0)} ثبت شد — ممنون."
                                if _rec is not None else
                                "این سؤال را پیدا نکردم — شاید مالِ هفتهٔ کهنه است.")
+                        if _rz:
+                            _ak += (f" و کارِ {_rz.get('blocked_task_id', '?')}"
+                                    " دوباره در جریان افتاد.")
                         _mid = None
                         try:
                             _mid = self._client.send(
@@ -3287,9 +3296,15 @@ class Center:
                                 topic_id=self._reply_thread(msg))
                         except Exception:  # noqa: BLE001
                             pass
+                        if _rz:
+                            try:          # بیدارباشِ طبیعی: همان موتورِ هر ضربان
+                                self._drive_leg_engine()
+                            except Exception:  # noqa: BLE001
+                                pass
                         return {"kind": "qbudget-answer",
                                 "id": _qm.group(0),
                                 "recorded": _rec is not None,
+                                "resumed": _rz is not None,
                                 "sent": _mid is not None}
         except Exception:  # noqa: BLE001 — جوابِ سؤال هرگز پیام را نمی‌کشد
             pass
