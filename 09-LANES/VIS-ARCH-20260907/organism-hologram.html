@@ -77,6 +77,10 @@
     text-shadow:0 0 12px rgba(167,139,250,.5)}
   #thought .tag{font-style:normal;font-size:9px;color:#7c6bb0;display:block}
 
+  #events{top:150px;right:50%;transform:translateX(50%);max-width:460px;text-align:center;
+    font-size:10.5px;color:#93c5fd;transition:opacity .5s;opacity:.95}
+  #events .tag{font-size:9px;color:#4f6a94;display:block}
+
   #needs{bottom:118px;left:16px;max-width:260px;font-size:11px;color:#fde68a;
     background:rgba(20,14,4,.6);border:1px solid rgba(252,211,77,.25);border-radius:10px;
     padding:6px 10px;transition:opacity .5s;line-height:1.7}
@@ -169,9 +173,10 @@
 <div class="hud" id="speed">
   <div class="schip" data-sp="1">×1</div>
   <div class="schip" data-sp="2">×2</div>
-  <div class="schip on" data-sp="4">×4</div>
-  <div class="schip" data-sp="8">×8</div>
+  <div class="schip" data-sp="4">×4</div>
+  <div class="schip on" data-sp="8">×8</div>
   <div class="schip" id="pause">⏸</div>
+  <div class="schip on" id="orbitbtn" title="چرخش آرام خودکار (O)">⟳</div>
   <div class="schip" id="idxbtn" title="فهرست اندام‌ها (I)">☰</div>
 </div>
 
@@ -184,6 +189,7 @@
 
 <div class="hud" id="stage"><div class="s1"></div><div class="s2"></div></div>
 <div class="hud" id="thought"></div>
+<div class="hud" id="events"></div>
 <div class="hud" id="needs"></div>
 <div class="hud" id="blocked"></div>
 <div class="hud" id="toast"></div>
@@ -192,7 +198,14 @@
 
 <div id="tip"></div>
 <div id="idx"></div>
+<div id="errbar" style="position:fixed;top:42%;left:50%;transform:translate(-50%,-50%);z-index:99;background:#7f1d1d;color:#fecaca;padding:12px 18px;border-radius:10px;display:none;font-family:monospace;direction:ltr;max-width:90vw;font-size:12px"></div>
 <div id="boot"><div class="oct">🐙</div><div id="bootmsg">در حال بارگیری موتور سه‌بعدی…</div></div>
+<script>
+window.addEventListener('error',function(e){
+  var b=document.getElementById('errbar');
+  if(b){b.style.display='block';b.textContent='ERROR: '+(e.message||'?')+' @line '+(e.lineno||'?');}
+});
+</script>
 
 <script>
 /* eslint-disable */
@@ -292,7 +305,7 @@ function resize(){
 }
 window.addEventListener('resize',resize);resize();
 
-var simTime=0,timeScale=4,paused=false,MODE='body',PAL='calm';
+var simTime=0,timeScale=8,paused=false,MODE='body',PAL='calm';
 var clock=new THREE.Clock();
 
 scene.fog=new THREE.FogExp2(PALS.calm.fog,0.008);
@@ -338,6 +351,46 @@ function tagSprite(txt){
   g.fillText('#'+txt,128,34);
   var m=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false});
   var s=new THREE.Sprite(m);s.scale.set(2.6,0.65,1);return s;
+}
+var RINGTEX;(function(){
+  var c=document.createElement('canvas');c.width=c.height=128;
+  var g=c.getContext('2d');
+  g.strokeStyle='rgba(255,255,255,1)';g.lineWidth=7;
+  g.beginPath();g.arc(64,64,50,0,Math.PI*2);g.stroke();
+  g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=2;
+  g.beginPath();g.arc(64,64,58,0,Math.PI*2);g.stroke();
+  RINGTEX=new THREE.CanvasTexture(c);
+})();
+/* پینگ شوک‌ویو — حلقهٔ در حال انبساط */
+var PINGS=[];
+for(var pg=0;pg<14;pg++){
+  var pm=new THREE.SpriteMaterial({map:RINGTEX,color:0xffffff,transparent:true,
+    opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+  var ps=new THREE.Sprite(pm);ps.visible=false;scene.add(ps);
+  PINGS.push({s:ps,life:0,max:3,scale0:0.5,scale1:3});
+}
+function ping(pos,color,scaleMax){
+  for(var i=0;i<PINGS.length;i++){
+    var P2=PINGS[i];
+    if(P2.life<=0){
+      P2.life=1;P2.s.visible=true;P2.s.position.copy(pos);
+      P2.s.material.color.setHex(color==null?0xffffff:color);
+      P2.scale1=scaleMax||3;
+      return;
+    }
+  }
+}
+function updatePings(dt){
+  for(var i=0;i<PINGS.length;i++){
+    var P2=PINGS[i];
+    if(P2.life>0){
+      P2.life-=dt*0.9;
+      var k=1-P2.life;
+      P2.s.scale.setScalar(P2.scale0+(P2.scale1-P2.scale0)*k);
+      P2.s.material.opacity=Math.max(0,P2.life)*0.85;
+      if(P2.life<=0)P2.s.visible=false;
+    }
+  }
 }
 
 /* ---------- organs registry ---------- */
@@ -421,6 +474,18 @@ var plankton;(function(){
     transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false}));
   scene.add(plankton);
 })();
+
+/* سحابی پس‌زمینهٔ متحرک + درخشش زمین */
+var NEB=[];
+[[0,-26,-55],[-26,18,-50],[24,26,-52],[8,36,-62]].forEach(function(p,i){
+  var s=glowSprite(PALS.calm.glow,44+i*12,0.05);
+  s.position.set(p[0],p[1],p[2]);scene.add(s);NEB.push(s);
+});
+var shimmer=new THREE.Mesh(new THREE.PlaneGeometry(64,64),
+  new THREE.MeshBasicMaterial({map:GLOW,color:PALS.calm.glow,transparent:true,opacity:0.05,
+    blending:THREE.AdditiveBlending,depthWrite:false}));
+shimmer.rotation.x=-Math.PI/2;shimmer.position.y=0.06;scene.add(shimmer);
+var BOBBERS=[];
 
 /* ================= 5. بدن اختاپوس ================= */
 var body=new THREE.Group();body.position.set(0,6,0);scene.add(body);
@@ -516,6 +581,10 @@ for(var ri=0;ri<5;ri++){
   organ(torso,new THREE.Vector3(0,0.85-ri*0.42,rr*0.75),0.62,
     {t:RING_NAMES[ri],s:'MycoCardium ring '+ri,d:'پنج پوستهٔ هم‌مرکز؛ خروجی فقط از یک EffectorGate تک‌دهانه.',st:'GATE'});
 }
+var ringFlash=[0,0,0,0,0],ringDelay=[0,0,0,0,0];
+function rippleRings(){
+  for(var i=0;i<5;i++)ringDelay[i]=0.04+i*0.09;
+}
 
 /* 5.3 قلب‌ها */
 var hearts=[];
@@ -573,6 +642,7 @@ var locksGroup=new THREE.Group();torso.add(locksGroup);
 /* ================= 6. جزیره‌های گره ================= */
 function plinth(x,z,r,h,color,glowColor){
   var g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  BOBBERS.push({g:g,amp:0.14+Math.random()*0.1,spd:0.25+Math.random()*0.3,ph:Math.random()*6});
   var base=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.12,h,26),
     mat({color:0x11203a,shininess:70,specular:0x224466}));
   base.position.y=h/2;g.add(base);
@@ -752,6 +822,7 @@ ARM_DEFS.forEach(function(A){
     su.position.copy(curve.getPoint(t));su.position.y+=0.16;body.add(su);suckers.push(su);
   }
   var isl=new THREE.Group();isl.position.copy(end);scene.add(isl);
+  BOBBERS.push({g:isl,amp:0.1+Math.random()*0.08,spd:0.3+Math.random()*0.3,ph:Math.random()*6});
   var ped=new THREE.Mesh(new THREE.CylinderGeometry(0.9,1.05,0.5,16),
     mat({color:0x101d33,emissive:A.wire?0x050a14:(A.c),emissiveIntensity:A.wire?0.45:0.35+A.act*0.45}));
   ped.position.y=0.25;isl.add(ped);
@@ -762,8 +833,42 @@ ARM_DEFS.forEach(function(A){
   if(A.act>0.3)isl.add(glowSprite(A.c,2.6,0.2+A.act*0.3));
   label(A.fa,'arm · '+A.en,'island',isl,2.6);
   organ(isl,new THREE.Vector3(0,1.2,0),1.6,{t:'بازوی '+A.fa,s:A.en,d:A.d,st:A.st,x:A.x});
-  arms.push({def:A,tube:tube,suckers:suckers,island:isl,curve:curve,ico:ic,baseEm:0.5+A.act*0.7});
+  arms.push({def:A,tube:tube,suckers:suckers,island:isl,curve:curve,ico:ic,baseEm:0.5+A.act*0.7,pedM:ped.material});
 });
+
+/* جرقه‌های پیشنهاد — از مغز به پای هر بازو (مکانیک واقعی: draft per leg) */
+var ASPARKS=[];
+for(var asp=0;asp<10;asp++){
+  var aspr=glowSprite(0xfde68a,0.8,0.95);aspr.visible=false;body.add(aspr);
+  ASPARKS.push({s:aspr,arm:-1,t:0});
+}
+function launchArmSparks(){
+  var si2=0;
+  for(var i=0;i<arms.length&&si2<ASPARKS.length;i++){
+    if(arms[i].def.act>0.25){
+      ASPARKS[si2].arm=i;ASPARKS[si2].t=0;ASPARKS[si2].s.visible=true;si2++;
+    }
+  }
+}
+function updateArmSparks(dt){
+  for(var i=0;i<ASPARKS.length;i++){
+    var K=ASPARKS[i];
+    if(K.arm>=0){
+      K.t+=dt*0.55;
+      if(K.t>=1){
+        var wp=new THREE.Vector3();
+        arms[K.arm].island.getWorldPosition(wp);
+        ping(wp,arms[K.arm].def.c||COL.gold,2.6);
+        arms[K.arm].flash=1;
+        K.arm=-1;K.s.visible=false;
+      } else {
+        var pos2=arms[K.arm].curve.getPoint(K.t);pos2.y+=0.2;
+        K.s.position.copy(pos2);
+        K.s.material.opacity=0.95*Math.sin(K.t*Math.PI*0.5+0.3);
+      }
+    }
+  }
+}
 
 /* ================= 8. ستون فقرات بیدارباش ================= */
 var spinePts=[
@@ -836,9 +941,8 @@ function makePacket(mainP){
 }
 var packets=[makePacket(true),makePacket(false),makePacket(false)];
 var CYCLE=120;
-var cycleIndex=0,lastStageIdx=-1,gateFlash=0,heartDim=1,mintCount=DATA.standingGo;
+var cycleIndex=0,lastStageIdx=-1,gateFlash=0,heartDim=1,haltPulse=0,mintCount=DATA.standingGo,crystalFlash=0;
 
-/* ذرات خون — جریان دائمی لجر روی رگ */
 var bloodDots=[];
 for(var bd=0;bd<40;bd++){
   var bdot=glowSprite(0x0e7490,0.5,0.35);
@@ -965,6 +1069,26 @@ function renderBlocked(){
 }
 renderBlocked();
 
+/* نوار رویدادهای واقعی (از log اجرایی ارگانیسم @22:19) */
+var eventsEl=document.getElementById('events');
+var EVTS=[
+  '⚙ pump/health ✓ بررسی سلامت — sigma=0.0',
+  '🔁 part-loops ✓ ۳ پیشنهاد، ۱ بخش نیازِ توجه',
+  '💼 business-brain ✓ ۲ کسب‌وکار بررسی شد — ۱ پیشنهاد',
+  '📚 memory-consolidate ✓ ۲ رویداد → ۲ آرشیو',
+  '✈️ tg-center ✓ verdict ok ثبت شد',
+  '🩹 self-heal ✓ عضو lead-naghshi دوباره راه افتاد',
+  '🔬 pump/web_research ✓ ۲ یافتهٔ رایگان ($0)',
+  '🧭 pump/gap_report ✓ گپ‌های B01·C02·D03',
+  '⇄ provider_router ⇄ fallback local→local',
+  '♪ life_currency · plan AMBER · ۱۱ عضو'
+];
+function renderEvents(){
+  var e=EVTS[Math.floor(Math.random()*EVTS.length)];
+  eventsEl.innerHTML='<span class="tag">رویدادهای واقعیِ امروزِ ارگانیسم</span>'+e;
+}
+renderEvents();setInterval(renderEvents,7000);
+
 /* شمارنده‌های شبیه‌سازی (فقط حالت عکس‌فوری) */
 var beatAcc=0;
 renderStats();
@@ -1022,6 +1146,7 @@ document.getElementById('idxbtn').addEventListener('click',function(){
 /* ================= 11. دوربین و کنترل ================= */
 var cam={target:new THREE.Vector3(0,6.5,0),radius:27,theta:0,phi:1.15};
 var flyA=null;
+var lastInteract=performance.now(),orbitOn=true;
 function camState(){return {tx:cam.target.x,ty:cam.target.y,tz:cam.target.z,r:cam.radius,th:cam.theta,ph:cam.phi};}
 function flyTo(st,dur){flyA={t0:performance.now(),dur:dur||1400,from:camState(),to:st};}
 function applyCam(){
@@ -1052,6 +1177,7 @@ document.querySelectorAll('.mchip').forEach(function(ch){
 
 var dragging=false,px=0,py=0,pinchD=0,pointers={};
 canvas.addEventListener('pointerdown',function(e){
+  lastInteract=performance.now();
   pointers[e.pointerId]={x:e.clientX,y:e.clientY};
   dragging=true;px=e.clientX;py=e.clientY;flyA=null;
   canvas.classList.add('drag');canvas.setPointerCapture(e.pointerId);
@@ -1078,7 +1204,7 @@ function endP(e){delete pointers[e.pointerId];var ks=Object.keys(pointers);
 canvas.addEventListener('pointerup',endP);
 canvas.addEventListener('pointercancel',endP);
 canvas.addEventListener('wheel',function(e){
-  e.preventDefault();
+  e.preventDefault();lastInteract=performance.now();
   cam.radius=THREE.MathUtils.clamp(cam.radius*(1+Math.sign(e.deltaY)*0.09),4,90);
 },{passive:false});
 
@@ -1120,6 +1246,10 @@ document.querySelectorAll('.schip[data-sp]').forEach(function(ch){
   ch.addEventListener('click',function(){setSpeed(parseInt(ch.dataset.sp,10));});
 });
 document.getElementById('pause').addEventListener('click',togglePause);
+document.getElementById('orbitbtn').addEventListener('click',function(){
+  orbitOn=!orbitOn;this.classList.toggle('on',orbitOn);
+  toast(orbitOn?'چرخش خودکار دوربین روشن':'چرخش خودکار خاموش (کنترل دستی)',true);
+});
 function setSpeed(v){
   timeScale=v;renderStats();
   document.querySelectorAll('.schip[data-sp]').forEach(function(c){
@@ -1129,13 +1259,15 @@ function togglePause(){paused=!paused;renderStats();
   document.getElementById('pause').textContent=paused?'▶':'⏸';
   toast(paused?'زمان ایستاد':'زمان جریان یافت',true);}
 window.addEventListener('keydown',function(e){
-  var k=e.key;
+  var k=e.key;lastInteract=performance.now();
   if(k>='1'&&k<='6'){setMode(['body','head','hearts','arms','flow','gov'][parseInt(k,10)-1]);}
   else if(k===' '){e.preventDefault();togglePause();}
   else if(k==='+'||k==='='){setSpeed(Math.min(8,timeScale*2));}
   else if(k==='-'){setSpeed(Math.max(1,timeScale/2));}
   else if(k==='i'||k==='I'||k==='ى'){idxEl.classList.toggle('open');}
   else if(k==='l'||k==='L'){pollLive();toast('دریافت دیتای زنده…',true);}
+  else if(k==='o'||k==='O'){orbitOn=!orbitOn;
+    document.getElementById('orbitbtn').classList.toggle('on',orbitOn);}
 });
 
 var RECOLOR=[];
@@ -1147,6 +1279,7 @@ function applyPal(name){
       if(r.m.emissive&&r.isHeartValue)r.m.emissive.setHex(p.heart);}
     else if(r.slot==='arm'&&!r.isFixed)r.m.color.setHex(p.arm);
     else if(r.slot==='glow')r.m.color.setHex(p.glow);
+    else if(r.slot==='neb')r.m.color.setHex(p.glow);
     else if(r.slot==='plank')r.m.color.setHex(p.plank);
   });
   document.querySelectorAll('.pchip').forEach(function(c){
@@ -1197,7 +1330,22 @@ function animate(){
   var li2=Math.floor(simTime/DATA.arbiterPeriod)%3;
   lease.position.lerp(hearts[li2].g.position,0.04);
   lease.rotation.y+=dt*1.2;lease.rotation.x+=dt*0.5;
-  for(var rI=0;rI<rings.length;rI++){rings[rI].rotation.z+=dt*(0.12+rI*0.07)*(rI%2?-1:1);}
+  /* موج ضربان از قلب در حلقه‌ها می‌پیچد */
+  for(var rI=0;rI<rings.length;rI++){
+    rings[rI].rotation.z+=dt*(0.12+rI*0.07)*(rI%2?-1:1);
+    if(ringDelay[rI]>0){ringDelay[rI]-=dt;if(ringDelay[rI]<=0)ringFlash[rI]=1;}
+    if(ringFlash[rI]>0){
+      ringFlash[rI]=Math.max(0,ringFlash[rI]-dt*2.2);
+      rings[rI].material.emissiveIntensity=1.05+ringFlash[rI]*1.9;
+    }
+  }
+  /* تشخیص سیستول قلب ارزش → موج + پینگ */
+  var vIdx=Math.floor(simTime/DATA.heartPeriods[0]);
+  if(vIdx!==animate._vb){animate._vb=vIdx;
+    rippleRings();
+    var hv=new THREE.Vector3();hearts[0].g.getWorldPosition(hv);
+    ping(hv,COL.cyan,3.4);
+  }
   locksGroup.rotation.y+=dt*0.1;
   cortex.rotation.y+=dt*0.4;llama.rotation.y-=dt*0.3;
   selfGroup.rotation.y+=dt*0.12;
@@ -1229,17 +1377,42 @@ function animate(){
   eye.position.x=0.35*Math.sin(simTime*0.13);
   plankton.rotation.y+=dt*0.012;
   crystal.rotation.y+=dt*0.7;crystal.rotation.x+=dt*0.25;
+  if(crystalFlash>0){
+    crystalFlash=Math.max(0,crystalFlash-dt*1.5);
+    crystal.material.emissiveIntensity=0.9+crystalFlash*1.6;
+  }
   orphans.rotation.y-=sdt*0.10;orphans.rotation.x=Math.sin(simTime*0.1)*0.1;
   var op=orphans.geometry.attributes.position;
   for(var oi=0;oi<op.count;oi++){
     var ox=op.getX(oi),oz=op.getZ(oi);
-    var rad=Math.max(0.5,Math.hypot(ox+9.6,oz+4)-sdt*0.012);
+    var radNow=Math.hypot(ox+9.6,oz+4);
+    var rad=Math.max(0.5,radNow-sdt*0.012);
+    if(sdt>0&&radNow>0.62&&rad<=0.62){
+      crystalFlash=1;ping(crystal.position,COL.gold,1.8);
+    }
     var ang2=Math.atan2(oz+4,ox+9.6);
     op.setX(oi,-9.6+Math.cos(ang2)*rad);
     op.setZ(oi,-4+Math.sin(ang2)*rad);
     op.setY(oi,2.7+Math.sin(simTime*0.8+oi)*1.1*Math.min(1,(rad-0.5)/2));
   }
   op.needsUpdate=true;
+
+  /* جزیره‌های شناور */
+  for(var bo=0;bo<BOBBERS.length;bo++){
+    var B2=BOBBERS[bo];
+    B2.g.position.y=Math.sin(simTime*B2.spd+B2.ph)*B2.amp;
+  }
+  /* سحابی و درخشش زمین */
+  for(var nb=0;nb<NEB.length;nb++){
+    NEB[nb].position.x+=dt*0.14*(nb%2?1:-1);
+    if(NEB[nb].position.x>36)NEB[nb].position.x=-36;
+    if(NEB[nb].position.x<-36)NEB[nb].position.x=36;
+    NEB[nb].material.opacity=0.04+0.025*Math.sin(simTime*0.2+nb*2);
+  }
+  shimmer.rotation.z+=dt*0.02;
+  shimmer.material.opacity=0.035+0.03*Math.sin(simTime*0.3);
+  updatePings(dt);
+  updateArmSparks(dt);
 
   /* صف ستون لجر */
   for(var bd2=0;bd2<bloodDots.length;bd2++){
@@ -1267,26 +1440,34 @@ function animate(){
       for(var tI=P.trail.length-1;tI>0;tI--){
         P.trail[tI].position.lerp(P.trail[tI-1].position,0.5);
       }
-      /* مهر رسید هنگام عبور از ایستگاه‌ها */
-      for(var mI=0;mI<STAMPS.length;mI++){
-        if(Math.abs(pp-STAMPS[mI].u)<0.004){
-          var found=false;
-          for(var q=0;q<stampPool.length;q++){if(stampPool[q].sha===STAMPS[mI].sha&&stampPool[q].life>2.9)found=true;}
-          if(!found){
-            var o2=spawnStamp2(STAMPS[mI].sha,pos.clone());o2.sha=STAMPS[mI].sha;
+      /* مهر رسید + پینگ شوک‌ویو هنگام «عبور لبه‌ای» از ایستگاه‌ها */
+      if(pp>=animate._pp){
+        for(var mI=0;mI<STAMPS.length;mI++){
+          if(animate._pp<STAMPS[mI].u&&pp>=STAMPS[mI].u){
+            var o2=spawnStamp2(STAMPS[mI].sha,pos.clone());
+            if(o2)o2.sha=STAMPS[mI].sha;
+            ping(pos,cc,2.6);
           }
         }
       }
+      animate._pp=pp;
     }
   }
   if(stI!==lastStageIdx){
     lastStageIdx=stI;showStage(stI);
+    if(stI===5){
+      launchArmSparks();
+      ping(new THREE.Vector3(13,6.4,-6),COL.amber,3.6);
+      toast('📄 پیش‌نویس پاها آماده شد → پیشنهادها به جزیره‌ها می‌روند',true);
+    }
     if(stI===6){
       if(cycleIndex%7===6){
-        gateFlash=-1;heartDim=0.45;
+        gateFlash=-1;heartDim=0.45;haltPulse=1;
+        ping(gate.position,COL.owner,4.5);
         toast('⏸ HALT — calibration_error ≥ 0.5 · دروازه بسته؛ سیکل بعدی پس از اصلاح');
       }else{
         gateFlash=1;
+        ping(gate.position,COL.green,4.5);
         if(mintCount<8)mintCount++;
         toast('✅ ضربان بعدی ضربیده شد — mint با calib_tail ('+mintCount+'/8)',true);
       }
@@ -1313,10 +1494,12 @@ function animate(){
   var armGlow=(stI===3)?1:0.25;
   for(var aI=0;aI<arms.length;aI++){
     var A2=arms[aI];
+    if(A2.flash>0)A2.flash=Math.max(0,A2.flash-dt*1.4);
     var shim=0.75+0.25*Math.sin(simTime*1.3+aI*1.7);
     var susFlick=(LIVE.ok&&A2.def.legId&&LIVE.legsSuspected[A2.def.legId])?(0.5+0.5*Math.sin(simTime*6)):1;
-    A2.tube.material.emissiveIntensity=(A2.def.act*armGlow*0.9+0.2)*shim*susFlick;
-    if(A2.ico)A2.ico.material.emissiveIntensity=(A2.def.act*armGlow+0.25)*shim*susFlick;
+    A2.tube.material.emissiveIntensity=(A2.def.act*armGlow*0.9+0.2)*shim*susFlick+A2.flash*1.3;
+    if(A2.pedM)A2.pedM.emissiveIntensity=(A2.def.wire?0.45:0.35+A2.def.act*0.45)+A2.flash*1.6;
+    if(A2.ico)A2.ico.material.emissiveIntensity=(A2.def.act*armGlow+0.25)*shim+A2.flash*1.5;
     for(var s3=0;s3<A2.suckers.length;s3++){
       var wave=Math.pow(Math.max(0,Math.sin(simTime*2.2-s3*0.55+aI*0.9)),3);
       A2.suckers[s3].scale.setScalar(1+(0.3+0.35*A2.def.act)*wave);
@@ -1358,7 +1541,10 @@ function animate(){
     cam.radius=F.r+(T.r-F.r)*e2;cam.theta=F.th+(T.th-F.th)*e2;cam.phi=F.ph+(T.ph-F.ph)*e2;
     if(k2>=1)flyA=null;
     applyCam();
-  } else { applyCam(); }
+  } else {
+    if(orbitOn&&performance.now()-lastInteract>4000)cam.theta+=dt*0.06;
+    applyCam();
+  }
 
   var info=pinned||pick();
   if(info){tipFor(info);}else{tipEl.style.opacity='0';}
@@ -1391,6 +1577,8 @@ arms.forEach(function(A){
   if(!A.def.wire&&A.def.act>=0.4)RECOLOR.push({m:A.tube.material,slot:'arm',isFixed:A.def.en!=='ziman'&&A.def.en!=='painting'});
 });
 RECOLOR.push({m:plankton.material,slot:'plank'});
+NEB.forEach(function(s){RECOLOR.push({m:s.material,slot:'neb'});});
+RECOLOR.push({m:shimmer.material,slot:'neb'});
 
 showLabels('body');
 setTimeout(function(){document.getElementById('hint').style.opacity='0';},7000);
