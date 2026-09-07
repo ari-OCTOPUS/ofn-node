@@ -38,6 +38,10 @@ GOV_VERSION=V8 · LADDER=L2 · VERIFIED_CASH=0
    PID 25864 گیرکرده روی `PRAGMA journal_mode=WAL` در chrono.db ~۱۸ دقیقه)؛ واچ‌داگ
    ری‌استارت کرد؛ 11:45Z **HEALTHY 8/8** (PID 13576). همچنین کشف شد بوت >۲۰ دقیقه طول
    می‌کشد چون boot_certificate روی جدول ۶۴k ردیفی COUNT کامل می‌زند (~۱۷s فقط برای checkpoint).
+   **فیکس سوم پروب:** state-machine اصلاح شد — «heartbeat تازه ولی beat ثابت» = DEGRADED
+   ( Period تپش ≤900s و پروب 15dقیقه‌ای همان beat را دوباره می‌بیند؛ false-positiveِ WEDGED
+   در 12:00Z با استک زندهٔ sleep عادی تأیید شد)؛ WEDGED فقط وقتی ts کهنه شود. مانیتور
+   به فاصلهٔ ۲۰دقیقه رفت تا از پنجرهٔ period عبور کند.
 5. **باگ خاموش event_spine فیکس شد:** رشتهٔ literal `"\n"` به‌جای newline (از کامیت 0d1e667)
    — رویدادهای spine در events.jsonl به‌هم می‌چسبیدند (۲ خطِ تاریخیِ 19018/19020؛ بازنویسی
    نشدند — زنجیرهٔ رسید). تست‌های 44/44ِ UNIFY این را نگرفته بودند چون مسیر write واقعی را

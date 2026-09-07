@@ -159,7 +159,10 @@ def probe(*, inject_lock_hold=None):
     if not process_alive:
         state = "UNKNOWN"
     elif port_reachable and not event_loop:
-        state = "WEDGED"
+        # اگر heartbeat هنوز تازه است ولی beat عوض نشد، هنوز «تأییدِ» stuck نداریم
+        # (period تپش تا 900s است و پروبِ 15دقیقه‌ای می‌تواند همان beat را دوباره ببیند)
+        # ⇒ DEGRADED تا وقتی ts کهنه شود؛ آن‌جا STALLED/WEDGED می‌گیرد.
+        state = "DEGRADED" if heartbeat_fresh else "WEDGED"
     elif process_alive and port_reachable and event_loop and heartbeat_fresh:
         if e2e:
             state = "HEALTHY"
