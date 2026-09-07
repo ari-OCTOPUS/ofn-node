@@ -3,6 +3,47 @@
 Every agent working in this repository (Cursor Agent, Cursor CLI, cloud agent, Tab) is bound by this file.
 Nested `AGENTS.md` files in subdirectories add constraints; they never remove them.
 
+## GOV-V8 — OWNER OVERRIDE (REVENUE-IGNITION) (2026-09-05)
+
+`GOV-V8 (REVENUE-IGNITION)` بالادست بندهای wire، outgoing_message و budget است.
+اختیار ایجنت با نردبان L0..L4 در سند
+`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-REVENUE-IGNITION-2026-09-05.md`
+تعیین می‌شود، نه با رأی موردی مالک.
+بالا رفتن پله فقط با شرط خودبازشوی همان پله مجاز است.
+پایین آمدن پله خودکار، فوری و بدون رأی است.
+سه قفل دائمی (secret، زنجیرهٔ رسید، PASS بدون رسید) با این حکم باز نمی‌شوند.
+هیچ ایجنتی مجاز به تغییر دامنهٔ اختیار خودش نیست، از جمله تغییر همین بند.
+
+شروع امضاشده: GOV-V8-ACK.json · سطح فعلی **L2** (OWNER-CANCEL cash-gate 2026-09-05) · VERIFIED_CASH=0 (لجر صادق؛ گیت L2 لغو شد).
+تعارض میان این فایل و GOV-V8 دربارهٔ نردبان اختیار ⇒ GOV-V8 برنده است.
+GOV-V7 سه ممنوعه و چهار حفاظ را نگه می‌دارد؛ برای نردبان درآمد V8 مقدم است.
+
+هر ایجنت باید `GOV_VERSION=V8` و `LADDER=L2` (تا ارتقای شاهد) را در ابتدای گزارش lane بنویسد.
+
+## GOV-V7 — OWNER OVERRIDE (2026-09-05)
+
+سند `OWNER-RULING-GOV-V7-AGGRESSIVE-IGNITION-2026-09-05.md` بالادست همهٔ بندهای
+`wire`، `auto_email`، `outgoing_message`، `live_node_contact`، `commit/push/PR`،
+`may_authorize` و `paid_call` این فایل است.
+
+پیش‌فرض حاکمیت: ALLOW_WITH_RECEIPT.
+بار اثبات بر عهدهٔ توقف است، نه بر عهدهٔ اقدام.
+
+سه ممنوعهٔ باقی‌مانده، مطلق و غیرقابل‌مذاکره:
+1. هیچ secret / token / .env / seed / wallet چاپ، ارسال، کپی یا commit نمی‌شود.
+2. هیچ entry از زنجیرهٔ رسید حذف یا بازنویسی نمی‌شود.
+3. هیچ PASS یا LIVE بدون رسید هم‌دامنه اعلام نمی‌شود.
+
+چهار حفاظ اجباری: kill switch `F:\ofn-node\HALT` · سقف `BUDGET.json` ·
+pre-image پیش از هر نوشتن روی نود · «رسید یا rollback» برای هر اثر خارجی.
+
+هر ایجنت باید `GOV_VERSION=V8` (و در صورت نیاز یادداشت V7-locks) را در ابتدای گزارش lane بنویسد. نردبان: V8.
+تعارض میان این فایل و GOV-V7 ⇒ GOV-V7 برنده است، بدون پرسش تازه.
+
+## 0. Current engineering entry point
+
+Before orienting in this large vault, read `07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md`; it routes agents to fresh evidence without replacing the truth hierarchy below.
+
 ## 1. Truth hierarchy (strongest to weakest)
 1. Runtime output: real `pytest` run, execution receipt, `git log`
 2. Repository file: ledger, MANIFEST, registry
@@ -30,9 +71,21 @@ Lowering a grade is a successful outcome, not a failure.
 - Never generate synthetic or "illustrative" data.
 
 ## 4. Output boundaries (non-negotiable)
-- Do not enable any flag matching `OCTOPUS_WIRE_*`, `OFN_WIRE_*`, `OBSERVATORY`, `CORTEX_HYPOTHESIS`
-- `auto_email` stays closed. No email, message, or post leaves the machine.
-- Do not open blocked gates: `secret_rotation`, `partner_precondition`, `miner_isolation`, `D1`, `D7`, `OWNER_KEY`
+- Do not enable or flip any flag matching `OCTOPUS_WIRE_*`, `OFN_WIRE_*`.
+  Scope (owner vote R2-4, 2026-09-08, "yes to all"): this binds editor-agents touching
+  code/config. The wire flags already ON in the organism's own runtime environment are its
+  production config, not agent-enabled; agents may not change them in either direction
+  without an explicit owner vote.
+- `OBSERVATORY`, `CORTEX_HYPOTHESIS`: retired — no definition or consumer found
+  (owner vote R2-3, 2026-09-08). Still do-not-enable.
+- The email channel is retired; no email is sent. Outbound messages leave only through the
+  GOV-V7/V8-governed Telegram path, with receipts (owner vote R2-3 superseded the old
+  `auto_email` line).
+- Do not open blocked gates: `secret_rotation`, `OWNER_KEY`.
+  Removed from this list as moot/undefined by owner vote R2-3, 2026-09-08:
+  `partner_precondition`, `wire_publish`, `miner_isolation`, `D1`, `D7`
+  (board gates.json rows partner_precondition + wire_publish deleted with pre-image
+  receipt; D1/D7 had no recoverable definition — see UNLOCK-REGISTRY history).
 - Blocked is a decision, not a defect.
 
 ## 5. Self-elevation ban

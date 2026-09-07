@@ -46,8 +46,8 @@ updated: 2026-09-08
 | ID | گیت | پیشنهاد | وضعیت |
 |---|---|---|---|
 | L04 | `secret_rotation` | مالک چرخش را waive کرد (09-07) → گیت را بگذار باز تا کد stale نشود | `PROPOSED` |
-| L05 | `partner_precondition` | moot — حذف یا تعریف کن «همکار یعنی چه» | `PROPOSED` |
-| L06 | `wire_publish` | کد مصرف‌کننده ندارد → حذف از gates.json | `PROPOSED` |
+| L05 | `partner_precondition` | ✅ رأی R2-3 «yes to all»: سطر از gates.json برد ۱۳۸ حذف شد (پری‌ایمیج + رسید ROUND2-MOOT-GATES-PRODUCTION) | `EXECUTED` |
+| L06 | `wire_publish` | ✅ رأی R2-3: حذف شد — صفر خواننده در کد زندهٔ ofn (grep تأیید) | `EXECUTED` |
 | L07 | `owner_release` | نگه دار — دومرحله‌ای درست است | `PROPOSED`=KEEP |
 | L08 | `kill_switch` | نگه دار — فوریت است | KEEP |
 
@@ -55,16 +55,16 @@ updated: 2026-09-08
 
 | ID | گیت | پیشنهاد | وضعیت |
 |---|---|---|---|
-| L09 | `D1` | تعریف واقعی را پیدا/مستند کن؛ اگر «اجرا production» است و سیستم production است → بی‌اثر، مستندش کن | `PROPOSED` |
-| L10 | `D7` | تعریف گم شده → یا مستند یا حذف | `PROPOSED` |
+| L09 | `D1` | ✅ رأی R2-3: تعریفی بازیابی‌نشده → از لیست ممنوع AGENTS.md حذف و به‌عنوان «بدون تعریف» مستند شد | `EXECUTED` |
+| L10 | `D7` | ✅ رأی R2-3: مثل L09 | `EXECUTED` |
 | L11 | `OWNER_KEY` | کلید از قبل ساخته و live است (09-06) → گیت را به «استفادهٔ درست» تغییر بده نه «ساخت» | `PROPOSED` |
-| L12 | `miner_isolation` | moot (mining PARKED) → حذف | `PROPOSED` |
-| L13 | `OCTOPUS_WIRE_*` ممنوع | تناقض: ۱۹۵ تا روشن است → یا قاعده را به «wire-write بیرونی» محدود کن یا همه را خاموش کن | `PROPOSED` |
-| L14 | `OFN_WIRE_*` | مثل L13 | `PROPOSED` |
-| L15 | `OBSERVATORY` | تعریف گم شده → مستند یا حذف | `PROPOSED` |
-| L16 | `CORTEX_HYPOTHESIS` | تعریف گم شده → مستند یا حذف | `PROPOSED` |
-| L17 | `auto_email` | moot (تلگرام جایگزین) → حذف از AGENTS.md با رأی مالک | `PROPOSED` |
-| L18 | `PRODUCTION` | تناقض: سیستم production است ولی flag بسته → روشن کن با رأی مالک | `PROPOSED` |
+| L12 | `miner_isolation` | ✅ رأی R2-3: از AGENTS.md حذف؛ arming در config.py عمداً ماند (بی‌خطر، هیچ pack معدن ندارد) | `EXECUTED` |
+| L13 | `OCTOPUS_WIRE_*` ممنوع | ✅ رأی R2-4 گزینه A: دامنهٔ قاعده در AGENTS.md §4 مستند شد — فقط ایجنت‌های ویرایشگر؛ فلگ‌های runtime خود ارگانیسم‌اند؛ بدون تغییر فلگ | `EXECUTED` |
+| L14 | `OFN_WIRE_*` | ✅ مثل L13 (همان بند AGENTS.md §4) | `EXECUTED` |
+| L15 | `OBSERVATORY` | ✅ رأی R2-3: retired/بدون مصرف‌کننده مستند شد؛ do-not-enable ماند | `EXECUTED` |
+| L16 | `CORTEX_HYPOTHESIS` | ✅ مثل L15 | `EXECUTED` |
+| L17 | `auto_email` | ✅ رأی R2-3: بند AGENTS.md بازنویسی شد — کانال ایمیل retired؛ خروجی فقط مسیر تلگرامِ حاکم GOV-V7/V8 با رسید | `EXECUTED` |
+| L18 | `PRODUCTION` | ✅ رأی R2-2: telegram_production→true در RUNTIME_MODE.json برد ۱۳۸ (پری‌ایمیج؛ هیچ مصرف‌کننده‌ای نبود = تراز مستندات) | `EXECUTED` |
 
 ## D — نردبان GOV-V8
 
@@ -116,8 +116,8 @@ updated: 2026-09-08
 | L42 | `OCTOPUS_BRAIN_CALL_SHARE=0.6` | سهم مغز از beat | با ارتقای مغز بازبینی | `PROPOSED` |
 | L43 | `OCTOPUS_TG_VOICE_KEEP_AUDIO` | صدای مالک ذخیره نشود | پیش‌فرض درست (حریم خصوصی) | KEEP |
 | L44 | `OCTOPUS_WHISPER_ALLOW_DOWNLOAD` | دانلود صدا | با L23 بازبینی | `PROPOSED` |
-| L45 | `OCTOPUS_WIRE_MINING_OS` | wire معدن | moot (PARKED) → حذف | `PROPOSED` |
-| L46 | `OCTOPUS_WIRE_POCKETSMITH` | wire حسابداری | تعریف کن یا حذف | `PROPOSED` |
+| L45 | `OCTOPUS_WIRE_MINING_OS` | wire معدن | ✅ رأی R2-3: moot مستند؛ فلگ runtime دست‌نخورده (R2-4: بدون تغییر فلگ) | `EXECUTED` |
+| L46 | `OCTOPUS_WIRE_POCKETSMITH` | wire حسابداری | ✅ رأی R2-3: بدون مصرف‌کننده در کد (فقط مانیفست‌های audit)؛ مستند شد | `EXECUTED` |
 | L47 | `OCTOPUS_WIRE_PS_WRITEBACK` | نوشتن به PocketSmith | خطرناک → بسته بماند تا درخواست صریح | KEEP |
 | L48 | `IMPROVE_REFRACTORY_H` | فاصلهٔ بهبود | بازبینی بعد از ثبات wedge | `PROPOSED` |
 | L49 | `OCTOPUS_IMPROVE_REFRACTORY_H` | همان | مثل L48 | `PROPOSED` |
@@ -128,7 +128,7 @@ updated: 2026-09-08
 |---|---|---|---|
 | L50 | checkout1_poll مسیر لینوکس | پورت به ویندوز | `PROPOSED` |
 | L51 | حسگر پول miswired | repoint به زیمان | `PROPOSED` |
-| L52 | METABOLIC-OBS | دو مسیر — مالک انتخاب کند | `PROPOSED` ← مرحله ۲ |
+| L52 | METABOLIC-OBS | ✅ رأی R2-1 (تله‌متری حقیقت): وایر از قبل بود (e2a317c)؛ اجرای زندهٔ ۰۹-۰۸: تلمتری==billed==AU$0.150135، conflicts=[] — رسید ROUND2-METABOLIC-VERIFIED | `VERIFIED` |
 
 ## J — زیرسیستم‌های default-OFF
 
@@ -169,6 +169,12 @@ updated: 2026-09-08
 - 2026-09-08T23:4xZ (مرحله ۱ تکمیل، جلسهٔ ZCode پس از قطع Codex):
   - **D0 دامنهٔ اصلی زیمان**: مالک تصویر خرید را داد → نام‌ها: **ziman-gift.com.au** + **ziman-gift.shop** → رأی: «ziman-gift.com.au اصلی شود — جای صفحهٔ معرفی فعلی» → **EXECUTED + VERIFIED**: اتصال DNS (اتوریتات ns73.domaincontrol.com → 23.227.38.32) · TLS لبهٔ Shopify (Let's Encrypt، اولین 200 در 23:40:59Z) · **Primary badge روی ziman-gift.com.au در admin** · صفحهٔ محصول 200 بدون ریدایرکت به .com مرده (۰ رخداد لینک .com در HTML) · رسید: `09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-EXECUTION-STEP3-FINAL.json` + STEP1/STEP2/PARTIAL · محدودهٔ رأی رعایت شد: ziman-gift.shop دست‌نخورده، بدون تغییر ایمیل/مینی‌اپ/خرید
   - قفل‌های حلقه: D0_domain ✅ · DOM2_names ✅ (هر دو نام ثبت شد) · L56 مسیر مینی‌اپ عمومی باز (HTTPS دامنهٔ زیمان موجود شد — نصب مینی‌اپ همچنان رأی جدا می‌خواهد)
+- 2026-09-08T23:5xZ (مرحلهٔ ۲ کامل، رأی «yes to all» در جلسهٔ ZCode، ثبت در OWNER-APPROVALS دور چهارم):
+  - **R2-1 METABOLIC-OBS (L52) → VERIFIED بدون تغییر کد**: وایر organ_gate→telemetry از قبل موجود بود (کامیت e2a317c)؛ اجرای زندهٔ همین لحظه: تلمتری==billed==AU$0.150135، conflicts=[]. عدد 1.07 زمان بالوت بازتولید نشد (هر دو ثبت). رسید: lane/ROUND2-METABOLIC-VERIFIED-20260908.json
+  - **R2-2 PRODUCTION (L18) → EXECUTED**: telegram_production false→true در board138:~/octopus-mesh/state/RUNTIME_MODE.json؛ پری‌ایمیج + رسید در ~/octopus-mesh/receipts/ROUND2-MOOT-GATES-PRODUCTION-20260908.json؛ هیچ مصرف‌کنندهٔ کدی یافت نشد (تراز مستندات، بدون اثر اجرایی)
+  - **R2-3 moot×۸+D1/D7 → EXECUTED**: gates.json برد: حذف partner_precondition+wire_publish (پری‌ایمیج؛ صفر خواننده در ofn/ofn زنده) · AGENTS.md §4: blocked-list به secret_rotation+OWNER_KEY کاهش یافت؛ auto_email→کانال retired؛ OBSERVATORY/CORTEX_HYPOTHESIS→retired مستند؛ config.py miner_isolation arming و guard_flags.py عمداً دست‌نخورده
+  - **R2-4 wire scope (L13/L14) → EXECUTED**: دامنهٔ قاعده در AGENTS.md §4 مستند شد (ایجنت‌های ویرایشگر؛ فلگ‌های runtime خود ارگانیسم؛ تغییر فقط با رأی مالک)؛ صفر تغییر فلگ
+  - سه قفل مطلق GOV-V8 (L01-L03) و چهار حفاظ GOV-V7 دست‌نخورده‌اند.
 
 ## 🔁 وصل به حلقه‌های دوپامین/ترس (فرمان مالک 2026-09-07)
 

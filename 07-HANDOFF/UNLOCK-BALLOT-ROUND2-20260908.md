@@ -1,12 +1,12 @@
 ---
 type: owner-ballot
-status: open-awaiting-owner
+status: answered-executed-2026-09-08
 created: 2026-09-08
 gov: GOV-V8 · LADDER=L2
 protocol: پاسخ یک‌خطی کافی است
 ---
 
-# 🗳️ بالوت مرحلهٔ ۲ — فقط یک خط جواب بده
+# 🗳️ بالوت مرحلهٔ ۲ — ✅ پاسخ داده شد: «yes to all» (2026-09-08) — هر ۴ مورد اجرا/تأیید شد؛ جزئیات در UNLOCK-REGISTRY تاریخچهٔ ۲۰۲۶-۰۹-۰۸T23:5xZ
 
 > فرمت: «۱A 2 بله 3 بله 4 A» — یا هر جور راحتی. تلگرام هم قبول است.
 > رأی‌های مرحلهٔ ۱ (hold_external، GO تا ۱۰-۰۷، msg38=NOT_PAID) اجرا و ثبت شدند — دوباره لازم نیست.

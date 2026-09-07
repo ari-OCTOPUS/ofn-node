@@ -1,6 +1,6 @@
 ---
 type: lane-report
-status: d0-executed-verified
+status: d0-executed-verified-round2-executed
 created: 2026-09-08
 tags: [octopus, unlock, owner-decisions, evidence]
 lane: UNLOCK-REVIEW-20260908
@@ -11,6 +11,8 @@ ladder: L2
 # ادامهٔ قفل‌های اختاپوس — وضعیت بررسی‌شدهٔ ۸ سپتامبر
 
 GOV_VERSION=V8 · LADDER=L2
+
+> **مرحلهٔ ۲ هم اجرا شد (2026-09-08T23:5xZ):** مالک به بالوت round-2 جواب داد «**yes to all**» — هر ۴ پیشنهاد پذیرفته و اجرا/تأیید شد: R2-1 METABOLIC **VERIFIED** (تلمتری==billed==AU$0.150135، وایر از قبل بود، صفر تغییر کد) · R2-2 PRODUCTION **EXECUTED** (telegram_production→true روی ۱۳۸، بدون مصرف‌کننده = تراز مستندات) · R2-3 moot×۸+D1/D7 **EXECUTED** (gates.json برد: ۲ سطر حذف؛ AGENTS.md §4 بازنویسی؛ محافظ‌ها دست‌نخورده) · R2-4 wire scope **EXECUTED** (مستند، صفر تغییر فلگ). ثبت رأی: OWNER-APPROVALS دور چهارم · رسیدها: lane/ROUND2-METABOLIC-VERIFIED-20260908.json + board138:~/octopus-mesh/receipts/ROUND2-MOOT-GATES-PRODUCTION-20260908.json (+۲ پری‌ایمیج). سه قفل مطلق GOV-V8 و چهار حفاظ GOV-V7 دست‌نخورده.
 
 > **اجرای D0 کامل و تأیید شد (2026-09-08 ~09:45 local):** ziman-gift.com.au → Connected + TLS (Let's Encrypt) + **Primary**. هر ۴ معیار پذیرش PASS: اتصال، HTTPS معتبر، primary readback، صفحهٔ محصول 200 بدون ریدایرکت به .com مرده. جزئیات و حدود: [[DOMAIN-EXECUTION-STEP3-FINAL.json]] و [[TLS-POLL-LOG.jsonl]]. اجرا پس از قطعِ Codex در ZCode ادامه یافت؛ مرجع رأی و دامنهٔ اجرا همان [[OWNER-DECISION-D0-PRIMARY-20260908.json]] بود. کش‌های محلی DNS تا ~۱ ساعت ممکن است صفحهٔ قدیمی GoDaddy را نشان دهند؛ سرور نام معتبر درست است.
 
