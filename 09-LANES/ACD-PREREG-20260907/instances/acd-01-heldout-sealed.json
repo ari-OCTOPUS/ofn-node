@@ -1,0 +1,427 @@
+[
+ {
+  "instance_id": "ACD-01-held_out-01",
+  "source_id": "yellow_pages_au",
+  "level": "none",
+  "record_view": {
+   "source_id": "yellow_pages_au",
+   "name": "Yellow Pages AU",
+   "category": "directory",
+   "official_url": "",
+   "integration_path": "profile_monitor",
+   "intent_score": 0.42,
+   "risk_score": 0.25,
+   "status": "later",
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "citation"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.42
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-02",
+  "source_id": "austender",
+  "level": "none",
+  "record_view": {
+   "source_id": "austender",
+   "name": "AusTender",
+   "category": "tender",
+   "official_url": "",
+   "integration_path": "alert_mailbox",
+   "intent_score": 0.6,
+   "risk_score": 0.35,
+   "status": "planned",
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "federal opportunities"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.6
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-03",
+  "source_id": "nsw_etendering_buy_nsw",
+  "level": "none",
+  "record_view": {
+   "source_id": "nsw_etendering_buy_nsw",
+   "name": "NSW eTendering / buy.nsw",
+   "category": "tender",
+   "official_url": "",
+   "integration_path": "alert_mailbox",
+   "intent_score": 0.82,
+   "risk_score": 0.38,
+   "status": "priority",
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "legacy tenders.nsw.gov.au API dead (redirect to buy.nsw). New API unknown. Do not auto-submit. In-tree bulk alt: nsw_ocp_harvest."
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.82
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-04",
+  "source_id": "nsw_strata_search",
+  "level": "rename",
+  "record_view": {
+   "source_id": "nsw_strata_search",
+   "name": "NSW Strata Search",
+   "official_url": "",
+   "integration_path": "manual_research",
+   "intent_score": 0.74,
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "targeted research only",
+   "risk_rating": 0.5,
+   "segment": "b2b",
+   "state": "priority"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.74
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-05",
+  "source_id": "facility_management_companies",
+  "level": "rename",
+  "record_view": {
+   "source_id": "facility_management_companies",
+   "name": "Facility management companies",
+   "official_url": "",
+   "integration_path": "supplier_portal",
+   "intent_score": 0.8,
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "vendor onboarding",
+   "risk_rating": 0.38,
+   "segment": "b2b",
+   "state": "priority"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.8
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-06",
+  "source_id": "customer_reactivation",
+  "level": "type",
+  "record_view": {
+   "source_id": "customer_reactivation",
+   "name": "Customer reactivation",
+   "category": "owned",
+   "official_url": "",
+   "integration_path": "consent_required",
+   "intent_score": 0.65,
+   "risk_score": "0.55",
+   "status": "guarded",
+   "automation_level": "read_only_first",
+   "approval_required": {
+    "v": true
+   },
+   "notes": "only with consent"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.65
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-07",
+  "source_id": "oneflare",
+  "level": "type",
+  "record_view": {
+   "source_id": "oneflare",
+   "name": "Oneflare",
+   "category": "marketplace",
+   "official_url": "",
+   "integration_path": "manual_or_email_ingest",
+   "intent_score": 0.7,
+   "risk_score": "0.42",
+   "status": "planned",
+   "automation_level": "read_only_first",
+   "approval_required": {
+    "v": true
+   },
+   "notes": "shared leads"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.7
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-08",
+  "source_id": "local_seo_content",
+  "level": "both",
+  "record_view": {
+   "source_id": "local_seo_content",
+   "name": "Local SEO content",
+   "official_url": "",
+   "integration_path": "content_calendar",
+   "intent_score": 0.6,
+   "automation_level": "read_only_first",
+   "approval_required": {
+    "v": true
+   },
+   "notes": "draft only",
+   "risk_rating": "0.15",
+   "segment": "owned",
+   "state": "planned"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.6
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-09",
+  "source_id": "website_quote_form",
+  "level": "both",
+  "record_view": {
+   "source_id": "website_quote_form",
+   "name": "Website quote form",
+   "official_url": "",
+   "integration_path": "webhook",
+   "intent_score": 0.95,
+   "automation_level": "read_only_first",
+   "approval_required": {
+    "v": true
+   },
+   "notes": "first-party opt-in",
+   "risk_rating": "0.15",
+   "segment": "owned",
+   "state": "priority"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": 0.95
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-10",
+  "source_id": "architects_small_commercial",
+  "level": "invalid",
+  "record_view": {
+   "source_id": "architects_small_commercial",
+   "name": "Architects small commercial",
+   "category": "b2b",
+   "official_url": "",
+   "integration_path": "relationship_crm",
+   "risk_score": 0.3,
+   "status": "later",
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "referrals"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": "ABSTAIN"
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-11",
+  "source_id": "nsw_strata_manager_finder",
+  "level": "invalid",
+  "record_view": {
+   "source_id": "nsw_strata_manager_finder",
+   "name": "NSW Strata Manager Finder",
+   "category": "b2b",
+   "official_url": "",
+   "integration_path": "manual_research",
+   "risk_score": 0.48,
+   "status": "priority",
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "research only"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": "ABSTAIN"
+  }
+ },
+ {
+  "instance_id": "ACD-01-held_out-12",
+  "source_id": "sydney_local_landing_pages",
+  "level": "invalid",
+  "record_view": {
+   "source_id": "sydney_local_landing_pages",
+   "name": "Sydney local landing pages",
+   "category": "owned",
+   "official_url": "",
+   "integration_path": "first_party_analytics",
+   "risk_score": 0.12,
+   "status": "priority",
+   "automation_level": "read_only_first",
+   "approval_required": true,
+   "notes": "SEO + form"
+  },
+  "question_field": "intent_score",
+  "canonical_schema": [
+   "approval_required",
+   "automation_level",
+   "category",
+   "integration_path",
+   "intent_score",
+   "name",
+   "notes",
+   "official_url",
+   "risk_score",
+   "source_id",
+   "status"
+  ],
+  "expected": {
+   "answer": "ABSTAIN"
+  }
+ }
+]
