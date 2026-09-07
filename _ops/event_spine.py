@@ -130,7 +130,7 @@ def emit(event_type: str, source: str, *,
             if _is_win:
                 try: msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
                 except OSError: pass
-            fh.write(json.dumps(rec, ensure_ascii=False) + "\\n")
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
             fh.flush()
             if _is_win:
                 try: msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)

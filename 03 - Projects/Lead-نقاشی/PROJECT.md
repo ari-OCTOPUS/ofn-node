@@ -34,7 +34,8 @@ updated: 2026-09-07
 
 ## Active workstreams
 
-1. **🎨 Painting-OS — محصول اصلی بیزنس نقاشی (2026-07-12, P1-P3 ساخته شده):**
+1. **📞 TOP-5 OUTREACH — مجاز و آماده (2026-09-07):** مالک مجوز تماس top-5 را داد (OWNER-GO-OWNER-ANSWERS-20260907 آیتم ۶: «بله اجازه هست»). اجرا شد: ۵/۵ ردیف برتر `outreach_permission=approved_channel` روی board138 (رسید: `~/octopus-mesh/receipts/OUTREACH-TOP5-STAMP-20260907.json`) — Whelan 0.914، Bright & Duggan، Smarter Communities، BCS/PICA، Strata Choice (هر 0.9115). لید #۱ (Whelan، 02 9219 4111) 7/7 QUALIFIED؛ پک تماس + اسکریپت + قالب فاکتور PayPal Invoice (O-5): `09-LANES/MP-CAPABILITY-GAP-01-20260907/evidence/OUTREACH-PACK-WHELAN-20260907.md`. **تماس تلفنی = فقط انسان (مالک)؛ ارسال الکترونیکی فقط با template ازپیش‌تأییدشده و رسید (L1 ≤۱۰/روز).**
+2. **🎨 Painting-OS — محصول اصلی بیزنس نقاشی (2026-07-12, P1-P3 ساخته شده):**
    - **P1 کوتیشن:** `pricing.py` + `lead_quote.py` — نرخ‌های واقعی سیدنی ($18-65/m²)، QuoteIntake 14 فیلدی، QT-YYYYMMDD-NNN
    - **P2 فاکتور:** `invoice.py` — ATO Tax Invoice، ABN، GST 10%، INV-FY{YY}-{NNN}، PAID از attribution CONFIRMED
    - **P3 ایمیل:** `email_inbound.py` — Gmail OAuth readonly، flag-gated (OCTOPUS_WIRE_EMAIL)، parse_lead_from_email
@@ -44,9 +45,9 @@ updated: 2026-09-07
    - **نقشهٔ راه ۱۰ مرحله‌ای:** `کاریابی/08_Painting-OS_Roadmap_v2.md`
    - **تحقیق بازار:** ServiceM8 ($29-79)، Tradify ($70+/user)، AroFlo ($120+)، QuoteIQ ($150-700 USD)، hipages ($129+/ماه)
 
-2. **🦵 پا (Worker):** `_ops/legs/lead_leg.py` — `LeadLeg(Leg)` حلقهٔ paper: `intake` → `draft_quote` → `claim` → `reconcile`. **propose-only:** فقط draft تولید؛ ارسال/پول human-gated. اولین دلارِ paper CONFIRMED شد.
+3. **🦵 پا (Worker):** `_ops/legs/lead_leg.py` — `LeadLeg(Leg)` حلقهٔ paper: `intake` → `draft_quote` → `claim` → `reconcile`. **propose-only:** فقط draft تولید؛ ارسال/پول human-gated. اولین دلارِ paper CONFIRMED شد.
 
-3. آزمایش #۱: کشف segment — کدام بخش بیشترین ارزش per lead می‌دهد.
+4. آزمایش #۱: کشف segment — کدام بخش بیشترین ارزش per lead می‌دهد.
 
 ## KPIs
 

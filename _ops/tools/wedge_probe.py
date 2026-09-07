@@ -22,13 +22,13 @@ from __future__ import annotations
 import hashlib, json, os, socket, subprocess, sys, time
 from pathlib import Path
 
-OPS = Path(__file__).resolve().parents[1] / "_ops"
+OPS = Path(__file__).resolve().parents[1]
 STATE = OPS / "state"
 ORGANISM_STATE = STATE / "ORGANISM-STATE.json"
 EVENTS = STATE / "events.jsonl"
 WEDGE_DIR = STATE / "wedge"
 BEAT_MARK = STATE / "wedge-beat-mark.json"
-PY_SPY = Path(os.environ.get("LOCALAPPDATA", "")) / "Python" / "Python313" / "Scripts" / "py-spy.exe"
+PY_SPY = (Path(os.environ.get("APPDATA", "")) / "Python" / "Python313" / "Scripts" / "py-spy.exe")
 PORT = 8771
 STALE_AFTER_S = 900.0
 
