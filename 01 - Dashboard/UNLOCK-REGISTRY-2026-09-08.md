@@ -74,7 +74,7 @@ updated: 2026-09-08
 | L20 | L3 | با ۳ تراکنش واقعی باز می‌شود — هدف سیزن، نه دستی | AUTO |
 | L21 | L4 | مستند نشده → مالک تعریف کند یا حذف | `PROPOSED` |
 | L22 | `MAY_AUTHORIZE=false` | مطلق درست — هرگز باز نشود | KEEP |
-| L23 | `hold_external=true` | ✅ رأی مالک ۰۹-۰۷: «باز کن با رسید» → **اجرا شد**: spec locks + ofn سه فایل + ۲ تست (۳۳/۳۳ سبز، کامیت 63938eb0 روی ۱۳۸) + scheduler تک‌منبعی (۱۱ جای هاردکد → `_spec_hold_external()`) + ofn.service ری‌استارت PID 3905410 · رسید: `board138:~/octopus-mesh/receipts/GO-EXT2-HOLD-EXTERNAL-OPEN-20260907.json` | `EXECUTED` |
+| L23 | `hold_external=true` | ✅ رأی مالک ۰۹-۰۷: «باز کن با رسید» → **اجرا + تایید**: spec locks + ofn سه فایل + ۲ تست (۳۳/۳۳ سبز، کامیت 63938eb0 روی ۱۳۸) + scheduler تک‌منبعی (۱۱ جای هاردکد → `_spec_hold_external()`) + ofn.service ری‌استارت PID 3905410 + **تیک ۱۳:۳۰:۰۵Z سکدولر exit 0/SUCCESS** · سقف روز ۸/۸ پر بود ⇒ اولین پکت با hold_external=false روز ۰۹-۰۸ UTC mint می‌شود · رسید: `board138:~/octopus-mesh/receipts/GO-EXT2-HOLD-EXTERNAL-OPEN-20260907.json` | `VERIFIED` (پکت‌سطحی: اولین mint ۰۹-۰۸) |
 
 ## E — زمانی
 
