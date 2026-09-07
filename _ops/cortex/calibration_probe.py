@@ -58,6 +58,8 @@ HISTORY = STATE / "cortex" / "calibration-log.jsonl"
 FLAG = "CORTEX_SELF_MONITOR"          # env-flag فعال‌سازیِ نوشتن (وجود/truthy = روشن)
 # WS-1 (۲۰۲۶-۰۷-۲۹) — کلیدِ حقیقت = (پیشنهاد + دور). خاموش = بایت‌به‌بایتِ دیروز.
 FLAG_BY_CYCLE = "CORTEX_TRUTH_BY_CYCLE"
+# U1 (2026-09-07): نسخهٔ معناشناسیِ حقیقتِ دودویی — با خروجیِ probe حمل می‌شود.
+TRUTH_SEMANTICS = "binary_truth.v2: unresolved=ungraded (U1 2026-09-07)"
 ABSTAIN_TARGET_ACC = 0.75            # نوارِ «اعتمادپذیر»: دقتِ نگه‌داشته‌ها باید ≥ این باشد
 DEFAULT_WINDOW_H = 24 * 30           # «اخیر» = ۳۰ روزِ گذشته
 MAX_GRADED = 500                     # سقفِ فهرستِ برگشتی (کران)
@@ -67,7 +69,9 @@ _CONF_FIELDS = ("confidence", "conf", "prob", "probability", "p")
 _KEY_FIELDS = ("key", "id", "claim_id", "ref", "claim", "title")
 _TRUE_FIELDS = ("correct", "hit", "resolved", "confirmed", "moved", "y", "label")
 _TRUTHY = {"1", "true", "yes", "hit", "correct", "confirmed", "resolved", "moved"}
-_FALSY = {"0", "false", "no", "miss", "wrong", "unresolved"}
+# U1 (2026-09-07, truth_semantics v2): «unresolved» = مشاهدهٔ ناتمام، نه شکستِ
+# دودویی — از گرید کنار گذاشته می‌شود (نه درست، نه غلط؛ §۷ سند مأموریت v4.1).
+_FALSY = {"0", "false", "no", "miss", "wrong"}
 
 
 # ── فلگ ──────────────────────────────────────────────────────────────────────
@@ -151,7 +155,9 @@ def _key(rec: dict) -> str | None:
 
 
 def _binary(rec: dict) -> int | None:
-    """نتیجهٔ دودوییِ حقیقتِ بیرونی (0/1) یا None اگر رکورد گرید-پذیر نباشد."""
+    """نتیجهٔ دودوییِ حقیقتِ بیرونی (0/1) یا None اگر رکورد گرید-پذیر نباشد.
+
+    U1: «unresolved» (مشاهدهٔ ناتمام) → None = گرید‌نشده؛ با شکست (0) یکی نمی‌شود."""
     for f in _TRUE_FIELDS:
         if f not in rec:
             continue
@@ -405,7 +411,8 @@ def probe(within_h: float = DEFAULT_WINDOW_H, *, persist: bool | None = None,
     fail-soft: هر خطا → پیش‌فرضِ امن (n=0). نوشتن فقط اگر flag روشن (یا persist=True)."""
     safe = {"n": 0, "brier": None, "aurc": None, "abstain_below": None,
             "ungraded": 0, "target_acc": target_acc, "window_h": within_h,
-            "graded": [], "ts": opslib.now_iso(), "schema": "calibration.v1"}
+            "graded": [], "ts": opslib.now_iso(), "schema": "calibration.v1",
+            "truth_semantics": TRUTH_SEMANTICS}
     try:
         claims = _load_claims(within_h)
         by_cycle = _by_cycle_on()
@@ -425,6 +432,7 @@ def probe(within_h: float = DEFAULT_WINDOW_H, *, persist: bool | None = None,
         truth = _load_truth()
         result = {
             "ts": opslib.now_iso(), "schema": "calibration.v1",
+            "truth_semantics": TRUTH_SEMANTICS,
             "n": len(graded),
             "brier": _brier(graded),
             "aurc": _aurc(graded),

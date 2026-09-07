@@ -38,12 +38,16 @@ _ALERT_HALF_POINT = 59
 MONEY_CAP = 30.0
 
 
-def _r(f: str) -> dict:
+def _r(f: str) -> dict | None:
+    """U1 (2026-09-07): فایلِ غایب/ناخوانا → None (ناشناخته)، نه {} (صفرِ آرام).
+    خوانشِ موفقِ JSON خالی همچنان {} برمی‌گردد."""
     p = STATE / f
     try:
-        return json.loads(p.read_text("utf-8")) if p.exists() else {}
+        if not p.exists():
+            return None
+        return json.loads(p.read_text("utf-8"))
     except (OSError, ValueError):
-        return {}
+        return None
 
 
 def _clamp(x: float) -> float:
@@ -51,45 +55,55 @@ def _clamp(x: float) -> float:
 
 
 # ── استرسِ هر زیرسیستم از بدکارکردنِ واقعیِ خودش (۰..۱) ─────────────────────────────
-def _money_stress() -> tuple[float, str]:
-    m = (_r("telemetry-latest.json").get("month") or {}).get("aud") or 0
+def _money_stress() -> tuple[float | None, str]:
+    raw = _r("telemetry-latest.json")
+    if raw is None:                          # U1: غایب/خراب = ناشناخته، نه صفرِ آرام
+        return None, "telemetry غایب/ناخوانا"
+    m = (raw.get("month") or {}).get("aud") or 0
     s = _clamp(float(m) / MONEY_CAP)        # نزدیکِ سقف = استرس؛ عبور = ترس
     return s, f"{float(m):.0f}/{MONEY_CAP:.0f} دلار"
 
 
-def _heart_stress() -> tuple[float, str]:
-    sig = (_r("replication-latest.json").get("sigma") or {}).get("sigma_effective") or 0
+def _heart_stress() -> tuple[float | None, str]:
+    raw = _r("replication-latest.json")
+    if raw is None:                          # U1: غایب/خراب = ناشناخته
+        return None, "replication غایب/ناخوانا"
+    sig = (raw.get("sigma") or {}).get("sigma_effective") or 0
     # σ→۱ = محورِ سرطان = بالاترین ترس (spawn بی‌مهار)
     s = _clamp(float(sig) / 1.0)
     return s, f"σ={float(sig):.2f}"
 
 
-def _legs_stress() -> tuple[float, str]:
+def _legs_stress() -> tuple[float | None, str]:
     p = STATE / "selfheal-events.jsonl"
+    if not p.exists():                       # U1: غایب = ناشناخته، نه «۰ خودترمیم»
+        return None, "گزارشِ خودترمیم غایب/ناخوانا"
     n = 0
     try:
-        if p.exists():
-            cut = time.time() - 86400
-            for ln in p.read_text("utf-8").splitlines()[-60:]:
-                try:
-                    if float(json.loads(ln).get("ts", 0)) >= cut:
-                        n += 1
-                except (ValueError, TypeError):
-                    continue
+        cut = time.time() - 86400
+        for ln in p.read_text("utf-8").splitlines()[-60:]:
+            try:
+                if float(json.loads(ln).get("ts", 0)) >= cut:
+                    n += 1
+            except (ValueError, TypeError):
+                continue
     except OSError:
-        pass
+        return None, "گزارشِ خودترمیم غایب/ناخوانا"
     s = _clamp(n / 8.0)        # ۸ خودترمیم/روز = ناپایداریِ بالا
     return s, f"{n} خودترمیم/روز"
 
 
-def _doctor_stress() -> tuple[float, str]:
-    rf = _r("doctor/rfcs.json").get("rfcs") or []
+def _doctor_stress() -> tuple[float | None, str]:
+    raw = _r("doctor/rfcs.json")
+    if raw is None:                          # U1: غایب/خراب = ناشناخته
+        return None, "rfcs.json غایب/ناخوانا"
+    rf = raw.get("rfcs") or []
     pending = sum(1 for r in rf if r.get("status") in ("submitted", "drafted"))
     s = _clamp(pending / 6.0)
     return s, f"{pending} پیشنهادِ معطل"
 
 
-def _alerts_stress() -> tuple[float, str]:
+def _alerts_stress() -> tuple[float | None, str]:
     """استرسِ هشدار از هشدارهای **اخیر**، نه از کلِ تاریخِ فایل.
 
     ⚠️ ۲۰۲۶-۰۷-۲۸ — نسخهٔ قبلی خطوطِ **کلِ** یک فایلِ append-only را می‌شمرد و
@@ -110,9 +124,11 @@ def _alerts_stress() -> tuple[float, str]:
     import re as _re
     al = opslib.OPS / "governor" / "governor-alerts.md"
     try:
-        text = al.read_text("utf-8") if al.exists() else ""
+        if not al.exists():                  # U1: غایب = ناشناخته، نه «۰ هشدار»
+            return None, "فایلِ هشدار غایب/ناخوانا"
+        text = al.read_text("utf-8")
     except OSError:
-        text = ""
+        return None, "فایلِ هشدار غایب/ناخوانا"
     total = len(text.splitlines()) if text else 0
     cutoff = _dt.datetime.now() - _dt.timedelta(hours=24)
     recent = 0
@@ -167,32 +183,52 @@ _SUBSYSTEMS = {
 
 
 def assess() -> dict:
-    """استرس/ترسِ همهٔ زیرسیستم‌ها + سطحِ استرسِ کلِ ارگانیسم."""
-    subs = {}
+    """استرس/ترسِ همهٔ زیرسیستم‌ها + سطحِ استرسِ کلِ ارگانیسم.
+
+    U1 (2026-09-07, stress.v2): حسگرِ غایب/خراب دیگر «صفرِ آرام» تولید نمی‌کند —
+    زیرسیستمِ ناشناخته stress=null و quality="unknown" می‌گیرد، در «unknown» فهرست
+    می‌شود و data_quality ارگانیسم «degraded» می‌شود. ترس فقط از مقادیرِ
+    شناخته‌شده محاسبه می‌شود (تورمِ هشدار نه)، ولی آرام‌نماییِ دادهٔ ناقص هم نه."""
+    subs: dict = {}
+    unknown: list = []
     for sid, (name, fn) in _SUBSYSTEMS.items():
         try:
             s, detail = fn()
-        except Exception:  # noqa: BLE001
-            s, detail = 0.0, "—"
-        subs[sid] = {"name": name, "stress": round(s, 2),
-                     "fear": s >= FEAR_THRESHOLD, "detail": detail}
+        except Exception as e:  # noqa: BLE001 — خطای حسگر = ناشناخته، نه آرام
+            s, detail = None, f"خطای حسگر: {type(e).__name__}"
+        if s is None:
+            unknown.append(sid)
+            subs[sid] = {"name": name, "stress": None, "fear": False,
+                         "quality": "unknown", "detail": detail}
+        else:
+            subs[sid] = {"name": name, "stress": round(s, 2),
+                         "fear": s >= FEAR_THRESHOLD, "quality": "ok",
+                         "detail": detail}
     in_fear = [sid for sid, v in subs.items() if v["fear"]]
-    # استرسِ ارگانیسم = بیشینهٔ زیرسیستم‌ها (یک عضوِ بحرانی کلِ جامعه را تحتِ فشار می‌برد)
-    org = max((v["stress"] for v in subs.values()), default=0.0)
-    return {"ts": opslib.now_iso(), "schema": "stress.v1",
-            "organism_stress": round(org, 2), "in_fear": in_fear,
-            "level": ("🔴 ترس" if org >= FEAR_THRESHOLD else
-                      "🟡 استرس" if org >= 0.4 else "🟢 آرام"),
+    # استرسِ ارگانیسم = بیشینهٔ زیرسیستم‌های *شناخته‌شده*؛ همه ناشناخته ⇒ null (نه صفر)
+    known = [v["stress"] for v in subs.values() if v["stress"] is not None]
+    org = max(known) if known else None
+    level = ("🔴 ترس" if org is not None and org >= FEAR_THRESHOLD else
+             "🟡 استرس" if org is not None and org >= 0.4 else "🟢 آرام")
+    return {"ts": opslib.now_iso(), "schema": "stress.v2",
+            "organism_stress": round(org, 2) if org is not None else None,
+            "in_fear": in_fear, "level": level,
+            "data_quality": "degraded" if unknown else "ok",
+            "unknown": unknown,
             "subsystems": subs}
 
 
 def organism_in_fear() -> tuple[bool, str]:
     """آیا ارگانیسم در حالتِ ترس است؟ (خوراکِ گیتِ محافظه‌کاریِ auto_approve/…)."""
+    # U1 (2026-09-07): حسگرِ ناشناخته در جزئیات حمل می‌شود — «آرامِ» گزارش‌شده
+    # با دادهٔ سالم یکی نمی‌شود؛ گیتِ مصرف‌کننده (auto_approve) ناقص بودن را می‌بیند.
     a = assess()
+    unk = f"؛ ⚠️ {len(a['unknown'])} حسگرِ ناشناخته" if a["unknown"] else ""
     if a["in_fear"]:
         names = "، ".join(a["subsystems"][s]["name"] for s in a["in_fear"])
-        return True, f"ترس در: {names} (استرسِ ارگانیسم {a['organism_stress']})"
-    return False, f"آرام (استرس {a['organism_stress']})"
+        return True, f"ترس در: {names} (استرسِ ارگانیسم {a['organism_stress']}){unk}"
+    calm = "آرام" if a["data_quality"] == "ok" else "آرام (دادهٔ ناقص)"
+    return False, f"{calm} (استرس {a['organism_stress']}){unk}"
 
 
 def persist() -> dict:
@@ -201,7 +237,7 @@ def persist() -> dict:
     try:
         p = STATE / "cortex" / "stress-latest.json"
         p.parent.mkdir(parents=True, exist_ok=True)
-        prev = _r("cortex/stress-latest.json")
+        prev = _r("cortex/stress-latest.json") or {}
         with opslib.LockedJson(p) as lj:
             lj.write(a)
         # رویداد فقط هنگامِ ورودِ نو به ترس (نه هر چرخه — ضدِ اسپم)

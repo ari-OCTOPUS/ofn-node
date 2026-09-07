@@ -1,0 +1,43 @@
+{
+  "schema": "u1.execution.receipt.v1",
+  "lane_id": "MP-V41-U1-20260907",
+  "order": "MP-OCTOPUS-V4.1 §۰.۱/§۴/§۵ (V4-A01, V4-A02)",
+  "authority": "owner chat GO 2026-09-07 («اجرا کن») on the v4+six-patches proposal; GOV_VERSION=V8 · LADDER=L2; zero external effects",
+  "mutations": [
+    {
+      "file": "F:/backup/_ops/cortex/stress.py",
+      "mutation_class": "WRITE_CODE (live organism path)",
+      "pre_sha256": "3ec1b6b44b590f55d827fe220575fb4bb9fdd7399bd365b00b64aaba78faa54c",
+      "post_sha256": "2ab8815d2745e0e1db470a320b228e8258339efa6a316164c9a1697673f54fd4",
+      "diff_stat": "482-line file, +84/-40 net minimal hunks (CRLF preserved)",
+      "change": "unknown != calm: _r() file-missing/parse-error -> None; five subsystem sensors return (None, reason) on missing source; assess() schema stress.v2 with per-subsystem quality=unknown, organism-level data_quality=degraded + unknown[] list; organism stress null (not 0) when all unknown; fear computed only from known values; organism_in_fear() carries 'دادهٔ ناقص / n حسگر ناشناخته' in detail; persist() prev-read None-safe",
+      "keys_compatibility": "level/organism_stress/in_fear/subsystems preserved (consumers: cortex.py stress_tick, wiring.py:3962, auto_approve.py:91-92, code_autonomy.py:76, live/server.py:469)"
+    },
+    {
+      "file": "F:/backup/_ops/cortex/calibration_probe.py",
+      "mutation_class": "WRITE_CODE (live organism path)",
+      "pre_sha256": "866c9d4e968f6470a8c427abf43142a5952401dab4e1ee96be13424c30acf15f",
+      "post_sha256": "522f1b2f080ce19eb957e57d2f233821b061487fabdc331542224629a8c29f2b",
+      "diff_stat": "+14/-9 lines (CRLF preserved)",
+      "change": "unresolved != failure: 'unresolved' removed from _FALSY -> _binary() returns None -> row is ungraded (excluded from Brier/AURC), matching module's own docstring principle; TRUTH_SEMANTICS='binary_truth.v2: unresolved=ungraded (U1 2026-09-07)' carried in probe() output (both safe-dict and result)",
+      "open_observation": "'resolved' remains in _TRUTHY (field-name collision risk with 'settled' semantics) — recorded as follow-up, NOT changed in this minimal seam fix"
+    },
+    {
+      "file": "F:/backup/_ops/tests/test_u1_sensor_honesty.py",
+      "mutation_class": "WRITE_TEST (new)",
+      "tests": 7
+    }
+  ],
+  "caller_evidence": {
+    "static": "stress consumers: cortex.py:413-414 (stress_tick), wiring.py:3961-3962, auto_approve.py:91-92 (organism_in_fear gates self-modification), code_autonomy.py:76, live/server.py:469; calibration consumers: cockpit_brain.py reads state/cortex/calibration-latest.json (CALIBRATION_LATEST), improve.py consumes calibration",
+    "runtime_artifacts": "_ops/state/cortex/* written minutes before scan (2026-09-07 12:17-12:50) => cortex subsystem active on this host",
+    "loaded_revision": "UNVERIFIED — running processes still hold pre-patch modules in memory; new code loads on next natural import/restart. No restart performed (SERVICE-AFFECTING, v4.1 §14)"
+  },
+  "verification": {
+    "pytest_new": "tests/test_u1_sensor_honesty.py: 7 passed (1.33s)",
+    "regression_legacy_scripts": "tests/test_stress.py: 15/15 PASS; tests/test_guidance_box.py: 8/8 PASS (both rc=0 against patched code)",
+    "syntax": "ast.parse OK both files; CRLF preserved (minimal diff verified via git diff --stat)"
+  },
+  "rollback": "git checkout -- _ops/cortex/stress.py _ops/cortex/calibration_probe.py && delete tests/test_u1_sensor_honesty.py (no external effects; no state migrations; stress-latest.json will simply be written in schema stress.v2 on next persist after deploy)",
+  "counters": "EXTERNAL_ACTIONS=0 · NEW_LAN_LISTENERS=0 · MAY_AUTHORIZE=false"
+}
