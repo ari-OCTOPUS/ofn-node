@@ -137,6 +137,15 @@ def emit(event_name: str, agent_id: str, *, status: str = "ok",
     registry (owner/risk_tier/…) به رویداد می‌چسباند (fail-soft، بدونِ I/O اگر registry نبود).
     #۱۳: incident=dict یک زیرشاخهٔ scrub-شدهٔ `incident` اضافه می‌کند.
     خواننده‌های فعلی هیچ‌کدام را لازم ندارند (فقط .get) — صفر شکست."""
+    # UNIFY U-1: delegate to spine if available (single-writer pattern)
+    try:
+        import spine as _spine
+        _r = _spine.emit(event_name, agent_id)
+        if _r is not None:
+            return _r  # spine accepted; skip legacy emit
+    except Exception:
+        pass  # spine unavailable → fall through to legacy emit
+
     ts = time.time()
     # رفعِ E2 (2026-07-13): نامِ رویدادِ خارج از taxonomy دیگر به task.completed (سبز) coerce
     # نمی‌شود — به task.failed (قرمز) می‌رود تا drift ِ تولیدکننده «موفق» جلوه نکند؛ نامِ اصلی
