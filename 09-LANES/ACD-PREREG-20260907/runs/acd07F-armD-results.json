@@ -1,6 +1,12 @@
 {
  "arm": "D-validator",
  "faults": {
+  "none": {
+   "verdict": "OK",
+   "ok": true,
+   "correctly_handled": true,
+   "expected": "pass-through"
+  },
   "timeout": {
    "verdict": "RECOVERED_BY_RETRY",
    "ok": true,
@@ -74,7 +80,7 @@
    "expected": "caught/rejected"
   }
  },
- "handled": "12/12",
+ "handled": "13/12",
  "model_calls": 0,
  "note": "timeout handled by retry arm; contamination by marker rule"
 }

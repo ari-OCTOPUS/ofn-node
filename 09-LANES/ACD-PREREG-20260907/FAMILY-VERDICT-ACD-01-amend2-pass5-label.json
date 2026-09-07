@@ -1,0 +1,13 @@
+{
+ "correction": "pass5_label_was_0.75",
+ "real_numbers": {
+  "per_attempt_pass_rate": 0.75,
+  "per_attempt_label": "pass per single attempt",
+  "instances_all_5_pass": 4,
+  "instances_total": 12,
+  "pass_hat_5_descriptive": "4/12 = 0.333",
+  "pass_hat_5_definition": "fraction of instances whose ALL 5 independent runs PASSed"
+ },
+ "why_both_matter": "per_attempt shows extraction ability; pass^5 shows reliability. Our 0.75 was per_attempt, mislabeled as pass^5. The 33.3% is the honest reliability estimate at 5-run consistency.",
+ "advisor_source": "TALENT-EVIDENCE.json recomputation from our raw receipts"
+}

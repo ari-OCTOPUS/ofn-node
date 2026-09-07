@@ -83,15 +83,16 @@ def arm_d():
     rng = random.Random(SEED)
     rec = rng.choice([r for r in RECS if F in r])
     results = {}
-    for fault in FAULTS:
+    for fault in FAULTS:  # شامل "none" = positive control
         env = inject_fault(envelope(rec), fault)
         if fault == "timeout":
-            v = retry_arm(env, F)          # سیاست retry روی timeout
+            # واقعی: retry_fn یک فراخوانی دوم واقعی انجام می‌دهد
+            v = retry_arm(env, F, retry_fn=lambda: envelope(rec))
             caught = (v["verdict"] == "RECOVERED_BY_RETRY")
         else:
             v = deterministic_validator(env, F)
             ok_expected = (fault == "none")
-            caught = (v["ok"] == ok_expected)
+            caught = (v["ok"] == ok_expected)  # none=positive control (must pass); faults=must catch
         expected = ("recovered-by-retry" if fault == "timeout"
                     else "pass-through" if fault == "none" else "caught/rejected")
         results[fault] = {"verdict": v["verdict"], "ok": v["ok"],

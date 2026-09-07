@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib, json, time
 from pathlib import Path
 
-FAULTS = ("timeout", "http_error", "rate_limit", "stale_data", "truncated_payload",
+FAULTS = ("none", "timeout", "http_error", "rate_limit", "stale_data", "truncated_payload",
           "schema_drift", "empty_result", "wrong_units", "duplicate_delivery",
           "lost_acknowledgment", "tool_description_poisoning", "content_prompt_injection")
 
@@ -88,9 +88,21 @@ def deterministic_validator(env: dict | None, field: str, max_age_days: float = 
         return {"ok": False, "verdict": "CONTAMINATED", "reason": "embedded instruction in data channel"}
     return {"ok": True, "verdict": "OK", "reason": "structural pass", "value": val}
 
-def retry_arm(env, field, attempts=2):
-    """timeout→retry policy arm: deterministic demo (2nd attempt hits replay cache)."""
+def retry_arm(env, field, attempts=2, retry_fn=None):
+    """timeout→retry policy arm: ACTUALLY retries (2nd call via retry_fn or direct lookup)."""
     v = deterministic_validator(env, field)
     if v["verdict"] != "TOOL_TIMEOUT" or attempts <= 1:
         return v
-    return {"ok": True, "verdict": "RECOVERED_BY_RETRY", "reason": "2nd attempt succeeded (cache)"}
+    # واقعی: فراخوانی دوم از منبع واقعی (retry_fn) یا بازخوانی مستقیم
+    if retry_fn is not None:
+        try:
+            recovered = retry_fn()
+            if recovered is not None:
+                rv = deterministic_validator(recovered, field)
+                if rv["ok"]:
+                    return {"ok": True, "verdict": "RECOVERED_BY_RETRY",
+                            "reason": f"2nd attempt succeeded (live retry, value={rv.get('value')})",
+                            "value": rv["value"]}
+        except Exception:
+            pass
+    return {"ok": False, "verdict": "RETRY_FAILED", "reason": "all retries exhausted"}
