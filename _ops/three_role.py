@@ -240,14 +240,30 @@ SEMANTIC_MEMORY = _HERE / "state" / "semantic_memory.jsonl"
 
 def archive_seed(context: str, k: int = 3) -> dict:
     """نخبگانِ حافظهٔ معنایی مرتبط با زمینه: مرتب‌سازی = هم‌پوشانی توکن × salience.
-    fail-closed: نبودن/خرابی فایل = بذرِ خالی، هرگز کرش، هرگز fabrication."""
+    fail-closed: نبودن/خرابی فایل = بذرِ خالی، هرگز کرش، هرگز fabrication.
+    (H9-TESTBATTERY T1: پوشش خطا از OSError به همهٔ حالات خرابی گسترش یافت —
+    خط وسط JSON خراب، ردیف غیر-dict، salience غیرعددی، باینری/UTF8 خراب.)"""
     out = {"n_store": 0, "seeded": [], "digest": "", "digest_chars": 0}
+    rows = []
+    bad_rows = 0
     try:
-        rows = [json.loads(ln) for ln in
-                open(SEMANTIC_MEMORY, encoding="utf-8") if ln.strip()]
+        with open(SEMANTIC_MEMORY, encoding="utf-8", errors="replace") as fh:
+            for ln in fh:
+                if not ln.strip():
+                    continue
+                try:
+                    r = json.loads(ln)
+                    if isinstance(r, dict):
+                        rows.append(r)
+                    else:
+                        bad_rows += 1
+                except (json.JSONDecodeError, ValueError):
+                    bad_rows += 1
     except OSError as e:
         out["seed_error"] = f"{type(e).__name__}"
         return out
+    if bad_rows:
+        out["skipped_bad_rows"] = bad_rows
     out["n_store"] = len(rows)
     toks = __import__("re").findall(r"[a-zA-Z\u0600-\u06FF]{3,}", context.lower())
     ctx_tokens = set(toks)
@@ -256,14 +272,18 @@ def archive_seed(context: str, k: int = 3) -> dict:
         g = str(r.get("gist", ""))
         rt = set(__import__("re").findall(r"[a-zA-Z\u0600-\u06FF]{3,}", g.lower()))
         overlap = len(ctx_tokens & rt)
-        return (overlap > 0, overlap * 10 + float(r.get("salience") or 0.0))
+        try:
+            sal = float(r.get("salience") or 0.0)
+        except (TypeError, ValueError):
+            sal = 0.0
+        return (overlap > 0, overlap * 10 + sal)
 
     for r in sorted(rows, key=rank, reverse=True)[:k]:
         out["seeded"].append({"ts": r.get("ts"), "salience": r.get("salience"),
                               "gist": str(r.get("gist", ""))[:120],
                               "next_action": r.get("next_action")})
     out["digest"] = " | ".join(
-        f"[{s['ts'][:10]} sal={s['salience']}] {s['gist']} → {s['next_action']}"
+        f"[{str(s['ts'])[:10]} sal={s['salience']}] {s['gist']} → {s['next_action']}"
         for s in out["seeded"])
     out["digest_chars"] = len(out["digest"])
     return out
