@@ -122,12 +122,13 @@ class Quota:
         return {"day": date.today().isoformat(), "used_total": 0,
                 "spent_usd": 0.0, "unpriced_calls": 0}
 
-    def _save(self, d: dict) -> None:
+    def _save(self, d: dict) -> bool:
         try:
             self.p.parent.mkdir(parents=True, exist_ok=True)
             self.p.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+            return True
         except OSError:
-            pass
+            return False
 
     @property
     def used(self) -> int:
@@ -155,14 +156,34 @@ class Quota:
         self._save(d)
         return True
 
-    def charge(self, usd: float | None) -> None:
-        """`None` یعنی تعرفه نامعلوم — شمرده می‌شود ولی صفر فرض **نمی‌شود**."""
+    def charge(self, usd: float | None) -> float:
+        """`None` یعنی تعرفه نامعلوم — شمرده می‌شود ولی صفر فرض **نمی‌شود**.
+
+        2026-09-09 (OP-2، MP-OPERATORS-01): ریشهٔ ردیف‌های 0.0 روزهای ۰۹-۰۶/۰۹-۰۷ —
+        نوشتنِ گذرایِ `_save` (قفلِ AV/هم‌زمانی) ساکت شکست می‌خورد و `_receipt`
+        مقدارِ stale دیسک را «امروز» جا می‌زد. قراردادِ جدید: مقدارِ برگشتی =
+        مجموعِ **بعد از کسر** از همان dict جهش‌یافته؛ رسید از همین می‌سازد، نه از
+        دیسک. اگر نوشتن دو بار شکست بخورد، رخداد در fugu-quota-savefail.jsonl
+        ثبت می‌شود — پولِ شمرده‌شده هرگز ساکت گم نمی‌شود."""
         d = self._load()
         if usd is None:
             d["unpriced_calls"] = int(d.get("unpriced_calls", 0)) + 1
         else:
             d["spent_usd"] = round(float(d.get("spent_usd", 0.0)) + float(usd), 6)
-        self._save(d)
+        if not self._save(d):        # قفلِ گذرا — یک تلاشِ دیگر
+            time.sleep(0.2)
+            if not self._save(d):
+                try:
+                    with (self.p.parent / "fugu-quota-savefail.jsonl").open(
+                            "a", encoding="utf-8") as fh:
+                        fh.write(json.dumps({
+                            "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                            "day": d.get("day"),
+                            "lost_spent_usd": d.get("spent_usd"),
+                        }, ensure_ascii=False) + "\n")
+                except OSError:
+                    pass
+        return float(d.get("spent_usd", 0.0))
 
 
 def _organism_halted() -> bool:
@@ -336,16 +357,20 @@ class Fugu:
             ti, to = int(u.get("prompt_tokens", 0)), int(u.get("completion_tokens", 0))
             rep = Reply(text, model, effort, ti, to, ms, ok=True,
                         cost_usd=price(model, ti, to), shape=shape)
-            self.quota.charge(rep.cost_usd)
-            self._receipt(rep)
+            spent_after = self.quota.charge(rep.cost_usd)
+            self._receipt(rep, spent_usd=spent_after)
             return rep
 
         return Reply(None, model, effort, ms=int((time.time()-t0)*1000), ok=False,
                      reason=f"هیچ شکلِ پارامتری پذیرفته نشد — آخرین: {last}")
 
     # -------------------------------------------------------------- receipt
-    def _receipt(self, r: Reply) -> None:
-        """رسیدِ روی دیسک با هزینهٔ **محاسبه‌شده**، نه صفرِ فرضی."""
+    def _receipt(self, r: Reply, spent_usd: float | None = None) -> None:
+        """رسیدِ روی دیسک با هزینهٔ **محاسبه‌شده**، نه صفرِ فرضی.
+
+        `spent_usd` (اختیاری، OP-2 2026-09-09): مجموعِ بعد از کسر که `charge`
+        برگردانده — منبعِ حقیقتِ همین فراخوان، حتی اگر فایلِ سهمیه در لحظهٔ
+        نوشتن قفل بوده باشد. غایب = مسیرهای بدونِ کسرِ محلی (مثل central-router)."""
         try:
             self.state.mkdir(parents=True, exist_ok=True)
             with (self.state / "paid-calls.jsonl").open("a", encoding="utf-8") as fh:
@@ -356,7 +381,8 @@ class Fugu:
                     "tokens_in": r.tokens_in, "tokens_out": r.tokens_out,
                     "cost_usd": r.cost_usd,          # None = تعرفه [UNKNOWN]
                     "ms": r.ms, "quota_used": self.quota.used,
-                    "spent_usd_today": self.quota.spent_usd,
+                    "spent_usd_today": (spent_usd if spent_usd is not None
+                                        else self.quota.spent_usd),
                 }, ensure_ascii=False) + "\n")
         except OSError:
             pass
