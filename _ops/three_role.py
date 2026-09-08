@@ -23,6 +23,7 @@ import urllib.request
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
+STATE = _HERE / "state"   # MP-CONNECT-ALL-01: state/store-watch.json (از چشمِ ۱۳۸)
 for _p in (str(_HERE), str(_HERE / "cortex"), str(_HERE / "budget")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -178,18 +179,52 @@ def m_organism_liveness() -> dict:
             "checks": [{"check": c, "pass": bool(p), "expectation": e} for c, p, e in checks]}
 
 
+def m_store_order_check() -> dict:
+    """MP-CONNECT-ALL-01 فاز C: وضعیت فروشگاه از چشمِ ۱۳۸ (state محلی، بدون شبکه)."""
+    w = json.loads((STATE / "store-watch.json").read_text(encoding="utf-8")) \
+        if (STATE / "store-watch.json").exists() else {}
+    dom = w.get("domain") or {}
+    orders = w.get("orders") or {}
+    def _age_s(ts):
+        try:  # ts یو‌تی‌سی است — با timegm نه mktime (باگ منطقه‌زمانی)
+            import calendar
+            return time.time() - calendar.timegm(
+                time.strptime(str(ts)[:19], "%Y-%m-%dT%H:%M:%S"))
+        except ValueError:
+            return float("inf")
+    checks = [
+        ("watch_fresh_6h", bool(w.get("ts_utc")) and _age_s(w.get("ts_utc")) < 21600,
+         "state/store-watch.json تازه"),
+        ("orders_api_ok", orders.get("ok") is True, "چشمِ ۱۳۸ به API وصل است"),
+        ("domain_page_200", dom.get("page_ok") is True,
+         "صفحهٔ محصول برای مشتری باز است"),
+        ("first_real_order", orders.get("first_real_order") is True,
+         "اولین سفارش واقعی رسیده"),
+    ]
+    return {"fetch": {"ok": bool(w)}, "watch": {"ts": w.get("ts_utc"),
+            "paid_since_sep1": orders.get("paid_since_sep1"),
+            "last_order_id": orders.get("last_order_id")},
+            "checks": [{"check": c, "pass": bool(p) if p is not None else None,
+                        "expectation": e} for c, p, e in checks],
+            "observed_url": "state/store-watch.json (از board138 store_watch)"}
+
+
 MISSIONS = {
     "shelf_check_zm_gallery_0013": {
         "title": "زیمان: ZM-GALLERY-0013 روی قفسه است و قیمت A$45 درست است (سطح فروش پول‌ساز)",
         "fn": m_shelf_check, "priority": 1,
         "executor_task_type": "presence_check"},
+    "store_order_check": {
+        "title": "فروشگاه: سفارش/دامنه از چشم ۱۳۸ — اولین VERIFIED_CASH رسیده؟ (درایو: ترسِ پولِ صفر)",
+        "fn": m_store_order_check, "priority": 2,
+        "executor_task_type": "timestamp_freshness"},
     "checkout1_order_check": {
         "title": "CHECKOUT-1: سفارش تستی مالک در Shopify افتاده یا نه (ریل پول)",
-        "fn": m_checkout1_order_check, "priority": 2,
+        "fn": m_checkout1_order_check, "priority": 3,
         "executor_task_type": "field_extraction"},
     "organism_liveness_check": {
         "title": "عملیاتی: ارگانیسم زنده است و beat تازه دارد",
-        "fn": m_organism_liveness, "priority": 3,
+        "fn": m_organism_liveness, "priority": 4,
         "executor_task_type": "timestamp_freshness"},
 }
 

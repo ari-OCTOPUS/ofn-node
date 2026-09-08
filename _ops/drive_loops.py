@@ -333,6 +333,14 @@ def _evaluate(*, selftest_lock: tuple[str, callable] | None = None) -> dict:
                 "ts_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "lock": lid, "next": registry[lid]["next"],
                 "consumed": False}, ensure_ascii=False) + "\n")
+        # C2 (2026-09-08, owner «همرو انجام بده»): آینهٔ cross-body — همان
+        # رویداد در صفِ board_cp هم می‌نشیند تا 138 با pull بعدی بردارد.
+        # fail-soft مطلق؛ فلگ خاموش = no-op. هیچ مسیرِ قدیمی تغییر نکرد.
+        try:
+            from board_cp.drive_mirror import mirror_lock_opened
+            mirror_lock_opened(lid, registry[lid]["next"])
+        except Exception:  # noqa: BLE001
+            pass
 
     fear_total = round(sum(f["severity"] for f in fears), 3)
     dop_total = round(sum(w["count"] * w["weight"] for w in dop), 3)
@@ -359,11 +367,57 @@ def _evaluate(*, selftest_lock: tuple[str, callable] | None = None) -> dict:
 
 def tick(beat: int = 0) -> dict:
     """نقطهٔ اتصالِ ارگانیسم — fail-soft در caller، اینجا سبک می‌مانیم."""
+    try:  # MP-CONNECT-ALL-01 فاز B: رفلکس فروشگاه هر ۶ بیت (≈۹۰دقیقه)
+        if beat and beat % 6 == 0:
+            sync_store_watch()
+    except Exception:  # noqa: BLE001 — sync هرگز tick را نمی‌کشد
+        pass
     out = _evaluate()
     try:  # 2026-09-08: مصرف صفِ قدم‌های بعدی (شکافِ ممیزی صبح) — fail-soft
         import drive_queue_consumer
         drive_queue_consumer.consume_pending()
     except Exception:  # noqa: BLE001
+        pass
+    return out
+
+
+def sync_store_watch() -> dict:
+    """MP-CONNECT-ALL-01 فاز B: کشیدنِ چشمِ ۱۳۸ با ssh (نتیجه، نه توکن).
+    MARKERِ اولین سفارش آن‌طرف + نبودِ رسید محلی ⇒ ساخته می‌شود
+    ⇒ قفل CASH_first_order در ارزیابیِ بعدی خودش باز می‌شود (task.resume + دوپامین)."""
+    import subprocess
+    out = {"ts_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "ok": False}
+    def _ssh(cat):
+        return subprocess.run(
+            ["ssh", "-o", "ConnectTimeout=8", "-o", "BatchMode=yes", "board138",
+             "cat " + cat],
+            capture_output=True, text=True, timeout=25)
+    try:
+        r = _ssh("~/octopus-mesh/state/ziman/store-watch.json")
+        if r.returncode == 0 and r.stdout.strip():
+            (STATE / "store-watch.json").write_text(r.stdout.strip(), encoding="utf-8")
+            out["ok"] = True
+            out["watch"] = json.loads(r.stdout.strip()).get("schema")
+        m = _ssh("~/octopus-mesh/state/ziman/FIRST-ORDER-MARKER.json")
+        local = STATE / "receipts" / "FIRST-ORDER-RECEIPT.json"
+        if m.returncode == 0 and m.stdout.strip() and not local.exists():
+            d = json.loads(m.stdout.strip())
+            local.parent.mkdir(parents=True, exist_ok=True)
+            local.write_text(json.dumps({
+                "order_id": d.get("order_id"), "total": d.get("total"),
+                "financial_status": d.get("financial_status"),
+                "created_at": d.get("created_at"),
+                "witness": "board138 store_watch FIRST-ORDER-MARKER (قرارداد MP-CONNECT-ALL-01)",
+                "ts_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
+                ensure_ascii=False, indent=1), encoding="utf-8")
+            out["first_order_receipt_created"] = True
+    except Exception as e:  # noqa: BLE001
+        out["err"] = f"{type(e).__name__}: {e}"[:120]
+    try:
+        DRIVE.mkdir(parents=True, exist_ok=True)
+        with open(DRIVE / "store-sync.jsonl", "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(out, ensure_ascii=False) + "\n")
+    except OSError:
         pass
     return out
 
