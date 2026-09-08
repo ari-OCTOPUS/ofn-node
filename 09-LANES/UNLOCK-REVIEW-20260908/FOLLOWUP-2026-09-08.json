@@ -44,8 +44,8 @@
     },
     {
       "id": "F6-backup-root-cause",
-      "finding": "DEFINITIVE root cause of germline-daily rc=1 (since 09-02): gate 1 `git fsck --full` exits nonzero with dangling-ONLY output (18 unreachable objects; zero missing/broken/corrupt lines in full log) -> script threw GIT FSCK FAILED. The 03:50 GITWRITE flag was a separate victim: hourly at ~03:49 timed out on the lock held by the daily's own long fsck.",
-      "action": "germline-backup.ps1 gate 1 made corruption-precise (2026-09-08): output classified via temp file; only non-dangling error lines abort; clean-rc-with-hard-lines also aborts; dangling-only allowed with explicit note. Drill fsck stays strict (bundle clone is reachable-only). Task germline-daily action now redirects output to E:\\germline\\daily-last-run.log (was hidden-window, failures undiagnosable). Manual re-run with fix IN FLIGHT.",
+      "finding": "CORRECTED chain (3 runs): run-1 'dangling-only' theory was based on tail-truncated output. Run-2 persisted fsck log showed 2 'missing tree' lines as the real trigger; cat-file re-check right after found BOTH trees EXIST -> transient race between fsck and concurrent unserialized writers (agents/organism commit without gitwrite lock). 30+ dangling objects are separate and benign. Nightly rc=1 since ~09-02 = fsck nonzero (dangling + transient missing), NOT corruption.",
+      "action": "germline-backup.ps1 gate 1 made corruption-precise (2026-09-08): output classified via temp file; only non-dangling error lines abort; clean-rc-with-hard-lines also aborts; dangling-only allowed with explicit note. Drill fsck stays strict (bundle clone is reachable-only). Task germline-daily action now redirects output to E:\\germline\\daily-last-run.log (was hidden-window, failures undiagnosable). Manual re-run with fix IN FLIGHT. | run-3 launched with race-hardened gate: missing-object lines re-verified via cat-file (exists-now = transient, proceed; still-absent/other errors stay fatal).",
       "open": [
         "manual run completion (drill PASS + fresh manifest = nightly VERIFIED)",
         "18 dangling objects left in place (reflog-protected; harmless)"
