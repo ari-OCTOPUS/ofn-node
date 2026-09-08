@@ -84,7 +84,16 @@ try {
             # or any other error class - stays fatal (fail-closed contract intact).
             $still = @()
             foreach ($l in $fsckHard) {
-                if ($l -match '^missing\s+\S+\s+([0-9a-f]{40,64})') {
+                # "missing <type> <sha>": re-verify with cat-file (exists-now = race).
+                if ($l -match 'missing\s+\S+\s+([0-9a-f]{40,64})') {
+                    git -C $VAULT cat-file -e $Matches[1]
+                    if ($LASTEXITCODE -eq 0) { continue }
+                }
+                # "invalid reflog entry <sha>" (run-5 finding): fsck read .git/logs
+                # while a concurrent agent commit was mid-reflog-append -> torn entry.
+                # If the object itself exists now, the reflog line is readable and the
+                # complaint was a read race, not damage.
+                if ($l -match 'invalid reflog entry\s+([0-9a-f]{40,64})') {
                     git -C $VAULT cat-file -e $Matches[1]
                     if ($LASTEXITCODE -eq 0) { continue }
                 }
