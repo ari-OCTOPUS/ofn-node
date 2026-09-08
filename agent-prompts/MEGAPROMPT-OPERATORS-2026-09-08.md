@@ -5,7 +5,7 @@ version: 1.0
 date: 2026-09-08
 mode: EXECUTE_WITH_RECEIPTS
 gov: V8 / L2
-source_head: d64e203
+source_head: 91a5c5e (revised 2026-09-09 after judge review)
 owner_decision_needed: [jq/rg-install-on-138 (OP-1, کارت داخل متن), any-spend, H9-v2-execution (OP-5)]
 ---
 
@@ -25,17 +25,37 @@ GAP-VERIFY-RUN، H9-TESTBATTERY و رسید T3/T4). عملگرها بر اساس
    از `git show rescue:<path>` بازگردان (هیچ‌وقت فایل گمشده را از نسخهٔ موازی بازسازی نکن).
 5. گزارش هر عملگر: verdict صریح PASS/FAIL/BLOCKED + شواهد E1..E5 + rollback تک‌خط.
 
-## OP-1 — چشمان اندازه‌گیری: jq و ripgrep روی ۱۳۸ (گیت: کارت مالک)
+## OP-0 — ریشهٔ sparse پیدا شد؛ تصمیم مالک برای کشتن تله (بالاتر از همه)
 
-۲۵ گپ غیرقابل‌اندازه‌گیری چون jq (۱۳ گپ) و rg (۴ گپ) روی ۱۳۸ نصب نیستند.
-- کارت مالک (یک تصمیم): «نصب jq + ripgrep روی ۱۳۸ با apt» — GO / NOT.
-- با GO: `ssh board138 "sudo -n apt-get install -y jq ripgrep"` → خروجی = رسید →
-  اجرای مجدد `run_verify2.py` (در 09-LANES/GAP-VERIFY-RUN-20260908) → فایل نتایج v2 +
-  به‌روزرسانی verify_status ردیف‌ها در ops/GAP-LEDGER.jsonl با `tools/gap_ledger.py`
-  (فقط وضعیت‌ها؛ ساختار دست‌نخورده).
-- rollback: `sudo -n apt-get remove -y jq ripgrep`.
-- خروجی موردانتظار: تعداد PASS/FAIL/ERROR جدید — انتظار صادقانه: چند خطای دیگر هم
-  بیرون می‌آید (ماژول‌های tools.* غایب)؛ همین ارزش اندازه‌گیری است.
+داده‌های ریشه‌یاب (جلسهٔ داوری): `core.sparseCheckout=true` در `.git/config.worktree` +
+`.git/info/sparse-checkout` = غیر-cone با `/*` و `!/*/` (یعنی «فقط فایل‌های سطح روت»)،
+فایل الگو نوشته‌شده **2026-09-05 18:59**؛ ۴۰٬۵۰۴ بیت skip-worktree از ۵۱٬۱۹۰ فایل.
+مکانیزم: هر `git add --sparse` بیت می‌گذارد بدون حذف؛ اولین checkout بعدی فایل‌های
+تمیزِ بیت‌خورده را از disk پاک می‌کند (امشب: ~۴٫۵ هزار فایل، بازگردانی شد).
+- **کارت مالک (یک تصمیم):** (A) `git sparse-checkout disable` — همهٔ ۴۰k فایل
+  materialize می‌شوند، تله برای همیشه می‌میرد [پیشنهاد — این repo والدِ کار است نه
+  کلون سبک] · (B) فقط مسیرهای فعال به الگو اضافه شود + اسکریپت گارد قبل از هر
+  checkout · (C) وضع موجود + گارد. rollback هر گزینه در رسید.
+- بدون رأی: هیچ checkout/تعویض ref دیگری در این repo انجام نشود مگر با اسکن+بازگردانی
+  بعد از آن (اسکریپت نمونه در lane GAP-VERIFY-RUN).
+
+## OP-1 — [اجراشده 2026-09-09] پورت python + آشتی با نسخهٔ کانونی
+
+**بخش الف — اجرا شد (داور، گام ۴):** ۱۸ فرمان jq/rg به python3 خالص پورت شد
+(`port_verifies_to_python.py`؛ بدون هیچ mutation نودی). نتیجهٔ v2:
+- **GAP-010 رد شد** (۳ خواننده برای OWNER-QUEUE روی repo ۱۳۸ — کاندیدای CLOSED با همین شاهد)
+- GAP-011 تأیید (صفر مصرف‌کنندهٔ SILENT_FLIP) · GAP-015 تأیید جزئی (۱ از ۲ ارجاع)
+- ۱۵ ماژول tools.* غایب روی ۱۳۸ (فهرست دقیق در results) — این‌ها «قابلیت غایب»اند نه ابزار
+- اصلاح صداقتی: PASS کاذب GAP-009 (pipe-exit mask) با ردیف v2.1 باطل و ERROR ثبت شد
+
+**بخش ب — بازمانده (داور، گام‌های ۱-۲):** نسخهٔ کانونی ابزار (gap_sources.yaml 41KB،
+gap_ledger.py 12KB با --verify-chain و تست‌ها) در Space داور است (business-legs-wiring/)،
+روی دیسک لپ‌تاپ یافت نشد (جست‌وجوی کامل). آشتی فعلی: بازسازیِ من در هر ۶۴ ردیف با
+خروجیِ کانونی (md) field-identical است (reconcile_vs_md.py). کار باقی:
+(۱) رساندن پوشهٔ کانونی به vault (مالک/داور آن را بریزد)، (۲) diff دو sources،
+(۳) اجرای --verify-chain روی هر دو، (۴) حذف بازسازی از ops/ و سوییچ به کانونی،
+(۵) تزریق نتایج verify در چرخهٔ لجر از مسیر yaml + به‌روزرسانی همزمان
+test_verify_status_starts_unvalidated (تلهٔ داور).
 
 ## OP-2 — دفتر پول صادق: ریشه‌یاب نویسندهٔ spent_usd_today
 
