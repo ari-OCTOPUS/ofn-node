@@ -54,7 +54,8 @@
         "fsck_runtime": "~63 min on 3.0GB repo",
         "bundle_size": "2,957,837,785 bytes",
         "last_good_manifest": "2026-09-01_0330 drill PASS notes=7347"
-      }
+      },
+      "final": "*** GREEN 2026-09-08 17:45 local (run-8, after lock-wait wrapper): '[OK] GERMLINE SAFE - rolling bundle + drill green, germline_lag=0' · manifest stamp 2026-09-08_1745 · drill PASS · notes_verified 7540 · ledger OK source+restored · bundle 2,957,225,843 bytes. rc=3 = robocopy success code (files+extras copied), not an error. 8 runs total; 6 permanent fixes (fsck precision, missing-race, ledger fork repair, scratch C:->E:, reflog-race, checkout split+retry) + lock-wait wrapper; all inherited by tonight's 03:30 automatic run. ***"
     }
   ],
   "unchanged": [
