@@ -1,0 +1,68 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CUBE-CUBIC-20260908",
+  "issued_utc": "2026-09-08T17:02:08Z",
+  "author": "cursor-cloud owner-absent automation (ci_check_suite require-fresh-base on #242)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-cube-cubic on feat/p1-cube-cubic-20260908 parent origin/main @2affbd7ad63e0901d6abb9c17bca2a20b236fba1 (#238 EventEnvelope). cube_class.py and cubic_pin.py ABSENT on parent (test ! -e). /workspace stayed on cursor/taskenvelope-system-hardening-81ee @e8c299e91f13bd37114ad1cb9aa41c39aa5dd92a and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list not used this-run; git ls-remote used)"
+  ],
+  "action": "P1 complementary cube_class + cubic_pin — new files only. One signed exact int classifies as zero / cube / other. sample is a START. classify/observe/inspect continue under HALT. Missing is UNKNOWN, not FALSE and not 0. Measured 0 is ZERO never UNKNOWN and never CUBE. Signed exact cubes are admitted (unlike square_class). OTHER is a family not FALSE. Exact-cube root only, not floor-cbrt. Same pair = replay not send. campaign_envelope_ready structurally ≠ send_authorized. Not a second square-root, triangular-series, pow2-log2, remainder-leftover, quotient-divide, or digest-fold PR.",
+  "delivered": {
+    "ofn/kernel/cube_class.py": "classify_family: missing→UNKNOWN; timeout→UNKNOWN; 0→ZERO; exact cube (incl. signed)→CUBE; else→OTHER; bool/float fail closed; sample START; classify/observe/inspect continue; grants_send/ready_is_authorized/wires_into_run_store/rearms_send structurally False; later_disarm_supersedes structurally True",
+    "ofn/kernel/cubic_pin.py": "pin_cubic: first→pinned; same encoding→already_pinned; different value→cubic_collision; peek does not write; pin_allows_send structurally False; pin_allows_sample only SAMPLE+CUBE; ZERO/OTHER recorded not granted as exact-cube sample; not wired into run_store.py",
+    "tests/test_cube_class.py": "E3 negatives: missing UNKNOWN not 0, measured 0 is ZERO, signed cubes admitted, floor root not exact, sealed names, bool/float, halt START vs continue",
+    "tests/test_cubic_pin.py": "E3 negatives: missing UNKNOWN, replay, collision, sealed slots, frozen retcon, ZERO encoding 0:0:zero, signed encoding -8:-2:cube, OTHER encoding value:-:other",
+    "tests/test_chaos_cube_cubic.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_cube_class tests.test_cubic_pin tests.test_chaos_cube_cubic tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_events tests.test_campaign_bind tests.test_send_fence tests.test_remainder_class tests.test_leftover_pin tests.test_chaos_remainder_leftover tests.test_digest_class tests.test_fold_pin tests.test_chaos_digest_fold tests.test_above_class tests.test_below_pin tests.test_chaos_above_below tests.test_coprime_class tests.test_common_pin tests.test_chaos_coprime_common tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-08T17:02:08Z",
+    "parent_head_full": "2affbd7ad63e0901d6abb9c17bca2a20b236fba1",
+    "exit_code": 0,
+    "result": "648 passed / 0 failed / 0 skipped (unittest 'Ran 648 tests in 0.796s' / OK). New-module + purity: 87 passed (cube 50 / cubic 20 / chaos 7 / purity 10) @ 2026-09-08T17:02:02Z parent 2affbd7 exit 0.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-cube-cubic).",
+    "worktree": "/tmp/ofn-p1-cube-cubic",
+    "file_lock_zone": [
+      "ofn/kernel/cube_class.py",
+      "ofn/kernel/cubic_pin.py",
+      "tests/test_cube_class.py",
+      "tests/test_cubic_pin.py",
+      "tests/test_chaos_cube_cubic.py",
+      "docs/octopus-surgery/architecture/2026-09-08/receipts/P1-CUBE-CUBIC-20260908.json",
+      "09-LANES/P1-CUBE-CUBIC/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not 0",
+      "measured 0 is ZERO never UNKNOWN and never CUBE",
+      "signed exact cubes are admitted (unlike square_class)",
+      "floor-of-cbrt is OTHER, not an exact root",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as intent/slot",
+      "admit_cube(sample, halted=True) is False; classify/observe/inspect continue",
+      "same pair is already_pinned (replay)",
+      "different value on the same slot is cubic_collision",
+      "run_store / adapters do not import cube_class or cubic_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "unpublished square-root (#235 remote) / unpublished triangular-series / unpublished geometric-product / unpublished pow2/log2 / unpublished prime/composite / remainder_class / leftover_pin (#204) / unpublished quotient/divide / above_class / below_pin (#231) / digest_class / fold_pin (#152) / coprime_class / common_pin (#234) / envelope.py / EventEnvelope (#238 untouched) / feature/digest-mobile-priority (#242 merge-only other lock-zone)"
+}
