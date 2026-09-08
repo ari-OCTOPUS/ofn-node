@@ -164,10 +164,59 @@ def _exec_paid_lane(kind: str, tpl: dict) -> dict:
         except Exception as e:  # noqa: BLE001 — سنتز نباید pump را بکشد
             return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:100]}"}
     if kind == "search":
-        # سرچِ پولیِ عمیق: providerِ اختصاصی هنوز نامشخص — لِینِ $0 (web_research) فعال است
-        return {"ok": False,
-                "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+        # 2026-09-08 (کلیدِ مالک رسید، دور ۹): provider = Tavily — free-tier، پس از
+        # زنجیرهٔ meteredِ مغز جدا است (cost ساختاراً 0 تا سقفِ free؛ اگر روزی پولی
+        # شد باید مثل llm_learn از organ_gate بگذرد). بدونِ کلید = skipِ صادق (همانِ قبل).
+        return _exec_tavily_search()
     return {"ok": False, "skipped": f"unknown paid kind: {kind}"}
+
+
+def _exec_tavily_search(opener=None) -> dict:
+    """سرچِ عمیقِ وب روی گپِ روز از طریق Tavily (کلید از .env؛ opener تزریقی برای تست).
+    خروجی: state/pulse/search-latest.json — هم‌شکلِ research-latest تا مصرف‌کننده‌های
+    موجود (gap→search→synthesis) بدون تغییر بشود. fail-soft، بدونِ prompt/کلید در لاگ."""
+    gaps = _exec_gap_report()
+    topics = [g["topic"] for g in (gaps.get("gaps") or []) if g.get("topic")]
+    query = (topics[0] if topics else
+             "software self-improvement autonomous agents recent findings")
+    try:
+        import os as _os
+        _syspath(_HERE.parent / "budget")
+        import env_loader
+        env_loader.load_env()
+        key = _os.environ.get("TAVILY_API_KEY", "").strip()
+    except Exception:  # noqa: BLE001
+        key = ""
+    if not key:
+        return {"ok": False,
+                "skipped": "TAVILY_API_KEY نیست (کلید از مالک، دور ۹ — دوباره skipِ صادق)"}
+    import urllib.request as _ur
+    body = json.dumps({"query": query, "max_results": 5,
+                       "search_depth": "basic"}).encode("utf-8")
+    req = _ur.Request("https://api.tavily.com/search", data=body,
+                      headers={"Content-Type": "application/json",
+                               "Authorization": f"Bearer {key}"},
+                      method="POST")
+    open_fn = opener or _ur.urlopen
+    try:
+        with open_fn(req, timeout=30) as r:
+            out = json.loads(r.read().decode("utf-8"))
+    except Exception as e:  # noqa: BLE001 — سرچ نباید pump را بکشد
+        return {"ok": False, "error": f"tavily: {type(e).__name__}: {str(e)[:90]}"}
+    hits = [{"title": (h.get("title") or "")[:120],
+             "url": h.get("url") or "",
+             "snippet": (h.get("content") or "")[:300],
+             "source": "tavily"} for h in (out.get("results") or [])[:5]]
+    rec = {"ts": opslib.now_iso(), "schema": "search-latest.v1", "query": query,
+           "provider": "tavily", "n_results": len(hits),
+           "answer": (out.get("answer") or "")[:500], "findings": hits}
+    try:
+        with opslib.LockedJson(PULSE_DIR / "search-latest.json") as lj:
+            lj.write(rec)
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": f"persist: {e}"}
+    return {"ok": True, "provider": "tavily", "query": query,
+            "n_results": len(hits), "summary": {"answer": rec["answer"][:160]}}
 
 
 def _exec_web_research() -> dict:
