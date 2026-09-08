@@ -44,6 +44,11 @@ RECEIPTS_3ROLE = (_HERE.parent / "09-LANES" / "MP-CAPABILITY-GAP-01-20260907"
 COST_RECEIPTS = STATE / "cortex" / "cost-receipts.jsonl"
 SHELF_URL = ("https://ziman-gift.myshopify.com/products/"
              "kitty-bubble-balloon-gift-box-with-pink-roses-and-chocolates")
+# D0 EXECUTED+VERIFIED 2026-09-08 (DOMAIN-EXECUTION-STEP3-FINAL.json): فروشگاه روی
+# ziman-gift.com.au سرو می‌شود (.com قدیمی مرده/تنزل‌یافته). چکِ زنده باید primary
+# جدید را بپرسد، نه myshopify/دامنهٔ مرده را.
+SHELF_URL_LIVE = ("https://ziman-gift.com.au/products/"
+                  "kitty-bubble-balloon-gift-box-with-pink-roses-and-chocolates")
 NOW = time.time()
 
 
@@ -95,15 +100,22 @@ def _lines_recent(p: Path, seconds: float, *, exclude_provider_local: bool = Fal
 # ── قفل‌ها: هر قفل یک check؛ باز شدن = ادامه‌دار شدن خودکار ────────────────
 
 def _domain_alive() -> bool:
+    # 2026-09-08 D0: primary = ziman-gift.com.au. GET صفحهٔ محصول روی primary:
+    # 200 + ماندن روی .com.au (نه ریدایرکت به .com مرده) + نشان واقعی فروشگاه
+    # (cdn.shopify.com). DNS/HEADِ ساده روی کشِ کهنهٔ پارکینگ GoDaddy مثبتِ کاذب
+    # می‌داد (مشاهدهٔ 2026-09-08) — بررسیِ محتوا لازم است. fail-closed.
     try:
-        socket.getaddrinfo("ziman-gift.com", 443)
+        socket.getaddrinfo("ziman-gift.com.au", 443)
     except OSError:
         return False
-    try:  # صفحهٔ محصول باید 200 بدهد نه 301 به دامنهٔ مرده
-        req = urllib.request.Request(SHELF_URL, method="HEAD",
+    try:  # صفحهٔ محصول باید 200 بدهد و روی دامنهٔ جدید بماند
+        req = urllib.request.Request(SHELF_URL_LIVE,
                                      headers={"User-Agent": "OCTOPUS-drive/1.0"})
-        with urllib.request.urlopen(req, timeout=15) as r:
-            return r.status == 200
+        with urllib.request.urlopen(req, timeout=20) as r:
+            if r.status != 200 or not str(r.geturl()).startswith("https://ziman-gift.com.au"):
+                return False
+            body = r.read(400_000).decode("utf-8", "replace")
+            return "cdn.shopify.com" in body
     except Exception:  # noqa: BLE001
         return False
 
@@ -347,7 +359,13 @@ def _evaluate(*, selftest_lock: tuple[str, callable] | None = None) -> dict:
 
 def tick(beat: int = 0) -> dict:
     """نقطهٔ اتصالِ ارگانیسم — fail-soft در caller، اینجا سبک می‌مانیم."""
-    return _evaluate()
+    out = _evaluate()
+    try:  # 2026-09-08: مصرف صفِ قدم‌های بعدی (شکافِ ممیزی صبح) — fail-soft
+        import drive_queue_consumer
+        drive_queue_consumer.consume_pending()
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
 
 def context_for_director() -> str:

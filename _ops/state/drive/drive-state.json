@@ -1,8 +1,8 @@
 {
  "schema": "drive-loops.v1",
- "ts_utc": "2026-09-07T13:37:57Z",
+ "ts_utc": "2026-09-08T00:42:29Z",
  "fear": {
-  "total": 3.24,
+  "total": 2.28,
   "top": [
    {
     "id": "D0_domain",
@@ -19,16 +19,16 @@
     "source": "budget-state.json + owner answers item 2"
    },
    {
-    "id": "DOM2_unknown",
-    "title": "۲ دامنهٔ جدید خریداری‌شده ولی نامعلوم — فروش و مینی‌اپ عمومی معلق",
-    "severity": 0.8,
-    "state": "awaiting_owner_input",
-    "source": "جستجوی 2026-09-07 vault/138/Shopify = نیامد؛ فقط مالک می‌داند"
+    "id": "unlock_registry_pending",
+    "title": "18 قفل PROPOSED در رجیستری — زنجیرهٔ بازکردن ناتمام",
+    "severity": 0.33,
+    "state": "phase_pending",
+    "source": "UNLOCK-REGISTRY-2026-09-08.md"
    }
   ]
  },
  "dopamine": {
-  "total_24h": 2.5,
+  "total_24h": 5.0,
   "wins": [
    {
     "id": "owner_votes_recorded",
@@ -47,6 +47,36 @@
     "count": 5,
     "weight": 0.2,
     "source": "cortex/cost-receipts.jsonl"
+   },
+   {
+    "id": "lock_opened:MSG38_payment",
+    "count": 1,
+    "weight": 0.5,
+    "source": "drive-loops lock MSG38_payment"
+   },
+   {
+    "id": "lock_opened:L23_hold_external",
+    "count": 1,
+    "weight": 0.5,
+    "source": "drive-loops lock L23_hold_external"
+   },
+   {
+    "id": "lock_opened:L24_go_extended",
+    "count": 1,
+    "weight": 0.5,
+    "source": "drive-loops lock L24_go_extended"
+   },
+   {
+    "id": "lock_opened:DOM2_names",
+    "count": 1,
+    "weight": 0.5,
+    "source": "drive-loops lock DOM2_names"
+   },
+   {
+    "id": "lock_opened:REGISTRY_round2",
+    "count": 1,
+    "weight": 0.5,
+    "source": "drive-loops lock REGISTRY_round2"
    }
   ]
  },
@@ -56,9 +86,15 @@
   "MSG38_payment": "open",
   "L23_hold_external": "open",
   "L24_go_extended": "open",
-  "DOM2_names": "locked",
-  "REGISTRY_round2": "locked",
+  "DOM2_names": "open",
+  "REGISTRY_round2": "open",
   "CASH_first_order": "locked"
  },
- "opened_now": []
+ "opened_now": [
+  "MSG38_payment",
+  "L23_hold_external",
+  "L24_go_extended",
+  "DOM2_names",
+  "REGISTRY_round2"
+ ]
 }
