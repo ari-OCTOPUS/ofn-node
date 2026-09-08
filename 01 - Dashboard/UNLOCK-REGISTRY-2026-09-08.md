@@ -137,10 +137,10 @@ updated: 2026-09-08
 | L53 | `OCTOPUS_UNIFIED_CHAT=0` | conv-hub فاز ۱ | روشن کن بعد تست | `PROPOSED` |
 | L54 | epistemics default-OFF | ADR-039 wired نیست | C3 اول | `PROPOSED` |
 | L55 | spine flag-off | تازه UNIFY شد | مصرف‌کنندهٔ اول را وصل کن | `PROPOSED` |
-| L56 | مینی‌اپ public URL | HTTPS نداریم | با دامنهٔ زیمان حل می‌شود | `PROPOSED` ← وابسته به دامنه |
+| L56 | مینی‌اپ public URL | HTTPS نداریم | ✅ رأی R3-3 «منتشر کن»: **LIVE-VERIFIED** — تانل named پایدار → app.master-painting.com (GET 200 تست ۰۹-۰۸)، فقط-مالک (initData-HMAC)؛ انتقال hostname به زیمان = ران‌بوک ۳-کلیکی مالک (توصیه: app.ziman-gift.shop) | `EXECUTED` (انتقال دامنه: open-owner) |
 | L57 | brain_core shadow | matched=0 | promote نکن | KEEP |
 | L58 | 4d_system | وصل نیست | owner تصمیم سال بعد | KEEP |
-| L59 | TG listener (Q9) | منتظر GO | با L23 بررسی | `PROPOSED` |
+| L59 | TG listener (Q9) | منتظر GO | ✅ R3-3 همان GO را داد؛ سمت مینی‌اپ (گیت‌وی+تانل+دکمهٔ web_app از طریق مرکز) زنده است؛ listener کامل = کار مهندسی بعدی ایجنت، دیگر مانع رأی ندارد | `APPROVED` |
 | L60 | presence-bot | نقص مستند | بازنویسی | `PROPOSED` |
 | L61 | hooks governance silent | بعد از flip خاموش | audit کن | `PROPOSED` |
 | L62 | KILL_SEAM unarmed | اختیاری | مسلح کن | `PROPOSED` |
@@ -175,6 +175,11 @@ updated: 2026-09-08
   - **R2-3 moot×۸+D1/D7 → EXECUTED**: gates.json برد: حذف partner_precondition+wire_publish (پری‌ایمیج؛ صفر خواننده در ofn/ofn زنده) · AGENTS.md §4: blocked-list به secret_rotation+OWNER_KEY کاهش یافت؛ auto_email→کانال retired؛ OBSERVATORY/CORTEX_HYPOTHESIS→retired مستند؛ config.py miner_isolation arming و guard_flags.py عمداً دست‌نخورده
   - **R2-4 wire scope (L13/L14) → EXECUTED**: دامنهٔ قاعده در AGENTS.md §4 مستند شد (ایجنت‌های ویرایشگر؛ فلگ‌های runtime خود ارگانیسم؛ تغییر فقط با رأی مالک)؛ صفر تغییر فلگ
   - سه قفل مطلق GOV-V8 (L01-L03) و چهار حفاظ GOV-V7 دست‌نخورده‌اند.
+- 2026-09-08T10:2x local (دور پنجم، «بپرس و انجام بده»):
+  - **R3-1 هویت تماس = فروشگاه زیمان** (شمارهٔ نمایش هنوز نیامده ⇒ صف fail-closed خاموش تا رسیدن شماره از مالک)
+  - **R3-2 سرویس تماس AU = معلق به رأی مالک** (هیچ خرید/اتصالی انجام نشد)
+  - **R3-3 مینی‌اپ GO → LIVE-VERIFIED**: gateway PID 26100 :8774 + تانل named → https://app.master-painting.com GET 200؛ دسترسی فقط-مالک؛ انتقال به دامنهٔ زیمان = ران‌بوک مالک `07-HANDOFF/MINIAPP-ZIMAN-DOMAIN-RUNBOOK-2026-09-08.md` (توصیهٔ ایجنت: app.ziman-gift.shop با ریسک صفر برای فروشگاه)
+  - قفل‌های حلقه: AUTO1_sender نیمه‌باز (نام=زیمان، شماره pending) · Q9/miniapp ✅
 
 ## 🔁 وصل به حلقه‌های دوپامین/ترس (فرمان مالک 2026-09-07)
 
