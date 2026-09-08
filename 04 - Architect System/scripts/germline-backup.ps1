@@ -71,7 +71,23 @@ try {
                 Where-Object { $_ -match '\S' -and $_ -notmatch 'dangling' })
         }
         if ($fsckHard.Count -gt 0) {
-            throw ("GIT FSCK FAILED - backup aborted: " + ($fsckHard -join " | "))
+            # 2026-09-08 (run 2 finding): agents/organism commit into this repo WITHOUT the
+            # gitwrite lock, so fsck can race a concurrent write/repack and report objects
+            # that are mid-flight as "missing". Re-verify each missing-object line with
+            # cat-file: exists-now = transient race, not damage. Anything still absent -
+            # or any other error class - stays fatal (fail-closed contract intact).
+            $still = @()
+            foreach ($l in $fsckHard) {
+                if ($l -match '^missing\s+\S+\s+([0-9a-f]{40,64})') {
+                    git -C $VAULT cat-file -e $Matches[1]
+                    if ($LASTEXITCODE -eq 0) { continue }
+                }
+                $still += $l
+            }
+            if ($still.Count -gt 0) {
+                throw ("GIT FSCK FAILED - backup aborted: " + ($still -join " | "))
+            }
+            Write-Host "    fsck hard lines were transient (objects exist on re-check) - allowed"
         }
         if ($fsckRc -ne 0) {
             Write-Host "    fsck rc=$fsckRc with dangling-only output - allowed (unreachable != broken chain)"
