@@ -1,11 +1,25 @@
 {
- "checked_at_utc": "2026-09-08T05:02:42Z",
+ "checked_at_utc": "2026-09-08T11:28:48Z",
  "prereg_sha256_16": "4938d82e740ef6ce",
  "runs_pre_intervention": 5,
- "runs_post_wiring": 1,
+ "runs_post_wiring": 4,
  "arms": {
   "T": {
-   "n": 0
+   "n": 3,
+   "decisiveness": 1.0,
+   "pick_valid": 1.0,
+   "brain_ok": 1.0,
+   "final_call_dist": {
+    "no": 2,
+    "yes": 1
+   },
+   "t_actually_seeded": 3,
+   "mission_mix": {
+    "store_order_check": 1,
+    "shelf_check_zm_gallery_0013": 1,
+    "organism_liveness_check": 1
+   },
+   "mean_duration_ms": 26297
   },
   "R": {
    "n": 1,
