@@ -1,31 +1,45 @@
 # ADR-F2 — Counter canonical sources
 
-status: PROPOSED — PENDING_OWNER_VOTE
-requires: owner_decision
-class: A (documentation + owner ballot only)
+status: ACCEPTED (owner GO 2026-09-08 via PC_worker) — canon files
+carve_out: HOLD (single owner pick still required)
+class: A (documentation only)
 class_z: this file must not mutate EXTERNAL_ACTIONS / NEW_LAN_LISTENERS / MAY_AUTHORIZE values
 
-This is a proposal. It does not create vault files, does not write `_ops/`
-or `F:\backup`, and does not pick a live number for any counter.
+Owner GO accepts the *canon file paths*. It does not apply live numbers.
+This ADR does not write `_ops/` or `F:\backup`, and does not invent
+ofn-node copies of vault files created on the laptop.
 
-## Owner vote (fill in; do not execute create until GO)
+## Owner vote (executed 2026-09-08 via PC_worker)
 
 ```
-F2-VOTE: EA=EXTERNAL_ACTIONS.json | NL=NEW_LAN_LISTENERS.json (create|defer) | MA=MAY_AUTHORIZE.json (create|defer) | carve_out_conversation_task=yes|no
+F2-VOTE: EA=EXTERNAL_ACTIONS.json | NL=NEW_LAN_LISTENERS.json (create) | MA=MAY_AUTHORIZE.json (create) | carve_out_conversation_task=HOLD
 ```
 
-## Proposed canon (outside this git tree unless noted)
+## Accepted canon (vault files live outside this git tree)
 
-| Token | Proposed live source | ofn-node rule until owner GO |
+| Token | Accepted live source | ofn-node rule |
 |---|---|---|
 | `EXTERNAL_ACTIONS` | `_ops/state/EXTERNAL_ACTIONS.json` key `EXTERNAL_ACTIONS` | no live `EXTERNAL_ACTIONS=` assignment under `ofn/` |
-| `NEW_LAN_LISTENERS` | `_ops/state/NEW_LAN_LISTENERS.json` — create only after owner GO | no live assignment under `ofn/` |
-| `MAY_AUTHORIZE` | `_ops/state/MAY_AUTHORIZE.json` — create only after owner GO | no live `MAY_AUTHORIZE=` assignment under `ofn/` |
+| `NEW_LAN_LISTENERS` | `_ops/state/NEW_LAN_LISTENERS.json` | no live assignment under `ofn/` |
+| `MAY_AUTHORIZE` | `_ops/state/MAY_AUTHORIZE.json` | no live `MAY_AUTHORIZE=` assignment under `ofn/` |
 | `may_authorize` (code field) | `ofn/agents/brain_schema.py` default `False` + reject `True` | already in this repo |
+
+NL/MA **create-on-GO** is approved. Vault files were created on the laptop
+outside this repo. This checkout does not add copies under `ofn/` or `_ops/`.
 
 Inside ofn-node, `ofn/agents/brain_schema.py` remains the `may_authorize`
 code canon (`may_authorize: bool = False` at line 77; `SchemaViolation` on
 `True` at lines 89–91). Uppercase `MAY_AUTHORIZE` is a separate token.
+
+## Carve-out HOLD
+
+Owner selected **both** yes and no for `conversation.py`
+`may_authorize=True` versus hard-false. This ADR does **not** encode both.
+Wording stays undecided until a single owner pick.
+`ofn/agents/brain_schema.py` stays the ofn-node `may_authorize` code canon.
+
+status: open
+requires: owner_decision (single pick; not both)
 
 ## Map hash (laptop receipts — not re-hashed here)
 
@@ -36,11 +50,12 @@ Recorded sha256 (PAIR J prompt 2 / laptop receipts):
 The map file is not in this ofn-node checkout. This session did not
 recompute the digest. status: recorded, not re-hashed on this host.
 
-## Contradiction — EXTERNAL_ACTIONS (do not resolve)
+## Contradiction — EXTERNAL_ACTIONS (Class Z; not resolved by this vote)
 
 Laptop vault currently CONFLICTS `0` / `1` / `2` for `EXTERNAL_ACTIONS`
 (PAIR J prompt 2 / laptop receipts; vault is outside this git tree).
-This ADR does not pick one and does not “fix” those numbers.
+This vote does **not** resolve that conflict. There is **no apply-values GO**
+yet. This ADR does not pick one and does not “fix” those numbers.
 
 | claim | value_a | source_a | value_b | source_b | resolution | status |
 |---|---|---|---|---|---|---|
@@ -50,26 +65,15 @@ This ADR does not pick one and does not “fix” those numbers.
 `docs/octopus-mesh/RUNTIME-V1-STATUS.md` lines 56–57. Those lines are
 document text, not live `ofn/` assignments. This ADR leaves them unchanged.
 
-## A2 CI lock (not duplicated on this branch)
+## A2 CI lock (not on this branch)
 
-`tests/test_counter_source_f2.py` is absent from `origin/main` @
-`0522fb85f63a57a9955be113e9a3eab070a3bff2`. The same path exists on
-`refs/pull/236/head` @ `5e3254f` (fetched this session). That test
-already:
-
-- keeps `brain_schema` as `may_authorize` canon (default `False`; `True` raises)
-- fails if any `ofn/**` file with suffix `.py` / `.json` / `.cmd` / `.env`
-  assigns `EXTERNAL_ACTIONS` / `NEW_LAN_LISTENERS` / `MAY_AUTHORIZE` via
-  `NAME=value`
-- fails if any `ofn/**/*.py` uses keyword `may_authorize=True`
-
-This ADR does not copy that test. Merge of the A2 lock is a separate PR
-(see #236). A second ofn-node file reporting a different live value for
-those three uppercase counters is a CI failure once that test is on the
-default branch.
+`tests/test_counter_source_f2.py` is absent from this branch. It lives on
+PR #236. This ADR does not copy or edit that test.
 
 ## Out of scope
 
-- Creating `_ops/state/*.json` before owner GO
-- Changing production counter values (Class Z)
+- Applying EXTERNAL_ACTIONS / NEW_LAN_LISTENERS / MAY_AUTHORIZE values
+  (no apply-values GO)
+- Encoding the conversation.py carve-out as both yes and no
+- Inventing ofn-node copies of laptop vault JSON
 - Enabling `OCTOPUS_WIRE_*` / `OFN_WIRE_*` or opening a closed gate
