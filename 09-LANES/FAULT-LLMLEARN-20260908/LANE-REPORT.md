@@ -59,8 +59,20 @@ GOV_VERSION=V8 · LADDER=L2
 - طوفانِ `deep` هر ~۱۰۰ثانیه (۲۲:۵۷→۰۹:۴۶ و ۰۷:۲۱→۰۸:۵۷؛ fail-fast، هزینه صفر): مشاهد شد؛
   با cognitionِ خاموش بی‌ضرر است؛ اگر مالک گزینهٔ B را رأی داد، سقفِ bucket آن را مهار می‌کند.
 
+## افزودنی پس از رأی مالک (~۱۲:۱۰–۱۲:۱۵ local) — «روشن» اجرا شد
+مالک روی کارتِ `OWNER-DECISION-PAID-COGNITION-20260908.md` گزینهٔ B را رأی داد (+
+الحاقهٔ آزادیِ ارائه‌دهنده: DeepSeek/Claude/هر مدل لازم — ثبت در OWNER-APPROVALS دور ۶،
+R4-1/R4-2). اجرا: دو فلگ به `_ops/OCTOPUS-flags.cmd` (pre-image `731227ea75563a28` →
+post `56d1e3e031988fbf`)؛ ری‌استارت با پروتکل بومیِ `RESTART-REQUESTED` (خروجِ تمیزِ
+۶۹۵۶ بعد از ~۵۹۲ث؛ لانچر مارکر را پاک و PID **5260** را با env تازه بالا آورد)؛
+snapshot فلگ‌ها تأیید (`flags-loaded-organism.json` pid=5260، هر دو فلگ حاضر)؛
+**اولین تماس paid موفقِ دیمن در تاریخ**: 12:08:35 task=deep primary deepseek-v4-flash ok
+(۱۲.۰s). محافظ‌ها دست‌نخورده؛ زیرِ L3 رسمی می‌ماند. جزئیات:
+`PAID-COGNITION-EXECUTION-20260908.json`. **پین FX روزانه (بعد از ۱۶:۳۰) حالا مهم‌تر
+شد — بدون آن مسیر paid دیمن امشب دوباره بسته می‌شود.**
+
 ## Rollback (کامل)
 1. `cp _ops/cortex/pricing_pinned.json.bak-fxpin-20260908 _ops/cortex/pricing_pinned.json`
 2. `git revert` کامیتِ این لِین (کدِ local_llm/model_router/تست‌ها)
-3. ری‌استارت با `restart-organism-patient.ps1`
+3. حذفِ دو خطِ `set` از `_ops/OCTOPUS-flags.cmd` (بازگشت به pre-image `731227ea…`) + ری‌استارت
 (رسیدها و فایل‌های لِین حذف نمی‌شوند — §۱ زنجیرهٔ رسید.)

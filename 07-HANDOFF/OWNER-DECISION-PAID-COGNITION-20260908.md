@@ -1,7 +1,19 @@
 # OWNER DECISION — مغزِ paid ارگانیسم (OCTOPUS_PAID_COGNITION)
 
-وضعیت: `open, requires: owner_decision` · ثبت: 2026-09-08 · لِین: FAULT-LLMLEARN-20260908
+وضعیت: ~~open, requires: owner_decision~~ → **DECIDED + EXECUTED (2026-09-08 ~12:15 local)** · ثبت: 2026-09-08 · لِین: FAULT-LLMLEARN-20260908
 GOV_VERSION=V8 · LADDER=L2
+
+> **رأی مالک (verbatim):** «روشن» — گزینهٔ B + الحاقه: «و دیپ سیک و کلود و هرچی که نیازه محدودیتی نیست»
+> (ثبت در OWNER-APPROVALS-2026-09-07.md، دور ششم، R4-1/R4-2؛ دوباره نپرسید.)
+>
+> **اجرا:** `_ops/OCTOPUS-flags.cmd` += `OCTOPUS_PAID_COGNITION=1` + `OCTOPUS_RUN_ID=R-organism-daemon`
+> (pre-image `731227ea75563a28` → post `56d1e3e031988fbf`) + ری‌استارت تمیز → تأییدِ اولین تماسِ paid دیمن در
+> `09-LANES/FAULT-LLMLEARN-20260908/PAID-COGNITION-EXECUTION-20260908.json`.
+> **Rollback:** حذفِ دو خطِ `set` از flags + ری‌استارت (همان اسکریپتِ ۹۰۰ث).
+
+---
+
+## بایگانیِ کارت (متنِ زمانِ پرسیدن)
 
 ## سؤال (یک کلمه‌ای)
 آیا حلقه‌های خودکارِ ارگانیسم اجازهٔ تماسِ paid (deepseek-v4-flash، ~$0.00003/تماس)
