@@ -16,7 +16,7 @@ Branches:
 
 1. `l7/vbaa-artifact-admission` @ `2d825db`
 2. `l7/vbaa-argument-provenance-guard` @ `f7707f3`
-3. `l7/vbaa-executor-handle-firewall` @ *(see LANE-REPORT-VBAA-IMPL after commit 3)*
+3. `l7/vbaa-executor-handle-firewall` @ `16fae16`
 
 PR bodies: `09-LANES/L7/PR-BODY-VBAA-*.md`
 

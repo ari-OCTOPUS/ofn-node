@@ -16,7 +16,7 @@ Three local branches, stacked:
 |---|---|---|---|
 | 1 | `l7/vbaa-artifact-admission` | `2d825db` | package + ArtifactAdmission + RED fixtures/tests |
 | 2 | `l7/vbaa-argument-provenance-guard` | `f7707f3` | ArgumentProvenanceGuard |
-| 3 | `l7/vbaa-executor-handle-firewall` | *(this commit)* | ExecutorHandleFirewall AST |
+| 3 | `l7/vbaa-executor-handle-firewall` | `16fae16` | ExecutorHandleFirewall AST |
 
 PRs: **local only**. No `git push`, no `gh pr create` (vault egress deny). Bodies: `09-LANES/L7/PR-BODY-VBAA-*.md`. Push is `status: open, requires: owner_decision`.
 
