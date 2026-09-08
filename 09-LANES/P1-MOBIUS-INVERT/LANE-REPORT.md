@@ -28,8 +28,10 @@ Lane declared: P1-MOBIUS-INVERT. `09-LANES/LANE-MATRIX.csv` has L0–L9 only
 
 ## What remains
 
-- Publish this branch and open one mobius-invert PR. Independent
-  review after CI. REVIEW_REQUIRED blocks merge, not engineering.
+- Independent review of #247 after CI. REVIEW_REQUIRED blocks
+  merge, not engineering. `open_git_pr` created
+  https://github.com/ari-OCTOPUS/ofn-node/pull/247
+  (`refs/pull/247/head` MATCH `90332d59e296347179dfd63e9a130c4d38be8d8a`).
 - Incidents append is a separate lock-zone. Do not mint a sixth
   incidents PR. Do not force-push.
 - `quote_sent` / `send_authorized` stay owner-blocked until an
