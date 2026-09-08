@@ -1,0 +1,67 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-SQUARE-ROOT-20260908",
+  "issued_utc": "2026-09-08T05:26:50Z",
+  "author": "cursor-cloud owner-absent automation (cron 17 * * * *)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-square-root on feat/p1-square-root-20260908 parent origin/main @0522fb85f63a57a9955be113e9a3eab070a3bff2 (#231 above/below). square_class.py and root_pin.py ABSENT on parent (test ! -e). /workspace stayed on cursor/taskenvelope-system-hardening-20d9 @0522fb85f63a57a9955be113e9a3eab070a3bff2 and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list not used this-run; git ls-remote used)"
+  ],
+  "action": "P1 complementary square_class + root_pin — new files only. One non-negative exact int classifies as zero / square / other. sample is a START. classify/observe/inspect continue under HALT. Missing is UNKNOWN, not FALSE and not 0. Measured 0 is ZERO never UNKNOWN and never SQUARE. Measured 1 is SQUARE with root 1. OTHER is a family not FALSE. Exact-square root only, not floor-sqrt. Same pair = replay not send. campaign_envelope_ready structurally ≠ send_authorized. Not a second pow2-log2, prime-composite, even-odd, remainder-leftover, quotient-divide, hex-width, byte-length, above-below, inclusive-exclusive, or digest-fold PR.",
+  "delivered": {
+    "ofn/kernel/square_class.py": "classify_family: missing→UNKNOWN; timeout→UNKNOWN; 0→ZERO; exact square→SQUARE; else→OTHER; negative/bool/float fail closed; sample START; classify/observe/inspect continue; grants_send/ready_is_authorized/wires_into_run_store/rearms_send structurally False; later_disarm_supersedes structurally True",
+    "ofn/kernel/root_pin.py": "pin_root: first→pinned; same encoding→already_pinned; different value→root_collision; peek does not write; pin_allows_send structurally False; pin_allows_sample only SAMPLE+SQUARE; ZERO/OTHER recorded not granted as exact-square sample; not wired into run_store.py",
+    "tests/test_square_class.py": "E3 negatives: missing UNKNOWN not 0, measured 0 is ZERO, floor root not exact, sealed names, bool/float/negative, halt START vs continue",
+    "tests/test_root_pin.py": "E3 negatives: missing UNKNOWN, replay, collision, sealed slots, frozen retcon, ZERO encoding 0:0:zero, OTHER encoding value:-:other",
+    "tests/test_chaos_square_root.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_square_class tests.test_root_pin tests.test_chaos_square_root tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_events tests.test_campaign_bind tests.test_send_fence tests.test_remainder_class tests.test_leftover_pin tests.test_chaos_remainder_leftover tests.test_digest_class tests.test_fold_pin tests.test_chaos_digest_fold tests.test_above_class tests.test_below_pin tests.test_chaos_above_below tests.test_coprime_class tests.test_common_pin tests.test_chaos_coprime_common tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-08T05:26:48Z",
+    "parent_head_full": "0522fb85f63a57a9955be113e9a3eab070a3bff2",
+    "exit_code": 0,
+    "result": "647 passed / 0 failed / 0 skipped (unittest 'Ran 647 tests in 0.959s' / OK). New-module + purity: 86 passed (square 50 / root 19 / chaos 7 / purity 10) @ 2026-09-08T05:26:44Z parent 0522fb85 exit 0.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-square-root).",
+    "worktree": "/tmp/ofn-p1-square-root",
+    "file_lock_zone": [
+      "ofn/kernel/square_class.py",
+      "ofn/kernel/root_pin.py",
+      "tests/test_square_class.py",
+      "tests/test_root_pin.py",
+      "tests/test_chaos_square_root.py",
+      "docs/octopus-surgery/architecture/2026-09-08/receipts/P1-SQUARE-ROOT-20260908.json",
+      "09-LANES/P1-SQUARE-ROOT/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not 0",
+      "measured 0 is ZERO never UNKNOWN and never SQUARE",
+      "floor-of-sqrt is OTHER, not an exact root",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as intent/slot",
+      "admit_square(sample, halted=True) is False; classify/observe/inspect continue",
+      "same pair is already_pinned (replay)",
+      "different value on the same slot is root_collision",
+      "run_store / adapters do not import square_class or root_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "unpublished pow2/log2 / unpublished prime/composite / unpublished even/odd / remainder_class / leftover_pin (#204) / unpublished quotient/divide / unpublished hex/width / unpublished byte/length / above_class / below_pin (#231) / inclusive/exclusive (#233) / unpublished inside/outside / unpublished equal/unequal / unpublished congruent/residue / unpublished successor/predecessor / unpublished divides/multiple / digest_class / fold_pin (#152) / coprime_class / common_pin (#234) / envelope.py / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88) / campaign_bind / send_fence (#145)"
+}
