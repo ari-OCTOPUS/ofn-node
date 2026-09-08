@@ -9,6 +9,27 @@ Opened: 2026-09-07 Sydney (owner order «همرو کامل کن»), replacing cl
 Status: goal below is the PROPOSED DEFAULT from the closeout megaprompt — owner may amend
 any time via the organism's own channel (OWNER-QUEUE/Telegram card) or direct chat.
 
+## ⚡ روز دوم — 2026-09-08 بعدازظهر ~13:15 (جدیدترین؛ بلاک ظهرِ زیر را می‌پوشاند جز جزئیات)
+
+- **⚠️ رگرسیون ویترین (اندازه‌گیری 13:1x):** `ziman-gift.com.au` الان یک سایتِ **GoDaddy Website
+  Builder** سرو می‌کند (شاهد: تگِ `generator: Starfield` در HTML ریشه، 91KB، root=200 ولی
+  مسیرهای محصول/collections = **404**)، و myshopify هنوز 301 به .com.au می‌کند ⇒ **صفحهٔ محصول
+  دوباره در دسترس مشتری نیست** — همان الگوی دامنهٔ مردهٔ .com با علتِ جدید. خطِ «صفحهٔ محصول 200»
+  در بلاک ظهر ⇒ تغییر یافت. کاتالوگ خودش سالم است (products.json: ZM-GALLERY-0013 موجود A$45،
+  updated_at 13:07 — یعنی همین حالا کسی روی فروشگاه کار می‌کند؛ **ایجنت بعدی: بازبینی مجدد قبل از
+  هر ادعا؛ احتمال تغییرِ نیمه‌کارهٔ موازی**). .com کهنه همچنان NXDOMAIN.
+- **دورهای ۶-۸ مالک (12:10-13:04) در دفتر تأییدها ثبت شد:** «روشن» ⇒ `OCTOPUS_PAID_COGNITION=1`
+  **دائمی در env دیمن** (OCTOPUS-flags.cmd، ری‌استارت تمیز) — مغزِ paid دیگر فقط دستی نیست؛
+  «همرو اجازه داری» ⇒ پین FX خودکار (کرون) + Tavily برای جستجو؛ **«0493577719»** ⇒ شمارهٔ نمایش
+  تماس‌ها WIRED شد (`sender-identity.json`: name=Ziman Gift، phone=+61493577719) و
+  **قفل AUTO1_sender را خودِ حلقهٔ drive باز کرد** (task.resume + صف — بدون ایجنت نشسته).
+- **مانده از مالک — دوباره نپرسید جز این یکی:** انتخاب سرویس تماس از کارتِ A/B/C
+  (`07-HANDOFF/CALL-SERVICE-OFFER-CARD-20260908.md`: A=Telnyx AI-صوتی ~$1.5-7/ماه · B=سیم دوم ·
+  C=سیم خودت در گیت‌وی) — حملِ تماس تا این رأی معلق است. (شمارهٔ نمایش: دریافت و سیم شد ✓)
+- **حلقه‌های دوپامین/ترس = زنده و اثبات‌شده (شب ۰۹-۰۷):** `_ops/drive_loops.py` هر ۲ بیت توسط
+  خودِ ارگانیسم تیک می‌خورد؛ ۷ قفل در رجیستری؛ مصرف‌کنندهٔ صف (`drive_queue_consumer`) فعال.
+  آخرین: fear 2.28 · dopamine 6.5 · CASH_first_order تنها قفلِ درآمدیِ بسته.
+
 ## ⚡ روز دوم — 2026-09-08 ظهر (وضعیت سیزن؛ برای همهٔ ایجنت‌ها)
 
 > مرجع کامل: `01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md` § «وضعیت سیزن» + [[07-HANDOFF/MEGAPROMPT-2026-09-08-NOON]].

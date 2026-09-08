@@ -5,17 +5,17 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-09-08T02:16:44Z
+> auto-generated: 2026-09-08T02:47:58Z
 
 ## Current Truth
 
-- **coherence:** 0.972
+- **coherence:** 0.944
 - **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 65466
+- **beat:** 65505
 - **halted:** False
 - **rfcs_pending:** 1
-- **HEAD:** ccfb5d0
+- **HEAD:** bc63c73
 
 
 <!-- OCTOPUS-AUTO-END -->
@@ -185,3 +185,13 @@ updated: 2026-08-11T13:35:00Z
 - **gateway process LIVE:** PID **12220** · `miniapp_gateway.py` · listen `127.0.0.1:8774` (localhost only).
 - **public URL:** not published — `OCTOPUS_MINIAPP_URL` unset; Telegram `/ui` remains `CONFIG_NEEDED` until real URL + `OCTOPUS_TG_MINIAPP=1`.
 - Evidence: `06-EVIDENCE/OCTOPUS-MINIAPP-DOC-RECONCILE-2026-08-23/RESULT.json`.
+
+### Human status — Season sync: REVENUE-ON-LIVE-LOOP day-2 afternoon (2026-09-08 13:15)
+
+> خارج از بلوک auto · additive · مرجع کامل: [[01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08]] § وضعیت سیزن.
+
+- **سیزن فعال:** REVENUE-ON-LIVE-LOOP (از ۰۹-۰۷). GO تا **2026-10-07** (GO-EXT2). msg38 = NOT_PAID نهایی با رسید.
+- **مغز paid دائمی شد:** «روشن» مالک (دور ۶) ⇒ `OCTOPUS_PAID_COGNITION=1` در env دیمن + ری‌استارت تمیز؛ اولین فراخوانی موفق deepseek-v4-flash با رسید هزینه از شب ۰۹-۰۷.
+- **حلقه‌های دوپامین/ترس (فرمان مالک ۰۹-۰۷ شب) زنده و اثبات‌شده:** `_ops/drive_loops.py` توسط خودِ ارگانیسم هر ۲ بیت تیک می‌خورد؛ شمارهٔ نمایش ۰۴۹۳۵۷۷۱۹ (دور ۸) به‌طور خودکار قفل AUTO1_sender را باز کرد — task.resume + صفِ قدمِ بعدی، بدون ایجنت نشسته.
+- **⚠️ رگرسیون ویترین (13:1x):** `ziman-gift.com.au` حالا GoDaddy Website Builder سرو می‌کند (شاهد: generator=Starfield؛ مسیرهای محصول 404) و myshopify به آن 301 ⇒ صفحۀ محصول دوباره در دسترس نیست؛ ادعای «.com.au = 200» ظهر منسوخ. کاتالوگ سالم (ZM-GALLERY-0013 · A$45 · available). `.com` کهنه NXDOMAIN. کار هم‌زمان روی فروشگاه در جریان بود (updated_at 13:07) — بازبینی مجدد قبل از ادعا.
+- **VERIFIED_CASH = $0.00** — تنها قفلِ درآمدیِ بستهٔ drive = CASH_first_order. مانده از مالک: فقط انتخاب سرویس تماس A/B/C ([[07-HANDOFF/CALL-SERVICE-OFFER-CARD-20260908]]).
