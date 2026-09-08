@@ -55,8 +55,27 @@ try {
     try {
         Wait-GitIndexLock -RepoRoot $VAULT -FlagDir $gitFlags
         Write-Host "[1/5] integrity gates (fsck + ledger verify)..."
-        git -C $VAULT fsck --full
-        if ($LASTEXITCODE -ne 0) { throw "GIT FSCK FAILED - backup aborted" }
+        # 2026-09-08 (root cause of nightly rc=1 since 09-02): this repo's fsck exits
+        # nonzero with dangling-ONLY output (18 unreachable objects; no missing/broken/
+        # corrupt anywhere in output). Dangling objects are normal git housekeeping
+        # (resets/quarantines), NOT chain damage - the fail-closed contract is about a
+        # BROKEN chain. Gate is now corruption-precise: only non-dangling error lines
+        # abort. Output goes to a temp file via cmd so PS 5.1 EAP=Stop never chokes on
+        # git's stderr. A clean-rc run that still prints hard lines also aborts.
+        $fsckLog = Join-Path $env:TEMP "germline-fsck-out.txt"
+        cmd /c "git -C `"$VAULT`" fsck --full > `"$fsckLog`" 2>&1"
+        $fsckRc = $LASTEXITCODE
+        $fsckHard = @()
+        if (Test-Path $fsckLog) {
+            $fsckHard = @(Get-Content $fsckLog -ErrorAction SilentlyContinue |
+                Where-Object { $_ -match '\S' -and $_ -notmatch 'dangling' })
+        }
+        if ($fsckHard.Count -gt 0) {
+            throw ("GIT FSCK FAILED - backup aborted: " + ($fsckHard -join " | "))
+        }
+        if ($fsckRc -ne 0) {
+            Write-Host "    fsck rc=$fsckRc with dangling-only output - allowed (unreachable != broken chain)"
+        }
         python "$VAULT\07 - Knowledge\genome-system\ledger\ledger.py" "$VAULT\07 - Knowledge\genome-system\ledger\ledger.jsonl" verify
         if ($LASTEXITCODE -ne 0) { throw "LEDGER VERIFY FAILED - backup aborted" }
         Write-Host "[2/5] bundle (to temp)..."

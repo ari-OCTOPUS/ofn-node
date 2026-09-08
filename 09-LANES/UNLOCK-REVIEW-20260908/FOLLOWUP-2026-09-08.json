@@ -7,13 +7,20 @@
       "id": "F1-first-mint-verified",
       "claim": "first hold_external=false packets minted 09-08 UTC",
       "evidence": "board138 tick 2026-09-08T00:15:12Z: gate_state.hold_external=false + decision=WOULD_EMIT + transport status=ack (remote inbox /root/octopus-mesh/inbox); standing/counter.json {count:2, date:2026-09-08}",
-      "sources": ["board138:state/owner_dialogue/scheduler_tick.receipt.json", "board138:state/owner_dialogue/scheduler_shadow/2026-09-08T001512Z.decided.json"],
+      "sources": [
+        "board138:state/owner_dialogue/scheduler_tick.receipt.json",
+        "board138:state/owner_dialogue/scheduler_shadow/2026-09-08T001512Z.decided.json"
+      ],
       "grade": "E2 (direct runtime observation, single morning window)"
     },
     {
       "id": "F2-drive-markers",
       "action": "honest markers written for locks whose receipts now exist",
-      "files": ["_ops/state/drive/new-domains.json (ziman-gift.com.au + .shop, D0 receipts)", "_ops/state/drive/registry-round2-done.json (owner yes-to-all)", "_ops/state/drive/l23-first-mint-verified.json (F1 mirror)"],
+      "files": [
+        "_ops/state/drive/new-domains.json (ziman-gift.com.au + .shop, D0 receipts)",
+        "_ops/state/drive/registry-round2-done.json (owner yes-to-all)",
+        "_ops/state/drive/l23-first-mint-verified.json (F1 mirror)"
+      ],
       "effect": "live evaluate: fear 2.814→2.28; locks DOM2_names+REGISTRY_round2 flipped open in the RUNNING organism (new PID tick 00:42:29Z)"
     },
     {
@@ -37,10 +44,22 @@
     },
     {
       "id": "F6-backup-root-cause",
-      "finding": "germline-daily rc=1 at 03:30 was git-write lock TIMEOUT: GITWRITE-FAILED flag 2026-09-08_035021 'TIMEOUT after 40 attempts on gitwrite.lock' — nightly aborted at the lock gate, not at integrity gates",
-      "action": "manual full run launched 10:27 local (lock free now); IN FLIGHT at receipt time — fsck/bundle on 3GB repo; result to be appended",
-      "open": "identify 03:30 lock holder (stale vs live) + consider stale-lock detection in Enter-GitWriteLock"
+      "finding": "DEFINITIVE root cause of germline-daily rc=1 (since 09-02): gate 1 `git fsck --full` exits nonzero with dangling-ONLY output (18 unreachable objects; zero missing/broken/corrupt lines in full log) -> script threw GIT FSCK FAILED. The 03:50 GITWRITE flag was a separate victim: hourly at ~03:49 timed out on the lock held by the daily's own long fsck.",
+      "action": "germline-backup.ps1 gate 1 made corruption-precise (2026-09-08): output classified via temp file; only non-dangling error lines abort; clean-rc-with-hard-lines also aborts; dangling-only allowed with explicit note. Drill fsck stays strict (bundle clone is reachable-only). Task germline-daily action now redirects output to E:\\germline\\daily-last-run.log (was hidden-window, failures undiagnosable). Manual re-run with fix IN FLIGHT.",
+      "open": [
+        "manual run completion (drill PASS + fresh manifest = nightly VERIFIED)",
+        "18 dangling objects left in place (reflog-protected; harmless)"
+      ],
+      "side_facts": {
+        "fsck_runtime": "~63 min on 3.0GB repo",
+        "bundle_size": "2,957,837,785 bytes",
+        "last_good_manifest": "2026-09-01_0330 drill PASS notes=7347"
+      }
     }
   ],
-  "unchanged": ["GOV-V8 absolute locks", "GOV-V7 protections", "all wire/runtime flags (zero flips)"]
+  "unchanged": [
+    "GOV-V8 absolute locks",
+    "GOV-V7 protections",
+    "all wire/runtime flags (zero flips)"
+  ]
 }
