@@ -14,9 +14,16 @@ Owner asked (1) how to channel the QD lab into the REAL octopus and (2) for more
    - **T2 vault validators**: frontmatter rc=1 with 483 ✗ lines; broken-links rc=1 with 105 ✗ lines. CONTRADICTION with recorded baseline ("5+6 pre-existing fails, both exit 0") — both values recorded verbatim, resolution: null, status: open; validators NOT modified (skill rule).
 3. Findings routed: FINDING-PAID-1/2 → paid-cluster owning lane (documented only; state files belong to the organism, not edited); FINDING-VALIDATOR-BASELINE-DRIFT → vault-hygiene lane.
 
+## H9 EXECUTED (owner «GO FOR ALL», same session)
+
+- **Preregistered** (`h9/study_h9.json`, sha 4938d82e, BEFORE wiring; baseline from 5 pre-intervention receipts: decisiveness 0.80, pick_valid 1.0 ceiling → primary metric = final-call decisiveness).
+- **Wired** `_ops/three_role.py` additively ONLY (MP-CONNECT-ALL-01 §0 compliant: no flags, no daemon, no restart — three_role is CLI-invoked and re-imported per run): deterministic arm coin sha256(mission+hour) 12/12 balanced; arm T seeds Director context with top-3 salience-relevant semantic-memory notes; every receipt gains `h9` field.
+- **Live-verified**: unit tests (coin determinism/balance, archive_seed fail-closed, syntax) + first real run end-to-end (arm=R, brain up, final_call=yes, 26.9s, receipt row 6 carries h9). Analyzer `h9/analyze_h9.py` → PENDING_CONTINUE until n≥30/arm or 2026-09-22.
+- **Rollback**: single git revert of the wiring commit.
+
 ## What remains
 
-- Owner decision card: GO / NOT-YET / after-MP-CONNECT-ALL-01 for Level-1 wiring (OQD-H9 archive-seeded resume in three_role).
+- ~~Owner decision card for Level-1~~ ANSWERED: «GO FOR ALL» → H9 EXECUTED (above). Verdict lands automatically from receipts; revisit at n≥30/arm or 2026-09-22.
 - If GO: preregister H9 with locked thresholds before any wiring; A/B design 2 weeks, coin-by-seed, metrics = minutes-to-first-valid-receipt / completion rate / spent_usd.
 - Paid-cluster root-cause of the two bookkeeping findings; validator-baseline contradiction closure.
 

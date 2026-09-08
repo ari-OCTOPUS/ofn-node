@@ -215,7 +215,7 @@ MISSIONS = {
         "fn": m_shelf_check, "priority": 1,
         "executor_task_type": "presence_check"},
     "store_order_check": {
-        "title": "فروشگاه: سفارش/دامنه از چشم ۱۳۸ — اولین VERIFIED_CASH رسیده؟ (درایو: ترسِ پولِ صفر)",
+        "title": "فروشگاه: سفارش/دامنه از چشمِ ۱۳۸ — اولین VERIFIED_CASH رسیده؟ (درایو: ترسِ پولِ صفر)",
         "fn": m_store_order_check, "priority": 2,
         "executor_task_type": "timestamp_freshness"},
     "checkout1_order_check": {
@@ -227,6 +227,51 @@ MISSIONS = {
         "fn": m_organism_liveness, "priority": 4,
         "executor_task_type": "timestamp_freshness"},
 }
+
+
+# ── OQD-H9: resume-from-archive (QD-BRIDGE-REALTESTS-20260908، GO مالک 2026-09-08) ──
+# آزمون زندهٔ درسِ آزمایشگاه QD (H8): مصرف حافظهٔ مهارتِ بالغ، انتخاب والد/زمینهٔ
+# بهتر می‌سازد. بازوی T = بذرِ نخبگانِ حافظهٔ معنایی در زمینهٔ مدیر؛ بازوی R = وضع موجود.
+# پیش‌ثبت و آستانه‌ها: 09-LANES/QD-BRIDGE-REALTESTS-20260908/h9/study_h9.json
+# قواعد MP-CONNECT-ALL-01 §0 حفظ شده: بدون فلگ، بدون دیمن، فقط همین فایل، fail-closed.
+
+SEMANTIC_MEMORY = _HERE / "state" / "semantic_memory.jsonl"
+
+
+def archive_seed(context: str, k: int = 3) -> dict:
+    """نخبگانِ حافظهٔ معنایی مرتبط با زمینه: مرتب‌سازی = هم‌پوشانی توکن × salience.
+    fail-closed: نبودن/خرابی فایل = بذرِ خالی، هرگز کرش، هرگز fabrication."""
+    out = {"n_store": 0, "seeded": [], "digest": "", "digest_chars": 0}
+    try:
+        rows = [json.loads(ln) for ln in
+                open(SEMANTIC_MEMORY, encoding="utf-8") if ln.strip()]
+    except OSError as e:
+        out["seed_error"] = f"{type(e).__name__}"
+        return out
+    out["n_store"] = len(rows)
+    toks = __import__("re").findall(r"[a-zA-Z\u0600-\u06FF]{3,}", context.lower())
+    ctx_tokens = set(toks)
+
+    def rank(r: dict):
+        g = str(r.get("gist", ""))
+        rt = set(__import__("re").findall(r"[a-zA-Z\u0600-\u06FF]{3,}", g.lower()))
+        overlap = len(ctx_tokens & rt)
+        return (overlap > 0, overlap * 10 + float(r.get("salience") or 0.0))
+
+    for r in sorted(rows, key=rank, reverse=True)[:k]:
+        out["seeded"].append({"ts": r.get("ts"), "salience": r.get("salience"),
+                              "gist": str(r.get("gist", ""))[:120],
+                              "next_action": r.get("next_action")})
+    out["digest"] = " | ".join(
+        f"[{s['ts'][:10]} sal={s['salience']}] {s['gist']} → {s['next_action']}"
+        for s in out["seeded"])
+    out["digest_chars"] = len(out["digest"])
+    return out
+
+
+def _h9_arm(coin_key: str) -> str:
+    """سکهٔ قطعی از هشِ کلید (مأموریت+ساعت) — بدون فلگ، بدون تصادفِ ذخیره‌نشده."""
+    return "T" if int(hashlib.sha256(coin_key.encode()).hexdigest()[:8], 16) % 2 == 0 else "R"
 
 
 # ── نقش‌ها ─────────────────────────────────────────────────────────────────
@@ -335,17 +380,28 @@ def run(mission_id: str | None = None, context: str = "") -> dict:
         pass
     ctx = context or (drive_ctx or
                       "VERIFIED_CASH=0; CHECKOUT-1 awaiting owner test buy; shelf must stay sellable")
+    # OQD-H9 (پیش‌ثبت: QD-BRIDGE-REALTESTS-20260908/h9/study_h9.json):
+    coin_key = f"{mission_id or 'auto'}:{time.strftime('%Y-%m-%dT%H')}"
+    h9_arm = _h9_arm(coin_key)
+    h9 = {"arm": h9_arm, "coin_key": coin_key}
+    if h9_arm == "T":
+        h9.update(archive_seed(ctx))
+        if h9.get("digest"):
+            ctx = (ctx + "\nELITE MEMORY (top-salience relevant notes from your own past):\n"
+                   + h9["digest"])
     d1 = director_pick(candidates, ctx)
     chosen = mission_id or d1["picked"]
     event_spine.emit("task.started", source="three-role-g1",
                      payload={"mission": chosen, "director_pick": d1["picked"],
-                              "pick_valid": d1["pick_valid"]}, run_id=run_id)
+                              "pick_valid": d1["pick_valid"], "h9_arm": h9_arm},
+                     run_id=run_id)
     ex = executor_run(chosen)
     ev = evaluator_run(ex)
     d2 = director_final(chosen, ev)
     rec = {"schema": "three-role-run.v1", "run_id": run_id, "ts_utc":
            time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
            "duration_ms": int((time.time() - t0) * 1000),
+           "h9": h9,
            "director_pick": d1, "executor": {k: v for k, v in ex.items() if k != "output"},
            "executor_output": ex["output"], "evaluator": {k: v for k, v in ev.items()
                                                           if k != "brain"},
