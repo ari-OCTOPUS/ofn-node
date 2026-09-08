@@ -55,3 +55,30 @@ deliver Australia-wide, with same-day care across Sydney metro. When the occasio
 - C-7: ذخیرهٔ preferences (تأیید after-save در همان فرم؛ title فیلد نداشت)
 - D: `06-EVIDENCE/SHOPIFY-POTENTIALS-REGISTER-2026-09-08.md`
 - B/C-5 مسدود: شرح فنی بالا + ترانسکریپت جلسه
+
+## فاز عکس‌ها — اجرا + اصلاح (2026-09-08 ~15:3x، فرمان «عکس‌های بیشتری بزار»)
+
+**خلاصه صادقانه:** آپلود صبح ۳ عکس بر اساس پروپوزال‌های vision-verified 08-24 انجام شد،
+اما بازبینی چشمیِ تازه (analyze_image) نشان داد **هر ۳ روی محصول اشتباهی چسبیده بودند** —
+پروپوزال‌ها علیه featured قدیمی (IMG_3984) تأیید شده بودند نه featured فعلی (IMG_4447)،
+و «برگهٔ خانواده» فام-0007 خالی/خراب از آب درآمد. هر ۳ با DELETE API حذف شد.
+
+**وضعیت نهایی (رسید PHOTO-FIX-20260908.json، همه 200):**
+- 0007 Red Balloon Box: ۱ عکس (قرمزِ درست) — عکس‌های غلط حذف
+- 0008 Cream Flower Basket: **۳ عکس** (+۲ زاویهٔ SAME تازه: IMG_3101, IMG_3728)
+- White & Gold Teddy Gift Box: **۲ عکس** (+IMG_3636 — تطبیق کامل چشمی)
+
+**دروس ثبت‌شده (برای ایجنت‌های بعد):**
+1. پروپوزال‌های تطبیق عکس **فقط تا زمانی معتبرند که featured محصول عوض نشده** — قبل از هر
+   آپلود، تطبیق تازه با عکسِ فعلیِ فروشگاه انجام شود (همین کار ۳ عکس غلط را گرفت).
+2. استخرِ عکس‌های بلااستفاده **عکس شخصی دارد** (IMG_9447-9450 = پا) — هیچ آپلودی بدون غربال چشمی.
+3. فایل‌های .DNG این گالری در واقع JPEG با پسوند غلط‌اند (JFIF magic) — مستقیم باز می‌شوند.
+4. HEIC/DNG محلی با pillow_heif/rawpy (هیچ‌کدام RAW واقعی نبودند؛ همه JPEG/HEIC ساده).
+
+**کشف‌های محصول:** عکس‌های «هامپر توت‌فرنگی لوتسو»، «جعبهٔ سبز Elizabeth Arden»، «MUM صورتی»×۲
+موجود ولی بدون محصول فعال (Strawberry Gift Box = archived) ⇒ کارت P-NEW در OWNER-APPROVALS دور ۱۱.
+کارت جایگزین Telnyx (DIDWW/Bitcall/ILLYVOIP) هم همان‌جا — تحریم استرالیا.
+
+**رسیدها:** `board138:~/octopus-mesh/receipts/PHOTO-FIX-20260908.json` + کپی
+`_ops/state/receipts/PHOTO-FIX-20260908.json` · snapshot قبل/بعدِ image_idها داخل رسید.
+**Rollback:** DELETE /products/8673569898596/images/44145946263652 · DELETE /products/8688854630500/images/{44145946591332,44145946820708}
