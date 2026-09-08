@@ -1,0 +1,68 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-HARMONIC-RECIPROCAL-20260908",
+  "issued_utc": "2026-09-08T14:29:09Z",
+  "author": "cursor-cloud owner-absent automation (cron 17 * * * *)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-harmonic-reciprocal on feat/p1-harmonic-reciprocal-20260908 parent origin/main @2affbd7ad63e0901d6abb9c17bca2a20b236fba1 (#238 EventEnvelope). harmonic_class.py and reciprocal_pin.py ABSENT on parent (test ! -e). /workspace stayed on cursor/taskenvelope-system-hardening-8e13 @2affbd7ad63e0901d6abb9c17bca2a20b236fba1 and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary harmonic_class + reciprocal_pin — new files only. A bag of positive exact ints classifies as exact (integer harmonic mean) or mixed (no integer mean). sample is a START. classify/observe/inspect continue under HALT. Missing is UNKNOWN, not FALSE and not 1. MIXED mean is UNKNOWN, not 0. Measured harmonic 1 (all ones) is EXACT never UNKNOWN. Empty / zero / negative fail closed. Same unordered bag = replay not send. campaign_envelope_ready structurally ≠ send_authorized. Not a second mean-average, geometric-product, ratio-share, floor-ceil, remainder-leftover, square-root, lcm-least, or coprime-common PR.",
+  "delivered": {
+    "ofn/kernel/harmonic_class.py": "classify_family: missing→UNKNOWN; timeout→UNKNOWN; integer H→EXACT; no integer H→MIXED; empty/zero/negative fail closed; bool/float fail closed; sample START; classify/observe/inspect continue; grants_send/ready_is_authorized/wires_into_run_store structurally False; later_disarm_supersedes structurally True",
+    "ofn/kernel/reciprocal_pin.py": "pin_reciprocal: first→pinned; same encoding (including permuted sides)→already_pinned; different bag→reciprocal_collision; peek does not write; pin_allows_send structurally False; pin_allows_sample only SAMPLE+EXACT; not wired into run_store.py",
+    "tests/test_harmonic_class.py": "E3 negatives: missing UNKNOWN not 1, MIXED mean UNKNOWN not 0, empty/zero/negative, sealed names, bool members, halt START vs continue",
+    "tests/test_reciprocal_pin.py": "E3 negatives: missing UNKNOWN, permuted replay, collision, sealed slots, frozen retcon",
+    "tests/test_chaos_harmonic_reciprocal.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_harmonic_class tests.test_reciprocal_pin tests.test_chaos_harmonic_reciprocal tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_events tests.test_campaign_bind tests.test_send_fence tests.test_remainder_class tests.test_leftover_pin tests.test_chaos_remainder_leftover tests.test_coprime_class tests.test_common_pin tests.test_chaos_coprime_common tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-08T14:29:07Z",
+    "parent_head_full": "2affbd7ad63e0901d6abb9c17bca2a20b236fba1",
+    "exit_code": 0,
+    "result": "491 passed / 0 failed / 0 skipped (unittest 'Ran 491 tests in 0.941s' / OK). New-module + purity: 94 passed (harmonic 58 / reciprocal 19 / chaos 7 / purity 10) @ 2026-09-08T14:28:58Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-harmonic-reciprocal).",
+    "worktree": "/tmp/ofn-p1-harmonic-reciprocal",
+    "file_lock_zone": [
+      "ofn/kernel/harmonic_class.py",
+      "ofn/kernel/reciprocal_pin.py",
+      "tests/test_harmonic_class.py",
+      "tests/test_reciprocal_pin.py",
+      "tests/test_chaos_harmonic_reciprocal.py",
+      "docs/octopus-surgery/architecture/2026-09-08/receipts/P1-HARMONIC-RECIPROCAL-20260908.json",
+      "09-LANES/P1-HARMONIC-RECIPROCAL/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not 1",
+      "harmonic 1 is EXACT never UNKNOWN",
+      "MIXED mean is UNKNOWN not 0",
+      "empty bag / zero / negative fail closed",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as intent/slot",
+      "admit_harmonic(sample, halted=True) is False; classify/observe/inspect continue",
+      "permuted sides of the same bag are already_pinned (replay)",
+      "different bag on the same slot is reciprocal_collision",
+      "run_store / adapters do not import harmonic_class or reciprocal_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "mean_class / average_pin (#239) / unpublished geometric/product / unpublished ratio/share / unpublished floor/ceil / remainder_class / leftover_pin (#204) / square_class / root_pin (#235) / unpublished lcm/least / coprime_class / common_pin (#234) / envelope.py / EventEnvelope (#238) / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88) / campaign_bind / send_fence (#145)"
+}
