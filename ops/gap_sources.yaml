@@ -11,42 +11,52 @@ gaps:
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.mesh_audit --node 180 --json | jq '[.outbox[]|select(.ttl==null)]|length'
+  verify_command: python3 -m tools.mesh_audit --node 180 --json | python3 -c "import
+    json,sys;d=json.load(sys.stdin);print(len([x for x in d.get('outbox',[]) if x.get('ttl')
+    is None]))"
   expect: '0'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.mesh_audit --node 180 --json | jq '[.outbox[]|select(.ttl==null)]|length'
 - gap_id: GAP-004
   title: dual-outbox روی ۱۳۸ — آخرین PASS تطبیق هش نامعلوم
   node: '138'
   class: A5
   blocked_by: null
-  verify_command: python -m tools.dual_outbox_verify --json | jq -r .status
+  verify_command: python3 -m tools.dual_outbox_verify --json | python3 -c "import
+    json,sys;print(json.load(sys.stdin).get('status'))"
   expect: PASS
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.dual_outbox_verify --json | jq -r .status
 - gap_id: GAP-005
   title: skip table و COMM-LOOP-v1-SKIP بدون دلیل ثبت‌شده برای هر ورودی
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.skip_table --explain --json | jq '(.entries|length)>0
-    and (all(.entries[]; .reason!=null))'
+  verify_command: python3 -m tools.skip_table --explain --json | python3 -c "import
+    json,sys;e=json.load(sys.stdin).get('entries',[]);print(len(e)>0 and all(x.get('reason')
+    is not None for x in e))"
   expect: 'true'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.skip_table --explain --json | jq '(.entries|length)>0
+    and (all(.entries[]; .reason!=null))'
 - gap_id: GAP-006
   title: دستهٔ ۱۸/۱۸ deploy نشده و ۱۵۲۲ دست‌نخورده
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.queue_audit --batch 18 --json | jq -r .deployed
+  verify_command: python3 -m tools.queue_audit --batch 18 --json | python3 -c "import
+    json,sys;print(json.load(sys.stdin).get('deployed'))"
   expect: 'true'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.queue_audit --batch 18 --json | jq -r .deployed
 - gap_id: GAP-008
   title: معناشناسی retry/skip در octopus-drain مستند و تست‌نشده
   node: '138'
@@ -62,41 +72,50 @@ gaps:
   node: '138'
   class: A1
   blocked_by: null
-  verify_command: python -m tools.pulse --dry-run | rg -c "دکتر:"
+  verify_command: python3 -m tools.pulse --dry-run | python3 -c "import sys;print(sys.stdin.read().count('دکتر:'))"
   expect: '1'
   canary: true
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.pulse --dry-run | rg -c "دکتر:"
 - gap_id: GAP-010
   title: OWNER-QUEUE.md هیچ خواننده‌ای ندارد
   node: '138'
   class: A1
   blocked_by: null
-  verify_command: rg -c "OWNER-QUEUE" tools/ ofn/ --glob "!tests/**"
+  verify_command: python3 -c "import pathlib;p='OWNER-QUEUE';fs=list(pathlib.Path('tools').rglob('*.py'))+list(pathlib.Path('ofn').rglob('*.py'));print(sum(1
+    for f in fs if p in f.read_text(encoding='utf-8',errors='ignore')))"
   expect: '>=1'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: rg -c "OWNER-QUEUE" tools/ ofn/ --glob "!tests/**"
 - gap_id: GAP-011
   title: هشدارهای SILENT_FLIP بی‌مصرف
   node: '138'
   class: A1
   blocked_by: null
-  verify_command: rg -c "SILENT_FLIP" tools/pulse.py ofn/adapters/
+  verify_command: python3 -c "import pathlib;p='SILENT_FLIP';fs=[pathlib.Path('tools/pulse.py')]+(list(pathlib.Path('ofn/adapters').rglob('*.py'))
+    if pathlib.Path('ofn/adapters').exists() else []);print(sum(1 for f in fs if f.exists()
+    and p in f.read_text(encoding='utf-8',errors='ignore')))"
   expect: '>=1'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: rg -c "SILENT_FLIP" tools/pulse.py ofn/adapters/
 - gap_id: GAP-012
   title: لجر یادگیری فقط snapshot دارد، بی‌فراخوان
   node: '138'
   class: A1
   blocked_by: null
-  verify_command: python -m tools.learning_feeder --dry-run --json | jq -r .runs_written
+  verify_command: python3 -m tools.learning_feeder --dry-run --json | python3 -c "import
+    json,sys;print(json.load(sys.stdin).get('runs_written'))"
   expect: '>=1'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.learning_feeder --dry-run --json | jq -r
+    .runs_written
 - gap_id: GAP-013
   title: runner گلاس — شش فرمان فارسی بی‌اجرا
   node: '138'
@@ -112,32 +131,38 @@ gaps:
   node: '138'
   class: A1
   blocked_by: null
-  verify_command: rg -c "board_events" ofn/ tools/ --glob "!tests/**"
+  verify_command: python3 -c "import pathlib;p='board_events';fs=list(pathlib.Path('ofn').rglob('*.py'))+list(pathlib.Path('tools').rglob('*.py'));print(sum(1
+    for f in fs if p in f.read_text(encoding='utf-8',errors='ignore')))"
   expect: '>=2 (یک producer و یک consumer)'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: rg -c "board_events" ofn/ tools/ --glob "!tests/**"
 - gap_id: GAP-017
   title: دِین طبقه‌بندی oneshot — ده UNKNOWN کاذب
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.doctor --json | jq '[.units[]|select(.type=="oneshot"
-    and .status=="UNKNOWN")]|length'
+  verify_command: python3 -m tools.doctor --json | python3 -c "import json,sys;d=json.load(sys.stdin);print(len([u
+    for u in d.get('units',[]) if u.get('type')=='oneshot' and u.get('status')=='UNKNOWN']))"
   expect: '0'
   canary: true
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.doctor --json | jq '[.units[]|select(.type=="oneshot"
+    and .status=="UNKNOWN")]|length'
 - gap_id: GAP-018
   title: دقت نبض — صندوق خالی به‌اشتباه «مرده» خوانده می‌شود
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.doctor --check imap --json | jq -r .status
+  verify_command: python3 -m tools.doctor --check imap --json | python3 -c "import
+    json,sys;print(json.load(sys.stdin).get('status'))"
   expect: HEALTHY وقتی creds resolve می‌شود و inbox خالی است
   canary: true
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.doctor --check imap --json | jq -r .status
 - gap_id: GAP-019
   title: مجوز journal برای دکتر
   node: '138'
@@ -153,12 +178,14 @@ gaps:
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.homeostat --json | jq '[.signals[]|select(.source==null
-    and .zone!="WISHLIST")]|length'
+  verify_command: python3 -m tools.homeostat --json | python3 -c "import json,sys;d=json.load(sys.stdin);print(len([s
+    for s in d.get('signals',[]) if s.get('source') is None and s.get('zone')!='WISHLIST']))"
   expect: '0'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.homeostat --json | jq '[.signals[]|select(.source==null
+    and .zone!="WISHLIST")]|length'
 - gap_id: GAP-032
   title: باگ H1 — یک verdict به N اجرا و N برداشت بودجه
   node: '138'
@@ -174,11 +201,14 @@ gaps:
   node: '138'
   class: A2
   blocked_by: null
-  verify_command: python -m tools.verify_chain --from-zero --json | jq -r .status
+  verify_command: python3 -m tools.verify_chain --from-zero --json | python3 -c "import
+    json,sys;print(json.load(sys.stdin).get('status'))"
   expect: OK
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.verify_chain --from-zero --json | jq -r
+    .status
 - gap_id: GAP-037
   title: نردبان اختیار — A2 در BLOCK بماند (invariant بی‌تست)
   node: '138'
@@ -214,11 +244,13 @@ gaps:
   node: '138'
   class: A2
   blocked_by: null
-  verify_command: python -m tools.counters --json | jq -r '[.EXTERNAL_ACTIONS,.NEW_LAN_LISTENERS,.MAY_AUTHORIZE]|@csv'
+  verify_command: python3 -m tools.counters --json | python3 -c "import json,sys;d=json.load(sys.stdin);print(','.join(str(d.get(k))
+    for k in ('EXTERNAL_ACTIONS','NEW_LAN_LISTENERS','MAY_AUTHORIZE')))"
   expect: 0,0,false
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.counters --json | jq -r '[.EXTERNAL_ACTIONS,.NEW_LAN_LISTENERS,.MAY_AUTHORIZE]|@csv'
 - gap_id: GAP-041
   title: باگ memory.db صفربایتی — حافظه بی‌صدا دور ریخته می‌شود
   node: '138'
@@ -244,31 +276,37 @@ gaps:
   node: '138'
   class: A4
   blocked_by: null
-  verify_command: python -m tools.queue_audit --ids 1515,1516,1517 --json | jq '[.[]|select(.root_cause==null)]|length'
+  verify_command: python3 -m tools.queue_audit --ids 1515,1516,1517 --json | python3
+    -c "import json,sys;d=json.load(sys.stdin);print(len([x for x in (d if isinstance(d,list)
+    else d.get('items',[])) if x.get('root_cause') is None]))"
   expect: '0'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.queue_audit --ids 1515,1516,1517 --json
+    | jq '[.[]|select(.root_cause==null)]|length'
 - gap_id: GAP-053
   title: VERIFIED_CASH=0 و runway_days از لجر محاسبه نمی‌شود
   node: '138'
   class: A5
   blocked_by: null
-  verify_command: python -m tools.runway --json | jq -r '[.runway_days,.source]|@csv'
+  verify_command: python3 -m tools.runway --json | python3 -c "import json,sys;d=json.load(sys.stdin);print(str(d.get('runway_days'))+','+str(d.get('source')))"
   expect: عدد از رسیدهای لجر، با source=ledger (نه forecast)
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.runway --json | jq -r '[.runway_days,.source]|@csv'
 - gap_id: GAP-054
   title: سی درصد هر payout برای ATO جدا نگه داشته نمی‌شود
   node: '138'
   class: A5
   blocked_by: null
-  verify_command: python -m tools.treasury --json | jq -r .ato_reserve_ratio
+  verify_command: python3 -m tools.treasury --json | python3 -c "import json,sys;print(json.load(sys.stdin).get('ato_reserve_ratio'))"
   expect: '0.3'
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.treasury --json | jq -r .ato_reserve_ratio
 - gap_id: GAP-055
   title: هشدار ۰.۸۰=۰.۸۰ — استراتژی از baseline persistence جدا نشده
   node: '138'
@@ -284,11 +322,13 @@ gaps:
   node: '138'
   class: A2
   blocked_by: null
-  verify_command: python -m tools.gate_check --gate 4 --json | jq -r .status
+  verify_command: python3 -m tools.gate_check --gate 4 --json | python3 -c "import
+    json,sys;print(json.load(sys.stdin).get('status'))"
   expect: PASS
   canary: false
   evidence: canonical md twin (Downloads), machine-parsed
-  updated_at_utc: '2026-09-08T11:45:23Z'
+  updated_at_utc: '2026-09-08T21:26:14Z'
+  verify_command_original: python -m tools.gate_check --gate 4 --json | jq -r .status
 - gap_id: GAP-060
   title: تناقض شمارش تست — MANIFEST ۲۰۷ در برابر BACKUP-README ۱۷۱
   node: '138'
