@@ -104,6 +104,31 @@ def t_b2_local_llm_rate_limit_atomic_concurrent():
         local_llm._LAST_CALL["ts"] = 0.0         # پاکسازی برای تست‌های بعدی
 
 
+def t_b3_local_llm_failure_reason_is_witnessed():
+    """FAULT-LLMLEARN (2026-09-08): دلیلِ None بودنِ ask باید شاهدِ بی‌محتوا داشته
+    باشد — rate_limited / empty_response در last_fail_reason + فایلِ لاگ؛ و موفقیت
+    دلیلِ کهینه را پاک می‌کند. پیش از این، شکستِ مغزِ محلی کور بود (pump-64845)."""
+    local_llm._LAST_CALL["ts"] = 0.0
+    log = local_llm.FAIL_LOG_PATH
+    if log.exists():
+        log.unlink()                              # شمارشِ از صفر برای این تست
+    # ۱) rate-limit
+    local_llm._LAST_CALL["ts"] = time.time()
+    assert local_llm.ask("hi", opener=_fake_opener({"response": "x"})) is None
+    assert local_llm.last_fail_reason() == "rate_limited"
+    # ۲) پاسخِ خالی → empty_response (بدنِ {} falsy است و post_failed می‌گیرد)
+    bad = local_llm.ask("hi", opener=_fake_opener({"response": ""}), force=True)
+    assert bad is None and local_llm.last_fail_reason() == "empty_response"
+    # ۳) موفقیت → پاک شدنِ دلیل
+    ok = local_llm.ask("hi", opener=_fake_opener({"response": "سلام"}), force=True)
+    assert ok and local_llm.last_fail_reason() == ""
+    # ۴) شاهدِ روی دیسک: فقط ردیف‌های شکست، بدونِ هیچ محتوا
+    rows = [json.loads(l) for l in log.read_text("utf-8").splitlines() if l.strip()]
+    assert [r["reason"] for r in rows] == ["rate_limited", "empty_response"], rows
+    assert all(set(r) <= {"ts", "reason", "ms"} for r in rows)   # بی‌محتوا
+    local_llm._LAST_CALL["ts"] = 0.0
+
+
 def t_c_router_paid_closed_falls_back_local():
     """ردهٔ پولی در phase −1 بسته → fallback به local با دلیلِ صادق.
     rollover 2026-07-21: سپرِ تاریخ واقعاً باز شد؛ قراردادِ «پیش از تاریخ» را با پینِ
@@ -124,6 +149,46 @@ def t_c_router_paid_closed_falls_back_local():
         assert r2["ok"] is False and "local-llm-unavailable" in r2["reason"]
     finally:
         opslib.LIVE_GATE_DATE = _real_gate
+
+
+def t_c9_router_retries_local_once_on_rate_limit():
+    """FAULT-LLMLEARN (2026-09-08): fallbackِ نهایی که فقط به rate-limitِ ۱۰ثانیه‌ای
+    خورده باشد، بعد از پنجره یک بار retry می‌شود (تماسِ روزانهٔ llm_learn نجات
+    می‌یابد)؛ ولی empty_response صبر نمی‌کند — بی‌فایده است. LOCAL_FALLBACK_RETRY_S=0
+    رفتارِ قدیمی را برمی‌گرداند."""
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)      # paid بسته → مسیرِ local
+    _min, _retry = local_llm.MIN_INTERVAL_S, os.environ.get("LOCAL_FALLBACK_RETRY_S")
+    local_llm.MIN_INTERVAL_S = 0.05                   # پنجرهٔ کوچک برای تست
+    os.environ["LOCAL_FALLBACK_RETRY_S"] = "0.08"
+    try:
+        # ۱) اولین fallback به rate-limit می‌خورد → ~۸۰ms صبر → دومی جواب می‌دهد
+        local_llm._LAST_CALL["ts"] = time.time()
+        t0 = time.time()
+        r = model_router.ask("classify", "x", opener=_fake_opener({"response": "جواب"}))
+        assert r["ok"] is True and r["tier"] == "local", r
+        assert time.time() - t0 >= 0.08               # retry واقعاً صبر کرد
+        # ۲) پاسخِ خالی → هیچ retry/صبرِ اضافه‌ای نیست، همان شکستِ صادق
+        os.environ["LOCAL_FALLBACK_RETRY_S"] = "30"   # اگر اشتباه retry کند، ۳۰s معلق می‌شود
+        local_llm._LAST_CALL["ts"] = 0.0
+        local_llm._LAST_FAIL["reason"] = ""           # شبیه‌سازیِ حالتِ تمیز
+        t0 = time.time()
+        r2 = model_router.ask("classify", "x", opener=_fake_opener({}))
+        assert r2["ok"] is False and "local-llm-unavailable" in r2["reason"]
+        assert time.time() - t0 < 5.0, "empty_response نباید retry بخورد"
+        # ۳) صفرِ صریح = خاموش (rollback در یک env)
+        os.environ["LOCAL_FALLBACK_RETRY_S"] = "0"
+        local_llm._LAST_CALL["ts"] = time.time()      # rate-limit فعال
+        r3 = model_router.ask("classify", "x", opener=_fake_opener({"response": "y"}))
+        assert r3["ok"] is False and "local-llm-unavailable" in r3["reason"]
+    finally:
+        opslib.LIVE_GATE_DATE = _real_gate
+        local_llm.MIN_INTERVAL_S = _min
+        if _retry is None:
+            os.environ.pop("LOCAL_FALLBACK_RETRY_S", None)
+        else:
+            os.environ["LOCAL_FALLBACK_RETRY_S"] = _retry
+        local_llm._LAST_CALL["ts"] = 0.0
 
 
 def t_c2_research_early_lever_bypasses_date():

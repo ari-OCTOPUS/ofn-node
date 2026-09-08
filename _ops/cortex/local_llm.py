@@ -26,10 +26,31 @@ MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:1.5b")
 TIMEOUT_S = float(os.environ.get("OLLAMA_TIMEOUT_S", "90"))   # cold-load مدل تا ~۶۰s
 MIN_INTERVAL_S = float(os.environ.get("OLLAMA_MIN_INTERVAL_S", "10"))
 _LAST_CALL = {"ts": 0.0}
+# دلیلِ آخرین None (2026-09-08، FAULT-LLMLEARN): شکست‌های مغزِ محلی هیچ ردی
+# نمی‌گذاشتند — دو شکستِ pump/llm_learn (09-07/09-08) فقط «local-llm-unavailable»
+# بودند و معلوم نبود rate-limit است، ollama خاموش، یا پاسخِ خالی. این شاهدِ
+# بی‌محتوا برای روتر (retryِ هوشمند) و دیاگنوست آینده است.
+_LAST_FAIL = {"reason": ""}
+FAIL_LOG_PATH = opslib.STATE_DIR / "pulse" / "local-llm-failures.jsonl"
 # قفلِ سراسری: read-check-then-write روی _LAST_CALL باید atomic باشد تا دو لاین
 # همزمان (مثلاً doctor self-knowledge + cortex/llm_learn) با هم از rate-limit رد
 # نشوند و روی یک GPU تک هم‌زمان /api/generate نزنند (منصفانه‌سازی latency).
 _LOCK = threading.Lock()
+
+
+def last_fail_reason() -> str:
+    """آخرین دلیلِ شکستِ ask: '' | rate_limited | post_failed | empty_response."""
+    return _LAST_FAIL["reason"]
+
+
+def _note_fail(reason: str, ms: int = 0) -> None:
+    """ثبتِ دلیلِ شکست — بی‌محتوا (هیچ prompt/متنی)، fail-soft، هرگز مسیر را نمی‌کشد."""
+    _LAST_FAIL["reason"] = reason
+    try:
+        opslib.append_jsonl(FAIL_LOG_PATH,
+                            {"ts": opslib.now_iso(), "reason": reason, "ms": ms})
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _post(path: str, payload: dict, timeout: float,
@@ -68,6 +89,7 @@ def ask(prompt: str, system: str = "", max_tokens: int = 256,
     now = time.time()
     with _LOCK:  # atomic: check-then-advance تا دو لاین همزمان از گارد رد نشوند
         if not force and now - _LAST_CALL["ts"] < MIN_INTERVAL_S:
+            _note_fail("rate_limited")
             return None
         _LAST_CALL["ts"] = now
     body = {
@@ -79,10 +101,16 @@ def ask(prompt: str, system: str = "", max_tokens: int = 256,
     }
     t0 = time.time()
     out = _post("/api/generate", body, TIMEOUT_S, opener=opener)
-    if not out or not out.get("response"):
+    _ms = int((time.time() - t0) * 1000)
+    if not out:
+        _note_fail("post_failed", _ms)
         return None
+    if not out.get("response"):
+        _note_fail("empty_response", _ms)
+        return None
+    _LAST_FAIL["reason"] = ""            # موفقیت، دلیلِ کهنه را بی‌اثر می‌کند
     return {"text": str(out["response"]).strip(),
-            "ms": int((time.time() - t0) * 1000),
+            "ms": _ms,
             "model": MODEL, "tier": "local", "cost_usd": 0.0}
 
 

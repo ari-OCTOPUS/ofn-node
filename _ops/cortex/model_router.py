@@ -692,6 +692,23 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         }
     out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
                         opener=opener)
+    # ── 2026-09-08 (FAULT-LLMLEARN): یک retryِ کران‌دارِ rate-limit-aware ──────
+    # شاهدِ زنده: pump-64845 (09-08T01:18) — paid بسته بود، fallbackِ محلی هم
+    # None خورد و تماسِ *روزانهٔ* یادگیری همان‌جا مرد؛ ۱۱ ثانیه صبر، پنجرهٔ
+    # rate-limitِ ۱۰ثانیه‌ای را رد می‌کرد. فقط برای rate_limited (گذرا)، نه برای
+    # ollama-down/پاسخِ خالی (صبر بی‌فایده است). پشتِ LOCAL_FALLBACK_RETRY_S
+    # (پیش‌فرض 11؛ 0=خاموش). rollback: حذفِ همین بلوک.
+    if not out and not _lo_rejected and \
+            str(getattr(local_llm, "last_fail_reason", lambda: "")()) == "rate_limited":
+        try:
+            _retry_s = float(os.environ.get("LOCAL_FALLBACK_RETRY_S", "11"))
+        except (TypeError, ValueError):
+            _retry_s = 11.0
+        if _retry_s > 0:
+            import time as _tr  # noqa: WPS433 — lazy؛ فقط در مسیرِ شکستِ گذرا
+            _tr.sleep(_retry_s)
+            out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
+                                opener=opener)
     if not out and _lo_rejected:
         # rate-limit ۱۰ثانیه‌ای، callِ دومِ محلی را می‌بُرد — جوابِ رد-کیفیتِ همین چند
         # ثانیه پیش صادقانه‌تر از «local-llm-unavailable» است (fallback_from می‌گوید چرا).

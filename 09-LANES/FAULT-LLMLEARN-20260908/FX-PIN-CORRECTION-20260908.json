@@ -1,0 +1,35 @@
+{
+  "schema": "fx-pin-receipt.v1",
+  "lane": "FAULT-LLMLEARN-20260908",
+  "action_local_ts": "2026-09-08 ~11:20 AEST",
+  "pin_id": "FX-PIN-20260907-01 (unchanged)",
+  "change": "anchor correction only: fx_record.fx_timestamp_utc 2026-09-07T00:00:00Z → 2026-09-07T06:00:00Z",
+  "unchanged": {
+    "fx_usd_to_aud": 1.38716,
+    "FX_SOURCE_VALUE": "AUD_USD = 0.7209 (RBA F11.1 daily 07-Sep-2026, series F11.1)",
+    "receipt_id": "5528012f809472ab",
+    "owner_pin_id": "FX-PIN-20260907-01",
+    "standing_authorization": "Owner ballot FX-1 2026-09-07 evening (OWNER-APPROVALS-2026-09-07.md)"
+  },
+  "why_correction_is_honest": "RBA F11.1 is the daily 4pm-AEST rate series; September = AEST = UTC+10, so the rate's true reference time is 06:00Z — exactly the convention of the prior pin FX-PIN-20260820-01 (fx_timestamp_utc 2026-08-20T06:00:00Z). 00:00Z was data-date midnight, not a time the rate ever referred to; it only shortened the F18 freshness window by ~6h and closed the paid path at 10:00 local, before RBA publishes the next row (~16:30 local). No rate value, source, or receipt changed.",
+  "witness": {
+    "raw_csv": "_ops/state/wedge/rba-f111-today.csv (sha256[:16]=5528012f809472ab, matches receipt)",
+    "live_refetch_2026-09-08": {
+      "url": "https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv",
+      "saved": "_ops/state/wedge/rba-f111-fetch-20260908.csv",
+      "byte_identical_to_pinned_csv": true,
+      "latest_row": "07-Sep-2026, AUD/USD 0.7209 — 08-Sep row NOT yet published at fetch time (~11:15 local)"
+    }
+  },
+  "gate_result_after": "cost_receipt.fx_pinned_fresh() = (True, 'ok')",
+  "verification_call": {
+    "procedure": "documented FX-1 shell procedure (OWNER-APPROVALS-2026-09-07.md): OCTOPUS_PAID_COGNITION=1 + OCTOPUS_RUN_ID + .env loaded, agent shell only (NOT a daemon flag change)",
+    "run_id": "R-fxpin-verify-20260908",
+    "result": {"ok": true, "tier": "primary", "model": "deepseek-v4-flash", "text": "OPERATIONAL", "finish_reason": "stop", "cost_usd": 2.814e-05, "fallback_from": null},
+    "elapsed_ms": 17315,
+    "cost_receipt_trace": "paid-primary-1788830740590 (COMPLETE, budget_after ≈ A$29.999961, daily cap A$30 untouched)",
+    "paid_log_row": "_ops/state/paid-calls.jsonl 2026-09-08T11:25:40 ok=true"
+  },
+  "new_expiry": "2026-09-08T06:00:00Z = 16:00 local — pin the 08-Sep RBA row after ~16:30 publication per RUNBOOK-FX-DAILY.md",
+  "rollback": "restore _ops/cortex/pricing_pinned.json.bak-fxpin-20260908 (single file, no code involved)"
+}
