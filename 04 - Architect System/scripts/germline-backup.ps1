@@ -118,8 +118,21 @@ try {
 
     # -- 3) restore-drill ON THE TEMP BUNDLE, before it is allowed to replace the good copy --
     Write-Host "[3/5] restore-drill (on candidate, pre-promotion)..."
-    git clone --quiet $tmpBundle $scratch
+    # 2026-09-08 (run-6 finding): `git clone` did the object transfer fine but its
+    # one-shot checkout died with "Out of memory, realloc failed" - this 16GB box
+    # runs the organism and idles at ~2GB free, and checkout's big index realloc
+    # needs contiguous memory. Split transfer from checkout and retry the checkout
+    # twice (memory pressure is bursty); still fail-closed if both attempts die.
+    git clone --quiet --no-checkout $tmpBundle $scratch
     if (-not (Test-Path (Join-Path $scratch ".git"))) { throw "DRILL: clone from bundle failed" }
+    $checked = $false
+    foreach ($attempt in 1..2) {
+        git -C $scratch checkout -f HEAD
+        if ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $scratch "AGENTS.md"))) { $checked = $true; break }
+        Write-Host "    checkout attempt $attempt failed (rc=$LASTEXITCODE) - waiting 60s for memory to settle"
+        Start-Sleep -Seconds 60
+    }
+    if (-not $checked) { throw "DRILL: checkout of restored copy FAILED (2 attempts)" }
     git -C $scratch fsck --full
     if ($LASTEXITCODE -ne 0) { throw "DRILL: fsck on restored copy FAILED" }
     $noteCount = (Get-ChildItem $scratch -Recurse -Filter *.md -ErrorAction SilentlyContinue).Count
