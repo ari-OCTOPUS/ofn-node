@@ -1,1 +1,1 @@
-{"schema":"genome-ledger-tip.v1","n":16144,"tip_hash":"2b6a195d7ff7e0c6616d210e8c288cb0f25e3eebaba792bd7218a9359d4aee18","ts":"2026-09-04T01:27:17.533966+00:00"}
+{"schema": "genome-ledger-tip.v1", "n": 18079, "tip_hash": "f48625e912d200a130283e66cd661febf5b8d9fab635612638a77a6bc0e03b33", "ts": "2026-09-08T01:45:06+00:00", "note": "repaired 2026-09-08: fork orphan relocated (see lane receipt)"}
