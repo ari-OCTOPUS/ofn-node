@@ -11,7 +11,8 @@
 {"ts_utc": "2026-09-08T00:23:56Z", "lock": "REGISTRY_round2", "next": "سوال‌های مرحلهٔ ۲ با سؤال ساختاریافته از مالک + ثبت در OWNER-APPROVALS", "consumed": false}
 {"ts_utc": "2026-09-08T00:23:57Z", "lock": "SBX_test", "next": "selftest next", "consumed": false}
 {"ts_utc": "2026-09-08T00:42:29Z", "lock": "MSG38_payment", "next": "ثبتِ settle outcome در calibration در verify-dispatch بعدی (۱۸۲) — سیگنال منفی صادق", "consumed": false}
-{"ts_utc": "2026-09-08T00:42:29Z", "lock": "L23_hold_external", "next": "پایش اولین پکت mint‌شده با hold_external=false (۰۹-۰۸ UTC) + اولین اثر بیرونیِ رسیددار از حلقهٔ داخلی", "consumed": false}
+{"ts_utc": "2026-09-08T00:42:29Z", "lock": "L23_hold_external", "next": "پایش اولین پکت mint‌شده با hold_external=false (۰۹-۰۸ UTC) + اولین اثر بیرونیِ رسیددار از حلقهٔ داخلی", "consumed": true, "consumed_at": "2026-09-08T03:00:20Z", "evidence": "F:\\backup\\_ops\\state\\drive\\l23-first-mint-verified.json"}
 {"ts_utc": "2026-09-08T00:42:29Z", "lock": "L24_go_extended", "next": "هیچ‌چیز تا ۱۰-۰۶؛ بعدش ترسِ انقضا دوباره بالا می‌رود (خودکار)", "consumed": false}
 {"ts_utc": "2026-09-08T00:42:29Z", "lock": "DOM2_names", "next": "از مالک بپرس (تلگرام/چت) → ثبت در new-domains.json → DNS + Shopify primary + مینی‌اپ عمومی", "consumed": false}
 {"ts_utc": "2026-09-08T00:42:29Z", "lock": "REGISTRY_round2", "next": "سوال‌های مرحلهٔ ۲ با سؤال ساختاریافته از مالک + ثبت در OWNER-APPROVALS", "consumed": false}
+{"ts_utc": "2026-09-08T03:00:19Z", "lock": "AUTO1_sender", "next": "نوشتن اسکریپتِ تماس ۳۰ثانیه‌ای + انتخاب سرویس تماس AU (اگر پولی ⇒ رأی L3)", "consumed": false}

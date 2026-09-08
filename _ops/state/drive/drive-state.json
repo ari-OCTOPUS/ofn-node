@@ -1,6 +1,6 @@
 {
  "schema": "drive-loops.v1",
- "ts_utc": "2026-09-08T00:42:29Z",
+ "ts_utc": "2026-09-08T03:00:19Z",
  "fear": {
   "total": 2.28,
   "top": [
@@ -28,7 +28,7 @@
   ]
  },
  "dopamine": {
-  "total_24h": 5.0,
+  "total_24h": 6.2,
   "wins": [
    {
     "id": "owner_votes_recorded",
@@ -44,45 +44,21 @@
    },
    {
     "id": "paid_calls_ok",
-    "count": 5,
+    "count": 21,
     "weight": 0.2,
     "source": "cortex/cost-receipts.jsonl"
    },
    {
-    "id": "lock_opened:MSG38_payment",
+    "id": "lock_opened:AUTO1_sender",
     "count": 1,
     "weight": 0.5,
-    "source": "drive-loops lock MSG38_payment"
-   },
-   {
-    "id": "lock_opened:L23_hold_external",
-    "count": 1,
-    "weight": 0.5,
-    "source": "drive-loops lock L23_hold_external"
-   },
-   {
-    "id": "lock_opened:L24_go_extended",
-    "count": 1,
-    "weight": 0.5,
-    "source": "drive-loops lock L24_go_extended"
-   },
-   {
-    "id": "lock_opened:DOM2_names",
-    "count": 1,
-    "weight": 0.5,
-    "source": "drive-loops lock DOM2_names"
-   },
-   {
-    "id": "lock_opened:REGISTRY_round2",
-    "count": 1,
-    "weight": 0.5,
-    "source": "drive-loops lock REGISTRY_round2"
+    "source": "drive-loops lock AUTO1_sender"
    }
   ]
  },
  "locks": {
   "D0_domain": "locked",
-  "AUTO1_sender": "locked",
+  "AUTO1_sender": "open",
   "MSG38_payment": "open",
   "L23_hold_external": "open",
   "L24_go_extended": "open",
@@ -91,10 +67,6 @@
   "CASH_first_order": "locked"
  },
  "opened_now": [
-  "MSG38_payment",
-  "L23_hold_external",
-  "L24_go_extended",
-  "DOM2_names",
-  "REGISTRY_round2"
+  "AUTO1_sender"
  ]
 }
