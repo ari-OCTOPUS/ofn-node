@@ -1,36 +1,37 @@
 # LANE-REPORT — QD-LAB-GENERALIZATION-20260908
 
-GOV_VERSION=V8 · LADDER=L2 · no owner vote consumed · no production authority claimed
+GOV_VERSION=V8 · LADDER=L2 · owner GO for GEN-v2 explicitly given («گام بعدیو موافقم کامل انجام بده») · no production authority claimed
 
 ## What was done
 
-Owner forwarded the delivered OCTOPUS QD Lab package (ZIP, sha256 `6107e313686076f07385d23ef7e2eba82bc976ec981cdd4ba512282fa0e82839`). Per the package's own handoff megaprompt (priority test #1: held-out generalization), this lane (1) independently verified the deliverable at runtime-evidence level, then (2) preregistered and executed the held-out generalization study.
+Owner forwarded the delivered OCTOPUS QD Lab package (ZIP, sha256 `6107e313686076f07385d23ef7e2eba82bc976ec981cdd4ba512282fa0e82839`). Per the package's own handoff megaprompt, this lane (1) independently verified the deliverable, (2) executed the preregistered held-out generalization study GEN-v1, then (3) on explicit owner GO executed GEN-v2 (out-of-family transfer + E5 fault battery) and (4) wrote the next-agent megaprompt.
 
-1. **Verification** — all 4 scientific code hashes MATCH `study.json`; 67/67 tests green; all 9 receipt chains VALID (504 receipts each); all 89 files match shipped `SHA256SUMS.txt`; single-elite replay exact; report numbers match run summaries. Findings: (a) full-archive batch replay on this platform (Win/Py3.13.7/NumPy2.3.4) is bit-exact for 2,970/3,681 elites only — 4 elites exceed 0.01 fitness error (max 0.049), 3 exceed 0.05 BD error (max 0.687); cause = cross-platform FP rounding amplified by collision discontinuities; batch vs single evaluation identical here, so all study comparisons are internally consistent. The shipped zero-error claim is true on the producer's platform. (b) During verification `validate.py` overwrote `results/full_archive_replay.json`; original restored from ZIP, package re-verified pristine.
-2. **Generalization study GEN-v1** — preregistered (`results_gen/study_gen.json`, sha256 `05e904c2...d06fe`, hashed into ledger event 0 BEFORE any held-out evaluation): 6 unseen mazes (seeds 101–106, same grammar, deterministic validity rules, all accepted first attempt), start-shift conditions, fresh-random baseline n=256/maze, all 6 primary+mutation archives, 93 condition rows, receipts via the package's own SHA-256 chain (94 events, verify VALID).
-   - **OQD-H4 SUPPORTED_IN_THIS_LAB**: unseen-maze mean retention 96.65% (range 94.5–98.9; threshold 75%), elite−random advantage +0.4667 (range +0.425..+0.505; threshold +0.15); kill condition (memorization) not triggered. Mutation archives robustness mean 95.2%.
-   - **OQD-H5 SUPPORTED_IN_THIS_LAB**: 0.02 start shifts retention mean 99.14%, min 98.89%.
-   - Interpretive finding: cell_transfer_fraction = 0.00 — endpoints do NOT transfer, quality DOES: elites are generic reactive control policies, not trajectory memory.
-   - Boundary: within-grammar transfer only (same maze family, same start corner); E5 (sensor noise, actuator faults) NOT done; no Core/organism/hardware/money involvement; package remains production_authorized=false, action=NONE.
+1. **Verification** — all 4 scientific code hashes MATCH; 67/67 tests green; all 9 receipt chains VALID (504 receipts each); 89/89 SHA256SUMS (after restoring one file my validate.py run overwrote from the ZIP); single-elite replay exact. Findings: (a) full-archive bit-exact replay is producer-platform-only — on Win/NumPy2.3.4, 711/3681 elites diverge (only ~4 macroscopically; FP rounding amplified by collision discontinuities; batch==single on my platform, so internal comparisons stay valid); (b) crashed first study launch preserved as `results_gen/receipts_gen.crashed-1.jsonl`, never rewritten.
+2. **GEN-v1** (prereg `study_gen.json` sha `05e904c2...`, ledger 94 events VALID):
+   - **OQD-H4 SUPPORTED** — 6 unseen same-grammar mazes (seeds 101–106): retention 96.65% (≥75), elite−random +0.4667 (≥+0.15), uniform over 3 archives; mutation robustness 95.2%.
+   - **OQD-H5 SUPPORTED** — 0.02 start shifts: 99.1% mean / 98.9% min.
+   - cell_transfer_fraction = 0.00 → elites are generic reactive policies, not trajectory memory.
+3. **GEN-v2** (owner GO; prereg `results_gen2/study_gen2.json` sha `8d20a89b...`, ledger 76 events VALID; mazes/faults injected by temporary module-constant swaps in the harness only — package files untouched):
+   - **OQD-H6 SUPPORTED** — out-of-family mazes (A open-pillar arena / B vertical chambers / C dense forest, seeds 201–202): mean retention 95.69% (range 94.5–97.0), mean advantage +0.4536 (per-family 0.450/0.452/0.458), no `family-bound` labels; mutation archives 94.2%.
+   - **OQD-H7 SUPPORTED (marginal)** — E5 fault ladder on source maze: N10 retention 81.5% vs 80% threshold (honest marginal pass); graceful degradation N05 84.0 / N10 81.5 / N20 77.5 / S75 86.7 / S50 85.3; zero collapse conditions; sensor noise is the sensitive axis, actuator weakness is not.
+   - Boundary: same arena/start-corner/sensors/metric throughout; noise = additive Gaussian on normalized distance, speed-authority scaling only; no real hardware; production_authorized=false, action=NONE.
+4. **Next-agent megaprompt** — `MEGAPROMPT-GEN3-NEXT-AGENT.md`: mission OCTOPUS-QD-LAB-GEN-v3 = the package megaprompt's still-open priority #2 (controlled archive-consumption intervention, proposed 3-arm design T/R/F on a GEN-v2 maze), with all trusted facts, paths, prereg hashes, safety gates and end conditions preserved.
 
-Full Persian report: `REPORT-GEN-20260908.md`.
+Persian reports: `REPORT-GEN-20260908.md`, `REPORT-GEN2-20260908.md` (includes cumulative hypothesis table H1–H7).
 
 ## What remains / offered next
 
-- Out-of-family maze generalization (separate the "generic skill" claim from within-family interpolation).
-- E5 fault-injection battery (sensor noise, motor degradation) on the same elites.
-- Controlled archive-consumption intervention and real-mission descriptors — per package megaprompt, untouched.
+- GEN-v3 archive-consumption intervention (megaprompt delivered, not started — next agent's job).
+- Real-mission descriptors, multi-maze evolution, start-corner generalization — listed as future priorities inside the megaprompt, none authorized.
 
 ## What failed
 
-- First study launch crashed on a `random_base` KeyError before any held-out evaluation; partial ledger preserved as `results_gen/receipts_gen.crashed-1.jsonl` (never rewritten); bug fixed, rerun clean.
+- Nothing in GEN-v2. (GEN-v1 had one pre-evaluation crash, preserved and documented above.)
 
 ## Evidence paths
 
-- `package/` — pristine delivered ZIP contents
-- `results_gen/study_gen.json`, `rows_gen.json`, `hypothesis_records_gen.json`, `descriptive_combined.json`, `receipts_gen.jsonl`, `integrity_gen.json`, `gen1_h4_transfer.png`, `gen2_h5_and_combined.png`
-- `verify_chains.py`, `verify_divergence.npz`, `REPORT-GEN-20260908.md`
+- `package/` pristine · `results_gen/` · `results_gen2/` (study, rows, hypothesis records, receipts+integrity, 4 charts) · `gen_study.py`/`analyze_gen.py`/`gen2_study.py`/`analyze_gen2.py` · `verify_chains.py` · `verify_divergence.npz` · two reports · megaprompt.
 
 ## Rollback
 
-Delete this lane folder — nothing outside it was modified (the one overwritten package file was restored byte-identical and SHA256SUMS re-verified 89/89). No flags, no organism restart, no spend, no external effect.
+Delete this lane folder — nothing outside it was modified (the one overwritten package file was restored byte-identical, SHA256SUMS re-verified 89/89). No flags, no organism interaction, no spend, no external effect.
