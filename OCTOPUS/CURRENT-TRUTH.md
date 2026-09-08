@@ -5,17 +5,17 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-09-07T12:30:39Z
+> auto-generated: 2026-09-08T02:16:44Z
 
 ## Current Truth
 
-- **coherence:** 0.961
+- **coherence:** 0.972
 - **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 64675
+- **beat:** 65466
 - **halted:** False
-- **rfcs_pending:** 2
-- **HEAD:** e90f0e6
+- **rfcs_pending:** 1
+- **HEAD:** ccfb5d0
 
 
 <!-- OCTOPUS-AUTO-END -->
@@ -32,6 +32,17 @@ updated: 2026-08-11T13:35:00Z
 - **قفل‌های تو که فقط مالک باز می‌کند:** دامنهٔ ziman-gift.com (منقضی!)، ارتقای مغز، تمدید standing GO (تا ۱۴/۰۹)، hold_external.
 - **قفل‌هایی که هیچ‌کس باز نمی‌کند:** چاپ secret، حذف رسید، PASS بی‌رسید.
 - **کاری که مالک از تو می‌خواهد:** درآمد واقعی. هر چرخهٔ خودت را با این سؤال بسنج: «این کار به VERIFIED_CASH نزدیک‌تر کرد؟»
+
+### Human status — بروزرسانی سیزن ظهر ۰۹-۰۸ (additive، برای همهٔ ایجنت‌ها)
+
+> خارج از بلوک auto. مرجع کامل: `01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md` § «وضعیت سیزن» + [[07-HANDOFF/MEGAPROMPT-2026-09-08-NOON]].
+> نکته: چند خط بالاتر در بخش‌های قدیمی‌تر نوشته «دامنهٔ ziman-gift.com منقضی» — **منسوخ شد**: فروشگاه الان روی **ziman-gift.com.au** زنده است (primary + TLS + صفحهٔ محصول 200).
+
+- **سیزن = REVENUE-ON-LIVE-LOOP.** امروز: دامنهٔ اصلی جدید وصل شد · دورهای قفل ۱-۵ اجرا و تأیید شد (رجیستری ۱۴ ردیف EXECUTED/VERIFIED) · اولین پکت‌های hold_external=false روی ۱۳۸ mint شد (تیک 00:15Z، ack) · مینی‌اپ زنده (app.master-painting.com، فقط-مالک).
+- **قفل‌های تو که الان بازند:** D0 دامنه ✅ · DOM2 نام‌ها ✅ · L23/L24/L25 ✅ · REGISTRY_round2 ✅ · MSG38 ✅. **هنوز بسته:** AUTO1_sender (منتظر شمارهٔ مالک)، CASH_first_order (منتظر بازار)، D0 در drive-loop تا پاک‌شدن کش DNS محلی.
+- **بدنت:** PID 25772 از 10:39 با کد تازه — صف قدم‌های بعدی حالا مصرف‌کننده دارد (`_ops/drive_queue_consumer.py`، فقط با رسید).
+- **بکاپ شبانه ترمیم شد** (از ۰۹-۰۲ می‌شکست): لجر ژنوم انشعاب داشت (ترمیم با پری‌ایمیج، verify OK) + گیت fsck دقیق و race-hardened شد.
+- **بزرگ‌ترین ایراد باز تو:** `pump/llm_learn` (سنتز مغز) شکست تکرارشونده — حلقهٔ یادکشیات گم‌شده؛ اولویت اول تعمیر بعدی. بعدش: pump/search بلاک، خوشهٔ paid-call-failed.
 
 ### Human status — Next-agent handoff delta (2026-08-21 ~23:3x، additive)
 

@@ -9,6 +9,17 @@ Opened: 2026-09-07 Sydney (owner order «همرو کامل کن»), replacing cl
 Status: goal below is the PROPOSED DEFAULT from the closeout megaprompt — owner may amend
 any time via the organism's own channel (OWNER-QUEUE/Telegram card) or direct chat.
 
+## ⚡ روز دوم — 2026-09-08 ظهر (وضعیت سیزن؛ برای همهٔ ایجنت‌ها)
+
+> مرجع کامل: `01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md` § «وضعیت سیزن» + [[07-HANDOFF/MEGAPROMPT-2026-09-08-NOON]].
+
+- **فروشگاه زیمان روی دامنهٔ جدید زنده**: `ziman-gift.com.au` = Shopify primary + TLS + صفحهٔ محصول 200 (رسید: lane UNLOCK-REVIEW STEP3-FINAL). چند خط پایین‌تر «ziman-gift.com منقضی» نوشته — منسوخ.
+- **زنجیرهٔ درآمد نفس می‌کشد**: اولین پکت‌های hold_external=false روی ۱۳۸ mint شد (تیک 00:15Z ۰۹-۰۸، counter=2، transport ack).
+- **قفل‌ها**: دورهای ۱-۵ مالک کامل شد (تاریخچهٔ رجیستری UNLOCK-REGISTRY). GO تا **2026-10-07** (GO-EXT2، ردیف پایین ۰۹-۲۱ منسوخ). msg38 = **NOT_PAID نهایی با رسید** (ردیف REPORTED_NOT_VERIFIED زیر منسوخ).
+- **مینی‌اپ زنده** (فقط-مالک): app.master-painting.com؛ انتقال به دامنهٔ زیمان = ران‌بوک مالک.
+- **بدن**: ارگانیسم PID 25772 (کد تازه، مصرف‌کنندهٔ صف فعال)؛ بکاپ شبانه ترمیم شد (لجر + گیت‌ها).
+- **بزرگ‌ترین ایراد باز**: شکست تکرارشوندهٔ `pump/llm_learn` (سنتز مغز). ورودی‌های ماندهٔ مالک: شمارهٔ تماس، ران‌بوک مینی‌اپ، سرویس تماس (معلق).
+
 ## Goal (default, amendable)
 اولین مصرف‌کنندهٔ تجاریِ دفترچهٔ calibration + اولین درآمد واقعی روی حلقهٔ زندهٔ
 کار→نتیجه→ثبت. VERIFIED_CASH فقط با شاهد مستقل؛ پیشنهاد/ارسال/سفارش = درآمد نیست.
