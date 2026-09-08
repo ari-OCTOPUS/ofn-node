@@ -1,7 +1,8 @@
-"""F3 LOCAL_CRDT spine — EventEnvelope schema + empty store init."""
+"""F3 NATS_LEAF_MIRROR spine — EventEnvelope schema + empty leaf/mirror init."""
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -13,8 +14,8 @@ sys.path.insert(0, str(ROOT))
 from contracts.event_envelope_v1 import (  # noqa: E402
     MANDATORY_FIELDS, NODE_IDS, EventEnvelope,
 )
-from contracts.local_crdt_store import (  # noqa: E402
-    DEFAULT_STORE, open_or_create_empty,
+from contracts.nats_leaf_mirror_init import (  # noqa: E402
+    DEFAULT_INIT, EMPTY_INIT, open_or_create_empty, read_init,
 )
 from contracts.runtime_truth_v1 import ContractViolation  # noqa: E402
 
@@ -62,24 +63,32 @@ def test_rejects_unknown_source_node_or_trust() -> None:
         EventEnvelope.from_dict(_valid(trust_level="GREEN"))
 
 
-def test_empty_store_init_creates_empty_file(tmp_path: Path) -> None:
-    path = tmp_path / "spine" / "events.jsonl"
+def test_empty_init_creates_disabled_stub(tmp_path: Path) -> None:
+    path = tmp_path / "spine" / "nats_leaf_mirror.init.json"
     got = open_or_create_empty(path)
     assert got == path
-    assert path.is_file()
-    assert path.read_bytes() == b""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["schema"] == EMPTY_INIT["schema"]
+    assert data["enabled"] is False
+    assert data["mode"] == "leaf_mirror"
 
 
-def test_empty_store_init_does_not_migrate(tmp_path: Path) -> None:
-    path = tmp_path / "events.jsonl"
-    planted = b'{"legacy":true}\n'
+def test_empty_init_does_not_migrate(tmp_path: Path) -> None:
+    path = tmp_path / "nats_leaf_mirror.init.json"
+    planted = b'{"schema":"legacy","enabled":false}\n'
     path.write_bytes(planted)
     open_or_create_empty(path)
     assert path.read_bytes() == planted
 
 
-def test_repo_spine_store_is_empty_durable() -> None:
-    assert DEFAULT_STORE.is_file()
-    before = DEFAULT_STORE.read_bytes()
-    open_or_create_empty()
-    assert DEFAULT_STORE.read_bytes() == before == b""
+def test_read_init_forbids_enabled_true(tmp_path: Path) -> None:
+    path = tmp_path / "nats_leaf_mirror.init.json"
+    path.write_text(json.dumps({**EMPTY_INIT, "enabled": True}), encoding="utf-8")
+    with pytest.raises(ContractViolation):
+        read_init(path)
+
+
+def test_repo_init_is_disabled_durable() -> None:
+    assert DEFAULT_INIT.is_file()
+    data = read_init()
+    assert data["enabled"] is False

@@ -1,6 +1,6 @@
-"""event_envelope_v1 — cross-node EventEnvelope (F3 LOCAL_CRDT spine).
+"""event_envelope_v1 — cross-node EventEnvelope (F3 NATS_LEAF_MIRROR spine).
 
-Additive only. No writer/publisher/bus cutover. Not Graphiti.
+Additive only. No writer/publisher/bus cutover. Not Graphiti. Not LOCAL_CRDT store (owner vote correction).
 stdlib-only dataclass + ContractViolation (same style as runtime_truth_v1).
 
 Five mandatory fields — missing or empty is a ContractViolation:
