@@ -38,10 +38,23 @@ No code path may treat `may_authorize` as True — including
 (`may_authorize: bool = False` at line 77; `SchemaViolation` on `True`
 at lines 89–91). Uppercase `MAY_AUTHORIZE` is a separate token.
 
-This PR does not edit `conversation.py`. If that file still allows
-`may_authorize=True` for `kind=task`, the code diverges from this ADR
-until a separate Class A fix. status: open (code vs ADR); this document
-does not apply that fix.
+On 2026-09-08 a Class A fix was applied on the **laptop vault** (outside
+this git tree). This ofn-node checkout does not contain those files and
+does not invent copies. This host did not open `F:\backup`. Source: this
+follow-up prompt + receipt path below (status: recorded, not re-hashed
+on this host).
+
+| claim | recorded value | source |
+|---|---|---|
+| `F:\backup\_ops\owner_console\conversation.py` | `may_authorize` now always False (was `kind=="task"` → True) | receipt below |
+| `F:\backup\_ops\tests\test_board_cp.py` | assert False | receipt below |
+| `t_panel_callbacks_same_queue` | PASS | receipt below |
+
+Receipt (laptop; not in this git tree):
+`F:\backup\00-SEASON\PROMPT-RUNS-20260908\import-counters\CLASS-A-CONVERSATION-HARD-FALSE.md`
+
+ofn-node code canon is unchanged: `brain_schema.py` hard-false. This PR
+does not add `conversation.py` or the vault test.
 
 ## Map hash (laptop receipts — not re-hashed here)
 
@@ -77,6 +90,7 @@ PR #236. This ADR does not copy or edit that test.
 
 - Applying EXTERNAL_ACTIONS / NEW_LAN_LISTENERS / MAY_AUTHORIZE values
   (no apply-values GO; no vault 0/1/2 reconcile)
-- Editing `_ops/owner_console/conversation.py` (separate Class A fix)
+- Inventing ofn-node copies of laptop vault `conversation.py` / tests /
+  receipts (Class A apply is on `F:\backup`, not this tree)
 - Inventing ofn-node copies of laptop vault JSON
 - Enabling `OCTOPUS_WIRE_*` / `OFN_WIRE_*` or opening a closed gate
