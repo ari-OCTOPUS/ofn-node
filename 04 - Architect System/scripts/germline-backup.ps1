@@ -36,8 +36,14 @@ $prevGood  = Join-Path $OFFBOX "vault-latest.bundle.prev"
 $stateRoot = Join-Path $OFFBOX "state-latest"
 
 # temp scratch (fixed names so a crashed run cannot leave a uniquely-named orphan)
-$tmpBundle = Join-Path $env:TEMP "germline-vault-build.bundle"
-$scratch   = Join-Path $env:TEMP "germline_drill_scratch"
+# 2026-09-08 (run-4 finding): scratch lived in %TEMP% on C:, but the drill needs
+# bundle(~3GB) + clone(~3GB) while C: had only 4GB free -> "No space left on device"
+# at index-pack. Scratch now lives on E: (48GB free, same drive as OFFBOX). The
+# finally{} Remove-Scratch still cleans both paths.
+$scratchRoot = Join-Path $OFFBOX ".scratch"
+New-Item -ItemType Directory -Force -Path $scratchRoot | Out-Null
+$tmpBundle = Join-Path $scratchRoot "germline-vault-build.bundle"
+$scratch   = Join-Path $scratchRoot "germline_drill_scratch"
 
 function Remove-Scratch {
     foreach ($p in @($tmpBundle, $scratch)) {
