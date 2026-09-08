@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "hub_url": "",
+  "leaf_name": "",
+  "mirror_prefix": "",
+  "mode": "leaf_mirror",
+  "note": "empty init \u2014 no network, no writer cutover",
+  "schema": "nats_leaf_mirror.init.v1"
+}
