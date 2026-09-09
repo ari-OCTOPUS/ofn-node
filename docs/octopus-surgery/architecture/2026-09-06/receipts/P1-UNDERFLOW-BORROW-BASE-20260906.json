@@ -1,0 +1,98 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-UNDERFLOW-BORROW-BASE-20260906",
+  "issued_utc": "2026-09-06T01:50:36Z",
+  "author": "cursor-cloud bc-2c6e862b-5bad-4f87-a875-6851fade8ea9 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-underflow-borrow-fresh on feat/p1-underflow-borrow-20260905. Merged origin/main @33d2d7bb72b1fd8094574bad418648b28d13190e (#210 parity/check) into existing PR #207. Pre-merge HEAD 5ab422830d6030884b6995e164f79f41653da062. Post-merge HEAD 242246d1f89079cf5bb341fdf5ff91cc369ef68d contains origin/main (git merge-base --is-ancestor YES). /workspace stayed on cursor/taskenvelope-system-hardening-b511 @5ab422830d6030884b6995e164f79f41653da062 and was not written.",
+  "scope_not_measured": [
+    "full-suite CI after this push (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr view / gh pr list deny_egress this-run)",
+    "independent CODEOWNERS approval"
+  ],
+  "action": "require-fresh-base repair on existing #207 only. Merge origin/main; do not rewrite underflow_class/borrow_pin; do not open a second underflow-borrow PR. Ready ≠ authorized.",
+  "delivered": {
+    "merge": "origin/main 33d2d7bb72b1fd8094574bad418648b28d13190e into feat/p1-underflow-borrow-20260905. ort strategy, no conflicts. 7 files from #210 added (parity_class/check_pin). underflow_class.py and borrow_pin.py unchanged by this merge (git diff --stat 5ab4228..242246d those paths empty).",
+    "behind_before": "3 ahead / 1 behind origin/main (git rev-list --left-right --count origin/main...5ab422830d6030884b6995e164f79f41653da062 at 2026-09-06T01:49:28Z). Missing commit: 33d2d7b feat(kernel): parity_class / check_pin — even/odd witness, no send (#210).",
+    "behind_after": "4 ahead / 0 behind origin/main at 242246d1f89079cf5bb341fdf5ff91cc369ef68d"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_underflow_class tests.test_borrow_pin tests.test_chaos_underflow_borrow tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_parity_class tests.test_check_pin tests.test_chaos_parity_check -q",
+    "ran_at_utc": "2026-09-06T01:50:36Z",
+    "head_full": "242246d1f89079cf5bb341fdf5ff91cc369ef68d",
+    "exit_code": 0,
+    "result": "403 passed / 0 failed / 0 skipped (unittest 'Ran 403 tests in 0.710s' / OK).",
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_underflow_class tests.test_borrow_pin tests.test_chaos_underflow_borrow tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-06T01:50:27Z",
+      "head_full": "242246d1f89079cf5bb341fdf5ff91cc369ef68d",
+      "exit_code": 0,
+      "result": "78 passed / 0 failed / 0 skipped (unittest 'Ran 78 tests in 0.313s' / OK)."
+    },
+    "new_module_counts_utc": "2026-09-06T01:50:37Z",
+    "new_module_counts": "underflow 44 / borrow 17 / chaos_underflow_borrow 7 / purity 10 / later_hold 43 / scoped_authz 39 / chaos_later_hold 7 / parity 42 / check 18 / chaos_parity_check 7 / incidents_policy 4 (each module exit 0)",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "clean after merge, before this receipt commit. Merge dirt was origin/main #210 files only.",
+    "worktree": "/tmp/ofn-p1-underflow-borrow-fresh",
+    "file_lock_zone": [
+      "feat/p1-underflow-borrow-20260905 merge of origin/main",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-UNDERFLOW-BORROW-BASE-20260906.json",
+      "09-LANES/P1-UNDERFLOW-BORROW/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "Did not rewrite ofn/kernel/underflow_class.py or ofn/kernel/borrow_pin.py",
+      "Did not write parity_class.py / check_pin.py (landed on main as #210; merge only)",
+      "Did not write later_hold.py / scoped_authz.py (already on main as #214; merge-base ancestor)",
+      "Did not open a second underflow-borrow PR",
+      "Did not merge #207",
+      "Did not weaken CODEOWNERS / branch protection / required-approvals",
+      "grants_send / ready_is_authorized remain structurally False on underflow_class and borrow_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "contains_origin_main": true,
+    "origin_main_full": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+    "origin_main_collision": {
+      "value_a": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+      "source_a": "this-run git fetch / ls-remote 2026-09-06T01:49:28Z (#210)",
+      "value_b": "7a79798022aeaa6647032f2c4fefc1b17668b286",
+      "source_b": "prior-memory lease-renew parent claimed as origin/main #214 at 2026-09-06T01:44:33Z",
+      "resolution": null,
+      "status": "open",
+      "note": "7a79798 is an ancestor of 33d2d7b on this host (git merge-base --is-ancestor YES). This body merged 33d2d7b. Did not silently pick one as the only main."
+    },
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash of origin/main blob)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash of origin/main blob)"
+    }
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this body and this-host origin/main @33d2d7bb72b1fd8094574bad418648b28d13190e — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on origin/main @33d2d7b — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on origin/main this-run (git cat-file -e exit 0) and on incidents branch origin/docs/octopus-os-incidents-20260902 @1b8dd721fa157633f2638cb153b92cc9ce3064c1 (session oo). Collision vs older notes that said the log lives only on #73/#120/#154 remains open."
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "failed_check": "require-fresh-base",
+    "pr": 207,
+    "head_sha_at_trigger": "5ab422830d6030884b6995e164f79f41653da062",
+    "job_id": "101409975900",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "verdict": "Stale base (F-06): PR was 1 commit behind main. Engineering repaired by merging origin/main into the same PR. Did not merge #207. Did not weaken gates. No admin bypass."
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git merge ancestry)",
+  "not_duplicated": "Did not rewrite #207 modules. Did not open a second underflow-borrow PR. parity_class/check_pin came from already-merged #210 on origin/main. later_hold/scoped_authz already on main as #214 (ancestor of 33d2d7b).",
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
