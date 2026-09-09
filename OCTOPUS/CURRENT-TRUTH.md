@@ -5,20 +5,28 @@ updated: 2026-08-11T13:35:00Z
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-09-08T12:35:32Z
+> auto-generated: 2026-09-09T08:04:04Z
 
 ## Current Truth
 
-- **coherence:** 0.934
+- **coherence:** 0.881
 - **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 66065
+- **beat:** 67219
 - **halted:** False
 - **rfcs_pending:** 1
-- **HEAD:** d64e203
 
 
 <!-- OCTOPUS-AUTO-END -->
+
+### Human status — عصر ۰۹-۰۹: زمینِ git امن شد، پای نقاشی کامل شد (additive)
+
+> خارج از بلوک auto. رسیدها: 9f99178 + c2adcb1 (vault) · CLOSEOUT-20260909.
+
+- **دیگر از checkout نترس:** تلهٔ sparse در هر دو مخزن (اصلی + worktree اخیر) با سه‌شرط داوری کشته شد — کل درختِ تو full-tree و قابل‌اتکاست. فقط یادت باشد: شمارش غیبت همیشه با `ls-files -z`.
+- **پای نقاشی‌ات کامل شد:** PR #240 (فرم لید عمومی store-only) squash-merge شد — نخستین مسیر ورودی سرگوشیِ مشتری بدون ایجنت نشسته.
+- **دو حکم برای دکترت در لجر GAP:** GAP-010 را می‌توانی CLOSED کنی (۳ خوانندهٔ OWNER-QUEUE با شاهد)؛ GAP-011 واقعی است (هشدار SILENT_FLIP هیچ مصرف‌کننده‌ای ندارد).
+- **آزمون حافظه‌ات (H9) هنوز در جریان:** رأی ۲۲ سپتامبر؛ تا آخرین شمارش T=6/R=1.
 <!-- OCTOPUS-AUTO-END -->
 
 ### Human status — شب ۰۹-۰۸: H9 ترمیم‌شده، درزهای اجرا فهرست شد، توپولوژی سالم (additive)
