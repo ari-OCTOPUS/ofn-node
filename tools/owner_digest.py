@@ -24,6 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from ofn.adapters.lead_store import LeadStore
+from ofn.agents.b2b_discovery import AUTO_DISCOVERY_TAG
 
 
 # ---------------------------------------------------------------------------
@@ -52,6 +53,37 @@ def parse_notes(notes: str):
     return relevance, approach, body
 
 
+def _is_direct(approach: str) -> bool:
+    """Match 'Direct' and variants like 'Direct but self-managed...'"""
+    return approach.startswith("Direct")
+
+
+def _direct_caveat(approach: str) -> str:
+    """Return caveat text for non-standard Direct variants, or ''."""
+    if approach == "Direct":
+        return ""
+    if approach.startswith("Direct"):
+        return approach[len("Direct"):].strip(" —-–")
+    return ""
+
+
+# ---------------------------------------------------------------------------
+# Phone classifier — mobile vs office/1300
+# ---------------------------------------------------------------------------
+
+_MOBILE_RE = re.compile(r"(?:0[45]\d{2}|\+?614\d{2})[\s\-]?\d{3}[\s\-]?\d{3}")
+
+
+def _has_mobile(contact_str: str) -> bool:
+    """True if contact_channel contains any AU mobile (04xx/05xx/+614)."""
+    return bool(_MOBILE_RE.search(contact_str or ""))
+
+
+def _extract_mobiles(contact_str: str) -> list:
+    """Return all mobile numbers found in contact_channel."""
+    return _MOBILE_RE.findall(contact_str or "")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -68,14 +100,26 @@ def main():
                     help="DB filename (default: painting.sqlite)")
     ap.add_argument("--include-no-phone", action="store_true",
                     help="Also list Direct accounts missing a phone")
+    ap.add_argument("--include-unverified", action="store_true",
+                    help="Also include auto-discovered accounts the "
+                         "b2b_discovery agent has not had a human "
+                         "verification pass yet (tagged "
+                         f"{AUTO_DISCOVERY_TAG!r} in notes). Off by "
+                         "default: this digest is a call list, and an "
+                         "unverified discovery-agent row is not the same "
+                         "confidence level as a researched one.")
     args = ap.parse_args()
 
     store = LeadStore(args.db)
     accts = store.accounts("lead", limit=300)
 
     # ---- Parse all accounts ------------------------------------------------
+    unverified_excluded = 0
     rows = []
     for a in accts:
+        if not args.include_unverified and AUTO_DISCOVERY_TAG in (a.get("notes") or ""):
+            unverified_excluded += 1
+            continue
         relevance, approach, body = parse_notes(a.get("notes", ""))
         phone = (a.get("contact_channel") or "").strip()
         rows.append({
@@ -84,6 +128,8 @@ def main():
             "suburb":        a.get("suburb", ""),
             "phone":         phone,
             "has_phone":     bool(phone),
+            "has_mobile":    _has_mobile(phone),
+            "mobiles":       _extract_mobiles(phone),
             "relevance":     relevance,
             "approach":      approach,
             "body":          body,
@@ -92,28 +138,30 @@ def main():
         })
 
     # ---- Counts ------------------------------------------------------------
-    # "Direct or Vendor Panel" whales are callable too — any approach starting
-    # with Direct belongs in Call Today (PR #201 feedback: exact match dropped
-    # 11 top-relevance group accounts out of the call list).
     direct_with_phone = [r for r in rows
-                         if r["approach"].startswith("Direct") and r["has_phone"]]
+                         if _is_direct(r["approach"]) and r["has_phone"]]
     direct_no_phone   = [r for r in rows
-                         if r["approach"].startswith("Direct") and not r["has_phone"]]
+                         if _is_direct(r["approach"]) and not r["has_phone"]]
     panel_tender      = [r for r in rows
                          if r["approach"] in ("Panel-Tender",
                                               "Panel/Tender",
                                               "Subcontractor Pathway")]
     other             = [r for r in rows
-                         if r["approach"] not in ("Direct",
-                                                  "Panel-Tender",
-                                                  "Panel/Tender",
-                                                  "Subcontractor Pathway")]
+                         if not _is_direct(r["approach"])
+                         and r["approach"] not in ("Panel-Tender",
+                                                   "Panel/Tender",
+                                                   "Subcontractor Pathway")]
 
-    # ---- Sort callable list by relevance DESC ------------------------------
-    callable_rows = sorted(direct_with_phone, key=lambda r: -r["relevance"])
+    # ---- Sort: mobile first, then by relevance DESC -------------------------
+    callable_rows = sorted(direct_with_phone,
+                           key=lambda r: (-r["has_mobile"], -r["relevance"]))
     top = callable_rows[:args.top]
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    # ---- Mobile stats ------------------------------------------------------
+    with_mobile = [r for r in direct_with_phone if r["has_mobile"]]
+    office_only = [r for r in direct_with_phone if not r["has_mobile"]]
 
     # ---- Build output ------------------------------------------------------
     lines = []
@@ -121,10 +169,12 @@ def main():
     lines.append("")
     lines.append(
         f"Total: {len(rows)} | "
-        f"Direct+phone: {len(direct_with_phone)} | "
-        f"Direct (no phone): {len(direct_no_phone)} | "
+        f"Direct+phone: {len(direct_with_phone)} "
+        f"(🟢 mobile: {len(with_mobile)} · 🟡 office only: {len(office_only)}) | "
+        f"No phone: {len(direct_no_phone)} | "
         f"Panel/Sub: {len(panel_tender)} | "
         f"Other: {len(other)}"
+        + (f" | Unverified (hidden): {unverified_excluded}" if unverified_excluded else "")
     )
     lines.append("")
 
@@ -133,9 +183,17 @@ def main():
         lines.append(f"## Top {len(top)} — Call Today")
         lines.append("")
         for i, r in enumerate(top, 1):
+            caveat = _direct_caveat(r["approach"])
+            tag = f"  ⚠️ {caveat}" if caveat else ""
+            mob = "🟢" if r["has_mobile"] else "🟡"
+            # Show mobile number prominently if available
+            if r["mobiles"]:
+                display_phone = r["mobiles"][0] + "  ← MOBILE"
+            else:
+                display_phone = r["phone"][:60]
             lines.append(
-                f"{i:>2}. [{r['relevance']:.0f}/10] "
-                f"{r['business_name']}  —  {r['phone']}"
+                f"{i:>2}. {mob} [{r['relevance']:.0f}/10] "
+                f"{r['business_name']}  —  {display_phone}{tag}"
             )
         lines.append("")
     else:
@@ -143,10 +201,15 @@ def main():
         lines.append(f"## Top {len(top)} — Call Today")
         lines.append("")
         for i, r in enumerate(top, 1):
+            caveat = _direct_caveat(r["approach"])
+            caveat_label = f"  ⚠️ {caveat}" if caveat else ""
+            mob = "🟢" if r["has_mobile"] else "🟡"
             lines.append(
-                f"### {i}. {r['business_name']}  "
-                f"[{r['relevance']:.0f}/10]"
+                f"### {i}. {mob} {r['business_name']}  "
+                f"[{r['relevance']:.0f}/10]{caveat_label}"
             )
+            if r["mobiles"]:
+                lines.append(f"- **📱 Mobile:** {' | '.join(r['mobiles'])}")
             lines.append(f"- **Phone:** {r['phone']}")
             lines.append(f"- **Segment:** {r['segment']}")
             if r["suburb"]:
