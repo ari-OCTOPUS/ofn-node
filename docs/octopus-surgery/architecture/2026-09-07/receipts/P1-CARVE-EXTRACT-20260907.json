@@ -1,0 +1,123 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CARVE-EXTRACT-20260907",
+  "issued_utc": "2026-09-07T01:25:42Z",
+  "author": "cursor-cloud-agent bc-d431b4a9-2d00-4f9a-acf5-0a94fd6e2446",
+  "owner_ratified": false,
+  "body": "bc-d431b4a9-2d00-4f9a-acf5-0a94fd6e2446",
+  "branch": "feat/p1-carve-extract-20260907",
+  "parent_head_full": "75b58e7d75b66cca216ab3ba26b883e272becc12",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/carve_class.py",
+    "ofn/kernel/extract_pin.py",
+    "tests/test_carve_class.py",
+    "tests/test_extract_pin.py",
+    "tests/test_chaos_carve_extract.py",
+    "09-LANES/P1-CARVE-EXTRACT/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-07/receipts/P1-CARVE-EXTRACT-20260907.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-1f1d @3e4d0294fb92f5768a7c8e0a624d767e7e374c22; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/remainder_class.py",
+    "ofn/kernel/leftover_pin.py",
+    "ofn/kernel/attest_class.py",
+    "ofn/kernel/rollup_pin.py",
+    "ofn/kernel/splice_class.py",
+    "ofn/kernel/stitch_pin.py",
+    "ofn/kernel/merge_class.py",
+    "ofn/kernel/join_pin.py",
+    "ofn/kernel/fork_class.py",
+    "ofn/kernel/branch_pin.py",
+    "ofn/kernel/offset_class.py",
+    "ofn/kernel/range_pin.py",
+    "ofn/kernel/window_class.py",
+    "ofn/kernel/bound_pin.py",
+    "ofn/kernel/payload_bound.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure carve_class + extract_pin. classify_family names fits / overhang / past for cut_at + guest_len against host_len. carve is a START and is refused under HALT; classify / observe / inspect continue. Missing host_len, cut_at, or guest_len is UNKNOWN (None), not FALSE and not 0. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). past extracted length is UNKNOWN (None), not 0. overhang records available host_len - cut_at, not a grant. campaign_envelope_ready structurally ≠ send_authorized. pin_extract records (slot → cut_at:guest_len:host_len:family) at most once per distinct quadruple; same quadruple is already_pinned; disagreement is extract_collision. peek never writes. pin_allows_carve only for carve+fits; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / extracted_is_zero / past_is_granted / overhang_is_granted / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce structurally False. halt_blocks_carve and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), remainder/leftover (#204), unpublished splice/stitch, unpublished merge/join, unpublished fork/branch, unpublished offset/range, unpublished window/bound, unpublished payload_bound. Inverse of insert (splice): this extracts a guest from a host. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_carve_class tests.test_extract_pin tests.test_chaos_carve_extract tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_remainder_class tests.test_leftover_pin tests.test_attest_class tests.test_rollup_pin -q",
+    "ran_at_utc": "2026-09-07T01:25:42Z",
+    "head_full_at_run": "75b58e7d75b66cca216ab3ba26b883e272becc12",
+    "exit_code": 0,
+    "result": "394 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_carve_class.py": "48 passed, exit 0 (recount 2026-09-07T01:25:42Z, same parent)",
+      "tests/test_extract_pin.py": "17 passed, exit 0 (recount 2026-09-07T01:25:42Z, same parent)",
+      "tests/test_chaos_carve_extract.py": "7 passed, exit 0 (recount 2026-09-07T01:25:42Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-07T01:25:42Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_carve_class tests.test_extract_pin tests.test_chaos_carve_extract tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-07T01:25:33Z",
+      "exit_code": 0,
+      "result": "82 passed, 0 failed, 0 skipped (carve 48 / extract 17 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @75b58e7d75b66cca216ab3ba26b883e272becc12 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (stale tail through session qq) and on incidents branch origin/docs/octopus-os-incidents-20260902 @2e8202eb141ae6c5ff130758a320abb91bd33449 (session ppp). Next append is session ttt.",
+    "CONTRIBUTING.md": "absent on origin/main @75b58e7 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "75b58e7d75b66cca216ab3ba26b883e272becc12",
+    "source_a": "this-clone git fetch origin 2026-09-07T01:23:43Z then origin/main (#134 attest/rollup; 2026-09-07T01:24:06Z local rev-parse)",
+    "value_b": "c393e27b5806510bb928efa9853eaefef2282d39",
+    "source_b": "prior-memory splice-stitch / merge-join parent (#221 at 2026-09-07T00:26Z)",
+    "resolution": null,
+    "status": "open",
+    "note": "75b58e7 is this-run origin/main after #134. c393e27 remains first identifier in prior memory. This body merged none. Isolated P1 parent is 75b58e7."
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-07T01:21:37.740Z",
+    "body": "bc-d431b4a9-2d00-4f9a-acf5-0a94fd6e2446",
+    "designated_branch": "cursor/taskenvelope-system-hardening-1f1d",
+    "designated_sha": "3e4d0294fb92f5768a7c8e0a624d767e7e374c22",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Designated /workspace not written. Isolated first identifier feat/p1-carve-extract-20260907."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
