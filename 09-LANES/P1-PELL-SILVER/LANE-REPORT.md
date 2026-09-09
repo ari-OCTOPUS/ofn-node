@@ -33,6 +33,9 @@ Lane ID: P1-PELL-SILVER. Not in `09-LANES/LANE-MATRIX.csv` (L0–L9). Complement
 | MASTER-BLUEPRINT / CONTRIBUTING on main | absent | origin/main @2799740 | E0 | UNKNOWN, not FALSE |
 | Filesystem immutability | not claimed | — | E0 | UNKNOWN |
 
+## Post-commit
+- Engineering HEAD `de9626f634486456238459fd53030dc5b9aa3f69` · same related command · `2026-09-09T01:46:14Z` · exit 0 · **649 passed**. New-module + purity **87 passed**.
+
 ## Rollback steps
 1. Revert the commit that adds `ofn/kernel/pell_class.py`, `ofn/kernel/silver_pin.py`, and the three test modules on `feat/p1-pell-silver-20260909`.
 2. Do not delete archives or prune worktrees.

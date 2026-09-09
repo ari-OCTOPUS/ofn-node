@@ -11,7 +11,7 @@
   "asserted_ip": "unverified",
   "branch": "feat/p1-pell-silver-20260909",
   "parent_head_full": "2799740887566d8877385fd0ce525cb4a20d0057",
-  "engineering_head_full": "unverified-until-commit",
+  "engineering_head_full": "de9626f634486456238459fd53030dc5b9aa3f69",
   "file_lock_zone": [
     "ofn/kernel/pell_class.py",
     "ofn/kernel/silver_pin.py",
@@ -64,8 +64,22 @@
       "exit_code": 0,
       "result": "649 passed, 0 failed, 0 skipped"
     },
+    "post_commit": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_pell_class tests.test_silver_pin tests.test_chaos_pell_silver tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence tests.test_kind_graph tests.test_events tests.test_envelope_class tests.test_store_class tests.test_segment_class tests.test_slice_pin tests.test_revenue_states -q",
+      "ran_at_utc": "2026-09-09T01:46:14Z",
+      "head_full_at_run": "de9626f634486456238459fd53030dc5b9aa3f69",
+      "exit_code": 0,
+      "result": "649 passed, 0 failed, 0 skipped"
+    },
+    "post_commit_new_module": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_pell_class tests.test_silver_pin tests.test_chaos_pell_silver tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-09T01:46:14Z",
+      "head_full_at_run": "de9626f634486456238459fd53030dc5b9aa3f69",
+      "exit_code": 0,
+      "result": "87 passed, 0 failed, 0 skipped"
+    },
     "pytest_module": "absent (ModuleNotFoundError)",
-    "tree_state": "dirty — this session's lock-zone modules + tests + receipt + lane report only"
+    "tree_state": "clean after engineering commit de9626f; this receipt patch is the docs tip"
   },
   "trigger": {
     "event": "ci_check_suite require-fresh-base",
