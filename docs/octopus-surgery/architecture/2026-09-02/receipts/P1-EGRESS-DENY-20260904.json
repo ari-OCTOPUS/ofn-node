@@ -1,0 +1,55 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-EGRESS-DENY-20260904",
+  "issued_utc": "2026-09-04T00:06:54Z",
+  "author": "cursor-cloud bc-0ffb74a1-3f76-49d4-a504-7ad2d604561a (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-egress-deny on feat/p1-egress-deny-20260904 parent origin/main @72a4c3d5cea6f0877200396cc30a13a116b2f46d (#153). egress_class.py and deny_pin.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-5103 @7682cee291e9a6fa5b8dafe46bd0b85c61d2bf24 (PR #126) and was not written. #126 CI this-run: require-independent-approval failed (REVIEW_REQUIRED, not a code defect). Author cursor[bot]; required one of Elahe-z or aram-ui.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "unpublished complementary P1 first identifiers recorded in operator memory"
+  ],
+  "action": "P1 complementary egress_class + deny_pin — new files only. Destination class is not a send. Ready structurally ≠ authorized. Later disarm supersedes older authorization. Not a second unknown-seal, send_fence, write_fence, or campaign_envelope PR.",
+  "delivered": {
+    "ofn/kernel/egress_class.py": "classify_dest: None/timeout→UNKNOWN; outbox→OUTBOX; loopback→LOOPBACK; external/unknown/empty/bool/sealed send-ready fail closed; admit_leave is a START (HALT refuses; outbox/loopback→False; missing→None); grants_send/ready_is_authorized/promotes_ready_to_send/unknown_is_false/claims_immutable/timeout_proves_concurrent_write/proposal_is_execution/wires_into_run_store structurally False; later_disarm_supersedes/halt_blocks_leave structurally True",
+    "ofn/kernel/deny_pin.py": "pin_deny None/UNKNOWN→None; outbox/loopback→DENIED; external/sealed names fail closed; pin_allows_leave structurally False; HALT does not block a pin; not wired into run_store.py",
+    "tests/test_egress_class.py": "E3 negatives: sealed send names, external, unknown string, empty, bool/int, timeout UNKNOWN, payload smuggle, halt START, run_store import absence",
+    "tests/test_deny_pin.py": "E3 negatives: sealed names, external, bool, missing UNKNOWN, pin_allows_leave False",
+    "tests/test_chaos_egress_deny.py": "owner-absent: timeout≠writer, missing≠FALSE, HALT stops STARTS not classify, sealed names, later disarm, payload smuggle, bool coercion"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_egress_class tests.test_deny_pin tests.test_chaos_egress_deny tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-04T00:06:53Z",
+    "parent_head_full": "72a4c3d5cea6f0877200396cc30a13a116b2f46d",
+    "exit_code": 0,
+    "result": "236 passed / 0 failed / 0 skipped (unittest 'Ran 236 tests in 0.597s' / OK). New-module + purity: 67 passed (egress 30 / deny 17 / chaos 10 / purity 10) at 2026-09-04T00:06:53Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified this-run)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-egress-deny).",
+    "worktree": "/tmp/ofn-p1-egress-deny",
+    "file_lock_zone": [
+      "ofn/kernel/egress_class.py",
+      "ofn/kernel/deny_pin.py",
+      "tests/test_egress_class.py",
+      "tests/test_deny_pin.py",
+      "tests/test_chaos_egress_deny.py",
+      "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-EGRESS-DENY-20260904.json",
+      "09-LANES/P1-EGRESS-DENY/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None / timeout → UNKNOWN, not FALSE, not a writer",
+      "external / send_authorized / quote_sent / campaign_envelope_ready refuse as dest",
+      "admit_leave(outbox|loopback) is False; admit_leave(None) is None",
+      "HALT refuses admit_leave (START) and does not block classify_dest",
+      "pin_allows_leave is False; grants_send is False",
+      "later_disarm_supersedes is True",
+      "run_store source does not import egress_class or deny_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "unknown_seal (#126) / send_fence / campaign_bind (#145) / write_fence (#116) / campaign_envelope (#76) / listen_class (#174) / nonce_class (#173)"
+}

@@ -94,6 +94,14 @@ install -m 0644 systemd/ofn-marketing.timer   /etc/systemd/system/
 # Daily local RAG refresh for the studio assistant. Installed and enabled by owner when wanted.
 install -m 0644 systemd/ofn-assistant-update.service /etc/systemd/system/
 install -m 0644 systemd/ofn-assistant-update.timer   /etc/systemd/system/
+# Daily owner digest + git-sync timers. Copied but NOT enabled — the
+# owner enables them on the board after path/user/timezone assumptions
+# are verified. Enabling from this installer would start an unattended
+# git pull and digest on first boot. Copy is not a start.
+install -m 0644 systemd/ofn-digest.service /etc/systemd/system/
+install -m 0644 systemd/ofn-digest.timer   /etc/systemd/system/
+install -m 0644 systemd/ofn-sync.service   /etc/systemd/system/
+install -m 0644 systemd/ofn-sync.timer     /etc/systemd/system/
 
 if [[ -e /dev/watchdog ]]; then
   install -d -m 0755 /etc/systemd/system.conf.d
