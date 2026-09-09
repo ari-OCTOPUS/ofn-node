@@ -1,0 +1,85 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-PELL-SILVER-20260909",
+  "issued_utc": "2026-09-09T01:45:35Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "node_id": "bc-4f0eb84c-062e-4f72-885f-9559de8ea5e8",
+  "asserted_ip": "unverified",
+  "branch": "feat/p1-pell-silver-20260909",
+  "parent_head_full": "2799740887566d8877385fd0ce525cb4a20d0057",
+  "engineering_head_full": "unverified-until-commit",
+  "file_lock_zone": [
+    "ofn/kernel/pell_class.py",
+    "ofn/kernel/silver_pin.py",
+    "tests/test_pell_class.py",
+    "tests/test_silver_pin.py",
+    "tests/test_chaos_pell_silver.py",
+    "09-LANES/P1-PELL-SILVER/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-09/receipts/P1-PELL-SILVER-20260909.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-d777 @43134f475f59c0e8afe5a956508dc1457240aeb7 — #203 tip; not written)",
+    "ofn/kernel/stride_class.py",
+    "ofn/kernel/step_pin.py",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/segment_class.py",
+    "ofn/kernel/slice_pin.py",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 pell_class / silver_pin. classify_family names zero / pell / other from one non-negative exact int as P_n (P_0=0, P_1=1, P_n=2 P_{n-1}+P_{n-2}). Walk cross-checked by Cassini analog P_{n+1} P_{n-1} - P_n^2 = (-1)^n; disagreement fail-closes. sample START. classify/observe/inspect continue. Missing UNKNOWN not 0. Measured 0 is ZERO never PELL. Measured 1 is PELL index 1 never UNKNOWN. n<0 fails closed. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / pin_allows_send / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / wires_into_run_store / mints_run_id / consumes_nonce / fibonacci_is_pell / catalan_is_pell / lucas_is_pell / stride_is_pell structurally False. halt_blocks_sample / later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from #249 catalan/nest, unpublished lucas/companion, unpublished fibonacci/sequence, #243 cube/cubic, #235 square/root, #203 stride/step (already contains origin/main; not rewritten), #202 segment/slice (parent), #238 EventEnvelope (untouched). Ready ≠ authorized.",
+  "verification": {
+    "new_module_purity": {
+      "command": "python3 -X utf8 -m unittest tests.test_pell_class tests.test_silver_pin tests.test_chaos_pell_silver tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-09T01:45:25Z",
+      "head_full_at_run": "2799740887566d8877385fd0ce525cb4a20d0057",
+      "exit_code": 0,
+      "result": "87 passed, 0 failed, 0 skipped"
+    },
+    "per_file_recount": {
+      "ran_at_utc": "2026-09-09T01:45:25Z",
+      "pell_class": "50 passed",
+      "silver_pin": "20 passed",
+      "chaos": "7 passed",
+      "purity": "10 passed"
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_pell_class tests.test_silver_pin tests.test_chaos_pell_silver tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence tests.test_kind_graph tests.test_events tests.test_envelope_class tests.test_store_class tests.test_segment_class tests.test_slice_pin tests.test_revenue_states -q",
+      "ran_at_utc": "2026-09-09T01:45:35Z",
+      "head_full_at_run": "2799740887566d8877385fd0ce525cb4a20d0057",
+      "exit_code": 0,
+      "result": "649 passed, 0 failed, 0 skipped"
+    },
+    "pytest_module": "absent (ModuleNotFoundError)",
+    "tree_state": "dirty — this session's lock-zone modules + tests + receipt + lane report only"
+  },
+  "trigger": {
+    "event": "ci_check_suite require-fresh-base",
+    "pr": 203,
+    "trigger_sha": "2b5c9716c4976f20df1a046612a43864798d1deb",
+    "current_pr_tip": "43134f475f59c0e8afe5a956508dc1457240aeb7",
+    "origin_main": "2799740887566d8877385fd0ce525cb4a20d0057",
+    "behind_main": 0,
+    "ahead_main": 4,
+    "contains_origin_main": true,
+    "remake_merge": false
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
