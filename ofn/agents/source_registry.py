@@ -302,6 +302,27 @@ SOURCES: List[Source] = [
             "Use: validate Ziman ABN 21190030795, verify subcontractors."
         ),
     ),
+
+    # ── T3: Strata / Property Directory (LEAD BACKBONE) ─────────────────────
+    Source(
+        id="nsw_strata_hub",
+        name="NSW Strata Hub FeatureServer (portal.spatial.nsw.gov.au)",
+        tier=3,
+        probe_url="https://portal.spatial.nsw.gov.au/server/rest/services/StrataHub/FeatureServer/0/query?where=1%3D1&returnCountOnly=true&f=json",
+        harvest_module="ofn.agents.h3_strata",
+        open_data_license="public",
+        notes=(
+            "PRIMARY LEAD BACKBONE. Official NSW gov ArcGIS FeatureServer, no auth, "
+            "no login, robots-clean. 88,884 strata buildings state-wide (plan_number, "
+            "address, suburb, lga, lots, registration_year). Harvested via h3_strata.py "
+            "(collection-only, 22 tests green, merged PR #112). "
+            "Raw pool NOT in git (57MB) — regenerate with: python tools/harvest_strata.py "
+            "(~100s for full state). tier1_metro=51,224 buildings in service area. "
+            "Buildings carry NO contact info — managing agent must be enriched separately "
+            "(company->buildings direction; 20 agents found from top-200 so far). "
+            "Score/rank with tools/score_strata.py (deterministic: lots+age+suburb+tier)."
+        ),
+    ),
 ]
 
 
