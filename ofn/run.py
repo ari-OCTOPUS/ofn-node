@@ -234,6 +234,15 @@ def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
             served = {"/index.html": data}
             if font:
                 served["/font/vazirmatn.woff2"] = font
+            if name == "lead.html":
+                form_path = os.path.join(root, "painting-lead-form.html")
+                try:
+                    with open(form_path, "rb") as fh:
+                        form = fh.read()
+                    served["/enquire.html"] = form
+                    served["/enquire"] = form
+                except OSError:
+                    print("  ⚠ painting-lead-form.html missing — /enquire not served")
             for alias in aliases.get(port, ()):
                 served[alias] = data
             out[port] = served
@@ -466,6 +475,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         hypno_edge_history=node.hypno_edge_history,
         painting_leads=node.painting_leads,
         create_painting_lead=node.create_painting_lead,
+        capture_public_painting_lead=node.capture_public_painting_lead,
         update_painting_lead=node.update_painting_lead,
         upsert_painting_channel=node.upsert_painting_channel,
         upsert_painting_campaign=node.upsert_painting_campaign,
@@ -491,6 +501,8 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
                 ("/", "/index.html", "/cockpit-v2", "/cockpit-v2/",
                  "/cockpit-v2/*")
                 if name == "owner" else
+                ("/", "/index.html", "/enquire", "/enquire.html")
+                if name == "lead" else
                 ("/", "/index.html")
             ),
         } for name in ("lead", "studio", "ziman", "owner")),
