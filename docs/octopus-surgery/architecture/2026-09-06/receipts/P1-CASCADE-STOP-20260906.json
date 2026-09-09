@@ -1,0 +1,120 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-CASCADE-STOP-20260906",
+  "lane": "P1-CASCADE-STOP",
+  "recorded_at_utc": "2026-09-06T03:16:08Z",
+  "body": "bc-caf1222d-b1be-4dbc-985b-b1afee5ba9e3",
+  "branch": "feat/p1-cascade-stop-20260906",
+  "parent_head_full": "fd10ac5f6278693af1907e519cdffeb67f4caf6c",
+  "parent_subject": "P1: underflow_class / borrow_pin — floor-subtraction witness (#207)",
+  "file_lock_zone": "/tmp/ofn-p1-cascade-stop",
+  "owns": [
+    "ofn/kernel/cascade_class.py",
+    "ofn/kernel/stop_pin.py",
+    "tests/test_cascade_class.py",
+    "tests/test_stop_pin.py",
+    "tests/test_chaos_cascade_stop.py",
+    "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-CASCADE-STOP-20260906.json",
+    "09-LANES/P1-CASCADE-STOP/LANE-REPORT.md"
+  ],
+  "does_not_touch": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/run_store.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/halt.py",
+    "ofn/kernel/halt_ops.py",
+    "ofn/kernel/halt_latch.py",
+    "ofn/kernel/quorum_class.py",
+    "ofn/kernel/seat_pin.py",
+    "ofn/kernel/later_hold.py",
+    "ofn/kernel/scoped_authz.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/adapters/run_store.py",
+    "ofn/config.py",
+    ".github/CODEOWNERS",
+    ".github/workflows/independent-review-gate.yml"
+  ],
+  "distinct_from": [
+    "halt.py — is_halted predicate on flag vocabulary",
+    "halt_ops — which operations may proceed while halted",
+    "halt_latch — assert versus clear history",
+    "quorum_class/seat_pin (#218) — votes_present vs votes_required",
+    "later_hold/scoped_authz (#214) — hold epoch vs authz epoch",
+    "underflow_class/borrow_pin (#207) — floor-subtraction",
+    "unpublished hold_class/disarm_pin",
+    "unpublished interlock_class/inhibit_pin",
+    "unpublished fuse_class/blow_pin"
+  ],
+  "claim": "classify_propagation names isolated / cascade from a declared scope plus child_count. Isolated stays isolated even when children exist (children_do_not_promote). Cascade with zero children cannot fan out and classifies isolated (zero_children_cannot_cascade). record is a START and is refused under HALT; classify / observe / inspect continue. Missing scope or child_count is UNKNOWN (None), not FALSE. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_stop records (stop → family:scope:child_count) at most once per distinct triple; same triple is already_pinned; disagreement is stop_collision. peek never writes. pin_allows_record only for record+isolated or record+cascade; pin_allows_send structurally False. grants_send / rearms_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / cascade_is_authorized / isolated_is_false / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce structurally False. halt_blocks_record / later_disarm_supersedes / children_do_not_promote / zero_children_cannot_cascade structurally True. Not wired into run_store.py. Distinct from halt.py, halt_ops, halt_latch, quorum_class/seat_pin (#218), later_hold/scoped_authz (#214), underflow_class/borrow_pin (#207). Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_cascade_class tests.test_stop_pin tests.test_chaos_cascade_stop tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_quorum_class tests.test_seat_pin tests.test_chaos_quorum_seat tests.test_underflow_class tests.test_borrow_pin tests.test_dedup tests.test_settlement tests.test_events -q",
+    "ran_at_utc": "2026-09-06T03:16:08Z",
+    "head_full_at_run": "fd10ac5f6278693af1907e519cdffeb67f4caf6c",
+    "exit_code": 0,
+    "result": "555 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_cascade_class.py": "50 passed, exit 0 (recount 2026-09-06T03:16:04Z, same parent)",
+      "tests/test_stop_pin.py": "18 passed, exit 0 (recount 2026-09-06T03:16:04Z, same parent)",
+      "tests/test_chaos_cascade_stop.py": "7 passed, exit 0 (recount 2026-09-06T03:16:04Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-06T03:16:04Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_cascade_class tests.test_stop_pin tests.test_chaos_cascade_stop tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-06T03:16:04Z",
+      "exit_code": 0,
+      "result": "85 passed, 0 failed, 0 skipped (cascade 50 / stop 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host /workspace checkout @e5c24537d76811c92728d284e86d615fa767b755 and on isolated parent fd10ac5f6278693af1907e519cdffeb67f4caf6c — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (through session qq) and on origin/docs/octopus-os-incidents-20260902 @2fb9fc2ec7eae938bca9c28db38074428c183941 (session rr). Next append is session tt on that tip.",
+    "CONTRIBUTING.md": "absent on this-host /workspace checkout and isolated parent — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "this-host /workspace checkout @e5c24537",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on /workspace checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "fd10ac5f6278693af1907e519cdffeb67f4caf6c",
+    "source_a": "git fetch / origin/main this-run (#207; 2026-09-06T03:14Z). Isolated parent.",
+    "value_b": "e5c24537d76811c92728d284e86d615fa767b755",
+    "source_b": "designated /workspace HEAD (PR #211 feat/register-strata-hub-source). git merge-base --is-ancestor origin/main e5c24537 YES.",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "failed_check": "require-independent-approval",
+    "pr": 211,
+    "head_sha": "e5c24537d76811c92728d284e86d615fa767b755",
+    "job_id": "101419337482",
+    "author": "Elahe-z",
+    "approvals_seen": "cursor[bot]",
+    "required": "one of Elahe-z or aram-ui, and not the author",
+    "verdict": "REVIEW_REQUIRED, not an engineering defect. Gate working as designed (issue #51, GOV-V6). Did not merge #211. Did not weaken the independence gate. Engineering continued on complementary P1-CASCADE-STOP."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
