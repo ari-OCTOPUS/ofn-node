@@ -1,0 +1,21 @@
+# OFN Auto Sync — git pull + ingest
+# Keeps board138 DB in sync with latest merged code and leads.
+#
+# ASSUMPTIONS (verify before deploy):
+#   - Repo path: ~/ofn (ASSUMPTION — confirm with Ari)
+#   - User: dietpi (ASSUMPTION)
+#   - Git auth: cached or SSH key available (ASSUMPTION)
+#   - ingest_manual_leads.py is idempotent (yes — ON CONFLICT upsert)
+
+[Unit]
+Description=OFN Auto Sync — git pull and ingest leads
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=dietpi
+WorkingDirectory=/home/dietpi/ofn
+ExecStart=/bin/bash -c 'git pull origin main && /usr/bin/python3 tools/ingest_manual_leads.py'
+StandardOutput=journal
+StandardError=journal
