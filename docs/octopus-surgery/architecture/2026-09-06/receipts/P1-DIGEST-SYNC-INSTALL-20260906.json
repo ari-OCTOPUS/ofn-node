@@ -1,0 +1,74 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-DIGEST-SYNC-INSTALL-20260906",
+  "issued_utc": "2026-09-06T21:58:56Z",
+  "author": "cursor-cloud bc-a676ae1c-d61f-4355-b8c1-0a61304974aa (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-221-digest-sync on feat/p1-digest-sync-install-20260906 parent feature/systemd-digest-sync @db23439c9aa7ddb00f18d99073322c165422736f (#221 merge of main). /workspace stayed on cursor/bc-a676ae1c-d61f-4355-b8c1-0a61304974aa-cb04 @db23439 and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on ubuntu-latest / windows-latest after this follow-up (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "enable/start of ofn-digest or ofn-sync on any host",
+    "open PR rollup (gh pr view deny_egress this-run)"
+  ],
+  "action": "PR #221 CI follow-up: copy ofn-digest.service/.timer and ofn-sync.service/.timer in deploy/install.sh. Copy is not enable. Enable is not send. Units were not rewritten. Installer executed body still has no systemctl enable/start. Owner NEXT heredoc still does not name digest/sync. Outbound flags stay 0. Not a second digest-sync PR.",
+  "delivered": {
+    "deploy/install.sh": "four install -m 0644 lines for ofn-digest/ofn-sync service+timer; comment pins Copied but NOT enabled / Copy is not a start; no systemctl enable --now ofn-digest or ofn-sync",
+    "tests/test_units.py": "TestDigestSyncCopiedNotEnabled: copy via install -m 0644; executable lines never enable/start; NEXT block does not enable digest/sync; outbound flags stay 0; copy-is-not-a-start comment pin",
+    "deploy/systemd/ofn-digest.service": "NOT rewritten",
+    "deploy/systemd/ofn-digest.timer": "NOT rewritten",
+    "deploy/systemd/ofn-sync.service": "NOT rewritten",
+    "deploy/systemd/ofn-sync.timer": "NOT rewritten"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_units tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_later_hold tests.test_scoped_authz tests.test_campaign_bind tests.test_send_fence tests.test_events tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-06T21:58:56Z",
+    "parent_head_full": "db23439c9aa7ddb00f18d99073322c165422736f",
+    "exit_code": 0,
+    "result": "356 passed / 0 failed / 0 skipped (unittest 'Ran 356 tests in 0.742s' / OK). test_units recount 11 (was 6 on parent; +5 digest/sync copy-not-enable). Module counts: units 11 / purity 10 / envelope 35 / run_store 79 / token_ceiling 14 / run_gate 21 / chaos_owner_absent 16 / tmpdir 4 / dedup 12 / settlement 11 / later_hold 43 / scoped_authz 39 / campaign_bind 22 / send_fence 19 / events 16 / incidents_policy 4.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-221-digest-sync).",
+    "worktree": "/tmp/ofn-221-digest-sync",
+    "file_lock_zone": [
+      "deploy/install.sh",
+      "tests/test_units.py",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-DIGEST-SYNC-INSTALL-20260906.json",
+      "09-LANES/P1-DIGEST-SYNC/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "ofn-digest.service / .timer / ofn-sync.service / .timer must appear as install -m 0644 systemd/<name>",
+      "executable lines (non-comment, before NEXT heredoc) contain no systemctl enable and no systemctl start",
+      "owner NEXT enable/start lines do not name ofn-digest or ofn-sync",
+      "OFN_WIRE_OUTBOUND=0 OFN_WIRE_EMAIL=0 OFN_WIRE_PUBLISH=0 remain; =1 forms absent",
+      "systemctl enable --now ofn-digest and ofn-sync absent from install.sh",
+      "unit files under deploy/systemd/ not rewritten (git diff -- deploy/systemd empty)",
+      "campaign_envelope_ready structurally ≠ send_authorized (not re-armed)"
+    ],
+    "ci_trigger": {
+      "pr": 221,
+      "head": "db23439c9aa7ddb00f18d99073322c165422736f",
+      "failed_jobs": ["test (ubuntu-latest) 101565091639", "test (windows-latest) 101565091634"],
+      "failing_test": "tests.test_units.TestEveryReferencedUnitExists.test_the_installer_installs_every_unit",
+      "missing_names": ["ofn-digest.service", "ofn-digest.timer", "ofn-sync.service", "ofn-sync.timer"],
+      "ubuntu_summary": "4 failed, 5815 passed, 15 skipped, 1 warning, 4543 subtests passed in 35.78s @ 2026-09-06T21:53:58Z (CI log, evidence level B)",
+      "windows_summary": "exit 1 at workflow line 172; same installer-copy assertion (CI annotation); full windows log not independently re-read this-run — UNKNOWN, not FALSE"
+    },
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, units copied not enabled, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "existing #221 feature/systemd-digest-sync (reused; not a second digest-sync PR) / unit files not rewritten / #223 grace-linger / #222 aging-decay / unpublished tombstone-retire / unpublished poison-quarantine / unpublished snapshot-restore / #148 envelope-store / #143 typed-receipt / #88 dedup / #87 receipts / #76 campaign_envelope"
+}
