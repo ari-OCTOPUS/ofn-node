@@ -1,0 +1,63 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "LOG-OUTCOME-BASE-20260909",
+  "issued_utc": "2026-09-09T00:45:15Z",
+  "author": "cursor-cloud owner-absent automation (ci_check_suite require-fresh-base on #248)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-log-outcome-fresh on existing feature/log-outcome. Merge of origin/main @2affbd7ad63e0901d6abb9c17bca2a20b236fba1 (#238 EventEnvelope) into PR #248. Merge HEAD 8f9a5f48cab1e6e921bd6239a2c09c174106fcad. /workspace stayed on cursor/taskenvelope-system-hardening-f5c5 @9a7cfaf4d140fd54939bcc69e6b4d9fafb333e67 and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet re-run after this receipt commit)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "pytest-only tests/test_event_envelope_v1.py (pytest ModuleNotFoundError on this host)"
+  ],
+  "action": "F-06 require-fresh-base refresh of existing #248. Isolated merge only. Did not rewrite tools/log_outcome.py or tools/owner_digest.py. Did not open a second log-outcome PR. campaign_envelope_ready structurally ≠ send_authorized. quote_sent remains a local stage label in the existing tool, not a send grant.",
+  "delivered": {
+    "merge": "origin/main is an ancestor of feature/log-outcome (git merge-base --is-ancestor YES). 0 behind / 4 ahead after merge.",
+    "tools/log_outcome.py": "blob cf833237ae26d602ff35a902db2d2ac4ed7d60b0 MATCH pre-merge 9a7cfaf",
+    "tools/owner_digest.py": "blob 5b8b7f16990bcda90856da08ed0452f265e73eef MATCH pre-merge 9a7cfaf"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_events tests.test_incidents_log_policy tests.test_campaign_bind tests.test_send_fence -q",
+    "ran_at_utc": "2026-09-09T00:45:14Z",
+    "merge_head_full": "8f9a5f48cab1e6e921bd6239a2c09c174106fcad",
+    "parent_pre_merge_full": "9a7cfaf4d140fd54939bcc69e6b4d9fafb333e67",
+    "origin_main_full": "2affbd7ad63e0901d6abb9c17bca2a20b236fba1",
+    "exit_code": 0,
+    "result": "263 passed / 0 failed / 0 skipped (unittest 'Ran 263 tests in 0.898s' / OK).",
+    "compile": "python3 -m py_compile tools/log_outcome.py tools/owner_digest.py · exit 0 · 2026-09-09T00:45:15Z",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "clean merge then this receipt + lane-report addendum",
+    "worktree": "/tmp/ofn-log-outcome-fresh",
+    "file_lock_zone": [
+      "docs/octopus-surgery/architecture/2026-09-09/receipts/LOG-OUTCOME-BASE-20260909.json",
+      "09-LANES/P1-LOG-OUTCOME/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "Did not rewrite tools/log_outcome.py (blob MATCH)",
+      "Did not rewrite tools/owner_digest.py (blob MATCH)",
+      "Did not enable OCTOPUS_WIRE_* / OFN_WIRE_*",
+      "Did not open secret_rotation / partner_precondition / D1 / D7 / OWNER_KEY",
+      "Did not merge #248",
+      "Did not force-push",
+      "Did not mint a second log-outcome PR"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "feature/digest-mobile-priority (#242) / feat/p1-cube-cubic-20260908 (#243) / feat/p1-mobius-invert-20260908 (#247) / unpublished totient-euler / unpublished factorial-permute / unpublished catalan-nest first identifier this-run / envelope.py / run_store.py"
+}
