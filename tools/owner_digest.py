@@ -52,6 +52,20 @@ def parse_notes(notes: str):
     return relevance, approach, body
 
 
+def _is_direct(approach: str) -> bool:
+    """Match 'Direct' and variants like 'Direct but self-managed...'"""
+    return approach.startswith("Direct")
+
+
+def _direct_caveat(approach: str) -> str:
+    """Return caveat text for non-standard Direct variants, or ''."""
+    if approach == "Direct":
+        return ""
+    if approach.startswith("Direct"):
+        return approach[len("Direct"):].strip(" —-–")
+    return ""
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -92,22 +106,19 @@ def main():
         })
 
     # ---- Counts ------------------------------------------------------------
-    # "Direct or Vendor Panel" whales are callable too — any approach starting
-    # with Direct belongs in Call Today (PR #201 feedback: exact match dropped
-    # 11 top-relevance group accounts out of the call list).
     direct_with_phone = [r for r in rows
-                         if r["approach"].startswith("Direct") and r["has_phone"]]
+                         if _is_direct(r["approach"]) and r["has_phone"]]
     direct_no_phone   = [r for r in rows
-                         if r["approach"].startswith("Direct") and not r["has_phone"]]
+                         if _is_direct(r["approach"]) and not r["has_phone"]]
     panel_tender      = [r for r in rows
                          if r["approach"] in ("Panel-Tender",
                                               "Panel/Tender",
                                               "Subcontractor Pathway")]
     other             = [r for r in rows
-                         if r["approach"] not in ("Direct",
-                                                  "Panel-Tender",
-                                                  "Panel/Tender",
-                                                  "Subcontractor Pathway")]
+                         if not _is_direct(r["approach"])
+                         and r["approach"] not in ("Panel-Tender",
+                                                   "Panel/Tender",
+                                                   "Subcontractor Pathway")]
 
     # ---- Sort callable list by relevance DESC ------------------------------
     callable_rows = sorted(direct_with_phone, key=lambda r: -r["relevance"])
@@ -133,9 +144,11 @@ def main():
         lines.append(f"## Top {len(top)} — Call Today")
         lines.append("")
         for i, r in enumerate(top, 1):
+            caveat = _direct_caveat(r["approach"])
+            tag = f"  ⚠️ {caveat}" if caveat else ""
             lines.append(
                 f"{i:>2}. [{r['relevance']:.0f}/10] "
-                f"{r['business_name']}  —  {r['phone']}"
+                f"{r['business_name']}  —  {r['phone']}{tag}"
             )
         lines.append("")
     else:
@@ -143,9 +156,11 @@ def main():
         lines.append(f"## Top {len(top)} — Call Today")
         lines.append("")
         for i, r in enumerate(top, 1):
+            caveat = _direct_caveat(r["approach"])
+            caveat_label = f"  ⚠️ {caveat}" if caveat else ""
             lines.append(
                 f"### {i}. {r['business_name']}  "
-                f"[{r['relevance']:.0f}/10]"
+                f"[{r['relevance']:.0f}/10]{caveat_label}"
             )
             lines.append(f"- **Phone:** {r['phone']}")
             lines.append(f"- **Segment:** {r['segment']}")
