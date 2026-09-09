@@ -1,0 +1,58 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-HYSTERESIS-BAND-20260906",
+  "issued_utc": "2026-09-06T01:46:39Z",
+  "author": "cursor-cloud bc-4f75d133-3be1-4b24-adb1-4c583eaf1a76 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-hysteresis-band on feat/p1-hysteresis-band-20260906 parent origin/main @33d2d7bb72b1fd8094574bad418648b28d13190e (#210). hysteresis_class.py and band_pin.py ABSENT on parent (git cat-file empty). /workspace stayed on cursor/bc-4f75d133-3be1-4b24-adb1-4c583eaf1a76-2638 @ecc0d16ad1e91a844d5772c4e10176ac8a646386 and was not written at measurement time.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR mergeability (REVIEW_REQUIRED)",
+    "unpublished first identifiers cooldown-rearm / interlock-inhibit / deadman-trip / resume-thaw / quiesce-drain / watchdog-stall / suspend-pause"
+  ],
+  "action": "P1 complementary hysteresis_class + band_pin — new files only. Not a second later_hold/scoped_authz/parity_class/envelope/run_store/typed_event/receipts/dedup PR. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/hysteresis_class.py": "classify_band: None→UNKNOWN (not FALSE); BELOW/INSIDE/ABOVE; point/inverted band fail closed; classify_prior HIGH/LOW/INSIDE or UNKNOWN; latch_band HIGH holds above low, falls at low; LOW holds below high, rises at high; classify_edge RISE/FALL/HOLD/UNKNOWN; admit_send_after_edge never True; pin_edge requires RISE/FALL; try_pin missing→None; grants_send/rearms_send/halt_blocks_classify/ready_is_authorized/claims_immutable/timeout_proves_concurrent_write/proposal_is_execution/promotes_ready_to_send/wires_into_run_store/unknown_is_false structurally False; later_hold_supersedes_older structurally True; classify_timeout→UNKNOWN",
+    "ofn/kernel/band_pin.py": "pin_band records caller-owned (run_id→HIGH/LOW/INSIDE); same pair already_pinned; different band band_collision; peek never writes; missing peek→None; retcon_refused missing→None disagreement→True; pin_allows_send structurally False; pin_from_edge pins latched side of RISE/FALL; try_latch missing→None; not wired into run_store.py",
+    "tests/test_hysteresis_class.py": "E3 negatives: bool/float/str/sealed/point/inverted, missing UNKNOWN, HOLD pin refused, run_store/later_hold/scoped_authz/parity_class import absence",
+    "tests/test_band_pin.py": "E3 negatives: collision, peek never writes, sealed run_id/latched, malformed run_id, retcon missing UNKNOWN, pin_allows_send always False",
+    "tests/test_chaos_hysteresis_band.py": "seven owner-absent scenarios: missing UNKNOWN, timeout≠writer, HALT does not block classify, failed/hold≠send, ready≠sent, disagreement recorded, reclassify/repin deterministic"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_hysteresis_class tests.test_band_pin tests.test_chaos_hysteresis_band tests.test_kernel_purity tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_parity_class tests.test_check_pin tests.test_chaos_parity_check tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_campaign_bind tests.test_send_fence -q",
+    "ran_at_utc": "2026-09-06T01:46:39Z",
+    "parent_head_full": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+    "exit_code": 0,
+    "result": "499 passed / 0 failed / 0 skipped (unittest 'Ran 499 tests in 0.738s' / OK). New-module + purity: 110 passed (hysteresis 60 / band_pin 33 / chaos 7 / purity 10) @ 2026-09-06T01:46:38Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-hysteresis-band). Dirt is this body's edits, not an unknown concurrent writer.",
+    "worktree": "/tmp/ofn-p1-hysteresis-band",
+    "file_lock_zone": [
+      "ofn/kernel/hysteresis_class.py",
+      "ofn/kernel/band_pin.py",
+      "tests/test_hysteresis_class.py",
+      "tests/test_band_pin.py",
+      "tests/test_chaos_hysteresis_band.py",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-HYSTERESIS-BAND-20260906.json",
+      "09-LANES/P1-HYSTERESIS-BAND/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None value/low/high/prior → UNKNOWN, not FALSE",
+      "point band and inverted bounds fail closed",
+      "sealed send/ready names refused as value/prior/run_id",
+      "HIGH holds above low and falls at low; LOW holds below high and rises at high",
+      "try_pin / try_latch missing → None, not False",
+      "admit_send_after_edge never True",
+      "band_collision on second distinct latched side",
+      "peek never writes",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write / claims_immutable / wires_into_run_store structurally False",
+      "run_store / later_hold / scoped_authz / parity_class source do not import hysteresis_class or band_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "later_hold.py / scoped_authz.py (#214) / parity_class.py / check_pin.py (#210) / envelope.py / envelope_class.py / store_class.py (#148) / events.py / run_store.py / typed_event.py / receipt_bind.py (#143) / receipts.py / dedup.py / settlement.py / campaign_bind.py / send_fence.py (#145) / task_bind.py / intent_pin.py (#191) / unpublished cooldown-rearm / interlock-inhibit / saturation-clamp / watermark-high / campaign_envelope (#76)"
+}

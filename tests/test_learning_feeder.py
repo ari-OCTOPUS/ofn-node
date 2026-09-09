@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sys
+from types import SimpleNamespace
 from pathlib import Path
 
 AGENTS = Path(__file__).resolve().parents[1] / "ofn" / "agents"
@@ -79,3 +80,28 @@ def test_old_events_outside_lookback_are_dropped(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(lf, "EVENTS",
                         tmp_path / "legs" / "lead-inbox" / "events.jsonl")
     assert lf._read_recent_events() == []
+
+
+def test_feed_invokes_cli_as_package_and_requires_summary(tmp_path, monkeypatch) -> None:
+    _seed_events(tmp_path, [_ev("communication.sent", "auto-traffic:day")])
+    monkeypatch.setattr(lf, "EVENTS", tmp_path / "legs" / "lead-inbox" / "events.jsonl")
+    monkeypatch.setattr(lf, "RUNS", tmp_path / "runs")
+    monkeypatch.setattr(lf, "LEDGER", tmp_path / "economic.jsonl")
+
+    def fake_run(cmd, **kwargs):
+        assert cmd[:3] == [sys.executable, "-m", "ofn.learning.cli"]
+        assert cmd[3] == "run"
+        out = Path(cmd[cmd.index("--out") + 1])
+        (out / "run-summary.json").write_text("{}", encoding="utf-8")
+        return SimpleNamespace(returncode=0, stdout="ok", stderr="")
+
+    monkeypatch.setattr(lf.subprocess, "run", fake_run)
+    result = lf.feed()
+    assert result["ok"]
+    assert result["events_used"] == 1
+
+
+def test_main_propagates_feed_failure(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(lf, "feed", lambda: {"ok": False, "rc": 1})
+    assert lf.main() == 1
+    assert '"ok": false' in capsys.readouterr().out
