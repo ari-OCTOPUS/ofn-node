@@ -1,0 +1,68 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-HEPTAGONAL-GONAL-20260909",
+  "issued_utc": "2026-09-09T02:22:12Z",
+  "author": "cursor-cloud owner-absent automation (cron 17 * * * *)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-heptagonal-gonal on feat/p1-heptagonal-gonal-20260909 parent origin/main @2799740887566d8877385fd0ce525cb4a20d0057 (#202 segment/slice). heptagonal_class.py and gonal_pin.py ABSENT on parent (test ! -e). /workspace stayed on cursor/taskenvelope-system-hardening-7347 @2799740887566d8877385fd0ce525cb4a20d0057 and was not written during engineering. eth0 IPv4 UNKNOWN this body (ip(1) absent; hostname cursor; CURSOR_AGENT=1). Not claimed 192.168.0.180.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "eth0 IPv4 address"
+  ],
+  "action": "P1 complementary heptagonal_class + gonal_pin — new files only. One non-negative exact int classifies as zero (He_0=0), heptagonal (He_n=n(5n-3)/2, n>=1), or other. Walk identity 40He+9=(10n-3)^2 fail-closes on disagreement. sample is a START. classify/observe/inspect continue under HALT. Missing is UNKNOWN, not FALSE and not 0. Measured 0 is ZERO never HEPTAGONAL. Measured 1 is HEPTAGONAL index 1 never UNKNOWN. n<0 fails closed. campaign_envelope_ready structurally ≠ send_authorized. Not a second pentagonal-figure, hexagonal-lattice, triangular-series, square-root, cube-cubic, pell-silver, catalan-nest, padovan-plastic, or fibonacci-sequence PR.",
+  "delivered": {
+    "ofn/kernel/heptagonal_class.py": "classify_family: missing→UNKNOWN; timeout→UNKNOWN; 0→ZERO; He_n n>=1→HEPTAGONAL; else OTHER; n<0 fail closed; bool/float fail closed; sample START; classify/observe/inspect continue; grants_send/ready_is_authorized/wires_into_run_store structurally False; later_disarm_supersedes structurally True",
+    "ofn/kernel/gonal_pin.py": "pin_gonal: first→pinned; same encoding→already_pinned; different figure→gonal_collision; peek does not write; pin_allows_send structurally False; pin_allows_sample only SAMPLE+HEPTAGONAL; not wired into run_store.py",
+    "tests/test_heptagonal_class.py": "E3 negatives: missing UNKNOWN not 0, n<0, sealed names, bool/float, halt START vs continue, other figures stay OTHER",
+    "tests/test_gonal_pin.py": "E3 negatives: missing UNKNOWN, collision, sealed slots, frozen retcon, ZERO/OTHER encodings",
+    "tests/test_chaos_heptagonal_gonal.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_heptagonal_class tests.test_gonal_pin tests.test_chaos_heptagonal_gonal tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_events tests.test_campaign_bind tests.test_send_fence tests.test_incidents_log_policy tests.test_segment_class tests.test_slice_pin tests.test_chaos_segment_slice -q",
+    "ran_at_utc": "2026-09-09T02:22:12Z",
+    "parent_head_full": "2799740887566d8877385fd0ce525cb4a20d0057",
+    "exit_code": 0,
+    "result": "409 passed / 0 failed / 0 skipped (unittest 'Ran 409 tests in 1.012s' / OK). New-module + purity: 87 passed (heptagonal 50 / gonal 20 / chaos 7 / purity 10) @ 2026-09-09T02:22:11Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-heptagonal-gonal).",
+    "worktree": "/tmp/ofn-p1-heptagonal-gonal",
+    "file_lock_zone": [
+      "ofn/kernel/heptagonal_class.py",
+      "ofn/kernel/gonal_pin.py",
+      "tests/test_heptagonal_class.py",
+      "tests/test_gonal_pin.py",
+      "tests/test_chaos_heptagonal_gonal.py",
+      "docs/octopus-surgery/architecture/2026-09-09/receipts/P1-HEPTAGONAL-GONAL-20260909.json",
+      "09-LANES/P1-HEPTAGONAL-GONAL/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not 0",
+      "measured 0 is ZERO never HEPTAGONAL",
+      "measured 1 is HEPTAGONAL index 1 never UNKNOWN",
+      "n<0 fails closed",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as intent/slot",
+      "admit_heptagonal(sample, halted=True) is False; classify/observe/inspect continue",
+      "different figure on the same slot is gonal_collision",
+      "run_store / adapters do not import heptagonal_class or gonal_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "pentagonal_class / figure_pin (#252) / hexagonal_class / lattice_pin (unpublished) / triangular_class / series_pin (unpublished) / square_class / root_pin (#235) / cube_class / cubic_pin (#243) / pell_class / silver_pin (#250) / catalan_class / nest_pin (#249) / padovan_class / plastic_pin (unpublished) / fibonacci_class / sequence_pin (unpublished) / lucas_class / companion_pin (unpublished) / totient_class / euler_pin (unpublished) / envelope.py / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88) / campaign_bind / send_fence (#145) / segment_class / slice_pin (#202)"
+}
