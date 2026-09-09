@@ -43,7 +43,7 @@ from ..kernel.domain import RiskTier, TenantId
 from ..kernel.tenancy import TenantRegistry, TenantScope
 
 # Paths that serve a shell under a name other than "/".
-_SHELL_ALIASES = ("/sabaapp",)
+_SHELL_ALIASES = ("/sabaapp", "/enquire")
 
 MAX_MEDIA_BODY_BYTES = 24 * 1024 * 1024
 MAX_BODY_BYTES = 64 * 1024
@@ -127,6 +127,16 @@ def _json_object(body: bytes) -> dict | None:
     except json.JSONDecodeError:
         return None
     return data if isinstance(data, dict) else None
+
+
+def _form_or_json_object(body: bytes, headers: Mapping[str, str]) -> dict | None:
+    """Accept JSON or a classic HTML form POST. Lists stay rejected."""
+    ctype = (headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+    if ctype == "application/x-www-form-urlencoded":
+        raw = (body or b"").decode("utf-8", errors="replace")
+        parsed = urllib.parse.parse_qs(raw, keep_blank_values=True)
+        return {key: (vals[0] if vals else "") for key, vals in parsed.items()}
+    return _json_object(body)
 
 
 class ApiApp:
@@ -226,6 +236,7 @@ class ApiApp:
         hypno_edge_history: Callable[[object, int], dict] | None = None,
         painting_leads: Callable[..., dict] | None = None,
         create_painting_lead: Callable[..., dict] | None = None,
+        capture_public_painting_lead: Callable[..., dict] | None = None,
         update_painting_lead: Callable[..., dict] | None = None,
         upsert_painting_channel: Callable[[dict], dict] | None = None,
         upsert_painting_campaign: Callable[[dict], dict] | None = None,
@@ -363,6 +374,7 @@ class ApiApp:
         self._hypno_edge_history = hypno_edge_history
         self._painting_leads = painting_leads
         self._create_painting_lead = create_painting_lead
+        self._capture_public_painting_lead = capture_public_painting_lead
         self._update_painting_lead = update_painting_lead
         self._send_lead_reply = send_lead_reply
         self._send_lead_quote = send_lead_quote
@@ -403,7 +415,12 @@ class ApiApp:
         if method == "POST" and path == "/api/v1/shell/boot":
             return self._shell_boot(body)
 
-        # O9 public catalog: served ONLY when enabled (five Ari preconditions
+        # Store-only painting intake (Prompt B2 / painting A/A2). Local
+        # write, no outbound. Lead host only. Rate-limited like /shell/boot.
+        if method == "POST" and path == "/api/v1/public/painting/leads":
+            return self._public_painting_lead(tenant_name, headers, body)
+
+        # O9 public catalog: served ONLY when enabled (five Ari preconditions)
         # met). Off by default → 404, so the no-public-surface test stays
         # meaningful until Ari explicitly turns it on.
         # Shopify OAuth / app_url (Ziman only). Public HTTPS via tunnel.
@@ -544,6 +561,37 @@ class ApiApp:
         return Response(200, {"ok": True}, headers={
             "X-OFN-Auth-Reason": f"boot {stage}"
                                  + (f" · {detail}" if detail else "")})
+
+    def _public_painting_lead(self, tenant_name: str | None,
+                              headers: Mapping[str, str],
+                              body: bytes) -> Response:
+        """Anonymous store-only painting enquiry. Never queues outbound.
+
+        Bound to the lead host so a form posted on another shell cannot
+        write into painting.sqlite. Throttled: the route is public, and
+        an open write without a cap is a journal/store flood.
+        """
+        if tenant_name != "lead" or self._capture_public_painting_lead is None:
+            return Response(404, {"error": "not found"})
+        now = self._now()
+        window = getattr(self, "_public_lead_window", None)
+        if window is None or now - window[0] >= 60:
+            window = [now, 0]
+            self._public_lead_window = window
+        if window[1] >= 10:
+            return Response(429, {
+                "ok": False, "error": "try again later",
+                "stored": False, "outbound": 0, "baseline_action": 0,
+                "EXTERNAL_ACTIONS": 0,
+            })
+        data = _form_or_json_object(body, headers)
+        if data is None:
+            return Response(400, {"error": "bad request"})
+        out = self._capture_public_painting_lead(data)
+        if out.get("ok"):
+            window[1] += 1
+        status = 200 if out.get("ok") else 400
+        return Response(status, out)
 
     # ── auth ──────────────────────────────────────────────────────────────
     def _auth(self, tenant_name: str | None, is_owner_host: bool,
