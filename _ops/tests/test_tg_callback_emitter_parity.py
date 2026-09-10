@@ -66,18 +66,11 @@ KNOWN_HANDLERLESS = {
 # رویش کور بماند و نه بی‌دلیل CI را بشکند — سکوت درباره‌اش دقیقاً همان اشتباهی
 # است که این فایل قرار است جلویش را بگیرد.
 KNOWN_OPEN_GAPS = {
-    ("initiative.py", "mr"): (
-        "۲۰۲۶-۰۸-۰۶ — کشفِ همین تعمیمِ اسکنر. initiative.card() دکمهٔ "
-        "🪞 آینه با callback_data='mr:know' می‌سازد؛ تنها فرستنده‌اش "
-        "organism.py:733-734 (→ _chan.send_text، یعنی approval_channel."
-        "TelegramApprovalChannel روی @Robo2725_bot) است. verb ِ 'mr' فقط "
-        "در telegram_center/center.py هندلر دارد (`verb == \"mr\"`)؛ در "
-        "approval_channel.py هیچ شاخهٔ dispatch ای برایش نیست — "
-        "dispatch_callback با «نادیده» برمی‌گردد (خطِ پایانیِ fallback). "
-        "تلهٔ دو-باتیِ مستندِ همین فایل، نمونهٔ زنده و هنوز رفع‌نشده. "
-        "TODO مالک: یا approval_channel.py هندلرِ mr بگیرد یا دکمه مثلِ "
-        "wiring.py:brain_digest_beat به url تبدیل شود."
-    ),
+    # ۲۰۲۶-۰۹-۱۰ — ورودیِ ("initiative.py", "mr") بسته شد: approval_channel.py شاخهٔ
+    # `mr` گرفت (_dispatch_mirror). ۳۵ روز این شکاف معاف بود در حالی که مالک روی
+    # «🪞 آینه» می‌زد و «نادیده» می‌گرفت (رسیدِ زنده: update_id 732409706،
+    # ۲۰۲۶-۰۹-۱۰T20:28:31). درس: معافیتِ یک دکمهٔ مرده = دکمهٔ مرده با نامِ دیگر؛
+    # تستِ رفتاری‌اش: tests/test_inner_mirror_callback.py.
 }
 
 
