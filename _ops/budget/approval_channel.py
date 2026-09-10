@@ -250,6 +250,22 @@ def _notif_inbox_mod():
         return None
 
 
+def _mirror_room_mod():
+    """ماژولِ mirror_room، از **هر** پروسه‌ای — همان الگوی load_surface_policy
+    (importِ لخت فقط در پروسهٔ مرکز کار می‌کرد؛ این poller در ارگانیسم می‌دود).
+    fail-soft: نبود/خطا → None."""
+    import sys as _s
+    from pathlib import Path as _P
+    _tgc = str(_P(__file__).resolve().parent.parent / "telegram_center")
+    if _tgc not in _s.path:
+        _s.path.insert(0, _tgc)
+    try:
+        import mirror_room as _mr
+        return _mr
+    except Exception:  # noqa: BLE001 — آینه هرگز حلقهٔ poll را نمی‌کشد
+        return None
+
+
 def _topic_by_key(key) -> tuple:
     """(chat_id, topic_id) از کلیدِ اتاق — یا (None, None).
 
@@ -1065,6 +1081,17 @@ class TelegramApprovalChannel(ApprovalChannel):
                         "پیش می‌برد." + _w)
             except Exception:  # noqa: BLE001
                 return "🧰 نشد."
+        # ── آینه (۲۰۲۶-۰۹-۱۰) — تلهٔ دو-باتی، نمونهٔ چهارم؛ همان درسِ `iv:q` و `tr:*` ──
+        # initiative.card() دکمهٔ «🪞 آینه» با callback_data='mr:know' می‌سازد و
+        # organism.py آن را از **همین** بات می‌فرستد (_chan.send_text). handlerِ mr فقط
+        # در telegram_center/center.py بود → کلیکِ مالک به fallbackِ «نادیده» می‌رسید.
+        # رسیدِ زنده: inbound-log update_id=732409706 (۲۰۲۶-۰۹-۱۰T20:28:31، chars=7)
+        # روی کارتِ initiative id=8186ef67275e؛ و 732409705 روزِ قبل → کارتش «ignored».
+        # شکاف از ۰۸-۰۶ در KNOWN_OPEN_GAPS ِ تستِ parity معاف شده بود — با این شاخه
+        # آن معافیت حذف می‌شود (تست خودش حذفش را اجبار می‌کند).
+        # فقط کارتِ read-only ($0، بدونِ مدل، بدونِ state)؛ گفتگوی زندهٔ آینه مالِ مرکز است.
+        if parts[0] == "mr" and len(parts) > 1:
+            return self._dispatch_mirror(parts)
         if parts[0] == "menu":
             return self._dispatch_menu(parts)
         if parts[0] == "home":              # جلسه ۴۶: آره/نهِ خانهٔ ساده
@@ -1142,6 +1169,26 @@ class TelegramApprovalChannel(ApprovalChannel):
                     pass
             return f"بعداً ⏳ (ثبت شد ×{count}؛ pending می‌ماند)"
         return "نادیده"
+
+    def _dispatch_mirror(self, parts: list[str]) -> str | dict:
+        """'mr:know' → کارتِ «فهمِ من از خودم»؛ 'mr:corr' → تصحیح‌های ثبت‌شدهٔ مالک.
+        هر دو read-only و $0 (mirror_room.know_card / corrections_card — بدونِ مدل،
+        بدونِ نوشتنِ state). dict = پیامِ نو در همان چت (poll_once: answer «✅» +
+        sendMessage). فلگِ خاموش / نبودِ ماژول / خطا → toastِ توضیح‌دار — هرگز «نادیده»،
+        چون مالک باید بفهمد دکمه دیده شد و چرا کارت نیامد."""
+        _mr = _mirror_room_mod()
+        if _mr is None:
+            return "🪞 اتاقِ آینه در دسترس نیست."
+        try:
+            if not _mr.enabled():
+                return "🪞 اتاقِ آینه الان خاموش است (پشتِ فلگ OCTOPUS_TG_MIRROR)."
+            if parts[1] == "know":
+                return {"text": _mr.know_card()}
+            if parts[1] == "corr":
+                return {"text": _mr.corrections_card()}
+        except Exception:  # noqa: BLE001 — کارت هرگز حلقه را نمی‌کشد؛ spinner باید بسته شود
+            return "🪞 نشد."
+        return "🪞 دستورِ نامعتبر."
 
     def _dispatch_proposal(self, parts: list, from_id=None) -> str:
         """G3 arc (ported to master 2026-07-18): 'prop:<verb>:<token>' — رأیِ مالک به کارتِ
