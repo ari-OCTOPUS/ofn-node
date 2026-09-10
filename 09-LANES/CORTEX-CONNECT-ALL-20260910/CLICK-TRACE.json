@@ -1,11 +1,23 @@
 {
   "schema": "click-trace.v1",
   "lane": "CORTEX-CONNECT-ALL-20260910",
-  "gov": {"GOV_VERSION": "V8", "LADDER": "L2"},
+  "gov": {
+    "GOV_VERSION": "V8",
+    "LADDER": "L2"
+  },
   "observed_at_local": "2026-09-10T2x (after 20:35 local; +10:00)",
   "subject": {
     "update_id": 732409706,
-    "inbound_row": {"ts": "2026-09-10T20:28:31", "ts_utc": "2026-09-10T10:28:31Z", "bot": "inner", "kind": "callback_query", "chars": 7, "is_command": false, "chat_kind": "private", "from_owner": true},
+    "inbound_row": {
+      "ts": "2026-09-10T20:28:31",
+      "ts_utc": "2026-09-10T10:28:31Z",
+      "bot": "inner",
+      "kind": "callback_query",
+      "chars": 7,
+      "is_command": false,
+      "chat_kind": "private",
+      "from_owner": true
+    },
     "inbound_source": "F:/backup/_ops/state/telegram/inbound-log.jsonl (line 37)",
     "callback_text": "UNKNOWN by design (§10: inbound-log stores shape/length only; quarantine copy is in-memory in the poller process)"
   },
@@ -14,17 +26,70 @@
     "consumer_of_callback": "_ops/budget/approval_channel.py:722 dispatch_callback(external=True) -> :731-732 _answer_callback_query",
     "who_runs_the_poller": "_ops/organism.py:409 threading.Thread(target=_chan.run_forever, daemon=True); standalone alt: _ops/budget/approval_channel_merge.py (orphan per parity test)",
     "process_pid": "NOT re-verified in this lane (previous lane observed organism 10416 alive at 10:23Z); liveness proven instead by pulse below",
-    "inner_liveness_pulse": {"file": "_ops/state/pulse/telegram-poll.json", "ts": "2026-09-10T20:35:29", "batch": 0, "note": "written by the same poll_once (:605-613) 7 min AFTER the click -> inner poller alive across the click"},
+    "inner_liveness_pulse": {
+      "file": "_ops/state/pulse/telegram-poll.json",
+      "ts": "2026-09-10T20:35:29",
+      "batch": 0,
+      "note": "written by the same poll_once (:605-613) 7 min AFTER the click -> inner poller alive across the click"
+    },
     "token_identity": "NOT opened (no secret read). Role inferred from code + file writer only."
   },
   "trace": {
-    "received":         {"status": "CONFIRMED", "evidence": ["inbound-log.jsonl line 37 written by inner poll_once"]},
-    "dispatched":       {"status": "INFERRED", "evidence": ["telegram_offset.json = {offset: 732409707, saved_at: 2026-09-10T10:28:32.976Z} mtime 20:28:32.976+10:00 = end-of-loop save (approval_channel.py:756-757), +1.5s after inbound row", "allowlist contains owner (approval_channel.py:339-341); private chat -> chat_id == owner", "no 'telegram T-8 dispatch error' alert in _ops/governor/governor-alerts.md between 20:21:58 and 20:37:54"], "limit": "inner bot writes NO positive dispatch/disposition receipt (center has _log_disposition; inner does not)"},
-    "handler_selected": {"status": "INFERRED_STRONG", "handler": "NONE -> fallthrough 'نادیده' (approval_channel.py:1144 before patch)", "evidence": ["7-char callback; the only inner-sent keyboard with a 7-char callback is initiative.card() 'mr:know' (initiative.py:501-502), sent by organism.py:915-916 via _chan.send_text", "initiative.jsonl: 2026-09-10T20:22:06 initiative.v1 ok=True kind=سوال id=8186ef67275e outcome=open", "tg-send-log.jsonl inner row 2026-09-10T20:22:08+10:00 chars=615 stream=summary ok=true state=sent (6m23s before click)", "dispatch_callback schemes before patch: iv,tr,menu,home,rfc,card,pg,act,rev,jrn,acct,prop,app -> no 'mr'", "alternative 7-char 'tr:list' keyboard is sent only by center.py:4482 (outer) -> excluded for inner", "no 7-char literal callback_data exists in approval_channel.py itself"]},
-    "acknowledged":     {"status": "INFERRED_NO_ERROR", "evidence": ["_answer_callback_query is called unconditionally when cbq_id present (:731-732)", "failure path alerts 'telegram answerCallbackQuery error' (:780); none in window; last such alert 2026-09-07T10:03:20 (>6h dedup window -> would have been written fresh)"], "toast_text_inferred": "نادیده", "limit": "success path writes no receipt (answerCallbackQuery is not logged to tg-send-log); cannot upgrade to CONFIRMED"},
-    "effect_persisted": {"status": "NONE", "evidence": ["by construction: no handler -> no effect", "find _ops -newermt 20:27:30 ! -newermt 20:30:00 -> only inbound-log.jsonl + telegram_offset.json (excluding _bak/__pycache__)", "F:/ofn-node same-window scan NOT completed (killed for time) -> UNKNOWN there"], "expected_effect_of_button": "mirror 'know' card (mirror_room.know_card) -> existed only on center.py:4254 router"},
-    "read_back":        {"status": "N/A", "corroboration": "previous 7-char click 732409705 (2026-09-09T16:10:59) on initiative card id=28b14a9f8068 -> initiative.jsonl 21:38:46 outcome=ignored signal=window-elapsed (initiative's own tracker saw zero engagement)"},
-    "e2e_control_group": {"status": "CONFIRMED", "evidence": ["17-char clicks 732409702/703/704 (2026-09-09 07:46:33, 07:46:36, 11:02:25) each produced tool-requests.jsonl 'tool_request.v1.answer verdict=granted' rows at the SAME second -> inner receive->dispatch->persist works for tr:*"]}
+    "received": {
+      "status": "CONFIRMED",
+      "evidence": [
+        "inbound-log.jsonl line 37 written by inner poll_once"
+      ]
+    },
+    "dispatched": {
+      "status": "INFERRED",
+      "evidence": [
+        "telegram_offset.json = {offset: 732409707, saved_at: 2026-09-10T10:28:32.976Z} mtime 20:28:32.976+10:00 = end-of-loop save (approval_channel.py:756-757), +1.5s after inbound row",
+        "allowlist contains owner (approval_channel.py:339-341); private chat -> chat_id == owner",
+        "no 'telegram T-8 dispatch error' alert in _ops/governor/governor-alerts.md between 20:21:58 and 20:37:54"
+      ],
+      "limit": "inner bot writes NO positive dispatch/disposition receipt (center has _log_disposition; inner does not)"
+    },
+    "handler_selected": {
+      "status": "INFERRED_STRONG",
+      "handler": "NONE -> fallthrough 'نادیده' (approval_channel.py:1144 before patch)",
+      "evidence": [
+        "7-char callback; the only inner-sent keyboard with a 7-char callback is initiative.card() 'mr:know' (initiative.py:501-502), sent by organism.py:915-916 via _chan.send_text",
+        "initiative.jsonl: 2026-09-10T20:22:06 initiative.v1 ok=True kind=سوال id=8186ef67275e outcome=open",
+        "tg-send-log.jsonl inner row 2026-09-10T20:22:08+10:00 chars=615 stream=summary ok=true state=sent (6m23s before click)",
+        "dispatch_callback schemes before patch: iv,tr,menu,home,rfc,card,pg,act,rev,jrn,acct,prop,app -> no 'mr'",
+        "alternative 7-char 'tr:list' keyboard is sent only by center.py:4482 (outer) -> excluded for inner",
+        "no 7-char literal callback_data exists in approval_channel.py itself"
+      ]
+    },
+    "acknowledged": {
+      "status": "INFERRED_NO_ERROR",
+      "evidence": [
+        "_answer_callback_query is called unconditionally when cbq_id present (:731-732)",
+        "failure path alerts 'telegram answerCallbackQuery error' (:780); none in window; last such alert 2026-09-07T10:03:20 (>6h dedup window -> would have been written fresh)"
+      ],
+      "toast_text_inferred": "نادیده",
+      "limit": "success path writes no receipt (answerCallbackQuery is not logged to tg-send-log); cannot upgrade to CONFIRMED"
+    },
+    "effect_persisted": {
+      "status": "NONE",
+      "evidence": [
+        "by construction: no handler -> no effect",
+        "find _ops -newermt 20:27:30 ! -newermt 20:30:00 -> only inbound-log.jsonl + telegram_offset.json (excluding _bak/__pycache__)",
+        "F:/ofn-node same-window scan NOT completed (killed for time) -> UNKNOWN there"
+      ],
+      "expected_effect_of_button": "mirror 'know' card (mirror_room.know_card) -> existed only on center.py:4254 router"
+    },
+    "read_back": {
+      "status": "N/A",
+      "corroboration": "previous 7-char click 732409705 (2026-09-09T16:10:59) on initiative card id=28b14a9f8068 -> initiative.jsonl 21:38:46 outcome=ignored signal=window-elapsed (initiative's own tracker saw zero engagement)"
+    },
+    "e2e_control_group": {
+      "status": "CONFIRMED",
+      "evidence": [
+        "17-char clicks 732409702/703/704 (2026-09-09 07:46:33, 07:46:36, 11:02:25) each produced tool-requests.jsonl 'tool_request.v1.answer verdict=granted' rows at the SAME second -> inner receive->dispatch->persist works for tr:*"
+      ]
+    }
   },
   "root_cause": {
     "kind": "dead button (two-bot trap, 4th instance)",
@@ -34,8 +99,18 @@
   },
   "poll_health_scope": {
     "file": "_ops/state/telegram/poll-health.json",
-    "writers": ["_ops/telegram_center/health_metrics.py", "_ops/telegram_center/tg_api.py"],
-    "consumers": ["_ops/seed_beat.py", "_ops/telegram_center/config_manager.py", "_ops/telegram_center/durable_loop.py", "_ops/telegram_center/tg_api.py", "_ops/self_insight.py", "_ops/cortex/self_audit.py"],
+    "writers": [
+      "_ops/telegram_center/health_metrics.py",
+      "_ops/telegram_center/tg_api.py"
+    ],
+    "consumers": [
+      "_ops/seed_beat.py",
+      "_ops/telegram_center/config_manager.py",
+      "_ops/telegram_center/durable_loop.py",
+      "_ops/telegram_center/tg_api.py",
+      "_ops/self_insight.py",
+      "_ops/cortex/self_audit.py"
+    ],
     "covers_inner": false,
     "approval_channel_references": 0,
     "verdict": "stale last_update_received_at (2026-09-09T22:25:44Z) / last_dispatch_completed_at (2026-09-08T12:34:44Z) are OUTER-bot facts; not evidence about the inner click; no patch to poll-health",
@@ -44,10 +119,63 @@
   "fix": {
     "worktree": "F:/wt-cortex-connect-all-20260910 (branch codex/cortex-connect-all-20260910 from 1f941fe)",
     "commit": "5685b89",
-    "files": ["_ops/budget/approval_channel.py (+47: _mirror_room_mod, mr branch, _dispatch_mirror)", "_ops/tests/test_inner_mirror_callback.py (new, 8 checks)", "_ops/tests/test_tg_callback_emitter_parity.py (waiver removed)"],
-    "sha256_approval_channel": {"pre": "4b77da6402816ef614279147d4a5f1fef606d25a85cde86aaf04685ef59dfada", "post": "399651420bdd2c75466e139880bd08d3ace312344de44cb0c1b1ebb4b99d8e5b"},
-    "tests": {"test_inner_mirror_callback": "RED 2/8 before -> GREEN 8/8 after", "test_tg_callback_emitter_parity": "9/9", "test_telegram_poll_e2e": "7/7", "test_both_bots_log_inbound": "9/9", "test_tg_callback_answer": "5/5", "test_phase0_receipt_rig": "15/17 (t_g, t_p FAIL identically on unpatched baseline; center-side)"},
+    "files": [
+      "_ops/budget/approval_channel.py (+47: _mirror_room_mod, mr branch, _dispatch_mirror)",
+      "_ops/tests/test_inner_mirror_callback.py (new, 8 checks)",
+      "_ops/tests/test_tg_callback_emitter_parity.py (waiver removed)"
+    ],
+    "sha256_approval_channel": {
+      "pre": "4b77da6402816ef614279147d4a5f1fef606d25a85cde86aaf04685ef59dfada",
+      "post": "399651420bdd2c75466e139880bd08d3ace312344de44cb0c1b1ebb4b99d8e5b"
+    },
+    "tests": {
+      "test_inner_mirror_callback": "RED 2/8 before -> GREEN 8/8 after",
+      "test_tg_callback_emitter_parity": "9/9",
+      "test_telegram_poll_e2e": "7/7",
+      "test_both_bots_log_inbound": "9/9",
+      "test_tg_callback_answer": "5/5",
+      "test_phase0_receipt_rig": "15/17 (t_g, t_p FAIL identically on unpatched baseline; center-side)"
+    },
     "status": "LOCAL_TESTED — NOT deployed. Live organism still runs pre-patch code until restart (class Z: owner vote)."
   },
-  "not_done": ["click NOT replayed", "no token read", "no Telegram API call", "no restart", "F:/ofn-node modified-file scan for the window"]
+  "not_done": [
+    "click NOT replayed",
+    "no token read",
+    "no Telegram API call",
+    "no restart",
+    "F:/ofn-node modified-file scan for the window"
+  ],
+  "review_20260911": {
+    "by": "read-only reviewer agent (owner-relayed)",
+    "accepted": [
+      "toast text 'nadideh' is INFERRED only (no positive ACK receipt; callback text not stored) - summary wording corrected in LANE-REPORT",
+      "restart alone does not activate the patch: execution path F:/backup/_ops still has approval_channel.py sha 4b77da64...; patched 39965142... exists only in the worktree -> transfer to execution path BEFORE restart, then fresh-click verification",
+      "brain_link gaps: (1) router 'reason' bypassed scrubber on the error path, (2) receipt write failure was swallowed with ok=True, (3) empty tier accepted as paid provenance",
+      "no consumer wiring in drive_loops/lead_pipeline/wiring"
+    ],
+    "fixed_in_round2": {
+      "brain_link": "_clean() scrubs reason/tier/model before receipt and return; strict tier in (primary, secondary); receipt fail-closed (ok=False reason=receipt-io-failclosed receipt_ok=False), success carries receipt_ok=True",
+      "callers_spliced_flag_gated_default_off": {
+        "OCTOPUS_CONNECT_STORE_REPLY": [
+          "drive_loops.sync_store_watch -> _maybe_store_reply(prev_raw, cur_raw) -> store_reply.draft_reply",
+          "organism.py epoch -> store_reply.propose_pending(_chan) (owner text card, once per draft, never to customer)"
+        ],
+        "OCTOPUS_CONNECT_LEAD_TRIAGE": [
+          "lead_pipeline._card_text -> _triage_line(lead_id, sc) -> lead_triage.triage(sc.lead)"
+        ],
+        "OCTOPUS_CONNECT_OWNER_DIGEST": [
+          "wiring.brain_digest_beat -> _digest_text_with_brain(d['text']) after _dialogue_gate, before _send_stream"
+        ]
+      },
+      "tests": {
+        "test_cortex_connect_all": "18/18 (+t_o,t_p,t_q gap tests, +t_z sweep)",
+        "test_cortex_connect_callers": "10/10 (caller->wrapper->consumer, fake ssh + fake model_router.ask, socket blocked)",
+        "regressions": "organ_dialogue rc0, debate_owner_verdict 15/15, parity 9/9, inner_mirror 8/8, lead_card_wiring 6/6, lead_processed_fallback 6/6, lead_scorer_farsi 11/11, lowrisk_and_brier 19/19, lead_pipeline 7/7 (needed a temp secret-free stub: _ops/legs/mail_credentials.py is gitignored (.gitignore:278) so absent from every fresh worktree)"
+      }
+    },
+    "still_true": [
+      "LOCAL_TESTED only; not transferred, not restarted, no send, no publish, no wire flag touched",
+      "acknowledged remains INFERRED_NO_ERROR until an inner disposition receipt exists"
+    ]
+  }
 }

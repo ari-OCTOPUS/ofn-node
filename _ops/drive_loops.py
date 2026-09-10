@@ -381,6 +381,38 @@ def tick(beat: int = 0) -> dict:
     return out
 
 
+def _maybe_store_reply(prev_raw: str, cur_raw: str, ask_fn=None) -> "dict | None":
+    """caller ِ واقعیِ اتصالِ ۱ (CORTEX-CONNECT-ALL): دو snapshot ِ store-watch → رویدادِ
+    سفارشِ جدید → legs/store_reply.draft_reply (مغز یا قالب، idempotent روی event_id).
+    فلگِ OCTOPUS_CONNECT_STORE_REPLY خاموش (پیش‌فرض) ⇒ None، صفر اثر. کارتِ مالک را
+    این‌جا نمی‌فرستد (کانالی ندارد) — consumer ِ آن store_reply.propose_pending در
+    حلقهٔ epoch ِ organism است. `ask_fn` فقط برای تست (transport جعلی)."""
+    try:
+        import sys as _s
+        _legs = str(Path(__file__).resolve().parent / "legs")
+        if _legs not in _s.path:
+            _s.path.insert(0, _legs)
+        import store_reply as _sr   # noqa: WPS433 — lazy
+    except Exception:  # noqa: BLE001
+        return None
+    if not _sr.enabled():
+        return None
+    try:
+        prev = json.loads(prev_raw) if prev_raw and prev_raw.strip() else None
+    except ValueError:
+        prev = None
+    try:
+        cur = json.loads(cur_raw)
+    except ValueError:
+        return None
+    ev = _sr.event_from_store_watch(prev, cur)
+    if ev is None:
+        return {"event": None}
+    row = _sr.draft_reply(ev, ask_fn=ask_fn)
+    return {"event": ev.get("event_id"), "fallback": row.get("fallback"),
+            "replayed": bool(row.get("replayed")), "ok": row.get("ok")}
+
+
 def sync_store_watch() -> dict:
     """MP-CONNECT-ALL-01 فاز B: کشیدنِ چشمِ ۱۳۸ با ssh (نتیجه، نه توکن).
     MARKERِ اولین سفارش آن‌طرف + نبودِ رسید محلی ⇒ ساخته می‌شود
@@ -395,9 +427,21 @@ def sync_store_watch() -> dict:
     try:
         r = _ssh("~/octopus-mesh/state/ziman/store-watch.json")
         if r.returncode == 0 and r.stdout.strip():
+            # CORTEX-CONNECT-ALL (۰۹-۱۱): عکسِ قبلی پیش از بازنویسی نگه داشته می‌شود تا
+            # رویدادِ «سفارشِ جدید» از diff دو snapshot درآید (نه از حدسِ زمانی).
+            try:
+                _prev_raw = (STATE / "store-watch.json").read_text("utf-8")
+            except OSError:
+                _prev_raw = ""
             (STATE / "store-watch.json").write_text(r.stdout.strip(), encoding="utf-8")
             out["ok"] = True
             out["watch"] = json.loads(r.stdout.strip()).get("schema")
+            try:   # اتصالِ ۱ (پیامِ مشتری) — پشتِ فلگِ خودش، fail-soft، هرگز sync را نمی‌کشد
+                _sr = _maybe_store_reply(_prev_raw, r.stdout.strip())
+                if _sr is not None:
+                    out["store_reply"] = _sr
+            except Exception as _sre:  # noqa: BLE001
+                out["store_reply_err"] = f"{type(_sre).__name__}"[:40]
         m = _ssh("~/octopus-mesh/state/ziman/FIRST-ORDER-MARKER.json")
         local = STATE / "receipts" / "FIRST-ORDER-RECEIPT.json"
         if m.returncode == 0 and m.stdout.strip() and not local.exists():

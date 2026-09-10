@@ -328,6 +328,67 @@ def t_n_zero_network_attempts_and_zero_paid_calls():
     assert "model_router" not in sys.modules or True   # importِ ماژول مجاز است؛ تماس نه
 
 
+# ── H. سه شکافِ بازبینیِ ۰۹-۱۱ (هر یک روی نسخهٔ اول قرمز بود) ─────────────────────
+def t_o_error_path_reason_from_router_is_scrubbed_before_receipt_and_return():
+    """شکافِ ۱: `reason` ِ router مستقیم به رسید می‌رفت. حالا هر رشتهٔ بیرونی
+    (reason/tier/model) پیش از رسید و پیش از بازگشت از اسکرابر می‌گذرد."""
+    leaky = _fake("", ok=False, extra={"reason": f"provider said: {FAKE_TG} rejected"})
+    r = brain_link.ask_brain("lead_triage", "p", ask_fn=leaky, cap=99)
+    assert r["ok"] is False and FAKE_TG not in r["reason"] and scrub.REDACTED in r["reason"], r
+    last = _rows("cortex/connect-calls.jsonl")[-1]
+    assert FAKE_TG not in json.dumps(last, ensure_ascii=False) and scrub.REDACTED in last["reason"], last
+    # و model/tier ِ بازتابی از پاسخِ موفق هم
+    leaky_ok = _fake("fine", model=f"m-{FAKE_SK}", tier="secondary")
+    r2 = brain_link.ask_brain("lead_triage", "p", ask_fn=leaky_ok, cap=99)
+    assert r2["ok"] and FAKE_SK not in str(r2["model"]), r2
+    assert FAKE_SK not in json.dumps(_rows("cortex/connect-calls.jsonl")[-1], ensure_ascii=False)
+
+
+def t_p_receipt_write_failure_is_fail_closed_not_hidden():
+    """شکافِ ۲: `_receipt` خطا را می‌بلعید و ok=True برمی‌گشت. حالا: بدونِ رسید،
+    موفقیت ادعا نمی‌شود (receipt-io-failclosed)، و مسیرِ موفق receipt_ok=True دارد."""
+    orig = brain_link.opslib.append_jsonl
+
+    def _boom(path, rec):
+        raise OSError("fixture: disk full")
+    brain_link.opslib.append_jsonl = _boom
+    try:
+        r = brain_link.ask_brain("lead_triage", "p", ask_fn=_fake("answer"), cap=99)
+        assert r["ok"] is False and r["reason"] == "receipt-io-failclosed", r
+        assert r.get("receipt_ok") is False and "text" not in r, r
+    finally:
+        brain_link.opslib.append_jsonl = orig
+    r2 = brain_link.ask_brain("lead_triage", "p", ask_fn=_fake("answer"), cap=99)
+    assert r2["ok"] is True and r2["receipt_ok"] is True, r2
+    # و مصرف‌کننده روی این شکست fallback می‌دهد، نه سکوت و نه ادعای مغز
+    brain_link.opslib.append_jsonl = _boom
+    try:
+        row = store_reply.draft_reply({"event_id": "order:FAKE-RCPT", "order_id": "FAKE-RCPT"},
+                                      ask_fn=_fake("Thanks!"))
+        assert row["fallback"] is True and row["reason"] == "receipt-io-failclosed", row
+        assert row["reply_text"] == store_reply.FALLBACK
+    finally:
+        brain_link.opslib.append_jsonl = orig
+
+
+def t_q_a_response_without_a_tier_is_not_a_proven_paid_brain():
+    """شکافِ ۳: tierِ خالی پذیرفته می‌شد. حالا فقط primary/secondary ِ صریح عبور می‌کند."""
+    for bad in (None, "", "   ", "unknown"):
+        r = brain_link.ask_brain("lead_triage", "p", ask_fn=_fake("x", tier=bad), cap=99)
+        assert r["ok"] is False and r["reason"] == "not-a-paid-brain", (bad, r)
+    for good in ("secondary", "primary"):
+        r = brain_link.ask_brain("lead_triage", "p", ask_fn=_fake("x", tier=good), cap=99)
+        assert r["ok"] is True and r["tier"] == good, (good, r)
+
+
+def t_z_final_secret_sweep_after_all_checks():
+    """پس از تست‌های شکافِ راز (t_o) هم هیچ مقدارِ ساختگی نباید در sandbox مانده باشد."""
+    blob = _sandbox_text()
+    for v in ALL_FAKES:
+        assert v not in blob, ("راز در لاگِ sandbox", v)
+    assert not _NET_ATTEMPTS
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

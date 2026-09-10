@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -32,6 +33,11 @@ TASK = "lead_triage"
 MAX_TOKENS = 400
 SCHEMA = "lead_triage.v1"
 PRIORITIES = ("high", "medium", "low")
+FLAG = "OCTOPUS_CONNECT_LEAD_TRIAGE"    # پیش‌فرض خاموش؛ روشن‌کردن = تصمیمِ مالک
+
+
+def enabled() -> bool:
+    return str(os.environ.get(FLAG, "") or "").strip().lower() in ("1", "true", "yes", "on")
 _SYSTEM = ("You triage painting/handyman job leads for a small Sydney painter. Answer ONLY a "
            "JSON object: {\"priority\": \"high|medium|low\", \"summary\": \"<=25 words\", "
            "\"why\": \"<=20 words\"}. Be strict: no budget or far location → low.")

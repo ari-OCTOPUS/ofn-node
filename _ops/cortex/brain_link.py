@@ -88,11 +88,21 @@ def _daily_reserve(task: str, cap: int, now: float | None = None) -> tuple[bool,
         return False, -1
 
 
-def _receipt(row: dict) -> None:
+def _receipt(row: dict) -> bool:
+    """رسیدِ هر فراخوانی. خروجی = نوشته شد؟ — صداکنندهٔ مسیرِ موفق **باید** این را
+    بسنجد (بازبینیِ ۰۹-۱۱: نسخهٔ اول خطا را می‌بلعید و ok=True برمی‌گشت؛ رسیدِ
+    گم‌شده با موفقیتِ رسیددار یک شکل بود)."""
     try:
         opslib.append_jsonl(_state_dir() / RECEIPTS, row)
-    except Exception:  # noqa: BLE001 — رسید هرگز مسیر را نمی‌کشد
-        pass
+        return True
+    except Exception:  # noqa: BLE001 — خودِ رسید هرگز استثنا بیرون نمی‌دهد؛ bool می‌گوید
+        return False
+
+
+def _clean(value, n: int) -> str:
+    """هر رشته‌ای که از routerِ بیرونی می‌آید (reason/tier/model) پیش از رسید و پیش از
+    بازگشت به صداکننده از اسکرابر می‌گذرد (بازبینیِ ۰۹-۱۱: مسیرِ خطا اسکرابر را دور می‌زد)."""
+    return scrub.scrub(str(value or ""))[:n]
 
 
 def ask_brain(task: str, prompt: str, *, system: str = "", max_tokens: int = 600,
@@ -133,12 +143,14 @@ def ask_brain(task: str, prompt: str, *, system: str = "", max_tokens: int = 600
         _receipt({**base, "ok": False, "reason": "no-answer"})
         return {"ok": False, "task": task, "reason": "no-answer"}
     if not r.get("ok"):
-        why = str(r.get("reason") or "no-answer")[:60]
+        why = _clean(r.get("reason") or "no-answer", 60)
         _receipt({**base, "ok": False, "reason": why})
         return {"ok": False, "task": task, "reason": why}
-    got_tier = str(r.get("tier") or "")
-    if r.get("fallback_from") or (got_tier and got_tier not in PAID_TIERS):
-        _receipt({**base, "ok": False, "reason": "not-a-paid-brain", "got_tier": got_tier[:16]})
+    got_tier = _clean(r.get("tier"), 16)
+    # منشأ پاسخ باید **اثباتاً** پولی باشد: tierِ خالی/ناشناخته = رد (بازبینیِ ۰۹-۱۱:
+    # نسخهٔ اول tierِ خالی را می‌پذیرفت و منشأ تأییدنشده می‌ماند).
+    if r.get("fallback_from") or got_tier not in PAID_TIERS:
+        _receipt({**base, "ok": False, "reason": "not-a-paid-brain", "got_tier": got_tier})
         return {"ok": False, "task": task, "reason": "not-a-paid-brain", "got_tier": got_tier}
     text = str(r.get("text") or "").strip()
     try:
@@ -154,7 +166,11 @@ def ask_brain(task: str, prompt: str, *, system: str = "", max_tokens: int = 600
         return {"ok": False, "task": task, "reason": "empty"}
     # پاسخِ مدل هم از اسکرابر می‌گذرد: مدل نباید بتواند رازی را «بازتاب» دهد.
     text = scrub.scrub(text)
-    _receipt({**base, "ok": True, "chars_out": len(text), "out_sha": _sha(text),
-              "model": str(r.get("model") or "")[:40], "got_tier": got_tier[:16]})
-    return {"ok": True, "task": task, "text": text, "tier": got_tier,
-            "model": r.get("model"), "finish_reason": r.get("finish_reason")}
+    model = _clean(r.get("model"), 40)
+    # fail-closed روی رسید (هم‌فلسفهٔ fugu_quota: I/O شکست ⇒ اجازه نه): بدونِ رسید،
+    # «مغز جواب داد» ادعا نمی‌شود. شمارندهٔ روزانه برنمی‌گردد — تلاش رخ داده است.
+    if not _receipt({**base, "ok": True, "chars_out": len(text), "out_sha": _sha(text),
+                     "model": model, "got_tier": got_tier}):
+        return {"ok": False, "task": task, "reason": "receipt-io-failclosed", "receipt_ok": False}
+    return {"ok": True, "task": task, "text": text, "tier": got_tier, "model": model,
+            "finish_reason": r.get("finish_reason"), "receipt_ok": True}

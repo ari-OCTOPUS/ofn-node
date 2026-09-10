@@ -7,7 +7,7 @@ lane: `09-LANES/CORTEX-CONNECT-ALL-20260910/` · worktree: `F:/wt-cortex-connect
 
 ## ۱. سرنوشتِ کلیکِ مالک — update_id=732409706 (اول این)
 
-**خلاصهٔ یک‌خطی:** کلیک رسید، پردازش شد، ولی به دکمه‌ای خورد که روی باتِ درونی handler نداشت؛ جوابش toastِ «نادیده» بود و هیچ اثری ذخیره نشد. این یک دکمهٔ مردهٔ **ثبت‌شده از ۲۰۲۶-۰۸-۰۶** بود که در تستِ parity معاف شده بود.
+**خلاصهٔ یک‌خطی:** کلیک رسید و حلقهٔ poll تا انتها رفت؛ به دکمه‌ای خورد که روی باتِ درونی handler نداشت؛ پاسخِ **استنباطی** (بدونِ رسیدِ مستقیم — مسیرِ موفقِ ACK هیچ ردیفی نمی‌نویسد) toastِ «نادیده» است و هیچ اثری ذخیره نشد. این یک دکمهٔ مردهٔ **ثبت‌شده از ۲۰۲۶-۰۸-۰۶** بود که در تستِ parity معاف شده بود. (اصلاحِ ۰۹-۱۱: نسخهٔ اولِ این خط «جوابش toast نادیده بود» را قطعی نوشته بود؛ شواهد فقط تا INFERRED می‌رسند.)
 
 وضعیت‌های مستقل (منبع: `CLICK-TRACE.json` همین پوشه):
 
@@ -61,9 +61,11 @@ lane: `09-LANES/CORTEX-CONNECT-ALL-20260910/` · worktree: `F:/wt-cortex-connect
 - **شکست/ناتمام:** اسکنِ فایل‌های تغییریافتهٔ بازهٔ کلیک در `F:/ofn-node` کشته شد (زمان) → آن سمت UNKNOWN. تستِ طلاییِ H9 با این نام در `_ops/tests` پیدا نشد (فقط ارجاعِ `H9` در `three_role.py`)؛ هیچ فایلِ حافظه/`three_role.py` لمس نشده (`git show --stat 5685b89 81835fa`).
 - **باز (unverified):** PID ِ میزبانِ poller ِ inner در این لِین؛ رسیدِ مثبتِ ACK (ساختاری وجود ندارد)؛ مسیرِ فایلِ intake روی ۱۳۸؛ محلِ واقعیِ `CORTEX-DEPLOY-RECEIPT.json`.
 - **قدمِ بعدی (به ترتیب):**
-  1. **گیتِ کلاس Z — یک تصمیم:** ری‌استارتِ ارگانیسم (`_ops/RESTART-ORGANISM.bat`، detached) تا وصلهٔ `mr:*` زنده شود. تا آن وقت دکمهٔ «🪞 آینه» هم‌چنان «نادیده» می‌دهد. پس از ری‌استارت، اثباتِ زنده = یک کلیکِ تازهٔ مالک روی کارتِ initiative → ردیفِ inner با `update_id` در `tg-send-log.jsonl` (تا امروز صفر ردیفِ inner با `update_id` در ۴۸ ساعت) + پیامِ «فهمِ من از خودم» (اگر `OCTOPUS_TG_MIRROR=1`) یا toastِ «خاموش است».
-  2. رسیدِ disposition برای poller ِ inner (هم‌قراردادِ `center._log_disposition`، همان فایل، `update_id` مشترک) — تا ردیابیِ بعدی CONFIRMED باشد نه INFERRED.
-  3. splice ِ اتصال‌ها، هر یک با رأیِ جدا: (۱) `store_reply` در `sync_store_watch` + کارتِ مالک؛ (۲) `lead_triage.card_line` در `lead_pipeline._card_text`؛ (۳) `owner_digest.summarize` در `brain_digest_beat`؛ (۴) `content_draft` فقط با brief ِ مالک. اولین ارسالِ واقعی به مشتری = کارتِ یک‌تصمیمیِ مالک.
+  1. **انتقالِ وصله به مسیرِ اجراییِ تأییدشده (اصلاحِ ۰۹-۱۱ — ری‌استارت به‌تنهایی وصله را فعال نمی‌کند):** ارگانیسم از `F:\backup\_ops` بار می‌شود؛ `approval_channel.py` آن‌جا هنوز `4b77da64…` است و نسخهٔ وصله‌شده (`39965142…`) فقط در worktree است. پس ابتدا merge/cherry-pick ِ شاخهٔ `codex/cortex-connect-all-20260910` به درختِ زندهٔ `F:/backup` (خودش تغییرِ کدِ زنده = گیت‌دار)، با sha ِ پس‌از‌انتقال به‌عنوانِ رسید.
+  2. **ری‌استارتِ ارگانیسم (کلاس Z، رأیِ مالک):** `_ops/RESTART-ORGANISM.bat` (detached) تا ماژولِ تازه بار شود؛ رسید = هشِ `approval_channel.py` ِ بارشده در process-identity/startup record == `39965142…`.
+  3. **اثباتِ زنده با یک کلیکِ تازهٔ مالک** روی کارتِ initiative → ردیفِ inner با `update_id` در `tg-send-log.jsonl` (تا امروز صفر ردیفِ inner با `update_id` در ۴۸ ساعت) + پیامِ «فهمِ من از خودم» (اگر `OCTOPUS_TG_MIRROR=1`) یا toastِ «خاموش است» (فلگ خاموش). تا پیش از ۱→۲→۳، دکمهٔ «🪞 آینه» هم‌چنان «نادیده» می‌دهد.
+  4. رسیدِ disposition برای poller ِ inner (هم‌قراردادِ `center._log_disposition`، همان فایل، `update_id` مشترک) — تا ردیابیِ بعدی CONFIRMED باشد نه INFERRED.
+  5. روشن‌کردنِ اتصال‌ها (دورِ دومِ ۰۹-۱۱ splice ِ هر سه caller را **پشتِ فلگِ پیش‌فرض-خاموش** انجام داد؛ روشن‌کردن = رأیِ جدا برای هر فلگ + ری‌استارت): `OCTOPUS_CONNECT_STORE_REPLY` (drive_loops.sync_store_watch → پیش‌نویس؛ organism epoch → کارتِ مالک) · `OCTOPUS_CONNECT_LEAD_TRIAGE` (lead_pipeline._card_text) · `OCTOPUS_CONNECT_OWNER_DIGEST` (wiring.brain_digest_beat، خودش پشتِ OCTOPUS_WIRE_BRAIN_DIGEST). `content_draft` فقط با brief ِ مالک، بدونِ caller ِ خودکار. اولین ارسالِ واقعی به مشتری = کارتِ یک‌تصمیمیِ مالک (این کد هیچ transportی به مشتری ندارد).
 - **ادغام:** این شاخه از `1f941fe` جدا شده؛ `F:/backup` هم‌زمان توسطِ ایجنت‌های دیگر جلو می‌رود → rebase/merge پیش از هر استقرار؛ PR/push انجام نشده.
 
 ## ۴. شواهد
@@ -74,6 +76,27 @@ lane: `09-LANES/CORTEX-CONNECT-ALL-20260910/` · worktree: `F:/wt-cortex-connect
 - commitها (worktree): `5685b89` (فاز ۱)، `81835fa` (فاز ۲)، + commit ِ همین گزارش
 
 ## ۵. rollback
-- کد: `git -C F:/wt-cortex-connect-all-20260910 revert 81835fa 5685b89` یا حذفِ شاخه؛ `F:/backup` هیچ تغییری نگرفته (worktree مستقل). worktree: `git worktree remove F:/wt-cortex-connect-all-20260910` (پس از merge/آرشیو).
+- کد: `git -C F:/wt-cortex-connect-all-20260910 revert <commitهای این شاخه، جدید به قدیم>` (5685b89، 81835fa، f22bdcb و commit ِ دورِ دوم) یا حذفِ شاخه؛ `F:/backup` هیچ تغییری نگرفته (worktree مستقل). worktree: `git worktree remove F:/wt-cortex-connect-all-20260910` (پس از merge/آرشیو).
 - runtime: چیزی تغییر نکرده — هیچ ری‌استارت/فلگ/ارسال/state ِ زنده. فایل‌های state فقط خوانده شدند.
 - تست‌ها فقط در sandbox ِ harness نوشتند (`t_h`/`t_m` هر دو فایل این را assert می‌کنند).
+
+## ۶. بازبینیِ ۰۹-۱۱ (فقط‌خواندنی، توسطِ ایجنتِ بازبین) → دورِ دوم — commit بعدی
+
+**پذیرفته‌شده و اصلاح‌شده:**
+- **ادعای فراتر از شاهد:** «toast نادیده نمایش داده شد» قطعی نوشته شده بود؛ ACK رسیدِ مستقیم ندارد و متنِ callback ذخیره نمی‌شود → در §۱ به INFERRED برگردانده شد (CLICK-TRACE از ابتدا INFERRED_NO_ERROR بود).
+- **ری‌استارت ≠ فعال‌سازی:** مسیرِ اجرایی `F:/backup/_ops` است (هشِ زنده `4b77da64…`)؛ وصله فقط در worktree است (`39965142…`). ترتیبِ گیت در §۳ اصلاح شد: انتقال → ری‌استارت → کلیکِ تازه.
+- **سه شکافِ `brain_link.py` (هر سه واقعی؛ تست‌های دورِ اول آن‌ها را نمی‌گرفتند چون فیک‌ها همیشه tier داشتند و reason بی‌راز بود):**
+  1. مسیرِ خطا اسکرابر را دور می‌زد (`reason` ِ router خام به رسید می‌رفت) → `_clean()`: هر رشتهٔ بیرونی (reason/tier/model) پیش از رسید **و** پیش از بازگشت اسکراب می‌شود. تست `t_o`.
+  2. `_receipt()` خطای نوشتن را می‌بلعید و `ok=True` برمی‌گشت → حالا bool برمی‌گرداند؛ مسیرِ موفق بدونِ رسید = `ok=False, reason=receipt-io-failclosed, receipt_ok=False` (هم‌فلسفهٔ fugu_quota: I/O شکست ⇒ اجازه نه)؛ مصرف‌کننده fallback می‌دهد. تست `t_p` (شاملِ store_reply روی همین شکست).
+  3. tierِ خالی پذیرفته می‌شد → فقط `primary/secondary` صریح عبور می‌کند؛ None/""/"unknown" = `not-a-paid-brain`. تست `t_q`.
+  `test_cortex_connect_all`: ۱۴/۱۴ → **۱۸/۱۸** (+ `t_z` جاروی نهاییِ راز).
+- **consumerها وصل نبودند** → هر سه caller ِ واقعی splice شد، همه پشتِ فلگِ **پیش‌فرض-خاموش** (هیچ `OCTOPUS_WIRE_*` لمس نشد؛ با فلگِ خاموش رفتارِ production بایت‌به‌بایت قبلی است):
+  - `drive_loops.sync_store_watch` → `_maybe_store_reply(prev_raw, cur_raw)` (snapshot ِ قبلی پیش از بازنویسی نگه داشته می‌شود) → `store_reply.draft_reply` → `state/store/replies.jsonl`.
+  - `organism.py` epoch (کنارِ بلوکِ tool_request، همان‌جا که `_chan` هست) → `store_reply.propose_pending(_chan)` → کارتِ **متنی** به مالک، هر پیش‌نویس فقط یک‌بار (ردیفِ `store_reply.v1.proposed`، append-only)؛ `sent` هرگز True نمی‌شود.
+  - `lead_pipeline._card_text` → `_triage_line(lead_id, sc)` → `lead_triage.triage(sc.lead)` → یک خطِ اولویت در کارتِ مالک.
+  - `wiring.brain_digest_beat` → `_digest_text_with_brain(d["text"])` **بعد از** `_dialogue_gate` و پیش از `_send_stream` (تماسِ پولی برای digest ِ فرستاده‌نشده = سوختن).
+  تستِ مسیرِ کامل `tests/test_cortex_connect_callers.py` **۱۰/۱۰**: ssh جعلی (`subprocess.run`)، `model_router.ask` جعلی در سطحِ ماژول (همان seam ِ brain_link)، socket مسدود، فلگ خاموش ⇒ صفر اثر/صفر تماس، سفارشِ جدید ⇒ ردیف + تماس با task/tier/max_tokens درست، idempotent، خطای router در caller ⇒ قالب نه سکوت، کارتِ مالک دقیقاً یک‌بار و هرگز به مشتری، کانالِ ناموفق ⇒ تلاشِ دوباره، AST: بلوکِ organism پشتِ `enabled()` و داخلِ try؛ splice ِ digest بعد از گیت. `drive_loops.STATE` (نسبت به فایل، نه opslib) در تست به دایرکتوریِ موقت monkeypatch شد.
+
+**رگرسیون (کدِ وصله‌شده):** organ_dialogue rc=0 · debate_owner_verdict 15/15 · parity 9/9 · inner_mirror 8/8 · lead_card_wiring 6/6 · lead_processed_fallback 6/6 · lead_scorer_farsi 11/11 · lowrisk_and_brier 19/19 · **lead_pipeline 7/7** — این آخری در worktree ابتدا با `ModuleNotFoundError: mail_credentials` می‌شکست: `_ops/legs/mail_credentials.py` روی دیسکِ زنده هست ولی در `.gitignore:278` است ⇒ در **هیچ** worktree ِ تازه‌ای وجود ندارد (وابستگیِ زندهٔ خارج از git — همان کلاسِ خطرِ قانونِ سه‌سطحیِ غیبت). فایلی با این نام کپی نشد؛ فقط برای همان پروسهٔ تست یک stub ِ بی‌راز در دایرکتوریِ موقت (خارج از worktree، حذف‌شده) روی PYTHONPATH گذاشته شد → ۷/۷.
+
+**هنوز باز / تغییرنکرده:** ACK همچنان بدونِ رسیدِ مثبت (قدمِ ۴)؛ `paid-calls.jsonl` برای taskهای تازه NOT_RUN تا splice روشن شود؛ هیچ انتقال/ری‌استارت/ارسال/انتشار انجام نشد. **وضعیت: LOCAL_TESTED — «آمادهٔ اجرای زنده» اعلام نمی‌شود.**

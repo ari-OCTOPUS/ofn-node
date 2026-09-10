@@ -937,6 +937,24 @@ def main() -> int:
                 except Exception as _tre:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"tool_request error (non-fatal): "
                                   f"{type(_tre).__name__}: {_tre}"])
+                # ── پیش‌نویسِ پاسخِ مشتری → کارتِ مالک (CORTEX-CONNECT-ALL، ۰۹-۱۱) ──
+                # consumer ِ واقعیِ اتصالِ ۱: drive_loops._maybe_store_reply پیش‌نویس را
+                # در store/replies.jsonl می‌گذارد (کانالی ندارد)؛ این‌جا — همان‌جا که
+                # کارتِ initiative/tool_request از _chan می‌رود — کارتِ **متنی** به مالک
+                # می‌رسد (بدونِ verbِ callbackِ تازه: درسِ mr:know). پشتِ فلگِ
+                # OCTOPUS_CONNECT_STORE_REPLY (پیش‌فرض خاموش ⇒ no-op). هیچ ارسالی به مشتری.
+                try:
+                    _legs_dir = str(Path(__file__).resolve().parent / "legs")
+                    if _legs_dir not in sys.path:
+                        sys.path.insert(0, _legs_dir)   # همان کاری که wiring._syspath می‌کند
+                    import store_reply as _srp   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    if _chan is not None and _srp.enabled():
+                        _spr = _srp.propose_pending(_chan)
+                        if _spr.get("proposed"):
+                            epoch_info["store_reply_cards"] = _spr.get("proposed")
+                except Exception as _spe:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"store_reply propose error (non-fatal): "
+                                  f"{type(_spe).__name__}"])
                 # ── بردِ بازیابی (۲۰۲۶-۰۷-۳۰) — سنجهٔ «به یاد می‌آورد؟».
                 # `recall_reach` از قبل نوشته شده بود ولی صفر صداکننده داشت، پس
                 # فقط عکسِ لحظه‌ای می‌داد؛ و یک عدد روند نیست. این‌جا مهر می‌خورد

@@ -4289,6 +4289,22 @@ def doctor_digest_beat(channel=None, beat: int = 0) -> dict | None:
 _BRAIN_DIGEST_STATE = {"last_stress": ""}
 
 
+def _digest_text_with_brain(text: str, ask_fn=None) -> str:
+    """اتصالِ ۴ (CORTEX-CONNECT-ALL، ۰۹-۱۱): digest ِ خام → خلاصهٔ مغز (legs/owner_digest).
+    پشتِ OCTOPUS_CONNECT_OWNER_DIGEST (پیش‌فرض خاموش ⇒ متن بایت‌به‌بایت برمی‌گردد).
+    مغز نداد/خطا ⇒ همان متنِ خام — digest هرگز گم نمی‌شود. `ask_fn` فقط برای تست."""
+    try:
+        _syspath(str(_HERE / "legs"))
+        import owner_digest as _odg   # noqa: WPS433 — lazy
+        if not _odg.enabled():
+            return text
+        r = _odg.summarize(text, ask_fn=ask_fn)
+        out = str(r.get("text") or "")
+        return out if out.strip() else text
+    except Exception:  # noqa: BLE001 — خلاصه هرگز ارسالِ digest را نمی‌کشد
+        return text
+
+
 def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
     """3b-efferent: مغز «حرف می‌زند» — از state-fileهای cortex/debate (پلِ درستِ
     out-of-process؛ cortex هرگز خودش bot/poller نمی‌سازد → صفر 409).
@@ -4335,7 +4351,9 @@ def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
                   "url": "https://t.me/intergrade2725_Bot?start=ap"}],
                 [{"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
             head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
-            sent = bool(_send_stream(channel, head + d["text"], kb,
+            # CORTEX-CONNECT-ALL اتصالِ ۴ (۰۹-۱۱): خلاصهٔ مغز فقط **بعد** از گیتِ ارسال
+            # (نه قبل — تماسِ پولی برای digestی که فرستاده نمی‌شود، سوختن است).
+            sent = bool(_send_stream(channel, head + _digest_text_with_brain(d["text"]), kb,
                 stream="brain"))
             _dialogue_mark("cortex/brain-digest-nudge.json", d["hash"], sent=sent)
         return {"sent": sent, "red_flip": red_flip,

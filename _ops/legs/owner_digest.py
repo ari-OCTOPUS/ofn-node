@@ -12,6 +12,7 @@ fallback: مغز نداد ⇒ **همان متنِ خام** برمی‌گردد (
 from __future__ import annotations
 
 import hashlib
+import os
 import sys
 from pathlib import Path
 
@@ -25,6 +26,11 @@ import brain_link  # noqa: E402
 TASK = "owner_digest"
 MAX_TOKENS = 500
 SCHEMA = "owner_digest.v1"
+FLAG = "OCTOPUS_CONNECT_OWNER_DIGEST"   # پیش‌فرض خاموش؛ روشن‌کردن = تصمیمِ مالک
+
+
+def enabled() -> bool:
+    return str(os.environ.get(FLAG, "") or "").strip().lower() in ("1", "true", "yes", "on")
 _SYSTEM = ("Summarise this daily operations digest for the owner in Persian (فارسی), "
            "max 6 bullet lines, each starting with '▸'. Keep every number exactly as given; "
            "never invent numbers. First line = the single most important item.")

@@ -125,10 +125,33 @@ def _rebuild_candidate(lead: dict) -> dict:
             "request": cb.get("request") or {}}
 
 
+def _triage_line(lead_id: str, sc, ask_fn=None) -> str:
+    """اتصالِ ۲ (CORTEX-CONNECT-ALL، ۰۹-۱۱): یک خطِ اولویت/خلاصه از مغز برای کارتِ مالک.
+    پشتِ OCTOPUS_CONNECT_LEAD_TRIAGE (پیش‌فرض خاموش ⇒ رشتهٔ خالی، صفر اثر). idempotent روی
+    lead_id (lead_triage.triage). fail-soft: هر خطا ⇒ رشتهٔ خالی، کارت بدونِ این خط می‌رود.
+    `ask_fn` فقط برای تست (transport جعلی)."""
+    try:
+        if str(_HERE) not in sys.path:
+            sys.path.insert(0, str(_HERE))
+        import lead_triage as _lt   # noqa: WPS433 — هم‌پوشه (legs/)
+        if not _lt.enabled():
+            return ""
+        lead = dict(getattr(sc, "lead", None) or {})
+        lead.setdefault("lead_id", str(lead_id or ""))
+        if getattr(sc, "score", None) is not None and "score" not in lead:
+            lead["score"] = getattr(sc, "score")
+        return _lt.card_line(_lt.triage(lead, ask_fn=ask_fn))
+    except Exception:  # noqa: BLE001 — غربال هرگز کارت را نمی‌کشد
+        return ""
+
+
 def _card_text(lead_id: str, sc, quote: "dict | None", research: dict) -> str:
     """کارتِ لیدِ آماده (رأی ۱۸) — ScoredLead.card + خلاصهٔ کوت + خلاصهٔ تحقیق."""
     lines = ["🎨 <b>لیدِ آماده</b> — رأیِ تو ارسال نیست؛ فقط ورود به گیتِ سقف‌دار",
              "──────────", sc.card()]
+    _tl = _triage_line(lead_id, sc)
+    if _tl:
+        lines.append(_tl)
     if quote and quote.get("ok"):
         bd = quote.get("breakdown") or {}
         rng = bd.get("total_incl_gst") or [0, 0]

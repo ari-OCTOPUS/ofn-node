@@ -34,6 +34,13 @@ import brain_link  # noqa: E402
 TASK = "customer_reply"
 MAX_TOKENS = 600                       # مگاپرامپت: >= 600
 SCHEMA = "store_reply.v1"
+SCHEMA_PROPOSED = "store_reply.v1.proposed"   # رسیدِ «کارت به مالک رفت» (نه تحویل به مشتری)
+FLAG = "OCTOPUS_CONNECT_STORE_REPLY"   # پیش‌فرض خاموش؛ روشن‌کردن = تصمیمِ مالک (نه OCTOPUS_WIRE_*)
+
+
+def enabled() -> bool:
+    """فلگ خاموش (پیش‌فرض) = صداکننده‌های production هیچ کاری نمی‌کنند."""
+    return str(os.environ.get(FLAG, "") or "").strip().lower() in ("1", "true", "yes", "on")
 FALLBACK = ("Thanks for your order and your message — we've received it and will "
             "reply within a few hours (Australian time).")
 # واژگانِ ممنوعه: هیچ وعدهٔ مالی/فوریت/کانالِ پرداختِ خارج از فروشگاه. override با env (CSV).
@@ -59,17 +66,25 @@ def _sha(s) -> str:
     return hashlib.sha256(str(s or "").encode("utf-8")).hexdigest()[:16]
 
 
-def _existing(event_id: str) -> dict | None:
+def _rows() -> list[dict]:
     p = _ledger_path()
     if not p.exists():
-        return None
-    last = None
+        return []
+    out = []
     for ln in p.read_text("utf-8", errors="replace").splitlines():
         try:
             d = json.loads(ln)
         except ValueError:
             continue
-        if d.get("event_id") == event_id:
+        if isinstance(d, dict):
+            out.append(d)
+    return out
+
+
+def _existing(event_id: str) -> dict | None:
+    last = None
+    for d in _rows():
+        if d.get("schema") == SCHEMA and d.get("event_id") == event_id:
             last = d
     return last
 
@@ -156,6 +171,43 @@ def propose(row: dict, channel) -> bool:
         return bool(channel.send_text(owner_card(row), stream="store"))
     except Exception:  # noqa: BLE001
         return False
+
+
+def pending_for_owner() -> list[dict]:
+    """پیش‌نویس‌هایی که هنوز کارتشان به مالک نرفته (ردیفِ SCHEMA بدونِ ردیفِ proposed)."""
+    proposed = {d.get("event_id") for d in _rows() if d.get("schema") == SCHEMA_PROPOSED}
+    seen, out = set(), []
+    for d in _rows():
+        if d.get("schema") != SCHEMA:
+            continue
+        eid = d.get("event_id")
+        if eid in proposed or eid in seen:
+            continue
+        seen.add(eid)
+        out.append(d)
+    return out
+
+
+def propose_pending(channel, *, limit: int = 3) -> dict:
+    """consumerِ واقعیِ کارتِ مالک — از حلقهٔ epoch ِ organism (جایی که _chan هست) صدا زده
+    می‌شود، پشتِ enabled(). هر پیش‌نویس فقط یک‌بار کارت می‌گیرد (رسیدِ proposed، append-only).
+    کارتِ رفته به مالک ≠ تحویل به مشتری؛ sent همچنان False می‌ماند."""
+    out = {"proposed": 0, "skipped": 0, "enabled": enabled()}
+    if not enabled():
+        return out
+    for row in pending_for_owner()[:max(0, int(limit))]:
+        if propose(row, channel):
+            try:
+                opslib.append_jsonl(_ledger_path(), {
+                    "ts": opslib.now_iso(), "schema": SCHEMA_PROPOSED,
+                    "event_id": row.get("event_id"), "task": TASK,
+                    "reply_sha": row.get("reply_sha"), "channel": "inner"})
+                out["proposed"] += 1
+            except Exception:  # noqa: BLE001 — بدونِ رسید، دفعهٔ بعد دوباره پیشنهاد می‌شود (تکرار > گم‌شدن)
+                out["skipped"] += 1
+        else:
+            out["skipped"] += 1
+    return out
 
 
 def event_from_store_watch(prev: dict | None, cur: dict) -> dict | None:
