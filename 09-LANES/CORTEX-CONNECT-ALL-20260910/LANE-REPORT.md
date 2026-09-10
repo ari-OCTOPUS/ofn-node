@@ -1,0 +1,79 @@
+GOV_VERSION=V8
+LADDER=L2
+
+# CORTEX-CONNECT-ALL-20260910 — سرنوشتِ کلیکِ 732409706 + چهار اتصالِ مغز (ساختِ محلی)
+
+lane: `09-LANES/CORTEX-CONNECT-ALL-20260910/` · worktree: `F:/wt-cortex-connect-all-20260910` (شاخهٔ `codex/cortex-connect-all-20260910` از `1f941fe`؛ ایندکس=HEAD، فقط `_ops` + `AGENTS.md` بیرون کشیده شده؛ ۴۴٬۰۳۳ حذفِ unstaged هرگز stage نشده). مالکیت: فقط این پوشه + ۳ فایلِ فاز ۱ + ۷ فایلِ فاز ۲ (همه commit با مسیرِ صریح). هیچ فلگِ wire، هیچ راز، هیچ تماسِ تلگرام/پولی، هیچ ری‌استارت.
+
+## ۱. سرنوشتِ کلیکِ مالک — update_id=732409706 (اول این)
+
+**خلاصهٔ یک‌خطی:** کلیک رسید، پردازش شد، ولی به دکمه‌ای خورد که روی باتِ درونی handler نداشت؛ جوابش toastِ «نادیده» بود و هیچ اثری ذخیره نشد. این یک دکمهٔ مردهٔ **ثبت‌شده از ۲۰۲۶-۰۸-۰۶** بود که در تستِ parity معاف شده بود.
+
+وضعیت‌های مستقل (منبع: `CLICK-TRACE.json` همین پوشه):
+
+| حلقه | وضعیت | شاهدِ کلیدی |
+|---|---|---|
+| received | **CONFIRMED** | `_ops/state/telegram/inbound-log.jsonl` خط ۳۷؛ نویسنده = `approval_channel.py:667-690` (`poll_once`، literal `"bot": "inner"`) که در threadِ `organism.py:409` می‌دود. نبضِ همان poller در `pulse/telegram-poll.json` = 20:35:29 (۷ دقیقه بعد از کلیک) |
+| dispatched | INFERRED | `telegram_offset.json` = 732409707 با mtime 20:28:32.976 (+۱٫۵ ثانیه) = ذخیرهٔ پایانِ حلقه (`:756-757`)؛ allowlist شاملِ مالک (`:339-341`)؛ هیچ هشدارِ `T-8 dispatch error` بین 20:21:58 و 20:37:54 در `_ops/governor/governor-alerts.md` |
+| handler | INFERRED_STRONG → **هیچ (fallthrough «نادیده»)** | callback ۷ کاراکتر؛ تنها کیبوردِ ارسالی از باتِ درونی با callbackِ ۷کاراکتری = `initiative.card()` → `mr:know` («🪞 آینه»، `initiative.py:501-502`)، فرستنده `organism.py:915-916` از `_chan.send_text`. زنجیرهٔ زمانی: `initiative.jsonl` کارتِ «سوال» id=8186ef67275e در **20:22:06** → ردیفِ ارسالِ inner در `tg-send-log.jsonl` **20:22:08** (۶۱۵ کاراکتر، sent) → کلیک **20:28:31**. `dispatch_callback` پیش از وصله scheme `mr` نداشت (`:1144`). گزینهٔ دیگرِ ۷کاراکتری `tr:list` فقط از مرکز (`center.py:4482`) می‌رود → حذف |
+| acknowledged | INFERRED_NO_ERROR | `_answer_callback_query` بی‌قید صدا زده می‌شود (`:731-732`)؛ شکست هشدار می‌دهد (`:780`)؛ آخرین چنین هشداری 2026-09-07T10:03:20. مسیرِ موفق **هیچ رسیدی** نمی‌نویسد → CONFIRMED نمی‌شود. toastِ استنباطی: «نادیده» |
+| effect_persisted | **NONE** | ساختاری (بدونِ handler)؛ روی دیسک: در بازهٔ 20:27:30–20:30:00 در کلِ `_ops` فقط `inbound-log.jsonl` و `telegram_offset.json` تغییر کرده‌اند. (اسکنِ همان بازه در `F:/ofn-node` ناتمام ماند → UNKNOWN آن‌جا) |
+| read_back | N/A | چیزی برای بازخوانی نیست. تأییدِ جانبی: کلیکِ ۷کاراکتریِ قبلی 732409705 (09-09 16:10:59) روی کارتِ 28b14a9f8068 → همان لجر در 21:38:46 آن را `ignored / window-elapsed` بست (سیستم صفر engagement دید) |
+| گروهِ کنترل | **CONFIRMED** | سه کلیکِ ۱۷کاراکتریِ 09-09 (732409702/3/4) هر یک در **همان ثانیه** ردیفِ `tool_request.v1.answer / granted` در `tool-requests.jsonl` ساخته‌اند → مسیرِ inner برای `tr:*` تا ذخیره‌سازی سالم است |
+
+**متنِ callback به‌طورِ طراحی‌شده UNKNOWN است** (§۱۰: لاگِ ورودی فقط شکل/طول). شناساییِ `mr:know` استنباطِ قوی از طول + کارتِ ارسالی + زمان‌بندی + نبودِ اثر است، نه خواندنِ متن.
+
+**ریشه:** `_ops/tests/test_tg_callback_emitter_parity.py:68-81` — `KNOWN_OPEN_GAPS[("initiative.py","mr")]`، ثبت‌شده ۲۰۲۶-۰۸-۰۶ با متنِ «تلهٔ دو-باتی، زنده و هنوز رفع‌نشده، TODO مالک». تست ۹/۹ سبز می‌ماند در حالی که مالک ۳۵ روز «نادیده» می‌گرفت.
+
+**هم‌زمانیِ چند نویسنده:** ادعا **نمی‌شود**. یک poller ِ inner زنده (نبض)، هیچ 409 در بازه، توکن باز نشد.
+
+**دامنهٔ poll-health (بندِ ۴ پرامپت):** `poll-health.json` را فقط `telegram_center/health_metrics.py` و `tg_api.py` (باتِ **بیرونی/مرکز**) می‌نویسند؛ مصرف‌کننده‌ها `seed_beat`/`config_manager`/`durable_loop`/`self_insight`/`self_audit`. `approval_channel.py` صفر ارجاع. پس `last_update_received_at`/`last_dispatch_completed_at` ِ کهنه = حقایقِ باتِ بیرونی، **نه** شاهدی دربارهٔ کلیکِ inner. وصله‌ای روی poll-health زده نشد (ایرادِ کد ثابت نشد). شکافِ واقعی: poller ِ inner فقط نبض (ts+batch) دارد و هیچ رسیدِ dispatch/ACK نمی‌نویسد — همین است که «acknowledged» را از CONFIRMED پایین نگه می‌دارد (قدمِ بعدیِ پیشنهادی، نه وصلهٔ این لِین).
+
+### وصلهٔ حداقلی (فاز ۱) — commit `5685b89`، LOCAL_TESTED
+- `_ops/budget/approval_channel.py` (+۴۷): `_mirror_room_mod()` (هم‌الگوی `load_surface_policy`)، شاخهٔ `mr` در `dispatch_callback` کنارِ `iv`/`tr`، و `_dispatch_mirror()`: `mr:know` → `mirror_room.know_card()`، `mr:corr` → `corrections_card()` (هر دو read-only، $0، بدونِ مدل، بدونِ state)؛ فلگِ خاموش/نبودِ ماژول/خطا → toastِ توضیح‌دار، **هرگز «نادیده»**. sha256: pre `4b77da64…dfada` → post `39965142…8e5b`.
+- `_ops/tests/test_inner_mirror_callback.py` (نو، ۸ سنجه، transport جعلی، بدونِ شبکه): شکلِ ردیفِ دریافت == ردیفِ مالک، ACK، sendMessage، مهرِ `update_id` روی رسیدِ ارسالِ inner، fail-soft در خطای handler، ادامهٔ batch پس از خطای dispatch با هشدار، پاریتیِ رفتاریِ همهٔ دکمه‌های `initiative.card()`. **قرمز ۲/۸ پیش از وصله** (toast دقیقاً `{'callback_query_id': 'cbq732409706', 'text': 'نادیده'}`) → **سبز ۸/۸**.
+- `_ops/tests/test_tg_callback_emitter_parity.py`: معافیت حذف شد (خودِ تست حذفِ معافیتِ بی‌مصرف را اجبار می‌کند) → ۹/۹.
+- همسایه‌ها: `test_telegram_poll_e2e` 7/7 · `test_both_bots_log_inbound` 9/9 · `test_tg_callback_answer` 5/5 · `test_phase0_receipt_rig` 15/17 — دو شکستِ `t_g`/`t_p` **عیناً روی baseline ِ وصله‌نخورده** هم هست (سمتِ مرکز) → رگرسیونِ این لِین نیست.
+- **کلیک دوباره پخش نشد. ری‌استارت نشد.** ارگانیسمِ زنده تا ری‌استارت کدِ قدیمی را می‌دود؛ دکمهٔ «🪞 آینه» در تلگرام هم‌چنان «نادیده» می‌دهد.
+
+## ۲. اتصال‌های مغز (فاز ۲) — commit `81835fa`، LOCAL_TESTED، ۱۴/۱۴
+
+پیش‌نیازِ ادعاهای LIVE مگاپرامپت: `CORTEX-DEPLOY-RECEIPT.json` / `OWNER-VOTE-RESTART-20260910` در جستجوی محدود (`09-LANES`, `07-HANDOFF`, `06-EVIDENCE`, `_ops` تا عمقِ ۳) **پیدا نشد** (E0 در این دامنه؛ ادعای غیاب سراسری نیست). ولی قراردادِ لجر خودش زنده است (E2): `paid-calls.jsonl` فیلدِ `burned_without_output` دارد (۱۶ ردیف در ۳۰۰ ردیفِ آخر) و `model_router.py:454-465` آن را می‌نویسد. PID 10416 در این لِین دوباره تأیید نشد.
+
+سطحِ API واقعی (خوانده‌شده): `model_router.ask(task, prompt, system, max_tokens, tier) -> dict{ok,text,tier,fallback_from,finish_reason,model,reason}`؛ **`customer_reply` در `TASK_TIERS` نیست** و task ِ ناشناخته به `local` می‌افتد → wrapper همیشه `tier="secondary"` را صریح می‌دهد (به‌جای ویرایشِ ماژولِ زنده). `is_useless_truncation(text, finish_reason)` عیناً مصرف شد. `fugu_quota.reserve` داخلِ `_ask_impl` است؛ سقفِ روزانهٔ این اتصال‌ها **اضافه** بر آن است.
+
+| # | اتصال | ماژول | trigger/seam واقعی | consumer | storage | fallback |
+|---|---|---|---|---|---|---|
+| ۰ | اسکرابرِ راز | `_ops/cortex/scrub.py` | پیش از هر `ask` و هر لاگ | `brain_link` | — | — |
+| ۰ | درِ واحد | `_ops/cortex/brain_link.py` | همهٔ اتصال‌ها | `model_router.ask` (تنها مسیر) | `state/cortex/connect-calls.jsonl` (sha، نه متن) + `connect-daily.json` | `ok=False + reason` |
+| ۱ | پیامِ مشتری | `_ops/legs/store_reply.py` | `drive_loops.sync_store_watch()` → `state/store-watch.json` (فقط **سفارش** دارد: `orders.last_order_id`؛ پیامِ متنیِ مشتری در watch نیست) — `event_from_store_watch(prev,cur)` | مالک: کارتِ **متنی** از باتِ درونی (`propose(row, channel)`) | `state/store/replies.jsonl` (`sent=false`, `delivery=null`, `production_authorized=false`) | قالبِ ثابتِ محافظه‌کارانه، هرگز سکوت؛ فیلترِ واژگانِ ممنوعه |
+| ۲ | غربالِ لید | `_ops/legs/lead_triage.py` | dictِ لید (`description`,`address` مثلِ `lead_scorer._haystack` + `score` از intake v2). مسیرِ فایلِ intake روی ۱۳۸: **UNKNOWN** | `lead_pipeline._card_text` (خطِ `card_line(row)`) | `state/leads/triage.jsonl` (`queued_for_owner`, `decided=false`) | قاعدهٔ score (≥70 high / ≥40 medium / low) با `fallback=true` |
+| ۳ | hero/محتوا | `_ops/legs/content_draft.py` | brief از مالک | مالک انتخاب می‌کند؛ `publish()` **همیشه** `PermissionError` | `state/content/hero-drafts.jsonl` (`published=false`) | هیچ پیش‌نویسِ جعلی؛ `ok=false` |
+| ۴ | digestِ مالک | `_ops/legs/owner_digest.py` | `wiring.brain_digest_beat`/`doctor_digest_beat` پیش از `_send_stream` (`d["text"]`) | همان ارسالِ موجود | `state/cortex/digest-summaries.jsonl` (sha) | همان متنِ خام برمی‌گردد |
+
+قواعدِ اجراشده: task صریح در هر ردیف · اسکرابر روی prompt/system **و خروجیِ مدل** · تکرارِ رویداد ⇒ همان ردیف، بدونِ تماسِ دوم · سقفِ روزانه attempt-counted و fail-closed **پیش از** تماس · کارت‌ها بدونِ verbِ callbackِ تازه (تا دکمهٔ مردهٔ پنجم ساخته نشود؛ parity ۹/۹ ماند).
+
+تست `_ops/tests/test_cortex_connect_all.py` (۱۴/۱۴): socket مسدود (هر connect = AssertionError؛ صفر تلاش)؛ قرمز → سبز برای راز (تابعِ خام توکنِ ساختگی را می‌گیرد؛ از `brain_link` فقط `[REDACTED]`) و برای سکوت (مغز None → قالب)؛ ماتریسِ شکست (exception/None/غیر-dict/ok=false/غیرپولی/بریدهٔ بی‌متن/خالی)؛ بریدهٔ طولانی می‌گذرد؛ سقف پیش از تماس؛ replay؛ واژهٔ ممنوعه؛ `publish` می‌شکند؛ هیچ مقدارِ ساختگی در هیچ لاگِ sandbox؛ هیچ `paid-calls.jsonl` در sandbox؛ هیچ نوشتنی زیرِ `F:/backup`.
+
+**به production وصل نشد** (هیچ صداکنندهٔ زنده‌ای ویرایش نشد): splice ِ هر اتصال = یک تغییرِ رفتارِ ارسال/تصمیمِ زنده و پشتِ گیت. رسیدِ `paid-calls.jsonl` برای taskهای تازه فقط پس از splice و اولین تماسِ واقعی پدید می‌آید (**NOT_RUN**).
+
+## ۳. چه ماند / چه شکست
+- **شکست/ناتمام:** اسکنِ فایل‌های تغییریافتهٔ بازهٔ کلیک در `F:/ofn-node` کشته شد (زمان) → آن سمت UNKNOWN. تستِ طلاییِ H9 با این نام در `_ops/tests` پیدا نشد (فقط ارجاعِ `H9` در `three_role.py`)؛ هیچ فایلِ حافظه/`three_role.py` لمس نشده (`git show --stat 5685b89 81835fa`).
+- **باز (unverified):** PID ِ میزبانِ poller ِ inner در این لِین؛ رسیدِ مثبتِ ACK (ساختاری وجود ندارد)؛ مسیرِ فایلِ intake روی ۱۳۸؛ محلِ واقعیِ `CORTEX-DEPLOY-RECEIPT.json`.
+- **قدمِ بعدی (به ترتیب):**
+  1. **گیتِ کلاس Z — یک تصمیم:** ری‌استارتِ ارگانیسم (`_ops/RESTART-ORGANISM.bat`، detached) تا وصلهٔ `mr:*` زنده شود. تا آن وقت دکمهٔ «🪞 آینه» هم‌چنان «نادیده» می‌دهد. پس از ری‌استارت، اثباتِ زنده = یک کلیکِ تازهٔ مالک روی کارتِ initiative → ردیفِ inner با `update_id` در `tg-send-log.jsonl` (تا امروز صفر ردیفِ inner با `update_id` در ۴۸ ساعت) + پیامِ «فهمِ من از خودم» (اگر `OCTOPUS_TG_MIRROR=1`) یا toastِ «خاموش است».
+  2. رسیدِ disposition برای poller ِ inner (هم‌قراردادِ `center._log_disposition`، همان فایل، `update_id` مشترک) — تا ردیابیِ بعدی CONFIRMED باشد نه INFERRED.
+  3. splice ِ اتصال‌ها، هر یک با رأیِ جدا: (۱) `store_reply` در `sync_store_watch` + کارتِ مالک؛ (۲) `lead_triage.card_line` در `lead_pipeline._card_text`؛ (۳) `owner_digest.summarize` در `brain_digest_beat`؛ (۴) `content_draft` فقط با brief ِ مالک. اولین ارسالِ واقعی به مشتری = کارتِ یک‌تصمیمیِ مالک.
+- **ادغام:** این شاخه از `1f941fe` جدا شده؛ `F:/backup` هم‌زمان توسطِ ایجنت‌های دیگر جلو می‌رود → rebase/merge پیش از هر استقرار؛ PR/push انجام نشده.
+
+## ۴. شواهد
+- `09-LANES/CORTEX-CONNECT-ALL-20260910/CLICK-TRACE.json` (همین پوشه)
+- ورودی‌ها: `F:/wt-tg-claim-audit-20260910/09-LANES/TG-CLAIM-AUDIT-20260910/{LANE-REPORT.md,CLICK-OBSERVATION.json,NEXT-AGENT-PROMPT.md}` · `F:/backup/07-HANDOFF/MEGAPROMPT-CORTEX-CONNECT-ALL-2026-09-10.md` (untracked در git)
+- state ِ خوانده‌شده (فقط‌خواندنی): `_ops/state/telegram/{inbound-log.jsonl,initiative.jsonl,tool-requests.jsonl,poll-health.json}`, `_ops/state/telegram_offset.json`, `_ops/state/pulse/telegram-poll.json`, `_ops/state/tg-send-log.jsonl`, `_ops/state/paid-calls.jsonl`, `_ops/state/store-watch.json`, `_ops/governor/governor-alerts.md`
+- کد: `_ops/budget/approval_channel.py` (:329-351, :574-758, :766-781, :1006-1144), `_ops/organism.py:409,912-932`, `_ops/initiative.py:501-502`, `_ops/tool_request.py:267,537-555`, `_ops/telegram_center/{center.py:4254-4267,4482; mirror_room.py:407-460; health_metrics.py}`, `_ops/tests/{test_tg_callback_emitter_parity.py,tg_callback_scanner.py}`, `_ops/cortex/model_router.py (:153,:239,:807)`, `_ops/cortex/fugu_quota.py:290`, `_ops/wiring.py:4292`, `_ops/legs/{lead_scorer.py:289,lead_pipeline.py}`
+- commitها (worktree): `5685b89` (فاز ۱)، `81835fa` (فاز ۲)، + commit ِ همین گزارش
+
+## ۵. rollback
+- کد: `git -C F:/wt-cortex-connect-all-20260910 revert 81835fa 5685b89` یا حذفِ شاخه؛ `F:/backup` هیچ تغییری نگرفته (worktree مستقل). worktree: `git worktree remove F:/wt-cortex-connect-all-20260910` (پس از merge/آرشیو).
+- runtime: چیزی تغییر نکرده — هیچ ری‌استارت/فلگ/ارسال/state ِ زنده. فایل‌های state فقط خوانده شدند.
+- تست‌ها فقط در sandbox ِ harness نوشتند (`t_h`/`t_m` هر دو فایل این را assert می‌کنند).
