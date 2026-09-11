@@ -1,6 +1,6 @@
 {
   "_comment": "FX pinned by owner FX-PIN-20260907-01 (RBA F11.1 daily 07-Sep-2026, owner vote FX-1 2026-09-07 evening). 2026-09-08 anchor correction (lane FAULT-LLMLEARN-20260908): fx_timestamp_utc 00:00Z -> 06:00Z = true reference time of the RBA daily 4pm-AEST series (Sep = AEST = UTC+10), matching the FX-PIN-20260820-01 convention. The 00:00Z anchor forfeited ~6h of the 24h freshness window and closed the whole paid path at 2026-09-08T00:00Z (10:00 local) — root cause of the fx_expired(>24h) cluster + pump/llm_learn failures. Rate value, source, receipt unchanged; verified against a live RBA refetch on 2026-09-08 (byte-identical, 08-Sep row not yet published). No auto-refresh. >24h => adapter AUD blocked.",
-  "fx_usd_to_aud": 1.38504,
+  "fx_usd_to_aud": 1.39431,
   "models": {
     "test-deepseek-v4": {
       "TEST_ONLY": true,
@@ -9,13 +9,13 @@
     }
   },
   "fx_record": {
-    "fx_source_id": "RBA_EXCHANGE_RATES_DAILY_10-Sep-2026_F11.1",
-    "fx_timestamp_utc": "2026-09-10T06:00:00Z",
-    "fx_rate_usd_to_aud": 1.38504,
-    "FX_SOURCE_VALUE": "AUD_USD = 0.7220",
+    "fx_source_id": "RBA_EXCHANGE_RATES_DAILY_11-Sep-2026_F11.1",
+    "fx_timestamp_utc": "2026-09-11T06:00:00Z",
+    "fx_rate_usd_to_aud": 1.39431,
+    "FX_SOURCE_VALUE": "AUD_USD = 0.7172",
     "FX_CONVERSION_METHOD": "reciprocal_of_RBA_AUD_USD",
-    "owner_pin_id": "FX-PIN-20260910-01",
-    "receipt_id": "2f06439a45ad47e5",
+    "owner_pin_id": "FX-PIN-20260911-01",
+    "receipt_id": "cbfd55904b8a652e",
     "standing_authorization": "Owner ballot FX-1 2026-09-07 + «همرو اجازه داری» 2026-09-08; see 09-LANES/FAULT-LLMLEARN-20260908/RUNBOOK-FX-DAILY.md"
   }
 }
