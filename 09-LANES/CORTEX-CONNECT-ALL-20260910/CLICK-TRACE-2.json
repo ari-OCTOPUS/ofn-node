@@ -1,0 +1,74 @@
+{
+  "schema": "click-trace.v1",
+  "lane": "CORTEX-CONNECT-ALL-20260910",
+  "gov": {
+    "GOV_VERSION": "V8",
+    "LADDER": "L2"
+  },
+  "subject": "FRESH OWNER CLICK on the mirror button AFTER deploy — the live proof OP-1 was waiting for",
+  "click": {
+    "update_id": 732409713,
+    "inbound_row": {
+      "ts": "2026-09-11T15:10:17",
+      "ts_utc": "2026-09-11T05:10:17Z",
+      "bot": "inner",
+      "kind": "callback_query",
+      "chars": 7,
+      "from_owner": true,
+      "chat_kind": "private"
+    },
+    "identified_button": "mr:know ('🪞 آینه' on the 14:43 initiative card — screenshot timestamp 3:10 PM matches 15:10 local)"
+  },
+  "trace": {
+    "received": {
+      "status": "CONFIRMED",
+      "evidence": [
+        "inbound-log row update_id=732409713"
+      ]
+    },
+    "dispatched": {
+      "status": "CONFIRMED",
+      "evidence": [
+        "telegram_offset.json = 732409714 saved_at 2026-09-11T05:10:23.707782Z (end-of-loop)"
+      ]
+    },
+    "handler_selected": {
+      "status": "CONFIRMED",
+      "handler": "_dispatch_mirror (mr:know -> mirror_room.know_card())",
+      "evidence": [
+        "screenshot shows the know-card: 'فهمِ من از خودم — نسخهٔ …' with pathology/ریشه/تصحیح lines",
+        "deployed code 42d3085 live sha 399651420bdd2c75"
+      ]
+    },
+    "acknowledged": {
+      "status": "CONFIRMED_BY_FLOW",
+      "evidence": [
+        "dict branch ACKs '✅' before send; no answerCallbackQuery error alert; visible card arrived"
+      ],
+      "limit": "ACK itself still has no separate receipt row until OP-2 (1807ff4) is transferred"
+    },
+    "effect_observable": {
+      "status": "CONFIRMED",
+      "evidence": [
+        "FIRST-EVER inner tg-send-log row carrying update_id: {ts 1789103423.707 (=15:10:23.707+10), bot_role inner, update_id 732409713, chars 414, ok true, state sent, surface dm}",
+        "6.5s after inbound row"
+      ],
+      "durable_state": "none by design (know_card is read-only, $0)"
+    },
+    "read_back": {
+      "status": "DONE",
+      "evidence": [
+        "owner screenshot (image cache, session 13cc22da) + ledger rows re-read from disk this session"
+      ]
+    }
+  },
+  "closure": "35-day dead button (KNOWN_OPEN_GAPS since 2026-08-06) CLOSED end-to-end: click -> handler -> card -> receipted send. The 'unhandled' class remains nameable only after OP-2 transfer.",
+  "control_group_same_day": {
+    "17-char clicks 732409711/712 @ 09:47:42/44": "tr:* answers (ledger rows expected in tool-requests.jsonl)"
+  },
+  "not_done": [
+    "click not replayed by agent",
+    "no token read",
+    "no wire flag touched"
+  ]
+}
