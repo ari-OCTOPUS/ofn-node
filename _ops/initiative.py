@@ -48,7 +48,7 @@ LEDGER = opslib.STATE_DIR / "telegram" / "initiative.jsonl"
 DAILY_DEFAULT = 2
 DAILY_MIN = 1
 MIN_GAP_S = 4 * 3600.0
-MAX_TOKENS = 700
+MAX_TOKENS = int(os.environ.get("INITIATIVE_MAX_TOKENS", "1500"))   # 09-11 رأی مالک (گزینهٔ ۱ حداقلی): 700 سوخت می‌داد (لجر)؛ rollback: =700
 MIN_CHARS = 60
 
 # ─── WS-5 · بی‌سقف ولی حساب‌پس‌ده (رأیِ مالک ۲۰۲۶-۰۸-۰۱) ────────────────────

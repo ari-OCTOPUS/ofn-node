@@ -732,7 +732,7 @@ def synthesize(snap: dict, prev: dict, history: list, conf_ema: "float | None" =
               + "\n\nPREVIOUS_UNDERSTANDING:\n" + json.dumps(prev.get("understanding", {}), ensure_ascii=False)[:2000]
               + "\n\nHISTORY (نسخه‌های قبل):\n" + json.dumps(history, ensure_ascii=False)
               + "\n\nفهمِ لایه‌ایِ بهبودیافته را فقط JSON بده.")
-    text, tier = _ask_llm(prompt, system, max_tokens=800)
+    text, tier = _ask_llm(prompt, system, max_tokens=int(os.environ.get("SELFKNOW_MAX_TOKENS", "1500")))  # 09-11: 800 سوخت می‌داد؛ rollback: =800
     if text:
         parsed = _extract_json(text)
         if isinstance(parsed, dict) and _understanding_usable(parsed):

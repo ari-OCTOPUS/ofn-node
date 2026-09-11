@@ -62,7 +62,7 @@ GAP_ENV = "OCTOPUS_TOOL_REQUEST_MIN_GAP_S"
 DAILY_DEFAULT = 6
 MIN_GAP_S_DEFAULT = 20 * 60.0
 
-MAX_TOKENS = 700
+MAX_TOKENS = int(os.environ.get("TOOL_REQUEST_MAX_TOKENS", "1500"))  # 09-11 رأی مالک (گزینهٔ ۱ حداقلی): 700 سوخت می‌داد؛ rollback: =700
 _MIN_FIELD_CHARS = 12          # کوتاه‌تر از این = مبهم، نه «دقیق»
 _FIELDS = ("need", "why", "cost", "alternative")
 # مترادف‌های «نمی‌دانم» که مدل تکرار می‌کرد و کارت را در حلقهٔ رد می‌انداخت.
