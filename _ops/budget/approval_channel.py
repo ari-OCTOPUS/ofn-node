@@ -714,6 +714,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             # گروه‌پذیریِ کاکپیت (رأی مالک 2026-07-17). نبود = فقط owner (byte-identical).
             if chat_id not in self._allowed:
                 processed += 1              # پردازش‌شده ولی رد‌شده (offset جلو رفت)
+                self._log_disposition(uid, "dropped-allowlist", "chat-not-allowed")
                 continue
 
             # ── T-8: quarantine همیشه ثبت می‌شود (DATA) ──
@@ -730,6 +731,11 @@ class TelegramApprovalChannel(ApprovalChannel):
             # کارت‌های تأیید (request_approval_card) همچنان به owner می‌رود (قانونِ T-2: تنها
             # مسیرِ تأیید، owner-only intent)؛ ولی پاسخِ دستور به همان‌جا برمی‌گردد که پرسیده شد.
             _thr = _reply_thread_id(upd)
+            # ── رسیدِ disposition (۰۹-۱۱، OP-2): «چه شد؟» کنارِ همان ردیفِ «رسید»، با همان
+            # update_id — هم‌قراردادِ center._log_disposition. تا امروز مسیرِ موفقِ ACK هیچ
+            # ردیفی نمی‌نوشت و ردیابیِ کلیکِ مالک (732409706) از INFERRED بالاتر نمی‌رفت.
+            # فقط scheme/verb ثبت می‌شود، هرگز متن (§۱۰).
+            _scheme = (str(text or "").split(":")[0][:16] if is_callback else "text")
             try:
                 if is_callback:
                     # callback_query → dispatch + answer
@@ -738,14 +744,16 @@ class TelegramApprovalChannel(ApprovalChannel):
                     reply = self.dispatch_callback(str(text), from_id=from_id, external=True)
                     # reply می‌تواند str باشد (toast) یا dict (پیام جداگانه با کیبورد)
                     if isinstance(reply, dict):
-                        if cbq_id:
-                            self._answer_callback_query(cbq_id, "✅")
-                        self.send_text(reply.get("text", ""),
-                                       reply_markup=reply.get("reply_markup"),
-                                       chat_id=chat_id, topic_id=_thr)
+                        _ack = self._answer_callback_query(cbq_id, "✅") if cbq_id else None
+                        _sent = self.send_text(reply.get("text", ""),
+                                               reply_markup=reply.get("reply_markup"),
+                                               chat_id=chat_id, topic_id=_thr)
+                        self._log_disposition(uid, "sent", _scheme, ack_ok=_ack, send_ok=_sent)
                     else:
-                        if cbq_id:
-                            self._answer_callback_query(cbq_id, reply or "📝")
+                        _ack = self._answer_callback_query(cbq_id, reply or "📝") if cbq_id else None
+                        # «نادیده» = هیچ handlerی این verb را نشناخت — همان دکمهٔ مرده؛ صریح ثبت شود.
+                        self._log_disposition(uid, "unhandled" if reply == "نادیده" else "answered",
+                                              _scheme, ack_ok=_ack)
                 else:
                     # text message → handle_command + send reply
                     # from_id thread-through: مرزِ سختِ سراسری فقط owner (red-team GOV-P1)
@@ -753,14 +761,18 @@ class TelegramApprovalChannel(ApprovalChannel):
                                                 from_id=from_id)
                     if reply is not None:
                         if isinstance(reply, dict):
-                            self.send_text(reply.get("text", ""),
-                                           reply_markup=reply.get("reply_markup"),
-                                           chat_id=chat_id, topic_id=_thr)
+                            _sent = self.send_text(reply.get("text", ""),
+                                                   reply_markup=reply.get("reply_markup"),
+                                                   chat_id=chat_id, topic_id=_thr)
                         else:
-                            self.send_text(reply, chat_id=chat_id,
-                                           topic_id=_thr)
+                            _sent = self.send_text(reply, chat_id=chat_id,
+                                                   topic_id=_thr)
+                        self._log_disposition(uid, "sent", _scheme, send_ok=_sent)
+                    else:
+                        self._log_disposition(uid, "silent", _scheme)
             except Exception as e:  # noqa: BLE001 — fail-soft: ارسال شکست → alert، حلقه ادامه
                 opslib.alert([f"telegram T-8 dispatch error: {type(e).__name__}: {e}"])
+                self._log_disposition(uid, "error", _scheme, detail=type(e).__name__)
 
             processed += 1
         # پایانِ دورِ پردازش: برچسب آزاد شود، وگرنه ارسالِ **خودجوشِ** بعدی روی
@@ -772,6 +784,27 @@ class TelegramApprovalChannel(ApprovalChannel):
         if offset_dirty and self._state_dir:
             _save_offset(self._offset, self._state_dir)
         return processed
+
+    def _log_disposition(self, update_id, outcome: str, reason: str = "", *,
+                         ack_ok=None, send_ok=None, detail: str = "") -> None:
+        """رسیدِ «چه شد» برای باتِ درونی — همان فایل و همان قراردادِ center._log_disposition
+        (`kind=disposition`, `outcome`, `reason`, `update_id` مشترک با ردیفِ «رسید»؛ tg_receipts
+        هر ردیفِ دارای outcome را join می‌کند). outcome ∈ answered | sent | unhandled | silent |
+        error | dropped-allowlist. هرگز متن؛ فقط scheme/verb. fail-soft: هرگز حلقه را نمی‌کشد."""
+        try:
+            _il = opslib.STATE_DIR / "telegram" / "inbound-log.jsonl"
+            _il.parent.mkdir(parents=True, exist_ok=True)
+            row = {"ts": opslib.now_iso(), "bot": "inner", "update_id": update_id,
+                   "kind": "disposition", "outcome": str(outcome)[:32],
+                   "reason": str(reason)[:32], "detail": str(detail)[:80]}
+            if ack_ok is not None:
+                row["ack_ok"] = bool(ack_ok)
+            if send_ok is not None:
+                row["send_ok"] = bool(send_ok)
+            with open(_il, "a", encoding="utf-8", newline="\n") as _fh:
+                _fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        except Exception:  # noqa: BLE001 — رسید هرگز poll را نمی‌کشد
+            pass
 
     @staticmethod
     def _toast_plain(text: str) -> str:

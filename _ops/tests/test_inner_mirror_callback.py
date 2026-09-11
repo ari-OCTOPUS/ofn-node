@@ -114,9 +114,13 @@ def t_a_the_owner_click_shape_is_received_and_logged_as_inner():
     ch, fh = _channel(tag='a', updates=[_cbq(CLICK_DATA)])
     n0 = len(_inbound_rows())
     ch.poll_once()
-    rows = _inbound_rows()[n0:]
+    new = _inbound_rows()[n0:]
+    rows = [x for x in new if x.get("kind") != "disposition"]
     assert len(rows) == 1, rows
     r = rows[0]
+    # OP-2 (۰۹-۱۱): کنارِ ردیفِ «رسید»، ردیفِ «چه شد» با همان update_id
+    disp = [x for x in new if x.get("kind") == "disposition"]
+    assert len(disp) == 1 and disp[0]["update_id"] == 732409706 and disp[0]["outcome"] == "answered", disp
     assert r["bot"] == "inner" and r["kind"] == "callback_query", r
     assert r["update_id"] == 732409706 and r["chars"] == len(CLICK_DATA) == 7, r
     assert r["from_owner"] is True and r["chat_kind"] == "private", r
