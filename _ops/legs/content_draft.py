@@ -80,7 +80,9 @@ def draft_hero(brief: str, *, n: int = 3, ask_fn=None, now=None) -> dict:
         return {"ok": False, "reason": "empty-brief", "variants": [], "schema": SCHEMA}
     bsha = _sha(brief + f"|n={n}")
     prev = _existing(bsha)
-    if prev is not None:
+    # فقط ردیفِ موفق بازپخش می‌شود؛ ردیفِ ناموفق (مغز نداد/گیت رد کرد) باید retryپذیر بماند
+    # (درسِ 17:15 ۰۹-۱۱: ردیفِ not-a-paid-brainِ قبلی، retryِ پس از بازشدنِ گیت را می‌بلید)
+    if prev is not None and prev.get("ok") and prev.get("variants"):
         return {**prev, "replayed": True}
     r = brain_link.ask_brain(TASK, f"N={n}\nBrief:\n{brief[:2000]}", system=_SYSTEM,
                              max_tokens=MAX_TOKENS, ask_fn=ask_fn, now=now)
