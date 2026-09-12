@@ -218,3 +218,18 @@ GATES        = 31 census (GATES-31 file) · layer2 owner-confirmed · layer3 = 7
 MONEY        = 5 verified business / 0 campaign · sends since 02:00Z Sep-3 = 0 · caps 10/25/AUD50 live
 OWNER-QUEUE  = vote #168+P1s · ziman I1-I11 data · M5 design · NATS octopus-core password
 ```
+
+
+### سیزن ۵ — عصرِ خودمختاریِ عملیاتی ۲۰۲۶-۰۹-۱۳ (additive — بلوک‌های سیزن ۴ تاریخ‌خورده‌اند، نه منسوخ‌شده)
+```text
+EPOCH       = autonomy: CLASS_A_B_AUTONOMY_PERSISTENT (supervisor RUNNING on 138, 5min timer, hash 149b42e2)
+ETI         = SHADOW_RUN_COMPLETE (canonical 4278f95f VALID mesh-sourced; receipt_closure closed w/o rubric change)
+ACTION      = 1 real L1 canary COMPLETE (receipt 7f172c36); learning datum ald-e47bc024 (n=1 UNDERPOWERED)
+CLASS_B     = collector auto-recovery ACTIVE (budget 1/30min 3/24h breaker-2; zero needs so far — none manufactured)
+MESH        = collectors+supervisor+queue+receipts+canonical prediction ledger on nodes; PC off-safe (proven)
+PREDICTIONS = pred-e0e80e1d + pred-20a65c88 auto-reconcile due 2026-09-13T06:30Z (frozen rubric, node-side)
+WITNESS     = LOCAL_VERIFIED_CODE_ONLY / mesh UNPROVEN (182 = OWNER_TARGET_PROVISIONAL)
+MONEY       = unchanged: first-customer + W1 (call-service + hero text) remain the sole real inputs; no new order claim
+BOUNDS      = Class C never (money/keys/identity/DNS/irreversible/public-comms/TCB); kill-switch STOP-AUTONOMY live-proven
+LANES       = 7 local unpushed (eti x4, canary, autonomy x2): 69992c8/7ddecc6/829c5b7/620c9b5/12c98a4/9f4a118/3a91334
+```
