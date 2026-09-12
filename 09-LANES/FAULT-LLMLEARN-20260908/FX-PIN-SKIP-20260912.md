@@ -1,0 +1,1 @@
+2026-09-12 (Saturday): latest RBA F11.1 row = 11-Sep-2026 (Friday). No weekend row exists — pin skipped, no dates forged. paid از ۱۶:۰۰ fail-closed — by design؛ بازگشت: پین دوشنبه ۱۴۰۰... ربات: automation-ee619624 run #5 (16:40 exit-2 + 17:07 retry exit-2).
