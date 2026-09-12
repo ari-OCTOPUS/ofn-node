@@ -8,6 +8,16 @@ updated: 2026-09-13
 
 # 🐙 داده‌های حیاتی اختاپوس — هر ایجنت باید این را بخواند
 
+## ⚠️ ERRATUM (الحاقی ۲۰۲۶-۰۹-۱۳ ~21:00Z) — ادعای سیزن-۵ زیرین: SUPERSEDED_BY_RUNTIME_EVIDENCE
+
+> منبع: لِین `AUTONOMY-TCB-RECOVERY-20260913` (کامیت dfaa9ea/c92eb08؛ دستور مالک SCOPED_CLASS_C_TCB_REPAIR) + شواهد زندهٔ نود ۱۳۸ + گزارش لِین AUTONOMY-COMPLETION-20260913.
+
+- نسخهٔ مستقرِ v1.1 supervisor (هش `149b42e2`) **۱۳ آزمون پذیرشِ جدید را شکست** (بازنویسی تاریخچهٔ صف، fail-open روی manifest غایب/خالی، ادامهٔ کار پس از شکست زنجیره، بازیابی Class B با یک مشاهدهٔ stale، retry پس از timeout، بودجهٔ نود فقط هم‌جزء، نبود witness_scope، بی‌توجهی recovery به kill-switch، جهش حالت به CLOSED).
+- kill-switch (`STOP-AUTONOMY`، هش `7dc3d775`) از **2026-09-12T19:34Z** خودمختاری را متوقف کرد؛ هر tick پس از آن فقط رسید `KILL_SWITCH_STOP` نوشت. کلکتورها مستقل و سالم به کار ادامه دادند.
+- بنابراین `CLASS_A_B_AUTONOMY_PERSISTENT` و «Class B زنده شد (v1.1)» در بلوک زیرین **در زمان توقف معتبر نبودند** — کامیت `3ee6414` ادعایی فراگیر/کهنه ثبت کرد. هیچ اقدام Class B اجرا نشد (`CLASS_B_EXECUTED=0` در کل لجر).
+- در طول تعمیر TCB (با مجوز مالک): Class A/B هر دو pause؛ supervisor به v1.2 (هش `33ea3691`، کامیت `dfaa9ea`) ارتقا یافت؛ ۱۳/۱۳ آزمون فروزن + ۲۳۹/۲۳۹ regression سبز.
+- وضعیت نهاییِ پس از تعمیر فقط با شواهد reactivation تعیین می‌شود (رسیدهای زندهٔ نود)، نه با این erratum.
+
 ## ⚡ وضعیت سیزن — ۱۳ سپتامبر ۲۰۲۶ صبح (جدیدترین — بلوک ۱۱ سپتامبر را می‌پوشاند)
 
 > منبع: کمیت‌های رسیددار این نشست — شاخه‌های محلی `agent/eti-live-shadow-20260912-093355` (69992c8)، `…-153558` (7ddecc6)، `agent/eti-collector-read-20260912-160506` (829c5b7)، `agent/eti-fast-convergence-20260912-163042` (620c9b5)، `agent/eti-action-canary-20260912-170130` (12c98a4)، `agent/autonomy-full-20260912-181321` (9f4a118)، `agent/autonomy-runtime-20260913-013905` (3a91334) + رسیدهای زندهٔ نود ۱۳۸. وضعیت‌های INFERRED صریح‌اند.

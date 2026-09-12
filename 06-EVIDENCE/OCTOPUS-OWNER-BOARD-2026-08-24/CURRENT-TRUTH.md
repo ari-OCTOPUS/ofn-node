@@ -233,3 +233,17 @@ MONEY       = unchanged: first-customer + W1 (call-service + hero text) remain t
 BOUNDS      = Class C never (money/keys/identity/DNS/irreversible/public-comms/TCB); kill-switch STOP-AUTONOMY live-proven
 LANES       = 7 local unpushed (eti x4, canary, autonomy x2): 69992c8/7ddecc6/829c5b7/620c9b5/12c98a4/9f4a118/3a91334
 ```
+
+### ERRATUM سیزن-۵ — ۲۰۲۶-۰۹-۱۳ ~21:00Z (الحاقی؛ بلوک بالا SUPERSEDED_BY_RUNTIME_EVIDENCE)
+```text
+SUPERSESSION = commit 3ee6414 recorded CLASS_A_B_AUTONOMY_PERSISTENT + CLASS_B ACTIVE for deployed v1.1 (149b42e2);
+              runtime evidence: v1.1 FAILED the 13 new frozen acceptance tests; kill-switch STOP-AUTONOMY (7dc3d775)
+              paused autonomy 2026-09-12T19:34Z; every tick since wrote only KILL_SWITCH_STOP; collectors ran independently;
+              CLASS_B_EXECUTED=0 (no Class B action ever occurred); Class A/B both paused during repair.
+REPAIR       = AUTONOMY-TCB-RECOVERY-20260913 (owner SCOPED_CLASS_C_TCB_REPAIR = option 1 of OWNER-DECISION.md):
+              supervisor v1.2 (33ea3691, commits dfaa9ea+c92eb08) deployed on 138 with kill-switch ACTIVE;
+              13/13 frozen acceptance green (local + against deployed bytes); 239/239 regression; 0 skipped; scans clean.
+FINAL_STATE  = determined ONLY by post-reactivation runtime receipts (queue append-only, Class A task, Class B armed),
+              NOT by this erratum; documentation update is not a runtime recovery.
+PREDICTIONS  = frozen rows untouched; due 2026-09-13T00:30Z/06:30Z; auto-reconcile executes only after safe Class A reactivation.
+```

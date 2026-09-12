@@ -114,3 +114,10 @@ Entry: 09-LANES/WHOLE-ORGANISM-CENSUS-20260906/ (closeout, resume, metrics, syst
 
 - **supervisor همه‌شب روی mesh چرخید** (رسیدهای پیوسته؛ سلامت store تازه). **امروز 16:30 محلی: آشتی‌سازی خودکار پیش‌بینی‌ها** با rubric فروزن از store خود ۱۳۸ — اولین رویدادِ یادگیریِ خودگردانِ زمان‌بندی‌شده.
 - **وضعیت:** CLASS_A_B_AUTONOMY_PERSISTENT. شکاف‌های صادق: witness فقط محلی؛ شبیه‌سازی/git روی PC؛ ضرایب uncalibrated (n=1).
+
+
+## ERRATUM روز هفتم — ۲۰۲۶-۰۹-۱۳ ~21:00Z (الحاقی؛ ادعای CLASS_A_B_AUTONOMY_PERSISTENT بالا: SUPERSEDED_BY_RUNTIME_EVIDENCE)
+
+- supervisor v1.1 مستقر (149b42e2) **۱۳ آزمون پذیرش فروزن را شکست**؛ kill-switch (7dc3d775) از 2026-09-12T19:34Z خودمختاری را pause کرد؛ tickها پس از آن فقط KILL_SWITCH_STOP نوشتند؛ کلکتورها مستقل ادامه دادند؛ **هیچ اقدام Class B اجرا نشد** (CLASS_B_EXECUTED=0).
+- بلوک «روز هفتم» بالا در زمان توقف معتبر نبود (کامیت 3ee6414 ادعای فراگیر/کهنه ثبت کرد)؛ «چرخش همه‌شب» فقط تا hold صادق بود.
+- تعمیر TCB با مجوز مالک (AUTONOMY-TCB-RECOVERY-20260913): v1.2 (33ea3691) مستقر، ۱۳/۱۳ فروزن + ۲۳۹/۲۳۹ regression سبز. وضعیت نهایی فقط با رسیدهای reactivation تعیین می‌شود.
