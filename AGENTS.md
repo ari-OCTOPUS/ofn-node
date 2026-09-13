@@ -3,6 +3,14 @@
 Every agent working in this repository (Cursor Agent, Cursor CLI, cloud agent, Tab) is bound by this file.
 Nested `AGENTS.md` files in subdirectories add constraints; they never remove them.
 
+## GOV-FREEDOM-V2 — OPERATIONAL FREEDOM (owner, 2026-09-13)
+
+سند کامل، با متن عین مالک: `06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-FREEDOM-V2-2026-09-13.md`.
+پیش‌فرض برای کار داخلیِ غیر-TCB و برگشت‌پذیر: **PROCEED** — نه «ASK OWNER».
+پرسیدن از مالک فقط در مرزهای سرخِ بند ۱۰ همان سند (تغییر TCB/منشور، خاموش‌کردن شاهد/رسید/rollback/kill-switch، تغییر اختیار مالک، دسترسی به secret خام، RBAC، هزینهٔ بالای بودجهٔ مصوب، خرید/پرداخت، ارتباط عمومی، DNS/فایروال، فریمور، حذف دادهٔ یکتا/ناشناخته، بازنویسی تاریخ git، ماشین ناشناخته، اثر برگشت‌ناپذیر بیرونی).
+Class A خودکار است؛ برای گام‌های توسعهٔ عادی (کدنویسی، تست، سندباکس، بسته‌سازی، کامیت محلی، shadow) شاهد ۱۸۲ لازم نیست — شاهد همچنان پیش از deploy کلاس B الزامی است.
+این حکم هیچ‌یک از قفل‌های دائمی GOV-V7، مسیر رسید، rollback یا kill-switch را باز نمی‌کند و TCB را تضعیف نمی‌کند.
+
 ## GOV-V8 — OWNER OVERRIDE (REVENUE-IGNITION) (2026-09-05)
 
 `GOV-V8 (REVENUE-IGNITION)` بالادست بندهای wire، outgoing_message و budget است.

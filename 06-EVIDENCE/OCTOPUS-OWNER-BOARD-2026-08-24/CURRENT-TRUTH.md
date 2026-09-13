@@ -329,3 +329,25 @@ GAP_G3        = one self-measurement source missing: load1_138_p95_poststagger_w
                 scoped proposal, NOT applied.
 VERDICT       = the organism plans, acts, verifies, repairs, budgets, spends and reports without the PC.
 ```
+
+### آزادی عملیاتی V2 — ۲۰۲۶-۰۹-۱۳ ~04:30Z (HIGH_FREEDOM_AUTONOMY_ACTIVE)
+```text
+AUTHORITY    = owner directive 2026-09-13 (کاملا ازادش کن), verbatim in GOV-FREEDOM-V2-2026-09-13.md.
+DEFAULT      = PROCEED for internal non-TCB reversible work; ASK only at RED boundaries (TCB changes,
+              witness/receipts/rollback/kill-switch removal, owner authority, raw secrets, RBAC,
+              over-budget spend, purchases, public comms, DNS/firewall, firmware, unique-data deletion,
+              git history rewrite, unknown machines, irreversible effects).
+DEPLOYED     = coding_worker v1.4.0-freedom-v2 2435ec4c9beb8198d2457c12 : octopus.patch.v1 free-form
+              multi-file non-TCB patches (allowlist roots ops-agent/coding-worker/eti; deny markers
+              autonomy/.config/secrets/witness-pins/tcb-manifest/api-budget//etc/.ssh; anchor-exactly-once;
+              ast.parse gate; stage tests; per-file rollback backups; sequential per-file canary ->
+              witness still gates deploy). providers c4e3380b170bb6a41ebde23d select(need);
+              api_budget c4938caca4d7b8e5638ae1d6 critique() = second different healthy provider,
+              one 0.25-capped call inside the 3-calls/task budget. Up to 3 tasks per tick.
+VERIFIED     = 6/6 adversarial validator cases PASS; stubbed happy path PASS (no spend, no deploy);
+              live worker ticks healthy on v1.4 (04:12Z/04:18Z/04:23Z Result=success).
+ENUM_PATH    = retained as the weak-local-model fallback (not removed).
+PHASE_2_OPEN = emergency no-witness recovery (TCB edit, frozen test battery first), sequential
+              cross-node apply, GitHub push (owner toggle pending).
+NOT_WEAKENED = kill-switch, receipts, rollback, witness-before-Class-B-deploy, GOV-V7 three locks.
+```
