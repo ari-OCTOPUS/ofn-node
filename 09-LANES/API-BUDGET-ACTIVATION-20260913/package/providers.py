@@ -389,7 +389,9 @@ ROUTES_FILE = CONFIG_DIR / "provider-routes.json"
 # Deterministic route rank: free local first, then measured-cheapest live paid,
 # then stronger, then the independent reviewer. Never a silent failover: every
 # skipped provider has a recorded status reason.
-ROUTE_RANK = ("local-llamacpp-180", "gemini", "deepseek", "openai",
+# OWNER DECISION 2026-09-13: deepseek is the PREFERRED default for ordinary work
+# (was "cheapest healthy" = gemini). Budget caps unchanged by the same ruling.
+ROUTE_RANK = ("local-llamacpp-180", "deepseek", "gemini", "openai",
               "sakana-fugu", "anthropic")
 
 LIVE = "LIVE"

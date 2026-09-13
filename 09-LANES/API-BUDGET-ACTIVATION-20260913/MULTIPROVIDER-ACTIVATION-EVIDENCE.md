@@ -89,6 +89,9 @@ not exist. Resolved against the provider's own list and recorded in
 chain: deterministic → local-llamacpp-180 → gemini → deepseek → openai → WAITING_COGNITION
 skipped by name: sakana-fugu (ACCOUNT_LIMIT_REACHED), anthropic (BLOCKED_WORKSPACE_SCOPE)
 ```
+> ⚠️ این ترتیب، حالتِ **لحظهٔ فعال‌سازی** است. با حکم مالک (§11) پیش‌فرض به `deepseek`
+> تغییر کرد و جدول فروزن بازنویسی شد؛ ترتیب جاری:
+> `deterministic → local-llamacpp-180 → deepseek → gemini → openai → WAITING_COGNITION`.
 * Frozen table: `config/provider-routes.json` (schema `octopus.provider-routes.v1`).
 * Measured health: `config/provider-health.json`.
 * `paid_call()` now selects by health-aware rank instead of registry order, so a
@@ -148,8 +151,22 @@ The credential file itself is never deleted by a rollback.
 2. **Sakana account window** — its credential works; the account is rate/usage limited.
    No action needed unless you want it in rotation immediately.
 
-## 11. Hazard for future changes
+## 11. Owner decision on the budget — 2026-09-13 (recorded after activation)
 
+The owner was asked directly (as required: budget is not an agent decision) and answered:
+
+| Question | Owner answer | Effect |
+|---|---|---|
+| Shared budget caps now that three providers are live | **UNCHANGED** | window1 `$20` / window2 `$20` / steady `$10` per 24h / `$100` month / `$2` per task / 3 calls per task / concurrency 1 / no rollover / no borrowing — exactly as the original authorization |
+| Default provider for ordinary work | **`deepseek`** (was "cheapest healthy" = gemini) | `ROUTE_RANK` changed to `local → deepseek → gemini → openai → sakana → anthropic`; frozen table rewritten with an `owner_decision` block |
+
+Proof of the new default: task `owner-default-proof-20260913` was served by `deepseek-flash`
+(cost `$0.00156`). Session spend is now **`$0.083992`** of window1 (35 ledger rows).
+
+Note the caps are **shared, not per provider**: adding providers did not and cannot raise
+them. `no_rollover`, `no_borrowing` and `no_automatic_overage` remain `true`.
+
+## 12. Hazard for future changes
 `external-models.env` leaves `FUGU_API_KEY` and `OFN_REMOTE_API_KEY` **empty**, and an
 empty value in a later `EnvironmentFile=` shadows an earlier one. It is therefore
 **not** added to `ofn.service` on purpose: doing so would blank those two variables and
