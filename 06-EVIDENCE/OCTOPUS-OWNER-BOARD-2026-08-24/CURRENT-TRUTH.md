@@ -388,3 +388,19 @@ B8_QUEUE     = [TASK-OPS-BUDGET-CATSCOPE-005, B5-MEASURED-RECOVERY-001] — both
               both $0 until deploy, witness mandatory.
 COMMITS      = 19c3c34 (real-work bridge) -> 884d92a (B5 fix queued + decisions).
 ```
+
+### حلقهٔ دائمی پول — 2026-09-13 ~05:00Z (REVENUE_DRIVE_LIVE)
+```text
+DRIVE        = octopus-revenue-drive.{service,timer}: every 6h, deterministic, $0, never sends
+              externally. Receipts state/revenue-drive/receipts.jsonl; owner-review.json carries the
+              approval-gated items (traffic purchase / public comms are RED boundaries).
+DIAGNOSIS    = store LIVE, store-watch every 30min: 249 CONSECUTIVE zero-order checks (~5 days);
+              no active lead/inbox/quote work found in state. The bottleneck is DEMAND GENERATION,
+              not delivery — and until now no loop owned demand.
+FIRST_REVIEW = orders 0 | month_spent $0.086632 | month_remaining $99.913368 | runway ~10 days at
+              the $10/24h steady cap | owner item TRAFFIC-DECISION raised.
+OWNER_LOCK   = the single real money unlock is an owner decision: approve ad/traffic budget, or
+              approve an owner-sent outreach list, or name the target market/channel (assets are
+              then prepared locally).
+RULE         = paid cognition never burns the budget on money thoughts — this loop is deterministic.
+```
