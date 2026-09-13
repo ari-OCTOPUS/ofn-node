@@ -8,6 +8,15 @@ updated: 2026-09-13
 
 # 🐙 داده‌های حیاتی اختاپوس — هر ایجنت باید این را بخواند
 
+## ✅ تأیید پس از تعمیر (الحاقی ۲۰۲۶-۰۹-۱۳ ~00:45Z) — CLASS_A_PERSISTENT_CLASS_B_RECOVERY_ARMED با شاهد اجرا
+
+> منبع: رسیدهای زندهٔ نود ۱۳۸ (رسید زنجیره‌ای، بدون دخالت PC در اجرا). پیگیری زمان‌بندی‌شدهٔ لِین AUTONOMY-TCB-RECOVERY-20260913.
+
+- **اولین Class A queue-task خودگردان کامل شد**: پیش‌بینی سررسید 00:30Z (`pred-20a65c884f7c7f3b`) در tick ساعت 00:34:39Z خودکار آشتی شد — چرخهٔ کامل append-only در صف: DISCOVERED→TRIAGED→AUTHORIZED→EXECUTING→VERIFYING→VERIFIED→CLOSED (تسک `task-18efa63cc977`)، زنجیرهٔ صف/لجر/رسیدها همه معتبر (289/10/6 ردیف)، صفر GLOBAL_AUTONOMY_PAUSE و صفر TICK_ABNORMAL_STOP، کلکتور تازه، `CLASS_B_EXECUTED=0`.
+- **نتیجهٔ صادقانهٔ آشتی‌سازی: `EXPIRED_UNOBSERVED`** (رسید `d585b88b52019a4dd4e5750474b7f56e4d91bb08ca79cd28440d308208999498`) — چون هدف پیش‌بینی `load1_138_p95_poststagger_window` است و منبعِ فروزنِ آشتی‌سازی فقط مشاهدهٔ `cpu_headroom` را استخراج می‌کند (269 مشاهدهٔ در-پنجره موجود بود اما برای این هدف نمی‌شود از آن‌ها استفاده کرد). داده جعل نشد؛ پوشش منبع load1 = کار آینده با رأی مالک.
+- پیش‌بینی `pred-e0e80e1d` (سررسید 06:30Z) دست‌نخورده باقی می‌ماند.
+- وضعیت: **CLASS_A_PERSISTENT_CLASS_B_RECOVERY_ARMED — CONFIRMED BY RUNTIME EVIDENCE** (v1.2 هش `33ea3691` روی نود).
+
 ## ⚠️ ERRATUM (الحاقی ۲۰۲۶-۰۹-۱۳ ~21:00Z) — ادعای سیزن-۵ زیرین: SUPERSEDED_BY_RUNTIME_EVIDENCE
 
 > منبع: لِین `AUTONOMY-TCB-RECOVERY-20260913` (کامیت dfaa9ea/c92eb08؛ دستور مالک SCOPED_CLASS_C_TCB_REPAIR) + شواهد زندهٔ نود ۱۳۸ + گزارش لِین AUTONOMY-COMPLETION-20260913.

@@ -121,3 +121,10 @@ Entry: 09-LANES/WHOLE-ORGANISM-CENSUS-20260906/ (closeout, resume, metrics, syst
 - supervisor v1.1 مستقر (149b42e2) **۱۳ آزمون پذیرش فروزن را شکست**؛ kill-switch (7dc3d775) از 2026-09-12T19:34Z خودمختاری را pause کرد؛ tickها پس از آن فقط KILL_SWITCH_STOP نوشتند؛ کلکتورها مستقل ادامه دادند؛ **هیچ اقدام Class B اجرا نشد** (CLASS_B_EXECUTED=0).
 - بلوک «روز هفتم» بالا در زمان توقف معتبر نبود (کامیت 3ee6414 ادعای فراگیر/کهنه ثبت کرد)؛ «چرخش همه‌شب» فقط تا hold صادق بود.
 - تعمیر TCB با مجوز مالک (AUTONOMY-TCB-RECOVERY-20260913): v1.2 (33ea3691) مستقر، ۱۳/۱۳ فروزن + ۲۳۹/۲۳۹ regression سبز. وضعیت نهایی فقط با رسیدهای reactivation تعیین می‌شود.
+
+
+## تأیید پس از تعمیر — ۲۰۲۶-۰۹-۱۳ ~00:45Z (الحاقی)
+
+- **CLASS_A_PERSISTENT_CLASS_B_RECOVERY_ARMED تأیید شد با شاهد اجرا**: اولین Class A queue-task خودگردان کامل شد — آشتی‌سازی خودکار پیش‌بینیِ سررسید 00:30Z (`pred-20a65c88`) در tick 00:34:39Z، چرخهٔ کامل append-only تا CLOSED؛ زنجیره‌ها معتبر؛ صفر PAUSE/ABNORMAL؛ `CLASS_B_EXECUTED=0`؛ کلکتور تازه.
+- نتیجهٔ آشتی صادقانه `EXPIRED_UNOBSERVED` (رسید `d585b88b…9998`) — هدف load1 در منبع فروزن مشاهده ندارد؛ داده جعل نشد. پوشش load1 = کار آینده.
+- `pred-e0e80e1d` (06:30Z) دست‌نخورده.

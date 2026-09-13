@@ -247,3 +247,16 @@ FINAL_STATE  = determined ONLY by post-reactivation runtime receipts (queue appe
               NOT by this erratum; documentation update is not a runtime recovery.
 PREDICTIONS  = frozen rows untouched; due 2026-09-13T00:30Z/06:30Z; auto-reconcile executes only after safe Class A reactivation.
 ```
+
+### تأیید پس از تعمیر — ۲۰۲۶-۰۹-۱۳ ~00:45Z (الحاقی؛ runtime evidence)
+```text
+CONFIRMED   = CLASS_A_PERSISTENT_CLASS_B_RECOVERY_ARMED confirmed by runtime evidence: first autonomous Class A queue-task
+              completed append-only (reconcile pred-20a65c884f7c7f3b, due 00:30Z, executed 00:34:39Z; task task-18efa63cc977
+              DISCOVERED->...->CLOSED; entry_hash d585b88b52019a4dd4e5750474b7f56e4d91bb08ca79cd28440d308208999498).
+CHAINS      = receipts 289 / queue 10 / preds 6 all valid; 0 GLOBAL_AUTONOMY_PAUSE; 0 TICK_ABNORMAL_STOP; collector fresh.
+CLASS_B     = still 0 executions ever; armed collector-recovery only.
+OUTCOME     = reconcile status EXPIRED_UNOBSERVED (honest fail-closed): target load1_138_p95_poststagger_window has no
+              observation extractor in the frozen reconcile source (cpu_headroom-only); 269 in-window generic obs existed;
+              nothing fabricated. load1 source coverage = future owner-visible work.
+REMAINING   = pred-e0e80e1d (due 06:30Z) untouched/OPEN.
+```
