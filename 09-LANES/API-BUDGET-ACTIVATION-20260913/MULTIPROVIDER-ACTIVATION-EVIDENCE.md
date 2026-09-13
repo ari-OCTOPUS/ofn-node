@@ -172,3 +172,36 @@ empty value in a later `EnvironmentFile=` shadows an earlier one. It is therefor
 **not** added to `ofn.service` on purpose: doing so would blank those two variables and
 break the legacy `RemoteBrain` path (which still reads `secrets.env`). If that file is
 ever loaded into a service environment, those two names must be filled or removed first.
+
+## 13. Anthropic activation + an exposed credential — 2026-09-13
+
+**Anthropic is now LIVE.** The blocker was never the credential: the stored key was valid,
+but an org key that is *not* workspace-scoped must name the workspace on every request.
+Adding one **identifier** fixed it:
+
+| Step | Detail |
+|---|---|
+| Change | `ANTHROPIC_WORKSPACE_ID=wrkspc_018nwWxwbbKqgzZbLsZjMn5N` appended to the secure file (a workspace **identifier**, not a credential) |
+| Credential used | the one **already in the secure file**; it was never printed, copied or moved |
+| File state after | `owner=ari:ari`, `mode=600` (unchanged) |
+| Models endpoint | HTTP 200, **11 models** — including every configured name (`claude-haiku-4-5-20251001`, `claude-sonnet-5`, `claude-opus-5`, `claude-fable-5-1`) |
+| Canary | one call, `$0.25` cap, served **`claude-sonnet-5`**, cost **`$0.00052`** |
+| Route | now a live candidate: `… → openai → anthropic → WAITING_COGNITION` |
+
+Live set is now **four paid providers + the free local rung**; `sakana-fugu` remains the only
+skipped provider (`ACCOUNT_LIMIT_REACHED`). Session spend **`$0.084512`** of window1 (37 rows).
+
+### ⚠️ Exposed credential — rotation required, NOT used
+
+A Claude API key was posted **in a chat transcript** (key id `apikey_01HYoiWGnN2BiBxvDMiy8FD3`,
+created 2026-09-13, scope OCTOPUS). Under the standing rules this is
+`CREDENTIAL_EXPOSURE_REQUIRES_ROTATION`:
+
+* it was **not read into any OCTOPUS surface**, **not stored**, **not used**, and the successful
+  canary above did **not** use it;
+* it does not appear in the secure file, the ledger, receipts or evidence;
+* the owner should **delete that key in the Anthropic console** and, if a new one is ever needed,
+  write it **directly into `/home/ari/.config/ofn/external-models.env`** — never into a chat.
+
+Nothing had to be rotated for OCTOPUS to work: the already-stored credential + the workspace
+identifier was sufficient. The exposed key can simply be deleted.
