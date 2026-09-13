@@ -351,3 +351,23 @@ PHASE_2_OPEN = emergency no-witness recovery (TCB edit, frozen test battery firs
               cross-node apply, GitHub push (owner toggle pending).
 NOT_WEAKENED = kill-switch, receipts, rollback, witness-before-Class-B-deploy, GOV-V7 three locks.
 ```
+
+### پل کار واقعی — ۲۰۲۶-۰۹-۱۳ ~04:45Z (REAL_WORK_BRIDGE_ACTIVE)
+```text
+DIRECTIVE   = owner 2026-09-13: no artificial task, demo canary or activity API call may enter the live
+              operational queue; fixtures stay inside isolated tests.
+GATES       = coding_worker provenance gate (REAL_* class + source + source_ts + source_hash, fixture=false;
+              else TASK_REJECTED_NO_REAL_WORLD_PROVENANCE — tested live) | api_budget purpose gate
+              (PAID_COGNITION_NOT_JUSTIFIED — tested live) | duplicate prompt gate (PAID_DUPLICATE_PROMPT,
+              reserve rows now carry the prompt context hash — tested live). No LLM decides evidence existence.
+QUEUE       = inspected, EMPTY; no artificial task was waiting; historical evidence preserved.
+BACKLOG     = 10 real candidates verified today in state/coding-worker/real-backlog.json. CATSCOPE patch
+              waits for B8 budget (wake 2026-09-14T01:49:08Z, BUDGET_NODE_24H frees; patch NOT regenerated).
+              pred-e0e80e1d reconciles automatically 06:30Z at $0. ANTHROPIC-WORKSPACE-SCOPE = RESOLVED.
+LIVE_PROOF  = EXPOSED-CREDENTIAL-ROTATION-REVIEW completed deterministically ($0): chat-pasted Claude key
+              HIGH (owner deletes apikey_01HYoiWGnN2BiBxvDMiy8FD3; never used/stored by OCTOPUS); local
+              backup-file window MEDIUM (contained, 0 misuse signals, optional rotation of TG/Shopify/Gmail/
+              session/sakana-alias names); identity.json contains no credential.
+LEDGER      = one admission-gate self-test call ~$0.0002 recorded with a correction receipt as SELFTEST.
+NEXT_EVENTS = 06:30Z prediction reconcile (deterministic) -> 2026-09-14T01:49Z B8 canary (witness-gated).
+```

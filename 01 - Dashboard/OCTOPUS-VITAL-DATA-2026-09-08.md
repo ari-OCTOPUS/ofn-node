@@ -331,3 +331,13 @@ Director (مغز: فهم/انتخاب) → Executor (کد: استخراج/اعت
 - **نقد مدل دوم (بند ۶):** `api_budget.critique()` یک ارائه‌دهندهٔ *متفاوت* سالم را برای بازبینی پچ چندفایلی صدا می‌زند (سقف $0.25، داخل سقف ۳ فراخوانی/تسک). انتخاب Need-aware: `select(patch)=deepseek`، `select(review)=anthropic`.
 - **همزمانی (بند ۹):** تا ۳ تسک کدنویسی در هر tick؛ فراخوانی پولی همچنان همزمانی ۱.
 - **فاز ۲ ثبت‌شده و باز:** مسیر اضطراری بدون شاهدِ ۱۸۲ (نیازمند ویرایش TCB با باتری آزمون فروزن)، اعمال ترتیبی چند-نود، و پوش GitHub (منتظر toggle مالک).
+
+## پل کار واقعی — ۲۰۲۶-۰۹-۱۳ ~04:45Z (REAL_WORK_BRIDGE_ACTIVE)
+
+> حکم مالک: «هیچ task مصنوعی، canary نمایشی یا API call برای نمایش فعالیت وارد صف عملیاتی نشود». گزارش: `09-LANES/API-BUDGET-ACTIVATION-20260913/REAL-WORK-BRIDGE-20260913.md`؛ رجیستری: `state/coding-worker/real-backlog.json`.
+
+- **دروازه‌های نصب‌شده (قطعی، بدون LLM):** تسک بدون `provenance.class` از نوع REAL_* + source/ts/hash ⇒ `TASK_REJECTED_NO_REAL_WORLD_PROVENANCE` (تست زنده: رد شد) · مقصدهای ممنوع (heartbeat/گزارش/formatting/fixture/demo/poll/انتظار) ⇒ `PAID_COGNITION_NOT_JUSTIFIED` · تسک+هش+provider تکراری ⇒ `PAID_DUPLICATE_PROMPT`. هر سه تست زنده شد.
+- **صف زنده بازرسی شد: خالی** — هیچ کار مصنوعی منتظر نبود؛ شواهد تاریخی حذف نشدند.
+- **Backlog واقعی (۱۰ مورد) ثبت و امروز راستی‌آزمایی شد:** پچ CATSCOPE منتظر B8 (بیدار: ۰۱-۰۹-۱۴T01:49Z، پچ دوباره تولید نمی‌شود) · پیش‌بینی ۰۶:۳۰Z خودکار و بدون API · breaker B5 باز با ریشهٔ دوم · اجارهٔ failover نود ۱۳۸ · WILD-IO · GitHub بلاک toggle مالک · **ANTHROPIC-WORKSPACE-SCOPE امروز RESOLVED شد** · SAKANA فقط سقف حساب (بدون retry، بدون بررسی IP) · **مرور چرخش کلید انجام شد (صفر API)** · نود ۱۹۱ منسوخ.
+- **اثبات زنده (اولویت ۱ امنیتی، صفر دلار):** کلید Claude چت‌شده = HIGH ⇒ حذف توسط مالک (`apikey_01HYoiWGnN2BiBxvDMiy8FD3`)؛ پنجرهٔ محلی فایل‌های backup (۲۲ مرداد→۱۳ سپتامبر، فقط کاربران محلی) = MEDIUM، مهار کامل، صفر سیگنال سوءاستفاده ⇒ چرخش اختیاری TG/Shopify/Gmail؛ `identity.json` بدون اعتبارنامه.
+- **صادقانه:** یک فراخوانی self-test دروازه ~$0.0002 خرج کرد که با رسید correction در لجر به‌عنوان SELFTEST ثبت شد؛ بقیهٔ این حکم $0.
