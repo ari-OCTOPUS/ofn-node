@@ -279,7 +279,7 @@ CHAT_KEY_WARN = a Claude key was posted in a chat transcript on 2026-09-13. It w
                 OCTOPUS (it is not in the secure file). A credential whose only copy is a chat/log is classified
                 CREDENTIAL_EXPOSURE_REQUIRES_ROTATION — the owner should DELETE it in the Anthropic console
                 (key id apikey_01HYoiWGnN2BiBxvDMiy8FD3) rather than reuse it.
-ROUTE_CHAIN   = deterministic -> local-llamacpp-180 -> deepseek -> gemini -> openai -> WAITING_COGNITION
+ROUTE_CHAIN   = deterministic -> local-llamacpp-180 -> deepseek -> gemini -> openai -> anthropic -> WAITING_COGNITION
                 (frozen in config/provider-routes.json). A non-LIVE provider is skipped BY NAME; there is no
                 silent failover and every route selection writes a ledger receipt.
 OWNER_DECISION= 2026-09-13: default provider for ordinary work = deepseek (was cheapest-healthy = gemini);
@@ -303,4 +303,29 @@ RULE          = never print, copy, prompt, or commit a credential value; paid ca
                 api_budget.paid_call(); never create a new key; do NOT add external-models.env to ofn.service
                 (its empty FUGU_API_KEY / OFN_REMOTE_API_KEY would shadow secrets.env and break the legacy
                 RemoteBrain path).
+```
+
+### حکم خودمختاری — ۲۰۲۶-۰۹-۱۳ ~04:10Z (AUTONOMOUS_OPERATIONAL_WITH_3_NAMED_GAPS)
+```text
+AUDIT         = 13-check autonomy audit on 138 + an in-sandbox runtime proof; re-runnable via
+                09-LANES/API-BUDGET-ACTIVATION-20260913/package/autonomy_audit.py
+LOOPS         = 26 timers; the three core timers are enabled at boot; supervisor 423 receipts (last tick
+                04:02:16Z), ops-agent armed B2-B8, coding-worker last tick 04:07:03Z; every core oneshot
+                ExecMainStatus=0 / Result=success; 0 GLOBAL_AUTONOMY_PAUSE; owner bridge active; no PC path
+                referenced by any runtime file. (Only failed host unit: smartmontools, unrelated.)
+SANDBOX_PROOF = the probe ran INSIDE octopus-coding-worker.service's own sandbox (ProtectHome=read-only,
+                PrivateTmp=true, User=ari): credential file read (16245 bytes), broker imported, 4 live
+                providers resolved, models endpoints 200 from inside, budget readable — and writing into
+                the credential directory FAILED (OSError). Paid cognition is available in production.
+GAP_G1        = code publication: ari-OCTOPUS/ofn-node has DEPLOY KEYS DISABLED, so autonomy/* cannot be
+                pushed. Owner-side toggle. Everything else in the git path is local and autonomous.
+GAP_G2        = CLASS_B_EXECUTED=0: armed, witness-gated, dry-run tested, never executed in production.
+                Manufacturing an event to "prove" it is forbidden, so it stays honestly open.
+GAP_G3        = one self-measurement source missing: load1_138_p95_poststagger_window reconciled as
+                EXPIRED_UNOBSERVED because the reconcile extractor recognises only cpu_headroom targets
+                (supervisor.py:296-317); the value IS measured but only inside cpu_headroom.raw
+                (eti/node_telemetry_collector.py:48,137). Editing the FROZEN reconcile/rubric source would
+                change a scoring formula mid-cycle, which AGENTS.md section 5 forbids — recorded as a
+                scoped proposal, NOT applied.
+VERDICT       = the organism plans, acts, verifies, repairs, budgets, spends and reports without the PC.
 ```
