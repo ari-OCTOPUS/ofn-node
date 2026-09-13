@@ -371,3 +371,20 @@ LIVE_PROOF  = EXPOSED-CREDENTIAL-ROTATION-REVIEW completed deterministically ($0
 LEDGER      = one admission-gate self-test call ~$0.0002 recorded with a correction receipt as SELFTEST.
 NEXT_EVENTS = 06:30Z prediction reconcile (deterministic) -> 2026-09-14T01:49Z B8 canary (witness-gated).
 ```
+
+### آمادگی شبانه — 2026-09-13 ~05:05Z
+```text
+B5_FIX       = second root cause FIXED-AND-QUEUED at $0 (deterministic, no model): the B5 success
+              predicate paths-absent is unfalsifiable for regenerating caches, so a real rm was
+              scored OUTCOME_MISMATCH and tripped the breaker. New predicate = measured byte recovery
+              (cache-bytes-freed, REAL-WORK-BRIDGE section 8). Stage test 1 passed; canary
+              native-B5-MEASURED-RECOVERY-001 queued behind CATSCOPE-005; both fire automatically at
+              the BUDGET_NODE_24H wake 2026-09-14T01:49:08Z, witness-gated. Superseded 004 moved to
+              superseded-tasks/ with hash preserved.
+OWNER_2026   = four decisions recorded: GitHub stays local-for-now (wake = owner changes mind);
+              chat-pasted Claude key -> OWNER deletes apikey_01HYoiWGnN2BiBxvDMiy8FD3; local-token
+              rotation deferred (not blocking); Sakana top-up deferred (auto-skip, no retries).
+B8_QUEUE     = [TASK-OPS-BUDGET-CATSCOPE-005, B5-MEASURED-RECOVERY-001] — both REAL_CODE_DEFECT,
+              both $0 until deploy, witness mandatory.
+COMMITS      = 19c3c34 (real-work bridge) -> 884d92a (B5 fix queued + decisions).
+```
