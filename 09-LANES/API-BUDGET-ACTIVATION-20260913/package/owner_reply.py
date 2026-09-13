@@ -109,33 +109,51 @@ def main():
             fh.write(json.dumps({"at": m["at"], "read_at": NOW, "decision": kind,
                                  "text": raw[:200]}, sort_keys=True) + "\n")
         receipt("OWNER_DECISION_READ", decision=kind, at_msg=m["at"])
-        acted = None
+        # associate the reply with the card it answers: explicit id/keyword
+        # match first, else the OLDEST pending card (FIFO matches card order)
+        KEYWORDS = {"MONEY-BATCH": ("پول", "بسته", "quote", "money"),
+                    "TRAFFIC-DECISION": ("ترافیک", "تبلیغ", "traffic", "ad")}
+        target = None
         for it in items:
-            iid = it.get("id")
-            if it.get("state") in ("RESOLVED", "EXECUTED"):
+            if it.get("state"):
                 continue
-            if kind == "APPROVE" and iid == "MONEY-BATCH":
-                import money_tools
-                acted = money_tools.execute_money_batch(
-                    packets=it.get("packets") or [],
-                    email_authorized=bool(APPROVE_PAT.search(r"(ایمیل|email)", raw)) or
-                                    re.search(r"(ایمیل|email)", raw, re.I) is not None)
-                it["state"] = "EXECUTED"; it["result"] = acted
-            elif kind == "APPROVE" and iid == "TRAFFIC-DECISION":
-                it["state"] = "RESOLVED"; acted = {"action": "traffic-approved"}
+            iid = str(it.get("id", ""))
+            if iid.lower() in raw.lower() or any(k in raw.lower()
+                                                 for k in KEYWORDS.get(iid, ())):
+                target = it
+                break
+        if target is None:
+            target = next((it for it in items if not it.get("state")), None)
+        acted = None
+        import money_tools
+        for it in ([target] if target else []):
+            iid = it.get("id")
+            if it.get("state") in ("RESOLVED", "RESOLVED_APPROVED", "RESOLVED_NOTED",
+                                   "EXECUTED", "REJECTED"):
+                continue
+            if kind == "REJECT":
+                it["state"] = "REJECTED"
+                acted = {"action": "rejected-by-owner"}
             elif kind == "RATE_CARD":
-                import money_tools
                 acted = money_tools.record_rate_card(raw)
                 it["state"] = "RESOLVED"; it["result"] = acted
+            elif kind == "APPROVE" and iid == "MONEY-BATCH":
+                acted = money_tools.execute_money_batch(
+                    packets=it.get("packets") or [],
+                    email_authorized=re.search(r"(ایمیل|email)", raw, re.I) is not None)
+                it["state"] = "EXECUTED"; it["result"] = acted
+            elif kind == "APPROVE":
+                it["state"] = "RESOLVED_APPROVED"
+                acted = {"action": "approved-no-typed-tool", "item": iid}
             elif kind == "CHANNEL" and iid == "TRAFFIC-DECISION":
-                import money_tools
                 acted = money_tools.prepare_channel_assets(raw[:200])
                 it["state"] = "RESOLVED"; it["result"] = acted
-            elif kind == "REJECT":
-                it["state"] = "REJECTED"
+            elif kind == "CHANNEL":
+                it["state"] = "RESOLVED_NOTED"
+                acted = {"action": "noted", "item": iid, "text": raw[:80]}
             if acted:
                 receipt("OWNER_DECISION_EXECUTED", item=iid,
-                        result=json.dumps(acted)[:300])
+                        result=json.dumps(acted, default=str)[:300])
                 break
         save_review(items)
     print(json.dumps({"at": NOW, "poll": status,
