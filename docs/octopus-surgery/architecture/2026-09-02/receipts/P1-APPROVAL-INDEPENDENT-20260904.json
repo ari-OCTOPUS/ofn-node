@@ -1,0 +1,116 @@
+{
+  "schema": "octopus.p1.receipt.v1",
+  "id": "P1-APPROVAL-INDEPENDENT-20260904",
+  "lane": "P1-APPROVAL-INDEPENDENT",
+  "recorded_at_utc": "2026-09-04T00:07:11Z",
+  "branch": "feat/p1-approval-independent-20260904",
+  "parent_full": "72a4c3d5cea6f0877200396cc30a13a116b2f46d",
+  "parent_subject": "feat(leads): 13 B2B accounts — strata/commercial/gov/subcontractor with relevance scores (#153)",
+  "worktree": "/tmp/ofn-p1-approval-independent",
+  "file_lock_zone": [
+    "ofn/kernel/approval_class.py",
+    "ofn/kernel/independent_pin.py",
+    "tests/test_approval_class.py",
+    "tests/test_independent_pin.py",
+    "tests/test_chaos_approval_independent.py",
+    "09-LANES/P1-APPROVAL-INDEPENDENT/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-APPROVAL-INDEPENDENT-20260904.json"
+  ],
+  "not_written": [
+    ".github/workflows/independent-review-gate.yml (GOV-V6 — do not weaken)",
+    ".github/CODEOWNERS (GOV-V6 — do not weaken)",
+    "ofn/kernel/attest_class.py (owned by #134 feat/p1-attest-manifest-20260903)",
+    "ofn/kernel/rollup_pin.py (owned by #134)",
+    "ofn/kernel/envelope.py (on origin/main)",
+    "ofn/kernel/events.py (on origin/main via #82)",
+    "ofn/adapters/run_store.py (on origin/main via #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82 — read-only re-run)",
+    "ofn/kernel/token_ceiling.py (on origin/main via #83)",
+    "ofn/kernel/dedup.py (on origin/main via #88)",
+    "ofn/kernel/settlement.py (on origin/main via #88)",
+    "ofn/kernel/campaign_bind.py (owned by #145)",
+    "ofn/kernel/send_fence.py (owned by #145)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/body_class.py (owned by #175)",
+    "ofn/kernel/host_pin.py (owned by #175)",
+    "ofn/kernel/nonce_class.py (owned by #173)",
+    "ofn/kernel/once_pin.py (owned by #173)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by incidents branch; appended separately)",
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-6919 @166de792a94d06c78f671f24ed10d22c1b2931e5 — not written)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main @72a4c3d (#153). Kernel-pure approval class (independent/author_self/bot/unlisted/unknown; missing approver or state is unknown not FALSE; COMMENTED is a shape error not an approval; bot marker is [bot] suffix; author or bot listed in the valid set still author_self/bot; empty valid_reviewers fails closed). Kernel-pure independent pin (independent_count >= required → satisfied; else any unknown → unknown not FALSE; else unsatisfied; required < 1 fails closed — lowering required-approvals does not satisfy; missing list is UNKNOWN not empty). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_* / ready_is_authorized / claims_immutable / unknown_is_false / unknown_is_independent / unknown_is_satisfied / author_self_is_independent / bot_is_independent / unlisted_is_independent / listed_bot_is_independent / listed_author_is_independent / proposal_is_execution / zero_required_satisfies / author_self_satisfies / bot_satisfies / unlisted_satisfies structurally False. No halt/resend/send knob. HALT stops STARTS, not classification. Not wired into run_store.py or independent-review-gate.yml. Does not claim filesystem immutability. Ready ≠ authorized. Trigger PR #134 require-independent-approval was REVIEW_REQUIRED — did not merge, did not weaken the gate, did not write attest-manifest files.",
+  "verification": {
+    "command": "python3 -m unittest tests.test_approval_class tests.test_independent_pin tests.test_chaos_approval_independent tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent -q",
+    "ran_at_utc": "2026-09-04T00:07:11Z",
+    "head_full_at_run": "72a4c3d5cea6f0877200396cc30a13a116b2f46d",
+    "exit_code": 0,
+    "result": "298 passed, 0 failed, 0 skipped",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError this host)",
+    "per_file": {
+      "tests/test_approval_class.py": "47 passed, 0 failed, 0 skipped",
+      "tests/test_independent_pin.py": "39 passed, 0 failed, 0 skipped",
+      "tests/test_chaos_approval_independent.py": "10 passed, 0 failed, 0 skipped",
+      "tests/test_kernel_purity.py": "10 passed, 0 failed, 0 skipped",
+      "tests/test_envelope.py": "35 passed, 0 failed, 0 skipped",
+      "tests/test_dedup.py": "12 passed, 0 failed, 0 skipped",
+      "tests/test_settlement.py": "11 passed, 0 failed, 0 skipped",
+      "tests/test_tmpdir.py": "4 passed, 0 failed, 0 skipped",
+      "tests/test_run_store.py": "79 passed, 0 failed, 0 skipped",
+      "tests/test_token_ceiling.py": "14 passed, 0 failed, 0 skipped",
+      "tests/test_run_gate.py": "21 passed, 0 failed, 0 skipped",
+      "tests/test_chaos_owner_absent.py": "16 passed, 0 failed, 0 skipped"
+    },
+    "new_module_plus_purity": {
+      "command": "python3 -m unittest tests.test_approval_class tests.test_independent_pin tests.test_chaos_approval_independent tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-04T00:06:58Z",
+      "exit_code": 0,
+      "result": "106 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @72a4c3d5cea6f0877200396cc30a13a116b2f46d — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on origin/main @72a4c3d — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on docs/octopus-os-incidents-20260902 (incidents PR #154)",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/main",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 134,
+    "branch": "feat/p1-attest-manifest-20260903",
+    "head_sha": "166de792a94d06c78f671f24ed10d22c1b2931e5",
+    "failed_check": "require-independent-approval",
+    "classification": "REVIEW_REQUIRED — not an engineering defect",
+    "author": "cursor[bot]",
+    "required_reviewers": ["Elahe-z", "aram-ui"],
+    "gate_touched": false,
+    "admin_bypass": false
+  },
+  "ready_vs_authorized": {
+    "campaign_envelope_ready_eq_send_authorized": false,
+    "grants_send": false,
+    "quote_sent": "forbidden — no newer scoped authorization"
+  },
+  "external_effects": 0,
+  "filesystem_immutability_claimed": false,
+  "evidence_grade": "E3",
+  "evidence_grade_note": "Negative and boundary cases green. Not E4: no held-out / scaffold-variation measurement.",
+  "body": "bc-9c13152a-6c66-49f7-8913-57b3ae7a5f8c"
+}
