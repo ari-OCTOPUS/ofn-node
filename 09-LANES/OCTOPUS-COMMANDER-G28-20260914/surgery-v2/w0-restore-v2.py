@@ -152,4 +152,6 @@ print("bytes:%s isolation:%s probe_errno:%s positive:%s" % (
     out["verdict_bytes"], out["verdict_isolation"],
     out["negative_probe"].get("errno_name", "?"),
     out["positive_control_scratch_write"]))
-sys.exit(0 if out["verdict_bytes"] == "PASS" else 1)
+sys.exit(0 if (out["verdict_bytes"] == "PASS"
+              and out["verdict_isolation"] == "PASS"
+              and not cfail) else 1)
