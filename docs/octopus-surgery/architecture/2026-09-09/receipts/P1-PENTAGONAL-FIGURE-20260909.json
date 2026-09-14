@@ -1,0 +1,97 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-PENTAGONAL-FIGURE-20260909",
+  "issued_utc": "2026-09-09T02:12:45Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "node_id": "bc-4011624c-b85c-42bd-816d-022dc989740a",
+  "asserted_ip": "unverified",
+  "branch": "feat/p1-pentagonal-figure-20260909",
+  "parent_head_full": "deb91decd5116ac5a7ad761d5d74ff8810b6d2ad",
+  "engineering_head_full": "c78ca6cbecf9063ab22897d2ce06f0f6a4fb89d6",
+  "file_lock_zone": [
+    "ofn/kernel/pentagonal_class.py",
+    "ofn/kernel/figure_pin.py",
+    "tests/test_pentagonal_class.py",
+    "tests/test_figure_pin.py",
+    "tests/test_chaos_pentagonal_figure.py",
+    "09-LANES/P1-PENTAGONAL-FIGURE/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-09/receipts/P1-PENTAGONAL-FIGURE-20260909.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-3c52 @435611424476f8b4b7899868701f0c65827efe80 — #251 tip; not written)",
+    "ofn/kernel/pell_class.py",
+    "ofn/kernel/silver_pin.py",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/carve_class.py",
+    "ofn/kernel/extract_pin.py",
+    "ofn/agents/b2b_discovery.py",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 pentagonal_class / figure_pin. classify_family names zero / pentagonal / other from one non-negative exact int as P_n = n(3n-1)/2 (P_0=0, P_1=1). Walk cross-checked by 24P_n+1=(6n-1)^2; disagreement fail-closes. sample START. classify/observe/inspect continue. Missing UNKNOWN not 0. Measured 0 is ZERO never PENTAGONAL. Measured 1 is PENTAGONAL index 1 never UNKNOWN. n<0 fails closed. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / pin_allows_send / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / wires_into_run_store / mints_run_id / consumes_nonce / hexagonal_is_pentagonal / triangular_is_pentagonal / square_is_pentagonal / pell_is_pentagonal / catalan_is_pentagonal / stride_is_pentagonal structurally False. halt_blocks_sample / later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from #250 pell/silver, #249 catalan/nest, unpublished hexagonal/lattice, unpublished triangular/series, #243 cube/cubic, #235 square/root, #225 carve/extract (parent on main), #238 EventEnvelope (untouched). Ready ≠ authorized.",
+  "verification": {
+    "new_module_purity": {
+      "command": "python3 -X utf8 -m unittest tests.test_pentagonal_class tests.test_figure_pin tests.test_chaos_pentagonal_figure tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-09T02:12:13Z",
+      "head_full_at_run": "deb91decd5116ac5a7ad761d5d74ff8810b6d2ad",
+      "exit_code": 0,
+      "result": "87 passed, 0 failed, 0 skipped"
+    },
+    "per_file_recount": {
+      "ran_at_utc": "2026-09-09T02:12:15Z",
+      "pentagonal_class": "50 passed",
+      "figure_pin": "20 passed",
+      "chaos": "7 passed",
+      "purity": "10 passed"
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_pentagonal_class tests.test_figure_pin tests.test_chaos_pentagonal_figure tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence tests.test_events tests.test_envelope_class tests.test_store_class tests.test_carve_class tests.test_extract_pin tests.test_revenue_states tests.test_incidents_log_policy -q",
+      "ran_at_utc": "2026-09-09T02:12:29Z",
+      "head_full_at_run": "deb91decd5116ac5a7ad761d5d74ff8810b6d2ad",
+      "exit_code": 0,
+      "result": "634 passed, 0 failed, 0 skipped"
+    },
+    "post_commit": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_pentagonal_class tests.test_figure_pin tests.test_chaos_pentagonal_figure tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence tests.test_events tests.test_envelope_class tests.test_store_class tests.test_carve_class tests.test_extract_pin tests.test_revenue_states tests.test_incidents_log_policy -q",
+      "ran_at_utc": "2026-09-09T02:12:44Z",
+      "head_full_at_run": "c78ca6cbecf9063ab22897d2ce06f0f6a4fb89d6",
+      "exit_code": 0,
+      "result": "634 passed, 0 failed, 0 skipped"
+    },
+    "post_commit_new_module": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_pentagonal_class tests.test_figure_pin tests.test_chaos_pentagonal_figure tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-09T02:12:45Z",
+      "head_full_at_run": "c78ca6cbecf9063ab22897d2ce06f0f6a4fb89d6",
+      "exit_code": 0,
+      "result": "87 passed, 0 failed, 0 skipped"
+    },
+    "pytest_module": "absent (ModuleNotFoundError)",
+    "tree_state": "clean after engineering commit c78ca6c; this receipt patch is the docs tip"
+  },
+  "trigger": {
+    "event": "ci_check_suite require-fresh-base + require-independent-approval",
+    "pr": 251,
+    "trigger_sha": "435611424476f8b4b7899868701f0c65827efe80",
+    "origin_main": "deb91decd5116ac5a7ad761d5d74ff8810b6d2ad",
+    "behind_main_at_trigger": 29,
+    "ahead_main_at_trigger": 4
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}

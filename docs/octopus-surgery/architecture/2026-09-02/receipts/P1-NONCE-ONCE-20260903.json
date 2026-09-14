@@ -1,0 +1,104 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-NONCE-ONCE-20260903",
+  "issued_utc": "2026-09-03T22:33:50Z",
+  "author": "cursor-cloud-agent bc-b68360e1-82b8-4dbe-837a-696ad185e1c3",
+  "owner_ratified": false,
+  "body": "bc-b68360e1-82b8-4dbe-837a-696ad185e1c3",
+  "branch": "feat/p1-nonce-once-20260903",
+  "parent_head_full": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/nonce_class.py",
+    "ofn/kernel/once_pin.py",
+    "tests/test_nonce_class.py",
+    "tests/test_once_pin.py",
+    "tests/test_chaos_nonce_once.py",
+    "09-LANES/P1-NONCE-ONCE/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-NONCE-ONCE-20260903.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-18f4 @a981086302c2b562bd02c55402ccc619afe4ef1e — same SHA as origin/main #172; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/idempotency.py",
+    "ofn/kernel/event_id.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/write_fence.py",
+    "ofn/agents/campaign_envelope.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure nonce_class + once_pin. admit_nonce classifies a caller-supplied nce- + 16 lowercase hex token for admit/replay_check without consuming it. admit is a START and is refused under HALT; replay_check continues. Malformed nonce/run_id refused, not FALSE. Timeout forces UNKNOWN and does not prove concurrent writing. pin_once consumes a classified (nonce, run_id) at most once. Second consume is already_consumed. Same nonce on a different run is nonce_collision. peek never writes. Sealed send/ready names refuse (sealed_effect). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_replay_check / halt_blocks_consume / consumes_nonce / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent / proposal_is_execution / promotes_ready_to_send / burns_idempotency_key / wires_into_run_store structurally False. Distinct from event_id (evt-), dedup (kind, ref), and idempotency (envelope hash). Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_nonce_class tests.test_once_pin tests.test_chaos_nonce_once tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-03T22:33:50Z",
+    "head_full_at_run": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+    "exit_code": 0,
+    "result": "267 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_nonce_class.py": "43 passed, exit 0 (recount 2026-09-03T22:33:49Z, same parent)",
+      "tests/test_once_pin.py": "33 passed, exit 0 (recount 2026-09-03T22:33:49Z, same parent)",
+      "tests/test_chaos_nonce_once.py": "12 passed, exit 0 (recount 2026-09-03T22:33:49Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-03T22:33:49Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_nonce_class tests.test_once_pin tests.test_chaos_nonce_once tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-03T22:33:49Z",
+      "exit_code": 0,
+      "result": "98 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @a981086302c2b562bd02c55402ccc619afe4ef1e — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on incidents branch origin/docs/octopus-os-incidents-20260902 @74d548f668701acd72b170a75f34e96b4625c9d6 (lxxiii published). Next append is lxxix.",
+    "CONTRIBUTING.md": "absent on origin/main @a981086 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_collision": {
+    "value_a": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+    "source_a": "this-run git fetch origin main 2026-09-03T22:28:55Z (subject #172 brain_wake)",
+    "value_b": "64f7e68fd550021235faedfbe443e42194c647ea",
+    "source_b": "prior-memory bypass-admin parent (#170)",
+    "value_c": "ab5d3d450c408cc31ba5fb2431241869d397a48e",
+    "source_c": "prior-memory session lxxiii (#158 glass_runner)",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-03T22:27:04.935Z",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "verdict": "Owner-absent hourly operator. REVIEW_REQUIRED blocks merge, not engineering. Did not merge. Did not weaken the gate. Did not write /workspace trigger checkout."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
