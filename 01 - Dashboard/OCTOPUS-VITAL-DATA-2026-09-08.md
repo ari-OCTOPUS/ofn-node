@@ -3,10 +3,43 @@ type: dashboard
 status: active
 tags: [octopus, capability, assessment, locks, revenue, bottleneck, critical-data]
 created: 2026-09-08
-updated: 2026-09-13
+updated: 2026-09-14
 ---
 
 # 🐙 داده‌های حیاتی اختاپوس — هر ایجنت باید این را بخواند
+
+> ⚡ **به‌روزرسانی 2026-09-14 ~10:20Z — قوس G28: یکپارچگی پیش از اثر، بازیابی صف و drill گذار · OCTOPUS-COMMANDER-G28-20260914**
+>
+> **اولین bind مالک→ارگانیسم (شاهد 05:13Z):** «Confirming a03b2ecc…» از چت مجاز مالک → spool دوام‌دار → تصمیم `ACK_SEEN` روی کارت STRATA-CHOICE → رجیستری `consumed`. این کارت **مصرف‌شده** است و دوباره pending نمی‌شود؛ آزمون ورودی واقعی بعدی به یک کارت تازهٔ بی‌اثر مالی نیاز دارد (پس از مستقرشدن W24).
+>
+> **اجراکننده (executor) اکنون `109e68c0` است — زنده و با تیک‌های واقعی:** زنجیرهٔ اصلاحات این قوس: dedupe کامل G28 (اسکن همهٔ executed) → **بازگرداندن گیت TCB** (G28-E: در اصلاح قبلی حذف شده بود و هدف TCB تا proposal می‌رفت) → resolution وابستگی‌ها G29 (مطلق ← spool ← executed) → **یکپارچگی پیش از اثر**: محتوای source/target/deps هنگام proposal فریز می‌شود و پیش از **هر** invocation دوباره سنجیده می‌شود — جهش محتوا، تعویض rename/symlink یا تغییر هدف/وابستگی پس از تأیید = بلاک کامل، مقصد بایت‌به‌بایت دست‌نخورده (ماتریس ۳۱/۳۱). فیلد `preconditions` درخواست‌ها حالا توسط خود executor اجرا می‌شود (نامعتبر = صف، بدون اثر).
+>
+> **صف استقرار (سه درخواست، همه با pin وابستگی به executor):** `G8 producer` (artifact 8da9471c = مسیریابی هویت‌محور + دوام کامل + اصلاح G30/G31) → `W24 binder` (b9c504f8؛ spool-consumer، هرگز getUpdates نمی‌زند) → `گارد G30 روی worker` (396e0a11؛ رد بایت‌های آلوده روی مسیر واقعی staging قبل از هر proposal). اسلات‌های سهمیه از ledger زنده: **2026-09-15T01:56:08Z (G8) و 02:34:47Z (W24)** — هر درخواست یک اسلات؛ خالی‌شدن سهمیه به‌تنهایی اجرا نمی‌آورد، درخواست‌ها هر تیک دوباره ارزیابی می‌شوند.
+>
+> **مهار گذار این‌بار آزموده شد، نه فقط نوشته:** drill ۸/۸ با بایت واقعی producer جدید + binder قدیمی + binder کاندیدا روی یک سرور حالت‌دار قفل‌دار: هم‌پوشانی هرگز double-bind نمی‌سازد (رجیستری one-use + idempotency متن)، takeover در فاصلهٔ مرگ binder قدیمی کار می‌کند، پردازهٔ قدیمیِ زنده در cutover ایمن است و کاندیدا **هرگز** poll نمی‌زند (از روی لاگ سرور ثابت شد). rollback تولیدکننده فقط با پیش‌شرطِ زنده‌بودن گیت‌های پول (f8187600) مجاز است — خودکار enforce می‌شود؛ pre-image درست ddee3da4 است (ad34b138 فیکس G13 را هم حذف می‌کرد = ممنوع).
+>
+> **جداسازی هویت اثبات شد:** توکن نامعتبر (هش با یک کاراکتر hex اضافه/کم، پیشوندهای چسبیده) **هرگز** با بریدن رشته به هویت معتبر تبدیل و مصرف نمی‌شود — REJECT با disposition و ماندن در مسیر غیرمالی. متن با دو هش معتبرِ متعلق به دو کارت، فعلاً یکی (بلندتر اول) را bind می‌کند — **اگر این نوع پیام معنادار است، تصمیم مالک لازم است**.
+>
+> **درآمد:** بدون تغییر جدید در این قوس — ۳ ارسال واقعی قبلی، `verified_cash = $0.00` (فقط VERIFIED_CASH درآمد است)، قیف ۶-ساعته و holds (`customer_send=false`, `GO-B4=false`, `hold_external=true`) برقرار.
+>
+> **منسوخ شد (نسبت به بلوک ~13:45Z سیزن قبل):** «ops_agent روی دیسک 71b8f0ad است و G22 فقط STAGED» → G22 از deploy 09-14T01:56Z به بعد LOADED است و اجراکننده حالا 109e68c0 · «زودترین پنجرهٔ 2026-09-14T01:49:08Z» → مصرف شد (B8 دو بار اجرا شد؛ پنجره‌های بعدی بالا) · «دوام سمت producer به ACK تلگرام تعمیم داده نشد» → با g27b (۱۴/۱۴، transport حالت‌دار + crash واقعی پردازه) تعمیم داده شد · «containment فقط نوشته شده» → drill ۸/۸ اجرا شد.
+
+> ⚡ **به‌روزرسانی ~13:45Z — بسته‌شدن G24 و رفع‌شدن G18 (شاهدِ اندازه‌گیری‌شده) · W24-COMMANDER-20260913-R6**
+>
+> **چه چیزی واقعاً بسته شد (با شاهد):**
+> - **G24 بسته شد.** envelope تشخیصی روی **همهٔ** مسیرهای خروج broker ۱۸۰: `validation`, `lock`, `transport`, `inference`, `empty_output`, `success`, `exception`. ساعت monotonic محلی + `lock_wait_s` + `llm_call_s` + `total_s` + `failure_stage`. `inference_duration` و `first_response_s` صریحاً `null` **با علت** (یک urlopen زمان صف سرور را از زمان تولید جدا نمی‌کند). پذیرش `PASS` روی ۶ مسیر با **timeout تزریقی ۲ ثانیه** (هیچ تستی ۱۲۰s منتظر نماند) و timeout/بودجهٔ production دست‌نخورده. `0ed0c6f3 → 2118cbb9`.
+> - **G18 علتش اندازه‌گیری شد، نه حدس.** envelope نشان داد `failure_stage=inference` و **`lock_wait_s=0.0`** (گیر lock نبود)، سرور llama سالم است (`/health → ok`, pid 597)، و سه رسید پیاپی `TimeoutError, tokens=0` بود. **فرضیهٔ قبلی («حذف newline stop علت است») با اندازه‌گیری باطل شد** — ۱۲۰.۲s در هر دو حالت. علت واقعی: **حجم تولید** (broker مستقل از caller تا ۲۰۴۸ توکن تولید می‌کرد و مدل ۰.۶B روی این سخت‌افزار در ۱۲۰s تمامش نمی‌کرد).
+> - **درمان محدود:** سقف تولید در حالت free-form شد `384`. اندازه‌گیری بعد: **`wall=10.6s`، `stage=success`، یک‌خطی، parse شد، `kind=octopus.patch.v1`, `files=1`**. یعنی مسیر شناخت محلی حالا **قادر** است سند کامل و معتبر بسازد. timeout و بودجه دست نخوردند.
+>
+> **مسیر ارگانیسم از صفر به خروجی واقعی:** با تایمر خودش — `TASK_STARTED → COGNITION_RESPONSE → PATCH_REJECTED`. **`resp_len` از ۰ به ۱۴۶۰ رسید** و excerpt نشان می‌دهد مدل همان سند `octopus.patch.v1` را ساخت. ولی `NO_JSON_DOC` ماند (`truncated=false`، `finish_reason=null`) — **علت parse‌نشدن اثبات‌نشده است**، از excerpt کامل باید دید نه از حدس. پس: «قرارداد و مسیر اثبات‌شده، تولید سند نهایی هنوز نه».
+>
+> **استقلال از PC (اسکن این دور):** هیچ فایل runtime به vault لپ‌تاپ یا `192.168.0.191` ارجاع نمی‌دهد · `backup_root` **محلی** است (`state_dir/backups`) · هیچ unit زنده‌ای WorkingDirectory بیرون ۱۳۸ ندارد · ارگانیسم اگر ۱۸۰ بیفتد crash نمی‌کند (`COGNITION_FAIL_CLOSED → paid_fallback → cognition-failed`). تنها نقطهٔ تماس با PC، **mirror germline** روی mount لپ‌تاپ است که **هیچ timer ای push/pull نمی‌کند** — و `ofn-sync-watchdog` اصلاح شد تا لپ‌تاپِ خاموش را **skip غیرمرگبار** بداند نه unit شکست‌خورده (`3701fc28 → 6acb4a7a`، حالا فقط `exit 0`).
+>
+> **وضعیت deploy — هیچ‌چیز مستقر نشده:** `ops_agent` روی دیسک `71b8f0ad` است، پس **G22 (enforcement وابستگی) STAGED است، نه LOADED**. ترتیب صف با لبه‌های dependency واقعی: `B8 → G8 producer → W24 binder → B5 → CATSCOPE`. زودترین پنجره `2026-09-14T01:49:08Z` (از ledger زنده؛ **eligibility تضمین اجرا نیست**).
+>
+> **باز:** `G19 lifecycle` (restart/cursor loss/rotation/truncation/replacement) · دوام سمت producer (PASS فعلی فقط مرز بایندر است و **به ACK تلگرام تعمیم داده نشد**) · `containment` (producer قدیمی با **هر** binder نشت دارد، پس تعویض binder containment نیست) · بستهٔ gate نهایی پول.
+>
+> **منسوخ شد:** ادعای «dependency در runtime enforce شده» (تصحیح: `TESTED_IN_STAGING, NOT VERIFIED_LOADED_RUNTIME`) · ادعای «تمام درخواست‌های ناآماده اجرا نمی‌شوند» · فرضیهٔ «newline stop علت timeout است» · ادعای «هیچ مسیر شناختی کار نکرده» (proposal route روزانه کار می‌کند).
 
 ## 📨 پرسش خودکار از مالک — ۲۰۲۶-۰۹-۱۳ ~05:12Z (OWNER_ASK_LIVE)
 
