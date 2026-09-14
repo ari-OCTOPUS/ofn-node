@@ -1,0 +1,64 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-STALE-FRESH-BASE-20260906",
+  "issued_utc": "2026-09-06T01:40:41Z",
+  "author": "cursor-cloud bc-f45143cd-e80b-4f07-a879-c91b6d0f9fe3 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-stale-fresh on feat/p1-stale-fresh-20260904. Merged origin/main @7a79798022aeaa6647032f2c4fefc1b17668b286 (#214 later-hold) into existing PR #186. Pre-merge HEAD 3a4a516751282fe871b2ab977f7db1cfe60231e6. Post-merge HEAD a59959e821e4f863191c3f92b2f479620e9d9a3f contains origin/main (git merge-base --is-ancestor YES). /workspace stayed on cursor/taskenvelope-system-hardening-c296 @3a4a516751282fe871b2ab977f7db1cfe60231e6 and was not written.",
+  "scope_not_measured": [
+    "full-suite CI after this push (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)",
+    "independent CODEOWNERS approval"
+  ],
+  "action": "require-fresh-base repair on existing #186 only. Merge origin/main; do not rewrite stale_class/fresh_pin; do not open a second stale-fresh PR. Ready ≠ authorized.",
+  "delivered": {
+    "merge": "origin/main 7a79798022aeaa6647032f2c4fefc1b17668b286 into feat/p1-stale-fresh-20260904. ort strategy, no conflicts. 7 files from #214 added (later_hold/scoped_authz). stale_class.py and fresh_pin.py unchanged by this merge.",
+    "behind_before": "3 ahead / 1 behind origin/main (git rev-list --left-right --count origin/feat/p1-stale-fresh-20260904...origin/main at 2026-09-06T01:39:29Z). Missing commit: 7a79798 feat(kernel): later-hold classify and scoped-authz pin (#214).",
+    "behind_after": "4 ahead / 0 behind origin/main at a59959e821e4f863191c3f92b2f479620e9d9a3f"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_stale_class tests.test_fresh_pin tests.test_chaos_stale_fresh tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_settlement tests.test_write_fence tests.test_clock_bind tests.test_utc_class tests.test_deadline_window tests.test_timeout_verdict tests.test_events tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-06T01:40:41Z",
+    "head_full": "a59959e821e4f863191c3f92b2f479620e9d9a3f",
+    "exit_code": 0,
+    "result": "557 passed / 0 failed / 0 skipped (unittest 'Ran 557 tests in 0.695s' / OK).",
+    "new_module_counts_utc": "2026-09-06T01:40:47Z",
+    "new_module_counts": "stale 40 / fresh 27 / chaos_stale_fresh 8 / later_hold 43 / scoped_authz 39 / chaos_later_hold 7 / purity 10 / incidents_policy 4 (each module exit 0)",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "clean after merge, before this receipt commit. Merge dirt was origin/main #214 files only.",
+    "worktree": "/tmp/ofn-p1-stale-fresh",
+    "file_lock_zone": [
+      "feat/p1-stale-fresh-20260904 merge of origin/main",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-STALE-FRESH-BASE-20260906.json",
+      "09-LANES/P1-STALE-FRESH/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "Did not rewrite ofn/kernel/stale_class.py or ofn/kernel/fresh_pin.py",
+      "Did not write later_hold.py / scoped_authz.py (landed on main as #214; merge only)",
+      "Did not open a second stale-fresh PR",
+      "Did not merge #186",
+      "Did not weaken CODEOWNERS / branch protection / required-approvals",
+      "grants_send / ready_is_authorized remain structurally False on stale_class and fresh_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "contains_origin_main": true,
+    "origin_main_full": "7a79798022aeaa6647032f2c4fefc1b17668b286",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git merge ancestry)",
+  "not_duplicated": "Did not rewrite #186 modules. Did not open a second stale-fresh PR. later_hold/scoped_authz came from already-merged #214 on origin/main."
+}

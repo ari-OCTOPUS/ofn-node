@@ -1,0 +1,53 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-SCOPE-LIMIT-20260904",
+  "issued_utc": "2026-09-04T12:27:00Z",
+  "author": "cursor-cloud bc-670dcb0f-e381-4491-b1b3-15ed22688e08 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-scope-limit on feat/p1-scope-limit-20260904 parent origin/main @e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9 (#181). scope_class.py and limit_pin.py ABSENT on parent (ls). /workspace stayed on cursor/bc-670dcb0f-e381-4491-b1b3-15ed22688e08-8786 @e00c8ed and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary scope_class + limit_pin — new files only. inspect/classify continue under HALT; start is a START and is refused when halted. Ready structurally ≠ authorized. Later disarm supersedes older authorization. Not a second campaign_bind, send_fence, task_bind, later_hold/scoped_authz, or write_fence PR.",
+  "delivered": {
+    "ofn/kernel/scope_class.py": "classify_action: None→UNKNOWN; inspect/classify/start (+case)→canonical; send_authorized/quote_sent/campaign_envelope_ready/unknown/empty/bool fail closed; bind_scope records pair and is frozen; try_bind missing→None; admit_scope inspect/classify True even when halted, start False when halted, missing→None, halted must be exact bool; grants_send/ready_is_authorized/promotes_ready_to_send structurally False; halt_blocks_start structurally True; later_disarm_supersedes structurally True",
+    "ofn/kernel/limit_pin.py": "pin_limit first→limited, same pair→already_limited, different action→action_collision; peek never writes; missing peek→None; pin_allows_send always False; pin_allows_start only for start; grants_send structurally False; not wired into run_store.py",
+    "tests/test_scope_class.py": "E3 negatives: sealed send/ready names, unknown string, empty, bool/int, frozen retcon, non-bool halted, run_store import absence",
+    "tests/test_limit_pin.py": "E3 negatives: collision, sealed hand-built bind, peek sealed run_id, missing UNKNOWN",
+    "tests/test_chaos_scope_limit.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_scope_class tests.test_limit_pin tests.test_chaos_scope_limit tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_campaign_bind tests.test_send_fence tests.test_typed_event tests.test_receipt_bind tests.test_dedup tests.test_receipts tests.test_write_fence -q",
+    "ran_at_utc": "2026-09-04T12:27:00Z",
+    "parent_head_full": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "exit_code": 0,
+    "result": "426 passed / 0 failed / 0 skipped (unittest 'Ran 426 tests in 0.771s' / OK). New-module+purity: 74 passed @ 2026-09-04T12:26:50Z (scope 31 / pin 24 / chaos 9 / purity 10).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified this-run)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-scope-limit).",
+    "worktree": "/tmp/ofn-p1-scope-limit",
+    "file_lock_zone": [
+      "ofn/kernel/scope_class.py",
+      "ofn/kernel/limit_pin.py",
+      "tests/test_scope_class.py",
+      "tests/test_limit_pin.py",
+      "tests/test_chaos_scope_limit.py",
+      "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-SCOPE-LIMIT-20260904.json",
+      "09-LANES/P1-SCOPE-LIMIT/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as action",
+      "admit_scope(start, halted=True) is False; inspect continues",
+      "timeout does not prove concurrent writing",
+      "later_disarm_supersedes is True; grants_send is False",
+      "run_store source does not import scope_class or limit_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "campaign_bind / send_fence (#145) / campaign_envelope (#76) / task_bind / intent_pin (#191) / write_fence (#116) / later_hold / scoped_authz (unpublished) / envelope.py / run_store.py"
+}
