@@ -1,0 +1,126 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-LINEAGE-PROVENANCE-20260904",
+  "issued_utc": "2026-09-04T02:26:42Z",
+  "author": "cursor-cloud-agent bc-37242741-5f86-43f7-b621-1e5b24d279df",
+  "owner_ratified": false,
+  "body": "bc-37242741-5f86-43f7-b621-1e5b24d279df",
+  "branch": "feat/p1-lineage-provenance-20260904",
+  "parent_head_full": "9ca4864237e5298ccb0a63b9115db5e3f857771b",
+  "engineering_head_full": "144ef6b17420616f4b5cc3f9149cd43cf217a48c",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/lineage_class.py",
+    "ofn/kernel/provenance_pin.py",
+    "tests/test_lineage_class.py",
+    "tests/test_provenance_pin.py",
+    "tests/test_chaos_lineage_provenance.py",
+    "09-LANES/P1-LINEAGE-PROVENANCE/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-LINEAGE-PROVENANCE-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-842b @9ca4864237e5298ccb0a63b9115db5e3f857771b — designated; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/event_id.py",
+    "ofn/kernel/hash_chain.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/write_fence.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/artifact_ref.py",
+    "ofn/kernel/contract_pin.py",
+    "tests/test_chaos_owner_absent.py",
+    "ofn/agents/campaign_envelope.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure lineage_class + provenance_pin. admit_lineage classifies mint/succeed/observe without minting a run_id. mint is a START (root) and is refused under HALT; succeed/observe continue. Missing prior is UNKNOWN, not empty. Empty prior is a supplied empty witness. Parent absent from prior is orphan (known refusal, not FALSE). Missing parent on succeed is UNKNOWN (missing_parent), not FALSE. Self-parent refused. Timeout forces UNKNOWN and does not prove concurrent writing. pin_provenance pins genesis+mint and contained+succeed only. Orphan is unbound. Unknown stays unknown. Sealed send/ready names refuse (sealed_effect). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_succeed / halt_blocks_pin / mints_run_id / ready_is_authorized / claims_immutable / unknown_is_false / unknown_is_contained / orphan_is_contained / timeout_proves_concurrent / proposal_is_execution / promotes_ready_to_send / missing_prior_is_empty / wires_into_run_store structurally False. Not wired into run_store.py. Distinct from envelope_class, store_class, hash_chain, event_id, unpublished ancestor_class/contain_pin and chain_class/link_pin. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_lineage_class tests.test_provenance_pin tests.test_chaos_lineage_provenance tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent -q",
+    "ran_at_utc": "2026-09-04T02:26:41Z",
+    "head_full_at_run": "144ef6b17420616f4b5cc3f9149cd43cf217a48c",
+    "exit_code": 0,
+    "result": "320 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_lineage_class.py": "63 passed, exit 0 (recount 2026-09-04T02:25Z band, same parent then 144ef6b)",
+      "tests/test_provenance_pin.py": "43 passed, exit 0 (recount 2026-09-04T02:25Z band)",
+      "tests/test_chaos_lineage_provenance.py": "12 passed, exit 0 (recount 2026-09-04T02:25Z band)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-04T02:26:42Z, HEAD 144ef6b)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_lineage_class tests.test_provenance_pin tests.test_chaos_lineage_provenance tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-04T02:26:42Z",
+      "head_full_at_run": "144ef6b17420616f4b5cc3f9149cd43cf217a48c",
+      "exit_code": 0,
+      "result": "128 passed, 0 failed, 0 skipped"
+    },
+    "pre_commit_parent": {
+      "command": "python3 -X utf8 -m unittest tests.test_lineage_class tests.test_provenance_pin tests.test_chaos_lineage_provenance tests.test_kernel_purity tests.test_envelope tests.test_dedup tests.test_settlement tests.test_tmpdir tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent -q",
+      "ran_at_utc": "2026-09-04T02:26:26Z",
+      "head_full_at_run": "9ca4864237e5298ccb0a63b9115db5e3f857771b",
+      "exit_code": 0,
+      "result": "320 passed, 0 failed, 0 skipped",
+      "tree_state": "dirty — this session's lock-zone kernel+tests only"
+    }
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @9ca4864237e5298ccb0a63b9115db5e3f857771b — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on origin/main this-run (collision vs #73/#120/#154 already open). Next append on #154 is lxxxvi after published lxxxiii a80924d. Unpublished lxxxiv/lxxxv remain first identifiers.",
+    "CONTRIBUTING.md": "absent on origin/main @9ca4864 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_collision": {
+    "value_a": "9ca4864237e5298ccb0a63b9115db5e3f857771b",
+    "source_a": "this-run git rev-parse origin/main 2026-09-04T02:22:35Z (#113 110B parked)",
+    "value_b": "25fee862491113a3ef882f9ef7a08dd58d219abc",
+    "source_b": "prior-memory circuit-breaker parent (#178)",
+    "value_c": "72a4c3d5cea6f0877200396cc30a13a116b2f46d",
+    "source_c": "prior-memory #176/#177/M5 parent (#153)",
+    "value_d": "a981086302c2b562bd02c55402ccc619afe4ef1e",
+    "source_d": "prior-memory #172",
+    "resolution": null,
+    "status": "open",
+    "note": "This body merged none. Branched from value_a."
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-04T02:20:46.096Z",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "body": "bc-37242741-5f86-43f7-b621-1e5b24d279df",
+    "designated_branch": "cursor/taskenvelope-system-hardening-842b",
+    "designated_sha": "9ca4864237e5298ccb0a63b9115db5e3f857771b",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Did not write designated /workspace. Did not merge. Did not weaken gates."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}

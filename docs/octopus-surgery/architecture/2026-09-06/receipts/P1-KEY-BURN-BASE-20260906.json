@@ -1,0 +1,80 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-KEY-BURN-BASE-20260906",
+  "issued_utc": "2026-09-06T02:19:29Z",
+  "author": "cursor-cloud bc-f8098772-33cc-4519-bba6-4ab31b1fa940 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-key-burn on feat/p1-key-burn-20260903. Merged origin/main @4ebdffb38f2eb91032075fd07675db493274e3da (#125 split_view) into existing PR #171. Pre-merge HEAD f0087d54780e9c8a36364b9fa50abc874c4340cc. Post-merge HEAD eb62c6d0655d6943ea33d0ba690a895a769882ef contains origin/main (git merge-base --is-ancestor YES). /workspace stayed on cursor/taskenvelope-system-hardening-bec8 @f0087d54780e9c8a36364b9fa50abc874c4340cc and was not written.",
+  "scope_not_measured": [
+    "full-suite CI after this push (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (git ls-remote used; gh not treated as independent verification)",
+    "independent CODEOWNERS approval"
+  ],
+  "action": "require-fresh-base repair on existing #171 only. Merge origin/main; do not rewrite key_class/burn_pin; do not open a second key-burn PR. Ready ≠ authorized.",
+  "delivered": {
+    "merge": "origin/main 4ebdffb38f2eb91032075fd07675db493274e3da into feat/p1-key-burn-20260903. ort strategy, no conflicts. 5 files from #125 added (split_view). key_class.py blob e0e832fd55c8e101a86053a23641ff6f47dd4f6f MATCH pre-merge. burn_pin.py blob 5a3a5e81f2d1fb59b6cb1d067969c0302e478660 MATCH pre-merge.",
+    "behind_before": "3 ahead / 1 behind origin/main (git rev-list --left-right --count origin/main...origin/feat/p1-key-burn-20260903 at 2026-09-06T02:19:01Z). Missing commit: 4ebdffb feat(p1): kernel-pure split view — both sources recorded, no silent pick (#125).",
+    "behind_after": "4 ahead / 0 behind origin/main at eb62c6d0655d6943ea33d0ba690a895a769882ef"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_key_class tests.test_burn_pin tests.test_chaos_key_burn tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_split_view tests.test_chaos_split_view tests.test_incidents_log_policy tests.test_dedup tests.test_settlement tests.test_events tests.test_campaign_bind tests.test_send_fence -q",
+    "ran_at_utc": "2026-09-06T02:19:29Z",
+    "head_full": "eb62c6d0655d6943ea33d0ba690a895a769882ef",
+    "exit_code": 0,
+    "result": "460 passed / 0 failed / 0 skipped (unittest 'Ran 460 tests in 0.583s' / OK).",
+    "new_module_counts_utc": "2026-09-06T02:19:29Z",
+    "new_module_counts": "key_class 29 / burn_pin 25 / chaos_key_burn 7 / purity 10 / split_view 36 / chaos_split_view 11 / later_hold 43 / scoped_authz 39 / chaos_later_hold 7 / incidents_policy 4 / envelope 35 / run_store 79 / token_ceiling 14 / run_gate 21 / chaos_owner_absent 16 / tmpdir 4 (each module exit 0)",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified this-run)",
+    "tree_state": "clean after merge, before this receipt commit. Merge dirt was origin/main #125 files only.",
+    "worktree": "/tmp/ofn-p1-key-burn",
+    "file_lock_zone": [
+      "feat/p1-key-burn-20260903 merge of origin/main",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-KEY-BURN-BASE-20260906.json",
+      "09-LANES/P1-KEY-BURN/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "Did not rewrite ofn/kernel/key_class.py or ofn/kernel/burn_pin.py",
+      "Did not write split_view.py (landed on main as #125; merge only)",
+      "Did not write later_hold.py / scoped_authz.py (already on main as #214; merge-base ancestor)",
+      "Did not open a second key-burn PR",
+      "Did not merge #171",
+      "Did not weaken CODEOWNERS / branch protection / required-approvals",
+      "grants_send / ready_is_authorized remain structurally False on key_class and burn_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "contains_origin_main": true,
+    "origin_main_full": "4ebdffb38f2eb91032075fd07675db493274e3da",
+    "origin_main_collision": {
+      "value_a": "4ebdffb38f2eb91032075fd07675db493274e3da",
+      "source_a": "this-run git fetch / ls-remote 2026-09-06T02:19:01Z (#125)",
+      "value_b": "7aa2fa54b2b580e10a6c7e4617e90fd4f4640760",
+      "source_b": "session rr incidents origin/main claim at 2026-09-06T01:59:39Z (#187 squash on main)",
+      "resolution": null,
+      "status": "open",
+      "note": "7aa2fa5 is an ancestor of 4ebdffb on this host (merge-base of #171 vs main was 7aa2fa5). This body merged 4ebdffb. Did not silently pick one as the only main."
+    },
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash of origin/main blob)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash of origin/main blob)"
+    }
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this body and this-host origin/main @4ebdffb38f2eb91032075fd07675db493274e3da — UNKNOWN, not FALSE",
+    "CONTRIBUTING.md": "absent on origin/main @4ebdffb — UNKNOWN, not FALSE",
+    "D-27-UNLOCK-DIRECTIVE.md": "absent at repo root; pointer under docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/",
+    "D-28-EDGE-RUNBOOK.md": "absent at repo root; pointer under docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "key_class/burn_pin first identifier remains #171 (do not open a second); split_view (#125) merge-only; later_hold/scoped_authz (#214) already on main; parity/check (#210) already on main; quorum/seat (#218); remainder/leftover (#204); underflow/borrow (#207); lease/renew (#216); hysteresis/band (#217); unpublished fuse/blow / cooldown/rearm / interlock/inhibit first identifiers remain"
+}
