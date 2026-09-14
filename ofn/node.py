@@ -3866,6 +3866,54 @@ class Node:
             }, self.now_iso())
         return out
 
+    def capture_public_painting_lead(self, body: Mapping[str, object]) -> dict:
+        """Store a public web enquiry. Write-only. No outbox, no send.
+
+        Client source/status/score are ignored so a stranger cannot mark a
+        row won or trigger a later outreach path from this intake.
+        """
+        zeros = {"stored": False, "outbound": 0, "baseline_action": 0,
+                 "EXTERNAL_ACTIONS": 0}
+        if not isinstance(body, Mapping):
+            return {"ok": False, "error": "bad request", **zeros}
+        name = str(body.get("customer_name") or body.get("name") or "").strip()
+        phone = str(body.get("phone") or "").strip()
+        email = str(body.get("email") or "").strip()
+        if not name:
+            return {"ok": False, "error": "name is required", **zeros}
+        if not phone and not email:
+            return {"ok": False, "error": "phone or email is required", **zeros}
+        sanitized = {
+            "customer_name": name,
+            "phone": phone,
+            "email": email,
+            "suburb": str(body.get("suburb") or body.get("location") or "").strip(),
+            "job_type": str(body.get("job_type") or body.get("title") or "").strip(),
+            "message": str(body.get("message") or body.get("text") or "").strip(),
+            "source": "web-form",
+            "status": "new",
+            # Contact digest so two strangers in the same second do not
+            # collide on source-now_iso, and a retry from the same person
+            # refreshes the same row.
+            "source_ref": hashlib.sha1(
+                f"web-form|{name}|{phone}|{email}".encode()
+            ).hexdigest()[:16],
+        }
+        out = self.create_painting_lead(sanitized, actor="public-form")
+        if not out.get("ok"):
+            return {"ok": False, "error": out.get("error") or "not stored",
+                    **zeros}
+        lead = out.get("lead") or {}
+        return {
+            "ok": True,
+            "stored": True,
+            "lead_id": lead.get("lead_id"),
+            "source": "web-form",
+            "outbound": 0,
+            "baseline_action": 0,
+            "EXTERNAL_ACTIONS": 0,
+        }
+
     def update_painting_lead(self, lead_id: str, body: Mapping[str, object], *, actor: str = "owner") -> dict:
         if self.painting is None:
             return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
