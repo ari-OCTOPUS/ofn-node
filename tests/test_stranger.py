@@ -28,7 +28,8 @@ from ofn.kernel.tenancy import PackSpec, TenantRegistry
 
 WEB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                    "web")
-SHELLS = ("ziman.html", "lead.html", "studio.html", "panel.html")
+SHELLS = ("ziman.html", "lead.html", "studio.html", "panel.html",
+          "painting-lead-form.html")
 
 # The real people this node is for. None may appear in anything served before
 # somebody has proved who they are. Surnames included: a family name is the
