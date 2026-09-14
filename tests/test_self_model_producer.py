@@ -100,6 +100,24 @@ class ProducerEnvelope(unittest.TestCase):
         self.assertEqual(row["status"], "absent")
         self.assertIn("process_supervisor_absent", envelope["warnings"])
 
+    def test_revenue_timer_is_a_measured_member(self):
+        self.assertEqual(
+            producer.MEMBER_UNITS["revenue_timer"],
+            "capability-school-revenue.timer",
+        )
+        envelope = producer.produce(
+            clock=lambda: 1000.0,
+            repo_root=ROOT,
+            git_runner=fake_git,
+            unit_prober=fake_prober_ok,
+        )
+        row = next(
+            item for item in envelope["data"]["processes"]
+            if item["sensor_id"] == "process_revenue_timer"
+        )
+        self.assertEqual(row["status"], "healthy")
+        self.assertEqual(row["source"], "unit:capability-school-revenue.timer")
+
     def test_scenario_3_several_producers_absent(self):
         units = producer.MEMBER_UNITS
         prober_map = dict.fromkeys(units.values(), (True, "active"))
