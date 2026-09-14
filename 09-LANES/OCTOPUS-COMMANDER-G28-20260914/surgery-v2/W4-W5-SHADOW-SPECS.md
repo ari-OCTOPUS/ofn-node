@@ -57,7 +57,7 @@ ACTIVE → COLD (14 days no access) → QUARANTINE_PROPOSED → RETENTION_REVIEW
 ```
 
 ### Eligible for COLD transition (shadow analysis only):
-- superseded-tasks: 4 files (all have documented replacement in TRIO)
+- NOTE: these files are 1-5 days old (<7d protected, <14d COLD threshold) — inventory is NOT eligibility; ZERO candidates currently eligible
 - .pre-g27/g27v2/g28e/g29/g30 preimages: 5 files (superseded by later preimages)
 
 ### NOT eligible (protected):
@@ -77,7 +77,7 @@ From the 4 superseded-tasks, select 1 (B5-MEASURED-RECOVERY-001):
 - actual resurrection: NOT PERFORMED (would pollute the live queue)
 
 ## Honest Assessment
-- Fewer than 10 genuinely prunable items exist today
+- ZERO items are currently eligible (all <14 days old); inventory is NOT eligibility
 - The archive_ convention + superseded-tasks/ already captures the main lifecycle
 - A full ACTIVE→COLD→...→DELETED pipeline would be premature with 4 candidates
 - No deletion is proposed in this wave
