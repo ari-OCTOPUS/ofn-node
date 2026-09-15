@@ -1,0 +1,112 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-GRACE-LINGER-20260906",
+  "issued_utc": "2026-09-06T18:22:12Z",
+  "author": "cursor-cloud-agent bc-feeb13e0-9887-4b60-9fd8-413b68c446dc",
+  "owner_ratified": false,
+  "body": "bc-feeb13e0-9887-4b60-9fd8-413b68c446dc",
+  "branch": "feat/p1-grace-linger-20260906",
+  "parent_head_full": "1b53773a47b6af71b8b643df61cfa13454cd1340",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/grace_class.py",
+    "ofn/kernel/linger_pin.py",
+    "tests/test_grace_class.py",
+    "tests/test_linger_pin.py",
+    "tests/test_chaos_grace_linger.py",
+    "09-LANES/P1-GRACE-LINGER/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-GRACE-LINGER-20260906.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/bc-feeb13e0-9887-4b60-9fd8-413b68c446dc-2d4c @1b53773a47b6af71b8b643df61cfa13454cd1340 — #180 SHA; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/stale_class.py",
+    "ofn/kernel/fresh_pin.py",
+    "ofn/kernel/lease_class.py",
+    "ofn/kernel/renew_pin.py",
+    "ofn/kernel/deadline_window.py",
+    "ofn/kernel/aging_class.py",
+    "ofn/kernel/decay_pin.py",
+    "ofn/kernel/ttl_class.py",
+    "ofn/kernel/expire_pin.py",
+    "ofn/kernel/lineage_class.py",
+    "ofn/kernel/provenance_pin.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 on a new branch from this-host origin/main: kernel-pure grace_class + linger_pin. classify_family names live / grace / lapsed from a non-negative elapsed_ticks vs a positive due_after plus a positive linger_after. live: elapsed < due; grace: due <= elapsed < due+linger; lapsed: elapsed >= due+linger. This is a two-threshold linger window, not age-vs-one-threshold (aging/decay), not observed-vs-expected freshness (stale/fresh), not a lease expire window (lease/renew), and not remaining TTL (ttl/expire). linger is a START and is refused under HALT; classify / observe / inspect continue. Missing elapsed, due_after, or linger_after is UNKNOWN (None), not FALSE and not 0. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_linger records (slot → elapsed:due_after:linger_after:family) at most once per distinct quadruple; same quadruple is already_pinned; disagreement is linger_collision. peek never writes. pin_allows_linger only for linger+grace; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / halt_blocks_pin / elapsed_is_zero / live_is_authorized / grace_is_send / lapsed_is_false / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce / peek_writes structurally False. halt_blocks_linger and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), seq.py, campaign_bind/send_fence (#145), stale_class/fresh_pin (#186), lease_class/renew_pin (#216), aging_class/decay_pin (#222), lineage_class/provenance_pin (#180), unpublished ttl_class/expire_pin, unpublished compact_class/retain_pin. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_grace_class tests.test_linger_pin tests.test_chaos_grace_linger tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_events tests.test_lineage_class tests.test_provenance_pin -q",
+    "ran_at_utc": "2026-09-06T18:22:11Z",
+    "head_full_at_run": "1b53773a47b6af71b8b643df61cfa13454cd1340",
+    "exit_code": 0,
+    "result": "531 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_grace_class.py": "52 passed, exit 0 (recount 2026-09-06T18:22:12Z, same parent)",
+      "tests/test_linger_pin.py": "18 passed, exit 0 (recount 2026-09-06T18:22:12Z, same parent)",
+      "tests/test_chaos_grace_linger.py": "7 passed, exit 0 (recount 2026-09-06T18:22:12Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-06T18:22:12Z, same parent)",
+      "tests/test_lineage_class.py": "63 passed, exit 0 (recount 2026-09-06T18:22:12Z, same parent)",
+      "tests/test_provenance_pin.py": "43 passed, exit 0 (recount 2026-09-06T18:22:12Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_grace_class tests.test_linger_pin tests.test_chaos_grace_linger tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-06T18:22:03Z",
+      "exit_code": 0,
+      "result": "87 passed, 0 failed, 0 skipped (grace 52 / linger 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host origin/main @1b53773a47b6af71b8b643df61cfa13454cd1340 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout and on incidents branch origin/docs/octopus-os-incidents-20260902 @33273f885ca733240c2c749111c5cace3eb8010c (session jjj). Next append is session kkk.",
+    "CONTRIBUTING.md": "absent on this-host origin/main @1b53773 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN — not claimed"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN — not claimed"
+    }
+  },
+  "identity": {
+    "claimed_user_rule": "board 180",
+    "this_host_eth0": "172.30.0.2 / 172.17.0.1 (container; not 192.168.0.180)",
+    "hostname": "cursor",
+    "resolution": "this body is a Cursor cloud automation, not board 180 LAN. scope=this_host_only. status: open vs the user_rule claim.",
+    "node_id": "bc-feeb13e0-9887-4b60-9fd8-413b68c446dc"
+  },
+  "external_effects": "ZERO. Ready ≠ authorized. quote_sent / send_authorized remain owner-blocked.",
+  "gates": {
+    "CODEOWNERS": "untouched",
+    "branch_protection": "untouched",
+    "required_approvals": "untouched",
+    "admin_bypass": false,
+    "OCTOPUS_WIRE": "untouched",
+    "OFN_WIRE": "untouched"
+  }
+}

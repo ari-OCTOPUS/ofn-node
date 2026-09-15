@@ -48,12 +48,14 @@ SCHEMA_ID = "octopus.self-model.v3"
 # never existed on board138 — the old map read permanently absent).
 # The timer-driven oneshots (heartbeat/imap/quote) are deliberately not listed:
 # "inactive" is their normal between-runs state, so is-active would misreport;
-# their health surfaces via the heartbeat pulse and imap events.
+# their health surfaces via the heartbeat pulse and imap events. The revenue
+# timer itself stays active while waiting, so it is a measurable member.
 MEMBER_UNITS: dict[str, str] = {
     "bridge": "octopus-bridge.service",
     "control_router": "octopus-control-router.service",
     "cycle_settler": "octopus-cycle-settler.service",
     "router": "octopus-router.service",
+    "revenue_timer": "capability-school-revenue.timer",
     "supervisor": "octopus-supervisor.service",
     "verify_dispatcher": "octopus-verify-dispatcher.service",
 }
