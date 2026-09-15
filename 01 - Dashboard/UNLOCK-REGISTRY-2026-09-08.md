@@ -191,3 +191,10 @@ updated: 2026-09-08
 - **ادامهٔ خودکار** = هر قفل که باز شود → `task.resume` + قدم بعدی در `drive-queue.jsonl` → مدیر سه‌نقشی در context می‌بیند → مأموریت → ارزیاب → رسید → دوپامین بعدی. tick در organism.py هر beat (fail-soft).
 - قفل‌های این حلقه الان: D0_domain 🔒 · AUTO1_sender 🔒 · MSG38 ✅(NOT_PAID رأی مالک) · L23_hold_external ✅ · L24_go ✅ · DOM2_names 🔒 · REGISTRY_round2 🔒 · CASH_first_order 🔒
 - selftest سبز ۲ بار؛ سه قفل امروز باز شد و در صف ادامه ثبت شد (13:37:57Z)
+
+## اصلاح 2026-09-15 (فاز ۳ برنامهٔ اصلاح سیزن) — ردیف AUTO1_sender
+
+حکم بایتی: `sender-identity.json` **از ۰۹-۰۸ روی لپ‌تاپ زنده است** (sha16 `87b78f015fe1180e` ==
+آینهٔ germline روی ۱۳۸). ردیف «pending» این رجیستری کهنه بود ⇒ **AUTO1_sender = EXECUTED+VERIFIED
+(2026-09-15)**. «غایب در ۱۳۸» = جست‌وجوی درخت اشتباه (فایلِ vault است). اصلاحِ F-016 در لجر زندهٔ
+۱۳۸ append شد. حملِ تماس مستقل از این قفل است و همچنان معلقِ مالک می‌ماند (R3-2 + تحریم AU).
