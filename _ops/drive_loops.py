@@ -168,6 +168,23 @@ def _first_order_present() -> bool:
         is not None
 
 
+def _business_connect_delivered() -> bool:
+    """2026-09-16: قفلِ افزودنیِ دو لِین بیزنس جدید (Nova Soles + Ziman قیف) — فقط وقتی
+    باز می‌شود که هر دو دایرکتوریِ هدفِ تحویلِ تیمِ گروک روی ۱۳۸ موجود باشند.
+    صرفاً existence-check از راه ssh؛ هیچ write/dispatch انجام نمی‌دهد
+    (دستور مالک: «دقیق اضافه کن، چیزی خراب نکنه»)."""
+    import subprocess
+    try:
+        out = subprocess.run(
+            ["ssh", "board138",
+             "test -d /home/ari/ofn/state/nova-drive -a -d /home/ari/ofn/state/ziman-drive "
+             "&& echo YES || echo NO"],
+            capture_output=True, text=True, timeout=20).stdout.strip()
+        return out.endswith("YES")
+    except Exception:
+        return False
+
+
 LOCKS = {
     "D0_domain": {
         "title": "دامنهٔ زیمان مرده — فروش صفر تا باز شدن",
@@ -217,6 +234,12 @@ LOCKS = {
         "check": _first_order_present,
         "next": "دوپامینِ بزرگ + ثبت VERIFIED_CASH (فقط با شاهد مستقل) + outcome برای OMLL",
         "source": "state/receipts/FIRST-ORDER-RECEIPT.json",
+    },
+    "BUSINESS_CONNECT_delivery": {
+        "title": "دو بیزنس جدید (Nova Soles + Ziman قیف) — خروجیِ تیم گروک هنوز نرسیده",
+        "check": _business_connect_delivered,
+        "next": "یکپارچه‌سازیِ صرفاً افزودنی طبق INTEGRATION-RUNBOOK (بدون دست‌زدن به فانل نقاشی/TCB/wire) + تایمرهای سرویس جدید + کارت مالک برای هر گامِ فراتر از افزودن فایل",
+        "source": "octopus-mesh/state/owner-go/standing/BUSINESS-CONNECT-ORDER-20260916.json (2026-09-16)",
     },
 }
 
