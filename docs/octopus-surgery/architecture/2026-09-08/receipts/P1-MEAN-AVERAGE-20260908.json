@@ -1,0 +1,120 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-MEAN-AVERAGE-20260908",
+  "issued_utc": "2026-09-08T10:25:20Z",
+  "author": "cursor-cloud-agent bc-d453a359-dfc0-4ef8-b828-432beb7d93b0",
+  "owner_ratified": false,
+  "body": "bc-d453a359-dfc0-4ef8-b828-432beb7d93b0",
+  "branch": "feat/p1-mean-average-20260908",
+  "parent_head_full": "2affbd7ad63e0901d6abb9c17bca2a20b236fba1",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/mean_class.py",
+    "ofn/kernel/average_pin.py",
+    "tests/test_mean_class.py",
+    "tests/test_average_pin.py",
+    "tests/test_chaos_mean_average.py",
+    "09-LANES/P1-MEAN-AVERAGE/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-08/receipts/P1-MEAN-AVERAGE-20260908.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-4003 @0522fb85f63a57a9955be113e9a3eab070a3bff2 — designated; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/run_store.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/remainder_class.py",
+    "ofn/kernel/leftover_pin.py",
+    "ofn/kernel/digest_class.py",
+    "ofn/kernel/fold_pin.py",
+    "ofn/kernel/peak_class.py",
+    "ofn/kernel/trough_pin.py",
+    "ofn/kernel/above_class.py",
+    "ofn/kernel/below_pin.py",
+    "ofn/kernel/square_class.py",
+    "ofn/kernel/root_pin.py",
+    "ofn/kernel/median_class.py",
+    "ofn/kernel/mode_pin.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure mean_class + average_pin. classify_family names EXACT / MIXED from a non-empty bag of exact ints. EXACT when total is divisible by count (the mean is an exact int). MIXED when the mean exists but is not an exact int. MIXED is a family, never FALSE and never a silent EXACT. sample is a START and is refused under HALT; classify / observe / inspect continue. Missing bag is UNKNOWN (None), not FALSE and not 0. Empty bag fails closed, not 0. Measured single 0 is EXACT with mean 0, never UNKNOWN. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_average records (slot → family:count:total) at most once per distinct triple; same triple is already_pinned (permutation and equal-sum bags replay); disagreement is average_collision. peek never writes. pin_allows_sample only for sample+EXACT; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / halt_blocks_pin / missing_is_zero / mixed_is_false / exact_mean_is_authorized / empty_is_zero / measured_zero_is_unknown / order_statistic_is_mean / leftover_is_mean / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce structurally False. halt_blocks_sample and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from unpublished median/mode, unpublished pow2/log2, unpublished congruent/residue, unpublished equal/unequal, unpublished quotient/divide, #235 square/root, #234 coprime/common, #233 inclusive/exclusive, #232 peak/trough, #231 above/below, #204 remainder/leftover, #152 digest/fold, #238 EventEnvelope (untouched). Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_mean_class tests.test_average_pin tests.test_chaos_mean_average tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_events tests.test_campaign_bind tests.test_send_fence tests.test_remainder_class tests.test_leftover_pin tests.test_chaos_remainder_leftover tests.test_digest_class tests.test_fold_pin tests.test_chaos_digest_fold tests.test_above_class tests.test_below_pin tests.test_chaos_above_below tests.test_coprime_class tests.test_common_pin tests.test_chaos_coprime_common tests.test_peak_class tests.test_trough_pin tests.test_chaos_peak_trough tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-08T10:25:20Z",
+    "head_full_at_run": "2affbd7ad63e0901d6abb9c17bca2a20b236fba1",
+    "exit_code": 0,
+    "result": "723 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_mean_class.py": "53 passed, exit 0 (recount 2026-09-08T10:24:58Z, same parent)",
+      "tests/test_average_pin.py": "18 passed, exit 0 (recount 2026-09-08T10:24:58Z, same parent)",
+      "tests/test_chaos_mean_average.py": "7 passed, exit 0 (recount 2026-09-08T10:24:58Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-08T10:24:58Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_mean_class tests.test_average_pin tests.test_chaos_mean_average tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-08T10:24:58Z",
+      "exit_code": 0,
+      "result": "88 passed, 0 failed, 0 skipped (mean 53 / average 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @2affbd7ad63e0901d6abb9c17bca2a20b236fba1 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (ends session qq). Named incidents branch origin/docs/octopus-os-incidents-20260902 @cd3f0398c0e27bd6d8ccf98ad3f44f6e2cd45fd8 ends session uuuu. Next append is session aaaa on existing named branch only.",
+    "CONTRIBUTING.md": "absent on origin/main @2affbd7 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "2affbd7ad63e0901d6abb9c17bca2a20b236fba1",
+    "source_a": "git fetch + git ls-remote refs/heads/main 2026-09-08T10:22:50Z (#238 EventEnvelope)",
+    "value_b": "0522fb85f63a57a9955be113e9a3eab070a3bff2",
+    "source_b": "designated /workspace HEAD and prior-memory square-root parent (#231)",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-08T10:17:16.016Z",
+    "body": "bc-d453a359-dfc0-4ef8-b828-432beb7d93b0",
+    "designated_branch": "cursor/taskenvelope-system-hardening-4003",
+    "designated_sha": "0522fb85f63a57a9955be113e9a3eab070a3bff2",
+    "verdict": "Owner-absent continuous operator. REVIEW_REQUIRED blocks merge, not engineering. Designated /workspace not written. Isolated first identifier feat/p1-mean-average-20260908 from origin/main @2affbd7."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
