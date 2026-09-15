@@ -1,0 +1,57 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-TASK-BIND-20260904",
+  "issued_utc": "2026-09-04T11:25:05Z",
+  "author": "cursor-cloud bc-3e319fa5-cdc9-4cb4-a2b3-9c3510149d31 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-task-bind on feat/p1-task-bind-20260904 parent origin/main @e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9 (#181). task_bind.py and intent_pin.py ABSENT on parent (git ls-tree empty). /workspace stayed on cursor/taskenvelope-system-hardening-4cd9 @e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9 and was not written at measurement time.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR mergeability (REVIEW_REQUIRED)",
+    "unpublished first identifiers tenant-isolate / window-bound / dup-reject / ttl-expire / pair-match and other complementary P1 bodies"
+  ],
+  "action": "P1 complementary task_bind + intent_pin — new files only. Not a second envelope/envelope_class/run_store/typed_event/receipts/dedup PR. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/task_bind.py": "classify_intent: None→UNKNOWN (not FALSE); mint/validate/replay; sealed send/ready names refused; bind_task requires RUN_ID_RE; try_bind missing→None; pair_matches missing→None, disagreement→False; grants_send/halt_blocks_bind/mints_run_id/ready_is_authorized/claims_immutable/timeout_proves_concurrent_write/proposal_is_execution/promotes_ready_to_send/wires_into_run_store/unknown_is_false structurally False; classify_timeout→UNKNOWN",
+    "ofn/kernel/intent_pin.py": "pin_intent records caller-owned (run_id→intent); same pair already_pinned; different intent intent_collision; peek never writes; missing peek→None; retcon_refused missing→None disagreement→True; pin_allows_send structurally False; pin_allows_mint only for mint intent (not a send grant); not wired into run_store.py",
+    "tests/test_task_bind.py": "E3 negatives: bool/int/float/empty/unknown/sealed intent, malformed/sealed run_id, missing UNKNOWN, pair disagreement, run_store import absence",
+    "tests/test_intent_pin.py": "E3 negatives: collision, peek never writes, sealed hand-built bind rechecked, retcon missing UNKNOWN, pin_allows_send always False",
+    "tests/test_chaos_task_bind.py": "seven owner-absent scenarios: missing UNKNOWN, timeout≠writer, HALT does not block bind, failed bind≠send, ready≠sent, disagreement recorded, rebind/repin deterministic"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_task_bind tests.test_intent_pin tests.test_chaos_task_bind tests.test_kernel_purity tests.test_envelope tests.test_envelope_class tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement -q",
+    "ran_at_utc": "2026-09-04T11:25:05Z",
+    "parent_head_full": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "exit_code": 0,
+    "result": "312 passed / 0 failed / 0 skipped (unittest 'Ran 312 tests in 0.658s' / OK). New-module + purity: 70 passed (task_bind 27 / intent_pin 24 / chaos 9 / purity 10) @ 2026-09-04T11:25:04Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-task-bind). Dirt is this body's edits, not an unknown concurrent writer.",
+    "worktree": "/tmp/ofn-p1-task-bind",
+    "file_lock_zone": [
+      "ofn/kernel/task_bind.py",
+      "ofn/kernel/intent_pin.py",
+      "tests/test_task_bind.py",
+      "tests/test_intent_pin.py",
+      "tests/test_chaos_task_bind.py",
+      "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-TASK-BIND-20260904.json",
+      "09-LANES/P1-TASK-BIND/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None intent → UNKNOWN, not FALSE",
+      "sealed send/ready names refused as intent and as run_id",
+      "malformed run_id fails closed",
+      "try_bind missing → None, not False",
+      "pair_matches missing → None; disagreeing intents → False",
+      "intent_collision on second distinct intent",
+      "peek never writes",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write / claims_immutable / mints_run_id / wires_into_run_store structurally False",
+      "run_store source does not import task_bind or intent_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "envelope.py / envelope_class.py / store_class.py (#148) / events.py / run_store.py / typed_event.py / receipt_bind.py (#143) / receipts.py / dedup.py / settlement.py / campaign_bind.py / send_fence.py (#145) / nonce_class/once_pin (#173) / unpublished task_class/mint_class / unpublished receipt_class/ack_pin / campaign_envelope (#76)"
+}
