@@ -1,5 +1,21 @@
 # NEXT AGENT — Hardware Discovery & Enrollment Continuation
 
+> ### 👉 NEXT AGENT: START HERE → [`NEXT-AGENT-MEGAPROMPT.md`](NEXT-AGENT-MEGAPROMPT.md)
+>
+> This file is the **superseded** original handoff (its phases are done). The hardware is now
+> fully assembled: **7 boards (6 Pro + 1 Plus), all on eMMC, all enrolled in the mesh, zero SD
+> cards anywhere.**
+>
+> **`NEXT-AGENT-MEGAPROMPT.md` is the current, self-contained brief.** It covers the verified
+> fleet state, access rules, what is built vs not built, ten hard-won traps, six concrete build
+> tasks with acceptance tests, governance and the definition of done.
+> Machine-readable state: `FLEET-METADATA.json`. Raw measurements: `EVIDENCE.md`.
+>
+> **Headline gap:** four boards (100 / 160 / 193 / 114) run zero OCTOPUS services, and the **NPU on
+> all seven boards (42 TOPS total) is completely unused** — it is exposed as a DRM accel device
+> (`DRIVER=RKNPU`, `/npu@fdab0000`) with no `/dev/rknpu*` node and no `librknnrt` installed.
+
+
 > ## ⚠️ CORRECTED 2026-09-15 — READ THIS BEFORE ACTING ON ANYTHING BELOW
 >
 > This file's premises were tested and **three of them are wrong**. Acting on the original
