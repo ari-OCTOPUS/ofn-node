@@ -166,3 +166,65 @@ ls /root/config.json        -> No such file or directory
 xmrig was deliberately removed by the owner in an earlier project; the unit was left enabled and
 has been restart-looping since. Not touched by this session.
 
+## E12 — Bootloader layout is IDENTICAL on eMMC and SD (root cause of the old dd failure)
+
+138's eMMC, user area:
+```
+sector 64    :  52 4b 4e 53 ...   <- RKNS idbloader       (32 KB)
+sector 16384 :  d0 0d fe ed ...   <- FIT / u-boot          (8 MB)
+/dev/mmcblk0boot0 sector 64 : 00 00 ...   <- hardware boot partitions UNUSED
+/dev/mmcblk0boot1 sector 64 : 00 00 ...   <- hardware boot partitions UNUSED
+```
+The SD card carries the same two signatures at the same two offsets. So `dd` of the first
+16 MiB captures BOTH the idbloader and u-boot — the layout was never the problem. The earlier
+"root filesystem but no bootloader" card must have come from copying a **partition**
+(`mmcblk0p1`) rather than the **disk**, or from a copy aborted by the crash.
+(Not directly observable after the fact — recorded as the most likely cause, `status: unverified`.)
+
+## E13 — 182's SD slot: a card is present but the bus is shut down
+
+```
+dmesg: mmc_host mmc1: Bus speed = 400000Hz
+       mmc_host mmc1: Bus speed = 300000Hz      <- retry at lower speed
+       mmc_host mmc1: Bus speed = 200000Hz
+/sys/kernel/debug/mmc1/ios:
+       clock: 0 Hz ; vdd: 0 (invalid) ; power mode: 0 (off) ; bus width: 0 (1 bits)
+
+comparison:  138 (no card) -> ONE speed line ;  180 -> ONE ;  .100 -> ONE ;  182 -> THREE
+no /sys/class/mmc_host/mmc1/mmc1:*/ child, no /dev/mmcblk1, no card-init error message
+```
+
+The controller tries three descending speeds then powers the bus off. The owner states a 128 GB
+microSD is physically in 182. Together: **a card is present and failing to initialise** — the card
+or the slot is faulty. This also offers a better explanation for the "hot-plug crashes 182"
+incident than a general OPi5 rule: a defective card can wedge the SD controller.
+
+## E14 — 182 sensorium OOM loop, quantified
+
+```
+01:21  NRestarts=14
+01:34  NRestarts=44          <- ~30 restarts in ~13 min, one per ~15 s
+MemoryMax=2147483648  MemoryHigh=infinity  MemorySwapMax=infinity
+free -m: Mem 3910 total, 0 swap
+oom-kill:constraint=CONSTRAINT_MEMCG oom_memcg=/system.slice/octopus-sensorium.service
+```
+MemorySwapMax=infinity means a host swapfile *would* let it swap instead of dying. Not applied —
+the 2 G cap lives in a deliberate drop-in (`60-chg-yellow-memorymax.conf`), so changing the
+pressure it creates is an owner/governance call.
+
+## E15 — Owner answers (2026-09-15, in-session)
+
+```
+Q  which models are the two remaining boards?
+A  "overall, old and new, in the end there must be 6 Pro boards always on and one Plus"
+Q  are they cabled / powered?
+A  "connected but powered off"
+Q  what boot media is available?
+A  "I have another microSD card too; inside 182 there is a 128 GB microSD — use it"
+```
+
+Fleet target = **6 Pro + 1 Plus = 7**. Currently 5 Pro are up, so exactly **1 Pro + 1 Plus**
+remain. This confirms the handoff's "5 new boards" was an over-count caused by reading the two
+mining nodes (`.100`/`.160`) as new hardware.
+
+

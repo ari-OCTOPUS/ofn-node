@@ -52,8 +52,12 @@ fi
 echo "Target : $DEV (${SIZE_GB}GB)"
 echo "Image  : $IMG"
 echo "This will DESTROY the current contents of $DEV."
-read -r -p "Type WRITE to continue: " a
-[ "$a" = "WRITE" ] || fail "not confirmed"
+if [ "${FORCE:-0}" = "1" ]; then
+  echo "FORCE=1 -> proceeding without prompt"
+else
+  read -r -p "Type WRITE to continue: " a
+  [ "$a" = "WRITE" ] || fail "not confirmed"
+fi
 
 # --- Backup the old card's bootloader + rootfs (1.55 GiB) -------------------
 if [ ! -f "$BACKUP" ]; then
