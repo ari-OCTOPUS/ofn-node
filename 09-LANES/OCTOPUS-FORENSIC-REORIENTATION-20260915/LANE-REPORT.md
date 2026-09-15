@@ -61,9 +61,16 @@ LIVE-TIME LOG (all receipts in ops-receipts.jsonl on 138):
   `/home/ari/ofn/ofn/agents` (backup `.pre-agentspath-20260915` beside it), daemon-reload.
   Same fix class as the receipted B5 unit fix of 09-13. Sandbox otherwise unchanged.
 - ≥06:45:31Z — next eligible attempt (per_component_30min=1 consumed by the 06:15 try).
-  Breaker stays closed (only 1 counting fail after the RY signature's fixed_at).
+- 06:21:01Z — the failed execution's outcome was rejected (correct), re-tripping the
+  breaker; 06:27:49Z — second RY signature registered for the sandbox root cause
+  (fixed 06:20Z). Verified by direct import: `budget_allows("RY","ofn-agents")` now
+  returns `(False, "BUDGET_COMPONENT_30MIN")` — breaker CLOSED, only the time window
+  remains.
 
-FINAL STATE: see the one-line appended below after the next successful tick.
+FINAL STATE: all gates cleared except the organism's own 30-min pacing; the deploy is
+expected to land on the first tick after 06:45:31Z without further human/agent action.
+(Post-landing sha check: live glass_runner must equal fc993720570b8a72; then W24-BINDER-006
+becomes the next in line automatically.)
 
 ## Unverified / honest limits
 
