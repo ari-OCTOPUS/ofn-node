@@ -1,0 +1,118 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-VERSION-COMPAT-20260904",
+  "issued_utc": "2026-09-04T04:35:43Z",
+  "author": "cursor-cloud-agent bc-73122a40-8aaf-4b8b-aaaa-81e8f8d96a34",
+  "owner_ratified": false,
+  "body": "bc-73122a40-8aaf-4b8b-aaaa-81e8f8d96a34",
+  "branch": "feat/p1-version-compat-20260904",
+  "engineering_head_full": "82f00cc97b6d24fa9a51c39bad5516d50a7b91d7",
+  "parent_head_full": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "node_id": "bc-73122a40-8aaf-4b8b-aaaa-81e8f8d96a34",
+  "asserted_ip": "UNKNOWN — eth0 has no IPv4 on this host; hostname cursor; not board 180",
+  "file_lock_zone": [
+    "ofn/kernel/version_class.py",
+    "ofn/kernel/compat_pin.py",
+    "tests/test_version_class.py",
+    "tests/test_compat_pin.py",
+    "tests/test_chaos_version_compat.py",
+    "09-LANES/P1-VERSION-COMPAT/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-VERSION-COMPAT-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-8b1a @4f1dd25b96ae47d51773626b2c7cc5a490278f1c — not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/events.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/adapters/run_store.py",
+    "tests/test_chaos_owner_absent.py",
+    "ofn/kernel/contract_pin.py",
+    "ofn/kernel/arch_bind.py",
+    "ofn/kernel/deadline_window.py",
+    "ofn/kernel/timeout_verdict.py",
+    "ofn/kernel/stale_class.py",
+    "ofn/kernel/fresh_pin.py",
+    "ofn/agents/campaign_envelope.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure version_class + compat_pin. classify_version names SUPPORTED / UNKNOWN_VERSION / UNKNOWN. Missing is UNKNOWN, not 0 and not FALSE. Bool/str/float fail closed. Other exact ints are UNKNOWN_VERSION, not a second supported version. admit is a START and is refused under HALT; classify continues. Timeout forces UNKNOWN and does not prove concurrent writing. pin_compat records two classes; UNKNOWN compatible is None, not False. Two SUPPORTED sides are compatible. UNKNOWN_VERSION does not invent v2 support. Sealed send/ready names refuse. campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_classify / halt_blocks_pin / mints_run_id / rewrites_supported_version / copies_envelope_class / ready_is_authorized / claims_immutable / unknown_is_false / unknown_version_is_false / timeout_proves_concurrent / proposal_is_execution / promotes_ready_to_send / wires_into_run_store structurally False. Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_version_class tests.test_compat_pin tests.test_chaos_version_compat tests.test_kernel_purity tests.test_envelope tests.test_envelope_class tests.test_store_class tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement -q",
+    "ran_at_utc": "2026-09-04T04:35:23Z",
+    "head_full_at_run": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "exit_code": 0,
+    "result": "397 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_version_class.py": "48 passed, exit 0 (recount 2026-09-04T04:35:15Z, same parent)",
+      "tests/test_compat_pin.py": "31 passed, exit 0 (recount 2026-09-04T04:35:15Z, same parent)",
+      "tests/test_chaos_version_compat.py": "12 passed, exit 0 (recount 2026-09-04T04:35:15Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (new-module+purity 101 at 2026-09-04T04:35:09Z)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_version_class tests.test_compat_pin tests.test_chaos_version_compat tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-04T04:35:09Z",
+      "exit_code": 0,
+      "result": "101 passed, 0 failed, 0 skipped"
+    },
+    "post_commit": {
+      "command": "python3 -X utf8 -m unittest tests.test_version_class tests.test_compat_pin tests.test_chaos_version_compat tests.test_kernel_purity tests.test_envelope tests.test_envelope_class tests.test_store_class tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement -q",
+      "ran_at_utc": "2026-09-04T04:35:43Z",
+      "head_full_at_run": "82f00cc97b6d24fa9a51c39bad5516d50a7b91d7",
+      "exit_code": 0,
+      "result": "397 passed, 0 failed, 0 skipped"
+    },
+    "tree_state": "engineering commit 82f00cc; receipt and lane report added after"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout and on incidents branch origin/docs/octopus-os-incidents-20260902 @dd448948c8180b4f33e0a127574ffea7e608e5ab (xc) this-run. Next append is xci.",
+    "CONTRIBUTING.md": "absent on origin/main @e00c8ed — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_collision": {
+    "value_a": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "source_a": "this-run git fetch origin main 2026-09-04T04:32Z (subject #181 GAP-066)",
+    "value_b": "67e7f1e7478da3ef399ab93789a9d9463bec207e",
+    "source_b": "prior memory #182 as origin/main; this-host git rev-parse MATCH",
+    "value_c": "b062c5362a718ee53b3235eccdafc390f641020a",
+    "source_c": "prior memory #179 as origin/main",
+    "value_d": "4f1dd25b96ae47d51773626b2c7cc5a490278f1c",
+    "source_d": "this-host /workspace trigger checkout (subject #184); ancestor of e00c8ed",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "cron",
+    "schedule": "17 * * * *",
+    "triggered_at": "2026-09-04T04:22:00.300Z",
+    "automation_id": "5804ce5d-a68d-11f1-a7d1-d6b4613131ce",
+    "verdict": "Owner-absent reversible engineering. REVIEW_REQUIRED blocks merge, not engineering. Did not merge. Did not weaken gates. Did not write /workspace."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
