@@ -1,5 +1,27 @@
 # NEXT AGENT — Hardware Discovery & Enrollment Continuation
 
+> ## ⚠️ CORRECTED 2026-09-15 — READ THIS BEFORE ACTING ON ANYTHING BELOW
+>
+> This file's premises were tested and **three of them are wrong**. Acting on the original
+> text can take down the executor board or disturb live mining nodes.
+>
+> | Original claim | Measured reality |
+> | :--- | :--- |
+> | "microSD cards are inside some of the three existing boards" | **False.** None of 138/180/182/.100/.160 had any card. A 32 GB card only appeared when the *owner* inserted one into 138 at ~01:15Z. |
+> | ".100 and .160 are new blank OPi5 boards, password unknown" | **False.** They are live **Hacash mining nodes** ("Operation Piggy Bank 2026"), running for months. See `03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/`. |
+> | "182 may be boot-looping" | **False.** 182 is stable; it was merely mid-reboot at first probe. Its real problem is OOM (4 GB RAM, no swap, sensorium capped at 2 G, `NRestarts=14`). |
+>
+> Also: "all common passwords rejected" was **not evidence** — those servers offer only
+> `publickey,keyboard-interactive` and return an *empty* keyboard-interactive challenge, so no
+> password can ever be submitted. Access came from the pre-existing `piggybank_id_ed25519` key.
+>
+> **Where things actually stand:** the SD card is prepared and ready (Armbian OPi5 **Plus**
+> image, SSH keys injected, cleanly unmounted, still sitting in 138). The only thing left is
+> the physical move. Read `LANE-REPORT.md` (findings + rollback) and `OWNER-ACTIONS.md`
+> (the physical steps) — they supersede the phases below.
+>
+> **Do not reflash `.100`/`.160`.** They are production mining nodes.
+
 **Created:** 2026-09-15T01:30:00Z
 **Priority:** Find SD cards on existing boards, prepare them for booting new OPi5 boards
 
