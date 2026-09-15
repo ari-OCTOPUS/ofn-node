@@ -597,3 +597,15 @@ RULE         = paid cognition never burns the budget on money thoughts — this 
 > **OPT3 — `ORGANISM_PATCH_STATUS = PRODUCED` برای اولین بار:** زنجیرهٔ کامل زنده شد — `qwen3-0.6b → ops → پاکتِ harness → WT-apply → compile → تست سبز داخل worktree → منتقد مستقل → CLOSE PRODUCED` (رسید `ae2a0b51fa6e`، artifact `42bfb8d5`، درخواست `cog-factory-677f995b` در صف شاهد‌دار). وظیفهٔ واقعی CF-001 = تست‌های smoke مسیریابی glass (هش B3 فارسی / «بفرست»→MONEY / خالی→None). پنج باگ واقعی در پیاده‌سازی مالک شکار و اصلاح شد (تست روی repo زنده نه WT، درخواست بدون فیلد `patched` = skip بی‌صدای executor، NameError منتقد، نبود budget در WT، باگ مسیر wt) + بازطراحی «producer محدود»: مدل فقط ops می‌دهد، پاکت را harness قطعی می‌سازد (نرمال‌سازی fence/think بدون scraping).
 >
 > **OPT2 — لایهٔ دوام:** `durable_jobs.py` (state machine + idempotency registry + ledger	fsync-append) روی ۱۳۸، باتری ۱۵/۱۵ سبز (lease-expiry، heartbeat، DLQ، retry-once→FAILED، fsync-abort، kill-reclaim، dry-run پاک). **سرشماری روی bus زنده: «۶۱ معلق» آرتیفکت هیستوگرام بود — ۲۱ job متمایز، فقط ۳ قابل‌اقدام** (F-005 اصلاح می‌شود). unitهای watchdog برای ۱۱۴/۱۶۰ با shim بدون وابستگی **فقط staged** + کارت تصمیم مالک (نصب/rollback). پچ canonical-breaker عمداً بعد از TRIO-002 (بدون base انباشته).
+
+> ⚙️ **به‌روزرسانی ۲۰۲۶-۰۹-۱۵ ~۰۹:۲۵Z — هستهٔ اجرایی امن مستقر شد (گزینهٔ ۱ مالک) · خودترمیمی زنده اثبات شد**
+>
+> **EXECUTOR-CORE-F001-OW8-001 DEPLOYED+VERIFIED** (`09:05:32Z verified=True`، cycle-closed `09:10:45Z`، live sha `20740724`، از مسیر canary شاهد‌دار خود ارگانیسم). محتوا طبق بستهٔ مالک: F-001 بازنشستن دولایه (حرکت فایل قبل از رسید در cycle-close + خودشفابندی verified-by-receipt با صفر مصرف بودجه) + OW-8 (disposition+continue به‌جای return) + OW-8b (کلید کانونی دسته با fallback فقط‌خواندنی RY) + واژگان retire پیشوندی.
+>
+> **پذیرش بسته:** anchor-check ۳گانه ✓ → ۹ ویرایش جراحی بایت‌دقیق → harness ایزوله T1-T6 = **۱۶/۱۶ سبز** (HOME ریدایرکت‌شده، صفر تماس با state زنده) → کانری شاهد‌دار.
+>
+> **اثبات رفتاری در اولین tick پس از deploy (09:16:25):** `F001_SELF_RETIRE ×3` (خود EXECUTOR-CORE + cog-factory + G8-021 — هر سه verified-executed ولی معلق، خودشان retired شدند با صفر بودجه) · سه درخواست دیگر DEPENDENCY_UNMET مستقل گرفتند و حلقه ادامه یافت (گرسنگی مرده) · **G22 هم‌زمان اثبات رفتاری شد** — probe منفی سرانجام disposition گرفت. صف ۶→۳؛ W24 با dep-bump به G8-021 آمادهٔ tick بعد.
+>
+> **دو یافتهٔ تازه این دور:** (۱) رفتار از-قبل-موجود: درخواستِ هرگز-deployنشده روی witness-unavailable در executed/ پارک می‌شود — dedupe آینده می‌تواند false-positive بدهد (ثبت برای پچ بعدی). (۲) ریشهٔ عمیق‌تر F-001: receipt اجرا فیلد request ندارد و واژگان مقدار بازگشتی `_witnessed_action` با tuple شرط retire نمی‌خواند — لایهٔ ۲ این کلاس drift را برای همیشه می‌پوشاند.
+>
+> **دو صفحهٔ خودتغییریری پشت‌سرهم:** اولین patch خودتولید ارگانیسم (CF-001) در `08:49:34Z` توسط خودش با شاهد deploy شد؛ سپس executor خودش را از داخل صف خودش ارتقا داد (`09:05:32Z`).
