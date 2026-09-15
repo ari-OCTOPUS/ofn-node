@@ -67,10 +67,20 @@ LIVE-TIME LOG (all receipts in ops-receipts.jsonl on 138):
   returns `(False, "BUDGET_COMPONENT_30MIN")` — breaker CLOSED, only the time window
   remains.
 
-FINAL STATE: all gates cleared except the organism's own 30-min pacing; the deploy is
-expected to land on the first tick after 06:45:31Z without further human/agent action.
-(Post-landing sha check: live glass_runner must equal fc993720570b8a72; then W24-BINDER-006
-becomes the next in line automatically.)
+FINAL STATE (2026-09-15T06:59:52Z):
+
+- **G8-021 DEPLOYED + VERIFIED**: 06:48:46Z OPS_B_PROPOSAL_SENT (fixed unit) →
+  06:54:16Z OPS_B_EXECUTED `verified=True outcome=VERIFIED` → 06:54:17Z
+  OPS_B_OUTCOME_SENT → 06:59:31Z OPS_B_CYCLE_CLOSED. Live readback
+  glass_runner = fc993720570b8a72 (exact expected post-sha). Behavioral probe on
+  the LIVE file: `_HEX_PAT.pattern` repr = `\b` word boundary (real), routing
+  3/3 (B3 fa-confirm / بفرست→MONEY / plain→MONEY). **First successful B8 canary
+  deploy to the agents tree in organism history** (3/3 prior attempts failed on
+  the sandbox gap).
+- W24-BINDER-006 next in DAG (base intact, dep executed) — expect organism's own
+  next ticks. G22 behavioral probe still queued behind it (starvation defect
+  OW-8 documented). Z-SUCCESSOR-TRIO-002 queued (70be7440), TRIO-001 superseded.
+- Full round verdicts: ROUND2-VERDICTS-20260915.md.
 
 ## Unverified / honest limits
 

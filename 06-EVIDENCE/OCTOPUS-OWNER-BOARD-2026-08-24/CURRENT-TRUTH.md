@@ -559,3 +559,16 @@ RULE         = paid cognition never burns the budget on money thoughts — this 
 > **رفع (همه با رسید):** V3 = rebase سه‌طرفه روی `02fb704d` زنده + تعمیر بایت‌های 0x08 → پذیرش تازه **8/8** (B3: هش ثبت‌شده فارسی/انگلیسی + payload بلند؛ عایق پول: «بفرست» خالی/هش کوتاه/خالی) → در صف با شاهد: `G8-021` (پایه `02fb704d` → پس `fc993720`)؛ G8-020 به `superseded-tasks/` رفت. **W24-BINDER-006 base سالم است و بعد از G8 آزاد می‌شود؛ Z-TRIO-001 خودش stale است (`109e68c0` vs زنده `c2e290fd`) — دیوار بعدی، دستور کار OW-3.**
 >
 > **وضعیت زندهٔ ۷ برد در ۰۵:۲۰–۰۵:۲۵Z (اندازه‌گیری مستقیم):** ۱۳۸ فرمانده (۳۲ تایمر، facts=۳۷۱، بدون هیچ kill-switch) · ۱۸۲ شاهد+NATS/fusiond · ۱۸۰ کیفیت+LLM محلی · ۱۹۳ مدل T3 systemd · ۱۶۰ ingestion سالم ولی nohup (با reboot می‌میرد — OW-4) · ۱۱۴ ارزیاب سالم ولی nohup (OW-4) · ۱۰۰ اجراگر درخواستی. PB-1: پنجره از `04:31Z`، PASS بعد از `2026-09-16T04:31Z`. `verified_cash` همچنان `$0.00` صادقانه.
+
+> ⚡ **به‌روزرسانی ۲۰۲۶-۰۹-۱۵ ~۰۷:۰۵Z — G8 DEPLOYED+VERIFIED · اولین deploy موفق به درخت agents در تاریخ ارگانیسم**
+>
+> **زنجیرهٔ کامل شاهد:** `06:48:46Z PROPOSAL_SENT` (با unit اصلاح‌شده) → `06:54:16Z OPS_B_EXECUTED verified=True outcome=VERIFIED` → `06:59:31Z CYCLE_CLOSED`. Readback زنده: `glass_runner = fc993720` (دقیقاً sha موردانتظار) + probe رفتاری روی فایل زنده ۳/۳ (regex `\b` واقعی؛ تأیید فارسی→B3؛ «بفرست»→MONEY). مسیریابی پیام مالک (B3 در برابر پول) برای اولین بار LIVE است.
+>
+> **دور تهاجمی-مجاز (موج ۱ مالک) — verdictها با رسید (جزئیات: `09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md`):**
+> - **W24-BINDER-006**: READY — بعد از G8 در صف؛ پایه سالم؛ اجرا با tickهای خود ارگانیسم.
+> - **TRIO-002** در صف (`70be7440` روی پایهٔ زنده `c2e290fd`؛ merge جراحی + اسکن بایت کنترل تمیز؛ چک ۵/۵)؛ TRIO-001 با رسید supersede شد. **W3G30** پایه‌اش تازه است — نیازی به کار نبود.
+> - **G22**: در کد زنده present (فیلد dependencies + OPS_B_DEPENDENCY_UNMET)؛ probe رفتاری منفی در صف است — منتظر disposition چون **نقص گرسنگی runtime-اثبات شد**: `return "budget-blocked"` کل لاین category را می‌بندد و درخواست مستقل را ستاره‌می‌زند (OW-8؛ پچ آن TCB-adjacent = پکت مالک‌نما).
+> - **طبقه‌بندی failed/**: ۶ فایل — ۴× B8 = کلاس sandbox cp-exit-1 (ریشه‌اصلاح‌شده 06:20Z، terminal)؛ ۲× B5 تاریخی. **هشدار تازه: breaker پنج‌ها (B5) 06:38Z باز شد — OW-9.**
+> - **گیت پول**: هر دو نشانگر (NO_IDENTITY/AMBIGUOUS) در سورس زنده؛ مسیر MONEY با deploy شدن G8 واقعی شد؛ هیچ بستهٔ خرج callable وجود ندارد و ادعا نشده.
+> - **160/114**: unitهای systemd پیشنهادی **staged فقط** (`staged-units/` + طرح نصب) — اعمال = OW-4.
+> - درخواست‌های mystery: `requested_by = octopus-commander-editor/2026-09-14` — ساخت فرمانده، نه خودارگانیسم؛ assertion ثبت شد.

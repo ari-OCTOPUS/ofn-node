@@ -1,0 +1,17 @@
+[Unit]
+Description=OCTOPUS ingestion (node 160) - dedup/provenance fact pipeline, feedback-loop consumer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/octopus-worker
+ExecStart=/usr/bin/python3 /opt/octopus-worker/ingestion.py
+Restart=on-failure
+RestartSec=10
+CPUQuota=50%
+MemoryMax=300M
+
+[Install]
+WantedBy=multi-user.target
