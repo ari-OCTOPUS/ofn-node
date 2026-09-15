@@ -1,0 +1,54 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-INCLUSIVE-EXCLUSIVE-20260907",
+  "issued_utc": "2026-09-07T16:24:15Z",
+  "author": "cursor-cloud bc-65ef4cc3-123a-495e-a679-eb7d6de238b1 (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-inclusive-exclusive on feat/p1-inclusive-exclusive-20260907 parent origin/main @ee11d612e9f187e9c38bef0d5bf6875ad1161e0f (#152). inclusive_class.py and exclusive_pin.py ABSENT on parent (ls). /workspace stayed on cursor/taskenvelope-system-hardening-4f90 @ee11d612e9f187e9c38bef0d5bf6875ad1161e0f and was not written.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list may be egress-blocked)"
+  ],
+  "action": "P1 complementary inclusive_class + exclusive_pin — new files only. One-bound inclusion witness (inclusive/exclusive). Exclusive + equal is OUT not ON. Measured 0 is a family never UNKNOWN. sample is START. classify/observe/inspect continue under HALT. Ready ≠ authorized.",
+  "delivered": {
+    "ofn/kernel/inclusive_class.py": "classify_kind: None→UNKNOWN; inclusive/exclusive closed set; sealed/empty/bool fail closed. classify_family: missing value/bound/kind→None not FALSE; timeout→None; exclusive equal→OUT; inclusive equal→ON; measured 0 is ON or OUT. sample START (halted→False). grants_send/rearms_send/ready_is_authorized/unknown_is_false/timeout_proves_concurrent_write/proposal_is_execution/claims_immutable/promotes_ready_to_send/wires_into_run_store/mints_run_id/measured_zero_is_unknown/exclusive_on_bound_is_on structurally False. later_disarm_supersedes True. halt_blocks_sample True.",
+    "ofn/kernel/exclusive_pin.py": "pin_exclusive records slot→kind:bound:family; same triple already_pinned; different kind/bound/family exclusive_collision; peek never writes; missing→None not FALSE; timeout writes nothing; pin_allows_send structurally False; pin_allows_sample only sample+ON+inclusive; not wired into run_store.py",
+    "tests/test_inclusive_class.py": "E3 negatives: missing UNKNOWN, sealed aliases, exclusive OUT, measured 0, bool/float, HALT vs sample, no send knobs",
+    "tests/test_exclusive_pin.py": "E3 negatives: collision, peek missing, timeout no write, retcon, hand-built drift, sealed slot",
+    "tests/test_chaos_inclusive_exclusive.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_inclusive_class tests.test_exclusive_pin tests.test_chaos_inclusive_exclusive tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_deadline_window tests.test_dedup tests.test_settlement tests.test_events tests.test_incidents_log_policy -q",
+    "ran_at_utc": "2026-09-07T16:24:15Z",
+    "parent_head_full": "ee11d612e9f187e9c38bef0d5bf6875ad1161e0f",
+    "exit_code": 0,
+    "result": "441 passed / 0 failed / 0 skipped (unittest 'Ran 441 tests in 0.765s' / OK). New-module + purity 2026-09-07T16:24:12Z: 82 passed (inclusive 48 / exclusive 17 / chaos 7 / purity 10). Module recount 2026-09-07T16:24:22Z MATCH.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError verified)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-inclusive-exclusive).",
+    "worktree": "/tmp/ofn-p1-inclusive-exclusive",
+    "file_lock_zone": [
+      "ofn/kernel/inclusive_class.py",
+      "ofn/kernel/exclusive_pin.py",
+      "tests/test_inclusive_class.py",
+      "tests/test_exclusive_pin.py",
+      "tests/test_chaos_inclusive_exclusive.py",
+      "docs/octopus-surgery/architecture/2026-09-07/receipts/P1-INCLUSIVE-EXCLUSIVE-20260907.json",
+      "09-LANES/P1-INCLUSIVE-EXCLUSIVE/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None / missing value, bound, or kind → UNKNOWN, not FALSE",
+      "exclusive + equal → OUT, not ON",
+      "measured 0 is ON or OUT, never UNKNOWN",
+      "sample refused when halted; classify/observe/inspect continue",
+      "campaign_envelope_ready refused as slot",
+      "grants_send / ready_is_authorized / timeout_proves_concurrent_write / exclusive_on_bound_is_on structurally False",
+      "run_store source does not import inclusive_class or exclusive_pin"
+    ],
+    "filesystem_immutability": "NOT claimed"
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "above/below (#231) / unpublished inside-outside / unpublished offset-range / deadline_window / hysteresis_class (#217) / unpublished sign-magnitude / remainder/leftover (#204) / later_hold/scoped_authz (#214) / campaign_bind/send_fence (#145) / envelope.py / run_store.py / #152 digest/fold"
+}

@@ -1,0 +1,104 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-UNKNOWN-SEAL-20260902",
+  "issued_utc": "2026-09-02T23:43:15Z",
+  "author": "cursor-cloud-agent bc-6add2fc1-d29f-4fe7-805b-fd6df46d4261",
+  "owner_ratified": false,
+  "body": "bc-6add2fc1-d29f-4fe7-805b-fd6df46d4261",
+  "branch": "feat/p1-unknown-seal-20260902",
+  "parent_head_full": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/unknown_seal.py",
+    "tests/test_unknown_seal.py",
+    "tests/test_chaos_unknown_seal.py",
+    "09-LANES/P1-UNKNOWN-SEAL/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-02/receipts/P1-UNKNOWN-SEAL-20260902.json"
+  ],
+  "not_written": [
+    "ofn/kernel/envelope.py (owned by #83)",
+    "ofn/kernel/events.py (owned by #82)",
+    "ofn/adapters/run_store.py (owned by #82)",
+    "tests/test_chaos_owner_absent.py (owned by #82; read-only neighbor run)",
+    "ofn/kernel/token_ceiling.py (owned by #83)",
+    "ofn/kernel/receipts.py (owned by #87)",
+    "ofn/kernel/dedup.py (owned by #88)",
+    "ofn/kernel/settlement.py (owned by #88)",
+    "ofn/kernel/write_fence.py (owned by #116)",
+    "ofn/kernel/dual_record.py (owned by feat/p1-dual-record-20260902)",
+    "ofn/kernel/phase_wall.py (owned by feat/p1-phase-wall-20260902)",
+    "ofn/kernel/flag_freeze.py (owned by #119)",
+    "ofn/kernel/artifact_ref.py (owned by evidence-witness)",
+    "ofn/kernel/numeric_claim.py (collision open; not touched)",
+    "ofn/kernel/otel_map.py (owned by #77)",
+    "ofn/agents/campaign_envelope.py (owned by #76)",
+    "web/cockpit-v2 (owned by #115; not written)",
+    ".github/CODEOWNERS (GOV-V6 on origin/main)",
+    "docs/octopus-os/07-INCIDENTS.md (owned by incidents branch; appended separately)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure unknown seal. UNKNOWN is not FALSE and is not TRUE. Timeout does not prove concurrent writing. Missing LAN port is inference, not absence. Disk absence is body_not_on_this_host, not body_missing. Agent-report-only is UNKNOWN. system_wide requires exactly two distinct node_ids. campaign_envelope_ready structurally != send_authorized. grants_send / halt_blocks_classify / ready_is_authorized / claims_immutable / unknown_is_false / unknown_is_true / timeout_proves_concurrent_write / missing_port_proves_absent / disk_absence_is_body_missing structurally False. No halt/resend/send knob. HALT stops STARTS, not collection. Not wired into run_store.py. Does not claim filesystem immutability. Ready != authorized.",
+  "verification": {
+    "command": "python3 -m unittest tests.test_unknown_seal tests.test_chaos_unknown_seal tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir -q",
+    "ran_at_utc": "2026-09-02T23:43:15Z",
+    "head_full_at_run": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1",
+    "exit_code": 0,
+    "result": "219 passed, 0 failed, 0 skipped",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "per_file": {
+      "tests/test_unknown_seal.py": "48 passed, exit 0",
+      "tests/test_chaos_unknown_seal.py": "11 passed, exit 0",
+      "tests/test_kernel_purity.py": "10 passed, exit 0",
+      "tests/test_envelope.py": "28 passed, exit 0",
+      "tests/test_run_store.py": "70 passed, exit 0",
+      "tests/test_token_ceiling.py": "13 passed, exit 0",
+      "tests/test_run_gate.py": "21 passed, exit 0",
+      "tests/test_chaos_owner_absent.py": "14 passed, exit 0",
+      "tests/test_tmpdir.py": "4 passed, exit 0"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "absent on origin/main; present on origin/docs/octopus-os-incidents-20260902 @d63041a11b6f66e4edaa17557cbb559cc2b6346b",
+    "CONTRIBUTING.md": "absent on origin/main @e83a4f22 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "origin/cursor/d28-edge-runbook-ea6b",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "pr": 115,
+    "branch": "feat/cockpit-7cards-20260903",
+    "head_sha": "96b25ecff6b07acb7dca33d06cc24259013548b8",
+    "failed_check": "require-independent-approval",
+    "job_ids": ["100464074909", "100463766883"],
+    "verdict": "REVIEW_REQUIRED by design (author ari322, issue #51, GOV-V6). Not an engineering defect. Did not merge. Did not weaken the gate. Did not write cockpit-v2."
+  },
+  "origin_main_collision": {
+    "value_a_prior_memory": "58e87774f4428b247601f8b49956948491155f74",
+    "value_b_prior_memory": "608adb75487142e1431f5ada254b6abe3537337f",
+    "value_c_this_run": "e83a4f22b127bb4593bd535a86a6ea2d6ba07ff1",
+    "resolution": null,
+    "status": "open"
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}
