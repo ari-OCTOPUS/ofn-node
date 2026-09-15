@@ -583,3 +583,11 @@ RULE         = paid cognition never burns the budget on money thoughts — this 
 > **۱۲ تضاد vault↔runtime ثبت شد** (DISCREPANCIES.md): الگوی غالب = «runtime جلو زده، سند عقب مانده» (PB-4/corpus، G8/G16/G18، B1/D1)؛ خطرناک‌ترها: «حلقهٔ بسته» در برابر ۶۱/۹۱ job غیرپایانی، B5 breaker باز، smartmontools failed روی ۱۳۸.
 >
 > **نکتهٔ ساختاری:** بزرگ‌ترین اهرم تک‌نفره مالک ~۲۰ رأی معلق + دو بازکردنی ارزان (شمارهٔ AUTO1، buy.nsw) است — بیشتر از هر فیکس کدی. خروجی دیگر: `CADENCE.md` = طرح تایمر هفتگی `deep-scan-tick` تا این ۱۰۰تایی خودش را prune/grow کند (بدون آن، خودش فراموش‌شدهٔ بعدی است — F-100).
+
+> 🧠 **به‌روزرسانی ۲۰۲۶-۰۹-۱۵ ~۰۸:۱۰Z — حافظهٔ زنده LIVE · گزینهٔ ۴ مالک نصب شد**
+>
+> **`octopus-deep-scan.timer` روی ۱۳۸ فعال است** (دوشنبه‌ها 04:00Z، Persistent، Unit=ari، capهای سخت). موتور: `/home/ari/ofn/state/deep-scan/deep_scan_tick.py` (sha `13317075`) — حالت‌های prune/grow/reconcile/report در یک تیک، lifecycle صرفاً append-only (`open→verified→queued→executed→resolved|abandoned`)، رتبه‌بندی U×R+C/5، گراف شواهد (رسید/هش/anchor/درخواست با تگ `[F-xxx]`).
+>
+> **پذیرش سه‌اجرایی مالک محقق شد:** ۴ تیک پشت‌سرهم RC=0 · صفر خطای collector · **صفر id تکراری** (dedupe اثبات‌شده) · ۱۶۰ یافتهٔ متمایز (seed=۱۰۰ + رشد آینهٔ vault با نرخ cap=۱۵/تیک) · dashboard: صدر = F-001 (۲۱.۰) گیرِ retire-نشدهٔ G8-021 · تضاد خودکار: «tg-inbox صفر = زنجیرهٔ ساخته‌شده بدون ترافیک» · breaker B5 باز، RY سالم (candidate درستاً تولید نشد).
+>
+> **منبع اختیاری vault:** mirror باندبستهٔ ۷۱MB/۱۱۰۵ فایل روی ۱۳۸ seed شد (worktree/sources مستثنا)؛ غایب → `SKIPPED_OPTIONAL_SOURCE_UNAVAILABLE` نه خطا. بروزرسانی آینه = کار آیندهٔ سمت لپ‌تاپ (sync هفتگی پیشنهادی). دو باگ راه‌اندازی (فایل event غایب + نرمال‌سازی مسیر ویندوزی) در همان پذیرش پیدا و اصلاح شد — ۹۳ رویداد `SOURCE_ABSENT` نخستین تیک، خوش‌رفتارند (فقط why اشتباه؛ state درست) و در log append-only ماندند به‌عنوان سند.
