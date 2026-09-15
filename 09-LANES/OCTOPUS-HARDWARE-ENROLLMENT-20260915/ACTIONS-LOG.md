@@ -133,3 +133,57 @@ router, supervisor, verify-dispatcher, …). کارت unmount شده و هیچ �
 **نکته:** قبل از نوشتن روی کارت دیگر، اول با `sudo e2fsck -fn /dev/mmcblk1p1` سلامت آن را چک می‌کنم
 تا دوباره روی کارت در حال مرگ وقت تلف نشود.
 
+---
+
+## A7 — 🎉 برد Plus بالا آمد و همه به مِش وصل شدند
+**تأیید مالک:** «همرو بیا وصل کنیم به اختاپوس بفهمه دارتشون»
+
+**برد جدید:** `192.168.0.194` — `Orange Pi 5 Plus`، Armbian 25.11.1، با کلید تزریق‌شده وارد شدم.
+(on SD بوت شده: `findmnt /` ⇒ `/dev/mmcblk1p1`)
+
+**کارت مرده از ۱۳۸ بیرون رفت** ⇒ پروسه‌های گیر آزاد شدند و load از **۶.۰ به ۱.۰۶** برگشت.
+
+**ثبت در `~/octopus-mesh/config/nodes.json`** (کامیت `93fa88dc1` در ریپوی مِش):
+
+| نود | نقش | رمز وضعیت |
+| :--- | :--- | :--- |
+| 100 | `compute-node` | از ماینینگ آزاد شد، load 0.00 |
+| 160 | `compute-node` | از ماینینگ آزاد شد، load 0.00 |
+| 194 | `model-server` | برد Plus جدید |
+| 182 | `lab-witness` | **`retired` به false تغییر کرد** (تصمیم جدید مالک، Supersede تصمیم ۰۹-۰۴) |
+
+نکات رعایت‌شده:
+- `may_authorize` روی **همه** `false` ماند (طبق AGENTS.md بند ۵)
+- entry نود ۱۸۲ **حذف نشد** چون کامیت قبلی هشدار داده بود
+  `octomesh_agent_bridge transmit()` روی حذف KeyError می‌دهد
+- از `nodes.json` نسخهٔ پشتیبان گرفته شد: `config/nodes.json.bak-<ts>`
+- کلید مِش روی هر سه نود نصب شد؛ CR فایل `authorized_keys` پاک شد (traپ CRLF)
+- `hostnamectl` روی `.100/.160` کار نکرد (dbus روی SSH خراب است) ⇒ مستقیم `/etc/hostname` نوشتم
+- از ۱۳۸ با کلید identity، **هر ۵ نود جواب دادند** (`compute-100`, `compute-160`,
+  `model-plus-194`, `sensorium-opi5pro`, `octopus-continuity-180`)
+
+**ROLLBACK:** `git revert 93fa88dc1` در `~/octopus-mesh`، یا بازگرداندن `config/nodes.json.bak-*`
+و `rm /root/.ssh/authorized_keys` خط مِش را از نودهای جدید بردار.
+
+---
+
+## A8 — ⚠️ برد Plus **eMMC ندارد** — درخواست «فلش روی eMMC» فعلاً ممکن نیست
+
+مالک گفت سیستم Plus به eMMC منتقل شود تا کارت SD آزاد شود. اندازه‌گیری روی خود برد:
+
+```
+lsblk            -> mmcblk1 (29.7G) = کارت SD  ·  mtdblock0 (16M) = SPI NOR
+                    هیچ mmcblk0 وجود ندارد
+dmesg            -> mmc0: SDHCI controller on fe2e0000.mmc   (کنترلر ثبت شد)
+                    ولی هیچ chipی وصل نیست ⇒ هیچ دستگاه بلوکی ساخته نشد
+/dev/nvme*       -> وجود ندارد (اسلات M.2 خالی است)
+/proc/mtd        -> mtd0: 01000000 "loader"   (SPI NOR هست)
+```
+**یعنی:** کنترلر eMMC هست ولی **ماژول eMMC نصب نیست**؛ M.2 هم خالی است.
+تنها حافظهٔ پایدارِ در دسترس، همان کارت SD است (به‌علاوهٔ ۱۶ مگابایت SPI که فقط برای
+u-boot کافی است، نه برای rootfs).
+
+⇒ برای آزاد کردن کارت SD باید یا **ماژول eMMC** روی برد نصب شود یا **SSD NVMe M.2**.
+تا آن موقع، Plus روی SD می‌ماند (که کار می‌کند).
+
+
