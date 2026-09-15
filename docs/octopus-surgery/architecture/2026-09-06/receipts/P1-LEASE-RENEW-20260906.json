@@ -1,0 +1,67 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-LEASE-RENEW-20260906",
+  "issued_utc": "2026-09-06T01:46:38Z",
+  "author": "cursor-cloud bc-077b7fe1-3da8-49c7-8cf8-2d7cc163f56b (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-lease-renew on feat/p1-lease-renew-20260906 parent origin/main @7a79798022aeaa6647032f2c4fefc1b17668b286 (#214). lease_class.py and renew_pin.py ABSENT on parent (ls). /workspace stayed on cursor/bc-077b7fe1-3da8-49c7-8cf8-2d7cc163f56b-ff22 @3b8f72994e141aeda92a13e4dd1bd75bc48a9fc1 (#194 trigger SHA) and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary lease_class + renew_pin — new files only. A lse- token binds one run. admit/renew are STARTS (HALT refuses via may_proceed). inspect/expire continue. steal never admitted. First live renew only; already_renewed and lease_collision fail closed. now>=expire is EXPIRED (closed). Missing is UNKNOWN, not FALSE and not expired. campaign_envelope_ready structurally ≠ send_authorized. Not a second later-hold, scoped-authz, deadline-window, start-permit, or unpublished slot/occupy / ttl/expire PR.",
+  "delivered": {
+    "ofn/kernel/lease_class.py": "classify_lease: missing→UNKNOWN; admit/inspect/renew/expire named; steal/malformed/sealed/bool/empty fail closed; is_start ADMIT/RENEW only; may_proceed START+halted→False inspect/expire continue missing→None; admit_send never True; pin_lease frozen; grants_send/rearms_send/steals_lease/ready_is_authorized structurally False; later_disarm_supersedes structurally True",
+    "ofn/kernel/renew_pin.py": "classify_window: missing→UNKNOWN; now<expire→LIVE; now>=expire→EXPIRED; peek does not write; pin_renew requires RENEW+LIVE; prior_renew→already_renewed; bound_run_id mismatch→lease_collision; grants_send/live_is_send/ready_is_authorized structurally False; later_disarm_supersedes structurally True; not wired into run_store.py",
+    "tests/test_lease_class.py": "E3 negatives: missing UNKNOWN, steal, sealed names, bool halt, run_store/deadline_window/later_hold import absence",
+    "tests/test_renew_pin.py": "E3 negatives: missing UNKNOWN not expired, equal closed, already_renewed, collision, sealed epochs, frozen retcon",
+    "tests/test_chaos_lease_renew.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_lease_class tests.test_renew_pin tests.test_chaos_lease_renew tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_deadline_window tests.test_start_permit tests.test_dedup tests.test_settlement tests.test_events -q",
+    "ran_at_utc": "2026-09-06T01:46:38Z",
+    "parent_head_full": "7a79798022aeaa6647032f2c4fefc1b17668b286",
+    "exit_code": 0,
+    "result": "475 passed / 0 failed / 0 skipped (unittest 'Ran 475 tests in 0.597s' / OK). New-module + purity: 98 passed (lease 46 / renew 35 / chaos 7 / purity 10) @ 2026-09-06T01:46:34Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-lease-renew).",
+    "worktree": "/tmp/ofn-p1-lease-renew",
+    "file_lock_zone": [
+      "ofn/kernel/lease_class.py",
+      "ofn/kernel/renew_pin.py",
+      "tests/test_lease_class.py",
+      "tests/test_renew_pin.py",
+      "tests/test_chaos_lease_renew.py",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-LEASE-RENEW-20260906.json",
+      "09-LANES/P1-LEASE-RENEW/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not EXPIRED",
+      "steal fails closed (never admitted)",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as lease/run/action/epoch",
+      "may_proceed(LEASE_ADMIT, halted=True) is False; inspect continues",
+      "admit_send(LEASE_RENEW) is False; missing is None; never True",
+      "now >= expire is EXPIRED (equal means closed)",
+      "prior_renew=True is already_renewed; bound_run_id mismatch is lease_collision",
+      "run_store source does not import lease_class or renew_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "later_hold / scoped_authz (#214) / deadline_window / start_permit / campaign_bind / send_fence (#145) / envelope.py / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88) / event_id / unpublished slot_class/occupy_pin / unpublished ttl/expire / unpublished hold_class/disarm_pin / unpublished cooldown/rearm / #194 organism-shadow (not written)"
+}

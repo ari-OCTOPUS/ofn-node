@@ -1,0 +1,11 @@
+# Fires daily at 06:50 — 10 min before digest, so DB is fresh.
+
+[Unit]
+Description=Daily auto sync at 6:50 AM
+
+[Timer]
+OnCalendar=*-*-* 06:50:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
