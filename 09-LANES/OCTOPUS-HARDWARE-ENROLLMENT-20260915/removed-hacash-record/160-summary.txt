@@ -1,0 +1,49 @@
+########## 160 ##########
+=== config ===
+[default]
+connect = 192.168.0.100:8081
+supervene = 7
+=== units ===
+[Unit]
+Description=Hacash Miner - Piggy Bank 2026 Node 3
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/hacash
+ExecStartPre=/usr/local/bin/wait-for-master.sh
+ExecStart=/opt/hacash/hacash_poworker /opt/hacash/poworker.config.ini
+Restart=always
+RestartSec=20
+StartLimitBurst=0
+Nice=+5
+CPUWeight=200
+MemoryMax=1G
+LimitNOFILE=65535
+StandardOutput=append:/opt/hacash/logs/miner.log
+StandardError=append:/opt/hacash/logs/miner.err
+
+[Install]
+WantedBy=multi-user.target
+=== helper scripts ===
+#!/bin/bash
+MASTER="192.168.0.100:8081"
+MAX_WAIT=300
+ELAPSED=0
+while [ $ELAPSED -lt $MAX_WAIT ]; do
+    if curl -sf --max-time 3 "http://${MASTER}/" > /dev/null 2>&1; then
+        echo "[$(date '+%H:%M:%S')] Master RPC ready - starting miner"
+        exit 0
+    fi
+    echo "[$(date '+%H:%M:%S')] Waiting for master (${ELAPSED}s)..."
+    sleep 10
+    ELAPSED=$((ELAPSED + 10))
+done
+echo "[$(date '+%H:%M:%S')] Timeout - starting anyway"
+exit 0
+=== cron ===
+=== size ===
+126M	/opt/hacash

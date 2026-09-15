@@ -60,16 +60,45 @@ else
 fi
 
 # --- Backup the old card's bootloader + rootfs (1.55 GiB) -------------------
-if [ ! -f "$BACKUP" ]; then
+if [ "${BACKUP:-}" = "none" ]; then
+  echo "[1/4] backup skipped (BACKUP=none)"
+elif [ ! -f "$BACKUP" ]; then
   echo "[1/4] backing up old card head (bootstrap + rootfs) -> $BACKUP"
-  dd if="$DEV" bs=4M count=400 status=none | xz -T0 -0 > "$BACKUP"
+  dd if="$DEV" bs=4M count=400 status=none | python3 -c "
+import sys, lzma
+with lzma.open('$BACKUP','wb',preset=0) as o:
+    while True:
+        b = sys.stdin.buffer.read(4<<20)
+        if not b: break
+        o.write(b)
+"
 else
   echo "[1/4] backup already exists: $BACKUP"
 fi
 
 # --- Write ------------------------------------------------------------------
+# NOTE: `xz` is NOT installed on 138 — use Python's stdlib lzma instead.
+# (A previous run silently wrote 0 bytes because of exactly this.)
 echo "[2/4] writing image (this takes a few minutes)"
-xz -dc "$IMG" | dd of="$DEV" bs=4M conv=fsync status=progress
+sudo python3 - "$IMG" "$DEV" <<'PY'
+import lzma, os, sys
+src, dst = sys.argv[1], sys.argv[2]
+n = 0
+o = open(dst, "wb", buffering=0)
+try:
+    with lzma.open(src, "rb") as f:
+        while True:
+            b = f.read(4 << 20)
+            if not b:
+                break
+            o.write(b); n += len(b)
+    o.flush(); os.fsync(o.fileno())
+finally:
+    o.close()
+print("WROTE_BYTES", n)
+if n == 0:
+    sys.exit(1)
+PY
 sync
 partprobe "$DEV" || true
 sleep 2
