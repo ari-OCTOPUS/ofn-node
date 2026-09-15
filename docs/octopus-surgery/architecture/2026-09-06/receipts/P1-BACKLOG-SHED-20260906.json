@@ -1,0 +1,66 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-BACKLOG-SHED-20260906",
+  "issued_utc": "2026-09-06T09:24:35Z",
+  "author": "cursor-cloud bc-f9ae528b-109b-4c7e-85ef-a4f8e10b88bc (owner-absent automation)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-backlog-shed on feat/p1-backlog-shed-20260906 parent origin/main @6ca0d6f01e61512bf60e3aedc466de6dd8e201e4 (#198). backlog_class.py and shed_pin.py ABSENT on parent (ls). /workspace stayed on cursor/bc-f9ae528b-109b-4c7e-85ef-a4f8e10b88bc-c7a5 @6ca0d6f01e61512bf60e3aedc466de6dd8e201e4 and was not written during engineering.",
+  "scope_not_measured": [
+    "full-suite CI on this branch (not yet published)",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run)"
+  ],
+  "action": "P1 complementary backlog_class + shed_pin — new files only. Queue depth vs a declared shed threshold (below / at / over). shed is a START (HALT refuses). classify/observe/inspect continue. Missing depth or threshold is UNKNOWN, not FALSE and not 0. Over-threshold room is UNKNOWN, not a negative. Timeout is UNKNOWN, not a concurrent-write proof. First pin records (slot → depth:threshold:family); same triple already_pinned; different triple shed_collision. campaign_envelope_ready structurally ≠ send_authorized. Not a second capacity/room (#209), overflow/carry (#205), remainder/leftover (#204), rate/throttle (unpublished), cascade/stop (#219), or codec/encode (#198) PR.",
+  "delivered": {
+    "ofn/kernel/backlog_class.py": "classify_family: missing→UNKNOWN; below/at/over named; bool/float/negative/zero-threshold fail closed; sealed send-ready names refuse as intent or slot; admit_backlog shed+halted→False classify/observe/inspect continue; room_to_shed over→None; grants_send/ready_is_authorized/unknown_is_false/timeout_proves_concurrent_write/proposal_is_execution/promotes_ready_to_send/wires_into_run_store/mints_run_id/room_is_zero/over_is_negative structurally False; halt_blocks_shed/later_disarm_supersedes structurally True",
+    "ofn/kernel/shed_pin.py": "pin_shed records (slot → depth:threshold:family); same triple already_pinned; different triple shed_collision; peek never writes; missing is None not FALSE; pin_allows_shed only shed+at or shed+over; pin_allows_send always False; grants_send/ready_is_authorized/wires_into_run_store/consumes_nonce structurally False; later_disarm_supersedes structurally True; not wired into run_store.py",
+    "tests/test_backlog_class.py": "E3 negatives: missing UNKNOWN, sealed names, bool/float/negative, halt START vs classify, no send knob",
+    "tests/test_shed_pin.py": "E3 negatives: missing UNKNOWN, collision, sealed slot, timeout no-write, frozen retcon",
+    "tests/test_chaos_backlog_shed.py": "seven owner-absent scenarios"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_backlog_class tests.test_shed_pin tests.test_chaos_backlog_shed tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_later_hold tests.test_scoped_authz tests.test_chaos_later_hold tests.test_campaign_bind tests.test_send_fence tests.test_events tests.test_codec_class tests.test_encode_pin tests.test_chaos_codec_encode -q",
+    "ran_at_utc": "2026-09-06T09:24:35Z",
+    "parent_head_full": "6ca0d6f01e61512bf60e3aedc466de6dd8e201e4",
+    "exit_code": 0,
+    "result": "498 passed / 0 failed / 0 skipped (unittest 'Ran 498 tests in 0.770s' / OK). New-module + purity: 80 passed (backlog 45 / shed 18 / chaos 7 / purity 10) @ 2026-09-06T09:24:26Z.",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "tree_state": "dirty — this session's lock-zone files only (/tmp/ofn-p1-backlog-shed).",
+    "worktree": "/tmp/ofn-p1-backlog-shed",
+    "file_lock_zone": [
+      "ofn/kernel/backlog_class.py",
+      "ofn/kernel/shed_pin.py",
+      "tests/test_backlog_class.py",
+      "tests/test_shed_pin.py",
+      "tests/test_chaos_backlog_shed.py",
+      "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-BACKLOG-SHED-20260906.json",
+      "09-LANES/P1-BACKLOG-SHED/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "None → UNKNOWN, not FALSE and not 0",
+      "over-threshold room is UNKNOWN, not a negative",
+      "send_authorized / quote_sent / campaign_envelope_ready refuse as intent or slot",
+      "admit_backlog(shed, halted=True) is False; classify/observe/inspect continue",
+      "pin_allows_send always False; pin_allows_shed only shed+at or shed+over",
+      "timeout does not write and does not prove a concurrent writer",
+      "run_store source does not import backlog_class or shed_pin"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git blob after commit)",
+  "not_duplicated": "capacity/room (#209) / overflow/carry (#205) / remainder/leftover (#204) / underflow/borrow (#207) / codec/encode (#198) / cascade/stop (#219) / lease/renew (#216) / later_hold/scoped_authz (#214) / unpublished rate/throttle / unpublished debounce/coalesce / unpublished jitter/spread / envelope.py / envelope_class / store_class (#148) / typed_event / receipt_bind (#143) / receipts (#87) / dedup (#88)"
+}
