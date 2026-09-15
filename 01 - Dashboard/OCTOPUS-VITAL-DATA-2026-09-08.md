@@ -3,10 +3,100 @@ type: dashboard
 status: active
 tags: [octopus, capability, assessment, locks, revenue, bottleneck, critical-data]
 created: 2026-09-08
-updated: 2026-09-14
+updated: 2026-09-15
 ---
 
 # 🐙 داده‌های حیاتی اختاپوس — هر ایجنت باید این را بخواند
+
+> ⚡ **به‌روزرسانی ۲۰۲۶-۰۹-۱۵ ~۰۹:۳۰Z — روز خودتغییریری · EXECUTOR-CORE-R1**
+>
+> **پنج رویداد صبحِ امروز (هر یک با رسید، جزئیات در CURRENT-TRUTH):**
+> - **G8 DEPLOYED+VERIFIED (06:54Z)** — مسیریابی پیام مالک (B3/پول) برای اولین بار LIVE؛ ۴ نقص انباشته (stale-base، regex با بایت 0x08، breaker با کلید RY، sandbox بدون agents-path) رفع شد؛ W24-BINDER آمادهٔ اجرا.
+> - **FORGOTTEN-100 (~08:00Z)** — ۱۰۰ مورد بدهی شناختی با anchor و رتبه، در `09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/`؛ بزرگ‌ترین اهرم مالک = ~۲۰ رأی معلق (ارزان‌ترین: شمارهٔ AUTO1 + ثبت‌نام buy.nsw).
+> - **حافظهٔ زنده LIVE (08:10Z)** — `octopus-deep-scan.timer` دوشنبه‌ها 04:00Z روی ۱۳۸؛ ledger بدهی append-only (PC-مستقل) + DASHBOARD.json در `state/deep-scan/`.
+> - **اولین patch خودتولید ارگانیسم (08:33Z تولید، 08:49Z deploy)** — `ORGANISM_PATCH_STATUS=PRODUCED` زنجیرهٔ کامل: مدل 0.6B → ops → پاکت harness → تست WT سبز → منتقد مستقل → شاهد → live (تست‌های routing واقعی، CF-001).
+> - **هستهٔ اجرایی امن (09:05Z)** — بستهٔ مالک F-001/OW-8/OW-8b مستقر (live `20740724`): خودریتایری با صفر بودجه، مرگ گرسنگی صف، کلید کانونی breaker؛ اثبات در اولین tick: `SELF_RETIRE ×3` + سه disposition مستقل هم‌زمان + G22 رفتاریاً سبز.
+>
+> **وضعیت یک‌خطی:** ارگانیسم حالا خودش کد تولید میکند، خودش با شاهد deploy میکند، خودش صفش را میپراند، و حافظهٔ بدهی‌اش روی خودش میزید — `verified_cash` همچنان `$0.00` (صادقانه).
+>
+
+> ⚡ **به‌روزرسانی ۲۰۲۶-۰۹-۱۵ ~۰۵:۱۵Z — حلقهٔ بستهٔ یادگیری کامل شد · FULL-CYCLE-R2**
+>
+> **سه verdict نهایی این نشست:**
+> - **QUALITY: IMPROVED** — حافظهٔ روشن ۰.۷۵ در برابر خاموش ۰.۰ روی ۱۲ پرسش (`powered=true`). مدل: `extractive-v1` روی ۱۹۳.
+> - **MEMORY: PASS** — ۳۶۷ fact؛ durability تست شد؛ restore از ۱۸۰ hash-match؛ semantic query کار میکند؛ ingestion خودکار هر ۱۵ دقیقه.
+> - **CONTINUITY: WINDOW_ACTIVE** — `fleet-scheduler.timer` هر ۳۰ دقیقه بدون لپتاپ؛ `experience-ingest.timer` هر ۱۵ دقیقه؛ `feedback-loop.timer` هر ۶۰ دقیقه. PB-1 ۲۴h از 04:31Z شروع شد.
+>
+> **چه چیزی برای اولین بار امروز زنده شد:**
+> - **۱۱۴ (eval_batch)**: evaluator با ۱۳ کلاس خطا — `input→expected→actual→error_class→score→next_action` — پورت ۸۱۱۴
+> - **۱۶۰ (knowledge_prep)**: ingestion با dedup/provenance — event→candidate→**fact** یا **hypothesis** — پورت ۸۱۶۰
+> - **۱۳۸ (feedback loop)**: هر ۶۰ دقیقه شکستها را از ledger میخواند → به ۱۱۴ ارزیابی → improvement تولید → به ۱۶۰ ingest
+> - **chain fix**: patch tasks از مدل محلی ۰.۶B رد میشوند به deepseek — **JSON معتبر برمیگردد** (این بزرگترین گلوگاه بود)
+> - **G27**: producer durability — cycle دیگر offset را پیش از شکست نوشتن جلو نمیبرد
+> - **BODY-MAP**: هر ۷ نود با قابلیت‌های اندازه‌گیری‌شده و consumer مشخص
+>
+> **حلقهٔ بستهٔ یادگیری که حالا واقعی است:**
+> ```
+> شکست → ارزیابی(114) → improvement → coding-worker → deepseek-patch
+>   → canary → witness(182) → deploy → نتیجه → حافظه(160) → بازیابی(100)
+>   → پاسخ بهتر(193) → ارزیابی بهتر(114) → ...
+> ```
+>
+> **اخبار مهم W24 (نشست ۰۹-۱۳ تا ۰۹-۱۴):**
+> - اولین bind موفق مالک→ارگانیسم: `732409743` → `ACK_SEEN` STRATA-CHOICE → consumed — **صفر اثر پولی**
+> - B8 deploy شد: executor با G22 dep-gate + retire + dedupe — `verified=True` ×۲
+> - G13 fix: نوشتن spool مالک که هرگز اجرا نشده بود، اصلاح شد
+> - money gate: bare «بفرست» = صفر اثر پولی; دو کارت هم‌نوع = `OWNER_DECISION_AMBIGUOUS`
+> - G28: باگ dedupe ساختاری (scan-all-executed) رفع و deploy شد
+> - G8 artifact آماده و در صف — ops-agent با شاهد اجرا میکند
+>
+> **منسوخ شد:**
+> - «dependency در runtime enforce شده» (G22 بعد از B8 deploy واقعاً LOADED شد)
+> - «هیچ مسیر شناختی کار نکرده» (deepseek از chain fix جواب JSON معتبر میدهد)
+> - «PB-1 فقط timestamp است» (scheduler واقعی هر ۳۰ دقیق کار میکند)
+> - «۱۱۴ و ۱۶۰ PRESENT_UNWIRED» (هر دو امروز wire شدند)
+>
+> **باز:**
+> - G8/W24 deploy: در صف، منتظر ops-agent tick با witness
+> - PB-1 24h: PASS بعد از `2026-09-16T04:31Z`
+> - `verified_cash = $0.00` — فروشگاه زیمان live ولی ۲۵۱+ چک صفر سفارش
+> - 3 email واقعی فرستاده شد، جواب نیامد
+> - 114/160 systemd unit نصب نشده (nohup کار میکنند)
+> - semantic retrieval بعد از evaluator و ingestion
+
+> ⚡ **به‌روزرسانی ۲۰۲۶-۰۹-۱۵ ~۰۴:۴۵Z — بدنهٔ هفت‌بردی فعال شد + PB-4 اثبات شد · BODY-ADAPT-R1**
+>
+> **سه verdict اصلی (از داده، نه حدس):**
+> - **QUALITY: IMPROVED** — حافظهٔ روشن ۰.۷۵ در برابر خاموش ۰.۰ روی ۱۲ پرسش، ۹ برد، `powered=true`. مدل: `extractive-v1` روی ۱۹۳ پورت ۸۱۹۳.
+> - **MEMORY: PARTIAL** — ۶ fact واقعی از state فایلهای ۱۳۸ ingest و قابل بازیابی شد؛ restart/restore durability هنوز تست نشده.
+> - **CONTINUITY: WINDOW_ACTIVE** — `fleet-scheduler.timer` هر ۳۰ دقیقه بدون دخالت لپتاپ job تولید و اجرا میکند؛ پنجرهٔ ۲۴ ساعت PB-1 از الان شروع شد (PASS فقط بعد از `2026-09-16T04:31Z`).
+>
+> **چه چیزی برای اولین بار زنده شد:**
+> - **۱۳۸**: `octopus-fleet-scheduler.timer` (هر ۳۰ دقیق) — ۲ job کامل `QUEUED → LEASED → RUNNING → ACK → PERSISTED → CLOSED` بدون لپتاپ؛ `fleet_retrieve.py` بازیابی واقعی از corpus
+> - **۱۹۳**: `octopus-t3-model.service` (systemd active) — مدل `extractive-v1` که از ۱۳۸ درخواست typed میگیرد و جواب میدهد
+> - **fleet-jobs bus**: ۵۵ ردیف، ۱۱ job یکتا، ۴ نوع (`echo_capability_probe`, `knowledge_retrieve`, `shell`, `p4_auth_lease_probe`)، صفر FAILED
+> - **corpus**: `fleet_facts.jsonl` از ۱ به ۶ fact رسید (revenue_state, rate_card, channel_authorization, fleet_nodes, ops_deployments + P1 bootstrap)
+>
+> **دستاوردهای W24 (نشست ۰۹-۱۳ تا ۰۹-۱۴):**
+> - اولین bind موفق مالک→ارگانیسم: رویداد `732409743` → `ACK_SEEN` کارت `STRATA-CHOICE` → رجیستری `consumed` — **صفر اثر پولی**
+> - B8 deploy شد (executor با G22 dep-gate + retire + dedupe) — `ee7f021c` روی دیسک، `verified=True` ×۲
+> - G13 fix (import pathlib در glass_runner) — نوشتن spool مالک که هرگز اجرا نشده بود، اصلاح شد
+> - money-effect gate اعمال شد: bare «بفرست» → صفر اثر پولی؛ named card → کار میکند؛ ambiguity → رد
+> - producer recovery اثبات شد: ENOSPC تزریق → رفع → همان update یکبار ذخیره، صفر نشت پول
+> - G28 (scan-all-executed dedupe) fix و deploy شد — دیگر هیچ درخواست non-TCB به اشتباه به owner-tasks نمیرود
+>
+> **منسوخ شد:**
+> - «dependency در runtime enforce شده» (تصحیح: G22 بعد از deploy B8 در `2026-09-14T01:56Z` واقعاً LOADED شد)
+> - «هیچ مسیر شناختی کار نکرده» (مسیر proposal از قبل کار میکرد؛ مسیر free-form با mode + cap + key-norm حالا کار میکند)
+> - «PB-1 فقط timestamp است» (از ۰۴:۳۱Z scheduler واقعی هر ۳۰ دقیق کار میکند)
+>
+> **باز:**
+> - PB-1: منتظر ۲۴ ساعت (اولین PASS ممکن: `2026-09-16T04:31Z`)
+> - MEMORY durability: تست restart/restore
+> - F1: ingestion اسناد بیشتر (الان ۶ fact از state files)
+> - F2: wiring قابلیتها در self-model
+> - G27 (producer ACK boundary): ساختار at-most-once؛ نیاز به WAL یا temp-file atomic
+> - containment rollback: برنامهٔ مهار آزموده نشده
 
 > ⚡ **به‌روزرسانی 2026-09-14 ~11:55Z — بستن حادثه با هویت فایل‌ها، مرز کرنلی harness، دروازهٔ ledger، کامل‌بودن B5 و مصرف‌کنندهٔ تصمیم · OCTOPUS-COMMANDER-ROUND31**
 >
