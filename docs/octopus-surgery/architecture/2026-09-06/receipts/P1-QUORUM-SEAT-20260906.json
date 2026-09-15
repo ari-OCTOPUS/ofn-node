@@ -1,0 +1,120 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-QUORUM-SEAT-20260906",
+  "lane": "P1-QUORUM-SEAT",
+  "recorded_at_utc": "2026-09-06T01:58:29Z",
+  "body": "bc-7a95e2ba-4497-4ec3-a3f1-23f91b84c504",
+  "branch": "feat/p1-quorum-seat-20260906",
+  "parent_head_full": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+  "parent_subject": "feat(kernel): parity_class / check_pin — even/odd witness, no send (#210)",
+  "file_lock_zone": "/tmp/ofn-p1-quorum-seat",
+  "owns": [
+    "ofn/kernel/quorum_class.py",
+    "ofn/kernel/seat_pin.py",
+    "tests/test_quorum_class.py",
+    "tests/test_seat_pin.py",
+    "tests/test_chaos_quorum_seat.py",
+    "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-QUORUM-SEAT-20260906.json",
+    "09-LANES/P1-QUORUM-SEAT/LANE-REPORT.md"
+  ],
+  "does_not_touch": [
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/parity_class.py",
+    "ofn/kernel/check_pin.py",
+    "ofn/kernel/later_hold.py",
+    "ofn/kernel/scoped_authz.py",
+    "ofn/adapters/run_store.py",
+    "ofn/config.py",
+    ".github/CODEOWNERS",
+    ".github/workflows/independent-review-gate.yml"
+  ],
+  "distinct_from": [
+    "capacity_class/room_pin (#209) — occupancy vs limit",
+    "approval_class/independent_pin (#176) — reviewer identity vs author",
+    "census_class (#124) — worktree census",
+    "slot_class/occupy_pin (#165) — run-slot occupy",
+    "lease_class/renew_pin (#216) — timed lease",
+    "parity_class/check_pin (#210) — even/odd of one count",
+    "later_hold/scoped_authz (#214)",
+    "unpublished orphan_class/adopt_pin",
+    "unpublished fuse_class/blow_pin",
+    "unpublished cooldown_class/rearm_pin",
+    "unpublished interlock_class/inhibit_pin"
+  ],
+  "claim": "classify_threshold names quorum / short from votes_present vs votes_required. This is a decision threshold, not occupancy vs limit and not even/odd of one count. record is a START and is refused under HALT; classify / observe / inspect continue. Missing present or required is UNKNOWN (None), not FALSE. Timeout forces UNKNOWN and does not prove concurrent writing. required < 1 fails closed — lowering required-votes does not satisfy. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_seat records (seat → family:present:required) at most once per distinct pair; same pair is already_pinned; disagreement is quorum_collision. peek never writes. pin_allows_record only for record+quorum or record+short; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / quorum_is_authorized / short_is_false / zero_required_satisfies / lowering_required_satisfies / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce structurally False. halt_blocks_record and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), seq.py, campaign_bind/send_fence (#145), capacity_class/room_pin (#209), approval_class/independent_pin (#176), census_class (#124), slot_class/occupy_pin (#165), lease_class/renew_pin (#216), parity_class/check_pin (#210), later_hold/scoped_authz (#214). Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_quorum_class tests.test_seat_pin tests.test_chaos_quorum_seat tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_parity_class tests.test_check_pin tests.test_later_hold tests.test_scoped_authz -q",
+    "ran_at_utc": "2026-09-06T01:58:29Z",
+    "head_full_at_run": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+    "exit_code": 0,
+    "result": "415 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_quorum_class.py": "46 passed, exit 0 (recount 2026-09-06T01:58:17Z, same parent)",
+      "tests/test_seat_pin.py": "18 passed, exit 0 (recount 2026-09-06T01:58:17Z, same parent)",
+      "tests/test_chaos_quorum_seat.py": "7 passed, exit 0 (recount 2026-09-06T01:58:17Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-06T01:58:17Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_quorum_class tests.test_seat_pin tests.test_chaos_quorum_seat tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-06T01:58:17Z",
+      "exit_code": 0,
+      "result": "81 passed, 0 failed, 0 skipped (quorum 46 / seat 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host /workspace checkout @84c40e6c471b49f6a9ae3a890782f085274216e4 and on isolated parent 33d2d7bb72b1fd8094574bad418648b28d13190e — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (through session lxxxiii) and on local origin/docs/octopus-os-incidents-20260902 @82dc5bb15662ee0bc8a02e1ea64e48df997bcb0e (session y). Later-memory sessions z..qq ABSENT this clone. git fetch denied by deny_egress. Next append after a live tip is read.",
+    "CONTRIBUTING.md": "absent on this-host /workspace checkout and isolated parent — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "this-host /workspace checkout @84c40e6",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on /workspace checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "origin_main_this_run": {
+    "value_a": "33d2d7bb72b1fd8094574bad418648b28d13190e",
+    "source_a": "isolated parent this-run (#210). Also an ancestor of designated /workspace HEAD 84c40e6c471b49f6a9ae3a890782f085274216e4 (PR #211 merge of main).",
+    "value_b": "f2b9a5c02eeffaf3d4159a83eef6ad6e534bbd1f",
+    "source_b": "this-host refs/remotes/origin/main (#208; 2026-09-06T01:56:50Z local rev-parse). git fetch denied by deny_egress.",
+    "resolution": null,
+    "status": "open"
+  },
+  "trigger": {
+    "event": "ci_check_suite",
+    "failed_check": "require-independent-approval",
+    "pr": 211,
+    "head_sha": "84c40e6c471b49f6a9ae3a890782f085274216e4",
+    "job_id": "101409777535",
+    "author": "Elahe-z",
+    "approvals_seen": "cursor[bot]",
+    "required": "one of Elahe-z or aram-ui, and not the author",
+    "verdict": "REVIEW_REQUIRED, not an engineering defect. Gate working as designed (issue #51, GOV-V6). Did not merge #211. Did not weaken the independence gate. Engineering continued on complementary P1-QUORUM-SEAT."
+  },
+  "external_effects": "ZERO",
+  "send_rearmed": false,
+  "filesystem_immutability": "NOT claimed"
+}

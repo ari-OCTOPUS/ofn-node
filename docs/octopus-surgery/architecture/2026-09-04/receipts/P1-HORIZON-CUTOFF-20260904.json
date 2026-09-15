@@ -1,0 +1,80 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-HORIZON-CUTOFF-20260904",
+  "issued_utc": "2026-09-04T07:27:45Z",
+  "author": "cursor-cloud owner-absent automation (cron 17 * * * *)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-p1-horizon-cutoff on feat/p1-horizon-cutoff-20260904 parent e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9 (origin/main #181). /workspace designated cursor/taskenvelope-system-hardening-de45 starts at the same parent and is a cherry-pick publish copy only.",
+  "scope_not_measured": [
+    "full-suite CI on the unpublished SHA",
+    "filesystem immutability of any archive (lsattr extents-only, not +i)",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list egress-blocked this-run; git ls-remote used)",
+    "pytest module (ModuleNotFoundError on this host; stdlib unittest used)",
+    "unpublished ttl_class/expire_pin and pair_class/match_pin objects (absent this body)"
+  ],
+  "action": "Add kernel-pure horizon_class + cutoff_pin. Equal is at_edge/at_pin (UNKNOWN, not a grant), distinct from deadline_window equal-is-closed. HALT refuses mint admit only. Ready is not authorized. Not wired into run_store. No send re-arm.",
+  "delivered": {
+    "ofn/kernel/horizon_class.py": "admit_horizon + HorizonDecision; classify continues under HALT; mint admit is a START; at_edge refuses as unknown_horizon not past_horizon; timeout UNKNOWN; grants_send structurally False",
+    "ofn/kernel/cutoff_pin.py": "pin_cutoff + CutoffPin; missing now is UNKNOWN not 0; equal is at_pin; no halt parameter; grants_send structurally False",
+    "tests/test_horizon_class.py": "structural pins, constructor guards, position/status, classify/admit, fail-closed, sealed names",
+    "tests/test_cutoff_pin.py": "structural pins, constructor guards, position, fail-closed, sealed names",
+    "tests/test_chaos_horizon_cutoff.py": "seven owner-absent scenarios + ready≠authorized"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_horizon_class tests.test_cutoff_pin tests.test_chaos_horizon_cutoff tests.test_kernel_purity tests.test_envelope tests.test_envelope_class tests.test_store_class tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_deadline_window tests.test_clock_bind -q",
+    "ran_at_utc": "2026-09-04T07:27:23Z",
+    "parent_head_full": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "exit_code": 0,
+    "result": "445 passed / 0 failed / 0 skipped (stdlib unittest; 'Ran 445 tests in 0.723s OK')",
+    "post_commit": {
+      "command": "python3 -X utf8 -m unittest tests.test_horizon_class tests.test_cutoff_pin tests.test_chaos_horizon_cutoff tests.test_kernel_purity tests.test_envelope tests.test_envelope_class tests.test_store_class tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_dedup tests.test_settlement tests.test_deadline_window tests.test_clock_bind -q",
+      "ran_at_utc": "2026-09-04T07:27:45Z",
+      "head_full": "0006f114f74e10605f0d5fffd9789cbd1fe65c50",
+      "exit_code": 0,
+      "result": "445 passed / 0 failed / 0 skipped (stdlib unittest; 'Ran 445 tests in 0.715s OK')"
+    },
+    "new_module": {
+      "command": "python3 -X utf8 -m unittest tests.test_horizon_class tests.test_cutoff_pin tests.test_chaos_horizon_cutoff tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-04T07:27:22Z",
+      "exit_code": 0,
+      "result": "108 passed / 0 failed / 0 skipped (horizon 56 / pin 30 / chaos 12 / purity 10)"
+    },
+    "runner": "stdlib unittest (pytest ModuleNotFoundError)",
+    "tree_state": "engineering commit 0006f114f74e10605f0d5fffd9789cbd1fe65c50 on feat/p1-horizon-cutoff-20260904",
+    "worktree": "/tmp/ofn-p1-horizon-cutoff",
+    "file_lock_zone": [
+      "ofn/kernel/horizon_class.py",
+      "ofn/kernel/cutoff_pin.py",
+      "tests/test_horizon_class.py",
+      "tests/test_cutoff_pin.py",
+      "tests/test_chaos_horizon_cutoff.py",
+      "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-HORIZON-CUTOFF-20260904.json",
+      "09-LANES/P1-HORIZON-CUTOFF/LANE-REPORT.md"
+    ],
+    "negative_controls": [
+      "equal epoch is at_edge/at_pin UNKNOWN, not deadline_window closed-as-False",
+      "timeout is UNKNOWN, does not prove concurrent writing",
+      "HALT refuses mint admit only; classify and inflight admit continue",
+      "missing now is UNKNOWN, 0 is a measurement",
+      "grants_send False; ready_is_authorized False; promotes_ready_to_send False",
+      "campaign_envelope_ready structurally ≠ send_authorized",
+      "no json / clock / I/O; kernel purity 10 passed"
+    ],
+    "filesystem_immutability": "NOT claimed (lsattr extents-only, not +i)",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets printed/rotated, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, quote_sent forbidden",
+  "external_effects": 0
+}

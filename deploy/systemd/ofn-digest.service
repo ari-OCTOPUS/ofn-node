@@ -1,0 +1,20 @@
+# OFN Owner Daily Digest
+# Generates prioritized callable list for Ari every morning.
+#
+# ASSUMPTIONS (verify before deploy):
+#   - Repo path: ~/ofn (ASSUMPTION — confirm with Ari)
+#   - User: dietpi (ASSUMPTION — check with: whoami on board138)
+#   - Python: /usr/bin/python3
+
+[Unit]
+Description=OFN Owner Daily Digest
+After=network.target
+
+[Service]
+Type=oneshot
+User=dietpi
+WorkingDirectory=/home/dietpi/ofn
+ExecStartPre=/bin/mkdir -p /home/dietpi/ofn/digests
+ExecStart=/bin/bash -c '/usr/bin/python3 tools/owner_digest.py --md "digests/$(date +%%Y-%%m-%%d).md" --include-no-phone --top 15'
+StandardOutput=journal
+StandardError=journal
