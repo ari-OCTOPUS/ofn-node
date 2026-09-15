@@ -52,6 +52,44 @@ def parse_notes(notes: str):
     return relevance, approach, body
 
 
+def _is_direct(approach: str) -> bool:
+    """Match 'Direct' and variants like 'Direct but self-managed...'"""
+    return approach.startswith("Direct")
+
+
+def _direct_caveat(approach: str) -> str:
+    """Return caveat text for non-standard Direct variants, or ''."""
+    if approach == "Direct":
+        return ""
+    if approach.startswith("Direct"):
+        return approach[len("Direct"):].strip(" —-–")
+    return ""
+
+
+# ---------------------------------------------------------------------------
+# Phone classifier — mobile vs office/1300
+# ---------------------------------------------------------------------------
+
+# The country-code prefix and the leading mobile digit must be allowed to be
+# separated by a space/hyphen: the old `\+?614\d{2}` required "614"
+# contiguous, so "+61 415 784 898" (a real ESR Group mobile) never matched
+# and the account fell to office-only. The prefix alternation also accepts
+# the bracketed "(+61)" / "(61)" form seen in the wild. Trunk-0 form (04xx/
+# 05xx) and the [45] mobile ranges are preserved from the original.
+_MOBILE_RE = re.compile(r"(?:\(?\+?61\)?[\s\-]?|0)[45]\d{2}[\s\-]?\d{3}[\s\-]?\d{3}")
+
+
+def _has_mobile(contact_str: str) -> bool:
+    """True if contact_channel contains any AU mobile (04xx/05xx, or the
+    same with a +61 / (+61) country-code prefix)."""
+    return bool(_MOBILE_RE.search(contact_str or ""))
+
+
+def _extract_mobiles(contact_str: str) -> list:
+    """Return all mobile numbers found in contact_channel."""
+    return _MOBILE_RE.findall(contact_str or "")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
