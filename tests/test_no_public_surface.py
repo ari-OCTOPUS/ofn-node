@@ -1,9 +1,11 @@
 """O9 — public surface: nothing is publicly reachable yet.
 
-The safe default: no storefront, no public contact form, no anonymous
-lead intake. These tests pin that the current HTTP surface exposes no
-unauthenticated write routes other than the deliberate ones (auth/session,
-shell/boot, webhooks — which are HMAC-gated).
+The safe default: no storefront, no anonymous commerce writes.
+Painting web intake is the one store-only exception (Prompt B2 / A/A2):
+POST /api/v1/public/painting/leads writes painting.sqlite and must not
+queue outbound. These tests pin that no *other* unauthenticated write
+routes exist besides the deliberate ones (auth/session, shell/boot,
+webhooks — HMAC-gated — and the store-only painting form).
 
 If someone adds a public route, these tests force the decision into the
 open instead of letting it ship silently.
@@ -37,9 +39,10 @@ class TestNoPublicSurface(unittest.TestCase):
         self.assertIn("_public_catalog_enabled", self.src)
 
     def test_no_anonymous_lead_intake(self):
-        """Lead intake requires auth (partner routes)."""
+        """Generic /leads stay authed. One named store-only painting route
+        is allowed before the principal check (BIZ-LEG-BLOCKERS A/A2)."""
         self.assertNotIn('"/api/v1/leads"', self.src)
-        # Only the three deliberate anonymous POST routes may exist BEFORE
+        # Only the deliberate anonymous POST routes may exist BEFORE
         # the principal check. Everything else must be inside the authed
         # owner/partner routers.
         pre_auth = self.src.split("principal = self._principal")[0]
@@ -47,11 +50,13 @@ class TestNoPublicSurface(unittest.TestCase):
             r'if method == "POST" and path (?:==|\.startswith\()'
             r'\s*"(/api/v1/[a-z0-9/_-]+)"', pre_auth)
         allowed_anon = {"/api/v1/auth/session", "/api/v1/shell/boot",
-                        "/api/v1/webhooks/"}
+                        "/api/v1/webhooks/",
+                        "/api/v1/public/painting/leads"}
         for route in anon:
             if route in allowed_anon:
                 continue
             self.fail(f"unexpected anonymous POST route: {route}")
+        self.assertIn("/api/v1/public/painting/leads", anon)
 
     def test_commerce_routes_are_authenticated_and_gated(self):
         """The audited-settlement route exists but is:
