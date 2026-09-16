@@ -1,0 +1,32 @@
+surface_id,surface,type,location,live_status,input_source,gate(s),evidence,severity
+S01,raw shell (shell=True @ repo root),shell,_ops/shell_capability.py:170,ARMED (flag present) / 0 executions,owner Telegram /sh text (post auth),activation file+3 kill files+regex deny-list+timeout/output caps+audit-first,E-001/E-002/E-003/E-004,HIGH
+S02,telegram /sh handler,shell-dispatch,_ops/telegram_center/center.py:648-695,LIVE (bot polling),owner message text,_is_owner (from.id==env) then shell_capability gates,E-004/E-005,HIGH
+S03,coding sandbox command runner,shell,_ops/coding_sandbox/command_runner.py:212-219,LIVE-capable (worktree),LLM/task command strings,prefix allowlist+denylist+timeout+cwd=worktree+proxy-strip+audit,E-020,MEDIUM
+S04,coding sandbox test runner,shell,_ops/coding_sandbox/test_runner.py:231-239,LIVE-capable,sys.executable+test file path,timeout+cwd; extra_args unvalidated,E-020,LOW
+S05,code_autonomy live-tree apply+git commit,fs+git,_ops/cortex/code_autonomy.py:670-833,INERT now (STOP file) / armed,LLM patch target+content,8 gates incl. owner tap+shadow-green+target_guard containment,E-018/E-019,MEDIUM
+S06,self_patch proposals,fs,_ops/self_patch.py,LIVE (beat_async),LLM defect+fix,flag+daily cap+quota+allowed_target+shadow+arm_gate; never auto-applies,subagent sweep,MEDIUM
+S07,git worktree ops (sandbox),git,_ops/coding_sandbox/sandbox.py:205-493,LIVE-capable,internal branch names,list-form argv+timeouts,E-020,LOW
+S08,.bat relaunch (cmd /c detached),process,_ops/live/server.py:372-386; _ops/now_moves/cortex_symmetric_revive.py:204-216,LIVE,code-internal,duplicate-safe :already; cap+incident on loop,E-028,LOW
+S09,powershell restart control,process,_ops/telegram_center/restart_control.py:165 (+acceptance_journey schtasks),LIVE (flag+approval),owner /restart,fixed argv + VALID_SCOPES + approval card,subagent sweep,MEDIUM
+S10,miniapp /api/actions (OpsActionEngine),http-post,_ops/telegram_center/miniapp_gateway.py (127.0.0.1:8774),LIVE,owner miniapp,initData HMAC+user.id==owner+rate limit+STOP files,E-024,LOW
+S11,cortex /ask LLM proxy,http-post,_ops/cortex/cortex.py:776-812 (127.0.0.1:8772),LIVE,local HTTP body (task/prompt),httpauth CSRF guard default-on fail-closed,E-025,LOW
+S12,organism status server,http-get,_ops/organism.py:192 (127.0.0.1:8771),LIVE,none (GET state),loopback+read-only,E-035,LOW
+S13,live cockpit server,http,_ops/live/server.py:1078 (127.0.0.1:8773),LIVE,owner UI,httpauth on POST,E-035,LOW
+S14,agent gateway (signed),http-post,_ops/legs/agent_gateway_http.py:339 (loopback),flag-gated,external agent payloads,HMAC sig+nonce replay+rate limit+flag,E-035,LOW
+S15,lead boundary ingest,http-post,_ops/legs/lead_boundary_http.py:44 (127.0.0.1:8777),flag-gated,lead form payloads,HMAC+timestamp window+nonce+idempotency,E-035,LOW
+S16,board control plane,http,_ops/board_cp/server.py:144 (0.0.0.0:8801),LIVE (only non-loopback),board devices,TLS fail-closed+Bearer fail-closed+is_armed gate+2 endpoints,E-034,MEDIUM
+S17,fugu proxy (LLM egress),http,_ops/owner_cockpit/fugu_proxy.py:43,186-194 (loopback 8787),flag OCTOPUS_WIRE_FUGU_PROXY,api key env+flag+fail-closed,E-037,LOW
+S18,telegram bot API send,network,_ops/telegram_center/tg_api.py:33,143-150,ALWAYS-ON,LLM/system text (scrubbed),host-pinned api.telegram.org+bot token,E-037,LOW
+S19,web research fetcher,network,_ops/cortex/web_research.py:62-63,FLAG default OFF (wiring exposed),school gap topics (structured) + fetched pages,scheme check+rate limit; NO allowlist/SSRF/size cap,E-021/E-038,MEDIUM
+S20,xero accounting client,network,_ops/legs/books_xero.py:34-35,62-93,structured accounting ops,OAuth client env; hardcoded hosts; draft-only writes,egress sweep,LOW
+S21,gmail read (IMAP+API),network,_ops/legs/lead_email_intake.py:987-997; email_inbound.py:107,FLAG default OFF,mailbox content (untrusted!),readonly IMAP EXAMINE+BODY.PEEK; flag+creds,E-035,LOW
+S22,pocketsmith + writeback,network,_ops/legs/pocketsmith_api.py; ps_writeback.py,FLAGS default OFF (absent from .env),structured finance data,flag gates in choke-points; no-op when off,E-013,LOW
+S23,outbound lead email SMTP,network,_ops/legs/lead_outbound_transport.py:389-398,FLAG default OFF,quote pipeline drafts,OCTOPUS_WIRE_LEAD_OUTBOUND+consent may_release+effect gate+staleness bridge+daily cap,E-011,MEDIUM
+S24,generic outbound https,network,_ops/integrations/outbound_https.py:259-264,NOT_WIRED (fail-closed),spec url (caller),domain allowlist+owner approval; _approval_port=None,E-036,LOW
+S25,agi2027 external build-module,network,_ops/agi2027_control/runtime.py:385-399,GATED READY_NOT_CALLED,ModuleSpec,triple gate owner+safety+external_call_approved,E-036,LOW
+S26,harvest austender GET,network,_ops/legs/harvest_austender.py:78-79,FLAG default OFF,date params only,keyless GET; flag,E-035,LOW
+S27,MCP server tools,process+fs,_ops/octopus_mcp/server.py:184-237,517-525,UNKNOWN registration,loopback host allowlist+TLS non-stdio,E-033,LOW
+S28,genome ledger append,fs,07 - Knowledge/genome-system/ledger/ledger.jsonl,LIVE (append 13:44Z),organism actors,append-only+prev-hash chain,E-014,LOW
+S29,state tree writes (beats),fs,_ops/state/** (organism/wiring beats),LIVE,internal+ingested signals,per-module flags; no central gate,E-016,LOW
+S30,secrets file read at boot,fs,.env (20 keys),LIVE,os.environ consumers,gitignored+untracked; plaintext .bak at root,E-027,MEDIUM
+S31,4d_system process surfaces (fetch_url arbitrary URL; own TG bot),network,4d_system/brain/web_research.py:193-196; telegram_bot.py:114-118,DEAD wrt organism loop (separate process),caller-supplied URL,ungated fetch_url (process-local),egress sweep,MEDIUM

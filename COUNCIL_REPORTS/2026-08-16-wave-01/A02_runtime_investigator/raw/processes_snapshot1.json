@@ -1,0 +1,2714 @@
+[
+    {
+        "ProcessId":  0,
+        "ParentProcessId":  0,
+        "Name":  "System Idle Process",
+        "CreationDate":  "\/Date(1786671437525)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4,
+        "ParentProcessId":  0,
+        "Name":  "System",
+        "CreationDate":  "\/Date(1786671437525)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  188,
+        "ParentProcessId":  4,
+        "Name":  "Secure System",
+        "CreationDate":  "\/Date(1786671420563)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  232,
+        "ParentProcessId":  4,
+        "Name":  "Registry",
+        "CreationDate":  "\/Date(1786671420575)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  708,
+        "ParentProcessId":  25652,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857125493)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=renderer --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\" --webview-exe-name=WhatsApp.Root.exe --webview-exe-version=1.0.0 --embedded-browser-webview=1 --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=9 --js-flags=\"--expose-gc --ms-user-locale=en_AU\" --time-ticks-at-unix-epoch=-1786671421302775 --launch-time-ticks=185704187420 --always-read-main-dll --metrics-shmem-handle=4752,i,4299476281790970690,2991480862386679880,2097152 --field-trial-handle=2064,i,16421095957546908993,12670768253598851487,262144 --variations-seed-version --pseudonymization-salt-handle=2068,i,18075387822758490815,14915122350607610200,4 --trace-process-track-uuid=3190708994745248135 --mojo-platform-channel-handle=4932 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899 /prefetch:1"
+    },
+    {
+        "ProcessId":  1180,
+        "ParentProcessId":  4,
+        "Name":  "smss.exe",
+        "CreationDate":  "\/Date(1786671437532)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1312,
+        "ParentProcessId":  1592,
+        "Name":  "WUDFHost.exe",
+        "CreationDate":  "\/Date(1786671459527)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1376,
+        "ParentProcessId":  1364,
+        "Name":  "csrss.exe",
+        "CreationDate":  "\/Date(1786671457227)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1468,
+        "ParentProcessId":  1568,
+        "Name":  "dwm.exe",
+        "CreationDate":  "\/Date(1786671459570)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1476,
+        "ParentProcessId":  1364,
+        "Name":  "wininit.exe",
+        "CreationDate":  "\/Date(1786671458416)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1484,
+        "ParentProcessId":  1468,
+        "Name":  "csrss.exe",
+        "CreationDate":  "\/Date(1786671458417)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1540,
+        "ParentProcessId":  1592,
+        "Name":  "OneApp.IGCC.WinService.exe",
+        "CreationDate":  "\/Date(1786671460367)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1568,
+        "ParentProcessId":  1468,
+        "Name":  "winlogon.exe",
+        "CreationDate":  "\/Date(1786671458871)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1592,
+        "ParentProcessId":  1476,
+        "Name":  "services.exe",
+        "CreationDate":  "\/Date(1786671458895)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1628,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459585)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1644,
+        "ParentProcessId":  1476,
+        "Name":  "LsaIso.exe",
+        "CreationDate":  "\/Date(1786671458932)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1652,
+        "ParentProcessId":  1476,
+        "Name":  "lsass.exe",
+        "CreationDate":  "\/Date(1786671458938)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1712,
+        "ParentProcessId":  1796,
+        "Name":  "ApplicationFrameHost.exe",
+        "CreationDate":  "\/Date(1786672850510)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\ApplicationFrameHost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\ApplicationFrameHost.exe -Embedding"
+    },
+    {
+        "ProcessId":  1724,
+        "ParentProcessId":  1592,
+        "Name":  "PresentationFontCache.exe",
+        "CreationDate":  "\/Date(1786671538958)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1796,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459373)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1816,
+        "ParentProcessId":  1592,
+        "Name":  "WUDFHost.exe",
+        "CreationDate":  "\/Date(1786671459379)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1844,
+        "ParentProcessId":  1568,
+        "Name":  "fontdrvhost.exe",
+        "CreationDate":  "\/Date(1786671459390)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1852,
+        "ParentProcessId":  1476,
+        "Name":  "fontdrvhost.exe",
+        "CreationDate":  "\/Date(1786671459390)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  1952,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459444)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2008,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459471)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2052,
+        "ParentProcessId":  14412,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887761898)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Roaming\\ZCode /prefetch:4 --no-rate-limit --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\.zcode\\v2\\crash\\live --annotation=_productName=ZCode --annotation=_version=3.7.7 --annotation=plat=Win64 --annotation=prod=Electron --annotation=ver=41.0.3 --initial-client-data=0x574,0x578,0x580,0x570,0x584,0x7ff694d3a7bc,0x7ff694d3a7c8,0x7ff694d3a7d8"
+    },
+    {
+        "ProcessId":  2060,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459588)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2068,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459588)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2084,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459589)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2216,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459609)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2224,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459609)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2312,
+        "ParentProcessId":  1592,
+        "Name":  "IntelCpHDCPSvc.exe",
+        "CreationDate":  "\/Date(1786671459628)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2336,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459629)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2360,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671621344)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2380,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459633)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2392,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786672852607)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2468,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459641)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2508,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459645)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2540,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671538969)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k LocalSystemNetworkRestricted -p -s webthreatdefusersvc"
+    },
+    {
+        "ProcessId":  2616,
+        "ParentProcessId":  1592,
+        "Name":  "IntelCpHeciSvc.exe",
+        "CreationDate":  "\/Date(1786671459659)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2640,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459661)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2668,
+        "ParentProcessId":  1592,
+        "Name":  "WmiApSrv.exe",
+        "CreationDate":  "\/Date(1786671875760)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2716,
+        "ParentProcessId":  8824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671847662)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=Widgets.exe --webview-exe-version=526.21100.10.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=2664,i,1572076765858549507,18139535666378789194,524288 --field-trial-handle=1504,i,12130604424809110144,15643077583829621060,262144 --variations-seed-version --pseudonymization-salt-handle=2052,i,16375957165988076123,17419898205291520257,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2316 /prefetch:13 /pfhostedapp:36e3b900ebc0cc863d7458a0f10a990e976ba758"
+    },
+    {
+        "ProcessId":  2724,
+        "ParentProcessId":  16824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671720697)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView /prefetch:4 /pfhostedapp:31bc9ac290d4a070c9972edeea07f72054c4ae8e --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView\\Crashpad --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=151.0.7922.109 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --annotation=plat=Win64 \"--annotation=prod=Edge WebView2\" --annotation=ver=151.0.4129.78 --initial-client-data=0x174,0x178,0x17c,0x150,0x184,0x7ff90ac965f0,0x7ff90ac96600,0x7ff90ac96610"
+    },
+    {
+        "ProcessId":  2736,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459673)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2792,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459685)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  2980,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459721)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3004,
+        "ParentProcessId":  1592,
+        "Name":  "NVDisplay.Container.exe",
+        "CreationDate":  "\/Date(1786671459727)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3024,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786674587723)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  3092,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459767)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3116,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459772)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3180,
+        "ParentProcessId":  19076,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786862618887)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  3204,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459785)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3212,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459785)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3220,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459786)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3256,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786672851829)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k DevicesFlow -s DevicesFlowUserSvc"
+    },
+    {
+        "ProcessId":  3276,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886068525)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20260810162159 -prefsHandle 2124:42534 -prefMapHandle 2148:302320 -ipcHandle 2172 -initialChannelId {556b75ff-6765-4c9b-8c18-fa7ec6494bf6} -parentPid 23940 -crashHelperPid 0 -crashHelper 2192 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 1 gpu"
+    },
+    {
+        "ProcessId":  3392,
+        "ParentProcessId":  4,
+        "Name":  "Memory Compression",
+        "CreationDate":  "\/Date(1786671459811)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3456,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459816)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3548,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459824)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3628,
+        "ParentProcessId":  16824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671720970)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=renderer --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView\" --webview-exe-name=M365Copilot.exe --webview-exe-version=19.2608.41021.0 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --js-flags=\"--expose-gc --ms-user-locale=en_AU\" --time-ticks-at-unix-epoch=-1786671420064105 --launch-time-ticks=300900861 --always-read-main-dll --metrics-shmem-handle=4020,i,14074114898823952721,17585397337324691922,2097152 --field-trial-handle=2004,i,2641627858305226593,5306544995089361048,262144 --enable-features=msSingleSignOnOSForPrimaryAccountIsShared --disable-features=msEnhancedTrackingPreventionEnabled --variations-seed-version --pseudonymization-salt-handle=2040,i,7512761442966746266,9673017892476653687,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=4008 /pfhostedapp:31bc9ac290d4a070c9972edeea07f72054c4ae8e /prefetch:1"
+    },
+    {
+        "ProcessId":  3640,
+        "ParentProcessId":  1592,
+        "Name":  "igfxCUIService.exe",
+        "CreationDate":  "\/Date(1786671459845)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3692,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459862)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3708,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459863)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3716,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459866)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3724,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459866)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3764,
+        "ParentProcessId":  1796,
+        "Name":  "SearchHost.exe",
+        "CreationDate":  "\/Date(1786671546886)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\SystemApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\SearchHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\SystemApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\SearchHost.exe\" -ServerName:CortanaUI.AppXstmwaab17q5s3y22tp6apqz7a45vwv65.mca"
+    },
+    {
+        "ProcessId":  3796,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671538991)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k UnistackSvcGroup -s WpnUserService"
+    },
+    {
+        "ProcessId":  3844,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459981)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3912,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459920)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3928,
+        "ParentProcessId":  1592,
+        "Name":  "ExpressVPN.AppService.exe",
+        "CreationDate":  "\/Date(1786671468160)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  3960,
+        "ParentProcessId":  23136,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786818333141)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  3996,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459937)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4036,
+        "ParentProcessId":  2980,
+        "Name":  "dasHost.exe",
+        "CreationDate":  "\/Date(1786671459989)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4060,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671489068)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4136,
+        "ParentProcessId":  16824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671720881)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView\" --webview-exe-name=M365Copilot.exe --webview-exe-version=19.2608.41021.0 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --always-read-main-dll --metrics-shmem-handle=2604,i,15928464077886114676,14609924626391648363,524288 --field-trial-handle=2004,i,2641627858305226593,5306544995089361048,262144 --enable-features=msSingleSignOnOSForPrimaryAccountIsShared --disable-features=msEnhancedTrackingPreventionEnabled --variations-seed-version --pseudonymization-salt-handle=2040,i,7512761442966746266,9673017892476653687,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2300 /prefetch:13 /pfhostedapp:31bc9ac290d4a070c9972edeea07f72054c4ae8e"
+    },
+    {
+        "ProcessId":  4148,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459996)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4164,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671459997)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4200,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460007)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4252,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671538945)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k BthAppGroup -p -s BluetoothUserService"
+    },
+    {
+        "ProcessId":  4336,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460055)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4356,
+        "ParentProcessId":  5804,
+        "Name":  "FnHotkeyCapsLKNumLK.exe",
+        "CreationDate":  "\/Date(1786671538988)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4364,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671538946)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k UnistackSvcGroup -s CDPUserSvc"
+    },
+    {
+        "ProcessId":  4420,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460093)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4472,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671538665)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4512,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886069374)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 3720:42610 -prefMapHandle 3724:302320 -jsInitHandle 3728:156236 -parentBuildID 20260810162159 -ipcHandle 3732 -initialChannelId {be1d7e1f-5974-48eb-9b10-cdddb8d629a8} -parentPid 23940 -crashHelperPid 0 -crashHelper 3740 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 3 tab"
+    },
+    {
+        "ProcessId":  4560,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460142)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4572,
+        "ParentProcessId":  3548,
+        "Name":  "taskhostw.exe",
+        "CreationDate":  "\/Date(1786671539043)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\taskhostw.exe",
+        "CommandLine":  "taskhostw.exe {222A245B-E637-4AE9-A93F-A59CA119A75E}"
+    },
+    {
+        "ProcessId":  4588,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460156)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4652,
+        "ParentProcessId":  1592,
+        "Name":  "spoolsv.exe",
+        "CreationDate":  "\/Date(1786671460192)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4660,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460192)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4700,
+        "ParentProcessId":  11328,
+        "Name":  "cmd.exe",
+        "CreationDate":  "\/Date(1786884995698)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\cmd.exe",
+        "CommandLine":  "cmd /d /s /c \"type \"C:\\Users\\Armin\\AppData\\Local\\Temp\\cursor_remote_install_82a759c1-900b-44f5-82ed-d69adc02b3e7.sh\" | ssh -T -D 4502 dietpi bash --login -c bash\""
+    },
+    {
+        "ProcessId":  4752,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460220)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4808,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460242)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4928,
+        "ParentProcessId":  3912,
+        "Name":  "audiodg.exe",
+        "CreationDate":  "\/Date(1786885964818)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  4932,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460316)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5024,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460356)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5032,
+        "ParentProcessId":  1592,
+        "Name":  "agent_ovpnconnect.exe",
+        "CreationDate":  "\/Date(1786671460357)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5040,
+        "ParentProcessId":  1592,
+        "Name":  "remoting_host.exe",
+        "CreationDate":  "\/Date(1786671460358)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5048,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460358)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5056,
+        "ParentProcessId":  1592,
+        "Name":  "DAX3API.exe",
+        "CreationDate":  "\/Date(1786671460358)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5076,
+        "ParentProcessId":  1592,
+        "Name":  "ExpressVPN.SystemService.exe",
+        "CreationDate":  "\/Date(1786671460359)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5088,
+        "ParentProcessId":  1592,
+        "Name":  "vmcompute.exe",
+        "CreationDate":  "\/Date(1786671460361)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5104,
+        "ParentProcessId":  1592,
+        "Name":  "FMService64.exe",
+        "CreationDate":  "\/Date(1786671460364)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5112,
+        "ParentProcessId":  1592,
+        "Name":  "ExpressVPN.VpnService.exe",
+        "CreationDate":  "\/Date(1786671460364)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5140,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460376)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5196,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460388)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5204,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460389)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5280,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460404)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5320,
+        "ParentProcessId":  1592,
+        "Name":  "esif_uf.exe",
+        "CreationDate":  "\/Date(1786671460414)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5496,
+        "ParentProcessId":  1592,
+        "Name":  "LMS.exe",
+        "CreationDate":  "\/Date(1786671460455)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5508,
+        "ParentProcessId":  1592,
+        "Name":  "MpDefenderCoreService.exe",
+        "CreationDate":  "\/Date(1786671460456)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5528,
+        "ParentProcessId":  1592,
+        "Name":  "ovpnhelper_service.exe",
+        "CreationDate":  "\/Date(1786671460461)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5564,
+        "ParentProcessId":  1592,
+        "Name":  "RstMwService.exe",
+        "CreationDate":  "\/Date(1786671460470)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5588,
+        "ParentProcessId":  1592,
+        "Name":  "RtkAudUService64.exe",
+        "CreationDate":  "\/Date(1786671460473)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5612,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460481)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5624,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460482)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5652,
+        "ParentProcessId":  1592,
+        "Name":  "WDDriveService.exe",
+        "CreationDate":  "\/Date(1786671460491)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5672,
+        "ParentProcessId":  1592,
+        "Name":  "MsMpEng.exe",
+        "CreationDate":  "\/Date(1786671460493)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5696,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460501)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5712,
+        "ParentProcessId":  1592,
+        "Name":  "jhi_service.exe",
+        "CreationDate":  "\/Date(1786671460510)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5728,
+        "ParentProcessId":  1796,
+        "Name":  "unsecapp.exe",
+        "CreationDate":  "\/Date(1786671462104)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5748,
+        "ParentProcessId":  1592,
+        "Name":  "LenovoVantageService.exe",
+        "CreationDate":  "\/Date(1786671460523)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5760,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460524)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5784,
+        "ParentProcessId":  1592,
+        "Name":  "wslservice.exe",
+        "CreationDate":  "\/Date(1786671460532)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  5804,
+        "ParentProcessId":  1592,
+        "Name":  "LenovoUtilityService.exe",
+        "CreationDate":  "\/Date(1786671460536)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  6188,
+        "ParentProcessId":  11772,
+        "Name":  "OpenVPNConnect.exe",
+        "CreationDate":  "\/Date(1786671580283)\/",
+        "ExecutablePath":  "C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe",
+        "CommandLine":  "\"C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\OpenVPN Connect\" --gpu-preferences=UAAAAAAAAADgAAAEAAAAAAAAAAAAAAAAAABgAAEAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAA --field-trial-handle=2044,i,5723567064064346637,9847807002085857809,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=2028 /prefetch:2"
+    },
+    {
+        "ProcessId":  6296,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460652)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  6496,
+        "ParentProcessId":  1796,
+        "Name":  "WmiPrvSE.exe",
+        "CreationDate":  "\/Date(1786671460714)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  6724,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460837)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  6796,
+        "ParentProcessId":  29260,
+        "Name":  "cmd.exe",
+        "CreationDate":  "\/Date(1786849310465)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\cmd.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\cmd.exe\" /c \"F:\\backup\\_ops\\RUN-CORTEX.bat\" "
+    },
+    {
+        "ProcessId":  6860,
+        "ParentProcessId":  6980,
+        "Name":  "M365Copilot.exe",
+        "CreationDate":  "\/Date(1786671719829)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\Microsoft.MicrosoftOfficeHub_19.2608.41021.0_x64__8wekyb3d8bbwe\\M365Copilot.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\Microsoft.MicrosoftOfficeHub_19.2608.41021.0_x64__8wekyb3d8bbwe\\M365Copilot.exe\" autorestart reason=update"
+    },
+    {
+        "ProcessId":  6980,
+        "ParentProcessId":  2736,
+        "Name":  "sihost.exe",
+        "CreationDate":  "\/Date(1786671538863)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\sihost.exe",
+        "CommandLine":  "sihost.exe"
+    },
+    {
+        "ProcessId":  6996,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671460919)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  7156,
+        "ParentProcessId":  9948,
+        "Name":  "Fing.exe",
+        "CreationDate":  "\/Date(1786876670172)\/",
+        "ExecutablePath":  "C:\\Program Files\\Fing\\Fing.exe",
+        "CommandLine":  "\"C:\\Program Files\\Fing\\Fing.exe\""
+    },
+    {
+        "ProcessId":  7228,
+        "ParentProcessId":  8824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671847594)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=gpu-process --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=Widgets.exe --webview-exe-version=526.21100.10.0 --embedded-browser-webview=1 --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --always-read-main-dll --metrics-shmem-handle=1980,i,5008626720792153598,16411727121787305472,262144 --field-trial-handle=1504,i,12130604424809110144,15643077583829621060,262144 --variations-seed-version --pseudonymization-salt-handle=2052,i,16375957165988076123,17419898205291520257,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2032 /prefetch:2 /pfhostedapp:36e3b900ebc0cc863d7458a0f10a990e976ba758"
+    },
+    {
+        "ProcessId":  7296,
+        "ParentProcessId":  5748,
+        "Name":  "LenovoVantage-(GenericMessagingAddin).exe",
+        "CreationDate":  "\/Date(1786671878438)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Lenovo\\VantageService\\5.1.2607.5\\LenovoVantage-(GenericMessagingAddin).exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Lenovo\\VantageService\\5.1.2607.5\\LenovoVantage-(GenericMessagingAddin).exe\" GenericMessagingAddin C:\\ProgramData\\Lenovo\\Vantage\\Addins\\\\GenericMessagingAddin\\1.1.0.190\\GenericMessagingAddin.dll GenericMessagingAddin.acb0b00585fc42e19a3edceca2df23dc 0b5a333b-99ef-490a-84e8-1312345ae7d2 8"
+    },
+    {
+        "ProcessId":  7588,
+        "ParentProcessId":  9868,
+        "Name":  "vmmemCmZygote",
+        "CreationDate":  "\/Date(1786671472981)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  7636,
+        "ParentProcessId":  25652,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857123590)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\" --webview-exe-name=WhatsApp.Root.exe --webview-exe-version=1.0.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=2392,i,6711798633279168970,10623543443317529138,524288 --field-trial-handle=2064,i,16421095957546908993,12670768253598851487,262144 --variations-seed-version --pseudonymization-salt-handle=2068,i,18075387822758490815,14915122350607610200,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2632 /prefetch:13 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899"
+    },
+    {
+        "ProcessId":  7652,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883598100)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Roaming\\Cursor /prefetch:4 --no-rate-limit --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Roaming\\Cursor\\Crashpad --url=https://f.a.k/e --annotation=_productName=Cursor --annotation=_version=3.16.17 --annotation=plat=Win64 --annotation=prod=Electron --annotation=ver=40.10.3 --initial-client-data=0x454,0x554,0x558,0x51c,0x55c,0x7ff664aa8a0c,0x7ff664aa8a18,0x7ff664aa8a28"
+    },
+    {
+        "ProcessId":  7668,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885070457)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\" --enable-sandbox --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=sentry-ipc --field-trial-handle=1756,i,6649381884757393131,17274583154279852420,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=2216 /prefetch:11"
+    },
+    {
+        "ProcessId":  7772,
+        "ParentProcessId":  1796,
+        "Name":  "WhatsApp.Root.exe",
+        "CreationDate":  "\/Date(1786792019244)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\5319275A.WhatsAppDesktop_2.2628.101.0_x64__cv1g1gvanyjgm\\WhatsApp.Root.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\5319275A.WhatsAppDesktop_2.2628.101.0_x64__cv1g1gvanyjgm\\WhatsApp.Root.exe\" -RegisterForBGTaskServer /nowindow /pushnotification -Embedding"
+    },
+    {
+        "ProcessId":  7852,
+        "ParentProcessId":  23924,
+        "Name":  "python.exe",
+        "CreationDate":  "\/Date(1786862216926)\/",
+        "ExecutablePath":  "C:\\Program Files\\Python313\\python.exe",
+        "CommandLine":  "python  -X utf8 live\\server.py"
+    },
+    {
+        "ProcessId":  7928,
+        "ParentProcessId":  4700,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786884995723)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  7948,
+        "ParentProcessId":  34776,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786876670989)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=gpu-process --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView\" --webview-exe-name=Fing.exe --webview-exe-version=4.0.5 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --always-read-main-dll --metrics-shmem-handle=1852,i,16809048816352345696,14599302937990005191,262144 --field-trial-handle=1940,i,17785955361128571310,12254055141498329142,262144 --disable-features=msPdfOOUI,msSmartScreenProtection,msWebOOUI --variations-seed-version --pseudonymization-salt-handle=1960,i,8217225503036690288,3605345902298136351,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1932 /prefetch:2 /pfhostedapp:1b54c2ad480070730130f3e82bf729d2a898e226"
+    },
+    {
+        "ProcessId":  8000,
+        "ParentProcessId":  5056,
+        "Name":  "DAX3API.exe",
+        "CreationDate":  "\/Date(1786671461495)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8120,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671463127)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8248,
+        "ParentProcessId":  5056,
+        "Name":  "DSRHost.exe",
+        "CreationDate":  "\/Date(1786671463900)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8352,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786886082450)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  8392,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671463186)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8436,
+        "ParentProcessId":  8824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671847597)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=Widgets.exe --webview-exe-version=526.21100.10.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=2300,i,8905230781449805458,3328424863893455615,524288 --field-trial-handle=1504,i,12130604424809110144,15643077583829621060,262144 --variations-seed-version --pseudonymization-salt-handle=2052,i,16375957165988076123,17419898205291520257,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2304 /prefetch:11 /pfhostedapp:36e3b900ebc0cc863d7458a0f10a990e976ba758"
+    },
+    {
+        "ProcessId":  8508,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671466813)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8608,
+        "ParentProcessId":  4560,
+        "Name":  "wlanext.exe",
+        "CreationDate":  "\/Date(1786671463340)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8644,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671519241)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8788,
+        "ParentProcessId":  17332,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786827486113)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  8824,
+        "ParentProcessId":  11284,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671847366)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --embedded-browser-webview=1 --webview-exe-name=Widgets.exe --webview-exe-version=526.21100.10.0 --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView\" --noerrdialogs --disk-cache-size=52428800 --edge-webview-is-background --lang=en-US --mojo-named-platform-channel-pipe=11284.5236.1177758918395153284 /pfhostedapp:36e3b900ebc0cc863d7458a0f10a990e976ba758"
+    },
+    {
+        "ProcessId":  8864,
+        "ParentProcessId":  5040,
+        "Name":  "remoting_host.exe",
+        "CreationDate":  "\/Date(1786671463537)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  8872,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671463538)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9016,
+        "ParentProcessId":  5024,
+        "Name":  "AggregatorHost.exe",
+        "CreationDate":  "\/Date(1786671463575)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9100,
+        "ParentProcessId":  1796,
+        "Name":  "mscopilot_proxy.exe",
+        "CreationDate":  "\/Date(1786843242347)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\Copilot\\Application\\mscopilot_proxy.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\Copilot\\Application\\mscopilot_proxy.exe\" -Embedding"
+    },
+    {
+        "ProcessId":  9188,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671465313)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9652,
+        "ParentProcessId":  1592,
+        "Name":  "NisSrv.exe",
+        "CreationDate":  "\/Date(1786671470406)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9772,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671483416)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9796,
+        "ParentProcessId":  20192,
+        "Name":  "llama-server.exe",
+        "CreationDate":  "\/Date(1786887689339)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\llama-server.exe",
+        "CommandLine":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\llama-server.exe --model C:\\Users\\Armin\\.ollama\\models\\blobs\\sha256-183715c435899236895da3869489cc30ac241476b4971a20285b1a462818a5b4 --port 1495 --host 127.0.0.1 --no-webui --offline -c 4096 -np 1 --log-verbosity 4 --no-log-prefix --no-log-timestamps --no-jinja --chat-template chatml --load-mode none --flash-attn auto -b 512 -ub 512 --context-shift --keep 4"
+    },
+    {
+        "ProcessId":  9800,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671539064)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9808,
+        "ParentProcessId":  27920,
+        "Name":  "bash.exe",
+        "CreationDate":  "\/Date(1786887931572)\/",
+        "ExecutablePath":  "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+        "CommandLine":  "\"C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe\" -c \". /c/Users/Armin/.zcode/cli/exec/shell-snapshots/snapshot-bash-1786887902806-mngobq.sh 2\u003e/dev/null || true\n. /c/Users/Armin/.zcode/cli/exec/bash-startup/sess_963b0f20-673e-4b1c-ac23-1d5d03154c0d/embedded-search-startup-165ebb16abc47dd0.sh\npowershell -NoProfile -Command \\\"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath,CommandLine | Sort-Object ProcessId | ConvertTo-Json -Depth 2\\\" \u003e \\\"F:/backup/COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/processes_snapshot1.json\\\" 2\u003e\u00261; echo \\\"exit=$?\\\"; wc -l \\\"F:/backup/COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/processes_snapshot1.json\\\"\n__zcode_status=$?\nif [ \\\"$__zcode_status\\\" -eq 0 ]; then pwd -P \u003e \u0027/c/Users/Armin/AppData/Local/Temp/zcode-e97bafdd-8f69-48f8-83b7-caa0006c3110-cwd\u0027; fi\nexit \\\"$__zcode_status\\\"\""
+    },
+    {
+        "ProcessId":  9840,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671547175)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k UdkSvcGroup -s UdkUserSvc"
+    },
+    {
+        "ProcessId":  9860,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671483335)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  9884,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671483210)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  10016,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671483335)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  10028,
+        "ParentProcessId":  1796,
+        "Name":  "dllhost.exe",
+        "CreationDate":  "\/Date(1786843242738)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\DllHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\DllHost.exe\" /Processid:{CA6CC9F1-867A-481E-951E-A28C5E4F01EA}"
+    },
+    {
+        "ProcessId":  10136,
+        "ParentProcessId":  9796,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786887689346)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  10160,
+        "ParentProcessId":  3004,
+        "Name":  "NVDisplay.Container.exe",
+        "CreationDate":  "\/Date(1786671489098)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  10176,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886082361)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20260810162159 -sandboxingKind 2 -prefsHandle 8536:59523 -prefMapHandle 8540:302320 -ipcHandle 8164 -initialChannelId {b66281a2-ad91-4ca9-93b9-67e3fa851c28} -parentPid 23940 -crashHelperPid 0 -crashHelper 8480 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 14 utility"
+    },
+    {
+        "ProcessId":  10416,
+        "ParentProcessId":  15488,
+        "Name":  "ollama app.exe",
+        "CreationDate":  "\/Date(1786671746029)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\ollama app.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\ollama app.exe\""
+    },
+    {
+        "ProcessId":  10492,
+        "ParentProcessId":  5804,
+        "Name":  "FnHotkeyUtility.exe",
+        "CreationDate":  "\/Date(1786671539190)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\DriverStore\\FileRepository\\lenovofnandfunctionkeys.inf_amd64_5e21bf389d23855a\\FnHotkeyUtility.exe",
+        "CommandLine":  "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\lenovofnandfunctionkeys.inf_amd64_5e21bf389d23855a\\FnHotkeyUtility.exe\""
+    },
+    {
+        "ProcessId":  10576,
+        "ParentProcessId":  1796,
+        "Name":  "unsecapp.exe",
+        "CreationDate":  "\/Date(1786671539241)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  10616,
+        "ParentProcessId":  10476,
+        "Name":  "explorer.exe",
+        "CreationDate":  "\/Date(1786671539264)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\Explorer.EXE",
+        "CommandLine":  "C:\\WINDOWS\\Explorer.EXE"
+    },
+    {
+        "ProcessId":  10680,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786671847621)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  10688,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883598419)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --gpu-preferences=SAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1868 /prefetch:2"
+    },
+    {
+        "ProcessId":  10756,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885073222)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\" --enable-sandbox --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=sentry-ipc --app-user-model-id=com.todesktop.25020447d4kq915 --app-path=\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1786671421413699 --launch-time-ticks=213651797855 --field-trial-handle=1756,i,6649381884757393131,17274583154279852420,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=3584 /prefetch:1"
+    },
+    {
+        "ProcessId":  10776,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671539369)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  10980,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786671880268)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  11044,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786885414837)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709036912131340 --mojo-platform-channel-handle=5800 /prefetch:14"
+    },
+    {
+        "ProcessId":  11076,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671539527)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  11144,
+        "ParentProcessId":  6796,
+        "Name":  "python.exe",
+        "CreationDate":  "\/Date(1786849313181)\/",
+        "ExecutablePath":  "C:\\Program Files\\Python313\\python.exe",
+        "CommandLine":  "python  -X utf8 cortex\\cortex.py"
+    },
+    {
+        "ProcessId":  11228,
+        "ParentProcessId":  3640,
+        "Name":  "igfxEM.exe",
+        "CreationDate":  "\/Date(1786671539625)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\cui_dch.inf_amd64_7208949846a9b9dc\\igfxEM.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\cui_dch.inf_amd64_7208949846a9b9dc\\igfxEM.exe\""
+    },
+    {
+        "ProcessId":  11248,
+        "ParentProcessId":  6980,
+        "Name":  "CrossDeviceResume.exe",
+        "CreationDate":  "\/Date(1786671539643)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\SystemApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\CrossDeviceResume.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\SystemApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\CrossDeviceResume.exe\" /tileid MicrosoftWindows.Client.CBS_cw5n1h2txyewy!CrossDeviceResumeApp"
+    },
+    {
+        "ProcessId":  11284,
+        "ParentProcessId":  1796,
+        "Name":  "Widgets.exe",
+        "CreationDate":  "\/Date(1786671547142)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\MicrosoftWindows.Client.WebExperience_526.21100.40.0_x64__cw5n1h2txyewy\\Dashboard\\Widgets.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\MicrosoftWindows.Client.WebExperience_526.21100.40.0_x64__cw5n1h2txyewy\\Dashboard\\Widgets.exe\" -ServerName:Microsoft.Windows.DashboardServer"
+    },
+    {
+        "ProcessId":  11288,
+        "ParentProcessId":  1796,
+        "Name":  "TextInputHost.exe",
+        "CreationDate":  "\/Date(1786671556819)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\SystemApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\TextInputHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\SystemApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\TextInputHost.exe\" -ServerName:InputApp.AppXk0k6mrh4r2q0ct33a9wgbez0x7v9cz5y.mca"
+    },
+    {
+        "ProcessId":  11328,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786884993232)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709034101005793 --mojo-platform-channel-handle=5760 /prefetch:14"
+    },
+    {
+        "ProcessId":  11404,
+        "ParentProcessId":  5748,
+        "Name":  "LenovoVantage-(VantageCoreAddin).exe",
+        "CreationDate":  "\/Date(1786671573227)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  11628,
+        "ParentProcessId":  5748,
+        "Name":  "LenovoVantage-(LenovoGamingSystemAddin).exe",
+        "CreationDate":  "\/Date(1786671576250)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  11644,
+        "ParentProcessId":  16680,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786671602742)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  11704,
+        "ParentProcessId":  1796,
+        "Name":  "backgroundTaskHost.exe",
+        "CreationDate":  "\/Date(1786674587345)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\backgroundTaskHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\backgroundTaskHost.exe\" -ServerName:App.AppXe9cvj1thv1hmcw0cs98xm3r97tyzy2xs.mca"
+    },
+    {
+        "ProcessId":  11724,
+        "ParentProcessId":  19312,
+        "Name":  "python.exe",
+        "CreationDate":  "\/Date(1786862253001)\/",
+        "ExecutablePath":  "C:\\Program Files\\Python313\\python.exe",
+        "CommandLine":  "python  -X utf8 telegram_center\\center.py"
+    },
+    {
+        "ProcessId":  11772,
+        "ParentProcessId":  11452,
+        "Name":  "OpenVPNConnect.exe",
+        "CreationDate":  "\/Date(1786671579857)\/",
+        "ExecutablePath":  "C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe",
+        "CommandLine":  "\"C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe\" --relaunch --allow-file-access-from-files --opened-at-login \"\""
+    },
+    {
+        "ProcessId":  11792,
+        "ParentProcessId":  1796,
+        "Name":  "CrossDeviceService.exe",
+        "CreationDate":  "\/Date(1786671540649)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\MicrosoftWindows.CrossDevice_1.26062.105.0_x64__cw5n1h2txyewy\\CrossDeviceService.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\MicrosoftWindows.CrossDevice_1.26062.105.0_x64__cw5n1h2txyewy\\CrossDeviceService.exe\" -RegisterProcessAsComServer -Embedding"
+    },
+    {
+        "ProcessId":  12148,
+        "ParentProcessId":  1796,
+        "Name":  "unsecapp.exe",
+        "CreationDate":  "\/Date(1786671541581)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\wbem\\unsecapp.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\wbem\\unsecapp.exe -Embedding"
+    },
+    {
+        "ProcessId":  12260,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786672852629)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  12308,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786671542799)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  12420,
+        "ParentProcessId":  7056,
+        "Name":  "powershell.exe",
+        "CreationDate":  "\/Date(1786827484663)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -ExecutionPolicy Bypass -File F:\\backup\\_ops\\telegram_center\\run-miniapp-tunnel-named.ps1 "
+    },
+    {
+        "ProcessId":  12704,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671544682)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  12780,
+        "ParentProcessId":  1592,
+        "Name":  "SearchIndexer.exe",
+        "CreationDate":  "\/Date(1786671545020)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  12824,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671545086)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\System32\\svchost.exe -k UnistackSvcGroup"
+    },
+    {
+        "ProcessId":  12972,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786884995654)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709035975089491 --mojo-platform-channel-handle=6356 /prefetch:14"
+    },
+    {
+        "ProcessId":  12988,
+        "ParentProcessId":  1796,
+        "Name":  "dllhost.exe",
+        "CreationDate":  "\/Date(1786671545391)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\DllHost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\DllHost.exe /Processid:{973D20D7-562D-44B9-B70B-5A0F49CCDF3F}"
+    },
+    {
+        "ProcessId":  13056,
+        "ParentProcessId":  8824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671847758)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=renderer --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=Widgets.exe --webview-exe-version=526.21100.10.0 --embedded-browser-webview=1 --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --js-flags=\"--expose-gc --ms-user-locale=en_AU\" --time-ticks-at-unix-epoch=-1786671420064116 --launch-time-ticks=427689199 --always-read-main-dll --metrics-shmem-handle=3420,i,13578909318924599016,13208279586172678718,2097152 --field-trial-handle=1504,i,12130604424809110144,15643077583829621060,262144 --variations-seed-version --pseudonymization-salt-handle=2052,i,16375957165988076123,17419898205291520257,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=4148 /pfhostedapp:36e3b900ebc0cc863d7458a0f10a990e976ba758 /prefetch:1"
+    },
+    {
+        "ProcessId":  13168,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671589323)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  13220,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786671547126)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  13232,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671546407)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k ClipboardSvcGroup -p -s cbdhsvc"
+    },
+    {
+        "ProcessId":  13424,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786887460448)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  13536,
+        "ParentProcessId":  1796,
+        "Name":  "WidgetService.exe",
+        "CreationDate":  "\/Date(1786671547440)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\Microsoft.WidgetsPlatformRuntime_1.6.19.0_x64__8wekyb3d8bbwe\\WidgetService\\WidgetService.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\Microsoft.WidgetsPlatformRuntime_1.6.19.0_x64__8wekyb3d8bbwe\\WidgetService\\WidgetService.exe\" -RegisterProcessAsComServer -Embedding"
+    },
+    {
+        "ProcessId":  13644,
+        "ParentProcessId":  1592,
+        "Name":  "fingagent.exe",
+        "CreationDate":  "\/Date(1786876664084)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  13948,
+        "ParentProcessId":  3764,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671547960)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --embedded-browser-webview=1 --webview-exe-name=SearchHost.exe --webview-exe-version=2606.30004.100.0 --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView\" --noerrdialogs --disable-features=msSmartScreenProtection --edge-webview-enable-mojo-ipcz --enable-features=msEdgeFluentOverlayScrollbar --user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; Cortana 1.18.9.23723; 10.0.0.0.26200.9168) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.26200 IsWebView2/True (WebView2Version 151.0.4129.72)\" --lang=en-US --mojo-named-platform-channel-pipe=3764.13904.13713873415885419503 /pfhostedapp:4cae14cb3b1ca7f97f638949d1cc407d09bda216"
+    },
+    {
+        "ProcessId":  14012,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886077953)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 7228:52588 -prefMapHandle 5820:302320 -jsInitHandle 7268:156236 -parentBuildID 20260810162159 -ipcHandle 7216 -initialChannelId {fdf8c68f-1614-4484-acef-96c60ebcd862} -parentPid 23940 -crashHelperPid 0 -crashHelper 7288 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 11 tab"
+    },
+    {
+        "ProcessId":  14184,
+        "ParentProcessId":  13948,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671548039)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView /prefetch:4 /pfhostedapp:4cae14cb3b1ca7f97f638949d1cc407d09bda216 --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView\\Crashpad --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=151.0.7922.109 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --annotation=plat=Win64 \"--annotation=prod=Edge WebView2\" --annotation=ver=151.0.4129.78 --initial-client-data=0x16c,0x170,0x174,0x148,0x17c,0x7ff90ac965f0,0x7ff90ac96600,0x7ff90ac96610"
+    },
+    {
+        "ProcessId":  14412,
+        "ParentProcessId":  10616,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887760912)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" "
+    },
+    {
+        "ProcessId":  14492,
+        "ParentProcessId":  13948,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671548932)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --noerrdialogs --user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; Cortana 1.18.9.23723; 10.0.0.0.26200.9168) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.26200 IsWebView2/True (WebView2Version 151.0.4129.72)\" --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=SearchHost.exe --webview-exe-version=2606.30004.100.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=2164,i,17025679760558592512,12399703740067388613,524288 --field-trial-handle=1892,i,15734267053769684914,11922868432385306585,262144 --enable-features=msEdgeFluentOverlayScrollbar --disable-features=msSmartScreenProtection --variations-seed-version --pseudonymization-salt-handle=1848,i,1219040029348652896,6097758705077854951,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2140 /prefetch:11 /pfhostedapp:4cae14cb3b1ca7f97f638949d1cc407d09bda216"
+    },
+    {
+        "ProcessId":  14500,
+        "ParentProcessId":  13948,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671548944)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=gpu-process --noerrdialogs --user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; Cortana 1.18.9.23723; 10.0.0.0.26200.9168) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.26200 IsWebView2/True (WebView2Version 151.0.4129.72)\" --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=SearchHost.exe --webview-exe-version=2606.30004.100.0 --embedded-browser-webview=1 --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --always-read-main-dll --metrics-shmem-handle=1804,i,4534172320832581911,4919737704069640838,262144 --field-trial-handle=1892,i,15734267053769684914,11922868432385306585,262144 --enable-features=msEdgeFluentOverlayScrollbar --disable-features=msSmartScreenProtection --variations-seed-version --pseudonymization-salt-handle=1848,i,1219040029348652896,6097758705077854951,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1888 /prefetch:2 /pfhostedapp:4cae14cb3b1ca7f97f638949d1cc407d09bda216"
+    },
+    {
+        "ProcessId":  14532,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886071774)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 6520:52480 -prefMapHandle 6492:302320 -jsInitHandle 6536:156236 -parentBuildID 20260810162159 -ipcHandle 7056 -initialChannelId {6905fb7d-c87e-4d2d-a8e0-ca111771b39e} -parentPid 23940 -crashHelperPid 0 -crashHelper 4960 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 10 tab"
+    },
+    {
+        "ProcessId":  14692,
+        "ParentProcessId":  13948,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671549080)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --noerrdialogs --user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; Cortana 1.18.9.23723; 10.0.0.0.26200.9168) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.26200 IsWebView2/True (WebView2Version 151.0.4129.72)\" --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=SearchHost.exe --webview-exe-version=2606.30004.100.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=2564,i,3093632105219227806,17709384689235356308,524288 --field-trial-handle=1892,i,15734267053769684914,11922868432385306585,262144 --enable-features=msEdgeFluentOverlayScrollbar --disable-features=msSmartScreenProtection --variations-seed-version --pseudonymization-salt-handle=1848,i,1219040029348652896,6097758705077854951,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2588 /prefetch:13 /pfhostedapp:4cae14cb3b1ca7f97f638949d1cc407d09bda216"
+    },
+    {
+        "ProcessId":  14856,
+        "ParentProcessId":  13948,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671549199)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=renderer --noerrdialogs --user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; Cortana 1.18.9.23723; 10.0.0.0.26200.9168) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.26200 IsWebView2/True (WebView2Version 151.0.4129.72)\" --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\LocalState\\EBWebView\" --webview-exe-name=SearchHost.exe --webview-exe-version=2606.30004.100.0 --embedded-browser-webview=1 --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --js-flags=\"--expose-gc --ms-user-locale=en_AU\" --time-ticks-at-unix-epoch=-1786671420064092 --launch-time-ticks=129127240 --always-read-main-dll --metrics-shmem-handle=3992,i,3388383267796409640,246828417265034986,2097152 --field-trial-handle=1892,i,15734267053769684914,11922868432385306585,262144 --enable-features=msEdgeFluentOverlayScrollbar --disable-features=msSmartScreenProtection --variations-seed-version --pseudonymization-salt-handle=1848,i,1219040029348652896,6097758705077854951,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=4012 /pfhostedapp:4cae14cb3b1ca7f97f638949d1cc407d09bda216 /prefetch:1"
+    },
+    {
+        "ProcessId":  15096,
+        "ParentProcessId":  1592,
+        "Name":  "SecurityHealthService.exe",
+        "CreationDate":  "\/Date(1786671709655)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  15332,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883610917)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=audio.mojom.AudioService --lang=en-US --service-sandbox-type=audio --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708999430457380 --mojo-platform-channel-handle=5276 /prefetch:12"
+    },
+    {
+        "ProcessId":  15488,
+        "ParentProcessId":  20020,
+        "Name":  "cmd.exe",
+        "CreationDate":  "\/Date(1786671745975)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\cmd.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\cmd.exe\" /C set PATH=C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama;%PATH% \u0026 \"C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\ollama app.exe\""
+    },
+    {
+        "ProcessId":  15504,
+        "ParentProcessId":  14412,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887762031)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\ZCode\" --gpu-preferences=SAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --field-trial-handle=1780,i,3520925854323358542,15580003692472731280,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1784,i,421352366552694877,8829630757751007651,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1776 /prefetch:2"
+    },
+    {
+        "ProcessId":  15772,
+        "ParentProcessId":  16824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671720833)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=gpu-process --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView\" --webview-exe-name=M365Copilot.exe --webview-exe-version=19.2608.41021.0 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --always-read-main-dll --metrics-shmem-handle=1476,i,9761330772428905476,15548290518592932506,262144 --field-trial-handle=2004,i,2641627858305226593,5306544995089361048,262144 --enable-features=msSingleSignOnOSForPrimaryAccountIsShared --disable-features=msEnhancedTrackingPreventionEnabled --variations-seed-version --pseudonymization-salt-handle=2040,i,7512761442966746266,9673017892476653687,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1992 /prefetch:2 /pfhostedapp:31bc9ac290d4a070c9972edeea07f72054c4ae8e"
+    },
+    {
+        "ProcessId":  15940,
+        "ParentProcessId":  1796,
+        "Name":  "UserOOBEBroker.exe",
+        "CreationDate":  "\/Date(1786671551587)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\oobe\\UserOOBEBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\oobe\\UserOOBEBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  15972,
+        "ParentProcessId":  34776,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786876670558)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView /prefetch:4 /pfhostedapp:1b54c2ad480070730130f3e82bf729d2a898e226 --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView\\Crashpad --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=151.0.7922.138 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --annotation=plat=Win64 \"--annotation=prod=Edge WebView2\" --annotation=ver=151.0.4129.86 --initial-client-data=0x184,0x188,0x18c,0x120,0xa0,0x7ff8c58265f0,0x7ff8c5826600,0x7ff8c5826610"
+    },
+    {
+        "ProcessId":  16104,
+        "ParentProcessId":  3996,
+        "Name":  "ctfmon.exe",
+        "CreationDate":  "\/Date(1786671552069)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  16120,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786671720193)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  16392,
+        "ParentProcessId":  11772,
+        "Name":  "OpenVPNConnect.exe",
+        "CreationDate":  "\/Date(1786671580296)\/",
+        "ExecutablePath":  "C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe",
+        "CommandLine":  "\"C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\OpenVPN Connect\" --field-trial-handle=2044,i,5723567064064346637,9847807002085857809,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=2200 /prefetch:11"
+    },
+    {
+        "ProcessId":  16500,
+        "ParentProcessId":  1592,
+        "Name":  "Locator.exe",
+        "CreationDate":  "\/Date(1786671873872)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  16504,
+        "ParentProcessId":  1796,
+        "Name":  "backgroundTaskHost.exe",
+        "CreationDate":  "\/Date(1786671879794)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\backgroundTaskHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\backgroundTaskHost.exe\" -ServerName:App.AppX21scdfkavv3n5qjke49d7zqn0x9dj5nq.mca"
+    },
+    {
+        "ProcessId":  16548,
+        "ParentProcessId":  34776,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786876670992)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView\" --webview-exe-name=Fing.exe --webview-exe-version=4.0.5 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --always-read-main-dll --metrics-shmem-handle=2456,i,4602390420813261767,12555448021788064197,524288 --field-trial-handle=1940,i,17785955361128571310,12254055141498329142,262144 --disable-features=msPdfOOUI,msSmartScreenProtection,msWebOOUI --variations-seed-version --pseudonymization-salt-handle=1960,i,8217225503036690288,3605345902298136351,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2468 /prefetch:13 /pfhostedapp:1b54c2ad480070730130f3e82bf729d2a898e226"
+    },
+    {
+        "ProcessId":  16572,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786671582417)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  16604,
+        "ParentProcessId":  27920,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786887931550)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  16680,
+        "ParentProcessId":  18276,
+        "Name":  "AppProvisioningPlugin.exe",
+        "CreationDate":  "\/Date(1786671602727)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  16744,
+        "ParentProcessId":  11772,
+        "Name":  "OpenVPNConnect.exe",
+        "CreationDate":  "\/Date(1786671580698)\/",
+        "ExecutablePath":  "C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe",
+        "CommandLine":  "\"C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\OpenVPN Connect\" --app-user-model-id=org.openvpn.client --app-path=\"C:\\Program Files\\OpenVPN Connect\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1786671420064092 --launch-time-ticks=160627617 --field-trial-handle=2044,i,5723567064064346637,9847807002085857809,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=3216 /prefetch:1"
+    },
+    {
+        "ProcessId":  16824,
+        "ParentProcessId":  6860,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671720669)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --embedded-browser-webview=1 --webview-exe-name=M365Copilot.exe --webview-exe-version=19.2608.41021.0 --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView\" --noerrdialogs --embedded-browser-webview-dpi-awareness=2 --disable-features=msEnhancedTrackingPreventionEnabled --enable-features=msSingleSignOnOSForPrimaryAccountIsShared --mojo-named-platform-channel-pipe=6860.20996.9843402879987713193 /pfhostedapp:31bc9ac290d4a070c9972edeea07f72054c4ae8e"
+    },
+    {
+        "ProcessId":  16876,
+        "ParentProcessId":  16824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671720836)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\LocalState\\EBWebView\" --webview-exe-name=M365Copilot.exe --webview-exe-version=19.2608.41021.0 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --always-read-main-dll --metrics-shmem-handle=2308,i,3043752606380478496,2308014667441824949,524288 --field-trial-handle=2004,i,2641627858305226593,5306544995089361048,262144 --enable-features=msSingleSignOnOSForPrimaryAccountIsShared --disable-features=msEnhancedTrackingPreventionEnabled --variations-seed-version --pseudonymization-salt-handle=2040,i,7512761442966746266,9673017892476653687,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2312 /prefetch:11 /pfhostedapp:31bc9ac290d4a070c9972edeea07f72054c4ae8e"
+    },
+    {
+        "ProcessId":  17016,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671589183)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  17024,
+        "ParentProcessId":  17444,
+        "Name":  "OpenConsole.exe",
+        "CreationDate":  "\/Date(1786878208006)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\\OpenConsole.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\\OpenConsole.exe\" --headless --textMeasurement graphemes --width 76 --height 41 --signal 0xb5c --server 0xb60"
+    },
+    {
+        "ProcessId":  17224,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671592274)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  17332,
+        "ParentProcessId":  12420,
+        "Name":  "cloudflared.exe",
+        "CreationDate":  "\/Date(1786827486083)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\cloudflared\\cloudflared.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\cloudflared\\cloudflared.exe\" tunnel --no-autoupdate run --url http://127.0.0.1:8774 octopus-miniapp "
+    },
+    {
+        "ProcessId":  17404,
+        "ParentProcessId":  1796,
+        "Name":  "ShellExperienceHost.exe",
+        "CreationDate":  "\/Date(1786671582119)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\SystemApps\\ShellExperienceHost_cw5n1h2txyewy\\ShellExperienceHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\SystemApps\\ShellExperienceHost_cw5n1h2txyewy\\ShellExperienceHost.exe\" -ServerName:App.AppXtk181tbxbce2qsex02s8tw7hfxa9xb3t.mca"
+    },
+    {
+        "ProcessId":  17444,
+        "ParentProcessId":  1796,
+        "Name":  "WindowsTerminal.exe",
+        "CreationDate":  "\/Date(1786878028231)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\\WindowsTerminal.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\\WindowsTerminal.exe\" -Embedding"
+    },
+    {
+        "ProcessId":  17468,
+        "ParentProcessId":  8824,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786671847449)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView /prefetch:4 /pfhostedapp:36e3b900ebc0cc863d7458a0f10a990e976ba758 --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Local\\Packages\\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy\\LocalState\\EBWebView\\Crashpad --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=151.0.7922.109 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.78\\msedgewebview2.exe\" --annotation=plat=Win64 \"--annotation=prod=Edge WebView2\" --annotation=ver=151.0.4129.78 --initial-client-data=0x17c,0x180,0x184,0x150,0x154,0x7ff90ac965f0,0x7ff90ac96600,0x7ff90ac96610"
+    },
+    {
+        "ProcessId":  17536,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671589465)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  17648,
+        "ParentProcessId":  22432,
+        "Name":  "powershell.exe",
+        "CreationDate":  "\/Date(1786887931647)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -Command \"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath,CommandLine | Sort-Object ProcessId | ConvertTo-Json -Depth 2\""
+    },
+    {
+        "ProcessId":  17772,
+        "ParentProcessId":  18276,
+        "Name":  "MessagingPlugin.exe",
+        "CreationDate":  "\/Date(1786671602172)\/",
+        "ExecutablePath":  "C:\\ProgramData\\Lenovo\\Udc\\Hosts\\x64\\MessagingPlugin.exe",
+        "CommandLine":  "\"C:\\ProgramData\\Lenovo\\Udc\\Hosts\\x64\\MessagingPlugin.exe\" C:\\ProgramData\\Lenovo\\Udc\\Broker\\SharedUser\\EA1DFE0C-7960-4A44-8F8D-A78C909B6423 18276 MessagingPlugin"
+    },
+    {
+        "ProcessId":  17848,
+        "ParentProcessId":  15488,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786671745989)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  17980,
+        "ParentProcessId":  17772,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786671602542)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  18092,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671590258)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  18132,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671588392)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  18276,
+        "ParentProcessId":  1592,
+        "Name":  "UDClientService.exe",
+        "CreationDate":  "\/Date(1786671588873)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  18308,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786671589024)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  18972,
+        "ParentProcessId":  6980,
+        "Name":  "ShellHost.exe",
+        "CreationDate":  "\/Date(1786857719297)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\ShellHost.exe",
+        "CommandLine":  "\"C:\\Windows\\System32\\ShellHost.exe\""
+    },
+    {
+        "ProcessId":  18976,
+        "ParentProcessId":  14412,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887764578)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --no-warnings --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\ZCode\" --cors-schemes=rum-event --fetch-schemes=rum-event --field-trial-handle=1780,i,3520925854323358542,15580003692472731280,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1784,i,421352366552694877,8829630757751007651,4 --trace-process-track-uuid=3190708991934122588 --mojo-platform-channel-handle=4348 /prefetch:14"
+    },
+    {
+        "ProcessId":  19076,
+        "ParentProcessId":  7572,
+        "Name":  "python.exe",
+        "CreationDate":  "\/Date(1786862618880)\/",
+        "ExecutablePath":  "C:\\Program Files\\Python313\\python.exe",
+        "CommandLine":  "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py "
+    },
+    {
+        "ProcessId":  19132,
+        "ParentProcessId":  25652,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857149864)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=utility --utility-sub-type=audio.mojom.AudioService --lang=en-US --service-sandbox-type=audio --video-capture-use-gpu-memory-buffer --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\" --webview-exe-name=WhatsApp.Root.exe --webview-exe-version=1.0.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=4844,i,9379506118462003789,7496153778972066688,524288 --field-trial-handle=2064,i,16421095957546908993,12670768253598851487,262144 --variations-seed-version --pseudonymization-salt-handle=2068,i,18075387822758490815,14915122350607610200,4 --trace-process-track-uuid=3190708997556373682 --mojo-platform-channel-handle=4848 /prefetch:12 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899"
+    },
+    {
+        "ProcessId":  19312,
+        "ParentProcessId":  15072,
+        "Name":  "cmd.exe",
+        "CreationDate":  "\/Date(1786862252647)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\cmd.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\cmd.exe /c \"\"F:\\backup\\_ops\\telegram_center\\RUN-TG-CENTER.bat\" \""
+    },
+    {
+        "ProcessId":  19352,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786887858923)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  19748,
+        "ParentProcessId":  3548,
+        "Name":  "taskhostw.exe",
+        "CreationDate":  "\/Date(1786758789193)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  19944,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786886388197)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\" --enable-sandbox --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=sentry-ipc --app-user-model-id=com.todesktop.25020447d4kq915 --app-path=\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=12 --time-ticks-at-unix-epoch=-1786671421413699 --launch-time-ticks=214966763481 --field-trial-handle=1756,i,6649381884757393131,17274583154279852420,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=5388 /prefetch:1"
+    },
+    {
+        "ProcessId":  20156,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886080184)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20260810162159 -sandboxingKind 1 -prefsHandle 7688:59523 -prefMapHandle 7716:302320 -ipcHandle 7712 -initialChannelId {1305105b-2956-4ab9-a578-dc29b6f81144} -parentPid 23940 -crashHelperPid 0 -crashHelper 6156 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 13 utility"
+    },
+    {
+        "ProcessId":  20192,
+        "ParentProcessId":  10416,
+        "Name":  "ollama.exe",
+        "CreationDate":  "\/Date(1786671747254)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+        "CommandLine":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Ollama\\ollama.exe serve"
+    },
+    {
+        "ProcessId":  20524,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886071281)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 6660:52318 -prefMapHandle 2936:302320 -jsInitHandle 4788:156236 -parentBuildID 20260810162159 -ipcHandle 6664 -initialChannelId {5885e602-25bb-4eed-9ac9-05dc75d4791e} -parentPid 23940 -crashHelperPid 0 -crashHelper 4944 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 8 tab"
+    },
+    {
+        "ProcessId":  20712,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786846185526)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  21168,
+        "ParentProcessId":  4700,
+        "Name":  "ssh.exe",
+        "CreationDate":  "\/Date(1786884995812)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\OpenSSH\\ssh.exe",
+        "CommandLine":  "ssh  -T -D 4502 dietpi bash --login -c bash"
+    },
+    {
+        "ProcessId":  21228,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786672851559)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  21356,
+        "ParentProcessId":  20192,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786671747353)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  21676,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786674545215)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\svchost.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\svchost.exe -k LocalService -p -s NPSMSvc"
+    },
+    {
+        "ProcessId":  21876,
+        "ParentProcessId":  12420,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786827484674)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  22392,
+        "ParentProcessId":  1796,
+        "Name":  "DataExchangeHost.exe",
+        "CreationDate":  "\/Date(1786678251068)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\DataExchangeHost.exe",
+        "CommandLine":  "C:\\Windows\\System32\\DataExchangeHost.exe -Embedding"
+    },
+    {
+        "ProcessId":  22432,
+        "ParentProcessId":  9808,
+        "Name":  "bash.exe",
+        "CreationDate":  "\/Date(1786887931631)\/",
+        "ExecutablePath":  "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+        "CommandLine":  "\"C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe\" -c \". /c/Users/Armin/.zcode/cli/exec/shell-snapshots/snapshot-bash-1786887902806-mngobq.sh 2\u003e/dev/null || true\n. /c/Users/Armin/.zcode/cli/exec/bash-startup/sess_963b0f20-673e-4b1c-ac23-1d5d03154c0d/embedded-search-startup-165ebb16abc47dd0.sh\npowershell -NoProfile -Command \\\"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath,CommandLine | Sort-Object ProcessId | ConvertTo-Json -Depth 2\\\" \u003e \\\"F:/backup/COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/processes_snapshot1.json\\\" 2\u003e\u00261; echo \\\"exit=$?\\\"; wc -l \\\"F:/backup/COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/processes_snapshot1.json\\\"\n__zcode_status=$?\nif [ \\\"$__zcode_status\\\" -eq 0 ]; then pwd -P \u003e \u0027/c/Users/Armin/AppData/Local/Temp/zcode-e97bafdd-8f69-48f8-83b7-caa0006c3110-cwd\u0027; fi\nexit \\\"$__zcode_status\\\"\""
+    },
+    {
+        "ProcessId":  23136,
+        "ParentProcessId":  9920,
+        "Name":  "cmd.exe",
+        "CreationDate":  "\/Date(1786818333130)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\cmd.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\cmd.exe /c \"\"F:\\backup\\_ops\\RUN-ORGANISM.bat\" \""
+    },
+    {
+        "ProcessId":  23312,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786884993566)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709035038047642 --mojo-platform-channel-handle=7384 /prefetch:14"
+    },
+    {
+        "ProcessId":  23464,
+        "ParentProcessId":  2576,
+        "Name":  "python.exe",
+        "CreationDate":  "\/Date(1786862570218)\/",
+        "ExecutablePath":  "C:\\Program Files\\Python313\\python.exe",
+        "CommandLine":  "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\board_cp\\server.py "
+    },
+    {
+        "ProcessId":  23556,
+        "ParentProcessId":  6796,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786849310476)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  23772,
+        "ParentProcessId":  1796,
+        "Name":  "dllhost.exe",
+        "CreationDate":  "\/Date(1786843242938)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\SysWOW64\\DllHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\SysWOW64\\DllHost.exe\" /Processid:{1C6DF0C0-192A-4451-BE36-6A59A86A692E}"
+    },
+    {
+        "ProcessId":  23820,
+        "ParentProcessId":  1796,
+        "Name":  "dllhost.exe",
+        "CreationDate":  "\/Date(1786843242934)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\DllHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\DllHost.exe\" /Processid:{42B255A5-D314-4E7A-BE52-9B62ECB31E21}"
+    },
+    {
+        "ProcessId":  23836,
+        "ParentProcessId":  25652,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857123363)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=gpu-process --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\" --webview-exe-name=WhatsApp.Root.exe --webview-exe-version=1.0.0 --embedded-browser-webview=1 --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --always-read-main-dll --metrics-shmem-handle=1928,i,8489157926340068602,16173073331767236345,262144 --field-trial-handle=2064,i,16421095957546908993,12670768253598851487,262144 --variations-seed-version --pseudonymization-salt-handle=2068,i,18075387822758490815,14915122350607610200,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2060 /prefetch:2 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899"
+    },
+    {
+        "ProcessId":  23892,
+        "ParentProcessId":  1796,
+        "Name":  "SystemSettings.exe",
+        "CreationDate":  "\/Date(1786759140520)\/",
+        "ExecutablePath":  "C:\\Windows\\ImmersiveControlPanel\\SystemSettings.exe",
+        "CommandLine":  "\"C:\\Windows\\ImmersiveControlPanel\\SystemSettings.exe\" -ServerName:microsoft.windows.immersivecontrolpanel"
+    },
+    {
+        "ProcessId":  23924,
+        "ParentProcessId":  32860,
+        "Name":  "cmd.exe",
+        "CreationDate":  "\/Date(1786862214572)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\cmd.exe",
+        "CommandLine":  "C:\\WINDOWS\\system32\\cmd.exe /c \"\"F:\\backup\\_ops\\run-live-headless.bat\" \""
+    },
+    {
+        "ProcessId":  23940,
+        "ParentProcessId":  35788,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886067449)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\""
+    },
+    {
+        "ProcessId":  23964,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883598519)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=1976 /prefetch:11"
+    },
+    {
+        "ProcessId":  24016,
+        "ParentProcessId":  34776,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786876671117)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=renderer --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView\" --webview-exe-name=Fing.exe --webview-exe-version=4.0.5 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --autoplay-policy=no-user-gesture-required --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --js-flags=\"--expose-gc --ms-user-locale=en_AU\" --time-ticks-at-unix-epoch=-1786671421381425 --launch-time-ticks=205249731694 --always-read-main-dll --metrics-shmem-handle=3988,i,15005283891966819270,13241038247322965088,2097152 --field-trial-handle=1940,i,17785955361128571310,12254055141498329142,262144 --disable-features=msPdfOOUI,msSmartScreenProtection,msWebOOUI --variations-seed-version --pseudonymization-salt-handle=1960,i,8217225503036690288,3605345902298136351,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3828 /pfhostedapp:1b54c2ad480070730130f3e82bf729d2a898e226 /prefetch:1"
+    },
+    {
+        "ProcessId":  24096,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883610897)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708998493415531 --mojo-platform-channel-handle=5268 /prefetch:14"
+    },
+    {
+        "ProcessId":  24132,
+        "ParentProcessId":  18976,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887765636)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" \"C:\\Program Files\\ZCode\\resources\\glm\\zcode.cjs\" app-server --stdio"
+    },
+    {
+        "ProcessId":  24376,
+        "ParentProcessId":  10616,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885068889)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" "
+    },
+    {
+        "ProcessId":  24624,
+        "ParentProcessId":  25652,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857122642)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView /prefetch:4 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899 --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\\Crashpad --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=151.0.7922.138 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --annotation=plat=Win64 \"--annotation=prod=Edge WebView2\" --annotation=ver=151.0.4129.86 --initial-client-data=0x170,0x174,0x178,0x150,0x180,0x7ff8c58265f0,0x7ff8c5826600,0x7ff8c5826610"
+    },
+    {
+        "ProcessId":  24696,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786684756836)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  24820,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886071208)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20260810162159 -sandboxingKind 0 -prefsHandle 6660:59231 -prefMapHandle 6664:302320 -ipcHandle 6632 -initialChannelId {48d9316b-60b0-41a5-8c7d-86735e41a018} -parentPid 23940 -crashHelperPid 0 -crashHelper 3156 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 7 utility"
+    },
+    {
+        "ProcessId":  24916,
+        "ParentProcessId":  25652,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857123362)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\" --webview-exe-name=WhatsApp.Root.exe --webview-exe-version=1.0.0 --embedded-browser-webview=1 --always-read-main-dll --metrics-shmem-handle=2296,i,716949232820555142,12451067814084620998,524288 --field-trial-handle=2064,i,16421095957546908993,12670768253598851487,262144 --variations-seed-version --pseudonymization-salt-handle=2068,i,18075387822758490815,14915122350607610200,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2368 /prefetch:11 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899"
+    },
+    {
+        "ProcessId":  25088,
+        "ParentProcessId":  1796,
+        "Name":  "RuntimeBroker.exe",
+        "CreationDate":  "\/Date(1786792025403)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "CommandLine":  "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding"
+    },
+    {
+        "ProcessId":  25388,
+        "ParentProcessId":  1796,
+        "Name":  "dllhost.exe",
+        "CreationDate":  "\/Date(1786843241454)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\DllHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\system32\\DllHost.exe\" /Processid:{B41DB860-64E4-11D2-9906-E49FADC173CA}"
+    },
+    {
+        "ProcessId":  25652,
+        "ParentProcessId":  7772,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786857122578)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --embedded-browser-webview=1 --webview-exe-name=WhatsApp.Root.exe --webview-exe-version=1.0.0 --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\\LocalCache\\EBWebView\" --noerrdialogs --edge-webview-disable-crash-reporting=1 --embedded-browser-webview-enable-extension --edge-webview-is-background --mojo-named-platform-channel-pipe=7772.24160.14645732382386925441 /pfhostedapp:c9b2884a3acf8cc4ed47cb3d5f1d674381652899"
+    },
+    {
+        "ProcessId":  25752,
+        "ParentProcessId":  10616,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883589502)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" "
+    },
+    {
+        "ProcessId":  25908,
+        "ParentProcessId":  1796,
+        "Name":  "smartscreen.exe",
+        "CreationDate":  "\/Date(1786887760728)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\smartscreen.exe",
+        "CommandLine":  "C:\\Windows\\System32\\smartscreen.exe -Embedding"
+    },
+    {
+        "ProcessId":  26116,
+        "ParentProcessId":  34776,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786876670952)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --noerrdialogs --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView\" --webview-exe-name=Fing.exe --webview-exe-version=4.0.5 --embedded-browser-webview=1 --embedded-browser-webview-dpi-awareness=2 --always-read-main-dll --metrics-shmem-handle=2184,i,7535239044770909848,11484065008771101286,524288 --field-trial-handle=1940,i,17785955361128571310,12254055141498329142,262144 --disable-features=msPdfOOUI,msSmartScreenProtection,msWebOOUI --variations-seed-version --pseudonymization-salt-handle=1960,i,8217225503036690288,3605345902298136351,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2180 /prefetch:11 /pfhostedapp:1b54c2ad480070730130f3e82bf729d2a898e226"
+    },
+    {
+        "ProcessId":  27196,
+        "ParentProcessId":  14412,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887763875)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\ZCode\" --cors-schemes=rum-event --fetch-schemes=rum-event --app-path=\"C:\\Program Files\\ZCode\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1786671421435503 --launch-time-ticks=216342432271 --field-trial-handle=1780,i,3520925854323358542,15580003692472731280,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1784,i,421352366552694877,8829630757751007651,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3772 --device-id=4d380259-9363-4545-b5ce-fd7ac835c25e /prefetch:1"
+    },
+    {
+        "ProcessId":  27224,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885069637)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe --type=crashpad-handler --user-data-dir=C:\\Users\\Armin\\AppData\\Roaming\\Perplexity /prefetch:4 --no-rate-limit --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\\Crashpad --url=https://f.a.k/e --annotation=_productName=Perplexity --annotation=_version=1.6.0 --annotation=plat=Win64 --annotation=prod=Electron --annotation=ver=38.2.0 --initial-client-data=0x4c8,0x4cc,0x4d0,0x4c4,0x4d4,0x7ff750eb0e14,0x7ff750eb0e20,0x7ff750eb0e30"
+    },
+    {
+        "ProcessId":  27316,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786758669454)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  27856,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885073933)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\" --enable-sandbox --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=sentry-ipc --app-user-model-id=com.todesktop.25020447d4kq915 --app-path=\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1786671421413699 --launch-time-ticks=213652510727 --field-trial-handle=1756,i,6649381884757393131,17274583154279852420,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=3876 /prefetch:1"
+    },
+    {
+        "ProcessId":  27920,
+        "ParentProcessId":  29868,
+        "Name":  "bash.exe",
+        "CreationDate":  "\/Date(1786887931503)\/",
+        "ExecutablePath":  "C:\\Program Files\\Git\\bin\\bash.exe",
+        "CommandLine":  "\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \". /c/Users/Armin/.zcode/cli/exec/shell-snapshots/snapshot-bash-1786887902806-mngobq.sh 2\u003e/dev/null || true\n. /c/Users/Armin/.zcode/cli/exec/bash-startup/sess_963b0f20-673e-4b1c-ac23-1d5d03154c0d/embedded-search-startup-165ebb16abc47dd0.sh\npowershell -NoProfile -Command \\\"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath,CommandLine | Sort-Object ProcessId | ConvertTo-Json -Depth 2\\\" \u003e \\\"F:/backup/COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/processes_snapshot1.json\\\" 2\u003e\u00261; echo \\\"exit=$?\\\"; wc -l \\\"F:/backup/COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/processes_snapshot1.json\\\"\n__zcode_status=$?\nif [ \\\"$__zcode_status\\\" -eq 0 ]; then pwd -P \u003e \u0027/c/Users/Armin/AppData/Local/Temp/zcode-e97bafdd-8f69-48f8-83b7-caa0006c3110-cwd\u0027; fi\nexit \\\"$__zcode_status\\\"\""
+    },
+    {
+        "ProcessId":  28444,
+        "ParentProcessId":  14412,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887762055)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\ZCode\" --cors-schemes=rum-event --fetch-schemes=rum-event --field-trial-handle=1780,i,3520925854323358542,15580003692472731280,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1784,i,421352366552694877,8829630757751007651,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2052 /prefetch:11"
+    },
+    {
+        "ProcessId":  28564,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883601231)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3160 /prefetch:14"
+    },
+    {
+        "ProcessId":  28904,
+        "ParentProcessId":  1796,
+        "Name":  "WmiPrvSE.exe",
+        "CreationDate":  "\/Date(1786887933094)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  29028,
+        "ParentProcessId":  23136,
+        "Name":  "python.exe",
+        "CreationDate":  "\/Date(1786848790398)\/",
+        "ExecutablePath":  "C:\\Program Files\\Python313\\python.exe",
+        "CommandLine":  "python  -X utf8 organism.py"
+    },
+    {
+        "ProcessId":  29288,
+        "ParentProcessId":  28500,
+        "Name":  "OneDrive.Sync.Service.exe",
+        "CreationDate":  "\/Date(1786875190550)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Microsoft\\OneDrive\\26.134.0713.0007\\OneDrive.Sync.Service.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Microsoft\\OneDrive\\26.134.0713.0007\\OneDrive.Sync.Service.exe\" /silentConfig"
+    },
+    {
+        "ProcessId":  29480,
+        "ParentProcessId":  14412,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887762118)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --no-warnings --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\ZCode\" --cors-schemes=rum-event --fetch-schemes=rum-event --field-trial-handle=1780,i,3520925854323358542,15580003692472731280,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1784,i,421352366552694877,8829630757751007651,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2948 /prefetch:14"
+    },
+    {
+        "ProcessId":  29660,
+        "ParentProcessId":  18976,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887765617)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" \"C:\\Program Files\\ZCode\\resources\\glm\\zcode.cjs\" app-server --stdio"
+    },
+    {
+        "ProcessId":  29868,
+        "ParentProcessId":  18976,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887765598)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" \"C:\\Program Files\\ZCode\\resources\\glm\\zcode.cjs\" app-server --stdio"
+    },
+    {
+        "ProcessId":  29896,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886070021)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 5208:42836 -prefMapHandle 5212:302320 -jsInitHandle 5216:156236 -parentBuildID 20260810162159 -ipcHandle 5176 -initialChannelId {e866fad8-57ac-4df7-a200-c32f346d10c9} -parentPid 23940 -crashHelperPid 0 -crashHelper 5224 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 5 tab"
+    },
+    {
+        "ProcessId":  29976,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886071293)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 6520:52318 -prefMapHandle 6492:302320 -jsInitHandle 6536:156236 -parentBuildID 20260810162159 -ipcHandle 5756 -initialChannelId {3416779d-8c43-42bc-9e65-858a6a1deaed} -parentPid 23940 -crashHelperPid 0 -crashHelper 6432 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 9 tab"
+    },
+    {
+        "ProcessId":  30016,
+        "ParentProcessId":  17444,
+        "Name":  "powershell.exe",
+        "CreationDate":  "\/Date(1786878208013)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    },
+    {
+        "ProcessId":  30020,
+        "ParentProcessId":  10616,
+        "Name":  "SnippingTool.exe",
+        "CreationDate":  "\/Date(1786874801724)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\Microsoft.ScreenSketch_11.2602.49.0_x64__8wekyb3d8bbwe\\SnippingTool\\SnippingTool.exe",
+        "CommandLine":  "\"C:\\Program Files\\WindowsApps\\Microsoft.ScreenSketch_11.2602.49.0_x64__8wekyb3d8bbwe\\SnippingTool\\SnippingTool.exe\" ms-screenclip:///?source=HotKey"
+    },
+    {
+        "ProcessId":  30672,
+        "ParentProcessId":  12972,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786884998460)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe --dns-result-order=ipv4first --experimental-network-inspection c:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\resources\\app\\extensions\\cursor-always-local\\dist\\gitWorker.js"
+    },
+    {
+        "ProcessId":  30736,
+        "ParentProcessId":  21764,
+        "Name":  "git.exe",
+        "CreationDate":  "\/Date(1786861317704)\/",
+        "ExecutablePath":  "C:\\Program Files\\Git\\mingw64\\libexec\\git-core\\git.exe",
+        "CommandLine":  "\"C:\\Program Files\\Git\\mingw64\\libexec\\git-core\\git.exe\" credential-manager get"
+    },
+    {
+        "ProcessId":  30896,
+        "ParentProcessId":  1592,
+        "Name":  "svchost.exe",
+        "CreationDate":  "\/Date(1786887425328)\/",
+        "ExecutablePath":  null,
+        "CommandLine":  null
+    },
+    {
+        "ProcessId":  30912,
+        "ParentProcessId":  1796,
+        "Name":  "StartMenuExperienceHost.exe",
+        "CreationDate":  "\/Date(1786844718263)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\SystemApps\\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\\StartMenuExperienceHost.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\SystemApps\\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\\StartMenuExperienceHost.exe\" -ServerName:FullTrustApp.AppXykjsye98af63ez2annt9djke8trg8stn.mca"
+    },
+    {
+        "ProcessId":  30920,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885070325)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\" --gpu-preferences=SAAAAAAAAADgAAAIAAAAAAAAAAAAAGAAAQAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --field-trial-handle=1756,i,6649381884757393131,17274583154279852420,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=1752 /prefetch:2"
+    },
+    {
+        "ProcessId":  31244,
+        "ParentProcessId":  23464,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786862570227)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  31460,
+        "ParentProcessId":  23940,
+        "Name":  "crashhelper.exe",
+        "CreationDate":  "\/Date(1786886068097)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\crashhelper.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\crashhelper.exe\" \"23940\" \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" \"C:\\Users\\Armin\\AppData\\Local\\Temp\\\\\" \"936\" \"948\" \"976\""
+    },
+    {
+        "ProcessId":  31508,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886069391)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20260810162159 -prefsHandle 3948:42610 -prefMapHandle 3952:302320 -ipcHandle 3728 -initialChannelId {83a9bcdd-ee18-489f-8613-918ed30b2ac6} -parentPid 23940 -crashHelperPid 0 -crashHelper 3968 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 4 rdd"
+    },
+    {
+        "ProcessId":  31532,
+        "ParentProcessId":  24376,
+        "Name":  "Perplexity.exe",
+        "CreationDate":  "\/Date(1786885074864)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Perplexity\" --enable-sandbox --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=sentry-ipc --app-user-model-id=com.todesktop.25020447d4kq915 --app-path=\"C:\\Users\\Armin\\AppData\\Local\\Programs\\Perplexity\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=7 --time-ticks-at-unix-epoch=-1786671421413699 --launch-time-ticks=213653441775 --field-trial-handle=1756,i,6649381884757393131,17274583154279852420,262144 --enable-features=EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=4340 /prefetch:1"
+    },
+    {
+        "ProcessId":  31552,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786883671667)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709008800875870 --mojo-platform-channel-handle=4780 /prefetch:14"
+    },
+    {
+        "ProcessId":  31952,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886070538)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 4972:52171 -prefMapHandle 4908:302320 -jsInitHandle 4900:156236 -parentBuildID 20260810162159 -ipcHandle 5936 -initialChannelId {426740ba-9400-4297-ac9b-72095cc6b2d5} -parentPid 23940 -crashHelperPid 0 -crashHelper 5420 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 6 tab"
+    },
+    {
+        "ProcessId":  33192,
+        "ParentProcessId":  25752,
+        "Name":  "Cursor.exe",
+        "CreationDate":  "\/Date(1786884969716)\/",
+        "ExecutablePath":  "C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+        "CommandLine":  "\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\Cursor.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Armin\\AppData\\Roaming\\Cursor\" --standard-schemes=vscode-webview,vscode-file,cursor-rpc-devtools --enable-sandbox --secure-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --fetch-schemes=vscode-webview,vscode-file,vscode-remote-resource,vscode-managed-remote-resource,cursor-rpc-devtools,sentry-ipc --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --app-user-model-id=Anysphere.Cursor --app-path=\"C:\\Users\\Armin\\AppData\\Local\\Programs\\cursor\\resources\\app\" --enable-sandbox --enable-blink-features=HighlightAPI --force-gpu-mem-available-mb=1024 --disable-blink-features=FontMatchingCTMigration,StandardizedBrowserZoom, --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=42 --time-ticks-at-unix-epoch=-1786671421406364 --launch-time-ticks=213548294101 --field-trial-handle=1932,i,6373105997189214640,9225458138121619639,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EnableTransparentHwndEnlargement,PdfUseShowSaveFilePicker --disable-features=AccessibilityBlockFlowIterator,CalculateNativeWinOcclusion,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709025667629152 --mojo-platform-channel-handle=4436 --vscode-window-config=vscode:5b85b43d-b6e4-4b35-82f7-eaac496775d7 /prefetch:1"
+    },
+    {
+        "ProcessId":  33232,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886069045)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20260810162159 -prefsHandle 3000:42534 -prefMapHandle 3008:302320 -ipcHandle 2880 -initialChannelId {f46f0ba0-f49b-4fa4-adcd-3e4d897e96ac} -parentPid 23940 -crashHelperPid 0 -crashHelper 3068 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 2 socket"
+    },
+    {
+        "ProcessId":  33376,
+        "ParentProcessId":  29868,
+        "Name":  "ZCode.exe",
+        "CreationDate":  "\/Date(1786887775898)\/",
+        "ExecutablePath":  "C:\\Program Files\\ZCode\\ZCode.exe",
+        "CommandLine":  "\"C:\\Program Files\\ZCode\\ZCode.exe\" \"C:\\Program Files\\ZCode\\resources\\glm\\zcode.cjs\" __zcode-plugin-host C:\\Users\\Armin\\.zcode\\cli\\plugins\\cache\\zcode-plugins-official\\browser-use\\0.2.1\\dist\\mcp\\server.js"
+    },
+    {
+        "ProcessId":  33496,
+        "ParentProcessId":  8284,
+        "Name":  "head.exe",
+        "CreationDate":  "\/Date(1786861316420)\/",
+        "ExecutablePath":  "C:\\Program Files\\Git\\usr\\bin\\head.exe",
+        "CommandLine":  "\"C:\\Program Files\\Git\\usr\\bin\\head.exe\" -10"
+    },
+    {
+        "ProcessId":  33692,
+        "ParentProcessId":  23940,
+        "Name":  "firefox.exe",
+        "CreationDate":  "\/Date(1786886077966)\/",
+        "ExecutablePath":  "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "CommandLine":  "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -isForBrowser -prefsHandle 7516:52588 -prefMapHandle 7520:302320 -jsInitHandle 7524:156236 -parentBuildID 20260810162159 -ipcHandle 7212 -initialChannelId {b4ab4c37-fb40-41cc-af85-b2d338b33011} -parentPid 23940 -crashHelperPid 0 -crashHelper 7532 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.23940\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 12 tab"
+    },
+    {
+        "ProcessId":  34600,
+        "ParentProcessId":  19312,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786862252658)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+        "ProcessId":  34632,
+        "ParentProcessId":  30736,
+        "Name":  "git-credential-manager.exe",
+        "CreationDate":  "\/Date(1786861317800)\/",
+        "ExecutablePath":  "C:\\Program Files\\Git\\mingw64\\bin\\git-credential-manager.exe",
+        "CommandLine":  "git-credential-manager get"
+    },
+    {
+        "ProcessId":  34776,
+        "ParentProcessId":  7156,
+        "Name":  "msedgewebview2.exe",
+        "CreationDate":  "\/Date(1786876670537)\/",
+        "ExecutablePath":  "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe",
+        "CommandLine":  "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\151.0.4129.86\\msedgewebview2.exe\" --embedded-browser-webview=1 --webview-exe-name=Fing.exe --webview-exe-version=4.0.5 --user-data-dir=\"C:\\Users\\Armin\\AppData\\Local\\com.fing.app\\EBWebView\" --noerrdialogs --embedded-browser-webview-dpi-awareness=2 --autoplay-policy=no-user-gesture-required --disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --lang=en-US --mojo-named-platform-channel-pipe=7156.17916.14886550890722725022 /pfhostedapp:1b54c2ad480070730130f3e82bf729d2a898e226"
+    },
+    {
+        "ProcessId":  34876,
+        "ParentProcessId":  23924,
+        "Name":  "conhost.exe",
+        "CreationDate":  "\/Date(1786862214583)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\system32\\conhost.exe",
+        "CommandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    }
+]

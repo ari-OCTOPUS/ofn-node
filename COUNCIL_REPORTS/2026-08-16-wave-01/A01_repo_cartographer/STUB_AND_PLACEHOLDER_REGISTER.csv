@@ -1,0 +1,21 @@
+stub_id,path,nature,status,evidence_tier,notes
+STUB-001,_ops/budget/approval_channel.py::NotWiredStub,Intentional paper-mode stub for >AU$20 approvals,CODE_LIVE_DEFAULT,T2,Default channel means every amount above human gate is DENIED (fail-closed by stub); matches 'money locked' behaviour
+STUB-002,_ops/budget/approval_channel.py,Contains NotImplementedError abstract members,CODE,T2,abstract base; concrete TelegramApprovalChannel imported in wiring.py
+STUB-003,_ops/hypothesis_engine/impl/base_brain.py,NotImplementedError abstract brain,CODE,T2,extension point; check whether any concrete brain implements it (A03 scope)
+STUB-004,4d_system/brain/telegram_bot_unified.py.DISABLED-409-FIX,Whole module disabled after Telegram 409 conflict,DISABLED,T2,superseded by _ops/telegram_center stack
+STUB-005,_ops/ACTIVATION-GOVERNOR-LLM.flag.off,Governor LLM lane flag explicitly off,DISABLED,T2,paid governor lane disabled; shadow-only epochs observed live
+STUB-006,4d_system/control_plane/policy.py,Policy ladder declared 'pure data, enforces NOTHING in v1; v2 shadow; v3 flagged',DOCUMENTED_NOT_ENFORCED,T2,4d_system policy gate is NOT runtime-enforced by its own docstring; runtime enforcement lives in _ops/policy/policy_gate.py (ADR-033)
+STUB-007,4d_system/second-brain/,Directory with docs/templates only — zero Python,EMPTY_PLACEHOLDER,T2,naming suggests planned integration never landed
+STUB-008,_ops/octopus_v3/ (all modules),Complete P0 overlay intentionally unwired (WIRED=False),CODE_ONLY_UNWIRED,T2,gate docstring: 'not wired into organism.py'; commit 028fe81
+STUB-009,_ops/control_plane/dual_brain.py side-effects,Side-effectful wiring behind OCTOPUS_WIRE_DUAL_VETO env flag (unset),FLAG_OFF,T2,pure logic testable; runtime effects dormant
+STUB-010,_ops/cortex/registry.py member fourd_system,Opt-in observe member flagged DEPRECATED-disconnected until enabled,OBSERVE_FLAG_OFF,T2,4d brain visibility into cortex coherence requires OCTOPUS_OBSERVE_4D=1
+STUB-011,_ops/legs/mining_leg.py (+ state),Mining leg skeleton — afferent/scorer unwired; state says live=false signal=skeleton,SKELETON,T0,awaits owner business-spec (hashrate/power/profit)
+STUB-012,_ops/legs/crypto_leg.py,Crypto leg not live; assets=21 completeness=11%,PARTIAL,T0,state-reported
+STUB-013,_ops/legs/cartographer_leg.py,Vault map stale 18 days; drift_files=1143; refresh_recommended=true,STALE,T0,state-reported; own mood 🔴
+STUB-014,organism.py docstring 'brain lock (app.py) :8768',Phantom component reference — no app.py exists,STALE_LORE,T2,docstring describes a lock for a process that is not on disk
+STUB-015,4d_system/start.bat,Startup script pointing to non-existent Desktop path,BROKEN,T2,cd C:\Users\Armin\Desktop\4d_system — directory absent
+STUB-016,_ops/state/STOP-TG-CENTER.cleared-* (x4),Cleared stop-flag tombstones,HISTORICAL,T2,housekeeping artifact
+STUB-017,epistemics modules (contracts/run_offloop/metrics/readers) + self_scan.py + cortex/improve.py,TODO/FIXME/XXX markers present (11 files total across trees),MARKERS,T2,highest TODO density in epistemics
+STUB-018,root .pytest_cache lastfailed (5 tests) + _ops lastfailed (1 test: test_context_assembler fail-soft),Recorded failing tests in caches (run evidence Aug 5-6),TEST_DEBT,T1,caches may be stale; fresh run needed to confirm current failures
+STUB-019,_ops/state/_unwired_*_20260816.py,Unwired-scan probe scripts parked in state dir,PROBES,T2,evidence of today's unwired-path discovery work
+STUB-020,OCTOPUS/admin-telegram preview screenshots + preview.html,Static snapshot artifacts,ARTIFACT,T2,frozen visualization copies
