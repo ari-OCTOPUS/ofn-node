@@ -1,0 +1,14 @@
+rfc:c6-2f4b9b00d4e9
+{
+  "kind": "rfc",
+  "rfc_id": "c6-2f4b9b00d4e9",
+  "summary": "C6 آزمایشِ خودبهبودی — verdict: accepted\nپرسش: چرا «خطای پرتکرار TimeoutError ×2» رخ می‌دهد؟ خودشناسی ریشه را نامعلوم اعلام کرده.\nدلیل: verified + held-out + U=0.7910267937421329 + full durable artifact\nاندازه‌گیریِ جفت‌شده (همان ورودی، gc خاموش): baselineِ اندازه‌گیری‌شده 2.502ms · دلتا median 2.230 / mean 2.246ms · IQR 0.286ms · کفِ نویزِ A/A 0.196ms · علامت 24/24 (p=5.96e-08)\nمکانیزم (مستقل از سخت‌افزار): 11.0 parseِ کمتر در هر اجرا · بهبودِ نسبی 89.1%\nخاطره: mem_753ab950eaed55cb\nاین یک propo",
+  "owner": 6150431610,
+  "nonce": "677f675751a07c6e0992dc9b3f0fccfc",
+  "expires_at": 1786286116,
+  "token_sha256": "2f19b6e93b81d7bb6739c9274ac49e9cbadf7fb4d9677bcba0951eacc1606b37",
+  "delivery": "SENT",
+  "decision": "SUBMITTED",
+  "created_ts": 1786026916,
+  "updated_ts": 1786026918
+}
