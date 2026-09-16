@@ -1,0 +1,45 @@
+{
+ "at_utc": "2026-09-16T09:53:12Z",
+ "cases": [
+  {
+   "case": "single_approval",
+   "expect": "DENY",
+   "got": "DENY",
+   "verdict": "PASS",
+   "why": "DENY:single-approval"
+  },
+  {
+   "case": "no_approval",
+   "expect": "DENY",
+   "got": "DENY",
+   "verdict": "PASS",
+   "why": "DENY:no-approval"
+  },
+  {
+   "case": "same_approver_twice",
+   "expect": "DENY",
+   "got": "DENY",
+   "verdict": "PASS",
+   "why": "DENY:single-approval"
+  },
+  {
+   "case": "two_distinct_approvers",
+   "expect": "ALLOW",
+   "got": "ALLOW",
+   "verdict": "PASS",
+   "why": "dual-approval-ok"
+  },
+  {
+   "case": "one_approved_one_refused",
+   "expect": "DENY",
+   "got": "DENY",
+   "verdict": "PASS",
+   "why": "DENY:single-approval"
+  }
+ ],
+ "id": "DUAL-VETO-DRILL",
+ "order": "MP-ROOTFIX R-3 (RCA-3), gate for GOV-V8 pre-L2 insurance",
+ "schema": "dual-veto-drill/1",
+ "self_sha256": "cf527157ec7c380b9f65e8d1036db284591739acd4b5bf2ac0ed9064c63b8ff5",
+ "verdict": "PASS"
+}
