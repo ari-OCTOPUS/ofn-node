@@ -1,0 +1,297 @@
+openapi: 3.0.3
+info:
+  title: Octopus System — Interface Contract Registry
+  version: 1.0.0
+  description: |
+    Master registry of all Black Box (BB) OpenAPI-style interface contracts
+    for the Octopus single-operator, stdlib-only, $0/offline-first, fail-closed
+    Python system.
+
+    Each contract defines: operations, request/response schemas, error responses,
+    security boundaries, and x-octopus-metadata (invariants, fail-closed status,
+    propose-only flag, side-effects flag, file path).
+
+    Invariant rules referenced across contracts:
+      I1: append-only ledger
+      I2: budget_gate single enforcer
+      I3: fail-closed → FREEZE on divergence
+      I6: no hardcoded numbers, read from budgets.yaml
+      H7: budgets.yaml read-only, single source of truth
+      INV-17: worker isolation (spawn=0, empty secrets, no wildcards)
+      D3: structural output confinement (proposals only)
+      D5: approval is separate human event
+      INV-14: money_link required for active budget
+
+  contact:
+    name: Octopus System
+
+servers: []
+
+paths: {}
+
+tags:
+  - name: Budget
+    description: Budget enforcement and gating
+  - name: Worker
+    description: Isolated task workers and proposal emission
+  - name: Library
+    description: Common metabolism library and utilities
+  - name: External
+    description: External API clients (flag-based, read-only)
+  - name: Telemetry
+    description: Consumption reading and health monitoring
+  - name: Reconcile
+    description: Payment-to-attribution matching
+  - name: Attribution
+    description: Dollar attribution lifecycle per cell
+  - name: Germline
+    description: Backup immortality and health monitoring
+
+components:
+  schemas:
+    ContractRef:
+      type: object
+      required: [bb_name, file_path, title, version, category]
+      properties:
+        bb_name:
+          type: string
+        file_path:
+          type: string
+        title:
+          type: string
+        version:
+          type: string
+        category:
+          type: string
+          enum: [Budget, Worker, Library, External, Telemetry, Reconcile, Attribution, Germline]
+        fail_closed:
+          type: boolean
+        propose_only:
+          type: boolean
+        side_effects:
+          type: boolean
+        invariant_tags:
+          type: array
+          items:
+            type: string
+
+    InterfaceMap:
+      type: object
+      required: [caller, callee, operation, direction, boundary_type]
+      properties:
+        caller:
+          type: string
+        callee:
+          type: string
+        operation:
+          type: string
+        direction:
+          type: string
+          enum: [internal, external, downward, upward]
+        boundary_type:
+          type: string
+          enum: [function_call, file_system, ledger, network]
+        notes:
+          type: string
+
+    OctopusMetadata:
+      type: object
+      required: [file_path, invariant_tags, fail_closed, propose_only, side_effects]
+      properties:
+        file_path:
+          type: string
+        invariant_tags:
+          type: array
+          items:
+            type: string
+        fail_closed:
+          type: boolean
+        propose_only:
+          type: boolean
+        side_effects:
+          type: boolean
+        notes:
+          type: string
+
+  securitySchemes:
+    RegistryRead:
+      type: apiKey
+      in: header
+      name: X-Registry-Read
+      description: Registry read access — no external auth required
+
+security:
+  - RegistryRead: []
+
+  x-contracts:
+    type: array
+    items:
+      $ref: "#/components/schemas/ContractRef"
+    value:
+      - bb_name: BB-OrganGate
+        file_path: F:\backup\BB-OrganGate.openapi.yaml
+        title: BB-OrganGate — Budget Enforcement Gate
+        version: 2.0.0
+        category: Budget
+        fail_closed: true
+        propose_only: false
+        side_effects: true
+        invariant_tags: [I1, I2, I3, I6]
+      - bb_name: BB-Leg
+        file_path: F:\backup\BB-Leg.openapi.yaml
+        title: BB-Leg — Isolated Worker & Proposal Emitter
+        version: 1.0.0
+        category: Worker
+        fail_closed: true
+        propose_only: true
+        side_effects: false
+        invariant_tags: [INV-17, I2, D3, D5, INV-14]
+      - bb_name: BB-OpsLib
+        file_path: F:\backup\BB-OpsLib.openapi.yaml
+        title: BB-OpsLib — Common Metabolism Library
+        version: 3.0.0
+        category: Library
+        fail_closed: true
+        propose_only: false
+        side_effects: true
+        invariant_tags: [I2, I3, I6, H7]
+      - bb_name: BB-PocketSmith
+        file_path: F:\backup\BB-PocketSmith.openapi.yaml
+        title: BB-PocketSmith — Read-Only External Accounting Client
+        version: 1.0.0
+        category: External
+        fail_closed: false
+        propose_only: true
+        side_effects: false
+        invariant_tags: [I6, SecretsBoundary, ProposeOnly]
+      - bb_name: BB-Telemetry
+        file_path: F:\backup\BB-Telemetry.openapi.yaml
+        title: BB-Telemetry — Unified Micro-USD Consumption Reader
+        version: 1.1.0
+        category: Telemetry
+        fail_closed: true
+        propose_only: false
+        side_effects: true
+        invariant_tags: [I3, I6, I1]
+      - bb_name: BB-Reconcile
+        file_path: F:\backup\BB-Reconcile.openapi.yaml
+        title: BB-Reconcile — Offline Payment-to-Attribution Matcher
+        version: 2.0.0
+        category: Reconcile
+        fail_closed: true
+        propose_only: false
+        side_effects: true
+        invariant_tags: [I1, I6]
+      - bb_name: BB-Attribution
+        file_path: F:\backup\BB-Attribution.openapi.yaml
+        title: BB-Attribution — Dollar Attribution Lifecycle per Cell
+        version: 1.4.0
+        category: Attribution
+        fail_closed: true
+        propose_only: false
+        side_effects: true
+        invariant_tags: [I1, I6]
+      - bb_name: BB-Germline
+        file_path: F:\backup\BB-Germline.openapi.yaml
+        title: BB-Germline — Backup Immortality & Health Monitor
+        version: 2.0.0
+        category: Germline
+        fail_closed: false
+        propose_only: false
+        side_effects: false
+        invariant_tags: [LifeDoctrine-3, S-2]
+
+  x-interface-map:
+    type: array
+    items:
+      $ref: "#/components/schemas/InterfaceMap"
+    value:
+      - caller: BB-Leg
+        callee: BB-OrganGate
+        operation: reserve_budget / settle_budget / release_budget
+        direction: internal
+        boundary_type: function_call
+        notes: Leg delegates to organ_gate when money_link=active. Incubating = deny/no-op.
+      - caller: BB-OrganGate
+        callee: BB-OpsLib
+        operation: load_budgets / fx_aud_per_usd / organ_table / freeze / alert
+        direction: internal
+        boundary_type: function_call
+        notes: OrganGate reads config and triggers freeze via shared library.
+      - caller: BB-OrganGate
+        callee: budget_gate (internal, not contract-external)
+        operation: reserve / settle
+        direction: downward
+        boundary_type: function_call
+        notes: I2 — budget_gate is the single global enforcer. Not exposed as independent BB.
+      - caller: BB-Telemetry
+        callee: BB-OpsLib
+        operation: fx_aud_per_usd / load_budgets / freeze / alert / conflict_to_human
+        direction: internal
+        boundary_type: function_call
+        notes: Telemetry reads FX and can trigger FREEZE + STOP-METABOLIC on divergence.
+      - caller: BB-Telemetry
+        callee: genome-system (external ledger)
+        operation: read METRIC events
+        direction: external
+        boundary_type: file_system
+        notes: Reads ledger.jsonl from genome-system directory.
+      - caller: BB-Telemetry
+        callee: control-brain (external DB)
+        operation: read usage table (mode=ro)
+        direction: external
+        boundary_type: file_system
+        notes: Opens core.db via sqlite URI read-only mode.
+      - caller: BB-Reconcile
+        callee: BB-Attribution
+        operation: confirm / fold
+        direction: internal
+        boundary_type: function_call
+        notes: Reconcile is the ONLY caller of attribution.confirm().
+      - caller: BB-Reconcile
+        callee: BB-OpsLib
+        operation: LockedJson / append_jsonl / alert
+        direction: internal
+        boundary_type: function_call
+        notes: Uses atomic file operations for state persistence.
+      - caller: BB-PocketSmith
+        callee: PocketSmith API v2
+        operation: GET /me /users/{id}/transaction_accounts /users/{id}/transactions
+        direction: external
+        boundary_type: network
+        notes: Flag-based (OCTOPUS_WIRE_POCKETSMITH). Default off = no-op. Only GET.
+      - caller: BB-PocketSmith
+        callee: txn_store (internal module)
+        operation: sync / _dedup / save
+        direction: internal
+        boundary_type: file_system
+        notes: Writes to local txn_store file only. Zero external financial side-effects.
+      - caller: BB-Attribution
+        callee: genome-system ledger
+        operation: append MONEY_ATTRIBUTION
+        direction: external
+        boundary_type: file_system
+        notes: Append-only ledger events via opslib.genome_ledger().
+      - caller: BB-Germline
+        callee: BB-OpsLib
+        operation: alert / backup_health
+        direction: internal
+        boundary_type: function_call
+        notes: Germline reports health but does not directly freeze.
+      - caller: BB-Leg
+        callee: BB-OpsLib
+        operation: read_brief (fs_get) / organ_table / fx_aud_per_usd
+        direction: internal
+        boundary_type: function_call
+        notes: Leg reads config and note content via opslib paths.
+
+x-octopus-metadata:
+  file_path: F:\backup\BB-Registry.openapi.yaml
+  invariant_tags: [I1, I2, I3, I6, H7, INV-17, D3, D5, INV-14]
+  fail_closed: true
+  propose_only: false
+  side_effects: false
+  notes: |
+    This registry is the master index of all interface contracts.
+    No code is generated from these contracts; they serve as documentation,
+    audit checkpoints, and test scaffolding references.
