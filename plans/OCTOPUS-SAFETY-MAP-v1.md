@@ -117,6 +117,12 @@ mismatch loud. Not attempted in this lane.
 
 ### D-1 — `_gate_enqueue` bypasses the policy gate *(severity: MEDIUM–HIGH)*
 
+> ⚠️ **SUPERSEDED 2026-09-17 — severity was overstated.** A read-only audit
+> (`09-LANES/LIVE-PATH-GATE-AUDIT-20260917/`) proved there is **no bypass**: all four
+> callers pass RED, `approved_manual` has exactly one owner-only setter, and nothing
+> consumes pending items automatically. The docstring's claim is correct. Downgraded
+> to an *evidence-to-prove* gap. See §7. The original text is kept below, unedited.
+
 `ofn/node.py:3036`. Its docstring is candid:
 
 > "This does NOT re-run admit/risk/quota — these paths are all RED and already
@@ -295,6 +301,71 @@ class**, not by directory.
 
 ---
 
+## 7. AUDIT UPDATE — 2026-09-17 (read-only)
+
+Source: `09-LANES/LIVE-PATH-GATE-AUDIT-20260917/REPORT-GATE-ENQUEUE-AND-EGRESS-AUDIT.md`.
+Owner decided OD-1 = **Option B** (canonical oracle + read-only doctor + loud mismatch)
+and simultaneously **forbade acting on it** until a separate authorized plan exists.
+This section is additive; §3's original findings remain visible above.
+
+### 7.1 Corrections to this map
+
+| Item | Was | Now |
+|---|---|---|
+| **D-1** `_gate_enqueue` | MEDIUM–HIGH, "rests on an assumption" | **DOWNGRADED** — no bypass found. All 4 callers RED; `approved_manual` sole setter `node.py:3370` (owner route); `outbox.claim()` wired only through `RunGate`, which has no production consumer; boot parks in-flight to HELD (`boot.py:297`). The remaining risk is to **reasoning**, not safety. |
+| **P-6** harvesters | `UNVERIFIED` | **TESTED_ONLY** — real egress code, but **NO_ENTRYPOINT_FOUND** for all seven fetchers. The last `UNVERIFIED` gap in §4 is closed. |
+| **P-2** telegram publish | SOLID | SOLID — **with a caveat that matters**: its stop is the **in-process** `self.killed` (`node.py:3607`), which resets on process restart. `HALT-ALL` is never read on that path. |
+| `D27_DAILY_SEND_CAP` / `D27_DAILY_SPEND_CAP_AUD` | scored as a control | **DOC_ONLY** — no enforcement code reads them; only `doctor.py:426-430` (diagnostics). `FLAG-CLAIMS.json` labels them "load-bearing"; the registry overstates the code. |
+
+### 7.2 NEW — D-9: halt-coverage gap *(severity: HIGH)*
+
+Arming `~/ofn/HALT-ALL` does **not** stop these. Verified by reading the code.
+
+| Egress | `path:line` | Live trigger | What stops it instead |
+|---|---|---|---|
+| **Telegram publish (real send)** | `platforms/telegram_channel.py:65` | owner panel inside live `ofn.service` | only in-process `self.killed` + owner two-step + release gate |
+| **Hosted-model spend** | `adapters/remote_brain.py:88` | `ofn.service` worker thread (`run.py:587,626`) | key, tenant quota, CallBudget — `kernel/callbudget.py:28`: **"HALT is not a parameter"** |
+| Owner notifications | `agents/owner_notify.py:62` | heartbeat (hourly), digest (21:00) | credentials only |
+| IMAP poll | `agents/imap_listener.py:297` | `octopus-imap.timer` (15 min) | credentials only |
+| `git pull origin main` | `deploy/systemd/ofn-sync.service` | `ofn-sync.timer` | no in-repo guard |
+| Shopify OAuth exchange | `adapters/shopify_oauth.py:225` | unauth inbound route `http_api.py:412` | HMAC state + allowlist |
+| Crash alert | `adapters/alert.py:77` | `ofn-alert.service` | `OFN_ALERT_TELEGRAM=1` (deliberately unhalted) |
+
+The complete consumer list of `master_halted()` is **exactly five modules**:
+`capability_token.py:87`, `followup_worker.py:38`, `outbound_worker.py:214,451`,
+`quote_pipeline.py:79`, `release_pipeline.py:106,184`.
+
+**D-3 is about mis-spelling the switch; D-9 is about coverage.** Even with the correct
+file armed, the highest-consequence egress keeps running. The strongest real mitigation
+today is not the halt file — it is the **absence of any automated sender**: every real
+dispatch requires a human owner action. That is a *design property, not a control*, and
+it would evaporate the moment `RunGate` or `release_pipeline` is wired to a timer.
+Anyone who wires one of those to a schedule converts D-9 from latent to live.
+
+### 7.3 Also found (same disease, new instances)
+
+- `ofn/kernel/release_switch.py:122` says "**No sender exists yet**, and none may be
+  built without Ari's approval" — while `publish_to_telegram` (`node.py:3615`) is a
+  live caller. A document-vs-runtime divergence inside the release gate itself.
+- The "two-step" owner confirmation is weaker than its rhetoric: at both owner routes
+  the second confirm is a boolean in the **same HTTP body** as the action
+  (`http_api.py:1452-1459`, `:1508`). Not a bypass; the strict two-code design exists
+  only on the *unreachable* `release_pipeline` path.
+- `install_systemd.sh:19` pre-sets `OCTOPUS_WIRE_LEAD_OUTBOUND=1` for every
+  `octopus-*` service — the one wire flag several senders consult is already "1".
+
+### 7.4 Scorecard revision
+
+| Pathway | Was | Now | Why |
+|---|---|---|---|
+| P-1 studio draft → queue | PARTIAL (6) | **PARTIAL (6)** | unchanged; pre-gate consent/sensitivity/screening are real, so "the gate only checks the kill switch" must not be read as "nothing else is checked at enqueue" |
+| P-2 telegram publish | SOLID (8) | **SOLID (8)**, caveat | stop is in-process, not the file oracle |
+| P-3 lead outbound email | PARTIAL (5) | **PARTIAL (5)** | confirmed unreachable (TESTED_ONLY) — two independent reasons it cannot fire |
+| P-6 harvesters | THIN (4) | **THIN (4) → TESTED_ONLY** | no entry point at all |
+| **P-9 (new) halt coverage** | — | **THIN (4)** | 5 of 5 SC clauses hold only for the five consumers that read the oracle; Telegram publish and model spend have **no stop on the documented path** |
+
+---
+
 ## خلاصه برای مالک
 
 نقشهٔ ایمنی ساخته شد. هر «مسیر تصمیم» جداگانه بررسی شد و چهار معیار گرفت:
@@ -313,3 +384,27 @@ class**, not by directory.
 
 در پایان یک «مرز جراحی» آمد: چه چیزی را ایجنت می‌تواند بدون اجازه انجام دهد، چه
 چیزی فقط با اجازهٔ شما، و چه چیزی هرگز.
+
+---
+
+## به‌روزرسانی مالک — ۲۰۲۶-۰۹-۱۷
+
+تصمیم شما دربارهٔ OD-1 ثبت شد: **گزینهٔ B**. متن عین کلام شما در
+`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-RULING-OD1-2026-09-17.md`.
+هیچ تغییری اعمال نشد — همان‌طور که خودتان دستور دادید.
+
+سه نکتهٔ تازه از بازبینی فقط‌خواندنی:
+
+۱. **یک اشتباه خودم را تصحیح کردم:** نگرانیِ قبلی دربارهٔ `_gate_enqueue` بیش از
+اندازه بود. بازبینی نشان داد هیچ مسیری وجود ندارد که بدون تأیید انسانی به ارسال
+واقعی برسد. عیبِ واقعی، ضعفِ *اثبات‌پذیری* بود، نه یک حفرهٔ فعال.
+
+۲. **ولی یک چیز مهم‌تر پیدا شد:** کلید توقف `HALT-ALL` فقط توسط ۵ ماژول خوانده
+می‌شود. اگر آن را فعال کنید، **ارسال واقعی تلگرام و هزینهٔ مدل متنی همچنان ادامه
+می‌یابد.** توقف این دو فقط یک پرچمِ درون‌برنامه‌ای است که با restart پاک می‌شود.
+این از «مسیر اشتباه» جدی‌تر است: مسئلهٔ *پوشش* است، نه املا.
+
+۳. **خبر خوب و شکننده:** امروز هیچ فرستندهٔ خودکاری وجود ندارد — هر ارسال واقعی
+به یک اقدام انسانی نیاز دارد. همین، دلیلِ اصلی امن‌بودن است، نه دروازهٔ سیاست.
+اگر روزی `RunGate` یا `release_pipeline` به یک timer وصل شود، این محافظت از بین
+می‌رود و مورد ۲ از «خفته» به «فعال» تبدیل می‌شود.

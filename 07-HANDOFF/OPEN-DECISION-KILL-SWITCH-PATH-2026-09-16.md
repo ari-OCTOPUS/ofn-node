@@ -1,15 +1,38 @@
 ---
 type: escalation
 lane: EMERGENCE-SAFE-SURGERY-20260916
-status: open
-requires: owner_decision
-as_of: 2026-09-16T00:00:00Z
+status: decided
+requires: none
+as_of: 2026-09-17T00:00:00Z
 may_authorize: false
 tags: [octopus, owner-decision, kill-switch, safety-map]
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # OD-1 — کلید توقف: سه مسیر متفاوت، و مسیرِ نوشته‌شده در سند وجود ندارد
+
+## ✅ تصمیم مالک ثبت شد — 2026-09-17
+
+**گزینهٔ B تصویب شد: یک oracle رسمی + doctor فقط‌خواندنی + هشدار بلند برای
+ناهم‌راستایی.** متن کامل و عین کلام مالک در
+`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-RULING-OD1-2026-09-17.md`
+ثبت شده است.
+
+**محدودیت همراهِ همین حکم (عین کلام مالک):** «هیچ تغییری در `ofn/**`، HALT،
+budget، `data/gates.json`، systemd، daemon، flags یا مسیر live انجام نده» و
+«هیچ مسیر HALT را canonical نکن، هیچ فایل HALT نساز، و هیچ kill-switch آزمایشی
+روی node زنده فعال نکن».
+
+یعنی: **سیاست تصمیم‌گیری شده، ولی اجرای آن ممنوع است تا طرح آزمایشِ مجازِ
+جداگانه‌ای وجود داشته باشد.** doctor فقط‌خواندنی مجاز به **ساخت** است؛ **اجرا روی
+ سخت‌افزار زنده مجاز نیست**.
+
+جزئیات و مشخصات doctor:
+`09-LANES/LIVE-PATH-GATE-AUDIT-20260917/HALT-ORACLE-DOCTOR-SPEC.md`
+
+وضعیت: `closed` از نظر این lane — تصمیم گرفته شد، اقدام نشد.
+
+---
 
 منبع: `F:\backup\plans\OCTOPUS-SAFETY-MAP-v1.md` §3 (D-3)
 وضعیت: `closed` از نظر این لین — تصمیم با مالک است. هیچ تغییری اعمال نشد.
