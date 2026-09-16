@@ -1,0 +1,24 @@
+{
+ "schema": "baseline-l2/1",
+ "frozen_at": "2026-08-18T13:54:24+00:00",
+ "brier": 0.1195,
+ "hits": 13,
+ "n": 20,
+ "calibration": {
+  "A_conf0.90": "8/8",
+  "B_conf0.10": "0/4",
+  "C_conf0.70": "3/3",
+  "proposal_conf0.80": "2/5(CONFOUNDED-INC1)"
+ },
+ "provider_failure_rate": "3/10 (all on conditioned)",
+ "ledger_rows_l2": 20,
+ "outcomes_l2": 20,
+ "eligibility_rules": {
+  "eligible_outcome": "registered before outcome; resolvable from daemon log or blind judge receipt; provider-failure != miss (availability only)",
+  "holdout": "ALL Live-3 predictions are holdout-eligible (no training occurs in-window)",
+  "pair_judging": "blind A/B rubric call (specificity+testability), temp=0, judge receipt linked",
+  "fugu_safe_prompt_budget": "<=500 chars total; conditioned prompts over budget or after 1 receipted fugu failure -> documented fallback (deepseek if key present)",
+  "scoring": "Brier vs 0.1195; calibration table; pairs win-rate; coverage must be 100% on eligible records"
+ },
+ "pair_confound_note": "L2 proposal misses 2/3/4 provider-failure confounded; clean signal 2/2"
+}

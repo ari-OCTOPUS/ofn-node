@@ -1,0 +1,64 @@
+{
+  "stamp": "20260822T142851Z",
+  "result": "PASS",
+  "bak": "/home/ari/.local/share/ofn/bak-shopify-scaffold-20260822T142851Z",
+  "available_platforms": [
+    "bluesky",
+    "email_ses",
+    "shopify",
+    "telegram_channel"
+  ],
+  "broken_platforms": [],
+  "channels": [
+    "instagram",
+    "market",
+    "etsy",
+    "direct",
+    "shopify"
+  ],
+  "matrix_shopify": {
+    "display_name": "Shopify",
+    "layer": "B",
+    "risk": "YELLOW",
+    "api_mode": "api",
+    "adult_policy": "sexual_content_prohibited",
+    "caption_max": 5000,
+    "max_posts_24h": 50,
+    "direct_adult_link_allowed": false,
+    "public_media_required": true,
+    "required_labels": [],
+    "allowed_framing": [
+      "handmade",
+      "gift",
+      "product",
+      "educational",
+      "behind_the_scenes"
+    ],
+    "blocked_framing": [
+      "adult_subscription_link",
+      "pornographic_request",
+      "sexual_solicitation",
+      "fetish",
+      "minor_targeting",
+      "spam"
+    ],
+    "adult_link_markers": [
+      "onlyfans",
+      "fansly",
+      "nudes",
+      "porn",
+      "xxx"
+    ],
+    "solicitation_markers": [
+      "escort",
+      "sex chat",
+      "fetish service"
+    ],
+    "notes": "Board2 scaffold 2026-08-23; Ziman gift storefront; real Admin API closed until OwnerRelease + secrets"
+  },
+  "pack_platforms_note": "etsy+shopify",
+  "wire": "closed (dry_run default; real publish RULE_WIRE_CLOSED)",
+  "secrets": "none configured — Admin API + webhook secret still needed",
+  "db_check_note": "products.channel SQLite CHECK on existing DB may still omit shopify until table rebuild; listing_events has no channel CHECK",
+  "rollback": "cp files from /home/ari/.local/share/ofn/bak-shopify-scaffold-20260822T142851Z back; rm shopify.py shopify_connector.py; systemctl restart ofn"
+}

@@ -1,0 +1,1035 @@
+{
+  "host": "138",
+  "now_utc": "2026-08-27T02:30:14Z",
+  "audit": [
+    {
+      "checksum": "877190005d024e1c",
+      "message_id": "be612088-7154-45ea-a96b-0d777c7689ff",
+      "reason": "ack_received",
+      "recipient": "180",
+      "run_id": "fresh-e2e-canary-20260827B",
+      "sender": "138",
+      "seq": 3316,
+      "status": "sent",
+      "ts": "2026-08-27T02:27:28.498036Z",
+      "type": "task"
+    }
+  ],
+  "receipts": [],
+  "verify_dispatch": {
+    "top": {},
+    "matches": [],
+    "keys": [
+      "d037589b-656d-4502-99d1-4a50b040f802",
+      "deploy-persistent-20260826-180",
+      "sync-ttl-182-byteexact",
+      "deploy-persistent-20260826-182",
+      "sync-ttl-180",
+      "repair-worker-reply-180",
+      "4369ee53-f5fb-4f84-aa9e-2f2e42e835c7",
+      "74063daa-6937-4548-a5a0-5f77d5ac627f",
+      "9a8c74ec-af41-4199-a405-0d07e2c4442b",
+      "canary-cycle-b",
+      "e12db4ca-c1da-43af-88a2-59c5c77816a7",
+      "owner-resume-182-canary",
+      "30f60773-6bee-49ef-9c76-b8b9de8c0335",
+      "canary-cycle-a",
+      "16dc715f-98e4-4193-bf30-63fa89d60f08",
+      "eba1e156-3ea7-4a2d-82f3-96e8516629aa",
+      "11cf5d59-b01f-4c5f-be42-96d412ee343d",
+      "canary-dup",
+      "readiness-182-v4",
+      "efd6ad60-f6a6-4a01-83ab-61219744f53e",
+      "fd0009e8-f585-4edc-8a6b-c250c66b184c",
+      "09231b61-5740-415e-9c7b-5c35ca98b284",
+      "573b83a3-3481-49b8-a96b-c8a49beb4e64",
+      "canary-cycle-c",
+      "6c8c95b2-4227-4feb-9d21-4e3ba347b6dd",
+      "1470893c-f2e1-4cad-91f1-451851199d72",
+      "16fc28ed-ca34-4b11-8a9d-95c38aa38884",
+      "2aca97ad-11ea-457c-8fea-571c6927074c",
+      "f05a3671-91f3-45fd-a7b8-1d4465fb7c44",
+      "19a8aea9-a2f5-4d97-b996-a19928e181ac",
+      "f1a9c0b2-29ce-4833-94bf-bdc3141b3c52",
+      "717b21f7-3c5f-48bc-81de-9b66e3e23315",
+      "7fcc3cad-4d2d-4db3-b1b0-9019050b845b",
+      "a8dd0e20-7798-4824-aa0e-1d1e0642ca4d",
+      "e44ee5f6-d9bd-44b3-ab60-25dc7ef061ab",
+      "7a8bdd38-cce1-431e-bab7-9882186e9d16",
+      "autowake-probe-1",
+      "bbb3ec76-4e27-4972-9218-c55ab66cec11",
+      "canary-generic",
+      "cb90d00e-3ea1-4a11-9c8b-26d273fb69c7",
+      "95db7ab8-ca74-431b-8cf0-fe221fdcd6ca",
+      "1545e4c0-fb6b-473f-b585-32ae10dd98ad",
+      "ef27fef8-fb7d-4b4d-93f5-56c24a7d4892",
+      "0f9ae4a7-290f-4fa9-a61e-0c768c62a706",
+      "1c304fe2-d056-49e1-abf6-59d6155ab9ac",
+      "83a77a5a-9cf5-4c5d-9e0b-3b1bd0d8d47a",
+      "801d1390-9097-4ad3-990a-cd3fdd74c016",
+      "6cf51b81-aeaa-4dc2-b6c0-a68c870d767a",
+      "2278088e-4bf2-47d4-8a04-3d9e6de958f4",
+      "b2d952eb-b990-4eec-a0ee-611cde979422"
+    ]
+  },
+  "recent_processed": [
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-30-11.580225Z__16c87b53-3314-4a49-b164-4a471af55c1f.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:30:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "b68683813fb67de115280d742eaa020c4dd8106f697a04977ed347a41b345733",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:30:11.580225Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:31:11.580405Z",
+        "idempotency_key": "5071cadf-dac7-4ce9-b56e-c647f52e51ff",
+        "may_authorize": false,
+        "message_id": "16c87b53-3314-4a49-b164-4a471af55c1f",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "21d0c830-4fa3-411b-af5f-72121828ca1f",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-30-11.131883Z__b9f1f663-795f-42e7-b289-9f641fd401b2.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:30:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "f94e3bb82ad5f416ae9e80ea2d0f69b21e3dc1413c649f02e8d1467de696c1e7",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:30:11.131883Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:31:11.132074Z",
+        "idempotency_key": "6ea74240-97a4-4038-b9b1-143f0e5c0db9",
+        "may_authorize": false,
+        "message_id": "b9f1f663-795f-42e7-b289-9f641fd401b2",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "0f57f5af-a366-40cf-890b-3e0d8d83667f",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/ff7bc886-2a9c-46e8-a9ac-9f359fc426fc.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:29:18Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "94d69c0c3349b206a437c8ba5d557fc862254766330187bfd7df02bf1743e960",
+        "claim_type": "observation",
+        "correlation_id": "724b897f-e436-486a-acd7-6252289e3af7",
+        "created_at": "2026-08-27T02:29:17.698555Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:29:17.698555Z",
+        "idempotency_key": "reply-724b897f-e436-486a-acd7-6252289e3af7",
+        "may_authorize": false,
+        "message_id": "ff7bc886-2a9c-46e8-a9ac-9f359fc426fc",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "724b897f-e436-486a-acd7-6252289e3af7",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "724b897f-e436-486a-acd7-6252289e3af7",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-89a71be2-3cb",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-29-11.475726Z__ef92e55f-a2d8-46b8-8ed7-d473149de56b.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:29:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "dab0106447b03eb291a1853c9ea6546c02039415843683df06b6eaf5c21075ba",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:29:11.475726Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:30:11.475912Z",
+        "idempotency_key": "3f9de9fd-d5df-413c-807d-122b5423af20",
+        "may_authorize": false,
+        "message_id": "ef92e55f-a2d8-46b8-8ed7-d473149de56b",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "864dbca8-a8d7-45b9-829c-5a600f5d50fc",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-29-11.086803Z__e3417f8b-d5d9-47bd-b8dc-eec18e8d7875.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:29:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "2ba9429d87ed42a66da27901ee945c9e45201181c8c531eba8e5978af6ed275a",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:29:11.086803Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:30:11.086988Z",
+        "idempotency_key": "c7ea80d3-4e85-46c9-8410-410693913ea3",
+        "may_authorize": false,
+        "message_id": "e3417f8b-d5d9-47bd-b8dc-eec18e8d7875",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "6f1dee67-2740-4fab-90b5-7dbbbcbdb44b",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/cf181292-8430-42dd-a14b-d68b4c3396d2.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:28:28Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "eba5cd9c926da543507dd369482c5dfed12d404b3fd734416cce69fcb4343149",
+        "claim_type": "observation",
+        "correlation_id": "db419b34-0d8b-482b-837f-59428c3eb10a",
+        "created_at": "2026-08-27T02:28:27.712348Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:28:27.712348Z",
+        "idempotency_key": "reply-db419b34-0d8b-482b-837f-59428c3eb10a",
+        "may_authorize": false,
+        "message_id": "cf181292-8430-42dd-a14b-d68b4c3396d2",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "db419b34-0d8b-482b-837f-59428c3eb10a",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "db419b34-0d8b-482b-837f-59428c3eb10a",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-bb3843e1-59d",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-28-11.420907Z__8ac7b89c-1072-463b-bb24-fd80a34ce733.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:28:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "aaf3de24e3cc6afaa78b7a0640b4a8f4cd42ce9621422460d428cbf5b5cfdc7c",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:28:11.420907Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:29:11.421092Z",
+        "idempotency_key": "5d82099b-95c8-4ac5-95fa-40a2e95b49d4",
+        "may_authorize": false,
+        "message_id": "8ac7b89c-1072-463b-bb24-fd80a34ce733",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "9d9d940b-ffa4-4127-9267-4f927d5b8a2e",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-28-11.054161Z__75c54d88-7c2f-4022-9c68-0004ca6b1823.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:28:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "b9f2c2cbde8500dc18946afabf443e33a13a4e0b341bb5c5872f0a5ed33fcda9",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:28:11.054161Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:29:11.054375Z",
+        "idempotency_key": "d18ae92c-3742-4f99-bf45-ed3d5bde6192",
+        "may_authorize": false,
+        "message_id": "75c54d88-7c2f-4022-9c68-0004ca6b1823",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "d6b7bd5f-9ac3-4cab-9ba8-0052aa5cbcb1",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/8f97fefe-1bd7-4b72-85ed-a52c3de0c598.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:27:43Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "2223aa22d456024766257a507dcbdb9752b4264cd2639b3cac1408dfb12a3655",
+        "claim_type": "observation",
+        "correlation_id": "e6e635a6-7526-4411-981a-095879a7ed92",
+        "created_at": "2026-08-27T02:27:42.807822Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:27:42.807822Z",
+        "idempotency_key": "reply-e6e635a6-7526-4411-981a-095879a7ed92",
+        "may_authorize": false,
+        "message_id": "8f97fefe-1bd7-4b72-85ed-a52c3de0c598",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "e6e635a6-7526-4411-981a-095879a7ed92",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "e6e635a6-7526-4411-981a-095879a7ed92",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-3b8e867f-25d",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-27-28.246898Z__be612088-7154-45ea-a96b-0d777c7689ff.json",
+      "size": 1111,
+      "mtime_iso": "2026-08-27T02:27:28Z",
+      "has_needle": true,
+      "data": {
+        "checksum": "877190005d024e1c03ec251298f2ae1f82104451c730d7d5cfffdff26179a48f",
+        "claim_type": "inference",
+        "correlation_id": "fresh-e2e-canary-20260827B",
+        "created_at": "2026-08-27T02:27:28.246898Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:27:28.247134Z",
+        "idempotency_key": "fresh-e2e-canary-20260827B-v1",
+        "may_authorize": false,
+        "message_id": "be612088-7154-45ea-a96b-0d777c7689ff",
+        "message_type": "task",
+        "payload": {
+          "checkpoint": "B",
+          "constraints": [
+            "structured output",
+            "may_authorize=false",
+            "no external action",
+            "no live-enable",
+            "MANUAL_SESSIONS=0",
+            "DUPLICATE_EFFECTS=0",
+            "EXTERNAL_ACTIONS=0"
+          ],
+          "event_id": "fresh-e2e-canary-20260827B-12126Z",
+          "inject_send_failure_once": true,
+          "purpose": "Fresh E2E B2. Zero manual sessions. Process once, freeze bytes, inject_send_failure_once must fail first transmit then retry same frozen bytes, MODEL_RERUNS_DURING_RETRY=0. No live-enable. No L4. No external action.",
+          "task": "AUTOWAKE-PROBE-FRESH-EVENT"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "fresh-e2e-canary-20260827B",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-27-11.443420Z__fa55c4f8-dd07-4cda-9ce9-31118efeba3f.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:27:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "de33a88864a1e3147a2c976b9de821d323d2d1f534af97b8fa01572cea19c08d",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:27:11.443420Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:28:11.443608Z",
+        "idempotency_key": "9c0e125d-d8b0-471e-a55d-56fc212c9d5c",
+        "may_authorize": false,
+        "message_id": "fa55c4f8-dd07-4cda-9ce9-31118efeba3f",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "75ce0d7b-a7a1-4156-8c0a-19554c945c33",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-27-11.040110Z__46a4316e-b238-4621-8c69-1579f5d57361.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:27:11Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "9fb7ece96668ca8a0aef14135708761c7d84460758f51f7bc38356821b16dc52",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:27:11.040110Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:28:11.040297Z",
+        "idempotency_key": "c552bf0f-23a9-4ae9-ac80-a40cb8479fcb",
+        "may_authorize": false,
+        "message_id": "46a4316e-b238-4621-8c69-1579f5d57361",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "52d922e0-03c0-4f71-b922-99a08f42df96",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/1ceda7de-9a8f-4866-abb1-5f85b0c183bc.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:26:54Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "2f2b1aebc15edb720ee3aae729c52c8cf2693eb829a0ec9e104d30841db643a3",
+        "claim_type": "observation",
+        "correlation_id": "9deab622-ff58-41a3-afdc-baf8d248b703",
+        "created_at": "2026-08-27T02:26:53.357712Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:26:53.357712Z",
+        "idempotency_key": "reply-9deab622-ff58-41a3-afdc-baf8d248b703",
+        "may_authorize": false,
+        "message_id": "1ceda7de-9a8f-4866-abb1-5f85b0c183bc",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "9deab622-ff58-41a3-afdc-baf8d248b703",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "9deab622-ff58-41a3-afdc-baf8d248b703",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-fd2b53ce-fef",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-26-09.897818Z__39a4d041-89fc-4a68-9108-3dd4b1d7bdb3.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:26:09Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "346b30289dd16d52f061dc835e6dc01151327671fe5dbb55c30f4a1febbad203",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:26:09.897818Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:27:09.897999Z",
+        "idempotency_key": "661ad5af-3e02-4438-a576-20ee26cd55e6",
+        "may_authorize": false,
+        "message_id": "39a4d041-89fc-4a68-9108-3dd4b1d7bdb3",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "292b985a-dc4c-4162-b9c7-4db06e769ce1",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-26-09.530167Z__7c31f0f2-1a59-4a8a-a458-c316fdf2e047.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:26:09Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "1b3bd0e4df9abd7895d2d186f6ba11ae7da41627cb69c9437ff6ba92c3bf268f",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:26:09.530167Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:27:09.530355Z",
+        "idempotency_key": "a15e65a8-b81c-4d5c-8f93-2a5a0e6f6aa2",
+        "may_authorize": false,
+        "message_id": "7c31f0f2-1a59-4a8a-a458-c316fdf2e047",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "532904ba-d40b-4004-9015-9b9a70b224c6",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/0265e13f-2340-4ed2-9ef8-fb7738786e90.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:26:09Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "1add468efd1ae0e6e957e06cc0426c18687d7dc761bcc758d908c9ebf8730b95",
+        "claim_type": "observation",
+        "correlation_id": "a1294b98-8f96-46d3-a1d5-b7000afbc47b",
+        "created_at": "2026-08-27T02:26:08.366393Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:26:08.366393Z",
+        "idempotency_key": "reply-a1294b98-8f96-46d3-a1d5-b7000afbc47b",
+        "may_authorize": false,
+        "message_id": "0265e13f-2340-4ed2-9ef8-fb7738786e90",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "a1294b98-8f96-46d3-a1d5-b7000afbc47b",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "a1294b98-8f96-46d3-a1d5-b7000afbc47b",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-c04b2829-05c",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/a2fea346-f198-49dd-a55f-d352be914d75.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:25:24Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "69a8134e6cd4d55d6a028d03030466cd7cea8c28f0fee70804f6b5680cd96667",
+        "claim_type": "observation",
+        "correlation_id": "fa78fc1d-331f-4f48-b3f3-8d5c0fda14f8",
+        "created_at": "2026-08-27T02:25:23.705499Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:25:23.705499Z",
+        "idempotency_key": "reply-fa78fc1d-331f-4f48-b3f3-8d5c0fda14f8",
+        "may_authorize": false,
+        "message_id": "a2fea346-f198-49dd-a55f-d352be914d75",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "fa78fc1d-331f-4f48-b3f3-8d5c0fda14f8",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "fa78fc1d-331f-4f48-b3f3-8d5c0fda14f8",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-b8d0b9f2-d33",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-25-09.496289Z__bae4a93e-42f3-4f4d-b53b-ed31d54ee690.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:25:09Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "8b0d7165161a6508cf13c2182296dc0849b4b06dcfcbf69b00ba2da7f61f7be8",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:25:09.496289Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:26:09.496512Z",
+        "idempotency_key": "6709f1b0-d42c-4cf7-bf9a-3c50a5e62362",
+        "may_authorize": false,
+        "message_id": "bae4a93e-42f3-4f4d-b53b-ed31d54ee690",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "c6feb265-cba1-4cab-bf88-fea264ab7d2b",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-25-09.060875Z__9ea71692-9444-4e0d-b171-07a1429289a3.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:25:09Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "32e47e082eded1bf615dbe26c8d7ac497b8a55670138e54c76c8e3cda77f6a3f",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:25:09.060875Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:26:09.061069Z",
+        "idempotency_key": "e3bc4b53-5de4-4fb0-bdf0-9bd45ef99db1",
+        "may_authorize": false,
+        "message_id": "9ea71692-9444-4e0d-b171-07a1429289a3",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "4741b00b-0b47-4a2d-b5b6-a1225d95610a",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/746f053b-d9c9-4711-bc4c-d10bb531b63e.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:24:36Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "c81011b4f18cadb0fcbf724497060476f5f7e164487a45825acc8b04e8f29b3d",
+        "claim_type": "observation",
+        "correlation_id": "f42e7472-638d-445f-84cd-039885aa05e3",
+        "created_at": "2026-08-27T02:24:35.800207Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:24:35.800207Z",
+        "idempotency_key": "reply-f42e7472-638d-445f-84cd-039885aa05e3",
+        "may_authorize": false,
+        "message_id": "746f053b-d9c9-4711-bc4c-d10bb531b63e",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "f42e7472-638d-445f-84cd-039885aa05e3",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "f42e7472-638d-445f-84cd-039885aa05e3",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-fa990dee-f9d",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-24-07.601044Z__bb64c43b-c6e2-443b-9011-e1921bf7e0ba.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:24:07Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "bd20d049d226093433760680925fcce9909af3b9d6842d075637eee7428cf7af",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:24:07.601044Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:25:07.601251Z",
+        "idempotency_key": "85100bb3-9f6e-4568-a862-1324ede125e5",
+        "may_authorize": false,
+        "message_id": "bb64c43b-c6e2-443b-9011-e1921bf7e0ba",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "2fc962c0-ce54-463d-855e-bb2db1bf6ad8",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-24-07.194424Z__77461e3a-1b4d-4607-8bdf-d254f0a0fb5c.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:24:07Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "37be76963aa58d0c7ebeb6c53cf7049bb133f3c0ade68e773538567c1ad82939",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:24:07.194424Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:25:07.194609Z",
+        "idempotency_key": "266163e7-3554-42df-96a8-d9fdda860328",
+        "may_authorize": false,
+        "message_id": "77461e3a-1b4d-4607-8bdf-d254f0a0fb5c",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "ca8eb12c-6c30-40a1-955a-23e384164447",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/515ff829-f272-468b-839d-49afb56d0492.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:23:51Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "1999673efdc8541b1697a0b2f8b546d83c5cfce72e3a4343e611330b364d97ce",
+        "claim_type": "observation",
+        "correlation_id": "2eba3bab-b10a-4803-ab33-93170068d89f",
+        "created_at": "2026-08-27T02:23:50.679095Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:23:50.679095Z",
+        "idempotency_key": "reply-2eba3bab-b10a-4803-ab33-93170068d89f",
+        "may_authorize": false,
+        "message_id": "515ff829-f272-468b-839d-49afb56d0492",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "2eba3bab-b10a-4803-ab33-93170068d89f",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "2eba3bab-b10a-4803-ab33-93170068d89f",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-747e6570-243",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/f7cb7abc-78cd-4096-a686-dba62eb9e0d7.json",
+      "size": 1217,
+      "mtime_iso": "2026-08-27T02:23:07Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "0fe7b145594157abbd6f88b245406f219705e3eb56a7b0bb0425d989ff49af89",
+        "claim_type": "observation",
+        "correlation_id": "a675c188-46c1-4cdf-ad04-4d3c5dcddfe9",
+        "created_at": "2026-08-27T02:23:06.053784Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:23:06.053784Z",
+        "idempotency_key": "reply-a675c188-46c1-4cdf-ad04-4d3c5dcddfe9",
+        "may_authorize": false,
+        "message_id": "f7cb7abc-78cd-4096-a686-dba62eb9e0d7",
+        "message_type": "witness_response",
+        "payload": {
+          "in_reply_to": "a675c188-46c1-4cdf-ad04-4d3c5dcddfe9",
+          "response": {
+            "alternative_hypotheses": [],
+            "claims_verified": [],
+            "disagreements": [],
+            "falsification_attempts": [
+              {
+                "expected_if_false": "validation passes clean",
+                "observed": "validated by octopus_verifier.validate_envelope",
+                "result": "survived",
+                "target_claim_id": "envelope",
+                "test": "attempt to find an envelope validation failure"
+              }
+            ],
+            "independent_observations": [
+              "envelope checksum verified with explicit serialization",
+              "expiry checked against UTC clock"
+            ],
+            "inferences": [],
+            "may_authorize": false,
+            "source_task_id": "a675c188-46c1-4cdf-ad04-4d3c5dcddfe9",
+            "verdict": "unresolved"
+          }
+        },
+        "recipient_node": "138",
+        "requires_ack": true,
+        "run_id": "verify-8598e871-09d",
+        "scope": "mesh",
+        "sender_node": "182",
+        "sender_role": "lab-witness"
+      }
+    },
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-23-05.489133Z__caebdbb0-22bb-4228-ab76-7afab44fe0b0.json",
+      "size": 608,
+      "mtime_iso": "2026-08-27T02:23:05Z",
+      "has_needle": false,
+      "data": {
+        "checksum": "aedc3edb6eb928c8a2594fd453d9f1871c6c798137bf491beeb65b250e510deb",
+        "claim_type": "observation",
+        "correlation_id": "",
+        "created_at": "2026-08-27T02:23:05.489133Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:24:05.489319Z",
+        "idempotency_key": "67f90fe7-d645-4256-80ed-7bc026814f9b",
+        "may_authorize": false,
+        "message_id": "caebdbb0-22bb-4228-ab76-7afab44fe0b0",
+        "message_type": "ping",
+        "payload": {
+          "heartbeat_from": "138"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "5706ce53-635e-4a6d-b479-155c36897507",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    }
+  ],
+  "related_processed": [
+    {
+      "path": "/home/ari/octopus-mesh/processed/2026-08-27T02-27-28.246898Z__be612088-7154-45ea-a96b-0d777c7689ff.json",
+      "size": 1111,
+      "mtime_iso": "2026-08-27T02:27:28Z",
+      "data": {
+        "checksum": "877190005d024e1c03ec251298f2ae1f82104451c730d7d5cfffdff26179a48f",
+        "claim_type": "inference",
+        "correlation_id": "fresh-e2e-canary-20260827B",
+        "created_at": "2026-08-27T02:27:28.246898Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:27:28.247134Z",
+        "idempotency_key": "fresh-e2e-canary-20260827B-v1",
+        "may_authorize": false,
+        "message_id": "be612088-7154-45ea-a96b-0d777c7689ff",
+        "message_type": "task",
+        "payload": {
+          "checkpoint": "B",
+          "constraints": [
+            "structured output",
+            "may_authorize=false",
+            "no external action",
+            "no live-enable",
+            "MANUAL_SESSIONS=0",
+            "DUPLICATE_EFFECTS=0",
+            "EXTERNAL_ACTIONS=0"
+          ],
+          "event_id": "fresh-e2e-canary-20260827B-12126Z",
+          "inject_send_failure_once": true,
+          "purpose": "Fresh E2E B2. Zero manual sessions. Process once, freeze bytes, inject_send_failure_once must fail first transmit then retry same frozen bytes, MODEL_RERUNS_DURING_RETRY=0. No live-enable. No L4. No external action.",
+          "task": "AUTOWAKE-PROBE-FRESH-EVENT"
+        },
+        "recipient_node": "180",
+        "requires_ack": true,
+        "run_id": "fresh-e2e-canary-20260827B",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    }
+  ],
+  "/home/ari/octopus-mesh/runtime": [],
+  "/home/ari/octopus-mesh/processing": [],
+  "/home/ari/octopus-mesh/quarantine": [],
+  "/home/ari/octopus-mesh/rejected": [],
+  "/home/ari/octopus-mesh/tasks": []
+}

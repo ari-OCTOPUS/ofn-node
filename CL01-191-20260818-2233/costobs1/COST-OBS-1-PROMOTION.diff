@@ -1,0 +1,37 @@
+diff --git a/_ops/cortex/model_router.py b/_ops/cortex/model_router.py
+index 70e149e..c306423 100644
+--- a/_ops/cortex/model_router.py
++++ b/_ops/cortex/model_router.py
+@@ -302,6 +302,32 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
+                           float(out.get("cost_usd", 0.0) or 0.0),
+                           task=f"cortex-{tier}")
+         _elapsed_ms = int((_pt.time() - _t0) * 1000)
++        # ── COST-OBS-1 (رأی مالک 2026-08-19): رسیدِ هزینهٔ پرداختی در همان
++        # لایه‌ای که usage/cost_usd هنوز در دسترس است — fail-soft برای مغز،
++        # fail-closed برای پرداخت: COST_UNOBSERVABLE ⇒ فراخوانیِ بعدیِ پرداختی بسته می‌شود.
++        try:
++            import hashlib as _hl, json as _jn, datetime as _dt
++            from datetime import timezone as _tz
++            from pathlib import Path as _P
++            from cost_receipt import CostReceiptAdapter  # noqa: WPS433 — هم‌پوشه
++            _recpt = CostReceiptAdapter().build(
++                trace_id=f"paid-{tier}-{int(_pt.time()*1000)}",
++                provider=str(getattr(cli, "provider", "") or ""),
++                model=str(out.get("model") or ""),
++                ts_req=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="seconds"),
++                ts_resp=_dt.datetime.now(_tz.utc).isoformat(timespec="seconds"),
++                budget_before_aud=float(out.get("cost_usd", 0.0) or 0.0),  # audit snapshot
++                usage_payload=({"cost_usd": out.get("cost_usd"),
++                                "prompt_tokens": out.get("tokens_in"),
++                                "completion_tokens": out.get("tokens_out")}
++                               if out.get("cost_usd") is not None else None),
++                tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
++                input_sha256=_hl.sha256(str(prompt).encode("utf-8", "replace")).hexdigest())
++            _rp = _P(str(_P(__file__).resolve().parent.parent / "state" / "cortex" / "cost-receipts.jsonl"))
++            _rp.parent.mkdir(parents=True, exist_ok=True)
++            _rp.open("a", encoding="utf-8").write(_jn.dumps(_recpt, ensure_ascii=False, default=str) + "\n")
++        except Exception:  # noqa: BLE001 — رسید هرگز مغز را نمی‌کشد
++            pass
+         _paid_log(task=task, tier=tier, role=role,
+                   provider=getattr(cli, "provider", ""),
+                   model=out.get("model"),

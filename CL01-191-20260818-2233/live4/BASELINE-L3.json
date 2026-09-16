@@ -1,0 +1,22 @@
+{
+ "schema": "baseline-l3/1",
+ "brier": 0.026,
+ "n": 30,
+ "hits": 22,
+ "calibration": {
+  "A(conf.90)": "16/16",
+  "B(conf.10)": "0/8 UNDERCONFIDENT_OR_INCONCLUSIVE",
+  "C(conf.70)": "6/6"
+ },
+ "provider": "fugu short 17/18; deepseek 1/1 cost-obs-blocked; pairs 0/15 valid (INC-L3-1)",
+ "scoring_code": {
+  "live4_harness.py": "e18d08acb5f53bb88e0853c2d29d50a7f2a9f59847cbf8e2dfe55cdd9de7dc3a",
+  "learning_evaluator.py": "973d92c4c9f47762eaa54020ce21b59c12e233a6194396d5bbafc7e38501983a"
+ },
+ "pair_target": {
+  "total_valid_min": 30,
+  "cond_wins_min": 20,
+  "batches": 2,
+  "per_batch_wins_min": 10
+ }
+}

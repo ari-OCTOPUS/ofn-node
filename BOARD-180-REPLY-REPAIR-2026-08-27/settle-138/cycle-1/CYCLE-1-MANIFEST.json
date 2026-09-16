@@ -1,0 +1,24 @@
+{
+  "run_id": "revenue-cycle-1-20260827",
+  "ts_utc": "2026-08-27T03:12:00Z",
+  "hold_external": true,
+  "may_authorize": false,
+  "files": {
+    "00-INDEX.md": {
+      "sha256": "8e58f40ee4c786b643a1a43aefe9cc75654008208114e9b9d52bd46cf1d4e20f",
+      "bytes": 766
+    },
+    "01-painting-pack.md": {
+      "sha256": "346e13b49d79e8e24b3f0082495fa66b93c3ec7f5ec2248b4903b34f9a898f07",
+      "bytes": 4034
+    },
+    "02-ziman-listing-pack.md": {
+      "sha256": "f211f7969c5cffd3cb3bc57b8632018cf428d86d0b48f48cfd189625e7688e6e",
+      "bytes": 3065
+    },
+    "03-studio-offer.md": {
+      "sha256": "e6d54d3413a67790e6c39a4f7a0952a6fe96be0cd7deba8871afb74f28e22871",
+      "bytes": 2769
+    }
+  }
+}

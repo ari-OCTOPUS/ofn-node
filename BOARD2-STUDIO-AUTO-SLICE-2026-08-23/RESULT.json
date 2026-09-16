@@ -1,0 +1,14 @@
+﻿{
+  "stamp": "2026-08-23T09:43+10",
+  "result": "PASS_DESIGN",
+  "slice_now": "caption-gated telegram_channel approve→publish; skip re-publish; no invent",
+  "not_now": ["OnlyFans adapter live publish", "Fansly", "fan-out empty captions 0003-0022", "WIRING studio_wire flip"],
+  "inventory": {
+    "eligible_enqueue": [],
+    "skip_republish": ["shot-0001", "shot-0002"],
+    "hold_empty_caption": ["shot-0003..0022"]
+  },
+  "script": "/home/ari/ofn/scripts/studio_auto_slice.py",
+  "consent": "telegram_channel + subject=self only",
+  "wiring": "studio_wire=false (cartographer); Board2 OOB path OK"
+}

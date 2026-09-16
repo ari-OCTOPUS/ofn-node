@@ -1,0 +1,53 @@
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [ 10%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+.................http z GET / -> 200
+....................................................... [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+......sssss............................................................. [ 57%]
+........................................................................ [ 60%]
+........................................................................ [ 64%]
+........................................................................ [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 74%]
+........................................................................ [ 77%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+................................................                         [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_photos_golden.py:83: no golden vector yet — see tests/fixtures/README.md.
+Needed: one real `canvas.toDataURL()` output per edge, taken from a
+portrait photo shot on a real phone. A synthetic file has no EXIF, so
+rotation passes in tests and comes out sideways on the phone.
+SKIPPED [1] tests/test_photos_golden.py:92: no golden vector yet — see tests/fixtures/README.md.
+Needed: one real `canvas.toDataURL()` output per edge, taken from a
+portrait photo shot on a real phone. A synthetic file has no EXIF, so
+rotation passes in tests and comes out sideways on the phone.
+SKIPPED [1] tests/test_photos_golden.py:74: no golden vector yet — see tests/fixtures/README.md.
+Needed: one real `canvas.toDataURL()` output per edge, taken from a
+portrait photo shot on a real phone. A synthetic file has no EXIF, so
+rotation passes in tests and comes out sideways on the phone.
+SKIPPED [1] tests/test_photos_golden.py:56: no golden vector yet — see tests/fixtures/README.md.
+Needed: one real `canvas.toDataURL()` output per edge, taken from a
+portrait photo shot on a real phone. A synthetic file has no EXIF, so
+rotation passes in tests and comes out sideways on the phone.
+SKIPPED [1] tests/test_photos_golden.py:67: no golden vector yet — see tests/fixtures/README.md.
+Needed: one real `canvas.toDataURL()` output per edge, taken from a
+portrait photo shot on a real phone. A synthetic file has no EXIF, so
+rotation passes in tests and comes out sideways on the phone.
+2131 passed, 5 skipped in 28.31s

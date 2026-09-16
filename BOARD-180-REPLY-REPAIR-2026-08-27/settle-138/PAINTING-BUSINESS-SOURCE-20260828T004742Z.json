@@ -1,0 +1,26 @@
+{
+  "schema": "painting_business_source_courier.v1",
+  "at_utc": "2026-08-28T00:47:42Z",
+  "wake_id": "CW-20260828T004742Z",
+  "run_id": "wake-180-20260828T004742Z",
+  "payload_path": "/home/ari/octopus-mesh/state/events/wake-180-20260828T004742Z.json",
+  "payload_sha256": "4d3723f1f313117865f2497d10e2040d2f3c5b54dc04566d2ea0bfe05b391451",
+  "source_row_hash": "a596dc8720cdb650de7ff3b5ddb2425f0438ffd621be400cbec44913233db875",
+  "lead_id_hashed": "b0e9d3950b1469a148e894156fb829d7726b7181a30a66d23bd2eb2dad09d240",
+  "may_contact": false,
+  "raw_identity_included": false,
+  "new_inbox": false,
+  "business_sources_dir_created": false,
+  "latest_overwritten": false,
+  "hold_external": true,
+  "telegram": false,
+  "live_sot": "TG 1522 / 230148Z / 91c03871",
+  "transport": {
+    "ok": true,
+    "status": "ack",
+    "message_id": "6cb7268e-8be5-409d-8c18-7ad53effb68d",
+    "reason": "accepted"
+  },
+  "rc": 0,
+  "stderr": ""
+}

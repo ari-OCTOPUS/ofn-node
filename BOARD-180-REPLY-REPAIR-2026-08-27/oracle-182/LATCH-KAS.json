@@ -1,0 +1,10 @@
+{
+  "case": "kill_after_send_one_transmit",
+  "pass": true,
+  "sends": "1->1",
+  "model_calls": 1,
+  "after_kill_state": "TRANSMIT_HANDED",
+  "after_retry_state": "INPUT_PROCESSED",
+  "handed": 1,
+  "patch_commit": "8fe57d68dc595c19df953d09744166ba8b15f97a"
+}

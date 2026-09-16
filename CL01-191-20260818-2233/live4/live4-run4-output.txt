@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "F:\backup\06-EVIDENCE\CL01-191-20260818-2233\live4\live4_driver.py", line 166, in <module>
+    print(json.dumps(main(), ensure_ascii=False, indent=1, default=str))
+                     ~~~~^^
+  File "F:\backup\06-EVIDENCE\CL01-191-20260818-2233\live4\live4_driver.py", line 148, in main
+    run_batch(1, 101, R)
+    ~~~~~~~~~^^^^^^^^^^^
+  File "F:\backup\06-EVIDENCE\CL01-191-20260818-2233\live4\live4_driver.py", line 116, in run_batch
+    LED.append_prediction(prediction_id=pid,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+        content=f"L4 batch{b} pair{i+1}: blind judge prefers evidence-conditioned proposal",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        trace_id=TRACE, source="cortex", model="deepseek-v4-flash+blind-judge",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        confidence=0.55, eval_window="immediate")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\backup\4d_system\memory\prediction_ledger.py", line 97, in append_prediction
+    c.execute("INSERT INTO predictions (prediction_id, created_at, content, content_sha,"
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              " trace_id, source, model, confidence, eval_window) VALUES (?,?,?,?,?,?,?,?,?)",
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              (prediction_id, ts, str(content), sha, trace_id, source, model,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               float(confidence), eval_window))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: predictions.prediction_id
