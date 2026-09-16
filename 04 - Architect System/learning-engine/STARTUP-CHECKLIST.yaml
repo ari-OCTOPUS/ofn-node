@@ -1,0 +1,71 @@
+# STARTUP-CHECKLIST.yaml — بانک سوال‌های boot (تک‌منبع)
+# قاعده: فقط وضعیت/عدد/تصمیم — هرگز مقدار secret. جواب = verdict → ledger append.
+# ask_if روی LEARNING-STATE.json ارزیابی می‌شود.
+
+version: 1
+max_questions_per_boot: 4
+order: priority   # کوچکتر = اول
+
+questions:
+  - id: rotation_status
+    class: unlock
+    priority: 1
+    ask: "وضعیت ۴ ردیف CRITICAL در ROTATION_CHECKLIST؟"
+    options: [همه rotate/revoke شد, بخشی انجام شد, هنوز هیچ, creds فیک بود — lift دستی می‌کنم]
+    ask_if: state.security_gate_status == "OPEN"
+    writes: [state.security_gate_status_note, ledger]
+    note: lift رسمی گیت فقط ویرایش دستی مالک در charter/ROTATION است
+
+  - id: fugu_key_registered
+    class: unlock
+    priority: 2
+    ask: "ردیف کلید Fugu در ROTATION_CHECKLIST ثبت شد؟ (فقط وضعیت — مقدار هرگز)"
+    options: [بله ثبت شد, نه هنوز, draft ردیف را تو بساز من پر می‌کنم]
+    ask_if: not state.external_calls_allowed
+    writes: [state.fugu_key_registered, ledger]
+
+  - id: budget_daily
+    class: unlock
+    priority: 3
+    ask: "سقف بودجه روزانه callهای خارجی (Fugu + partner)؟"
+    options: ["$2 (هم‌تراز Normal)", "$10 (Growth)", "0 — فعلاً فقط shadow", عدد دیگر]
+    ask_if: state.budget_ceiling_daily == null
+    writes: [state.budget_ceiling_daily, ledger]
+
+  - id: fugu_tier
+    class: config
+    priority: 4
+    ask: "کدام tier اشتراک Fugu خریده شد؟"
+    options: [Standard $20, Pro $100, Max $200]
+    ask_if: state.fugu_tier == null
+    writes: [state.fugu_tier, ledger]
+
+  - id: git_init
+    class: unlock
+    priority: 5
+    ask: "git init (پیش‌شرط L2+ و rollback)؟"
+    options: [خودم با runbook build-proposals/04 می‌زنم, تو بزن — verdict صریح همین‌جا, فعلاً نه]
+    ask_if: not state.git_ready
+    writes: [state.git_ready, ledger]
+    note: verdict قبلی «نه» بود — تناقض را یادآوری کن
+
+  - id: gate0_projectF
+    class: event
+    priority: 6
+    ask: "GATE 0 پروژه F (سوال یک‌خطی اقامت)؟"
+    ask_if: session_touches("03 - Projects/اونلی فنز")
+    writes: [project_note, ledger]
+
+  - id: subscription_review
+    class: stale
+    priority: 7
+    ttl_days: 30
+    ask: "مرور ماهانه اشتراک Fugu (auto-renew روشن است) — ادامه یا لغو؟"
+    writes: [ledger]
+
+  - id: run_now_preapprove
+    class: event
+    priority: 8
+    ask: "بعد از reset زمان‌بند: یک‌بار «Run now» روی تسک‌های ratified زدی؟"
+    ask_if: scheduler_reset_detected
+    writes: [heartbeat]

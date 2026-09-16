@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Octopus Base-Map v0</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.min.js" integrity="sha384-yQ4mmBBT+vhTAwjFH0toJXNYJ6O4usWnt6EPIdWwrRvx2V/n5lXuDZQwQFeSFydF" crossorigin="anonymous"></script>
+<style>
+  :root { color-scheme: light; }
+  body { background:#faf9f7; color:#1a1a1a; font-family: "Segoe UI", Tahoma, sans-serif; margin:0; padding:24px; line-height:1.6; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.7rem; margin:0 0 4px; }
+  h2 { font-size:1.15rem; margin:28px 0 8px; border-bottom:2px solid #e5e2dc; padding-bottom:4px; }
+  .sub { color:#6b6b6b; font-size:.9rem; margin-bottom:16px; }
+  .card { background:#fff; border:1px solid #e5e2dc; border-radius:10px; padding:14px 18px; margin:10px 0; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .mermaid { background:#fff; text-align:center; overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:.86rem; }
+  th,td { border:1px solid #e0ddd6; padding:6px 9px; text-align:right; vertical-align:top; }
+  th { background:#f2efe9; }
+  code { background:#f2efe9; padding:1px 5px; border-radius:4px; font-size:.85em; direction:ltr; display:inline-block; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:.75rem; font-weight:600; }
+  .live { background:#d7f5d0; color:#1f5c26; }
+  .lock { background:#fde2e2; color:#8a1f1f; }
+  .next { background:#ffe9b3; color:#7a5300; }
+  .toolbar { position:sticky; top:0; background:#faf9f7; padding:8px 0; margin-bottom:8px; }
+  button { font: inherit; padding:6px 14px; border:1px solid #c9c4ba; border-radius:8px; background:#fff; cursor:pointer; }
+  @media print { .toolbar{display:none} body{padding:0} .card{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar"><button onclick="window.print()">چاپ / ذخیره PDF</button> &nbsp; <span class="sub">برای PNG: از دیاگرام اسکرین‌شات بگیر یا Print→PDF.</span></div>
+  <h1>🐙 Octopus Base-Map — v0</h1>
+  <div class="sub">draft روی میزِ آری برای verdict · 2026-07-08 · منبع: ORGANISM-SPEC + 00-INDEX + چیپِ ۱۰سؤالی · <span class="pill live">P1 ساخته</span> <span class="pill next">P3 بعدی</span> <span class="pill lock">P6 قفل تا 2026-07-21</span></div>
+
+  <h2>A. ستون‌فقراتِ ورکفلو (end-to-end)</h2>
+  <div class="card"><div class="mermaid">
+flowchart TD
+  P["ادراک / ورودی"] --> L["Ledger append (LANGAR age_tick)<br/>genome ledger.jsonl v0.4.6"]
+  L --> H["Heartbeat — chrono.py<br/>Pacemaker / HLC / phi"]
+  H --> G1["organ_gate<br/>STOP→FREEZE→organ→state→cap→budget_gate"]
+  G1 --> G2["money_gate<br/>(live قفل تا 2026-07-21)"]
+  G2 --> G3["capability_gate"]
+  G3 --> PR["PROPOSAL (۷-فیلدی)"]
+  PR --> HU{"انسان — تلگرام<br/>approve / deny = human-append"}
+  HU -- deny --> Q["صف / drop + audit"]
+  HU -- approve --> EG["EffectorGate.settle (TINV-7)"]
+  EG --> FX["اثر: send/publish/sync/pay"]
+  FX --> AT["attribution.py + reconcile.py"]
+  AT --> FT["fitness.py (۲۸-روز authoritative)"]
+  FT --> RP["replication.py<br/>SPAWN_PROPOSAL فقط · σ≤1 · MAX 6"]
+  RP -. شرطی/human-gated .-> PR
+  classDef human fill:#ffe9b3,stroke:#c8901a,color:#000;
+  classDef gate fill:#dbeafe,stroke:#2563eb,color:#000;
+  classDef effect fill:#fde2e2,stroke:#c0392b,color:#000;
+  class HU human; class G1,G2,G3 gate; class EG,FX effect;
+  </div></div>
+
+  <h2>B. سه لایه و ماژول‌ها (_ops/)</h2>
+  <div class="card"><div class="mermaid">
+flowchart LR
+  subgraph ANA["آناتومی — MycoLedger"]
+    opslib["budget/opslib.py"]; led["genome ledger.jsonl + ledger.py"]; st["_ops/state/*"]
+  end
+  subgraph PHY["فیزیولوژی — Heart"]
+    org["organism.py + :8771"]; chr["chrono.py"]; bat["RUN-ORGANISM.bat"]
+  end
+  subgraph MET["متابولیسم — Governor"]
+    tel["telemetry.py"]; og["organ_gate.py"]; ge["governor_epoch.py"]; fit["fitness.py"]; rep["replication.py"]; deb["debate/*"]
+  end
+  subgraph GEN["ژنوم"]
+    val["values.yaml"]; gat["gates.yaml"]; met["metrics.yaml"]
+  end
+  ANA --> PHY --> MET
+  GEN -. قیدها/RFC .-> MET
+  </div></div>
+
+  <h2>C. جدولِ گیت‌ها</h2>
+  <div class="card"><table>
+  <tr><th>گیت</th><th>منطق</th><th>فایل</th><th>verdict</th></tr>
+  <tr><td>organ_gate</td><td>STOP→FREEZE→organ→state→سقفِ ماهانه→budget_gate.reserve</td><td><code>_ops/budget/organ_gate.py</code></td><td>allow/deny + log</td></tr>
+  <tr><td>budget_gate</td><td>تنها enforcer (I2)</td><td>مغز/genome</td><td>reserve/reject</td></tr>
+  <tr><td>money_gate</td><td>خرج‌دار؛ live قفل تا 2026-07-21 (I5)</td><td><code>_ops/budget/money_gate.py</code></td><td>shadow/$0</td></tr>
+  <tr><td>capability_gate</td><td>هیچ توانِ بی‌هزینه</td><td><code>_ops/budget/capability_gate.py</code></td><td>allow+cap/deny</td></tr>
+  <tr><td>EffectorGate</td><td>TINV-7؛ بدونِ LANGAR-append هیچ اثری settle نمی‌شود</td><td><code>_ops/chrono.py</code></td><td>settle/block</td></tr>
+  <tr><td>human-append</td><td>approve/deny تلگرامی = is_human=1</td><td><code>approval_channel.py</code> + P3</td><td>تیکِ انسانی</td></tr>
+  </table></div>
+
+  <h2>D. نگاشتِ فاز → فایل</h2>
+  <div class="card"><table>
+  <tr><th>فاز</th><th>هدف</th><th>فایل</th><th>وضعیت</th></tr>
+  <tr><td>P1 HEART</td><td>ضربان/زمان</td><td><code>chrono.py · organism.py</code></td><td>✅ (commit مانده)</td></tr>
+  <tr><td>P3 TELEGRAM</td><td>کانالِ تأیید</td><td><code>approval_channel.py · P3-TELEGRAM.md</code></td><td>⬅️ بعدی</td></tr>
+  <tr><td>P4 LEGS</td><td>پروژه→پا</td><td><code>P4-LEGS.md · replication.py</code></td><td>صف</td></tr>
+  <tr><td>P2 DOCTOR</td><td>تکاملِ ژنوم</td><td><code>P2-DOCTOR.md · debate/*</code></td><td>صف</td></tr>
+  <tr><td>P5 STAY-ALIVE</td><td>۲۴/۷</td><td><code>RUN-ORGANISM.bat · watchdog</code></td><td>صف</td></tr>
+  <tr><td>P6 MONEY-LIVE</td><td>پولِ واقعی</td><td><code>money_gate.py · P6-MONEY-LIVE.md</code></td><td>🔒 قفل</td></tr>
+  </table>
+  <p class="sub">ترتیبِ اجرا پس از ratify: P3 → P4(Lead-نقاشی) → P2 → paper 30-روز → تصمیمِ P6.</p></div>
+
+  <h2>E. سه پا · F. money-gate · G. cross-project</h2>
+  <div class="card"><div class="mermaid">
+flowchart LR
+  WF["ورکفلوِ واحد"] --> L1["🟢 Lead-نقاشی (اول)"]
+  WF --> L2["Ziman (بعد)"]
+  WF --> L3["Project-F (حریم: فقط کد · هرگز replication)"]
+  L1 --> MG["گیتِ پولِ زنده باز می‌شود اگر:<br/>≥۱۰ پیشنهادِ human-approved + صفر incident"]
+  classDef live fill:#d7f5d0,stroke:#2e7d32,color:#000; class L1 live;
+  </div></div>
+  <div class="card"><div class="mermaid">
+flowchart LR
+  OL["Octopus ledger v0.4.6"] --- SCH["schemaِ مشترک"] --- NL["nature-arch ledger"]
+  OL <--> BR["پلِ reconcile (_ops/reconcile/)"] <--> NL
+  ZIP["files(1).zip — LiteLLM gateway"] -. ثبت به‌عنوان .-> PROP["INFRA_PROPOSAL در Ledger"]
+  classDef c fill:#fff3cd,stroke:#c8901a,color:#000; class ZIP,PROP c;
+  </div></div>
+
+  <h2>I₂. Worker Roster — حمال‌ها و اتصال</h2>
+  <div class="card"><table>
+  <tr><th>worker</th><th>نقش</th><th>چه بخری</th><th>کلید</th></tr>
+  <tr><td><b>GLM (Z.ai)</b></td><td>کارگرِ اصلیِ کدنویس</td><td><span class="pill live">GLM Coding Plan Lite $۱۸/mo</span></td><td><code>.env</code></td></tr>
+  <tr><td><b>DeepSeek V4</b></td><td>دیباگ + review + حجم</td><td>اشتراک نه — top-up ~$۱۰ + API key</td><td><code>.env</code></td></tr>
+  <tr><td>Qwen local (Ollama)</td><td>fallback $۰</td><td>رایگان/local</td><td>—</td></tr>
+  <tr><td>Kimi K2.6</td><td>on-demand: بزرگ/swarm</td><td>per-token گاه‌گاه</td><td><code>.env</code></td></tr>
+  <tr><td>من (Opus/Max)</td><td>Planner + Final-Review + معمار</td><td>—</td><td>—</td></tr>
+  <tr><td>OpenRouter</td><td>routing (اختیاری، تک-کلید)</td><td>per-token + کارمزد</td><td><code>.env</code></td></tr>
+  </table>
+  <p class="sub"><b>حمالی کجا:</b> روی دستگاهِ مالک — (۱) coding-agent: GLM+DeepSeek داخلِ Claude Code/Cline؛ (۲) gateway: files(1).zip (LiteLLM) با هر دو کلید در <code>.env</code>. <b>قید:</b> کلید فقط در <code>.env</code> (I9، هرگز در چت) · propose-only → گیت‌ها → human-append. <b>روی spine:</b> من=heavy-reasoning؛ GLM+DeepSeek=fast/bulk. <span class="pill next">[EST] جولای ۲۰۲۶ — verify با کنسولِ provider</span></p></div>
+
+  <h2>K. قلاب‌های آینده (خاکستری — گنبد نساز)</h2>
+  <div class="card"><div class="mermaid">
+flowchart LR
+  NOW["اکنون: P1..P6"] -. آینده .-> H1["money-path مستقیم"]
+  NOW -. آینده .-> H2["پاهای جدید"]
+  NOW -. آینده .-> H3["cross-project گسترده"]
+  classDef f fill:#eeeeee,stroke:#999,color:#555,stroke-dasharray:5 5; class H1,H2,H3 f;
+  classDef n fill:#d7f5d0,stroke:#2e7d32,color:#000; class NOW n;
+  </div></div>
+
+  <p class="sub">ناوردی‌ها: I1 append-only · I2 تک-enforcer · I3 fail-closed · I5 گیتِ دوقفله · I7 پذیرشِ انسانی · I8 ضدسرطان · TINV-3/5/7. جزئیاتِ کامل در <code>OCTOPUS-BASE-MAP-v0.md</code>.</p>
+</div>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose', flowchart: { htmlLabels: true, useMaxWidth: true } });
+</script>
+</body>
+</html>
