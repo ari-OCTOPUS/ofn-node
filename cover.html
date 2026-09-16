@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 595pt;
+    height: 842pt;
+    font-family: 'Times New Roman', 'Georgia', 'DejaVu Serif', serif;
+    background: #f1f1f0;
+    position: relative;
+    overflow: hidden;
+    color: #252422;
+  }
+
+  /* Layer 1 - Background (clipped) */
+  .cover-layer-1 {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 49pt,
+        rgba(118, 108, 80, 0.04) 49pt,
+        rgba(118, 108, 80, 0.04) 50pt
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 49pt,
+        rgba(118, 108, 80, 0.04) 49pt,
+        rgba(118, 108, 80, 0.04) 50pt
+      );
+  }
+
+  /* Layer 2 - Structure lines (no clip) */
+  .cover-layer-2 {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .anchor-line {
+    position: absolute;
+    left: 0.12 * 595pt;
+    top: 0.1 * 842pt;
+    bottom: 0.1 * 842pt;
+    width: 6pt;
+    background: #766c50;
+  }
+  .meta-separator {
+    position: absolute;
+    left: 0.12 * 595pt + 30pt;
+    width: 595pt * 0.4;
+    height: 1pt;
+    background: rgba(118, 108, 80, 0.35);
+    top: 0.70 * 842pt;
+  }
+
+  /* Layer 3 - Content (no clip) */
+  .cover-layer-3 {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+  }
+  .content-x {
+    position: absolute;
+    left: 0.12 * 595pt + 30pt;
+    top: 0;
+    width: 595pt * 0.6;
+  }
+
+  /* A - Kicker */
+  .kicker {
+    position: absolute;
+    top: 0.15 * 842pt;
+    font-size: 16pt;
+    font-weight: 400;
+    letter-spacing: 3pt;
+    text-transform: uppercase;
+    opacity: 0.60;
+    line-height: 1;
+  }
+
+  /* B - Hero Title */
+  .hero-title {
+    position: absolute;
+    top: 0.28 * 842pt;
+    font-size: 48pt;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.5pt;
+    color: #252422;
+    width: 595pt * 0.6;
+  }
+  .hero-title .accent { color: #1f7693; }
+
+  /* C - Summary */
+  .summary {
+    position: absolute;
+    top: 0.48 * 842pt;
+    font-size: 17pt;
+    font-weight: 400;
+    line-height: 1.6;
+    opacity: 0.85;
+    max-width: 595pt * 0.55;
+  }
+
+  /* D - Meta */
+  .meta {
+    position: absolute;
+    top: 0.74 * 842pt;
+    font-size: 18pt;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #252422;
+  }
+  .meta .label { opacity: 0.55; font-size: 14pt; }
+
+  /* Footer */
+  .footer {
+    position: absolute;
+    bottom: 0.05 * 842pt;
+    left: 0.12 * 595pt + 30pt;
+    font-size: 11pt;
+    opacity: 0.5;
+    letter-spacing: 1pt;
+    text-transform: uppercase;
+  }
+
+  /* Bottom accent stripe */
+  .bottom-accent {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4pt;
+    background: #1f7693;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Layer 1: Background -->
+  <div class="cover-layer-1">
+    <div class="grid-bg"></div>
+  </div>
+
+  <!-- Layer 2: Structure -->
+  <div class="cover-layer-2">
+    <div class="anchor-line"></div>
+    <div class="meta-separator"></div>
+  </div>
+
+  <!-- Layer 3: Content -->
+  <div class="cover-layer-3">
+    <div class="content-x">
+      <div class="kicker">Research Intelligence Report</div>
+
+      <div class="hero-title">
+        AGI Investment<br/>
+        <span class="accent">Landscape</span>
+      </div>
+
+      <div class="summary">
+        How companies and nations are investing in artificial general intelligence
+        through policy, geopolitics, regulation, and exotic non-traditional
+        approaches — 25+ investment topics across 8 strategic categories.
+      </div>
+
+      <div class="meta">
+        <span class="label">Date</span><br/>
+        August 2026
+      </div>
+
+      <div class="footer">
+        Prepared by Z.ai &nbsp;|&nbsp; Confidential Research Report
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-accent"></div>
+
+</body>
+</html>
