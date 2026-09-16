@@ -142,3 +142,59 @@ git revert <checkpoint-sha>     # restores the two edited files; then remove the
 
 Nothing under `F:\ofn-node` was modified, so there is no code rollback. No flag, timer,
 service, HALT file, ledger row, or node was touched.
+
+---
+
+## ADDENDUM 2026-09-17 — owner card OD-4 applied
+
+The owner card (`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-CARD-OD4-2026-09-17.md`,
+recorded verbatim) **approved the corrected targets that this lane's trace produced** and
+**rejected `callbudget.py`** as a wiring target. Outcome of applying it:
+
+| Item | Before the card | After |
+|---|---|---|
+| BQ-1 (target for effect B) | open, blocking | **CLOSED** — router admission point + `assistant_update.py:32`, as traced |
+| BQ-2 (`assistant_update`) | open, recommendation | **CLOSED** — owner chose the **direct call site** (the lane's recommendation) |
+| `callbudget.py` | named by the directive | **REJECTED by owner**; formally out of OD-4 scope |
+| Packet §1 / §2.2 diffs | proposed | **no rework needed** — already the approved shape |
+| Wiring implementation | blocked | **still NOT AUTHORIZED** — blocked on owner order steps 1–3 |
+
+### What the card added to the deliverables
+
+1. **`CHANGE-PREP-PACKET.md` §0** — approved-target table, BQ closure, and the
+   rationale kept as an audit trail rather than deleted.
+2. **§0.5 COVERAGE PROOF** (the card's success definition, *"prove coverage, not just
+   path correctness"*): a pre/post coverage matrix using only the four authorized labels
+   — **3 consumers, 3 path-`WIRED`, 0 covered by the canonical oracle today (all three
+   `DOC_ONLY`)**, targeting `DOC_ONLY → WIRED` for exactly those three and **no other
+   consumer's label may change**.
+3. **§0.5.3 pre/post receipt contract** (owner order step 3) — `octopus.halt-coverage-receipt.v1`,
+   with `PRE` mandatory before any wiring lands, exactly three consumer rows,
+   `out_of_scope_consumers.any_label_changed == false`, and `mutations_performed: 0`.
+4. **§7 rewritten** — the owner's four-step order encoded as the gate table, plus a
+   scope lock and the explicit "no live ablation" test rule.
+5. **`CONSUMER-MAP.json` → revision 2** — coverage labels per consumer, owner-card
+   decisions, BQ status, the receipt contract, and the stop-condition resolution.
+
+### Stop-condition resolution (reported, not assumed)
+
+The card's rule is *"if any consumer path is still UNVERIFIED, stop and report instead of
+guessing."* Recorded precisely: **no consumer path is UNVERIFIED** — the consumer sets
+for both effects are fully resolved and all three consumers are path-`WIRED`. The three
+UNVERIFIED items (U-1 on-node path resolution and file state, U-2 deployed env values,
+U-3 out-of-repo units) are **runtime/environmental, not structural**. The stop condition
+does **not** fire, and those unknowns are precisely what the doctor's Half B captures —
+which is why the owner's order sequences the doctor before the wiring.
+
+### One honest note on vocabulary
+
+The four authorized coverage labels contain no value for "verified absent, and not even
+documented as applying here" — the literal state of B-2, which has **no budget gate at
+all**. `DOC_ONLY` was used and the gap flagged in the packet rather than stretching the
+label. A fifth label (e.g. `ABSENT`) would be the owner's call, not this lane's.
+
+### Attestation for the addendum
+
+Still **zero** implementation: no wiring code written, no file under `F:\ofn-node`
+modified, no service restarted, no flag edited, no HALT file touched, no systemd/timer
+change, no node contacted. This addendum produced documents only.

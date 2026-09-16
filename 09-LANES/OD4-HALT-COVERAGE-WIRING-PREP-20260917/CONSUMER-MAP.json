@@ -13,7 +13,6 @@
     "documentation_status": "NOT_ALIGNED - AGENTS.md GOV-V7 names F:/ofn-node/HALT which does not exist; canonicalisation is OD-1 clause 1, DECIDED but NOT EXECUTED",
     "import_note": "neither ofn/node.py nor ofn/adapters/router.py currently imports opslib (verified: grep returned NEITHER imports opslib/master_halted)"
   },
-
   "effects": [
     {
       "effect_id": "E-A-telegram-send",
@@ -53,13 +52,21 @@
           "halt_input_on_path": "self.killed only",
           "file_oracle_on_path": false,
           "verdict": "WIRED",
-          "coverage_verdict": "COVERAGE_GAP - the effect is live and reachable, but the canonical file oracle is not consulted"
+          "coverage_verdict": "COVERAGE_GAP - the effect is live and reachable, but the canonical file oracle is not consulted",
+          "path_correctness": "WIRED",
+          "halt_oracle_coverage_today": "DOC_ONLY",
+          "coverage_after_wiring_target": "WIRED"
         }
       ],
       "single_point_of_change": "ofn/node.py:3607 (one expression in the ReleaseContext construction). No change to release_switch.py is required or permitted.",
-      "scope_leak_check": "PASS - the release gate module (ofn/kernel/release_switch.py) is NOT modified; the change is confined to the caller's context construction, which is the constraint the owner set"
+      "scope_leak_check": "PASS - the release gate module (ofn/kernel/release_switch.py) is NOT modified; the change is confined to the caller's context construction, which is the constraint the owner set",
+      "coverage_summary": {
+        "path_correctness_all_consumers": "WIRED",
+        "halt_oracle_coverage_all_consumers": "DOC_ONLY",
+        "consumers_total": 1,
+        "consumers_covered_by_canonical_oracle": 0
+      }
     },
-
     {
       "effect_id": "E-B-text-model-spend",
       "description": "Billable hosted text-model call (RemoteBrain -> api.sakana.ai)",
@@ -104,7 +111,10 @@
           "halt_input_on_path": "none",
           "file_oracle_on_path": false,
           "verdict": "WIRED",
-          "coverage_verdict": "COVERAGE_GAP"
+          "coverage_verdict": "COVERAGE_GAP",
+          "path_correctness": "WIRED",
+          "halt_oracle_coverage_today": "DOC_ONLY",
+          "coverage_after_wiring_target": "WIRED"
         },
         {
           "consumer_id": "B-2",
@@ -131,7 +141,10 @@
           "halt_input_on_path": "none",
           "file_oracle_on_path": false,
           "verdict": "WIRED",
-          "coverage_verdict": "COVERAGE_GAP - and additionally ungated by any budget mechanism"
+          "coverage_verdict": "COVERAGE_GAP - and additionally ungated by any budget mechanism",
+          "path_correctness": "WIRED",
+          "halt_oracle_coverage_today": "DOC_ONLY",
+          "coverage_after_wiring_target": "WIRED"
         }
       ],
       "named_target_coverage_check": {
@@ -158,10 +171,15 @@
         "conclusion": "callbudget.py gates (i) the owner-ask submit path, (ii) the studio-reading path, and (iii) the Telegram publish rate-limit slot. It does not gate the live worker's model spend (B-1) nor assistant_update (B-2)."
       },
       "single_point_of_change": "ofn/adapters/router.py admission (covers B-1 from all three callers) PLUS ofn/assistant_update.py:32 (covers B-2). Two sites, both on the model-egress boundary. NOT callbudget.py.",
-      "scope_leak_check": "PASS with a caveat - neither site is the ledger, consent, release gate, budget-threshold logic, or an outbound flag. Router change must not alter quota caps or rung policy."
+      "scope_leak_check": "PASS with a caveat - neither site is the ledger, consent, release gate, budget-threshold logic, or an outbound flag. Router change must not alter quota caps or rung policy.",
+      "coverage_summary": {
+        "path_correctness_all_consumers": "WIRED",
+        "halt_oracle_coverage_all_consumers": "DOC_ONLY",
+        "consumers_total": 2,
+        "consumers_covered_by_canonical_oracle": 0
+      }
     }
   ],
-
   "cross_checks": {
     "third_effect_search": {
       "claim": "no third distinct model-egress or send primitive exists that these two effects miss",
@@ -175,7 +193,6 @@
       "note": "none of these five is a consumer of E-A or E-B"
     }
   },
-
   "unresolved": [
     {
       "id": "U-1",
@@ -198,22 +215,6 @@
       "reason": "7 octopus-* units are reported live on the board but are not in this repo's deploy/"
     }
   ],
-
-  "blocking_questions": [
-    {
-      "id": "BQ-1",
-      "question": "For effect E-B the owner named callbudget.py, but the trace shows callbudget.py gates neither live model-egress consumer. Confirm the corrected target: the model admission point in ofn/adapters/router.py (covers all three router callers including the live worker) plus the direct call in ofn/assistant_update.py:32 (which bypasses the router entirely and is ungated by any budget)?",
-      "recommendation": "Adopt the corrected target. Wiring callbudget.py would produce a change that passes its own tests, appears to satisfy the instruction, and stops nothing - a textbook DECLARED!=WIRED fix.",
-      "status": "OPEN - implementation blocked until answered, per the owner's evidence rule"
-    },
-    {
-      "id": "BQ-2",
-      "question": "For B-2 (assistant_update direct call), is the intended fix to route it through ModelRouter.ask (which would also subject it to NodeQuota), or to add a halt check at the direct call site?",
-      "recommendation": "Add the halt check at the direct site for this lane (minimal, no behaviour change beyond halt); routing it through the router is a larger change and would alter its budget behaviour, which the owner excluded from this scope.",
-      "status": "OPEN"
-    }
-  ],
-
   "lane_attestations": {
     "live_changes": 0,
     "services_restarted": 0,
@@ -223,6 +224,78 @@
     "files_modified_in_ledger_consent_release_gate_budget_thresholds_or_outbound_flags": 0,
     "nodes_contacted": 0,
     "automatic_side_effects": 0,
-    "output": "report only"
+    "output": "report only",
+    "wiring_code_written": 0,
+    "implementation_in_this_lane": "none - per owner hard boundary"
+  },
+  "revision": "2 — owner card OD-4 2026-09-17 applied (targets approved, BQ-1/BQ-2 closed, callbudget rejected)",
+  "owner_card": {
+    "date": "2026-09-17",
+    "record": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-CARD-OD4-2026-09-17.md",
+    "decision": "OD-4 = Option B, with corrected targets after trace evidence",
+    "approved_effect_A": "ofn/node.py publish_to_telegram / ReleaseContext construction; oracle = existing opslib.master_halted()",
+    "approved_effect_B": [
+      "ofn/adapters/router.py model admission point",
+      "ofn/assistant_update.py:32 direct call"
+    ],
+    "rejected_target": "ofn/kernel/callbudget.py — does not gate the two real model-spend consumers; touching it would create a DECLARED!=WIRED fix",
+    "non_negotiable_order": [
+      "Build doctor first",
+      "Run doctor once offline",
+      "Produce machine-readable pre/post receipts for coverage",
+      "Only then apply the narrow wiring"
+    ],
+    "hard_boundaries": [
+      "no changes to release_switch.py, consent, ledger, budget thresholds, flags, systemd, timers, HALT files, or any live node",
+      "no implementation in this lane",
+      "no live ablation",
+      "no scope expansion into generalized guard architecture",
+      "if any consumer path is still UNVERIFIED, stop and report instead of guessing"
+    ],
+    "acceptable_coverage_labels": [
+      "WIRED",
+      "TESTED_ONLY",
+      "DOC_ONLY",
+      "UNVERIFIED"
+    ]
+  },
+  "coverage_totals": {
+    "consumers": 3,
+    "path_correct": 3,
+    "covered_by_canonical_oracle_pre": 0,
+    "target_covered_post": 3,
+    "success_definition": "coverage transition DOC_ONLY -> WIRED for exactly these three consumers, and no other consumer's label may change",
+    "vocabulary_gap": "the four authorized labels have no value for 'verified absent and not documented as applying' (B-2 has no budget gate at all); DOC_ONLY used and flagged rather than stretched"
+  },
+  "stop_condition_resolution": {
+    "owner_rule": "if any consumer path is still UNVERIFIED, stop and report instead of guessing",
+    "any_consumer_path_unverified": false,
+    "consumer_set_effect_A": "RESOLVED - one consumer",
+    "consumer_set_effect_B": "RESOLVED - two consumers",
+    "remaining_unverified_are": "runtime/environment only (U-1 on-node path resolution and file state; U-2 deployed env values incl. remote_api_key; U-3 out-of-repo octopus-* units)",
+    "conclusion": "the stop condition does NOT fire; the residual unknowns are exactly what the doctor's Half B captures, which is why the owner order puts the doctor before the wiring"
+  },
+  "bq_status": [
+    {
+      "id": "BQ-1",
+      "status": "CLOSED",
+      "answer": "approved as traced: router admission point + assistant_update.py:32 direct call"
+    },
+    {
+      "id": "BQ-2",
+      "status": "CLOSED",
+      "answer": "halt check at the direct call site (the packet's recommendation)"
+    }
+  ],
+  "receipt_contract": {
+    "ref": "CHANGE-PREP-PACKET.md section 0.5.3",
+    "schema": "octopus.halt-coverage-receipt.v1",
+    "phases": [
+      "PRE",
+      "POST"
+    ],
+    "pre_must_exist_before_wiring": true,
+    "post_must_show": "all three consumers WIRED and out_of_scope_consumers.any_label_changed == false",
+    "mutations_performed_always": 0
   }
 }

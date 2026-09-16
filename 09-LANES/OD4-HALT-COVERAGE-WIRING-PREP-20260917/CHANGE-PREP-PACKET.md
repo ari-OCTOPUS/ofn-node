@@ -18,11 +18,37 @@ project: "[[OCTOPUS]]"
 
 ---
 
-## 0. READ FIRST — the instruction's named target does not work (BQ-1, blocking)
+## 0. STATUS — targets APPROVED by owner card 2026-09-17 (BQ-1 / BQ-2 CLOSED)
+
+The owner card approved the corrected targets and **rejected `callbudget.py`**, matching
+the trace. Recorded verbatim at
+`06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-CARD-OD4-2026-09-17.md`.
+
+| Effect | Approved site | Approved oracle |
+|---|---|---|
+| **A — Telegram send** | `ofn/node.py`, `publish_to_telegram` / `ReleaseContext` construction (`:3607`) | existing `opslib.master_halted()` — **not** a second HALT path |
+| **B — model spend** | site 1: `ofn/adapters/router.py` model admission point · site 2: `ofn/assistant_update.py:32` direct call | existing `opslib.master_halted()` |
+| **REJECTED** | `ofn/kernel/callbudget.py` | — |
+
+**BQ-1 CLOSED** — corrected target approved as traced.
+**BQ-2 CLOSED** — owner chose the **halt check at the direct call site** for
+`assistant_update.py:32` (the packet's recommendation).
+**No rework is required**: the patches in §1 and §2.2 are already exactly the approved
+shape. `callbudget.py` is formally **out of OD-4 scope**.
+
+### Owner's non-negotiable order (binding on this lane)
+
+1. Build doctor first. 2. Run doctor once offline. 3. Produce machine-readable pre/post
+receipts for coverage. 4. **Only then** apply the narrow wiring.
+
+This lane performs **none of 1–4 as implementation**; it delivers the spec, the prep
+packet, and the coverage proof. The wiring is step 4 and is **not authorized yet**.
+
+### Why the originally-named target was wrong (audit trail — kept, not deleted)
 
 The owner named **`callbudget.py`** as "the text model budget path". The trace says
-otherwise, and this is the same failure class this lane series has been documenting,
-now applied to the instruction itself.
+otherwise — the same failure class this lane series documents, applied to the
+instruction itself.
 
 **`callbudget.CallBudget` gates neither of the two live model-egress consumers.**
 
@@ -48,17 +74,106 @@ site.
 
 Full trace with commands: `CONSUMER-MAP.json` (this directory).
 
-### BQ-1 (blocking)
-> Confirm the corrected target for effect B: the model **admission point** in
-> `ofn/adapters/router.py` (covers all three router callers, including the live worker),
-> **plus** the direct call in `ofn/assistant_update.py:32` (which bypasses the router
-> entirely and is ungated by any budget mechanism).
+### Resolution of the owner's stop condition
 
-### BQ-2 (non-blocking, has a recommendation)
-> For B-2, add the halt check at the direct call site (**recommended** — minimal, no
-> behaviour change beyond halt), or route `assistant_update` through `ModelRouter.ask`
-> (larger; would also subject it to `NodeQuota`, i.e. a budget-behaviour change the
-> owner excluded from this scope)?
+The card says: *"If any consumer path is still UNVERIFIED, stop and report instead of
+guessing."* Precision matters here, so it is stated explicitly:
+
+| Question | Verdict |
+|---|---|
+| Is the **consumer set** of effect A resolved? | **YES** — one consumer, traced to a single production call line |
+| Is the **consumer set** of effect B resolved? | **YES** — two consumers, both traced to their egress sites |
+| Is any **consumer path** UNVERIFIED? | **NO** — all three consumer paths are `WIRED` and proven by command + output |
+| Is anything about these effects still UNVERIFIED? | **YES, but not the consumer paths** — three *environmental* items (below) |
+
+**The three UNVERIFIED items are runtime/environmental, not structural:**
+
+1. **U-1** — which exact path each running service resolves at runtime, and the on-node
+   file state (`absent`/`present`/`malformed`/`unreadable`/`symlink`). *Forbidden to
+   observe in this lane.*
+2. **U-2** — deployed env values (`OFN_KEEP_GATES_OPEN`, `OFN_EXTRA_CLOSED_GATES`,
+   presence of `remote_api_key`). Effect B is only reachable if a remote key is present
+   (`build_brains` wires hosted rungs only then). *Not read, not contacted.*
+3. **U-3** — whether an out-of-repo `octopus-*` unit invokes a model or send path.
+   *Outside this repo.*
+
+**Therefore the stop condition does NOT fire**, and it is exactly why the owner's order
+puts the doctor before the wiring: U-1 and U-2 are what the doctor's Half B captures.
+No guessing is required anywhere in this packet — the structural claims are all verified,
+and the environmental unknowns are named as unknowns.
+
+---
+
+## 0.5 COVERAGE PROOF (owner success definition: *prove coverage, not just path correctness*)
+
+Path correctness answers "does execution get from the caller to the egress?".
+Coverage answers "does the canonical halt oracle actually **stop** it?" These are
+different questions, and only the second is what OD-4 is for.
+
+Labels are restricted to the four the owner authorized: `WIRED` / `TESTED_ONLY` /
+`DOC_ONLY` / `UNVERIFIED`.
+
+### 0.5.1 Current coverage — the "pre" state (expected doctor output)
+
+| Effect | Consumer | Path correctness | **Halt-oracle COVERAGE today** | Any budget gate? | Basis |
+|---|---|---|---|---|---|
+| **A** | `node.py:3607` (`ReleaseContext.kill_switch_active`) | **WIRED** | **DOC_ONLY** | `CallBudget` (rate-limit slot) | the in-process `self.killed` is `WIRED`; the **file oracle is not consulted on this path**, though `AGENTS.md` GOV-V7 documents it as the safeguard. Verified: `node.py:3600-3616` reads `kill_switch_active=self.killed` only |
+| **B-1** | `router.py:130` `ModelRouter.ask` (live worker + `node.py:1277` + `node.py:1721`) | **WIRED** | **DOC_ONLY** | `NodeQuota` (`router.py:214`) | `master_halted()` is not called; `callbudget.py:80` states *"HALT is not consulted"*. The oracle is documented as the node-wide stop and is absent from this path |
+| **B-2** | `assistant_update.py:32` (direct `RemoteBrain.answer`) | **WIRED** | **DOC_ONLY** | **none — verified absent** | no quota, no budget, no halt on this path; live daily via `ofn-assistant-update.timer` (04:10) |
+
+**Verdict summary for the pre state: 3 consumers, 0 of 3 covered by the canonical
+oracle.** All three path-correct, all three coverage-`DOC_ONLY`.
+
+> **Vocabulary gap, reported honestly.** The four authorized labels have no value for
+> "verified absent, and not even documented as applying here" — which is the literal
+> state of B-2's budget gate. `DOC_ONLY` is used because the oracle *is* documented as a
+> node-wide safeguard, but the label undersells a consumer with **no gate of any kind**.
+> Flagged rather than silently stretched; if the owner wants a fifth label (e.g.
+> `ABSENT`), that is a vocabulary decision, not this lane's to make.
+
+### 0.5.2 Target coverage — the "post" state (what a successful wiring must produce)
+
+| Effect | Consumer | Halt-oracle coverage after wiring | How it is proven |
+|---|---|---|---|
+| **A** | `node.py:3607` | **WIRED** | test T2: refusal with the **exact** rule `release:kill-switch-active`; T5 wiring test |
+| **B-1** | `router.py` admission | **WIRED** | test T4: `refused_code == "route:halt"` **and** zero calls to `RemoteBrain.answer` |
+| **B-2** | `assistant_update.py:32` | **WIRED** | test T6: `RemoteBrain` constructor never called when halted |
+
+**Success is a coverage transition, not a green test suite:** `DOC_ONLY → WIRED` for
+exactly these three consumers, and **no other consumer's label may change**. A diff that
+alters any other consumer's coverage has left OD-4 scope (see §4.3).
+
+### 0.5.3 Pre/post receipt contract (owner order step 3)
+
+The wiring may not be applied until both receipts exist and are machine-readable. The
+doctor emits them; this packet defines the shape so step 3 is auditable.
+
+```json
+{
+  "schema": "octopus.halt-coverage-receipt.v1",
+  "phase": "PRE | POST",
+  "captured_at_utc": "<ISO8601>",
+  "runtime_identity": {"commit": "<sha of F:/ofn-node HEAD>", "host": "<declared>"},
+  "canonical_oracle": {"resolved_path": "<path>", "state": "absent|present|malformed|unreadable|symlink",
+                       "predicate": "RUNNING|HALTED|UNKNOWN"},
+  "consumers": [
+    {"effect_id": "E-A-telegram-send", "consumer": "ofn/node.py:3607",
+     "coverage": "DOC_ONLY", "evidence": "<command or test id>", "unchanged_since_pre": null},
+    {"effect_id": "E-B-text-model-spend", "consumer": "ofn/adapters/router.py:130",
+     "coverage": "DOC_ONLY", "evidence": "<command or test id>", "unchanged_since_pre": null},
+    {"effect_id": "E-B-text-model-spend", "consumer": "ofn/assistant_update.py:32",
+     "coverage": "DOC_ONLY", "evidence": "<command or test id>", "unchanged_since_pre": null}
+  ],
+  "out_of_scope_consumers": {"checked": true, "any_label_changed": false},
+  "mutations_performed": 0
+}
+```
+
+Rules: exactly three consumer rows (T-rows beyond three mean scope creep); `phase: PRE`
+must exist **before** any wiring lands; `phase: POST` must show all three at `WIRED` and
+`out_of_scope_consumers.any_label_changed == false`; `mutations_performed` is always `0`.
+
+---
 
 ---
 
@@ -288,19 +403,30 @@ landed and rolled back without touching B.
 
 ## 7. What must happen before this becomes implementable
 
-1. **BQ-1 answered** — the corrected target for effect B confirmed (or the owner
-   reaffirms `callbudget.py`, in which case the packet must be rewritten and the
-   ineffectiveness recorded as an accepted limitation, not a fix).
-2. **BQ-2 answered** — or the recommendation accepted.
-3. **The doctor built and run once offline** (OD-1 clauses 3–5). The owner's OD-4
-   constraint says "Audit must remain read-only until pre/post evidence is captured in
-   machine-readable receipts" — the doctor is what captures the *pre* evidence. Landing
-   a halt-coverage change *before* we can observe what the oracle currently resolves
-   would repeat the mistake of acting before measuring.
-4. **Class B rules apply to deployment.** The edit itself is code-in-repo (Class A once
-   reviewed), but *deploying* it to the live node is Class B and requires the
-   independent witness. This lane does neither.
+BQ-1 and BQ-2 are **closed** (§0). The remaining gates are the owner's own numbered
+order, which is binding:
 
-**Stop point.** Per the owner's evidence rule, this lane stops here: the consumer claim
-for effect B did not resolve to the named target, so no partial implementation is
-produced.
+| Owner order step | State | Note |
+|---|---|---|
+| 1. Build doctor first | **not done** | authorized read-only (OD-1 clause 3 + this card); spec + fixture harness complete at `HALT-ORACLE-DOCTOR-SPEC.md` §1–§8 |
+| 2. Run doctor once **offline** | **not done** | must be offline; no live-node execution is authorized |
+| 3. Machine-readable pre/post receipts for coverage | **contract defined** (§0.5.3) | the `PRE` receipt must exist before any wiring lands |
+| 4. **Only then** apply the narrow wiring | **NOT AUTHORIZED** | blocked on 1–3 |
+
+Additional gates:
+
+- **Class B rules apply to deployment.** The four-file edit is code-in-repo, but
+  *deploying* it to a live node is Class B and requires the independent witness. This
+  lane does neither.
+- **Scope lock.** The implementation must map to exactly the three consumer rows in
+  §0.5.2. Any change that alters coverage for any other consumer, or that introduces a
+  shared/global guard, is outside OD-4 and must be re-carded — the owner's
+  "no scope expansion into generalized guard architecture" and "nothing else counts as
+  OD-4 scope".
+- **No live ablation.** Testing this must never involve arming a real halt flag on a live
+  node; the fixture harness and the injected/substituted oracle are how it is tested.
+
+**Stop point for this lane.** The card says *"No implementation in this lane."* This lane
+therefore stops here having produced: the approved-target confirmation, the coverage
+proof (§0.5), the pre/post receipt contract, the exact diff plans, the test set, the
+rollback path, and the zero-live-change attestation. **No wiring code has been written.**
