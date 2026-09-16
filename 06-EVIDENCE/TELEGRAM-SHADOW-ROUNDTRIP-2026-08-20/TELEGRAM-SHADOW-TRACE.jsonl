@@ -1,2 +1,0 @@
-{"step": "normalize+auth+intent", "state": "INTENT_COMMITTED", "duplicate": false, "task_id": "task_19d84b590475fcd8d75c018f", "run_id": "run_1dc34abaacd04ecba8f2479b9933caa5", "correlation_id": "corr_26f9eceb627c95369d3bad5f"}
-{"step": "deliver+readback", "delivery": "CONFIRMED", "closed": "CLOSED", "readback": true}

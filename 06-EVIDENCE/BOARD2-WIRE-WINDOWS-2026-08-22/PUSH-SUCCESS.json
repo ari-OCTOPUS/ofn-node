@@ -1,9 +1,0 @@
-﻿{
-  "attempted_at_local": "2026-08-22T17:17:44+10:00",
-  "remote": "https://github.com/ari322/ofn-node.git",
-  "branch": "ofn/wire",
-  "exit_code": 0,
-  "range": "bed6219..ca038d4",
-  "blocked": false,
-  "note": "Retry succeeded via credential.helper=manager; earlier PUSH-ATTEMPT.json recorded the failed first try"
-}

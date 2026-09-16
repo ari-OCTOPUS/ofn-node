@@ -1,9 +1,0 @@
-{
-  "board_sha256": "a9f6e85cf6f08209840018408f03cd9da99ee7838f789a14fc7ec04f48dde1c4",
-  "homeostasis_sha256": "7f9c3e69e0d9d4298ad05c0d724467746e6feb268ed240d9a4b9ae8b542ca62d",
-  "authority_lines": {
-    "board": "actuator_authority: PERMITTED_SOFTWARE_A0",
-    "homeostasis": "actuator_authority: PERMITTED_SOFTWARE_A0"
-  },
-  "armed": false
-}

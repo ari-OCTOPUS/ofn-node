@@ -1,1 +1,0 @@
-﻿{"stamp":"2026-08-24","A_of_adapter":"ABSENT","platforms":["bluesky","email_ses","shopify","telegram_channel","telegram_readonly"],"B_inventory":{"eligible":[],"hold_empty":"shot-0003..0022","skip":"shot-0001,0002"},"C_next":"TG needs captions; OF needs adapter build + owner GO","wires":"OUTBOUND/PUBLISH/KEEP=1","no_live_of":true,"no_invent":true}

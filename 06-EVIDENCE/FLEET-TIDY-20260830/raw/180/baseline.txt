@@ -1,9 +1,0 @@
-==LAB_TRACKED_PY==
-94
-artifacts/capability-awakening/run_canary.py
-artifacts/completion-phase3/deploy_live_skin.py
-artifacts/completion-phase3/run_fresh_soak_15min.py
-bin/checkpoint-watcher.py
-bin/post-reboot-first-stage.py
-LAB_COMPILE_RC=0
-LAB_TESTS_DIR_RC=0

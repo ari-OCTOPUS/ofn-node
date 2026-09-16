@@ -1,5 +1,0 @@
-OCTOPUS 4d Consolidation Tick => C:\Program Files\Python313\python.exe -X utf8 F:\backup\_ops\audit\consolidation_4d_tick.py
-organism-watchdog => powershell.exe -NoProfile -WindowStyle Hidden -File "F:\backup\04 - Architect System\scripts\organism-watchdog.ps1"
-OCTOPUS-Cockpit-Brain => powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "F:\backup\_ops\cockpit-brain-run.ps1"
-OCTOPUS-Live-Watchdog => powershell -NoProfile -ExecutionPolicy Bypass -File F:\backup\_ops\live-watchdog.ps1
-OCTOPUS-Cortex-Watchdog => powershell -NoProfile -ExecutionPolicy Bypass -File F:\backup\_ops\cortex-watchdog.ps1

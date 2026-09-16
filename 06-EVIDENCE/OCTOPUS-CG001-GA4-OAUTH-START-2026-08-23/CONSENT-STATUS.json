@@ -1,9 +1,0 @@
-{
-  "ok": true,
-  "has_refresh_token": true,
-  "token_bytes": 738,
-  "scopes": [
-    "https://www.googleapis.com/auth/analytics.readonly"
-  ],
-  "metrics_allowed": false
-}

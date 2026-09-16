@@ -1,6 +1,0 @@
-=== REPO=/f/_______Black Box
---remotes:
---HEAD=48bd97585fda21d2d46f5e17bcd3f144dc152273
-* master 48bd975 blackbox: untrack a Windows junction and shell metadata
-## master
-TRACKED=98

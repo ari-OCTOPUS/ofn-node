@@ -1,9 +1,0 @@
-{
-  "status": "PASS_PROPOSE",
-  "sidecar": "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-TOPOLOGY-2026-08-23/SUPERSEDE-WIRE-STATE-2026-08-23.json",
-  "note": "topology historical pack not rewritten; supersede sidecar only",
-  "gap_id": "G16",
-  "stamp_local": "2026-08-23T09:05:12+10:00",
-  "timezone": "Australia/Sydney",
-  "agent": "Ios"
-}

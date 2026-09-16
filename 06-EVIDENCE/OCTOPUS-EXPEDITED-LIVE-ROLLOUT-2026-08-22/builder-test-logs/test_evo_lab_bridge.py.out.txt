@@ -1,9 +1,0 @@
-  OK  t_a_rfc_invokes_lab_writes_artifact_and_outbox
-  OK  t_b_evolution_propose_is_the_same_path
-  OK  t_c_doctor_hooks_call_bridge
-  OK  t_d_controller_exposes_run_rfc_cycle
-  OK  t_e_no_live_send_and_no_promote
-
-test_evo_lab_bridge: 5/5
-
----STDERR---

@@ -1,9 +1,0 @@
-﻿{
-    "url":  "http://192.168.0.182:9101/metrics",
-    "timeout_s":  5,
-    "ok":  true,
-    "status_code":  200,
-    "elapsed_ms":  69,
-    "body_bytes":  3063,
-    "body_preview":  "# HELP octopus_stability_distance RMS excess outside healthy host ranges\n# TYPE octopus_stability_distance gauge\noctopus_stability_distance 0.000000\n# HELP octopus_stability_in_envelope 1 if host variables are in healthy ranges\n# TYPE octopus_stability_in_envelope gauge\noctopus_stability_in_envelope 1\n# HELP octopus_homeostasis_ok 1 if host ranges and data health are both ok\n# TYPE octopus_homeostasis_ok gauge\noctopus_homeostasis_ok 1\n# HELP octopus_homeostasis_energy_ratio Headroom vs max(cpu, "
-}

@@ -1,8 +1,0 @@
-{
-  "gap": "G11",
-  "stamp_local": "2026-08-23T09:15:00+10:00",
-  "slice": "BOARD2",
-  "status": "HOLD",
-  "verdict": "OFN wire/flags ON vs auto_* CLOSED; studio manual \u2014 Board2 lane",
-  "reason": "owner/external blocker \u2014 folded into CLOSE-MATRIX as HOLD"
-}

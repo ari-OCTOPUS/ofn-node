@@ -1,9 +1,0 @@
-# پیشنهاد برای ari-OCTOPUS/ofn-node — فقط پیشنهاد
-@@ بررسی شود: آیا این الگوها در ریشه لازم است؟ @@
-+*.db-wal
-+*.db-shm
-+*.sqlite*
-+.pytest_cache/
-+__pycache__/
-+.tmp-test*/
-+06-EVIDENCE/runtime-provenance-*/

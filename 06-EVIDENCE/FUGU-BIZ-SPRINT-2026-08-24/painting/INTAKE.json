@@ -1,6 +1,0 @@
-﻿{
-  "channels_candidate": ["telegram", "form", "miniapp"],
-  "canonical_pick_pending_owner": true,
-  "default_assumption_until_GO": "telegram_intake_json",
-  "schema": "painting/schema/lead.schema.json"
-}

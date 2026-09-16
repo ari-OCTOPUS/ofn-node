@@ -1,9 +1,0 @@
-{
-  "transition": "T2",
-  "chain_verify": true,
-  "checkpoint_verify": false,
-  "signature_status": "VERIFIED",
-  "gap_002": "CLOSED_BY_SIGNED_CHECKPOINT",
-  "phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
-  "represents_latest_state": false
-}

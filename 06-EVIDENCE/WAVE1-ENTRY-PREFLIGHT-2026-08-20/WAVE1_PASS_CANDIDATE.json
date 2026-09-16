@@ -1,9 +1,0 @@
-{
-  "schema": "wave1-pass-candidate/1",
-  "ts": "2026-08-20T13:08:45+00:00",
-  "status": "WAVE1_PASS_CANDIDATE",
-  "wave0_governor_wave1_unlocked": false,
-  "canary_scope": "sidecar-fixture-only",
-  "prompt_injection": false,
-  "memory_writes": false
-}

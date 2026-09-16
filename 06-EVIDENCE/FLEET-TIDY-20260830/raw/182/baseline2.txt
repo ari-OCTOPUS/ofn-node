@@ -1,7 +1,0 @@
-  File "/tmp/oct182-preserve-work/octopus-agent/exchange/tests/test_exchange.py", line 12, in <module>
-    import pytest
-ModuleNotFoundError: No module named 'pytest'
-    return io.open(self, mode, buffering, encoding, errors, newline)
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/tmp/oct182-preserve-work/octopus-agent/FIXTURES/tainted.jsonl'
-test_validator.py

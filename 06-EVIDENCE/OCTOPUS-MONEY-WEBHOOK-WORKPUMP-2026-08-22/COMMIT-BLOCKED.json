@@ -1,7 +1,0 @@
-﻿{
-    "commit_completed":  false,
-    "timestamp":  "2026-08-22T19:25:00+10:00",
-    "schema":  "commit-blocked/1",
-    "reason":  "concurrent germline push held F:\\backup\\.git\\index.lock",
-    "staged":  true
-}
