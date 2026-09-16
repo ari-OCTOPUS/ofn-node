@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(ls -la 'C:\\\\Users\\\\Armin\\\\Desktop\\\\backup\\\\04 - Architect System\\\\')",
-      "Bash(python '04 - Architect System/scripts/validate_frontmatter.py')"
-    ]
-  }
-}

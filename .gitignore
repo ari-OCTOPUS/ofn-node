@@ -276,3 +276,11 @@ _ops/state/board_cp/
 # handshake live copies (canonical JSON is 06-EVIDENCE/envelopes/)
 _ops/state/handshake/
 _ops/legs/mail_credentials.py
+
+
+
+
+# Ignore Smart Environment folder
+.smart-env
+# secret-leak guard 2026-09-16: tool hook-state snapshots captured live tokens
+**/.mimosa/hook-state/

@@ -11,7 +11,7 @@ scout.py — Venture Mining Scout Agent (Phase 1 Defenses Included)
     pip install requests beautifulsoup4 feedparser python-dotenv
 
 ساخت فایل .env در همین پوشه با محتوای زیر:
-    GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+    GITHUB_TOKEN=REDACTED-ghp-see-env-GITHUB_TOKEN
     COINGECKO_API_KEY=<REDACTED-COINGECKO>
     SOCHAIN_API_KEY=optional_xxxxxxxxxxxx
 

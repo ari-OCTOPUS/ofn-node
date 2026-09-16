@@ -1,7 +1,0 @@
-# هسته
-python-telegram-bot[job-queue]==21.6
-python-dotenv==1.0.1
-# اختیاری — فقط اگر provider مربوطه را استفاده کنی
-anthropic==0.39.0          # برای CLAUDE_KEY
-openai==1.54.0             # برای CHATBOX (DeepSeek / OpenAI-compatible)
-httpx<0.28                 # قفلِ سازگاری: openai==1.54.0 با httpx>=0.28 خطای proxies می‌دهد

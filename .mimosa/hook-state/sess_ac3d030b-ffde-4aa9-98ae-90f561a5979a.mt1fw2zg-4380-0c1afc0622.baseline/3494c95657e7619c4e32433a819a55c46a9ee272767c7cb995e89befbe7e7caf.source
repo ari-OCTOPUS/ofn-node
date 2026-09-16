@@ -1,4 +1,0 @@
-python-telegram-bot==21.6
-PyYAML>=6.0
-psutil>=5.9
-pykeepass>=4.1
